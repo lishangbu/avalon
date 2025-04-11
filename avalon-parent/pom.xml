@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.github.lishangbu</groupId>
+    <artifactId>avalon-dependencies</artifactId>
+    <version>${revision}</version>
+    <relativePath>../avalon-dependencies/pom.xml</relativePath>
+  </parent>
+  <artifactId>avalon-parent</artifactId>
+  <packaging>pom</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <configuration>
+            <!--https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/#build-image-->
+            <finalName>${project.artifactId}</finalName>
+            <image>
+              <name>${docker.repository}/${docker.image.prefix}/${project.artifactId}</name>
+              <tags>
+                <tag>latest</tag>
+              </tags>
+            </image>
+            <layers>
+              <enabled>true</enabled>
+            </layers>
+            <publish>false</publish>
+            <pullPolicy>IF_NOT_PRESENT</pullPolicy>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>repackage</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <style>GOOGLE</style>
+              <!-- or AOSP (optional) -->
+              <reflowLongStrings>true</reflowLongStrings>
+              <!-- optional -->
+              <formatJavadoc>true</formatJavadoc>
+              <!-- optional -->
+            </googleJavaFormat>
+          </java>
+          <pom>
+            <sortPom>
+              <!-- pom 文件的编码方式 -->
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <!-- 使用的行分隔符 -->
+              <lineSeparator>\n</lineSeparator>
+              <!-- 是否展开空元素 -->
+              <expandEmptyElements>false</expandEmptyElements>
+              <!-- 自闭合元素内部是否添加空格 -->
+              <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+              <!-- 是否保留空行 -->
+              <keepBlankLines>false</keepBlankLines>
+              <!-- 排序后的 pom 文件是否以换行符结束 -->
+              <endWithNewline>true</endWithNewline>
+              <!-- 缩进空格数 -->
+              <nrOfIndentSpace>2</nrOfIndentSpace>
+              <!-- 是否对空行进行缩进 -->
+              <indentBlankLines>true</indentBlankLines>
+              <!-- 是否对 schema 位置进行缩进 -->
+              <indentSchemaLocation>true</indentSchemaLocation>
+              <!-- 元素的排序顺序：https://github.com/Ekryd/sortpom/wiki/PredefinedSortOrderProfiles -->
+              <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+              <!-- 是否排序依赖项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencies>scope,groupId,artifactId</sortDependencies>
+              <!-- 排序依赖管理：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencyManagement>scope,groupId,artifactId</sortDependencyManagement>
+              <!-- 排序依赖排除项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
+              <!-- 排序插件：https://github.com/Ekryd/sortpom/wiki/SortPlugins -->
+              <sortPlugins>groupId,artifactId</sortPlugins>
+              <!-- 是否排序属性 -->
+              <sortProperties>true</sortProperties>
+              <!-- 是否排序模块 -->
+              <sortModules>true</sortModules>
+              <!-- 是否排序插件执行项 -->
+              <sortExecutions>true</sortExecutions>
+            </sortPom>
+          </pom>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok-mapstruct-binding</artifactId>
+              <version>0.2.0</version>
+            </path>
+          </annotationProcessorPaths>
+          <parameters>true</parameters>
+          <release>${java.version}</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten.clean</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <phase>clean</phase>
+          </execution>
+          <execution>
+            <id>flatten</id>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

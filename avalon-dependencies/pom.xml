@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.4.4</version>
+    <relativePath />
+  </parent>
+  <groupId>io.github.lishangbu</groupId>
+  <artifactId>avalon-dependencies</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+  <description>Avalon Dependencies</description>
+  <properties>
+    <!--docker镜像前缀-->
+    <docker.image.prefix>slf4j</docker.image.prefix>
+    <!--docker私服地址-->
+    <docker.repository>docker.io</docker.repository>
+    <flatten-maven-plugin.version>1.7.0</flatten-maven-plugin.version>
+    <java.version>21</java.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <revision>1.0.0-SNAPSHOT</revision>
+    <spotless-maven-plugin.version>2.44.3</spotless-maven-plugin.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-auth-model</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-auth-repository</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-auth-service-definition</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-auth-service-implementation</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-auth-web</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-json-support</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-key-generator</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-orm-support</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-security-support</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-web-support</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${jjwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>${flatten-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.hibernate.orm.tooling</groupId>
+          <artifactId>hibernate-enhance-maven-plugin</artifactId>
+          <version>${hibernate.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <configuration>
+          <pom>
+            <sortPom>
+              <!-- 使用的行分隔符 -->
+              <lineSeparator>\n</lineSeparator>
+              <!-- 是否展开空元素 -->
+              <expandEmptyElements>false</expandEmptyElements>
+              <!-- 自闭合元素内部是否添加空格 -->
+              <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+              <!-- 是否保留空行 -->
+              <keepBlankLines>false</keepBlankLines>
+              <!-- 排序后的 pom 文件是否以换行符结束 -->
+              <endWithNewline>true</endWithNewline>
+              <!-- 缩进空格数 -->
+              <nrOfIndentSpace>2</nrOfIndentSpace>
+              <!-- 是否对空行进行缩进 -->
+              <indentBlankLines>true</indentBlankLines>
+              <!-- 是否对 schema 位置进行缩进 -->
+              <indentSchemaLocation>true</indentSchemaLocation>
+              <!-- 元素的排序顺序：https://github.com/Ekryd/sortpom/wiki/PredefinedSortOrderProfiles -->
+              <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+              <!-- 是否排序依赖项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencies>scope,groupId,artifactId</sortDependencies>
+              <!-- 排序依赖管理：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencyManagement>scope,groupId,artifactId</sortDependencyManagement>
+              <!-- 排序依赖排除项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->
+              <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
+              <!-- 排序插件：https://github.com/Ekryd/sortpom/wiki/SortPlugins -->
+              <sortPlugins>groupId,artifactId</sortPlugins>
+              <!-- 是否排序属性 -->
+              <sortProperties>true</sortProperties>
+            </sortPom>
+          </pom>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
