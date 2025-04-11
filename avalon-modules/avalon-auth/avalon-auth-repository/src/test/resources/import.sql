@@ -1,0 +1,1 @@
+insert into role (id,code) values (1,'ROLE_TEST');
