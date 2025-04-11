@@ -1,5 +1,5 @@
 <div style="text-align: center;">
-    <img src="https://github.com/lishangbu/avalon/actions/workflows/maven/badge.svg" alt="Build Status"/>
+    <img src="https://github.com/lishangbu/avalon/actions/workflows/maven.yml/badge.svg" alt="Build Status"/>
     <img src="https://img.shields.io/github/license/lishangbu/avalon" alt="License"/>
 </div>
 
