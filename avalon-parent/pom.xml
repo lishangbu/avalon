@@ -27,6 +27,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>${project.artifactId}</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -34,7 +35,6 @@
           <artifactId>spring-boot-maven-plugin</artifactId>
           <configuration>
             <!--https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/#build-image-->
-            <finalName>${project.artifactId}</finalName>
             <image>
               <name>${docker.repository}/${docker.image.prefix}/${project.artifactId}</name>
               <tags>
