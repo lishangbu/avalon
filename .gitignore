@@ -37,3 +37,6 @@ build/
 
 ### macOS System File ###
 .DS_Store
+
+### Ip Data File ###
+IP2LOCATION-LITE-DB11**.BIN

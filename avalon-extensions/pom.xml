@@ -7,10 +7,10 @@
     <artifactId>avalon</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-modules</artifactId>
+  <artifactId>avalon-extensions</artifactId>
   <packaging>pom</packaging>
-  <description>项目模块整合</description>
+  <description>使用了第三方jar包的一些外部扩展</description>
   <modules>
-    <module>avalon-auth</module>
+    <module>avalon-ip2location-spring-boot-starter</module>
   </modules>
 </project>

@@ -19,6 +19,7 @@
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.0</flatten-maven-plugin.version>
+    <ip2location.version>1.2.4</ip2location.version>
     <java.version>21</java.version>
     <jjwt.version>0.12.6</jjwt.version>
     <mapstruct.version>1.6.3</mapstruct.version>
@@ -54,6 +55,11 @@
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-ip2location-spring-boot-starter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-json-support</artifactId>
         <version>${revision}</version>
       </dependency>
@@ -81,6 +87,11 @@
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt-api</artifactId>
         <version>${jjwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.renfei</groupId>
+        <artifactId>ip2location</artifactId>
+        <version>${ip2location.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mapstruct</groupId>
