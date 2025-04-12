@@ -3,13 +3,16 @@ package io.github.lishangbu.avalon.ip2location.core;
 import io.github.lishangbu.avalon.ip2location.exception.*;
 import io.github.lishangbu.avalon.ip2location.properties.IpToLocationProperties;
 import java.io.IOException;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.renfei.ip2location.IP2Location;
 import net.renfei.ip2location.IPResult;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StreamUtils;
 
 /**
  * Ip搜索器
@@ -22,6 +25,9 @@ import org.springframework.util.ResourceUtils;
 public class IpToLocationSearcher implements InitializingBean, DisposableBean {
 
   private final IpToLocationProperties ipToLocationProperties;
+
+  private final ResourceLoader resourceLoader;
+
   private IP2Location loc;
 
   /**
@@ -76,7 +82,10 @@ public class IpToLocationSearcher implements InitializingBean, DisposableBean {
   public void afterPropertiesSet() throws Exception {
     if (loc == null) {
       loc = new IP2Location();
-      loc.Open(ResourceUtils.getFile(ipToLocationProperties.getDbFileLocation()).getPath(), true);
+      Resource resource = resourceLoader.getResource(ipToLocationProperties.getDbFileLocation());
+      try (InputStream inputStream = resource.getInputStream()) {
+        loc.Open(StreamUtils.copyToByteArray(inputStream));
+      }
     }
   }
 }
