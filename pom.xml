@@ -12,11 +12,35 @@
   <packaging>pom</packaging>
   <name>avalon</name>
   <description>Avalon is a game similar to Pokémon</description>
+  <inceptionYear>2024</inceptionYear>
+  <licenses>
+    <license>
+      <name>AGPL-V3 License</name>
+      <url>https://opensource.org/license/agpl-v3</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>lisb</id>
+      <name>Shangbu Li</name>
+    </developer>
+  </developers>
   <modules>
     <module>avalon-dependencies</module>
+    <module>avalon-extensions</module>
     <module>avalon-modules</module>
     <module>avalon-parent</module>
     <module>avalon-server</module>
     <module>avalon-support</module>
   </modules>
+  <scm>
+    <connection>scm:git:https://github.com/lishangbu/avalon.git</connection>
+    <developerConnection>scm:git:https://github.com/lishangbu/avalon.git</developerConnection>
+    <url>https://github.com/lishangbu/avalon</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/lishangbu/avalon/issues</url>
+  </issueManagement>
 </project>
