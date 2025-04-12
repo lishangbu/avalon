@@ -24,7 +24,7 @@
     <jjwt.version>0.12.6</jjwt.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <revision>1.0.0-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>2.44.3</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
   </properties>
   <dependencyManagement>
     <dependencies>
