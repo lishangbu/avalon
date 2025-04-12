@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.security.core.UserPrincipal;
 import io.github.lishangbu.avalon.security.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.ResourceUtils;
 
 @RequiredArgsConstructor
 public class JwtUtils implements InitializingBean {
@@ -28,6 +28,8 @@ public class JwtUtils implements InitializingBean {
   private RSAPrivateKey privateKey;
 
   private final JwtProperties jwtProperties;
+
+  private final ResourceLoader resourceLoader;
 
   /**
    * 基于认证对象生成访问jwt
@@ -129,15 +131,13 @@ public class JwtUtils implements InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    this.publicKey =
-        loadPublicKey(
-            new String(
-                Files.readAllBytes(
-                    ResourceUtils.getFile(jwtProperties.getPublicKeyPath()).toPath())));
-    this.privateKey =
-        loadPrivateKey(
-            new String(
-                Files.readAllBytes(
-                    ResourceUtils.getFile(jwtProperties.getPrivateKeyPath()).toPath())));
+    try (InputStream inputStream =
+        resourceLoader.getResource(jwtProperties.getPublicKeyPath()).getInputStream()) {
+      this.publicKey = loadPublicKey(new String(inputStream.readAllBytes()));
+    }
+    try (InputStream inputStream =
+        resourceLoader.getResource(jwtProperties.getPrivateKeyPath()).getInputStream()) {
+      this.privateKey = loadPrivateKey(new String(inputStream.readAllBytes()));
+    }
   }
 }
