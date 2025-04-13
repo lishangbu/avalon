@@ -174,4 +174,19 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <distributionManagement>
+        <repository>
+          <id>deploymentRepo</id>
+          <url>http://127.0.0.1:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+          <id>deploymentRepo</id>
+          <url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+  </profiles>
 </project>

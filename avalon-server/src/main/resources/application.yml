@@ -1,13 +1,8 @@
 spring:
   application:
     name: avalon
-  datasource:
-    url: jdbc:postgresql://localhost:5432/avalon
-    username: postgres
-    password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+  profiles:
+    active: @profiles.active@
   security:
     ignore-urls:
       - /token/sign-in
