@@ -29,7 +29,9 @@
               <goal>enhance</goal>
             </goals>
             <configuration>
+              <enableAssociationManagement>true</enableAssociationManagement>
               <enableLazyInitialization>true</enableLazyInitialization>
+              <enableDirtyTracking>true</enableDirtyTracking>
             </configuration>
           </execution>
         </executions>
