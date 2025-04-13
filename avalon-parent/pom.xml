@@ -37,15 +37,16 @@
             <!--https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/#build-image-->
             <image>
               <name>${docker.repository}/${docker.image.prefix}/${project.artifactId}</name>
+              <publish>false</publish>
+              <pullPolicy>IF_NOT_PRESENT</pullPolicy>
               <tags>
                 <tag>latest</tag>
               </tags>
+              <verboseLogging>true</verboseLogging>
             </image>
             <layers>
               <enabled>true</enabled>
             </layers>
-            <publish>false</publish>
-            <pullPolicy>IF_NOT_PRESENT</pullPolicy>
           </configuration>
           <executions>
             <execution>
