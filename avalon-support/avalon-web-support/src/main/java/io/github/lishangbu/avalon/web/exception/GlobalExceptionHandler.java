@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.web.result.ApiResult;
 import io.github.lishangbu.avalon.web.result.WebApiResultCode;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -76,8 +78,12 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiResult<Void> handleBodyValidException(MethodArgumentNotValidException exception) {
     List<FieldError> fieldErrors = exception.getBindingResult().getFieldErrors();
-    log.error("参数绑定异常:[{}]", fieldErrors.get(0).getDefaultMessage());
-    return ApiResult.failed(WebApiResultCode.BAD_REQUEST, fieldErrors.get(0).getDefaultMessage());
+    String errorMsg =
+        fieldErrors.stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(","));
+    log.error("参数绑定异常:[{}]", errorMsg);
+    return ApiResult.failed(WebApiResultCode.BAD_REQUEST, errorMsg);
   }
 
   /**

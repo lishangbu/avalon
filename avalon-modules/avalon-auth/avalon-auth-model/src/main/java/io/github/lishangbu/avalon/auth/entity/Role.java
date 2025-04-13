@@ -7,6 +7,7 @@ import org.hibernate.annotations.Comment;
 
 @Entity
 @Data
+@Comment("角色")
 public class Role {
   @Id
   @FlexIdGenerator
