@@ -19,12 +19,13 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Entity
 @Table(
-    name = "[user]",
+    name = "[USER]",
     uniqueConstraints = {
       @UniqueConstraint(
           name = "UK_USER_USERNAME",
-          columnNames = {"username"})
+          columnNames = {"USERNAME"})
     })
+@Comment("用户")
 public class User {
 
   @Id
@@ -43,8 +44,8 @@ public class User {
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
-      name = "user_role",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "role_id"))
+      name = "USER_ROLE",
+      joinColumns = @JoinColumn(name = "USER_ID"),
+      inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
   private Set<Role> roles;
 }
