@@ -4,14 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon</artifactId>
+    <artifactId>avalon-modules</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-modules</artifactId>
+  <artifactId>avalon-dataset</artifactId>
   <packaging>pom</packaging>
-  <description>项目模块整合</description>
   <modules>
-    <module>avalon-auth</module>
-    <module>avalon-dataset</module>
+    <module>avalon-dataset-model</module>
+    <module>avalon-dataset-repository</module>
   </modules>
 </project>

@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.auth.entity;
 
 import io.github.lishangbu.avalon.orm.id.annotation.FlexIdGenerator;
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Set;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -26,7 +28,8 @@ import org.hibernate.annotations.DynamicUpdate;
           columnNames = {"USERNAME"})
     })
 @Comment("用户")
-public class User {
+public class User implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   @Id
   @FlexIdGenerator

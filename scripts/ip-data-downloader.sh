@@ -1,7 +1,7 @@
 #!/bin/sh
 # Author: Shangbu Li
 # 数据来源https://github.com/renfei/ip2location
-# 加速方案:https://github.akams.cn/
+# 加速方案:https://github.akams.cn
 
 # 获取脚本所在的目录并切换到上一级目录
 ROOT_DIR=$(dirname "$(dirname "$0")")
