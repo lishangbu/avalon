@@ -11,4 +11,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @EntityScan(basePackages = "io.github.lishangbu.avalon.auth.entity")
 @EnableJpaRepositories(basePackages = "io.github.lishangbu.avalon.auth.repository")
-public class TestEnvironmentConfiguration {}
+public class AuthRepositoryTestEnvironmentConfiguration {}
