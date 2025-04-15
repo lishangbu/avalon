@@ -1,6 +1,8 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -19,7 +21,9 @@ import org.hibernate.annotations.Comment;
           name = "UK_MOVE_CATEGORY_NAME",
           columnNames = {"NAME"})
     })
-public class MoveCategory {
+public class MoveCategory implements Serializable {
+
+  @Serial private static final long serialVersionUID = 1L;
 
   /** 分类 */
   @Id

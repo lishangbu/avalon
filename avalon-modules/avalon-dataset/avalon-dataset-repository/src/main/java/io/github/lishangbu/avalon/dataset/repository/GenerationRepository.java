@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/14
  */
 @Repository
-public interface GenerationRepository extends JpaRepository<Generation, Long> {
+public interface GenerationRepository extends JpaRepository<Generation, Integer> {
 
   Optional<Generation> findByName(String name);
 }
