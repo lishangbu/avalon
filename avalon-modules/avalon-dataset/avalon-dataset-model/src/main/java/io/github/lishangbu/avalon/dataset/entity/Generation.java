@@ -23,8 +23,8 @@ public class Generation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   @Id
-  @Comment("主键")
-  private Long id;
+  @Comment("主键,标明世代的数字")
+  private Integer id;
 
   @ColumnDefault("''")
   @Comment("世代")

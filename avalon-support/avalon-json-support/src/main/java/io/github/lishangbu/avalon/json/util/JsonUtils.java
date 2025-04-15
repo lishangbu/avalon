@@ -16,24 +16,30 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
- * x
+ * JSON 序列化与反序列化工具类。 提供将 Java 对象转为 JSON 字符串、格式化 JSON 和将 JSON 转换为不同 Java 类型的功能。
  *
  * @author lishangbu
  * @since 2025/4/8
  */
 public class JsonUtils implements ApplicationContextAware {
 
+  // 用于 JSON 处理的 ObjectMapper 实例
   private static ObjectMapper OBJECT_MAPPER;
 
+  /**
+   * 获取 ObjectMapper 实例。 这是一个单例实例，可用于 JSON 序列化和反序列化。
+   *
+   * @return ObjectMapper 实例
+   */
   public static ObjectMapper getInstance() {
     return OBJECT_MAPPER;
   }
 
   /**
-   * 将对象序列化成json字符串
+   * 将 Java 对象序列化为 JSON 字符串。
    *
-   * @param value javaBean
-   * @return jsonString json字符串
+   * @param value 要序列化的 Java 对象
+   * @return 序列化后的 JSON 字符串，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = JsonProcessingException.class)
@@ -45,10 +51,10 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将对象序列化成 json 字符串，格式美化
+   * 将 Java 对象序列化为格式化（漂亮打印）的 JSON 字符串。
    *
-   * @param value javaBean
-   * @return jsonString json字符串
+   * @param value 要序列化的 Java 对象
+   * @return 格式化后的 JSON 字符串，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = JsonProcessingException.class)
@@ -60,10 +66,10 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将对象序列化成 json byte 数组
+   * 将 Java 对象序列化为 JSON 字节数组。
    *
-   * @param value
-   * @return jsonString json byte array
+   * @param value 要序列化的 Java 对象
+   * @return 序列化后的 JSON 字节数组，如果输入为空，则返回 null
    */
   @SneakyThrows(value = JsonProcessingException.class)
   public static byte[] toJsonAsBytes(@Nullable Object value) {
@@ -74,10 +80,10 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json字符串转成 JsonNode
+   * 将 JSON 字符串转换为 JsonNode 对象。
    *
-   * @param content content
-   * @return content json字符串
+   * @param content 要反序列化的 JSON 字符串
+   * @return 转换后的 JsonNode 对象
    */
   @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(String content) {
@@ -85,10 +91,10 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将InputStream转成 JsonNode
+   * 将 InputStream 转换为 JsonNode 对象。
    *
-   * @param in InputStream
-   * @return jsonString json字符串
+   * @param in 要读取的 InputStream
+   * @return 转换后的 JsonNode 对象
    */
   @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(InputStream in) {
@@ -96,10 +102,10 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.Reader转成 JsonNode
+   * 将 Reader 转换为 JsonNode 对象。
    *
-   * @param r java.io.Reader
-   * @return jsonString json字符串
+   * @param r 要读取的 Reader
+   * @return 转换后的 JsonNode 对象
    */
   @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(Reader r) {
@@ -107,25 +113,25 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json字符串转成 JsonNode
+   * 将字节数组转换为 JsonNode 对象。
    *
-   * @param content content
-   * @return jsonString json字符串
+   * @param content 包含 JSON 数据的字节数组
+   * @return 转换后的 JsonNode 对象
    */
   @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(byte[] content) {
     return getInstance().readTree(content);
   }
 
-  // region json反序列化为对象
+  // region JSON 反序列化方法
 
   /**
-   * 将json反序列化成对象
+   * 将 JSON 字符串转换为指定类的 Java 对象。
    *
-   * @param content content
-   * @param valueType class
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param content 要反序列化的 JSON 字符串
+   * @param valueType 要转换为的 Java 类
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -137,12 +143,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json反序列化成对象
+   * 将 JSON 字符串转换为指定泛型类型的 Java 对象。
    *
-   * @param content content
-   * @param valueTypeRef 泛型类型
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param content 要反序列化的 JSON 字符串
+   * @param valueTypeRef 泛型类型的 TypeReference
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -154,12 +160,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json byte 数组反序列化成对象
+   * 将 JSON 字节数组转换为指定类的 Java 对象。
    *
-   * @param src json bytes
-   * @param valueType class
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的字节数组
+   * @param valueType 要转换为的 Java 类
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -171,12 +177,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json byte 数组反序列化成对象
+   * 将 JSON 字节数组转换为指定泛型类型的 Java 对象。
    *
-   * @param src json bytes
-   * @param valueTypeRef 泛型类型
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的字节数组
+   * @param valueTypeRef 泛型类型的 TypeReference
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -188,12 +194,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将json byte 数组反序列化成对象
+   * 将 JSON 字节数组转换为指定 JavaType 类型的 Java 对象。
    *
-   * @param src json bytes
-   * @param javaType JavaType
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的字节数组
+   * @param javaType 指定的 JavaType 类型
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -205,12 +211,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.InputStream反序列化成对象
+   * 将 InputStream 转换为指定类的 Java 对象。
    *
-   * @param src java.io.InputStream
-   * @param valueType class
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 InputStream
+   * @param valueType 要转换为的 Java 类
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -222,12 +228,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.InputStream反序列化成对象
+   * 将 InputStream 转换为指定泛型类型的 Java 对象。
    *
-   * @param src java.io.InputStream
-   * @param valueTypeRef 泛型类型
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 InputStream
+   * @param valueTypeRef 泛型类型的 TypeReference
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -239,12 +245,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.InputStream反序列化成对象
+   * 将 InputStream 转换为指定 JavaType 类型的 Java 对象。
    *
-   * @param src java.io.InputStream
-   * @param valueType JavaType
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 InputStream
+   * @param valueType 指定的 JavaType 类型
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -256,12 +262,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.Reader反序列化成对象
+   * 将 Reader 转换为指定类的 Java 对象。
    *
-   * @param src java.io.Reader
-   * @param valueType class
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 Reader
+   * @param valueType 要转换为的 Java 类
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -273,12 +279,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.Reader反序列化成对象
+   * 将 Reader 转换为指定泛型类型的 Java 对象。
    *
-   * @param src java.io.Reader
-   * @param valueTypeRef 泛型类型
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 Reader
+   * @param valueTypeRef 泛型类型的 TypeReference
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -290,12 +296,12 @@ public class JsonUtils implements ApplicationContextAware {
   }
 
   /**
-   * 将java.io.Reader反序列化成对象
+   * 将 Reader 转换为指定 JavaType 类型的 Java 对象。
    *
-   * @param src java.io.Reader
-   * @param valueType JavaType
-   * @param <T> T 泛型标记
-   * @return Bean
+   * @param src 包含 JSON 数据的 Reader
+   * @param valueType 指定的 JavaType 类型
+   * @param <T> 转换后的 Java 对象类型
+   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
   @SneakyThrows(value = IOException.class)
@@ -306,11 +312,17 @@ public class JsonUtils implements ApplicationContextAware {
     return getInstance().readValue(src, valueType);
   }
 
+  /**
+   * 设置 ApplicationContext 以便获取 ObjectMapper Bean。
+   *
+   * @param applicationContext 包含 ObjectMapper 的应用上下文
+   * @throws BeansException 如果在访问应用上下文时发生错误
+   */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    // 从 Spring 上下文获取 ObjectMapper Bean
     OBJECT_MAPPER = applicationContext.getBean(ObjectMapper.class);
   }
 
   // endregion
-
 }

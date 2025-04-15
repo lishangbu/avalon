@@ -25,7 +25,7 @@ class GenerationRepositoryTest {
   @Test
   public void testSave() {
     Generation generation = new Generation();
-    generation.setId(3999L);
+    generation.setId(3999);
     generation.setCode("MMMDCLXVI");
     generation.setName("第三千九百九十九世代");
     generationRepository.save(generation);
@@ -37,7 +37,7 @@ class GenerationRepositoryTest {
     Optional<Generation> secondaryGenerationOptional = generationRepository.findByName("第二世代");
     assertTrue(secondaryGenerationOptional.isPresent());
     Generation generation = secondaryGenerationOptional.get();
-    assertEquals(2L, generation.getId());
+    assertEquals(2, generation.getId());
     assertEquals("II", generation.getCode());
     assertEquals("第二世代", generation.getName());
   }
