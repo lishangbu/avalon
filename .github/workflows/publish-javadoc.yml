@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      # 监视 Java 文件的更改，确保 Javadoc 在代码更改时生成
+      - '**/*.java'
 
 jobs:
   publish:
@@ -17,7 +20,7 @@ jobs:
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          javadoc-branch: javadoc
+          javadoc-branch: gh-pages
           java-distribution: oracle
           java-version: 24
           # url will be https://<username>.github.io/<repo>/javadoc, This can be left as nothing to generate javadocs in the root folder.

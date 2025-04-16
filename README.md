@@ -1,7 +1,17 @@
-<div style="text-align: center;">
-    <img src="https://github.com/lishangbu/avalon/actions/workflows/maven.yml/badge.svg" alt="Build Status"/>
-    <img src="https://img.shields.io/github/license/lishangbu/avalon" alt="License"/>
-</div>
+Avalon
+========================================================================
+
+[![Build Status](https://github.com/lishangbu/avalon/actions/workflows/maven.yml/badge.svg)](https://maven.apache.org)
+[![License](https://img.shields.io/github/license/lishangbu/avalon)](https://opensource.org/license/agpl-v3)
+
+## Navigation
+
+[Usage Document Online][1] | **Server Repository** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document][4]
+
+[1]: http://lishangbu.github.io/avalon-doc
+[2]: https://github.com/lishangbu/avalon-ui
+[3]: https://github.com/lishangbu/avalon-doc
+[4]: https://lishangbu.github.io/avalon/javadoc
 
 ## Table of Contents
 
@@ -11,9 +21,9 @@
 
 ## Usage
 
-To see how the project has been applied, see the [doc](https://lishangbu.github.io/avalon-doc).
+To see how the project has been applied, see the [online documents](https://lishangbu.github.io/avalon-doc).
 
-The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself at first.
+The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it locally.
 
 ## Maintainers
 
