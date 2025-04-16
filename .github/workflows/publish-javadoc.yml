@@ -1,0 +1,26 @@
+name: Deploy Javadoc
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # if you have a protection rule on your repository, you'll need to give write permission to the workflow.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy JavaDoc 🚀
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          javadoc-branch: javadoc
+          java-distribution: oracle
+          java-version: 24
+          # url will be https://<username>.github.io/<repo>/javadoc, This can be left as nothing to generate javadocs in the root folder.
+          target-folder: javadoc
+          project: maven
+          custom-command: mvn javadoc:aggregate -P prd
