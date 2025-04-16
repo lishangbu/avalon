@@ -64,13 +64,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   @Transactional(rollbackFor = Exception.class)
   @Override
   public void signUp(SignUpPayload payload) {
-    Optional<User> userOptional = userRepository.findByUsername(payload.getUsername());
+    Optional<User> userOptional = userRepository.findByUsername(payload.username());
     Assert.isTrue(userOptional.isEmpty(), "用户已存在");
     User user = new User();
-    user.setUsername(payload.getUsername());
-    user.setPassword(passwordEncoder.encode(payload.getPassword()));
+    user.setUsername(payload.username());
+    user.setPassword(passwordEncoder.encode(payload.password()));
     roleRepository
-        .findByCode(payload.getRoleCode())
+        .findByCode(payload.roleCode())
         .ifPresent(
             role -> {
               Set<Role> roles = new LinkedHashSet<>();

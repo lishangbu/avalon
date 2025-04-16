@@ -35,7 +35,7 @@ public class TokenController {
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                signInPayload.getUsername(), signInPayload.getPassword()));
+                signInPayload.username(), signInPayload.password()));
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return new TokenInfo(
         jwtUtils.generateAccessTokenByAuthentication(authentication),

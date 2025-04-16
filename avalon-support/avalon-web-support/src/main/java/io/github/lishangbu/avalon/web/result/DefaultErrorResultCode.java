@@ -7,8 +7,7 @@ package io.github.lishangbu.avalon.web.result;
  * @since 2025/4/8
  */
 public enum DefaultErrorResultCode implements ErrorResultCode {
-  /** 操作成功 */
-  SUCCESS(200, "Success"),
+
   /** 参数错误 */
   BAD_REQUEST(400, "Bad Request"),
 
