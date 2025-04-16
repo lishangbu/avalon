@@ -7,41 +7,14 @@ import org.springframework.util.ObjectUtils;
 /**
  * API 返回结果的封装类，包含状态码、数据和错误信息。
  *
+ * @param code 获取 API 返回结果的状态码
+ * @param data 获取 API 返回的数据
+ * @param errorMessage 获取 API 返回的错误信息
  * @param <T> 返回的数据类型
  * @author lishangbu
  * @since 2025/4/16
  */
 public record ApiResult<T>(Integer code, T data, String errorMessage) implements Serializable {
-
-  /**
-   * 获取 API 返回结果的状态码。
-   *
-   * @return 状态码
-   */
-  @Override
-  public Integer code() {
-    return code;
-  }
-
-  /**
-   * 获取 API 返回的错误信息。
-   *
-   * @return 错误信息，如果没有错误则为 null
-   */
-  @Override
-  public String errorMessage() {
-    return errorMessage;
-  }
-
-  /**
-   * 获取 API 返回的数据。
-   *
-   * @return 返回的数据，如果没有数据则为 null
-   */
-  @Override
-  public T data() {
-    return data;
-  }
 
   /** 用于序列化的静态常量，表示序列化版本 UID。 */
   @Serial private static final long serialVersionUID = 1L;
@@ -73,11 +46,9 @@ public record ApiResult<T>(Integer code, T data, String errorMessage) implements
 
   /**
    * 构建一个失败的 API 返回结果。
-   * <p>
-   * 该方法根据传入的错误结果码和错误信息生成一个失败的 API 返回结果。如果没有提供额外的错误信息，
-   * 则使用错误结果码中预设的错误信息。若提供了额外的错误信息，则会将其与错误结果码的错误信息
-   * 进行拼接，构建最终的错误消息。
-   * </p>
+   *
+   * <p>该方法根据传入的错误结果码和错误信息生成一个失败的 API 返回结果。如果没有提供额外的错误信息，
+   * 则使用错误结果码中预设的错误信息。若提供了额外的错误信息，则会将其与错误结果码的错误信息 进行拼接，构建最终的错误消息。
    *
    * @param errorResultCode 错误结果码，包含错误的状态码和默认的错误信息。
    * @param errorMessages 可变长度的额外错误信息（可选）。如果有额外的错误信息，将与默认错误信息一同返回。

@@ -2,7 +2,7 @@ Avalon
 ========================================================================
 
 [![Build Status](https://github.com/lishangbu/avalon/actions/workflows/maven.yml/badge.svg)](https://maven.apache.org)
-[![License](https://img.shields.io/github/license/lishangbu/avalon)](https://opensource.org/license/agpl-v3)
+[![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
 ## Navigation
 
