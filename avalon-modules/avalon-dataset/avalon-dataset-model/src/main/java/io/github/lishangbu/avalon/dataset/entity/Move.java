@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.dataset.entity;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -13,7 +12,6 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/14
  */
-@Data
 @Entity
 @Table(
     uniqueConstraints = {
@@ -129,4 +127,100 @@ public class Move implements Serializable {
   @ColumnDefault("''")
   @Column(length = 2000, nullable = false)
   private String effect;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getIndex() {
+    return index;
+  }
+
+  public void setIndex(String index) {
+    this.index = index;
+  }
+
+  public Generation getGeneration() {
+    return generation;
+  }
+
+  public void setGeneration(Generation generation) {
+    this.generation = generation;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  public MoveCategory getCategory() {
+    return category;
+  }
+
+  public void setCategory(MoveCategory category) {
+    this.category = category;
+  }
+
+  public Integer getPower() {
+    return power;
+  }
+
+  public void setPower(Integer power) {
+    this.power = power;
+  }
+
+  public Integer getAccuracy() {
+    return accuracy;
+  }
+
+  public void setAccuracy(Integer accuracy) {
+    this.accuracy = accuracy;
+  }
+
+  public Integer getPp() {
+    return pp;
+  }
+
+  public void setPp(Integer pp) {
+    this.pp = pp;
+  }
+
+  public String getText() {
+    return text;
+  }
+
+  public void setText(String text) {
+    this.text = text;
+  }
+
+  public String getEffect() {
+    return effect;
+  }
+
+  public void setEffect(String effect) {
+    this.effect = effect;
+  }
 }

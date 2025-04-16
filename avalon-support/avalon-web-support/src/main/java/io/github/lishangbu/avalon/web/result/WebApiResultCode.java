@@ -1,16 +1,11 @@
 package io.github.lishangbu.avalon.web.result;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * web api 结果
  *
  * @author lishangbu
  * @since 2025/4/8
  */
-@RequiredArgsConstructor
-@Getter
 public enum WebApiResultCode implements ResultCode {
   /** 操作成功 */
   SUCCESS(200, "Success"),
@@ -29,4 +24,17 @@ public enum WebApiResultCode implements ResultCode {
   private final Integer code;
 
   private final String message;
+
+  WebApiResultCode(Integer code, String message) {
+    this.code = code;
+    this.message = message;
+  }
+
+  public Integer getCode() {
+    return this.code;
+  }
+
+  public String getMessage() {
+    return this.message;
+  }
 }

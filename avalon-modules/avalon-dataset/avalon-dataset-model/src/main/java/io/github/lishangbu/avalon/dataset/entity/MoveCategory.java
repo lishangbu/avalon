@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 import org.hibernate.annotations.Comment;
 
 /**
@@ -13,7 +12,6 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/15
  */
-@Data
 @Entity
 @Table(
     uniqueConstraints = {
@@ -43,4 +41,28 @@ public class MoveCategory implements Serializable {
    */
   @OneToMany(mappedBy = "category")
   private List<Move> moves;
+
+  public String getCategory() {
+    return category;
+  }
+
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public List<Move> getMoves() {
+    return moves;
+  }
+
+  public void setMoves(List<Move> moves) {
+    this.moves = moves;
+  }
 }

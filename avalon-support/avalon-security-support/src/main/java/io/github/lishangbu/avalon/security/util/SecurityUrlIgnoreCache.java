@@ -3,8 +3,8 @@ package io.github.lishangbu.avalon.security.util;
 import io.github.lishangbu.avalon.security.properties.SecurityProperties;
 import io.github.lishangbu.avalon.web.util.AbstractUrlIgnoreCache;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
@@ -14,14 +14,17 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
  * @author lishangbu
  * @since 2024/2/7
  */
-@Slf4j
 @AutoConfiguration
-@RequiredArgsConstructor
 public class SecurityUrlIgnoreCache extends AbstractUrlIgnoreCache implements InitializingBean {
 
+  private static final Logger log = LoggerFactory.getLogger(SecurityUrlIgnoreCache.class);
   private final SecurityProperties securityProperties;
 
   private List<String> ignoreUrls;
+
+  public SecurityUrlIgnoreCache(SecurityProperties securityProperties) {
+    this.securityProperties = securityProperties;
+  }
 
   @Override
   protected List<String> getIgnoreUrls() {

@@ -2,9 +2,10 @@ package io.github.lishangbu.avalon.web.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.lishangbu.avalon.json.exception.JsonProcessingRuntimeException;
 import io.github.lishangbu.avalon.web.result.ApiResult;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -19,11 +20,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @author lishangbu
  * @since 2023/5/1
  */
-@RequiredArgsConstructor
 @RestControllerAdvice(basePackages = "io.github.lishangbu.avalon")
 public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
 
+  private static final Logger log = LoggerFactory.getLogger(ApiResultResponseAdvice.class);
   private final ObjectMapper objectMapper;
+
+  public ApiResultResponseAdvice(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   @Override
   public boolean supports(
@@ -32,7 +37,6 @@ public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
   }
 
   @Override
-  @SneakyThrows
   public Object beforeBodyWrite(
       Object body,
       MethodParameter returnType,
@@ -40,7 +44,12 @@ public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
       Class<? extends HttpMessageConverter<?>> selectedConverterType,
       ServerHttpRequest request,
       ServerHttpResponse response) {
-    return wrapApiResult(body);
+    try {
+      return wrapApiResult(body);
+    } catch (JsonProcessingException e) {
+      log.error("ApiResultResponse JsonProcessingException:[{}]", e.getMessage());
+      throw new JsonProcessingRuntimeException(e.getMessage());
+    }
   }
 
   /**

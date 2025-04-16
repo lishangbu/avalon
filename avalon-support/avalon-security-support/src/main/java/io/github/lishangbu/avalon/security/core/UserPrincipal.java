@@ -2,9 +2,6 @@ package io.github.lishangbu.avalon.security.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -14,30 +11,40 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author lishangbu
  * @since 2025/4/8
  */
-@RequiredArgsConstructor
-@ToString
-public class UserPrincipal implements UserDetails {
-  @Getter private final Long id;
+public record UserPrincipal(
+    Long id,
+    String username,
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String password,
+    Collection<? extends GrantedAuthority> authorities)
+    implements UserDetails {
 
-  private final String username;
-
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  private final String password;
-
-  private final Collection<? extends GrantedAuthority> authorities;
-
+  /**
+   * 获取用户的权限
+   *
+   * @return 用户的权限集合
+   */
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return this.authorities;
+    return authorities;
   }
 
+  /**
+   * 获取用户的密码
+   *
+   * @return 用户的密码
+   */
   @Override
   public String getPassword() {
-    return this.password;
+    return password;
   }
 
+  /**
+   * 获取用户的用户名
+   *
+   * @return 用户名
+   */
   @Override
   public String getUsername() {
-    return this.username;
+    return username;
   }
 }
