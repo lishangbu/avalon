@@ -3,7 +3,8 @@ package io.github.lishangbu.avalon.security.exception;
 import io.github.lishangbu.avalon.security.result.WebSecurityResultCode;
 import io.github.lishangbu.avalon.web.result.ApiResult;
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author lishangbu
  * @since 2018/8/30
  */
-@Slf4j
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityExceptionHandler {
+
+  private static final Logger log = LoggerFactory.getLogger(SecurityExceptionHandler.class);
 
   /**
    * 未携带JWT异常
@@ -72,7 +74,7 @@ public class SecurityExceptionHandler {
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ApiResult<Void> handleAccessDeniedException(AccessDeniedException e) {
-    log.error("访问异常:[{}]", e);
+    log.error("访问异常:[{}]", e.getMessage());
     return ApiResult.failed(WebSecurityResultCode.FORBIDDEN, e.getMessage());
   }
 

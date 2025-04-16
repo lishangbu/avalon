@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -19,7 +18,6 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/15
  */
-@Data
 @Entity
 public class EggGroup implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
@@ -47,4 +45,36 @@ public class EggGroup implements Serializable {
   @Comment("特征")
   @Column(nullable = false, length = 500)
   private String characteristics;
+
+  public String getGroup() {
+    return group;
+  }
+
+  public void setGroup(String group) {
+    this.group = group;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getText() {
+    return text;
+  }
+
+  public void setText(String text) {
+    this.text = text;
+  }
+
+  public String getCharacteristics() {
+    return characteristics;
+  }
+
+  public void setCharacteristics(String characteristics) {
+    this.characteristics = characteristics;
+  }
 }

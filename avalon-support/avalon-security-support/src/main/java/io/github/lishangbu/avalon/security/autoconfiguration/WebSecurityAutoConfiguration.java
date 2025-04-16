@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.security.autoconfiguration;
 
 import io.github.lishangbu.avalon.security.filter.AuthTokenFilter;
 import io.github.lishangbu.avalon.security.properties.SecurityProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * @since 2025/4/8
  */
 @AutoConfiguration
-@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurityAutoConfiguration {
@@ -30,6 +28,15 @@ public class WebSecurityAutoConfiguration {
   private final SecurityProperties securityProperties;
 
   private final AuthenticationProvider authenticationProvider;
+
+  public WebSecurityAutoConfiguration(
+      AuthTokenFilter authTokenFilter,
+      SecurityProperties securityProperties,
+      AuthenticationProvider authenticationProvider) {
+    this.authTokenFilter = authTokenFilter;
+    this.securityProperties = securityProperties;
+    this.authenticationProvider = authenticationProvider;
+  }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

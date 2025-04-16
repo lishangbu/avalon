@@ -5,10 +5,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.lishangbu.avalon.json.exception.JsonProcessingRuntimeException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import lombok.SneakyThrows;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -42,12 +42,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 序列化后的 JSON 字符串，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = JsonProcessingException.class)
   public static String toJson(@Nullable Object value) {
     if (ObjectUtils.isEmpty(value)) {
       return null;
     }
-    return getInstance().writeValueAsString(value);
+    try {
+      return getInstance().writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -57,12 +60,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 格式化后的 JSON 字符串，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = JsonProcessingException.class)
   public static String toPrettyJson(@Nullable Object value) {
     if (ObjectUtils.isEmpty(value)) {
       return null;
     }
-    return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
+    try {
+      return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -71,12 +77,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @param value 要序列化的 Java 对象
    * @return 序列化后的 JSON 字节数组，如果输入为空，则返回 null
    */
-  @SneakyThrows(value = JsonProcessingException.class)
   public static byte[] toJsonAsBytes(@Nullable Object value) {
     if (ObjectUtils.isEmpty(value)) {
       return null;
     }
-    return getInstance().writeValueAsBytes(value);
+    try {
+      return getInstance().writeValueAsBytes(value);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -85,9 +94,12 @@ public class JsonUtils implements ApplicationContextAware {
    * @param content 要反序列化的 JSON 字符串
    * @return 转换后的 JsonNode 对象
    */
-  @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(String content) {
-    return getInstance().readTree(content);
+    try {
+      return getInstance().readTree(content);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -96,9 +108,12 @@ public class JsonUtils implements ApplicationContextAware {
    * @param in 要读取的 InputStream
    * @return 转换后的 JsonNode 对象
    */
-  @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(InputStream in) {
-    return getInstance().readTree(in);
+    try {
+      return getInstance().readTree(in);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -107,9 +122,12 @@ public class JsonUtils implements ApplicationContextAware {
    * @param r 要读取的 Reader
    * @return 转换后的 JsonNode 对象
    */
-  @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(Reader r) {
-    return getInstance().readTree(r);
+    try {
+      return getInstance().readTree(r);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -118,9 +136,12 @@ public class JsonUtils implements ApplicationContextAware {
    * @param content 包含 JSON 数据的字节数组
    * @return 转换后的 JsonNode 对象
    */
-  @SneakyThrows(value = IOException.class)
   public static JsonNode readTree(byte[] content) {
-    return getInstance().readTree(content);
+    try {
+      return getInstance().readTree(content);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   // region JSON 反序列化方法
@@ -134,12 +155,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable String content, Class<T> valueType) {
     if (ObjectUtils.isEmpty(content)) {
       return null;
     }
-    return getInstance().readValue(content, valueType);
+    try {
+      return getInstance().readValue(content, valueType);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -151,12 +175,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable String content, TypeReference<T> valueTypeRef) {
     if (ObjectUtils.isEmpty(content)) {
       return null;
     }
-    return getInstance().readValue(content, valueTypeRef);
+    try {
+      return getInstance().readValue(content, valueTypeRef);
+    } catch (JsonProcessingException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -168,12 +195,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable byte[] src, Class<T> valueType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueType);
+    try {
+      return getInstance().readValue(src, valueType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -185,12 +215,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable byte[] src, TypeReference<T> valueTypeRef) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueTypeRef);
+    try {
+      return getInstance().readValue(src, valueTypeRef);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -202,12 +235,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable byte[] src, JavaType javaType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, javaType);
+    try {
+      return getInstance().readValue(src, javaType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -219,12 +255,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable InputStream src, Class<T> valueType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueType);
+    try {
+      return getInstance().readValue(src, valueType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -236,12 +275,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable InputStream src, TypeReference<T> valueTypeRef) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueTypeRef);
+    try {
+      return getInstance().readValue(src, valueTypeRef);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -253,12 +295,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable InputStream src, JavaType valueType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueType);
+    try {
+      return getInstance().readValue(src, valueType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -270,12 +315,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable Reader src, Class<T> valueType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueType);
+    try {
+      return getInstance().readValue(src, valueType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -287,12 +335,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable Reader src, TypeReference<T> valueTypeRef) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueTypeRef);
+    try {
+      return getInstance().readValue(src, valueTypeRef);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**
@@ -304,12 +355,15 @@ public class JsonUtils implements ApplicationContextAware {
    * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
    */
   @Nullable
-  @SneakyThrows(value = IOException.class)
   public static <T> T readValue(@Nullable Reader src, JavaType valueType) {
     if (ObjectUtils.isEmpty(src)) {
       return null;
     }
-    return getInstance().readValue(src, valueType);
+    try {
+      return getInstance().readValue(src, valueType);
+    } catch (IOException e) {
+      throw new JsonProcessingRuntimeException(e);
+    }
   }
 
   /**

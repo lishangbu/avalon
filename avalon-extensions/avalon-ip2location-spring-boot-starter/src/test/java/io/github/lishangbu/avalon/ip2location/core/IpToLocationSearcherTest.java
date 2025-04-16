@@ -19,31 +19,31 @@ class IpToLocationSearcherTest {
   @Test
   void ipQuery() {
     IpResult ipResult = ipToLocationSearcher.ipQuery("39.189.23.43");
-    assertEquals("Not_Supported", ipResult.getAddressType());
-    assertEquals("Not_Supported", ipResult.getAreaCode());
-    assertEquals("Not_Supported", ipResult.getAs());
-    assertEquals("Not_Supported", ipResult.getAsn());
-    assertEquals("Not_Supported", ipResult.getCategory());
-    assertEquals("Ningbo", ipResult.getCity());
-    assertEquals("CN", ipResult.getCountryShort());
-    assertEquals("China", ipResult.getCountryLong());
-    assertFalse(ipResult.isDelay());
-    assertEquals("Not_Supported", ipResult.getDistrict());
-    assertEquals("Not_Supported", ipResult.getDomain());
-    assertEquals(0.0f, ipResult.getElevation());
-    assertEquals("Not_Supported", ipResult.getIddCode());
-    assertEquals("Not_Supported", ipResult.getIsp());
-    assertEquals(29.87841f, ipResult.getLatitude());
-    assertEquals(121.54977f, ipResult.getLongitude());
-    assertEquals("Not_Supported", ipResult.getMobileBrand());
-    assertEquals("Not_Supported", ipResult.getMnc());
-    assertEquals("Not_Supported", ipResult.getNetSpeed());
-    assertEquals("Zhejiang", ipResult.getRegion());
-    assertEquals("OK", ipResult.getStatus());
-    assertEquals("+08:00", ipResult.getTimezone());
-    assertEquals("Not_Supported", ipResult.getUsageType());
-    assertEquals("Not_Supported", ipResult.getWeatherStationCode());
-    assertEquals("Not_Supported", ipResult.getWeatherStationName());
-    assertEquals("330201", ipResult.getZipcode());
+    assertEquals("Not_Supported", ipResult.addressType());
+    assertEquals("Not_Supported", ipResult.areaCode());
+    assertEquals("Not_Supported", ipResult.as());
+    assertEquals("Not_Supported", ipResult.asn());
+    assertEquals("Not_Supported", ipResult.category());
+    assertEquals("Ningbo", ipResult.city());
+    assertEquals("CN", ipResult.countryShort());
+    assertEquals("China", ipResult.countryLong());
+    assertFalse(ipResult.delay());
+    assertEquals("Not_Supported", ipResult.district());
+    assertEquals("Not_Supported", ipResult.domain());
+    assertEquals(0.0f, ipResult.elevation());
+    assertEquals("Not_Supported", ipResult.iddCode());
+    assertEquals("Not_Supported", ipResult.isp());
+    assertEquals(29.87841f, ipResult.latitude());
+    assertEquals(121.54977f, ipResult.longitude());
+    assertEquals("Not_Supported", ipResult.mobileBrand());
+    assertEquals("Not_Supported", ipResult.mnc());
+    assertEquals("Not_Supported", ipResult.netSpeed());
+    assertEquals("Zhejiang", ipResult.region());
+    assertEquals("OK", ipResult.status());
+    assertEquals("+08:00", ipResult.timezone());
+    assertEquals("Not_Supported", ipResult.usageType());
+    assertEquals("Not_Supported", ipResult.weatherStationCode());
+    assertEquals("Not_Supported", ipResult.weatherStationName());
+    assertEquals("330201", ipResult.zipcode());
   }
 }

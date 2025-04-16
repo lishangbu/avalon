@@ -4,11 +4,9 @@ import io.github.lishangbu.avalon.orm.id.annotation.FlexIdGenerator;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
 import org.hibernate.annotations.Comment;
 
 @Entity
-@Data
 @Comment("角色")
 @Table(
     uniqueConstraints = {
@@ -28,4 +26,20 @@ public class Role implements Serializable {
   @Column(nullable = false, length = 20)
   @Comment("角色代码")
   private String code;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
 }

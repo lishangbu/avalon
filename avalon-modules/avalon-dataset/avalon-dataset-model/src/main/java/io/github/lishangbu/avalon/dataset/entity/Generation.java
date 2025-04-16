@@ -7,7 +7,6 @@ import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -18,7 +17,6 @@ import org.hibernate.annotations.Comment;
  * @since 2025/4/14
  */
 @Entity
-@Data
 public class Generation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -44,4 +42,36 @@ public class Generation implements Serializable {
    */
   @OneToMany(mappedBy = "generation")
   private List<Move> moves;
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public List<Move> getMoves() {
+    return moves;
+  }
+
+  public void setMoves(List<Move> moves) {
+    this.moves = moves;
+  }
 }

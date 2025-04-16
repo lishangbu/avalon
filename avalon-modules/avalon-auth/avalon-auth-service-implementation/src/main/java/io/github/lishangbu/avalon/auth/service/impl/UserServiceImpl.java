@@ -10,7 +10,6 @@ import io.github.lishangbu.avalon.security.core.UserPrincipal;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,12 +26,20 @@ import org.springframework.util.Assert;
  * @since 2025/4/9
  */
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
   private final RoleRepository roleRepository;
+
+  public UserServiceImpl(
+      PasswordEncoder passwordEncoder,
+      UserRepository userRepository,
+      RoleRepository roleRepository) {
+    this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
+    this.roleRepository = roleRepository;
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

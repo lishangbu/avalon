@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.security.autoconfiguration;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -17,12 +16,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @since 2025/4/9
  */
 @AutoConfiguration
-@RequiredArgsConstructor
 public class AuthenticationProviderAutoConfiguration {
   private final PasswordEncoder passwordEncoder;
 
   @Autowired(required = false)
   private UserDetailsService userDetailsService;
+
+  public AuthenticationProviderAutoConfiguration(PasswordEncoder passwordEncoder) {
+    this.passwordEncoder = passwordEncoder;
+  }
 
   @Bean
   @ConditionalOnBean(UserDetailsService.class)

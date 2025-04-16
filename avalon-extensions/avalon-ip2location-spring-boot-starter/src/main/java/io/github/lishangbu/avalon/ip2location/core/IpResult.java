@@ -1,9 +1,6 @@
 package io.github.lishangbu.avalon.ip2location.core;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.beans.ConstructorProperties;
 import net.renfei.ip2location.IPResult;
 
 /**
@@ -12,129 +9,131 @@ import net.renfei.ip2location.IPResult;
  * @author lishangbu
  * @since 2025/4/12
  */
-@ToString
-@Setter
-@Getter
-@NoArgsConstructor
-public class IpResult {
+public record IpResult(
+    /** 地址类型 */
+    String addressType,
 
-  /** 地址类型，例如 IPv4 或 IPv6 */
-  private String addressType;
+    /** 区域代码 */
+    String areaCode,
 
-  /** 区号 */
-  private String areaCode;
+    /** AS 信息 */
+    String as,
 
-  /** 自动系统（AS） */
-  private String as;
+    /** ASN 信息 */
+    String asn,
 
-  /** ASN编号 */
-  private String asn;
+    /** 类别信息 */
+    String category,
 
-  /** 类别 */
-  private String category;
+    /** 城市 */
+    String city,
 
-  /** 城市 */
-  private String city;
+    /** 国家缩写 */
+    String countryShort,
 
-  /** 国家简称 */
-  private String countryShort;
+    /** 国家全称 */
+    String countryLong,
 
-  /** 国家全称 */
-  private String countryLong;
+    /** 延迟信息 */
+    boolean delay,
 
-  /** 是否延迟 */
-  private boolean delay;
+    /** 区域 */
+    String district,
 
-  /** 区域 */
-  private String district;
+    /** 域名 */
+    String domain,
 
-  /** 域名 */
-  private String domain;
+    /** 海拔高度 */
+    float elevation,
 
-  /** 海拔 */
-  private float elevation;
+    /** 国际拨号代码 */
+    String iddCode,
 
-  /** 国际直接拨号代码 */
-  private String iddCode;
+    /** 网络服务提供商 */
+    String isp,
 
-  /** 互联网服务提供商 */
-  private String isp;
+    /** 纬度 */
+    float latitude,
 
-  /** 纬度 */
-  private float latitude;
+    /** 经度 */
+    float longitude,
 
-  /** 经度 */
-  private float longitude;
+    /** 移动品牌 */
+    String mobileBrand,
 
-  /** 移动品牌 */
-  private String mobileBrand;
+    /** 移动国家代码 */
+    String mcc,
 
-  /** 移动国家代码 */
-  private String mcc;
+    /** 移动网络代码 */
+    String mnc,
 
-  /** 移动网络代码 */
-  private String mnc;
+    /** 网络速度 */
+    String netSpeed,
 
-  /** 网络速度 */
-  private String netSpeed;
+    /** 所属地区 */
+    String region,
 
-  /** 区域 */
-  private String region;
+    /** 状态 */
+    String status,
 
-  /** 状态 */
-  private String status;
+    /** 时区 */
+    String timezone,
 
-  /** 时区 */
-  private String timezone;
+    /** 使用类型 */
+    String usageType,
 
-  /** 使用类型 */
-  private String usageType;
+    /** 版本 */
+    String version,
 
-  /** 版本 */
-  private String version;
+    /** 气象站代码 */
+    String weatherStationCode,
 
-  /** 气象站代码 */
-  private String weatherStationCode;
+    /** 气象站名称 */
+    String weatherStationName,
 
-  /** 气象站名称 */
-  private String weatherStationName;
-
-  /** 邮政编码 */
-  private String zipcode;
+    /** 邮政编码 */
+    String zipcode) {
 
   /**
    * 使用原始的IP查询结果构造一个新的IpResult对象。
    *
    * @param originResult 原始的IP查询结果
    */
+  @ConstructorProperties({
+    "addressType", "areaCode", "as", "asn", "category", "city", "countryShort", "countryLong",
+    "delay", "district", "domain", "elevation", "iddCode", "isp", "latitude", "longitude",
+    "mobileBrand", "mcc", "mnc", "netSpeed", "region", "status", "timezone", "usageType",
+    "version", "weatherStationCode", "weatherStationName", "zipcode"
+  })
   public IpResult(IPResult originResult) {
-    this.addressType = originResult.getAddressType();
-    this.as = originResult.getAS();
-    this.asn = originResult.getASN();
-    this.version = originResult.getVersion();
-    this.delay = originResult.getDelay();
-    this.status = originResult.getStatus();
-    this.district = originResult.getDistrict();
-    this.category = originResult.getCategory();
-    this.usageType = originResult.getUsageType();
-    this.elevation = originResult.getElevation();
-    this.mobileBrand = originResult.getMobileBrand();
-    this.mnc = originResult.getMNC();
-    this.mcc = originResult.getMCC();
-    this.weatherStationName = originResult.getWeatherStationName();
-    this.weatherStationCode = originResult.getWeatherStationCode();
-    this.areaCode = originResult.getAreaCode();
-    this.iddCode = originResult.getIDDCode();
-    this.timezone = originResult.getTimeZone();
-    this.netSpeed = originResult.getNetSpeed();
-    this.zipcode = originResult.getZipCode();
-    this.domain = originResult.getDomain();
-    this.longitude = originResult.getLongitude();
-    this.latitude = originResult.getLatitude();
-    this.isp = originResult.getISP();
-    this.city = originResult.getCity();
-    this.countryShort = originResult.getCountryShort();
-    this.countryLong = originResult.getCountryLong();
-    this.region = originResult.getRegion();
+    this(
+        originResult.getAddressType(),
+        originResult.getAreaCode(),
+        originResult.getAS(),
+        originResult.getASN(),
+        originResult.getCategory(),
+        originResult.getCity(),
+        originResult.getCountryShort(),
+        originResult.getCountryLong(),
+        originResult.getDelay(),
+        originResult.getDistrict(),
+        originResult.getDomain(),
+        originResult.getElevation(),
+        originResult.getIDDCode(),
+        originResult.getISP(),
+        originResult.getLatitude(),
+        originResult.getLongitude(),
+        originResult.getMobileBrand(),
+        originResult.getMCC(),
+        originResult.getMNC(),
+        originResult.getNetSpeed(),
+        originResult.getRegion(),
+        originResult.getStatus(),
+        originResult.getTimeZone(),
+        originResult.getUsageType(),
+        originResult.getVersion(),
+        originResult.getWeatherStationCode(),
+        originResult.getWeatherStationName(),
+        originResult.getZipCode());
   }
 }

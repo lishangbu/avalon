@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.security.result;
 
 import io.github.lishangbu.avalon.web.result.ResultCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 安全状态结果
@@ -10,8 +8,6 @@ import lombok.RequiredArgsConstructor;
  * @author lishangbu
  * @since 2025/4/8
  */
-@Getter
-@RequiredArgsConstructor
 public enum WebSecurityResultCode implements ResultCode {
 
   /**
@@ -35,4 +31,17 @@ public enum WebSecurityResultCode implements ResultCode {
   private final Integer code;
 
   private final String message;
+
+  WebSecurityResultCode(Integer code, String message) {
+    this.code = code;
+    this.message = message;
+  }
+
+  public Integer getCode() {
+    return this.code;
+  }
+
+  public String getMessage() {
+    return this.message;
+  }
 }

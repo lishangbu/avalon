@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.auth.model.SignInPayload;
 import io.github.lishangbu.avalon.auth.model.TokenInfo;
 import io.github.lishangbu.avalon.security.util.JwtUtils;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,10 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/token")
-@RequiredArgsConstructor
 public class TokenController {
   private final AuthenticationManager authenticationManager;
   private final JwtUtils jwtUtils;
+
+  public TokenController(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    this.authenticationManager = authenticationManager;
+    this.jwtUtils = jwtUtils;
+  }
 
   @PostMapping("/sign-in")
   public TokenInfo signIn(@RequestBody @Valid SignInPayload signInPayload) {

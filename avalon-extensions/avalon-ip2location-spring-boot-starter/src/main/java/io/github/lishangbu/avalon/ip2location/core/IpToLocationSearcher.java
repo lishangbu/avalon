@@ -4,10 +4,10 @@ import io.github.lishangbu.avalon.ip2location.exception.*;
 import io.github.lishangbu.avalon.ip2location.properties.IpToLocationProperties;
 import java.io.IOException;
 import java.io.InputStream;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.renfei.ip2location.IP2Location;
 import net.renfei.ip2location.IPResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -20,15 +20,20 @@ import org.springframework.util.StreamUtils;
  * @author lishangbu
  * @since 2025/4/12
  */
-@Slf4j
-@RequiredArgsConstructor
 public class IpToLocationSearcher implements InitializingBean, DisposableBean {
 
+  private static final Logger log = LoggerFactory.getLogger(IpToLocationSearcher.class);
   private final IpToLocationProperties ipToLocationProperties;
 
   private final ResourceLoader resourceLoader;
 
   private IP2Location loc;
+
+  public IpToLocationSearcher(
+      IpToLocationProperties ipToLocationProperties, ResourceLoader resourceLoader) {
+    this.ipToLocationProperties = ipToLocationProperties;
+    this.resourceLoader = resourceLoader;
+  }
 
   /**
    * This function to query IP2Location data.

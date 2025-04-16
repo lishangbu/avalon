@@ -14,13 +14,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-@RequiredArgsConstructor
 public class JwtUtils implements InitializingBean {
 
   private RSAPublicKey publicKey;
@@ -30,6 +28,11 @@ public class JwtUtils implements InitializingBean {
   private final JwtProperties jwtProperties;
 
   private final ResourceLoader resourceLoader;
+
+  public JwtUtils(JwtProperties jwtProperties, ResourceLoader resourceLoader) {
+    this.jwtProperties = jwtProperties;
+    this.resourceLoader = resourceLoader;
+  }
 
   /**
    * 基于认证对象生成访问jwt
@@ -49,7 +52,7 @@ public class JwtUtils implements InitializingBean {
                     .plus(
                         jwtProperties.getAccessTokenTtl(), jwtProperties.getAccessTokenTtlUnit())))
         .subject(userPrincipal.getUsername())
-        .claim(JwtClaimConstants.USER_ID, userPrincipal.getId())
+        .claim(JwtClaimConstants.USER_ID, userPrincipal.id())
         .claim(
             JwtClaimConstants.AUTHORITIES,
             userPrincipal.getAuthorities().stream()
