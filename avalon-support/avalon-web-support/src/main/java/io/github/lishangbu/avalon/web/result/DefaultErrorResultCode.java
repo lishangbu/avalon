@@ -6,7 +6,7 @@ package io.github.lishangbu.avalon.web.result;
  * @author lishangbu
  * @since 2025/4/8
  */
-public enum WebApiResultCode implements ResultCode {
+public enum DefaultErrorResultCode implements ErrorResultCode {
   /** 操作成功 */
   SUCCESS(200, "Success"),
   /** 参数错误 */
@@ -25,16 +25,16 @@ public enum WebApiResultCode implements ResultCode {
 
   private final String message;
 
-  WebApiResultCode(Integer code, String message) {
+  DefaultErrorResultCode(Integer code, String message) {
     this.code = code;
     this.message = message;
   }
 
-  public Integer getCode() {
+  public Integer code() {
     return this.code;
   }
 
-  public String getMessage() {
+  public String errorMessage() {
     return this.message;
   }
 }

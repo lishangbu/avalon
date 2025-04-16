@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.security.exception;
 
-import io.github.lishangbu.avalon.security.result.WebSecurityResultCode;
+import io.github.lishangbu.avalon.security.result.WebSecurityErrorResultCode;
 import io.github.lishangbu.avalon.web.result.ApiResult;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class SecurityExceptionHandler {
   @ExceptionHandler(JsonWebTokenNotFoundException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public ApiResult<Void> handleJsonWebTokenNotFoundException(JsonWebTokenNotFoundException e) {
-    return ApiResult.failed(WebSecurityResultCode.UNAUTHORIZED, "需要登录");
+    return ApiResult.failed(WebSecurityErrorResultCode.UNAUTHORIZED, "需要登录");
   }
 
   /**
@@ -49,7 +49,7 @@ public class SecurityExceptionHandler {
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public ApiResult<Void> handleUserInputException(AuthenticationException e) {
     log.error("User input cause exception:[{}]", e.getMessage());
-    return ApiResult.failed(WebSecurityResultCode.UNAUTHORIZED, "用户名或密码错误");
+    return ApiResult.failed(WebSecurityErrorResultCode.UNAUTHORIZED, "用户名或密码错误");
   }
 
   /**
@@ -62,7 +62,7 @@ public class SecurityExceptionHandler {
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public ApiResult<Void> handleAuthenticationException(AuthenticationException e) {
     log.error("认证异常信息:[{}]", e.getMessage());
-    return ApiResult.failed(WebSecurityResultCode.UNAUTHORIZED, e.getMessage());
+    return ApiResult.failed(WebSecurityErrorResultCode.UNAUTHORIZED, e.getMessage());
   }
 
   /**
@@ -75,7 +75,7 @@ public class SecurityExceptionHandler {
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ApiResult<Void> handleAccessDeniedException(AccessDeniedException e) {
     log.error("访问异常:[{}]", e.getMessage());
-    return ApiResult.failed(WebSecurityResultCode.FORBIDDEN, e.getMessage());
+    return ApiResult.failed(WebSecurityErrorResultCode.FORBIDDEN, e.getMessage());
   }
 
   /**
@@ -88,6 +88,6 @@ public class SecurityExceptionHandler {
   @ResponseStatus(HttpStatus.OK)
   public ApiResult<Void> handleExpiredJwtException(ExpiredJwtException e) {
     log.error("JWT令牌过期:[{}]", e.getMessage());
-    return ApiResult.failed(WebSecurityResultCode.EXPIRED_JWT, e.getMessage());
+    return ApiResult.failed(WebSecurityErrorResultCode.EXPIRED_JWT, e.getMessage());
   }
 }

@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.security.result;
 
-import io.github.lishangbu.avalon.web.result.ResultCode;
+import io.github.lishangbu.avalon.web.result.ErrorResultCode;
 
 /**
  * 安全状态结果
@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.web.result.ResultCode;
  * @author lishangbu
  * @since 2025/4/8
  */
-public enum WebSecurityResultCode implements ResultCode {
+public enum WebSecurityErrorResultCode implements ErrorResultCode {
 
   /**
    * 未认证
@@ -32,16 +32,16 @@ public enum WebSecurityResultCode implements ResultCode {
 
   private final String message;
 
-  WebSecurityResultCode(Integer code, String message) {
+  WebSecurityErrorResultCode(Integer code, String message) {
     this.code = code;
     this.message = message;
   }
 
-  public Integer getCode() {
+  public Integer code() {
     return this.code;
   }
 
-  public String getMessage() {
+  public String errorMessage() {
     return this.message;
   }
 }

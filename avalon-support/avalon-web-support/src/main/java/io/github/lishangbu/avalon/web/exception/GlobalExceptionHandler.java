@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.web.exception;
 
 import io.github.lishangbu.avalon.web.result.ApiResult;
-import io.github.lishangbu.avalon.web.result.WebApiResultCode;
+import io.github.lishangbu.avalon.web.result.DefaultErrorResultCode;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleGlobalException(Exception e) {
     log.error("全局异常信息:[{}]", e.getMessage(), e);
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, e.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
   /**
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleRuntimeException(RuntimeException e) {
     log.error("运行时异常信息:[{}]", e.getMessage(), e);
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, e.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
   /**
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleHttpMessageNotWritableException(HttpMessageNotWritableException e) {
     log.error("HttpMessageNotWritableException:[{}]", e.getMessage(), e);
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, e.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
   /**
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.joining(","));
     log.error("参数绑定异常:[{}]", errorMsg);
-    return ApiResult.failed(WebApiResultCode.BAD_REQUEST, errorMsg);
+    return ApiResult.failed(DefaultErrorResultCode.BAD_REQUEST, errorMsg);
   }
 
   /**
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleIllegalArgumentException(IllegalArgumentException exception) {
     log.error("非法参数:[{}]", exception.getMessage());
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, exception.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
   /**
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleIllegalStateException(IllegalStateException exception) {
     log.error("非法状态:[{}]", exception.getMessage());
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, exception.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
   /**
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleSQLException(SQLException exception) {
     log.error("SQL异常信息:[{}]", exception.getMessage(), exception);
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, "系统开小差了，请稍后再试");
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, "系统开小差了，请稍后再试");
   }
 
   /**
@@ -143,7 +143,7 @@ public class GlobalExceptionHandler {
   public ApiResult<Void> handleUnsupportedOperationException(
       UnsupportedOperationException exception) {
     log.error("不支持的操作类型:[{}]", exception.getMessage());
-    return ApiResult.failed(WebApiResultCode.SERVER_ERROR, exception.getMessage());
+    return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
   /**
@@ -157,7 +157,7 @@ public class GlobalExceptionHandler {
   public ApiResult<Void> handleNoResourceFoundException(NoResourceFoundException exception) {
     log.error("资源不存在!路径:[{}],请求方法:[{}]", exception.getResourcePath(), exception.getHttpMethod());
     return ApiResult.failed(
-        WebApiResultCode.RESOURCE_NOT_FOUND,
+        DefaultErrorResultCode.RESOURCE_NOT_FOUND,
         String.format("路径[%s]对应的资源不存在", exception.getResourcePath()));
   }
 
@@ -166,6 +166,7 @@ public class GlobalExceptionHandler {
   public ApiResult<Void> handleHttpRequestMethodNotSupportedExceptionn(
       HttpRequestMethodNotSupportedException exception) {
     return ApiResult.failed(
-        WebApiResultCode.RESOURCE_NOT_FOUND, String.format("请求方法%s不被支持", exception.getMethod()));
+        DefaultErrorResultCode.RESOURCE_NOT_FOUND,
+        String.format("请求方法%s不被支持", exception.getMethod()));
   }
 }
