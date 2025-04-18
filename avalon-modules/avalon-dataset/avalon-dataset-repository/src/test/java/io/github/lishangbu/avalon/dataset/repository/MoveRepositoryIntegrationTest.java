@@ -35,7 +35,7 @@ class MoveRepositoryIntegrationTest {
         .ifPresent(
             generation -> {
               Move move = new Move();
-              move.setId(36L);
+              move.setId(36);
               move.setIndex("36");
               move.setName("猛撞");
               move.setCode("Take Down");
@@ -49,6 +49,6 @@ class MoveRepositoryIntegrationTest {
               move.setEffect("攻击目标造成伤害。 \n");
               moveRepository.saveAndFlush(move);
             });
-    assertTrue(moveRepository.findById(36L).isPresent());
+    assertTrue(moveRepository.findById(36).isPresent());
   }
 }
