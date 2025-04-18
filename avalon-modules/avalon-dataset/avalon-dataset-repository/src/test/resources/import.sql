@@ -52,5 +52,7 @@ INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'Fairy', '妖精');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'Stellar', '星晶');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( '???', '???');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'None', '无属性');
+-- 插入特性数据
+INSERT INTO ABILITY (ID,CODE,EFFECT,INDEX,INFO,NAME,TEXT,GENERATION_ID) VALUES (1,'Stench','使用招式攻击对手造成伤害时，对方有10%几率陷入畏缩状态。\n该效果与王者之证／锐利之牙不叠加。\n该效果与特效为畏缩的招式（比如空气之刃）不叠加。\n连续招式每一下连续的攻击都会有相同的几率造成对手畏缩。','001','"可以被交换", "可以被其他特性覆盖", "可以被其他宝可梦复制", "受无特性状态影响", "变身时特性有效", "不在入场时发动"','恶臭','通过释放臭臭的气味，在攻击的时候，有时会使对手畏缩。',3);
 COMMIT;
 -- @formatter:on

@@ -3,7 +3,9 @@ package io.github.lishangbu.avalon.ip2location.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import io.github.lishangbu.avalon.ip2location.exception.EmptyIpAddressException;
 import io.github.lishangbu.avalon.ip2location.properties.IpToLocationProperties;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +19,7 @@ class IpToLocationSearcherTest {
   @Autowired private IpToLocationSearcher ipToLocationSearcher;
 
   @Test
-  void ipQuery() {
+  void testIpQuery() {
     IpResult ipResult = ipToLocationSearcher.ipQuery("39.189.23.43");
     assertEquals("Not_Supported", ipResult.addressType());
     assertEquals("Not_Supported", ipResult.areaCode());
@@ -45,5 +47,10 @@ class IpToLocationSearcherTest {
     assertEquals("Not_Supported", ipResult.weatherStationCode());
     assertEquals("Not_Supported", ipResult.weatherStationName());
     assertEquals("330201", ipResult.zipcode());
+  }
+
+  @Test
+  void testIpQueryWithEmptyIp() {
+    Assertions.assertThrows(EmptyIpAddressException.class, () -> ipToLocationSearcher.ipQuery(""));
   }
 }

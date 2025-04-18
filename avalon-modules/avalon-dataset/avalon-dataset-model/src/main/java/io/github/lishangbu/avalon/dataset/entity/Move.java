@@ -23,7 +23,7 @@ public class Move implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 内部ID */
-  @Id private Long id;
+  @Id private Integer id;
 
   /** 编号 */
   @Comment("编号")
@@ -128,11 +128,11 @@ public class Move implements Serializable {
   @Column(length = 2000, nullable = false)
   private String effect;
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

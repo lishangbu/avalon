@@ -43,6 +43,15 @@ public class Generation implements Serializable {
   @OneToMany(mappedBy = "generation")
   private List<Move> moves;
 
+  /**
+   * 一个世代有多个特性
+   *
+   * @see Ability
+   * @see Ability#getGeneration()
+   */
+  @OneToMany(mappedBy = "generation")
+  private List<Ability> abilities;
+
   public Integer getId() {
     return id;
   }
@@ -73,5 +82,13 @@ public class Generation implements Serializable {
 
   public void setMoves(List<Move> moves) {
     this.moves = moves;
+  }
+
+  public List<Ability> getAbilities() {
+    return abilities;
+  }
+
+  public void setAbilities(List<Ability> abilities) {
+    this.abilities = abilities;
   }
 }
