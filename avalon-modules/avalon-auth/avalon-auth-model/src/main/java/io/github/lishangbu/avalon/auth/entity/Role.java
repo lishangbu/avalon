@@ -11,8 +11,8 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "UK_ROLE_CODE",
-          columnNames = {"CODE"})
+          name = "uk_role_code",
+          columnNames = {"code"})
     })
 public class Role implements Serializable {
 

@@ -17,8 +17,8 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "UK_TYPE_NAME",
-          columnNames = {"NAME"})
+          name = "uk_type_name",
+          columnNames = {"name"})
     })
 public class Type implements Serializable {
   @Serial private static final long serialVersionUID = 1L;

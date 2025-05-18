@@ -19,11 +19,11 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Entity
 @Table(
-    name = "[USER]",
+    name = "[user]",
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "UK_USER_USERNAME",
-          columnNames = {"USERNAME"})
+          name = "uk_user_username",
+          columnNames = {"username"})
     })
 @Comment("用户")
 public class User implements Serializable {
@@ -45,9 +45,9 @@ public class User implements Serializable {
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
-      name = "USER_ROLE",
-      joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+      name = "user_role",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles;
 
   public Long getId() {
