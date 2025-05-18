@@ -19,24 +19,10 @@ import org.hibernate.annotations.Comment;
  */
 @Entity
 public class Ability implements Serializable {
-  /** 内部ID */
-  @Id private Integer id;
-
-  /** 编号 */
-  @Comment("编号")
-  private String index;
-
-  /**
-   * 所属世代
-   *
-   * <p>每个特性只会属于一个世代
-   *
-   * @see Generation
-   * @see Generation#getAbilities() ()
-   */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "GENERATION_ID")
-  private Generation generation;
+  /** ID */
+  @Id
+  @Comment("主键")
+  private String id;
 
   /**
    * 特性名称
@@ -74,28 +60,12 @@ public class Ability implements Serializable {
   @Column(length = 2000, nullable = false)
   private String effect;
 
-  public Integer getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-  public String getIndex() {
-    return index;
-  }
-
-  public void setIndex(String index) {
-    this.index = index;
-  }
-
-  public Generation getGeneration() {
-    return generation;
-  }
-
-  public void setGeneration(Generation generation) {
-    this.generation = generation;
   }
 
   public String getName() {

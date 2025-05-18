@@ -16,20 +16,10 @@ INSERT INTO EGG_GROUP ("group",NAME,TEXT,CHARACTERISTICS) VALUES ('Water 2','水
 INSERT INTO EGG_GROUP ("group",NAME,TEXT,CHARACTERISTICS) VALUES ('Ditto','百变怪','顾名思义，百变怪是这个群中唯一的宝可梦，可以和除了未发现群及百变怪群以外的所有宝可梦生蛋（无视性别）。','这个蛋群只有百变怪。处于这个蛋群的宝可梦可以与除未发现群和百变怪群外的任何蛋群的宝可梦生蛋，蛋的种类必然是另一方。');
 INSERT INTO EGG_GROUP ("group",NAME,TEXT,CHARACTERISTICS) VALUES ('Dragon','龙','外表长得像龙或者具有龙的特质的宝可梦。','这个蛋群的宝可梦大多原型基于传说中的龙以及与龙有关的动物（蜥蜴、海马等）。但也有例外，例如七夕青鸟原型是鸟类但是它是龙属性，鲤鱼王、丑丑鱼原型是鱼类但是它们进化后的原型是传说中的龙。');
 INSERT INTO EGG_GROUP ("group",NAME,TEXT,CHARACTERISTICS) VALUES ('Undiscovered','未发现','不能和任何宝可梦生蛋。','属于此蛋群的宝可梦都无法生蛋。换装皮卡丘、小智版甲贺忍蛙、戴着帽子的皮卡丘为特殊形态的宝可梦，不能生蛋。尼多娜和尼多后进化前的尼多兰不属于这个蛋群可以生蛋，幼年宝可梦进化后不属于这个蛋群可以生蛋。');
--- 插入世代数据
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (1, 'I', '第一世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (2, 'II', '第二世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (3, 'III', '第三世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (4, 'IV', '第四世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (5, 'V', '第五世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (6, 'VI', '第六世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (7, 'VII', '第七世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (8, 'VIII', '第八世代');
-INSERT INTO GENERATION (ID, CODE, NAME) VALUES (9, 'IX', '第九世代');
 -- 插入招式分类数据
-INSERT INTO MOVE_CATEGORY (CATEGORY,  NAME) VALUES ( 'Physical', '物理');
-INSERT INTO MOVE_CATEGORY (CATEGORY,  NAME) VALUES ( 'Special', '特殊');
-INSERT INTO MOVE_CATEGORY (CATEGORY,  NAME) VALUES ( 'Status', '变化');
+INSERT INTO MOVE_CATEGORY (CATEGORY, DESCRIPTION, NAME) VALUES ( 'Physical', '物理招式是一种能够造成伤害的招式。如果招式特效没有特别说明，则此类招式使用攻击方的攻击与防御方的防御来计算最终的伤害。','物理');
+INSERT INTO MOVE_CATEGORY (CATEGORY,DESCRIPTION,  NAME) VALUES ( 'Special', '特殊招式是一种能够造成伤害的招式。如果招式特效没有特别说明，则此类招式使用攻击方的特攻与防御方的特防来计算最终的伤害。','特殊');
+INSERT INTO MOVE_CATEGORY (CATEGORY,DESCRIPTION,  NAME) VALUES ( 'Status', '变化招式是不能够直接造成伤害的招式。此类招式的威力全部为零，尽管有的招式可以通过施加状态来间接对对方造成伤害。','变化');
 --插入属性数据
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'Normal', '一般');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'Fire', '火');
@@ -53,6 +43,6 @@ INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'Stellar', '星晶');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( '???', '???');
 INSERT INTO TYPE (TYPE,  NAME) VALUES ( 'None', '无属性');
 -- 插入特性数据
-INSERT INTO ABILITY (ID,CODE,EFFECT,INDEX,INFO,NAME,TEXT,GENERATION_ID) VALUES (1,'Stench','使用招式攻击对手造成伤害时，对方有10%几率陷入畏缩状态。\n该效果与王者之证／锐利之牙不叠加。\n该效果与特效为畏缩的招式（比如空气之刃）不叠加。\n连续招式每一下连续的攻击都会有相同的几率造成对手畏缩。','001','"可以被交换", "可以被其他特性覆盖", "可以被其他宝可梦复制", "受无特性状态影响", "变身时特性有效", "不在入场时发动"','恶臭','通过释放臭臭的气味，在攻击的时候，有时会使对手畏缩。',3);
+INSERT INTO ABILITY (ID,CODE,EFFECT,INFO,NAME,TEXT) VALUES (1,'Stench','使用招式攻击对手造成伤害时，对方有10%几率陷入畏缩状态。\n该效果与王者之证／锐利之牙不叠加。\n该效果与特效为畏缩的招式（比如空气之刃）不叠加。\n连续招式每一下连续的攻击都会有相同的几率造成对手畏缩。','"可以被交换", "可以被其他特性覆盖", "可以被其他宝可梦复制", "受无特性状态影响", "变身时特性有效", "不在入场时发动"','恶臭','通过释放臭臭的气味，在攻击的时候，有时会使对手畏缩。');
 COMMIT;
 -- @formatter:on

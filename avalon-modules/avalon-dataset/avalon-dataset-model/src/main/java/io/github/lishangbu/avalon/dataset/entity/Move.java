@@ -16,30 +16,16 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "UK_MOVE_INDEX",
-          columnNames = {"INDEX"})
+          name = "uk_move_code",
+          columnNames = {"code"})
     })
 public class Move implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 内部ID */
-  @Id private Integer id;
-
-  /** 编号 */
-  @Comment("编号")
-  private String index;
-
-  /**
-   * 所属世代
-   *
-   * <p>每个招式只会属于一个世代
-   *
-   * @see Generation
-   * @see Generation#getMoves()
-   */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "GENERATION_ID")
-  private Generation generation;
+  /** ID */
+  @Id
+  @Comment("主键")
+  private String id;
 
   /**
    * 招式名称
@@ -70,7 +56,7 @@ public class Move implements Serializable {
    * @see Type#getMoves()
    */
   @ManyToOne
-  @JoinColumn(name = "TYPE")
+  @JoinColumn(name = "type")
   @Comment("属性")
   private Type type;
 
@@ -81,7 +67,7 @@ public class Move implements Serializable {
    * @see MoveCategory#getMoves()
    */
   @Comment("招式分类")
-  @JoinColumn(name = "CATEGORY")
+  @JoinColumn(name = "category")
   @ManyToOne
   private MoveCategory category;
 
@@ -128,28 +114,12 @@ public class Move implements Serializable {
   @Column(length = 2000, nullable = false)
   private String effect;
 
-  public Integer getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-  public String getIndex() {
-    return index;
-  }
-
-  public void setIndex(String index) {
-    this.index = index;
-  }
-
-  public Generation getGeneration() {
-    return generation;
-  }
-
-  public void setGeneration(Generation generation) {
-    this.generation = generation;
   }
 
   public String getName() {

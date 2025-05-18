@@ -25,7 +25,7 @@ public class EggGroup implements Serializable {
   /** 蛋群分类 */
   @Id
   @Comment("主键,标明蛋群的分类")
-  @Column(name = "[GROUP]")
+  @Column(name = "[group]")
   private String group;
 
   /** 蛋群名称 */
