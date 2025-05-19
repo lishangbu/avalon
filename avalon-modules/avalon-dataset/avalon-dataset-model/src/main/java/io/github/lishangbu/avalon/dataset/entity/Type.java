@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 /**
@@ -17,17 +18,26 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "uk_type_name",
-          columnNames = {"name"})
+          name = "uk_type_internal_name",
+          columnNames = {"internal_name"})
     })
 public class Type implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 属性 */
+  /** ID */
   @Id
-  @Comment("主键，属性")
-  @Column(length = 20)
-  private String type;
+  @Comment("主键")
+  private Integer id;
+
+  /**
+   * 内部名称
+   *
+   * <p>取百科中的属性英文名称
+   */
+  @Column(nullable = false, length = 10)
+  @ColumnDefault("''")
+  @Comment("内部名称")
+  private String internalName;
 
   /** 属性名称 */
   @Comment("属性名称")
@@ -43,12 +53,20 @@ public class Type implements Serializable {
   @OneToMany(mappedBy = "type")
   private List<Move> moves;
 
-  public String getType() {
-    return type;
+  public Integer getId() {
+    return id;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getInternalName() {
+    return internalName;
+  }
+
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
   }
 
   public String getName() {

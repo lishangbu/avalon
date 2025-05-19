@@ -12,16 +12,15 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/14
  */
 @Repository
-public interface MoveCategoryRepository extends JpaRepository<MoveCategory, String> {
+public interface MoveCategoryRepository extends JpaRepository<MoveCategory, Integer> {
 
   /**
    * 根据分类查找并返回对应的招式分类数据
    *
-   * @param category 要查找的分类，不能为空。
+   * @param internalName 要查找的分类，不能为空。
    * @return 如果找到与指定类型匹配的招式分类对象，返回一个包含该对象的Optional；如果没有找到，返回一个空的Optional。
-   * @see MoveCategoryRepository#findById(Object)
    */
-  Optional<MoveCategory> findByCategory(String category);
+  Optional<MoveCategory> findByInternalName(String internalName);
 
   /**
    * 根据分类名称查找并返回对应的招式分类数据

@@ -29,7 +29,7 @@ class TypeRepositoryTest {
 
   @Test
   public void testFindByType() {
-    Optional<Type> normalTypeOptional = typeRepository.findByType("Normal");
+    Optional<Type> normalTypeOptional = typeRepository.findByInternalName("Normal");
     assertTrue(normalTypeOptional.isPresent());
     Type type = normalTypeOptional.get();
     assertEquals("一般", type.getName());
@@ -37,7 +37,7 @@ class TypeRepositoryTest {
 
   @Test
   public void testFindById() {
-    Optional<Type> normalTypeOptional = typeRepository.findById("Fire");
+    Optional<Type> normalTypeOptional = typeRepository.findById(2);
     assertTrue(normalTypeOptional.isPresent());
     Type type = normalTypeOptional.get();
     assertEquals("火", type.getName());

@@ -10,8 +10,8 @@
   <artifactId>avalon-dataset-model</artifactId>
   <dependencies>
     <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-core</artifactId>
+      <groupId>io.github.lishangbu</groupId>
+      <artifactId>avalon-orm-support</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

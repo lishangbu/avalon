@@ -16,8 +16,8 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "uk_move_code",
-          columnNames = {"code"})
+          name = "uk_move_internal_name",
+          columnNames = {"internal_name"})
     })
 public class Move implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
@@ -25,7 +25,7 @@ public class Move implements Serializable {
   /** ID */
   @Id
   @Comment("主键")
-  private String id;
+  private Integer id;
 
   /**
    * 招式名称
@@ -36,12 +36,14 @@ public class Move implements Serializable {
   private String name;
 
   /**
-   * 招式代码
+   * 内部名称
    *
-   * <p>取百科中的英文名数据
+   * <p>取百科中的招式英文名
    */
-  @Comment("招式代码")
-  private String code;
+  @Column(nullable = false, length = 100)
+  @ColumnDefault("''")
+  @Comment("内部名称")
+  private String internalName;
 
   /**
    * 属性
@@ -56,7 +58,7 @@ public class Move implements Serializable {
    * @see Type#getMoves()
    */
   @ManyToOne
-  @JoinColumn(name = "type")
+  @JoinColumn(name = "type_id")
   @Comment("属性")
   private Type type;
 
@@ -67,7 +69,7 @@ public class Move implements Serializable {
    * @see MoveCategory#getMoves()
    */
   @Comment("招式分类")
-  @JoinColumn(name = "category")
+  @JoinColumn(name = "category_id")
   @ManyToOne
   private MoveCategory category;
 
@@ -114,11 +116,11 @@ public class Move implements Serializable {
   @Column(length = 2000, nullable = false)
   private String effect;
 
-  public String getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -130,12 +132,12 @@ public class Move implements Serializable {
     this.name = name;
   }
 
-  public String getCode() {
-    return code;
+  public String getInternalName() {
+    return internalName;
   }
 
-  public void setCode(String code) {
-    this.code = code;
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
   }
 
   public Type getType() {

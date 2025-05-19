@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import org.hibernate.annotations.ColumnDefault;
@@ -19,14 +17,29 @@ import org.hibernate.annotations.Comment;
  * @since 2025/4/15
  */
 @Entity
+@Table(
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_egg_group_internal_name",
+          columnNames = {"internal_name"})
+    })
 public class EggGroup implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 蛋群分类 */
+  /** ID */
   @Id
-  @Comment("主键,标明蛋群的分类")
-  @Column(name = "[group]")
-  private String group;
+  @Comment("主键")
+  private Integer id;
+
+  /**
+   * 内部名称
+   *
+   * <p>取百科中的蛋群分类数据
+   */
+  @Column(nullable = false, length = 100)
+  @ColumnDefault("''")
+  @Comment("内部名称")
+  private String internalName;
 
   /** 蛋群名称 */
   @ColumnDefault("''")
@@ -46,12 +59,20 @@ public class EggGroup implements Serializable {
   @Column(nullable = false, length = 500)
   private String characteristics;
 
-  public String getGroup() {
-    return group;
+  public Integer getId() {
+    return id;
   }
 
-  public void setGroup(String group) {
-    this.group = group;
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getInternalName() {
+    return internalName;
+  }
+
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
   }
 
   public String getName() {

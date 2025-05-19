@@ -10,13 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author lishangbu
  * @since 2025/4/15
  */
-public interface EggGroupRepository extends JpaRepository<EggGroup, String> {
+public interface EggGroupRepository extends JpaRepository<EggGroup, Integer> {
   /**
-   * 根据分组查找并返回对应的蛋群数据
+   * 根据内部名称查找并返回对应的蛋群数据
    *
-   * @param group 要查找的分组，不能为空。
+   * @param internalName 要查找的内部名称，不能为空。
    * @return 如果找到与指定类型匹配的对象，返回一个包含该对象的Optional；如果没有找到，返回一个空的Optional。
-   * @see EggGroupRepository#findById(Object)
    */
-  Optional<EggGroup> findByGroup(String group);
+  Optional<EggGroup> findByInternalName(String internalName);
 }

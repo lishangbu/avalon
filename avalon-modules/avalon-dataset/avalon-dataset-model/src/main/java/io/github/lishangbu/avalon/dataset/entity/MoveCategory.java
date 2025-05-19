@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 /**
@@ -16,18 +17,27 @@ import org.hibernate.annotations.Comment;
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "UK_MOVE_CATEGORY_NAME",
-          columnNames = {"name"})
+          name = "uk_move_category_internal_name",
+          columnNames = {"internal_name"})
     })
 public class MoveCategory implements Serializable {
 
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 分类 */
+  /** ID */
   @Id
-  @Comment("主键，分类")
-  @Column(length = 10)
-  private String category;
+  @Comment("主键")
+  private Integer id;
+
+  /**
+   * 内部名称
+   *
+   * <p>取百科中的分类数据
+   */
+  @Column(nullable = false, length = 10)
+  @ColumnDefault("''")
+  @Comment("内部名称")
+  private String internalName;
 
   /** 属性说明 */
   @Comment("说明")
@@ -47,12 +57,20 @@ public class MoveCategory implements Serializable {
   @Column(length = 10, nullable = false)
   private String name;
 
-  public String getCategory() {
-    return category;
+  public Integer getId() {
+    return id;
   }
 
-  public void setCategory(String category) {
-    this.category = category;
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getInternalName() {
+    return internalName;
+  }
+
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
   }
 
   public String getDescription() {

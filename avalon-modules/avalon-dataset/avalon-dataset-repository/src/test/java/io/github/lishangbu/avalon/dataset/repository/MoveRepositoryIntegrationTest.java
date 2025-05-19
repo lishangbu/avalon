@@ -29,11 +29,11 @@ class MoveRepositoryIntegrationTest {
   public void testSave() {
 
     Move move = new Move();
-    move.setId("36");
+    move.setId(36);
     move.setName("猛撞");
-    move.setCode("Take Down");
+    move.setInternalName("Take Down");
     moveCategoryRepository.findByName("物理").ifPresent(move::setCategory);
-    typeRepository.findByType("Normal").ifPresent(move::setType);
+    typeRepository.findByInternalName("Normal").ifPresent(move::setType);
     move.setPower(90);
     move.setAccuracy(85);
     move.setPp(20);
