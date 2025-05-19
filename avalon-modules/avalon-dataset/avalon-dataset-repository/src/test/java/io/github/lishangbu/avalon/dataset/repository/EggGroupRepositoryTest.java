@@ -28,10 +28,10 @@ class EggGroupRepositoryTest {
 
   @Test
   public void testFindByName() {
-    Optional<EggGroup> eggGroupOptional = eggGroupRepository.findByGroup("Monster");
+    Optional<EggGroup> eggGroupOptional = eggGroupRepository.findByInternalName("Monster");
     assertTrue(eggGroupOptional.isPresent());
     EggGroup eggGroup = eggGroupOptional.get();
-    assertEquals("Monster", eggGroup.getGroup());
+    assertEquals("Monster", eggGroup.getInternalName());
     assertEquals("怪兽", eggGroup.getName());
     assertEquals("像是怪兽一样，或者比较野性。", eggGroup.getText());
     assertEquals("这个蛋群的宝可梦大多原型基于特摄影片中的怪兽以及爬行动物。", eggGroup.getCharacteristics());

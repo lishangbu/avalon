@@ -22,16 +22,24 @@ class MoveCategoryRepositoryTest {
   @Autowired private MoveCategoryRepository moveCategoryRepository;
 
   @Test
-  void findByCategory() {
-    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findByCategory("Physical");
+  void testFindByCategory() {
+    Optional<MoveCategory> moveCategoryOptional =
+        moveCategoryRepository.findByInternalName("Physical");
     assertTrue(moveCategoryOptional.isPresent());
     assertEquals("物理", moveCategoryOptional.get().getName());
   }
 
   @Test
-  void findByName() {
+  void testFindByName() {
     Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findByName("变化");
     assertTrue(moveCategoryOptional.isPresent());
-    assertEquals("Status", moveCategoryOptional.get().getCategory());
+    assertEquals("Status", moveCategoryOptional.get().getInternalName());
+  }
+
+  @Test
+  void testFindById() {
+    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findById(2);
+    assertTrue(moveCategoryOptional.isPresent());
+    assertEquals("Special", moveCategoryOptional.get().getInternalName());
   }
 }

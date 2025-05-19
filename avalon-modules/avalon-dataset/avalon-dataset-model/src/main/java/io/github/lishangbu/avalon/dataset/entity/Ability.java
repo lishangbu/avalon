@@ -18,11 +18,17 @@ import org.hibernate.annotations.Comment;
  * @since 2025/4/17
  */
 @Entity
+@Table(
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_ability_internal_name",
+          columnNames = {"internal_name"})
+    })
 public class Ability implements Serializable {
   /** ID */
   @Id
   @Comment("主键")
-  private String id;
+  private Integer id;
 
   /**
    * 特性名称
@@ -31,18 +37,18 @@ public class Ability implements Serializable {
    */
   @Column(nullable = false, length = 100)
   @ColumnDefault("''")
-  @Comment("特性名称")
+  @Comment("名称")
   private String name;
 
   /**
-   * 特性代码
+   * 内部名称
    *
    * <p>取百科中的英文名数据
    */
   @Column(nullable = false, length = 100)
   @ColumnDefault("''")
-  @Comment("特性代码")
-  private String code;
+  @Comment("内部名称")
+  private String internalName;
 
   @Column(nullable = false, length = 500)
   @ColumnDefault("''")
@@ -60,11 +66,11 @@ public class Ability implements Serializable {
   @Column(length = 2000, nullable = false)
   private String effect;
 
-  public String getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -76,12 +82,12 @@ public class Ability implements Serializable {
     this.name = name;
   }
 
-  public String getCode() {
-    return code;
+  public String getInternalName() {
+    return internalName;
   }
 
-  public void setCode(String code) {
-    this.code = code;
+  public void setInternalName(String code) {
+    this.internalName = code;
   }
 
   public String getText() {
