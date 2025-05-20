@@ -8,5 +8,4 @@ package io.github.lishangbu.avalon.shell.dataset.constant;
  */
 public abstract class DataSetConstants {
   public static final String DATA_SET_SHELL_GROUP = "数据集相关";
-
 }
