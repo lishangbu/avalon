@@ -7,7 +7,9 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * 参考<a href="https://pokeapi.co/docs/v2">官网Pokémon/Types/Type</a>
+ * 属性是宝可梦及其招式的属性。每种类型有三个特性：对哪些类型的宝可梦效果绝佳、对哪些类型的宝可梦效果不佳，以及对哪些类型的宝可梦完全无效。
+ *
+ * <p>参考<a href="https://pokeapi.co/docs/v2">官网Pokémon/Types/Type</a>
  *
  * @author lishangbu
  * @since 2025/5/20
@@ -59,6 +61,7 @@ public record Type(
   }
 
   /** 获取此资源在不同语言中的名称 */
+  @Override
   public List<Name> names() {
     return names;
   }

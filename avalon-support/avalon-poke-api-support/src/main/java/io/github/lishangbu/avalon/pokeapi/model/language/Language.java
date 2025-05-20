@@ -10,9 +10,9 @@ import java.util.List;
  * @since 2025/5/20
  */
 public record Language(
-    String id, String name, Boolean official, String iso639, String iso3166, List<Name> names) {
+    Integer id, String name, Boolean official, String iso639, String iso3166, List<Name> names) {
   /** 该资源的标识符 */
-  public String id() {
+  public Integer id() {
     return id;
   }
 
