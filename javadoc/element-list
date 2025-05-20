@@ -27,6 +27,7 @@ io.github.lishangbu.avalon.security.properties
 io.github.lishangbu.avalon.security.result
 io.github.lishangbu.avalon.security.util
 io.github.lishangbu.avalon.server
+io.github.lishangbu.avalon.shell
 io.github.lishangbu.avalon.web.exception
 io.github.lishangbu.avalon.web.response
 io.github.lishangbu.avalon.web.result
