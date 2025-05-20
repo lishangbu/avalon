@@ -87,7 +87,7 @@
               <!-- 是否对空行进行缩进 -->
               <indentBlankLines>true</indentBlankLines>
               <!-- 是否对 schema 位置进行缩进 -->
-              <indentSchemaLocation>true</indentSchemaLocation>
+              <indentAttribute>schemaLocation</indentAttribute>
               <!-- 元素的排序顺序：https://github.com/Ekryd/sortpom/wiki/PredefinedSortOrderProfiles -->
               <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
               <!-- 是否排序依赖项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->

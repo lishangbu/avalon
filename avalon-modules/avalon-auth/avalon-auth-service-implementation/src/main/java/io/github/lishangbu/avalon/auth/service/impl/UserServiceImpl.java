@@ -7,9 +7,7 @@ import io.github.lishangbu.avalon.auth.repository.RoleRepository;
 import io.github.lishangbu.avalon.auth.repository.UserRepository;
 import io.github.lishangbu.avalon.auth.service.UserService;
 import io.github.lishangbu.avalon.security.core.UserPrincipal;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -73,7 +71,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         .findByCode(payload.roleCode())
         .ifPresent(
             role -> {
-              Set<Role> roles = new LinkedHashSet<>();
+              List<Role> roles = new ArrayList<>();
               roles.add(role);
               user.setRoles(roles);
             });

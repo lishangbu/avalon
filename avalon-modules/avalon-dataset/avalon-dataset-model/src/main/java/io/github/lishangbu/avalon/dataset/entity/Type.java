@@ -53,6 +53,9 @@ public class Type implements Serializable {
   @OneToMany(mappedBy = "type")
   private List<Move> moves;
 
+  @OneToMany(mappedBy = "type")
+  private List<PokemonType> pokemonTypes;
+
   public Integer getId() {
     return id;
   }
@@ -83,5 +86,13 @@ public class Type implements Serializable {
 
   public void setMoves(List<Move> moves) {
     this.moves = moves;
+  }
+
+  public List<PokemonType> getPokemonTypes() {
+    return pokemonTypes;
+  }
+
+  public void setPokemonTypes(List<PokemonType> pokemonTypes) {
+    this.pokemonTypes = pokemonTypes;
   }
 }

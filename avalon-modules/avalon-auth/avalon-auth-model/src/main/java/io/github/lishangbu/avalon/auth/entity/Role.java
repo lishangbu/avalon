@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.auth.entity;
 
-import io.github.lishangbu.avalon.orm.id.annotation.FlexIdGenerator;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -19,19 +19,24 @@ public class Role implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   @Id
-  @FlexIdGenerator
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "role_seq_gen")
+  @TableGenerator(name = "role_seq_gen", table = "hibernate_sequences", pkColumnValue = "role")
   @Comment("主键")
-  private Long id;
+  private Integer id;
 
   @Column(nullable = false, length = 20)
   @Comment("角色代码")
   private String code;
 
-  public Long getId() {
+  /** 让user维护外键表 */
+  @ManyToMany(mappedBy = "roles")
+  private List<User> users;
+
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -41,5 +46,13 @@ public class Role implements Serializable {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public List<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<User> users) {
+    this.users = users;
   }
 }

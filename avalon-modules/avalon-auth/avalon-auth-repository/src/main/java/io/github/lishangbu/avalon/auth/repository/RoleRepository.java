@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/5
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends JpaRepository<Role, Integer> {
 
   Optional<Role> findByCode(String code);
 }

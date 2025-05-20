@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:h2:~/avalon.db;AUTO_SERVER=TRUE;
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  shell:
+    interactive:
+      enabled: true
