@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
  * @since 2025/5/20
  */
 @AutoConfiguration
-public class RestClientAutoConfiguration {
+public class PokeApiRestClientAutoConfiguration {
   /**
    * 用于请求的web客户端
    *

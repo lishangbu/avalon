@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.pokeapi.service.impl.pokemon.type;
 
 import io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiTemplateAutoConfiguration;
-import io.github.lishangbu.avalon.pokeapi.autoconfiguration.RestClientAutoConfiguration;
+import io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiRestClientAutoConfiguration;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @since 2025/5/20
  */
 @SpringBootTest(
-    classes = {RestClientAutoConfiguration.class, PokeApiTemplateAutoConfiguration.class})
+    classes = {PokeApiRestClientAutoConfiguration.class, PokeApiTemplateAutoConfiguration.class})
 class DefaultPokeApiTemplateTest {
   @Autowired private PokeApiTemplate pokeApiTemplate;
 
