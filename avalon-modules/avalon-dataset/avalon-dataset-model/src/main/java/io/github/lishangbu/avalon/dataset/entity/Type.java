@@ -1,12 +1,11 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 /**
  * 属性

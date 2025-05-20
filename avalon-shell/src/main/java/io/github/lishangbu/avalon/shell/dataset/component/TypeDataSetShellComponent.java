@@ -2,15 +2,13 @@ package io.github.lishangbu.avalon.shell.dataset.component;
 
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
+import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
+import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
 import io.github.lishangbu.avalon.shell.dataset.constant.DataSetConstants;
-import io.github.lishangbu.avalon.shell.pokeapi.model.PokeApiResource;
-import io.github.lishangbu.avalon.shell.pokeapi.model.PokeApiTypeDetailResult;
-import io.github.lishangbu.avalon.shell.pokeapi.service.PokeApiTypeService;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-
-import java.util.List;
 
 /**
  * 属性相关数据集处理命令
@@ -22,33 +20,38 @@ import java.util.List;
 @ShellCommandGroup(DataSetConstants.DATA_SET_SHELL_GROUP)
 public class TypeDataSetShellComponent {
 
-  private final PokeApiTypeService pokeApiTypeService;
+  private final PokeApiTemplate pokeApiTemplate;
 
   private final TypeRepository typeRepository;
 
-
-  public TypeDataSetShellComponent(PokeApiTypeService pokeApiTypeService, TypeRepository typeRepository) {
-    this.pokeApiTypeService = pokeApiTypeService;
+  public TypeDataSetShellComponent(PokeApiTemplate pokeApiTemplate, TypeRepository typeRepository) {
+    this.pokeApiTemplate = pokeApiTemplate;
     this.typeRepository = typeRepository;
   }
 
-  @ShellMethod(key = "dataset-refresh-type", value = "刷新数据库中的TYPE表数据")
+  @ShellMethod(key = "refresh-db-type", value = "刷新数据库中的TYPE表数据")
   public String refreshType() {
-    List<PokeApiResource> pokeApiResources = pokeApiTypeService.listPokeApiTypes();
-    for (PokeApiResource pokeApiResource : pokeApiResources) {
-      PokeApiTypeDetailResult result = pokeApiTypeService.getPokeApiTypeDetailByArg(pokeApiResource.name());
+    NamedAPIResourceList namedApiResources = pokeApiTemplate.listTypes(0, 100);
+
+    for (NamedApiResource namedApiResource : namedApiResources.results()) {
+      io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
+          pokeApiTemplate.getType(namedApiResource.name());
       Type type = new Type();
       type.setId(result.id());
       type.setInternalName(result.name());
       result.names().stream()
-        .filter(name -> name.language().name().equals("zh-Hans"))
-        .findFirst()
-        .ifPresentOrElse(name -> type.setName(name.name()), () -> {
-          result.names().stream()
-            .filter(name -> name.language().name().equals("zh-Hant"))
-            .findFirst()
-            .ifPresentOrElse(name -> type.setName(name.name()), () -> type.setName(type.getInternalName()));
-        });
+          .filter(name -> name.language().name().equals("zh-Hans"))
+          .findFirst()
+          .ifPresentOrElse(
+              name -> type.setName(name.name()),
+              () -> {
+                result.names().stream()
+                    .filter(name -> name.language().name().equals("zh-Hant"))
+                    .findFirst()
+                    .ifPresentOrElse(
+                        name -> type.setName(name.name()),
+                        () -> type.setName(type.getInternalName()));
+              });
 
       typeRepository.save(type);
     }

@@ -1,0 +1,2 @@
+io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiTemplateAutoConfiguration
+io.github.lishangbu.avalon.pokeapi.autoconfiguration.RestClientAutoConfiguration
