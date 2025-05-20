@@ -18,6 +18,13 @@ io.github.lishangbu.avalon.json.util
 io.github.lishangbu.avalon.keygen
 io.github.lishangbu.avalon.orm.id
 io.github.lishangbu.avalon.orm.id.annotation
+io.github.lishangbu.avalon.pokeapi.autoconfiguration
+io.github.lishangbu.avalon.pokeapi.model.common
+io.github.lishangbu.avalon.pokeapi.model.language
+io.github.lishangbu.avalon.pokeapi.model.pagination
+io.github.lishangbu.avalon.pokeapi.model.pokemon.type
+io.github.lishangbu.avalon.pokeapi.service
+io.github.lishangbu.avalon.pokeapi.service.impl
 io.github.lishangbu.avalon.security.autoconfiguration
 io.github.lishangbu.avalon.security.constant
 io.github.lishangbu.avalon.security.core
@@ -31,12 +38,6 @@ io.github.lishangbu.avalon.shell
 io.github.lishangbu.avalon.shell.dataset
 io.github.lishangbu.avalon.shell.dataset.component
 io.github.lishangbu.avalon.shell.dataset.constant
-io.github.lishangbu.avalon.shell.pokeapi
-io.github.lishangbu.avalon.shell.pokeapi.component
-io.github.lishangbu.avalon.shell.pokeapi.constant
-io.github.lishangbu.avalon.shell.pokeapi.model
-io.github.lishangbu.avalon.shell.pokeapi.service
-io.github.lishangbu.avalon.shell.pokeapi.service.impl
 io.github.lishangbu.avalon.web.exception
 io.github.lishangbu.avalon.web.response
 io.github.lishangbu.avalon.web.result
