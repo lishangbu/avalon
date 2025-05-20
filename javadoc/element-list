@@ -28,6 +28,15 @@ io.github.lishangbu.avalon.security.result
 io.github.lishangbu.avalon.security.util
 io.github.lishangbu.avalon.server
 io.github.lishangbu.avalon.shell
+io.github.lishangbu.avalon.shell.dataset
+io.github.lishangbu.avalon.shell.dataset.component
+io.github.lishangbu.avalon.shell.dataset.constant
+io.github.lishangbu.avalon.shell.pokeapi
+io.github.lishangbu.avalon.shell.pokeapi.component
+io.github.lishangbu.avalon.shell.pokeapi.constant
+io.github.lishangbu.avalon.shell.pokeapi.model
+io.github.lishangbu.avalon.shell.pokeapi.service
+io.github.lishangbu.avalon.shell.pokeapi.service.impl
 io.github.lishangbu.avalon.web.exception
 io.github.lishangbu.avalon.web.response
 io.github.lishangbu.avalon.web.result
