@@ -24,9 +24,17 @@
     <jjwt.version>0.12.6</jjwt.version>
     <revision>1.0.0-SNAPSHOT</revision>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
+    <spring-shell.version>3.4.0</spring-shell.version>
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.springframework.shell</groupId>
+        <artifactId>spring-shell-dependencies</artifactId>
+        <version>${spring-shell.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-auth-model</artifactId>
@@ -158,7 +166,7 @@
               <!-- 是否对空行进行缩进 -->
               <indentBlankLines>true</indentBlankLines>
               <!-- 是否对 schema 位置进行缩进 -->
-              <indentSchemaLocation>true</indentSchemaLocation>
+              <indentAttribute>schemaLocation</indentAttribute>
               <!-- 元素的排序顺序：https://github.com/Ekryd/sortpom/wiki/PredefinedSortOrderProfiles -->
               <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
               <!-- 是否排序依赖项：https://github.com/Ekryd/sortpom/wiki/SortDependencies -->

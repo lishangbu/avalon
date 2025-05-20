@@ -4,7 +4,7 @@ import io.github.lishangbu.avalon.orm.id.annotation.FlexIdGenerator;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -43,12 +43,17 @@ public class User implements Serializable {
   @Column(nullable = false, length = 200)
   private String password;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  /**
+   * 使用JoinTable来描述中间表，并描述中间表中外键与User,Role的映射关系 joinColumns用来描述User与中间表中的映射关系
+   * inverseJoinColums用来描述Role与中间表中的映射关系
+   */
   @JoinTable(
-      name = "user_role",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set<Role> roles;
+      name = "user_role_relation",
+      joinColumns = @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_id")),
+      inverseJoinColumns =
+          @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_role_id")))
+  @ManyToMany
+  private List<Role> roles;
 
   public Long getId() {
     return id;
@@ -74,11 +79,11 @@ public class User implements Serializable {
     this.password = password;
   }
 
-  public Set<Role> getRoles() {
+  public List<Role> getRoles() {
     return roles;
   }
 
-  public void setRoles(Set<Role> roles) {
+  public void setRoles(List<Role> roles) {
     this.roles = roles;
   }
 }

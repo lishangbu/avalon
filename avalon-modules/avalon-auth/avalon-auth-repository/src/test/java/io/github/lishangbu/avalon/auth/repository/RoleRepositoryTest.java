@@ -26,7 +26,7 @@ class RoleRepositoryTest {
   void testFindByCode() {
     Optional<Role> foundRole = roleRepository.findByCode("ROLE_TEST");
     assertTrue(foundRole.isPresent());
-    assertEquals(1L, foundRole.get().getId());
+    assertEquals(9999, foundRole.get().getId());
   }
 
   @Test
@@ -35,6 +35,7 @@ class RoleRepositoryTest {
     Role role = new Role();
     role.setCode("ROLE_TEST2");
     roleRepository.save(role);
-    assertEquals(2L, roleRepository.count());
+    assertEquals(1, role.getId());
+    assertEquals(2, roleRepository.count());
   }
 }

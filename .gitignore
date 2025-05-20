@@ -40,3 +40,6 @@ build/
 
 ### Ip Data File ###
 IP2LOCATION-LITE-DB11**.BIN
+
+### Log File ###
+*.log
