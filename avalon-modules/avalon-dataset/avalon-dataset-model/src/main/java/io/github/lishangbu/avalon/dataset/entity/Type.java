@@ -1,11 +1,12 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 
 /**
  * 属性
@@ -34,14 +35,15 @@ public class Type implements Serializable {
    *
    * <p>取百科中的属性英文名称
    */
-  @Column(nullable = false, length = 10)
+  @Column(nullable = false, length = 20)
   @ColumnDefault("''")
   @Comment("内部名称")
   private String internalName;
 
   /** 属性名称 */
   @Comment("属性名称")
-  @Column(nullable = false, length = 30)
+  @ColumnDefault("''")
+  @Column(nullable = false, length = 20)
   private String name;
 
   /**
