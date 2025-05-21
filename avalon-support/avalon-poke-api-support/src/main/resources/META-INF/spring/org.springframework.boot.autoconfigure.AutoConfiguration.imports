@@ -1,3 +1,3 @@
 io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiCacheAutoConfiguration
-io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiTemplateAutoConfiguration
+io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiServiceAutoConfiguration
 io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiRestClientAutoConfiguration

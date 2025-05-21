@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.TypeRelations;
-import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
+import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +35,17 @@ public class TypeRelationDataSetShellComponent {
 
   private static final Logger log =
       LoggerFactory.getLogger(TypeRelationDataSetShellComponent.class);
-  private final PokeApiTemplate pokeApiTemplate;
+  private final PokeApiService pokeApiService;
 
   private final TypeRepository typeRepository;
 
   private final TypeDamageRelationRepository typeDamageRelationRepository;
 
   public TypeRelationDataSetShellComponent(
-      PokeApiTemplate pokeApiTemplate,
+      PokeApiService pokeApiService,
       TypeRepository typeRepository,
       TypeDamageRelationRepository typeDamageRelationRepository) {
-    this.pokeApiTemplate = pokeApiTemplate;
+    this.pokeApiService = pokeApiService;
     this.typeRepository = typeRepository;
     this.typeDamageRelationRepository = typeDamageRelationRepository;
   }
@@ -54,12 +54,12 @@ public class TypeRelationDataSetShellComponent {
   public String refreshType(
       @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
       @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources = pokeApiTemplate.listTypes(offset, limit);
+    NamedAPIResourceList namedApiResources = pokeApiService.listTypes(offset, limit);
     List<io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type> loadedTypes =
         new ArrayList<>();
     for (NamedApiResource namedApiResource : namedApiResources.results()) {
       io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
-          pokeApiTemplate.getType(namedApiResource.name());
+          pokeApiService.getType(namedApiResource.name());
       loadedTypes.add(result);
       Type type = new Type();
       type.setId(result.id());
@@ -119,7 +119,7 @@ public class TypeRelationDataSetShellComponent {
     }
 
     Type currentType = typeOptional.get();
-    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type = pokeApiTemplate.getType(name);
+    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type = pokeApiService.getType(name);
     TypeRelations typeRelations = type.damageRelations();
 
     // 创建一个集合来存储所有的 TypeDamageRelation
