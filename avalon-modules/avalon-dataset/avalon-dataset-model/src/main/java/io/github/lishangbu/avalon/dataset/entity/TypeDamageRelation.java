@@ -11,6 +11,12 @@ import org.hibernate.annotations.Comment;
  */
 @Comment("属性关系")
 @Entity
+@Table(
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_type_damage_relation_attacker_defender",
+          columnNames = {"attacker_type_id", "defender_type_id"})
+    })
 public class TypeDamageRelation {
 
   /** ID */

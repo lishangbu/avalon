@@ -50,7 +50,7 @@ public class TypeRelationDataSetShellComponent {
     this.typeDamageRelationRepository = typeDamageRelationRepository;
   }
 
-  @ShellMethod(key = "dataset refresh type", value = "刷新数据库中的TYPE表数据")
+  @ShellMethod(key = "dataset refresh type", value = "刷新数据库中的属性表数据")
   public String refreshType(
       @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
       @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
@@ -83,22 +83,34 @@ public class TypeRelationDataSetShellComponent {
         typeRepository.count());
   }
 
-  @ShellMethod(
-      key = "dataset refresh type damage relation",
-      value = "刷新数据库中的TYPE_DAMAGE_RELATION表数据")
+  @ShellMethod(key = "dataset refresh typeDamageRelation", value = "刷新数据库中的属性克制关系表数据")
   public String refreshTypeDamageRelation(
       @ShellOption(help = "属性内部名称", defaultValue = "") String name) {
-    if (!StringUtils.hasText(name)) {
-      log.info("没有名字输入,将更新Type表中对应的所有伤害关系");
-      for (Type type : typeRepository.findAll()) {
-        refreshTypeDamageRelationByName(type.getInternalName());
-      }
-    } else {
+
+    if (StringUtils.hasText(name)) {
+      // 处理单个Type的刷新
+      log.info("开始更新单个属性：{}", name);
       refreshTypeDamageRelationByName(name);
+    } else {
+      // 处理所有Type的刷新
+      log.info("没有名字输入, 将更新属性表中对应的所有伤害关系");
+      List<Type> types = typeRepository.findAll();
+      if (types.isEmpty()) {
+        log.warn("没有找到任何属性数据");
+      } else {
+        log.info("共找到{}个属性数据, 开始逐个更新", types.size());
+        types.forEach(type -> refreshTypeDamageRelationByName(type.getInternalName()));
+      }
     }
+
     return "处理完成";
   }
 
+  /**
+   * 刷新指数据库中指定属性的伤害关系
+   *
+   * @param name 属性名称
+   */
   private void refreshTypeDamageRelationByName(String name) {
     Optional<Type> typeOptional = typeRepository.findByInternalName(name);
     if (typeOptional.isEmpty()) {
@@ -109,38 +121,69 @@ public class TypeRelationDataSetShellComponent {
     Type currentType = typeOptional.get();
     io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type = pokeApiTemplate.getType(name);
     TypeRelations typeRelations = type.damageRelations();
+
+    // 创建一个集合来存储所有的 TypeDamageRelation
     List<TypeDamageRelation> typeDamageRelations = new ArrayList<>();
 
-    processTypeRelations(
-        typeRelations.noDamageFrom(), currentType, typeDamageRelations, "noDamageFrom");
-    processTypeRelations(
-        typeRelations.noDamageTo(), currentType, typeDamageRelations, "noDamageTo");
-    processTypeRelations(
-        typeRelations.doubleDamageFrom(), currentType, typeDamageRelations, "doubleDamageFrom");
-    processTypeRelations(
-        typeRelations.doubleDamageTo(), currentType, typeDamageRelations, "doubleDamageTo");
-    processTypeRelations(
-        typeRelations.halfDamageFrom(), currentType, typeDamageRelations, "halfDamageFrom");
-    processTypeRelations(
-        typeRelations.halfDamageTo(), currentType, typeDamageRelations, "halfDamageTo");
+    // 使用一个方法来避免重复的代码
+    calculateAllDamageRelations(typeRelations, currentType, typeDamageRelations);
 
-    // Save or process `typeDamageRelations` as needed
+    // 使用集合来批量处理保存
+    saveOrUpdateTypeDamageRelations(typeDamageRelations);
+  }
+
+  /**
+   * 计算所有的攻击方与防御方的效果绝佳(2x)、效果不理想(0.5x)和没有效果(0x)的伤害关系
+   *
+   * @param typeRelations POKE API查询到的属性克制关系
+   * @param currentType 当前属性
+   * @param typeDamageRelations 存储所有的 属性克制关系的集合
+   */
+  private void calculateAllDamageRelations(
+      TypeRelations typeRelations, Type currentType, List<TypeDamageRelation> typeDamageRelations) {
+    calculateTypeRelations(
+        typeRelations.noDamageFrom(), currentType, typeDamageRelations, "noDamageFrom");
+    calculateTypeRelations(
+        typeRelations.noDamageTo(), currentType, typeDamageRelations, "noDamageTo");
+    calculateTypeRelations(
+        typeRelations.doubleDamageFrom(), currentType, typeDamageRelations, "doubleDamageFrom");
+    calculateTypeRelations(
+        typeRelations.doubleDamageTo(), currentType, typeDamageRelations, "doubleDamageTo");
+    calculateTypeRelations(
+        typeRelations.halfDamageFrom(), currentType, typeDamageRelations, "halfDamageFrom");
+    calculateTypeRelations(
+        typeRelations.halfDamageTo(), currentType, typeDamageRelations, "halfDamageTo");
+  }
+
+  /**
+   * 向数据库中批量更新或保存属性克制关系
+   *
+   * @param typeDamageRelations
+   */
+  private void saveOrUpdateTypeDamageRelations(List<TypeDamageRelation> typeDamageRelations) {
     for (TypeDamageRelation typeDamageRelation : typeDamageRelations) {
-      typeDamageRelationRepository
-          .findTypeDamageRelationByAttackerTypeAndDefenderType(
-              typeDamageRelation.getAttackerType(), typeDamageRelation.getDefenderType())
-          .ifPresentOrElse(
-              dbData -> {
-                dbData.setDamageRate(typeDamageRelation.getDamageRate());
-                typeDamageRelationRepository.saveAndFlush(typeDamageRelation);
-              },
-              () -> {
-                typeDamageRelationRepository.saveAndFlush(typeDamageRelation);
-              });
+      Optional<TypeDamageRelation> existingRelationOpt =
+          typeDamageRelationRepository.findTypeDamageRelationByAttackerTypeAndDefenderType(
+              typeDamageRelation.getAttackerType(), typeDamageRelation.getDefenderType());
+
+      existingRelationOpt.ifPresentOrElse(
+          existingRelation -> {
+            existingRelation.setDamageRate(typeDamageRelation.getDamageRate());
+            typeDamageRelationRepository.saveAndFlush(existingRelation);
+          },
+          () -> typeDamageRelationRepository.saveAndFlush(typeDamageRelation));
     }
   }
 
-  private void processTypeRelations(
+  /**
+   * 计算攻击方与防御方的效果绝佳(2x)、效果不理想(0.5x)和没有效果(0x)的伤害关系
+   *
+   * @param typeResources POKE API查询的属性结果
+   * @param currentType 当前属性
+   * @param typeDamageRelations 存储所有的 属性克制关系的集合
+   * @param relationType 用于计算的属性关系
+   */
+  private void calculateTypeRelations(
       List<NamedApiResource<io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type>>
           typeResources,
       Type currentType,
