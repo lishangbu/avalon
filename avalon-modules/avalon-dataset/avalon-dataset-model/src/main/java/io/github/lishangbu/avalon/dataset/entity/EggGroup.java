@@ -16,6 +16,7 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/15
  */
+@Comment("蛋群")
 @Entity
 @Table(
     uniqueConstraints = {

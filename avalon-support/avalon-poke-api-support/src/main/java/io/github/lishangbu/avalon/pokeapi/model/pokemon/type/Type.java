@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.pokemon.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.GenerationGameIndex;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author lishangbu
  * @since 2025/5/20
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record Type(
     Integer id,
     String name,
