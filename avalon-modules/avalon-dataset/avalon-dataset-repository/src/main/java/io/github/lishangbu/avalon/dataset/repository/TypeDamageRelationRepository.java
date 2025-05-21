@@ -15,8 +15,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TypeDamageRelationRepository extends JpaRepository<TypeDamageRelation, Integer> {
 
-  // @Query("SELECT tdr FROM TypeDamageRelation tdr WHERE tdr.attackerType = :attackerType AND
-  // tdr.defenderType = :defenderType")
   Optional<TypeDamageRelation> findTypeDamageRelationByAttackerTypeAndDefenderType(
       Type attackerType, Type defenderType);
 }
