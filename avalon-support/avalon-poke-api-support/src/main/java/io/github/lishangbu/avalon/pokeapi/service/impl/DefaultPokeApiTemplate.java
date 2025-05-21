@@ -3,14 +3,13 @@ package io.github.lishangbu.avalon.pokeapi.service.impl;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-
-import java.io.Serializable;
 
 /**
  * 默认PokeApi请求模板
@@ -42,7 +41,11 @@ public class DefaultPokeApiTemplate implements PokeApiTemplate {
 
   // 提取的通用方法
   private <T> T getEntityFromUri(Class<T> responseType, String uri, Object... uriVariables) {
-    log.info("从[{}]获取数据，参数:[{}]，响应类型：[{}]", uri, uriVariables.length > 0 ? uriVariables : "无", responseType.getSimpleName());
+    log.info(
+        "从[{}]获取数据，参数:[{}]，响应类型：[{}]",
+        uri,
+        uriVariables.length > 0 ? uriVariables : "无",
+        responseType.getSimpleName());
     return this.pokeApiRestClient
         .get()
         .uri(uri, uriVariables) // 使用uri模板替代字符串拼接

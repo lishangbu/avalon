@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
 import io.github.lishangbu.avalon.pokeapi.service.impl.DefaultPokeApiTemplate;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 

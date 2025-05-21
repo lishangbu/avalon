@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.pokeapi.service.impl.pokemon.type;
 
-import io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiTemplateAutoConfiguration;
 import io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiRestClientAutoConfiguration;
+import io.github.lishangbu.avalon.pokeapi.autoconfiguration.PokeApiTemplateAutoConfiguration;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiTemplate;
