@@ -22,7 +22,10 @@ public class PokemonType {
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(name = "type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_type_id"))
+  @JoinColumn(
+      name = "type_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_pokemon_type_type_id"))
   @Comment("属性")
   private Type type;
 
@@ -30,7 +33,7 @@ public class PokemonType {
   @JoinColumn(
       name = "pokemon_id",
       nullable = false,
-      foreignKey = @ForeignKey(name = "fk_pokemon_id"))
+      foreignKey = @ForeignKey(name = "fk_pokemon_type_pokemon_id"))
   @Comment("宝可梦")
   private Pokemon pokemon;
 

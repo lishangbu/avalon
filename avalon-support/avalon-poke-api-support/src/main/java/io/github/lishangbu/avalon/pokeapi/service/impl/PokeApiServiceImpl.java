@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.pokeapi.service.impl;
 
 import io.github.lishangbu.avalon.pokeapi.model.berry.Berry;
+import io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
+import io.github.lishangbu.avalon.pokeapi.service.BerryFirmnessService;
 import io.github.lishangbu.avalon.pokeapi.service.BerryService;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.service.TypeService;
@@ -23,6 +25,8 @@ public class PokeApiServiceImpl implements PokeApiService {
 
   @Autowired private TypeService typeService;
 
+  @Autowired private BerryFirmnessService berryFirmnessService;
+
   @Override
   public NamedAPIResourceList listTypes(Integer offset, Integer limit) {
     return typeService.listTypes(offset, limit);
@@ -41,5 +45,15 @@ public class PokeApiServiceImpl implements PokeApiService {
   @Override
   public Berry getBerry(Serializable arg) {
     return berryService.getBerry(arg);
+  }
+
+  @Override
+  public NamedAPIResourceList listBerryFirmnesses(Integer offset, Integer limit) {
+    return berryFirmnessService.listBerryFirmnesses(offset, limit);
+  }
+
+  @Override
+  public BerryFirmness getBerryFirmness(Serializable arg) {
+    return berryFirmnessService.getBerryFirmness(arg);
   }
 }

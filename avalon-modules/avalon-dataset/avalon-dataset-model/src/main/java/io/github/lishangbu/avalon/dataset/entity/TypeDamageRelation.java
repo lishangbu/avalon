@@ -33,7 +33,7 @@ public class TypeDamageRelation {
   @JoinColumn(
       name = "attacker_type_id",
       nullable = false,
-      foreignKey = @ForeignKey(name = "fk_attacker_type_id"))
+      foreignKey = @ForeignKey(name = "fk_type_damage_relation_attacker_type_id"))
   @Comment("属性")
   private Type attackerType;
 
@@ -41,7 +41,7 @@ public class TypeDamageRelation {
   @JoinColumn(
       name = "defender_type_id",
       nullable = false,
-      foreignKey = @ForeignKey(name = "fk_defender_type_id"))
+      foreignKey = @ForeignKey(name = "fk_type_damage_relation_defender_type_id"))
   @Comment("属性")
   private Type defenderType;
 
