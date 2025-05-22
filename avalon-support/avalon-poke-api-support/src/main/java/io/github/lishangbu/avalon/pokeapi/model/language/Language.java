@@ -4,7 +4,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import java.util.List;
 
 /**
- * 参考<a href="https://pokeapi.co/docs/v2">官网Utility/Languages/Language</a>
+ * 语言信息，用于API资源信息的多语言翻译
  *
  * @author lishangbu
  * @since 2025/5/20

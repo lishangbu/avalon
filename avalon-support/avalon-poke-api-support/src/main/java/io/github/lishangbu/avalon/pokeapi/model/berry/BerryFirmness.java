@@ -5,11 +5,8 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * Berries can be soft or hard. Check out<a
- * href="https://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a> for
- * greater detail.
- *
- * <p>参考<a href="https://pokeapi.co/docs/v2">Berries/Berry Firmnesses/Berry Firmnesses(type)</a>
+ * 树果可以是柔软的，也可以是坚硬的。详情可参考<a
+ * href="https://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a>
  *
  * @author lishangbu
  * @since 2025/5/21

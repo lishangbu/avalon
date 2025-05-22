@@ -3,10 +3,12 @@ package io.github.lishangbu.avalon.pokeapi.model.berry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
+import io.github.lishangbu.avalon.pokeapi.model.contest.ContestType;
 import java.util.List;
 
 /**
- * 参考<a href="https://pokeapi.co/docs/v2">Berries/Berry Flavors/BerryFlavor (type)</a>
+ * 风味决定了宝可梦根据<a href="https://pokeapi.co/docs/v2#natures">性格</a>食用树果时是受益还是受损。详情可参考<a
+ * href="http://bulbapedia.bulbagarden.net/wiki/Flavor">Bulbapedia</a>
  *
  * @author lishangbu
  * @since 2025/5/21
@@ -15,7 +17,7 @@ public record BerryFlavor(
     Integer id,
     String name,
     List<FlavorBerryMap> berries,
-    @JsonProperty("contest_type") List<NamedApiResource<?>> contestType,
+    @JsonProperty("contest_type") List<NamedApiResource<ContestType>> contestType,
     List<Name> names) {
   /** 该资源的标识符 */
   public Integer id() {
@@ -33,7 +35,7 @@ public record BerryFlavor(
   }
 
   /** 与该树果风味相关的对战类型 */
-  public List<NamedApiResource<?>> contestType() {
+  public List<NamedApiResource<ContestType>> contestType() {
     return contestType;
   }
 
