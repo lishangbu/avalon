@@ -14,6 +14,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public abstract class AbstractDataSetShellComponent {
 
+  /**
+   * 刷新数据
+   *
+   * @param offset 偏移量
+   * @param limit 返回数量限制
+   * @return 刷新数据的结果
+   */
   public abstract String refreshData(Integer offset, Integer limit);
 
   /**
@@ -26,43 +33,13 @@ public abstract class AbstractDataSetShellComponent {
    * @param <T> 实体类型
    * @return 处理结果字符串
    */
-  protected <T> String saveSingleEntityData(
+  protected <T> String saveEntityData(
       List<NamedApiResource> resources,
       Function<NamedApiResource, T> converter,
       JpaRepository<T, ?> repository,
       Function<T, String> nameExtractor) {
     List<T> entities = resources.stream().map(converter).collect(Collectors.toList());
     repository.saveAllAndFlush(entities);
-    return String.format(
-        "数据处理完成，本次处理了数据:%s。\r\n当前共有数据:%d条",
-        entities.stream().map(nameExtractor).collect(Collectors.joining(",")), repository.count());
-  }
-
-  /**
-   * 保存所有数据（重载版本，支持返回多个实体）
-   *
-   * @param resources 资源列表
-   * @param converter 转换函数，返回一个实体列表
-   * @param repository 数据库仓库
-   * @param nameExtractor 名称提取函数
-   * @param <T> 实体类型
-   * @return 处理结果字符串
-   */
-  protected <T> String saveMultipleEntityData(
-      List<NamedApiResource> resources,
-      Function<NamedApiResource, List<T>> converter,
-      JpaRepository<T, ?> repository,
-      Function<T, String> nameExtractor) {
-    // 扁平化所有转换后的实体列表
-    List<T> entities =
-        resources.stream()
-            .flatMap(resource -> converter.apply(resource).stream()) // 将每个 NamedApiResource 转换为多个实体
-            .collect(Collectors.toList());
-
-    // 保存所有实体
-    repository.saveAllAndFlush(entities);
-
-    // 格式化返回的处理结果
     return String.format(
         "数据处理完成，本次处理了数据:%s。\r\n当前共有数据:%d条",
         entities.stream().map(nameExtractor).collect(Collectors.joining(",")), repository.count());

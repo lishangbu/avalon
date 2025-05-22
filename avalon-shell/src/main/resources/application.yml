@@ -5,7 +5,13 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
   shell:
     interactive:
       enabled: true
+logging:
+  level:
+    io:
+      github:
+        lishangbu:
+          avalon: debug
