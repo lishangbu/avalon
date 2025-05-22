@@ -1,21 +1,24 @@
 package io.github.lishangbu.avalon.shell.dataset.component;
 
+import static io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiEndpointEnum.TYPE;
+
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import io.github.lishangbu.avalon.dataset.repository.TypeDamageRelationRepository;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
+import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.TypeRelations;
-import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -26,65 +29,74 @@ import org.springframework.util.StringUtils;
  * @since 2025/5/20
  */
 @ShellComponent
-public class TypeRelationDataSetShellComponent extends AbstractDataSetShellComponent {
+@ShellCommandGroup("数据集处理")
+public class TypeRelationDataSetShellComponent {
 
   private static final Logger log =
       LoggerFactory.getLogger(TypeRelationDataSetShellComponent.class);
-  private final PokeApiService pokeApiService;
+  private final PokeApiFactory pokeApiFactory;
 
   private final TypeRepository typeRepository;
 
   private final TypeDamageRelationRepository typeDamageRelationRepository;
 
   public TypeRelationDataSetShellComponent(
-      PokeApiService pokeApiService,
+      PokeApiFactory pokeApiFactory,
       TypeRepository typeRepository,
       TypeDamageRelationRepository typeDamageRelationRepository) {
-    this.pokeApiService = pokeApiService;
+    this.pokeApiFactory = pokeApiFactory;
     this.typeRepository = typeRepository;
     this.typeDamageRelationRepository = typeDamageRelationRepository;
   }
 
-  @Override
   @ShellMethod(key = "dataset refresh typeDamageRelation", value = "刷新数据库中的属性克制关系表数据")
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources = pokeApiService.listTypes(offset, limit);
-    return super.saveMultipleEntityData(
-        namedApiResources.results(),
-        this::convertToTypeDamageRelation,
-        typeDamageRelationRepository,
-        typedamageRelation ->
-            String.format(
-                "%s对%s:%s",
-                typedamageRelation.getAttackerType().getName(),
-                typedamageRelation.getDefenderType().getName(),
-                getDamageRateDescription(typedamageRelation.getDamageRate())));
+  @Transactional(rollbackFor = Exception.class)
+  public String refreshTypeDamageRelation(
+      @ShellOption(help = "属性内部名称", defaultValue = "") String name) {
+
+    if (StringUtils.hasText(name)) {
+      // 处理单个Type的刷新
+      log.debug("开始更新单个属性：{}", name);
+      refreshTypeDamageRelationByName(name);
+    } else {
+      // 处理所有Type的刷新
+      log.debug("没有名字输入, 将更新属性表中对应的所有伤害关系");
+      List<Type> types = typeRepository.findAll();
+      if (types.isEmpty()) {
+        throw new RuntimeException("没有找到任何属性数据,请先完成数据库属性表的初始化工作");
+      } else {
+        log.debug("共找到{}个属性数据, 开始逐个更新", types.size());
+        types.forEach(type -> refreshTypeDamageRelationByName(type.getInternalName()));
+      }
+    }
+
+    return "处理完成";
   }
 
-  private List<TypeDamageRelation> convertToTypeDamageRelation(NamedApiResource namedApiResource) {
+  /**
+   * 刷新指数据库中指定属性的伤害关系
+   *
+   * @param name 属性名称
+   */
+  private void refreshTypeDamageRelationByName(String name) {
+    Optional<Type> typeOptional = typeRepository.findByInternalName(name);
+    if (typeOptional.isEmpty()) {
+      throw new RuntimeException(String.format("名称为%s的数据在属性表中无法找到,请检查输入是否有误", name));
+    }
 
-    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
-        pokeApiService.getType(namedApiResource.name());
+    Type currentType = typeOptional.get();
+    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type =
+        pokeApiFactory.getSingleResource(TYPE, name);
+    TypeRelations typeRelations = type.damageRelations();
 
-    Type currentType = getType(result.name());
-    TypeRelations typeRelations = result.damageRelations();
     // 创建一个集合来存储所有的 TypeDamageRelation
     List<TypeDamageRelation> typeDamageRelations = new ArrayList<>();
+
     // 使用一个方法来避免重复的代码
     calculateAllDamageRelations(typeRelations, currentType, typeDamageRelations);
-    // 使用集合来批量处理保存
-    mergeTypeDamageRelationIds(typeDamageRelations);
-    return typeDamageRelations;
-  }
 
-  private Type getType(String internalName) {
-    Optional<Type> typeOptional = typeRepository.findByInternalName(internalName);
-    if (typeOptional.isEmpty()) {
-      throw new RuntimeException("名称为" + internalName + "的数据在数据库中无法找到,请提前初始化属性表中的数据");
-    }
-    return typeOptional.get();
+    // 使用集合来批量处理保存
+    saveOrUpdateTypeDamageRelations(typeDamageRelations);
   }
 
   /**
@@ -111,18 +123,22 @@ public class TypeRelationDataSetShellComponent extends AbstractDataSetShellCompo
   }
 
   /**
-   * 合并数据库中已有记录的ID
+   * 向数据库中批量更新或保存属性克制关系
    *
    * @param typeDamageRelations
    */
-  private void mergeTypeDamageRelationIds(List<TypeDamageRelation> typeDamageRelations) {
+  private void saveOrUpdateTypeDamageRelations(List<TypeDamageRelation> typeDamageRelations) {
     for (TypeDamageRelation typeDamageRelation : typeDamageRelations) {
       Optional<TypeDamageRelation> existingRelationOpt =
           typeDamageRelationRepository.findTypeDamageRelationByAttackerTypeAndDefenderType(
               typeDamageRelation.getAttackerType(), typeDamageRelation.getDefenderType());
-      // 数据存在时，写入ID，以便ORM走更新逻辑
-      existingRelationOpt.ifPresent(
-          damageRelation -> typeDamageRelation.setId(damageRelation.getId()));
+
+      existingRelationOpt.ifPresentOrElse(
+          existingRelation -> {
+            existingRelation.setDamageRate(typeDamageRelation.getDamageRate());
+            typeDamageRelationRepository.saveAndFlush(existingRelation);
+          },
+          () -> typeDamageRelationRepository.saveAndFlush(typeDamageRelation));
     }
   }
 
@@ -175,18 +191,6 @@ public class TypeRelationDataSetShellComponent extends AbstractDataSetShellCompo
         }
         typeDamageRelations.add(typeDamageRelation);
       }
-    }
-  }
-
-  private String getDamageRateDescription(Float damageRate) {
-    if (damageRate == 0.0f) {
-      return "没有效果";
-    } else if (damageRate == 0.5f) {
-      return "效果不好";
-    } else if (damageRate == 2.0f) {
-      return "效果绝佳";
-    } else {
-      return "错误效果,请检查伤害系数加成";
     }
   }
 }

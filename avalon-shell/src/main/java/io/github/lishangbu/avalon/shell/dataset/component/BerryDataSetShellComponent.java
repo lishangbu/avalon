@@ -1,15 +1,18 @@
 package io.github.lishangbu.avalon.shell.dataset.component;
 
+import static io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiEndpointEnum.BERRY;
+
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
+import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
-import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 树果数据集处理命令
@@ -20,18 +23,18 @@ import org.springframework.shell.standard.ShellOption;
 @ShellComponent
 public class BerryDataSetShellComponent extends AbstractDataSetShellComponent {
 
-  private final PokeApiService pokeApiService;
+  private final PokeApiFactory pokeApiFactory;
   private final BerryRepository berryRepository;
   private final BerryFirmnessRepository berryFirmnessRepository;
 
   private final TypeRepository typeRepository;
 
   public BerryDataSetShellComponent(
-      PokeApiService pokeApiService,
+      PokeApiFactory pokeApiFactory,
       BerryRepository berryRepository,
       BerryFirmnessRepository berryFirmnessRepository,
       TypeRepository typeRepository) {
-    this.pokeApiService = pokeApiService;
+    this.pokeApiFactory = pokeApiFactory;
     this.berryRepository = berryRepository;
     this.berryFirmnessRepository = berryFirmnessRepository;
     this.typeRepository = typeRepository;
@@ -39,17 +42,18 @@ public class BerryDataSetShellComponent extends AbstractDataSetShellComponent {
 
   @ShellMethod(key = "dataset refresh berry", value = "刷新数据库中的树果表数据")
   @Override
+  @Transactional(rollbackFor = Exception.class)
   public String refreshData(
       @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
       @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources = pokeApiService.listBerries(offset, limit);
-    return super.saveSingleEntityData(
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(BERRY, offset, limit);
+    return super.saveEntityData(
         namedApiResources.results(), this::convertToBerry, berryRepository, Berry::getName);
   }
 
   private Berry convertToBerry(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.berry.Berry apiResult =
-        pokeApiService.getBerry(namedApiResource.name());
+        pokeApiFactory.getSingleResource(BERRY, namedApiResource.name());
     Berry berry = new Berry();
     berry.setId(apiResult.id());
     berry.setInternalName(apiResult.name());
