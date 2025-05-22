@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.pokeapi.service.impl;
 
+import io.github.lishangbu.avalon.pokeapi.model.berry.Berry;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
+import io.github.lishangbu.avalon.pokeapi.service.BerryService;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.service.TypeService;
 import java.io.Serializable;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class PokeApiServiceImpl implements PokeApiService {
+  @Autowired private BerryService berryService;
 
   @Autowired private TypeService typeService;
 
@@ -28,5 +31,15 @@ public class PokeApiServiceImpl implements PokeApiService {
   @Override
   public Type getType(Serializable arg) {
     return typeService.getType(arg);
+  }
+
+  @Override
+  public NamedAPIResourceList listBerries(Integer offset, Integer limit) {
+    return berryService.listBerries(offset, limit);
+  }
+
+  @Override
+  public Berry getBerry(Serializable arg) {
+    return berryService.getBerry(arg);
   }
 }
