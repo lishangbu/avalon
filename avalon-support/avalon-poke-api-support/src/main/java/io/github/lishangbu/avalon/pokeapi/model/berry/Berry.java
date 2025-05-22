@@ -6,7 +6,8 @@ import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
 import java.util.List;
 
 /**
- * 参考<a href="https://pokeapi.co/docs/v2">Berries/Berries/Berry (type)</a>
+ * 树果是可以为宝可梦恢复HP和异常状态、提升能力，甚至在食用时抵消伤害的小型果实。详情可参考<a
+ * href="http://bulbapedia.bulbagarden.net/wiki/Berry">Bulbapedia</a>
  *
  * @author lishangbu
  * @since 2025/5/21
