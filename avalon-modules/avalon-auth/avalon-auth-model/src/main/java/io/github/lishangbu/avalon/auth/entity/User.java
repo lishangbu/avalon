@@ -49,9 +49,10 @@ public class User implements Serializable {
    */
   @JoinTable(
       name = "user_role_relation",
-      joinColumns = @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_id")),
+      joinColumns =
+          @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user_user_id")),
       inverseJoinColumns =
-          @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_role_id")))
+          @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_user_role_id")))
   @ManyToMany
   private List<Role> roles;
 

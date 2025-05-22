@@ -61,12 +61,19 @@ public class Berry {
   @Comment("生长时使土壤干燥的速度，数值越高土壤干燥越快")
   private Integer soilDryness;
 
+  @ManyToOne
+  @JoinColumn(
+      name = "firmness_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_berry_firmness_id"))
+  private BerryFirmness firmness;
+
   /** 搭配该树果使用“自然之恩”招式时继承的属性类型 */
   @ManyToOne
   @JoinColumn(
       name = "natural_gift_type_id",
       nullable = false,
-      foreignKey = @ForeignKey(name = "fk_natural_gift_type_id"))
+      foreignKey = @ForeignKey(name = "fk_berry_natural_gift_type_id"))
   private Type naturalGiftType;
 
   /** 搭配该树果使用“自然之恩”招式时的威力 */
@@ -150,5 +157,13 @@ public class Berry {
 
   public void setNaturalGiftPower(Integer naturalGiftPower) {
     this.naturalGiftPower = naturalGiftPower;
+  }
+
+  public BerryFirmness getFirmness() {
+    return firmness;
+  }
+
+  public void setFirmness(BerryFirmness firmness) {
+    this.firmness = firmness;
   }
 }
