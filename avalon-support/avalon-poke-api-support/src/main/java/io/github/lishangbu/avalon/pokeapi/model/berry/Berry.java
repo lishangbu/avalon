@@ -23,7 +23,7 @@ public record Berry(
     NamedApiResource<BerryFirmness> firmness,
     List<FlavorBerryMap> flavors,
     NamedApiResource<?> item,
-    @JsonProperty("natural_gift_type") NamedApiResource<Type> type) {
+    @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {
   /** 该资源的标识符 */
   public Integer id() {
     return id;
@@ -80,7 +80,7 @@ public record Berry(
   }
 
   /** 搭配该树果使用“自然之恩”招式时继承的属性类型 */
-  public NamedApiResource<Type> type() {
-    return type;
+  public NamedApiResource<Type> naturalGiftType() {
+    return naturalGiftType;
   }
 }

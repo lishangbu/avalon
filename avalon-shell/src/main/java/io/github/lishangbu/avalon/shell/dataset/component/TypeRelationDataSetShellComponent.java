@@ -4,19 +4,15 @@ import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import io.github.lishangbu.avalon.dataset.repository.TypeDamageRelationRepository;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
-import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.TypeRelations;
 import io.github.lishangbu.avalon.pokeapi.service.PokeApiService;
-import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -30,8 +26,7 @@ import org.springframework.util.StringUtils;
  * @since 2025/5/20
  */
 @ShellComponent
-@ShellCommandGroup("数据集处理")
-public class TypeRelationDataSetShellComponent {
+public class TypeRelationDataSetShellComponent extends AbstractDataSetShellComponent {
 
   private static final Logger log =
       LoggerFactory.getLogger(TypeRelationDataSetShellComponent.class);
@@ -50,86 +45,46 @@ public class TypeRelationDataSetShellComponent {
     this.typeDamageRelationRepository = typeDamageRelationRepository;
   }
 
-  @ShellMethod(key = "dataset refresh type", value = "刷新数据库中的属性表数据")
-  public String refreshType(
+  @Override
+  @ShellMethod(key = "dataset refresh typeDamageRelation", value = "刷新数据库中的属性克制关系表数据")
+  public String refreshData(
       @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
       @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
     NamedAPIResourceList namedApiResources = pokeApiService.listTypes(offset, limit);
-    List<io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type> loadedTypes =
-        new ArrayList<>();
-    for (NamedApiResource namedApiResource : namedApiResources.results()) {
-      io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
-          pokeApiService.getType(namedApiResource.name());
-      loadedTypes.add(result);
-      Type type = new Type();
-      type.setId(result.id());
-      type.setInternalName(result.name());
-      // 星晶属性没有简体中文，所以特殊处理一下多取一个繁体中文
-      Optional<Name> localizationName =
-          LocalizationUtils.getLocalizationName(
-              result.names(),
-              LocalizationUtils.SIMPLIFIED_CHINESE,
-              LocalizationUtils.TRADITIONAL_CHINESE);
-      type.setName(
-          localizationName.isPresent() ? localizationName.get().name() : type.getInternalName());
-      typeRepository.save(type);
-    }
-
-    return String.format(
-        "数据处理完成，本次处理从API接口获取了数据:%s。\r\n当前共有数据:%d条",
-        loadedTypes.stream()
-            .map(io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type::name)
-            .collect(Collectors.joining(",")),
-        typeRepository.count());
+    return super.saveMultipleEntityData(
+        namedApiResources.results(),
+        this::convertToTypeDamageRelation,
+        typeDamageRelationRepository,
+        typedamageRelation ->
+            String.format(
+                "%s对%s:%s",
+                typedamageRelation.getAttackerType().getName(),
+                typedamageRelation.getDefenderType().getName(),
+                getDamageRateDescription(typedamageRelation.getDamageRate())));
   }
 
-  @ShellMethod(key = "dataset refresh typeDamageRelation", value = "刷新数据库中的属性克制关系表数据")
-  public String refreshTypeDamageRelation(
-      @ShellOption(help = "属性内部名称", defaultValue = "") String name) {
+  private List<TypeDamageRelation> convertToTypeDamageRelation(NamedApiResource namedApiResource) {
 
-    if (StringUtils.hasText(name)) {
-      // 处理单个Type的刷新
-      log.info("开始更新单个属性：{}", name);
-      refreshTypeDamageRelationByName(name);
-    } else {
-      // 处理所有Type的刷新
-      log.info("没有名字输入, 将更新属性表中对应的所有伤害关系");
-      List<Type> types = typeRepository.findAll();
-      if (types.isEmpty()) {
-        log.warn("没有找到任何属性数据");
-      } else {
-        log.info("共找到{}个属性数据, 开始逐个更新", types.size());
-        types.forEach(type -> refreshTypeDamageRelationByName(type.getInternalName()));
-      }
-    }
+    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
+        pokeApiService.getType(namedApiResource.name());
 
-    return "处理完成";
-  }
-
-  /**
-   * 刷新指数据库中指定属性的伤害关系
-   *
-   * @param name 属性名称
-   */
-  private void refreshTypeDamageRelationByName(String name) {
-    Optional<Type> typeOptional = typeRepository.findByInternalName(name);
-    if (typeOptional.isEmpty()) {
-      log.warn("名称为{}的数据在数据库中无法找到,请检查输入是否有误，或者先提前初始化TYPE数据库中的数据", name);
-      return;
-    }
-
-    Type currentType = typeOptional.get();
-    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type = pokeApiService.getType(name);
-    TypeRelations typeRelations = type.damageRelations();
-
+    Type currentType = getType(result.name());
+    TypeRelations typeRelations = result.damageRelations();
     // 创建一个集合来存储所有的 TypeDamageRelation
     List<TypeDamageRelation> typeDamageRelations = new ArrayList<>();
-
     // 使用一个方法来避免重复的代码
     calculateAllDamageRelations(typeRelations, currentType, typeDamageRelations);
-
     // 使用集合来批量处理保存
-    saveOrUpdateTypeDamageRelations(typeDamageRelations);
+    mergeTypeDamageRelationIds(typeDamageRelations);
+    return typeDamageRelations;
+  }
+
+  private Type getType(String internalName) {
+    Optional<Type> typeOptional = typeRepository.findByInternalName(internalName);
+    if (typeOptional.isEmpty()) {
+      throw new RuntimeException("名称为" + internalName + "的数据在数据库中无法找到,请提前初始化属性表中的数据");
+    }
+    return typeOptional.get();
   }
 
   /**
@@ -156,22 +111,18 @@ public class TypeRelationDataSetShellComponent {
   }
 
   /**
-   * 向数据库中批量更新或保存属性克制关系
+   * 合并数据库中已有记录的ID
    *
    * @param typeDamageRelations
    */
-  private void saveOrUpdateTypeDamageRelations(List<TypeDamageRelation> typeDamageRelations) {
+  private void mergeTypeDamageRelationIds(List<TypeDamageRelation> typeDamageRelations) {
     for (TypeDamageRelation typeDamageRelation : typeDamageRelations) {
       Optional<TypeDamageRelation> existingRelationOpt =
           typeDamageRelationRepository.findTypeDamageRelationByAttackerTypeAndDefenderType(
               typeDamageRelation.getAttackerType(), typeDamageRelation.getDefenderType());
-
-      existingRelationOpt.ifPresentOrElse(
-          existingRelation -> {
-            existingRelation.setDamageRate(typeDamageRelation.getDamageRate());
-            typeDamageRelationRepository.saveAndFlush(existingRelation);
-          },
-          () -> typeDamageRelationRepository.saveAndFlush(typeDamageRelation));
+      // 数据存在时，写入ID，以便ORM走更新逻辑
+      existingRelationOpt.ifPresent(
+          damageRelation -> typeDamageRelation.setId(damageRelation.getId()));
     }
   }
 
@@ -224,6 +175,18 @@ public class TypeRelationDataSetShellComponent {
         }
         typeDamageRelations.add(typeDamageRelation);
       }
+    }
+  }
+
+  private String getDamageRateDescription(Float damageRate) {
+    if (damageRate == 0.0f) {
+      return "没有效果";
+    } else if (damageRate == 0.5f) {
+      return "效果不好";
+    } else if (damageRate == 2.0f) {
+      return "效果绝佳";
+    } else {
+      return "错误效果,请检查伤害系数加成";
     }
   }
 }

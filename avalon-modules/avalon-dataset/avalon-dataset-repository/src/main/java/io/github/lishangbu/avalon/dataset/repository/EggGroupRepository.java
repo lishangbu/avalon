@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 import io.github.lishangbu.avalon.dataset.entity.EggGroup;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * 蛋群数据存储
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author lishangbu
  * @since 2025/4/15
  */
+@Repository
 public interface EggGroupRepository extends JpaRepository<EggGroup, Integer> {
   /**
    * 根据内部名称查找并返回对应的蛋群数据
