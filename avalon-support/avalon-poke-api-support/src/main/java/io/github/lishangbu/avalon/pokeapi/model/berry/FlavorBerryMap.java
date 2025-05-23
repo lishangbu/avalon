@@ -5,17 +5,9 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /**
  * 参考<a href="https://pokeapi.co/docs/v2">Berries/Berry Flavors/FlavorBerryMap (type)</a>
  *
+ * @param potency 该风味对该树果的影响力
+ * @param berry 具有该风味的树果
  * @author lishangbu
  * @since 2025/5/21
  */
-public record FlavorBerryMap(Integer potency, NamedApiResource<Berry> berry) {
-  /** 该风味对该树果的影响力 */
-  public Integer potency() {
-    return potency;
-  }
-
-  /** 具有该风味的树果 */
-  public NamedApiResource<Berry> berry() {
-    return berry;
-  }
-}
+public record FlavorBerryMap(Integer potency, NamedApiResource<Berry> berry) {}

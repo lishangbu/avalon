@@ -10,8 +10,16 @@ import java.util.List;
 /**
  * 属性是宝可梦及其招式的属性。每种类型有三个特性：对哪些类型的宝可梦效果绝佳、对哪些类型的宝可梦效果不佳，以及对哪些类型的宝可梦完全无效。
  *
- * <p>参考<a href="https://pokeapi.co/docs/v2">官网Pokémon/Types/Type</a>
- *
+ * @param id 此资源的标识符
+ * @param name 此资源的名称
+ * @param damageRelations 此属性与其他属性之间的有效性关系
+ * @param pastDamageRelations 此属性在之前世代中的有效性关系
+ * @param gameIndices 与此项相关的各代游戏索引
+ * @param generation 此属性首次出现的世代
+ * @param moveDamageClass 此属性的伤害类别
+ * @param names 此资源在不同语言中的名称
+ * @param pokemon 拥有此属性的宝可梦列表
+ * @param moves 具有此属性的招式列表
  * @author lishangbu
  * @since 2025/5/20
  */
@@ -26,55 +34,4 @@ public record Type(
     @JsonProperty("move_damage_class") NamedApiResource<?> moveDamageClass,
     List<Name> names,
     List<TypePokemon> pokemon,
-    List<NamedApiResource<?>> moves) {
-  /** 获取此资源的标识符 */
-  public Integer id() {
-    return id;
-  }
-
-  /** 获取此资源的名称 */
-  public String name() {
-    return name;
-  }
-
-  /** 获取此属性与其他属性之间的有效性关系 */
-  public TypeRelations damageRelations() {
-    return damageRelations;
-  }
-
-  /** 获取此属性在之前世代中的有效性关系 */
-  public List<TypeRelationsPast<?>> pastDamageRelations() {
-    return pastDamageRelations;
-  }
-
-  /** 获取与此项相关的各代游戏索引 */
-  public List<GenerationGameIndex> gameIndices() {
-    return gameIndices;
-  }
-
-  /** 获取此属性首次出现的世代 */
-  public NamedApiResource<?> generation() {
-    return generation;
-  }
-
-  /** 获取此属性的伤害类别 */
-  public NamedApiResource<?> moveDamageClass() {
-    return moveDamageClass;
-  }
-
-  /** 获取此资源在不同语言中的名称 */
-  @Override
-  public List<Name> names() {
-    return names;
-  }
-
-  /** 获取拥有此属性的宝可梦列表 */
-  public List<TypePokemon> pokemon() {
-    return pokemon;
-  }
-
-  /** 获取具有此属性的招式列表 */
-  public List<NamedApiResource<?>> moves() {
-    return moves;
-  }
-}
+    List<NamedApiResource<?>> moves) {}
