@@ -9,6 +9,18 @@ import java.util.List;
  * 树果是可以为宝可梦恢复HP和异常状态、提升能力，甚至在食用时抵消伤害的小型果实。详情可参考<a
  * href="http://bulbapedia.bulbagarden.net/wiki/Berry">Bulbapedia</a>
  *
+ * @param id 该资源的标识符
+ * @param name 该资源的名称
+ * @param growthTime 树生长到下一个阶段所需的时间（小时）
+ * @param maxHarvest 第四世代中一棵树上最多可生长的该树果数量
+ * @param naturalGiftPower 搭配该树果使用"自然之恩"招式时的威力
+ * @param size 该树果的大小（毫米）
+ * @param smoothness 该树果的光滑度，用于制作宝可方块或宝芬
+ * @param soilDryness 树果生长时使土壤干燥的速度，数值越高土壤干燥越快
+ * @param firmness 该树果的硬度，用于制作宝可方块或宝芬
+ * @param flavors 该树果的风味及其对应的强度列表
+ * @param item 该树果对应的道具数据
+ * @param naturalGiftType 搭配该树果使用"自然之恩"招式时继承的属性类型
  * @author lishangbu
  * @since 2025/5/21
  */
@@ -24,64 +36,4 @@ public record Berry(
     NamedApiResource<BerryFirmness> firmness,
     List<FlavorBerryMap> flavors,
     NamedApiResource<?> item,
-    @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {
-  /** 该资源的标识符 */
-  public Integer id() {
-    return id;
-  }
-
-  /** 该资源的名称 */
-  public String name() {
-    return name;
-  }
-
-  /** 树生长到下一个阶段所需的时间（小时） */
-  public Integer growthTime() {
-    return growthTime;
-  }
-
-  /** 第四世代中一棵树上最多可生长的该树果数量 */
-  public Integer maxHarvest() {
-    return maxHarvest;
-  }
-
-  /** 搭配该树果使用“自然之恩”招式时的威力 */
-  public Integer naturalGiftPower() {
-    return naturalGiftPower;
-  }
-
-  /** 该树果的大小（毫米） */
-  public Integer size() {
-    return size;
-  }
-
-  /** 该树果的光滑度，用于制作宝可方块或宝芬 */
-  public Integer smoothness() {
-    return smoothness;
-  }
-
-  /** 树果生长时使土壤干燥的速度，数值越高土壤干燥越快 */
-  public Integer soilDryness() {
-    return soilDryness;
-  }
-
-  /** 该树果的硬度，用于制作宝可方块或宝芬 */
-  public NamedApiResource<BerryFirmness> firmness() {
-    return firmness;
-  }
-
-  /** 该树果的风味及其对应的强度列表 */
-  public List<FlavorBerryMap> flavors() {
-    return flavors;
-  }
-
-  /** 该树果对应的道具数据 */
-  public NamedApiResource<?> item() {
-    return item;
-  }
-
-  /** 搭配该树果使用“自然之恩”招式时继承的属性类型 */
-  public NamedApiResource<Type> naturalGiftType() {
-    return naturalGiftType;
-  }
-}
+    @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}
