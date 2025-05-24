@@ -1,12 +1,12 @@
 Avalon
 ========================================================================
 
-[![Build Status](https://github.com/lishangbu/avalon/actions/workflows/maven.yml/badge.svg)](https://maven.apache.org)
+[![Build Status](https://github.com/lishangbu/avalon/actions/workflows/build.yml/badge.svg)](https://maven.apache.org)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
 ## Navigation
 
-[Usage Document Online][1] | **Server Repository** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document][4]
+[Usage Document Online][1] | **Server Repository** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
 
 [1]: http://lishangbu.github.io/avalon-doc
 [2]: https://github.com/lishangbu/avalon-ui

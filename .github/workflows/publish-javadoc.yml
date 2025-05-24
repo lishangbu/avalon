@@ -1,4 +1,4 @@
-name: Deploy Javadoc
+name: Publish Javadoc
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy JavaDoc 🚀
+      - name: Publish JavaDoc 🚀
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

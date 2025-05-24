@@ -13,7 +13,31 @@
   <version>${revision}</version>
   <packaging>pom</packaging>
   <description>Avalon Dependencies</description>
+  <licenses>
+    <license>
+      <name>AGPL-V3 License</name>
+      <url>https://opensource.org/license/agpl-v3</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>lisb</id>
+      <name>Shangbu Li</name>
+      <email>shangshili@hotmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/lishangbu/avalon.git</connection>
+    <developerConnection>scm:git:https://github.com/lishangbu/avalon.git</developerConnection>
+    <url>https://github.com/lishangbu/avalon</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/lishangbu/avalon/issues</url>
+  </issueManagement>
   <properties>
+    <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
     <!--docker镜像前缀-->
     <docker.image.prefix>slf4j</docker.image.prefix>
     <!--docker私服地址-->
@@ -22,6 +46,9 @@
     <ip2location.version>1.2.4</ip2location.version>
     <java.version>24</java.version>
     <jjwt.version>0.12.6</jjwt.version>
+    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    <!--ID of the server that you configured in settings.xml-->
+    <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
     <spring-shell.version>3.4.0</spring-shell.version>
@@ -129,6 +156,43 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>aliyun-maven</id>
+      <name>Aliyun Public</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central-portal-snapshots</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </repository>
+  </repositories>
+  <!--可选，配置maven插件镜像源-->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>aliyun-plugin</id>
+      <url>https://maven.aliyun.com/repository/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
   <build>
     <pluginManagement>
       <plugins>
@@ -136,6 +200,11 @@
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>${spotless-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg-plugin.version}</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -192,17 +261,65 @@
   </build>
   <profiles>
     <profile>
-      <id>dev</id>
-      <distributionManagement>
-        <repository>
-          <id>deploymentRepo</id>
-          <url>http://127.0.0.1:8081/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-          <id>deploymentRepo</id>
-          <url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
-      </distributionManagement>
+      <id>ossrh</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <!-- utf-8读取文件 -->
+              <charset>${project.build.sourceEncoding}</charset>
+              <!-- utf-8进行编码代码 -->
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <!-- utf-8进行编码文档 -->
+              <docencoding>${project.reporting.outputEncoding}</docencoding>
+              <doclint>none</doclint>
+              <locale>zh_CN</locale>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>${publishing.server.id}</publishingServerId>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

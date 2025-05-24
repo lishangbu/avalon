@@ -10,6 +10,29 @@
   </parent>
   <artifactId>avalon-parent</artifactId>
   <packaging>pom</packaging>
+  <licenses>
+    <license>
+      <name>AGPL-V3 License</name>
+      <url>https://opensource.org/license/agpl-v3</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>lisb</id>
+      <name>Shangbu Li</name>
+      <email>shangshili@hotmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/lishangbu/avalon.git</connection>
+    <developerConnection>scm:git:https://github.com/lishangbu/avalon.git</developerConnection>
+    <url>https://github.com/lishangbu/avalon</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/lishangbu/avalon/issues</url>
+  </issueManagement>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -32,7 +55,7 @@
             <!--https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/htmlsingle/#build-image-->
             <image>
               <name>${docker.repository}/${docker.image.prefix}/${project.artifactId}</name>
-              <publish>false</publish>
+              <publish>true</publish>
               <pullPolicy>IF_NOT_PRESENT</pullPolicy>
               <tags>
                 <tag>latest</tag>
@@ -179,48 +202,6 @@
       <properties>
         <profiles.active>dev</profiles.active>
       </properties>
-    </profile>
-    <profile>
-      <id>prd</id>
-      <properties>
-        <profiles.active>prd</profiles.active>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <!-- utf-8读取文件 -->
-              <charset>${project.build.sourceEncoding}</charset>
-              <!-- utf-8进行编码代码 -->
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <!-- utf-8进行编码文档 -->
-              <docencoding>${project.reporting.outputEncoding}</docencoding>
-              <doclint>none</doclint>
-              <locale>zh_CN</locale>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>
