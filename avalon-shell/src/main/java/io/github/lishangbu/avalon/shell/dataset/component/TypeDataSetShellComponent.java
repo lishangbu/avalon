@@ -7,7 +7,7 @@ import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.Optional;
 import org.springframework.shell.standard.ShellComponent;
@@ -45,7 +45,7 @@ public class TypeDataSetShellComponent extends AbstractDataSetShellComponent {
   }
 
   private Type convertToType(NamedApiResource namedApiResource) {
-    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type result =
+    io.github.lishangbu.avalon.pokeapi.model.pokemon.Type result =
         pokeApiFactory.getSingleResource(TYPE, namedApiResource.name());
     Type type = new Type();
     type.setId(result.id());

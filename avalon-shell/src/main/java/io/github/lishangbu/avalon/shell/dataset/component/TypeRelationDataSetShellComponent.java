@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.dataset.repository.TypeDamageRelationRepositor
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.TypeRelations;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.TypeRelations;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class TypeRelationDataSetShellComponent {
     }
 
     Type currentType = typeOptional.get();
-    io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type type =
+    io.github.lishangbu.avalon.pokeapi.model.pokemon.Type type =
         pokeApiFactory.getSingleResource(TYPE, name);
     TypeRelations typeRelations = type.damageRelations();
 
@@ -151,8 +151,7 @@ public class TypeRelationDataSetShellComponent {
    * @param relationType 用于计算的属性关系
    */
   private void calculateTypeRelations(
-      List<NamedApiResource<io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type>>
-          typeResources,
+      List<NamedApiResource<io.github.lishangbu.avalon.pokeapi.model.pokemon.Type>> typeResources,
       Type currentType,
       List<TypeDamageRelation> typeDamageRelations,
       String relationType) {
@@ -160,7 +159,7 @@ public class TypeRelationDataSetShellComponent {
       return;
     }
 
-    for (NamedApiResource<io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type>
+    for (NamedApiResource<io.github.lishangbu.avalon.pokeapi.model.pokemon.Type>
         typeNamedApiResource : typeResources) {
       Optional<Type> typeOptional = typeRepository.findByInternalName(typeNamedApiResource.name());
       if (typeOptional.isEmpty()) {

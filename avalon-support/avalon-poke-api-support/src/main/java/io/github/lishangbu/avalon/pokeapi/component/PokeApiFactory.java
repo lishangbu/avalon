@@ -3,7 +3,7 @@ package io.github.lishangbu.avalon.pokeapi.component;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiEndpointEnum;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;

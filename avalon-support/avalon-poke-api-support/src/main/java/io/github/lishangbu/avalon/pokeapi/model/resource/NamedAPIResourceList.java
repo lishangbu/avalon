@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.pokeapi.model.pagination;
+package io.github.lishangbu.avalon.pokeapi.model.resource;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;

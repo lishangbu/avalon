@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.dataset.repository.BerryRepository;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;

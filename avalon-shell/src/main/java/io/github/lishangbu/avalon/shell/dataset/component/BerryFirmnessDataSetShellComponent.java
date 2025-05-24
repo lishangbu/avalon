@@ -6,7 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;

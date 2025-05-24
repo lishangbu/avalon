@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.pokeapi.model.pokemon.type;
+package io.github.lishangbu.avalon.pokeapi.model.pokemon;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 

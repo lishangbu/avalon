@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiEndpointEnum;
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

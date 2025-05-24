@@ -10,10 +10,12 @@ import java.util.List;
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称
- * @param berries 具有该硬度的树果列表
- * @param names 该资源在不同语言下的名称
+ * @param berries 具有该硬度的树果{@link Berry}列表
+ * @param names 该资源在不同语言下的名称{@link Name}
  * @author lishangbu
+ * @see Berry
+ * @see Name
  * @since 2025/5/21
  */
 public record BerryFirmness(
-    Integer id, String name, List<NamedApiResource<Berry>> berries, List<Name> names) {}
+    Integer id, String name, List<NamedApiResource> berries, List<Name> names) {}

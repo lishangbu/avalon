@@ -183,14 +183,14 @@
   <!--可选，配置maven插件镜像源-->
   <pluginRepositories>
     <pluginRepository>
-      <id>aliyun-plugin</id>
-      <url>https://maven.aliyun.com/repository/public</url>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+      <id>aliyun-plugin</id>
+      <url>https://maven.aliyun.com/repository/public</url>
     </pluginRepository>
   </pluginRepositories>
   <build>
