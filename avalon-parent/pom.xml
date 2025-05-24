@@ -193,15 +193,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <profiles.active>dev</profiles.active>
-      </properties>
-    </profile>
-  </profiles>
 </project>

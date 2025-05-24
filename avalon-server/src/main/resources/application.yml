@@ -2,7 +2,7 @@ spring:
   application:
     name: avalon
   profiles:
-    active: @profiles.active@
+    active: dev
   security:
     ignore-urls:
       - /token/sign-in

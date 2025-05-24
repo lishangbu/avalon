@@ -2,7 +2,8 @@ package io.github.lishangbu.avalon.pokeapi.model.berry;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
+import io.github.lishangbu.avalon.pokeapi.model.item.Item;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
 /**
@@ -17,11 +18,13 @@ import java.util.List;
  * @param size 该树果的大小（毫米）
  * @param smoothness 该树果的光滑度，用于制作宝可方块或宝芬
  * @param soilDryness 树果生长时使土壤干燥的速度，数值越高土壤干燥越快
- * @param firmness 该树果的硬度，用于制作宝可方块或宝芬
- * @param flavors 该树果的风味及其对应的强度列表
- * @param item 该树果对应的道具数据
+ * @param firmness 该树果的硬度{@link BerryFirmness}，用于制作宝可方块或宝芬
+ * @param flavors 该树果的风味及其对应的强度列表{@link FlavorBerryMap}
+ * @param item 该树果对应的道具{@link Item}数据
  * @param naturalGiftType 搭配该树果使用"自然之恩"招式时继承的属性类型
  * @author lishangbu
+ * @see BerryFirmness
+ * @see Item
  * @since 2025/5/21
  */
 public record Berry(
@@ -33,7 +36,7 @@ public record Berry(
     Integer size,
     Integer smoothness,
     @JsonProperty("soil_dryness") Integer soilDryness,
-    NamedApiResource<BerryFirmness> firmness,
+    NamedApiResource firmness,
     List<FlavorBerryMap> flavors,
-    NamedApiResource<?> item,
+    NamedApiResource item,
     @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}

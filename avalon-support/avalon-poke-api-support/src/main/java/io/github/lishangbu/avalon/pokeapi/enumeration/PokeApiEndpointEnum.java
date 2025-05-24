@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.type.Type;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /**
  * Poke Api 端点枚举

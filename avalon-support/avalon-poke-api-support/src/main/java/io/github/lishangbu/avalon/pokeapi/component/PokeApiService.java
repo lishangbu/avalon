@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.component;
 
-import io.github.lishangbu.avalon.pokeapi.model.pagination.NamedAPIResourceList;
+import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import java.io.Serializable;
 
 /**
