@@ -10,12 +10,15 @@ import java.util.List;
  * @param id 该资源的标识符
  * @param name 该资源的名称
  * @param order 用于排序的顺序。几乎按发行日期排序，但类似的版本会被归为一组
- * @param generation 引入该版本组的世代
+ * @param generation 引入该版本组的世代{@link Generation}
  * @param moveLearnMethods 这个版本组中宝可梦可以学习招式的方法列表
- * @param pokedexes 在该版本组中引入的图鉴列表
+ * @param pokedexes 在该版本组中引入的图鉴列表{@link Pokedex}
  * @param regions 在该版本组中可以访问的区域列表
- * @param versions 该版本组拥有的版本列表
+ * @param versions 该版本组拥有的版本列表{@link Version}
  * @author lishangbu
+ * @see Generation
+ * @see Pokedex
+ * @see Version
  * @since 2025/5/24
  */
 public record VersionGroup(

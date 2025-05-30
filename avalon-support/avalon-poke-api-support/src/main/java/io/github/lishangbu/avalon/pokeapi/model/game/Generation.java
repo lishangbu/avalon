@@ -22,6 +22,9 @@ import java.util.List;
  * @see Type
  * @see VersionGroup
  * @author lishangbu
+ * @see Name
+ * @see Type
+ * @see VersionGroup
  * @since 2025/5/24
  */
 public record Generation(

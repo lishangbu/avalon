@@ -10,9 +10,11 @@ import java.util.List;
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称
- * @param names 不同语言中列出的此资源名称
- * @param versionGroup 此版本所属的版本组
+ * @param names 不同语言中列出的此资源名称{@link Name}
+ * @param versionGroup 此版本所属的版本组{@link VersionGroup}
  * @author lishangbu
+ * @see Name
+ * @see VersionGroup
  * @since 2025/5/24
  */
 public record Version(
