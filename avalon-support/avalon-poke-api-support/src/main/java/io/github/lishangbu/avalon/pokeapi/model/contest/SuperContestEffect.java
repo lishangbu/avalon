@@ -10,9 +10,10 @@ import java.util.List;
  *
  * @param id 该资源的唯一标识符
  * @param appeal 该超级华丽大赛效果的吸引力等级
- * @param flavorTextEntries 不同语言下该超级华丽大赛效果的风味文本
+ * @param flavorTextEntries 不同语言下该超级华丽大赛效果的风味文本{@link FlavorText}
  * @param moves 在超级华丽大赛中使用时具有该效果的招式列表
  * @author lishangbu
+ * @see FlavorText
  * @since 2025/5/23
  */
 public record SuperContestEffect(

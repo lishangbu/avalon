@@ -11,9 +11,11 @@ import java.util.List;
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称
- * @param berryFlavor 与该竞赛类型相关的树果口味
- * @param names 该竞赛类型在不同语言下的名称
+ * @param berryFlavor 与该竞赛类型相关的树果口味{@link BerryFlavor}
+ * @param names 该竞赛类型在不同语言下的名称{@link ContestName}
  * @author lishangbu
+ * @see BerryFlavor
+ * @see ContestName
  * @since 2025/5/22
  */
 public record ContestType(

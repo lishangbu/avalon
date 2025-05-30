@@ -23,6 +23,10 @@ import java.util.List;
  * @see PokemonEntry
  * @see VersionGroup
  * @author lishangbu
+ * @see Description
+ * @see Name
+ * @see PokemonEntry
+ * @see VersionGroup
  * @since 2025/5/24
  */
 public record Pokedex(

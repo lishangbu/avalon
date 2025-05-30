@@ -10,8 +10,9 @@ import java.util.List;
  * @param id 该资源的唯一标识符
  * @param name 该资源的名称
  * @param order 用于排序的推荐值
- * @param names 该资源在不同语言下的名称
+ * @param names 该资源在不同语言下的名称{@link Name}
  * @author lishangbu
+ * @see Name
  * @since 2025/5/23
  */
 public record EncounterMethod(Integer id, String name, Integer order, List<Name> names) {}
