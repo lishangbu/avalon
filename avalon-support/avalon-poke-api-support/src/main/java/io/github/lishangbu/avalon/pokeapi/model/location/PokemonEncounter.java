@@ -9,9 +9,10 @@ import java.util.List;
  * PokemonEncounter
  *
  * @param pokemon 被遇到的宝可梦
- * @param versionDetails 可能在引用位置区域中出现的宝可梦的版本和遭遇列表
+ * @param versionDetails 可能在引用位置区域中出现的宝可梦的版本和遭遇列表{@link VersionEncounterDetail}
  * @author lishangbu
  * @since 2025/5/26
+ * @see VersionEncounterDetail
  */
 public record PokemonEncounter(
     NamedApiResource<?> pokemon,

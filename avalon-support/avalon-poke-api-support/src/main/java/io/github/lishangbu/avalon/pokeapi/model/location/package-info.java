@@ -1,6 +1,5 @@
 /**
- * Locations that can be visited within the games. Locations make up sizable portions of regions,
- * like cities or routes.
+ * Poke API关于位置的模型描述
  *
  * @author lishangbu
  * @since 2025/5/26
