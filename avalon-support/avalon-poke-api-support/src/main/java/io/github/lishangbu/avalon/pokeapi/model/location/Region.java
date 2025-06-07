@@ -9,8 +9,7 @@ import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import java.util.List;
 
 /**
- * A region is an organized area of the Pokémon world. Most often, the main difference between
- * regions is the species of Pokémon that can be encountered within them.
+ * 区域是宝可梦世界中的一个有组织的地区。最常见的是，区域之间的主要区别在于可以在其中遇到的宝可梦种类。
  *
  * @param id 资源的标识符
  * @param locations 可以在此区域找到的位置{@link Location}列表
@@ -27,7 +26,7 @@ import java.util.List;
  * @since 2025/5/26
  */
 public record Region(
-    int id,
+    Integer id,
     List<NamedApiResource<Location>> locations,
     String name,
     List<Name> names,
