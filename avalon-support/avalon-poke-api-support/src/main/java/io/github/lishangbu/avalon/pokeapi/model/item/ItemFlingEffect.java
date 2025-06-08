@@ -6,7 +6,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * The various effects of the move "Fling" when used with different items.
+ * 技能"投掷"与不同道具一起使用时的各种效果。
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称

@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.entity;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -48,6 +49,10 @@ public class ItemAttribute implements Serializable {
   @Column(length = 50, nullable = false)
   private String description;
 
+  /** 具有该属性的道具列表,外键表由ITEM维护 */
+  @ManyToMany(mappedBy = "attributes")
+  private List<Item> items;
+
   public Integer getId() {
     return id;
   }
@@ -78,5 +83,13 @@ public class ItemAttribute implements Serializable {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public List<Item> getItems() {
+    return items;
+  }
+
+  public void setItems(List<Item> items) {
+    this.items = items;
   }
 }

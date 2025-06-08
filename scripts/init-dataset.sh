@@ -29,10 +29,14 @@ main() {
     echo "正在初始化道具信息..."
     echo "正在填充道具属性表数据..."
     $RUN_COMMAND dataset refresh itemAttribute
+    echo "正在填充道具投掷效果表数据..."
+    $RUN_COMMAND dataset refresh itemFlingEffect
     echo "正在填充道具口袋表数据..."
     $RUN_COMMAND dataset refresh itemPocket
     echo "正在填充道具分类表数据..."
     $RUN_COMMAND dataset refresh itemCategory
+    echo "正在填充道具表数据..."
+    $RUN_COMMAND dataset refresh item
     echo "完成道具信息初始化..."
 
     echo "正在初始化宝可梦信息..."

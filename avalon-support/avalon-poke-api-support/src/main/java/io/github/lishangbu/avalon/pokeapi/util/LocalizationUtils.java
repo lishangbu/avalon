@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.util;
 
-import io.github.lishangbu.avalon.pokeapi.model.common.Description;
-import io.github.lishangbu.avalon.pokeapi.model.common.Name;
-import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
+import io.github.lishangbu.avalon.pokeapi.model.common.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +49,41 @@ public abstract class LocalizationUtils {
   public static Optional<Description> getLocalizationDescription(
       List<Description> descriptions, String... locales) {
     return getLocalizedResource(descriptions, Description::language, locales);
+  }
+
+  /**
+   * 获取本地化的效果
+   *
+   * @param effects 效果资源列表
+   * @param locales 要查找的语言
+   * @return 本地化的效果名称
+   */
+  public static Optional<Effect> getLocalizationEffect(List<Effect> effects, String... locales) {
+    return getLocalizedResource(effects, Effect::language, locales);
+  }
+
+  /**
+   * 获取本地化的完整效果
+   *
+   * @param verboseEffects 完整效果资源列表
+   * @param locales 要查找的语言
+   * @return 本地化的完整效果名称
+   */
+  public static Optional<VerboseEffect> getLocalizationVerboseEffect(
+      List<VerboseEffect> verboseEffects, String... locales) {
+    return getLocalizedResource(verboseEffects, VerboseEffect::language, locales);
+  }
+
+  /**
+   * 获取本地化的版本组偏好文本
+   *
+   * @param versionGroupFlavorTexts 版本组偏好资源列表
+   * @param locales 要查找的语言
+   * @return 本地化的版本组偏好文本
+   */
+  public static Optional<VersionGroupFlavorText> getLocalizationVersionGroupFlavorText(
+      List<VersionGroupFlavorText> versionGroupFlavorTexts, String... locales) {
+    return getLocalizedResource(versionGroupFlavorTexts, VersionGroupFlavorText::language, locales);
   }
 
   /**

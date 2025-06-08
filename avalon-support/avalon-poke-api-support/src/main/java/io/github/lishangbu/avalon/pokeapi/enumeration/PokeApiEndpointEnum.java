@@ -8,9 +8,7 @@ import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
-import io.github.lishangbu.avalon.pokeapi.model.item.ItemAttribute;
-import io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory;
-import io.github.lishangbu.avalon.pokeapi.model.item.ItemPocket;
+import io.github.lishangbu.avalon.pokeapi.model.item.*;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /**
@@ -55,12 +53,17 @@ public enum PokeApiEndpointEnum {
   /** 遭遇条件值是遭遇条件的所有可能取值列表 */
   ENCOUNTER_CONDITION_VALUE("encounter-condition-value", EncounterConditionValue.class),
 
+  /** 道具是一种能够被收集和使用的对象，例如在宝可梦的世界中可以使用药剂、球，或者教授给宝可梦技能的技能机器等。 */
+  ITEM("item", Item.class),
   /** 物品属性定义了物品的特定方面，例如"可在战斗中使用"或"可消耗" */
   ITEM_ATTRIBUTE("item-attribute", ItemAttribute.class),
 
   /** 道具类别决定了道具在玩家背包中的放置位置 */
   ITEM_CATEGORY("item-category", ItemCategory.class),
 
+  /** 技能"投掷"与不同道具一起使用时的各种效果 */
+  ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
+  /** 玩家背包中用于按类别存储道具的口袋 */
   ITEM_POCKET("item-pocket", ItemPocket.class),
 
   /** 属性是宝可梦及其招式的特性。每种属性有三种特性：对哪些属性的宝可梦效果拔群、对哪些属性效果不佳、对哪些属性完全无效 */
