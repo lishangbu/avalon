@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.pokeapi.autoconfiguration;
 
+import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestClient;
  * @author lishangbu
  * @since 2025/5/20
  */
+@EnableConfigurationProperties(PokeApiProperties.class)
 @AutoConfiguration
 public class PokeApiRestClientAutoConfiguration {
   /**
@@ -20,7 +23,7 @@ public class PokeApiRestClientAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean(name = "pokeApiRestClient")
-  public RestClient pokeApiRestClient() {
-    return RestClient.builder().baseUrl("https://pokeapi.co/api/v2/").build();
+  public RestClient pokeApiRestClient(PokeApiProperties properties) {
+    return RestClient.builder().baseUrl(properties.getApiUrl()).build();
   }
 }
