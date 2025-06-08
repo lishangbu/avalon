@@ -52,7 +52,7 @@ public class BerryFirmnessDataSetShellComponent extends AbstractDataSetShellComp
     BerryFirmness berryFirmness = new BerryFirmness();
     berryFirmness.setId(apiResult.id());
     berryFirmness.setInternalName(apiResult.name());
-    LocalizationUtils.getLocalizationName(apiResult.names(), LocalizationUtils.SIMPLIFIED_CHINESE)
+    LocalizationUtils.getLocalizationName(apiResult.names())
         .ifPresentOrElse(
             name -> {
               berryFirmness.setName(name.name());

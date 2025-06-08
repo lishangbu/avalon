@@ -6,7 +6,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * Item attributes define particular aspects of items, e.g. "usable in battle" or "consumable"
+ * 物品属性定义了物品的特定方面，例如"可在战斗中使用"或"可消耗"
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称

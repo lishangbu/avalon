@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
+import io.github.lishangbu.avalon.pokeapi.model.item.ItemAttribute;
 import io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory;
 import io.github.lishangbu.avalon.pokeapi.model.item.ItemPocket;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
@@ -53,6 +54,9 @@ public enum PokeApiEndpointEnum {
   ENCOUNTER_CONDITION("encounter-condition", EncounterCondition.class),
   /** 遭遇条件值是遭遇条件的所有可能取值列表 */
   ENCOUNTER_CONDITION_VALUE("encounter-condition-value", EncounterConditionValue.class),
+
+  /** 物品属性定义了物品的特定方面，例如"可在战斗中使用"或"可消耗" */
+  ITEM_ATTRIBUTE("item-attribute", ItemAttribute.class),
 
   /** 道具类别决定了道具在玩家背包中的放置位置 */
   ITEM_CATEGORY("item-category", ItemCategory.class),

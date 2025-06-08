@@ -50,11 +50,7 @@ public class TypeDataSetShellComponent extends AbstractDataSetShellComponent {
     Type type = new Type();
     type.setId(result.id());
     type.setInternalName(result.name());
-    Optional<Name> localizationName =
-        LocalizationUtils.getLocalizationName(
-            result.names(),
-            LocalizationUtils.SIMPLIFIED_CHINESE,
-            LocalizationUtils.TRADITIONAL_CHINESE);
+    Optional<Name> localizationName = LocalizationUtils.getLocalizationName(result.names());
     type.setName(localizationName.map(Name::name).orElse(type.getInternalName()));
     return type;
   }
