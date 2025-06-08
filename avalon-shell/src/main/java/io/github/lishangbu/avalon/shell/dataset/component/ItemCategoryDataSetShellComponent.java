@@ -59,8 +59,7 @@ public class ItemCategoryDataSetShellComponent extends AbstractDataSetShellCompo
     itemPocketRepository
         .findByInternalName(apiResult.pocket().name())
         .ifPresent(itemPocket -> itemCategory.setItemPocket(itemPocket));
-    LocalizationUtils.getLocalizationName(
-            apiResult.names(), LocalizationUtils.SIMPLIFIED_CHINESE, LocalizationUtils.ENGLISH)
+    LocalizationUtils.getLocalizationName(apiResult.names())
         .ifPresentOrElse(
             name -> {
               itemCategory.setName(name.name());

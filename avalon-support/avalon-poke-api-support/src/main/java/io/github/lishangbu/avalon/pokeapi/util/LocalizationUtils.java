@@ -1,9 +1,12 @@
 package io.github.lishangbu.avalon.pokeapi.util;
 
+import io.github.lishangbu.avalon.pokeapi.model.common.Description;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
+import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * 本地化工具
@@ -14,13 +17,13 @@ import java.util.Optional;
 public abstract class LocalizationUtils {
 
   /** 简体中文 */
-  public static final String SIMPLIFIED_CHINESE = "zh-Hans";
+  private static final String SIMPLIFIED_CHINESE = "zh-Hans";
 
   /** 繁体中文 */
-  public static final String TRADITIONAL_CHINESE = "zh-Hant";
+  private static final String TRADITIONAL_CHINESE = "zh-Hant";
 
   /** 英文 */
-  public static final String ENGLISH = "en";
+  private static final String ENGLISH = "en";
 
   /** 默认按照简体中文，繁体中文和英语的顺序进行解析 */
   private static final String[] DEFAULT_LOCALES = {
@@ -28,28 +31,55 @@ public abstract class LocalizationUtils {
   };
 
   /**
-   * 获取本地化的语言名称
+   * 获取本地化的语言
    *
    * @param names 语言资源列表
    * @param locales 要查找的语言
    * @return 本地化的语言名称
    */
   public static Optional<Name> getLocalizationName(List<Name> names, String... locales) {
-    if (names == null || names.isEmpty()) {
+    return getLocalizedResource(names, Name::language, locales);
+  }
+
+  /**
+   * 获取本地化的描述
+   *
+   * @param descriptions 描述资源列表
+   * @param locales 要查找的语言
+   * @return 本地化的描述
+   */
+  public static Optional<Description> getLocalizationDescription(
+      List<Description> descriptions, String... locales) {
+    return getLocalizedResource(descriptions, Description::language, locales);
+  }
+
+  /**
+   * 通用的本地化资源获取方法
+   *
+   * @param <T> 资源类型
+   * @param resources 资源列表
+   * @param languageExtractor 从资源中提取语言的函数
+   * @param locales 要查找的语言，如果为空则使用默认语言顺序
+   * @return 本地化的资源
+   */
+  private static <T> Optional<T> getLocalizedResource(
+      List<T> resources, Function<T, NamedApiResource<?>> languageExtractor, String... locales) {
+
+    if (resources == null || resources.isEmpty()) {
       return Optional.empty();
     }
 
     // 如果没有传入 locales，使用默认的 locales
-    if (locales.length == 0) {
-      locales = DEFAULT_LOCALES;
-    }
+    String[] localesToUse = (locales.length == 0) ? DEFAULT_LOCALES : locales;
 
     // 遍历所有 locales，查找匹配的结果
-    return Arrays.stream(locales)
+    return Arrays.stream(localesToUse)
         .map(
             locale ->
-                names.stream()
-                    .filter(name -> name.language().name().equalsIgnoreCase(locale))
+                resources.stream()
+                    .filter(
+                        resource ->
+                            languageExtractor.apply(resource).name().equalsIgnoreCase(locale))
                     .findFirst())
         .filter(Optional::isPresent)
         .map(Optional::get)

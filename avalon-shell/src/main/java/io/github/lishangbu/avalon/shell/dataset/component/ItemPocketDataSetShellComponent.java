@@ -51,7 +51,7 @@ public class ItemPocketDataSetShellComponent extends AbstractDataSetShellCompone
     ItemPocket itemPocket = new ItemPocket();
     itemPocket.setId(apiResult.id());
     itemPocket.setInternalName(apiResult.name());
-    LocalizationUtils.getLocalizationName(apiResult.names(), LocalizationUtils.SIMPLIFIED_CHINESE)
+    LocalizationUtils.getLocalizationName(apiResult.names())
         .ifPresentOrElse(
             name -> {
               itemPocket.setName(name.name());
