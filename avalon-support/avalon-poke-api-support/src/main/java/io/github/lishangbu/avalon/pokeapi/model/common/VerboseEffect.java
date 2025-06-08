@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 
 /**
@@ -12,4 +13,6 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
  * @since 2025/5/20
  */
 public record VerboseEffect(
-    String effect, String shortEffect, NamedApiResource<Language> language) {}
+    String effect,
+    @JsonProperty("short_effect") String shortEffect,
+    NamedApiResource<Language> language) {}

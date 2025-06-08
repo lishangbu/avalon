@@ -10,8 +10,8 @@ import java.util.List;
  * @param id 该资源的标识符
  * @param name 该资源的名称
  * @param cost 此道具在商店中的价格
- * @param flingPower 使用此道具进行"投掷"移动时的威力
- * @param flingEffect 使用此道具进行"投掷"{@link ItemFlingEffect}移动时的效果
+ * @param flingPower 使用此道具进行"投掷"行动时的威力
+ * @param flingEffect 使用此道具进行"投掷"{@link ItemFlingEffect}行动时的效果
  * @param attributes 此道具具有的属性{@link ItemAttribute}列表
  * @param category 此道具所属的类别{@link ItemCategory}
  * @param effectEntries 不同语言中列出的此道具的效果{@link VerboseEffect}

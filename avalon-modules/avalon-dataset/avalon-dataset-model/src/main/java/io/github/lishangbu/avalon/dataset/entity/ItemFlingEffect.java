@@ -8,20 +8,20 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 /**
- * 道具类别
+ * 道具"投掷"效果
  *
  * @author lishangbu
  * @since 2025/6/8
  */
-@Comment("道具类别")
+@Comment("道具投掷效果")
 @Entity
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "uk_item_category_internal_name",
+          name = "uk_item_fling_effect_internal_name",
           columnNames = {"internal_name"})
     })
-public class ItemCategory implements Serializable {
+public class ItemFlingEffect implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
@@ -41,20 +41,16 @@ public class ItemCategory implements Serializable {
 
   /** 名称 */
   @Comment("名称")
-  @Column(length = 20, nullable = false)
+  @Column(length = 30, nullable = false)
   private String name;
 
-  /** 该类别道具所属的口袋 */
-  @ManyToOne
-  @JoinColumn(
-      name = "pocket_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_item_category_pocket_id"))
-  @Comment("该类别道具所属的口袋")
-  private ItemPocket itemPocket;
+  /** 道具“投掷”效果 */
+  @Comment("效果")
+  @Column(length = 100, nullable = false)
+  private String effect;
 
-  /** 属于该类别的道具列表 */
-  @OneToMany(mappedBy = "category")
+  /** 具有此投掷效果的道具列表 */
+  @OneToMany(mappedBy = "flingEffect")
   private List<Item> items;
 
   public Integer getId() {
@@ -81,12 +77,12 @@ public class ItemCategory implements Serializable {
     this.name = name;
   }
 
-  public ItemPocket getItemPocket() {
-    return itemPocket;
+  public String getEffect() {
+    return effect;
   }
 
-  public void setItemPocket(ItemPocket itemPocket) {
-    this.itemPocket = itemPocket;
+  public void setEffect(String effect) {
+    this.effect = effect;
   }
 
   public List<Item> getItems() {

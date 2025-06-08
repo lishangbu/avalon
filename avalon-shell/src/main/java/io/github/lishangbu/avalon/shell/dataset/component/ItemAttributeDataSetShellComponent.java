@@ -52,20 +52,14 @@ public class ItemAttributeDataSetShellComponent extends AbstractDataSetShellComp
     itemAttribute.setId(apiResult.id());
     itemAttribute.setInternalName(apiResult.name());
     LocalizationUtils.getLocalizationName(apiResult.names())
-        .ifPresentOrElse(
+        .ifPresent(
             name -> {
               itemAttribute.setName(name.name());
-            },
-            () -> {
-              itemAttribute.setName(apiResult.name());
             });
     LocalizationUtils.getLocalizationDescription(apiResult.descriptions())
-        .ifPresentOrElse(
+        .ifPresent(
             description -> {
               itemAttribute.setDescription(description.description());
-            },
-            () -> {
-              itemAttribute.setDescription(apiResult.descriptions().getFirst().description());
             });
     return itemAttribute;
   }
