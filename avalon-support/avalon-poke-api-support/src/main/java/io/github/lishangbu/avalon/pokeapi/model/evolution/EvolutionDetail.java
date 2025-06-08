@@ -11,7 +11,7 @@ import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
  * @param item 使宝可梦进化所需的道具{@link Item}
  * @param trigger 触发进化为此宝可梦物种的事件类型{@link EvolutionTrigger}
  * @param gender 进化宝可梦物种必须具备的性别ID
- * @param heldItem 进化宝可梦物种在进化触发事件期间必须持有的物品{@link Item}
+ * @param heldItem 进化宝可梦物种在进化触发事件期间必须持有的道具{@link Item}
  * @param knownMove 进化宝可梦物种在进化触发事件期间必须知道的招式
  * @param knownMoveType 进化宝可梦物种在进化触发事件期间必须知道带有此类型{@link Type}的招式
  * @param location 必须在该位置触发进化

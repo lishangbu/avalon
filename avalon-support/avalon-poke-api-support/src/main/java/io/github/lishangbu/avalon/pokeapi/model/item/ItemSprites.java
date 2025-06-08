@@ -3,7 +3,7 @@ package io.github.lishangbu.avalon.pokeapi.model.item;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * 物品图像
+ * 道具图像
  *
  * @param defaultSprite The default depiction of this item.
  * @author lishangbu

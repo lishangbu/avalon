@@ -5,13 +5,13 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * Item categories determine where items will be placed in the players bag.
+ * 道具类别决定了道具在玩家背包中的放置位置
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称
- * @param items 属于该类别的物品列表{@link Item}
- * @param names 该物品类别在不同语言下的名称{@link Name}
- * @param pocket 该类别物品所属的口袋{@link ItemPocket}
+ * @param items 属于该类别的道具列表{@link Item}
+ * @param names 该道具类别在不同语言下的名称{@link Name}
+ * @param pocket 该类别道具所属的口袋{@link ItemPocket}
  * @see Item
  * @see Name
  * @see ItemPocket
