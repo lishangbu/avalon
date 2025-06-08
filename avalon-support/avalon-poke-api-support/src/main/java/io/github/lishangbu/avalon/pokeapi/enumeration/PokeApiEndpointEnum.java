@@ -8,6 +8,8 @@ import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
+import io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory;
+import io.github.lishangbu.avalon.pokeapi.model.item.ItemPocket;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /**
@@ -51,6 +53,11 @@ public enum PokeApiEndpointEnum {
   ENCOUNTER_CONDITION("encounter-condition", EncounterCondition.class),
   /** 遭遇条件值是遭遇条件的所有可能取值列表 */
   ENCOUNTER_CONDITION_VALUE("encounter-condition-value", EncounterConditionValue.class),
+
+  /** 道具类别决定了道具在玩家背包中的放置位置 */
+  ITEM_CATEGORY("item-category", ItemCategory.class),
+
+  ITEM_POCKET("item-pocket", ItemPocket.class),
 
   /** 属性是宝可梦及其招式的特性。每种属性有三种特性：对哪些属性的宝可梦效果拔群、对哪些属性效果不佳、对哪些属性完全无效 */
   TYPE("type", Type.class);

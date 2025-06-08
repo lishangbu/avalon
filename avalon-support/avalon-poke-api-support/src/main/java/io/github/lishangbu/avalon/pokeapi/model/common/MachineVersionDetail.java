@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * 参考<a href="https://pokeapi.co/docs/v2">官网Utility/Common Models/MachineVersionDetail</a>
  *
- * @param machine 教导技能的机器来自物品
+ * @param machine 教导技能的机器来自道具
  * @param versionGroup 该机器的版本组
  * @author lishangbu
  * @since 2025/5/20

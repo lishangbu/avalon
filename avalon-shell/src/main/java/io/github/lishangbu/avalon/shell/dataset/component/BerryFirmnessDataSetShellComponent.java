@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BerryFirmnessDataSetShellComponent extends AbstractDataSetShellComponent {
 
   private final PokeApiFactory pokeApiFactory;
-  public final BerryFirmnessRepository berryFirmnessRepository;
+  private final BerryFirmnessRepository berryFirmnessRepository;
 
   public BerryFirmnessDataSetShellComponent(
       PokeApiFactory pokeApiFactory, BerryFirmnessRepository berryFirmnessRepository) {

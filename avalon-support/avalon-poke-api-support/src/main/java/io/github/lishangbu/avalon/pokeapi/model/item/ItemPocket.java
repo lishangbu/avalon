@@ -5,12 +5,12 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * Pockets within the players bag used for storing items by category.
+ * 玩家背包中用于按类别存储道具的口袋
  *
  * @param id 该资源的标识符
  * @param name 该资源的名称
- * @param categories 与此物品口袋相关的物品分类列表{@link ItemCategory}
- * @param names 该物品口袋在不同语言中列出的名称{@link Name}
+ * @param categories 与此道具口袋相关的道具分类列表{@link ItemCategory}
+ * @param names 该道具口袋在不同语言中列出的名称{@link Name}
  * @author lishangbu
  * @see ItemCategory
  * @see Name

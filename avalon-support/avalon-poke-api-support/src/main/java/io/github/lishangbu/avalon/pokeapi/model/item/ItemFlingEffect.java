@@ -11,7 +11,7 @@ import java.util.List;
  * @param id 该资源的标识符
  * @param name 该资源的名称
  * @param effectEntries 使用不同语言列出的此投掷效果的结果{@link Effect}
- * @param items 具有此投掷效果的物品列表{@link Item}
+ * @param items 具有此投掷效果的道具列表{@link Item}
  * @author lishangbu
  * @see Effect
  * @see Item

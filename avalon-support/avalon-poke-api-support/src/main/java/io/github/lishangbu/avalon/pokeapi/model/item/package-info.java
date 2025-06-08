@@ -1,5 +1,5 @@
 /**
- * Poke API关于物品的数据模型描述
+ * Poke API关于道具的数据模型描述
  *
  * @author lishangbu
  * @since 2025/6/7
