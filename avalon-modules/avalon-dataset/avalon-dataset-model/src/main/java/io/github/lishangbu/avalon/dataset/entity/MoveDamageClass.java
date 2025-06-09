@@ -1,58 +1,44 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import jakarta.persistence.*;
-import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 /**
- * 招式分类
+ * 招式可以拥有的伤害类别，例如物理、特殊或非伤害性
  *
  * @author lishangbu
- * @since 2025/4/15
+ * @since 2025/6/9
  */
 @Entity
+@Comment("招式可以拥有的伤害类别")
 @Table(
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "uk_move_category_internal_name",
+          name = "uk_move_damage_class_internal_name",
           columnNames = {"internal_name"})
     })
-public class MoveCategory implements Serializable {
-
-  @Serial private static final long serialVersionUID = 1L;
-
+public class MoveDamageClass implements Serializable {
   /** ID */
   @Id
   @Comment("主键")
   private Integer id;
 
+  /** 名称 */
+  @Comment("名称")
+  private String name;
+
   /** 内部名称 */
-  @Column(nullable = false, length = 30)
+  @Column(nullable = false, length = 100)
   @ColumnDefault("''")
   @Comment("内部名称")
   private String internalName;
 
-  /** 属性说明 */
-  @Comment("说明")
-  @Column(nullable = false, length = 300)
+  /** 描述 */
+  @Comment("描述")
+  @Column(length = 50, nullable = false)
   private String description;
-
-  /**
-   * 一种招式分类有多个招式
-   *
-   * @see Move
-   * @see Move#getType()
-   */
-  @OneToMany(mappedBy = "category")
-  private List<Move> moves;
-
-  /** 名称 */
-  @Comment("名称")
-  @Column(length = 30, nullable = false)
-  private String name;
 
   public Integer getId() {
     return id;
@@ -60,6 +46,14 @@ public class MoveCategory implements Serializable {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getInternalName() {
@@ -76,21 +70,5 @@ public class MoveCategory implements Serializable {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public List<Move> getMoves() {
-    return moves;
-  }
-
-  public void setMoves(List<Move> moves) {
-    this.moves = moves;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 }

@@ -17,5 +17,3 @@ logging:
       github:
         lishangbu:
           avalon: debug
-pokeapi:
-  api-url: http://127.0.0.1:8000/api/v2/

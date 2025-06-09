@@ -40,6 +40,12 @@ main() {
     echo "完成道具信息初始化..."
 
     echo "正在初始化招式信息..."
+    echo "正在填充招式导致的状态异常表数据..."
+    $RUN_COMMAND dataset refresh moveAilment
+    echo "正在填充招式宽泛分类类别表数据..."
+    $RUN_COMMAND dataset refresh moveCategory
+    echo "正在填充招式伤害类别表数据..."
+    $RUN_COMMAND dataset refresh moveDamageClass
     echo "正在填充战斗招式目标表数据..."
     $RUN_COMMAND dataset refresh moveLearnMethod
     echo "正在填充战斗招式目标表数据..."

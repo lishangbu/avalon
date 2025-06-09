@@ -9,8 +9,7 @@ import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
 import io.github.lishangbu.avalon.pokeapi.model.item.*;
-import io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod;
-import io.github.lishangbu.avalon.pokeapi.model.move.MoveTarget;
+import io.github.lishangbu.avalon.pokeapi.model.move.*;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /**
@@ -67,6 +66,12 @@ public enum PokeApiEndpointEnum {
   ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
   /** 玩家背包中用于按类别存储道具的口袋 */
   ITEM_POCKET("item-pocket", ItemPocket.class),
+  /** 招式导致的状态异常是战斗中使用招式造成的状态条件 */
+  MOVE_AILMENT("move-ailment", MoveAilment.class),
+  /** 非常宽泛的分类，松散地将招式效果分组 */
+  MOVE_CATEGORY("move-category", MoveCategory.class),
+  /** 招式可以拥有的伤害类别，例如物理、特殊或非伤害性 */
+  MOVE_DAMAGE_CLASS("move-damage-class", MoveDamageClass.class),
   /** 宝可梦可以学习招式的方法 */
   MOVE_LEARN_METHOD("move-learn-method", MoveLearnMethod.class),
   /** 战斗中招式可以指向的目标。目标可以是宝可梦、环境甚至其他招式 */
