@@ -7,7 +7,7 @@ ROOT_DIR=$(dirname "$(dirname "$0")")
 
 JAR_FILE="$ROOT_DIR/avalon-shell/target/avalon-shell.jar"
 
-RUN_COMMAND="java -jar -Dspring.main.banner-mode=off -Dlogging.level.root=off $JAR_FILE"
+RUN_COMMAND="java -jar $JAR_FILE"
 
 # 定义 main 函数
 main() {
@@ -38,6 +38,13 @@ main() {
     echo "正在填充道具表数据..."
     $RUN_COMMAND dataset refresh item
     echo "完成道具信息初始化..."
+
+    echo "正在初始化招式信息..."
+    echo "正在填充战斗招式目标表数据..."
+    $RUN_COMMAND dataset refresh moveLearnMethod
+    echo "正在填充战斗招式目标表数据..."
+    $RUN_COMMAND dataset refresh moveTarget
+    echo "完成招式信息初始化..."
 
     echo "正在初始化宝可梦信息..."
     echo "正在填充宝可梦属性克制表数据..."
