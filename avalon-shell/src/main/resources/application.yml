@@ -6,6 +6,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  main:
+    banner-mode: off
   shell:
     interactive:
       enabled: true
@@ -15,3 +17,5 @@ logging:
       github:
         lishangbu:
           avalon: debug
+pokeapi:
+  api-url: http://127.0.0.1:8000/api/v2/

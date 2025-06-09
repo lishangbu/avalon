@@ -9,6 +9,8 @@ import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
 import io.github.lishangbu.avalon.pokeapi.model.item.*;
+import io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod;
+import io.github.lishangbu.avalon.pokeapi.model.move.MoveTarget;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /**
@@ -44,7 +46,7 @@ public enum PokeApiEndpointEnum {
    * 玩家在野外遇到宝可梦的方式，例如在高草中行走。详情可参考<a
    * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a>
    */
-  Encounter_Method("encounter-method", EncounterMethod.class),
+  ENCOUNTER_METHOD("encounter-method", EncounterMethod.class),
   /**
    * 遭遇条件是影响野外出现宝可梦的条件，例如白天或夜晚，详情可参考<a
    * href="https://bulbapedia.bulbagarden.net/wiki/Wild_Pok%C3%A9mon">Bulbapedia</a>
@@ -65,6 +67,10 @@ public enum PokeApiEndpointEnum {
   ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
   /** 玩家背包中用于按类别存储道具的口袋 */
   ITEM_POCKET("item-pocket", ItemPocket.class),
+  /** 宝可梦可以学习招式的方法 */
+  MOVE_LEARN_METHOD("move-learn-method", MoveLearnMethod.class),
+  /** 战斗中招式可以指向的目标。目标可以是宝可梦、环境甚至其他招式 */
+  MOVE_TARGET("move-target", MoveTarget.class),
 
   /** 属性是宝可梦及其招式的特性。每种属性有三种特性：对哪些属性的宝可梦效果拔群、对哪些属性效果不佳、对哪些属性完全无效 */
   TYPE("type", Type.class);
