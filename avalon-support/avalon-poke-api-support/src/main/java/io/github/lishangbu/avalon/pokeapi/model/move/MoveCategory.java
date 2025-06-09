@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
 /**
- * 非常宽泛的分类，松散地将招式效果分组。
+ * 非常宽泛的分类，松散地将招式效果分组
  *
  * @param id 资源的标识符
  * @param name 资源的名称

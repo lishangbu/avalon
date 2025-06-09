@@ -4,7 +4,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import java.util.List;
 
 /**
- * 战斗宫殿中使用的招式风格。更多详情参见 <a
+ * 对战开拓区中使用的招式风格。更多详情参见 <a
  * href="http://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III)">Bulbapedia</a>。
  *
  * @param id 资源的标识符

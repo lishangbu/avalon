@@ -16,7 +16,7 @@ import java.util.List;
  * @param hatesFlavor 具有此性格的宝可梦讨厌的口味{@link BerryFlavor}
  * @param likesFlavor 具有此性格的宝可梦喜欢的口味{@link BerryFlavor}
  * @param pokeathlonStatChanges 此性格影响的宝可梦竞技状态列表及其影响程度{@link NatureStatChange}
- * @param moveBattleStylePreferences 战斗风格列表及具有此性格的宝可梦在战斗宫殿或战斗帐篷中使用它们的可能性{@link
+ * @param moveBattleStylePreferences 战斗风格列表及具有此性格的宝可梦在对战开拓区或战斗帐篷中使用它们的可能性{@link
  *     MoveBattleStylePreference}
  * @param names 该资源在不同语言中列出的名称{@link Name}
  * @author lishangbu
