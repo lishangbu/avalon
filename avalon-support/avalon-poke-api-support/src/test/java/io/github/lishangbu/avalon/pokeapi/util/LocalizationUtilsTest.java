@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.common.VerboseEffect;
 import io.github.lishangbu.avalon.pokeapi.model.common.VersionGroupFlavorText;
+import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,9 @@ class LocalizationUtilsTest {
 
   // 创建一个包含 VersionGroupFlavorText 对象的列表
   private List<VersionGroupFlavorText> versionGroupFlavorTexts;
+
+  // 创建一个包含 MoveFlavorText 对象的列表
+  private List<MoveFlavorText> moveFlavorTexts;
 
   @BeforeEach
   void setUp() {
@@ -80,6 +84,14 @@ class LocalizationUtilsTest {
                 "This is English version group flavor text",
                 new NamedApiResource<>("en", null),
                 null));
+
+    // 初始化 moveFlavorTexts 列表
+    moveFlavorTexts =
+        Arrays.asList(
+            new MoveFlavorText("这是简体中文招式风味文本", new NamedApiResource<>("zh-Hans", null), null),
+            new MoveFlavorText("這是繁體中文招式風味文本", new NamedApiResource<>("zh-Hant", null), null),
+            new MoveFlavorText(
+                "This is English move flavor text", new NamedApiResource<>("en", null), null));
   }
 
   @Test
@@ -145,7 +157,7 @@ class LocalizationUtilsTest {
 
   @Test
   void testGetLocalizationDescriptionWithMatchingLocale() {
-    // 调用 getLocalizationDescription 方法，查找��文描述
+    // 调用 getLocalizationDescription 方法，查找英文描述
     Optional<Description> result = LocalizationUtils.getLocalizationDescription(descriptions, "en");
 
     // 验证结果
@@ -233,7 +245,7 @@ class LocalizationUtilsTest {
 
   @Test
   void testGetLocalizationEffectWithMatchingLocale() {
-    // 调用 getLocalizationEffect 方法，查找英��效果
+    // 调用 getLocalizationEffect 方法，查找英文效果
     Optional<Effect> result = LocalizationUtils.getLocalizationEffect(effects, "en");
 
     // 验证结果
@@ -425,6 +437,73 @@ class LocalizationUtilsTest {
     // 调用 getLocalizationVersionGroupFlavorText 方法，versionGroupFlavorTexts 为 null
     Optional<VersionGroupFlavorText> result =
         LocalizationUtils.getLocalizationVersionGroupFlavorText(null, "en");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  // 以下是针对 getLocalizationMoveFlavorText 方法的测试用例
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithMatchingLocale() {
+    // 调用 getLocalizationMoveFlavorText 方法，查找英文招式风味文本
+    Optional<MoveFlavorText> result =
+        LocalizationUtils.getLocalizationMoveFlavorText(moveFlavorTexts, "en");
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("This is English move flavor text", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithNoMatchingLocale() {
+    // 调用 getLocalizationMoveFlavorText 方法，查找一个不存在的语言
+    Optional<MoveFlavorText> result =
+        LocalizationUtils.getLocalizationMoveFlavorText(moveFlavorTexts, "fr");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithEmptyList() {
+    // 创建一个空的招式风味文本列表
+    List<MoveFlavorText> emptyMoveFlavorTexts = Arrays.asList();
+
+    // 调用 getLocalizationMoveFlavorText 方法
+    Optional<MoveFlavorText> result =
+        LocalizationUtils.getLocalizationMoveFlavorText(emptyMoveFlavorTexts, "en");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithDefaultLocales() {
+    // 调用 getLocalizationMoveFlavorText 方法，使用默认语言顺序
+    Optional<MoveFlavorText> result =
+        LocalizationUtils.getLocalizationMoveFlavorText(moveFlavorTexts);
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("这是简体中文招式风味文本", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithMultipleMatchingLocales() {
+    // 调用 getLocalizationMoveFlavorText 方法，传入多个 locales
+    Optional<MoveFlavorText> result =
+        LocalizationUtils.getLocalizationMoveFlavorText(moveFlavorTexts, "fr", "zh-Hant", "en");
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("這是繁體中文招式風味文本", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationMoveFlavorTextWithNullMoveFlavorTexts() {
+    // 调用 getLocalizationMoveFlavorText 方法，moveFlavorTexts 为 null
+    Optional<MoveFlavorText> result = LocalizationUtils.getLocalizationMoveFlavorText(null, "en");
 
     // 验证结果
     assertFalse(result.isPresent());

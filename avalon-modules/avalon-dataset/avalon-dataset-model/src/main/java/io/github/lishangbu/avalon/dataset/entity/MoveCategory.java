@@ -40,19 +40,14 @@ public class MoveCategory implements Serializable {
   @Column(nullable = false, length = 300)
   private String description;
 
-  /**
-   * 一种招式分类有多个招式
-   *
-   * @see Move
-   * @see Move#getType()
-   */
-  @OneToMany(mappedBy = "category")
-  private List<Move> moves;
-
   /** 名称 */
   @Comment("名称")
   @Column(length = 30, nullable = false)
   private String name;
+
+  /** 具有该分类的元数据 */
+  @OneToMany(mappedBy = "category")
+  private List<Move> moves;
 
   public Integer getId() {
     return id;
@@ -78,19 +73,19 @@ public class MoveCategory implements Serializable {
     this.description = description;
   }
 
-  public List<Move> getMoves() {
-    return moves;
-  }
-
-  public void setMoves(List<Move> moves) {
-    this.moves = moves;
-  }
-
   public String getName() {
     return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public List<Move> getMoves() {
+    return moves;
+  }
+
+  public void setMoves(List<Move> moves) {
+    this.moves = moves;
   }
 }
