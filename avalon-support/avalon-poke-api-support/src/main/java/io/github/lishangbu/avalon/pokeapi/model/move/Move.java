@@ -26,7 +26,7 @@ import java.util.List;
  * @param effectEntries 此招式在不同语言中列出的效果
  * @param effectChanges 此招式在游戏的不同版本组中曾经有过的效果列表
  * @param learnedByPokemon 可以学习此招式的宝可梦列表
- * @param flavorTextEntries 此招式在不同语言中列出的风味文本
+ * @param flavorTextEntries 此招式在不同语言中列出的偏好文本
  * @param generation 引入此招式的世代
  * @param machines 教授此招式的机器列表
  * @param meta 关于此招式的元数据

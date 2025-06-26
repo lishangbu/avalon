@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -40,6 +41,10 @@ public class MoveDamageClass implements Serializable {
   @Column(length = 50, nullable = false)
   private String description;
 
+  /** 具有该伤害类型的技能 */
+  @OneToMany(mappedBy = "damageClass")
+  private List<Move> moves;
+
   public Integer getId() {
     return id;
   }
@@ -70,5 +75,13 @@ public class MoveDamageClass implements Serializable {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public List<Move> getMoves() {
+    return moves;
+  }
+
+  public void setMoves(List<Move> moves) {
+    this.moves = moves;
   }
 }

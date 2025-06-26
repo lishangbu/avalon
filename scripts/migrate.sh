@@ -50,6 +50,8 @@ main() {
     $RUN_COMMAND dataset refresh moveLearnMethod
     echo "正在填充战斗招式目标表数据..."
     $RUN_COMMAND dataset refresh moveTarget
+    echo "正在填充招式表数据..."
+    $RUN_COMMAND dataset refresh move
     echo "完成招式信息初始化..."
 
     echo "正在初始化宝可梦信息..."

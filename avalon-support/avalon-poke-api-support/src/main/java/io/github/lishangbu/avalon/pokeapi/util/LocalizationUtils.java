@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.pokeapi.util;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
+import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,18 @@ public abstract class LocalizationUtils {
   public static Optional<VerboseEffect> getLocalizationVerboseEffect(
       List<VerboseEffect> verboseEffects, String... locales) {
     return getLocalizedResource(verboseEffects, VerboseEffect::language, locales);
+  }
+
+  /**
+   * 获取本地化的招式文本
+   *
+   * @param moveFlavorTexts 招式文本资源列表
+   * @param locales 要查找的语言
+   * @return 本地化的招式文本
+   */
+  public static Optional<MoveFlavorText> getLocalizationMoveFlavorText(
+      List<MoveFlavorText> moveFlavorTexts, String... locales) {
+    return getLocalizedResource(moveFlavorTexts, MoveFlavorText::language, locales);
   }
 
   /**

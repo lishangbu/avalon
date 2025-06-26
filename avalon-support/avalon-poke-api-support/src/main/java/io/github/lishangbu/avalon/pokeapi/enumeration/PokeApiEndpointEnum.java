@@ -66,6 +66,8 @@ public enum PokeApiEndpointEnum {
   ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
   /** 玩家背包中用于按类别存储道具的口袋 */
   ITEM_POCKET("item-pocket", ItemPocket.class),
+  /** 招式是宝可梦在战斗中的技能。在战斗中，宝可梦每回合使用一个招式。一些招式（包括通过秘传机学习的招式）也可以在战斗外使用，通常用于清除障碍物或探索新区域。 */
+  MOVE("move", Move.class),
   /** 招式导致的状态异常是战斗中使用招式造成的状态条件 */
   MOVE_AILMENT("move-ailment", MoveAilment.class),
   /** 非常宽泛的分类，松散地将招式效果分组 */

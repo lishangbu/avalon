@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.entity;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
@@ -39,6 +40,10 @@ public class MoveAilment implements Serializable {
   @Column(length = 30, nullable = false)
   private String name;
 
+  /** 具有该状态异常的元数据 */
+  @OneToMany(mappedBy = "ailment")
+  private List<Move> moves;
+
   public Integer getId() {
     return id;
   }
@@ -61,5 +66,13 @@ public class MoveAilment implements Serializable {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public List<Move> getMoves() {
+    return moves;
+  }
+
+  public void setMoves(List<Move> moves) {
+    this.moves = moves;
   }
 }

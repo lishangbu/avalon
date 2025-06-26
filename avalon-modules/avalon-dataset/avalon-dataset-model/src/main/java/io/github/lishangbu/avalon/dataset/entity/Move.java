@@ -64,15 +64,27 @@ public class Move implements Serializable {
   private Type type;
 
   /**
-   * 分类
+   * 命中
    *
-   * @see MoveCategory
-   * @see MoveCategory#getMoves()
+   * <p>命中是衡量一个招式是否容易击中对方的数值。
    */
-  @Comment("招式分类")
-  @JoinColumn(name = "category_id")
-  @ManyToOne
-  private MoveCategory category;
+  @Comment("命中")
+  private Integer accuracy;
+
+  @Comment("此招式效果发生的概率百分比值")
+  private Integer effectChance;
+
+  /**
+   * 招式点数(Power Point）
+   *
+   * <p>说明了一个招式可以被使用的次数
+   */
+  @Comment("招式点数")
+  private Integer pp;
+
+  /** -8到8之间的值。设置战斗中招式执行的顺序 */
+  @Comment("-8到8之间的值。设置战斗中招式执行的顺序")
+  private Integer priority;
 
   /**
    * 威力是一个招式可以造成伤害的衡量数值。
@@ -93,29 +105,78 @@ public class Move implements Serializable {
   private Integer power;
 
   /**
-   * 命中
+   * 此招式对目标造成的伤害类型
    *
-   * <p>命中是衡量一个招式是否容易击中对方的数值。
+   * @see MoveDamageClass
+   * @see MoveDamageClass#getMoves()
    */
-  private Integer accuracy;
+  @Comment("此招式对目标造成的伤害类型")
+  @JoinColumn(name = "damage_class_id", foreignKey = @ForeignKey(name = "fk_move_damage_class_id"))
+  @ManyToOne
+  private MoveDamageClass damageClass;
 
-  /**
-   * 招式点数(Power Point）
-   *
-   * <p>说明了一个招式可以被使用的次数
-   */
-  @Comment("招式点数")
-  private Integer pp;
+  @Comment("此招式对目标造成的伤害类型")
+  @JoinColumn(name = "target_id", foreignKey = @ForeignKey(name = "fk_move_target_id"))
+  @ManyToOne
+  private MoveTarget target;
 
   /** 文本描述 */
   @Comment("文本描述")
+  @Column(length = 1000)
   private String text;
 
+  /** 招式附加效果简要描述 */
+  @Comment("招式简要效果描述")
+  @Column(length = 1000)
+  private String shortEffect;
+
   /** 招式附加效果 */
-  @Comment("招式附加效果")
-  @ColumnDefault("''")
-  @Column(length = 2000, nullable = false)
+  @Comment("招式效果描述")
+  @Column(length = 4000)
   private String effect;
+
+  // region meta data
+  /** 此招式持续生效的最小回合数。如果总是只持续一回合，则为空 */
+  @Comment("此招式持续生效的最小回合数。如果总是只持续一回合，则为空")
+  private Integer minHits;
+
+  /** 此招式持续生效的最大回合数。如果总是只持续一回合，则为null */
+  @Comment("此招式持续生效的最大回合数。如果总是只持续一回合，则为null")
+  private Integer maxTurns;
+
+  /** HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示 */
+  @Comment("HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示")
+  private Integer drain;
+
+  /** 攻击方宝可梦恢复的HP量，以其最大HP的百分比表示 */
+  @Comment("攻击方宝可梦恢复的HP量，以其最大HP的百分比表示")
+  private Integer healing;
+
+  /** 暴击率加成 */
+  @Comment("暴击率加成")
+  private Integer critRate;
+
+  /** 此攻击导致状态异常的可能性 */
+  @Comment("此攻击导致状态异常的可能性")
+  private Integer ailmentChance;
+
+  /** 此攻击导致目标宝可梦畏缩的可能性 */
+  @Comment("此攻击导致目标宝可梦畏缩的可能性")
+  private Integer flinchChance;
+
+  /** 此攻击导致目标宝可梦能力值变化的可能性 */
+  @Comment("此攻击导致目标宝可梦能力值变化的可能性")
+  private Integer statChance;
+
+  @ManyToOne
+  @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_move_category_id"))
+  private MoveCategory category;
+
+  @ManyToOne
+  @JoinColumn(name = "ailment_id", foreignKey = @ForeignKey(name = "fk_move_ailment_id"))
+  private MoveAilment ailment;
+
+  // endregion
 
   public Integer getId() {
     return id;
@@ -149,28 +210,20 @@ public class Move implements Serializable {
     this.type = type;
   }
 
-  public MoveCategory getCategory() {
-    return category;
-  }
-
-  public void setCategory(MoveCategory category) {
-    this.category = category;
-  }
-
-  public Integer getPower() {
-    return power;
-  }
-
-  public void setPower(Integer power) {
-    this.power = power;
-  }
-
   public Integer getAccuracy() {
     return accuracy;
   }
 
   public void setAccuracy(Integer accuracy) {
     this.accuracy = accuracy;
+  }
+
+  public Integer getEffectChance() {
+    return effectChance;
+  }
+
+  public void setEffectChance(Integer effectChance) {
+    this.effectChance = effectChance;
   }
 
   public Integer getPp() {
@@ -181,6 +234,38 @@ public class Move implements Serializable {
     this.pp = pp;
   }
 
+  public Integer getPriority() {
+    return priority;
+  }
+
+  public void setPriority(Integer priority) {
+    this.priority = priority;
+  }
+
+  public Integer getPower() {
+    return power;
+  }
+
+  public void setPower(Integer power) {
+    this.power = power;
+  }
+
+  public MoveDamageClass getDamageClass() {
+    return damageClass;
+  }
+
+  public void setDamageClass(MoveDamageClass damageClass) {
+    this.damageClass = damageClass;
+  }
+
+  public MoveTarget getTarget() {
+    return target;
+  }
+
+  public void setTarget(MoveTarget target) {
+    this.target = target;
+  }
+
   public String getText() {
     return text;
   }
@@ -189,11 +274,99 @@ public class Move implements Serializable {
     this.text = text;
   }
 
+  public String getShortEffect() {
+    return shortEffect;
+  }
+
+  public void setShortEffect(String shortEffect) {
+    this.shortEffect = shortEffect;
+  }
+
   public String getEffect() {
     return effect;
   }
 
   public void setEffect(String effect) {
     this.effect = effect;
+  }
+
+  public Integer getMinHits() {
+    return minHits;
+  }
+
+  public void setMinHits(Integer minHits) {
+    this.minHits = minHits;
+  }
+
+  public Integer getMaxTurns() {
+    return maxTurns;
+  }
+
+  public void setMaxTurns(Integer maxTurns) {
+    this.maxTurns = maxTurns;
+  }
+
+  public Integer getDrain() {
+    return drain;
+  }
+
+  public void setDrain(Integer drain) {
+    this.drain = drain;
+  }
+
+  public Integer getHealing() {
+    return healing;
+  }
+
+  public void setHealing(Integer healing) {
+    this.healing = healing;
+  }
+
+  public Integer getCritRate() {
+    return critRate;
+  }
+
+  public void setCritRate(Integer critRate) {
+    this.critRate = critRate;
+  }
+
+  public Integer getAilmentChance() {
+    return ailmentChance;
+  }
+
+  public void setAilmentChance(Integer ailmentChance) {
+    this.ailmentChance = ailmentChance;
+  }
+
+  public Integer getFlinchChance() {
+    return flinchChance;
+  }
+
+  public void setFlinchChance(Integer flinchChance) {
+    this.flinchChance = flinchChance;
+  }
+
+  public Integer getStatChance() {
+    return statChance;
+  }
+
+  public void setStatChance(Integer statChance) {
+    this.statChance = statChance;
+  }
+
+  public MoveCategory getCategory() {
+    return category;
+  }
+
+  public void setCategory(MoveCategory category) {
+    this.category = category;
+  }
+
+  public MoveAilment getAilment() {
+    return ailment;
+  }
+
+  public void setAilment(MoveAilment ailment) {
+    this.ailment = ailment;
   }
 }
