@@ -42,7 +42,7 @@
     <docker.image.prefix>slf4j</docker.image.prefix>
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
-    <flatten-maven-plugin.version>1.7.1</flatten-maven-plugin.version>
+    <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
     <ip2location.version>1.2.4</ip2location.version>
     <java.version>24</java.version>
     <jjwt.version>0.12.6</jjwt.version>
