@@ -46,7 +46,7 @@
     <ip2location.version>1.2.4</ip2location.version>
     <java.version>24</java.version>
     <jjwt.version>0.12.6</jjwt.version>
-    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
