@@ -51,7 +51,7 @@
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
     <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
-    <spring-shell.version>3.4.0</spring-shell.version>
+    <spring-shell.version>3.4.1</spring-shell.version>
   </properties>
   <dependencyManagement>
     <dependencies>
