@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.3</version>
+    <version>3.5.4</version>
     <relativePath />
   </parent>
   <groupId>io.github.lishangbu</groupId>
@@ -42,16 +42,16 @@
     <docker.image.prefix>slf4j</docker.image.prefix>
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
-    <flatten-maven-plugin.version>1.7.1</flatten-maven-plugin.version>
+    <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
     <ip2location.version>1.2.4</ip2location.version>
     <java.version>24</java.version>
     <jjwt.version>0.12.6</jjwt.version>
-    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
-    <spring-shell.version>3.4.0</spring-shell.version>
+    <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
+    <spring-shell.version>3.4.1</spring-shell.version>
   </properties>
   <dependencyManagement>
     <dependencies>
