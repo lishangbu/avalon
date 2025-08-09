@@ -19,7 +19,7 @@ import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
  * @author lishangbu
  * @since 2025/5/22
  */
-public enum PokeApiEndpointEnum {
+public enum PokeApiDataTypeEnum {
   /**
    * 树果是可以为宝可梦恢复HP和异常状态、提升属性，甚至在食用时抵消伤害的小型水果。详情可参考<a
    * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries">Bulbapedia</a>
@@ -91,7 +91,7 @@ public enum PokeApiEndpointEnum {
   /** 返回的资源映射到对应的Class上 */
   private final Class responseType;
 
-  PokeApiEndpointEnum(String type, Class responseType) {
+  PokeApiDataTypeEnum(String type, Class responseType) {
     this.type = type;
     this.responseType = responseType;
   }
@@ -102,5 +102,14 @@ public enum PokeApiEndpointEnum {
 
   public Class getResponseType() {
     return responseType;
+  }
+
+  public static PokeApiDataTypeEnum getDataTypeByTypeName(String typename) {
+    for (PokeApiDataTypeEnum endpoint : PokeApiDataTypeEnum.values()) {
+      if (endpoint.getType().equals(typename)) {
+        return endpoint;
+      }
+    }
+    throw new IllegalArgumentException("No poke-api data type found for typename: " + typename);
   }
 }

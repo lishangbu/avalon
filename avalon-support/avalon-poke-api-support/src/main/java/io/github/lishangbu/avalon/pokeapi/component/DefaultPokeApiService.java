@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 
 /**
  * 抽象的PokeApi服务
@@ -47,6 +48,7 @@ public class DefaultPokeApiService implements PokeApiService {
    * @return 指定类型的数据实体
    */
   @Override
+  @Cacheable(value = "getPokeApiEntity", key = "#responseType.simpleName+'-'+type+'-'+id")
   public <T> T getEntityFromUri(Class<T> responseType, String type, Integer id) {
     log.debug("获取类型为[{}]的数据，参数: [{}]，响应类型: [{}]", type, id, responseType.getSimpleName());
     checkoutGitRepoIfNotExists();
@@ -75,6 +77,7 @@ public class DefaultPokeApiService implements PokeApiService {
    * @return 命名资源列表
    */
   @Override
+  @Cacheable(value = "getPokeApiResourceList", key = "#type")
   public NamedAPIResourceList listNamedAPIResources(String type) {
     log.debug("获取类型为[{}]的数据", type);
     checkoutGitRepoIfNotExists();
@@ -106,7 +109,7 @@ public class DefaultPokeApiService implements PokeApiService {
               .setCloneAllBranches(false) // 只克隆默认分支
               .setDepth(1) // 设置深度为1
               .call()) {
-        log.info("克隆成功，仓库位于：[{}]", git.getRepository().getDirectory());
+        log.debug("克隆成功，仓库位于：[{}]", git.getRepository().getDirectory());
       } catch (Exception e) {
         log.error("克隆失败，错误信息：[{}]", e.getMessage());
       }
