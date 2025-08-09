@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -51,23 +50,16 @@ public class TypeRelationDataSetShellComponent {
 
   @ShellMethod(key = "dataset refresh typeDamageRelation", value = "刷新数据库中的属性克制关系表数据")
   @Transactional(rollbackFor = Exception.class)
-  public String refreshTypeDamageRelation(
-      @ShellOption(help = "属性内部名称", defaultValue = "") String name) {
+  public String refreshTypeDamageRelation() {
 
-    if (StringUtils.hasText(name)) {
-      // 处理单个Type的刷新
-      log.debug("开始更新单个属性：{}", name);
-      refreshTypeDamageRelationByName(name);
+    // 处理所有Type的刷新
+    log.debug("没有名字输入, 将更新属性表中对应的所有伤害关系");
+    List<Type> types = typeRepository.findAll();
+    if (types.isEmpty()) {
+      throw new RuntimeException("没有找到任何属性数据,请先完成数据库属性表的初始化工作");
     } else {
-      // 处理所有Type的刷新
-      log.debug("没有名字输入, 将更新属性表中对应的所有伤害关系");
-      List<Type> types = typeRepository.findAll();
-      if (types.isEmpty()) {
-        throw new RuntimeException("没有找到任何属性数据,请先完成数据库属性表的初始化工作");
-      } else {
-        log.debug("共找到{}个属性数据, 开始逐个更新", types.size());
-        types.forEach(type -> refreshTypeDamageRelationByName(type.getInternalName()));
-      }
+      log.debug("共找到{}个属性数据, 开始逐个更新", types.size());
+      types.forEach(type -> refreshTypeDamageRelationById(type.getId()));
     }
 
     return "处理完成";
@@ -76,17 +68,17 @@ public class TypeRelationDataSetShellComponent {
   /**
    * 刷新指数据库中指定属性的伤害关系
    *
-   * @param name 属性名称
+   * @param id 属性ID
    */
-  private void refreshTypeDamageRelationByName(String name) {
-    Optional<Type> typeOptional = typeRepository.findByInternalName(name);
+  private void refreshTypeDamageRelationById(Integer id) {
+    Optional<Type> typeOptional = typeRepository.findById(id);
     if (typeOptional.isEmpty()) {
-      throw new RuntimeException(String.format("名称为%s的数据在属性表中无法找到,请检查输入是否有误", name));
+      throw new RuntimeException(String.format("名称为%s的数据在属性表中无法找到,请检查输入是否有误", id));
     }
 
     Type currentType = typeOptional.get();
     io.github.lishangbu.avalon.pokeapi.model.pokemon.Type type =
-        pokeApiFactory.getSingleResource(TYPE, name);
+        pokeApiFactory.getSingleResource(TYPE, id);
     TypeRelations typeRelations = type.damageRelations();
 
     // 创建一个集合来存储所有的 TypeDamageRelation

@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,11 +34,8 @@ public class BerryFirmnessDataSetShellComponent extends AbstractDataSetShellComp
   @ShellMethod(key = "dataset refresh berryFirmness", value = "刷新数据库中的树果硬度表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(BERRY_FIRMNESS, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(BERRY_FIRMNESS);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToBerryFirmness,
@@ -48,7 +45,8 @@ public class BerryFirmnessDataSetShellComponent extends AbstractDataSetShellComp
 
   private BerryFirmness convertToBerryFirmness(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness apiResult =
-        pokeApiFactory.getSingleResource(BERRY_FIRMNESS, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            BERRY_FIRMNESS, NamedApiResourceUtils.getId(namedApiResource));
     BerryFirmness berryFirmness = new BerryFirmness();
     berryFirmness.setId(apiResult.id());
     berryFirmness.setInternalName(apiResult.name());

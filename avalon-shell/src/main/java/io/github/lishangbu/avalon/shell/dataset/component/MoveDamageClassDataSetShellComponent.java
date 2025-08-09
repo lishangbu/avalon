@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,11 +33,8 @@ public class MoveDamageClassDataSetShellComponent extends AbstractDataSetShellCo
   @ShellMethod(key = "dataset refresh moveDamageClass", value = "刷新数据库中的招式伤害类别表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(MOVE_DAMAGE_CLASS, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(MOVE_DAMAGE_CLASS);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToMoveDamageClass,
@@ -47,7 +44,8 @@ public class MoveDamageClassDataSetShellComponent extends AbstractDataSetShellCo
 
   private MoveDamageClass convertToMoveDamageClass(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.move.MoveDamageClass apiResult =
-        pokeApiFactory.getSingleResource(MOVE_DAMAGE_CLASS, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            MOVE_DAMAGE_CLASS, NamedApiResourceUtils.getId(namedApiResource));
     MoveDamageClass moveDamageClass = new MoveDamageClass();
     moveDamageClass.setId(apiResult.id());
     moveDamageClass.setInternalName(apiResult.name());

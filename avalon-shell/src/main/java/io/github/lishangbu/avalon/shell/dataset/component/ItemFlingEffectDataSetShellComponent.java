@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,11 +33,8 @@ public class ItemFlingEffectDataSetShellComponent extends AbstractDataSetShellCo
   @ShellMethod(key = "dataset refresh itemFlingEffect", value = "刷新数据库中的道具投掷效果表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(ITEM_FLING_EFFECT, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(ITEM_FLING_EFFECT);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToItemFlingEffect,
@@ -47,7 +44,8 @@ public class ItemFlingEffectDataSetShellComponent extends AbstractDataSetShellCo
 
   private ItemFlingEffect convertToItemFlingEffect(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.item.ItemFlingEffect apiResult =
-        pokeApiFactory.getSingleResource(ITEM_FLING_EFFECT, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            ITEM_FLING_EFFECT, NamedApiResourceUtils.getId(namedApiResource));
     ItemFlingEffect itemFlingEffect = new ItemFlingEffect();
     itemFlingEffect.setId(apiResult.id());
     itemFlingEffect.setInternalName(apiResult.name());

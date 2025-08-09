@@ -17,11 +17,9 @@ public abstract class AbstractDataSetShellComponent {
   /**
    * 刷新数据
    *
-   * @param offset 偏移量
-   * @param limit 返回数量限制
    * @return 刷新数据的结果
    */
-  public abstract String refreshData(Integer offset, Integer limit);
+  public abstract String refreshData();
 
   /**
    * 保存所有数据

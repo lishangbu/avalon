@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,11 +33,8 @@ public class MoveAilmentDataSetShellComponent extends AbstractDataSetShellCompon
   @ShellMethod(key = "dataset refresh moveAilment", value = "刷新数据库中的招式状态异常表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(MOVE_AILMENT, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(MOVE_AILMENT);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToMoveAilment,
@@ -47,7 +44,8 @@ public class MoveAilmentDataSetShellComponent extends AbstractDataSetShellCompon
 
   private MoveAilment convertToMoveAilment(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.move.MoveAilment apiResult =
-        pokeApiFactory.getSingleResource(MOVE_AILMENT, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            MOVE_AILMENT, NamedApiResourceUtils.getId(namedApiResource));
     MoveAilment moveAilment = new MoveAilment();
     moveAilment.setId(apiResult.id());
     moveAilment.setInternalName(apiResult.name());

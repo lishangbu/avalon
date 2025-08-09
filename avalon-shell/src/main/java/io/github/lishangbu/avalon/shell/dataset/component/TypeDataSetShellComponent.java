@@ -9,10 +9,10 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import java.util.Optional;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -36,17 +36,15 @@ public class TypeDataSetShellComponent extends AbstractDataSetShellComponent {
   @Override
   @ShellMethod(key = "dataset refresh type", value = "刷新数据库中的属性表数据")
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(TYPE, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(TYPE);
     return this.saveEntityData(
         namedApiResources.results(), this::convertToType, typeRepository, Type::getName);
   }
 
   private Type convertToType(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.pokemon.Type result =
-        pokeApiFactory.getSingleResource(TYPE, namedApiResource.name());
+        pokeApiFactory.getSingleResource(TYPE, NamedApiResourceUtils.getId(namedApiResource));
     Type type = new Type();
     type.setId(result.id());
     type.setInternalName(result.name());

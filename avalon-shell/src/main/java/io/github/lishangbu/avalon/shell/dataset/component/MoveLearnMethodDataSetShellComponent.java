@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,11 +33,8 @@ public class MoveLearnMethodDataSetShellComponent extends AbstractDataSetShellCo
   @ShellMethod(key = "dataset refresh moveLearnMethod", value = "刷新数据库中的招式学习方法表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(MOVE_LEARN_METHOD, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(MOVE_LEARN_METHOD);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToMoveLearnMethod,
@@ -47,7 +44,8 @@ public class MoveLearnMethodDataSetShellComponent extends AbstractDataSetShellCo
 
   private MoveLearnMethod convertToMoveLearnMethod(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod apiResult =
-        pokeApiFactory.getSingleResource(MOVE_LEARN_METHOD, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            MOVE_LEARN_METHOD, NamedApiResourceUtils.getId(namedApiResource));
     MoveLearnMethod moveLearnMethod = new MoveLearnMethod();
     moveLearnMethod.setId(apiResult.id());
     moveLearnMethod.setInternalName(apiResult.name());
