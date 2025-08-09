@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.util;
 
-import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiEndpointEnum;
+import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
  */
 public abstract class NamedApiResourceUtils {
   // 静态初始化正则表达式和模式，避免重复编译
-  private static final String ENDPOINTS_REGEX;
+  private static final String API_DATA_TYPES_REGEX;
   private static final Pattern PATTERN;
 
   static {
-    // 收集所有的 endpoint 并生成正则表达式
-    ENDPOINTS_REGEX =
-        Arrays.stream(PokeApiEndpointEnum.values())
-            .map(PokeApiEndpointEnum::getType)
+    // 收集所有的 api data type 并生成正则表达式
+    API_DATA_TYPES_REGEX =
+        Arrays.stream(PokeApiDataTypeEnum.values())
+            .map(PokeApiDataTypeEnum::getType)
             .collect(Collectors.joining("|"));
-    String regex = "/(" + ENDPOINTS_REGEX + ")/(\\d+)/";
+    String regex = "/(" + API_DATA_TYPES_REGEX + ")/(-?\\d+)/";
     PATTERN = Pattern.compile(regex);
   }
 
