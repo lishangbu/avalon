@@ -176,6 +176,9 @@ public class Move implements Serializable {
   @JoinColumn(name = "ailment_id", foreignKey = @ForeignKey(name = "fk_move_ailment_id"))
   private MoveAilment ailment;
 
+  @OneToOne(mappedBy = "move")
+  private Machine machine;
+
   // endregion
 
   public Integer getId() {
@@ -368,5 +371,13 @@ public class Move implements Serializable {
 
   public void setAilment(MoveAilment ailment) {
     this.ailment = ailment;
+  }
+
+  public Machine getMachine() {
+    return machine;
+  }
+
+  public void setMachine(Machine machine) {
+    this.machine = machine;
   }
 }

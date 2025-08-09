@@ -85,6 +85,9 @@ public class Item implements Serializable {
   @Comment("道具文本")
   private String text;
 
+  @OneToOne(mappedBy = "item")
+  private Machine machine;
+
   public Integer getId() {
     return id;
   }
@@ -171,5 +174,13 @@ public class Item implements Serializable {
 
   public void setText(String text) {
     this.text = text;
+  }
+
+  public Machine getMachine() {
+    return machine;
+  }
+
+  public void setMachine(Machine machine) {
+    this.machine = machine;
   }
 }

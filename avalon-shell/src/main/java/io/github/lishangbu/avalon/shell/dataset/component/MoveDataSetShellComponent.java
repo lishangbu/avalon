@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -49,17 +49,15 @@ public class MoveDataSetShellComponent extends AbstractDataSetShellComponent {
   @ShellMethod(key = "dataset refresh move", value = "刷新数据库中的招式表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "2000") Integer limit) {
-    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(MOVE, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(MOVE);
     return super.saveEntityData(
         namedApiResources.results(), this::convertToMove, moveRepository, Move::getName);
   }
 
   private Move convertToMove(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.move.Move apiResult =
-        pokeApiFactory.getSingleResource(MOVE, namedApiResource.name());
+        pokeApiFactory.getSingleResource(MOVE, NamedApiResourceUtils.getId(namedApiResource));
     Move move = new Move();
     move.setId(apiResult.id());
     move.setInternalName(apiResult.name());

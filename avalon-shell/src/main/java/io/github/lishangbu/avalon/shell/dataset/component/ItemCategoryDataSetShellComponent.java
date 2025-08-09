@@ -9,9 +9,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,11 +38,8 @@ public class ItemCategoryDataSetShellComponent extends AbstractDataSetShellCompo
   @ShellMethod(key = "dataset refresh itemCategory", value = "刷新数据库中的道具分类表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(ITEM_CATEGORY, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(ITEM_CATEGORY);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToItemCategory,
@@ -52,7 +49,8 @@ public class ItemCategoryDataSetShellComponent extends AbstractDataSetShellCompo
 
   private ItemCategory convertToItemCategory(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory apiResult =
-        pokeApiFactory.getSingleResource(ITEM_CATEGORY, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            ITEM_CATEGORY, NamedApiResourceUtils.getId(namedApiResource));
     ItemCategory itemCategory = new ItemCategory();
     itemCategory.setId(apiResult.id());
     itemCategory.setInternalName(apiResult.name());

@@ -8,9 +8,9 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,11 +33,8 @@ public class ItemAttributeDataSetShellComponent extends AbstractDataSetShellComp
   @ShellMethod(key = "dataset refresh itemAttribute", value = "刷新数据库中的道具属性表数据")
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public String refreshData(
-      @ShellOption(help = "每页偏移量", defaultValue = "0") Integer offset,
-      @ShellOption(help = "每页数量", defaultValue = "100") Integer limit) {
-    NamedAPIResourceList namedApiResources =
-        pokeApiFactory.getPagedResource(ITEM_ATTRIBUTE, offset, limit);
+  public String refreshData() {
+    NamedAPIResourceList namedApiResources = pokeApiFactory.getPagedResource(ITEM_ATTRIBUTE);
     return super.saveEntityData(
         namedApiResources.results(),
         this::convertToItemAttribute,
@@ -47,7 +44,8 @@ public class ItemAttributeDataSetShellComponent extends AbstractDataSetShellComp
 
   private ItemAttribute convertToItemAttribute(NamedApiResource namedApiResource) {
     io.github.lishangbu.avalon.pokeapi.model.item.ItemAttribute apiResult =
-        pokeApiFactory.getSingleResource(ITEM_ATTRIBUTE, namedApiResource.name());
+        pokeApiFactory.getSingleResource(
+            ITEM_ATTRIBUTE, NamedApiResourceUtils.getId(namedApiResource));
     ItemAttribute itemAttribute = new ItemAttribute();
     itemAttribute.setId(apiResult.id());
     itemAttribute.setInternalName(apiResult.name());

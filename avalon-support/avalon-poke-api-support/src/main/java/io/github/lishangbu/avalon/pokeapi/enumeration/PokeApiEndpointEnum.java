@@ -9,6 +9,7 @@ import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterCondition;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
 import io.github.lishangbu.avalon.pokeapi.model.item.*;
+import io.github.lishangbu.avalon.pokeapi.model.machine.Machine;
 import io.github.lishangbu.avalon.pokeapi.model.move.*;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
@@ -66,6 +67,8 @@ public enum PokeApiEndpointEnum {
   ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
   /** 玩家背包中用于按类别存储道具的口袋 */
   ITEM_POCKET("item-pocket", ItemPocket.class),
+  /** 机器是教授宝可梦招式的道具的表示。它们在不同版本之间有所不同，因此不能确定一个特定的TM或HM对应单个机器 */
+  MACHINE("machine", Machine.class),
   /** 招式是宝可梦在战斗中的技能。在战斗中，宝可梦每回合使用一个招式。一些招式（包括通过秘传机学习的招式）也可以在战斗外使用，通常用于清除障碍物或探索新区域。 */
   MOVE("move", Move.class),
   /** 招式导致的状态异常是战斗中使用招式造成的状态条件 */
@@ -82,19 +85,19 @@ public enum PokeApiEndpointEnum {
   /** 属性是宝可梦及其招式的特性。每种属性有三种特性：对哪些属性的宝可梦效果拔群、对哪些属性效果不佳、对哪些属性完全无效 */
   TYPE("type", Type.class);
 
-  /** POKE API接口访问URI */
-  private final String uri;
+  /** POKE API DATA 数据类型 */
+  private final String type;
 
   /** 返回的资源映射到对应的Class上 */
   private final Class responseType;
 
-  PokeApiEndpointEnum(String uri, Class responseType) {
-    this.uri = uri;
+  PokeApiEndpointEnum(String type, Class responseType) {
+    this.type = type;
     this.responseType = responseType;
   }
 
-  public String getUri() {
-    return uri;
+  public String getType() {
+    return type;
   }
 
   public Class getResponseType() {

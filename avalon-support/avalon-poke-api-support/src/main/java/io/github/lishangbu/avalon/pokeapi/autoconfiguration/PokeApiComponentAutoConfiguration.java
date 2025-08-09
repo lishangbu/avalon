@@ -4,11 +4,10 @@ import io.github.lishangbu.avalon.pokeapi.component.DefaultPokeApiService;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiFactory;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestClient;
 
 /**
  * POKE API相关组件自动装配
@@ -16,14 +15,14 @@ import org.springframework.web.client.RestClient;
  * @author lishangbu
  * @since 2025/5/21
  */
+@EnableConfigurationProperties(PokeApiProperties.class)
 @AutoConfiguration
 public class PokeApiComponentAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public PokeApiService pokeApiService(
-      @Qualifier("pokeApiRestClient") RestClient restClient, PokeApiProperties properties) {
-    return new DefaultPokeApiService(restClient, properties);
+  public PokeApiService pokeApiService(PokeApiProperties properties) {
+    return new DefaultPokeApiService(properties);
   }
 
   @Bean

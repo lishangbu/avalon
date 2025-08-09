@@ -45,8 +45,8 @@ public class PokeApiFactory {
   }
 
   /** 生成分页缓存key */
-  private String buildPageCacheKey(PokeApiEndpointEnum endpoint, int offset, int limit) {
-    return endpoint.name() + ":" + offset + ":" + limit;
+  private String buildPageCacheKey(PokeApiEndpointEnum endpoint) {
+    return endpoint.name();
   }
 
   /** 生成单体缓存key */
@@ -58,23 +58,17 @@ public class PokeApiFactory {
    * 根据端点获取分页资源列表，参数校验更健壮
    *
    * @param endpoint 端点枚举
-   * @param offset 偏移量，默认0
-   * @param limit 数量限制，默认100
    * @return 资源列表
    */
-  public NamedAPIResourceList getPagedResource(
-      PokeApiEndpointEnum endpoint, Integer offset, Integer limit) {
-    int safeOffset = offset == null || offset < 0 ? 0 : offset;
-    int safeLimit = limit == null || limit <= 0 ? 100 : limit;
-    String cacheKey = buildPageCacheKey(endpoint, safeOffset, safeLimit);
+  public NamedAPIResourceList getPagedResource(PokeApiEndpointEnum endpoint) {
+    String cacheKey = buildPageCacheKey(endpoint);
     NamedAPIResourceList cached = pagedResourceCache.getIfPresent(cacheKey);
     if (cached != null) {
       log.debug("分页资源命中缓存: {}", cacheKey);
       return cached;
     }
-    log.debug("获取分页资源: endpoint={}, offset={}, limit={}", endpoint, safeOffset, safeLimit);
-    NamedAPIResourceList result =
-        pokeApiService.listNamedAPIResources(endpoint.getUri(), safeOffset, safeLimit);
+    log.debug("获取分页资源: endpoint:[{}]", endpoint);
+    NamedAPIResourceList result = pokeApiService.listNamedAPIResources(endpoint.getType());
     if (result != null) {
       pagedResourceCache.put(cacheKey, result);
     }
@@ -85,23 +79,21 @@ public class PokeApiFactory {
    * 根据端点和参数获取单个资源，类型安全
    *
    * @param endpoint 端点枚举
-   * @param idOrName URI参数
+   * @param id biao shi bie
    * @param <T> 返回类型
    * @return 资源对象
    */
   @SuppressWarnings("unchecked")
-  public <T> T getSingleResource(PokeApiEndpointEnum endpoint, Serializable idOrName) {
-    String cacheKey = buildSingleCacheKey(endpoint, idOrName);
+  public <T> T getSingleResource(PokeApiEndpointEnum endpoint, Integer id) {
+    String cacheKey = buildSingleCacheKey(endpoint, id);
     Object cached = singleResourceCache.getIfPresent(cacheKey);
     if (cached != null) {
       log.debug("单体资源命中缓存: {}", cacheKey);
       return (T) cached;
     }
-    log.debug("获取单体资源: endpoint={}, uriVariables={}", endpoint, idOrName);
+    log.debug("获取单体资源: endpoint:[{}], id:[{}]", endpoint, id);
     T result =
-        (T)
-            pokeApiService.getEntityFromUri(
-                endpoint.getResponseType(), endpoint.getUri(), idOrName);
+        (T) pokeApiService.getEntityFromUri(endpoint.getResponseType(), endpoint.getType(), id);
     if (result != null) {
       singleResourceCache.put(cacheKey, result);
     }
