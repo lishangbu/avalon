@@ -4,7 +4,8 @@ io.github.lishangbu.avalon.auth.model
 io.github.lishangbu.avalon.auth.repository
 io.github.lishangbu.avalon.auth.service
 io.github.lishangbu.avalon.auth.service.impl
-io.github.lishangbu.avalon.dataset.callback
+io.github.lishangbu.avalon.data.jdbc.callback
+io.github.lishangbu.avalon.data.jdbc.id
 io.github.lishangbu.avalon.dataset.entity
 io.github.lishangbu.avalon.dataset.repository
 io.github.lishangbu.avalon.ip2location
