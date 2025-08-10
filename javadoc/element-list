@@ -4,6 +4,7 @@ io.github.lishangbu.avalon.auth.model
 io.github.lishangbu.avalon.auth.repository
 io.github.lishangbu.avalon.auth.service
 io.github.lishangbu.avalon.auth.service.impl
+io.github.lishangbu.avalon.dataset.callback
 io.github.lishangbu.avalon.dataset.entity
 io.github.lishangbu.avalon.dataset.repository
 io.github.lishangbu.avalon.ip2location
@@ -16,8 +17,6 @@ io.github.lishangbu.avalon.json.exception
 io.github.lishangbu.avalon.json.module
 io.github.lishangbu.avalon.json.util
 io.github.lishangbu.avalon.keygen
-io.github.lishangbu.avalon.orm.id
-io.github.lishangbu.avalon.orm.id.annotation
 io.github.lishangbu.avalon.pokeapi.autoconfiguration
 io.github.lishangbu.avalon.pokeapi.component
 io.github.lishangbu.avalon.pokeapi.enumeration
