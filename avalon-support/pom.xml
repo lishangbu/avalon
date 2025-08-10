@@ -13,7 +13,6 @@
   <modules>
     <module>avalon-json-support</module>
     <module>avalon-key-generator</module>
-    <module>avalon-orm-support</module>
     <module>avalon-poke-api-support</module>
     <module>avalon-security-support</module>
     <module>avalon-web-support</module>

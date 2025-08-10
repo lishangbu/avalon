@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemFlingEffect;
-import io.github.lishangbu.avalon.dataset.repository.ItemFlingEffectRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ItemFlingEffectDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final ItemFlingEffectRepository itemFlingEffectRepository;
-
-  public ItemFlingEffectDataSetParseStrategy(ItemFlingEffectRepository itemFlingEffectRepository) {
-    this.itemFlingEffectRepository = itemFlingEffectRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -43,10 +36,5 @@ public class ItemFlingEffectDataSetParseStrategy implements BasicDataSetParseStr
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.ITEM_FLING_EFFECT;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.itemFlingEffectRepository;
   }
 }

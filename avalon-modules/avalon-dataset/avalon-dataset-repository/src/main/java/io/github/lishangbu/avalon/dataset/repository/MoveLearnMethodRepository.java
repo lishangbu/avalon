@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.MoveLearnMethod;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/9
  */
 @Repository
-public interface MoveLearnMethodRepository extends JpaRepository<MoveLearnMethod, Integer> {
+public interface MoveLearnMethodRepository
+    extends ListPagingAndSortingRepository<MoveLearnMethod, Integer> {
   /**
    * 根据内部名称查找并返回对应的招式学习方法数据
    *

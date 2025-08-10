@@ -5,13 +5,11 @@ import io.github.lishangbu.avalon.dataset.entity.ItemAttribute;
 import io.github.lishangbu.avalon.dataset.repository.ItemAttributeRepository;
 import io.github.lishangbu.avalon.dataset.repository.ItemCategoryRepository;
 import io.github.lishangbu.avalon.dataset.repository.ItemFlingEffectRepository;
-import io.github.lishangbu.avalon.dataset.repository.ItemRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final ItemRepository itemRepository;
 
   private final ItemAttributeRepository itemAttributeRepository;
 
@@ -31,11 +28,9 @@ public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
   private final ItemFlingEffectRepository itemFlingEffectRepository;
 
   public ItemDataSetParseStrategy(
-      ItemRepository itemRepository,
       ItemAttributeRepository itemAttributeRepository,
       ItemCategoryRepository itemCategoryRepository,
       ItemFlingEffectRepository itemFlingEffectRepository) {
-    this.itemRepository = itemRepository;
     this.itemAttributeRepository = itemAttributeRepository;
     this.itemCategoryRepository = itemCategoryRepository;
     this.itemFlingEffectRepository = itemFlingEffectRepository;
@@ -56,7 +51,9 @@ public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
       if (itemData.flingEffect() != null) {
         itemFlingEffectRepository
             .findByInternalName(itemData.flingEffect().name())
-            .ifPresent(item::setFlingEffect);
+            .ifPresent(
+                itemFlingEffect ->
+                    item.setFlingEffectInternalName(itemFlingEffect.getInternalName()));
       }
       if (itemData.attributes() != null && !itemData.attributes().isEmpty()) {
         List<ItemAttribute> attributes = new ArrayList<>();
@@ -65,13 +62,10 @@ public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
               .findByInternalName(attribute.name())
               .ifPresent(itemAttribute -> attributes.add(itemAttribute));
         }
-        if (!attributes.isEmpty()) {
-          item.setAttributes(attributes);
-        }
       }
       itemCategoryRepository
           .findByInternalName(itemData.category().name())
-          .ifPresent(itemCategory -> item.setCategory(itemCategory));
+          .ifPresent(itemCategory -> item.setCategoryInternalName(itemCategory.getInternalName()));
       LocalizationUtils.getLocalizationVerboseEffect(itemData.effectEntries())
           .ifPresent(
               verboseEffect -> {
@@ -84,11 +78,6 @@ public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
       return item;
     }
     return null;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.itemRepository;
   }
 
   @Override

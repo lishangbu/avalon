@@ -1,11 +1,9 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 战斗中招式可以指向的目标。目标可以是宝可梦、环境甚至其他招式
@@ -13,43 +11,22 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/6/9
  */
-@Comment("招式指向目标")
-@Entity
-@Table(
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_move_target_internal_name",
-          columnNames = {"internal_name"})
-    })
+@Table
 public class MoveTarget implements Serializable {
 
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
-  @Id
-  @Comment("主键")
-  private Integer id;
+  @Id private Integer id;
 
   /** 内部名称 */
-  @Column(nullable = false, length = 50)
-  @ColumnDefault("''")
-  @Comment("内部名称")
   private String internalName;
 
   /** 目标名称 */
-  @Comment("名称")
-  @Column(length = 50, nullable = false)
   private String name;
 
   /** 说明 */
-  @Comment("说明")
-  @Column(nullable = false, length = 300)
-  @ColumnDefault("''")
   private String description;
-
-  /** 具有该伤害类型的技能 */
-  @OneToMany(mappedBy = "target")
-  private List<Move> moves;
 
   public Integer getId() {
     return id;
@@ -81,13 +58,5 @@ public class MoveTarget implements Serializable {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public List<Move> getMoves() {
-    return moves;
-  }
-
-  public void setMoves(List<Move> moves) {
-    this.moves = moves;
   }
 }

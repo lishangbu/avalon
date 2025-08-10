@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/5/22
  */
 @Repository
-public interface BerryFirmnessRepository extends JpaRepository<BerryFirmness, Integer> {
+public interface BerryFirmnessRepository
+    extends ListPagingAndSortingRepository<BerryFirmness, Integer> {
   /**
    * 根据内部名称查找并返回对应的树果硬度数据
    *

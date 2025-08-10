@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemAttribute;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/8
  */
 @Repository
-public interface ItemAttributeRepository extends JpaRepository<ItemAttribute, Integer> {
+public interface ItemAttributeRepository
+    extends ListPagingAndSortingRepository<ItemAttribute, Integer> {
 
   /**
    * 根据分类查找并返回对应的道具属性数据

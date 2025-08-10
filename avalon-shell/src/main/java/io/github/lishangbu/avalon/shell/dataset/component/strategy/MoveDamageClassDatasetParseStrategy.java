@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass;
-import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,12 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MoveDamageClassDatasetParseStrategy implements BasicDataSetParseStrategy {
-
-  private final MoveDamageClassRepository moveDamageClassRepository;
-
-  public MoveDamageClassDatasetParseStrategy(MoveDamageClassRepository moveDamageClassRepository) {
-    this.moveDamageClassRepository = moveDamageClassRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -47,10 +39,5 @@ public class MoveDamageClassDatasetParseStrategy implements BasicDataSetParseStr
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.MOVE_DAMAGE_CLASS;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.moveDamageClassRepository;
   }
 }

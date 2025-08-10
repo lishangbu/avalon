@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.pokeapi.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
 import java.io.File;
@@ -42,15 +43,14 @@ public class DefaultPokeApiService implements PokeApiService {
   /**
    * 通过指定的URI和参数获取指定类型的数据实体
    *
-   * @param responseType 响应数据的类型
-   * @param type 资源类型
+   * @param typeEnum 资源类型
    * @param id 资源对应的唯一ID
    * @return 指定类型的数据实体
    */
   @Override
-  @Cacheable(value = "getPokeApiEntity", key = "#responseType.simpleName+'-'+type+'-'+id")
-  public <T> T getEntityFromUri(Class<T> responseType, String type, Integer id) {
-    log.debug("获取类型为[{}]的数据，参数: [{}]，响应类型: [{}]", type, id, responseType.getSimpleName());
+  @Cacheable(value = "getPokeApiEntity", key = "#responseType.simpleName+'-'+typeEnum+'-'+id")
+  public <T> T getEntityFromUri(PokeApiDataTypeEnum typeEnum, Integer id) {
+    log.debug("获取类型为[{}]的数据，参数: [{}]", typeEnum, id);
     checkoutGitRepoIfNotExists();
     try {
       Path path =
@@ -59,13 +59,14 @@ public class DefaultPokeApiService implements PokeApiService {
               LOCAL_GIT_REPO_FIRST_FILE_DIR_NAME,
               LOCAL_GIT_REPO_SECOND_FILE_DIR_NAME,
               LOCAL_GIT_REPO_THIRD_FILE_DIR_NAME,
-              type,
+              typeEnum.getType(),
               String.valueOf(id),
               FILE_NAME);
-      return FILE_CACHE_OBJECT_MAPPER.readValue(Files.readString(path), responseType);
+      return (T)
+          FILE_CACHE_OBJECT_MAPPER.readValue(Files.readString(path), typeEnum.getResponseType());
 
     } catch (IOException e) {
-      log.error("获取数据失败，type：[{}]，错误信息：[{}]", type, e.getMessage());
+      log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());
       throw new RuntimeException("获取数据失败", e);
     }
   }
@@ -73,13 +74,13 @@ public class DefaultPokeApiService implements PokeApiService {
   /**
    * 获取命名资源列表
    *
-   * @param type 资源类型
+   * @param typeEnum 资源类型
    * @return 命名资源列表
    */
   @Override
-  @Cacheable(value = "getPokeApiResourceList", key = "#type")
-  public NamedAPIResourceList listNamedAPIResources(String type) {
-    log.debug("获取类型为[{}]的数据", type);
+  @Cacheable(value = "getPokeApiResourceList", key = "#typeEnum")
+  public NamedAPIResourceList listNamedAPIResources(PokeApiDataTypeEnum typeEnum) {
+    log.debug("获取类型为[{}]的数据", typeEnum);
     checkoutGitRepoIfNotExists();
     try {
       Path path =
@@ -88,12 +89,12 @@ public class DefaultPokeApiService implements PokeApiService {
               LOCAL_GIT_REPO_FIRST_FILE_DIR_NAME,
               LOCAL_GIT_REPO_SECOND_FILE_DIR_NAME,
               LOCAL_GIT_REPO_THIRD_FILE_DIR_NAME,
-              type,
+              typeEnum.getType(),
               FILE_NAME);
       return FILE_CACHE_OBJECT_MAPPER.readValue(Files.readString(path), NamedAPIResourceList.class);
 
     } catch (IOException e) {
-      log.error("获取数据失败，type：[{}]，错误信息：[{}]", type, e.getMessage());
+      log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());
       throw new RuntimeException("获取数据失败", e);
     }
   }

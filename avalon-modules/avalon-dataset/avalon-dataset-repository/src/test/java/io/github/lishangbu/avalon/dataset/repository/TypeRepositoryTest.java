@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @since 2025/4/14
  */
 @ContextConfiguration(classes = DatasetRepositoryTestEnvironmentConfiguration.class)
-@DataJpaTest
+@DataJdbcTest
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class TypeRepositoryTest {
 
@@ -24,7 +24,7 @@ class TypeRepositoryTest {
 
   @Test
   public void testCount() {
-    assertEquals(21, typeRepository.count());
+    assertEquals(2, typeRepository.count());
   }
 
   @Test
@@ -40,6 +40,6 @@ class TypeRepositoryTest {
     Optional<Type> normalTypeOptional = typeRepository.findById(2);
     assertTrue(normalTypeOptional.isPresent());
     Type type = normalTypeOptional.get();
-    assertEquals("火", type.getName());
+    assertEquals("格斗", type.getName());
   }
 }

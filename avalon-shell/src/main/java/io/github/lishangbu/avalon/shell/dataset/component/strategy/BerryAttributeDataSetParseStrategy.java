@@ -2,10 +2,8 @@ package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
-import io.github.lishangbu.avalon.dataset.repository.BerryRepository;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,15 +14,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BerryAttributeDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final BerryRepository berryRepository;
   private final BerryFirmnessRepository berryFirmnessRepository;
   private final TypeRepository typeRepository;
 
   public BerryAttributeDataSetParseStrategy(
-      BerryRepository berryRepository,
-      BerryFirmnessRepository berryFirmnessRepository,
-      TypeRepository typeRepository) {
-    this.berryRepository = berryRepository;
+      BerryFirmnessRepository berryFirmnessRepository, TypeRepository typeRepository) {
     this.berryFirmnessRepository = berryFirmnessRepository;
     this.typeRepository = typeRepository;
   }
@@ -45,10 +39,11 @@ public class BerryAttributeDataSetParseStrategy implements BasicDataSetParseStra
       berry.setNaturalGiftPower(berryData.naturalGiftPower());
       typeRepository
           .findByInternalName(berryData.naturalGiftType().name())
-          .ifPresent(berry::setNaturalGiftType);
+          .ifPresent(type -> berry.setNaturalGiftTypeInternalName(type.getInternalName()));
       berryFirmnessRepository
           .findByInternalName(berryData.firmness().name())
-          .ifPresent(berry::setFirmness);
+          .ifPresent(
+              berryFirmness -> berry.setFirmnessInternalName(berryFirmness.getInternalName()));
       return berry;
     }
     return null;
@@ -57,10 +52,5 @@ public class BerryAttributeDataSetParseStrategy implements BasicDataSetParseStra
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.BERRY;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.berryRepository;
   }
 }

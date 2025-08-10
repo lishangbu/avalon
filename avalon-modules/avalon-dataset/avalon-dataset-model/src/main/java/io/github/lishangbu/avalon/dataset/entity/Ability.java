@@ -1,9 +1,8 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 特性
@@ -17,28 +16,16 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/17
  */
-@Comment("特性")
-@Entity
-@Table(
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_ability_internal_name",
-          columnNames = {"internal_name"})
-    })
+@Table
 public class Ability implements Serializable {
   /** ID */
-  @Id
-  @Comment("主键")
-  private Integer id;
+  @Id private Integer id;
 
   /**
    * 特性名称
    *
    * <p>取百科中的中文名数据
    */
-  @Column(nullable = false, length = 100)
-  @ColumnDefault("''")
-  @Comment("名称")
   private String name;
 
   /**
@@ -46,25 +33,15 @@ public class Ability implements Serializable {
    *
    * <p>取百科中的英文名数据
    */
-  @Column(nullable = false, length = 100)
-  @ColumnDefault("''")
-  @Comment("内部名称")
   private String internalName;
 
-  @Column(nullable = false, length = 500)
-  @ColumnDefault("''")
-  @Comment("文字介绍")
+  /** 文字介绍 */
   private String text;
 
-  @Column(nullable = false, length = 500)
-  @ColumnDefault("''")
-  @Comment("基本信息")
+  /** 基本信息 */
   private String info;
 
   /** 特性效果 */
-  @Comment("特性效果")
-  @ColumnDefault("''")
-  @Column(length = 2000, nullable = false)
   private String effect;
 
   public Integer getId() {

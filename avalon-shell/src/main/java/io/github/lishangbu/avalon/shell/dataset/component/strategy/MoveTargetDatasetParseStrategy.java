@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.MoveTarget;
-import io.github.lishangbu.avalon.dataset.repository.MoveTargetRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MoveTargetDatasetParseStrategy implements BasicDataSetParseStrategy {
-  private final MoveTargetRepository moveTargetRepository;
-
-  public MoveTargetDatasetParseStrategy(MoveTargetRepository moveTargetRepository) {
-    this.moveTargetRepository = moveTargetRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -46,10 +39,5 @@ public class MoveTargetDatasetParseStrategy implements BasicDataSetParseStrategy
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.MOVE_TARGET;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.moveTargetRepository;
   }
 }

@@ -2,7 +2,8 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/14
  */
 @Repository
-public interface TypeRepository extends JpaRepository<Type, Integer> {
+public interface TypeRepository
+    extends ListPagingAndSortingRepository<Type, Integer>, ListCrudRepository<Type, Integer> {
 
   /**
    * 根据属性名查找并返回对应的属性数据

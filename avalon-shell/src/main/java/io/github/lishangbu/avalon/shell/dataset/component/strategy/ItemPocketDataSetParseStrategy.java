@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemPocket;
-import io.github.lishangbu.avalon.dataset.repository.ItemPocketRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ItemPocketDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final ItemPocketRepository itemPocketRepository;
-
-  public ItemPocketDataSetParseStrategy(ItemPocketRepository itemPocketRepository) {
-    this.itemPocketRepository = itemPocketRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -44,10 +37,5 @@ public class ItemPocketDataSetParseStrategy implements BasicDataSetParseStrategy
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.ITEM_POCKET;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.itemPocketRepository;
   }
 }

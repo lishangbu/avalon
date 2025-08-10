@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 招式
@@ -12,28 +11,18 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/4/14
  */
-@Comment("招式")
-@Entity
-@Table(
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_move_internal_name",
-          columnNames = {"internal_name"})
-    })
+@Table
 public class Move implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
-  @Id
-  @Comment("主键")
-  private Integer id;
+  @Id private Integer id;
 
   /**
    * 招式名称
    *
    * <p>取百科中的中文名数据
    */
-  @Comment("招式名称")
   private String name;
 
   /**
@@ -41,9 +30,6 @@ public class Move implements Serializable {
    *
    * <p>取百科中的招式英文名
    */
-  @Column(nullable = false, length = 100)
-  @ColumnDefault("''")
-  @Comment("内部名称")
   private String internalName;
 
   /**
@@ -54,24 +40,17 @@ public class Move implements Serializable {
    * <p>每种属性都包含这几点要素：这种属性的招式（或招式造成伤害的属性）对哪些属性的宝可梦效果绝佳；对哪些属性的宝可梦效果不理想；对哪些属性的宝可梦没有效果。
    *
    * <p>《宝可梦》系列在第四世代之前，非变化招式的分类（即物理招式和特殊招式）取决于招式的属性；从第四世代起取决于招式本身。
-   *
-   * @see Type
-   * @see Type#getMoves()
    */
-  @ManyToOne
-  @JoinColumn(name = "type_id")
-  @Comment("属性")
-  private Type type;
+  private String typeInternalName;
 
   /**
    * 命中
    *
    * <p>命中是衡量一个招式是否容易击中对方的数值。
    */
-  @Comment("命中")
   private Integer accuracy;
 
-  @Comment("此招式效果发生的概率百分比值")
+  /** 此招式效果发生的概率百分比值 */
   private Integer effectChance;
 
   /**
@@ -79,11 +58,9 @@ public class Move implements Serializable {
    *
    * <p>说明了一个招式可以被使用的次数
    */
-  @Comment("招式点数")
   private Integer pp;
 
-  /** -8到8之间的值。设置战斗中招式执行的顺序 */
-  @Comment("-8到8之间的值。设置战斗中招式执行的顺序")
+  /** 战斗中招式执行的顺序 */
   private Integer priority;
 
   /**
@@ -101,83 +78,53 @@ public class Move implements Serializable {
    *
    * <p>特别的招式:部分攻击Ｚ招式、极巨招式和部分超极巨招式的威力会根据原本招式的威力计算。通过精通招式后以迅疾或刚猛使出的招式威力会发生变化。
    */
-  @Comment("威力")
   private Integer power;
 
-  /**
-   * 此招式对目标造成的伤害类型
-   *
-   * @see MoveDamageClass
-   * @see MoveDamageClass#getMoves()
-   */
-  @Comment("此招式对目标造成的伤害类型")
-  @JoinColumn(name = "damage_class_id", foreignKey = @ForeignKey(name = "fk_move_damage_class_id"))
-  @ManyToOne
-  private MoveDamageClass damageClass;
+  /** 此招式对目标造成的伤害类型 */
+  private String damageClassInternalName;
 
-  @Comment("此招式对目标造成的伤害类型")
-  @JoinColumn(name = "target_id", foreignKey = @ForeignKey(name = "fk_move_target_id"))
-  @ManyToOne
-  private MoveTarget target;
+  /** 此招式对目标造成的伤害类型 */
+  private String targetInternalName;
 
   /** 文本描述 */
-  @Comment("文本描述")
-  @Column(length = 1000)
   private String text;
 
   /** 招式附加效果简要描述 */
-  @Comment("招式简要效果描述")
-  @Column(length = 1000)
   private String shortEffect;
 
   /** 招式附加效果 */
-  @Comment("招式效果描述")
-  @Column(length = 4000)
   private String effect;
 
   // region meta data
   /** 此招式持续生效的最小回合数。如果总是只持续一回合，则为空 */
-  @Comment("此招式持续生效的最小回合数。如果总是只持续一回合，则为空")
   private Integer minHits;
 
   /** 此招式持续生效的最大回合数。如果总是只持续一回合，则为null */
-  @Comment("此招式持续生效的最大回合数。如果总是只持续一回合，则为null")
   private Integer maxTurns;
 
   /** HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示 */
-  @Comment("HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示")
   private Integer drain;
 
   /** 攻击方宝可梦恢复的HP量，以其最大HP的百分比表示 */
-  @Comment("攻击方宝可梦恢复的HP量，以其最大HP的百分比表示")
   private Integer healing;
 
   /** 暴击率加成 */
-  @Comment("暴击率加成")
   private Integer critRate;
 
   /** 此攻击导致状态异常的可能性 */
-  @Comment("此攻击导致状态异常的可能性")
   private Integer ailmentChance;
 
   /** 此攻击导致目标宝可梦畏缩的可能性 */
-  @Comment("此攻击导致目标宝可梦畏缩的可能性")
   private Integer flinchChance;
 
   /** 此攻击导致目标宝可梦能力值变化的可能性 */
-  @Comment("此攻击导致目标宝可梦能力值变化的可能性")
   private Integer statChance;
 
-  @ManyToOne
-  @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_move_category_id"))
-  private MoveCategory category;
+  /** 招式分类 */
+  private String categoryInternalName;
 
-  @ManyToOne
-  @JoinColumn(name = "ailment_id", foreignKey = @ForeignKey(name = "fk_move_ailment_id"))
-  private MoveAilment ailment;
-
-  @OneToOne(mappedBy = "move")
-  private Machine machine;
+  /** 招式导致的状态异常 */
+  private String ailmentInternalName;
 
   // endregion
 
@@ -205,12 +152,12 @@ public class Move implements Serializable {
     this.internalName = internalName;
   }
 
-  public Type getType() {
-    return type;
+  public String getTypeInternalName() {
+    return typeInternalName;
   }
 
-  public void setType(Type type) {
-    this.type = type;
+  public void setTypeInternalName(String typeInternalName) {
+    this.typeInternalName = typeInternalName;
   }
 
   public Integer getAccuracy() {
@@ -253,20 +200,20 @@ public class Move implements Serializable {
     this.power = power;
   }
 
-  public MoveDamageClass getDamageClass() {
-    return damageClass;
+  public String getDamageClassInternalName() {
+    return damageClassInternalName;
   }
 
-  public void setDamageClass(MoveDamageClass damageClass) {
-    this.damageClass = damageClass;
+  public void setDamageClassInternalName(String damageClassInternalName) {
+    this.damageClassInternalName = damageClassInternalName;
   }
 
-  public MoveTarget getTarget() {
-    return target;
+  public String getTargetInternalName() {
+    return targetInternalName;
   }
 
-  public void setTarget(MoveTarget target) {
-    this.target = target;
+  public void setTargetInternalName(String targetInternalName) {
+    this.targetInternalName = targetInternalName;
   }
 
   public String getText() {
@@ -357,27 +304,19 @@ public class Move implements Serializable {
     this.statChance = statChance;
   }
 
-  public MoveCategory getCategory() {
-    return category;
+  public String getCategoryInternalName() {
+    return categoryInternalName;
   }
 
-  public void setCategory(MoveCategory category) {
-    this.category = category;
+  public void setCategoryInternalName(String categoryInternalName) {
+    this.categoryInternalName = categoryInternalName;
   }
 
-  public MoveAilment getAilment() {
-    return ailment;
+  public String getAilmentInternalName() {
+    return ailmentInternalName;
   }
 
-  public void setAilment(MoveAilment ailment) {
-    this.ailment = ailment;
-  }
-
-  public Machine getMachine() {
-    return machine;
-  }
-
-  public void setMachine(Machine machine) {
-    this.machine = machine;
+  public void setAilmentInternalName(String ailmentInternalName) {
+    this.ailmentInternalName = ailmentInternalName;
   }
 }

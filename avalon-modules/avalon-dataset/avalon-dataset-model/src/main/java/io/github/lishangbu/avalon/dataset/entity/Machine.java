@@ -1,11 +1,9 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import java.io.Serial;
 import java.io.Serializable;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 招式学习器
@@ -13,18 +11,16 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/6/26
  */
-@Entity
-@Comment("招式学习器")
+@Table
 public class Machine implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
-  @Id
-  @Comment("主键")
-  private Integer id;
+  @Id private Integer id;
 
-  @OneToOne private Item item;
-  @OneToOne private Move move;
+  private Integer itemId;
+
+  private Integer moveId;
 
   public Integer getId() {
     return id;
@@ -34,19 +30,19 @@ public class Machine implements Serializable {
     this.id = id;
   }
 
-  public Item getItem() {
-    return item;
+  public Integer getItemId() {
+    return itemId;
   }
 
-  public void setItem(Item item) {
-    this.item = item;
+  public void setItemId(Integer itemId) {
+    this.itemId = itemId;
   }
 
-  public Move getMove() {
-    return move;
+  public Integer getMoveId() {
+    return moveId;
   }
 
-  public void setMove(Move move) {
-    this.move = move;
+  public void setMoveId(Integer moveId) {
+    this.moveId = moveId;
   }
 }

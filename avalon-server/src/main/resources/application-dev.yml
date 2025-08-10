@@ -1,8 +1,5 @@
 spring:
   datasource:
-    url: jdbc:h2:~/avalon.db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=0;DB_CLOSE_ON_EXIT=true;
+    url: jdbc:h2:~/.avalon/avalon.db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=0;DB_CLOSE_ON_EXIT=true;
     username: sa
     password:
-  jpa:
-    hibernate:
-      ddl-auto: update
