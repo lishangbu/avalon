@@ -1,0 +1,9 @@
+spring:
+  test:
+    database:
+      replace: none
+  datasource:
+    url: jdbc:h2:mem:datasetDb;
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver

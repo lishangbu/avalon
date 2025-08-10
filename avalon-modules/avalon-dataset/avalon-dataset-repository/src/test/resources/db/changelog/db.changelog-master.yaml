@@ -1,0 +1,184 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: lishangbu
+      changes:
+        - createTable:
+            tableName: ability
+            remarks: '特性'
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '名称'
+              - column:
+                  name: effect
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '特性效果'
+              - column:
+                  name: info
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '基本信息'
+              - column:
+                  name: text
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '文字介绍'
+        - createTable:
+            tableName: egg_group
+            remarks: '蛋组'
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '蛋组名称'
+              - column:
+                  name: text
+                  type: varchar(200)
+                  remarks: '描述文本'
+              - column:
+                  name: characteristics
+                  type: varchar(500)
+                  remarks: '蛋群整体特征'
+        - createTable:
+            tableName: move_category
+            remarks: '招式分类'
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '招式分类内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式分类名称'
+              - column:
+                  name: description
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式分类描述'
+        - insert:
+            tableName: move_category
+            columns:
+              - column:
+                  name: id
+                  value: 0
+              - column:
+                  name: internal_name
+                  value: 'damage'
+              - column:
+                  name: name
+                  value: 'damage'
+              - column:
+                  name: description
+                  value: 'Inflicts damage'
+        - createTable:
+            tableName: type
+            remarks: '属性'
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '属性内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '属性名称'
+        - insert:
+            tableName: type
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: internal_name
+                  value: 'normal'
+              - column:
+                  name: name
+                  value: '一般'
+        - insert:
+            tableName: type
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: internal_name
+                  value: 'fighting'
+              - column:
+                  name: name
+                  value: '格斗'

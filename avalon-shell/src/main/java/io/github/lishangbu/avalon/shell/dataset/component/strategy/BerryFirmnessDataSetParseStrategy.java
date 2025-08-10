@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
-import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BerryFirmnessDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final BerryFirmnessRepository berryFirmnessRepository;
-
-  public BerryFirmnessDataSetParseStrategy(BerryFirmnessRepository berryFirmnessRepository) {
-    this.berryFirmnessRepository = berryFirmnessRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -44,10 +37,5 @@ public class BerryFirmnessDataSetParseStrategy implements BasicDataSetParseStrat
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.BERRY_FIRMNESS;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.berryFirmnessRepository;
   }
 }

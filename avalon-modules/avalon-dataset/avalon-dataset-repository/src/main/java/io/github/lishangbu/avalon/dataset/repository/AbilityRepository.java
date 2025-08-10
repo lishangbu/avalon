@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.Ability;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,4 +12,6 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/17
  */
 @Repository
-public interface AbilityRepository extends JpaRepository<Ability, Integer> {}
+public interface AbilityRepository
+    extends ListCrudRepository<Ability, Integer>,
+        ListPagingAndSortingRepository<Ability, Integer> {}

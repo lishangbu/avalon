@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 宝可梦类型
@@ -9,37 +9,19 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/5/20
  */
-@Entity
+@Table
 public class PokemonType {
   /** ID */
-  @Id
-  @Comment("主键")
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "pokemon_type_seq_gen")
-  @TableGenerator(
-      name = "pokemon_type_seq_gen",
-      table = "hibernate_sequences",
-      pkColumnValue = "pokemon_type")
-  private Integer id;
+  @Id private Integer id;
 
-  @ManyToOne
-  @JoinColumn(
-      name = "type_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_pokemon_type_type_id"))
-  @Comment("属性")
-  private Type type;
+  /** 属性内部名称 */
+  private String typeInternalName;
 
-  @ManyToOne
-  @JoinColumn(
-      name = "pokemon_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_pokemon_type_pokemon_id"))
-  @Comment("宝可梦")
-  private Pokemon pokemon;
+  /** 宝可梦内部名称 */
+  private String pokemonInternalName;
 
-  @Column(nullable = false)
-  @Comment("是否是主属性")
-  private Boolean primaryType;
+  /** 属性排序，第一个为主属性 */
+  private Integer sortingOrder;
 
   public Integer getId() {
     return id;
@@ -49,27 +31,27 @@ public class PokemonType {
     this.id = id;
   }
 
-  public Type getType() {
-    return type;
+  public String getTypeInternalName() {
+    return typeInternalName;
   }
 
-  public void setType(Type type) {
-    this.type = type;
+  public void setTypeInternalName(String typeInternalName) {
+    this.typeInternalName = typeInternalName;
   }
 
-  public Pokemon getPokemon() {
-    return pokemon;
+  public String getPokemonInternalName() {
+    return pokemonInternalName;
   }
 
-  public void setPokemon(Pokemon pokemon) {
-    this.pokemon = pokemon;
+  public void setPokemonInternalName(String pokemonInternalName) {
+    this.pokemonInternalName = pokemonInternalName;
   }
 
-  public Boolean getPrimaryType() {
-    return primaryType;
+  public Integer getSortingOrder() {
+    return sortingOrder;
   }
 
-  public void setPrimaryType(Boolean primaryType) {
-    this.primaryType = primaryType;
+  public void setSortingOrder(Integer sortingOrder) {
+    this.sortingOrder = sortingOrder;
   }
 }

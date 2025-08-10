@@ -1,11 +1,9 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemCategory;
-import io.github.lishangbu.avalon.dataset.repository.ItemCategoryRepository;
 import io.github.lishangbu.avalon.dataset.repository.ItemPocketRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,12 +14,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ItemCategoryDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final ItemCategoryRepository itemCategoryRepository;
   private final ItemPocketRepository itemPocketRepository;
 
-  public ItemCategoryDataSetParseStrategy(
-      ItemCategoryRepository itemCategoryRepository, ItemPocketRepository itemPocketRepository) {
-    this.itemCategoryRepository = itemCategoryRepository;
+  public ItemCategoryDataSetParseStrategy(ItemPocketRepository itemPocketRepository) {
     this.itemPocketRepository = itemPocketRepository;
   }
 
@@ -34,7 +29,8 @@ public class ItemCategoryDataSetParseStrategy implements BasicDataSetParseStrate
       itemCategory.setInternalName(itemCategoryData.name());
       itemPocketRepository
           .findByInternalName(itemCategoryData.pocket().name())
-          .ifPresent(itemPocket -> itemCategory.setItemPocket(itemPocket));
+          .ifPresent(
+              itemPocket -> itemCategory.setItemPocketInternalName(itemPocket.getInternalName()));
       LocalizationUtils.getLocalizationName(itemCategoryData.names())
           .ifPresentOrElse(
               name -> {
@@ -51,10 +47,5 @@ public class ItemCategoryDataSetParseStrategy implements BasicDataSetParseStrate
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.ITEM_CATEGORY;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.itemCategoryRepository;
   }
 }

@@ -3,10 +3,10 @@ package io.github.lishangbu.avalon.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
-@EnableJpaRepositories(basePackages = "io.github.lishangbu.avalon.**.repository")
+@EnableJdbcRepositories(basePackages = "io.github.lishangbu.avalon.**.repository")
 @EnableSpringDataWebSupport
 @EntityScan(basePackages = "io.github.lishangbu.avalon.**.entity")
 @SpringBootApplication(scanBasePackages = "io.github.lishangbu.avalon")

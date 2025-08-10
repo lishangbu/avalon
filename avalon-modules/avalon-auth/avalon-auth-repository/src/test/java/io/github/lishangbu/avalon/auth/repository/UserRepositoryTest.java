@@ -4,27 +4,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.auth.configuration.AuthRepositoryTestEnvironmentConfiguration;
-import io.github.lishangbu.avalon.auth.entity.User;
+import io.github.lishangbu.avalon.auth.model.UserDTO;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
  * @author lishangbu
  * @since 2025/4/11
  */
-@DataJpaTest
-@ContextConfiguration(classes = AuthRepositoryTestEnvironmentConfiguration.class)
+@DataJdbcTest
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@ContextConfiguration(classes = AuthRepositoryTestEnvironmentConfiguration.class)
 class UserRepositoryTest {
   @Autowired private UserRepository userRepository;
 
   @Test
   void testFindByUsername() {
-    Optional<User> foundUser = userRepository.findByUsername("test");
+    Optional<UserDTO> foundUser = userRepository.findByUsername("test");
     assertTrue(foundUser.isPresent());
-    assertEquals(1L, foundUser.get().getId());
+    assertEquals(1L, foundUser.get().id());
   }
 }

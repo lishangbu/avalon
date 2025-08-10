@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -24,11 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @ShellComponent
 public class DataSetShellComponent {
+  private final JdbcAggregateTemplate jdbcAggregateTemplate;
   private final PokeApiService pokeApiService;
   private final Map<PokeApiDataTypeEnum, BasicDataSetParseStrategy> basicDataSetParseStrategyMap;
 
   public DataSetShellComponent(
-      PokeApiService pokeApiService, List<BasicDataSetParseStrategy> basicDataSetParseStrategies) {
+      JdbcAggregateTemplate jdbcAggregateTemplate,
+      PokeApiService pokeApiService,
+      List<BasicDataSetParseStrategy> basicDataSetParseStrategies) {
+    this.jdbcAggregateTemplate = jdbcAggregateTemplate;
     this.pokeApiService = pokeApiService;
     this.basicDataSetParseStrategyMap = new ConcurrentHashMap<>(basicDataSetParseStrategies.size());
     basicDataSetParseStrategies.forEach(
@@ -49,25 +54,21 @@ public class DataSetShellComponent {
       @ShellOption(help = "要刷新的数据类型", valueProvider = PokeApiDataTypeNameProvider.class)
           String type) {
     PokeApiDataTypeEnum apiDataTypeEnum = PokeApiDataTypeEnum.getDataTypeByTypeName(type);
-    NamedAPIResourceList namedApiResources = pokeApiService.listNamedAPIResources(type);
+    NamedAPIResourceList namedApiResources = pokeApiService.listNamedAPIResources(apiDataTypeEnum);
     BasicDataSetParseStrategy basicDataSetParseStrategy =
         basicDataSetParseStrategyMap.get(apiDataTypeEnum);
     if (basicDataSetParseStrategy == null) {
       return "不支持处理数据:" + type;
     }
-    basicDataSetParseStrategy
-        .getRepository()
-        .saveAllAndFlush(
-            namedApiResources.results().stream()
-                .map(
-                    namedApiResource ->
-                        basicDataSetParseStrategy.convertToEntity(
-                            pokeApiService.getEntityFromUri(
-                                apiDataTypeEnum.getResponseType(),
-                                apiDataTypeEnum.getType(),
-                                NamedApiResourceUtils.getId(namedApiResource))))
-                .filter(Objects::nonNull)
-                .toList());
+    jdbcAggregateTemplate.insertAll(
+        namedApiResources.results().stream()
+            .map(
+                namedApiResource ->
+                    basicDataSetParseStrategy.convertToEntity(
+                        pokeApiService.getEntityFromUri(
+                            apiDataTypeEnum, NamedApiResourceUtils.getId(namedApiResource))))
+            .filter(Objects::nonNull)
+            .toList());
     return String.format(
         "数据处理完成，本次处理了数据:%s",
         namedApiResources.results().stream()

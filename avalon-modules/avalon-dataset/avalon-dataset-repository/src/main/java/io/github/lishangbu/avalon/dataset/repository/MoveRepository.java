@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.Move;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/14
  */
 @Repository
-public interface MoveRepository extends JpaRepository<Move, Integer> {
+public interface MoveRepository extends ListPagingAndSortingRepository<Move, Integer> {
 
   /**
    * 根据分类查找并返回对应的招式

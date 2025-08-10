@@ -115,11 +115,6 @@
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-orm-support</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-poke-api-support</artifactId>
         <version>${revision}</version>
       </dependency>
@@ -216,11 +211,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
           <version>${flatten-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.hibernate.orm.tooling</groupId>
-          <artifactId>hibernate-enhance-maven-plugin</artifactId>
-          <version>${hibernate.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

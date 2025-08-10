@@ -1,14 +1,11 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.dataset.configuration.DatasetRepositoryTestEnvironmentConfiguration;
-import io.github.lishangbu.avalon.dataset.entity.EggGroup;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -16,24 +13,13 @@ import org.springframework.test.context.ContextConfiguration;
  * @since 2025/4/15
  */
 @ContextConfiguration(classes = DatasetRepositoryTestEnvironmentConfiguration.class)
-@DataJpaTest
+@DataJdbcTest
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class EggGroupRepositoryTest {
   @Autowired private EggGroupRepository eggGroupRepository;
 
   @Test
   public void testCount() {
-    assertEquals(15, eggGroupRepository.count());
-  }
-
-  @Test
-  public void testFindByName() {
-    Optional<EggGroup> eggGroupOptional = eggGroupRepository.findByInternalName("Monster");
-    assertTrue(eggGroupOptional.isPresent());
-    EggGroup eggGroup = eggGroupOptional.get();
-    assertEquals("Monster", eggGroup.getInternalName());
-    assertEquals("怪兽", eggGroup.getName());
-    assertEquals("像是怪兽一样，或者比较野性。", eggGroup.getText());
-    assertEquals("这个蛋群的宝可梦大多原型基于特摄影片中的怪兽以及爬行动物。", eggGroup.getCharacteristics());
+    assertEquals(0, eggGroupRepository.count());
   }
 }

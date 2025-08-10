@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.Comment;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 属性关系
@@ -9,66 +8,32 @@ import org.hibernate.annotations.Comment;
  * @author lishangbu
  * @since 2025/5/20
  */
-@Comment("属性关系")
-@Entity
-@Table(
-    uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_type_damage_relation_attacker_defender",
-          columnNames = {"attacker_type_id", "defender_type_id"})
-    })
+@Table
 public class TypeDamageRelation {
 
-  /** ID */
-  @Id
-  @Comment("主键")
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "type_damage_relation_seq_gen")
-  @TableGenerator(
-      name = "type_damage_relation_seq_gen",
-      table = "hibernate_sequences",
-      pkColumnValue = "type_damage_relation")
-  private Integer id;
+  /** 攻击者属性(内部名称) */
+  private String attackerTypeInternalName;
 
-  @ManyToOne
-  @JoinColumn(
-      name = "attacker_type_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_type_damage_relation_attacker_type_id"))
-  @Comment("属性")
-  private Type attackerType;
+  /** 防御者属性(内部名称) */
+  private String defenderTypeInternalName;
 
-  @ManyToOne
-  @JoinColumn(
-      name = "defender_type_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_type_damage_relation_defender_type_id"))
-  @Comment("属性")
-  private Type defenderType;
-
+  /** 伤害倍率 */
   private Float damageRate;
 
-  public Integer getId() {
-    return id;
+  public String getAttackerTypeInternalName() {
+    return attackerTypeInternalName;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  public void setAttackerTypeInternalName(String attackerTypeInternalName) {
+    this.attackerTypeInternalName = attackerTypeInternalName;
   }
 
-  public Type getAttackerType() {
-    return attackerType;
+  public String getDefenderTypeInternalName() {
+    return defenderTypeInternalName;
   }
 
-  public void setAttackerType(Type attacker) {
-    this.attackerType = attacker;
-  }
-
-  public Type getDefenderType() {
-    return defenderType;
-  }
-
-  public void setDefenderType(Type defender) {
-    this.defenderType = defender;
+  public void setDefenderTypeInternalName(String defenderTypeInternalName) {
+    this.defenderTypeInternalName = defenderTypeInternalName;
   }
 
   public Float getDamageRate() {

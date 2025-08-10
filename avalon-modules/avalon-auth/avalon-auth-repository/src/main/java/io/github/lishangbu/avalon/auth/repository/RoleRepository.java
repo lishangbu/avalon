@@ -2,7 +2,8 @@ package io.github.lishangbu.avalon.auth.repository;
 
 import io.github.lishangbu.avalon.auth.entity.Role;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/4/5
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Integer> {
+public interface RoleRepository
+    extends ListCrudRepository<Role, Integer>, ListPagingAndSortingRepository<Role, Integer> {
 
   Optional<Role> findByCode(String code);
 }

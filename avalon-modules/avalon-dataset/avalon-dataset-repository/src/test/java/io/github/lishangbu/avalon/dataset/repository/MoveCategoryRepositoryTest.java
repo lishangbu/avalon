@@ -8,7 +8,7 @@ import io.github.lishangbu.avalon.dataset.entity.MoveCategory;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @since 2025/4/15
  */
 @ContextConfiguration(classes = DatasetRepositoryTestEnvironmentConfiguration.class)
-@DataJpaTest
+@DataJdbcTest
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 class MoveCategoryRepositoryTest {
   @Autowired private MoveCategoryRepository moveCategoryRepository;
@@ -24,22 +24,17 @@ class MoveCategoryRepositoryTest {
   @Test
   void testFindByCategory() {
     Optional<MoveCategory> moveCategoryOptional =
-        moveCategoryRepository.findByInternalName("Physical");
+        moveCategoryRepository.findByInternalName("damage");
     assertTrue(moveCategoryOptional.isPresent());
-    assertEquals("物理", moveCategoryOptional.get().getName());
-  }
-
-  @Test
-  void testFindByName() {
-    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findByName("变化");
-    assertTrue(moveCategoryOptional.isPresent());
-    assertEquals("Status", moveCategoryOptional.get().getInternalName());
+    assertEquals("damage", moveCategoryOptional.get().getName());
+    assertEquals("Inflicts damage", moveCategoryOptional.get().getDescription());
   }
 
   @Test
   void testFindById() {
-    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findById(2);
+    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findById(0);
     assertTrue(moveCategoryOptional.isPresent());
-    assertEquals("Special", moveCategoryOptional.get().getInternalName());
+    assertEquals("damage", moveCategoryOptional.get().getName());
+    assertEquals("Inflicts damage", moveCategoryOptional.get().getDescription());
   }
 }

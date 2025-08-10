@@ -1,25 +1,18 @@
 package io.github.lishangbu.avalon.shell.dataset.component.strategy;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemAttribute;
-import io.github.lishangbu.avalon.dataset.repository.ItemAttributeRepository;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
- * 道具数据集处理策略
+ * 道具属性数据集处理策略
  *
  * @author lishangbu
  * @since 2025/6/8
  */
 @Service
 public class ItemAttributeDataSetParseStrategy implements BasicDataSetParseStrategy {
-  private final ItemAttributeRepository itemAttributeRepository;
-
-  public ItemAttributeDataSetParseStrategy(ItemAttributeRepository itemAttributeRepository) {
-    this.itemAttributeRepository = itemAttributeRepository;
-  }
 
   @Override
   public Object convertToEntity(Object singleResource) {
@@ -46,10 +39,5 @@ public class ItemAttributeDataSetParseStrategy implements BasicDataSetParseStrat
   @Override
   public PokeApiDataTypeEnum getDataType() {
     return PokeApiDataTypeEnum.ITEM_ATTRIBUTE;
-  }
-
-  @Override
-  public JpaRepository getRepository() {
-    return this.itemAttributeRepository;
   }
 }

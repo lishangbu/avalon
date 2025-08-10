@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: lishangbu
+      changes:
+        - createTable:
+            tableName: user
+            remarks: '用户信息'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: username
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '用户名'
+              - column:
+                  name: password
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '密码'
+        - insert:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: username
+                  value: 'test'
+              - column:
+                  name: password
+                  value: '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G'
+        - createTable:
+            tableName: role
+            remarks: '角色信息'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '角色代码'
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  value: '1'
+              - column:
+                  name: code
+                  value: 'ROLE_TEST'
+        - createTable:
+            tableName: user_role_relation
+            remarks: '用户角色关系'
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '用户ID'
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '角色ID'
+        - insert:
+            tableName: user_role_relation
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: role_id
+                  value: 1

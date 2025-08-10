@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemFlingEffect;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/8
  */
 @Repository
-public interface ItemFlingEffectRepository extends JpaRepository<ItemFlingEffect, Integer> {
+public interface ItemFlingEffectRepository
+    extends ListPagingAndSortingRepository<ItemFlingEffect, Integer> {
   /**
    * 根据分类查找并返回对应的道具投掷效果
    *

@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.auth.configuration;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 /**
  * 测试环境配置
@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @since 2025/4/11
  */
 @EntityScan(basePackages = "io.github.lishangbu.avalon.auth.entity")
-@EnableJpaRepositories(basePackages = "io.github.lishangbu.avalon.auth.repository")
+@EnableJdbcRepositories(basePackages = "io.github.lishangbu.avalon.auth.repository")
 public class AuthRepositoryTestEnvironmentConfiguration {}
