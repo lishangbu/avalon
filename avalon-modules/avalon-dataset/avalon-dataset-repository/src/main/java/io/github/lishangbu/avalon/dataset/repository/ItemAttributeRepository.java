@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemAttributeRepository
-    extends ListPagingAndSortingRepository<ItemAttribute, Integer> {
+    extends ListPagingAndSortingRepository<ItemAttribute, Long> {
 
   /**
    * 根据分类查找并返回对应的道具属性数据

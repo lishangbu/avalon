@@ -19,7 +19,7 @@ public class ItemAttributeDataSetParseStrategy implements BasicDataSetParseStrat
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.item.ItemAttribute itemAttributeData) {
       ItemAttribute itemAttribute = new ItemAttribute();
-      itemAttribute.setId(itemAttributeData.id());
+      itemAttribute.setId(itemAttributeData.id().longValue());
       itemAttribute.setInternalName(itemAttributeData.name());
       LocalizationUtils.getLocalizationName(itemAttributeData.names())
           .ifPresent(

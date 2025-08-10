@@ -14,8 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EggGroupRepository
-    extends ListCrudRepository<EggGroup, Integer>,
-        ListPagingAndSortingRepository<EggGroup, Integer> {
+    extends ListCrudRepository<EggGroup, Long>, ListPagingAndSortingRepository<EggGroup, Long> {
   /**
    * 根据内部名称查找并返回对应的蛋群数据
    *

@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -10,9 +11,9 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/5/20
  */
 @Table
-public class PokemonType {
+public class PokemonType implements AutoLongIdGenerator {
   /** ID */
-  @Id private Integer id;
+  @Id private Long id;
 
   /** 属性内部名称 */
   private String typeInternalName;
@@ -23,11 +24,13 @@ public class PokemonType {
   /** 属性排序，第一个为主属性 */
   private Integer sortingOrder;
 
-  public Integer getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  @Override
+  public void setId(Long id) {
     this.id = id;
   }
 

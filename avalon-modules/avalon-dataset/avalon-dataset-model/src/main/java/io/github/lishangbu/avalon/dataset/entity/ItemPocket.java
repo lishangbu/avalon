@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import java.io.Serializable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -12,11 +12,11 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/6/8
  */
 @Table
-public class ItemPocket implements Serializable {
+public class ItemPocket implements AutoLongIdGenerator {
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
-  @Id private Integer id;
+  @Id private Long id;
 
   /**
    * 内部名称
@@ -28,11 +28,13 @@ public class ItemPocket implements Serializable {
   /** 名称 */
   private String name;
 
-  public Integer getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  @Override
+  public void setId(Long id) {
     this.id = id;
   }
 

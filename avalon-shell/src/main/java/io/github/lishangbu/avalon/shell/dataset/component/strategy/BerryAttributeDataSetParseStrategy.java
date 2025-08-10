@@ -27,7 +27,7 @@ public class BerryAttributeDataSetParseStrategy implements BasicDataSetParseStra
   public Object convertToEntity(Object singleResource) {
     if (singleResource instanceof io.github.lishangbu.avalon.pokeapi.model.berry.Berry berryData) {
       Berry berry = new Berry();
-      berry.setId(berryData.id());
+      berry.setId(berryData.id().longValue());
       berry.setInternalName(berryData.name());
       // TODO ITEM还没有完成，先取返回的英文名顶一下
       berry.setName(berryData.name());

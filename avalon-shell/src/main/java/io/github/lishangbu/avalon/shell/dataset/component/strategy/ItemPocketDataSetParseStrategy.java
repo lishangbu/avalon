@@ -19,7 +19,7 @@ public class ItemPocketDataSetParseStrategy implements BasicDataSetParseStrategy
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.item.ItemPocket itemPocketData) {
       ItemPocket itemPocket = new ItemPocket();
-      itemPocket.setId(itemPocketData.id());
+      itemPocket.setId(itemPocketData.id().longValue());
       itemPocket.setInternalName(itemPocketData.name());
       LocalizationUtils.getLocalizationName(itemPocketData.names())
           .ifPresentOrElse(

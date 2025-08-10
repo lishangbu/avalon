@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.auth.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.lishangbu.avalon.auth.configuration.AuthRepositoryTestEnvironmentConfiguration;
 import io.github.lishangbu.avalon.auth.entity.Role;
@@ -17,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author lishangbu
  * @since 2025/4/11
  */
+// @SpringBootTest
 @DataJdbcTest
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @ContextConfiguration(classes = AuthRepositoryTestEnvironmentConfiguration.class)
@@ -36,10 +36,10 @@ class RoleRepositoryTest {
   @Transactional(rollbackFor = Exception.class)
   void testSave() {
     Role role = new Role();
-    role.setId(2);
     role.setCode("ROLE_TEST2");
     jdbcAggregateTemplate.insert(role);
-    assertEquals(2, role.getId());
-    assertEquals(2, roleRepository.count());
+    assertNotNull(role.getId());
+    assertInstanceOf(Long.class, role.getId());
+    assertEquals(2L, roleRepository.count());
   }
 }

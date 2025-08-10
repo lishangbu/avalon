@@ -19,7 +19,7 @@ public class BerryFirmnessDataSetParseStrategy implements BasicDataSetParseStrat
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness berryFirmnessData) {
       BerryFirmness berryFirmness = new BerryFirmness();
-      berryFirmness.setId(berryFirmnessData.id());
+      berryFirmness.setId(berryFirmnessData.id().longValue());
       berryFirmness.setInternalName(berryFirmnessData.name());
       LocalizationUtils.getLocalizationName(berryFirmnessData.names())
           .ifPresentOrElse(

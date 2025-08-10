@@ -19,7 +19,7 @@ public class MoveTargetDatasetParseStrategy implements BasicDataSetParseStrategy
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.move.MoveTarget moveTargetData) {
       MoveTarget moveTarget = new MoveTarget();
-      moveTarget.setId(moveTargetData.id());
+      moveTarget.setId(moveTargetData.id().longValue());
       moveTarget.setInternalName(moveTargetData.name());
       LocalizationUtils.getLocalizationName(moveTargetData.names())
           .ifPresentOrElse(

@@ -22,7 +22,7 @@ import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
  * @param needsOverworldRain 是否需要在主世界下雨才能引起进化
  * @param partySpecies 玩家队伍中必须拥有的宝可梦物种，以便进化宝可梦物种进化为此宝可梦物种
  * @param partyType 玩家在进化触发事件中队伍中必须拥有的宝可梦类型{@link Type}，以便进化宝可梦物种进化为此宝可梦物种
- * @param relativePhysicalStats 宝可梦的攻击与防御状态之间的必要关系。1表示攻击>防御，0表示攻击=防御，-1表示攻击<防御
+ * @param relativePhysicalStats 宝可梦的攻击与防御状态之间的必要关系。1表示攻击大于防御，0表示攻击等于防御，-1表示攻击小于防御
  * @param timeOfDay 所需的一天中的时间。白天或夜晚
  * @param tradeSpecies 必须交换的宝可梦物种
  * @param turnUpsideDown 此宝可梦升级时是否需要将3DS倒置

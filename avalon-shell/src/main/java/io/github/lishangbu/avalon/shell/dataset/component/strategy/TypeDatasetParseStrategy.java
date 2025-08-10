@@ -20,7 +20,7 @@ public class TypeDatasetParseStrategy implements BasicDataSetParseStrategy {
   public Object convertToEntity(Object singleResource) {
     if (singleResource instanceof io.github.lishangbu.avalon.pokeapi.model.pokemon.Type typeData) {
       Type type = new Type();
-      type.setId(typeData.id());
+      type.setId(typeData.id().longValue());
       type.setInternalName(typeData.name());
       Optional<Name> localizationName = LocalizationUtils.getLocalizationName(typeData.names());
       type.setName(localizationName.map(Name::name).orElse(type.getInternalName()));

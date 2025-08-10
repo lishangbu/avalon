@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TypeRepository
-    extends ListPagingAndSortingRepository<Type, Integer>, ListCrudRepository<Type, Integer> {
+    extends ListPagingAndSortingRepository<Type, Long>, ListCrudRepository<Type, Long> {
 
   /**
    * 根据属性名查找并返回对应的属性数据
