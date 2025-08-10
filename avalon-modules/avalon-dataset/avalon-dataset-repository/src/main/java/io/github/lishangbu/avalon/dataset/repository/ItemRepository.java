@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/8
  */
 @Repository
-public interface ItemRepository extends ListPagingAndSortingRepository<Item, Integer> {
+public interface ItemRepository extends ListPagingAndSortingRepository<Item, Long> {
   /**
    * 根据分类查找并返回对应的道具
    *

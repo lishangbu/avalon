@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AbilityRepository
-    extends ListCrudRepository<Ability, Integer>,
-        ListPagingAndSortingRepository<Ability, Integer> {}
+    extends ListCrudRepository<Ability, Long>, ListPagingAndSortingRepository<Ability, Long> {}

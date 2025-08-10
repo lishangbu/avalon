@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import java.io.Serializable;
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -11,9 +11,9 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/6/9
  */
 @Table
-public class MoveDamageClass implements Serializable {
+public class MoveDamageClass implements AutoLongIdGenerator {
   /** ID */
-  @Id private Integer id;
+  @Id private Long id;
 
   /** 名称 */
   private String name;
@@ -24,11 +24,13 @@ public class MoveDamageClass implements Serializable {
   /** 描述 */
   private String description;
 
-  public Integer getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  @Override
+  public void setId(Long id) {
     this.id = id;
   }
 

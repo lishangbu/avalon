@@ -21,7 +21,7 @@ public class MoveDamageClassDatasetParseStrategy implements BasicDataSetParseStr
         io.github.lishangbu.avalon.pokeapi.model.move.MoveDamageClass moveDamageClassData) {
 
       MoveDamageClass moveDamageClass = new MoveDamageClass();
-      moveDamageClass.setId(moveDamageClassData.id());
+      moveDamageClass.setId(moveDamageClassData.id().longValue());
       moveDamageClass.setInternalName(moveDamageClassData.name());
       LocalizationUtils.getLocalizationName(moveDamageClassData.names())
           .ifPresent(

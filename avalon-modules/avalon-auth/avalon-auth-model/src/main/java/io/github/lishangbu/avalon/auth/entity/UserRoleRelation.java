@@ -16,7 +16,7 @@ public class UserRoleRelation implements Serializable {
 
   private Long userId;
 
-  private Integer roleId;
+  private Long roleId;
 
   public Long getUserId() {
     return userId;
@@ -26,11 +26,11 @@ public class UserRoleRelation implements Serializable {
     this.userId = userId;
   }
 
-  public Integer getRoleId() {
+  public Long getRoleId() {
     return roleId;
   }
 
-  public void setRoleId(Integer roleId) {
+  public void setRoleId(Long roleId) {
     this.roleId = roleId;
   }
 }

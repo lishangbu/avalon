@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -9,9 +11,9 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/5/21
  */
 @Table
-public class Berry {
+public class Berry implements AutoLongIdGenerator {
   /** ID */
-  private Integer id;
+  @Id private Long id;
 
   /**
    * 树果名称
@@ -51,11 +53,13 @@ public class Berry {
   /** 搭配该树果使用“自然之恩”招式时的威力 */
   private Integer naturalGiftPower;
 
-  public Integer getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  @Override
+  public void setId(Long id) {
     this.id = id;
   }
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/9
  */
 @Repository
-public interface MoveTargetRepository extends ListPagingAndSortingRepository<MoveTarget, Integer> {
+public interface MoveTargetRepository extends ListPagingAndSortingRepository<MoveTarget, Long> {
   /**
    * 根据内部名称查找并返回对应的战斗目标数据
    *

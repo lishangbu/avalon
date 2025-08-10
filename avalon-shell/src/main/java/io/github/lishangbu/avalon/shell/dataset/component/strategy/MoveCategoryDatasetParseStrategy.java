@@ -20,7 +20,7 @@ public class MoveCategoryDatasetParseStrategy implements BasicDataSetParseStrate
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.move.MoveCategory moveCategoryData) {
       MoveCategory moveCategory = new MoveCategory();
-      moveCategory.setId(moveCategoryData.id());
+      moveCategory.setId(moveCategoryData.id().longValue());
       moveCategory.setInternalName(moveCategoryData.name());
       moveCategory.setName(moveCategoryData.name());
       LocalizationUtils.getLocalizationDescription(moveCategoryData.descriptions())

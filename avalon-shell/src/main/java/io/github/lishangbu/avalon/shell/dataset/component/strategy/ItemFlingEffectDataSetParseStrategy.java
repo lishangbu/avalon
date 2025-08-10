@@ -20,7 +20,7 @@ public class ItemFlingEffectDataSetParseStrategy implements BasicDataSetParseStr
         instanceof
         io.github.lishangbu.avalon.pokeapi.model.item.ItemFlingEffect itemFlingEffectData) {
       ItemFlingEffect itemFlingEffect = new ItemFlingEffect();
-      itemFlingEffect.setId(itemFlingEffectData.id());
+      itemFlingEffect.setId(itemFlingEffectData.id().longValue());
       itemFlingEffect.setInternalName(itemFlingEffectData.name());
       itemFlingEffect.setName(itemFlingEffectData.name());
       LocalizationUtils.getLocalizationEffect(itemFlingEffectData.effectEntries())

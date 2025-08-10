@@ -25,7 +25,7 @@ public class ItemCategoryDataSetParseStrategy implements BasicDataSetParseStrate
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory itemCategoryData) {
       ItemCategory itemCategory = new ItemCategory();
-      itemCategory.setId(itemCategoryData.id());
+      itemCategory.setId(itemCategoryData.id().longValue());
       itemCategory.setInternalName(itemCategoryData.name());
       itemPocketRepository
           .findByInternalName(itemCategoryData.pocket().name())

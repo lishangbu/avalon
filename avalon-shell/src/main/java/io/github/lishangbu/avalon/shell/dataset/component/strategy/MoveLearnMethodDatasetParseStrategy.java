@@ -20,7 +20,7 @@ public class MoveLearnMethodDatasetParseStrategy implements BasicDataSetParseStr
         instanceof
         io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod moveLearnMethodData) {
       MoveLearnMethod moveLearnMethod = new MoveLearnMethod();
-      moveLearnMethod.setId(moveLearnMethodData.id());
+      moveLearnMethod.setId(moveLearnMethodData.id().longValue());
       moveLearnMethod.setInternalName(moveLearnMethodData.name());
       LocalizationUtils.getLocalizationName(moveLearnMethodData.names())
           .ifPresent(

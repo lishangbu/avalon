@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemFlingEffectRepository
-    extends ListPagingAndSortingRepository<ItemFlingEffect, Integer> {
+    extends ListPagingAndSortingRepository<ItemFlingEffect, Long> {
   /**
    * 根据分类查找并返回对应的道具投掷效果
    *

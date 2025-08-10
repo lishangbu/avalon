@@ -12,4 +12,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TypeDamageRelationRepository
-    extends ListPagingAndSortingRepository<TypeDamageRelation, Integer> {}
+    extends ListPagingAndSortingRepository<TypeDamageRelation, Long> {}

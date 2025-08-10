@@ -40,7 +40,7 @@ public class ItemDataSetParseStrategy implements BasicDataSetParseStrategy {
   public Object convertToEntity(Object singleResource) {
     if (singleResource instanceof io.github.lishangbu.avalon.pokeapi.model.item.Item itemData) {
       Item item = new Item();
-      item.setId(itemData.id());
+      item.setId(itemData.id().longValue());
       item.setInternalName(itemData.name());
       LocalizationUtils.getLocalizationName(itemData.names())
           .ifPresentOrElse(

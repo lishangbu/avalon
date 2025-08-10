@@ -32,7 +32,7 @@ class MoveCategoryRepositoryTest {
 
   @Test
   void testFindById() {
-    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findById(0);
+    Optional<MoveCategory> moveCategoryOptional = moveCategoryRepository.findById(0L);
     assertTrue(moveCategoryOptional.isPresent());
     assertEquals("damage", moveCategoryOptional.get().getName());
     assertEquals("Inflicts damage", moveCategoryOptional.get().getDescription());

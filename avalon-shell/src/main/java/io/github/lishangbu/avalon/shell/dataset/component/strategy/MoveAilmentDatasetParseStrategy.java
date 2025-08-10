@@ -19,7 +19,7 @@ public class MoveAilmentDatasetParseStrategy implements BasicDataSetParseStrateg
     if (singleResource
         instanceof io.github.lishangbu.avalon.pokeapi.model.move.MoveAilment moveAilmentData) {
       MoveAilment moveAilment = new MoveAilment();
-      moveAilment.setId(moveAilmentData.id());
+      moveAilment.setId(moveAilmentData.id().longValue());
       moveAilment.setInternalName(moveAilmentData.name());
       LocalizationUtils.getLocalizationName(moveAilmentData.names())
           .ifPresent(

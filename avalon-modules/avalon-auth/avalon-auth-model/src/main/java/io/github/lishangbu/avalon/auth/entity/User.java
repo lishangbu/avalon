@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.auth.entity;
 
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import java.io.Serializable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/3/30
  */
 @Table
-public class User implements Serializable {
+public class User implements AutoLongIdGenerator {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */

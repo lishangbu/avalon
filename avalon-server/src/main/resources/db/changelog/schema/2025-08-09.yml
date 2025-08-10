@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -56,7 +56,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -131,7 +131,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -157,7 +157,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -183,7 +183,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -217,7 +217,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -274,7 +274,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -330,7 +330,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -363,7 +363,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -396,7 +396,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -438,7 +438,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -582,7 +582,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -608,7 +608,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -641,7 +641,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -674,7 +674,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -707,7 +707,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -740,7 +740,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -787,7 +787,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -818,7 +818,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BerryFirmnessRepository
-    extends ListPagingAndSortingRepository<BerryFirmness, Integer> {
+    extends ListPagingAndSortingRepository<BerryFirmness, Long> {
   /**
    * 根据内部名称查找并返回对应的树果硬度数据
    *

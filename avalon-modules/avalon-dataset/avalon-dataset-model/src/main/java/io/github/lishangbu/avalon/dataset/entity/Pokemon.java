@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import java.io.Serializable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -12,11 +12,11 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/4/21
  */
 @Table
-public class Pokemon implements Serializable {
+public class Pokemon implements AutoLongIdGenerator {
   @Serial private static final long serialVersionUID = 1L;
 
   /** ID */
-  @Id private Integer id;
+  @Id private Long id;
 
   /**
    * 名称
@@ -38,11 +38,13 @@ public class Pokemon implements Serializable {
   /** 体重，数字每增加1，体重增加0.1kg */
   private Integer weight;
 
-  public Integer getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  @Override
+  public void setId(Long id) {
     this.id = id;
   }
 

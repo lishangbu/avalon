@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveDamageClassRepository
-    extends ListPagingAndSortingRepository<MoveDamageClass, Integer> {
+    extends ListPagingAndSortingRepository<MoveDamageClass, Long> {
   /**
    * 根据内部名称查找并返回对应的招式伤害类别
    *

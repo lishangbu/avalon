@@ -12,8 +12,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/6/9
  */
 @Repository
-public interface MoveAilmentRepository
-    extends ListPagingAndSortingRepository<MoveAilment, Integer> {
+public interface MoveAilmentRepository extends ListPagingAndSortingRepository<MoveAilment, Long> {
   /**
    * 根据内部名称查找并返回招式导致的状态异常
    *

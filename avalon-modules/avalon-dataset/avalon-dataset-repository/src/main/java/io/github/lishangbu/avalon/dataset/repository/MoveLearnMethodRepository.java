@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveLearnMethodRepository
-    extends ListPagingAndSortingRepository<MoveLearnMethod, Integer> {
+    extends ListPagingAndSortingRepository<MoveLearnMethod, Long> {
   /**
    * 根据内部名称查找并返回对应的招式学习方法数据
    *

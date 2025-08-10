@@ -14,8 +14,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveCategoryRepository
-    extends ListCrudRepository<MoveCategory, Integer>,
-        ListPagingAndSortingRepository<MoveCategory, Integer> {
+    extends ListCrudRepository<MoveCategory, Long>,
+        ListPagingAndSortingRepository<MoveCategory, Long> {
 
   /**
    * 根据分类查找并返回对应的招式分类数据
