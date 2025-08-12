@@ -11,9 +11,9 @@ destination="$ROOT_DIR/avalon-extensions/avalon-ip2location-spring-boot-starter/
 # 镜像站点
 mirrorSite='https://github.proxy.class3.fun'
 # 数据文件版本
-dbVersion='2025.04.01'
+dbVersion='2025.06.01'
 # 数据文件名
-dbFileNames=('IP2LOCATION-LITE-DB11.BIN' 'IP2LOCATION-LITE-DB11.IPV6.BIN')
+dbFileNames=('IP2LOCATION-LITE-DB11.IPV6.BIN')
 
 urlPrefix="$mirrorSite/https://github.com/renfei/ip2location/releases/download/$dbVersion"
 
