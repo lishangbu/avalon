@@ -5,6 +5,7 @@ import static io.github.lishangbu.avalon.oauth2.common.constant.SecurityBeanDefi
 
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationConverter;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationProvider;
+import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import io.github.lishangbu.avalon.oauth2.common.web.authentication.DefaultAuthenticationEntryPoint;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,6 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationConverter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * 自动装配认证服务器
@@ -44,7 +44,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @RequiredArgsConstructor
 public class AuthorizationServerAutoConfiguration {
 
-  private final HandlerExceptionResolver handlerExceptionResolver;
+  private final Oauth2Properties oauth2Properties;
 
   @Bean
   @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
@@ -85,7 +85,7 @@ public class AuthorizationServerAutoConfiguration {
             .exceptionHandling(
                 exceptions -> {
                   exceptions.defaultAuthenticationEntryPointFor(
-                      new DefaultAuthenticationEntryPoint(handlerExceptionResolver),
+                      new DefaultAuthenticationEntryPoint(),
                       new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON, MediaType.TEXT_HTML));
                 })
             .build();

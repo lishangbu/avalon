@@ -6,18 +6,16 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
-import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 /**
- * Reference模式下，自定义refreshToken生成器
+ * 自定义refreshToken生成器 不管任何模式都会返回UUID风格的refreshToken
  *
  * @author lishangbu
  * @since 2025/8/22
  */
-public class ReferenceOAuth2RefreshTokenGenerator
-    implements OAuth2TokenGenerator<OAuth2RefreshToken> {
+public class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<OAuth2RefreshToken> {
 
   private final StringKeyGenerator refreshTokenGenerator = new UuidKeyGenerator();
 
@@ -25,9 +23,7 @@ public class ReferenceOAuth2RefreshTokenGenerator
   @Override
   public OAuth2RefreshToken generate(OAuth2TokenContext context) {
     // @formatter:off
-    if (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())
-        || !OAuth2TokenFormat.REFERENCE.equals(
-            context.getRegisteredClient().getTokenSettings().getAccessTokenFormat())) {
+    if (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {
       return null;
     }
     // @formatter:on

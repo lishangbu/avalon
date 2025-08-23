@@ -1,5 +1,8 @@
 package io.github.lishangbu.avalon.authorization.service;
 
+import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.CAFFEINE_CACHE_BEAN_NAME;
+import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.OAUTH_2_AUTHORIZATION_CACHE;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.*;
@@ -39,6 +45,7 @@ import org.springframework.util.StringUtils;
  * @since 2025/8/17
  */
 @Service
+@CacheConfig(cacheManager = CAFFEINE_CACHE_BEAN_NAME, value = OAUTH_2_AUTHORIZATION_CACHE)
 public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationService {
   private final Oauth2AuthorizationMapper oauth2AuthorizationMapper;
   private final RegisteredClientRepository registeredClientRepository;
@@ -59,6 +66,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
     this.objectMapper.addMixIn(UserInfo.class, UserInfoMixin.class);
   }
 
+  @CacheEvict(allEntries = true)
   @Override
   @Transactional(rollbackFor = Exception.class)
   public void save(OAuth2Authorization authorization) {
@@ -73,6 +81,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
 
   @Override
   @Transactional(rollbackFor = Exception.class)
+  @CacheEvict(allEntries = true)
   public void remove(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
     this.oauth2AuthorizationMapper.deleteById(authorization.getId());
@@ -85,6 +94,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   }
 
   @Override
+  @Cacheable(key = "#token", unless = "#result == null")
   public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
     Assert.hasText(token, "token cannot be empty");
 

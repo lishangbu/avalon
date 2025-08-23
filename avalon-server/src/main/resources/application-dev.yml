@@ -6,7 +6,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
 mybatis:
   configuration:
-    # 启用下划线命名与驼峰命名之间的自动转换
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  mapper-locations: classpath*:mapper/*.xml
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+logging:
+  level:
+    root: info
+    io.github.lishangbu: debug
