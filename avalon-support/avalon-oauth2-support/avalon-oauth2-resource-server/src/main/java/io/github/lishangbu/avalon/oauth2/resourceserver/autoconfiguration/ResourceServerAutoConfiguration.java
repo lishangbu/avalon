@@ -20,7 +20,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * 自动装配认证服务器
@@ -34,8 +33,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 public class ResourceServerAutoConfiguration {
-
-  private final HandlerExceptionResolver handlerExceptionResolver;
 
   private final Oauth2Properties oauth2Properties;
 
@@ -54,7 +51,7 @@ public class ResourceServerAutoConfiguration {
         .exceptionHandling(
             exceptions -> {
               exceptions.defaultAuthenticationEntryPointFor(
-                  new DefaultAuthenticationEntryPoint(handlerExceptionResolver),
+                  new DefaultAuthenticationEntryPoint(),
                   new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON, MediaType.TEXT_HTML));
             });
     ;
@@ -63,7 +60,7 @@ public class ResourceServerAutoConfiguration {
         oauth2ResourceServer -> {
           oauth2ResourceServer
               .opaqueToken(Customizer.withDefaults())
-              .accessDeniedHandler(new DefaultAccessDeniedHandler(handlerExceptionResolver));
+              .accessDeniedHandler(new DefaultAccessDeniedHandler());
         });
 
     return http.build();

@@ -10,6 +10,10 @@
   <artifactId>avalon-authorization</artifactId>
   <dependencies>
     <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.github.lishangbu</groupId>
       <artifactId>avalon-mybatis-support</artifactId>
     </dependency>
@@ -21,6 +25,10 @@
       <groupId>org.mybatis.spring.boot</groupId>
       <artifactId>mybatis-spring-boot-starter</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
     <!-- H2驱动 -->
     <dependency>

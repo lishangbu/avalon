@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration;
 
+import io.github.lishangbu.avalon.oauth2.authorizationserver.token.OAuth2RefreshTokenGenerator;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.token.ReferenceOAuth2AccessTokenGenerator;
-import io.github.lishangbu.avalon.oauth2.authorizationserver.token.ReferenceOAuth2RefreshTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,7 @@ public class OAuth2TokenGeneratorAutoConfiguration {
         // reference的token生成器
         new ReferenceOAuth2AccessTokenGenerator(),
         // reference的refreshToken生成器
-        new ReferenceOAuth2RefreshTokenGenerator(),
+        new OAuth2RefreshTokenGenerator(),
         new JwtGenerator(jwtEncoder));
   }
 }
