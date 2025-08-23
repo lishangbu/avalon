@@ -1,49 +1,25 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 树果硬度
+ * 树果硬度(BerryFirmness)实体类
  *
  * @author lishangbu
- * @since 2025/5/22
+ * @since 2025/08/20
  */
-@Table
-public class BerryFirmness implements AutoLongIdGenerator {
-  /** ID */
-  @Id private Long id;
+@Data
+public class BerryFirmness implements Serializable {
+  @Serial private static final long serialVersionUID = 379274096201847612L;
 
-  /** 树果硬度名称 */
-  private String name;
+  /** 主键 */
+  private Long id;
 
   /** 内部名称 */
   private String internalName;
 
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getInternalName() {
-    return internalName;
-  }
-
-  public void setInternalName(String internalName) {
-    this.internalName = internalName;
-  }
+  /** 树果硬度名称 */
+  private String name;
 }

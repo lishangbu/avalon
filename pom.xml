@@ -33,7 +33,6 @@
     <module>avalon-modules</module>
     <module>avalon-parent</module>
     <module>avalon-server</module>
-    <module>avalon-shell</module>
     <module>avalon-support</module>
   </modules>
   <scm>

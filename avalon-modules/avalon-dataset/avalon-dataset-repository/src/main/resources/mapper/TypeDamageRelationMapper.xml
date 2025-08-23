@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.TypeDamageRelationMapper">
+  <resultMap id="typeDamageRelationResultMap" type="io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation">
+    <!--@Table type_damage_relation-->
+    <id column="attacker_type_internal_name" property="attackerTypeInternalName"/>
+    <result column="defender_type_internal_name" property="defenderTypeInternalName"/>
+    <result column="damage_rate" property="damageRate"/>
+  </resultMap>
+
+  <sql id="typeDamageRelationColumnList">
+    attacker_type_internal_name,
+    defender_type_internal_name,
+    damage_rate
+  </sql>
+
+  <!--通过attackerTypeInternalName查询单条属性伤害关系数据-->
+  <select id="selectById" resultMap="typeDamageRelationResultMap">
+    select
+    <include refid="typeDamageRelationColumnList"/>
+    from type_damage_relation
+    where attacker_type_internal_name = #{attackerTypeInternalName}
+  </select>
+
+  <!--新增属性伤害关系-->
+  <insert id="insert" keyProperty="attackerTypeInternalName" useGeneratedKeys="true">
+    insert into type_damage_relation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="attackerTypeInternalName != null and attackerTypeInternalName != ''">
+        attacker_type_internal_name,
+      </if>
+      <if test="defenderTypeInternalName != null and defenderTypeInternalName != ''">
+        defender_type_internal_name,
+      </if>
+      <if test="damageRate != null">
+        damage_rate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="attackerTypeInternalName != null and attackerTypeInternalName != ''">
+        #{attackerTypeInternalName},
+      </if>
+      <if test="defenderTypeInternalName != null and defenderTypeInternalName != ''">
+        #{defenderTypeInternalName},
+      </if>
+      <if test="damageRate != null">
+        #{damageRate},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过attackerTypeInternalName修改属性伤害关系-->
+  <update id="updateById">
+    update type_damage_relation
+    <set>
+      <if test="damageRate != null">
+        damage_rate = #{damageRate},
+      </if>
+    </set>
+    where attacker_type_internal_name = #{attackerTypeInternalName}
+  </update>
+
+  <!--通过attackerTypeInternalName删除属性伤害关系-->
+  <delete id="deleteById">
+    delete from type_damage_relation where attacker_type_internal_name = #{attackerTypeInternalName}
+  </delete>
+</mapper>
+

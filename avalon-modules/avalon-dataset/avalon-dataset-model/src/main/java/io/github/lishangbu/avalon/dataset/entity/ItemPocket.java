@@ -1,56 +1,25 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 道具类别
+ * 道具口袋(ItemPocket)实体类
  *
  * @author lishangbu
- * @since 2025/6/8
+ * @since 2025/08/20
  */
-@Table
-public class ItemPocket implements AutoLongIdGenerator {
-  @Serial private static final long serialVersionUID = 1L;
+@Data
+public class ItemPocket implements Serializable {
+  @Serial private static final long serialVersionUID = -63868359363578424L;
 
-  /** ID */
-  @Id private Long id;
+  /** 主键 */
+  private Long id;
 
-  /**
-   * 内部名称
-   *
-   * <p>取百科中的分类数据
-   */
+  /** 内部名称 */
   private String internalName;
 
-  /** 名称 */
+  /** 道具口袋名称 */
   private String name;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getInternalName() {
-    return internalName;
-  }
-
-  public void setInternalName(String internalName) {
-    this.internalName = internalName;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 }

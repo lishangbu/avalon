@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -26,7 +27,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  * @since 2018/8/30 全局异常处理器
  */
 @RestControllerAdvice
-@Order
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class GlobalExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);

@@ -1,0 +1,873 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0
+      author: lishangbu
+      changes:
+        - createTable:
+            tableName: ability
+            remarks: '特性'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '名称'
+              - column:
+                  name: effect
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '特性效果'
+              - column:
+                  name: info
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '基本信息'
+              - column:
+                  name: text
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '文字介绍'
+        - createTable:
+            tableName: berry
+            remarks: '树果'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '名称'
+              - column:
+                  name: growth_time
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '生长到下一个阶段所需的时间(小时)'
+              - column:
+                  name: max_harvest
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '最大结果数'
+              - column:
+                  name: size
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '大小（毫米）'
+              - column:
+                  name: smoothness
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '光滑度'
+              - column:
+                  name: soil_dryness
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '生长时使土壤干燥的速度，数值越高土壤干燥越快'
+              - column:
+                  name: firmness_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: '树果的坚硬度(内部名称)'
+              - column:
+                  name: natural_gift_type_internal_name
+                  type: varchar(50)
+                  remarks: '搭配该树果使用“自然之恩”招式时继承的属性类型'
+              - column:
+                  name: natural_gift_power
+                  type: int
+                  remarks: '搭配该树果使用“自然之恩”招式时的威力'
+        - createTable:
+            tableName: berry_firmness
+            remarks: '树果硬度'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '树果硬度名称'
+        - createTable:
+            tableName: berry_flavor
+            remarks: '树果风味'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '树果风味名称'
+        - createTable:
+            tableName: egg_group
+            remarks: '蛋组'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '蛋组名称'
+              - column:
+                  name: text
+                  type: varchar(200)
+                  remarks: '描述文本'
+              - column:
+                  name: characteristics
+                  type: varchar(500)
+                  remarks: '蛋群整体特征'
+        - createTable:
+            tableName: item
+            remarks: '道具'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具名称'
+              - column:
+                  name: cost
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '在商店中的价格'
+              - column:
+                  name: fling_power
+                  type: int
+                  remarks: '使用此道具进行投掷行动时的威力'
+              - column:
+                  name: fling_effect_internal_name
+                  type: varchar(100)
+                  remarks: '使用此道具进行投掷行动时的效果(内部名称)'
+              - column:
+                  name: category_internal_name
+                  type: varchar(100)
+                  remarks: '此道具所属的类别(内部名称)'
+              - column:
+                  name: short_effect
+                  type: varchar(500)
+                  remarks: '简要效果描述'
+              - column:
+                  name: effect
+                  type: varchar(1000)
+                  remarks: '简要效果描述'
+              - column:
+                  name: text
+                  type: varchar(1000)
+                  remarks: '道具文本'
+        - createTable:
+            tableName: item_attribute
+            remarks: '道具属性'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具属性名称'
+              - column:
+                  name: description
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具属性描述'
+        - createTable:
+            tableName: item_attribute_relation
+            remarks: '道具属性关系'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '道具ID'
+              - column:
+                  name: item_attribute_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '道具属性ID'
+        - createTable:
+            tableName: item_category
+            remarks: '道具类别'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具类别名称'
+              - column:
+                  name: item_pocket_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '该类别道具所属的口袋'
+        - createTable:
+            tableName: item_fling_effect
+            remarks: '道具"投掷"效果'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具投掷效果名称'
+              - column:
+                  name: effect
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具效果'
+        - createTable:
+            tableName: item_pocket
+            remarks: '道具口袋'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具口袋名称'
+        - createTable:
+            tableName: machine
+            remarks: '技能学习机器'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: item_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '道具ID'
+              - column:
+                  name: move_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '招式ID'
+        - createTable:
+            tableName: move
+            remarks: '招式'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '道具口袋名称'
+              - column:
+                  name: type_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '属性内部名称'
+              - column:
+                  name: accuracy
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '命中'
+              - column:
+                  name: effect_chance
+                  type: int
+                  remarks: '此招式效果发生的概率百分比值'
+              - column:
+                  name: pp
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '招式点数'
+              - column:
+                  name: priority
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '-8到8之间的值。设置战斗中招式执行的顺序'
+              - column:
+                  name: power
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '威力'
+              - column:
+                  name: damage_class_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '此招式对目标造成的伤害类型(内部名称)'
+              - column:
+                  name: target_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '接收攻击效果的目标类型(内部名称)'
+              - column:
+                  name: text
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '文本描述'
+              - column:
+                  name: short_effect
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式简要效果描述'
+              - column:
+                  name: effect
+                  type: varchar(4000)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式效果描述'
+              - column:
+                  name: min_hits
+                  type: int
+                  remarks: '此招式持续生效的最小回合数。如果总是只持续一回合，则为空'
+              - column:
+                  name: max_turns
+                  type: int
+                  remarks: '此招式持续生效的最小回合数。如果总是只持续一回合，则为空'
+              - column:
+                  name: drain
+                  type: int
+                  remarks: 'HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示'
+              - column:
+                  name: healing
+                  type: int
+                  remarks: '攻击方宝可梦恢复的HP量，以其最大HP的百分比表示'
+              - column:
+                  name: crit_rate
+                  type: int
+                  remarks: '暴击率加成'
+              - column:
+                  name: ailment_chance
+                  type: int
+                  remarks: '此攻击导致状态异常的可能性'
+              - column:
+                  name: flinch_chance
+                  type: int
+                  remarks: '此攻击导致目标宝可梦畏缩的可能性'
+              - column:
+                  name: stat_chance
+                  type: int
+                  remarks: '此攻击导致目标宝可梦能力值变化的可能性'
+              - column:
+                  name: category_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: '招式分类(内部名称)'
+              - column:
+                  name: ailment_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  remarks: '招式导致的状态异常(内部名称)'
+        - createTable:
+            tableName: move_ailment
+            remarks: '招式导致的状态异常'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '招式导致的状态异常内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式导致的状态异常名称'
+        - createTable:
+            tableName: move_category
+            remarks: '招式分类'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '招式分类内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式分类名称'
+              - column:
+                  name: description
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式分类描述'
+        - createTable:
+            tableName: move_damage_class
+            remarks: '招式伤害类别'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '招式伤害类别内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式伤害类别名称'
+              - column:
+                  name: description
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式伤害类别描述'
+        - createTable:
+            tableName: move_learn_method
+            remarks: '学习招式的方法'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '学习招式的方法内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '学习招式的方法名称'
+              - column:
+                  name: description
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '学习招式的方法的描述'
+        - createTable:
+            tableName: move_target
+            remarks: '招式指向目标'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '招式指向目标内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式指向目标名称'
+              - column:
+                  name: description
+                  type: varchar(300)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '招式指向目标描述'
+        - createTable:
+            tableName: pokemon
+            remarks: '宝可梦'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '宝可梦内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '宝可梦名称'
+              - column:
+                  name: height
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '身高，单位为分米'
+              - column:
+                  name: weight
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '体重，数字每增加1，体重增加0.1kg'
+              - column:
+                  name: base_experience
+                  type: int
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+                  remarks: '基础经验值'
+        - createTable:
+            tableName: pokemon_type
+            remarks: '宝可梦属性'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: pokemon_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '宝可梦内部名称'
+              - column:
+                  name: type_internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '属性内部名称'
+              - column:
+                  name: sorting_order
+                  type: int
+                  constraints:
+                    nullable: false
+                  remarks: '属性内部排序'
+        - createTable:
+            tableName: type
+            remarks: '属性'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '属性内部名称'
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '属性名称'
+        - createTable:
+            tableName: type_damage_relation
+            remarks: '属性伤害关系'
+            columns:
+              - column:
+                  name: attacker_type_internal_name
+                  type: varchar(100)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '攻击者属性(内部名称)'
+              - column:
+                  name: defender_type_internal_name
+                  type: varchar(100)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '防御者属性(内部名称)'
+              - column:
+                  name: damage_rate
+                  type: float
+                  constraints:
+                    nullable: false
+                  remarks: '伤害倍率'

@@ -1,0 +1,14 @@
+##following code can be generated use MybatisCodeHelperPro plugin mybatis generator mingrate to template generate.
+##copy group for different project.
+#set($javamodelSrcFolder="${projectPath}/avalon-modules/avalon-dataset/avalon-dataset-model/src/main/java")
+#set($modelPackageName="io.github.lishangbu.avalon.dataset.entity")
+#set($mapperSrcFolder="${projectPath}/avalon-modules/avalon-dataset/avalon-dataset-repository/src/main/java")
+#set($mapperPackageName="io.github.lishangbu.avalon.dataset.mapper")
+#set($mapperXmlFolder="${projectPath}/avalon-modules/avalon-dataset/avalon-dataset-repository/src/main/resources")
+#set($mapperXmlPackage="mapper")
+#set($useLombok=true)
+#set($useSwagger=false)
+#set($useOpenApi=false)
+#set($addSchemaName=false)
+#set($mapperSuffix="Mapper")
+#set($daoSuffix="Mapper")

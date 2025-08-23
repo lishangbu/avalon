@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.authorization.mapper.Oauth2AuthorizationMapper">
+  <resultMap id="oauth2AuthorizationResultMap"
+             type="io.github.lishangbu.avalon.authorization.entity.Oauth2Authorization">
+    <!--@Table oauth2_authorization-->
+    <id column="id" property="id"/>
+    <result column="registered_client_id" property="registeredClientId"/>
+    <result column="principal_name" property="principalName"/>
+    <result column="authorization_grant_type" property="authorizationGrantType"/>
+    <result column="authorized_scopes" property="authorizedScopes"/>
+    <result column="attributes" property="attributes"/>
+    <result column="state" property="state"/>
+    <result column="authorization_code_value" property="authorizationCodeValue"/>
+    <result column="authorization_code_issued_at" property="authorizationCodeIssuedAt"/>
+    <result column="authorization_code_expires_at" property="authorizationCodeExpiresAt"/>
+    <result column="authorization_code_metadata" property="authorizationCodeMetadata"/>
+    <result column="access_token_value" property="accessTokenValue"/>
+    <result column="access_token_issued_at" property="accessTokenIssuedAt"/>
+    <result column="access_token_expires_at" property="accessTokenExpiresAt"/>
+    <result column="access_token_metadata" property="accessTokenMetadata"/>
+    <result column="access_token_scopes" property="accessTokenScopes"/>
+    <result column="oidc_id_token_value" property="oidcIdTokenValue"/>
+    <result column="oidc_id_token_issued_at" property="oidcIdTokenIssuedAt"/>
+    <result column="oidc_id_token_claims" property="oidcIdTokenClaims"/>
+    <result column="oidc_id_token_expires_at" property="oidcIdTokenExpiresAt"/>
+    <result column="oidc_id_token_metadata" property="oidcIdTokenMetadata"/>
+    <result column="refresh_token_value" property="refreshTokenValue"/>
+    <result column="refresh_token_issued_at" property="refreshTokenIssuedAt"/>
+    <result column="refresh_token_expires_at" property="refreshTokenExpiresAt"/>
+    <result column="refresh_token_metadata" property="refreshTokenMetadata"/>
+    <result column="user_code_value" property="userCodeValue"/>
+    <result column="user_code_issued_at" property="userCodeIssuedAt"/>
+    <result column="user_code_expires_at" property="userCodeExpiresAt"/>
+    <result column="user_code_metadata" property="userCodeMetadata"/>
+    <result column="device_code_value" property="deviceCodeValue"/>
+    <result column="device_code_issued_at" property="deviceCodeIssuedAt"/>
+    <result column="device_code_expires_at" property="deviceCodeExpiresAt"/>
+    <result column="device_code_metadata" property="deviceCodeMetadata"/>
+  </resultMap>
+
+  <sql id="oauth2AuthorizationColumnList">
+    id,
+    registered_client_id,
+    principal_name,
+    authorization_grant_type,
+    authorized_scopes,
+    attributes,
+    state,
+    authorization_code_value,
+
+    authorization_code_issued_at,
+    authorization_code_expires_at,
+    authorization_code_metadata,
+    access_token_value,
+    access_token_issued_at,
+    access_token_expires_at,
+    oidc_id_token_claims,
+    access_token_metadata,
+
+    access_token_scopes,
+    oidc_id_token_value,
+    oidc_id_token_issued_at,
+    oidc_id_token_expires_at,
+    oidc_id_token_metadata,
+    refresh_token_value,
+    refresh_token_issued_at,
+    refresh_token_expires_at,
+
+    refresh_token_metadata,
+    user_code_value,
+    user_code_issued_at,
+    user_code_expires_at,
+    user_code_metadata,
+    device_code_value,
+    device_code_issued_at,
+    device_code_expires_at,
+
+    device_code_metadata
+  </sql>
+
+  <!--通过id查询单条用户认证信息表数据-->
+  <select id="selectById" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where id = #{id}
+  </select>
+
+  <!--新增用户认证信息表-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into oauth2_authorization
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="registeredClientId != null and registeredClientId != ''">
+        registered_client_id,
+      </if>
+      <if test="principalName != null and principalName != ''">
+        principal_name,
+      </if>
+      <if test="authorizationGrantType != null and authorizationGrantType != ''">
+        authorization_grant_type,
+      </if>
+      <if test="authorizedScopes != null and authorizedScopes != ''">
+        authorized_scopes,
+      </if>
+      <if test="attributes != null">
+        attributes,
+      </if>
+      <if test="state != null and state != ''">
+        state,
+      </if>
+      <if test="authorizationCodeValue != null">
+        authorization_code_value,
+      </if>
+      <if test="authorizationCodeIssuedAt != null">
+        authorization_code_issued_at,
+      </if>
+      <if test="authorizationCodeExpiresAt != null">
+        authorization_code_expires_at,
+      </if>
+      <if test="authorizationCodeMetadata != null">
+        authorization_code_metadata,
+      </if>
+      <if test="accessTokenValue != null">
+        access_token_value,
+      </if>
+      <if test="accessTokenIssuedAt != null">
+        access_token_issued_at,
+      </if>
+      <if test="accessTokenExpiresAt != null">
+        access_token_expires_at,
+      </if>
+      <if test="accessTokenMetadata != null">
+        access_token_metadata,
+      </if>
+      <if test="accessTokenScopes != null and accessTokenScopes != ''">
+        access_token_scopes,
+      </if>
+      <if test="oidcIdTokenValue != null">
+        oidc_id_token_value,
+      </if>
+      <if test="oidcIdTokenIssuedAt != null">
+        oidc_id_token_issued_at,
+      </if>
+      <if test="oidcIdTokenExpiresAt != null">
+        oidc_id_token_expires_at,
+      </if>
+      <if test="oidcIdTokenMetadata != null">
+        oidc_id_token_metadata,
+      </if>
+      <if test="oidcIdTokenClaims != null">
+        oidc_id_token_claims,
+      </if>
+      <if test="refreshTokenValue != null">
+        refresh_token_value,
+      </if>
+      <if test="refreshTokenIssuedAt != null">
+        refresh_token_issued_at,
+      </if>
+      <if test="refreshTokenExpiresAt != null">
+        refresh_token_expires_at,
+      </if>
+      <if test="refreshTokenMetadata != null">
+        refresh_token_metadata,
+      </if>
+      <if test="userCodeValue != null">
+        user_code_value,
+      </if>
+      <if test="userCodeIssuedAt != null">
+        user_code_issued_at,
+      </if>
+      <if test="userCodeExpiresAt != null">
+        user_code_expires_at,
+      </if>
+      <if test="userCodeMetadata != null">
+        user_code_metadata,
+      </if>
+      <if test="deviceCodeValue != null">
+        device_code_value,
+      </if>
+      <if test="deviceCodeIssuedAt != null">
+        device_code_issued_at,
+      </if>
+      <if test="deviceCodeExpiresAt != null">
+        device_code_expires_at,
+      </if>
+      <if test="deviceCodeMetadata != null">
+        device_code_metadata,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="registeredClientId != null and registeredClientId != ''">
+        #{registeredClientId},
+      </if>
+      <if test="principalName != null and principalName != ''">
+        #{principalName},
+      </if>
+      <if test="authorizationGrantType != null and authorizationGrantType != ''">
+        #{authorizationGrantType},
+      </if>
+      <if test="authorizedScopes != null and authorizedScopes != ''">
+        #{authorizedScopes},
+      </if>
+      <if test="attributes != null">
+        (#{attributes}::jsonb),
+      </if>
+      <if test="state != null and state != ''">
+        #{state},
+      </if>
+      <if test="authorizationCodeValue != null">
+        #{authorizationCodeValue},
+      </if>
+      <if test="authorizationCodeIssuedAt != null">
+        #{authorizationCodeIssuedAt},
+      </if>
+      <if test="authorizationCodeExpiresAt != null">
+        #{authorizationCodeExpiresAt},
+      </if>
+      <if test="authorizationCodeMetadata != null">
+        #{authorizationCodeMetadata},
+      </if>
+      <if test="accessTokenValue != null">
+        #{accessTokenValue},
+      </if>
+      <if test="accessTokenIssuedAt != null">
+        #{accessTokenIssuedAt},
+      </if>
+      <if test="accessTokenExpiresAt != null">
+        #{accessTokenExpiresAt},
+      </if>
+      <if test="accessTokenMetadata != null">
+        (#{accessTokenMetadata}::jsonb),
+      </if>
+      <if test="accessTokenScopes != null and accessTokenScopes != ''">
+        #{accessTokenScopes},
+      </if>
+      <if test="oidcIdTokenValue != null">
+        #{oidcIdTokenValue},
+      </if>
+      <if test="oidcIdTokenIssuedAt != null">
+        #{oidcIdTokenIssuedAt},
+      </if>
+      <if test="oidcIdTokenExpiresAt != null">
+        #{oidcIdTokenExpiresAt},
+      </if>
+      <if test="oidcIdTokenMetadata != null">
+        (#{oidcIdTokenMetadata}::jsonb),
+      </if>
+      <if test="oidcIdTokenClaims != null">
+        (#{oidcIdTokenClaims}::jsonb),
+      </if>
+      <if test="refreshTokenValue != null">
+        #{refreshTokenValue},
+      </if>
+      <if test="refreshTokenIssuedAt != null">
+        #{refreshTokenIssuedAt},
+      </if>
+      <if test="refreshTokenExpiresAt != null">
+        #{refreshTokenExpiresAt},
+      </if>
+      <if test="refreshTokenMetadata != null">
+        (#{refreshTokenMetadata}::jsonb),
+      </if>
+      <if test="userCodeValue != null">
+        #{userCodeValue},
+      </if>
+      <if test="userCodeIssuedAt != null">
+        #{userCodeIssuedAt},
+      </if>
+      <if test="userCodeExpiresAt != null">
+        #{userCodeExpiresAt},
+      </if>
+      <if test="userCodeMetadata != null">
+        (#{userCodeMetadata}::jsonb),
+      </if>
+      <if test="deviceCodeValue != null">
+        #{deviceCodeValue},
+      </if>
+      <if test="deviceCodeIssuedAt != null">
+        #{deviceCodeIssuedAt},
+      </if>
+      <if test="deviceCodeExpiresAt != null">
+        #{deviceCodeExpiresAt},
+      </if>
+      <if test="deviceCodeMetadata != null">
+        (#{deviceCodeMetadata}::jsonb),
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改用户认证信息表-->
+  <update id="updateById">
+    update oauth2_authorization
+    <set>
+      <if test="registeredClientId != null and registeredClientId != ''">
+        registered_client_id = #{registeredClientId},
+      </if>
+      <if test="principalName != null and principalName != ''">
+        principal_name = #{principalName},
+      </if>
+      <if test="authorizationGrantType != null and authorizationGrantType != ''">
+        authorization_grant_type = #{authorizationGrantType},
+      </if>
+      <if test="authorizedScopes != null and authorizedScopes != ''">
+        authorized_scopes = #{authorizedScopes},
+      </if>
+      <if test="attributes != null">
+        attributes = (#{attributes}::jsonb),
+      </if>
+      <if test="state != null and state != ''">
+        state = #{state},
+      </if>
+      <if test="authorizationCodeValue != null">
+        authorization_code_value = #{authorizationCodeValue},
+      </if>
+      <if test="authorizationCodeIssuedAt != null">
+        authorization_code_issued_at = #{authorizationCodeIssuedAt},
+      </if>
+      <if test="authorizationCodeExpiresAt != null">
+        authorization_code_expires_at = #{authorizationCodeExpiresAt},
+      </if>
+      <if test="authorizationCodeMetadata != null">
+        authorization_code_metadata = (#{authorizationCodeMetadata}::jsonb),
+      </if>
+      <if test="accessTokenValue != null">
+        access_token_value = #{accessTokenValue},
+      </if>
+      <if test="accessTokenIssuedAt != null">
+        access_token_issued_at = #{accessTokenIssuedAt},
+      </if>
+      <if test="accessTokenExpiresAt != null">
+        access_token_expires_at = #{accessTokenExpiresAt},
+      </if>
+      <if test="accessTokenMetadata != null">
+        access_token_metadata = (#{accessTokenMetadata}::jsonb),
+      </if>
+      <if test="accessTokenScopes != null and accessTokenScopes != ''">
+        access_token_scopes = #{accessTokenScopes},
+      </if>
+      <if test="oidcIdTokenValue != null">
+        oidc_id_token_value = #{oidcIdTokenValue},
+      </if>
+      <if test="oidcIdTokenIssuedAt != null">
+        oidc_id_token_issued_at = #{oidcIdTokenIssuedAt},
+      </if>
+      <if test="oidcIdTokenExpiresAt != null">
+        oidc_id_token_expires_at = #{oidcIdTokenExpiresAt},
+      </if>
+      <if test="oidcIdTokenMetadata != null">
+        oidc_id_token_metadata = (#{oidcIdTokenMetadata}::jsonb),
+      </if>
+      <if test="oidcIdTokenClaims != null">
+        oidc_id_token_claims = (#{oidcIdTokenClaims}::jsonb),
+      </if>
+      <if test="refreshTokenValue != null">
+        refresh_token_value = #{refreshTokenValue},
+      </if>
+      <if test="refreshTokenIssuedAt != null">
+        refresh_token_issued_at = #{refreshTokenIssuedAt},
+      </if>
+      <if test="refreshTokenExpiresAt != null">
+        refresh_token_expires_at = #{refreshTokenExpiresAt},
+      </if>
+      <if test="refreshTokenMetadata != null">
+        refresh_token_metadata = (#{refreshTokenMetadata}::jsonb),
+      </if>
+      <if test="userCodeValue != null">
+        user_code_value = #{userCodeValue},
+      </if>
+      <if test="userCodeIssuedAt != null">
+        user_code_issued_at = #{userCodeIssuedAt},
+      </if>
+      <if test="userCodeExpiresAt != null">
+        user_code_expires_at = #{userCodeExpiresAt},
+      </if>
+      <if test="userCodeMetadata != null">
+        user_code_metadata = (#{userCodeMetadata}::jsonb),
+      </if>
+      <if test="deviceCodeValue != null">
+        device_code_value = #{deviceCodeValue},
+      </if>
+      <if test="deviceCodeIssuedAt != null">
+        device_code_issued_at = #{deviceCodeIssuedAt},
+      </if>
+      <if test="deviceCodeExpiresAt != null">
+        device_code_expires_at = #{deviceCodeExpiresAt},
+      </if>
+      <if test="deviceCodeMetadata != null">
+        device_code_metadata = (#{deviceCodeMetadata}::jsonb),
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除用户认证信息表-->
+  <delete id="deleteById">
+    delete from oauth2_authorization where id = #{id}
+  </delete>
+
+  <!--通过状态查询用户认证信息表-->
+  <select id="selectByState" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where state=#{state}
+  </select>
+
+  <!--通过授权码查询用户认证信息表-->
+  <select id="selectByAuthorizationCodeValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where authorization_code_value=#{authorizationCodeValue}
+  </select>
+
+  <!--通过访问令牌查询用户认证信息表-->
+  <select id="selectByAccessTokenValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where access_token_value=#{accessTokenValue}
+  </select>
+
+  <!--通过刷新令牌查询用户认证信息表-->
+  <select id="selectByRefreshTokenValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where refresh_token_value=#{refreshTokenValue}
+  </select>
+
+  <!--通过OIDC ID 令牌查询用户认证信息表-->
+  <select id="selectByOidcIdTokenValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where oidc_id_token_value=#{oidcIdTokenValue}
+  </select>
+
+  <!--通过用户码查询用户认证信息表-->
+  <select id="selectByUserCodeValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where user_code_value=#{userCodeValue}
+  </select>
+
+  <!--通过设备码的值查询用户认证信息表-->
+  <select id="selectByDeviceCodeValue" resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where device_code_value=#{deviceCodeValue}
+  </select>
+
+  <!--  通过令牌值查询用户认证信息表-->
+  <select
+    id="selectByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue"
+    resultMap="oauth2AuthorizationResultMap">
+    select
+    <include refid="oauth2AuthorizationColumnList"/>
+    from oauth2_authorization
+    where state = #{token}
+    or authorization_code_value = #{token}
+    or access_token_value = #{token}
+    or refresh_token_value = #{token}
+    or oidc_id_token_value = #{token}
+    or user_code_value = #{token}
+    or device_code_value = #{token}
+  </select>
+</mapper>
+

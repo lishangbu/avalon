@@ -5,7 +5,7 @@
 # 获取脚本所在的目录并切换到上一级目录
 ROOT_DIR=$(dirname "$(dirname "$0")")
 
-cd $ROOT_DIR/avalon-support/avalon-security-support/src/main/resources
+cd $ROOT_DIR/avalon-support/avalon-oauth2-support/avalon-oauth2-authorization-server/src/main/resources
 mkdir rsa
 cd rsa
 

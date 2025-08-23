@@ -3,7 +3,3 @@ spring:
     name: avalon
   profiles:
     active: dev
-  security:
-    ignore-urls:
-      - /token/sign-in
-      - /user/sign-up

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.PokemonMapper">
+  <resultMap id="pokemonResultMap" type="io.github.lishangbu.avalon.dataset.entity.Pokemon">
+    <!--@Table pokemon-->
+    <id column="id" property="id"/>
+    <result column="internal_name" property="internalName"/>
+    <result column="name" property="name"/>
+    <result column="height" property="height"/>
+    <result column="weight" property="weight"/>
+    <result column="base_experience" property="baseExperience"/>
+  </resultMap>
+
+  <sql id="pokemonColumnList">
+    id,
+    internal_name,
+    name,
+    height,
+    weight,
+    base_experience
+  </sql>
+
+  <!--通过id查询单条宝可梦数据-->
+  <select id="selectById" resultMap="pokemonResultMap">
+    select
+    <include refid="pokemonColumnList"/>
+    from pokemon
+    where id = #{id}
+  </select>
+
+  <!--新增宝可梦-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into pokemon
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="internalName != null and internalName != ''">
+        internal_name,
+      </if>
+      <if test="name != null and name != ''">
+        name,
+      </if>
+      <if test="height != null">
+        height,
+      </if>
+      <if test="weight != null">
+        weight,
+      </if>
+      <if test="baseExperience != null">
+        base_experience,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="internalName != null and internalName != ''">
+        #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        #{name},
+      </if>
+      <if test="height != null">
+        #{height},
+      </if>
+      <if test="weight != null">
+        #{weight},
+      </if>
+      <if test="baseExperience != null">
+        #{baseExperience},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改宝可梦-->
+  <update id="updateById">
+    update pokemon
+    <set>
+      <if test="internalName != null and internalName != ''">
+        internal_name = #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        name = #{name},
+      </if>
+      <if test="height != null">
+        height = #{height},
+      </if>
+      <if test="weight != null">
+        weight = #{weight},
+      </if>
+      <if test="baseExperience != null">
+        base_experience = #{baseExperience},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除宝可梦-->
+  <delete id="deleteById">
+    delete from pokemon where id = #{id}
+  </delete>
+</mapper>
+

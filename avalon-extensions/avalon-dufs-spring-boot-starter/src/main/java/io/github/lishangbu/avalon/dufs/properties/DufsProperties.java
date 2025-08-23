@@ -10,9 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = DufsProperties.PROPERTIES_PREFIX)
 public class DufsProperties {
-  /**
-   * 配置属性前缀
-   */
+  /** 配置属性前缀 */
   public static final String PROPERTIES_PREFIX = "dufs";
 
   private String url;

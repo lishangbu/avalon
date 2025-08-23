@@ -6,10 +6,9 @@ package io.github.lishangbu.avalon.dufs.exception;
  * @author lishangbu
  * @since 2025/8/11
  */
-public class DufsException extends RuntimeException{
+public class DufsException extends RuntimeException {
 
-  public DufsException() {
-  }
+  public DufsException() {}
 
   public DufsException(String message) {
     super(message);
@@ -23,7 +22,8 @@ public class DufsException extends RuntimeException{
     super(cause);
   }
 
-  public DufsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+  public DufsException(
+      String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 }

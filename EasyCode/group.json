@@ -1,0 +1,11 @@
+[
+  {
+    "groupName": "MybatisCodeHelperMigrateNoServiceNoController",
+    "templateName": "MybatisCodeHelperMigrateNoServiceInterfaceNoController",
+    "globalConfigName": "MybatisCodeHelperPro",
+    "columnConfigName": "Default.json",
+    "typeMapperName": "Default.json",
+    "tableNameRegex": ".*",
+    "schemaNameRegex": ".*"
+  }
+]

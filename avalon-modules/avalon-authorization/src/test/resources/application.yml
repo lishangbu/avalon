@@ -1,0 +1,16 @@
+spring:
+  test:
+    database:
+      replace: none
+  main:
+    banner-mode: off
+  datasource:
+    url: jdbc:h2:mem:authorizationDb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+logging:
+  level:
+    root: warn

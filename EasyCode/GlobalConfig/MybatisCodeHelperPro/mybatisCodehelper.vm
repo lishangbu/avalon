@@ -1,0 +1,42 @@
+$!{mybatisGeneratorMingrate.vm}
+
+#if($useActualColumName)
+    #foreach($column in $tableInfo.fullColumn)
+        $!column.setName($column.obj.name)
+    #end
+#end
+
+#*remove table prefix*#
+###set($removeTablePrefix="sys_")
+#set($entityName=$tableInfo.name)
+#if($tableInfo.obj.name.startsWith("sys_"))
+    #set($entityName = ${tableInfo.name.substring(3)})
+#end
+#set($entityName = $tool.append($entityName,$modelSuffix))
+
+
+#*add model Suffix to model name*#
+###set($modelSuffix="Model")
+##${tableInfo.setName($tool.append($tableInfo.getName(),$modelSuffix))}
+
+
+#*remove column prefix like when column is f_hello want generate hello, you can substring the column name*#
+###set($removeColumnPrefix="f_")
+###foreach($column in $tableInfo.fullColumn)
+##    #if($column.obj.name.startsWith($removeColumnPrefix))
+##        $!column.setName($tool.firstLowerCase($column.getName().substring(1)))
+##    #end
+###end
+
+
+
+###foreach($column in $tableInfo.fullColumn)
+##    #set($propertyName=$column.obj.name)
+##    #set($propertyName=$propertyName.substring(0,1).toLowerCase()+$propertyName.substring(1))
+##    $!column.setName($propertyName)
+##    #if($propertyName.endsWith("ID"))
+##        #set($lenght=$propertyName.length() - 2)
+##        #set($theName=${propertyName.substring(0,$lenght)}+"Id")
+##        $!column.setName($theName)
+##    #end
+###end

@@ -1,50 +1,25 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 道具属性关系
+ * 道具属性关系(ItemAttributeRelation)实体类
  *
  * @author lishangbu
- * @since 2025/8/10
+ * @since 2025/08/20
  */
-@Table
-public class ItemAttributeRelation implements AutoLongIdGenerator {
-  @Serial private static final long serialVersionUID = 1L;
+@Data
+public class ItemAttributeRelation implements Serializable {
+  @Serial private static final long serialVersionUID = -52048016504666011L;
 
-  /** ID */
-  @Id private Long id;
+  /** 主键 */
+  private Long id;
 
-  private Integer itemId;
+  /** 道具ID */
+  private Long itemId;
 
-  private Integer itemAttributeId;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public Integer getItemId() {
-    return itemId;
-  }
-
-  public void setItemId(Integer itemId) {
-    this.itemId = itemId;
-  }
-
-  public Integer getItemAttributeId() {
-    return itemAttributeId;
-  }
-
-  public void setItemAttributeId(Integer itemAttributeId) {
-    this.itemAttributeId = itemAttributeId;
-  }
+  /** 道具属性ID */
+  private Long itemAttributeId;
 }

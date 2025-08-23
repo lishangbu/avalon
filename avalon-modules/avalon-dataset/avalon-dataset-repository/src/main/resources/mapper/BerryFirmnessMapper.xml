@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.BerryFirmnessMapper">
+  <resultMap id="berryFirmnessResultMap" type="io.github.lishangbu.avalon.dataset.entity.BerryFirmness">
+    <!--@Table berry_firmness-->
+    <id column="id" property="id"/>
+    <result column="internal_name" property="internalName"/>
+    <result column="name" property="name"/>
+  </resultMap>
+
+  <sql id="berryFirmnessColumnList">
+    id,
+    internal_name,
+    name
+  </sql>
+
+  <!--通过id查询单条树果硬度数据-->
+  <select id="selectById" resultMap="berryFirmnessResultMap">
+    select
+    <include refid="berryFirmnessColumnList"/>
+    from berry_firmness
+    where id = #{id}
+  </select>
+
+  <!--新增树果硬度-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into berry_firmness
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="internalName != null and internalName != ''">
+        internal_name,
+      </if>
+      <if test="name != null and name != ''">
+        name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="internalName != null and internalName != ''">
+        #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        #{name},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改树果硬度-->
+  <update id="updateById">
+    update berry_firmness
+    <set>
+      <if test="internalName != null and internalName != ''">
+        internal_name = #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        name = #{name},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除树果硬度-->
+  <delete id="deleteById">
+    delete from berry_firmness where id = #{id}
+  </delete>
+</mapper>
+
