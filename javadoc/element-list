@@ -1,3 +1,5 @@
+io.github.lishangbu.avalon.authorization.configuration
+io.github.lishangbu.avalon.authorization.constant
 io.github.lishangbu.avalon.authorization.controller
 io.github.lishangbu.avalon.authorization.entity
 io.github.lishangbu.avalon.authorization.mapper
@@ -31,7 +33,6 @@ io.github.lishangbu.avalon.oauth2.authorizationserver.token
 io.github.lishangbu.avalon.oauth2.authorizationserver.util
 io.github.lishangbu.avalon.oauth2.common.autoconfiguration
 io.github.lishangbu.avalon.oauth2.common.constant
-io.github.lishangbu.avalon.oauth2.common.exception
 io.github.lishangbu.avalon.oauth2.common.properties
 io.github.lishangbu.avalon.oauth2.common.result
 io.github.lishangbu.avalon.oauth2.common.userdetails
