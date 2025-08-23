@@ -1,49 +1,25 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 树果风味
+ * 树果风味(BerryFlavor)实体类
  *
  * @author lishangbu
- * @since 2025/8/10
+ * @since 2025/08/20
  */
-@Table
-public class BerryFlavor implements AutoLongIdGenerator {
-  /** ID */
-  @Id private Long id;
+@Data
+public class BerryFlavor implements Serializable {
+  @Serial private static final long serialVersionUID = -96613453269744846L;
 
-  /** 树果风味名称 */
-  private String name;
+  /** 主键 */
+  private Long id;
 
   /** 内部名称 */
   private String internalName;
 
-  @Override
-  public Long getId() {
-    return this.id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getInternalName() {
-    return internalName;
-  }
-
-  public void setInternalName(String internalName) {
-    this.internalName = internalName;
-  }
+  /** 树果风味名称 */
+  private String name;
 }

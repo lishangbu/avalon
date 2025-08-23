@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: lishangbu
+      changes:
+        - insert:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: username
+                  value: 'test'
+              - column:
+                  name: password
+                  value: '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G'
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  value: '1'
+              - column:
+                  name: code
+                  value: 'ROLE_TEST'
+        - insert:
+            tableName: user_role_relation
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: role_id
+                  value: 1

@@ -1,64 +1,28 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
 import java.io.Serial;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 战斗中招式可以指向的目标。目标可以是宝可梦、环境甚至其他招式
+ * 招式指向目标(MoveTarget)实体类
  *
  * @author lishangbu
- * @since 2025/6/9
+ * @since 2025/08/20
  */
-@Table
-public class MoveTarget implements AutoLongIdGenerator {
+@Data
+public class MoveTarget implements Serializable {
+  @Serial private static final long serialVersionUID = 445025354746941748L;
 
-  @Serial private static final long serialVersionUID = 1L;
+  /** 主键 */
+  private Long id;
 
-  /** ID */
-  @Id private Long id;
-
-  /** 内部名称 */
+  /** 招式指向目标内部名称 */
   private String internalName;
 
-  /** 目标名称 */
+  /** 招式指向目标名称 */
   private String name;
 
-  /** 说明 */
+  /** 招式指向目标描述 */
   private String description;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getInternalName() {
-    return internalName;
-  }
-
-  public void setInternalName(String internalName) {
-    this.internalName = internalName;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
 }

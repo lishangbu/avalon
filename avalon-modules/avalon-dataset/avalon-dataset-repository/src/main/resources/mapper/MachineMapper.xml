@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.MachineMapper">
+  <resultMap id="machineResultMap" type="io.github.lishangbu.avalon.dataset.entity.Machine">
+    <!--@Table machine-->
+    <id column="id" property="id"/>
+    <result column="item_id" property="itemId"/>
+    <result column="move_id" property="moveId"/>
+  </resultMap>
+
+  <sql id="machineColumnList">
+    id,
+    item_id,
+    move_id
+  </sql>
+
+  <!--通过id查询单条技能学习机器数据-->
+  <select id="selectById" resultMap="machineResultMap">
+    select
+    <include refid="machineColumnList"/>
+    from machine
+    where id = #{id}
+  </select>
+
+  <!--新增技能学习机器-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into machine
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="itemId != null">
+        item_id,
+      </if>
+      <if test="moveId != null">
+        move_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="itemId != null">
+        #{itemId},
+      </if>
+      <if test="moveId != null">
+        #{moveId},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改技能学习机器-->
+  <update id="updateById">
+    update machine
+    <set>
+      <if test="itemId != null">
+        item_id = #{itemId},
+      </if>
+      <if test="moveId != null">
+        move_id = #{moveId},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除技能学习机器-->
+  <delete id="deleteById">
+    delete from machine where id = #{id}
+  </delete>
+</mapper>
+

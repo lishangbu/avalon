@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.PokemonTypeMapper">
+  <resultMap id="pokemonTypeResultMap" type="io.github.lishangbu.avalon.dataset.entity.PokemonType">
+    <!--@Table pokemon_type-->
+    <id column="id" property="id"/>
+    <result column="pokemon_internal_name" property="pokemonInternalName"/>
+    <result column="type_internal_name" property="typeInternalName"/>
+    <result column="sorting_order" property="sortingOrder"/>
+  </resultMap>
+
+  <sql id="pokemonTypeColumnList">
+    id,
+    pokemon_internal_name,
+    type_internal_name,
+    sorting_order
+  </sql>
+
+  <!--通过id查询单条宝可梦属性数据-->
+  <select id="selectById" resultMap="pokemonTypeResultMap">
+    select
+    <include refid="pokemonTypeColumnList"/>
+    from pokemon_type
+    where id = #{id}
+  </select>
+
+  <!--新增宝可梦属性-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into pokemon_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="pokemonInternalName != null and pokemonInternalName != ''">
+        pokemon_internal_name,
+      </if>
+      <if test="typeInternalName != null and typeInternalName != ''">
+        type_internal_name,
+      </if>
+      <if test="sortingOrder != null">
+        sorting_order,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="pokemonInternalName != null and pokemonInternalName != ''">
+        #{pokemonInternalName},
+      </if>
+      <if test="typeInternalName != null and typeInternalName != ''">
+        #{typeInternalName},
+      </if>
+      <if test="sortingOrder != null">
+        #{sortingOrder},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改宝可梦属性-->
+  <update id="updateById">
+    update pokemon_type
+    <set>
+      <if test="pokemonInternalName != null and pokemonInternalName != ''">
+        pokemon_internal_name = #{pokemonInternalName},
+      </if>
+      <if test="typeInternalName != null and typeInternalName != ''">
+        type_internal_name = #{typeInternalName},
+      </if>
+      <if test="sortingOrder != null">
+        sorting_order = #{sortingOrder},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除宝可梦属性-->
+  <delete id="deleteById">
+    delete from pokemon_type where id = #{id}
+  </delete>
+</mapper>
+

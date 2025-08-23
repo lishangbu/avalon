@@ -3,6 +3,9 @@ package io.github.lishangbu.avalon.dufs.autoconfiguration;
 import io.github.lishangbu.avalon.dufs.component.DefaultDufsClient;
 import io.github.lishangbu.avalon.dufs.component.DufsClient;
 import io.github.lishangbu.avalon.dufs.properties.DufsProperties;
+import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -13,10 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
-
-import java.net.http.HttpClient;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * DUFS请求客户端配置
@@ -46,20 +45,22 @@ public class DufsAutoConfiguration {
   @ConditionalOnProperty(prefix = DufsProperties.PROPERTIES_PREFIX, name = "url")
   public RestClient dufsRestClient(DufsProperties properties) {
     return RestClient.builder()
-      .requestFactory(
-        new JdkClientHttpRequestFactory(
-          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()))
-      .baseUrl(properties.getUrl())
-      .defaultHeaders(httpHeaders -> {
-        String username = properties.getUsername();
-        String password = properties.getPassword();
-        if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-          String auth = username + ":" + password;
-          String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-          httpHeaders.add(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
-        }
-      })
-      .build();
+        .requestFactory(
+            new JdkClientHttpRequestFactory(
+                HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()))
+        .baseUrl(properties.getUrl())
+        .defaultHeaders(
+            httpHeaders -> {
+              String username = properties.getUsername();
+              String password = properties.getPassword();
+              if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+                String auth = username + ":" + password;
+                String encodedAuth =
+                    Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+                httpHeaders.add(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth);
+              }
+            })
+        .build();
   }
 
   @Bean

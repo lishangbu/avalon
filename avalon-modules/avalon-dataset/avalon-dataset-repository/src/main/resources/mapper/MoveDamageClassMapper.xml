@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.MoveDamageClassMapper">
+  <resultMap id="moveDamageClassResultMap" type="io.github.lishangbu.avalon.dataset.entity.MoveDamageClass">
+    <!--@Table move_damage_class-->
+    <id column="id" property="id"/>
+    <result column="internal_name" property="internalName"/>
+    <result column="name" property="name"/>
+    <result column="description" property="description"/>
+  </resultMap>
+
+  <sql id="moveDamageClassColumnList">
+    id,
+    internal_name,
+    name,
+    description
+  </sql>
+
+  <!--通过id查询单条招式伤害类别数据-->
+  <select id="selectById" resultMap="moveDamageClassResultMap">
+    select
+    <include refid="moveDamageClassColumnList"/>
+    from move_damage_class
+    where id = #{id}
+  </select>
+
+  <!--新增招式伤害类别-->
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into move_damage_class
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="internalName != null and internalName != ''">
+        internal_name,
+      </if>
+      <if test="name != null and name != ''">
+        name,
+      </if>
+      <if test="description != null and description != ''">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id},
+      </if>
+      <if test="internalName != null and internalName != ''">
+        #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        #{name},
+      </if>
+      <if test="description != null and description != ''">
+        #{description},
+      </if>
+    </trim>
+  </insert>
+
+  <!--通过id修改招式伤害类别-->
+  <update id="updateById">
+    update move_damage_class
+    <set>
+      <if test="internalName != null and internalName != ''">
+        internal_name = #{internalName},
+      </if>
+      <if test="name != null and name != ''">
+        name = #{name},
+      </if>
+      <if test="description != null and description != ''">
+        description = #{description},
+      </if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <!--通过id删除招式伤害类别-->
+  <delete id="deleteById">
+    delete from move_damage_class where id = #{id}
+  </delete>
+</mapper>
+

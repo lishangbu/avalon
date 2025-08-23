@@ -35,6 +35,11 @@
   </issueManagement>
   <dependencies>
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -152,6 +157,14 @@
         <configuration>
           <parameters>true</parameters>
           <release>${java.version}</release>
+          <annotationProcessorPaths>
+            <!-- lombok 插件 -->
+            <annotationProcessorPath>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </annotationProcessorPath>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>

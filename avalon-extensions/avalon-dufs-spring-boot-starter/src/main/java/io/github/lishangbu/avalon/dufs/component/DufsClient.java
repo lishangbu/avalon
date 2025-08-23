@@ -1,12 +1,8 @@
 package io.github.lishangbu.avalon.dufs.component;
 
 import io.github.lishangbu.avalon.dufs.exception.DirectoryAlreadyExistsException;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * dufs客户端
@@ -16,11 +12,10 @@ import java.util.List;
  */
 public interface DufsClient {
 
-
   /**
    * 上传文件到指定路径
    *
-   * @param file      文件
+   * @param file 文件
    * @param destination 目标路径
    */
   void upload(MultipartFile file, String... destination) throws IOException;
@@ -39,6 +34,4 @@ public interface DufsClient {
    * @param path 要删除的文件/文件夹路径
    */
   void delete(String path);
-
-
 }

@@ -1,20 +1,18 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 属性关系
+ * 属性伤害关系(TypeDamageRelation)实体类
  *
  * @author lishangbu
- * @since 2025/5/20
+ * @since 2025/08/20
  */
-@Table
-public class TypeDamageRelation implements AutoLongIdGenerator {
-
-  /** ID */
-  @Id private Long id;
+@Data
+public class TypeDamageRelation implements Serializable {
+  @Serial private static final long serialVersionUID = 738084404669316218L;
 
   /** 攻击者属性(内部名称) */
   private String attackerTypeInternalName;
@@ -23,39 +21,5 @@ public class TypeDamageRelation implements AutoLongIdGenerator {
   private String defenderTypeInternalName;
 
   /** 伤害倍率 */
-  private Float damageRate;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getAttackerTypeInternalName() {
-    return attackerTypeInternalName;
-  }
-
-  public void setAttackerTypeInternalName(String attackerTypeInternalName) {
-    this.attackerTypeInternalName = attackerTypeInternalName;
-  }
-
-  public String getDefenderTypeInternalName() {
-    return defenderTypeInternalName;
-  }
-
-  public void setDefenderTypeInternalName(String defenderTypeInternalName) {
-    this.defenderTypeInternalName = defenderTypeInternalName;
-  }
-
-  public Float getDamageRate() {
-    return damageRate;
-  }
-
-  public void setDamageRate(Float damageRate) {
-    this.damageRate = damageRate;
-  }
+  private Object damageRate;
 }

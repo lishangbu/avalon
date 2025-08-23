@@ -1,60 +1,28 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.data.jdbc.id.AutoLongIdGenerator;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
 
 /**
- * 宝可梦类型
+ * 宝可梦属性(PokemonType)实体类
  *
  * @author lishangbu
- * @since 2025/5/20
+ * @since 2025/08/20
  */
-@Table
-public class PokemonType implements AutoLongIdGenerator {
-  /** ID */
-  @Id private Long id;
+@Data
+public class PokemonType implements Serializable {
+  @Serial private static final long serialVersionUID = 540341561900293078L;
 
-  /** 属性内部名称 */
-  private String typeInternalName;
+  /** 主键 */
+  private Long id;
 
   /** 宝可梦内部名称 */
   private String pokemonInternalName;
 
-  /** 属性排序，第一个为主属性 */
+  /** 属性内部名称 */
+  private String typeInternalName;
+
+  /** 属性内部排序 */
   private Integer sortingOrder;
-
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getTypeInternalName() {
-    return typeInternalName;
-  }
-
-  public void setTypeInternalName(String typeInternalName) {
-    this.typeInternalName = typeInternalName;
-  }
-
-  public String getPokemonInternalName() {
-    return pokemonInternalName;
-  }
-
-  public void setPokemonInternalName(String pokemonInternalName) {
-    this.pokemonInternalName = pokemonInternalName;
-  }
-
-  public Integer getSortingOrder() {
-    return sortingOrder;
-  }
-
-  public void setSortingOrder(Integer sortingOrder) {
-    this.sortingOrder = sortingOrder;
-  }
 }
