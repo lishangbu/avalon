@@ -43,7 +43,7 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
           response,
           HttpStatus.BAD_REQUEST,
           DefaultErrorResultCode.BAD_REQUEST,
-          error.getDescription());
+          error.getErrorCode());
     } else {
       if (this.logger.isWarnEnabled()) {
         this.logger.warn(
