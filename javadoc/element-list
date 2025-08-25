@@ -1,3 +1,7 @@
+io.github.lishangbu.avalon.admin
+io.github.lishangbu.avalon.admin.controller
+io.github.lishangbu.avalon.admin.service.dataset
+io.github.lishangbu.avalon.admin.service.dataset.impl
 io.github.lishangbu.avalon.authorization.configuration
 io.github.lishangbu.avalon.authorization.constant
 io.github.lishangbu.avalon.authorization.controller
@@ -23,7 +27,8 @@ io.github.lishangbu.avalon.json.util
 io.github.lishangbu.avalon.keygen
 io.github.lishangbu.avalon.mybatis.id
 io.github.lishangbu.avalon.mybatis.id.generator
-io.github.lishangbu.avalon.mybatis.pagehelper
+io.github.lishangbu.avalon.mybatis.pagehelper.autoconfiguration
+io.github.lishangbu.avalon.mybatis.pagehelper.properties
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.exception
 io.github.lishangbu.avalon.oauth2.authorizationserver.granter
@@ -58,7 +63,7 @@ io.github.lishangbu.avalon.pokeapi.model.pokemon
 io.github.lishangbu.avalon.pokeapi.model.resource
 io.github.lishangbu.avalon.pokeapi.properties
 io.github.lishangbu.avalon.pokeapi.util
-io.github.lishangbu.avalon.server
+io.github.lishangbu.avalon.standalone
 io.github.lishangbu.avalon.web.exception
 io.github.lishangbu.avalon.web.response
 io.github.lishangbu.avalon.web.result
