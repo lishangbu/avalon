@@ -5,10 +5,8 @@ import static io.github.lishangbu.avalon.oauth2.common.constant.SecurityBeanDefi
 
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationConverter;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationProvider;
-import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import io.github.lishangbu.avalon.oauth2.common.web.authentication.DefaultAuthenticationEntryPoint;
 import java.util.Arrays;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -41,10 +39,7 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @EnableWebSecurity
 @AutoConfiguration
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
-@RequiredArgsConstructor
 public class AuthorizationServerAutoConfiguration {
-
-  private final Oauth2Properties oauth2Properties;
 
   @Bean
   @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)

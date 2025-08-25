@@ -91,6 +91,7 @@
     LEFT JOIN user_role_relation urr ON u.id = urr.user_id
     LEFT JOIN role r ON urr.role_id = r.id
     WHERE u.username = #{username}
+    AND r.enabled = true
     GROUP BY u.id, u.username, u.password
   </select>
 </mapper>

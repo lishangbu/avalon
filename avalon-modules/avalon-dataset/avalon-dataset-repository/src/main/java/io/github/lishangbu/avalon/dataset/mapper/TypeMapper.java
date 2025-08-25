@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.mapper;
 
 import io.github.lishangbu.avalon.dataset.entity.Type;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,4 +43,12 @@ public interface TypeMapper {
    * @return 影响行数
    */
   int deleteById(Long id);
+
+  /**
+   * 根据条件查询符合条件的数据
+   *
+   * @param type 属性
+   * @return 符合条件的属性列表
+   */
+  List<Type> selectAll(Type type);
 }

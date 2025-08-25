@@ -1,2 +1,2 @@
 io.github.lishangbu.avalon.mybatis.id.MybatisIdentifierInterceptorAutoConfiguration
-io.github.lishangbu.avalon.mybatis.pagehelper.PageHelperAutoConfiguration
+io.github.lishangbu.avalon.mybatis.pagehelper.autoconfiguration.PageHelperAutoConfiguration

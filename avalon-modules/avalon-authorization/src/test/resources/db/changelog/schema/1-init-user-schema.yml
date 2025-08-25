@@ -48,6 +48,20 @@ databaseChangeLog:
                     unique: true
                   defaultValue: ''
                   remarks: '角色代码'
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '角色名称'
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: 'true'
+                  remarks: '角色是否启用'
         - createTable:
             tableName: user_role_relation
             remarks: '用户角色关系'

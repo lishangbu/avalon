@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+logging:
+  level:
+    root: info
+    io.github.lishangbu: debug
+oauth2:
+  ignore-urls:
+    - /v3/api-docs

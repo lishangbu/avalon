@@ -67,5 +67,23 @@
   <delete id="deleteById">
     delete from type where id = #{id}
   </delete>
+
+  <!--根据条件查询符合条件的数据-->
+  <select id="selectAll" resultMap="typeResultMap">
+    select
+    <include refid="typeColumnList"/>
+    from type
+    <where>
+      <if test="id != null">
+        and id = #{id}
+      </if>
+      <if test="internalName != null and internalName != ''">
+        and internal_name = #{internalName}
+      </if>
+      <if test="name != null and name != ''">
+        and name = #{name}
+      </if>
+    </where>
+  </select>
 </mapper>
 

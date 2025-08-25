@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.oauth2.common.properties;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -18,7 +19,7 @@ public class Oauth2Properties {
   public static final String PREFIX = "oauth2";
 
   /** 不需要认证的路径 */
-  private List<String> ignoreUrls;
+  private List<String> ignoreUrls = new ArrayList<>();
 
   /**
    * 设置token签发地址(http(s)://{ip}:{port}/context-path, http(s)://domain.com/context-path)

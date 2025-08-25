@@ -24,6 +24,12 @@ databaseChangeLog:
               - column:
                   name: code
                   value: 'ROLE_TEST'
+              - column:
+                  name: name
+                  value: '测试员'
+              - column:
+                  name: enabled
+                  value: true
         - insert:
             tableName: user_role_relation
             columns:

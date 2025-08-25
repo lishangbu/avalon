@@ -130,7 +130,7 @@ public class MybatisIdentifierInterceptor implements Interceptor {
         handlerList = new ArrayList<Field>();
         // 获取带有Id注解的所有属性字段
         List<Field> fieldList = getAllField(paramObj);
-        if (fieldList != null && fieldList.size() > 0) {
+        if (!fieldList.isEmpty()) {
           for (Field field : fieldList) {
             // 是否包含主键注解
             if (field.isAnnotationPresent(Id.class)) {

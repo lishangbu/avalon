@@ -20,14 +20,6 @@ public interface RoleMapper {
   Optional<Role> selectById(Long id);
 
   /**
-   * 统计角色信息总行数
-   *
-   * @param role 查询条件
-   * @return 总行数
-   */
-  long count(Role role);
-
-  /**
    * 新增角色信息
    *
    * @param role 实例对象
