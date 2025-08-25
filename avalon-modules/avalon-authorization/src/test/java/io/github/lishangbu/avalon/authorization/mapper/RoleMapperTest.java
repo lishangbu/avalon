@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 class RoleMapperTest {
   @Resource private RoleMapper roleMapper;
 
+  private static Long insertId;
+
   @Test
   @Order(1)
   void testSelectRoleById() {
@@ -31,25 +33,29 @@ class RoleMapperTest {
     Role role = roleOptional.get();
     Assertions.assertEquals("ROLE_TEST", role.getCode());
     Assertions.assertEquals("测试员", role.getName());
-    Assertions.assertEquals(1, role.getId());
+    Assertions.assertEquals(1L, role.getId());
     Assertions.assertTrue(role.getEnabled());
   }
 
   @Test
   @Order(2)
+  // 确保新增操作后能够提交事务
+  @Commit
   void testInsertRole() {
     Role role = new Role();
     role.setCode("unit_test");
     role.setName("为单元测试而生");
     role.setEnabled(true);
     roleMapper.insert(role);
+    insertId = role.getId();
   }
 
   @Test
   @Order(3)
-  @Commit // 确保更新操作后能够提交事务
+  // 确保更新操作后能够提交事务
+  @Commit
   void testUpdateRoleById() {
-    Optional<Role> roleOptional = roleMapper.selectById(1L);
+    Optional<Role> roleOptional = roleMapper.selectById(insertId);
     Assertions.assertTrue(roleOptional.isPresent());
     Role role = roleOptional.get();
     role.setName("测试员1");
@@ -61,18 +67,18 @@ class RoleMapperTest {
   @Test
   @Order(4)
   void testSelectUpdatedRoleById() {
-    Optional<Role> roleOptional = roleMapper.selectById(1L);
+    Optional<Role> roleOptional = roleMapper.selectById(insertId);
     Assertions.assertTrue(roleOptional.isPresent());
     Role role = roleOptional.get();
     Assertions.assertEquals("ROLE_TEST1", role.getCode());
     Assertions.assertEquals("测试员1", role.getName());
-    Assertions.assertEquals(1, role.getId());
+    Assertions.assertEquals(insertId, role.getId());
     Assertions.assertFalse(role.getEnabled());
   }
 
   @Test
   @Order(5)
   void testDeleteById() {
-    Assertions.assertEquals(1, roleMapper.deleteById(1L));
+    Assertions.assertEquals(1, roleMapper.deleteById(insertId));
   }
 }
