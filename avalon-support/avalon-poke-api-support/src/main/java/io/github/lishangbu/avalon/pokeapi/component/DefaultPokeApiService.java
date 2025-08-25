@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.pokeapi.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.lishangbu.avalon.pokeapi.enumeration.PokeApiDataTypeEnum;
+import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
 import java.io.File;
@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 
 /**
  * 抽象的PokeApi服务
@@ -48,8 +47,7 @@ public class DefaultPokeApiService implements PokeApiService {
    * @return 指定类型的数据实体
    */
   @Override
-  @Cacheable(value = "getPokeApiEntity", key = "#responseType.simpleName+'-'+typeEnum+'-'+id")
-  public <T> T getEntityFromUri(PokeApiDataTypeEnum typeEnum, Integer id) {
+  public <T> T getEntityFromUri(PokeDataTypeEnum typeEnum, Integer id) {
     log.debug("获取类型为[{}]的数据，参数: [{}]", typeEnum, id);
     checkoutGitRepoIfNotExists();
     try {
@@ -78,8 +76,7 @@ public class DefaultPokeApiService implements PokeApiService {
    * @return 命名资源列表
    */
   @Override
-  @Cacheable(value = "getPokeApiResourceList", key = "#typeEnum")
-  public NamedAPIResourceList listNamedAPIResources(PokeApiDataTypeEnum typeEnum) {
+  public NamedAPIResourceList listNamedAPIResources(PokeDataTypeEnum typeEnum) {
     log.debug("获取类型为[{}]的数据", typeEnum);
     checkoutGitRepoIfNotExists();
     try {

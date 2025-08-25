@@ -40,7 +40,14 @@ public class ResourceServerAutoConfiguration {
   @ConditionalOnMissingBean(name = RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
   @Order(RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
   public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+    http.authorizeHttpRequests(
+            (authorize) ->
+                authorize
+                    // 放行静态资源和不需要认证的url
+                    .requestMatchers(oauth2Properties.getIgnoreUrls().toArray(new String[0]))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         // 禁用csrf和cors
         .csrf(CsrfConfigurer::disable)
         .cors(CorsConfigurer::disable)

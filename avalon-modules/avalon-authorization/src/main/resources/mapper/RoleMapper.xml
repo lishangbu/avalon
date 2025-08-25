@@ -9,7 +9,9 @@
 
   <sql id="roleColumnList">
     id,
-    code
+    code,
+    name,
+    enabled
   </sql>
 
   <!--通过id查询单条角色信息数据-->
@@ -18,20 +20,6 @@
     <include refid="roleColumnList"/>
     from role
     where id = #{id}
-  </select>
-
-  <!--统计角色信息总行数-->
-  <select id="count" resultType="java.lang.Long">
-    select count(1)
-    from role
-    <where>
-      <if test="id != null">
-        and id = #{id}
-      </if>
-      <if test="code != null and code != ''">
-        and code = #{code}
-      </if>
-    </where>
   </select>
 
   <!--新增角色信息-->
@@ -44,6 +32,12 @@
       <if test="code != null and code != ''">
         code,
       </if>
+      <if test="name != null and name != ''">
+        name,
+      </if>
+      <if test="enabled != null">
+        enabled,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -51,6 +45,12 @@
       </if>
       <if test="code != null and code != ''">
         #{code},
+      </if>
+      <if test="name != null and name != ''">
+        #{name},
+      </if>
+      <if test="enabled != null">
+        #{enabled},
       </if>
     </trim>
   </insert>
@@ -61,6 +61,12 @@
     <set>
       <if test="code != null and code != ''">
         code = #{code},
+      </if>
+      <if test="name != null and name != ''">
+        name=#{name},
+      </if>
+      <if test="enabled != null">
+        enabled=#{enabled},
       </if>
     </set>
     where id = #{id}

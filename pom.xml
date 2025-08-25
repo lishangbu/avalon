@@ -28,11 +28,11 @@
     </developer>
   </developers>
   <modules>
+    <module>avalon-application</module>
     <module>avalon-dependencies</module>
     <module>avalon-extensions</module>
     <module>avalon-modules</module>
     <module>avalon-parent</module>
-    <module>avalon-server</module>
     <module>avalon-support</module>
   </modules>
   <scm>
