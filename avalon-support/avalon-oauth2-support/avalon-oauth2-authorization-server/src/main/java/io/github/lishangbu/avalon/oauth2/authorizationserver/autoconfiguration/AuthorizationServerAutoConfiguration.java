@@ -5,6 +5,10 @@ import static io.github.lishangbu.avalon.oauth2.common.constant.SecurityBeanDefi
 
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationConverter;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationProvider;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointErrorResponseHandler;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointResponseHandler;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
 import io.github.lishangbu.avalon.oauth2.common.web.authentication.DefaultAuthenticationEntryPoint;
 import java.util.Arrays;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -63,20 +67,40 @@ public class AuthorizationServerAutoConfiguration {
                 (authorizationServer) ->
                     // Enable OpenID Connect 1.0
                     authorizationServer
+                        .authorizationEndpoint(
+                            authorizationEndpoint -> {
+                              // 用于处理已验证的 OAuth2AuthorizationCodeRequestAuthenticationToken 并返回
+                              // OAuth2AuthorizationResponse 的 AuthenticationSuccessHandler (后处理器)
+                              authorizationEndpoint
+                                  .authorizationResponseHandler(
+                                      new AuthorizationEndpointResponseHandler())
+                                  .errorResponseHandler(
+                                      new AuthorizationEndpointErrorResponseHandler());
+                            })
                         .oidc(Customizer.withDefaults())
                         // 在这加上密码模式的转换器
                         .tokenEndpoint(
                             tokenEndpoint ->
-                                tokenEndpoint.accessTokenRequestConverter(
-                                    new DelegatingAuthenticationConverter(
-                                        Arrays.asList(
-                                            new OAuth2AuthorizationCodeAuthenticationConverter(),
-                                            new OAuth2RefreshTokenAuthenticationConverter(),
-                                            new OAuth2ClientCredentialsAuthenticationConverter(),
-                                            new OAuth2PasswordAuthenticationConverter())))))
+                                tokenEndpoint
+                                    .accessTokenResponseHandler(
+                                        new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler())
+                                    .errorResponseHandler(
+                                        new OAuth2ErrorApiResultAuthenticationFailureHandler())
+                                    .accessTokenRequestConverter(
+                                        new DelegatingAuthenticationConverter(
+                                            Arrays.asList(
+                                                new OAuth2AuthorizationCodeAuthenticationConverter(),
+                                                new OAuth2RefreshTokenAuthenticationConverter(),
+                                                new OAuth2ClientCredentialsAuthenticationConverter(),
+                                                new OAuth2PasswordAuthenticationConverter())))))
             .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
             // Redirect to the login page when not authenticated from the
             // authorization endpoint
+            .oauth2Login(
+                oauth2Login ->
+                    oauth2Login
+                        .successHandler(new AuthorizationEndpointResponseHandler())
+                        .failureHandler(new AuthorizationEndpointErrorResponseHandler()))
             .exceptionHandling(
                 exceptions -> {
                   exceptions.defaultAuthenticationEntryPointFor(

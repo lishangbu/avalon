@@ -20,6 +20,8 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userMapper.selectByUsername(username).orElse(null);
+    return userMapper
+        .selectByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
   }
 }

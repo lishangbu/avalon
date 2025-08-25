@@ -12,14 +12,12 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 /**
  * 自动装配认证服务器
@@ -57,17 +55,15 @@ public class ResourceServerAutoConfiguration {
         .rememberMe(RememberMeConfigurer::disable)
         .exceptionHandling(
             exceptions -> {
-              exceptions.defaultAuthenticationEntryPointFor(
-                  new DefaultAuthenticationEntryPoint(),
-                  new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON, MediaType.TEXT_HTML));
+              exceptions
+                  .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
+                  .accessDeniedHandler(new DefaultAccessDeniedHandler());
             });
     ;
 
     http.oauth2ResourceServer(
         oauth2ResourceServer -> {
-          oauth2ResourceServer
-              .opaqueToken(Customizer.withDefaults())
-              .accessDeniedHandler(new DefaultAccessDeniedHandler());
+          oauth2ResourceServer.opaqueToken(Customizer.withDefaults());
         });
 
     return http.build();
