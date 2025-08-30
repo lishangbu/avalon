@@ -2,3 +2,6 @@ databaseChangeLog:
   - includeAll:
       path: db/changelog/schema
       errorIfMissingOrEmpty: true
+  - includeAll:
+      path: db/changelog/data
+      errorIfMissingOrEmpty: true

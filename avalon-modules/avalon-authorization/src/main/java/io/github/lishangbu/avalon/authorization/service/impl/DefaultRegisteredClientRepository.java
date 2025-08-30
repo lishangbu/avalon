@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.service;
+package io.github.lishangbu.avalon.authorization.service.impl;
 
 import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.*;
 
@@ -37,6 +37,37 @@ import org.springframework.util.StringUtils;
 @CacheConfig(cacheManager = CAFFEINE_CACHE_BEAN_NAME)
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
   private final Oauth2RegisteredClientMapper oauth2RegisteredClientMapper;
+
+  private static AuthorizationGrantType resolveAuthorizationGrantType(
+      String authorizationGrantType) {
+    if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
+      return AuthorizationGrantType.AUTHORIZATION_CODE;
+    } else if (AuthorizationGrantType.CLIENT_CREDENTIALS
+        .getValue()
+        .equals(authorizationGrantType)) {
+      return AuthorizationGrantType.CLIENT_CREDENTIALS;
+    } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
+      return AuthorizationGrantType.REFRESH_TOKEN;
+    }
+    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
+  }
+
+  private static ClientAuthenticationMethod resolveClientAuthenticationMethod(
+      String clientAuthenticationMethod) {
+    if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+        .getValue()
+        .equals(clientAuthenticationMethod)) {
+      return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
+    } else if (ClientAuthenticationMethod.CLIENT_SECRET_POST
+        .getValue()
+        .equals(clientAuthenticationMethod)) {
+      return ClientAuthenticationMethod.CLIENT_SECRET_POST;
+    } else if (ClientAuthenticationMethod.NONE.getValue().equals(clientAuthenticationMethod)) {
+      return ClientAuthenticationMethod.NONE;
+    }
+    return new ClientAuthenticationMethod(
+        clientAuthenticationMethod); // Custom client authentication method
+  }
 
   @Override
   @CacheEvict(
@@ -241,36 +272,5 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
       }
     }
     return entity;
-  }
-
-  private static AuthorizationGrantType resolveAuthorizationGrantType(
-      String authorizationGrantType) {
-    if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
-      return AuthorizationGrantType.AUTHORIZATION_CODE;
-    } else if (AuthorizationGrantType.CLIENT_CREDENTIALS
-        .getValue()
-        .equals(authorizationGrantType)) {
-      return AuthorizationGrantType.CLIENT_CREDENTIALS;
-    } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
-      return AuthorizationGrantType.REFRESH_TOKEN;
-    }
-    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
-  }
-
-  private static ClientAuthenticationMethod resolveClientAuthenticationMethod(
-      String clientAuthenticationMethod) {
-    if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC
-        .getValue()
-        .equals(clientAuthenticationMethod)) {
-      return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
-    } else if (ClientAuthenticationMethod.CLIENT_SECRET_POST
-        .getValue()
-        .equals(clientAuthenticationMethod)) {
-      return ClientAuthenticationMethod.CLIENT_SECRET_POST;
-    } else if (ClientAuthenticationMethod.NONE.getValue().equals(clientAuthenticationMethod)) {
-      return ClientAuthenticationMethod.NONE;
-    }
-    return new ClientAuthenticationMethod(
-        clientAuthenticationMethod); // Custom client authentication method
   }
 }

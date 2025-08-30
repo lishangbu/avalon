@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.mapper;
 
 import io.github.lishangbu.avalon.authorization.entity.Role;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,4 +43,12 @@ public interface RoleMapper {
    * @return 影响行数
    */
   int deleteById(Long id);
+
+  /**
+   * 根据查询条件查询角色列表
+   *
+   * @param role 角色查询条件
+   * @return 返回的角色列表
+   */
+  List<Role> selectAll(Role role);
 }

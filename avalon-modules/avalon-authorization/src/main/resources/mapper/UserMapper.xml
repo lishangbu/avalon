@@ -7,7 +7,31 @@
     <result column="username" property="username"/>
     <result column="password" property="password"/>
   </resultMap>
+  <resultMap id="userDetailResultMap" type="io.github.lishangbu.avalon.authorization.model.UserDetail">
+    <!-- 用户详情映射，查询请使用相应的列别名（profile_*, role_*, current_role_*） -->
+    <id column="id" property="id"/>
+    <result column="username" property="username"/>
 
+    <!-- 关联个人资料（association 必须出现在 collection 之前） -->
+    <association property="profile" javaType="io.github.lishangbu.avalon.authorization.entity.Profile"
+                 columnPrefix="profile_">
+      <id column="id" property="id"/>
+      <result column="nickname" property="nickname"/>
+      <result column="gender" property="gender"/>
+      <result column="avatar" property="avatar"/>
+      <result column="address" property="address"/>
+      <result column="email" property="email"/>
+      <result column="user_id" property="userId"/>
+    </association>
+
+    <!-- 角色集合 -->
+    <collection property="roles" ofType="io.github.lishangbu.avalon.authorization.entity.Role" columnPrefix="role_">
+      <id column="id" property="id"/>
+      <result column="code" property="code"/>
+      <result column="name" property="name"/>
+      <result column="enabled" property="enabled"/>
+    </collection>
+  </resultMap>
   <sql id="userColumnList">
     id,
     username,
@@ -82,17 +106,57 @@
 
   <!--通过主键删除数据-->
   <delete id="deleteById">
-    delete from "user" where id = #{id}
+    delete
+    from "user"
+    where id = #{id}
   </delete>
 
   <select id="selectByUsername" resultType="io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo">
-    SELECT u.id, u.username, u.password, array_to_string(array_agg(r.code),',') AS roleCodes
+    SELECT u.id, u.username, u.password, array_to_string(array_agg(r.code), ',') AS roleCodes
     FROM "user" u
-    LEFT JOIN user_role_relation urr ON u.id = urr.user_id
-    LEFT JOIN role r ON urr.role_id = r.id
+           LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+           LEFT JOIN role r ON urr.role_id = r.id
     WHERE u.username = #{username}
-    AND r.enabled = true
+      AND r.enabled = true
     GROUP BY u.id, u.username, u.password
   </select>
-</mapper>
 
+  <!--根据用户名查询用户详情，包含基本信息、角色信息及个人资料-->
+  <select id="selectUserDetailByUsername" resultMap="userDetailResultMap">
+    SELECT u.id       AS id,
+           u.username AS username,
+
+           p.id       AS profile_id,
+           p.nickname AS profile_nickname,
+           p.gender   AS profile_gender,
+           p.avatar   AS profile_avatar,
+           p.address  AS profile_address,
+           p.email    AS profile_email,
+           p.user_id  AS profile_user_id,
+
+           r.id       AS role_id,
+           r.code     AS role_code,
+           r.name     AS role_name,
+           r.enabled  AS role_enable
+    FROM "user" u
+           LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+           LEFT JOIN profile p ON p.user_id = u.id
+           LEFT JOIN role r ON urr.role_id = r.id
+    WHERE u.username = #{username}
+      AND r.enabled = true
+  </select>
+
+  <select id="selectAll" resultMap="userResultMap">
+    select
+    <include refid="userColumnList"/>
+    from "user"
+    <where>
+      <if test="id != null">
+        and id = #{id}
+      </if>
+      <if test="username != null and username != ''">
+        and username = #{username}
+      </if>
+    </where>
+  </select>
+</mapper>

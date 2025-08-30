@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 102
+      author: lishangbu
+      dbms: postgresql
+      changes:
+        - insert:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: username
+                  value: 'test'
+              - column:
+                  name: password
+                  value: '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G'
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  value: '1'
+              - column:
+                  name: code
+                  value: 'ROLE_TEST'
+              - column:
+                  name: name
+                  value: '测试员'
+              - column:
+                  name: enabled
+                  value: true
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  value: '2'
+              - column:
+                  name: code
+                  value: 'ROLE_SUPER_ADMIN'
+              - column:
+                  name: name
+                  value: '超级管理员'
+              - column:
+                  name: enabled
+                  value: true
+        - insert:
+            tableName: user_role_relation
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: role_id
+                  value: 1
+        - insert:
+            tableName: user_role_relation
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: role_id
+                  value: 2
+        - insert:
+            tableName: profile
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: gender
+                  value: null
+              - column:
+                  name: avatar
+                  value: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif?imageView2/1/w/80/h/80"
+              - column:
+                  name: address
+                  value: null
+              - column:
+                  name: email
+                  value: null
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: nickname
+                  value: "Admin"

@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.service;
+package io.github.lishangbu.avalon.authorization.service.impl;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;

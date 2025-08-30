@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * x
+ * 属性服务实现
  *
  * @author lishangbu
  * @since 2025/8/24

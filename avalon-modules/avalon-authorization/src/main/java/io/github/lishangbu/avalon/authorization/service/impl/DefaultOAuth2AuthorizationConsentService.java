@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.service;
+package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.mapper.Oauth2AuthorizationConsentMapper;
 import java.util.HashSet;

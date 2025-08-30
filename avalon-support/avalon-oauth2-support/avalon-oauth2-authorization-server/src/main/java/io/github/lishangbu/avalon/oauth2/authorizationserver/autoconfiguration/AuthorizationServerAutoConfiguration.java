@@ -78,14 +78,11 @@ public class AuthorizationServerAutoConfiguration {
                                       new AuthorizationEndpointErrorResponseHandler());
                             })
                         .oidc(Customizer.withDefaults())
-                        // 定制客户端认证成功和失败的处理器
+                        // 定制客户端认证失败的处理器
                         .clientAuthentication(
                             clientAuthentication ->
-                                clientAuthentication
-                                    .authenticationSuccessHandler(
-                                        new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler())
-                                    .errorResponseHandler(
-                                        new OAuth2ErrorApiResultAuthenticationFailureHandler()))
+                                clientAuthentication.errorResponseHandler(
+                                    new OAuth2ErrorApiResultAuthenticationFailureHandler()))
                         .tokenEndpoint(
                             tokenEndpoint ->
                                 tokenEndpoint
