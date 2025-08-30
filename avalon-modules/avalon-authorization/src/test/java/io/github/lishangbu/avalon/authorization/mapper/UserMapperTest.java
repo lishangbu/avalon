@@ -37,7 +37,7 @@ class UserMapperTest {
     Assertions.assertEquals("test", userInfo.getUsername());
     Assertions.assertTrue(userInfo.getPassword().startsWith("{bcrypt}"));
     Assertions.assertFalse(userInfo.getAuthorities().isEmpty());
-    Assertions.assertEquals("ROLE_TEST", userInfo.getRoleCodes());
+    Assertions.assertEquals("ROLE_TEST,ROLE_SUPER_ADMIN", userInfo.getRoleCodes());
     Assertions.assertEquals(
         "ROLE_TEST", userInfo.getAuthorities().stream().findFirst().get().getAuthority());
   }
