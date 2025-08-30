@@ -9,6 +9,7 @@ io.github.lishangbu.avalon.authorization.entity
 io.github.lishangbu.avalon.authorization.mapper
 io.github.lishangbu.avalon.authorization.model
 io.github.lishangbu.avalon.authorization.service
+io.github.lishangbu.avalon.authorization.service.impl
 io.github.lishangbu.avalon.dataset.entity
 io.github.lishangbu.avalon.dataset.mapper
 io.github.lishangbu.avalon.dufs.autoconfiguration
