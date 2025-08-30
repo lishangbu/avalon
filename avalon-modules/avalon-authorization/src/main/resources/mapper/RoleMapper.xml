@@ -74,7 +74,27 @@
 
   <!--通过id删除角色信息-->
   <delete id="deleteById">
-    delete from role where id = #{id}
+    delete
+    from role
+    where id = #{id}
   </delete>
+
+  <select id="selectAll" resultMap="roleResultMap">
+    SELECT
+    <include refid="roleColumnList"/>
+    FROM
+    role
+    <where>
+      <if test="code != null and code != ''">
+        and code = #{code}
+      </if>
+      <if test="name != null and name != ''">
+        and name=#{name}
+      </if>
+      <if test="enabled != null">
+        and enabled=#{enabled}
+      </if>
+    </where>
+  </select>
 </mapper>
 

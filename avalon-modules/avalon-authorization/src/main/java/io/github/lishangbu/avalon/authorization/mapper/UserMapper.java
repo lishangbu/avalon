@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.authorization.mapper;
 
 import io.github.lishangbu.avalon.authorization.entity.User;
+import io.github.lishangbu.avalon.authorization.model.UserDetail;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
+import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,7 +34,7 @@ public interface UserMapper {
   long count(User user);
 
   /**
-   * 新增一条用户信息记录。
+   * 新增一条用户信息记录
    *
    * @param user 待新增的用户对象
    * @return 插入成功的记录数
@@ -40,7 +42,7 @@ public interface UserMapper {
   int insert(User user);
 
   /**
-   * 根据主键ID修改用户信息。
+   * 根据主键ID修改用户信息
    *
    * @param user 待修改的用户对象，需包含主键ID
    * @return 更新成功的记录数
@@ -48,7 +50,7 @@ public interface UserMapper {
   int updateById(User user);
 
   /**
-   * 根据主键ID删除用户信息。
+   * 根据主键ID删除用户信息
    *
    * @param id 用户主键ID
    * @return 删除成功的记录数
@@ -56,10 +58,26 @@ public interface UserMapper {
   int deleteById(Long id);
 
   /**
-   * 根据用户名查询用户详细信息。
+   * 根据用户名查询用户详细信息
    *
    * @param username 用户名
    * @return 查询到的用户信息，未找到时返回Optional.empty()
    */
   Optional<UserInfo> selectByUsername(@Param("username") String username);
+
+  /**
+   * 根据用户ID查询用户详情，包含基本信息、角色信息及个人资料
+   *
+   * @param username 用户名
+   * @return 查询到的用户详情，未找到时返回Optional.empty()
+   */
+  Optional<UserDetail> selectUserDetailByUsername(@Param("username") String username);
+
+  /**
+   * 根据条件查询用户列表
+   *
+   * @param user 用户查询条件
+   * @return 符合条件的用户列表
+   */
+  List<User> selectAll(User user);
 }

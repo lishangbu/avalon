@@ -11,8 +11,3 @@ spring:
     driver-class-name: org.h2.Driver
 mybatis:
   mapper-locations: classpath:mapper/*.xml
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-logging:
-  level:
-    root: off

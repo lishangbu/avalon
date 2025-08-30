@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.service;
+package io.github.lishangbu.avalon.authorization.service.impl;
 
 import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.CAFFEINE_CACHE_BEAN_NAME;
 import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.OAUTH_2_AUTHORIZATION_CACHE;
@@ -64,6 +64,22 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
     this.objectMapper.registerModules(securityModules);
     this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
     this.objectMapper.addMixIn(UserInfo.class, UserInfoMixin.class);
+  }
+
+  private static AuthorizationGrantType resolveAuthorizationGrantType(
+      String authorizationGrantType) {
+    if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
+      return AuthorizationGrantType.AUTHORIZATION_CODE;
+    } else if (AuthorizationGrantType.CLIENT_CREDENTIALS
+        .getValue()
+        .equals(authorizationGrantType)) {
+      return AuthorizationGrantType.CLIENT_CREDENTIALS;
+    } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
+      return AuthorizationGrantType.REFRESH_TOKEN;
+    } else if (AuthorizationGrantType.DEVICE_CODE.getValue().equals(authorizationGrantType)) {
+      return AuthorizationGrantType.DEVICE_CODE;
+    }
+    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
   }
 
   @CacheEvict(allEntries = true)
@@ -320,21 +336,5 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
     } catch (Exception ex) {
       throw new IllegalArgumentException(ex.getMessage(), ex);
     }
-  }
-
-  private static AuthorizationGrantType resolveAuthorizationGrantType(
-      String authorizationGrantType) {
-    if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
-      return AuthorizationGrantType.AUTHORIZATION_CODE;
-    } else if (AuthorizationGrantType.CLIENT_CREDENTIALS
-        .getValue()
-        .equals(authorizationGrantType)) {
-      return AuthorizationGrantType.CLIENT_CREDENTIALS;
-    } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
-      return AuthorizationGrantType.REFRESH_TOKEN;
-    } else if (AuthorizationGrantType.DEVICE_CODE.getValue().equals(authorizationGrantType)) {
-      return AuthorizationGrantType.DEVICE_CODE;
-    }
-    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
   }
 }

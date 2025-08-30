@@ -1,0 +1,224 @@
+databaseChangeLog:
+  - changeSet:
+      id: 101
+      author: lishangbu
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: user
+            remarks: '用户信息'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: username
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '用户名'
+              - column:
+                  name: password
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '密码'
+        - createTable:
+            tableName: role
+            remarks: '角色信息'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '角色代码'
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '角色名称'
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: 'true'
+                  remarks: '角色是否启用'
+        - createTable:
+            tableName: user_role_relation
+            remarks: '用户角色关系'
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '用户ID'
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '角色ID'
+        - createTable:
+            tableName: role_permission_relation
+            remarks: '角色权限关系'
+            columns:
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '角色ID'
+              - column:
+                  name: permission_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                  remarks: '用户ID'
+        - createTable:
+            tableName: permission
+            remarks: '权限'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                  remarks: '权限名称'
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  remarks: '权限编码'
+              - column:
+                  name: type
+                  type: varchar(6)
+                  constraints:
+                    nullable: false
+                  remarks: '权限类型,MENU-菜单,BUTTON-按钮'
+              - column:
+                  name: parent_id
+                  type: bigint
+                  remarks: '父权限ID'
+              - column:
+                  name: path
+                  type: varchar(500)
+                  remarks: '路径'
+              - column:
+                  name: redirect
+                  type: varchar(500)
+                  remarks: '重定向路径'
+              - column:
+                  name: icon
+                  type: varchar(500)
+                  remarks: '图标'
+              - column:
+                  name: component
+                  type: varchar(500)
+                  remarks: '组件路径'
+              - column:
+                  name: layout
+                  type: varchar(500)
+                  remarks: '布局'
+              - column:
+                  name: keep_alive
+                  type: boolean
+                  remarks: '是否保持活动状态'
+              - column:
+                  name: method
+                  type: varchar(10)
+                  remarks: '请求方法'
+              - column:
+                  name: description
+                  type: varchar(500)
+                  remarks: '描述'
+              - column:
+                  name: show
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: true
+                  remarks: '是否展示在页面菜单'
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: true
+                  remarks: '是否启用'
+              - column:
+                  name: order_num
+                  type: int
+                  remarks: '排序'
+        - createTable:
+            tableName: profile
+            remarks: '用户个人资料表'
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: gender
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: avatar
+                  type: varchar(500)
+                  defaultValue: ''
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: varchar(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: nickname
+                  type: varchar(50)
+                  constraints:
+                    nullable: true

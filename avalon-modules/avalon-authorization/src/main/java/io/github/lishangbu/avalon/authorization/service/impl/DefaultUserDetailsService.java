@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.service;
+package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
