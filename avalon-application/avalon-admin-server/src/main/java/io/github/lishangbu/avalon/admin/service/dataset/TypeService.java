@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
-import com.github.pagehelper.PageInfo;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
 
@@ -49,6 +48,4 @@ public interface TypeService {
    * @return 查询到的 Type 实体，未找到时返回 null
    */
   Type findById(Long id);
-
-  PageInfo<Type> getPage(Integer pageNum, Integer pageSize, Type type);
 }

@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.admin;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 /**
  * 管理应用
@@ -10,8 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author lishangbu
  * @since 2025/8/24
  */
+@EnableSpringDataWebSupport
+@EnableJpaRepositories("io.github.lishangbu.avalon.**.repository")
+@EntityScan("io.github.lishangbu.avalon.**.entity")
 @SpringBootApplication(scanBasePackages = "io.github.lishangbu.avalon")
-@MapperScan(basePackages = "io.github.lishangbu.avalon.**.mapper")
 public class AvalonAdminApplication {
 
   public static void main(String[] args) {

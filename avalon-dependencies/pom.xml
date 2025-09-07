@@ -47,9 +47,6 @@
     <java.version>24</java.version>
     <jgit.version>7.3.0.202506031305-r</jgit.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <mybatis-spring.version>3.0.5</mybatis-spring.version>
-    <mybatis.version>3.5.19</mybatis.version>
-    <pagehelper.version>6.1.1</pagehelper.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
@@ -65,11 +62,6 @@
         <version>${spring-doc.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.github.pagehelper</groupId>
-        <artifactId>pagehelper</artifactId>
-        <version>${pagehelper.version}</version>
       </dependency>
       <dependency>
         <groupId>com.github.therapi</groupId>
@@ -93,22 +85,17 @@
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-hibernate-support</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-ip2location-spring-boot-starter</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-json-support</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-key-generator</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-mybatis-support</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
@@ -145,26 +132,6 @@
         <groupId>org.eclipse.jgit</groupId>
         <artifactId>org.eclipse.jgit</artifactId>
         <version>${jgit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mybatis</groupId>
-        <artifactId>mybatis</artifactId>
-        <version>${mybatis.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mybatis.spring.boot</groupId>
-        <artifactId>mybatis-spring-boot-autoconfigure</artifactId>
-        <version>${mybatis-spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mybatis.spring.boot</groupId>
-        <artifactId>mybatis-spring-boot-starter</artifactId>
-        <version>${mybatis-spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mybatis.spring.boot</groupId>
-        <artifactId>mybatis-spring-boot-starter-test</artifactId>
-        <version>${mybatis-spring.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

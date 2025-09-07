@@ -1,8 +1,14 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
+import io.github.lishangbu.avalon.jpa.Flex;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
@@ -11,11 +17,15 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * @author lishangbu
  * @since 2025/08/30
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Entity
 public class Profile implements Serializable {
   @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-  private Long id;
+  @Id @Flex private Long id;
 
   private Integer gender;
 

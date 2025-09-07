@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.Permission;
-import io.github.lishangbu.avalon.authorization.mapper.PermissionMapper;
 import io.github.lishangbu.avalon.authorization.model.PermissionTreeNode;
+import io.github.lishangbu.avalon.authorization.repository.PermissionRepository;
 import io.github.lishangbu.avalon.authorization.service.PermissionService;
 import io.github.lishangbu.avalon.web.util.TreeUtils;
 import java.util.Collections;
@@ -25,36 +25,14 @@ import org.springframework.util.CollectionUtils;
 @Service
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
-  private final PermissionMapper permissionMapper;
+  private final PermissionRepository permissionMapper;
 
   @Override
   public List<PermissionTreeNode> listPermissionTreeByRoleCodes(List<String> roleCodes) {
     // 根据角色编码查询权限列表
-    List<Permission> permissions = permissionMapper.selectAllByRoleCodes(roleCodes);
+    List<Permission> permissions = permissionMapper.findAllByRoleCodes(roleCodes);
     log.debug("根据角色编码获取到 [{}] 条权限记录", permissions == null ? 0 : permissions.size());
     return buildTreeFromPermissions(permissions);
-  }
-
-  @Override
-  public List<PermissionTreeNode> listPermissionTreeNodes(Permission permission) {
-    // 获取所有权限列表
-    List<Permission> permissions = permissionMapper.selectAll(permission);
-    log.debug("获取到 [{}] 条权限记录", permissions == null ? 0 : permissions.size());
-    return buildTreeFromPermissions(permissions);
-  }
-
-  /**
-   * 根据查询条件获取所有权限
-   *
-   * @param permission 查询条件
-   * @return 权限列表
-   */
-  @Override
-  public List<Permission> listPermissions(Permission permission) {
-    // 获取所有权限列表
-    List<Permission> permissions = permissionMapper.selectAll(permission);
-    log.debug("获取到 [{}] 条权限记录", permissions == null ? 0 : permissions.size());
-    return permissions;
   }
 
   /**

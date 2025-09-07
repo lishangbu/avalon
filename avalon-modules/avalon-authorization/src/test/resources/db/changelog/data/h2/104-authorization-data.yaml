@@ -5,7 +5,7 @@ databaseChangeLog:
       dbms: h2
       changes:
         - insert:
-            tableName: oauth2_registered_client
+            tableName: oauth_registered_client
             columns:
               - column:
                   name: id
@@ -81,7 +81,7 @@ databaseChangeLog:
                   name: x509_certificate_bound_access_tokens
                   value: 'false'
         - insert:
-            tableName: oauth2_registered_client
+            tableName: oauth_registered_client
             columns:
               - column:
                   name: id

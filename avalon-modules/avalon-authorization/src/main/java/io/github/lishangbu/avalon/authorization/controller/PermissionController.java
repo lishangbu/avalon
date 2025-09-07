@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.authorization.controller;
 
-import io.github.lishangbu.avalon.authorization.entity.Permission;
 import io.github.lishangbu.avalon.authorization.model.PermissionTreeNode;
 import io.github.lishangbu.avalon.authorization.service.PermissionService;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
@@ -25,21 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PermissionController {
   private final PermissionService permissionService;
-
-  @GetMapping("/list")
-  public List<Permission> listPermissions(Permission permission) {
-    return permissionService.listPermissions(permission);
-  }
-
-  @GetMapping("/tree")
-  public List<PermissionTreeNode> listPermissionTree() {
-    return permissionService.listPermissionTreeNodes(null);
-  }
-
-  @GetMapping("/menu-tree")
-  public List<PermissionTreeNode> listPermissionTree(Permission permission) {
-    return permissionService.listPermissionTreeNodes(permission);
-  }
 
   @GetMapping("/role-permission-tree")
   public List<PermissionTreeNode> listPermissionTree(@AuthenticationPrincipal UserInfo user) {

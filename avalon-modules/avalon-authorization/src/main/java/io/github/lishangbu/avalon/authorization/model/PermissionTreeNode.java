@@ -2,7 +2,9 @@ package io.github.lishangbu.avalon.authorization.model;
 
 import io.github.lishangbu.avalon.authorization.entity.Permission;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -11,7 +13,9 @@ import org.springframework.beans.BeanUtils;
  * @author lishangbu
  * @since 2025/8/28
  */
-@Data
+@Getter
+@Setter
+@ToString
 public class PermissionTreeNode extends Permission {
   private List<PermissionTreeNode> children;
 

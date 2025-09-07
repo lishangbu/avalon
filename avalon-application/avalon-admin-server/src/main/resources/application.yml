@@ -3,8 +3,3 @@ spring:
     name: avalon
   profiles:
     active: dev
-mybatis:
-  configuration:
-    # 启用下划线命名与驼峰命名之间的自动转换
-    map-underscore-to-camel-case: true
-  mapper-locations: classpath*:mapper/*.xml

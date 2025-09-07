@@ -2,8 +2,8 @@ package io.github.lishangbu.avalon.authorization.service.impl;
 
 import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.*;
 
-import io.github.lishangbu.avalon.authorization.entity.Oauth2RegisteredClient;
-import io.github.lishangbu.avalon.authorization.mapper.Oauth2RegisteredClientMapper;
+import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
+import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 @CacheConfig(cacheManager = CAFFEINE_CACHE_BEAN_NAME)
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
-  private final Oauth2RegisteredClientMapper oauth2RegisteredClientMapper;
+  private final Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
 
   private static AuthorizationGrantType resolveAuthorizationGrantType(
       String authorizationGrantType) {
@@ -75,19 +75,14 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
       allEntries = true)
   public void save(RegisteredClient registeredClient) {
     Assert.notNull(registeredClient, "registeredClient cannot be null");
-    RegisteredClient existingRegisteredClient = findById(registeredClient.getId());
-    if (existingRegisteredClient != null) {
-      this.oauth2RegisteredClientMapper.updateById(toEntity(registeredClient));
-    } else {
-      this.oauth2RegisteredClientMapper.insert(toEntity(registeredClient));
-    }
+    this.oauth2RegisteredClientRepository.save(toEntity(registeredClient));
   }
 
   @Cacheable(value = OAUTH_2_REGISTERED_CLIENT_CACHE_BY_ID, key = "#id", unless = "#result==null")
   @Override
   public RegisteredClient findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return this.oauth2RegisteredClientMapper.selectById(id).map(this::toObject).orElse(null);
+    return this.oauth2RegisteredClientRepository.findById(id).map(this::toObject).orElse(null);
   }
 
   @Cacheable(
@@ -97,13 +92,13 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
   @Override
   public RegisteredClient findByClientId(String clientId) {
     Assert.hasText(clientId, "clientId cannot be empty");
-    return this.oauth2RegisteredClientMapper
-        .selectByClientId(clientId)
+    return this.oauth2RegisteredClientRepository
+        .findByClientId(clientId)
         .map(this::toObject)
         .orElse(null);
   }
 
-  private RegisteredClient toObject(Oauth2RegisteredClient client) {
+  private RegisteredClient toObject(OauthRegisteredClient client) {
     Set<String> clientAuthenticationMethods =
         StringUtils.commaDelimitedListToSet(client.getClientAuthenticationMethods());
     Set<String> authorizationGrantTypes =
@@ -197,7 +192,7 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     return builder.build();
   }
 
-  private Oauth2RegisteredClient toEntity(RegisteredClient registeredClient) {
+  private OauthRegisteredClient toEntity(RegisteredClient registeredClient) {
     List<String> clientAuthenticationMethods =
         new ArrayList<>(registeredClient.getClientAuthenticationMethods().size());
     registeredClient
@@ -214,7 +209,7 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
             authorizationGrantType ->
                 authorizationGrantTypes.add(authorizationGrantType.getValue()));
 
-    Oauth2RegisteredClient entity = new Oauth2RegisteredClient();
+    OauthRegisteredClient entity = new OauthRegisteredClient();
     entity.setId(registeredClient.getId());
     entity.setClientId(registeredClient.getClientId());
     entity.setClientIdIssuedAt(registeredClient.getClientIdIssuedAt());

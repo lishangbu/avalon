@@ -1,12 +1,10 @@
 package io.github.lishangbu.avalon.authorization.controller;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import io.github.lishangbu.avalon.authorization.entity.Permission;
 import io.github.lishangbu.avalon.authorization.service.PermissionService;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
 import java.util.Arrays;
@@ -31,44 +29,6 @@ class PermissionControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private PermissionService permissionService;
-
-  @Test
-  void listPermissions_shouldReturnList() throws Exception {
-    Permission p = new Permission();
-    p.setName("测试权限");
-    when(permissionService.listPermissions(any(Permission.class))).thenReturn(List.of(p));
-
-    mockMvc
-        .perform(get("/permission/list"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].name").value("测试权限"));
-
-    verify(permissionService, times(1)).listPermissions(any(Permission.class));
-  }
-
-  @Test
-  void listPermissionTree_root_shouldReturnEmptyList() throws Exception {
-    when(permissionService.listPermissionTreeNodes(null)).thenReturn(List.of());
-
-    mockMvc
-        .perform(get("/permission/tree"))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
-
-    verify(permissionService, times(1)).listPermissionTreeNodes(null);
-  }
-
-  @Test
-  void menuTree_withQuery_shouldCallService() throws Exception {
-    when(permissionService.listPermissionTreeNodes(any(Permission.class))).thenReturn(List.of());
-
-    mockMvc
-        .perform(get("/permission/menu-tree"))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
-
-    verify(permissionService, times(1)).listPermissionTreeNodes(any(Permission.class));
-  }
 
   @Test
   void rolePermissionTree_withAuthentication_shouldPassRoleCodes() throws Exception {

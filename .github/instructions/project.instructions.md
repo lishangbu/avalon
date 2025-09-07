@@ -9,8 +9,7 @@ applyTo: "**"
 ## 技术栈
 
 - 框架: Spring Boot 3
-- ORM框架: mybatis
-- 分页插件: pagehelper
+- ORM框架: Spring Data Jpa
 - 代码校验与格式化: spotless
 - 开发语言: Java
 - 项目管理工具: maven
@@ -22,19 +21,11 @@ applyTo: "**"
 - 文档: springdoc-openapi + swagger-ui
 - 单元测试: JUnit + Mockito
 - 持续集成: GitHub Actions
-- 代码生成器: MyBatisCodeHelperPro
 
 ## 目录结构
 
 ```sh
 # avalon
-├── EasyCode # MyBatis 代码生成器配置
-│   ├── ColumnConfig 
-│   ├── GlobalConfig
-│   │   └── MybatisCodeHelperPro
-│   ├── Templates
-│   │   └── MybatisCodeHelperMigrateNoServiceInterfaceNoController
-│   └── TypeMapperConfig
 ├── avalon-application # 应用启动器，包含各个服务的实现
 │   ├── avalon-admin-server # 管理后台服务
 │   │   └── src # 管理后台服务的源码
@@ -54,12 +45,10 @@ applyTo: "**"
 │       └── avalon-dataset-repository # 数据集模块的仓库
 ├── avalon-parent # 父工程，定义整个工程的一些公共行为
 ├── avalon-support # 无第三方依赖的各种支持库
+│   ├── avalon-hibernate-support # hibernate 支持库
+│   │   └── src # hibernate 支持库的源码
 │   ├── avalon-json-support  # JSON 支持库
 │   │   └── src # JSON 支持库的源码
-│   ├── avalon-key-generator # 各种键生成器
-│   │   └── src # 键生成器的源码
-│   ├── avalon-mybatis-support # MyBatis 支持库
-│   │   └── src # MyBatis 支持库的源码
 │   ├── avalon-oauth2-support # OAuth2 支持库
 │   │   ├── avalon-oauth2-authorization-server # OAuth2 授权服务器
 │   │   ├── avalon-oauth2-common # OAuth2 公共模块
