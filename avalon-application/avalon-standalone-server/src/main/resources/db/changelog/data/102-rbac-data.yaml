@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 102
+      author: lishangbu
+      changes:
+        - sqlFile:
+            path: ../sql/102-rbac-data.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ';'
+

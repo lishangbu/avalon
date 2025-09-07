@@ -1,9 +1,10 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
-import io.github.lishangbu.avalon.authorization.mapper.Oauth2AuthorizationConsentMapper;
+import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent;
+import io.github.lishangbu.avalon.authorization.repository.Oauth2AuthorizationConsentRepository;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
@@ -22,29 +23,29 @@ import org.springframework.util.StringUtils;
  * @since 2025/8/17
  */
 @Service
-@RequiredArgsConstructor
 public class DefaultOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
-  private final Oauth2AuthorizationConsentMapper oauth2AuthorizationConsentMapper;
+  private final Oauth2AuthorizationConsentRepository oauth2AuthorizationConsentRepository;
   private final RegisteredClientRepository registeredClientRepository;
+
+  public DefaultOAuth2AuthorizationConsentService(
+      Oauth2AuthorizationConsentRepository authorizationConsentRepository,
+      RegisteredClientRepository registeredClientRepository) {
+    Assert.notNull(authorizationConsentRepository, "authorizationConsentRepository cannot be null");
+    Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
+    this.oauth2AuthorizationConsentRepository = authorizationConsentRepository;
+    this.registeredClientRepository = registeredClientRepository;
+  }
 
   @Override
   public void save(OAuth2AuthorizationConsent authorizationConsent) {
     Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
-    OAuth2AuthorizationConsent existingAuthorizationConsent =
-        findById(
-            authorizationConsent.getRegisteredClientId(), authorizationConsent.getPrincipalName());
-    if (existingAuthorizationConsent == null) {
-      this.oauth2AuthorizationConsentMapper.insert(toEntity(authorizationConsent));
-    } else {
-      this.oauth2AuthorizationConsentMapper.updateByByRegisteredClientIdAndPrincipalName(
-          toEntity(authorizationConsent));
-    }
+    this.oauth2AuthorizationConsentRepository.save(toEntity(authorizationConsent));
   }
 
   @Override
   public void remove(OAuth2AuthorizationConsent authorizationConsent) {
     Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
-    this.oauth2AuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
+    this.oauth2AuthorizationConsentRepository.deleteByRegisteredClientIdAndPrincipalName(
         authorizationConsent.getRegisteredClientId(), authorizationConsent.getPrincipalName());
   }
 
@@ -52,31 +53,29 @@ public class DefaultOAuth2AuthorizationConsentService implements OAuth2Authoriza
   public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
     Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
     Assert.hasText(principalName, "principalName cannot be empty");
-    return this.oauth2AuthorizationConsentMapper
-        .selectByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
+    return this.oauth2AuthorizationConsentRepository
+        .findByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
         .map(this::toObject)
         .orElse(null);
   }
 
-  private OAuth2AuthorizationConsent toObject(
-      io.github.lishangbu.avalon.authorization.entity.Oauth2AuthorizationConsent
-          authorizationConsent) {
-    String registeredClientId = authorizationConsent.getRegisteredClientId();
+  private OAuth2AuthorizationConsent toObject(OauthAuthorizationConsent oauthAuthorizationConsent) {
+    String registeredClientId = oauthAuthorizationConsent.getRegisteredClientId();
     RegisteredClient registeredClient =
         this.registeredClientRepository.findById(registeredClientId);
     if (registeredClient == null) {
-      throw new IllegalStateException(
+      throw new DataRetrievalFailureException(
           "The RegisteredClient with id '"
               + registeredClientId
-              + "' was not found in the RegisteredClientRepository.");
+              + "' was not found in the Oauth2RegisteredClientRepository.");
     }
 
     OAuth2AuthorizationConsent.Builder builder =
         OAuth2AuthorizationConsent.withId(
-            registeredClientId, authorizationConsent.getPrincipalName());
-    if (authorizationConsent.getAuthorities() != null) {
+            registeredClientId, oauthAuthorizationConsent.getPrincipalName());
+    if (oauthAuthorizationConsent.getAuthorities() != null) {
       for (String authority :
-          StringUtils.commaDelimitedListToSet(authorizationConsent.getAuthorities())) {
+          StringUtils.commaDelimitedListToSet(oauthAuthorizationConsent.getAuthorities())) {
         builder.authority(new SimpleGrantedAuthority(authority));
       }
     }
@@ -84,11 +83,8 @@ public class DefaultOAuth2AuthorizationConsentService implements OAuth2Authoriza
     return builder.build();
   }
 
-  private io.github.lishangbu.avalon.authorization.entity.Oauth2AuthorizationConsent toEntity(
-      OAuth2AuthorizationConsent authorizationConsent) {
-
-    io.github.lishangbu.avalon.authorization.entity.Oauth2AuthorizationConsent entity =
-        new io.github.lishangbu.avalon.authorization.entity.Oauth2AuthorizationConsent();
+  private OauthAuthorizationConsent toEntity(OAuth2AuthorizationConsent authorizationConsent) {
+    OauthAuthorizationConsent entity = new OauthAuthorizationConsent();
     entity.setRegisteredClientId(authorizationConsent.getRegisteredClientId());
     entity.setPrincipalName(authorizationConsent.getPrincipalName());
 

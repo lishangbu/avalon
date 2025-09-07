@@ -15,20 +15,19 @@
     </dependency>
     <dependency>
       <groupId>io.github.lishangbu</groupId>
-      <artifactId>avalon-mybatis-support</artifactId>
+      <artifactId>avalon-hibernate-support</artifactId>
     </dependency>
     <dependency>
       <groupId>io.github.lishangbu</groupId>
       <artifactId>avalon-oauth2-authorization-server</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mybatis.spring.boot</groupId>
-      <artifactId>mybatis-spring-boot-starter</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-jpa</artifactId>
     </dependency>
     <!-- H2驱动 -->
     <dependency>
@@ -42,8 +41,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mybatis.spring.boot</groupId>
-      <artifactId>mybatis-spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

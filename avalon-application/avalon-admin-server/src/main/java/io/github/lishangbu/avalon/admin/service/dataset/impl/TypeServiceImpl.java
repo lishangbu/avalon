@@ -1,10 +1,8 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
-import io.github.lishangbu.avalon.dataset.mapper.TypeMapper;
+import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
@@ -22,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TypeServiceImpl implements TypeService {
-  private final TypeMapper typeMapper;
+  private final TypeRepository typeRepository;
   private final PokeApiService pokeApiService;
 
   @Override
@@ -40,7 +38,7 @@ public class TypeServiceImpl implements TypeService {
               .ifPresent(name -> type.setName(name.name()));
           return type;
         },
-        typeMapper::insert,
+        typeRepository::save,
         io.github.lishangbu.avalon.pokeapi.model.pokemon.Type.class);
   }
 
@@ -63,11 +61,5 @@ public class TypeServiceImpl implements TypeService {
   @Override
   public Type findById(Long id) {
     return null;
-  }
-
-  @Override
-  public PageInfo<Type> getPage(Integer pageNum, Integer pageSize, Type type) {
-    return PageHelper.startPage(pageNum, pageSize)
-        .doSelectPageInfo(() -> typeMapper.selectAll(type));
   }
 }

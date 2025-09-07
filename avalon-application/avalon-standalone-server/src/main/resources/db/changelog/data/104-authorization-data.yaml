@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 104
+      author: lishangbu
+      changes:
+        - sqlFile:
+            path: ../sql/104-authorization-data.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ';'
+

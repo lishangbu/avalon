@@ -4,9 +4,6 @@ spring:
     username: postgres
     password: postgres
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
-mybatis:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 oauth2:
   ignore-urls:
     - /actuator/**

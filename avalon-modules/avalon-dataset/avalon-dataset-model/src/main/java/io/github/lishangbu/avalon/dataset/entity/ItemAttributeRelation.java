@@ -1,8 +1,12 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
+import java.util.Objects;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * 道具属性关系(ItemAttributeRelation)实体类
@@ -10,16 +14,44 @@ import lombok.Data;
  * @author lishangbu
  * @since 2025/08/20
  */
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Entity
 public class ItemAttributeRelation implements Serializable {
   @Serial private static final long serialVersionUID = -52048016504666011L;
 
   /** 主键 */
-  private Long id;
+  @Id private Long id;
 
   /** 道具ID */
   private Long itemId;
 
   /** 道具属性ID */
   private Long itemAttributeId;
+
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    ItemAttributeRelation that = (ItemAttributeRelation) o;
+    return getId() != null && Objects.equals(getId(), that.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }

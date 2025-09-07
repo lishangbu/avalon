@@ -1,8 +1,12 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
+import java.util.Objects;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * 招式(Move)实体类
@@ -10,12 +14,16 @@ import lombok.Data;
  * @author lishangbu
  * @since 2025/08/20
  */
-@Data
+@Entity
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 public class Move implements Serializable {
   @Serial private static final long serialVersionUID = -30304372663754761L;
 
   /** 主键 */
-  private Long id;
+  @Id private Long id;
 
   /** 内部名称 */
   private String internalName;
@@ -85,4 +93,28 @@ public class Move implements Serializable {
 
   /** 招式导致的状态异常(内部名称) */
   private String ailmentInternalName;
+
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    Move move = (Move) o;
+    return getId() != null && Objects.equals(getId(), move.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }

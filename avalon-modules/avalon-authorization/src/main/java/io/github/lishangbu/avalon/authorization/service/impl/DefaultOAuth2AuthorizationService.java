@@ -6,8 +6,8 @@ import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCac
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.lishangbu.avalon.authorization.entity.Oauth2Authorization;
-import io.github.lishangbu.avalon.authorization.mapper.Oauth2AuthorizationMapper;
+import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
+import io.github.lishangbu.avalon.authorization.repository.Oauth2AuthorizationRepository;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfoMixin;
 import java.time.Instant;
@@ -47,16 +47,16 @@ import org.springframework.util.StringUtils;
 @Service
 @CacheConfig(cacheManager = CAFFEINE_CACHE_BEAN_NAME, value = OAUTH_2_AUTHORIZATION_CACHE)
 public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationService {
-  private final Oauth2AuthorizationMapper oauth2AuthorizationMapper;
+  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final RegisteredClientRepository registeredClientRepository;
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public DefaultOAuth2AuthorizationService(
-      Oauth2AuthorizationMapper oauth2AuthorizationMapper,
+      Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       RegisteredClientRepository registeredClientRepository) {
-    Assert.notNull(oauth2AuthorizationMapper, "oauth2AuthorizationMapper cannot be null");
+    Assert.notNull(oauth2AuthorizationRepository, "oauth2AuthorizationRepository cannot be null");
     Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
-    this.oauth2AuthorizationMapper = oauth2AuthorizationMapper;
+    this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.registeredClientRepository = registeredClientRepository;
 
     ClassLoader classLoader = this.getClass().getClassLoader();
@@ -87,12 +87,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   @Transactional(rollbackFor = Exception.class)
   public void save(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
-    OAuth2Authorization existingAuthorization = findById(authorization.getId());
-    if (existingAuthorization == null) {
-      this.oauth2AuthorizationMapper.insert(toEntity(authorization));
-    } else {
-      this.oauth2AuthorizationMapper.updateById(toEntity(authorization));
-    }
+    this.oauth2AuthorizationRepository.save(toEntity(authorization));
   }
 
   @Override
@@ -100,13 +95,13 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   @CacheEvict(allEntries = true)
   public void remove(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
-    this.oauth2AuthorizationMapper.deleteById(authorization.getId());
+    this.oauth2AuthorizationRepository.deleteById(authorization.getId());
   }
 
   @Override
   public OAuth2Authorization findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return this.oauth2AuthorizationMapper.selectById(id).map(this::toObject).orElse(null);
+    return this.oauth2AuthorizationRepository.findById(id).map(this::toObject).orElse(null);
   }
 
   @Override
@@ -114,26 +109,26 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
     Assert.hasText(token, "token cannot be empty");
 
-    Optional<Oauth2Authorization> result;
+    Optional<OauthAuthorization> result;
     if (tokenType == null) {
       result =
-          this.oauth2AuthorizationMapper
-              .selectByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+          this.oauth2AuthorizationRepository
+              .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
                   token);
     } else if (OAuth2ParameterNames.STATE.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByState(token);
+      result = this.oauth2AuthorizationRepository.findByState(token);
     } else if (OAuth2ParameterNames.CODE.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByAuthorizationCodeValue(token);
+      result = this.oauth2AuthorizationRepository.findByAuthorizationCodeValue(token);
     } else if (OAuth2ParameterNames.ACCESS_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByAccessTokenValue(token);
+      result = this.oauth2AuthorizationRepository.findByAccessTokenValue(token);
     } else if (OAuth2ParameterNames.REFRESH_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByRefreshTokenValue(token);
+      result = this.oauth2AuthorizationRepository.findByRefreshTokenValue(token);
     } else if (OidcParameterNames.ID_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByOidcIdTokenValue(token);
+      result = this.oauth2AuthorizationRepository.findByOidcIdTokenValue(token);
     } else if (OAuth2ParameterNames.USER_CODE.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByUserCodeValue(token);
+      result = this.oauth2AuthorizationRepository.findByUserCodeValue(token);
     } else if (OAuth2ParameterNames.DEVICE_CODE.equals(tokenType.getValue())) {
-      result = this.oauth2AuthorizationMapper.selectByDeviceCodeValue(token);
+      result = this.oauth2AuthorizationRepository.findByDeviceCodeValue(token);
     } else {
       result = Optional.empty();
     }
@@ -141,14 +136,14 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
     return result.map(this::toObject).orElse(null);
   }
 
-  private OAuth2Authorization toObject(Oauth2Authorization entity) {
+  private OAuth2Authorization toObject(OauthAuthorization entity) {
     RegisteredClient registeredClient =
         this.registeredClientRepository.findById(entity.getRegisteredClientId());
     if (registeredClient == null) {
       throw new DataRetrievalFailureException(
           "The RegisteredClient with id '"
               + entity.getRegisteredClientId()
-              + "' was not found in the RegisteredClientRepository.");
+              + "' was not found in the Oauth2RegisteredClientRepository.");
     }
 
     OAuth2Authorization.Builder builder =
@@ -229,8 +224,8 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
     return builder.build();
   }
 
-  private Oauth2Authorization toEntity(OAuth2Authorization authorization) {
-    Oauth2Authorization entity = new Oauth2Authorization();
+  private OauthAuthorization toEntity(OAuth2Authorization authorization) {
+    OauthAuthorization entity = new OauthAuthorization();
     entity.setId(authorization.getId());
     entity.setRegisteredClientId(authorization.getRegisteredClientId());
     entity.setPrincipalName(authorization.getPrincipalName());
