@@ -29,7 +29,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
           javadoc-branch: gh-pages
           java-distribution: oracle
-          java-version: 24
+          java-version: 25
           # url will be https://<username>.github.io/<repo>/javadoc, This can be left as nothing to generate javadocs in the root folder.
           target-folder: javadoc
           project: maven
