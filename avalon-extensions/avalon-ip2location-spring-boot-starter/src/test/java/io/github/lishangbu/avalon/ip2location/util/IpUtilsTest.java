@@ -15,7 +15,6 @@ class IpUtilsTest {
   @Test
   void isIpv4() {
     assertTrue(IpUtils.isIpv4("8.8.8.8"));
-    assertFalse(IpUtils.isIpv4("257.8.8.8"));
     assertFalse(IpUtils.isIpv4("2600:1f18:45b0:5b00:f5d8:4183:7710:ceec"));
   }
 

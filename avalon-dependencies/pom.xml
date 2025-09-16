@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.4</version>
+    <version>3.5.5</version>
     <relativePath />
   </parent>
   <groupId>io.github.lishangbu</groupId>
@@ -44,14 +44,14 @@
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
     <ip2location.version>1.2.4</ip2location.version>
-    <java.version>24</java.version>
+    <java.version>25</java.version>
     <jgit.version>7.3.0.202506031305-r</jgit.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
     <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
-    <spring-doc.version>2.8.11</spring-doc.version>
+    <spring-doc.version>2.8.13</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
   <dependencyManagement>

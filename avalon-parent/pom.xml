@@ -89,6 +89,7 @@
         <configuration>
           <java>
             <googleJavaFormat>
+              <version>1.28.0</version>
               <style>GOOGLE</style>
               <!-- or AOSP (optional) -->
               <reflowLongStrings>true</reflowLongStrings>
