@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.authorization.service.impl;
 import io.github.lishangbu.avalon.authorization.entity.Role;
 import io.github.lishangbu.avalon.authorization.repository.UserRepository;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,7 +30,9 @@ public class DefaultUserDetailsService implements UserDetailsService {
                     String.valueOf(user.getId()),
                     user.getUsername(),
                     user.getPassword(),
-                    user.getRoles().stream().map(Role::getCode).collect(Collectors.joining(","))))
+                    user.getRoles() == null
+                        ? null
+                        : String.join(",", user.getRoles().stream().map(Role::getCode).toList())))
         .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
   }
 }

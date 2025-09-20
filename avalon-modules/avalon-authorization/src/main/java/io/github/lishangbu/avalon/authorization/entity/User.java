@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.jpa.Flex;
 import jakarta.persistence.*;
 import java.io.Serial;
@@ -36,6 +37,8 @@ public class User implements Serializable {
 
   /** 密码 */
   @Column(name = "[password]")
+  @ToString.Exclude
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 
   /** 用户与角色多对多关系 */

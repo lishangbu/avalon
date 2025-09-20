@@ -38,7 +38,7 @@ class PermissionControllerTest {
         .thenReturn(List.of());
 
     mockMvc
-        .perform(get("/permission/role-permission-tree").with(user(user)))
+        .perform(get("/permission/role-tree").with(user(user)))
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 

@@ -30,10 +30,11 @@ class UserRepositoryTest {
 
   @Test
   void testFindByUsername() {
-    Optional<User> userInfoOptional = userRepository.findUserWithRolesByUsername("test");
-    Assertions.assertTrue(userInfoOptional.isPresent());
-    User user = userInfoOptional.get();
+    Optional<User> userOptional = userRepository.findUserWithRolesByUsername("test");
+    Assertions.assertTrue(userOptional.isPresent());
+    User user = userOptional.get();
     Assertions.assertEquals("test", user.getUsername());
     Assertions.assertTrue(user.getPassword().startsWith("{bcrypt}"));
+    Assertions.assertEquals(2, user.getRoles().size());
   }
 }

@@ -30,7 +30,7 @@ public class PermissionServiceImpl implements PermissionService {
   @Override
   public List<PermissionTreeNode> listPermissionTreeByRoleCodes(List<String> roleCodes) {
     // 根据角色编码查询权限列表
-    List<Permission> permissions = permissionMapper.findAllByRoleCodes(roleCodes);
+    List<Permission> permissions = permissionMapper.findAllEnabledPermissionsByRoleCodes(roleCodes);
     log.debug("根据角色编码获取到 [{}] 条权限记录", permissions == null ? 0 : permissions.size());
     return buildTreeFromPermissions(permissions);
   }
