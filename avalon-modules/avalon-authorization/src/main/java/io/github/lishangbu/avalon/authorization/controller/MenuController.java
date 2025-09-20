@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.controller;
 
-import io.github.lishangbu.avalon.authorization.model.PermissionTreeNode;
-import io.github.lishangbu.avalon.authorization.service.PermissionService;
+import io.github.lishangbu.avalon.authorization.model.MenuTreeNode;
+import io.github.lishangbu.avalon.authorization.service.MenuService;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
 import java.util.Arrays;
 import java.util.List;
@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 权限服务控制器
+ * 菜单控制器
  *
  * @author lishangbu
  * @since 2025/8/28
  */
 @Slf4j
-@RequestMapping("/permission")
+@RequestMapping("/menu")
 @RestController
 @RequiredArgsConstructor
-public class PermissionController {
-  private final PermissionService permissionService;
+public class MenuController {
+  private final MenuService menuService;
 
   @GetMapping("/role-tree")
-  public List<PermissionTreeNode> listPermissionTree(@AuthenticationPrincipal UserInfo user) {
-    return permissionService.listPermissionTreeByRoleCodes(
+  public List<MenuTreeNode> listMenuTree(@AuthenticationPrincipal UserInfo user) {
+    return menuService.listMenuTreeByRoleCodes(
         Arrays.stream(user.getRoleCodes().split(",")).toList());
   }
 }

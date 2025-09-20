@@ -5,59 +5,78 @@ import io.github.lishangbu.avalon.jpa.Flex;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
- * 权限(Permission)实体类
+ * 菜单
  *
  * @author lishangbu
- * @since 2025/08/28
+ * @since 2025/9/17
  */
+@Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Entity
-@Table(name = "[permission]")
-public class Permission implements Serializable {
+public class Menu implements Serializable {
+
   @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
   /** 主键 */
   @Id @Flex private Long id;
 
-  /** 权限名称 */
-  private String name;
-
-  /** 权限编码 */
-  private String code;
-
   /** 父权限ID */
   private Long parentId;
 
-  /** 请求方法 */
-  private String method;
+  // region Naive UI Menu 属性
 
-  /** 描述 */
-  private String description;
+  /** 是否禁用菜单项 */
+  private Boolean disabled;
 
-  /** 是否启用 */
-  private Boolean enabled;
+  /** 菜单项的额外部分 */
+  private String extra;
+
+  /** 菜单项的图标 */
+  private String icon;
+
+  /** 菜单项的标识符 */
+  private String key;
+
+  /** 菜单项的内容 */
+  private String label;
+
+  /** 是否显示菜单项 */
+  private Boolean show;
+
+  // endregion
+
+  // region Vue Router 属性
+
+  /** 路径 */
+  private String path;
+
+  /** 名称 */
+  private String name;
+
+  /** 重定向路径 */
+  private String redirect;
+
+  /** 组件路径 */
+  private String component;
 
   /** 排序顺序 */
   private Integer sortOrder;
 
+  // endregion
+
   /** 权限与角色多对多关系 */
-  @ManyToMany(mappedBy = "permissions")
+  @ManyToMany(mappedBy = "menus")
   @ToString.Exclude
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private Set<Role> roles;
@@ -75,8 +94,8 @@ public class Permission implements Serializable {
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) return false;
-    Permission that = (Permission) o;
-    return getId() != null && Objects.equals(getId(), that.getId());
+    Menu menu = (Menu) o;
+    return getId() != null && Objects.equals(getId(), menu.getId());
   }
 
   @Override

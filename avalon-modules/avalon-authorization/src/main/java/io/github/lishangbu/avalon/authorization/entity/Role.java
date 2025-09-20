@@ -1,12 +1,16 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.jpa.Flex;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
@@ -39,6 +43,15 @@ public class Role implements Serializable {
   /** 角色与权限多对多关系 */
   @ManyToMany
   @JoinTable(
+      name = "role_menu_relation",
+      joinColumns = @JoinColumn(name = "role_id"),
+      inverseJoinColumns = @JoinColumn(name = "menu_id"))
+  @ToString.Exclude
+  private Set<Menu> menus;
+
+  /** 角色与权限多对多关系 */
+  @ManyToMany
+  @JoinTable(
       name = "role_permission_relation",
       joinColumns = @JoinColumn(name = "role_id"),
       inverseJoinColumns = @JoinColumn(name = "permission_id"))
@@ -48,6 +61,7 @@ public class Role implements Serializable {
   /** 角色与用户多对多关系 */
   @ManyToMany(mappedBy = "roles")
   @ToString.Exclude
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private Set<User> users;
 
   @Override
