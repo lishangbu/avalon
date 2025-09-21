@@ -9,7 +9,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
@@ -72,6 +75,19 @@ public class Menu implements Serializable {
 
   /** 排序顺序 */
   private Integer sortOrder;
+
+  // endregion
+
+  // region 其他的 router metadata
+
+  /** 固定标签页 */
+  private Boolean pinned;
+
+  /** 显示标签页 */
+  private Boolean showTab;
+
+  /** 多标签页显示 */
+  private Boolean enableMultiTab;
 
   // endregion
 

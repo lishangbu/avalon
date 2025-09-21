@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.admin.service.dataset;
 
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * 属性服务
@@ -17,6 +19,15 @@ public interface TypeService {
    * @return 属性类型列表
    */
   List<Type> importTypes();
+
+  /**
+   * 根据条件分页查询属性类型
+   *
+   * @param type 查询条件
+   * @param pageable 分页信息
+   * @return 分页结果
+   */
+  Page<Type> getPageByCondition(Type type, Pageable pageable);
 
   /**
    * 新增属性类型

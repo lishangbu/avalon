@@ -201,6 +201,21 @@ databaseChangeLog:
                   type: int
                   remarks: '排序顺序'
                   defaultValue: 0
+              - column:
+                  name: pinned
+                  type: boolean
+                  remarks: '是否固定标签页'
+                  defaultValue: false
+              - column:
+                  name: show_tab
+                  type: boolean
+                  remarks: '是否显示标签页'
+                  defaultValue: true
+              - column:
+                  name: enable_multi_tab
+                  type: boolean
+                  remarks: '是否支持多标签页'
+                  defaultValue: false
         - createTable:
             tableName: role_menu_relation
             remarks: '角色菜单关系'
