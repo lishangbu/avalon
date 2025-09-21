@@ -26,7 +26,7 @@ public class MenuController {
   private final MenuService menuService;
 
   @GetMapping("/role-tree")
-  public List<MenuTreeNode> listMenuTree(@AuthenticationPrincipal UserInfo user) {
+  public List<MenuTreeNode> listCurrentRoleMenuTree(@AuthenticationPrincipal UserInfo user) {
     return menuService.listMenuTreeByRoleCodes(
         Arrays.stream(user.getRoleCodes().split(",")).toList());
   }

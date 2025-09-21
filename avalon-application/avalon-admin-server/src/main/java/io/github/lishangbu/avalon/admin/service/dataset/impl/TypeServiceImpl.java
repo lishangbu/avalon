@@ -2,12 +2,18 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
+import io.github.lishangbu.avalon.dataset.entity.Type_;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +46,32 @@ public class TypeServiceImpl implements TypeService {
         },
         typeRepository::save,
         io.github.lishangbu.avalon.pokeapi.model.pokemon.Type.class);
+  }
+
+  /**
+   * 根据条件分页查询属性类型
+   *
+   * @param type 查询条件
+   * @param pageable 分页信息
+   * @return 分页结果
+   */
+  @Override
+  public Page<Type> getPageByCondition(Type type, Pageable pageable) {
+    Specification<Type> spec =
+        (root, query, cb) -> {
+          List<Predicate> predicates = new ArrayList<>();
+          if (type.getName() != null) {
+            predicates.add(cb.like(root.get(Type_.NAME), String.format("%%%s%%", type.getName())));
+          }
+          if (type.getInternalName() != null) {
+            predicates.add(
+                cb.like(
+                    root.get(Type_.INTERNAL_NAME),
+                    String.format("%%%s%%", type.getInternalName())));
+          }
+          return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    return typeRepository.findAll(spec, pageable);
   }
 
   @Override

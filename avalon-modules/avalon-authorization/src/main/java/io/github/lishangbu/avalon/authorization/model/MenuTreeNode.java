@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.authorization.model;
 
 import io.github.lishangbu.avalon.authorization.entity.Menu;
-import io.github.lishangbu.avalon.authorization.entity.Permission;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ import org.springframework.beans.BeanUtils;
 @Getter
 @Setter
 @ToString
-public class MenuTreeNode extends Permission {
+public class MenuTreeNode extends Menu {
   private List<MenuTreeNode> children;
 
   public MenuTreeNode(Menu menu) {
