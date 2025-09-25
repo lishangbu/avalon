@@ -70,7 +70,7 @@ public class TypeController {
    * @param id 属性类型ID
    */
   @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@RequestParam Long id) {
-    typeService.deleteById(id);
+  public void deleteById(@PathVariable Long id) {
+    typeService.removeById(id);
   }
 }
