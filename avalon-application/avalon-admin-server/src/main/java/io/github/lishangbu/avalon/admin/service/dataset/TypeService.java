@@ -42,7 +42,7 @@ public interface TypeService {
    *
    * @param id 要删除的 Type 主键
    */
-  void deleteById(Long id);
+  void removeById(Long id);
 
   /**
    * 更新属性类型
@@ -52,11 +52,4 @@ public interface TypeService {
    */
   Type update(Type type);
 
-  /**
-   * 根据主键查询属性类型
-   *
-   * @param id Type 主键
-   * @return 查询到的 Type 实体，未找到时返回 null
-   */
-  Type findById(Long id);
 }
