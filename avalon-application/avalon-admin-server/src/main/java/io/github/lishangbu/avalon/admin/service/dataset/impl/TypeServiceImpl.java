@@ -8,15 +8,14 @@ import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 属性服务实现
@@ -118,5 +117,4 @@ public class TypeServiceImpl implements TypeService {
   public Type update(Type type) {
     return typeRepository.save(type);
   }
-
 }

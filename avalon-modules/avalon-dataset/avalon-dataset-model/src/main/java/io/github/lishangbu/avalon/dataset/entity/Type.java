@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.jpa.Flex;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -23,7 +24,7 @@ public class Type implements Serializable {
   @Serial private static final long serialVersionUID = -68547309302497308L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id @Flex private Long id;
 
   /** 属性内部名称 */
   private String internalName;

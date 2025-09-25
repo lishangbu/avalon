@@ -51,5 +51,4 @@ public interface TypeService {
    * @return 更新后的 Type 实体
    */
   Type update(Type type);
-
 }
