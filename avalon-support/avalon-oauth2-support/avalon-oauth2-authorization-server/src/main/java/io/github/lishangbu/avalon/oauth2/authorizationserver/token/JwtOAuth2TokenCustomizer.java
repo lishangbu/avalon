@@ -87,7 +87,6 @@ public class JwtOAuth2TokenCustomizer implements OAuth2TokenCustomizer<JwtEncodi
       JwtClaimsSet.Builder claims = context.getClaims();
       // 将权限信息放入jwt的claims中（也可以生成一个以指定字符分割的字符串放入）
       claims.claim(SecurityConstants.AUTHORITIES_KEY, authoritySet);
-      claims.claim(SecurityConstants.TOKEN_UNIQUE_ID, userInfo.getId());
       // 放入其它自定内容
       // 角色、头像...
     }

@@ -28,8 +28,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.liquibase</groupId>
-      <artifactId>liquibase-core</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-liquibase</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

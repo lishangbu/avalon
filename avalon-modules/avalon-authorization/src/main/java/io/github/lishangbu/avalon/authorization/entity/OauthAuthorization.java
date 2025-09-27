@@ -2,16 +2,20 @@ package io.github.lishangbu.avalon.authorization.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.hibernate.type.SqlTypes;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 
 /**
  * 用户认证信息表(OauthAuthorization)实体类
@@ -25,10 +29,15 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 @RequiredArgsConstructor
 @Entity
 public class OauthAuthorization implements Serializable {
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** 唯一标识符 */
   @Id private String id;
+
+  /** 序列化的完整OAuth2Authorization对象 */
+  @Lob
+  @JdbcTypeCode(SqlTypes.JAVA_OBJECT)
+  private OAuth2Authorization authorizationObject;
 
   /** 已注册的客户端 ID */
   private String registeredClientId;
@@ -43,7 +52,8 @@ public class OauthAuthorization implements Serializable {
   private String authorizedScopes;
 
   /** 属性 */
-  private String attributes;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> attributes;
 
   /** 状态 */
   private String state;
@@ -58,7 +68,8 @@ public class OauthAuthorization implements Serializable {
   private Instant authorizationCodeExpiresAt;
 
   /** 授权码元数据 */
-  private String authorizationCodeMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> authorizationCodeMetadata;
 
   /** 访问令牌值 */
   private String accessTokenValue;
@@ -70,7 +81,8 @@ public class OauthAuthorization implements Serializable {
   private Instant accessTokenExpiresAt;
 
   /** 访问令牌元数据 */
-  private String accessTokenMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> accessTokenMetadata;
 
   /** 访问令牌范围 */
   private String accessTokenScopes;
@@ -85,10 +97,12 @@ public class OauthAuthorization implements Serializable {
   private Instant oidcIdTokenExpiresAt;
 
   /** OIDC ID 令牌元数据 */
-  private String oidcIdTokenMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> oidcIdTokenMetadata;
 
   /** OIDC ID 令牌声明 */
-  private String oidcIdTokenClaims;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> oidcIdTokenClaims;
 
   /** 刷新令牌值 */
   private String refreshTokenValue;
@@ -100,7 +114,8 @@ public class OauthAuthorization implements Serializable {
   private Instant refreshTokenExpiresAt;
 
   /** 刷新令牌元数据 */
-  private String refreshTokenMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> refreshTokenMetadata;
 
   /** 用户代码值 */
   private String userCodeValue;
@@ -112,7 +127,8 @@ public class OauthAuthorization implements Serializable {
   private Instant userCodeExpiresAt;
 
   /** 用户代码元数据 */
-  private String userCodeMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> userCodeMetadata;
 
   /** 设备代码值 */
   private String deviceCodeValue;
@@ -124,7 +140,8 @@ public class OauthAuthorization implements Serializable {
   private Instant deviceCodeExpiresAt;
 
   /** 设备代码元数据 */
-  private String deviceCodeMetadata;
+  @JdbcTypeCode(SqlTypes.JSON)
+  private Map<String, Object> deviceCodeMetadata;
 
   @Override
   public final boolean equals(Object o) {

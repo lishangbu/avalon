@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 

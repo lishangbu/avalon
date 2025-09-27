@@ -3,8 +3,6 @@ package io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration;
 import static io.github.lishangbu.avalon.oauth2.common.constant.SecurityBeanDefinitionConstants.AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME;
 import static io.github.lishangbu.avalon.oauth2.common.constant.SecurityBeanDefinitionConstants.AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER;
 
-import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationConverter;
-import io.github.lishangbu.avalon.oauth2.authorizationserver.granter.OAuth2PasswordAuthenticationProvider;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointErrorResponseHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointResponseHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
@@ -16,18 +14,21 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2PasswordAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2PasswordAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,10 +49,11 @@ public class AuthorizationServerAutoConfiguration {
   @Bean
   @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
   @ConditionalOnMissingBean(name = AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
-  public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+  public SecurityFilterChain authorizationServerSecurityFilterChain(
+      HttpSecurity http, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder)
       throws Exception {
     OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-        OAuth2AuthorizationServerConfigurer.authorizationServer();
+        new OAuth2AuthorizationServerConfigurer();
     // 禁用csrf和cors
     http.csrf(CsrfConfigurer::disable)
         .cors(CorsConfigurer::disable)
@@ -116,21 +118,32 @@ public class AuthorizationServerAutoConfiguration {
                 })
             .build();
 
-    addPasswordAuthenticationProvider(http);
+    addPasswordAuthenticationProvider(
+        http, authorizationServerConfigurer, userDetailsService, passwordEncoder);
     return securityFilterChain;
   }
 
   @SuppressWarnings("unchecked")
-  private void addPasswordAuthenticationProvider(HttpSecurity http) {
-    AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+  private void addPasswordAuthenticationProvider(
+      HttpSecurity http,
+      OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer,
+      UserDetailsService userDetailsService,
+      PasswordEncoder passwordEncoder) {
     OAuth2AuthorizationService authorizationService =
         http.getSharedObject(OAuth2AuthorizationService.class);
     OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator =
         http.getSharedObject(OAuth2TokenGenerator.class);
-
     OAuth2PasswordAuthenticationProvider resourceOwnerPasswordAuthenticationProvider =
         new OAuth2PasswordAuthenticationProvider(
-            authenticationManager, authorizationService, tokenGenerator);
+            http,
+            oAuth2AuthorizationServerConfigurer,
+            authorizationService,
+            userDetailsService,
+            passwordEncoder,
+            tokenGenerator,
+            accessTokenRequestConvertersConsumer ->
+                accessTokenRequestConvertersConsumer.add(
+                    new OAuth2PasswordAuthenticationConverter()));
 
     // This will add new authentication provider in the list of existing authentication providers.
     http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
