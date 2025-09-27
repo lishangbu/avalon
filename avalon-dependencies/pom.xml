@@ -37,12 +37,12 @@
     <url>https://github.com/lishangbu/avalon/issues</url>
   </issueManagement>
   <properties>
-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
     <!--docker镜像前缀-->
     <docker.image.prefix>slf4j</docker.image.prefix>
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
-    <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
+    <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
     <ip2location.version>1.2.4</ip2location.version>
     <java.version>25</java.version>
     <jgit.version>7.3.0.202506031305-r</jgit.version>
@@ -50,7 +50,7 @@
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>ossrh</publishing.server.id>
     <revision>1.0.0-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>3.0.0</spotless-maven-plugin.version>
     <spring-doc.version>2.8.13</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
