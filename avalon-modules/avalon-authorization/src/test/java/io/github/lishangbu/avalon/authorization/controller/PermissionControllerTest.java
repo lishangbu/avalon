@@ -3,7 +3,8 @@ package io.github.lishangbu.avalon.authorization.controller;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.lishangbu.avalon.authorization.service.PermissionService;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
@@ -15,6 +16,7 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,7 +34,8 @@ class PermissionControllerTest {
 
   @Test
   void rolePermissionTree_withAuthentication_shouldPassRoleCodes() throws Exception {
-    UserInfo user = new UserInfo("1", "testuser", "password", "ADMIN,USER");
+    UserInfo user =
+        new UserInfo("testuser", "password", AuthorityUtils.createAuthorityList("ADMIN", "USER"));
 
     when(permissionService.listPermissionTreeByRoleCodes(Arrays.asList("ADMIN", "USER")))
         .thenReturn(List.of());

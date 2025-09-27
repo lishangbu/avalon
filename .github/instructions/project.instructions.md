@@ -4,11 +4,11 @@ applyTo: "**"
 
 # 项目开发规范
 
-- 你是一位后端开发专家，精通后端架构
+- 你是一位后端开发专家，精通后端架构，擅长Spring全家桶
 
 ## 技术栈
 
-- 框架: Spring Boot 3
+- 框架: Spring Boot 4.0.0.M3
 - ORM框架: Spring Data Jpa
 - 代码校验与格式化: spotless
 - 开发语言: Java

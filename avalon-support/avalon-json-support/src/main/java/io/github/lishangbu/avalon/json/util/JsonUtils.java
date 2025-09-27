@@ -1,19 +1,18 @@
 package io.github.lishangbu.avalon.json.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.json.exception.JsonProcessingRuntimeException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * JSON 序列化与反序列化工具类。 提供将 Java 对象转为 JSON 字符串、格式化 JSON 和将 JSON 转换为不同 Java 类型的功能。
@@ -48,7 +47,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().writeValueAsString(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -66,7 +65,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -83,7 +82,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().writeValueAsBytes(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -97,7 +96,7 @@ public class JsonUtils implements ApplicationContextAware {
   public static JsonNode readTree(String content) {
     try {
       return getInstance().readTree(content);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -111,7 +110,7 @@ public class JsonUtils implements ApplicationContextAware {
   public static JsonNode readTree(InputStream in) {
     try {
       return getInstance().readTree(in);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -125,7 +124,7 @@ public class JsonUtils implements ApplicationContextAware {
   public static JsonNode readTree(Reader r) {
     try {
       return getInstance().readTree(r);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -139,7 +138,7 @@ public class JsonUtils implements ApplicationContextAware {
   public static JsonNode readTree(byte[] content) {
     try {
       return getInstance().readTree(content);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -161,7 +160,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(content, valueType);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -181,7 +180,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(content, valueTypeRef);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -201,7 +200,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -221,7 +220,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueTypeRef);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -241,7 +240,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, javaType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -261,7 +260,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -281,7 +280,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueTypeRef);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -301,7 +300,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -321,7 +320,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -341,7 +340,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueTypeRef);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }
@@ -361,7 +360,7 @@ public class JsonUtils implements ApplicationContextAware {
     }
     try {
       return getInstance().readValue(src, valueType);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new JsonProcessingRuntimeException(e);
     }
   }

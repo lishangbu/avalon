@@ -1,7 +1,5 @@
 package io.github.lishangbu.avalon.web.response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lishangbu.avalon.json.exception.JsonProcessingRuntimeException;
 import io.github.lishangbu.avalon.web.result.ApiResult;
 import org.slf4j.Logger;
@@ -13,6 +11,8 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * API响应结果包装
@@ -46,7 +46,7 @@ public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
       ServerHttpResponse response) {
     try {
       return wrapApiResult(body);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("ApiResultResponse JsonProcessingException:[{}]", e.getMessage());
       throw new JsonProcessingRuntimeException(e.getMessage());
     }
@@ -57,9 +57,9 @@ public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
    *
    * @param body
    * @return
-   * @throws JsonProcessingException
+   * @throws JacksonException
    */
-  private Object wrapApiResult(Object body) throws JsonProcessingException {
+  private Object wrapApiResult(Object body) throws JacksonException {
     if (body instanceof String) {
       return objectMapper.writeValueAsString(ApiResult.ok(body));
     }

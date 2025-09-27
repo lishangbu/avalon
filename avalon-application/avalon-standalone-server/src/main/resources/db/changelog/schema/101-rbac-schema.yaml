@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: 101
       author: lishangbu
+      comment: "基本的权限控制相关表"
       changes:
         - createTable:
             tableName: user
