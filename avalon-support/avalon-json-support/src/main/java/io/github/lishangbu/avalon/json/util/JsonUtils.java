@@ -1,379 +1,199 @@
 package io.github.lishangbu.avalon.json.util;
 
-import io.github.lishangbu.avalon.json.exception.JsonProcessingRuntimeException;
 import java.io.InputStream;
 import java.io.Reader;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.ObjectUtils;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * JSON 序列化与反序列化工具类。 提供将 Java 对象转为 JSON 字符串、格式化 JSON 和将 JSON 转换为不同 Java 类型的功能。
+ * JSON 工具类，提供对象与 JSON 的序列化与反序列化能力
+ *
+ * <p>所有方法直接抛出 JacksonException，调用方无需捕获
  *
  * @author lishangbu
  * @since 2025/4/8
+ * @apiNote JacksonException 为运行时异常，建议由全局异常处理统一处理
  */
 public class JsonUtils implements ApplicationContextAware {
 
-  // 用于 JSON 处理的 ObjectMapper 实例
   private static ObjectMapper OBJECT_MAPPER;
 
-  /**
-   * 获取 ObjectMapper 实例。 这是一个单例实例，可用于 JSON 序列化和反序列化。
-   *
-   * @return ObjectMapper 实例
-   */
+  /** 获取 ObjectMapper 单例实例 */
   public static ObjectMapper getInstance() {
     return OBJECT_MAPPER;
   }
 
   /**
-   * 将 Java 对象序列化为 JSON 字符串。
+   * 对象转 JSON 字符串
    *
-   * @param value 要序列化的 Java 对象
-   * @return 序列化后的 JSON 字符串，如果输入为空，则返回 null
+   * @param value 待序列化对象
+   * @return JSON 字符串，空对象返回 null
    */
   @Nullable
   public static String toJson(@Nullable Object value) {
-    if (ObjectUtils.isEmpty(value)) {
+    if (value == null || (value instanceof String && ((String) value).isEmpty())) {
       return null;
     }
-    try {
-      return getInstance().writeValueAsString(value);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().writeValueAsString(value);
   }
 
   /**
-   * 将 Java 对象序列化为格式化（漂亮打印）的 JSON 字符串。
+   * 对象转格式化 JSON 字符串
    *
-   * @param value 要序列化的 Java 对象
-   * @return 格式化后的 JSON 字符串，如果输入为空，则返回 null
+   * @param value 待序列化对象
+   * @return 格式化 JSON 字符串，空对象返回 null
    */
   @Nullable
   public static String toPrettyJson(@Nullable Object value) {
-    if (ObjectUtils.isEmpty(value)) {
+    if (value == null || (value instanceof String && ((String) value).isEmpty())) {
       return null;
     }
-    try {
-      return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
   }
 
   /**
-   * 将 Java 对象序列化为 JSON 字节数组。
+   * 对象转 JSON 字节数组
    *
-   * @param value 要序列化的 Java 对象
-   * @return 序列化后的 JSON 字节数组，如果输入为空，则返回 null
+   * @param value 待序列化对象
+   * @return JSON 字节数组，空对象返回 null
    */
   public static byte[] toJsonAsBytes(@Nullable Object value) {
-    if (ObjectUtils.isEmpty(value)) {
+    if (value == null) {
       return null;
     }
-    try {
-      return getInstance().writeValueAsBytes(value);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().writeValueAsBytes(value);
   }
 
-  /**
-   * 将 JSON 字符串转换为 JsonNode 对象。
-   *
-   * @param content 要反序列化的 JSON 字符串
-   * @return 转换后的 JsonNode 对象
-   */
+  /** JSON 字符串转 JsonNode */
   public static JsonNode readTree(String content) {
-    try {
-      return getInstance().readTree(content);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readTree(content);
   }
 
-  /**
-   * 将 InputStream 转换为 JsonNode 对象。
-   *
-   * @param in 要读取的 InputStream
-   * @return 转换后的 JsonNode 对象
-   */
+  /** InputStream 转 JsonNode */
   public static JsonNode readTree(InputStream in) {
-    try {
-      return getInstance().readTree(in);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readTree(in);
   }
 
-  /**
-   * 将 Reader 转换为 JsonNode 对象。
-   *
-   * @param r 要读取的 Reader
-   * @return 转换后的 JsonNode 对象
-   */
+  /** Reader 转 JsonNode */
   public static JsonNode readTree(Reader r) {
-    try {
-      return getInstance().readTree(r);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readTree(r);
   }
 
-  /**
-   * 将字节数组转换为 JsonNode 对象。
-   *
-   * @param content 包含 JSON 数据的字节数组
-   * @return 转换后的 JsonNode 对象
-   */
+  /** 字节数组转 JsonNode */
   public static JsonNode readTree(byte[] content) {
-    try {
-      return getInstance().readTree(content);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readTree(content);
   }
 
-  // region JSON 反序列化方法
+  // region 反序列化
 
   /**
-   * 将 JSON 字符串转换为指定类的 Java 对象。
+   * JSON 字符串转对象
    *
-   * @param content 要反序列化的 JSON 字符串
-   * @param valueType 要转换为的 Java 类
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
+   * @param content JSON 字符串
+   * @param valueType 目标类型
+   * @return 目标对象，空字符串返回 null
    */
   @Nullable
   public static <T> T readValue(@Nullable String content, Class<T> valueType) {
-    if (ObjectUtils.isEmpty(content)) {
+    if (content == null || content.isEmpty()) {
       return null;
     }
-    try {
-      return getInstance().readValue(content, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readValue(content, valueType);
   }
 
   /**
-   * 将 JSON 字符串转换为指定泛型类型的 Java 对象。
+   * JSON 字符串转泛型对象
    *
-   * @param content 要反序列化的 JSON 字符串
-   * @param valueTypeRef 泛型类型的 TypeReference
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
+   * @param content JSON 字符串
+   * @param valueTypeRef 类型引用
+   * @return 泛型对象，空字符串返回 null
    */
   @Nullable
   public static <T> T readValue(@Nullable String content, TypeReference<T> valueTypeRef) {
-    if (ObjectUtils.isEmpty(content)) {
+    if (content == null || content.isEmpty()) {
       return null;
     }
-    try {
-      return getInstance().readValue(content, valueTypeRef);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readValue(content, valueTypeRef);
   }
 
   /**
-   * 将 JSON 字节数组转换为指定类的 Java 对象。
+   * 字节数组转对象
    *
-   * @param src 包含 JSON 数据的字节数组
-   * @param valueType 要转换为的 Java 类
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
+   * @param src JSON 字节数组
+   * @param valueType 目标类型
+   * @return 目标对象，空数组返回 null
    */
   @Nullable
   public static <T> T readValue(@Nullable byte[] src, Class<T> valueType) {
-    if (ObjectUtils.isEmpty(src)) {
+    if (src == null || src.length == 0) {
       return null;
     }
-    try {
-      return getInstance().readValue(src, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readValue(src, valueType);
   }
 
-  /**
-   * 将 JSON 字节数组转换为指定泛型类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的字节数组
-   * @param valueTypeRef 泛型类型的 TypeReference
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** 字节数组转泛型对象 */
   @Nullable
   public static <T> T readValue(@Nullable byte[] src, TypeReference<T> valueTypeRef) {
-    if (ObjectUtils.isEmpty(src)) {
+    if (src == null || src.length == 0) {
       return null;
     }
-    try {
-      return getInstance().readValue(src, valueTypeRef);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readValue(src, valueTypeRef);
   }
 
-  /**
-   * 将 JSON 字节数组转换为指定 JavaType 类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的字节数组
-   * @param javaType 指定的 JavaType 类型
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** 字节数组转指定类型对象 */
   @Nullable
   public static <T> T readValue(@Nullable byte[] src, JavaType javaType) {
-    if (ObjectUtils.isEmpty(src)) {
+    if (src == null || src.length == 0) {
       return null;
     }
-    try {
-      return getInstance().readValue(src, javaType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+    return getInstance().readValue(src, javaType);
   }
 
-  /**
-   * 将 InputStream 转换为指定类的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 InputStream
-   * @param valueType 要转换为的 Java 类
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** InputStream 转对象 */
   @Nullable
-  public static <T> T readValue(@Nullable InputStream src, Class<T> valueType) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(InputStream src, Class<T> valueType) {
+    return getInstance().readValue(src, valueType);
   }
 
-  /**
-   * 将 InputStream 转换为指定泛型类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 InputStream
-   * @param valueTypeRef 泛型类型的 TypeReference
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** InputStream 转泛型对象 */
   @Nullable
-  public static <T> T readValue(@Nullable InputStream src, TypeReference<T> valueTypeRef) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueTypeRef);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) {
+    return getInstance().readValue(src, valueTypeRef);
   }
 
-  /**
-   * 将 InputStream 转换为指定 JavaType 类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 InputStream
-   * @param valueType 指定的 JavaType 类型
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** InputStream 转指定类型对象 */
   @Nullable
-  public static <T> T readValue(@Nullable InputStream src, JavaType valueType) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(InputStream src, JavaType valueType) {
+    return getInstance().readValue(src, valueType);
   }
 
-  /**
-   * 将 Reader 转换为指定类的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 Reader
-   * @param valueType 要转换为的 Java 类
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** Reader 转对象 */
   @Nullable
-  public static <T> T readValue(@Nullable Reader src, Class<T> valueType) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(Reader src, Class<T> valueType) {
+    return getInstance().readValue(src, valueType);
   }
 
-  /**
-   * 将 Reader 转换为指定泛型类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 Reader
-   * @param valueTypeRef 泛型类型的 TypeReference
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** Reader 转泛型对象 */
   @Nullable
-  public static <T> T readValue(@Nullable Reader src, TypeReference<T> valueTypeRef) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueTypeRef);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(Reader src, TypeReference<T> valueTypeRef) {
+    return getInstance().readValue(src, valueTypeRef);
   }
 
-  /**
-   * 将 Reader 转换为指定 JavaType 类型的 Java 对象。
-   *
-   * @param src 包含 JSON 数据的 Reader
-   * @param valueType 指定的 JavaType 类型
-   * @param <T> 转换后的 Java 对象类型
-   * @return 反序列化后的 Java 对象，如果输入为空，则返回 null
-   */
+  /** Reader 转指定类型对象 */
   @Nullable
-  public static <T> T readValue(@Nullable Reader src, JavaType valueType) {
-    if (ObjectUtils.isEmpty(src)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(src, valueType);
-    } catch (JacksonException e) {
-      throw new JsonProcessingRuntimeException(e);
-    }
+  public static <T> T readValue(Reader src, JavaType valueType) {
+    return getInstance().readValue(src, valueType);
   }
 
-  /**
-   * 设置 ApplicationContext 以便获取 ObjectMapper Bean。
-   *
-   * @param applicationContext 包含 ObjectMapper 的应用上下文
-   * @throws BeansException 如果在访问应用上下文时发生错误
-   */
+  /** 注入 ObjectMapper Bean */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    // 从 Spring 上下文获取 ObjectMapper Bean
     OBJECT_MAPPER = applicationContext.getBean(ObjectMapper.class);
   }
 
