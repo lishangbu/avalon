@@ -263,6 +263,7 @@
               <docencoding>${project.reporting.outputEncoding}</docencoding>
               <doclint>none</doclint>
               <locale>zh_CN</locale>
+              <notimestamp>true</notimestamp>
             </configuration>
             <executions>
               <execution>
