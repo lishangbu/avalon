@@ -10,7 +10,8 @@ public abstract class SecurityBeanDefinitionConstants {
 
   public static final int AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER = 1;
 
-  public static final int RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER = 2;
+  public static final int RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER =
+      AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER + 1;
   public static final String AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME =
       "authorizationServerSecurityFilterChain";
   public static final String RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME =
