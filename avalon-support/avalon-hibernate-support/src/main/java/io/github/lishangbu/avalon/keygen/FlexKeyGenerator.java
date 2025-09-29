@@ -101,7 +101,7 @@ public class FlexKeyGenerator {
    *
    * @return 返回FlexID
    */
-  public long generate() {
+  public Long generate() {
     return getInstance().nextId();
   }
 
