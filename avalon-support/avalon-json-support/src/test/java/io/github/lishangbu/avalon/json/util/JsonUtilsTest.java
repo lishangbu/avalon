@@ -7,7 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 
@@ -16,7 +18,8 @@ import tools.jackson.databind.JsonNode;
  *
  * <p>覆盖对象序列化、反序列化、JsonNode 读取等核心功能
  */
-@SpringBootTest(classes = JacksonAutoConfiguration.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class JsonUtilsTest {
 
   /** 测试对象转 JSON 字符串 */
