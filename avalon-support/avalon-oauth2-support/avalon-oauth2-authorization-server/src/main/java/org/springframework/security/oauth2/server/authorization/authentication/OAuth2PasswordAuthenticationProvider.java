@@ -1,24 +1,18 @@
 package org.springframework.security.oauth2.server.authorization.authentication;
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport;
-import io.github.lishangbu.avalon.oauth2.common.core.OAuth2PasswordErrorCodes;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
 import java.security.Principal;
 import java.util.*;
-import java.util.function.Consumer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -32,19 +26,20 @@ import org.springframework.security.oauth2.server.authorization.context.Authoriz
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
-import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
- * @author xuxiaowei
  * @author lishangbu
  * @see OAuth2AuthorizationCodeAuthenticationProvider
  * @see OAuth2RefreshTokenAuthenticationProvider
  * @see OAuth2ClientCredentialsAuthenticationProvider
  * @see UserInfo
- * @since 2025/9/28
+ * @since 2025/9/29
  */
 public final class OAuth2PasswordAuthenticationProvider implements AuthenticationProvider {
+
+  private static final Logger LOGGER = LogManager.getLogger();
 
   private static final String ERROR_URI =
       "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
@@ -52,45 +47,30 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
   private static final OAuth2TokenType ID_TOKEN_TOKEN_TYPE =
       new OAuth2TokenType(OidcParameterNames.ID_TOKEN);
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final AuthenticationManager authenticationManager;
 
   private final OAuth2AuthorizationService authorizationService;
 
-  private final UserDetailsService userDetailsService;
-
-  private final PasswordEncoder passwordEncoder;
-
   private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
-  private Consumer<OAuth2PasswordAuthenticationContext> authenticationValidator =
-      new OAuth2PasswordAuthenticationValidator();
-
+  /**
+   * Constructs an {@code OAuth2ResourceOwnerPasswordAuthenticationProviderNew} using the provided
+   * parameters.
+   *
+   * @param authenticationManager the authentication manager
+   * @param authorizationService the authorization service
+   * @param tokenGenerator the token generator
+   * @since 0.2.3
+   */
   public OAuth2PasswordAuthenticationProvider(
-      HttpSecurity httpSecurity,
-      OAuth2AuthorizationServerConfigurer authorizationServerConfigurer,
+      AuthenticationManager authenticationManager,
       OAuth2AuthorizationService authorizationService,
-      UserDetailsService userDetailsService,
-      PasswordEncoder passwordEncoder,
-      OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
-      Consumer<List<AuthenticationConverter>> accessTokenRequestConvertersConsumer) {
-    Assert.notNull(httpSecurity, "httpSecurity cannot be null");
-    Assert.notNull(authorizationServerConfigurer, "authorizationServerConfigurer cannot be null");
+      OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
     Assert.notNull(authorizationService, "authorizationService cannot be null");
-    Assert.notNull(userDetailsService, "userDetailsService cannot be null");
-    Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
     Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
-    Assert.notNull(
-        accessTokenRequestConvertersConsumer,
-        "accessTokenRequestConvertersConsumer cannot be null");
+    this.authenticationManager = authenticationManager;
     this.authorizationService = authorizationService;
-    this.userDetailsService = userDetailsService;
-    this.passwordEncoder = passwordEncoder;
     this.tokenGenerator = tokenGenerator;
-    authorizationServerConfigurer.tokenEndpoint(
-        tokenEndpointCustomizer ->
-            tokenEndpointCustomizer.accessTokenRequestConverters(
-                accessTokenRequestConvertersConsumer));
-    httpSecurity.authenticationProvider(this);
   }
 
   @Override
@@ -104,15 +84,15 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
 
     RegisteredClient registeredClient = clientAuthenticationToken.getRegisteredClient();
 
-    if (this.logger.isTraceEnabled()) {
-      this.logger.trace("Retrieved registered client");
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Retrieved registered client");
     }
 
     if (!registeredClient
         .getAuthorizationGrantTypes()
         .contains(AuthorizationGrantTypeSupport.PASSWORD)) {
-      if (this.logger.isDebugEnabled()) {
-        this.logger.debug(
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
             LogMessage.format(
                 "Invalid request: requested grant_type is not allowed"
                     + " for registered client '%s'",
@@ -121,92 +101,44 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
       throw new OAuth2AuthenticationException(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
     }
 
-    OAuth2PasswordAuthenticationContext authenticationContext =
-        OAuth2PasswordAuthenticationContext.with(passwordGrantAuthenticationToken)
-            .registeredClient(registeredClient)
-            .build();
-    this.authenticationValidator.accept(authenticationContext);
-
-    Set<String> authorizedScopes =
-        new LinkedHashSet<>(passwordGrantAuthenticationToken.getScopes());
-
-    Object credentials = passwordGrantAuthenticationToken.getCredentials();
     String username = passwordGrantAuthenticationToken.getUsername();
     String password = passwordGrantAuthenticationToken.getPassword();
-    Map<String, Object> additionalParameters =
-        new HashMap<>(passwordGrantAuthenticationToken.getAdditionalParameters());
 
-    UserDetails userDetails;
-    try {
-      userDetails = userDetailsService.loadUserByUsername(username);
-    } catch (UsernameNotFoundException e) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.INVALID_USERNAME,
-              "Invalid username: username does not exist",
-              ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
+    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+        new UsernamePasswordAuthenticationToken(username, password);
+    LOGGER.debug("got usernamePasswordAuthenticationToken=" + usernamePasswordAuthenticationToken);
+
+    Authentication usernamePasswordAuthentication =
+        authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+    Set<String> authorizedScopes = registeredClient.getScopes(); // Default to configured scopes
+    Set<String> requestedScopes = passwordGrantAuthenticationToken.getScopes();
+    if (!CollectionUtils.isEmpty(requestedScopes)) {
+      Set<String> unauthorizedScopes =
+          requestedScopes.stream()
+              .filter(requestedScope -> !registeredClient.getScopes().contains(requestedScope))
+              .collect(Collectors.toSet());
+      if (!CollectionUtils.isEmpty(unauthorizedScopes)) {
+        throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_SCOPE);
+      }
+
+      authorizedScopes = new LinkedHashSet<>(requestedScopes);
     }
 
-    boolean matches = passwordEncoder.matches(password, userDetails.getPassword());
-    if (!matches) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.INVALID_PASSWORD,
-              "Invalid password: password does not match",
-              ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Validated token request parameters");
     }
 
-    boolean enabled = userDetails.isEnabled();
-    if (!enabled) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.USER_DISABLED, "User account is disabled", ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
-    }
-
-    boolean accountNonExpired = userDetails.isAccountNonExpired();
-    if (!accountNonExpired) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.ACCOUNT_EXPIRED, "User account has expired", ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
-    }
-
-    boolean credentialsNonExpired = userDetails.isCredentialsNonExpired();
-    if (!credentialsNonExpired) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.CREDENTIALS_EXPIRED,
-              "User credentials have expired",
-              ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
-    }
-
-    boolean accountNonLocked = userDetails.isAccountNonLocked();
-    if (!accountNonLocked) {
-      OAuth2Error error =
-          new OAuth2Error(
-              OAuth2PasswordErrorCodes.ACCOUNT_LOCKED, "User account is locked", ERROR_URI);
-      throw new OAuth2AuthenticationException(error);
-    }
-
-    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-
-    OAuth2PasswordAuthenticationToken passwordAuthenticationToken =
-        new OAuth2PasswordAuthenticationToken(
-            username, registeredClient, authorities, additionalParameters);
-
+    // @formatter:off
     DefaultOAuth2TokenContext.Builder tokenContextBuilder =
         DefaultOAuth2TokenContext.builder()
             .registeredClient(registeredClient)
-            .principal(passwordAuthenticationToken)
+            .principal(usernamePasswordAuthentication)
             .authorizationServerContext(AuthorizationServerContextHolder.getContext())
             .authorizedScopes(authorizedScopes)
             .tokenType(OAuth2TokenType.ACCESS_TOKEN)
             .authorizationGrantType(AuthorizationGrantTypeSupport.PASSWORD)
             .authorizationGrant(passwordGrantAuthenticationToken);
+    // @formatter:on
 
     // ----- Access token -----
     OAuth2TokenContext tokenContext =
@@ -223,8 +155,8 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
       throw new OAuth2AuthenticationException(error);
     }
 
-    if (this.logger.isTraceEnabled()) {
-      this.logger.trace("Generated access token");
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Generated access token");
     }
 
     OAuth2Authorization.Builder authorizationBuilder =
@@ -232,7 +164,7 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
             .principalName(username)
             .authorizationGrantType(AuthorizationGrantTypeSupport.PASSWORD)
             .authorizedScopes(authorizedScopes)
-            .attribute(Principal.class.getName(), passwordAuthenticationToken);
+            .attribute(Principal.class.getName(), usernamePasswordAuthentication);
 
     OAuth2AccessToken accessToken =
         OAuth2AuthenticationProviderUtils.accessToken(
@@ -256,8 +188,8 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
           throw new OAuth2AuthenticationException(error);
         }
 
-        if (this.logger.isTraceEnabled()) {
-          this.logger.trace("Generated refresh token");
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("Generated refresh token");
         }
 
         refreshToken = (OAuth2RefreshToken) generatedRefreshToken;
@@ -286,8 +218,8 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
         throw new OAuth2AuthenticationException(error);
       }
 
-      if (this.logger.isTraceEnabled()) {
-        this.logger.trace("Generated id token");
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Generated id token");
       }
 
       idToken =
@@ -307,31 +239,25 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
 
     this.authorizationService.save(authorization);
 
-    if (this.logger.isTraceEnabled()) {
-      this.logger.trace("Saved authorization");
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Saved authorization");
     }
 
+    Map<String, Object> additionalParameters = Collections.emptyMap();
     if (idToken != null) {
       additionalParameters = new HashMap<>();
       additionalParameters.put(OidcParameterNames.ID_TOKEN, idToken.getTokenValue());
     }
 
-    if (this.logger.isTraceEnabled()) {
+    if (LOGGER.isTraceEnabled()) {
       // This log is kept separate for consistency with other providers
-      this.logger.trace("Authenticated token request");
-    }
-
-    if (userDetails instanceof UserInfo userDetailsInfo) {
-      Map<String, Object> map = userDetailsInfo.getAdditionalParameters();
-      if (map != null) {
-        additionalParameters.putAll(map);
-      }
+      LOGGER.trace("Authenticated token request");
     }
 
     OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult =
         new OAuth2AccessTokenAuthenticationToken(
             registeredClient,
-            passwordAuthenticationToken,
+            clientAuthenticationToken,
             accessToken,
             refreshToken,
             additionalParameters);

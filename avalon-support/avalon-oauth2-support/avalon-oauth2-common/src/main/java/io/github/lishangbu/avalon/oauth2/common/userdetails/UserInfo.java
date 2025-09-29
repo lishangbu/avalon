@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  */
 @Getter
 @Setter
+@SuppressWarnings("removal")
 public class UserInfo extends User implements OAuth2AuthenticatedPrincipal {
   @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 

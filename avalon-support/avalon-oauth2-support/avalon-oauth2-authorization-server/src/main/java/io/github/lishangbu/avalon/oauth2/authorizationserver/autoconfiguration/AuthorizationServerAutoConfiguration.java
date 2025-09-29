@@ -7,21 +7,22 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointResponseHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
+import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import io.github.lishangbu.avalon.oauth2.common.web.authentication.DefaultAuthenticationEntryPoint;
 import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2PasswordAuthenticationProvider;
@@ -44,13 +45,15 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 @EnableWebSecurity
 @AutoConfiguration
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
+@RequiredArgsConstructor
 public class AuthorizationServerAutoConfiguration {
+
+  private final Oauth2Properties oauth2Properties;
 
   @Bean
   @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
   @ConditionalOnMissingBean(name = AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
-  public SecurityFilterChain authorizationServerSecurityFilterChain(
-      HttpSecurity http, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder)
+  public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
       throws Exception {
     OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
         new OAuth2AuthorizationServerConfigurer();
@@ -101,7 +104,8 @@ public class AuthorizationServerAutoConfiguration {
                                                 new OAuth2AuthorizationCodeAuthenticationConverter(),
                                                 new OAuth2RefreshTokenAuthenticationConverter(),
                                                 new OAuth2ClientCredentialsAuthenticationConverter(),
-                                                new OAuth2PasswordAuthenticationConverter())))))
+                                                new OAuth2PasswordAuthenticationConverter(
+                                                    oauth2Properties))))))
             .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
             // Redirect to the login page when not authenticated from the
             // authorization endpoint
@@ -118,32 +122,22 @@ public class AuthorizationServerAutoConfiguration {
                 })
             .build();
 
-    addPasswordAuthenticationProvider(
-        http, authorizationServerConfigurer, userDetailsService, passwordEncoder);
+    addPasswordAuthenticationProvider(http, authorizationServerConfigurer);
     return securityFilterChain;
   }
 
   @SuppressWarnings("unchecked")
   private void addPasswordAuthenticationProvider(
-      HttpSecurity http,
-      OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer,
-      UserDetailsService userDetailsService,
-      PasswordEncoder passwordEncoder) {
+      HttpSecurity http, OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer) {
+    AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
     OAuth2AuthorizationService authorizationService =
         http.getSharedObject(OAuth2AuthorizationService.class);
     OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator =
         http.getSharedObject(OAuth2TokenGenerator.class);
+
     OAuth2PasswordAuthenticationProvider resourceOwnerPasswordAuthenticationProvider =
         new OAuth2PasswordAuthenticationProvider(
-            http,
-            oAuth2AuthorizationServerConfigurer,
-            authorizationService,
-            userDetailsService,
-            passwordEncoder,
-            tokenGenerator,
-            accessTokenRequestConvertersConsumer ->
-                accessTokenRequestConvertersConsumer.add(
-                    new OAuth2PasswordAuthenticationConverter()));
+            authenticationManager, authorizationService, tokenGenerator);
 
     // This will add new authentication provider in the list of existing authentication providers.
     http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
