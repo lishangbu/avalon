@@ -1,7 +1,9 @@
 Avalon
 ========================================================================
 
-[![Build Status](https://github.com/lishangbu/avalon/actions/workflows/build.yml/badge.svg)](https://maven.apache.org)
+[![Build With Maven](https://github.com/lishangbu/avalon/actions/workflows/build.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/build.yml)
+[![Publish Javadoc](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml)
+[![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
 ## Navigation
@@ -11,7 +13,7 @@ Avalon
 [1]: http://lishangbu.github.io/avalon-doc
 [2]: https://github.com/lishangbu/avalon-ui
 [3]: https://github.com/lishangbu/avalon-doc
-[4]: https://lishangbu.github.io/avalon/javadoc
+[4]: https://lishangbu.github.io/avalon-site/javadoc-api
 
 ## Table of Contents
 
