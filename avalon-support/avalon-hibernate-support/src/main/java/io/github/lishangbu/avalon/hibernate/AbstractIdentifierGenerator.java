@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.hibernate;
 
+import java.io.Serializable;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.persister.entity.EntityPersister;
-
-import java.io.Serializable;
 
 /**
  * 主键生成器抽象基类
