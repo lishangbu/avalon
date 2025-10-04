@@ -122,8 +122,8 @@ class FlexIdentifierGeneratorTest {
 
   /**
    * 当实体对象为 null 时，主键生成器应直接返回 null
-   * <p>
-   * 验证不会调用 FlexKeyGenerator 和 Hibernate EntityPersister
+   *
+   * <p>验证不会调用 FlexKeyGenerator 和 Hibernate EntityPersister
    */
   @Test
   void testGenerateWhenEntityIsNull() {

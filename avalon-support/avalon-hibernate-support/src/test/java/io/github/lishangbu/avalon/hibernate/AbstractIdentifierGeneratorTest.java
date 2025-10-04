@@ -105,7 +105,7 @@ class AbstractIdentifierGeneratorTest {
     Serializable result = generator.generate(session, null);
 
     // 验证结果
-    assertEquals(12345L, result, "当实体为null时，应调用doGenerate生成新主键");
+    assertNull(result, "当实体为null时，应生成null");
     verify(session, never()).getEntityPersister(any(), any());
   }
 
