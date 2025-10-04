@@ -1,9 +1,13 @@
 package io.github.lishangbu.avalon.hibernate;
 
 import java.io.Serializable;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.persister.entity.EntityPersister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 主键生成器抽象基类
@@ -11,8 +15,6 @@ import org.hibernate.persister.entity.EntityPersister;
  * <p>提供主键生成通用逻辑：如实体主键已赋值则直接返回，否则调用生成方法 适用于自定义主键生成策略的场景，简化主键生成器实现 使用Hibernate内置API获取实体ID，性能更优且更准确
  *
  * <p>使用场景： 适用于分布式ID、雪花ID等主键生成需求
- *
- * <p>
  *
  * <ol>
  *   <li>使用Hibernate API检查实体主键字段是否已有值
@@ -24,6 +26,7 @@ import org.hibernate.persister.entity.EntityPersister;
  * @author lishangbu
  * @since 2025/9/30
  */
+@Slf4j
 public abstract class AbstractIdentifierGenerator implements IdentifierGenerator {
 
   /**
@@ -39,9 +42,12 @@ public abstract class AbstractIdentifierGenerator implements IdentifierGenerator
   public Serializable generate(SharedSessionContractImplementor session, Object object) {
     Object id = getIdValue(session, object);
     if (id != null) {
+      log.debug("实体 {} 已存在主键: {}，直接返回", object.getClass().getSimpleName(), id);
       return (Serializable) id;
     }
-    return doGenerate(session, object);
+    Serializable generatedId = doGenerate(session, object);
+    log.debug("实体 {} 生成新主键: {}", object.getClass().getSimpleName(), generatedId);
+    return generatedId;
   }
 
   /**
@@ -71,12 +77,17 @@ public abstract class AbstractIdentifierGenerator implements IdentifierGenerator
       EntityPersister persister = session.getEntityPersister(null, object);
       if (persister != null) {
         // 使用Hibernate API获取实体的标识符值
-        return persister.getIdentifier(object, session);
+        Object id = persister.getIdentifier(object, session);
+        if (id != null) {
+          log.debug("通过Hibernate API获取到实体 {} 的主键: {}", object.getClass().getSimpleName(), id);
+        } else {
+          log.debug("实体 {} 主键为空", object.getClass().getSimpleName());
+        }
+        return id;
       }
     } catch (Exception e) {
-      // 如果通过Hibernate API获取失败，可以在这里添加日志记录
+      log.warn("获取实体 {} 主键时发生异常: {}", object.getClass().getSimpleName(), e.getMessage());
     }
-
     return null;
   }
 }
