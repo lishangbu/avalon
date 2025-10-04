@@ -1,13 +1,11 @@
 package io.github.lishangbu.avalon.hibernate;
 
-import java.io.Serializable;
-
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.persister.entity.EntityPersister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * 主键生成器抽象基类
@@ -40,6 +38,10 @@ public abstract class AbstractIdentifierGenerator implements IdentifierGenerator
    */
   @Override
   public Serializable generate(SharedSessionContractImplementor session, Object object) {
+    if (object == null) {
+      log.warn("生成主键时实体对象为 null，直接返回 null");
+      return null;
+    }
     Object id = getIdValue(session, object);
     if (id != null) {
       log.debug("实体 {} 已存在主键: {}，直接返回", object.getClass().getSimpleName(), id);

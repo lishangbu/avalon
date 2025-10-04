@@ -120,29 +120,23 @@ class FlexIdentifierGeneratorTest {
     }
   }
 
+  /**
+   * 当实体对象为 null 时，主键生成器应直接返回 null
+   * <p>
+   * 验证不会调用 FlexKeyGenerator 和 Hibernate EntityPersister
+   */
   @Test
   void testGenerateWhenEntityIsNull() {
-    // 准备测试数据
-    Long generatedId = 99999L;
+    // 执行测试
+    Serializable result = generator.generate(session, null);
 
-    // 模拟FlexKeyGenerator生成ID
-    try (MockedStatic<FlexKeyGenerator> mockedStatic = mockStatic(FlexKeyGenerator.class)) {
-      mockedStatic.when(FlexKeyGenerator::getInstance).thenReturn(flexKeyGenerator);
-      when(flexKeyGenerator.generate()).thenReturn(generatedId);
+    // 断言返回值为 null
+    assertNull(result, "实体为 null 时应直接返回 null");
 
-      // 执行测试
-      Serializable result = generator.generate(session, null);
-
-      // 验证结果
-      assertEquals(generatedId, result, "当实体为null时，应调用FlexKeyGenerator生成新主键");
-
-      // 验证FlexKeyGenerator被正确调用
-      mockedStatic.verify(FlexKeyGenerator::getInstance, times(1));
-      verify(flexKeyGenerator, times(1)).generate();
-
-      // 验证不会调用Hibernate API获取EntityPersister
-      verify(session, never()).getEntityPersister(any(), any());
-    }
+    // 验证 FlexKeyGenerator 未被调用
+    verify(flexKeyGenerator, never()).generate();
+    // 验证不会调用 Hibernate EntityPersister
+    verify(session, never()).getEntityPersister(any(), any());
   }
 
   @Test
