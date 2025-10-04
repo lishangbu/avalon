@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.jpa;
+package io.github.lishangbu.avalon.hibernate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

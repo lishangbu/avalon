@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.jpa;
+package io.github.lishangbu.avalon.hibernate;
 
 import io.github.lishangbu.avalon.keygen.FlexKeyGenerator;
 import java.io.Serializable;

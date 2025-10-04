@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import io.github.lishangbu.avalon.jpa.Flex;
+import io.github.lishangbu.avalon.hibernate.Flex;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;

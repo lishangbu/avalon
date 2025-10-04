@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.jpa;
+package io.github.lishangbu.avalon.hibernate;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -21,7 +21,7 @@ import org.hibernate.annotations.IdGeneratorType;
  *
  * @author lishangbu
  * @see org.hibernate.annotations.IdGeneratorType
- * @see io.github.lishangbu.avalon.jpa.FlexIdentifierGenerator
+ * @see io.github.lishangbu.avalon.hibernate.FlexIdentifierGenerator
  * @since 2025/9/14
  */
 @Retention(RUNTIME)

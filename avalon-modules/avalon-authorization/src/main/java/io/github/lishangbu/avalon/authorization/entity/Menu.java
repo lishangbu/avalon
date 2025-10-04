@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.lishangbu.avalon.jpa.Flex;
+import io.github.lishangbu.avalon.hibernate.Flex;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;

@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.jpa;
+package io.github.lishangbu.avalon.hibernate;
 
 import java.io.Serializable;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
