@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.json.util.JsonUtils;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.databind.ObjectMapper;
@@ -34,8 +35,11 @@ public class JacksonAutoConfiguration {
     return JsonMapper.builder(
             JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
-                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES) // 支持单引号
-                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS) // 支持未转义控制字符
+                // 支持单引号
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                // 支持未转义控制字符
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
                 .build())
         .addModules(longToStringSerializerModule)
         .build();

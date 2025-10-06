@@ -10,8 +10,8 @@
   <artifactId>avalon-poke-api-support</artifactId>
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>io.github.lishangbu</groupId>
+      <artifactId>avalon-json-support</artifactId>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jgit</groupId>

@@ -31,7 +31,7 @@ public class TypeDamageRelation implements Serializable {
   @Id private String defenderTypeInternalName;
 
   /** 伤害倍率 */
-  private Object damageRate;
+  private Double damageRate;
 
   public static class TypeDamageRelationId implements Serializable {
     private String attackerTypeInternalName;

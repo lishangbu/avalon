@@ -48,7 +48,7 @@ public record Move(
     Integer priority,
     Integer power,
     @JsonProperty("contest_combos") ContestComboSets contestCombos,
-    @JsonProperty("contest_type") NamedApiResource<ContestType> contestType,
+    @JsonProperty("contestType") NamedApiResource<ContestType> contestType,
     @JsonProperty("contest_effect") APIResource<ContestEffect> contestEffect,
     @JsonProperty("damage_class") NamedApiResource<MoveDamageClass> damageClass,
     @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,

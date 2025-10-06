@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 106
+      author: lishangbu
+      changes:
+        - sqlFile:
+            path: ../sql/106-dataset-data.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ';'
+

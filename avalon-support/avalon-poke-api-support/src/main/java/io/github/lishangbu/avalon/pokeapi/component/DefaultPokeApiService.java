@@ -1,17 +1,18 @@
 package io.github.lishangbu.avalon.pokeapi.component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
+import org.eclipse.jgit.api.Git;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.eclipse.jgit.api.Git;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 抽象的PokeApi服务
@@ -31,8 +32,6 @@ public class DefaultPokeApiService implements PokeApiService {
   /** 具体存储数据的文件名称 */
   private static final String FILE_NAME = "index.json";
 
-  private static final ObjectMapper FILE_CACHE_OBJECT_MAPPER = new ObjectMapper();
-
   private final PokeApiProperties properties;
 
   public DefaultPokeApiService(PokeApiProperties properties) {
@@ -47,6 +46,7 @@ public class DefaultPokeApiService implements PokeApiService {
    * @return 指定类型的数据实体
    */
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T getEntityFromUri(PokeDataTypeEnum typeEnum, Integer id) {
     log.debug("获取类型为[{}]的数据，参数: [{}]", typeEnum, id);
     checkoutGitRepoIfNotExists();
@@ -61,7 +61,7 @@ public class DefaultPokeApiService implements PokeApiService {
               String.valueOf(id),
               FILE_NAME);
       return (T)
-          FILE_CACHE_OBJECT_MAPPER.readValue(Files.readString(path), typeEnum.getResponseType());
+          JsonUtils.readValue(Files.readString(path), typeEnum.getResponseType());
 
     } catch (IOException e) {
       log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());
@@ -88,7 +88,7 @@ public class DefaultPokeApiService implements PokeApiService {
               LOCAL_GIT_REPO_THIRD_FILE_DIR_NAME,
               typeEnum.getType(),
               FILE_NAME);
-      return FILE_CACHE_OBJECT_MAPPER.readValue(Files.readString(path), NamedAPIResourceList.class);
+      return JsonUtils.readValue(Files.readString(path), NamedAPIResourceList.class);
 
     } catch (IOException e) {
       log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());
