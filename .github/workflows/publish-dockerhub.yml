@@ -44,6 +44,7 @@ jobs:
 
       - name: 构建镜像${{ github.event_name == 'pull_request' && ' (仅验证)' || ' 并推送' }}
         run: |
+          mvn -B compile
           mvn -f avalon-application/${{ matrix.service }}/pom.xml spring-boot:build-image
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "✅ 镜像构建验证完成: ${{ matrix.service }}"
