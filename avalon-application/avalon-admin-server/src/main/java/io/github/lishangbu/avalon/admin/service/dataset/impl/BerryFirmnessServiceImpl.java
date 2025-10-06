@@ -2,12 +2,17 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
+import io.github.lishangbu.avalon.dataset.entity.BerryFirmness_;
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,5 +42,33 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         },
         berryFirmnessRepository::save,
         io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness.class);
+  }
+
+  @Override
+  public Page<BerryFirmness> getPageByCondition(BerryFirmness berryFirmness, Pageable pageable) {
+    return berryFirmnessRepository.findAll(
+        Example.of(
+            berryFirmness,
+            ExampleMatcher.matching()
+                .withMatcher(BerryFirmness_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+                .withMatcher(
+                    BerryFirmness_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+                .withIgnoreNullValues()),
+        pageable);
+  }
+
+  @Override
+  public BerryFirmness save(BerryFirmness berryFirmness) {
+    return berryFirmnessRepository.save(berryFirmness);
+  }
+
+  @Override
+  public BerryFirmness update(BerryFirmness berryFirmness) {
+    return berryFirmnessRepository.save(berryFirmness);
+  }
+
+  @Override
+  public void removeById(Long id) {
+    berryFirmnessRepository.deleteById(id);
   }
 }

@@ -7,13 +7,12 @@ import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
-import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,23 +63,15 @@ public class TypeServiceImpl implements TypeService {
    */
   @Override
   public Page<Type> getPageByCondition(Type type, Pageable pageable) {
-    Specification<Type> spec =
-        (root, query, cb) -> {
-          List<Predicate> predicates = new ArrayList<>();
-          if (type.getName() != null) {
-            predicates.add(cb.like(root.get(Type_.NAME), String.format("%%%s%%", type.getName())));
-          }
-          if (type.getInternalName() != null) {
-            predicates.add(
-                cb.like(
-                    root.get(Type_.INTERNAL_NAME),
-                    String.format("%%%s%%", type.getInternalName())));
-          }
-          // 按ID升序排序
-          query.orderBy(cb.asc(root.get(Type_.ID)));
-          return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    return typeRepository.findAll(spec, pageable);
+    return typeRepository.findAll(
+        Example.of(
+            type,
+            ExampleMatcher.matching()
+                .withIgnoreNullValues()
+                .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+                .withMatcher(
+                    Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())),
+        pageable);
   }
 
   /**

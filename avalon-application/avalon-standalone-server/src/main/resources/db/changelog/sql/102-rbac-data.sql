@@ -3,7 +3,7 @@ VALUES (1, 'ROLE_TEST', '测试员', true),
        (2, 'ROLE_SUPER_ADMIN', '超级管理员', true);
 
 INSERT INTO "user" (id, username, password)
-VALUES (1, 'test', '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G');
+VALUES (1, 'admin', '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G');
 
 INSERT INTO user_role_relation (user_id, role_id)
 VALUES (1, 1),
@@ -50,7 +50,10 @@ values (1, null, false, null, 'iconify-[mage--dashboard-chart]', 'dashboard', '�
        (19, null, false, null, 'iconify-[ic--outline-dataset]', 'dataset', '数据集', true, 'dataset', 'dataset', null,
         'dataset', 0, false, true, false),
        (20, 19, false, null, 'iconify-[ic--baseline-type-specimen]', 'type', '属性管理', true, 'type', 'type', null,
-        'dataset/type/index', 0, false, true, false);
+        'dataset/type/index', 0, false, true, false),
+       (21, 19, false, null, 'iconify-[game-icons--elderberry]', 'berry-firmness', '树果硬度管理', true,
+        'berry-firmness', 'berry-firmness', null,
+        'dataset/berry-firmness/index', 0, false, true, false);
 
 INSERT INTO role_menu_relation (role_id,menu_id)
 VALUES (1, 1),
@@ -92,4 +95,6 @@ VALUES (1, 1),
        (1, 19),
        (2, 19),
        (1, 20),
-       (2, 20);
+       (2, 20),
+       (1, 21),
+       (2, 21);

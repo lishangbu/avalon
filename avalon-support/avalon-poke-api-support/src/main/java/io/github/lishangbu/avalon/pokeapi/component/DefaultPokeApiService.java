@@ -4,15 +4,14 @@ import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
-import org.eclipse.jgit.api.Git;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.eclipse.jgit.api.Git;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 抽象的PokeApi服务
@@ -60,8 +59,7 @@ public class DefaultPokeApiService implements PokeApiService {
               typeEnum.getType(),
               String.valueOf(id),
               FILE_NAME);
-      return (T)
-          JsonUtils.readValue(Files.readString(path), typeEnum.getResponseType());
+      return (T) JsonUtils.readValue(Files.readString(path), typeEnum.getResponseType());
 
     } catch (IOException e) {
       log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());

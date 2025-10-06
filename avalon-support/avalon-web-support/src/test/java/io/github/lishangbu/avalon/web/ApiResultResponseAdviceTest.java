@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.web.result.ApiResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * ApiResultResponseAdvice 单元测试
@@ -13,13 +13,13 @@ import tools.jackson.databind.ObjectMapper;
  * <p>验证响应体包装逻辑，确保字符串、普通对象和 ApiResult 类型均能正确处理
  */
 class ApiResultResponseAdviceTest {
-  private ObjectMapper objectMapper;
+  private JsonMapper jsonMapper;
   private ApiResultResponseAdvice advice;
 
   @BeforeEach
   void setUp() {
-    objectMapper = new ObjectMapper();
-    advice = new ApiResultResponseAdvice(objectMapper);
+    jsonMapper = new JsonMapper();
+    advice = new ApiResultResponseAdvice(jsonMapper);
   }
 
   /** 测试字符串类型响应体包装为 JSON 字符串 */
@@ -28,7 +28,7 @@ class ApiResultResponseAdviceTest {
     String body = "hello";
     Object result = advice.beforeBodyWrite(body, null, null, null, null, null);
     ApiResult<String> expected = ApiResult.ok(body);
-    String expectedJson = objectMapper.writeValueAsString(expected);
+    String expectedJson = jsonMapper.writeValueAsString(expected);
     Assertions.assertEquals(expectedJson, result);
   }
 

@@ -164,7 +164,7 @@ class UserControllerTest {
     private UserService mockUserService;
     
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
     
     /**
      * 测试根据有效ID获取用户
@@ -221,7 +221,7 @@ class UserControllerTest {
         // Act & Assert
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)))
+                .content(jsonMapper.writeValueAsString(newUser)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.username").value("newUser"));
