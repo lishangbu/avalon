@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.enumeration;
 
 import io.github.lishangbu.avalon.pokeapi.model.berry.Berry;
 import io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness;
+import io.github.lishangbu.avalon.pokeapi.model.berry.BerryFlavor;
 import io.github.lishangbu.avalon.pokeapi.model.contest.ContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.contest.ContestType;
 import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
@@ -31,6 +32,11 @@ public enum PokeDataTypeEnum {
    * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a>
    */
   BERRY_FIRMNESS("berry-firmness", BerryFirmness.class),
+  /**
+   * 风味决定了宝可梦根据<a href="https://pokeapi.co/docs/v2#natures">性格</a>食用树果时是受益还是受损。详情可参考<a
+   * href="http://bulbapedia.bulbagarden.net/wiki/Flavor">Bulbapedia</a>
+   */
+  BERRY_FLAVOR("berry-flavor", BerryFlavor.class),
 
   /** 华丽大赛效果指的是招式在华丽大赛中使用时产生的效果 */
   CONTEST_EFFECT("contest-effect", ContestEffect.class),

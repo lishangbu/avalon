@@ -25,5 +25,6 @@ public record BerryFlavor(
     Integer id,
     String name,
     List<FlavorBerryMap> berries,
-    @JsonProperty("contest_type") List<NamedApiResource> contestType,
+    @JsonProperty("contest_type")
+    NamedApiResource contestType,
     List<Name> names) {}

@@ -81,7 +81,7 @@ class LocalizationUtilsTest {
             new VersionGroupFlavorText(
                 "這是繁體中文版本組風味文本", new NamedApiResource<>("zh-Hant", null), null),
             new VersionGroupFlavorText(
-                "This is English version group flavor text",
+                "This is English version group berry text",
                 new NamedApiResource<>("en", null),
                 null));
 
@@ -91,7 +91,7 @@ class LocalizationUtilsTest {
             new MoveFlavorText("这是简体中文招式风味文本", new NamedApiResource<>("zh-Hans", null), null),
             new MoveFlavorText("這是繁體中文招式風味文本", new NamedApiResource<>("zh-Hant", null), null),
             new MoveFlavorText(
-                "This is English move flavor text", new NamedApiResource<>("en", null), null));
+                "This is English move berry text", new NamedApiResource<>("en", null), null));
   }
 
   @Test
@@ -383,7 +383,7 @@ class LocalizationUtilsTest {
 
     // 验证结果
     assertTrue(result.isPresent());
-    assertEquals("This is English version group flavor text", result.get().text());
+    assertEquals("This is English version group berry text", result.get().text());
   }
 
   @Test
@@ -452,7 +452,7 @@ class LocalizationUtilsTest {
 
     // 验证结果
     assertTrue(result.isPresent());
-    assertEquals("This is English move flavor text", result.get().flavorText());
+    assertEquals("This is English move berry text", result.get().flavorText());
   }
 
   @Test

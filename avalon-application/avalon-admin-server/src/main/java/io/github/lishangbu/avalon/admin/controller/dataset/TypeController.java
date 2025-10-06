@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.admin.controller;
+package io.github.lishangbu.avalon.admin.controller.dataset;
 
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
