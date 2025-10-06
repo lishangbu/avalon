@@ -1,7 +1,5 @@
 package io.github.lishangbu.avalon.json.util;
 
-import java.io.InputStream;
-import java.io.Reader;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -9,7 +7,10 @@ import org.springframework.context.ApplicationContextAware;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.io.InputStream;
+import java.io.Reader;
 
 /**
  * JSON 工具类，提供对象与 JSON 的序列化与反序列化能力
@@ -22,11 +23,13 @@ import tools.jackson.databind.ObjectMapper;
  */
 public class JsonUtils implements ApplicationContextAware {
 
-  private static ObjectMapper OBJECT_MAPPER;
+  private static JsonMapper JSON_MAPPER;
 
-  /** 获取 ObjectMapper 单例实例 */
-  public static ObjectMapper getInstance() {
-    return OBJECT_MAPPER;
+  /**
+   * 获取 JsonMapper 单例实例
+   */
+  public static JsonMapper getInstance() {
+    return JSON_MAPPER;
   }
 
   /**
@@ -191,10 +194,10 @@ public class JsonUtils implements ApplicationContextAware {
     return getInstance().readValue(src, valueType);
   }
 
-  /** 注入 ObjectMapper Bean */
+  /** 注入 JsonMapper Bean */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    OBJECT_MAPPER = applicationContext.getBean(ObjectMapper.class);
+    JSON_MAPPER = applicationContext.getBean(JsonMapper.class);
   }
 
   // endregion

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.ToStringSerializer;
@@ -26,7 +25,7 @@ public class JacksonAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public ObjectMapper objectMapper() {
+  public JsonMapper jsonMapper() {
     // 处理长整型数据,序列换成json时,将所有的long变成string,避免js中精度丢失的问题
     SimpleModule longToStringSerializerModule = new SimpleModule();
     longToStringSerializerModule.addSerializer(Long.class, ToStringSerializer.instance);

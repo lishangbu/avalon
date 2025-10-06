@@ -9,7 +9,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * API响应结果包装增强器，统一封装所有 Controller 返回值为 ApiResult
@@ -24,7 +24,7 @@ import tools.jackson.databind.ObjectMapper;
 @RestControllerAdvice(basePackages = "io.github.lishangbu.avalon")
 public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
 
-  private final ObjectMapper objectMapper;
+  private final JsonMapper jsonMapper;
 
   /**
    * 判断是否需要处理响应体
@@ -75,7 +75,7 @@ public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
    */
   private Object wrapApiResult(Object body) {
     if (body instanceof String) {
-      return objectMapper.writeValueAsString(ApiResult.ok(body));
+      return jsonMapper.writeValueAsString(ApiResult.ok(body));
     }
 
     if (body instanceof ApiResult apiResult) {
