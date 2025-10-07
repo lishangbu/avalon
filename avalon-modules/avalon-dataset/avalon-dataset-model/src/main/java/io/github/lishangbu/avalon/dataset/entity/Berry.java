@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -38,8 +39,8 @@ public class Berry implements Serializable {
   /** 最大结果数 */
   private Integer maxHarvest;
 
-  /** 大小（毫米） */
-  private Integer size;
+  /** 树果大小（毫米） */
+  private Integer bulk;
 
   /** 光滑度 */
   private Integer smoothness;
