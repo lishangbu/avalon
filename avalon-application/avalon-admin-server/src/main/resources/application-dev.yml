@@ -13,3 +13,11 @@ management:
     web:
       exposure:
         include: startup
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        orm:
+          jdbc:
+            bind: trace

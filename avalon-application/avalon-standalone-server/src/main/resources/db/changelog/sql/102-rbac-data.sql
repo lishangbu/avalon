@@ -51,9 +51,15 @@ values (1, null, false, null, 'iconify-[mage--dashboard-chart]', 'dashboard', '�
         'dataset', 0, false, true, false),
        (20, 19, false, null, 'iconify-[ic--baseline-type-specimen]', 'type', '属性管理', true, 'type', 'type', null,
         'dataset/type/index', 0, false, true, false),
-       (21, 19, false, null, 'iconify-[game-icons--elderberry]', 'berry-firmness', '树果硬度管理', true,
+       (21, 19, false, null, 'iconify-[game-icons--diamond-hard]', 'berry-firmness', '树果硬度管理', true,
         'berry-firmness', 'berry-firmness', null,
-        'dataset/berry-firmness/index', 0, false, true, false);
+        'dataset/berry-firmness/index', 0, false, true, false),
+       (22, 19, false, null, 'iconify-[game-icons--opened-food-can]', 'berry-flavor', '树果风味管理', true,
+        'berry-flavor', 'berry-flavor', null,
+        'dataset/berry-flavor/index', 0, false, true, false),
+       (23, 19, false, null, 'iconify-[game-icons--elderberry]', 'berry', '树果管理', true,
+        'berry', 'berry', null,
+        'dataset/berry/index', 0, false, true, false);
 
 INSERT INTO role_menu_relation (role_id,menu_id)
 VALUES (1, 1),
@@ -97,4 +103,8 @@ VALUES (1, 1),
        (1, 20),
        (2, 20),
        (1, 21),
-       (2, 21);
+       (2, 21),
+       (1, 22),
+       (2, 22),
+       (1, 23),
+       (2, 23);

@@ -91,7 +91,7 @@ databaseChangeLog:
                   defaultValue: 0
                   remarks: '最大结果数'
               - column:
-                  name: size
+                  name: bulk
                   type: int
                   constraints:
                     nullable: false
