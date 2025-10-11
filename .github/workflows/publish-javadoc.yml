@@ -22,15 +22,18 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-          cache: 'maven'
-          cache-dependency-path: |
-            **/pom.xml
-            **/maven-wrapper.properties
+      - name: 缓存maven依赖
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       - name: 生成Javadoc
         run: |
-          mvn compile -P release
-          mvn --batch-mode javadoc:aggregate -P release -Dmaven.test.skip=true
+          ./mvnw compile -P release
+          ./mvnw --batch-mode javadoc:aggregate -P release -Dmaven.test.skip=true
 
       - name: 上传javadoc产物
         uses: actions/upload-artifact@v4
