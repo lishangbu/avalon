@@ -1,0 +1,59 @@
+name: Deploy Snapshot With Maven
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: 设置 Java 环境 - 使用Oracle JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+          architecture: x64
+      - name: 缓存maven依赖
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: 导入 GPG 密钥
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: 提取maven版本
+        if: github.event_name != 'pull_request'
+        id: projectVersion
+        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=revision -q)" >> $GITHUB_OUTPUT
+      - name: 使用Maven发布快照到Maven Central
+        if: github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
+        run: |
+          mkdir -p ~/.m2
+          cat <<EOF > ~/.m2/settings.xml
+          <settings>
+            <servers>
+              <server>
+                <id>central</id>
+                <username>\${env.MAVEN_CENTRAL_USERNAME}</username>
+                <password>\${env.MAVEN_CENTRAL_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+          ./mvnw -B clean deploy -P release --no-transfer-progress 
+          echo "✅ maven发布完成"
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{secrets.GPG_PASSPHRASE}}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
