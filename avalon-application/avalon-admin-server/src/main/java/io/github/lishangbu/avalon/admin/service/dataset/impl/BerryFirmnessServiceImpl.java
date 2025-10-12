@@ -57,6 +57,23 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         pageable);
   }
 
+  /**
+   * 根据条件查询树果坚硬度列表
+   * <p>
+   * 支持按 name/internalName 模糊查询，其余字段精确匹配
+   *
+   * @param berryFirmness 查询条件，支持部分字段模糊查询
+   * @return 树果坚硬度列表
+   */
+  @Override
+  public List<BerryFirmness> listByCondition(BerryFirmness berryFirmness) {
+    ExampleMatcher matcher = ExampleMatcher.matching()
+        .withIgnoreNullValues()
+        .withMatcher(BerryFirmness_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+        .withMatcher(BerryFirmness_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
+    return berryFirmnessRepository.findAll(Example.of(berryFirmness, matcher));
+  }
+
   @Override
   public BerryFirmness save(BerryFirmness berryFirmness) {
     return berryFirmnessRepository.save(berryFirmness);

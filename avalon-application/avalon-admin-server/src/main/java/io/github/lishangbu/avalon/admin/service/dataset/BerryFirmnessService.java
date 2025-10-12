@@ -50,4 +50,14 @@ public interface BerryFirmnessService {
    * @param id 树果坚硬度ID
    */
   void removeById(Long id);
+
+  /**
+   * 根据条件查询树果坚硬度列表
+   * <p>
+   * 支持按 name/internalName 模糊查询，其余字段精确匹配
+   *
+   * @param berryFirmness 查询条件，支持部分字段模糊查询
+   * @return 树果坚硬度列表
+   */
+  List<BerryFirmness> listByCondition(BerryFirmness berryFirmness);
 }
