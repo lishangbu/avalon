@@ -11,5 +11,4 @@ import org.springframework.stereotype.Repository;
  * @since 2025/09/14
  */
 @Repository
-public interface TypeRepository extends JpaRepository<Type, Long> {
-}
+public interface TypeRepository extends JpaRepository<Type, Long> {}

@@ -111,18 +111,19 @@ public class TypeServiceImpl implements TypeService {
 
   /**
    * 根据条件查询属性类型列表
-   * <p>
-   * 支持按 name/internalName 模糊查询，其余字段精确匹配
+   *
+   * <p>支持按 name/internalName 模糊查询，其余字段精确匹配
    *
    * @param type 查询条件，支持部分字段模糊查询
    * @return 属性类型列表
    */
   @Override
   public List<Type> listByCondition(Type type) {
-    ExampleMatcher matcher = ExampleMatcher.matching()
-        .withIgnoreNullValues()
-        .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-        .withMatcher(Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
+    ExampleMatcher matcher =
+        ExampleMatcher.matching()
+            .withIgnoreNullValues()
+            .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher(Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
     return typeRepository.findAll(Example.of(type, matcher));
   }
 }
