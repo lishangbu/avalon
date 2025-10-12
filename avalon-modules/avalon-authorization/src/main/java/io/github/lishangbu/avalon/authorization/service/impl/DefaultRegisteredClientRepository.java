@@ -1,18 +1,9 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
-import static io.github.lishangbu.avalon.authorization.constant.AuthorizationCacheConstants.*;
-
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.convert.DurationStyle;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -26,6 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * JDBC注册客户端
  *
@@ -34,7 +30,6 @@ import org.springframework.util.StringUtils;
  */
 @Component
 @RequiredArgsConstructor
-@CacheConfig(cacheManager = CAFFEINE_CACHE_BEAN_NAME)
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
   private final Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
 
@@ -70,25 +65,17 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
   }
 
   @Override
-  @CacheEvict(
-      value = {OAUTH_2_REGISTERED_CLIENT_CACHE_BY_ID, OAUTH_2_REGISTERED_CLIENT_CACHE_BY_CLIENT_ID},
-      allEntries = true)
   public void save(RegisteredClient registeredClient) {
     Assert.notNull(registeredClient, "registeredClient cannot be null");
     this.oauth2RegisteredClientRepository.save(toEntity(registeredClient));
   }
 
-  @Cacheable(value = OAUTH_2_REGISTERED_CLIENT_CACHE_BY_ID, key = "#id", unless = "#result==null")
   @Override
   public RegisteredClient findById(String id) {
     Assert.hasText(id, "id cannot be empty");
     return this.oauth2RegisteredClientRepository.findById(id).map(this::toObject).orElse(null);
   }
 
-  @Cacheable(
-      value = OAUTH_2_REGISTERED_CLIENT_CACHE_BY_CLIENT_ID,
-      key = "#clientId",
-      unless = "#result==null")
   @Override
   public RegisteredClient findByClientId(String clientId) {
     Assert.hasText(clientId, "clientId cannot be empty");
