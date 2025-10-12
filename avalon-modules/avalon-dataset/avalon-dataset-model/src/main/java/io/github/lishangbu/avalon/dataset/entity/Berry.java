@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;

@@ -1,5 +1,7 @@
 package io.github.lishangbu.avalon.json.util;
 
+import java.io.InputStream;
+import java.io.Reader;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -8,9 +10,6 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
-
-import java.io.InputStream;
-import java.io.Reader;
 
 /**
  * JSON 工具类，提供对象与 JSON 的序列化与反序列化能力
@@ -25,9 +24,7 @@ public class JsonUtils implements ApplicationContextAware {
 
   private static JsonMapper JSON_MAPPER;
 
-  /**
-   * 获取 JsonMapper 单例实例
-   */
+  /** 获取 JsonMapper 单例实例 */
   public static JsonMapper getInstance() {
     return JSON_MAPPER;
   }
