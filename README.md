@@ -1,7 +1,7 @@
 Avalon
 ========================================================================
 
-[![Deploy Snapshot With Maven](https://github.com/lishangbu/avalon/actions/workflows/build.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
+[![Deploy Snapshot With Maven](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
 [![Publish Javadoc](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml)
 [![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
