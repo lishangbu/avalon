@@ -2,7 +2,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.flattened-pom.xml
 
 ### STS ###
 .apt_generated
@@ -42,4 +41,8 @@ build/
 IP2LOCATION-LITE-DB11**.BIN
 
 ### Log File ###
+/logs/
 *.log
+
+### Maven Temporary Files ###
+.flattened-pom.xml
