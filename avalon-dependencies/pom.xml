@@ -44,6 +44,7 @@
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
     <ip2location.version>1.2.4</ip2location.version>
+    <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
     <jgit.version>7.4.0.202509020913-r</jgit.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
@@ -289,6 +290,11 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
           </plugin>
           <plugin>
             <groupId>org.sonatype.central</groupId>
