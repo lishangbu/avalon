@@ -35,27 +35,13 @@ jobs:
           ./mvnw compile -P release
           ./mvnw --batch-mode javadoc:aggregate -P release -Dmaven.test.skip=true
 
-      - name: 上传javadoc产物
-        uses: actions/upload-artifact@v4
+      - name: 部署到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: javadoc-api
-          path: |
-            target/reports/apidocs
-
-      - name: 检出avalon-site
-        uses: actions/checkout@v5
-        with:
-          repository: lishangbu/avalon-site
-          token: ${{ secrets.PAT }}
-          path: avalon-site
-
-      - name: 提交并更新API
-        run: |
-          cd avalon-site
-          mkdir -p javadoc-api
-          cp -vrf ../target/reports/apidocs/* javadoc-api/
-          git add javadoc-api
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Update API docs" || echo "No changes to commit"
-          git push
+          personal_token: ${{ secrets.PAT }}
+          publish_dir: target/reports/apidocs
+          external_repository: lishangbu/avalon-site
+          publish_branch: main
+          destination_dir: javadoc-api
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
