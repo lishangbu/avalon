@@ -2,6 +2,10 @@ package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.convert.DurationStyle;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -16,11 +20,6 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * JDBC注册客户端
