@@ -31,8 +31,8 @@ build/
 ### VS Code ###
 .vscode/
 
-### RSA KEY ###
-**/src/main/resources/**/rsa/**.key
+### PEM FILES ###
+**.pem
 
 ### macOS System File ###
 .DS_Store

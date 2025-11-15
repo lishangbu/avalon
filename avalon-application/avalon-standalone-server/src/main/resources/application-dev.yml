@@ -7,3 +7,5 @@ spring:
 oauth2:
   ignore-urls:
     - /actuator/**
+  jwt-private-key-location: classpath:/rsa/private_key.pem
+  jwt-public-key-location: classpath:/rsa/public_key.pem
