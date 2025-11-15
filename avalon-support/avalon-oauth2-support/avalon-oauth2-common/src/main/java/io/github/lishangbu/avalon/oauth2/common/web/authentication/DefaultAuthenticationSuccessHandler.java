@@ -1,15 +1,12 @@
 package io.github.lishangbu.avalon.oauth2.common.web.authentication;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
-import io.github.lishangbu.avalon.web.result.ApiResult;
+import io.github.lishangbu.avalon.web.util.JsonResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
 
 /**
  * 默认认证成功处理器
@@ -22,11 +19,7 @@ public class DefaultAuthenticationSuccessHandler implements AuthenticationSucces
 
   @Override
   public void onAuthenticationSuccess(
-      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-      throws IOException {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.getWriter().write(JsonUtils.toJson(ApiResult.ok(null)));
-    response.getWriter().flush();
+    HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    JsonResponseWriter.writeSuccessResponse(response);
   }
 }

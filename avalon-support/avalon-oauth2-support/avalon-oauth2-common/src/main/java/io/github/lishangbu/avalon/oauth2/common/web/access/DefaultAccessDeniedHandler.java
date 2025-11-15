@@ -1,41 +1,40 @@
 package io.github.lishangbu.avalon.oauth2.common.web.access;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.oauth2.common.result.SecurityErrorResultCode;
-import io.github.lishangbu.avalon.web.result.ApiResult;
-import jakarta.servlet.ServletException;
+import io.github.lishangbu.avalon.web.util.JsonResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 /**
- * 默认异常处理
+ * 默认的访问拒绝处理器，在用户已认证但无权限访问资源时返回统一的 JSON 错误响应
+ *
+ * <p>返回 HTTP 403 状态以及统一的业务错误码，便于前端和网关识别和处理
  *
  * @author lishangbu
  * @since 2025/8/22
  */
+@Slf4j
 public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
 
   @Override
   public void handle(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      AccessDeniedException accessDeniedException)
-      throws IOException, ServletException {
-    response.setStatus(HttpStatus.FORBIDDEN.value());
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response
-        .getWriter()
-        .write(
-            JsonUtils.toJson(
-                ApiResult.failed(
-                    SecurityErrorResultCode.FORBIDDEN, accessDeniedException.getMessage())));
-    response.getWriter().flush();
+    HttpServletRequest request,
+    HttpServletResponse response,
+    AccessDeniedException accessDeniedException) {
+
+    log.error(
+      "AccessDeniedHandler invoked for request [{}], reason [{}]",
+      request.getRequestURI(),
+      accessDeniedException.getMessage());
+
+    JsonResponseWriter.writeFailedResponse(
+      response,
+      HttpStatus.FORBIDDEN,
+      SecurityErrorResultCode.FORBIDDEN,
+      accessDeniedException.getMessage());
   }
 }
