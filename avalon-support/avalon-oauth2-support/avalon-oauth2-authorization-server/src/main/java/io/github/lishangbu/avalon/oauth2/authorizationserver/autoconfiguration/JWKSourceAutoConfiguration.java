@@ -8,17 +8,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -29,6 +18,16 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * JWKSource 自动装配
@@ -123,7 +122,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
 
     // 构建 JWK（包含私钥）
     RSAKey rsaKey =
-      new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(kid).algorithm(alg).build();
+        new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(kid).algorithm(alg).build();
 
     this.jwkSet = new JWKSet(rsaKey);
 
@@ -163,16 +162,16 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
    * @throws InvalidKeySpecException 当密钥格式不符合 X.509 编码时抛出
    */
   private static RSAPublicKey loadPublicKey(String publicKeyContent)
-    throws NoSuchAlgorithmException, InvalidKeySpecException {
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
     publicKeyContent =
-      publicKeyContent
-        .replace("-----BEGIN PUBLIC KEY-----", "")
-        .replace("-----END PUBLIC KEY-----", "")
-        .replaceAll("\\s", "");
+        publicKeyContent
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s", "");
     byte[] encoded = java.util.Base64.getDecoder().decode(publicKeyContent);
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
     return (RSAPublicKey)
-      keyFactory.generatePublic(new java.security.spec.X509EncodedKeySpec(encoded));
+        keyFactory.generatePublic(new java.security.spec.X509EncodedKeySpec(encoded));
   }
 
   /**
@@ -186,16 +185,16 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
    * @throws InvalidKeySpecException 当密钥格式不符合 PKCS#8 编码时抛出
    */
   private static RSAPrivateKey loadPrivateKey(String privateKeyContent)
-    throws NoSuchAlgorithmException, InvalidKeySpecException {
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
     privateKeyContent =
-      privateKeyContent
-        .replace("-----BEGIN PRIVATE KEY-----", "")
-        .replace("-----END PRIVATE KEY-----", "")
-        .replaceAll("\\s", "");
+        privateKeyContent
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s", "");
     byte[] encoded = java.util.Base64.getDecoder().decode(privateKeyContent);
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
     return (RSAPrivateKey)
-      keyFactory.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(encoded));
+        keyFactory.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(encoded));
   }
 
   /**
@@ -232,7 +231,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
         if (resource.exists() && resource.isReadable()) {
           try (InputStream inputStream = resource.getInputStream()) {
             String content =
-              new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
             loadedPublic = loadPublicKey(content);
             log.debug("从 [{}] 成功加载公钥", jwtPublicKeyLocation);
           }
@@ -255,7 +254,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
         if (resource.exists() && resource.isReadable()) {
           try (InputStream inputStream = resource.getInputStream()) {
             String content =
-              new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
             loadedPrivate = loadPrivateKey(content);
             log.debug("从 [{}] 成功加载私钥", jwtPrivateKeyLocation);
           }

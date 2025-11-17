@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.authorization.entity.Role;
 import jakarta.annotation.Resource;
 import java.util.Optional;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
