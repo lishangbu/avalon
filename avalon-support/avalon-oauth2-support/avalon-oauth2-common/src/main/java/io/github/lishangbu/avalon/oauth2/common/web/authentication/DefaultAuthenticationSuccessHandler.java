@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-
 /**
  * 默认认证成功处理器
  *
@@ -19,7 +18,7 @@ public class DefaultAuthenticationSuccessHandler implements AuthenticationSucces
 
   @Override
   public void onAuthenticationSuccess(
-    HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     JsonResponseWriter.writeSuccessResponse(response);
   }
 }

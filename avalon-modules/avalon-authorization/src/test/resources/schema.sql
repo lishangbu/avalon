@@ -51,8 +51,8 @@ CREATE TABLE oauth_authorization (
     attributes VARCHAR(10000),
     state VARCHAR(500),
     authorization_code_value VARCHAR(1000),
-    authorization_code_issued_at DATETIME,
-    authorization_code_expires_at DATETIME,
+    authorization_code_issued_at TIMESTAMP,
+    authorization_code_expires_at TIMESTAMP,
     authorization_code_metadata VARCHAR(10000)
 );
 

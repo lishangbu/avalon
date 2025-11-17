@@ -22,6 +22,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 @ToString
 @RequiredArgsConstructor
 @Entity
+@SuppressWarnings("removal")
 public class Profile implements Serializable {
   @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 

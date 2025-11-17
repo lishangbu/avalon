@@ -31,6 +31,7 @@ import org.hibernate.type.*;
  *
  * @author Gavin King
  */
+@SuppressWarnings("removal")
 @Slf4j
 public class DefaultMergeEventListener extends AbstractSaveEventListener<MergeContext>
     implements MergeEventListener {

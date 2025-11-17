@@ -22,19 +22,19 @@ public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
 
   @Override
   public void handle(
-    HttpServletRequest request,
-    HttpServletResponse response,
-    AccessDeniedException accessDeniedException) {
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AccessDeniedException accessDeniedException) {
 
     log.error(
-      "AccessDeniedHandler invoked for request [{}], reason [{}]",
-      request.getRequestURI(),
-      accessDeniedException.getMessage());
+        "AccessDeniedHandler invoked for request [{}], reason [{}]",
+        request.getRequestURI(),
+        accessDeniedException.getMessage());
 
     JsonResponseWriter.writeFailedResponse(
-      response,
-      HttpStatus.FORBIDDEN,
-      SecurityErrorResultCode.FORBIDDEN,
-      accessDeniedException.getMessage());
+        response,
+        HttpStatus.FORBIDDEN,
+        SecurityErrorResultCode.FORBIDDEN,
+        accessDeniedException.getMessage());
   }
 }

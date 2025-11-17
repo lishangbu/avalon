@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.oauth2.common.properties;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * OAuth2 安全配置属性类
@@ -76,7 +75,9 @@ public class Oauth2Properties {
 
   /**
    * JWT 公钥文件位置，用于 Token 签名验证
-   * <p>文件不存在时，则随机生成密钥对，强烈建议指定自己的密钥对并做好私钥保护</p>
+   *
+   * <p>文件不存在时，则随机生成密钥对，强烈建议指定自己的密钥对并做好私钥保护
+   *
    * <p>支持 classpath 和文件系统路径，默认使用 RSA 算法 公钥文件格式为 PEM 格式，与私钥配对使用
    *
    * <p>可通过 {@code scripts/rsa-key-pair.sh} 脚本生成密钥对

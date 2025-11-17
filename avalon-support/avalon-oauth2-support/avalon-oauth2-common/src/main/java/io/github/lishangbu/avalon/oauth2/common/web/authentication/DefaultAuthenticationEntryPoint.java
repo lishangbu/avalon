@@ -10,7 +10,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 
-
 /**
  * 统一的认证入口点，用于在未认证或认证失败时返回统一的 JSON 错误响应
  *
@@ -25,18 +24,18 @@ public class DefaultAuthenticationEntryPoint implements AuthenticationEntryPoint
 
   @Override
   public void commence(
-    HttpServletRequest request,
-    HttpServletResponse response,
-    AuthenticationException authException) {
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AuthenticationException authException) {
     log.error(
-      "AuthenticationEntryPoint invoked for request [{}], reason=[{}]",
-      request.getRequestURI(),
-      authException.getMessage());
+        "AuthenticationEntryPoint invoked for request [{}], reason=[{}]",
+        request.getRequestURI(),
+        authException.getMessage());
 
     JsonResponseWriter.writeFailedResponse(
-      response,
-      HttpStatus.UNAUTHORIZED,
-      SecurityErrorResultCode.UNAUTHORIZED,
-      authException.getMessage());
+        response,
+        HttpStatus.UNAUTHORIZED,
+        SecurityErrorResultCode.UNAUTHORIZED,
+        authException.getMessage());
   }
 }
