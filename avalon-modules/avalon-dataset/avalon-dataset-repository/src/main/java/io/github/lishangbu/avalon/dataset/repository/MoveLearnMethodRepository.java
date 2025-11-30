@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.MoveLearnMethod;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,4 +12,6 @@ import org.springframework.stereotype.Repository;
  * @since 2025/09/14
  */
 @Repository
-public interface MoveLearnMethodRepository extends JpaRepository<MoveLearnMethod, Long> {}
+public interface MoveLearnMethodRepository
+    extends ListCrudRepository<MoveLearnMethod, Long>,
+        ListPagingAndSortingRepository<MoveLearnMethod, Long> {}

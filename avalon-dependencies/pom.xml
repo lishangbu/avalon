@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.0-RC2</version>
+    <version>4.0.0</version>
     <relativePath />
   </parent>
   <groupId>io.github.lishangbu</groupId>
@@ -51,8 +51,8 @@
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
     <revision>0.0.1-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>3.0.0</spotless-maven-plugin.version>
-    <spring-doc.version>2.8.14</spring-doc.version>
+    <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
+    <spring-doc.version>3.0.0</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
   <dependencyManagement>
@@ -82,11 +82,6 @@
       <dependency>
         <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-dataset-repository</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-hibernate-support</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>

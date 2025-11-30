@@ -1,11 +1,13 @@
 package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 /**
  * 用户认证信息表(oauth_authorization)表数据库访问层
@@ -14,7 +16,9 @@ import org.springframework.stereotype.Repository;
  * @since 2025/9/14
  */
 @Repository
-public interface Oauth2AuthorizationRepository extends JpaRepository<OauthAuthorization, String> {
+public interface OauthAuthorizationRepository
+        extends ListCrudRepository<OauthAuthorization, String>,
+        ListPagingAndSortingRepository<OauthAuthorization, String> {
   /**
    * 根据 state 查询认证信息
    *
@@ -74,23 +78,20 @@ public interface Oauth2AuthorizationRepository extends JpaRepository<OauthAuthor
   /**
    * 根据多种 token 字段联合查询认证信息，支持
    * state、authorizationCode、accessToken、refreshToken、idToken、userCode、deviceCode 任意一种 token。
-   * 查询语句为多行文本块，便于维护和阅读。
    *
    * @param token token 值，可为上述任意一种 token
    * @return 匹配的认证信息
    */
   @Query(
       """
-      select a from OauthAuthorization a
-      where a.state = :token
-        or a.authorizationCodeValue = :token
-        or a.accessTokenValue = :token
-        or a.refreshTokenValue = :token
-        or a.oidcIdTokenValue = :token
-        or a.userCodeValue = :token
-        or a.deviceCodeValue = :token
+                      select * from oauth_authorization
+                      where state = :token
+                        or authorization_code_value = :token
+                        or access_token_value = :token
+                        or refresh_token_value = :token
+                        or oidc_id_token_value = :token
+                        or user_code_value = :token
+                        or device_code_value = :token
       """)
-  Optional<OauthAuthorization>
-      findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
-          @Param("token") String token);
+  Optional<OauthAuthorization> findByToken(@Param("token") String token);
 }

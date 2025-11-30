@@ -1,13 +1,10 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
-import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 树果(Berry)实体类
@@ -15,16 +12,13 @@ import org.hibernate.proxy.HibernateProxy;
  * @author lishangbu
  * @since 2025/08/20
  */
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
+@Data
+@Table
 public class Berry implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id @Flex private Long id;
+  @Id private Long id;
 
   /** 内部名称 */
   private String internalName;
@@ -55,28 +49,4 @@ public class Berry implements Serializable {
 
   /** 搭配该树果使用“自然之恩”招式时的威力 */
   private Integer naturalGiftPower;
-
-  @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy
-            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy
-            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-            : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    Berry berry = (Berry) o;
-    return getId() != null && Objects.equals(getId(), berry.getId());
-  }
-
-  @Override
-  public final int hashCode() {
-    return this instanceof HibernateProxy
-        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
-        : getClass().hashCode();
-  }
 }

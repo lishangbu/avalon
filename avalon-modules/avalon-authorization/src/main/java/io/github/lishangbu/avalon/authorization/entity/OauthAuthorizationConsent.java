@@ -1,17 +1,13 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Embedded;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * 用户授权确认表(OauthAuthorizationConsent)实体类
@@ -19,20 +15,21 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * @author lishangbu
  * @since 2025/08/20
  */
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
-@IdClass(OauthAuthorizationConsent.AuthorizationConsentId.class)
+@Data
+@Table
 public class OauthAuthorizationConsent implements Serializable {
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  @Id
+  @Embedded.Nullable
+  private AuthorizationConsentId id;
 
   /** 当前授权确认的客户端id */
-  @Id private String registeredClientId;
+  private String registeredClientId;
 
   /** 当前授权确认用户的 username */
-  @Id private String principalName;
+  private String principalName;
 
   /** 授权确认的scope */
   private String authorities;
@@ -70,26 +67,6 @@ public class OauthAuthorizationConsent implements Serializable {
     public int hashCode() {
       return Objects.hash(registeredClientId, principalName);
     }
-  }
-
-  @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy
-            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy
-            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-            : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    OauthAuthorizationConsent that = (OauthAuthorizationConsent) o;
-    return getRegisteredClientId() != null
-        && Objects.equals(getRegisteredClientId(), that.getRegisteredClientId())
-        && getPrincipalName() != null
-        && Objects.equals(getPrincipalName(), that.getPrincipalName());
   }
 
   @Override

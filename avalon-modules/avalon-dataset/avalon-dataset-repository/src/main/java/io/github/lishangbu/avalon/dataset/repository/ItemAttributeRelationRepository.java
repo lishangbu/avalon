@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemAttributeRelation;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,4 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemAttributeRelationRepository
-    extends JpaRepository<ItemAttributeRelation, Long> {}
+    extends ListCrudRepository<ItemAttributeRelation, Long>,
+        ListPagingAndSortingRepository<ItemAttributeRelation, Long> {}

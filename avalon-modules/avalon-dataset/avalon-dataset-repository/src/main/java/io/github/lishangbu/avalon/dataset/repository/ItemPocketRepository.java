@@ -1,7 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.ItemPocket;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,4 +12,6 @@ import org.springframework.stereotype.Repository;
  * @since 2025/09/14
  */
 @Repository
-public interface ItemPocketRepository extends JpaRepository<ItemPocket, Long> {}
+public interface ItemPocketRepository
+    extends ListCrudRepository<ItemPocket, Long>,
+        ListPagingAndSortingRepository<ItemPocket, Long> {}

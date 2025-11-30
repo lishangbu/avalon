@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -14,10 +14,10 @@ import org.springframework.test.context.ContextConfiguration;
  * @since 2025/8/20
  */
 @ContextConfiguration(classes = {TestEnvironmentAutoConfiguration.class})
-@DataJpaTest
+@DataJdbcTest
 class OauthRegisteredClientRepositoryTest {
 
-  @Resource private Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
+  @Resource private OauthRegisteredClientRepository oauth2RegisteredClientRepository;
 
   @Test
   void testSelectByClientId() {

@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
-import io.github.lishangbu.avalon.dataset.entity.Type_;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
@@ -68,9 +67,7 @@ public class TypeServiceImpl implements TypeService {
             type,
             ExampleMatcher.matching()
                 .withIgnoreNullValues()
-                .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher(
-                    Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())),
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
         pageable);
   }
 
@@ -122,8 +119,7 @@ public class TypeServiceImpl implements TypeService {
     ExampleMatcher matcher =
         ExampleMatcher.matching()
             .withIgnoreNullValues()
-            .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-            .withMatcher(Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
+          .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
     return typeRepository.findAll(Example.of(type, matcher));
   }
 }

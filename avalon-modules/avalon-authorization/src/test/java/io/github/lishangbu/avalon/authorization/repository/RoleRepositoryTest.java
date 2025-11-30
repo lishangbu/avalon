@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.authorization.entity.Role;
 import jakarta.annotation.Resource;
 import java.util.Optional;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor = Exception.class)
 @ContextConfiguration(classes = {TestEnvironmentAutoConfiguration.class})
-@DataJpaTest
+@DataJdbcTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RoleRepositoryTest {
   @Resource private RoleRepository roleRepository;

@@ -1,7 +1,10 @@
 package io.github.lishangbu.avalon.dataset.repository;
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
+import org.springframework.data.repository.query.ListQueryByExampleExecutor;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,4 +14,7 @@ import org.springframework.stereotype.Repository;
  * @since 2025/09/14
  */
 @Repository
-public interface BerryFirmnessRepository extends JpaRepository<BerryFirmness, Long> {}
+public interface BerryFirmnessRepository
+  extends ListCrudRepository<BerryFirmness, Long>,
+  ListPagingAndSortingRepository<BerryFirmness, Long>, ListQueryByExampleExecutor<BerryFirmness> {
+}

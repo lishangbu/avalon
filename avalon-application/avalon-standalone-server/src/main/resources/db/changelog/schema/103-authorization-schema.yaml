@@ -33,7 +33,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: varchar(100)
+                  type: int4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -43,7 +43,7 @@ databaseChangeLog:
                   type: varchar(100)
                   constraints:
                     nullable: false
-                  remarks: "已注册的客户端 ID"
+                  remarks: "已注册的客户端ID"
               - column:
                   name: principal_name
                   type: varchar(200)
@@ -64,7 +64,7 @@ databaseChangeLog:
                   remarks: "授权范围"
               - column:
                   name: attributes
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "属性"
@@ -82,19 +82,19 @@ databaseChangeLog:
                   remarks: "授权码值"
               - column:
                   name: authorization_code_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "授权码签发时间"
               - column:
                   name: authorization_code_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "授权码过期时间"
               - column:
                   name: authorization_code_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "授权码元数据"
@@ -106,22 +106,28 @@ databaseChangeLog:
                   remarks: "访问令牌值"
               - column:
                   name: access_token_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "访问令牌签发时间"
               - column:
                   name: access_token_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "访问令牌过期时间"
               - column:
                   name: access_token_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "访问令牌元数据"
+              - column:
+                  name: access_token_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+                  remarks: "访问令牌类型"
               - column:
                   name: access_token_scopes
                   type: varchar(1000)
@@ -136,28 +142,22 @@ databaseChangeLog:
                   remarks: "OIDC ID 令牌值"
               - column:
                   name: oidc_id_token_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌签发时间"
               - column:
                   name: oidc_id_token_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌过期时间"
               - column:
                   name: oidc_id_token_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌元数据"
-              - column:
-                  name: oidc_id_token_claims
-                  type: json
-                  constraints:
-                    nullable: true
-                  remarks: "OIDC ID 令牌声明"
               - column:
                   name: refresh_token_value
                   type: varchar(1000)
@@ -166,19 +166,19 @@ databaseChangeLog:
                   remarks: "刷新令牌值"
               - column:
                   name: refresh_token_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "刷新令牌签发时间"
               - column:
                   name: refresh_token_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "刷新令牌过期时间"
               - column:
                   name: refresh_token_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "刷新令牌元数据"
@@ -190,19 +190,19 @@ databaseChangeLog:
                   remarks: "用户代码值"
               - column:
                   name: user_code_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "用户代码签发时间"
               - column:
                   name: user_code_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "用户代码过期时间"
               - column:
                   name: user_code_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "用户代码元数据"
@@ -214,28 +214,22 @@ databaseChangeLog:
                   remarks: "设备代码值"
               - column:
                   name: device_code_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "设备代码签发时间"
               - column:
                   name: device_code_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "设备代码过期时间"
               - column:
                   name: device_code_metadata
-                  type: json
+                  type: bytea
                   constraints:
                     nullable: true
                   remarks: "设备代码元数据"
-              - column:
-                  name: authorization_object
-                  type: longblob
-                  constraints:
-                    nullable: true
-                  remarks: "认证信息"
         - createTable:
             tableName: oauth_registered_client
             remarks: 'Oauth2注册客户端'
@@ -255,7 +249,7 @@ databaseChangeLog:
                   remarks: "客户端 ID"
               - column:
                   name: client_id_issued_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: false
                   remarks: "客户端 ID 签发时间"
@@ -267,7 +261,7 @@ databaseChangeLog:
                   remarks: "客户端密钥"
               - column:
                   name: client_secret_expires_at
-                  type: DATETIME
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "客户端密钥过期时间"

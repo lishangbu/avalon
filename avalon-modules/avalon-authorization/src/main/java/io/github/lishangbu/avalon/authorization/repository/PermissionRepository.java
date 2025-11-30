@@ -2,8 +2,9 @@ package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.entity.Permission;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/08/28
  */
 @Repository
-public interface PermissionRepository extends JpaRepository<Permission, Long> {
+public interface PermissionRepository
+    extends ListCrudRepository<Permission, Long>, ListPagingAndSortingRepository<Permission, Long> {
 
   /**
    * 通过角色代码查询所有权限

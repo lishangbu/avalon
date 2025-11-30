@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.authorization;
 
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 /**
  * @author lishangbu
@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @EntityScan(basePackages = "io.github.lishangbu.avalon.authorization.entity")
-@EnableJpaRepositories(basePackages = "io.github.lishangbu.avalon.authorization.repository")
+@EnableJdbcRepositories(basePackages = "io.github.lishangbu.avalon.authorization.repository")
 public class TestEnvironmentAutoConfiguration {}
