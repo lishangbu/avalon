@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
-import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository;
+import io.github.lishangbu.avalon.authorization.repository.OauthRegisteredClientRepository;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 @Component
 @RequiredArgsConstructor
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
-  private final Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
+  private final OauthRegisteredClientRepository oauth2RegisteredClientRepository;
 
   private static AuthorizationGrantType resolveAuthorizationGrantType(
       String authorizationGrantType) {
@@ -43,7 +43,8 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
       return AuthorizationGrantType.REFRESH_TOKEN;
     }
-    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
+    // Custom authorization grant type
+    return new AuthorizationGrantType(authorizationGrantType);
   }
 
   private static ClientAuthenticationMethod resolveClientAuthenticationMethod(

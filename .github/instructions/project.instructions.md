@@ -9,7 +9,7 @@ applyTo: "**"
 ## 技术栈
 
 - 框架: Spring Boot 4.0.0.M3
-- ORM框架: Spring Data Jpa
+- ORM框架: Spring Data JDBC
 - 代码校验与格式化: spotless
 - 开发语言: Java
 - 项目管理工具: maven
@@ -45,8 +45,6 @@ applyTo: "**"
 │       └── avalon-dataset-repository # 数据集模块的仓库
 ├── avalon-parent # 父工程，定义整个工程的一些公共行为
 ├── avalon-support # 无第三方依赖的各种支持库
-│   ├── avalon-hibernate-support # hibernate 支持库
-│   │   └── src # hibernate 支持库的源码
 │   ├── avalon-json-support  # JSON 支持库
 │   │   └── src # JSON 支持库的源码
 │   ├── avalon-oauth2-support # OAuth2 支持库

@@ -1,15 +1,10 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.springframework.security.core.SpringSecurityCoreVersion;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 用户个人资料表(Profile)实体类
@@ -17,16 +12,12 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * @author lishangbu
  * @since 2025/08/30
  */
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
-@SuppressWarnings("removal")
+@Data
+@Table
 public class Profile implements Serializable {
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+  @Serial private static final long serialVersionUID = 1L;
 
-  @Id @Flex private Long id;
+  @Id private Long id;
 
   private Integer gender;
 

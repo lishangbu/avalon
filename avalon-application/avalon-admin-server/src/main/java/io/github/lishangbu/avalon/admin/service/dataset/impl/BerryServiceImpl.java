@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import io.github.lishangbu.avalon.admin.service.dataset.BerryService;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
-import io.github.lishangbu.avalon.dataset.entity.Berry_;
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
@@ -69,9 +68,7 @@ public class BerryServiceImpl implements BerryService {
             berry,
             ExampleMatcher.matching()
                 .withIgnoreNullValues()
-                .withMatcher(Berry_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher(
-                    Berry_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())),
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
         pageable);
   }
 

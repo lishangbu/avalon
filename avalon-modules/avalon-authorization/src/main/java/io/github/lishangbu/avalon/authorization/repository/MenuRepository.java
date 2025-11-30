@@ -2,8 +2,9 @@ package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.entity.Menu;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Repository;
  * @since 2025/9/19
  */
 @Repository
-public interface MenuRepository extends JpaRepository<Menu, Long> {
+public interface MenuRepository
+    extends ListCrudRepository<Menu, Long>, ListPagingAndSortingRepository<Menu, Long> {
   /**
    * 通过角色代码查询所有菜单
    *

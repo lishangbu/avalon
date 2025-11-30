@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent;
-import io.github.lishangbu.avalon.authorization.repository.Oauth2AuthorizationConsentRepository;
+import io.github.lishangbu.avalon.authorization.repository.OauthAuthorizationConsentRepository;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -24,11 +24,11 @@ import org.springframework.util.StringUtils;
  */
 @Service
 public class DefaultOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
-  private final Oauth2AuthorizationConsentRepository oauth2AuthorizationConsentRepository;
+  private final OauthAuthorizationConsentRepository oauth2AuthorizationConsentRepository;
   private final RegisteredClientRepository registeredClientRepository;
 
   public DefaultOAuth2AuthorizationConsentService(
-      Oauth2AuthorizationConsentRepository authorizationConsentRepository,
+      OauthAuthorizationConsentRepository authorizationConsentRepository,
       RegisteredClientRepository registeredClientRepository) {
     Assert.notNull(authorizationConsentRepository, "authorizationConsentRepository cannot be null");
     Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
@@ -67,7 +67,7 @@ public class DefaultOAuth2AuthorizationConsentService implements OAuth2Authoriza
       throw new DataRetrievalFailureException(
           "The RegisteredClient with id '"
               + registeredClientId
-              + "' was not found in the Oauth2RegisteredClientRepository.");
+              + "' was not found in the OauthRegisteredClientRepository.");
     }
 
     OAuth2AuthorizationConsent.Builder builder =

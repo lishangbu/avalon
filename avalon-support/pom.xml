@@ -11,7 +11,6 @@
   <packaging>pom</packaging>
   <description>项目内部的一些支持，基本上只使用了Spring全家桶相关</description>
   <modules>
-    <module>avalon-hibernate-support</module>
     <module>avalon-json-support</module>
     <module>avalon-oauth2-support</module>
     <module>avalon-poke-api-support</module>

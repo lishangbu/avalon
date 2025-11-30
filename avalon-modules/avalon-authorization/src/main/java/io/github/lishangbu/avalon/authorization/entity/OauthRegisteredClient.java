@@ -1,18 +1,12 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.security.core.SpringSecurityCoreVersion;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * Oauth2注册客户端(OauthRegisteredClient)实体类
@@ -20,13 +14,10 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * @author lishangbu
  * @since 2025/08/19
  */
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
+@Data
+@Table
 public class OauthRegisteredClient implements Serializable {
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** 唯一标识符 */
   @Id private String id;
@@ -85,7 +76,7 @@ public class OauthRegisteredClient implements Serializable {
    * the expected subject distinguished name associated to the client X509Certificate received
    * during client authentication when using the tls_client_auth method
    */
-  @Column(name = "x509_certificate_subject_dn")
+  @Column(value = "x509_certificate_subject_dn")
   private String x509CertificateSubjectDn;
 
   /** the time-to-live for an authorization code. The default is 5 minutes. */
@@ -117,30 +108,6 @@ public class OauthRegisteredClient implements Serializable {
    * authentication when using the tls_client_auth or self_signed_tls_client_auth method. The
    * default is false.
    */
-  @Column(name = "x509_certificate_bound_access_tokens")
+  @Column(value = "x509_certificate_bound_access_tokens")
   private Boolean x509CertificateBoundAccessTokens;
-
-  @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy
-            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy
-            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-            : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    OauthRegisteredClient that = (OauthRegisteredClient) o;
-    return getId() != null && Objects.equals(getId(), that.getId());
-  }
-
-  @Override
-  public final int hashCode() {
-    return this instanceof HibernateProxy
-        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
-        : getClass().hashCode();
-  }
 }

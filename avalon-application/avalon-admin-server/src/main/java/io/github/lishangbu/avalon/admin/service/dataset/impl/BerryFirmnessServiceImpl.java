@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
-import io.github.lishangbu.avalon.dataset.entity.BerryFirmness_;
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
@@ -50,9 +49,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         Example.of(
             berryFirmness,
             ExampleMatcher.matching()
-                .withMatcher(BerryFirmness_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher(
-                    BerryFirmness_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+              .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
                 .withIgnoreNullValues()),
         pageable);
   }
@@ -70,9 +67,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
     ExampleMatcher matcher =
         ExampleMatcher.matching()
             .withIgnoreNullValues()
-            .withMatcher(BerryFirmness_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-            .withMatcher(
-                BerryFirmness_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
+          .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
     return berryFirmnessRepository.findAll(Example.of(berryFirmness, matcher));
   }
 

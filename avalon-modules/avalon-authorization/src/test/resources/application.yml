@@ -4,10 +4,6 @@ spring:
       replace: none
   main:
     banner-mode: off
-  jpa:
-    defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: none
   datasource:
     url: jdbc:h2:mem:authorizationDb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
     username: sa
