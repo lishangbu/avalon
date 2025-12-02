@@ -7,7 +7,7 @@ CREATE TABLE "user" (
 );
 
 -- 角色信息表
-CREATE TABLE role (
+CREATE TABLE "role" (
     id BIGINT PRIMARY KEY NOT NULL,
     code VARCHAR(50) NOT NULL DEFAULT '',
     name VARCHAR(50) NOT NULL DEFAULT '',
@@ -16,33 +16,21 @@ CREATE TABLE role (
 );
 
 -- 用户角色关系表
-CREATE TABLE user_role_relation (
+CREATE TABLE "user_role_relation" (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL
 );
 
--- 角色权限关系表
-CREATE TABLE role_permission_relation (
-    role_id BIGINT NOT NULL,
-    permission_id BIGINT NOT NULL
-);
-
--- 权限表
-CREATE TABLE permission (
-    id BIGINT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
-);
-
 -- 用户授权确认表
-CREATE TABLE oauth_authorization_consent (
+CREATE TABLE "oauth_authorization_consent" (
     registered_client_id VARCHAR(100) NOT NULL,
     principal_name VARCHAR(200) NOT NULL,
     authorities VARCHAR(1000) NOT NULL,
     PRIMARY KEY (registered_client_id, principal_name)
 );
 
--- 用户认证信息表
-CREATE TABLE oauth_authorization (
+-- 用户认证信息表（补全所有实体字段，兼容 H2）
+CREATE TABLE "oauth_authorization" (
     id VARCHAR(100) PRIMARY KEY NOT NULL,
     registered_client_id VARCHAR(100) NOT NULL,
     principal_name VARCHAR(200) NOT NULL,
@@ -50,14 +38,42 @@ CREATE TABLE oauth_authorization (
     authorized_scopes VARCHAR(1000),
     attributes VARCHAR(10000),
     state VARCHAR(500),
+
     authorization_code_value VARCHAR(1000),
     authorization_code_issued_at TIMESTAMP,
     authorization_code_expires_at TIMESTAMP,
-    authorization_code_metadata VARCHAR(10000)
+    authorization_code_metadata VARCHAR(10000),
+
+    access_token_value VARCHAR(1000),
+    access_token_issued_at TIMESTAMP,
+    access_token_expires_at TIMESTAMP,
+    access_token_metadata VARCHAR(10000),
+    access_token_type VARCHAR(100),
+    access_token_scopes VARCHAR(1000),
+
+    oidc_id_token_value VARCHAR(1000),
+    oidc_id_token_issued_at TIMESTAMP,
+    oidc_id_token_expires_at TIMESTAMP,
+    oidc_id_token_metadata VARCHAR(10000),
+
+    refresh_token_value VARCHAR(1000),
+    refresh_token_issued_at TIMESTAMP,
+    refresh_token_expires_at TIMESTAMP,
+    refresh_token_metadata VARCHAR(10000),
+
+    user_code_value VARCHAR(1000),
+    user_code_issued_at TIMESTAMP,
+    user_code_expires_at TIMESTAMP,
+    user_code_metadata VARCHAR(10000),
+
+    device_code_value VARCHAR(1000),
+    device_code_issued_at TIMESTAMP,
+    device_code_expires_at TIMESTAMP,
+    device_code_metadata VARCHAR(10000)
 );
 
 -- Oauth2注册客户端表
-CREATE TABLE oauth_registered_client (
+CREATE TABLE "oauth_registered_client" (
     id VARCHAR(100) PRIMARY KEY NOT NULL,
     client_id VARCHAR(100) NOT NULL,
     client_id_issued_at TIMESTAMP NOT NULL,

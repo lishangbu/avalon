@@ -1,8 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service;
 
-import io.github.lishangbu.avalon.authorization.entity.User;
 import io.github.lishangbu.avalon.authorization.model.UserVO;
-
 import java.util.Optional;
 
 /**

@@ -13,6 +13,12 @@
       <groupId>io.github.lishangbu</groupId>
       <artifactId>avalon-oauth2-authorization-server</artifactId>
     </dependency>
+    <!-- PostgresQL驱动 -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-jdbc</artifactId>

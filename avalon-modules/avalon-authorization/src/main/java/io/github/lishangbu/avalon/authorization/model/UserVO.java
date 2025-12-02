@@ -2,9 +2,8 @@ package io.github.lishangbu.avalon.authorization.model;
 
 import io.github.lishangbu.avalon.authorization.entity.Role;
 import io.github.lishangbu.avalon.authorization.entity.User;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * 用户视图对象，包含用户基本信息及其角色列表

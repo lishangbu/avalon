@@ -1,15 +1,13 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
-import io.github.lishangbu.avalon.authorization.entity.User;
 import io.github.lishangbu.avalon.authorization.model.UserVO;
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository;
 import io.github.lishangbu.avalon.authorization.repository.UserRepository;
 import io.github.lishangbu.avalon.authorization.service.UserService;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 /**
  * 用户服务实现
@@ -20,9 +18,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  /**
-   * 用户数据存储层
-   */
+  /** 用户数据存储层 */
   private final UserRepository userRepository;
 
   private final RoleRepository roleRepository;

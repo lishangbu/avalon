@@ -1,13 +1,12 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * 用户授权确认表(OauthAuthorizationConsent)实体类
@@ -18,12 +17,9 @@ import java.util.Objects;
 @Data
 @Table
 public class OauthAuthorizationConsent implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  @Id
-  @Embedded.Nullable
-  private AuthorizationConsentId id;
+  @Id @Embedded.Nullable private AuthorizationConsentId id;
 
   /** 当前授权确认的客户端id */
   private String registeredClientId;

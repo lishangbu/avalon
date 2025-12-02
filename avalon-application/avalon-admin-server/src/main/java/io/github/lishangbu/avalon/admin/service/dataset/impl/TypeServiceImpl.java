@@ -119,7 +119,7 @@ public class TypeServiceImpl implements TypeService {
     ExampleMatcher matcher =
         ExampleMatcher.matching()
             .withIgnoreNullValues()
-          .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
     return typeRepository.findAll(Example.of(type, matcher));
   }
 }

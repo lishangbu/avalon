@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.entity.User;
+import java.util.Optional;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /**
  * 用户信息(user)表数据库访问层

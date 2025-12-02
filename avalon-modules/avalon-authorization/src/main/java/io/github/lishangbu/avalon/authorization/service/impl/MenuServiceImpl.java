@@ -29,6 +29,9 @@ public class MenuServiceImpl implements MenuService {
 
   @Override
   public List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes) {
+    if (CollectionUtils.isEmpty(roleCodes)) {
+      return Collections.emptyList();
+    }
     List<Menu> menus = menuRepository.findAllByRoleCodes(roleCodes);
     log.debug("根据角色编码获取到 [{}] 条菜单记录", menus == null ? 0 : menus.size());
     return buildTreeFromMenus(menus);
