@@ -33,7 +33,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int4
+                  type: varchar(100)
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -64,7 +64,7 @@ databaseChangeLog:
                   remarks: "授权范围"
               - column:
                   name: attributes
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "属性"
@@ -94,7 +94,7 @@ databaseChangeLog:
                   remarks: "授权码过期时间"
               - column:
                   name: authorization_code_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "授权码元数据"
@@ -118,7 +118,7 @@ databaseChangeLog:
                   remarks: "访问令牌过期时间"
               - column:
                   name: access_token_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "访问令牌元数据"
@@ -154,7 +154,7 @@ databaseChangeLog:
                   remarks: "OIDC ID 令牌过期时间"
               - column:
                   name: oidc_id_token_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌元数据"
@@ -178,7 +178,7 @@ databaseChangeLog:
                   remarks: "刷新令牌过期时间"
               - column:
                   name: refresh_token_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "刷新令牌元数据"
@@ -202,7 +202,7 @@ databaseChangeLog:
                   remarks: "用户代码过期时间"
               - column:
                   name: user_code_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "用户代码元数据"
@@ -226,7 +226,7 @@ databaseChangeLog:
                   remarks: "设备代码过期时间"
               - column:
                   name: device_code_metadata
-                  type: bytea
+                  type: jsonb
                   constraints:
                     nullable: true
                   remarks: "设备代码元数据"

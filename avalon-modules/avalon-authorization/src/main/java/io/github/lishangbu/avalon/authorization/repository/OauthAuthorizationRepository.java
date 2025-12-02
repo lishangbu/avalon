@@ -1,13 +1,12 @@
 package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
+import java.util.Optional;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /**
  * 用户认证信息表(oauth_authorization)表数据库访问层
@@ -17,8 +16,9 @@ import java.util.Optional;
  */
 @Repository
 public interface OauthAuthorizationRepository
-        extends ListCrudRepository<OauthAuthorization, String>,
+    extends ListCrudRepository<OauthAuthorization, String>,
         ListPagingAndSortingRepository<OauthAuthorization, String> {
+
   /**
    * 根据 state 查询认证信息
    *

@@ -25,14 +25,14 @@ public class DefaultUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return userService
-      .getUserByUsername(username)
+        .getUserByUsername(username)
         .map(
             user ->
                 new UserInfo(
                     user.getUsername(),
                     user.getPassword(),
-                  CollectionUtils.isEmpty(user.getUserRoles())
-                    ? AuthorityUtils.NO_AUTHORITIES
+                    CollectionUtils.isEmpty(user.getUserRoles())
+                        ? AuthorityUtils.NO_AUTHORITIES
                         : AuthorityUtils.createAuthorityList(
                             user.getRoles().stream().map(Role::getCode).toList())))
         .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));

@@ -14,8 +14,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface OauthAuthorizationConsentRepository
-    extends ListCrudRepository<OauthAuthorizationConsent, OauthAuthorizationConsent.AuthorizationConsentId>,
-        ListPagingAndSortingRepository<OauthAuthorizationConsent, OauthAuthorizationConsent.AuthorizationConsentId> {
+    extends ListCrudRepository<
+            OauthAuthorizationConsent, OauthAuthorizationConsent.AuthorizationConsentId>,
+        ListPagingAndSortingRepository<
+            OauthAuthorizationConsent, OauthAuthorizationConsent.AuthorizationConsentId> {
   Optional<OauthAuthorizationConsent> findByRegisteredClientIdAndPrincipalName(
       String registeredClientId, String principalName);
 

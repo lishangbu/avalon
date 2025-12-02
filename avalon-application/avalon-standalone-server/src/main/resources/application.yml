@@ -1,7 +1,5 @@
 spring:
   application:
     name: avalon
-  jpa:
-    open-in-view: false
   profiles:
     active: dev

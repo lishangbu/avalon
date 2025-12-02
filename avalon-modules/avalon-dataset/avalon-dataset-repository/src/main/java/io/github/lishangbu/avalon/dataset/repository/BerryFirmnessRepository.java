@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.data.repository.query.ListQueryByExampleExecutor;
-import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -15,6 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BerryFirmnessRepository
-  extends ListCrudRepository<BerryFirmness, Long>,
-  ListPagingAndSortingRepository<BerryFirmness, Long>, ListQueryByExampleExecutor<BerryFirmness> {
-}
+    extends ListCrudRepository<BerryFirmness, Long>,
+        ListPagingAndSortingRepository<BerryFirmness, Long>,
+        ListQueryByExampleExecutor<BerryFirmness> {}

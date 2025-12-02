@@ -60,8 +60,8 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     } else if (ClientAuthenticationMethod.NONE.getValue().equals(clientAuthenticationMethod)) {
       return ClientAuthenticationMethod.NONE;
     }
-    return new ClientAuthenticationMethod(
-        clientAuthenticationMethod); // Custom client authentication method
+    // Custom client authentication method
+    return new ClientAuthenticationMethod(clientAuthenticationMethod);
   }
 
   @Override

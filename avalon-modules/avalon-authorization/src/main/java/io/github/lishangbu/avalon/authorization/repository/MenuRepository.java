@@ -29,10 +29,11 @@ public interface MenuRepository
    */
   @Query(
       """
-      select distinct m from Menu m
-      join m.roles r
-      where r.code in :roleCodes
-      order by m.sortOrder desc
+      select distinct m.* from Menu m
+      left join role_menu_relation rmr on m.id = rmr.menu_id
+      left join role r on rmr.role_id = r.id
+      where r.code in (:roleCodes)
+      order by m.sort_order desc
       """)
   List<Menu> findAllByRoleCodes(@Param("roleCodes") List<String> roleCodes);
 }

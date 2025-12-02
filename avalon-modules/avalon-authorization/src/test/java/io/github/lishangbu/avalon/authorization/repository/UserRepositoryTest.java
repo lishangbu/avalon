@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.authorization.repository;
 
 import io.github.lishangbu.avalon.authorization.TestEnvironmentAutoConfiguration;
 import io.github.lishangbu.avalon.authorization.entity.User;
-import io.github.lishangbu.avalon.authorization.model.UserVO;
 import jakarta.annotation.Resource;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;

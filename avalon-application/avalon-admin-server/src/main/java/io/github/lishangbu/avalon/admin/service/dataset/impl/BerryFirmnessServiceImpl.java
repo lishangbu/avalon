@@ -49,7 +49,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         Example.of(
             berryFirmness,
             ExampleMatcher.matching()
-              .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
                 .withIgnoreNullValues()),
         pageable);
   }
@@ -67,7 +67,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
     ExampleMatcher matcher =
         ExampleMatcher.matching()
             .withIgnoreNullValues()
-          .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
     return berryFirmnessRepository.findAll(Example.of(berryFirmness, matcher));
   }
 
