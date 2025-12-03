@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Sequence;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -22,7 +23,9 @@ public class User implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id
+  @Sequence("user_id_seq")
+  private Integer id;
 
   /** 用户名 */
   private String username;

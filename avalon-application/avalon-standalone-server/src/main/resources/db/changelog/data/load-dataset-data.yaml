@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: '加载基本数据集数据'
+      author: lishangbu
+      changes:
+        - loadData:
+            file: berry_firmness.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_firmness
+        - loadData:
+            file: berry_flavor.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_flavor
+        - loadData:
+            file: berry.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry
+        - loadData:
+            file: type.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: type

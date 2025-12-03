@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MenuRepository
-    extends ListCrudRepository<Menu, Long>, ListPagingAndSortingRepository<Menu, Long> {
+    extends ListCrudRepository<Menu, Integer>, ListPagingAndSortingRepository<Menu, Integer> {
   /**
    * 通过角色代码查询所有菜单
    *

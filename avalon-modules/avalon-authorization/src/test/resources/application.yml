@@ -9,3 +9,6 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+  liquibase:
+    drop-first: true
+    change-log: classpath:db/changelog/db.changelog-test.yaml
