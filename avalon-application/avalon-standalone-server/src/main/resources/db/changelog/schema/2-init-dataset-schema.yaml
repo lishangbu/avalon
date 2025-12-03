@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 105
+      id: '创建基本数据集表结构'
       author: lishangbu
       changes:
         - createTable:

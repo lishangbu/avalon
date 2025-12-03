@@ -1,32 +1,84 @@
 databaseChangeLog:
   - changeSet:
-      id: 103
+      id: '创建认证相关表'
       author: lishangbu
+      dbms: postgresql
       changes:
         - createTable:
-            tableName: oauth_authorization_consent
-            remarks: '用户授权确认表'
+            tableName: menu
+            remarks: '菜单'
             columns:
               - column:
-                  name: registered_client_id
-                  type: varchar(100)
-                  remarks: '当前授权确认的客户端id'
+                  name: id
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: '主键'
               - column:
-                  name: principal_name
+                  name: parent_id
+                  type: int4
+                  remarks: '父菜单ID'
+              - column:
+                  name: disabled
+                  type: boolean
+                  remarks: '是否禁用菜单项'
+              - column:
+                  name: extra
+                  type: varchar(500)
+                  remarks: '菜单项的额外部分'
+              - column:
+                  name: icon
                   type: varchar(200)
-                  remarks: '当前授权确认用户的 username'
-                  constraints:
-                    primaryKey: true
-                    nullable: false
+                  remarks: '菜单项的图标'
               - column:
-                  name: authorities
-                  type: varchar(1000)
-                  remarks: '授权确认的scope'
-                  constraints:
-                    nullable: false
+                  name: key
+                  type: varchar(200)
+                  remarks: '菜单项的标识符'
+              - column:
+                  name: label
+                  type: varchar(200)
+                  remarks: '菜单项的内容'
+              - column:
+                  name: show
+                  type: boolean
+                  remarks: '是否显示菜单项'
+              - column:
+                  name: path
+                  type: varchar(500)
+                  remarks: '路径'
+              - column:
+                  name: name
+                  type: varchar(500)
+                  remarks: '名称'
+              - column:
+                  name: redirect
+                  type: varchar(500)
+                  remarks: '重定向路径'
+              - column:
+                  name: component
+                  type: varchar(500)
+                  remarks: '组件路径'
+              - column:
+                  name: sort_order
+                  type: int4
+                  remarks: '排序顺序'
+                  defaultValue: '0'
+              - column:
+                  name: pinned
+                  type: bool
+                  remarks: '是否固定标签页'
+                  defaultValue: 'false'
+              - column:
+                  name: show_tab
+                  type: bool
+                  remarks: '是否显示标签页'
+                  defaultValue: 'true'
+              - column:
+                  name: enable_multi_tab
+                  type: bool
+                  remarks: '是否支持多标签页'
+                  defaultValue: 'false'
         - createTable:
             tableName: oauth_authorization
             remarks: '用户认证信息表'
@@ -231,6 +283,30 @@ databaseChangeLog:
                     nullable: true
                   remarks: "设备代码元数据"
         - createTable:
+            tableName: oauth_authorization_consent
+            remarks: '用户授权确认表'
+            columns:
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+                  remarks: '当前授权确认的客户端id'
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+                  remarks: '当前授权确认用户的 username'
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: authorities
+                  type: varchar(1000)
+                  remarks: '授权确认的scope'
+                  constraints:
+                    nullable: false
+        - createTable:
             tableName: oauth_registered_client
             remarks: 'Oauth2注册客户端'
             columns:
@@ -303,16 +379,16 @@ databaseChangeLog:
                   remarks: "客户端授权的范围"
               - column:
                   name: require_proof_key
-                  type: boolean
+                  type: bool
                   remarks: '当使用该客户端发起PKCE流程时必须设置为true,默认为false'
-                  defaultValue: false
+                  defaultValue: 'false'
                   constraints:
                     nullable: false
               - column:
                   name: require_authorization_consent
-                  type: boolean
+                  type: bool
                   remarks: '当设置为true时登录后会先跳转授权确认页面，确认后才会跳转到redirect_uri，为false时不会跳转至授权确认页面，默认为false'
-                  defaultValue: false
+                  defaultValue: 'false'
                   constraints:
                     nullable: false
               - column:
@@ -357,7 +433,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: reuse_refresh_tokens
-                  type: boolean
+                  type: bool
                   remarks: '刷新token时是否重用refresh token，设置为true后refresh token不变，false刷新token时会重新签发一个refresh token，默认是true'
                   defaultValue: 'true'
                   constraints:
@@ -378,8 +454,99 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: x509_certificate_bound_access_tokens
-                  type: boolean
+                  type: bool
                   remarks: 'true if access tokens must be bound to the client X509Certificate received during client authentication when using the tls_client_auth or self_signed_tls_client_auth method. The default is false.'
                   defaultValue: 'false'
                   constraints:
                     nullable: false
+        - createTable:
+            tableName: role
+            remarks: '角色信息'
+            columns:
+              - column:
+                  name: id
+                  type: serial4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '角色代码'
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '角色名称'
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: 'true'
+                  remarks: '角色是否启用'
+        - createTable:
+            tableName: role_menu_relation
+            remarks: '角色菜单关系'
+            columns:
+              - column:
+                  name: role_id
+                  type: int4
+                  constraints:
+                    nullable: false
+                  remarks: '角色ID'
+              - column:
+                  name: menu_id
+                  type: int4
+                  constraints:
+                    nullable: false
+                  remarks: '菜单ID'
+        - createTable:
+            tableName: user
+            remarks: '用户信息'
+            columns:
+              - column:
+                  name: id
+                  type: serial4
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: '主键'
+              - column:
+                  name: username
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                  defaultValue: ''
+                  remarks: '用户名'
+              - column:
+                  name: password
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                  defaultValue: ''
+                  remarks: '密码'
+        - createTable:
+            tableName: user_role_relation
+            remarks: '用户角色关系'
+            columns:
+              - column:
+                  name: user_id
+                  type: int4
+                  constraints:
+                    nullable: false
+                  remarks: '用户ID'
+              - column:
+                  name: role_id
+                  type: int4
+                  constraints:
+                    nullable: false
+                  remarks: '角色ID'

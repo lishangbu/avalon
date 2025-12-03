@@ -6,18 +6,18 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
- * 中间表实体，使用 AggregateReference 表示引用 Role 聚合的 id（不会自动加载 Role）
+ * 中间表实体，使用 AggregateReference 表示引用 Menu 聚合的 id（不会自动加载 Menu）
  *
  * @author lishangbu
- * @since 2025/11/21
+ * @since 2025/12/4
  */
 @Data
 @Table
-public class UserRoleRelation {
-
-  @Column("user_id")
-  private Integer userId;
+public class RoleMenuRelation {
 
   @Column("role_id")
-  private AggregateReference<Role, Integer> roleRef;
+  private Integer roleId;
+
+  @Column("menu_id")
+  private AggregateReference<Menu, Integer> menuRef;
 }

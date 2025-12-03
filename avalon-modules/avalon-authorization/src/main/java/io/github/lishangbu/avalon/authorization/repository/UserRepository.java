@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository
-    extends ListCrudRepository<User, Long>, ListPagingAndSortingRepository<User, Long> {
+    extends ListCrudRepository<User, Integer>, ListPagingAndSortingRepository<User, Integer> {
   /**
    * 根据用户名查询用户信息
    *

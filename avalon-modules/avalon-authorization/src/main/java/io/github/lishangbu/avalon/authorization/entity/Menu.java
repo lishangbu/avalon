@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Sequence;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -19,10 +20,12 @@ public class Menu implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id
+  @Sequence("menu_id_seq")
+  private Integer id;
 
   /** 父权限ID */
-  private Long parentId;
+  private Integer parentId;
 
   // region Naive UI Menu 属性
 
@@ -77,5 +80,4 @@ public class Menu implements Serializable {
   private Boolean enableMultiTab;
 
   // endregion
-
 }

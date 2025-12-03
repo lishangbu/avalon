@@ -23,17 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 class RoleRepositoryTest {
   @Resource private RoleRepository roleRepository;
 
-  private static Long insertId;
+  private static Integer insertId;
 
   @Test
   @Order(1)
   void testSelectRoleById() {
-    Optional<Role> roleOptional = roleRepository.findById(1L);
+    Optional<Role> roleOptional = roleRepository.findById(2);
     Assertions.assertTrue(roleOptional.isPresent());
     Role role = roleOptional.get();
     Assertions.assertEquals("ROLE_TEST", role.getCode());
     Assertions.assertEquals("测试员", role.getName());
-    Assertions.assertEquals(1L, role.getId());
+    Assertions.assertEquals(2, role.getId());
     Assertions.assertTrue(role.getEnabled());
   }
 
