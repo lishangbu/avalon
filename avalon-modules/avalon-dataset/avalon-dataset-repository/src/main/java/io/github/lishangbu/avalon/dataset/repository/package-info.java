@@ -4,4 +4,7 @@
  * @author lishangbu
  * @since 2025/4/16
  */
+@NullMarked
 package io.github.lishangbu.avalon.dataset.repository;
+
+import org.jspecify.annotations.NullMarked;

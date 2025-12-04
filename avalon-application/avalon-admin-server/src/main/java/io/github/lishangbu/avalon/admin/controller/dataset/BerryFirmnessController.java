@@ -65,7 +65,7 @@ public class BerryFirmnessController {
    * @param id 树果坚硬度ID
    */
   @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@PathVariable Long id) {
+  public void deleteById(@PathVariable Integer id) {
     berryFirmnessService.removeById(id);
   }
 

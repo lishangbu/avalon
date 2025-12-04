@@ -70,7 +70,7 @@ public class BerryController {
    * @param id Berry 主键
    */
   @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@PathVariable Long id) {
+  public void deleteById(@PathVariable Integer id) {
     berryService.removeById(id);
   }
 }

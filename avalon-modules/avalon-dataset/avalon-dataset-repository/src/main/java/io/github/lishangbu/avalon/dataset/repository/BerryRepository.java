@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BerryRepository
-    extends ListCrudRepository<Berry, Long>,
-        ListPagingAndSortingRepository<Berry, Long>,
+    extends ListCrudRepository<Berry, Integer>,
+        ListPagingAndSortingRepository<Berry, Integer>,
         QueryByExampleExecutor<Berry> {}

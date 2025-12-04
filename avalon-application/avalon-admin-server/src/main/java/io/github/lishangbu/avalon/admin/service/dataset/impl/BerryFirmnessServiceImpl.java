@@ -33,7 +33,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         berryFirmnessData -> {
           BerryFirmness berryFirmness = new BerryFirmness();
           berryFirmness.setInternalName(berryFirmnessData.name());
-          berryFirmness.setId(berryFirmnessData.id().longValue());
+          berryFirmness.setId(berryFirmnessData.id());
           berryFirmness.setName(berryFirmnessData.name());
           LocalizationUtils.getLocalizationName(berryFirmnessData.names())
               .ifPresent(name -> berryFirmness.setName(name.name()));
@@ -82,7 +82,7 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
   }
 
   @Override
-  public void removeById(Long id) {
+  public void removeById(Integer id) {
     berryFirmnessRepository.deleteById(id);
   }
 }
