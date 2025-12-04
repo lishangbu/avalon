@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: '创建基本数据集表结构'
       author: lishangbu
+      dbms: postgresql
       changes:
         - createTable:
             tableName: ability
@@ -9,7 +10,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -56,7 +57,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -131,7 +132,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false

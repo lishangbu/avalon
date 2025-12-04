@@ -37,7 +37,7 @@ public class BerryServiceImpl implements BerryService {
         berryData -> {
           Berry berry = new Berry();
           berry.setInternalName(berryData.name());
-          berry.setId(berryData.id().longValue());
+          berry.setId(berryData.id());
           berry.setName(berryData.name());
           Item item =
               pokeApiService.getEntityFromUri(
@@ -78,7 +78,7 @@ public class BerryServiceImpl implements BerryService {
   }
 
   @Override
-  public void removeById(Long id) {
+  public void removeById(Integer id) {
     berryRepository.deleteById(id);
   }
 

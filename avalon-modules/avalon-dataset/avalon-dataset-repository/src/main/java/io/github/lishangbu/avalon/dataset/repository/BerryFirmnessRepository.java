@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BerryFirmnessRepository
-    extends ListCrudRepository<BerryFirmness, Long>,
-        ListPagingAndSortingRepository<BerryFirmness, Long>,
+    extends ListCrudRepository<BerryFirmness, Integer>,
+        ListPagingAndSortingRepository<BerryFirmness, Integer>,
         ListQueryByExampleExecutor<BerryFirmness> {}

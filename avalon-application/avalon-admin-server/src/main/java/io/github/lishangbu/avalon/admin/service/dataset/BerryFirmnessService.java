@@ -49,7 +49,7 @@ public interface BerryFirmnessService {
    *
    * @param id 树果坚硬度ID
    */
-  void removeById(Long id);
+  void removeById(Integer id);
 
   /**
    * 根据条件查询树果坚硬度列表

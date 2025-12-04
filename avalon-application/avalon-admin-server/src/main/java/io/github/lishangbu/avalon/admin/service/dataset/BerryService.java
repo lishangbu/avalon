@@ -42,7 +42,7 @@ public interface BerryService {
    *
    * @param id 要删除的树果主键
    */
-  void removeById(Long id);
+  void removeById(Integer id);
 
   /**
    * 更新树果
