@@ -79,35 +79,35 @@ databaseChangeLog:
                   remarks: '名称'
               - column:
                   name: growth_time
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '生长到下一个阶段所需的时间(小时)'
               - column:
                   name: max_harvest
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '最大结果数'
               - column:
                   name: bulk
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '大小（毫米）'
               - column:
                   name: smoothness
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '光滑度'
               - column:
                   name: soil_dryness
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
@@ -124,7 +124,7 @@ databaseChangeLog:
                   remarks: '搭配该树果使用“自然之恩”招式时继承的属性类型'
               - column:
                   name: natural_gift_power
-                  type: int
+                  type: int4
                   remarks: '搭配该树果使用“自然之恩”招式时的威力'
         - createTable:
             tableName: berry_firmness
@@ -158,7 +158,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -184,7 +184,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -218,7 +218,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -240,14 +240,14 @@ databaseChangeLog:
                   remarks: '道具名称'
               - column:
                   name: cost
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '在商店中的价格'
               - column:
                   name: fling_power
-                  type: int
+                  type: int4
                   remarks: '使用此道具进行投掷行动时的威力'
               - column:
                   name: fling_effect_internal_name
@@ -275,7 +275,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -308,20 +308,20 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
                   remarks: '主键'
               - column:
                   name: item_id
-                  type: bigint
+                  type: int4
                   constraints:
                     nullable: false
                   remarks: '道具ID'
               - column:
                   name: item_attribute_id
-                  type: bigint
+                  type: int4
                   constraints:
                     nullable: false
                   remarks: '道具属性ID'
@@ -331,7 +331,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -364,7 +364,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -397,7 +397,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -423,20 +423,20 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
                   remarks: '主键'
               - column:
                   name: item_id
-                  type: bigint
+                  type: int4
                   constraints:
                     nullable: false
                   remarks: '道具ID'
               - column:
                   name: move_id
-                  type: bigint
+                  type: int4
                   constraints:
                     nullable: false
                   remarks: '招式ID'
@@ -446,7 +446,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -475,32 +475,32 @@ databaseChangeLog:
                   remarks: '属性内部名称'
               - column:
                   name: accuracy
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '命中'
               - column:
                   name: effect_chance
-                  type: int
+                  type: int4
                   remarks: '此招式效果发生的概率百分比值'
               - column:
                   name: pp
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '招式点数'
               - column:
                   name: priority
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '-8到8之间的值。设置战斗中招式执行的顺序'
               - column:
                   name: power
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
@@ -542,35 +542,35 @@ databaseChangeLog:
                   remarks: '招式效果描述'
               - column:
                   name: min_hits
-                  type: int
+                  type: int4
                   remarks: '此招式持续生效的最小回合数。如果总是只持续一回合，则为空'
               - column:
                   name: max_turns
-                  type: int
+                  type: int4
                   remarks: '此招式持续生效的最小回合数。如果总是只持续一回合，则为空'
               - column:
                   name: drain
-                  type: int
+                  type: int4
                   remarks: 'HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示'
               - column:
                   name: healing
-                  type: int
+                  type: int4
                   remarks: '攻击方宝可梦恢复的HP量，以其最大HP的百分比表示'
               - column:
                   name: crit_rate
-                  type: int
+                  type: int4
                   remarks: '暴击率加成'
               - column:
                   name: ailment_chance
-                  type: int
+                  type: int4
                   remarks: '此攻击导致状态异常的可能性'
               - column:
                   name: flinch_chance
-                  type: int
+                  type: int4
                   remarks: '此攻击导致目标宝可梦畏缩的可能性'
               - column:
                   name: stat_chance
-                  type: int
+                  type: int4
                   remarks: '此攻击导致目标宝可梦能力值变化的可能性'
               - column:
                   name: category_internal_name
@@ -590,7 +590,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -616,7 +616,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -649,7 +649,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -682,7 +682,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -715,7 +715,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -748,7 +748,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -770,21 +770,21 @@ databaseChangeLog:
                   remarks: '宝可梦名称'
               - column:
                   name: height
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '身高，单位为分米'
               - column:
                   name: weight
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
                   remarks: '体重，数字每增加1，体重增加0.1kg'
               - column:
                   name: base_experience
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   defaultValue: 0
@@ -795,7 +795,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -816,7 +816,7 @@ databaseChangeLog:
                   remarks: '属性内部名称'
               - column:
                   name: sorting_order
-                  type: int
+                  type: int4
                   constraints:
                     nullable: false
                   remarks: '属性内部排序'
@@ -826,7 +826,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: serial4
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -868,7 +868,7 @@ databaseChangeLog:
                   remarks: '防御者属性(内部名称)'
               - column:
                   name: damage_rate
-                  type: float
+                  type: float4
                   constraints:
                     nullable: false
                   remarks: '伤害倍率'

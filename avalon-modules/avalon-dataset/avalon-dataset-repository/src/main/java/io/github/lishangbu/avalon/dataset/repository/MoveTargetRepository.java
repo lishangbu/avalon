@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveTargetRepository
-    extends ListCrudRepository<MoveTarget, Long>,
-        ListPagingAndSortingRepository<MoveTarget, Long> {}
+    extends ListCrudRepository<MoveTarget, Integer>,
+        ListPagingAndSortingRepository<MoveTarget, Integer> {}

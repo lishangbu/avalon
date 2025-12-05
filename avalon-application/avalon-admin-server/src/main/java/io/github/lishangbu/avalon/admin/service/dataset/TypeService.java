@@ -42,7 +42,7 @@ public interface TypeService {
    *
    * @param id 要删除的 Type 主键
    */
-  void removeById(Long id);
+  void removeById(Integer id);
 
   /**
    * 更新属性类型

@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemFlingEffectRepository
-    extends ListCrudRepository<ItemFlingEffect, Long>,
-        ListPagingAndSortingRepository<ItemFlingEffect, Long> {}
+    extends ListCrudRepository<ItemFlingEffect, Integer>,
+        ListPagingAndSortingRepository<ItemFlingEffect, Integer> {}

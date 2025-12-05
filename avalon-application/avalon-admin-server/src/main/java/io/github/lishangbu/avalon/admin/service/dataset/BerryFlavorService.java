@@ -53,5 +53,5 @@ public interface BerryFlavorService {
    *
    * @param id 树果风味ID
    */
-  void removeById(Long id);
+  void removeById(Integer id);
 }

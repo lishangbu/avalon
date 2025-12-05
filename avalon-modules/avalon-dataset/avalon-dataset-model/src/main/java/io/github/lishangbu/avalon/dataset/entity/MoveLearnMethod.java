@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Sequence;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -18,7 +19,9 @@ public class MoveLearnMethod implements Serializable {
   @Serial private static final long serialVersionUID = 240573508164457984L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id
+  @Sequence("move_learn_method_id_seq")
+  private Integer id;
 
   /** 学习招式的方法内部名称 */
   private String internalName;

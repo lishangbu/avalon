@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveAilmentRepository
-    extends ListCrudRepository<MoveAilment, Long>,
-        ListPagingAndSortingRepository<MoveAilment, Long> {}
+    extends ListCrudRepository<MoveAilment, Integer>,
+        ListPagingAndSortingRepository<MoveAilment, Integer> {}
