@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1
+      id: '处理数据集相关表-测试用'
       author: lishangbu
       changes:
         - createTable:

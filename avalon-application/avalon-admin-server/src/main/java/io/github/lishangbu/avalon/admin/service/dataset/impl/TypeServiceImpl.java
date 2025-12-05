@@ -43,7 +43,7 @@ public class TypeServiceImpl implements TypeService {
         typeData -> {
           Type type = new Type();
           type.setInternalName(typeData.name());
-          type.setId(typeData.id().longValue());
+          type.setId(typeData.id());
           type.setName(typeData.name());
           LocalizationUtils.getLocalizationName(typeData.names())
               .ifPresent(name -> type.setName(name.name()));
@@ -90,7 +90,7 @@ public class TypeServiceImpl implements TypeService {
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public void removeById(Long id) {
+  public void removeById(Integer id) {
     typeRepository.deleteById(id);
   }
 

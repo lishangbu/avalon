@@ -6,12 +6,12 @@ import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * 道具背包(ItemPocket)数据访问层
+ * 道具口袋(ItemPocket)数据访问层
  *
  * @author lishangbu
  * @since 2025/09/14
  */
 @Repository
 public interface ItemPocketRepository
-    extends ListCrudRepository<ItemPocket, Long>,
-        ListPagingAndSortingRepository<ItemPocket, Long> {}
+    extends ListCrudRepository<ItemPocket, Integer>,
+        ListPagingAndSortingRepository<ItemPocket, Integer> {}
