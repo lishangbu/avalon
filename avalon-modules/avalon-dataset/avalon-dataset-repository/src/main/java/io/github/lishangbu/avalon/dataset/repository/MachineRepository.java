@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MachineRepository
-    extends ListCrudRepository<Machine, Long>, ListPagingAndSortingRepository<Machine, Long> {}
+    extends ListCrudRepository<Machine, Integer>,
+        ListPagingAndSortingRepository<Machine, Integer> {}

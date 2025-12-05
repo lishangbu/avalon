@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Sequence;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -18,11 +19,13 @@ public class Machine implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id
+  @Sequence("machine_id_seq")
+  private Integer id;
 
   /** 道具ID */
-  private Long itemId;
+  private Integer itemId;
 
   /** 招式ID */
-  private Long moveId;
+  private Integer moveId;
 }
