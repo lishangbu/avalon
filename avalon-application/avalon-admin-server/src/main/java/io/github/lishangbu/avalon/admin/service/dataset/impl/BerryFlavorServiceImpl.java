@@ -37,7 +37,7 @@ public class BerryFlavorServiceImpl implements BerryFlavorService {
         berryFlavorData -> {
           BerryFlavor berryFlavor = new BerryFlavor();
           berryFlavor.setInternalName(berryFlavorData.name());
-          berryFlavor.setId(berryFlavorData.id().longValue());
+          berryFlavor.setId(berryFlavorData.id());
           berryFlavor.setName(berryFlavorData.name());
           LocalizationUtils.getLocalizationName(berryFlavorData.names())
               .ifPresent(name -> berryFlavor.setName(name.name()));
@@ -69,7 +69,7 @@ public class BerryFlavorServiceImpl implements BerryFlavorService {
   }
 
   @Override
-  public void removeById(Long id) {
+  public void removeById(Integer id) {
     berryFlavorRepository.deleteById(id);
   }
 }

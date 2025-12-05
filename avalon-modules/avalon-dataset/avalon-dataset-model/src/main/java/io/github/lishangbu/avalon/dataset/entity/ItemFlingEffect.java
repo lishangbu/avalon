@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Sequence;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -18,7 +19,9 @@ public class ItemFlingEffect implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id private Long id;
+  @Id
+  @Sequence("item_fling_effect_id_seq")
+  private Integer id;
 
   /** 内部名称 */
   private String internalName;

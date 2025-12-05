@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MoveLearnMethodRepository
-    extends ListCrudRepository<MoveLearnMethod, Long>,
-        ListPagingAndSortingRepository<MoveLearnMethod, Long> {}
+    extends ListCrudRepository<MoveLearnMethod, Integer>,
+        ListPagingAndSortingRepository<MoveLearnMethod, Integer> {}

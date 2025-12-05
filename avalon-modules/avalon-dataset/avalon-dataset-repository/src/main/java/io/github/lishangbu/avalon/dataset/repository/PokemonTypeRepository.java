@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PokemonTypeRepository
-    extends ListCrudRepository<PokemonType, Long>,
-        ListPagingAndSortingRepository<PokemonType, Long> {}
+    extends ListCrudRepository<PokemonType, Integer>,
+        ListPagingAndSortingRepository<PokemonType, Integer> {}

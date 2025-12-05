@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ItemRepository
-    extends ListCrudRepository<Item, Long>, ListPagingAndSortingRepository<Item, Long> {}
+    extends ListCrudRepository<Item, Integer>, ListPagingAndSortingRepository<Item, Integer> {}
