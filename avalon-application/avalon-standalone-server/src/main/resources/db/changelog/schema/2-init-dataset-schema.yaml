@@ -851,23 +851,21 @@ databaseChangeLog:
             remarks: '属性伤害关系'
             columns:
               - column:
-                  name: attacker_type_internal_name
-                  type: varchar(100)
+                  name: attacking_type_id
+                  type: int4
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValue: ''
-                  remarks: '攻击者属性(内部名称)'
+                  remarks: '攻击者属性ID'
               - column:
-                  name: defender_type_internal_name
-                  type: varchar(100)
+                  name: defending_type_id
+                  type: int4
                   constraints:
                     primaryKey: true
                     nullable: false
-                  defaultValue: ''
-                  remarks: '防御者属性(内部名称)'
+                  remarks: '防御者属性ID'
               - column:
-                  name: damage_rate
+                  name: multiplier
                   type: float4
                   constraints:
                     nullable: false
