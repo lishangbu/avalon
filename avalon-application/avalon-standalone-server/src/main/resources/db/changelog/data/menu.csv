@@ -19,7 +19,8 @@ id,parent_id,disabled,extra,icon,key,label,show,path,name,redirect,component,sor
 18,,false,,icon-[ph--info],about,关于项目,true,about,about,,about/index,0,false,true,false
 19,,false,,icon-[ic--outline-dataset],dataset,数据集,true,dataset,dataset,,dataset,0,false,true,false
 20,19,false,,icon-[ic--baseline-type-specimen],type,属性管理,true,type,type,,dataset/type/index,0,false,true,false
-21,19,false,,icon-[game-icons--diamond-hard],berry-firmness,树果硬度管理,true,berry-firmness,berry-firmness,,dataset/berry-firmness/index,0,false,true,false
-22,19,false,,icon-[game-icons--opened-food-can],berry-flavor,树果风味管理,true,berry-flavor,berry-flavor,,dataset/berry-flavor/index,0,false,true,false
-23,19,false,,icon-[game-icons--elderberry],berry,树果管理,true,berry,berry,,dataset/berry/index,0,false,true,false
+21,19,false,,icon-[game-icons--elderberry],type-damage-relation,属性克制管理,true,type-damage-relation,type-damage-relation,,dataset/type-damage-relation/index,0,false,true,false
+22,19,false,,icon-[game-icons--diamond-hard],berry-firmness,树果硬度管理,true,berry-firmness,berry-firmness,,dataset/berry-firmness/index,0,false,true,false
+23,19,false,,icon-[game-icons--opened-food-can],berry-flavor,树果风味管理,true,berry-flavor,berry-flavor,,dataset/berry-flavor/index,0,false,true,false
+24,19,false,,icon-[game-icons--elderberry],berry,树果管理,true,berry,berry,,dataset/berry/index,0,false,true,false
 

@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.ListPagingAndSortingRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,5 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TypeDamageRelationRepository
-    extends ListCrudRepository<TypeDamageRelation, Integer>,
-        ListPagingAndSortingRepository<TypeDamageRelation, Integer> {}
+    extends ListCrudRepository<TypeDamageRelation, TypeDamageRelation.TypeDamageRelationId>,
+        ListPagingAndSortingRepository<TypeDamageRelation, TypeDamageRelation.TypeDamageRelationId>,
+        QueryByExampleExecutor<TypeDamageRelation> {}

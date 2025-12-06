@@ -1,0 +1,59 @@
+package io.github.lishangbu.avalon.admin.service.dataset;
+
+import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+/**
+ * 属性克制关系服务接口
+ *
+ * <p>提供对属性相互克制关系的增删改查和分页/列表查询功能
+ *
+ * @author lishangbu
+ * @since 2025/12/06
+ */
+public interface TypeDamageRelationService {
+
+  /**
+   * 根据条件分页查询属性克制关系
+   *
+   * @param probe 查询条件实体，非空字段将作为过滤条件
+   * @param pageable 分页参数
+   * @return 分页结果
+   */
+  Page<TypeDamageRelation> getPageByCondition(TypeDamageRelation probe, Pageable pageable);
+
+  /**
+   * 新增属性克制关系
+   *
+   * @param entity 要保存的实体
+   * @return 保存后的实体
+   */
+  TypeDamageRelation save(TypeDamageRelation entity);
+
+  /**
+   * 根据复合主键删除属性克制关系
+   *
+   * @param attackingTypeId 攻击方类型内部名称
+   * @param defendingTypeId 防御方类型内部名称
+   */
+  void removeById(Integer attackingTypeId, Integer defendingTypeId);
+
+  /**
+   * 更新属性克制关系
+   *
+   * @param entity 要更新的实体
+   * @return 更新后的实体
+   */
+  TypeDamageRelation update(TypeDamageRelation entity);
+
+  /**
+   * 根据复合主键查询属性克制关系
+   *
+   * @param attackingTypeId 攻击方类型内部名称
+   * @param defendingTypeId 防御方类型内部名称
+   * @return 包含结果的 Optional
+   */
+  Optional<TypeDamageRelation> getById(Integer attackingTypeId, Integer defendingTypeId);
+}
