@@ -27,3 +27,9 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: type
+        - loadData:
+            file: type_damage_relation.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: type_damage_relation
