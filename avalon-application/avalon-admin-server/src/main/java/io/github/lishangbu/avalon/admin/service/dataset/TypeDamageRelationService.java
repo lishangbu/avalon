@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
+import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -56,4 +57,11 @@ public interface TypeDamageRelationService {
    * @return 包含结果的 Optional
    */
   Optional<TypeDamageRelation> getById(Integer attackingTypeId, Integer defendingTypeId);
+
+  /**
+   * 查询全量的属性克制矩阵以便表格展示
+   *
+   * @return 按攻击类型分组的矩阵数据
+   */
+  TypeDamageRelationMatrixResponse getMatrix();
 }

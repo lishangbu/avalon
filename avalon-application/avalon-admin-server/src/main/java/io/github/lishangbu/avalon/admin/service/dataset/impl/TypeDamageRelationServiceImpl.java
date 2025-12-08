@@ -1,10 +1,15 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
+import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation.TypeDamageRelationId;
 import io.github.lishangbu.avalon.dataset.repository.TypeDamageRelationRepository;
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -66,5 +71,38 @@ public class TypeDamageRelationServiceImpl implements TypeDamageRelationService 
     id.setAttackingTypeId(attackingTypeId);
     id.setDefendingTypeId(defendingTypeId);
     return typeDamageRelationRepository.findById(id);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public TypeDamageRelationMatrixResponse getMatrix() {
+    TypeDamageRelationMatrixResponse response = new TypeDamageRelationMatrixResponse();
+    Map<Integer, TypeDamageRelationMatrixResponse.Row> rowMap = new TreeMap<>();
+    typeDamageRelationRepository
+        .findAll()
+        .forEach(
+            entity -> {
+              rowMap
+                  .computeIfAbsent(
+                      entity.getAttackingTypeId(), TypeDamageRelationMatrixResponse.Row::new)
+                  .getCells()
+                  .add(
+                      new TypeDamageRelationMatrixResponse.Cell(
+                          entity.getDefendingTypeId(), toMultiplier(entity.getMultiplier())));
+            });
+    rowMap
+        .values()
+        .forEach(
+            row ->
+                row.getCells()
+                    .sort(
+                        Comparator.comparing(
+                            TypeDamageRelationMatrixResponse.Cell::getDefendingTypeId)));
+    response.getRows().addAll(rowMap.values());
+    return response;
+  }
+
+  private BigDecimal toMultiplier(Float multiplier) {
+    return multiplier == null ? BigDecimal.ONE : BigDecimal.valueOf(multiplier);
   }
 }
