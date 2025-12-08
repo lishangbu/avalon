@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
+import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.Optional;
@@ -79,5 +80,15 @@ public class TypeDamageRelationController {
   public void deleteById(
       @PathVariable Integer attackingTypeId, @PathVariable Integer defendingTypeId) {
     typeDamageRelationService.removeById(attackingTypeId, defendingTypeId);
+  }
+
+  /**
+   * 查询整个属性克制二维矩阵供前端表格直接渲染
+   *
+   * @return 按攻击属性分组的矩阵数据
+   */
+  @GetMapping("/matrix")
+  public TypeDamageRelationMatrixResponse matrix() {
+    return typeDamageRelationService.getMatrix();
   }
 }
