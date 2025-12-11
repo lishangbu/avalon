@@ -1,14 +1,13 @@
 spring:
-  test:
-    database:
-      replace: none
   main:
     banner-mode: off
-  datasource:
-    url: jdbc:h2:mem:authorizationDb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
   liquibase:
     drop-first: true
     change-log: classpath:db/changelog/db.changelog-test.yaml
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**.xml
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+      table-format: "\"%s\""

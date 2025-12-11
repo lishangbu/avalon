@@ -31,7 +31,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
                 new UserInfo(
                     user.getUsername(),
                     user.getPassword(),
-                    CollectionUtils.isEmpty(user.getUserRoles())
+                    CollectionUtils.isEmpty(user.getRoles())
                         ? AuthorityUtils.NO_AUTHORITIES
                         : AuthorityUtils.createAuthorityList(
                             user.getRoles().stream().map(Role::getCode).toList())))

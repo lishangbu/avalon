@@ -1,35 +1,23 @@
 databaseChangeLog:
   - changeSet:
-      id: '处理认证相关表-测试用'
+      id: '创建认证相关表-测试用'
       author: lishangbu
-      dbms: h2
+      dbms: postgresql
       changes:
-        - createSequence:
-            sequenceName: menu_id_seq
-            startValue: 24
-            incrementBy: 1
-        - createSequence:
-            sequenceName: user_id_seq
-            startValue: 2
-            incrementBy: 1
-        - createSequence:
-            sequenceName: role_id_seq
-            startValue: 3
-            incrementBy: 1
         - createTable:
             tableName: menu
             remarks: '菜单'
             columns:
               - column:
                   name: id
-                  type: int
+                  type: int8
                   constraints:
                     primaryKey: true
                     nullable: false
                   remarks: '主键'
               - column:
                   name: parent_id
-                  type: int
+                  type: int8
                   remarks: '父菜单ID'
               - column:
                   name: disabled
@@ -73,22 +61,22 @@ databaseChangeLog:
                   remarks: '组件路径'
               - column:
                   name: sort_order
-                  type: int
+                  type: int4
                   remarks: '排序顺序'
                   defaultValue: '0'
               - column:
                   name: pinned
-                  type: boolean
+                  type: bool
                   remarks: '是否固定标签页'
                   defaultValue: 'false'
               - column:
                   name: show_tab
-                  type: boolean
+                  type: bool
                   remarks: '是否显示标签页'
                   defaultValue: 'true'
               - column:
                   name: enable_multi_tab
-                  type: boolean
+                  type: bool
                   remarks: '是否支持多标签页'
                   defaultValue: 'false'
         - createTable:
@@ -128,10 +116,10 @@ databaseChangeLog:
                   remarks: "授权范围"
               - column:
                   name: attributes
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "属性 (JSON stored as CLOB for H2)"
+                  remarks: "属性"
               - column:
                   name: state
                   type: varchar(500)
@@ -146,22 +134,22 @@ databaseChangeLog:
                   remarks: "授权码值"
               - column:
                   name: authorization_code_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "授权码签发时间"
               - column:
                   name: authorization_code_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "授权码过期时间"
               - column:
                   name: authorization_code_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "授权码元数据 (JSON stored as CLOB)"
+                  remarks: "授权码元数据"
               - column:
                   name: access_token_value
                   type: varchar(1000)
@@ -170,22 +158,22 @@ databaseChangeLog:
                   remarks: "访问令牌值"
               - column:
                   name: access_token_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "访问令牌签发时间"
               - column:
                   name: access_token_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "访问令牌过期时间"
               - column:
                   name: access_token_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "访问令牌元数据 (JSON stored as CLOB)"
+                  remarks: "访问令牌元数据"
               - column:
                   name: access_token_type
                   type: varchar(100)
@@ -206,22 +194,22 @@ databaseChangeLog:
                   remarks: "OIDC ID 令牌值"
               - column:
                   name: oidc_id_token_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌签发时间"
               - column:
                   name: oidc_id_token_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "OIDC ID 令牌过期时间"
               - column:
                   name: oidc_id_token_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "OIDC ID 令牌元数据 (JSON stored as CLOB)"
+                  remarks: "OIDC ID 令牌元数据"
               - column:
                   name: refresh_token_value
                   type: varchar(1000)
@@ -230,22 +218,22 @@ databaseChangeLog:
                   remarks: "刷新令牌值"
               - column:
                   name: refresh_token_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "刷新令牌签发时间"
               - column:
                   name: refresh_token_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "刷新令牌过期时间"
               - column:
                   name: refresh_token_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "刷新令牌元数据 (JSON stored as CLOB)"
+                  remarks: "刷新令牌元数据"
               - column:
                   name: user_code_value
                   type: varchar(1000)
@@ -254,22 +242,22 @@ databaseChangeLog:
                   remarks: "用户代码值"
               - column:
                   name: user_code_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "用户代码签发时间"
               - column:
                   name: user_code_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "用户代码过期时间"
               - column:
                   name: user_code_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "用户代码元数据 (JSON stored as CLOB)"
+                  remarks: "用户代码元数据"
               - column:
                   name: device_code_value
                   type: varchar(1000)
@@ -278,22 +266,22 @@ databaseChangeLog:
                   remarks: "设备代码值"
               - column:
                   name: device_code_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "设备代码签发时间"
               - column:
                   name: device_code_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "设备代码过期时间"
               - column:
                   name: device_code_metadata
-                  type: clob
+                  type: jsonb
                   constraints:
                     nullable: true
-                  remarks: "设备代码元数据 (JSON stored as CLOB)"
+                  remarks: "设备代码元数据"
         - createTable:
             tableName: oauth_authorization_consent
             remarks: '用户授权确认表'
@@ -337,7 +325,7 @@ databaseChangeLog:
                   remarks: "客户端 ID"
               - column:
                   name: client_id_issued_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: false
                   remarks: "客户端 ID 签发时间"
@@ -349,7 +337,7 @@ databaseChangeLog:
                   remarks: "客户端密钥"
               - column:
                   name: client_secret_expires_at
-                  type: timestamp
+                  type: timestamptz
                   constraints:
                     nullable: true
                   remarks: "客户端密钥过期时间"
@@ -391,14 +379,14 @@ databaseChangeLog:
                   remarks: "客户端授权的范围"
               - column:
                   name: require_proof_key
-                  type: boolean
+                  type: bool
                   remarks: '当使用该客户端发起PKCE流程时必须设置为true,默认为false'
                   defaultValue: 'false'
                   constraints:
                     nullable: false
               - column:
                   name: require_authorization_consent
-                  type: boolean
+                  type: bool
                   remarks: '当设置为true时登录后会先跳转授权确认页面，确认后才会跳转到redirect_uri，为false时不会跳转至授权确认页面，默认为false'
                   defaultValue: 'false'
                   constraints:
@@ -445,7 +433,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: reuse_refresh_tokens
-                  type: boolean
+                  type: bool
                   remarks: '刷新token时是否重用refresh token，设置为true后refresh token不变，false刷新token时会重新签发一个refresh token，默认是true'
                   defaultValue: 'true'
                   constraints:
@@ -466,7 +454,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: x509_certificate_bound_access_tokens
-                  type: boolean
+                  type: bool
                   remarks: 'true if access tokens must be bound to the client X509Certificate received during client authentication when using the tls_client_auth or self_signed_tls_client_auth method. The default is false.'
                   defaultValue: 'false'
                   constraints:
@@ -477,7 +465,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: int8
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -510,13 +498,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: role_id
-                  type: int
+                  type: int8
                   constraints:
                     nullable: false
                   remarks: '角色ID'
               - column:
                   name: menu_id
-                  type: int
+                  type: int8
                   constraints:
                     nullable: false
                   remarks: '菜单ID'
@@ -526,7 +514,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: int8
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -552,13 +540,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: user_id
-                  type: int
+                  type: int8
                   constraints:
                     nullable: false
                   remarks: '用户ID'
               - column:
                   name: role_id
-                  type: int
+                  type: int8
                   constraints:
                     nullable: false
                   remarks: '角色ID'

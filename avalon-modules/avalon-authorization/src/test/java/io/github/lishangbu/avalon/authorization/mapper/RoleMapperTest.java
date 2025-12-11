@@ -1,14 +1,16 @@
-package io.github.lishangbu.avalon.authorization.repository;
+package io.github.lishangbu.avalon.authorization.mapper;
 
-import io.github.lishangbu.avalon.authorization.TestEnvironmentAutoConfiguration;
+import com.baomidou.mybatisplus.test.autoconfigure.MybatisPlusTest;
+import io.github.lishangbu.avalon.authorization.TestEnvironmentApplication;
 import io.github.lishangbu.avalon.authorization.entity.Role;
 import jakarta.annotation.Resource;
-import java.util.Optional;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * 角色信息(Role)实体类测试
@@ -16,21 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
  * @author lishangbu
  * @since 2025/8/25
  */
-@Transactional(rollbackFor = Exception.class)
-@ContextConfiguration(classes = {TestEnvironmentAutoConfiguration.class})
-@DataJdbcTest
+@Testcontainers
+@ContextConfiguration(classes = TestEnvironmentApplication.class)
+@MybatisPlusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class RoleRepositoryTest {
-  @Resource private RoleRepository roleRepository;
+class RoleMapperTest {
 
-  private static Integer insertId;
+  @Container @ServiceConnection
+  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:18");
+
+  @Resource private RoleMapper roleMapper;
+
+  private static Long insertId;
 
   @Test
   @Order(1)
   void testSelectRoleById() {
-    Optional<Role> roleOptional = roleRepository.findById(2);
-    Assertions.assertTrue(roleOptional.isPresent());
-    Role role = roleOptional.get();
+    Role role = roleMapper.selectById(2);
+    Assertions.assertNotNull(role);
     Assertions.assertEquals("ROLE_TEST", role.getCode());
     Assertions.assertEquals("测试员", role.getName());
     Assertions.assertEquals(2, role.getId());
@@ -46,7 +51,7 @@ class RoleRepositoryTest {
     role.setCode("unit_test");
     role.setName("为单元测试而生");
     role.setEnabled(true);
-    roleRepository.save(role);
+    roleMapper.insert(role);
     insertId = role.getId();
   }
 
@@ -55,21 +60,19 @@ class RoleRepositoryTest {
   // 确保更新操作后能够提交事务
   @Commit
   void testUpdateRoleById() {
-    Optional<Role> roleOptional = roleRepository.findById(insertId);
-    Assertions.assertTrue(roleOptional.isPresent());
-    Role role = roleOptional.get();
+    Role role = roleMapper.selectById(insertId);
+    Assertions.assertNotNull(role);
     role.setName("测试员1");
     role.setEnabled(false);
     role.setCode("ROLE_TEST1");
-    roleRepository.save(role);
+    roleMapper.updateById(role);
   }
 
   @Test
   @Order(4)
   void testSelectUpdatedRoleById() {
-    Optional<Role> roleOptional = roleRepository.findById(insertId);
-    Assertions.assertTrue(roleOptional.isPresent());
-    Role role = roleOptional.get();
+    Role role = roleMapper.selectById(insertId);
+    Assertions.assertNotNull(role);
     Assertions.assertEquals("ROLE_TEST1", role.getCode());
     Assertions.assertEquals("测试员1", role.getName());
     Assertions.assertEquals(insertId, role.getId());
@@ -79,6 +82,6 @@ class RoleRepositoryTest {
   @Test
   @Order(5)
   void testDeleteById() {
-    roleRepository.deleteById(insertId);
+    roleMapper.deleteById(insertId);
   }
 }

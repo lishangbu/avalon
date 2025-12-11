@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.authorization.mapper.OauthAuthorizationMapper">
+  <resultMap id="OauthAuthorizationResultMap" type="io.github.lishangbu.avalon.authorization.entity.OauthAuthorization">
+    <id column="id" property="id" />
+    <result column="registered_client_id" property="registeredClientId" />
+    <result column="principal_name" property="principalName" />
+    <result column="authorization_grant_type" property="authorizationGrantType" />
+    <result column="authorized_scopes" property="authorizedScopes" />
+    <result column="attributes" property="attributes" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="state" property="state" />
+
+    <result column="authorization_code_value" property="authorizationCodeValue" />
+    <result column="authorization_code_issued_at" property="authorizationCodeIssuedAt" />
+    <result column="authorization_code_expires_at" property="authorizationCodeExpiresAt" />
+    <result column="authorization_code_metadata" property="authorizationCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+
+    <result column="access_token_value" property="accessTokenValue" />
+    <result column="access_token_issued_at" property="accessTokenIssuedAt" />
+    <result column="access_token_expires_at" property="accessTokenExpiresAt" />
+    <result column="access_token_metadata" property="accessTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="access_token_type" property="accessTokenType" />
+    <result column="access_token_scopes" property="accessTokenScopes" />
+
+    <result column="oidc_id_token_value" property="oidcIdTokenValue" />
+    <result column="oidc_id_token_issued_at" property="oidcIdTokenIssuedAt" />
+    <result column="oidc_id_token_expires_at" property="oidcIdTokenExpiresAt" />
+    <result column="oidc_id_token_metadata" property="oidcIdTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+
+    <result column="refresh_token_value" property="refreshTokenValue" />
+    <result column="refresh_token_issued_at" property="refreshTokenIssuedAt" />
+    <result column="refresh_token_expires_at" property="refreshTokenExpiresAt" />
+    <result column="refresh_token_metadata" property="refreshTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+
+    <result column="user_code_value" property="userCodeValue" />
+    <result column="user_code_issued_at" property="userCodeIssuedAt" />
+    <result column="user_code_expires_at" property="userCodeExpiresAt" />
+    <result column="user_code_metadata" property="userCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+
+    <result column="device_code_value" property="deviceCodeValue" />
+    <result column="device_code_issued_at" property="deviceCodeIssuedAt" />
+    <result column="device_code_expires_at" property="deviceCodeExpiresAt" />
+    <result column="device_code_metadata" property="deviceCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+  </resultMap>
+
+  <select id="selectByState" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT *
+    FROM oauth_authorization
+    WHERE state = #{state}
+  </select>
+
+  <select id="selectByAuthorizationCodeValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE authorization_code_value = #{authorizationCode}
+  </select>
+
+  <select id="selectByAccessTokenValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE access_token_value = #{accessToken}
+  </select>
+
+  <select id="selectByRefreshTokenValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE refresh_token_value = #{refreshToken}
+  </select>
+
+  <select id="selectByOidcIdTokenValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE oidc_id_token_value = #{idToken}
+  </select>
+
+  <select id="selectByUserCodeValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE user_code_value = #{userCode}
+  </select>
+
+  <select id="selectByDeviceCodeValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE device_code_value = #{deviceCode}
+  </select>
+
+  <select id="selectByToken" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization
+    WHERE state = #{token}
+      OR authorization_code_value = #{token}
+      OR access_token_value = #{token}
+      OR refresh_token_value = #{token}
+      OR oidc_id_token_value = #{token}
+      OR user_code_value = #{token}
+      OR device_code_value = #{token}
+  </select>
+</mapper>

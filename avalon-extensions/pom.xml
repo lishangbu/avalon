@@ -13,5 +13,6 @@
   <modules>
     <module>avalon-dufs-spring-boot-starter</module>
     <module>avalon-ip2location-spring-boot-starter</module>
+    <module>avalon-mybatis-plus-boot-starter</module>
   </modules>
 </project>

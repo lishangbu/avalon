@@ -3,9 +3,6 @@ package io.github.lishangbu.avalon.authorization.entity;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Sequence;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * 菜单
@@ -14,18 +11,15 @@ import org.springframework.data.relational.core.mapping.Table;
  * @since 2025/9/17
  */
 @Data
-@Table
 public class Menu implements Serializable {
 
   @Serial private static final long serialVersionUID = 1L;
 
   /** 主键 */
-  @Id
-  @Sequence("menu_id_seq")
-  private Integer id;
+  private Long id;
 
   /** 父权限ID */
-  private Integer parentId;
+  private Long parentId;
 
   // region Naive UI Menu 属性
 

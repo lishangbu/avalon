@@ -1,10 +1,11 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
-import io.github.lishangbu.avalon.authorization.repository.OauthRegisteredClientRepository;
+import io.github.lishangbu.avalon.authorization.mapper.OauthRegisteredClientMapper;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.convert.DurationStyle;
@@ -30,7 +31,7 @@ import org.springframework.util.StringUtils;
 @Component
 @RequiredArgsConstructor
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
-  private final OauthRegisteredClientRepository oauth2RegisteredClientRepository;
+  private final OauthRegisteredClientMapper oauth2RegisteredClientMapper;
 
   private static AuthorizationGrantType resolveAuthorizationGrantType(
       String authorizationGrantType) {
@@ -67,20 +68,22 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
   @Override
   public void save(RegisteredClient registeredClient) {
     Assert.notNull(registeredClient, "registeredClient cannot be null");
-    this.oauth2RegisteredClientRepository.save(toEntity(registeredClient));
+    this.oauth2RegisteredClientMapper.insert(toEntity(registeredClient));
   }
 
   @Override
   public RegisteredClient findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return this.oauth2RegisteredClientRepository.findById(id).map(this::toObject).orElse(null);
+    return Optional.ofNullable(this.oauth2RegisteredClientMapper.selectById(id))
+        .map(this::toObject)
+        .orElse(null);
   }
 
   @Override
   public RegisteredClient findByClientId(String clientId) {
     Assert.hasText(clientId, "clientId cannot be empty");
-    return this.oauth2RegisteredClientRepository
-        .findByClientId(clientId)
+    return this.oauth2RegisteredClientMapper
+        .selectByClientId(clientId)
         .map(this::toObject)
         .orElse(null);
   }
