@@ -1,12 +1,10 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
+import io.github.lishangbu.avalon.authorization.mapper.UserMapper;
 import io.github.lishangbu.avalon.authorization.model.UserVO;
-import io.github.lishangbu.avalon.authorization.repository.RoleRepository;
-import io.github.lishangbu.avalon.authorization.repository.UserRepository;
 import io.github.lishangbu.avalon.authorization.service.UserService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,10 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  /** 用户数据存储层 */
-  private final UserRepository userRepository;
-
-  private final RoleRepository roleRepository;
+  /** 用户数据访问 Mapper */
+  private final UserMapper userMapper;
 
   /**
    * 根据用户名查询用户详情，包含基本信息、角色信息及个人资料
@@ -31,22 +27,6 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   public Optional<UserVO> getUserByUsername(String username) {
-    return userRepository
-        .findByUsername(username)
-        .map(
-            user -> {
-              UserVO userVO = new UserVO();
-              BeanUtils.copyProperties(user, userVO);
-              // 设置角色列表
-              if (user.getUserRoles() != null && !user.getUserRoles().isEmpty()) {
-                var roleIds =
-                    user.getUserRoles().stream()
-                        .map(relation -> relation.getRoleRef().getId())
-                        .toList();
-                var roles = roleRepository.findAllById(roleIds).stream().toList();
-                userVO.setRoles(roles);
-              }
-              return userVO;
-            });
+    return userMapper.selectByUsername(username);
   }
 }

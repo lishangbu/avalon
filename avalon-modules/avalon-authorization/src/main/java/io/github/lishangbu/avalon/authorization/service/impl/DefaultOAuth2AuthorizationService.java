@@ -1,14 +1,13 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
-import io.github.lishangbu.avalon.authorization.repository.OauthAuthorizationRepository;
+import io.github.lishangbu.avalon.authorization.mapper.OauthAuthorizationMapper;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -34,9 +33,8 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
-  private final OauthAuthorizationRepository oauthAuthorizationRepository;
+  private final OauthAuthorizationMapper oauthAuthorizationMapper;
   private final RegisteredClientRepository registeredClientRepository;
-  private final JdbcAggregateTemplate jdbcAggregateTemplate;
 
   private static AuthorizationGrantType resolveAuthorizationGrantType(
       String authorizationGrantType) {
@@ -59,13 +57,13 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   public void save(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
     Optional<OauthAuthorization> authorizationOptional =
-        this.oauthAuthorizationRepository.findById(authorization.getId());
+        Optional.ofNullable(oauthAuthorizationMapper.selectById(authorization.getId()));
     OauthAuthorization entity = toEntity(authorization);
     if (authorizationOptional.isPresent()) {
       entity.setId(authorizationOptional.get().getId());
-      jdbcAggregateTemplate.update(entity);
+      oauthAuthorizationMapper.updateById(entity);
     } else {
-      jdbcAggregateTemplate.insert(entity);
+      oauthAuthorizationMapper.insert(entity);
     }
   }
 
@@ -73,13 +71,15 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   @Transactional(rollbackFor = Exception.class)
   public void remove(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
-    this.oauthAuthorizationRepository.deleteById(authorization.getId());
+    this.oauthAuthorizationMapper.deleteById(authorization.getId());
   }
 
   @Override
   public OAuth2Authorization findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return this.oauthAuthorizationRepository.findById(id).map(this::toObject).orElse(null);
+    return Optional.ofNullable(oauthAuthorizationMapper.selectById(id))
+        .map(this::toObject)
+        .orElse(null);
   }
 
   @Override
@@ -88,21 +88,21 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
 
     Optional<OauthAuthorization> result;
     if (tokenType == null) {
-      result = this.oauthAuthorizationRepository.findByToken(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByToken(token));
     } else if (OAuth2ParameterNames.STATE.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByState(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByState(token));
     } else if (OAuth2ParameterNames.CODE.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByAuthorizationCodeValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByAuthorizationCodeValue(token));
     } else if (OAuth2ParameterNames.ACCESS_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByAccessTokenValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByAccessTokenValue(token));
     } else if (OAuth2ParameterNames.REFRESH_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByRefreshTokenValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByRefreshTokenValue(token));
     } else if (OidcParameterNames.ID_TOKEN.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByOidcIdTokenValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByOidcIdTokenValue(token));
     } else if (OAuth2ParameterNames.USER_CODE.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByUserCodeValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByUserCodeValue(token));
     } else if (OAuth2ParameterNames.DEVICE_CODE.equals(tokenType.getValue())) {
-      result = this.oauthAuthorizationRepository.findByDeviceCodeValue(token);
+      result = Optional.ofNullable(oauthAuthorizationMapper.selectByDeviceCodeValue(token));
     } else {
       result = Optional.empty();
     }

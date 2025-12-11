@@ -11,27 +11,20 @@
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>
+      <artifactId>avalon-mybatis-plus-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.lishangbu</groupId>
       <artifactId>avalon-oauth2-authorization-server</artifactId>
     </dependency>
-    <!-- PostgresQL驱动 -->
     <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-jdbc</artifactId>
-    </dependency>
-    <!-- H2驱动 -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-spring-boot4-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jdbc-test</artifactId>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -39,9 +32,25 @@
       <artifactId>spring-boot-starter-liquibase</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Testcontainers and PostgreSQL for integration tests -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-postgresql</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
