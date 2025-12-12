@@ -46,7 +46,7 @@
     <ip2location.version>1.2.4</ip2location.version>
     <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
-    <jgit.version>7.4.0.202509020913-r</jgit.version>
+    <jgit.version>7.5.0.202512021534-r</jgit.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
