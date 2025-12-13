@@ -43,7 +43,7 @@
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <ip2location.version>1.2.4</ip2location.version>
+    <ip2location.version>1.2.5</ip2location.version>
     <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
     <jgit.version>7.4.0.202509020913-r</jgit.version>
