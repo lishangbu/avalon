@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class RoleMenuRelation {
 
-  private Integer roleId;
+  private Long roleId;
 
-  private Integer menuId;
+  private Long menuId;
 }

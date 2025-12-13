@@ -21,7 +21,7 @@ databaseChangeLog:
                   remarks: '父菜单ID'
               - column:
                   name: disabled
-                  type: boolean
+                  type: bool
                   remarks: '是否禁用菜单项'
               - column:
                   name: extra
@@ -41,7 +41,7 @@ databaseChangeLog:
                   remarks: '菜单项的内容'
               - column:
                   name: show
-                  type: boolean
+                  type: bool
                   remarks: '是否显示菜单项'
               - column:
                   name: path
@@ -487,7 +487,7 @@ databaseChangeLog:
                   remarks: '角色名称'
               - column:
                   name: enabled
-                  type: boolean
+                  type: bool
                   constraints:
                     nullable: false
                   defaultValue: 'true'

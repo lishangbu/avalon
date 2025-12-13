@@ -57,7 +57,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   public void save(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
     Optional<OauthAuthorization> authorizationOptional =
-        Optional.ofNullable(oauthAuthorizationMapper.selectById(authorization.getId()));
+        oauthAuthorizationMapper.selectById(authorization.getId());
     OauthAuthorization entity = toEntity(authorization);
     if (authorizationOptional.isPresent()) {
       entity.setId(authorizationOptional.get().getId());
@@ -77,9 +77,7 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   @Override
   public OAuth2Authorization findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return Optional.ofNullable(oauthAuthorizationMapper.selectById(id))
-        .map(this::toObject)
-        .orElse(null);
+    return oauthAuthorizationMapper.selectById(id).map(this::toObject).orElse(null);
   }
 
   @Override

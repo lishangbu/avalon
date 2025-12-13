@@ -1,7 +1,5 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -37,7 +35,6 @@ public class OauthAuthorization implements Serializable {
   private String authorizedScopes;
 
   /** 授权属性数据,存储授权相关的元数据 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> attributes;
 
   /** 授权状态信息,存储授权流程的状态数据 最大长度500个字符 */
@@ -53,7 +50,6 @@ public class OauthAuthorization implements Serializable {
   private Instant authorizationCodeExpiresAt;
 
   /** 授权码元数据,存储授权码相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> authorizationCodeMetadata;
 
   /** 访问令牌值,用于访问受保护资源的凭证 */
@@ -66,7 +62,6 @@ public class OauthAuthorization implements Serializable {
   private Instant accessTokenExpiresAt;
 
   /** 访问令牌元数据,存储访问令牌相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> accessTokenMetadata;
 
   /** 访问令牌类型,标识令牌的使用方式 通常为 Bearer 类型 最大长度100个字符 */
@@ -85,7 +80,6 @@ public class OauthAuthorization implements Serializable {
   private Instant oidcIdTokenExpiresAt;
 
   /** ID令牌元数据,存储ID令牌相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> oidcIdTokenMetadata;
 
   /** 刷新令牌值,用于获取新访问令牌的长期凭证 */
@@ -98,7 +92,6 @@ public class OauthAuthorization implements Serializable {
   private Instant refreshTokenExpiresAt;
 
   /** 刷新令牌元数据,存储刷新令牌相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> refreshTokenMetadata;
 
   /** 用户码值,设备授权流程中用户输入的验证码 */
@@ -111,7 +104,6 @@ public class OauthAuthorization implements Serializable {
   private Instant userCodeExpiresAt;
 
   /** 用户码元数据,存储用户码相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> userCodeMetadata;
 
   /** 设备码值,设备授权流程中设备使用的验证码 */
@@ -124,6 +116,5 @@ public class OauthAuthorization implements Serializable {
   private Instant deviceCodeExpiresAt;
 
   /** 设备码元数据,存储设备码相关的附加信息 */
-  @TableField(typeHandler = Jackson3TypeHandler.class)
   private Map<String, Object> deviceCodeMetadata;
 }
