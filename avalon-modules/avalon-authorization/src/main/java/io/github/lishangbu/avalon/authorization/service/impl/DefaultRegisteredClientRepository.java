@@ -68,7 +68,7 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
   @Override
   public void save(RegisteredClient registeredClient) {
     Assert.notNull(registeredClient, "registeredClient cannot be null");
-    this.oauth2RegisteredClientMapper.insert(toEntity(registeredClient));
+    this.oauth2RegisteredClientMapper.insertOrUpdate(toEntity(registeredClient));
   }
 
   @Override

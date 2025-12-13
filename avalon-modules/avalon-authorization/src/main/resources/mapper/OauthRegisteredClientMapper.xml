@@ -16,7 +16,7 @@
     <result column="require_proof_key" property="requireProofKey" />
     <result column="require_authorization_consent" property="requireAuthorizationConsent" />
     <result column="jwk_set_url" property="jwkSetUrl" />
-    <result column="token_endpoint_authentication_signing_alg" property="tokenEndpointAuthenticationSigningAlgorithm" />
+    <result column="token_endpoint_authentication_signing_algorithm" property="tokenEndpointAuthenticationSigningAlgorithm" />
     <result column="x509_certificate_subject_dn" property="x509CertificateSubjectDn" />
     <result column="authorization_code_time_to_live" property="authorizationCodeTimeToLive" />
     <result column="access_token_time_to_live" property="accessTokenTimeToLive" />

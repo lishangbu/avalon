@@ -28,4 +28,11 @@ public class OauthAuthorizationConsent implements Serializable {
   public final int hashCode() {
     return Objects.hash(registeredClientId, principalName);
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof OauthAuthorizationConsent that)) return false;
+    return Objects.equals(registeredClientId, that.registeredClientId)
+        && Objects.equals(principalName, that.principalName);
+  }
 }

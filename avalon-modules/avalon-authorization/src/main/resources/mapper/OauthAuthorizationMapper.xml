@@ -7,47 +7,189 @@
     <result column="principal_name" property="principalName" />
     <result column="authorization_grant_type" property="authorizationGrantType" />
     <result column="authorized_scopes" property="authorizedScopes" />
-    <result column="attributes" property="attributes" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="attributes" property="attributes" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
     <result column="state" property="state" />
 
     <result column="authorization_code_value" property="authorizationCodeValue" />
     <result column="authorization_code_issued_at" property="authorizationCodeIssuedAt" />
     <result column="authorization_code_expires_at" property="authorizationCodeExpiresAt" />
-    <result column="authorization_code_metadata" property="authorizationCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="authorization_code_metadata" property="authorizationCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
 
     <result column="access_token_value" property="accessTokenValue" />
     <result column="access_token_issued_at" property="accessTokenIssuedAt" />
     <result column="access_token_expires_at" property="accessTokenExpiresAt" />
-    <result column="access_token_metadata" property="accessTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="access_token_metadata" property="accessTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
     <result column="access_token_type" property="accessTokenType" />
     <result column="access_token_scopes" property="accessTokenScopes" />
 
     <result column="oidc_id_token_value" property="oidcIdTokenValue" />
     <result column="oidc_id_token_issued_at" property="oidcIdTokenIssuedAt" />
     <result column="oidc_id_token_expires_at" property="oidcIdTokenExpiresAt" />
-    <result column="oidc_id_token_metadata" property="oidcIdTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="oidc_id_token_metadata" property="oidcIdTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
 
     <result column="refresh_token_value" property="refreshTokenValue" />
     <result column="refresh_token_issued_at" property="refreshTokenIssuedAt" />
     <result column="refresh_token_expires_at" property="refreshTokenExpiresAt" />
-    <result column="refresh_token_metadata" property="refreshTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="refresh_token_metadata" property="refreshTokenMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
 
     <result column="user_code_value" property="userCodeValue" />
     <result column="user_code_issued_at" property="userCodeIssuedAt" />
     <result column="user_code_expires_at" property="userCodeExpiresAt" />
-    <result column="user_code_metadata" property="userCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="user_code_metadata" property="userCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
 
     <result column="device_code_value" property="deviceCodeValue" />
     <result column="device_code_issued_at" property="deviceCodeIssuedAt" />
     <result column="device_code_expires_at" property="deviceCodeExpiresAt" />
-    <result column="device_code_metadata" property="deviceCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.Jackson3TypeHandler" />
+    <result column="device_code_metadata" property="deviceCodeMetadata" typeHandler="com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler" />
   </resultMap>
+
+  <!-- 插入语句，jsonb 字段使用 PostgreSQL 的 ::jsonb 语法 -->
+  <insert id="insert" parameterType="io.github.lishangbu.avalon.authorization.entity.OauthAuthorization">
+    <choose>
+      <!-- 当至少有一个字段非空时，生成动态 INSERT -->
+      <when test="id != null or registeredClientId != null or principalName != null or authorizationGrantType != null or authorizedScopes != null or attributes != null or state != null or authorizationCodeValue != null or authorizationCodeIssuedAt != null or authorizationCodeExpiresAt != null or authorizationCodeMetadata != null or accessTokenValue != null or accessTokenIssuedAt != null or accessTokenExpiresAt != null or accessTokenMetadata != null or accessTokenType != null or accessTokenScopes != null or oidcIdTokenValue != null or oidcIdTokenIssuedAt != null or oidcIdTokenExpiresAt != null or oidcIdTokenMetadata != null or refreshTokenValue != null or refreshTokenIssuedAt != null or refreshTokenExpiresAt != null or refreshTokenMetadata != null or userCodeValue != null or userCodeIssuedAt != null or userCodeExpiresAt != null or userCodeMetadata != null or deviceCodeValue != null or deviceCodeIssuedAt != null or deviceCodeExpiresAt != null or deviceCodeMetadata != null">
+        INSERT INTO oauth_authorization
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="id != null">id,</if>
+          <if test="registeredClientId != null">registered_client_id,</if>
+          <if test="principalName != null">principal_name,</if>
+          <if test="authorizationGrantType != null">authorization_grant_type,</if>
+          <if test="authorizedScopes != null">authorized_scopes,</if>
+          <if test="attributes != null">attributes,</if>
+          <if test="state != null">state,</if>
+          <if test="authorizationCodeValue != null">authorization_code_value,</if>
+          <if test="authorizationCodeIssuedAt != null">authorization_code_issued_at,</if>
+          <if test="authorizationCodeExpiresAt != null">authorization_code_expires_at,</if>
+          <if test="authorizationCodeMetadata != null">authorization_code_metadata,</if>
+          <if test="accessTokenValue != null">access_token_value,</if>
+          <if test="accessTokenIssuedAt != null">access_token_issued_at,</if>
+          <if test="accessTokenExpiresAt != null">access_token_expires_at,</if>
+          <if test="accessTokenMetadata != null">access_token_metadata,</if>
+          <if test="accessTokenType != null">access_token_type,</if>
+          <if test="accessTokenScopes != null">access_token_scopes,</if>
+          <if test="oidcIdTokenValue != null">oidc_id_token_value,</if>
+          <if test="oidcIdTokenIssuedAt != null">oidc_id_token_issued_at,</if>
+          <if test="oidcIdTokenExpiresAt != null">oidc_id_token_expires_at,</if>
+          <if test="oidcIdTokenMetadata != null">oidc_id_token_metadata,</if>
+          <if test="refreshTokenValue != null">refresh_token_value,</if>
+          <if test="refreshTokenIssuedAt != null">refresh_token_issued_at,</if>
+          <if test="refreshTokenExpiresAt != null">refresh_token_expires_at,</if>
+          <if test="refreshTokenMetadata != null">refresh_token_metadata,</if>
+          <if test="userCodeValue != null">user_code_value,</if>
+          <if test="userCodeIssuedAt != null">user_code_issued_at,</if>
+          <if test="userCodeExpiresAt != null">user_code_expires_at,</if>
+          <if test="userCodeMetadata != null">user_code_metadata,</if>
+          <if test="deviceCodeValue != null">device_code_value,</if>
+          <if test="deviceCodeIssuedAt != null">device_code_issued_at,</if>
+          <if test="deviceCodeExpiresAt != null">device_code_expires_at,</if>
+          <if test="deviceCodeMetadata != null">device_code_metadata,</if>
+        </trim>
+
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+          <if test="id != null">#{id},</if>
+          <if test="registeredClientId != null">#{registeredClientId},</if>
+          <if test="principalName != null">#{principalName},</if>
+          <if test="authorizationGrantType != null">#{authorizationGrantType},</if>
+          <if test="authorizedScopes != null">#{authorizedScopes},</if>
+          <if test="attributes != null">#{attributes,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="state != null">#{state},</if>
+          <if test="authorizationCodeValue != null">#{authorizationCodeValue},</if>
+          <if test="authorizationCodeIssuedAt != null">#{authorizationCodeIssuedAt},</if>
+          <if test="authorizationCodeExpiresAt != null">#{authorizationCodeExpiresAt},</if>
+          <if test="authorizationCodeMetadata != null">#{authorizationCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="accessTokenValue != null">#{accessTokenValue},</if>
+          <if test="accessTokenIssuedAt != null">#{accessTokenIssuedAt},</if>
+          <if test="accessTokenExpiresAt != null">#{accessTokenExpiresAt},</if>
+          <if test="accessTokenMetadata != null">#{accessTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="accessTokenType != null">#{accessTokenType},</if>
+          <if test="accessTokenScopes != null">#{accessTokenScopes},</if>
+          <if test="oidcIdTokenValue != null">#{oidcIdTokenValue},</if>
+          <if test="oidcIdTokenIssuedAt != null">#{oidcIdTokenIssuedAt},</if>
+          <if test="oidcIdTokenExpiresAt != null">#{oidcIdTokenExpiresAt},</if>
+          <if test="oidcIdTokenMetadata != null">#{oidcIdTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="refreshTokenValue != null">#{refreshTokenValue},</if>
+          <if test="refreshTokenIssuedAt != null">#{refreshTokenIssuedAt},</if>
+          <if test="refreshTokenExpiresAt != null">#{refreshTokenExpiresAt},</if>
+          <if test="refreshTokenMetadata != null">#{refreshTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="userCodeValue != null">#{userCodeValue},</if>
+          <if test="userCodeIssuedAt != null">#{userCodeIssuedAt},</if>
+          <if test="userCodeExpiresAt != null">#{userCodeExpiresAt},</if>
+          <if test="userCodeMetadata != null">#{userCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="deviceCodeValue != null">#{deviceCodeValue},</if>
+          <if test="deviceCodeIssuedAt != null">#{deviceCodeIssuedAt},</if>
+          <if test="deviceCodeExpiresAt != null">#{deviceCodeExpiresAt},</if>
+          <if test="deviceCodeMetadata != null">#{deviceCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+        </trim>
+      </when>
+      <!-- 其它情况（所有字段都是 null）时不执行写操作，返回 0 受影响行 -->
+      <otherwise>
+        INSERT INTO oauth_authorization (id) SELECT NULL WHERE 1 = 0
+      </otherwise>
+    </choose>
+  </insert>
+
+    <!-- 根据 id 更新所有列，jsonb 字段使用 ::jsonb 语法 -->
+    <update id="updateById" parameterType="io.github.lishangbu.avalon.authorization.entity.OauthAuthorization">
+      <!-- 必要字段判空：确保 id 不为空（更新必须指定记录 id） -->
+      <if test="id == null">
+        <!-- id 为空时不执行任何更新，返回更新计数为 0 -->
+        UPDATE oauth_authorization SET id = id WHERE 1 = 0
+      </if>
+
+      <!-- 正常更新：只有在 id 非空时才执行更新 -->
+      <if test="id != null">
+        UPDATE oauth_authorization
+        <set>
+          <if test="registeredClientId != null">registered_client_id = #{registeredClientId},</if>
+          <if test="principalName != null">principal_name = #{principalName},</if>
+          <if test="authorizationGrantType != null">authorization_grant_type = #{authorizationGrantType},</if>
+          <if test="authorizedScopes != null">authorized_scopes = #{authorizedScopes},</if>
+          <if test="attributes != null">attributes = #{attributes,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="state != null">state = #{state},</if>
+          <if test="authorizationCodeValue != null">authorization_code_value = #{authorizationCodeValue},</if>
+          <if test="authorizationCodeIssuedAt != null">authorization_code_issued_at = #{authorizationCodeIssuedAt},</if>
+          <if test="authorizationCodeExpiresAt != null">authorization_code_expires_at = #{authorizationCodeExpiresAt},</if>
+          <if test="authorizationCodeMetadata != null">authorization_code_metadata = #{authorizationCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="accessTokenValue != null">access_token_value = #{accessTokenValue},</if>
+          <if test="accessTokenIssuedAt != null">access_token_issued_at = #{accessTokenIssuedAt},</if>
+          <if test="accessTokenExpiresAt != null">access_token_expires_at = #{accessTokenExpiresAt},</if>
+          <if test="accessTokenMetadata != null">access_token_metadata = #{accessTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="accessTokenType != null">access_token_type = #{accessTokenType},</if>
+          <if test="accessTokenScopes != null">access_token_scopes = #{accessTokenScopes},</if>
+          <if test="oidcIdTokenValue != null">oidc_id_token_value = #{oidcIdTokenValue},</if>
+          <if test="oidcIdTokenIssuedAt != null">oidc_id_token_issued_at = #{oidcIdTokenIssuedAt},</if>
+          <if test="oidcIdTokenExpiresAt != null">oidc_id_token_expires_at = #{oidcIdTokenExpiresAt},</if>
+          <if test="oidcIdTokenMetadata != null">oidc_id_token_metadata = #{oidcIdTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="refreshTokenValue != null">refresh_token_value = #{refreshTokenValue},</if>
+          <if test="refreshTokenIssuedAt != null">refresh_token_issued_at = #{refreshTokenIssuedAt},</if>
+          <if test="refreshTokenExpiresAt != null">refresh_token_expires_at = #{refreshTokenExpiresAt},</if>
+          <if test="refreshTokenMetadata != null">refresh_token_metadata = #{refreshTokenMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="userCodeValue != null">user_code_value = #{userCodeValue},</if>
+          <if test="userCodeIssuedAt != null">user_code_issued_at = #{userCodeIssuedAt},</if>
+          <if test="userCodeExpiresAt != null">user_code_expires_at = #{userCodeExpiresAt},</if>
+          <if test="userCodeMetadata != null">user_code_metadata = #{userCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+          <if test="deviceCodeValue != null">device_code_value = #{deviceCodeValue},</if>
+          <if test="deviceCodeIssuedAt != null">device_code_issued_at = #{deviceCodeIssuedAt},</if>
+          <if test="deviceCodeExpiresAt != null">device_code_expires_at = #{deviceCodeExpiresAt},</if>
+          <if test="deviceCodeMetadata != null">device_code_metadata = #{deviceCodeMetadata,typeHandler=com.baomidou.mybatisplus.extension.handlers.SpringSecuritySerializableJackson3TypeHandler}::jsonb,</if>
+        </set>
+        WHERE id = #{id}
+      </if>
+    </update>
 
   <select id="selectByState" resultMap="OauthAuthorizationResultMap" parameterType="String">
     SELECT *
     FROM oauth_authorization
     WHERE state = #{state}
   </select>
+
+  <select id="selectById" resultMap="OauthAuthorizationResultMap" parameterType="String">
+    SELECT * FROM oauth_authorization WHERE id = #{id}
+  </select>
+
+  <delete id="deleteById" parameterType="String">
+    DELETE FROM oauth_authorization WHERE id = #{id}
+  </delete>
 
   <select id="selectByAuthorizationCodeValue" resultMap="OauthAuthorizationResultMap" parameterType="String">
     SELECT * FROM oauth_authorization WHERE authorization_code_value = #{authorizationCode}
