@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 树果风味(BerryFlavor)数据访问层
@@ -27,7 +28,8 @@ public interface BerryFlavorMapper extends BaseMapper<BerryFlavor> {
    * @param berryFlavor 查询条件对象，包含筛选条件
    * @return 分页结果，包含符合条件的树果风味列表和分页信息
    */
-  IPage<BerryFlavor> selectList(Page<BerryFlavor> page, BerryFlavor berryFlavor);
+  IPage<BerryFlavor> selectList(
+      @Param("page") Page<BerryFlavor> page, @Param("berryFlavor") BerryFlavor berryFlavor);
 
   /**
    * 查询树果风味列表（支持动态条件）
@@ -37,5 +39,5 @@ public interface BerryFlavorMapper extends BaseMapper<BerryFlavor> {
    * @param berryFlavor 查询条件对象，包含筛选条件
    * @return 树果风味列表，符合查询条件的树果风味信息
    */
-  List<BerryFlavor> selectList(BerryFlavor berryFlavor);
+  List<BerryFlavor> selectList(@Param("berryFlavor") BerryFlavor berryFlavor);
 }
