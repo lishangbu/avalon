@@ -17,5 +17,5 @@ applyTo: "**"
 - controller.instructions.md: Spring Mvc 控制器编写规范
 - service-interface.instructions.md: 业务层接口编写规范
 - service-implementation.instructions.md: 业务层实现编写规范
-- repository.instructions.md: 数据持久层编写规范
+- mapper.instructions.md: 数据持久层编写规范
 - test.instructions.md: 单元测试编写规范

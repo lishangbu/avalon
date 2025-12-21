@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
     <relativePath />
   </parent>
   <groupId>io.github.lishangbu</groupId>
@@ -43,10 +43,10 @@
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <ip2location.version>1.2.4</ip2location.version>
+    <ip2location.version>1.2.5</ip2location.version>
     <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
-    <jgit.version>7.4.0.202509020913-r</jgit.version>
+    <jgit.version>7.5.0.202512021534-r</jgit.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <mybatis-plus.version>3.5.15</mybatis-plus.version>
     <!--ID of the server that you configured in settings.xml-->
