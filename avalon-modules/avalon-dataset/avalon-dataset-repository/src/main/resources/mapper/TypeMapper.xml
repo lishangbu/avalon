@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.TypeMapper">
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="BaseResultMap" type="io.github.lishangbu.avalon.dataset.entity.Type">
+    <id column="id" property="id" />
+    <result column="internal_name" property="internalName" />
+    <result column="name" property="name" />
+  </resultMap>
+
+  <!-- 查询属性列表（支持动态条件） -->
+  <select id="selectList" resultMap="BaseResultMap" parameterType="map">
+    SELECT id, internal_name, name
+    FROM "type"
+    <where>
+      <if test="type.id != null">
+        AND id = #{type.id}
+      </if>
+      <if test="type.internalName != null and type.internalName.trim() != ''">
+        AND internal_name LIKE CONCAT('%', #{type.internalName}, '%')
+      </if>
+      <if test="type.name != null and type.name.trim() != ''">
+        AND name LIKE CONCAT('%', #{type.name}, '%')
+      </if>
+    </where>
+    ORDER BY id ASC
+  </select>
+
+</mapper>

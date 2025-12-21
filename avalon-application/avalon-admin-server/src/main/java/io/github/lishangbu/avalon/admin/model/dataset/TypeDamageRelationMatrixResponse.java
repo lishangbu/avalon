@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.admin.model.dataset;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
@@ -21,10 +20,10 @@ public class TypeDamageRelationMatrixResponse {
   /** 单行数据 */
   @Data
   public static class Row {
-    private Integer attackingTypeId;
+    private Long attackingTypeId;
     private List<Cell> cells = new ArrayList<>();
 
-    public Row(Integer attackingTypeId) {
+    public Row(Long attackingTypeId) {
       this.attackingTypeId = attackingTypeId;
     }
   }
@@ -32,10 +31,10 @@ public class TypeDamageRelationMatrixResponse {
   /** 单元格数据 */
   @Data
   public static class Cell {
-    private Integer defendingTypeId;
-    private BigDecimal multiplier;
+    private Long defendingTypeId;
+    private Float multiplier;
 
-    public Cell(Integer defendingTypeId, BigDecimal multiplier) {
+    public Cell(Long defendingTypeId, Float multiplier) {
       this.defendingTypeId = defendingTypeId;
       this.multiplier = multiplier;
     }

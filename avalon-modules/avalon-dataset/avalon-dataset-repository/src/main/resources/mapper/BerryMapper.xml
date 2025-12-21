@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.lishangbu.avalon.dataset.mapper.BerryMapper">
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="BaseResultMap" type="io.github.lishangbu.avalon.dataset.entity.Berry">
+    <id column="id" property="id" />
+    <result column="internal_name" property="internalName" />
+    <result column="name" property="name" />
+    <result column="growth_time" property="growthTime" />
+    <result column="max_harvest" property="maxHarvest" />
+    <result column="bulk" property="bulk" />
+    <result column="smoothness" property="smoothness" />
+    <result column="soil_dryness" property="soilDryness" />
+    <result column="firmness_internal_name" property="firmnessInternalName" />
+    <result column="natural_gift_type_internal_name" property="naturalGiftTypeInternalName" />
+    <result column="natural_gift_power" property="naturalGiftPower" />
+  </resultMap>
+
+  <!-- 查询树果列表（支持动态条件） -->
+  <select id="selectList" resultMap="BaseResultMap" parameterType="map">
+    SELECT id, internal_name, name, growth_time, max_harvest, bulk, smoothness,
+    soil_dryness, firmness_internal_name, natural_gift_type_internal_name, natural_gift_power
+
+    FROM berry
+    <where>
+      <if test="berry.id != null">
+        AND id = #{berry.id}
+      </if>
+      <if test="berry.internalName != null and berry.internalName.trim() != ''">
+        AND internal_name LIKE CONCAT('%', #{berry.internalName}, '%')
+      </if>
+      <if test="berry.name != null and berry.name != ''">
+        AND name LIKE CONCAT('%', #{berry.name}, '%')
+      </if>
+      <if test="berry.growthTime != null">
+        AND growth_time = #{berry.growthTime}
+      </if>
+      <if test="berry.maxHarvest != null">
+        AND max_harvest = #{berry.maxHarvest}
+      </if>
+      <if test="berry.bulk != null">
+        AND bulk = #{berry.bulk}
+      </if>
+      <if test="berry.smoothness != null">
+        AND smoothness = #{berry.smoothness}
+      </if>
+      <if test="berry.soilDryness != null">
+        AND soil_dryness = #{berry.soilDryness}
+      </if>
+      <if test="berry.firmnessInternalName != null and berry.firmnessInternalName != ''">
+        AND firmness_internal_name LIKE CONCAT('%', #{berry.firmnessInternalName}, '%')
+      </if>
+      <if test="berry.naturalGiftTypeInternalName != null and berry.naturalGiftTypeInternalName != ''">
+        AND natural_gift_type_internal_name LIKE CONCAT('%', #{berry.naturalGiftTypeInternalName}, '%')
+      </if>
+      <if test="berry.naturalGiftPower != null">
+        AND natural_gift_power = #{berry.naturalGiftPower}
+      </if>
+    </where>
+    ORDER BY id ASC
+  </select>
+
+
+</mapper>

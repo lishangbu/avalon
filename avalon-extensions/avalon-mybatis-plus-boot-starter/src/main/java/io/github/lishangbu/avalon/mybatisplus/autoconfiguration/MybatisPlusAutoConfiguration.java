@@ -31,8 +31,6 @@ public class MybatisPlusAutoConfiguration {
     MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
     // 添加分页拦截器，支持自动识别数据库类型并分页
     interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
-    // 如果需要可在此添加其它拦截器，例如乐观锁、性能分析等
-    // interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
     return interceptor;
   }
 

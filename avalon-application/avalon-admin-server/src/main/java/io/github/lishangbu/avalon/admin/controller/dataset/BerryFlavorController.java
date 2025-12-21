@@ -1,11 +1,11 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFlavorService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,13 +33,13 @@ public class BerryFlavorController {
   /**
    * 分页条件查询树果风味
    *
-   * @param pageable 分页参数（如 page, size, sort）
+   * @param page 分页参数（如 page, size, sort）
    * @param berryFlavor 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配
    * @return 树果风味分页结果
    */
   @GetMapping("/page")
-  public Page<BerryFlavor> getBerryFlavorPage(Pageable pageable, BerryFlavor berryFlavor) {
-    return berryFlavorService.getPageByCondition(berryFlavor, pageable);
+  public IPage<BerryFlavor> getBerryFlavorPage(Page<BerryFlavor> page, BerryFlavor berryFlavor) {
+    return berryFlavorService.getBerryFlavorPage(page, berryFlavor);
   }
 
   /**

@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ContextConfiguration(classes = TestEnvironmentApplication.class)
 class UserMapperTest {
   @Container @ServiceConnection
-  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:18");
+  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:latest");
 
   @Resource private UserMapper userMapper;
 

@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,13 +26,14 @@ public class TypeDamageRelationController {
   /**
    * 分页查询属性克制关系
    *
-   * @param pageable 分页参数
-   * @param probe 查询条件
+   * @param page 分页参数
+   * @param typeDamageRelation 查询条件
    * @return 分页结果
    */
   @GetMapping("/page")
-  public Page<TypeDamageRelation> page(Pageable pageable, TypeDamageRelation probe) {
-    return typeDamageRelationService.getPageByCondition(probe, pageable);
+  public IPage<TypeDamageRelation> getTypeDamageRelationPage(
+      Page<TypeDamageRelation> page, TypeDamageRelation typeDamageRelation) {
+    return typeDamageRelationService.getTypeDamageRelationPage(page, typeDamageRelation);
   }
 
   /**
@@ -66,8 +67,9 @@ public class TypeDamageRelationController {
    */
   @GetMapping("/{attackingTypeId:\\d+}/{defendingTypeId:\\d+}")
   public Optional<TypeDamageRelation> getById(
-      @PathVariable Integer attackingTypeId, @PathVariable Integer defendingTypeId) {
-    return typeDamageRelationService.getById(attackingTypeId, defendingTypeId);
+      @PathVariable Long attackingTypeId, @PathVariable Long defendingTypeId) {
+    return typeDamageRelationService.getByAttackingTypeIdAndDefendingTypeId(
+        attackingTypeId, defendingTypeId);
   }
 
   /**
@@ -77,9 +79,10 @@ public class TypeDamageRelationController {
    * @param defendingTypeId 防御方类型内部名称
    */
   @DeleteMapping("/{attackingTypeId:\\d+}/{defendingTypeId:\\d+}")
-  public void deleteById(
-      @PathVariable Integer attackingTypeId, @PathVariable Integer defendingTypeId) {
-    typeDamageRelationService.removeById(attackingTypeId, defendingTypeId);
+  public void removeByAttackingTypeIdAndDefendingTypeId(
+      @PathVariable Long attackingTypeId, @PathVariable Long defendingTypeId) {
+    typeDamageRelationService.removeByAttackingTypeIdAndDefendingTypeId(
+        attackingTypeId, defendingTypeId);
   }
 
   /**

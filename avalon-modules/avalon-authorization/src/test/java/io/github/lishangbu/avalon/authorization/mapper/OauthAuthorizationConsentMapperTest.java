@@ -24,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class OauthAuthorizationConsentMapperTest {
 
   @Container @ServiceConnection
-  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:18");
+  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:latest");
 
   @Resource private OauthAuthorizationConsentMapper oauthAuthorizationConsentMapper;
 

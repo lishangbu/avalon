@@ -26,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @MybatisPlusTest
 class OauthRegisteredClientMapperTest {
   @Container @ServiceConnection
-  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:18");
+  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:latest");
 
   @Resource private OauthRegisteredClientMapper oauth2RegisteredClientMapper;
 

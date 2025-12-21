@@ -1,11 +1,11 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryService;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,13 +33,13 @@ public class BerryController {
   /**
    * 分页条件查询树果
    *
-   * @param pageable 分页参数
+   * @param page 分页参数
    * @param berry 查询条件
    * @return Berry 分页结果
    */
   @GetMapping("/page")
-  public Page<Berry> getBerryPage(Pageable pageable, Berry berry) {
-    return berryService.getPageByCondition(berry, pageable);
+  public IPage<Berry> getBerryPage(Page<Berry> page, Berry berry) {
+    return berryService.getBerryPage(page, berry);
   }
 
   /**

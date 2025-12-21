@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * 树果服务
@@ -23,11 +23,11 @@ public interface BerryService {
   /**
    * 根据条件分页查询树果
    *
+   * @param page 分页信息
    * @param berry 查询条件
-   * @param pageable 分页信息
    * @return 分页结果
    */
-  Page<Berry> getPageByCondition(Berry berry, Pageable pageable);
+  IPage<Berry> getBerryPage(Page<Berry> page, Berry berry);
 
   /**
    * 新增树果
