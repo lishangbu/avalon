@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryService;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
-import io.github.lishangbu.avalon.dataset.repository.BerryRepository;
+import io.github.lishangbu.avalon.dataset.mapper.BerryMapper;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
@@ -10,10 +12,6 @@ import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,7 +24,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BerryServiceImpl implements BerryService {
 
-  private final BerryRepository berryRepository;
+  private final BerryMapper berryMapper;
 
   private final PokeApiService pokeApiService;
 
@@ -37,7 +35,7 @@ public class BerryServiceImpl implements BerryService {
         berryData -> {
           Berry berry = new Berry();
           berry.setInternalName(berryData.name());
-          berry.setId(berryData.id());
+          berry.setId(berryData.id().longValue());
           berry.setName(berryData.name());
           Item item =
               pokeApiService.getEntityFromUri(
@@ -57,33 +55,29 @@ public class BerryServiceImpl implements BerryService {
           berry.setFirmnessInternalName(berryData.firmness().name());
           return berry;
         },
-        berryRepository::save,
+        berryMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.berry.Berry.class);
   }
 
   @Override
-  public Page<Berry> getPageByCondition(Berry berry, Pageable pageable) {
-    return berryRepository.findAll(
-        Example.of(
-            berry,
-            ExampleMatcher.matching()
-                .withIgnoreNullValues()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
-        pageable);
+  public IPage<Berry> getBerryPage(Page<Berry> page, Berry berry) {
+    return berryMapper.selectList(page, berry);
   }
 
   @Override
   public Berry save(Berry berry) {
-    return berryRepository.save(berry);
+    berryMapper.insert(berry);
+    return berry;
   }
 
   @Override
   public void removeById(Integer id) {
-    berryRepository.deleteById(id);
+    berryMapper.deleteById(id);
   }
 
   @Override
   public Berry update(Berry berry) {
-    return berryRepository.save(berry);
+    berryMapper.updateById(berry);
+    return berry;
   }
 }

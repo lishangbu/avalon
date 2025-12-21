@@ -1,0 +1,14 @@
+package io.github.lishangbu.avalon.dataset.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.github.lishangbu.avalon.dataset.entity.MoveLearnMethod;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 招式学习方式(MoveLearnMethod)数据访问层
+ *
+ * @author lishangbu
+ * @since 2025/09/14
+ */
+@Mapper
+public interface MoveLearnMethodMapper extends BaseMapper<MoveLearnMethod> {}

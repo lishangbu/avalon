@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * 属性服务
@@ -23,11 +23,11 @@ public interface TypeService {
   /**
    * 根据条件分页查询属性类型
    *
+   * @param page 分页参数
    * @param type 查询条件
-   * @param pageable 分页信息
    * @return 分页结果
    */
-  Page<Type> getPageByCondition(Type type, Pageable pageable);
+  IPage<Type> getTypePage(Page<Type> page, Type type);
 
   /**
    * 新增属性类型

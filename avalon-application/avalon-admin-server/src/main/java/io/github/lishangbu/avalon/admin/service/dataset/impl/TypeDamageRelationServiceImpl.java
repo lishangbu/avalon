@@ -1,20 +1,16 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
-import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation.TypeDamageRelationId;
-import io.github.lishangbu.avalon.dataset.repository.TypeDamageRelationRepository;
-import java.math.BigDecimal;
+import io.github.lishangbu.avalon.dataset.mapper.TypeDamageRelationMapper;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,59 +23,50 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TypeDamageRelationServiceImpl implements TypeDamageRelationService {
-  private final TypeDamageRelationRepository typeDamageRelationRepository;
-
-  private final JdbcAggregateTemplate jdbcAggregateTemplate;
+  private final TypeDamageRelationMapper typeDamageRelationMapper;
 
   @Override
-  public Page<TypeDamageRelation> getPageByCondition(TypeDamageRelation probe, Pageable pageable) {
-    return typeDamageRelationRepository.findAll(Example.of(probe), pageable);
+  public IPage<TypeDamageRelation> getTypeDamageRelationPage(
+      Page<TypeDamageRelation> page, TypeDamageRelation typeDamageRelation) {
+    return typeDamageRelationMapper.selectList(page, typeDamageRelation);
   }
 
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public TypeDamageRelation save(TypeDamageRelation entity) {
-    TypeDamageRelationId id = new TypeDamageRelationId();
-    id.setAttackingTypeId(entity.getAttackingTypeId());
-    id.setDefendingTypeId(entity.getDefendingTypeId());
-    entity.setId(id);
-    return jdbcAggregateTemplate.insert(entity);
+  public TypeDamageRelation save(TypeDamageRelation typeDamageRelation) {
+    typeDamageRelationMapper.insert(typeDamageRelation);
+    return typeDamageRelation;
   }
 
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public void removeById(Integer attackingTypeId, Integer defendingTypeId) {
-    TypeDamageRelationId id = new TypeDamageRelationId();
-    id.setAttackingTypeId(attackingTypeId);
-    id.setDefendingTypeId(defendingTypeId);
-    typeDamageRelationRepository.deleteById(id);
+  public void removeByAttackingTypeIdAndDefendingTypeId(
+      Long attackingTypeId, Long defendingTypeId) {
+    typeDamageRelationMapper.deleteByAttackingTypeIdAndDefendingTypeId(
+        attackingTypeId, defendingTypeId);
   }
 
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public TypeDamageRelation update(TypeDamageRelation entity) {
-    TypeDamageRelationId id = new TypeDamageRelationId();
-    id.setAttackingTypeId(entity.getAttackingTypeId());
-    id.setDefendingTypeId(entity.getDefendingTypeId());
-    entity.setId(id);
-    return typeDamageRelationRepository.save(entity);
+  public TypeDamageRelation update(TypeDamageRelation typeDamageRelation) {
+    typeDamageRelationMapper.update(typeDamageRelation);
+    return typeDamageRelation;
   }
 
   @Override
-  public Optional<TypeDamageRelation> getById(Integer attackingTypeId, Integer defendingTypeId) {
-    TypeDamageRelationId id = new TypeDamageRelationId();
-    id.setAttackingTypeId(attackingTypeId);
-    id.setDefendingTypeId(defendingTypeId);
-    return typeDamageRelationRepository.findById(id);
+  public Optional<TypeDamageRelation> getByAttackingTypeIdAndDefendingTypeId(
+      Long attackingTypeId, Long defendingTypeId) {
+    return typeDamageRelationMapper.selectByAttackingTypeIdAndDefendingTypeId(
+        attackingTypeId, defendingTypeId);
   }
 
   /** {@inheritDoc} */
   @Override
   public TypeDamageRelationMatrixResponse getMatrix() {
     TypeDamageRelationMatrixResponse response = new TypeDamageRelationMatrixResponse();
-    Map<Integer, TypeDamageRelationMatrixResponse.Row> rowMap = new TreeMap<>();
-    typeDamageRelationRepository
-        .findAll()
+    Map<Long, TypeDamageRelationMatrixResponse.Row> rowMap = new TreeMap<>();
+    typeDamageRelationMapper
+        .selectList(null)
         .forEach(
             entity -> {
               rowMap
@@ -88,7 +75,7 @@ public class TypeDamageRelationServiceImpl implements TypeDamageRelationService 
                   .getCells()
                   .add(
                       new TypeDamageRelationMatrixResponse.Cell(
-                          entity.getDefendingTypeId(), toMultiplier(entity.getMultiplier())));
+                          entity.getDefendingTypeId(), entity.getMultiplier()));
             });
     rowMap
         .values()
@@ -100,9 +87,5 @@ public class TypeDamageRelationServiceImpl implements TypeDamageRelationService 
                             TypeDamageRelationMatrixResponse.Cell::getDefendingTypeId)));
     response.getRows().addAll(rowMap.values());
     return response;
-  }
-
-  private BigDecimal toMultiplier(Float multiplier) {
-    return multiplier == null ? BigDecimal.ONE : BigDecimal.valueOf(multiplier);
   }
 }

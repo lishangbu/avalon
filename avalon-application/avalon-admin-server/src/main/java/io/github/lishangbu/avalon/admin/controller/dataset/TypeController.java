@@ -1,11 +1,11 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,13 +33,13 @@ public class TypeController {
   /**
    * 分页条件查询属性类型
    *
-   * @param pageable 分页参数（如 page, size, sort）
+   * @param page 分页参数
    * @param type 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配
    * @return 属性类型分页结果
    */
   @GetMapping("/page")
-  public Page<Type> getTypePage(Pageable pageable, Type type) {
-    return typeService.getPageByCondition(type, pageable);
+  public IPage<Type> getTypePage(Page<Type> page, Type type) {
+    return typeService.getTypePage(page, type);
   }
 
   /**

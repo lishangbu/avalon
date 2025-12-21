@@ -1,17 +1,15 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
-import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
+import io.github.lishangbu.avalon.dataset.mapper.TypeMapper;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TypeServiceImpl implements TypeService {
-  private final TypeRepository typeRepository;
+  private final TypeMapper typeMapper;
   private final PokeApiService pokeApiService;
 
   /**
@@ -43,32 +41,26 @@ public class TypeServiceImpl implements TypeService {
         typeData -> {
           Type type = new Type();
           type.setInternalName(typeData.name());
-          type.setId(typeData.id());
+          type.setId(typeData.id().longValue());
           type.setName(typeData.name());
           LocalizationUtils.getLocalizationName(typeData.names())
               .ifPresent(name -> type.setName(name.name()));
           return type;
         },
-        typeRepository::save,
+        typeMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.pokemon.Type.class);
   }
 
   /**
    * 根据条件分页查询属性类型，结果按ID升序排序
    *
+   * @param page 分页参数
    * @param type 查询条件实体，非空字段将作为过滤条件
-   * @param pageable 分页参数
    * @return 分页结果，按ID升序排序
    */
   @Override
-  public Page<Type> getPageByCondition(Type type, Pageable pageable) {
-    return typeRepository.findAll(
-        Example.of(
-            type,
-            ExampleMatcher.matching()
-                .withIgnoreNullValues()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)),
-        pageable);
+  public IPage<Type> getTypePage(Page<Type> page, Type type) {
+    return typeMapper.selectList(page, type);
   }
 
   /**
@@ -80,7 +72,8 @@ public class TypeServiceImpl implements TypeService {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Type save(Type type) {
-    return typeRepository.save(type);
+    typeMapper.insert(type);
+    return type;
   }
 
   /**
@@ -91,7 +84,7 @@ public class TypeServiceImpl implements TypeService {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public void removeById(Integer id) {
-    typeRepository.deleteById(id);
+    typeMapper.deleteById(id);
   }
 
   /**
@@ -103,7 +96,8 @@ public class TypeServiceImpl implements TypeService {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Type update(Type type) {
-    return typeRepository.save(type);
+    typeMapper.updateById(type);
+    return type;
   }
 
   /**
@@ -116,10 +110,6 @@ public class TypeServiceImpl implements TypeService {
    */
   @Override
   public List<Type> listByCondition(Type type) {
-    ExampleMatcher matcher =
-        ExampleMatcher.matching()
-            .withIgnoreNullValues()
-            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-    return typeRepository.findAll(Example.of(type, matcher));
+    return typeMapper.selectList(type);
   }
 }

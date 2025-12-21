@@ -1,17 +1,15 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
-import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository;
+import io.github.lishangbu.avalon.dataset.mapper.BerryFirmnessMapper;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,7 +22,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BerryFirmnessServiceImpl implements BerryFirmnessService {
   private final PokeApiService pokeApiService;
-  private final BerryFirmnessRepository berryFirmnessRepository;
+  private final BerryFirmnessMapper berryFirmnessMapper;
 
   @Override
   public List<BerryFirmness> importBerryFirmnesses() {
@@ -33,25 +31,20 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
         berryFirmnessData -> {
           BerryFirmness berryFirmness = new BerryFirmness();
           berryFirmness.setInternalName(berryFirmnessData.name());
-          berryFirmness.setId(berryFirmnessData.id());
+          berryFirmness.setId(berryFirmnessData.id().longValue());
           berryFirmness.setName(berryFirmnessData.name());
           LocalizationUtils.getLocalizationName(berryFirmnessData.names())
               .ifPresent(name -> berryFirmness.setName(name.name()));
           return berryFirmness;
         },
-        berryFirmnessRepository::save,
+        berryFirmnessMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness.class);
   }
 
   @Override
-  public Page<BerryFirmness> getPageByCondition(BerryFirmness berryFirmness, Pageable pageable) {
-    return berryFirmnessRepository.findAll(
-        Example.of(
-            berryFirmness,
-            ExampleMatcher.matching()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
-                .withIgnoreNullValues()),
-        pageable);
+  public IPage<BerryFirmness> getBerryFirmnessesPage(
+      Page<BerryFirmness> page, BerryFirmness berryFirmness) {
+    return berryFirmnessMapper.selectList(page, berryFirmness);
   }
 
   /**
@@ -64,25 +57,23 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
    */
   @Override
   public List<BerryFirmness> listByCondition(BerryFirmness berryFirmness) {
-    ExampleMatcher matcher =
-        ExampleMatcher.matching()
-            .withIgnoreNullValues()
-            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-    return berryFirmnessRepository.findAll(Example.of(berryFirmness, matcher));
+    return berryFirmnessMapper.selectList(berryFirmness);
   }
 
   @Override
   public BerryFirmness save(BerryFirmness berryFirmness) {
-    return berryFirmnessRepository.save(berryFirmness);
+    berryFirmnessMapper.insert(berryFirmness);
+    return berryFirmness;
   }
 
   @Override
   public BerryFirmness update(BerryFirmness berryFirmness) {
-    return berryFirmnessRepository.save(berryFirmness);
+    berryFirmnessMapper.updateById(berryFirmness);
+    return berryFirmness;
   }
 
   @Override
   public void removeById(Integer id) {
-    berryFirmnessRepository.deleteById(id);
+    berryFirmnessMapper.deleteById(id);
   }
 }

@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * 属性克制关系服务接口
@@ -19,19 +19,20 @@ public interface TypeDamageRelationService {
   /**
    * 根据条件分页查询属性克制关系
    *
-   * @param probe 查询条件实体，非空字段将作为过滤条件
-   * @param pageable 分页参数
+   * @param page 分页参数
+   * @param typeDamageRelation 查询条件实体，非空字段将作为过滤条件
    * @return 分页结果
    */
-  Page<TypeDamageRelation> getPageByCondition(TypeDamageRelation probe, Pageable pageable);
+  IPage<TypeDamageRelation> getTypeDamageRelationPage(
+      Page<TypeDamageRelation> page, TypeDamageRelation typeDamageRelation);
 
   /**
    * 新增属性克制关系
    *
-   * @param entity 要保存的实体
+   * @param typeDamageRelation 要保存的实体
    * @return 保存后的实体
    */
-  TypeDamageRelation save(TypeDamageRelation entity);
+  TypeDamageRelation save(TypeDamageRelation typeDamageRelation);
 
   /**
    * 根据复合主键删除属性克制关系
@@ -39,7 +40,7 @@ public interface TypeDamageRelationService {
    * @param attackingTypeId 攻击方类型内部名称
    * @param defendingTypeId 防御方类型内部名称
    */
-  void removeById(Integer attackingTypeId, Integer defendingTypeId);
+  void removeByAttackingTypeIdAndDefendingTypeId(Long attackingTypeId, Long defendingTypeId);
 
   /**
    * 更新属性克制关系
@@ -52,11 +53,12 @@ public interface TypeDamageRelationService {
   /**
    * 根据复合主键查询属性克制关系
    *
-   * @param attackingTypeId 攻击方类型内部名称
-   * @param defendingTypeId 防御方类型内部名称
+   * @param attackingTypeId 攻击方属性ID
+   * @param defendingTypeId 防御方属性ID
    * @return 包含结果的 Optional
    */
-  Optional<TypeDamageRelation> getById(Integer attackingTypeId, Integer defendingTypeId);
+  Optional<TypeDamageRelation> getByAttackingTypeIdAndDefendingTypeId(
+      Long attackingTypeId, Long defendingTypeId);
 
   /**
    * 查询全量的属性克制矩阵以便表格展示

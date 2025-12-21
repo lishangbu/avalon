@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.admin.service.dataset;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * 树果坚硬度服务
@@ -22,11 +22,12 @@ public interface BerryFirmnessService {
   /**
    * 分页条件查询树果坚硬度
    *
+   * @param page 分页参数
    * @param berryFirmness 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配
-   * @param pageable 分页参数
    * @return 树果坚硬度分页结果
    */
-  Page<BerryFirmness> getPageByCondition(BerryFirmness berryFirmness, Pageable pageable);
+  IPage<BerryFirmness> getBerryFirmnessesPage(
+      Page<BerryFirmness> page, BerryFirmness berryFirmness);
 
   /**
    * 新增树果坚硬度
