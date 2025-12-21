@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 树果(Berry)数据访问层
@@ -26,7 +27,7 @@ public interface BerryMapper extends BaseMapper<Berry> {
    * @param berry 查询条件对象，包含筛选条件
    * @return 树果列表，符合查询条件的树果信息
    */
-  List<Berry> selectList(Berry berry);
+  List<Berry> selectList(@Param("berry") Berry berry);
 
   /**
    * 分页查询树果列表（支持动态条件）
@@ -37,5 +38,5 @@ public interface BerryMapper extends BaseMapper<Berry> {
    * @param berry 查询条件对象，包含筛选条件
    * @return 分页结果，包含符合条件的树果列表和分页信息
    */
-  IPage<Berry> selectList(Page<Berry> page, Berry berry);
+  IPage<Berry> selectList(@Param("page") Page<Berry> page, @Param("berry") Berry berry);
 }

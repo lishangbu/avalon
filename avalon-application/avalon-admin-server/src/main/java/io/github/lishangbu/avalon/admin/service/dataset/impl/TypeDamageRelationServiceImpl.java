@@ -66,7 +66,7 @@ public class TypeDamageRelationServiceImpl implements TypeDamageRelationService 
     TypeDamageRelationMatrixResponse response = new TypeDamageRelationMatrixResponse();
     Map<Long, TypeDamageRelationMatrixResponse.Row> rowMap = new TreeMap<>();
     typeDamageRelationMapper
-        .selectList(null)
+        .selectList(new TypeDamageRelation())
         .forEach(
             entity -> {
               rowMap

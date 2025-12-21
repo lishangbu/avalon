@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 属性(Type)数据访问层
@@ -25,7 +26,7 @@ public interface TypeMapper extends BaseMapper<Type> {
    *
    * @return 属性列表，符合查询条件的属性类型信息
    */
-  List<Type> selectList(Type type);
+  List<Type> selectList(@Param("type") Type type);
 
   /**
    * 分页查询属性列表（支持动态条件）
@@ -36,5 +37,5 @@ public interface TypeMapper extends BaseMapper<Type> {
    * @param type 查询条件对象，包含筛选条件
    * @return 分页结果，包含符合条件的属性列表和分页信息
    */
-  IPage<Type> selectList(Page<Type> page, Type type);
+  IPage<Type> selectList(@Param("page") Page<Type> page, @Param("type") Type type);
 }

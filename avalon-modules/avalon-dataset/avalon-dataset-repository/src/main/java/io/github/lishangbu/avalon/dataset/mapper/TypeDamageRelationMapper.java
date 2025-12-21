@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 属性克制关系数据访问层
@@ -71,7 +72,8 @@ public interface TypeDamageRelationMapper {
    * @return 分页结果，包含符合条件的属性克制关系列表和分页信息
    */
   IPage<TypeDamageRelation> selectList(
-      Page<TypeDamageRelation> page, TypeDamageRelation typeDamageRelation);
+      @Param("page") Page<TypeDamageRelation> page,
+      @Param("typeDamageRelation") TypeDamageRelation typeDamageRelation);
 
   /**
    * 查询属性克制关系列表（支持动态条件）
@@ -81,5 +83,6 @@ public interface TypeDamageRelationMapper {
    * @param typeDamageRelation 查询条件对象，包含筛选条件
    * @return 符合条件的属性克制关系列表
    */
-  List<TypeDamageRelation> selectList(TypeDamageRelation typeDamageRelation);
+  List<TypeDamageRelation> selectList(
+      @Param("typeDamageRelation") TypeDamageRelation typeDamageRelation);
 }

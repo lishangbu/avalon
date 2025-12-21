@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 树果硬度(BerryFirmness)数据访问层
@@ -27,7 +28,8 @@ public interface BerryFirmnessMapper extends BaseMapper<BerryFirmness> {
    * @param berryFirmness 查询条件对象，包含筛选条件
    * @return 分页结果，包含符合条件的树果硬度列表和分页信息
    */
-  IPage<BerryFirmness> selectList(Page<BerryFirmness> page, BerryFirmness berryFirmness);
+  IPage<BerryFirmness> selectList(
+      @Param("page") Page<BerryFirmness> page, @Param("berryFirmness") BerryFirmness berryFirmness);
 
   /**
    * 查询树果硬度列表（支持动态条件）
@@ -37,5 +39,5 @@ public interface BerryFirmnessMapper extends BaseMapper<BerryFirmness> {
    * @param berryFirmness 查询条件对象，包含筛选条件
    * @return 树果硬度列表，符合查询条件的树果硬度信息
    */
-  List<BerryFirmness> selectList(BerryFirmness berryFirmness);
+  List<BerryFirmness> selectList(@Param("berryFirmness") BerryFirmness berryFirmness);
 }
