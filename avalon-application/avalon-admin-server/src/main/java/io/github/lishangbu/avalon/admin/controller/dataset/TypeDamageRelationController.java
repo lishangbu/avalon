@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.admin.controller.dataset;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import java.util.Optional;
@@ -83,15 +82,5 @@ public class TypeDamageRelationController {
       @PathVariable Long attackingTypeId, @PathVariable Long defendingTypeId) {
     typeDamageRelationService.removeByAttackingTypeIdAndDefendingTypeId(
         attackingTypeId, defendingTypeId);
-  }
-
-  /**
-   * 查询整个属性克制二维矩阵供前端表格直接渲染
-   *
-   * @return 按攻击属性分组的矩阵数据
-   */
-  @GetMapping("/matrix")
-  public TypeDamageRelationMatrixResponse matrix() {
-    return typeDamageRelationService.getMatrix();
   }
 }
