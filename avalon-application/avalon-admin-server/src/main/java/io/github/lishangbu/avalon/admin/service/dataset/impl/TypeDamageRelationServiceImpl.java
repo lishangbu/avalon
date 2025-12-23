@@ -2,14 +2,10 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.model.dataset.TypeDamageRelationMatrixResponse;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeDamageRelationService;
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation;
 import io.github.lishangbu.avalon.dataset.mapper.TypeDamageRelationMapper;
-import java.util.Comparator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,34 +54,5 @@ public class TypeDamageRelationServiceImpl implements TypeDamageRelationService 
       Long attackingTypeId, Long defendingTypeId) {
     return typeDamageRelationMapper.selectByAttackingTypeIdAndDefendingTypeId(
         attackingTypeId, defendingTypeId);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public TypeDamageRelationMatrixResponse getMatrix() {
-    TypeDamageRelationMatrixResponse response = new TypeDamageRelationMatrixResponse();
-    Map<Long, TypeDamageRelationMatrixResponse.Row> rowMap = new TreeMap<>();
-    typeDamageRelationMapper
-        .selectList(new TypeDamageRelation())
-        .forEach(
-            entity -> {
-              rowMap
-                  .computeIfAbsent(
-                      entity.getAttackingTypeId(), TypeDamageRelationMatrixResponse.Row::new)
-                  .getCells()
-                  .add(
-                      new TypeDamageRelationMatrixResponse.Cell(
-                          entity.getDefendingTypeId(), entity.getMultiplier()));
-            });
-    rowMap
-        .values()
-        .forEach(
-            row ->
-                row.getCells()
-                    .sort(
-                        Comparator.comparing(
-                            TypeDamageRelationMatrixResponse.Cell::getDefendingTypeId)));
-    response.getRows().addAll(rowMap.values());
-    return response;
   }
 }
