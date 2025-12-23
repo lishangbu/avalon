@@ -15,7 +15,7 @@ import org.mapstruct.Mapping;
  * @since 2025/12/24
  */
 @Mapper(componentModel = SPRING)
-public abstract class TypeMapstruct extends AbstractMapstruct {
+public abstract class TypeConversionMapper extends AbstractMapstruct {
 
   /**
    * 将 PokeAPI Type 转换为 Dataset Type
@@ -27,8 +27,9 @@ public abstract class TypeMapstruct extends AbstractMapstruct {
    */
   @Mapping(target = "id", expression = "java(pokeApiType.id().longValue())")
   @Mapping(target = "internalName", source = "name")
-  @Mapping(target = "name", expression = "java(resolveLocalizedNameFromNames(pokeApiType.names(), pokeApiType.name()))")
+  @Mapping(
+      target = "name",
+      expression = "java(resolveLocalizedNameFromNames(pokeApiType.names(), pokeApiType.name()))")
   public abstract Type toDatasetType(
       io.github.lishangbu.avalon.pokeapi.model.pokemon.Type pokeApiType);
-
 }

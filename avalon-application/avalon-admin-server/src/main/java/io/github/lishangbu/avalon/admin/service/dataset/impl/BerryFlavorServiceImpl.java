@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.mapstruct.BerryFlavorMapstruct;
+import io.github.lishangbu.avalon.admin.mapstruct.BerryFlavorConversionMapper;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFlavorService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import io.github.lishangbu.avalon.dataset.mapper.BerryFlavorMapper;
@@ -28,13 +28,13 @@ public class BerryFlavorServiceImpl implements BerryFlavorService {
 
   private final BerryFlavorMapper berryFlavorMapper;
 
-  private final BerryFlavorMapstruct berryFlavorMapstruct;
+  private final BerryFlavorConversionMapper berryFlavorConversionMapper;
 
   @Override
   public List<BerryFlavor> importBerryFlavors() {
     return pokeApiService.importData(
         PokeDataTypeEnum.BERRY_FLAVOR,
-        berryFlavorMapstruct::toDatasetBerryFlavor,
+        berryFlavorConversionMapper::toDatasetBerryFlavor,
         berryFlavorMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.berry.BerryFlavor.class);
   }

@@ -1,13 +1,13 @@
 package io.github.lishangbu.avalon.admin.mapstruct;
 
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
+import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
+import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
-import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
-import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import java.util.List;
 import jakarta.annotation.Resource;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

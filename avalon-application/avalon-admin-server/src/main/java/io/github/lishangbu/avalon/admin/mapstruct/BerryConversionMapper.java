@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.admin.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lishangbu.avalon.dataset.entity.Berry;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 /**
  * PokeAPI Berry 到 Dataset Berry 的转换映射器
@@ -15,7 +15,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
  * @since 2025/12/23
  */
 @Mapper(componentModel = SPRING)
-public abstract class BerryMapstruct extends AbstractMapstruct {
+public abstract class BerryConversionMapper extends AbstractMapstruct {
 
   /**
    * 将 PokeAPI Berry 转换为 Dataset Berry
@@ -27,11 +27,15 @@ public abstract class BerryMapstruct extends AbstractMapstruct {
    */
   @Mapping(target = "id", expression = "java(pokeApiBerry.id().longValue())")
   @Mapping(target = "internalName", source = "name")
-  @Mapping(target = "name", expression = "java(resolveLocalizedNameFromResource(pokeApiBerry.item(), io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum.ITEM, pokeApiBerry.name()))")
+  @Mapping(
+      target = "name",
+      expression =
+          "java(resolveLocalizedNameFromResource(pokeApiBerry.item(),"
+              + " io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum.ITEM,"
+              + " pokeApiBerry.name()))")
   @Mapping(target = "bulk", source = "size")
   @Mapping(target = "firmnessInternalName", source = "firmness.name")
   @Mapping(target = "naturalGiftTypeInternalName", source = "naturalGiftType.name")
   public abstract Berry toDatasetBerry(
       io.github.lishangbu.avalon.pokeapi.model.berry.Berry pokeApiBerry);
-
 }
