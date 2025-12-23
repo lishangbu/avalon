@@ -19,4 +19,5 @@ applyTo: "**"
 - service-implementation.instructions.md: 业务层实现编写规范
 - mapper.instructions.md: 数据持久层编写规范
 - mapper-test.instructions.md: 数据持久层单元测试编写规范
+- mapstruct.instructions.md: MapStruct 类型转换编写规范
 - test.instructions.md: 单元测试编写规范
