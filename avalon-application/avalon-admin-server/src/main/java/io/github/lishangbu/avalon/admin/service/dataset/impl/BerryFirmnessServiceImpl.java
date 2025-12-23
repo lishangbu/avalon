@@ -2,7 +2,7 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.mapstruct.BerryFirmnessMapstruct;
+import io.github.lishangbu.avalon.admin.mapstruct.BerryFirmnessConversionMapper;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import io.github.lishangbu.avalon.dataset.mapper.BerryFirmnessMapper;
@@ -23,13 +23,13 @@ import org.springframework.stereotype.Service;
 public class BerryFirmnessServiceImpl implements BerryFirmnessService {
   private final PokeApiService pokeApiService;
   private final BerryFirmnessMapper berryFirmnessMapper;
-  private final BerryFirmnessMapstruct berryFirmnessMapstruct;
+  private final BerryFirmnessConversionMapper berryFirmnessConversionMapper;
 
   @Override
   public List<BerryFirmness> importBerryFirmnesses() {
     return pokeApiService.importData(
         PokeDataTypeEnum.BERRY_FIRMNESS,
-        berryFirmnessMapstruct::toDatasetBerryFirmness,
+        berryFirmnessConversionMapper::toDatasetBerryFirmness,
         berryFirmnessMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness.class);
   }

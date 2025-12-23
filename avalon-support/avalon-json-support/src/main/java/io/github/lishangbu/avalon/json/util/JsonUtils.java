@@ -18,7 +18,6 @@ import tools.jackson.databind.json.JsonMapper;
  *
  * @author lishangbu
  * @since 2025/4/8
- * @apiNote JacksonException 为运行时异常，建议由全局异常处理统一处理
  */
 public class JsonUtils implements ApplicationContextAware {
 
