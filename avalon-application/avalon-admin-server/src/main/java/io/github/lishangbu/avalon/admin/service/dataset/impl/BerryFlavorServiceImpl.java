@@ -2,12 +2,12 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.github.lishangbu.avalon.admin.mapstruct.BerryFlavorMapstruct;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFlavorService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import io.github.lishangbu.avalon.dataset.mapper.BerryFlavorMapper;
 import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
-import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,19 +28,13 @@ public class BerryFlavorServiceImpl implements BerryFlavorService {
 
   private final BerryFlavorMapper berryFlavorMapper;
 
+  private final BerryFlavorMapstruct berryFlavorMapstruct;
+
   @Override
   public List<BerryFlavor> importBerryFlavors() {
     return pokeApiService.importData(
         PokeDataTypeEnum.BERRY_FLAVOR,
-        berryFlavorData -> {
-          BerryFlavor berryFlavor = new BerryFlavor();
-          berryFlavor.setInternalName(berryFlavorData.name());
-          berryFlavor.setId(berryFlavorData.id().longValue());
-          berryFlavor.setName(berryFlavorData.name());
-          LocalizationUtils.getLocalizationName(berryFlavorData.names())
-              .ifPresent(name -> berryFlavor.setName(name.name()));
-          return berryFlavor;
-        },
+        berryFlavorMapstruct::toDatasetBerryFlavor,
         berryFlavorMapper::insert,
         io.github.lishangbu.avalon.pokeapi.model.berry.BerryFlavor.class);
   }
