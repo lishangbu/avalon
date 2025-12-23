@@ -1,43 +1,41 @@
 package io.github.lishangbu.avalon.authorization.mapper;
 
 import com.baomidou.mybatisplus.test.autoconfigure.MybatisPlusTest;
-import io.github.lishangbu.avalon.authorization.TestEnvironmentApplication;
+import io.github.lishangbu.avalon.authorization.AbstractMapperTest;
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.test.annotation.Commit;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * 单元测试 OauthAuthorizationConsentMapper 的 CRUD 行为
+ * OAuth 授权同意数据访问层测试类
  *
- * <p>使用内存数据库通过 JdbcTemplate 初始化表结构和测试数据，测试每个方法的基本行为
+ * <p>测试 OauthAuthorizationConsentMapper 的基本 CRUD 操作 继承 AbstractMapperTest 复用 PostgreSQL 容器实例
+ *
+ * @author lishangbu
+ * @since 2025/8/20
  */
-@Testcontainers
-@ContextConfiguration(classes = TestEnvironmentApplication.class)
 @MybatisPlusTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class OauthAuthorizationConsentMapperTest {
-
-  @Container @ServiceConnection
-  static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer("postgres:latest");
+class OauthAuthorizationConsentMapperTest extends AbstractMapperTest {
 
   @Resource private OauthAuthorizationConsentMapper oauthAuthorizationConsentMapper;
 
+  /**
+   * 测试插入和查询 OAuth 授权同意记录
+   *
+   * <p>验证插入操作成功后能够通过客户端ID和主体名称查询到记录
+   */
   @Test
-  @Order(1)
-  @Commit
-  void testInsertAndSelect() {
+  void shouldInsertAndFindConsentByClientIdAndPrincipalName() {
+    // Arrange
     OauthAuthorizationConsent consent = new OauthAuthorizationConsent();
     consent.setRegisteredClientId("client-1");
     consent.setPrincipalName("user-1");
     consent.setAuthorities("scope1,scope2");
 
+    // Act
     int inserted = oauthAuthorizationConsentMapper.insert(consent);
+
+    // Assert
     Assertions.assertEquals(1, inserted);
 
     OauthAuthorizationConsent found =
@@ -49,37 +47,64 @@ class OauthAuthorizationConsentMapperTest {
     Assertions.assertEquals("scope1,scope2", found.getAuthorities());
   }
 
+  /**
+   * 测试通过 ID 更新 OAuth 授权同意记录
+   *
+   * <p>验证更新操作成功后能够通过客户端ID和主体名称查询到最新的记录
+   */
   @Test
-  @Order(2)
-  @Commit
-  void testUpdateById() {
+  void shouldUpdateConsentById() {
+    // Arrange - 先插入一条记录用于更新
+    OauthAuthorizationConsent consent = new OauthAuthorizationConsent();
+    consent.setRegisteredClientId("client-update");
+    consent.setPrincipalName("user-update");
+    consent.setAuthorities("scope1,scope2");
+    oauthAuthorizationConsentMapper.insert(consent);
+
+    // 更新记录
     OauthAuthorizationConsent toUpdate = new OauthAuthorizationConsent();
-    toUpdate.setRegisteredClientId("client-1");
-    toUpdate.setPrincipalName("user-1");
+    toUpdate.setRegisteredClientId("client-update");
+    toUpdate.setPrincipalName("user-update");
     toUpdate.setAuthorities("c,d,e");
 
+    // Act
     int updated = oauthAuthorizationConsentMapper.updateById(toUpdate);
+
+    // Assert
     Assertions.assertEquals(1, updated);
 
     OauthAuthorizationConsent found =
         oauthAuthorizationConsentMapper.selectByRegisteredClientIdAndPrincipalName(
-            "client-1", "user-1");
+            "client-update", "user-update");
     Assertions.assertNotNull(found);
     Assertions.assertEquals("c,d,e", found.getAuthorities());
   }
 
+  /**
+   * 测试通过客户端ID和主体名称删除 OAuth 授权同意记录
+   *
+   * <p>验证删除操作成功后无法再通过客户端ID和主体名称查询到记录
+   */
   @Test
-  @Order(3)
-  @Commit
-  void testDeleteByRegisteredClientIdAndPrincipalName() {
+  void shouldDeleteConsentByClientIdAndPrincipalName() {
+    // Arrange - 先插入一条记录用于删除
+    OauthAuthorizationConsent consent = new OauthAuthorizationConsent();
+    consent.setRegisteredClientId("client-delete");
+    consent.setPrincipalName("user-delete");
+    consent.setAuthorities("scope1,scope2");
+    oauthAuthorizationConsentMapper.insert(consent);
+
+    // Act
     int deleted =
         oauthAuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
-            "client-1", "user-1");
+            "client-delete", "user-delete");
+
+    // Assert
     Assertions.assertEquals(1, deleted);
 
     OauthAuthorizationConsent found =
         oauthAuthorizationConsentMapper.selectByRegisteredClientIdAndPrincipalName(
-            "client-1", "user-1");
+            "client-delete", "user-delete");
     Assertions.assertNull(found);
   }
 }
