@@ -1,9 +1,6 @@
 spring:
   main:
     banner-mode: off
-  liquibase:
-    drop-first: true
-    change-log: classpath:db/changelog/db.changelog-test.yaml
 mybatis-plus:
   mapper-locations: classpath:/mapper/**.xml
   global-config:
