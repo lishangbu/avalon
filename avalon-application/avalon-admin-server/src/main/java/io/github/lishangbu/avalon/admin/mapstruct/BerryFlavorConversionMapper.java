@@ -1,16 +1,18 @@
 package io.github.lishangbu.avalon.admin.mapstruct;
 
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
-
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 /**
  * MapStruct 映射器：PokeAPI 的 BerryFlavor -> Dataset BerryFlavor
  *
- * <p>按照服务层 `importBerryFlavors` 的转换规则进行实现： - id -> Long - internalName <- name - name 使用本地化名称（从
- * names 列表中解析）
+ * 按照服务层 {@code importBerryFlavors} 的转换规则进行实现：
+ * - id -> Long
+ * - internalName <- name
+ * - name 使用本地化名称（从 names 列表中解析）
  *
  * @author lishangbu
  * @since 2025/12/24

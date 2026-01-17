@@ -43,18 +43,18 @@
     <!--docker私服地址-->
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <ip2location.version>1.2.5</ip2location.version>
+    <ip2location.version>1.2.6</ip2location.version>
     <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
     <jgit.version>7.5.0.202512021534-r</jgit.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <mybatis-plus.version>3.5.15</mybatis-plus.version>
+    <mybatis-plus.version>3.5.16</mybatis-plus.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
     <revision>0.0.1-SNAPSHOT</revision>
     <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
-    <spring-doc.version>3.0.0</spring-doc.version>
+    <spring-doc.version>3.0.1</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
   <dependencyManagement>
