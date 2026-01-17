@@ -871,6 +871,18 @@ databaseChangeLog:
                     nullable: false
                   remarks: '伤害倍率'
         - loadData:
+            file: berry_firmness.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_firmness
+        - loadData:
+            file: berry_flavor.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_flavor
+        - loadData:
             file: type.csv
             relativeToChangelogFile: true
             encoding: utf-8

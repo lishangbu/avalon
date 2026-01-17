@@ -23,7 +23,7 @@ Avalon
 
 ## Usage
 
-To see how the project has been applied, see the [online documents](https://lishangbu.github.io/avalon-doc).
+To see how the project has been applied, see the [online documents](https://lishangbu.github.io/avalon-site/docs).
 
 The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it locally.
 
