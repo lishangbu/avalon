@@ -12,12 +12,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * 树果坚硬度服务实现类
- *
- * @author lishangbu
- * @since 2025/10/5
- */
+/// 树果坚硬度服务实现类
+///
+/// 提供树果坚硬度的数据导入、列表及 CRUD 操作
+///
+/// @author lishangbu
+/// @since 2025/10/5
 @Service
 @RequiredArgsConstructor
 public class BerryFirmnessServiceImpl implements BerryFirmnessService {
@@ -40,14 +40,12 @@ public class BerryFirmnessServiceImpl implements BerryFirmnessService {
     return berryFirmnessMapper.selectList(page, berryFirmness);
   }
 
-  /**
-   * 根据条件查询树果坚硬度列表
-   *
-   * <p>支持按 name/internalName 模糊查询，其余字段精确匹配
-   *
-   * @param berryFirmness 查询条件，支持部分字段模糊查询
-   * @return 树果坚硬度列表
-   */
+  /// 根据条件查询树果坚硬度列表
+  ///
+  /// 支持按 name/internalName 模糊查询，其余字段精确匹配
+  ///
+  /// @param berryFirmness 查询条件，支持部分字段模糊查询
+  /// @return 树果坚硬度列表
   @Override
   public List<BerryFirmness> listByCondition(BerryFirmness berryFirmness) {
     return berryFirmnessMapper.selectList(berryFirmness);

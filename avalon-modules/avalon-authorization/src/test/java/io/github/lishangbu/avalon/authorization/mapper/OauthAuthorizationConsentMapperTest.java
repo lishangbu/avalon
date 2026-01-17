@@ -4,26 +4,23 @@ import com.baomidou.mybatisplus.test.autoconfigure.MybatisPlusTest;
 import io.github.lishangbu.avalon.authorization.AbstractMapperTest;
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-/**
- * OAuth 授权同意数据访问层测试类
- *
- * <p>测试 OauthAuthorizationConsentMapper 的基本 CRUD 操作 继承 AbstractMapperTest 复用 PostgreSQL 容器实例
- *
- * @author lishangbu
- * @since 2025/8/20
- */
+/// OAuth 授权同意数据访问层测试类
+///
+/// 测试 OauthAuthorizationConsentMapper 的基本 CRUD 操作，继承 AbstractMapperTest 以复用 PostgreSQL 容器实例
+///
+/// @author lishangbu
+/// @since 2025/8/20
 @MybatisPlusTest
 class OauthAuthorizationConsentMapperTest extends AbstractMapperTest {
 
   @Resource private OauthAuthorizationConsentMapper oauthAuthorizationConsentMapper;
 
-  /**
-   * 测试插入和查询 OAuth 授权同意记录
-   *
-   * <p>验证插入操作成功后能够通过客户端ID和主体名称查询到记录
-   */
+  /// 测试插入和查询 OAuth 授权同意记录
+  ///
+  /// 验证插入操作成功后能够通过客户端ID和主体名称查询到记录
   @Test
   void shouldInsertAndFindConsentByClientIdAndPrincipalName() {
     // Arrange
@@ -47,11 +44,9 @@ class OauthAuthorizationConsentMapperTest extends AbstractMapperTest {
     Assertions.assertEquals("scope1,scope2", found.getAuthorities());
   }
 
-  /**
-   * 测试通过 ID 更新 OAuth 授权同意记录
-   *
-   * <p>验证更新操作成功后能够通过客户端ID和主体名称查询到最新的记录
-   */
+  /// 测试通过 ID 更新 OAuth 授权同意记录
+  ///
+  /// 验证更新操作成功后能够通过客户端ID和主体名称查询到最新的记录
   @Test
   void shouldUpdateConsentById() {
     // Arrange - 先插入一条记录用于更新
@@ -80,11 +75,9 @@ class OauthAuthorizationConsentMapperTest extends AbstractMapperTest {
     Assertions.assertEquals("c,d,e", found.getAuthorities());
   }
 
-  /**
-   * 测试通过客户端ID和主体名称删除 OAuth 授权同意记录
-   *
-   * <p>验证删除操作成功后无法再通过客户端ID和主体名称查询到记录
-   */
+  /// 测试通过客户端ID和主体名称删除 OAuth 授权同意记录
+  ///
+  /// 验证删除操作成功后无法再通过客户端ID和主体名称查询到记录
   @Test
   void shouldDeleteConsentByClientIdAndPrincipalName() {
     // Arrange - 先插入一条记录用于删除

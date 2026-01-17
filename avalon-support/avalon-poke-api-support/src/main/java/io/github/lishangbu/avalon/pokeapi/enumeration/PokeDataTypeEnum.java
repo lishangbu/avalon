@@ -14,87 +14,83 @@ import io.github.lishangbu.avalon.pokeapi.model.machine.Machine;
 import io.github.lishangbu.avalon.pokeapi.model.move.*;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
-/**
- * Poke Api 端点枚举
- *
- * @author lishangbu
- * @since 2025/5/22
- */
+/// Poke API 端点枚举
+///
+/// 定义 PokeAPI 提供的资源类型及其对应的响应映射类型
+///
+/// @author lishangbu
+/// @since 2025/5/22
 public enum PokeDataTypeEnum {
-  /**
-   * 树果是可以为宝可梦恢复HP和异常状态、提升属性，甚至在食用时抵消伤害的小型水果。详情可参考<a
-   * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries">Bulbapedia</a>
-   */
+  /// 树果：可为宝可梦恢复 HP、异常状态或提供其他效果的水果
   BERRY("berry", Berry.class),
 
-  /**
-   * 树果可以是软的或硬的。更多信息可参考 <a
-   * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a>
-   */
+  /// 树果的硬度分类
   BERRY_FIRMNESS("berry-firmness", BerryFirmness.class),
-  /**
-   * 风味决定了宝可梦根据<a href="https://pokeapi.co/docs/v2#natures">性格</a>食用树果时是受益还是受损。详情可参考<a
-   * href="http://bulbapedia.bulbagarden.net/wiki/Flavor">Bulbapedia</a>
-   */
+
+  /// 树果的风味信息
   BERRY_FLAVOR("berry-flavor", BerryFlavor.class),
 
-  /** 华丽大赛效果指的是招式在华丽大赛中使用时产生的效果 */
+  /// 华丽大赛中招式的效果
   CONTEST_EFFECT("contest-effect", ContestEffect.class),
-  /** 超级华丽大赛效果指的是招式在超级华丽大赛中使用时产生的效果 */
+
+  /// 超级华丽大赛中招式的效果
   SUPER_CONTEST_EFFECT("super-contest-effect", SuperContestEffect.class),
-  /**
-   * 竞赛类型是评委在宝可梦华丽大赛中用于衡量宝可梦状态的类别。详情可参考<a
-   * href="http://bulbapedia.bulbagarden.net/wiki/Contest_condition">Bulbapedia</a>
-   */
+
+  /// 竞赛类型（华丽大赛评判的类别）
   CONTEST_TYPE("contest-type", ContestType.class),
 
-  /**
-   * 玩家在野外遇到宝可梦的方式，例如在高草中行走。详情可参考<a
-   * href="http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness">Bulbapedia</a>
-   */
+  /// 遭遇方式（玩家在野外遇到宝可梦的方式）
   ENCOUNTER_METHOD("encounter-method", EncounterMethod.class),
-  /**
-   * 遭遇条件是影响野外出现宝可梦的条件，例如白天或夜晚，详情可参考<a
-   * href="https://bulbapedia.bulbagarden.net/wiki/Wild_Pok%C3%A9mon">Bulbapedia</a>
-   */
+
+  /// 遭遇条件（影响野外出现宝可梦的条件，例如白天/夜晚）
   ENCOUNTER_CONDITION("encounter-condition", EncounterCondition.class),
-  /** 遭遇条件值是遭遇条件的所有可能取值列表 */
+
+  /// 遭遇条件的取值列表
   ENCOUNTER_CONDITION_VALUE("encounter-condition-value", EncounterConditionValue.class),
 
-  /** 道具是一种能够被收集和使用的对象，例如在宝可梦的世界中可以使用药剂、球，或者教授给宝可梦技能的技能机器等。 */
+  /// 道具（可收集和使用的物品）
   ITEM("item", Item.class),
-  /** 物品属性定义了物品的特定方面，例如"可在战斗中使用"或"可消耗" */
+
+  /// 道具属性（例如是否可在战斗中使用）
   ITEM_ATTRIBUTE("item-attribute", ItemAttribute.class),
 
-  /** 道具类别决定了道具在玩家背包中的放置位置 */
+  /// 道具类别（背包中的存放分类）
   ITEM_CATEGORY("item-category", ItemCategory.class),
 
-  /** 技能"投掷"与不同道具一起使用时的各种效果 */
+  /// 道具投掷时的效果
   ITEM_FLING_EFFECT("item-fling-effect", ItemFlingEffect.class),
-  /** 玩家背包中用于按类别存储道具的口袋 */
+
+  /// 背包中按类别存放道具的口袋
   ITEM_POCKET("item-pocket", ItemPocket.class),
-  /** 机器是教授宝可梦招式的道具的表示。它们在不同版本之间有所不同，因此不能确定一个特定的TM或HM对应单个机器 */
+
+  /// 教授招式的机器（例如 TM / HM 等）
   MACHINE("machine", Machine.class),
-  /** 招式是宝可梦在战斗中的技能。在战斗中，宝可梦每回合使用一个招式。一些招式（包括通过秘传机学习的招式）也可以在战斗外使用，通常用于清除障碍物或探索新区域。 */
+
+  /// 招式（宝可梦在战斗中的技能）
   MOVE("move", Move.class),
-  /** 招式导致的状态异常是战斗中使用招式造成的状态条件 */
+
+  /// 招式造成的异常状态或副作用
   MOVE_AILMENT("move-ailment", MoveAilment.class),
-  /** 非常宽泛的分类，松散地将招式效果分组 */
+
+  /// 招式的类别（宽泛分类，用于分组效果）
   MOVE_CATEGORY("move-category", MoveCategory.class),
-  /** 招式可以拥有的伤害类别，例如物理、特殊或非伤害性 */
+
+  /// 招式的伤害类别（物理 / 特殊 / 非伤害）
   MOVE_DAMAGE_CLASS("move-damage-class", MoveDamageClass.class),
-  /** 宝可梦可以学习招式的方法 */
+
+  /// 招式学习方式
   MOVE_LEARN_METHOD("move-learn-method", MoveLearnMethod.class),
-  /** 战斗中招式可以指向的目标。目标可以是宝可梦、环境甚至其他招式 */
+
+  /// 招式目标（战斗中招式可指向的对象）
   MOVE_TARGET("move-target", MoveTarget.class),
 
-  /** 属性是宝可梦及其招式的特性。每种属性有三种特性：对哪些属性的宝可梦效果拔群、对哪些属性效果不佳、对哪些属性完全无效 */
+  /// 属性（例如水、火等），以及属性间的相互克制关系
   TYPE("type", Type.class);
 
-  /** POKE API DATA 数据类型 */
+  /// Poke API 数据类型标识
   private final String type;
 
-  /** 返回的资源映射到对应的Class上 */
+  /// 响应映射到的 Java 类型
   private final Class responseType;
 
   PokeDataTypeEnum(String type, Class responseType) {

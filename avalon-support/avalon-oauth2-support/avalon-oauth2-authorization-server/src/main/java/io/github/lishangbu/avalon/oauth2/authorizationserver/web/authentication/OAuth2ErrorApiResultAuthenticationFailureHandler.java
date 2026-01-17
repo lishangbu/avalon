@@ -15,16 +15,14 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-/**
- * An implementation of an {@link AuthenticationFailureHandler} used for handling an {@link
- * OAuth2AuthenticationException} and returning the {@link OAuth2Error OAuth 2.0 Error Response}.
- *
- * @author Dmitriy Dubson
- * @author lishangbu
- * @see AuthenticationFailureHandler
- * @see OAuth2ErrorHttpMessageConverter
- * @since 2025/8/25
- */
+/// An implementation of an `AuthenticationFailureHandler` used for handling an
+/// `OAuth2AuthenticationException` and returning the `OAuth2Error` OAuth 2.0 Error Response
+///
+/// @author Dmitriy Dubson
+/// @author lishangbu
+/// @see AuthenticationFailureHandler
+/// @see OAuth2ErrorHttpMessageConverter
+/// @since 2025/8/25
 public class OAuth2ErrorApiResultAuthenticationFailureHandler
     implements AuthenticationFailureHandler {
   private final Log logger = LogFactory.getLog(getClass());

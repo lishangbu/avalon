@@ -4,31 +4,31 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
-/**
- * 宝可梦(Pokemon)实体类
- *
- * @author lishangbu
- * @since 2025/08/20
- */
+/// 宝可梦(Pokemon)实体类
+///
+/// 表示宝可梦的基本信息，包括内部名称、身高、体重与基础经验等
+///
+/// @author lishangbu
+/// @since 2025/08/20
 @Data
 public class Pokemon implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 主键 */
+  /// 主键
   private Long id;
 
-  /** 宝可梦内部名称 */
+  /// 宝可梦内部名称
   private String internalName;
 
-  /** 宝可梦名称 */
+  /// 宝可梦名称
   private String name;
 
-  /** 身高，单位为分米 */
+  /// 身高，单位为分米
   private Integer height;
 
-  /** 体重，数字每增加1，体重增加0.1kg */
+  /// 体重，数字每增加1，体重增加0.1kg
   private Integer weight;
 
-  /** 基础经验值 */
+  /// 基础经验值
   private Integer baseExperience;
 }

@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-/**
- * JDBC注册客户端
- *
- * @author lishangbu
- * @since 2025/8/17
- */
+/// JDBC 注册客户端仓库实现
+///
+/// 基于数据库的 RegisteredClient 存储实现，负责在数据库与 RegisteredClient 之间进行转换
+///
+/// @author lishangbu
+/// @since 2025/8/17
 @Component
 @RequiredArgsConstructor
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {

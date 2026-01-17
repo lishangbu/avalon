@@ -13,16 +13,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 
-/**
- * JsonUtils 工具类单元测试
- *
- * <p>覆盖对象序列化、反序列化、JsonNode 读取等核心功能
- */
+/// JsonUtils 工具类单元测试
+///
+/// 覆盖对象序列化、反序列化、JsonNode 读取等核心功能
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class JsonUtilsTest {
 
-  /** 测试对象转 JSON 字符串 */
+  /// 测试对象转 JSON 字符串
   @Test
   void testToJson() {
     Map<String, Object> data = Map.of("name", "avalon", "age", 18);
@@ -31,7 +29,7 @@ class JsonUtilsTest {
     assertTrue(json.contains("\"age\""));
   }
 
-  /** 测试对象转格式化 JSON 字符串 */
+  /// 测试对象转格式化 JSON 字符串
   @Test
   void testToPrettyJson() {
     Map<String, Object> data = Map.of("name", "avalon");
@@ -40,7 +38,7 @@ class JsonUtilsTest {
     assertTrue(prettyJson.contains("avalon"));
   }
 
-  /** 测试对象转 JSON 字节数组 */
+  /// 测试对象转 JSON 字节数组
   @Test
   void testToJsonAsBytes() {
     Map<String, Object> data = Map.of("id", 1);
@@ -49,7 +47,7 @@ class JsonUtilsTest {
     assertTrue(new String(bytes).contains("id"));
   }
 
-  /** 测试 JSON 字符串转对象 */
+  /// 测试 JSON 字符串转对象
   @Test
   void testReadValueFromString() {
     String json = "{\"name\":\"avalon\",\"age\":18}";
@@ -59,7 +57,7 @@ class JsonUtilsTest {
     assertEquals(18, result.get("age"));
   }
 
-  /** 测试字节数组转对象 */
+  /// 测试字节数组转对象
   @Test
   void testReadValueFromBytes() {
     byte[] bytes = "{\"active\":true}".getBytes();
@@ -68,7 +66,7 @@ class JsonUtilsTest {
     assertEquals(true, result.get("active"));
   }
 
-  /** 测试 InputStream 转对象 */
+  /// 测试 InputStream 转对象
   @Test
   void testReadValueFromInputStream() {
     String json = "{\"score\":100}";
@@ -78,7 +76,7 @@ class JsonUtilsTest {
     assertEquals(100, result.get("score"));
   }
 
-  /** 测试 Reader 转对象 */
+  /// 测试 Reader 转对象
   @Test
   void testReadValueFromReader() {
     String json = "{\"flag\":false}";
@@ -88,7 +86,7 @@ class JsonUtilsTest {
     assertEquals(false, result.get("flag"));
   }
 
-  /** 测试 JSON 字符串转 JsonNode */
+  /// 测试 JSON 字符串转 JsonNode
   @Test
   void testReadTreeFromString() {
     String json = "{\"x\":1}";
@@ -96,7 +94,7 @@ class JsonUtilsTest {
     assertEquals(1, node.get("x").asInt());
   }
 
-  /** 测试空值处理 */
+  /// 测试空值处理
   @Test
   void testNullAndEmptyHandling() {
     assertNull(JsonUtils.toJson(null));

@@ -19,12 +19,12 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-/**
- * Reference模式下,自定义access token生成器
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// Reference 模式下的 Access Token 生成器
+///
+/// 提供基于引用（reference token）的 Access Token 生成实现，使用 UUID 作为 token 值并携带声明集
+///
+/// @author lishangbu
+/// @since 2025/8/22
 public class ReferenceOAuth2AccessTokenGenerator
     implements OAuth2TokenGenerator<OAuth2AccessToken> {
   private final StringKeyGenerator accessTokenGenerator = new UuidKeyGenerator();

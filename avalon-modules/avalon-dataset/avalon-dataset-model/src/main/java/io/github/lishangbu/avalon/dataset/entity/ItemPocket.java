@@ -4,22 +4,22 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
-/**
- * 道具口袋(ItemPocket)实体类
- *
- * @author lishangbu
- * @since 2025/08/20
- */
+/// 道具口袋(ItemPocket)实体类
+///
+/// 包含口袋 ID、内部名称与显示名称
+///
+/// @author lishangbu
+/// @since 2025/08/20
 @Data
 public class ItemPocket implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 主键 */
+  /// 主键
   private Long id;
 
-  /** 内部名称 */
+  /// 内部名称
   private String internalName;
 
-  /** 道具口袋名称 */
+  /// 道具口袋名称
   private String name;
 }

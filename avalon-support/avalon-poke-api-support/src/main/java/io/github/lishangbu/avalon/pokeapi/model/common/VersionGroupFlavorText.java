@@ -4,17 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 
-/**
- * 参考<a href="https://pokeapi.co/docs/v2">官网Utility/Common Models/VersionGroupFlavorText</a>
- *
- * @param text 该API资源在特定语言中的本地化名称
- * @param language 该名称所使用的语言{@link Language}
- * @param versionGroup 使用此偏好文本的版本组{@link VersionGroup}
- * @author lishangbu
- * @since 2025/5/20
- * @see Language
- * @see VersionGroup
- */
+/// 版本组本地化文本模型
+///
+/// @param text         本地化文本
+/// @param language     文本所使用的语言引用
+/// @param versionGroup 使用此文本的版本组引用
+/// @author lishangbu
+/// @see Language
+/// @see VersionGroup
+/// @since 2025/5/20
 public record VersionGroupFlavorText(
     String text,
     NamedApiResource<Language> language,

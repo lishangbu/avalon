@@ -7,28 +7,27 @@ import io.github.lishangbu.avalon.pokeapi.model.common.VerboseEffect;
 import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
 import java.util.List;
 
-/**
- * 特性为宝可梦在战斗中或在主世界中提供被动效果。宝可梦可能拥有多种可能的特性，但一次只能拥有一种特性。 查看 <a
- * href="http://bulbapedia.bulbagarden.net/wiki/Ability">Bulbapedia</a> 获取更多详情。
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param isMainSeries 此特性是否起源于视频游戏的主系列
- * @param generation 此特性起源的游戏世代{@link Generation}
- * @param names 该资源在不同语言中列出的名称{@link Name}
- * @param effectEntries 此特性在不同语言中列出的效果{@link VerboseEffect}
- * @param effectChanges 此特性在不同版本组中曾经有过的先前效果{@link AbilityEffectChange}列表
- * @param flavorTextEntries 此特性在不同语言中列出的风味文本{@link AbilityFlavorText}
- * @param pokemon 可能拥有此特性的宝可梦{@link AbilityPokemon}列表
- * @author lishangbu
- * @see Generation
- * @see Name
- * @see VerboseEffect
- * @see AbilityEffectChange
- * @see AbilityFlavorText
- * @see AbilityPokemon
- * @since 2025/6/8
- */
+/// 特性模型
+///
+/// 特性为宝可梦提供被动效果，详情参考 [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Ability)
+///
+/// @param id                资源标识符
+/// @param name              资源名称
+/// @param isMainSeries      是否起源于主系列游戏
+/// @param generation        特性起源的世代引用
+/// @param names             多语言名称列表
+/// @param effectEntries     多语言效果描述
+/// @param effectChanges     不同版本组下的先前效果列表
+/// @param flavorTextEntries 风味文本（多语言）
+/// @param pokemon           可能拥有此特性的宝可梦列表
+/// @author lishangbu
+/// @see Generation
+/// @see Name
+/// @see VerboseEffect
+/// @see AbilityEffectChange
+/// @see AbilityFlavorText
+/// @see AbilityPokemon
+/// @since 2025/6/8
 public record Ability(
     Integer id,
     String name,

@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 菜单控制器
- *
- * @author lishangbu
- * @since 2025/8/28
- */
+/// 菜单控制器
+///
+/// 提供当前用户基于角色的菜单树查询接口
+///
+/// @author lishangbu
+/// @since 2025/8/28
 @Slf4j
 @RequestMapping("/menu")
 @RestController

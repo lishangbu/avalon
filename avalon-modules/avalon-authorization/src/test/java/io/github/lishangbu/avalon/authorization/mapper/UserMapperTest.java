@@ -9,24 +9,20 @@ import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * 用户数据访问层测试类
- *
- * <p>测试 UserMapper 的基本 CRUD 操作和自定义查询方法 继承 AbstractMapperTest 复用 PostgreSQL 容器实例
- *
- * @author lishangbu
- * @since 2025/8/20
- */
+/// 用户数据访问层测试类
+///
+/// 测试 UserMapper 的基本 CRUD 操作和自定义查询方法，继承 AbstractMapperTest 以复用 PostgreSQL 容器实例
+///
+/// @author lishangbu
+/// @since 2025/8/20
 @MybatisPlusTest
 class UserMapperTest extends AbstractMapperTest {
 
   @Resource private UserMapper userMapper;
 
-  /**
-   * 测试插入用户记录
-   *
-   * <p>验证插入操作成功后自动生成主键ID
-   */
+  /// 测试插入用户记录
+  ///
+  /// 验证插入操作成功后自动生成主键ID
   @Test
   void shouldInsertUserSuccessfully() {
     // Arrange
@@ -42,11 +38,9 @@ class UserMapperTest extends AbstractMapperTest {
     Assertions.assertTrue(user.getId() > 0);
   }
 
-  /**
-   * 测试根据用户名查询用户详情
-   *
-   * <p>验证查询结果包含用户基本信息和关联的角色列表
-   */
+  /// 测试根据用户名查询用户详情
+  ///
+  /// 验证查询结果包含用户基本信息和关联的角色列表
   @Test
   void shouldFindUserWithRolesByUsername() {
     // Act

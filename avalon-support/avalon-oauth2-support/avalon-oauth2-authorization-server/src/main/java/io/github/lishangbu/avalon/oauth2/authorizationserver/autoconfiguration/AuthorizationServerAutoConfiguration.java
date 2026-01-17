@@ -34,12 +34,12 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationConverter;
 
-/**
- * 自动装配认证服务器
- *
- * @author lishangbu
- * @since 2025/8/17
- */
+/// 自动装配认证服务器
+///
+/// 提供认证服务器所需的 SecurityFilterChain，集成 OAuth2 授权端点、Token 端点及相关处理器
+///
+/// @author lishangbu
+/// @since 2025/8/17
 @EnableWebSecurity
 @AutoConfiguration
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)

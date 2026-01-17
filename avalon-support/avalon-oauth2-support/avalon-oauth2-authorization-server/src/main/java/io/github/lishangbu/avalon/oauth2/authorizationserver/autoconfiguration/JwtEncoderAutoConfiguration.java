@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
-/**
- * JwtEncoder 自动装配
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// JwtEncoder 自动装配
+///
+/// 提供默认的 JwtEncoder 实现（基于 Nimbus）
+///
+/// @author lishangbu
+/// @since 2025/8/22
 @AutoConfiguration
 public class JwtEncoderAutoConfiguration {
   @Bean

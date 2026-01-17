@@ -48,8 +48,7 @@ The commit message should be structured as follows:
 
 ## 分支说明
 
-- `main / master`: 主分支
-- `gh-pages`: GitHub Pages 构建分支
+- `main`: 主分支
 
 ## 其他
 

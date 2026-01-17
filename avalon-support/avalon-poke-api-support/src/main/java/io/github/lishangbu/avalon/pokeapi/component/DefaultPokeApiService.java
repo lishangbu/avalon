@@ -13,22 +13,22 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 抽象的PokeApi服务
- *
- * @author lishangbu
- * @since 2025/5/21
- */
+/// 默认的 PokeApi 服务实现
+///
+/// 从本地克隆或读取 PokeAPI 的数据仓库文件并反序列化为目标实体
+///
+/// @author lishangbu
+/// @since 2025/5/21
 public class DefaultPokeApiService implements PokeApiService {
   private static final Logger log = LoggerFactory.getLogger(DefaultPokeApiService.class);
 
-  /** 本地仓库中存储数据的具体文件路径 */
+  /// 本地仓库中存储数据的具体文件路径
   private static final String LOCAL_GIT_REPO_FIRST_FILE_DIR_NAME = "data";
 
   private static final String LOCAL_GIT_REPO_SECOND_FILE_DIR_NAME = "api";
   private static final String LOCAL_GIT_REPO_THIRD_FILE_DIR_NAME = "v2";
 
-  /** 具体存储数据的文件名称 */
+  /// 具体存储数据的文件名称
   private static final String FILE_NAME = "index.json";
 
   private final PokeApiProperties properties;
@@ -37,13 +37,11 @@ public class DefaultPokeApiService implements PokeApiService {
     this.properties = properties;
   }
 
-  /**
-   * 通过指定的URI和参数获取指定类型的数据实体
-   *
-   * @param typeEnum 资源类型
-   * @param id 资源对应的唯一ID
-   * @return 指定类型的数据实体
-   */
+  /// 通过指定的 URI 和参数获取指定类型的数据实体
+  ///
+  /// @param typeEnum 资源类型
+  /// @param id       资源对应的唯一 ID
+  /// @return 指定类型的数据实体
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getEntityFromUri(PokeDataTypeEnum typeEnum, Integer id) {
@@ -67,12 +65,10 @@ public class DefaultPokeApiService implements PokeApiService {
     }
   }
 
-  /**
-   * 获取命名资源列表
-   *
-   * @param typeEnum 资源类型
-   * @return 命名资源列表
-   */
+  /// 获取命名资源列表
+  ///
+  /// @param typeEnum 资源类型
+  /// @return 命名资源列表
   @Override
   public NamedAPIResourceList listNamedAPIResources(PokeDataTypeEnum typeEnum) {
     log.debug("获取类型为[{}]的数据", typeEnum);
@@ -94,7 +90,7 @@ public class DefaultPokeApiService implements PokeApiService {
     }
   }
 
-  /** 如果不存在本地仓库路径，则检出代码 */
+  /// 如果不存在本地仓库路径，则检出代码
   private void checkoutGitRepoIfNotExists() {
     if (Files.notExists(Paths.get(this.properties.getLocalRepoDir()))) {
       // 执行克隆

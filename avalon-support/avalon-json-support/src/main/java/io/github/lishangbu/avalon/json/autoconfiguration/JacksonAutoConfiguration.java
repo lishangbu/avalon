@@ -11,14 +11,12 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 
-/**
- * jackson自动配置
- *
- * <p>具体变更内容参考<a href="https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0">github</a>
- *
- * @author lishangbu
- * @since 2022/12/22
- */
+/// Jackson 自动配置
+///
+/// 配置 Jackson 3 的 JsonMapper，包含对长整型序列化为字符串的处理，以及对部分 JSON 解析功能的开关
+///
+/// @author lishangbu
+/// @since 2022/12/22
 @AutoConfiguration(
     before = org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration.class)
 public class JacksonAutoConfiguration {

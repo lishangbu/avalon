@@ -15,12 +15,12 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
-/**
- * JWT token定制
- *
- * @author lishangbu
- * @since 2025/8/21
- */
+/// JWT token 定制
+///
+/// 在 JWT 生成阶段注入自定义声明（如 loginType、authorities 等），并支持将第三方 OIDC/OAuth2 属性合并到 id_token
+///
+/// @author lishangbu
+/// @since 2025/8/21
 public class JwtOAuth2TokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
   private static final Set<String> ID_TOKEN_CLAIMS =

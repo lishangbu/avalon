@@ -11,24 +11,29 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * MapStruct 基类，提供公共的转换辅助方法
- *
- * <p>集中处理本地化名称的解析逻辑，避免在每个映射器中重复实现
- */
+/// # MapStruct 基类
+/// 提供公共的转换辅助方法，供各个 MapStruct 映射器复用
+///
+/// ## 主要职责
+/// - 集中处理本地化名称的解析逻辑，避免重复实现
+/// - 提供从 PokeAPI 实体或 {@code names} 列表解析本地化名称的通用工具方法
+///
+/// ## 设计要点
+/// - 通过依赖注入 {@link  PokeApiService} 按需加载实体
+/// - 使用反射安全地尝试解析 {@link  LocalizationUtils#getLocalizationName(List, String...)} 方法，失败时回退默认名称
+
 public abstract class AbstractMapstruct {
 
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Resource protected PokeApiService pokeApiService;
 
-  /**
-   * 从 PokeAPI 资源的 names 列表中解析本地化名称，失败时返回默认名称
-   *
-   * @param names PokeAPI 的 names 列表，可能为 null
-   * @param defaultName 默认名称，当找不到本地化名称时使用
-   * @return 本地化名称或默认名称
-   */
+  /// ## 名称解析
+  /// 解析 PokeAPI 中的 {@code names} 列表获取本地化名称，失败时使用默认值
+  ///
+  /// @param names       PokeAPI 的 names 列表，可能为 null
+  /// @param defaultName 默认名称，当无法解析本地化名称时使用
+  /// @return 本地化名称或默认名称
   @SuppressWarnings("unchecked")
   protected String resolveLocalizedNameFromNames(List<?> names, String defaultName) {
     if (defaultName == null) return null;
@@ -43,14 +48,13 @@ public abstract class AbstractMapstruct {
     }
   }
 
-  /**
-   * 通过 NamedApiResource 和数据类型，从 PokeApiService 获取实体并解析其 names 列表
-   *
-   * @param resource 资源引用，可能为 null
-   * @param dataType 数据类型枚举，用于告诉 PokeApiService 如何获取实体
-   * @param defaultName 默认名称，找不到本地化名称时使用
-   * @return 解析后的本地化名称或 defaultName
-   */
+  /// ## 资源名称解析
+  /// 通过指定的数据类型和 {@code NamedApiResource} 获取实体并解析其 {@code names} 列表
+  ///
+  /// @param resource    资源引用，可能为 null
+  /// @param dataType    数据类型枚举，用于告诉 PokeApiService 如何获取实体
+  /// @param defaultName 默认名称，找不到本地化名称时使用
+  /// @return 解析后的本地化名称或 defaultName
   protected String resolveLocalizedNameFromResource(
       NamedApiResource<?> resource, PokeDataTypeEnum dataType, String defaultName) {
     if (defaultName == null) return null;

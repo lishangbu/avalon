@@ -22,22 +22,22 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-/**
- * @author lishangbu
- * @since 2018/8/30 全局异常处理器
- */
+/// 全局异常处理器
+///
+/// 统一处理控制器层抛出的各种异常并包装为标准的 ApiResult 返回
+///
+/// @author lishangbu
+/// @since 2018/8/30
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class GlobalExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-  /**
-   * 全局异常.
-   *
-   * @param e the e
-   * @return ResultBean
-   */
+  /// 全局异常
+  ///
+  /// @param e 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleGlobalException(Exception e) {
@@ -45,12 +45,10 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
-  /**
-   * 运行时异常.
-   *
-   * @param e the e
-   * @return ResultBean
-   */
+  /// 运行时异常
+  ///
+  /// @param e 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(RuntimeException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleRuntimeException(RuntimeException e) {
@@ -58,12 +56,10 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
-  /**
-   * 运行时异常.
-   *
-   * @param e the e
-   * @return ResultBean
-   */
+  /// HttpMessageNotWritableException
+  ///
+  /// @param e 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(HttpMessageNotWritableException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleHttpMessageNotWritableException(HttpMessageNotWritableException e) {
@@ -71,12 +67,9 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, e.getMessage());
   }
 
-  /**
-   * BindException
-   *
-   * @param exception 参数绑定错误
-   * @return ResultBean
-   */
+  /// 处理参数绑定错误（MethodArgumentNotValidException / BindException）
+  /// @param exception 参数绑定异常
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiResult<Void> handleBodyValidException(MethodArgumentNotValidException exception) {
@@ -89,17 +82,14 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.BAD_REQUEST, errorMsg);
   }
 
-  /**
-   * 处理业务校验过程中碰到的非法参数异常 该异常基本由{@link Assert}抛出
-   *
-   * @param exception 参数校验异常
-   * @return API返回结果对象包装后的错误输出结果
-   * @see Assert#hasLength(String, String)
-   * @see Assert#hasText(String, String)
-   * @see Assert#isTrue(boolean, String)
-   * @see Assert#isNull(Object, String)
-   * @see Assert#notNull(Object, String)
-   */
+  /// 处理业务校验过程中碰到的非法参数异常，该异常基本由 {@link Assert} 抛出
+  /// @param exception 参数校验异常
+  /// @return ApiResult 包装的错误信息
+  /// @see Assert#hasLength(String, String)
+  /// @see Assert#hasText(String, String)
+  /// @see Assert#isTrue(boolean, String)
+  /// @see Assert#isNull(Object, String)
+  /// @see Assert#notNull(Object, String)
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleIllegalArgumentException(IllegalArgumentException exception) {
@@ -107,12 +97,9 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
-  /**
-   * 处理非法状态
-   *
-   * @param exception
-   * @return
-   */
+  /// 处理非法状态
+  /// @param exception 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(IllegalStateException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleIllegalStateException(IllegalStateException exception) {
@@ -120,12 +107,9 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
-  /**
-   * 处理SQL异常
-   *
-   * @param exception
-   * @return
-   */
+  /// 处理 SQL 异常
+  /// @param exception SQL 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(SQLException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleSQLException(SQLException exception) {
@@ -133,12 +117,9 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, "系统开小差了，请稍后再试");
   }
 
-  /**
-   * 不支持的操作类型
-   *
-   * @param exception
-   * @return
-   */
+  /// 不支持的操作类型
+  /// @param exception 异常实例
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(UnsupportedOperationException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResult<Void> handleUnsupportedOperationException(
@@ -147,12 +128,9 @@ public class GlobalExceptionHandler {
     return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.getMessage());
   }
 
-  /**
-   * 处理资源不存在
-   *
-   * @param exception 资源不存在异常
-   * @return
-   */
+  /// 处理资源不存在
+  /// @param exception 资源不存在异常
+  /// @return ApiResult 包装的错误信息
   @ExceptionHandler(NoResourceFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ApiResult<Void> handleNoResourceFoundException(NoResourceFoundException exception) {

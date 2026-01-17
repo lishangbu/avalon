@@ -5,23 +5,23 @@ import java.io.Serializable;
 import java.util.Objects;
 import lombok.Data;
 
-/**
- * 用户授权确认表(OauthAuthorizationConsent)实体类
- *
- * @author lishangbu
- * @since 2025/08/20
- */
+/// 用户授权确认表 (OauthAuthorizationConsent) 实体类
+///
+/// 表示客户端与用户之间已确认的授权范围（scope）映射
+///
+/// @author lishangbu
+/// @since 2025/08/20
 @Data
 public class OauthAuthorizationConsent implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 复合主键 - registered_client_id */
+  /// 复合主键 - registered_client_id
   private String registeredClientId;
 
-  /** 复合主键 - principal_name */
+  /// 复合主键 - principal_name
   private String principalName;
 
-  /** 授权确认的scope */
+  /// 授权确认的 scope
   private String authorities;
 
   @Override

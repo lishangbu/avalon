@@ -6,10 +6,12 @@ import java.math.BigInteger;
 import java.net.UnknownHostException;
 import org.junit.jupiter.api.Test;
 
-/**
- * @author lishangbu
- * @since 2025/4/12
- */
+/// 单元测试：IpUtils
+///
+/// 测试网络地址工具类的功能（IPv4/IPv6 判定与转换、CIDR 与十进制转换等）
+///
+/// @author lishangbu
+/// @since 2025/4/12
 class IpUtilsTest {
 
   @Test

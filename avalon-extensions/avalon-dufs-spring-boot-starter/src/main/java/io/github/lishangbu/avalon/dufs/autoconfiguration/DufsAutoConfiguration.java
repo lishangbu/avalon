@@ -17,29 +17,25 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
-/**
- * DUFS请求客户端配置
- *
- * @author lishangbu
- * @since 2025/8/11
- */
+/// DUFS 请求客户端配置
+///
+/// 提供用于和 DUFS 服务通信的 RestClient 与 DufsClient Bean
+/// - dufsRestClient: 基于 JDK HttpClient 的 RestClient，支持重定向与基础认证头
+/// - dufsClient: 使用 DefaultDufsClient 封装 RestClient
+///
+/// @author lishangbu
+/// @since 2025/8/11
 @EnableConfigurationProperties(DufsProperties.class)
 @AutoConfiguration
 public class DufsAutoConfiguration {
   public static final String DUFS_REST_CLIENT_BEAN_NAME = "dufsRestClient";
 
-  /**
-   * 用于请求的web客户端
-   *
-   * <ul>
-   *   <li>处理重定向支持,参考<a
-   *       href="https://github.com/spring-projects/spring-framework/issues/33734">github
-   *       issues</a>的处理
-   *   <li>添加默认访问地址
-   * </ul>
-   *
-   * @return Rest 请求客户端
-   */
+  /// 提供用于发送 HTTP 请求的 RestClient
+  /// - 当配置中存在 `dufs.url` 时才创建该 Bean
+  /// - 自动添加 Basic Auth 头（如配置了 username/password）
+  ///
+  /// @param properties DUFS 配置属性
+  /// @return RestClient 请求客户端
   @Bean
   @ConditionalOnMissingBean(name = DUFS_REST_CLIENT_BEAN_NAME)
   @ConditionalOnProperty(prefix = DufsProperties.PROPERTIES_PREFIX, name = "url")
@@ -63,6 +59,10 @@ public class DufsAutoConfiguration {
         .build();
   }
 
+  /// DUFS 客户端封装，用于提供高层 API
+  ///
+  /// @param restClient 注入的 RestClient
+  /// @return DufsClient 默认实现
   @Bean
   @ConditionalOnMissingBean(DufsClient.class)
   public DufsClient dufsClient(@Qualifier(DUFS_REST_CLIENT_BEAN_NAME) RestClient restClient) {

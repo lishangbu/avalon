@@ -12,12 +12,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * Berry 服务实现
- *
- * @author lishangbu
- * @since 2025/10/4
- */
+/// Berry 服务实现
+///
+/// 提供树果数据的导入、分页查询以及 CRUD 操作
+///
+/// @author lishangbu
+/// @since 2025/10/4
 @Service
 @RequiredArgsConstructor
 public class BerryServiceImpl implements BerryService {

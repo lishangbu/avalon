@@ -3,26 +3,26 @@ package io.github.lishangbu.avalon.pokeapi.model.move;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 
-/**
- * 招式的元数据信息，包含额外的数据，如副作用和效果几率。
- *
- * @param ailment 此招式对目标造成的状态异常{@link MoveAilment}
- * @param category 此招式所属的类别{@link MoveCategory}，例如伤害或状态异常
- * @param minHits 此招式命中的最小次数。如果总是只命中一次，则为null
- * @param maxHits 此招式命中的最大次数。如果总是只命中一次，则为null
- * @param minTurns 此招式持续生效的最小回合数。如果总是只持续一回合，则为null
- * @param maxTurns 此招式持续生效的最大回合数。如果总是只持续一回合，则为null
- * @param drain HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示
- * @param healing 攻击方宝可梦恢复的HP量，以其最大HP的百分比表示
- * @param critRate 暴击率加成
- * @param ailmentChance 此攻击导致状态异常的可能性
- * @param flinchChance 此攻击导致目标宝可梦畏缩的可能性
- * @param statChance 此攻击导致目标宝可梦能力值变化的可能性
- * @author lishangbu
- * @see MoveAilment
- * @see MoveCategory
- * @since 2025/6/7
- */
+/// 招式元数据模型
+///
+/// 包含招式的额外信息，如副作用、吸血、暴击率等
+///
+/// @param ailment       招式可能造成的异常状态引用
+/// @param category      招式所属类别引用
+/// @param minHits       最小命中次数（可为 null）
+/// @param maxHits       最大命中次数（可为 null）
+/// @param minTurns      最小持续回合数（可为 null）
+/// @param maxTurns      最大持续回合数（可为 null）
+/// @param drain         吸血或反作用伤害百分比
+/// @param healing       恢复 HP 的百分比
+/// @param critRate      暴击率加成
+/// @param ailmentChance 导致异常状态的概率
+/// @param flinchChance  导致畏缩的概率
+/// @param statChance    导致能力变化的概率
+/// @author lishangbu
+/// @see MoveAilment
+/// @see MoveCategory
+/// @since 2025/6/7
 public record MoveMetaData(
     NamedApiResource<MoveAilment> ailment,
     NamedApiResource<MoveCategory> category,

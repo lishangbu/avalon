@@ -2,12 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import io.github.lishangbu.avalon.pokeapi.model.common.Description;
-import io.github.lishangbu.avalon.pokeapi.model.common.Effect;
-import io.github.lishangbu.avalon.pokeapi.model.common.Name;
-import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.common.VerboseEffect;
-import io.github.lishangbu.avalon.pokeapi.model.common.VersionGroupFlavorText;
+import io.github.lishangbu.avalon.pokeapi.model.common.*;
 import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +10,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * 本地化工具测试
- *
- * @author lishangbu
- * @since 2025/5/21
- */
+/// 本地化工具测试
+///
+/// 验证 LocalizationUtils 中针对
+// Name/Description/Effect/VerboseEffect/VersionGroupFlavorText/MoveFlavorText
+/// 等类型的本地化查找方法，覆盖常见的空值、默认语言顺序以及多语言优先级场景
+///
+/// @author lishangbu
+/// @since 2025/5/21
 class LocalizationUtilsTest {
   // 创建一个包含 Name 对象的列表
   private List<Name> names;

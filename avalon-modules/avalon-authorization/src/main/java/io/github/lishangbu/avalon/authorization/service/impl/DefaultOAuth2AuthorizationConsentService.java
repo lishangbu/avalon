@@ -16,13 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-/**
- * Implementations of this interface are responsible for the management of {@link
- * OAuth2AuthorizationConsent OAuth 2.0 Authorization Consent(s)}.
- *
- * @author lishangbu
- * @since 2025/8/17
- */
+/// OAuth2 授权同意服务实现
+///
+/// 管理 OAuth2AuthorizationConsent（授权同意）实体的持久化与读取（基于数据表和 MyBatis 映射）
+///
+/// @author lishangbu
+/// @since 2025/8/17
 @Service
 public class DefaultOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
   private final OauthAuthorizationConsentMapper oauth2AuthorizationConsentMapper;

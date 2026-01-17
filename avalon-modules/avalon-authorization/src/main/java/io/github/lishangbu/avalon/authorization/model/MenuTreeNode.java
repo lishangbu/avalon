@@ -7,12 +7,12 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.beans.BeanUtils;
 
-/**
- * 菜单树节点
- *
- * @author lishangbu
- * @since 2025/8/28
- */
+/// 菜单树节点
+///
+/// 扩展 Menu 实体，用于构建树形结构并持有子节点列表
+///
+/// @author lishangbu
+/// @since 2025/8/28
 @Getter
 @Setter
 @ToString

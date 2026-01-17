@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 令牌接口
- *
- * @author vains
- */
+/// 令牌接口
+///
+/// 提供登出与当前用户令牌信息查询接口
+///
+/// @author vains
 @RequestMapping("/token")
 @RestController
 @RequiredArgsConstructor

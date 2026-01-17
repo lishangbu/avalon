@@ -12,15 +12,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * 树果风味服务实现
- *
- * <p>风味决定了宝可梦根据<a href="https://pokeapi.co/docs/v2#natures">性格</a>食用树果时是受益还是受损。详情可参考<a
- * href="http://bulbapedia.bulbagarden.net/wiki/Flavor">Bulbapedia</a>
- *
- * @author lishangbu
- * @since 2025/10/5
- */
+/// 树果风味服务实现
+///
+/// 风味决定了宝可梦根据 [性格](https://pokeapi.co/docs/v2#natures) 食用树果时是受益还是受损。详情可参考
+// [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Flavor)
+
+///
+/// @author lishangbu
+/// @since 2025/10/5
 @Service
 @RequiredArgsConstructor
 public class BerryFlavorServiceImpl implements BerryFlavorService {

@@ -7,22 +7,22 @@ import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
-/**
- * 招式在之前游戏版本中的数值统计。
- *
- * @param accuracy 此招式成功的概率百分比值
- * @param effectChance 此招式效果触发的概率百分比值
- * @param power 此招式的基础威力，如果没有基础威力则为0
- * @param pp 技能点数。此招式可以使用的次数
- * @param effectEntries 此招式在不同语言中列出的效果{@link VerboseEffect}
- * @param type 此招式的属性{@link Type}类型
- * @param versionGroup 这些招式统计值生效的版本组{@link VersionGroup}
- * @author lishangbu
- * @see VerboseEffect
- * @see Type
- * @see VersionGroup
- * @since 2025/6/7
- */
+/// 历史招式数值模型
+///
+/// 表示招式在以往版本中的数值与描述
+///
+/// @param accuracy      命中率（百分比）
+/// @param effectChance  效果触发概率（百分比）
+/// @param power         基础威力
+/// @param pp            技能点数
+/// @param effectEntries 多语言效果描述
+/// @param type          招式属性类型引用
+/// @param versionGroup  此数值生效的版本组引用
+/// @author lishangbu
+/// @see VerboseEffect
+/// @see Type
+/// @see VersionGroup
+/// @since 2025/6/7
 public record PastMoveStatValues(
     Integer accuracy,
     @JsonProperty("effect_chance") Integer effectChance,

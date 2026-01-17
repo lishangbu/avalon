@@ -4,19 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import java.util.List;
 
-/**
- * 伙伴公园中用于分组宝可梦遭遇的区域。它们就像特定于 <a href="https://bulbapedia.bulbagarden.net/wiki/Pal_Park"
- * >伙伴公园</a>的栖息地。
- *
- * @param id 资源的标识符
- * @param name 资源的名称
- * @param names 该资源在不同语言中列出的名称{@link Name}
- * @param pokemonEncounters 在此伙伴公园区域遇到的宝可梦列表及详情{@link PalParkEncounterSpecies}
- * @see Name
- * @see PalParkEncounterSpecies
- * @author lishangbu
- * @since 2025/5/26
- */
+/// 伙伴公园区域模型
+///
+/// 用于分组在 Pal Park 中遭遇的宝可梦（参考 [Pal Park](https://bulbapedia.bulbagarden.net/wiki/Pal_Park)）
+///
+/// @param id                资源标识符
+/// @param name              资源名称
+/// @param names             不同语言下的名称列表
+/// @param pokemonEncounters 在此区域遇到的宝可梦及其详情
+/// @author lishangbu
+/// @see Name
+/// @see PalParkEncounterSpecies
+/// @since 2025/5/26
 public record PalParkArea(
     Integer id,
     String name,

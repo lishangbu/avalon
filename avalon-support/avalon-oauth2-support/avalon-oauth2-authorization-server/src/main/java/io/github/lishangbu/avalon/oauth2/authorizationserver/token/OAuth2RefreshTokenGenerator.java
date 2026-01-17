@@ -9,12 +9,12 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
-/**
- * 自定义refreshToken生成器 不管任何模式都会返回UUID风格的refreshToken
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// 自定义 RefreshToken 生成器
+///
+/// 无论何种授权方式，均返回一个基于 UUID 的 refresh token
+///
+/// @author lishangbu
+/// @since 2025/8/22
 public class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<OAuth2RefreshToken> {
 
   private final StringKeyGenerator refreshTokenGenerator = new UuidKeyGenerator();

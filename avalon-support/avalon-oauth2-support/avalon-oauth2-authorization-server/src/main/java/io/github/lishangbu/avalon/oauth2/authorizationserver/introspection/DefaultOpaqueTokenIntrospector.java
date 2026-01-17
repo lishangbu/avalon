@@ -19,16 +19,16 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
-/**
- * 默认透明令牌处理
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// 默认透明令牌处理器
+///
+/// 用于资源服务器在收到不透明 access token 时执行 introspect，并根据授权与用户信息返回相应的 Principal
+///
+/// @author lishangbu
+/// @since 2025/8/22
 @Slf4j
 @RequiredArgsConstructor
 public class DefaultOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
-  /** OAuth2授权服务 */
+  /// OAuth2 授权服务
   private final OAuth2AuthorizationService authorizationService;
 
   private final UserDetailsService userDetailsService;

@@ -14,12 +14,12 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
-/**
- * 默认的DUFS客户端
- *
- * @author lishangbu
- * @since 2025/8/11
- */
+/// 默认的 DUFS 客户端实现
+///
+/// 提供上传、创建目录和删除等基础操作的封装
+///
+/// @author lishangbu
+/// @since 2025/8/11
 @Component
 public class DefaultDufsClient implements DufsClient {
 
@@ -46,12 +46,10 @@ public class DefaultDufsClient implements DufsClient {
         .toBodilessEntity();
   }
 
-  /**
-   * 创建文件夹
-   *
-   * @param path 要创建的文件夹路径
-   * @throws DirectoryAlreadyExistsException 如果文件夹已经存在,抛出异常
-   */
+  /// 创建文件夹
+  ///
+  /// @param path 要创建的文件夹路径
+  /// @throws DirectoryAlreadyExistsException 如果文件夹已经存在，则抛出该异常
   @Override
   public void mkdir(String path) {
     restClient
@@ -70,6 +68,10 @@ public class DefaultDufsClient implements DufsClient {
             });
   }
 
+  /// 删除指定路径的文件或文件夹
+  ///
+  /// @param path 要删除的资源路径
+  /// @throws PathNotFoundException 如果找不到对应资源则抛出
   @Override
   public void delete(String path) {
     restClient

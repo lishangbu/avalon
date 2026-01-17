@@ -4,132 +4,48 @@ applyTo: "*ServiceImpl.java"
 
 # ServiceImpl 代码与注释编写规范
 
-## ServiceImpl 规范
+## 基本要求
 
-- 命名以 \*ServiceImpl 结尾，放在 service.impl 包
-- 实现对应的 Service 接口
-- 负责业务逻辑处理，调用 Repository 层
-- 方法注释需说明业务含义、参数、返回值
-- 使用 @Service 注解标记
+- 类名以 *ServiceImpl 结尾，位于 service.impl 包，实现对应 Service 接口
+- 使用 @Service（或 @Component）标记并采用构造器注入（Lombok @RequiredArgsConstructor 优先）
+- 方法注释需说明业务含义、参数、返回值与异常，遵循 JEP 467 Markdown 文档注释
+- 复杂逻辑拆分为私有方法，保持单一职责
 
-### 命名规约
+## 命名规约
 
-- 查询列表：`listXXX`
-- 获取分页：`getXXXPage`  
-- 根据ID查询：`getXXXById`
-- 更新：`updateXXXById`
-- 保存：`saveXXX`
-- 删除：`removeXXXById`
-- 批量操作：`batchXXX`
+- 查询列表：listXXX
+- 获取分页：getXXXPage / pageXXX
+- 根据ID查询：getXXXById
+- 保存：saveXXX / createXXX
+- 更新：updateXXX / updateXXXById
+- 删除：removeXXX / removeXXXById
+- 批量：batchXXX
 
-### 示例
+## 事务与异常
 
-```java
-/**
- * 用户业务服务实现，处理用户相关的业务逻辑
- */
-@Service
-@RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+- 涉及数据变更的方法必须使用 @Transactional；查询默认不启用事务
+- 明确事务传播与隔离级别需求，读写分离场景遵循项目统一约定
+- 抛出具备业务语义的异常，禁止吞异常或返回 null 掩盖错误
 
-    private final UserRepository userRepository;
-    
-    /**
-     * 分页查询用户列表
-     *
-     * @param pageRequest 分页参数
-     * @param queryParam 查询条件
-     * @return 用户分页数据
-     */
-    public Page<User> getPageUsers(Pageable pageRequest, UserQueryParam queryParam) {
-        // 构建查询条件
-        // 调用 Repository 进行查询
-        return userRepository.findAll(pageRequest);
-    }
-    
-    /**
-     * 根据用户ID获取用户信息
-     *
-     * @param id 用户ID
-     * @return 用户信息
-     * @throws EntityNotFoundException 用户不存在时抛出
-     */
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("用户不存在"));
-    }
-    
-    /**
-     * 保存用户信息
-     *
-     * @param user 用户信息
-     * @return 保存后的用户信息
-     */
-    @Transactional
-    public User saveUser(User user) {
-        // 业务逻辑校验
-        validateUser(user);
-        // 保存用户
-        return userRepository.save(user);
-    }
-    
-    /**
-     * 更新用户信息
-     *
-     * @param id 用户ID
-     * @param user 更新的用户信息
-     * @return 更新后的用户信息
-     */
-    @Transactional
-    public User updateUser(Long id, User user) {
-        User existingUser = getUserById(id);
-        // 更新字段
-        BeanUtils.copyProperties(user, existingUser, "id", "createTime");
-        return userRepository.save(existingUser);
-    }
-    
-    /**
-     * 根据ID删除用户
-     *
-     * @param id 用户ID
-     */
-    @Transactional
-    public void removeUserById(Long id) {
-        User user = getUserById(id);
-        userRepository.delete(user);
-    }
-    
-    /**
-     * 批量删除用户
-     *
-     * @param ids 用户ID列表
-     */
-    @Transactional
-    public void batchRemoveUsers(List<Long> ids) {
-        userRepository.deleteAllById(ids);
-    }
-    
-    /**
-     * 校验用户信息
-     *
-     * @param user 用户信息
-     */
-    private void validateUser(User user) {
-        // 业务校验逻辑
-    }
-}
-```
+## 参数与校验
 
-## 业务逻辑规范
+- 入口参数需使用 Bean Validation 描述约束，业务层补充必要的显式校验
+- 对外暴露的输入对象优先使用 DTO，避免直接暴露实体
+- 对外部依赖结果进行非空与状态校验，避免脏数据继续流转
 
-- 复杂业务逻辑应拆分为私有方法，提高可读性
-- 涉及数据变更的方法必须添加 @Transactional 注解
-- 异常处理应抛出具体的业务异常，便于上层处理
-- 使用 @RequiredArgsConstructor 进行依赖注入
+## 性能与资源
 
-## 其他建议
+- 批量操作采用批处理或分段处理，避免大事务与长时间锁
+- 谨慎使用分布式锁或缓存更新，保持一致性并记录关键日志
+- 需要幂等的接口，应在 Service 层落实幂等策略与检测
 
-- 避免在 Service 层直接处理 HTTP 相关逻辑
-- 复杂查询条件建议封装为查询参数对象
-- 批量操作时注意性能优化
-- 及时更新方法注释，保持与代码同步
+## 日志与审计
+
+- 记录关键业务步骤与异常栈，避免在正常路径中打印敏感数据
+- 审计字段的维护（如创建人、更新时间）应统一封装，避免散落在业务代码
+
+## 文档与维护
+
+- 变更方法时同步更新注释与接口契约
+- 遵循项目编码风格和格式化工具（spotless/maven）
+- 禁止在 Service 层直接处理 HTTP/Controller 逻辑

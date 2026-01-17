@@ -29,14 +29,16 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-/**
- * @author lishangbu
- * @see OAuth2AuthorizationCodeAuthenticationProvider
- * @see OAuth2RefreshTokenAuthenticationProvider
- * @see OAuth2ClientCredentialsAuthenticationProvider
- * @see UserInfo
- * @since 2025/9/29
- */
+/// OAuth2 Password 授权模式的认证提供者
+///
+/// 负责处理 Resource Owner Password Credentials 授权类型的令牌申请
+/// 校验客户端授权类型、用户名密码凭证，以及生成并保存授权信息
+///
+/// @see OAuth2AuthorizationCodeAuthenticationProvider
+/// @see OAuth2RefreshTokenAuthenticationProvider
+/// @see OAuth2ClientCredentialsAuthenticationProvider
+/// @see UserInfo
+/// @since 2025/9/29
 public final class OAuth2PasswordAuthenticationProvider implements AuthenticationProvider {
 
   private static final Logger LOGGER = LogManager.getLogger();
@@ -53,15 +55,14 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
 
   private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
-  /**
-   * Constructs an {@code OAuth2ResourceOwnerPasswordAuthenticationProviderNew} using the provided
-   * parameters.
-   *
-   * @param authenticationManager the authentication manager
-   * @param authorizationService the authorization service
-   * @param tokenGenerator the token generator
-   * @since 0.2.3
-   */
+  /// 构造方法
+  ///
+  /// 构造一个 OAuth2PasswordAuthenticationProvider 实例，注入必要组件
+  ///
+  /// @param authenticationManager 认证管理器
+  /// @param authorizationService  授权服务
+  /// @param tokenGenerator        令牌生成器
+  /// @since 0.2.3
   public OAuth2PasswordAuthenticationProvider(
       AuthenticationManager authenticationManager,
       OAuth2AuthorizationService authorizationService,

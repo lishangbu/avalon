@@ -4,22 +4,22 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
-/**
- * 属性(Type)实体类
- *
- * @author lishangbu
- * @since 2025/08/20
- */
+/// 属性(Type)实体类
+///
+/// 表示宝可梦属性（如火、水、草等）的基础元数据
+///
+/// @author lishangbu
+/// @since 2025/08/20
 @Data
 public class Type implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 主键 */
+  /// 主键
   private Long id;
 
-  /** 属性内部名称 */
+  /// 属性内部名称
   private String internalName;
 
-  /** 属性名称 */
+  /// 属性名称
   private String name;
 }

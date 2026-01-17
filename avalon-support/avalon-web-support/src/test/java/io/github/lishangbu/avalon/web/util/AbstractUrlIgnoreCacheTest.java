@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** AbstractUrlIgnoreCache 单元测试 */
+/// AbstractUrlIgnoreCache 单元测试
 class AbstractUrlIgnoreCacheTest {
 
   private AbstractUrlIgnoreCache urlIgnoreCache;
