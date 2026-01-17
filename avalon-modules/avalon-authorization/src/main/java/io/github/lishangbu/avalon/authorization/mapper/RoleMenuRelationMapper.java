@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.mapper;
 
 import io.github.lishangbu.avalon.authorization.entity.RoleMenuRelation;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /// 角色与菜单关联的 Mapper 接口
@@ -9,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 ///
 /// @author lishangbu
 /// @since 2025/12/12
+@Mapper
 public interface RoleMenuRelationMapper {
 
   /// 插入一条角色与菜单的关联记录

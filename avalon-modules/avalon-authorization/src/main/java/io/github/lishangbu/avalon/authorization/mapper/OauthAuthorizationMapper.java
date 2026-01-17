@@ -2,10 +2,12 @@ package io.github.lishangbu.avalon.authorization.mapper;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
 import java.util.Optional;
+import org.apache.ibatis.annotations.Mapper;
 
 /// OauthAuthorization 数据访问接口
 ///
 /// 提供对 oauth_authorization 表的插入、查询与按 id 更新操作，jsonb 字段在 SQL 中使用 PostgreSQL 的 ::jsonb 语法进行参数绑定
+@Mapper
 public interface OauthAuthorizationMapper {
   OauthAuthorization selectByState(String state);
 

@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.mapper;
 
 import io.github.lishangbu.avalon.authorization.entity.UserRoleRelation;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /// 用户与角色关联的 Mapper，使用 XML 实现 SQL
@@ -9,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 ///
 /// @author lishangbu
 /// @since 2025/12/13
+@Mapper
 public interface UserRoleRelationMapper {
 
   /// 插入一条用户与角色的关联记录

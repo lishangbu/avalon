@@ -1,9 +1,10 @@
 spring:
-  test:
-    database:
-      replace: none
-  datasource:
-    url: jdbc:h2:mem:datasetDb;
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+  main:
+    banner-mode: off
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**.xml
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+      table-format: "\"%s\""
