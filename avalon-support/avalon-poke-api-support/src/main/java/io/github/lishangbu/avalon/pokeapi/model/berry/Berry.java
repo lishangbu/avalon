@@ -6,27 +6,25 @@ import io.github.lishangbu.avalon.pokeapi.model.item.Item;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
-/**
- * 树果是可以为宝可梦恢复HP和异常状态、提升能力，甚至在食用时抵消伤害的小型果实。详情可参考<a
- * href="http://bulbapedia.bulbagarden.net/wiki/Berry">Bulbapedia</a>
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param growthTime 树生长到下一个阶段所需的时间（小时）
- * @param maxHarvest 第四世代中一棵树上最多可生长的该树果数量
- * @param naturalGiftPower 搭配该树果使用"自然之恩"招式时的威力
- * @param size 该树果的大小（毫米）
- * @param smoothness 该树果的光滑度，用于制作宝可方块或宝芬
- * @param soilDryness 树果生长时使土壤干燥的速度，数值越高土壤干燥越快
- * @param firmness 该树果的硬度{@link BerryFirmness}，用于制作宝可方块或宝芬
- * @param flavors 该树果的风味及其对应的强度列表{@link FlavorBerryMap}
- * @param item 该树果对应的道具{@link Item}数据
- * @param naturalGiftType 搭配该树果使用"自然之恩"招式时继承的属性类型
- * @author lishangbu
- * @see BerryFirmness
- * @see Item
- * @since 2025/5/21
- */
+/// 树果模型
+///
+/// 表示树果的游戏数据，包括生长时间、口味、对应道具与相关属性等
+///
+/// @param id               资源标识符
+/// @param name             资源名称
+/// @param growthTime       生长到下一个阶段所需时间（小时）
+/// @param maxHarvest       第四世代中一棵树上最多可收获的数量
+/// @param naturalGiftPower 自然之恩招式的威力
+/// @param size             大小（毫米）
+/// @param smoothness       光滑度
+/// @param soilDryness      土壤干燥速度
+/// @param firmness         树果硬度引用
+/// @param flavors          树果风味及强度列表
+/// @param item             对应的道具引用
+/// @param naturalGiftType  自然之恩招式继承的属性类型引用
+/// @see BerryFirmness
+/// @see Item
+/// @since 2025/5/21
 public record Berry(
     Integer id,
     String name,

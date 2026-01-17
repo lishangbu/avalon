@@ -5,18 +5,18 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
-/**
- * 游戏的版本，例如红、蓝或黄。
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param names 不同语言中列出的此资源名称{@link Name}
- * @param versionGroup 此版本所属的版本组{@link VersionGroup}
- * @author lishangbu
- * @see Name
- * @see VersionGroup
- * @since 2025/5/24
- */
+/// 游戏版本模型
+///
+/// 表示游戏版本（如 红/蓝/黄）及其多语言名称与所属版本组
+///
+/// @param id           资源标识符
+/// @param name         资源名称
+/// @param names        不同语言下的名称列表
+/// @param versionGroup 此版本所属的版本组引用
+/// @author lishangbu
+/// @see Name
+/// @see VersionGroup
+/// @since 2025/5/24
 public record Version(
     Integer id,
     String name,

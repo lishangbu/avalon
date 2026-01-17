@@ -7,24 +7,20 @@ import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * 角色数据访问层测试类
- *
- * <p>测试 RoleMapper 的基本 CRUD 操作 继承 AbstractMapperTest 复用 PostgreSQL 容器实例
- *
- * @author lishangbu
- * @since 2025/8/25
- */
+/// 角色数据访问层测试类
+///
+/// 测试 RoleMapper 的基本 CRUD 操作，继承 AbstractMapperTest 以复用 PostgreSQL 容器实例
+///
+/// @author lishangbu
+/// @since 2025/8/25
 @MybatisPlusTest
 class RoleMapperTest extends AbstractMapperTest {
 
   @Resource private RoleMapper roleMapper;
 
-  /**
-   * 测试根据ID查询角色
-   *
-   * <p>验证能够通过ID正确查询到角色信息
-   */
+  /// 测试根据ID查询角色
+  ///
+  /// 验证能够通过ID正确查询到角色信息
   @Test
   void shouldFindRoleById() {
     // Act
@@ -38,11 +34,9 @@ class RoleMapperTest extends AbstractMapperTest {
     Assertions.assertTrue(role.getEnabled());
   }
 
-  /**
-   * 测试插入角色记录
-   *
-   * <p>验证插入操作成功后自动生成主键ID
-   */
+  /// 测试插入角色记录
+  ///
+  /// 验证插入操作成功后自动生成主键ID
   @Test
   void shouldInsertRoleSuccessfully() {
     // Arrange
@@ -59,11 +53,9 @@ class RoleMapperTest extends AbstractMapperTest {
     Assertions.assertTrue(role.getId() > 0);
   }
 
-  /**
-   * 测试根据ID更新角色
-   *
-   * <p>验证更新操作成功后角色信息被正确修改
-   */
+  /// 测试根据ID更新角色
+  ///
+  /// 验证更新操作成功后角色信息被正确修改
   @Test
   void shouldUpdateRoleById() {
     Long updateId = 3L;
@@ -85,11 +77,9 @@ class RoleMapperTest extends AbstractMapperTest {
     Assertions.assertFalse(updatedRole.getEnabled());
   }
 
-  /**
-   * 测试根据ID删除角色
-   *
-   * <p>验证删除操作成功后无法再查询到该角色
-   */
+  /// 测试根据ID删除角色
+  ///
+  /// 验证删除操作成功后无法再查询到该角色
   @Test
   void shouldDeleteRoleById() {
     Long deleteId = 4L;

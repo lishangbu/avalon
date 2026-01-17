@@ -4,22 +4,22 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
-/**
- * 道具属性关系(ItemAttributeRelation)实体类
- *
- * @author lishangbu
- * @since 2025/08/20
- */
+/// 道具属性关系(ItemAttributeRelation)实体类
+///
+/// 表示道具与属性之间的多对多关系实体
+///
+/// @author lishangbu
+/// @since 2025/08/20
 @Data
 public class ItemAttributeRelation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /** 主键 */
+  /// 主键
   private Long id;
 
-  /** 道具ID */
+  /// 道具ID
   private Long itemId;
 
-  /** 道具属性ID */
+  /// 道具属性ID
   private Long itemAttributeId;
 }

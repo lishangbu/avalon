@@ -13,19 +13,19 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
-/**
- * 用户信息
- *
- * @author lishangbu
- * @since 2025/8/9
- */
+/// 用户信息
+///
+/// 封装 Spring Security User 并实现 OAuth2AuthenticatedPrincipal，支持附加参数
+///
+/// @author lishangbu
+/// @since 2025/8/9
 @Getter
 @Setter
 @SuppressWarnings("removal")
 public class UserInfo extends User implements OAuth2AuthenticatedPrincipal {
   @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-  /** 附加参数：用于在获取 Token 接口返回 */
+  /// 附加参数：用于在获取 Token 接口返回
   @Getter private final Map<String, Object> additionalParameters = new HashMap<>();
 
   public UserInfo(

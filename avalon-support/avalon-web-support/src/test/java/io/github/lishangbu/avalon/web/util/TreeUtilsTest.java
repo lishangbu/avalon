@@ -2,23 +2,19 @@ package io.github.lishangbu.avalon.web.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * 树形结构工具类单元测试
- *
- * @author lishangbu
- * @since 2025/08/25
- */
+/// 树形结构工具类单元测试
+///
+/// 覆盖 TreeUtils 的构建、查找、遍历、扁平化及过滤等功能
+///
+/// @author lishangbu
+/// @since 2025/08/25
 class TreeUtilsTest {
 
   private List<TreeNode> flatNodes;
@@ -255,7 +251,7 @@ class TreeUtilsTest {
     assertNull(result, "查找不存在的ID应返回null");
   }
 
-  /** 测试用的树节点类 */
+  /// 测试用的树节点类
   @Data
   @NoArgsConstructor
   @AllArgsConstructor

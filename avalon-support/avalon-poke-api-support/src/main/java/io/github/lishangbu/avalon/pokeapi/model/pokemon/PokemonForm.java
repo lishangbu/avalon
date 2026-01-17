@@ -6,31 +6,31 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import java.util.List;
 
-/**
- * 某些宝可梦可能以多种视觉上不同的形态出现。这些差异纯粹是外观上的。对于在视觉之外有差异的宝可梦种类的变种，使用"宝可梦"实体来表示这种多样性。
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param order 所有形态中形态排序的顺序。多个形态可能具有相同的顺序，此时应回退到按名称排序
- * @param formOrder 在一个宝可梦种类的形态中排序的顺序
- * @param isDefault 对于每个宝可梦使用的默认形态，该值为true（每个宝可梦只有一个形态为默认）
- * @param isBattleOnly 此形态是否只能在战斗中出现
- * @param isMega 此形态是否需要超级进化
- * @param formName 此形态的名称
- * @param pokemon 可以采取此形态的宝可梦{@link Pokemon}
- * @param types 显示此宝可梦形态拥有的属性类型的详细列表{@link PokemonFormType}
- * @param sprites 用于在游戏中描绘此宝可梦形态的精灵图像集合{@link PokemonFormSprites}
- * @param versionGroup 引入此宝可梦形态的版本组{@link VersionGroup}
- * @param names 此宝可梦形态的特定完整名称{@link Name}，如果形态没有特定名称则为空
- * @param formNames 此宝可梦形态的特定形态名称{@link Name}，如果形态没有特定名称则为空
- * @author lishangbu
- * @see Pokemon
- * @see PokemonFormType
- * @see PokemonFormSprites
- * @see VersionGroup
- * @see Name
- * @since 2025/6/8
- */
+/// 宝可梦形态模型
+///
+/// 表示宝可梦的视觉形态（例如外观差异），适用于纯粹的外观变化
+///
+/// @param id           资源标识符
+/// @param name         资源名称
+/// @param order        形态排序顺序
+/// @param formOrder    同一宝可梦种类内的形态排序顺序
+/// @param isDefault    是否为默认形态
+/// @param isBattleOnly 是否仅在战斗中出现
+/// @param isMega       是否为超级进化形态
+/// @param formName     形态名称
+/// @param pokemon      此形态所属的宝可梦引用
+/// @param types        形态拥有的属性类型列表
+/// @param sprites      形态的精灵图像集合
+/// @param versionGroup 引入此形态的版本组引用
+/// @param names        形态的完整名称（多语言）
+/// @param formNames    形态专有的形态名称（多语言）
+/// @author lishangbu
+/// @see Pokemon
+/// @see PokemonFormType
+/// @see PokemonFormSprites
+/// @see VersionGroup
+/// @see Name
+/// @since 2025/6/8
 public record PokemonForm(
     Integer id,
     String name,

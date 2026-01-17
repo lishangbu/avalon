@@ -10,15 +10,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 
-/**
- * 统一的认证入口点，用于在未认证或认证失败时返回统一的 JSON 错误响应
- *
- * <p>此类由 {@link ExceptionTranslationFilter} 在需要发起认证流程时调用（commence）， 返回 HTTP 401
- * 状态以及统一的业务错误码，便于前端和网关识别和处理
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// 统一的认证入口点
+///
+/// 在未认证或认证失败时返回统一的 JSON 错误响应（HTTP 401 + 业务错误码）
+///
+/// 被 {@link ExceptionTranslationFilter} 在需要发起认证流程时调用
+///
+/// @author lishangbu
+/// @since 2025/8/22
 @Slf4j
 public class DefaultAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

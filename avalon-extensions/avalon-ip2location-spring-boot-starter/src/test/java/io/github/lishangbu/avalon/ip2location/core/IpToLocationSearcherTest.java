@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-/**
- * @author lishangbu
- * @since 2025/4/12
- */
+/// IpToLocationSearcher 单元测试
+///
+/// 验证 IP 到地理信息检索器的功能，包含正常查询与空 IP 参数的异常场景
+///
+/// @author lishangbu
+/// @since 2025/4/12
 @SpringBootTest(classes = {IpToLocationSearcher.class, IpToLocationProperties.class})
 class IpToLocationSearcherTest {
   @Autowired private IpToLocationSearcher ipToLocationSearcher;

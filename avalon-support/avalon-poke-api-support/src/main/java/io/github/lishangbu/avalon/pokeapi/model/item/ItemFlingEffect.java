@@ -5,18 +5,18 @@ import io.github.lishangbu.avalon.pokeapi.model.common.Effect;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import java.util.List;
 
-/**
- * 技能"投掷"与不同道具一起使用时的各种效果。
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param effectEntries 使用不同语言列出的此投掷效果的结果{@link Effect}
- * @param items 具有此投掷效果的道具列表{@link Item}
- * @author lishangbu
- * @see Effect
- * @see Item
- * @since 2025/5/24
- */
+/// 道具投掷效果模型
+///
+/// 表示将道具用于投掷（fling）时的效果与对应道具列表
+///
+/// @param id            资源标识符
+/// @param name          资源名称
+/// @param effectEntries 使用不同语言列出的投掷效果描述
+/// @param items         具有此投掷效果的道具引用列表
+/// @author lishangbu
+/// @see Effect
+/// @see Item
+/// @since 2025/5/24
 public record ItemFlingEffect(
     Integer id,
     String name,

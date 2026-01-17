@@ -5,92 +5,37 @@ excludeApplyTo: "*ServiceImpl.java"
 
 # Service 接口编写规范
 
-## Service 接口规范
+## 基本要求
 
-- 命名以 \*Service 结尾，放在 service 包
-- 定义业务逻辑接口，由 ServiceImpl 实现
-- 接口方法注释需说明业务含义、参数、返回值
-- 不包含实现逻辑，仅定义契约
+- 类名以 *Service 结尾，置于 service 包，仅定义业务契约，不包含实现
+- 方法签名体现业务语义与边界，保持稳定性，避免频繁变更
+- 所有方法必须编写 JEP 467 Markdown 文档注释（`///`），说明用途、参数、返回值与异常
+- 参数和返回值优先使用明确类型或 DTO，避免使用 `Object` 或不清晰的泛型
+- 复杂输入建议封装为请求对象，简化方法签名
 
-### 命名规约
-
+## 命名规约
 - 查询列表：`listXXX`
-- 获取分页：`getXXXPage`  
-- 根据ID查询：`getXXXById`
+- 获取分页：`getXXXPage`
+- 根据 ID 查询：`getXXXById`
 - 更新：`updateXXXById`
 - 保存：`saveXXX`
 - 删除：`removeXXXById`
 - 批量操作：`batchXXX`
 
-### 示例
+## 契约与异常
 
-```java
-/**
- * 用户业务服务接口，定义用户相关的业务操作
- */
-public interface UserService {
-    
-    /**
-     * 分页查询用户列表
-     *
-     * @param pageRequest 分页参数
-     * @param queryParam 查询条件
-     * @return 用户分页数据
-     */
-    Page<User> getPageUsers(Pageable pageRequest, UserQueryParam queryParam);
-    
-    /**
-     * 根据用户ID获取用户信息
-     *
-     * @param id 用户ID
-     * @return 用户信息
-     * @throws EntityNotFoundException 用户不存在时抛出
-     */
-    User getUserById(Long id);
-    
-    /**
-     * 保存用户信息
-     *
-     * @param user 用户信息
-     * @return 保存后的用户信息
-     */
-    User saveUser(User user);
-    
-    /**
-     * 更新用户信息
-     *
-     * @param id 用户ID
-     * @param user 更新的用户信息
-     * @return 更新后的用户信息
-     */
-    User updateUser(Long id, User user);
-    
-    /**
-     * 根据ID删除用户
-     *
-     * @param id 用户ID
-     */
-    void removeUserById(Long id);
-    
-    /**
-     * 批量删除用户
-     *
-     * @param ids 用户ID列表
-     */
-    void batchRemoveUsers(List<Long> ids);
-}
-```
+- 明确接口契约，注明前置条件、后置条件与边界行为
+- 在注释中使用 `@throws` 说明异常触发条件和调用方处理建议
+- 返回值约定需写清空集合/空对象的语义，避免使用 null 作为业务结果
 
-## 接口设计规范
+## 设计原则
 
-- 接口方法应简洁明确，体现业务语义
-- 方法签名应稳定，避免频繁变更
-- 复杂参数建议封装为对象传递
-- 返回值类型应明确，避免使用 Object
+- 保持单一职责，每个方法覆盖单一业务能力
+- 避免把实现细节或基础设施依赖暴露在接口层
+- 如需版本演进，优先新增方法而非破坏性修改签名
 
-## 其他建议
+## 文档与维护
 
-- 接口与实现分离，便于测试和扩展
-- 方法注释应完整，说明异常情况
-- 保持接口的单一职责原则
-- 及时更新接口注释，与实现保持同步
+- 变更接口时同步更新注释和相关规范文件
+- 保持与实现类的行为一致，定期审查接口稳定性
+- 按照项目格式化与静态检查要求提交代码

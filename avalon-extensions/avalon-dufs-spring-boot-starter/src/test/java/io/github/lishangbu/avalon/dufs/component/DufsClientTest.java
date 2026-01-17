@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
-/**
- * @author lishangbu
- * @since 2025/8/11
- */
+/// 文件存储客户端单元测试
+///
+/// 测试 DufsClient 的上传、创建目录与删除操作
+///
+/// @author lishangbu
+/// @since 2025/8/11
 @SpringBootTest(classes = DufsAutoConfiguration.class)
 class DufsClientTest {
 

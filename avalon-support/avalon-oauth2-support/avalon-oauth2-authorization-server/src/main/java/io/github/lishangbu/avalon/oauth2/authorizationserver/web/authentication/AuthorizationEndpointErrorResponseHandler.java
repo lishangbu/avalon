@@ -10,19 +10,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-/**
- * /** An implementation of an {@link
- * org.springframework.security.web.authentication.AuthenticationFailureHandler} used for handling
- * an {@link org.springframework.security.oauth2.core.OAuth2AuthenticationException} and returning
- * the {@link org.springframework.security.oauth2.core.OAuth2Error OAuth 2.0 Error Response}.
- *
- * @author Dmitriy Dubson
- * @author lishangbu
- * @see org.springframework.security.web.authentication.AuthenticationFailureHandler
- * @see org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter
- * @since 1.2
- * @since 2025/8/25
- */
+/// An implementation of an {@link
+// org.springframework.security.web.authentication.AuthenticationFailureHandler}
+/// used for handling an {@link
+// org.springframework.security.oauth2.core.OAuth2AuthenticationException}
+/// and returning the {@link org.springframework.security.oauth2.core.OAuth2Error OAuth 2.0 Error
+// Response}
+
+///
+/// @author Dmitriy Dubson
+/// @author lishangbu
+/// @see org.springframework.security.web.authentication.AuthenticationFailureHandler
+/// @see org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter
+/// @since 1.2
+/// @since 2025/8/25
 public class AuthorizationEndpointErrorResponseHandler implements AuthenticationFailureHandler {
   @Override
   public void onAuthenticationFailure(

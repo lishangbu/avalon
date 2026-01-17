@@ -6,12 +6,12 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-/**
- * MapStruct 映射器：PokeAPI 的 BerryFirmness -> Dataset BerryFirmness
- *
- * <p>转换规则参照 {@code BerryFlavorConversionMapper}： - id -> Long - internalName <- name - name 使用本地化名称（从
- * names 列表中解析）
- */
+/// MapStruct 映射器：PokeAPI 的 BerryFirmness -> Dataset BerryFirmness
+///
+/// 转换规则参照 `BerryFlavorConversionMapper`：
+/// - id -> Long
+/// - internalName <- name
+/// - name 使用本地化名称（从 names 列表中解析）
 @Mapper(componentModel = SPRING)
 public abstract class BerryFirmnessConversionMapper extends AbstractMapstruct {
 

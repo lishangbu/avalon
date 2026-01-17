@@ -3,102 +3,73 @@ package io.github.lishangbu.avalon.ip2location.core;
 import java.beans.ConstructorProperties;
 import net.renfei.ip2location.IPResult;
 
-/**
- * 该类表示IP查询的结果，包括IP相关的详细信息。 它封装了从IP数据库中获取到的各种信息，如地址类型、地理位置、网络信息等。
- *
- * @author lishangbu
- * @since 2025/4/12
- */
+/// IP 查询结果封装
+///
+/// 表示从 IP 数据库获取到的详细信息（地址类型、地理位置、网络信息等）
+///
+/// @param addressType        地址类型
+/// @param areaCode           区域代码
+/// @param as                 AS 信息
+/// @param asn                ASN 信息
+/// @param category           类别信息
+/// @param city               城市
+/// @param countryShort       国家缩写
+/// @param countryLong        国家全称
+/// @param delay              延迟信息
+/// @param district           区域
+/// @param domain             域名
+/// @param elevation          海拔高度
+/// @param iddCode            国际拨号代码
+/// @param isp                网络服务提供商
+/// @param latitude           纬度
+/// @param longitude          经度
+/// @param mobileBrand        移动品牌
+/// @param mcc                移动国家代码
+/// @param mnc                移动网络代码
+/// @param netSpeed           网络速度
+/// @param region             所属地区
+/// @param status             状态
+/// @param timezone           时区
+/// @param usageType          使用类型
+/// @param version            版本
+/// @param weatherStationCode 气象站代码
+/// @param weatherStationName 气象站名称
+/// @param zipcode            邮政编码
+/// @author lishangbu
+/// @since 2025/4/12
 public record IpResult(
-    /** 地址类型 */
     String addressType,
-
-    /** 区域代码 */
     String areaCode,
-
-    /** AS 信息 */
     String as,
-
-    /** ASN 信息 */
     String asn,
-
-    /** 类别信息 */
     String category,
-
-    /** 城市 */
     String city,
-
-    /** 国家缩写 */
     String countryShort,
-
-    /** 国家全称 */
     String countryLong,
-
-    /** 延迟信息 */
     boolean delay,
-
-    /** 区域 */
     String district,
-
-    /** 域名 */
     String domain,
-
-    /** 海拔高度 */
     float elevation,
-
-    /** 国际拨号代码 */
     String iddCode,
-
-    /** 网络服务提供商 */
     String isp,
-
-    /** 纬度 */
     float latitude,
-
-    /** 经度 */
     float longitude,
-
-    /** 移动品牌 */
     String mobileBrand,
-
-    /** 移动国家代码 */
     String mcc,
-
-    /** 移动网络代码 */
     String mnc,
-
-    /** 网络速度 */
     String netSpeed,
-
-    /** 所属地区 */
     String region,
-
-    /** 状态 */
     String status,
-
-    /** 时区 */
     String timezone,
-
-    /** 使用类型 */
     String usageType,
-
-    /** 版本 */
     String version,
-
-    /** 气象站代码 */
     String weatherStationCode,
-
-    /** 气象站名称 */
     String weatherStationName,
-
-    /** 邮政编码 */
     String zipcode) {
 
-  /**
-   * 使用原始的IP查询结果构造一个新的IpResult对象。
-   *
-   * @param originResult 原始的IP查询结果
-   */
+  /// 使用原始的IP查询结果构造一个新的IpResult对象
+  ///
+  /// @param originResult 原始的IP查询结果
   @ConstructorProperties({
     "addressType", "areaCode", "as", "asn", "category", "city", "countryShort", "countryLong",
     "delay", "district", "domain", "elevation", "iddCode", "isp", "latitude", "longitude",

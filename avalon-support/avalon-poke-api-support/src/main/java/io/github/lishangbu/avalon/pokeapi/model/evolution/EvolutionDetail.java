@@ -5,33 +5,31 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
-/**
- * 宝可梦进化的详细条件信息
- *
- * @param item 使宝可梦进化所需的道具{@link Item}
- * @param trigger 触发进化为此宝可梦物种的事件类型{@link EvolutionTrigger}
- * @param gender 进化宝可梦物种必须具备的性别ID
- * @param heldItem 进化宝可梦物种在进化触发事件期间必须持有的道具{@link Item}
- * @param knownMove 进化宝可梦物种在进化触发事件期间必须知道的招式
- * @param knownMoveType 进化宝可梦物种在进化触发事件期间必须知道带有此类型{@link Type}的招式
- * @param location 必须在该位置触发进化
- * @param minLevel 进化宝可梦物种进化为此宝可梦物种所需的最低等级
- * @param minHappiness 进化宝可梦物种进化为此宝可梦物种所需的最低幸福度
- * @param minBeauty 进化宝可梦物种进化为此宝可梦物种所需的最低美丽度
- * @param minAffection 进化宝可梦物种进化为此宝可梦物种所需的最低亲密度
- * @param needsOverworldRain 是否需要在主世界下雨才能引起进化
- * @param partySpecies 玩家队伍中必须拥有的宝可梦物种，以便进化宝可梦物种进化为此宝可梦物种
- * @param partyType 玩家在进化触发事件中队伍中必须拥有的宝可梦类型{@link Type}，以便进化宝可梦物种进化为此宝可梦物种
- * @param relativePhysicalStats 宝可梦的攻击与防御状态之间的必要关系。1表示攻击大于防御，0表示攻击等于防御，-1表示攻击小于防御
- * @param timeOfDay 所需的一天中的时间。白天或夜晚
- * @param tradeSpecies 必须交换的宝可梦物种
- * @param turnUpsideDown 此宝可梦升级时是否需要将3DS倒置
- * @author lishangbu
- * @see Item
- * @see EvolutionTrigger
- * @see Type
- * @since 2025/5/24
- */
+/// 宝可梦进化的详细条件信息
+///
+/// @param item                  进化所需的道具引用
+/// @param trigger               触发进化的事件类型引用
+/// @param gender                必需的性别 ID
+/// @param heldItem              在触发进化事件期间必须持有的道具引用
+/// @param knownMove             必须知道的招式引用
+/// @param knownMoveType         必须知道的招式类型引用
+/// @param location              必须触发进化的地点引用
+/// @param minLevel              所需的最低等级
+/// @param minHappiness          所需的最低幸福度
+/// @param minBeauty             所需的最低美丽度
+/// @param minAffection          所需的最低亲密度
+/// @param needsOverworldRain    是否需要在主世界下雨
+/// @param partySpecies          队伍中必须存在的宝可梦物种引用
+/// @param partyType             队伍中必须存在的宝可梦类型引用
+/// @param relativePhysicalStats 攻击与防御之间的相对关系（1/0/-1）
+/// @param timeOfDay             所需的一天中的时间（如 day/night）
+/// @param tradeSpecies          必须交换的宝可梦物种引用
+/// @param turnUpsideDown        是否需要翻转设备
+/// @author lishangbu
+/// @see Item
+/// @see EvolutionTrigger
+/// @see Type
+/// @since 2025/5/24
 public record EvolutionDetail(
     NamedApiResource<Item> item,
     NamedApiResource<EvolutionTrigger> trigger,

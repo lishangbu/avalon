@@ -11,12 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-/**
- * json格式的response写入工具类
- *
- * @author lishangbu
- * @since 2025/8/23
- */
+/// JSON 格式的 response 写入工具类
+///
+/// 提供写入成功与失败响应的便捷方法，自动设置字符编码/Content-Type/状态码
+///
+/// @author lishangbu
+/// @since 2025/8/23
 @Slf4j
 @UtilityClass
 public class JsonResponseWriter {

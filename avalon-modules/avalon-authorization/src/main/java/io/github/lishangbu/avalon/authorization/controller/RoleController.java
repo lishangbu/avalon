@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 角色控制器
- *
- * @author lishangbu
- * @since 2025/8/30
- */
+/// 角色控制器
+///
+/// 提供角色相关的 REST 接口（占位）
+///
+/// @author lishangbu
+/// @since 2025/8/30
 @RequestMapping("/role")
 @RestController
 @RequiredArgsConstructor

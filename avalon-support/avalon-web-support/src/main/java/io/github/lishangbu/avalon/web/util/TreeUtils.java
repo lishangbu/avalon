@@ -7,26 +7,24 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 树形结构工具类，用于处理树形数据
- *
- * @author lishangbu
- * @since 2025/08/25
- */
+/// 树形结构工具类，用于处理树形数据
+///
+/// 提供将列表转换为树、查找节点、扁平化、过滤和遍历等常用操作
+///
+/// @author lishangbu
+/// @since 2025/08/25
 @Slf4j
 public class TreeUtils {
 
-  /**
-   * 将列表转换为树形结构
-   *
-   * @param list 待转换的列表
-   * @param idGetter 获取节点ID的函数
-   * @param parentIdGetter 获取父节点ID的函数
-   * @param childrenSetter 设置子节点的函数
-   * @param <T> 节点类型
-   * @param <I> ID类型
-   * @return 树形结构的根节点列表
-   */
+  /// 将列表转换为树形结构
+  ///
+  /// @param list           待转换的列表
+  /// @param idGetter       获取节点ID的函数
+  /// @param parentIdGetter 获取父节点ID的函数
+  /// @param childrenSetter 设置子节点的函数
+  /// @param <T>            节点类型
+  /// @param <I>            ID类型
+  /// @return 树形结构的根节点列表
   public static <T, I> List<T> buildTree(
       List<T> list,
       Function<T, I> idGetter,
@@ -69,7 +67,7 @@ public class TreeUtils {
     return roots;
   }
 
-  /** 获取节点的子节点列表 注意：这是一个辅助方法，需要实现一个反向操作从节点获取其子节点列表 */
+  /// 获取节点的子节点列表。注意：这是一个辅助方法，尝试通过反射调用 `getChildren()`
   @SuppressWarnings("unchecked")
   private static <T> List<T> getChildren(T node, BiConsumer<T, List<T>> childrenSetter) {
     // 这里需要根据实际情况实现，一个常见方式是节点类有getChildren方法
@@ -81,15 +79,13 @@ public class TreeUtils {
     }
   }
 
-  /**
-   * 在树中查找符合条件的第一个节点
-   *
-   * @param tree 树结构
-   * @param predicate 匹配条件
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @return 找到的节点，没有则返回null
-   */
+  /// 在树中查找符合条件的第一个节点
+  ///
+  /// @param tree           树结构
+  /// @param predicate      匹配条件
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T>            节点类型
+  /// @return 找到的节点，没有则返回 null
   public static <T> T findNode(
       List<T> tree, Predicate<T> predicate, Function<T, List<T>> childrenGetter) {
     if (tree == null || tree.isEmpty()) {
@@ -115,15 +111,13 @@ public class TreeUtils {
     return null;
   }
 
-  /**
-   * 在树中查找所有符合条件的节点
-   *
-   * @param tree 树结构
-   * @param predicate 匹配条件
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @return 找到的节点列表
-   */
+  /// 在树中查找所有符合条件的节点
+  ///
+  /// @param tree           树结构
+  /// @param predicate      匹配条件
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T>            节点类型
+  /// @return 找到的节点列表
   public static <T> List<T> findNodes(
       List<T> tree, Predicate<T> predicate, Function<T, List<T>> childrenGetter) {
     List<T> result = new ArrayList<>();
@@ -131,7 +125,7 @@ public class TreeUtils {
     return result;
   }
 
-  /** 查找节点的内部递归方法 */
+  /// 查找节点的内部递归方法
   private static <T> void findNodesInternal(
       List<T> nodes, Predicate<T> predicate, Function<T, List<T>> childrenGetter, List<T> result) {
     if (nodes == null || nodes.isEmpty()) {
@@ -152,15 +146,12 @@ public class TreeUtils {
     }
   }
 
-  /**
-   * 获取从根节点到目标节点的路径
-   *
-   * @param tree 树结构
-   * @param targetPredicate 目标节点匹配条件
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @return 路径节点列表，如果找不到目标节点则返回空列表
-   */
+  /// 获取从根节点到目标节点的路径
+  /// @param tree 树结构
+  /// @param targetPredicate 目标节点匹配条件
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T> 节点类型
+  /// @return 路径节点列表，如果找不到目标节点则返回空列表
   public static <T> List<T> getNodePath(
       List<T> tree, Predicate<T> targetPredicate, Function<T, List<T>> childrenGetter) {
     List<T> path = new ArrayList<>();
@@ -168,7 +159,7 @@ public class TreeUtils {
     return path;
   }
 
-  /** 查找路径的内部递归方法 */
+  /// 查找路径的内部递归方法
   private static <T> boolean findPath(
       List<T> nodes,
       Predicate<T> targetPredicate,
@@ -202,30 +193,24 @@ public class TreeUtils {
     return false;
   }
 
-  /**
-   * 树形结构扁平化为列表
-   *
-   * @param tree 树结构
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @return 扁平化后的列表
-   */
+  /// 树形结构扁平化为列表
+  /// @param tree 树结构
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T> 节点类型
+  /// @return 扁平化后的列表
   public static <T> List<T> flattenTree(List<T> tree, Function<T, List<T>> childrenGetter) {
     List<T> result = new ArrayList<>();
     flattenTreeInternal(tree, childrenGetter, result);
     return result;
   }
 
-  /**
-   * 过滤树节点，保持树形结构
-   *
-   * @param tree 树结构
-   * @param predicate 过滤条件
-   * @param childrenGetter 获取子节点的函数
-   * @param childrenSetter 设置子节点的函数
-   * @param <T> 节点类型
-   * @return 过滤后的树结构
-   */
+  /// 过滤树节点，保持树形结构
+  /// @param tree 树结构
+  /// @param predicate 过滤条件
+  /// @param childrenGetter 获取子节点的函数
+  /// @param childrenSetter 设置子节点的函数
+  /// @param <T> 节点类型
+  /// @return 过滤后的树结构
   public static <T> List<T> filterTree(
       List<T> tree,
       Predicate<T> predicate,
@@ -284,27 +269,21 @@ public class TreeUtils {
     return result;
   }
 
-  /**
-   * 遍历树结构，对每个节点执行操作
-   *
-   * @param tree 树结构
-   * @param action 要执行的操作
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   */
+  /// 遍历树结构，对每个节点执行操作
+  /// @param tree 树结构
+  /// @param action 要执行的操作
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T> 节点类型
   public static <T> void traverseTree(
       List<T> tree, BiConsumer<T, Integer> action, Function<T, List<T>> childrenGetter) {
     traverseTreeInternal(tree, action, childrenGetter, 0);
   }
 
-  /**
-   * 计算树的最大深度
-   *
-   * @param tree 树结构
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @return 树的最大深度
-   */
+  /// 计算树的最大深度
+  /// @param tree 树结构
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T> 节点类型
+  /// @return 树的最大深度
   public static <T> int getMaxDepth(List<T> tree, Function<T, List<T>> childrenGetter) {
     if (tree == null || tree.isEmpty()) {
       return 0;
@@ -323,23 +302,20 @@ public class TreeUtils {
     return maxDepth + 1; // 加上当前层
   }
 
-  /**
-   * 根据节点ID查找节点
-   *
-   * @param tree 树结构
-   * @param id 目标节点ID
-   * @param idGetter 获取节点ID的函数
-   * @param childrenGetter 获取子节点的函数
-   * @param <T> 节点类型
-   * @param <I> ID类型
-   * @return 找到的节点，没有则返回null
-   */
+  /// 根据节点ID查找节点
+  /// @param tree 树结构
+  /// @param id 目标节点ID
+  /// @param idGetter 获取节点ID的函数
+  /// @param childrenGetter 获取子节点的函数
+  /// @param <T> 节点类型
+  /// @param <I> ID类型
+  /// @return 找到的节点，没有则返回null
   public static <T, I> T findNodeById(
       List<T> tree, I id, Function<T, I> idGetter, Function<T, List<T>> childrenGetter) {
     return findNode(tree, node -> Objects.equals(idGetter.apply(node), id), childrenGetter);
   }
 
-  /** 获取类的所有字段，包括继承的字段 */
+  /// 获取类的所有字段，包括继承的字段
   private static List<java.lang.reflect.Field> getAllFields(Class<?> clazz) {
     List<java.lang.reflect.Field> fields = new ArrayList<>();
 
@@ -355,7 +331,7 @@ public class TreeUtils {
     return fields;
   }
 
-  /** 遍历树的内部递归方法 */
+  /// 遍历树的内部递归方法
   private static <T> void traverseTreeInternal(
       List<T> nodes,
       BiConsumer<T, Integer> action,
@@ -377,7 +353,7 @@ public class TreeUtils {
     }
   }
 
-  /** 扁平化树的内部递归方法 */
+  /// 扁平化树的内部递归方法
   private static <T> void flattenTreeInternal(
       List<T> nodes, Function<T, List<T>> childrenGetter, List<T> result) {
     if (nodes == null || nodes.isEmpty()) {

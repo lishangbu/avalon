@@ -14,12 +14,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StreamUtils;
 
-/**
- * Ip搜索器
- *
- * @author lishangbu
- * @since 2025/4/12
- */
+/// IP 搜索器
+///
+/// 封装 IP2Location 的查询与资源加载逻辑，支持初始化与销毁钩子
+///
+/// @author lishangbu
+/// @since 2025/4/12
 public class IpToLocationSearcher implements InitializingBean, DisposableBean {
 
   private static final Logger log = LoggerFactory.getLogger(IpToLocationSearcher.class);
@@ -35,13 +35,11 @@ public class IpToLocationSearcher implements InitializingBean, DisposableBean {
     this.resourceLoader = resourceLoader;
   }
 
-  /**
-   * This function to query IP2Location data.
-   *
-   * @param ipAddress IP Address you wish to query
-   * @return IP2Location data
-   * @throws IOException If an input or output exception occurred
-   */
+  /// This function to query IP2Location data.
+  ///
+  /// @param ipAddress IP Address you wish to query
+  /// @return IP2Location data
+  /// @throws IOException If an input or output exception occurred
   public IpResult ipQuery(String ipAddress) {
     if (loc == null) {
       return null;

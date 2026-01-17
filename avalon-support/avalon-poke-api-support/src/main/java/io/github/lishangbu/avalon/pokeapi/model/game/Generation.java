@@ -6,27 +6,24 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
-/**
- * 世代是指在游戏系列历史上于特定时期推出的一组宝可梦游戏，通常以新版本、新地区和新宝可梦为标志。
- *
- * @param id 该资源的标识符
- * @param name 该资源的名称
- * @param abilities 在此世代中引入的特性列表
- * @param names 不同语言中列出的此资源名称{@link Name}
- * @param mainRegion 此世代中游历的主要区域
- * @param moves 在此世代中引入的招式列表
- * @param pokemonSpecies 在此世代中引入的宝可梦物种列表
- * @param types 在此世代中引入的属性{@link Type}列表
- * @param versionGroups 在此世代中引入的版本组{@link VersionGroup}列表
- * @see Name
- * @see Type
- * @see VersionGroup
- * @author lishangbu
- * @see Name
- * @see Type
- * @see VersionGroup
- * @since 2025/5/24
- */
+/// 世代模型
+///
+/// 表示在游戏系列历史上推出的一组宝可梦游戏，通常包含新版本、新地区和新增宝可梦
+///
+/// @param id             资源标识符
+/// @param name           资源名称
+/// @param abilities      本世代引入的特性列表
+/// @param names          多语言名称列表
+/// @param mainRegion     本世代的主要区域引用
+/// @param moves          本世代引入的招式列表
+/// @param pokemonSpecies 本世代引入的宝可梦物种列表
+/// @param types          本世代引入的属性列表
+/// @param versionGroups  本世代引入的版本组列表
+/// @author lishangbu
+/// @see Name
+/// @see Type
+/// @see VersionGroup
+/// @since 2025/5/24
 public record Generation(
     Integer id,
     String name,

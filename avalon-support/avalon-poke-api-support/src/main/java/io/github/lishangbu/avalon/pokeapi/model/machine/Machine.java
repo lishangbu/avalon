@@ -6,19 +6,19 @@ import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
 import io.github.lishangbu.avalon.pokeapi.model.move.Move;
 
-/**
- * 机器是教授宝可梦招式的道具的表示。它们在不同版本之间有所不同，因此不能确定一个特定的TM或HM对应单个机器。
- *
- * @param id 资源的标识符
- * @param item 对应此机器的道具{@link Item}
- * @param move 此机器教授的招式{@link Move}
- * @param versionGroup 此机器适用的版本组{@link VersionGroup}
- * @author lishangbu
- * @see Item
- * @see Move
- * @see VersionGroup
- * @since 2025/6/7
- */
+/// 机器（Machine）模型
+///
+/// 表示用于教授宝可梦招式的道具及其在特定版本组中的适用性
+///
+/// @param id           资源标识符
+/// @param item         对应的道具引用
+/// @param move         此机器教授的招式引用
+/// @param versionGroup 适用的版本组引用
+/// @author lishangbu
+/// @see Item
+/// @see Move
+/// @see VersionGroup
+/// @since 2025/6/7
 public record Machine(
     Integer id,
     NamedApiResource<Item> item,

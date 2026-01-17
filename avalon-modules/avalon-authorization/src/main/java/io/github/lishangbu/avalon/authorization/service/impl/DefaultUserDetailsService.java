@@ -11,12 +11,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-/**
- * 用户服务
- *
- * @author lishangbu
- * @since 2025/8/17
- */
+/// 用户详细信息服务
+///
+/// 用于加载用户的认证信息（UserDetails），将数据库中的用户与角色转换为 Spring Security 的 UserDetails
+///
+/// @author lishangbu
+/// @since 2025/8/17
 @Service
 @RequiredArgsConstructor
 public class DefaultUserDetailsService implements UserDetailsService {

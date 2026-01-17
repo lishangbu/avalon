@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.github.lishangbu.avalon.dataset.entity.ItemAttributeRelation;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
- * 道具属性关联(ItemAttributeRelation)数据访问层
- *
- * @author lishangbu
- * @since 2025/09/14
- */
+/// 道具属性关联(ItemAttributeRelation)数据访问层
+///
+/// 提供基础的 CRUD 操作
+///
+/// @author lishangbu
+/// @since 2025/09/14
 @Mapper
 public interface ItemAttributeRelationMapper extends BaseMapper<ItemAttributeRelation> {}

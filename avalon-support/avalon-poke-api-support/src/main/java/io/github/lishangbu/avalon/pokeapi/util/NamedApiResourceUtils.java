@@ -7,12 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * 命名资源工具类
- *
- * @author lishangbu
- * @since 2025/8/9
- */
+/// 命名资源工具类
+///
+/// 提供从 NamedApiResource 的 URL 中提取 ID 的辅助方法
+///
+/// @author lishangbu
+/// @since 2025/8/9
 public abstract class NamedApiResourceUtils {
   // 静态初始化正则表达式和模式，避免重复编译
   private static final String API_DATA_TYPES_REGEX;

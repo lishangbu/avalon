@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.util.UrlUtils;
 
-/**
- * A facility for authorization server configuration settings.
- *
- * @author lishangbu
- * @since 2025/8/17
- */
+/// 授权服务器设置工厂
+///
+/// 提供 `AuthorizationServerSettings` 的自动装配，优先使用配置中的 issuerUrl
+///
+/// @author lishangbu
+/// @since 2025/8/17
 @AutoConfiguration
 public class AuthorizationServerSettingsAutoConfiguration {
 

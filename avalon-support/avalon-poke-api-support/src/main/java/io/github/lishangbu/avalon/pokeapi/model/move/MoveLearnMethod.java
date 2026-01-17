@@ -7,20 +7,20 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import java.util.List;
 
-/**
- * 宝可梦可以学习招式的方法。
- *
- * @param id 资源的标识符
- * @param name 资源的名称
- * @param descriptions 此资源在不同语言中列出的描述{@link Description}
- * @param names 此资源在不同语言中列出的名称{@link Name}
- * @param versionGroups 可以通过此方法学习招式的版本组{@link VersionGroup}列表
- * @author lishangbu
- * @see Description
- * @see Name
- * @see VersionGroup
- * @since 2025/6/7
- */
+/// 招式学习方法模型
+///
+/// 表示宝可梦学习招式的方式
+///
+/// @param id            资源标识符
+/// @param name          资源名称
+/// @param descriptions  此资源在不同语言中的描述列表
+/// @param names         此资源在不同语言下的名称列表
+/// @param versionGroups 可以通过此方法学习招式的版本组列表
+/// @author lishangbu
+/// @see Description
+/// @see Name
+/// @see VersionGroup
+/// @since 2025/6/7
 public record MoveLearnMethod(
     Integer id,
     String name,

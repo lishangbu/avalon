@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * @author lishangbu
- * @since 2025/4/16
- */
+/// ApiResult 单元测试
+///
+/// 覆盖 ApiResult 的成功与失败返回情况，验证状态码、数据与错误信息的语义
+///
+/// @author lishangbu
+/// @since 2025/4/16
 public class ApiResultTest {
 
   @Test

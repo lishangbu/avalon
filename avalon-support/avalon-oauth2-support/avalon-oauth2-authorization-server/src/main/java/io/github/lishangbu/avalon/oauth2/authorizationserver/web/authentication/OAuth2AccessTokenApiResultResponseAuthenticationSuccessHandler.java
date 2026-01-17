@@ -19,17 +19,15 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.CollectionUtils;
 
-/**
- * An implementation of an {@link AuthenticationSuccessHandler} used for handling an {@link
- * OAuth2AccessTokenAuthenticationToken} and returning the {@link OAuth2AccessTokenResponse Access
- * Token Response}.
- *
- * @author Dmitriy Dubson
- * @author lishangbu
- * @see AuthenticationSuccessHandler
- * @see OAuth2AccessTokenResponseHttpMessageConverter
- * @since 2025/8/25
- */
+/// An implementation of an `AuthenticationSuccessHandler` used for handling an
+/// `OAuth2AccessTokenAuthenticationToken` and returning the `OAuth2AccessTokenResponse` Access
+// Token Response
+///
+/// @author Dmitriy Dubson
+/// @author lishangbu
+/// @see AuthenticationSuccessHandler
+/// @see OAuth2AccessTokenResponseHttpMessageConverter
+/// @since 2025/8/25
 public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
     implements AuthenticationSuccessHandler {
 

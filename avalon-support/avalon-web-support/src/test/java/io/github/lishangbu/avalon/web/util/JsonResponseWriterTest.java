@@ -18,11 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-/**
- * JsonResponseWriter 单元测试
- *
- * <p>验证成功和失败响应的写入逻辑，确保内容、状态码和异常处理均符合预期
- */
+/// JsonResponseWriter 单元测试
+///
+/// 验证成功和失败响应的写入逻辑，确保内容、状态码和异常处理均符合预期
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class JsonResponseWriterTest {
@@ -38,7 +36,7 @@ class JsonResponseWriterTest {
     Mockito.when(response.getWriter()).thenReturn(printWriter);
   }
 
-  /** 测试成功响应写入，包含数据 */
+  /// 测试成功响应写入，包含数据
   @Test
   void testWriteSuccessResponseWithData() {
     JsonResponseWriter.writeSuccessResponse(response, "ok");
@@ -50,7 +48,7 @@ class JsonResponseWriterTest {
     Mockito.verify(response).setCharacterEncoding(StandardCharsets.UTF_8.name());
   }
 
-  /** 测试成功响应写入，无数据 */
+  /// 测试成功响应写入，无数据
   @Test
   void testWriteSuccessResponseWithoutData() {
     JsonResponseWriter.writeSuccessResponse(response);
@@ -60,7 +58,7 @@ class JsonResponseWriterTest {
     Mockito.verify(response).setStatus(HttpStatus.OK.value());
   }
 
-  /** 测试失败响应写入 */
+  /// 测试失败响应写入
   @Test
   void testWriteFailedResponse() {
     ErrorResultCode errorCode = DefaultErrorResultCode.SERVER_ERROR;
@@ -72,7 +70,7 @@ class JsonResponseWriterTest {
     Mockito.verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
   }
 
-  /** 测试写入异常处理 */
+  /// 测试写入异常处理
   @Test
   void testWriteSuccessResponseIOException() throws IOException {
     HttpServletResponse errorResponse = Mockito.mock(HttpServletResponse.class);

@@ -8,12 +8,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
-/**
- * OpaqueTokenIntrospector 自动装配
- *
- * @author lishangbu
- * @since 2025/8/22
- */
+/// OpaqueTokenIntrospector 自动装配
+///
+/// 提供基于 OAuth2AuthorizationService 和 UserDetailsService 的 OpaqueTokenIntrospector Bean
+///
+/// @author lishangbu
+/// @since 2025/8/22
 @AutoConfiguration
 public class OpaqueTokenIntrospectorAutoConfiguration {
   @Bean

@@ -10,12 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 属性克制关系服务实现
- *
- * @author lishangbu
- * @since 2025/12/06
- */
+/// 属性克制关系服务实现
+///
+/// 提供属性间伤害倍率（克制）关系的分页查询与 CRUD 操作
+///
+/// @author lishangbu
+/// @since 2025/12/06
 @Service
 @RequiredArgsConstructor
 public class TypeDamageRelationServiceImpl implements TypeDamageRelationService {

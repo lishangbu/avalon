@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-/**
- * 默认Oauth2授权服务
- *
- * @author lishangbu
- * @since 2025/11/30
- */
+/// 默认 Oauth2 授权服务实现
+///
+/// 提供持久化与读取 OAuth2Authorization 的默认实现，基于数据库映射实体 `OauthAuthorization`
+///
+/// @author lishangbu
+/// @since 2025/11/30
 @Service
 @RequiredArgsConstructor
 public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationService {

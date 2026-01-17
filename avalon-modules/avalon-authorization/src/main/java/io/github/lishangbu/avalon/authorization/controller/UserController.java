@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 用户控制器
- *
- * @author lishangbu
- * @since 2025/8/30
- */
+/// 用户控制器
+///
+/// 提供用于获取当前用户信息的 REST 接口
+///
+/// @author lishangbu
+/// @since 2025/8/30
 @RequestMapping("/user")
 @RestController
 @RequiredArgsConstructor
