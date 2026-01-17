@@ -3,13 +3,15 @@ package io.github.lishangbu.avalon.authorization.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
 import java.util.Optional;
+import org.apache.ibatis.annotations.Mapper;
 
 /// OauthRegisteredClient 数据访问 Mapper
 ///
 /// 提供对 OauthRegisteredClient 实体的查询方法
 ///
 /// @author lishangbu
-/// @date 2023-10-08
+/// @since  2023-10-08
+@Mapper
 public interface OauthRegisteredClientMapper extends BaseMapper<OauthRegisteredClient> {
   /// 根据 client_id 查询注册客户端实体
   ///
