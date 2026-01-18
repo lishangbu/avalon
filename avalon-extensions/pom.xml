@@ -11,8 +11,8 @@
   <packaging>pom</packaging>
   <description>使用了第三方jar包的一些外部扩展</description>
   <modules>
-    <module>avalon-dufs-spring-boot-starter</module>
     <module>avalon-ip2location-spring-boot-starter</module>
     <module>avalon-mybatis-plus-boot-starter</module>
+    <module>avalon-s3-spring-boot-starter</module>
   </modules>
 </project>
