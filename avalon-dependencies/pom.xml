@@ -37,7 +37,7 @@
     <url>https://github.com/lishangbu/avalon/issues</url>
   </issueManagement>
   <properties>
-    <awssdk.version>2.41.10</awssdk.version>
+    <awssdk.version>2.41.12</awssdk.version>
     <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
     <!--docker镜像前缀-->
     <docker.image.prefix>slf4j</docker.image.prefix>
