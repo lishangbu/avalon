@@ -54,7 +54,7 @@
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
     <revision>0.0.1-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>3.2.1</spotless-maven-plugin.version>
     <spring-doc.version>3.0.1</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
