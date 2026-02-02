@@ -4,17 +4,15 @@ import com.baomidou.mybatisplus.test.autoconfigure.MybatisPlusTest;
 import io.github.lishangbu.avalon.dataset.AbstractMapperTest;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import jakarta.annotation.Resource;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 /// 树果风味数据访问层测试
 @MybatisPlusTest
 class BerryFlavorMapperTest extends AbstractMapperTest {
 
-  @Resource
-  private BerryFlavorMapper berryFlavorMapper;
+  @Resource private BerryFlavorMapper berryFlavorMapper;
 
   /// 验证 Liquibase 导入的数据可以通过 selectById 查询到（使用已知 CSV 中的 ID）
   @Test
