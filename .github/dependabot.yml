@@ -1,7 +1,18 @@
 version: 2
 updates:
-  - package-ecosystem: maven
+  # awssdk 依赖：每月检查一次
+  - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: daily
+      interval: "monthly"
+    allow:
+      - dependency-name: "software.amazon.awssdk:bom"
+
+  # 其他所有 Maven 依赖：每天检查，忽略上面单独处理的 awssdk 依赖
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "software.amazon.awssdk:bom"

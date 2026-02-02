@@ -60,14 +60,6 @@
   </properties>
   <dependencyManagement>
     <dependencies>
-      <!-- aws s3 -->
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>bom</artifactId>
-        <version>${awssdk.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-bom</artifactId>
@@ -79,6 +71,14 @@
         <groupId>org.springdoc</groupId>
         <artifactId>springdoc-openapi-bom</artifactId>
         <version>${spring-doc.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- aws s3 -->
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${awssdk.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

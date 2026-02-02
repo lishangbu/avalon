@@ -26,7 +26,11 @@ public class S3AutoConfiguration {
   /// @return 默认的 `S3Template` 实例
   @Bean
   @ConditionalOnMissingBean(S3Template.class)
-  @ConditionalOnProperty(prefix = S3Properties.PREFIX, name = "enabled", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(
+      prefix = S3Properties.PREFIX,
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
   public S3Template s3Template(S3Properties properties) {
     return new S3Template(properties);
   }

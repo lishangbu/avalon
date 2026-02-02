@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.test.autoconfigure.MybatisPlusTest;
 import io.github.lishangbu.avalon.dataset.AbstractMapperTest;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import jakarta.annotation.Resource;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 /// 树果硬度数据访问层测试
 @MybatisPlusTest
@@ -102,4 +101,3 @@ class BerryFirmnessMapperTest extends AbstractMapperTest {
     Assertions.assertTrue(results.isEmpty(), "删除后按 internalName 查询应返回空集合");
   }
 }
-

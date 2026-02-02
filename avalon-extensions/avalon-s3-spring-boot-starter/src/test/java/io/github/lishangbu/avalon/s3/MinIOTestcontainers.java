@@ -4,7 +4,6 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -28,10 +27,11 @@ import org.testcontainers.utility.DockerImageName;
 /// @author lishangbu
 /// @since 2025/8/20
 public class MinIOTestcontainers implements BeforeAllCallback {
-  private static final MinIOContainer CONTAINER = new MinIOContainer(DockerImageName.parse("minio/minio:latest"))
-    .withUserName("testuser")
-    .withPassword("testpassword")
-    .withReuse(true);
+  private static final MinIOContainer CONTAINER =
+      new MinIOContainer(DockerImageName.parse("minio/minio:latest"))
+          .withUserName("testuser")
+          .withPassword("testpassword")
+          .withReuse(true);
 
   @Override
   public void beforeAll(ExtensionContext context) {

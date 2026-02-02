@@ -1,6 +1,12 @@
 package io.github.lishangbu.avalon.s3.template;
 
 import io.github.lishangbu.avalon.s3.properties.S3Properties;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -16,13 +22,6 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
 
 /// S3 操作模板
 ///
@@ -52,7 +51,8 @@ public class S3Template implements InitializingBean {
   /// @param bucketName bucket 名称
   public void createBucket(String bucketName) {
     if (!headBucket(bucketName)) {
-      CreateBucketRequest createBucketRequest = CreateBucketRequest.builder().bucket(bucketName).build();
+      CreateBucketRequest createBucketRequest =
+          CreateBucketRequest.builder().bucket(bucketName).build();
       s3Client.createBucket(createBucketRequest);
     }
   }
@@ -91,7 +91,8 @@ public class S3Template implements InitializingBean {
   ///
   /// @param bucketName bucket 名称
   public void removeBucket(String bucketName) {
-    DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucketName).build();
+    DeleteBucketRequest deleteBucketRequest =
+        DeleteBucketRequest.builder().bucket(bucketName).build();
     s3Client.deleteBucket(deleteBucketRequest);
   }
 
@@ -101,8 +102,8 @@ public class S3Template implements InitializingBean {
   /// @param prefix     前缀
   /// @return 对象列表
   public List<S3Object> getAllObjectsByPrefix(String bucketName, String prefix) {
-    ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix)
-      .build();
+    ListObjectsV2Request listObjectsRequest =
+        ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix).build();
 
     ListObjectsV2Response listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
     return listObjectsResponse.contents();
@@ -125,12 +126,17 @@ public class S3Template implements InitializingBean {
   /// @param expires    过期时长（必须小于7天）
   /// @return 下载链接
   public String getObjectURL(String bucketName, String objectName, Duration expires) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(objectName).build();
+    GetObjectRequest getObjectRequest =
+        GetObjectRequest.builder().bucket(bucketName).key(objectName).build();
 
-    GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder().signatureDuration(expires)
-      .getObjectRequest(getObjectRequest).build();
+    GetObjectPresignRequest getObjectPresignRequest =
+        GetObjectPresignRequest.builder()
+            .signatureDuration(expires)
+            .getObjectRequest(getObjectRequest)
+            .build();
 
-    PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
+    PresignedGetObjectRequest presignedGetObjectRequest =
+        s3Presigner.presignGetObject(getObjectPresignRequest);
     return presignedGetObjectRequest.url().toString();
   }
 
@@ -151,12 +157,17 @@ public class S3Template implements InitializingBean {
   /// @param expires    过期时长（必须小于7天）
   /// @return 上传链接
   public String getPutObjectURL(String bucketName, String objectName, Duration expires) {
-    PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(objectName).build();
+    PutObjectRequest putObjectRequest =
+        PutObjectRequest.builder().bucket(bucketName).key(objectName).build();
 
-    PutObjectPresignRequest putObjectPresignRequest = PutObjectPresignRequest.builder().signatureDuration(expires)
-      .putObjectRequest(putObjectRequest).build();
+    PutObjectPresignRequest putObjectPresignRequest =
+        PutObjectPresignRequest.builder()
+            .signatureDuration(expires)
+            .putObjectRequest(putObjectRequest)
+            .build();
 
-    PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(putObjectPresignRequest);
+    PresignedPutObjectRequest presignedPutObjectRequest =
+        s3Presigner.presignPutObject(putObjectPresignRequest);
     return presignedPutObjectRequest.url().toString();
   }
 
@@ -178,7 +189,8 @@ public class S3Template implements InitializingBean {
   /// @param expires    过期时长
   /// @param httpMethod HTTP 方法（GET/PUT）
   /// @return 链接
-  public String getObjectURL(String bucketName, String objectName, Duration expires, String httpMethod) {
+  public String getObjectURL(
+      String bucketName, String objectName, Duration expires, String httpMethod) {
     if ("PUT".equalsIgnoreCase(httpMethod)) {
       return getPutObjectURL(bucketName, objectName, expires);
     } else {
@@ -203,7 +215,8 @@ public class S3Template implements InitializingBean {
   /// @param objectName 对象名称
   /// @return InputStream
   public InputStream getObject(String bucketName, String objectName) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(objectName).build();
+    GetObjectRequest getObjectRequest =
+        GetObjectRequest.builder().bucket(bucketName).key(objectName).build();
 
     return s3Client.getObject(getObjectRequest, ResponseTransformer.toInputStream());
   }
@@ -214,7 +227,8 @@ public class S3Template implements InitializingBean {
   /// @param objectName 对象名称
   /// @param stream     文件流
   /// @throws IOException IO 异常
-  public void putObject(String bucketName, String objectName, InputStream stream) throws IOException {
+  public void putObject(String bucketName, String objectName, InputStream stream)
+      throws IOException {
     putObject(bucketName, objectName, stream, stream.available(), "application/octet-stream");
   }
 
@@ -225,8 +239,9 @@ public class S3Template implements InitializingBean {
   /// @param contextType Content-Type
   /// @param stream      文件流
   /// @throws IOException IO 异常
-  public void putObject(String bucketName, String objectName, String contextType, InputStream stream)
-    throws IOException {
+  public void putObject(
+      String bucketName, String objectName, String contextType, InputStream stream)
+      throws IOException {
     putObject(bucketName, objectName, stream, stream.available(), contextType);
   }
 
@@ -238,10 +253,15 @@ public class S3Template implements InitializingBean {
   /// @param size        大小
   /// @param contextType Content-Type
   /// @return PutObjectResponse
-  public PutObjectResponse putObject(String bucketName, String objectName, InputStream stream, long size,
-                                     String contextType) {
-    PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(objectName)
-      .contentType(contextType).contentLength(size).build();
+  public PutObjectResponse putObject(
+      String bucketName, String objectName, InputStream stream, long size, String contextType) {
+    PutObjectRequest putObjectRequest =
+        PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(objectName)
+            .contentType(contextType)
+            .contentLength(size)
+            .build();
 
     return s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(stream, size));
   }
@@ -252,7 +272,8 @@ public class S3Template implements InitializingBean {
   /// @param objectName 对象名称
   /// @return HeadObjectResponse
   public HeadObjectResponse getObjectInfo(String bucketName, String objectName) {
-    HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(bucketName).key(objectName).build();
+    HeadObjectRequest headObjectRequest =
+        HeadObjectRequest.builder().bucket(bucketName).key(objectName).build();
 
     return s3Client.headObject(headObjectRequest);
   }
@@ -262,8 +283,8 @@ public class S3Template implements InitializingBean {
   /// @param bucketName bucket 名称
   /// @param objectName 对象名称
   public void removeObject(String bucketName, String objectName) {
-    DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(objectName)
-      .build();
+    DeleteObjectRequest deleteObjectRequest =
+        DeleteObjectRequest.builder().bucket(bucketName).key(objectName).build();
 
     s3Client.deleteObject(deleteObjectRequest);
   }
@@ -271,23 +292,38 @@ public class S3Template implements InitializingBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     // 创建 S3 客户端
-    this.s3Client = S3Client.builder().endpointOverride(URI.create(s3Properties.getEndpoint()))
-      .region(Region.of(s3Properties.getRegion() != null ? s3Properties.getRegion() : "us-east-1"))
-      .credentialsProvider(StaticCredentialsProvider
-        .create(AwsBasicCredentials.create(s3Properties.getAccessKey(), s3Properties.getSecretKey())))
-      .serviceConfiguration(
-        S3Configuration.builder().pathStyleAccessEnabled(s3Properties.getPathStyleAccess())
-          .chunkedEncodingEnabled(s3Properties.getChunkedEncodingEnabled()).build())
-      .build();
+    this.s3Client =
+        S3Client.builder()
+            .endpointOverride(URI.create(s3Properties.getEndpoint()))
+            .region(
+                Region.of(
+                    s3Properties.getRegion() != null ? s3Properties.getRegion() : "us-east-1"))
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(
+                        s3Properties.getAccessKey(), s3Properties.getSecretKey())))
+            .serviceConfiguration(
+                S3Configuration.builder()
+                    .pathStyleAccessEnabled(s3Properties.getPathStyleAccess())
+                    .chunkedEncodingEnabled(s3Properties.getChunkedEncodingEnabled())
+                    .build())
+            .build();
 
     // 创建 S3 Presigner
-    this.s3Presigner = S3Presigner.builder().endpointOverride(URI.create(s3Properties.getEndpoint()))
-      .region(Region.of(s3Properties.getRegion() != null ? s3Properties.getRegion() : "us-east-1"))
-      .credentialsProvider(StaticCredentialsProvider
-        .create(AwsBasicCredentials.create(s3Properties.getAccessKey(), s3Properties.getSecretKey())))
-      .serviceConfiguration(
-        S3Configuration.builder().pathStyleAccessEnabled(s3Properties.getPathStyleAccess()).build())
-      .build();
+    this.s3Presigner =
+        S3Presigner.builder()
+            .endpointOverride(URI.create(s3Properties.getEndpoint()))
+            .region(
+                Region.of(
+                    s3Properties.getRegion() != null ? s3Properties.getRegion() : "us-east-1"))
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(
+                        s3Properties.getAccessKey(), s3Properties.getSecretKey())))
+            .serviceConfiguration(
+                S3Configuration.builder()
+                    .pathStyleAccessEnabled(s3Properties.getPathStyleAccess())
+                    .build())
+            .build();
   }
-
 }
