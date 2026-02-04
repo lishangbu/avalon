@@ -20,14 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class TypeController {
   private final TypeService typeService;
 
-  /// 导入数据源
-  ///
-  /// @return 属性列表
-  @PostMapping("/import")
-  public List<Type> importTypes() {
-    return typeService.importTypes();
-  }
-
   /// 分页条件查询属性类型
   ///
   /// @param page 分页参数

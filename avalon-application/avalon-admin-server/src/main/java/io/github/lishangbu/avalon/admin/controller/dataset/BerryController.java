@@ -19,15 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BerryController {
   private final BerryService berryService;
-
-  /// 导入数据源
-  ///
-  /// @return 属性列表
-  @PostMapping("/import")
-  public List<Berry> importBerries() {
-    return berryService.importBerries();
-  }
-
   /// 分页条件查询树果
   ///
   /// @param page  分页参数

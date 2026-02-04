@@ -2,16 +2,14 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.mapstruct.TypeConversionMapper;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.mapper.TypeMapper;
-import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
-import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /// 属性服务实现
 ///
@@ -23,24 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TypeServiceImpl implements TypeService {
   private final TypeMapper typeMapper;
-  private final PokeApiService pokeApiService;
-  private final TypeConversionMapper typeConversionMapper;
-
-  /// 导入属性类型数据
-  ///
-  /// 通过 PokeApiService 拉取并保存属性类型数据
-  ///
-  /// @return 导入后的属性类型列表
-  @Override
-  @Transactional(rollbackFor = Exception.class)
-  public List<Type> importTypes() {
-
-    return pokeApiService.importData(
-        PokeDataTypeEnum.TYPE,
-        typeConversionMapper::toDatasetType,
-        typeMapper::insert,
-        io.github.lishangbu.avalon.pokeapi.model.pokemon.Type.class);
-  }
 
   /// 根据条件分页查询属性类型，结果按 ID 升序排序
   ///

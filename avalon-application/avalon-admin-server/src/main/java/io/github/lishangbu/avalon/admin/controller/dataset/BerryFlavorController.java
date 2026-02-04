@@ -18,14 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class BerryFlavorController {
   private final BerryFlavorService berryFlavorService;
 
-  /// 导入树果风味数据
-  ///
-  /// @return 导入的树果风味列表
-  @PostMapping("/import")
-  public List<BerryFlavor> importBerryFlavors() {
-    return berryFlavorService.importBerryFlavors();
-  }
-
   /// 分页条件查询树果风味
   ///
   /// @param page        分页参数（如 page, size, sort）

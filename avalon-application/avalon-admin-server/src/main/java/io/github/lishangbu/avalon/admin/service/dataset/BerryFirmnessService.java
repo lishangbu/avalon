@@ -12,10 +12,6 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/10/5
 public interface BerryFirmnessService {
-  /// 导入树果坚硬度列表
-  ///
-  /// @return 树果坚硬度列表
-  List<BerryFirmness> importBerryFirmnesses();
 
   /// 分页条件查询树果坚硬度
   ///

@@ -2,15 +2,13 @@ package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.github.lishangbu.avalon.admin.mapstruct.BerryFirmnessConversionMapper;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import io.github.lishangbu.avalon.dataset.mapper.BerryFirmnessMapper;
-import io.github.lishangbu.avalon.pokeapi.component.PokeApiService;
-import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /// 树果坚硬度服务实现类
 ///
@@ -21,19 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class BerryFirmnessServiceImpl implements BerryFirmnessService {
-  private final PokeApiService pokeApiService;
   private final BerryFirmnessMapper berryFirmnessMapper;
-  private final BerryFirmnessConversionMapper berryFirmnessConversionMapper;
-
-  @Override
-  public List<BerryFirmness> importBerryFirmnesses() {
-    return pokeApiService.importData(
-        PokeDataTypeEnum.BERRY_FIRMNESS,
-        berryFirmnessConversionMapper::toDatasetBerryFirmness,
-        berryFirmnessMapper::insert,
-        io.github.lishangbu.avalon.pokeapi.model.berry.BerryFirmness.class);
-  }
-
   @Override
   public IPage<BerryFirmness> getBerryFirmnessesPage(
       Page<BerryFirmness> page, BerryFirmness berryFirmness) {

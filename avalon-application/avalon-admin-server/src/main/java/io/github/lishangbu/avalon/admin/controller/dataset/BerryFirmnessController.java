@@ -18,11 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class BerryFirmnessController {
   private final BerryFirmnessService berryFirmnessService;
 
-  @PostMapping("/import")
-  public List<BerryFirmness> importBerryFirmnesses() {
-    return berryFirmnessService.importBerryFirmnesses();
-  }
-
   /// 分页条件查询树果坚硬度
   ///
   /// @param page          分页参数（如 page, size, sort）
