@@ -10,12 +10,12 @@
   <artifactId>avalon-pokeapi-exporter</artifactId>
   <dependencies>
     <dependency>
-      <groupId>io.github.lishangbu</groupId>
-      <artifactId>avalon-pokeapi-core</artifactId>
+      <groupId>cn.idev.excel</groupId>
+      <artifactId>fastexcel</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.fesod</groupId>
-      <artifactId>fesod-sheet</artifactId>
+      <groupId>io.github.lishangbu</groupId>
+      <artifactId>avalon-pokeapi-core</artifactId>
     </dependency>
   </dependencies>
 </project>

@@ -1,15 +1,27 @@
 package io.github.lishangbu.avalon.pokeapi.model;
 
-import org.apache.fesod.sheet.annotation.ExcelProperty;
+import cn.idev.excel.annotation.ExcelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /// 属性模型Excel数据传输对象
 ///
-/// @param id                  资源标识符
-/// @param name                资源名称
 /// @author lishangbu
 /// @since 2026/2/4
-public record TypeExcelDTO(
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TypeExcelDTO {
+  /** 主键信息 */
   @ExcelProperty("ID")
-  Integer id,
+  private Integer id;
+
+  /** 内部名称 */
   @ExcelProperty("内部名称")
-  String name) {}
+  private String name;
+
+  /** 显示名称 */
+  @ExcelProperty("显示名称")
+  private String displayName;
+}

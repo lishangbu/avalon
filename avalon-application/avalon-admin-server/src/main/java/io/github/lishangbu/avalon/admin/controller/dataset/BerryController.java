@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryService;
 import io.github.lishangbu.avalon.dataset.entity.Berry;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BerryController {
   private final BerryService berryService;
+
   /// 分页条件查询树果
   ///
   /// @param page  分页参数

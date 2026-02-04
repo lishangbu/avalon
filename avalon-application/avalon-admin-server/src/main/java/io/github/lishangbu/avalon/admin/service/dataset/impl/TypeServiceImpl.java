@@ -5,11 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.mapper.TypeMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /// 属性服务实现
 ///

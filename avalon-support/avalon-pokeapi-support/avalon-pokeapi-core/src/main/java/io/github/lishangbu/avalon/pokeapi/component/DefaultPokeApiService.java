@@ -9,9 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /// 默认的 PokeApi 服务实现
 ///
@@ -19,8 +18,8 @@ import org.slf4j.LoggerFactory;
 ///
 /// @author lishangbu
 /// @since 2025/5/21
+@Slf4j
 public class DefaultPokeApiService implements PokeApiService {
-  private static final Logger log = LoggerFactory.getLogger(DefaultPokeApiService.class);
 
   /// 本地仓库中存储数据的具体文件路径
   private static final String LOCAL_GIT_REPO_FIRST_FILE_DIR_NAME = "data";

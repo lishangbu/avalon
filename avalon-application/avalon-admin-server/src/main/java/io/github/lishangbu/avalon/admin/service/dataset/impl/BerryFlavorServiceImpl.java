@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BerryFlavorServiceImpl implements BerryFlavorService {
   private final BerryFlavorMapper berryFlavorMapper;
+
   @Override
   public IPage<BerryFlavor> getBerryFlavorPage(Page<BerryFlavor> page, BerryFlavor berryFlavor) {
     return berryFlavorMapper.selectList(page, berryFlavor);
