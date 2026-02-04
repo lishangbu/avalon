@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>4.0.2</version>
-    <relativePath />
+    <relativePath/>
   </parent>
   <groupId>io.github.lishangbu</groupId>
   <artifactId>avalon-dependencies</artifactId>
@@ -41,8 +41,9 @@
     <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
     <!--docker镜像前缀-->
     <docker.image.prefix>slf4j</docker.image.prefix>
-    <!--docker私服地址-->
+    <!--docker仓库地址-->
     <docker.repository>docker.io</docker.repository>
+    <fesod.version>2.0.0-incubating</fesod.version>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
     <ip2location.version>1.2.6</ip2location.version>
     <jacoco.version>0.8.14</jacoco.version>
@@ -134,7 +135,7 @@
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-poke-api-support</artifactId>
+        <artifactId>avalon-pokeapi-core</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
@@ -146,6 +147,17 @@
         <groupId>net.renfei</groupId>
         <artifactId>ip2location</artifactId>
         <version>${ip2location.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.fesod</groupId>
+        <artifactId>fesod-sheet</artifactId>
+        <version>${fesod.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.fesod</groupId>
+            <artifactId>fesod-shaded</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jgit</groupId>

@@ -4,16 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon</artifactId>
+    <artifactId>avalon-support</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-support</artifactId>
+  <artifactId>avalon-pokeapi-support</artifactId>
   <packaging>pom</packaging>
-  <description>项目内部的一些支持，基本上只使用了Spring全家桶相关</description>
   <modules>
-    <module>avalon-json-support</module>
-    <module>avalon-oauth2-support</module>
-    <module>avalon-pokeapi-support</module>
-    <module>avalon-web-support</module>
+    <module>avalon-pokeapi-core</module>
+    <module>avalon-pokeapi-exporter</module>
   </modules>
 </project>
