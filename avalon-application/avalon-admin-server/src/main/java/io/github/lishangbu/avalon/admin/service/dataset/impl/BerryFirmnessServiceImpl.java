@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFirmnessService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness;
 import io.github.lishangbu.avalon.dataset.mapper.BerryFirmnessMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /// 树果坚硬度服务实现类
 ///
@@ -20,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BerryFirmnessServiceImpl implements BerryFirmnessService {
   private final BerryFirmnessMapper berryFirmnessMapper;
+
   @Override
   public IPage<BerryFirmness> getBerryFirmnessesPage(
       Page<BerryFirmness> page, BerryFirmness berryFirmness) {
