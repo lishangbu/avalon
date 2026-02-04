@@ -13,11 +13,6 @@ import java.util.List;
 /// @since 2025/10/4
 public interface BerryService {
 
-  /// 导入树果
-  ///
-  /// @return 树果列表
-  List<Berry> importBerries();
-
   /// 根据条件分页查询树果
   ///
   /// @param page  分页信息

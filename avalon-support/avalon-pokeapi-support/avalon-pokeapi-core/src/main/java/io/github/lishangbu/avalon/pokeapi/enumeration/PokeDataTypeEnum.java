@@ -91,9 +91,9 @@ public enum PokeDataTypeEnum {
   private final String type;
 
   /// 响应映射到的 Java 类型
-  private final Class responseType;
+  private final Class<?> responseType;
 
-  PokeDataTypeEnum(String type, Class responseType) {
+  PokeDataTypeEnum(String type, Class<?> responseType) {
     this.type = type;
     this.responseType = responseType;
   }
@@ -102,7 +102,7 @@ public enum PokeDataTypeEnum {
     return type;
   }
 
-  public Class getResponseType() {
+  public Class<?> getResponseType() {
     return responseType;
   }
 

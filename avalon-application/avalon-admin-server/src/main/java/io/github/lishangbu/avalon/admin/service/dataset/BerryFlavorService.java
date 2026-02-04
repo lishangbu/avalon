@@ -13,11 +13,6 @@ import java.util.List;
 /// @since 2025/10/5
 public interface BerryFlavorService {
 
-  /// 导入树果风味列表
-  ///
-  /// @return 树果风味列表
-  List<BerryFlavor> importBerryFlavors();
-
   /// 分页条件查询树果风味
   ///
   /// @param berryFlavor 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配

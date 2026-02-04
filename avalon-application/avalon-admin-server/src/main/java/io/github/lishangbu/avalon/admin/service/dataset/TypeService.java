@@ -13,11 +13,6 @@ import java.util.List;
 /// @since 2025/8/24
 public interface TypeService {
 
-  /// 导入属性类型
-  ///
-  /// @return 属性类型列表
-  List<Type> importTypes();
-
   /// 根据条件分页查询属性类型
   ///
   /// @param page 分页参数
