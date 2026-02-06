@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization;
-import io.github.lishangbu.avalon.authorization.mapper.OauthAuthorizationMapper;
+import io.github.lishangbu.avalon.authorization.repository.Oauth2AuthorizationRepository;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +33,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
-  private final OauthAuthorizationMapper oauthAuthorizationMapper;
+  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final RegisteredClientRepository registeredClientRepository;
 
   private static AuthorizationGrantType resolveAuthorizationGrantType(
@@ -57,27 +57,23 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
   public void save(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
     Optional<OauthAuthorization> authorizationOptional =
-        oauthAuthorizationMapper.selectById(authorization.getId());
+        oauth2AuthorizationRepository.findById(authorization.getId());
     OauthAuthorization entity = toEntity(authorization);
-    if (authorizationOptional.isPresent()) {
-      entity.setId(authorizationOptional.get().getId());
-      oauthAuthorizationMapper.updateById(entity);
-    } else {
-      oauthAuthorizationMapper.insert(entity);
-    }
+    authorizationOptional.ifPresent(oauthAuthorization -> entity.setId(oauthAuthorization.getId()));
+    oauth2AuthorizationRepository.save(entity);
   }
 
   @Override
   @Transactional(rollbackFor = Exception.class)
   public void remove(OAuth2Authorization authorization) {
     Assert.notNull(authorization, "authorization cannot be null");
-    this.oauthAuthorizationMapper.deleteById(authorization.getId());
+    this.oauth2AuthorizationRepository.deleteById(authorization.getId());
   }
 
   @Override
   public OAuth2Authorization findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return oauthAuthorizationMapper.selectById(id).map(this::toObject).orElse(null);
+    return oauth2AuthorizationRepository.findById(id).map(this::toObject).orElse(null);
   }
 
   @Override
@@ -86,21 +82,24 @@ public class DefaultOAuth2AuthorizationService implements OAuth2AuthorizationSer
 
     Optional<OauthAuthorization> result;
     if (tokenType == null) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByToken(token));
+      result =
+          oauth2AuthorizationRepository
+              .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+                  token);
     } else if (OAuth2ParameterNames.STATE.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByState(token));
+      result = oauth2AuthorizationRepository.findByState(token);
     } else if (OAuth2ParameterNames.CODE.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByAuthorizationCodeValue(token));
+      result = oauth2AuthorizationRepository.findByAuthorizationCodeValue(token);
     } else if (OAuth2ParameterNames.ACCESS_TOKEN.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByAccessTokenValue(token));
+      result = oauth2AuthorizationRepository.findByAccessTokenValue(token);
     } else if (OAuth2ParameterNames.REFRESH_TOKEN.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByRefreshTokenValue(token));
+      result = oauth2AuthorizationRepository.findByRefreshTokenValue(token);
     } else if (OidcParameterNames.ID_TOKEN.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByOidcIdTokenValue(token));
+      result = oauth2AuthorizationRepository.findByOidcIdTokenValue(token);
     } else if (OAuth2ParameterNames.USER_CODE.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByUserCodeValue(token));
+      result = oauth2AuthorizationRepository.findByUserCodeValue(token);
     } else if (OAuth2ParameterNames.DEVICE_CODE.equals(tokenType.getValue())) {
-      result = Optional.ofNullable(oauthAuthorizationMapper.selectByDeviceCodeValue(token));
+      result = oauth2AuthorizationRepository.findByDeviceCodeValue(token);
     } else {
       result = Optional.empty();
     }

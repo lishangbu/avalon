@@ -1,9 +1,8 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent;
-import io.github.lishangbu.avalon.authorization.mapper.OauthAuthorizationConsentMapper;
+import io.github.lishangbu.avalon.authorization.repository.OauthAuthorizationConsentRepository;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,11 +23,11 @@ import org.springframework.util.StringUtils;
 /// @since 2025/8/17
 @Service
 public class DefaultOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
-  private final OauthAuthorizationConsentMapper oauth2AuthorizationConsentMapper;
+  private final OauthAuthorizationConsentRepository oauth2AuthorizationConsentMapper;
   private final RegisteredClientRepository registeredClientRepository;
 
   public DefaultOAuth2AuthorizationConsentService(
-      OauthAuthorizationConsentMapper authorizationConsentMapper,
+      OauthAuthorizationConsentRepository authorizationConsentMapper,
       RegisteredClientRepository registeredClientRepository) {
     Assert.notNull(authorizationConsentMapper, "authorizationConsentMapper cannot be null");
     Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
@@ -39,7 +38,7 @@ public class DefaultOAuth2AuthorizationConsentService implements OAuth2Authoriza
   @Override
   public void save(OAuth2AuthorizationConsent authorizationConsent) {
     Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
-    this.oauth2AuthorizationConsentMapper.insert(toEntity(authorizationConsent));
+    this.oauth2AuthorizationConsentMapper.save(toEntity(authorizationConsent));
   }
 
   @Override
@@ -53,9 +52,8 @@ public class DefaultOAuth2AuthorizationConsentService implements OAuth2Authoriza
   public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
     Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
     Assert.hasText(principalName, "principalName cannot be empty");
-    return Optional.ofNullable(
-            this.oauth2AuthorizationConsentMapper.selectByRegisteredClientIdAndPrincipalName(
-                registeredClientId, principalName))
+    return this.oauth2AuthorizationConsentMapper
+        .findByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
         .map(this::toObject)
         .orElse(null);
   }
