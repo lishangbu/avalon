@@ -9,4 +9,10 @@
   </parent>
   <artifactId>avalon-dataset-model</artifactId>
   <description>基础数据集实体定义</description>
+  <dependencies>
+    <dependency>
+      <groupId>io.github.lishangbu</groupId>
+      <artifactId>avalon-hibernate-support</artifactId>
+    </dependency>
+  </dependencies>
 </project>

@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.BerryFlavorService;
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /// 树果风味控制器
@@ -19,12 +19,12 @@ public class BerryFlavorController {
 
   /// 分页条件查询树果风味
   ///
-  /// @param page        分页参数（如 page, size, sort）
+  /// @param pageable 分页参数（如 page, size, sort）
   /// @param berryFlavor 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配
   /// @return 树果风味分页结果
   @GetMapping("/page")
-  public IPage<BerryFlavor> getBerryFlavorPage(Page<BerryFlavor> page, BerryFlavor berryFlavor) {
-    return berryFlavorService.getBerryFlavorPage(page, berryFlavor);
+  public Page<BerryFlavor> getBerryFlavorPage(Pageable pageable, BerryFlavor berryFlavor) {
+    return berryFlavorService.getPageByCondition(berryFlavor, pageable);
   }
 
   /// 新增树果风味
@@ -49,7 +49,7 @@ public class BerryFlavorController {
   ///
   /// @param id 树果风味ID
   @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@PathVariable Integer id) {
+  public void deleteById(@PathVariable Long id) {
     berryFlavorService.removeById(id);
   }
 }

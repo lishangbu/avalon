@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.Menu;
-import io.github.lishangbu.avalon.authorization.mapper.MenuMapper;
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode;
+import io.github.lishangbu.avalon.authorization.repository.MenuRepository;
 import io.github.lishangbu.avalon.authorization.service.MenuService;
 import io.github.lishangbu.avalon.web.util.TreeUtils;
 import java.util.Collections;
@@ -25,14 +25,14 @@ import org.springframework.util.CollectionUtils;
 @Service
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
-  private final MenuMapper menuMapper;
+  private final MenuRepository menuRepository;
 
   @Override
   public List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes) {
     if (CollectionUtils.isEmpty(roleCodes)) {
       return Collections.emptyList();
     }
-    List<Menu> menus = menuMapper.selectByRoleCodes(roleCodes);
+    List<Menu> menus = menuRepository.findAllByRoleCodes(roleCodes);
     log.debug("根据角色编码获取到 [{}] 条菜单记录", menus == null ? 0 : menus.size());
     return buildTreeFromMenus(menus);
   }

@@ -18,8 +18,5 @@ management:
 logging:
   level:
     org:
-      springframework:
-        jdbc:
-          core:
-            JdbcTemplate: DEBUG
-            StatementCreatorUtils: DEBUG
+      hibernate:
+        SQL: debug
