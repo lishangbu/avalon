@@ -1,5 +1,8 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
+import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
@@ -11,11 +14,12 @@ import lombok.Data;
 /// @author lishangbu
 /// @since 2025/08/20
 @Data
+@Entity
 public class Pokemon implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  private Long id;
+  @Id @Flex private Long id;
 
   /// 宝可梦内部名称
   private String internalName;

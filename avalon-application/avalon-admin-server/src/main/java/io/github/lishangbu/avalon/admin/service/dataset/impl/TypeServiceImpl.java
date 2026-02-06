@@ -1,34 +1,43 @@
 package io.github.lishangbu.avalon.admin.service.dataset.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
-import io.github.lishangbu.avalon.dataset.mapper.TypeMapper;
+import io.github.lishangbu.avalon.dataset.entity.Type_;
+import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /// 属性服务实现
-///
-/// 提供属性类型的数据导入、分页查询与 CRUD 操作
 ///
 /// @author lishangbu
 /// @since 2025/8/24
 @Service
 @RequiredArgsConstructor
 public class TypeServiceImpl implements TypeService {
-  private final TypeMapper typeMapper;
+  private final TypeRepository typeRepository;
 
-  /// 根据条件分页查询属性类型，结果按 ID 升序排序
+  /// 根据条件分页查询属性类型，结果按ID升序排序
   ///
-  /// @param page 分页参数
   /// @param type 查询条件实体，非空字段将作为过滤条件
-  /// @return 分页结果，按 ID 升序排序
+  /// @param pageable 分页参数
+  /// @return 分页结果，按ID升序排序
   @Override
-  public IPage<Type> getTypePage(Page<Type> page, Type type) {
-    return typeMapper.selectList(page, type);
+  public Page<Type> getPageByCondition(Type type, Pageable pageable) {
+    return typeRepository.findAll(
+        Example.of(
+            type,
+            ExampleMatcher.matching()
+                .withIgnoreNullValues()
+                .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+                .withMatcher(
+                    Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())),
+        pageable);
   }
 
   /// 保存属性类型
@@ -38,8 +47,7 @@ public class TypeServiceImpl implements TypeService {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Type save(Type type) {
-    typeMapper.insert(type);
-    return type;
+    return typeRepository.save(type);
   }
 
   /// 根据主键删除属性类型
@@ -47,8 +55,8 @@ public class TypeServiceImpl implements TypeService {
   /// @param id 属性类型主键
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public void removeById(Integer id) {
-    typeMapper.deleteById(id);
+  public void removeById(Long id) {
+    typeRepository.deleteById(id);
   }
 
   /// 更新属性类型
@@ -58,18 +66,22 @@ public class TypeServiceImpl implements TypeService {
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Type update(Type type) {
-    typeMapper.updateById(type);
-    return type;
+    return typeRepository.save(type);
   }
 
   /// 根据条件查询属性类型列表
   ///
-  /// 支持按 name/internalName 模糊查询，其余字段精确匹配
+  /// <p>支持按 name/internalName 模糊查询，其余字段精确匹配
   ///
   /// @param type 查询条件，支持部分字段模糊查询
   /// @return 属性类型列表
   @Override
   public List<Type> listByCondition(Type type) {
-    return typeMapper.selectList(type);
+    ExampleMatcher matcher =
+        ExampleMatcher.matching()
+            .withIgnoreNullValues()
+            .withMatcher(Type_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher(Type_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains());
+    return typeRepository.findAll(Example.of(type, matcher));
   }
 }

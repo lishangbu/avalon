@@ -1,6 +1,8 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -13,11 +15,12 @@ import lombok.Data;
 /// @author lishangbu
 /// @since 2025/08/19
 @Data
+@Entity
 public class OauthRegisteredClient implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 唯一标识符
-  private String id;
+  @Id private String id;
 
   /// 客户端 ID
   private String clientId;
@@ -66,7 +69,7 @@ public class OauthRegisteredClient implements Serializable {
 
   /// the expected subject distinguished name associated to the client X509Certificate received
   /// during client authentication when using the tls_client_auth method
-  @TableField("x509_certificate_subject_dn")
+  @Column(name = "x509_certificate_subject_dn")
   private String x509CertificateSubjectDn;
 
   /// the time-to-live for an authorization code. The default is 5 minutes.
@@ -95,6 +98,6 @@ public class OauthRegisteredClient implements Serializable {
   /// true if access tokens must be bound to the client X509Certificate received during client
   /// authentication when using the tls_client_auth or self_signed_tls_client_auth method. The
   /// default is false.
-  @TableField("x509_certificate_bound_access_tokens")
+  @Column(name = "x509_certificate_bound_access_tokens")
   private Boolean x509CertificateBoundAccessTokens;
 }

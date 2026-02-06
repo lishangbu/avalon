@@ -9,21 +9,20 @@ applyTo: "**/*Mapstruct.java"
 - 所有类型转换映射器必须使用 MapStruct 框架
 - Mapper 接口放在对应业务模块的 `mapstruct` 包下
 - 使用 `@Mapper(componentModel = SPRING)` 注解，集成 Spring 容器
-- Mapper 类命名遵循 `XxxConversionMapper` 格式
+- Mapper 类命名遵循 `XxxMapper` 格式
 - 必须添加完整的 JavaDoc 注释，说明转换目的和特殊逻辑
 
 ## 命名规范
 
 ### Mapper 接口命名
 
-- **格式**: `{实体名}ConversionMapper`
-- **示例**: `BerryConversionMapper`、`TypeConversionMapper`、`PokemonConversionMapper`
-- **避免**: 与 MyBatis Mapper 命名冲突，使用完全限定类名或不同包结构
+- **格式**: `{实体名}Mapper`
+- **示例**: `BerryMapper`、`TypeMapper`、`PokemonMapper`
 
 ### 转换方法命名
 
 - **格式**: `to{目标实体名}`
-- **示例**: `toDatasetBerry`、`toDatasetType`
+- **示例**: `toBerry`、`toType`
 - **规则**: 方法名应清晰表达转换方向
 
 ### 自定义方法命名
