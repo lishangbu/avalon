@@ -1,16 +1,14 @@
 package io.github.lishangbu.avalon.admin.controller.dataset;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 /// 属性控制器
-///
-/// 提供属性类型的导入、分页查询及 CRUD 接口
 ///
 /// @author lishangbu
 /// @since 2025/8/24
@@ -22,12 +20,12 @@ public class TypeController {
 
   /// 分页条件查询属性类型
   ///
-  /// @param page 分页参数
+  /// @param pageable 分页参数（如 page, size, sort）
   /// @param type 查询条件，支持 name/internalName 模糊查询，其余字段精确匹配
   /// @return 属性类型分页结果
   @GetMapping("/page")
-  public IPage<Type> getTypePage(Page<Type> page, Type type) {
-    return typeService.getTypePage(page, type);
+  public Page<Type> getTypePage(Pageable pageable, Type type) {
+    return typeService.getPageByCondition(type, pageable);
   }
 
   /// 新增属性类型
@@ -40,6 +38,7 @@ public class TypeController {
   }
 
   /// 更新属性类型
+  ///
   /// @param type 属性类型实体
   /// @return 更新后的属性类型
   @PutMapping
@@ -47,14 +46,18 @@ public class TypeController {
     return typeService.update(type);
   }
 
-  /// 根据 ID 删除属性类型
-  /// @param id 属性类型 ID
+  /// 根据ID删除属性类型
+  ///
+  /// @param id 属性类型ID
   @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@PathVariable Integer id) {
+  public void deleteById(@PathVariable Long id) {
     typeService.removeById(id);
   }
 
-  /// 条件查询属性类型列表，支持按 name/internalName 模糊查询
+  /// 条件查询属性类型列表
+  ///
+  /// <p>支持按 name/internalName 模糊查询，其余字段精确匹配
+  ///
   /// @param type 查询条件，支持部分字段模糊查询
   /// @return 属性类型列表
   @GetMapping("/list")

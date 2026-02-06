@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.authorization.service.impl;
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient;
-import io.github.lishangbu.avalon.authorization.mapper.OauthRegisteredClientMapper;
+import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.convert.DurationStyle;
@@ -22,17 +21,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-/// JDBC 注册客户端仓库实现
-///
-/// 基于数据库的 RegisteredClient 存储实现，负责在数据库与 RegisteredClient 之间进行转换
+/// JPA 注册客户端
 ///
 /// @author lishangbu
 /// @since 2025/8/17
 @Component
 @RequiredArgsConstructor
 public class DefaultRegisteredClientRepository implements RegisteredClientRepository {
-  private final OauthRegisteredClientMapper oauth2RegisteredClientMapper;
+  private final Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
 
+  /// 解析授权类型
+  ///
+  /// @param authorizationGrantType 授权类型字符串
+  /// @return 授权类型对象
   private static AuthorizationGrantType resolveAuthorizationGrantType(
       String authorizationGrantType) {
     if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
@@ -44,10 +45,13 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     } else if (AuthorizationGrantType.REFRESH_TOKEN.getValue().equals(authorizationGrantType)) {
       return AuthorizationGrantType.REFRESH_TOKEN;
     }
-    // Custom authorization grant type
-    return new AuthorizationGrantType(authorizationGrantType);
+    return new AuthorizationGrantType(authorizationGrantType); // Custom authorization grant type
   }
 
+  /// 解析客户端认证方法
+  ///
+  /// @param clientAuthenticationMethod 认证方法字符串
+  /// @return 认证方法对象
   private static ClientAuthenticationMethod resolveClientAuthenticationMethod(
       String clientAuthenticationMethod) {
     if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC
@@ -61,33 +65,46 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     } else if (ClientAuthenticationMethod.NONE.getValue().equals(clientAuthenticationMethod)) {
       return ClientAuthenticationMethod.NONE;
     }
-    // Custom client authentication method
-    return new ClientAuthenticationMethod(clientAuthenticationMethod);
+    return new ClientAuthenticationMethod(
+        clientAuthenticationMethod); // Custom client authentication method
   }
 
+  /// 保存注册客户端
+  ///
+  /// @param registeredClient 注册客户端
   @Override
   public void save(RegisteredClient registeredClient) {
     Assert.notNull(registeredClient, "registeredClient cannot be null");
-    this.oauth2RegisteredClientMapper.insertOrUpdate(toEntity(registeredClient));
+    this.oauth2RegisteredClientRepository.save(toEntity(registeredClient));
   }
 
+  /// 根据ID查找注册客户端
+  ///
+  /// @param id 客户端ID
+  /// @return 注册客户端，未找到返回null
   @Override
   public RegisteredClient findById(String id) {
     Assert.hasText(id, "id cannot be empty");
-    return Optional.ofNullable(this.oauth2RegisteredClientMapper.selectById(id))
-        .map(this::toObject)
-        .orElse(null);
+    return this.oauth2RegisteredClientRepository.findById(id).map(this::toObject).orElse(null);
   }
 
+  /// 根据客户端ID查找注册客户端
+  ///
+  /// @param clientId 客户端ID
+  /// @return 注册客户端，未找到返回null
   @Override
   public RegisteredClient findByClientId(String clientId) {
     Assert.hasText(clientId, "clientId cannot be empty");
-    return this.oauth2RegisteredClientMapper
-        .selectByClientId(clientId)
+    return this.oauth2RegisteredClientRepository
+        .findByClientId(clientId)
         .map(this::toObject)
         .orElse(null);
   }
 
+  /// 将实体转换为对象
+  ///
+  /// @param client 实体
+  /// @return 对象
   private RegisteredClient toObject(OauthRegisteredClient client) {
     Set<String> clientAuthenticationMethods =
         StringUtils.commaDelimitedListToSet(client.getClientAuthenticationMethods());
@@ -182,6 +199,10 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
     return builder.build();
   }
 
+  /// 将对象转换为实体
+  ///
+  /// @param registeredClient 对象
+  /// @return 实体
   private OauthRegisteredClient toEntity(RegisteredClient registeredClient) {
     List<String> clientAuthenticationMethods =
         new ArrayList<>(registeredClient.getClientAuthenticationMethods().size());

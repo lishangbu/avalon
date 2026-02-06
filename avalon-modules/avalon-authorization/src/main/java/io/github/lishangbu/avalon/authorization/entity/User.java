@@ -1,10 +1,12 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
-import lombok.ToString;
+import java.util.Set;
+import lombok.*;
 
 /// 用户信息(User)实体类
 ///
@@ -13,11 +15,13 @@ import lombok.ToString;
 /// @author lishangbu
 /// @since 2025/08/19
 @Data
+@Entity
+@Table(name = "[user]")
 public class User implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  private Long id;
+  @Flex @Id private Long id;
 
   /// 用户名
   private String username;
@@ -25,5 +29,15 @@ public class User implements Serializable {
   /// 密码（写入-only，不会在 toString 中显示）
   @ToString.Exclude
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Column(name = "[password]")
   private String password;
+
+  /// 用户与角色多对多关系
+  @ManyToMany
+  @JoinTable(
+      name = "user_role_relation",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  @ToString.Exclude
+  private Set<Role> roles;
 }
