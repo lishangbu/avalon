@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -21,12 +22,17 @@ public class OauthAuthorizationConsent implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 当前授权确认的客户端id
-  @Id private String registeredClientId;
+  @Id
+  @Column(comment = "当前授权确认的客户端id")
+  private String registeredClientId;
 
   /// 当前授权确认用户的 username
-  @Id private String principalName;
+  @Id
+  @Column(comment = "当前授权确认用户的 username")
+  private String principalName;
 
   /// 授权确认的scope
+  @Column(comment = "授权确认的scope")
   private String authorities;
 
   /// OauthAuthorizationConsent 的复合主键类
