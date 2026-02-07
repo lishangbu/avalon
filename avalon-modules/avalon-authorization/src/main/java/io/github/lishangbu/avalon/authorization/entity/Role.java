@@ -19,15 +19,21 @@ public class Role implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  @Id @Flex private Long id;
+  @Id
+  @Flex
+  @Column(comment = "主键")
+  private Long id;
 
   /// 角色代码
+  @Column(comment = "角色代码")
   private String code;
 
   /// 角色名称
+  @Column(comment = "角色名称")
   private String name;
 
   /// 角色是否启用
+  @Column(comment = "角色是否启用 true: 启用，false: 禁用")
   private Boolean enabled;
 
   /// 角色与权限多对多关系

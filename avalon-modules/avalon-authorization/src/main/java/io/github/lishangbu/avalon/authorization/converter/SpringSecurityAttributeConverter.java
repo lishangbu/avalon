@@ -11,7 +11,6 @@ import tools.jackson.databind.json.JsonMapper;
 ///
 /// 用于 JPA 实体中 Map<String, Object> 类型属性的数据库存储与读取，
 /// 通过 JSON 序列化/反序列化实现，支持 Spring Security 对象的安全转换。
-/// 自动应用到所有 Map<String, Object> 字段，避免手动转换。
 ///
 /// 配置说明：
 /// - 使用 JsonMapper 配置 SecurityJacksonModules，确保 Spring Security 对象正确序列化。
