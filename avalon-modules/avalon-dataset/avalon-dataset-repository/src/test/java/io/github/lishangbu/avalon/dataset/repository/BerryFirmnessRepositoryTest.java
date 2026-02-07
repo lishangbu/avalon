@@ -13,14 +13,14 @@ class BerryFirmnessRepositoryTest extends AbstractRepositoryTest {
 
   @Resource private BerryFirmnessRepository berryFirmnessRepository;
 
-  /// 验证 Liquibase 导入的数据可以通过 selectById 查询到（使用 CSV 中已知的 ID）
+  /// 验证 数据库中的数据可以通过 selectById 查询到
   @Test
-  void shouldFindBerryFirmnessByIdFromLiquibase() {
+  void shouldFindBerryFirmnessById() {
     // Act
     Optional<BerryFirmness> firmnessOptional = berryFirmnessRepository.findById(1L);
 
     // Assert
-    Assertions.assertTrue(firmnessOptional.isPresent(), "Liquibase 应已插入 id=1 的 属性为很柔软的树果硬度记录");
+    Assertions.assertTrue(firmnessOptional.isPresent(), "应已插入 id=1 的 属性为很柔软的树果硬度记录");
     BerryFirmness berryFirmness = firmnessOptional.get();
     Assertions.assertEquals(1L, berryFirmness.getId());
     Assertions.assertEquals("very-soft", berryFirmness.getInternalName());

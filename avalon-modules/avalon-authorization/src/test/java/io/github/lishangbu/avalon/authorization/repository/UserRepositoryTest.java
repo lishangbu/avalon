@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 /// 用户 Repository 测试
 ///
-/// 覆盖用户的插入与按用户名查询逻辑，依赖 Liquibase 初始化的测试数据与关系
+/// 覆盖用户的插入与按用户名查询逻辑，依赖数据库初始化的测试数据与关系
 ///
 /// @author lishangbu
 /// @since 2025/8/20

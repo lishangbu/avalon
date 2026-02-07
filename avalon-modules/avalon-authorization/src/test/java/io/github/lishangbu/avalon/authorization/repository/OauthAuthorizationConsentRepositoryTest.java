@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /// OAuth 授权同意数据访问层测试类
 ///
-/// 测试 OauthAuthorizationConsentRepository 的基本 CRUD 操作，继承 AbstractRepositoryTest 以复用内嵌数据库与
-// Liquibase迁移
+/// 测试 OauthAuthorizationConsentRepository 的基本 CRUD 操作
 ///
 /// @author lishangbu
 /// @since 2025/8/20

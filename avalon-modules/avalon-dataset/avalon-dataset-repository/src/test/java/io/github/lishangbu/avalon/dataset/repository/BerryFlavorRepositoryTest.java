@@ -13,21 +13,21 @@ class BerryFlavorRepositoryTest extends AbstractRepositoryTest {
 
   @Resource private BerryFlavorRepository berryFlavorRepository;
 
-  /// 验证 Liquibase 导入的数据可以通过 selectById 查询到（使用已知 CSV 中的 ID）
+  /// 验证 通过ID查询
   @Test
-  void shouldFindBerryFlavorByIdFromLiquibase() {
+  void shouldFindBerryFlavorById() {
     // Act
     Optional<BerryFlavor> flavorOptional = berryFlavorRepository.findById(1L);
     Assertions.assertTrue(flavorOptional.isPresent());
     BerryFlavor flavor = flavorOptional.get();
     // Assert
-    Assertions.assertNotNull(flavor, "Liquibase 应已插入 id=1 的 属性为辣的树果风味记录");
+    Assertions.assertNotNull(flavor, "应已插入 id=1 的 属性为辣的树果风味记录");
     Assertions.assertEquals(1L, flavor.getId());
     Assertions.assertEquals("spicy", flavor.getInternalName());
     Assertions.assertEquals("辣", flavor.getName());
   }
 
-  /// 验证 selectList 的动态查询能够基于部分 internalName 匹配到 Liquibase 中的数据
+  /// 验证 selectList 的动态查询能够基于部分 internalName 匹配到 数据库中的数据
   @Test
   void shouldSelectListMatchByInternalName() {
     // Arrange - 构造查询条件，使用部分 internalName
