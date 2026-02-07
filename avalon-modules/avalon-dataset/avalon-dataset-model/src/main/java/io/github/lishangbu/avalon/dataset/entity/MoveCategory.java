@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -19,14 +20,20 @@ public class MoveCategory implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  @Id @Flex private Long id;
+  @Id
+  @Flex
+  @Column(comment = "主键")
+  private Long id;
 
   /// 招式分类内部名称
+  @Column(comment = "招式分类内部名称", length = 100)
   private String internalName;
 
   /// 招式分类名称
+  @Column(comment = "招式分类名称", length = 100)
   private String name;
 
   /// 招式分类描述
+  @Column(comment = "招式分类描述", length = 300)
   private String description;
 }

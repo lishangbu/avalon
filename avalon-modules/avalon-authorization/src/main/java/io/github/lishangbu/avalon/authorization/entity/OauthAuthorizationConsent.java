@@ -23,16 +23,16 @@ public class OauthAuthorizationConsent implements Serializable {
 
   /// 当前授权确认的客户端id
   @Id
-  @Column(comment = "当前授权确认的客户端id")
+  @Column(comment = "当前授权确认的客户端id", length = 100)
   private String registeredClientId;
 
   /// 当前授权确认用户的 username
   @Id
-  @Column(comment = "当前授权确认用户的 username")
+  @Column(comment = "当前授权确认用户的 username", length = 200)
   private String principalName;
 
   /// 授权确认的scope
-  @Column(comment = "授权确认的scope")
+  @Column(comment = "授权确认的scope", length = 1000)
   private String authorities;
 
   /// OauthAuthorizationConsent 的复合主键类

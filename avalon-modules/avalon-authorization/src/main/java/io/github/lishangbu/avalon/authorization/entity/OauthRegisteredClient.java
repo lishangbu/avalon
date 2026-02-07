@@ -21,11 +21,11 @@ public class OauthRegisteredClient implements Serializable {
 
   /// 唯一标识符
   @Id
-  @Column(comment = "唯一标识符")
+  @Column(comment = "唯一标识符", length = 100)
   private String id;
 
   /// 客户端 ID
-  @Column(comment = "客户端 ID")
+  @Column(comment = "客户端 ID", length = 100)
   private String clientId;
 
   /// 客户端 ID 签发时间
@@ -33,7 +33,7 @@ public class OauthRegisteredClient implements Serializable {
   private Instant clientIdIssuedAt;
 
   /// 客户端密钥
-  @Column(comment = "客户端密钥")
+  @Column(comment = "客户端密钥", length = 200)
   private String clientSecret;
 
   /// 客户端密钥过期时间
@@ -41,107 +41,88 @@ public class OauthRegisteredClient implements Serializable {
   private Instant clientSecretExpiresAt;
 
   /// 客户端名称
-  @Column(comment = "客户端名称")
+  @Column(comment = "客户端名称", length = 200)
   private String clientName;
 
   /// 客户端认证方式
-  @Column(comment = "客户端认证方式")
+  @Column(comment = "客户端认证方式", length = 1000)
   private String clientAuthenticationMethods;
 
   /// 授权方式
-  @Column(comment = "授权方式")
+  @Column(comment = "授权方式", length = 1000)
   private String authorizationGrantTypes;
 
   /// 重定向 URI
-  @Column(comment = "重定向 URI")
+  @Column(comment = "重定向 URI", length = 1000)
   private String redirectUris;
 
   /// 登出后的重定向 URI
-  @Column(comment = "登出后的重定向 URI")
+  @Column(comment = "登出后的重定向 URI", length = 1000)
   private String postLogoutRedirectUris;
 
   /// 客户端授权的范围
-  @Column(comment = "客户端授权的范围")
+  @Column(comment = "客户端授权的范围", length = 1000)
   private String scopes;
 
-  /// true if the client is required to provide a proof key challenge and verifier when performing
-  // the Authorization Code Grant flow. The default is false.
-  @Column(
-      comment =
-          "true if the client is required to provide a proof key challenge and verifier when"
-              + " performing the Authorization Code Grant flow. The default is false.")
+  /// 如果客户端在执行授权码授权流程时需要提供证明密钥挑战和验证器，则为 true。默认值为 false。
+  @Column(comment = "如果客户端在执行授权码授权流程时需要提供证明密钥挑战和验证器，则为 true。默认值为 false。")
   private Boolean requireProofKey;
 
-  /// true if authorization consent is required when the client requests access. The default is
-  // false
-  @Column(
-      comment =
-          "true if authorization consent is required when the client requests access. The default"
-              + " is false")
+  /// 如果客户端请求访问时需要授权同意，则为 true。默认值为 false。
+  @Column(comment = "如果客户端请求访问时需要授权同意，则为 true。默认值为 false。")
   private Boolean requireAuthorizationConsent;
 
-  /// the URL for the Client's JSON Web Key Set
-  @Column(comment = "the URL for the Client's JSON Web Key Set")
+  /// 客户端的 JSON Web Key Set 的 URL
+  @Column(comment = "客户端的 JSON Web Key Set 的 URL", length = 1000)
   private String jwkSetUrl;
 
-  /// the JWS algorithm that must be used for signing the JWT used to authenticate the Client at the
-  // Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods.
+  /// 用于在令牌端点对客户端进行身份验证的 JWT 签名时必须使用的 JWS 算法（private_key_jwt 和 client_secret_jwt 认证方法）。
   @Column(
-      comment =
-          "the JWS algorithm that must be used for signing the JWT used to authenticate the Client"
-              + " at the Token Endpoint for the private_key_jwt and client_secret_jwt"
-              + " authentication methods.")
+      comment = "用于在令牌端点对客户端进行身份验证的 JWT 签名时必须使用的 JWS 算法（private_key_jwt 和 client_secret_jwt 认证方法）。",
+      length = 20)
   private String tokenEndpointAuthenticationSigningAlgorithm;
 
-  /// the expected subject distinguished name associated to the client X509Certificate received
-  // during client authentication when using the tls_client_auth method
+  /// 使用 tls_client_auth 方法时，在客户端认证期间接收到的客户端 X509Certificate 关联的预期主题可分辨名称。
   @Column(
       name = "x509_certificate_subject_dn",
-      comment =
-          "the expected subject distinguished name associated to the client X509Certificate"
-              + " received during client authentication when using the tls_client_auth method")
+      comment = "使用 tls_client_auth 方法时，在客户端认证期间接收到的客户端 X509Certificate 关联的预期主题可分辨名称。",
+      length = 20)
   private String x509CertificateSubjectDn;
 
-  /// the time-to-live for an authorization code. The default is 5 minutes.
-  @Column(comment = "the time-to-live for an authorization code. The default is 5 minutes.")
+  /// 授权码的生存时间。默认值为 5 分钟。
+  @Column(comment = "授权码的生存时间。默认值为 5 分钟。", length = 20)
   private String authorizationCodeTimeToLive;
 
-  /// the time-to-live for an access token. The default is 5 minutes.
-  @Column(comment = "the time-to-live for an access token. The default is 5 minutes.")
+  /// 访问令牌的生存时间。默认值为 5 分钟。
+  @Column(comment = "访问令牌的生存时间。默认值为 5 分钟。", length = 20)
   private String accessTokenTimeToLive;
 
-  /// the token format for an access token,The default is self-contained
-  @Column(comment = "the token format for an access token,The default is self-contained")
+  /// 访问令牌的令牌格式，默认值为 self-contained。
+  @Column(comment = "访问令牌的令牌格式，默认值为 self-contained。", length = 20)
   private String accessTokenFormat;
 
-  /// the time-to-live for an access token. The default is 5 minutes.
-  @Column(comment = "the time-to-live for an access token. The default is 5 minutes.")
+  /// 设备码的生存时间。默认值为 5 分钟。
+  @Column(comment = "设备码的生存时间。默认值为 5 分钟。", length = 20)
   private String deviceCodeTimeToLive;
 
-  /// Returns true if refresh tokens are reused when returning the access token response, or false
-  // if a new refresh token is issued. The default is true.
-  @Column(
-      comment =
-          "Returns true if refresh tokens are reused when returning the access token response, or"
-              + " false if a new refresh token is issued. The default is true.")
+  /// 如果在返回访问令牌响应时重用刷新令牌，则为 true；如果发出新的刷新令牌，则为 false。默认值为 true。
+  @Column(comment = "如果在返回访问令牌响应时重用刷新令牌，则为 true；如果发出新的刷新令牌，则为 false。默认值为 true。")
   private Boolean reuseRefreshTokens;
 
-  /// the time-to-live for a refresh token. The default is 60 minutes.
-  @Column(comment = "the time-to-live for a refresh token. The default is 60 minutes.")
+  /// 刷新令牌的生存时间。默认值为 60 分钟。
+  @Column(comment = "刷新令牌的生存时间。默认值为 60 分钟。", length = 20)
   private String refreshTokenTimeToLive;
 
-  /// the JWS algorithm for signing the ID Token. The default is RS256.
-  @Column(comment = "the JWS algorithm for signing the ID Token. The default is RS256.")
+  /// 用于签名 ID 令牌的 JWS 算法。默认值为 RS256。
+  @Column(comment = "用于签名 ID 令牌的 JWS 算法。默认值为 RS256。", length = 20)
   private String idTokenSignatureAlgorithm;
 
-  /// true if access tokens must be bound to the client X509Certificate received during client
-  // authentication when using the tls_client_auth or self_signed_tls_client_auth method. The
-  // default is false.
+  /// 如果访问令牌必须绑定到使用 tls_client_auth 或 self_signed_tls_client_auth 方法时在客户端认证期间接收到的客户端
+  // X509Certificate，则为 true。默认值为 false。
   @Column(
       name = "x509_certificate_bound_access_tokens",
       comment =
-          "true if access tokens must be bound to the client X509Certificate received during client"
-              + " authentication when using the tls_client_auth or self_signed_tls_client_auth"
-              + " method. The default is false.")
+          "如果访问令牌必须绑定到使用 tls_client_auth 或 self_signed_tls_client_auth 方法时在客户端认证期间接收到的客户端"
+              + " X509Certificate，则为 true。默认值为 false。")
   private Boolean x509CertificateBoundAccessTokens;
 }

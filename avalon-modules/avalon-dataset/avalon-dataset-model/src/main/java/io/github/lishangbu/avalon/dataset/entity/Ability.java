@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -19,20 +20,28 @@ public class Ability implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  @Id @Flex private Long id;
+  @Id
+  @Flex
+  @Column(comment = "主键")
+  private Long id;
 
   /// 内部名称
+  @Column(comment = "内部名称", length = 100)
   private String internalName;
 
   /// 名称
+  @Column(comment = "名称", length = 100)
   private String name;
 
   /// 特性效果
+  @Column(comment = "特性效果", length = 1000)
   private String effect;
 
   /// 基本信息
+  @Column(comment = "基本信息", length = 500)
   private String info;
 
   /// 文字介绍
+  @Column(comment = "文字介绍", length = 500)
   private String text;
 }

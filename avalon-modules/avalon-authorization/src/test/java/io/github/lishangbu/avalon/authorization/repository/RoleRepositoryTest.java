@@ -26,8 +26,8 @@ class RoleRepositoryTest extends AbstractRepositoryTest {
     Optional<Role> roleOptional = roleRepository.findById(1L);
     Assertions.assertTrue(roleOptional.isPresent());
     Role role = roleOptional.get();
-    Assertions.assertEquals("ROLE_TEST", role.getCode());
-    Assertions.assertEquals("测试员", role.getName());
+    Assertions.assertEquals("ROLE_SUPER_ADMIN", role.getCode());
+    Assertions.assertEquals("超级管理员", role.getName());
     Assertions.assertEquals(1L, role.getId());
     Assertions.assertTrue(role.getEnabled());
   }

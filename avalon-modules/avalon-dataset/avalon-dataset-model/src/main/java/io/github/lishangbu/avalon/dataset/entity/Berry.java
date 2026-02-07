@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -19,35 +20,48 @@ public class Berry implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  @Id @Flex private Long id;
+  @Id
+  @Flex
+  @Column(comment = "主键")
+  private Long id;
 
   /// 内部名称
+  @Column(comment = "内部名称", length = 100)
   private String internalName;
 
   /// 名称
+  @Column(comment = "名称", length = 100)
   private String name;
 
   /// 生长到下一个阶段所需的时间(小时)
+  @Column(comment = "生长到下一个阶段所需的时间(小时)")
   private Integer growthTime;
 
   /// 最大结果数
+  @Column(comment = "最大结果数")
   private Integer maxHarvest;
 
   /// 树果大小（毫米）
+  @Column(comment = "树果大小（毫米）")
   private Integer bulk;
 
   /// 光滑度
+  @Column(comment = "光滑度")
   private Integer smoothness;
 
   /// 生长时使土壤干燥的速度，数值越高土壤干燥越快
+  @Column(comment = "生长时使土壤干燥的速度，数值越高土壤干燥越快")
   private Integer soilDryness;
 
   /// 树果的坚硬度(内部名称)
+  @Column(comment = "树果的坚硬度(内部名称)", length = 100)
   private String firmnessInternalName;
 
   /// 搭配该树果使用“自然之恩”招式时继承的属性类型
+  @Column(comment = "搭配该树果使用“自然之恩”招式时继承的属性类型", length = 50)
   private String naturalGiftTypeInternalName;
 
   /// 搭配该树果使用“自然之恩”招式时的威力
+  @Column(comment = "搭配该树果使用“自然之恩”招式时的威力")
   private Integer naturalGiftPower;
 }

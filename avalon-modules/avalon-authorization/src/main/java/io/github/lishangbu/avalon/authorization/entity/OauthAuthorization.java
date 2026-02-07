@@ -24,27 +24,28 @@ public class OauthAuthorization implements Serializable {
 
   /// 授权记录唯一标识符，数据库主键，最大长度 100 个字符
   @Id
-  @Column(comment = "授权记录唯一标识符，数据库主键", length = 100)
+  @Column(comment = "授权记录唯一标识符，数据库主键，最大长度 100 个字符", length = 100)
   private String id;
 
   /// 注册客户端 ID，关联到 OAuth2 客户端，标识发起授权请求的客户端应用，最大长度 100 个字符
-  @Column(comment = "注册客户端 ID，关联到 OAuth2 客户端，标识发起授权请求的客户端应用", length = 100)
+  @Column(comment = "注册客户端 ID，关联到 OAuth2 客户端，标识发起授权请求的客户端应用，最大长度 100 个字符", length = 100)
   private String registeredClientId;
 
   /// 用户主体名称，标识被授权的用户，通常为用户名或用户唯一标识，最大长度 200 个字符
-  @Column(comment = "用户主体名称，标识被授权的用户，通常为用户名或用户唯一标识", length = 200)
+  @Column(comment = "用户主体名称，标识被授权的用户，通常为用户名或用户唯一标识，最大长度 200 个字符", length = 200)
   private String principalName;
 
   /// 授权类型，标识使用的授权流程，可选值：authorization_code、client_credentials、refresh_token、device_code 等，最大长度 100
   // 个字符
   @Column(
       comment =
-          "授权类型，标识使用的授权流程，可选值：authorization_code、client_credentials、refresh_token、device_code 等",
+          "授权类型，标识使用的授权流程，可选值：authorization_code、client_credentials、refresh_token、device_code"
+              + " 等，最大长度 100 个字符",
       length = 100)
   private String authorizationGrantType;
 
   /// 已授权的权限范围集合，逗号分隔的权限字符串，记录用户实际授予客户端的权限，最大长度 1000 个字符
-  @Column(comment = "已授权的权限范围集合，逗号分隔的权限字符串，记录用户实际授予客户端的权限", length = 1000)
+  @Column(comment = "已授权的权限范围集合，逗号分隔的权限字符串，记录用户实际授予客户端的权限，最大长度 1000 个字符", length = 1000)
   private String authorizedScopes;
 
   /// 授权属性数据，存储授权相关的元数据
@@ -54,11 +55,11 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> attributes;
 
   /// 授权状态信息，存储授权流程的状态数据，最大长度 500 个字符
-  @Column(comment = "授权状态信息，存储授权流程的状态数据", length = 500)
+  @Column(comment = "授权状态信息，存储授权流程的状态数据，最大长度 500 个字符", length = 500)
   private String state;
 
   /// 授权码值，授权码模式下生成的临时授权码
-  @Column(comment = "授权码值，授权码模式下生成的临时授权码")
+  @Column(comment = "授权码值，授权码模式下生成的临时授权码", length = 1000)
   private String authorizationCodeValue;
 
   /// 授权码签发时间（UTC）
@@ -76,7 +77,7 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> authorizationCodeMetadata;
 
   /// 访问令牌值，用于访问受保护资源的凭证
-  @Column(comment = "访问令牌值，用于访问受保护资源的凭证")
+  @Column(comment = "访问令牌值，用于访问受保护资源的凭证", length = 1000)
   private String accessTokenValue;
 
   /// 访问令牌签发时间（UTC）
@@ -94,15 +95,15 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> accessTokenMetadata;
 
   /// 访问令牌类型，标识令牌的使用方式（通常为 Bearer），最大长度 100 个字符
-  @Column(comment = "访问令牌类型，标识令牌的使用方式（通常为 Bearer）", length = 100)
+  @Column(comment = "访问令牌类型，标识令牌的使用方式（通常为 Bearer），最大长度 100 个字符", length = 100)
   private String accessTokenType;
 
   /// 访问令牌关联的权限范围，逗号分隔的权限字符串，最大长度 1000 个字符
-  @Column(comment = "访问令牌关联的权限范围，逗号分隔的权限字符串", length = 1000)
+  @Column(comment = "访问令牌关联的权限范围，逗号分隔的权限字符串，最大长度 1000 个字符", length = 1000)
   private String accessTokenScopes;
 
   /// OpenID Connect ID 令牌值，包含用户身份信息的 JWT 令牌
-  @Column(comment = "OpenID Connect ID 令牌值，包含用户身份信息的 JWT 令牌")
+  @Column(comment = "OpenID Connect ID 令牌值，包含用户身份信息的 JWT 令牌", length = 1000)
   private String oidcIdTokenValue;
 
   /// ID 令牌签发时间（UTC）
@@ -120,7 +121,7 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> oidcIdTokenMetadata;
 
   /// 刷新令牌值，用于获取新访问令牌的长期凭证
-  @Column(comment = "刷新令牌值，用于获取新访问令牌的长期凭证")
+  @Column(comment = "刷新令牌值，用于获取新访问令牌的长期凭证", length = 1000)
   private String refreshTokenValue;
 
   /// 刷新令牌签发时间（UTC）
@@ -138,7 +139,7 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> refreshTokenMetadata;
 
   /// 用户码值，设备授权流程中用户输入的验证码
-  @Column(comment = "用户码值，设备授权流程中用户输入的验证码")
+  @Column(comment = "用户码值，设备授权流程中用户输入的验证码", length = 1000)
   private String userCodeValue;
 
   /// 用户码签发时间（UTC）
@@ -156,7 +157,7 @@ public class OauthAuthorization implements Serializable {
   private Map<String, Object> userCodeMetadata;
 
   /// 设备码值，设备授权流程中设备使用的验证码
-  @Column(comment = "设备码值，设备授权流程中设备使用的验证码")
+  @Column(comment = "设备码值，设备授权流程中设备使用的验证码", length = 1000)
   private String deviceCodeValue;
 
   /// 设备码签发时间（UTC）
