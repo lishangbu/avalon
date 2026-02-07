@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /// OAuth 注册客户端 Repository 测试
 ///
-/// 验证根据 clientId 查询客户端配置的能力，依赖 Liquibase 初始化的数据
+/// 验证根据 clientId 查询客户端配置的能力，依赖数据库初始化的数据
 ///
 /// @author lishangbu
 /// @since 2025/8/20

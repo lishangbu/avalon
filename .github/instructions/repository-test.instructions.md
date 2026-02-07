@@ -16,12 +16,11 @@ applyTo: "*RepositoryTest.java"
 
 - 禁止在测试类中直接声明 `@Container` PostgreSQL 容器
 - 通过继承 `AbstractRepositoryTest` 复用共享容器，测试开始前启动、结束后关闭
-- 测试数据与表结构依赖 Liquibase 迁移，确保在测试执行前完成
 
 ## 抽象基类与配置要求
 
 - 每个模块测试根包下提供 `AbstractRepositoryTest`，集中管理容器与测试上下文
-- 容器启动顺序：启动 PostgreSQL 容器 → `@ServiceConnection` 注入数据源 → Liquibase 同步迁移 → Spring Data JPA 初始化
+- 容器启动顺序：启动 PostgreSQL 容器 → `@ServiceConnection` 注入数据源 → Spring Data JPA 初始化
 
 ## 编码与校验
 

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /// 菜单 Repository 测试
 ///
-/// 验证菜单查询、插入、更新与删除流程，依赖 Liquibase 初始化的测试数据
+/// 验证菜单查询、插入、更新与删除流程，依赖数据库初始化的测试数据
 ///
 /// @author lishangbu
 /// @since 2025/12/6

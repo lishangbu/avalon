@@ -20,15 +20,11 @@ public class TestEnvironmentApplication {
   /// PostgreSQL 测试容器 Bean
   ///
   /// 使用 @ServiceConnection 注解，Spring Boot 会自动配置数据源连接
-  /// 容器在返回前已启动，确保 Liquibase 可以立即连接数据库
   ///
-  /// @return 已启动的 PostgreSQL 容器实例
+  /// @return PostgreSQL 容器实例
   @Bean
   @ServiceConnection
   PostgreSQLContainer postgresContainer() {
-    PostgreSQLContainer container =
-        new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
-    container.start();
-    return container;
+    return new PostgreSQLContainer(DockerImageName.parse("postgres"));
   }
 }

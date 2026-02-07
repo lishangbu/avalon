@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /// 角色信息实体的 Repository 测试
 ///
-/// 验证角色查询、插入、更新与删除流程，依赖 Liquibase 初始化的测试数据
+/// 验证角色查询、插入、更新与删除流程，依赖数据库初始化的测试数据
 ///
 /// @author lishangbu
 /// @since 2025/8/25

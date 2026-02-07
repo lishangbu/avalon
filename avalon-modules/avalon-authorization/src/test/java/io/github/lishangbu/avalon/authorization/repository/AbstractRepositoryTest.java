@@ -15,9 +15,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 ///
 /// 1. Testcontainers 启动 PostgreSQL 容器
 /// 2. Spring 通过 @ServiceConnection 自动配置数据源
-/// 3. LiquibaseAutoConfiguration 执行数据库迁移，创建表结构
-/// 4. Spring Data Jpa 初始化 Repository 接口
-/// 5. 测试方法开始执行
+/// 3. Spring Data Jpa 初始化 Repository 接口,创建表结构,执行数据库迁移
+/// 4. 测试方法开始执行
 ///
 /// @author lishangbu
 /// @since 2025/12/23
