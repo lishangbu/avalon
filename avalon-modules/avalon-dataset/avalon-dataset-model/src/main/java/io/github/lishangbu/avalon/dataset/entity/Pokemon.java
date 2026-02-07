@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -19,20 +20,28 @@ public class Pokemon implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 主键
-  @Id @Flex private Long id;
+  @Id
+  @Flex
+  @Column(comment = "主键")
+  private Long id;
 
   /// 宝可梦内部名称
+  @Column(comment = "宝可梦内部名称", length = 100)
   private String internalName;
 
   /// 宝可梦名称
+  @Column(comment = "宝可梦名称", length = 100)
   private String name;
 
   /// 身高，单位为分米
+  @Column(comment = "身高，单位为分米")
   private Integer height;
 
   /// 体重，数字每增加1，体重增加0.1kg
+  @Column(comment = "体重，数字每增加1，体重增加0.1kg")
   private Integer weight;
 
   /// 基础经验值
+  @Column(comment = "基础经验值")
   private Integer baseExperience;
 }

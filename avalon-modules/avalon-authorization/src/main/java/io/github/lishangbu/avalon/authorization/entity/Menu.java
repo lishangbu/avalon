@@ -28,34 +28,32 @@ public class Menu implements Serializable {
   /// 主键
   @Id
   @Flex
-  @Column(comment = "菜单 ID")
+  @Column(comment = "主键")
   private Long id;
 
   /// 父菜单 ID
   @Column(comment = "父菜单 ID")
   private Long parentId;
 
-  // region Naive UI Menu 属性
-
   /// 是否禁用菜单项
   @Column(comment = "是否禁用菜单项 true: 禁用菜单项，false: 启用菜单项")
   private Boolean disabled;
 
   /// 菜单项的额外部分
-  @Column(comment = "菜单项的额外部分，存储为 JSON 格式")
+  @Column(comment = "菜单项的额外部分，存储为 JSON 格式", length = 500)
   @JdbcTypeCode(SqlTypes.JSON)
   private Map<String, Object> extra;
 
   /// 菜单项的图标
-  @Column(comment = "菜单项的图标")
+  @Column(comment = "菜单项的图标", length = 200)
   private String icon;
 
   /// 菜单项的标识符
-  @Column(comment = "菜单项的标识符")
+  @Column(comment = "菜单项的标识符", length = 200)
   private String key;
 
   /// 菜单项的内容
-  @Column(comment = "菜单项的内容")
+  @Column(comment = "菜单项的内容", length = 200)
   private String label;
 
   /// 是否显示菜单项
@@ -67,19 +65,19 @@ public class Menu implements Serializable {
   // region Vue Router 属性
 
   /// 路径
-  @Column(comment = "菜单项的路由路径")
+  @Column(comment = "菜单项的路由路径", length = 500)
   private String path;
 
   /// 名称
-  @Column(comment = "菜单项的路由名称")
+  @Column(comment = "菜单项的路由名称", length = 500)
   private String name;
 
   /// 重定向路径
-  @Column(comment = "菜单项的重定向路径")
+  @Column(comment = "菜单项的重定向路径", length = 500)
   private String redirect;
 
   /// 组件路径
-  @Column(comment = "菜单项的组件路径")
+  @Column(comment = "菜单项的组件路径", length = 500)
   private String component;
 
   /// 排序顺序

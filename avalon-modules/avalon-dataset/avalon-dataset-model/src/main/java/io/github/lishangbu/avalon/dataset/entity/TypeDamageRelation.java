@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.io.Serial;
@@ -19,11 +20,16 @@ public class TypeDamageRelation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /// 攻击方 ID
-  @Id @Flex private Long attackingTypeId;
+  @Id
+  @Flex
+  @Column(comment = "攻击方 ID")
+  private Long attackingTypeId;
 
   /// 防御方 ID
+  @Column(comment = "防御方 ID")
   private Long defendingTypeId;
 
   /// 伤害倍数
+  @Column(comment = "伤害倍数")
   private Float multiplier;
 }

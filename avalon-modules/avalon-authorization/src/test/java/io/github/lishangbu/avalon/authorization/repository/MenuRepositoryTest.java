@@ -74,7 +74,7 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
   @Test
   @Order(5)
   void testFindAllByRoleCodes() {
-    List<Menu> menus = menuRepository.findAllByRoleCodes(List.of("ROLE_TEST"));
+    List<Menu> menus = menuRepository.findAllByRoleCodes(List.of("ROLE_SUPER_ADMIN"));
     Assertions.assertNotNull(menus);
     Assertions.assertFalse(menus.isEmpty());
     // 假设 ROLE_TEST 有菜单

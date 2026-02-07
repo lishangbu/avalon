@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
 
 /// 用户信息(User)实体类
 ///
@@ -27,21 +28,22 @@ public class User implements Serializable {
   private Long id;
 
   /// 用户名
-  @Column(comment = "用户名")
+  @Column(comment = "用户名", length = 20)
   private String username;
 
   /// 密码（写入-only，不会在 toString 中显示）
   @ToString.Exclude
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  @Column(name = "[password]", comment = "密码")
+  @Column(name = "[password]", comment = "密码", length = 100)
   private String password;
 
   /// 用户与角色多对多关系
   @ManyToMany
   @JoinTable(
       name = "user_role_relation",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "role_id"))
+      comment = "用户与角色的关联表",
+      joinColumns = @JoinColumn(name = "user_id", comment = "用户ID"),
+      inverseJoinColumns = @JoinColumn(name = "role_id", comment = "角色ID"))
   @ToString.Exclude
   private Set<Role> roles;
 }

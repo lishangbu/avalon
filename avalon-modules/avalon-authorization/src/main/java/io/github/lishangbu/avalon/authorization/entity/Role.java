@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /// 角色信息(Role)实体类
 ///
@@ -25,11 +27,11 @@ public class Role implements Serializable {
   private Long id;
 
   /// 角色代码
-  @Column(comment = "角色代码")
+  @Column(comment = "角色代码", length = 50)
   private String code;
 
   /// 角色名称
-  @Column(comment = "角色名称")
+  @Column(comment = "角色名称", length = 50)
   private String name;
 
   /// 角色是否启用
