@@ -12,6 +12,7 @@ import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
 import io.github.lishangbu.avalon.pokeapi.model.item.*;
 import io.github.lishangbu.avalon.pokeapi.model.machine.Machine;
 import io.github.lishangbu.avalon.pokeapi.model.move.*;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.EggGroup;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /// Poke API 端点枚举
@@ -38,6 +39,9 @@ public enum PokeDataTypeEnum {
 
   /// 竞赛类型（华丽大赛评判的类别）
   CONTEST_TYPE("contest-type", ContestType.class),
+
+  /// 蛋组 决定哪些宝可梦能够互相繁殖
+  EGG_GROUP("egg-group", EggGroup.class),
 
   /// 遭遇方式（玩家在野外遇到宝可梦的方式）
   ENCOUNTER_METHOD("encounter-method", EncounterMethod.class),
