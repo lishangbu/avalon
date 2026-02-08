@@ -1,14 +1,14 @@
 package io.github.lishangbu.avalon.pokeapi.writer;
 
-import io.github.lishangbu.avalon.pokeapi.dataprovider.BerryFlavorDataProvider;
 import io.github.lishangbu.avalon.pokeapi.dataprovider.PokeApiDataProvider;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.BerryFlavorExcelDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.lishangbu.avalon.pokeapi.model.berry.BerryFlavor;
+import jakarta.annotation.Resource;
 
 class BerryFlavorDataWriterTest extends AbstractExcelWriterTest {
 
-  @Autowired private BerryFlavorDataProvider berryFlavorDataProvider;
+  @Resource private PokeApiDataProvider<BerryFlavor> berryFlavorDataProvider;
 
   @Override
   PokeDataTypeEnum getDataTypeEnum() {
@@ -16,12 +16,12 @@ class BerryFlavorDataWriterTest extends AbstractExcelWriterTest {
   }
 
   @Override
-  Class getExcelClass() {
+  Class<BerryFlavorExcelDTO> getExcelClass() {
     return BerryFlavorExcelDTO.class;
   }
 
   @Override
-  PokeApiDataProvider getDataProvider() {
+  PokeApiDataProvider<BerryFlavor> getDataProvider() {
     return berryFlavorDataProvider;
   }
 }
