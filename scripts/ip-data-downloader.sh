@@ -9,9 +9,9 @@ ROOT_DIR=$(dirname "$(dirname "$0")")
 destination="$ROOT_DIR/avalon-extensions/avalon-ip2location-spring-boot-starter/src/main/resources"
 
 # 镜像站点
-mirrorSite='https://github.proxy.class3.fun'
+mirrorSite='https://gh-proxy.org'
 # 数据文件版本
-dbVersion='2025.06.01'
+dbVersion='2025.12.01'
 # 数据文件名
 dbFileNames=('IP2LOCATION-LITE-DB11.IPV6.BIN')
 

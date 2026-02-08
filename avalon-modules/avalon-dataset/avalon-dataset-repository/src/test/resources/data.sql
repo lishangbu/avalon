@@ -1,5 +1,54 @@
--- Temporarily disable foreign key checks
-SET session_replication_role = replica;
+-- ----------------------------
+-- Records of type
+-- ----------------------------
+BEGIN;
+INSERT INTO "type" ("id", "internal_name", "name")
+VALUES (1, 'normal', '一般'),
+       (2, 'fighting', '格斗'),
+       (3, 'flying', '飞行'),
+       (4, 'poison', '毒'),
+       (5, 'ground', '地面'),
+       (6, 'rock', '岩石'),
+       (7, 'bug', '虫'),
+       (8, 'ghost', '幽灵'),
+       (9, 'steel', '钢'),
+       (10, 'fire', '火'),
+       (11, 'water', '水'),
+       (12, 'grass', '草'),
+       (13, 'electric', '电'),
+       (14, 'psychic', '超能力'),
+       (15, 'ice', '冰'),
+       (16, 'dragon', '龙'),
+       (17, 'dark', '恶'),
+       (18, 'fairy', '妖精'),
+       (19, 'stellar', '星晶'),
+       (10001, 'unknown', '???'),
+       (10002, 'shadow', '暗');
+COMMIT;
+
+-- ----------------------------
+-- Records of berry_firmness
+-- ----------------------------
+BEGIN;
+INSERT INTO "berry_firmness" ("id", "internal_name", "name")
+VALUES (5, 'super-hard', '非常坚硬'),
+       (4, 'very-hard', '很坚硬'),
+       (3, 'hard', '坚硬'),
+       (2, 'soft', '柔软'),
+       (1, 'very-soft', '很柔软');
+COMMIT;
+
+-- ----------------------------
+-- Records of berry_flavor
+-- ----------------------------
+BEGIN;
+INSERT INTO "berry_flavor" ("id", "internal_name", "name")
+VALUES (1, 'spicy', '辣'),
+       (2, 'dry', '涩'),
+       (3, 'sweet', '甜'),
+       (4, 'bitter', '苦'),
+       (5, 'sour', '酸');
+COMMIT;
 
 -- ----------------------------
 -- Records of berry
@@ -72,60 +121,6 @@ VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (63, 33, 24, 'jaboca', 5, '嘉珍果', 80, 60, 7, 2, 16),
        (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17);
 COMMIT;
-
--- ----------------------------
--- Records of berry_firmness
--- ----------------------------
-BEGIN;
-INSERT INTO "berry_firmness" ("id", "internal_name", "name")
-VALUES (5, 'super-hard', '非常坚硬'),
-       (4, 'very-hard', '很坚硬'),
-       (3, 'hard', '坚硬'),
-       (2, 'soft', '柔软'),
-       (1, 'very-soft', '很柔软');
-COMMIT;
-
--- ----------------------------
--- Records of berry_flavor
--- ----------------------------
-BEGIN;
-INSERT INTO "berry_flavor" ("id", "internal_name", "name")
-VALUES (1, 'spicy', '辣'),
-       (2, 'dry', '涩'),
-       (3, 'sweet', '甜'),
-       (4, 'bitter', '苦'),
-       (5, 'sour', '酸');
-COMMIT;
-
--- ----------------------------
--- Records of type
--- ----------------------------
-BEGIN;
-INSERT INTO "type" ("id", "internal_name", "name")
-VALUES (1, 'normal', '一般'),
-       (2, 'fighting', '格斗'),
-       (3, 'flying', '飞行'),
-       (4, 'poison', '毒'),
-       (5, 'ground', '地面'),
-       (6, 'rock', '岩石'),
-       (7, 'bug', '虫'),
-       (8, 'ghost', '幽灵'),
-       (9, 'steel', '钢'),
-       (10, 'fire', '火'),
-       (11, 'water', '水'),
-       (12, 'grass', '草'),
-       (13, 'electric', '电'),
-       (14, 'psychic', '超能力'),
-       (15, 'ice', '冰'),
-       (16, 'dragon', '龙'),
-       (17, 'dark', '恶'),
-       (18, 'fairy', '妖精'),
-       (19, 'stellar', '星晶'),
-       (10001, 'unknown', '???'),
-       (10002, 'shadow', '暗');
-COMMIT;
-
-
 
 -- ----------------------------
 -- Records of type_damage_relation
@@ -457,6 +452,3 @@ VALUES (1, 1, 1),
        (18, 17, 2),
        (18, 18, 1);
 COMMIT;
-
--- Re-enable foreign key checks
-SET session_replication_role = origin;

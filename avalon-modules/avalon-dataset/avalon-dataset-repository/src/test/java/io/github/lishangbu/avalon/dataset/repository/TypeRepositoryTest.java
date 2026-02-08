@@ -5,10 +5,13 @@ import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.data.domain.Example;
 
 /// 属性数据访问层单元测试
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TypeRepositoryTest extends AbstractRepositoryTest {
 
   @Resource private TypeRepository typeRepository;
@@ -77,7 +80,12 @@ class TypeRepositoryTest extends AbstractRepositoryTest {
   /// 验证 `deleteById` 成功删除记录后无法再查询到该记录
   @Test
   void shouldDeleteTypeById() {
-    Long deleteRecordId = 10L;
+    // Arrange - 插入用于删除的记录
+    Type type = new Type();
+    type.setInternalName("update_internal");
+    type.setName("原始名称");
+    typeRepository.saveAndFlush(type);
+    Long deleteRecordId = type.getId();
     Optional<Type> fireTypeOptional = typeRepository.findById(deleteRecordId);
     Assertions.assertTrue(fireTypeOptional.isPresent());
     typeRepository.deleteById(deleteRecordId);
