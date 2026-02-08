@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-pokeapi-core</artifactId>
+  <description>pokeapi 核心支持包</description>
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>

@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-oauth2-authorization-server</artifactId>
+  <description>oauth2 认证服务器支持</description>
   <dependencies>
     <!--认证服务器和资源服务器不分离的情况下，认证服务器也是资源服务器-->
     <dependency>

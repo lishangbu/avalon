@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-pokeapi-exporter</artifactId>
+  <description>导出pokeapi的数据到其他介质，比如Excel</description>
   <dependencies>
     <dependency>
       <groupId>cn.idev.excel</groupId>

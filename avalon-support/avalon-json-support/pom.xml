@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-json-support</artifactId>
+  <description>json 支持包</description>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

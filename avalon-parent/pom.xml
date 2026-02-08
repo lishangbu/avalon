@@ -10,6 +10,7 @@
   </parent>
   <artifactId>avalon-parent</artifactId>
   <packaging>pom</packaging>
+  <description>父工程</description>
   <licenses>
     <license>
       <name>AGPL-V3 License</name>

@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-web-support</artifactId>
+  <description>web 支持包</description>
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>
