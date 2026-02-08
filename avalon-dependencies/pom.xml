@@ -12,7 +12,7 @@
   <artifactId>avalon-dependencies</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
-  <description>Avalon Dependencies</description>
+  <description>依赖管理</description>
   <licenses>
     <license>
       <name>AGPL-V3 License</name>

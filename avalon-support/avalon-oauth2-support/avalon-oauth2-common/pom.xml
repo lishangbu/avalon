@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-oauth2-common</artifactId>
+  <description>oauth2 公共支持包</description>
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>

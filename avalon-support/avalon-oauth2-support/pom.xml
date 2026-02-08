@@ -9,6 +9,7 @@
   </parent>
   <artifactId>avalon-oauth2-support</artifactId>
   <packaging>pom</packaging>
+  <description>oauth2 支持包聚合工程</description>
   <modules>
     <module>avalon-oauth2-authorization-server</module>
     <module>avalon-oauth2-common</module>

@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-standalone-server</artifactId>
+  <description>服务端单体应用启动器</description>
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>

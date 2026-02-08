@@ -23,8 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
   @Query(
       """
           select distinct u from User u
-          left join fetch u.roles
+          left join fetch u.roles r
           where u.username = :username
+                and r.enabled=true
       """)
   Optional<User> findUserWithRolesByUsername(@Param("username") String username);
 }

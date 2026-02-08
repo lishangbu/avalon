@@ -9,6 +9,7 @@
   </parent>
   <artifactId>avalon-pokeapi-support</artifactId>
   <packaging>pom</packaging>
+  <description>pokeapi 支持包聚合工程</description>
   <modules>
     <module>avalon-pokeapi-core</module>
     <module>avalon-pokeapi-exporter</module>
