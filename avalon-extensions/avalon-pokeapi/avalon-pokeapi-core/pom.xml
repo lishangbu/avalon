@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon-pokeapi-support</artifactId>
+    <artifactId>avalon-pokeapi</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-pokeapi-core</artifactId>

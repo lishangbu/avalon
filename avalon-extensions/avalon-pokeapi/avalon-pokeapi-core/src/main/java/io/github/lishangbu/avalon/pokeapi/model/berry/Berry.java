@@ -35,6 +35,6 @@ public record Berry(
     Integer smoothness,
     @JsonProperty("soil_dryness") Integer soilDryness,
     NamedApiResource firmness,
-    List<FlavorBerryMap> flavors,
+    List<BerryFlavorMap> flavors,
     NamedApiResource item,
     @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}

@@ -4,10 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon-support</artifactId>
+    <artifactId>avalon-extensions</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-pokeapi-support</artifactId>
+  <artifactId>avalon-pokeapi</artifactId>
   <packaging>pom</packaging>
   <description>pokeapi 支持包聚合工程</description>
   <modules>
