@@ -19,15 +19,17 @@ public class BerryDataProvider extends AbstractPokeApiDataProvider<Berry, BerryE
     BerryExcelDTO result = new BerryExcelDTO();
     result.setId(berry.id());
     result.setInternalName(berry.name());
-    Item item = pokeApiService.getEntityFromUri(PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(berry.item()));
+    Item item =
+        pokeApiService.getEntityFromUri(
+            PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(berry.item()));
     result.setName(resolveLocalizedNameFromNames(item.names(), item.name()));
     result.setGrowthTime(berry.growthTime());
     result.setMaxHarvest(berry.maxHarvest());
     result.setBulk(berry.size());
     result.setSmoothness(berry.smoothness());
     result.setSoilDryness(berry.soilDryness());
-    result.setFirmnessInternalName(berry.firmness().name());
-    result.setNaturalGiftTypeInternalName(berry.naturalGiftType().name());
+    result.setFirmnessId(NamedApiResourceUtils.getId(berry.firmness()));
+    result.setNaturalGiftTypeId(NamedApiResourceUtils.getId(berry.naturalGiftType()));
     result.setNaturalGiftPower(berry.naturalGiftPower());
     return result;
   }

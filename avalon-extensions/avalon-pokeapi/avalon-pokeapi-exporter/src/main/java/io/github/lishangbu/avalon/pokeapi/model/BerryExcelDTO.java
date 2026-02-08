@@ -14,46 +14,46 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BerryExcelDTO {
   /// 主键信息
-  @ExcelProperty("ID")
+  @ExcelProperty("id")
   private Integer id;
 
   /// 内部名称
-  @ExcelProperty("内部名称")
+  @ExcelProperty("internal_name")
   private String internalName;
 
   /// 显示名称
-  @ExcelProperty("显示名称")
+  @ExcelProperty("name")
   private String name;
 
   /// 生长时间
-  @ExcelProperty("生长时间")
+  @ExcelProperty("growth_time")
   private Integer growthTime;
 
-  /// 最大收获
-  @ExcelProperty("最大收获")
+  /// 最大结果数
+  @ExcelProperty("max_harvest")
   private Integer maxHarvest;
 
   /// 体积
-  @ExcelProperty("体积")
+  @ExcelProperty("bulk")
   private Integer bulk;
 
   /// 光滑度
-  @ExcelProperty("光滑度")
+  @ExcelProperty("smoothness")
   private Integer smoothness;
 
   /// 土壤干燥度
-  @ExcelProperty("土壤干燥度")
+  @ExcelProperty("soil_dryness")
   private Integer soilDryness;
 
-  /// 硬度内部名称
-  @ExcelProperty("硬度内部名称")
-  private String firmnessInternalName;
+  /// 树果硬度ID
+  @ExcelProperty("firmness_id")
+  private Integer firmnessId;
 
   /// 自然之恩招式属性
-  @ExcelProperty("自然之恩招式属性")
-  private String naturalGiftTypeInternalName;
+  @ExcelProperty("natural_gift_type_id")
+  private Integer naturalGiftTypeId;
 
   /// 自然之恩招式威力
-  @ExcelProperty("自然之恩招式威力")
+  @ExcelProperty("natural_gift_power")
   private Integer naturalGiftPower;
 }

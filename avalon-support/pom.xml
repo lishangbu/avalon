@@ -14,7 +14,6 @@
     <module>avalon-hibernate-support</module>
     <module>avalon-json-support</module>
     <module>avalon-oauth2-support</module>
-    <module>avalon-pokeapi-support</module>
     <module>avalon-web-support</module>
   </modules>
 </project>
