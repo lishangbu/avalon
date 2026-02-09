@@ -7,7 +7,6 @@ on:
     paths:
       # 监视 Java 文件的更改，确保 Javadoc 在代码更改时生成
       - '**/*.java'
-  workflow_dispatch:
 
 jobs:
   publish-javadoc:

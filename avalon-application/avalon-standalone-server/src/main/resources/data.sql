@@ -32,6 +32,37 @@ VALUES (1, 'female'),
        (3, 'genderless')ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
+
+-- ----------------------------
+-- Records of move_ailment
+-- ----------------------------
+BEGIN;
+INSERT INTO "move_ailment" ("id", "internal_name", "name")
+VALUES (-1, 'unknown', 'unknown'),
+       (0, 'none', 'none'),
+       (1, 'paralysis', 'paralysis'),
+       (2, 'sleep', 'sleep'),
+       (3, 'freeze', 'freeze'),
+       (4, 'burn', 'burn'),
+       (5, 'poison', 'poison'),
+       (6, 'confusion', 'confusion'),
+       (7, 'infatuation', 'infatuation'),
+       (8, 'trap', 'trap'),
+       (9, 'nightmare', 'nightmare'),
+       (12, 'torment', 'torment'),
+       (13, 'disable', 'disable'),
+       (14, 'yawn', 'yawn'),
+       (15, 'heal-block', 'heal-block'),
+       (17, 'no-type-immunity', 'no-type-immunity'),
+       (18, 'leech-seed', 'leech-seed'),
+       (19, 'embargo', 'embargo'),
+       (20, 'perish-song', 'perish-song'),
+       (21, 'ingrain', 'ingrain'),
+       (24, 'silence', 'silence'),
+       (42, 'tar-shot', 'tar-shot')ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+
 -- ----------------------------
 -- Records of move_category
 -- ----------------------------
@@ -87,6 +118,31 @@ VALUES (1, 'Learned when a Pokémon reaches a certain level.', 'level-up', 'Leve
        (11,
         'Can be taught using the Zygarde Cube.  Must find the corresponding Zygarde Core first in Sun/Moon.  All moves are available immediately in Ultra Sun/Ultra Moon.',
         'zygarde-cube', 'Zygarde Cube')ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of move_target
+-- ----------------------------
+BEGIN;
+INSERT INTO "move_target" ("id", "description", "internal_name", "name")
+VALUES (1, 'One specific move.  How this move is chosen depends upon on the move being used.', 'specific-move',
+        'specific-move'),
+       (2, 'One other Pokémon on the field, selected by the trainer.  Stolen moves reuse the same target.',
+        'selected-pokemon-me-first', 'selected-pokemon-me-first'),
+       (3, 'The user''s ally (if any).', 'ally', 'ally'),
+       (4, 'The user''s side of the field.  Affects the user and its ally (if any).', 'users-field', 'users-field'),
+       (5, 'Either the user or its ally, selected by the trainer.', 'user-or-ally', 'user-or-ally'),
+       (6, 'The opposing side of the field.  Affects opposing Pokémon.', 'opponents-field', 'opponents-field'),
+       (7, 'The user.', 'user', 'user'),
+       (8, 'One opposing Pokémon, selected at random.', 'random-opponent', 'random-opponent'),
+       (9, 'Every other Pokémon on the field.', 'all-other-pokemon', 'all-other-pokemon'),
+       (10, 'One other Pokémon on the field, selected by the trainer.', 'selected-pokemon', 'selected-pokemon'),
+       (11, 'All opposing Pokémon.', 'all-opponents', 'all-opponents'),
+       (12, 'The entire field.  Affects all Pokémon.', 'entire-field', 'entire-field'),
+       (13, 'The user and its allies.', 'user-and-allies', 'user-and-allies'),
+       (14, 'Every Pokémon on the field.', 'all-pokemon', 'all-pokemon'),
+       (15, 'All of the user''s allies.', 'all-allies', 'all-allies'),
+       (16, NULL, 'fainting-pokemon', 'fainting-pokemon') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
