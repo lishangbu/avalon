@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,6 +17,7 @@ import lombok.Data;
 /// @since 2025/08/19
 @Data
 @Entity
+@Table(comment = "OAuth2 注册客户端")
 public class OauthRegisteredClient implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 

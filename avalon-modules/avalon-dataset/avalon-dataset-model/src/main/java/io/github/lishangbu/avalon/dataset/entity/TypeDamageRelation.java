@@ -1,9 +1,6 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -20,6 +17,7 @@ import lombok.Setter;
 @Data
 @Entity
 @IdClass(TypeDamageRelation.TypeDamageRelationId.class)
+@Table(comment = "属性相互克制关系")
 public class TypeDamageRelation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 

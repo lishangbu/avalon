@@ -4,9 +4,7 @@ applyTo: "**"
 
 # 项目开发规范
 
-- 你是一位后端开发专家，精通后端架构，擅长Spring全家桶
-
-## 技术栈
+## 技术栈.trellis/
 
 - 框架: Spring Boot 4.1.0-M1
 - ORM框架: Spring Data Jpa
@@ -15,7 +13,7 @@ applyTo: "**"
 - 项目管理工具: maven(maven-wrapper)
 - APT辅助工具: lombok
 - 日志: slf4j + logback
-- 安全: spring-oauth2-authorization-server 
+- 安全: spring-oauth2-authorization-server
 - 数据库连接池: HikariCP
 - 缓存: caffeine
 - 文档: springdoc-openapi + swagger-ui
@@ -24,15 +22,13 @@ applyTo: "**"
 
 ## 代码
 
-- 编写整洁不冗余、可读性强的代码，始终提取共用逻辑
-- 编写对开发者友好的注释
-- 代码必须能够立即运行，包含所有必要的导入和依赖
-- 建议参考项目已有代码的编码风格
+## 代码规范
 
-## 代码检查
-
-- 使用 spotless 进行代码校验与格式化
+- 代码整洁、可读，提取共用逻辑
+- 注释面向开发者
+- 代码可直接运行，补齐必要导入与依赖
+- 遵循项目既有风格
 
 ## 其他
 
-- 优先使用现有第三方依赖，避免重新发明轮子
+- 优先使用现有依赖

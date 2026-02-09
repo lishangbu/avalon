@@ -2,35 +2,25 @@
 applyTo: "*RepositoryTest.java"
 ---
 
-# Repository 层测试编写规范
+# Repository 测试规范
 
-## 基本要求
+- 继承 AbstractRepositoryTest
+- @DataJpaTest
+- 命名：should + 预期 + When + 条件
+- AAA 结构
 
-- 所有 Repository 测试类必须继承 `AbstractRepositoryTest`
-- 使用 `@DataJpaTest` 启用 Spring Data JPA 测试支持
-- 测试方法命名遵循 `should + 预期结果 + When + 测试条件`
-- 采用 AAA（Arrange-Act-Assert）模式组织代码
-- 测试类与方法需编写 JavaDoc/Markdown 文档注释
+## 容器
 
-## 容器复用
+- 禁止声明 @Container
+- 通过 AbstractRepositoryTest 复用容器
 
-- 禁止在测试类中直接声明 `@Container` PostgreSQL 容器
-- 通过继承 `AbstractRepositoryTest` 复用共享容器，测试开始前启动、结束后关闭
+## 编码
 
-## 抽象基类与配置要求
+- Bean Validation 入参
+- 测试独立、可重复
+- 单测一个功能点
 
-- 每个模块测试根包下提供 `AbstractRepositoryTest`，集中管理容器与测试上下文
-- 容器启动顺序：启动 PostgreSQL 容器 → `@ServiceConnection` 注入数据源 → Spring Data JPA 初始化
+## 其他
 
-## 编码与校验
-
-- 参数与实体校验使用 Bean Validation 注解，保证入参合法性
-- 测试方法相互独立，不依赖执行顺序或外部状态
-- 每个测试仅覆盖单一功能点，断言表达预期业务结果
-- 断言可使用静态导入简化表达式
-
-## 其他约定
-
-- 路径与命名遵循模块包结构，保持文件布局一致
-- 异常处理与日志记录依赖全局配置，无需在测试中重复实现
-- 变更测试用例时同步更新注释与迁移脚本，保证可维护性
+- 遵循包结构
+- 同步更新注释
