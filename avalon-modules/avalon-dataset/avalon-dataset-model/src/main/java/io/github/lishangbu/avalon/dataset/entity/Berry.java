@@ -14,6 +14,7 @@ import lombok.Data;
 /// @since 2025/08/20
 @Data
 @Entity
+@Table(comment = "树果")
 public class Berry implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 

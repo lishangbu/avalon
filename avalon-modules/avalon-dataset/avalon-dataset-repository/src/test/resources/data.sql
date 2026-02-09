@@ -154,6 +154,73 @@ VALUES (1, '这个蛋群的宝可梦大多原型基于特摄影片中的怪兽�
 COMMIT;
 
 -- ----------------------------
+-- Records of gender
+-- ----------------------------
+BEGIN;
+INSERT INTO "gender" (id, internal_name)
+VALUES (1, 'female'),
+       (2, 'male'),
+       (3, 'genderless');
+COMMIT;
+
+-- ----------------------------
+-- Records of move_category
+-- ----------------------------
+BEGIN;
+INSERT INTO "move_category" ("id", "description", "internal_name", "name")
+VALUES (0, 'Inflicts damage', 'damage', 'damage'),
+       (1, 'No damage; inflicts status ailment', 'ailment', 'ailment'),
+       (2, 'No damage; lowers target’s stats or raises user’s stats', 'net-good-stats', 'net-good-stats'),
+       (3, 'No damage; heals the user', 'heal', 'heal'),
+       (4, 'Inflicts damage; inflicts status ailment', 'damage+ailment', 'damage+ailment'),
+       (5, 'No damage; inflicts status ailment; raises target’s stats', 'swagger', 'swagger'),
+       (6, 'Inflicts damage; lowers target’s stats', 'damage+lower', 'damage+lower'),
+       (7, 'Inflicts damage; raises user’s stats', 'damage+raise', 'damage+raise'),
+       (8, 'Inflicts damage; absorbs damage done to heal the user', 'damage+heal', 'damage+heal'),
+       (9, 'One-hit KO', 'ohko', 'ohko'),
+       (10, 'Effect on the whole field', 'whole-field-effect', 'whole-field-effect'),
+       (11, 'Effect on one side of the field', 'field-effect', 'field-effect'),
+       (12, 'Forces target to switch out', 'force-switch', 'force-switch'),
+       (13, 'Unique effect', 'unique', 'unique');
+COMMIT;
+
+-- ----------------------------
+-- Records of move_damage_class
+-- ----------------------------
+BEGIN;
+INSERT INTO "move_damage_class" (id, description, internal_name, name)
+VALUES (1, '没有伤害', 'status', '变化'),
+       (2, '物理伤害，受攻击和防御影响', 'physical', '物理'),
+       (3, '特殊伤害，受特攻和特防影响', 'special', '特殊');
+COMMIT;
+
+-- ----------------------------
+-- Records of move_learn_method
+-- ----------------------------
+BEGIN;
+INSERT INTO "move_learn_method" (id, description, internal_name, name)
+VALUES (1, 'Learned when a Pokémon reaches a certain level.', 'level-up', 'Level up'),
+       (2, 'Appears on a newly-hatched Pokémon, if the father had the same move.', 'egg', 'Egg'),
+       (3, 'Can be taught at any time by an NPC.', 'tutor', 'Tutor'),
+       (4, 'Can be taught at any time by using a TM or HM.', 'machine', 'Machine'),
+       (5,
+        'Learned when a non-rental Pikachu helps beat Prime Cup Master Ball R-2.  It must participate in every battle, and you must win with no continues.',
+        'stadium-surfing-pikachu', 'Stadium: Surfing Pikachu'),
+       (6, 'Appears on a Pichu whose mother was holding a Light Ball.  The father cannot be Ditto.', 'light-ball-egg',
+        'Volt Tackle Pichu'),
+       (7, 'Appears on a Shadow Pokémon as it becomes increasingly purified.', 'colosseum-purification',
+        'Colosseum: Purification'),
+       (8, 'Appears on a Snatched Shadow Pokémon.', 'xd-shadow', 'XD: Shadow'),
+       (9, 'Appears on a Shadow Pokémon as it becomes increasingly purified.', 'xd-purification', 'XD: Purification'),
+       (10,
+        'Appears when Rotom or Cosplay Pikachu changes form.  Disappears if the Pokémon becomes another form and this move can only be learned by form change.',
+        'form-change', 'Form Change'),
+       (11,
+        'Can be taught using the Zygarde Cube.  Must find the corresponding Zygarde Core first in Sun/Moon.  All moves are available immediately in Ultra Sun/Ultra Moon.',
+        'zygarde-cube', 'Zygarde Cube');
+COMMIT;
+
+-- ----------------------------
 -- Records of type_damage_relation
 -- ----------------------------
 BEGIN;

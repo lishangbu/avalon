@@ -1,9 +1,6 @@
 package io.github.lishangbu.avalon.authorization.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -17,6 +14,7 @@ import lombok.Setter;
 /// @since 2025/08/20
 @Data
 @Entity
+@Table(comment = "用户授权确认表")
 @IdClass(OauthAuthorizationConsent.AuthorizationConsentId.class)
 public class OauthAuthorizationConsent implements Serializable {
   @Serial private static final long serialVersionUID = 1L;

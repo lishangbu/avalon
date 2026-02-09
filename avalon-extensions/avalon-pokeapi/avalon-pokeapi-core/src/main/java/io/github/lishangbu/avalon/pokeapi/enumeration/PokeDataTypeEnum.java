@@ -13,6 +13,7 @@ import io.github.lishangbu.avalon.pokeapi.model.item.*;
 import io.github.lishangbu.avalon.pokeapi.model.machine.Machine;
 import io.github.lishangbu.avalon.pokeapi.model.move.*;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.EggGroup;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.Gender;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /// Poke API 端点枚举
@@ -51,6 +52,9 @@ public enum PokeDataTypeEnum {
 
   /// 遭遇条件的取值列表
   ENCOUNTER_CONDITION_VALUE("encounter-condition-value", EncounterConditionValue.class),
+
+  /// 性别 主要用于宝可梦繁殖，并可能影响外观或进化，详情参考 [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Gender)
+  GENDER("gender", Gender.class),
 
   /// 道具（可收集和使用的物品）
   ITEM("item", Item.class),

@@ -17,6 +17,7 @@ import lombok.ToString;
 /// @since 2025/08/20
 @Data
 @Entity
+@Table(comment = "角色")
 public class Role implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -43,7 +44,8 @@ public class Role implements Serializable {
   @JoinTable(
       name = "role_menu_relation",
       joinColumns = @JoinColumn(name = "role_id"),
-      inverseJoinColumns = @JoinColumn(name = "menu_id"))
+      inverseJoinColumns = @JoinColumn(name = "menu_id"),
+      comment = "角色与菜单关系表")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private Set<Menu> menus;
