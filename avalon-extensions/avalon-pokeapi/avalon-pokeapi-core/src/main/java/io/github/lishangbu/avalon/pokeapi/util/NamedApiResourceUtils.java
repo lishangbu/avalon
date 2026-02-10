@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /// 命名资源工具类
 ///
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 ///
 /// @author lishangbu
 /// @since 2025/8/9
+@Slf4j
 public abstract class NamedApiResourceUtils {
   // 静态初始化正则表达式和模式，避免重复编译
   private static final String API_DATA_TYPES_REGEX;
@@ -29,6 +31,10 @@ public abstract class NamedApiResourceUtils {
   }
 
   public static Integer getId(NamedApiResource namedApiResource) {
+    if (namedApiResource == null) {
+      log.warn("NamedApiResource is null, cannot extract ID.");
+      return null;
+    }
     Matcher matcher = PATTERN.matcher(namedApiResource.url());
 
     if (matcher.find()) {
@@ -36,11 +42,11 @@ public abstract class NamedApiResourceUtils {
         // 提取数字并转换为整数
         return Integer.parseInt(matcher.group(2));
       } catch (NumberFormatException e) {
-        System.out.println("数字格式错误: " + e.getMessage());
+        log.error("数字格式错误:[{}] ", e.getMessage());
         return null;
       }
     } else {
-      System.out.println("没有找到匹配的数字");
+      log.warn("没有找到匹配的数字,URL不匹配预期格式: [{}]", namedApiResource.url());
       return null;
     }
   }

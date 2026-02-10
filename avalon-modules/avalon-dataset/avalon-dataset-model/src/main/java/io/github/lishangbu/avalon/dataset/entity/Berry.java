@@ -58,7 +58,7 @@ public class Berry implements Serializable {
       name = "firmness_id",
       referencedColumnName = "id",
       comment = "树果的坚硬度",
-      foreignKey = @ForeignKey(name = "uk_berry_firmness_id"))
+      foreignKey = @ForeignKey(name = "fk_berry_firmness_id"))
   private BerryFirmness berryFirmness;
 
   /// 搭配该树果使用“自然之恩”招式时继承的属性类型
@@ -67,7 +67,7 @@ public class Berry implements Serializable {
       name = "natural_gift_type_id",
       referencedColumnName = "id",
       comment = "搭配该树果使用“自然之恩”招式时继承的属性类型",
-      foreignKey = @ForeignKey(name = "uk_berry_natural_gift_type_id"))
+      foreignKey = @ForeignKey(name = "fk_berry_natural_gift_type_id"))
   private Type naturalGiftType;
 
   /// 搭配该树果使用“自然之恩”招式时的威力

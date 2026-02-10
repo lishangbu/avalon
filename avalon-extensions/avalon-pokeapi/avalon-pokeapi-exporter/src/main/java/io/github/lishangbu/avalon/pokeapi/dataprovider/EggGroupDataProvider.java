@@ -22,7 +22,7 @@ public class EggGroupDataProvider extends AbstractPokeApiDataProvider<EggGroup, 
     EggGroupExcelDTO result = new EggGroupExcelDTO();
     result.setId(eggGroup.id());
     result.setInternalName(eggGroup.name());
-    result.setName(resolveLocalizedNameFromNames(eggGroup.names(), eggGroup.name()));
+    result.setName(resolveLocalizedName(eggGroup.names(), eggGroup.name()));
     result.setText(EGG_GROUP_TEXT_MAPPING.get(result.getName()));
     result.setCharacteristics(EGG_GROUP_CHARACTERISTICS_MAPPING.get(result.getName()));
     return result;

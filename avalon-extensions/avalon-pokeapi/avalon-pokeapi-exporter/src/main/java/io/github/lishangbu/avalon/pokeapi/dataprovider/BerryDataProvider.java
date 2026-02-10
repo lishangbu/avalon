@@ -22,7 +22,7 @@ public class BerryDataProvider extends AbstractPokeApiDataProvider<Berry, BerryE
     Item item =
         pokeApiService.getEntityFromUri(
             PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(berry.item()));
-    result.setName(resolveLocalizedNameFromNames(item.names(), item.name()));
+    result.setName(resolveLocalizedName(item.names(), item.name()));
     result.setGrowthTime(berry.growthTime());
     result.setMaxHarvest(berry.maxHarvest());
     result.setBulk(berry.size());

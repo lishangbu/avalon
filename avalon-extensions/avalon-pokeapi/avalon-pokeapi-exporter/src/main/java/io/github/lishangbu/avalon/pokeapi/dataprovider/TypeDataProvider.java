@@ -16,7 +16,7 @@ public class TypeDataProvider extends AbstractPokeApiDataProvider<Type, TypeExce
     TypeExcelDTO result = new TypeExcelDTO();
     result.setId(type.id());
     result.setInternalName(type.name());
-    result.setName(resolveLocalizedNameFromNames(type.names(), type.name()));
+    result.setName(resolveLocalizedName(type.names(), type.name()));
     return result;
   }
 }
