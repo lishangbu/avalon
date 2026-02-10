@@ -19,6 +19,7 @@ public class GrowthRateDataProvider
     result.setInternalName(growthRate.name());
     result.setName(resolveLocalizedDescription(growthRate.descriptions()));
     result.setFormula(growthRate.formula());
+    result.setDescription(resolveLocalizedDescription(growthRate.descriptions()));
     return result;
   }
 }
