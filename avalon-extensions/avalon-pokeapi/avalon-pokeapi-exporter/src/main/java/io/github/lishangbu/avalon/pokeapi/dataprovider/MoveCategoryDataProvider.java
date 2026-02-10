@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.MoveCategoryExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.move.MoveCategory;
-import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import org.springframework.stereotype.Service;
 
 /// 招式分类数据提供者
@@ -19,11 +18,7 @@ public class MoveCategoryDataProvider
     result.setId(moveCategory.id());
     result.setInternalName(moveCategory.name());
     result.setName(moveCategory.name());
-    LocalizationUtils.getLocalizationDescription(moveCategory.descriptions())
-        .ifPresent(
-            description -> {
-              result.setDescription(description.description());
-            });
+    result.setDescription(resolveLocalizedDescription(moveCategory.descriptions()));
     return result;
   }
 }

@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.pokeapi.model.location;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.common.VersionEncounterDetail;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.Pokemon;
 import java.util.List;
 
 /// Pokemon 遭遇模型
@@ -13,5 +14,5 @@ import java.util.List;
 /// @see VersionEncounterDetail
 /// @since 2025/5/26
 public record PokemonEncounter(
-    NamedApiResource<?> pokemon,
+    NamedApiResource<Pokemon> pokemon,
     @JsonProperty("version_details") List<VersionEncounterDetail> versionDetails) {}

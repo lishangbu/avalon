@@ -17,7 +17,7 @@ public class BerryFlavorDataProvider
     BerryFlavorExcelDTO result = new BerryFlavorExcelDTO();
     result.setId(berryFlavor.id());
     result.setInternalName(berryFlavor.name());
-    result.setName(resolveLocalizedNameFromNames(berryFlavor.names(), berryFlavor.name()));
+    result.setName(resolveLocalizedName(berryFlavor.names(), berryFlavor.name()));
     return result;
   }
 }

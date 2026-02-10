@@ -17,7 +17,7 @@ public class BerryFirmnessDataProvider
     BerryFirmnessExcelDTO result = new BerryFirmnessExcelDTO();
     result.setId(berryFirmness.id());
     result.setInternalName(berryFirmness.name());
-    result.setName(resolveLocalizedNameFromNames(berryFirmness.names(), berryFirmness.name()));
+    result.setName(resolveLocalizedName(berryFirmness.names(), berryFirmness.name()));
     return result;
   }
 }

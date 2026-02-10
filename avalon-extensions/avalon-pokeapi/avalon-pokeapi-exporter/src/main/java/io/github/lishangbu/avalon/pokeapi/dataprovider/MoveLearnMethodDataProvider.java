@@ -18,7 +18,7 @@ public class MoveLearnMethodDataProvider
     MoveLearnMethodExcelDTO result = new MoveLearnMethodExcelDTO();
     result.setId(moveLearnMethod.id());
     result.setInternalName(moveLearnMethod.name());
-    result.setName(resolveLocalizedNameFromNames(moveLearnMethod.names(), moveLearnMethod.name()));
+    result.setName(resolveLocalizedName(moveLearnMethod.names(), moveLearnMethod.name()));
     LocalizationUtils.getLocalizationDescription(moveLearnMethod.descriptions())
         .ifPresent(
             description -> {

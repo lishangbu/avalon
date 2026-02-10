@@ -18,7 +18,7 @@ public class MoveDamageClassDataProvider
     MoveDamageClassExcelDTO result = new MoveDamageClassExcelDTO();
     result.setId(moveDamageClass.id());
     result.setInternalName(moveDamageClass.name());
-    result.setName(resolveLocalizedNameFromNames(moveDamageClass.names(), moveDamageClass.name()));
+    result.setName(resolveLocalizedName(moveDamageClass.names(), moveDamageClass.name()));
     LocalizationUtils.getLocalizationDescription(moveDamageClass.descriptions())
         .ifPresent(
             description -> {
