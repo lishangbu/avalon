@@ -28,4 +28,8 @@ public class GrowthRateExcelDTO {
   /// 计算经验到等级的公式
   @ExcelProperty("formula")
   private String formula;
+
+  /// 描述文本
+  @ExcelProperty("description")
+  private String description;
 }
