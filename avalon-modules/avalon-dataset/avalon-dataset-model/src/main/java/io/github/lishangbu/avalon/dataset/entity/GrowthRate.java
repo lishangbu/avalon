@@ -9,9 +9,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
-/// 道具(Item)实体类
+/// 成长速率模型
 ///
-/// 表示游戏中的道具信息，包含标识、内部名称、价格、投掷效果及文本描述
+/// 表示宝可梦通过经验获得等级的速度，详情参考 [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Experience)
 ///
 /// @author lishangbu
 /// @since 2026/2/10
@@ -30,10 +30,6 @@ public class GrowthRate implements Serializable {
   /// 内部名称
   @Column(comment = "内部名称", length = 100)
   private String internalName;
-
-  /// 公式
-  @Column(comment = "公式", length = 1000)
-  private String formula;
 
   /// 描述
   @Column(comment = "描述", length = 200)
