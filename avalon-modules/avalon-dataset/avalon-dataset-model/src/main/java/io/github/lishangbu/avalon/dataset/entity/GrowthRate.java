@@ -31,6 +31,10 @@ public class GrowthRate implements Serializable {
   @Column(comment = "内部名称", length = 100)
   private String internalName;
 
+  ///  显示名称
+  @Column(comment = "显示名称", length = 100)
+  private String name;
+
   /// 描述
   @Column(comment = "描述", length = 200)
   private String description;
