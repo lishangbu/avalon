@@ -81,8 +81,8 @@ public class Menu implements Serializable {
   private String component;
 
   /// 排序顺序
-  @Column(comment = "菜单项的排序顺序，数字越小越靠前")
-  private Integer sortOrder;
+  @Column(comment = "菜单项的排序顺序，数字越小越靠前", name = "[order]")
+  private Integer order;
 
   // endregion
 

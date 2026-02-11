@@ -28,7 +28,7 @@ public class BerryDataProvider extends AbstractPokeApiDataProvider<Berry, BerryE
     result.setBulk(berry.size());
     result.setSmoothness(berry.smoothness());
     result.setSoilDryness(berry.soilDryness());
-    result.setFirmnessId(NamedApiResourceUtils.getId(berry.firmness()));
+    result.setBerryFirmnessId(NamedApiResourceUtils.getId(berry.firmness()));
     result.setNaturalGiftTypeId(NamedApiResourceUtils.getId(berry.naturalGiftType()));
     result.setNaturalGiftPower(berry.naturalGiftPower());
     return result;

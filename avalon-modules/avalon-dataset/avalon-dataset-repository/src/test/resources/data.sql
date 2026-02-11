@@ -55,7 +55,7 @@ COMMIT;
 -- ----------------------------
 BEGIN;
 INSERT INTO "berry" ("id", "bulk", "growth_time", "internal_name", "max_harvest", "name", "natural_gift_power",
-                     "smoothness", "soil_dryness", "firmness_id", "natural_gift_type_id")
+                     "smoothness", "soil_dryness", "berry_firmness_id", "natural_gift_type_id")
 VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (2, 80, 3, 'chesto', 5, '零余果', 60, 25, 15, 5, 11),
        (3, 40, 3, 'pecha', 5, '桃桃果', 60, 25, 15, 1, 13),

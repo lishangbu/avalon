@@ -3,23 +3,9 @@
 -- ----------------------------
 BEGIN;
 INSERT INTO "menu" ("id", "parent_id", "disabled", "extra", "icon", "key", "label", "show", "path", "name", "redirect",
-                    "component", "sort_order", "pinned", "show_tab", "enable_multi_tab")
+                    "component", "order", "pinned", "show_tab", "enable_multi_tab")
 VALUES (1, NULL, false, null, 'icon-[mage--dashboard-chart]', 'dashboard', '仪表板', true, 'dashboard', 'dashboard', '',
-        'dashboard/index', 0, true, true, false),
-       (2, NULL, false, null, 'icon-[ic--outline-dataset]', 'dataset', '数据集', true, 'dataset', 'dataset', '',
-        'dataset',
-        0, false, true, false),
-       (3, 2, false, null, 'icon-[game-icons--barbed-star]', 'type', '属性管理', true, 'type', 'type', '',
-        'dataset/type/index', 0, false, true, false),
-       (4, 2, false, null, 'icon-[game-icons--beveled-star]', 'type-damage-relation', '属性克制管理', true,
-        'type-damage-relation', 'type-damage-relation', '', 'dataset/type-damage-relation/index', 0, false, true,
-        false),
-       (5, 2, false, null, 'icon-[game-icons--diamond-hard]', 'berry-firmness', '树果硬度管理', true, 'berry-firmness',
-        'berry-firmness', '', 'dataset/berry-firmness/index', 0, false, true, false),
-       (6, 2, false, null, 'icon-[game-icons--opened-food-can]', 'berry-flavor', '树果风味管理', true, 'berry-flavor',
-        'berry-flavor', '', 'dataset/berry-flavor/index', 0, false, true, false),
-       (7, 2, false, null, 'icon-[game-icons--elderberry]', 'berry', '树果管理', true, 'berry', 'berry', '',
-        'dataset/berry/index', 0, false, true, false);
+        'dashboard/index', 0, true, true, false);
 COMMIT;
 
 -- ----------------------------
@@ -59,13 +45,7 @@ COMMIT;
 -- ----------------------------
 BEGIN;
 INSERT INTO "role_menu_relation" ("role_id", "menu_id")
-VALUES (1, 1),
-       (1, 2),
-       (1, 3),
-       (1, 4),
-       (1, 5),
-       (1, 6),
-       (1, 7);
+VALUES (1, 1);
 COMMIT;
 
 -- ----------------------------

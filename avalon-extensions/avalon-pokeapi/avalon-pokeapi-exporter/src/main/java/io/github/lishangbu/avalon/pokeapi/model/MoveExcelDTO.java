@@ -90,22 +90,22 @@ public class MoveExcelDTO {
   private Integer statChance;
 
   /// 异常状态 ID
-  @ExcelProperty("ailment_id")
-  private Integer ailmentId;
+  @ExcelProperty("move_ailment_id")
+  private Integer moveAilmentId;
 
   /// 招式分类 ID
-  @ExcelProperty("category_id")
-  private Integer categoryId;
+  @ExcelProperty("move_category_id")
+  private Integer moveCategoryId;
 
   /// 招式目标 ID
-  @ExcelProperty("target_id")
-  private Integer targetId;
+  @ExcelProperty("move_target_id")
+  private Integer moveTargetId;
 
   /// 招式属性 ID
   @ExcelProperty("type_id")
   private Integer typeId;
 
   /// 招式伤害类型
-  @ExcelProperty("damage_class_id")
-  private Integer damageClassId;
+  @ExcelProperty("move_damage_class_id")
+  private Integer moveDamageClassId;
 }

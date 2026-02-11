@@ -24,6 +24,7 @@ public class PokemonDataProvider extends AbstractPokeApiDataProvider<Pokemon, Po
     result.setOrder(pokemon.order());
     result.setWeight(pokemon.weight());
     result.setSpeciesId(NamedApiResourceUtils.getId(pokemon.species()));
+    result.setOrder(pokemon.order());
     return result;
   }
 }

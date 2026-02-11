@@ -1,10 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
@@ -35,15 +32,27 @@ public class Pokemon implements Serializable {
   @Column(comment = "宝可梦名称", length = 100)
   private String name;
 
-  /// 身高，单位为分米
-  @Column(comment = "身高，单位为分米")
+  /// 身高（以分米为单位）
+  @Column(comment = "身高（以分米为单位）")
   private Integer height;
 
-  /// 体重，数字每增加1，体重增加0.1kg
-  @Column(comment = "体重，数字每增加1，体重增加0.1kg")
+  /// 体重（以百克为单位）
+  @Column(comment = "体重（以百克为单位）")
   private Integer weight;
 
   /// 基础经验值
   @Column(comment = "基础经验值")
   private Integer baseExperience;
+
+  /// 用于排序的顺序
+  @Column(comment = "用于排序的顺序", name = "[order]")
+  private Integer order;
+
+  /// 宝可梦种类
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(
+      name = "pokemon_species_id",
+      comment = "宝可梦种类",
+      foreignKey = @ForeignKey(name = "fk_pokemon_species_id"))
+  private PokemonSpecies pokemonSpecies;
 }

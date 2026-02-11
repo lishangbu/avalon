@@ -99,13 +99,13 @@ class TypeRepositoryTest extends AbstractRepositoryTest {
   /// 插入多条记录，通过部分字段模糊匹配验证动态 SQL 条件生效
   @Test
   void shouldSelectListWithDynamicCondition() {
-    // Act - 使用部分 internalName 作为查询条件，期望匹配 water
+    // Act - 使用部分 internalName 作为查询条件，期望匹配 normal
     Type cond = new Type();
-    cond.setInternalName("water");
+    cond.setInternalName("normal");
     List<Type> results = typeRepository.findAll(Example.of(cond));
 
     // Assert
     Assertions.assertNotNull(results);
-    Assertions.assertTrue(results.stream().anyMatch(r -> "水".equals(r.getName())));
+    Assertions.assertTrue(results.stream().anyMatch(r -> "一般".equals(r.getName())));
   }
 }
