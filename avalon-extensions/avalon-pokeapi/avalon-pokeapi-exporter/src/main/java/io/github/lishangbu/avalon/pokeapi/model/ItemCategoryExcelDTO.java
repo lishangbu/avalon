@@ -24,4 +24,8 @@ public class ItemCategoryExcelDTO {
   /// 显示名称
   @ExcelProperty("name")
   private String name;
+
+  ///  所属口袋
+  @ExcelProperty("pocket_id")
+  private Integer pocketId;
 }
