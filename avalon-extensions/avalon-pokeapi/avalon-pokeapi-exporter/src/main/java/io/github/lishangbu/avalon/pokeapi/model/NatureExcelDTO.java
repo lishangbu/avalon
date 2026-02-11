@@ -34,10 +34,10 @@ public class NatureExcelDTO {
   private Integer increasedStatId;
 
   /// 讨厌的口味 ID
-  @ExcelProperty("hates_flavor_id")
+  @ExcelProperty("hates_berry_flavor_id")
   private Integer hatesFlavorId;
 
   /// 喜欢的口味 ID
-  @ExcelProperty("likes_flavor_id")
+  @ExcelProperty("likes_berry_flavor_id")
   private Integer likesFlavorId;
 }

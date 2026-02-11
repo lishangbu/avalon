@@ -186,7 +186,7 @@ COMMIT;
 -- ----------------------------
 BEGIN;
 INSERT INTO "menu" ("id", "parent_id", "disabled", "extra", "icon", "key", "label", "show", "path", "name", "redirect",
-                    "component", "sort_order", "pinned", "show_tab", "enable_multi_tab")
+                    "component", "order", "pinned", "show_tab", "enable_multi_tab")
 VALUES (1, NULL, false, null, 'icon-[mage--dashboard-chart]', 'dashboard', '仪表板', true, 'dashboard', 'dashboard', '',
         'dashboard/index', 0, true, true, false),
        (2, NULL, false, null, 'icon-[ic--outline-dataset]', 'dataset', '数据集', true, 'dataset', 'dataset', '',
@@ -235,17 +235,48 @@ COMMIT;
 -- ----------------------------
 BEGIN;
 INSERT INTO "stat" ("id", "game_index", "internal_name", "is_battle_only", "name", "move_damage_class_id")
-VALUES (1, 1, 'hp', 'f', 'HP', NULL),
-       (2, 2, 'attack', 'f', '攻击', 2),
-       (3, 3, 'defense', 'f', '防御', 2),
-       (4, 5, 'special-attack', 'f', '特攻', 3),
-       (5, 6, 'special-defense', 'f', '特防', 3),
-       (6, 4, 'speed', 'f', '速度', NULL),
-       (7, 0, 'accuracy', 't', '命中', NULL),
-       (8, 0, 'evasion', 't', '闪避', NULL) ON CONFLICT ("id") DO NOTHING;
+VALUES (1, 1, 'hp', false, 'HP', NULL),
+       (2, 2, 'attack', false, '攻击', 2),
+       (3, 3, 'defense', false, '防御', 2),
+       (4, 5, 'special-attack', false, '特攻', 3),
+       (5, 6, 'special-defense', false, '特防', 3),
+       (6, 4, 'speed', false, '速度', NULL),
+       (7, 0, 'accuracy', true, '命中', NULL),
+       (8, 0, 'evasion', true, '闪避', NULL) ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
-
+-- ----------------------------
+-- Records of nature
+-- ----------------------------
+BEGIN;
+INSERT INTO "nature" ("id", "internal_name", "name", "decreased_stat_id", "hates_berry_flavor_id", "increased_stat_id",
+                      "likes_berry_flavor_id")
+VALUES (1, 'hardy', '勤奋', NULL, NULL, NULL, NULL),
+       (2, 'bold', '大胆', 2, 1, 3, 5),
+       (3, 'modest', '内敛', 2, 1, 4, 2),
+       (4, 'calm', '温和', 2, 1, 5, 4),
+       (5, 'timid', '胆小', 2, 1, 6, 3),
+       (6, 'lonely', '怕寂寞', 3, 5, 2, 1),
+       (7, 'docile', '坦率', NULL, NULL, NULL, NULL),
+       (8, 'mild', '慢吞吞', 3, 5, 4, 2),
+       (9, 'gentle', '温顺', 3, 5, 5, 4),
+       (10, 'hasty', '急躁', 3, 5, 6, 3),
+       (11, 'adamant', '固执', 4, 2, 2, 1),
+       (12, 'impish', '淘气', 4, 2, 3, 5),
+       (13, 'bashful', '害羞', NULL, NULL, NULL, NULL),
+       (14, 'careful', '慎重', 4, 2, 5, 4),
+       (15, 'rash', '马虎', 5, 4, 4, 2),
+       (16, 'jolly', '爽朗', 4, 2, 6, 3),
+       (17, 'naughty', '顽皮', 5, 4, 2, 1),
+       (18, 'lax', '乐天', 5, 4, 3, 5),
+       (19, 'quirky', '浮躁', NULL, NULL, NULL, NULL),
+       (20, 'naive', '天真', 5, 4, 6, 3),
+       (21, 'brave', '勇敢', 6, 3, 2, 1),
+       (22, 'relaxed', '悠闲', 6, 3, 3, 5),
+       (23, 'quiet', '冷静', 6, 3, 4, 2),
+       (24, 'sassy', '自大', 6, 3, 5, 4),
+       (25, 'serious', '认真', NULL, NULL, NULL, NULL) ON CONFLICT ("id") DO NOTHING;
+COMMIT;
 -- ----------------------------
 -- Records of type
 -- ----------------------------
@@ -614,7 +645,7 @@ COMMIT;
 -- ----------------------------
 BEGIN;
 INSERT INTO "berry" ("id", "bulk", "growth_time", "internal_name", "max_harvest", "name", "natural_gift_power",
-                     "smoothness", "soil_dryness", "firmness_id", "natural_gift_type_id")
+                     "smoothness", "soil_dryness", "berry_firmness_id", "natural_gift_type_id")
 VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (2, 80, 3, 'chesto', 5, '零余果', 60, 25, 15, 5, 11),
        (3, 40, 3, 'pecha', 5, '桃桃果', 60, 25, 15, 1, 13),
@@ -680,6 +711,60 @@ VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (63, 33, 24, 'jaboca', 5, '嘉珍果', 80, 60, 7, 2, 16),
        (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17)
 ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of pokemon_color
+-- ----------------------------
+BEGIN;
+INSERT INTO "pokemon_color" ("id", "internal_name", "name")
+VALUES (1, 'black', '黑色'),
+       (2, 'blue', '蓝色'),
+       (3, 'brown', '褐色'),
+       (4, 'gray', '灰色'),
+       (5, 'green', '绿色'),
+       (6, 'pink', '粉红色'),
+       (7, 'purple', '紫色'),
+       (8, 'red', '红色'),
+       (9, 'white', '白色'),
+       (10, 'yellow', '黄色') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of pokemon_habitat
+-- ----------------------------
+BEGIN;
+INSERT INTO "pokemon_habitat" ("id", "internal_name", "name")
+VALUES (1, 'cave', 'cave'),
+       (2, 'forest', 'forest'),
+       (3, 'grassland', 'grassland'),
+       (4, 'mountain', 'mountain'),
+       (5, 'rare', 'rare'),
+       (6, 'rough-terrain', 'rough terrain'),
+       (7, 'sea', 'sea'),
+       (8, 'urban', 'urban'),
+       (9, 'waters-edge', 'water''s edge') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of pokemon_shape
+-- ----------------------------
+BEGIN;
+INSERT INTO "pokemon_shape" ("id", "internal_name", "name")
+VALUES (1, 'ball', 'Ball'),
+       (2, 'squiggle', 'Squiggle'),
+       (3, 'fish', 'Fish'),
+       (4, 'arms', 'Arms'),
+       (5, 'blob', 'Blob'),
+       (6, 'upright', 'Upright'),
+       (7, 'legs', 'Legs'),
+       (8, 'quadruped', 'Quadruped'),
+       (9, 'wings', 'Wings'),
+       (10, 'tentacles', 'Tentacles'),
+       (11, 'heads', 'Heads'),
+       (12, 'humanoid', 'Humanoid'),
+       (13, 'bug-wings', 'Bug wings'),
+       (14, 'armor', 'Armor') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------

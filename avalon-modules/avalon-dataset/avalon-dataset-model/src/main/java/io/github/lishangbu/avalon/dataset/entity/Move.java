@@ -36,7 +36,6 @@ public class Move implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "type_id",
-      referencedColumnName = "id",
       comment = "招式属性",
       foreignKey = @ForeignKey(name = "fk_move_type_id"))
   private Type type;
@@ -64,8 +63,7 @@ public class Move implements Serializable {
   /// 此招式对目标造成的伤害类型
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
-      name = "damage_class_id",
-      referencedColumnName = "id",
+      name = "move_damage_class_id",
       comment = "此招式对目标造成的伤害类型",
       foreignKey = @ForeignKey(name = "fk_move_damage_class_id"))
   private MoveDamageClass moveDamageClass;
@@ -73,8 +71,7 @@ public class Move implements Serializable {
   /// 接收攻击效果的目标类型
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
-      name = "target_id",
-      referencedColumnName = "id",
+      name = "move_target_id",
       comment = "接收攻击效果的目标类型",
       foreignKey = @ForeignKey(name = "fk_move_target_id"))
   private MoveTarget moveTarget;
@@ -128,8 +125,7 @@ public class Move implements Serializable {
   /// 招式分类
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
-      name = "category_id",
-      referencedColumnName = "id",
+      name = "move_category_id",
       comment = "招式分类",
       foreignKey = @ForeignKey(name = "fk_move_category_id"))
   private MoveCategory moveCategory;
@@ -137,8 +133,7 @@ public class Move implements Serializable {
   /// 招式导致的状态异常
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
-      name = "ailment_id",
-      referencedColumnName = "id",
+      name = "move_ailment_id",
       comment = "招式导致的状态异常",
       foreignKey = @ForeignKey(name = "fk_move_ailment_id"))
   private MoveAilment moveAilment;

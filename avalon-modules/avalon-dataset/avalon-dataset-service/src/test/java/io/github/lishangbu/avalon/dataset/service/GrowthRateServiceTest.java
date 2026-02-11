@@ -1,10 +1,11 @@
-package io.github.lishangbu.avalon.dataset.service.impl;
+package io.github.lishangbu.avalon.dataset.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate;
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository;
+import io.github.lishangbu.avalon.dataset.service.impl.GrowthRateServiceImpl;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -17,13 +18,13 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-class GrowthRateServiceImplTest {
+class GrowthRateServiceTest {
 
   private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
   @Mock private GrowthRateRepository growthRateRepository;
 
-  @InjectMocks private GrowthRateService growthRateService;
+  @InjectMocks private GrowthRateServiceImpl growthRateService;
 
   /// 测试calculateGrowthRate方法，验证slow类型的计算结果
   ///

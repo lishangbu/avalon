@@ -44,12 +44,12 @@ public class MoveDataProvider extends AbstractPokeApiDataProvider<Move, MoveExce
       result.setAilmentChance(meta.ailmentChance());
       result.setFlinchChance(meta.flinchChance());
       result.setStatChance(meta.statChance());
-      result.setAilmentId(NamedApiResourceUtils.getId(meta.ailment()));
-      result.setCategoryId(NamedApiResourceUtils.getId(meta.category()));
+      result.setMoveAilmentId(NamedApiResourceUtils.getId(meta.ailment()));
+      result.setMoveCategoryId(NamedApiResourceUtils.getId(meta.category()));
     }
-    result.setTargetId(NamedApiResourceUtils.getId(move.target()));
+    result.setMoveTargetId(NamedApiResourceUtils.getId(move.target()));
     result.setTypeId(NamedApiResourceUtils.getId(move.type()));
-    result.setDamageClassId(NamedApiResourceUtils.getId(move.damageClass()));
+    result.setMoveDamageClassId(NamedApiResourceUtils.getId(move.damageClass()));
     return result;
   }
 }

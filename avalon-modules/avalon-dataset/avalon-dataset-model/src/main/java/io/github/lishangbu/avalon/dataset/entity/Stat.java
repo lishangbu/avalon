@@ -44,7 +44,6 @@ public class Stat implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "move_damage_class_id",
-      referencedColumnName = "id",
       comment = "招式属性",
       foreignKey = @ForeignKey(name = "fk_stat_move_damage_class_id"))
   private MoveDamageClass moveDamageClass;

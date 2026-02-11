@@ -46,8 +46,8 @@ public class BerryExcelDTO {
   private Integer soilDryness;
 
   /// 树果硬度ID
-  @ExcelProperty("firmness_id")
-  private Integer firmnessId;
+  @ExcelProperty("berry_firmness_id")
+  private Integer berryFirmnessId;
 
   /// 自然之恩招式属性
   @ExcelProperty("natural_gift_type_id")
