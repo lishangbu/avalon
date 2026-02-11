@@ -164,6 +164,19 @@ VALUES (1, 'female'),
 COMMIT;
 
 -- ----------------------------
+-- Records of growth_rate
+-- ----------------------------
+BEGIN;
+INSERT INTO "growth_rate" ("id", "description", "internal_name", "name")
+VALUES (1, 'slow', 'slow', '慢'),
+       (2, 'medium', 'medium', '较快'),
+       (3, 'fast', 'fast', '快'),
+       (4, 'medium slow', 'medium-slow', '较慢'),
+       (5, 'erratic', 'slow-then-very-fast', '最快'),
+       (6, 'fluctuating', 'fast-then-very-slow', '最慢');
+COMMIT;
+
+-- ----------------------------
 -- Records of item_attribute
 -- ----------------------------
 BEGIN;
@@ -288,6 +301,22 @@ VALUES (1, 'One specific move.  How this move is chosen depends upon on the move
        (15, 'All of the user''s allies.', 'all-allies', 'all-allies'),
        (16, NULL, 'fainting-pokemon', 'fainting-pokemon');
 COMMIT;
+
+-- ----------------------------
+-- Records of stat
+-- ----------------------------
+BEGIN;
+INSERT INTO "stat" ("id", "game_index", "internal_name", "is_battle_only", "name", "move_damage_class_id")
+VALUES (1, 1, 'hp', false, 'HP', NULL),
+       (2, 2, 'attack', false, '攻击', 2),
+       (3, 3, 'defense', false, '防御', 2),
+       (4, 5, 'special-attack', false, '特攻', 3),
+       (5, 6, 'special-defense', false, '特防', 3),
+       (6, 4, 'speed', false, '速度', NULL),
+       (7, 0, 'accuracy', true, '命中', NULL),
+       (8, 0, 'evasion', true, '闪避', NULL);
+COMMIT;
+
 
 -- ----------------------------
 -- Records of type_damage_relation

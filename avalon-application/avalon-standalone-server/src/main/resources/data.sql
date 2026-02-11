@@ -36,6 +36,19 @@ ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
+-- Records of growth_rate
+-- ----------------------------
+BEGIN;
+INSERT INTO "growth_rate" ("id", "description", "internal_name", "name")
+VALUES (1, 'slow', 'slow', '慢'),
+       (2, 'medium', 'medium', '较快'),
+       (3, 'fast', 'fast', '快'),
+       (4, 'medium slow', 'medium-slow', '较慢'),
+       (5, 'erratic', 'slow-then-very-fast', '最快'),
+       (6, 'fluctuating', 'fast-then-very-slow', '最慢') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
 -- Records of item_attribute
 -- ----------------------------
 BEGIN;
@@ -216,6 +229,22 @@ VALUES ('1', 'client', '2025-08-12 16:11:22+00', '{noop}client', '5202-08-12 16:
         '30d', 'RS256', false)
 ON CONFLICT ("id") DO NOTHING;
 COMMIT;
+
+-- ----------------------------
+-- Records of stat
+-- ----------------------------
+BEGIN;
+INSERT INTO "stat" ("id", "game_index", "internal_name", "is_battle_only", "name", "move_damage_class_id")
+VALUES (1, 1, 'hp', 'f', 'HP', NULL),
+       (2, 2, 'attack', 'f', '攻击', 2),
+       (3, 3, 'defense', 'f', '防御', 2),
+       (4, 5, 'special-attack', 'f', '特攻', 3),
+       (5, 6, 'special-defense', 'f', '特防', 3),
+       (6, 4, 'speed', 'f', '速度', NULL),
+       (7, 0, 'accuracy', 't', '命中', NULL),
+       (8, 0, 'evasion', 't', '闪避', NULL) ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
 
 -- ----------------------------
 -- Records of type

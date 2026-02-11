@@ -28,7 +28,6 @@ public class GrowthRateDataProvider
     result.setId(growthRate.id());
     result.setInternalName(growthRate.name());
     result.setName(growthRateNameCache.getOrDefault(growthRate.name(), growthRate.name()));
-    result.setFormula(growthRate.formula());
     result.setDescription(resolveLocalizedDescription(growthRate.descriptions()));
     return result;
   }
