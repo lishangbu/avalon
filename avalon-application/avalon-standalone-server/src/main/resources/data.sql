@@ -7,7 +7,8 @@ VALUES (5, 'super-hard', '非常坚硬'),
        (4, 'very-hard', '很坚硬'),
        (3, 'hard', '坚硬'),
        (2, 'soft', '柔软'),
-       (1, 'very-soft', '很柔软') ON CONFLICT ("id") DO NOTHING;
+       (1, 'very-soft', '很柔软')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -19,7 +20,8 @@ VALUES (1, 'spicy', '辣'),
        (2, 'dry', '涩'),
        (3, 'sweet', '甜'),
        (4, 'bitter', '苦'),
-       (5, 'sour', '酸') ON CONFLICT ("id") DO NOTHING;
+       (5, 'sour', '酸')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -29,9 +31,25 @@ BEGIN;
 INSERT INTO "gender" (id, internal_name)
 VALUES (1, 'female'),
        (2, 'male'),
-       (3, 'genderless')ON CONFLICT ("id") DO NOTHING;
+       (3, 'genderless')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
+-- ----------------------------
+-- Records of item_attribute
+-- ----------------------------
+BEGIN;
+INSERT INTO "item_attribute"
+VALUES (1, 'Has a count in the bag', 'countable', 'Countable'),
+       (2, 'Consumed when used', 'consumable', 'Consumable'),
+       (3, 'Usable outside battle', 'usable-overworld', 'Usable_overworld'),
+       (4, 'Usable in battle', 'usable-in-battle', 'Usable_in_battle'),
+       (5, 'Can be held by a Pokémon', 'holdable', 'Holdable'),
+       (6, 'Works passively when held', 'holdable-passive', 'Holdable_passive'),
+       (7, 'Usable by a Pokémon when held', 'holdable-active', 'Holdable_active'),
+       (8, 'Appears in Sinnoh Underground', 'underground', 'Underground')
+ON CONFLICT ("id") DO NOTHING;
+COMMIT;
 
 -- ----------------------------
 -- Records of move_ailment
@@ -59,7 +77,8 @@ VALUES (-1, 'unknown', 'unknown'),
        (20, 'perish-song', 'perish-song'),
        (21, 'ingrain', 'ingrain'),
        (24, 'silence', 'silence'),
-       (42, 'tar-shot', 'tar-shot')ON CONFLICT ("id") DO NOTHING;
+       (42, 'tar-shot', 'tar-shot')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 
@@ -81,7 +100,8 @@ VALUES (0, 'Inflicts damage', 'damage', 'damage'),
        (10, 'Effect on the whole field', 'whole-field-effect', 'whole-field-effect'),
        (11, 'Effect on one side of the field', 'field-effect', 'field-effect'),
        (12, 'Forces target to switch out', 'force-switch', 'force-switch'),
-       (13, 'Unique effect', 'unique', 'unique') ON CONFLICT ("id") DO NOTHING;
+       (13, 'Unique effect', 'unique', 'unique')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -91,7 +111,8 @@ BEGIN;
 INSERT INTO "move_damage_class" (id, description, internal_name, name)
 VALUES (1, '没有伤害', 'status', '变化'),
        (2, '物理伤害，受攻击和防御影响', 'physical', '物理'),
-       (3, '特殊伤害，受特攻和特防影响', 'special', '特殊')ON CONFLICT ("id") DO NOTHING;
+       (3, '特殊伤害，受特攻和特防影响', 'special', '特殊')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -117,7 +138,8 @@ VALUES (1, 'Learned when a Pokémon reaches a certain level.', 'level-up', 'Leve
         'form-change', 'Form Change'),
        (11,
         'Can be taught using the Zygarde Cube.  Must find the corresponding Zygarde Core first in Sun/Moon.  All moves are available immediately in Ultra Sun/Ultra Moon.',
-        'zygarde-cube', 'Zygarde Cube')ON CONFLICT ("id") DO NOTHING;
+        'zygarde-cube', 'Zygarde Cube')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -142,7 +164,8 @@ VALUES (1, 'One specific move.  How this move is chosen depends upon on the move
        (13, 'The user and its allies.', 'user-and-allies', 'user-and-allies'),
        (14, 'Every Pokémon on the field.', 'all-pokemon', 'all-pokemon'),
        (15, 'All of the user''s allies.', 'all-allies', 'all-allies'),
-       (16, NULL, 'fainting-pokemon', 'fainting-pokemon') ON CONFLICT ("id") DO NOTHING;
+       (16, NULL, 'fainting-pokemon', 'fainting-pokemon')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -166,7 +189,8 @@ VALUES (1, NULL, false, null, 'icon-[mage--dashboard-chart]', 'dashboard', '仪�
        (6, 2, false, null, 'icon-[game-icons--opened-food-can]', 'berry-flavor', '树果风味管理', true, 'berry-flavor',
         'berry-flavor', '', 'dataset/berry-flavor/index', 0, false, true, false),
        (7, 2, false, null, 'icon-[game-icons--elderberry]', 'berry', '树果管理', true, 'berry', 'berry', '',
-        'dataset/berry/index', 0, false, true, false) ON CONFLICT ("id") DO NOTHING;
+        'dataset/berry/index', 0, false, true, false)
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -189,7 +213,8 @@ VALUES ('1', 'client', '2025-08-12 16:11:22+00', '{noop}client', '5202-08-12 16:
        ('2', 'test', '2025-08-12 16:11:22+00', '{noop}test', '5202-08-12 16:11:22+00', '测试REFERENCE模式的客户端',
         'client_secret_basic,client_secret_post,client_secret_jwt', 'refresh_token,client_credentials,password', '',
         'http://localhost:8080', 'openid,profile', false, false, '', 'RS256', '', '2h', '2h', 'reference', '1h', true,
-        '30d', 'RS256', false) ON CONFLICT ("id") DO NOTHING;
+        '30d', 'RS256', false)
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -217,7 +242,8 @@ VALUES (1, 'normal', '一般'),
        (18, 'fairy', '妖精'),
        (19, 'stellar', '星晶'),
        (10001, 'unknown', '???'),
-       (10002, 'shadow', '暗') ON CONFLICT ("id") DO NOTHING;
+       (10002, 'shadow', '暗')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 
@@ -550,7 +576,8 @@ VALUES (1, 1, 1),
        (18, 15, 1),
        (18, 16, 2),
        (18, 17, 2),
-       (18, 18, 1) ON CONFLICT ("attacking_type_id", "defending_type_id") DO NOTHING;
+       (18, 18, 1)
+ON CONFLICT ("attacking_type_id", "defending_type_id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -622,7 +649,8 @@ VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (61, 41, 24, 'micle', 5, '奇秘果', 80, 60, 7, 2, 6),
        (62, 267, 24, 'custap', 5, '释陀果', 80, 60, 7, 5, 8),
        (63, 33, 24, 'jaboca', 5, '嘉珍果', 80, 60, 7, 2, 16),
-       (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17) ON CONFLICT ("id") DO NOTHING;
+       (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17)
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -654,7 +682,8 @@ VALUES (1, '这个蛋群的宝可梦大多原型基于特摄影片中的怪兽�
        (14, '这个蛋群的宝可梦大多原型基于传说中的龙以及与龙有关的动物（蜥蜴、海马等）。', 'dragon', '龙',
         '外表长得像龙或者具有龙的特质的宝可梦。'),
        (15, '属于此蛋群的宝可梦都无法生蛋。', 'no-eggs', '未发现',
-        '不能和任何宝可梦生蛋。') ON CONFLICT ("id") DO NOTHING;
+        '不能和任何宝可梦生蛋。')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -663,7 +692,8 @@ COMMIT;
 BEGIN;
 INSERT INTO "role" ("id", "code", "name", "enabled")
 VALUES (1, 'ROLE_SUPER_ADMIN', '超级管理员', true),
-       (2, 'ROLE_TEST', '测试员', true) ON CONFLICT ("id") DO NOTHING;
+       (2, 'ROLE_TEST', '测试员', true)
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -677,7 +707,8 @@ VALUES (1, 1),
        (1, 4),
        (1, 5),
        (1, 6),
-       (1, 7) ON CONFLICT ("role_id", "menu_id") DO NOTHING;
+       (1, 7)
+ON CONFLICT ("role_id", "menu_id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -686,7 +717,8 @@ COMMIT;
 BEGIN;
 INSERT INTO "user" ("id", "username", "password")
 VALUES (1, 'admin',
-        '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G') ON CONFLICT ("id") DO NOTHING;
+        '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G')
+ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -695,5 +727,6 @@ COMMIT;
 BEGIN;
 INSERT INTO "user_role_relation" ("user_id", "role_id")
 VALUES (1, 1),
-       (1, 2) ON CONFLICT ("user_id", "role_id") DO NOTHING;
+       (1, 2)
+ON CONFLICT ("user_id", "role_id") DO NOTHING;
 COMMIT;

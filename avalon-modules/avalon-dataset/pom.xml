@@ -12,5 +12,6 @@
   <modules>
     <module>avalon-dataset-model</module>
     <module>avalon-dataset-repository</module>
+    <module>avalon-dataset-service</module>
   </modules>
 </project>

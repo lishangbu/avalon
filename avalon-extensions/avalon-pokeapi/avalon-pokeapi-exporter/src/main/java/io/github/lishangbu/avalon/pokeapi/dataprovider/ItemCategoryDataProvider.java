@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.ItemCategoryExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.item.ItemCategory;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.stereotype.Service;
 
 /// 道具类别数据提供者
@@ -18,6 +19,7 @@ public class ItemCategoryDataProvider
     result.setId(itemCategory.id());
     result.setInternalName(itemCategory.name());
     result.setName(resolveLocalizedName(itemCategory.names(), itemCategory.name()));
+    result.setPocketId(NamedApiResourceUtils.getId(itemCategory.pocket()));
     return result;
   }
 }

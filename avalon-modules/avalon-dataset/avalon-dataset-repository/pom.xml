@@ -8,6 +8,7 @@
     <version>${revision}</version>
   </parent>
   <artifactId>avalon-dataset-repository</artifactId>
+  <description>数据集存储</description>
   <dependencies>
     <dependency>
       <groupId>io.github.lishangbu</groupId>

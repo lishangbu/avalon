@@ -36,6 +36,6 @@ public class ItemAttribute implements Serializable {
   private String name;
 
   /// 道具属性描述
-  @Column(comment = "道具属性描述", length = 50)
+  @Column(comment = "道具属性描述", length = 100)
   private String description;
 }
