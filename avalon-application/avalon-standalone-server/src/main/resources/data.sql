@@ -7,8 +7,7 @@ VALUES (5, 'super-hard', '非常坚硬'),
        (4, 'very-hard', '很坚硬'),
        (3, 'hard', '坚硬'),
        (2, 'soft', '柔软'),
-       (1, 'very-soft', '很柔软')
-ON CONFLICT ("id") DO NOTHING;
+       (1, 'very-soft', '很柔软') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -20,8 +19,172 @@ VALUES (1, 'spicy', '辣'),
        (2, 'dry', '涩'),
        (3, 'sweet', '甜'),
        (4, 'bitter', '苦'),
-       (5, 'sour', '酸')
-ON CONFLICT ("id") DO NOTHING;
+       (5, 'sour', '酸') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of encounter_condition
+-- ----------------------------
+BEGIN;
+INSERT INTO encounter_condition ("id", "internal_name", "name")
+VALUES (1, 'swarm', 'Swarm'),
+       (2, 'time', 'Time of day'),
+       (3, 'radar', 'PokeRadar'),
+       (4, 'slot2', 'Gen 3 game in slot 2'),
+       (5, 'radio', 'Radio'),
+       (6, 'season', 'Season'),
+       (7, 'starter', 'Chosen Starter'),
+       (8, 'tv-option', 'Chosen dialogue at the news report'),
+       (9, 'story-progress', 'Story Progress'),
+       (10, 'other', 'Miscellaneous'),
+       (11, 'item', 'item'),
+       (12, 'weekday', 'weekday'),
+       (13, 'first-party-pokemon', 'first-party-pokemon'),
+       (14, 'special-encounter', 'special-encounter') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of encounter_condition_value
+-- ----------------------------
+BEGIN;
+INSERT INTO encounter_condition_value ("id", "internal_name", "name", "encounter_condition_id")
+VALUES (1, 'swarm-yes', 'During a swarm', 1),
+       (2, 'swarm-no', 'Not during a swarm', 1),
+       (3, 'time-morning', 'In the morning', 2),
+       (4, 'time-day', 'During the day', 2),
+       (5, 'time-night', 'At night', 2),
+       (6, 'radar-on', 'Using PokéRadar', 3),
+       (7, 'radar-off', 'Not using PokéRadar', 3),
+       (8, 'slot2-none', 'No game in slot 2', 4),
+       (9, 'slot2-ruby', 'Ruby in slot 2', 4),
+       (10, 'slot2-sapphire', 'Sapphire in slot 2', 4),
+       (11, 'slot2-emerald', 'Emerald in slot 2', 4),
+       (12, 'slot2-firered', 'FireRed in slot 2', 4),
+       (13, 'slot2-leafgreen', 'LeafGreen in slot 2', 4),
+       (14, 'radio-off', 'Radio off', 5),
+       (15, 'radio-hoenn', 'Hoenn radio', 5),
+       (16, 'radio-sinnoh', 'Sinnoh radio', 5),
+       (17, 'season-spring', 'During Spring', 6),
+       (18, 'season-summer', 'During Summer', 6),
+       (19, 'season-autumn', 'During Autumn', 6),
+       (20, 'season-winter', 'During Winter', 6),
+       (21, 'starter-bulbasaur', 'Bulbasaur as starter', 7),
+       (22, 'starter-squirtle', 'Squirtle as starter', 7),
+       (23, 'starter-charmander', 'Charmander as starter', 7),
+       (24, 'starter-chespin', 'Chespin as starter', 7),
+       (25, 'starter-fennekin', 'Fennekin as starter', 7),
+       (26, 'starter-froakie', 'Froakie as starter', 7),
+       (27, 'tv-option-blue', 'Chose ‘Blue’ on the TV news report', 8),
+       (28, 'tv-option-red', 'Chose ‘Red’ on the TV news report', 8),
+       (29, 'story-progress-awakened-beasts', 'Awakened the legendary beasts at Burned Tower', 9),
+       (30, 'story-progress-beat-galactic-coronet', 'Visited Lake Verity after defeating Team Galactic at Mt. Coronet',
+        9),
+       (31, 'story-progress-oak-eterna-city', 'Talked to Professor Oak at Eterna City', 9),
+       (32, 'story-progress-vermilion-copycat', 'Visited the Pokémon Fan Club with Copycat’s doll', 9),
+       (33, 'story-progress-met-tornadus-thundurus', 'Met Tornadus or Thundurus in a cutscene', 9),
+       (34, 'story-progress-beat-elite-four-round-two', 'Beat the Elite 4 for the second time', 9),
+       (35, 'story-progress-hall-of-fame', 'Enter the Hall of Fame', 9),
+       (36, 'story-progress-none', 'None', 9),
+       (37, 'story-progress-national-dex', 'Acquired National Pokédex', 9),
+       (38, 'other-none', 'None', 10),
+       (39, 'other-snorlax-11-beat-league', 'Beat the Pokémon league after knocking out Snorlax at Route 11', 10),
+       (40, 'other-virtual-console', 'Playing on the Virtual Console Release', 10),
+       (41, 'story-progress-cure-eldritch-nightmares', 'Cure the nightmares of Eldritch’s Son', 9),
+       (42, 'other-talk-to-cynthias-grandmother', 'Talk to Cynthia’s grandmother', 10),
+       (43, 'item-none', 'No item requirement', 11),
+       (44, 'item-adamant-orb', 'Have Adamant Orb in bag', 11),
+       (45, 'item-lustrous-orb', 'Have Lustrous Orb in bag', 11),
+       (46, 'item-helix-fossil', 'Have Helix Fossil in bag', 11),
+       (47, 'item-dome-fossil', 'Have Dome Fossil in bag', 11),
+       (48, 'item-old-amber', 'Have Old Amber in bag', 11),
+       (49, 'item-root-fossil', 'Have Root Fossil in bag', 11),
+       (50, 'item-claw-fossil', 'Have Claw Fossil in bag', 11),
+       (51, 'story-progress-defeat-jupiter', 'Defeat Jupiter', 9),
+       (52, 'story-progress-beat-team-galactic-iron-island', 'Defeat Team Galactic at Iron Island', 9),
+       (53, 'other-correct-password', 'Input correct password', 10),
+       (54, 'story-progress-zephyr-badge', 'Obtained Zephyr badge', 9),
+       (55, 'story-progress-beat-red', 'Defeat Red', 9),
+       (56, 'other-received-kanto-starter', 'Received a Kanto Starter', 10),
+       (57, 'story-progress-receive-tm-from-claire', 'Received TM59 From Claire', 9),
+       (58, 'other-regirock-regice-registeel-in-party', 'Have Regirock, Regice and Registeel in the party', 10),
+       (59, 'weekday-sunday', 'Sunday', 12),
+       (60, 'weekday-monday', 'Monday', 12),
+       (61, 'weekday-tuesday', 'Tuesday', 12),
+       (62, 'weekday-wednesday', 'Wednesday', 12),
+       (63, 'weekday-thursday', 'Thursday', 12),
+       (64, 'weekday-friday', 'Friday', 12),
+       (65, 'weekday-saturday', 'Saturday', 12),
+       (66, 'first-party-pokemon-high-friendship', 'The first Pokémon in the player’s party has a high friendship stat',
+        13),
+       (67, 'story-progress-defeat-mars', 'Beat Mars for the first time', 9),
+       (68, 'item-odd-keystone', 'Have Odd Keystone in bag', 11),
+       (69, 'other-talked-to-32-people-underground', 'Has talked to at least 32 people in the underground', 10),
+       (70, 'story-progress-returned-machine-part', 'Returned Machine Part to Power Plant', 9),
+       (71, 'other-event-arceus-in-party', 'Have an Event Arceus in the party', 10),
+       (72, 'special-encounter-couldnt-capture-before',
+        'This special Pokémon couldn’t be captured in previous encounters (either fainted or ran from battle)', 14),
+       (73, 'item-ice-key', 'Have Ice Key in bag', 11),
+       (74, 'item-iron-key', 'Have Iron Key in bag', 11),
+       (75, 'story-progress-juniper-cave-of-being', 'Spoke to Professor Juniper in the Cave of Being', 9),
+       (76, 'item-lunar-wing', 'Have Lunar Wing in bag', 11),
+       (77, 'story-progress-quake-badge', 'Obtained Quake Badge', 9),
+       (78, 'item-light-stone', 'Have Light Stone in bag', 11),
+       (79, 'item-dark-stone', 'Have Dark Stone in bag', 11),
+       (80, 'other-captured-reshiram-or-zekrom', 'Captured Reshiram or Zekrom previously', 10),
+       (81, 'defeated-ghetsis', 'Defeated Ghetsis', 9),
+       (82, 'other-found-11-times-roaming', 'Has been unsuccesfully battled 11 times before', 10),
+       (83, 'time-minute-00-to-19', 'The current minute is between 00 and 19', 2),
+       (84, 'time-minute-20-to-39', 'The current minute is between 20 and 39', 2),
+       (85, 'time-minute-40-to-59', 'The current minute is between 40 and 59', 2),
+       (86, 'time-04-00-to-19-59', 'The current time is between 04:00 and 19:59', 2),
+       (87, 'time-20-00-to-21-59', 'The current time is between 20:00 and 21:59', 2),
+       (88, 'time-21-00-to-03-59', 'The current time is between 22:00 and 03:59', 2),
+       (89, 'item-tidal-bell', 'Have Tidal Bell in bag', 11),
+       (90, 'item-clear-bell', 'Have Clear Bell in bag', 11),
+       (91, 'story-progress-defeated-groudon-or-kyogre', 'Defeated or captured Groudon or Kyogre', 9),
+       (92, 'other-uxie-mesprit-azelf-in-party', 'Have Uxie, Mesprit, and Azelf in the party', 10),
+       (93, 'other-nicknamed-cold-item-regice-regirock-registeel3',
+        'After capturing the three regis in the game, have a nicknamed Regice holding a cold-based item, plus Regirock and Registeel in the party',
+        10),
+       (94, 'other-dialga-or-palkia-in-party', 'Have Dialga or Palkia in the party', 10),
+       (95, 'other-castform-in-party', 'Have Castform in party', 10),
+       (96, 'other-level-100-pokemon-in-party', 'Have a Level 100 Pokémon in party', 10),
+       (97, 'other-tornadus-thundurus-in-party', 'Have Tornadus and Thundurus in party', 10),
+       (98, 'other-reshiram-zekrom-in-party', 'Have Reshiram and Zekrom in party', 10),
+       (99, 'other-captured-all-ultra-beasts', 'Captured all Ultra Beasts', 10),
+       (100, 'story-progress-finished-looker-sidequest', 'Finished Looker’s Sidequest', 9),
+       (101, 'story-progress-beat-olivias-trial', 'After finishing Olivia’s trial', 9),
+       (102, 'other-raikou-entei-in-party', 'Have Raikou and Entei in party', 10),
+       (103, 'other-groudon-kyogre-in-party', 'Have Groudon and Kyogre in party', 10),
+       (104, 'other-dialga-palkia-in-party', 'Have Dialga and Palkia in party', 10),
+       (105, 'other-scan-qr-code', 'Scan a specific QR Code', 10),
+       (106, 'other-caught-articuno', 'other-caught-articuno', 10),
+       (107, 'other-caught-zapdos', 'other-caught-zapdos', 10),
+       (108, 'other-caught-moltres', 'other-caught-moltres', 10)ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+
+-- ----------------------------
+-- Records of evolution_trigger
+-- ----------------------------
+BEGIN;
+INSERT INTO evolution_trigger ("id", "internal_name", "name")
+VALUES (1, 'level-up', 'Level up'),
+       (2, 'trade', 'Trade or Linking Cord'),
+       (3, 'use-item', 'Use item'),
+       (4, 'shed', 'Shed'),
+       (5, 'spin', 'Spin'),
+       (6, 'tower-of-darkness', 'Train in the Tower of Darkness'),
+       (7, 'tower-of-waters', 'Train in the Tower of Waters'),
+       (8, 'three-critical-hits', 'Land three critical hits in a battle'),
+       (9, 'take-damage', 'Go somewhere after taking damage'),
+       (10, 'other', 'Other'),
+       (11, 'agile-style-move', 'agile-style-move'),
+       (12, 'strong-style-move', 'strong-style-move'),
+       (13, 'recoil-damage', 'recoil-damage'),
+       (14, 'use-move', 'Use move'),
+       (15, 'three-defeated-bisharp', 'Defeat three Bisharp that hold a Leader''s Crest'),
+       (16, 'gimmmighoul-coins', 'Collect 999 Gimmighoul Coins') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -31,8 +194,7 @@ BEGIN;
 INSERT INTO "gender" (id, internal_name)
 VALUES (1, 'female'),
        (2, 'male'),
-       (3, 'genderless')
-ON CONFLICT ("id") DO NOTHING;
+       (3, 'genderless') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -60,8 +222,7 @@ VALUES (1, 'Has a count in the bag', 'countable', 'Countable'),
        (5, 'Can be held by a Pokémon', 'holdable', 'Holdable'),
        (6, 'Works passively when held', 'holdable-passive', 'Holdable_passive'),
        (7, 'Usable by a Pokémon when held', 'holdable-active', 'Holdable_active'),
-       (8, 'Appears in Sinnoh Underground', 'underground', 'Underground')
-ON CONFLICT ("id") DO NOTHING;
+       (8, 'Appears in Sinnoh Underground', 'underground', 'Underground') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -90,8 +251,7 @@ VALUES (-1, 'unknown', 'unknown'),
        (20, 'perish-song', 'perish-song'),
        (21, 'ingrain', 'ingrain'),
        (24, 'silence', 'silence'),
-       (42, 'tar-shot', 'tar-shot')
-ON CONFLICT ("id") DO NOTHING;
+       (42, 'tar-shot', 'tar-shot') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 
@@ -113,8 +273,7 @@ VALUES (0, 'Inflicts damage', 'damage', 'damage'),
        (10, 'Effect on the whole field', 'whole-field-effect', 'whole-field-effect'),
        (11, 'Effect on one side of the field', 'field-effect', 'field-effect'),
        (12, 'Forces target to switch out', 'force-switch', 'force-switch'),
-       (13, 'Unique effect', 'unique', 'unique')
-ON CONFLICT ("id") DO NOTHING;
+       (13, 'Unique effect', 'unique', 'unique') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -124,8 +283,7 @@ BEGIN;
 INSERT INTO "move_damage_class" (id, description, internal_name, name)
 VALUES (1, '没有伤害', 'status', '变化'),
        (2, '物理伤害，受攻击和防御影响', 'physical', '物理'),
-       (3, '特殊伤害，受特攻和特防影响', 'special', '特殊')
-ON CONFLICT ("id") DO NOTHING;
+       (3, '特殊伤害，受特攻和特防影响', 'special', '特殊') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -151,8 +309,7 @@ VALUES (1, 'Learned when a Pokémon reaches a certain level.', 'level-up', 'Leve
         'form-change', 'Form Change'),
        (11,
         'Can be taught using the Zygarde Cube.  Must find the corresponding Zygarde Core first in Sun/Moon.  All moves are available immediately in Ultra Sun/Ultra Moon.',
-        'zygarde-cube', 'Zygarde Cube')
-ON CONFLICT ("id") DO NOTHING;
+        'zygarde-cube', 'Zygarde Cube') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -177,8 +334,7 @@ VALUES (1, 'One specific move.  How this move is chosen depends upon on the move
        (13, 'The user and its allies.', 'user-and-allies', 'user-and-allies'),
        (14, 'Every Pokémon on the field.', 'all-pokemon', 'all-pokemon'),
        (15, 'All of the user''s allies.', 'all-allies', 'all-allies'),
-       (16, NULL, 'fainting-pokemon', 'fainting-pokemon')
-ON CONFLICT ("id") DO NOTHING;
+       (16, NULL, 'fainting-pokemon', 'fainting-pokemon') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -202,8 +358,7 @@ VALUES (1, NULL, false, null, 'icon-[mage--dashboard-chart]', 'dashboard', '仪�
        (6, 2, false, null, 'icon-[game-icons--opened-food-can]', 'berry-flavor', '树果风味管理', true, 'berry-flavor',
         'berry-flavor', '', 'dataset/berry-flavor/index', 0, false, true, false),
        (7, 2, false, null, 'icon-[game-icons--elderberry]', 'berry', '树果管理', true, 'berry', 'berry', '',
-        'dataset/berry/index', 0, false, true, false)
-ON CONFLICT ("id") DO NOTHING;
+        'dataset/berry/index', 0, false, true, false) ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -226,8 +381,7 @@ VALUES ('1', 'client', '2025-08-12 16:11:22+00', '{noop}client', '5202-08-12 16:
        ('2', 'test', '2025-08-12 16:11:22+00', '{noop}test', '5202-08-12 16:11:22+00', '测试REFERENCE模式的客户端',
         'client_secret_basic,client_secret_post,client_secret_jwt', 'refresh_token,client_credentials,password', '',
         'http://localhost:8080', 'openid,profile', false, false, '', 'RS256', '', '2h', '2h', 'reference', '1h', true,
-        '30d', 'RS256', false)
-ON CONFLICT ("id") DO NOTHING;
+        '30d', 'RS256', false) ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -302,8 +456,7 @@ VALUES (1, 'normal', '一般'),
        (18, 'fairy', '妖精'),
        (19, 'stellar', '星晶'),
        (10001, 'unknown', '???'),
-       (10002, 'shadow', '暗')
-ON CONFLICT ("id") DO NOTHING;
+       (10002, 'shadow', '暗') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 
@@ -636,8 +789,7 @@ VALUES (1, 1, 1),
        (18, 15, 1),
        (18, 16, 2),
        (18, 17, 2),
-       (18, 18, 1)
-ON CONFLICT ("attacking_type_id", "defending_type_id") DO NOTHING;
+       (18, 18, 1) ON CONFLICT ("attacking_type_id", "defending_type_id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -709,8 +861,7 @@ VALUES (1, 20, 3, 'cheri', 5, '樱子果', 60, 25, 15, 2, 10),
        (61, 41, 24, 'micle', 5, '奇秘果', 80, 60, 7, 2, 6),
        (62, 267, 24, 'custap', 5, '释陀果', 80, 60, 7, 5, 8),
        (63, 33, 24, 'jaboca', 5, '嘉珍果', 80, 60, 7, 2, 16),
-       (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17)
-ON CONFLICT ("id") DO NOTHING;
+       (64, 52, 24, 'rowap', 5, '雾莲果', 80, 60, 7, 1, 17) ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -796,8 +947,7 @@ VALUES (1, '这个蛋群的宝可梦大多原型基于特摄影片中的怪兽�
        (14, '这个蛋群的宝可梦大多原型基于传说中的龙以及与龙有关的动物（蜥蜴、海马等）。', 'dragon', '龙',
         '外表长得像龙或者具有龙的特质的宝可梦。'),
        (15, '属于此蛋群的宝可梦都无法生蛋。', 'no-eggs', '未发现',
-        '不能和任何宝可梦生蛋。')
-ON CONFLICT ("id") DO NOTHING;
+        '不能和任何宝可梦生蛋。') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -806,8 +956,7 @@ COMMIT;
 BEGIN;
 INSERT INTO "role" ("id", "code", "name", "enabled")
 VALUES (1, 'ROLE_SUPER_ADMIN', '超级管理员', true),
-       (2, 'ROLE_TEST', '测试员', true)
-ON CONFLICT ("id") DO NOTHING;
+       (2, 'ROLE_TEST', '测试员', true) ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -821,8 +970,7 @@ VALUES (1, 1),
        (1, 4),
        (1, 5),
        (1, 6),
-       (1, 7)
-ON CONFLICT ("role_id", "menu_id") DO NOTHING;
+       (1, 7) ON CONFLICT ("role_id", "menu_id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -831,8 +979,7 @@ COMMIT;
 BEGIN;
 INSERT INTO "user" ("id", "username", "password")
 VALUES (1, 'admin',
-        '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G')
-ON CONFLICT ("id") DO NOTHING;
+        '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G') ON CONFLICT ("id") DO NOTHING;
 COMMIT;
 
 -- ----------------------------
@@ -841,6 +988,5 @@ COMMIT;
 BEGIN;
 INSERT INTO "user_role_relation" ("user_id", "role_id")
 VALUES (1, 1),
-       (1, 2)
-ON CONFLICT ("user_id", "role_id") DO NOTHING;
+       (1, 2) ON CONFLICT ("user_id", "role_id") DO NOTHING;
 COMMIT;

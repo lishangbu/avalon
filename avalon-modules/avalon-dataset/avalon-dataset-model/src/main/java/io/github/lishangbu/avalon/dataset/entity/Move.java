@@ -37,7 +37,7 @@ public class Move implements Serializable {
   @JoinColumn(
       name = "type_id",
       comment = "招式属性",
-      foreignKey = @ForeignKey(name = "fk_move_type_id"))
+      foreignKey = @ForeignKey(name = "fk_move_type"))
   private Type type;
 
   /// 命中
@@ -65,7 +65,7 @@ public class Move implements Serializable {
   @JoinColumn(
       name = "move_damage_class_id",
       comment = "此招式对目标造成的伤害类型",
-      foreignKey = @ForeignKey(name = "fk_move_damage_class_id"))
+      foreignKey = @ForeignKey(name = "fk_move_move_damage_class"))
   private MoveDamageClass moveDamageClass;
 
   /// 接收攻击效果的目标类型
@@ -73,7 +73,7 @@ public class Move implements Serializable {
   @JoinColumn(
       name = "move_target_id",
       comment = "接收攻击效果的目标类型",
-      foreignKey = @ForeignKey(name = "fk_move_target_id"))
+      foreignKey = @ForeignKey(name = "fk_move_move_target"))
   private MoveTarget moveTarget;
 
   /// 文本描述
@@ -127,7 +127,7 @@ public class Move implements Serializable {
   @JoinColumn(
       name = "move_category_id",
       comment = "招式分类",
-      foreignKey = @ForeignKey(name = "fk_move_category_id"))
+      foreignKey = @ForeignKey(name = "fk_move_move_category"))
   private MoveCategory moveCategory;
 
   /// 招式导致的状态异常
@@ -135,6 +135,6 @@ public class Move implements Serializable {
   @JoinColumn(
       name = "move_ailment_id",
       comment = "招式导致的状态异常",
-      foreignKey = @ForeignKey(name = "fk_move_ailment_id"))
+      foreignKey = @ForeignKey(name = "fk_move_move_ailment"))
   private MoveAilment moveAilment;
 }

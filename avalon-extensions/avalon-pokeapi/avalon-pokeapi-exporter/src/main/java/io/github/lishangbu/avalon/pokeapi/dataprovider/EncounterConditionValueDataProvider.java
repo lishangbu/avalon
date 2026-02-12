@@ -20,7 +20,8 @@ public class EncounterConditionValueDataProvider
     result.setInternalName(encounterConditionValue.name());
     result.setName(
         resolveLocalizedName(encounterConditionValue.names(), encounterConditionValue.name()));
-    result.setConditionId(NamedApiResourceUtils.getId(encounterConditionValue.condition()));
+    result.setEncounterConditionId(
+        NamedApiResourceUtils.getId(encounterConditionValue.condition()));
     return result;
   }
 }
