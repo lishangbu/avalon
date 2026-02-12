@@ -53,6 +53,6 @@ public class Pokemon implements Serializable {
   @JoinColumn(
       name = "pokemon_species_id",
       comment = "宝可梦种类",
-      foreignKey = @ForeignKey(name = "fk_pokemon_species_id"))
+      foreignKey = @ForeignKey(name = "fk_pokemon_pokemon_species"))
   private PokemonSpecies pokemonSpecies;
 }

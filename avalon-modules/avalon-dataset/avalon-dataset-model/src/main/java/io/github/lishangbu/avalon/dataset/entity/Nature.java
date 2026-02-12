@@ -36,7 +36,7 @@ public class Nature implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "decreased_stat_id",
-      foreignKey = @ForeignKey(name = "fk_nature_decreased_stat_id"),
+      foreignKey = @ForeignKey(name = "fk_nature_decreased_stat"),
       comment = "降低 10% 的属性")
   private Stat decreasedStat;
 
@@ -44,7 +44,7 @@ public class Nature implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "increased_stat_id",
-      foreignKey = @ForeignKey(name = "fk_nature_increased_stat_id"),
+      foreignKey = @ForeignKey(name = "fk_nature_increased_stat"),
       comment = "增加 10% 的属性")
   private Stat increasedStat;
 
@@ -52,7 +52,7 @@ public class Nature implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "hates_berry_flavor_id",
-      foreignKey = @ForeignKey(name = "fk_nature_hates_berry_flavor_id"),
+      foreignKey = @ForeignKey(name = "fk_nature_hates_berry_flavor"),
       comment = "讨厌的口味")
   private BerryFlavor hatesFlavor;
 
@@ -60,7 +60,7 @@ public class Nature implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(
       name = "likes_berry_flavor_id",
-      foreignKey = @ForeignKey(name = "fk_nature_likes_berry_flavor_id"),
+      foreignKey = @ForeignKey(name = "fk_nature_likes_berry_flavor"),
       comment = "喜欢的口味")
   private BerryFlavor likesFlavor;
 }

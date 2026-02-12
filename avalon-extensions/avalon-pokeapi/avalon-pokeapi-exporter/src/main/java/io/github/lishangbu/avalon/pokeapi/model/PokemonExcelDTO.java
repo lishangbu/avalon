@@ -46,6 +46,6 @@ public class PokemonExcelDTO {
   private Integer weight;
 
   /// 种类 ID
-  @ExcelProperty("species_id")
-  private Integer speciesId;
+  @ExcelProperty("pokemon_species_id")
+  private Integer pokemonSpeciesId;
 }

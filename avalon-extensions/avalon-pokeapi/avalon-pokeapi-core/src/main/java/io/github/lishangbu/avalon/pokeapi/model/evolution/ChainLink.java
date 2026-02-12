@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.pokeapi.model.evolution;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.PokemonSpecies;
+
 import java.util.List;
 
 /// 进化链中的一个环节，描述宝可梦的进化细节
@@ -16,6 +18,6 @@ import java.util.List;
 /// @since 2025/5/24
 public record ChainLink(
     @JsonProperty("is_baby") Boolean isBaby,
-    NamedApiResource<?> species,
+    NamedApiResource<PokemonSpecies> species,
     @JsonProperty("evolution_details") List<EvolutionDetail> evolutionDetails,
     @JsonProperty("evolves_to") List<ChainLink> evolvesTo) {}

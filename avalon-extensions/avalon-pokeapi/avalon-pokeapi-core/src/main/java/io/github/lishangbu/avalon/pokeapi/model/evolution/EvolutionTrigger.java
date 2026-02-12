@@ -3,6 +3,8 @@ package io.github.lishangbu.avalon.pokeapi.model.evolution;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.PokemonSpecies;
+
 import java.util.List;
 
 /// 进化触发器模型
@@ -22,4 +24,4 @@ public record EvolutionTrigger(
     Integer id,
     String name,
     List<Name> names,
-    @JsonProperty("pokemon_species") List<NamedApiResource<?>> pokemonSpecies) {}
+    @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}

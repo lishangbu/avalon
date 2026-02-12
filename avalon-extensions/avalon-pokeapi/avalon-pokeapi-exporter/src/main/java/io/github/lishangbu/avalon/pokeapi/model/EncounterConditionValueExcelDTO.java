@@ -26,6 +26,6 @@ public class EncounterConditionValueExcelDTO {
   private String name;
 
   /// 所属遭遇条件 ID
-  @ExcelProperty("condition_id")
-  private Integer conditionId;
+  @ExcelProperty("encounter_condition_id")
+  private Integer encounterConditionId;
 }

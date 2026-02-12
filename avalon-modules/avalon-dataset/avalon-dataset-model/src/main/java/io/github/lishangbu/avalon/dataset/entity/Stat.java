@@ -45,6 +45,6 @@ public class Stat implements Serializable {
   @JoinColumn(
       name = "move_damage_class_id",
       comment = "招式属性",
-      foreignKey = @ForeignKey(name = "fk_stat_move_damage_class_id"))
+      foreignKey = @ForeignKey(name = "fk_stat_move_damage_class"))
   private MoveDamageClass moveDamageClass;
 }
