@@ -23,8 +23,11 @@ public class EvolutionChainDataProvider
         evolutionChain.babyTriggerItem() != null ? evolutionChain.babyTriggerItem().name() : null);
     ChainLink chain = evolutionChain.chain();
     result.setChainSpeciesName(chain.species().name());
-    if(chain.evolutionDetails() != null&&!chain.evolutionDetails().isEmpty()){
-      log.info("Processing evolution details for chain ID [{}]: [{}]", evolutionChain.id(), chain.evolutionDetails());
+    if (chain.evolutionDetails() != null && !chain.evolutionDetails().isEmpty()) {
+      log.info(
+          "Processing evolution details for chain ID [{}]: [{}]",
+          evolutionChain.id(),
+          chain.evolutionDetails());
     }
     return result;
   }

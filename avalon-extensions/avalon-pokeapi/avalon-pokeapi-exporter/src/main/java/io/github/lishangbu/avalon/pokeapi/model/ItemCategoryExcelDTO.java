@@ -26,6 +26,6 @@ public class ItemCategoryExcelDTO {
   private String name;
 
   ///  所属口袋
-  @ExcelProperty("pocket_id")
-  private Integer pocketId;
+  @ExcelProperty("item_pocket_id")
+  private Integer itemPocketId;
 }
