@@ -226,6 +226,82 @@ VALUES (1, 'Has a count in the bag', 'countable', 'Countable'),
 COMMIT;
 
 -- ----------------------------
+-- Records of item_pocket
+-- ----------------------------
+BEGIN;
+INSERT INTO "item_pocket" ("id", "internal_name", "name")
+VALUES (1, 'misc', '道具'),
+       (2, 'medicine', '回复道具'),
+       (3, 'pokeballs', '精灵球'),
+       (4, 'machines', '招式及秘传学习器'),
+       (5, 'berries', '树果'),
+       (6, 'mail', '邮件'),
+       (7, 'battle', '战斗道具'),
+       (8, 'key', '重要物品') ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
+-- Records of item_category
+-- ----------------------------
+BEGIN;
+INSERT INTO "item_category" ("id", "internal_name", "name", "item_pocket_id")
+VALUES (1, 'stat-boosts', 'Stat boosts', 7),
+       (2, 'effort-drop', 'Effort drop', 5),
+       (3, 'medicine', 'Medicine', 5),
+       (4, 'other', 'Other', 5),
+       (5, 'in-a-pinch', 'In a pinch', 5),
+       (6, 'picky-healing', 'Picky healing', 5),
+       (7, 'type-protection', 'Type protection', 5),
+       (8, 'baking-only', 'Baking only', 5),
+       (9, 'collectibles', 'Collectibles', 1),
+       (10, 'evolution', 'Evolution', 1),
+       (11, 'spelunking', 'Spelunking', 1),
+       (12, 'held-items', 'Held items', 1),
+       (13, 'choice', 'Choice', 1),
+       (14, 'effort-training', 'Effort training', 1),
+       (15, 'bad-held-items', 'Bad held items', 1),
+       (16, 'training', 'Training', 1),
+       (17, 'plates', 'Plates', 1),
+       (18, 'species-specific', 'Species-specific', 1),
+       (19, 'type-enhancement', 'Type enhancement', 1),
+       (20, 'event-items', 'Event items', 8),
+       (21, 'gameplay', 'Gameplay', 8),
+       (22, 'plot-advancement', 'Plot advancement', 8),
+       (23, 'unused', 'Unused', 8),
+       (24, 'loot', 'Loot', 1),
+       (25, 'all-mail', 'All mail', 6),
+       (26, 'vitamins', 'Vitamins', 2),
+       (27, 'healing', 'Healing', 2),
+       (28, 'pp-recovery', 'PP recovery', 2),
+       (29, 'revival', 'Revival', 2),
+       (30, 'status-cures', 'Status cures', 2),
+       (32, 'mulch', 'Mulch', 1),
+       (33, 'special-balls', 'Special balls', 3),
+       (34, 'standard-balls', 'Standard balls', 3),
+       (35, 'dex-completion', 'Dex completion', 1),
+       (36, 'scarves', 'Scarves', 1),
+       (37, 'all-machines', 'All machines', 4),
+       (38, 'flutes', 'Flutes', 7),
+       (39, 'apricorn-balls', 'Apricorn balls', 3),
+       (40, 'apricorn-box', 'Apricorn Box', 8),
+       (41, 'data-cards', 'Data Cards', 8),
+       (42, 'jewels', 'Jewels', 1),
+       (43, 'miracle-shooter', 'Miracle Shooter', 7),
+       (44, 'mega-stones', 'Mega Stones', 1),
+       (45, 'memories', 'Memories', 1),
+       (46, 'z-crystals', 'Z-Crystals', 8),
+       (47, 'species-candies', 'Species candies', 1),
+       (48, 'catching-bonus', 'Catching bonus', 5),
+       (49, 'dynamax-crystals', 'Dynamax crystals', 1),
+       (50, 'nature-mints', 'Nature mints', 2),
+       (51, 'curry-ingredients', 'Curry ingredients', 1),
+       (52, 'tera-shard', 'tera-shard', 1),
+       (53, 'sandwich-ingredients', 'sandwich-ingredients', 1),
+       (54, 'tm-materials', 'tm-materials', 1),
+       (55, 'picnic', 'picnic', 1) ON CONFLICT ("id") DO NOTHING;
+COMMIT;
+
+-- ----------------------------
 -- Records of move_ailment
 -- ----------------------------
 BEGIN;

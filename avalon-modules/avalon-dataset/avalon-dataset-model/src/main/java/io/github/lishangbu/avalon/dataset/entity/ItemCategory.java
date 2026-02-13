@@ -1,10 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
@@ -35,7 +32,10 @@ public class ItemCategory implements Serializable {
   @Column(comment = "道具类别名称", length = 100)
   private String name;
 
-  /// 该类别道具所属的口袋（内部名称）
-  @Column(comment = "该类别道具所属的口袋", length = 100)
-  private String itemPocketInternalName;
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(
+      name = "item_pocket_id",
+      comment = "该类别道具所属的口袋",
+      foreignKey = @ForeignKey(name = "fk_item_category_item_pocket"))
+  private ItemPocket itemPocket;
 }

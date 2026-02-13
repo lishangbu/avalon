@@ -19,7 +19,7 @@ public class ItemCategoryDataProvider
     result.setId(itemCategory.id());
     result.setInternalName(itemCategory.name());
     result.setName(resolveLocalizedName(itemCategory.names(), itemCategory.name()));
-    result.setPocketId(NamedApiResourceUtils.getId(itemCategory.pocket()));
+    result.setItemPocketId(NamedApiResourceUtils.getId(itemCategory.pocket()));
     return result;
   }
 }

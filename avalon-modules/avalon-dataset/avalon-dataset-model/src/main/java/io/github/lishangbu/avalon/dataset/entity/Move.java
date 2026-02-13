@@ -34,10 +34,7 @@ public class Move implements Serializable {
 
   /// 属性
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "type_id",
-      comment = "招式属性",
-      foreignKey = @ForeignKey(name = "fk_move_type"))
+  @JoinColumn(name = "type_id", comment = "招式属性", foreignKey = @ForeignKey(name = "fk_move_type"))
   private Type type;
 
   /// 命中

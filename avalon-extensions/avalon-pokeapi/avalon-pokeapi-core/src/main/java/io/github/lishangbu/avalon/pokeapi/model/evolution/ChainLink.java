@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.pokeapi.model.evolution;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.PokemonSpecies;
-
 import java.util.List;
 
 /// 进化链中的一个环节，描述宝可梦的进化细节
