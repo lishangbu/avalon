@@ -32,7 +32,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
             user ->
                 new UserInfo(
                     user.getUsername(),
-                    user.getPassword(),
+                    user.getHashedPassword(),
                     user.getRoles() == null
                         ? AuthorityUtils.NO_AUTHORITIES
                         : AuthorityUtils.createAuthorityList(

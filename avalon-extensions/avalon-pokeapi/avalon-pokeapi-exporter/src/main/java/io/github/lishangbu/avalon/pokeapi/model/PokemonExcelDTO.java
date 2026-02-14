@@ -38,8 +38,8 @@ public class PokemonExcelDTO {
   private Boolean isDefault;
 
   /// 排序
-  @ExcelProperty("order")
-  private Integer order;
+  @ExcelProperty("sorting_order")
+  private Integer sortingOrder;
 
   /// 体重（百克）
   @ExcelProperty("weight")

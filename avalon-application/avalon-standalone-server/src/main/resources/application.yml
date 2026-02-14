@@ -1,5 +1,9 @@
 spring:
   application:
-    name: avalon
+    name: @artifactId@
   profiles:
     active: dev
+  jpa:
+    open-in-view: false
+  liquibase:
+    enabled: false

@@ -26,6 +26,6 @@ public class EncounterMethodExcelDTO {
   private String name;
 
   /// 排序值
-  @ExcelProperty("order")
-  private Integer order;
+  @ExcelProperty("sorting_order")
+  private Integer sortingOrder;
 }
