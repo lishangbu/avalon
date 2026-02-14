@@ -26,8 +26,8 @@ public class PokemonSpeciesExcelDTO {
   private String name;
 
   /// 排序顺序
-  @ExcelProperty("order")
-  private Integer order;
+  @ExcelProperty("sorting_order")
+  private Integer sortingOrder;
 
   /// 性别比例
   @ExcelProperty("gender_rate")

@@ -25,7 +25,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificat
       select distinct m from Role r
       join r.menus m
       where r.code in :roleCodes
-      order by m.order desc
+      order by m.sortingOrder desc
       """)
   List<Menu> findAllByRoleCodes(@Param("roleCodes") List<String> roleCodes);
 }

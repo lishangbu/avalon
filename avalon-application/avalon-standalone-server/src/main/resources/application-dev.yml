@@ -5,12 +5,10 @@ spring:
     password: postgres
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
-  sql:
-    init:
-      mode: always
+      ddl-auto: none
+  liquibase:
+    enabled: true
 oauth2:
   ignore-urls:
     - /actuator/**

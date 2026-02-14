@@ -40,7 +40,7 @@ public class Menu implements Serializable {
   private Boolean disabled;
 
   /// 菜单项的额外部分
-  @Column(comment = "菜单项的额外部分，存储为 JSON 格式", length = 500)
+  @Column(comment = "菜单项的额外部分，存储为 JSON 格式")
   @JdbcTypeCode(SqlTypes.JSON)
   private Map<String, Object> extra;
 
@@ -81,8 +81,8 @@ public class Menu implements Serializable {
   private String component;
 
   /// 排序顺序
-  @Column(comment = "菜单项的排序顺序，数字越小越靠前", name = "[order]")
-  private Integer order;
+  @Column(comment = "菜单项的排序顺序，数字越小越靠前")
+  private Integer sortingOrder;
 
   // endregion
 

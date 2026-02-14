@@ -23,7 +23,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
   @Test
   void testInsert() {
     User user = new User();
-    user.setPassword("{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G");
+    user.setHashedPassword("{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G");
     user.setUsername("test2");
     roleRepository
         .findById(1L)
@@ -38,7 +38,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
     Assertions.assertTrue(userOptional.isPresent());
     User savedUser = userOptional.get();
     Assertions.assertEquals("test2", savedUser.getUsername());
-    Assertions.assertTrue(savedUser.getPassword().startsWith("{bcrypt}"));
+    Assertions.assertTrue(savedUser.getHashedPassword().startsWith("{bcrypt}"));
     Assertions.assertEquals(1, savedUser.getRoles().size());
   }
 
@@ -48,7 +48,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
     Assertions.assertTrue(userOptional.isPresent());
     User user = userOptional.get();
     Assertions.assertEquals("admin", user.getUsername());
-    Assertions.assertTrue(user.getPassword().startsWith("{bcrypt}"));
+    Assertions.assertTrue(user.getHashedPassword().startsWith("{bcrypt}"));
     Assertions.assertEquals(2, user.getRoles().size());
   }
 }

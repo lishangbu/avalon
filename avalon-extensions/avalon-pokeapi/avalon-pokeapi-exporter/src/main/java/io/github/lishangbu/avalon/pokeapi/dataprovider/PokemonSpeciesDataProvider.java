@@ -19,7 +19,7 @@ public class PokemonSpeciesDataProvider
     result.setId(pokemonSpecies.id());
     result.setInternalName(pokemonSpecies.name());
     result.setName(resolveLocalizedName(pokemonSpecies.names(), pokemonSpecies.name()));
-    result.setOrder(pokemonSpecies.order());
+    result.setSortingOrder(pokemonSpecies.order());
     result.setGenderRate(pokemonSpecies.genderRate());
     result.setCaptureRate(pokemonSpecies.captureRate());
     result.setBaseHappiness(pokemonSpecies.baseHappiness());

@@ -41,7 +41,7 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
     menu.setKey("unit_test_menu");
     menu.setLabel("单元测试菜单");
     menu.setPath("/unit-test");
-    menu.setOrder(100);
+    menu.setSortingOrder(100);
     menu.setDisabled(false);
     menu.setShow(true);
     menuRepository.save(menu);

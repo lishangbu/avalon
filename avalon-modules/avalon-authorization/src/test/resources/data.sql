@@ -3,7 +3,7 @@
 -- ----------------------------
 BEGIN;
 INSERT INTO "menu" ("id", "parent_id", "disabled", "extra", "icon", "key", "label", "show", "path", "name", "redirect",
-                    "component", "order", "pinned", "show_tab", "enable_multi_tab")
+                    "component", "sorting_order", "pinned", "show_tab", "enable_multi_tab")
 VALUES (1, NULL, false, null, 'icon-[mage--dashboard-chart]', 'dashboard', '仪表板', true, 'dashboard', 'dashboard', '',
         'dashboard/index', 0, true, true, false);
 COMMIT;
@@ -52,7 +52,7 @@ COMMIT;
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO "user" ("id", "username", "password")
+INSERT INTO "users" ("id", "username", "hashed_password")
 VALUES (1, 'admin', '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G');
 COMMIT;
 

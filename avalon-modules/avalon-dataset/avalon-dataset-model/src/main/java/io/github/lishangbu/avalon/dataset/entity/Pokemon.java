@@ -45,8 +45,8 @@ public class Pokemon implements Serializable {
   private Integer baseExperience;
 
   /// 用于排序的顺序
-  @Column(comment = "用于排序的顺序", name = "[order]")
-  private Integer order;
+  @Column(comment = "用于排序的顺序")
+  private Integer sortingOrder;
 
   /// 宝可梦种类
   @ManyToOne(cascade = CascadeType.ALL)

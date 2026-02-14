@@ -36,8 +36,8 @@ public class PokemonSpecies implements Serializable {
   private String name;
 
   /// 排序顺序
-  @Column(comment = "排序顺序", name = "[order]")
-  private Integer order;
+  @Column(comment = "排序顺序")
+  private Integer sortingOrder;
 
   /// 性别比例
   @Column(comment = "性别比例")

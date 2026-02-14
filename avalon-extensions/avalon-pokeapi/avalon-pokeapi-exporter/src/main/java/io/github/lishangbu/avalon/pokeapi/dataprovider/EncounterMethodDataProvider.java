@@ -18,7 +18,7 @@ public class EncounterMethodDataProvider
     result.setId(encounterMethod.id());
     result.setInternalName(encounterMethod.name());
     result.setName(resolveLocalizedName(encounterMethod.names(), encounterMethod.name()));
-    result.setOrder(encounterMethod.order());
+    result.setSortingOrder(encounterMethod.order());
     return result;
   }
 }

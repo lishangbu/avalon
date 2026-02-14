@@ -36,6 +36,6 @@ public class EncounterMethod implements Serializable {
   private String name;
 
   /// 排序顺序
-  @Column(comment = "排序顺序", name = "[order]")
-  private Integer order;
+  @Column(comment = "排序顺序")
+  private Integer sortingOrder;
 }

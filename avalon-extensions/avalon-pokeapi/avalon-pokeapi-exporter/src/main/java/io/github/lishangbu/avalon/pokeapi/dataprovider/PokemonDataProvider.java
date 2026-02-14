@@ -21,10 +21,9 @@ public class PokemonDataProvider extends AbstractPokeApiDataProvider<Pokemon, Po
     result.setBaseExperience(pokemon.baseExperience());
     result.setHeight(pokemon.height());
     result.setIsDefault(pokemon.isDefault());
-    result.setOrder(pokemon.order());
+    result.setSortingOrder(pokemon.order());
     result.setWeight(pokemon.weight());
     result.setPokemonSpeciesId(NamedApiResourceUtils.getId(pokemon.species()));
-    result.setOrder(pokemon.order());
     return result;
   }
 }

@@ -1,5 +1,5 @@
 spring:
   application:
-    name: avalon-admin
+    name: avalon-admin-server
   profiles:
     active: dev
