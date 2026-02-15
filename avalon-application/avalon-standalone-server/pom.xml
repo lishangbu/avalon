@@ -28,10 +28,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-liquibase</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <!-- PostgresQL驱动 -->
@@ -43,29 +39,6 @@
   </dependencies>
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-db-resources-for-${project.artifactId}</id>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <outputDirectory>${basedir}/target/classes/db/changelog/data</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${maven.multiModuleProjectDirectory}/data</directory>
-                  <includes>
-                    <include>*.csv</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

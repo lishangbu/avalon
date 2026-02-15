@@ -24,4 +24,12 @@ public class AbilityExcelDTO {
   /// 显示名称
   @ExcelProperty("name")
   private String name;
+
+  /// 特性效果
+  @ExcelProperty("effect")
+  private String effect;
+
+  ///  特性说明
+  @ExcelProperty("introduction")
+  private String introduction;
 }

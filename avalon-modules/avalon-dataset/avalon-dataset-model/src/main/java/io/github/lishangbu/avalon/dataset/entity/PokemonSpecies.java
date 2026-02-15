@@ -4,9 +4,12 @@ import io.github.lishangbu.avalon.hibernate.Flex;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.Data;
 
 /// 宝可梦种类(PokemonSpecies)实体类
@@ -75,31 +78,48 @@ public class PokemonSpecies implements Serializable {
   @Column(comment = "形态是否可切换")
   private Boolean formsSwitchable;
 
-  /// 成长速率 ID
-  @Column(comment = "成长速率ID")
-  private Long growthRateId;
+  /// 成长速率
+  @ManyToOne
+  @JoinColumn(name = "growth_rate_id", comment = "成长速率")
+  private GrowthRate growthRate;
 
-  /// 颜色 ID
-  @Column(comment = "颜色ID")
-  private Long colorId;
+  /// 颜色
+  @ManyToOne
+  @JoinColumn(name = "color_id", comment = "颜色")
+  private PokemonColor pokemonColor;
 
-  /// 形状 ID
-  @Column(comment = "形状ID")
-  private Long shapeId;
+  /// 形状
+  @ManyToOne
+  @JoinColumn(name = "shape_id", comment = "形状")
+  private PokemonShape pokemonShape;
 
   /// 进化来源种类 ID
-  @Column(comment = "进化来源种类ID")
+  @Column(name = "evolves_from_species_id", comment = "进化来源种类ID")
   private Long evolvesFromSpeciesId;
 
   /// 进化链 ID
-  @Column(comment = "进化链ID")
+  @Column(name = "evolution_chain_id", comment = "进化链ID")
   private Long evolutionChainId;
 
-  /// 栖息地 ID
-  @Column(comment = "栖息地ID")
-  private Long habitatId;
+  /// 栖息地
+  @ManyToOne
+  @JoinColumn(name = "habitat_id", comment = "栖息地")
+  private PokemonHabitat pokemonHabitat;
 
   /// 世代 ID
-  @Column(comment = "世代ID")
+  @Column(name = "generation_id", comment = "世代ID")
   private Long generationId;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    PokemonSpecies that = (PokemonSpecies) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
 }

@@ -1,0 +1,25 @@
+BEGIN;
+insert into public.move_ailment (id, internal_name, name)
+values (-1, 'unknown', 'unknown'),
+       (0, 'none', 'none'),
+       (1, 'paralysis', 'paralysis'),
+       (2, 'sleep', 'sleep'),
+       (3, 'freeze', 'freeze'),
+       (4, 'burn', 'burn'),
+       (5, 'poison', 'poison'),
+       (6, 'confusion', 'confusion'),
+       (7, 'infatuation', 'infatuation'),
+       (8, 'trap', 'trap'),
+       (9, 'nightmare', 'nightmare'),
+       (12, 'torment', 'torment'),
+       (13, 'disable', 'disable'),
+       (14, 'yawn', 'yawn'),
+       (15, 'heal-block', 'heal-block'),
+       (17, 'no-type-immunity', 'no-type-immunity'),
+       (18, 'leech-seed', 'leech-seed'),
+       (19, 'embargo', 'embargo'),
+       (20, 'perish-song', 'perish-song'),
+       (21, 'ingrain', 'ingrain'),
+       (24, 'silence', 'silence'),
+       (42, 'tar-shot', 'tar-shot');
+COMMIT;

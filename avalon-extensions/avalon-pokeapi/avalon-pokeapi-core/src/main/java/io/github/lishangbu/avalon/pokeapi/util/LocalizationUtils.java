@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.util;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
 import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.AbilityFlavorText;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +83,15 @@ public abstract class LocalizationUtils {
   public static Optional<VersionGroupFlavorText> getLocalizationVersionGroupFlavorText(
       List<VersionGroupFlavorText> versionGroupFlavorTexts, String... locales) {
     return getLocalizedResource(versionGroupFlavorTexts, VersionGroupFlavorText::language, locales);
+  }
+
+  /// 获取本地化的特性文本
+  /// @param abilityFlavorTexts 特性文本资源列表
+  /// @param locales 要查找的语言
+  /// @return 本地化的特性文本
+  public static Optional<AbilityFlavorText> getLocalizationAbilityFlavorText(
+      List<AbilityFlavorText> abilityFlavorTexts, String... locales) {
+    return getLocalizedResource(abilityFlavorTexts, AbilityFlavorText::language, locales);
   }
 
   /// 通用的本地化资源获取方法

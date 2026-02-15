@@ -1,14 +1,12 @@
 spring:
+  config:
+    import:
+      - optional:database.yml
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
-  jpa:
-    hibernate:
-      ddl-auto: none
-  liquibase:
-    enabled: true
 oauth2:
   ignore-urls:
     - /actuator/**
@@ -18,9 +16,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: startup
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: debug
+        include: health

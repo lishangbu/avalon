@@ -39,11 +39,7 @@ public class Ability implements Serializable {
   @Column(comment = "特性效果", length = 1000)
   private String effect;
 
-  /// 基本信息
-  @Column(comment = "基本信息", length = 500)
-  private String info;
-
   /// 文字介绍
   @Column(comment = "文字介绍", length = 500)
-  private String text;
+  private String introduction;
 }
