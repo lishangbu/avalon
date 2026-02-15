@@ -1,0 +1,17 @@
+BEGIN;
+insert into public.pokemon_shape (id, internal_name, name)
+values (1, 'ball', 'Ball'),
+       (2, 'squiggle', 'Squiggle'),
+       (3, 'fish', 'Fish'),
+       (4, 'arms', 'Arms'),
+       (5, 'blob', 'Blob'),
+       (6, 'upright', 'Upright'),
+       (7, 'legs', 'Legs'),
+       (8, 'quadruped', 'Quadruped'),
+       (9, 'wings', 'Wings'),
+       (10, 'tentacles', 'Tentacles'),
+       (11, 'heads', 'Heads'),
+       (12, 'humanoid', 'Humanoid'),
+       (13, 'bug-wings', 'Bug wings'),
+       (14, 'armor', 'Armor');
+COMMIT;

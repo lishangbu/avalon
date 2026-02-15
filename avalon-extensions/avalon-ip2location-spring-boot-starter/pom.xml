@@ -34,9 +34,22 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <configuration>
-          <nonFilteredFileExtensions>
-            <nonFilteredFileExtension>BIN</nonFilteredFileExtension>
-          </nonFilteredFileExtensions>
+          <resources>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>true</filtering>
+              <excludes>
+                <exclude>**/*.BIN</exclude>
+              </excludes>
+            </resource>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>false</filtering>
+              <includes>
+                <include>**/*.BIN</include>
+              </includes>
+            </resource>
+          </resources>
         </configuration>
       </plugin>
       <plugin>

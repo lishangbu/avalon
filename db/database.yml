@@ -1,0 +1,61 @@
+spring:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.show_sql: true
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      continue-on-error: true
+      mode: always
+      platform: postgres
+      data-locations:
+        - optional:classpath:${spring.sql.init.platform}/ability.sql
+        - optional:classpath:${spring.sql.init.platform}/berry_firmness.sql
+        - optional:classpath:${spring.sql.init.platform}/berry_flavor.sql
+        - optional:classpath:${spring.sql.init.platform}/encounter_condition.sql
+        - optional:classpath:${spring.sql.init.platform}/encounter_condition_value.sql
+        - optional:classpath:${spring.sql.init.platform}/encounter_method.sql
+        - optional:classpath:${spring.sql.init.platform}/evolution_trigger.sql
+        - optional:classpath:${spring.sql.init.platform}/gender.sql
+        - optional:classpath:${spring.sql.init.platform}/growth_rate.sql
+        - optional:classpath:${spring.sql.init.platform}/item_attribute.sql
+        - optional:classpath:${spring.sql.init.platform}/item_pocket.sql
+        - optional:classpath:${spring.sql.init.platform}/item_category.sql
+        - optional:classpath:${spring.sql.init.platform}/move_ailment.sql
+        - optional:classpath:${spring.sql.init.platform}/move_category.sql
+        - optional:classpath:${spring.sql.init.platform}/move_damage_class.sql
+        - optional:classpath:${spring.sql.init.platform}/move_learn_method.sql
+        - optional:classpath:${spring.sql.init.platform}/move_target.sql
+        - optional:classpath:${spring.sql.init.platform}/stat.sql
+        - optional:classpath:${spring.sql.init.platform}/nature.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_color.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_shape.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_habitat.sql
+        - optional:classpath:${spring.sql.init.platform}/type.sql
+        - optional:classpath:${spring.sql.init.platform}/move.sql
+        - optional:classpath:${spring.sql.init.platform}/berry.sql
+        - optional:classpath:${spring.sql.init.platform}/type_damage_relation.sql
+        - optional:classpath:${spring.sql.init.platform}/egg_group.sql
+        - optional:classpath:${spring.sql.init.platform}/menu.sql
+        - optional:classpath:${spring.sql.init.platform}/oauth_registered_client.sql
+        - optional:classpath:${spring.sql.init.platform}/role.sql
+        - optional:classpath:${spring.sql.init.platform}/role_menu_relation.sql
+        - optional:classpath:${spring.sql.init.platform}/users.sql
+        - optional:classpath:${spring.sql.init.platform}/user_role_relation.sql
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace
+              BasicExtractor: trace
+      springframework:
+        jdbc:
+          datasource: debug

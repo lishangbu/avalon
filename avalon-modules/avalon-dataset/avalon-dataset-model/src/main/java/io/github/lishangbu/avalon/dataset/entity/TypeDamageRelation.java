@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /// 属性相互克制关系(TypeDamageRelation)实体类
 ///
@@ -14,47 +15,60 @@ import lombok.Setter;
 ///
 /// @author lishangbu
 /// @since 2025/08/20
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
-@IdClass(TypeDamageRelation.TypeDamageRelationId.class)
 @Table(comment = "属性相互克制关系")
 public class TypeDamageRelation implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /// 攻击方 ID
-  @Id
-  @Column(comment = "攻击方 ID")
-  private Long attackingTypeId;
-
-  /// 防御方 ID
-  @Id
-  @Column(comment = "防御方 ID")
-  private Long defendingTypeId;
+  /// 复合主键
+  @EmbeddedId private TypeDamageRelationId id;
 
   /// 伤害倍数
   @Column(comment = "伤害倍数")
   private Float multiplier;
 
   /// TypeDamageRelation 的复合主键类
-  /// 包含 attackingTypeId 和 defendingTypeId
+  /// 包含 attackingType 和 defendingType
   @Getter
   @Setter
+  @Embeddable
   public static class TypeDamageRelationId implements Serializable {
-    private Long attackingTypeId;
-    private Long defendingTypeId;
+    @Serial private static final long serialVersionUID = 1L;
+
+    /// 攻击方属性
+    @ManyToOne
+    @JoinColumn(name = "attacking_type_id", nullable = false)
+    private Type attackingType;
+
+    /// 防御方属性
+    @ManyToOne
+    @JoinColumn(name = "defending_type_id", nullable = false)
+    private Type defendingType;
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       TypeDamageRelationId that = (TypeDamageRelationId) o;
-      return attackingTypeId.equals(that.attackingTypeId)
-          && defendingTypeId.equals(that.defendingTypeId);
+      return Objects.equals(getAttackingTypeId(), that.getAttackingTypeId())
+          && Objects.equals(getDefendingTypeId(), that.getDefendingTypeId());
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(attackingTypeId, defendingTypeId);
+      return Objects.hash(getAttackingTypeId(), getDefendingTypeId());
+    }
+
+    private Long getAttackingTypeId() {
+      return attackingType != null ? attackingType.getId() : null;
+    }
+
+    private Long getDefendingTypeId() {
+      return defendingType != null ? defendingType.getId() : null;
     }
   }
 }

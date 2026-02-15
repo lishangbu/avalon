@@ -1,24 +1,20 @@
 spring:
+  config:
+    import:
+      - optional:database.yml
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
-  jpa:
-    defer-datasource-initialization: true
 oauth2:
   ignore-urls:
-    - /v3/api-docs
     - /actuator/**
+    - /v3/api-docs
   jwt-private-key-location: classpath:rsa/private_key.pem
   jwt-public-key-location: classpath:rsa/public_key.pem
 management:
   endpoints:
     web:
       exposure:
-        include: startup
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: debug
+        include: health

@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.hibernate.Flex;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import lombok.Data;
 
 /// 宝可梦(Pokemon)实体类
@@ -55,4 +56,8 @@ public class Pokemon implements Serializable {
       comment = "宝可梦种类",
       foreignKey = @ForeignKey(name = "fk_pokemon_pokemon_species"))
   private PokemonSpecies pokemonSpecies;
+
+  /// 宝可梦特性列表
+  @OneToMany(mappedBy = "id.pokemon", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<PokemonAbility> abilities;
 }

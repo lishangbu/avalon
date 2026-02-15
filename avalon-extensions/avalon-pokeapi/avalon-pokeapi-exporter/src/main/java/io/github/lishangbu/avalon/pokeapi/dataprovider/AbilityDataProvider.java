@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.AbilityExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Ability;
+import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
 import org.springframework.stereotype.Service;
 
 /// 特性数据提供者
@@ -17,6 +18,12 @@ public class AbilityDataProvider extends AbstractPokeApiDataProvider<Ability, Ab
     result.setId(ability.id());
     result.setInternalName(ability.name());
     result.setName(resolveLocalizedName(ability.names(), ability.name()));
+    LocalizationUtils.getLocalizationAbilityFlavorText(ability.flavorTextEntries())
+        .ifPresent(
+            abilityFlavorText -> {
+              result.setIntroduction(abilityFlavorText.flavorText());
+            });
+    result.setEffect(resolveLocalizedVerboseEffect(ability.effectEntries()));
     return result;
   }
 }

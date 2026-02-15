@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
 import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
+import io.github.lishangbu.avalon.pokeapi.model.pokemon.AbilityFlavorText;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /// 本地化工具测试
 ///
 /// 验证 LocalizationUtils 中针对
-// Name/Description/Effect/VerboseEffect/VersionGroupFlavorText/MoveFlavorText
+/// Name/Description/Effect/VerboseEffect/VersionGroupFlavorText/MoveFlavorText/AbilityFlavorText
 /// 等类型的本地化查找方法，覆盖常见的空值、默认语言顺序以及多语言优先级场景
 ///
 /// @author lishangbu
@@ -36,6 +37,9 @@ class LocalizationUtilsTest {
 
   // 创建一个包含 MoveFlavorText 对象的列表
   private List<MoveFlavorText> moveFlavorTexts;
+
+  // 创建一个包含 AbilityFlavorText 对象的列表
+  private List<AbilityFlavorText> abilityFlavorTexts;
 
   @BeforeEach
   void setUp() {
@@ -89,6 +93,14 @@ class LocalizationUtilsTest {
             new MoveFlavorText("這是繁體中文招式風味文本", new NamedApiResource<>("zh-Hant", null), null),
             new MoveFlavorText(
                 "This is English move berry text", new NamedApiResource<>("en", null), null));
+
+    // 初始化 abilityFlavorTexts 列表
+    abilityFlavorTexts =
+        Arrays.asList(
+            new AbilityFlavorText("这是简体中文特性风味文本", new NamedApiResource<>("zh-Hans", null), null),
+            new AbilityFlavorText("這是繁體中文特性風味文本", new NamedApiResource<>("zh-Hant", null), null),
+            new AbilityFlavorText(
+                "This is English ability berry text", new NamedApiResource<>("en", null), null));
   }
 
   @Test
@@ -501,6 +513,75 @@ class LocalizationUtilsTest {
   void testGetLocalizationMoveFlavorTextWithNullMoveFlavorTexts() {
     // 调用 getLocalizationMoveFlavorText 方法，moveFlavorTexts 为 null
     Optional<MoveFlavorText> result = LocalizationUtils.getLocalizationMoveFlavorText(null, "en");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  // 以下是针对 getLocalizationAbilityFlavorText 方法的测试用例
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithMatchingLocale() {
+    // 调用 getLocalizationAbilityFlavorText 方法，查找英文特性风味文本
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(abilityFlavorTexts, "en");
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("This is English ability berry text", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithNoMatchingLocale() {
+    // 调用 getLocalizationAbilityFlavorText 方法，查找一个不存在的语言
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(abilityFlavorTexts, "fr");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithEmptyList() {
+    // 创建一个空的特性风味文本列表
+    List<AbilityFlavorText> emptyAbilityFlavorTexts = Arrays.asList();
+
+    // 调用 getLocalizationAbilityFlavorText 方法
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(emptyAbilityFlavorTexts, "en");
+
+    // 验证结果
+    assertFalse(result.isPresent());
+  }
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithDefaultLocales() {
+    // 调用 getLocalizationAbilityFlavorText 方法，使用默认语言顺序
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(abilityFlavorTexts);
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("这是简体中文特性风味文本", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithMultipleMatchingLocales() {
+    // 调用 getLocalizationAbilityFlavorText 方法，传入多个 locales
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(
+            abilityFlavorTexts, "fr", "zh-Hant", "en");
+
+    // 验证结果
+    assertTrue(result.isPresent());
+    assertEquals("這是繁體中文特性風味文本", result.get().flavorText());
+  }
+
+  @Test
+  void testGetLocalizationAbilityFlavorTextWithNullAbilityFlavorTexts() {
+    // 调用 getLocalizationAbilityFlavorText 方法，abilityFlavorTexts 为 null
+    Optional<AbilityFlavorText> result =
+        LocalizationUtils.getLocalizationAbilityFlavorText(null, "en");
 
     // 验证结果
     assertFalse(result.isPresent());

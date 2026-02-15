@@ -1,0 +1,9 @@
+BEGIN;
+insert into public.growth_rate (id, description, internal_name, name)
+values (1, 'slow', 'slow', '慢'),
+       (2, 'medium', 'medium', '较快'),
+       (3, 'fast', 'fast', '快'),
+       (4, 'medium slow', 'medium-slow', '较慢'),
+       (5, 'erratic', 'slow-then-very-fast', '最快'),
+       (6, 'fluctuating', 'fast-then-very-slow', '最慢');
+COMMIT;

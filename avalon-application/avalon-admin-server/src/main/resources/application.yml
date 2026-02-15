@@ -1,5 +1,7 @@
 spring:
   application:
-    name: avalon-admin-server
+    name: @artifactId@
   profiles:
     active: dev
+  jpa:
+    open-in-view: false
