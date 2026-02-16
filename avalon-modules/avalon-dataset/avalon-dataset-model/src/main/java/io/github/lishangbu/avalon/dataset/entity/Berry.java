@@ -54,18 +54,12 @@ public class Berry implements Serializable {
 
   /// 树果的坚硬度
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "berry_firmness_id",
-      comment = "树果的坚硬度",
-      foreignKey = @ForeignKey(name = "fk_berry_berry_firmness"))
+  @JoinColumn(name = "berry_firmness_id", comment = "树果的坚硬度")
   private BerryFirmness berryFirmness;
 
   /// 搭配该树果使用“自然之恩”招式时继承的属性类型
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "natural_gift_type_id",
-      comment = "搭配该树果使用“自然之恩”招式时继承的属性类型",
-      foreignKey = @ForeignKey(name = "fk_berry_type"))
+  @JoinColumn(name = "natural_gift_type_id", comment = "搭配该树果使用“自然之恩”招式时继承的属性类型")
   private Type naturalGiftType;
 
   /// 搭配该树果使用“自然之恩”招式时的威力

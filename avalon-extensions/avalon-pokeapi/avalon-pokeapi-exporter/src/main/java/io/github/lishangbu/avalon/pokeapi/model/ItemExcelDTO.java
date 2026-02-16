@@ -33,11 +33,22 @@ public class ItemExcelDTO {
   @ExcelProperty("fling_power")
   private Integer flingPower;
 
+  @ExcelProperty("item_fling_effect_id")
+  private Integer itemFlingEffect;
+
   /// 类别名称
-  @ExcelProperty("category_name")
-  private String categoryName;
+  @ExcelProperty("category_id")
+  private Integer categoryId;
 
   /// 效果描述
   @ExcelProperty("effect")
   private String effect;
+
+  /// 简短效果描述
+  @ExcelProperty("short_effect")
+  private String shortEffect;
+
+  /// 道具文本
+  @ExcelProperty("text")
+  private String text;
 }

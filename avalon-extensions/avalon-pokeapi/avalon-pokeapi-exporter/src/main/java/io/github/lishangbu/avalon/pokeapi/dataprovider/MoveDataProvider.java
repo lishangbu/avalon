@@ -36,6 +36,8 @@ public class MoveDataProvider extends AbstractPokeApiDataProvider<Move, MoveExce
     final MoveMetaData meta = move.meta();
     if (meta != null) {
       result.setMinHits(meta.minHits());
+      result.setMaxHits(meta.maxHits());
+      result.setMinTurns(meta.minTurns());
       result.setMaxTurns(meta.maxTurns());
       result.setDrain(meta.drain());
       result.setMaxTurns(meta.maxTurns());

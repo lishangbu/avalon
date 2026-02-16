@@ -21,6 +21,10 @@ public class ItemFlingEffectExcelDTO {
   @ExcelProperty("internal_name")
   private String internalName;
 
+  /// 显示名称
+  @ExcelProperty("name")
+  private String name;
+
   /// 效果描述
   @ExcelProperty("effect")
   private String effect;

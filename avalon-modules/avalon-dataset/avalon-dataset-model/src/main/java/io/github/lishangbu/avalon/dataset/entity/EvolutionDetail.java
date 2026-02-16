@@ -26,20 +26,12 @@ public class EvolutionDetail implements Serializable {
 
   /// 进化链环节 ID
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "chain_link_id",
-      comment = "进化链环节ID",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_evolution_detail_chain_link"))
+  @JoinColumn(name = "chain_link_id", comment = "进化链环节ID", nullable = false)
   private ChainLink chainLink;
 
   /// 进化触发器 ID
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "evolution_trigger_id",
-      comment = "进化触发器ID",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_evolution_detail_evolution_trigger"))
+  @JoinColumn(name = "evolution_trigger_id", comment = "进化触发器ID", nullable = false)
   private EvolutionTrigger evolutionTrigger;
 
   /// 性别要求 (1: 雄性, 2: 雌性, null: 无要求)

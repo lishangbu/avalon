@@ -1,12 +1,10 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Set;
 import lombok.Data;
 
 /// 道具(Item)实体类
@@ -43,13 +41,19 @@ public class Item implements Serializable {
   @Column(comment = "使用此道具进行投掷行动时的威力")
   private Integer flingPower;
 
-  /// 使用此道具进行投掷行动时的效果(内部名称)
-  @Column(comment = "使用此道具进行投掷行动时的效果(内部名称)", length = 100)
-  private String flingEffectInternalName;
+  /// 使用此道具进行投掷行动时的效果
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "item_fling_effect_id", comment = "使用此道具进行投掷行动时的效果")
+  private ItemFlingEffect itemFlingEffect;
 
-  /// 此道具所属的类别(内部名称)
-  @Column(comment = "此道具所属的类别(内部名称)", length = 100)
-  private String categoryInternalName;
+  /// 此道具所属的类别
+  @ManyToMany
+  @JoinTable(
+      name = "item_attribute_relation",
+      comment = "物品与物品属性的关联表",
+      joinColumns = @JoinColumn(name = "item_id"),
+      inverseJoinColumns = @JoinColumn(name = "item_attribute_id"))
+  private Set<ItemAttribute> itemAttributes;
 
   /// 简要效果描述
   @Column(comment = "简要效果描述", length = 500)

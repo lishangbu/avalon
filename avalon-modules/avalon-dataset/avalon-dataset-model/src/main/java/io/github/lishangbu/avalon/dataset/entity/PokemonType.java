@@ -1,17 +1,13 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
-import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 
 /// 宝可梦属性(PokemonType)实体类
 ///
-/// 表示宝可梦与属性的关联信息，包含属性的内部名称与排序信息
+/// 表示宝可梦与属性的关联信息，包括排序信息
 ///
 /// @author lishangbu
 /// @since 2025/08/20
@@ -21,21 +17,30 @@ import lombok.Data;
 public class PokemonType implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+  /// 复合主键
+  @EmbeddedId private PokemonTypeId id;
 
-  /// 宝可梦内部名称
-  @Column(comment = "宝可梦内部名称", length = 100)
-  private String pokemonInternalName;
+  /// 属性内部slot
+  @Column(comment = "属性内部slot")
+  private Integer slot;
 
-  /// 属性内部名称
-  @Column(comment = "属性内部名称", length = 100)
-  private String typeInternalName;
+  /// 宝可梦属性复合主键
+  ///
+  /// @author lishangbu
+  /// @since 2026/2/16
+  @Data
+  @Embeddable
+  public static class PokemonTypeId implements Serializable {
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 属性内部排序
-  @Column(comment = "属性内部排序")
-  private Integer sortingOrder;
+    /// 宝可梦引用
+    @ManyToOne
+    @JoinColumn(name = "pokemon_id", nullable = false)
+    private Pokemon pokemon;
+
+    /// 属性引用
+    @ManyToOne
+    @JoinColumn(name = "type_id", nullable = false)
+    private Type type;
+  }
 }

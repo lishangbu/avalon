@@ -57,11 +57,19 @@ public class MoveExcelDTO {
   @ExcelProperty("effect")
   private String effect;
 
-  /// 此招式持续生效的最小回合数。如果总是只持续一回合，则为空
+  /// 此招式命中的最小次数。如果总是只命中一次则为null。
   @ExcelProperty("min_hits")
   private Integer minHits;
 
-  /// 此招式持续生效的最大回合数。如果总是只持续一回合，则为空
+  /// 此招式命中的最大次数。如果总是只命中一次则为null。
+  @ExcelProperty("max_hits")
+  private Integer maxHits;
+
+  /// 此招式持续生效的最小回合数。如果总是只持续一回合则为null。
+  @ExcelProperty("min_turns")
+  private Integer minTurns;
+
+  /// 此招式持续生效的最大回合数。如果总是只持续一回合则为null。
   @ExcelProperty("max_turns")
   private Integer maxTurns;
 
