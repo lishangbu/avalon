@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.ItemExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
+import io.github.lishangbu.avalon.pokeapi.util.LocalizationUtils;
+import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.stereotype.Service;
 
 /// 道具数据提供者
@@ -19,8 +21,22 @@ public class ItemDataProvider extends AbstractPokeApiDataProvider<Item, ItemExce
     result.setName(resolveLocalizedName(item.names(), item.name()));
     result.setCost(item.cost());
     result.setFlingPower(item.flingPower());
-    result.setCategoryName(item.category() != null ? item.category().name() : null);
-    result.setEffect(resolveLocalizedVerboseEffect(item.effectEntries()));
+    result.setCategoryId(
+        item.category() != null ? NamedApiResourceUtils.getId(item.category()) : null);
+    LocalizationUtils.getLocalizationVerboseEffect(item.effectEntries())
+        .ifPresent(
+            verboseEffect -> {
+              result.setShortEffect(verboseEffect.shortEffect());
+              result.setEffect(verboseEffect.effect());
+            });
+    result.setItemFlingEffect(
+        item.flingEffect() != null ? NamedApiResourceUtils.getId(item.flingEffect()) : null);
+    result.setFlingPower(item.flingPower());
+    LocalizationUtils.getLocalizationVersionGroupFlavorText(item.flavorTextEntries())
+        .ifPresent(
+            versionGroupFlavorText -> {
+              result.setText((versionGroupFlavorText.text()));
+            });
     return result;
   }
 }

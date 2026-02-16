@@ -40,12 +40,12 @@ public class PokemonAbility implements Serializable {
 
     /// 宝可梦引用
     @ManyToOne
-    @JoinColumn(name = "pokemon_id", nullable = false)
+    @JoinColumn(name = "pokemon_id", comment = "宝可梦", nullable = false)
     private Pokemon pokemon;
 
     /// 特性引用
     @ManyToOne
-    @JoinColumn(name = "ability_id", nullable = false)
+    @JoinColumn(name = "ability_id", nullable = false, comment = "特性")
     private Ability ability;
 
     @Override

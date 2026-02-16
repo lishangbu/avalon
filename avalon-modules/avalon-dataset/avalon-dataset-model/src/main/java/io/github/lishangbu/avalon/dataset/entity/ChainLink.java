@@ -26,18 +26,12 @@ public class ChainLink implements Serializable {
 
   /// 进化链 ID
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "evolution_chain_id",
-      foreignKey = @ForeignKey(name = "fk_chain_link_evolution_chain"),
-      comment = "进化链ID")
+  @JoinColumn(name = "evolution_chain_id", comment = "进化链ID")
   private EvolutionChain evolutionChain;
 
   /// 宝可梦种类 ID
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "pokemon_species_id",
-      foreignKey = @ForeignKey(name = "fk_chain_link_pokemon_species"),
-      comment = "宝可梦种类ID")
+  @JoinColumn(name = "pokemon_species_id", comment = "宝可梦种类ID")
   private PokemonSpecies speciesId;
 
   /// 是否为幼年形态

@@ -42,9 +42,6 @@ public class Stat implements Serializable {
 
   /// 与此属性相关的伤害类别
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "move_damage_class_id",
-      comment = "招式属性",
-      foreignKey = @ForeignKey(name = "fk_stat_move_damage_class"))
+  @JoinColumn(name = "move_damage_class_id", comment = "招式属性")
   private MoveDamageClass moveDamageClass;
 }

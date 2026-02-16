@@ -1,12 +1,7 @@
 package io.github.lishangbu.avalon.dataset.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -85,12 +80,12 @@ public class PokemonSpecies implements Serializable {
 
   /// 颜色
   @ManyToOne
-  @JoinColumn(name = "color_id", comment = "颜色")
+  @JoinColumn(name = "pokemon_color_id", comment = "颜色")
   private PokemonColor pokemonColor;
 
   /// 形状
   @ManyToOne
-  @JoinColumn(name = "shape_id", comment = "形状")
+  @JoinColumn(name = "pokemon_shape_id", comment = "形状")
   private PokemonShape pokemonShape;
 
   /// 进化来源种类 ID
@@ -103,12 +98,8 @@ public class PokemonSpecies implements Serializable {
 
   /// 栖息地
   @ManyToOne
-  @JoinColumn(name = "habitat_id", comment = "栖息地")
+  @JoinColumn(name = "pokemon_habitat_id", comment = "栖息地")
   private PokemonHabitat pokemonHabitat;
-
-  /// 世代 ID
-  @Column(name = "generation_id", comment = "世代ID")
-  private Long generationId;
 
   @Override
   public boolean equals(Object o) {

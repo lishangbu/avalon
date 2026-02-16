@@ -34,10 +34,6 @@ public class EncounterConditionValue implements Serializable {
 
   /// 遭遇条件 ID
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "encounter_condition_id",
-      comment = "遭遇条件ID",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_encounter_condition_value_encounter_condition"))
+  @JoinColumn(name = "encounter_condition_id", comment = "遭遇条件ID", nullable = false)
   private EncounterCondition encounterCondition;
 }

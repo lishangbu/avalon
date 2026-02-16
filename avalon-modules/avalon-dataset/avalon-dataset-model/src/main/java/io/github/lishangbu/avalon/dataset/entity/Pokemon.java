@@ -51,10 +51,7 @@ public class Pokemon implements Serializable {
 
   /// 宝可梦种类
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "pokemon_species_id",
-      comment = "宝可梦种类",
-      foreignKey = @ForeignKey(name = "fk_pokemon_pokemon_species"))
+  @JoinColumn(name = "pokemon_species_id", comment = "宝可梦种类")
   private PokemonSpecies pokemonSpecies;
 
   /// 宝可梦特性列表

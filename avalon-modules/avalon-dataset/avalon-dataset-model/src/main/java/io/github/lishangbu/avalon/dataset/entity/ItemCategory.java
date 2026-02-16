@@ -33,9 +33,6 @@ public class ItemCategory implements Serializable {
   private String name;
 
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "item_pocket_id",
-      comment = "该类别道具所属的口袋",
-      foreignKey = @ForeignKey(name = "fk_item_category_item_pocket"))
+  @JoinColumn(name = "item_pocket_id", comment = "该类别道具所属的口袋")
   private ItemPocket itemPocket;
 }

@@ -41,12 +41,12 @@ public class TypeDamageRelation implements Serializable {
 
     /// 攻击方属性
     @ManyToOne
-    @JoinColumn(name = "attacking_type_id", nullable = false)
+    @JoinColumn(name = "attacking_type_id", nullable = false, comment = "攻击方属性")
     private Type attackingType;
 
     /// 防御方属性
     @ManyToOne
-    @JoinColumn(name = "defending_type_id", nullable = false)
+    @JoinColumn(name = "defending_type_id", nullable = false, comment = "防御方属性")
     private Type defendingType;
 
     @Override

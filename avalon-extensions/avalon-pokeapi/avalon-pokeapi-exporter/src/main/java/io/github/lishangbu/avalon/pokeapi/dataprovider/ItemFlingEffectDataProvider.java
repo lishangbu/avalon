@@ -17,6 +17,7 @@ public class ItemFlingEffectDataProvider
     ItemFlingEffectExcelDTO result = new ItemFlingEffectExcelDTO();
     result.setId(itemFlingEffect.id());
     result.setInternalName(itemFlingEffect.name());
+    result.setName(itemFlingEffect.name());
     result.setEffect(resolveLocalizedEffect(itemFlingEffect.effectEntries()));
     return result;
   }

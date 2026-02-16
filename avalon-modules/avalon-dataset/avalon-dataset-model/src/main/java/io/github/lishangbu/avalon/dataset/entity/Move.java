@@ -34,7 +34,7 @@ public class Move implements Serializable {
 
   /// 属性
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "type_id", comment = "招式属性", foreignKey = @ForeignKey(name = "fk_move_type"))
+  @JoinColumn(name = "type_id", comment = "招式属性")
   private Type type;
 
   /// 命中
@@ -59,18 +59,12 @@ public class Move implements Serializable {
 
   /// 此招式对目标造成的伤害类型
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "move_damage_class_id",
-      comment = "此招式对目标造成的伤害类型",
-      foreignKey = @ForeignKey(name = "fk_move_move_damage_class"))
+  @JoinColumn(name = "move_damage_class_id", comment = "此招式对目标造成的伤害类型")
   private MoveDamageClass moveDamageClass;
 
   /// 接收攻击效果的目标类型
   @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "move_target_id",
-      comment = "接收攻击效果的目标类型",
-      foreignKey = @ForeignKey(name = "fk_move_move_target"))
+  @JoinColumn(name = "move_target_id", comment = "接收攻击效果的目标类型")
   private MoveTarget moveTarget;
 
   /// 文本描述
@@ -78,19 +72,37 @@ public class Move implements Serializable {
   private String text;
 
   /// 招式简要效果描述
-  @Column(comment = "招式简要效果描述", length = 1000)
+  @Column(comment = "招式简要效果描述", length = 500)
   private String shortEffect;
 
-  /// 招式效果描述
-  @Column(comment = "招式效果描述", length = 4000)
+  /// 招式详细效果描述
+  @Column(comment = "招式详细效果描述", length = 4000)
   private String effect;
 
-  /// 此招式持续生效的最小回合数。如果总是只持续一回合，则为空
-  @Column(comment = "此招式持续生效的最小回合数。如果总是只持续一回合，则为空")
+  /// 招式分类
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "move_category_id", comment = "招式分类")
+  private MoveCategory moveCategory;
+
+  /// 招式导致的状态异常
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "move_ailment_id", comment = "招式导致的状态异常")
+  private MoveAilment moveAilment;
+
+  /// 此招式命中的最小次数。如果总是只命中一次则为null
+  @Column(comment = "此招式命中的最小次数。如果总是只命中一次则为null")
   private Integer minHits;
 
-  /// 此招式持续生效的最大回合数。如果总是只持续一回合，则为空
-  @Column(comment = "此招式持续生效的最大回合数。如果总是只持续一回合，则为空")
+  /// 此招式命中的最大次数。如果总是只命中一次则为null
+  @Column(comment = "此招式命中的最大次数。如果总是只命中一次则为null")
+  private Integer maxHits;
+
+  /// 此招式持续生效的最小回合数。如果总是只持续一回合则为null
+  @Column(comment = "此招式持续生效的最小回合数。如果总是只持续一回合则为null")
+  private Integer minTurns;
+
+  /// 此招式持续生效的最大回合数。如果总是只持续一回合则为null
+  @Column(comment = "此招式持续生效的最大回合数。如果总是只持续一回合则为null")
   private Integer maxTurns;
 
   /// HP吸取（如果为正）或反作用伤害（如果为负），以造成伤害的百分比表示
@@ -114,24 +126,6 @@ public class Move implements Serializable {
   private Integer flinchChance;
 
   /// 此攻击导致目标宝可梦能力值变化的可能性
-  ///
-  /// {@link Move#effectChance} 目前这两个字段的值是相同的，可能是因为在某些版本中，这两种效果被分开计算了概率
   @Column(comment = "此攻击导致目标宝可梦能力值变化的可能性")
   private Integer statChance;
-
-  /// 招式分类
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "move_category_id",
-      comment = "招式分类",
-      foreignKey = @ForeignKey(name = "fk_move_move_category"))
-  private MoveCategory moveCategory;
-
-  /// 招式导致的状态异常
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(
-      name = "move_ailment_id",
-      comment = "招式导致的状态异常",
-      foreignKey = @ForeignKey(name = "fk_move_move_ailment"))
-  private MoveAilment moveAilment;
 }

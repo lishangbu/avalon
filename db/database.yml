@@ -26,6 +26,9 @@ spring:
         - optional:classpath:${spring.sql.init.platform}/item_attribute.sql
         - optional:classpath:${spring.sql.init.platform}/item_pocket.sql
         - optional:classpath:${spring.sql.init.platform}/item_category.sql
+        - optional:classpath:${spring.sql.init.platform}/item_fling_effect.sql
+        - optional:classpath:${spring.sql.init.platform}/item.sql
+        - optional:classpath:${spring.sql.init.platform}/item_attribute_relation.sql
         - optional:classpath:${spring.sql.init.platform}/move_ailment.sql
         - optional:classpath:${spring.sql.init.platform}/move_category.sql
         - optional:classpath:${spring.sql.init.platform}/move_damage_class.sql
@@ -58,4 +61,4 @@ logging:
               BasicExtractor: trace
       springframework:
         jdbc:
-          datasource: debug
+          datasource: error
