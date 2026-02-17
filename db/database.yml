@@ -39,6 +39,10 @@ spring:
         - optional:classpath:${spring.sql.init.platform}/pokemon_color.sql
         - optional:classpath:${spring.sql.init.platform}/pokemon_shape.sql
         - optional:classpath:${spring.sql.init.platform}/pokemon_habitat.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_species.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_stat.sql
+        - optional:classpath:${spring.sql.init.platform}/pokemon_type.sql
         - optional:classpath:${spring.sql.init.platform}/type.sql
         - optional:classpath:${spring.sql.init.platform}/move.sql
         - optional:classpath:${spring.sql.init.platform}/berry.sql

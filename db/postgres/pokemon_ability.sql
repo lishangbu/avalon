@@ -1,4 +1,3 @@
-SET session_replication_role = replica;
 BEGIN;
 insert into public.pokemon_ability (is_hidden, slot, ability_id, pokemon_id)
 values (false, 1, 65, 1),
@@ -2905,4 +2904,3 @@ values (false, 1, 65, 1),
        (false, 1, 305, 10276),
        (false, 1, 306, 10277);
 COMMIT;
-SET session_replication_role = DEFAULT;

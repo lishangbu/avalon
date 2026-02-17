@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.PokemonSpeciesExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.PokemonSpecies;
+import io.github.lishangbu.avalon.pokeapi.util.ApiResourceUtils;
 import io.github.lishangbu.avalon.pokeapi.util.NamedApiResourceUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,28 +31,12 @@ public class PokemonSpeciesDataProvider
     result.setHasGenderDifferences(pokemonSpecies.hasGenderDifferences());
     result.setFormsSwitchable(pokemonSpecies.formsSwitchable());
     result.setGrowthRateId(NamedApiResourceUtils.getId(pokemonSpecies.growthRate()));
-    result.setColorId(NamedApiResourceUtils.getId(pokemonSpecies.color()));
-    result.setShapeId(NamedApiResourceUtils.getId(pokemonSpecies.shape()));
+    result.setPokemonColorId(NamedApiResourceUtils.getId(pokemonSpecies.color()));
+    result.setPokemonShapeId(NamedApiResourceUtils.getId(pokemonSpecies.shape()));
     result.setEvolvesFromSpeciesId(
         NamedApiResourceUtils.getId(pokemonSpecies.evolvesFromSpecies()));
-    result.setEvolutionChainId(extractIdFromUrl(pokemonSpecies.evolutionChain().url()));
-    result.setHabitatId(NamedApiResourceUtils.getId(pokemonSpecies.habitat()));
-    result.setGenerationId(NamedApiResourceUtils.getId(pokemonSpecies.generation()));
+    result.setEvolutionChainId(ApiResourceUtils.getId(pokemonSpecies.evolutionChain()));
+    result.setPokemonHabitatId(NamedApiResourceUtils.getId(pokemonSpecies.habitat()));
     return result;
-  }
-
-  private Integer extractIdFromUrl(String url) {
-    if (url == null) return null;
-    String[] parts = url.split("/");
-    for (int i = parts.length - 1; i >= 0; i--) {
-      if (!parts[i].isEmpty()) {
-        try {
-          return Integer.parseInt(parts[i]);
-        } catch (NumberFormatException e) {
-          // continue
-        }
-      }
-    }
-    return null;
   }
 }

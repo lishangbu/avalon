@@ -70,12 +70,12 @@ public class PokemonSpeciesExcelDTO {
   private Integer growthRateId;
 
   /// 颜色 ID
-  @ExcelProperty("color_id")
-  private Integer colorId;
+  @ExcelProperty("pokemon_color_id")
+  private Integer pokemonColorId;
 
   /// 形状 ID
-  @ExcelProperty("shape_id")
-  private Integer shapeId;
+  @ExcelProperty("pokemon_shape_id")
+  private Integer pokemonShapeId;
 
   /// 进化来源种类 ID
   @ExcelProperty("evolves_from_species_id")
@@ -86,10 +86,7 @@ public class PokemonSpeciesExcelDTO {
   private Integer evolutionChainId;
 
   /// 栖息地 ID
-  @ExcelProperty("habitat_id")
-  private Integer habitatId;
+  @ExcelProperty("pokemon_habitat_id")
+  private Integer pokemonHabitatId;
 
-  /// 世代 ID
-  @ExcelProperty("generation_id")
-  private Integer generationId;
 }

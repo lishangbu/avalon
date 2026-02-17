@@ -1,4 +1,3 @@
-SET session_replication_role = replica;
 BEGIN;
 insert into public.pokemon_stat (base_stat, effort, pokemon_id, stat_id)
 values (45, 0, 1, 1),
@@ -8102,4 +8101,3 @@ values (45, 0, 1, 1),
        (101, 0, 10325, 5),
        (87, 0, 10325, 6);
 COMMIT;
-SET session_replication_role = DEFAULT;
