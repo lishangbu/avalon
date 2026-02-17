@@ -1,4 +1,3 @@
-SET session_replication_role = replica;
 BEGIN;
 insert into public.pokemon_type (slot, type_id, pokemon_id)
 values (1, 12, 1),
@@ -2117,4 +2116,3 @@ values (1, 12, 1),
        (1, 16, 10325),
        (2, 15, 10325);
 COMMIT;
-SET session_replication_role = DEFAULT;
