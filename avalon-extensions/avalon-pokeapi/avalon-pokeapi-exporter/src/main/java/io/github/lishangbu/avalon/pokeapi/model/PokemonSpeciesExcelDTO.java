@@ -88,5 +88,4 @@ public class PokemonSpeciesExcelDTO {
   /// 栖息地 ID
   @ExcelProperty("pokemon_habitat_id")
   private Integer pokemonHabitatId;
-
 }
