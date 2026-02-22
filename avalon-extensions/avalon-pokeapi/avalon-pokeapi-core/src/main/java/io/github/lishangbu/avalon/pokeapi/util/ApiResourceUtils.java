@@ -2,13 +2,11 @@ package io.github.lishangbu.avalon.pokeapi.util;
 
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.common.APIResource;
-import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /// 资源工具类
 ///
