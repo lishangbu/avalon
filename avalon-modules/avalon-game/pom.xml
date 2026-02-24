@@ -4,15 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon</artifactId>
+    <artifactId>avalon-modules</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-modules</artifactId>
+  <artifactId>avalon-game</artifactId>
   <packaging>pom</packaging>
-  <description>项目模块整合</description>
+  <description>游戏相关模块整合</description>
   <modules>
-    <module>avalon-authorization</module>
-    <module>avalon-dataset</module>
-    <module>avalon-game</module>
+    <module>avalon-game-calculator</module>
   </modules>
 </project>
