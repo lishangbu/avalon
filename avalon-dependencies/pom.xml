@@ -47,7 +47,6 @@
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
     <hibernate.version>7.3.0.CR2</hibernate.version>
     <ip2location.version>1.2.6</ip2location.version>
-    <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
     <jgit.version>7.5.0.202512021534-r</jgit.version>
     <mapstruct.version>1.6.3</mapstruct.version>
@@ -175,11 +174,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
           <version>${flatten-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -317,10 +311,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
           </plugin>
           <plugin>
             <groupId>org.sonatype.central</groupId>
