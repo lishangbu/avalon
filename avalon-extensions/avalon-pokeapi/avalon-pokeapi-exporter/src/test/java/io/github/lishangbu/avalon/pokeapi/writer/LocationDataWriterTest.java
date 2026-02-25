@@ -11,29 +11,29 @@ import jakarta.annotation.Resource;
 /// 测试 LocationDataWriter 的功能，包括数据获取和Excel写入
 class LocationDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<Location> locationDataProvider;
+    @Resource private PokeApiDataProvider<Location> locationDataProvider;
 
-  /// 返回数据类型枚举
-  ///
-  /// @return LOCATION 枚举值
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.LOCATION;
-  }
+    /// 返回数据类型枚举
+    ///
+    /// @return LOCATION 枚举值
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.LOCATION;
+    }
 
-  /// 返回Excel数据传输对象类
-  ///
-  /// @return LocationExcelDTO.class
-  @Override
-  Class<LocationExcelDTO> getExcelClass() {
-    return LocationExcelDTO.class;
-  }
+    /// 返回Excel数据传输对象类
+    ///
+    /// @return LocationExcelDTO.class
+    @Override
+    Class<LocationExcelDTO> getExcelClass() {
+        return LocationExcelDTO.class;
+    }
 
-  /// 返回数据提供者
-  ///
-  /// @return 位置数据提供者实例
-  @Override
-  PokeApiDataProvider<Location> getDataProvider() {
-    return locationDataProvider;
-  }
+    /// 返回数据提供者
+    ///
+    /// @return 位置数据提供者实例
+    @Override
+    PokeApiDataProvider<Location> getDataProvider() {
+        return locationDataProvider;
+    }
 }

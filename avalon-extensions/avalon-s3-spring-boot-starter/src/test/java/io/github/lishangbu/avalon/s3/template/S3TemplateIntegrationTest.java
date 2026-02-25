@@ -19,31 +19,31 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = {S3AutoConfiguration.class})
 class S3TemplateIntegrationTest {
 
-  @Resource private S3Template template;
+    @Resource private S3Template template;
 
-  @Test
-  void uploadAndDownloadShouldWork() throws Exception {
-    String bucket = "ut-test-bucket";
-    String objectKey = "hello.txt";
-    String content = "hello-testcontainers";
+    @Test
+    void uploadAndDownloadShouldWork() throws Exception {
+        String bucket = "ut-test-bucket";
+        String objectKey = "hello.txt";
+        String content = "hello-testcontainers";
 
-    // Act - create, put, get
-    template.createBucket(bucket);
+        // Act - create, put, get
+        template.createBucket(bucket);
 
-    try (InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
-      template.putObject(bucket, objectKey, in);
+        try (InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            template.putObject(bucket, objectKey, in);
+        }
+
+        try (InputStream downloaded = template.getObject(bucket, objectKey)) {
+            byte[] data = downloaded.readAllBytes();
+            String restored = new String(data, StandardCharsets.UTF_8);
+
+            // Assert
+            Assertions.assertEquals(content, restored);
+        }
+
+        // Cleanup
+        template.removeObject(bucket, objectKey);
+        template.removeBucket(bucket);
     }
-
-    try (InputStream downloaded = template.getObject(bucket, objectKey)) {
-      byte[] data = downloaded.readAllBytes();
-      String restored = new String(data, StandardCharsets.UTF_8);
-
-      // Assert
-      Assertions.assertEquals(content, restored);
-    }
-
-    // Cleanup
-    template.removeObject(bucket, objectKey);
-    template.removeBucket(bucket);
-  }
 }

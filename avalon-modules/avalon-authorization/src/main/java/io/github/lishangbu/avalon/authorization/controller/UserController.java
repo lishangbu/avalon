@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserService userService;
+    private final UserService userService;
 
-  /// 获取当前用户信息
-  ///
-  /// @param user 当前用户信息
-  /// @return 用户信息
-  @GetMapping("/info")
-  public UserWithRoles getUserInfo(@AuthenticationPrincipal UserInfo user) {
-    return userService.getUserByUsername(user.getUsername()).orElse(null);
-  }
+    /// 获取当前用户信息
+    ///
+    /// @param user 当前用户信息
+    /// @return 用户信息
+    @GetMapping("/info")
+    public UserWithRoles getUserInfo(@AuthenticationPrincipal UserInfo user) {
+        return userService.getUserByUsername(user.getUsername()).orElse(null);
+    }
 }

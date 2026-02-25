@@ -8,20 +8,20 @@ import jakarta.annotation.Resource;
 
 class GenderDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<Gender> genderDataProvider;
+    @Resource private PokeApiDataProvider<Gender> genderDataProvider;
 
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.GENDER;
-  }
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.GENDER;
+    }
 
-  @Override
-  Class<GenderExcelDTO> getExcelClass() {
-    return GenderExcelDTO.class;
-  }
+    @Override
+    Class<GenderExcelDTO> getExcelClass() {
+        return GenderExcelDTO.class;
+    }
 
-  @Override
-  PokeApiDataProvider<Gender> getDataProvider() {
-    return genderDataProvider;
-  }
+    @Override
+    PokeApiDataProvider<Gender> getDataProvider() {
+        return genderDataProvider;
+    }
 }

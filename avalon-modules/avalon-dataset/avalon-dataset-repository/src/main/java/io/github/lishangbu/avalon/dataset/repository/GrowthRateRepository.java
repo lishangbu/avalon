@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/10
 @Repository
 public interface GrowthRateRepository
-    extends JpaRepository<GrowthRate, Long>, JpaSpecificationExecutor<GrowthRate> {}
+        extends JpaRepository<GrowthRate, Long>, JpaSpecificationExecutor<GrowthRate> {}

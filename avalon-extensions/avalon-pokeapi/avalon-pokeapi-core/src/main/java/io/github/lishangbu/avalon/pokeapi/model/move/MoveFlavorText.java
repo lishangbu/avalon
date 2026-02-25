@@ -17,6 +17,6 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @see VersionGroup
 /// @since 2025/6/7
 public record MoveFlavorText(
-    @JsonProperty("flavor_text") String flavorText,
-    NamedApiResource<Language> language,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        @JsonProperty("flavor_text") String flavorText,
+        NamedApiResource<Language> language,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}

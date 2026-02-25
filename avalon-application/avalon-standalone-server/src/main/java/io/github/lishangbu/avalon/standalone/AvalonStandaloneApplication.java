@@ -12,7 +12,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 @SpringBootApplication(scanBasePackages = "io.github.lishangbu.avalon")
 public class AvalonStandaloneApplication {
 
-  static void main(String[] args) {
-    SpringApplication.run(AvalonStandaloneApplication.class, args);
-  }
+    static void main(String[] args) {
+        SpringApplication.run(AvalonStandaloneApplication.class, args);
+    }
 }

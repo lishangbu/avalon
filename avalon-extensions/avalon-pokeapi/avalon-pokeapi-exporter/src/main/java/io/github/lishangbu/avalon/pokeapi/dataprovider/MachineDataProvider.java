@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MachineDataProvider extends AbstractPokeApiDataProvider<Machine, MachineExcelDTO> {
 
-  @Override
-  public MachineExcelDTO convert(Machine machine) {
-    MachineExcelDTO result = new MachineExcelDTO();
-    result.setId(machine.id());
-    result.setItemName(machine.item().name());
-    result.setMoveName(machine.move().name());
-    result.setVersionGroupName(machine.versionGroup().name());
-    return result;
-  }
+    @Override
+    public MachineExcelDTO convert(Machine machine) {
+        MachineExcelDTO result = new MachineExcelDTO();
+        result.setId(machine.id());
+        result.setItemName(machine.item().name());
+        result.setMoveName(machine.move().name());
+        result.setVersionGroupName(machine.versionGroup().name());
+        return result;
+    }
 }

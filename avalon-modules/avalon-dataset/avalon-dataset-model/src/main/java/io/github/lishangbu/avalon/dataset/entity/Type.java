@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "属性")
 public class Type implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 属性内部名称
-  @Column(comment = "属性内部名称", length = 100)
-  private String internalName;
+    /// 属性内部名称
+    @Column(comment = "属性内部名称", length = 100)
+    private String internalName;
 
-  /// 属性名称
-  @Column(comment = "属性名称", length = 100)
-  private String name;
+    /// 属性名称
+    @Column(comment = "属性名称", length = 100)
+    private String name;
 }

@@ -16,5 +16,5 @@ import java.util.List;
 /// @see PokemonMoveVersion
 /// @since 2025/6/8
 public record PokemonMove(
-    NamedApiResource<Move> move,
-    @JsonProperty("version_group_details") List<PokemonMoveVersion> versionGroupDetails) {}
+        NamedApiResource<Move> move,
+        @JsonProperty("version_group_details") List<PokemonMoveVersion> versionGroupDetails) {}

@@ -19,8 +19,8 @@ import java.util.List;
 /// @see Description
 /// @since 2025/6/8
 public record Characteristic(
-    Integer id,
-    @JsonProperty("gene_modulo") Integer geneModulo,
-    @JsonProperty("possible_values") List<Integer> possibleValues,
-    @JsonProperty("highest_stat") NamedApiResource<Stat> highestStat,
-    List<Description> descriptions) {}
+        Integer id,
+        @JsonProperty("gene_modulo") Integer geneModulo,
+        @JsonProperty("possible_values") List<Integer> possibleValues,
+        @JsonProperty("highest_stat") NamedApiResource<Stat> highestStat,
+        List<Description> descriptions) {}

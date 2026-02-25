@@ -16,7 +16,7 @@ import java.util.List;
 /// @see ContestName
 /// @since 2025/5/22
 public record ContestType(
-    Integer id,
-    String name,
-    @JsonProperty("berry_flavor") NamedApiResource<BerryFlavor> berryFlavor,
-    List<ContestName> names) {}
+        Integer id,
+        String name,
+        @JsonProperty("berry_flavor") NamedApiResource<BerryFlavor> berryFlavor,
+        List<ContestName> names) {}

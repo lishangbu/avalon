@@ -16,9 +16,11 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @Slf4j
 public class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-  @Override
-  public void onAuthenticationSuccess(
-      HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-    JsonResponseWriter.writeSuccessResponse(response);
-  }
+    @Override
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication) {
+        JsonResponseWriter.writeSuccessResponse(response);
+    }
 }

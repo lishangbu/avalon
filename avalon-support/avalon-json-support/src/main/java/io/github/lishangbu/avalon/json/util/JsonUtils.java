@@ -19,165 +19,168 @@ import tools.jackson.databind.json.JsonMapper;
 /// @since 2025/4/8
 public class JsonUtils implements ApplicationContextAware {
 
-  private static JsonMapper JSON_MAPPER;
+    private static JsonMapper JSON_MAPPER;
 
-  /// 获取 JsonMapper 单例实例
-  public static JsonMapper getInstance() {
-    return JSON_MAPPER;
-  }
-
-  /// 对象转 JSON 字符串
-  ///
-  /// @param value 待序列化对象
-  /// @return JSON 字符串，空对象返回 null
-  @Nullable
-  public static String toJson(@Nullable Object value) {
-    if (value == null || (value instanceof String && ((String) value).isEmpty())) {
-      return null;
+    /// 获取 JsonMapper 单例实例
+    public static JsonMapper getInstance() {
+        return JSON_MAPPER;
     }
-    return getInstance().writeValueAsString(value);
-  }
 
-  /// 对象转格式化 JSON 字符串
-  ///
-  /// @param value 待序列化对象
-  /// @return 格式化 JSON 字符串，空对象返回 null
-  @Nullable
-  public static String toPrettyJson(@Nullable Object value) {
-    if (value == null || (value instanceof String && ((String) value).isEmpty())) {
-      return null;
+    /// 对象转 JSON 字符串
+    ///
+    /// @param value 待序列化对象
+    /// @return JSON 字符串，空对象返回 null
+    @Nullable
+    public static String toJson(@Nullable Object value) {
+        if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+            return null;
+        }
+        return getInstance().writeValueAsString(value);
     }
-    return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-  }
 
-  /// 对象转 JSON 字节数组
-  ///
-  /// @param value 待序列化对象
-  /// @return JSON 字节数组，空对象返回 null
-  public static byte[] toJsonAsBytes(@Nullable Object value) {
-    if (value == null) {
-      return null;
+    /// 对象转格式化 JSON 字符串
+    ///
+    /// @param value 待序列化对象
+    /// @return 格式化 JSON 字符串，空对象返回 null
+    @Nullable
+    public static String toPrettyJson(@Nullable Object value) {
+        if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+            return null;
+        }
+        return getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(value);
     }
-    return getInstance().writeValueAsBytes(value);
-  }
 
-  /// JSON 字符串转 JsonNode
-  public static JsonNode readTree(String content) {
-    return getInstance().readTree(content);
-  }
-
-  /// InputStream 转 JsonNode
-  public static JsonNode readTree(InputStream in) {
-    return getInstance().readTree(in);
-  }
-
-  /// Reader 转 JsonNode
-  public static JsonNode readTree(Reader r) {
-    return getInstance().readTree(r);
-  }
-
-  /// 字节数组转 JsonNode
-  public static JsonNode readTree(byte[] content) {
-    return getInstance().readTree(content);
-  }
-
-  // region 反序列化
-
-  /// JSON 字符串转对象
-  /// @param content JSON 字符串
-  /// @param valueType 目标类型
-  /// @return 目标对象，空字符串返回 null
-  @Nullable
-  public static <T> T readValue(@Nullable String content, Class<T> valueType) {
-    if (content == null || content.isEmpty()) {
-      return null;
+    /// 对象转 JSON 字节数组
+    ///
+    /// @param value 待序列化对象
+    /// @return JSON 字节数组，空对象返回 null
+    public static byte[] toJsonAsBytes(@Nullable Object value) {
+        if (value == null) {
+            return null;
+        }
+        return getInstance().writeValueAsBytes(value);
     }
-    return getInstance().readValue(content, valueType);
-  }
 
-  /// JSON 字符串转泛型对象
-  /// @param content JSON 字符串
-  /// @param valueTypeRef 类型引用
-  /// @return 泛型对象，空字符串返回 null
-  @Nullable
-  public static <T> T readValue(@Nullable String content, TypeReference<T> valueTypeRef) {
-    if (content == null || content.isEmpty()) {
-      return null;
+    /// JSON 字符串转 JsonNode
+    public static JsonNode readTree(String content) {
+        return getInstance().readTree(content);
     }
-    return getInstance().readValue(content, valueTypeRef);
-  }
 
-  /// 字节数组转对象
-  /// @param src JSON 字节数组
-  /// @param valueType 目标类型
-  /// @return 目标对象，空数组返回 null
-  @Nullable
-  public static <T> T readValue(@Nullable byte[] src, Class<T> valueType) {
-    if (src == null || src.length == 0) {
-      return null;
+    /// InputStream 转 JsonNode
+    public static JsonNode readTree(InputStream in) {
+        return getInstance().readTree(in);
     }
-    return getInstance().readValue(src, valueType);
-  }
 
-  /// 字节数组转泛型对象
-  @Nullable
-  public static <T> T readValue(@Nullable byte[] src, TypeReference<T> valueTypeRef) {
-    if (src == null || src.length == 0) {
-      return null;
+    /// Reader 转 JsonNode
+    public static JsonNode readTree(Reader r) {
+        return getInstance().readTree(r);
     }
-    return getInstance().readValue(src, valueTypeRef);
-  }
 
-  /// 字节数组转指定类型对象
-  @Nullable
-  public static <T> T readValue(@Nullable byte[] src, JavaType javaType) {
-    if (src == null || src.length == 0) {
-      return null;
+    /// 字节数组转 JsonNode
+    public static JsonNode readTree(byte[] content) {
+        return getInstance().readTree(content);
     }
-    return getInstance().readValue(src, javaType);
-  }
 
-  /// InputStream 转对象
-  @Nullable
-  public static <T> T readValue(InputStream src, Class<T> valueType) {
-    return getInstance().readValue(src, valueType);
-  }
+    // region 反序列化
 
-  /// InputStream 转泛型对象
-  @Nullable
-  public static <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) {
-    return getInstance().readValue(src, valueTypeRef);
-  }
+    /// JSON 字符串转对象
+    ///
+    /// @param content   JSON 字符串
+    /// @param valueType 目标类型
+    /// @return 目标对象，空字符串返回 null
+    @Nullable
+    public static <T> T readValue(@Nullable String content, Class<T> valueType) {
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
+        return getInstance().readValue(content, valueType);
+    }
 
-  /// InputStream 转指定类型对象
-  @Nullable
-  public static <T> T readValue(InputStream src, JavaType valueType) {
-    return getInstance().readValue(src, valueType);
-  }
+    /// JSON 字符串转泛型对象
+    ///
+    /// @param content      JSON 字符串
+    /// @param valueTypeRef 类型引用
+    /// @return 泛型对象，空字符串返回 null
+    @Nullable
+    public static <T> T readValue(@Nullable String content, TypeReference<T> valueTypeRef) {
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
+        return getInstance().readValue(content, valueTypeRef);
+    }
 
-  /// Reader 转对象
-  @Nullable
-  public static <T> T readValue(Reader src, Class<T> valueType) {
-    return getInstance().readValue(src, valueType);
-  }
+    /// 字节数组转对象
+    ///
+    /// @param src       JSON 字节数组
+    /// @param valueType 目标类型
+    /// @return 目标对象，空数组返回 null
+    @Nullable
+    public static <T> T readValue(@Nullable byte[] src, Class<T> valueType) {
+        if (src == null || src.length == 0) {
+            return null;
+        }
+        return getInstance().readValue(src, valueType);
+    }
 
-  /// Reader 转泛型对象
-  @Nullable
-  public static <T> T readValue(Reader src, TypeReference<T> valueTypeRef) {
-    return getInstance().readValue(src, valueTypeRef);
-  }
+    /// 字节数组转泛型对象
+    @Nullable
+    public static <T> T readValue(@Nullable byte[] src, TypeReference<T> valueTypeRef) {
+        if (src == null || src.length == 0) {
+            return null;
+        }
+        return getInstance().readValue(src, valueTypeRef);
+    }
 
-  /// Reader 转指定类型对象
-  @Nullable
-  public static <T> T readValue(Reader src, JavaType valueType) {
-    return getInstance().readValue(src, valueType);
-  }
+    /// 字节数组转指定类型对象
+    @Nullable
+    public static <T> T readValue(@Nullable byte[] src, JavaType javaType) {
+        if (src == null || src.length == 0) {
+            return null;
+        }
+        return getInstance().readValue(src, javaType);
+    }
 
-  /// 注入 JsonMapper Bean
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    JSON_MAPPER = applicationContext.getBean(JsonMapper.class);
-  }
+    /// InputStream 转对象
+    @Nullable
+    public static <T> T readValue(InputStream src, Class<T> valueType) {
+        return getInstance().readValue(src, valueType);
+    }
 
-  // endregion
+    /// InputStream 转泛型对象
+    @Nullable
+    public static <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) {
+        return getInstance().readValue(src, valueTypeRef);
+    }
+
+    /// InputStream 转指定类型对象
+    @Nullable
+    public static <T> T readValue(InputStream src, JavaType valueType) {
+        return getInstance().readValue(src, valueType);
+    }
+
+    /// Reader 转对象
+    @Nullable
+    public static <T> T readValue(Reader src, Class<T> valueType) {
+        return getInstance().readValue(src, valueType);
+    }
+
+    /// Reader 转泛型对象
+    @Nullable
+    public static <T> T readValue(Reader src, TypeReference<T> valueTypeRef) {
+        return getInstance().readValue(src, valueTypeRef);
+    }
+
+    /// Reader 转指定类型对象
+    @Nullable
+    public static <T> T readValue(Reader src, JavaType valueType) {
+        return getInstance().readValue(src, valueType);
+    }
+
+    /// 注入 JsonMapper Bean
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        JSON_MAPPER = applicationContext.getBean(JsonMapper.class);
+    }
+
+    // endregion
 }

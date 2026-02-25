@@ -8,13 +8,13 @@ package io.github.lishangbu.avalon.web.result;
 /// @since 2025/4/16
 public interface ErrorResultCode {
 
-  /// 获取错误的状态码
-  ///
-  /// @return 返回错误的状态码（Integer 类型）
-  Integer code();
+    /// 获取错误的状态码
+    ///
+    /// @return 返回错误的状态码（Integer 类型）
+    Integer code();
 
-  /// 获取与错误状态码关联的错误信息
-  ///
-  /// @return 返回错误的详细信息（String 类型）
-  String errorMessage();
+    /// 获取与错误状态码关联的错误信息
+    ///
+    /// @return 返回错误的详细信息（String 类型）
+    String errorMessage();
 }

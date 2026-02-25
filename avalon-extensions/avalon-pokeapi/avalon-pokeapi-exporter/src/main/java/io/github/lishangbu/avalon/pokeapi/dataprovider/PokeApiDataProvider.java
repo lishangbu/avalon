@@ -9,10 +9,10 @@ import java.util.List;
 ///
 /// @param <T> 数据实体类型
 public interface PokeApiDataProvider<T> {
-  /// 按 PokeAPI 类型枚举获取数据列表
-  ///
-  /// @param typeEnum 数据类型枚举
-  /// @param type     目标类型 Class
-  /// @return 数据列表
-  List<T> fetch(PokeDataTypeEnum typeEnum, Class<T> type);
+    /// 按 PokeAPI 类型枚举获取数据列表
+    ///
+    /// @param typeEnum 数据类型枚举
+    /// @param type     目标类型 Class
+    /// @return 数据列表
+    List<T> fetch(PokeDataTypeEnum typeEnum, Class<T> type);
 }

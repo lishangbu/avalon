@@ -25,36 +25,39 @@ import org.springframework.util.CollectionUtils;
 @Service
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
-  private final MenuRepository menuRepository;
+    private final MenuRepository menuRepository;
 
-  @Override
-  public List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes) {
-    if (CollectionUtils.isEmpty(roleCodes)) {
-      return Collections.emptyList();
-    }
-    List<Menu> menus = menuRepository.findAllByRoleCodes(roleCodes);
-    log.debug("根据角色编码获取到 [{}] 条菜单记录", menus == null ? 0 : menus.size());
-    return buildTreeFromMenus(menus);
-  }
-
-  /// 将权限实体列表转换为树节点并构建树结构
-  ///
-  /// - 处理空集合，返回不可变空列表
-  /// - 将 Menu 映射为 MenuTreeNode
-  /// - 使用通用的 {@link TreeUtils} 构建树
-  ///
-  /// @param menus 权限实体列表，允许为 null
-  /// @return 树结构的 MenuTreeNode 列表，永远不返回 null
-  /// @see TreeUtils#buildTree(List, Function, Function, BiConsumer)
-  private List<MenuTreeNode> buildTreeFromMenus(List<Menu> menus) {
-    if (CollectionUtils.isEmpty(menus)) {
-      return Collections.emptyList();
+    @Override
+    public List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes) {
+        if (CollectionUtils.isEmpty(roleCodes)) {
+            return Collections.emptyList();
+        }
+        List<Menu> menus = menuRepository.findAllByRoleCodes(roleCodes);
+        log.debug("根据角色编码获取到 [{}] 条菜单记录", menus == null ? 0 : menus.size());
+        return buildTreeFromMenus(menus);
     }
 
-    List<MenuTreeNode> treeNodes =
-        menus.stream().map(MenuTreeNode::new).collect(Collectors.toList());
+    /// 将权限实体列表转换为树节点并构建树结构
+    ///
+    /// - 处理空集合，返回不可变空列表
+    /// - 将 Menu 映射为 MenuTreeNode
+    /// - 使用通用的 {@link TreeUtils} 构建树
+    ///
+    /// @param menus 权限实体列表，允许为 null
+    /// @return 树结构的 MenuTreeNode 列表，永远不返回 null
+    /// @see TreeUtils#buildTree(List, Function, Function, BiConsumer)
+    private List<MenuTreeNode> buildTreeFromMenus(List<Menu> menus) {
+        if (CollectionUtils.isEmpty(menus)) {
+            return Collections.emptyList();
+        }
 
-    return TreeUtils.buildTree(
-        treeNodes, MenuTreeNode::getId, MenuTreeNode::getParentId, MenuTreeNode::setChildren);
-  }
+        List<MenuTreeNode> treeNodes =
+                menus.stream().map(MenuTreeNode::new).collect(Collectors.toList());
+
+        return TreeUtils.buildTree(
+                treeNodes,
+                MenuTreeNode::getId,
+                MenuTreeNode::getParentId,
+                MenuTreeNode::setChildren);
+    }
 }

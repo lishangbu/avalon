@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class PokemonShapeDataProvider
-    extends AbstractPokeApiDataProvider<PokemonShape, PokemonShapeExcelDTO> {
+        extends AbstractPokeApiDataProvider<PokemonShape, PokemonShapeExcelDTO> {
 
-  @Override
-  public PokemonShapeExcelDTO convert(PokemonShape pokemonShape) {
-    PokemonShapeExcelDTO result = new PokemonShapeExcelDTO();
-    result.setId(pokemonShape.id());
-    result.setInternalName(pokemonShape.name());
-    result.setName(resolveLocalizedName(pokemonShape.names(), pokemonShape.name()));
-    return result;
-  }
+    @Override
+    public PokemonShapeExcelDTO convert(PokemonShape pokemonShape) {
+        PokemonShapeExcelDTO result = new PokemonShapeExcelDTO();
+        result.setId(pokemonShape.id());
+        result.setInternalName(pokemonShape.name());
+        result.setName(resolveLocalizedName(pokemonShape.names(), pokemonShape.name()));
+        return result;
+    }
 }

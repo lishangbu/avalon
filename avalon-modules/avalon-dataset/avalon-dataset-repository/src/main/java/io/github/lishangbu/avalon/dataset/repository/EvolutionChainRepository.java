@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface EvolutionChainRepository
-    extends JpaRepository<EvolutionChain, Long>, JpaSpecificationExecutor<EvolutionChain> {}
+        extends JpaRepository<EvolutionChain, Long>, JpaSpecificationExecutor<EvolutionChain> {}

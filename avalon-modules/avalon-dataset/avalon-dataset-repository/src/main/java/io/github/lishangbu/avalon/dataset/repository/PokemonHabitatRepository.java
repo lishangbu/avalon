@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface PokemonHabitatRepository
-    extends JpaRepository<PokemonHabitat, Long>, JpaSpecificationExecutor<PokemonHabitat> {}
+        extends JpaRepository<PokemonHabitat, Long>, JpaSpecificationExecutor<PokemonHabitat> {}

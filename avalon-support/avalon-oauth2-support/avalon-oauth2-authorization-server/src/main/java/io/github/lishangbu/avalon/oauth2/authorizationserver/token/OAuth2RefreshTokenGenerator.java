@@ -17,19 +17,23 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 /// @since 2025/8/22
 public class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<OAuth2RefreshToken> {
 
-  private final StringKeyGenerator refreshTokenGenerator = new UuidKeyGenerator();
+    private final StringKeyGenerator refreshTokenGenerator = new UuidKeyGenerator();
 
-  @Nullable
-  @Override
-  public OAuth2RefreshToken generate(OAuth2TokenContext context) {
-    // @formatter:off
-    if (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {
-      return null;
+    @Nullable
+    @Override
+    public OAuth2RefreshToken generate(OAuth2TokenContext context) {
+        // @formatter:off
+        if (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {
+            return null;
+        }
+        // @formatter:on
+        Instant issuedAt = Instant.now();
+        Instant expiresAt =
+                issuedAt.plus(
+                        context.getRegisteredClient()
+                                .getTokenSettings()
+                                .getRefreshTokenTimeToLive());
+        return new OAuth2RefreshToken(
+                this.refreshTokenGenerator.generateKey(), issuedAt, expiresAt);
     }
-    // @formatter:on
-    Instant issuedAt = Instant.now();
-    Instant expiresAt =
-        issuedAt.plus(context.getRegisteredClient().getTokenSettings().getRefreshTokenTimeToLive());
-    return new OAuth2RefreshToken(this.refreshTokenGenerator.generateKey(), issuedAt, expiresAt);
-  }
 }

@@ -16,13 +16,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 /// @since 2025/8/17
 @AutoConfiguration
 public class JwtDecoderAutoConfiguration {
-  /// An instance of JwtDecoder for decoding signed access tokens.
-  ///
-  /// @param jwkSource JWKSource 实例
-  /// @return JwtDecoder
-  @Bean
-  @ConditionalOnMissingBean
-  public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-    return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-  }
+    /// An instance of JwtDecoder for decoding signed access tokens.
+    ///
+    /// @param jwkSource JWKSource 实例
+    /// @return JwtDecoder
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+    }
 }

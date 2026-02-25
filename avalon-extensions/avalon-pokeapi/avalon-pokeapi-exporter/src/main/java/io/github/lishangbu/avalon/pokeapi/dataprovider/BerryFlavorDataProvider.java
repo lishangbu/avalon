@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/4
 @Service
 public class BerryFlavorDataProvider
-    extends AbstractPokeApiDataProvider<BerryFlavor, BerryFlavorExcelDTO> {
+        extends AbstractPokeApiDataProvider<BerryFlavor, BerryFlavorExcelDTO> {
 
-  @Override
-  public BerryFlavorExcelDTO convert(BerryFlavor berryFlavor) {
-    BerryFlavorExcelDTO result = new BerryFlavorExcelDTO();
-    result.setId(berryFlavor.id());
-    result.setInternalName(berryFlavor.name());
-    result.setName(resolveLocalizedName(berryFlavor.names(), berryFlavor.name()));
-    return result;
-  }
+    @Override
+    public BerryFlavorExcelDTO convert(BerryFlavor berryFlavor) {
+        BerryFlavorExcelDTO result = new BerryFlavorExcelDTO();
+        result.setId(berryFlavor.id());
+        result.setInternalName(berryFlavor.name());
+        result.setName(resolveLocalizedName(berryFlavor.names(), berryFlavor.name()));
+        return result;
+    }
 }

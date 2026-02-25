@@ -19,20 +19,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 /// @since 2026/2/15
 @SpringBootTest(classes = {TestEnvironmentApplication.class})
 class PokemonAbilityDataWriterTest {
-  @Resource private PokeApiDataProvider<PokemonAbilityExcelDTO> pokemonAbilityDataProvider;
+    @Resource private PokeApiDataProvider<PokemonAbilityExcelDTO> pokemonAbilityDataProvider;
 
-  /// 测试写入方法应获取数据并委托给 SheetWriter
-  ///
-  /// 场景：正常写入宝可梦能力数据到 Excel
-  /// 输入：PokeDataTypeEnum.ABILITY 和 PokemonAbilityExcelDTO.class
-  /// 预期：生成 POKEMON_ABILITY.xlsx 文件，无异常抛出
-  @Test
-  void write_shouldFetchAndDelegateToSheetWriter() {
-    FastExcel.write("POKEMON_ABILITY.xlsx", PokemonAbilityExcelDTO.class)
-        .sheet("Sheet1")
-        .doWrite(
-            () ->
-                pokemonAbilityDataProvider.fetch(
-                    PokeDataTypeEnum.ABILITY, PokemonAbilityExcelDTO.class));
-  }
+    /// 测试写入方法应获取数据并委托给 SheetWriter
+    ///
+    /// 场景：正常写入宝可梦能力数据到 Excel
+    /// 输入：PokeDataTypeEnum.ABILITY 和 PokemonAbilityExcelDTO.class
+    /// 预期：生成 POKEMON_ABILITY.xlsx 文件，无异常抛出
+    @Test
+    void write_shouldFetchAndDelegateToSheetWriter() {
+        FastExcel.write("POKEMON_ABILITY.xlsx", PokemonAbilityExcelDTO.class)
+                .sheet("Sheet1")
+                .doWrite(
+                        () ->
+                                pokemonAbilityDataProvider.fetch(
+                                        PokeDataTypeEnum.ABILITY, PokemonAbilityExcelDTO.class));
+    }
 }

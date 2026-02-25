@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatDataProvider extends AbstractPokeApiDataProvider<Stat, StatExcelDTO> {
 
-  @Override
-  public StatExcelDTO convert(Stat stat) {
-    StatExcelDTO result = new StatExcelDTO();
-    result.setId(stat.id());
-    result.setInternalName(stat.name());
-    result.setName(resolveLocalizedName(stat.names(), stat.name()));
-    result.setGameIndex(stat.gameIndex());
-    result.setIsBattleOnly(stat.isBattleOnly());
-    result.setMoveDamageClassId(NamedApiResourceUtils.getId(stat.moveDamageClass()));
-    return result;
-  }
+    @Override
+    public StatExcelDTO convert(Stat stat) {
+        StatExcelDTO result = new StatExcelDTO();
+        result.setId(stat.id());
+        result.setInternalName(stat.name());
+        result.setName(resolveLocalizedName(stat.names(), stat.name()));
+        result.setGameIndex(stat.gameIndex());
+        result.setIsBattleOnly(stat.isBattleOnly());
+        result.setMoveDamageClassId(NamedApiResourceUtils.getId(stat.moveDamageClass()));
+        return result;
+    }
 }

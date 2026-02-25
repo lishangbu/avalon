@@ -10,4 +10,4 @@ import java.util.List;
 /// @see NaturePokeathlonStatAffect
 /// @since 2025/6/8
 public record NaturePokeathlonStatAffectSets(
-    List<NaturePokeathlonStatAffect> increase, List<NaturePokeathlonStatAffect> decrease) {}
+        List<NaturePokeathlonStatAffect> increase, List<NaturePokeathlonStatAffect> decrease) {}

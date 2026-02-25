@@ -28,12 +28,12 @@ import java.util.List;
 /// @see Name
 /// @since 2025/6/8
 public record Stat(
-    Integer id,
-    String name,
-    @JsonProperty("game_index") Integer gameIndex,
-    @JsonProperty("is_battle_only") Boolean isBattleOnly,
-    @JsonProperty("affecting_moves") MoveStatAffectSets affectingMoves,
-    @JsonProperty("affecting_natures") NatureStatAffectSets affectingNatures,
-    List<APIResource<Characteristic>> characteristics,
-    @JsonProperty("move_damage_class") NamedApiResource<MoveDamageClass> moveDamageClass,
-    List<Name> names) {}
+        Integer id,
+        String name,
+        @JsonProperty("game_index") Integer gameIndex,
+        @JsonProperty("is_battle_only") Boolean isBattleOnly,
+        @JsonProperty("affecting_moves") MoveStatAffectSets affectingMoves,
+        @JsonProperty("affecting_natures") NatureStatAffectSets affectingNatures,
+        List<APIResource<Characteristic>> characteristics,
+        @JsonProperty("move_damage_class") NamedApiResource<MoveDamageClass> moveDamageClass,
+        List<Name> names) {}

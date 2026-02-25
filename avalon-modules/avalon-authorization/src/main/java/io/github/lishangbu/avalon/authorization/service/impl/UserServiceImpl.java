@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  /// 根据用户名查询用户详情，包含基本信息、角色信息及个人资料
-  ///
-  /// @param username 用户名
-  /// @return 查询到的用户详情，未找到时返回Optional.empty()
-  @Override
-  public Optional<UserWithRoles> getUserByUsername(String username) {
-    return userRepository.findUserWithRolesByUsername(username).map(UserWithRoles::new);
-  }
+    /// 根据用户名查询用户详情，包含基本信息、角色信息及个人资料
+    ///
+    /// @param username 用户名
+    /// @return 查询到的用户详情，未找到时返回Optional.empty()
+    @Override
+    public Optional<UserWithRoles> getUserByUsername(String username) {
+        return userRepository.findUserWithRolesByUsername(username).map(UserWithRoles::new);
+    }
 }

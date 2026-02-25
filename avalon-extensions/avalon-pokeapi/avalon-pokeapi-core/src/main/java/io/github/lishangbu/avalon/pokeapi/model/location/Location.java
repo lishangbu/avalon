@@ -23,9 +23,9 @@ import java.util.List;
 /// @see LocationArea
 /// @since 2025/5/26
 public record Location(
-    Integer id,
-    String name,
-    NamedApiResource<Region> region,
-    List<Name> names,
-    @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
-    List<NamedApiResource<LocationArea>> areas) {}
+        Integer id,
+        String name,
+        NamedApiResource<Region> region,
+        List<Name> names,
+        @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
+        List<NamedApiResource<LocationArea>> areas) {}

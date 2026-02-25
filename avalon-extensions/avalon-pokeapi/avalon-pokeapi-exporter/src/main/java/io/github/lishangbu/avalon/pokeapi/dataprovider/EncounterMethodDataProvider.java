@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class EncounterMethodDataProvider
-    extends AbstractPokeApiDataProvider<EncounterMethod, EncounterMethodExcelDTO> {
+        extends AbstractPokeApiDataProvider<EncounterMethod, EncounterMethodExcelDTO> {
 
-  @Override
-  public EncounterMethodExcelDTO convert(EncounterMethod encounterMethod) {
-    EncounterMethodExcelDTO result = new EncounterMethodExcelDTO();
-    result.setId(encounterMethod.id());
-    result.setInternalName(encounterMethod.name());
-    result.setName(resolveLocalizedName(encounterMethod.names(), encounterMethod.name()));
-    result.setSortingOrder(encounterMethod.order());
-    return result;
-  }
+    @Override
+    public EncounterMethodExcelDTO convert(EncounterMethod encounterMethod) {
+        EncounterMethodExcelDTO result = new EncounterMethodExcelDTO();
+        result.setId(encounterMethod.id());
+        result.setInternalName(encounterMethod.name());
+        result.setName(resolveLocalizedName(encounterMethod.names(), encounterMethod.name()));
+        result.setSortingOrder(encounterMethod.order());
+        return result;
+    }
 }

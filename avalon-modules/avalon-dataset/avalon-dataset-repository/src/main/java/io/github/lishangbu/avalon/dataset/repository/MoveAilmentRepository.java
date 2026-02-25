@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface MoveAilmentRepository
-    extends JpaRepository<MoveAilment, Long>, JpaSpecificationExecutor<MoveAilment> {}
+        extends JpaRepository<MoveAilment, Long>, JpaSpecificationExecutor<MoveAilment> {}

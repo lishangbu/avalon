@@ -10,32 +10,32 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = S3Properties.PREFIX)
 public class S3Properties {
 
-  /// 配置前缀
-  public static final String PREFIX = "s3";
+    /// 配置前缀
+    public static final String PREFIX = "s3";
 
-  /// 是否启用 S3 对象存储，默认 true
-  private boolean enabled = true;
+    /// 是否启用 S3 对象存储，默认 true
+    private boolean enabled = true;
 
-  /// 对象存储服务的访问地址
-  private String endpoint;
+    /// 对象存储服务的访问地址
+    private String endpoint;
 
-  /// 是否启用 path-style 访问
-  /// - true 表示 pathStyle
-  /// - false 表示 virtual-hosted-style）
-  private Boolean pathStyleAccess = true;
+    /// 是否启用 path-style 访问
+    /// - true 表示 pathStyle
+    /// - false 表示 virtual-hosted-style）
+    private Boolean pathStyleAccess = true;
 
-  /// 是否启用 chunked encoding（某些服务需关闭）
-  private Boolean chunkedEncodingEnabled = false;
+    /// 是否启用 chunked encoding（某些服务需关闭）
+    private Boolean chunkedEncodingEnabled = false;
 
-  /// 区域（region）
-  private String region;
+    /// 区域（region）
+    private String region;
 
-  /// Access Key
-  private String accessKey;
+    /// Access Key
+    private String accessKey;
 
-  /// Secret Key
-  private String secretKey;
+    /// Secret Key
+    private String secretKey;
 
-  /// 默认的 bucket 名称
-  private String bucketName;
+    /// 默认的 bucket 名称
+    private String bucketName;
 }

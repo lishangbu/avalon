@@ -21,20 +21,20 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 @Slf4j
 public class DefaultAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-  @Override
-  public void commence(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      AuthenticationException authException) {
-    log.error(
-        "AuthenticationEntryPoint invoked for request [{}], reason=[{}]",
-        request.getRequestURI(),
-        authException.getMessage());
+    @Override
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException) {
+        log.error(
+                "AuthenticationEntryPoint invoked for request [{}], reason=[{}]",
+                request.getRequestURI(),
+                authException.getMessage());
 
-    JsonResponseWriter.writeFailedResponse(
-        response,
-        HttpStatus.UNAUTHORIZED,
-        SecurityErrorResultCode.UNAUTHORIZED,
-        authException.getMessage());
-  }
+        JsonResponseWriter.writeFailedResponse(
+                response,
+                HttpStatus.UNAUTHORIZED,
+                SecurityErrorResultCode.UNAUTHORIZED,
+                authException.getMessage());
+    }
 }

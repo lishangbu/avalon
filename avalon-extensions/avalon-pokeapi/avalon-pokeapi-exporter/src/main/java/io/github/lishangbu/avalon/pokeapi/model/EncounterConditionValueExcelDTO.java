@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EncounterConditionValueExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 
-  /// 显示名称
-  @ExcelProperty("name")
-  private String name;
+    /// 显示名称
+    @ExcelProperty("name")
+    private String name;
 
-  /// 所属遭遇条件 ID
-  @ExcelProperty("encounter_condition_id")
-  private Integer encounterConditionId;
+    /// 所属遭遇条件 ID
+    @ExcelProperty("encounter_condition_id")
+    private Integer encounterConditionId;
 }

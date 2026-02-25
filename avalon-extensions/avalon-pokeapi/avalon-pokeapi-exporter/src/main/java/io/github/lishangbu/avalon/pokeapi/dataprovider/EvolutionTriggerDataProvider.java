@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class EvolutionTriggerDataProvider
-    extends AbstractPokeApiDataProvider<EvolutionTrigger, EvolutionTriggerExcelDTO> {
+        extends AbstractPokeApiDataProvider<EvolutionTrigger, EvolutionTriggerExcelDTO> {
 
-  @Override
-  public EvolutionTriggerExcelDTO convert(EvolutionTrigger evolutionTrigger) {
-    EvolutionTriggerExcelDTO result = new EvolutionTriggerExcelDTO();
-    result.setId(evolutionTrigger.id());
-    result.setInternalName(evolutionTrigger.name());
-    result.setName(resolveLocalizedName(evolutionTrigger.names(), evolutionTrigger.name()));
-    return result;
-  }
+    @Override
+    public EvolutionTriggerExcelDTO convert(EvolutionTrigger evolutionTrigger) {
+        EvolutionTriggerExcelDTO result = new EvolutionTriggerExcelDTO();
+        result.setId(evolutionTrigger.id());
+        result.setInternalName(evolutionTrigger.name());
+        result.setName(resolveLocalizedName(evolutionTrigger.names(), evolutionTrigger.name()));
+        return result;
+    }
 }

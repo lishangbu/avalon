@@ -8,20 +8,20 @@ import jakarta.annotation.Resource;
 
 class TypeDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<Type> typeDataProvider;
+    @Resource private PokeApiDataProvider<Type> typeDataProvider;
 
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.TYPE;
-  }
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.TYPE;
+    }
 
-  @Override
-  Class<TypeExcelDTO> getExcelClass() {
-    return TypeExcelDTO.class;
-  }
+    @Override
+    Class<TypeExcelDTO> getExcelClass() {
+        return TypeExcelDTO.class;
+    }
 
-  @Override
-  PokeApiDataProvider<Type> getDataProvider() {
-    return typeDataProvider;
-  }
+    @Override
+    PokeApiDataProvider<Type> getDataProvider() {
+        return typeDataProvider;
+    }
 }

@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 /// @since 2025/8/25
 @Service
 public class DefaultClientRegistrationRepository implements ClientRegistrationRepository {
-  @Override
-  public ClientRegistration findByRegistrationId(String registrationId) {
-    return null;
-  }
+    @Override
+    public ClientRegistration findByRegistrationId(String registrationId) {
+        return null;
+    }
 }

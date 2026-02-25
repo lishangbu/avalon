@@ -14,16 +14,16 @@ import org.junit.jupiter.api.Test;
 /// @since 2025/8/20
 class OauthRegisteredClientRepositoryTest extends AbstractRepositoryTest {
 
-  @Resource private Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
+    @Resource private Oauth2RegisteredClientRepository oauth2RegisteredClientRepository;
 
-  @Test
-  void testFindByClientId() {
-    Optional<OauthRegisteredClient> clientOptional =
-        oauth2RegisteredClientRepository.findByClientId("client");
-    Assertions.assertTrue(clientOptional.isPresent());
-    OauthRegisteredClient oauthRegisteredClient = clientOptional.get();
-    Assertions.assertEquals("1", oauthRegisteredClient.getId());
-    Assertions.assertEquals("client", oauthRegisteredClient.getClientId());
-    Assertions.assertEquals("{noop}client", oauthRegisteredClient.getClientSecret());
-  }
+    @Test
+    void testFindByClientId() {
+        Optional<OauthRegisteredClient> clientOptional =
+                oauth2RegisteredClientRepository.findByClientId("client");
+        Assertions.assertTrue(clientOptional.isPresent());
+        OauthRegisteredClient oauthRegisteredClient = clientOptional.get();
+        Assertions.assertEquals("1", oauthRegisteredClient.getId());
+        Assertions.assertEquals("client", oauthRegisteredClient.getClientId());
+        Assertions.assertEquals("{noop}client", oauthRegisteredClient.getClientSecret());
+    }
 }

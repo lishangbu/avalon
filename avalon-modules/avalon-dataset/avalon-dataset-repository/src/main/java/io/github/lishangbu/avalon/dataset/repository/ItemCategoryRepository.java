@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface ItemCategoryRepository
-    extends JpaRepository<ItemCategory, Long>, JpaSpecificationExecutor<ItemCategory> {}
+        extends JpaRepository<ItemCategory, Long>, JpaSpecificationExecutor<ItemCategory> {}

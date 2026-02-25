@@ -14,4 +14,4 @@ import io.github.lishangbu.avalon.pokeapi.model.game.Pokedex;
 /// @see Pokedex
 /// @since 2025/6/8
 public record PokemonSpeciesDexEntry(
-    @JsonProperty("entry_number") Integer entryNumber, NamedApiResource<Pokedex> pokedex) {}
+        @JsonProperty("entry_number") Integer entryNumber, NamedApiResource<Pokedex> pokedex) {}

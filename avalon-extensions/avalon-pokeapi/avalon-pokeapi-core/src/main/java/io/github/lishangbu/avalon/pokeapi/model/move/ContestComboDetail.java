@@ -12,5 +12,5 @@ import java.util.List;
 /// @see Move
 /// @since 2025/6/7
 public record ContestComboDetail(
-    @JsonProperty("use_before") List<NamedApiResource<Move>> useBefore,
-    @JsonProperty("use_after") List<NamedApiResource<Move>> useAfter) {}
+        @JsonProperty("use_before") List<NamedApiResource<Move>> useBefore,
+        @JsonProperty("use_after") List<NamedApiResource<Move>> useAfter) {}

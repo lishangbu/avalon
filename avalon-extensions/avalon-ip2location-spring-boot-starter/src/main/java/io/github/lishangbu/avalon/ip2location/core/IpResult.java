@@ -38,73 +38,73 @@ import net.renfei.ip2location.IPResult;
 /// @author lishangbu
 /// @since 2025/4/12
 public record IpResult(
-    String addressType,
-    String areaCode,
-    String as,
-    String asn,
-    String category,
-    String city,
-    String countryShort,
-    String countryLong,
-    boolean delay,
-    String district,
-    String domain,
-    float elevation,
-    String iddCode,
-    String isp,
-    float latitude,
-    float longitude,
-    String mobileBrand,
-    String mcc,
-    String mnc,
-    String netSpeed,
-    String region,
-    String status,
-    String timezone,
-    String usageType,
-    String version,
-    String weatherStationCode,
-    String weatherStationName,
-    String zipcode) {
+        String addressType,
+        String areaCode,
+        String as,
+        String asn,
+        String category,
+        String city,
+        String countryShort,
+        String countryLong,
+        boolean delay,
+        String district,
+        String domain,
+        float elevation,
+        String iddCode,
+        String isp,
+        float latitude,
+        float longitude,
+        String mobileBrand,
+        String mcc,
+        String mnc,
+        String netSpeed,
+        String region,
+        String status,
+        String timezone,
+        String usageType,
+        String version,
+        String weatherStationCode,
+        String weatherStationName,
+        String zipcode) {
 
-  /// 使用原始的IP查询结果构造一个新的IpResult对象
-  ///
-  /// @param originResult 原始的IP查询结果
-  @ConstructorProperties({
-    "addressType", "areaCode", "as", "asn", "category", "city", "countryShort", "countryLong",
-    "delay", "district", "domain", "elevation", "iddCode", "isp", "latitude", "longitude",
-    "mobileBrand", "mcc", "mnc", "netSpeed", "region", "status", "timezone", "usageType",
-    "version", "weatherStationCode", "weatherStationName", "zipcode"
-  })
-  public IpResult(IPResult originResult) {
-    this(
-        originResult.getAddressType(),
-        originResult.getAreaCode(),
-        originResult.getAS(),
-        originResult.getASN(),
-        originResult.getCategory(),
-        originResult.getCity(),
-        originResult.getCountryShort(),
-        originResult.getCountryLong(),
-        originResult.getDelay(),
-        originResult.getDistrict(),
-        originResult.getDomain(),
-        originResult.getElevation(),
-        originResult.getIDDCode(),
-        originResult.getISP(),
-        originResult.getLatitude(),
-        originResult.getLongitude(),
-        originResult.getMobileBrand(),
-        originResult.getMCC(),
-        originResult.getMNC(),
-        originResult.getNetSpeed(),
-        originResult.getRegion(),
-        originResult.getStatus(),
-        originResult.getTimeZone(),
-        originResult.getUsageType(),
-        originResult.getVersion(),
-        originResult.getWeatherStationCode(),
-        originResult.getWeatherStationName(),
-        originResult.getZipCode());
-  }
+    /// 使用原始的IP查询结果构造一个新的IpResult对象
+    ///
+    /// @param originResult 原始的IP查询结果
+    @ConstructorProperties({
+        "addressType", "areaCode", "as", "asn", "category", "city", "countryShort", "countryLong",
+        "delay", "district", "domain", "elevation", "iddCode", "isp", "latitude", "longitude",
+        "mobileBrand", "mcc", "mnc", "netSpeed", "region", "status", "timezone", "usageType",
+        "version", "weatherStationCode", "weatherStationName", "zipcode"
+    })
+    public IpResult(IPResult originResult) {
+        this(
+                originResult.getAddressType(),
+                originResult.getAreaCode(),
+                originResult.getAS(),
+                originResult.getASN(),
+                originResult.getCategory(),
+                originResult.getCity(),
+                originResult.getCountryShort(),
+                originResult.getCountryLong(),
+                originResult.getDelay(),
+                originResult.getDistrict(),
+                originResult.getDomain(),
+                originResult.getElevation(),
+                originResult.getIDDCode(),
+                originResult.getISP(),
+                originResult.getLatitude(),
+                originResult.getLongitude(),
+                originResult.getMobileBrand(),
+                originResult.getMCC(),
+                originResult.getMNC(),
+                originResult.getNetSpeed(),
+                originResult.getRegion(),
+                originResult.getStatus(),
+                originResult.getTimeZone(),
+                originResult.getUsageType(),
+                originResult.getVersion(),
+                originResult.getWeatherStationCode(),
+                originResult.getWeatherStationName(),
+                originResult.getZipCode());
+    }
 }

@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface EncounterMethodRepository
-    extends JpaRepository<EncounterMethod, Long>, JpaSpecificationExecutor<EncounterMethod> {}
+        extends JpaRepository<EncounterMethod, Long>, JpaSpecificationExecutor<EncounterMethod> {}

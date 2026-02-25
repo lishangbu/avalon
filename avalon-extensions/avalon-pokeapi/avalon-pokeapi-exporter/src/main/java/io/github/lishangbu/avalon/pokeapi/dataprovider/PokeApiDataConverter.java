@@ -8,9 +8,9 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 /// @since 2026/2/5
 @FunctionalInterface
 public interface PokeApiDataConverter<T, R> {
-  /// Applies this function to the given argument.
-  ///
-  /// @param t the function argument
-  /// @return the function result
-  R convert(T t);
+    /// Applies this function to the given argument.
+    ///
+    /// @param t the function argument
+    /// @return the function result
+    R convert(T t);
 }

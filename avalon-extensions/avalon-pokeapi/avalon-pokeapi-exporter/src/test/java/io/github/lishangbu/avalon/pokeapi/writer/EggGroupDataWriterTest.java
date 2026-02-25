@@ -8,20 +8,20 @@ import jakarta.annotation.Resource;
 
 class EggGroupDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<EggGroup> eggGroupDataProvider;
+    @Resource private PokeApiDataProvider<EggGroup> eggGroupDataProvider;
 
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.EGG_GROUP;
-  }
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.EGG_GROUP;
+    }
 
-  @Override
-  Class<EggGroupExcelDTO> getExcelClass() {
-    return EggGroupExcelDTO.class;
-  }
+    @Override
+    Class<EggGroupExcelDTO> getExcelClass() {
+        return EggGroupExcelDTO.class;
+    }
 
-  @Override
-  PokeApiDataProvider<EggGroup> getDataProvider() {
-    return eggGroupDataProvider;
-  }
+    @Override
+    PokeApiDataProvider<EggGroup> getDataProvider() {
+        return eggGroupDataProvider;
+    }
 }

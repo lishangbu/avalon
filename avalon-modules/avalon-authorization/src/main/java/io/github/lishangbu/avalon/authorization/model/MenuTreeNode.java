@@ -17,11 +17,11 @@ import org.springframework.beans.BeanUtils;
 @Setter
 @ToString
 public class MenuTreeNode extends Menu {
-  private List<MenuTreeNode> children;
+    private List<MenuTreeNode> children;
 
-  public MenuTreeNode(Menu menu) {
-    if (menu != null) {
-      BeanUtils.copyProperties(menu, this);
+    public MenuTreeNode(Menu menu) {
+        if (menu != null) {
+            BeanUtils.copyProperties(menu, this);
+        }
     }
-  }
 }

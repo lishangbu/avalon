@@ -17,8 +17,8 @@ import java.util.List;
 /// @see FlavorText
 /// @since 2025/5/23
 public record ContestEffect(
-    Integer id,
-    Integer appeal,
-    Integer jam,
-    @JsonProperty("effect_entries") List<Effect> effectEntries,
-    @JsonProperty("flavor_text_entries") List<FlavorText> flavorTextEntries) {}
+        Integer id,
+        Integer appeal,
+        Integer jam,
+        @JsonProperty("effect_entries") List<Effect> effectEntries,
+        @JsonProperty("flavor_text_entries") List<FlavorText> flavorTextEntries) {}

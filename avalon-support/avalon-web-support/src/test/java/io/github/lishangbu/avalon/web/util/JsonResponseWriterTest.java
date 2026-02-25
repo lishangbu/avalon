@@ -24,61 +24,61 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class JsonResponseWriterTest {
-  private HttpServletResponse response;
-  private StringWriter stringWriter;
-  private PrintWriter printWriter;
+    private HttpServletResponse response;
+    private StringWriter stringWriter;
+    private PrintWriter printWriter;
 
-  @BeforeEach
-  void setUp() throws IOException {
-    response = Mockito.mock(HttpServletResponse.class);
-    stringWriter = new StringWriter();
-    printWriter = new PrintWriter(stringWriter);
-    Mockito.when(response.getWriter()).thenReturn(printWriter);
-  }
+    @BeforeEach
+    void setUp() throws IOException {
+        response = Mockito.mock(HttpServletResponse.class);
+        stringWriter = new StringWriter();
+        printWriter = new PrintWriter(stringWriter);
+        Mockito.when(response.getWriter()).thenReturn(printWriter);
+    }
 
-  /// 测试成功响应写入，包含数据
-  @Test
-  void testWriteSuccessResponseWithData() {
-    JsonResponseWriter.writeSuccessResponse(response, "ok");
-    printWriter.flush();
-    String result = stringWriter.toString();
-    Assertions.assertTrue(result.contains("\"data\":\"ok\""));
-    Mockito.verify(response).setStatus(HttpStatus.OK.value());
-    Mockito.verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
-    Mockito.verify(response).setCharacterEncoding(StandardCharsets.UTF_8.name());
-  }
+    /// 测试成功响应写入，包含数据
+    @Test
+    void testWriteSuccessResponseWithData() {
+        JsonResponseWriter.writeSuccessResponse(response, "ok");
+        printWriter.flush();
+        String result = stringWriter.toString();
+        Assertions.assertTrue(result.contains("\"data\":\"ok\""));
+        Mockito.verify(response).setStatus(HttpStatus.OK.value());
+        Mockito.verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
+        Mockito.verify(response).setCharacterEncoding(StandardCharsets.UTF_8.name());
+    }
 
-  /// 测试成功响应写入，无数据
-  @Test
-  void testWriteSuccessResponseWithoutData() {
-    JsonResponseWriter.writeSuccessResponse(response);
-    printWriter.flush();
-    String result = stringWriter.toString();
-    Assertions.assertTrue(result.contains("\"data\":null"));
-    Mockito.verify(response).setStatus(HttpStatus.OK.value());
-  }
+    /// 测试成功响应写入，无数据
+    @Test
+    void testWriteSuccessResponseWithoutData() {
+        JsonResponseWriter.writeSuccessResponse(response);
+        printWriter.flush();
+        String result = stringWriter.toString();
+        Assertions.assertTrue(result.contains("\"data\":null"));
+        Mockito.verify(response).setStatus(HttpStatus.OK.value());
+    }
 
-  /// 测试失败响应写入
-  @Test
-  void testWriteFailedResponse() {
-    ErrorResultCode errorCode = DefaultErrorResultCode.SERVER_ERROR;
-    JsonResponseWriter.writeFailedResponse(response, HttpStatus.BAD_REQUEST, errorCode, "错误信息");
-    printWriter.flush();
-    String result = stringWriter.toString();
-    Assertions.assertTrue(result.contains(Integer.toString(500)));
-    Assertions.assertTrue(result.contains("错误信息"));
-    Mockito.verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
-  }
+    /// 测试失败响应写入
+    @Test
+    void testWriteFailedResponse() {
+        ErrorResultCode errorCode = DefaultErrorResultCode.SERVER_ERROR;
+        JsonResponseWriter.writeFailedResponse(response, HttpStatus.BAD_REQUEST, errorCode, "错误信息");
+        printWriter.flush();
+        String result = stringWriter.toString();
+        Assertions.assertTrue(result.contains(Integer.toString(500)));
+        Assertions.assertTrue(result.contains("错误信息"));
+        Mockito.verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
+    }
 
-  /// 测试写入异常处理
-  @Test
-  void testWriteSuccessResponseIOException() throws IOException {
-    HttpServletResponse errorResponse = Mockito.mock(HttpServletResponse.class);
-    Mockito.when(errorResponse.getWriter()).thenThrow(new IOException("mock error"));
-    Assertions.assertThrows(
-        RuntimeException.class,
-        () -> {
-          JsonResponseWriter.writeSuccessResponse(errorResponse, "fail");
-        });
-  }
+    /// 测试写入异常处理
+    @Test
+    void testWriteSuccessResponseIOException() throws IOException {
+        HttpServletResponse errorResponse = Mockito.mock(HttpServletResponse.class);
+        Mockito.when(errorResponse.getWriter()).thenThrow(new IOException("mock error"));
+        Assertions.assertThrows(
+                RuntimeException.class,
+                () -> {
+                    JsonResponseWriter.writeSuccessResponse(errorResponse, "fail");
+                });
+    }
 }

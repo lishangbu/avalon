@@ -11,4 +11,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see Pokemon
 /// @since 2025/6/8
 public record PokemonSpeciesVariety(
-    @JsonProperty("is_default") Boolean isDefault, NamedApiResource<Pokemon> pokemon) {}
+        @JsonProperty("is_default") Boolean isDefault, NamedApiResource<Pokemon> pokemon) {}

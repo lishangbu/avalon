@@ -24,10 +24,10 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/6/7
 public record PastMoveStatValues(
-    Integer accuracy,
-    @JsonProperty("effect_chance") Integer effectChance,
-    Integer power,
-    Integer pp,
-    @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
-    NamedApiResource<Type> type,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        Integer accuracy,
+        @JsonProperty("effect_chance") Integer effectChance,
+        Integer power,
+        Integer pp,
+        @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
+        NamedApiResource<Type> type,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}

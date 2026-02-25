@@ -19,23 +19,23 @@ import lombok.Data;
 @Entity
 @Table(comment = "遭遇方法")
 public class EncounterMethod implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 方法名称
-  @Column(comment = "方法名称", length = 100)
-  private String name;
+    /// 方法名称
+    @Column(comment = "方法名称", length = 100)
+    private String name;
 
-  /// 排序顺序
-  @Column(comment = "排序顺序")
-  private Integer sortingOrder;
+    /// 排序顺序
+    @Column(comment = "排序顺序")
+    private Integer sortingOrder;
 }

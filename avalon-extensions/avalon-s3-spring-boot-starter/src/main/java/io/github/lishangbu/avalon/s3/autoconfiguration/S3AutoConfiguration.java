@@ -18,20 +18,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties({S3Properties.class})
 public class S3AutoConfiguration {
-  /// S3 操作模板
-  ///
-  /// 在未定义自定义 `S3Template` Bean 时，基于 `S3Properties` 创建默认实现
-  ///
-  /// @param properties S3 配置项
-  /// @return 默认的 `S3Template` 实例
-  @Bean
-  @ConditionalOnMissingBean(S3Template.class)
-  @ConditionalOnProperty(
-      prefix = S3Properties.PREFIX,
-      name = "enabled",
-      havingValue = "true",
-      matchIfMissing = true)
-  public S3Template s3Template(S3Properties properties) {
-    return new S3Template(properties);
-  }
+    /// S3 操作模板
+    ///
+    /// 在未定义自定义 `S3Template` Bean 时，基于 `S3Properties` 创建默认实现
+    ///
+    /// @param properties S3 配置项
+    /// @return 默认的 `S3Template` 实例
+    @Bean
+    @ConditionalOnMissingBean(S3Template.class)
+    @ConditionalOnProperty(
+            prefix = S3Properties.PREFIX,
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
+    public S3Template s3Template(S3Properties properties) {
+        return new S3Template(properties);
+    }
 }

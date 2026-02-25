@@ -25,12 +25,12 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/5/24
 public record Generation(
-    Integer id,
-    String name,
-    List<NamedApiResource<?>> abilities,
-    List<Name> names,
-    @JsonProperty("main_region") NamedApiResource<?> mainRegion,
-    List<NamedApiResource<?>> moves,
-    @JsonProperty("pokemon_species") List<NamedApiResource<?>> pokemonSpecies,
-    List<NamedApiResource<Type>> types,
-    @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        Integer id,
+        String name,
+        List<NamedApiResource<?>> abilities,
+        List<Name> names,
+        @JsonProperty("main_region") NamedApiResource<?> mainRegion,
+        List<NamedApiResource<?>> moves,
+        @JsonProperty("pokemon_species") List<NamedApiResource<?>> pokemonSpecies,
+        List<NamedApiResource<Type>> types,
+        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}

@@ -16,39 +16,39 @@ import lombok.Data;
 @Entity
 @Table(comment = "性格")
 public class Nature implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 显示名称
-  @Column(comment = "显示名称", length = 100)
-  private String name;
+    /// 显示名称
+    @Column(comment = "显示名称", length = 100)
+    private String name;
 
-  /// 降低 10% 的属性
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "decreased_stat_id", comment = "降低 10% 的属性")
-  private Stat decreasedStat;
+    /// 降低 10% 的属性
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "decreased_stat_id", comment = "降低 10% 的属性")
+    private Stat decreasedStat;
 
-  /// 增加 10% 的属性
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "increased_stat_id", comment = "增加 10% 的属性")
-  private Stat increasedStat;
+    /// 增加 10% 的属性
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "increased_stat_id", comment = "增加 10% 的属性")
+    private Stat increasedStat;
 
-  /// 讨厌的口味
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "hates_berry_flavor_id", comment = "讨厌的口味")
-  private BerryFlavor hatesFlavor;
+    /// 讨厌的口味
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "hates_berry_flavor_id", comment = "讨厌的口味")
+    private BerryFlavor hatesFlavor;
 
-  /// 喜欢的口味
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "likes_berry_flavor_id", comment = "喜欢的口味")
-  private BerryFlavor likesFlavor;
+    /// 喜欢的口味
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "likes_berry_flavor_id", comment = "喜欢的口味")
+    private BerryFlavor likesFlavor;
 }

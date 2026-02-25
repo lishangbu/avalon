@@ -12,4 +12,4 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /// @see ContestComboDetail
 /// @since 2025/6/7
 public record ContestComboSets(
-    ContestComboDetail normal, @JsonProperty("super") ContestComboDetail superCombo) {}
+        ContestComboDetail normal, @JsonProperty("super") ContestComboDetail superCombo) {}

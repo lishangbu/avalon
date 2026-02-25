@@ -19,23 +19,23 @@ import lombok.Data;
 @Entity
 @Table(comment = "招式分类")
 public class MoveCategory implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 招式分类内部名称
-  @Column(comment = "招式分类内部名称", length = 100)
-  private String internalName;
+    /// 招式分类内部名称
+    @Column(comment = "招式分类内部名称", length = 100)
+    private String internalName;
 
-  /// 招式分类名称
-  @Column(comment = "招式分类名称", length = 100)
-  private String name;
+    /// 招式分类名称
+    @Column(comment = "招式分类名称", length = 100)
+    private String name;
 
-  /// 招式分类描述
-  @Column(comment = "招式分类描述", length = 300)
-  private String description;
+    /// 招式分类描述
+    @Column(comment = "招式分类描述", length = 300)
+    private String description;
 }

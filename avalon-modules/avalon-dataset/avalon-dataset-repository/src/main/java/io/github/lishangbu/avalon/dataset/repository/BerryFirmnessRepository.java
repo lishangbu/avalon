@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface BerryFirmnessRepository
-    extends JpaRepository<BerryFirmness, Long>, JpaSpecificationExecutor<BerryFirmness> {}
+        extends JpaRepository<BerryFirmness, Long>, JpaSpecificationExecutor<BerryFirmness> {}

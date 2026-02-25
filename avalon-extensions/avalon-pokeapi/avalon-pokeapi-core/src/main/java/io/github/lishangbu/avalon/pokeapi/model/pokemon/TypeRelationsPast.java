@@ -10,5 +10,5 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @author lishangbu
 /// @since 2025/5/20
 public record TypeRelationsPast<T>(
-    NamedApiResource<?> generation,
-    @JsonProperty("damage_relations") TypeRelations damageRelations) {}
+        NamedApiResource<?> generation,
+        @JsonProperty("damage_relations") TypeRelations damageRelations) {}

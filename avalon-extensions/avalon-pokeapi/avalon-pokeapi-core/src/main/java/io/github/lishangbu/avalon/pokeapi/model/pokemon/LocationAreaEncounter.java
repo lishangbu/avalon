@@ -17,5 +17,5 @@ import java.util.List;
 /// @see VersionEncounterDetail
 /// @since 2025/6/8
 public record LocationAreaEncounter(
-    @JsonProperty("location_area") NamedApiResource<LocationArea> locationArea,
-    @JsonProperty("version_details") List<VersionEncounterDetail> versionDetails) {}
+        @JsonProperty("location_area") NamedApiResource<LocationArea> locationArea,
+        @JsonProperty("version_details") List<VersionEncounterDetail> versionDetails) {}

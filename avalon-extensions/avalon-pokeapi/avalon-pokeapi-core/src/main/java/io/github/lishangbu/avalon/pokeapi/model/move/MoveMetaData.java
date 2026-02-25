@@ -24,15 +24,15 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see MoveCategory
 /// @since 2025/6/7
 public record MoveMetaData(
-    NamedApiResource<MoveAilment> ailment,
-    NamedApiResource<MoveCategory> category,
-    @JsonProperty("min_hits") Integer minHits,
-    @JsonProperty("max_hits") Integer maxHits,
-    @JsonProperty("min_turns") Integer minTurns,
-    @JsonProperty("max_turns") Integer maxTurns,
-    Integer drain,
-    Integer healing,
-    @JsonProperty("crit_rate") Integer critRate,
-    @JsonProperty("ailment_chance") Integer ailmentChance,
-    @JsonProperty("flinch_chance") Integer flinchChance,
-    @JsonProperty("stat_chance") Integer statChance) {}
+        NamedApiResource<MoveAilment> ailment,
+        NamedApiResource<MoveCategory> category,
+        @JsonProperty("min_hits") Integer minHits,
+        @JsonProperty("max_hits") Integer maxHits,
+        @JsonProperty("min_turns") Integer minTurns,
+        @JsonProperty("max_turns") Integer maxTurns,
+        Integer drain,
+        Integer healing,
+        @JsonProperty("crit_rate") Integer critRate,
+        @JsonProperty("ailment_chance") Integer ailmentChance,
+        @JsonProperty("flinch_chance") Integer flinchChance,
+        @JsonProperty("stat_chance") Integer statChance) {}

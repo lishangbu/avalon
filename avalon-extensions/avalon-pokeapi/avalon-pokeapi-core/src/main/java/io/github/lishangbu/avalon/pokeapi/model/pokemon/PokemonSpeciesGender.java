@@ -10,5 +10,5 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @author lishangbu
 /// @since 2025/6/8
 public record PokemonSpeciesGender(
-    Integer rate,
-    @JsonProperty("pokemon_species") NamedApiResource<PokemonSpecies> pokemonSpecies) {}
+        Integer rate,
+        @JsonProperty("pokemon_species") NamedApiResource<PokemonSpecies> pokemonSpecies) {}

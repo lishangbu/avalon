@@ -16,53 +16,53 @@ import lombok.Data;
 @Entity
 @Table(comment = "树果")
 public class Berry implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 名称
-  @Column(comment = "名称", length = 100)
-  private String name;
+    /// 名称
+    @Column(comment = "名称", length = 100)
+    private String name;
 
-  /// 生长到下一个阶段所需的时间(小时)
-  @Column(comment = "生长到下一个阶段所需的时间(小时)")
-  private Integer growthTime;
+    /// 生长到下一个阶段所需的时间(小时)
+    @Column(comment = "生长到下一个阶段所需的时间(小时)")
+    private Integer growthTime;
 
-  /// 最大结果数
-  @Column(comment = "最大结果数")
-  private Integer maxHarvest;
+    /// 最大结果数
+    @Column(comment = "最大结果数")
+    private Integer maxHarvest;
 
-  /// 树果大小（毫米）
-  @Column(comment = "树果大小（毫米）")
-  private Integer bulk;
+    /// 树果大小（毫米）
+    @Column(comment = "树果大小（毫米）")
+    private Integer bulk;
 
-  /// 光滑度
-  @Column(comment = "光滑度")
-  private Integer smoothness;
+    /// 光滑度
+    @Column(comment = "光滑度")
+    private Integer smoothness;
 
-  /// 生长时使土壤干燥的速度，数值越高土壤干燥越快
-  @Column(comment = "生长时使土壤干燥的速度，数值越高土壤干燥越快")
-  private Integer soilDryness;
+    /// 生长时使土壤干燥的速度，数值越高土壤干燥越快
+    @Column(comment = "生长时使土壤干燥的速度，数值越高土壤干燥越快")
+    private Integer soilDryness;
 
-  /// 树果的坚硬度
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "berry_firmness_id", comment = "树果的坚硬度")
-  private BerryFirmness berryFirmness;
+    /// 树果的坚硬度
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "berry_firmness_id", comment = "树果的坚硬度")
+    private BerryFirmness berryFirmness;
 
-  /// 搭配该树果使用“自然之恩”招式时继承的属性类型
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "natural_gift_type_id", comment = "搭配该树果使用“自然之恩”招式时继承的属性类型")
-  private Type naturalGiftType;
+    /// 搭配该树果使用“自然之恩”招式时继承的属性类型
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "natural_gift_type_id", comment = "搭配该树果使用“自然之恩”招式时继承的属性类型")
+    private Type naturalGiftType;
 
-  /// 搭配该树果使用“自然之恩”招式时的威力
-  @Column(comment = "搭配该树果使用“自然之恩”招式时的威力")
-  private Integer naturalGiftPower;
+    /// 搭配该树果使用“自然之恩”招式时的威力
+    @Column(comment = "搭配该树果使用“自然之恩”招式时的威力")
+    private Integer naturalGiftPower;
 }

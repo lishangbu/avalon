@@ -14,6 +14,6 @@ import io.github.lishangbu.avalon.pokeapi.model.item.Item;
 /// @see Item
 /// @since 2025/5/24
 public record EvolutionChain(
-    Integer id,
-    @JsonProperty("baby_trigger_item") NamedApiResource<Item> babyTriggerItem,
-    ChainLink chain) {}
+        Integer id,
+        @JsonProperty("baby_trigger_item") NamedApiResource<Item> babyTriggerItem,
+        ChainLink chain) {}

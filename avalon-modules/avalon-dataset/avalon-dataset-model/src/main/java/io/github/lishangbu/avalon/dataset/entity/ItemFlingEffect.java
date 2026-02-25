@@ -19,23 +19,23 @@ import lombok.Data;
 @Entity
 @Table(comment = "道具投掷效果")
 public class ItemFlingEffect implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 道具投掷效果名称
-  @Column(comment = "道具投掷效果名称", length = 100)
-  private String name;
+    /// 道具投掷效果名称
+    @Column(comment = "道具投掷效果名称", length = 100)
+    private String name;
 
-  /// 道具效果
-  @Column(comment = "道具效果", length = 100)
-  private String effect;
+    /// 道具效果
+    @Column(comment = "道具效果", length = 100)
+    private String effect;
 }

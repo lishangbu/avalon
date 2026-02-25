@@ -17,34 +17,38 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/16
 @Service
 public class ItemAttributeRelationDataProvider
-    implements PokeApiDataProvider<ItemAttributeRelationExcelDTO> {
-  @Autowired protected PokeApiService pokeApiService;
+        implements PokeApiDataProvider<ItemAttributeRelationExcelDTO> {
+    @Autowired protected PokeApiService pokeApiService;
 
-  @Override
-  public List<ItemAttributeRelationExcelDTO> fetch(
-      PokeDataTypeEnum typeEnum, Class<ItemAttributeRelationExcelDTO> type) {
-    NamedAPIResourceList namedAPIResourceList =
-        pokeApiService.listNamedAPIResources(PokeDataTypeEnum.ITEM);
-    List<ItemAttributeRelationExcelDTO> result = new ArrayList<>();
-    namedAPIResourceList
-        .results()
-        .forEach(
-            namedApiResource -> {
-              Item item =
-                  (Item)
-                      pokeApiService.getEntityFromUri(
-                          PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(namedApiResource));
-              result.addAll(
-                  item.attributes().stream()
-                      .map(
-                          itemAttribute -> {
-                            ItemAttributeRelationExcelDTO tmp = new ItemAttributeRelationExcelDTO();
-                            tmp.setAttributeId(NamedApiResourceUtils.getId(itemAttribute));
-                            tmp.setItemId(item.id());
-                            return tmp;
-                          })
-                      .toList());
-            });
-    return result;
-  }
+    @Override
+    public List<ItemAttributeRelationExcelDTO> fetch(
+            PokeDataTypeEnum typeEnum, Class<ItemAttributeRelationExcelDTO> type) {
+        NamedAPIResourceList namedAPIResourceList =
+                pokeApiService.listNamedAPIResources(PokeDataTypeEnum.ITEM);
+        List<ItemAttributeRelationExcelDTO> result = new ArrayList<>();
+        namedAPIResourceList
+                .results()
+                .forEach(
+                        namedApiResource -> {
+                            Item item =
+                                    (Item)
+                                            pokeApiService.getEntityFromUri(
+                                                    PokeDataTypeEnum.ITEM,
+                                                    NamedApiResourceUtils.getId(namedApiResource));
+                            result.addAll(
+                                    item.attributes().stream()
+                                            .map(
+                                                    itemAttribute -> {
+                                                        ItemAttributeRelationExcelDTO tmp =
+                                                                new ItemAttributeRelationExcelDTO();
+                                                        tmp.setAttributeId(
+                                                                NamedApiResourceUtils.getId(
+                                                                        itemAttribute));
+                                                        tmp.setItemId(item.id());
+                                                        return tmp;
+                                                    })
+                                            .toList());
+                        });
+        return result;
+    }
 }

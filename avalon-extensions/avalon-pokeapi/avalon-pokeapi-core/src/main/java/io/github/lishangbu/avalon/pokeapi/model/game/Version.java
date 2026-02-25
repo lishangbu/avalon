@@ -18,7 +18,7 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/5/24
 public record Version(
-    Integer id,
-    String name,
-    List<Name> names,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        Integer id,
+        String name,
+        List<Name> names,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}

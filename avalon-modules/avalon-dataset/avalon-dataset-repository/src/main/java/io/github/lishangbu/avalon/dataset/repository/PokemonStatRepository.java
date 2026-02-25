@@ -12,4 +12,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/16
 @Repository
 public interface PokemonStatRepository
-    extends JpaRepository<PokemonStat, PokemonStat.PokemonStatId> {}
+        extends JpaRepository<PokemonStat, PokemonStat.PokemonStatId> {}

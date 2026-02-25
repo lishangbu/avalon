@@ -10,7 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 /// @since 2025/8/21
 public class InvalidCaptchaException extends AuthenticationException {
 
-  public InvalidCaptchaException(String msg) {
-    super(msg);
-  }
+    public InvalidCaptchaException(String msg) {
+        super(msg);
+    }
 }

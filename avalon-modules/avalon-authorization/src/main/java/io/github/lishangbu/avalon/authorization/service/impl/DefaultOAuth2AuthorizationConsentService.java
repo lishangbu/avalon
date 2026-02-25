@@ -23,76 +23,79 @@ import org.springframework.util.StringUtils;
 /// @since 2025/8/17
 @Service
 public class DefaultOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
-  private final OauthAuthorizationConsentRepository oauth2AuthorizationConsentMapper;
-  private final RegisteredClientRepository registeredClientRepository;
+    private final OauthAuthorizationConsentRepository oauth2AuthorizationConsentMapper;
+    private final RegisteredClientRepository registeredClientRepository;
 
-  public DefaultOAuth2AuthorizationConsentService(
-      OauthAuthorizationConsentRepository authorizationConsentMapper,
-      RegisteredClientRepository registeredClientRepository) {
-    Assert.notNull(authorizationConsentMapper, "authorizationConsentMapper cannot be null");
-    Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
-    this.oauth2AuthorizationConsentMapper = authorizationConsentMapper;
-    this.registeredClientRepository = registeredClientRepository;
-  }
-
-  @Override
-  public void save(OAuth2AuthorizationConsent authorizationConsent) {
-    Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
-    this.oauth2AuthorizationConsentMapper.save(toEntity(authorizationConsent));
-  }
-
-  @Override
-  public void remove(OAuth2AuthorizationConsent authorizationConsent) {
-    Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
-    this.oauth2AuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
-        authorizationConsent.getRegisteredClientId(), authorizationConsent.getPrincipalName());
-  }
-
-  @Override
-  public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
-    Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
-    Assert.hasText(principalName, "principalName cannot be empty");
-    return this.oauth2AuthorizationConsentMapper
-        .findByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
-        .map(this::toObject)
-        .orElse(null);
-  }
-
-  private OAuth2AuthorizationConsent toObject(OauthAuthorizationConsent oauthAuthorizationConsent) {
-    String registeredClientId = oauthAuthorizationConsent.getRegisteredClientId();
-    RegisteredClient registeredClient =
-        this.registeredClientRepository.findById(registeredClientId);
-    if (registeredClient == null) {
-      throw new DataRetrievalFailureException(
-          "The RegisteredClient with id '"
-              + registeredClientId
-              + "' was not found in the OauthRegisteredClientRepository.");
+    public DefaultOAuth2AuthorizationConsentService(
+            OauthAuthorizationConsentRepository authorizationConsentMapper,
+            RegisteredClientRepository registeredClientRepository) {
+        Assert.notNull(authorizationConsentMapper, "authorizationConsentMapper cannot be null");
+        Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
+        this.oauth2AuthorizationConsentMapper = authorizationConsentMapper;
+        this.registeredClientRepository = registeredClientRepository;
     }
 
-    OAuth2AuthorizationConsent.Builder builder =
-        OAuth2AuthorizationConsent.withId(
-            registeredClientId, oauthAuthorizationConsent.getPrincipalName());
-    if (oauthAuthorizationConsent.getAuthorities() != null) {
-      for (String authority :
-          StringUtils.commaDelimitedListToSet(oauthAuthorizationConsent.getAuthorities())) {
-        builder.authority(new SimpleGrantedAuthority(authority));
-      }
+    @Override
+    public void save(OAuth2AuthorizationConsent authorizationConsent) {
+        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
+        this.oauth2AuthorizationConsentMapper.save(toEntity(authorizationConsent));
     }
 
-    return builder.build();
-  }
-
-  private OauthAuthorizationConsent toEntity(OAuth2AuthorizationConsent authorizationConsent) {
-    OauthAuthorizationConsent entity = new OauthAuthorizationConsent();
-    entity.setRegisteredClientId(authorizationConsent.getRegisteredClientId());
-    entity.setPrincipalName(authorizationConsent.getPrincipalName());
-
-    Set<String> authorities = new HashSet<>();
-    for (GrantedAuthority authority : authorizationConsent.getAuthorities()) {
-      authorities.add(authority.getAuthority());
+    @Override
+    public void remove(OAuth2AuthorizationConsent authorizationConsent) {
+        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
+        this.oauth2AuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
+                authorizationConsent.getRegisteredClientId(),
+                authorizationConsent.getPrincipalName());
     }
-    entity.setAuthorities(StringUtils.collectionToCommaDelimitedString(authorities));
 
-    return entity;
-  }
+    @Override
+    public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
+        Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
+        Assert.hasText(principalName, "principalName cannot be empty");
+        return this.oauth2AuthorizationConsentMapper
+                .findByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
+                .map(this::toObject)
+                .orElse(null);
+    }
+
+    private OAuth2AuthorizationConsent toObject(
+            OauthAuthorizationConsent oauthAuthorizationConsent) {
+        String registeredClientId = oauthAuthorizationConsent.getRegisteredClientId();
+        RegisteredClient registeredClient =
+                this.registeredClientRepository.findById(registeredClientId);
+        if (registeredClient == null) {
+            throw new DataRetrievalFailureException(
+                    "The RegisteredClient with id '"
+                            + registeredClientId
+                            + "' was not found in the OauthRegisteredClientRepository.");
+        }
+
+        OAuth2AuthorizationConsent.Builder builder =
+                OAuth2AuthorizationConsent.withId(
+                        registeredClientId, oauthAuthorizationConsent.getPrincipalName());
+        if (oauthAuthorizationConsent.getAuthorities() != null) {
+            for (String authority :
+                    StringUtils.commaDelimitedListToSet(
+                            oauthAuthorizationConsent.getAuthorities())) {
+                builder.authority(new SimpleGrantedAuthority(authority));
+            }
+        }
+
+        return builder.build();
+    }
+
+    private OauthAuthorizationConsent toEntity(OAuth2AuthorizationConsent authorizationConsent) {
+        OauthAuthorizationConsent entity = new OauthAuthorizationConsent();
+        entity.setRegisteredClientId(authorizationConsent.getRegisteredClientId());
+        entity.setPrincipalName(authorizationConsent.getPrincipalName());
+
+        Set<String> authorities = new HashSet<>();
+        for (GrantedAuthority authority : authorizationConsent.getAuthorities()) {
+            authorities.add(authority.getAuthority());
+        }
+        entity.setAuthorities(StringUtils.collectionToCommaDelimitedString(authorities));
+
+        return entity;
+    }
 }

@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface AbilityRepository
-    extends JpaRepository<Ability, Long>, JpaSpecificationExecutor<Ability> {}
+        extends JpaRepository<Ability, Long>, JpaSpecificationExecutor<Ability> {}

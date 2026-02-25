@@ -13,31 +13,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NatureExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 
-  /// 显示名称
-  @ExcelProperty("name")
-  private String name;
+    /// 显示名称
+    @ExcelProperty("name")
+    private String name;
 
-  /// 降低 10% 的属性 ID
-  @ExcelProperty("decreased_stat_id")
-  private Integer decreasedStatId;
+    /// 降低 10% 的属性 ID
+    @ExcelProperty("decreased_stat_id")
+    private Integer decreasedStatId;
 
-  /// 增加 10% 的属性 ID
-  @ExcelProperty("increased_stat_id")
-  private Integer increasedStatId;
+    /// 增加 10% 的属性 ID
+    @ExcelProperty("increased_stat_id")
+    private Integer increasedStatId;
 
-  /// 讨厌的口味 ID
-  @ExcelProperty("hates_berry_flavor_id")
-  private Integer hatesFlavorId;
+    /// 讨厌的口味 ID
+    @ExcelProperty("hates_berry_flavor_id")
+    private Integer hatesFlavorId;
 
-  /// 喜欢的口味 ID
-  @ExcelProperty("likes_berry_flavor_id")
-  private Integer likesFlavorId;
+    /// 喜欢的口味 ID
+    @ExcelProperty("likes_berry_flavor_id")
+    private Integer likesFlavorId;
 }

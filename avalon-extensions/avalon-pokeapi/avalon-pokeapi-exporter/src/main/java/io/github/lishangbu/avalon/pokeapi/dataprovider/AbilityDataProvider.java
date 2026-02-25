@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AbilityDataProvider extends AbstractPokeApiDataProvider<Ability, AbilityExcelDTO> {
 
-  @Override
-  public AbilityExcelDTO convert(Ability ability) {
-    AbilityExcelDTO result = new AbilityExcelDTO();
-    result.setId(ability.id());
-    result.setInternalName(ability.name());
-    result.setName(resolveLocalizedName(ability.names(), ability.name()));
-    LocalizationUtils.getLocalizationAbilityFlavorText(ability.flavorTextEntries())
-        .ifPresent(
-            abilityFlavorText -> {
-              result.setIntroduction(abilityFlavorText.flavorText());
-            });
-    result.setEffect(resolveLocalizedVerboseEffect(ability.effectEntries()));
-    return result;
-  }
+    @Override
+    public AbilityExcelDTO convert(Ability ability) {
+        AbilityExcelDTO result = new AbilityExcelDTO();
+        result.setId(ability.id());
+        result.setInternalName(ability.name());
+        result.setName(resolveLocalizedName(ability.names(), ability.name()));
+        LocalizationUtils.getLocalizationAbilityFlavorText(ability.flavorTextEntries())
+                .ifPresent(
+                        abilityFlavorText -> {
+                            result.setIntroduction(abilityFlavorText.flavorText());
+                        });
+        result.setEffect(resolveLocalizedVerboseEffect(ability.effectEntries()));
+        return result;
+    }
 }

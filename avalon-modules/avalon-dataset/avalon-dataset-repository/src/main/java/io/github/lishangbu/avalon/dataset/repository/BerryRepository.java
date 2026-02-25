@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface BerryRepository
-    extends JpaRepository<Berry, Long>, JpaSpecificationExecutor<Berry> {}
+        extends JpaRepository<Berry, Long>, JpaSpecificationExecutor<Berry> {}

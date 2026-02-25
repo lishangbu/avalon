@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface MachineRepository
-    extends JpaRepository<Machine, Long>, JpaSpecificationExecutor<Machine> {}
+        extends JpaRepository<Machine, Long>, JpaSpecificationExecutor<Machine> {}

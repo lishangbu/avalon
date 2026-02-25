@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 public class PokeDataComponentAutoConfiguration {
 
-  @Bean
-  @ConditionalOnMissingBean
-  public PokeApiService pokeApiService(PokeApiProperties properties) {
-    return new DefaultPokeApiService(properties);
-  }
+    @Bean
+    @ConditionalOnMissingBean
+    public PokeApiService pokeApiService(PokeApiProperties properties) {
+        return new DefaultPokeApiService(properties);
+    }
 }

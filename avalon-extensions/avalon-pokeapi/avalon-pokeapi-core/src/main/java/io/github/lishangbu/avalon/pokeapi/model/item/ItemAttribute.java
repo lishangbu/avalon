@@ -20,8 +20,8 @@ import java.util.List;
 /// @see Description
 /// @since 2025/5/24
 public record ItemAttribute(
-    Integer id,
-    String name,
-    List<NamedApiResource> items,
-    List<Name> names,
-    List<Description> descriptions) {}
+        Integer id,
+        String name,
+        List<NamedApiResource> items,
+        List<Name> names,
+        List<Description> descriptions) {}

@@ -20,7 +20,7 @@ import io.github.lishangbu.avalon.pokeapi.model.move.Move;
 /// @see VersionGroup
 /// @since 2025/6/7
 public record Machine(
-    Integer id,
-    NamedApiResource<Item> item,
-    NamedApiResource<Move> move,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        Integer id,
+        NamedApiResource<Item> item,
+        NamedApiResource<Move> move,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}

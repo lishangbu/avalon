@@ -10,18 +10,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = {TestEnvironmentApplication.class})
 abstract class AbstractExcelWriterTest {
 
-  @Test
-  void write_shouldFetchAndDelegateToSheetWriter() {
-    String fileName = getDataTypeEnum().name() + ".xlsx";
+    @Test
+    void write_shouldFetchAndDelegateToSheetWriter() {
+        String fileName = getDataTypeEnum().name() + ".xlsx";
 
-    FastExcel.write(fileName, getExcelClass())
-        .sheet("Sheet1")
-        .doWrite(() -> getDataProvider().fetch(getDataTypeEnum(), getExcelClass()));
-  }
+        FastExcel.write(fileName, getExcelClass())
+                .sheet("Sheet1")
+                .doWrite(() -> getDataProvider().fetch(getDataTypeEnum(), getExcelClass()));
+    }
 
-  abstract PokeDataTypeEnum getDataTypeEnum();
+    abstract PokeDataTypeEnum getDataTypeEnum();
 
-  abstract Class getExcelClass();
+    abstract Class getExcelClass();
 
-  abstract PokeApiDataProvider getDataProvider();
+    abstract PokeApiDataProvider getDataProvider();
 }

@@ -14,4 +14,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see Stat
 /// @since 2025/6/8
 public record PokemonStat(
-    NamedApiResource<Stat> stat, Integer effort, @JsonProperty("base_stat") Integer baseStat) {}
+        NamedApiResource<Stat> stat, Integer effort, @JsonProperty("base_stat") Integer baseStat) {}

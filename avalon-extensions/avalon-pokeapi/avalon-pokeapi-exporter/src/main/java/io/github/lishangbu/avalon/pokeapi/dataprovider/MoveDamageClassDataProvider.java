@@ -11,19 +11,19 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/4
 @Service
 public class MoveDamageClassDataProvider
-    extends AbstractPokeApiDataProvider<MoveDamageClass, MoveDamageClassExcelDTO> {
+        extends AbstractPokeApiDataProvider<MoveDamageClass, MoveDamageClassExcelDTO> {
 
-  @Override
-  public MoveDamageClassExcelDTO convert(MoveDamageClass moveDamageClass) {
-    MoveDamageClassExcelDTO result = new MoveDamageClassExcelDTO();
-    result.setId(moveDamageClass.id());
-    result.setInternalName(moveDamageClass.name());
-    result.setName(resolveLocalizedName(moveDamageClass.names(), moveDamageClass.name()));
-    LocalizationUtils.getLocalizationDescription(moveDamageClass.descriptions())
-        .ifPresent(
-            description -> {
-              result.setDescription(description.description());
-            });
-    return result;
-  }
+    @Override
+    public MoveDamageClassExcelDTO convert(MoveDamageClass moveDamageClass) {
+        MoveDamageClassExcelDTO result = new MoveDamageClassExcelDTO();
+        result.setId(moveDamageClass.id());
+        result.setInternalName(moveDamageClass.name());
+        result.setName(resolveLocalizedName(moveDamageClass.names(), moveDamageClass.name()));
+        LocalizationUtils.getLocalizationDescription(moveDamageClass.descriptions())
+                .ifPresent(
+                        description -> {
+                            result.setDescription(description.description());
+                        });
+        return result;
+    }
 }

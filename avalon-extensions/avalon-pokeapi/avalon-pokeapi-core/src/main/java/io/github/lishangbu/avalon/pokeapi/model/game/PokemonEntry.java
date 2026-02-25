@@ -12,5 +12,5 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @author lishangbu
 /// @since 2025/5/24
 public record PokemonEntry(
-    @JsonProperty("entry_number") Integer entryNumber,
-    @JsonProperty("pokemon_species") NamedApiResource<?> pokemonSpecies) {}
+        @JsonProperty("entry_number") Integer entryNumber,
+        @JsonProperty("pokemon_species") NamedApiResource<?> pokemonSpecies) {}

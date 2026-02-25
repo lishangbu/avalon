@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PokemonAbilityExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("ability_id")
-  private Integer abilityId;
+    /// 唯一标识
+    @ExcelProperty("ability_id")
+    private Integer abilityId;
 
-  /// 内部名称
-  @ExcelProperty("pokemon_id")
-  private Integer pokemonId;
+    /// 内部名称
+    @ExcelProperty("pokemon_id")
+    private Integer pokemonId;
 
-  /// 是否隐藏特性
-  @ExcelProperty("is_hidden")
-  private Boolean isHidden;
+    /// 是否隐藏特性
+    @ExcelProperty("is_hidden")
+    private Boolean isHidden;
 
-  /// 特性槽位（1-第一槽位，2-第二槽位，3-第三槽位）
-  @ExcelProperty("slot")
-  private Integer slot;
+    /// 特性槽位（1-第一槽位，2-第二槽位，3-第三槽位）
+    @ExcelProperty("slot")
+    private Integer slot;
 }

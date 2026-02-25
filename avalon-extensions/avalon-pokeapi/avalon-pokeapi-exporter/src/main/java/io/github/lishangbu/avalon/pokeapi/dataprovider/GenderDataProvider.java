@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class GenderDataProvider extends AbstractPokeApiDataProvider<Gender, GenderExcelDTO> {
 
-  @Override
-  public GenderExcelDTO convert(Gender gender) {
-    GenderExcelDTO result = new GenderExcelDTO();
-    result.setId(gender.id());
-    result.setInternalName(gender.name());
-    return result;
-  }
+    @Override
+    public GenderExcelDTO convert(Gender gender) {
+        GenderExcelDTO result = new GenderExcelDTO();
+        result.setId(gender.id());
+        result.setInternalName(gender.name());
+        return result;
+    }
 }

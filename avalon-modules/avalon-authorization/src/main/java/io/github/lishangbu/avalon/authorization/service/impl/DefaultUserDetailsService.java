@@ -17,26 +17,28 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DefaultUserDetailsService implements UserDetailsService {
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  /// 根据用户名加载用户详情
-  ///
-  /// @param username 用户名
-  /// @return 用户详情
-  /// @throws UsernameNotFoundException 用户未找到时抛出
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository
-        .findUserWithRolesByUsername(username)
-        .map(
-            user ->
-                new UserInfo(
-                    user.getUsername(),
-                    user.getHashedPassword(),
-                    user.getRoles() == null
-                        ? AuthorityUtils.NO_AUTHORITIES
-                        : AuthorityUtils.createAuthorityList(
-                            user.getRoles().stream().map(Role::getCode).toList())))
-        .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
-  }
+    /// 根据用户名加载用户详情
+    ///
+    /// @param username 用户名
+    /// @return 用户详情
+    /// @throws UsernameNotFoundException 用户未找到时抛出
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository
+                .findUserWithRolesByUsername(username)
+                .map(
+                        user ->
+                                new UserInfo(
+                                        user.getUsername(),
+                                        user.getHashedPassword(),
+                                        user.getRoles() == null
+                                                ? AuthorityUtils.NO_AUTHORITIES
+                                                : AuthorityUtils.createAuthorityList(
+                                                        user.getRoles().stream()
+                                                                .map(Role::getCode)
+                                                                .toList())))
+                .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
+    }
 }

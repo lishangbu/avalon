@@ -95,12 +95,8 @@
         <configuration>
           <java>
             <googleJavaFormat>
-              <style>GOOGLE</style>
-              <!-- or AOSP (optional) -->
-              <reflowLongStrings>true</reflowLongStrings>
-              <!-- optional -->
-              <formatJavadoc>true</formatJavadoc>
-              <!-- optional -->
+              <style>AOSP</style>
+              <formatJavadoc>false</formatJavadoc>
             </googleJavaFormat>
           </java>
           <pom>

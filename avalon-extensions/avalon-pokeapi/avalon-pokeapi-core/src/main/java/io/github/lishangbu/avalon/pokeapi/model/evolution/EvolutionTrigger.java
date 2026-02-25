@@ -8,9 +8,8 @@ import java.util.List;
 
 /// 进化触发器模型
 ///
-/// 进化触发器表示导致宝可梦进化的事件与条件（参考
-// [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Methods_of_evolution)）
-
+/// 进化触发器表示导致宝可梦进化的事件与条件
+/// 参考[Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Methods_of_evolution)）
 ///
 /// @param id             资源标识符
 /// @param name           资源名称
@@ -20,7 +19,7 @@ import java.util.List;
 /// @see Name
 /// @since 2025/5/24
 public record EvolutionTrigger(
-    Integer id,
-    String name,
-    List<Name> names,
-    @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        Integer id,
+        String name,
+        List<Name> names,
+        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}

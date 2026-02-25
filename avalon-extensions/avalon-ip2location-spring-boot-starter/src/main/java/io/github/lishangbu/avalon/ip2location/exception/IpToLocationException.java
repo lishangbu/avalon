@@ -6,13 +6,13 @@ package io.github.lishangbu.avalon.ip2location.exception;
 /// @since 2025/4/15
 public class IpToLocationException extends RuntimeException {
 
-  /// 无参构造函数，创建一个新的 IpToLocationException 实例
-  public IpToLocationException() {}
+    /// 无参构造函数，创建一个新的 IpToLocationException 实例
+    public IpToLocationException() {}
 
-  /// 带错误信息的构造函数
-  ///
-  /// @param message 异常信息
-  public IpToLocationException(String message) {
-    super(message);
-  }
+    /// 带错误信息的构造函数
+    ///
+    /// @param message 异常信息
+    public IpToLocationException(String message) {
+        super(message);
+    }
 }

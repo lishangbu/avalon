@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.*;
+import lombok.Data;
 
 /// 特性(Ability)实体类
 ///
@@ -19,27 +19,27 @@ import lombok.*;
 @Entity
 @Table(comment = "特性")
 public class Ability implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 名称
-  @Column(comment = "名称", length = 100)
-  private String name;
+    /// 名称
+    @Column(comment = "名称", length = 100)
+    private String name;
 
-  /// 特性效果
-  @Column(comment = "特性效果", length = 1000)
-  private String effect;
+    /// 特性效果
+    @Column(comment = "特性效果", length = 1000)
+    private String effect;
 
-  /// 文字介绍
-  @Column(comment = "文字介绍", length = 500)
-  private String introduction;
+    /// 文字介绍
+    @Column(comment = "文字介绍", length = 500)
+    private String introduction;
 }

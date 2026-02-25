@@ -12,5 +12,5 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/26
 public record EncounterMethodRate(
-    @JsonProperty("encounter_method") NamedApiResource<EncounterMethod> encounterMethod,
-    @JsonProperty("version_details") List<EncounterVersionDetails> versionDetails) {}
+        @JsonProperty("encounter_method") NamedApiResource<EncounterMethod> encounterMethod,
+        @JsonProperty("version_details") List<EncounterVersionDetails> versionDetails) {}

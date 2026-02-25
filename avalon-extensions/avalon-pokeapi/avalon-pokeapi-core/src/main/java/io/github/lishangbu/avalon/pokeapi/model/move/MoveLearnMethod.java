@@ -22,8 +22,8 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/6/7
 public record MoveLearnMethod(
-    Integer id,
-    String name,
-    List<Description> descriptions,
-    List<Name> names,
-    @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        Integer id,
+        String name,
+        List<Description> descriptions,
+        List<Name> names,
+        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}

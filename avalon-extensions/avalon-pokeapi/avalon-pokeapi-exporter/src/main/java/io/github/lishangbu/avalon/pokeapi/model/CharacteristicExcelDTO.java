@@ -13,23 +13,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CharacteristicExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 最高 IV 除以 5 的余数
-  @ExcelProperty("gene_modulo")
-  private Integer geneModulo;
+    /// 最高 IV 除以 5 的余数
+    @ExcelProperty("gene_modulo")
+    private Integer geneModulo;
 
-  /// 导致该特征的最高 IV 的可能值列表
-  @ExcelProperty("possible_values")
-  private String possibleValues;
+    /// 导致该特征的最高 IV 的可能值列表
+    @ExcelProperty("possible_values")
+    private String possibleValues;
 
-  /// 导致该特征的属性 ID
-  @ExcelProperty("highest_stat_id")
-  private Integer highestStatId;
+    /// 导致该特征的属性 ID
+    @ExcelProperty("highest_stat_id")
+    private Integer highestStatId;
 
-  /// 描述
-  @ExcelProperty("description")
-  private String description;
+    /// 描述
+    @ExcelProperty("description")
+    private String description;
 }

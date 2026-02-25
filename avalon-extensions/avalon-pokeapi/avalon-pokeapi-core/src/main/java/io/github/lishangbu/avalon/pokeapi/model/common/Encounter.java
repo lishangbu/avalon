@@ -14,9 +14,9 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/20
 public record Encounter(
-    @JsonProperty("min_level") Integer minLevel,
-    @JsonProperty("max_level") Integer maxLevel,
-    @JsonProperty("condition_values")
-        List<NamedApiResource<EncounterConditionValue>> conditionValues,
-    Integer chance,
-    NamedApiResource<?> method) {}
+        @JsonProperty("min_level") Integer minLevel,
+        @JsonProperty("max_level") Integer maxLevel,
+        @JsonProperty("condition_values")
+                List<NamedApiResource<EncounterConditionValue>> conditionValues,
+        Integer chance,
+        NamedApiResource<?> method) {}
