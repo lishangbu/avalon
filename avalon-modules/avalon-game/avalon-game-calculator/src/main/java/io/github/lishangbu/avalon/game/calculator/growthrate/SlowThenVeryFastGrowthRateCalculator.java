@@ -21,7 +21,7 @@ public class SlowThenVeryFastGrowthRateCalculator extends AbstractGrowthRateCalc
   /// 69≤Lv≤98：EXP = 0.002 * Lv^3 * ⌊ (1911 - 10 * Lv) / 3 ⌋
   /// 99≤Lv≤100：EXP = -0.01 * Lv4 + 1.6 * Lv^3
   @Override
-  protected int innerCalculateGrowthRate(int level) {
+  protected int tryCalculateGrowthRate(int level) {
     int cubedLevel = level * level * level;
     if (level <= 50) {
       return cubedLevel * (100 - level) / 50;

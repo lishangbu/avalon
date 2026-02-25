@@ -17,7 +17,7 @@ public class MediumSlowGrowthRateCalculator extends AbstractGrowthRateCalculator
   /// 较慢组：
   /// EXP = 1.2 * Lv^3 - 15 * Lv^2 + 100 * Lv - 140
   @Override
-  protected int innerCalculateGrowthRate(int level) {
+  protected int tryCalculateGrowthRate(int level) {
     return (6 * level * level * level) / 5 - 15 * level * level + 100 * level - 140;
   }
 }
