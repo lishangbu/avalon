@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface MoveDamageClassRepository
-    extends JpaRepository<MoveDamageClass, Long>, JpaSpecificationExecutor<MoveDamageClass> {}
+        extends JpaRepository<MoveDamageClass, Long>, JpaSpecificationExecutor<MoveDamageClass> {}

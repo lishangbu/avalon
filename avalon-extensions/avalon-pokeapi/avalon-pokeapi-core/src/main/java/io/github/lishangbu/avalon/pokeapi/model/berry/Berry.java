@@ -26,15 +26,15 @@ import java.util.List;
 /// @see Item
 /// @since 2025/5/21
 public record Berry(
-    Integer id,
-    String name,
-    @JsonProperty("growth_time") Integer growthTime,
-    @JsonProperty("max_harvest") Integer maxHarvest,
-    @JsonProperty("natural_gift_power") Integer naturalGiftPower,
-    Integer size,
-    Integer smoothness,
-    @JsonProperty("soil_dryness") Integer soilDryness,
-    NamedApiResource firmness,
-    List<BerryFlavorMap> flavors,
-    NamedApiResource item,
-    @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}
+        Integer id,
+        String name,
+        @JsonProperty("growth_time") Integer growthTime,
+        @JsonProperty("max_harvest") Integer maxHarvest,
+        @JsonProperty("natural_gift_power") Integer naturalGiftPower,
+        Integer size,
+        Integer smoothness,
+        @JsonProperty("soil_dryness") Integer soilDryness,
+        NamedApiResource firmness,
+        List<BerryFlavorMap> flavors,
+        NamedApiResource item,
+        @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}

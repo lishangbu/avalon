@@ -32,17 +32,17 @@ import java.util.List;
 /// @see Name
 /// @since 2025/6/8
 public record PokemonForm(
-    Integer id,
-    String name,
-    Integer order,
-    @JsonProperty("form_order") Integer formOrder,
-    @JsonProperty("is_default") Boolean isDefault,
-    @JsonProperty("is_battle_only") Boolean isBattleOnly,
-    @JsonProperty("is_mega") Boolean isMega,
-    @JsonProperty("form_name") String formName,
-    NamedApiResource<Pokemon> pokemon,
-    List<PokemonFormType> types,
-    PokemonFormSprites sprites,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup,
-    List<Name> names,
-    @JsonProperty("form_names") List<Name> formNames) {}
+        Integer id,
+        String name,
+        Integer order,
+        @JsonProperty("form_order") Integer formOrder,
+        @JsonProperty("is_default") Boolean isDefault,
+        @JsonProperty("is_battle_only") Boolean isBattleOnly,
+        @JsonProperty("is_mega") Boolean isMega,
+        @JsonProperty("form_name") String formName,
+        NamedApiResource<Pokemon> pokemon,
+        List<PokemonFormType> types,
+        PokemonFormSprites sprites,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup,
+        List<Name> names,
+        @JsonProperty("form_names") List<Name> formNames) {}

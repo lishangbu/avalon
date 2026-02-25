@@ -19,15 +19,15 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 @AutoConfiguration
 @RequiredArgsConstructor
 public class OAuth2TokenGeneratorAutoConfiguration {
-  private final JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
-  @Bean
-  public OAuth2TokenGenerator<?> tokenGenerator() {
-    return new DelegatingOAuth2TokenGenerator(
-        // reference的token生成器
-        new ReferenceOAuth2AccessTokenGenerator(),
-        // reference的refreshToken生成器
-        new OAuth2RefreshTokenGenerator(),
-        new JwtGenerator(jwtEncoder));
-  }
+    @Bean
+    public OAuth2TokenGenerator<?> tokenGenerator() {
+        return new DelegatingOAuth2TokenGenerator(
+                // reference的token生成器
+                new ReferenceOAuth2AccessTokenGenerator(),
+                // reference的refreshToken生成器
+                new OAuth2RefreshTokenGenerator(),
+                new JwtGenerator(jwtEncoder));
+    }
 }

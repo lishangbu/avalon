@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface TypeDamageRelationRepository
-    extends JpaRepository<TypeDamageRelation, TypeDamageRelation.TypeDamageRelationId>,
-        JpaSpecificationExecutor<TypeDamageRelation> {}
+        extends JpaRepository<TypeDamageRelation, TypeDamageRelation.TypeDamageRelationId>,
+                JpaSpecificationExecutor<TypeDamageRelation> {}

@@ -16,14 +16,14 @@ import org.springframework.security.web.util.UrlUtils;
 @AutoConfiguration
 public class AuthorizationServerSettingsAutoConfiguration {
 
-  @Bean
-  @ConditionalOnMissingBean
-  public AuthorizationServerSettings authorizationServerSettings(Oauth2Properties properties) {
-    AuthorizationServerSettings.Builder builder = AuthorizationServerSettings.builder();
-    String issuerUrl = properties.getIssuerUrl();
-    if (UrlUtils.isAbsoluteUrl(issuerUrl)) {
-      builder.issuer(issuerUrl);
+    @Bean
+    @ConditionalOnMissingBean
+    public AuthorizationServerSettings authorizationServerSettings(Oauth2Properties properties) {
+        AuthorizationServerSettings.Builder builder = AuthorizationServerSettings.builder();
+        String issuerUrl = properties.getIssuerUrl();
+        if (UrlUtils.isAbsoluteUrl(issuerUrl)) {
+            builder.issuer(issuerUrl);
+        }
+        return builder.build();
     }
-    return builder.build();
-  }
 }

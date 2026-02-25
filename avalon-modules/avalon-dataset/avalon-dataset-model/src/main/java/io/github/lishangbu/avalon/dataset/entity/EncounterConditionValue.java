@@ -16,24 +16,24 @@ import lombok.Data;
 @Entity
 @Table(comment = "遭遇条件值")
 public class EncounterConditionValue implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 值名称
-  @Column(comment = "值名称", length = 200)
-  private String name;
+    /// 值名称
+    @Column(comment = "值名称", length = 200)
+    private String name;
 
-  /// 遭遇条件 ID
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "encounter_condition_id", comment = "遭遇条件ID", nullable = false)
-  private EncounterCondition encounterCondition;
+    /// 遭遇条件 ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "encounter_condition_id", comment = "遭遇条件ID", nullable = false)
+    private EncounterCondition encounterCondition;
 }

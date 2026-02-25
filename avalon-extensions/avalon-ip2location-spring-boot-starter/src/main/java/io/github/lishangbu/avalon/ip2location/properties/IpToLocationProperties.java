@@ -11,17 +11,17 @@ import org.springframework.util.ResourceUtils;
 /// @since 2025/4/12
 @ConfigurationProperties(IpToLocationProperties.PREFIX)
 public class IpToLocationProperties {
-  public static final String PREFIX = "ip2location";
+    public static final String PREFIX = "ip2location";
 
-  /// ip2region.db 文件路径，默认加载同时包含 IPv4 和 IPv6 的数据库文件
-  private String dbFileLocation =
-      ResourceUtils.CLASSPATH_URL_PREFIX + "IP2LOCATION-LITE-DB11.IPV6.BIN";
+    /// ip2region.db 文件路径，默认加载同时包含 IPv4 和 IPv6 的数据库文件
+    private String dbFileLocation =
+            ResourceUtils.CLASSPATH_URL_PREFIX + "IP2LOCATION-LITE-DB11.IPV6.BIN";
 
-  public String getDbFileLocation() {
-    return dbFileLocation;
-  }
+    public String getDbFileLocation() {
+        return dbFileLocation;
+    }
 
-  public void setDbFileLocation(String dbFileLocation) {
-    this.dbFileLocation = dbFileLocation;
-  }
+    public void setDbFileLocation(String dbFileLocation) {
+        this.dbFileLocation = dbFileLocation;
+    }
 }

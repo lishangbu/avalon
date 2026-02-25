@@ -14,7 +14,7 @@ import io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod;
 /// @author lishangbu
 /// @since 2025/6/8
 public record PokemonMoveVersion(
-    @JsonProperty("move_learn_method") NamedApiResource<MoveLearnMethod> moveLearnMethod,
-    @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup,
-    @JsonProperty("level_learned_at") Integer levelLearnedAt,
-    Integer order) {}
+        @JsonProperty("move_learn_method") NamedApiResource<MoveLearnMethod> moveLearnMethod,
+        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup,
+        @JsonProperty("level_learned_at") Integer levelLearnedAt,
+        Integer order) {}

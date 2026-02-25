@@ -17,8 +17,8 @@ import java.util.List;
 /// @see PokemonSpecies
 /// @since 2025/6/8
 public record Gender(
-    Integer id,
-    String name,
-    @JsonProperty("pokemon_species_details") List<PokemonSpeciesGender> pokemonSpeciesDetails,
-    @JsonProperty("required_for_evolution")
-        List<NamedApiResource<PokemonSpecies>> requiredForEvolution) {}
+        Integer id,
+        String name,
+        @JsonProperty("pokemon_species_details") List<PokemonSpeciesGender> pokemonSpeciesDetails,
+        @JsonProperty("required_for_evolution")
+                List<NamedApiResource<PokemonSpecies>> requiredForEvolution) {}

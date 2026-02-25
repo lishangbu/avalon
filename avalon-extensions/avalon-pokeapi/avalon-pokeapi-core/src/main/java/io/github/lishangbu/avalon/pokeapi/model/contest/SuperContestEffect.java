@@ -15,7 +15,7 @@ import java.util.List;
 /// @see FlavorText
 /// @since 2025/5/23
 public record SuperContestEffect(
-    Integer id,
-    Integer appeal,
-    @JsonProperty("flavor_text_entries") List<FlavorText> flavorTextEntries,
-    List<NamedApiResource<?>> moves) {}
+        Integer id,
+        Integer appeal,
+        @JsonProperty("flavor_text_entries") List<FlavorText> flavorTextEntries,
+        List<NamedApiResource<?>> moves) {}

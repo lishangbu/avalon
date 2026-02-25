@@ -16,16 +16,16 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/08/20
 @Repository
 public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificationExecutor<Menu> {
-  /// 根据角色代码列表查询对应的菜单集合
-  ///
-  /// @param roleCodes 角色代码列表
-  /// @return 匹配的菜单列表
-  @Query(
-      """
-      select distinct m from Role r
-      join r.menus m
-      where r.code in :roleCodes
-      order by m.sortingOrder desc
-      """)
-  List<Menu> findAllByRoleCodes(@Param("roleCodes") List<String> roleCodes);
+    /// 根据角色代码列表查询对应的菜单集合
+    ///
+    /// @param roleCodes 角色代码列表
+    /// @return 匹配的菜单列表
+    @Query(
+            """
+                    select distinct m from Role r
+                    join r.menus m
+                    where r.code in :roleCodes
+                    order by m.sortingOrder desc
+                    """)
+    List<Menu> findAllByRoleCodes(@Param("roleCodes") List<String> roleCodes);
 }

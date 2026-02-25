@@ -27,28 +27,28 @@ import org.testcontainers.utility.DockerImageName;
 /// @author lishangbu
 /// @since 2025/8/20
 public class MinIOTestcontainers implements BeforeAllCallback {
-  private static final MinIOContainer CONTAINER =
-      new MinIOContainer(DockerImageName.parse("minio/minio:latest"))
-          .withUserName("testuser")
-          .withPassword("testpassword")
-          .withReuse(true);
+    private static final MinIOContainer CONTAINER =
+            new MinIOContainer(DockerImageName.parse("minio/minio:latest"))
+                    .withUserName("testuser")
+                    .withPassword("testpassword")
+                    .withReuse(true);
 
-  @Override
-  public void beforeAll(ExtensionContext context) {
-    CONTAINER.start();
+    @Override
+    public void beforeAll(ExtensionContext context) {
+        CONTAINER.start();
 
-    Integer mappedPort = CONTAINER.getFirstMappedPort();
-    String url = String.format("http://%s:%s", CONTAINER.getHost(), mappedPort);
-    // 将 Endpoint 与凭证暴露为系统属性，便于 Spring Boot 的 ConfigurationProperties 绑定
-    System.setProperty("s3.endpoint", url);
-    System.setProperty("s3.accessKey", "testuser");
-    System.setProperty("s3.secretKey", "testpassword");
-  }
+        Integer mappedPort = CONTAINER.getFirstMappedPort();
+        String url = String.format("http://%s:%s", CONTAINER.getHost(), mappedPort);
+        // 将 Endpoint 与凭证暴露为系统属性，便于 Spring Boot 的 ConfigurationProperties 绑定
+        System.setProperty("s3.endpoint", url);
+        System.setProperty("s3.accessKey", "testuser");
+        System.setProperty("s3.secretKey", "testpassword");
+    }
 
-  /// 将运行中的 MinIO 容器作为 Spring Bean 暴露，方便在测试上下文中注入
-  @Bean
-  @ServiceConnection
-  public MinIOContainer minIOContainer() {
-    return CONTAINER;
-  }
+    /// 将运行中的 MinIO 容器作为 Spring Bean 暴露，方便在测试上下文中注入
+    @Bean
+    @ServiceConnection
+    public MinIOContainer minIOContainer() {
+        return CONTAINER;
+    }
 }

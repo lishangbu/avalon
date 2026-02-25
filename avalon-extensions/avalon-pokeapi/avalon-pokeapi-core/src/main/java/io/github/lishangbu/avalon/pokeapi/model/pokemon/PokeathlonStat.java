@@ -17,7 +17,7 @@ import java.util.List;
 /// @see NaturePokeathlonStatAffectSets
 /// @since 2025/6/8
 public record PokeathlonStat(
-    Integer id,
-    String name,
-    List<Name> names,
-    @JsonProperty("affecting_natures") NaturePokeathlonStatAffectSets affectingNatures) {}
+        Integer id,
+        String name,
+        List<Name> names,
+        @JsonProperty("affecting_natures") NaturePokeathlonStatAffectSets affectingNatures) {}

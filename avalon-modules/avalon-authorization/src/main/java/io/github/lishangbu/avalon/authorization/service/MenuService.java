@@ -10,9 +10,9 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/8/28
 public interface MenuService {
-  /// 根据角色代码获取菜单树
-  ///
-  /// @param roleCodes 角色代码
-  /// @return 菜单树节点列表
-  List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes);
+    /// 根据角色代码获取菜单树
+    ///
+    /// @param roleCodes 角色代码
+    /// @return 菜单树节点列表
+    List<MenuTreeNode> listMenuTreeByRoleCodes(List<String> roleCodes);
 }

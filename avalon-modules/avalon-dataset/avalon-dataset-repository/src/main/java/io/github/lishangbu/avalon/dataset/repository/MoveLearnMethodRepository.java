@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface MoveLearnMethodRepository
-    extends JpaRepository<MoveLearnMethod, Long>, JpaSpecificationExecutor<MoveLearnMethod> {}
+        extends JpaRepository<MoveLearnMethod, Long>, JpaSpecificationExecutor<MoveLearnMethod> {}

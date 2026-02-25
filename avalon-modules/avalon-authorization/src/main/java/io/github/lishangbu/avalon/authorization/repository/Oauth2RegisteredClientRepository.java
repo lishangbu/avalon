@@ -11,11 +11,11 @@ import org.springframework.stereotype.Repository;
 /// 提供对 OauthRegisteredClient 实体的查询方法
 ///
 /// @author lishangbu
-/// @since  2023-10-08
+/// @since 2023-10-08
 @Repository
 public interface Oauth2RegisteredClientRepository
-    extends JpaRepository<OauthRegisteredClient, String>,
-        JpaSpecificationExecutor<OauthRegisteredClient> {
+        extends JpaRepository<OauthRegisteredClient, String>,
+                JpaSpecificationExecutor<OauthRegisteredClient> {
 
-  Optional<OauthRegisteredClient> findByClientId(String clientId);
+    Optional<OauthRegisteredClient> findByClientId(String clientId);
 }

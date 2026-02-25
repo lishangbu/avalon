@@ -13,7 +13,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 @SuppressWarnings({"removal"})
 public final class AuthorizationGrantTypeSupport implements Serializable {
 
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+    public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
 
-  public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
+    @Serial
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 }

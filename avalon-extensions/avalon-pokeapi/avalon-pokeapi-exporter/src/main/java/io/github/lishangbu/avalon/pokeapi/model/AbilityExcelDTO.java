@@ -13,23 +13,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AbilityExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 
-  /// 显示名称
-  @ExcelProperty("name")
-  private String name;
+    /// 显示名称
+    @ExcelProperty("name")
+    private String name;
 
-  /// 特性效果
-  @ExcelProperty("effect")
-  private String effect;
+    /// 特性效果
+    @ExcelProperty("effect")
+    private String effect;
 
-  ///  特性说明
-  @ExcelProperty("introduction")
-  private String introduction;
+    ///  特性说明
+    @ExcelProperty("introduction")
+    private String introduction;
 }

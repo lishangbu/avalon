@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class MenuController {
-  private final MenuService menuService;
+    private final MenuService menuService;
 
-  @GetMapping("/role-tree")
-  public List<MenuTreeNode> listCurrentRoleMenuTree(@AuthenticationPrincipal UserInfo user) {
-    return menuService.listMenuTreeByRoleCodes(
-        user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
-  }
+    @GetMapping("/role-tree")
+    public List<MenuTreeNode> listCurrentRoleMenuTree(@AuthenticationPrincipal UserInfo user) {
+        return menuService.listMenuTreeByRoleCodes(
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
+    }
 }

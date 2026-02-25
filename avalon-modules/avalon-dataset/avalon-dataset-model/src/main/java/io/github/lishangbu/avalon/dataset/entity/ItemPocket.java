@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "道具口袋")
 public class ItemPocket implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 道具口袋名称
-  @Column(comment = "道具口袋名称", length = 100)
-  private String name;
+    /// 道具口袋名称
+    @Column(comment = "道具口袋名称", length = 100)
+    private String name;
 }

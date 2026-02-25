@@ -23,60 +23,61 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 @Setter
 @SuppressWarnings("removal")
 public class UserInfo extends User implements OAuth2AuthenticatedPrincipal {
-  @Serial private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+    @Serial
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-  /// 附加参数：用于在获取 Token 接口返回
-  @Getter private final Map<String, Object> additionalParameters = new HashMap<>();
+    /// 附加参数：用于在获取 Token 接口返回
+    @Getter private final Map<String, Object> additionalParameters = new HashMap<>();
 
-  public UserInfo(
-      String username,
-      @Nullable String password,
-      Collection<? extends GrantedAuthority> authorities) {
-    super(username, password, authorities);
-  }
+    public UserInfo(
+            String username,
+            @Nullable String password,
+            Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, authorities);
+    }
 
-  public UserInfo(
-      String username,
-      @Nullable String password,
-      boolean enabled,
-      boolean accountNonExpired,
-      boolean credentialsNonExpired,
-      boolean accountNonLocked,
-      Collection<? extends GrantedAuthority> authorities) {
-    super(
-        username,
-        password,
-        enabled,
-        accountNonExpired,
-        credentialsNonExpired,
-        accountNonLocked,
-        authorities);
-  }
+    public UserInfo(
+            String username,
+            @Nullable String password,
+            boolean enabled,
+            boolean accountNonExpired,
+            boolean credentialsNonExpired,
+            boolean accountNonLocked,
+            Collection<? extends GrantedAuthority> authorities) {
+        super(
+                username,
+                password,
+                enabled,
+                accountNonExpired,
+                credentialsNonExpired,
+                accountNonLocked,
+                authorities);
+    }
 
-  @Override
-  public Map<String, Object> getAttributes() {
-    return additionalParameters;
-  }
+    @Override
+    public Map<String, Object> getAttributes() {
+        return additionalParameters;
+    }
 
-  @Override
-  @NullMarked
-  public String getName() {
-    return super.getUsername();
-  }
+    @Override
+    @NullMarked
+    public String getName() {
+        return super.getUsername();
+    }
 
-  @Override
-  @NullMarked
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getName()).append(" [");
-    sb.append("Username=").append(getUsername()).append(", ");
-    sb.append("Password=[PROTECTED], ");
-    sb.append("Enabled=").append(isEnabled()).append(", ");
-    sb.append("AdditionalParameters").append(additionalParameters);
-    sb.append("AccountNonExpired=").append(isAccountNonExpired()).append(", ");
-    sb.append("CredentialsNonExpired=").append(isCredentialsNonExpired()).append(", ");
-    sb.append("AccountNonLocked=").append(isAccountNonLocked()).append(", ");
-    sb.append("Granted Authorities=").append(getAuthorities()).append("]");
-    return sb.toString();
-  }
+    @Override
+    @NullMarked
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getName()).append(" [");
+        sb.append("Username=").append(getUsername()).append(", ");
+        sb.append("Password=[PROTECTED], ");
+        sb.append("Enabled=").append(isEnabled()).append(", ");
+        sb.append("AdditionalParameters").append(additionalParameters);
+        sb.append("AccountNonExpired=").append(isAccountNonExpired()).append(", ");
+        sb.append("CredentialsNonExpired=").append(isCredentialsNonExpired()).append(", ");
+        sb.append("AccountNonLocked=").append(isAccountNonLocked()).append(", ");
+        sb.append("Granted Authorities=").append(getAuthorities()).append("]");
+        return sb.toString();
+    }
 }

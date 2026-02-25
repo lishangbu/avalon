@@ -20,8 +20,8 @@ import java.util.List;
 /// @see Name
 /// @since 2025/6/7
 public record MoveDamageClass(
-    Integer id,
-    String name,
-    List<Description> descriptions,
-    List<NamedApiResource<Move>> moves,
-    List<Name> names) {}
+        Integer id,
+        String name,
+        List<Description> descriptions,
+        List<NamedApiResource<Move>> moves,
+        List<Name> names) {}

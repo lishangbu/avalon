@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PokemonStatExcelDTO {
-  /// 宝可梦ID
-  @ExcelProperty("pokemon_id")
-  private Integer pokemonId;
+    /// 宝可梦ID
+    @ExcelProperty("pokemon_id")
+    private Integer pokemonId;
 
-  /// 属性ID
-  @ExcelProperty("stat_id")
-  private Integer statId;
+    /// 属性ID
+    @ExcelProperty("stat_id")
+    private Integer statId;
 
-  /// 基础能力值
-  @ExcelProperty("base_stat")
-  private Integer baseStat;
+    /// 基础能力值
+    @ExcelProperty("base_stat")
+    private Integer baseStat;
 
-  /// 努力值
-  @ExcelProperty("effort")
-  private Integer effort;
+    /// 努力值
+    @ExcelProperty("effort")
+    private Integer effort;
 }

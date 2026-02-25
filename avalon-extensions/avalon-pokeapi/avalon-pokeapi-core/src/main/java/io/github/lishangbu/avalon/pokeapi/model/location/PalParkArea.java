@@ -17,7 +17,7 @@ import java.util.List;
 /// @see PalParkEncounterSpecies
 /// @since 2025/5/26
 public record PalParkArea(
-    Integer id,
-    String name,
-    List<Name> names,
-    @JsonProperty("pokemon_encounters") List<PalParkEncounterSpecies> pokemonEncounters) {}
+        Integer id,
+        String name,
+        List<Name> names,
+        @JsonProperty("pokemon_encounters") List<PalParkEncounterSpecies> pokemonEncounters) {}

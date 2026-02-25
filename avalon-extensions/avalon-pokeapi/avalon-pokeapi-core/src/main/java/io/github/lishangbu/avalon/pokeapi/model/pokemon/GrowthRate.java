@@ -21,9 +21,9 @@ import java.util.List;
 /// @see PokemonSpecies
 /// @since 2025/6/8
 public record GrowthRate(
-    Integer id,
-    String name,
-    String formula,
-    List<Description> descriptions,
-    List<GrowthRateExperienceLevel> levels,
-    @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        Integer id,
+        String name,
+        String formula,
+        List<Description> descriptions,
+        List<GrowthRateExperienceLevel> levels,
+        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}

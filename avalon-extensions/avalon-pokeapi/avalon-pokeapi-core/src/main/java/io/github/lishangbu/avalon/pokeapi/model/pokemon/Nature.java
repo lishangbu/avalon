@@ -27,13 +27,13 @@ import java.util.List;
 /// @see Name
 /// @since 2025/6/8
 public record Nature(
-    Integer id,
-    String name,
-    @JsonProperty("decreased_stat") NamedApiResource<Stat> decreasedStat,
-    @JsonProperty("increased_stat") NamedApiResource<Stat> increasedStat,
-    @JsonProperty("hates_flavor") NamedApiResource<BerryFlavor> hatesFlavor,
-    @JsonProperty("likes_flavor") NamedApiResource<BerryFlavor> likesFlavor,
-    @JsonProperty("pokeathlon_stat_changes") List<NatureStatChange> pokeathlonStatChanges,
-    @JsonProperty("move_battle_style_preferences")
-        List<MoveBattleStylePreference> moveBattleStylePreferences,
-    List<Name> names) {}
+        Integer id,
+        String name,
+        @JsonProperty("decreased_stat") NamedApiResource<Stat> decreasedStat,
+        @JsonProperty("increased_stat") NamedApiResource<Stat> increasedStat,
+        @JsonProperty("hates_flavor") NamedApiResource<BerryFlavor> hatesFlavor,
+        @JsonProperty("likes_flavor") NamedApiResource<BerryFlavor> likesFlavor,
+        @JsonProperty("pokeathlon_stat_changes") List<NatureStatChange> pokeathlonStatChanges,
+        @JsonProperty("move_battle_style_preferences")
+                List<MoveBattleStylePreference> moveBattleStylePreferences,
+        List<Name> names) {}

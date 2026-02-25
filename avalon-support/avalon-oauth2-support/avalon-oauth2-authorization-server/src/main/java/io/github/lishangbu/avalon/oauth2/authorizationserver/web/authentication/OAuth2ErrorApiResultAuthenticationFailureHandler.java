@@ -24,33 +24,33 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 /// @see OAuth2ErrorHttpMessageConverter
 /// @since 2025/8/25
 public class OAuth2ErrorApiResultAuthenticationFailureHandler
-    implements AuthenticationFailureHandler {
-  private final Log logger = LogFactory.getLog(getClass());
+        implements AuthenticationFailureHandler {
+    private final Log logger = LogFactory.getLog(getClass());
 
-  @Override
-  public void onAuthenticationFailure(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      AuthenticationException authenticationException)
-      throws IOException, ServletException {
+    @Override
+    public void onAuthenticationFailure(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authenticationException)
+            throws IOException, ServletException {
 
-    if (authenticationException
-        instanceof OAuth2AuthenticationException oauth2AuthenticationException) {
-      OAuth2Error error = oauth2AuthenticationException.getError();
-      JsonResponseWriter.writeFailedResponse(
-          response,
-          HttpStatus.BAD_REQUEST,
-          DefaultErrorResultCode.BAD_REQUEST,
-          error.getErrorCode());
-    } else {
-      if (this.logger.isWarnEnabled()) {
-        this.logger.warn(
-            AuthenticationException.class.getSimpleName()
-                + " must be of type "
-                + OAuth2AuthenticationException.class.getName()
-                + " but was "
-                + authenticationException.getClass().getName());
-      }
+        if (authenticationException
+                instanceof OAuth2AuthenticationException oauth2AuthenticationException) {
+            OAuth2Error error = oauth2AuthenticationException.getError();
+            JsonResponseWriter.writeFailedResponse(
+                    response,
+                    HttpStatus.BAD_REQUEST,
+                    DefaultErrorResultCode.BAD_REQUEST,
+                    error.getErrorCode());
+        } else {
+            if (this.logger.isWarnEnabled()) {
+                this.logger.warn(
+                        AuthenticationException.class.getSimpleName()
+                                + " must be of type "
+                                + OAuth2AuthenticationException.class.getName()
+                                + " but was "
+                                + authenticationException.getClass().getName());
+            }
+        }
     }
-  }
 }

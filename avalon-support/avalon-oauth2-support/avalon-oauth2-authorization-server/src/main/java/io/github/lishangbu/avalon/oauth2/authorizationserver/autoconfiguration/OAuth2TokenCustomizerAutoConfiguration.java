@@ -14,10 +14,11 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 /// @since 2025/8/21
 @AutoConfiguration
 public class OAuth2TokenCustomizerAutoConfiguration {
-  /// 自定义 OAuth2 Token Claims 上下文
-  /// @return OAuth2TokenCustomizer 的实例
-  @Bean
-  public OAuth2TokenCustomizer<JwtEncodingContext> oAuth2TokenCustomizer() {
-    return new JwtOAuth2TokenCustomizer();
-  }
+    /// 自定义 OAuth2 Token Claims 上下文
+    ///
+    /// @return OAuth2TokenCustomizer 的实例
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> oAuth2TokenCustomizer() {
+        return new JwtOAuth2TokenCustomizer();
+    }
 }

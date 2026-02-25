@@ -11,4 +11,4 @@ import java.util.List;
 /// @see Nature
 /// @since 2025/6/8
 public record NatureStatAffectSets(
-    List<NamedApiResource<Nature>> increase, List<NamedApiResource<Nature>> decrease) {}
+        List<NamedApiResource<Nature>> increase, List<NamedApiResource<Nature>> decrease) {}

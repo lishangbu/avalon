@@ -16,4 +16,9 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/20
 public record Language(
-    Integer id, String name, Boolean official, String iso639, String iso3166, List<Name> names) {}
+        Integer id,
+        String name,
+        Boolean official,
+        String iso639,
+        String iso3166,
+        List<Name> names) {}

@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "技能学习机器")
 public class Machine implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 道具ID
-  @Column(comment = "道具ID")
-  private Long itemId;
+    /// 道具ID
+    @Column(comment = "道具ID")
+    private Long itemId;
 
-  /// 招式ID
-  @Column(comment = "招式ID")
-  private Long moveId;
+    /// 招式ID
+    @Column(comment = "招式ID")
+    private Long moveId;
 }

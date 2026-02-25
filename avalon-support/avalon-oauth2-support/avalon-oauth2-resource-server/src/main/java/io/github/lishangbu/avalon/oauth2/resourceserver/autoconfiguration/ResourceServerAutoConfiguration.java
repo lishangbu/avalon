@@ -47,65 +47,69 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class ResourceServerAutoConfiguration {
 
-  /// OAuth2 相关配置属性
-  ///
-  /// 主要用于获取需要忽略认证的 URL 列表（例如静态资源、开放接口等）
-  private final Oauth2Properties oauth2Properties;
+    /// OAuth2 相关配置属性
+    ///
+    /// 主要用于获取需要忽略认证的 URL 列表（例如静态资源、开放接口等）
+    private final Oauth2Properties oauth2Properties;
 
-  /// 资源服务器的安全过滤链
-  ///
-  /// 配置说明：
-  ///
-  /// 1) 放行 `oauth2Properties.ignoreUrls` 中配置的 URL；其余请求都要求认证
-  /// 2) 禁用 CSRF、CORS、表单登录、会话管理和记住我功能，以支持无状态 REST API 场景
-  /// 3) 先配置 `oauth2ResourceServer(...)` 并显式设置 `opaqueToken` 与
-  ///    `authenticationEntryPoint`，避免内置默认覆盖自定义入口点
-  /// 4) 随后配置全局 `exceptionHandling`，设置统一的 `AuthenticationEntryPoint` 和
-  ///    `AccessDeniedHandler`，用于处理未认证或无权限访问的情况并返回统一 JSON 响应格式
-  ///
-  /// @param http HttpSecurity 构造器，用于构建 SecurityFilterChain
-  /// @return 构建完成的 SecurityFilterChain
-  /// @throws Exception 当构建 SecurityFilterChain 失败时抛出
-  @Bean
-  @ConditionalOnMissingBean(name = RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
-  @Order(RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
-  public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-            (authorize) ->
-                authorize
-                    // 放行静态资源和不需要认证的url
-                    .requestMatchers(oauth2Properties.getIgnoreUrls().toArray(new String[0]))
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        // 禁用csrf和cors
-        .csrf(CsrfConfigurer::disable)
-        .cors(CorsConfigurer::disable)
-        // 禁用表单登录和会话管理
-        .formLogin(FormLoginConfigurer::disable)
-        .sessionManagement(SessionManagementConfigurer::disable)
-        .rememberMe(RememberMeConfigurer::disable);
+    /// 资源服务器的安全过滤链
+    ///
+    /// 配置说明：
+    ///
+    /// 1) 放行 `oauth2Properties.ignoreUrls` 中配置的 URL；其余请求都要求认证
+    /// 2) 禁用 CSRF、CORS、表单登录、会话管理和记住我功能，以支持无状态 REST API 场景
+    /// 3) 先配置 `oauth2ResourceServer(...)` 并显式设置 `opaqueToken` 与
+    ///    `authenticationEntryPoint`，避免内置默认覆盖自定义入口点
+    /// 4) 随后配置全局 `exceptionHandling`，设置统一的 `AuthenticationEntryPoint` 和
+    ///    `AccessDeniedHandler`，用于处理未认证或无权限访问的情况并返回统一 JSON 响应格式
+    ///
+    /// @param http HttpSecurity 构造器，用于构建 SecurityFilterChain
+    /// @return 构建完成的 SecurityFilterChain
+    /// @throws Exception 当构建 SecurityFilterChain 失败时抛出
+    @Bean
+    @ConditionalOnMissingBean(name = RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
+    @Order(RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
+    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http)
+            throws Exception {
+        http.authorizeHttpRequests(
+                        (authorize) ->
+                                authorize
+                                        // 放行静态资源和不需要认证的url
+                                        .requestMatchers(
+                                                oauth2Properties
+                                                        .getIgnoreUrls()
+                                                        .toArray(new String[0]))
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
+                // 禁用csrf和cors
+                .csrf(CsrfConfigurer::disable)
+                .cors(CorsConfigurer::disable)
+                // 禁用表单登录和会话管理
+                .formLogin(FormLoginConfigurer::disable)
+                .sessionManagement(SessionManagementConfigurer::disable)
+                .rememberMe(RememberMeConfigurer::disable);
 
-    // 注意：
-    // `oauth2ResourceServer(...)` 可能会在其应用后安装自己的异常处理（包括 AuthenticationEntryPoint）
-    // 为避免覆盖我们自定义的 AuthenticationEntryPoint，请先配置资源服务器，然后再设置 exceptionHandling
-    // 这样可以保证使用我们配置的统一入口点来处理认证失败或令牌无效的情况
-    http.oauth2ResourceServer(
-        oauth2ResourceServer -> {
-          oauth2ResourceServer.opaqueToken(Customizer.withDefaults());
-          // 确保资源服务器在 token 校验失败时也使用我们的统一 entry point
-          oauth2ResourceServer
-              .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
-              .accessDeniedHandler(new DefaultAccessDeniedHandler());
-        });
+        // 注意：
+        // `oauth2ResourceServer(...)` 可能会在其应用后安装自己的异常处理（包括 AuthenticationEntryPoint）
+        // 为避免覆盖我们自定义的 AuthenticationEntryPoint，请先配置资源服务器，然后再设置 exceptionHandling
+        // 这样可以保证使用我们配置的统一入口点来处理认证失败或令牌无效的情况
+        http.oauth2ResourceServer(
+                oauth2ResourceServer -> {
+                    oauth2ResourceServer.opaqueToken(Customizer.withDefaults());
+                    // 确保资源服务器在 token 校验失败时也使用我们的统一 entry point
+                    oauth2ResourceServer
+                            .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
+                            .accessDeniedHandler(new DefaultAccessDeniedHandler());
+                });
 
-    // 在 oauth2ResourceServer 之后配置异常处理，确保我们的处理器不会被资源服务器的默认实现覆盖
-    http.exceptionHandling(
-        exceptions ->
-            exceptions
-                .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
-                .accessDeniedHandler(new DefaultAccessDeniedHandler()));
+        // 在 oauth2ResourceServer 之后配置异常处理，确保我们的处理器不会被资源服务器的默认实现覆盖
+        http.exceptionHandling(
+                exceptions ->
+                        exceptions
+                                .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
+                                .accessDeniedHandler(new DefaultAccessDeniedHandler()));
 
-    return http.build();
-  }
+        return http.build();
+    }
 }

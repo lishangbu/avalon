@@ -20,34 +20,34 @@ import tools.jackson.databind.json.JsonMapper;
 /// @since 2026/2/7
 @Converter
 public class SpringSecurityAttributeConverter
-    implements AttributeConverter<Map<String, Object>, String> {
-  private final ClassLoader loader = getClass().getClassLoader();
-  private final JsonMapper mapper =
-      JsonMapper.builder().addModules(SecurityJacksonModules.getModules(loader)).build();
+        implements AttributeConverter<Map<String, Object>, String> {
+    private final ClassLoader loader = getClass().getClassLoader();
+    private final JsonMapper mapper =
+            JsonMapper.builder().addModules(SecurityJacksonModules.getModules(loader)).build();
 
-  /// 将属性 Map 序列化为 JSON 存储到数据库
-  ///
-  /// @param attribute 要转换的属性 Map
-  /// @return 序列化后的 JSON 字符串，如果 attribute 为 null 则返回 null
-  /// @throws RuntimeException 如果序列化失败
-  @Override
-  public String convertToDatabaseColumn(Map<String, Object> attribute) {
-    if (attribute == null) {
-      return null;
+    /// 将属性 Map 序列化为 JSON 存储到数据库
+    ///
+    /// @param attribute 要转换的属性 Map
+    /// @return 序列化后的 JSON 字符串，如果 attribute 为 null 则返回 null
+    /// @throws RuntimeException 如果序列化失败
+    @Override
+    public String convertToDatabaseColumn(Map<String, Object> attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        return mapper.writeValueAsString(attribute);
     }
-    return mapper.writeValueAsString(attribute);
-  }
 
-  /// 从数据库读取 JSON 数据反序列化为属性 Map
-  ///
-  /// @param json 数据库中的 JSON 字符串
-  /// @return 反序列化后的属性 Map，如果 json 为 null 则返回 null
-  /// @throws RuntimeException 如果反序列化失败
-  @Override
-  public Map<String, Object> convertToEntityAttribute(String json) {
-    if (json == null) {
-      return null;
+    /// 从数据库读取 JSON 数据反序列化为属性 Map
+    ///
+    /// @param json 数据库中的 JSON 字符串
+    /// @return 反序列化后的属性 Map，如果 json 为 null 则返回 null
+    /// @throws RuntimeException 如果反序列化失败
+    @Override
+    public Map<String, Object> convertToEntityAttribute(String json) {
+        if (json == null) {
+            return null;
+        }
+        return mapper.readValue(json, new TypeReference<>() {});
     }
-    return mapper.readValue(json, new TypeReference<>() {});
-  }
 }

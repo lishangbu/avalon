@@ -3,8 +3,8 @@ package io.github.lishangbu.avalon.pokeapi.model.encounter;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import java.util.List;
 
-/// 玩家在野外遇到宝可梦的方式，例如在高草中行走，详情参考
-// [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness)
+/// 玩家在野外遇到宝可梦的方式，例如在高草中行走，
+/// 详情参考[Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Category:Berries_by_firmness)
 ///
 /// @param id    该资源的唯一标识符
 /// @param name  该资源的名称

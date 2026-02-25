@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface NatureRepository
-    extends JpaRepository<Nature, Long>, JpaSpecificationExecutor<Nature> {}
+        extends JpaRepository<Nature, Long>, JpaSpecificationExecutor<Nature> {}

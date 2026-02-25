@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface PokemonColorRepository
-    extends JpaRepository<PokemonColor, Long>, JpaSpecificationExecutor<PokemonColor> {}
+        extends JpaRepository<PokemonColor, Long>, JpaSpecificationExecutor<PokemonColor> {}

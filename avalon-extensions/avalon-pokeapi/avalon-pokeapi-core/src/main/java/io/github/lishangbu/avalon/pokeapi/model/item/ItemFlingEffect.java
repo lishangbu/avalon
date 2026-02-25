@@ -18,7 +18,7 @@ import java.util.List;
 /// @see Item
 /// @since 2025/5/24
 public record ItemFlingEffect(
-    Integer id,
-    String name,
-    @JsonProperty("effect_entries") List<Effect> effectEntries,
-    List<NamedApiResource<Item>> items) {}
+        Integer id,
+        String name,
+        @JsonProperty("effect_entries") List<Effect> effectEntries,
+        List<NamedApiResource<Item>> items) {}

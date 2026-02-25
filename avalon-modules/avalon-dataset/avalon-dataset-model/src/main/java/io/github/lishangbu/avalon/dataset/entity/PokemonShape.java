@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "宝可梦形状")
 public class PokemonShape implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 显示名称
-  @Column(comment = "显示名称", length = 100)
-  private String name;
+    /// 显示名称
+    @Column(comment = "显示名称", length = 100)
+    private String name;
 }

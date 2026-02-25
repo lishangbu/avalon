@@ -22,48 +22,48 @@ import tools.jackson.databind.json.JsonMapper;
 @RestControllerAdvice(basePackages = "io.github.lishangbu.avalon")
 public class ApiResultResponseAdvice implements ResponseBodyAdvice<Object> {
 
-  private final JsonMapper jsonMapper;
+    private final JsonMapper jsonMapper;
 
-  /// 判断是否需要处理响应体（本实现总是处理）
-  @Override
-  public boolean supports(
-      MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-    return true;
-  }
-
-  /// 响应体写出前的统一包装处理
-  ///
-  /// @param body                  原始响应体
-  /// @param returnType            方法返回类型参数
-  /// @param selectedContentType   响应内容类型
-  /// @param selectedConverterType 消息转换器类型
-  /// @param request               当前请求对象
-  /// @param response              当前响应对象
-  /// @return 包装后的响应体
-  @Override
-  public Object beforeBodyWrite(
-      Object body,
-      MethodParameter returnType,
-      MediaType selectedContentType,
-      Class<? extends HttpMessageConverter<?>> selectedConverterType,
-      ServerHttpRequest request,
-      ServerHttpResponse response) {
-    return wrapApiResult(body);
-  }
-
-  /// 包装 API 调用结果
-  ///
-  /// @param body 原始响应体
-  /// @return 包装后的 ApiResult 或 JSON 字符串
-  private Object wrapApiResult(Object body) {
-    if (body instanceof String) {
-      return jsonMapper.writeValueAsString(ApiResult.ok(body));
+    /// 判断是否需要处理响应体（本实现总是处理）
+    @Override
+    public boolean supports(
+            MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        return true;
     }
 
-    if (body instanceof ApiResult apiResult) {
-      return apiResult;
+    /// 响应体写出前的统一包装处理
+    ///
+    /// @param body                  原始响应体
+    /// @param returnType            方法返回类型参数
+    /// @param selectedContentType   响应内容类型
+    /// @param selectedConverterType 消息转换器类型
+    /// @param request               当前请求对象
+    /// @param response              当前响应对象
+    /// @return 包装后的响应体
+    @Override
+    public Object beforeBodyWrite(
+            Object body,
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
+        return wrapApiResult(body);
     }
 
-    return ApiResult.ok(body);
-  }
+    /// 包装 API 调用结果
+    ///
+    /// @param body 原始响应体
+    /// @return 包装后的 ApiResult 或 JSON 字符串
+    private Object wrapApiResult(Object body) {
+        if (body instanceof String) {
+            return jsonMapper.writeValueAsString(ApiResult.ok(body));
+        }
+
+        if (body instanceof ApiResult apiResult) {
+            return apiResult;
+        }
+
+        return ApiResult.ok(body);
+    }
 }

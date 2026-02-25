@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PokemonTypeExcelDTO {
-  /// 宝可梦ID
-  @ExcelProperty("pokemon_id")
-  private Integer pokemonId;
+    /// 宝可梦ID
+    @ExcelProperty("pokemon_id")
+    private Integer pokemonId;
 
-  /// 属性ID
-  @ExcelProperty("type_id")
-  private Integer typeId;
+    /// 属性ID
+    @ExcelProperty("type_id")
+    private Integer typeId;
 
-  /// 属性slot
-  @ExcelProperty("slot")
-  private Integer slot;
+    /// 属性slot
+    @ExcelProperty("slot")
+    private Integer slot;
 }

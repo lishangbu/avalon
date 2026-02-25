@@ -10,31 +10,31 @@ import io.github.lishangbu.avalon.web.result.ErrorResultCode;
 /// @since 2025/4/8
 public enum SecurityErrorResultCode implements ErrorResultCode {
 
-  /// 401 Unauthorized
-  ///
-  /// @see <a href="https://tools.ietf.org/html/rfc7235#section-3.1">HTTP/1.1: Authentication</a>
-  UNAUTHORIZED(401, "Unauthorized"),
+    /// 401 Unauthorized
+    ///
+    /// @see <a href="https://tools.ietf.org/html/rfc7235#section-3.1">HTTP/1.1: Authentication</a>
+    UNAUTHORIZED(401, "Unauthorized"),
 
-  /// 403 Forbidden
-  ///
-  /// @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">HTTP/1.1: Semantics and
-  // Content</a>
-  FORBIDDEN(403, "Forbidden");
+    /// 403 Forbidden
+    ///
+    /// @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">HTTP/1.1: Semantics and
+    // Content</a>
+    FORBIDDEN(403, "Forbidden");
 
-  private final Integer code;
+    private final Integer code;
 
-  private final String message;
+    private final String message;
 
-  SecurityErrorResultCode(Integer code, String message) {
-    this.code = code;
-    this.message = message;
-  }
+    SecurityErrorResultCode(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 
-  public Integer code() {
-    return this.code;
-  }
+    public Integer code() {
+        return this.code;
+    }
 
-  public String errorMessage() {
-    return this.message;
-  }
+    public String errorMessage() {
+        return this.message;
+    }
 }

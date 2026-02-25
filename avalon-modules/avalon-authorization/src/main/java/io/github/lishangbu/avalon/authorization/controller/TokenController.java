@@ -24,25 +24,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TokenController {
 
-  private final OAuth2AuthorizationService oAuth2AuthorizationService;
+    private final OAuth2AuthorizationService oAuth2AuthorizationService;
 
-  @DeleteMapping("/logout")
-  public void logout() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null
-        && authentication.getCredentials() instanceof OAuth2AccessToken accessToken) {
-      OAuth2Authorization auth2Authorization =
-          oAuth2AuthorizationService.findByToken(
-              accessToken.getTokenValue(), OAuth2TokenType.ACCESS_TOKEN);
-      if (auth2Authorization != null) {
-        oAuth2AuthorizationService.remove(auth2Authorization);
-        SecurityContextHolder.clearContext();
-      }
+    @DeleteMapping("/logout")
+    public void logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null
+                && authentication.getCredentials() instanceof OAuth2AccessToken accessToken) {
+            OAuth2Authorization auth2Authorization =
+                    oAuth2AuthorizationService.findByToken(
+                            accessToken.getTokenValue(), OAuth2TokenType.ACCESS_TOKEN);
+            if (auth2Authorization != null) {
+                oAuth2AuthorizationService.remove(auth2Authorization);
+                SecurityContextHolder.clearContext();
+            }
+        }
     }
-  }
 
-  @GetMapping("/info")
-  public UserInfo user(@AuthenticationPrincipal UserInfo user) {
-    return user;
-  }
+    @GetMapping("/info")
+    public UserInfo user(@AuthenticationPrincipal UserInfo user) {
+        return user;
+    }
 }

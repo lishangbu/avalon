@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TypeDamageRelationExcelDTO {
-  /// 攻击方 ID
-  @ExcelProperty("attacking_type_id")
-  private Integer attackingTypeId;
+    /// 攻击方 ID
+    @ExcelProperty("attacking_type_id")
+    private Integer attackingTypeId;
 
-  /// 防御方 ID
-  @ExcelProperty("defending_type_id")
-  private Integer defendingTypeId;
+    /// 防御方 ID
+    @ExcelProperty("defending_type_id")
+    private Integer defendingTypeId;
 
-  /// 伤害倍数
-  @ExcelProperty("multiplier")
-  private Float multiplier;
+    /// 伤害倍数
+    @ExcelProperty("multiplier")
+    private Float multiplier;
 }

@@ -15,45 +15,46 @@ package io.github.lishangbu.avalon.game.calculator.growthrate;
 /// @since 2026-02-25
 public abstract class AbstractGrowthRateCalculator implements GrowthRateCalculator {
 
-  /// 判断是否支持指定的成长速率内部名称
-  ///
-  /// @param growthRateInternalName 成长速率的内部名称
-  /// @return 如果 {@code growthRateInternalName} 与当前实现的内部名称不区分大小写相等则返回 {@code true}，否则返回 {@code
-  // false}
-  /// @throws NullPointerException 当 {@code growthRateInternalName} 为 {@code null} 时会抛出该异常
-  @Override
-  public boolean support(String growthRateInternalName) {
-    return getGrowthRateInternalName().equalsIgnoreCase(growthRateInternalName);
-  }
+    /// 判断是否支持指定的成长速率内部名称
+    ///
+    /// @param growthRateInternalName 成长速率的内部名称
+    /// @return 如果 {@code growthRateInternalName} 与当前实现的内部名称不区分大小写相等则返回 {@code true}，否则返回 {@code
+    // false}
 
-  /// 计算指定等级的成长值
-  ///
-  /// 本实现负责边界处理：当 {@code level <= 0} 返回 {@code 0}；当 {@code level == 1} 返回 {@code 0}；
-  /// 其余情况委托给 {@link #tryCalculateGrowthRate(int)} 由子类完成具体计算
-  ///
-  /// @param level 等级，预期为正整数
-  /// @return 给定等级对应的成长值，边界情况（非正等级或等级为 1）返回 {@code 0}
-  @Override
-  public int calculateGrowthRate(int level) {
-    if (level <= 0) return 0;
-    if (level == 1) {
-      return 0;
-    } else {
-      return tryCalculateGrowthRate(level);
+    /// @throws NullPointerException 当 {@code growthRateInternalName} 为 {@code null} 时会抛出该异常
+    @Override
+    public boolean support(String growthRateInternalName) {
+        return getGrowthRateInternalName().equalsIgnoreCase(growthRateInternalName);
     }
-  }
 
-  /// 子类实现：尝试计算指定等级的成长值
-  ///
-  /// 子类实现应假定传入的 {@code level} 已通过 {@link #calculateGrowthRate(int)} 做过基本边界处理，
-  /// 因此通常从 {@code level >= 2} 开始计算具体的成长曲线
-  ///
-  /// @param level 等级，子类可假定为大于或等于 2 的正整数
-  /// @return 给定等级对应的成长值，由子类根据具体成长曲线返回
-  protected abstract int tryCalculateGrowthRate(int level);
+    /// 计算指定等级的成长值
+    ///
+    /// 本实现负责边界处理：当 {@code level <= 0} 返回 {@code 0}；当 {@code level == 1} 返回 {@code 0}；
+    /// 其余情况委托给 {@link #tryCalculateGrowthRate(int)} 由子类完成具体计算
+    ///
+    /// @param level 等级，预期为正整数
+    /// @return 给定等级对应的成长值，边界情况（非正等级或等级为 1）返回 {@code 0}
+    @Override
+    public int calculateGrowthRate(int level) {
+        if (level <= 0) return 0;
+        if (level == 1) {
+            return 0;
+        } else {
+            return tryCalculateGrowthRate(level);
+        }
+    }
 
-  /// 子类必须提供的内部名称，用于 {@link #support(String)} 的匹配
-  ///
-  /// @return 成长速率的内部标识名，通常为小写单词或短语，用于唯一标识一种成长曲线
-  protected abstract String getGrowthRateInternalName();
+    /// 子类实现：尝试计算指定等级的成长值
+    ///
+    /// 子类实现应假定传入的 {@code level} 已通过 {@link #calculateGrowthRate(int)} 做过基本边界处理，
+    /// 因此通常从 {@code level >= 2} 开始计算具体的成长曲线
+    ///
+    /// @param level 等级，子类可假定为大于或等于 2 的正整数
+    /// @return 给定等级对应的成长值，由子类根据具体成长曲线返回
+    protected abstract int tryCalculateGrowthRate(int level);
+
+    /// 子类必须提供的内部名称，用于 {@link #support(String)} 的匹配
+    ///
+    /// @return 成长速率的内部标识名，通常为小写单词或短语，用于唯一标识一种成长曲线
+    protected abstract String getGrowthRateInternalName();
 }

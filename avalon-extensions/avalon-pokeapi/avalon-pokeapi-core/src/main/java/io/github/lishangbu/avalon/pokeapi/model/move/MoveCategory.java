@@ -17,4 +17,7 @@ import java.util.List;
 /// @see Description
 /// @since 2025/6/7
 public record MoveCategory(
-    Integer id, String name, List<NamedApiResource<Move>> moves, List<Description> descriptions) {}
+        Integer id,
+        String name,
+        List<NamedApiResource<Move>> moves,
+        List<Description> descriptions) {}

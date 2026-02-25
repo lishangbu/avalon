@@ -19,15 +19,15 @@ import lombok.Data;
 @Entity
 @Table(comment = "进化链")
 public class EvolutionChain implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 幼年触发道具 ID
-  @Column(comment = "幼年触发道具ID")
-  private Long babyTriggerItemId;
+    /// 幼年触发道具 ID
+    @Column(comment = "幼年触发道具ID")
+    private Long babyTriggerItemId;
 }

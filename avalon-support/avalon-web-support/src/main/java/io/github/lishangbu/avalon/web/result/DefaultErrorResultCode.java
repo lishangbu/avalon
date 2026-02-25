@@ -8,32 +8,32 @@ package io.github.lishangbu.avalon.web.result;
 /// @since 2025/4/8
 public enum DefaultErrorResultCode implements ErrorResultCode {
 
-  /// 参数错误
-  BAD_REQUEST(400, "Bad Request"),
+    /// 参数错误
+    BAD_REQUEST(400, "Bad Request"),
 
-  /// 资源不存在
-  RESOURCE_NOT_FOUND(404, "Resource Not Found"),
+    /// 资源不存在
+    RESOURCE_NOT_FOUND(404, "Resource Not Found"),
 
-  /// 方法不支持
-  METHOD_NOT_ALLOWED(405, "METHOD NOT ALLOWED"),
+    /// 方法不支持
+    METHOD_NOT_ALLOWED(405, "METHOD NOT ALLOWED"),
 
-  /// 服务器内部错误
-  SERVER_ERROR(500, "Internal Server Error");
+    /// 服务器内部错误
+    SERVER_ERROR(500, "Internal Server Error");
 
-  private final Integer code;
+    private final Integer code;
 
-  private final String message;
+    private final String message;
 
-  DefaultErrorResultCode(Integer code, String message) {
-    this.code = code;
-    this.message = message;
-  }
+    DefaultErrorResultCode(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 
-  public Integer code() {
-    return this.code;
-  }
+    public Integer code() {
+        return this.code;
+    }
 
-  public String errorMessage() {
-    return this.message;
-  }
+    public String errorMessage() {
+        return this.message;
+    }
 }

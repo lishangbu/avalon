@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface GenderRepository
-    extends JpaRepository<Gender, Long>, JpaSpecificationExecutor<Gender> {}
+        extends JpaRepository<Gender, Long>, JpaSpecificationExecutor<Gender> {}

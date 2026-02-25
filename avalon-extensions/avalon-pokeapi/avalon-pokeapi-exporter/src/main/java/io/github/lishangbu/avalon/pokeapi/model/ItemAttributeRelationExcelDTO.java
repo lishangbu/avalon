@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemAttributeRelationExcelDTO {
-  /// 道具ID
-  @ExcelProperty("item_id")
-  private Integer itemId;
+    /// 道具ID
+    @ExcelProperty("item_id")
+    private Integer itemId;
 
-  /// 属性ID
-  @ExcelProperty("attribute_id")
-  private Integer attributeId;
+    /// 属性ID
+    @ExcelProperty("attribute_id")
+    private Integer attributeId;
 }

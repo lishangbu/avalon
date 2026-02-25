@@ -5,8 +5,8 @@ package io.github.lishangbu.avalon.ip2location.exception;
 /// @author lishangbu
 /// @since 2025/4/12
 public class InvalidIpAddressException extends IpToLocationException {
-  /// 构造一个新的无效 IP 地址异常，并设置默认错误信息
-  public InvalidIpAddressException() {
-    super("Invalid IP address.");
-  }
+    /// 构造一个新的无效 IP 地址异常，并设置默认错误信息
+    public InvalidIpAddressException() {
+        super("Invalid IP address.");
+    }
 }

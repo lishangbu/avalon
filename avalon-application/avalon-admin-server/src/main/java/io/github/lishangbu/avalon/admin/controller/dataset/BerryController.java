@@ -15,41 +15,41 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/berry")
 @RequiredArgsConstructor
 public class BerryController {
-  private final BerryService berryService;
+    private final BerryService berryService;
 
-  /// 分页条件查询树果
-  ///
-  /// @param pageable 分页参数
-  /// @param berry 查询条件
-  /// @return Berry 分页结果
-  @GetMapping("/page")
-  public Page<Berry> getBerryPage(Pageable pageable, Berry berry) {
-    return berryService.getPageByCondition(berry, pageable);
-  }
+    /// 分页条件查询树果
+    ///
+    /// @param pageable 分页参数
+    /// @param berry    查询条件
+    /// @return Berry 分页结果
+    @GetMapping("/page")
+    public Page<Berry> getBerryPage(Pageable pageable, Berry berry) {
+        return berryService.getPageByCondition(berry, pageable);
+    }
 
-  /// 新增树果
-  ///
-  /// @param berry 待保存的树果实体
-  /// @return 保存后的 Berry
-  @PostMapping
-  public Berry save(@RequestBody Berry berry) {
-    return berryService.save(berry);
-  }
+    /// 新增树果
+    ///
+    /// @param berry 待保存的树果实体
+    /// @return 保存后的 Berry
+    @PostMapping
+    public Berry save(@RequestBody Berry berry) {
+        return berryService.save(berry);
+    }
 
-  /// 更新树果
-  ///
-  /// @param berry 待更新的树果实体
-  /// @return 更新后的树果
-  @PutMapping
-  public Berry update(@RequestBody Berry berry) {
-    return berryService.update(berry);
-  }
+    /// 更新树果
+    ///
+    /// @param berry 待更新的树果实体
+    /// @return 更新后的树果
+    @PutMapping
+    public Berry update(@RequestBody Berry berry) {
+        return berryService.update(berry);
+    }
 
-  /// 根据 ID 删除树果
-  ///
-  /// @param id Berry 主键
-  @DeleteMapping("/{id:\\d+}")
-  public void deleteById(@PathVariable Long id) {
-    berryService.removeById(id);
-  }
+    /// 根据 ID 删除树果
+    ///
+    /// @param id Berry 主键
+    @DeleteMapping("/{id:\\d+}")
+    public void deleteById(@PathVariable Long id) {
+        berryService.removeById(id);
+    }
 }

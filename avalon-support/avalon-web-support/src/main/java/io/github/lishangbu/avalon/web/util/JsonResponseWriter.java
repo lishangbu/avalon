@@ -21,41 +21,40 @@ import org.springframework.http.MediaType;
 @UtilityClass
 public class JsonResponseWriter {
 
-  public void writeSuccessResponse(HttpServletResponse response, Object data) {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setStatus(HttpStatus.OK.value());
-    try {
-      response.getWriter().write(JsonUtils.toJson(ApiResult.ok(data)));
-      response.getWriter().flush();
-      response.getWriter().close();
-    } catch (IOException e) {
-      log.error("写入response失败", e);
-      throw new RuntimeException(e);
+    public void writeSuccessResponse(HttpServletResponse response, Object data) {
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpStatus.OK.value());
+        try {
+            response.getWriter().write(JsonUtils.toJson(ApiResult.ok(data)));
+            response.getWriter().flush();
+            response.getWriter().close();
+        } catch (IOException e) {
+            log.error("写入response失败", e);
+            throw new RuntimeException(e);
+        }
     }
-  }
 
-  public void writeSuccessResponse(HttpServletResponse response) {
-    writeSuccessResponse(response, null);
-  }
-
-  public void writeFailedResponse(
-      HttpServletResponse response,
-      HttpStatus httpStatus,
-      ErrorResultCode errorResultCode,
-      String... errorMessages) {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setStatus(httpStatus.value());
-    try {
-      response
-          .getWriter()
-          .write(JsonUtils.toJson(ApiResult.failed(errorResultCode, errorMessages)));
-      response.getWriter().flush();
-      response.getWriter().close();
-    } catch (IOException e) {
-      log.error("写入response失败", e);
-      throw new RuntimeException(e);
+    public void writeSuccessResponse(HttpServletResponse response) {
+        writeSuccessResponse(response, null);
     }
-  }
+
+    public void writeFailedResponse(
+            HttpServletResponse response,
+            HttpStatus httpStatus,
+            ErrorResultCode errorResultCode,
+            String... errorMessages) {
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(httpStatus.value());
+        try {
+            response.getWriter()
+                    .write(JsonUtils.toJson(ApiResult.failed(errorResultCode, errorMessages)));
+            response.getWriter().flush();
+            response.getWriter().close();
+        } catch (IOException e) {
+            log.error("写入response失败", e);
+            throw new RuntimeException(e);
+        }
+    }
 }

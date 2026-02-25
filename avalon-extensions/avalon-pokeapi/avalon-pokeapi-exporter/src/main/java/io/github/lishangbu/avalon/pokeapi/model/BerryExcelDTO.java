@@ -13,47 +13,47 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BerryExcelDTO {
-  /// 主键信息
-  @ExcelProperty("id")
-  private Integer id;
+    /// 主键信息
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 
-  /// 显示名称
-  @ExcelProperty("name")
-  private String name;
+    /// 显示名称
+    @ExcelProperty("name")
+    private String name;
 
-  /// 生长时间
-  @ExcelProperty("growth_time")
-  private Integer growthTime;
+    /// 生长时间
+    @ExcelProperty("growth_time")
+    private Integer growthTime;
 
-  /// 最大结果数
-  @ExcelProperty("max_harvest")
-  private Integer maxHarvest;
+    /// 最大结果数
+    @ExcelProperty("max_harvest")
+    private Integer maxHarvest;
 
-  /// 体积
-  @ExcelProperty("bulk")
-  private Integer bulk;
+    /// 体积
+    @ExcelProperty("bulk")
+    private Integer bulk;
 
-  /// 光滑度
-  @ExcelProperty("smoothness")
-  private Integer smoothness;
+    /// 光滑度
+    @ExcelProperty("smoothness")
+    private Integer smoothness;
 
-  /// 土壤干燥度
-  @ExcelProperty("soil_dryness")
-  private Integer soilDryness;
+    /// 土壤干燥度
+    @ExcelProperty("soil_dryness")
+    private Integer soilDryness;
 
-  /// 树果硬度ID
-  @ExcelProperty("berry_firmness_id")
-  private Integer berryFirmnessId;
+    /// 树果硬度ID
+    @ExcelProperty("berry_firmness_id")
+    private Integer berryFirmnessId;
 
-  /// 自然之恩招式属性
-  @ExcelProperty("natural_gift_type_id")
-  private Integer naturalGiftTypeId;
+    /// 自然之恩招式属性
+    @ExcelProperty("natural_gift_type_id")
+    private Integer naturalGiftTypeId;
 
-  /// 自然之恩招式威力
-  @ExcelProperty("natural_gift_power")
-  private Integer naturalGiftPower;
+    /// 自然之恩招式威力
+    @ExcelProperty("natural_gift_power")
+    private Integer naturalGiftPower;
 }

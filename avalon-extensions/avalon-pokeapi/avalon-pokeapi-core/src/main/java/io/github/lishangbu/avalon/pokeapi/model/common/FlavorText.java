@@ -11,6 +11,6 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @author lishangbu
 /// @since 2025/5/20
 public record FlavorText(
-    @JsonProperty("flavor_text") String flavorText,
-    NamedApiResource<Language> language,
-    NamedApiResource<?> version) {}
+        @JsonProperty("flavor_text") String flavorText,
+        NamedApiResource<Language> language,
+        NamedApiResource<?> version) {}

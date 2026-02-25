@@ -16,23 +16,23 @@ import lombok.Data;
 @Entity
 @Table(comment = "道具类别")
 public class ItemCategory implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 道具类别名称
-  @Column(comment = "道具类别名称", length = 100)
-  private String name;
+    /// 道具类别名称
+    @Column(comment = "道具类别名称", length = 100)
+    private String name;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "item_pocket_id", comment = "该类别道具所属的口袋")
-  private ItemPocket itemPocket;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "item_pocket_id", comment = "该类别道具所属的口袋")
+    private ItemPocket itemPocket;
 }

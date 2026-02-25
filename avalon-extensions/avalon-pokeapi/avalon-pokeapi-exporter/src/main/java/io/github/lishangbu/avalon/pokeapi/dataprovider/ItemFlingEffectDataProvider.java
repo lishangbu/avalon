@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class ItemFlingEffectDataProvider
-    extends AbstractPokeApiDataProvider<ItemFlingEffect, ItemFlingEffectExcelDTO> {
+        extends AbstractPokeApiDataProvider<ItemFlingEffect, ItemFlingEffectExcelDTO> {
 
-  @Override
-  public ItemFlingEffectExcelDTO convert(ItemFlingEffect itemFlingEffect) {
-    ItemFlingEffectExcelDTO result = new ItemFlingEffectExcelDTO();
-    result.setId(itemFlingEffect.id());
-    result.setInternalName(itemFlingEffect.name());
-    result.setName(itemFlingEffect.name());
-    result.setEffect(resolveLocalizedEffect(itemFlingEffect.effectEntries()));
-    return result;
-  }
+    @Override
+    public ItemFlingEffectExcelDTO convert(ItemFlingEffect itemFlingEffect) {
+        ItemFlingEffectExcelDTO result = new ItemFlingEffectExcelDTO();
+        result.setId(itemFlingEffect.id());
+        result.setInternalName(itemFlingEffect.name());
+        result.setName(itemFlingEffect.name());
+        result.setEffect(resolveLocalizedEffect(itemFlingEffect.effectEntries()));
+        return result;
+    }
 }

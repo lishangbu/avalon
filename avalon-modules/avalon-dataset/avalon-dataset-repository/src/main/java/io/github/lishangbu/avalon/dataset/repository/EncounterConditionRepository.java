@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 /// @since 2026/2/12
 @Repository
 public interface EncounterConditionRepository
-    extends JpaRepository<EncounterCondition, Long>, JpaSpecificationExecutor<EncounterCondition> {}
+        extends JpaRepository<EncounterCondition, Long>,
+                JpaSpecificationExecutor<EncounterCondition> {}

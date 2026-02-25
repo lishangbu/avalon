@@ -29,12 +29,12 @@ import java.util.List;
 /// @see AbilityPokemon
 /// @since 2025/6/8
 public record Ability(
-    Integer id,
-    String name,
-    @JsonProperty("is_main_series") Boolean isMainSeries,
-    NamedApiResource<Generation> generation,
-    List<Name> names,
-    @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
-    @JsonProperty("effect_changes") List<AbilityEffectChange> effectChanges,
-    @JsonProperty("flavor_text_entries") List<AbilityFlavorText> flavorTextEntries,
-    List<AbilityPokemon> pokemon) {}
+        Integer id,
+        String name,
+        @JsonProperty("is_main_series") Boolean isMainSeries,
+        NamedApiResource<Generation> generation,
+        List<Name> names,
+        @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
+        @JsonProperty("effect_changes") List<AbilityEffectChange> effectChanges,
+        @JsonProperty("flavor_text_entries") List<AbilityFlavorText> flavorTextEntries,
+        List<AbilityPokemon> pokemon) {}

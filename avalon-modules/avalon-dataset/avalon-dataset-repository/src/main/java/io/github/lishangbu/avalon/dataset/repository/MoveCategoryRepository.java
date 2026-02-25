@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface MoveCategoryRepository
-    extends JpaRepository<MoveCategory, Long>, JpaSpecificationExecutor<MoveCategory> {}
+        extends JpaRepository<MoveCategory, Long>, JpaSpecificationExecutor<MoveCategory> {}

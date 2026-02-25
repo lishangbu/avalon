@@ -6,12 +6,12 @@ import java.util.List;
 
 /// 版本遭遇详情模型
 ///
-/// @param version           该遭遇发生的游戏版本
-/// @param maxChance         所有遭遇潜力的最大百分比
+/// @param version          该遭遇发生的游戏版本
+/// @param maxChance        所有遭遇潜力的最大百分比
 /// @param encounterDetails 遭遇及其详细信息的列表
 /// @author lishangbu
 /// @since 2025/5/20
 public record VersionEncounterDetail(
-    NamedApiResource<Version> version,
-    @JsonProperty("max_chance") Integer maxChance,
-    @JsonProperty("encounter_details") List<Encounter> encounterDetails) {}
+        NamedApiResource<Version> version,
+        @JsonProperty("max_chance") Integer maxChance,
+        @JsonProperty("encounter_details") List<Encounter> encounterDetails) {}

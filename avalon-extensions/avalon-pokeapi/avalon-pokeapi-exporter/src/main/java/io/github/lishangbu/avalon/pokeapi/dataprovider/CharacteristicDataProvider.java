@@ -11,16 +11,16 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class CharacteristicDataProvider
-    extends AbstractPokeApiDataProvider<Characteristic, CharacteristicExcelDTO> {
+        extends AbstractPokeApiDataProvider<Characteristic, CharacteristicExcelDTO> {
 
-  @Override
-  public CharacteristicExcelDTO convert(Characteristic characteristic) {
-    CharacteristicExcelDTO result = new CharacteristicExcelDTO();
-    result.setId(characteristic.id());
-    result.setGeneModulo(characteristic.geneModulo());
-    result.setPossibleValues(characteristic.possibleValues().toString());
-    result.setHighestStatId(NamedApiResourceUtils.getId(characteristic.highestStat()));
-    result.setDescription(resolveLocalizedDescription(characteristic.descriptions()));
-    return result;
-  }
+    @Override
+    public CharacteristicExcelDTO convert(Characteristic characteristic) {
+        CharacteristicExcelDTO result = new CharacteristicExcelDTO();
+        result.setId(characteristic.id());
+        result.setGeneModulo(characteristic.geneModulo());
+        result.setPossibleValues(characteristic.possibleValues().toString());
+        result.setHighestStatId(NamedApiResourceUtils.getId(characteristic.highestStat()));
+        result.setDescription(resolveLocalizedDescription(characteristic.descriptions()));
+        return result;
+    }
 }

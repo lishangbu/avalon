@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "进化触发器")
 public class EvolutionTrigger implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 触发器名称
-  @Column(comment = "触发器名称", length = 100)
-  private String name;
+    /// 触发器名称
+    @Column(comment = "触发器名称", length = 100)
+    private String name;
 }

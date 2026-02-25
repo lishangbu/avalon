@@ -25,14 +25,16 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 /// @since 1.2
 /// @since 2025/8/25
 public class AuthorizationEndpointErrorResponseHandler implements AuthenticationFailureHandler {
-  @Override
-  public void onAuthenticationFailure(
-      HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
-      throws IOException, ServletException {
-    JsonResponseWriter.writeFailedResponse(
-        response,
-        HttpStatus.UNAUTHORIZED,
-        SecurityErrorResultCode.UNAUTHORIZED,
-        exception.getMessage());
-  }
+    @Override
+    public void onAuthenticationFailure(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException exception)
+            throws IOException, ServletException {
+        JsonResponseWriter.writeFailedResponse(
+                response,
+                HttpStatus.UNAUTHORIZED,
+                SecurityErrorResultCode.UNAUTHORIZED,
+                exception.getMessage());
+    }
 }

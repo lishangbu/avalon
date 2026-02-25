@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Import;
 /// @author lishangbu
 /// @since 2025/8/20
 @Import(
-    value = {
-      PokeApiDataProviderAutoConfiguration.class,
-      PokeDataComponentAutoConfiguration.class,
-      JacksonAutoConfiguration.class
-    })
+        value = {
+            PokeApiDataProviderAutoConfiguration.class,
+            PokeDataComponentAutoConfiguration.class,
+            JacksonAutoConfiguration.class
+        })
 @Configuration(proxyBeanMethods = false)
 public class TestEnvironmentApplication {}

@@ -17,9 +17,9 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/20
 public record TypeRelations(
-    @JsonProperty("no_damage_to") List<NamedApiResource<Type>> noDamageTo,
-    @JsonProperty("half_damage_to") List<NamedApiResource<Type>> halfDamageTo,
-    @JsonProperty("double_damage_to") List<NamedApiResource<Type>> doubleDamageTo,
-    @JsonProperty("no_damage_from") List<NamedApiResource<Type>> noDamageFrom,
-    @JsonProperty("half_damage_from") List<NamedApiResource<Type>> halfDamageFrom,
-    @JsonProperty("double_damage_from") List<NamedApiResource<Type>> doubleDamageFrom) {}
+        @JsonProperty("no_damage_to") List<NamedApiResource<Type>> noDamageTo,
+        @JsonProperty("half_damage_to") List<NamedApiResource<Type>> halfDamageTo,
+        @JsonProperty("double_damage_to") List<NamedApiResource<Type>> doubleDamageTo,
+        @JsonProperty("no_damage_from") List<NamedApiResource<Type>> noDamageFrom,
+        @JsonProperty("half_damage_from") List<NamedApiResource<Type>> halfDamageFrom,
+        @JsonProperty("double_damage_from") List<NamedApiResource<Type>> doubleDamageFrom) {}

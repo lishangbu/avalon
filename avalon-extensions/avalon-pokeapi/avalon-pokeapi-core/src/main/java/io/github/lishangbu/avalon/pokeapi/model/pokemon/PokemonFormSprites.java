@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /// @author lishangbu
 /// @since 2025/6/8
 public record PokemonFormSprites(
-    @JsonProperty("front_default") String frontDefault,
-    @JsonProperty("front_shiny") String frontShiny,
-    @JsonProperty("back_default") String backDefault,
-    @JsonProperty("back_shiny") String backShiny) {}
+        @JsonProperty("front_default") String frontDefault,
+        @JsonProperty("front_shiny") String frontShiny,
+        @JsonProperty("back_default") String backDefault,
+        @JsonProperty("back_shiny") String backShiny) {}

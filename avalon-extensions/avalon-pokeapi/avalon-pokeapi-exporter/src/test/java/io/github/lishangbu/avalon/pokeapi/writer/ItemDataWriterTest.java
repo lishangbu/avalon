@@ -11,29 +11,29 @@ import jakarta.annotation.Resource;
 /// 测试 ItemDataWriter 的功能，包括数据获取和Excel写入
 class ItemDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<Item> itemDataProvider;
+    @Resource private PokeApiDataProvider<Item> itemDataProvider;
 
-  /// 返回数据类型枚举
-  ///
-  /// @return ITEM 枚举值
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.ITEM;
-  }
+    /// 返回数据类型枚举
+    ///
+    /// @return ITEM 枚举值
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.ITEM;
+    }
 
-  /// 返回Excel数据传输对象类
-  ///
-  /// @return ItemExcelDTO.class
-  @Override
-  Class<ItemExcelDTO> getExcelClass() {
-    return ItemExcelDTO.class;
-  }
+    /// 返回Excel数据传输对象类
+    ///
+    /// @return ItemExcelDTO.class
+    @Override
+    Class<ItemExcelDTO> getExcelClass() {
+        return ItemExcelDTO.class;
+    }
 
-  /// 返回数据提供者
-  ///
-  /// @return 道具数据提供者实例
-  @Override
-  PokeApiDataProvider<Item> getDataProvider() {
-    return itemDataProvider;
-  }
+    /// 返回数据提供者
+    ///
+    /// @return 道具数据提供者实例
+    @Override
+    PokeApiDataProvider<Item> getDataProvider() {
+        return itemDataProvider;
+    }
 }

@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class PokemonColorDataProvider
-    extends AbstractPokeApiDataProvider<PokemonColor, PokemonColorExcelDTO> {
+        extends AbstractPokeApiDataProvider<PokemonColor, PokemonColorExcelDTO> {
 
-  @Override
-  public PokemonColorExcelDTO convert(PokemonColor pokemonColor) {
-    PokemonColorExcelDTO result = new PokemonColorExcelDTO();
-    result.setId(pokemonColor.id());
-    result.setInternalName(pokemonColor.name());
-    result.setName(resolveLocalizedName(pokemonColor.names(), pokemonColor.name()));
-    return result;
-  }
+    @Override
+    public PokemonColorExcelDTO convert(PokemonColor pokemonColor) {
+        PokemonColorExcelDTO result = new PokemonColorExcelDTO();
+        result.setId(pokemonColor.id());
+        result.setInternalName(pokemonColor.name());
+        result.setName(resolveLocalizedName(pokemonColor.names(), pokemonColor.name()));
+        return result;
+    }
 }

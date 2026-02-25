@@ -8,11 +8,15 @@ Avalon
 
 ## Navigation
 
-[Usage Document Online][1] | **Server Repository** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
+[Usage Document Online][1] | **Server Repository
+** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
 
 [1]: https://lishangbu.github.io/avalon-site/docs
+
 [2]: https://github.com/lishangbu/avalon-ui
+
 [3]: https://github.com/lishangbu/avalon-doc
+
 [4]: https://lishangbu.github.io/avalon-site/javadoc-api
 
 ## Table of Contents
@@ -25,7 +29,8 @@ Avalon
 
 To see how the project has been applied, see the [online documents](https://lishangbu.github.io/avalon-site/docs).
 
-The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it locally.
+The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it
+locally.
 
 ## Maintainers
 

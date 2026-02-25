@@ -15,5 +15,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/type-damage-relation")
 @RequiredArgsConstructor
 public class TypeDamageRelationController {
-  private final TypeDamageRelationService typeDamageRelationService;
+    private final TypeDamageRelationService typeDamageRelationService;
 }

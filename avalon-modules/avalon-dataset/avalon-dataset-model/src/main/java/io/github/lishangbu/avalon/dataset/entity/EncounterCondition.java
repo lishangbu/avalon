@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "遭遇条件")
 public class EncounterCondition implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 条件名称
-  @Column(comment = "条件名称", length = 100)
-  private String name;
+    /// 条件名称
+    @Column(comment = "条件名称", length = 100)
+    private String name;
 }

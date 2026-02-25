@@ -12,34 +12,34 @@ import org.springframework.util.MultiValueMap;
 
 public class OAuth2EndpointUtils {
 
-  public static final String ACCESS_TOKEN_REQUEST_ERROR_URI =
-      "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
+    public static final String ACCESS_TOKEN_REQUEST_ERROR_URI =
+            "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
 
-  private OAuth2EndpointUtils() {}
+    private OAuth2EndpointUtils() {}
 
-  public static MultiValueMap<String, String> getParameters(HttpServletRequest request) {
-    Map<String, String[]> parameterMap = request.getParameterMap();
-    MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>(parameterMap.size());
-    parameterMap.forEach(
-        (key, values) -> {
-          for (String value : values) {
-            parameters.add(key, value);
-          }
-        });
-    return parameters;
-  }
+    public static MultiValueMap<String, String> getParameters(HttpServletRequest request) {
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>(parameterMap.size());
+        parameterMap.forEach(
+                (key, values) -> {
+                    for (String value : values) {
+                        parameters.add(key, value);
+                    }
+                });
+        return parameters;
+    }
 
-  public static boolean matchesPkceTokenRequest(HttpServletRequest request) {
-    return AuthorizationGrantType.AUTHORIZATION_CODE
-            .getValue()
-            .equals(request.getParameter(OAuth2ParameterNames.GRANT_TYPE))
-        && request.getParameter(OAuth2ParameterNames.CODE) != null
-        && request.getParameter(PkceParameterNames.CODE_VERIFIER) != null;
-  }
+    public static boolean matchesPkceTokenRequest(HttpServletRequest request) {
+        return AuthorizationGrantType.AUTHORIZATION_CODE
+                        .getValue()
+                        .equals(request.getParameter(OAuth2ParameterNames.GRANT_TYPE))
+                && request.getParameter(OAuth2ParameterNames.CODE) != null
+                && request.getParameter(PkceParameterNames.CODE_VERIFIER) != null;
+    }
 
-  public static void throwError(String errorCode, String parameterName, String errorUri) {
-    OAuth2Error error =
-        new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, errorUri);
-    throw new OAuth2AuthenticationException(error);
-  }
+    public static void throwError(String errorCode, String parameterName, String errorUri) {
+        OAuth2Error error =
+                new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, errorUri);
+        throw new OAuth2AuthenticationException(error);
+    }
 }

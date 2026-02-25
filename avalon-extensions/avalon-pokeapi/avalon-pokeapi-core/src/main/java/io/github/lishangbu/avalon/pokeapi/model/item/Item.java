@@ -35,18 +35,18 @@ import java.util.List;
 /// @see ItemHolderPokemon
 /// @since 2025/5/24
 public record Item(
-    Integer id,
-    String name,
-    Integer cost,
-    @JsonProperty("fling_power") Integer flingPower,
-    @JsonProperty("fling_effect") NamedApiResource flingEffect,
-    List<NamedApiResource> attributes,
-    NamedApiResource<ItemCategory> category,
-    @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
-    @JsonProperty("flavor_text_entries") List<VersionGroupFlavorText> flavorTextEntries,
-    @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
-    List<Name> names,
-    ItemSprites sprites,
-    @JsonProperty("held_by_pokemon") List<ItemHolderPokemon> heldByPokemon,
-    @JsonProperty("baby_trigger_for") APIResource<?> babyTriggerFor,
-    List<?> machines) {}
+        Integer id,
+        String name,
+        Integer cost,
+        @JsonProperty("fling_power") Integer flingPower,
+        @JsonProperty("fling_effect") NamedApiResource flingEffect,
+        List<NamedApiResource> attributes,
+        NamedApiResource<ItemCategory> category,
+        @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
+        @JsonProperty("flavor_text_entries") List<VersionGroupFlavorText> flavorTextEntries,
+        @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
+        List<Name> names,
+        ItemSprites sprites,
+        @JsonProperty("held_by_pokemon") List<ItemHolderPokemon> heldByPokemon,
+        @JsonProperty("baby_trigger_for") APIResource<?> babyTriggerFor,
+        List<?> machines) {}

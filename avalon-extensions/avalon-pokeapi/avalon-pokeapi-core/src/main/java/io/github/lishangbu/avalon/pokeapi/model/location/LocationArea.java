@@ -23,10 +23,10 @@ import java.util.List;
 /// @see PokemonEncounter
 /// @since 2025/5/26
 public record LocationArea(
-    Integer id,
-    String name,
-    @JsonProperty("game_index") Integer gameIndex,
-    @JsonProperty("encounter_method_rates") List<EncounterMethodRate> encounterMethodRates,
-    NamedApiResource<Location> location,
-    List<Name> names,
-    @JsonProperty("pokemon_encounters") List<PokemonEncounter> pokemonEncounters) {}
+        Integer id,
+        String name,
+        @JsonProperty("game_index") Integer gameIndex,
+        @JsonProperty("encounter_method_rates") List<EncounterMethodRate> encounterMethodRates,
+        NamedApiResource<Location> location,
+        List<Name> names,
+        @JsonProperty("pokemon_encounters") List<PokemonEncounter> pokemonEncounters) {}

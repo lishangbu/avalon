@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenderExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 }

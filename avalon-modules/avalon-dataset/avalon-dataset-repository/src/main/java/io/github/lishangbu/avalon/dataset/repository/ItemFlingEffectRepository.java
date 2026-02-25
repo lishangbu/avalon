@@ -13,4 +13,4 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/09/14
 @Repository
 public interface ItemFlingEffectRepository
-    extends JpaRepository<ItemFlingEffect, Long>, JpaSpecificationExecutor<ItemFlingEffect> {}
+        extends JpaRepository<ItemFlingEffect, Long>, JpaSpecificationExecutor<ItemFlingEffect> {}

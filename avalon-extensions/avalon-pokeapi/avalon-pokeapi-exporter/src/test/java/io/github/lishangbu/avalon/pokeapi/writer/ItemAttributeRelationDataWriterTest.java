@@ -11,16 +11,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = {TestEnvironmentApplication.class})
 class ItemAttributeRelationDataWriterTest {
-  @Resource
-  private PokeApiDataProvider<ItemAttributeRelationExcelDTO> itemAttributeRelationDataProvider;
+    @Resource
+    private PokeApiDataProvider<ItemAttributeRelationExcelDTO> itemAttributeRelationDataProvider;
 
-  @Test
-  void write_shouldFetchAndDelegateToSheetWriter() {
-    FastExcel.write("ITEM_ATTRIBUTE_RELATION.xlsx", ItemAttributeRelationExcelDTO.class)
-        .sheet("Sheet1")
-        .doWrite(
-            () ->
-                itemAttributeRelationDataProvider.fetch(
-                    PokeDataTypeEnum.ITEM, ItemAttributeRelationExcelDTO.class));
-  }
+    @Test
+    void write_shouldFetchAndDelegateToSheetWriter() {
+        FastExcel.write("ITEM_ATTRIBUTE_RELATION.xlsx", ItemAttributeRelationExcelDTO.class)
+                .sheet("Sheet1")
+                .doWrite(
+                        () ->
+                                itemAttributeRelationDataProvider.fetch(
+                                        PokeDataTypeEnum.ITEM,
+                                        ItemAttributeRelationExcelDTO.class));
+    }
 }

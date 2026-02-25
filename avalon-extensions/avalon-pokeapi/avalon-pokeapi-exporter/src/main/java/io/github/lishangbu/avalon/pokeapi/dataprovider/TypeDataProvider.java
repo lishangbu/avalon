@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class TypeDataProvider extends AbstractPokeApiDataProvider<Type, TypeExcelDTO> {
 
-  @Override
-  public TypeExcelDTO convert(Type type) {
-    TypeExcelDTO result = new TypeExcelDTO();
-    result.setId(type.id());
-    result.setInternalName(type.name());
-    result.setName(resolveLocalizedName(type.names(), type.name()));
-    return result;
-  }
+    @Override
+    public TypeExcelDTO convert(Type type) {
+        TypeExcelDTO result = new TypeExcelDTO();
+        result.setId(type.id());
+        result.setInternalName(type.name());
+        result.setName(resolveLocalizedName(type.names(), type.name()));
+        return result;
+    }
 }

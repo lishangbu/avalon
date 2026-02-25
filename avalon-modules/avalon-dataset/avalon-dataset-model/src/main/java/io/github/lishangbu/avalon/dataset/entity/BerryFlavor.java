@@ -19,19 +19,19 @@ import lombok.Data;
 @Entity
 @Table(comment = "树果风味")
 public class BerryFlavor implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 内部名称
-  @Column(comment = "内部名称", length = 100)
-  private String internalName;
+    /// 内部名称
+    @Column(comment = "内部名称", length = 100)
+    private String internalName;
 
-  /// 树果风味名称
-  @Column(comment = "树果风味名称", length = 100)
-  private String name;
+    /// 树果风味名称
+    @Column(comment = "树果风味名称", length = 100)
+    private String name;
 }

@@ -11,4 +11,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @author lishangbu
 /// @since 2025/6/8
 public record AwesomeName(
-    @JsonProperty("awesome_name") String awesomeName, NamedApiResource<Language> language) {}
+        @JsonProperty("awesome_name") String awesomeName, NamedApiResource<Language> language) {}

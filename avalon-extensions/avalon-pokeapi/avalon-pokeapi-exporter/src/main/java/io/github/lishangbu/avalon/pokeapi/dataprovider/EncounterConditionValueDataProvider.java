@@ -11,17 +11,20 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class EncounterConditionValueDataProvider
-    extends AbstractPokeApiDataProvider<EncounterConditionValue, EncounterConditionValueExcelDTO> {
+        extends AbstractPokeApiDataProvider<
+                EncounterConditionValue, EncounterConditionValueExcelDTO> {
 
-  @Override
-  public EncounterConditionValueExcelDTO convert(EncounterConditionValue encounterConditionValue) {
-    EncounterConditionValueExcelDTO result = new EncounterConditionValueExcelDTO();
-    result.setId(encounterConditionValue.id());
-    result.setInternalName(encounterConditionValue.name());
-    result.setName(
-        resolveLocalizedName(encounterConditionValue.names(), encounterConditionValue.name()));
-    result.setEncounterConditionId(
-        NamedApiResourceUtils.getId(encounterConditionValue.condition()));
-    return result;
-  }
+    @Override
+    public EncounterConditionValueExcelDTO convert(
+            EncounterConditionValue encounterConditionValue) {
+        EncounterConditionValueExcelDTO result = new EncounterConditionValueExcelDTO();
+        result.setId(encounterConditionValue.id());
+        result.setInternalName(encounterConditionValue.name());
+        result.setName(
+                resolveLocalizedName(
+                        encounterConditionValue.names(), encounterConditionValue.name()));
+        result.setEncounterConditionId(
+                NamedApiResourceUtils.getId(encounterConditionValue.condition()));
+        return result;
+    }
 }

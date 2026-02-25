@@ -14,7 +14,7 @@ jobs:
     # 使用矩阵策略并行构建多个服务,避免重复代码,提高构建效率
     strategy:
       matrix:
-        service: [avalon-admin-server, avalon-standalone-server]
+        service: [ avalon-admin-server, avalon-standalone-server ]
     steps:
       - uses: actions/checkout@v5
 

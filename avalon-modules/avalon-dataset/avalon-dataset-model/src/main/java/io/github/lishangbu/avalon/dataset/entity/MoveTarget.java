@@ -19,23 +19,23 @@ import lombok.Data;
 @Entity
 @Table(comment = "招式指向目标")
 public class MoveTarget implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
-  /// 主键
-  @Id
-  @Flex
-  @Column(comment = "主键")
-  private Long id;
+    /// 主键
+    @Id
+    @Flex
+    @Column(comment = "主键")
+    private Long id;
 
-  /// 招式指向目标内部名称
-  @Column(comment = "招式指向目标内部名称", length = 100)
-  private String internalName;
+    /// 招式指向目标内部名称
+    @Column(comment = "招式指向目标内部名称", length = 100)
+    private String internalName;
 
-  /// 招式指向目标名称
-  @Column(comment = "招式指向目标名称", length = 100)
-  private String name;
+    /// 招式指向目标名称
+    @Column(comment = "招式指向目标名称", length = 100)
+    private String name;
 
-  /// 招式指向目标描述
-  @Column(comment = "招式指向目标描述", length = 300)
-  private String description;
+    /// 招式指向目标描述
+    @Column(comment = "招式指向目标描述", length = 300)
+    private String description;
 }

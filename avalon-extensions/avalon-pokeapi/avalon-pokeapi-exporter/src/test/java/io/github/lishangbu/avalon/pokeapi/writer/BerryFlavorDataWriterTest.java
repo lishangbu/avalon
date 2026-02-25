@@ -8,20 +8,20 @@ import jakarta.annotation.Resource;
 
 class BerryFlavorDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<BerryFlavor> berryFlavorDataProvider;
+    @Resource private PokeApiDataProvider<BerryFlavor> berryFlavorDataProvider;
 
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.BERRY_FLAVOR;
-  }
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.BERRY_FLAVOR;
+    }
 
-  @Override
-  Class<BerryFlavorExcelDTO> getExcelClass() {
-    return BerryFlavorExcelDTO.class;
-  }
+    @Override
+    Class<BerryFlavorExcelDTO> getExcelClass() {
+        return BerryFlavorExcelDTO.class;
+    }
 
-  @Override
-  PokeApiDataProvider<BerryFlavor> getDataProvider() {
-    return berryFlavorDataProvider;
-  }
+    @Override
+    PokeApiDataProvider<BerryFlavor> getDataProvider() {
+        return berryFlavorDataProvider;
+    }
 }

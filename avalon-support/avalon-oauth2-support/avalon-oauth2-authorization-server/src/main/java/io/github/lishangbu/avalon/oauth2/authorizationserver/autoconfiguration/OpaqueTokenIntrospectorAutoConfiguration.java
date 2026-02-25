@@ -16,11 +16,11 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 /// @since 2025/8/22
 @AutoConfiguration
 public class OpaqueTokenIntrospectorAutoConfiguration {
-  @Bean
-  @ConditionalOnBean(value = {OAuth2AuthorizationService.class, UserDetailsService.class})
-  public OpaqueTokenIntrospector opaqueTokenIntrospector(
-      OAuth2AuthorizationService oAuth2AuthorizationService,
-      UserDetailsService userDetailsService) {
-    return new DefaultOpaqueTokenIntrospector(oAuth2AuthorizationService, userDetailsService);
-  }
+    @Bean
+    @ConditionalOnBean(value = {OAuth2AuthorizationService.class, UserDetailsService.class})
+    public OpaqueTokenIntrospector opaqueTokenIntrospector(
+            OAuth2AuthorizationService oAuth2AuthorizationService,
+            UserDetailsService userDetailsService) {
+        return new DefaultOpaqueTokenIntrospector(oAuth2AuthorizationService, userDetailsService);
+    }
 }

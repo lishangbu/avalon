@@ -9,4 +9,4 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /// @author lishangbu
 /// @since 2025/5/20
 public record VersionGameIndex(
-    @JsonProperty("game_index") Integer gameIndex, NamedApiResource<?> version) {}
+        @JsonProperty("game_index") Integer gameIndex, NamedApiResource<?> version) {}

@@ -16,5 +16,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RoleController {
 
-  private final RoleService roleService;
+    private final RoleService roleService;
 }

@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegionDataProvider extends AbstractPokeApiDataProvider<Region, RegionExcelDTO> {
 
-  @Override
-  public RegionExcelDTO convert(Region region) {
-    RegionExcelDTO result = new RegionExcelDTO();
-    result.setId(region.id());
-    result.setInternalName(region.name());
-    result.setName(resolveLocalizedName(region.names(), region.name()));
-    NamedApiResource<Generation> generationNamedApiResource = region.mainGeneration();
-    if (generationNamedApiResource != null) {
-      result.setMainGenerationName(generationNamedApiResource.name());
+    @Override
+    public RegionExcelDTO convert(Region region) {
+        RegionExcelDTO result = new RegionExcelDTO();
+        result.setId(region.id());
+        result.setInternalName(region.name());
+        result.setName(resolveLocalizedName(region.names(), region.name()));
+        NamedApiResource<Generation> generationNamedApiResource = region.mainGeneration();
+        if (generationNamedApiResource != null) {
+            result.setMainGenerationName(generationNamedApiResource.name());
+        }
+        return result;
     }
-    return result;
-  }
 }

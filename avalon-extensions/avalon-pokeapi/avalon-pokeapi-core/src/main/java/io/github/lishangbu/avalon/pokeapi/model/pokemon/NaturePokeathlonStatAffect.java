@@ -11,4 +11,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see Nature
 /// @since 2025/6/8
 public record NaturePokeathlonStatAffect(
-    @JsonProperty("max_change") Integer maxChange, NamedApiResource<Nature> nature) {}
+        @JsonProperty("max_change") Integer maxChange, NamedApiResource<Nature> nature) {}

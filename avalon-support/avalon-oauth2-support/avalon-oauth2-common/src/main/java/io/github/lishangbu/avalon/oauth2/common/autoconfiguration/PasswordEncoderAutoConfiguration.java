@@ -14,9 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /// @since 2025/8/17
 @AutoConfiguration
 public class PasswordEncoderAutoConfiguration {
-  @Bean
-  @ConditionalOnMissingBean
-  public PasswordEncoder passwordEncoder() {
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-  }
+    @Bean
+    @ConditionalOnMissingBean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 }

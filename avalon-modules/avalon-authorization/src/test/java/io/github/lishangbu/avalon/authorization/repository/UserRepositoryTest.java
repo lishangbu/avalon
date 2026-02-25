@@ -17,38 +17,39 @@ import org.junit.jupiter.api.Test;
 /// @since 2025/8/20
 class UserRepositoryTest extends AbstractRepositoryTest {
 
-  @Resource private UserRepository userRepository;
-  @Resource private RoleRepository roleRepository;
+    @Resource private UserRepository userRepository;
+    @Resource private RoleRepository roleRepository;
 
-  @Test
-  void testInsert() {
-    User user = new User();
-    user.setHashedPassword("{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G");
-    user.setUsername("test2");
-    roleRepository
-        .findById(1L)
-        .ifPresent(
-            role -> {
-              Set<Role> roles = new HashSet<>();
-              roles.add(role);
-              user.setRoles(roles);
-            });
-    userRepository.saveAndFlush(user);
-    Optional<User> userOptional = userRepository.findUserWithRolesByUsername("test2");
-    Assertions.assertTrue(userOptional.isPresent());
-    User savedUser = userOptional.get();
-    Assertions.assertEquals("test2", savedUser.getUsername());
-    Assertions.assertTrue(savedUser.getHashedPassword().startsWith("{bcrypt}"));
-    Assertions.assertEquals(1, savedUser.getRoles().size());
-  }
+    @Test
+    void testInsert() {
+        User user = new User();
+        user.setHashedPassword(
+                "{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G");
+        user.setUsername("test2");
+        roleRepository
+                .findById(1L)
+                .ifPresent(
+                        role -> {
+                            Set<Role> roles = new HashSet<>();
+                            roles.add(role);
+                            user.setRoles(roles);
+                        });
+        userRepository.saveAndFlush(user);
+        Optional<User> userOptional = userRepository.findUserWithRolesByUsername("test2");
+        Assertions.assertTrue(userOptional.isPresent());
+        User savedUser = userOptional.get();
+        Assertions.assertEquals("test2", savedUser.getUsername());
+        Assertions.assertTrue(savedUser.getHashedPassword().startsWith("{bcrypt}"));
+        Assertions.assertEquals(1, savedUser.getRoles().size());
+    }
 
-  @Test
-  void testFindByUsername() {
-    Optional<User> userOptional = userRepository.findUserWithRolesByUsername("admin");
-    Assertions.assertTrue(userOptional.isPresent());
-    User user = userOptional.get();
-    Assertions.assertEquals("admin", user.getUsername());
-    Assertions.assertTrue(user.getHashedPassword().startsWith("{bcrypt}"));
-    Assertions.assertEquals(2, user.getRoles().size());
-  }
+    @Test
+    void testFindByUsername() {
+        Optional<User> userOptional = userRepository.findUserWithRolesByUsername("admin");
+        Assertions.assertTrue(userOptional.isPresent());
+        User user = userOptional.get();
+        Assertions.assertEquals("admin", user.getUsername());
+        Assertions.assertTrue(user.getHashedPassword().startsWith("{bcrypt}"));
+        Assertions.assertEquals(2, user.getRoles().size());
+    }
 }

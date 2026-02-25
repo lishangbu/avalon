@@ -11,14 +11,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = {TestEnvironmentApplication.class})
 class PokemonTypeDataWriterTest {
-  @Resource private PokeApiDataProvider<PokemonTypeExcelDTO> pokemonTypeDataProvider;
+    @Resource private PokeApiDataProvider<PokemonTypeExcelDTO> pokemonTypeDataProvider;
 
-  @Test
-  void write_shouldFetchAndDelegateToSheetWriter() {
-    FastExcel.write("POKEMON_TYPE.xlsx", PokemonTypeExcelDTO.class)
-        .sheet("Sheet1")
-        .doWrite(
-            () ->
-                pokemonTypeDataProvider.fetch(PokeDataTypeEnum.POKEMON, PokemonTypeExcelDTO.class));
-  }
+    @Test
+    void write_shouldFetchAndDelegateToSheetWriter() {
+        FastExcel.write("POKEMON_TYPE.xlsx", PokemonTypeExcelDTO.class)
+                .sheet("Sheet1")
+                .doWrite(
+                        () ->
+                                pokemonTypeDataProvider.fetch(
+                                        PokeDataTypeEnum.POKEMON, PokemonTypeExcelDTO.class));
+    }
 }

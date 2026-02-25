@@ -17,35 +17,39 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/16
 @Service
 public class PokemonStatDataProvider implements PokeApiDataProvider<PokemonStatExcelDTO> {
-  @Autowired protected PokeApiService pokeApiService;
+    @Autowired protected PokeApiService pokeApiService;
 
-  @Override
-  public List<PokemonStatExcelDTO> fetch(
-      PokeDataTypeEnum typeEnum, Class<PokemonStatExcelDTO> type) {
-    NamedAPIResourceList namedAPIResourceList =
-        pokeApiService.listNamedAPIResources(PokeDataTypeEnum.POKEMON);
-    List<PokemonStatExcelDTO> result = new ArrayList<>();
-    namedAPIResourceList
-        .results()
-        .forEach(
-            namedApiResource -> {
-              Pokemon pokemon =
-                  (Pokemon)
-                      pokeApiService.getEntityFromUri(
-                          PokeDataTypeEnum.POKEMON, NamedApiResourceUtils.getId(namedApiResource));
-              result.addAll(
-                  pokemon.stats().stream()
-                      .map(
-                          pokemonStat -> {
-                            PokemonStatExcelDTO tmp = new PokemonStatExcelDTO();
-                            tmp.setStatId(NamedApiResourceUtils.getId(pokemonStat.stat()));
-                            tmp.setPokemonId(pokemon.id());
-                            tmp.setBaseStat(pokemonStat.baseStat());
-                            tmp.setEffort(pokemonStat.effort());
-                            return tmp;
-                          })
-                      .toList());
-            });
-    return result;
-  }
+    @Override
+    public List<PokemonStatExcelDTO> fetch(
+            PokeDataTypeEnum typeEnum, Class<PokemonStatExcelDTO> type) {
+        NamedAPIResourceList namedAPIResourceList =
+                pokeApiService.listNamedAPIResources(PokeDataTypeEnum.POKEMON);
+        List<PokemonStatExcelDTO> result = new ArrayList<>();
+        namedAPIResourceList
+                .results()
+                .forEach(
+                        namedApiResource -> {
+                            Pokemon pokemon =
+                                    (Pokemon)
+                                            pokeApiService.getEntityFromUri(
+                                                    PokeDataTypeEnum.POKEMON,
+                                                    NamedApiResourceUtils.getId(namedApiResource));
+                            result.addAll(
+                                    pokemon.stats().stream()
+                                            .map(
+                                                    pokemonStat -> {
+                                                        PokemonStatExcelDTO tmp =
+                                                                new PokemonStatExcelDTO();
+                                                        tmp.setStatId(
+                                                                NamedApiResourceUtils.getId(
+                                                                        pokemonStat.stat()));
+                                                        tmp.setPokemonId(pokemon.id());
+                                                        tmp.setBaseStat(pokemonStat.baseStat());
+                                                        tmp.setEffort(pokemonStat.effort());
+                                                        return tmp;
+                                                    })
+                                            .toList());
+                        });
+        return result;
+    }
 }

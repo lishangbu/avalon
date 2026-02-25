@@ -14,11 +14,13 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/9/14
 @Repository
 public interface OauthAuthorizationConsentRepository
-    extends JpaRepository<
-            OauthAuthorizationConsent, OauthAuthorizationConsent.AuthorizationConsentId>,
-        JpaSpecificationExecutor<OauthAuthorizationConsent> {
-  Optional<OauthAuthorizationConsent> findByRegisteredClientIdAndPrincipalName(
-      String registeredClientId, String principalName);
+        extends JpaRepository<
+                        OauthAuthorizationConsent,
+                        OauthAuthorizationConsent.AuthorizationConsentId>,
+                JpaSpecificationExecutor<OauthAuthorizationConsent> {
+    Optional<OauthAuthorizationConsent> findByRegisteredClientIdAndPrincipalName(
+            String registeredClientId, String principalName);
 
-  void deleteByRegisteredClientIdAndPrincipalName(String registeredClientId, String principalName);
+    void deleteByRegisteredClientIdAndPrincipalName(
+            String registeredClientId, String principalName);
 }

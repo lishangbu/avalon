@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MachineExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 道具名称
-  @ExcelProperty("item_name")
-  private String itemName;
+    /// 道具名称
+    @ExcelProperty("item_name")
+    private String itemName;
 
-  /// 招式名称
-  @ExcelProperty("move_name")
-  private String moveName;
+    /// 招式名称
+    @ExcelProperty("move_name")
+    private String moveName;
 
-  /// 版本组名称
-  @ExcelProperty("version_group_name")
-  private String versionGroupName;
+    /// 版本组名称
+    @ExcelProperty("version_group_name")
+    private String versionGroupName;
 }

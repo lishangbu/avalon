@@ -17,14 +17,14 @@ import org.testcontainers.utility.DockerImageName;
 @EnableJpaRepositories(basePackages = "io.github.lishangbu.avalon.dataset.repository")
 public class TestEnvironmentApplication {
 
-  /// PostgreSQL 测试容器 Bean
-  ///
-  /// 使用 @ServiceConnection 注解，Spring Boot 会自动配置数据源连接
-  ///
-  /// @return PostgreSQL 容器实例
-  @Bean
-  @ServiceConnection
-  PostgreSQLContainer postgresContainer() {
-    return new PostgreSQLContainer(DockerImageName.parse("postgres"));
-  }
+    /// PostgreSQL 测试容器 Bean
+    ///
+    /// 使用 @ServiceConnection 注解，Spring Boot 会自动配置数据源连接
+    ///
+    /// @return PostgreSQL 容器实例
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer postgresContainer() {
+        return new PostgreSQLContainer(DockerImageName.parse("postgres"));
+    }
 }

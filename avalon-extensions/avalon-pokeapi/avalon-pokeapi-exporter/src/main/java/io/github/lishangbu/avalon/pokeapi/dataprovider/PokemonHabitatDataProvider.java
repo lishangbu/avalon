@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class PokemonHabitatDataProvider
-    extends AbstractPokeApiDataProvider<PokemonHabitat, PokemonHabitatExcelDTO> {
+        extends AbstractPokeApiDataProvider<PokemonHabitat, PokemonHabitatExcelDTO> {
 
-  @Override
-  public PokemonHabitatExcelDTO convert(PokemonHabitat pokemonHabitat) {
-    PokemonHabitatExcelDTO result = new PokemonHabitatExcelDTO();
-    result.setId(pokemonHabitat.id());
-    result.setInternalName(pokemonHabitat.name());
-    result.setName(resolveLocalizedName(pokemonHabitat.names(), pokemonHabitat.name()));
-    return result;
-  }
+    @Override
+    public PokemonHabitatExcelDTO convert(PokemonHabitat pokemonHabitat) {
+        PokemonHabitatExcelDTO result = new PokemonHabitatExcelDTO();
+        result.setId(pokemonHabitat.id());
+        result.setInternalName(pokemonHabitat.name());
+        result.setName(resolveLocalizedName(pokemonHabitat.names(), pokemonHabitat.name()));
+        return result;
+    }
 }

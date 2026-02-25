@@ -26,10 +26,10 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/5/26
 public record Region(
-    Integer id,
-    List<NamedApiResource<Location>> locations,
-    String name,
-    List<Name> names,
-    @JsonProperty("main_generation") NamedApiResource<Generation> mainGeneration,
-    List<NamedApiResource<Pokedex>> pokedexes,
-    @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        Integer id,
+        List<NamedApiResource<Location>> locations,
+        String name,
+        List<Name> names,
+        @JsonProperty("main_generation") NamedApiResource<Generation> mainGeneration,
+        List<NamedApiResource<Pokedex>> pokedexes,
+        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}

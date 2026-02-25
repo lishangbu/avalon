@@ -14,23 +14,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class BerryDataProvider extends AbstractPokeApiDataProvider<Berry, BerryExcelDTO> {
 
-  @Override
-  public BerryExcelDTO convert(Berry berry) {
-    BerryExcelDTO result = new BerryExcelDTO();
-    result.setId(berry.id());
-    result.setInternalName(berry.name());
-    Item item =
-        pokeApiService.getEntityFromUri(
-            PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(berry.item()));
-    result.setName(resolveLocalizedName(item.names(), item.name()));
-    result.setGrowthTime(berry.growthTime());
-    result.setMaxHarvest(berry.maxHarvest());
-    result.setBulk(berry.size());
-    result.setSmoothness(berry.smoothness());
-    result.setSoilDryness(berry.soilDryness());
-    result.setBerryFirmnessId(NamedApiResourceUtils.getId(berry.firmness()));
-    result.setNaturalGiftTypeId(NamedApiResourceUtils.getId(berry.naturalGiftType()));
-    result.setNaturalGiftPower(berry.naturalGiftPower());
-    return result;
-  }
+    @Override
+    public BerryExcelDTO convert(Berry berry) {
+        BerryExcelDTO result = new BerryExcelDTO();
+        result.setId(berry.id());
+        result.setInternalName(berry.name());
+        Item item =
+                pokeApiService.getEntityFromUri(
+                        PokeDataTypeEnum.ITEM, NamedApiResourceUtils.getId(berry.item()));
+        result.setName(resolveLocalizedName(item.names(), item.name()));
+        result.setGrowthTime(berry.growthTime());
+        result.setMaxHarvest(berry.maxHarvest());
+        result.setBulk(berry.size());
+        result.setSmoothness(berry.smoothness());
+        result.setSoilDryness(berry.soilDryness());
+        result.setBerryFirmnessId(NamedApiResourceUtils.getId(berry.firmness()));
+        result.setNaturalGiftTypeId(NamedApiResourceUtils.getId(berry.naturalGiftType()));
+        result.setNaturalGiftPower(berry.naturalGiftPower());
+        return result;
+    }
 }

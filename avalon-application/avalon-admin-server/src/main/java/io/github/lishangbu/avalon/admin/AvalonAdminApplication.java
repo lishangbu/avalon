@@ -18,7 +18,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 @SpringBootApplication(scanBasePackages = "io.github.lishangbu.avalon")
 public class AvalonAdminApplication {
 
-  static void main(String[] args) {
-    SpringApplication.run(AvalonAdminApplication.class, args);
-  }
+    static void main(String[] args) {
+        SpringApplication.run(AvalonAdminApplication.class, args);
+    }
 }

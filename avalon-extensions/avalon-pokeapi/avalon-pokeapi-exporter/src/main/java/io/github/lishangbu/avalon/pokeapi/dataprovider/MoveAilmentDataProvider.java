@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/9
 @Service
 public class MoveAilmentDataProvider
-    extends AbstractPokeApiDataProvider<MoveAilment, MoveAilmentExcelDTO> {
+        extends AbstractPokeApiDataProvider<MoveAilment, MoveAilmentExcelDTO> {
 
-  @Override
-  public MoveAilmentExcelDTO convert(MoveAilment moveAilment) {
-    MoveAilmentExcelDTO result = new MoveAilmentExcelDTO();
-    result.setId(moveAilment.id());
-    result.setInternalName(moveAilment.name());
-    result.setName(moveAilment.name());
-    return result;
-  }
+    @Override
+    public MoveAilmentExcelDTO convert(MoveAilment moveAilment) {
+        MoveAilmentExcelDTO result = new MoveAilmentExcelDTO();
+        result.setId(moveAilment.id());
+        result.setInternalName(moveAilment.name());
+        result.setName(moveAilment.name());
+        return result;
+    }
 }

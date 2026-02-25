@@ -20,8 +20,8 @@ import java.util.List;
 /// @see PokemonSpecies
 /// @since 2025/6/8
 public record PokemonShape(
-    Integer id,
-    String name,
-    @JsonProperty("awesome_names") List<AwesomeName> awesomeNames,
-    List<Name> names,
-    @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        Integer id,
+        String name,
+        @JsonProperty("awesome_names") List<AwesomeName> awesomeNames,
+        List<Name> names,
+        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}

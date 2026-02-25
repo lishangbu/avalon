@@ -25,11 +25,11 @@ import java.util.List;
 /// @see VersionGroup
 /// @since 2025/5/24
 public record Pokedex(
-    Integer id,
-    String name,
-    @JsonProperty("is_main_series") Boolean isMainSeries,
-    List<Description> descriptions,
-    List<Name> names,
-    @JsonProperty("pokemon_entries") List<PokemonEntry> pokemonEntries,
-    NamedApiResource<?> region,
-    @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        Integer id,
+        String name,
+        @JsonProperty("is_main_series") Boolean isMainSeries,
+        List<Description> descriptions,
+        List<Name> names,
+        @JsonProperty("pokemon_entries") List<PokemonEntry> pokemonEntries,
+        NamedApiResource<?> region,
+        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}

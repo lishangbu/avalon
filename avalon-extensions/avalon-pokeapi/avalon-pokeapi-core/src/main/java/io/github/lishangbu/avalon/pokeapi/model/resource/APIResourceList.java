@@ -12,4 +12,4 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/20
 public record APIResourceList(
-    Integer count, String next, String previous, List<APIResource> results) {}
+        Integer count, String next, String previous, List<APIResource> results) {}

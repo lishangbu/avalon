@@ -14,5 +14,5 @@ import java.util.List;
 /// @see VersionEncounterDetail
 /// @since 2025/5/26
 public record PokemonEncounter(
-    NamedApiResource<Pokemon> pokemon,
-    @JsonProperty("version_details") List<VersionEncounterDetail> versionDetails) {}
+        NamedApiResource<Pokemon> pokemon,
+        @JsonProperty("version_details") List<VersionEncounterDetail> versionDetails) {}

@@ -5,9 +5,8 @@ import java.util.List;
 
 /// 招式战斗风格模型
 ///
-/// 对战开拓区（Battle Frontier）中使用的招式风格，详情参考
-// [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III))
-
+/// 对战开拓区（Battle Frontier）中使用的招式风格，
+/// 详情参考 [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Battle_Frontier_(Generation_III))
 ///
 /// @param id    资源标识符
 /// @param name  资源名称

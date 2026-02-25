@@ -15,38 +15,37 @@ import lombok.Data;
 @Entity
 @Table(comment = "宝可梦能力值")
 public class PokemonStat implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
-
-  /// 宝可梦能力值主键
-  ///
-  /// 由宝可梦ID和属性ID组成的联合主键
-  ///
-  /// @author lishangbu
-  /// @since 2026/2/16
-  @Embeddable
-  @Data
-  public static class PokemonStatId implements Serializable {
     @Serial private static final long serialVersionUID = 1L;
+    /// 联合主键
+    @EmbeddedId private PokemonStatId id;
 
-    /// 宝可梦
-    @ManyToOne
-    @JoinColumn(name = "pokemon_id")
-    private Pokemon pokemon;
+    /// 基础能力值
+    @Column(comment = "基础能力值")
+    private Integer baseStat;
 
-    /// 属性
-    @ManyToOne
-    @JoinColumn(name = "stat_id")
-    private Stat stat;
-  }
+    /// 努力值
+    @Column(comment = "努力值")
+    private Integer effort;
 
-  /// 联合主键
-  @EmbeddedId private PokemonStatId id;
+    /// 宝可梦能力值主键
+    ///
+    /// 由宝可梦ID和属性ID组成的联合主键
+    ///
+    /// @author lishangbu
+    /// @since 2026/2/16
+    @Embeddable
+    @Data
+    public static class PokemonStatId implements Serializable {
+        @Serial private static final long serialVersionUID = 1L;
 
-  /// 基础能力值
-  @Column(comment = "基础能力值")
-  private Integer baseStat;
+        /// 宝可梦
+        @ManyToOne
+        @JoinColumn(name = "pokemon_id")
+        private Pokemon pokemon;
 
-  /// 努力值
-  @Column(comment = "努力值")
-  private Integer effort;
+        /// 属性
+        @ManyToOne
+        @JoinColumn(name = "stat_id")
+        private Stat stat;
+    }
 }

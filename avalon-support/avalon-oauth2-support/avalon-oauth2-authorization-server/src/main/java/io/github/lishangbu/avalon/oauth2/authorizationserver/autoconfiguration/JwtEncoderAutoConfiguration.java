@@ -16,9 +16,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 /// @since 2025/8/22
 @AutoConfiguration
 public class JwtEncoderAutoConfiguration {
-  @Bean
-  @ConditionalOnMissingBean
-  public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-    return new NimbusJwtEncoder(jwkSource);
-  }
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
+    }
 }

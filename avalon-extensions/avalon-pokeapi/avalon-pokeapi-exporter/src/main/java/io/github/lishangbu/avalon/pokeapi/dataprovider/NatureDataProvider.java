@@ -12,16 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class NatureDataProvider extends AbstractPokeApiDataProvider<Nature, NatureExcelDTO> {
 
-  @Override
-  public NatureExcelDTO convert(Nature nature) {
-    NatureExcelDTO result = new NatureExcelDTO();
-    result.setId(nature.id());
-    result.setInternalName(nature.name());
-    result.setName(resolveLocalizedName(nature.names(), nature.name()));
-    result.setDecreasedStatId(NamedApiResourceUtils.getId(nature.decreasedStat()));
-    result.setIncreasedStatId(NamedApiResourceUtils.getId(nature.increasedStat()));
-    result.setHatesFlavorId(NamedApiResourceUtils.getId(nature.hatesFlavor()));
-    result.setLikesFlavorId(NamedApiResourceUtils.getId(nature.likesFlavor()));
-    return result;
-  }
+    @Override
+    public NatureExcelDTO convert(Nature nature) {
+        NatureExcelDTO result = new NatureExcelDTO();
+        result.setId(nature.id());
+        result.setInternalName(nature.name());
+        result.setName(resolveLocalizedName(nature.names(), nature.name()));
+        result.setDecreasedStatId(NamedApiResourceUtils.getId(nature.decreasedStat()));
+        result.setIncreasedStatId(NamedApiResourceUtils.getId(nature.increasedStat()));
+        result.setHatesFlavorId(NamedApiResourceUtils.getId(nature.hatesFlavor()));
+        result.setLikesFlavorId(NamedApiResourceUtils.getId(nature.likesFlavor()));
+        return result;
+    }
 }

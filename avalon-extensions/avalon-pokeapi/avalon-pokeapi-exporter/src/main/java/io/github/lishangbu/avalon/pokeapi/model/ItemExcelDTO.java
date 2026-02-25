@@ -13,42 +13,42 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemExcelDTO {
-  /// 唯一标识
-  @ExcelProperty("id")
-  private Integer id;
+    /// 唯一标识
+    @ExcelProperty("id")
+    private Integer id;
 
-  /// 内部名称
-  @ExcelProperty("internal_name")
-  private String internalName;
+    /// 内部名称
+    @ExcelProperty("internal_name")
+    private String internalName;
 
-  /// 显示名称
-  @ExcelProperty("name")
-  private String name;
+    /// 显示名称
+    @ExcelProperty("name")
+    private String name;
 
-  /// 价格
-  @ExcelProperty("cost")
-  private Integer cost;
+    /// 价格
+    @ExcelProperty("cost")
+    private Integer cost;
 
-  /// 投掷威力
-  @ExcelProperty("fling_power")
-  private Integer flingPower;
+    /// 投掷威力
+    @ExcelProperty("fling_power")
+    private Integer flingPower;
 
-  @ExcelProperty("item_fling_effect_id")
-  private Integer itemFlingEffect;
+    @ExcelProperty("item_fling_effect_id")
+    private Integer itemFlingEffect;
 
-  /// 类别名称
-  @ExcelProperty("category_id")
-  private Integer categoryId;
+    /// 类别名称
+    @ExcelProperty("category_id")
+    private Integer categoryId;
 
-  /// 效果描述
-  @ExcelProperty("effect")
-  private String effect;
+    /// 效果描述
+    @ExcelProperty("effect")
+    private String effect;
 
-  /// 简短效果描述
-  @ExcelProperty("short_effect")
-  private String shortEffect;
+    /// 简短效果描述
+    @ExcelProperty("short_effect")
+    private String shortEffect;
 
-  /// 道具文本
-  @ExcelProperty("text")
-  private String text;
+    /// 道具文本
+    @ExcelProperty("text")
+    private String text;
 }

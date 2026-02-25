@@ -22,49 +22,52 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BerryFlavorServiceImpl implements BerryFlavorService {
 
-  private final BerryFlavorRepository berryFlavorRepository;
+    private final BerryFlavorRepository berryFlavorRepository;
 
-  /// 根据条件分页查询 BerryFlavor
-  ///
-  /// @param berryFlavor 查询条件
-  /// @param pageable 分页信息
-  /// @return 分页结果
-  @Override
-  public Page<BerryFlavor> getPageByCondition(BerryFlavor berryFlavor, Pageable pageable) {
-    return berryFlavorRepository.findAll(
-        Example.of(
-            berryFlavor,
-            ExampleMatcher.matching()
-                .withIgnoreNullValues()
-                .withMatcher(BerryFlavor_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher(
-                    BerryFlavor_.INTERNAL_NAME, ExampleMatcher.GenericPropertyMatchers.contains())),
-        pageable);
-  }
+    /// 根据条件分页查询 BerryFlavor
+    ///
+    /// @param berryFlavor 查询条件
+    /// @param pageable    分页信息
+    /// @return 分页结果
+    @Override
+    public Page<BerryFlavor> getPageByCondition(BerryFlavor berryFlavor, Pageable pageable) {
+        return berryFlavorRepository.findAll(
+                Example.of(
+                        berryFlavor,
+                        ExampleMatcher.matching()
+                                .withIgnoreNullValues()
+                                .withMatcher(
+                                        BerryFlavor_.NAME,
+                                        ExampleMatcher.GenericPropertyMatchers.contains())
+                                .withMatcher(
+                                        BerryFlavor_.INTERNAL_NAME,
+                                        ExampleMatcher.GenericPropertyMatchers.contains())),
+                pageable);
+    }
 
-  /// 新增 BerryFlavor
-  ///
-  /// @param berryFlavor 要保存的 BerryFlavor 实体
-  /// @return 保存后的 BerryFlavor 实体
-  @Override
-  public BerryFlavor save(BerryFlavor berryFlavor) {
-    return berryFlavorRepository.save(berryFlavor);
-  }
+    /// 新增 BerryFlavor
+    ///
+    /// @param berryFlavor 要保存的 BerryFlavor 实体
+    /// @return 保存后的 BerryFlavor 实体
+    @Override
+    public BerryFlavor save(BerryFlavor berryFlavor) {
+        return berryFlavorRepository.save(berryFlavor);
+    }
 
-  /// 更新 BerryFlavor
-  ///
-  /// @param berryFlavor 要更新的 BerryFlavor 实体
-  /// @return 更新后的 BerryFlavor 实体
-  @Override
-  public BerryFlavor update(BerryFlavor berryFlavor) {
-    return berryFlavorRepository.save(berryFlavor);
-  }
+    /// 更新 BerryFlavor
+    ///
+    /// @param berryFlavor 要更新的 BerryFlavor 实体
+    /// @return 更新后的 BerryFlavor 实体
+    @Override
+    public BerryFlavor update(BerryFlavor berryFlavor) {
+        return berryFlavorRepository.save(berryFlavor);
+    }
 
-  /// 根据主键删除 BerryFlavor
-  ///
-  /// @param id 要删除的 BerryFlavor 主键
-  @Override
-  public void removeById(Long id) {
-    berryFlavorRepository.deleteById(id);
-  }
+    /// 根据主键删除 BerryFlavor
+    ///
+    /// @param id 要删除的 BerryFlavor 主键
+    @Override
+    public void removeById(Long id) {
+        berryFlavorRepository.deleteById(id);
+    }
 }

@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 /// @since 2026/2/10
 @Service
 public class ItemAttributeDataProvider
-    extends AbstractPokeApiDataProvider<ItemAttribute, ItemAttributeExcelDTO> {
+        extends AbstractPokeApiDataProvider<ItemAttribute, ItemAttributeExcelDTO> {
 
-  @Override
-  public ItemAttributeExcelDTO convert(ItemAttribute itemAttribute) {
-    ItemAttributeExcelDTO result = new ItemAttributeExcelDTO();
-    result.setId(itemAttribute.id());
-    result.setInternalName(itemAttribute.name());
-    result.setName(resolveLocalizedName(itemAttribute.names(), itemAttribute.name()));
-    result.setDescription(resolveLocalizedDescription(itemAttribute.descriptions()));
-    return result;
-  }
+    @Override
+    public ItemAttributeExcelDTO convert(ItemAttribute itemAttribute) {
+        ItemAttributeExcelDTO result = new ItemAttributeExcelDTO();
+        result.setId(itemAttribute.id());
+        result.setInternalName(itemAttribute.name());
+        result.setName(resolveLocalizedName(itemAttribute.names(), itemAttribute.name()));
+        result.setDescription(resolveLocalizedDescription(itemAttribute.descriptions()));
+        return result;
+    }
 }

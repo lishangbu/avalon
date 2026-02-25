@@ -18,21 +18,21 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @Slf4j
 public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
 
-  @Override
-  public void handle(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      AccessDeniedException accessDeniedException) {
+    @Override
+    public void handle(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AccessDeniedException accessDeniedException) {
 
-    log.error(
-        "AccessDeniedHandler invoked for request [{}], reason [{}]",
-        request.getRequestURI(),
-        accessDeniedException.getMessage());
+        log.error(
+                "AccessDeniedHandler invoked for request [{}], reason [{}]",
+                request.getRequestURI(),
+                accessDeniedException.getMessage());
 
-    JsonResponseWriter.writeFailedResponse(
-        response,
-        HttpStatus.FORBIDDEN,
-        SecurityErrorResultCode.FORBIDDEN,
-        accessDeniedException.getMessage());
-  }
+        JsonResponseWriter.writeFailedResponse(
+                response,
+                HttpStatus.FORBIDDEN,
+                SecurityErrorResultCode.FORBIDDEN,
+                accessDeniedException.getMessage());
+    }
 }

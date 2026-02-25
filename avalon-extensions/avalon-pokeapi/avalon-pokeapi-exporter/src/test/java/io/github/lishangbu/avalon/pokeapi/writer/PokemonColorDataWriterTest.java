@@ -11,29 +11,29 @@ import jakarta.annotation.Resource;
 /// 测试 PokemonColorDataWriter 的功能，包括数据获取和Excel写入
 class PokemonColorDataWriterTest extends AbstractExcelWriterTest {
 
-  @Resource private PokeApiDataProvider<PokemonColor> pokemonColorDataProvider;
+    @Resource private PokeApiDataProvider<PokemonColor> pokemonColorDataProvider;
 
-  /// 返回数据类型枚举
-  ///
-  /// @return POKEMON_COLOR 枚举值
-  @Override
-  PokeDataTypeEnum getDataTypeEnum() {
-    return PokeDataTypeEnum.POKEMON_COLOR;
-  }
+    /// 返回数据类型枚举
+    ///
+    /// @return POKEMON_COLOR 枚举值
+    @Override
+    PokeDataTypeEnum getDataTypeEnum() {
+        return PokeDataTypeEnum.POKEMON_COLOR;
+    }
 
-  /// 返回Excel数据传输对象类
-  ///
-  /// @return PokemonColorExcelDTO.class
-  @Override
-  Class<PokemonColorExcelDTO> getExcelClass() {
-    return PokemonColorExcelDTO.class;
-  }
+    /// 返回Excel数据传输对象类
+    ///
+    /// @return PokemonColorExcelDTO.class
+    @Override
+    Class<PokemonColorExcelDTO> getExcelClass() {
+        return PokemonColorExcelDTO.class;
+    }
 
-  /// 返回数据提供者
-  ///
-  /// @return 宝可梦颜色数据提供者实例
-  @Override
-  PokeApiDataProvider<PokemonColor> getDataProvider() {
-    return pokemonColorDataProvider;
-  }
+    /// 返回数据提供者
+    ///
+    /// @return 宝可梦颜色数据提供者实例
+    @Override
+    PokeApiDataProvider<PokemonColor> getDataProvider() {
+        return pokemonColorDataProvider;
+    }
 }
