@@ -17,7 +17,7 @@ public class SlowGrowthRateCalculator extends AbstractGrowthRateCalculator {
   /// 慢组：
   /// EXP = 1.25 * Lv^3
   @Override
-  protected int innerCalculateGrowthRate(int level) {
+  protected int tryCalculateGrowthRate(int level) {
     return (5 * level * level * level) / 4;
   }
 }

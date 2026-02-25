@@ -20,7 +20,7 @@ public class FastThenVerySlowGrowthRateCalculator extends AbstractGrowthRateCalc
   /// 16≤Lv≤36：EXP = 0.02 * Lv4 +0.28* Lv^3
   /// 37≤Lv≤100：EXP = 0.02 * Lv^3 * ⌊ (Lv + 64) / 2 ⌋
   @Override
-  protected int innerCalculateGrowthRate(int level) {
+  protected int tryCalculateGrowthRate(int level) {
     int cubedLevel = level * level * level;
     if (level <= 15) {
       int term = 24 + ((level + 1) / 3);

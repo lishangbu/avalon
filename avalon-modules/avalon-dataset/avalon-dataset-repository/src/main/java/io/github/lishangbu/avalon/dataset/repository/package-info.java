@@ -1,4 +1,4 @@
-/// 基础数据集用Spring Data JDBC实现的数据访问层
+/// 基础数据集用Spring Data JPA实现的数据访问层
 ///
 /// @author lishangbu
 /// @since 2025/4/16
