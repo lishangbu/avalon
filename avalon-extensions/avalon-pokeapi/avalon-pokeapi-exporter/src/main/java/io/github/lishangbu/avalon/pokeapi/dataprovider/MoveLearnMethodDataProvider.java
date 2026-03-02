@@ -20,10 +20,7 @@ public class MoveLearnMethodDataProvider
         result.setInternalName(moveLearnMethod.name());
         result.setName(resolveLocalizedName(moveLearnMethod.names(), moveLearnMethod.name()));
         LocalizationUtils.getLocalizationDescription(moveLearnMethod.descriptions())
-                .ifPresent(
-                        description -> {
-                            result.setDescription(description.description());
-                        });
+                .ifPresent(description -> result.setDescription(description.description()));
         return result;
     }
 }

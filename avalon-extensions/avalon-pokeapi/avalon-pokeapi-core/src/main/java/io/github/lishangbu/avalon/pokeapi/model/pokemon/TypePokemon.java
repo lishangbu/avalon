@@ -10,4 +10,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @param pokemon 拥有该属性的宝可梦引用
 /// @author lishangbu
 /// @since 2025/5/20
-public record TypePokemon(Integer slot, NamedApiResource<?> pokemon) {}
+public record TypePokemon(Integer slot, NamedApiResource pokemon) {}

@@ -12,6 +12,6 @@ import java.util.List;
 /// @author lishangbu
 /// @since 2025/5/20
 public record VersionEncounterDetail(
-        NamedApiResource<Version> version,
+        NamedApiResource version,
         @JsonProperty("max_chance") Integer maxChance,
         @JsonProperty("encounter_details") List<Encounter> encounterDetails) {}

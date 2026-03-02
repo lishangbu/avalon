@@ -26,4 +26,4 @@ public record GrowthRate(
         String formula,
         List<Description> descriptions,
         List<GrowthRateExperienceLevel> levels,
-        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        @JsonProperty("pokemon_species") List<NamedApiResource> pokemonSpecies) {}

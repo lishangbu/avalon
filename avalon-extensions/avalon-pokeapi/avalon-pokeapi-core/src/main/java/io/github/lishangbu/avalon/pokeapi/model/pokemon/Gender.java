@@ -10,8 +10,8 @@ import java.util.List;
 ///
 /// @param id                    资源标识符
 /// @param name                  资源名称
-/// @param pokemonSpeciesDetails 该性别下的宝可梦种类及其可能性 {@link PokemonSpeciesGender}
-/// @param requiredForEvolution  需要此性别才能进化的宝可梦种类列表 {@link PokemonSpecies}
+/// @param pokemonSpeciesDetails 该性别下的宝可梦种类及其可能性 [PokemonSpeciesGender]
+/// @param requiredForEvolution  需要此性别才能进化的宝可梦种类列表 [PokemonSpecies]
 /// @author lishangbu
 /// @see PokemonSpeciesGender
 /// @see PokemonSpecies
@@ -21,4 +21,4 @@ public record Gender(
         String name,
         @JsonProperty("pokemon_species_details") List<PokemonSpeciesGender> pokemonSpeciesDetails,
         @JsonProperty("required_for_evolution")
-                List<NamedApiResource<PokemonSpecies>> requiredForEvolution) {}
+                List<NamedApiResource> requiredForEvolution) {}

@@ -13,4 +13,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 public record PalParkEncounterSpecies(
         @JsonProperty("base_score") Integer baseScore,
         Integer rate,
-        @JsonProperty("pokemon_species") NamedApiResource<?> pokemonSpecies) {}
+        @JsonProperty("pokemon_species") NamedApiResource pokemonSpecies) {}

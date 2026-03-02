@@ -19,10 +19,7 @@ public class AbilityDataProvider extends AbstractPokeApiDataProvider<Ability, Ab
         result.setInternalName(ability.name());
         result.setName(resolveLocalizedName(ability.names(), ability.name()));
         LocalizationUtils.getLocalizationAbilityFlavorText(ability.flavorTextEntries())
-                .ifPresent(
-                        abilityFlavorText -> {
-                            result.setIntroduction(abilityFlavorText.flavorText());
-                        });
+                .ifPresent(abilityFlavorText -> result.setIntroduction(abilityFlavorText.flavorText()));
         result.setEffect(resolveLocalizedVerboseEffect(ability.effectEntries()));
         return result;
     }

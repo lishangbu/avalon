@@ -9,4 +9,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @author lishangbu
 /// @see Type
 /// @since 2025/6/8
-public record PokemonType(Integer slot, NamedApiResource<Type> type) {}
+public record PokemonType(Integer slot, NamedApiResource type) {}

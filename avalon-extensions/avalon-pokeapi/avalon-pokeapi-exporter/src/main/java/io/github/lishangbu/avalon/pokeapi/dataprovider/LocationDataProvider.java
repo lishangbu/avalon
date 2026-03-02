@@ -19,7 +19,7 @@ public class LocationDataProvider extends AbstractPokeApiDataProvider<Location, 
         result.setId(location.id());
         result.setInternalName(location.name());
         result.setName(resolveLocalizedName(location.names(), location.name()));
-        NamedApiResource<Region> regionNamedApiResource = location.region();
+        NamedApiResource regionNamedApiResource = location.region();
         if (regionNamedApiResource != null) {
             result.setRegionName(regionNamedApiResource.name());
         }

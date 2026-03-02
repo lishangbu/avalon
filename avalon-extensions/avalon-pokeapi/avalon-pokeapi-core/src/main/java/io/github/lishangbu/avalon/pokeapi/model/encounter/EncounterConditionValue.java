@@ -17,5 +17,5 @@ import java.util.List;
 public record EncounterConditionValue(
         Integer id,
         String name,
-        NamedApiResource<EncounterCondition> condition,
+        NamedApiResource condition,
         List<Name> names) {}

@@ -16,4 +16,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 public record PokemonAbility(
         @JsonProperty("is_hidden") Boolean isHidden,
         Integer slot,
-        NamedApiResource<Ability> ability) {}
+        NamedApiResource ability) {}

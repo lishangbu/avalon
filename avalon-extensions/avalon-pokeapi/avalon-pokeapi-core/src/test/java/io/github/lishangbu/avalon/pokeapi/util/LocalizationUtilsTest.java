@@ -46,71 +46,71 @@ class LocalizationUtilsTest {
         // 初始化 names 列表
         names =
                 Arrays.asList(
-                        new Name("简体中文", new NamedApiResource<>("zh-Hans", null)),
-                        new Name("繁体中文", new NamedApiResource<>("zh-Hant", null)),
-                        new Name("English", new NamedApiResource<>("en", null)));
+                        new Name("简体中文", new NamedApiResource("zh-Hans", null)),
+                        new Name("繁体中文", new NamedApiResource("zh-Hant", null)),
+                        new Name("English", new NamedApiResource("en", null)));
 
         // 初始化 descriptions 列表
         descriptions =
                 Arrays.asList(
-                        new Description("这是简体中文描述", new NamedApiResource<>("zh-Hans", null)),
-                        new Description("這是繁體中文描述", new NamedApiResource<>("zh-Hant", null)),
+                        new Description("这是简体中文描述", new NamedApiResource("zh-Hans", null)),
+                        new Description("這是繁體中文描述", new NamedApiResource("zh-Hant", null)),
                         new Description(
-                                "This is English description", new NamedApiResource<>("en", null)));
+                                "This is English description", new NamedApiResource("en", null)));
 
         // 初始化 effects 列表
         effects =
                 Arrays.asList(
-                        new Effect("这是简体中文效果", new NamedApiResource<>("zh-Hans", null)),
-                        new Effect("這是繁體中文效果", new NamedApiResource<>("zh-Hant", null)),
-                        new Effect("This is English effect", new NamedApiResource<>("en", null)));
+                        new Effect("这是简体中文效果", new NamedApiResource("zh-Hans", null)),
+                        new Effect("這是繁體中文效果", new NamedApiResource("zh-Hant", null)),
+                        new Effect("This is English effect", new NamedApiResource("en", null)));
 
         // 初始化 verboseEffects 列表
         verboseEffects =
                 Arrays.asList(
                         new VerboseEffect(
-                                "这是简体中文详细效果", "这是简体中文短效果", new NamedApiResource<>("zh-Hans", null)),
+                                "这是简体中文详细效果", "这是简体中文短效果", new NamedApiResource("zh-Hans", null)),
                         new VerboseEffect(
-                                "這是繁體中文詳細效果", "這是繁體中文短效果", new NamedApiResource<>("zh-Hant", null)),
+                                "這是繁體中文詳細效果", "這是繁體中文短效果", new NamedApiResource("zh-Hant", null)),
                         new VerboseEffect(
                                 "This is English verbose effect",
                                 "This is English short effect",
-                                new NamedApiResource<>("en", null)));
+                                new NamedApiResource("en", null)));
 
         // 初始化 versionGroupFlavorTexts 列表
         versionGroupFlavorTexts =
                 Arrays.asList(
                         new VersionGroupFlavorText(
-                                "这是简体中文版本组风味文本", new NamedApiResource<>("zh-Hans", null), null),
+                                "这是简体中文版本组风味文本", new NamedApiResource("zh-Hans", null), null),
                         new VersionGroupFlavorText(
-                                "這是繁體中文版本組風味文本", new NamedApiResource<>("zh-Hant", null), null),
+                                "這是繁體中文版本組風味文本", new NamedApiResource("zh-Hant", null), null),
                         new VersionGroupFlavorText(
                                 "This is English version group berry text",
-                                new NamedApiResource<>("en", null),
+                                new NamedApiResource("en", null),
                                 null));
 
         // 初始化 moveFlavorTexts 列表
         moveFlavorTexts =
                 Arrays.asList(
                         new MoveFlavorText(
-                                "这是简体中文招式风味文本", new NamedApiResource<>("zh-Hans", null), null),
+                                "这是简体中文招式风味文本", new NamedApiResource("zh-Hans", null), null),
                         new MoveFlavorText(
-                                "這是繁體中文招式風味文本", new NamedApiResource<>("zh-Hant", null), null),
+                                "這是繁體中文招式風味文本", new NamedApiResource("zh-Hant", null), null),
                         new MoveFlavorText(
                                 "This is English move berry text",
-                                new NamedApiResource<>("en", null),
+                                new NamedApiResource("en", null),
                                 null));
 
         // 初始化 abilityFlavorTexts 列表
         abilityFlavorTexts =
                 Arrays.asList(
                         new AbilityFlavorText(
-                                "这是简体中文特性风味文本", new NamedApiResource<>("zh-Hans", null), null),
+                                "这是简体中文特性风味文本", new NamedApiResource("zh-Hans", null), null),
                         new AbilityFlavorText(
-                                "這是繁體中文特性風味文本", new NamedApiResource<>("zh-Hant", null), null),
+                                "這是繁體中文特性風味文本", new NamedApiResource("zh-Hant", null), null),
                         new AbilityFlavorText(
                                 "This is English ability berry text",
-                                new NamedApiResource<>("en", null),
+                                new NamedApiResource("en", null),
                                 null));
     }
 

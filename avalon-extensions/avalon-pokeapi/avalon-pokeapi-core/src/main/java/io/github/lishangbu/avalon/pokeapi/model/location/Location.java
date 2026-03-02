@@ -25,7 +25,7 @@ import java.util.List;
 public record Location(
         Integer id,
         String name,
-        NamedApiResource<Region> region,
+        NamedApiResource region,
         List<Name> names,
         @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
-        List<NamedApiResource<LocationArea>> areas) {}
+        List<NamedApiResource> areas) {}

@@ -17,4 +17,4 @@ import io.github.lishangbu.avalon.pokeapi.model.move.MoveBattleStyle;
 public record MoveBattleStylePreference(
         @JsonProperty("low_hp_preference") Integer lowHpPreference,
         @JsonProperty("high_hp_preference") Integer highHpPreference,
-        @JsonProperty("move_battle_style") NamedApiResource<MoveBattleStyle> moveBattleStyle) {}
+        @JsonProperty("move_battle_style") NamedApiResource moveBattleStyle) {}

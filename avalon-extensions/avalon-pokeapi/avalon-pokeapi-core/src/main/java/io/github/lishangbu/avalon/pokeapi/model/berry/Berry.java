@@ -37,4 +37,4 @@ public record Berry(
         NamedApiResource firmness,
         List<BerryFlavorMap> flavors,
         NamedApiResource item,
-        @JsonProperty("natural_gift_type") NamedApiResource<Type> naturalGiftType) {}
+        @JsonProperty("natural_gift_type") NamedApiResource naturalGiftType) {}

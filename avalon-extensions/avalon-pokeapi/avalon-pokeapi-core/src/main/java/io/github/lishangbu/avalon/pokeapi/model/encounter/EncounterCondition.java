@@ -18,4 +18,4 @@ public record EncounterCondition(
         Integer id,
         String name,
         List<Name> names,
-        List<NamedApiResource<EncounterConditionValue>> values) {}
+        List<NamedApiResource> values) {}

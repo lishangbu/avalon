@@ -18,5 +18,5 @@ import java.util.List;
 public record ContestType(
         Integer id,
         String name,
-        @JsonProperty("berry_flavor") NamedApiResource<BerryFlavor> berryFlavor,
+        @JsonProperty("berry_flavor") NamedApiResource berryFlavor,
         List<ContestName> names) {}

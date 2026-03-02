@@ -12,4 +12,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @since 2025/6/8
 public record NatureStatChange(
         @JsonProperty("max_change") Integer maxChange,
-        @JsonProperty("pokeathlon_stat") NamedApiResource<PokeathlonStat> pokeathlonStat) {}
+        @JsonProperty("pokeathlon_stat") NamedApiResource pokeathlonStat) {}

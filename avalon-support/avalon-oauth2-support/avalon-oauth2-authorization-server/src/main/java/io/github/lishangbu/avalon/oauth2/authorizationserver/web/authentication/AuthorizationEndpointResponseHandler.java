@@ -3,10 +3,6 @@ package io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.function.Consumer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -21,9 +17,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-/// An implementation of an {@link AuthenticationSuccessHandler} used for handling an {@link
-/// OAuth2AccessTokenAuthenticationToken} and returning the {@link OAuth2AccessTokenResponse Access
-/// Token Response}
+import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.function.Consumer;
+
+/// An implementation of an [AuthenticationSuccessHandler] used for handling an
+/// [OAuth2AccessTokenAuthenticationToken] and returning the [OAuth2AccessTokenResponse]
 ///
 /// @author Dmitriy Dubson
 /// @author lishangbu
@@ -99,17 +99,12 @@ public class AuthorizationEndpointResponseHandler implements AuthenticationSucce
         this.accessTokenResponseConverter.write(accessTokenResponse, null, httpResponse);
     }
 
-    /// Sets the {@code Consumer} providing access to the {@link
-    /// OAuth2AccessTokenAuthenticationContext} containing an {@link
-    // OAuth2AccessTokenResponse.Builder}
+    /// Sets the [Consumer] providing access to the[OAuth2AccessTokenAuthenticationContext]
+    /// containing an [OAuth2AccessTokenResponse.Builder]
     /// and additional context information.
     ///
-    /// @param accessTokenResponseCustomizer the {@code Consumer} providing access to the {@link
-    ///                                          OAuth2AccessTokenAuthenticationContext} containing
-    // an
-    // {@link
-
-    ///                                          OAuth2AccessTokenResponse.Builder}
+    /// @param accessTokenResponseCustomizer the [Consumer] providing access to the [OAuth2AccessTokenAuthenticationContext] containing
+    ///                                                                                                                an [OAuth2AccessTokenResponse.Builder]
     public void setAccessTokenResponseCustomizer(
             Consumer<OAuth2AccessTokenAuthenticationContext> accessTokenResponseCustomizer) {
         Assert.notNull(

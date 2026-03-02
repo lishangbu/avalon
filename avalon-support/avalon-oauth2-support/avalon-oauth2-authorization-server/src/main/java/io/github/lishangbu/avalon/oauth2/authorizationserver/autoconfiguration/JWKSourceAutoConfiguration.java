@@ -66,7 +66,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
     /// 支持标准的 PEM 格式，自动移除头尾行和空白字符
     ///
     /// @param publicKeyContent 公钥的 PEM 文本，允许包含头尾行和换行
-    /// @return 解析得到的 {@link RSAPublicKey}
+    /// @return 解析得到的 [RSAPublicKey]
     /// @throws NoSuchAlgorithmException 当 RSA 算法不可用时抛出
     /// @throws InvalidKeySpecException  当密钥格式不符合 X.509 编码时抛出
     private static RSAPublicKey loadPublicKey(String publicKeyContent)
@@ -87,7 +87,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
     /// 支持标准的 PEM 格式（PKCS#8），自动移除头尾行和空白字符
     ///
     /// @param privateKeyContent 私钥的 PEM 文本，允许包含头尾行和换行
-    /// @return 解析得到的 {@link RSAPrivateKey}
+    /// @return 解析得到的 [RSAPrivateKey]
     /// @throws NoSuchAlgorithmException 当 RSA 算法不可用时抛出
     /// @throws InvalidKeySpecException  当密钥格式不符合 PKCS#8 编码时抛出
     private static RSAPrivateKey loadPrivateKey(String privateKeyContent)

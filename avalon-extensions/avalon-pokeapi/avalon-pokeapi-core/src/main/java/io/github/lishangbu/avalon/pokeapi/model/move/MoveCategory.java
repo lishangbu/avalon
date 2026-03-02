@@ -19,5 +19,5 @@ import java.util.List;
 public record MoveCategory(
         Integer id,
         String name,
-        List<NamedApiResource<Move>> moves,
+        List<NamedApiResource> moves,
         List<Description> descriptions) {}

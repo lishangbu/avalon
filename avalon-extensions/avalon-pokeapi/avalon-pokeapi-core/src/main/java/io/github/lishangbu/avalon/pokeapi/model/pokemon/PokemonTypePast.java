@@ -12,4 +12,4 @@ import java.util.List;
 /// @param types      在该世代及之前拥有的属性列表
 /// @author lishangbu
 /// @since 2025/6/8
-public record PokemonTypePast(NamedApiResource<Generation> generation, List<PokemonType> types) {}
+public record PokemonTypePast(NamedApiResource generation, List<PokemonType> types) {}

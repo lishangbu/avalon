@@ -24,4 +24,4 @@ public record PokemonShape(
         String name,
         @JsonProperty("awesome_names") List<AwesomeName> awesomeNames,
         List<Name> names,
-        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        @JsonProperty("pokemon_species") List<NamedApiResource> pokemonSpecies) {}

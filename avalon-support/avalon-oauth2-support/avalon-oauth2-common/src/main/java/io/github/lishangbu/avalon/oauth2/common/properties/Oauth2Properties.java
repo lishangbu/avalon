@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /// OAuth2 安全配置属性类
 ///
 /// 封装 OAuth2 授权服务器的核心配置参数，支持通过 application.yml 或 application.properties 进行配置
-/// 前缀为 {@code oauth2}，包含认证路径控制、JWT 密钥管理、Token 签发等关键设置
+/// 前缀为 `oauth2`，包含认证路径控制、JWT 密钥管理、Token 签发等关键设置
 ///
 /// @author lishangbu
 /// @since 2025/8/17

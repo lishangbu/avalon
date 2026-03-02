@@ -8,13 +8,13 @@ import org.hibernate.persister.entity.EntityPersister;
 
 /// 主键生成器抽象基类
 ///
-/// - 封装通用主键生成流程：实体已有主键直接返回，否则交由 {@link #doGenerate} 生成
-/// - 使用 Hibernate {@link EntityPersister} 获取标识符，优于手动反射，支持复合主键
+/// - 封装通用主键生成流程：实体已有主键直接返回，否则交由 [#doGenerate] 生成
+/// - 使用 Hibernate [EntityPersister] 获取标识符，优于手动反射，支持复合主键
 /// - 适用于分布式 ID、雪花 ID 等主键策略，降低子类实现复杂度
 ///
 /// 使用说明：
 /// 1. 通过 Hibernate API 判断实体主键是否已赋值
-/// 2. 若无则调用 {@link #doGenerate} 生成
+/// 2. 若无则调用 [#doGenerate] 生成
 ///
 /// @author lishangbu
 /// @since 2025/9/30

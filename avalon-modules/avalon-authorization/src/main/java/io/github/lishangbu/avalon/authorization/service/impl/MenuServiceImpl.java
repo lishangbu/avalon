@@ -41,7 +41,7 @@ public class MenuServiceImpl implements MenuService {
     ///
     /// - 处理空集合，返回不可变空列表
     /// - 将 Menu 映射为 MenuTreeNode
-    /// - 使用通用的 {@link TreeUtils} 构建树
+    /// - 使用通用的 [TreeUtils] 构建树
     ///
     /// @param menus 权限实体列表，允许为 null
     /// @return 树结构的 MenuTreeNode 列表，永远不返回 null
@@ -52,7 +52,7 @@ public class MenuServiceImpl implements MenuService {
         }
 
         List<MenuTreeNode> treeNodes =
-                menus.stream().map(MenuTreeNode::new).collect(Collectors.toList());
+                menus.stream().map(MenuTreeNode::new).toList();
 
         return TreeUtils.buildTree(
                 treeNodes,

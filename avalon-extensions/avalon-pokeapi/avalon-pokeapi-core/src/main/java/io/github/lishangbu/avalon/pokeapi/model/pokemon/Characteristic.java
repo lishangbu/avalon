@@ -22,5 +22,5 @@ public record Characteristic(
         Integer id,
         @JsonProperty("gene_modulo") Integer geneModulo,
         @JsonProperty("possible_values") List<Integer> possibleValues,
-        @JsonProperty("highest_stat") NamedApiResource<Stat> highestStat,
+        @JsonProperty("highest_stat") NamedApiResource highestStat,
         List<Description> descriptions) {}

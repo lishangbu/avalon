@@ -10,4 +10,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @param language 该名称所在的语言
 /// @author lishangbu
 /// @since 2025/5/20
-public record Name(String name, NamedApiResource<Language> language) {}
+public record Name(String name, NamedApiResource language) {}

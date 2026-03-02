@@ -8,4 +8,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @param language    此描述所使用的语言
 /// @author lishangbu
 /// @since 2025/5/20
-public record Description(String description, NamedApiResource<Language> language) {}
+public record Description(String description, NamedApiResource language) {}

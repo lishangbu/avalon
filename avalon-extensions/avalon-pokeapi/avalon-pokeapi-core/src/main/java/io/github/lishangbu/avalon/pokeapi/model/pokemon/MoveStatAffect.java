@@ -10,4 +10,4 @@ import io.github.lishangbu.avalon.pokeapi.model.move.Move;
 /// @author lishangbu
 /// @see Move
 /// @since 2025/6/8
-public record MoveStatAffect(Integer change, NamedApiResource<Move> move) {}
+public record MoveStatAffect(Integer change, NamedApiResource move) {}

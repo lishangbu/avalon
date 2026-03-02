@@ -11,4 +11,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @author lishangbu
 /// @see Language
 /// @since 2025/5/22
-public record ContestName(String name, String color, NamedApiResource<Language> language) {}
+public record ContestName(String name, String color, NamedApiResource language) {}

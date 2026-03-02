@@ -21,4 +21,4 @@ public record ItemFlingEffect(
         Integer id,
         String name,
         @JsonProperty("effect_entries") List<Effect> effectEntries,
-        List<NamedApiResource<Item>> items) {}
+        List<NamedApiResource> items) {}

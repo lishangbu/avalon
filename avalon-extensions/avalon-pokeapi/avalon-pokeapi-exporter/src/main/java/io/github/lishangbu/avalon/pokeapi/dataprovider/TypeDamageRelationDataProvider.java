@@ -89,10 +89,10 @@ public class TypeDamageRelationDataProvider
     /// @param multiplier 伤害倍数
     private void addDamageFrom(
             Map<Map<Integer, Integer>, Float> cache,
-            List<NamedApiResource<Type>> resources,
+            List<NamedApiResource> resources,
             int defenderId,
             float multiplier) {
-        for (NamedApiResource<Type> resource : resources) {
+        for (NamedApiResource resource : resources) {
             Integer attackerId = NamedApiResourceUtils.getId(resource);
             if (attackerId != null) {
                 Map<Integer, Integer> key = Map.of(attackerId, defenderId);
@@ -111,10 +111,10 @@ public class TypeDamageRelationDataProvider
     /// @param multiplier 伤害倍数
     private void addDamageTo(
             Map<Map<Integer, Integer>, Float> cache,
-            List<NamedApiResource<Type>> resources,
+            List<NamedApiResource> resources,
             int attackerId,
             float multiplier) {
-        for (NamedApiResource<Type> resource : resources) {
+        for (NamedApiResource resource : resources) {
             Integer defenderId = NamedApiResourceUtils.getId(resource);
             if (defenderId != null) {
                 Map<Integer, Integer> key = Map.of(attackerId, defenderId);

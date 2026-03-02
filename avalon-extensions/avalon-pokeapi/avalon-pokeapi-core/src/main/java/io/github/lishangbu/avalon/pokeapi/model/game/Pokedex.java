@@ -31,5 +31,5 @@ public record Pokedex(
         List<Description> descriptions,
         List<Name> names,
         @JsonProperty("pokemon_entries") List<PokemonEntry> pokemonEntries,
-        NamedApiResource<?> region,
-        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        NamedApiResource region,
+        @JsonProperty("version_groups") List<NamedApiResource> versionGroups) {}
