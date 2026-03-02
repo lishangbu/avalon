@@ -16,5 +16,5 @@ import java.util.List;
 public record ItemPocket(
         Integer id,
         String name,
-        List<NamedApiResource<ItemCategory>> categories,
+        List<NamedApiResource> categories,
         List<Name> names) {}

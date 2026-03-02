@@ -12,4 +12,4 @@ import io.github.lishangbu.avalon.pokeapi.model.game.Version;
 /// @author lishangbu
 /// @see Version
 /// @since 2025/6/8
-public record PokemonHeldItemVersion(NamedApiResource<Version> version, Integer rarity) {}
+public record PokemonHeldItemVersion(NamedApiResource version, Integer rarity) {}

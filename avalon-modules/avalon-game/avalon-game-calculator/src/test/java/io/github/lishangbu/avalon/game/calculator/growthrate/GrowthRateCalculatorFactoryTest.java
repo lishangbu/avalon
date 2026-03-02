@@ -92,7 +92,7 @@ class GrowthRateCalculatorFactoryTest {
     void calculateGrowthRate_shouldReturnZeroForInvalidLevel() {
         Integer result = growthRateService.calculateGrowthRate("slow", 0);
 
-        assertThat(result).isEqualTo(0);
+        assertThat(result).isZero();
     }
 
     /// 测试calculateGrowthRate方法，验证未知internalName
@@ -104,7 +104,7 @@ class GrowthRateCalculatorFactoryTest {
     void calculateGrowthRate_shouldReturnZeroForUnknownType() {
         Integer result = growthRateService.calculateGrowthRate("unknown", 10);
 
-        assertThat(result).isEqualTo(0);
+        assertThat(result).isZero();
     }
 
     private void validateGrowthRate(String type, String resourceName) throws Exception {

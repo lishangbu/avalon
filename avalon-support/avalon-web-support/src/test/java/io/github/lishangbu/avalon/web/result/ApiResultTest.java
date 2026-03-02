@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 ///
 /// @author lishangbu
 /// @since 2025/4/16
-public class ApiResultTest {
+class ApiResultTest {
 
     @Test
-    public void testOkWithData() {
+    void testOkWithData() {
         String testData = "Test Data";
 
         ApiResult<String> result = ApiResult.ok(testData);
@@ -30,7 +30,7 @@ public class ApiResultTest {
     }
 
     @Test
-    public void testOkWithNullData() {
+    void testOkWithNullData() {
         ApiResult<Void> result = ApiResult.ok(null);
 
         // 验证返回的状态码为 200
@@ -44,7 +44,7 @@ public class ApiResultTest {
     }
 
     @Test
-    public void testFailedWithCodeAndMessage() {
+    void testFailedWithCodeAndMessage() {
         int errorCode = 500;
         String errorMessage = "Internal Server Error";
 
@@ -61,7 +61,7 @@ public class ApiResultTest {
     }
 
     @Test
-    public void testFailedWithErrorEnum() {
+    void testFailedWithErrorEnum() {
         ErrorResultCode errorCode = DefaultErrorResultCode.SERVER_ERROR;
         String additionalMessage = "Database connection failed";
 
@@ -78,7 +78,7 @@ public class ApiResultTest {
     }
 
     @Test
-    public void testFailedWithEmptyErrorMessages() {
+    void testFailedWithEmptyErrorMessages() {
         ErrorResultCode errorCode = DefaultErrorResultCode.RESOURCE_NOT_FOUND;
 
         ApiResult<Void> result = ApiResult.failed(errorCode);
@@ -94,7 +94,7 @@ public class ApiResultTest {
     }
 
     @Test
-    public void testFailedWithSomeErrorMessages() {
+    void testFailedWithSomeErrorMessages() {
         ErrorResultCode errorCode = DefaultErrorResultCode.METHOD_NOT_ALLOWED;
 
         ApiResult<Void> result =

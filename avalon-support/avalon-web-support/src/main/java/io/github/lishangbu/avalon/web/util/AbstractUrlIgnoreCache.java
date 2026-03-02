@@ -24,7 +24,7 @@ public abstract class AbstractUrlIgnoreCache {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /// 构造方法，初始化 LRU 缓存（默认容量 1024）
-    public AbstractUrlIgnoreCache() {
+    protected AbstractUrlIgnoreCache() {
         this.cache = new ConcurrentLruCache<>(1024, this::urlShouldBeIgnored);
     }
 

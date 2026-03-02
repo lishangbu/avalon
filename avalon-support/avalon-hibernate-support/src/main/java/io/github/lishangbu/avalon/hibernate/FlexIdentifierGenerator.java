@@ -6,7 +6,7 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor;
 
 /// FlexId 主键生成器
 ///
-/// - 基于 {@link FlexKeyGenerator} 实现分布式唯一 ID 生成，适用于高并发与分布式场景
+/// - 基于 [FlexKeyGenerator] 实现分布式唯一 ID 生成，适用于高并发与分布式场景
 /// - 通过单例模式获取生成器实例，支持多线程安全；用于 Hibernate 实体主键自动生成
 /// - 适合需要自定义主键生成策略的业务实体，如用户、菜单等，生成的 ID 全局唯一
 ///

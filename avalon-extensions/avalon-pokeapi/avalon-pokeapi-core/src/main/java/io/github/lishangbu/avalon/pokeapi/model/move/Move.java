@@ -2,9 +2,7 @@ package io.github.lishangbu.avalon.pokeapi.model.move;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
-import io.github.lishangbu.avalon.pokeapi.model.contest.ContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.contest.ContestType;
-import io.github.lishangbu.avalon.pokeapi.model.contest.SuperContestEffect;
 import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
@@ -48,19 +46,19 @@ public record Move(
         Integer priority,
         Integer power,
         @JsonProperty("contest_combos") ContestComboSets contestCombos,
-        @JsonProperty("contestType") NamedApiResource<ContestType> contestType,
-        @JsonProperty("contest_effect") APIResource<ContestEffect> contestEffect,
-        @JsonProperty("damage_class") NamedApiResource<MoveDamageClass> damageClass,
+        @JsonProperty("contestType") NamedApiResource contestType,
+        @JsonProperty("contest_effect") APIResource contestEffect,
+        @JsonProperty("damage_class") NamedApiResource damageClass,
         @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
         @JsonProperty("effect_changes") List<?> effectChanges,
-        @JsonProperty("learned_by_pokemon") List<NamedApiResource<?>> learnedByPokemon,
+        @JsonProperty("learned_by_pokemon") List<NamedApiResource> learnedByPokemon,
         @JsonProperty("flavor_text_entries") List<MoveFlavorText> flavorTextEntries,
-        NamedApiResource<Generation> generation,
+        NamedApiResource generation,
         List<MachineVersionDetail> machines,
         MoveMetaData meta,
         List<Name> names,
         @JsonProperty("past_values") List<PastMoveStatValues> pastValues,
         @JsonProperty("stat_changes") List<MoveStatChange> statChanges,
-        @JsonProperty("super_contest_effect") APIResource<SuperContestEffect> superContestEffect,
-        NamedApiResource<MoveTarget> target,
-        NamedApiResource<Type> type) {}
+        @JsonProperty("super_contest_effect") APIResource superContestEffect,
+        NamedApiResource target,
+        NamedApiResource type) {}

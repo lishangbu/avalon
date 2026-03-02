@@ -10,4 +10,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @param stat   受影响的属性引用
 /// @author lishangbu
 /// @since 2025/6/7
-public record MoveStatChange(Integer change, NamedApiResource<?> stat) {}
+public record MoveStatChange(Integer change, NamedApiResource stat) {}

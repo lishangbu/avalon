@@ -131,15 +131,15 @@ public class DefaultRegisteredClientRepository implements RegisteredClientReposi
                                                                 resolveClientAuthenticationMethod(
                                                                         authenticationMethod))))
                         .authorizationGrantTypes(
-                                (grantTypes) ->
+                                grantTypes ->
                                         authorizationGrantTypes.forEach(
                                                 grantType ->
                                                         grantTypes.add(
                                                                 resolveAuthorizationGrantType(
                                                                         grantType))))
-                        .redirectUris((uris) -> uris.addAll(redirectUris))
-                        .postLogoutRedirectUris((uris) -> uris.addAll(postLogoutRedirectUris))
-                        .scopes((scopes) -> scopes.addAll(clientScopes));
+                        .redirectUris(uris -> uris.addAll(redirectUris))
+                        .postLogoutRedirectUris(uris -> uris.addAll(postLogoutRedirectUris))
+                        .scopes(scopes -> scopes.addAll(clientScopes));
 
         ClientSettings.Builder clientSettingsBuilder = ClientSettings.builder();
         if (client.getRequireProofKey() != null) {

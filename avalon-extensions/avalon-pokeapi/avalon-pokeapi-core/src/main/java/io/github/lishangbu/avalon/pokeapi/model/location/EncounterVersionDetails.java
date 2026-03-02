@@ -9,4 +9,4 @@ import io.github.lishangbu.avalon.pokeapi.model.game.Version;
 /// @param version 可以以给定几率遇到的游戏版本引用
 /// @author lishangbu
 /// @since 2025/5/26
-public record EncounterVersionDetails(Integer rate, NamedApiResource<Version> version) {}
+public record EncounterVersionDetails(Integer rate, NamedApiResource version) {}

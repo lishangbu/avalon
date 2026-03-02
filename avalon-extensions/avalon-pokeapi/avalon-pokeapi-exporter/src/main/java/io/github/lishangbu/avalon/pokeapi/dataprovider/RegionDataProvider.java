@@ -19,7 +19,7 @@ public class RegionDataProvider extends AbstractPokeApiDataProvider<Region, Regi
         result.setId(region.id());
         result.setInternalName(region.name());
         result.setName(resolveLocalizedName(region.names(), region.name()));
-        NamedApiResource<Generation> generationNamedApiResource = region.mainGeneration();
+        NamedApiResource generationNamedApiResource = region.mainGeneration();
         if (generationNamedApiResource != null) {
             result.setMainGenerationName(generationNamedApiResource.name());
         }

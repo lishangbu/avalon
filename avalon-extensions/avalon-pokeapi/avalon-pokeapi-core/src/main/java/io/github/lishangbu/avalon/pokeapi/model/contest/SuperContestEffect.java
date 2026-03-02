@@ -18,4 +18,4 @@ public record SuperContestEffect(
         Integer id,
         Integer appeal,
         @JsonProperty("flavor_text_entries") List<FlavorText> flavorTextEntries,
-        List<NamedApiResource<?>> moves) {}
+        List<NamedApiResource> moves) {}

@@ -29,5 +29,5 @@ public record PastMoveStatValues(
         Integer power,
         Integer pp,
         @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
-        NamedApiResource<Type> type,
-        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        NamedApiResource type,
+        @JsonProperty("version_group") NamedApiResource versionGroup) {}

@@ -21,4 +21,4 @@ public record PokemonColor(
         Integer id,
         String name,
         List<Name> names,
-        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        @JsonProperty("pokemon_species") List<NamedApiResource> pokemonSpecies) {}

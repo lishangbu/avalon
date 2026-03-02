@@ -13,4 +13,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 public record VerboseEffect(
         String effect,
         @JsonProperty("short_effect") String shortEffect,
-        NamedApiResource<Language> language) {}
+        NamedApiResource language) {}

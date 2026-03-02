@@ -51,8 +51,9 @@ public abstract class AbstractPokeApiDataProvider<R, T>
         }
     }
 
-    /// ## 名称解析
-    /// 解析 PokeAPI 中的 {@code names} 列表获取本地化名称，失败时使用默认值
+    /// 名称解析
+    ///
+    /// 解析 PokeAPI 中的 `names` 列表获取本地化名称，失败时使用默认值
     ///
     /// @param names       PokeAPI 的 names 列表，可能为 null
     /// @param defaultName 默认名称，当无法解析本地化名称时使用
@@ -68,8 +69,9 @@ public abstract class AbstractPokeApiDataProvider<R, T>
         }
     }
 
-    /// ## 描述解析
-    /// 解析 PokeAPI 中的 {@code descriptions} 列表获取本地化描述，失败时返回 null
+    /// 描述解析
+    ///
+    /// 解析 PokeAPI 中的 `descriptions` 列表获取本地化描述，失败时返回 null
     ///
     /// @param descriptions PokeAPI 的 descriptions 列表，可能为 null
     /// @return 本地化描述或 null
@@ -85,8 +87,9 @@ public abstract class AbstractPokeApiDataProvider<R, T>
         }
     }
 
-    /// ## 效果解析
-    /// 解析 PokeAPI 中的 {@code effectEntries} 列表获取本地化效果，失败时返回 null
+    /// 效果解析
+    ///
+    /// 解析 PokeAPI 中的 `effectEntries` 列表获取本地化效果，失败时返回 null
     ///
     /// @param effectEntries PokeAPI 的 effectEntries 列表，可能为 null
     /// @return 本地化效果或 null
@@ -102,8 +105,9 @@ public abstract class AbstractPokeApiDataProvider<R, T>
         }
     }
 
-    /// ## 详尽效果解析
-    /// 解析 PokeAPI 中的 {@code verboseEffectEntries} 列表获取本地化详尽效果，失败时返回 null
+    /// 详尽效果解析
+    ///
+    /// 解析 PokeAPI 中的 `verboseEffectEntries` 列表获取本地化详尽效果，失败时返回 null
     ///
     /// @param verboseEffectEntries PokeAPI 的 verboseEffectEntries 列表，可能为 null
     /// @return 本地化详尽效果或 null

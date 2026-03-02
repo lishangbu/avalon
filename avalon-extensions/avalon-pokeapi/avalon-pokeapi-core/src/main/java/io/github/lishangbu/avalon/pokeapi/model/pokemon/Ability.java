@@ -32,7 +32,7 @@ public record Ability(
         Integer id,
         String name,
         @JsonProperty("is_main_series") Boolean isMainSeries,
-        NamedApiResource<Generation> generation,
+        NamedApiResource generation,
         List<Name> names,
         @JsonProperty("effect_entries") List<VerboseEffect> effectEntries,
         @JsonProperty("effect_changes") List<AbilityEffectChange> effectChanges,

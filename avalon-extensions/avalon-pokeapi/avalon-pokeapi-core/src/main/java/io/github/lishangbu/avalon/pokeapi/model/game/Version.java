@@ -21,4 +21,4 @@ public record Version(
         Integer id,
         String name,
         List<Name> names,
-        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        @JsonProperty("version_group") NamedApiResource versionGroup) {}

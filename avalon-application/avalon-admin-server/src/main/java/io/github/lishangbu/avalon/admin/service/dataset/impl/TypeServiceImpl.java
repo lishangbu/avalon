@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.admin.service.dataset.TypeService;
 import io.github.lishangbu.avalon.dataset.entity.Type;
 import io.github.lishangbu.avalon.dataset.entity.Type_;
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -12,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /// 属性服务实现
 ///
@@ -74,7 +75,8 @@ public class TypeServiceImpl implements TypeService {
 
     /// 根据条件查询属性类型列表
     ///
-    /// <p>支持按 name/internalName 模糊查询，其余字段精确匹配
+    ///
+    /// 支持按 name/internalName 模糊查询，其余字段精确匹配
     ///
     /// @param type 查询条件，支持部分字段模糊查询
     /// @return 属性类型列表

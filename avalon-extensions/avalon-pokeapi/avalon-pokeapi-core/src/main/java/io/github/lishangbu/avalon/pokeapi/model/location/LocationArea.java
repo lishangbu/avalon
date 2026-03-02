@@ -27,6 +27,6 @@ public record LocationArea(
         String name,
         @JsonProperty("game_index") Integer gameIndex,
         @JsonProperty("encounter_method_rates") List<EncounterMethodRate> encounterMethodRates,
-        NamedApiResource<Location> location,
+        NamedApiResource location,
         List<Name> names,
         @JsonProperty("pokemon_encounters") List<PokemonEncounter> pokemonEncounters) {}

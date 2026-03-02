@@ -66,7 +66,7 @@ public class FlexKeyGenerator {
 
     /// 获取默认机器 ID 的生成器单例
     ///
-    /// @return 默认机器 ID 的 {@link FlexKeyGenerator} 实例
+    /// @return 默认机器 ID 的 [FlexKeyGenerator]实例
     public static FlexKeyGenerator getInstance() {
         return getInstance(DEFAULT_WORK_ID);
     }
@@ -74,7 +74,7 @@ public class FlexKeyGenerator {
     /// 获取指定机器 ID 的生成器单例（0-99）
     ///
     /// @param workId 机器 ID（范围 0-99）
-    /// @return 对应的 {@link FlexKeyGenerator} 实例
+    /// @return 对应的 [FlexKeyGenerator] 实例
     public static FlexKeyGenerator getInstance(long workId) {
         // 如果实例已存在，直接返回
         if (!KEY_GENERATOR_CACHE.containsKey(workId)) {

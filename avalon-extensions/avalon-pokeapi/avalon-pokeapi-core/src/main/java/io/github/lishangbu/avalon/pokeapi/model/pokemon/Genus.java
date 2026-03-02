@@ -10,4 +10,4 @@ import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 /// @author lishangbu
 /// @see Language
 /// @since 2025/6/8
-public record Genus(String genus, NamedApiResource<Language> language) {}
+public record Genus(String genus, NamedApiResource language) {}

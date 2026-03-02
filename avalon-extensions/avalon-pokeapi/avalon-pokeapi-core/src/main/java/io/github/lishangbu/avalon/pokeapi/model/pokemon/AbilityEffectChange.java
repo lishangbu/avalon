@@ -18,4 +18,4 @@ import java.util.List;
 /// @since 2025/6/8
 public record AbilityEffectChange(
         @JsonProperty("effect_entries") List<Effect> effectEntries,
-        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup) {}
+        @JsonProperty("version_group") NamedApiResource versionGroup) {}

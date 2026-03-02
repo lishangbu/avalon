@@ -21,7 +21,7 @@ public class LocationAreaDataProvider
         result.setInternalName(locationArea.name());
         result.setName(resolveLocalizedName(locationArea.names(), locationArea.name()));
         result.setGameIndex(locationArea.gameIndex());
-        NamedApiResource<Location> locationNamedApiResource = locationArea.location();
+        NamedApiResource locationNamedApiResource = locationArea.location();
         if (locationNamedApiResource != null) {
             result.setLocationName(locationNamedApiResource.name());
         }

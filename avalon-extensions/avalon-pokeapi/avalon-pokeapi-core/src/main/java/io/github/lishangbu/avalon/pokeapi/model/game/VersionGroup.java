@@ -25,8 +25,8 @@ public record VersionGroup(
         Integer id,
         String name,
         Integer order,
-        NamedApiResource<Generation> generation,
-        @JsonProperty("move_learn_methods") List<NamedApiResource<?>> moveLearnMethods,
-        List<NamedApiResource<Pokedex>> pokedexes,
-        List<NamedApiResource<?>> regions,
-        List<NamedApiResource<Version>> versions) {}
+        NamedApiResource generation,
+        @JsonProperty("move_learn_methods") List<NamedApiResource> moveLearnMethods,
+        List<NamedApiResource> pokedexes,
+        List<NamedApiResource> regions,
+        List<NamedApiResource> versions) {}

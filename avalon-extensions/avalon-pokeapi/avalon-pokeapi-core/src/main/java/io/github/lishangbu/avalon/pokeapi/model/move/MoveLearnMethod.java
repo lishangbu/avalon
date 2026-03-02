@@ -26,4 +26,4 @@ public record MoveLearnMethod(
         String name,
         List<Description> descriptions,
         List<Name> names,
-        @JsonProperty("version_groups") List<NamedApiResource<VersionGroup>> versionGroups) {}
+        @JsonProperty("version_groups") List<NamedApiResource> versionGroups) {}

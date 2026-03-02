@@ -17,6 +17,6 @@ public record Encounter(
         @JsonProperty("min_level") Integer minLevel,
         @JsonProperty("max_level") Integer maxLevel,
         @JsonProperty("condition_values")
-                List<NamedApiResource<EncounterConditionValue>> conditionValues,
+                List<NamedApiResource> conditionValues,
         Integer chance,
-        NamedApiResource<?> method) {}
+        NamedApiResource method) {}

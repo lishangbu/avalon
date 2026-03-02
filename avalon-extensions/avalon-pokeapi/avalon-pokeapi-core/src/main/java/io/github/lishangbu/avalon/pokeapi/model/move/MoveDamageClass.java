@@ -23,5 +23,5 @@ public record MoveDamageClass(
         Integer id,
         String name,
         List<Description> descriptions,
-        List<NamedApiResource<Move>> moves,
+        List<NamedApiResource> moves,
         List<Name> names) {}

@@ -11,8 +11,8 @@ import java.util.List;
 ///
 /// @param id             资源标识符
 /// @param name           资源名称
-/// @param names          多语言名称列表 {@link Name}
-/// @param pokemonSpecies 作为此蛋组成员的宝可梦种类列表 {@link PokemonSpecies}
+/// @param names          多语言名称列表 [Name]
+/// @param pokemonSpecies 作为此蛋组成员的宝可梦种类列表 [PokemonSpecies]
 /// @author lishangbu
 /// @see Name
 /// @see PokemonSpecies
@@ -21,4 +21,4 @@ public record EggGroup(
         Integer id,
         String name,
         List<Name> names,
-        @JsonProperty("pokemon_species") List<NamedApiResource<PokemonSpecies>> pokemonSpecies) {}
+        @JsonProperty("pokemon_species") List<NamedApiResource> pokemonSpecies) {}

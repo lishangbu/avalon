@@ -40,9 +40,9 @@ public record PokemonForm(
         @JsonProperty("is_battle_only") Boolean isBattleOnly,
         @JsonProperty("is_mega") Boolean isMega,
         @JsonProperty("form_name") String formName,
-        NamedApiResource<Pokemon> pokemon,
+        NamedApiResource pokemon,
         List<PokemonFormType> types,
         PokemonFormSprites sprites,
-        @JsonProperty("version_group") NamedApiResource<VersionGroup> versionGroup,
+        @JsonProperty("version_group") NamedApiResource versionGroup,
         List<Name> names,
         @JsonProperty("form_names") List<Name> formNames) {}

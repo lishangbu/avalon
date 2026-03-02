@@ -30,8 +30,8 @@ public record Type(
         @JsonProperty("damage_relations") TypeRelations damageRelations,
         @JsonProperty("past_damage_relations") List<TypeRelationsPast<?>> pastDamageRelations,
         @JsonProperty("game_indices") List<GenerationGameIndex> gameIndices,
-        NamedApiResource<?> generation,
-        @JsonProperty("move_damage_class") NamedApiResource<?> moveDamageClass,
+        NamedApiResource generation,
+        @JsonProperty("move_damage_class") NamedApiResource moveDamageClass,
         List<Name> names,
         List<TypePokemon> pokemon,
-        List<NamedApiResource<?>> moves) {}
+        List<NamedApiResource> moves) {}

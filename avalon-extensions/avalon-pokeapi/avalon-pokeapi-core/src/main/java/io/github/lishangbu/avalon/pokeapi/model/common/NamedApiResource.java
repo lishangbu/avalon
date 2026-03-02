@@ -6,4 +6,4 @@ package io.github.lishangbu.avalon.pokeapi.model.common;
 /// @param url  引用资源的 URL
 /// @author lishangbu
 /// @since 2025/5/20
-public record NamedApiResource<T>(String name, String url) {}
+public record NamedApiResource(String name, String url) {}

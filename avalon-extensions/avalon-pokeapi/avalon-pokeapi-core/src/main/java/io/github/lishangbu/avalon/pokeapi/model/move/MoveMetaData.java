@@ -24,8 +24,8 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see MoveCategory
 /// @since 2025/6/7
 public record MoveMetaData(
-        NamedApiResource<MoveAilment> ailment,
-        NamedApiResource<MoveCategory> category,
+        NamedApiResource ailment,
+        NamedApiResource category,
         @JsonProperty("min_hits") Integer minHits,
         @JsonProperty("max_hits") Integer maxHits,
         @JsonProperty("min_turns") Integer minTurns,

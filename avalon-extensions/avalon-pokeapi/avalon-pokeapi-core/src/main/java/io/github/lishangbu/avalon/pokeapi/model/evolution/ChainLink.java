@@ -17,6 +17,6 @@ import java.util.List;
 /// @since 2025/5/24
 public record ChainLink(
         @JsonProperty("is_baby") Boolean isBaby,
-        NamedApiResource<PokemonSpecies> species,
+        NamedApiResource species,
         @JsonProperty("evolution_details") List<EvolutionDetail> evolutionDetails,
         @JsonProperty("evolves_to") List<ChainLink> evolvesTo) {}

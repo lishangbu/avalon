@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.BAD_REQUEST, errorMsg);
     }
 
-    /// 处理业务校验过程中碰到的非法参数异常，该异常基本由 {@link Assert} 抛出
+    /// 处理业务校验过程中碰到的非法参数异常，该异常基本由 [Assert] 抛出
     ///
     /// @param exception 参数校验异常
     /// @return ApiResult 包装的错误信息

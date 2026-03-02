@@ -53,7 +53,7 @@ public record Pokemon(
         Integer order,
         Integer weight,
         List<PokemonAbility> abilities,
-        List<NamedApiResource<PokemonForm>> forms,
+        List<NamedApiResource> forms,
         @JsonProperty("game_indices") List<VersionGameIndex> gameIndices,
         @JsonProperty("held_items") List<PokemonHeldItem> heldItems,
         @JsonProperty("location_area_encounters") String locationAreaEncounters,
@@ -62,6 +62,6 @@ public record Pokemon(
         @JsonProperty("past_abilities") List<PokemonAbilityPast> pastAbilities,
         PokemonSprites sprites,
         PokemonCries cries,
-        NamedApiResource<PokemonSpecies> species,
+        NamedApiResource species,
         List<PokemonStat> stats,
         List<PokemonType> types) {}
