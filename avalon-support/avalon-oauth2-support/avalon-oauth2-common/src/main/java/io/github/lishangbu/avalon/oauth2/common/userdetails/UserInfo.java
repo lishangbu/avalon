@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

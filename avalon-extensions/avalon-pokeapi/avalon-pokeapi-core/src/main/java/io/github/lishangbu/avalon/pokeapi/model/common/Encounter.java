@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterConditionValue;
 import java.util.List;
 
 /// PokeAPI 遭遇记录模型
@@ -16,7 +15,6 @@ import java.util.List;
 public record Encounter(
         @JsonProperty("min_level") Integer minLevel,
         @JsonProperty("max_level") Integer maxLevel,
-        @JsonProperty("condition_values")
-                List<NamedApiResource> conditionValues,
+        @JsonProperty("condition_values") List<NamedApiResource> conditionValues,
         Integer chance,
         NamedApiResource method) {}

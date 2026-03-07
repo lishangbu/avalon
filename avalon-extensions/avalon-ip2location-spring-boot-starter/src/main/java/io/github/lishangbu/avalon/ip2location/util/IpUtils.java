@@ -1,11 +1,10 @@
 package io.github.lishangbu.avalon.ip2location.util;
 
-import lombok.experimental.UtilityClass;
-import net.renfei.ip2location.IPTools;
-
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.List;
+import lombok.experimental.UtilityClass;
+import net.renfei.ip2location.IPTools;
 
 /// IP 工具类
 ///

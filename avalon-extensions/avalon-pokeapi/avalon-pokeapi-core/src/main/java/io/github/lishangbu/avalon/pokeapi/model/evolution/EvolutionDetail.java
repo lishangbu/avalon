@@ -3,10 +3,6 @@ package io.github.lishangbu.avalon.pokeapi.model.evolution;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
-import io.github.lishangbu.avalon.pokeapi.model.location.Location;
-import io.github.lishangbu.avalon.pokeapi.model.location.Region;
-import io.github.lishangbu.avalon.pokeapi.model.move.Move;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.PokemonSpecies;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 
 /// 宝可梦进化的详细条件信息

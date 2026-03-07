@@ -2,9 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.model.move;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
-import io.github.lishangbu.avalon.pokeapi.model.contest.ContestType;
-import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
 /// 招式模型

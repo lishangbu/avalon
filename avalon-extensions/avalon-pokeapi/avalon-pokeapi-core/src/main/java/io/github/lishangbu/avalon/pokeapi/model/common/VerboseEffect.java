@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 
 /// 详尽效果文本模型
 ///

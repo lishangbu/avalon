@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.model.location;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.encounter.EncounterMethod;
 import java.util.List;
 
 /// 遭遇方式与对应版本几率

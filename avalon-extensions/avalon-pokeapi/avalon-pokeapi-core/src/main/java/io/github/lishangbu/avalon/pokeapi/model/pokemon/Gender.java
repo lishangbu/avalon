@@ -20,5 +20,4 @@ public record Gender(
         Integer id,
         String name,
         @JsonProperty("pokemon_species_details") List<PokemonSpeciesGender> pokemonSpeciesDetails,
-        @JsonProperty("required_for_evolution")
-                List<NamedApiResource> requiredForEvolution) {}
+        @JsonProperty("required_for_evolution") List<NamedApiResource> requiredForEvolution) {}

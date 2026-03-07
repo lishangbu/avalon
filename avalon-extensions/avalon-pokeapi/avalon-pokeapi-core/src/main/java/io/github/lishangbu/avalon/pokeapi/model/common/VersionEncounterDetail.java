@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.lishangbu.avalon.pokeapi.model.game.Version;
 import java.util.List;
 
 /// 版本遭遇详情模型

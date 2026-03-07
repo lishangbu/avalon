@@ -5,13 +5,13 @@ import io.github.lishangbu.avalon.web.util.JsonResponseWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-import java.io.IOException;
-
-/// An implementation of an [org.springframework.security.web.authentication.AuthenticationFailureHandler]
+/// An implementation of an
+// [org.springframework.security.web.authentication.AuthenticationFailureHandler]
 /// used for handling an [org.springframework.security.oauth2.core.OAuth2AuthenticationException]
 /// and returning the [org.springframework.security.oauth2.core.OAuth2Error]
 /// OAuth 2.0 Error Response

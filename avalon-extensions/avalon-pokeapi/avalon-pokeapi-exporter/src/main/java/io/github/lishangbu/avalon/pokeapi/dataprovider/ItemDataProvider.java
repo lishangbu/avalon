@@ -35,7 +35,8 @@ public class ItemDataProvider extends AbstractPokeApiDataProvider<Item, ItemExce
                         : null);
         result.setFlingPower(item.flingPower());
         LocalizationUtils.getLocalizationVersionGroupFlavorText(item.flavorTextEntries())
-                .ifPresent(versionGroupFlavorText -> result.setText((versionGroupFlavorText.text())));
+                .ifPresent(
+                        versionGroupFlavorText -> result.setText((versionGroupFlavorText.text())));
         return result;
     }
 }

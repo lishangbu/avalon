@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.model.pokemon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 
 /// 宝可梦种类的“科学”名称
 ///

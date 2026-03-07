@@ -12,6 +12,4 @@ import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 /// @see Pokemon
 /// @since 2025/6/8
 public record AbilityPokemon(
-        @JsonProperty("is_hidden") Boolean isHidden,
-        Integer slot,
-        NamedApiResource pokemon) {}
+        @JsonProperty("is_hidden") Boolean isHidden, Integer slot, NamedApiResource pokemon) {}

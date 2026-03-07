@@ -3,12 +3,11 @@ package io.github.lishangbu.avalon.pokeapi.util;
 import io.github.lishangbu.avalon.pokeapi.model.common.*;
 import io.github.lishangbu.avalon.pokeapi.model.move.MoveFlavorText;
 import io.github.lishangbu.avalon.pokeapi.model.pokemon.AbilityFlavorText;
-import lombok.experimental.UtilityClass;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.experimental.UtilityClass;
 
 /// 本地化工具
 ///
@@ -29,9 +28,7 @@ public class LocalizationUtils {
     private final String ENGLISH = "en";
 
     /// 默认按照简体中文、繁体中文和英语的顺序进行解析
-    private final String[] DEFAULT_LOCALES = {
-            SIMPLIFIED_CHINESE, TRADITIONAL_CHINESE, ENGLISH
-    };
+    private final String[] DEFAULT_LOCALES = {SIMPLIFIED_CHINESE, TRADITIONAL_CHINESE, ENGLISH};
 
     /// 获取本地化的名称
     ///
@@ -110,9 +107,7 @@ public class LocalizationUtils {
     /// @param locales           要查找的语言，如果为空则使用默认语言顺序
     /// @return 本地化的资源
     private <T> Optional<T> getLocalizedResource(
-            List<T> resources,
-            Function<T, NamedApiResource> languageExtractor,
-            String... locales) {
+            List<T> resources, Function<T, NamedApiResource> languageExtractor, String... locales) {
 
         if (resources == null || resources.isEmpty()) {
             return Optional.empty();

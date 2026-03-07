@@ -15,7 +15,4 @@ import java.util.List;
 /// @see Name
 /// @since 2025/5/23
 public record EncounterConditionValue(
-        Integer id,
-        String name,
-        NamedApiResource condition,
-        List<Name> names) {}
+        Integer id, String name, NamedApiResource condition, List<Name> names) {}

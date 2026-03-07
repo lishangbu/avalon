@@ -15,6 +15,4 @@ import io.github.lishangbu.avalon.pokeapi.model.location.PalParkArea;
 /// @see PalParkArea
 /// @since 2025/6/8
 public record PalParkEncounterArea(
-        @JsonProperty("base_score") Integer baseScore,
-        Integer rate,
-        NamedApiResource area) {}
+        @JsonProperty("base_score") Integer baseScore, Integer rate, NamedApiResource area) {}

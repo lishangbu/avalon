@@ -8,8 +8,7 @@ Avalon
 
 ## Navigation
 
-[Usage Document Online][1] | **Server Repository
-** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
+[Usage Document Online][1] | **Server Repository** | [Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
 
 [1]: https://lishangbu.github.io/avalon-site/docs
 
