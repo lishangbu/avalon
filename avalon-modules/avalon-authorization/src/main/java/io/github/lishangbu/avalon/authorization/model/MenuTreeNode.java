@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.authorization.model;
 
 import io.github.lishangbu.avalon.authorization.entity.Menu;
+import java.util.List;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-
-import java.util.List;
 
 /// 菜单树节点
 ///

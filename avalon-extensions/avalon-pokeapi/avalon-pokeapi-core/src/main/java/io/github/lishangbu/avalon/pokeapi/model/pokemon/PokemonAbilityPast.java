@@ -14,5 +14,4 @@ import java.util.List;
 /// @see Generation
 /// @see PokemonAbility
 /// @since 2025/6/8
-public record PokemonAbilityPast(
-        NamedApiResource generation, List<PokemonAbility> abilities) {}
+public record PokemonAbilityPast(NamedApiResource generation, List<PokemonAbility> abilities) {}

@@ -2,11 +2,10 @@ package io.github.lishangbu.avalon.authorization.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import java.util.Map;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
-
-import java.util.Map;
 
 /// Spring Security 属性转换器
 ///

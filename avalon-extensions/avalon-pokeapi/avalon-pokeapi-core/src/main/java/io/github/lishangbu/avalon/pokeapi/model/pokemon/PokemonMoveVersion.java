@@ -2,8 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.model.pokemon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
-import io.github.lishangbu.avalon.pokeapi.model.move.MoveLearnMethod;
 
 /// 宝可梦在特定版本中学习技能的方式
 ///

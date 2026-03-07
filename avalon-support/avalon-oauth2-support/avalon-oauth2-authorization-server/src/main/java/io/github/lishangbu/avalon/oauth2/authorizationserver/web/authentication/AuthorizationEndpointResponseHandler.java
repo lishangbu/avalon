@@ -3,6 +3,10 @@ package io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -16,11 +20,6 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-
-import java.io.IOException;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /// An implementation of an [AuthenticationSuccessHandler] used for handling an
 /// [OAuth2AccessTokenAuthenticationToken] and returning the [OAuth2AccessTokenResponse]
@@ -103,8 +102,10 @@ public class AuthorizationEndpointResponseHandler implements AuthenticationSucce
     /// containing an [OAuth2AccessTokenResponse.Builder]
     /// and additional context information.
     ///
-    /// @param accessTokenResponseCustomizer the [Consumer] providing access to the [OAuth2AccessTokenAuthenticationContext] containing
-    ///                                                                                                                an [OAuth2AccessTokenResponse.Builder]
+    /// @param accessTokenResponseCustomizer the [Consumer] providing access to the
+    // [OAuth2AccessTokenAuthenticationContext] containing
+    ///
+    //                   an [OAuth2AccessTokenResponse.Builder]
     public void setAccessTokenResponseCustomizer(
             Consumer<OAuth2AccessTokenAuthenticationContext> accessTokenResponseCustomizer) {
         Assert.notNull(

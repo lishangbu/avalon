@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.pokeapi.model.berry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.item.Item;
-import io.github.lishangbu.avalon.pokeapi.model.pokemon.Type;
 import java.util.List;
 
 /// 树果模型

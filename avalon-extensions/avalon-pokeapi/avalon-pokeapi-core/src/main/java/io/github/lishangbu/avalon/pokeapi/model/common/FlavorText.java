@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.lishangbu.avalon.pokeapi.model.language.Language;
 
 /// PokeAPI 风味文本模型（本地化描述）
 ///

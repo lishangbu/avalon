@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.location;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.game.Version;
 
 /// 遭遇版本详情
 ///

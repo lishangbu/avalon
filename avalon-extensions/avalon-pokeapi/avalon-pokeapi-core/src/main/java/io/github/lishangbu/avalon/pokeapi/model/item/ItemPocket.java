@@ -14,7 +14,4 @@ import java.util.List;
 /// @see Name
 /// @since 2025/5/24
 public record ItemPocket(
-        Integer id,
-        String name,
-        List<NamedApiResource> categories,
-        List<Name> names) {}
+        Integer id, String name, List<NamedApiResource> categories, List<Name> names) {}

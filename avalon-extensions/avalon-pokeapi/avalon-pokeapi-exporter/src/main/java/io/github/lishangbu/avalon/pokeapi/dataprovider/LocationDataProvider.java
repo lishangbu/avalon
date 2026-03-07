@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 import io.github.lishangbu.avalon.pokeapi.model.LocationExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
 import io.github.lishangbu.avalon.pokeapi.model.location.Location;
-import io.github.lishangbu.avalon.pokeapi.model.location.Region;
 import org.springframework.stereotype.Service;
 
 /// 位置数据提供者

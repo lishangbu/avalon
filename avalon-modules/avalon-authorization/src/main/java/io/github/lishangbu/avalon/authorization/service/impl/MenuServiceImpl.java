@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,8 +50,7 @@ public class MenuServiceImpl implements MenuService {
             return Collections.emptyList();
         }
 
-        List<MenuTreeNode> treeNodes =
-                menus.stream().map(MenuTreeNode::new).toList();
+        List<MenuTreeNode> treeNodes = menus.stream().map(MenuTreeNode::new).toList();
 
         return TreeUtils.buildTree(
                 treeNodes,

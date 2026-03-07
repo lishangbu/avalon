@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.RegionExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
 import io.github.lishangbu.avalon.pokeapi.model.location.Region;
 import org.springframework.stereotype.Service;
 

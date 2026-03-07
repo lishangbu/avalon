@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.pokeapi.model.location;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.lishangbu.avalon.pokeapi.model.common.Name;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
 import io.github.lishangbu.avalon.pokeapi.model.game.Pokedex;
 import io.github.lishangbu.avalon.pokeapi.model.game.VersionGroup;
 import java.util.List;

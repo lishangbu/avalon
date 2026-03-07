@@ -1,7 +1,5 @@
 package io.github.lishangbu.avalon.pokeapi.model.common;
 
-import io.github.lishangbu.avalon.pokeapi.model.language.Language;
-
 /// 效果文本模型（参考 PokeAPI）
 ///
 /// 参考 [PokeAPI](https://pokeapi.co/docs/v2) 的 Utility/Common Models/Effect

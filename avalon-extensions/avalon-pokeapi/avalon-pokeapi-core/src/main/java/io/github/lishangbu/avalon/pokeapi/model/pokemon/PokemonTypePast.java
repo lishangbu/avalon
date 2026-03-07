@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.pokeapi.model.pokemon;
 
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.game.Generation;
 import java.util.List;
 
 /// 历史属性模型

@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.pokeapi.dataprovider;
 
 import io.github.lishangbu.avalon.pokeapi.model.LocationAreaExcelDTO;
 import io.github.lishangbu.avalon.pokeapi.model.common.NamedApiResource;
-import io.github.lishangbu.avalon.pokeapi.model.location.Location;
 import io.github.lishangbu.avalon.pokeapi.model.location.LocationArea;
 import org.springframework.stereotype.Service;
 
