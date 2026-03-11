@@ -6,7 +6,7 @@ applyTo: "**"
 
 ## 技术栈
 
-- 框架: Spring Boot 4.1.0-M1
+- 框架: Spring Boot 4.0.3
 - ORM框架: Spring Data Jpa
 - 代码校验与格式化: spotless
 - 开发语言: Java

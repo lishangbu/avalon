@@ -118,7 +118,7 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
         String username = passwordGrantAuthenticationToken.getUsername();
         String password = passwordGrantAuthenticationToken.getPassword();
 
-        if (loginFailureTracker != null) {
+        if (loginFailureTracker != null && loginFailureTracker.isEnabled()) {
             Duration remainingLock = loginFailureTracker.getRemainingLock(username);
             if (remainingLock != null) {
                 throw new OAuth2AuthenticationException(
