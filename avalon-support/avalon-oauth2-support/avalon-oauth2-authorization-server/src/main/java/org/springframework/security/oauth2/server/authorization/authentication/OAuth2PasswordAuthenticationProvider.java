@@ -111,8 +111,21 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
         LOGGER.debug(
                 "got usernamePasswordAuthenticationToken=" + usernamePasswordAuthenticationToken);
 
-        Authentication usernamePasswordAuthentication =
-                authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        Authentication usernamePasswordAuthentication;
+        try {
+            usernamePasswordAuthentication =
+                    authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        } catch (AuthenticationException ex) {
+            if (ex instanceof OAuth2AuthenticationException oauth2Exception) {
+                throw oauth2Exception;
+            }
+            OAuth2Error error =
+                    new OAuth2Error(
+                            OAuth2ErrorCodes.INVALID_GRANT,
+                            ex.getMessage(),
+                            ERROR_URI);
+            throw new OAuth2AuthenticationException(error, ex);
+        }
         Set<String> authorizedScopes = registeredClient.getScopes(); // Default to configured scopes
         Set<String> requestedScopes = passwordGrantAuthenticationToken.getScopes();
         if (!CollectionUtils.isEmpty(requestedScopes)) {

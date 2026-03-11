@@ -1,4 +1,5 @@
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.AuthorizationServerAutoConfiguration
+io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.AuthenticationHandlerAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.AuthorizationServerSettingsAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.JWKSourceAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.JwtDecoderAutoConfiguration

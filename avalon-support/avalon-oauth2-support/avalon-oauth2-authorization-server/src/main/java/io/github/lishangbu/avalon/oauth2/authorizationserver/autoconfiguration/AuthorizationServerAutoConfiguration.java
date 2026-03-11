@@ -46,12 +46,16 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationC
 @RequiredArgsConstructor
 public class AuthorizationServerAutoConfiguration {
 
-    private final Oauth2Properties oauth2Properties;
-
     @Bean
     @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
     @ConditionalOnMissingBean(name = AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(
+            HttpSecurity http,
+            Oauth2Properties oauth2Properties,
+            OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
+                    accessTokenResponseAuthenticationSuccessHandler,
+            OAuth2ErrorApiResultAuthenticationFailureHandler
+                    oauth2ErrorApiResultAuthenticationFailureHandler)
             throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
@@ -88,16 +92,16 @@ public class AuthorizationServerAutoConfiguration {
                                                         clientAuthentication ->
                                                                 clientAuthentication
                                                                         .errorResponseHandler(
-                                                                                new OAuth2ErrorApiResultAuthenticationFailureHandler()))
+                                                                                oauth2ErrorApiResultAuthenticationFailureHandler))
                                                 .tokenEndpoint(
                                                         tokenEndpoint ->
                                                                 tokenEndpoint
                                                                         // 定制响应成功格式
                                                                         .accessTokenResponseHandler(
-                                                                                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler())
+                                                                                accessTokenResponseAuthenticationSuccessHandler)
                                                                         // 定制响应失败格式
                                                                         .errorResponseHandler(
-                                                                                new OAuth2ErrorApiResultAuthenticationFailureHandler())
+                                                                                oauth2ErrorApiResultAuthenticationFailureHandler)
                                                                         // 在这加上密码模式的转换器
                                                                         .accessTokenRequestConverter(
                                                                                 new DelegatingAuthenticationConverter(
