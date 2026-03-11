@@ -1,4 +1,4 @@
-﻿package io.github.lishangbu.avalon.authorization.entity;
+package io.github.lishangbu.avalon.authorization.entity;
 
 import io.github.lishangbu.avalon.hibernate.Flex;
 import jakarta.persistence.Column;

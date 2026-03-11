@@ -1,10 +1,13 @@
 package io.github.lishangbu.avalon.oauth2.common.properties;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationStyle;
 
 /// OAuth2 安全配置属性类
 ///
@@ -28,6 +31,27 @@ public class Oauth2Properties {
 
     /// 密码参数名称，用于密码授权模式中的密码字段
     private String passwordParameterName = "password";
+
+    /// 登录失败允许的最大尝试次数，<=0 则禁用
+    private Integer maxLoginFailures = 5;
+
+    /// 登录失败后的封禁时长，<=0 则禁用
+    private String loginLockDuration = "15m";
+
+    public Duration getLoginLockDuration() {
+        if (loginLockDuration == null || loginLockDuration.isBlank()) {
+            return null;
+        }
+        try {
+            return DurationStyle.detectAndParse(loginLockDuration.trim(), ChronoUnit.MINUTES);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    public void setLoginLockDuration(String loginLockDuration) {
+        this.loginLockDuration = loginLockDuration;
+    }
 
     /// JWT Token 签发者地址，用于标识 Token 的颁发机构
     private String issuerUrl;

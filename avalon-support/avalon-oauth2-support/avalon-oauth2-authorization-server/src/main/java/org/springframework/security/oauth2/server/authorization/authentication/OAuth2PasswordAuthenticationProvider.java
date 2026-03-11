@@ -2,7 +2,9 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureTracker;
 import java.security.Principal;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
@@ -54,6 +56,7 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
     private final OAuth2AuthorizationService authorizationService;
 
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
+    private final LoginFailureTracker loginFailureTracker;
 
     /// 构造方法
     ///
@@ -67,11 +70,20 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
             AuthenticationManager authenticationManager,
             OAuth2AuthorizationService authorizationService,
             OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
+        this(authenticationManager, authorizationService, tokenGenerator, null);
+    }
+
+    public OAuth2PasswordAuthenticationProvider(
+            AuthenticationManager authenticationManager,
+            OAuth2AuthorizationService authorizationService,
+            OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
+            LoginFailureTracker loginFailureTracker) {
         Assert.notNull(authorizationService, "authorizationService cannot be null");
         Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
         this.authenticationManager = authenticationManager;
         this.authorizationService = authorizationService;
         this.tokenGenerator = tokenGenerator;
+        this.loginFailureTracker = loginFailureTracker;
     }
 
     @Override
@@ -106,6 +118,17 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
         String username = passwordGrantAuthenticationToken.getUsername();
         String password = passwordGrantAuthenticationToken.getPassword();
 
+        if (loginFailureTracker != null) {
+            Duration remainingLock = loginFailureTracker.getRemainingLock(username);
+            if (remainingLock != null) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error(
+                                OAuth2ErrorCodes.INVALID_GRANT,
+                                buildLockMessage(remainingLock),
+                                ERROR_URI));
+            }
+        }
+
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(username, password);
         LOGGER.debug(
@@ -116,6 +139,9 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
             usernamePasswordAuthentication =
                     authenticationManager.authenticate(usernamePasswordAuthenticationToken);
         } catch (AuthenticationException ex) {
+            if (loginFailureTracker != null) {
+                loginFailureTracker.onFailure(username);
+            }
             if (ex instanceof OAuth2AuthenticationException oauth2Exception) {
                 throw oauth2Exception;
             }
@@ -125,6 +151,9 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
                             ex.getMessage(),
                             ERROR_URI);
             throw new OAuth2AuthenticationException(error, ex);
+        }
+        if (loginFailureTracker != null) {
+            loginFailureTracker.onSuccess(username);
         }
         Set<String> authorizedScopes = registeredClient.getScopes(); // Default to configured scopes
         Set<String> requestedScopes = passwordGrantAuthenticationToken.getScopes();
@@ -290,5 +319,14 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
     public boolean supports(Class<?> authentication) {
         return OAuth2PasswordAuthorizationGrantAuthenticationToken.class.isAssignableFrom(
                 authentication);
+    }
+
+    private String buildLockMessage(Duration remainingLock) {
+        long seconds = Math.max(1L, remainingLock == null ? 0L : remainingLock.getSeconds());
+        if (seconds >= 60) {
+            long minutes = (seconds + 59) / 60;
+            return "账号已被锁定，请在" + minutes + "分钟后重试";
+        }
+        return "账号已被锁定，请在" + seconds + "秒后重试";
     }
 }

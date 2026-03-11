@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.AuthorizationEndpointResponseHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureTracker;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import io.github.lishangbu.avalon.oauth2.common.web.authentication.DefaultAuthenticationEntryPoint;
 import java.util.Arrays;
@@ -55,7 +56,8 @@ public class AuthorizationServerAutoConfiguration {
             OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
                     accessTokenResponseAuthenticationSuccessHandler,
             OAuth2ErrorApiResultAuthenticationFailureHandler
-                    oauth2ErrorApiResultAuthenticationFailureHandler)
+                    oauth2ErrorApiResultAuthenticationFailureHandler,
+            LoginFailureTracker loginFailureTracker)
             throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
@@ -132,14 +134,15 @@ public class AuthorizationServerAutoConfiguration {
                                 })
                         .build();
 
-        addPasswordAuthenticationProvider(http, authorizationServerConfigurer);
+        addPasswordAuthenticationProvider(http, authorizationServerConfigurer, loginFailureTracker);
         return securityFilterChain;
     }
 
     @SuppressWarnings("unchecked")
     private void addPasswordAuthenticationProvider(
             HttpSecurity http,
-            OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer) {
+            OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer,
+            LoginFailureTracker loginFailureTracker) {
         AuthenticationManager authenticationManager =
                 http.getSharedObject(AuthenticationManager.class);
         OAuth2AuthorizationService authorizationService =
@@ -149,7 +152,10 @@ public class AuthorizationServerAutoConfiguration {
 
         OAuth2PasswordAuthenticationProvider resourceOwnerPasswordAuthenticationProvider =
                 new OAuth2PasswordAuthenticationProvider(
-                        authenticationManager, authorizationService, tokenGenerator);
+                        authenticationManager,
+                        authorizationService,
+                        tokenGenerator,
+                        loginFailureTracker);
 
         // This will add new authentication provider in the list of existing authentication
         // providers.
