@@ -8,13 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 /// 统一的认证入口点
 ///
 /// 在未认证或认证失败时返回统一的 JSON 错误响应（HTTP 401 + 业务错误码）
 ///
-/// 被 {@link ExceptionTranslationFilter} 在需要发起认证流程时调用
+/// 被 [ExceptionTranslationFilter] 在需要发起认证流程时调用
 ///
 /// @author lishangbu
 /// @since 2025/8/22

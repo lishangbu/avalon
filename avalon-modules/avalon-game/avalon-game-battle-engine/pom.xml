@@ -4,14 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
-    <artifactId>avalon-modules</artifactId>
+    <artifactId>avalon-game</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>avalon-game</artifactId>
-  <packaging>pom</packaging>
-  <description>游戏相关模块整合</description>
-  <modules>
-    <module>avalon-game-battle-engine</module>
-    <module>avalon-game-calculator</module>
-  </modules>
+  <artifactId>avalon-game-battle-engine</artifactId>
+  <description>游戏战斗引擎</description>
 </project>

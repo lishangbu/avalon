@@ -92,12 +92,22 @@
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-dataset-controller</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-dataset-model</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>io.github.lishangbu</groupId>
         <artifactId>avalon-dataset-repository</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.lishangbu</groupId>
+        <artifactId>avalon-dataset-service</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
