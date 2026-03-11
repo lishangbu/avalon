@@ -4,7 +4,7 @@ applyTo: "**"
 
 # 项目开发规范
 
-## 技术栈.trellis/
+## 技术栈
 
 - 框架: Spring Boot 4.1.0-M1
 - ORM框架: Spring Data Jpa
