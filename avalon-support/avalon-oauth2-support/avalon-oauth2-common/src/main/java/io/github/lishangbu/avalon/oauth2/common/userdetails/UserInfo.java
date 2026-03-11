@@ -70,16 +70,27 @@ public class UserInfo extends User implements OAuth2AuthenticatedPrincipal {
     @Override
     @NullMarked
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getName()).append(" [");
-        sb.append("Username=").append(getUsername()).append(", ");
-        sb.append("Password=[PROTECTED], ");
-        sb.append("Enabled=").append(isEnabled()).append(", ");
-        sb.append("AdditionalParameters").append(additionalParameters);
-        sb.append("AccountNonExpired=").append(isAccountNonExpired()).append(", ");
-        sb.append("CredentialsNonExpired=").append(isCredentialsNonExpired()).append(", ");
-        sb.append("AccountNonLocked=").append(isAccountNonLocked()).append(", ");
-        sb.append("Granted Authorities=").append(getAuthorities()).append("]");
-        return sb.toString();
+        return getClass().getName()
+                + " ["
+                + "Username="
+                + getUsername()
+                + ", "
+                + "Enabled="
+                + isEnabled()
+                + ", "
+                + "AdditionalParameters"
+                + additionalParameters
+                + "AccountNonExpired="
+                + isAccountNonExpired()
+                + ", "
+                + "CredentialsNonExpired="
+                + isCredentialsNonExpired()
+                + ", "
+                + "AccountNonLocked="
+                + isAccountNonLocked()
+                + ", "
+                + "Granted Authorities="
+                + getAuthorities()
+                + "]";
     }
 }

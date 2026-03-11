@@ -16,7 +16,7 @@
     </dependency>
     <dependency>
       <groupId>io.github.lishangbu</groupId>
-      <artifactId>avalon-dataset-repository</artifactId>
+      <artifactId>avalon-dataset-controller</artifactId>
     </dependency>
     <dependency>
       <groupId>io.github.lishangbu</groupId>

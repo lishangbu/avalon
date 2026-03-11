@@ -10,6 +10,7 @@
   <artifactId>avalon-dataset</artifactId>
   <packaging>pom</packaging>
   <modules>
+    <module>avalon-dataset-controller</module>
     <module>avalon-dataset-model</module>
     <module>avalon-dataset-repository</module>
     <module>avalon-dataset-service</module>
