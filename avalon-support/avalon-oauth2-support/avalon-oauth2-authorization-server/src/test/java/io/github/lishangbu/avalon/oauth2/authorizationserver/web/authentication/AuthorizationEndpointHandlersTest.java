@@ -6,14 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.json.autoconfiguration.JacksonAutoConfiguration;
-import io.github.lishangbu.avalon.json.util.JsonUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,8 +20,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -31,15 +27,18 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class AuthorizationEndpointHandlersTest {
 
+    @Autowired private JsonMapper jsonMapper;
+
     @Test
     void authorizationEndpointErrorResponseWritesApiResult() throws Exception {
         AuthorizationEndpointErrorResponseHandler handler =
-                new AuthorizationEndpointErrorResponseHandler();
+                new AuthorizationEndpointErrorResponseHandler(jsonMapper);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -49,7 +48,7 @@ class AuthorizationEndpointHandlersTest {
                 new OAuth2AuthenticationException("unauthorized"));
 
         assertEquals(401, response.getStatus());
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("unauthorized", body.get("errorMessage").asText());
     }
 
@@ -79,7 +78,7 @@ class AuthorizationEndpointHandlersTest {
         handler.onAuthenticationSuccess(
                 new MockHttpServletRequest(), response, accessTokenAuthentication());
 
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         JsonNode custom = body.get("custom");
         assertNotNull(custom);
         assertEquals("value", custom.asText());

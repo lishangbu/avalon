@@ -126,8 +126,14 @@ class DefaultOpaqueTokenIntrospectorTest {
 
     @Test
     void rethrowsUsernameNotFound() {
+        User user = new User("user", "pwd", Set.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UsernamePasswordAuthenticationToken principal =
+                new UsernamePasswordAuthenticationToken(user, "pwd", user.getAuthorities());
         OAuth2Authorization authorization =
                 authorizationWithGrantType(AuthorizationGrantTypeSupport.PASSWORD, "user", Map.of());
+        authorization = OAuth2Authorization.from(authorization)
+                .attribute(Principal.class.getName(), principal)
+                .build();
         OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
         Mockito.when(
                         authorizationService.findByToken(

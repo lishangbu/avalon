@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Locale;
+import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import tools.jackson.databind.json.JsonMapper;
 
 /// An implementation of an `AuthenticationFailureHandler` used for handling an
 /// `OAuth2AuthenticationException` and returning the `OAuth2Error` OAuth 2.0 Error Response
@@ -35,24 +37,27 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
     private final Log logger = LogFactory.getLog(getClass());
     private final AuthenticationLogRecorder authenticationLogRecorder;
     private final Oauth2Properties oauth2Properties;
+    private final JsonMapper jsonMapper;
 
-    public OAuth2ErrorApiResultAuthenticationFailureHandler() {
-        this(AuthenticationLogRecorder.noop(), null);
+    public OAuth2ErrorApiResultAuthenticationFailureHandler(JsonMapper jsonMapper) {
+        this(AuthenticationLogRecorder.noop(), null, jsonMapper);
     }
 
     public OAuth2ErrorApiResultAuthenticationFailureHandler(
-            AuthenticationLogRecorder authenticationLogRecorder) {
-        this(authenticationLogRecorder, null);
+            AuthenticationLogRecorder authenticationLogRecorder, JsonMapper jsonMapper) {
+        this(authenticationLogRecorder, null, jsonMapper);
     }
 
     public OAuth2ErrorApiResultAuthenticationFailureHandler(
             AuthenticationLogRecorder authenticationLogRecorder,
-            Oauth2Properties oauth2Properties) {
+            Oauth2Properties oauth2Properties,
+            JsonMapper jsonMapper) {
         this.authenticationLogRecorder =
                 authenticationLogRecorder == null
                         ? AuthenticationLogRecorder.noop()
                         : authenticationLogRecorder;
         this.oauth2Properties = oauth2Properties;
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
     }
 
     @Override
@@ -192,6 +197,7 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
         if (description != null) {
             JsonResponseWriter.writeFailedResponse(
                     response,
+                    jsonMapper,
                     HttpStatus.BAD_REQUEST,
                     DefaultErrorResultCode.BAD_REQUEST,
                     description);
@@ -199,11 +205,12 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
         }
         if (code == null || OAuth2ErrorCodes.INVALID_GRANT.equals(code)) {
             JsonResponseWriter.writeFailedResponse(
-                    response, HttpStatus.BAD_REQUEST, DefaultErrorResultCode.BAD_REQUEST);
+                    response, jsonMapper, HttpStatus.BAD_REQUEST, DefaultErrorResultCode.BAD_REQUEST);
             return;
         }
         JsonResponseWriter.writeFailedResponse(
                 response,
+                jsonMapper,
                 HttpStatus.BAD_REQUEST,
                 DefaultErrorResultCode.BAD_REQUEST,
                 code);

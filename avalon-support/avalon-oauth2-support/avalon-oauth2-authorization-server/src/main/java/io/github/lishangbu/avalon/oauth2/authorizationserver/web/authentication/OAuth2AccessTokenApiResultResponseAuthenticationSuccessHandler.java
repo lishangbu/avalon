@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.CollectionUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 /// An implementation of an `AuthenticationSuccessHandler` used for handling an
 /// `OAuth2AccessTokenAuthenticationToken` and returning the `OAuth2AccessTokenResponse` Access
@@ -47,32 +51,36 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
     private final AuthenticationLogRecorder authenticationLogRecorder;
     private final OAuth2AuthorizationService authorizationService;
     private final Oauth2Properties oauth2Properties;
+    private final JsonMapper jsonMapper;
 
-    public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler() {
-        this(AuthenticationLogRecorder.noop(), null, null);
+    public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(JsonMapper jsonMapper) {
+        this(AuthenticationLogRecorder.noop(), null, null, jsonMapper);
     }
 
     public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
-            AuthenticationLogRecorder authenticationLogRecorder) {
-        this(authenticationLogRecorder, null, null);
-    }
-
-    public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
-            AuthenticationLogRecorder authenticationLogRecorder,
-            OAuth2AuthorizationService authorizationService) {
-        this(authenticationLogRecorder, authorizationService, null);
+            AuthenticationLogRecorder authenticationLogRecorder, JsonMapper jsonMapper) {
+        this(authenticationLogRecorder, null, null, jsonMapper);
     }
 
     public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
             AuthenticationLogRecorder authenticationLogRecorder,
             OAuth2AuthorizationService authorizationService,
-            Oauth2Properties oauth2Properties) {
+            JsonMapper jsonMapper) {
+        this(authenticationLogRecorder, authorizationService, null, jsonMapper);
+    }
+
+    public OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
+            AuthenticationLogRecorder authenticationLogRecorder,
+            OAuth2AuthorizationService authorizationService,
+            Oauth2Properties oauth2Properties,
+            JsonMapper jsonMapper) {
         this.authenticationLogRecorder =
                 authenticationLogRecorder == null
                         ? AuthenticationLogRecorder.noop()
                         : authenticationLogRecorder;
         this.authorizationService = authorizationService;
         this.oauth2Properties = oauth2Properties;
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
     }
 
     @Override
@@ -133,7 +141,8 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
 
         OAuth2AccessTokenResponse accessTokenResponse = builder.build();
         recordAuthenticationSuccess(request, accessTokenAuthentication);
-        JsonResponseWriter.writeSuccessResponse(response, accessTokenResponse);
+        JsonResponseWriter.writeSuccessResponse(
+                response, jsonMapper, buildTokenResponseBody(accessTokenResponse));
     }
 
     private void recordAuthenticationSuccess(
@@ -267,5 +276,29 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private Map<String, Object> buildTokenResponseBody(OAuth2AccessTokenResponse accessTokenResponse) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
+        body.put("access_token", accessToken.getTokenValue());
+        body.put("token_type", accessToken.getTokenType().getValue());
+        if (accessToken.getIssuedAt() != null && accessToken.getExpiresAt() != null) {
+            body.put(
+                    "expires_in",
+                    ChronoUnit.SECONDS.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()));
+        }
+        if (accessTokenResponse.getRefreshToken() != null) {
+            body.put("refresh_token", accessTokenResponse.getRefreshToken().getTokenValue());
+        }
+        Set<String> scopes = accessToken.getScopes();
+        if (scopes != null && !scopes.isEmpty()) {
+            body.put("scope", String.join(" ", scopes));
+        }
+        Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
+        if (additionalParameters != null && !additionalParameters.isEmpty()) {
+            body.putAll(additionalParameters);
+        }
+        return body;
     }
 }

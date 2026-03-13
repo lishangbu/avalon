@@ -46,7 +46,8 @@ class TokenSupportTest {
                 Map.of(
                         "custom", "value",
                         "conflict", "third",
-                        IdTokenClaimNames.ISS, "issuer");
+                        IdTokenClaimNames.ISS, "issuer",
+                        IdTokenClaimNames.SUB, "user");
         OidcIdToken idToken =
                 new OidcIdToken(
                         "token",
@@ -85,7 +86,9 @@ class TokenSupportTest {
         DefaultOAuth2User oauth2User =
                 new DefaultOAuth2User(
                         List.of(new SimpleGrantedAuthority("ROLE_USER")),
-                        Map.of(SecurityConstants.LOGIN_TYPE, "sms"),
+                        Map.of(
+                                SecurityConstants.LOGIN_TYPE, "sms",
+                                IdTokenClaimNames.SUB, "user"),
                         "sub");
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(oauth2User, "n/a", oauth2User.getAuthorities());
@@ -213,7 +216,7 @@ class TokenSupportTest {
         assertTrue(token instanceof org.springframework.security.oauth2.core.ClaimAccessor);
         Map<String, Object> claims =
                 ((org.springframework.security.oauth2.core.ClaimAccessor) token).getClaims();
-        assertEquals("https://issuer", claims.get("iss"));
+        assertEquals("https://issuer", claims.get("iss").toString());
         assertEquals("user", claims.get("sub"));
         assertTrue(claims.containsKey(OAuth2ParameterNames.SCOPE));
     }

@@ -4,10 +4,12 @@ import io.github.lishangbu.avalon.oauth2.common.result.SecurityErrorResultCode;
 import io.github.lishangbu.avalon.web.util.JsonResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import tools.jackson.databind.json.JsonMapper;
 
 /// 默认的访问拒绝处理器
 ///
@@ -17,6 +19,12 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 /// @since 2025/8/22
 @Slf4j
 public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final JsonMapper jsonMapper;
+
+    public DefaultAccessDeniedHandler(JsonMapper jsonMapper) {
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
+    }
 
     @Override
     public void handle(
@@ -31,6 +39,7 @@ public class DefaultAccessDeniedHandler implements AccessDeniedHandler {
 
         JsonResponseWriter.writeFailedResponse(
                 response,
+                jsonMapper,
                 HttpStatus.FORBIDDEN,
                 SecurityErrorResultCode.FORBIDDEN,
                 accessDeniedException.getMessage());

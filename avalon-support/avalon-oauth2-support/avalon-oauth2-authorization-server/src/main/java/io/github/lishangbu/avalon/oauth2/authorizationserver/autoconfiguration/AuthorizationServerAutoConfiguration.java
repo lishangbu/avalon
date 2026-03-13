@@ -34,6 +34,7 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationConverter;
+import tools.jackson.databind.json.JsonMapper;
 
 /// 自动装配认证服务器
 ///
@@ -57,7 +58,8 @@ public class AuthorizationServerAutoConfiguration {
                     accessTokenResponseAuthenticationSuccessHandler,
             OAuth2ErrorApiResultAuthenticationFailureHandler
                     oauth2ErrorApiResultAuthenticationFailureHandler,
-            LoginFailureTracker loginFailureTracker)
+            LoginFailureTracker loginFailureTracker,
+            JsonMapper jsonMapper)
             throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
@@ -86,7 +88,8 @@ public class AuthorizationServerAutoConfiguration {
                                                                     .authorizationResponseHandler(
                                                                             new AuthorizationEndpointResponseHandler())
                                                                     .errorResponseHandler(
-                                                                            new AuthorizationEndpointErrorResponseHandler());
+                                                                            new AuthorizationEndpointErrorResponseHandler(
+                                                                                    jsonMapper));
                                                         })
                                                 .oidc(Customizer.withDefaults())
                                                 // 定制客户端认证失败的处理器
@@ -124,13 +127,14 @@ public class AuthorizationServerAutoConfiguration {
                                                 .successHandler(
                                                         new AuthorizationEndpointResponseHandler())
                                                 .failureHandler(
-                                                        new AuthorizationEndpointErrorResponseHandler()))
+                                                        new AuthorizationEndpointErrorResponseHandler(
+                                                                jsonMapper)))
                         .exceptionHandling(
                                 exceptions -> {
                                     // 使用统一的 AuthenticationEntryPoint，避免 MediaTypeRequestMatcher
                                     // 导致的不匹配
                                     exceptions.authenticationEntryPoint(
-                                            new DefaultAuthenticationEntryPoint());
+                                            new DefaultAuthenticationEntryPoint(jsonMapper));
                                 })
                         .build();
 

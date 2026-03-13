@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import tools.jackson.databind.json.JsonMapper;
 
 class AuthorizationServerAutoConfigurationTest {
 
@@ -121,9 +122,10 @@ class AuthorizationServerAutoConfigurationTest {
         Oauth2Properties properties = new Oauth2Properties();
         LoginFailureTracker loginFailureTracker = new InMemoryLoginFailureTracker(properties);
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler successHandler =
-                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler();
+                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(new JsonMapper());
         OAuth2ErrorApiResultAuthenticationFailureHandler failureHandler =
-                new OAuth2ErrorApiResultAuthenticationFailureHandler();
+                new OAuth2ErrorApiResultAuthenticationFailureHandler(new JsonMapper());
+        JsonMapper jsonMapper = new JsonMapper();
 
         SecurityFilterChain filterChainResult =
                 configuration.authorizationServerSecurityFilterChain(
@@ -131,7 +133,8 @@ class AuthorizationServerAutoConfigurationTest {
                         properties,
                         successHandler,
                         failureHandler,
-                        loginFailureTracker);
+                        loginFailureTracker,
+                        jsonMapper);
 
         assertSame(filterChain, filterChainResult);
         assertNotNull(providerCaptor.getValue());

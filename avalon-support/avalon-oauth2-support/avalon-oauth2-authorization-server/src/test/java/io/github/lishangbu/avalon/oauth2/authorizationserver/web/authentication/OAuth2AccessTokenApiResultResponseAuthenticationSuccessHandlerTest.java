@@ -7,11 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.json.autoconfiguration.JacksonAutoConfiguration;
-import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecord;
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecorder;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
-import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.HashMap;
@@ -21,6 +19,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,15 +42,18 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
 
+    @Autowired private JsonMapper jsonMapper;
+
     @Test
     void throwsWhenAuthenticationTypeIsInvalid() {
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler handler =
-                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler();
+                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(jsonMapper);
 
         assertThrows(
                 OAuth2AuthenticationException.class,
@@ -67,7 +69,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
         CapturingRecorder recorder = new CapturingRecorder();
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler handler =
                 new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
-                        recorder, null, new Oauth2Properties());
+                        recorder, null, new Oauth2Properties(), jsonMapper);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter(OAuth2ParameterNames.GRANT_TYPE, "password");
@@ -106,7 +108,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
 
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler handler =
                 new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
-                        recorder, authorizationService, null);
+                        recorder, authorizationService, null, jsonMapper);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("X-Real-IP", "192.168.0.1");
@@ -132,7 +134,8 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
                             throw new IllegalStateException("boom");
                         },
                         null,
-                        null);
+                        null,
+                        jsonMapper);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         handler.onAuthenticationSuccess(
@@ -144,7 +147,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     @Test
     void appliesAccessTokenResponseCustomizer() throws Exception {
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler handler =
-                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler();
+                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(jsonMapper);
         ReflectionTestUtils.setField(
                 handler,
                 "accessTokenResponseCustomizer",
@@ -157,7 +160,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
         handler.onAuthenticationSuccess(
                 new MockHttpServletRequest(), response, accessTokenAuthentication(Map.of()));
 
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("value", body.get("data").get("custom").asText());
     }
 
@@ -165,7 +168,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     void resolveHelperMethodsCoverBranches() {
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler handler =
                 new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
-                        AuthenticationLogRecorder.noop(), null, null);
+                        AuthenticationLogRecorder.noop(), null, null, jsonMapper);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("X-Forwarded-For", "1.1.1.1, 2.2.2.2");
         request.addHeader("X-Real-IP", "2.2.2.2");

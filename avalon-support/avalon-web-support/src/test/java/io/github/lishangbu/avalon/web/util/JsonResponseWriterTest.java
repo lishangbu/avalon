@@ -13,10 +13,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 /// JsonResponseWriter 单元测试
 ///
@@ -24,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class JsonResponseWriterTest {
+    @Autowired private JsonMapper jsonMapper;
     private HttpServletResponse response;
     private StringWriter stringWriter;
     private PrintWriter printWriter;
@@ -39,7 +42,7 @@ class JsonResponseWriterTest {
     /// 测试成功响应写入，包含数据
     @Test
     void testWriteSuccessResponseWithData() {
-        JsonResponseWriter.writeSuccessResponse(response, "ok");
+        JsonResponseWriter.writeSuccessResponse(response, jsonMapper, "ok");
         printWriter.flush();
         String result = stringWriter.toString();
         Assertions.assertTrue(result.contains("\"data\":\"ok\""));
@@ -51,7 +54,7 @@ class JsonResponseWriterTest {
     /// 测试成功响应写入，无数据
     @Test
     void testWriteSuccessResponseWithoutData() {
-        JsonResponseWriter.writeSuccessResponse(response);
+        JsonResponseWriter.writeSuccessResponse(response, jsonMapper);
         printWriter.flush();
         String result = stringWriter.toString();
         Assertions.assertTrue(result.contains("\"data\":null"));
@@ -62,7 +65,8 @@ class JsonResponseWriterTest {
     @Test
     void testWriteFailedResponse() {
         ErrorResultCode errorCode = DefaultErrorResultCode.SERVER_ERROR;
-        JsonResponseWriter.writeFailedResponse(response, HttpStatus.BAD_REQUEST, errorCode, "错误信息");
+        JsonResponseWriter.writeFailedResponse(
+                response, jsonMapper, HttpStatus.BAD_REQUEST, errorCode, "错误信息");
         printWriter.flush();
         String result = stringWriter.toString();
         Assertions.assertTrue(result.contains(Integer.toString(500)));
@@ -78,7 +82,7 @@ class JsonResponseWriterTest {
         Assertions.assertThrows(
                 RuntimeException.class,
                 () -> {
-                    JsonResponseWriter.writeSuccessResponse(errorResponse, "fail");
+                    JsonResponseWriter.writeSuccessResponse(errorResponse, jsonMapper, "fail");
                 });
     }
 }
