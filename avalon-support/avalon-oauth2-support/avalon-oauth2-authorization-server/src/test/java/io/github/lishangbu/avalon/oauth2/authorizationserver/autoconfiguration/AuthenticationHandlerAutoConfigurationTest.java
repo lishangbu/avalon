@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import tools.jackson.databind.json.JsonMapper;
 
 class AuthenticationHandlerAutoConfigurationTest {
 
@@ -40,15 +41,17 @@ class AuthenticationHandlerAutoConfigurationTest {
         OAuth2AuthorizationService authorizationService =
                 Mockito.mock(OAuth2AuthorizationService.class);
         Oauth2Properties properties = new Oauth2Properties();
+        JsonMapper jsonMapper = new JsonMapper();
 
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler successHandler =
                 configuration.accessTokenResponseAuthenticationSuccessHandler(
                         providerOf(recorder),
                         providerOf(authorizationService),
-                        providerOf(properties));
+                        providerOf(properties),
+                        jsonMapper);
         OAuth2ErrorApiResultAuthenticationFailureHandler failureHandler =
                 configuration.oauth2ErrorApiResultAuthenticationFailureHandler(
-                        providerOf(recorder), providerOf(properties));
+                        providerOf(recorder), providerOf(properties), jsonMapper);
 
         assertNotNull(successHandler);
         assertNotNull(failureHandler);

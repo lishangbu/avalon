@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import tools.jackson.databind.json.JsonMapper;
 
 @AutoConfiguration
 public class AuthenticationHandlerAutoConfiguration {
@@ -28,11 +29,13 @@ public class AuthenticationHandlerAutoConfiguration {
             accessTokenResponseAuthenticationSuccessHandler(
                     ObjectProvider<AuthenticationLogRecorder> logRecorderProvider,
                     ObjectProvider<OAuth2AuthorizationService> authorizationServiceProvider,
-                    ObjectProvider<Oauth2Properties> oauth2PropertiesProvider) {
+                    ObjectProvider<Oauth2Properties> oauth2PropertiesProvider,
+                    JsonMapper jsonMapper) {
         return new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
                 logRecorderProvider.getIfAvailable(AuthenticationLogRecorder::noop),
                 authorizationServiceProvider.getIfAvailable(),
-                oauth2PropertiesProvider.getIfAvailable());
+                oauth2PropertiesProvider.getIfAvailable(),
+                jsonMapper);
     }
 
     @Bean
@@ -40,9 +43,11 @@ public class AuthenticationHandlerAutoConfiguration {
     public OAuth2ErrorApiResultAuthenticationFailureHandler
             oauth2ErrorApiResultAuthenticationFailureHandler(
                     ObjectProvider<AuthenticationLogRecorder> logRecorderProvider,
-                    ObjectProvider<Oauth2Properties> oauth2PropertiesProvider) {
+                    ObjectProvider<Oauth2Properties> oauth2PropertiesProvider,
+                    JsonMapper jsonMapper) {
         return new OAuth2ErrorApiResultAuthenticationFailureHandler(
                 logRecorderProvider.getIfAvailable(AuthenticationLogRecorder::noop),
-                oauth2PropertiesProvider.getIfAvailable());
+                oauth2PropertiesProvider.getIfAvailable(),
+                jsonMapper);
     }
 }

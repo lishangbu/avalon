@@ -5,15 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.github.lishangbu.avalon.json.autoconfiguration.JacksonAutoConfiguration;
-import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecorder;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
-import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,16 +22,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JacksonAutoConfiguration.class)
 class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
 
+    @Autowired private JsonMapper jsonMapper;
+
     @Test
     void writesDescriptionForOAuth2Error() throws Exception {
         OAuth2ErrorApiResultAuthenticationFailureHandler handler =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
-                        AuthenticationLogRecorder.noop(), new Oauth2Properties());
+                        AuthenticationLogRecorder.noop(), new Oauth2Properties(), jsonMapper);
         OAuth2AuthenticationException exception =
                 new OAuth2AuthenticationException(
                         new OAuth2Error("invalid_request", "detail", null));
@@ -44,7 +45,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
 
         handler.onAuthenticationFailure(request, response, exception);
 
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("detail", body.get("errorMessage").asText());
     }
 
@@ -52,7 +53,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
     void sanitizesInvalidGrantDescriptions() throws Exception {
         OAuth2ErrorApiResultAuthenticationFailureHandler handler =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
-                        AuthenticationLogRecorder.noop(), null);
+                        AuthenticationLogRecorder.noop(), null, jsonMapper);
         OAuth2AuthenticationException exception =
                 new OAuth2AuthenticationException(
                         new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "invalid_grant: bad", null));
@@ -60,7 +61,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         handler.onAuthenticationFailure(new MockHttpServletRequest(), response, exception);
 
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("bad", body.get("errorMessage").asText());
 
         OAuth2AuthenticationException plainInvalidGrant =
@@ -69,7 +70,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
         MockHttpServletResponse response2 = new MockHttpServletResponse();
         handler.onAuthenticationFailure(new MockHttpServletRequest(), response2, plainInvalidGrant);
 
-        JsonNode body2 = JsonUtils.getInstance().readTree(response2.getContentAsString());
+        JsonNode body2 = jsonMapper.readTree(response2.getContentAsString());
         assertEquals("Bad Request", body2.get("errorMessage").asText());
     }
 
@@ -77,7 +78,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
     void handlesNonOAuth2ExceptionAndExtractsClientId() throws Exception {
         OAuth2ErrorApiResultAuthenticationFailureHandler handler =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
-                        AuthenticationLogRecorder.noop(), null);
+                        AuthenticationLogRecorder.noop(), null, jsonMapper);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         String credentials = Base64.getEncoder().encodeToString("client:secret".getBytes(StandardCharsets.UTF_8));
@@ -87,7 +88,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
 
         handler.onAuthenticationFailure(request, response, new BadCredentialsException("Bad credentials"));
 
-        JsonNode body = JsonUtils.getInstance().readTree(response.getContentAsString());
+        JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("Bad credentials", body.get("errorMessage").asText());
     }
 
@@ -95,7 +96,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
     void resolveHelperMethodsCoverBranches() throws Exception {
         OAuth2ErrorApiResultAuthenticationFailureHandler handler =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
-                        AuthenticationLogRecorder.noop(), null);
+                        AuthenticationLogRecorder.noop(), null, jsonMapper);
 
         assertNull(ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "invalid_grant"));
         assertEquals(
@@ -159,7 +160,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
         properties.setUsernameParameterName("   ");
         OAuth2ErrorApiResultAuthenticationFailureHandler handlerWithProps =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
-                        AuthenticationLogRecorder.noop(), properties);
+                        AuthenticationLogRecorder.noop(), properties, jsonMapper);
         assertEquals(
                 "username",
                 ReflectionTestUtils.invokeMethod(handlerWithProps, "resolveUsernameParameterName"));

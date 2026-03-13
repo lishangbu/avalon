@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.databind.json.JsonMapper;
 
 /// POKE API 相关组件自动装配
 ///
@@ -20,7 +21,7 @@ public class PokeDataComponentAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PokeApiService pokeApiService(PokeApiProperties properties) {
-        return new DefaultPokeApiService(properties);
+    public PokeApiService pokeApiService(PokeApiProperties properties, JsonMapper jsonMapper) {
+        return new DefaultPokeApiService(properties, jsonMapper);
     }
 }

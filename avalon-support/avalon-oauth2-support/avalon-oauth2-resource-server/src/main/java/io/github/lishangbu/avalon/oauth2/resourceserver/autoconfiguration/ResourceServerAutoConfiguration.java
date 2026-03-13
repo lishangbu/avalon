@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.web.SecurityFilterChain;
+import tools.jackson.databind.json.JsonMapper;
 
 /// 资源服务器自动配置类
 ///
@@ -69,7 +70,8 @@ public class ResourceServerAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
     @Order(RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
-    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http)
+    public SecurityFilterChain resourceServerSecurityFilterChain(
+            HttpSecurity http, JsonMapper jsonMapper)
             throws Exception {
         http.authorizeHttpRequests(
                         (authorize) ->
@@ -99,16 +101,16 @@ public class ResourceServerAutoConfiguration {
                     oauth2ResourceServer.opaqueToken(Customizer.withDefaults());
                     // 确保资源服务器在 token 校验失败时也使用我们的统一 entry point
                     oauth2ResourceServer
-                            .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
-                            .accessDeniedHandler(new DefaultAccessDeniedHandler());
+                            .authenticationEntryPoint(new DefaultAuthenticationEntryPoint(jsonMapper))
+                            .accessDeniedHandler(new DefaultAccessDeniedHandler(jsonMapper));
                 });
 
         // 在 oauth2ResourceServer 之后配置异常处理，确保我们的处理器不会被资源服务器的默认实现覆盖
         http.exceptionHandling(
                 exceptions ->
                         exceptions
-                                .authenticationEntryPoint(new DefaultAuthenticationEntryPoint())
-                                .accessDeniedHandler(new DefaultAccessDeniedHandler()));
+                                .authenticationEntryPoint(new DefaultAuthenticationEntryPoint(jsonMapper))
+                                .accessDeniedHandler(new DefaultAccessDeniedHandler(jsonMapper)));
 
         return http.build();
     }

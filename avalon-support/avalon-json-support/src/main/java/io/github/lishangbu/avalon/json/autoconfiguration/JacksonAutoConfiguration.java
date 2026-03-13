@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.json.autoconfiguration;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -40,11 +39,5 @@ public class JacksonAutoConfiguration {
                                 .build())
                 .addModules(longToStringSerializerModule)
                 .build();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public JsonUtils jsonUtils() {
-        return new JsonUtils();
     }
 }

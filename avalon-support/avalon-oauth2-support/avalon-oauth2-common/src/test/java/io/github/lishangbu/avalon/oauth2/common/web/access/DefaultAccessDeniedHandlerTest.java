@@ -3,9 +3,6 @@ package io.github.lishangbu.avalon.oauth2.common.web.access;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
-import java.lang.reflect.Field;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -16,14 +13,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 class DefaultAccessDeniedHandlerTest {
 
-    @BeforeAll
-    static void initJsonMapper() throws Exception {
-        Field field = JsonUtils.class.getDeclaredField("JSON_MAPPER");
-        field.setAccessible(true);
-        if (field.get(null) == null) {
-            field.set(null, new JsonMapper());
-        }
-    }
+    private static final JsonMapper JSON_MAPPER = new JsonMapper();
 
     @Test
     void writesForbiddenJsonResponse() throws Exception {
@@ -32,11 +22,11 @@ class DefaultAccessDeniedHandlerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         AccessDeniedException ex = new AccessDeniedException("denied");
 
-        new DefaultAccessDeniedHandler().handle(request, response, ex);
+        new DefaultAccessDeniedHandler(JSON_MAPPER).handle(request, response, ex);
 
         assertEquals(403, response.getStatus());
         assertTrue(response.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE));
-        JsonNode body = JsonUtils.readTree(response.getContentAsString());
+        JsonNode body = JSON_MAPPER.readTree(response.getContentAsString());
         assertEquals(403, body.get("code").asInt());
         assertTrue(body.get("data").isNull());
         assertEquals("denied", body.get("errorMessage").asText());

@@ -17,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -137,14 +136,14 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
             privateKey = (RSAPrivateKey) keyPair.getPrivate();
         }
 
-        // 计算 kid：优先使用公钥 thumbprint，计算失败时回退为随机 UUID
+        // 计算 kid：优先使用公钥 thumbprint，计算失败时回退为公钥 modulus（避免依赖 MessageDigest）
         String kid;
         try {
             kid = new RSAKey.Builder(publicKey).build().computeThumbprint().toString();
             log.debug("使用公钥 thumbprint 作为 kid: {}", kid);
         } catch (JOSEException e) {
-            kid = UUID.randomUUID().toString();
-            log.warn("计算公钥 thumbprint 失败，回退为随机 kid: {}", kid, e);
+            kid = publicKey.getModulus().toString(16);
+            log.warn("计算公钥 thumbprint 失败，回退为公钥 modulus: {}", kid, e);
         }
 
         // 使用默认算法 RS256，并标记为签名用途
@@ -225,7 +224,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
                 }
             } catch (IOException e) {
                 log.error("公钥读取失败，无法从 [{}] 检索到有效公钥: {}", jwtPublicKeyLocation, e.getMessage());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
                 log.error("公钥解析失败，无法从 [{}] 解析到有效公钥: {}", jwtPublicKeyLocation, e.getMessage());
             }
         } else {
@@ -250,7 +249,7 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
                 }
             } catch (IOException e) {
                 log.error("私钥读取失败，无法从 [{}] 检索到有效私钥: {}", jwtPrivateKeyLocation, e.getMessage());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
                 log.error("私钥解析失败，无法从 [{}] 解析到有效私钥: {}", jwtPrivateKeyLocation, e.getMessage());
             }
         } else {

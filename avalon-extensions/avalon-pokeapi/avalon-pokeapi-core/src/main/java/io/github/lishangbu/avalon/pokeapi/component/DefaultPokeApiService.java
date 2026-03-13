@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.pokeapi.component;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
 import io.github.lishangbu.avalon.pokeapi.enumeration.PokeDataTypeEnum;
 import io.github.lishangbu.avalon.pokeapi.model.resource.NamedAPIResourceList;
 import io.github.lishangbu.avalon.pokeapi.properties.PokeApiProperties;
@@ -9,8 +8,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import tools.jackson.databind.json.JsonMapper;
 
 /// 默认的 PokeApi 服务实现
 ///
@@ -31,9 +32,11 @@ public class DefaultPokeApiService implements PokeApiService {
     private static final String FILE_NAME = "index.json";
 
     private final PokeApiProperties properties;
+    private final JsonMapper jsonMapper;
 
-    public DefaultPokeApiService(PokeApiProperties properties) {
+    public DefaultPokeApiService(PokeApiProperties properties, JsonMapper jsonMapper) {
         this.properties = properties;
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
     }
 
     /// 通过指定的 URI 和参数获取指定类型的数据实体
@@ -56,7 +59,7 @@ public class DefaultPokeApiService implements PokeApiService {
                             typeEnum.getType(),
                             String.valueOf(id),
                             FILE_NAME);
-            return (T) JsonUtils.readValue(Files.readString(path), typeEnum.getResponseType());
+            return (T) jsonMapper.readValue(Files.readString(path), typeEnum.getResponseType());
 
         } catch (IOException e) {
             log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());
@@ -81,7 +84,7 @@ public class DefaultPokeApiService implements PokeApiService {
                             LOCAL_GIT_REPO_THIRD_FILE_DIR_NAME,
                             typeEnum.getType(),
                             FILE_NAME);
-            return JsonUtils.readValue(Files.readString(path), NamedAPIResourceList.class);
+            return jsonMapper.readValue(Files.readString(path), NamedAPIResourceList.class);
 
         } catch (IOException e) {
             log.error("获取数据失败，type：[{}]，错误信息：[{}]", typeEnum, e.getMessage());

@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import io.github.lishangbu.avalon.json.util.JsonUtils;
-import java.lang.reflect.Field;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -18,14 +15,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 class DefaultAuthenticationHandlersTest {
 
-    @BeforeAll
-    static void initJsonMapper() throws Exception {
-        Field field = JsonUtils.class.getDeclaredField("JSON_MAPPER");
-        field.setAccessible(true);
-        if (field.get(null) == null) {
-            field.set(null, new JsonMapper());
-        }
-    }
+    private static final JsonMapper JSON_MAPPER = new JsonMapper();
 
     @Test
     void entryPointWritesUnauthorizedJsonResponse() throws Exception {
@@ -33,12 +23,12 @@ class DefaultAuthenticationHandlersTest {
         request.setRequestURI("/api");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new DefaultAuthenticationEntryPoint()
+        new DefaultAuthenticationEntryPoint(JSON_MAPPER)
                 .commence(request, response, new AuthenticationServiceException("bad credentials"));
 
         assertEquals(401, response.getStatus());
         assertTrue(response.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE));
-        JsonNode body = JsonUtils.readTree(response.getContentAsString());
+        JsonNode body = JSON_MAPPER.readTree(response.getContentAsString());
         assertEquals(401, body.get("code").asInt());
         assertTrue(body.get("data").isNull());
         assertEquals("bad credentials", body.get("errorMessage").asText());
@@ -49,12 +39,12 @@ class DefaultAuthenticationHandlersTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new DefaultAuthenticationSuccessHandler()
+        new DefaultAuthenticationSuccessHandler(JSON_MAPPER)
                 .onAuthenticationSuccess(request, response, mock(Authentication.class));
 
         assertEquals(200, response.getStatus());
         assertTrue(response.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE));
-        JsonNode body = JsonUtils.readTree(response.getContentAsString());
+        JsonNode body = JSON_MAPPER.readTree(response.getContentAsString());
         assertEquals(200, body.get("code").asInt());
         assertTrue(body.get("data").isNull());
         assertTrue(body.get("errorMessage").isNull());
