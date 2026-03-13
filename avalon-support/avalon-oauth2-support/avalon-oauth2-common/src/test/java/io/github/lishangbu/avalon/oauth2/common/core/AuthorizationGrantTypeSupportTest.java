@@ -14,4 +14,20 @@ class AuthorizationGrantTypeSupportTest {
         assertEquals(expected, AuthorizationGrantTypeSupport.PASSWORD);
         assertEquals("password", AuthorizationGrantTypeSupport.PASSWORD.getValue());
     }
+
+    @Test
+    void smsGrantTypeMatchesCustomValue() {
+        AuthorizationGrantType expected = new AuthorizationGrantType("sms");
+
+        assertEquals(expected, AuthorizationGrantTypeSupport.SMS);
+        assertEquals("sms", AuthorizationGrantTypeSupport.SMS.getValue());
+    }
+
+    @Test
+    void emailGrantTypeMatchesCustomValue() {
+        AuthorizationGrantType expected = new AuthorizationGrantType("email");
+
+        assertEquals(expected, AuthorizationGrantTypeSupport.EMAIL);
+        assertEquals("email", AuthorizationGrantTypeSupport.EMAIL.getValue());
+    }
 }

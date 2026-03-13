@@ -25,7 +25,9 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2EmailAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2PasswordAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2SmsAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
@@ -137,7 +139,15 @@ class AuthorizationServerAutoConfigurationTest {
                         jsonMapper);
 
         assertSame(filterChain, filterChainResult);
-        assertNotNull(providerCaptor.getValue());
-        assertTrue(providerCaptor.getValue() instanceof OAuth2PasswordAuthenticationProvider);
+        assertNotNull(providerCaptor.getAllValues());
+        assertTrue(
+                providerCaptor.getAllValues().stream()
+                        .anyMatch(p -> p instanceof OAuth2PasswordAuthenticationProvider));
+        assertTrue(
+                providerCaptor.getAllValues().stream()
+                        .anyMatch(p -> p instanceof OAuth2SmsAuthenticationProvider));
+        assertTrue(
+                providerCaptor.getAllValues().stream()
+                        .anyMatch(p -> p instanceof OAuth2EmailAuthenticationProvider));
     }
 }

@@ -32,6 +32,18 @@ public class Oauth2Properties {
     /// 密码参数名称，用于密码授权模式中的密码字段
     private String passwordParameterName = "password";
 
+    /// 手机号参数名称，用于短信授权模式中的手机号字段
+    private String phoneParameterName = "phone";
+
+    /// 短信验证码参数名称，用于短信授权模式中的验证码字段
+    private String smsCodeParameterName = "sms_code";
+
+    /// 邮箱参数名称，用于邮箱授权模式中的邮箱字段
+    private String emailParameterName = "email";
+
+    /// 邮箱验证码参数名称，用于邮箱授权模式中的验证码字段
+    private String emailCodeParameterName = "email_code";
+
     /// 登录失败允许的最大尝试次数，<=0 则禁用
     private Integer maxLoginFailures = 5;
 
