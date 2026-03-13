@@ -26,11 +26,15 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2PasswordAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2EmailAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2SmsAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2EmailAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2PasswordAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2SmsAuthenticationConverter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationConverter;
@@ -48,6 +52,9 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 public class AuthorizationServerAutoConfiguration {
 
+    /// 授权服务器的 SecurityFilterChain Bean
+    ///
+    /// 负责注册 OAuth2/OIDC 端点及扩展授权类型（密码、短信、邮箱）对应的转换器与认证提供者
     @Bean
     @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
     @ConditionalOnMissingBean(name = AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
@@ -116,6 +123,10 @@ public class AuthorizationServerAutoConfiguration {
                                                                                                         new OAuth2RefreshTokenAuthenticationConverter(),
                                                                                                         new OAuth2ClientCredentialsAuthenticationConverter(),
                                                                                                         new OAuth2PasswordAuthenticationConverter(
+                                                                                                                oauth2Properties),
+                                                                                                        new OAuth2SmsAuthenticationConverter(
+                                                                                                                oauth2Properties),
+                                                                                                        new OAuth2EmailAuthenticationConverter(
                                                                                                                 oauth2Properties))))))
                         .authorizeHttpRequests(
                                 (authorize) -> authorize.anyRequest().authenticated())
@@ -138,15 +149,16 @@ public class AuthorizationServerAutoConfiguration {
                                 })
                         .build();
 
-        addPasswordAuthenticationProvider(http, authorizationServerConfigurer, loginFailureTracker);
+        addAdditionalAuthenticationProvider(http, loginFailureTracker);
         return securityFilterChain;
     }
 
     @SuppressWarnings("unchecked")
-    private void addPasswordAuthenticationProvider(
-            HttpSecurity http,
-            OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer,
-            LoginFailureTracker loginFailureTracker) {
+    /// 注册扩展授权类型的 AuthenticationProvider（密码、短信、邮箱）
+    ///
+    /// 将自定义 Provider 注入到 HttpSecurity，供 token 端点进行认证
+    private void addAdditionalAuthenticationProvider(
+            HttpSecurity http, LoginFailureTracker loginFailureTracker) {
         AuthenticationManager authenticationManager =
                 http.getSharedObject(AuthenticationManager.class);
         OAuth2AuthorizationService authorizationService =
@@ -161,8 +173,24 @@ public class AuthorizationServerAutoConfiguration {
                         tokenGenerator,
                         loginFailureTracker);
 
+        OAuth2SmsAuthenticationProvider smsAuthenticationProvider =
+                new OAuth2SmsAuthenticationProvider(
+                        authenticationManager,
+                        authorizationService,
+                        tokenGenerator,
+                        loginFailureTracker);
+
+        OAuth2EmailAuthenticationProvider emailAuthenticationProvider =
+                new OAuth2EmailAuthenticationProvider(
+                        authenticationManager,
+                        authorizationService,
+                        tokenGenerator,
+                        loginFailureTracker);
+
         // This will add new authentication provider in the list of existing authentication
         // providers.
         http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
+        http.authenticationProvider(smsAuthenticationProvider);
+        http.authenticationProvider(emailAuthenticationProvider);
     }
 }
