@@ -13,9 +13,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
@@ -153,8 +153,7 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             String grantType =
                     resolveGrantType(request, accessTokenAuthentication.getAdditionalParameters());
             String username =
-                    resolveUsername(
-                            principal, request, accessTokenAuthentication, grantType);
+                    resolveUsername(principal, request, accessTokenAuthentication, grantType);
             String clientId = resolveClientId(accessTokenAuthentication, principal);
             AuthenticationLogRecord record =
                     new AuthenticationLogRecord(
@@ -278,7 +277,8 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
         return trimmed.isEmpty() ? null : trimmed;
     }
 
-    private Map<String, Object> buildTokenResponseBody(OAuth2AccessTokenResponse accessTokenResponse) {
+    private Map<String, Object> buildTokenResponseBody(
+            OAuth2AccessTokenResponse accessTokenResponse) {
         Map<String, Object> body = new LinkedHashMap<>();
         OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
         body.put("access_token", accessToken.getTokenValue());
@@ -286,7 +286,8 @@ public class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
         if (accessToken.getIssuedAt() != null && accessToken.getExpiresAt() != null) {
             body.put(
                     "expires_in",
-                    ChronoUnit.SECONDS.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()));
+                    ChronoUnit.SECONDS.between(
+                            accessToken.getIssuedAt(), accessToken.getExpiresAt()));
         }
         if (accessTokenResponse.getRefreshToken() != null) {
             body.put("refresh_token", accessTokenResponse.getRefreshToken().getTokenValue());

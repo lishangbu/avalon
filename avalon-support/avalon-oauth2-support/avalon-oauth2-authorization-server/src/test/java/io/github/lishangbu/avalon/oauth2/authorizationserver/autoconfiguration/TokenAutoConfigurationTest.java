@@ -7,14 +7,12 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.introspection.DefaultOpaqueTokenIntrospector;
-import io.github.lishangbu.avalon.oauth2.authorizationserver.token.JwtOAuth2TokenCustomizer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
@@ -34,17 +32,6 @@ class TokenAutoConfigurationTest {
         JwtEncoder encoder = new JwtEncoderAutoConfiguration().jwtEncoder(jwkSource);
 
         assertNotNull(encoder);
-    }
-
-    @Test
-    void tokenCustomizerBeanCreated() {
-        OAuth2TokenCustomizerAutoConfiguration configuration =
-                new OAuth2TokenCustomizerAutoConfiguration();
-
-        OAuth2TokenCustomizer<?> customizer = configuration.oAuth2TokenCustomizer();
-
-        assertNotNull(customizer);
-        assertNotNull(new JwtOAuth2TokenCustomizer());
     }
 
     @Test

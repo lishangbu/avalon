@@ -4,6 +4,5 @@ io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.Authoriz
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.JWKSourceAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.JwtDecoderAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.JwtEncoderAutoConfiguration
-io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.OAuth2TokenCustomizerAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.OAuth2TokenGeneratorAutoConfiguration
 io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration.OpaqueTokenIntrospectorAutoConfiguration

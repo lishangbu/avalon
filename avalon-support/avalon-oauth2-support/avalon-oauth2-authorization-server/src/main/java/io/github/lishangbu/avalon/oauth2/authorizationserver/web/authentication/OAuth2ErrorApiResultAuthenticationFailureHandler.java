@@ -70,9 +70,7 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
         ResolvedError resolvedError = resolveError(authenticationException);
         recordAuthenticationFailure(request, resolvedError);
         writeFailedResponse(
-                response,
-                normalize(resolvedError.code()),
-                normalize(resolvedError.description()));
+                response, normalize(resolvedError.code()), normalize(resolvedError.description()));
         if (!(authenticationException instanceof OAuth2AuthenticationException)
                 && this.logger.isWarnEnabled()) {
             this.logger.warn(
@@ -205,7 +203,10 @@ public class OAuth2ErrorApiResultAuthenticationFailureHandler
         }
         if (code == null || OAuth2ErrorCodes.INVALID_GRANT.equals(code)) {
             JsonResponseWriter.writeFailedResponse(
-                    response, jsonMapper, HttpStatus.BAD_REQUEST, DefaultErrorResultCode.BAD_REQUEST);
+                    response,
+                    jsonMapper,
+                    HttpStatus.BAD_REQUEST,
+                    DefaultErrorResultCode.BAD_REQUEST);
             return;
         }
         JsonResponseWriter.writeFailedResponse(

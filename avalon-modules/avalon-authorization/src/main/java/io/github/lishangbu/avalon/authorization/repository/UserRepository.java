@@ -16,16 +16,16 @@ import org.springframework.stereotype.Repository;
 /// @since 2025/08/19
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
-    /// 通过用户名查询用户信息
+    /// 通过用户名/手机号/邮箱查询用户信息
     ///
-    /// @param username 用户名
+    /// @param account 登录账号
     /// @return 用户信息
     @Query(
             """
                         select distinct u from User u
                         left join fetch u.roles r
-                        where u.username = :username
+                        where (u.username = :account or u.phone = :account or u.email = :account)
                               and r.enabled=true
                     """)
-    Optional<User> findUserWithRolesByUsername(@Param("username") String username);
+    Optional<User> findUserWithRolesByAccount(@Param("account") String account);
 }

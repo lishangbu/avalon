@@ -44,6 +44,24 @@ public class Oauth2Properties {
     /// 邮箱验证码参数名称，用于邮箱授权模式中的验证码字段
     private String emailCodeParameterName = "email_code";
 
+    /// 短信验证码长度
+    private Integer smsCodeLength = 6;
+
+    /// 短信验证码有效期
+    private String smsCodeTimeToLive = "5m";
+
+    /// 短信验证码发送频率限制
+    private String smsCodeResendInterval = "60s";
+
+    /// 邮箱验证码长度
+    private Integer emailCodeLength = 6;
+
+    /// 邮箱验证码有效期
+    private String emailCodeTimeToLive = "5m";
+
+    /// 邮箱验证码发送频率限制
+    private String emailCodeResendInterval = "60s";
+
     /// 登录失败允许的最大尝试次数，<=0 则禁用
     private Integer maxLoginFailures = 5;
 
@@ -73,4 +91,31 @@ public class Oauth2Properties {
 
     /// JWT 私钥文件位置，用于 Token 签名生成
     private String jwtPrivateKeyLocation;
+
+    public Duration getSmsCodeTimeToLiveDuration() {
+        return parseDuration(smsCodeTimeToLive, Duration.ofMinutes(5), ChronoUnit.MINUTES);
+    }
+
+    public Duration getSmsCodeResendIntervalDuration() {
+        return parseDuration(smsCodeResendInterval, Duration.ofSeconds(60), ChronoUnit.SECONDS);
+    }
+
+    public Duration getEmailCodeTimeToLiveDuration() {
+        return parseDuration(emailCodeTimeToLive, Duration.ofMinutes(5), ChronoUnit.MINUTES);
+    }
+
+    public Duration getEmailCodeResendIntervalDuration() {
+        return parseDuration(emailCodeResendInterval, Duration.ofSeconds(60), ChronoUnit.SECONDS);
+    }
+
+    private Duration parseDuration(String value, Duration fallback, ChronoUnit defaultUnit) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        try {
+            return DurationStyle.detectAndParse(value.trim(), defaultUnit);
+        } catch (IllegalArgumentException ignored) {
+            return fallback;
+        }
+    }
 }

@@ -71,8 +71,7 @@ public class ResourceServerAutoConfiguration {
     @ConditionalOnMissingBean(name = RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_NAME)
     @Order(RESOURCE_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
     public SecurityFilterChain resourceServerSecurityFilterChain(
-            HttpSecurity http, JsonMapper jsonMapper)
-            throws Exception {
+            HttpSecurity http, JsonMapper jsonMapper) throws Exception {
         http.authorizeHttpRequests(
                         (authorize) ->
                                 authorize
@@ -101,7 +100,8 @@ public class ResourceServerAutoConfiguration {
                     oauth2ResourceServer.opaqueToken(Customizer.withDefaults());
                     // 确保资源服务器在 token 校验失败时也使用我们的统一 entry point
                     oauth2ResourceServer
-                            .authenticationEntryPoint(new DefaultAuthenticationEntryPoint(jsonMapper))
+                            .authenticationEntryPoint(
+                                    new DefaultAuthenticationEntryPoint(jsonMapper))
                             .accessDeniedHandler(new DefaultAccessDeniedHandler(jsonMapper));
                 });
 
@@ -109,7 +109,8 @@ public class ResourceServerAutoConfiguration {
         http.exceptionHandling(
                 exceptions ->
                         exceptions
-                                .authenticationEntryPoint(new DefaultAuthenticationEntryPoint(jsonMapper))
+                                .authenticationEntryPoint(
+                                        new DefaultAuthenticationEntryPoint(jsonMapper))
                                 .accessDeniedHandler(new DefaultAccessDeniedHandler(jsonMapper)));
 
         return http.build();

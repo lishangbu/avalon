@@ -17,7 +17,9 @@ public class SmsAuthenticationToken extends UsernamePasswordAuthenticationToken 
     }
 
     public SmsAuthenticationToken(
-            Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+            Object principal,
+            Object credentials,
+            Collection<? extends GrantedAuthority> authorities) {
         super(principal, credentials, authorities);
     }
 }

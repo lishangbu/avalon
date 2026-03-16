@@ -43,9 +43,7 @@ class AuthorizationEndpointHandlersTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         handler.onAuthenticationFailure(
-                request,
-                response,
-                new OAuth2AuthenticationException("unauthorized"));
+                request, response, new OAuth2AuthenticationException("unauthorized"));
 
         assertEquals(401, response.getStatus());
         JsonNode body = jsonMapper.readTree(response.getContentAsString());
@@ -71,8 +69,9 @@ class AuthorizationEndpointHandlersTest {
     void authorizationEndpointResponseHandlerAppliesCustomizer() throws Exception {
         AuthorizationEndpointResponseHandler handler = new AuthorizationEndpointResponseHandler();
         handler.setAccessTokenResponseCustomizer(
-                context -> context.getAccessTokenResponse()
-                        .additionalParameters(Map.of("custom", "value")));
+                context ->
+                        context.getAccessTokenResponse()
+                                .additionalParameters(Map.of("custom", "value")));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         handler.onAuthenticationSuccess(
@@ -111,18 +110,16 @@ class AuthorizationEndpointHandlersTest {
                 RegisteredClient.withId("id")
                         .clientId("client")
                         .clientSecret("secret")
-                        .clientAuthenticationMethod(
-                                ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                         .authorizationGrantType(
-                                new org.springframework.security.oauth2.core.AuthorizationGrantType("password"))
+                                new org.springframework.security.oauth2.core.AuthorizationGrantType(
+                                        "password"))
                         .scope("read")
                         .tokenSettings(TokenSettings.builder().build())
                         .build();
         Authentication clientAuthentication =
                 new OAuth2ClientAuthenticationToken(
-                        registeredClient,
-                        ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-                        "secret");
+                        registeredClient, ClientAuthenticationMethod.CLIENT_SECRET_BASIC, "secret");
         OAuth2AccessToken accessToken =
                 new OAuth2AccessToken(
                         OAuth2AccessToken.TokenType.BEARER,

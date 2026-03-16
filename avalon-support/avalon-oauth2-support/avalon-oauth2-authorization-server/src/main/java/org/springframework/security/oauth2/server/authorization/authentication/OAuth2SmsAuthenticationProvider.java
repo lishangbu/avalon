@@ -37,8 +37,8 @@ import org.springframework.security.oauth2.server.authorization.context.Authoriz
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /// OAuth2 短信授权模式的认证提供者
 ///
@@ -85,7 +85,8 @@ public final class OAuth2SmsAuthenticationProvider implements AuthenticationProv
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication)
+            throws AuthenticationException {
         OAuth2SmsAuthorizationGrantAuthenticationToken smsGrantAuthenticationToken =
                 (OAuth2SmsAuthorizationGrantAuthenticationToken) authentication;
 
@@ -98,7 +99,9 @@ public final class OAuth2SmsAuthenticationProvider implements AuthenticationProv
             LOGGER.trace("Retrieved registered client");
         }
 
-        if (!registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantTypeSupport.SMS)) {
+        if (!registeredClient
+                .getAuthorizationGrantTypes()
+                .contains(AuthorizationGrantTypeSupport.SMS)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         LogMessage.format(
@@ -208,7 +211,9 @@ public final class OAuth2SmsAuthenticationProvider implements AuthenticationProv
         // ----- Refresh token -----
         OAuth2RefreshToken refreshToken = null;
         // Do not issue refresh token to public client
-        if (registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.REFRESH_TOKEN)) {
+        if (registeredClient
+                .getAuthorizationGrantTypes()
+                .contains(AuthorizationGrantType.REFRESH_TOKEN)) {
             tokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.REFRESH_TOKEN).build();
             OAuth2Token generatedRefreshToken = this.tokenGenerator.generate(tokenContext);
             if (generatedRefreshToken != null) {
@@ -300,7 +305,8 @@ public final class OAuth2SmsAuthenticationProvider implements AuthenticationProv
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return OAuth2SmsAuthorizationGrantAuthenticationToken.class.isAssignableFrom(authentication);
+        return OAuth2SmsAuthorizationGrantAuthenticationToken.class.isAssignableFrom(
+                authentication);
     }
 
     private String buildLockMessage(Duration remainingLock) {

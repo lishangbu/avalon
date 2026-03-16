@@ -18,8 +18,7 @@ public class InMemoryLoginFailureTracker implements LoginFailureTracker {
     public InMemoryLoginFailureTracker(Oauth2Properties properties) {
         int configuredMax = properties == null ? 0 : safeInt(properties.getMaxLoginFailures());
         this.maxFailures = Math.max(configuredMax, 0);
-        Duration configuredDuration =
-                properties == null ? null : properties.getLoginLockDuration();
+        Duration configuredDuration = properties == null ? null : properties.getLoginLockDuration();
         this.lockDuration =
                 configuredDuration == null
                                 || configuredDuration.isZero()

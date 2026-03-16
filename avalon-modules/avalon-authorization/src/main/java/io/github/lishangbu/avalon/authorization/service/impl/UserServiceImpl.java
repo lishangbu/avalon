@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    /// 根据用户名查询用户详情，包含基本信息、角色信息及个人资料
+    /// 根据用户名/手机号/邮箱查询用户详情，包含基本信息、角色信息及个人资料
     ///
-    /// @param username 用户名
+    /// @param username 登录账号
     /// @return 查询到的用户详情，未找到时返回Optional.empty()
     @Override
     public Optional<UserWithRoles> getUserByUsername(String username) {
-        return userRepository.findUserWithRolesByUsername(username).map(UserWithRoles::new);
+        return userRepository.findUserWithRolesByAccount(username).map(UserWithRoles::new);
     }
 }

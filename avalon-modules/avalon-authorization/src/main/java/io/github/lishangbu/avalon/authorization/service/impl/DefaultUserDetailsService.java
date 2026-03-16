@@ -19,15 +19,15 @@ import org.springframework.stereotype.Service;
 public class DefaultUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
-    /// 根据用户名加载用户详情
+    /// 根据用户名/手机号/邮箱加载用户详情
     ///
-    /// @param username 用户名
+    /// @param username 登录账号
     /// @return 用户详情
     /// @throws UsernameNotFoundException 用户未找到时抛出
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository
-                .findUserWithRolesByUsername(username)
+                .findUserWithRolesByAccount(username)
                 .map(
                         user ->
                                 new UserInfo(
@@ -39,6 +39,6 @@ public class DefaultUserDetailsService implements UserDetailsService {
                                                         user.getRoles().stream()
                                                                 .map(Role::getCode)
                                                                 .toList())))
-                .orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
+                .orElseThrow(() -> new UsernameNotFoundException("账号或密码错误"));
     }
 }

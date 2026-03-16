@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration;
 
-import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
-import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.login.InMemoryLoginFailureTracker;
 import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureTracker;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler;
+import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecorder;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import org.springframework.beans.factory.ObjectProvider;

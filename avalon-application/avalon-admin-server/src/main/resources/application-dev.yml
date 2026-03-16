@@ -11,6 +11,8 @@ oauth2:
   ignore-urls:
     - /actuator/**
     - /v3/api-docs
+    - /auth/sms/code
+    - /auth/email/code
   jwt-private-key-location: classpath:rsa/private_key.pem
   jwt-public-key-location: classpath:rsa/public_key.pem
 management:

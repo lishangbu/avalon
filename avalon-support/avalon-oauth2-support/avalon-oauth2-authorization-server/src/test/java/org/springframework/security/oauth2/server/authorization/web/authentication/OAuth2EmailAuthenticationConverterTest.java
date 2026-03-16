@@ -41,7 +41,8 @@ class OAuth2EmailAuthenticationConverterTest {
         OAuth2EmailAuthenticationConverter converter =
                 new OAuth2EmailAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
         request.setParameter("email_code", "123456");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -56,7 +57,8 @@ class OAuth2EmailAuthenticationConverterTest {
         OAuth2EmailAuthenticationConverter converter =
                 new OAuth2EmailAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
         request.setParameter("email", "user@example.com");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -70,7 +72,8 @@ class OAuth2EmailAuthenticationConverterTest {
         OAuth2EmailAuthenticationConverter converter =
                 new OAuth2EmailAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
         request.setParameter("email", "user@example.com");
         request.setParameter("email_code", "123456");
         request.addParameter(OAuth2ParameterNames.SCOPE, "read", "write");
@@ -86,12 +89,14 @@ class OAuth2EmailAuthenticationConverterTest {
         properties.setEmailParameterName("mail");
         properties.setEmailCodeParameterName("code");
 
-        OAuth2EmailAuthenticationConverter converter = new OAuth2EmailAuthenticationConverter(properties);
+        OAuth2EmailAuthenticationConverter converter =
+                new OAuth2EmailAuthenticationConverter(properties);
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken("client", "secret"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.EMAIL.getValue());
         request.setParameter("mail", "user@example.com");
         request.setParameter("code", "123456");
         request.setParameter(OAuth2ParameterNames.SCOPE, "read write");

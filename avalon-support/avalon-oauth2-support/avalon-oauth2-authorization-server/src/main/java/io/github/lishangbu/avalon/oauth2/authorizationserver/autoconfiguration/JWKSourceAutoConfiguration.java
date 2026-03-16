@@ -224,7 +224,9 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
                 }
             } catch (IOException e) {
                 log.error("公钥读取失败，无法从 [{}] 检索到有效公钥: {}", jwtPublicKeyLocation, e.getMessage());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
+            } catch (NoSuchAlgorithmException
+                    | InvalidKeySpecException
+                    | IllegalArgumentException e) {
                 log.error("公钥解析失败，无法从 [{}] 解析到有效公钥: {}", jwtPublicKeyLocation, e.getMessage());
             }
         } else {
@@ -249,7 +251,9 @@ public class JWKSourceAutoConfiguration implements InitializingBean {
                 }
             } catch (IOException e) {
                 log.error("私钥读取失败，无法从 [{}] 检索到有效私钥: {}", jwtPrivateKeyLocation, e.getMessage());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
+            } catch (NoSuchAlgorithmException
+                    | InvalidKeySpecException
+                    | IllegalArgumentException e) {
                 log.error("私钥解析失败，无法从 [{}] 解析到有效私钥: {}", jwtPrivateKeyLocation, e.getMessage());
             }
         } else {

@@ -31,6 +31,14 @@ public class User implements Serializable {
     @Column(comment = "用户名", length = 20)
     private String username;
 
+    /// 手机号
+    @Column(comment = "手机号", length = 20)
+    private String phone;
+
+    /// 邮箱
+    @Column(comment = "邮箱", length = 100)
+    private String email;
+
     /// 密码（写入-only，不会在 toString 中显示）
     @ToString.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
