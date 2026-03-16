@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.oauth2.authorizationserver.autoconfiguration;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.oauth2.authorizationserver.login.InMemoryLoginFailureTracker;
@@ -14,8 +14,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.ObjectProvider;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -26,8 +26,7 @@ class AuthenticationHandlerAutoConfigurationTest {
         AuthenticationHandlerAutoConfiguration configuration =
                 new AuthenticationHandlerAutoConfiguration();
 
-        LoginFailureTracker tracker =
-                configuration.loginFailureTracker(providerOf(null));
+        LoginFailureTracker tracker = configuration.loginFailureTracker(providerOf(null));
 
         assertTrue(tracker instanceof InMemoryLoginFailureTracker);
         assertFalse(tracker.isEnabled());

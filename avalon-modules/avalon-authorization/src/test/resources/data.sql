@@ -22,11 +22,15 @@ INSERT INTO "oauth_registered_client" ("id", "client_id", "client_id_issued_at",
                                        "refresh_token_time_to_live", "id_token_signature_algorithm",
                                        "x509_certificate_bound_access_tokens")
 VALUES ('1', 'client', '2025-08-12 16:11:22+00', '{noop}client', '5202-08-12 16:11:22+00', '测试客户端的客户端',
-        'client_secret_basic,client_secret_post,client_secret_jwt', 'refresh_token,client_credentials,password', '',
+        'client_secret_basic,client_secret_post,client_secret_jwt',
+        'refresh_token,client_credentials,password,sms,email',
+        '',
         'http://localhost:8080', 'openid,profile', false, false, '', 'RS256', '', '2h', '2h', 'self-contained', '1h',
         true, '30d', 'RS256', false),
        ('2', 'test', '2025-08-12 16:11:22+00', '{noop}test', '5202-08-12 16:11:22+00', '测试REFERENCE模式的客户端',
-        'client_secret_basic,client_secret_post,client_secret_jwt', 'refresh_token,client_credentials,password', '',
+        'client_secret_basic,client_secret_post,client_secret_jwt',
+        'refresh_token,client_credentials,password,sms,email',
+        '',
         'http://localhost:8080', 'openid,profile', false, false, '', 'RS256', '', '2h', '2h', 'reference', '1h', true,
         '30d', 'RS256', false);
 COMMIT;
@@ -52,8 +56,9 @@ COMMIT;
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO "users" ("id", "username", "hashed_password")
-VALUES (1, 'admin', '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G');
+INSERT INTO "users" ("id", "username", "phone", "email", "hashed_password")
+VALUES (1, 'admin', '13800000000', 'admin@example.com',
+        '{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G');
 COMMIT;
 
 -- ----------------------------

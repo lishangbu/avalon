@@ -54,7 +54,9 @@ public class JsonResponseWriter {
         response.setStatus(httpStatus.value());
         try {
             response.getWriter()
-                    .write(jsonMapper.writeValueAsString(ApiResult.failed(errorResultCode, errorMessages)));
+                    .write(
+                            jsonMapper.writeValueAsString(
+                                    ApiResult.failed(errorResultCode, errorMessages)));
             response.getWriter().flush();
             response.getWriter().close();
         } catch (IOException e) {

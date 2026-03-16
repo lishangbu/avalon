@@ -1,8 +1,8 @@
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureTracker;
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport;
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo;
-import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureTracker;
 import java.security.Principal;
 import java.time.Duration;
 import java.util.*;
@@ -146,10 +146,7 @@ public final class OAuth2PasswordAuthenticationProvider implements Authenticatio
                 throw oauth2Exception;
             }
             OAuth2Error error =
-                    new OAuth2Error(
-                            OAuth2ErrorCodes.INVALID_GRANT,
-                            ex.getMessage(),
-                            ERROR_URI);
+                    new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, ex.getMessage(), ERROR_URI);
             throw new OAuth2AuthenticationException(error, ex);
         }
         if (loginFailureTracker != null) {

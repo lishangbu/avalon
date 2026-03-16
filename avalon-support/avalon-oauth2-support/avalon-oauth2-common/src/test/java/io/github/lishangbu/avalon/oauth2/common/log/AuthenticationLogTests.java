@@ -2,8 +2,8 @@ package io.github.lishangbu.avalon.oauth2.common.log;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,8 @@ class AuthenticationLogTests {
     void recordStoresProvidedValues() {
         Instant now = Instant.now();
         AuthenticationLogRecord record =
-                new AuthenticationLogRecord("alice", "client", "password", "127.0.0.1", "UA", true, "none", now);
+                new AuthenticationLogRecord(
+                        "alice", "client", "password", "127.0.0.1", "UA", true, "none", now);
 
         assertEquals("alice", record.username());
         assertEquals("client", record.clientId());
@@ -45,6 +46,10 @@ class AuthenticationLogTests {
     void noopRecorderAcceptsRecords() {
         AuthenticationLogRecorder recorder = AuthenticationLogRecorder.noop();
 
-        assertDoesNotThrow(() -> recorder.record(new AuthenticationLogRecord(null, null, null, null, null, false, null, null)));
+        assertDoesNotThrow(
+                () ->
+                        recorder.record(
+                                new AuthenticationLogRecord(
+                                        null, null, null, null, null, false, null, null)));
     }
 }

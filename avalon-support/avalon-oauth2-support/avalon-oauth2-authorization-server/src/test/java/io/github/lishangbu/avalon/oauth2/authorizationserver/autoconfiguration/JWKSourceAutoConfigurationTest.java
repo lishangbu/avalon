@@ -108,37 +108,38 @@ class JWKSourceAutoConfigurationTest {
         properties.setJwtPublicKeyLocation("unreadable:public");
         properties.setJwtPrivateKeyLocation("unreadable:private");
 
-        ResourceLoader resourceLoader = new ResourceLoader() {
-            @Override
-            public Resource getResource(String location) {
-                return new AbstractResource() {
+        ResourceLoader resourceLoader =
+                new ResourceLoader() {
                     @Override
-                    public String getDescription() {
-                        return "unreadable";
+                    public Resource getResource(String location) {
+                        return new AbstractResource() {
+                            @Override
+                            public String getDescription() {
+                                return "unreadable";
+                            }
+
+                            @Override
+                            public boolean exists() {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean isReadable() {
+                                return true;
+                            }
+
+                            @Override
+                            public InputStream getInputStream() throws IOException {
+                                throw new IOException("boom");
+                            }
+                        };
                     }
 
                     @Override
-                    public boolean exists() {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean isReadable() {
-                        return true;
-                    }
-
-                    @Override
-                    public InputStream getInputStream() throws IOException {
-                        throw new IOException("boom");
+                    public ClassLoader getClassLoader() {
+                        return getClass().getClassLoader();
                     }
                 };
-            }
-
-            @Override
-            public ClassLoader getClassLoader() {
-                return getClass().getClassLoader();
-            }
-        };
 
         JWKSourceAutoConfiguration configuration =
                 new JWKSourceAutoConfiguration(properties, resourceLoader);
@@ -185,7 +186,9 @@ class JWKSourceAutoConfigurationTest {
             IllegalStateException exception =
                     assertThrows(
                             IllegalStateException.class,
-                            () -> ReflectionTestUtils.invokeMethod(configuration, "generateRsaKey"));
+                            () ->
+                                    ReflectionTestUtils.invokeMethod(
+                                            configuration, "generateRsaKey"));
             assertNotNull(exception.getMessage());
         }
     }
@@ -196,8 +199,10 @@ class JWKSourceAutoConfigurationTest {
         Oauth2Properties properties = new Oauth2Properties();
         JWKSourceAutoConfiguration configuration =
                 new JWKSourceAutoConfiguration(properties, new DefaultResourceLoader());
-        ReflectionTestUtils.setField(configuration, "publicKey", (RSAPublicKey) keyPair.getPublic());
-        ReflectionTestUtils.setField(configuration, "privateKey", (RSAPrivateKey) keyPair.getPrivate());
+        ReflectionTestUtils.setField(
+                configuration, "publicKey", (RSAPublicKey) keyPair.getPublic());
+        ReflectionTestUtils.setField(
+                configuration, "privateKey", (RSAPrivateKey) keyPair.getPrivate());
 
         try (MockedStatic<MessageDigest> mocked = Mockito.mockStatic(MessageDigest.class)) {
             mocked.when(() -> MessageDigest.getInstance("SHA-256"))
@@ -216,9 +221,13 @@ class JWKSourceAutoConfigurationTest {
 
     private static void writePem(Path file, String type, byte[] encoded) throws IOException {
         String content =
-                "-----BEGIN " + type + "-----\n"
+                "-----BEGIN "
+                        + type
+                        + "-----\n"
                         + Base64.getEncoder().encodeToString(encoded)
-                        + "\n-----END " + type + "-----\n";
+                        + "\n-----END "
+                        + type
+                        + "-----\n";
         Files.writeString(file, content, StandardCharsets.UTF_8);
     }
 }

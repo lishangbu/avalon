@@ -26,6 +26,8 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         user.setHashedPassword(
                 "{bcrypt}$2a$10$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G");
         user.setUsername("test2");
+        user.setPhone("13800000001");
+        user.setEmail("test2@example.com");
         roleRepository
                 .findById(1L)
                 .ifPresent(
@@ -35,7 +37,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
                             user.setRoles(roles);
                         });
         userRepository.saveAndFlush(user);
-        Optional<User> userOptional = userRepository.findUserWithRolesByUsername("test2");
+        Optional<User> userOptional = userRepository.findUserWithRolesByAccount("13800000001");
         Assertions.assertTrue(userOptional.isPresent());
         User savedUser = userOptional.get();
         Assertions.assertEquals("test2", savedUser.getUsername());
@@ -45,7 +47,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void testFindByUsername() {
-        Optional<User> userOptional = userRepository.findUserWithRolesByUsername("admin");
+        Optional<User> userOptional = userRepository.findUserWithRolesByAccount("admin");
         Assertions.assertTrue(userOptional.isPresent());
         User user = userOptional.get();
         Assertions.assertEquals("admin", user.getUsername());

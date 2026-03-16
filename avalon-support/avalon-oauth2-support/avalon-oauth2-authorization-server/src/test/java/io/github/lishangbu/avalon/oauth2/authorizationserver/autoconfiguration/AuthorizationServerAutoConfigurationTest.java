@@ -10,8 +10,8 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.
 import io.github.lishangbu.avalon.oauth2.authorizationserver.web.authentication.OAuth2ErrorApiResultAuthenticationFailureHandler;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -54,48 +54,54 @@ class AuthorizationServerAutoConfigurationTest {
         ApplicationContext applicationContext = new GenericApplicationContext();
         ((GenericApplicationContext) applicationContext).refresh();
 
-        Mockito.doAnswer(invocation -> {
-                    @SuppressWarnings("unchecked")
-                    Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.
-                            AuthorizationManagerRequestMatcherRegistry> customizer =
-                            invocation.getArgument(0, Customizer.class);
-                    AuthorizeHttpRequestsConfigurer<HttpSecurity> configurer =
-                            new AuthorizeHttpRequestsConfigurer<>(applicationContext);
-                    customizer.customize(configurer.getRegistry());
-                    return httpSecurity;
-                })
+        Mockito.doAnswer(
+                        invocation -> {
+                            @SuppressWarnings("unchecked")
+                            Customizer<
+                                            AuthorizeHttpRequestsConfigurer<HttpSecurity>
+                                                    .AuthorizationManagerRequestMatcherRegistry>
+                                    customizer = invocation.getArgument(0, Customizer.class);
+                            AuthorizeHttpRequestsConfigurer<HttpSecurity> configurer =
+                                    new AuthorizeHttpRequestsConfigurer<>(applicationContext);
+                            customizer.customize(configurer.getRegistry());
+                            return httpSecurity;
+                        })
                 .when(httpSecurity)
                 .authorizeHttpRequests(Mockito.any());
 
-        Mockito.doAnswer(invocation -> {
-                    @SuppressWarnings("unchecked")
-                    Customizer<OAuth2LoginConfigurer<HttpSecurity>> customizer =
-                            invocation.getArgument(0, Customizer.class);
-                    customizer.customize(new OAuth2LoginConfigurer<>());
-                    return httpSecurity;
-                })
+        Mockito.doAnswer(
+                        invocation -> {
+                            @SuppressWarnings("unchecked")
+                            Customizer<OAuth2LoginConfigurer<HttpSecurity>> customizer =
+                                    invocation.getArgument(0, Customizer.class);
+                            customizer.customize(new OAuth2LoginConfigurer<>());
+                            return httpSecurity;
+                        })
                 .when(httpSecurity)
                 .oauth2Login(Mockito.any());
 
-        Mockito.doAnswer(invocation -> {
-                    @SuppressWarnings("unchecked")
-                    Customizer<ExceptionHandlingConfigurer<HttpSecurity>> customizer =
-                            invocation.getArgument(0, Customizer.class);
-                    customizer.customize(new ExceptionHandlingConfigurer<>());
-                    return httpSecurity;
-                })
+        Mockito.doAnswer(
+                        invocation -> {
+                            @SuppressWarnings("unchecked")
+                            Customizer<ExceptionHandlingConfigurer<HttpSecurity>> customizer =
+                                    invocation.getArgument(0, Customizer.class);
+                            customizer.customize(new ExceptionHandlingConfigurer<>());
+                            return httpSecurity;
+                        })
                 .when(httpSecurity)
                 .exceptionHandling(Mockito.any());
 
-        Mockito.doAnswer(invocation -> {
-                    OAuth2AuthorizationServerConfigurer configurer =
-                            invocation.getArgument(0, OAuth2AuthorizationServerConfigurer.class);
-                    @SuppressWarnings("unchecked")
-                    Customizer<OAuth2AuthorizationServerConfigurer> customizer =
-                            invocation.getArgument(1, Customizer.class);
-                    customizer.customize(configurer);
-                    return httpSecurity;
-                })
+        Mockito.doAnswer(
+                        invocation -> {
+                            OAuth2AuthorizationServerConfigurer configurer =
+                                    invocation.getArgument(
+                                            0, OAuth2AuthorizationServerConfigurer.class);
+                            @SuppressWarnings("unchecked")
+                            Customizer<OAuth2AuthorizationServerConfigurer> customizer =
+                                    invocation.getArgument(1, Customizer.class);
+                            customizer.customize(configurer);
+                            return httpSecurity;
+                        })
                 .when(httpSecurity)
                 .with(Mockito.any(OAuth2AuthorizationServerConfigurer.class), Mockito.any());
 
@@ -124,7 +130,8 @@ class AuthorizationServerAutoConfigurationTest {
         Oauth2Properties properties = new Oauth2Properties();
         LoginFailureTracker loginFailureTracker = new InMemoryLoginFailureTracker(properties);
         OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler successHandler =
-                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(new JsonMapper());
+                new OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
+                        new JsonMapper());
         OAuth2ErrorApiResultAuthenticationFailureHandler failureHandler =
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(new JsonMapper());
         JsonMapper jsonMapper = new JsonMapper();

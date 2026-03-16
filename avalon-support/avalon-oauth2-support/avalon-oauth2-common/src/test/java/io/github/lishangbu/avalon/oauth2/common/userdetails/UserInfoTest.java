@@ -12,8 +12,8 @@ class UserInfoTest {
 
     @Test
     void constructorCopiesStateAndAttributesAreMutable() {
-        UserInfo user = new UserInfo(
-                "alice", "pwd", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserInfo user =
+                new UserInfo("alice", "pwd", List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
         user.getAdditionalParameters().put("key", "value");
 
@@ -28,14 +28,15 @@ class UserInfoTest {
 
     @Test
     void fullConstructorSetsFlags() {
-        UserInfo user = new UserInfo(
-                "bob",
-                null,
-                true,
-                false,
-                true,
-                false,
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        UserInfo user =
+                new UserInfo(
+                        "bob",
+                        null,
+                        true,
+                        false,
+                        true,
+                        false,
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
         assertEquals("bob", user.getUsername());
         assertTrue(user.isEnabled());
@@ -46,8 +47,8 @@ class UserInfoTest {
 
     @Test
     void toStringContainsRelevantFields() {
-        UserInfo user = new UserInfo(
-                "charlie", "pwd", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserInfo user =
+                new UserInfo("charlie", "pwd", List.of(new SimpleGrantedAuthority("ROLE_USER")));
         user.getAdditionalParameters().put("foo", "bar");
 
         String text = user.toString();

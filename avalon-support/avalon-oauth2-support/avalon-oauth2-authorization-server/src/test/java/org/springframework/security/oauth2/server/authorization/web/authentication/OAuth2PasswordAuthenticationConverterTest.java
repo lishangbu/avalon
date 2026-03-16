@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport;
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,8 @@ class OAuth2PasswordAuthenticationConverterTest {
         OAuth2PasswordAuthenticationConverter converter =
                 new OAuth2PasswordAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
         request.setParameter("password", "pwd");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -57,7 +57,8 @@ class OAuth2PasswordAuthenticationConverterTest {
         OAuth2PasswordAuthenticationConverter converter =
                 new OAuth2PasswordAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
         request.setParameter("username", "user");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -71,7 +72,8 @@ class OAuth2PasswordAuthenticationConverterTest {
         OAuth2PasswordAuthenticationConverter converter =
                 new OAuth2PasswordAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
         request.setParameter("username", "user");
         request.setParameter("password", "pwd");
         request.addParameter(OAuth2ParameterNames.SCOPE, "read", "write");
@@ -93,7 +95,8 @@ class OAuth2PasswordAuthenticationConverterTest {
                 .setAuthentication(new UsernamePasswordAuthenticationToken("client", "secret"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.PASSWORD.getValue());
         request.setParameter("user", "alice");
         request.setParameter("pwd", "pass");
         request.setParameter(OAuth2ParameterNames.SCOPE, "read write");

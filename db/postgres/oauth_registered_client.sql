@@ -8,11 +8,11 @@ insert into public.oauth_registered_client (id, access_token_format, access_toke
                                             require_proof_key, reuse_refresh_tokens, scopes,
                                             token_endpoint_authentication_signing_algorithm,
                                             x509_certificate_bound_access_tokens, x509_certificate_subject_dn)
-values ('1', 'self-contained', '2h', '2h', 'refresh_token,client_credentials,password',
+values ('1', 'self-contained', '2h', '2h', 'refresh_token,client_credentials,password,sms,email',
         'client_secret_basic,client_secret_post,client_secret_jwt', 'client', '2025-08-12 08:11:22.000000 +00:00',
         '测试客户端的客户端', '{noop}client', '9999-08-12 08:11:22.000000 +00:00', '1h', 'RS256', '',
         'http://localhost:8080', '', '30d', false, false, true, 'openid,profile', 'RS256', false, ''),
-       ('2', 'reference', '2h', '2h', 'refresh_token,client_credentials,password',
+       ('2', 'reference', '2h', '2h', 'refresh_token,client_credentials,password,sms,email',
         'client_secret_basic,client_secret_post,client_secret_jwt', 'test', '2025-08-12 08:11:22.000000 +00:00',
         '测试REFERENCE模式的客户端', '{noop}test', '9999-08-12 08:11:22.000000 +00:00', '1h', 'RS256', '',
         'http://localhost:8080', '', '30d', false, false, true, 'openid,profile', 'RS256', false, '');

@@ -41,7 +41,8 @@ class OAuth2SmsAuthenticationConverterTest {
         OAuth2SmsAuthenticationConverter converter =
                 new OAuth2SmsAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
         request.setParameter("sms_code", "123456");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -56,7 +57,8 @@ class OAuth2SmsAuthenticationConverterTest {
         OAuth2SmsAuthenticationConverter converter =
                 new OAuth2SmsAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
         request.setParameter("phone", "13800000000");
 
         assertThrows(OAuth2AuthenticationException.class, () -> converter.convert(request));
@@ -70,7 +72,8 @@ class OAuth2SmsAuthenticationConverterTest {
         OAuth2SmsAuthenticationConverter converter =
                 new OAuth2SmsAuthenticationConverter(new Oauth2Properties());
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
         request.setParameter("phone", "13800000000");
         request.setParameter("sms_code", "123456");
         request.addParameter(OAuth2ParameterNames.SCOPE, "read", "write");
@@ -86,12 +89,14 @@ class OAuth2SmsAuthenticationConverterTest {
         properties.setPhoneParameterName("mobile");
         properties.setSmsCodeParameterName("code");
 
-        OAuth2SmsAuthenticationConverter converter = new OAuth2SmsAuthenticationConverter(properties);
+        OAuth2SmsAuthenticationConverter converter =
+                new OAuth2SmsAuthenticationConverter(properties);
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken("client", "secret"));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
+        request.setParameter(
+                OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantTypeSupport.SMS.getValue());
         request.setParameter("mobile", "13800000000");
         request.setParameter("code", "123456");
         request.setParameter(OAuth2ParameterNames.SCOPE, "read write");

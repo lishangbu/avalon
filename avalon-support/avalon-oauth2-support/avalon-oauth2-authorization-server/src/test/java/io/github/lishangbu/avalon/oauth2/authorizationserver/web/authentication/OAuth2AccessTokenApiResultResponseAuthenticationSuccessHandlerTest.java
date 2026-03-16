@@ -96,12 +96,14 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     @Test
     void usesAdditionalParametersAndAuthorizationServiceForUsername() throws Exception {
         CapturingRecorder recorder = new CapturingRecorder();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         OAuth2Authorization authorization =
                 OAuth2Authorization.withRegisteredClient(registeredClient())
                         .principalName("auth-user")
                         .authorizationGrantType(
-                                new org.springframework.security.oauth2.core.AuthorizationGrantType("password"))
+                                new org.springframework.security.oauth2.core.AuthorizationGrantType(
+                                        "password"))
                         .build();
         Mockito.when(authorizationService.findByToken("token", OAuth2TokenType.ACCESS_TOKEN))
                 .thenReturn(authorization);
@@ -174,8 +176,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
         request.addHeader("X-Real-IP", "2.2.2.2");
         request.setRemoteAddr("127.0.0.1");
 
-        String clientIp =
-                ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", request);
+        String clientIp = ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", request);
         assertEquals("1.1.1.1", clientIp);
 
         MockHttpServletRequest realIpRequest = new MockHttpServletRequest();
@@ -199,12 +200,13 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
                 "username",
                 ReflectionTestUtils.invokeMethod(handler, "resolveUsernameParameterName"));
 
-        Object principal = new Object() {
-            @Override
-            public String toString() {
-                return "principal";
-            }
-        };
+        Object principal =
+                new Object() {
+                    @Override
+                    public String toString() {
+                        return "principal";
+                    }
+                };
         OAuth2AccessTokenAuthenticationToken authentication = accessTokenAuthentication(Map.of());
 
         String clientCredentialsUsername =
@@ -259,10 +261,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
         Mockito.when(mockToken.getRegisteredClient()).thenReturn(null);
         String clientId =
                 ReflectionTestUtils.invokeMethod(
-                        handler,
-                        "resolveClientId",
-                        mockToken,
-                        clientAuthenticationToken);
+                        handler, "resolveClientId", mockToken, clientAuthenticationToken);
         assertEquals("client", clientId);
     }
 
@@ -276,20 +275,13 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
                         Instant.now().plusSeconds(60),
                         Set.of("read"));
         OAuth2RefreshToken refreshToken =
-                new OAuth2RefreshToken(
-                        "refresh", Instant.now(), Instant.now().plusSeconds(120));
+                new OAuth2RefreshToken("refresh", Instant.now(), Instant.now().plusSeconds(120));
         RegisteredClient client = registeredClient();
         Authentication clientAuthentication =
                 new OAuth2ClientAuthenticationToken(
-                        client,
-                        ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-                        "secret");
+                        client, ClientAuthenticationMethod.CLIENT_SECRET_BASIC, "secret");
         return new OAuth2AccessTokenAuthenticationToken(
-                client,
-                clientAuthentication,
-                accessToken,
-                refreshToken,
-                additionalParameters);
+                client, clientAuthentication, accessToken, refreshToken, additionalParameters);
     }
 
     private static RegisteredClient registeredClient() {
@@ -298,7 +290,8 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
                 .clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(
-                        new org.springframework.security.oauth2.core.AuthorizationGrantType("password"))
+                        new org.springframework.security.oauth2.core.AuthorizationGrantType(
+                                "password"))
                 .scope("read")
                 .tokenSettings(TokenSettings.builder().build())
                 .build();

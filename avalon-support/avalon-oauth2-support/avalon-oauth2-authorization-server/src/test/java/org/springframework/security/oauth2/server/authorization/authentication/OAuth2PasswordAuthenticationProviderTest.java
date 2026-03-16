@@ -29,14 +29,14 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.OAuth2Token;
-import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
-import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
-import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
@@ -48,9 +48,7 @@ class OAuth2PasswordAuthenticationProviderTest {
     @BeforeEach
     void setAuthorizationServerContext() {
         AuthorizationServerSettings settings =
-                AuthorizationServerSettings.builder()
-                        .issuer("https://example.org")
-                        .build();
+                AuthorizationServerSettings.builder().issuer("https://example.org").build();
         AuthorizationServerContext context =
                 new AuthorizationServerContext() {
                     @Override
@@ -74,13 +72,15 @@ class OAuth2PasswordAuthenticationProviderTest {
     @Test
     void rejectsUnsupportedGrantType() {
         RegisteredClient registeredClient = registeredClient(false, false);
-        OAuth2PasswordAuthenticationProvider provider = provider(registeredClient, null, null, null);
+        OAuth2PasswordAuthenticationProvider provider =
+                provider(registeredClient, null, null, null);
 
         OAuth2PasswordAuthorizationGrantAuthenticationToken token =
                 passwordGrantToken(registeredClient, Set.of());
 
         OAuth2AuthenticationException exception =
-                assertThrows(OAuth2AuthenticationException.class, () -> provider.authenticate(token));
+                assertThrows(
+                        OAuth2AuthenticationException.class, () -> provider.authenticate(token));
         assertEquals(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT, exception.getError().getErrorCode());
     }
 
@@ -94,7 +94,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.INVALID_GRANT, exception.getError().getErrorCode());
         assertTrue(exception.getError().getDescription().contains("30"));
@@ -110,7 +112,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.INVALID_GRANT, exception.getError().getErrorCode());
         assertTrue(exception.getError().getDescription().contains("2"));
@@ -123,19 +127,19 @@ class OAuth2PasswordAuthenticationProviderTest {
                 authenticationManagerThrowing(new BadCredentialsException("bad"));
         LoginFailureTracker tracker = Mockito.mock(LoginFailureTracker.class);
         OAuth2TokenGenerator<OAuth2Token> tokenGenerator = new TestTokenGenerator();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
 
         OAuth2PasswordAuthenticationProvider provider =
                 new OAuth2PasswordAuthenticationProvider(
-                        authenticationManager,
-                        authorizationService,
-                        tokenGenerator,
-                        tracker);
+                        authenticationManager, authorizationService, tokenGenerator, tracker);
 
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.INVALID_GRANT, exception.getError().getErrorCode());
         verify(tracker).onFailure("user");
@@ -146,7 +150,8 @@ class OAuth2PasswordAuthenticationProviderTest {
         RegisteredClient registeredClient = registeredClient(true, false);
         OAuth2AuthenticationException oauth2Exception =
                 new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
-        AuthenticationManager authenticationManager = authenticationManagerThrowing(oauth2Exception);
+        AuthenticationManager authenticationManager =
+                authenticationManagerThrowing(oauth2Exception);
 
         OAuth2PasswordAuthenticationProvider provider =
                 new OAuth2PasswordAuthenticationProvider(
@@ -157,7 +162,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.INVALID_GRANT, exception.getError().getErrorCode());
     }
@@ -166,7 +173,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void rejectsInvalidScopes() {
         RegisteredClient registeredClient = registeredClient(true, false);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
         tokenGenerator.put(OAuth2TokenType.ACCESS_TOKEN.getValue(), accessToken());
 
@@ -177,7 +185,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of("write"))));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of("write"))));
 
         assertEquals(OAuth2ErrorCodes.INVALID_SCOPE, exception.getError().getErrorCode());
     }
@@ -186,7 +196,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void failsWhenAccessTokenGeneratorReturnsNull() {
         RegisteredClient registeredClient = registeredClient(true, false);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
 
         OAuth2PasswordAuthenticationProvider provider =
@@ -196,7 +207,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.SERVER_ERROR, exception.getError().getErrorCode());
     }
@@ -205,7 +218,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void failsWhenRefreshTokenInvalidType() {
         RegisteredClient registeredClient = registeredClient(true, true);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
         tokenGenerator.put(OAuth2TokenType.ACCESS_TOKEN.getValue(), accessToken());
         tokenGenerator.put(OAuth2TokenType.REFRESH_TOKEN.getValue(), accessToken());
@@ -217,7 +231,9 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of())));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(registeredClient, Set.of())));
 
         assertEquals(OAuth2ErrorCodes.SERVER_ERROR, exception.getError().getErrorCode());
     }
@@ -226,7 +242,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void failsWhenIdTokenInvalidType() {
         RegisteredClient registeredClient = registeredClient(true, false);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
         tokenGenerator.put(OAuth2TokenType.ACCESS_TOKEN.getValue(), accessToken());
         tokenGenerator.put(OidcParameterNames.ID_TOKEN, accessToken());
@@ -238,7 +255,10 @@ class OAuth2PasswordAuthenticationProviderTest {
         OAuth2AuthenticationException exception =
                 assertThrows(
                         OAuth2AuthenticationException.class,
-                        () -> provider.authenticate(passwordGrantToken(registeredClient, Set.of(OidcScopes.OPENID))));
+                        () ->
+                                provider.authenticate(
+                                        passwordGrantToken(
+                                                registeredClient, Set.of(OidcScopes.OPENID))));
 
         assertEquals(OAuth2ErrorCodes.SERVER_ERROR, exception.getError().getErrorCode());
     }
@@ -247,7 +267,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void authenticatesWithoutOpenIdScope() {
         RegisteredClient registeredClient = registeredClient(true, true);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
         tokenGenerator.put(OAuth2TokenType.ACCESS_TOKEN.getValue(), accessToken());
         tokenGenerator.put(OAuth2TokenType.REFRESH_TOKEN.getValue(), refreshToken());
@@ -271,7 +292,8 @@ class OAuth2PasswordAuthenticationProviderTest {
     void authenticatesWithOpenIdScope() {
         RegisteredClient registeredClient = registeredClient(true, true);
         AuthenticationManager authenticationManager = authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         TestTokenGenerator tokenGenerator = new TestTokenGenerator();
         tokenGenerator.put(OAuth2TokenType.ACCESS_TOKEN.getValue(), accessToken());
         tokenGenerator.put(OAuth2TokenType.REFRESH_TOKEN.getValue(), refreshToken());
@@ -283,7 +305,8 @@ class OAuth2PasswordAuthenticationProviderTest {
 
         OAuth2AccessTokenAuthenticationToken result =
                 (OAuth2AccessTokenAuthenticationToken)
-                        provider.authenticate(passwordGrantToken(registeredClient, Set.of(OidcScopes.OPENID)));
+                        provider.authenticate(
+                                passwordGrantToken(registeredClient, Set.of(OidcScopes.OPENID)));
 
         assertNotNull(result.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
     }
@@ -306,37 +329,40 @@ class OAuth2PasswordAuthenticationProviderTest {
             AuthenticationManager authenticationManager,
             OAuth2TokenGenerator<? extends OAuth2Token> generator) {
         AuthenticationManager manager =
-                authenticationManager != null ? authenticationManager : authenticationManagerSuccess();
-        OAuth2AuthorizationService authorizationService = Mockito.mock(OAuth2AuthorizationService.class);
+                authenticationManager != null
+                        ? authenticationManager
+                        : authenticationManagerSuccess();
+        OAuth2AuthorizationService authorizationService =
+                Mockito.mock(OAuth2AuthorizationService.class);
         OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator =
                 generator != null ? generator : new TestTokenGenerator();
-        return new OAuth2PasswordAuthenticationProvider(manager, authorizationService, tokenGenerator, tracker);
+        return new OAuth2PasswordAuthenticationProvider(
+                manager, authorizationService, tokenGenerator, tracker);
     }
 
     private static OAuth2PasswordAuthorizationGrantAuthenticationToken passwordGrantToken(
             RegisteredClient registeredClient, Set<String> scopes) {
         OAuth2ClientAuthenticationToken clientAuthenticationToken =
                 new OAuth2ClientAuthenticationToken(
-                        registeredClient,
-                        ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-                        "secret");
+                        registeredClient, ClientAuthenticationMethod.CLIENT_SECRET_BASIC, "secret");
         return new OAuth2PasswordAuthorizationGrantAuthenticationToken(
                 "user", "pwd", clientAuthenticationToken, scopes, Map.of());
     }
 
     private static RegisteredClient registeredClient(boolean allowPassword, boolean allowRefresh) {
-        RegisteredClient.Builder builder = RegisteredClient.withId("id")
-                .clientId("client")
-                .clientSecret("secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .tokenSettings(
-                        TokenSettings.builder()
-                                .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-                                .accessTokenTimeToLive(Duration.ofMinutes(5))
-                                .refreshTokenTimeToLive(Duration.ofMinutes(10))
-                                .build())
-                .scope("read")
-                .scope(OidcScopes.OPENID);
+        RegisteredClient.Builder builder =
+                RegisteredClient.withId("id")
+                        .clientId("client")
+                        .clientSecret("secret")
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .tokenSettings(
+                                TokenSettings.builder()
+                                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                                        .accessTokenTimeToLive(Duration.ofMinutes(5))
+                                        .refreshTokenTimeToLive(Duration.ofMinutes(10))
+                                        .build())
+                        .scope("read")
+                        .scope(OidcScopes.OPENID);
         if (allowPassword) {
             builder.authorizationGrantType(AuthorizationGrantTypeSupport.PASSWORD);
         } else {
@@ -352,9 +378,7 @@ class OAuth2PasswordAuthenticationProviderTest {
         return authentication ->
                 new UsernamePasswordAuthenticationToken(
                         new UserInfo(
-                                "user",
-                                "pwd",
-                                Set.of(new SimpleGrantedAuthority("ROLE_USER"))),
+                                "user", "pwd", Set.of(new SimpleGrantedAuthority("ROLE_USER"))),
                         "pwd",
                         Set.of(new SimpleGrantedAuthority("ROLE_USER")));
     }

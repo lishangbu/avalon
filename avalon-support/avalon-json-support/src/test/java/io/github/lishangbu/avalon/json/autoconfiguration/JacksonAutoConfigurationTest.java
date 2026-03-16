@@ -27,5 +27,4 @@ class JacksonAutoConfigurationTest {
                     assertTrue(json.contains("\"") || json.matches("\\d+"));
                 });
     }
-
 }

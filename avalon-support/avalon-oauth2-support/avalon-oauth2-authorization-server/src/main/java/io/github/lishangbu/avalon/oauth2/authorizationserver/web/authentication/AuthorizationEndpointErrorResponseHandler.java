@@ -41,7 +41,8 @@ public class AuthorizationEndpointErrorResponseHandler implements Authentication
             AuthenticationException exception)
             throws IOException, ServletException {
         String errorMessage = exception.getMessage();
-        if (errorMessage == null && exception instanceof OAuth2AuthenticationException oauth2Exception) {
+        if (errorMessage == null
+                && exception instanceof OAuth2AuthenticationException oauth2Exception) {
             OAuth2Error error = oauth2Exception.getError();
             if (error != null) {
                 errorMessage = error.getDescription();

@@ -57,8 +57,7 @@ public class OAuth2EmailAuthenticationConverter implements AuthenticationConvert
 
         final String emailCodeParameterName = oauth2Properties.getEmailCodeParameterName();
         final String emailCode = parameters.getFirst(emailCodeParameterName);
-        if (!StringUtils.hasText(emailCode)
-                || parameters.get(emailCodeParameterName).size() != 1) {
+        if (!StringUtils.hasText(emailCode) || parameters.get(emailCodeParameterName).size() != 1) {
             OAuth2EndpointUtils.throwError(
                     OAuth2ErrorCodes.INVALID_REQUEST,
                     emailCodeParameterName,

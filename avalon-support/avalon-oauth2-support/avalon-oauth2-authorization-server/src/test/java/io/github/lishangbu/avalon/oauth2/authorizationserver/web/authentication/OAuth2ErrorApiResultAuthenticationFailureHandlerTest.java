@@ -56,7 +56,8 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
                         AuthenticationLogRecorder.noop(), null, jsonMapper);
         OAuth2AuthenticationException exception =
                 new OAuth2AuthenticationException(
-                        new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "invalid_grant: bad", null));
+                        new OAuth2Error(
+                                OAuth2ErrorCodes.INVALID_GRANT, "invalid_grant: bad", null));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         handler.onAuthenticationFailure(new MockHttpServletRequest(), response, exception);
@@ -81,12 +82,15 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
                         AuthenticationLogRecorder.noop(), null, jsonMapper);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        String credentials = Base64.getEncoder().encodeToString("client:secret".getBytes(StandardCharsets.UTF_8));
+        String credentials =
+                Base64.getEncoder()
+                        .encodeToString("client:secret".getBytes(StandardCharsets.UTF_8));
         request.addHeader("Authorization", "Basic " + credentials);
         request.setRemoteAddr("127.0.0.1");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        handler.onAuthenticationFailure(request, response, new BadCredentialsException("Bad credentials"));
+        handler.onAuthenticationFailure(
+                request, response, new BadCredentialsException("Bad credentials"));
 
         JsonNode body = jsonMapper.readTree(response.getContentAsString());
         assertEquals("Bad credentials", body.get("errorMessage").asText());
@@ -98,16 +102,20 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
                 new OAuth2ErrorApiResultAuthenticationFailureHandler(
                         AuthenticationLogRecorder.noop(), null, jsonMapper);
 
-        assertNull(ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "invalid_grant"));
+        assertNull(
+                ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "invalid_grant"));
         assertEquals(
                 "reason",
-                ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "[invalid_grant] reason"));
+                ReflectionTestUtils.invokeMethod(
+                        handler, "sanitizeDescription", "[invalid_grant] reason"));
         assertEquals(
                 "reason",
-                ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "invalid_grant:reason"));
+                ReflectionTestUtils.invokeMethod(
+                        handler, "sanitizeDescription", "invalid_grant:reason"));
         assertEquals(
                 "reason",
-                ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "invalid_grantreason"));
+                ReflectionTestUtils.invokeMethod(
+                        handler, "sanitizeDescription", "invalid_grantreason"));
         assertEquals(
                 "detail",
                 ReflectionTestUtils.invokeMethod(handler, "sanitizeDescription", "detail"));
@@ -124,8 +132,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
 
         MockHttpServletRequest badHeaderRequest = new MockHttpServletRequest();
         badHeaderRequest.addHeader("Authorization", "Basic ***");
-        assertNull(
-                ReflectionTestUtils.invokeMethod(handler, "resolveClientId", badHeaderRequest));
+        assertNull(ReflectionTestUtils.invokeMethod(handler, "resolveClientId", badHeaderRequest));
 
         MockHttpServletRequest emptyHeaderRequest = new MockHttpServletRequest();
         emptyHeaderRequest.addHeader("Authorization", "Basic ");
@@ -133,22 +140,20 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
                 ReflectionTestUtils.invokeMethod(handler, "resolveClientId", emptyHeaderRequest));
 
         MockHttpServletRequest noColonRequest = new MockHttpServletRequest();
-        String noColon = Base64.getEncoder().encodeToString("clientsecret".getBytes(StandardCharsets.UTF_8));
+        String noColon =
+                Base64.getEncoder().encodeToString("clientsecret".getBytes(StandardCharsets.UTF_8));
         noColonRequest.addHeader("Authorization", "Basic " + noColon);
-        assertNull(
-                ReflectionTestUtils.invokeMethod(handler, "resolveClientId", noColonRequest));
+        assertNull(ReflectionTestUtils.invokeMethod(handler, "resolveClientId", noColonRequest));
 
         MockHttpServletRequest forwarded = new MockHttpServletRequest();
         forwarded.addHeader("X-Forwarded-For", "1.1.1.1, 2.2.2.2");
         assertEquals(
-                "1.1.1.1",
-                ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", forwarded));
+                "1.1.1.1", ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", forwarded));
 
         MockHttpServletRequest realIp = new MockHttpServletRequest();
         realIp.addHeader("X-Real-IP", "9.9.9.9");
         assertEquals(
-                "9.9.9.9",
-                ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", realIp));
+                "9.9.9.9", ReflectionTestUtils.invokeMethod(handler, "resolveClientIp", realIp));
 
         MockHttpServletRequest remoteAddr = new MockHttpServletRequest();
         remoteAddr.setRemoteAddr("127.0.0.1");
@@ -166,8 +171,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
                 ReflectionTestUtils.invokeMethod(handlerWithProps, "resolveUsernameParameterName"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        ReflectionTestUtils.invokeMethod(
-                handler, "writeFailedResponse", response, "custom", null);
+        ReflectionTestUtils.invokeMethod(handler, "writeFailedResponse", response, "custom", null);
         assertNotNull(response.getContentAsString());
     }
 }

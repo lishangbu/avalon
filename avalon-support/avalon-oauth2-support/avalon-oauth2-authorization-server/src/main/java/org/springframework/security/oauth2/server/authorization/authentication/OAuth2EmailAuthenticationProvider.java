@@ -85,7 +85,8 @@ public final class OAuth2EmailAuthenticationProvider implements AuthenticationPr
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication)
+            throws AuthenticationException {
         OAuth2EmailAuthorizationGrantAuthenticationToken emailGrantAuthenticationToken =
                 (OAuth2EmailAuthorizationGrantAuthenticationToken) authentication;
 
@@ -98,7 +99,9 @@ public final class OAuth2EmailAuthenticationProvider implements AuthenticationPr
             LOGGER.trace("Retrieved registered client");
         }
 
-        if (!registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantTypeSupport.EMAIL)) {
+        if (!registeredClient
+                .getAuthorizationGrantTypes()
+                .contains(AuthorizationGrantTypeSupport.EMAIL)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         LogMessage.format(
@@ -208,7 +211,9 @@ public final class OAuth2EmailAuthenticationProvider implements AuthenticationPr
         // ----- Refresh token -----
         OAuth2RefreshToken refreshToken = null;
         // Do not issue refresh token to public client
-        if (registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.REFRESH_TOKEN)) {
+        if (registeredClient
+                .getAuthorizationGrantTypes()
+                .contains(AuthorizationGrantType.REFRESH_TOKEN)) {
             tokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.REFRESH_TOKEN).build();
             OAuth2Token generatedRefreshToken = this.tokenGenerator.generate(tokenContext);
             if (generatedRefreshToken != null) {
@@ -300,7 +305,8 @@ public final class OAuth2EmailAuthenticationProvider implements AuthenticationPr
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return OAuth2EmailAuthorizationGrantAuthenticationToken.class.isAssignableFrom(authentication);
+        return OAuth2EmailAuthorizationGrantAuthenticationToken.class.isAssignableFrom(
+                authentication);
     }
 
     private String buildLockMessage(Duration remainingLock) {
