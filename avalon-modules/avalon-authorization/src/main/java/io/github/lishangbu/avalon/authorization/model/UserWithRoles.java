@@ -10,12 +10,13 @@ import lombok.Data;
 ///
 /// @author lishangbu
 /// @since 2025/9/19
-public record UserWithRoles(Long id, String username, Set<PlainRole> roles) {
+public record UserWithRoles(Long id, String username, String avatar, Set<PlainRole> roles) {
 
     public UserWithRoles(User user) {
         this(
                 user.getId(),
                 user.getUsername(),
+                user.getAvatar(),
                 user.getRoles().stream().map(PlainRole::new).collect(Collectors.toSet()));
     }
 

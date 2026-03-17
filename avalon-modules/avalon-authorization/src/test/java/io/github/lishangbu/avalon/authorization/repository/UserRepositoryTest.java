@@ -28,6 +28,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         user.setUsername("test2");
         user.setPhone("13800000001");
         user.setEmail("test2@example.com");
+        user.setAvatar("https://example.com/avatar/test2.png");
         roleRepository
                 .findById(1L)
                 .ifPresent(
@@ -41,6 +42,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         Assertions.assertTrue(userOptional.isPresent());
         User savedUser = userOptional.get();
         Assertions.assertEquals("test2", savedUser.getUsername());
+        Assertions.assertEquals("https://example.com/avatar/test2.png", savedUser.getAvatar());
         Assertions.assertTrue(savedUser.getHashedPassword().startsWith("{bcrypt}"));
         Assertions.assertEquals(1, savedUser.getRoles().size());
     }
@@ -51,6 +53,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         Assertions.assertTrue(userOptional.isPresent());
         User user = userOptional.get();
         Assertions.assertEquals("admin", user.getUsername());
+        Assertions.assertEquals("https://example.com/avatar/admin.png", user.getAvatar());
         Assertions.assertTrue(user.getHashedPassword().startsWith("{bcrypt}"));
         Assertions.assertEquals(2, user.getRoles().size());
     }
