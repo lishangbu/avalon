@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-/// 属性(Stat)数据访问层
+/// 能力(Stat)数据访问层
 ///
 /// 提供基础的 CRUD 操作
 ///

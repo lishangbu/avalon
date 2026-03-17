@@ -28,4 +28,9 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, JpaSpecificat
                     order by m.sortingOrder desc
                     """)
     List<Menu> findAllByRoleCodes(@Param("roleCodes") List<String> roleCodes);
+
+    /// 查询全量菜单并按 sortingOrder、id 升序排序
+    ///
+    /// @return 排序后的菜单列表
+    List<Menu> findAllByOrderBySortingOrderAscIdAsc();
 }
