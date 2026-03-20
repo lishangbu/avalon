@@ -1,22 +1,30 @@
 name: Publish DockerHub
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - Deploy Snapshot With Maven
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  publish-dockerhub:
+  prepare-version:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    # 使用矩阵策略并行构建多个服务,避免重复代码,提高构建效率
-    strategy:
-      matrix:
-        service: [ avalon-admin-server, avalon-standalone-server ]
+    timeout-minutes: 10
+    outputs:
+      projectVersion: ${{ steps.projectVersion.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: 设置 Java 环境 - 使用Oracle JDK 25
         uses: actions/setup-java@v5
@@ -24,34 +32,47 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-      - name: 缓存maven依赖
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
 
       - name: 提取maven版本
         id: projectVersion
-        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
+        run: echo "version=$(./mvnw -B org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q --no-transfer-progress)" >> $GITHUB_OUTPUT
+
+  publish-dockerhub:
+    needs: prepare-version
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # 使用矩阵策略并行构建多个服务,避免重复代码,提高构建效率
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [ avalon-admin-server, avalon-standalone-server ]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: 设置 Java 环境 - 使用Oracle JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+          architecture: x64
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
 
       - name: Docker 登录
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 构建镜像${{ github.event_name == 'pull_request' && ' (仅验证)' || ' 并推送' }}
+      - name: 构建镜像并推送
         run: |
-          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am compile --no-transfer-progress
-          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am spring-boot:build-image --no-transfer-progress
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "✅ 镜像构建验证完成: ${{ matrix.service }}"
-          else
-            docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest
-            docker tag docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ steps.projectVersion.outputs.version }}
-            docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ steps.projectVersion.outputs.version }}
-            echo "✅ 镜像构建并推送完成: ${{ matrix.service }}"
-          fi
+          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am spring-boot:build-image -DskipTests --no-transfer-progress
+          docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest
+          docker tag docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ needs.prepare-version.outputs.projectVersion }}
+          docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ needs.prepare-version.outputs.projectVersion }}
+          echo "✅ 镜像构建并推送完成: ${{ matrix.service }}"
