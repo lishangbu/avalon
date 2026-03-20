@@ -34,7 +34,7 @@ jobs:
       - name: 提取maven版本
         if: github.event_name != 'pull_request'
         id: projectVersion
-        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=revision -q)" >> $GITHUB_OUTPUT
+        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
       - name: 使用Maven发布快照到Maven Central
         if: github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
         run: |

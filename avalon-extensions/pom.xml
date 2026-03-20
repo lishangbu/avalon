@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+  <modelVersion>4.1.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
     <artifactId>avalon</artifactId>
-    <version>${revision}</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>avalon-extensions</artifactId>
   <packaging>pom</packaging>
   <description>使用了第三方jar包的一些外部扩展</description>
-  <modules>
-    <module>avalon-ip2location-spring-boot-starter</module>
-    <module>avalon-s3-spring-boot-starter</module>
-  </modules>
+  <subprojects>
+    <subproject>avalon-ip2location-spring-boot-starter</subproject>
+    <subproject>avalon-s3-spring-boot-starter</subproject>
+  </subprojects>
 </project>
+
