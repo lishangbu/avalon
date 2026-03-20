@@ -108,7 +108,7 @@ jobs:
             </servers>
           </settings>
           EOF
-          ./mvnw -B clean deploy -P release -DskipTests --no-transfer-progress
+          ./mvnw -B clean deploy -P release -DskipTests -DaltDeploymentRepository=central::https://central.sonatype.com/repository/maven-snapshots/ --no-transfer-progress
           echo "✅ maven发布完成"
         env:
           MAVEN_GPG_PASSPHRASE: ${{secrets.GPG_PASSPHRASE}}

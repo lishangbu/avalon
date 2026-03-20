@@ -6,7 +6,9 @@
   <artifactId>avalon-dependencies</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>bom</packaging>
+  <name>avalon-dependencies</name>
   <description>依赖管理</description>
+  <url>https://github.com/lishangbu/avalon</url>
   <licenses>
     <license>
       <name>AGPL-V3 License</name>

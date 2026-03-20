@@ -12,7 +12,9 @@
   <artifactId>avalon-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>avalon-parent</name>
   <description>父工程</description>
+  <url>https://github.com/lishangbu/avalon</url>
   <licenses>
     <license>
       <name>AGPL-V3 License</name>
@@ -37,12 +39,10 @@
     <url>https://github.com/lishangbu/avalon/issues</url>
   </issueManagement>
   <properties>
-    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
     <docker.image.prefix>slf4j</docker.image.prefix>
     <docker.repository>docker.io</docker.repository>
     <java.version>25</java.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <publishing.server.id>central</publishing.server.id>
     <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
   </properties>
   <dependencyManagement>
@@ -317,18 +317,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>${central-publishing-maven-plugin.version}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>${publishing.server.id}</publishingServerId>
-              <autoPublish>true</autoPublish>
-              <waitUntil>published</waitUntil>
-              <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
-            </configuration>
           </plugin>
         </plugins>
       </build>

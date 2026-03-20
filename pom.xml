@@ -11,6 +11,7 @@
   <packaging>pom</packaging>
   <name>avalon</name>
   <description>Avalon is a game similar to Pokémon</description>
+  <url>https://github.com/lishangbu/avalon</url>
   <inceptionYear>2024</inceptionYear>
   <licenses>
     <license>
