@@ -195,7 +195,7 @@
         <configuration>
           <parallel>all</parallel>
           <threadCount>8</threadCount>
-          <argLine>-javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"</argLine>
+          <argLine>-Dfile.encoding=UTF-8 --enable-native-access=ALL-UNNAMED -javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"</argLine>
         </configuration>
       </plugin>
       <plugin>
