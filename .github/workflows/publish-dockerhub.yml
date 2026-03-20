@@ -71,7 +71,8 @@ jobs:
 
       - name: 构建镜像并推送
         run: |
-          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am spring-boot:build-image -DskipTests --no-transfer-progress
+          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am compile -DskipTests -Ddocker.image.prefix=${{ secrets.DOCKER_USERNAME }} --no-transfer-progress
+          ./mvnw -B -f avalon-application/${{ matrix.service }}/pom.xml spring-boot:build-image -DskipTests -Ddocker.image.prefix=${{ secrets.DOCKER_USERNAME }} --no-transfer-progress
           docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest
           docker tag docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:latest docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ needs.prepare-version.outputs.projectVersion }}
           docker push docker.io/${{secrets.DOCKER_USERNAME}}/${{ matrix.service }}:${{ needs.prepare-version.outputs.projectVersion }}
