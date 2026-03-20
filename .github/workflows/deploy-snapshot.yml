@@ -4,39 +4,75 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - '.mvn/**'
+      - 'db/**'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - main
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - '.mvn/**'
+      - 'db/**'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-snapshot:
+  build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: 设置 Java 环境 - 使用Oracle JDK 25
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-      - name: 缓存maven依赖
-        uses: actions/cache@v4
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
+      - name: 编译并执行测试
+        run: ./mvnw -B test --no-transfer-progress
+
+  deploy-snapshot:
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - name: 设置 Java 环境 - 使用Oracle JDK 25
+        uses: actions/setup-java@v5
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          java-version: '25'
+          distribution: 'oracle'
+          architecture: x64
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
       - name: 导入 GPG 密钥
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: 提取maven版本
-        if: github.event_name != 'pull_request'
         id: projectVersion
-        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
+        run: echo "version=$(./mvnw -B org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q --no-transfer-progress)" >> $GITHUB_OUTPUT
       - name: 使用Maven发布快照到Maven Central
-        if: github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
+        if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
         run: |
           mkdir -p ~/.m2
           cat <<EOF > ~/.m2/settings.xml
@@ -50,7 +86,7 @@ jobs:
             </servers>
           </settings>
           EOF
-          ./mvnw -B clean deploy -P release --no-transfer-progress 
+          ./mvnw -B clean deploy -P release -DskipTests --no-transfer-progress
           echo "✅ maven发布完成"
         env:
           MAVEN_GPG_PASSPHRASE: ${{secrets.GPG_PASSPHRASE}}
