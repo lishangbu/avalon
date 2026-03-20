@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
   <modelVersion>4.1.0</modelVersion>
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.4</version>
-    <relativePath />
-  </parent>
   <groupId>io.github.lishangbu</groupId>
   <artifactId>avalon-dependencies</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <packaging>bom</packaging>
   <description>依赖管理</description>
   <licenses>
     <license>
@@ -42,7 +36,6 @@
     <docker.image.prefix>slf4j</docker.image.prefix>
     <!--docker仓库地址-->
     <docker.repository>docker.io</docker.repository>
-    <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
     <hibernate.version>7.3.0.Final</hibernate.version>
     <ip2location.version>1.2.6</ip2location.version>
     <java.version>25</java.version>
@@ -51,11 +44,21 @@
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
     <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
+    <spring-boot.version>4.0.4</spring-boot.version>
     <spring-doc.version>3.0.2</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springdoc</groupId>
         <artifactId>springdoc-openapi-bom</artifactId>
@@ -77,6 +80,11 @@
         <version>${therapi-runtime-javadoc.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.github.therapi</groupId>
+        <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+        <version>${therapi-runtime-javadoc.version}</version>
+      </dependency>
+      <dependency>
         <groupId>net.renfei</groupId>
         <artifactId>ip2location</artifactId>
         <version>${ip2location.version}</version>
@@ -85,6 +93,16 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct-processor</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-jpamodelgen</artifactId>
+        <version>${hibernate.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -100,11 +118,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>${maven-gpg-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>flatten-maven-plugin</artifactId>
-          <version>${flatten-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
