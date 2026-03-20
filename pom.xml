@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
   <modelVersion>4.1.0</modelVersion>
   <parent>
     <groupId>io.github.lishangbu</groupId>
@@ -25,14 +26,6 @@
       <email>shangshili@hotmail.com</email>
     </developer>
   </developers>
-  <subprojects>
-    <subproject>avalon-application</subproject>
-    <subproject>avalon-dependencies</subproject>
-    <subproject>avalon-extensions</subproject>
-    <subproject>avalon-modules</subproject>
-    <subproject>avalon-parent</subproject>
-    <subproject>avalon-support</subproject>
-  </subprojects>
   <scm>
     <connection>scm:git:https://github.com/lishangbu/avalon.git</connection>
     <developerConnection>scm:git:https://github.com/lishangbu/avalon.git</developerConnection>
@@ -42,5 +35,12 @@
     <system>GitHub Issues</system>
     <url>https://github.com/lishangbu/avalon/issues</url>
   </issueManagement>
+  <subprojects>
+    <subproject>avalon-application</subproject>
+    <subproject>avalon-dependencies</subproject>
+    <subproject>avalon-extensions</subproject>
+    <subproject>avalon-modules</subproject>
+    <subproject>avalon-parent</subproject>
+    <subproject>avalon-support</subproject>
+  </subprojects>
 </project>
-

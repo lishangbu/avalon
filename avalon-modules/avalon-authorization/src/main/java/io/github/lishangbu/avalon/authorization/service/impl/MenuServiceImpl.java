@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -72,7 +71,8 @@ public class MenuServiceImpl implements MenuService {
         if (!hasQueryCondition(condition)) {
             return buildTreeFromMenus(allMenus);
         }
-        List<Menu> matchedMenus = menuRepository.findAll(Example.of(condition, MENU_QUERY_MATCHER), MENU_TREE_SORT);
+        List<Menu> matchedMenus =
+                menuRepository.findAll(Example.of(condition, MENU_QUERY_MATCHER), MENU_TREE_SORT);
         if (CollectionUtils.isEmpty(matchedMenus)) {
             return Collections.emptyList();
         }
@@ -98,7 +98,10 @@ public class MenuServiceImpl implements MenuService {
         }
         List<Menu> filteredMenus =
                 allMenus.stream()
-                        .filter(menuItem -> menuItem.getId() != null && includedIds.contains(menuItem.getId()))
+                        .filter(
+                                menuItem ->
+                                        menuItem.getId() != null
+                                                && includedIds.contains(menuItem.getId()))
                         .toList();
         return buildTreeFromMenus(filteredMenus);
     }
@@ -126,7 +129,8 @@ public class MenuServiceImpl implements MenuService {
         menuRepository.deleteById(id);
     }
 
-    private static void collectAncestors(Map<Long, Menu> menuById, Long startId, Set<Long> includedIds) {
+    private static void collectAncestors(
+            Map<Long, Menu> menuById, Long startId, Set<Long> includedIds) {
         Long currentId = startId;
         while (currentId != null && includedIds.add(currentId)) {
             Menu current = menuById.get(currentId);
