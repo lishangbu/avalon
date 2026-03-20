@@ -70,7 +70,29 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: 提取maven版本
         id: projectVersion
-        run: echo "version=$(./mvnw -B org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q --no-transfer-progress)" >> $GITHUB_OUTPUT
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(awk '
+            /<parent>/ { in_parent=1; next }
+            /<\/parent>/ { in_parent=0; next }
+            !in_parent && match($0, /<version>[^<]+<\/version>/) {
+              v=substr($0, RSTART+9, RLENGTH-19)
+              gsub(/[[:space:]]/, "", v)
+              print v
+              exit
+            }
+          ' avalon-parent/pom.xml)"
+
+          if [[ -z "$version" ]]; then
+            echo "无法从 avalon-parent/pom.xml 解析版本号"
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $version"
+
       - name: 使用Maven发布快照到Maven Central
         if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
         run: |

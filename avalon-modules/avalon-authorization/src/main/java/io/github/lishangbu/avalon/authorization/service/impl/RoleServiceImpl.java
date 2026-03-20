@@ -93,13 +93,17 @@ public class RoleServiceImpl implements RoleService {
         }
         if (CollectionUtils.isEmpty(role.getMenus())) {
             if (preserveWhenNull && role.getId() != null) {
-                roleRepository.findById(role.getId()).ifPresent(existing -> role.setMenus(existing.getMenus()));
+                roleRepository
+                        .findById(role.getId())
+                        .ifPresent(existing -> role.setMenus(existing.getMenus()));
             }
             return;
         }
         Set<Long> menuIds =
-                role.getMenus().stream().map(Menu::getId).filter(id -> id != null).collect(
-                        java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+                role.getMenus().stream()
+                        .map(Menu::getId)
+                        .filter(id -> id != null)
+                        .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
         if (menuIds.isEmpty()) {
             role.setMenus(Set.of());
             return;

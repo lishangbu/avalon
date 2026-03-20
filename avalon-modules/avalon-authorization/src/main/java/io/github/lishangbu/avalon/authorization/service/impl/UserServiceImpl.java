@@ -3,8 +3,8 @@ package io.github.lishangbu.avalon.authorization.service.impl;
 import io.github.lishangbu.avalon.authorization.entity.Role;
 import io.github.lishangbu.avalon.authorization.entity.User;
 import io.github.lishangbu.avalon.authorization.entity.User_;
-import io.github.lishangbu.avalon.authorization.repository.RoleRepository;
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles;
+import io.github.lishangbu.avalon.authorization.repository.RoleRepository;
 import io.github.lishangbu.avalon.authorization.repository.UserRepository;
 import io.github.lishangbu.avalon.authorization.service.UserService;
 import java.util.LinkedHashSet;
@@ -120,8 +120,10 @@ public class UserServiceImpl implements UserService {
             return;
         }
         Set<Long> roleIds =
-                user.getRoles().stream().map(Role::getId).filter(id -> id != null).collect(
-                        java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+                user.getRoles().stream()
+                        .map(Role::getId)
+                        .filter(id -> id != null)
+                        .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
         if (roleIds.isEmpty()) {
             user.setRoles(Set.of());
             return;

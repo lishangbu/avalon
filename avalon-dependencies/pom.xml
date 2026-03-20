@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
   <modelVersion>4.1.0</modelVersion>
   <groupId>io.github.lishangbu</groupId>
   <artifactId>avalon-dependencies</artifactId>
@@ -31,38 +32,27 @@
   </issueManagement>
   <properties>
     <awssdk.version>2.41.24</awssdk.version>
-    <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
-    <!--docker镜像前缀-->
-    <docker.image.prefix>slf4j</docker.image.prefix>
-    <!--docker仓库地址-->
-    <docker.repository>docker.io</docker.repository>
     <hibernate.version>7.3.0.Final</hibernate.version>
     <ip2location.version>1.2.6</ip2location.version>
-    <java.version>25</java.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <!--ID of the server that you configured in settings.xml-->
-    <publishing.server.id>central</publishing.server.id>
     <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
     <spring-boot.version>4.0.4</spring-boot.version>
     <spring-doc.version>3.0.2</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-bom</artifactId>
+        <version>${spring-doc.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-bom</artifactId>
-        <version>${spring-doc.version}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -90,6 +80,11 @@
         <version>${ip2location.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-jpamodelgen</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
@@ -99,32 +94,14 @@
         <artifactId>mapstruct-processor</artifactId>
         <version>${mapstruct.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-jpamodelgen</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.diffplug.spotless</groupId>
-          <artifactId>spotless-maven-plugin</artifactId>
-          <version>${spotless-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>${maven-gpg-plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless-maven-plugin.version}</version>
         <configuration>
           <pom>
             <sortPom>
@@ -162,115 +139,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <repositories>
-        <repository>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>aliyun-maven</id>
-          <name>Aliyun Public</name>
-          <url>https://maven.aliyun.com/repository/public</url>
-        </repository>
-        <repository>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <id>central-portal-snapshots</id>
-          <name>Central Portal Snapshots</name>
-          <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        </repository>
-      </repositories>
-      <!--可选，配置maven插件镜像源-->
-      <pluginRepositories>
-        <pluginRepository>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <id>aliyun-plugin</id>
-          <url>https://maven.aliyun.com/repository/public</url>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <!-- utf-8读取文件 -->
-              <charset>${project.build.sourceEncoding}</charset>
-              <!-- utf-8进行编码代码 -->
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <!-- utf-8进行编码文档 -->
-              <docencoding>${project.reporting.outputEncoding}</docencoding>
-              <doclint>none</doclint>
-              <locale>zh_CN</locale>
-              <notimestamp>true</notimestamp>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>${central-publishing-maven-plugin.version}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>${publishing.server.id}</publishingServerId>
-              <autoPublish>true</autoPublish>
-              <waitUntil>published</waitUntil>
-              <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
-

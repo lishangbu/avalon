@@ -39,9 +39,7 @@ public class StatServiceImpl implements StatService {
         ExampleMatcher matcher =
                 ExampleMatcher.matching()
                         .withIgnoreNullValues()
-                        .withMatcher(
-                                Stat_.NAME,
-                                ExampleMatcher.GenericPropertyMatchers.contains())
+                        .withMatcher(Stat_.NAME, ExampleMatcher.GenericPropertyMatchers.contains())
                         .withMatcher(
                                 Stat_.INTERNAL_NAME,
                                 ExampleMatcher.GenericPropertyMatchers.contains());

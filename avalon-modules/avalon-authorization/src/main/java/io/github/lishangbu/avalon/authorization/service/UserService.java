@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service;
 
-import io.github.lishangbu.avalon.authorization.model.UserWithRoles;
 import io.github.lishangbu.avalon.authorization.entity.User;
+import io.github.lishangbu.avalon.authorization.model.UserWithRoles;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
