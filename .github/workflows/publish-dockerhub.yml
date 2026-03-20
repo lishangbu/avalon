@@ -34,7 +34,7 @@ jobs:
 
       - name: 提取maven版本
         id: projectVersion
-        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=revision -q)" >> $GITHUB_OUTPUT
+        run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
 
       - name: Docker 登录
         if: github.event_name != 'pull_request'

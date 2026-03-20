@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+  <modelVersion>4.1.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4</version>
     <relativePath />
   </parent>
   <groupId>io.github.lishangbu</groupId>
   <artifactId>avalon-dependencies</artifactId>
-  <version>${revision}</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>依赖管理</description>
   <licenses>
@@ -44,15 +43,14 @@
     <!--docker仓库地址-->
     <docker.repository>docker.io</docker.repository>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <hibernate.version>7.3.0.CR2</hibernate.version>
+    <hibernate.version>7.3.0.Final</hibernate.version>
     <ip2location.version>1.2.6</ip2location.version>
     <java.version>25</java.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <!--ID of the server that you configured in settings.xml-->
     <publishing.server.id>central</publishing.server.id>
-    <revision>0.0.1-SNAPSHOT</revision>
-    <spotless-maven-plugin.version>3.3.0</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
     <spring-doc.version>3.0.2</spring-doc.version>
     <therapi-runtime-javadoc.version>0.15.0</therapi-runtime-javadoc.version>
   </properties>
@@ -77,66 +75,6 @@
         <groupId>com.github.therapi</groupId>
         <artifactId>therapi-runtime-javadoc</artifactId>
         <version>${therapi-runtime-javadoc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-authorization</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-dataset-controller</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-dataset-model</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-dataset-repository</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-dataset-service</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-hibernate-support</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-ip2location-spring-boot-starter</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-json-support</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-oauth2-authorization-server</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-oauth2-common</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-oauth2-resource-server</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.github.lishangbu</groupId>
-        <artifactId>avalon-web-support</artifactId>
-        <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>net.renfei</groupId>
@@ -322,3 +260,4 @@
     </profile>
   </profiles>
 </project>
+

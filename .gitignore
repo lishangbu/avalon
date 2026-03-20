@@ -43,9 +43,3 @@ IP2LOCATION-LITE-DB11**.BIN
 ### Log File ###
 /logs/
 *.log
-
-### Maven Temporary Files ###
-.flattened-pom.xml
-
-### Office Files ###
-*.xlsx
