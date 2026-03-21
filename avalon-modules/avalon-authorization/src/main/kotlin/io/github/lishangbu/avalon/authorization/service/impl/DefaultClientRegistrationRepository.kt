@@ -1,0 +1,20 @@
+package io.github.lishangbu.avalon.authorization.service.impl
+
+import org.springframework.security.oauth2.client.registration.ClientRegistration
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.stereotype.Service
+
+/**
+ * A repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s)
+ *
+ * NOTE: Client registration information is ultimately stored and owned by the associated
+ * Authorization Server. Therefore, this repository provides the capability to store a sub-set copy
+ * of the _primary_ client registration information externally from the Authorization Server
+ *
+ * @author lishangbu
+ * @since 2025/8/25
+ */
+@Service
+class DefaultClientRegistrationRepository : ClientRegistrationRepository {
+    override fun findByRegistrationId(registrationId: String): ClientRegistration? = null
+}

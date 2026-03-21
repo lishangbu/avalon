@@ -1,0 +1,92 @@
+package io.github.lishangbu.avalon.authorization.repository
+
+import io.github.lishangbu.avalon.authorization.entity.*
+import jakarta.annotation.Resource
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.test.annotation.Commit
+import org.springframework.transaction.annotation.Transactional
+
+/**
+ * 角色信息实体的 Repository 测试
+ *
+ * 验证角色查询、插入、更新与删除流程，依赖数据库初始化的测试数据
+ *
+ * @author lishangbu
+ * @since 2025/8/25
+ */
+@Transactional(rollbackFor = [Exception::class])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class RoleRepositoryTest : AbstractRepositoryTest() {
+    companion object {
+        private var insertId: Long? = null
+    }
+
+    @Resource
+    private lateinit var roleRepository: RoleRepository
+
+    @Test
+    @Order(1)
+    fun testSelectRoleById() {
+        val roleOptional = roleRepository.findById(1L)
+        assertTrue(roleOptional.isPresent)
+        val role = roleOptional.get()
+        assertEquals("ROLE_SUPER_ADMIN", role.code)
+        assertEquals("超级管理员", role.name)
+        assertEquals(1L, role.id)
+        assertTrue(role.enabled == true)
+    }
+
+    @Test
+    @Order(2)
+    @Commit
+    fun testInsertRole() {
+        val role =
+            roleRepository.save(
+                Role {
+                    code = "unit_test"
+                    name = "为单元测试而生"
+                    enabled = true
+                },
+            )
+        assertNotNull(role.id)
+        insertId = role.id
+    }
+
+    @Test
+    @Order(3)
+    @Commit
+    fun testUpdateRoleById() {
+        val roleOptional = roleRepository.findById(insertId!!)
+        assertTrue(roleOptional.isPresent)
+        val role = roleOptional.get()
+        roleRepository.save(
+            Role(role) {
+                name = "测试员1"
+                enabled = false
+                code = "ROLE_TEST1"
+            },
+        )
+    }
+
+    @Test
+    @Order(4)
+    fun testSelectUpdatedRoleById() {
+        val roleOptional = roleRepository.findById(insertId!!)
+        assertTrue(roleOptional.isPresent)
+        val role = roleOptional.get()
+        assertEquals("ROLE_TEST1", role.code)
+        assertEquals("测试员1", role.name)
+        assertEquals(insertId, role.id)
+        assertFalse(role.enabled == true)
+    }
+
+    @Test
+    @Order(5)
+    fun testDeleteById() {
+        roleRepository.deleteById(insertId!!)
+    }
+}

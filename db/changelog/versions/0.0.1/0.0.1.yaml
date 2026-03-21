@@ -1,0 +1,1694 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0.0.1
+      author: 'lishangbu'
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: ability
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: effect
+                  type: varchar(1000)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: introduction
+                  type: varchar(500)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: authentication_log
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: client_id
+                  type: varchar(100)
+              - column:
+                  name: error_message
+                  type: varchar(2000)
+              - column:
+                  name: grant_type
+                  type: varchar(50)
+              - column:
+                  name: ip
+                  type: varchar(512)
+              - column:
+                  name: occurred_at
+                  type: timestamptz
+              - column:
+                  name: success
+                  type: bool
+              - column:
+                  name: user_agent
+                  type: varchar(512)
+              - column:
+                  name: username
+                  type: varchar(20)
+        - createTable:
+            tableName: berry
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: bulk
+                  type: int4
+              - column:
+                  name: growth_time
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: max_harvest
+                  type: int4
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: natural_gift_power
+                  type: int4
+              - column:
+                  name: smoothness
+                  type: int4
+              - column:
+                  name: soil_dryness
+                  type: int4
+              - column:
+                  name: berry_firmness_id
+                  type: int8
+              - column:
+                  name: natural_gift_type_id
+                  type: int8
+        - createTable:
+            tableName: berry_firmness
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: berry_flavor
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: egg_group
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: characteristics
+                  type: varchar(500)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: text
+                  type: varchar(200)
+        - createTable:
+            tableName: encounter_condition
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: encounter_condition_value
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(200)
+              - column:
+                  name: encounter_condition_id
+                  type: int8
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: encounter_method
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: sorting_order
+                  type: int4
+        - createTable:
+            tableName: evolution_chain
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: baby_trigger_item_id
+                  type: int8
+        - createTable:
+            tableName: evolution_trigger
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: gender
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+        - createTable:
+            tableName: growth_rate
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(200)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: item
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: cost
+                  type: int4
+              - column:
+                  name: effect
+                  type: varchar(1000)
+              - column:
+                  name: fling_power
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: short_effect
+                  type: varchar(500)
+              - column:
+                  name: text
+                  type: varchar(1000)
+              - column:
+                  name: item_fling_effect_id
+                  type: int8
+        - createTable:
+            tableName: item_attribute
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(100)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: item_attribute_relation
+            columns:
+              - column:
+                  name: item_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: item_attribute_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: item_category
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: item_pocket_id
+                  type: int8
+        - createTable:
+            tableName: item_fling_effect
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: effect
+                  type: varchar(100)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: item_pocket
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: machine
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: item_id
+                  type: int8
+              - column:
+                  name: move_id
+                  type: int8
+        - createTable:
+            tableName: menu
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: component
+                  type: varchar(500)
+              - column:
+                  name: disabled
+                  type: bool
+              - column:
+                  name: enable_multi_tab
+                  type: bool
+              - column:
+                  name: extra
+                  type: jsonb
+              - column:
+                  name: icon
+                  type: varchar(200)
+              - column:
+                  name: key
+                  type: varchar(200)
+              - column:
+                  name: label
+                  type: varchar(200)
+              - column:
+                  name: name
+                  type: varchar(500)
+              - column:
+                  name: parent_id
+                  type: int8
+              - column:
+                  name: path
+                  type: varchar(500)
+              - column:
+                  name: pinned
+                  type: bool
+              - column:
+                  name: redirect
+                  type: varchar(500)
+              - column:
+                  name: show
+                  type: bool
+              - column:
+                  name: show_tab
+                  type: bool
+              - column:
+                  name: sorting_order
+                  type: int4
+        - createTable:
+            tableName: move
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: accuracy
+                  type: int4
+              - column:
+                  name: ailment_chance
+                  type: int4
+              - column:
+                  name: crit_rate
+                  type: int4
+              - column:
+                  name: drain
+                  type: int4
+              - column:
+                  name: effect
+                  type: varchar(4000)
+              - column:
+                  name: effect_chance
+                  type: int4
+              - column:
+                  name: flinch_chance
+                  type: int4
+              - column:
+                  name: healing
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: max_hits
+                  type: int4
+              - column:
+                  name: max_turns
+                  type: int4
+              - column:
+                  name: min_hits
+                  type: int4
+              - column:
+                  name: min_turns
+                  type: int4
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: power
+                  type: int4
+              - column:
+                  name: pp
+                  type: int4
+              - column:
+                  name: priority
+                  type: int4
+              - column:
+                  name: short_effect
+                  type: varchar(500)
+              - column:
+                  name: stat_chance
+                  type: int4
+              - column:
+                  name: text
+                  type: varchar(500)
+              - column:
+                  name: move_ailment_id
+                  type: int8
+              - column:
+                  name: move_category_id
+                  type: int8
+              - column:
+                  name: move_damage_class_id
+                  type: int8
+              - column:
+                  name: move_target_id
+                  type: int8
+              - column:
+                  name: type_id
+                  type: int8
+        - createTable:
+            tableName: move_ailment
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: move_category
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(300)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: move_damage_class
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(300)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: move_learn_method
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(300)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: move_target
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: description
+                  type: varchar(300)
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: nature
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: decreased_stat_id
+                  type: int8
+              - column:
+                  name: hates_berry_flavor_id
+                  type: int8
+              - column:
+                  name: increased_stat_id
+                  type: int8
+              - column:
+                  name: likes_berry_flavor_id
+                  type: int8
+        - createTable:
+            tableName: oauth_authorization
+            columns:
+              - column:
+                  name: id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: access_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: access_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: access_token_metadata
+                  type: jsonb
+              - column:
+                  name: access_token_scopes
+                  type: varchar(1000)
+              - column:
+                  name: access_token_type
+                  type: varchar(100)
+              - column:
+                  name: access_token_value
+                  type: varchar(1000)
+              - column:
+                  name: attributes
+                  type: jsonb
+              - column:
+                  name: authorization_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: authorization_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: authorization_code_metadata
+                  type: jsonb
+              - column:
+                  name: authorization_code_value
+                  type: varchar(1000)
+              - column:
+                  name: authorization_grant_type
+                  type: varchar(100)
+              - column:
+                  name: authorized_scopes
+                  type: varchar(1000)
+              - column:
+                  name: device_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: device_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: device_code_metadata
+                  type: jsonb
+              - column:
+                  name: device_code_value
+                  type: varchar(1000)
+              - column:
+                  name: oidc_id_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: oidc_id_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: oidc_id_token_metadata
+                  type: jsonb
+              - column:
+                  name: oidc_id_token_value
+                  type: varchar(1000)
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+              - column:
+                  name: refresh_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: refresh_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: refresh_token_metadata
+                  type: jsonb
+              - column:
+                  name: refresh_token_value
+                  type: varchar(1000)
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+              - column:
+                  name: state
+                  type: varchar(500)
+              - column:
+                  name: user_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: user_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: user_code_metadata
+                  type: jsonb
+              - column:
+                  name: user_code_value
+                  type: varchar(1000)
+        - createTable:
+            tableName: oauth_authorization_consent
+            columns:
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: authorities
+                  type: varchar(1000)
+        - createTable:
+            tableName: oauth_registered_client
+            columns:
+              - column:
+                  name: id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: access_token_format
+                  type: varchar(20)
+              - column:
+                  name: access_token_time_to_live
+                  type: varchar(20)
+              - column:
+                  name: authorization_code_time_to_live
+                  type: varchar(20)
+              - column:
+                  name: authorization_grant_types
+                  type: varchar(1000)
+              - column:
+                  name: client_authentication_methods
+                  type: varchar(1000)
+              - column:
+                  name: client_id
+                  type: varchar(100)
+              - column:
+                  name: client_id_issued_at
+                  type: timestamptz
+              - column:
+                  name: client_name
+                  type: varchar(200)
+              - column:
+                  name: client_secret
+                  type: varchar(200)
+              - column:
+                  name: client_secret_expires_at
+                  type: timestamptz
+              - column:
+                  name: device_code_time_to_live
+                  type: varchar(20)
+              - column:
+                  name: id_token_signature_algorithm
+                  type: varchar(20)
+              - column:
+                  name: jwk_set_url
+                  type: varchar(1000)
+              - column:
+                  name: post_logout_redirect_uris
+                  type: varchar(1000)
+              - column:
+                  name: redirect_uris
+                  type: varchar(1000)
+              - column:
+                  name: refresh_token_time_to_live
+                  type: varchar(20)
+              - column:
+                  name: require_authorization_consent
+                  type: bool
+              - column:
+                  name: require_proof_key
+                  type: bool
+              - column:
+                  name: reuse_refresh_tokens
+                  type: bool
+              - column:
+                  name: scopes
+                  type: varchar(1000)
+              - column:
+                  name: token_endpoint_authentication_signing_algorithm
+                  type: varchar(20)
+              - column:
+                  name: x509_certificate_bound_access_tokens
+                  type: bool
+              - column:
+                  name: x509_certificate_subject_dn
+                  type: varchar(20)
+        - createTable:
+            tableName: pokemon
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: base_experience
+                  type: int4
+              - column:
+                  name: height
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: sorting_order
+                  type: int4
+              - column:
+                  name: weight
+                  type: int4
+              - column:
+                  name: pokemon_species_id
+                  type: int8
+        - createTable:
+            tableName: pokemon_ability
+            columns:
+              - column:
+                  name: is_hidden
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: slot
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ability_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pokemon_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: pokemon_color
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: pokemon_habitat
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: pokemon_shape
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: pokemon_species
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: base_happiness
+                  type: int4
+              - column:
+                  name: capture_rate
+                  type: int4
+              - column:
+                  name: evolution_chain_id
+                  type: int8
+              - column:
+                  name: evolves_from_species_id
+                  type: int8
+              - column:
+                  name: forms_switchable
+                  type: bool
+              - column:
+                  name: gender_rate
+                  type: int4
+              - column:
+                  name: has_gender_differences
+                  type: bool
+              - column:
+                  name: hatch_counter
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: is_baby
+                  type: bool
+              - column:
+                  name: is_legendary
+                  type: bool
+              - column:
+                  name: is_mythical
+                  type: bool
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: sorting_order
+                  type: int4
+              - column:
+                  name: growth_rate_id
+                  type: int8
+              - column:
+                  name: pokemon_color_id
+                  type: int8
+              - column:
+                  name: pokemon_habitat_id
+                  type: int8
+              - column:
+                  name: pokemon_shape_id
+                  type: int8
+        - createTable:
+            tableName: pokemon_stat
+            columns:
+              - column:
+                  name: base_stat
+                  type: int4
+              - column:
+                  name: effort
+                  type: int4
+              - column:
+                  name: pokemon_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: stat_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: pokemon_type
+            columns:
+              - column:
+                  name: slot
+                  type: int4
+              - column:
+                  name: type_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pokemon_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: code
+                  type: varchar(50)
+              - column:
+                  name: enabled
+                  type: bool
+              - column:
+                  name: name
+                  type: varchar(50)
+        - createTable:
+            tableName: role_menu_relation
+            columns:
+              - column:
+                  name: role_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: menu_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: stat
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: game_index
+                  type: int4
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: is_battle_only
+                  type: bool
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: move_damage_class_id
+                  type: int8
+        - createTable:
+            tableName: type
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: type_damage_relation
+            columns:
+              - column:
+                  name: multiplier
+                  type: float4
+              - column:
+                  name: defending_type_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: attacking_type_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: user_role_relation
+            columns:
+              - column:
+                  name: user_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: role_id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: avatar
+                  type: varchar(500)
+              - column:
+                  name: email
+                  type: varchar(100)
+              - column:
+                  name: hashed_password
+                  type: varchar(100)
+              - column:
+                  name: phone
+                  type: varchar(20)
+              - column:
+                  name: username
+                  type: varchar(20)
+        - addForeignKeyConstraint:
+            baseTableName: berry
+            baseColumnNames: natural_gift_type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fk7e35xi3ot604vcdu5i8ovw4l3
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: berry
+            baseColumnNames: berry_firmness_id
+            referencedTableName: berry_firmness
+            referencedColumnNames: id
+            constraintName: fkg2wx5ictraopcmifpusd3gg62
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: encounter_condition_value
+            baseColumnNames: encounter_condition_id
+            referencedTableName: encounter_condition
+            referencedColumnNames: id
+            constraintName: fk28xq3p8whg7jrso4bgdvk0513
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: item
+            baseColumnNames: item_fling_effect_id
+            referencedTableName: item_fling_effect
+            referencedColumnNames: id
+            constraintName: fkcpljvqp5u2mll0n1hbmawk8dq
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: item_attribute_relation
+            baseColumnNames: item_attribute_id
+            referencedTableName: item_attribute
+            referencedColumnNames: id
+            constraintName: fk1nnk7vcrvjqj08jj4y8xdwdq4
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: item_attribute_relation
+            baseColumnNames: item_id
+            referencedTableName: item
+            referencedColumnNames: id
+            constraintName: fkd5xu6geybw48aytbcppuraclx
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: item_category
+            baseColumnNames: item_pocket_id
+            referencedTableName: item_pocket
+            referencedColumnNames: id
+            constraintName: fkn4gy8o5og0p0ilemsrqv1g1fi
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: move
+            baseColumnNames: move_ailment_id
+            referencedTableName: move_ailment
+            referencedColumnNames: id
+            constraintName: fk47f727aveou2lx8j376jcrjbl
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: move
+            baseColumnNames: move_target_id
+            referencedTableName: move_target
+            referencedColumnNames: id
+            constraintName: fkdtiqra7qkggmvfsasvsiqt63r
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: move
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fkm752v1lw4h2m9rbjl923y35o8
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: move
+            baseColumnNames: move_damage_class_id
+            referencedTableName: move_damage_class
+            referencedColumnNames: id
+            constraintName: fkmlpwgfv4o6fxa01xtmi3j792h
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: move
+            baseColumnNames: move_category_id
+            referencedTableName: move_category
+            referencedColumnNames: id
+            constraintName: fkrkcqxc987jrv1yrt2o2xvhxq
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: nature
+            baseColumnNames: decreased_stat_id
+            referencedTableName: stat
+            referencedColumnNames: id
+            constraintName: fkap5v0eolcs0ch07igrp85l5ic
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: nature
+            baseColumnNames: hates_berry_flavor_id
+            referencedTableName: berry_flavor
+            referencedColumnNames: id
+            constraintName: fkcfpta68nr69a5dyetlrd6tcwx
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: nature
+            baseColumnNames: increased_stat_id
+            referencedTableName: stat
+            referencedColumnNames: id
+            constraintName: fkgkx53h8mqjov0c3cib540i13j
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: nature
+            baseColumnNames: likes_berry_flavor_id
+            referencedTableName: berry_flavor
+            referencedColumnNames: id
+            constraintName: fkqde7ehunrmleih59d44ffuic4
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon
+            baseColumnNames: pokemon_species_id
+            referencedTableName: pokemon_species
+            referencedColumnNames: id
+            constraintName: fk8mjng78pucdr1wa88xw5o4d48
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_ability
+            baseColumnNames: ability_id
+            referencedTableName: ability
+            referencedColumnNames: id
+            constraintName: fkboxvgtrdldoqt0l6vm7pgkrhq
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_ability
+            baseColumnNames: pokemon_id
+            referencedTableName: pokemon
+            referencedColumnNames: id
+            constraintName: fkno0wgyk1xxc9krnixqlyidroy
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: pokemon_habitat_id
+            referencedTableName: pokemon_habitat
+            referencedColumnNames: id
+            constraintName: fk44ehuoenjn1gvl3mjljgq5s5a
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: growth_rate_id
+            referencedTableName: growth_rate
+            referencedColumnNames: id
+            constraintName: fkbpfwck1swkf60q2l01k5xlpmh
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: pokemon_color_id
+            referencedTableName: pokemon_color
+            referencedColumnNames: id
+            constraintName: fko4oxa6f7kcx02e8glnrquufof
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: pokemon_shape_id
+            referencedTableName: pokemon_shape
+            referencedColumnNames: id
+            constraintName: fkqwvssq997wqqf4hqctexawj5b
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_stat
+            baseColumnNames: pokemon_id
+            referencedTableName: pokemon
+            referencedColumnNames: id
+            constraintName: fk1p2wkg8fv9r9e1itseja84a5m
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_stat
+            baseColumnNames: stat_id
+            referencedTableName: stat
+            referencedColumnNames: id
+            constraintName: fkeeh14ieyyhxixn8tcsvq8s2eu
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_type
+            baseColumnNames: pokemon_id
+            referencedTableName: pokemon
+            referencedColumnNames: id
+            constraintName: fkjii6ffk1wg2utlg0ex7cg3uqy
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_type
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fkn1bw91wtw3yq2ai9hpvb4pa0o
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: role_menu_relation
+            baseColumnNames: menu_id
+            referencedTableName: menu
+            referencedColumnNames: id
+            constraintName: fk6oaq01u0t0teol19brcqnlg10
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: role_menu_relation
+            baseColumnNames: role_id
+            referencedTableName: role
+            referencedColumnNames: id
+            constraintName: fkd240ce1rn1t012tiu8f60c5qn
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: stat
+            baseColumnNames: move_damage_class_id
+            referencedTableName: move_damage_class
+            referencedColumnNames: id
+            constraintName: fksgh1h3qpdfkch1g55rko8k8c3
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: type_damage_relation
+            baseColumnNames: attacking_type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fkdoxa7311sjthbx858i1ujdv5f
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: type_damage_relation
+            baseColumnNames: defending_type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fkdyi3vrw4v998md8obpj404q5m
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: user_role_relation
+            baseColumnNames: role_id
+            referencedTableName: role
+            referencedColumnNames: id
+            constraintName: fka08l2fcc2ddfee3m849an7sd3
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: user_role_relation
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fkko0rtiluw0l5tqiwysxfh2so7
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - loadData:
+            file: data/ability.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: ability
+        - loadData:
+            file: data/berry_firmness.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_firmness
+        - loadData:
+            file: data/berry_flavor.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_flavor
+        - loadData:
+            file: data/encounter_condition.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: encounter_condition
+        - loadData:
+            file: data/encounter_condition_value.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: encounter_condition_value
+        - loadData:
+            file: data/encounter_method.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: encounter_method
+        - loadData:
+            file: data/evolution_trigger.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: evolution_trigger
+        - loadData:
+            file: data/gender.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: gender
+        - loadData:
+            file: data/growth_rate.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: growth_rate
+        - loadData:
+            file: data/item_attribute.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item_attribute
+        - loadData:
+            file: data/item_pocket.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item_pocket
+        - loadData:
+            file: data/item_category.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item_category
+        - loadData:
+            file: data/item_fling_effect.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item_fling_effect
+        - loadData:
+            file: data/item.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item
+        - loadData:
+            file: data/item_attribute_relation.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: item_attribute_relation
+        - loadData:
+            file: data/move_ailment.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move_ailment
+        - loadData:
+            file: data/move_category.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move_category
+        - loadData:
+            file: data/move_damage_class.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move_damage_class
+        - loadData:
+            file: data/move_learn_method.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move_learn_method
+        - loadData:
+            file: data/move_target.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move_target
+        - loadData:
+            file: data/stat.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: stat
+        - loadData:
+            file: data/nature.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: nature
+        - loadData:
+            file: data/pokemon_color.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_color
+        - loadData:
+            file: data/pokemon_shape.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_shape
+        - loadData:
+            file: data/pokemon_habitat.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_habitat
+        - loadData:
+            file: data/pokemon_species.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_species
+        - loadData:
+            file: data/pokemon.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon
+        - loadData:
+            file: data/type.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: type
+        - loadData:
+            file: data/pokemon_type.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_type
+        - loadData:
+            file: data/pokemon_stat.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_stat
+        - loadData:
+            file: data/pokemon_ability.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_ability
+        - loadData:
+            file: data/move.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: move
+        - loadData:
+            file: data/berry.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry
+        - loadData:
+            file: data/type_damage_relation.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: type_damage_relation
+        - loadData:
+            file: data/egg_group.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: egg_group
+        - loadData:
+            file: data/menu.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: menu
+        - loadData:
+            file: data/oauth_registered_client.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: oauth_registered_client
+        - loadData:
+            file: data/role.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: role
+        - loadData:
+            file: data/role_menu_relation.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: role_menu_relation
+        - loadData:
+            file: data/users.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: users
+        - loadData:
+            file: data/user_role_relation.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: user_role_relation

@@ -1,12 +1,13 @@
 spring:
-  config:
-    import:
-      - optional:database.yml
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
     url: jdbc:postgresql://localhost:5432/avalon?currentSchema=public&sslmode=disable
+jimmer:
+  show-sql: true
+  pretty-sql: true
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
 oauth2:
   ignore-urls:
     - /actuator/**

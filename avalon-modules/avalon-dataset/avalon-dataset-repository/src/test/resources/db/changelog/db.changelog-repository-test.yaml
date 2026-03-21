@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: repository-test-0.0.1
+      author: lishangbu
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: berry_firmness
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: berry_flavor
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - createTable:
+            tableName: type
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
+        - loadData:
+            file: versions/0.0.1/data/berry_firmness.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_firmness
+        - loadData:
+            file: versions/0.0.1/data/berry_flavor.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: berry_flavor
+        - loadData:
+            file: versions/0.0.1/data/type.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: type

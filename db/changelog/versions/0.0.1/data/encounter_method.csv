@@ -1,0 +1,38 @@
+id,internal_name,name,sorting_order
+1,walk,Walking in tall grass or a cave,1
+2,old-rod,Fishing with an Old Rod,10
+3,good-rod,Fishing with a Good Rod,11
+4,super-rod,Fishing with a Super Rod,12
+5,surf,Surfing,14
+6,rock-smash,Smashing rocks,16
+7,headbutt,Headbutting trees,17
+8,dark-grass,Walking in dark grass,5
+9,grass-spots,Walking in rustling grass,2
+10,cave-spots,Walking in dust clouds,3
+11,bridge-spots,Walking in bridge shadows,4
+12,super-rod-spots,Fishing in dark spots,13
+13,surf-spots,Surfing in dark spots,15
+14,yellow-flowers,Walking in yellow flowers,6
+15,purple-flowers,Walking in purple flowers,7
+16,red-flowers,Walking in red flowers,8
+17,rough-terrain,Walking on rough terrain,9
+18,gift,Receive as a gift,18
+19,gift-egg,Receive egg as a gift,19
+20,only-one,"Static encounter, only one chance",20
+21,pokeflute,Playing Pokéflute,21
+22,headbutt-low,Headbutting a low encounter rate tree,22
+23,headbutt-normal,Headbutting a normal encounter rate tree,23
+24,headbutt-high,Headbutting a high encounter rate tree,24
+25,squirt-bottle,Using the Squirt Bottle on a Sudowoodo,25
+26,wailmer-pail,Using the Wailmer Pail on a Sudowoodo,26
+27,seaweed,Diving on seaweed,27
+28,roaming-grass,On any overworld patch of grass,28
+29,roaming-water,On any overworld water tile,29
+30,devon-scope,Using Devon Scope,30
+31,feebas-tile-fishing,Fishing in a Feebas Tile,31
+32,island-scan,island-scan,32
+33,sos-encounter,sos-encounter,33
+34,bubbling-spots,bubbling-spots,34
+35,berry-piles,berry-piles,35
+36,npc-trade,npc-trade,36
+37,sos-from-bubbling-spot,sos-from-bubbling-spot,37
