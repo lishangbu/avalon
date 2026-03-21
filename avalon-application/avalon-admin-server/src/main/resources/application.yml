@@ -1,7 +1,7 @@
 spring:
   application:
-    name: @artifactId@
+    name: avalon-admin-server
   profiles:
     active: dev
-  jpa:
-    open-in-view: false
+jimmer:
+  language: kotlin

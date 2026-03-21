@@ -3,7 +3,7 @@ name: Publish DockerHub
 on:
   workflow_run:
     workflows:
-      - Deploy Snapshot With Maven
+      - Deploy Snapshot With Gradle
     types:
       - completed
 
@@ -35,28 +35,22 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-          cache: 'maven'
-          cache-dependency-path: '**/pom.xml'
+          cache: 'gradle'
+          cache-dependency-path: |
+            **/*.gradle*
+            gradle.properties
+            settings.gradle.kts
 
-      - name: 提取maven版本
+      - name: 提取项目版本
         id: projectVersion
         shell: bash
         run: |
           set -euo pipefail
 
-          version="$(awk '
-            /<parent>/ { in_parent=1; next }
-            /<\/parent>/ { in_parent=0; next }
-            !in_parent && match($0, /<version>[^<]+<\/version>/) {
-              v=substr($0, RSTART+9, RLENGTH-19)
-              gsub(/[[:space:]]/, "", v)
-              print v
-              exit
-            }
-          ' avalon-parent/pom.xml)"
+          version="$(bash ./gradlew -q printVersion)"
 
           if [[ -z "$version" ]]; then
-            echo "无法从 avalon-parent/pom.xml 解析版本号"
+            echo "无法从 Gradle 构建中解析版本号"
             exit 1
           fi
 
@@ -69,13 +63,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: 准备 IP 数据与 RSA 密钥
+        run: bash ./gradlew --no-daemon downloadIpData generateRsaKeys -Pforce=true -x test
+
       - name: 编译依赖与应用
-        run: |
-          ./mvnw -B -pl avalon-application/${{ matrix.service }} -am compile -DskipTests -Ddocker.image.prefix=${{ secrets.DOCKER_USERNAME }} --no-transfer-progress
+        run: bash ./gradlew --no-daemon :avalon-application:${{ matrix.service }}:classes -x test
 
       - name: 构建镜像
-        run: |
-          ./mvnw -B -f avalon-application/${{ matrix.service }}/pom.xml spring-boot:build-image -DskipTests -Ddocker.image.prefix=${{ secrets.DOCKER_USERNAME }} --no-transfer-progress
+        run: bash ./gradlew --no-daemon :avalon-application:${{ matrix.service }}:bootBuildImage -x test -PdockerImagePrefix=${{ secrets.DOCKER_USERNAME }}
 
       - name: 推送 latest 镜像
         run: |

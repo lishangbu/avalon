@@ -1,14 +1,15 @@
 Avalon
 ========================================================================
 
-[![Deploy Snapshot With Maven](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
+[![Deploy Snapshot With Gradle](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
 [![Publish Javadoc](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml)
 [![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
 ## Navigation
 
-[Usage Document Online][1] | **Server Repository** | [Admin Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
+[Usage Document Online][1] | **Server Repository
+** | [Admin Client Repository][2] | [Usage Document Repository][3] | [Java Document Online][4]
 
 [1]: https://lishangbu.github.io/avalon-site/docs
 

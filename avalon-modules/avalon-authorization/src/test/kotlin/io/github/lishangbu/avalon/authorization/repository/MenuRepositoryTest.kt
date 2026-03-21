@@ -1,0 +1,99 @@
+package io.github.lishangbu.avalon.authorization.repository
+
+import io.github.lishangbu.avalon.authorization.entity.*
+import jakarta.annotation.Resource
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.test.annotation.Commit
+import org.springframework.transaction.annotation.Transactional
+
+/**
+ * 菜单 Repository 测试
+ *
+ * 验证菜单查询、插入、更新与删除流程，依赖数据库初始化的测试数据
+ *
+ * @author lishangbu
+ * @since 2025/12/6
+ */
+@Transactional(rollbackFor = [Exception::class])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class MenuRepositoryTest : AbstractRepositoryTest() {
+    companion object {
+        private var insertId: Long? = null
+    }
+
+    @Resource
+    private lateinit var menuRepository: MenuRepository
+
+    @Test
+    @Order(1)
+    fun testSelectMenuById() {
+        val menuOptional = menuRepository.findById(1L)
+        assertTrue(menuOptional.isPresent)
+        val menu = menuOptional.get()
+        assertEquals("dashboard", menu.key)
+        assertEquals("仪表板", menu.label)
+        assertEquals(1L, menu.id)
+    }
+
+    @Test
+    @Order(2)
+    @Commit
+    fun testInsertMenu() {
+        val menu =
+            menuRepository.save(
+                Menu {
+                    key = "unit_test_menu"
+                    label = "单元测试菜单"
+                    path = "/unit-test"
+                    sortingOrder = 100
+                    disabled = false
+                    show = true
+                },
+            )
+        assertNotNull(menu.id)
+        insertId = menu.id
+    }
+
+    @Test
+    @Order(3)
+    @Commit
+    fun testUpdateMenuById() {
+        val menuOptional = menuRepository.findById(insertId!!)
+        assertTrue(menuOptional.isPresent)
+        val menu = menuOptional.get()
+        menuRepository.save(
+            Menu(menu) {
+                label = "更新单元测试菜单"
+                disabled = true
+            },
+        )
+    }
+
+    @Test
+    @Order(4)
+    fun testSelectUpdatedMenuById() {
+        val menuOptional = menuRepository.findById(insertId!!)
+        assertTrue(menuOptional.isPresent)
+        val menu = menuOptional.get()
+        assertEquals("更新单元测试菜单", menu.label)
+        assertTrue(menu.disabled == true)
+    }
+
+    @Test
+    @Order(5)
+    fun testFindAllByRoleCodes() {
+        val menus = menuRepository.findAllByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
+        assertNotNull(menus)
+        assertFalse(menus.isEmpty())
+    }
+
+    @Test
+    @Order(6)
+    fun testDeleteById() {
+        menuRepository.deleteById(insertId!!)
+    }
+}
