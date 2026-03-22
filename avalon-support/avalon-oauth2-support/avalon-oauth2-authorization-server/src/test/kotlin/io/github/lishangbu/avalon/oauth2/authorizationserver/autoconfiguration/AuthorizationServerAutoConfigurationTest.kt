@@ -64,8 +64,8 @@ class AuthorizationServerAutoConfigurationTest {
                         Customizer<
                             AuthorizeHttpRequestsConfigurer<
                                 HttpSecurity,
-                                >.AuthorizationManagerRequestMatcherRegistry,
-                            >
+                            >.AuthorizationManagerRequestMatcherRegistry,
+                        >
                 val configurer = AuthorizeHttpRequestsConfigurer<HttpSecurity>(applicationContext)
                 customizer.customize(configurer.registry)
                 httpSecurity

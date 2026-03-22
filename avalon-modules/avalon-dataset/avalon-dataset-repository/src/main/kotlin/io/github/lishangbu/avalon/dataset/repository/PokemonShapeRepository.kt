@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/12
  */
 @Repository
-interface PokemonShapeRepository :
-    KRepository<PokemonShape, Long>
+interface PokemonShapeRepository : KRepository<PokemonShape, Long>

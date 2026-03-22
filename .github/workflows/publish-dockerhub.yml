@@ -1,22 +1,13 @@
 name: Publish DockerHub
 
 on:
-  workflow_run:
-    workflows:
-      - Deploy Snapshot With Gradle
-    types:
-      - completed
+  workflow_call:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
   publish-dockerhub:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # 使用矩阵策略并行构建多个服务,避免重复代码,提高构建效率
@@ -26,8 +17,6 @@ jobs:
         service: [ avalon-admin-server, avalon-standalone-server ]
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: 设置 Java 环境 - 使用Oracle JDK 25
         uses: actions/setup-java@v5
@@ -35,11 +24,10 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-          cache: 'gradle'
-          cache-dependency-path: |
-            **/*.gradle*
-            gradle.properties
-            settings.gradle.kts
+      - name: 设置 Gradle 环境
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.4.1'
 
       - name: 提取项目版本
         id: projectVersion
@@ -47,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          version="$(bash ./gradlew -q printVersion)"
+          version="$(gradle -q printVersion)"
 
           if [[ -z "$version" ]]; then
             echo "无法从 Gradle 构建中解析版本号"
@@ -64,13 +52,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: 准备 IP 数据与 RSA 密钥
-        run: bash ./gradlew --no-daemon downloadIpData generateRsaKeys -Pforce=true -x test
+        run: gradle downloadIpData generateRsaKeys -Pforce=true -x test
 
       - name: 编译依赖与应用
-        run: bash ./gradlew --no-daemon :avalon-application:${{ matrix.service }}:classes -x test
+        run: gradle :avalon-application:${{ matrix.service }}:classes -x test
 
       - name: 构建镜像
-        run: bash ./gradlew --no-daemon :avalon-application:${{ matrix.service }}:bootBuildImage -x test -PdockerImagePrefix=${{ secrets.DOCKER_USERNAME }}
+        run: gradle :avalon-application:${{ matrix.service }}:bootBuildImage -x test -PdockerImagePrefix=${{ secrets.DOCKER_USERNAME }}
 
       - name: 推送 latest 镜像
         run: |

@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2025/09/14
  */
 @Repository
-interface GenderRepository :
-    KRepository<Gender, Long>
+interface GenderRepository : KRepository<Gender, Long>

@@ -27,9 +27,10 @@ class TypeDamageRelationServiceImplTest {
         val pageSize = 5
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<TypeDamageRelation> = Page(listOf(TypeDamageRelation()), 1, 1)
-        Mockito.`when`(
-            typeDamageRelationRepository.findPage(1L, 2L, 2.0f, pageable),
-        ).thenReturn(page)
+        Mockito
+            .`when`(
+                typeDamageRelationRepository.findPage(1L, 2L, 2.0f, pageable),
+            ).thenReturn(page)
 
         val result = typeDamageRelationService.getPageByCondition(1L, 2L, 2.0f, pageable)
 

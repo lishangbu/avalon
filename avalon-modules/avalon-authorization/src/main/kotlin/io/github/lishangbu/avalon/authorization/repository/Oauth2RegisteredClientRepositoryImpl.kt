@@ -39,8 +39,7 @@ class Oauth2RegisteredClientRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
-    override fun findById(id: String): Optional<OauthRegisteredClient> =
-        Optional.ofNullable(sql.findById(OauthRegisteredClient::class, id))
+    override fun findById(id: String): Optional<OauthRegisteredClient> = Optional.ofNullable(sql.findById(OauthRegisteredClient::class, id))
 
     override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient = sql.save(registeredClient).modifiedEntity
 

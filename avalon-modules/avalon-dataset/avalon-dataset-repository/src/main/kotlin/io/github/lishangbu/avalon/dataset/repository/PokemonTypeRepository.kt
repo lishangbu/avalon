@@ -14,5 +14,4 @@ import org.springframework.stereotype.Repository
  * @since 2025/09/14
  */
 @Repository
-interface PokemonTypeRepository :
-    KRepository<PokemonType, PokemonTypeId>
+interface PokemonTypeRepository : KRepository<PokemonType, PokemonTypeId>

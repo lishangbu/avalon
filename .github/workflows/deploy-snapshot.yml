@@ -1,52 +1,13 @@
-name: Deploy Snapshot With Gradle
+name: Deploy Snapshot
 
 on:
-  push:
-    branches:
-      - main
-    paths: &ci_paths
-      - '**/*.kt'
-      - '**/*.kts'
-      - '**/*.yml'
-      - '**/*.yaml'
-      - 'gradle.properties'
-      - 'db/**'
-      - '.github/workflows/**'
-  pull_request:
-    branches:
-      - main
-    paths: *ci_paths
+  workflow_call:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v6
-      - name: 设置 Java 环境 - 使用Oracle JDK 25
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'oracle'
-          architecture: x64
-          cache: 'gradle'
-          cache-dependency-path: |
-            **/*.gradle*
-            gradle.properties
-            settings.gradle.kts
-      - name: 编译并执行测试
-        run: bash ./gradlew --no-daemon ktlintCheck test
-
   deploy-snapshot:
-    needs: build-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -57,18 +18,17 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
-          cache: 'gradle'
-          cache-dependency-path: |
-            **/*.gradle*
-            gradle.properties
-            settings.gradle.kts
+      - name: 设置 Gradle 环境
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.4.1'
       - name: 提取项目版本
         id: projectVersion
         shell: bash
         run: |
           set -euo pipefail
 
-          version="$(bash ./gradlew -q printVersion)"
+          version="$(gradle -q printVersion)"
 
           if [[ -z "$version" ]]; then
             echo "无法从 Gradle 构建中解析版本号"
@@ -80,7 +40,7 @@ jobs:
 
       - name: 使用 Gradle 发布快照到 Maven Central
         if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
-        run: bash ./gradlew --no-daemon downloadIpData generateRsaKeys -Pforce=true publish -x test
+        run: gradle downloadIpData generateRsaKeys -Pforce=true publish -x test
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2025/09/14
  */
 @Repository
-interface MoveRepository :
-    KRepository<Move, Long>
+interface MoveRepository : KRepository<Move, Long>

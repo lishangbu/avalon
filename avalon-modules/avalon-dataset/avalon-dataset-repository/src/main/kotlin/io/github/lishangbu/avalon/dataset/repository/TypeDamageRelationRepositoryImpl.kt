@@ -29,15 +29,14 @@ class TypeDamageRelationRepositoryImpl(
         defendingTypeId: Long?,
         multiplier: Float?,
         pageable: Pageable,
-    ): Page<TypeDamageRelation> {
-        return sql
+    ): Page<TypeDamageRelation> =
+        sql
             .createQuery(TypeDamageRelation::class) {
                 attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
                 defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
                 multiplier?.let { where(table.multiplier eq it) }
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
-    }
 
     override fun save(typeDamageRelation: TypeDamageRelation): TypeDamageRelation = sql.save(typeDamageRelation).modifiedEntity
 
