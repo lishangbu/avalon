@@ -10,8 +10,7 @@ import java.util.Optional
 class Oauth2AuthorizationRepositoryImpl(
     private val sql: KSqlClient,
 ) : Oauth2AuthorizationRepository {
-    override fun findById(id: String): Optional<OauthAuthorization> =
-        Optional.ofNullable(sql.findById(OauthAuthorization::class, id))
+    override fun findById(id: String): Optional<OauthAuthorization> = Optional.ofNullable(sql.findById(OauthAuthorization::class, id))
 
     override fun save(authorization: OauthAuthorization): OauthAuthorization = sql.save(authorization).modifiedEntity
 
@@ -99,13 +98,12 @@ class Oauth2AuthorizationRepositoryImpl(
 
     override fun findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
         token: String,
-    ): Optional<OauthAuthorization> {
-        return findByState(token)
+    ): Optional<OauthAuthorization> =
+        findByState(token)
             .or { findByAuthorizationCodeValue(token) }
             .or { findByAccessTokenValue(token) }
             .or { findByRefreshTokenValue(token) }
             .or { findByOidcIdTokenValue(token) }
             .or { findByUserCodeValue(token) }
             .or { findByDeviceCodeValue(token) }
-    }
 }

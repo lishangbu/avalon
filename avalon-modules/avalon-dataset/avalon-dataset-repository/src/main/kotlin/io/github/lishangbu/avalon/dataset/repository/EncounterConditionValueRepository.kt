@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/12
  */
 @Repository
-interface EncounterConditionValueRepository :
-    KRepository<EncounterConditionValue, Long>
+interface EncounterConditionValueRepository : KRepository<EncounterConditionValue, Long>

@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/10
  */
 @Repository
-interface GrowthRateRepository :
-    KRepository<GrowthRate, Long>
+interface GrowthRateRepository : KRepository<GrowthRate, Long>

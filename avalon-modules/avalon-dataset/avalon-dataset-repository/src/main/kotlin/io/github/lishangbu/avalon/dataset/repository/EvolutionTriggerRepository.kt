@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/12
  */
 @Repository
-interface EvolutionTriggerRepository :
-    KRepository<EvolutionTrigger, Long>
+interface EvolutionTriggerRepository : KRepository<EvolutionTrigger, Long>

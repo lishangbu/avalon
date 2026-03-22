@@ -10,8 +10,7 @@ import java.util.Optional
 class OauthAuthorizationConsentRepositoryImpl(
     private val sql: KSqlClient,
 ) : OauthAuthorizationConsentRepository {
-    override fun findById(id: OauthAuthorizationConsentId): Optional<OauthAuthorizationConsent> =
-        Optional.ofNullable(sql.findById(OauthAuthorizationConsent::class, id))
+    override fun findById(id: OauthAuthorizationConsentId): Optional<OauthAuthorizationConsent> = Optional.ofNullable(sql.findById(OauthAuthorizationConsent::class, id))
 
     override fun save(consent: OauthAuthorizationConsent): OauthAuthorizationConsent = sql.save(consent).modifiedEntity
 

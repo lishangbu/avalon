@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/12
  */
 @Repository
-interface EncounterMethodRepository :
-    KRepository<EncounterMethod, Long>
+interface EncounterMethodRepository : KRepository<EncounterMethod, Long>

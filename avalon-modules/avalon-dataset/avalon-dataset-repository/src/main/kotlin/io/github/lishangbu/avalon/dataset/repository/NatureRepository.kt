@@ -13,5 +13,4 @@ import org.springframework.stereotype.Repository
  * @since 2026/2/12
  */
 @Repository
-interface NatureRepository :
-    KRepository<Nature, Long>
+interface NatureRepository : KRepository<Nature, Long>
