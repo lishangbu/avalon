@@ -10,7 +10,7 @@ import java.security.KeyPairGenerator
 import java.util.*
 
 plugins {
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("com.google.devtools.ksp") version "2.3.6" apply false
     id("org.jetbrains.kotlin.jvm") version "2.3.20" apply false
     id("org.jetbrains.kotlin.plugin.spring") version "2.3.20" apply false
