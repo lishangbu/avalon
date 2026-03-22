@@ -12,8 +12,8 @@ import java.util.*
 plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
     id("com.google.devtools.ksp") version "2.3.6" apply false
-    id("org.jetbrains.kotlin.jvm") version "2.3.20" apply false
-    id("org.jetbrains.kotlin.plugin.spring") version "2.3.20" apply false
+    id("org.jetbrains.kotlin.jvm") version "2.3.20-206" apply false
+    id("org.jetbrains.kotlin.plugin.spring") version "2.3.20-206" apply false
     id("org.springframework.boot") version "4.0.4" apply false
     id("org.jetbrains.dokka") version "2.1.0"
 }
@@ -39,7 +39,7 @@ subprojects {
         }
 
         dependencies {
-            add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit5:2.3.20")
+            add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit5:2.3.20-206")
             add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
         }
 
@@ -166,8 +166,8 @@ subprojects {
         }
 
         dependencies {
-            add("implementation", "org.jetbrains.kotlin:kotlin-reflect:2.3.20")
-            add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.20")
+            add("implementation", "org.jetbrains.kotlin:kotlin-reflect:2.3.20-206")
+            add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.20-206")
         }
 
         tasks.withType<KotlinCompile>().configureEach {
