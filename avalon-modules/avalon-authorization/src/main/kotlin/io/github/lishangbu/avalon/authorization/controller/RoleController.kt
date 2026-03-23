@@ -50,7 +50,7 @@ class RoleController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): Role? = roleService.getById(id).orElse(null)
+    ): Role? = roleService.getById(id)
 
     /**
      * 新增角色

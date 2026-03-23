@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsentId
-import java.util.*
 
 /**
  * 用户授权确认表(oauth_authorization_consent)数据库访问层
@@ -13,7 +12,7 @@ import java.util.*
  * @since 2025/9/14
  */
 interface OauthAuthorizationConsentRepository {
-    fun findById(id: OauthAuthorizationConsentId): Optional<OauthAuthorizationConsent>
+    fun findById(id: OauthAuthorizationConsentId): OauthAuthorizationConsent?
 
     fun save(consent: OauthAuthorizationConsent): OauthAuthorizationConsent
 
@@ -24,7 +23,7 @@ interface OauthAuthorizationConsentRepository {
     fun findByRegisteredClientIdAndPrincipalName(
         registeredClientId: String,
         principalName: String,
-    ): Optional<OauthAuthorizationConsent>
+    ): OauthAuthorizationConsent?
 
     fun deleteByRegisteredClientIdAndPrincipalName(
         registeredClientId: String,

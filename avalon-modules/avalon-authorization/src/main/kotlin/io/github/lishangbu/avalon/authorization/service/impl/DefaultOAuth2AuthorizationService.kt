@@ -16,12 +16,9 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.util.Assert
-import org.springframework.util.StringUtils
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
-import java.util.*
 
 /**
  * 默认 Oauth2 授权服务实现
@@ -38,53 +35,50 @@ class DefaultOAuth2AuthorizationService(
 ) : OAuth2AuthorizationService {
     @Transactional(rollbackFor = [Exception::class])
     override fun save(authorization: OAuth2Authorization) {
-        Assert.notNull(authorization, "authorization cannot be null")
         val entity = toEntity(authorization)
         oauth2AuthorizationRepository.save(entity)
     }
 
     @Transactional(rollbackFor = [Exception::class])
     override fun remove(authorization: OAuth2Authorization) {
-        Assert.notNull(authorization, "authorization cannot be null")
         oauth2AuthorizationRepository.deleteById(authorization.id)
     }
 
     override fun findById(id: String): OAuth2Authorization? {
-        Assert.hasText(id, "id cannot be empty")
-        return oauth2AuthorizationRepository.findById(id).map(::toObject).orElse(null)
+        require(id.isNotBlank()) { "id cannot be empty" }
+        return oauth2AuthorizationRepository.findById(id)?.let(::toObject)
     }
 
     override fun findByToken(
         token: String,
         tokenType: OAuth2TokenType?,
     ): OAuth2Authorization? {
-        Assert.hasText(token, "token cannot be empty")
+        require(token.isNotBlank()) { "token cannot be empty" }
 
-        val result: Optional<OauthAuthorization> =
-            if (tokenType == null) {
-                oauth2AuthorizationRepository
-                    .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
-                        token,
-                    )
-            } else if (OAuth2ParameterNames.STATE == tokenType.value) {
-                oauth2AuthorizationRepository.findByState(token)
-            } else if (OAuth2ParameterNames.CODE == tokenType.value) {
-                oauth2AuthorizationRepository.findByAuthorizationCodeValue(token)
-            } else if (OAuth2ParameterNames.ACCESS_TOKEN == tokenType.value) {
-                oauth2AuthorizationRepository.findByAccessTokenValue(token)
-            } else if (OAuth2ParameterNames.REFRESH_TOKEN == tokenType.value) {
-                oauth2AuthorizationRepository.findByRefreshTokenValue(token)
-            } else if (OidcParameterNames.ID_TOKEN == tokenType.value) {
-                oauth2AuthorizationRepository.findByOidcIdTokenValue(token)
-            } else if (OAuth2ParameterNames.USER_CODE == tokenType.value) {
-                oauth2AuthorizationRepository.findByUserCodeValue(token)
-            } else if (OAuth2ParameterNames.DEVICE_CODE == tokenType.value) {
-                oauth2AuthorizationRepository.findByDeviceCodeValue(token)
-            } else {
-                Optional.empty()
+        val result =
+            when (tokenType?.value) {
+                null ->
+                    oauth2AuthorizationRepository
+                        .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+                            token,
+                        )
+                OAuth2ParameterNames.STATE -> oauth2AuthorizationRepository.findByState(token)
+                OAuth2ParameterNames.CODE ->
+                    oauth2AuthorizationRepository.findByAuthorizationCodeValue(token)
+                OAuth2ParameterNames.ACCESS_TOKEN ->
+                    oauth2AuthorizationRepository.findByAccessTokenValue(token)
+                OAuth2ParameterNames.REFRESH_TOKEN ->
+                    oauth2AuthorizationRepository.findByRefreshTokenValue(token)
+                OidcParameterNames.ID_TOKEN ->
+                    oauth2AuthorizationRepository.findByOidcIdTokenValue(token)
+                OAuth2ParameterNames.USER_CODE ->
+                    oauth2AuthorizationRepository.findByUserCodeValue(token)
+                OAuth2ParameterNames.DEVICE_CODE ->
+                    oauth2AuthorizationRepository.findByDeviceCodeValue(token)
+                else -> null
             }
 
-        return result.map(::toObject).orElse(null)
+        return result?.let(::toObject)
     }
 
     private fun toObject(entity: OauthAuthorization): OAuth2Authorization {
@@ -113,7 +107,7 @@ class DefaultOAuth2AuthorizationService(
                 .id(authorizationId)
                 .principalName(principalName)
                 .authorizationGrantType(resolveAuthorizationGrantType(authorizationGrantType))
-                .authorizedScopes(StringUtils.commaDelimitedListToSet(entity.authorizedScopes))
+                .authorizedScopes(entity.authorizedScopes.toCommaDelimitedSet())
 
         val attributes = readAttributes(entity.attributes)
         if (attributes != null) {
@@ -145,7 +139,7 @@ class DefaultOAuth2AuthorizationService(
                     entity.accessTokenValue,
                     entity.accessTokenIssuedAt,
                     entity.accessTokenExpiresAt,
-                    StringUtils.commaDelimitedListToSet(entity.accessTokenScopes),
+                    entity.accessTokenScopes.toCommaDelimitedSet(),
                 )
             val accessTokenMetadata = readAttributes(entity.accessTokenMetadata)
             builder.token(accessToken) { metadata ->
@@ -234,8 +228,7 @@ class DefaultOAuth2AuthorizationService(
             registeredClientId = authorization.registeredClientId
             principalName = authorization.principalName
             authorizationGrantType = authorization.authorizationGrantType.value
-            authorizedScopes =
-                StringUtils.collectionToDelimitedString(authorization.authorizedScopes, ",")
+            authorizedScopes = authorization.authorizedScopes.joinToCommaDelimitedString()
             attributes = writeAttributes(authorization.attributes)
             state = authorization.getAttribute(OAuth2ParameterNames.STATE)
 
@@ -248,10 +241,7 @@ class DefaultOAuth2AuthorizationService(
             accessTokenIssuedAt = accessTokenSnapshot.issuedAt
             accessTokenExpiresAt = accessTokenSnapshot.expiresAt
             accessTokenMetadata = writeAttributes(accessTokenSnapshot.metadata)
-            accessTokenScopes =
-                accessToken?.token?.scopes?.let {
-                    StringUtils.collectionToDelimitedString(it, ",")
-                }
+            accessTokenScopes = accessToken?.token?.scopes?.joinToCommaDelimitedString()
             accessTokenType = accessToken?.token?.tokenType?.value
 
             refreshTokenValue = refreshTokenSnapshot.value
@@ -290,7 +280,7 @@ class DefaultOAuth2AuthorizationService(
     }
 
     private fun readAttributes(json: String?): Map<String, Any>? {
-        if (!StringUtils.hasText(json)) {
+        if (json.isNullOrBlank()) {
             return null
         }
         return mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
@@ -319,17 +309,15 @@ class DefaultOAuth2AuthorizationService(
 
         private fun resolveAuthorizationGrantType(
             authorizationGrantType: String,
-        ): AuthorizationGrantType {
-            if (AuthorizationGrantType.AUTHORIZATION_CODE.value == authorizationGrantType) {
-                return AuthorizationGrantType.AUTHORIZATION_CODE
-            } else if (AuthorizationGrantType.CLIENT_CREDENTIALS.value == authorizationGrantType) {
-                return AuthorizationGrantType.CLIENT_CREDENTIALS
-            } else if (AuthorizationGrantType.REFRESH_TOKEN.value == authorizationGrantType) {
-                return AuthorizationGrantType.REFRESH_TOKEN
-            } else if (AuthorizationGrantType.DEVICE_CODE.value == authorizationGrantType) {
-                return AuthorizationGrantType.DEVICE_CODE
+        ): AuthorizationGrantType =
+            when (authorizationGrantType) {
+                AuthorizationGrantType.AUTHORIZATION_CODE.value ->
+                    AuthorizationGrantType.AUTHORIZATION_CODE
+                AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
+                    AuthorizationGrantType.CLIENT_CREDENTIALS
+                AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
+                AuthorizationGrantType.DEVICE_CODE.value -> AuthorizationGrantType.DEVICE_CODE
+                else -> AuthorizationGrantType(authorizationGrantType)
             }
-            return AuthorizationGrantType(authorizationGrantType)
-        }
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.http.MediaType
 import tools.jackson.databind.json.JsonMapper
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import java.util.*
 
 /**
  * JSON 格式的 response 写入工具类 提供写入成功与失败响应的便捷方法，自动设置字符编码/Content-Type/状态码
@@ -26,7 +25,6 @@ object JsonResponseWriter {
         jsonMapper: JsonMapper,
         data: Any?,
     ) {
-        Objects.requireNonNull(jsonMapper, "jsonMapper")
         response.characterEncoding = StandardCharsets.UTF_8.name()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.status = HttpStatus.OK.value()
@@ -57,7 +55,6 @@ object JsonResponseWriter {
         errorResultCode: ErrorResultCode,
         vararg errorMessages: String,
     ) {
-        Objects.requireNonNull(jsonMapper, "jsonMapper")
         response.characterEncoding = StandardCharsets.UTF_8.name()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.status = httpStatus.value()

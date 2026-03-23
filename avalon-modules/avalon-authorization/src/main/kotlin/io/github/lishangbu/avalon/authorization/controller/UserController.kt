@@ -29,7 +29,7 @@ class UserController(
     @GetMapping("/info")
     fun getUserInfo(
         @AuthenticationPrincipal user: UserInfo,
-    ): UserWithRoles? = userService.getUserByUsername(user.username).orElse(null)
+    ): UserWithRoles? = userService.getUserByUsername(user.username)
 
     /**
      * 分页条件查询用户
@@ -62,7 +62,7 @@ class UserController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): User? = userService.getById(id).orElse(null)
+    ): User? = userService.getById(id)
 
     /**
      * 新增用户

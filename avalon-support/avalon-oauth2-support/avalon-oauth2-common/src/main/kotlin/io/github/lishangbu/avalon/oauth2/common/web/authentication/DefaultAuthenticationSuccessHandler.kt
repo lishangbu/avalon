@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import tools.jackson.databind.json.JsonMapper
-import java.util.*
 
 /**
  * 默认认证成功处理器 在认证成功时返回一个统一的 JSON 成功响应
@@ -17,7 +16,7 @@ import java.util.*
 class DefaultAuthenticationSuccessHandler(
     jsonMapper: JsonMapper,
 ) : AuthenticationSuccessHandler {
-    private val jsonMapper: JsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper")
+    private val jsonMapper = jsonMapper
 
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,

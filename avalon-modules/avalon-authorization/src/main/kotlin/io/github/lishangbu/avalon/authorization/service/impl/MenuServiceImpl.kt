@@ -13,7 +13,9 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.LinkedHashSet
 
 /**
  * 菜单服务接口实现
@@ -71,7 +73,7 @@ class MenuServiceImpl(
         return buildTreeFromMenus(filteredMenus)
     }
 
-    override fun getById(id: Long): java.util.Optional<Menu> = menuRepository.findById(id)
+    override fun getById(id: Long): Menu? = menuRepository.findById(id)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(menu: Menu): Menu = menuRepository.save(menu)

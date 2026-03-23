@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * OauthRegisteredClient 数据访问 Mapper
@@ -22,7 +21,7 @@ interface Oauth2RegisteredClientRepository {
         pageable: Pageable,
     ): Page<OauthRegisteredClient>
 
-    fun findById(id: String): Optional<OauthRegisteredClient>
+    fun findById(id: String): OauthRegisteredClient?
 
     fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient
 
@@ -32,5 +31,5 @@ interface Oauth2RegisteredClientRepository {
 
     fun flush()
 
-    fun findByClientId(clientId: String): Optional<OauthRegisteredClient>
+    fun findByClientId(clientId: String): OauthRegisteredClient?
 }

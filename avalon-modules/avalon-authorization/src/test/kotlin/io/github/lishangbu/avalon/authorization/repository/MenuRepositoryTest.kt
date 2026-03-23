@@ -31,9 +31,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(1)
     fun testSelectMenuById() {
-        val menuOptional = menuRepository.findById(1L)
-        assertTrue(menuOptional.isPresent)
-        val menu = menuOptional.get()
+        val menu = requireNotNull(menuRepository.findById(1L))
         assertEquals("dashboard", menu.key)
         assertEquals("仪表板", menu.label)
         assertEquals(1L, menu.id)
@@ -62,9 +60,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     @Order(3)
     @Commit
     fun testUpdateMenuById() {
-        val menuOptional = menuRepository.findById(insertId!!)
-        assertTrue(menuOptional.isPresent)
-        val menu = menuOptional.get()
+        val menu = requireNotNull(menuRepository.findById(insertId!!))
         menuRepository.save(
             Menu(menu) {
                 label = "更新单元测试菜单"
@@ -76,9 +72,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(4)
     fun testSelectUpdatedMenuById() {
-        val menuOptional = menuRepository.findById(insertId!!)
-        assertTrue(menuOptional.isPresent)
-        val menu = menuOptional.get()
+        val menu = requireNotNull(menuRepository.findById(insertId!!))
         assertEquals("更新单元测试菜单", menu.label)
         assertTrue(menu.disabled == true)
     }

@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 树果风味(BerryFlavor)数据访问层
@@ -24,7 +23,7 @@ interface BerryFlavorRepository {
         pageable: Pageable,
     ): Page<BerryFlavor>
 
-    fun findById(id: Long): Optional<BerryFlavor>
+    fun findById(id: Long): BerryFlavor?
 
     fun save(berryFlavor: BerryFlavor): BerryFlavor
 

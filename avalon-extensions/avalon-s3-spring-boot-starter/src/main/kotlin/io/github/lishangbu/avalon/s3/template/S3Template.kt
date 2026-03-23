@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import java.io.InputStream
 import java.net.URI
 import java.time.Duration
-import java.util.*
 
 /**
  * S3 操作模板 提供基于 AWS SDK v2 的常用 S3 操作封装，包括：
@@ -92,7 +91,7 @@ class S3Template(
         return response.buckets()
     }
 
-    fun getBucket(bucketName: String): Optional<Bucket> = Optional.ofNullable(getAllBuckets().firstOrNull { it.name() == bucketName })
+    fun getBucket(bucketName: String): Bucket? = getAllBuckets().firstOrNull { it.name() == bucketName }
 
     fun removeBucket(bucketName: String) {
         val request = DeleteBucketRequest.builder().bucket(bucketName).build()

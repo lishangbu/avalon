@@ -8,7 +8,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class Oauth2RegisteredClientRepositoryImpl(
@@ -39,7 +38,7 @@ class Oauth2RegisteredClientRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
-    override fun findById(id: String): Optional<OauthRegisteredClient> = Optional.ofNullable(sql.findById(OauthRegisteredClient::class, id))
+    override fun findById(id: String): OauthRegisteredClient? = sql.findById(OauthRegisteredClient::class, id)
 
     override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient = sql.save(registeredClient).modifiedEntity
 
@@ -55,15 +54,13 @@ class Oauth2RegisteredClientRepositoryImpl(
 
     override fun flush() = Unit
 
-    override fun findByClientId(clientId: String): Optional<OauthRegisteredClient> =
-        Optional.ofNullable(
-            sql
-                .createQuery(OauthRegisteredClient::class) {
-                    where(table.clientId eq clientId)
-                    select(table)
-                }.execute()
-                .firstOrNull(),
-        )
+    override fun findByClientId(clientId: String): OauthRegisteredClient? =
+        sql
+            .createQuery(OauthRegisteredClient::class) {
+                where(table.clientId eq clientId)
+                select(table)
+            }.execute()
+            .firstOrNull()
 
     private fun OauthRegisteredClient?.readId(): String? = readOrNull { id }
 

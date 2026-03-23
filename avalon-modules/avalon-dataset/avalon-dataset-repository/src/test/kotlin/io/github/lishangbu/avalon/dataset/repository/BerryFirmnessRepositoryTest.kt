@@ -15,11 +15,9 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFirmnessById() {
         // Act
-        val firmnessOptional = berryFirmnessRepository.findById(1L)
+        val berryFirmness = requireNotNull(berryFirmnessRepository.findById(1L))
 
         // Assert
-        Assertions.assertTrue(firmnessOptional.isPresent, "应已插入 id=1 的 属性为很柔软的树果硬度记录")
-        val berryFirmness = firmnessOptional.get()
         Assertions.assertEquals(1L, berryFirmness.id)
         Assertions.assertEquals("very-soft", berryFirmness.internalName)
         Assertions.assertEquals("很柔软", berryFirmness.name)
@@ -60,9 +58,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         val saved = berryFirmnessRepository.save(bf)
         Assertions.assertNotNull(saved.id)
 
-        val firmnessOptional = berryFirmnessRepository.findById(saved.id)
-        Assertions.assertTrue(firmnessOptional.isPresent)
-        val berryFirmness = firmnessOptional.get()
+        val berryFirmness = requireNotNull(berryFirmnessRepository.findById(saved.id))
         Assertions.assertEquals("moderate", berryFirmness.internalName)
         Assertions.assertEquals("中等", berryFirmness.name)
     }
@@ -79,9 +75,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
             )
         val id = created.id
         berryFirmnessRepository.saveAndFlush(BerryFirmness(created) { name = "非常嫩" })
-        val updatedEntityOptional = berryFirmnessRepository.findById(id)
-        Assertions.assertTrue(updatedEntityOptional.isPresent)
-        val updatedEntity = updatedEntityOptional.get()
+        val updatedEntity = requireNotNull(berryFirmnessRepository.findById(id))
         Assertions.assertEquals("非常嫩", updatedEntity.name)
     }
 

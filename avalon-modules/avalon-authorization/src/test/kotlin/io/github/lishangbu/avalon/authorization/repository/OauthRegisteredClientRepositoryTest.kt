@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
@@ -19,9 +18,8 @@ class OauthRegisteredClientRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testFindByClientId() {
-        val clientOptional = oauth2RegisteredClientRepository.findByClientId("client")
-        assertTrue(clientOptional.isPresent)
-        val oauthRegisteredClient = clientOptional.get()
+        val oauthRegisteredClient =
+            requireNotNull(oauth2RegisteredClientRepository.findByClientId("client"))
         assertEquals("1", oauthRegisteredClient.id)
         assertEquals("client", oauthRegisteredClient.clientId)
         assertEquals("{noop}client", oauthRegisteredClient.clientSecret)

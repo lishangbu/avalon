@@ -50,7 +50,7 @@ class OauthRegisteredClientController(
     @GetMapping("/{id}")
     fun getById(
         @PathVariable id: String,
-    ): OauthRegisteredClient? = oauthRegisteredClientService.getById(id).orElse(null)
+    ): OauthRegisteredClient? = oauthRegisteredClientService.getById(id)
 
     /**
      * 新增注册客户端

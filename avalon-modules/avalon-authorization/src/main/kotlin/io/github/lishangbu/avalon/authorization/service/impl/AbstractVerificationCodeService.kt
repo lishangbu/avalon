@@ -5,11 +5,9 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.exception.InvalidCa
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties
 import org.springframework.data.redis.core.StringRedisTemplate
-import org.springframework.util.StringUtils
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.math.pow
 
 /**
  * 验证码服务抽象实现
@@ -52,7 +50,7 @@ abstract class AbstractVerificationCodeService(
 
         val key = buildCodeKey(normalizedType, normalizedTarget)
         val cachedCode = stringRedisTemplate.opsForValue().get(key)
-        if (!StringUtils.hasText(cachedCode)) {
+        if (cachedCode.isNullOrBlank()) {
             throw InvalidCaptchaException("验证码已过期或不存在")
         }
         if (cachedCode != normalizedCode) {
@@ -111,20 +109,20 @@ abstract class AbstractVerificationCodeService(
     }
 
     private fun normalizeType(type: String): String {
-        if (!StringUtils.hasText(type)) {
+        if (type.isBlank()) {
             throw InvalidCaptchaException("验证码类型不能为空")
         }
-        return type.trim { it <= ' ' }.lowercase(Locale.ROOT)
+        return type.trim().lowercase(Locale.ROOT)
     }
 
     private fun normalizeTarget(
         target: String,
         type: String,
     ): String {
-        if (!StringUtils.hasText(target)) {
+        if (target.isBlank()) {
             throw InvalidCaptchaException("验证码接收目标不能为空")
         }
-        val trimmed = target.trim { it <= ' ' }
+        val trimmed = target.trim()
         if (AuthorizationGrantTypeSupport.EMAIL.value == type) {
             return trimmed.lowercase(Locale.ROOT)
         }
@@ -132,10 +130,10 @@ abstract class AbstractVerificationCodeService(
     }
 
     private fun normalizeCode(code: String): String {
-        if (!StringUtils.hasText(code)) {
+        if (code.isBlank()) {
             throw InvalidCaptchaException("验证码不能为空")
         }
-        return code.trim { it <= ' ' }
+        return code.trim()
     }
 
     private fun buildCodeKey(
@@ -150,9 +148,11 @@ abstract class AbstractVerificationCodeService(
 
     private fun generateNumericCode(length: Int): String {
         val safeLength = maxOf(length, DEFAULT_CODE_LENGTH)
-        val bound = 10.0.pow(safeLength).toInt()
-        val value = ThreadLocalRandom.current().nextInt(bound)
-        return String.format(Locale.ROOT, "%0${safeLength}d", value)
+        return buildString(safeLength) {
+            repeat(safeLength) {
+                append(ThreadLocalRandom.current().nextInt(10))
+            }
+        }
     }
 
     private fun sanitizeLength(

@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.authorization.repository
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Sort
-import java.util.Optional
 
 /**
  * 菜单表数据存储
@@ -21,7 +20,7 @@ interface MenuRepository {
         sort: Sort,
     ): List<Menu>
 
-    fun findById(id: Long): Optional<Menu>
+    fun findById(id: Long): Menu?
 
     fun findAllById(ids: Iterable<Long>): List<Menu>
 

@@ -77,4 +77,19 @@ class S3TemplateIntegrationTest {
         template.removeObject(bucket, objectKey)
         template.removeBucket(bucket)
     }
+
+    @Test
+    fun getBucketShouldReturnNullableBucket() {
+        val bucket = "ut-test-bucket-query"
+
+        template.createBucket(bucket)
+
+        val foundBucket = template.getBucket(bucket)
+        val missingBucket = template.getBucket("$bucket-missing")
+
+        assertEquals(bucket, foundBucket?.name())
+        assertEquals(null, missingBucket)
+
+        template.removeBucket(bucket)
+    }
 }

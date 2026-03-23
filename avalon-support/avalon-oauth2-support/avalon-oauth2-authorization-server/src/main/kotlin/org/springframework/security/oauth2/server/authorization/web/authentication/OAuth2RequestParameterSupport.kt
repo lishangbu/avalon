@@ -4,13 +4,12 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.util.OAuth2Endpoint
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.util.MultiValueMap
-import org.springframework.util.StringUtils
 
 internal fun MultiValueMap<String, String>.requireSingleTextParameter(
     parameterName: String,
     errorUri: String,
 ): String =
-    get(parameterName)?.singleOrNull()?.takeIf(StringUtils::hasText)
+    get(parameterName)?.singleOrNull()?.takeIf(String::isNotBlank)
         ?: OAuth2EndpointUtils.throwError(
             OAuth2ErrorCodes.INVALID_REQUEST,
             parameterName,
@@ -19,7 +18,7 @@ internal fun MultiValueMap<String, String>.requireSingleTextParameter(
 
 internal fun MultiValueMap<String, String>.readRequestedScopes(errorUri: String): Set<String>? {
     val scope = getFirst(OAuth2ParameterNames.SCOPE)
-    if (StringUtils.hasText(scope) && this[OAuth2ParameterNames.SCOPE]?.size != 1) {
+    if (!scope.isNullOrBlank() && this[OAuth2ParameterNames.SCOPE]?.size != 1) {
         OAuth2EndpointUtils.throwError(
             OAuth2ErrorCodes.INVALID_REQUEST,
             OAuth2ParameterNames.SCOPE,
@@ -27,6 +26,9 @@ internal fun MultiValueMap<String, String>.readRequestedScopes(errorUri: String)
         )
     }
     return scope
-        ?.takeIf(StringUtils::hasText)
-        ?.let { LinkedHashSet(StringUtils.delimitedListToStringArray(it, " ").toList()) }
+        ?.takeIf(String::isNotBlank)
+        ?.trim()
+        ?.splitToSequence(' ')
+        ?.filter(String::isNotBlank)
+        ?.toCollection(linkedSetOf())
 }

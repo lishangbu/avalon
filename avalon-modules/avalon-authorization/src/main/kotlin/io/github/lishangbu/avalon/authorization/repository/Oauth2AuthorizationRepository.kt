@@ -1,7 +1,6 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization
-import java.util.*
 
 /**
  * 用户认证信息表(oauth_authorization)表数据库访问层
@@ -12,7 +11,7 @@ import java.util.*
  * @since 2025/9/14
  */
 interface Oauth2AuthorizationRepository {
-    fun findById(id: String): Optional<OauthAuthorization>
+    fun findById(id: String): OauthAuthorization?
 
     fun save(authorization: OauthAuthorization): OauthAuthorization
 
@@ -28,7 +27,7 @@ interface Oauth2AuthorizationRepository {
      * @param state 状态码
      * @return 匹配的认证信息
      */
-    fun findByState(state: String): Optional<OauthAuthorization>
+    fun findByState(state: String): OauthAuthorization?
 
     /**
      * 根据授权码查询认证信息
@@ -36,7 +35,7 @@ interface Oauth2AuthorizationRepository {
      * @param authorizationCode 授权码
      * @return 匹配的认证信息
      */
-    fun findByAuthorizationCodeValue(authorizationCode: String): Optional<OauthAuthorization>
+    fun findByAuthorizationCodeValue(authorizationCode: String): OauthAuthorization?
 
     /**
      * 根据访问令牌查询认证信息
@@ -44,7 +43,7 @@ interface Oauth2AuthorizationRepository {
      * @param accessToken 访问令牌
      * @return 匹配的认证信息
      */
-    fun findByAccessTokenValue(accessToken: String): Optional<OauthAuthorization>
+    fun findByAccessTokenValue(accessToken: String): OauthAuthorization?
 
     /**
      * 根据刷新令牌查询认证信息
@@ -52,7 +51,7 @@ interface Oauth2AuthorizationRepository {
      * @param refreshToken 刷新令牌
      * @return 匹配的认证信息
      */
-    fun findByRefreshTokenValue(refreshToken: String): Optional<OauthAuthorization>
+    fun findByRefreshTokenValue(refreshToken: String): OauthAuthorization?
 
     /**
      * 根据 OIDC ID Token 查询认证信息
@@ -60,7 +59,7 @@ interface Oauth2AuthorizationRepository {
      * @param idToken OIDC ID Token
      * @return 匹配的认证信息
      */
-    fun findByOidcIdTokenValue(idToken: String): Optional<OauthAuthorization>
+    fun findByOidcIdTokenValue(idToken: String): OauthAuthorization?
 
     /**
      * 根据用户码查询认证信息
@@ -68,7 +67,7 @@ interface Oauth2AuthorizationRepository {
      * @param userCode 用户码
      * @return 匹配的认证信息
      */
-    fun findByUserCodeValue(userCode: String): Optional<OauthAuthorization>
+    fun findByUserCodeValue(userCode: String): OauthAuthorization?
 
     /**
      * 根据设备码查询认证信息
@@ -76,7 +75,7 @@ interface Oauth2AuthorizationRepository {
      * @param deviceCode 设备码
      * @return 匹配的认证信息
      */
-    fun findByDeviceCodeValue(deviceCode: String): Optional<OauthAuthorization>
+    fun findByDeviceCodeValue(deviceCode: String): OauthAuthorization?
 
     /**
      * 根据多种 token 字段联合查询认证信息，支持
@@ -88,5 +87,5 @@ interface Oauth2AuthorizationRepository {
      */
     fun findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
         token: String,
-    ): Optional<OauthAuthorization>
+    ): OauthAuthorization?
 }

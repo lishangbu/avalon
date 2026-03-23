@@ -10,7 +10,6 @@ import org.babyfish.jimmer.sql.kt.fetcher.newFetcher
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class UserRepositoryImpl(
@@ -43,15 +42,13 @@ class UserRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
-    override fun findById(id: Long): Optional<User> =
-        Optional.ofNullable(
-            sql
-                .createQuery(User::class) {
-                    where(table.id eq id)
-                    select(table.fetch(USER_WITH_ROLES_FETCHER))
-                }.execute()
-                .firstOrNull(),
-        )
+    override fun findById(id: Long): User? =
+        sql
+            .createQuery(User::class) {
+                where(table.id eq id)
+                select(table.fetch(USER_WITH_ROLES_FETCHER))
+            }.execute()
+            .firstOrNull()
 
     override fun save(user: User): User =
         sql
@@ -72,16 +69,16 @@ class UserRepositoryImpl(
 
     override fun flush() = Unit
 
-    override fun findUserWithRolesByAccount(account: String): Optional<User> {
+    override fun findUserWithRolesByAccount(account: String): User? {
         val found =
             findByUsername(account)
                 ?: findByPhone(account)
                 ?: findByEmail(account)
-                ?: return Optional.empty()
+                ?: return null
 
         val enabledRoles = found.roles.filter { it.enabled == true }
         if (enabledRoles.isEmpty()) {
-            return Optional.empty()
+            return null
         }
         val userWithEnabledRoles =
             User(found) {
@@ -95,7 +92,7 @@ class UserRepositoryImpl(
                     }
                 }
             }
-        return Optional.of(userWithEnabledRoles)
+        return userWithEnabledRoles
     }
 
     private fun findByUsername(account: String): User? =

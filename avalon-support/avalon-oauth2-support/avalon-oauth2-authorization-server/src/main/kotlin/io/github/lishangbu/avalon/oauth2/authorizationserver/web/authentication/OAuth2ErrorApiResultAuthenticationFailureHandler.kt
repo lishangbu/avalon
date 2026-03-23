@@ -41,7 +41,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
         private val logger: Log = LogFactory.getLog(javaClass)
         private val authenticationLogRecorder: AuthenticationLogRecorder =
             authenticationLogRecorder ?: AuthenticationLogRecorder.noop()
-        private val jsonMapper: JsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper")
+        private val jsonMapper = jsonMapper
 
         @Throws(IOException::class, ServletException::class)
         override fun onAuthenticationFailure(

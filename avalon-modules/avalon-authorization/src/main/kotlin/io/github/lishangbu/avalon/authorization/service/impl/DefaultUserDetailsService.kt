@@ -29,7 +29,7 @@ class DefaultUserDetailsService(
     override fun loadUserByUsername(username: String): UserDetails =
         userRepository
             .findUserWithRolesByAccount(username)
-            .map { user ->
+            ?.let { user ->
                 UserInfo(
                     user.username ?: "",
                     user.hashedPassword ?: "",
@@ -41,5 +41,5 @@ class DefaultUserDetailsService(
                         )
                     },
                 )
-            }.orElseThrow { UsernameNotFoundException("账号或密码错误") }
+            } ?: throw UsernameNotFoundException("账号或密码错误")
 }

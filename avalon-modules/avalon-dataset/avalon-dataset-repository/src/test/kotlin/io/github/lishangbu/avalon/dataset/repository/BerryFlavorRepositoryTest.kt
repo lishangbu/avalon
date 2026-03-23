@@ -15,11 +15,8 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFlavorById() {
         // Act
-        val flavorOptional = berryFlavorRepository.findById(1L)
-        Assertions.assertTrue(flavorOptional.isPresent)
-        val flavor = flavorOptional.get()
+        val flavor = requireNotNull(berryFlavorRepository.findById(1L))
         // Assert
-        Assertions.assertNotNull(flavor, "应已插入 id=1 的 属性为辣的树果风味记录")
         Assertions.assertEquals(1L, flavor.id)
         Assertions.assertEquals("spicy", flavor.internalName)
         Assertions.assertEquals("辣", flavor.name)
@@ -70,10 +67,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
 
         // Assert
         Assertions.assertNotNull(saved.id)
-        val berryFlavorOptional = berryFlavorRepository.findById(saved.id)
-        Assertions.assertTrue(berryFlavorOptional.isPresent)
-        val berryFlavor = berryFlavorOptional.get()
-        Assertions.assertNotNull(berryFlavor)
+        val berryFlavor = requireNotNull(berryFlavorRepository.findById(saved.id))
         Assertions.assertEquals("savory", berryFlavor.internalName)
         Assertions.assertEquals("鲜美", berryFlavor.name)
     }
@@ -95,10 +89,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         berryFlavorRepository.saveAndFlush(BerryFlavor(created) { name = "鱼腥味" })
 
         // Assert
-        val updatedEntityOptional = berryFlavorRepository.findById(id)
-        Assertions.assertTrue(updatedEntityOptional.isPresent)
-        val updatedEntity = updatedEntityOptional.get()
-        Assertions.assertNotNull(updatedEntity)
+        val updatedEntity = requireNotNull(berryFlavorRepository.findById(id))
         Assertions.assertEquals("鱼腥味", updatedEntity.name)
     }
 
