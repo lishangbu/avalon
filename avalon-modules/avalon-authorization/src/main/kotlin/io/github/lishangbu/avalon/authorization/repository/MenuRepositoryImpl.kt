@@ -133,35 +133,35 @@ class MenuRepositoryImpl(
             }
     }
 
-    private fun Menu?.readId(): Long? = this?.let { runCatching { it.id }.getOrNull() }
+    private fun Menu?.readId(): Long? = readOrNull { id }
 
-    private fun Menu?.readParentId(): Long? = this?.let { runCatching { it.parentId }.getOrNull() }
+    private fun Menu?.readParentId(): Long? = readOrNull { parentId }
 
-    private fun Menu?.readDisabled(): Boolean? = this?.let { runCatching { it.disabled }.getOrNull() }
+    private fun Menu?.readDisabled(): Boolean? = readOrNull { disabled }
 
-    private fun Menu?.readExtra(): String? = this?.let { runCatching { it.extra }.getOrNull() }
+    private fun Menu?.readExtra(): String? = readOrNull { extra }
 
-    private fun Menu?.readIcon(): String? = this?.let { runCatching { it.icon }.getOrNull() }
+    private fun Menu?.readIcon(): String? = readOrNull { icon }
 
-    private fun Menu?.readKey(): String? = this?.let { runCatching { it.key }.getOrNull() }
+    private fun Menu?.readKey(): String? = readOrNull { key }
 
-    private fun Menu?.readLabel(): String? = this?.let { runCatching { it.label }.getOrNull() }
+    private fun Menu?.readLabel(): String? = readOrNull { label }
 
-    private fun Menu?.readShow(): Boolean? = this?.let { runCatching { it.show }.getOrNull() }
+    private fun Menu?.readShow(): Boolean? = readOrNull { show }
 
-    private fun Menu?.readPath(): String? = this?.let { runCatching { it.path }.getOrNull() }
+    private fun Menu?.readPath(): String? = readOrNull { path }
 
-    private fun Menu?.readName(): String? = this?.let { runCatching { it.name }.getOrNull() }
+    private fun Menu?.readName(): String? = readOrNull { name }
 
-    private fun Menu?.readRedirect(): String? = this?.let { runCatching { it.redirect }.getOrNull() }
+    private fun Menu?.readRedirect(): String? = readOrNull { redirect }
 
-    private fun Menu?.readComponent(): String? = this?.let { runCatching { it.component }.getOrNull() }
+    private fun Menu?.readComponent(): String? = readOrNull { component }
 
-    private fun Menu?.readSortingOrder(): Int? = this?.let { runCatching { it.sortingOrder }.getOrNull() }
+    private fun Menu?.readSortingOrder(): Int? = readOrNull { sortingOrder }
 
-    private fun Menu?.readPinned(): Boolean? = this?.let { runCatching { it.pinned }.getOrNull() }
+    private fun Menu?.readPinned(): Boolean? = readOrNull { pinned }
 
-    private fun Menu?.readShowTab(): Boolean? = this?.let { runCatching { it.showTab }.getOrNull() }
+    private fun Menu?.readShowTab(): Boolean? = readOrNull { showTab }
 
-    private fun Menu?.readEnableMultiTab(): Boolean? = this?.let { runCatching { it.enableMultiTab }.getOrNull() }
+    private fun Menu?.readEnableMultiTab(): Boolean? = readOrNull { enableMultiTab }
 }

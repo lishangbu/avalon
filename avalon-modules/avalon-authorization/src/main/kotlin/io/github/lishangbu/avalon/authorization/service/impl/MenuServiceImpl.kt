@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
+import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.MenuService
 import io.github.lishangbu.avalon.web.util.TreeUtils
 import org.slf4j.Logger
@@ -12,8 +13,6 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.util.CollectionUtils
-import org.springframework.util.StringUtils
 import java.util.*
 
 /**
@@ -29,7 +28,7 @@ class MenuServiceImpl(
     private val menuRepository: MenuRepository,
 ) : MenuService {
     override fun listMenuTreeByRoleCodes(roleCodes: List<String>): List<MenuTreeNode> {
-        if (CollectionUtils.isEmpty(roleCodes)) {
+        if (roleCodes.isEmpty()) {
             return emptyList()
         }
         val menus = menuRepository.findAllByRoleCodes(roleCodes)
@@ -40,7 +39,7 @@ class MenuServiceImpl(
     override fun listAllMenuTree(menu: Menu): List<MenuTreeNode> {
         val condition = normalizeCondition(menu)
         val allMenus = menuRepository.findAllByOrderBySortingOrderAscIdAsc()
-        if (CollectionUtils.isEmpty(allMenus)) {
+        if (allMenus.isEmpty()) {
             return emptyList()
         }
         if (!hasQueryCondition(condition)) {
@@ -49,7 +48,7 @@ class MenuServiceImpl(
 
         val matchedMenus =
             menuRepository.findAll(Example.of(condition, MENU_QUERY_MATCHER), MENU_TREE_SORT)
-        if (CollectionUtils.isEmpty(matchedMenus)) {
+        if (matchedMenus.isEmpty()) {
             return emptyList()
         }
 
@@ -91,16 +90,16 @@ class MenuServiceImpl(
      * - 将 Menu 映射为 MenuTreeNode
      * - 使用通用的 [TreeUtils] 构建树
      *
-     * @param menus 权限实体列表，允许为 null
+     * @param menus 权限实体列表
      * @return 树结构的 MenuTreeNode 列表，永远不返回 null
      * @see TreeUtils#buildTree(List, Function, Function, BiConsumer)
      */
-    private fun buildTreeFromMenus(menus: List<Menu>?): List<MenuTreeNode> {
-        if (CollectionUtils.isEmpty(menus)) {
+    private fun buildTreeFromMenus(menus: List<Menu>): List<MenuTreeNode> {
+        if (menus.isEmpty()) {
             return emptyList()
         }
 
-        val treeNodes = menus!!.map(::MenuTreeNode)
+        val treeNodes = menus.map(::MenuTreeNode)
 
         return TreeUtils.buildTree(
             treeNodes,
@@ -187,7 +186,7 @@ class MenuServiceImpl(
             }
         }
 
-        private fun trimToNull(value: String?): String? = if (StringUtils.hasText(value)) value!!.trim { it <= ' ' } else null
+        private fun trimToNull(value: String?): String? = value?.trim()?.takeIf { it.isNotEmpty() }
 
         private fun hasQueryCondition(menu: Menu?): Boolean =
             menu != null &&
@@ -209,7 +208,5 @@ class MenuServiceImpl(
                         menu.readOrNull { showTab } != null ||
                         menu.readOrNull { enableMultiTab } != null
                 )
-
-        private inline fun <T, R> T?.readOrNull(block: T.() -> R): R? = this?.let { runCatching { it.block() }.getOrNull() }
     }
 }

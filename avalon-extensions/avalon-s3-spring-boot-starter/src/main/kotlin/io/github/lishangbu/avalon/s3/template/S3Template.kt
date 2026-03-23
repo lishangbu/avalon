@@ -215,13 +215,7 @@ class S3Template(
         objectName: String,
         stream: InputStream,
     ) {
-        putObject(
-            bucketName,
-            objectName,
-            stream,
-            stream.available().toLong(),
-            "application/octet-stream",
-        )
+        putObject(bucketName, objectName, stream.readBytes(), "application/octet-stream")
     }
 
     fun putObject(
@@ -230,7 +224,7 @@ class S3Template(
         contextType: String,
         stream: InputStream,
     ) {
-        putObject(bucketName, objectName, stream, stream.available().toLong(), contextType)
+        putObject(bucketName, objectName, stream.readBytes(), contextType)
     }
 
     fun putObject(
@@ -250,6 +244,24 @@ class S3Template(
                 .build()
 
         return s3Client.putObject(request, RequestBody.fromInputStream(stream, size))
+    }
+
+    private fun putObject(
+        bucketName: String,
+        objectName: String,
+        content: ByteArray,
+        contextType: String,
+    ): PutObjectResponse {
+        val request =
+            PutObjectRequest
+                .builder()
+                .bucket(bucketName)
+                .key(objectName)
+                .contentType(contextType)
+                .contentLength(content.size.toLong())
+                .build()
+
+        return s3Client.putObject(request, RequestBody.fromBytes(content))
     }
 
     fun getObjectInfo(

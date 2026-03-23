@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
 /**
@@ -32,6 +33,41 @@ class S3TemplateIntegrationTest {
         ByteArrayInputStream(content.toByteArray(StandardCharsets.UTF_8)).use { input ->
             template.putObject(bucket, objectKey, input)
         }
+
+        template.getObject(bucket, objectKey).use { downloaded ->
+            val restored = downloaded.readAllBytes().toString(StandardCharsets.UTF_8)
+            assertEquals(content, restored)
+        }
+
+        template.removeObject(bucket, objectKey)
+        template.removeBucket(bucket)
+    }
+
+    @Test
+    fun uploadShouldNotDependOnAvailableByteCount() {
+        val bucket = "ut-test-bucket-available"
+        val objectKey = "available-zero.txt"
+        val content = "available-should-not-control-upload-size"
+        val payload = content.toByteArray(StandardCharsets.UTF_8)
+
+        template.createBucket(bucket)
+
+        val input =
+            object : InputStream() {
+                private val delegate = ByteArrayInputStream(payload)
+
+                override fun read(): Int = delegate.read()
+
+                override fun read(
+                    b: ByteArray,
+                    off: Int,
+                    len: Int,
+                ): Int = delegate.read(b, off, len)
+
+                override fun available(): Int = 0
+            }
+
+        input.use { template.putObject(bucket, objectKey, it) }
 
         template.getObject(bucket, objectKey).use { downloaded ->
             val restored = downloaded.readAllBytes().toString(StandardCharsets.UTF_8)

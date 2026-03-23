@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2EmailAuthorizationGrantAuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.util.StringUtils
 
 /**
  * OAuth2 邮箱授权类型认证转换器 将使用 `grant_type=email` 的 HTTP 表单请求转换为
@@ -37,40 +36,12 @@ class OAuth2EmailAuthenticationConverter(
         val clientPrincipal = SecurityContextHolder.getContext().authentication
 
         val emailParameterName = oauth2Properties.emailParameterName
-        val email = parameters.getFirst(emailParameterName)
-        if (!StringUtils.hasText(email) || parameters[emailParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                emailParameterName,
-                EMAIL_REQUEST_ERROR_URI,
-            )
-        }
+        val email = parameters.requireSingleTextParameter(emailParameterName, EMAIL_REQUEST_ERROR_URI)
 
         val emailCodeParameterName = oauth2Properties.emailCodeParameterName
-        val emailCode = parameters.getFirst(emailCodeParameterName)
-        if (!StringUtils.hasText(emailCode) || parameters[emailCodeParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                emailCodeParameterName,
-                EMAIL_REQUEST_ERROR_URI,
-            )
-        }
-
-        val scope = parameters.getFirst(OAuth2ParameterNames.SCOPE)
-        if (StringUtils.hasText(scope) && parameters[OAuth2ParameterNames.SCOPE]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                OAuth2ParameterNames.SCOPE,
-                EMAIL_REQUEST_ERROR_URI,
-            )
-        }
-        val requestedScopes =
-            if (StringUtils.hasText(scope)) {
-                LinkedHashSet(StringUtils.delimitedListToStringArray(scope, " ").toList())
-            } else {
-                null
-            }
-
+        val emailCode =
+            parameters.requireSingleTextParameter(emailCodeParameterName, EMAIL_REQUEST_ERROR_URI)
+        val requestedScopes = parameters.readRequestedScopes(EMAIL_REQUEST_ERROR_URI)
         val additionalParameters = LinkedHashMap<String, Any>()
         parameters.forEach { key, value ->
             if (
@@ -94,8 +65,8 @@ class OAuth2EmailAuthenticationConverter(
             clientPrincipal ?: throw OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT)
 
         return OAuth2EmailAuthorizationGrantAuthenticationToken(
-            email!!,
-            emailCode!!,
+            email,
+            emailCode,
             authenticatedClient,
             requestedScopes,
             additionalParameters,

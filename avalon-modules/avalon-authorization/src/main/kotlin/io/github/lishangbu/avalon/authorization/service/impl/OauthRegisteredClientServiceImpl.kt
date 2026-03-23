@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
+import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
@@ -95,6 +96,4 @@ class OauthRegisteredClientServiceImpl(
     override fun removeById(id: String) {
         oauth2RegisteredClientRepository.deleteById(id)
     }
-
-    private inline fun <T, R> T?.readOrNull(block: T.() -> R): R? = this?.let { runCatching { it.block() }.getOrNull() }
 }

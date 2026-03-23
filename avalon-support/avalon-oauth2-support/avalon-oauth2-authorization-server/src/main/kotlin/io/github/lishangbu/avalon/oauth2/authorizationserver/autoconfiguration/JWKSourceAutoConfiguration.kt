@@ -16,8 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
-import org.springframework.util.ObjectUtils
-import org.springframework.util.StringUtils
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -171,12 +169,10 @@ class JWKSourceAutoConfiguration(
      * - 相对路径: rsa/public.key（相对于 classpath）
      */
     override fun afterPropertiesSet() {
-        val jwtPublicKeyLocation = oauth2Properties.jwtPublicKeyLocation
-        val jwtPrivateKeyLocation = oauth2Properties.jwtPrivateKeyLocation
+        val jwtPublicKeyLocation = oauth2Properties.jwtPublicKeyLocation?.takeIf { it.isNotBlank() }
+        val jwtPrivateKeyLocation = oauth2Properties.jwtPrivateKeyLocation?.takeIf { it.isNotBlank() }
         // 密钥缺失或解析失败，标记为未加载状态，将在首次使用时生成随机密钥对
-        if (
-            ObjectUtils.isEmpty(jwtPublicKeyLocation) && ObjectUtils.isEmpty(jwtPrivateKeyLocation)
-        ) {
+        if (jwtPublicKeyLocation == null && jwtPrivateKeyLocation == null) {
             log.warn("未配置公钥和私钥路径，将在首次使用时生成随机密钥对")
             return
         }
@@ -185,9 +181,9 @@ class JWKSourceAutoConfiguration(
         var loadedPrivate: RSAPrivateKey? = null
 
         // 尝试加载公钥
-        if (StringUtils.hasText(jwtPublicKeyLocation)) {
+        if (jwtPublicKeyLocation != null) {
             try {
-                val resource: Resource = resourceLoader.getResource(jwtPublicKeyLocation!!)
+                val resource: Resource = resourceLoader.getResource(jwtPublicKeyLocation)
                 if (resource.exists() && resource.isReadable) {
                     resource.inputStream.use { inputStream: InputStream ->
                         val content = String(inputStream.readAllBytes(), StandardCharsets.UTF_8)
@@ -211,9 +207,9 @@ class JWKSourceAutoConfiguration(
         }
 
         // 尝试加载私钥
-        if (StringUtils.hasText(jwtPrivateKeyLocation)) {
+        if (jwtPrivateKeyLocation != null) {
             try {
-                val resource = resourceLoader.getResource(jwtPrivateKeyLocation!!)
+                val resource = resourceLoader.getResource(jwtPrivateKeyLocation)
                 if (resource.exists() && resource.isReadable) {
                     resource.inputStream.use { inputStream: InputStream ->
                         val content = String(inputStream.readAllBytes(), StandardCharsets.UTF_8)

@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2PasswordAuthorizationGrantAuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.util.StringUtils
 
 /**
  * OAuth2 密码授权类型认证转换器 将使用 `grant_type=password` 的 HTTP 表单请求转换为
@@ -49,40 +48,13 @@ class OAuth2PasswordAuthenticationConverter(
         val clientPrincipal = SecurityContextHolder.getContext().authentication
 
         val usernameParameterName = oauth2Properties.usernameParameterName
-        val username = parameters.getFirst(usernameParameterName)
-        if (!StringUtils.hasText(username) || parameters[usernameParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                usernameParameterName,
-                PASSWORD_REQUEST_ERROR_URI,
-            )
-        }
+        val username =
+            parameters.requireSingleTextParameter(usernameParameterName, PASSWORD_REQUEST_ERROR_URI)
 
         val passwordParameterName = oauth2Properties.passwordParameterName
-        val password = parameters.getFirst(passwordParameterName)
-        if (!StringUtils.hasText(password) || parameters[passwordParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                passwordParameterName,
-                PASSWORD_REQUEST_ERROR_URI,
-            )
-        }
-
-        val scope = parameters.getFirst(OAuth2ParameterNames.SCOPE)
-        if (StringUtils.hasText(scope) && parameters[OAuth2ParameterNames.SCOPE]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                OAuth2ParameterNames.SCOPE,
-                PASSWORD_REQUEST_ERROR_URI,
-            )
-        }
-        val requestedScopes =
-            if (StringUtils.hasText(scope)) {
-                LinkedHashSet(StringUtils.delimitedListToStringArray(scope, " ").toList())
-            } else {
-                null
-            }
-
+        val password =
+            parameters.requireSingleTextParameter(passwordParameterName, PASSWORD_REQUEST_ERROR_URI)
+        val requestedScopes = parameters.readRequestedScopes(PASSWORD_REQUEST_ERROR_URI)
         val additionalParameters = LinkedHashMap<String, Any>()
         parameters.forEach { key, value ->
             if (
@@ -106,8 +78,8 @@ class OAuth2PasswordAuthenticationConverter(
             clientPrincipal ?: throw OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT)
 
         return OAuth2PasswordAuthorizationGrantAuthenticationToken(
-            username!!,
-            password!!,
+            username,
+            password,
             authenticatedClient,
             requestedScopes,
             additionalParameters,

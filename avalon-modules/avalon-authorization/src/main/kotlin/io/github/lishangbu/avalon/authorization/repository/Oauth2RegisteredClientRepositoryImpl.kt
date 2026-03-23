@@ -65,9 +65,9 @@ class Oauth2RegisteredClientRepositoryImpl(
                 .firstOrNull(),
         )
 
-    private fun OauthRegisteredClient?.readId(): String? = this?.let { runCatching { it.id }.getOrNull() }
+    private fun OauthRegisteredClient?.readId(): String? = readOrNull { id }
 
-    private fun OauthRegisteredClient?.readClientId(): String? = this?.let { runCatching { it.clientId }.getOrNull() }
+    private fun OauthRegisteredClient?.readClientId(): String? = readOrNull { clientId }
 
-    private fun OauthRegisteredClient?.readClientName(): String? = this?.let { runCatching { it.clientName }.getOrNull() }
+    private fun OauthRegisteredClient?.readClientName(): String? = readOrNull { clientName }
 }
