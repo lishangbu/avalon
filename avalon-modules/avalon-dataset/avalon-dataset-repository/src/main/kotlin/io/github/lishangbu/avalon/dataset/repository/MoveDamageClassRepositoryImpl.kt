@@ -49,8 +49,4 @@ class MoveDamageClassRepositoryImpl(
                 disableDissociation()
             }.execute()
     }
-
-    private fun String?.takeFilter(): String? = this?.trim()?.takeIf { it.isNotEmpty() }
-
-    private inline fun <T, R> T?.readOrNull(block: T.() -> R): R? = this?.let { runCatching { it.block() }.getOrNull() }
 }

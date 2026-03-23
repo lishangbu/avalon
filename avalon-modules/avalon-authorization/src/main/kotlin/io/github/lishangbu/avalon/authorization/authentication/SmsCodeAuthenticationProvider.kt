@@ -10,7 +10,6 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
-import org.springframework.util.StringUtils
 
 /**
  * 短信验证码认证提供者
@@ -28,13 +27,8 @@ class SmsCodeAuthenticationProvider(
     @Throws(AuthenticationException::class)
     override fun authenticate(authentication: Authentication): Authentication {
         val smsAuthenticationToken = authentication as SmsAuthenticationToken
-        val phone = normalizePhone(resolveText(smsAuthenticationToken.principal))
-        val code = resolveText(smsAuthenticationToken.credentials)
-        if (!StringUtils.hasText(phone) || !StringUtils.hasText(code)) {
-            throw InvalidCaptchaException("短信验证码不能为空")
-        }
-        val normalizedPhone = phone!!
-        val normalizedCode = code!!
+        val normalizedPhone = normalizePhone(smsAuthenticationToken.principal)
+        val normalizedCode = resolveRequiredText(smsAuthenticationToken.credentials)
         verificationCodeService.verifyCode(
             normalizedPhone,
             normalizedCode,
@@ -50,12 +44,12 @@ class SmsCodeAuthenticationProvider(
 
     override fun supports(authentication: Class<*>): Boolean = SmsAuthenticationToken::class.java.isAssignableFrom(authentication)
 
-    private fun resolveText(value: Any?): String? = value?.toString()
+    private fun resolveRequiredText(value: Any?): String =
+        value
+            ?.toString()
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: throw InvalidCaptchaException("短信验证码不能为空")
 
-    private fun normalizePhone(phone: String?): String? {
-        if (!StringUtils.hasText(phone)) {
-            return phone
-        }
-        return phone!!.trim { it <= ' ' }
-    }
+    private fun normalizePhone(phone: Any?): String = resolveRequiredText(phone)
 }

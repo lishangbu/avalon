@@ -10,7 +10,6 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
-import org.springframework.util.StringUtils
 import java.util.*
 
 /**
@@ -29,13 +28,8 @@ class EmailCodeAuthenticationProvider(
     @Throws(AuthenticationException::class)
     override fun authenticate(authentication: Authentication): Authentication {
         val emailAuthenticationToken = authentication as EmailAuthenticationToken
-        val email = normalizeEmail(resolveText(emailAuthenticationToken.principal))
-        val code = resolveText(emailAuthenticationToken.credentials)
-        if (!StringUtils.hasText(email) || !StringUtils.hasText(code)) {
-            throw InvalidCaptchaException("邮箱验证码不能为空")
-        }
-        val normalizedEmail = email!!
-        val normalizedCode = code!!
+        val normalizedEmail = normalizeEmail(emailAuthenticationToken.principal)
+        val normalizedCode = resolveRequiredText(emailAuthenticationToken.credentials)
         verificationCodeService.verifyCode(
             normalizedEmail,
             normalizedCode,
@@ -51,12 +45,12 @@ class EmailCodeAuthenticationProvider(
 
     override fun supports(authentication: Class<*>): Boolean = EmailAuthenticationToken::class.java.isAssignableFrom(authentication)
 
-    private fun resolveText(value: Any?): String? = value?.toString()
+    private fun resolveRequiredText(value: Any?): String =
+        value
+            ?.toString()
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: throw InvalidCaptchaException("邮箱验证码不能为空")
 
-    private fun normalizeEmail(email: String?): String? {
-        if (!StringUtils.hasText(email)) {
-            return email
-        }
-        return email!!.trim { it <= ' ' }.lowercase(Locale.ROOT)
-    }
+    private fun normalizeEmail(email: Any?): String = resolveRequiredText(email).lowercase(Locale.ROOT)
 }

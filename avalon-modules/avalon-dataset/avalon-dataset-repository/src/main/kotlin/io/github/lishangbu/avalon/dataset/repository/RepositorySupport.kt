@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.authorization.repository
+package io.github.lishangbu.avalon.dataset.repository
 
 import org.babyfish.jimmer.UnloadedException
 

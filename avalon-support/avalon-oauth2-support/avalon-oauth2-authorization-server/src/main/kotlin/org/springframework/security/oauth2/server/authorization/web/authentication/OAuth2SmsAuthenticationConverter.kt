@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2SmsAuthorizationGrantAuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.util.StringUtils
 
 /**
  * OAuth2 短信授权类型认证转换器 将使用 `grant_type=sms` 的 HTTP 表单请求转换为
@@ -37,40 +36,12 @@ class OAuth2SmsAuthenticationConverter(
         val clientPrincipal = SecurityContextHolder.getContext().authentication
 
         val phoneParameterName = oauth2Properties.phoneParameterName
-        val phoneNumber = parameters.getFirst(phoneParameterName)
-        if (!StringUtils.hasText(phoneNumber) || parameters[phoneParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                phoneParameterName,
-                SMS_REQUEST_ERROR_URI,
-            )
-        }
+        val phoneNumber = parameters.requireSingleTextParameter(phoneParameterName, SMS_REQUEST_ERROR_URI)
 
         val smsCodeParameterName = oauth2Properties.smsCodeParameterName
-        val smsCode = parameters.getFirst(smsCodeParameterName)
-        if (!StringUtils.hasText(smsCode) || parameters[smsCodeParameterName]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                smsCodeParameterName,
-                SMS_REQUEST_ERROR_URI,
-            )
-        }
-
-        val scope = parameters.getFirst(OAuth2ParameterNames.SCOPE)
-        if (StringUtils.hasText(scope) && parameters[OAuth2ParameterNames.SCOPE]?.size != 1) {
-            OAuth2EndpointUtils.throwError(
-                OAuth2ErrorCodes.INVALID_REQUEST,
-                OAuth2ParameterNames.SCOPE,
-                SMS_REQUEST_ERROR_URI,
-            )
-        }
-        val requestedScopes =
-            if (StringUtils.hasText(scope)) {
-                LinkedHashSet(StringUtils.delimitedListToStringArray(scope, " ").toList())
-            } else {
-                null
-            }
-
+        val smsCode =
+            parameters.requireSingleTextParameter(smsCodeParameterName, SMS_REQUEST_ERROR_URI)
+        val requestedScopes = parameters.readRequestedScopes(SMS_REQUEST_ERROR_URI)
         val additionalParameters = LinkedHashMap<String, Any>()
         parameters.forEach { key, value ->
             if (
@@ -94,8 +65,8 @@ class OAuth2SmsAuthenticationConverter(
             clientPrincipal ?: throw OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT)
 
         return OAuth2SmsAuthorizationGrantAuthenticationToken(
-            phoneNumber!!,
-            smsCode!!,
+            phoneNumber,
+            smsCode,
             authenticatedClient,
             requestedScopes,
             additionalParameters,

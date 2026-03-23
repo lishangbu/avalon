@@ -170,6 +170,22 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     }
 
     @Test
+    fun omitsRefreshTokenWhenAuthenticationDoesNotContainOne() {
+        val handler =
+            OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(jsonMapper = jsonMapper)
+        val response = MockHttpServletResponse()
+
+        handler.onAuthenticationSuccess(
+            MockHttpServletRequest(),
+            response,
+            accessTokenAuthentication(mapOf(), refreshToken = null),
+        )
+
+        val body: JsonNode = jsonMapper.readTree(response.contentAsString)
+        assertNull(body["data"]["refresh_token"])
+    }
+
+    @Test
     fun resolveHelperMethodsCoverBranches() {
         val handler =
             OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
@@ -287,6 +303,8 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     companion object {
         private fun accessTokenAuthentication(
             additionalParameters: Map<String, Any>,
+            refreshToken: OAuth2RefreshToken? =
+                OAuth2RefreshToken("refresh", Instant.now(), Instant.now().plusSeconds(120)),
         ): OAuth2AccessTokenAuthenticationToken {
             val accessToken =
                 OAuth2AccessToken(
@@ -296,8 +314,6 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
                     Instant.now().plusSeconds(60),
                     setOf("read"),
                 )
-            val refreshToken =
-                OAuth2RefreshToken("refresh", Instant.now(), Instant.now().plusSeconds(120))
             val client = registeredClient()
             val clientAuthentication: Authentication =
                 OAuth2ClientAuthenticationToken(

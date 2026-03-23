@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.server.authorization.context.Authoriz
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
-import org.springframework.util.Assert
 import java.security.Principal
 
 private val PASSWORD_PROVIDER_LOGGER: Logger = LogManager.getLogger()
@@ -57,15 +56,10 @@ class OAuth2PasswordAuthenticationProvider
         tokenGenerator: OAuth2TokenGenerator<out OAuth2Token>?,
         private val loginFailureTracker: LoginFailureTracker? = null,
     ) : AuthenticationProvider {
-        private val authorizationService: OAuth2AuthorizationService
-        private val tokenGenerator: OAuth2TokenGenerator<out OAuth2Token>
-
-        init {
-            Assert.notNull(authorizationService, "authorizationService cannot be null")
-            Assert.notNull(tokenGenerator, "tokenGenerator cannot be null")
-            this.authorizationService = authorizationService!!
-            this.tokenGenerator = tokenGenerator!!
-        }
+        private val authorizationService: OAuth2AuthorizationService =
+            requireNotNull(authorizationService) { "authorizationService cannot be null" }
+        private val tokenGenerator: OAuth2TokenGenerator<out OAuth2Token> =
+            requireNotNull(tokenGenerator) { "tokenGenerator cannot be null" }
 
         override fun authenticate(authentication: Authentication): Authentication {
             val passwordGrantAuthenticationToken =

@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
+import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.RoleService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
@@ -100,6 +101,4 @@ class RoleServiceImpl(
             boundMenus.forEach { boundMenu -> menus().addBy(boundMenu) }
         }
     }
-
-    private inline fun <T, R> T?.readOrNull(block: T.() -> R): R? = this?.let { runCatching { it.block() }.getOrNull() }
 }

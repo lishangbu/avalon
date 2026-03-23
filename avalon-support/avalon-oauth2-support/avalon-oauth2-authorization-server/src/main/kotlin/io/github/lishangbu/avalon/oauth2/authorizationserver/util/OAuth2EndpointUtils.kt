@@ -38,7 +38,7 @@ object OAuth2EndpointUtils {
         errorCode: String,
         parameterName: String,
         errorUri: String,
-    ) {
+    ): Nothing {
         val error = OAuth2Error(errorCode, "OAuth 2.0 Parameter: $parameterName", errorUri)
         throw OAuth2AuthenticationException(error)
     }

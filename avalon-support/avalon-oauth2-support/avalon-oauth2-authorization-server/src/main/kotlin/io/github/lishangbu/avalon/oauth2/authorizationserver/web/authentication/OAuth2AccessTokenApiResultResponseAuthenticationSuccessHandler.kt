@@ -19,13 +19,11 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import org.springframework.util.CollectionUtils
 import tools.jackson.databind.json.JsonMapper
 import java.io.IOException
 import java.security.Principal
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 import java.util.function.Consumer
 
 /**
@@ -54,7 +52,8 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             null
         private val authenticationLogRecorder: AuthenticationLogRecorder =
             authenticationLogRecorder ?: AuthenticationLogRecorder.noop()
-        private val jsonMapper: JsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper")
+        private val jsonMapper: JsonMapper =
+            requireNotNull(jsonMapper) { "jsonMapper cannot be null" }
 
         @Throws(IOException::class, ServletException::class)
         override fun onAuthenticationSuccess(
@@ -98,7 +97,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             if (refreshToken != null) {
                 builder.refreshToken(refreshToken.tokenValue)
             }
-            if (!CollectionUtils.isEmpty(additionalParameters)) {
+            if (additionalParameters.isNotEmpty()) {
                 builder.additionalParameters(additionalParameters)
             }
 
@@ -269,8 +268,8 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
                 body["expires_in"] =
                     ChronoUnit.SECONDS.between(accessToken.issuedAt, accessToken.expiresAt)
             }
-            if (accessTokenResponse.refreshToken != null) {
-                body["refresh_token"] = accessTokenResponse.refreshToken!!.tokenValue
+            accessTokenResponse.refreshToken?.let { refreshToken ->
+                body["refresh_token"] = refreshToken.tokenValue
             }
             val scopes = accessToken.scopes
             if (scopes != null && scopes.isNotEmpty()) {

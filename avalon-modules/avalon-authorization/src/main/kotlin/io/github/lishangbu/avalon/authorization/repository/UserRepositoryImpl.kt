@@ -132,11 +132,11 @@ class UserRepositoryImpl(
             }
     }
 
-    private fun User?.readId(): Long? = this?.let { runCatching { it.id }.getOrNull() }
+    private fun User?.readId(): Long? = readOrNull { id }
 
-    private fun User?.readUsername(): String? = this?.let { runCatching { it.username }.getOrNull() }
+    private fun User?.readUsername(): String? = readOrNull { username }
 
-    private fun User?.readPhone(): String? = this?.let { runCatching { it.phone }.getOrNull() }
+    private fun User?.readPhone(): String? = readOrNull { phone }
 
-    private fun User?.readEmail(): String? = this?.let { runCatching { it.email }.getOrNull() }
+    private fun User?.readEmail(): String? = readOrNull { email }
 }

@@ -84,11 +84,11 @@ class RoleRepositoryImpl(
             }
     }
 
-    private fun Role?.readId(): Long? = this?.let { runCatching { it.id }.getOrNull() }
+    private fun Role?.readId(): Long? = readOrNull { id }
 
-    private fun Role?.readCode(): String? = this?.let { runCatching { it.code }.getOrNull() }
+    private fun Role?.readCode(): String? = readOrNull { code }
 
-    private fun Role?.readName(): String? = this?.let { runCatching { it.name }.getOrNull() }
+    private fun Role?.readName(): String? = readOrNull { name }
 
-    private fun Role?.readEnabled(): Boolean? = this?.let { runCatching { it.enabled }.getOrNull() }
+    private fun Role?.readEnabled(): Boolean? = readOrNull { enabled }
 }

@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
+import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.UserService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
@@ -114,6 +115,4 @@ class UserServiceImpl(
             boundRoles.forEach { boundRole -> roles().addBy(boundRole) }
         }
     }
-
-    private inline fun <T, R> T?.readOrNull(block: T.() -> R): R? = this?.let { runCatching { it.block() }.getOrNull() }
 }
