@@ -17,29 +17,17 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 import java.sql.SQLException
 
 /**
- * 全局异常处理器 统一处理控制器层抛出的各种异常并包装为标准的 ApiResult 返回
+ * 全局异常处理器
  *
- * @param e 异常实例
- * @param exception 参数绑定异常 处理业务校验过程中碰到的非法参数异常，该异常基本由 [Assert] 抛出
- * @param exception 参数校验异常
- * @param exception 异常实例 处理 SQL 异常
- * @param exception SQL 异常实例 不支持的操作类型 处理资源不存在
- * @param exception 资源不存在异常
- * @return ApiResult 包装的错误信息 运行时异常 HttpMessageNotWritableException
- *   处理参数绑定错误（MethodArgumentNotValidException / BindException）
- * @see Assert#hasLength(String, String)
- * @see Assert#hasText(String, String)
- * @see Assert#isTrue(boolean, String)
- * @see Assert#isNull(Object, String)
- * @see Assert#notNull(Object, String) 处理非法状态
+ * 统一处理控制器抛出的异常并返回标准化错误响应
+ *
  * @author lishangbu
- * @since 2018/8/30 全局异常
+ * @since 2018/8/30
  */
-
-/** 全局异常处理器。 */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 class GlobalExceptionHandler {
+    /** 处理全局异常 */
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleGlobalException(exception: Exception): ApiResult<Void> {
@@ -47,6 +35,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理运行时异常 */
     @ExceptionHandler(RuntimeException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleRuntimeException(exception: RuntimeException): ApiResult<Void> {
@@ -54,6 +43,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理HTTP 消息不可写异常 */
     @ExceptionHandler(HttpMessageNotWritableException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleHttpMessageNotWritableException(
@@ -63,6 +53,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理请求体验证异常 */
     @ExceptionHandler(MethodArgumentNotValidException::class, BindException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleBodyValidException(exception: Exception): ApiResult<Void> {
@@ -77,6 +68,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.BAD_REQUEST, errorMsg)
     }
 
+    /** 处理非法参数异常 */
     @ExceptionHandler(IllegalArgumentException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleIllegalArgumentException(exception: IllegalArgumentException): ApiResult<Void> {
@@ -84,6 +76,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理非法状态异常 */
     @ExceptionHandler(IllegalStateException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleIllegalStateException(exception: IllegalStateException): ApiResult<Void> {
@@ -91,6 +84,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理SQL 异常 */
     @ExceptionHandler(SQLException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleSQLException(exception: SQLException): ApiResult<Void> {
@@ -98,6 +92,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, "系统开小差了，请稍后再试")
     }
 
+    /** 处理不支持操作异常 */
     @ExceptionHandler(UnsupportedOperationException::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleUnsupportedOperationException(
@@ -107,6 +102,7 @@ class GlobalExceptionHandler {
         return ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR, exception.message.orEmpty())
     }
 
+    /** 处理资源不存在异常 */
     @ExceptionHandler(NoResourceFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNoResourceFoundException(exception: NoResourceFoundException): ApiResult<Void> {
@@ -117,6 +113,7 @@ class GlobalExceptionHandler {
         )
     }
 
+    /** 处理HTTP 请求方法不支持异常 */
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     fun handleHttpRequestMethodNotSupportedException(
@@ -128,6 +125,7 @@ class GlobalExceptionHandler {
         )
 
     companion object {
+        /** 日志记录器 */
         private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     }
 }

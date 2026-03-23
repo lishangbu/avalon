@@ -9,10 +9,17 @@ import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
+/**
+ * 树果仓储实现
+ *
+ * 基于 Jimmer 查询并持久化树果数据
+ */
 @Repository
 class BerryRepositoryImpl(
+    /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
 ) : BerryRepository {
+    /** 按示例条件查询树果列表 */
     override fun findAll(example: Example<Berry>?): List<Berry> {
         val probe = example?.probe
         return sql
@@ -32,6 +39,7 @@ class BerryRepositoryImpl(
             }.execute()
     }
 
+    /** 按示例条件分页查询树果 */
     override fun findAll(
         example: Example<Berry>?,
         pageable: Pageable,
@@ -54,12 +62,16 @@ class BerryRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
+    /** 按 ID 查询单个树果 */
     override fun findById(id: Long): Berry? = sql.findById(Berry::class, id)
 
+    /** 保存树果 */
     override fun save(berry: Berry): Berry = sql.save(berry).modifiedEntity
 
+    /** 保存树果并立即刷新 */
     override fun saveAndFlush(berry: Berry): Berry = save(berry)
 
+    /** 删除指定 ID 的树果 */
     override fun deleteById(id: Long) {
         sql
             .createDelete(Berry::class) {
@@ -68,5 +80,6 @@ class BerryRepositoryImpl(
             }.execute()
     }
 
+    /** 保留与 Spring Data 风格一致的刷新方法 */
     override fun flush() = Unit
 }

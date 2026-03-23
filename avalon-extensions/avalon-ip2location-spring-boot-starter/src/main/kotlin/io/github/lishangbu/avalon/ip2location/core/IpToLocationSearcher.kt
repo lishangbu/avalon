@@ -11,28 +11,24 @@ import org.springframework.util.StreamUtils
 import java.io.IOException
 
 /**
- * IP 搜索器 封装 IP2Location 的查询与资源加载逻辑，支持初始化与销毁钩子 This function to query IP2Location data.
+ * IP 定位查询器
  *
- * @param ipAddress IP Address you wish to query
- * @return IP2Location data
- * @throws IOException If an input or output exception occurred
- */
-
-/**
- * IP 搜索器。
- *
- * 封装 IP2Location 的查询与资源加载逻辑，支持初始化与销毁钩子。
+ * 负责加载 IP2Location 数据库并执行 IP 查询
  *
  * @author lishangbu
  * @since 2025/4/12
  */
 class IpToLocationSearcher(
+    /** IP 定位配置 */
     private val ipToLocationProperties: IpToLocationProperties,
+    /** 资源加载器 */
     private val resourceLoader: ResourceLoader,
 ) : InitializingBean,
     DisposableBean {
+    /** IP2Location 引擎 */
     private var loc: IP2Location? = null
 
+    /** 查询 IP 对应的地理位置信息 */
     fun ipQuery(ipAddress: String): IpResult? {
         val engine = loc ?: return null
         try {
@@ -83,10 +79,12 @@ class IpToLocationSearcher(
         }
     }
 
+    /** 关闭定位器资源 */
     override fun destroy() {
         loc?.Close()
     }
 
+    /** 加载 IP 数据库资源 */
     @Throws(Exception::class)
     override fun afterPropertiesSet() {
         if (loc == null) {
@@ -101,6 +99,7 @@ class IpToLocationSearcher(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log = LoggerFactory.getLogger(IpToLocationSearcher::class.java)
     }
 }

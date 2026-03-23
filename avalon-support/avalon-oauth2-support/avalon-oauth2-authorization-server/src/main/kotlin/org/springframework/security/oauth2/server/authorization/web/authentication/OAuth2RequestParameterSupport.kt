@@ -5,6 +5,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.util.MultiValueMap
 
+/** 校验并返回单个文本参数 */
 internal fun MultiValueMap<String, String>.requireSingleTextParameter(
     parameterName: String,
     errorUri: String,
@@ -16,6 +17,7 @@ internal fun MultiValueMap<String, String>.requireSingleTextParameter(
             errorUri,
         )
 
+/** 读取请求的权限范围列表 */
 internal fun MultiValueMap<String, String>.readRequestedScopes(errorUri: String): Set<String>? {
     val scope = getFirst(OAuth2ParameterNames.SCOPE)
     if (!scope.isNullOrBlank() && this[OAuth2ParameterNames.SCOPE]?.size != 1) {

@@ -7,13 +7,13 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 
 /**
- * 密码加密器自动装配 提供默认的 PasswordEncoder，除非容器中已有其他实现
+ * 密码编码器自动配置
  *
- * @author lishangbu
- * @since 2025/8/17
+ * 在容器未提供自定义实现时注册默认的 [PasswordEncoder]
  */
 @AutoConfiguration
 class PasswordEncoderAutoConfiguration {
+    /** 创建密码编码器 */
     @Bean
     @ConditionalOnMissingBean
     fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()

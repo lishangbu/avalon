@@ -8,15 +8,19 @@ import org.babyfish.jimmer.sql.*
 @Entity
 @Table(name = "item_category")
 interface ItemCategory {
+    /** ID */
     @Id
     @GeneratedValue(generatorType = SnowflakeIdGenerator::class)
     @JsonConverter(LongToStringConverter::class)
     val id: Long
 
+    /** 内部名称 */
     val internalName: String?
 
+    /** 名称 */
     val name: String?
 
+    /** 道具口袋 */
     @ManyToOne
     @JoinColumn(name = "item_pocket_id")
     val itemPocket: ItemPocket?

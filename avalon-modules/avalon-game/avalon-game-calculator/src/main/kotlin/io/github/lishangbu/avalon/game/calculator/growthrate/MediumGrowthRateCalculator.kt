@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service
  */
 @Service
 class MediumGrowthRateCalculator : AbstractGrowthRateCalculator() {
-    /** 获取较快组成长速率的内部名称 */
+    /** 获取成长速率内部名称 */
     override fun getGrowthRateInternalName(): String = "medium"
 
-    /** 较快组： EXP = Lv^3 */
+    /** 计算较快组在指定等级下的经验值 */
     override fun tryCalculateGrowthRate(level: Int): Int = level * level * level
 }

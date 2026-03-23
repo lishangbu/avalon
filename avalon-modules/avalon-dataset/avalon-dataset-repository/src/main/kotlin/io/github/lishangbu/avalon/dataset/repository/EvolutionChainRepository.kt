@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 进化链(EvolutionChain)数据访问层
+ * 进化链仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义进化链数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2026/2/12

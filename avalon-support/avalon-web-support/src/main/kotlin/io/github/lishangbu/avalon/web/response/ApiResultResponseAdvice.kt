@@ -11,32 +11,25 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * API 响应结果包装增强器，统一封装所有 Controller 返回值为 ApiResult 支持自动包装普通对象、字符串类型和已包装的 ApiResult
- * 类型，字符串类型特殊处理，保证响应内容为标准 JSON 适用于 io.github.lishangbu.avalon 包下所有 RestController
+ * API 响应包装增强器
  *
- * @param body 原始响应体
- * @param returnType 方法返回类型参数
- * @param selectedContentType 响应内容类型
- * @param selectedConverterType 消息转换器类型
- * @param request 当前请求对象
- * @param response 当前响应对象
- * @param body 原始响应体
- * @return 包装后的响应体 包装 API 调用结果
- * @return 包装后的 ApiResult 或 JSON 字符串
+ * 统一将控制器返回值包装为 [ApiResult]
+ *
  * @author lishangbu
- * @since 2023/5/1 判断是否需要处理响应体（本实现总是处理） 响应体写出前的统一包装处理
+ * @since 2023/5/1
  */
-
-/** API 响应结果包装增强器。 */
 @RestControllerAdvice(basePackages = ["io.github.lishangbu.avalon"])
 class ApiResultResponseAdvice(
+    /** JSON 映射器 */
     private val jsonMapper: JsonMapper,
 ) : ResponseBodyAdvice<Any> {
+    /** 对所有控制器返回值启用统一包装 */
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
     ): Boolean = true
 
+    /** 在写入响应体前将返回值转换为统一响应结构 */
     override fun beforeBodyWrite(
         body: Any?,
         returnType: MethodParameter,
@@ -46,6 +39,7 @@ class ApiResultResponseAdvice(
         response: ServerHttpResponse,
     ): Any? = wrapApiResult(body)
 
+    /** 将普通返回值包装为 [ApiResult]，字符串返回值额外序列化为 JSON 文本 */
     private fun wrapApiResult(body: Any?): Any =
         when (body) {
             is String -> jsonMapper.writeValueAsString(ApiResult.ok(body))

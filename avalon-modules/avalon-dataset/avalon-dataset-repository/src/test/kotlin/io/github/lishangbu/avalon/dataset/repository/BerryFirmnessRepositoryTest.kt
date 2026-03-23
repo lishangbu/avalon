@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Example
 
-/** 树果硬度数据访问层测试 */
+/** 树果硬度仓储测试 */
 class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Resource
     private lateinit var berryFirmnessRepository: BerryFirmnessRepository
 
-    /** 验证 数据库中的数据可以通过 selectById 查询到 */
+    /** 验证可按 ID 查询树果硬度 */
     @Test
     fun shouldFindBerryFirmnessById() {
         // Act
@@ -23,7 +23,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("很柔软", berryFirmness.name)
     }
 
-    /** 验证 selectList 的动态查询能够基于 internalName 匹配到预加载的数据 */
+    /** 验证可按 internalName 查询树果硬度 */
     @Test
     fun shouldSelectListMatchByInternalName() {
         val cond =
@@ -38,7 +38,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertTrue(results.any { (it.internalName ?: "").contains("hard") })
     }
 
-    /** 验证在空条件下能返回预加载的所有记录 */
+    /** 验证空条件下返回全部预加载记录 */
     @Test
     fun shouldReturnAllPreloadedWhenNoCondition() {
         val all = berryFirmnessRepository.findAll()
@@ -46,7 +46,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertTrue(all.size >= 5, "预期至少有 5 条预加载的树果硬度记录")
     }
 
-    /** 测试插入树果硬度并查询 */
+    /** 验证可插入树果硬度并查询 */
     @Test
     fun shouldInsertBerryFirmness() {
         val bf =
@@ -63,7 +63,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("中等", berryFirmness.name)
     }
 
-    /** 测试更新树果硬度 */
+    /** 验证可更新树果硬度 */
     @Test
     fun shouldUpdateBerryFirmnessById() {
         val created =
@@ -79,7 +79,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("非常嫩", updatedEntity.name)
     }
 
-    /** 测试删除树果硬度 */
+    /** 验证可删除树果硬度 */
     @Test
     fun shouldDeleteBerryFirmnessById() {
         val created =

@@ -4,9 +4,7 @@ import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation
 import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelationId
 import io.github.lishangbu.avalon.dataset.service.TypeDamageRelationService
 import org.babyfish.jimmer.Page
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable

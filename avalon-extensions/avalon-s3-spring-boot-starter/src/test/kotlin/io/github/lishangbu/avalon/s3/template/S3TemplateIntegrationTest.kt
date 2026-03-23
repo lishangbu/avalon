@@ -13,15 +13,18 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
 /**
- * S3Template 集成测试（基于 Testcontainers 的 MinIO） 验证 S3Template 在实际 S3 兼容存储上的上传与下载功能 使用 MinIO
- * 作为测试容器，确保测试环境可控且可复现 Act - create, put, get Assert Cleanup
+ * S3Template 集成测试
+ *
+ * 基于 Testcontainers 启动 MinIO，验证对象与桶的基础读写行为
  */
 @ExtendWith(MinIOTestcontainers::class, SpringExtension::class)
 @ContextConfiguration(classes = [S3AutoConfiguration::class])
 class S3TemplateIntegrationTest {
+    /** 注入待测试的 S3Template */
     @Resource
     private lateinit var template: S3Template
 
+    /** 验证可以完成对象上传与下载 */
     @Test
     fun uploadAndDownloadShouldWork() {
         val bucket = "ut-test-bucket"
@@ -43,6 +46,7 @@ class S3TemplateIntegrationTest {
         template.removeBucket(bucket)
     }
 
+    /** 验证上传逻辑不依赖 InputStream.available 返回值 */
     @Test
     fun uploadShouldNotDependOnAvailableByteCount() {
         val bucket = "ut-test-bucket-available"
@@ -78,6 +82,7 @@ class S3TemplateIntegrationTest {
         template.removeBucket(bucket)
     }
 
+    /** 验证查询桶时缺失桶会返回 null */
     @Test
     fun getBucketShouldReturnNullableBucket() {
         val bucket = "ut-test-bucket-query"

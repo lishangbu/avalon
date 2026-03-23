@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/menu")
 @RestController
 class MenuController(
+    /** 菜单服务 */
     private val menuService: MenuService,
 ) {
     /**

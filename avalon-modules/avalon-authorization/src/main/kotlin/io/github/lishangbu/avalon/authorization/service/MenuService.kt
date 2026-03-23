@@ -28,15 +28,15 @@ interface MenuService {
      */
     fun listAllMenuTree(menu: Menu): List<MenuTreeNode>
 
-    /** 根据 ID 查询菜单。 */
+    /** 按 ID 查询菜单 */
     fun getById(id: Long): Menu?
 
-    /** 新增菜单。 */
+    /** 保存菜单 */
     fun save(menu: Menu): Menu
 
-    /** 更新菜单。 */
+    /** 更新菜单 */
     fun update(menu: Menu): Menu
 
-    /** 根据 ID 删除菜单。 */
+    /** 按 ID 删除菜单 */
     fun removeById(id: Long)
 }

@@ -12,11 +12,15 @@ import java.time.Duration
  * successful authentication of the username.
  */
 interface LoginFailureTracker {
+    /** 判断是否启用状态 */
     fun isEnabled(): Boolean
 
+    /** 获取剩余锁定时长 */
     fun getRemainingLock(username: String?): Duration?
 
+    /** 处理失败 */
     fun onFailure(username: String?)
 
+    /** 处理成功 */
     fun onSuccess(username: String?)
 }

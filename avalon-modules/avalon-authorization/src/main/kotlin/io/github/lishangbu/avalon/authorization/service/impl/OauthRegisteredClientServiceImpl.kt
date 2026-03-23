@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
@@ -11,18 +11,22 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 /**
  * OAuth2 注册客户端服务实现
+ *
+ * 负责 OAuth2 注册客户端的查询与维护
  *
  * @author lishangbu
  * @since 2026/3/19
  */
 @Service
 class OauthRegisteredClientServiceImpl(
+    /** OAuth2 注册客户端仓储 */
     private val oauth2RegisteredClientRepository: Oauth2RegisteredClientRepository,
 ) : OauthRegisteredClientService {
+    /** 按条件分页查询 OAuth2 注册客户端 */
     override fun getPageByCondition(
         registeredClient: OauthRegisteredClient,
         pageable: Pageable,
@@ -39,6 +43,7 @@ class OauthRegisteredClientServiceImpl(
             pageable,
         )
 
+    /** 按条件查询 OAuth2 注册客户端列表 */
     override fun listByCondition(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient> =
         oauth2RegisteredClientRepository.findAll(
             Example.of(
@@ -51,8 +56,10 @@ class OauthRegisteredClientServiceImpl(
             ),
         )
 
+    /** 按 ID 查询 OAuth2 注册客户端 */
     override fun getById(id: String): OauthRegisteredClient? = oauth2RegisteredClientRepository.findById(id)
 
+    /** 保存 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
     override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient {
         val now = Instant.now()
@@ -89,9 +96,11 @@ class OauthRegisteredClientServiceImpl(
         return oauth2RegisteredClientRepository.save(saved)
     }
 
+    /** 更新 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
     override fun update(registeredClient: OauthRegisteredClient): OauthRegisteredClient = oauth2RegisteredClientRepository.save(registeredClient)
 
+    /** 按 ID 删除 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: String) {
         oauth2RegisteredClientRepository.deleteById(id)

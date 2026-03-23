@@ -8,13 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 /**
- * IpToLocationSearcher 单元测试 验证 IP 到地理信息检索器的功能，包含正常查询与空 IP 参数的异常场景
+ * [IpToLocationSearcher] 测试
  *
- * @author lishangbu
- * @since 2025/4/12
+ * 验证正常查询与空 IP 异常场景
  */
 
-/** IpToLocationSearcher 单元测试。 */
 @SpringBootTest(classes = [IpToLocationSearcher::class, IpToLocationProperties::class])
 class IpToLocationSearcherTest {
     @Autowired

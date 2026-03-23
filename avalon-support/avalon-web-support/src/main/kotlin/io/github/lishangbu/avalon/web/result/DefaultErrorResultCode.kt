@@ -1,15 +1,14 @@
 package io.github.lishangbu.avalon.web.result
 
 /**
- * web api 结果默认错误码 定义常见的 HTTP 错误码与默认错误信息
+ * Web API 默认错误码
  *
- * @author lishangbu
- * @since 2025/4/8 参数错误 资源不存在 方法不支持 服务器内部错误
+ * 定义常见 HTTP 错误对应的默认业务码
  */
-
-/** Web API 默认错误码。 */
 enum class DefaultErrorResultCode(
+    /** 值 */
     private val value: Int,
+    /** 消息 */
     private val message: String,
 ) : ErrorResultCode {
     BAD_REQUEST(400, "Bad Request"),
@@ -18,7 +17,9 @@ enum class DefaultErrorResultCode(
     SERVER_ERROR(500, "Internal Server Error"),
     ;
 
+    /** 获取错误码 */
     override fun code(): Int = value
 
+    /** 获取错误消息 */
     override fun errorMessage(): String = message
 }

@@ -22,24 +22,24 @@ interface UserService {
      */
     fun getUserByUsername(username: String): UserWithRoles?
 
-    /** 根据条件分页查询用户。 */
+    /** 按条件分页查询用户 */
     fun getPageByCondition(
         user: User,
         pageable: Pageable,
     ): Page<User>
 
-    /** 根据条件查询用户列表。 */
+    /** 根据条件查询用户列表 */
     fun listByCondition(user: User): List<User>
 
-    /** 根据 ID 查询用户。 */
+    /** 按 ID 查询用户 */
     fun getById(id: Long): User?
 
-    /** 新增用户。 */
+    /** 保存用户 */
     fun save(user: User): User
 
-    /** 更新用户。 */
+    /** 更新用户 */
     fun update(user: User): User
 
-    /** 根据 ID 删除用户。 */
+    /** 按 ID 删除用户 */
     fun removeById(id: Long)
 }

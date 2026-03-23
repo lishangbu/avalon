@@ -45,7 +45,6 @@ subprojects {
 
         tasks.withType<Test>().configureEach {
             useJUnitPlatform()
-            maxParallelForks = 1
             jvmArgs("--enable-native-access=ALL-UNNAMED")
             doFirst {
                 val mockitoCore = classpath.files.firstOrNull { it.name.startsWith("mockito-core-") }
@@ -261,6 +260,8 @@ subprojects {
 }
 
 tasks.register("printVersion") {
+    group = "build setup"
+    description = "Print the version of this project."
     doLast {
         println(project.version)
     }

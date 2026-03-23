@@ -8,13 +8,13 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.web.util.UrlUtils
 
 /**
- * 授权服务器设置工厂 提供 `AuthorizationServerSettings` 的自动装配，优先使用配置中的 issuerUrl
+ * 授权服务器设置自动配置
  *
- * @author lishangbu
- * @since 2025/8/17
+ * 根据配置构建默认的 [AuthorizationServerSettings]
  */
 @AutoConfiguration
 class AuthorizationServerSettingsAutoConfiguration {
+    /** 创建授权服务器设置 */
     @Bean
     @ConditionalOnMissingBean
     fun authorizationServerSettings(properties: Oauth2Properties): AuthorizationServerSettings {

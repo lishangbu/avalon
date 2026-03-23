@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
+/** 按逗号拆分为有序集合 */
 internal fun String?.toCommaDelimitedSet(): LinkedHashSet<String> {
     if (this == null) {
         return linkedSetOf()
@@ -19,4 +20,5 @@ internal fun String?.toCommaDelimitedSet(): LinkedHashSet<String> {
     }
 }
 
+/** 按逗号拼接为字符串 */
 internal fun Iterable<String>.joinToCommaDelimitedString(): String = joinToString(",")

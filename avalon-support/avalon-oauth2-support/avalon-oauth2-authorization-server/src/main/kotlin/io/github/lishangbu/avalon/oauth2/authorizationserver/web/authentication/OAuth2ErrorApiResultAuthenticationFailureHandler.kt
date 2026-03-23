@@ -22,27 +22,29 @@ import java.time.Instant
 import java.util.*
 
 /**
- * An implementation of an `AuthenticationFailureHandler` used for handling an
- * `OAuth2AuthenticationException` and returning the `OAuth2Error` OAuth 2.0 Error Response
+ * OAuth2 认证失败处理器
  *
- * @see AuthenticationFailureHandler
- * @see OAuth2ErrorHttpMessageConverter
- * @author Dmitriy Dubson
- * @author lishangbu
- * @since 2025/8/25
+ * 将认证异常转换为统一的 JSON 错误响应并记录认证日志
  */
 class OAuth2ErrorApiResultAuthenticationFailureHandler
     @JvmOverloads
     constructor(
         authenticationLogRecorder: AuthenticationLogRecorder? = AuthenticationLogRecorder.noop(),
+        /** OAuth2 属性 */
         private val oauth2Properties: Oauth2Properties? = null,
         jsonMapper: JsonMapper,
     ) : AuthenticationFailureHandler {
+        /** 日志记录器 */
         private val logger: Log = LogFactory.getLog(javaClass)
+
+        /** 认证日志记录器 */
         private val authenticationLogRecorder: AuthenticationLogRecorder =
             authenticationLogRecorder ?: AuthenticationLogRecorder.noop()
+
+        /** JSON 映射器 */
         private val jsonMapper = jsonMapper
 
+        /** 处理认证失败 */
         @Throws(IOException::class, ServletException::class)
         override fun onAuthenticationFailure(
             request: HttpServletRequest,
@@ -67,6 +69,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             }
         }
 
+        /** 解析错误 */
         private fun resolveError(authenticationException: AuthenticationException?): ResolvedError {
             if (authenticationException is OAuth2AuthenticationException) {
                 val error = authenticationException.error
@@ -89,6 +92,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             )
         }
 
+        /** 记录认证失败 */
         private fun recordAuthenticationFailure(
             request: HttpServletRequest,
             error: ResolvedError,
@@ -120,6 +124,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             }
         }
 
+        /** 解析用户名参数名 */
         private fun resolveUsernameParameterName(): String {
             if (oauth2Properties == null) {
                 return "username"
@@ -128,6 +133,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             return normalize(configured) ?: "username"
         }
 
+        /** 解析客户端 ID */
         private fun resolveClientId(request: HttpServletRequest): String? {
             val clientId = normalize(request.getParameter("client_id"))
             if (clientId != null) {
@@ -137,7 +143,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             if (authorization == null || !authorization.startsWith("Basic ")) {
                 return null
             }
-            val base64Credentials = authorization.substring("Basic ".length).trim { it <= ' ' }
+            val base64Credentials = authorization.substring("Basic ".length).trim()
             if (base64Credentials.isEmpty()) {
                 return null
             }
@@ -156,27 +162,23 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             return null
         }
 
+        /** 解析客户端 IP */
         private fun resolveClientIp(request: HttpServletRequest): String? {
             val forwardedFor = request.getHeader("X-Forwarded-For")
             if (forwardedFor != null && forwardedFor.isNotBlank()) {
-                val parts = forwardedFor.split(",", limit = 2)
-                return normalize(parts[0].trim { it <= ' ' })
+                return normalize(forwardedFor.substringBefore(','))
             }
             val realIp = request.getHeader("X-Real-IP")
             if (realIp != null && realIp.isNotBlank()) {
-                return normalize(realIp.trim { it <= ' ' })
+                return normalize(realIp)
             }
             return normalize(request.remoteAddr)
         }
 
-        private fun normalize(value: String?): String? {
-            if (value == null) {
-                return null
-            }
-            val trimmed = value.trim { it <= ' ' }
-            return if (trimmed.isEmpty()) null else trimmed
-        }
+        /** 清理字符串值 */
+        private fun normalize(value: String?): String? = value?.trim()?.takeIf { it.isNotEmpty() }
 
+        /** 写入失败响应 */
         private fun writeFailedResponse(
             response: HttpServletResponse,
             errorCode: String?,
@@ -212,6 +214,7 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             )
         }
 
+        /** 清理错误描述 */
         private fun sanitizeDescription(description: String?): String? {
             val normalized = normalize(description)
             if (normalized == null) {
@@ -224,22 +227,24 @@ class OAuth2ErrorApiResultAuthenticationFailureHandler
             val prefix = "[" + OAuth2ErrorCodes.INVALID_GRANT + "]"
             if (lower.startsWith(prefix)) {
                 val trimmed = normalize(normalized.substring(prefix.length))
-                return trimmed ?: null
+                return trimmed
             }
             val colonPrefix = OAuth2ErrorCodes.INVALID_GRANT + ":"
             if (lower.startsWith(colonPrefix)) {
                 val trimmed = normalize(normalized.substring(colonPrefix.length))
-                return trimmed ?: null
+                return trimmed
             }
             if (lower.startsWith(OAuth2ErrorCodes.INVALID_GRANT)) {
                 val trimmed = normalize(normalized.substring(OAuth2ErrorCodes.INVALID_GRANT.length))
-                return trimmed ?: null
+                return trimmed
             }
             return normalized
         }
 
         private data class ResolvedError(
+            /** 状态码 */
             val code: String?,
+            /** 描述 */
             val description: String?,
         )
     }

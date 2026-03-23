@@ -13,11 +13,12 @@ import org.springframework.util.ResourceUtils
  */
 @ConfigurationProperties(IpToLocationProperties.PREFIX)
 class IpToLocationProperties {
-    /** ip2region.db 文件路径，默认加载同时包含 IPv4 和 IPv6 的数据库文件 */
+    /** DB 文件位置 */
     var dbFileLocation: String =
         ResourceUtils.CLASSPATH_URL_PREFIX + "IP2LOCATION-LITE-DB11.IPV6.BIN"
 
     companion object {
+        /** 配置前缀 */
         const val PREFIX: String = "ip2location"
     }
 }

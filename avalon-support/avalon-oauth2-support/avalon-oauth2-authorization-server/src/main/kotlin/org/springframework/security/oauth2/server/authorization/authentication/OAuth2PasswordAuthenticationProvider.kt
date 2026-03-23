@@ -24,43 +24,36 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 import java.security.Principal
 
+/** 密码授权提供者日志记录器 */
 private val PASSWORD_PROVIDER_LOGGER: Logger = LogManager.getLogger()
+
+/** 密码 ID 令牌类型 */
 private val PASSWORD_ID_TOKEN_TYPE = OAuth2TokenType(OidcParameterNames.ID_TOKEN)
 
 /**
- * OAuth2 Password 授权模式的认证提供者
+ * 密码授权模式认证提供者
  *
- * 负责处理 Resource Owner Password Credentials 授权类型的令牌申请 校验客户端授权类型、用户名密码凭证，以及生成并保存授权信息
- *
- * @param authenticationManager 认证管理器
- * @param authorizationService 授权服务
- * @param tokenGenerator 令牌生成器
- * @see OAuth2AuthorizationCodeAuthenticationProvider
- * @see OAuth2RefreshTokenAuthenticationProvider
- * @see OAuth2ClientCredentialsAuthenticationProvider
- * @see UserInfo
- * @see io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo
- * @since 2025/9/29
- *
- * 构造方法
- *
- * 构造一个 OAuth2PasswordAuthenticationProvider 实例，注入必要组件
- *
- * @since 0.2.3
+ * 处理 `password` 授权类型的客户端校验、用户名密码认证、令牌生成与授权保存
  */
 class OAuth2PasswordAuthenticationProvider
     @JvmOverloads
     constructor(
+        /** 认证管理器 */
         private val authenticationManager: AuthenticationManager,
         authorizationService: OAuth2AuthorizationService?,
         tokenGenerator: OAuth2TokenGenerator<out OAuth2Token>?,
+        /** 登录失败跟踪器 */
         private val loginFailureTracker: LoginFailureTracker? = null,
     ) : AuthenticationProvider {
+        /** 授权服务 */
         private val authorizationService: OAuth2AuthorizationService =
             requireNotNull(authorizationService) { "authorizationService cannot be null" }
+
+        /** 令牌生成器 */
         private val tokenGenerator: OAuth2TokenGenerator<out OAuth2Token> =
             requireNotNull(tokenGenerator) { "tokenGenerator cannot be null" }
 
+        /** 校验密码授权请求并签发访问令牌 */
         override fun authenticate(authentication: Authentication): Authentication {
             val passwordGrantAuthenticationToken =
                 authentication as OAuth2PasswordAuthorizationGrantAuthenticationToken
@@ -284,6 +277,7 @@ class OAuth2PasswordAuthenticationProvider
             ).also { it.details = passwordGrantAuthenticationToken.details }
         }
 
+        /** 判断当前提供者是否支持密码授权令牌 */
         override fun supports(authentication: Class<*>): Boolean =
             OAuth2PasswordAuthorizationGrantAuthenticationToken::class
                 .java

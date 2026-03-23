@@ -20,56 +20,21 @@ import java.net.URI
 import java.time.Duration
 
 /**
- * S3 操作模板 提供基于 AWS SDK v2 的常用 S3 操作封装，包括：
- * - 桶（bucket）管理：创建/查询/删除
- * - 对象（object）管理：上传/下载/删除/列举
- * - 生成签名 URL（用于上传/下载） 设计要点：
- * - 通过 `S3Properties` 注入配置
- * - 延迟初始化 `S3Client` 与 `S3Presigner`，在 `afterPropertiesSet` 中创建
- * - 兼容 path-style 与 virtual-hosted-style
+ * S3 操作模板
  *
- * @param bucketName bucket 名称 判断 bucket 是否存在
- * @param prefix 前缀
- * @param objectName 对象名称
- * @param minutes 过期分钟（必须小于7天）
- * @param expires 过期时长（必须小于7天） 获取对象上传链接（过期分钟）
- * @param minutes 过期分钟
- * @param httpMethod HTTP 方法
- * @param expires 过期时长
- * @param httpMethod HTTP 方法（GET/PUT） 获取对象公共访问 URL 若对象设置了公共读权限，该 URL 可直接访问对象数据
- * @param stream 文件流
- * @param bucketName bucket 名称
- * @param objectName 对象名称
- * @param contextType Content-Type
- * @param stream 文件流 上传对象
- * @param size 大小
- * @return 是否存在 获取全部 bucket 列表
- * @return bucket 列表 根据名称查找 bucket（兼容性封装）
- * @return 可选的 bucket 删除 bucket 根据前缀列举对象
- * @return 对象列表 获取对象下载链接（过期分钟）
- * @return 下载链接 获取对象下载链接（过期时长）
- * @return 上传链接 获取对象上传链接（过期时长） v1 兼容：获取对象链接（指定 HTTP 方法）
- * @return 链接 获取对象链接（支持自定义 HTTP 方法）
- * @return URL 获取对象输入流
- * @return InputStream 上传对象（自动推断大小）
- * @return PutObjectResponse 获取对象元信息
- * @return HeadObjectResponse 删除对象 创建 S3 客户端 创建 S3 Presigner // 创建 S3 客户端 // 创建 S3 Presigner
- * @throws IOException IO 异常 上传对象（指定 Content-Type）
- * @author lishangbu
- * @since 2026/1/18 创建 bucket
- */
-
-/**
- * S3 操作模板。
- *
- * 提供基于 AWS SDK v2 的常用 S3 操作封装。
+ * 封装常用的存储桶、对象和预签名 URL 操作
  */
 class S3Template(
+    /** S3 属性 */
     private val s3Properties: S3Properties,
 ) : InitializingBean {
+    /** S3 客户端 */
     private lateinit var s3Client: S3Client
+
+    /** S3 预签名器 */
     private lateinit var s3Presigner: S3Presigner
 
+    /** 创建存储桶 */
     fun createBucket(bucketName: String) {
         if (!headBucket(bucketName)) {
             val request = CreateBucketRequest.builder().bucket(bucketName).build()
@@ -77,6 +42,7 @@ class S3Template(
         }
     }
 
+    /** 检查存储桶是否存在 */
     fun headBucket(bucketName: String): Boolean =
         try {
             val request = HeadBucketRequest.builder().bucket(bucketName).build()
@@ -86,18 +52,22 @@ class S3Template(
             false
         }
 
+    /** 获取所有存储桶 */
     fun getAllBuckets(): List<Bucket> {
         val response: ListBucketsResponse = s3Client.listBuckets()
         return response.buckets()
     }
 
+    /** 按名称获取存储桶 */
     fun getBucket(bucketName: String): Bucket? = getAllBuckets().firstOrNull { it.name() == bucketName }
 
+    /** 删除存储桶 */
     fun removeBucket(bucketName: String) {
         val request = DeleteBucketRequest.builder().bucket(bucketName).build()
         s3Client.deleteBucket(request)
     }
 
+    /** 按前缀列出对象 */
     fun getAllObjectsByPrefix(
         bucketName: String,
         prefix: String,
@@ -112,12 +82,14 @@ class S3Template(
         return response.contents()
     }
 
+    /** 生成对象下载预签名 URL */
     fun getObjectURL(
         bucketName: String,
         objectName: String,
         minutes: Int,
     ): String = getObjectURL(bucketName, objectName, Duration.ofMinutes(minutes.toLong()))
 
+    /** 生成对象下载预签名 URL */
     fun getObjectURL(
         bucketName: String,
         objectName: String,
@@ -142,12 +114,14 @@ class S3Template(
         return presignedRequest.url().toString()
     }
 
+    /** 生成对象上传预签名 URL */
     fun getPutObjectURL(
         bucketName: String,
         objectName: String,
         minutes: Int,
     ): String = getPutObjectURL(bucketName, objectName, Duration.ofMinutes(minutes.toLong()))
 
+    /** 生成对象上传预签名 URL */
     fun getPutObjectURL(
         bucketName: String,
         objectName: String,
@@ -172,6 +146,7 @@ class S3Template(
         return presignedRequest.url().toString()
     }
 
+    /** 按 HTTP 方法生成对象预签名 URL */
     fun getObjectURL(
         bucketName: String,
         objectName: String,
@@ -179,6 +154,7 @@ class S3Template(
         httpMethod: String,
     ) = getObjectURL(bucketName, objectName, Duration.ofMinutes(minutes.toLong()), httpMethod)
 
+    /** 按 HTTP 方法生成对象预签名 URL */
     fun getObjectURL(
         bucketName: String,
         objectName: String,
@@ -191,11 +167,13 @@ class S3Template(
             getObjectURL(bucketName, objectName, expires)
         }
 
+    /** 拼接对象访问地址 */
     fun getObjectURL(
         bucketName: String,
         objectName: String,
     ): String = "${requireProperty(s3Properties.endpoint, "s3.endpoint")}/$bucketName/$objectName"
 
+    /** 读取对象内容 */
     fun getObject(
         bucketName: String,
         objectName: String,
@@ -209,6 +187,7 @@ class S3Template(
         return s3Client.getObject(request, ResponseTransformer.toInputStream())
     }
 
+    /** 上传对象 */
     fun putObject(
         bucketName: String,
         objectName: String,
@@ -217,6 +196,7 @@ class S3Template(
         putObject(bucketName, objectName, stream.readBytes(), "application/octet-stream")
     }
 
+    /** 上传指定内容类型的对象 */
     fun putObject(
         bucketName: String,
         objectName: String,
@@ -226,6 +206,7 @@ class S3Template(
         putObject(bucketName, objectName, stream.readBytes(), contextType)
     }
 
+    /** 上传指定长度的对象 */
     fun putObject(
         bucketName: String,
         objectName: String,
@@ -245,6 +226,7 @@ class S3Template(
         return s3Client.putObject(request, RequestBody.fromInputStream(stream, size))
     }
 
+    /** 上传字节数组内容 */
     private fun putObject(
         bucketName: String,
         objectName: String,
@@ -263,6 +245,7 @@ class S3Template(
         return s3Client.putObject(request, RequestBody.fromBytes(content))
     }
 
+    /** 获取对象元数据 */
     fun getObjectInfo(
         bucketName: String,
         objectName: String,
@@ -276,6 +259,7 @@ class S3Template(
         return s3Client.headObject(request)
     }
 
+    /** 删除对象 */
     fun removeObject(
         bucketName: String,
         objectName: String,
@@ -289,6 +273,7 @@ class S3Template(
         s3Client.deleteObject(request)
     }
 
+    /** 读取配置并创建 S3 客户端与预签名器 */
     override fun afterPropertiesSet() {
         s3Client =
             S3Client
@@ -318,16 +303,20 @@ class S3Template(
                 ).build()
     }
 
+    /** 解析端点 URI */
     private fun endpointUri(): URI = URI.create(requireProperty(s3Properties.endpoint, "s3.endpoint"))
 
+    /** 解析区域 */
     private fun resolveRegion(): Region = Region.of(s3Properties.region?.ifBlank { null } ?: "us-east-1")
 
+    /** 创建基础凭证 */
     private fun basicCredentials(): AwsBasicCredentials =
         AwsBasicCredentials.create(
             requireProperty(s3Properties.accessKey, "s3.access-key"),
             requireProperty(s3Properties.secretKey, "s3.secret-key"),
         )
 
+    /** 校验并返回配置值 */
     private fun requireProperty(
         value: String?,
         propertyName: String,

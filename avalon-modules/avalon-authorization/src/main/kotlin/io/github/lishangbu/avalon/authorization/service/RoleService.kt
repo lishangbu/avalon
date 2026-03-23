@@ -13,24 +13,24 @@ import org.springframework.data.domain.Pageable
  * @since 2025/8/30
  */
 interface RoleService {
-    /** 根据条件分页查询角色。 */
+    /** 按条件分页查询角色 */
     fun getPageByCondition(
         role: Role,
         pageable: Pageable,
     ): Page<Role>
 
-    /** 根据条件查询角色列表。 */
+    /** 按条件查询角色列表 */
     fun listByCondition(role: Role): List<Role>
 
-    /** 根据 ID 查询角色。 */
+    /** 按 ID 查询角色 */
     fun getById(id: Long): Role?
 
-    /** 新增角色。 */
+    /** 保存角色 */
     fun save(role: Role): Role
 
-    /** 更新角色。 */
+    /** 更新角色 */
     fun update(role: Role): Role
 
-    /** 根据 ID 删除角色。 */
+    /** 按 ID 删除角色 */
     fun removeById(id: Long)
 }

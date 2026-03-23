@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 令牌接口
+ * 令牌控制器
  *
  * 提供登出与当前用户令牌信息查询接口
  *
@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/token")
 @RestController
 class TokenController(
+    /** OAuth2 授权服务 */
     private val oAuth2AuthorizationService: OAuth2AuthorizationService,
 ) {
+    /** 注销当前登录会话 */
     @DeleteMapping("/logout")
     fun logout() {
         val authentication: Authentication? = SecurityContextHolder.getContext().authentication
@@ -42,6 +44,7 @@ class TokenController(
         }
     }
 
+    /** 获取当前登录用户信息 */
     @GetMapping("/info")
     fun user(
         @AuthenticationPrincipal user: UserInfo,

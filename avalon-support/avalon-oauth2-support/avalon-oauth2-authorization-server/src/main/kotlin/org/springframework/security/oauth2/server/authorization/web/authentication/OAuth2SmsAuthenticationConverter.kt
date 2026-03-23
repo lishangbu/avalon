@@ -13,19 +13,18 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.web.authentication.AuthenticationConverter
 
 /**
- * OAuth2 短信授权类型认证转换器 将使用 `grant_type=sms` 的 HTTP 表单请求转换为
- * `OAuth2SmsAuthorizationGrantAuthenticationToken`，并负责解析与验证参数
+ * OAuth2 短信授权请求转换器
  *
- * @author lishangbu
- * @since 2026/3/13 短信授权类型请求参数错误时的 RFC 文档参考链接（Extension Grants） grant_type (REQUIRED) scope
- *   (OPTIONAL) // grant_type (REQUIRED) // scope (OPTIONAL)
+ * 将短信验证码授权请求转换为认证令牌
  */
 private const val SMS_REQUEST_ERROR_URI =
     "https://datatracker.ietf.org/doc/html/rfc6749#section-4.5"
 
 class OAuth2SmsAuthenticationConverter(
+    /** OAuth2 属性 */
     private val oauth2Properties: Oauth2Properties,
 ) : AuthenticationConverter {
+    /** 将请求转换为认证令牌 */
     override fun convert(request: HttpServletRequest): Authentication? {
         val parameters = OAuth2EndpointUtils.getFormParameters(request)
         val grantType = parameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)

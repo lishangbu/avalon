@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.repository
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.AuthenticationLog
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue

@@ -9,15 +9,13 @@ import org.springframework.security.config.annotation.web.configuration.OAuth2Au
 import org.springframework.security.oauth2.jwt.JwtDecoder
 
 /**
- * JwtDecoder 自动装配 提供基于 JWKSource 的 JwtDecoder 实例，用于解码签名的访问令牌
+ * JWT 解码器自动配置
  *
- * @param jwkSource JWKSource 实例
- * @return JwtDecoder
- * @author lishangbu
- * @since 2025/8/17 An instance of JwtDecoder for decoding signed access tokens.
+ * 基于 [JWKSource] 创建默认的 [JwtDecoder]
  */
 @AutoConfiguration
 class JwtDecoderAutoConfiguration {
+    /** 创建 JWT 解码器 */
     @Bean
     @ConditionalOnMissingBean
     fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder = OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)

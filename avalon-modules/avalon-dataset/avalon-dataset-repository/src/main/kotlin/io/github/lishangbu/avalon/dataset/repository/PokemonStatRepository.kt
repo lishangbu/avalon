@@ -6,9 +6,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 宝可梦能力值数据访问接口
+ * 宝可梦能力值仓储接口
  *
- * 提供宝可梦能力值数据的CRUD操作
+ * 定义宝可梦能力值数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2026/2/16

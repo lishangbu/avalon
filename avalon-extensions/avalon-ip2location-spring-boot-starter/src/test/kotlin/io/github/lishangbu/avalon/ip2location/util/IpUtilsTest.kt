@@ -6,10 +6,9 @@ import java.math.BigInteger
 import java.net.UnknownHostException
 
 /**
- * 单元测试：IpUtils 测试网络地址工具类的功能（IPv4/IPv6 判定与转换、CIDR 与十进制转换等）
+ * [IpUtils] 测试
  *
- * @author lishangbu
- * @since 2025/4/12
+ * 验证 IPv4、IPv6 与 CIDR 相关转换逻辑
  */
 class IpUtilsTest {
     @Test

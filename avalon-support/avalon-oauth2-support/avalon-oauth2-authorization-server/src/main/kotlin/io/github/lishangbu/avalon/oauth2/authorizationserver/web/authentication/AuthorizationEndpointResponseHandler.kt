@@ -19,23 +19,23 @@ import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 
 /**
- * An implementation of an [AuthenticationSuccessHandler] used for handling an
- * [OAuth2AccessTokenAuthenticationToken] and returning the [OAuth2AccessTokenResponse]
+ * 授权端点成功响应处理器
  *
- * @see AuthenticationSuccessHandler
- * @see OAuth2AccessTokenResponseHttpMessageConverter
- * @author Dmitriy Dubson
- * @author lishangbu
+ * 将访问令牌认证结果写回标准 OAuth2 访问令牌响应
  */
 class AuthorizationEndpointResponseHandler : AuthenticationSuccessHandler {
+    /** 日志记录器 */
     private val logger: Log = LogFactory.getLog(javaClass)
 
+    /** 访问令牌响应转换器 */
     private val accessTokenResponseConverter: HttpMessageConverter<OAuth2AccessTokenResponse> =
         OAuth2AccessTokenResponseHttpMessageConverter()
 
+    /** 访问令牌响应定制器 */
     private var accessTokenResponseCustomizer: Consumer<OAuth2AccessTokenAuthenticationContext>? =
         null
 
+    /** 处理认证成功 */
     @Throws(IOException::class, ServletException::class)
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
@@ -101,16 +101,7 @@ class AuthorizationEndpointResponseHandler : AuthenticationSuccessHandler {
         accessTokenResponseConverter.write(accessTokenResponse, null, httpResponse)
     }
 
-    /**
-     * Sets the [Consumer] providing access to the[OAuth2AccessTokenAuthenticationContext]
-     * containing an [OAuth2AccessTokenResponse.Builder] and additional context information.
-     *
-     * @param accessTokenResponseCustomizer the [Consumer] providing access to the
-     */
-    // [OAuth2AccessTokenAuthenticationContext] containing
-
-    /**  */
-    //                   an [OAuth2AccessTokenResponse.Builder]
+    /** 设置访问令牌响应定制器 */
     fun setAccessTokenResponseCustomizer(
         accessTokenResponseCustomizer: Consumer<OAuth2AccessTokenAuthenticationContext>,
     ) {

@@ -4,15 +4,19 @@ import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.User
 
 /**
- * 用户(包含角色信息)
+ * 用户及角色信息
  *
  * @author lishangbu
  * @since 2025/9/19
  */
 data class UserWithRoles(
+    /** ID */
     val id: Long?,
+    /** 用户名 */
     val username: String?,
+    /** 头像 */
     val avatar: String?,
+    /** 角色列表 */
     val roles: Set<PlainRole>,
 ) {
     constructor(
@@ -25,13 +29,13 @@ data class UserWithRoles(
     )
 
     data class PlainRole(
-        /** 主键 */
+        /** ID */
         var id: Long? = null,
-        /** 角色代码 */
+        /** 状态码 */
         var code: String? = null,
-        /** 角色名称 */
+        /** 名称 */
         var name: String? = null,
-        /** 角色是否启用 */
+        /** 启用状态 */
         var enabled: Boolean? = null,
     ) {
         constructor(role: Role) : this(role.id, role.code, role.name, role.enabled)

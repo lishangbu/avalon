@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class DefaultUserDetailsService(
+    /** 用户仓储 */
     private val userRepository: UserRepository,
 ) : UserDetailsService {
     /**

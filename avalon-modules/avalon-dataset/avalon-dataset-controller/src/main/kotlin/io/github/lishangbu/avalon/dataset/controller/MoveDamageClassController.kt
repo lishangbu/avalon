@@ -1,25 +1,19 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
-/** 招式伤害类别控制器。 */
+/** 招式伤害分类控制器*/
 @RestController
 @RequestMapping("/move-damage-class")
 class MoveDamageClassController(
+    /** 招式伤害分类服务 */
     private val moveDamageClassService: MoveDamageClassService,
 ) {
+    /** 获取招式伤害分类分页结果 */
     @GetMapping("/page")
     fun getMoveDamageClassPage(
         pageable: Pageable,
@@ -38,16 +32,19 @@ class MoveDamageClassController(
             pageable,
         )
 
+    /** 保存招式伤害分类 */
     @PostMapping
     fun save(
         @RequestBody moveDamageClass: MoveDamageClass,
     ): MoveDamageClass = moveDamageClassService.save(moveDamageClass)
 
+    /** 更新招式伤害分类 */
     @PutMapping
     fun update(
         @RequestBody moveDamageClass: MoveDamageClass,
     ): MoveDamageClass = moveDamageClassService.update(moveDamageClass)
 
+    /** 按 ID 删除招式伤害分类 */
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
@@ -55,6 +52,7 @@ class MoveDamageClassController(
         moveDamageClassService.removeById(id)
     }
 
+    /** 查询招式伤害分类列表 */
     @GetMapping("/list")
     fun listMoveDamageClasses(
         @RequestParam(required = false) id: Long?,

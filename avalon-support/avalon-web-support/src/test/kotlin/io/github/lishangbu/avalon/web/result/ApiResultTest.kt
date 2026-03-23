@@ -5,13 +5,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 /**
- * ApiResult 单元测试 覆盖 ApiResult 的成功与失败返回情况，验证状态码、数据与错误信息的语义
+ * [ApiResult] 测试
  *
- * @author lishangbu
- * @since 2025/4/16 验证返回的状态码为 200 验证返回的数据为传入的 testData 验证错误信息为 null 验证返回的数据为 null 验证返回的状态码为指定的错误码
- *   验证错误信息为指定的错误信息 验证数据为 null 验证错误信息为联合错误信息 验证错误信息为错误码对应的默认消息 验证错误信息为自定义的信息，并且通过,分隔 // 验证返回的状态码为
- *   200 // 验证返回的数据为传入的 testData // 验证错误信息为 null // 验证返回的数据为 null // 验证返回的状态码为指定的错误码 //
- *   验证错误信息为指定的错误信息 // 验证数据为 null // 验证错误信息为联合错误信息 // 验证错误信息为错误码对应的默认消息 // 验证错误信息为自定义的信息，并且通过,分隔
+ * 验证成功和失败结果的状态码、数据与错误信息
  */
 class ApiResultTest {
     @Test

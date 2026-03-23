@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
 import org.springframework.boot.convert.DurationStyle
 import org.springframework.security.oauth2.core.AuthorizationGrantType
@@ -16,13 +16,16 @@ import org.springframework.stereotype.Component
 import java.time.temporal.ChronoUnit
 
 /**
- * JPA 注册客户端
+ * RegisteredClient 仓储适配器
+ *
+ * 负责在 Spring Authorization Server 的 [RegisteredClient] 与持久化实体之间转换
  *
  * @author lishangbu
  * @since 2025/8/17
  */
 @Component
 class DefaultRegisteredClientRepository(
+    /** OAuth2 注册客户端仓储 */
     private val oauth2RegisteredClientRepository: Oauth2RegisteredClientRepository,
 ) : RegisteredClientRepository {
     /**
@@ -35,10 +38,10 @@ class DefaultRegisteredClientRepository(
     }
 
     /**
-     * 根据ID查找注册客户端
+     * 按 ID 查询注册客户端
      *
-     * @param id 客户端ID
-     * @return 注册客户端，未找到返回null
+     * @param id 客户端 ID
+     * @return 注册客户端，未找到时返回 null
      */
     override fun findById(id: String): RegisteredClient? {
         require(id.isNotBlank()) { "id cannot be empty" }
@@ -46,10 +49,10 @@ class DefaultRegisteredClientRepository(
     }
 
     /**
-     * 根据客户端ID查找注册客户端
+     * 按客户端 ID 查询注册客户端
      *
-     * @param clientId 客户端ID
-     * @return 注册客户端，未找到返回null
+     * @param clientId 客户端 ID
+     * @return 注册客户端，未找到时返回 null
      */
     override fun findByClientId(clientId: String): RegisteredClient? {
         require(clientId.isNotBlank()) { "clientId cannot be empty" }
@@ -221,8 +224,10 @@ class DefaultRegisteredClientRepository(
             when (authorizationGrantType) {
                 AuthorizationGrantType.AUTHORIZATION_CODE.value ->
                     AuthorizationGrantType.AUTHORIZATION_CODE
+
                 AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
                     AuthorizationGrantType.CLIENT_CREDENTIALS
+
                 AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
                 else -> AuthorizationGrantType(authorizationGrantType)
             }
@@ -239,8 +244,10 @@ class DefaultRegisteredClientRepository(
             when (clientAuthenticationMethod) {
                 ClientAuthenticationMethod.CLIENT_SECRET_BASIC.value ->
                     ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+
                 ClientAuthenticationMethod.CLIENT_SECRET_POST.value ->
                     ClientAuthenticationMethod.CLIENT_SECRET_POST
+
                 ClientAuthenticationMethod.NONE.value -> ClientAuthenticationMethod.NONE
                 else -> ClientAuthenticationMethod(clientAuthenticationMethod)
             }

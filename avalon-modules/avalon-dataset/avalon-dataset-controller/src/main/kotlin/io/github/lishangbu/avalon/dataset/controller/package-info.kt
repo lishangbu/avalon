@@ -1,6 +1,6 @@
 /**
  * 数据集控制器包
  *
- * 提供数据集相关的 REST API
+ * 提供数据集相关的 REST 控制器
  */
 package io.github.lishangbu.avalon.dataset.controller

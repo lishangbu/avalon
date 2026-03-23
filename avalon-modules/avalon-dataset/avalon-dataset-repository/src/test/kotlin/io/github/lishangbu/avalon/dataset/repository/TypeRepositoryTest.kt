@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.data.domain.Example
 
-/** 属性数据访问层单元测试 */
+/** 属性仓储测试 */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TypeRepositoryTest : AbstractRepositoryTest() {
     @Resource

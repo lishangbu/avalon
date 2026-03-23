@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Example
 
-/** 树果风味数据访问层测试 */
+/** 树果风味仓储测试 */
 class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Resource
     private lateinit var berryFlavorRepository: BerryFlavorRepository
 
-    /** 验证 通过ID查询 */
+    /** 验证可按 ID 查询树果风味 */
     @Test
     fun shouldFindBerryFlavorById() {
         // Act
@@ -22,7 +22,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("辣", flavor.name)
     }
 
-    /** 验证 selectList 的动态查询能够基于部分 internalName 匹配到 数据库中的数据 */
+    /** 验证可按 internalName 查询树果风味 */
     @Test
     fun shouldSelectListMatchByInternalName() {
         // Arrange - 构造查询条件，使用部分 internalName
@@ -40,7 +40,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertTrue(results.any { it.internalName == "spicy" })
     }
 
-    /** 验证 selectList 在空条件下返回所有预加载的记录 */
+    /** 验证空条件下返回全部预加载记录 */
     @Test
     fun shouldReturnAllPreloadedBerryFlavorsWhenNoCondition() {
         // Act
@@ -52,7 +52,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertTrue(all.size >= 5, "预期至少有 5 个预加载的树果风味记录")
     }
 
-    /** 测试插入树果风味（使用简短合理的 internalName 避免与预加载数据冲突） */
+    /** 验证可插入树果风味 */
     @Test
     fun shouldInsertBerryFlavor() {
         // Arrange
@@ -72,7 +72,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("鲜美", berryFlavor.name)
     }
 
-    /** 测试根据 ID 更新树果风味的名称 */
+    /** 验证可按 ID 更新树果风味名称 */
     @Test
     fun shouldUpdateBerryFlavorById() {
         // Arrange - 先插入一条临时记录
@@ -93,7 +93,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("鱼腥味", updatedEntity.name)
     }
 
-    /** 测试根据 ID 删除树果风味 */
+    /** 验证可按 ID 删除树果风味 */
     @Test
     fun shouldDeleteBerryFlavorById() {
         // Arrange - 插入临时记录

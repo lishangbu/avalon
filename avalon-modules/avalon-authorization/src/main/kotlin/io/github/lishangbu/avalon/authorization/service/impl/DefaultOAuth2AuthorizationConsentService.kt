@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent
 import io.github.lishangbu.avalon.authorization.repository.OauthAuthorizationConsentRepository
 import org.springframework.dao.DataRetrievalFailureException
 import org.springframework.security.core.GrantedAuthority
@@ -14,20 +14,24 @@ import org.springframework.stereotype.Service
 /**
  * OAuth2 授权同意服务实现
  *
- * 管理 OAuth2AuthorizationConsent（授权同意）实体的持久化与读取（基于数据表和 MyBatis 映射）
+ * 负责 OAuth2AuthorizationConsent 的持久化、查询与删除
  *
  * @author lishangbu
  * @since 2025/8/17
  */
 @Service
 class DefaultOAuth2AuthorizationConsentService(
+    /** OAuth 授权同意仓储 */
     private val oauth2AuthorizationConsentMapper: OauthAuthorizationConsentRepository,
+    /** 注册客户端仓储 */
     private val registeredClientRepository: RegisteredClientRepository,
 ) : OAuth2AuthorizationConsentService {
+    /** 保存 OAuth2 授权同意 */
     override fun save(authorizationConsent: OAuth2AuthorizationConsent) {
         oauth2AuthorizationConsentMapper.save(toEntity(authorizationConsent))
     }
 
+    /** 删除 OAuth2 授权同意 */
     override fun remove(authorizationConsent: OAuth2AuthorizationConsent) {
         oauth2AuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
             authorizationConsent.registeredClientId,
@@ -35,6 +39,7 @@ class DefaultOAuth2AuthorizationConsentService(
         )
     }
 
+    /** 按 ID 查询默认 OAuth2 授权同意 */
     override fun findById(
         registeredClientId: String,
         principalName: String,
@@ -46,6 +51,7 @@ class DefaultOAuth2AuthorizationConsentService(
             ?.let(::toObject)
     }
 
+    /** 返回转换为对象 */
     private fun toObject(oauthAuthorizationConsent: OauthAuthorizationConsent): OAuth2AuthorizationConsent {
         val registeredClientId =
             requireNotNull(oauthAuthorizationConsent.id.registeredClientId) {
@@ -75,6 +81,7 @@ class DefaultOAuth2AuthorizationConsentService(
         return builder.build()
     }
 
+    /** 返回转换为实体 */
     private fun toEntity(authorizationConsent: OAuth2AuthorizationConsent): OauthAuthorizationConsent {
         val authorities: MutableSet<String> = linkedSetOf()
         for (authority: GrantedAuthority in authorizationConsent.authorities) {

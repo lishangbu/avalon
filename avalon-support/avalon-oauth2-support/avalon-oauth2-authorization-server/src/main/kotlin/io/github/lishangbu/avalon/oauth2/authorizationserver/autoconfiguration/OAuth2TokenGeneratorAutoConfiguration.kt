@@ -10,16 +10,16 @@ import org.springframework.security.oauth2.server.authorization.token.JwtGenerat
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 
 /**
- * OAuth2 Token 生成器自动装配 提供 Delegating 的 OAuth2TokenGenerator，包含 reference token、refresh token 与 JWT
+ * OAuth2 令牌生成器自动配置
  *
- * @author lishangbu
- * @since 2025/8/22 reference的token生成器 reference的refreshToken生成器 // reference的token生成器 //
- *   reference的refreshToken生成器
+ * 组合访问令牌、刷新令牌和 JWT 生成器
  */
 @AutoConfiguration
 class OAuth2TokenGeneratorAutoConfiguration(
+    /** JWT 编码器 */
     private val jwtEncoder: JwtEncoder,
 ) {
+    /** 创建令牌生成器 */
     @Bean
     fun tokenGenerator(): OAuth2TokenGenerator<*> =
         DelegatingOAuth2TokenGenerator(

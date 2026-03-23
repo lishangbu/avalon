@@ -13,8 +13,8 @@ dependencies {
     implementation(project(":avalon-modules:avalon-dataset:avalon-dataset-repository"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    runtimeOnly("org.postgresql:postgresql")
     implementation("org.babyfish.jimmer:jimmer-spring-boot-starter")
+    runtimeOnly("org.postgresql:postgresql")
 }
 
 tasks.named<BootBuildImage>("bootBuildImage") {

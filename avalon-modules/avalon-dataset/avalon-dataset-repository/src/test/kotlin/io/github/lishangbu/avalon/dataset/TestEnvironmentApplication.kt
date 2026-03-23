@@ -9,22 +9,15 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * 测试环境自动配置类
+ * 数据集模块测试环境配置
  *
- * @author lishangbu
- * @since 2025/8/20
+ * 为仓储测试提供最小化的 Spring Boot 上下文
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = ["io.github.lishangbu.avalon.dataset.repository"])
 class TestEnvironmentApplication {
-    /**
-     * PostgreSQL 测试容器 Bean
-     *
-     * 使用 @ServiceConnection 注解，Spring Boot 会自动配置数据源连接
-     *
-     * @return PostgreSQL 容器实例
-     */
+    /** 创建 PostgreSQL 测试容器 */
     @Bean
     @ServiceConnection
     fun postgresContainer(): PostgreSQLContainer = PostgreSQLContainer(DockerImageName.parse("postgres"))

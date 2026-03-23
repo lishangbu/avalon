@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 道具投掷效果(ItemFlingEffect)数据访问层
+ * 道具投掷效果仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义道具投掷效果数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2025/09/14

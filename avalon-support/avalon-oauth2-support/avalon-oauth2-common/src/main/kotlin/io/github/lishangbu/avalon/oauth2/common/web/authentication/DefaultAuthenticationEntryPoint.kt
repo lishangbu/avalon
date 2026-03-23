@@ -11,16 +11,17 @@ import org.springframework.security.web.AuthenticationEntryPoint
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * 统一的认证入口点 在未认证或认证失败时返回统一的 JSON 错误响应（HTTP 401 + 业务错误码） 被 [ExceptionTranslationFilter] 在需要发起认证流程时调用
+ * 未认证请求入口处理器
  *
- * @author lishangbu
- * @since 2025/8/22
+ * 将未认证或认证失败请求转换为统一的 JSON 错误响应
  */
 class DefaultAuthenticationEntryPoint(
     jsonMapper: JsonMapper,
 ) : AuthenticationEntryPoint {
+    /** JSON 映射器 */
     private val jsonMapper = jsonMapper
 
+    /** 将认证异常写入 401 响应 */
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -42,6 +43,7 @@ class DefaultAuthenticationEntryPoint(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log = LoggerFactory.getLogger(DefaultAuthenticationEntryPoint::class.java)
     }
 }

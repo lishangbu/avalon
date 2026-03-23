@@ -13,20 +13,18 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 import java.time.Instant
-import java.util.LinkedHashMap
-import java.util.LinkedHashSet
-import java.util.UUID
+import java.util.*
 
 /**
- * Reference 模式下的 Access Token 生成器 提供基于引用（reference token）的 Access Token 生成实现，使用 UUID 作为 token
- * 值并携带声明集
+ * 引用型访问令牌生成器
  *
- * @author lishangbu
- * @since 2025/8/22 @formatter:off @formatter:on // @formatter:off // @formatter:on
+ * 生成携带声明集的 reference access token
  */
 class ReferenceOAuth2AccessTokenGenerator : OAuth2TokenGenerator<OAuth2AccessToken> {
+    /** 访问令牌生成器 */
     private val accessTokenGenerator: StringKeyGenerator = UuidKeyGenerator()
 
+    /** 生成引用型访问令牌 */
     override fun generate(context: OAuth2TokenContext): OAuth2AccessToken? {
         if (
             OAuth2TokenType.ACCESS_TOKEN != context.tokenType ||
@@ -73,9 +71,11 @@ class ReferenceOAuth2AccessTokenGenerator : OAuth2TokenGenerator<OAuth2AccessTok
         issuedAt: Instant?,
         expiresAt: Instant?,
         scopes: MutableSet<String>,
+        /** 声明集 */
         private val claims: MutableMap<String, Any>,
     ) : OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt, scopes),
         ClaimAccessor {
+        /** 获取声明 */
         override fun getClaims(): MutableMap<String, Any> = claims
     }
 }

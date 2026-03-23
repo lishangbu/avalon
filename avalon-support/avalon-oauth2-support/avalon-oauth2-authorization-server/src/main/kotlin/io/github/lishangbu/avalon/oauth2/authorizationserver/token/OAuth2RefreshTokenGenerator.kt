@@ -9,14 +9,15 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import java.time.Instant
 
 /**
- * 自定义 RefreshToken 生成器 无论何种授权方式，均返回一个基于 UUID 的 refresh token
+ * 刷新令牌生成器
  *
- * @author lishangbu
- * @since 2025/8/22 @formatter:off @formatter:on // @formatter:off // @formatter:on
+ * 基于 UUID 生成 refresh token
  */
 class OAuth2RefreshTokenGenerator : OAuth2TokenGenerator<OAuth2RefreshToken> {
+    /** 刷新令牌生成器 */
     private val refreshTokenGenerator: StringKeyGenerator = UuidKeyGenerator()
 
+    /** 生成刷新令牌 */
     override fun generate(context: OAuth2TokenContext): OAuth2RefreshToken? {
         if (OAuth2TokenType.REFRESH_TOKEN != context.tokenType) {
             return null

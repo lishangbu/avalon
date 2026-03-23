@@ -18,9 +18,12 @@ import java.util.concurrent.ThreadLocalRandom
  * @since 2026/3/13
  */
 abstract class AbstractVerificationCodeService(
+    /** String Redis 模板 */
     private val stringRedisTemplate: StringRedisTemplate,
+    /** OAuth2 属性 */
     private val oauth2Properties: Oauth2Properties,
 ) : VerificationCodeService {
+    /** 生成状态码 */
     override fun generateCode(
         target: String,
         type: String,
@@ -39,6 +42,7 @@ abstract class AbstractVerificationCodeService(
         return code
     }
 
+    /** 返回校验状态码 */
     override fun verifyCode(
         target: String,
         code: String,
@@ -59,13 +63,14 @@ abstract class AbstractVerificationCodeService(
         stringRedisTemplate.delete(key)
     }
 
-    /** 输出验证码（短信/邮件可由子类实现） */
+    /** 返回发送状态码 */
     protected abstract fun deliverCode(
         type: String,
         target: String,
         code: String,
     )
 
+    /** 返回执行速率限制 */
     private fun enforceRateLimit(
         type: String,
         target: String,
@@ -81,6 +86,7 @@ abstract class AbstractVerificationCodeService(
         }
     }
 
+    /** 解析配置 */
     private fun resolveConfig(type: String): VerificationCodeConfig {
         if (AuthorizationGrantTypeSupport.SMS.value == type) {
             return VerificationCodeConfig(
@@ -108,6 +114,7 @@ abstract class AbstractVerificationCodeService(
         throw InvalidCaptchaException("不支持的验证码类型")
     }
 
+    /** 规范化属性 */
     private fun normalizeType(type: String): String {
         if (type.isBlank()) {
             throw InvalidCaptchaException("验证码类型不能为空")
@@ -115,6 +122,7 @@ abstract class AbstractVerificationCodeService(
         return type.trim().lowercase(Locale.ROOT)
     }
 
+    /** 规范化目标 */
     private fun normalizeTarget(
         target: String,
         type: String,
@@ -129,6 +137,7 @@ abstract class AbstractVerificationCodeService(
         return trimmed
     }
 
+    /** 规范化状态码 */
     private fun normalizeCode(code: String): String {
         if (code.isBlank()) {
             throw InvalidCaptchaException("验证码不能为空")
@@ -136,16 +145,19 @@ abstract class AbstractVerificationCodeService(
         return code.trim()
     }
 
+    /** 构建状态码密钥 */
     private fun buildCodeKey(
         type: String,
         target: String,
     ): String = CODE_KEY_PREFIX + type + ":" + target
 
+    /** 构建速率限制密钥 */
     private fun buildRateLimitKey(
         type: String,
         target: String,
     ): String = RATE_LIMIT_KEY_PREFIX + type + ":" + target
 
+    /** 生成数字验证码 */
     private fun generateNumericCode(length: Int): String {
         val safeLength = maxOf(length, DEFAULT_CODE_LENGTH)
         return buildString(safeLength) {
@@ -155,6 +167,7 @@ abstract class AbstractVerificationCodeService(
         }
     }
 
+    /** 返回清理长度 */
     private fun sanitizeLength(
         length: Int?,
         defaultLength: Int,
@@ -165,6 +178,7 @@ abstract class AbstractVerificationCodeService(
         return length
     }
 
+    /** 解析时长 */
     private fun resolveDuration(
         configured: Duration?,
         fallback: Duration,
@@ -176,16 +190,28 @@ abstract class AbstractVerificationCodeService(
     }
 
     private data class VerificationCodeConfig(
+        /** 长度 */
         val length: Int,
+        /** 有效期 */
         val timeToLive: Duration,
+        /** 重发间隔 */
         val resendInterval: Duration,
     )
 
     companion object {
+        /** 验证码键前缀 */
         private const val CODE_KEY_PREFIX = "oauth2:verification:code:"
+
+        /** 速率限制键前缀 */
         private const val RATE_LIMIT_KEY_PREFIX = "oauth2:verification:rate:"
+
+        /** 默认状态码长度 */
         private const val DEFAULT_CODE_LENGTH = 6
+
+        /** 默认验证码 TTL */
         private val DEFAULT_CODE_TTL: Duration = Duration.ofMinutes(5)
+
+        /** 默认重发间隔 */
         private val DEFAULT_RESEND_INTERVAL: Duration = Duration.ofSeconds(60)
     }
 }

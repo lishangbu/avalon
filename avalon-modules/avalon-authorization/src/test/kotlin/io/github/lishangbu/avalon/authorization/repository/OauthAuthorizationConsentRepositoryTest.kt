@@ -1,17 +1,14 @@
 package io.github.lishangbu.avalon.authorization.repository
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsent
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**
- * OAuth 授权同意数据访问层测试类
+ * OAuth 授权同意仓储测试
  *
- * 测试 OauthAuthorizationConsentRepository 的基本 CRUD 操作
- *
- * @author lishangbu
- * @since 2025/8/20
+ * 验证授权同意记录的新增、更新和删除行为
  */
 class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
     @Resource

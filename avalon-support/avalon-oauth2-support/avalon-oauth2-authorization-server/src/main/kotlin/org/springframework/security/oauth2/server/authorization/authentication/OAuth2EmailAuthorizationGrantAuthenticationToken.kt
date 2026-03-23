@@ -2,16 +2,16 @@ package org.springframework.security.oauth2.server.authorization.authentication
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import org.springframework.security.core.Authentication
-import java.util.*
 
 /**
- * OAuth2 邮箱授权模式的认证令牌 用于在 OAuth2 授权服务器中处理邮箱验证码模式认证请求 封装了邮箱、验证码、客户端认证信息及附加参数
+ * OAuth2 邮箱授权认证令牌
  *
- * @author lishangbu
- * @since 2026/3/13 邮箱 邮箱验证码 授权范围（scopes）
+ * 封装邮箱验证码授权请求中的邮箱、验证码和附加参数
  */
 class OAuth2EmailAuthorizationGrantAuthenticationToken(
+    /** 邮箱 */
     val email: String,
+    /** 邮箱验证码 */
     val emailCode: String,
     clientPrincipal: Authentication,
     scopes: Set<String>?,
@@ -21,6 +21,6 @@ class OAuth2EmailAuthorizationGrantAuthenticationToken(
         clientPrincipal,
         additionalParameters,
     ) {
-    val scopes: Set<String> =
-        Collections.unmodifiableSet(if (scopes != null) HashSet(scopes) else emptySet())
+    /** 授权范围 */
+    val scopes: Set<String> = java.util.Set.copyOf(scopes.orEmpty())
 }

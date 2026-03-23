@@ -14,8 +14,9 @@ import org.springframework.http.server.ServerHttpResponse
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * ApiResultResponseAdvice 单元测试 验证响应体包装逻辑，确保字符串、普通对象和 ApiResult 类型均能正确处理 测试字符串类型响应体包装为 JSON 字符串
- * 测试普通对象类型响应体包装为 ApiResult 测试已包装的 ApiResult 类型直接返回
+ * [ApiResultResponseAdvice] 测试
+ *
+ * 验证响应体包装逻辑
  */
 class ApiResultResponseAdviceTest {
     private lateinit var jsonMapper: JsonMapper

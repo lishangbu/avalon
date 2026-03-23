@@ -4,10 +4,9 @@ import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.ComponentScan
 
 /**
- * 游戏计算器自动装配
+ * 游戏计算器自动配置
  *
- * @author lishangbu
- * @since 2026/2/25
+ * 注册游戏计算相关组件
  */
 @AutoConfiguration
 @ComponentScan(basePackages = ["io.github.lishangbu.avalon.game.calculator"])
