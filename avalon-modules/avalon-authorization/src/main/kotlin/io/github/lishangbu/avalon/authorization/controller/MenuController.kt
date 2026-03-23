@@ -49,7 +49,7 @@ class MenuController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): Menu? = menuService.getById(id).orElse(null)
+    ): Menu? = menuService.getById(id)
 
     /**
      * 新增菜单

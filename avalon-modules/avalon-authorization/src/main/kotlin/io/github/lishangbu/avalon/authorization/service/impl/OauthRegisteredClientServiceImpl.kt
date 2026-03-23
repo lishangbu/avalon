@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * OAuth2 注册客户端服务实现
@@ -51,7 +51,7 @@ class OauthRegisteredClientServiceImpl(
             ),
         )
 
-    override fun getById(id: String): Optional<OauthRegisteredClient> = oauth2RegisteredClientRepository.findById(id)
+    override fun getById(id: String): OauthRegisteredClient? = oauth2RegisteredClientRepository.findById(id)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient {

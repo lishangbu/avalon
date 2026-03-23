@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.authorization.entity.User
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 用户信息(user)表数据库访问层
@@ -22,7 +21,7 @@ interface UserRepository {
         pageable: Pageable,
     ): Page<User>
 
-    fun findById(id: Long): Optional<User>
+    fun findById(id: Long): User?
 
     fun save(user: User): User
 
@@ -32,5 +31,5 @@ interface UserRepository {
 
     fun flush()
 
-    fun findUserWithRolesByAccount(account: String): Optional<User>
+    fun findUserWithRolesByAccount(account: String): User?
 }

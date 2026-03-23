@@ -6,7 +6,6 @@ import org.springframework.security.oauth2.core.OAuth2Token
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
-import org.springframework.util.CollectionUtils
 import java.time.Duration
 
 internal const val TOKEN_REQUEST_ERROR_URI =
@@ -29,7 +28,7 @@ internal fun buildAccessToken(
     var tokenType = OAuth2AccessToken.TokenType.BEARER
     if (generatedAccessToken is ClaimAccessor) {
         val cnfClaims = generatedAccessToken.getClaimAsMap("cnf")
-        if (!CollectionUtils.isEmpty(cnfClaims) && cnfClaims.containsKey("jkt")) {
+        if (!cnfClaims.isNullOrEmpty() && cnfClaims.containsKey("jkt")) {
             tokenType = OAuth2AccessToken.TokenType.DPOP
         }
     }

@@ -13,8 +13,6 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.stereotype.Component
-import org.springframework.util.Assert
-import org.springframework.util.StringUtils
 import java.time.temporal.ChronoUnit
 
 /**
@@ -33,7 +31,6 @@ class DefaultRegisteredClientRepository(
      * @param registeredClient 注册客户端
      */
     override fun save(registeredClient: RegisteredClient) {
-        Assert.notNull(registeredClient, "registeredClient cannot be null")
         oauth2RegisteredClientRepository.save(toEntity(registeredClient))
     }
 
@@ -44,8 +41,8 @@ class DefaultRegisteredClientRepository(
      * @return 注册客户端，未找到返回null
      */
     override fun findById(id: String): RegisteredClient? {
-        Assert.hasText(id, "id cannot be empty")
-        return oauth2RegisteredClientRepository.findById(id).map(::toObject).orElse(null)
+        require(id.isNotBlank()) { "id cannot be empty" }
+        return oauth2RegisteredClientRepository.findById(id)?.let(::toObject)
     }
 
     /**
@@ -55,11 +52,10 @@ class DefaultRegisteredClientRepository(
      * @return 注册客户端，未找到返回null
      */
     override fun findByClientId(clientId: String): RegisteredClient? {
-        Assert.hasText(clientId, "clientId cannot be empty")
+        require(clientId.isNotBlank()) { "clientId cannot be empty" }
         return oauth2RegisteredClientRepository
             .findByClientId(clientId)
-            .map(::toObject)
-            .orElse(null)
+            ?.let(::toObject)
     }
 
     /**
@@ -69,14 +65,11 @@ class DefaultRegisteredClientRepository(
      * @return 对象
      */
     private fun toObject(client: OauthRegisteredClient): RegisteredClient {
-        val clientAuthenticationMethods =
-            StringUtils.commaDelimitedListToSet(client.clientAuthenticationMethods)
-        val authorizationGrantTypes =
-            StringUtils.commaDelimitedListToSet(client.authorizationGrantTypes)
-        val redirectUris = StringUtils.commaDelimitedListToSet(client.redirectUris)
-        val postLogoutRedirectUris =
-            StringUtils.commaDelimitedListToSet(client.postLogoutRedirectUris)
-        val clientScopes = StringUtils.commaDelimitedListToSet(client.scopes)
+        val clientAuthenticationMethods = client.clientAuthenticationMethods.toCommaDelimitedSet()
+        val authorizationGrantTypes = client.authorizationGrantTypes.toCommaDelimitedSet()
+        val redirectUris = client.redirectUris.toCommaDelimitedSet()
+        val postLogoutRedirectUris = client.postLogoutRedirectUris.toCommaDelimitedSet()
+        val clientScopes = client.scopes.toCommaDelimitedSet()
 
         val builder =
             RegisteredClient
@@ -184,14 +177,12 @@ class DefaultRegisteredClientRepository(
             clientSecretExpiresAt = registeredClient.clientSecretExpiresAt
             clientName = registeredClient.clientName
             this.clientAuthenticationMethods =
-                StringUtils.collectionToCommaDelimitedString(clientAuthenticationMethodValues)
-            this.authorizationGrantTypes =
-                StringUtils.collectionToCommaDelimitedString(authorizationGrantTypeValues)
-            redirectUris =
-                StringUtils.collectionToCommaDelimitedString(registeredClient.redirectUris)
+                clientAuthenticationMethodValues.joinToCommaDelimitedString()
+            this.authorizationGrantTypes = authorizationGrantTypeValues.joinToCommaDelimitedString()
+            redirectUris = registeredClient.redirectUris.joinToCommaDelimitedString()
             postLogoutRedirectUris =
-                StringUtils.collectionToCommaDelimitedString(registeredClient.postLogoutRedirectUris)
-            scopes = StringUtils.collectionToCommaDelimitedString(registeredClient.scopes)
+                registeredClient.postLogoutRedirectUris.joinToCommaDelimitedString()
+            scopes = registeredClient.scopes.joinToCommaDelimitedString()
 
             requireProofKey = registeredClientSettings?.isRequireProofKey
             requireAuthorizationConsent =
@@ -224,16 +215,17 @@ class DefaultRegisteredClientRepository(
          * @param authorizationGrantType 授权类型字符串
          * @return 授权类型对象
          */
-        private fun resolveAuthorizationGrantType(authorizationGrantType: String): AuthorizationGrantType {
-            if (AuthorizationGrantType.AUTHORIZATION_CODE.value == authorizationGrantType) {
-                return AuthorizationGrantType.AUTHORIZATION_CODE
-            } else if (AuthorizationGrantType.CLIENT_CREDENTIALS.value == authorizationGrantType) {
-                return AuthorizationGrantType.CLIENT_CREDENTIALS
-            } else if (AuthorizationGrantType.REFRESH_TOKEN.value == authorizationGrantType) {
-                return AuthorizationGrantType.REFRESH_TOKEN
+        private fun resolveAuthorizationGrantType(
+            authorizationGrantType: String,
+        ): AuthorizationGrantType =
+            when (authorizationGrantType) {
+                AuthorizationGrantType.AUTHORIZATION_CODE.value ->
+                    AuthorizationGrantType.AUTHORIZATION_CODE
+                AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
+                    AuthorizationGrantType.CLIENT_CREDENTIALS
+                AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
+                else -> AuthorizationGrantType(authorizationGrantType)
             }
-            return AuthorizationGrantType(authorizationGrantType)
-        }
 
         /**
          * 解析客户端认证方法
@@ -241,19 +233,16 @@ class DefaultRegisteredClientRepository(
          * @param clientAuthenticationMethod 认证方法字符串
          * @return 认证方法对象
          */
-        private fun resolveClientAuthenticationMethod(clientAuthenticationMethod: String): ClientAuthenticationMethod {
-            if (
-                ClientAuthenticationMethod.CLIENT_SECRET_BASIC.value == clientAuthenticationMethod
-            ) {
-                return ClientAuthenticationMethod.CLIENT_SECRET_BASIC
-            } else if (
-                ClientAuthenticationMethod.CLIENT_SECRET_POST.value == clientAuthenticationMethod
-            ) {
-                return ClientAuthenticationMethod.CLIENT_SECRET_POST
-            } else if (ClientAuthenticationMethod.NONE.value == clientAuthenticationMethod) {
-                return ClientAuthenticationMethod.NONE
+        private fun resolveClientAuthenticationMethod(
+            clientAuthenticationMethod: String,
+        ): ClientAuthenticationMethod =
+            when (clientAuthenticationMethod) {
+                ClientAuthenticationMethod.CLIENT_SECRET_BASIC.value ->
+                    ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+                ClientAuthenticationMethod.CLIENT_SECRET_POST.value ->
+                    ClientAuthenticationMethod.CLIENT_SECRET_POST
+                ClientAuthenticationMethod.NONE.value -> ClientAuthenticationMethod.NONE
+                else -> ClientAuthenticationMethod(clientAuthenticationMethod)
             }
-            return ClientAuthenticationMethod(clientAuthenticationMethod)
-        }
     }
 }

@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.Berry
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 树果(Berry)数据访问层
@@ -22,7 +21,7 @@ interface BerryRepository {
         pageable: Pageable,
     ): Page<Berry>
 
-    fun findById(id: Long): Optional<Berry>
+    fun findById(id: Long): Berry?
 
     fun save(berry: Berry): Berry
 

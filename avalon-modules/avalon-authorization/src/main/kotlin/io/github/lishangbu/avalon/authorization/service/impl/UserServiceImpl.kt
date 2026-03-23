@@ -12,7 +12,7 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.LinkedHashSet
 
 /**
  * 用户服务实现
@@ -29,9 +29,9 @@ class UserServiceImpl(
      * 根据用户名/手机号/邮箱查询用户详情，包含基本信息、角色信息及个人资料
      *
      * @param username 登录账号
-     * @return 查询到的用户详情，未找到时返回Optional.empty()
+     * @return 查询到的用户详情，未找到时返回 null
      */
-    override fun getUserByUsername(username: String): Optional<UserWithRoles> = userRepository.findUserWithRolesByAccount(username).map(::UserWithRoles)
+    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.findUserWithRolesByAccount(username)?.let(::UserWithRoles)
 
     override fun getPageByCondition(
         user: User,
@@ -63,7 +63,7 @@ class UserServiceImpl(
             ),
         )
 
-    override fun getById(id: Long): Optional<User> = userRepository.findById(id)
+    override fun getById(id: Long): User? = userRepository.findById(id)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(user: User): User {
@@ -88,7 +88,7 @@ class UserServiceImpl(
     ): User {
         val existing =
             if (preserveWhenNull) {
-                user.readOrNull { id }?.let { userRepository.findById(it).orElse(null) }
+                user.readOrNull { id }?.let(userRepository::findById)
             } else {
                 null
             }

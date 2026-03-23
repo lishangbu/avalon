@@ -12,9 +12,10 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsSet
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
-import org.springframework.util.StringUtils
 import java.time.Instant
-import java.util.*
+import java.util.LinkedHashMap
+import java.util.LinkedHashSet
+import java.util.UUID
 
 /**
  * Reference 模式下的 Access Token 生成器 提供基于引用（reference token）的 Access Token 生成实现，使用 UUID 作为 token
@@ -43,12 +44,10 @@ class ReferenceOAuth2AccessTokenGenerator : OAuth2TokenGenerator<OAuth2AccessTok
         val expiresAt = issuedAt.plus(registeredClient.tokenSettings.accessTokenTimeToLive)
 
         val claimsBuilder = OAuth2TokenClaimsSet.builder()
-        if (StringUtils.hasText(issuer)) {
-            claimsBuilder.issuer(issuer)
-        }
+        issuer?.takeIf(String::isNotBlank)?.let(claimsBuilder::issuer)
         claimsBuilder
             .subject(context.getPrincipal<Authentication>().name)
-            .audience(Collections.singletonList(registeredClient.clientId))
+            .audience(listOf(registeredClient.clientId))
             .issuedAt(issuedAt)
             .expiresAt(expiresAt)
             .notBefore(issuedAt)

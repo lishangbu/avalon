@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 import java.security.Principal
-import java.util.*
 
 /**
  * 默认透明令牌处理器 用于资源服务器在收到不透明 access token 时执行 introspect，并根据授权与用户信息返回相应的 Principal
@@ -36,23 +35,26 @@ class DefaultOpaqueTokenIntrospector(
         }
 
         if (AuthorizationGrantType.CLIENT_CREDENTIALS == oldAuthorization.authorizationGrantType) {
+            val accessTokenClaims =
+                checkNotNull(oldAuthorization.accessToken?.claims) {
+                    "Access token claims cannot be null for client credentials introspection"
+                }
             return DefaultOAuth2AuthenticatedPrincipal(
                 oldAuthorization.principalName,
-                Objects.requireNonNull(oldAuthorization.accessToken?.claims),
+                accessTokenClaims,
                 AuthorityUtils.NO_AUTHORITIES,
             )
         }
 
         try {
             val principal =
-                Objects.requireNonNull(oldAuthorization).attributes[Principal::class.java.name]
-            val usernamePasswordAuthenticationToken =
-                principal as UsernamePasswordAuthenticationToken
-            val tokenPrincipal = usernamePasswordAuthenticationToken.principal
-            val userDetails =
-                userDetailsService.loadUserByUsername((tokenPrincipal as UserDetails).username)
+                oldAuthorization.attributes[Principal::class.java.name]
+                    as? UsernamePasswordAuthenticationToken
+                    ?: return null
+            val tokenPrincipal = principal.principal as? UserDetails ?: return null
+            val userDetails = userDetailsService.loadUserByUsername(tokenPrincipal.username)
             if (userDetails is UserInfo) {
-                userDetails.attributes.putAll(oldAuthorization.accessToken?.claims ?: emptyMap())
+                userDetails.attributes.putAll(oldAuthorization.accessToken?.claims.orEmpty())
                 return userDetails
             }
         } catch (notFoundException: UsernameNotFoundException) {

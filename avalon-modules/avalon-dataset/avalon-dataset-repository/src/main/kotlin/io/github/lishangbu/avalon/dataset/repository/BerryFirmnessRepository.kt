@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 树果硬度(BerryFirmness)数据访问层
@@ -24,7 +23,7 @@ interface BerryFirmnessRepository {
         pageable: Pageable,
     ): Page<BerryFirmness>
 
-    fun findById(id: Long): Optional<BerryFirmness>
+    fun findById(id: Long): BerryFirmness?
 
     fun save(berryFirmness: BerryFirmness): BerryFirmness
 

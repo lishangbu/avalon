@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.authorization.service
 import io.github.lishangbu.avalon.authorization.entity.Role
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 角色服务
@@ -24,7 +23,7 @@ interface RoleService {
     fun listByCondition(role: Role): List<Role>
 
     /** 根据 ID 查询角色。 */
-    fun getById(id: Long): Optional<Role>
+    fun getById(id: Long): Role?
 
     /** 新增角色。 */
     fun save(role: Role): Role

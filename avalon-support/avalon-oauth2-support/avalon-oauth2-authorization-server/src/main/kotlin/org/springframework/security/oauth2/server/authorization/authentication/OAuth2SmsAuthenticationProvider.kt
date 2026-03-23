@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.server.authorization.context.Authoriz
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
-import org.springframework.util.CollectionUtils
 import java.security.Principal
 
 /**
@@ -116,10 +115,9 @@ class OAuth2SmsAuthenticationProvider
 
             var authorizedScopes: Set<String> = registeredClient.scopes // Default to configured scopes
             val requestedScopes = smsGrantAuthenticationToken.scopes
-            if (!CollectionUtils.isEmpty(requestedScopes)) {
-                val unauthorizedScopes =
-                    requestedScopes.filterNot { registeredClient.scopes.contains(it) }.toSet()
-                if (!CollectionUtils.isEmpty(unauthorizedScopes)) {
+            if (requestedScopes.isNotEmpty()) {
+                val unauthorizedScopes = requestedScopes - registeredClient.scopes
+                if (unauthorizedScopes.isNotEmpty()) {
                     throw OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_SCOPE)
                 }
 

@@ -2,7 +2,6 @@ package io.github.lishangbu.avalon.authorization.service
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
-import java.util.*
 
 /**
  * 菜单服务接口
@@ -30,7 +29,7 @@ interface MenuService {
     fun listAllMenuTree(menu: Menu): List<MenuTreeNode>
 
     /** 根据 ID 查询菜单。 */
-    fun getById(id: Long): Optional<Menu>
+    fun getById(id: Long): Menu?
 
     /** 新增菜单。 */
     fun save(menu: Menu): Menu

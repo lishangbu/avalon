@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * 用户服务
@@ -19,9 +18,9 @@ interface UserService {
      * 根据用户名/手机号/邮箱查询用户详情，包含基本信息、角色信息及个人资料
      *
      * @param username 登录账号
-     * @return 查询到的用户详情，未找到时返回 Optional.empty()
+     * @return 查询到的用户详情，未找到时返回 null
      */
-    fun getUserByUsername(username: String): Optional<UserWithRoles>
+    fun getUserByUsername(username: String): UserWithRoles?
 
     /** 根据条件分页查询用户。 */
     fun getPageByCondition(
@@ -33,7 +32,7 @@ interface UserService {
     fun listByCondition(user: User): List<User>
 
     /** 根据 ID 查询用户。 */
-    fun getById(id: Long): Optional<User>
+    fun getById(id: Long): User?
 
     /** 新增用户。 */
     fun save(user: User): User

@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationContext
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import org.springframework.util.Assert
 import java.io.IOException
 import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
@@ -83,7 +82,7 @@ class AuthorizationEndpointResponseHandler : AuthenticationSuccessHandler {
             builder.additionalParameters(additionalParameters)
         }
 
-        if (accessTokenResponseCustomizer != null) {
+        accessTokenResponseCustomizer?.let { customizer ->
             // @formatter:off
             val accessTokenAuthenticationContext =
                 OAuth2AccessTokenAuthenticationContext
@@ -91,7 +90,7 @@ class AuthorizationEndpointResponseHandler : AuthenticationSuccessHandler {
                     .accessTokenResponse(builder)
                     .build()
             // @formatter:on
-            accessTokenResponseCustomizer?.accept(accessTokenAuthenticationContext)
+            customizer.accept(accessTokenAuthenticationContext)
             if (logger.isTraceEnabled) {
                 logger.trace("Customized access token response")
             }
@@ -115,10 +114,6 @@ class AuthorizationEndpointResponseHandler : AuthenticationSuccessHandler {
     fun setAccessTokenResponseCustomizer(
         accessTokenResponseCustomizer: Consumer<OAuth2AccessTokenAuthenticationContext>,
     ) {
-        Assert.notNull(
-            accessTokenResponseCustomizer,
-            "accessTokenResponseCustomizer cannot be null",
-        )
         this.accessTokenResponseCustomizer = accessTokenResponseCustomizer
     }
 }

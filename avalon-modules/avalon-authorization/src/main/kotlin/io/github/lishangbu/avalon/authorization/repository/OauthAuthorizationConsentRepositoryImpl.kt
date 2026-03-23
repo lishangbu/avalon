@@ -4,13 +4,12 @@ import io.github.lishangbu.avalon.authorization.entity.*
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class OauthAuthorizationConsentRepositoryImpl(
     private val sql: KSqlClient,
 ) : OauthAuthorizationConsentRepository {
-    override fun findById(id: OauthAuthorizationConsentId): Optional<OauthAuthorizationConsent> = Optional.ofNullable(sql.findById(OauthAuthorizationConsent::class, id))
+    override fun findById(id: OauthAuthorizationConsentId): OauthAuthorizationConsent? = sql.findById(OauthAuthorizationConsent::class, id)
 
     override fun save(consent: OauthAuthorizationConsent): OauthAuthorizationConsent = sql.save(consent).modifiedEntity
 
@@ -21,7 +20,7 @@ class OauthAuthorizationConsentRepositoryImpl(
     override fun findByRegisteredClientIdAndPrincipalName(
         registeredClientId: String,
         principalName: String,
-    ): Optional<OauthAuthorizationConsent> =
+    ): OauthAuthorizationConsent? =
         findById(
             OauthAuthorizationConsentId {
                 this.registeredClientId = registeredClientId

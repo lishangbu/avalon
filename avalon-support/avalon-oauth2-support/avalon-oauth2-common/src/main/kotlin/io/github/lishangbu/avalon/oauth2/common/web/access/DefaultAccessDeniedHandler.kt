@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler
 import tools.jackson.databind.json.JsonMapper
-import java.util.*
 
 /**
  * 默认的访问拒绝处理器 在用户已认证但无权限访问资源时返回统一的 JSON 错误响应（HTTP 403 + 业务错误码）
@@ -20,7 +19,7 @@ import java.util.*
 class DefaultAccessDeniedHandler(
     jsonMapper: JsonMapper,
 ) : AccessDeniedHandler {
-    private val jsonMapper: JsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper")
+    private val jsonMapper = jsonMapper
 
     override fun handle(
         request: HttpServletRequest,

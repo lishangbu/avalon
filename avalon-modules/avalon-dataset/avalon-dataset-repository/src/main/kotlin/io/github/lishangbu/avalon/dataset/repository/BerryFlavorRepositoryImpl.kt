@@ -9,7 +9,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
-import java.util.*
 
 @Repository
 class BerryFlavorRepositoryImpl(
@@ -46,7 +45,7 @@ class BerryFlavorRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
-    override fun findById(id: Long): Optional<BerryFlavor> = Optional.ofNullable(sql.findById(BerryFlavor::class, id))
+    override fun findById(id: Long): BerryFlavor? = sql.findById(BerryFlavor::class, id)
 
     override fun save(berryFlavor: BerryFlavor): BerryFlavor =
         sql

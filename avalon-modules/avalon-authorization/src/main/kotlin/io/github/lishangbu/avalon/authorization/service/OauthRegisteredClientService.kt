@@ -3,7 +3,6 @@ package io.github.lishangbu.avalon.authorization.service
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
-import java.util.*
 
 /**
  * OAuth2 注册客户端服务
@@ -24,7 +23,7 @@ interface OauthRegisteredClientService {
     fun listByCondition(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient>
 
     /** 根据 ID 查询注册客户端。 */
-    fun getById(id: String): Optional<OauthRegisteredClient>
+    fun getById(id: String): OauthRegisteredClient?
 
     /** 新增注册客户端。 */
     fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient

@@ -11,7 +11,7 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.LinkedHashSet
 
 /**
  * 角色信息服务实现类
@@ -54,7 +54,7 @@ class RoleServiceImpl(
             ),
         )
 
-    override fun getById(id: Long): Optional<Role> = roleRepository.findById(id)
+    override fun getById(id: Long): Role? = roleRepository.findById(id)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(role: Role): Role {
@@ -79,7 +79,7 @@ class RoleServiceImpl(
     ): Role {
         val existing =
             if (preserveWhenNull) {
-                role.readOrNull { id }?.let { roleRepository.findById(it).orElse(null) }
+                role.readOrNull { id }?.let(roleRepository::findById)
             } else {
                 null
             }

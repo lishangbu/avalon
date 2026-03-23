@@ -10,8 +10,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.stereotype.Service
-import org.springframework.util.Assert
-import org.springframework.util.StringUtils
 
 /**
  * OAuth2 授权同意服务实现
@@ -23,26 +21,14 @@ import org.springframework.util.StringUtils
  */
 @Service
 class DefaultOAuth2AuthorizationConsentService(
-    authorizationConsentMapper: OauthAuthorizationConsentRepository,
-    registeredClientRepository: RegisteredClientRepository,
+    private val oauth2AuthorizationConsentMapper: OauthAuthorizationConsentRepository,
+    private val registeredClientRepository: RegisteredClientRepository,
 ) : OAuth2AuthorizationConsentService {
-    private val oauth2AuthorizationConsentMapper: OauthAuthorizationConsentRepository
-    private val registeredClientRepository: RegisteredClientRepository
-
-    init {
-        Assert.notNull(authorizationConsentMapper, "authorizationConsentMapper cannot be null")
-        Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null")
-        this.oauth2AuthorizationConsentMapper = authorizationConsentMapper
-        this.registeredClientRepository = registeredClientRepository
-    }
-
     override fun save(authorizationConsent: OAuth2AuthorizationConsent) {
-        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null")
         oauth2AuthorizationConsentMapper.save(toEntity(authorizationConsent))
     }
 
     override fun remove(authorizationConsent: OAuth2AuthorizationConsent) {
-        Assert.notNull(authorizationConsent, "authorizationConsent cannot be null")
         oauth2AuthorizationConsentMapper.deleteByRegisteredClientIdAndPrincipalName(
             authorizationConsent.registeredClientId,
             authorizationConsent.principalName,
@@ -53,12 +39,11 @@ class DefaultOAuth2AuthorizationConsentService(
         registeredClientId: String,
         principalName: String,
     ): OAuth2AuthorizationConsent? {
-        Assert.hasText(registeredClientId, "registeredClientId cannot be empty")
-        Assert.hasText(principalName, "principalName cannot be empty")
+        require(registeredClientId.isNotBlank()) { "registeredClientId cannot be empty" }
+        require(principalName.isNotBlank()) { "principalName cannot be empty" }
         return oauth2AuthorizationConsentMapper
             .findByRegisteredClientIdAndPrincipalName(registeredClientId, principalName)
-            .map(::toObject)
-            .orElse(null)
+            ?.let(::toObject)
     }
 
     private fun toObject(oauthAuthorizationConsent: OauthAuthorizationConsent): OAuth2AuthorizationConsent {
@@ -82,10 +67,7 @@ class DefaultOAuth2AuthorizationConsentService(
 
         val builder = OAuth2AuthorizationConsent.withId(registeredClientId, principalName)
         if (oauthAuthorizationConsent.authorities != null) {
-            for (
-            authority in
-            StringUtils.commaDelimitedListToSet(oauthAuthorizationConsent.authorities)
-            ) {
+            for (authority in oauthAuthorizationConsent.authorities.toCommaDelimitedSet()) {
                 builder.authority(SimpleGrantedAuthority(authority))
             }
         }
@@ -106,7 +88,7 @@ class DefaultOAuth2AuthorizationConsentService(
                 registeredClientId = authorizationConsent.registeredClientId
                 principalName = authorizationConsent.principalName
             }
-            this.authorities = StringUtils.collectionToCommaDelimitedString(authorities)
+            this.authorities = authorities.joinToCommaDelimitedString()
         }
     }
 }

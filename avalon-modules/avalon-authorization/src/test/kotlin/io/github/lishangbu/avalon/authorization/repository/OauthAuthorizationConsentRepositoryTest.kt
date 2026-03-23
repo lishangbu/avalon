@@ -41,8 +41,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
                 "client-1",
                 "user-1",
             )
-        assertTrue(foundOptional.isPresent)
-        val oauthAuthorizationConsent = foundOptional.get()
+        val oauthAuthorizationConsent = requireNotNull(foundOptional)
         assertEquals("client-1", oauthAuthorizationConsent.id.registeredClientId)
         assertEquals("user-1", oauthAuthorizationConsent.id.principalName)
         assertEquals("scope1,scope2", oauthAuthorizationConsent.authorities)
@@ -81,8 +80,8 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
                 "client-update",
                 "user-update",
             )
-        assertTrue(foundOptional.isPresent)
-        assertEquals("c,d,e", foundOptional.get().authorities)
+        val updatedConsent = requireNotNull(foundOptional)
+        assertEquals("c,d,e", updatedConsent.authorities)
     }
 
     /**
@@ -112,6 +111,6 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
                 "client-delete",
                 "user-delete",
             )
-        assertTrue(foundOptional.isEmpty)
+        assertNull(foundOptional)
     }
 }

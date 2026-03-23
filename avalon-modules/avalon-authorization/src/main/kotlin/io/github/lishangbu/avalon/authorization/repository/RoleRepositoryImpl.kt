@@ -10,7 +10,6 @@ import org.babyfish.jimmer.sql.kt.fetcher.newFetcher
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class RoleRepositoryImpl(
@@ -43,15 +42,13 @@ class RoleRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
-    override fun findById(id: Long): Optional<Role> =
-        Optional.ofNullable(
-            sql
-                .createQuery(Role::class) {
-                    where(table.id eq id)
-                    select(table.fetch(ROLE_WITH_MENUS_FETCHER))
-                }.execute()
-                .firstOrNull(),
-        )
+    override fun findById(id: Long): Role? =
+        sql
+            .createQuery(Role::class) {
+                where(table.id eq id)
+                select(table.fetch(ROLE_WITH_MENUS_FETCHER))
+            }.execute()
+            .firstOrNull()
 
     override fun findAllById(ids: Iterable<Long>): List<Role> = ids.mapNotNull { sql.findById(Role::class, it) }
 

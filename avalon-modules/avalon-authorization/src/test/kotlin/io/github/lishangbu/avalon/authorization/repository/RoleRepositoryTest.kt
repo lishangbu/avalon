@@ -31,9 +31,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(1)
     fun testSelectRoleById() {
-        val roleOptional = roleRepository.findById(1L)
-        assertTrue(roleOptional.isPresent)
-        val role = roleOptional.get()
+        val role = requireNotNull(roleRepository.findById(1L))
         assertEquals("ROLE_SUPER_ADMIN", role.code)
         assertEquals("超级管理员", role.name)
         assertEquals(1L, role.id)
@@ -60,9 +58,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Order(3)
     @Commit
     fun testUpdateRoleById() {
-        val roleOptional = roleRepository.findById(insertId!!)
-        assertTrue(roleOptional.isPresent)
-        val role = roleOptional.get()
+        val role = requireNotNull(roleRepository.findById(insertId!!))
         roleRepository.save(
             Role(role) {
                 name = "测试员1"
@@ -75,9 +71,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(4)
     fun testSelectUpdatedRoleById() {
-        val roleOptional = roleRepository.findById(insertId!!)
-        assertTrue(roleOptional.isPresent)
-        val role = roleOptional.get()
+        val role = requireNotNull(roleRepository.findById(insertId!!))
         assertEquals("ROLE_TEST1", role.code)
         assertEquals("测试员1", role.name)
         assertEquals(insertId, role.id)

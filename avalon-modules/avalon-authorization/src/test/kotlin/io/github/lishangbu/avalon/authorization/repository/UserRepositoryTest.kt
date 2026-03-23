@@ -22,7 +22,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testInsert() {
-        val role = roleRepository.findById(1L).orElseThrow()
+        val role = requireNotNull(roleRepository.findById(1L))
         val user =
             userRepository.saveAndFlush(
                 User {
@@ -37,9 +37,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
             )
         assertNotNull(user.id)
 
-        val userOptional = userRepository.findUserWithRolesByAccount("13800000001")
-        assertTrue(userOptional.isPresent)
-        val savedUser = userOptional.get()
+        val savedUser = requireNotNull(userRepository.findUserWithRolesByAccount("13800000001"))
         assertEquals("test2", savedUser.username)
         assertEquals("https://example.com/avatar/test2.png", savedUser.avatar)
         assertTrue(savedUser.hashedPassword!!.startsWith("{bcrypt}"))
@@ -48,9 +46,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testFindByUsername() {
-        val userOptional = userRepository.findUserWithRolesByAccount("admin")
-        assertTrue(userOptional.isPresent)
-        val user = userOptional.get()
+        val user = requireNotNull(userRepository.findUserWithRolesByAccount("admin"))
         assertEquals("admin", user.username)
         assertEquals("https://example.com/avatar/admin.png", user.avatar)
         assertTrue(user.hashedPassword!!.startsWith("{bcrypt}"))

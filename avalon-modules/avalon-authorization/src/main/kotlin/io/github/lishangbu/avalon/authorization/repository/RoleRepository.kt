@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.authorization.entity.Role
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
-import java.util.Optional
 
 /**
  * 角色信息(role)表数据库访问层
@@ -22,7 +21,7 @@ interface RoleRepository {
         pageable: Pageable,
     ): Page<Role>
 
-    fun findById(id: Long): Optional<Role>
+    fun findById(id: Long): Role?
 
     fun findAllById(ids: Iterable<Long>): List<Role>
 

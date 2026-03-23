@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import tools.jackson.databind.json.JsonMapper
 import java.io.IOException
-import java.util.*
 
 /** An implementation of an */
 // [org.springframework.security.web.authentication.AuthenticationFailureHandler]
@@ -31,7 +30,7 @@ import java.util.*
 class AuthorizationEndpointErrorResponseHandler(
     jsonMapper: JsonMapper,
 ) : AuthenticationFailureHandler {
-    private val jsonMapper: JsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper")
+    private val jsonMapper = jsonMapper
 
     @Throws(IOException::class, ServletException::class)
     override fun onAuthenticationFailure(

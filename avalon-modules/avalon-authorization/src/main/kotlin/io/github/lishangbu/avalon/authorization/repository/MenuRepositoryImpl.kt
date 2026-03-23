@@ -10,7 +10,6 @@ import org.babyfish.jimmer.sql.kt.fetcher.newFetcher
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class MenuRepositoryImpl(
@@ -68,7 +67,7 @@ class MenuRepositoryImpl(
             }.execute()
     }
 
-    override fun findById(id: Long): Optional<Menu> = Optional.ofNullable(sql.findById(Menu::class, id))
+    override fun findById(id: Long): Menu? = sql.findById(Menu::class, id)
 
     override fun findAllById(ids: Iterable<Long>): List<Menu> = ids.mapNotNull { sql.findById(Menu::class, it) }
 

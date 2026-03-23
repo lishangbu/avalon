@@ -43,10 +43,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
      */
     @Test
     fun shouldFindTypeById() {
-        val normalTypeOptional = typeRepository.findById(1L)
-        // Assert
-        Assertions.assertTrue(normalTypeOptional.isPresent)
-        val normalType = normalTypeOptional.get()
+        val normalType = requireNotNull(typeRepository.findById(1L))
         Assertions.assertEquals(1L, normalType.id)
         Assertions.assertEquals("normal", normalType.internalName)
         Assertions.assertEquals("一般", normalType.name)
@@ -73,10 +70,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
         typeRepository.saveAndFlush(Type(type) { name = "更新后的名称" })
 
         // Assert
-        val updatedTypeOptional = typeRepository.findById(id)
-        Assertions.assertTrue(updatedTypeOptional.isPresent)
-        val updatedType = updatedTypeOptional.get()
-        Assertions.assertNotNull(updatedType)
+        val updatedType = requireNotNull(typeRepository.findById(id))
         Assertions.assertEquals("更新后的名称", updatedType.name)
     }
 
@@ -96,12 +90,10 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
                 },
             )
         val deleteRecordId = type.id
-        val fireTypeOptional = typeRepository.findById(deleteRecordId)
-        Assertions.assertTrue(fireTypeOptional.isPresent)
+        Assertions.assertNotNull(typeRepository.findById(deleteRecordId))
         typeRepository.deleteById(deleteRecordId)
         typeRepository.flush()
-        val deletedTypeOptional = typeRepository.findById(deleteRecordId)
-        Assertions.assertTrue(deletedTypeOptional.isEmpty)
+        Assertions.assertNull(typeRepository.findById(deleteRecordId))
     }
 
     /**
