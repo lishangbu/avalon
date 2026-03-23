@@ -3,24 +3,23 @@ package io.github.lishangbu.avalon.oauth2.common.result
 import io.github.lishangbu.avalon.web.result.ErrorResultCode
 
 /**
- * 安全模块使用的默认错误码 提供常见的 HTTP 授权/认证相关错误码定义
+ * 安全模块默认错误码
  *
- * @see <a href="https://tools.ietf.org/html/rfc7235#section-3.1">HTTP/1.1: Authentication</a> 403
- *   Forbidden
- * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">HTTP/1.1: Semantics and
- *   Content</a> Content</a>
- * @author lishangbu
- * @since 2025/4/8 401 Unauthorized
+ * 定义认证与授权场景下的通用错误码
  */
 enum class SecurityErrorResultCode(
+    /** 状态码值 */
     private val codeValue: Int,
+    /** 消息值 */
     private val messageValue: String,
 ) : ErrorResultCode {
     UNAUTHORIZED(401, "Unauthorized"),
     FORBIDDEN(403, "Forbidden"),
     ;
 
+    /** 获取状态码 */
     override fun code(): Int = codeValue
 
+    /** 获取错误信息 */
     override fun errorMessage(): String = messageValue
 }

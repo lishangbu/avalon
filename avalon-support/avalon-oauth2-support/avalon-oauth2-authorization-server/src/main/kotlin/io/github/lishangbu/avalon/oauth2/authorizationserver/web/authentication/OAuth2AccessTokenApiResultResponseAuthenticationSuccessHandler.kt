@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.*
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
-import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationContext
@@ -27,34 +26,36 @@ import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 
 /**
- * An implementation of an `AuthenticationSuccessHandler` used for handling an
- * `OAuth2AccessTokenAuthenticationToken` and returning the `OAuth2AccessTokenResponse` Access
- */
-// Token Response
-
-/**
- * @see AuthenticationSuccessHandler
- * @see OAuth2AccessTokenResponseHttpMessageConverter
- * @author Dmitriy Dubson
- * @author lishangbu
- * @since 2025/8/25
+ * OAuth2 访问令牌成功响应处理器
+ *
+ * 在认证成功后写回统一的令牌响应，并记录认证日志
  */
 class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
     @JvmOverloads
     constructor(
         authenticationLogRecorder: AuthenticationLogRecorder? = AuthenticationLogRecorder.noop(),
+        /** 授权服务 */
         private val authorizationService: OAuth2AuthorizationService? = null,
+        /** OAuth2 属性 */
         private val oauth2Properties: Oauth2Properties? = null,
         jsonMapper: JsonMapper,
     ) : AuthenticationSuccessHandler {
+        /** 日志记录器 */
         private val logger: Log = LogFactory.getLog(javaClass)
+
+        /** 访问令牌响应定制器 */
         private var accessTokenResponseCustomizer: Consumer<OAuth2AccessTokenAuthenticationContext>? =
             null
+
+        /** 认证日志记录器 */
         private val authenticationLogRecorder: AuthenticationLogRecorder =
             authenticationLogRecorder ?: AuthenticationLogRecorder.noop()
+
+        /** JSON 映射器 */
         private val jsonMapper: JsonMapper =
             requireNotNull(jsonMapper) { "jsonMapper cannot be null" }
 
+        /** 将访问令牌响应写入统一 JSON，并记录认证成功日志 */
         @Throws(IOException::class, ServletException::class)
         override fun onAuthenticationSuccess(
             request: HttpServletRequest,
@@ -124,6 +125,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             )
         }
 
+        /** 记录本次令牌签发对应的认证日志 */
         private fun recordAuthenticationSuccess(
             request: HttpServletRequest,
             accessTokenAuthentication: OAuth2AccessTokenAuthenticationToken,
@@ -153,6 +155,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             }
         }
 
+        /** 按请求参数、授权记录和主体信息的优先级解析用户名 */
         private fun resolveUsername(
             principal: Any?,
             request: HttpServletRequest,
@@ -185,6 +188,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             return normalize(principal.toString())
         }
 
+        /** 从已保存授权记录中回查主体名称 */
         private fun resolveAuthorizationUsername(
             accessTokenAuthentication: OAuth2AccessTokenAuthenticationToken?,
         ): String? {
@@ -198,6 +202,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             return normalize(authorization.principalName)
         }
 
+        /** 从认证结果或客户端主体中解析客户端 ID */
         private fun resolveClientId(
             accessTokenAuthentication: OAuth2AccessTokenAuthenticationToken,
             principal: Any?,
@@ -211,6 +216,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             return null
         }
 
+        /** 优先从请求参数解析授权类型，缺失时回退到附加参数 */
         private fun resolveGrantType(
             request: HttpServletRequest,
             additionalParameters: Map<String, Any>?,
@@ -228,6 +234,7 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             return null
         }
 
+        /** 解析用户名请求参数名 */
         private fun resolveUsernameParameterName(): String {
             if (oauth2Properties == null) {
                 return "username"
@@ -236,27 +243,23 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler
             return normalize(configured) ?: "username"
         }
 
+        /** 按代理头优先级解析客户端 IP */
         private fun resolveClientIp(request: HttpServletRequest): String? {
             val forwardedFor = request.getHeader("X-Forwarded-For")
             if (forwardedFor != null && forwardedFor.isNotBlank()) {
-                val parts = forwardedFor.split(",", limit = 2)
-                return normalize(parts[0].trim { it <= ' ' })
+                return normalize(forwardedFor.substringBefore(','))
             }
             val realIp = request.getHeader("X-Real-IP")
             if (realIp != null && realIp.isNotBlank()) {
-                return normalize(realIp.trim { it <= ' ' })
+                return normalize(realIp)
             }
             return normalize(request.remoteAddr)
         }
 
-        private fun normalize(value: String?): String? {
-            if (value == null) {
-                return null
-            }
-            val trimmed = value.trim { it <= ' ' }
-            return if (trimmed.isEmpty()) null else trimmed
-        }
+        /** 裁剪并过滤空白字符串 */
+        private fun normalize(value: String?): String? = value?.trim()?.takeIf { it.isNotEmpty() }
 
+        /** 构建统一返回的令牌响应体 */
         private fun buildTokenResponseBody(
             accessTokenResponse: OAuth2AccessTokenResponse,
         ): Map<String, Any> {

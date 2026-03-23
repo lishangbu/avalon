@@ -9,14 +9,13 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
- * OpaqueTokenIntrospector 自动装配 提供基于 OAuth2AuthorizationService 和 UserDetailsService 的
- * OpaqueTokenIntrospector Bean
+ * 不透明令牌内省器自动配置
  *
- * @author lishangbu
- * @since 2025/8/22
+ * 基于授权服务和用户服务创建默认的 [OpaqueTokenIntrospector]
  */
 @AutoConfiguration
 class OpaqueTokenIntrospectorAutoConfiguration {
+    /** 创建不透明令牌内省器 */
     @Bean
     @ConditionalOnBean(value = [OAuth2AuthorizationService::class, UserDetailsService::class])
     fun opaqueTokenIntrospector(

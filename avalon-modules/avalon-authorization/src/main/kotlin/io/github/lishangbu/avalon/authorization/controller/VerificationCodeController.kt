@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 @RestController
 class VerificationCodeController(
+    /** 验证码服务 */
     private val verificationCodeService: VerificationCodeService,
 ) {
     /**

@@ -31,44 +31,35 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 /**
- * JWKSource 自动装配
+ * JWKSource 自动配置
  *
- * 负责提供用于签名的 JWKSource 实例，支持从配置加载公/私钥；若未配置则回退为运行时生成的密钥对
- *
- * 行为要点：
- * - 密钥在首次使用时懒初始化，线程安全
- * - 优先使用公钥 thumbprint 作为 kid，保证 kid 稳定可复现
- * - Spring Authorization Server 会自动从 JWKSource 提取公钥信息供 /.well-known/jwks.json 端点使用
- * - 支持从 classpath 或文件系统加载 PEM 格式的公私钥
- * - 加载失败时自动回退为随机生成的密钥对，并记录警告
- *
- * @author lishangbu
- * @since 2025/8/17
+ * 负责加载 RSA 密钥并创建用于 JWT 签名的 [JWKSource]
  */
 @AutoConfiguration
 class JWKSourceAutoConfiguration(
+    /** OAuth2 属性 */
     private val oauth2Properties: Oauth2Properties,
+    /** 资源加载器 */
     private val resourceLoader: ResourceLoader,
 ) : InitializingBean {
+    /** 公钥 */
     private var publicKey: RSAPublicKey? = null
 
+    /** 私钥 */
     private var privateKey: RSAPrivateKey? = null
 
     /**
-     * 缓存的 JWKSet，包含私钥，用于 JWT 签名
+     * 缓存的 JWK 集合
      *
-     * 使用 volatile 保证多线程环境下的可见性，配合 synchronized 方法实现线程安全的懒加载
+     * 使用 volatile 与 synchronized 保证懒加载线程安全
      */
     @Volatile
     private var jwkSet: JWKSet? = null
 
     /**
-     * 返回用于签名的 JWKSource
+     * 创建用于签名的 JWKSource
      *
-     * 方法保证密钥已初始化（从配置加载或运行时生成），并返回一个不可变的 JWKSet 供框架选择签名密钥 Spring Authorization Server 会自动处理
-     * /.well-known/jwks.json 端点，从此 JWKSource 提取公钥信息
-     *
-     * @return 包含私钥的不可变 JWKSource，用于 Authorization Server 的 JWT 签名
+     * 会在返回前确保密钥已初始化
      */
     @Bean
     @ConditionalOnMissingBean
@@ -78,13 +69,7 @@ class JWKSourceAutoConfiguration(
     }
 
     /**
-     * 确保密钥与 JWKSet 已经初始化（线程安全的懒初始化）
-     *
-     * 该方法执行以下操作：
-     * - 检查是否已初始化，避免重复初始化
-     * - 若公私钥为空，使用随机生成的密钥对并记录警告
-     * - 计算 kid（优先使用公钥 thumbprint，失败时使用随机 UUID）
-     * - 构建包含私钥的 JWKSet（框架会自动过滤私钥信息对外暴露）
+     * 确保密钥与 JWK 集合已初始化
      */
     @Synchronized
     private fun ensureKeysInitialized() {
@@ -138,12 +123,7 @@ class JWKSourceAutoConfiguration(
     }
 
     /**
-     * 生成用于签名的 RSA 密钥对
-     *
-     * 使用 2048 位 RSA 算法生成密钥对，适用于 JWT 签名场景
-     *
-     * @return 生成的 RSA KeyPair，公钥和私钥均为 RSA 实现
-     * @throws IllegalStateException 当密钥生成失败时抛出
+     * 生成 RSA 密钥对
      */
     private fun generateRsaKey(): KeyPair =
         try {
@@ -158,15 +138,7 @@ class JWKSourceAutoConfiguration(
         }
 
     /**
-     * 初始化时尝试从配置的资源位置加载 RSA 公钥和私钥
-     *
-     * 优先使用 oauth2Properties 中的 jwtPublicKeyLocation 和 jwtPrivateKeyLocation 指定的资源
-     * 若两者均成功加载则使用加载的密钥；若任一密钥缺失或解析失败则回退为随机生成的密钥对，并记录警告，注意重启后之前签发的 token 将不可解析
-     *
-     * 支持的资源位置格式：
-     * - classpath: classpath:rsa/public.key
-     * - 文件系统: file:/path/to/public.key
-     * - 相对路径: rsa/public.key（相对于 classpath）
+     * 尝试从配置位置加载 RSA 公钥和私钥
      */
     override fun afterPropertiesSet() {
         val jwtPublicKeyLocation = oauth2Properties.jwtPublicKeyLocation?.takeIf { it.isNotBlank() }
@@ -241,17 +213,11 @@ class JWKSourceAutoConfiguration(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log: Logger = LoggerFactory.getLogger(JWKSourceAutoConfiguration::class.java)
 
         /**
-         * 从 PEM 格式的公钥字符串加载 RSA 公钥实例
-         *
-         * 支持标准的 PEM 格式，自动移除头尾行和空白字符
-         *
-         * @param publicKeyContent 公钥的 PEM 文本，允许包含头尾行和换行
-         * @return 解析得到的 [RSAPublicKey]
-         * @throws NoSuchAlgorithmException 当 RSA 算法不可用时抛出
-         * @throws InvalidKeySpecException 当密钥格式不符合 X.509 编码时抛出
+         * 解析 PEM 格式的 RSA 公钥
          */
         @Throws(NoSuchAlgorithmException::class, InvalidKeySpecException::class)
         private fun loadPublicKey(publicKeyContent: String): RSAPublicKey {
@@ -266,14 +232,7 @@ class JWKSourceAutoConfiguration(
         }
 
         /**
-         * 从 PEM 格式的私钥字符串加载 RSA 私钥实例
-         *
-         * 支持标准的 PEM 格式（PKCS#8），自动移除头尾行和空白字符
-         *
-         * @param privateKeyContent 私钥的 PEM 文本，允许包含头尾行和换行
-         * @return 解析得到的 [RSAPrivateKey]
-         * @throws NoSuchAlgorithmException 当 RSA 算法不可用时抛出
-         * @throws InvalidKeySpecException 当密钥格式不符合 PKCS#8 编码时抛出
+         * 解析 PEM 格式的 RSA 私钥
          */
         @Throws(NoSuchAlgorithmException::class, InvalidKeySpecException::class)
         private fun loadPrivateKey(privateKeyContent: String): RSAPrivateKey {

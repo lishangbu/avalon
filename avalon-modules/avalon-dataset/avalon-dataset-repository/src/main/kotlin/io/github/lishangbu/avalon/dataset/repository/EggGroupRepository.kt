@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 蛋组(EggGroup)数据访问层
+ * 蛋组仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义蛋组数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2025/09/14

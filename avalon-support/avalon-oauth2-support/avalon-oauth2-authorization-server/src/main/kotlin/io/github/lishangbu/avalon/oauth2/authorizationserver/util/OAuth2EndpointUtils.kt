@@ -10,9 +10,11 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
 object OAuth2EndpointUtils {
+    /** 访问令牌请求错误 URI */
     const val ACCESS_TOKEN_REQUEST_ERROR_URI =
         "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2"
 
+    /** 获取参数 */
     @JvmStatic
     fun getParameters(request: HttpServletRequest): MultiValueMap<String, String> {
         val parameterMap = request.parameterMap
@@ -23,9 +25,11 @@ object OAuth2EndpointUtils {
         return parameters
     }
 
+    /** 获取表单参数 */
     @JvmStatic
     fun getFormParameters(request: HttpServletRequest): MultiValueMap<String, String> = getParameters(request)
 
+    /** 判断是否匹配PKCE 令牌请求 */
     @JvmStatic
     fun matchesPkceTokenRequest(request: HttpServletRequest): Boolean =
         AuthorizationGrantType.AUTHORIZATION_CODE.value ==
@@ -33,6 +37,7 @@ object OAuth2EndpointUtils {
             request.getParameter(OAuth2ParameterNames.CODE) != null &&
             request.getParameter(PkceParameterNames.CODE_VERIFIER) != null
 
+    /** 抛出错误 */
     @JvmStatic
     fun throwError(
         errorCode: String,

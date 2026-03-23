@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/user")
 @RestController
 class UserController(
+    /** 用户服务 */
     private val userService: UserService,
 ) {
     /**

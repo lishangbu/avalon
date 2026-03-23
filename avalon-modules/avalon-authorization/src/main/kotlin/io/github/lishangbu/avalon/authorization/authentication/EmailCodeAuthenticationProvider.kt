@@ -22,9 +22,12 @@ import java.util.*
  */
 @Component
 class EmailCodeAuthenticationProvider(
+    /** 验证码服务 */
     private val verificationCodeService: VerificationCodeService,
+    /** 用户详情服务 */
     private val userDetailsService: UserDetailsService,
 ) : AuthenticationProvider {
+    /** 校验邮箱验证码并构造已认证令牌 */
     @Throws(AuthenticationException::class)
     override fun authenticate(authentication: Authentication): Authentication {
         val emailAuthenticationToken = authentication as EmailAuthenticationToken
@@ -43,8 +46,10 @@ class EmailCodeAuthenticationProvider(
         return authenticated
     }
 
+    /** 判断当前提供者是否支持邮箱验证码令牌 */
     override fun supports(authentication: Class<*>): Boolean = EmailAuthenticationToken::class.java.isAssignableFrom(authentication)
 
+    /** 解析必填文本 */
     private fun resolveRequiredText(value: Any?): String =
         value
             ?.toString()
@@ -52,5 +57,6 @@ class EmailCodeAuthenticationProvider(
             ?.takeIf { it.isNotEmpty() }
             ?: throw InvalidCaptchaException("邮箱验证码不能为空")
 
+    /** 规范化邮箱 */
     private fun normalizeEmail(email: Any?): String = resolveRequiredText(email).lowercase(Locale.ROOT)
 }

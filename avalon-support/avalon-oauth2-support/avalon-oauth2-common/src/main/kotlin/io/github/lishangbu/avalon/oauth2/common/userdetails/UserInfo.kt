@@ -1,20 +1,22 @@
 package io.github.lishangbu.avalon.oauth2.common.userdetails
 
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.SpringSecurityCoreVersion
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal
 
 /**
- * 用户信息 封装 Spring Security User 并实现 OAuth2AuthenticatedPrincipal，支持附加参数
+ * OAuth2 用户信息对象
+ *
+ * 基于 Spring Security 的 [User] 扩展附加属性，便于在令牌相关接口中返回更多用户信息
  *
  * @author lishangbu
- * @since 2025/8/9 附加参数：用于在获取 Token 接口返回
+ * @since 2025/8/9
  */
 @Suppress("removal")
 class UserInfo :
     User,
     OAuth2AuthenticatedPrincipal {
+    /** 附加属性 */
     val additionalParameters: MutableMap<String, Any> = HashMap()
 
     constructor(
@@ -41,10 +43,13 @@ class UserInfo :
         authorities,
     )
 
+    /** 返回附加属性映射 */
     override fun getAttributes(): MutableMap<String, Any> = additionalParameters
 
+    /** 返回主体名称 */
     override fun getName(): String = username
 
+    /** 返回对象的字符串表示 */
     override fun toString(): String =
         javaClass.name +
             " [" +
@@ -70,6 +75,7 @@ class UserInfo :
             "]"
 
     companion object {
-        private const val serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID
+        /** 序列化版本号 */
+        private const val serialVersionUID = 1L
     }
 }

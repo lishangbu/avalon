@@ -1,7 +1,6 @@
 /**
- * Web 结果模型。 对于 API 结果集的封装 提供 ApiResult 相关的类型与错误码定义
+ * Web 结果模型包
  *
- * @author lishangbu
- * @since 2025/4/16
+ * 提供 [io.github.lishangbu.avalon.web.result.ApiResult] 及相关错误码定义
  */
 package io.github.lishangbu.avalon.web.result

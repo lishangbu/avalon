@@ -10,5 +10,6 @@ import java.util.*
  * @since 2025/8/22
  */
 class UuidKeyGenerator : StringKeyGenerator {
+    /** 生成密钥 */
     override fun generateKey(): String = UUID.randomUUID().toString().lowercase(Locale.ROOT)
 }

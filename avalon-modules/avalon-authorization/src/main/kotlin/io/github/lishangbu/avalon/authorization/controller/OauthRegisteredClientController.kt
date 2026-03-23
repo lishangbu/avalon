@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 /**
  * OAuth2 注册客户端控制器
  *
- * 提供 OAuth2 注册客户端管理相关接口
+ * 提供 OAuth2 注册客户端管理接口
  *
  * @author lishangbu
  * @since 2026/3/19
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/oauth-registered-client")
 class OauthRegisteredClientController(
+    /** OAuth2 注册客户端服务 */
     private val oauthRegisteredClientService: OauthRegisteredClientService,
 ) {
     /**

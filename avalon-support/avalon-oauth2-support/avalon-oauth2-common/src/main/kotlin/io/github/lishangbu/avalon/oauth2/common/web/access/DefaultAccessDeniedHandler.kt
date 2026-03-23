@@ -11,16 +11,17 @@ import org.springframework.security.web.access.AccessDeniedHandler
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * 默认的访问拒绝处理器 在用户已认证但无权限访问资源时返回统一的 JSON 错误响应（HTTP 403 + 业务错误码）
+ * 访问拒绝响应处理器
  *
- * @author lishangbu
- * @since 2025/8/22
+ * 将已认证但无权限的请求转换为统一的 JSON 错误响应
  */
 class DefaultAccessDeniedHandler(
     jsonMapper: JsonMapper,
 ) : AccessDeniedHandler {
+    /** JSON 映射器 */
     private val jsonMapper = jsonMapper
 
+    /** 将访问拒绝异常写入 403 响应 */
     override fun handle(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -42,6 +43,7 @@ class DefaultAccessDeniedHandler(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log = LoggerFactory.getLogger(DefaultAccessDeniedHandler::class.java)
     }
 }

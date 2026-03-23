@@ -24,30 +24,36 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
 import java.security.Principal
 
-/**
- * OAuth2 短信授权模式的认证提供者
- *
- * 负责处理短信验证码授权类型的令牌申请 校验客户端授权类型、短信验证码，以及生成并保存授权信息
- *
- * @author lishangbu
- * @since 2026/3/13
- */
+/** 短信授权提供者日志记录器 */
 private val SMS_PROVIDER_LOGGER: Logger = LogManager.getLogger()
+
+/** 短信 ID 令牌类型 */
 private val SMS_ID_TOKEN_TYPE = OAuth2TokenType(OidcParameterNames.ID_TOKEN)
 
+/**
+ * 短信授权模式认证提供者
+ *
+ * 处理 `sms` 授权类型的客户端校验、短信验证码认证、令牌生成与授权保存
+ */
 class OAuth2SmsAuthenticationProvider
     @JvmOverloads
     constructor(
+        /** 认证管理器 */
         private val authenticationManager: AuthenticationManager,
         authorizationService: OAuth2AuthorizationService?,
         tokenGenerator: OAuth2TokenGenerator<out OAuth2Token>?,
+        /** 登录失败跟踪器 */
         private val loginFailureTracker: LoginFailureTracker? = null,
     ) : AuthenticationProvider {
+        /** 授权服务 */
         private val authorizationService: OAuth2AuthorizationService =
             requireNotNull(authorizationService) { "authorizationService cannot be null" }
+
+        /** 令牌生成器 */
         private val tokenGenerator: OAuth2TokenGenerator<out OAuth2Token> =
             requireNotNull(tokenGenerator) { "tokenGenerator cannot be null" }
 
+        /** 校验短信授权请求并签发访问令牌 */
         override fun authenticate(authentication: Authentication): Authentication {
             val smsGrantAuthenticationToken =
                 authentication as OAuth2SmsAuthorizationGrantAuthenticationToken
@@ -259,6 +265,7 @@ class OAuth2SmsAuthenticationProvider
             ).also { it.details = smsGrantAuthenticationToken.details }
         }
 
+        /** 判断当前提供者是否支持短信授权令牌 */
         override fun supports(authentication: Class<*>): Boolean =
             OAuth2SmsAuthorizationGrantAuthenticationToken::class
                 .java

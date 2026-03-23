@@ -3,27 +3,27 @@ package io.github.lishangbu.avalon.authorization.entity
 import io.github.lishangbu.avalon.jimmer.id.SnowflakeIdGenerator
 import org.babyfish.jimmer.jackson.JsonConverter
 import org.babyfish.jimmer.jackson.LongToStringConverter
-import org.babyfish.jimmer.sql.Entity
-import org.babyfish.jimmer.sql.GeneratedValue
-import org.babyfish.jimmer.sql.Id
-import org.babyfish.jimmer.sql.JoinTable
-import org.babyfish.jimmer.sql.ManyToMany
-import org.babyfish.jimmer.sql.Table
+import org.babyfish.jimmer.sql.*
 
 @Entity
 @Table(name = "role")
 interface Role {
+    /** ID */
     @Id
     @GeneratedValue(generatorType = SnowflakeIdGenerator::class)
     @JsonConverter(LongToStringConverter::class)
     val id: Long
 
+    /** 状态码 */
     val code: String?
 
+    /** 名称 */
     val name: String?
 
+    /** 启用状态 */
     val enabled: Boolean?
 
+    /** 菜单列表 */
     @ManyToMany
     @JoinTable(
         name = "role_menu_relation",

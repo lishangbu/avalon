@@ -5,12 +5,17 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
-/** In-memory implementation of {@link LoginFailureTracker}. / */
+/** 基于内存的登录失败跟踪器实现 */
 class InMemoryLoginFailureTracker(
     properties: Oauth2Properties?,
 ) : LoginFailureTracker {
+    /** 最大失败次数 */
     private val maxFailures: Int
+
+    /** 锁定时长 */
     private val lockDuration: Duration?
+
+    /** 尝试次数 */
     private val attempts = ConcurrentHashMap<String, Attempt>()
 
     init {
@@ -29,8 +34,10 @@ class InMemoryLoginFailureTracker(
             }
     }
 
+    /** 判断是否启用状态 */
     override fun isEnabled(): Boolean = maxFailures > 0 && lockDuration != null
 
+    /** 获取剩余锁定时长 */
     override fun getRemainingLock(username: String?): Duration? {
         if (!isEnabled()) {
             return null
@@ -46,6 +53,7 @@ class InMemoryLoginFailureTracker(
         return Duration.between(now, lockedUntil)
     }
 
+    /** 处理失败 */
     override fun onFailure(username: String?) {
         if (!isEnabled()) {
             return
@@ -72,18 +80,23 @@ class InMemoryLoginFailureTracker(
         }
     }
 
+    /** 处理成功 */
     override fun onSuccess(username: String?) {
         val key = normalize(username) ?: return
         attempts.remove(key)
     }
 
+    /** 规范化用户名 */
     private fun normalize(value: String?): String? {
         val trimmed = value?.trim()
         return if (trimmed.isNullOrEmpty()) null else trimmed
     }
 
     private class Attempt {
+        /** 失败次数 */
         var failures: Int = 0
+
+        /** 锁定截止时间 */
         var lockUntil: Instant? = null
     }
 }

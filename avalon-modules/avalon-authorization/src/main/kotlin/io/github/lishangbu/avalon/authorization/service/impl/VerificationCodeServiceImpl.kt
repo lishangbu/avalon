@@ -19,6 +19,7 @@ class VerificationCodeServiceImpl(
     stringRedisTemplate: StringRedisTemplate,
     oauth2Properties: Oauth2Properties,
 ) : AbstractVerificationCodeService(stringRedisTemplate, oauth2Properties) {
+    /** 输出验证码发送日志 */
     override fun deliverCode(
         type: String,
         target: String,
@@ -28,6 +29,7 @@ class VerificationCodeServiceImpl(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log: Logger = LoggerFactory.getLogger(VerificationCodeServiceImpl::class.java)
     }
 }

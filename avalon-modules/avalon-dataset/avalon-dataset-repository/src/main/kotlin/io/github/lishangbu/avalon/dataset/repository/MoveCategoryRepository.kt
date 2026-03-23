@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 招式类别(MoveCategory)数据访问层
+ * 招式类别仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义招式类别数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2025/09/14

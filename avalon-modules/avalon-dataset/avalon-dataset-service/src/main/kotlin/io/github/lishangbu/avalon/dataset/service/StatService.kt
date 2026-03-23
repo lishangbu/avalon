@@ -4,23 +4,23 @@ import io.github.lishangbu.avalon.dataset.entity.Stat
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
-/** 能力(Stat)服务。 */
+/** 能力值服务*/
 interface StatService {
-    /** 根据条件分页查询能力。 */
+    /** 按条件分页查询能力值*/
     fun getPageByCondition(
         stat: Stat,
         pageable: Pageable,
     ): Page<Stat>
 
-    /** 新增能力。 */
+    /** 保存能力值*/
     fun save(stat: Stat): Stat
 
-    /** 更新能力。 */
+    /** 更新能力值*/
     fun update(stat: Stat): Stat
 
-    /** 根据主键删除能力。 */
+    /** 按 ID 删除能力值*/
     fun removeById(id: Long)
 
-    /** 根据条件查询能力列表。 */
+    /** 根据条件查询能力值列表*/
     fun listByCondition(stat: Stat): List<Stat>
 }

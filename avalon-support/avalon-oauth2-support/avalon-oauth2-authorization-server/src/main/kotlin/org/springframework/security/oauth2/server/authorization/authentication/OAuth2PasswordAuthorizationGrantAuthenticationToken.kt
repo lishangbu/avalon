@@ -2,26 +2,16 @@ package org.springframework.security.oauth2.server.authorization.authentication
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import org.springframework.security.core.Authentication
-import java.util.*
 
 /**
- * OAuth2 密码授权模式的认证令牌 用于在 OAuth2 授权服务器中处理密码模式（Resource Owner Password Credentials Grant）认证请求
- * 封装了用户名、密码、客户端认证信息及附加参数
+ * OAuth2 密码授权认证令牌
  *
- * @param username 资源拥有者的用户名
- * @param password 资源拥有者的密码
- * @param clientPrincipal 已认证的客户端信息
- * @param scopes 授权范围
- * @param additionalParameters 附加参数
- * @see OAuth2AuthorizationCodeAuthenticationToken
- * @see OAuth2RefreshTokenAuthenticationToken
- * @see OAuth2ClientCredentialsAuthenticationToken
- * @author xuxiaowei
- * @author lishangbu
- * @since 2025/9/28 资源拥有者的用户名 资源拥有者的密码 授权范围（scopes） 子类构造方法 用于创建 OAuth2 密码授权模式的认证令牌实例
+ * 封装密码授权请求中的用户名、密码和附加参数
  */
 class OAuth2PasswordAuthorizationGrantAuthenticationToken(
+    /** 用户名 */
     val username: String,
+    /** 密码 */
     val password: String,
     clientPrincipal: Authentication,
     scopes: Set<String>?,
@@ -31,6 +21,6 @@ class OAuth2PasswordAuthorizationGrantAuthenticationToken(
         clientPrincipal,
         additionalParameters,
     ) {
-    val scopes: Set<String> =
-        Collections.unmodifiableSet(if (scopes != null) HashSet(scopes) else emptySet())
+    /** 授权范围 */
+    val scopes: Set<String> = java.util.Set.copyOf(scopes.orEmpty())
 }

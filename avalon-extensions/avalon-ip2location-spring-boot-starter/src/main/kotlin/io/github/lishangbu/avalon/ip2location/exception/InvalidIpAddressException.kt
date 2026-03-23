@@ -1,11 +1,8 @@
 package io.github.lishangbu.avalon.ip2location.exception
 
 /**
- * 无效 IP 地址异常类
+ * 无效 IP 地址异常
  *
- * @author lishangbu
- * @since 2025/4/12 构造一个新的无效 IP 地址异常，并设置默认错误信息
+ * 当传入的 IP 地址格式非法时抛出
  */
-
-/** 无效 IP 地址异常。 */
 class InvalidIpAddressException : IpToLocationException("Invalid IP address.")

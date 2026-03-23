@@ -9,13 +9,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 
 /**
- * JwtEncoder 自动装配 提供默认的 JwtEncoder 实现（基于 Nimbus）
+ * JWT 编码器自动配置
  *
- * @author lishangbu
- * @since 2025/8/22
+ * 基于 Nimbus 提供默认的 [JwtEncoder]
  */
 @AutoConfiguration
 class JwtEncoderAutoConfiguration {
+    /** 创建 JWT 编码器 */
     @Bean
     @ConditionalOnMissingBean
     fun jwtEncoder(jwkSource: JWKSource<SecurityContext>): JwtEncoder = NimbusJwtEncoder(jwkSource)

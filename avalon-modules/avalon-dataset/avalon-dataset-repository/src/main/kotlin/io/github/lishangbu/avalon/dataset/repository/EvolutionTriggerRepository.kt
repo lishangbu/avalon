@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 进化触发器(EvolutionTrigger)数据访问层
+ * 进化触发器仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义进化触发器数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2026/2/12

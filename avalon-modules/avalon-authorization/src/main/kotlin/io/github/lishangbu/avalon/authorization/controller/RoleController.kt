@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 /**
  * 角色控制器
  *
- * 提供角色相关的 REST 接口（占位）
+ * 提供角色管理相关接口
  *
  * @author lishangbu
  * @since 2025/8/30
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/role")
 @RestController
 class RoleController(
+    /** 角色服务 */
     private val roleService: RoleService,
 ) {
     /**

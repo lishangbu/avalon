@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
@@ -13,22 +13,21 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.ArrayDeque
-import java.util.Collections
-import java.util.LinkedHashSet
 
 /**
- * 菜单服务接口实现
+ * 菜单服务实现
  *
- * 提供根据角色代码构建菜单树的实现
+ * 负责菜单查询与菜单树构建
  *
  * @author lishangbu
  * @since 2025/9/19
  */
 @Service
 class MenuServiceImpl(
+    /** 菜单仓储 */
     private val menuRepository: MenuRepository,
 ) : MenuService {
+    /** 根据角色编码列表查询菜单树列表 */
     override fun listMenuTreeByRoleCodes(roleCodes: List<String>): List<MenuTreeNode> {
         if (roleCodes.isEmpty()) {
             return emptyList()
@@ -38,6 +37,7 @@ class MenuServiceImpl(
         return buildTreeFromMenus(menus)
     }
 
+    /** 查询全部菜单树列表 */
     override fun listAllMenuTree(menu: Menu): List<MenuTreeNode> {
         val condition = normalizeCondition(menu)
         val allMenus = menuRepository.findAllByOrderBySortingOrderAscIdAsc()
@@ -73,14 +73,18 @@ class MenuServiceImpl(
         return buildTreeFromMenus(filteredMenus)
     }
 
+    /** 按 ID 查询菜单 */
     override fun getById(id: Long): Menu? = menuRepository.findById(id)
 
+    /** 保存菜单 */
     @Transactional(rollbackFor = [Exception::class])
     override fun save(menu: Menu): Menu = menuRepository.save(menu)
 
+    /** 更新菜单 */
     @Transactional(rollbackFor = [Exception::class])
     override fun update(menu: Menu): Menu = menuRepository.save(menu)
 
+    /** 按 ID 删除菜单 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
         menuRepository.deleteById(id)
@@ -112,8 +116,10 @@ class MenuServiceImpl(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log: Logger = LoggerFactory.getLogger(MenuServiceImpl::class.java)
 
+        /** 菜单查询匹配器 */
         private val MENU_QUERY_MATCHER: ExampleMatcher =
             ExampleMatcher
                 .matching()
@@ -126,9 +132,11 @@ class MenuServiceImpl(
                 .withMatcher("redirect", ExampleMatcher.GenericPropertyMatchers.contains())
                 .withMatcher("component", ExampleMatcher.GenericPropertyMatchers.contains())
 
+        /** 菜单树排序 */
         private val MENU_TREE_SORT: Sort =
             Sort.by(Sort.Order.asc("sortingOrder"), Sort.Order.asc("id"))
 
+        /** 返回收集祖先节点 */
         private fun collectAncestors(
             menuById: Map<Long, Menu>,
             startId: Long,
@@ -141,6 +149,7 @@ class MenuServiceImpl(
             }
         }
 
+        /** 返回收集后代节点 */
         private fun collectDescendants(
             startId: Long?,
             childrenByParentId: Map<Long?, List<Menu>>,
@@ -149,21 +158,22 @@ class MenuServiceImpl(
             if (startId == null) {
                 return
             }
-            val deque: ArrayDeque<Long> = ArrayDeque()
-            val visited: MutableSet<Long> = LinkedHashSet()
-            deque.push(startId)
-            while (!deque.isEmpty()) {
-                val currentId = deque.pop()
+            val deque = ArrayDeque<Long>()
+            val visited = mutableSetOf<Long>()
+            deque.addLast(startId)
+            while (deque.isNotEmpty()) {
+                val currentId = deque.removeLast()
                 if (!visited.add(currentId)) {
                     continue
                 }
                 includedIds.add(currentId)
-                for (child in childrenByParentId[currentId] ?: Collections.emptyList()) {
-                    deque.push(child.id)
+                for (child in childrenByParentId[currentId].orEmpty()) {
+                    deque.addLast(child.id)
                 }
             }
         }
 
+        /** 规范化条件 */
         private fun normalizeCondition(menu: Menu?): Menu {
             if (menu == null) {
                 return Menu {}
@@ -188,8 +198,10 @@ class MenuServiceImpl(
             }
         }
 
+        /** 去除空白后按需返回 null */
         private fun trimToNull(value: String?): String? = value?.trim()?.takeIf { it.isNotEmpty() }
 
+        /** 判断是否查询条件 */
         private fun hasQueryCondition(menu: Menu?): Boolean =
             menu != null &&
                 (

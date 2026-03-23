@@ -8,16 +8,17 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * 默认认证成功处理器 在认证成功时返回一个统一的 JSON 成功响应
+ * 认证成功响应处理器
  *
- * @author lishangbu
- * @since 2025/8/23
+ * 在认证成功后写回统一的 JSON 成功结果
  */
 class DefaultAuthenticationSuccessHandler(
     jsonMapper: JsonMapper,
 ) : AuthenticationSuccessHandler {
+    /** JSON 映射器 */
     private val jsonMapper = jsonMapper
 
+    /** 将认证成功结果写入响应体 */
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,

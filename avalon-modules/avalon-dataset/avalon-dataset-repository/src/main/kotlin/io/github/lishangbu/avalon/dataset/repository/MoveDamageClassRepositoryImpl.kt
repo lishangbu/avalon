@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MoveDamageClassRepositoryImpl(
+    /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
 ) : MoveDamageClassRepository {
+    /** 按条件查询招式伤害分类列表 */
     override fun findAll(example: Example<MoveDamageClass>?): List<MoveDamageClass> {
         val probe = example?.probe
         return sql
@@ -25,6 +27,7 @@ class MoveDamageClassRepositoryImpl(
             }.execute()
     }
 
+    /** 按条件分页查询招式伤害分类 */
     override fun findAll(
         example: Example<MoveDamageClass>?,
         pageable: Pageable,
@@ -40,8 +43,10 @@ class MoveDamageClassRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
+    /** 保存招式伤害分类 */
     override fun save(moveDamageClass: MoveDamageClass): MoveDamageClass = sql.save(moveDamageClass).modifiedEntity
 
+    /** 按 ID 删除招式伤害分类 */
     override fun deleteById(id: Long) {
         sql
             .createDelete(MoveDamageClass::class) {

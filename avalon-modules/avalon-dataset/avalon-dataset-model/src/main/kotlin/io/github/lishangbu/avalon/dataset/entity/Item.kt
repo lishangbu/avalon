@@ -8,23 +8,30 @@ import org.babyfish.jimmer.sql.*
 @Entity
 @Table(name = "item")
 interface Item {
+    /** ID */
     @Id
     @GeneratedValue(generatorType = SnowflakeIdGenerator::class)
     @JsonConverter(LongToStringConverter::class)
     val id: Long
 
+    /** 内部名称 */
     val internalName: String?
 
+    /** 名称 */
     val name: String?
 
+    /** 价格 */
     val cost: Int?
 
+    /** 投掷威力 */
     val flingPower: Int?
 
+    /** 道具投掷效果 */
     @ManyToOne
     @JoinColumn(name = "item_fling_effect_id")
     val itemFlingEffect: ItemFlingEffect?
 
+    /** 道具属性映射 */
     @ManyToMany
     @JoinTable(
         name = "item_attribute_relation",
@@ -33,9 +40,12 @@ interface Item {
     )
     val itemAttributes: List<ItemAttribute>
 
+    /** 简称效果 */
     val shortEffect: String?
 
+    /** 效果 */
     val effect: String?
 
+    /** 文本 */
     val text: String?
 }

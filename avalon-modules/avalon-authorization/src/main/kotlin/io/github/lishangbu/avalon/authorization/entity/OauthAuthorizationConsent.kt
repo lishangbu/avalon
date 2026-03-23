@@ -8,10 +8,12 @@ import org.babyfish.jimmer.sql.Table
 @Entity
 @Table(name = "oauth_authorization_consent")
 interface OauthAuthorizationConsent {
+    /** ID */
     @Id
     @PropOverride(prop = "registeredClientId", columnName = "registered_client_id")
     @PropOverride(prop = "principalName", columnName = "principal_name")
     val id: OauthAuthorizationConsentId
 
+    /** 权限集合 */
     val authorities: String?
 }

@@ -1,25 +1,20 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation
+import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelationId
 import io.github.lishangbu.avalon.dataset.service.TypeDamageRelationService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
-/** 属性克制关系控制器。 */
+/** 属性克制关系控制器 */
 @RestController
 @RequestMapping("/type-damage-relation")
 class TypeDamageRelationController(
+    /** 属性克制关系服务*/
     private val typeDamageRelationService: TypeDamageRelationService,
 ) {
+    /** 获取属性克制关系分页结果*/
     @GetMapping("/page")
     fun getTypeDamageRelationPage(
         pageable: Pageable,
@@ -34,6 +29,7 @@ class TypeDamageRelationController(
             pageable = pageable,
         )
 
+    /** 查询属性伤害关系列表*/
     @GetMapping("/list")
     fun listTypeDamageRelations(
         @RequestParam(required = false) attackingTypeId: Long?,
@@ -46,16 +42,19 @@ class TypeDamageRelationController(
             multiplier = multiplier,
         )
 
+    /** 保存属性克制关系*/
     @PostMapping
     fun save(
         @RequestBody relation: TypeDamageRelation,
     ): TypeDamageRelation = typeDamageRelationService.save(relation)
 
+    /** 更新属性克制关系*/
     @PutMapping
     fun update(
         @RequestBody relation: TypeDamageRelation,
     ): TypeDamageRelation = typeDamageRelationService.update(relation)
 
+    /** 按 ID 删除属性克制关系*/
     @DeleteMapping("/{attackingTypeId:\\d+}/{defendingTypeId:\\d+}")
     fun deleteById(
         @PathVariable attackingTypeId: Long,

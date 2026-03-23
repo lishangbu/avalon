@@ -10,23 +10,15 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * S3 自动装配 根据 `S3Properties` 的配置为应用提供 `S3Template` Bean 当未定义 `S3Template` 且
- * `s3.enabled=true`（默认）时，自动创建并注入 `S3Template` S3 操作模板 在未定义自定义 `S3Template` Bean 时，基于 `S3Properties`
- * 创建默认实现
+ * S3 自动配置
  *
- * @param properties S3 配置项
- * @return 默认的 `S3Template` 实例
- */
-
-/**
- * S3 自动装配。
- *
- * 根据 [S3Properties] 的配置为应用提供 [S3Template] Bean。
+ * 在启用 S3 配置时提供默认的 [S3Template]
  */
 @AutoConfiguration
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(S3Properties::class)
 class S3AutoConfiguration {
+    /** 创建 S3 操作模板 */
     @Bean
     @ConditionalOnMissingBean(S3Template::class)
     @ConditionalOnProperty(

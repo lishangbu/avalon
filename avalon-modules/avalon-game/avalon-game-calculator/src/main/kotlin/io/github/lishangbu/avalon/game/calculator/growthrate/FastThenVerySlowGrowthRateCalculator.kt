@@ -10,12 +10,13 @@ import org.springframework.stereotype.Service
  */
 @Service
 class FastThenVerySlowGrowthRateCalculator : AbstractGrowthRateCalculator() {
-    /** 获取最慢组成长速率的内部名称 */
+    /** 获取成长速率内部名称 */
     override fun getGrowthRateInternalName(): String = "fast-then-very-slow"
 
     /**
-     * 最慢组： 分段函数 Lv≤15：EXP = 0.02 * Lv^3 * ⌊ (Lv+73) / 3 ⌋ 16≤Lv≤36：EXP = 0.02 * Lv4 +0.28* Lv^3
-     * 37≤Lv≤100：EXP = 0.02 * Lv^3 * ⌊ (Lv + 64) / 2 ⌋
+     * 计算最慢组在指定等级下的经验值
+     *
+     * 使用官方分段函数实现
      */
     override fun tryCalculateGrowthRate(level: Int): Int {
         val cubedLevel = level * level * level

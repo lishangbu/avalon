@@ -9,14 +9,18 @@ import java.io.Serializable
  * @author lishangbu
  */
 object AuthorizationGrantTypeSupport : Serializable {
+    /** 序列化版本号 */
     private const val serialVersionUID = 1L
 
+    /** 密码 */
     @JvmField
     val PASSWORD = AuthorizationGrantType("password")
 
+    /** 短信 */
     @JvmField
     val SMS = AuthorizationGrantType("sms")
 
+    /** 邮箱 */
     @JvmField
     val EMAIL = AuthorizationGrantType("email")
 }

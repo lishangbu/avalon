@@ -5,9 +5,9 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.stereotype.Repository
 
 /**
- * 成长速率(GrowthRate)数据访问层
+ * 成长速率仓储接口
  *
- * 提供基础的 CRUD 操作
+ * 定义成长速率数据的查询与持久化操作
  *
  * @author lishangbu
  * @since 2026/2/10

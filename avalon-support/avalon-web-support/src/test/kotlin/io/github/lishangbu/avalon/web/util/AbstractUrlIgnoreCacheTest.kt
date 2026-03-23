@@ -5,7 +5,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-/** AbstractUrlIgnoreCache 单元测试 创建一个匿名子类来实现抽象方法 测试匹配的 URL 测试不匹配的 URL */
+/**
+ * [AbstractUrlIgnoreCache] 测试
+ *
+ * 验证 URL 忽略规则的匹配行为
+ */
 class AbstractUrlIgnoreCacheTest {
     private lateinit var urlIgnoreCache: AbstractUrlIgnoreCache
 

@@ -4,14 +4,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority
 
 /**
- * 短信验证码登录的认证令牌 用于承载手机号与短信验证码，并与 AuthenticationManager 协作完成认证
+ * 短信验证码登录令牌
  *
- * @author lishangbu
- * @since 2026/3/13
+ * 在认证前承载手机号与验证码，在认证后承载已登录用户与权限
  */
 class SmsAuthenticationToken : UsernamePasswordAuthenticationToken {
+    /** 使用手机号与验证码创建未认证令牌 */
     constructor(phoneNumber: String, smsCode: String) : super(phoneNumber, smsCode)
 
+    /** 使用认证结果与权限创建已认证令牌 */
     constructor(
         principal: Any?,
         credentials: Any?,

@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class StatRepositoryImpl(
+    /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
 ) : StatRepository {
+    /** 按条件查询能力值列表 */
     override fun findAll(example: Example<Stat>?): List<Stat> {
         val probe = example?.probe
         return sql
@@ -27,6 +29,7 @@ class StatRepositoryImpl(
             }.execute()
     }
 
+    /** 按条件分页查询能力值 */
     override fun findAll(
         example: Example<Stat>?,
         pageable: Pageable,
@@ -44,8 +47,10 @@ class StatRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
+    /** 保存能力值 */
     override fun save(stat: Stat): Stat = sql.save(stat).modifiedEntity
 
+    /** 按 ID 删除能力值 */
     override fun deleteById(id: Long) {
         sql
             .createDelete(Stat::class) {

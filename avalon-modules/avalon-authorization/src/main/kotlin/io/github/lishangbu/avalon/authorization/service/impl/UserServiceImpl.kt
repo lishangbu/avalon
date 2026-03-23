@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
@@ -12,7 +13,6 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.LinkedHashSet
 
 /**
  * 用户服务实现
@@ -22,7 +22,9 @@ import java.util.LinkedHashSet
  */
 @Service
 class UserServiceImpl(
+    /** 用户仓储 */
     private val userRepository: UserRepository,
+    /** 角色仓储 */
     private val roleRepository: RoleRepository,
 ) : UserService {
     /**
@@ -33,6 +35,7 @@ class UserServiceImpl(
      */
     override fun getUserByUsername(username: String): UserWithRoles? = userRepository.findUserWithRolesByAccount(username)?.let(::UserWithRoles)
 
+    /** 按条件分页查询用户 */
     override fun getPageByCondition(
         user: User,
         pageable: Pageable,
@@ -50,6 +53,7 @@ class UserServiceImpl(
             pageable,
         )
 
+    /** 按条件查询用户列表 */
     override fun listByCondition(user: User): List<User> =
         userRepository.findAll(
             Example.of(
@@ -63,25 +67,30 @@ class UserServiceImpl(
             ),
         )
 
+    /** 按 ID 查询用户 */
     override fun getById(id: Long): User? = userRepository.findById(id)
 
+    /** 保存用户 */
     @Transactional(rollbackFor = [Exception::class])
     override fun save(user: User): User {
         val prepared = bindRoles(user, false)
         return userRepository.save(prepared)
     }
 
+    /** 更新用户 */
     @Transactional(rollbackFor = [Exception::class])
     override fun update(user: User): User {
         val prepared = bindRoles(user, true)
         return userRepository.save(prepared)
     }
 
+    /** 按 ID 删除用户 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
         userRepository.deleteById(id)
     }
 
+    /** 绑定并补全角色信息 */
     private fun bindRoles(
         user: User,
         preserveWhenNull: Boolean,

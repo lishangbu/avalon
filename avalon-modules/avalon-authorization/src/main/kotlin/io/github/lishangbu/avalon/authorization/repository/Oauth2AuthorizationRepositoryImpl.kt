@@ -7,14 +7,19 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class Oauth2AuthorizationRepositoryImpl(
+    /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
 ) : Oauth2AuthorizationRepository {
+    /** 按 ID 查询 OAuth2 授权 */
     override fun findById(id: String): OauthAuthorization? = sql.findById(OauthAuthorization::class, id)
 
+    /** 保存 OAuth2 授权 */
     override fun save(authorization: OauthAuthorization): OauthAuthorization = sql.save(authorization).modifiedEntity
 
+    /** 保存 OAuth2 授权并立即刷新 */
     override fun saveAndFlush(authorization: OauthAuthorization): OauthAuthorization = save(authorization)
 
+    /** 按 ID 删除 OAuth2 授权 */
     override fun deleteById(id: String) {
         sql
             .createDelete(OauthAuthorization::class) {
@@ -23,8 +28,10 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
     }
 
+    /** Jimmer 无需显式刷新，保留空实现 */
     override fun flush() = Unit
 
+    /** 按状态查询 OAuth2 授权 */
     override fun findByState(state: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -33,6 +40,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按授权码值查询 OAuth2 授权 */
     override fun findByAuthorizationCodeValue(authorizationCode: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -41,6 +49,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按访问令牌值查询 OAuth2 授权 */
     override fun findByAccessTokenValue(accessToken: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -49,6 +58,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按刷新令牌值查询 OAuth2 授权 */
     override fun findByRefreshTokenValue(refreshToken: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -57,6 +67,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按 OIDC ID 令牌值查询 OAuth2 授权 */
     override fun findByOidcIdTokenValue(idToken: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -65,6 +76,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按用户码值查询 OAuth2 授权 */
     override fun findByUserCodeValue(userCode: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -73,6 +85,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按设备码值查询 OAuth2 授权 */
     override fun findByDeviceCodeValue(deviceCode: String): OauthAuthorization? =
         sql
             .createQuery(OauthAuthorization::class) {
@@ -81,6 +94,7 @@ class Oauth2AuthorizationRepositoryImpl(
             }.execute()
             .firstOrNull()
 
+    /** 按状态或各类令牌值查询 OAuth2 授权 */
     override fun findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
         token: String,
     ): OauthAuthorization? =

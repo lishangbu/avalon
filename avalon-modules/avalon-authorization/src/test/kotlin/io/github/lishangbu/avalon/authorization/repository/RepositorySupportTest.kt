@@ -1,12 +1,16 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.User
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
+/**
+ * 仓储扩展函数测试
+ *
+ * 验证 `readOrNull` 对未加载属性与异常场景的处理
+ */
 class RepositorySupportTest {
+    /** 验证未加载属性会返回 null */
     @Test
     fun returnsNullForUnloadedProperty() {
         val user =
@@ -17,6 +21,7 @@ class RepositorySupportTest {
         assertNull(user.readOrNull { username })
     }
 
+    /** 验证非预期异常会继续向外抛出 */
     @Test
     fun rethrowsUnexpectedExceptions() {
         val user =

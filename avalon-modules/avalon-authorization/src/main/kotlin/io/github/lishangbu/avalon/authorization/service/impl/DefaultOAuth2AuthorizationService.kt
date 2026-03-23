@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization
 import io.github.lishangbu.avalon.authorization.repository.Oauth2AuthorizationRepository
 import org.springframework.dao.DataRetrievalFailureException
 import org.springframework.security.jackson.SecurityJacksonModules
@@ -21,34 +21,40 @@ import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
 
 /**
- * 默认 Oauth2 授权服务实现
+ * OAuth2 授权服务实现
  *
- * 提供持久化与读取 OAuth2Authorization 的默认实现，基于数据库映射实体 `OauthAuthorization`
+ * 负责 OAuth2Authorization 的持久化、查询与删除
  *
  * @author lishangbu
  * @since 2025/11/30
  */
 @Service
 class DefaultOAuth2AuthorizationService(
+    /** OAuth2 授权仓储 */
     private val oauth2AuthorizationRepository: Oauth2AuthorizationRepository,
+    /** 注册客户端仓储 */
     private val registeredClientRepository: RegisteredClientRepository,
 ) : OAuth2AuthorizationService {
+    /** 保存默认 OAuth2 授权 */
     @Transactional(rollbackFor = [Exception::class])
     override fun save(authorization: OAuth2Authorization) {
         val entity = toEntity(authorization)
         oauth2AuthorizationRepository.save(entity)
     }
 
+    /** 删除默认 OAuth2 授权 */
     @Transactional(rollbackFor = [Exception::class])
     override fun remove(authorization: OAuth2Authorization) {
         oauth2AuthorizationRepository.deleteById(authorization.id)
     }
 
+    /** 按 ID 查询默认 OAuth2 授权 */
     override fun findById(id: String): OAuth2Authorization? {
         require(id.isNotBlank()) { "id cannot be empty" }
         return oauth2AuthorizationRepository.findById(id)?.let(::toObject)
     }
 
+    /** 根据令牌查找默认 OAuth2 授权 */
     override fun findByToken(
         token: String,
         tokenType: OAuth2TokenType?,
@@ -62,25 +68,33 @@ class DefaultOAuth2AuthorizationService(
                         .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
                             token,
                         )
+
                 OAuth2ParameterNames.STATE -> oauth2AuthorizationRepository.findByState(token)
                 OAuth2ParameterNames.CODE ->
                     oauth2AuthorizationRepository.findByAuthorizationCodeValue(token)
+
                 OAuth2ParameterNames.ACCESS_TOKEN ->
                     oauth2AuthorizationRepository.findByAccessTokenValue(token)
+
                 OAuth2ParameterNames.REFRESH_TOKEN ->
                     oauth2AuthorizationRepository.findByRefreshTokenValue(token)
+
                 OidcParameterNames.ID_TOKEN ->
                     oauth2AuthorizationRepository.findByOidcIdTokenValue(token)
+
                 OAuth2ParameterNames.USER_CODE ->
                     oauth2AuthorizationRepository.findByUserCodeValue(token)
+
                 OAuth2ParameterNames.DEVICE_CODE ->
                     oauth2AuthorizationRepository.findByDeviceCodeValue(token)
+
                 else -> null
             }
 
         return result?.let(::toObject)
     }
 
+    /** 返回转换为对象 */
     private fun toObject(entity: OauthAuthorization): OAuth2Authorization {
         val registeredClientId =
             requireNotNull(entity.registeredClientId) { "registeredClientId cannot be null" }
@@ -208,6 +222,7 @@ class DefaultOAuth2AuthorizationService(
         return builder.build()
     }
 
+    /** 返回转换为实体 */
     private fun toEntity(authorization: OAuth2Authorization): OauthAuthorization {
         val authorizationCodeSnapshot =
             toTokenSnapshot(authorization.getToken(OAuth2AuthorizationCode::class.java))
@@ -266,6 +281,7 @@ class DefaultOAuth2AuthorizationService(
         }
     }
 
+    /** 返回转为令牌快照 */
     private fun toTokenSnapshot(token: OAuth2Authorization.Token<*>?): TokenSnapshot {
         if (token == null) {
             return TokenSnapshot()
@@ -279,6 +295,7 @@ class DefaultOAuth2AuthorizationService(
         )
     }
 
+    /** 读取属性映射 */
     private fun readAttributes(json: String?): Map<String, Any>? {
         if (json.isNullOrBlank()) {
             return null
@@ -286,6 +303,7 @@ class DefaultOAuth2AuthorizationService(
         return mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
     }
 
+    /** 写入属性映射 */
     private fun writeAttributes(attributes: Map<String, Any>?): String? {
         if (attributes.isNullOrEmpty()) {
             return null
@@ -294,27 +312,35 @@ class DefaultOAuth2AuthorizationService(
     }
 
     private data class TokenSnapshot(
+        /** 值 */
         val value: String? = null,
+        /** 签发时间 */
         val issuedAt: Instant? = null,
+        /** 过期时间 */
         val expiresAt: Instant? = null,
+        /** 元数据 */
         val metadata: Map<String, Any>? = null,
     )
 
     companion object {
+        /** 映射器 */
         private val mapper: JsonMapper =
             JsonMapper
                 .builder()
                 .addModules(SecurityJacksonModules.getModules(DefaultOAuth2AuthorizationService::class.java.classLoader))
                 .build()
 
+        /** 解析授权类型 */
         private fun resolveAuthorizationGrantType(
             authorizationGrantType: String,
         ): AuthorizationGrantType =
             when (authorizationGrantType) {
                 AuthorizationGrantType.AUTHORIZATION_CODE.value ->
                     AuthorizationGrantType.AUTHORIZATION_CODE
+
                 AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
                     AuthorizationGrantType.CLIENT_CREDENTIALS
+
                 AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
                 AuthorizationGrantType.DEVICE_CODE.value -> AuthorizationGrantType.DEVICE_CODE
                 else -> AuthorizationGrantType(authorizationGrantType)

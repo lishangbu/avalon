@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
-import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.Role
+import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
@@ -11,21 +12,23 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.LinkedHashSet
 
 /**
- * 角色信息服务实现类
+ * 角色服务实现
  *
- * 提供对角色数据的查询与管理（实现 RoleService）
+ * 负责角色及其菜单关联的查询与维护
  *
  * @author lishangbu
  * @since 2025/8/30
  */
 @Service
 class RoleServiceImpl(
+    /** 角色仓储 */
     private val roleRepository: RoleRepository,
+    /** 菜单仓储 */
     private val menuRepository: MenuRepository,
 ) : RoleService {
+    /** 按条件分页查询角色 */
     override fun getPageByCondition(
         role: Role,
         pageable: Pageable,
@@ -42,6 +45,7 @@ class RoleServiceImpl(
             pageable,
         )
 
+    /** 根据条件查询角色列表 */
     override fun listByCondition(role: Role): List<Role> =
         roleRepository.findAll(
             Example.of(
@@ -54,25 +58,30 @@ class RoleServiceImpl(
             ),
         )
 
+    /** 按 ID 查询角色 */
     override fun getById(id: Long): Role? = roleRepository.findById(id)
 
+    /** 保存角色 */
     @Transactional(rollbackFor = [Exception::class])
     override fun save(role: Role): Role {
         val prepared = bindMenus(role, false)
         return roleRepository.save(prepared)
     }
 
+    /** 更新角色 */
     @Transactional(rollbackFor = [Exception::class])
     override fun update(role: Role): Role {
         val prepared = bindMenus(role, true)
         return roleRepository.save(prepared)
     }
 
+    /** 按 ID 删除角色 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
         roleRepository.deleteById(id)
     }
 
+    /** 返回绑定菜单列表 */
     private fun bindMenus(
         role: Role,
         preserveWhenNull: Boolean,

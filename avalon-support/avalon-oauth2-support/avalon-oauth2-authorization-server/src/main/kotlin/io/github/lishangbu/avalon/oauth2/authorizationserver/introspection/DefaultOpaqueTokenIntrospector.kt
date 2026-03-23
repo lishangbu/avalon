@@ -18,15 +18,17 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import java.security.Principal
 
 /**
- * 默认透明令牌处理器 用于资源服务器在收到不透明 access token 时执行 introspect，并根据授权与用户信息返回相应的 Principal
+ * 默认不透明令牌内省器
  *
- * @author lishangbu
- * @since 2025/8/22 OAuth2 授权服务 客户端模式默认返回 // 客户端模式默认返回
+ * 根据授权记录和用户信息构建资源服务器使用的 Principal
  */
 class DefaultOpaqueTokenIntrospector(
+    /** 授权服务 */
     private val authorizationService: OAuth2AuthorizationService,
+    /** 用户详情服务 */
     private val userDetailsService: UserDetailsService,
 ) : OpaqueTokenIntrospector {
+    /** 执行令牌内省 */
     override fun introspect(token: String): OAuth2AuthenticatedPrincipal? {
         val oldAuthorization: OAuth2Authorization? =
             authorizationService.findByToken(token, OAuth2TokenType.ACCESS_TOKEN)
@@ -58,7 +60,7 @@ class DefaultOpaqueTokenIntrospector(
                 return userDetails
             }
         } catch (notFoundException: UsernameNotFoundException) {
-            log.warn("用户不不存在 {}", notFoundException.localizedMessage)
+            log.warn("用户不存在 {}", notFoundException.localizedMessage)
             throw notFoundException
         } catch (ex: Exception) {
             log.error("资源服务器 introspect Token error {}", ex.localizedMessage)
@@ -68,6 +70,7 @@ class DefaultOpaqueTokenIntrospector(
     }
 
     companion object {
+        /** 日志记录器 */
         private val log = LoggerFactory.getLogger(DefaultOpaqueTokenIntrospector::class.java)
     }
 }

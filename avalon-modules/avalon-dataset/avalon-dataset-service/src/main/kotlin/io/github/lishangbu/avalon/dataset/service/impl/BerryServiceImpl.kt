@@ -9,11 +9,17 @@ import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
-/** 树果服务实现。 */
+/**
+ * 树果应用服务实现
+ *
+ * 基于仓储封装树果的分页查询与写入逻辑
+ */
 @Service
 class BerryServiceImpl(
+    /** 树果仓储 */
     private val berryRepository: BerryRepository,
 ) : BerryService {
+    /** 按筛选条件分页查询树果*/
     override fun getPageByCondition(
         berry: Berry,
         pageable: Pageable,
@@ -30,10 +36,13 @@ class BerryServiceImpl(
             pageable,
         )
 
+    /** 创建树果 */
     override fun save(berry: Berry): Berry = berryRepository.save(berry)
 
+    /** 更新树果 */
     override fun update(berry: Berry): Berry = berryRepository.save(berry)
 
+    /** 删除指定 ID 的树果*/
     override fun removeById(id: Long) {
         berryRepository.deleteById(id)
     }

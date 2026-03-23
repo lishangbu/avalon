@@ -9,8 +9,10 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class TypeDamageRelationRepositoryImpl(
+    /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
 ) : TypeDamageRelationRepository {
+    /** 按条件查询属性克制关系列表 */
     override fun findAll(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
@@ -24,6 +26,7 @@ class TypeDamageRelationRepositoryImpl(
                 select(table)
             }.execute()
 
+    /** 按条件分页查询属性克制关系 */
     override fun findPage(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
@@ -38,8 +41,10 @@ class TypeDamageRelationRepositoryImpl(
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
+    /** 保存属性克制关系 */
     override fun save(typeDamageRelation: TypeDamageRelation): TypeDamageRelation = sql.save(typeDamageRelation).modifiedEntity
 
+    /** 按 ID 删除属性克制关系 */
     override fun deleteById(id: TypeDamageRelationId) {
         sql
             .createDelete(TypeDamageRelation::class) {

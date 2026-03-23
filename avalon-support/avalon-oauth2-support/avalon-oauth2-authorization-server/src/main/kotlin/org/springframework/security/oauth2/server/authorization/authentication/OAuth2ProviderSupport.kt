@@ -8,9 +8,11 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext
 import java.time.Duration
 
+/** 令牌请求错误 URI */
 internal const val TOKEN_REQUEST_ERROR_URI =
     "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2"
 
+/** 构建锁定消息 */
 internal fun buildLockMessage(remainingLock: Duration?): String {
     val seconds = maxOf(1L, remainingLock?.seconds ?: 0L)
     if (seconds >= 60) {
@@ -20,6 +22,7 @@ internal fun buildLockMessage(remainingLock: Duration?): String {
     return "账号已被锁定，请在${seconds}秒后重试"
 }
 
+/** 构建访问令牌 */
 internal fun buildAccessToken(
     authorizationBuilder: OAuth2Authorization.Builder,
     generatedAccessToken: OAuth2Token,

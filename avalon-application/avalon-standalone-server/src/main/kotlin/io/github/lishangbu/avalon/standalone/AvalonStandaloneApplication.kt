@@ -7,15 +7,13 @@ import org.springframework.boot.runApplication
 /**
  * 单体应用启动类
  *
- * Spring Boot 单体应用的入口
- *
- * @author lishangbu
- * @since 2025/8/24
+ * Spring Boot 单体应用入口
  */
 @EnableJimmerRepositories("io.github.lishangbu.avalon.**.repository")
 @SpringBootApplication(scanBasePackages = ["io.github.lishangbu.avalon"])
 class AvalonStandaloneApplication
 
+/** 启动单体应用 */
 fun main(args: Array<String>) {
     runApplication<AvalonStandaloneApplication>(*args)
 }

@@ -33,21 +33,16 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationC
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * 自动装配认证服务器
+ * 授权服务器自动配置
  *
- * 提供认证服务器所需的 SecurityFilterChain，集成 OAuth2 授权端点、Token 端点及相关处理器
- *
- * @author lishangbu
- * @since 2025/8/17
+ * 提供授权端点、令牌端点和扩展授权类型所需的安全过滤链
  */
 @EnableWebSecurity
 @AutoConfiguration
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
 class AuthorizationServerAutoConfiguration {
     /**
-     * 授权服务器的 SecurityFilterChain Bean
-     *
-     * 负责注册 OAuth2/OIDC 端点及扩展授权类型（密码、短信、邮箱）对应的转换器与认证提供者
+     * 创建授权服务器安全过滤链
      */
     @Bean
     @Order(AUTHORIZATION_SERVER_SECURITY_FILTER_CHAIN_BEAN_ORDER)
@@ -63,11 +58,11 @@ class AuthorizationServerAutoConfiguration {
     ): SecurityFilterChain {
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
 
-        // 禁用csrf和cors
+        // 禁用 CSRF 和 CORS
         http
             .csrf(CsrfConfigurer<HttpSecurity>::disable)
             .cors(CorsConfigurer<HttpSecurity>::disable)
-            // 禁用表单登录和会话管理
+            // 禁用表单登录、会话管理和记住我
             .formLogin(FormLoginConfigurer<HttpSecurity>::disable)
             .sessionManagement(SessionManagementConfigurer<HttpSecurity>::disable)
             .rememberMe(RememberMeConfigurer<HttpSecurity>::disable)
@@ -76,13 +71,9 @@ class AuthorizationServerAutoConfiguration {
             http
                 .securityMatcher(authorizationServerConfigurer.endpointsMatcher)
                 .with(authorizationServerConfigurer) { authorizationServer ->
-                    // Enable OpenID Connect 1.0
+                    // 启用 OpenID Connect 1.0
                     authorizationServer
                         .authorizationEndpoint { authorizationEndpoint ->
-                            // 用于处理已验证的
-                            // OAuth2AuthorizationCodeRequestAuthenticationToken 并返回
-                            // OAuth2AuthorizationResponse 的
-                            // AuthenticationSuccessHandler (后处理器)
                             authorizationEndpoint
                                 .authorizationResponseHandler(
                                     AuthorizationEndpointResponseHandler(),
@@ -90,22 +81,22 @@ class AuthorizationServerAutoConfiguration {
                                     AuthorizationEndpointErrorResponseHandler(jsonMapper),
                                 )
                         }.oidc(Customizer.withDefaults())
-                        // 定制客户端认证失败的处理器
+                        // 统一客户端认证失败响应
                         .clientAuthentication { clientAuthentication ->
                             clientAuthentication.errorResponseHandler(
                                 oauth2ErrorApiResultAuthenticationFailureHandler,
                             )
                         }.tokenEndpoint { tokenEndpoint ->
                             tokenEndpoint
-                                // 定制响应成功格式
+                                // 定制成功响应
                                 .accessTokenResponseHandler(
                                     accessTokenResponseAuthenticationSuccessHandler,
                                 )
-                                // 定制响应失败格式
+                                // 定制失败响应
                                 .errorResponseHandler(
                                     oauth2ErrorApiResultAuthenticationFailureHandler,
                                 )
-                                // 在这加上密码模式的转换器
+                                // 注册扩展授权类型转换器
                                 .accessTokenRequestConverter(
                                     DelegatingAuthenticationConverter(
                                         listOf(
@@ -120,8 +111,6 @@ class AuthorizationServerAutoConfiguration {
                                 )
                         }
                 }.authorizeHttpRequests { authorize -> authorize.anyRequest().authenticated() }
-                // Redirect to the login page when not authenticated from the
-                // authorization endpoint
                 .oauth2Login { oauth2Login ->
                     oauth2Login
                         .successHandler(AuthorizationEndpointResponseHandler())
@@ -136,12 +125,10 @@ class AuthorizationServerAutoConfiguration {
         return securityFilterChain
     }
 
-    @Suppress("UNCHECKED_CAST")
     /**
-     * 注册扩展授权类型的 AuthenticationProvider（密码、短信、邮箱）
-     *
-     * 将自定义 Provider 注入到 HttpSecurity，供 token 端点进行认证
+     * 注册扩展授权类型的认证提供者
      */
+    @Suppress("UNCHECKED_CAST")
     private fun addAdditionalAuthenticationProvider(
         http: HttpSecurity,
         loginFailureTracker: LoginFailureTracker,
@@ -176,8 +163,7 @@ class AuthorizationServerAutoConfiguration {
                 loginFailureTracker,
             )
 
-        // This will add new authentication provider in the list of existing authentication
-        // providers.
+        // 将扩展认证提供者追加到现有认证链
         http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider)
         http.authenticationProvider(smsAuthenticationProvider)
         http.authenticationProvider(emailAuthenticationProvider)

@@ -4,14 +4,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority
 
 /**
- * 邮箱验证码登录的认证令牌 用于承载邮箱与验证码，并与 AuthenticationManager 协作完成认证
+ * 邮箱验证码登录令牌
  *
- * @author lishangbu
- * @since 2026/3/13
+ * 在认证前承载邮箱与验证码，在认证后承载已登录用户与权限
  */
 class EmailAuthenticationToken : UsernamePasswordAuthenticationToken {
+    /** 使用邮箱与验证码创建未认证令牌 */
     constructor(email: String, emailCode: String) : super(email, emailCode)
 
+    /** 使用认证结果与权限创建已认证令牌 */
     constructor(
         principal: Any?,
         credentials: Any?,

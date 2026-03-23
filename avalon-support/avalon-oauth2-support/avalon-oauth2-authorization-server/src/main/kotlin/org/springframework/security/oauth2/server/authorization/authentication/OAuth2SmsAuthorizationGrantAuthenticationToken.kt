@@ -2,16 +2,16 @@ package org.springframework.security.oauth2.server.authorization.authentication
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import org.springframework.security.core.Authentication
-import java.util.*
 
 /**
- * OAuth2 短信授权模式的认证令牌 用于在 OAuth2 授权服务器中处理短信验证码模式认证请求 封装了手机号、短信验证码、客户端认证信息及附加参数
+ * OAuth2 短信授权认证令牌
  *
- * @author lishangbu
- * @since 2026/3/13 手机号 短信验证码 授权范围（scopes）
+ * 封装短信验证码授权请求中的手机号、验证码和附加参数
  */
 class OAuth2SmsAuthorizationGrantAuthenticationToken(
+    /** 手机号 */
     val phoneNumber: String,
+    /** 短信验证码 */
     val smsCode: String,
     clientPrincipal: Authentication,
     scopes: Set<String>?,
@@ -21,6 +21,6 @@ class OAuth2SmsAuthorizationGrantAuthenticationToken(
         clientPrincipal,
         additionalParameters,
     ) {
-    val scopes: Set<String> =
-        Collections.unmodifiableSet(if (scopes != null) HashSet(scopes) else emptySet())
+    /** 授权范围 */
+    val scopes: Set<String> = java.util.Set.copyOf(scopes.orEmpty())
 }

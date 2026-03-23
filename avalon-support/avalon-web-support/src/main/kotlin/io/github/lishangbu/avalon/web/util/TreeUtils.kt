@@ -3,53 +3,20 @@ package io.github.lishangbu.avalon.web.util
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
-import java.util.*
 import java.util.function.BiConsumer
 import java.util.function.Function
 import java.util.function.Predicate
 
 /**
- * 树形结构工具类，用于处理树形数据 提供将列表转换为树、查找节点、扁平化、过滤和遍历等常用操作
+ * 树结构处理工具
  *
- * @param list 待转换的列表
- * @param idGetter 获取节点ID的函数
- * @param parentIdGetter 获取父节点ID的函数
- * @param childrenSetter 设置子节点的函数
- * @param <T> 节点类型
- * @param <I> ID类型
- * @param tree 树结构
- * @param predicate 匹配条件
- * @param childrenGetter 获取子节点的函数
- * @param tree 树结构
- * @param targetPredicate 目标节点匹配条件
- * @param childrenGetter 获取子节点的函数
- * @param <T> 节点类型
- * @param predicate 过滤条件
- * @param action 要执行的操作 计算树的最大深度
- * @param id 目标节点ID
- * @return 树形结构的根节点列表 构建节点映射表 (ID -> 节点) 遍历所有节点，将它们添加到父节点的子节点列表中 如果父ID为null，则为根节点 尝试获取父节点
- *   获取父节点的子节点列表，如果不存在则创建新列表 找不到父节点，作为根节点处理 获取节点的子节点列表。注意：这是一个辅助方法，尝试通过反射调用 `getChildren()`
- *   这里需要根据实际情况实现，一个常见方式是节点类有getChildren方法 这里使用反射模拟获取children字段 在树中查找符合条件的第一个节点
- * @return 找到的节点，没有则返回 null 检查当前节点 递归检查子节点 在树中查找所有符合条件的节点
- * @return 找到的节点列表 查找节点的内部递归方法 获取从根节点到目标节点的路径
- * @return 路径节点列表，如果找不到目标节点则返回空列表 查找路径的内部递归方法 添加当前节点到路径 检查是否找到目标节点 当前路径不包含目标节点，移除此节点 树形结构扁平化为列表
- * @return 扁平化后的列表 过滤树节点，保持树形结构
- * @return 过滤后的树结构 深拷贝节点以避免修改原树 首先创建新实例 复制所有非静态字段的值 跳过静态字段 不复制children字段，这个字段会由childrenSetter单独处理
- *   处理子节点 确保copyNode的子节点列表为null或空列表 如果当前节点满足条件，或者它有满足条件的子节点，则添加到结果中 遍历树结构，对每个节点执行操作
- * @return 树的最大深度 根据节点ID查找节点
- * @return 找到的节点，没有则返回null 获取类的所有字段，包括继承的字段 获取当前类的字段 递归获取父类的字段 遍历树的内部递归方法 对当前节点执行操作 递归处理子节点
- *   扁平化树的内部递归方法 // 构建节点映射表 (ID -> 节点) // 遍历所有节点，将它们添加到父节点的子节点列表中 // 如果父ID为null，则为根节点 // 尝试获取父节点 //
- *   获取父节点的子节点列表，如果不存在则创建新列表 // 找不到父节点，作为根节点处理 // 这里需要根据实际情况实现，一个常见方式是节点类有getChildren方法 //
- *   这里使用反射模拟获取children字段 // 检查当前节点 // 递归检查子节点 // 添加当前节点到路径 // 检查是否找到目标节点 // 当前路径不包含目标节点，移除此节点 //
- *   深拷贝节点以避免修改原树 // 首先创建新实例 // 复制所有非静态字段的值 // 跳过静态字段 // 不复制children字段，这个字段会由childrenSetter单独处理 //
- *   处理子节点 // 确保copyNode的子节点列表为null或空列表 // 如果当前节点满足条件，或者它有满足条件的子节点，则添加到结果中 // 获取当前类的字段 // 递归获取父类的字段
- *   // 对当前节点执行操作 // 递归处理子节点
+ * 提供树的构建、查找、路径获取、扁平化、过滤和遍历等常用操作
+ *
  * @author lishangbu
- * @since 2025/08/25 将列表转换为树形结构
+ * @since 2025/08/25
  */
-
-/** 树形结构工具类。 */
 object TreeUtils {
+    /** 将列表构建为树结构 */
     @JvmStatic
     fun <T : Any, I> buildTree(
         list: List<T>?,
@@ -75,7 +42,7 @@ object TreeUtils {
             if (parentNode != null) {
                 var children = getChildren(parentNode)
                 if (children == null) {
-                    children = ArrayList()
+                    children = mutableListOf()
                     childrenSetter.accept(parentNode, children)
                 }
                 children.add(node)
@@ -87,6 +54,7 @@ object TreeUtils {
         return roots
     }
 
+    /** 获取子节点列表 */
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> getChildren(node: T): MutableList<T>? =
         try {
@@ -95,6 +63,7 @@ object TreeUtils {
             null
         }
 
+    /** 查找首个匹配节点 */
     @JvmStatic
     fun <T : Any> findNode(
         tree: List<T>?,
@@ -120,6 +89,7 @@ object TreeUtils {
         return null
     }
 
+    /** 查找所有匹配节点 */
     @JvmStatic
     fun <T : Any> findNodes(
         tree: List<T>?,
@@ -131,6 +101,7 @@ object TreeUtils {
         return result
     }
 
+    /** 递归收集匹配节点 */
     private fun <T : Any> findNodesInternal(
         nodes: List<T>?,
         predicate: Predicate<T>,
@@ -152,6 +123,7 @@ object TreeUtils {
         }
     }
 
+    /** 获取目标节点路径 */
     @JvmStatic
     fun <T : Any> getNodePath(
         tree: List<T>?,
@@ -163,6 +135,7 @@ object TreeUtils {
         return path
     }
 
+    /** 递归查找节点路径 */
     private fun <T : Any> findPath(
         nodes: List<T>?,
         targetPredicate: Predicate<T>,
@@ -190,6 +163,7 @@ object TreeUtils {
         return false
     }
 
+    /** 将树结构扁平化为列表 */
     @JvmStatic
     fun <T : Any> flattenTree(
         tree: List<T>?,
@@ -200,6 +174,7 @@ object TreeUtils {
         return result
     }
 
+    /** 按条件过滤树结构 */
     @JvmStatic
     fun <T : Any> filterTree(
         tree: List<T>?,
@@ -222,7 +197,7 @@ object TreeUtils {
             } else {
                 childrenSetter.accept(
                     copyNode,
-                    if (children == null) null else Collections.emptyList(),
+                    if (children == null) null else emptyList(),
                 )
             }
 
@@ -234,6 +209,7 @@ object TreeUtils {
         return result
     }
 
+    /** 尝试创建节点副本 */
     @Suppress("UNCHECKED_CAST")
     private fun <T : Any> tryCreateCopy(node: T): T =
         try {
@@ -253,6 +229,7 @@ object TreeUtils {
             node
         }
 
+    /** 遍历树结构 */
     @JvmStatic
     fun <T : Any> traverseTree(
         tree: List<T>?,
@@ -262,6 +239,7 @@ object TreeUtils {
         traverseTreeInternal(tree, action, childrenGetter, 0)
     }
 
+    /** 获取树的最大深度 */
     @JvmStatic
     fun <T : Any> getMaxDepth(
         tree: List<T>?,
@@ -281,6 +259,7 @@ object TreeUtils {
         return maxDepth + 1
     }
 
+    /** 根据 ID 查找节点 */
     @JvmStatic
     fun <T : Any, I> findNodeById(
         tree: List<T>?,
@@ -290,10 +269,11 @@ object TreeUtils {
     ): T? =
         findNode(
             tree,
-            Predicate { node -> Objects.equals(idGetter.apply(node), id) },
+            Predicate { node -> idGetter.apply(node) == id },
             childrenGetter,
         )
 
+    /** 获取类型的全部字段 */
     private fun getAllFields(clazz: Class<*>): List<Field> {
         val fields = mutableListOf<Field>()
         fields += clazz.declaredFields
@@ -304,6 +284,7 @@ object TreeUtils {
         return fields
     }
 
+    /** 递归遍历树结构 */
     private fun <T : Any> traverseTreeInternal(
         nodes: List<T>?,
         action: BiConsumer<T, Int>,
@@ -322,6 +303,7 @@ object TreeUtils {
         }
     }
 
+    /** 递归扁平化树结构 */
     private fun <T : Any> flattenTreeInternal(
         nodes: List<T>?,
         childrenGetter: Function<T, List<T>?>,
@@ -339,5 +321,6 @@ object TreeUtils {
         }
     }
 
+    /** 日志记录器 */
     private val log = LoggerFactory.getLogger(TreeUtils::class.java)
 }

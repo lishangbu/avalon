@@ -13,14 +13,21 @@ import org.springframework.context.annotation.Bean
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
 import tools.jackson.databind.json.JsonMapper
 
+/**
+ * 认证处理器自动配置
+ *
+ * 提供登录失败跟踪器以及统一的认证成功和失败处理器
+ */
 @AutoConfiguration
 class AuthenticationHandlerAutoConfiguration {
+    /** 创建登录失败跟踪器 */
     @Bean
     @ConditionalOnMissingBean
     fun loginFailureTracker(
         oauth2PropertiesProvider: ObjectProvider<Oauth2Properties>,
     ): LoginFailureTracker = InMemoryLoginFailureTracker(oauth2PropertiesProvider.ifAvailable)
 
+    /** 创建访问令牌认证成功处理器 */
     @Bean
     @ConditionalOnMissingBean
     fun accessTokenResponseAuthenticationSuccessHandler(
@@ -36,6 +43,7 @@ class AuthenticationHandlerAutoConfiguration {
             jsonMapper,
         )
 
+    /** 创建 OAuth2 认证失败处理器 */
     @Bean
     @ConditionalOnMissingBean
     fun oauth2ErrorApiResultAuthenticationFailureHandler(
