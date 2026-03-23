@@ -1,15 +1,8 @@
 spring:
   main:
     banner-mode: off
-  data:
-    jpa:
-      repositories:
-        enabled: false
-    jimmer:
-      repositories:
-        enabled: false
   liquibase:
     enabled: true
-    change-log: classpath:db/changelog/db.changelog-repository-test.yaml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 jimmer:
   language: kotlin

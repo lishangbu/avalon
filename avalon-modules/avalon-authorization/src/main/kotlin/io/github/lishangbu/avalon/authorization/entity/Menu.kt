@@ -6,6 +6,7 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
+import org.babyfish.jimmer.sql.Serialized
 import org.babyfish.jimmer.sql.Table
 
 @Entity
@@ -20,6 +21,7 @@ interface Menu {
 
     val disabled: Boolean?
 
+    @Serialized
     val extra: String?
 
     val icon: String?

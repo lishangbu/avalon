@@ -1,4 +1,5 @@
 databaseChangeLog:
   - includeAll:
       path: versions
+      endsWithFilter: .yaml
       relativeToChangelogFile: true
