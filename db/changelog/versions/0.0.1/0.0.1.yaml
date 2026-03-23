@@ -1530,6 +1530,32 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: item
+            columns:
+              - column:
+                  header: effect
+                  name: effect
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: fling_power
+                  name: fling_power
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: short_effect
+                  name: short_effect
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: text
+                  name: text
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: item_fling_effect_id
+                  name: item_fling_effect_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/item_attribute_relation.csv
             relativeToChangelogFile: true
@@ -1572,12 +1598,39 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: stat
+            columns:
+              - column:
+                  header: move_damage_class_id
+                  name: move_damage_class_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/nature.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
             tableName: nature
+            columns:
+              - column:
+                  header: decreased_stat_id
+                  name: decreased_stat_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: hates_berry_flavor_id
+                  name: hates_berry_flavor_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: increased_stat_id
+                  name: increased_stat_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: likes_berry_flavor_id
+                  name: likes_berry_flavor_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/pokemon_color.csv
             relativeToChangelogFile: true
@@ -1602,12 +1655,29 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: pokemon_species
+            columns:
+              - column:
+                  header: evolves_from_species_id
+                  name: evolves_from_species_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: pokemon_habitat_id
+                  name: pokemon_habitat_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/pokemon.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
             tableName: pokemon
+            columns:
+              - column:
+                  header: base_experience
+                  name: base_experience
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/type.csv
             relativeToChangelogFile: true
@@ -1638,6 +1708,102 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: move
+            columns:
+              - column:
+                  header: accuracy
+                  name: accuracy
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: ailment_chance
+                  name: ailment_chance
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: crit_rate
+                  name: crit_rate
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: drain
+                  name: drain
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: effect
+                  name: effect
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: effect_chance
+                  name: effect_chance
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: flinch_chance
+                  name: flinch_chance
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: healing
+                  name: healing
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: max_hits
+                  name: max_hits
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: max_turns
+                  name: max_turns
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_hits
+                  name: min_hits
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_turns
+                  name: min_turns
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: power
+                  name: power
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: pp
+                  name: pp
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: short_effect
+                  name: short_effect
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: stat_chance
+                  name: stat_chance
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: text
+                  name: text
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: move_ailment_id
+                  name: move_ailment_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: move_category_id
+                  name: move_category_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/berry.csv
             relativeToChangelogFile: true
@@ -1662,12 +1828,32 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: menu
+            columns:
+              - column:
+                  header: extra
+                  name: extra
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: parent_id
+                  name: parent_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/oauth_registered_client.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
             tableName: oauth_registered_client
+            columns:
+              - column:
+                  header: client_id_issued_at
+                  name: client_id_issued_at
+                  type: STRING
+              - column:
+                  header: client_secret_expires_at
+                  name: client_secret_expires_at
+                  type: STRING
         - loadData:
             file: data/role.csv
             relativeToChangelogFile: true
