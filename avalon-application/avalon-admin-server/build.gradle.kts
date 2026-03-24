@@ -16,7 +16,12 @@ dependencies {
 }
 
 tasks.processResources {
+    mustRunAfter(rootProject.tasks.named("generateRsaKeys"))
     from(rootProject.layout.projectDirectory.dir("db")) {
         into("db")
     }
+}
+
+tasks.named<Jar>("sourcesJar") {
+    mustRunAfter(rootProject.tasks.named("generateRsaKeys"))
 }
