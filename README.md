@@ -3,7 +3,7 @@ Avalon
 
 [![CI](https://github.com/lishangbu/avalon/actions/workflows/ci.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/ci.yml)
 [![Deploy Snapshot With Gradle](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
-[![Publish Javadoc](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml)
+[![Publish API Docs](https://github.com/lishangbu/avalon/actions/workflows/publish-api-docs.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-api-docs.yml)
 [![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
@@ -13,7 +13,7 @@ Avalon
 **Server Repository** |
 [Admin Client Repository][2] |
 [Usage Document Repository][3] |
-[Java Document Online][4]
+[API Docs Online][4]
 
 [1]: https://lishangbu.github.io/avalon-site/docs
 
@@ -21,7 +21,7 @@ Avalon
 
 [3]: https://github.com/lishangbu/avalon-doc
 
-[4]: https://lishangbu.github.io/avalon-site/javadoc-api
+[4]: https://lishangbu.github.io/avalon-site/api-docs
 
 ## Table of Contents
 
