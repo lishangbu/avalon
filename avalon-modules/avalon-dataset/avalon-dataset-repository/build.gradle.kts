@@ -1,20 +1,20 @@
 plugins {
     `java-library`
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
     api(project(":avalon-modules:avalon-dataset:avalon-dataset-model"))
-    api("org.babyfish.jimmer:jimmer-spring-boot-starter")
-    api("org.springframework.data:spring-data-commons")
-    testImplementation("org.springframework.boot:spring-boot-starter-liquibase")
-    testImplementation("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers-postgresql")
+    api(libs.jimmer.spring.boot.starter)
+    api(libs.spring.data.commons)
+    testImplementation(libs.spring.boot.starter.liquibase)
+    testImplementation(libs.postgresql)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
 }
 
 tasks.processTestResources {

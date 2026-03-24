@@ -1,26 +1,26 @@
 plugins {
     `java-library`
-    id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
     api(project(":avalon-extensions:avalon-jimmer-extension"))
     api(project(":avalon-support:avalon-oauth2-support:avalon-oauth2-authorization-server"))
-    api("org.babyfish.jimmer:jimmer-spring-boot-starter")
-    api("org.babyfish.jimmer:jimmer-sql-kotlin")
-    api("org.springframework.boot:spring-boot-starter-jdbc")
-    api("org.springframework.boot:spring-boot-starter-data-redis")
-    api("org.springframework.boot:spring-boot-starter-validation")
-    ksp("org.babyfish.jimmer:jimmer-ksp")
-    testImplementation("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-liquibase")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers-postgresql")
+    api(libs.jimmer.spring.boot.starter)
+    api(libs.jimmer.sql.kotlin)
+    api(libs.spring.boot.starter.jdbc)
+    api(libs.spring.boot.starter.data.redis)
+    api(libs.spring.boot.starter.validation)
+    ksp(libs.jimmer.ksp)
+    testImplementation(libs.postgresql)
+    testImplementation(libs.spring.boot.starter.liquibase)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
 }
 
 kotlin {

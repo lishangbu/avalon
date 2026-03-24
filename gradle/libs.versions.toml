@@ -1,0 +1,64 @@
+[versions]
+kotlin = "2.3.20"
+ksp = "2.3.6"
+spring-boot = "4.0.4"
+dokka = "2.1.0"
+ktlint = "14.2.0"
+aws = "2.41.24"
+jimmer = "0.10.6"
+ip2location = "1.2.6"
+
+[libraries]
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+aws-bom = { module = "software.amazon.awssdk:bom", version.ref = "aws" }
+jimmer-bom = { module = "org.babyfish.jimmer:jimmer-bom", version.ref = "jimmer" }
+
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-liquibase = { module = "org.springframework.boot:spring-boot-starter-liquibase" }
+spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure" }
+spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "spring-boot" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
+spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-json = { module = "org.springframework.boot:spring-boot-starter-json" }
+spring-boot-starter-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+spring-boot-starter-oauth2-authorization-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-authorization-server" }
+spring-boot-starter-oauth2-client = { module = "org.springframework.boot:spring-boot-starter-oauth2-client" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+spring-boot-jackson = { module = "org.springframework.boot:spring-boot-jackson" }
+
+jimmer-core = { module = "org.babyfish.jimmer:jimmer-core" }
+jimmer-sql-kotlin = { module = "org.babyfish.jimmer:jimmer-sql-kotlin" }
+jimmer-spring-boot-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-starter" }
+jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp" }
+
+aws-s3 = { module = "software.amazon.awssdk:s3" }
+
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+slf4j-api = { module = "org.slf4j:slf4j-api" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api" }
+spring-webmvc = { module = "org.springframework:spring-webmvc" }
+spring-data-commons = { module = "org.springframework.data:spring-data-commons" }
+spring-security-core = { module = "org.springframework.security:spring-security-core" }
+spring-security-oauth2-core = { module = "org.springframework.security:spring-security-oauth2-core" }
+spring-security-web = { module = "org.springframework.security:spring-security-web" }
+spring-security-test = { module = "org.springframework.security:spring-security-test" }
+postgresql = { module = "org.postgresql:postgresql" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+testcontainers-minio = { module = "org.testcontainers:testcontainers-minio" }
+ip2location = { module = "net.renfei:ip2location", version.ref = "ip2location" }
+
+[plugins]
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

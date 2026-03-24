@@ -1,14 +1,29 @@
-rootProject.name = "avalon"
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 pluginManagement {
     repositories {
         maven("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
         gradlePluginPortal()
         mavenCentral()
     }
+
+    plugins {
+        id("org.danilopianini.gradle-pre-commit-git-hooks") version "2.1.9"
+    }
 }
+
+plugins {
+    id("org.danilopianini.gradle-pre-commit-git-hooks")
+}
+
+gitHooks {
+    preCommit {
+        tasks("ktlintCheck")
+    }
+    createHooks(true)
+}
+
+rootProject.name = "avalon"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

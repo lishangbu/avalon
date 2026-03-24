@@ -222,14 +222,21 @@ class DefaultRegisteredClientRepository(
             authorizationGrantType: String,
         ): AuthorizationGrantType =
             when (authorizationGrantType) {
-                AuthorizationGrantType.AUTHORIZATION_CODE.value ->
+                AuthorizationGrantType.AUTHORIZATION_CODE.value -> {
                     AuthorizationGrantType.AUTHORIZATION_CODE
+                }
 
-                AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
+                AuthorizationGrantType.CLIENT_CREDENTIALS.value -> {
                     AuthorizationGrantType.CLIENT_CREDENTIALS
+                }
 
-                AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
-                else -> AuthorizationGrantType(authorizationGrantType)
+                AuthorizationGrantType.REFRESH_TOKEN.value -> {
+                    AuthorizationGrantType.REFRESH_TOKEN
+                }
+
+                else -> {
+                    AuthorizationGrantType(authorizationGrantType)
+                }
             }
 
         /**
@@ -242,14 +249,21 @@ class DefaultRegisteredClientRepository(
             clientAuthenticationMethod: String,
         ): ClientAuthenticationMethod =
             when (clientAuthenticationMethod) {
-                ClientAuthenticationMethod.CLIENT_SECRET_BASIC.value ->
+                ClientAuthenticationMethod.CLIENT_SECRET_BASIC.value -> {
                     ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+                }
 
-                ClientAuthenticationMethod.CLIENT_SECRET_POST.value ->
+                ClientAuthenticationMethod.CLIENT_SECRET_POST.value -> {
                     ClientAuthenticationMethod.CLIENT_SECRET_POST
+                }
 
-                ClientAuthenticationMethod.NONE.value -> ClientAuthenticationMethod.NONE
-                else -> ClientAuthenticationMethod(clientAuthenticationMethod)
+                ClientAuthenticationMethod.NONE.value -> {
+                    ClientAuthenticationMethod.NONE
+                }
+
+                else -> {
+                    ClientAuthenticationMethod(clientAuthenticationMethod)
+                }
             }
     }
 }
