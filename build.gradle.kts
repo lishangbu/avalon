@@ -327,6 +327,17 @@ abstract class GenerateRsaKeysTask : DefaultTask() {
     }
 }
 
+@DisableCachingByDefault(because = "Prints a configured value to standard output.")
+abstract class PrintValueTask : DefaultTask() {
+    @get:Input
+    abstract val value: Property<String>
+
+    @TaskAction
+    fun printValue() {
+        println(value.get())
+    }
+}
+
 plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.ksp) apply false
@@ -568,12 +579,10 @@ subprojects {
     }
 }
 
-tasks.register("printVersion") {
+tasks.register<PrintValueTask>("printVersion") {
     group = "build setup"
     description = "Print the version of this project."
-    doLast {
-        println(project.version)
-    }
+    value.set(providers.gradleProperty("version"))
 }
 
 val defaultIpDbFiles = listOf("IP2LOCATION-LITE-DB11.IPV6.BIN")
