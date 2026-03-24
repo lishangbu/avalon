@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
-
 plugins {
     java
     alias(libs.plugins.kotlin.jvm)
@@ -15,13 +13,6 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.web)
     runtimeOnly(libs.postgresql)
-}
-
-tasks.named<BootBuildImage>("bootBuildImage") {
-    val repository = providers.gradleProperty("dockerRepository").orElse("docker.io")
-    val prefix = providers.gradleProperty("dockerImagePrefix").orElse("slf4j")
-    imageName.set("${repository.get()}/${prefix.get()}/${project.name}:latest")
-    publish.set(false)
 }
 
 tasks.processResources {
