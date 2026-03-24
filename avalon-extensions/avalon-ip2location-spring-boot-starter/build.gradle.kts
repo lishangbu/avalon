@@ -16,3 +16,11 @@ dependencies {
 tasks.test {
     exclude("**/IpToLocationSearcherTest*")
 }
+
+tasks.processResources {
+    mustRunAfter(rootProject.tasks.named("downloadIpData"))
+}
+
+tasks.named<Jar>("sourcesJar") {
+    mustRunAfter(rootProject.tasks.named("downloadIpData"))
+}
