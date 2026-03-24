@@ -3,10 +3,8 @@ package io.github.lishangbu.avalon.dataset.service.impl
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.repository.StatRepository
 import io.github.lishangbu.avalon.dataset.service.StatService
-import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.ExampleMatcher
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 /** 能力值服务实现*/
@@ -15,23 +13,6 @@ class StatServiceImpl(
     /** 能力值仓储*/
     private val statRepository: StatRepository,
 ) : StatService {
-    /** 按条件分页查询能力值*/
-    override fun getPageByCondition(
-        stat: Stat,
-        pageable: Pageable,
-    ): Page<Stat> =
-        statRepository.findAll(
-            Example.of(
-                stat,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-            pageable,
-        )
-
     /** 根据条件查询能力值列表*/
     override fun listByCondition(stat: Stat): List<Stat> {
         val matcher =

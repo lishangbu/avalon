@@ -2,17 +2,15 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
-import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Answers
+import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.Example
-import org.springframework.data.domain.PageRequest
 
 @ExtendWith(MockitoExtension::class)
 class BerryFlavorServiceImplTest {
@@ -23,32 +21,17 @@ class BerryFlavorServiceImplTest {
     private lateinit var berryFlavorService: BerryFlavorServiceImpl
 
     @Test
-    fun getPageByCondition_callsRepository() {
+    fun listByCondition_callsRepository() {
         val berryFlavor = BerryFlavor()
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<BerryFlavor> = Page(listOf(berryFlavor), 1, 1)
-        val repository =
-            Mockito.mock(BerryFlavorRepository::class.java) { invocation ->
-                if (invocation.method.name == "findAll" && invocation.arguments.size == 2) {
-                    page
-                } else {
-                    Answers.RETURNS_DEFAULTS.answer(invocation)
-                }
-            }
-        val service = BerryFlavorServiceImpl(repository)
+        val expected = listOf(berryFlavor)
+        Mockito
+            .`when`(berryFlavorRepository.findAll(ArgumentMatchers.any<Example<BerryFlavor>>()))
+            .thenReturn(expected)
 
-        val result = service.getPageByCondition(berryFlavor, pageable)
+        val result = berryFlavorService.listByCondition(berryFlavor)
 
-        assertSame(page, result)
-        val invocation =
-            Mockito
-                .mockingDetails(repository)
-                .invocations
-                .single { it.method.name == "findAll" && it.arguments.size == 2 }
-        assertSame(berryFlavor, (invocation.arguments[0] as Example<*>).probe)
-        assertSame(pageable, invocation.arguments[1])
+        assertSame(expected, result)
+        Mockito.verify(berryFlavorRepository).findAll(ArgumentMatchers.any<Example<BerryFlavor>>())
     }
 
     @Test

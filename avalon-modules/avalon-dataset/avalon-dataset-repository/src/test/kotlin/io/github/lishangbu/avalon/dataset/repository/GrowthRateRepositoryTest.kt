@@ -1,0 +1,96 @@
+package io.github.lishangbu.avalon.dataset.repository
+
+import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import jakarta.annotation.Resource
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.data.domain.Example
+
+/** 成长速率仓储测试 */
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class GrowthRateRepositoryTest : AbstractRepositoryTest() {
+    @Resource
+    private lateinit var growthRateRepository: GrowthRateRepository
+
+    @Test
+    fun shouldInsertGrowthRateSuccessfully() {
+        val growthRate =
+            GrowthRate {
+                internalName = "unit-test-growth-rate"
+                name = "单元测试成长速率"
+                description = "unit test growth rate"
+            }
+
+        val saved = growthRateRepository.saveAndFlush(growthRate)
+
+        Assertions.assertNotNull(saved.id)
+        Assertions.assertTrue(saved.id > 0)
+    }
+
+    @Test
+    fun shouldFindGrowthRateById() {
+        val slow = requireNotNull(growthRateRepository.findById(1L))
+
+        Assertions.assertEquals(1L, slow.id)
+        Assertions.assertEquals("slow", slow.internalName)
+        Assertions.assertEquals("慢", slow.name)
+        Assertions.assertEquals("slow", slow.description)
+    }
+
+    @Test
+    fun shouldUpdateGrowthRateById() {
+        val growthRate =
+            growthRateRepository.saveAndFlush(
+                GrowthRate {
+                    internalName = "growth-rate-update"
+                    name = "原始成长速率"
+                    description = "original growth rate"
+                },
+            )
+        val id = growthRate.id
+
+        growthRateRepository.saveAndFlush(
+            GrowthRate(growthRate) {
+                name = "更新后的成长速率"
+                description = "updated growth rate"
+            },
+        )
+
+        val updatedGrowthRate = requireNotNull(growthRateRepository.findById(id))
+        Assertions.assertEquals("更新后的成长速率", updatedGrowthRate.name)
+        Assertions.assertEquals("updated growth rate", updatedGrowthRate.description)
+    }
+
+    @Test
+    fun shouldDeleteGrowthRateById() {
+        val growthRate =
+            growthRateRepository.saveAndFlush(
+                GrowthRate {
+                    internalName = "growth-rate-delete"
+                    name = "待删除成长速率"
+                    description = "delete growth rate"
+                },
+            )
+        val deleteRecordId = growthRate.id
+
+        Assertions.assertNotNull(growthRateRepository.findById(deleteRecordId))
+        growthRateRepository.deleteById(deleteRecordId)
+        growthRateRepository.flush()
+        Assertions.assertNull(growthRateRepository.findById(deleteRecordId))
+    }
+
+    @Test
+    fun shouldSelectListWithDynamicCondition() {
+        val condition =
+            GrowthRate {
+                internalName = "medium"
+            }
+
+        val results = growthRateRepository.findAll(Example.of(condition))
+
+        Assertions.assertNotNull(results)
+        Assertions.assertTrue(results.any { it.internalName == "medium" })
+    }
+}

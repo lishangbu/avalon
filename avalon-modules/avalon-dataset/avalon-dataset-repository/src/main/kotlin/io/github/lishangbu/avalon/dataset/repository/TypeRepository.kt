@@ -1,9 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Type
-import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
-import org.springframework.data.domain.Pageable
 
 /**
  * 属性仓储接口
@@ -19,12 +17,6 @@ interface TypeRepository {
 
     /** 按条件查询属性列表 */
     fun findAll(example: Example<Type>?): List<Type>
-
-    /** 按条件分页查询属性 */
-    fun findAll(
-        example: Example<Type>?,
-        pageable: Pageable,
-    ): Page<Type>
 
     /** 按 ID 查询属性 */
     fun findById(id: Long): Type?

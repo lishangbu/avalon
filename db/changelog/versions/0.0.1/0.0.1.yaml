@@ -240,6 +240,9 @@ databaseChangeLog:
               - column:
                   name: internal_name
                   type: varchar(100)
+              - column:
+                  name: name
+                  type: varchar(100)
         - createTable:
             tableName: growth_rate
             columns:

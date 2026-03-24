@@ -2,8 +2,6 @@ package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Type
 import io.github.lishangbu.avalon.dataset.service.TypeService
-import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 
 /** 属性控制器 */
@@ -13,23 +11,6 @@ class TypeController(
     /** 属性服务 */
     private val typeService: TypeService,
 ) {
-    /** 获取属性分页结果 */
-    @GetMapping("/page")
-    fun getTypePage(
-        pageable: Pageable,
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): Page<Type> =
-        typeService.getPageByCondition(
-            Type {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-            pageable,
-        )
-
     /** 保存属性 */
     @PostMapping
     fun save(
