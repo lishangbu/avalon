@@ -13,4 +13,5 @@ dependencies {
     api(libs.spring.security.oauth2.core)
     api(libs.spring.security.web)
     compileOnly(libs.jakarta.servlet.api)
+    testRuntimeOnly(libs.jakarta.servlet.api)
 }

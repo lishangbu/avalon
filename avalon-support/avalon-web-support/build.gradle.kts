@@ -10,4 +10,5 @@ dependencies {
     compileOnly(libs.slf4j.api)
     api(libs.spring.webmvc)
     compileOnly(libs.jakarta.servlet.api)
+    testRuntimeOnly(libs.jakarta.servlet.api)
 }
