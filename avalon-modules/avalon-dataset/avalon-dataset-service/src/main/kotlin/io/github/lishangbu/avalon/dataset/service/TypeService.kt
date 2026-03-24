@@ -1,17 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.Type
-import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Pageable
 
 /** 属性应用服务 */
 interface TypeService {
-    /** 按筛选条件分页查询属性 */
-    fun getPageByCondition(
-        type: Type,
-        pageable: Pageable,
-    ): Page<Type>
-
     /** 创建属性 */
     fun save(type: Type): Type
 

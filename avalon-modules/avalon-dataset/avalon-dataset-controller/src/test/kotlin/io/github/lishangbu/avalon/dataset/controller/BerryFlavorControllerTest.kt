@@ -2,29 +2,22 @@ package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
-import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 
 class BerryFlavorControllerTest {
     @Test
-    fun getBerryFlavorPage_delegatesToService() {
+    fun listBerryFlavors_delegatesToService() {
         val service = FakeBerryFlavorService()
         val controller = BerryFlavorController(service)
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<BerryFlavor> = Page(listOf(BerryFlavor()), 1, 1)
-        service.pageResult = page
+        val list = listOf(BerryFlavor())
+        service.listResult = list
 
-        val result = controller.getBerryFlavorPage(pageable, 1L, "spicy", "辣")
+        val result = controller.listBerryFlavors(1L, "spicy", "辣")
 
-        assertSame(page, result)
-        assertSame(pageable, service.pageable)
-        assertEquals(1L, service.pageCondition!!.id)
+        assertSame(list, result)
+        assertEquals(1L, service.listCondition!!.id)
     }
 
     @Test
@@ -64,24 +57,14 @@ class BerryFlavorControllerTest {
     }
 
     private class FakeBerryFlavorService : BerryFlavorService {
-        var pageCondition: BerryFlavor? = null
-        var pageable: Pageable? = null
+        var listCondition: BerryFlavor? = null
         var saved: BerryFlavor? = null
         var updated: BerryFlavor? = null
         var removedId: Long? = null
 
-        var pageResult: Page<BerryFlavor> = Page(emptyList(), 0, 0)
+        var listResult: List<BerryFlavor> = emptyList()
         var saveResult: BerryFlavor = BerryFlavor()
         var updateResult: BerryFlavor = BerryFlavor()
-
-        override fun getPageByCondition(
-            berryFlavor: BerryFlavor,
-            pageable: Pageable,
-        ): Page<BerryFlavor> {
-            pageCondition = berryFlavor
-            this.pageable = pageable
-            return pageResult
-        }
 
         override fun save(berryFlavor: BerryFlavor): BerryFlavor {
             saved = berryFlavor
@@ -95,6 +78,11 @@ class BerryFlavorControllerTest {
 
         override fun removeById(id: Long) {
             removedId = id
+        }
+
+        override fun listByCondition(berryFlavor: BerryFlavor): List<BerryFlavor> {
+            listCondition = berryFlavor
+            return listResult
         }
     }
 }

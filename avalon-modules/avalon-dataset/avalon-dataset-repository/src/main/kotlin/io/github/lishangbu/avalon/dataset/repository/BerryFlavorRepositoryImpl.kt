@@ -4,13 +4,11 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.id
 import io.github.lishangbu.avalon.dataset.entity.internalName
 import io.github.lishangbu.avalon.dataset.entity.name
-import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.data.domain.Example
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -35,21 +33,6 @@ class BerryFlavorRepositoryImpl(
                 probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
                 select(table)
             }.execute()
-    }
-
-    /** 按条件分页查询树果风味 */
-    override fun findAll(
-        example: Example<BerryFlavor>?,
-        pageable: Pageable,
-    ): Page<BerryFlavor> {
-        val probe = example?.probe
-        return sql
-            .createQuery(BerryFlavor::class) {
-                probe.readOrNull { id }?.let { where(table.id eq it) }
-                probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
-                probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
-                select(table)
-            }.fetchPage(pageable.pageNumber, pageable.pageSize)
     }
 
     /** 按 ID 查询树果风味 */

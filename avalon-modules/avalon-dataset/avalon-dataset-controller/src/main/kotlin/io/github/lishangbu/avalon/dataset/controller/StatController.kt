@@ -3,8 +3,6 @@ package io.github.lishangbu.avalon.dataset.controller
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.service.StatService
-import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 
 /** 能力值控制器 */
@@ -14,29 +12,6 @@ class StatController(
     /** 能力值服务*/
     private val statService: StatService,
 ) {
-    /** 获取能力值分页结果*/
-    @GetMapping("/page")
-    fun getStatPage(
-        pageable: Pageable,
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) gameIndex: Int?,
-        @RequestParam(required = false) isBattleOnly: Boolean?,
-        @RequestParam(required = false) moveDamageClassId: Long?,
-    ): Page<Stat> =
-        statService.getPageByCondition(
-            Stat {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                gameIndex?.let { this.gameIndex = it }
-                isBattleOnly?.let { this.isBattleOnly = it }
-                moveDamageClassId?.let { this.moveDamageClass = MoveDamageClass { this.id = it } }
-            },
-            pageable,
-        )
-
     /** 保存能力值*/
     @PostMapping
     fun save(

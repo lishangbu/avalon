@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.Gender
 import io.github.lishangbu.avalon.dataset.entity.id
 import io.github.lishangbu.avalon.dataset.entity.internalName
 import io.github.lishangbu.avalon.dataset.entity.name
@@ -12,22 +12,22 @@ import org.springframework.data.domain.Example
 import org.springframework.stereotype.Repository
 
 @Repository
-class TypeRepositoryImpl(
+class GenderRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : TypeRepository {
-    /** 查询全部属性列表 */
-    override fun findAll(): List<Type> =
+) : GenderRepository {
+    /** 查询全部性别列表 */
+    override fun findAll(): List<Gender> =
         sql
-            .createQuery(Type::class) {
+            .createQuery(Gender::class) {
                 select(table)
             }.execute()
 
-    /** 按条件查询属性列表 */
-    override fun findAll(example: Example<Type>?): List<Type> {
+    /** 按条件查询性别列表 */
+    override fun findAll(example: Example<Gender>?): List<Gender> {
         val probe = example?.probe
         return sql
-            .createQuery(Type::class) {
+            .createQuery(Gender::class) {
                 probe.readOrNull { id }?.let { where(table.id eq it) }
                 probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
                 probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
@@ -35,24 +35,24 @@ class TypeRepositoryImpl(
             }.execute()
     }
 
-    /** 按 ID 查询属性 */
-    override fun findById(id: Long): Type? = sql.findById(Type::class, id)
+    /** 按 ID 查询性别 */
+    override fun findById(id: Long): Gender? = sql.findById(Gender::class, id)
 
-    /** 保存属性 */
-    override fun save(type: Type): Type =
+    /** 保存性别 */
+    override fun save(gender: Gender): Gender =
         sql
-            .save(type) {
-                val mode = type.readOrNull { id }?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
+            .save(gender) {
+                val mode = gender.readOrNull { id }?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
                 setMode(mode)
             }.modifiedEntity
 
-    /** 保存属性并立即刷新 */
-    override fun saveAndFlush(type: Type): Type = save(type)
+    /** 保存性别并立即刷新 */
+    override fun saveAndFlush(gender: Gender): Gender = save(gender)
 
-    /** 按 ID 删除属性 */
+    /** 按 ID 删除性别 */
     override fun deleteById(id: Long) {
         sql
-            .createDelete(Type::class) {
+            .createDelete(Gender::class) {
                 where(table.id eq id)
                 disableDissociation()
             }.execute()

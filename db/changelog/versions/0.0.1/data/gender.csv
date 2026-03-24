@@ -1,4 +1,4 @@
-id,internal_name
-1,female
-2,male
-3,genderless
+id,internal_name,name
+1,female,♀
+2,male,♂
+3,genderless,-

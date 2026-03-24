@@ -1,9 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
-import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
-import org.springframework.data.domain.Pageable
 
 /**
  * 树果风味仓储接口
@@ -19,12 +17,6 @@ interface BerryFlavorRepository {
 
     /** 按条件查询树果风味列表 */
     fun findAll(example: Example<BerryFlavor>?): List<BerryFlavor>
-
-    /** 按条件分页查询树果风味 */
-    fun findAll(
-        example: Example<BerryFlavor>?,
-        pageable: Pageable,
-    ): Page<BerryFlavor>
 
     /** 按 ID 查询树果风味 */
     fun findById(id: Long): BerryFlavor?

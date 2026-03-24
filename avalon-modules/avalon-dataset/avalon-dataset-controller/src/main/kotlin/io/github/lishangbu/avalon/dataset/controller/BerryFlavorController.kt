@@ -2,8 +2,6 @@ package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
-import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 
 /** 树果风味控制器*/
@@ -13,21 +11,19 @@ class BerryFlavorController(
     /** 树果风味服务 */
     private val berryFlavorService: BerryFlavorService,
 ) {
-    /** 获取树果风味分页结果 */
-    @GetMapping("/page")
-    fun getBerryFlavorPage(
-        pageable: Pageable,
+    /** 查询树果风味列表 */
+    @GetMapping("/list")
+    fun listBerryFlavors(
         @RequestParam(required = false) id: Long?,
         @RequestParam(required = false) internalName: String?,
         @RequestParam(required = false) name: String?,
-    ): Page<BerryFlavor> =
-        berryFlavorService.getPageByCondition(
+    ): List<BerryFlavor> =
+        berryFlavorService.listByCondition(
             BerryFlavor {
                 id?.let { this.id = it }
                 internalName?.let { this.internalName = it }
                 name?.let { this.name = it }
             },
-            pageable,
         )
 
     /** 保存树果风味 */

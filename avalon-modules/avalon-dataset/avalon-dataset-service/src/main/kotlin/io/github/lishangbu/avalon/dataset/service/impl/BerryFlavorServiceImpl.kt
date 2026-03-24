@@ -3,10 +3,8 @@ package io.github.lishangbu.avalon.dataset.service.impl
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
-import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.ExampleMatcher
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 /** 树果风味服务实现 */
@@ -15,23 +13,6 @@ class BerryFlavorServiceImpl(
     /** 树果风味仓储 */
     private val berryFlavorRepository: BerryFlavorRepository,
 ) : BerryFlavorService {
-    /** 按条件分页查询树果风味*/
-    override fun getPageByCondition(
-        berryFlavor: BerryFlavor,
-        pageable: Pageable,
-    ): Page<BerryFlavor> =
-        berryFlavorRepository.findAll(
-            Example.of(
-                berryFlavor,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-            pageable,
-        )
-
     /** 保存树果风味 */
     override fun save(berryFlavor: BerryFlavor): BerryFlavor = berryFlavorRepository.save(berryFlavor)
 
@@ -41,5 +22,16 @@ class BerryFlavorServiceImpl(
     /** 按 ID 删除树果风味 */
     override fun removeById(id: Long) {
         berryFlavorRepository.deleteById(id)
+    }
+
+    /** 按条件查询树果风味列表 */
+    override fun listByCondition(berryFlavor: BerryFlavor): List<BerryFlavor> {
+        val matcher =
+            ExampleMatcher
+                .matching()
+                .withIgnoreNullValues()
+                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
+                .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains())
+        return berryFlavorRepository.findAll(Example.of(berryFlavor, matcher))
     }
 }
