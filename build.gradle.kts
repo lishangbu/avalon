@@ -24,6 +24,7 @@ import java.nio.file.attribute.PosixFilePermission
 import java.security.KeyPairGenerator
 import java.util.*
 
+// Shared helpers used by multiple Spring Boot application modules.
 private fun Project.dockerImageNameProvider() =
     run {
         val serviceName = name
@@ -34,6 +35,7 @@ private fun Project.dockerImageNameProvider() =
             }
     }
 
+// Root task implementations live here so they can be reused from CI and local development.
 @DisableCachingByDefault(because = "Downloads external IP data into project resources.")
 abstract class DownloadIpDataTask : DefaultTask() {
     @get:Input
@@ -327,6 +329,7 @@ abstract class GenerateRsaKeysTask : DefaultTask() {
     }
 }
 
+// Small cache-friendly utility task used by CI workflows.
 @DisableCachingByDefault(because = "Prints a configured value to standard output.")
 abstract class PrintValueTask : DefaultTask() {
     @get:Input
@@ -338,6 +341,7 @@ abstract class PrintValueTask : DefaultTask() {
     }
 }
 
+// Register root plugins once and let subprojects opt into the ones they actually need.
 plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.ksp) apply false
@@ -348,12 +352,15 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
+// Artifact coordinates are driven from gradle.properties for consistent local and CI builds.
 allprojects {
     group = providers.gradleProperty("group").get()
     version = providers.gradleProperty("version").get()
 }
 
+// Shared conventions are attached lazily based on the plugin each module applies.
 subprojects {
+    // Java modules share toolchain, test, publishing, and signing defaults.
     pluginManager.withPlugin("java") {
         extensions.configure<JavaPluginExtension> {
             toolchain.languageVersion.set(JavaLanguageVersion.of(25))
@@ -374,6 +381,7 @@ subprojects {
             useJUnitPlatform()
             jvmArgs("--enable-native-access=ALL-UNNAMED")
             doFirst {
+                // Mockito inline mocking needs the agent attached explicitly on newer JDKs.
                 val mockitoCore = classpath.files.firstOrNull { it.name.startsWith("mockito-core-") }
                 if (mockitoCore != null) {
                     jvmArgs("-javaagent:${mockitoCore.absolutePath}")
@@ -444,6 +452,7 @@ subprojects {
         }
     }
 
+    // Library modules consume the shared BOMs so leaf scripts can omit dependency versions.
     pluginManager.withPlugin("java-library") {
         dependencies {
             add("implementation", platform(libs.spring.boot.bom))
@@ -455,6 +464,7 @@ subprojects {
         }
     }
 
+    // Boot applications inherit BOM alignment and keep image publishing disabled by default.
     pluginManager.withPlugin("org.springframework.boot") {
         tasks.withType<BootBuildImage>().configureEach {
             imageName.set(project.dockerImageNameProvider())
@@ -472,12 +482,14 @@ subprojects {
         }
     }
 
+    // KSP modules align generated code with the same Jimmer version as runtime dependencies.
     pluginManager.withPlugin("com.google.devtools.ksp") {
         dependencies {
             add("ksp", platform(libs.jimmer.bom))
         }
     }
 
+    // Kotlin JVM defaults cover linting, compiler level, and reflection support.
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         apply(plugin = "org.jlleitschuh.gradle.ktlint")
         extensions.configure<KtlintExtension> {
@@ -505,6 +517,7 @@ subprojects {
         }
     }
 
+    // Dokka output is packed into javadocJar to satisfy Maven Central style publication requirements.
     pluginManager.withPlugin("org.jetbrains.dokka") {
         rootProject.dependencies.add("dokka", project(path))
 
@@ -514,6 +527,7 @@ subprojects {
         }
     }
 
+    // The BOM module follows the same repository and signing rules as published libraries.
     pluginManager.withPlugin("java-platform") {
         apply(plugin = "maven-publish")
         apply(plugin = "signing")
@@ -579,6 +593,7 @@ subprojects {
     }
 }
 
+// Root utility tasks used directly by CI jobs and local setup commands.
 tasks.register<PrintValueTask>("printVersion") {
     group = "build setup"
     description = "Print the version of this project."
@@ -591,6 +606,7 @@ tasks.register<DownloadIpDataTask>("downloadIpData") {
     group = "build setup"
     description = "Downloads and normalizes IP2Location database files into module resources."
 
+    // Keep the download configurable, but provide a sensible default for routine builds.
     val configuredDbVersion =
         providers
             .gradleProperty("ipDbVersion")
@@ -623,6 +639,7 @@ tasks.register<GenerateRsaKeysTask>("generateRsaKeys") {
     group = "build setup"
     description = "Generates one RSA key pair and writes it to configured application resource directories."
 
+    // CI can overwrite existing keys explicitly; local runs stay safe by default.
     val configuredKeySize =
         providers
             .gradleProperty("keySize")
