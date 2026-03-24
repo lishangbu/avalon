@@ -10,12 +10,13 @@ import java.security.KeyPairGenerator
 import java.util.*
 
 plugins {
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    id("com.google.devtools.ksp") version "2.3.6" apply false
-    id("org.jetbrains.kotlin.jvm") version "2.3.20" apply false
-    id("org.jetbrains.kotlin.plugin.spring") version "2.3.20" apply false
-    id("org.springframework.boot") version "4.0.4" apply false
-    id("org.jetbrains.dokka") version "2.1.0"
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.dokka)
 }
 
 allprojects {
@@ -39,8 +40,8 @@ subprojects {
         }
 
         dependencies {
-            add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit5:2.3.20")
-            add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
+            add("testImplementation", libs.kotlin.test.junit5)
+            add("testImplementation", libs.spring.boot.starter.test)
         }
 
         tasks.withType<Test>().configureEach {
@@ -125,30 +126,33 @@ subprojects {
 
     pluginManager.withPlugin("java-library") {
         dependencies {
-            add("api", platform("org.springframework.boot:spring-boot-dependencies:4.0.4"))
-            add("testImplementation", platform("org.springframework.boot:spring-boot-dependencies:4.0.4"))
-            add("api", platform("software.amazon.awssdk:bom:2.41.24"))
-            add("testImplementation", platform("software.amazon.awssdk:bom:2.41.24"))
-            add("api", platform("org.babyfish.jimmer:jimmer-bom:0.10.6"))
-            add("testImplementation", platform("org.babyfish.jimmer:jimmer-bom:0.10.6"))
+            add("api", platform(libs.spring.boot.bom))
+            add("implementation", platform(libs.spring.boot.bom))
+            add("testImplementation", platform(libs.spring.boot.bom))
+            add("api", platform(libs.aws.bom))
+            add("implementation", platform(libs.aws.bom))
+            add("testImplementation", platform(libs.aws.bom))
+            add("api", platform(libs.jimmer.bom))
+            add("implementation", platform(libs.jimmer.bom))
+            add("testImplementation", platform(libs.jimmer.bom))
         }
     }
 
     pluginManager.withPlugin("org.springframework.boot") {
         dependencies {
-            add("implementation", platform("org.springframework.boot:spring-boot-dependencies:4.0.4"))
-            add("testImplementation", platform("org.springframework.boot:spring-boot-dependencies:4.0.4"))
-            add("implementation", "org.springframework.boot:spring-boot-starter-liquibase")
-            add("implementation", platform("software.amazon.awssdk:bom:2.41.24"))
-            add("testImplementation", platform("software.amazon.awssdk:bom:2.41.24"))
-            add("implementation", platform("org.babyfish.jimmer:jimmer-bom:0.10.6"))
-            add("testImplementation", platform("org.babyfish.jimmer:jimmer-bom:0.10.6"))
+            add("implementation", platform(libs.spring.boot.bom))
+            add("testImplementation", platform(libs.spring.boot.bom))
+            add("implementation", libs.spring.boot.starter.liquibase)
+            add("implementation", platform(libs.aws.bom))
+            add("testImplementation", platform(libs.aws.bom))
+            add("implementation", platform(libs.jimmer.bom))
+            add("testImplementation", platform(libs.jimmer.bom))
         }
     }
 
     pluginManager.withPlugin("com.google.devtools.ksp") {
         dependencies {
-            add("ksp", platform("org.babyfish.jimmer:jimmer-bom:0.10.6"))
+            add("ksp", platform(libs.jimmer.bom))
         }
     }
 
@@ -165,7 +169,7 @@ subprojects {
         }
 
         dependencies {
-            add("implementation", "org.jetbrains.kotlin:kotlin-reflect:2.3.20")
+            add("implementation", libs.kotlin.reflect)
         }
 
         tasks.withType<KotlinCompile>().configureEach {

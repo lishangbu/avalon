@@ -1,12 +1,12 @@
 plugins {
     `java-library`
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
-    implementation("org.babyfish.jimmer:jimmer-core")
-    implementation("org.springframework.boot:spring-boot-jackson")
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    implementation(libs.jimmer.core)
+    implementation(libs.spring.boot.jackson)
+    implementation(libs.spring.boot.autoconfigure)
 }

@@ -1,14 +1,16 @@
 plugins {
     `java-library`
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
-    api("org.springframework.boot:spring-boot-autoconfigure")
-    api("software.amazon.awssdk:s3")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers-minio")
+    api(libs.spring.boot.autoconfigure)
+    api(libs.aws.s3)
+    kapt(libs.spring.boot.configuration.processor)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.minio)
 }

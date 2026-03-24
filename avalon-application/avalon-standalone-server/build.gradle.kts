@@ -2,19 +2,19 @@ import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
     java
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
-    id("org.springframework.boot")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.spring.boot)
 }
 
 dependencies {
     implementation(project(":avalon-modules:avalon-authorization"))
     implementation(project(":avalon-modules:avalon-dataset:avalon-dataset-repository"))
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.babyfish.jimmer:jimmer-spring-boot-starter")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.jimmer.spring.boot.starter)
+    runtimeOnly(libs.postgresql)
 }
 
 tasks.named<BootBuildImage>("bootBuildImage") {

@@ -1,16 +1,16 @@
 plugins {
     `java-library`
-    id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
     api(project(":avalon-extensions:avalon-jimmer-extension"))
-    api("org.babyfish.jimmer:jimmer-sql-kotlin")
-    api("com.fasterxml.jackson.core:jackson-databind")
-    ksp("org.babyfish.jimmer:jimmer-ksp")
+    api(libs.jimmer.sql.kotlin)
+    api(libs.jackson.databind)
+    ksp(libs.jimmer.ksp)
 }
 
 kotlin {

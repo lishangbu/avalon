@@ -1,6 +1,7 @@
 Avalon
 ========================================================================
 
+[![CI](https://github.com/lishangbu/avalon/actions/workflows/ci.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/ci.yml)
 [![Deploy Snapshot With Gradle](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
 [![Publish Javadoc](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-javadoc.yml)
 [![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)

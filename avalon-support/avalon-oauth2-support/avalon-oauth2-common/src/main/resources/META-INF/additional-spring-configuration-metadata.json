@@ -1,0 +1,134 @@
+{
+  "groups": [
+    {
+      "name": "oauth2",
+      "type": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "OAuth2 configuration properties."
+    }
+  ],
+  "properties": [
+    {
+      "name": "oauth2.ignore-urls",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "URLs that bypass authentication."
+    },
+    {
+      "name": "oauth2.username-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the username.",
+      "defaultValue": "username"
+    },
+    {
+      "name": "oauth2.password-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the password.",
+      "defaultValue": "password"
+    },
+    {
+      "name": "oauth2.phone-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the phone number.",
+      "defaultValue": "phone"
+    },
+    {
+      "name": "oauth2.sms-code-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the SMS verification code.",
+      "defaultValue": "sms_code"
+    },
+    {
+      "name": "oauth2.email-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the email address.",
+      "defaultValue": "email"
+    },
+    {
+      "name": "oauth2.email-code-parameter-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Request parameter name for the email verification code.",
+      "defaultValue": "email_code"
+    },
+    {
+      "name": "oauth2.sms-code-length",
+      "type": "java.lang.Integer",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Length of the SMS verification code.",
+      "defaultValue": 6
+    },
+    {
+      "name": "oauth2.sms-code-time-to-live",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Validity period of the SMS verification code using Spring duration syntax.",
+      "defaultValue": "5m"
+    },
+    {
+      "name": "oauth2.sms-code-resend-interval",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Minimum resend interval for SMS verification codes using Spring duration syntax.",
+      "defaultValue": "60s"
+    },
+    {
+      "name": "oauth2.email-code-length",
+      "type": "java.lang.Integer",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Length of the email verification code.",
+      "defaultValue": 6
+    },
+    {
+      "name": "oauth2.email-code-time-to-live",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Validity period of the email verification code using Spring duration syntax.",
+      "defaultValue": "5m"
+    },
+    {
+      "name": "oauth2.email-code-resend-interval",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Minimum resend interval for email verification codes using Spring duration syntax.",
+      "defaultValue": "60s"
+    },
+    {
+      "name": "oauth2.max-login-failures",
+      "type": "java.lang.Integer",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Maximum consecutive login failures before lockout.",
+      "defaultValue": 5
+    },
+    {
+      "name": "oauth2.login-lock-duration",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Lock duration after too many login failures using Spring duration syntax.",
+      "defaultValue": "15m"
+    },
+    {
+      "name": "oauth2.issuer-url",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Issuer URL for generated tokens."
+    },
+    {
+      "name": "oauth2.jwt-public-key-location",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Location of the JWT public key."
+    },
+    {
+      "name": "oauth2.jwt-private-key-location",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Location of the JWT private key."
+    }
+  ]
+}

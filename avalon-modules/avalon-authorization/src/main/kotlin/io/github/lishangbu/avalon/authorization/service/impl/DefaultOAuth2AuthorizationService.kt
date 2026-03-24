@@ -63,32 +63,44 @@ class DefaultOAuth2AuthorizationService(
 
         val result =
             when (tokenType?.value) {
-                null ->
+                null -> {
                     oauth2AuthorizationRepository
                         .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
                             token,
                         )
+                }
 
-                OAuth2ParameterNames.STATE -> oauth2AuthorizationRepository.findByState(token)
-                OAuth2ParameterNames.CODE ->
+                OAuth2ParameterNames.STATE -> {
+                    oauth2AuthorizationRepository.findByState(token)
+                }
+
+                OAuth2ParameterNames.CODE -> {
                     oauth2AuthorizationRepository.findByAuthorizationCodeValue(token)
+                }
 
-                OAuth2ParameterNames.ACCESS_TOKEN ->
+                OAuth2ParameterNames.ACCESS_TOKEN -> {
                     oauth2AuthorizationRepository.findByAccessTokenValue(token)
+                }
 
-                OAuth2ParameterNames.REFRESH_TOKEN ->
+                OAuth2ParameterNames.REFRESH_TOKEN -> {
                     oauth2AuthorizationRepository.findByRefreshTokenValue(token)
+                }
 
-                OidcParameterNames.ID_TOKEN ->
+                OidcParameterNames.ID_TOKEN -> {
                     oauth2AuthorizationRepository.findByOidcIdTokenValue(token)
+                }
 
-                OAuth2ParameterNames.USER_CODE ->
+                OAuth2ParameterNames.USER_CODE -> {
                     oauth2AuthorizationRepository.findByUserCodeValue(token)
+                }
 
-                OAuth2ParameterNames.DEVICE_CODE ->
+                OAuth2ParameterNames.DEVICE_CODE -> {
                     oauth2AuthorizationRepository.findByDeviceCodeValue(token)
+                }
 
-                else -> null
+                else -> {
+                    null
+                }
             }
 
         return result?.let(::toObject)
@@ -335,15 +347,25 @@ class DefaultOAuth2AuthorizationService(
             authorizationGrantType: String,
         ): AuthorizationGrantType =
             when (authorizationGrantType) {
-                AuthorizationGrantType.AUTHORIZATION_CODE.value ->
+                AuthorizationGrantType.AUTHORIZATION_CODE.value -> {
                     AuthorizationGrantType.AUTHORIZATION_CODE
+                }
 
-                AuthorizationGrantType.CLIENT_CREDENTIALS.value ->
+                AuthorizationGrantType.CLIENT_CREDENTIALS.value -> {
                     AuthorizationGrantType.CLIENT_CREDENTIALS
+                }
 
-                AuthorizationGrantType.REFRESH_TOKEN.value -> AuthorizationGrantType.REFRESH_TOKEN
-                AuthorizationGrantType.DEVICE_CODE.value -> AuthorizationGrantType.DEVICE_CODE
-                else -> AuthorizationGrantType(authorizationGrantType)
+                AuthorizationGrantType.REFRESH_TOKEN.value -> {
+                    AuthorizationGrantType.REFRESH_TOKEN
+                }
+
+                AuthorizationGrantType.DEVICE_CODE.value -> {
+                    AuthorizationGrantType.DEVICE_CODE
+                }
+
+                else -> {
+                    AuthorizationGrantType(authorizationGrantType)
+                }
             }
     }
 }
