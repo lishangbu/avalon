@@ -43,4 +43,4 @@ jobs:
         with:
           gradle-version: '9.4.1'
       - name: 编译并执行测试
-        run: ./gradlew --console=plain ktlintCheck test
+        run: gradle ktlintCheck test

@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          version="$(./gradlew -q printVersion)"
+          version="$(gradle -q printVersion)"
 
           if [[ -z "$version" ]]; then
             echo "无法从 Gradle 构建中解析版本号"
@@ -51,7 +51,7 @@ jobs:
 
       - name: 使用 Gradle 发布快照到 Maven Central
         if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
-        run: ./gradlew downloadIpData generateRsaKeys -Pforce=true publish -x test
+        run: gradle downloadIpData generateRsaKeys -Pforce=true publish -x test
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
