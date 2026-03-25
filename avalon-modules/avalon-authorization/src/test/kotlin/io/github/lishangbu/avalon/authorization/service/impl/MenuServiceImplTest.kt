@@ -31,7 +31,14 @@ class MenuServiceImplTest {
 
         assertEquals(1, result.size)
         assertEquals(1L, result.single().id)
-        assertEquals(2L, result.single().children!!.single().id)
+        assertEquals(
+            2L,
+            result
+                .single()
+                .children!!
+                .single()
+                .id,
+        )
     }
 
     @Test
@@ -64,7 +71,14 @@ class MenuServiceImplTest {
         assertEquals(listOf(1L), result.map { it.id })
         val children = result.single().children!!
         assertEquals(listOf(2L), children.map { it.id })
-        assertEquals(setOf(3L, 4L), children.single().children!!.map { it.id }.toSet())
+        assertEquals(
+            setOf(3L, 4L),
+            children
+                .single()
+                .children!!
+                .map { it.id }
+                .toSet(),
+        )
     }
 
     @Test

@@ -20,10 +20,12 @@ class DefaultRegisteredClientRepositoryTest {
     @Test
     fun saveMapsRegisteredClientIntoEntity() {
         var persisted: io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient? = null
-        Mockito.doAnswer {
-            persisted = it.getArgument(0)
-            persisted
-        }.`when`(repository).save(any())
+        Mockito
+            .doAnswer {
+                persisted = it.getArgument(0)
+                persisted
+            }.`when`(repository)
+            .save(any())
 
         adapter.save(registeredClient())
 

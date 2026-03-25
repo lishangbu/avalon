@@ -108,10 +108,12 @@ internal fun roundTripAuthorizationEntity(): OauthAuthorization {
     val registeredClientRepository = mock(RegisteredClientRepository::class.java)
     val service = DefaultOAuth2AuthorizationService(repository, registeredClientRepository)
     var persisted: OauthAuthorization? = null
-    Mockito.doAnswer {
-        persisted = it.getArgument(0)
-        persisted
-    }.`when`(repository).save(any())
+    Mockito
+        .doAnswer {
+            persisted = it.getArgument(0)
+            persisted
+        }.`when`(repository)
+        .save(any())
     service.save(oauth2Authorization())
     return requireNotNull(persisted)
 }

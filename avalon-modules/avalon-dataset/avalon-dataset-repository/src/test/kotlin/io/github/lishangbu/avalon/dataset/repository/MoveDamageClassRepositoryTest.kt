@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.PageRequest
@@ -42,9 +41,10 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
 
         val updated =
             requireNotNull(
-                moveDamageClassRepository.findAll(
-                    Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
-                ).firstOrNull(),
+                moveDamageClassRepository
+                    .findAll(
+                        Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                    ).firstOrNull(),
             )
         assertEquals(saved.id, updated.id)
         assertEquals("单元测试伤害分类", updated.name)
@@ -52,17 +52,19 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
         moveDamageClassRepository.save(MoveDamageClass(updated) { description = "updated description" })
         val afterUpdate =
             requireNotNull(
-                moveDamageClassRepository.findAll(
-                    Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
-                ).firstOrNull(),
+                moveDamageClassRepository
+                    .findAll(
+                        Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                    ).firstOrNull(),
             )
         assertEquals("updated description", afterUpdate.description)
 
         moveDamageClassRepository.deleteById(saved.id)
         assertTrue(
-            moveDamageClassRepository.findAll(
-                Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
-            ).isEmpty(),
+            moveDamageClassRepository
+                .findAll(
+                    Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                ).isEmpty(),
         )
     }
 
