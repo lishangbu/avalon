@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.entity
 
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.Id
+import org.babyfish.jimmer.sql.Serialized
 import org.babyfish.jimmer.sql.Table
 import java.time.Instant
 
@@ -25,6 +26,7 @@ interface OauthAuthorization {
     val authorizedScopes: String?
 
     /** 属性映射 */
+    @Serialized
     val attributes: String?
 
     /** 状态 */
@@ -40,6 +42,7 @@ interface OauthAuthorization {
     val authorizationCodeExpiresAt: Instant?
 
     /** 授权状态码元数据 */
+    @Serialized
     val authorizationCodeMetadata: String?
 
     /** 访问令牌值 */
@@ -52,6 +55,7 @@ interface OauthAuthorization {
     val accessTokenExpiresAt: Instant?
 
     /** 访问令牌元数据 */
+    @Serialized
     val accessTokenMetadata: String?
 
     /** 访问令牌属性 */
@@ -70,6 +74,7 @@ interface OauthAuthorization {
     val oidcIdTokenExpiresAt: Instant?
 
     /** OIDC ID 令牌元数据 */
+    @Serialized
     val oidcIdTokenMetadata: String?
 
     /** 刷新令牌值 */
@@ -82,6 +87,7 @@ interface OauthAuthorization {
     val refreshTokenExpiresAt: Instant?
 
     /** 刷新令牌元数据 */
+    @Serialized
     val refreshTokenMetadata: String?
 
     /** 用户状态码值 */
@@ -94,6 +100,7 @@ interface OauthAuthorization {
     val userCodeExpiresAt: Instant?
 
     /** 用户状态码元数据 */
+    @Serialized
     val userCodeMetadata: String?
 
     /** 设备状态码值 */
@@ -106,5 +113,6 @@ interface OauthAuthorization {
     val deviceCodeExpiresAt: Instant?
 
     /** 设备状态码元数据 */
+    @Serialized
     val deviceCodeMetadata: String?
 }

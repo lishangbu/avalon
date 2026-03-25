@@ -49,7 +49,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
     fun testFindByUsername() {
         val user = requireNotNull(userRepository.findUserWithRolesByAccount("admin"))
         assertEquals("admin", user.username)
-        assertEquals("https://example.com/avatar/admin.png", user.avatar)
+        assertNull(user.avatar)
         assertTrue(user.hashedPassword!!.startsWith("{bcrypt}"))
         assertEquals(2, user.roles.size)
     }
