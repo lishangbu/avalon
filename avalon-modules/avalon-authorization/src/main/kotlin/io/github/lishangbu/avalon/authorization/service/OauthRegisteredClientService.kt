@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -15,12 +16,12 @@ import org.springframework.data.domain.Pageable
 interface OauthRegisteredClientService {
     /** 按条件分页查询 OAuth2 注册客户端 */
     fun getPageByCondition(
-        registeredClient: OauthRegisteredClient,
+        specification: OauthRegisteredClientSpecification,
         pageable: Pageable,
     ): Page<OauthRegisteredClient>
 
     /** 按条件查询 OAuth2 注册客户端列表 */
-    fun listByCondition(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient>
+    fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClient>
 
     /** 按 ID 查询 OAuth2 注册客户端 */
     fun getById(id: String): OauthRegisteredClient?

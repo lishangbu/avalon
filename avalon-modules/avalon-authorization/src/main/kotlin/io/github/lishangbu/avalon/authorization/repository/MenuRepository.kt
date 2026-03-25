@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import org.springframework.data.domain.Sort
 
 /**
@@ -14,11 +14,11 @@ import org.springframework.data.domain.Sort
  */
 interface MenuRepository {
     /** 按条件查询菜单列表 */
-    fun findAll(example: Example<Menu>?): List<Menu>
+    fun findAll(specification: MenuSpecification?): List<Menu>
 
     /** 按条件排序查询菜单列表 */
     fun findAll(
-        example: Example<Menu>?,
+        specification: MenuSpecification?,
         sort: Sort,
     ): List<Menu>
 

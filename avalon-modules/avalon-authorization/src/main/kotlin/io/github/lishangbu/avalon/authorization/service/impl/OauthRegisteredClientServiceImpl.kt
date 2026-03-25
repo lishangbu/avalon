@@ -1,12 +1,11 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,33 +27,12 @@ class OauthRegisteredClientServiceImpl(
 ) : OauthRegisteredClientService {
     /** 按条件分页查询 OAuth2 注册客户端 */
     override fun getPageByCondition(
-        registeredClient: OauthRegisteredClient,
+        specification: OauthRegisteredClientSpecification,
         pageable: Pageable,
-    ): Page<OauthRegisteredClient> =
-        oauth2RegisteredClientRepository.findAll(
-            Example.of(
-                registeredClient,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("clientId", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("clientName", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-            pageable,
-        )
+    ): Page<OauthRegisteredClient> = oauth2RegisteredClientRepository.findAll(specification, pageable)
 
     /** 按条件查询 OAuth2 注册客户端列表 */
-    override fun listByCondition(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient> =
-        oauth2RegisteredClientRepository.findAll(
-            Example.of(
-                registeredClient,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("clientId", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("clientName", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-        )
+    override fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClient> = oauth2RegisteredClientRepository.findAll(specification)
 
     /** 按 ID 查询 OAuth2 注册客户端 */
     override fun getById(id: String): OauthRegisteredClient? = oauth2RegisteredClientRepository.findById(id)

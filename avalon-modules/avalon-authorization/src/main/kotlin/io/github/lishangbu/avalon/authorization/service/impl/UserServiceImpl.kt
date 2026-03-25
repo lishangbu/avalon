@@ -2,14 +2,13 @@ package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.UserService
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,42 +32,19 @@ class UserServiceImpl(
      * @param username 登录账号
      * @return 查询到的用户详情，未找到时返回 null
      */
-    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.findUserWithRolesByAccount(username)?.let(::UserWithRoles)
+    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.findByAccountWithRoles(username)?.let(::UserWithRoles)
 
     /** 按条件分页查询用户 */
     override fun getPageByCondition(
-        user: User,
+        specification: UserSpecification,
         pageable: Pageable,
-    ): Page<User> =
-        userRepository.findAll(
-            Example.of(
-                user,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("phone", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-            pageable,
-        )
+    ): Page<User> = userRepository.findAllWithRoles(specification, pageable)
 
     /** 按条件查询用户列表 */
-    override fun listByCondition(user: User): List<User> =
-        userRepository.findAll(
-            Example.of(
-                user,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("phone", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("email", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-        )
+    override fun listByCondition(specification: UserSpecification): List<User> = userRepository.findAllWithRoles(specification)
 
     /** 按 ID 查询用户 */
-    override fun getById(id: Long): User? = userRepository.findById(id)
+    override fun getById(id: Long): User? = userRepository.findByIdWithRoles(id)
 
     /** 保存用户 */
     @Transactional(rollbackFor = [Exception::class])
@@ -97,7 +73,7 @@ class UserServiceImpl(
     ): User {
         val existing =
             if (preserveWhenNull) {
-                user.readOrNull { id }?.let(userRepository::findById)
+                user.readOrNull { id }?.let(userRepository::findByIdWithRoles)
             } else {
                 null
             }

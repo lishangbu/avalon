@@ -38,7 +38,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
             )
         assertNotNull(user.id)
 
-        val savedUser = requireNotNull(userRepository.findUserWithRolesByAccount("13800000001"))
+        val savedUser = requireNotNull(userRepository.findByAccountWithRoles("13800000001"))
         assertEquals("test2", savedUser.username)
         assertEquals("https://example.com/avatar/test2.png", savedUser.avatar)
         assertTrue(savedUser.hashedPassword!!.startsWith("{bcrypt}"))
@@ -46,8 +46,20 @@ class UserRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    fun testFindByUsername() {
-        val user = requireNotNull(userRepository.findUserWithRolesByAccount("admin"))
+    fun testFindByIdDoesNotFetchRolesByDefault() {
+        val user = requireNotNull(userRepository.findById(1L))
+        assertNull(user.readOrNull { roles })
+    }
+
+    @Test
+    fun testFindByIdWithRoles() {
+        val user = requireNotNull(userRepository.findByIdWithRoles(1L))
+        assertEquals(2, user.roles.size)
+    }
+
+    @Test
+    fun testFindByAccountWithRoles() {
+        val user = requireNotNull(userRepository.findByAccountWithRoles("admin"))
         assertEquals("admin", user.username)
         assertNull(user.avatar)
         assertTrue(user.hashedPassword!!.startsWith("{bcrypt}"))

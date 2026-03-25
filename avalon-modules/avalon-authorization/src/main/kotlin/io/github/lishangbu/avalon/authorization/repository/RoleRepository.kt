@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Role
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -15,16 +15,28 @@ import org.springframework.data.domain.Pageable
  */
 interface RoleRepository {
     /** 按条件查询角色列表 */
-    fun findAll(example: Example<Role>?): List<Role>
+    fun findAll(specification: RoleSpecification?): List<Role>
 
     /** 按条件分页查询角色 */
     fun findAll(
-        example: Example<Role>?,
+        specification: RoleSpecification?,
+        pageable: Pageable,
+    ): Page<Role>
+
+    /** 按条件查询角色列表，并抓取菜单 */
+    fun findAllWithMenus(specification: RoleSpecification?): List<Role>
+
+    /** 按条件分页查询角色，并抓取菜单 */
+    fun findAllWithMenus(
+        specification: RoleSpecification?,
         pageable: Pageable,
     ): Page<Role>
 
     /** 按 ID 查询角色 */
     fun findById(id: Long): Role?
+
+    /** 按 ID 查询角色，并抓取菜单 */
+    fun findByIdWithMenus(id: Long): Role?
 
     /** 按 ID 列表查询角色 */
     fun findAllById(ids: Iterable<Long>): List<Role>

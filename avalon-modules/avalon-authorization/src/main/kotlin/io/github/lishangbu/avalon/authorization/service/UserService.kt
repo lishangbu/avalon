@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.service
 
 import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -24,12 +25,12 @@ interface UserService {
 
     /** 按条件分页查询用户 */
     fun getPageByCondition(
-        user: User,
+        specification: UserSpecification,
         pageable: Pageable,
     ): Page<User>
 
     /** 根据条件查询用户列表 */
-    fun listByCondition(user: User): List<User>
+    fun listByCondition(specification: UserSpecification): List<User>
 
     /** 按 ID 查询用户 */
     fun getById(id: Long): User?

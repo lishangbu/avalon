@@ -1,0 +1,8 @@
+export io.github.lishangbu.avalon.authorization.entity.User
+
+specification UserSpecification {
+    id
+    like/i(username)
+    like/i(phone)
+    like/i(email)
+}

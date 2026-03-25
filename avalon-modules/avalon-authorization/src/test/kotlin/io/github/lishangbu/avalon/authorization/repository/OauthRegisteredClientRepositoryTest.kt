@@ -1,12 +1,10 @@
 package io.github.lishangbu.avalon.authorization.repository
 
-import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.PageRequest
 
 /**
@@ -39,17 +37,10 @@ class OauthRegisteredClientRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    fun testFindPageWithEmptyExample() {
+    fun testFindPageWithEmptySpecification() {
         val page =
             oauth2RegisteredClientRepository.findAll(
-                Example.of(
-                    OauthRegisteredClient {},
-                    ExampleMatcher
-                        .matching()
-                        .withIgnoreNullValues()
-                        .withMatcher("clientId", ExampleMatcher.GenericPropertyMatchers.contains())
-                        .withMatcher("clientName", ExampleMatcher.GenericPropertyMatchers.contains()),
-                ),
+                OauthRegisteredClientSpecification(),
                 PageRequest.of(0, 10),
             )
         assertEquals(2, page.totalRowCount)

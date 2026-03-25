@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.controller
 
 import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import io.github.lishangbu.avalon.authorization.service.UserService
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo
@@ -42,8 +43,8 @@ class UserController(
     @GetMapping("/page")
     fun getUserPage(
         pageable: Pageable,
-        user: User,
-    ): Page<User> = userService.getPageByCondition(user, pageable)
+        @ModelAttribute specification: UserSpecification,
+    ): Page<User> = userService.getPageByCondition(specification, pageable)
 
     /**
      * 条件查询用户列表
@@ -52,7 +53,9 @@ class UserController(
      * @return 用户列表
      */
     @GetMapping("/list")
-    fun listUsers(user: User): List<User> = userService.listByCondition(user)
+    fun listUsers(
+        @ModelAttribute specification: UserSpecification,
+    ): List<User> = userService.listByCondition(specification)
 
     /**
      * 根据 ID 查询用户
