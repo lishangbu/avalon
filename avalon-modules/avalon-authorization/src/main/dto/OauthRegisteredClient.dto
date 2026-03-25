@@ -1,0 +1,7 @@
+export io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+
+specification OauthRegisteredClientSpecification {
+    id
+    like/i(clientId)
+    like/i(clientName)
+}

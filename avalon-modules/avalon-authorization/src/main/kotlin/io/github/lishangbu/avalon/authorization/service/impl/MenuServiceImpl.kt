@@ -1,15 +1,13 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
-import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.MenuService
 import io.github.lishangbu.avalon.web.util.TreeUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -38,18 +36,12 @@ class MenuServiceImpl(
     }
 
     /** 查询全部菜单树列表 */
-    override fun listAllMenuTree(menu: Menu): List<MenuTreeNode> {
-        val condition = normalizeCondition(menu)
+    override fun listAllMenuTree(specification: MenuSpecification): List<MenuTreeNode> {
         val allMenus = menuRepository.findAllByOrderBySortingOrderAscIdAsc()
         if (allMenus.isEmpty()) {
             return emptyList()
         }
-        if (!hasQueryCondition(condition)) {
-            return buildTreeFromMenus(allMenus)
-        }
-
-        val matchedMenus =
-            menuRepository.findAll(Example.of(condition, MENU_QUERY_MATCHER), MENU_TREE_SORT)
+        val matchedMenus = menuRepository.findAll(specification, MENU_TREE_SORT)
         if (matchedMenus.isEmpty()) {
             return emptyList()
         }
@@ -119,19 +111,6 @@ class MenuServiceImpl(
         /** 日志记录器 */
         private val log: Logger = LoggerFactory.getLogger(MenuServiceImpl::class.java)
 
-        /** 菜单查询匹配器 */
-        private val MENU_QUERY_MATCHER: ExampleMatcher =
-            ExampleMatcher
-                .matching()
-                .withIgnoreNullValues()
-                .withMatcher("icon", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("key", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("label", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("path", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("redirect", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("component", ExampleMatcher.GenericPropertyMatchers.contains())
-
         /** 菜单树排序 */
         private val MENU_TREE_SORT: Sort =
             Sort.by(Sort.Order.asc("sortingOrder"), Sort.Order.asc("id"))
@@ -172,55 +151,5 @@ class MenuServiceImpl(
                 }
             }
         }
-
-        /** 规范化条件 */
-        private fun normalizeCondition(menu: Menu?): Menu {
-            if (menu == null) {
-                return Menu {}
-            }
-            return Menu {
-                menu.readOrNull { id }?.let { id = it }
-                parentId = menu.readOrNull { parentId }
-                disabled = menu.readOrNull { disabled }
-                extra = trimToNull(menu.readOrNull { extra })
-                icon = trimToNull(menu.readOrNull { icon })
-                key = trimToNull(menu.readOrNull { key })
-                label = trimToNull(menu.readOrNull { label })
-                show = menu.readOrNull { show }
-                path = trimToNull(menu.readOrNull { path })
-                name = trimToNull(menu.readOrNull { name })
-                redirect = trimToNull(menu.readOrNull { redirect })
-                component = trimToNull(menu.readOrNull { component })
-                sortingOrder = menu.readOrNull { sortingOrder }
-                pinned = menu.readOrNull { pinned }
-                showTab = menu.readOrNull { showTab }
-                enableMultiTab = menu.readOrNull { enableMultiTab }
-            }
-        }
-
-        /** 去除空白后按需返回 null */
-        private fun trimToNull(value: String?): String? = value?.trim()?.takeIf { it.isNotEmpty() }
-
-        /** 判断是否查询条件 */
-        private fun hasQueryCondition(menu: Menu?): Boolean =
-            menu != null &&
-                (
-                    menu.readOrNull { id } != null ||
-                        menu.readOrNull { parentId } != null ||
-                        menu.readOrNull { disabled } != null ||
-                        menu.readOrNull { extra } != null ||
-                        menu.readOrNull { icon } != null ||
-                        menu.readOrNull { key } != null ||
-                        menu.readOrNull { label } != null ||
-                        menu.readOrNull { show } != null ||
-                        menu.readOrNull { path } != null ||
-                        menu.readOrNull { name } != null ||
-                        menu.readOrNull { redirect } != null ||
-                        menu.readOrNull { component } != null ||
-                        menu.readOrNull { sortingOrder } != null ||
-                        menu.readOrNull { pinned } != null ||
-                        menu.readOrNull { showTab } != null ||
-                        menu.readOrNull { enableMultiTab } != null
-                )
     }
 }

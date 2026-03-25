@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -15,16 +15,28 @@ import org.springframework.data.domain.Pageable
  */
 interface UserRepository {
     /** 按条件查询用户列表 */
-    fun findAll(example: Example<User>?): List<User>
+    fun findAll(specification: UserSpecification?): List<User>
 
     /** 按条件分页查询用户 */
     fun findAll(
-        example: Example<User>?,
+        specification: UserSpecification?,
+        pageable: Pageable,
+    ): Page<User>
+
+    /** 按条件查询用户列表，并抓取角色 */
+    fun findAllWithRoles(specification: UserSpecification?): List<User>
+
+    /** 按条件分页查询用户，并抓取角色 */
+    fun findAllWithRoles(
+        specification: UserSpecification?,
         pageable: Pageable,
     ): Page<User>
 
     /** 按 ID 查询用户 */
     fun findById(id: Long): User?
+
+    /** 按 ID 查询用户，并抓取角色 */
+    fun findByIdWithRoles(id: Long): User?
 
     /** 保存用户 */
     fun save(user: User): User
@@ -39,5 +51,5 @@ interface UserRepository {
     fun flush()
 
     /** 根据账号查找用户及角色列表 */
-    fun findUserWithRolesByAccount(account: String): User?
+    fun findByAccountWithRoles(account: String): User?
 }

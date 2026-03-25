@@ -1,0 +1,8 @@
+export io.github.lishangbu.avalon.authorization.entity.Role
+
+specification RoleSpecification {
+    id
+    like/i(code)
+    like/i(name)
+    enabled
+}

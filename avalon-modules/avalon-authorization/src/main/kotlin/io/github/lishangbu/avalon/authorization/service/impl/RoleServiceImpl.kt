@@ -2,13 +2,12 @@ package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.addBy
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.RoleService
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,36 +29,15 @@ class RoleServiceImpl(
 ) : RoleService {
     /** 按条件分页查询角色 */
     override fun getPageByCondition(
-        role: Role,
+        specification: RoleSpecification,
         pageable: Pageable,
-    ): Page<Role> =
-        roleRepository.findAll(
-            Example.of(
-                role,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("code", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-            pageable,
-        )
+    ): Page<Role> = roleRepository.findAllWithMenus(specification, pageable)
 
     /** 根据条件查询角色列表 */
-    override fun listByCondition(role: Role): List<Role> =
-        roleRepository.findAll(
-            Example.of(
-                role,
-                ExampleMatcher
-                    .matching()
-                    .withIgnoreNullValues()
-                    .withMatcher("code", ExampleMatcher.GenericPropertyMatchers.contains())
-                    .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains()),
-            ),
-        )
+    override fun listByCondition(specification: RoleSpecification): List<Role> = roleRepository.findAllWithMenus(specification)
 
     /** 按 ID 查询角色 */
-    override fun getById(id: Long): Role? = roleRepository.findById(id)
+    override fun getById(id: Long): Role? = roleRepository.findByIdWithMenus(id)
 
     /** 保存角色 */
     @Transactional(rollbackFor = [Exception::class])
@@ -88,7 +66,7 @@ class RoleServiceImpl(
     ): Role {
         val existing =
             if (preserveWhenNull) {
-                role.readOrNull { id }?.let(roleRepository::findById)
+                role.readOrNull { id }?.let(roleRepository::findByIdWithMenus)
             } else {
                 null
             }

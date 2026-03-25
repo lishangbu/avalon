@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.controller
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,9 +22,12 @@ class OauthRegisteredClientControllerTest {
         val result =
             controller.getPage(
                 pageable = pageable,
-                id = "1",
-                clientId = "client",
-                clientName = "Test Client",
+                specification =
+                    OauthRegisteredClientSpecification(
+                        id = "1",
+                        clientId = "client",
+                        clientName = "Test Client",
+                    ),
             )
 
         assertSame(page, result)
@@ -42,9 +46,11 @@ class OauthRegisteredClientControllerTest {
 
         val result =
             controller.list(
-                id = "1",
-                clientId = "client",
-                clientName = "Test Client",
+                OauthRegisteredClientSpecification(
+                    id = "1",
+                    clientId = "client",
+                    clientName = "Test Client",
+                ),
             )
 
         assertSame(service.listResult, result)
@@ -54,23 +60,23 @@ class OauthRegisteredClientControllerTest {
     }
 
     private class FakeOauthRegisteredClientService : OauthRegisteredClientService {
-        var pageCondition: OauthRegisteredClient? = null
-        var listCondition: OauthRegisteredClient? = null
+        var pageCondition: OauthRegisteredClientSpecification? = null
+        var listCondition: OauthRegisteredClientSpecification? = null
         var pageable: Pageable? = null
         var pageResult: Page<OauthRegisteredClient> = Page(emptyList(), 0, 0)
         var listResult: List<OauthRegisteredClient> = emptyList()
 
         override fun getPageByCondition(
-            registeredClient: OauthRegisteredClient,
+            specification: OauthRegisteredClientSpecification,
             pageable: Pageable,
         ): Page<OauthRegisteredClient> {
-            pageCondition = registeredClient
+            pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
 
-        override fun listByCondition(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient> {
-            listCondition = registeredClient
+        override fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClient> {
+            listCondition = specification
             return listResult
         }
 

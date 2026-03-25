@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.controller
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -29,18 +30,8 @@ class OauthRegisteredClientController(
     @GetMapping("/page")
     fun getPage(
         pageable: Pageable,
-        @RequestParam(required = false) id: String?,
-        @RequestParam(required = false) clientId: String?,
-        @RequestParam(required = false) clientName: String?,
-    ): Page<OauthRegisteredClient> =
-        oauthRegisteredClientService.getPageByCondition(
-            OauthRegisteredClient {
-                id?.takeIf { it.isNotBlank() }?.let { this.id = it }
-                clientId?.takeIf { it.isNotBlank() }?.let { this.clientId = it }
-                clientName?.takeIf { it.isNotBlank() }?.let { this.clientName = it }
-            },
-            pageable,
-        )
+        @ModelAttribute specification: OauthRegisteredClientSpecification,
+    ): Page<OauthRegisteredClient> = oauthRegisteredClientService.getPageByCondition(specification, pageable)
 
     /**
      * 条件查询注册客户端列表
@@ -49,17 +40,8 @@ class OauthRegisteredClientController(
      */
     @GetMapping("/list")
     fun list(
-        @RequestParam(required = false) id: String?,
-        @RequestParam(required = false) clientId: String?,
-        @RequestParam(required = false) clientName: String?,
-    ): List<OauthRegisteredClient> =
-        oauthRegisteredClientService.listByCondition(
-            OauthRegisteredClient {
-                id?.takeIf { it.isNotBlank() }?.let { this.id = it }
-                clientId?.takeIf { it.isNotBlank() }?.let { this.clientId = it }
-                clientName?.takeIf { it.isNotBlank() }?.let { this.clientName = it }
-            },
-        )
+        @ModelAttribute specification: OauthRegisteredClientSpecification,
+    ): List<OauthRegisteredClient> = oauthRegisteredClientService.listByCondition(specification)
 
     /**
      * 根据 ID 查询注册客户端

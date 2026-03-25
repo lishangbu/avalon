@@ -2,13 +2,11 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.entity.clientId
-import io.github.lishangbu.avalon.authorization.entity.clientName
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import io.github.lishangbu.avalon.authorization.entity.id
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.babyfish.jimmer.sql.kt.ast.expression.ilike
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
@@ -18,31 +16,23 @@ class Oauth2RegisteredClientRepositoryImpl(
     private val sql: KSqlClient,
 ) : Oauth2RegisteredClientRepository {
     /** 按条件查询 OAuth2 注册客户端列表 */
-    override fun findAll(example: Example<OauthRegisteredClient>?): List<OauthRegisteredClient> {
-        val probe = example?.probe
-        return sql
+    override fun findAll(specification: OauthRegisteredClientSpecification?): List<OauthRegisteredClient> =
+        sql
             .createQuery(OauthRegisteredClient::class) {
-                probe.readId().takeFilter()?.let { where(table.id eq it) }
-                probe.readClientId().takeFilter()?.let { where(table.clientId ilike "%$it%") }
-                probe.readClientName().takeFilter()?.let { where(table.clientName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.execute()
-    }
 
     /** 按条件分页查询 OAuth2 注册客户端 */
     override fun findAll(
-        example: Example<OauthRegisteredClient>?,
+        specification: OauthRegisteredClientSpecification?,
         pageable: Pageable,
-    ): Page<OauthRegisteredClient> {
-        val probe = example?.probe
-        return sql
+    ): Page<OauthRegisteredClient> =
+        sql
             .createQuery(OauthRegisteredClient::class) {
-                probe.readId().takeFilter()?.let { where(table.id eq it) }
-                probe.readClientId().takeFilter()?.let { where(table.clientId ilike "%$it%") }
-                probe.readClientName().takeFilter()?.let { where(table.clientName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
-    }
 
     /** 按 ID 查询 OAuth2 注册客户端 */
     override fun findById(id: String): OauthRegisteredClient? = sql.findById(OauthRegisteredClient::class, id)
@@ -73,13 +63,4 @@ class Oauth2RegisteredClientRepositoryImpl(
                 select(table)
             }.execute()
             .firstOrNull()
-
-    /** 安全读取主键 */
-    private fun OauthRegisteredClient?.readId(): String? = readOrNull { id }
-
-    /** 安全读取客户端 ID */
-    private fun OauthRegisteredClient?.readClientId(): String? = readOrNull { clientId }
-
-    /** 安全读取客户端名称 */
-    private fun OauthRegisteredClient?.readClientName(): String? = readOrNull { clientName }
 }

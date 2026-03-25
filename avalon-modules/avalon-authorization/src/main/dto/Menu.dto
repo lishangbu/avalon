@@ -1,0 +1,20 @@
+export io.github.lishangbu.avalon.authorization.entity.Menu
+
+specification MenuSpecification {
+    id
+    parentId
+    disabled
+    like/i(extra)
+    like/i(icon)
+    like/i(key)
+    like/i(label)
+    show
+    like/i(path)
+    like/i(name)
+    like/i(redirect)
+    like/i(component)
+    sortingOrder
+    pinned
+    showTab
+    enableMultiTab
+}

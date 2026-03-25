@@ -36,10 +36,18 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
         assertEquals("超级管理员", role.name)
         assertEquals(1L, role.id)
         assertTrue(role.enabled == true)
+        assertNull(role.readOrNull { menus })
     }
 
     @Test
     @Order(2)
+    fun testSelectRoleByIdWithMenus() {
+        val role = requireNotNull(roleRepository.findByIdWithMenus(1L))
+        assertFalse(role.menus.isEmpty())
+    }
+
+    @Test
+    @Order(3)
     @Commit
     fun testInsertRole() {
         val role =
@@ -55,7 +63,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     @Commit
     fun testUpdateRoleById() {
         val role = requireNotNull(roleRepository.findById(insertId!!))
@@ -69,7 +77,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     fun testSelectUpdatedRoleById() {
         val role = requireNotNull(roleRepository.findById(insertId!!))
         assertEquals("ROLE_TEST1", role.code)
@@ -79,7 +87,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun testDeleteById() {
         roleRepository.deleteById(insertId!!)
     }

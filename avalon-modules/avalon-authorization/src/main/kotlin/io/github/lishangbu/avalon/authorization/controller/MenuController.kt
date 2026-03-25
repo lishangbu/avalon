@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.controller
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
 import io.github.lishangbu.avalon.authorization.service.MenuService
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo
@@ -35,11 +36,13 @@ class MenuController(
     /**
      * 查询全量菜单树（支持按完整菜单条件筛选）
      *
-     * @param menu 菜单查询条件，可为空
+     * @param specification 菜单查询条件
      * @return 菜单树
      */
     @GetMapping("/tree")
-    fun listAllMenuTree(menu: Menu): List<MenuTreeNode> = menuService.listAllMenuTree(menu)
+    fun listAllMenuTree(
+        @ModelAttribute specification: MenuSpecification,
+    ): List<MenuTreeNode> = menuService.listAllMenuTree(specification)
 
     /**
      * 根据 ID 查询菜单

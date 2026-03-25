@@ -1,13 +1,11 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.babyfish.jimmer.sql.kt.ast.expression.ilike
-import org.babyfish.jimmer.sql.kt.fetcher.newFetcher
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
@@ -17,40 +15,58 @@ class UserRepositoryImpl(
     private val sql: KSqlClient,
 ) : UserRepository {
     /** 按条件查询用户列表 */
-    override fun findAll(example: Example<User>?): List<User> {
-        val probe = example?.probe
-        return sql
+    override fun findAll(specification: UserSpecification?): List<User> =
+        sql
             .createQuery(User::class) {
-                probe.readId()?.let { where(table.id eq it) }
-                probe.readUsername().takeFilter()?.let { where(table.username ilike "%$it%") }
-                probe.readPhone().takeFilter()?.let { where(table.phone ilike "%$it%") }
-                probe.readEmail().takeFilter()?.let { where(table.email ilike "%$it%") }
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                specification?.let { where(it) }
+                select(table.fetch(AuthorizationFetchers.USER))
             }.execute()
-    }
 
     /** 按条件分页查询用户 */
     override fun findAll(
-        example: Example<User>?,
+        specification: UserSpecification?,
         pageable: Pageable,
-    ): Page<User> {
-        val probe = example?.probe
-        return sql
+    ): Page<User> =
+        sql
             .createQuery(User::class) {
-                probe.readId()?.let { where(table.id eq it) }
-                probe.readUsername().takeFilter()?.let { where(table.username ilike "%$it%") }
-                probe.readPhone().takeFilter()?.let { where(table.phone ilike "%$it%") }
-                probe.readEmail().takeFilter()?.let { where(table.email ilike "%$it%") }
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                specification?.let { where(it) }
+                select(table.fetch(AuthorizationFetchers.USER))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
-    }
+
+    /** 按条件查询用户列表，并抓取角色 */
+    override fun findAllWithRoles(specification: UserSpecification?): List<User> =
+        sql
+            .createQuery(User::class) {
+                specification?.let { where(it) }
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
+            }.execute()
+
+    /** 按条件分页查询用户，并抓取角色 */
+    override fun findAllWithRoles(
+        specification: UserSpecification?,
+        pageable: Pageable,
+    ): Page<User> =
+        sql
+            .createQuery(User::class) {
+                specification?.let { where(it) }
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 按 ID 查询用户 */
     override fun findById(id: Long): User? =
         sql
             .createQuery(User::class) {
                 where(table.id eq id)
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                select(table.fetch(AuthorizationFetchers.USER))
+            }.execute()
+            .firstOrNull()
+
+    /** 按 ID 查询用户，并抓取角色 */
+    override fun findByIdWithRoles(id: Long): User? =
+        sql
+            .createQuery(User::class) {
+                where(table.id eq id)
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
 
@@ -78,7 +94,7 @@ class UserRepositoryImpl(
     override fun flush() = Unit
 
     /** 根据账号查找用户及角色列表 */
-    override fun findUserWithRolesByAccount(account: String): User? {
+    override fun findByAccountWithRoles(account: String): User? {
         val found =
             findByUsername(account)
                 ?: findByPhone(account)
@@ -109,7 +125,7 @@ class UserRepositoryImpl(
         sql
             .createQuery(User::class) {
                 where(table.username eq account)
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
 
@@ -118,7 +134,7 @@ class UserRepositoryImpl(
         sql
             .createQuery(User::class) {
                 where(table.phone eq account)
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
 
@@ -127,30 +143,10 @@ class UserRepositoryImpl(
         sql
             .createQuery(User::class) {
                 where(table.email eq account)
-                select(table.fetch(USER_WITH_ROLES_FETCHER))
+                select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
 
-    companion object {
-        /** 用户及角色列表抓取器 */
-        private val USER_WITH_ROLES_FETCHER =
-            newFetcher(User::class).`by` {
-                allScalarFields()
-                roles {
-                    allScalarFields()
-                }
-            }
-    }
-
     /** 安全读取主键 */
     private fun User?.readId(): Long? = readOrNull { id }
-
-    /** 读取用户名 */
-    private fun User?.readUsername(): String? = readOrNull { username }
-
-    /** 读取手机 */
-    private fun User?.readPhone(): String? = readOrNull { phone }
-
-    /** 读取邮箱 */
-    private fun User?.readEmail(): String? = readOrNull { email }
 }

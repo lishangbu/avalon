@@ -888,6 +888,8 @@ databaseChangeLog:
                   name: authorization_grant_type
                   remarks: 授权类型
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: authorized_scopes
                   remarks: 已授权作用域
@@ -928,6 +930,8 @@ databaseChangeLog:
                   name: principal_name
                   remarks: 主体名称
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: refresh_token_expires_at
                   remarks: 刷新令牌过期时间
@@ -948,6 +952,8 @@ databaseChangeLog:
                   name: registered_client_id
                   remarks: 注册客户端 ID
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: state
                   remarks: 状态
@@ -1025,6 +1031,10 @@ databaseChangeLog:
                   name: client_id
                   remarks: 客户端 ID
                   type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_oauth_registered_client__client_id
               - column:
                   name: client_id_issued_at
                   remarks: 客户端 ID 签发时间
@@ -1033,6 +1043,8 @@ databaseChangeLog:
                   name: client_name
                   remarks: 客户端名称
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: client_secret
                   remarks: 客户端密钥
@@ -1092,7 +1104,7 @@ databaseChangeLog:
               - column:
                   name: x509_certificate_subject_dn
                   remarks: X509 证书主题 DN
-                  type: varchar(20)
+                  type: varchar(500)
         - createTable:
             tableName: pokemon
             remarks: 宝可梦
@@ -1365,6 +1377,10 @@ databaseChangeLog:
                   name: code
                   remarks: 角色编码
                   type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_role__code
               - column:
                   name: enabled
                   remarks: 是否启用
@@ -1373,6 +1389,8 @@ databaseChangeLog:
                   name: name
                   remarks: 名称
                   type: varchar(50)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: role_menu_relation
             remarks: 角色菜单关联
@@ -1500,18 +1518,72 @@ databaseChangeLog:
                   name: email
                   remarks: 邮箱
                   type: varchar(100)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uk_users__email
               - column:
                   name: hashed_password
                   remarks: 加密密码
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: phone
                   remarks: 手机
                   type: varchar(20)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uk_users__phone
               - column:
                   name: username
                   remarks: 用户名
                   type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_users__username
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__state
+            columns:
+              - column:
+                  name: state
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__authorization_code_value
+            columns:
+              - column:
+                  name: authorization_code_value
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__access_token_value
+            columns:
+              - column:
+                  name: access_token_value
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__refresh_token_value
+            columns:
+              - column:
+                  name: refresh_token_value
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__oidc_id_token_value
+            columns:
+              - column:
+                  name: oidc_id_token_value
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__user_code_value
+            columns:
+              - column:
+                  name: user_code_value
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__device_code_value
+            columns:
+              - column:
+                  name: device_code_value
         - addForeignKeyConstraint:
             baseTableName: berry
             baseColumnNames: natural_gift_type_id

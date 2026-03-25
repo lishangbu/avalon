@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -15,11 +15,11 @@ import org.springframework.data.domain.Pageable
  */
 interface Oauth2RegisteredClientRepository {
     /** 按条件查询 OAuth2 注册客户端列表 */
-    fun findAll(example: Example<OauthRegisteredClient>?): List<OauthRegisteredClient>
+    fun findAll(specification: OauthRegisteredClientSpecification?): List<OauthRegisteredClient>
 
     /** 按条件分页查询 OAuth2 注册客户端 */
     fun findAll(
-        example: Example<OauthRegisteredClient>?,
+        specification: OauthRegisteredClientSpecification?,
         pageable: Pageable,
     ): Page<OauthRegisteredClient>
 
