@@ -1,4 +1,4 @@
-id,game_index,internal_name,is_battle_only,name,move_damage_class_id
+id,game_index,internal_name,battle_only,name,move_damage_class_id
 1,1,hp,false,HP,__NULL__
 2,2,attack,false,攻击,2
 3,3,defense,false,防御,2

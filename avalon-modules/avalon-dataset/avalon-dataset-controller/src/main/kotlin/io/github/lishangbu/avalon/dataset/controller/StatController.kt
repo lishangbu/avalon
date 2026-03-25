@@ -39,7 +39,7 @@ class StatController(
         @RequestParam(required = false) internalName: String?,
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) gameIndex: Int?,
-        @RequestParam(required = false) isBattleOnly: Boolean?,
+        @RequestParam(required = false) battleOnly: Boolean?,
         @RequestParam(required = false) moveDamageClassId: Long?,
     ): List<Stat> =
         statService.listByCondition(
@@ -48,7 +48,7 @@ class StatController(
                 internalName?.let { this.internalName = it }
                 name?.let { this.name = it }
                 gameIndex?.let { this.gameIndex = it }
-                isBattleOnly?.let { this.isBattleOnly = it }
+                battleOnly?.let { this.battleOnly = it }
                 moveDamageClassId?.let { this.moveDamageClass = MoveDamageClass { this.id = it } }
             },
         )

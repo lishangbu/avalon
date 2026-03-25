@@ -33,13 +33,13 @@ interface PokemonSpecies {
     val baseHappiness: Int?
 
     /** 是否幼年 */
-    val isBaby: Boolean?
+    val baby: Boolean?
 
     /** 是否传说 */
-    val isLegendary: Boolean?
+    val legendary: Boolean?
 
     /** 是否幻之 */
-    val isMythical: Boolean?
+    val mythical: Boolean?
 
     /** 孵化计数器 */
     val hatchCounter: Int?
@@ -66,11 +66,9 @@ interface PokemonSpecies {
     val pokemonShape: PokemonShape?
 
     /** 进化从种族 ID */
-    @Column(name = "evolves_from_species_id")
     val evolvesFromSpeciesId: Long?
 
     /** 进化链 ID */
-    @Column(name = "evolution_chain_id")
     val evolutionChainId: Long?
 
     /** 宝可梦栖息地 */

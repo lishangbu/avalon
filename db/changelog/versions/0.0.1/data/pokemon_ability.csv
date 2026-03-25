@@ -1,4 +1,4 @@
-is_hidden,slot,ability_id,pokemon_id
+hidden,slot,ability_id,pokemon_id
 false,1,65,1
 true,3,34,1
 false,1,65,2
