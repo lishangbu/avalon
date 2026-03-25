@@ -24,23 +24,42 @@ class OauthRegisteredClientController(
      * 分页条件查询注册客户端
      *
      * @param pageable 分页参数
-     * @param registeredClient 查询条件
      * @return 注册客户端分页结果
      */
     @GetMapping("/page")
     fun getPage(
         pageable: Pageable,
-        registeredClient: OauthRegisteredClient,
-    ): Page<OauthRegisteredClient> = oauthRegisteredClientService.getPageByCondition(registeredClient, pageable)
+        @RequestParam(required = false) id: String?,
+        @RequestParam(required = false) clientId: String?,
+        @RequestParam(required = false) clientName: String?,
+    ): Page<OauthRegisteredClient> =
+        oauthRegisteredClientService.getPageByCondition(
+            OauthRegisteredClient {
+                id?.takeIf { it.isNotBlank() }?.let { this.id = it }
+                clientId?.takeIf { it.isNotBlank() }?.let { this.clientId = it }
+                clientName?.takeIf { it.isNotBlank() }?.let { this.clientName = it }
+            },
+            pageable,
+        )
 
     /**
      * 条件查询注册客户端列表
      *
-     * @param registeredClient 查询条件
      * @return 注册客户端列表
      */
     @GetMapping("/list")
-    fun list(registeredClient: OauthRegisteredClient): List<OauthRegisteredClient> = oauthRegisteredClientService.listByCondition(registeredClient)
+    fun list(
+        @RequestParam(required = false) id: String?,
+        @RequestParam(required = false) clientId: String?,
+        @RequestParam(required = false) clientName: String?,
+    ): List<OauthRegisteredClient> =
+        oauthRegisteredClientService.listByCondition(
+            OauthRegisteredClient {
+                id?.takeIf { it.isNotBlank() }?.let { this.id = it }
+                clientId?.takeIf { it.isNotBlank() }?.let { this.clientId = it }
+                clientName?.takeIf { it.isNotBlank() }?.let { this.clientName = it }
+            },
+        )
 
     /**
      * 根据 ID 查询注册客户端

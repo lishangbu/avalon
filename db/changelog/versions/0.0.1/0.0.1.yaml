@@ -6,1183 +6,1518 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: ability
+            remarks: 特性
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: effect
+                  remarks: 效果
                   type: varchar(1000)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: introduction
+                  remarks: 介绍
                   type: varchar(500)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: authentication_log
+            remarks: 认证日志
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: client_id
+                  remarks: 客户端 ID
                   type: varchar(100)
               - column:
                   name: error_message
+                  remarks: 错误信息
                   type: varchar(2000)
               - column:
                   name: grant_type
+                  remarks: 授权类型
                   type: varchar(50)
               - column:
                   name: ip
+                  remarks: IP 地址
                   type: varchar(512)
               - column:
                   name: occurred_at
+                  remarks: 发生时间
                   type: timestamptz
               - column:
                   name: success
+                  remarks: 是否成功
                   type: bool
               - column:
                   name: user_agent
+                  remarks: 用户代理
                   type: varchar(512)
               - column:
                   name: username
+                  remarks: 用户名
                   type: varchar(20)
         - createTable:
             tableName: berry
+            remarks: 树果
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: bulk
+                  remarks: 体积
                   type: int4
               - column:
                   name: growth_time
+                  remarks: 成长时间
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: max_harvest
+                  remarks: 最大收获量
                   type: int4
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: natural_gift_power
+                  remarks: 自然礼物威力
                   type: int4
               - column:
                   name: smoothness
+                  remarks: 顺滑度
                   type: int4
               - column:
                   name: soil_dryness
+                  remarks: 土壤干燥度
                   type: int4
               - column:
                   name: berry_firmness_id
+                  remarks: 树果硬度 ID
                   type: int8
               - column:
                   name: natural_gift_type_id
+                  remarks: 自然礼物属性 ID
                   type: int8
         - createTable:
             tableName: berry_firmness
+            remarks: 树果硬度
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: berry_flavor
+            remarks: 树果风味
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: egg_group
+            remarks: 蛋组
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: characteristics
+                  remarks: 特性
                   type: varchar(500)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: text
+                  remarks: 文本
                   type: varchar(200)
         - createTable:
             tableName: encounter_condition
+            remarks: 遭遇条件
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: encounter_condition_value
+            remarks: 遭遇条件值
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(200)
               - column:
                   name: encounter_condition_id
+                  remarks: 遭遇条件 ID
                   type: int8
                   constraints:
                     nullable: false
         - createTable:
             tableName: encounter_method
+            remarks: 遭遇方式
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: sorting_order
+                  remarks: 排序顺序
                   type: int4
         - createTable:
             tableName: evolution_chain
+            remarks: 进化链
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: baby_trigger_item_id
+                  remarks: 幼年触发道具 ID
                   type: int8
         - createTable:
             tableName: evolution_trigger
+            remarks: 进化触发条件
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: gender
+            remarks: 性别
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: growth_rate
+            remarks: 成长速率
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(200)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: item
+            remarks: 道具
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: cost
+                  remarks: 价格
                   type: int4
               - column:
                   name: effect
+                  remarks: 效果
                   type: varchar(1000)
               - column:
                   name: fling_power
+                  remarks: 投掷威力
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: short_effect
+                  remarks: 简称效果
                   type: varchar(500)
               - column:
                   name: text
+                  remarks: 文本
                   type: varchar(1000)
               - column:
                   name: item_fling_effect_id
+                  remarks: 道具投掷效果 ID
                   type: int8
         - createTable:
             tableName: item_attribute
+            remarks: 道具属性
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(100)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: item_attribute_relation
+            remarks: 道具属性关联
             columns:
               - column:
                   name: item_id
+                  remarks: 道具 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: item_attribute_id
+                  remarks: 道具属性 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: item_category
+            remarks: 道具分类
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: item_pocket_id
+                  remarks: 道具口袋 ID
                   type: int8
         - createTable:
             tableName: item_fling_effect
+            remarks: 道具投掷效果
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: effect
+                  remarks: 效果
                   type: varchar(100)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: item_pocket
+            remarks: 道具口袋
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: machine
+            remarks: 招式机
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: item_id
+                  remarks: 道具 ID
                   type: int8
               - column:
                   name: move_id
+                  remarks: 招式 ID
                   type: int8
         - createTable:
             tableName: menu
+            remarks: 菜单
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: component
+                  remarks: 组件
                   type: varchar(500)
               - column:
                   name: disabled
+                  remarks: 是否禁用
                   type: bool
               - column:
                   name: enable_multi_tab
+                  remarks: 是否启用多标签页
                   type: bool
               - column:
                   name: extra
+                  remarks: 扩展信息
                   type: jsonb
               - column:
                   name: icon
+                  remarks: 图标
                   type: varchar(200)
               - column:
                   name: key
+                  remarks: 键名
                   type: varchar(200)
               - column:
                   name: label
+                  remarks: 标签
                   type: varchar(200)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(500)
               - column:
                   name: parent_id
+                  remarks: 父节点 ID
                   type: int8
               - column:
                   name: path
+                  remarks: 路径
                   type: varchar(500)
               - column:
                   name: pinned
+                  remarks: 是否固定
                   type: bool
               - column:
                   name: redirect
+                  remarks: 重定向
                   type: varchar(500)
               - column:
                   name: show
+                  remarks: 是否显示
                   type: bool
               - column:
                   name: show_tab
+                  remarks: 是否显示标签页
                   type: bool
               - column:
                   name: sorting_order
+                  remarks: 排序顺序
                   type: int4
         - createTable:
             tableName: move
+            remarks: 招式
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: accuracy
+                  remarks: 命中率
                   type: int4
               - column:
                   name: ailment_chance
+                  remarks: 异常状态概率
                   type: int4
               - column:
                   name: crit_rate
+                  remarks: 暴击速率
                   type: int4
               - column:
                   name: drain
+                  remarks: 吸收
                   type: int4
               - column:
                   name: effect
+                  remarks: 效果
                   type: varchar(4000)
               - column:
                   name: effect_chance
+                  remarks: 效果触发概率
                   type: int4
               - column:
                   name: flinch_chance
+                  remarks: 畏缩概率
                   type: int4
               - column:
                   name: healing
+                  remarks: 治疗
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: max_hits
+                  remarks: 最大命中次数
                   type: int4
               - column:
                   name: max_turns
+                  remarks: 最多回合数
                   type: int4
               - column:
                   name: min_hits
+                  remarks: 最小命中次数
                   type: int4
               - column:
                   name: min_turns
+                  remarks: 最少回合数
                   type: int4
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: power
+                  remarks: 威力
                   type: int4
               - column:
                   name: pp
+                  remarks: PP
                   type: int4
               - column:
                   name: priority
+                  remarks: 优先级
                   type: int4
               - column:
                   name: short_effect
+                  remarks: 简称效果
                   type: varchar(500)
               - column:
                   name: stat_chance
+                  remarks: 能力值概率
                   type: int4
               - column:
                   name: text
+                  remarks: 文本
                   type: varchar(500)
               - column:
                   name: move_ailment_id
+                  remarks: 招式异常状态 ID
                   type: int8
               - column:
                   name: move_category_id
+                  remarks: 招式分类 ID
                   type: int8
               - column:
                   name: move_damage_class_id
+                  remarks: 招式伤害分类 ID
                   type: int8
               - column:
                   name: move_target_id
+                  remarks: 招式目标 ID
                   type: int8
               - column:
                   name: type_id
+                  remarks: 属性 ID
                   type: int8
         - createTable:
             tableName: move_ailment
+            remarks: 招式异常状态
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: move_category
+            remarks: 招式分类
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(300)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: move_damage_class
+            remarks: 招式伤害分类
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(300)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: move_learn_method
+            remarks: 招式学习方法
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(300)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: move_target
+            remarks: 招式目标
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: description
+                  remarks: 描述
                   type: varchar(300)
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: nature
+            remarks: 性格
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: decreased_stat_id
+                  remarks: 降低能力值 ID
                   type: int8
               - column:
                   name: hates_berry_flavor_id
+                  remarks: 讨厌风味 ID
                   type: int8
               - column:
                   name: increased_stat_id
+                  remarks: 提高能力值 ID
                   type: int8
               - column:
                   name: likes_berry_flavor_id
+                  remarks: 喜欢风味 ID
                   type: int8
         - createTable:
             tableName: oauth_authorization
+            remarks: OAuth2 授权
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: varchar(100)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: access_token_expires_at
+                  remarks: 访问令牌过期时间
                   type: timestamptz
               - column:
                   name: access_token_issued_at
+                  remarks: 访问令牌签发时间
                   type: timestamptz
               - column:
                   name: access_token_metadata
+                  remarks: 访问令牌元数据
                   type: jsonb
               - column:
                   name: access_token_scopes
+                  remarks: 访问令牌作用域
                   type: varchar(1000)
               - column:
                   name: access_token_type
+                  remarks: 访问令牌类型
                   type: varchar(100)
               - column:
                   name: access_token_value
+                  remarks: 访问令牌值
                   type: varchar(1000)
               - column:
                   name: attributes
+                  remarks: 授权属性
                   type: jsonb
               - column:
                   name: authorization_code_expires_at
+                  remarks: 授权码过期时间
                   type: timestamptz
               - column:
                   name: authorization_code_issued_at
+                  remarks: 授权码签发时间
                   type: timestamptz
               - column:
                   name: authorization_code_metadata
+                  remarks: 授权码元数据
                   type: jsonb
               - column:
                   name: authorization_code_value
+                  remarks: 授权码值
                   type: varchar(1000)
               - column:
                   name: authorization_grant_type
+                  remarks: 授权类型
                   type: varchar(100)
               - column:
                   name: authorized_scopes
+                  remarks: 已授权作用域
                   type: varchar(1000)
               - column:
                   name: device_code_expires_at
+                  remarks: 设备码过期时间
                   type: timestamptz
               - column:
                   name: device_code_issued_at
+                  remarks: 设备码签发时间
                   type: timestamptz
               - column:
                   name: device_code_metadata
+                  remarks: 设备码元数据
                   type: jsonb
               - column:
                   name: device_code_value
+                  remarks: 设备码值
                   type: varchar(1000)
               - column:
                   name: oidc_id_token_expires_at
+                  remarks: OIDC ID 令牌过期时间
                   type: timestamptz
               - column:
                   name: oidc_id_token_issued_at
+                  remarks: OIDC ID 令牌签发时间
                   type: timestamptz
               - column:
                   name: oidc_id_token_metadata
+                  remarks: OIDC ID 令牌元数据
                   type: jsonb
               - column:
                   name: oidc_id_token_value
+                  remarks: OIDC ID 令牌值
                   type: varchar(1000)
               - column:
                   name: principal_name
+                  remarks: 主体名称
                   type: varchar(200)
               - column:
                   name: refresh_token_expires_at
+                  remarks: 刷新令牌过期时间
                   type: timestamptz
               - column:
                   name: refresh_token_issued_at
+                  remarks: 刷新令牌签发时间
                   type: timestamptz
               - column:
                   name: refresh_token_metadata
+                  remarks: 刷新令牌元数据
                   type: jsonb
               - column:
                   name: refresh_token_value
+                  remarks: 刷新令牌值
                   type: varchar(1000)
               - column:
                   name: registered_client_id
+                  remarks: 注册客户端 ID
                   type: varchar(100)
               - column:
                   name: state
+                  remarks: 状态
                   type: varchar(500)
               - column:
                   name: user_code_expires_at
+                  remarks: 用户码过期时间
                   type: timestamptz
               - column:
                   name: user_code_issued_at
+                  remarks: 用户码签发时间
                   type: timestamptz
               - column:
                   name: user_code_metadata
+                  remarks: 用户码元数据
                   type: jsonb
               - column:
                   name: user_code_value
+                  remarks: 用户码值
                   type: varchar(1000)
         - createTable:
             tableName: oauth_authorization_consent
+            remarks: OAuth2 授权同意
             columns:
               - column:
                   name: principal_name
+                  remarks: 主体名称
                   type: varchar(200)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: registered_client_id
+                  remarks: 注册客户端 ID
                   type: varchar(100)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: authorities
+                  remarks: 权限集合
                   type: varchar(1000)
         - createTable:
             tableName: oauth_registered_client
+            remarks: OAuth2 注册客户端
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: varchar(100)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: access_token_format
+                  remarks: 访问令牌格式
                   type: varchar(20)
               - column:
                   name: access_token_time_to_live
+                  remarks: 访问令牌有效期
                   type: varchar(20)
               - column:
                   name: authorization_code_time_to_live
+                  remarks: 授权码有效期
                   type: varchar(20)
               - column:
                   name: authorization_grant_types
+                  remarks: 授权类型列表
                   type: varchar(1000)
               - column:
                   name: client_authentication_methods
+                  remarks: 客户端认证方式列表
                   type: varchar(1000)
               - column:
                   name: client_id
+                  remarks: 客户端 ID
                   type: varchar(100)
               - column:
                   name: client_id_issued_at
+                  remarks: 客户端 ID 签发时间
                   type: timestamptz
               - column:
                   name: client_name
+                  remarks: 客户端名称
                   type: varchar(200)
               - column:
                   name: client_secret
+                  remarks: 客户端密钥
                   type: varchar(200)
               - column:
                   name: client_secret_expires_at
+                  remarks: 客户端密钥过期时间
                   type: timestamptz
               - column:
                   name: device_code_time_to_live
+                  remarks: 设备码有效期
                   type: varchar(20)
               - column:
                   name: id_token_signature_algorithm
+                  remarks: ID 令牌签名算法
                   type: varchar(20)
               - column:
                   name: jwk_set_url
+                  remarks: JWK Set URL
                   type: varchar(1000)
               - column:
                   name: post_logout_redirect_uris
+                  remarks: 登出后重定向 URI 列表
                   type: varchar(1000)
               - column:
                   name: redirect_uris
+                  remarks: 重定向 URI 列表
                   type: varchar(1000)
               - column:
                   name: refresh_token_time_to_live
+                  remarks: 刷新令牌有效期
                   type: varchar(20)
               - column:
                   name: require_authorization_consent
+                  remarks: 是否要求授权同意
                   type: bool
               - column:
                   name: require_proof_key
+                  remarks: 是否要求 PKCE
                   type: bool
               - column:
                   name: reuse_refresh_tokens
+                  remarks: 是否复用刷新令牌
                   type: bool
               - column:
                   name: scopes
+                  remarks: 作用域列表
                   type: varchar(1000)
               - column:
                   name: token_endpoint_authentication_signing_algorithm
+                  remarks: 令牌端点认证签名算法
                   type: varchar(20)
               - column:
                   name: x509_certificate_bound_access_tokens
+                  remarks: 是否绑定 X509 证书访问令牌
                   type: bool
               - column:
                   name: x509_certificate_subject_dn
+                  remarks: X509 证书主题 DN
                   type: varchar(20)
         - createTable:
             tableName: pokemon
+            remarks: 宝可梦
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: base_experience
+                  remarks: 基础经验
                   type: int4
               - column:
                   name: height
+                  remarks: 身高
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: sorting_order
+                  remarks: 排序顺序
                   type: int4
               - column:
                   name: weight
+                  remarks: 体重
                   type: int4
               - column:
                   name: pokemon_species_id
+                  remarks: 宝可梦种族 ID
                   type: int8
         - createTable:
             tableName: pokemon_ability
+            remarks: 宝可梦特性
             columns:
               - column:
                   name: is_hidden
+                  remarks: 是否隐藏
                   type: bool
                   constraints:
                     nullable: false
               - column:
                   name: slot
+                  remarks: 槽位
                   type: int4
                   constraints:
                     nullable: false
               - column:
                   name: ability_id
+                  remarks: 特性 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: pokemon_id
+                  remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: pokemon_color
+            remarks: 宝可梦颜色
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: pokemon_habitat
+            remarks: 宝可梦栖息地
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: pokemon_shape
+            remarks: 宝可梦形态
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: pokemon_species
+            remarks: 宝可梦种族
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: base_happiness
+                  remarks: 基础亲密度
                   type: int4
               - column:
                   name: capture_rate
+                  remarks: 捕获速率
                   type: int4
               - column:
                   name: evolution_chain_id
+                  remarks: 进化链 ID
                   type: int8
               - column:
                   name: evolves_from_species_id
+                  remarks: 进化从种族 ID
                   type: int8
               - column:
                   name: forms_switchable
+                  remarks: 形态可切换
                   type: bool
               - column:
                   name: gender_rate
+                  remarks: 性别比率
                   type: int4
               - column:
                   name: has_gender_differences
+                  remarks: 是否性别差异
                   type: bool
               - column:
                   name: hatch_counter
+                  remarks: 孵化计数器
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: is_baby
+                  remarks: 是否幼年
                   type: bool
               - column:
                   name: is_legendary
+                  remarks: 是否传说
                   type: bool
               - column:
                   name: is_mythical
+                  remarks: 是否幻之
                   type: bool
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: sorting_order
+                  remarks: 排序顺序
                   type: int4
               - column:
                   name: growth_rate_id
+                  remarks: 成长速率 ID
                   type: int8
               - column:
                   name: pokemon_color_id
+                  remarks: 宝可梦颜色 ID
                   type: int8
               - column:
                   name: pokemon_habitat_id
+                  remarks: 宝可梦栖息地 ID
                   type: int8
               - column:
                   name: pokemon_shape_id
+                  remarks: 宝可梦形态 ID
                   type: int8
         - createTable:
             tableName: pokemon_stat
+            remarks: 宝可梦能力值
             columns:
               - column:
                   name: base_stat
+                  remarks: 基础能力值
                   type: int4
               - column:
                   name: effort
+                  remarks: 努力值
                   type: int4
               - column:
                   name: pokemon_id
+                  remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: stat_id
+                  remarks: 能力值 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: pokemon_type
+            remarks: 宝可梦属性
             columns:
               - column:
                   name: slot
+                  remarks: 槽位
                   type: int4
               - column:
                   name: type_id
+                  remarks: 属性 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: pokemon_id
+                  remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: role
+            remarks: 角色
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: code
+                  remarks: 角色编码
                   type: varchar(50)
               - column:
                   name: enabled
+                  remarks: 是否启用
                   type: bool
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(50)
         - createTable:
             tableName: role_menu_relation
+            remarks: 角色菜单关联
             columns:
               - column:
                   name: role_id
+                  remarks: 角色 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: menu_id
+                  remarks: 菜单 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: stat
+            remarks: 能力值
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: game_index
+                  remarks: 游戏索引
                   type: int4
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: is_battle_only
+                  remarks: 是否仅战斗可用
                   type: bool
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
               - column:
                   name: move_damage_class_id
+                  remarks: 招式伤害分类 ID
                   type: int8
         - createTable:
             tableName: type
+            remarks: 属性
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: internal_name
+                  remarks: 内部名称
                   type: varchar(100)
               - column:
                   name: name
+                  remarks: 名称
                   type: varchar(100)
         - createTable:
             tableName: type_damage_relation
+            remarks: 属性伤害关系
             columns:
               - column:
                   name: multiplier
+                  remarks: 倍率
                   type: float4
               - column:
                   name: defending_type_id
+                  remarks: 防御方属性 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: attacking_type_id
+                  remarks: 攻击方属性 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: user_role_relation
+            remarks: 用户角色关联
             columns:
               - column:
                   name: user_id
+                  remarks: 用户 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: role_id
+                  remarks: 角色 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
         - createTable:
             tableName: users
+            remarks: 用户
             columns:
               - column:
                   name: id
+                  remarks: ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: avatar
+                  remarks: 头像
                   type: varchar(500)
               - column:
                   name: email
+                  remarks: 邮箱
                   type: varchar(100)
               - column:
                   name: hashed_password
+                  remarks: 加密密码
                   type: varchar(100)
               - column:
                   name: phone
+                  remarks: 手机
                   type: varchar(20)
               - column:
                   name: username
+                  remarks: 用户名
                   type: varchar(20)
         - addForeignKeyConstraint:
             baseTableName: berry
             baseColumnNames: natural_gift_type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fk7e35xi3ot604vcdu5i8ovw4l3
+            constraintName: fk_berry__natural_gift_type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1190,7 +1525,7 @@ databaseChangeLog:
             baseColumnNames: berry_firmness_id
             referencedTableName: berry_firmness
             referencedColumnNames: id
-            constraintName: fkg2wx5ictraopcmifpusd3gg62
+            constraintName: fk_berry__berry_firmness_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1198,7 +1533,7 @@ databaseChangeLog:
             baseColumnNames: encounter_condition_id
             referencedTableName: encounter_condition
             referencedColumnNames: id
-            constraintName: fk28xq3p8whg7jrso4bgdvk0513
+            constraintName: fk_encounter_condition_value__encounter_condition_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1206,7 +1541,7 @@ databaseChangeLog:
             baseColumnNames: item_fling_effect_id
             referencedTableName: item_fling_effect
             referencedColumnNames: id
-            constraintName: fkcpljvqp5u2mll0n1hbmawk8dq
+            constraintName: fk_item__item_fling_effect_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1214,7 +1549,7 @@ databaseChangeLog:
             baseColumnNames: item_attribute_id
             referencedTableName: item_attribute
             referencedColumnNames: id
-            constraintName: fk1nnk7vcrvjqj08jj4y8xdwdq4
+            constraintName: fk_item_attribute_relation__item_attribute_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1222,7 +1557,7 @@ databaseChangeLog:
             baseColumnNames: item_id
             referencedTableName: item
             referencedColumnNames: id
-            constraintName: fkd5xu6geybw48aytbcppuraclx
+            constraintName: fk_item_attribute_relation__item_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1230,7 +1565,7 @@ databaseChangeLog:
             baseColumnNames: item_pocket_id
             referencedTableName: item_pocket
             referencedColumnNames: id
-            constraintName: fkn4gy8o5og0p0ilemsrqv1g1fi
+            constraintName: fk_item_category__item_pocket_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1238,7 +1573,7 @@ databaseChangeLog:
             baseColumnNames: move_ailment_id
             referencedTableName: move_ailment
             referencedColumnNames: id
-            constraintName: fk47f727aveou2lx8j376jcrjbl
+            constraintName: fk_move__move_ailment_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1246,7 +1581,7 @@ databaseChangeLog:
             baseColumnNames: move_target_id
             referencedTableName: move_target
             referencedColumnNames: id
-            constraintName: fkdtiqra7qkggmvfsasvsiqt63r
+            constraintName: fk_move__move_target_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1254,7 +1589,7 @@ databaseChangeLog:
             baseColumnNames: type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fkm752v1lw4h2m9rbjl923y35o8
+            constraintName: fk_move__type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1262,7 +1597,7 @@ databaseChangeLog:
             baseColumnNames: move_damage_class_id
             referencedTableName: move_damage_class
             referencedColumnNames: id
-            constraintName: fkmlpwgfv4o6fxa01xtmi3j792h
+            constraintName: fk_move__move_damage_class_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1270,7 +1605,7 @@ databaseChangeLog:
             baseColumnNames: move_category_id
             referencedTableName: move_category
             referencedColumnNames: id
-            constraintName: fkrkcqxc987jrv1yrt2o2xvhxq
+            constraintName: fk_move__move_category_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1278,7 +1613,7 @@ databaseChangeLog:
             baseColumnNames: decreased_stat_id
             referencedTableName: stat
             referencedColumnNames: id
-            constraintName: fkap5v0eolcs0ch07igrp85l5ic
+            constraintName: fk_nature__decreased_stat_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1286,7 +1621,7 @@ databaseChangeLog:
             baseColumnNames: hates_berry_flavor_id
             referencedTableName: berry_flavor
             referencedColumnNames: id
-            constraintName: fkcfpta68nr69a5dyetlrd6tcwx
+            constraintName: fk_nature__hates_berry_flavor_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1294,7 +1629,7 @@ databaseChangeLog:
             baseColumnNames: increased_stat_id
             referencedTableName: stat
             referencedColumnNames: id
-            constraintName: fkgkx53h8mqjov0c3cib540i13j
+            constraintName: fk_nature__increased_stat_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1302,7 +1637,7 @@ databaseChangeLog:
             baseColumnNames: likes_berry_flavor_id
             referencedTableName: berry_flavor
             referencedColumnNames: id
-            constraintName: fkqde7ehunrmleih59d44ffuic4
+            constraintName: fk_nature__likes_berry_flavor_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1310,7 +1645,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_species_id
             referencedTableName: pokemon_species
             referencedColumnNames: id
-            constraintName: fk8mjng78pucdr1wa88xw5o4d48
+            constraintName: fk_pokemon__pokemon_species_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1318,7 +1653,7 @@ databaseChangeLog:
             baseColumnNames: ability_id
             referencedTableName: ability
             referencedColumnNames: id
-            constraintName: fkboxvgtrdldoqt0l6vm7pgkrhq
+            constraintName: fk_pokemon_ability__ability_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1326,7 +1661,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_id
             referencedTableName: pokemon
             referencedColumnNames: id
-            constraintName: fkno0wgyk1xxc9krnixqlyidroy
+            constraintName: fk_pokemon_ability__pokemon_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1334,7 +1669,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_habitat_id
             referencedTableName: pokemon_habitat
             referencedColumnNames: id
-            constraintName: fk44ehuoenjn1gvl3mjljgq5s5a
+            constraintName: fk_pokemon_species__pokemon_habitat_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1342,7 +1677,7 @@ databaseChangeLog:
             baseColumnNames: growth_rate_id
             referencedTableName: growth_rate
             referencedColumnNames: id
-            constraintName: fkbpfwck1swkf60q2l01k5xlpmh
+            constraintName: fk_pokemon_species__growth_rate_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1350,7 +1685,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_color_id
             referencedTableName: pokemon_color
             referencedColumnNames: id
-            constraintName: fko4oxa6f7kcx02e8glnrquufof
+            constraintName: fk_pokemon_species__pokemon_color_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1358,7 +1693,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_shape_id
             referencedTableName: pokemon_shape
             referencedColumnNames: id
-            constraintName: fkqwvssq997wqqf4hqctexawj5b
+            constraintName: fk_pokemon_species__pokemon_shape_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1366,7 +1701,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_id
             referencedTableName: pokemon
             referencedColumnNames: id
-            constraintName: fk1p2wkg8fv9r9e1itseja84a5m
+            constraintName: fk_pokemon_stat__pokemon_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1374,7 +1709,7 @@ databaseChangeLog:
             baseColumnNames: stat_id
             referencedTableName: stat
             referencedColumnNames: id
-            constraintName: fkeeh14ieyyhxixn8tcsvq8s2eu
+            constraintName: fk_pokemon_stat__stat_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1382,7 +1717,7 @@ databaseChangeLog:
             baseColumnNames: pokemon_id
             referencedTableName: pokemon
             referencedColumnNames: id
-            constraintName: fkjii6ffk1wg2utlg0ex7cg3uqy
+            constraintName: fk_pokemon_type__pokemon_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1390,7 +1725,7 @@ databaseChangeLog:
             baseColumnNames: type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fkn1bw91wtw3yq2ai9hpvb4pa0o
+            constraintName: fk_pokemon_type__type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1398,7 +1733,7 @@ databaseChangeLog:
             baseColumnNames: menu_id
             referencedTableName: menu
             referencedColumnNames: id
-            constraintName: fk6oaq01u0t0teol19brcqnlg10
+            constraintName: fk_role_menu_relation__menu_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1406,7 +1741,7 @@ databaseChangeLog:
             baseColumnNames: role_id
             referencedTableName: role
             referencedColumnNames: id
-            constraintName: fkd240ce1rn1t012tiu8f60c5qn
+            constraintName: fk_role_menu_relation__role_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1414,7 +1749,7 @@ databaseChangeLog:
             baseColumnNames: move_damage_class_id
             referencedTableName: move_damage_class
             referencedColumnNames: id
-            constraintName: fksgh1h3qpdfkch1g55rko8k8c3
+            constraintName: fk_stat__move_damage_class_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1422,7 +1757,7 @@ databaseChangeLog:
             baseColumnNames: attacking_type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fkdoxa7311sjthbx858i1ujdv5f
+            constraintName: fk_type_damage_relation__attacking_type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1430,7 +1765,7 @@ databaseChangeLog:
             baseColumnNames: defending_type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fkdyi3vrw4v998md8obpj404q5m
+            constraintName: fk_type_damage_relation__defending_type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1438,7 +1773,7 @@ databaseChangeLog:
             baseColumnNames: role_id
             referencedTableName: role
             referencedColumnNames: id
-            constraintName: fka08l2fcc2ddfee3m849an7sd3
+            constraintName: fk_user_role_relation__role_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1446,7 +1781,7 @@ databaseChangeLog:
             baseColumnNames: user_id
             referencedTableName: users
             referencedColumnNames: id
-            constraintName: fkko0rtiluw0l5tqiwysxfh2so7
+            constraintName: fk_user_role_relation__user_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - loadData:
@@ -1875,6 +2210,12 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: users
+            columns:
+              - column:
+                  header: avatar
+                  name: avatar
+                  type: STRING
+                  nullPlaceholder: __NULL__
         - loadData:
             file: data/user_role_relation.csv
             relativeToChangelogFile: true
