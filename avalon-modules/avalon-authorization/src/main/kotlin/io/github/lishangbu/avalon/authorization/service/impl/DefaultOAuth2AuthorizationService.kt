@@ -191,14 +191,19 @@ class DefaultOAuth2AuthorizationService(
         }
 
         if (entity.oidcIdTokenValue != null) {
+            val oidcIdTokenMetadata = readAttributes(entity.oidcIdTokenMetadata)
             val idToken =
                 OidcIdToken(
                     entity.oidcIdTokenValue,
                     entity.oidcIdTokenIssuedAt,
                     entity.oidcIdTokenExpiresAt,
-                    readAttributes(entity.oidcIdTokenMetadata) ?: emptyMap(),
+                    extractOidcIdTokenClaims(oidcIdTokenMetadata),
                 )
-            builder.token(idToken)
+            builder.token(idToken) { metadata ->
+                if (oidcIdTokenMetadata != null) {
+                    metadata.putAll(oidcIdTokenMetadata)
+                }
+            }
         }
 
         if (entity.userCodeValue != null) {
@@ -321,6 +326,20 @@ class DefaultOAuth2AuthorizationService(
             return null
         }
         return mapper.writeValueAsString(attributes)
+    }
+
+    /** 提取 OIDC ID Token claims */
+    private fun extractOidcIdTokenClaims(metadata: Map<String, Any>?): Map<String, Any> {
+        if (metadata.isNullOrEmpty()) {
+            return emptyMap()
+        }
+        val claims = metadata[OAuth2Authorization.Token.CLAIMS_METADATA_NAME]
+        if (claims is Map<*, *>) {
+            return claims.entries
+                .filter { it.key is String }
+                .associate { it.key as String to it.value as Any }
+        }
+        return metadata
     }
 
     private data class TokenSnapshot(

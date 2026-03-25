@@ -1,9 +1,9 @@
-name: Publish API Docs
+name: Publish Quality Reports
 
 on:
   workflow_run:
     workflows:
-      - Deploy Snapshot
+      - CI
     types:
       - completed
 
@@ -15,10 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-api-docs:
+  publish-quality-reports:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v6
@@ -31,26 +31,22 @@ jobs:
           java-version: '25'
           distribution: 'oracle'
           architecture: x64
+
       - name: 设置 Gradle 环境
         uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: '9.4.1'
 
-      - name: 生成聚合 API 文档站点（Dokka）
-        run: gradle dokkaGeneratePublicationHtml -x test
-
-      - name: 设置 Node 环境
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
+      - name: 生成聚合测试与覆盖率站点
+        run: gradle aggregateReportsSite
 
       - name: 部署到 GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.PAT }}
-          publish_dir: build/dokka/html
+          publish_dir: build/reports/github-pages/quality
           external_repository: lishangbu/avalon-site
           publish_branch: main
-          destination_dir: api-docs
+          destination_dir: quality
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'

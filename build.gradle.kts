@@ -4,25 +4,39 @@ import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.jvm.tasks.Jar
+import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.gradle.api.tasks.testing.TestReport
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import java.math.BigDecimal
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
 import java.security.KeyPairGenerator
 import java.util.*
+import javax.inject.Inject
 
 // Shared helpers used by multiple Spring Boot application modules
 private fun Project.dockerImageNameProvider() =
@@ -341,8 +355,55 @@ abstract class PrintValueTask : DefaultTask() {
     }
 }
 
+@DisableCachingByDefault(because = "Bundles generated reports into a static site directory.")
+abstract class AssembleReportSiteTask : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val testReportDirectory: DirectoryProperty
+
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val coverageReportDirectory: DirectoryProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val coverageXmlReport: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
+    @get:Inject
+    abstract val fileSystemOperations: FileSystemOperations
+
+    @TaskAction
+    fun assemble() {
+        val siteDirectory = outputDirectory.get().asFile
+        if (siteDirectory.exists()) {
+            siteDirectory.deleteRecursively()
+        }
+        siteDirectory.mkdirs()
+
+        fileSystemOperations.copy {
+            from(testReportDirectory)
+            into(siteDirectory.resolve("test-reports"))
+        }
+        fileSystemOperations.copy {
+            from(coverageReportDirectory)
+            into(siteDirectory.resolve("coverage"))
+        }
+        fileSystemOperations.copy {
+            from(coverageXmlReport)
+            into(siteDirectory.resolve("coverage"))
+        }
+
+        siteDirectory.resolve(".nojekyll").writeText("")
+    }
+}
+
 // Register root plugins once and let subprojects opt into the ones they actually need
 plugins {
+    base
+    jacoco
     alias(libs.plugins.ktlint)
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kotlin.jvm) apply false
@@ -362,10 +423,16 @@ allprojects {
 subprojects {
     // Java modules share toolchain, test, publishing, and signing defaults
     pluginManager.withPlugin("java") {
+        apply(plugin = "jacoco")
+
         extensions.configure<JavaPluginExtension> {
             toolchain.languageVersion.set(JavaLanguageVersion.of(25))
             withSourcesJar()
             withJavadocJar()
+        }
+
+        extensions.configure<JacocoPluginExtension> {
+            toolVersion = "0.8.14"
         }
 
         configurations.named("testCompileOnly") {
@@ -591,6 +658,105 @@ subprojects {
             }
         }
     }
+}
+
+private val coverageExclusions =
+    listOf(
+        "**/*Application*",
+        "**/*Draft*",
+        "**/*\$DefaultImpls.class",
+        "**/package-info.*",
+    )
+
+private fun Project.mainSourceDirectories() =
+    listOf(
+        layout.projectDirectory.dir("src/main/kotlin"),
+        layout.projectDirectory.dir("src/main/java"),
+    ).filter { it.asFile.exists() }
+
+private fun Project.mainClassDirectories() =
+    listOf(
+        layout.buildDirectory.dir("classes/kotlin/main"),
+        layout.buildDirectory.dir("classes/java/main"),
+    ).map { classesDir ->
+        fileTree(classesDir) {
+            exclude(coverageExclusions)
+        }
+    }
+
+val coverageProjects =
+    subprojects.filter { project ->
+        project.layout.projectDirectory.dir("src/main/kotlin").asFile.exists() ||
+            project.layout.projectDirectory.dir("src/main/java").asFile.exists()
+    }
+
+val aggregateTestReportDirectory = layout.buildDirectory.dir("reports/tests/aggregateTestReport")
+val aggregateCoverageHtmlDirectory = layout.buildDirectory.dir("reports/jacoco/aggregateCoverageReport/html")
+val aggregateCoverageXmlFile = layout.buildDirectory.file("reports/jacoco/aggregateCoverageReport/aggregateCoverageReport.xml")
+val aggregateReportsSiteDirectory = layout.buildDirectory.dir("reports/github-pages/quality")
+
+val aggregateTestReport by tasks.registering(TestReport::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Generates an aggregate test report for all JVM modules."
+
+    destinationDirectory.set(aggregateTestReportDirectory)
+    testResults.from(coverageProjects.map { it.layout.buildDirectory.dir("test-results/test/binary") })
+    dependsOn(coverageProjects.map { it.tasks.named("test") })
+}
+
+val aggregateCoverageReport by tasks.registering(JacocoReport::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Generates an aggregate JaCoCo coverage report for all JVM modules."
+
+    dependsOn(coverageProjects.map { it.tasks.named("test") })
+    executionData.from(coverageProjects.map { it.layout.buildDirectory.file("jacoco/test.exec") })
+    additionalSourceDirs.from(coverageProjects.flatMap { it.mainSourceDirectories() })
+    sourceDirectories.from(coverageProjects.flatMap { it.mainSourceDirectories() })
+    classDirectories.from(coverageProjects.flatMap { it.mainClassDirectories() })
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(aggregateCoverageXmlFile)
+        html.required.set(true)
+        html.outputLocation.set(aggregateCoverageHtmlDirectory)
+        csv.required.set(false)
+    }
+}
+
+val aggregateCoverageVerification by tasks.registering(JacocoCoverageVerification::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Verifies aggregate line coverage stays at or above 90%."
+
+    dependsOn(aggregateCoverageReport)
+    executionData.from(coverageProjects.map { it.layout.buildDirectory.file("jacoco/test.exec") })
+    additionalSourceDirs.from(coverageProjects.flatMap { it.mainSourceDirectories() })
+    sourceDirectories.from(coverageProjects.flatMap { it.mainSourceDirectories() })
+    classDirectories.from(coverageProjects.flatMap { it.mainClassDirectories() })
+
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = BigDecimal("0.90")
+            }
+        }
+    }
+}
+
+val aggregateReportsSite by tasks.registering(AssembleReportSiteTask::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Packages aggregate test and coverage reports into a static site for GitHub Pages."
+
+    dependsOn(aggregateTestReport, aggregateCoverageReport)
+    testReportDirectory.set(aggregateTestReportDirectory)
+    coverageReportDirectory.set(aggregateCoverageHtmlDirectory)
+    coverageXmlReport.set(aggregateCoverageXmlFile)
+    outputDirectory.set(aggregateReportsSiteDirectory)
+}
+
+tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+    dependsOn(aggregateCoverageVerification)
 }
 
 // Root utility tasks used directly by CI jobs and local setup commands
