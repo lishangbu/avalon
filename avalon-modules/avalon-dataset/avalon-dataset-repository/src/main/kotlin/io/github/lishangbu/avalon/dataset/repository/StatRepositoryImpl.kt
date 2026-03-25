@@ -21,7 +21,7 @@ class StatRepositoryImpl(
                 probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
                 probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
                 probe.readOrNull { gameIndex }?.let { where(table.gameIndex eq it) }
-                probe.readOrNull { isBattleOnly }?.let { where(table.isBattleOnly eq it) }
+                probe.readOrNull { battleOnly }?.let { where(table.battleOnly eq it) }
                 probe.readOrNull { moveDamageClassId }?.let { where(table.moveDamageClassId eq it) }
                 select(table)
             }.execute()

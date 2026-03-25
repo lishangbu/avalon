@@ -15,7 +15,7 @@ interface PokemonAbility {
     val id: PokemonAbilityId
 
     /** 是否隐藏 */
-    val isHidden: Boolean?
+    val hidden: Boolean?
 
     /** 槽位 */
     val slot: Int?

@@ -15,31 +15,24 @@ interface Berry {
     val id: Long
 
     /** 内部名称 */
-    @Column(name = "internal_name")
     val internalName: String?
 
     /** 名称 */
-    @Column(name = "name")
     val name: String?
 
     /** 成长时间 */
-    @Column(name = "growth_time")
     val growthTime: Int?
 
     /** 最大收获量 */
-    @Column(name = "max_harvest")
     val maxHarvest: Int?
 
     /** 体积 */
-    @Column(name = "bulk")
     val bulk: Int?
 
     /** 顺滑度 */
-    @Column(name = "smoothness")
     val smoothness: Int?
 
     /** 土壤干燥度 */
-    @Column(name = "soil_dryness")
     val soilDryness: Int?
 
     /** 树果硬度 */
@@ -63,6 +56,5 @@ interface Berry {
     val naturalGiftTypeId: Long?
 
     /** 自然礼物威力 */
-    @Column(name = "natural_gift_power")
     val naturalGiftPower: Int?
 }

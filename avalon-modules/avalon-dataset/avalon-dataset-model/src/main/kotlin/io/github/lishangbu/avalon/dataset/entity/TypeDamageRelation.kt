@@ -12,6 +12,5 @@ interface TypeDamageRelation {
     val id: TypeDamageRelationId
 
     /** 倍率 */
-    @Column(name = "multiplier")
     val multiplier: Float?
 }

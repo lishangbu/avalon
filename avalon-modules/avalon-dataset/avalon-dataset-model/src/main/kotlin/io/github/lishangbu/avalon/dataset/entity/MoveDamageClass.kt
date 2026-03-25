@@ -15,14 +15,11 @@ interface MoveDamageClass {
     val id: Long
 
     /** 内部名称 */
-    @Column(name = "internal_name")
     val internalName: String?
 
     /** 名称 */
-    @Column(name = "name")
     val name: String?
 
     /** 描述 */
-    @Column(name = "description")
     val description: String?
 }

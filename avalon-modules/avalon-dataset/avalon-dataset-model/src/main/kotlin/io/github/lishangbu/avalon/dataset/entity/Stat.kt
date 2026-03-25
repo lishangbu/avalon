@@ -15,20 +15,16 @@ interface Stat {
     val id: Long
 
     /** 内部名称 */
-    @Column(name = "internal_name")
     val internalName: String?
 
     /** 名称 */
-    @Column(name = "name")
     val name: String?
 
     /** 游戏索引 */
-    @Column(name = "game_index")
     val gameIndex: Int?
 
     /** 是否仅战斗可用 */
-    @Column(name = "is_battle_only")
-    val isBattleOnly: Boolean?
+    val battleOnly: Boolean?
 
     /** 招式伤害分类 */
     @ManyToOne

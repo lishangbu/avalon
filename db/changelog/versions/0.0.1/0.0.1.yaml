@@ -1149,7 +1149,7 @@ databaseChangeLog:
             remarks: 宝可梦特性
             columns:
               - column:
-                  name: is_hidden
+                  name: hidden
                   remarks: 是否隐藏
                   type: bool
                   constraints:
@@ -1279,15 +1279,15 @@ databaseChangeLog:
                   remarks: 内部名称
                   type: varchar(100)
               - column:
-                  name: is_baby
+                  name: baby
                   remarks: 是否幼年
                   type: bool
               - column:
-                  name: is_legendary
+                  name: legendary
                   remarks: 是否传说
                   type: bool
               - column:
-                  name: is_mythical
+                  name: mythical
                   remarks: 是否幻之
                   type: bool
               - column:
@@ -1429,7 +1429,7 @@ databaseChangeLog:
                   remarks: 内部名称
                   type: varchar(100)
               - column:
-                  name: is_battle_only
+                  name: battle_only
                   remarks: 是否仅战斗可用
                   type: bool
               - column:

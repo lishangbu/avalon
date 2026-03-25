@@ -1,4 +1,4 @@
-id,base_happiness,capture_rate,evolution_chain_id,evolves_from_species_id,forms_switchable,gender_rate,has_gender_differences,hatch_counter,internal_name,is_baby,is_legendary,is_mythical,name,sorting_order,growth_rate_id,pokemon_color_id,pokemon_habitat_id,pokemon_shape_id
+id,base_happiness,capture_rate,evolution_chain_id,evolves_from_species_id,forms_switchable,gender_rate,has_gender_differences,hatch_counter,internal_name,baby,legendary,mythical,name,sorting_order,growth_rate_id,pokemon_color_id,pokemon_habitat_id,pokemon_shape_id
 1,70,45,1,__NULL__,false,1,false,20,bulbasaur,false,false,false,妙蛙种子,1,4,5,3,8
 2,70,45,1,1,false,1,false,20,ivysaur,false,false,false,妙蛙草,2,4,5,3,8
 3,70,45,1,2,true,1,true,20,venusaur,false,false,false,妙蛙花,3,4,5,3,8
