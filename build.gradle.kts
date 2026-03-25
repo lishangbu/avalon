@@ -17,9 +17,9 @@ import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.testing.TestReport
 import org.gradle.jvm.tasks.Jar
 import org.gradle.language.base.plugins.LifecycleBasePlugin
-import org.gradle.api.tasks.testing.TestReport
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
@@ -686,8 +686,14 @@ private fun Project.mainClassDirectories() =
 
 val coverageProjects =
     subprojects.filter { project ->
-        project.layout.projectDirectory.dir("src/main/kotlin").asFile.exists() ||
-            project.layout.projectDirectory.dir("src/main/java").asFile.exists()
+        project.layout.projectDirectory
+            .dir("src/main/kotlin")
+            .asFile
+            .exists() ||
+            project.layout.projectDirectory
+                .dir("src/main/java")
+                .asFile
+                .exists()
     }
 
 val aggregateTestReportDirectory = layout.buildDirectory.dir("reports/tests/aggregateTestReport")

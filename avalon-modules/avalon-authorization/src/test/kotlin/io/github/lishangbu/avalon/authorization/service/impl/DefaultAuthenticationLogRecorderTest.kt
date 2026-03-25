@@ -17,10 +17,12 @@ class DefaultAuthenticationLogRecorderTest {
     @Test
     fun recordUsesProvidedTimestampWhenAvailable() {
         var recorded: io.github.lishangbu.avalon.authorization.entity.AuthenticationLog? = null
-        Mockito.doAnswer {
-            recorded = it.getArgument(0)
-            recorded
-        }.`when`(repository).save(any())
+        Mockito
+            .doAnswer {
+                recorded = it.getArgument(0)
+                recorded
+            }.`when`(repository)
+            .save(any())
         val timestamp = Instant.parse("2026-03-25T01:02:03Z")
         recorder.record(
             AuthenticationLogRecord(
@@ -48,10 +50,12 @@ class DefaultAuthenticationLogRecorderTest {
     @Test
     fun recordFallsBackToCurrentTimeWhenTimestampIsMissing() {
         var recorded: io.github.lishangbu.avalon.authorization.entity.AuthenticationLog? = null
-        Mockito.doAnswer {
-            recorded = it.getArgument(0)
-            recorded
-        }.`when`(repository).save(any())
+        Mockito
+            .doAnswer {
+                recorded = it.getArgument(0)
+                recorded
+            }.`when`(repository)
+            .save(any())
         val before = Instant.now()
 
         recorder.record(

@@ -29,10 +29,12 @@ class DefaultOAuth2AuthorizationConsentServiceTest {
     @Test
     fun saveMapsAuthoritiesIntoEntity() {
         var persisted: OauthAuthorizationConsent? = null
-        Mockito.doAnswer {
-            persisted = it.getArgument(0)
-            persisted
-        }.`when`(consentRepository).save(any())
+        Mockito
+            .doAnswer {
+                persisted = it.getArgument(0)
+                persisted
+            }.`when`(consentRepository)
+            .save(any())
 
         service.save(
             OAuth2AuthorizationConsent

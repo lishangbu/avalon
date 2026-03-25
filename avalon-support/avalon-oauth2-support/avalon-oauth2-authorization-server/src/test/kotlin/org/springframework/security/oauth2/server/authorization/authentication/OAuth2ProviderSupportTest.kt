@@ -2,7 +2,6 @@ package org.springframework.security.oauth2.server.authorization.authentication
 
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

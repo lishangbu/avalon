@@ -4,7 +4,6 @@ import io.github.lishangbu.avalon.dataset.entity.Berry
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.Example

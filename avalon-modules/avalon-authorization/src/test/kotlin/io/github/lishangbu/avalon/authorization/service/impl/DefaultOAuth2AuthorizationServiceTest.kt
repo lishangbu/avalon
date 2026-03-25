@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.core.OAuth2UserCode
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.security.oauth2.core.oidc.OidcIdToken
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
-import org.springframework.security.oauth2.server.authorization.OAuth2Authorization
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 
@@ -35,10 +34,12 @@ class DefaultOAuth2AuthorizationServiceTest {
     @Test
     fun saveMapsAuthorizationIntoEntity() {
         var persisted: io.github.lishangbu.avalon.authorization.entity.OauthAuthorization? = null
-        Mockito.doAnswer {
-            persisted = it.getArgument(0)
-            persisted
-        }.`when`(authorizationRepository).save(any())
+        Mockito
+            .doAnswer {
+                persisted = it.getArgument(0)
+                persisted
+            }.`when`(authorizationRepository)
+            .save(any())
 
         service.save(oauth2Authorization())
 

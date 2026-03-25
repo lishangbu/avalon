@@ -6,7 +6,6 @@ import io.github.lishangbu.avalon.oauth2.authorizationserver.login.LoginFailureT
 import io.github.lishangbu.avalon.oauth2.common.core.AuthorizationGrantTypeSupport
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -266,7 +265,8 @@ class OAuth2GrantAuthenticationProviderFlowTest {
         `when`(loginFailureTracker.isEnabled()).thenReturn(true)
         `when`(loginFailureTracker.getRemainingLock(kind.subject)).thenReturn(null)
         Mockito
-            .doAnswer { kind.authenticatedPrincipal() }.`when`(authenticationManager)
+            .doAnswer { kind.authenticatedPrincipal() }
+            .`when`(authenticationManager)
             .authenticate(any())
 
         val provider =
@@ -426,8 +426,7 @@ class OAuth2GrantAuthenticationProviderFlowTest {
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        private fun tokenGenerator(): OAuth2TokenGenerator<out OAuth2Token> =
-            mock(OAuth2TokenGenerator::class.java) as OAuth2TokenGenerator<out OAuth2Token>
+        private fun tokenGenerator(): OAuth2TokenGenerator<out OAuth2Token> = mock(OAuth2TokenGenerator::class.java) as OAuth2TokenGenerator<out OAuth2Token>
 
         private fun registeredClient(grantType: AuthorizationGrantType): RegisteredClient =
             RegisteredClient
