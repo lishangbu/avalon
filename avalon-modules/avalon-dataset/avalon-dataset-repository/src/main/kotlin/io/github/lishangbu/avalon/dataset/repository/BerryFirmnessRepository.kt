@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -18,11 +18,11 @@ interface BerryFirmnessRepository {
     fun findAll(): List<BerryFirmness>
 
     /** 按条件查询树果硬度列表 */
-    fun findAll(example: Example<BerryFirmness>?): List<BerryFirmness>
+    fun findAll(specification: BerryFirmnessSpecification?): List<BerryFirmness>
 
     /** 按条件分页查询树果硬度 */
     fun findAll(
-        example: Example<BerryFirmness>?,
+        specification: BerryFirmnessSpecification?,
         pageable: Pageable,
     ): Page<BerryFirmness>
 

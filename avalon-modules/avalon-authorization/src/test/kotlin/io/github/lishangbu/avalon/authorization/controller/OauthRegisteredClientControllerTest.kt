@@ -59,12 +59,70 @@ class OauthRegisteredClientControllerTest {
         assertEquals("Test Client", service.listCondition!!.clientName)
     }
 
+    @Test
+    fun getById_delegatesToService() {
+        val service = FakeOauthRegisteredClientService()
+        val controller = OauthRegisteredClientController(service)
+        val client = OauthRegisteredClient { id = "client-1" }
+        service.getByIdResult = client
+
+        val result = controller.getById("client-1")
+
+        assertSame(client, result)
+        assertEquals("client-1", service.getByIdArgument)
+    }
+
+    @Test
+    fun save_delegatesToService() {
+        val service = FakeOauthRegisteredClientService()
+        val controller = OauthRegisteredClientController(service)
+        val request = OauthRegisteredClient { id = "client-1" }
+        val saved = OauthRegisteredClient { id = "saved-client" }
+        service.saveResult = saved
+
+        val result = controller.save(request)
+
+        assertSame(saved, result)
+        assertSame(request, service.savedClient)
+    }
+
+    @Test
+    fun update_delegatesToService() {
+        val service = FakeOauthRegisteredClientService()
+        val controller = OauthRegisteredClientController(service)
+        val request = OauthRegisteredClient { id = "client-1" }
+        val updated = OauthRegisteredClient { id = "updated-client" }
+        service.updateResult = updated
+
+        val result = controller.update(request)
+
+        assertSame(updated, result)
+        assertSame(request, service.updatedClient)
+    }
+
+    @Test
+    fun deleteById_delegatesToService() {
+        val service = FakeOauthRegisteredClientService()
+        val controller = OauthRegisteredClientController(service)
+
+        controller.deleteById("client-1")
+
+        assertEquals("client-1", service.removedId)
+    }
+
     private class FakeOauthRegisteredClientService : OauthRegisteredClientService {
         var pageCondition: OauthRegisteredClientSpecification? = null
         var listCondition: OauthRegisteredClientSpecification? = null
         var pageable: Pageable? = null
         var pageResult: Page<OauthRegisteredClient> = Page(emptyList(), 0, 0)
         var listResult: List<OauthRegisteredClient> = emptyList()
+        var getByIdArgument: String? = null
+        var getByIdResult: OauthRegisteredClient? = null
+        var savedClient: OauthRegisteredClient? = null
+        var saveResult: OauthRegisteredClient? = null
+        var updatedClient: OauthRegisteredClient? = null
+        var updateResult: OauthRegisteredClient? = null
+        var removedId: String? = null
 
         override fun getPageByCondition(
             specification: OauthRegisteredClientSpecification,
@@ -80,12 +138,23 @@ class OauthRegisteredClientControllerTest {
             return listResult
         }
 
-        override fun getById(id: String): OauthRegisteredClient? = error("Not used")
+        override fun getById(id: String): OauthRegisteredClient? {
+            getByIdArgument = id
+            return getByIdResult
+        }
 
-        override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient = error("Not used")
+        override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient {
+            savedClient = registeredClient
+            return requireNotNull(saveResult)
+        }
 
-        override fun update(registeredClient: OauthRegisteredClient): OauthRegisteredClient = error("Not used")
+        override fun update(registeredClient: OauthRegisteredClient): OauthRegisteredClient {
+            updatedClient = registeredClient
+            return requireNotNull(updateResult)
+        }
 
-        override fun removeById(id: String) = Unit
+        override fun removeById(id: String) {
+            removedId = id
+        }
     }
 }

@@ -56,6 +56,30 @@ class MenuServiceImplTest {
     }
 
     @Test
+    fun listAllMenuTreeReturnsEmptyWhenMatchedMenuIsMissingFromSourceTree() {
+        val specification = mock(MenuSpecification::class.java)
+        val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
+        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(root))
+        `when`(menuRepository.findAll(same(specification), any())).thenReturn(listOf(menu(99L, parentId = 100L, label = "Missing")))
+
+        val result = service.listAllMenuTree(specification)
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun listAllMenuTreeHandlesCyclesWithoutInfiniteLoop() {
+        val specification = mock(MenuSpecification::class.java)
+        val cyclicMenu = menu(1L, parentId = 1L, label = "Cycle", sortingOrder = 1)
+        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(cyclicMenu))
+        `when`(menuRepository.findAll(same(specification), any())).thenReturn(listOf(cyclicMenu))
+
+        val result = service.listAllMenuTree(specification)
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun listAllMenuTreeIncludesAncestorsAndDescendantsOfMatchedMenus() {
         val specification = mock(MenuSpecification::class.java)
         val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)

@@ -1,14 +1,11 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.entity.id
-import io.github.lishangbu.avalon.dataset.entity.internalName
-import io.github.lishangbu.avalon.dataset.entity.name
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.babyfish.jimmer.sql.kt.ast.expression.ilike
-import org.springframework.data.domain.Example
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -24,16 +21,12 @@ class TypeRepositoryImpl(
             }.execute()
 
     /** 按条件查询属性列表 */
-    override fun findAll(example: Example<Type>?): List<Type> {
-        val probe = example?.probe
-        return sql
+    override fun findAll(specification: TypeSpecification?): List<Type> =
+        sql
             .createQuery(Type::class) {
-                probe.readOrNull { id }?.let { where(table.id eq it) }
-                probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
-                probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.execute()
-    }
 
     /** 按 ID 查询属性 */
     override fun findById(id: Long): Type? = sql.findById(Type::class, id)

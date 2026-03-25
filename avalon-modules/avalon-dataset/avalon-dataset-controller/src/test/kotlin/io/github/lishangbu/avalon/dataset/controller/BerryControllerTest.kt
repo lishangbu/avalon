@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import io.github.lishangbu.avalon.dataset.service.BerryService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,11 +20,9 @@ class BerryControllerTest {
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<Berry> = Page(listOf(Berry()), 1, 1)
         service.pageResult = page
-
-        val result =
-            controller.getBerryPage(
-                pageable = pageable,
-                id = 1L,
+        val specification =
+            BerrySpecification(
+                id = "1",
                 internalName = "cheri",
                 name = "樱子",
                 growthTime = 2,
@@ -31,14 +30,16 @@ class BerryControllerTest {
                 bulk = 4,
                 smoothness = 5,
                 soilDryness = 6,
-                berryFirmnessId = 7L,
-                naturalGiftTypeId = 8L,
+                berryFirmnessId = "7",
+                naturalGiftTypeId = "8",
                 naturalGiftPower = 9,
             )
 
+        val result = controller.getBerryPage(pageable = pageable, specification = specification)
+
         assertSame(page, result)
         assertSame(pageable, service.pageable)
-        assertEquals(1L, service.pageCondition!!.id)
+        assertEquals("1", service.pageCondition!!.id)
     }
 
     @Test
@@ -78,7 +79,7 @@ class BerryControllerTest {
     }
 
     private class FakeBerryService : BerryService {
-        var pageCondition: Berry? = null
+        var pageCondition: BerrySpecification? = null
         var pageable: Pageable? = null
         var savedBerry: Berry? = null
         var updatedBerry: Berry? = null
@@ -89,10 +90,10 @@ class BerryControllerTest {
         var updateResult: Berry = Berry()
 
         override fun getPageByCondition(
-            berry: Berry,
+            specification: BerrySpecification,
             pageable: Pageable,
         ): Page<Berry> {
-            pageCondition = berry
+            pageCondition = specification
             this.pageable = pageable
             return pageResult
         }

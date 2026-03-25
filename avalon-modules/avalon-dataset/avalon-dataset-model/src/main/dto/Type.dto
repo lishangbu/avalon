@@ -1,0 +1,7 @@
+export io.github.lishangbu.avalon.dataset.entity.Type
+
+specification TypeSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

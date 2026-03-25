@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -17,20 +18,8 @@ class MoveDamageClassController(
     @GetMapping("/page")
     fun getMoveDamageClassPage(
         pageable: Pageable,
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) description: String?,
-    ): Page<MoveDamageClass> =
-        moveDamageClassService.getPageByCondition(
-            MoveDamageClass {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                description?.let { this.description = it }
-            },
-            pageable,
-        )
+        @ModelAttribute specification: MoveDamageClassSpecification,
+    ): Page<MoveDamageClass> = moveDamageClassService.getPageByCondition(specification, pageable)
 
     /** 保存招式伤害分类 */
     @PostMapping
@@ -55,17 +44,6 @@ class MoveDamageClassController(
     /** 查询招式伤害分类列表 */
     @GetMapping("/list")
     fun listMoveDamageClasses(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) description: String?,
-    ): List<MoveDamageClass> =
-        moveDamageClassService.listByCondition(
-            MoveDamageClass {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                description?.let { this.description = it }
-            },
-        )
+        @ModelAttribute specification: MoveDamageClassSpecification,
+    ): List<MoveDamageClass> = moveDamageClassService.listByCondition(specification)
 }

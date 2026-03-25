@@ -1,14 +1,11 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.entity.id
-import io.github.lishangbu.avalon.dataset.entity.internalName
-import io.github.lishangbu.avalon.dataset.entity.name
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.babyfish.jimmer.sql.kt.ast.expression.ilike
-import org.springframework.data.domain.Example
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -24,16 +21,12 @@ class GenderRepositoryImpl(
             }.execute()
 
     /** 按条件查询性别列表 */
-    override fun findAll(example: Example<Gender>?): List<Gender> {
-        val probe = example?.probe
-        return sql
+    override fun findAll(specification: GenderSpecification?): List<Gender> =
+        sql
             .createQuery(Gender::class) {
-                probe.readOrNull { id }?.let { where(table.id eq it) }
-                probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
-                probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.execute()
-    }
 
     /** 按 ID 查询性别 */
     override fun findById(id: Long): Gender? = sql.findById(Gender::class, id)

@@ -64,12 +64,74 @@ class TreeUtilsTest {
     }
 
     @Test
+    fun buildTree_shouldReturnEmptyListForNullOrEmptyInput() {
+        val nullResult =
+            TreeUtils.buildTree<TreeNode, Long?>(
+                null,
+                { it.id },
+                { it.parentId },
+                { node, children -> node.children = children },
+            )
+        val emptyResult =
+            TreeUtils.buildTree<TreeNode, Long?>(
+                emptyList(),
+                { it.id },
+                { it.parentId },
+                { node, children -> node.children = children },
+            )
+
+        assertTrue(nullResult.isEmpty())
+        assertTrue(emptyResult.isEmpty())
+    }
+
+    @Test
+    fun buildTree_shouldTreatOrphanNodeAsRoot() {
+        val result =
+            TreeUtils.buildTree(
+                listOf(
+                    TreeNode(1L, null, "根节点", null),
+                    TreeNode(2L, 999L, "孤儿节点", null),
+                ),
+                { it.id },
+                { it.parentId },
+                { node, children -> node.children = children },
+            )
+
+        assertEquals(listOf(1L, 2L), result.map { it.id })
+    }
+
+    @Test
+    fun buildTree_shouldHandleNodeWithoutChildrenGetter() {
+        val root = NodeWithoutChildrenAccessor(1L, null)
+        val child = NodeWithoutChildrenAccessor(2L, 1L)
+
+        val result =
+            TreeUtils.buildTree(
+                listOf(root, child),
+                { it.id },
+                { it.parentId },
+                { node, children -> node.descendants = children },
+            )
+
+        assertEquals(1, result.size)
+        assertEquals(1L, result.single().id)
+        assertEquals(listOf(2L), result.single().descendants!!.map { it.id })
+    }
+
+    @Test
     fun findNode_shouldReturnCorrectNode() {
         val result = TreeUtils.findNode(treeNodes, { it.name == "子节点1-1" }, { it.children })
 
         assertNotNull(result)
         assertEquals(3L, result!!.id)
         assertEquals("子节点1-1", result.name)
+    }
+
+    @Test
+    fun findNode_shouldReturnNullForNullTree() {
+        val result = TreeUtils.findNode<TreeNode>(null, { it.name == "任意节点" }, { it.children })
+
+        assertNull(result)
     }
 
     @Test
@@ -92,6 +154,13 @@ class TreeUtilsTest {
     }
 
     @Test
+    fun findNodes_shouldReturnEmptyListForEmptyTree() {
+        val result = TreeUtils.findNodes(emptyList<TreeNode>(), { true }, { it.children })
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun getNodePath_shouldReturnCorrectPath() {
         val result =
             TreeUtils.getNodePath(treeNodes, { Objects.equals(it.id, 6L) }, { it.children })
@@ -100,6 +169,13 @@ class TreeUtilsTest {
         assertEquals(1L, result[0].id)
         assertEquals(3L, result[1].id)
         assertEquals(6L, result[2].id)
+    }
+
+    @Test
+    fun getNodePath_shouldReturnEmptyListForNullTree() {
+        val result = TreeUtils.getNodePath<TreeNode>(null, { Objects.equals(it.id, 6L) }, { it.children })
+
+        assertTrue(result.isEmpty())
     }
 
     @Test
@@ -145,6 +221,19 @@ class TreeUtilsTest {
     }
 
     @Test
+    fun filterTree_shouldReturnEmptyListForEmptyTree() {
+        val result =
+            TreeUtils.filterTree(
+                emptyList<TreeNode>(),
+                { true },
+                { it.children },
+                { node, children -> node.children = children },
+            )
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
     fun filterTree_shouldHandleNullChildren() {
         val nodesWithoutChildren = listOf(TreeNode(1L, null, "根节点1", null))
         val result =
@@ -157,6 +246,60 @@ class TreeUtilsTest {
 
         assertEquals(1, result.size)
         assertNull(result[0].children)
+    }
+
+    @Test
+    fun filterTree_shouldExcludeNodesWithoutMatchingDescendants() {
+        val result =
+            TreeUtils.filterTree(
+                listOf(TreeNode(1L, null, "根节点", emptyList())),
+                { false },
+                { it.children },
+                { node, children -> node.children = children },
+            )
+
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun filterTree_shouldCopyInheritedFieldsAndIgnoreStaticFields() {
+        InheritedTreeNode.staticCounter = 7
+        val node =
+            InheritedTreeNode(
+                id = 10L,
+                parentId = null,
+                name = "继承节点",
+                inheritedName = "父类字段",
+                children = null,
+            )
+
+        val result =
+            TreeUtils.filterTree(
+                listOf(node),
+                { true },
+                { it.children },
+                { current, children -> current.children = children },
+            )
+
+        assertEquals(1, result.size)
+        assertNotSame(node, result.single())
+        assertEquals("父类字段", result.single().inheritedName)
+        assertEquals(7, InheritedTreeNode.staticCounter)
+    }
+
+    @Test
+    fun filterTree_shouldReturnOriginalNodeWhenCopyFails() {
+        val node = NoDefaultConstructorNode(1L, "原始节点")
+
+        val result =
+            TreeUtils.filterTree(
+                listOf(node),
+                { true },
+                { it.children },
+                { current, children -> current.children = children },
+            )
+
+        assertSame(node, result.single())
     }
 
     @Test
@@ -177,6 +320,15 @@ class TreeUtilsTest {
         assertEquals(7, visitedNodeNames.size)
         assertTrue(visitedNodeNames.contains("根节点1"))
         assertTrue(visitedNodeNames.contains("子节点1-1-1"))
+    }
+
+    @Test
+    fun traverseTree_shouldIgnoreNullTree() {
+        var count = 0
+
+        TreeUtils.traverseTree<TreeNode>(null, { _, _ -> count++ }, { it.children })
+
+        assertEquals(0, count)
     }
 
     @Test
@@ -221,5 +373,49 @@ class TreeUtilsTest {
             this.name = name
             this.children = children
         }
+    }
+
+    private class NodeWithoutChildrenAccessor(
+        val id: Long,
+        val parentId: Long?,
+    ) {
+        var descendants: List<NodeWithoutChildrenAccessor>? = null
+    }
+
+    private open class BaseInheritedNode {
+        var inheritedName: String? = null
+    }
+
+    private class InheritedTreeNode() : BaseInheritedNode() {
+        var id: Long? = null
+        var parentId: Long? = null
+        var name: String? = null
+        var children: List<InheritedTreeNode>? = null
+
+        constructor(
+            id: Long?,
+            parentId: Long?,
+            name: String?,
+            inheritedName: String?,
+            children: List<InheritedTreeNode>?,
+        ) : this() {
+            this.id = id
+            this.parentId = parentId
+            this.name = name
+            this.inheritedName = inheritedName
+            this.children = children
+        }
+
+        companion object {
+            @JvmField
+            var staticCounter: Int = 0
+        }
+    }
+
+    private class NoDefaultConstructorNode(
+        val id: Long,
+        val name: String,
+    ) {
+        var children: List<NoDefaultConstructorNode>? = null
     }
 }

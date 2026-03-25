@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 
 /**
  * 树果风味仓储接口
@@ -16,7 +16,7 @@ interface BerryFlavorRepository {
     fun findAll(): List<BerryFlavor>
 
     /** 按条件查询树果风味列表 */
-    fun findAll(example: Example<BerryFlavor>?): List<BerryFlavor>
+    fun findAll(specification: BerryFlavorSpecification?): List<BerryFlavor>
 
     /** 按 ID 查询树果风味 */
     fun findById(id: Long): BerryFlavor?

@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,13 +17,10 @@ class BerryRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldQueryPageAndCrudBerry() {
-        val condition =
-            Berry {
-                internalName = "cheri"
-            }
+        val condition = BerrySpecification(internalName = "cheri")
 
-        val results = berryRepository.findAll(Example.of(condition))
-        val page = berryRepository.findAll(Example.of(condition), PageRequest.of(0, 10))
+        val results = berryRepository.findAll(condition)
+        val page = berryRepository.findAll(condition, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
         assertEquals(1L, results.first().id)

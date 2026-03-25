@@ -53,6 +53,17 @@ class ApiResultResponseAdviceTest {
         assertSame(apiResult, result)
     }
 
+    @Test
+    fun testSupportsAlwaysReturnsTrue() {
+        val supported =
+            advice.supports(
+                Mockito.mock(MethodParameter::class.java),
+                HttpMessageConverter::class.java as Class<out HttpMessageConverter<*>>,
+            )
+
+        assertTrue(supported)
+    }
+
     private fun beforeBodyWrite(body: Any?): Any? =
         advice.beforeBodyWrite(
             body,

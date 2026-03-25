@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 
 /**
  * 能力值仓储接口
@@ -13,7 +13,7 @@ import org.springframework.data.domain.Example
  */
 interface StatRepository {
     /** 按条件查询能力值列表 */
-    fun findAll(example: Example<Stat>?): List<Stat>
+    fun findAll(specification: StatSpecification?): List<Stat>
 
     /** 保存能力值 */
     fun save(stat: Stat): Stat

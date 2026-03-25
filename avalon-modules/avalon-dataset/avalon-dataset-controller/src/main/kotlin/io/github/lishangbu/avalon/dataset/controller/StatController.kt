@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.service.StatService
 import org.springframework.web.bind.annotation.*
 
@@ -35,21 +35,6 @@ class StatController(
     /** 查询能力值列表*/
     @GetMapping("/list")
     fun listStats(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) gameIndex: Int?,
-        @RequestParam(required = false) battleOnly: Boolean?,
-        @RequestParam(required = false) moveDamageClassId: Long?,
-    ): List<Stat> =
-        statService.listByCondition(
-            Stat {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                gameIndex?.let { this.gameIndex = it }
-                battleOnly?.let { this.battleOnly = it }
-                moveDamageClassId?.let { this.moveDamageClass = MoveDamageClass { this.id = it } }
-            },
-        )
+        @ModelAttribute specification: StatSpecification,
+    ): List<Stat> = statService.listByCondition(specification)
 }

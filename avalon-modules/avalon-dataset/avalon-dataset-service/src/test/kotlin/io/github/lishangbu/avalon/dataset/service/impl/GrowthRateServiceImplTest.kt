@@ -1,16 +1,15 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 
 @ExtendWith(MockitoExtension::class)
 class GrowthRateServiceImplTest {
@@ -22,16 +21,15 @@ class GrowthRateServiceImplTest {
 
     @Test
     fun listByCondition_callsRepository() {
+        val specification = GrowthRateSpecification(id = "1", internalName = "medium")
         val growthRate = GrowthRate {}
         val expected = listOf(growthRate)
-        Mockito
-            .`when`(growthRateRepository.findAll(ArgumentMatchers.any<Example<GrowthRate>>()))
-            .thenReturn(expected)
+        Mockito.`when`(growthRateRepository.findAll(specification)).thenReturn(expected)
 
-        val result = growthRateService.listByCondition(growthRate)
+        val result = growthRateService.listByCondition(specification)
 
         assertSame(expected, result)
-        Mockito.verify(growthRateRepository).findAll(ArgumentMatchers.any<Example<GrowthRate>>())
+        Mockito.verify(growthRateRepository).findAll(specification)
     }
 
     @Test

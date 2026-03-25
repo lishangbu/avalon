@@ -1,13 +1,13 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.repository.StatRepository
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 
 @ExtendWith(MockitoExtension::class)
 class StatServiceImplTest {
@@ -19,16 +19,15 @@ class StatServiceImplTest {
 
     @Test
     fun listByCondition_callsRepository() {
+        val specification = StatSpecification(id = "1", internalName = "speed")
         val stat = Stat()
         val expected = listOf(stat)
-        Mockito
-            .`when`(statRepository.findAll(ArgumentMatchers.any<Example<Stat>>()))
-            .thenReturn(expected)
+        Mockito.`when`(statRepository.findAll(specification)).thenReturn(expected)
 
-        val result = statService.listByCondition(stat)
+        val result = statService.listByCondition(specification)
 
         assertSame(expected, result)
-        Mockito.verify(statRepository).findAll(ArgumentMatchers.any<Example<Stat>>())
+        Mockito.verify(statRepository).findAll(specification)
     }
 
     @Test

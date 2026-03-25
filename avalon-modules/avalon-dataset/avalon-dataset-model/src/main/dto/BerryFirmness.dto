@@ -1,0 +1,7 @@
+export io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+
+specification BerryFirmnessSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

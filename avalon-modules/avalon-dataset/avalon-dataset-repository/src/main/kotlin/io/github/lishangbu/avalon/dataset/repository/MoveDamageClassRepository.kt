@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -15,11 +15,11 @@ import org.springframework.data.domain.Pageable
  */
 interface MoveDamageClassRepository {
     /** 按条件查询招式伤害分类列表 */
-    fun findAll(example: Example<MoveDamageClass>?): List<MoveDamageClass>
+    fun findAll(specification: MoveDamageClassSpecification?): List<MoveDamageClass>
 
     /** 按条件分页查询招式伤害分类 */
     fun findAll(
-        example: Example<MoveDamageClass>?,
+        specification: MoveDamageClassSpecification?,
         pageable: Pageable,
     ): Page<MoveDamageClass>
 

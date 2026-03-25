@@ -161,7 +161,24 @@ internal fun registeredClient(): RegisteredClient =
 
 internal fun registeredClientEntity(
     id: String,
-    tokenEndpointAuthenticationSigningAlgorithm: String,
+    tokenEndpointAuthenticationSigningAlgorithm: String? = "HS256",
+    clientAuthenticationMethods: String = "client_secret_basic,private_key_jwt",
+    authorizationGrantTypes: String = "authorization_code,refresh_token,urn:custom:grant",
+    redirectUris: String = "https://app.example/callback,https://app.example/alt",
+    postLogoutRedirectUris: String? = "https://app.example/logout",
+    scopes: String = "openid,profile",
+    requireProofKey: Boolean? = true,
+    requireAuthorizationConsent: Boolean? = false,
+    jwkSetUrl: String? = "https://issuer.example/jwks",
+    x509CertificateSubjectDn: String? = "CN=client",
+    authorizationCodeTimeToLive: String? = "PT1M",
+    accessTokenTimeToLive: String? = "PT2M",
+    accessTokenFormat: String? = OAuth2TokenFormat.REFERENCE.value,
+    deviceCodeTimeToLive: String? = "PT3M",
+    reuseRefreshTokens: Boolean? = false,
+    refreshTokenTimeToLive: String? = "PT4M",
+    idTokenSignatureAlgorithm: String? = SignatureAlgorithm.RS256.name,
+    x509CertificateBoundAccessTokens: Boolean? = true,
 ): OauthRegisteredClient =
     OauthRegisteredClient {
         this.id = id
@@ -170,22 +187,22 @@ internal fun registeredClientEntity(
         clientSecret = "secret"
         clientSecretExpiresAt = Instant.parse("2026-03-26T00:00:00Z")
         clientName = "Client"
-        clientAuthenticationMethods = "client_secret_basic,private_key_jwt"
-        authorizationGrantTypes = "authorization_code,refresh_token,urn:custom:grant"
-        redirectUris = "https://app.example/callback,https://app.example/alt"
-        postLogoutRedirectUris = "https://app.example/logout"
-        scopes = "openid,profile"
-        requireProofKey = true
-        requireAuthorizationConsent = false
-        jwkSetUrl = "https://issuer.example/jwks"
+        this.clientAuthenticationMethods = clientAuthenticationMethods
+        this.authorizationGrantTypes = authorizationGrantTypes
+        this.redirectUris = redirectUris
+        this.postLogoutRedirectUris = postLogoutRedirectUris
+        this.scopes = scopes
+        this.requireProofKey = requireProofKey
+        this.requireAuthorizationConsent = requireAuthorizationConsent
+        this.jwkSetUrl = jwkSetUrl
         this.tokenEndpointAuthenticationSigningAlgorithm = tokenEndpointAuthenticationSigningAlgorithm
-        x509CertificateSubjectDn = "CN=client"
-        authorizationCodeTimeToLive = "PT1M"
-        accessTokenTimeToLive = "PT2M"
-        accessTokenFormat = OAuth2TokenFormat.REFERENCE.value
-        deviceCodeTimeToLive = "PT3M"
-        reuseRefreshTokens = false
-        refreshTokenTimeToLive = "PT4M"
-        idTokenSignatureAlgorithm = SignatureAlgorithm.RS256.name
-        x509CertificateBoundAccessTokens = true
+        this.x509CertificateSubjectDn = x509CertificateSubjectDn
+        this.authorizationCodeTimeToLive = authorizationCodeTimeToLive
+        this.accessTokenTimeToLive = accessTokenTimeToLive
+        this.accessTokenFormat = accessTokenFormat
+        this.deviceCodeTimeToLive = deviceCodeTimeToLive
+        this.reuseRefreshTokens = reuseRefreshTokens
+        this.refreshTokenTimeToLive = refreshTokenTimeToLive
+        this.idTokenSignatureAlgorithm = idTokenSignatureAlgorithm
+        this.x509CertificateBoundAccessTokens = x509CertificateBoundAccessTokens
     }

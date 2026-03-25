@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,12 +20,13 @@ class BerryFirmnessControllerTest {
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<BerryFirmness> = Page(listOf(BerryFirmness()), 1, 1)
         service.pageResult = page
+        val specification = BerryFirmnessSpecification(id = "1", internalName = "hard", name = "硬")
 
-        val result = controller.getBerryFirmnessPage(pageable, 1L, "hard", "硬")
+        val result = controller.getBerryFirmnessPage(pageable, specification)
 
         assertSame(page, result)
         assertSame(pageable, service.pageable)
-        assertEquals(1L, service.pageCondition!!.id)
+        assertEquals("1", service.pageCondition!!.id)
     }
 
     @Test
@@ -33,11 +35,12 @@ class BerryFirmnessControllerTest {
         val controller = BerryFirmnessController(service)
         val list = listOf(BerryFirmness())
         service.listResult = list
+        val specification = BerryFirmnessSpecification(id = "1", internalName = "hard", name = "硬")
 
-        val result = controller.listBerryFirmnesses(1L, "hard", "硬")
+        val result = controller.listBerryFirmnesses(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -77,9 +80,9 @@ class BerryFirmnessControllerTest {
     }
 
     private class FakeBerryFirmnessService : BerryFirmnessService {
-        var pageCondition: BerryFirmness? = null
+        var pageCondition: BerryFirmnessSpecification? = null
         var pageable: Pageable? = null
-        var listCondition: BerryFirmness? = null
+        var listCondition: BerryFirmnessSpecification? = null
         var saved: BerryFirmness? = null
         var updated: BerryFirmness? = null
         var removedId: Long? = null
@@ -90,10 +93,10 @@ class BerryFirmnessControllerTest {
         var updateResult: BerryFirmness = BerryFirmness()
 
         override fun getPageByCondition(
-            berryFirmness: BerryFirmness,
+            specification: BerryFirmnessSpecification,
             pageable: Pageable,
         ): Page<BerryFirmness> {
-            pageCondition = berryFirmness
+            pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
@@ -112,8 +115,8 @@ class BerryFirmnessControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(berryFirmness: BerryFirmness): List<BerryFirmness> {
-            listCondition = berryFirmness
+        override fun listByCondition(specification: BerryFirmnessSpecification): List<BerryFirmness> {
+            listCondition = specification
             return listResult
         }
     }

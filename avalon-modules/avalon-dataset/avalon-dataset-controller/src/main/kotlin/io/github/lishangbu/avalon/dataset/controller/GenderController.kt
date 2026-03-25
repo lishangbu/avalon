@@ -1,15 +1,16 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.service.GenderService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /** 性别控制器 */
@@ -42,15 +43,6 @@ class GenderController(
     /** 查询性别列表 */
     @GetMapping("/list")
     fun listGenders(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): List<Gender> =
-        genderService.listByCondition(
-            Gender {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-        )
+        @ModelAttribute specification: GenderSpecification,
+    ): List<Gender> = genderService.listByCondition(specification)
 }

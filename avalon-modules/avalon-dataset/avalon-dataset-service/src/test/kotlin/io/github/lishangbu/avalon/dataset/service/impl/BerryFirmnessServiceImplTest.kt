@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertSame
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.PageRequest
 
 @ExtendWith(MockitoExtension::class)
@@ -21,48 +21,31 @@ class BerryFirmnessServiceImplTest {
 
     @Test
     fun getPageByCondition_callsRepository() {
+        val specification = BerryFirmnessSpecification(id = "1", internalName = "very-soft")
         val berryFirmness = BerryFirmness()
         val pageIndex = 0
         val pageSize = 5
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<BerryFirmness> = Page(listOf(berryFirmness), 1, 1)
-        val repository =
-            Mockito.mock(BerryFirmnessRepository::class.java) { invocation ->
-                if (invocation.method.name == "findAll" && invocation.arguments.size == 2) {
-                    page
-                } else {
-                    Answers.RETURNS_DEFAULTS.answer(invocation)
-                }
-            }
-        val service = BerryFirmnessServiceImpl(repository)
+        Mockito.`when`(berryFirmnessRepository.findAll(specification, pageable)).thenReturn(page)
 
-        val result = service.getPageByCondition(berryFirmness, pageable)
+        val result = berryFirmnessService.getPageByCondition(specification, pageable)
 
         assertSame(page, result)
-        val invocation =
-            Mockito
-                .mockingDetails(repository)
-                .invocations
-                .single { it.method.name == "findAll" && it.arguments.size == 2 }
-        assertSame(berryFirmness, (invocation.arguments[0] as Example<*>).probe)
-        assertSame(pageable, invocation.arguments[1])
+        Mockito.verify(berryFirmnessRepository).findAll(specification, pageable)
     }
 
     @Test
     fun listByCondition_callsRepository() {
+        val specification = BerryFirmnessSpecification(id = "1", internalName = "very-soft")
         val berryFirmness = BerryFirmness()
         val expected = listOf(berryFirmness)
-        Mockito
-            .`when`(
-                berryFirmnessRepository.findAll(ArgumentMatchers.any<Example<BerryFirmness>>()),
-            ).thenReturn(expected)
+        Mockito.`when`(berryFirmnessRepository.findAll(specification)).thenReturn(expected)
 
-        val result = berryFirmnessService.listByCondition(berryFirmness)
+        val result = berryFirmnessService.listByCondition(specification)
 
         assertSame(expected, result)
-        Mockito
-            .verify(berryFirmnessRepository)
-            .findAll(ArgumentMatchers.any<Example<BerryFirmness>>())
+        Mockito.verify(berryFirmnessRepository).findAll(specification)
     }
 
     @Test

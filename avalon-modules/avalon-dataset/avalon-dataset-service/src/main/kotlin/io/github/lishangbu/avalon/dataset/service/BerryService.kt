@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -12,7 +13,7 @@ import org.springframework.data.domain.Pageable
 interface BerryService {
     /** 按筛选条件分页查询树果*/
     fun getPageByCondition(
-        berry: Berry,
+        specification: BerrySpecification,
         pageable: Pageable,
     ): Page<Berry>
 

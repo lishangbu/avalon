@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
 import org.springframework.web.bind.annotation.*
 
@@ -14,17 +15,8 @@ class BerryFlavorController(
     /** 查询树果风味列表 */
     @GetMapping("/list")
     fun listBerryFlavors(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): List<BerryFlavor> =
-        berryFlavorService.listByCondition(
-            BerryFlavor {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-        )
+        @ModelAttribute specification: BerryFlavorSpecification,
+    ): List<BerryFlavor> = berryFlavorService.listByCondition(specification)
 
     /** 保存树果风味 */
     @PostMapping

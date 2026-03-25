@@ -3,11 +3,14 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.springframework.security.oauth2.core.AuthorizationGrantType
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat
@@ -82,6 +85,24 @@ class DefaultRegisteredClientRepositoryTest {
     }
 
     @Test
+    fun findByIdReturnsNullWhenRepositoryMisses() {
+        `when`(repository.findById("missing")).thenReturn(null)
+
+        val found = adapter.findById("missing")
+
+        assertNull(found)
+    }
+
+    @Test
+    fun findByClientIdReturnsNullWhenRepositoryMisses() {
+        `when`(repository.findByClientId("missing-client")).thenReturn(null)
+
+        val found = adapter.findByClientId("missing-client")
+
+        assertNull(found)
+    }
+
+    @Test
     fun findByIdMapsEntityUsingMacAlgorithm() {
         `when`(repository.findById("client-id")).thenReturn(
             registeredClientEntity(
@@ -117,5 +138,46 @@ class DefaultRegisteredClientRepositoryTest {
         assertNotNull(found)
         assertEquals(SignatureAlgorithm.RS256.name, found!!.clientSettings.tokenEndpointAuthenticationSigningAlgorithm!!.name)
         assertEquals(SignatureAlgorithm.RS256.name, found.tokenSettings.idTokenSignatureAlgorithm!!.name)
+    }
+
+    @Test
+    fun findByIdMapsKnownGrantAndAuthenticationMethodVariants() {
+        `when`(repository.findById("variant-client")).thenReturn(
+            registeredClientEntity(
+                id = "variant-client",
+                tokenEndpointAuthenticationSigningAlgorithm = null,
+                clientAuthenticationMethods = "client_secret_post,none",
+                authorizationGrantTypes = "client_credentials",
+                postLogoutRedirectUris = null,
+                requireProofKey = null,
+                requireAuthorizationConsent = null,
+                jwkSetUrl = null,
+                x509CertificateSubjectDn = null,
+                authorizationCodeTimeToLive = null,
+                accessTokenTimeToLive = null,
+                accessTokenFormat = null,
+                deviceCodeTimeToLive = null,
+                reuseRefreshTokens = null,
+                refreshTokenTimeToLive = null,
+                idTokenSignatureAlgorithm = null,
+                x509CertificateBoundAccessTokens = null,
+            ),
+        )
+
+        val found = requireNotNull(adapter.findById("variant-client"))
+
+        assertEquals(
+            setOf(
+                ClientAuthenticationMethod.CLIENT_SECRET_POST.value,
+                ClientAuthenticationMethod.NONE.value,
+            ),
+            found.clientAuthenticationMethods.map { it.value }.toSet(),
+        )
+        assertEquals(
+            setOf(AuthorizationGrantType.CLIENT_CREDENTIALS.value),
+            found.authorizationGrantTypes.map { it.value }.toSet(),
+        )
+        assertEquals(emptySet<String>(), found.postLogoutRedirectUris)
+        assertNull(found.clientSettings.tokenEndpointAuthenticationSigningAlgorithm)
     }
 }

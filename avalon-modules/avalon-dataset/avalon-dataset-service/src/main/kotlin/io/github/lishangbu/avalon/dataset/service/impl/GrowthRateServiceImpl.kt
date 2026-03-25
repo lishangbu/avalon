@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,14 +28,5 @@ class GrowthRateServiceImpl(
     }
 
     /** 按条件查询成长速率列表 */
-    override fun listByCondition(growthRate: GrowthRate): List<GrowthRate> {
-        val matcher =
-            ExampleMatcher
-                .matching()
-                .withIgnoreNullValues()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.contains())
-        return growthRateRepository.findAll(Example.of(growthRate, matcher))
-    }
+    override fun listByCondition(specification: GrowthRateSpecification): List<GrowthRate> = growthRateRepository.findAll(specification)
 }

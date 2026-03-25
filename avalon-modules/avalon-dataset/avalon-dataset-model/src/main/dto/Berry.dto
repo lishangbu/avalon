@@ -1,0 +1,15 @@
+export io.github.lishangbu.avalon.dataset.entity.Berry
+
+specification BerrySpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    growthTime
+    maxHarvest
+    bulk
+    smoothness
+    soilDryness
+    berryFirmnessId
+    naturalGiftTypeId
+    naturalGiftPower
+}

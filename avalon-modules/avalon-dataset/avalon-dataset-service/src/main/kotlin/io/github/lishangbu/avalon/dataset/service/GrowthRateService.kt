@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 
 /** 成长速率服务 */
 interface GrowthRateService {
@@ -14,5 +15,5 @@ interface GrowthRateService {
     fun removeById(id: Long)
 
     /** 按筛选条件查询成长速率列表 */
-    fun listByCondition(growthRate: GrowthRate): List<GrowthRate>
+    fun listByCondition(specification: GrowthRateSpecification): List<GrowthRate>
 }

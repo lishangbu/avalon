@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Type
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 
 /**
  * 属性仓储接口
@@ -16,7 +16,7 @@ interface TypeRepository {
     fun findAll(): List<Type>
 
     /** 按条件查询属性列表 */
-    fun findAll(example: Example<Type>?): List<Type>
+    fun findAll(specification: TypeSpecification?): List<Type>
 
     /** 按 ID 查询属性 */
     fun findById(id: Long): Type?

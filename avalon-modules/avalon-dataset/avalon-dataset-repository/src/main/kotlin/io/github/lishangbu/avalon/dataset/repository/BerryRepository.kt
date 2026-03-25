@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import org.babyfish.jimmer.Page
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 
 /**
@@ -14,12 +14,12 @@ import org.springframework.data.domain.Pageable
  * @since 2025/09/14
  */
 interface BerryRepository {
-    /** 按示例条件查询树果列表 */
-    fun findAll(example: Example<Berry>?): List<Berry>
+    /** 按条件查询树果列表 */
+    fun findAll(specification: BerrySpecification?): List<Berry>
 
-    /** 按示例条件分页查询树果 */
+    /** 按条件分页查询树果 */
     fun findAll(
-        example: Example<Berry>?,
+        specification: BerrySpecification?,
         pageable: Pageable,
     ): Page<Berry>
 

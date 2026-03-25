@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 
 /**
  * 成长速率仓储接口
@@ -16,7 +16,7 @@ interface GrowthRateRepository {
     fun findAll(): List<GrowthRate>
 
     /** 按条件查询成长速率列表 */
-    fun findAll(example: Example<GrowthRate>?): List<GrowthRate>
+    fun findAll(specification: GrowthRateSpecification?): List<GrowthRate>
 
     /** 按 ID 查询成长速率 */
     fun findById(id: Long): GrowthRate?

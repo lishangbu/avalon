@@ -17,7 +17,9 @@ Avalon
 **Server Repository** |
 [Admin Client Repository][2] |
 [Usage Document Repository][3] |
-[API Docs Online][4]
+[API Docs Online][4] |
+[Aggregate Test Report][5] |
+[Aggregate Coverage Report][6]
 
 [1]: https://lishangbu.github.io/avalon-site/docs
 
@@ -27,9 +29,14 @@ Avalon
 
 [4]: https://lishangbu.github.io/avalon-site/api-docs
 
+[5]: https://lishangbu.github.io/avalon-site/quality/test-reports/
+
+[6]: https://lishangbu.github.io/avalon-site/quality/coverage/
+
 ## Table of Contents
 
 - [Usage](#usage)
+- [Quality Reports](#quality-reports)
 - [Maintainers](#maintainers)
 - [License](#license)
 
@@ -39,6 +46,14 @@ To see how the project has been applied, see the [online documents](https://lish
 
 The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it
 locally.
+
+## Quality Reports
+
+Quality reports are published from CI to GitHub Pages:
+
+- Aggregate test report: <https://lishangbu.github.io/avalon-site/quality/test-reports/>
+- Aggregate coverage report: <https://lishangbu.github.io/avalon-site/quality/coverage/>
+- Publish workflow: <https://github.com/lishangbu/avalon/actions/workflows/publish-quality-reports.yml>
 
 ## Maintainers
 

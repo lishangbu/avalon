@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
 
 /** 树果风味服务实现 */
@@ -25,13 +24,5 @@ class BerryFlavorServiceImpl(
     }
 
     /** 按条件查询树果风味列表 */
-    override fun listByCondition(berryFlavor: BerryFlavor): List<BerryFlavor> {
-        val matcher =
-            ExampleMatcher
-                .matching()
-                .withIgnoreNullValues()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains())
-        return berryFlavorRepository.findAll(Example.of(berryFlavor, matcher))
-    }
+    override fun listByCondition(specification: BerryFlavorSpecification): List<BerryFlavor> = berryFlavorRepository.findAll(specification)
 }

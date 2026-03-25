@@ -106,6 +106,37 @@ class DefaultOAuth2AuthorizationConsentServiceTest {
     }
 
     @Test
+    fun findByIdRejectsConsentWithoutRegisteredClientId() {
+        val consentId = mock(io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsentId::class.java)
+        val consent = mock(OauthAuthorizationConsent::class.java)
+        `when`(consent.id).thenReturn(consentId)
+        `when`(consentRepository.findByRegisteredClientIdAndPrincipalName("client-id", "alice")).thenReturn(consent)
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                service.findById("client-id", "alice")
+            }
+
+        assertEquals("registeredClientId cannot be null", exception.message)
+    }
+
+    @Test
+    fun findByIdRejectsConsentWithoutPrincipalName() {
+        val consentId = mock(io.github.lishangbu.avalon.authorization.entity.OauthAuthorizationConsentId::class.java)
+        val consent = mock(OauthAuthorizationConsent::class.java)
+        `when`(consent.id).thenReturn(consentId)
+        `when`(consentId.registeredClientId).thenReturn("client-id")
+        `when`(consentRepository.findByRegisteredClientIdAndPrincipalName("client-id", "alice")).thenReturn(consent)
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                service.findById("client-id", "alice")
+            }
+
+        assertEquals("principalName cannot be null", exception.message)
+    }
+
+    @Test
     fun findByIdMapsAuthoritiesBackToConsent() {
         `when`(consentRepository.findByRegisteredClientIdAndPrincipalName("client-id", "alice")).thenReturn(
             OauthAuthorizationConsent {
