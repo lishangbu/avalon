@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
-import org.springframework.data.domain.Example
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 
 /**
  * 性别仓储接口
@@ -16,7 +16,7 @@ interface GenderRepository {
     fun findAll(): List<Gender>
 
     /** 按条件查询性别列表 */
-    fun findAll(example: Example<Gender>?): List<Gender>
+    fun findAll(specification: GenderSpecification?): List<Gender>
 
     /** 按 ID 查询性别 */
     fun findById(id: Long): Gender?

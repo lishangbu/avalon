@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.service.TypeService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -13,11 +14,12 @@ class TypeControllerTest {
         val controller = TypeController(service)
         val list = listOf(Type())
         service.listResult = list
+        val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
 
-        val result = controller.listTypes(1L, "fire", "火")
+        val result = controller.listTypes(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -57,7 +59,7 @@ class TypeControllerTest {
     }
 
     private class FakeTypeService : TypeService {
-        var listCondition: Type? = null
+        var listCondition: TypeSpecification? = null
         var saved: Type? = null
         var updated: Type? = null
         var removedId: Long? = null
@@ -80,8 +82,8 @@ class TypeControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(type: Type): List<Type> {
-            listCondition = type
+        override fun listByCondition(specification: TypeSpecification): List<Type> {
+            listCondition = specification
             return listResult
         }
     }

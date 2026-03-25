@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
 import org.springframework.web.bind.annotation.*
 
@@ -34,17 +35,6 @@ class GrowthRateController(
     /** 查询成长速率列表 */
     @GetMapping("/list")
     fun listGrowthRates(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) description: String?,
-    ): List<GrowthRate> =
-        growthRateService.listByCondition(
-            GrowthRate {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                description?.let { this.description = it }
-            },
-        )
+        @ModelAttribute specification: GrowthRateSpecification,
+    ): List<GrowthRate> = growthRateService.listByCondition(specification)
 }

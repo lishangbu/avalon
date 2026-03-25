@@ -1,15 +1,12 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.entity.id
-import io.github.lishangbu.avalon.dataset.entity.internalName
-import io.github.lishangbu.avalon.dataset.entity.name
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.babyfish.jimmer.sql.kt.ast.expression.ilike
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
@@ -26,31 +23,23 @@ class BerryFirmnessRepositoryImpl(
             }.execute()
 
     /** 按条件查询树果硬度列表 */
-    override fun findAll(example: Example<BerryFirmness>?): List<BerryFirmness> {
-        val probe = example?.probe
-        return sql
+    override fun findAll(specification: BerryFirmnessSpecification?): List<BerryFirmness> =
+        sql
             .createQuery(BerryFirmness::class) {
-                probe.readOrNull { id }?.let { where(table.id eq it) }
-                probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
-                probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.execute()
-    }
 
     /** 按条件分页查询树果硬度 */
     override fun findAll(
-        example: Example<BerryFirmness>?,
+        specification: BerryFirmnessSpecification?,
         pageable: Pageable,
-    ): Page<BerryFirmness> {
-        val probe = example?.probe
-        return sql
+    ): Page<BerryFirmness> =
+        sql
             .createQuery(BerryFirmness::class) {
-                probe.readOrNull { id }?.let { where(table.id eq it) }
-                probe.readOrNull { name }.takeFilter()?.let { where(table.name ilike "%$it%") }
-                probe.readOrNull { internalName }.takeFilter()?.let { where(table.internalName ilike "%$it%") }
+                specification?.let { where(it) }
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
-    }
 
     /** 按 ID 查询树果硬度 */
     override fun findById(id: Long): BerryFirmness? = sql.findById(BerryFirmness::class, id)

@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 
 /** 树果风味服务 */
 interface BerryFlavorService {
@@ -14,5 +15,5 @@ interface BerryFlavorService {
     fun removeById(id: Long)
 
     /** 按筛选条件查询树果风味列表 */
-    fun listByCondition(berryFlavor: BerryFlavor): List<BerryFlavor>
+    fun listByCondition(specification: BerryFlavorSpecification): List<BerryFlavor>
 }

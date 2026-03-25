@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.repository.StatRepository
 import io.github.lishangbu.avalon.dataset.service.StatService
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
 
 /** 能力值服务实现*/
@@ -14,15 +13,7 @@ class StatServiceImpl(
     private val statRepository: StatRepository,
 ) : StatService {
     /** 根据条件查询能力值列表*/
-    override fun listByCondition(stat: Stat): List<Stat> {
-        val matcher =
-            ExampleMatcher
-                .matching()
-                .withIgnoreNullValues()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains())
-        return statRepository.findAll(Example.of(stat, matcher))
-    }
+    override fun listByCondition(specification: StatSpecification): List<Stat> = statRepository.findAll(specification)
 
     /** 保存能力值*/
     override fun save(stat: Stat): Stat = statRepository.save(stat)

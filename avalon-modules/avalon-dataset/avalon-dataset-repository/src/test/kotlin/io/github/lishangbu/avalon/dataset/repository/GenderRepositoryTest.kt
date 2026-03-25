@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.data.domain.Example
 
 /** 性别仓储测试 */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -77,14 +77,20 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldSelectListWithDynamicCondition() {
-        val condition =
-            Gender {
-                internalName = "female"
-            }
+        val condition = GenderSpecification(internalName = "female")
 
-        val results = genderRepository.findAll(Example.of(condition))
+        val results = genderRepository.findAll(condition)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.any { it.name == "♀" })
+    }
+
+    @Test
+    fun shouldReturnAllGendersWhenNoCondition() {
+        val results = genderRepository.findAll()
+
+        Assertions.assertNotNull(results)
+        Assertions.assertTrue(results.size >= 3)
+        Assertions.assertTrue(results.any { it.internalName == "female" })
     }
 }

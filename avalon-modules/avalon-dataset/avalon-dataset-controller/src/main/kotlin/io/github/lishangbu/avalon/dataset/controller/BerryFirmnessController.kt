@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -17,18 +18,8 @@ class BerryFirmnessController(
     @GetMapping("/page")
     fun getBerryFirmnessPage(
         pageable: Pageable,
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): Page<BerryFirmness> =
-        berryFirmnessService.getPageByCondition(
-            BerryFirmness {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-            pageable,
-        )
+        @ModelAttribute specification: BerryFirmnessSpecification,
+    ): Page<BerryFirmness> = berryFirmnessService.getPageByCondition(specification, pageable)
 
     /** 保存树果硬度 */
     @PostMapping
@@ -53,15 +44,6 @@ class BerryFirmnessController(
     /** 查询树果硬度列表 */
     @GetMapping("/list")
     fun listBerryFirmnesses(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): List<BerryFirmness> =
-        berryFirmnessService.listByCondition(
-            BerryFirmness {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-        )
+        @ModelAttribute specification: BerryFirmnessSpecification,
+    ): List<BerryFirmness> = berryFirmnessService.listByCondition(specification)
 }

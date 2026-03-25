@@ -1,10 +1,11 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.Example
+import org.springframework.data.domain.PageRequest
 
 /** 树果硬度仓储测试 */
 class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
@@ -26,12 +27,9 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     /** 验证可按 internalName 查询树果硬度 */
     @Test
     fun shouldSelectListMatchByInternalName() {
-        val cond =
-            BerryFirmness {
-                internalName = "hard"
-            }
+        val specification = BerryFirmnessSpecification(internalName = "hard")
 
-        val results = berryFirmnessRepository.findAll(Example.of(cond))
+        val results = berryFirmnessRepository.findAll(specification)
 
         Assertions.assertNotNull(results)
         Assertions.assertFalse(results.isEmpty(), "应至少匹配到一条属性为坚硬的树果硬度记录")
@@ -44,6 +42,19 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         val all = berryFirmnessRepository.findAll()
         Assertions.assertNotNull(all)
         Assertions.assertTrue(all.size >= 5, "预期至少有 5 条预加载的树果硬度记录")
+    }
+
+    /** 验证可按条件分页查询树果硬度 */
+    @Test
+    fun shouldQueryPageByCondition() {
+        val page =
+            berryFirmnessRepository.findAll(
+                BerryFirmnessSpecification(internalName = "hard"),
+                PageRequest.of(0, 10),
+            )
+
+        Assertions.assertTrue(page.totalRowCount >= 1)
+        Assertions.assertTrue(page.rows.any { (it.internalName ?: "").contains("hard") })
     }
 
     /** 验证可插入树果硬度并查询 */
@@ -95,11 +106,8 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         berryFirmnessRepository.flush()
 
         // 通过 internalName 查询应该为空
-        val cond =
-            BerryFirmness {
-                internalName = "ephemeral"
-            }
-        val results = berryFirmnessRepository.findAll(Example.of(cond))
+        val specification = BerryFirmnessSpecification(internalName = "ephemeral")
+        val results = berryFirmnessRepository.findAll(specification)
         Assertions.assertTrue(results.isEmpty(), "删除后按 internalName 查询应返回空集合")
     }
 }

@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 
 /** 性别服务 */
 interface GenderService {
@@ -14,5 +15,5 @@ interface GenderService {
     fun removeById(id: Long)
 
     /** 按筛选条件查询性别列表 */
-    fun listByCondition(gender: Gender): List<Gender>
+    fun listByCondition(specification: GenderSpecification): List<Gender>
 }

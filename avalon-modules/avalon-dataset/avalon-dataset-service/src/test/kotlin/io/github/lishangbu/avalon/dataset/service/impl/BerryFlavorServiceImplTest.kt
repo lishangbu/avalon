@@ -1,16 +1,15 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 
 @ExtendWith(MockitoExtension::class)
 class BerryFlavorServiceImplTest {
@@ -22,16 +21,15 @@ class BerryFlavorServiceImplTest {
 
     @Test
     fun listByCondition_callsRepository() {
+        val specification = BerryFlavorSpecification(id = "1", internalName = "spicy")
         val berryFlavor = BerryFlavor()
         val expected = listOf(berryFlavor)
-        Mockito
-            .`when`(berryFlavorRepository.findAll(ArgumentMatchers.any<Example<BerryFlavor>>()))
-            .thenReturn(expected)
+        Mockito.`when`(berryFlavorRepository.findAll(specification)).thenReturn(expected)
 
-        val result = berryFlavorService.listByCondition(berryFlavor)
+        val result = berryFlavorService.listByCondition(specification)
 
         assertSame(expected, result)
-        Mockito.verify(berryFlavorRepository).findAll(ArgumentMatchers.any<Example<BerryFlavor>>())
+        Mockito.verify(berryFlavorRepository).findAll(specification)
     }
 
     @Test

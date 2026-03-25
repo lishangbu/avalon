@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.data.domain.Example
 
 /** 属性仓储测试 */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -104,14 +104,20 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldSelectListWithDynamicCondition() {
         // Act - 使用部分 internalName 作为查询条件，期望匹配 normal
-        val cond =
-            Type {
-                internalName = "normal"
-            }
-        val results = typeRepository.findAll(Example.of(cond))
+        val specification = TypeSpecification(internalName = "normal")
+        val results = typeRepository.findAll(specification)
 
         // Assert
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.any { it.name == "一般" })
+    }
+
+    @Test
+    fun shouldReturnAllTypesWhenNoCondition() {
+        val results = typeRepository.findAll()
+
+        Assertions.assertNotNull(results)
+        Assertions.assertTrue(results.size >= 10)
+        Assertions.assertTrue(results.any { it.internalName == "normal" })
     }
 }

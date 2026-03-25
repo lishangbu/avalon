@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -13,11 +14,12 @@ class BerryFlavorControllerTest {
         val controller = BerryFlavorController(service)
         val list = listOf(BerryFlavor())
         service.listResult = list
+        val specification = BerryFlavorSpecification(id = "1", internalName = "spicy", name = "辣")
 
-        val result = controller.listBerryFlavors(1L, "spicy", "辣")
+        val result = controller.listBerryFlavors(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -57,7 +59,7 @@ class BerryFlavorControllerTest {
     }
 
     private class FakeBerryFlavorService : BerryFlavorService {
-        var listCondition: BerryFlavor? = null
+        var listCondition: BerryFlavorSpecification? = null
         var saved: BerryFlavor? = null
         var updated: BerryFlavor? = null
         var removedId: Long? = null
@@ -80,8 +82,8 @@ class BerryFlavorControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(berryFlavor: BerryFlavor): List<BerryFlavor> {
-            listCondition = berryFlavor
+        override fun listByCondition(specification: BerryFlavorSpecification): List<BerryFlavor> {
+            listCondition = specification
             return listResult
         }
     }

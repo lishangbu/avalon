@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,12 +20,13 @@ class MoveDamageClassControllerTest {
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<MoveDamageClass> = Page(listOf(MoveDamageClass()), 1, 1)
         service.pageResult = page
+        val specification = MoveDamageClassSpecification(id = "1", internalName = "physical", name = "物理", description = "desc")
 
-        val result = controller.getMoveDamageClassPage(pageable, 1L, "physical", "物理", "desc")
+        val result = controller.getMoveDamageClassPage(pageable, specification)
 
         assertSame(page, result)
         assertSame(pageable, service.pageable)
-        assertEquals(1L, service.pageCondition!!.id)
+        assertEquals("1", service.pageCondition!!.id)
     }
 
     @Test
@@ -33,11 +35,12 @@ class MoveDamageClassControllerTest {
         val controller = MoveDamageClassController(service)
         val list = listOf(MoveDamageClass())
         service.listResult = list
+        val specification = MoveDamageClassSpecification(id = "1", internalName = "physical", name = "物理", description = "desc")
 
-        val result = controller.listMoveDamageClasses(1L, "physical", "物理", "desc")
+        val result = controller.listMoveDamageClasses(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -77,9 +80,9 @@ class MoveDamageClassControllerTest {
     }
 
     private class FakeMoveDamageClassService : MoveDamageClassService {
-        var pageCondition: MoveDamageClass? = null
+        var pageCondition: MoveDamageClassSpecification? = null
         var pageable: Pageable? = null
-        var listCondition: MoveDamageClass? = null
+        var listCondition: MoveDamageClassSpecification? = null
         var saved: MoveDamageClass? = null
         var updated: MoveDamageClass? = null
         var removedId: Long? = null
@@ -90,10 +93,10 @@ class MoveDamageClassControllerTest {
         var updateResult: MoveDamageClass = MoveDamageClass()
 
         override fun getPageByCondition(
-            moveDamageClass: MoveDamageClass,
+            specification: MoveDamageClassSpecification,
             pageable: Pageable,
         ): Page<MoveDamageClass> {
-            pageCondition = moveDamageClass
+            pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
@@ -112,8 +115,8 @@ class MoveDamageClassControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(moveDamageClass: MoveDamageClass): List<MoveDamageClass> {
-            listCondition = moveDamageClass
+        override fun listByCondition(specification: MoveDamageClassSpecification): List<MoveDamageClass> {
+            listCondition = specification
             return listResult
         }
     }

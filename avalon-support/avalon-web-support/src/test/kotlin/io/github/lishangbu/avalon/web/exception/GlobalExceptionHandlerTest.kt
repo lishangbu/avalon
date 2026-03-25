@@ -55,6 +55,14 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    fun returnsEmptyValidationMessageForUnexpectedValidationExceptionType() {
+        val result = handler.handleBodyValidException(Exception("unexpected"))
+
+        assertEquals(DefaultErrorResultCode.BAD_REQUEST.code(), result.code)
+        assertEquals("", result.errorMessage)
+    }
+
+    @Test
     fun mapsSpecializedExceptionsToExpectedApiResults() {
         val illegalArgument = handler.handleIllegalArgumentException(IllegalArgumentException("bad argument"))
         val illegalState = handler.handleIllegalStateException(IllegalStateException("bad state"))

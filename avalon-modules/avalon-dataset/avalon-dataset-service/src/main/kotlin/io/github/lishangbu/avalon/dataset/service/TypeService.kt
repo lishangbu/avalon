@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 
 /** 属性应用服务 */
 interface TypeService {
@@ -14,5 +15,5 @@ interface TypeService {
     fun removeById(id: Long)
 
     /** 按筛选条件查询属性列表 */
-    fun listByCondition(type: Type): List<Type>
+    fun listByCondition(specification: TypeSpecification): List<Type>
 }

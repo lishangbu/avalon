@@ -1,16 +1,15 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.repository.GenderRepository
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 
 @ExtendWith(MockitoExtension::class)
 class GenderServiceImplTest {
@@ -22,16 +21,15 @@ class GenderServiceImplTest {
 
     @Test
     fun listByCondition_callsRepository() {
+        val specification = GenderSpecification(id = "1", internalName = "male")
         val gender = Gender {}
         val expected = listOf(gender)
-        Mockito
-            .`when`(genderRepository.findAll(ArgumentMatchers.any<Example<Gender>>()))
-            .thenReturn(expected)
+        Mockito.`when`(genderRepository.findAll(specification)).thenReturn(expected)
 
-        val result = genderService.listByCondition(gender)
+        val result = genderService.listByCondition(specification)
 
         assertSame(expected, result)
-        Mockito.verify(genderRepository).findAll(ArgumentMatchers.any<Example<Gender>>())
+        Mockito.verify(genderRepository).findAll(specification)
     }
 
     @Test

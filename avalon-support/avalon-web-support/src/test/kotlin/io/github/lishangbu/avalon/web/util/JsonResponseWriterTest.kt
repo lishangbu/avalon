@@ -94,4 +94,20 @@ class JsonResponseWriterTest {
             JsonResponseWriter.writeSuccessResponse(errorResponse, jsonMapper, "fail")
         }
     }
+
+    @Test
+    fun testWriteFailedResponseIOException() {
+        val errorResponse = Mockito.mock(HttpServletResponse::class.java)
+        Mockito.`when`(errorResponse.writer).thenThrow(IOException("mock error"))
+
+        assertThrows(RuntimeException::class.java) {
+            JsonResponseWriter.writeFailedResponse(
+                errorResponse,
+                jsonMapper,
+                HttpStatus.BAD_REQUEST,
+                DefaultErrorResultCode.BAD_REQUEST,
+                "fail",
+            )
+        }
+    }
 }

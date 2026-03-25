@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.service.StatService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -13,11 +14,12 @@ class StatControllerTest {
         val controller = StatController(service)
         val list = listOf(Stat())
         service.listResult = list
+        val specification = StatSpecification(id = "1", internalName = "hp", name = "生命", gameIndex = 1, battleOnly = false, moveDamageClassId = "2")
 
-        val result = controller.listStats(1L, "hp", "生命", 1, false, 2L)
+        val result = controller.listStats(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -57,7 +59,7 @@ class StatControllerTest {
     }
 
     private class FakeStatService : StatService {
-        var listCondition: Stat? = null
+        var listCondition: StatSpecification? = null
         var saved: Stat? = null
         var updated: Stat? = null
         var removedId: Long? = null
@@ -80,8 +82,8 @@ class StatControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(stat: Stat): List<Stat> {
-            listCondition = stat
+        override fun listByCondition(specification: StatSpecification): List<Stat> {
+            listCondition = specification
             return listResult
         }
     }

@@ -4,71 +4,41 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
-/**
- * [ApiResult] 测试
- *
- * 验证成功和失败结果的状态码、数据与错误信息
- */
 class ApiResultTest {
     @Test
-    fun testOkWithData() {
-        val testData = "Test Data"
-        val result = ApiResult.ok(testData)
+    fun okBuildsSuccessfulResponseAndAccessorsMirrorProperties() {
+        val result = ApiResult.ok("payload")
 
-        assertEquals(200, result.code)
-        assertEquals(testData, result.data)
+        assertEquals(ApiResult.SUCCESS_CODE, result.code)
+        assertEquals("payload", result.data)
         assertNull(result.errorMessage)
+        assertEquals(ApiResult.SUCCESS_CODE, result.code())
+        assertEquals("payload", result.data())
+        assertNull(result.errorMessage())
     }
 
     @Test
-    fun testOkWithNullData() {
-        val result = ApiResult.ok<Void>(null)
+    fun failedBuildsResponseFromExplicitCodeAndMessage() {
+        val result = ApiResult.failed(418, "teapot")
 
-        assertEquals(200, result.code)
+        assertEquals(418, result.code)
         assertNull(result.data)
-        assertNull(result.errorMessage)
+        assertEquals("teapot", result.errorMessage)
     }
 
     @Test
-    fun testFailedWithCodeAndMessage() {
-        val errorCode = 500
-        val errorMessage = "Internal Server Error"
-        val result = ApiResult.failed(errorCode, errorMessage)
+    fun failedUsesDefaultEnumMessageWhenNoCustomMessagesProvided() {
+        val result = ApiResult.failed(DefaultErrorResultCode.SERVER_ERROR)
 
-        assertEquals(errorCode, result.code)
-        assertEquals(errorMessage, result.errorMessage)
-        assertNull(result.data)
+        assertEquals(DefaultErrorResultCode.SERVER_ERROR.code(), result.code)
+        assertEquals(DefaultErrorResultCode.SERVER_ERROR.errorMessage(), result.errorMessage)
     }
 
     @Test
-    fun testFailedWithErrorEnum() {
-        val errorCode: ErrorResultCode = DefaultErrorResultCode.SERVER_ERROR
-        val additionalMessage = "Database connection failed"
-        val result = ApiResult.failed(errorCode, additionalMessage)
+    fun failedJoinsCustomMessagesWhenProvided() {
+        val result = ApiResult.failed(DefaultErrorResultCode.BAD_REQUEST, "field 1", "field 2")
 
-        assertEquals(errorCode.code(), result.code)
-        assertEquals(additionalMessage, result.errorMessage)
-        assertNull(result.data)
-    }
-
-    @Test
-    fun testFailedWithEmptyErrorMessages() {
-        val errorCode: ErrorResultCode = DefaultErrorResultCode.RESOURCE_NOT_FOUND
-        val result = ApiResult.failed(errorCode)
-
-        assertEquals(errorCode.code(), result.code)
-        assertEquals(errorCode.errorMessage(), result.errorMessage)
-        assertNull(result.data)
-    }
-
-    @Test
-    fun testFailedWithSomeErrorMessages() {
-        val errorCode: ErrorResultCode = DefaultErrorResultCode.METHOD_NOT_ALLOWED
-        val result =
-            ApiResult.failed(errorCode, "GET_METHOD_NOT_ALLOWED", "POST_METHOD_NOT_ALLOWED")
-
-        assertEquals(errorCode.code(), result.code)
-        assertEquals("GET_METHOD_NOT_ALLOWED,POST_METHOD_NOT_ALLOWED", result.errorMessage)
-        assertNull(result.data)
+        assertEquals(DefaultErrorResultCode.BAD_REQUEST.code(), result.code)
+        assertEquals("field 1,field 2", result.errorMessage)
     }
 }

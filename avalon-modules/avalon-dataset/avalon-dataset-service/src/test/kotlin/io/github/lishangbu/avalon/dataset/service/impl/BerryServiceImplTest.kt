@@ -1,17 +1,16 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Answers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.PageRequest
 
 @ExtendWith(MockitoExtension::class)
@@ -24,31 +23,18 @@ class BerryServiceImplTest {
 
     @Test
     fun getPageByCondition_callsRepository() {
+        val specification = BerrySpecification(id = "1", internalName = "cheri")
         val berry = Berry()
         val pageIndex = 0
         val pageSize = 5
         val pageable = PageRequest.of(pageIndex, pageSize)
         val page: Page<Berry> = Page(listOf(berry), 1, 1)
-        val repository =
-            Mockito.mock(BerryRepository::class.java) { invocation ->
-                if (invocation.method.name == "findAll" && invocation.arguments.size == 2) {
-                    page
-                } else {
-                    Answers.RETURNS_DEFAULTS.answer(invocation)
-                }
-            }
-        val service = BerryServiceImpl(repository)
+        Mockito.`when`(berryRepository.findAll(specification, pageable)).thenReturn(page)
 
-        val result = service.getPageByCondition(berry, pageable)
+        val result = berryService.getPageByCondition(specification, pageable)
 
         assertSame(page, result)
-        val invocation =
-            Mockito
-                .mockingDetails(repository)
-                .invocations
-                .single { it.method.name == "findAll" && it.arguments.size == 2 }
-        assertSame(berry, (invocation.arguments[0] as Example<*>).probe)
-        assertSame(pageable, invocation.arguments[1])
+        Mockito.verify(berryRepository).findAll(specification, pageable)
     }
 
     @Test

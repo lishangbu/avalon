@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -13,11 +14,12 @@ class GrowthRateControllerTest {
         val controller = GrowthRateController(service)
         val list = listOf(GrowthRate {})
         service.listResult = list
+        val specification = GrowthRateSpecification(id = "1", internalName = "slow", name = "慢", description = "slow")
 
-        val result = controller.listGrowthRates(1L, "slow", "慢", "slow")
+        val result = controller.listGrowthRates(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -57,7 +59,7 @@ class GrowthRateControllerTest {
     }
 
     private class FakeGrowthRateService : GrowthRateService {
-        var listCondition: GrowthRate? = null
+        var listCondition: GrowthRateSpecification? = null
         var saved: GrowthRate? = null
         var updated: GrowthRate? = null
         var removedId: Long? = null
@@ -80,8 +82,8 @@ class GrowthRateControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(growthRate: GrowthRate): List<GrowthRate> {
-            listCondition = growthRate
+        override fun listByCondition(specification: GrowthRateSpecification): List<GrowthRate> {
+            listCondition = specification
             return listResult
         }
     }

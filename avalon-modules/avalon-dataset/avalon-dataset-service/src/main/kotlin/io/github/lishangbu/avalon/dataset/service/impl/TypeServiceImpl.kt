@@ -1,10 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository
 import io.github.lishangbu.avalon.dataset.service.TypeService
-import org.springframework.data.domain.Example
-import org.springframework.data.domain.ExampleMatcher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,13 +28,5 @@ class TypeServiceImpl(
     }
 
     /** 按条件查询属性列表*/
-    override fun listByCondition(type: Type): List<Type> {
-        val matcher =
-            ExampleMatcher
-                .matching()
-                .withIgnoreNullValues()
-                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
-                .withMatcher("internalName", ExampleMatcher.GenericPropertyMatchers.contains())
-        return typeRepository.findAll(Example.of(type, matcher))
-    }
+    override fun listByCondition(specification: TypeSpecification): List<Type> = typeRepository.findAll(specification)
 }

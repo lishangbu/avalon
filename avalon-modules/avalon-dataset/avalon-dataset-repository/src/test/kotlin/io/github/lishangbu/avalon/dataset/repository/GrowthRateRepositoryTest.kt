@@ -1,12 +1,12 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.data.domain.Example
 
 /** 成长速率仓储测试 */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -83,14 +83,20 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldSelectListWithDynamicCondition() {
-        val condition =
-            GrowthRate {
-                internalName = "medium"
-            }
+        val condition = GrowthRateSpecification(internalName = "medium")
 
-        val results = growthRateRepository.findAll(Example.of(condition))
+        val results = growthRateRepository.findAll(condition)
 
         Assertions.assertNotNull(results)
+        Assertions.assertTrue(results.any { it.internalName == "medium" })
+    }
+
+    @Test
+    fun shouldReturnAllGrowthRatesWhenNoCondition() {
+        val results = growthRateRepository.findAll()
+
+        Assertions.assertNotNull(results)
+        Assertions.assertTrue(results.size >= 3)
         Assertions.assertTrue(results.any { it.internalName == "medium" })
     }
 }

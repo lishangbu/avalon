@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.service.GenderService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -13,11 +14,12 @@ class GenderControllerTest {
         val controller = GenderController(service)
         val list = listOf(Gender {})
         service.listResult = list
+        val specification = GenderSpecification(id = "1", internalName = "female", name = "雌性")
 
-        val result = controller.listGenders(1L, "female", "雌性")
+        val result = controller.listGenders(specification)
 
         assertSame(list, result)
-        assertEquals(1L, service.listCondition!!.id)
+        assertEquals("1", service.listCondition!!.id)
     }
 
     @Test
@@ -57,7 +59,7 @@ class GenderControllerTest {
     }
 
     private class FakeGenderService : GenderService {
-        var listCondition: Gender? = null
+        var listCondition: GenderSpecification? = null
         var saved: Gender? = null
         var updated: Gender? = null
         var removedId: Long? = null
@@ -80,8 +82,8 @@ class GenderControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(gender: Gender): List<Gender> {
-            listCondition = gender
+        override fun listByCondition(specification: GenderSpecification): List<Gender> {
+            listCondition = specification
             return listResult
         }
     }

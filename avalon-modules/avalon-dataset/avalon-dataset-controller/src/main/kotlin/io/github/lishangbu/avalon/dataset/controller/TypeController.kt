@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.service.TypeService
 import org.springframework.web.bind.annotation.*
 
@@ -34,15 +35,6 @@ class TypeController(
     /** 查询属性列表 */
     @GetMapping("/list")
     fun listTypes(
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-    ): List<Type> =
-        typeService.listByCondition(
-            Type {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-            },
-        )
+        @ModelAttribute specification: TypeSpecification,
+    ): List<Type> = typeService.listByCondition(specification)
 }

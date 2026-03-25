@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Pageable
 interface MoveDamageClassService {
     /** 按条件分页查询招式伤害分类*/
     fun getPageByCondition(
-        moveDamageClass: MoveDamageClass,
+        specification: MoveDamageClassSpecification,
         pageable: Pageable,
     ): Page<MoveDamageClass>
 
@@ -22,5 +23,5 @@ interface MoveDamageClassService {
     fun removeById(id: Long)
 
     /** 根据条件查询招式伤害分类列表 */
-    fun listByCondition(moveDamageClass: MoveDamageClass): List<MoveDamageClass>
+    fun listByCondition(specification: MoveDamageClassSpecification): List<MoveDamageClass>
 }

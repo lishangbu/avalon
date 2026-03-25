@@ -1,11 +1,11 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.Example
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,13 +16,10 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldQueryPageAndCrudMoveDamageClass() {
-        val condition =
-            MoveDamageClass {
-                internalName = "physical"
-            }
+        val condition = MoveDamageClassSpecification(internalName = "physical")
 
-        val results = moveDamageClassRepository.findAll(Example.of(condition))
-        val page = moveDamageClassRepository.findAll(Example.of(condition), PageRequest.of(0, 10))
+        val results = moveDamageClassRepository.findAll(condition)
+        val page = moveDamageClassRepository.findAll(condition, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
         assertEquals(2L, results.first().id)
@@ -43,7 +40,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
             requireNotNull(
                 moveDamageClassRepository
                     .findAll(
-                        Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                        MoveDamageClassSpecification(internalName = "unit-damage-class"),
                     ).firstOrNull(),
             )
         assertEquals(saved.id, updated.id)
@@ -54,7 +51,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
             requireNotNull(
                 moveDamageClassRepository
                     .findAll(
-                        Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                        MoveDamageClassSpecification(internalName = "unit-damage-class"),
                     ).firstOrNull(),
             )
         assertEquals("updated description", afterUpdate.description)
@@ -63,7 +60,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
         assertTrue(
             moveDamageClassRepository
                 .findAll(
-                    Example.of(MoveDamageClass { internalName = "unit-damage-class" }),
+                    MoveDamageClassSpecification(internalName = "unit-damage-class"),
                 ).isEmpty(),
         )
     }

@@ -1,8 +1,7 @@
 package io.github.lishangbu.avalon.dataset.controller
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
-import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
-import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import io.github.lishangbu.avalon.dataset.service.BerryService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -22,34 +21,8 @@ class BerryController(
     @GetMapping("/page")
     fun getBerryPage(
         pageable: Pageable,
-        @RequestParam(required = false) id: Long?,
-        @RequestParam(required = false) internalName: String?,
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) growthTime: Int?,
-        @RequestParam(required = false) maxHarvest: Int?,
-        @RequestParam(required = false) bulk: Int?,
-        @RequestParam(required = false) smoothness: Int?,
-        @RequestParam(required = false) soilDryness: Int?,
-        @RequestParam(required = false) berryFirmnessId: Long?,
-        @RequestParam(required = false) naturalGiftTypeId: Long?,
-        @RequestParam(required = false) naturalGiftPower: Int?,
-    ): Page<Berry> =
-        berryService.getPageByCondition(
-            Berry {
-                id?.let { this.id = it }
-                internalName?.let { this.internalName = it }
-                name?.let { this.name = it }
-                growthTime?.let { this.growthTime = it }
-                maxHarvest?.let { this.maxHarvest = it }
-                bulk?.let { this.bulk = it }
-                smoothness?.let { this.smoothness = it }
-                soilDryness?.let { this.soilDryness = it }
-                naturalGiftPower?.let { this.naturalGiftPower = it }
-                berryFirmnessId?.let { this.berryFirmness = BerryFirmness { this.id = it } }
-                naturalGiftTypeId?.let { this.naturalGiftType = Type { this.id = it } }
-            },
-            pageable,
-        )
+        @ModelAttribute specification: BerrySpecification,
+    ): Page<Berry> = berryService.getPageByCondition(specification, pageable)
 
     /** 创建树果 */
     @PostMapping

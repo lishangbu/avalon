@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.dataset.service
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 
 /** 能力值服务*/
 interface StatService {
@@ -14,5 +15,5 @@ interface StatService {
     fun removeById(id: Long)
 
     /** 根据条件查询能力值列表*/
-    fun listByCondition(stat: Stat): List<Stat>
+    fun listByCondition(specification: StatSpecification): List<Stat>
 }

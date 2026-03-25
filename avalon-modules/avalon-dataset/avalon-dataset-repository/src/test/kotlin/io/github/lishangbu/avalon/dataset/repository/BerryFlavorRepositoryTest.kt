@@ -1,10 +1,10 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.springframework.data.domain.Example
 
 /** 树果风味仓储测试 */
 class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
@@ -26,13 +26,10 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldSelectListMatchByInternalName() {
         // Arrange - 构造查询条件，使用部分 internalName
-        val cond =
-            BerryFlavor {
-                internalName = "spicy"
-            }
+        val specification = BerryFlavorSpecification(internalName = "spicy")
 
         // Act
-        val results = berryFlavorRepository.findAll(Example.of(cond))
+        val results = berryFlavorRepository.findAll(specification)
 
         // Assert
         Assertions.assertNotNull(results)
@@ -110,11 +107,8 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         berryFlavorRepository.deleteById(id)
         berryFlavorRepository.flush()
         // 验证通过 internalName 查询不到该记录
-        val cond =
-            BerryFlavor {
-                internalName = "pungent"
-            }
-        val results = berryFlavorRepository.findAll(Example.of(cond))
+        val specification = BerryFlavorSpecification(internalName = "pungent")
+        val results = berryFlavorRepository.findAll(specification)
         Assertions.assertTrue(results.isEmpty(), "删除后按 internalName 查询应返回空集合")
     }
 }
