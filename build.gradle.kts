@@ -71,6 +71,7 @@ subprojects {
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         apply(plugin = "org.jlleitschuh.gradle.ktlint")
         extensions.configure<KtlintExtension> {
+            version.set("1.8.0")
             filter {
                 exclude("**/package-info.kt")
                 exclude { treeElement ->
