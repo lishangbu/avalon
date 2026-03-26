@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.3.20"
 ksp = "2.3.6"
-spring-boot = "4.0.4"
+spring-boot = "4.0.5"
 dokka = "2.1.0"
 ktlint = "14.2.0"
 aws = "2.41.24"
