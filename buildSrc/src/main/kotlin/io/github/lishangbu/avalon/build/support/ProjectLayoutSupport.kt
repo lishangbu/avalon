@@ -25,12 +25,15 @@ val defaultCoverageExclusions =
  * 返回值保持为惰性 Provider，这样 Gradle 仍能配合 configuration cache，
  * 同时支持在执行阶段通过属性覆盖仓库或前缀。
  */
-fun Project.dockerImageNameProvider(): Provider<String> =
-    providers
+fun Project.dockerImageNameProvider(): Provider<String> {
+    val imageName = name.lowercase()
+
+    return providers
         .gradleProperty("dockerRepository")
         .zip(providers.gradleProperty("dockerImagePrefix")) { repository, prefix ->
-            "$repository/$prefix/$name:latest"
+            "$repository/$prefix/$imageName:latest"
         }
+}
 
 /**
  * 仅返回当前模块里实际存在的源码目录。
