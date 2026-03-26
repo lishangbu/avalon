@@ -1,10 +1,13 @@
+import org.gradle.api.tasks.PathSensitivity
+
 plugins {
     `java-library`
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.dokka)
 }
+
+val mainDtoDir = layout.projectDirectory.dir("src/main/dto")
 
 dependencies {
     api(project(":avalon-extensions:avalon-jimmer-extension"))
@@ -13,9 +16,12 @@ dependencies {
     ksp(libs.jimmer.ksp)
 }
 
-kotlin {
-    // 让 IDE 与编译都能识别 KSP 生成代码
-    sourceSets.main {
-        kotlin.srcDir("build/generated/ksp/main/kotlin")
+tasks.configureEach {
+    if (name == "kspKotlin") {
+        // Make DTO definitions part of the cache key for clean and remote builds.
+        inputs
+            .dir(mainDtoDir)
+            .withPropertyName("jimmerMainDtoDir")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     }
 }

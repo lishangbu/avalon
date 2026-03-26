@@ -1,5 +1,4 @@
 plugins {
-    java
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.dokka)
