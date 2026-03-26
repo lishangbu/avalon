@@ -1460,13 +1460,13 @@ databaseChangeLog:
                   remarks: 名称
                   type: varchar(100)
         - createTable:
-            tableName: type_damage_relation
-            remarks: 属性伤害关系
+            tableName: type_effectiveness_entry
+            remarks: 属性相克条目
             columns:
               - column:
-                  name: multiplier
-                  remarks: 倍率
-                  type: float4
+                  name: multiplier_percent
+                  remarks: 定点倍率百分比（100 表示 1.00x）
+                  type: int4
               - column:
                   name: defending_type_id
                   remarks: 防御方属性 ID
@@ -1825,19 +1825,19 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: type_damage_relation
+            baseTableName: type_effectiveness_entry
             baseColumnNames: attacking_type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fk_type_damage_relation__attacking_type_id
+            constraintName: fk_type_effectiveness_entry__attacking_type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: type_damage_relation
+            baseTableName: type_effectiveness_entry
             baseColumnNames: defending_type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fk_type_damage_relation__defending_type_id
+            constraintName: fk_type_effectiveness_entry__defending_type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -2221,11 +2221,11 @@ databaseChangeLog:
             separator: ','
             tableName: berry
         - loadData:
-            file: data/type_damage_relation.csv
+            file: data/type_effectiveness_entry.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: type_damage_relation
+            tableName: type_effectiveness_entry
         - loadData:
             file: data/egg_group.csv
             relativeToChangelogFile: true

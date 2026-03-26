@@ -2,11 +2,9 @@ package io.github.lishangbu.avalon.authorization.entity
 
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.Id
-import org.babyfish.jimmer.sql.Table
 import java.time.Instant
 
 @Entity
-@Table(name = "oauth_registered_client")
 interface OauthRegisteredClient {
     /** ID */
     @Id

@@ -8,46 +8,46 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
-class TypeDamageRelationRepositoryImpl(
+class TypeEffectivenessEntryRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : TypeDamageRelationRepository {
-    /** 按条件查询属性克制关系列表 */
+) : TypeEffectivenessEntryRepository {
+    /** 按条件查询属性相克条目列表 */
     override fun findAll(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
-        multiplier: Float?,
-    ): List<TypeDamageRelation> =
+        multiplierPercent: Int?,
+    ): List<TypeEffectivenessEntry> =
         sql
-            .createQuery(TypeDamageRelation::class) {
+            .createQuery(TypeEffectivenessEntry::class) {
                 attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
                 defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
-                multiplier?.let { where(table.multiplier eq it) }
+                multiplierPercent?.let { where(table.multiplierPercent eq it) }
                 select(table)
             }.execute()
 
-    /** 按条件分页查询属性克制关系 */
+    /** 按条件分页查询属性相克条目 */
     override fun findPage(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
-        multiplier: Float?,
+        multiplierPercent: Int?,
         pageable: Pageable,
-    ): Page<TypeDamageRelation> =
+    ): Page<TypeEffectivenessEntry> =
         sql
-            .createQuery(TypeDamageRelation::class) {
+            .createQuery(TypeEffectivenessEntry::class) {
                 attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
                 defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
-                multiplier?.let { where(table.multiplier eq it) }
+                multiplierPercent?.let { where(table.multiplierPercent eq it) }
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
-    /** 保存属性克制关系 */
-    override fun save(typeDamageRelation: TypeDamageRelation): TypeDamageRelation = sql.save(typeDamageRelation).modifiedEntity
+    /** 保存属性相克条目 */
+    override fun save(typeEffectivenessEntry: TypeEffectivenessEntry): TypeEffectivenessEntry = sql.save(typeEffectivenessEntry).modifiedEntity
 
-    /** 按 ID 删除属性克制关系 */
-    override fun deleteById(id: TypeDamageRelationId) {
+    /** 按 ID 删除属性相克条目 */
+    override fun deleteById(id: TypeEffectivenessEntryId) {
         sql
-            .createDelete(TypeDamageRelation::class) {
+            .createDelete(TypeEffectivenessEntry::class) {
                 where(table.id.attackingTypeId eq id.attackingTypeId)
                 where(table.id.defendingTypeId eq id.defendingTypeId)
                 disableDissociation()
