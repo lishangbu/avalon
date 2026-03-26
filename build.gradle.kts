@@ -2,6 +2,7 @@ import io.github.lishangbu.avalon.build.support.configureDokkaJavadocJarIntegrat
 import io.github.lishangbu.avalon.build.support.configureJavaLibraryBomConventions
 import io.github.lishangbu.avalon.build.support.configureJavaModuleConventions
 import io.github.lishangbu.avalon.build.support.configureJavaPlatformPublicationConvention
+import io.github.lishangbu.avalon.build.support.dockerImageNameProvider
 import io.github.lishangbu.avalon.build.support.projectsWithMainSources
 import io.github.lishangbu.avalon.build.support.registerAggregateCoverageReportTask
 import io.github.lishangbu.avalon.build.support.registerAggregateCoverageVerificationTask
@@ -47,13 +48,7 @@ subprojects {
     // Boot 应用继承统一 BOM，并默认关闭镜像推送
     pluginManager.withPlugin("org.springframework.boot") {
         tasks.withType<BootBuildImage>().configureEach {
-            imageName.set(
-                project.providers
-                    .gradleProperty("dockerRepository")
-                    .zip(project.providers.gradleProperty("dockerImagePrefix")) { repository, prefix ->
-                        "$repository/$prefix/$name:latest"
-                    },
-            )
+            imageName.set(project.dockerImageNameProvider())
             publish.set(false)
         }
 
