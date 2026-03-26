@@ -6,11 +6,9 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
-import org.babyfish.jimmer.sql.Table
 import java.time.Instant
 
 @Entity
-@Table(name = "authentication_log")
 interface AuthenticationLog {
     /** ID */
     @Id

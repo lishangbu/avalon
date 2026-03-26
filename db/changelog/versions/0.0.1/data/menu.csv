@@ -7,7 +7,7 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 6,system/oauth-registered-client/index,false,false,__NULL__,icon-[ph--password],oauth-registered-client,OAuth2客户端管理,oauth-registered-client,2,oauth-registered-client,false,,true,true,0
 7,dataset,false,false,__NULL__,icon-[ic--outline-dataset],dataset,数据集,dataset,__NULL__,dataset,false,,true,true,0
 8,dataset/type/index,false,false,__NULL__,icon-[game-icons--barbed-star],type,属性管理,type,7,type,false,,true,true,0
-9,dataset/type-damage-relation/index,false,false,__NULL__,icon-[game-icons--beveled-star],type-damage-relation,属性克制管理,type-damage-relation,7,type-damage-relation,false,,true,true,0
+9,dataset/type-effectiveness/index,false,false,__NULL__,icon-[game-icons--beveled-star],type-effectiveness,属性克制管理,type-effectiveness,7,type-effectiveness,false,,true,true,0
 10,dataset/berry-firmness/index,false,false,__NULL__,icon-[game-icons--diamond-hard],berry-firmness,树果硬度管理,berry-firmness,7,berry-firmness,false,,true,true,0
 11,dataset/berry-flavor/index,false,false,__NULL__,icon-[game-icons--opened-food-can],berry-flavor,树果风味管理,berry-flavor,7,berry-flavor,false,,true,true,0
 12,dataset/berry/index,false,false,__NULL__,icon-[game-icons--elderberry],berry,树果管理,berry,7,berry,false,,true,true,0

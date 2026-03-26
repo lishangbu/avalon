@@ -6,7 +6,6 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.*
 
 @Entity
-@Table(name = "pokemon_species")
 interface PokemonSpecies {
     /** ID */
     @Id

@@ -1,6 +1,6 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.TypeDamageRelation
+import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntry
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -9,40 +9,40 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
-class TypeDamageRelationRepositoryTest : AbstractRepositoryTest() {
+class TypeEffectivenessEntryRepositoryTest : AbstractRepositoryTest() {
     @Resource
-    private lateinit var typeDamageRelationRepository: TypeDamageRelationRepository
+    private lateinit var typeEffectivenessEntryRepository: TypeEffectivenessEntryRepository
 
     @Test
-    fun shouldQueryPageAndCrudTypeDamageRelation() {
-        val results = typeDamageRelationRepository.findAll(2L, null, 2f)
-        val page = typeDamageRelationRepository.findPage(2L, null, 2f, PageRequest.of(0, 10))
+    fun shouldQueryPageAndCrudTypeEffectivenessEntry() {
+        val results = typeEffectivenessEntryRepository.findAll(2L, null, 200)
+        val page = typeEffectivenessEntryRepository.findPage(2L, null, 200, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
         assertFalse(page.rows.isEmpty())
 
         val existing = results.first()
         val updated =
-            typeDamageRelationRepository.save(
-                TypeDamageRelation(existing) {
-                    multiplier = 1.5f
+            typeEffectivenessEntryRepository.save(
+                TypeEffectivenessEntry(existing) {
+                    multiplierPercent = 150
                 },
             )
 
         val foundAfterUpdate =
-            typeDamageRelationRepository.findAll(
+            typeEffectivenessEntryRepository.findAll(
                 updated.id.attackingTypeId,
                 updated.id.defendingTypeId,
-                1.5f,
+                150,
             )
         assertFalse(foundAfterUpdate.isEmpty())
 
-        typeDamageRelationRepository.deleteById(updated.id)
+        typeEffectivenessEntryRepository.deleteById(updated.id)
         val afterDelete =
-            typeDamageRelationRepository.findAll(
+            typeEffectivenessEntryRepository.findAll(
                 updated.id.attackingTypeId,
                 updated.id.defendingTypeId,
-                1.5f,
+                150,
             )
         assertEquals(0, afterDelete.size)
     }

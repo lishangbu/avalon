@@ -53,14 +53,14 @@ class MutableType : Type {
     override var name: String? = null
 }
 
-class MutableTypeDamageRelationId : TypeDamageRelationId {
+class MutableTypeEffectivenessEntryId : TypeEffectivenessEntryId {
     override var attackingTypeId: Long = 0
     override var defendingTypeId: Long = 0
 }
 
-class MutableTypeDamageRelation : TypeDamageRelation {
-    override var id: TypeDamageRelationId = MutableTypeDamageRelationId()
-    override var multiplier: Float? = null
+class MutableTypeEffectivenessEntry : TypeEffectivenessEntry {
+    override var id: TypeEffectivenessEntryId = MutableTypeEffectivenessEntryId()
+    override var multiplierPercent: Int? = null
 }
 
 fun Berry(): MutableBerry = MutableBerry()
@@ -75,6 +75,6 @@ fun Stat(): MutableStat = MutableStat()
 
 fun Type(): MutableType = MutableType()
 
-fun TypeDamageRelationId(): MutableTypeDamageRelationId = MutableTypeDamageRelationId()
+fun TypeEffectivenessEntryId(): MutableTypeEffectivenessEntryId = MutableTypeEffectivenessEntryId()
 
-fun TypeDamageRelation(): MutableTypeDamageRelation = MutableTypeDamageRelation()
+fun TypeEffectivenessEntry(): MutableTypeEffectivenessEntry = MutableTypeEffectivenessEntry()
