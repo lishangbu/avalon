@@ -1,5 +1,58 @@
 export io.github.lishangbu.avalon.dataset.entity.Berry
 
+BerryView {
+    id
+    internalName
+    name
+    growthTime
+    maxHarvest
+    bulk
+    smoothness
+    soilDryness
+    berryFirmnessId
+    naturalGiftTypeId
+    naturalGiftPower
+    flat(berryFirmness) {
+        as(^ -> berryFirmness) {
+            internalName
+            name
+        }
+    }
+    flat(naturalGiftType) {
+        as(^ -> naturalGiftType) {
+            internalName
+            name
+        }
+    }
+}
+
+input SaveBerryInput {
+    internalName
+    name
+    growthTime
+    maxHarvest
+    bulk
+    smoothness
+    soilDryness
+    berryFirmnessId
+    naturalGiftTypeId
+    naturalGiftPower
+}
+
+input UpdateBerryInput {
+    id!
+    internalName
+    name
+    growthTime
+    maxHarvest
+    bulk
+    smoothness
+    soilDryness
+    berryFirmnessId
+    naturalGiftTypeId
+    naturalGiftPower
+}
+
 specification BerrySpecification {
     id
     like/i(internalName)

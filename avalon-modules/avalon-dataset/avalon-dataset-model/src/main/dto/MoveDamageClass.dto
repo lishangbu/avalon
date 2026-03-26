@@ -1,5 +1,25 @@
 export io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 
+MoveDamageClassView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveMoveDamageClassInput {
+    internalName
+    name
+    description
+}
+
+input UpdateMoveDamageClassInput {
+    id!
+    internalName
+    name
+    description
+}
+
 specification MoveDamageClassSpecification {
     id
     like/i(internalName)

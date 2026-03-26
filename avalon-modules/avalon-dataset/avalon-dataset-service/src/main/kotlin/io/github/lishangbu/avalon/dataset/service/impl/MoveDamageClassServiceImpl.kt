@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
-import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
@@ -18,16 +20,20 @@ class MoveDamageClassServiceImpl(
     override fun getPageByCondition(
         specification: MoveDamageClassSpecification,
         pageable: Pageable,
-    ): Page<MoveDamageClass> = moveDamageClassRepository.findAll(specification, pageable)
+    ): Page<MoveDamageClassView> = moveDamageClassRepository.findAll(specification, pageable).mapRows(::MoveDamageClassView)
 
     /** 根据条件查询招式伤害分类列表 */
-    override fun listByCondition(specification: MoveDamageClassSpecification): List<MoveDamageClass> = moveDamageClassRepository.findAll(specification)
+    override fun listByCondition(
+        specification: MoveDamageClassSpecification,
+    ): List<MoveDamageClassView> = moveDamageClassRepository.findAll(specification).map(::MoveDamageClassView)
 
     /** 保存招式伤害分类 */
-    override fun save(moveDamageClass: MoveDamageClass): MoveDamageClass = moveDamageClassRepository.save(moveDamageClass)
+    override fun save(command: SaveMoveDamageClassInput): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity()))
 
     /** 更新招式伤害分类 */
-    override fun update(moveDamageClass: MoveDamageClass): MoveDamageClass = moveDamageClassRepository.save(moveDamageClass)
+    override fun update(
+        command: UpdateMoveDamageClassInput,
+    ): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity()))
 
     /** 按 ID 删除招式伤害分类 */
     override fun removeById(id: Long) {

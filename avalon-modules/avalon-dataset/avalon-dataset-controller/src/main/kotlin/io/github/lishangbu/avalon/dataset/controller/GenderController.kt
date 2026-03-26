@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Gender
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.service.GenderService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,14 +25,14 @@ class GenderController(
     /** 保存性别 */
     @PostMapping
     fun save(
-        @RequestBody gender: Gender,
-    ): Gender = genderService.save(gender)
+        @RequestBody command: SaveGenderInput,
+    ): GenderView = genderService.save(command)
 
     /** 更新性别 */
     @PutMapping
     fun update(
-        @RequestBody gender: Gender,
-    ): Gender = genderService.update(gender)
+        @RequestBody command: UpdateGenderInput,
+    ): GenderView = genderService.update(command)
 
     /** 按 ID 删除性别 */
     @DeleteMapping("/{id:\\d+}")
@@ -44,5 +46,5 @@ class GenderController(
     @GetMapping("/list")
     fun listGenders(
         @ModelAttribute specification: GenderSpecification,
-    ): List<Gender> = genderService.listByCondition(specification)
+    ): List<GenderView> = genderService.listByCondition(specification)
 }

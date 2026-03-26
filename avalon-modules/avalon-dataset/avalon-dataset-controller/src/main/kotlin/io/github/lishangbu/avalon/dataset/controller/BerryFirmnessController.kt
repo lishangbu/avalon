@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFirmnessInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -19,19 +21,19 @@ class BerryFirmnessController(
     fun getBerryFirmnessPage(
         pageable: Pageable,
         @ModelAttribute specification: BerryFirmnessSpecification,
-    ): Page<BerryFirmness> = berryFirmnessService.getPageByCondition(specification, pageable)
+    ): Page<BerryFirmnessView> = berryFirmnessService.getPageByCondition(specification, pageable)
 
     /** 保存树果硬度 */
     @PostMapping
     fun save(
-        @RequestBody berryFirmness: BerryFirmness,
-    ): BerryFirmness = berryFirmnessService.save(berryFirmness)
+        @RequestBody command: SaveBerryFirmnessInput,
+    ): BerryFirmnessView = berryFirmnessService.save(command)
 
     /** 更新树果硬度 */
     @PutMapping
     fun update(
-        @RequestBody berryFirmness: BerryFirmness,
-    ): BerryFirmness = berryFirmnessService.update(berryFirmness)
+        @RequestBody command: UpdateBerryFirmnessInput,
+    ): BerryFirmnessView = berryFirmnessService.update(command)
 
     /** 按 ID 删除树果硬度 */
     @DeleteMapping("/{id:\\d+}")
@@ -45,5 +47,5 @@ class BerryFirmnessController(
     @GetMapping("/list")
     fun listBerryFirmnesses(
         @ModelAttribute specification: BerryFirmnessSpecification,
-    ): List<BerryFirmness> = berryFirmnessService.listByCondition(specification)
+    ): List<BerryFirmnessView> = berryFirmnessService.listByCondition(specification)
 }

@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service
 
-import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -15,13 +17,13 @@ interface BerryService {
     fun getPageByCondition(
         specification: BerrySpecification,
         pageable: Pageable,
-    ): Page<Berry>
+    ): Page<BerryView>
 
     /** 创建树果 */
-    fun save(berry: Berry): Berry
+    fun save(command: SaveBerryInput): BerryView
 
     /** 更新树果 */
-    fun update(berry: Berry): Berry
+    fun update(command: UpdateBerryInput): BerryView
 
     /** 删除指定 ID 的树果*/
     fun removeById(id: Long)

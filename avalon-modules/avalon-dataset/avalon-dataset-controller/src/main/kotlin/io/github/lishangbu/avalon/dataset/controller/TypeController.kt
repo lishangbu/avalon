@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveTypeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeView
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateTypeInput
 import io.github.lishangbu.avalon.dataset.service.TypeService
 import org.springframework.web.bind.annotation.*
 
@@ -15,14 +17,14 @@ class TypeController(
     /** 保存属性 */
     @PostMapping
     fun save(
-        @RequestBody type: Type,
-    ): Type = typeService.save(type)
+        @RequestBody command: SaveTypeInput,
+    ): TypeView = typeService.save(command)
 
     /** 更新属性 */
     @PutMapping
     fun update(
-        @RequestBody type: Type,
-    ): Type = typeService.update(type)
+        @RequestBody command: UpdateTypeInput,
+    ): TypeView = typeService.update(command)
 
     /** 按 ID 删除属性 */
     @DeleteMapping("/{id:\\d+}")
@@ -36,5 +38,5 @@ class TypeController(
     @GetMapping("/list")
     fun listTypes(
         @ModelAttribute specification: TypeSpecification,
-    ): List<Type> = typeService.listByCondition(specification)
+    ): List<TypeView> = typeService.listByCondition(specification)
 }

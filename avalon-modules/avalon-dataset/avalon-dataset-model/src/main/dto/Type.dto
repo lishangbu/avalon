@@ -1,5 +1,22 @@
 export io.github.lishangbu.avalon.dataset.entity.Type
 
+TypeView {
+    id
+    internalName
+    name
+}
+
+input SaveTypeInput {
+    internalName
+    name
+}
+
+input UpdateTypeInput {
+    id!
+    internalName
+    name
+}
+
 specification TypeSpecification {
     id
     like/i(internalName)

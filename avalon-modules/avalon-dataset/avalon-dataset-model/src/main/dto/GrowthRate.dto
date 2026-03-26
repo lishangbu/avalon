@@ -1,5 +1,25 @@
 export io.github.lishangbu.avalon.dataset.entity.GrowthRate
 
+GrowthRateView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveGrowthRateInput {
+    internalName
+    name
+    description
+}
+
+input UpdateGrowthRateInput {
+    id!
+    internalName
+    name
+    description
+}
+
 specification GrowthRateSpecification {
     id
     like/i(internalName)

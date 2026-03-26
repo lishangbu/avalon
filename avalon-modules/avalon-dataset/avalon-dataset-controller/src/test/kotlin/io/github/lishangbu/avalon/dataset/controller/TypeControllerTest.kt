@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Type
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveTypeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeView
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateTypeInput
 import io.github.lishangbu.avalon.dataset.service.TypeService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -12,7 +14,7 @@ class TypeControllerTest {
     fun listTypes_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val list = listOf(Type())
+        val list = listOf(TypeView("1", "fire", "火"))
         service.listResult = list
         val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
 
@@ -26,26 +28,26 @@ class TypeControllerTest {
     fun save_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val type = Type()
-        service.saveResult = type
+        val command = SaveTypeInput("fire", "火")
+        service.saveResult = TypeView("1", "fire", "火")
 
-        val result = controller.save(type)
+        val result = controller.save(command)
 
-        assertSame(type, result)
-        assertSame(type, service.saved)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.savedCommand)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val type = Type()
-        service.updateResult = type
+        val command = UpdateTypeInput("1", "fire", "火")
+        service.updateResult = TypeView("1", "fire", "火")
 
-        val result = controller.update(type)
+        val result = controller.update(command)
 
-        assertSame(type, result)
-        assertSame(type, service.updated)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updatedCommand)
     }
 
     @Test
@@ -60,21 +62,21 @@ class TypeControllerTest {
 
     private class FakeTypeService : TypeService {
         var listCondition: TypeSpecification? = null
-        var saved: Type? = null
-        var updated: Type? = null
+        var savedCommand: SaveTypeInput? = null
+        var updatedCommand: UpdateTypeInput? = null
         var removedId: Long? = null
 
-        var listResult: List<Type> = emptyList()
-        var saveResult: Type = Type()
-        var updateResult: Type = Type()
+        var listResult: List<TypeView> = emptyList()
+        lateinit var saveResult: TypeView
+        lateinit var updateResult: TypeView
 
-        override fun save(type: Type): Type {
-            saved = type
+        override fun save(command: SaveTypeInput): TypeView {
+            savedCommand = command
             return saveResult
         }
 
-        override fun update(type: Type): Type {
-            updated = type
+        override fun update(command: UpdateTypeInput): TypeView {
+            updatedCommand = command
             return updateResult
         }
 
@@ -82,7 +84,7 @@ class TypeControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(specification: TypeSpecification): List<Type> {
+        override fun listByCondition(specification: TypeSpecification): List<TypeView> {
             listCondition = specification
             return listResult
         }

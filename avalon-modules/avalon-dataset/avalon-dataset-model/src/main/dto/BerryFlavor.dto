@@ -1,5 +1,22 @@
 export io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 
+BerryFlavorView {
+    id
+    internalName
+    name
+}
+
+input SaveBerryFlavorInput {
+    internalName
+    name
+}
+
+input UpdateBerryFlavorInput {
+    id!
+    internalName
+    name
+}
+
 specification BerryFlavorSpecification {
     id
     like/i(internalName)

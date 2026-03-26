@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.service.BerryService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -22,19 +24,19 @@ class BerryController(
     fun getBerryPage(
         pageable: Pageable,
         @ModelAttribute specification: BerrySpecification,
-    ): Page<Berry> = berryService.getPageByCondition(specification, pageable)
+    ): Page<BerryView> = berryService.getPageByCondition(specification, pageable)
 
     /** 创建树果 */
     @PostMapping
     fun save(
-        @RequestBody berry: Berry,
-    ): Berry = berryService.save(berry)
+        @RequestBody command: SaveBerryInput,
+    ): BerryView = berryService.save(command)
 
     /** 更新树果 */
     @PutMapping
     fun update(
-        @RequestBody berry: Berry,
-    ): Berry = berryService.update(berry)
+        @RequestBody command: UpdateBerryInput,
+    ): BerryView = berryService.update(command)
 
     /** 删除指定 ID 的树果*/
     @DeleteMapping("/{id:\\d+}")

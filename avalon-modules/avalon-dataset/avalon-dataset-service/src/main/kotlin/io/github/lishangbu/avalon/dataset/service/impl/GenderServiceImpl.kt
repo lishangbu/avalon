@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
-import io.github.lishangbu.avalon.dataset.entity.Gender
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.repository.GenderRepository
 import io.github.lishangbu.avalon.dataset.service.GenderService
 import org.springframework.stereotype.Service
@@ -15,11 +17,11 @@ class GenderServiceImpl(
 ) : GenderService {
     /** 保存性别 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(gender: Gender): Gender = genderRepository.save(gender)
+    override fun save(command: SaveGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity()))
 
     /** 更新性别 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(gender: Gender): Gender = genderRepository.save(gender)
+    override fun update(command: UpdateGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity()))
 
     /** 按 ID 删除性别 */
     @Transactional(rollbackFor = [Exception::class])
@@ -28,5 +30,5 @@ class GenderServiceImpl(
     }
 
     /** 按条件查询性别列表 */
-    override fun listByCondition(specification: GenderSpecification): List<Gender> = genderRepository.findAll(specification)
+    override fun listByCondition(specification: GenderSpecification): List<GenderView> = genderRepository.findAll(specification).map(::GenderView)
 }

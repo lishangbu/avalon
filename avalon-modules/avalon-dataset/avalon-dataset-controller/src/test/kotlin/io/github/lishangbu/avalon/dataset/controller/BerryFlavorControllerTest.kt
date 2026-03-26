@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -12,7 +14,7 @@ class BerryFlavorControllerTest {
     fun listBerryFlavors_delegatesToService() {
         val service = FakeBerryFlavorService()
         val controller = BerryFlavorController(service)
-        val list = listOf(BerryFlavor())
+        val list = listOf(BerryFlavorView("1", "spicy", "辣"))
         service.listResult = list
         val specification = BerryFlavorSpecification(id = "1", internalName = "spicy", name = "辣")
 
@@ -26,26 +28,26 @@ class BerryFlavorControllerTest {
     fun save_delegatesToService() {
         val service = FakeBerryFlavorService()
         val controller = BerryFlavorController(service)
-        val berryFlavor = BerryFlavor()
-        service.saveResult = berryFlavor
+        val command = SaveBerryFlavorInput("spicy", "辣")
+        service.saveResult = BerryFlavorView("1", "spicy", "辣")
 
-        val result = controller.save(berryFlavor)
+        val result = controller.save(command)
 
-        assertSame(berryFlavor, result)
-        assertSame(berryFlavor, service.saved)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.savedCommand)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeBerryFlavorService()
         val controller = BerryFlavorController(service)
-        val berryFlavor = BerryFlavor()
-        service.updateResult = berryFlavor
+        val command = UpdateBerryFlavorInput("1", "spicy", "辣")
+        service.updateResult = BerryFlavorView("1", "spicy", "辣")
 
-        val result = controller.update(berryFlavor)
+        val result = controller.update(command)
 
-        assertSame(berryFlavor, result)
-        assertSame(berryFlavor, service.updated)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updatedCommand)
     }
 
     @Test
@@ -60,21 +62,21 @@ class BerryFlavorControllerTest {
 
     private class FakeBerryFlavorService : BerryFlavorService {
         var listCondition: BerryFlavorSpecification? = null
-        var saved: BerryFlavor? = null
-        var updated: BerryFlavor? = null
+        var savedCommand: SaveBerryFlavorInput? = null
+        var updatedCommand: UpdateBerryFlavorInput? = null
         var removedId: Long? = null
 
-        var listResult: List<BerryFlavor> = emptyList()
-        var saveResult: BerryFlavor = BerryFlavor()
-        var updateResult: BerryFlavor = BerryFlavor()
+        var listResult: List<BerryFlavorView> = emptyList()
+        lateinit var saveResult: BerryFlavorView
+        lateinit var updateResult: BerryFlavorView
 
-        override fun save(berryFlavor: BerryFlavor): BerryFlavor {
-            saved = berryFlavor
+        override fun save(command: SaveBerryFlavorInput): BerryFlavorView {
+            savedCommand = command
             return saveResult
         }
 
-        override fun update(berryFlavor: BerryFlavor): BerryFlavor {
-            updated = berryFlavor
+        override fun update(command: UpdateBerryFlavorInput): BerryFlavorView {
+            updatedCommand = command
             return updateResult
         }
 
@@ -82,7 +84,7 @@ class BerryFlavorControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(specification: BerryFlavorSpecification): List<BerryFlavor> {
+        override fun listByCondition(specification: BerryFlavorSpecification): List<BerryFlavorView> {
             listCondition = specification
             return listResult
         }

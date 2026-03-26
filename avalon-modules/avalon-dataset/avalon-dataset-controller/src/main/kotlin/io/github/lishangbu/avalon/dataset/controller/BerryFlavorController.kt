@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
 import org.springframework.web.bind.annotation.*
 
@@ -16,19 +18,19 @@ class BerryFlavorController(
     @GetMapping("/list")
     fun listBerryFlavors(
         @ModelAttribute specification: BerryFlavorSpecification,
-    ): List<BerryFlavor> = berryFlavorService.listByCondition(specification)
+    ): List<BerryFlavorView> = berryFlavorService.listByCondition(specification)
 
     /** 保存树果风味 */
     @PostMapping
     fun save(
-        @RequestBody berryFlavor: BerryFlavor,
-    ): BerryFlavor = berryFlavorService.save(berryFlavor)
+        @RequestBody command: SaveBerryFlavorInput,
+    ): BerryFlavorView = berryFlavorService.save(command)
 
     /** 更新树果风味 */
     @PutMapping
     fun update(
-        @RequestBody berryFlavor: BerryFlavor,
-    ): BerryFlavor = berryFlavorService.update(berryFlavor)
+        @RequestBody command: UpdateBerryFlavorInput,
+    ): BerryFlavorView = berryFlavorService.update(command)
 
     /** 按 ID 删除树果风味 */
     @DeleteMapping("/{id:\\d+}")

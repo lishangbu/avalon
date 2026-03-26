@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
-import io.github.lishangbu.avalon.dataset.entity.GrowthRate
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
 import org.springframework.stereotype.Service
@@ -15,11 +17,11 @@ class GrowthRateServiceImpl(
 ) : GrowthRateService {
     /** 保存成长速率 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(growthRate: GrowthRate): GrowthRate = growthRateRepository.save(growthRate)
+    override fun save(command: SaveGrowthRateInput): GrowthRateView = GrowthRateView(growthRateRepository.save(command.toEntity()))
 
     /** 更新成长速率 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(growthRate: GrowthRate): GrowthRate = growthRateRepository.save(growthRate)
+    override fun update(command: UpdateGrowthRateInput): GrowthRateView = GrowthRateView(growthRateRepository.save(command.toEntity()))
 
     /** 按 ID 删除成长速率 */
     @Transactional(rollbackFor = [Exception::class])
@@ -28,5 +30,7 @@ class GrowthRateServiceImpl(
     }
 
     /** 按条件查询成长速率列表 */
-    override fun listByCondition(specification: GrowthRateSpecification): List<GrowthRate> = growthRateRepository.findAll(specification)
+    override fun listByCondition(
+        specification: GrowthRateSpecification,
+    ): List<GrowthRateView> = growthRateRepository.findAll(specification).map(::GrowthRateView)
 }
