@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveStatInput
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.StatView
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateStatInput
 import io.github.lishangbu.avalon.dataset.service.StatService
 import org.springframework.web.bind.annotation.*
 
@@ -15,14 +17,14 @@ class StatController(
     /** 保存能力值*/
     @PostMapping
     fun save(
-        @RequestBody stat: Stat,
-    ): Stat = statService.save(stat)
+        @RequestBody command: SaveStatInput,
+    ): StatView = statService.save(command)
 
     /** 更新能力值*/
     @PutMapping
     fun update(
-        @RequestBody stat: Stat,
-    ): Stat = statService.update(stat)
+        @RequestBody command: UpdateStatInput,
+    ): StatView = statService.update(command)
 
     /** 按 ID 删除能力值*/
     @DeleteMapping("/{id:\\d+}")
@@ -36,5 +38,5 @@ class StatController(
     @GetMapping("/list")
     fun listStats(
         @ModelAttribute specification: StatSpecification,
-    ): List<Stat> = statService.listByCondition(specification)
+    ): List<StatView> = statService.listByCondition(specification)
 }

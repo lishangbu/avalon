@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Stat
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveStatInput
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.StatView
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateStatInput
 import io.github.lishangbu.avalon.dataset.service.StatService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
@@ -12,7 +14,7 @@ class StatControllerTest {
     fun listStats_delegatesToService() {
         val service = FakeStatService()
         val controller = StatController(service)
-        val list = listOf(Stat())
+        val list = listOf(StatView("1", "hp", "生命", 1, false, "2", "physical", "物理"))
         service.listResult = list
         val specification = StatSpecification(id = "1", internalName = "hp", name = "生命", gameIndex = 1, battleOnly = false, moveDamageClassId = "2")
 
@@ -26,26 +28,26 @@ class StatControllerTest {
     fun save_delegatesToService() {
         val service = FakeStatService()
         val controller = StatController(service)
-        val stat = Stat()
-        service.saveResult = stat
+        val command = SaveStatInput("hp", "生命", 1, false, "2")
+        service.saveResult = StatView("1", "hp", "生命", 1, false, "2", "physical", "物理")
 
-        val result = controller.save(stat)
+        val result = controller.save(command)
 
-        assertSame(stat, result)
-        assertSame(stat, service.saved)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.saved)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeStatService()
         val controller = StatController(service)
-        val stat = Stat()
-        service.updateResult = stat
+        val command = UpdateStatInput("1", "hp", "生命", 1, false, "2")
+        service.updateResult = StatView("1", "hp", "生命", 1, false, "2", "physical", "物理")
 
-        val result = controller.update(stat)
+        val result = controller.update(command)
 
-        assertSame(stat, result)
-        assertSame(stat, service.updated)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updated)
     }
 
     @Test
@@ -60,21 +62,21 @@ class StatControllerTest {
 
     private class FakeStatService : StatService {
         var listCondition: StatSpecification? = null
-        var saved: Stat? = null
-        var updated: Stat? = null
+        var saved: SaveStatInput? = null
+        var updated: UpdateStatInput? = null
         var removedId: Long? = null
 
-        var listResult: List<Stat> = emptyList()
-        var saveResult: Stat = Stat()
-        var updateResult: Stat = Stat()
+        var listResult: List<StatView> = emptyList()
+        lateinit var saveResult: StatView
+        lateinit var updateResult: StatView
 
-        override fun save(stat: Stat): Stat {
-            saved = stat
+        override fun save(command: SaveStatInput): StatView {
+            saved = command
             return saveResult
         }
 
-        override fun update(stat: Stat): Stat {
-            updated = stat
+        override fun update(command: UpdateStatInput): StatView {
+            updated = command
             return updateResult
         }
 
@@ -82,7 +84,7 @@ class StatControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(specification: StatSpecification): List<Stat> {
+        override fun listByCondition(specification: StatSpecification): List<StatView> {
             listCondition = specification
             return listResult
         }
