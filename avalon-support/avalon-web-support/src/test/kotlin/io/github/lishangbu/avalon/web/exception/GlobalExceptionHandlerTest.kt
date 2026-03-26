@@ -63,6 +63,49 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    fun fallsBackToEmptyStringsWhenExceptionMessagesAreMissing() {
+        val writableWithoutMessage =
+            object : HttpMessageNotWritableException("placeholder") {
+                override val message: String?
+                    get() = null
+            }
+        val global = handler.handleGlobalException(Exception())
+        val runtime = handler.handleRuntimeException(RuntimeException())
+        val writable = handler.handleHttpMessageNotWritableException(writableWithoutMessage)
+        val illegalArgument = handler.handleIllegalArgumentException(IllegalArgumentException())
+        val illegalState = handler.handleIllegalStateException(IllegalStateException())
+        val unsupported = handler.handleUnsupportedOperationException(UnsupportedOperationException())
+
+        assertEquals("", global.errorMessage)
+        assertEquals("", runtime.errorMessage)
+        assertEquals("", writable.errorMessage)
+        assertEquals("", illegalArgument.errorMessage)
+        assertEquals("", illegalState.errorMessage)
+        assertEquals("", unsupported.errorMessage)
+    }
+
+    @Test
+    fun treatsNullFieldErrorMessagesAsEmptyStrings() {
+        val bindingResult = BeanPropertyBindingResult(ValidationPayload(""), "payload")
+        bindingResult.addError(
+            FieldError(
+                "payload",
+                "value",
+                "",
+                false,
+                null,
+                null,
+                null,
+            ),
+        )
+
+        val result = handler.handleBodyValidException(BindException(bindingResult))
+
+        assertEquals(DefaultErrorResultCode.BAD_REQUEST.code(), result.code)
+        assertEquals("", result.errorMessage)
+    }
+
+    @Test
     fun mapsSpecializedExceptionsToExpectedApiResults() {
         val illegalArgument = handler.handleIllegalArgumentException(IllegalArgumentException("bad argument"))
         val illegalState = handler.handleIllegalStateException(IllegalStateException("bad state"))

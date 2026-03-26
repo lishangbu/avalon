@@ -180,4 +180,60 @@ class DefaultRegisteredClientRepositoryTest {
         assertEquals(emptySet<String>(), found.postLogoutRedirectUris)
         assertNull(found.clientSettings.tokenEndpointAuthenticationSigningAlgorithm)
     }
+
+    @Test
+    fun savePersistsFrameworkDefaultSettingsWhenClientUsesDefaults() {
+        var persisted: io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient? = null
+        Mockito
+            .doAnswer {
+                persisted = it.getArgument(0)
+                persisted
+            }.`when`(repository)
+            .save(any())
+
+        val minimalClient =
+            org.springframework.security.oauth2.server.authorization.client.RegisteredClient
+                .withId("minimal-id")
+                .clientId("minimal-client")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .build()
+
+        adapter.save(minimalClient)
+
+        val saved = requireNotNull(persisted)
+        val clientSettings = minimalClient.clientSettings
+        val tokenSettings = minimalClient.tokenSettings
+        assertEquals("minimal-id", saved.id)
+        assertEquals(ClientAuthenticationMethod.NONE.value, saved.clientAuthenticationMethods)
+        assertEquals(AuthorizationGrantType.CLIENT_CREDENTIALS.value, saved.authorizationGrantTypes)
+        assertNull(saved.clientSecret)
+        assertEquals("", saved.postLogoutRedirectUris)
+        assertEquals(clientSettings.isRequireProofKey, saved.requireProofKey)
+        assertEquals(clientSettings.isRequireAuthorizationConsent, saved.requireAuthorizationConsent)
+        assertNull(saved.tokenEndpointAuthenticationSigningAlgorithm)
+        assertEquals(tokenSettings.authorizationCodeTimeToLive.toString(), saved.authorizationCodeTimeToLive)
+        assertEquals(tokenSettings.accessTokenTimeToLive.toString(), saved.accessTokenTimeToLive)
+        assertEquals(tokenSettings.accessTokenFormat.value, saved.accessTokenFormat)
+        assertEquals(tokenSettings.deviceCodeTimeToLive.toString(), saved.deviceCodeTimeToLive)
+        assertEquals(tokenSettings.isReuseRefreshTokens, saved.reuseRefreshTokens)
+        assertEquals(tokenSettings.refreshTokenTimeToLive.toString(), saved.refreshTokenTimeToLive)
+        assertEquals(tokenSettings.idTokenSignatureAlgorithm.name, saved.idTokenSignatureAlgorithm)
+    }
+
+    @Test
+    fun findByIdIgnoresUnknownSigningAlgorithms() {
+        `when`(repository.findById("unknown-alg-client")).thenReturn(
+            registeredClientEntity(
+                id = "unknown-alg-client",
+                tokenEndpointAuthenticationSigningAlgorithm = "unknown-alg",
+                idTokenSignatureAlgorithm = "unknown-alg",
+            ),
+        )
+
+        val found = requireNotNull(adapter.findById("unknown-alg-client"))
+
+        assertNull(found.clientSettings.tokenEndpointAuthenticationSigningAlgorithm)
+        assertEquals(SignatureAlgorithm.RS256.name, found.tokenSettings.idTokenSignatureAlgorithm!!.name)
+    }
 }

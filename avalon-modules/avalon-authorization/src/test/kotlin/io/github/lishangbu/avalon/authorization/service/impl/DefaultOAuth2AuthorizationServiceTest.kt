@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.`when`
 import org.springframework.dao.DataRetrievalFailureException
+import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.OAuth2DeviceCode
 import org.springframework.security.oauth2.core.OAuth2RefreshToken
@@ -21,6 +23,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
+import java.time.Instant
 
 class DefaultOAuth2AuthorizationServiceTest {
     private val authorizationRepository = mock(Oauth2AuthorizationRepository::class.java)
@@ -160,5 +163,89 @@ class DefaultOAuth2AuthorizationServiceTest {
         `when`(authorizationRepository.findByDeviceCodeValue("token")).thenReturn(null)
         service.findByToken("token", OAuth2TokenType(OAuth2ParameterNames.DEVICE_CODE))
         verify(authorizationRepository).findByDeviceCodeValue("token")
+    }
+
+    @Test
+    fun findByTokenRejectsBlankToken() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                service.findByToken(" ", OAuth2TokenType.ACCESS_TOKEN)
+            }
+
+        assertEquals("token cannot be empty", exception.message)
+    }
+
+    @Test
+    fun findByTokenReturnsNullForUnsupportedTokenTypeWithoutRepositoryLookup() {
+        val result = service.findByToken("token", OAuth2TokenType("unsupported"))
+
+        assertNull(result)
+        verifyNoInteractions(authorizationRepository)
+    }
+
+    @Test
+    fun saveOmitsOptionalValuesWhenAuthorizationOnlyContainsRequiredFields() {
+        var persisted: io.github.lishangbu.avalon.authorization.entity.OauthAuthorization? = null
+        Mockito
+            .doAnswer {
+                persisted = it.getArgument(0)
+                persisted
+            }.`when`(authorizationRepository)
+            .save(any())
+
+        val minimalAuthorization =
+            org.springframework.security.oauth2.server.authorization.OAuth2Authorization
+                .withRegisteredClient(registeredClient())
+                .id("minimal-id")
+                .principalName("misty")
+                .authorizationGrantType(AuthorizationGrantType("urn:custom:grant"))
+                .build()
+
+        service.save(minimalAuthorization)
+
+        val entity = requireNotNull(persisted)
+        assertEquals("minimal-id", entity.id)
+        assertNull(entity.attributes)
+        assertNull(entity.authorizationCodeMetadata)
+        assertNull(entity.accessTokenValue)
+        assertNull(entity.accessTokenMetadata)
+        assertNull(entity.accessTokenScopes)
+        assertNull(entity.accessTokenType)
+        assertNull(entity.refreshTokenMetadata)
+        assertNull(entity.oidcIdTokenMetadata)
+        assertNull(entity.userCodeMetadata)
+        assertNull(entity.deviceCodeMetadata)
+    }
+
+    @Test
+    fun findByIdUsesFallbackClaimsAndCustomGrantTypeWhenOidcMetadataDoesNotContainClaimsEntry() {
+        var entity: io.github.lishangbu.avalon.authorization.entity.OauthAuthorization? = null
+        Mockito
+            .doAnswer {
+                entity = it.getArgument(0)
+                entity
+            }.`when`(authorizationRepository)
+            .save(any())
+        val issuedAt = Instant.parse("2026-03-25T00:00:00Z")
+        val expiresAt = issuedAt.plusSeconds(300)
+        val authorization =
+            org.springframework.security.oauth2.server.authorization.OAuth2Authorization
+                .withRegisteredClient(registeredClient())
+                .id("authorization-id")
+                .principalName("alice")
+                .authorizationGrantType(AuthorizationGrantType("urn:custom:grant"))
+                .token(OidcIdToken("id-token", issuedAt, expiresAt, mapOf("sub" to "alice"))) { metadata ->
+                    metadata["nonce"] = "n-1"
+                }.build()
+        service.save(authorization)
+
+        `when`(authorizationRepository.findById("authorization-id")).thenReturn(requireNotNull(entity))
+        `when`(registeredClientRepository.findById("client-id")).thenReturn(registeredClient())
+
+        val reloaded = requireNotNull(service.findById("authorization-id"))
+
+        assertTrue(reloaded.attributes.isEmpty())
+        assertEquals("urn:custom:grant", reloaded.authorizationGrantType.value)
+        assertEquals("n-1", reloaded.getToken(OidcIdToken::class.java)!!.token.claims["nonce"])
     }
 }

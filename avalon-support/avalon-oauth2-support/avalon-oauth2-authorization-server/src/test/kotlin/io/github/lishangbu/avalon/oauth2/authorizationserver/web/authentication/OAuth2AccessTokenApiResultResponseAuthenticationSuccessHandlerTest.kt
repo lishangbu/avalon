@@ -186,6 +186,29 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
     }
 
     @Test
+    fun handlesAccessTokenWithoutTimingMetadataOrScopes() {
+        val handler =
+            OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(jsonMapper = jsonMapper)
+        val response = MockHttpServletResponse()
+        val accessToken = Mockito.mock(OAuth2AccessToken::class.java)
+        Mockito.`when`(accessToken.tokenValue).thenReturn("token-without-expiry")
+        Mockito.`when`(accessToken.tokenType).thenReturn(OAuth2AccessToken.TokenType.BEARER)
+        Mockito.`when`(accessToken.scopes).thenReturn(emptySet())
+        Mockito.`when`(accessToken.issuedAt).thenReturn(null)
+        Mockito.`when`(accessToken.expiresAt).thenReturn(null)
+
+        handler.onAuthenticationSuccess(
+            MockHttpServletRequest(),
+            response,
+            accessTokenAuthentication(mapOf(), accessToken = accessToken),
+        )
+
+        val body: JsonNode = jsonMapper.readTree(response.contentAsString)
+        assertEquals(200, response.status)
+        assertEquals("token-without-expiry", body["data"]["access_token"].asText())
+    }
+
+    @Test
     fun resolveHelperMethodsCoverBranches() {
         val handler =
             OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
@@ -300,20 +323,139 @@ class OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandlerTest {
         assertEquals("client", clientId)
     }
 
+    @Test
+    fun resolveHelpersCoverFallbackBranches() {
+        val properties =
+            Oauth2Properties().apply {
+                usernameParameterName = "login"
+            }
+        val handler =
+            OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
+                AuthenticationLogRecorder.noop(),
+                null,
+                properties,
+                jsonMapper,
+            )
+        val request = MockHttpServletRequest()
+        request.addHeader("X-Forwarded-For", "   ")
+        request.addHeader("X-Real-IP", "   ")
+        request.remoteAddr = "127.0.0.1"
+        val authentication = accessTokenAuthentication(mapOf())
+        val resolveUsernameMethod =
+            handler.javaClass
+                .getDeclaredMethod(
+                    "resolveUsername",
+                    Any::class.java,
+                    jakarta.servlet.http.HttpServletRequest::class.java,
+                    OAuth2AccessTokenAuthenticationToken::class.java,
+                    String::class.java,
+                ).apply {
+                    isAccessible = true
+                }
+
+        assertNull(
+            resolveUsernameMethod.invoke(handler, null, request, authentication, "password"),
+        )
+        assertEquals(
+            "named-user",
+            resolveUsernameMethod.invoke(
+                handler,
+                UsernamePasswordAuthenticationToken("named-user", "secret"),
+                request,
+                authentication,
+                "password",
+            ),
+        )
+        assertEquals(
+            "login",
+            ReflectionTestUtils.invokeMethod<String>(handler, "resolveUsernameParameterName"),
+        )
+        assertNull(
+            ReflectionTestUtils.invokeMethod<String>(
+                handler,
+                "resolveGrantType",
+                request,
+                mapOf<String, Any>("grant_type" to 123),
+            ),
+        )
+        assertEquals(
+            "127.0.0.1",
+            ReflectionTestUtils.invokeMethod<String>(handler, "resolveClientIp", request),
+        )
+        assertNull(
+            ReflectionTestUtils.invokeMethod<String>(handler, "normalize", "   "),
+        )
+
+        val authenticationWithoutClient = Mockito.mock(OAuth2AccessTokenAuthenticationToken::class.java)
+        Mockito.`when`(authenticationWithoutClient.registeredClient).thenReturn(null)
+        assertNull(
+            ReflectionTestUtils.invokeMethod<String>(
+                handler,
+                "resolveClientId",
+                authenticationWithoutClient,
+                UsernamePasswordAuthenticationToken("named-user", "secret"),
+            ),
+        )
+    }
+
+    @Test
+    fun resolveAuthorizationUsernameReturnsNullWhenAccessTokenOrAuthorizationIsMissing() {
+        val authorizationService = Mockito.mock(OAuth2AuthorizationService::class.java)
+        val handler =
+            OAuth2AccessTokenApiResultResponseAuthenticationSuccessHandler(
+                AuthenticationLogRecorder.noop(),
+                authorizationService,
+                null,
+                jsonMapper,
+            )
+        val resolveAuthorizationUsernameMethod =
+            handler.javaClass
+                .getDeclaredMethod(
+                    "resolveAuthorizationUsername",
+                    OAuth2AccessTokenAuthenticationToken::class.java,
+                ).apply {
+                    isAccessible = true
+                }
+
+        assertNull(
+            resolveAuthorizationUsernameMethod.invoke(handler, null),
+        )
+
+        val authentication = Mockito.mock(OAuth2AccessTokenAuthenticationToken::class.java)
+        Mockito.`when`(authentication.accessToken).thenReturn(null)
+        assertNull(
+            resolveAuthorizationUsernameMethod.invoke(handler, authentication),
+        )
+
+        val accessToken =
+            OAuth2AccessToken(
+                OAuth2AccessToken.TokenType.BEARER,
+                "token",
+                Instant.now(),
+                Instant.now().plusSeconds(60),
+            )
+        Mockito.`when`(authentication.accessToken).thenReturn(accessToken)
+        Mockito.`when`(authorizationService.findByToken("token", OAuth2TokenType.ACCESS_TOKEN)).thenReturn(null)
+
+        assertNull(
+            resolveAuthorizationUsernameMethod.invoke(handler, authentication),
+        )
+    }
+
     companion object {
         private fun accessTokenAuthentication(
             additionalParameters: Map<String, Any>,
-            refreshToken: OAuth2RefreshToken? =
-                OAuth2RefreshToken("refresh", Instant.now(), Instant.now().plusSeconds(120)),
-        ): OAuth2AccessTokenAuthenticationToken {
-            val accessToken =
+            accessToken: OAuth2AccessToken =
                 OAuth2AccessToken(
                     OAuth2AccessToken.TokenType.BEARER,
                     "token",
                     Instant.now(),
                     Instant.now().plusSeconds(60),
                     setOf("read"),
-                )
+                ),
+            refreshToken: OAuth2RefreshToken? =
+                OAuth2RefreshToken("refresh", Instant.now(), Instant.now().plusSeconds(120)),
+        ): OAuth2AccessTokenAuthenticationToken {
             val client = registeredClient()
             val clientAuthentication: Authentication =
                 OAuth2ClientAuthenticationToken(

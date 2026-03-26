@@ -10,6 +10,14 @@ import org.junit.jupiter.api.Test
  * 验证 `readOrNull` 对未加载属性与异常场景的处理
  */
 class RepositorySupportTest {
+    /** 验证 takeFilter 会裁剪空白并过滤空字符串 */
+    @Test
+    fun trimsAndFiltersBlankStrings() {
+        assertNull(null.takeFilter())
+        assertNull("   ".takeFilter())
+        assertEquals("ash", "  ash  ".takeFilter())
+    }
+
     /** 验证未加载属性会返回 null */
     @Test
     fun returnsNullForUnloadedProperty() {
