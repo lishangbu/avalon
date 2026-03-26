@@ -5,13 +5,16 @@ import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
+import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.`when`
 import org.springframework.data.domain.PageRequest
 
@@ -30,6 +33,15 @@ class UserServiceImplTest {
         assertEquals(1L, result!!.id)
         assertEquals("alice", result.username)
         assertEquals(setOf("ADMIN"), result.roles.mapNotNull { it.code }.toSet())
+    }
+
+    @Test
+    fun returnsNullWhenAccountLookupMisses() {
+        `when`(userRepository.findByAccountWithRoles("missing")).thenReturn(null)
+
+        val result = service.getUserByUsername("missing")
+
+        assertNull(result)
     }
 
     @Test
@@ -74,6 +86,24 @@ class UserServiceImplTest {
     }
 
     @Test
+    fun saveKeepsRolesEmptyWhenInputDoesNotLoadAnyRoleIds() {
+        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+
+        val saved =
+            service.save(
+                User {
+                    username = "alice"
+                    hashedPassword = "hashed"
+                },
+            )
+
+        assertEquals("alice", saved.username)
+        assertEquals("hashed", saved.hashedPassword)
+        assertNull(saved.readOrNull { roles })
+        verifyNoInteractions(roleRepository)
+    }
+
+    @Test
     fun updatePreservesExistingFieldsWhenInputDoesNotLoadThem() {
         val existingRole = role(20L, "AUDITOR")
         val existing =
@@ -97,6 +127,71 @@ class UserServiceImplTest {
         assertEquals("old.png", updated.avatar)
         assertEquals("old-hash", updated.hashedPassword)
         assertEquals(listOf("AUDITOR"), updated.roles.mapNotNull { it.code })
+    }
+
+    @Test
+    fun updateUsesIncomingFieldsAndRolesWhenExistingUserDoesNotExist() {
+        val boundRole = role(30L, "MANAGER")
+        val incoming =
+            User {
+                id = 9L
+                username = "new-user"
+                phone = "13600000000"
+                email = "new@example.com"
+                avatar = "new.png"
+                hashedPassword = "new-hash"
+                roles().addBy(role(30L))
+            }
+        `when`(userRepository.findByIdWithRoles(9L)).thenReturn(null)
+        `when`(roleRepository.findAllById(setOf(30L))).thenReturn(listOf(boundRole))
+        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+
+        val updated = service.update(incoming)
+
+        assertEquals("new-user", updated.username)
+        assertEquals("13600000000", updated.phone)
+        assertEquals("new@example.com", updated.email)
+        assertEquals("new.png", updated.avatar)
+        assertEquals("new-hash", updated.hashedPassword)
+        assertEquals(listOf("MANAGER"), updated.roles.mapNotNull { it.code })
+        verify(userRepository).findByIdWithRoles(9L)
+        verify(roleRepository).findAllById(setOf(30L))
+    }
+
+    @Test
+    fun updateLeavesOptionalFieldsUnsetWhenExistingUserCannotBeFound() {
+        `when`(userRepository.findByIdWithRoles(99L)).thenReturn(null)
+        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+
+        val updated = service.update(User { id = 99L })
+
+        assertEquals(99L, updated.id)
+        assertNull(updated.readOrNull { username })
+        assertNull(updated.readOrNull { phone })
+        assertNull(updated.readOrNull { email })
+        assertNull(updated.readOrNull { avatar })
+        assertNull(updated.readOrNull { hashedPassword })
+        assertNull(updated.readOrNull { roles })
+        verify(userRepository).findByIdWithRoles(99L)
+        verifyNoInteractions(roleRepository)
+    }
+
+    @Test
+    fun updateDoesNotQueryExistingUserWhenIdIsNotLoaded() {
+        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+
+        val updated =
+            service.update(
+                User {
+                    username = "draft-user"
+                },
+            )
+
+        assertEquals("draft-user", updated.username)
+        org.mockito.Mockito
+            .verify(userRepository, org.mockito.Mockito.never())
+            .findByIdWithRoles(org.mockito.Mockito.anyLong())
+        verifyNoInteractions(roleRepository)
     }
 
     @Test

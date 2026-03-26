@@ -12,6 +12,7 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.`when`
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.core.ValueOperations
+import org.springframework.test.util.ReflectionTestUtils
 import java.time.Duration
 
 class AbstractVerificationCodeServiceTest {
@@ -107,6 +108,75 @@ class AbstractVerificationCodeServiceTest {
                 service.verifyCode("13800138000", " ", AuthorizationGrantTypeSupport.SMS.value)
             }.message,
         )
+    }
+
+    @Test
+    fun generateCodeUsesConfiguredSmsLength() {
+        `when`(valueOperations.setIfAbsent(any(), any(), any())).thenReturn(true)
+
+        val code = service.generateCode("13800138000", AuthorizationGrantTypeSupport.SMS.value)
+
+        assertEquals(8, code.length)
+        assertEquals(Triple("sms", "13800138000", code), service.delivery)
+    }
+
+    @Test
+    fun generateCodeRejectsUnsupportedType() {
+        val exception =
+            assertThrows(InvalidCaptchaException::class.java) {
+                service.generateCode("user@example.com", "voice")
+            }
+
+        assertEquals("不支持的验证码类型", exception.message)
+    }
+
+    @Test
+    fun helperMethodsFallBackForInvalidInputs() {
+        assertEquals(
+            6,
+            ReflectionTestUtils.invokeMethod<Int>(service, "sanitizeLength", 0, 6),
+        )
+        assertEquals(
+            8,
+            ReflectionTestUtils.invokeMethod<Int>(service, "sanitizeLength", 8, 6),
+        )
+
+        val fallback = Duration.ofMinutes(5)
+        assertEquals(
+            fallback,
+            ReflectionTestUtils.invokeMethod<Duration>(service, "resolveDuration", Duration.ZERO, fallback),
+        )
+        assertEquals(
+            fallback,
+            ReflectionTestUtils.invokeMethod<Duration>(service, "resolveDuration", Duration.ofSeconds(-1), fallback),
+        )
+        assertEquals(
+            Duration.ofMinutes(2),
+            ReflectionTestUtils.invokeMethod<Duration>(
+                service,
+                "resolveDuration",
+                Duration.ofMinutes(2),
+                fallback,
+            ),
+        )
+    }
+
+    @Test
+    fun rateLimitCheckSkipsInvalidIntervals() {
+        val method =
+            service.javaClass.superclass.getDeclaredMethod(
+                "enforceRateLimit",
+                String::class.java,
+                String::class.java,
+                Duration::class.java,
+            )
+        method.isAccessible = true
+
+        method.invoke(service, "email", "user@example.com", null)
+        method.invoke(service, "email", "user@example.com", Duration.ZERO)
+        method.invoke(service, "email", "user@example.com", Duration.ofSeconds(-1))
+
+        verifyNoInteractions(valueOperations)
     }
 
     private class TestVerificationCodeService(

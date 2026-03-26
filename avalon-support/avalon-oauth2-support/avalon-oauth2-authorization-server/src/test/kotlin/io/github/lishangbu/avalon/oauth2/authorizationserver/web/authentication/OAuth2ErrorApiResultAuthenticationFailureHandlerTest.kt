@@ -106,6 +106,68 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
     }
 
     @Test
+    fun fallsBackToAuthenticationMessageWhenOAuth2DescriptionIsMissing() {
+        val handler =
+            OAuth2ErrorApiResultAuthenticationFailureHandler(
+                AuthenticationLogRecorder.noop(),
+                null,
+                jsonMapper,
+            )
+        val exception =
+            MessageAwareOAuth2AuthenticationException(
+                OAuth2Error("invalid_request", null, null),
+                "custom detail",
+            )
+
+        val response = MockHttpServletResponse()
+        handler.onAuthenticationFailure(MockHttpServletRequest(), response, exception)
+
+        val body: JsonNode = jsonMapper.readTree(response.contentAsString)
+        assertEquals("custom detail", body["errorMessage"].asText())
+    }
+
+    @Test
+    fun writesErrorCodeWhenOauth2MessageMatchesCode() {
+        val handler =
+            OAuth2ErrorApiResultAuthenticationFailureHandler(
+                AuthenticationLogRecorder.noop(),
+                null,
+                jsonMapper,
+            )
+        val exception =
+            MessageAwareOAuth2AuthenticationException(
+                OAuth2Error("invalid_request", null, null),
+                "invalid_request",
+            )
+
+        val response = MockHttpServletResponse()
+        handler.onAuthenticationFailure(MockHttpServletRequest(), response, exception)
+
+        val body: JsonNode = jsonMapper.readTree(response.contentAsString)
+        assertEquals("invalid_request", body["errorMessage"].asText())
+    }
+
+    @Test
+    fun continuesWhenAuthenticationLogRecordingFails() {
+        val handler =
+            OAuth2ErrorApiResultAuthenticationFailureHandler(
+                { throw IllegalStateException("boom") },
+                null,
+                jsonMapper,
+            )
+
+        val response = MockHttpServletResponse()
+        handler.onAuthenticationFailure(
+            MockHttpServletRequest(),
+            response,
+            BadCredentialsException("Bad credentials"),
+        )
+
+        val body: JsonNode = jsonMapper.readTree(response.contentAsString)
+        assertEquals("Bad credentials", body["errorMessage"].asText())
+    }
+
+    @Test
     fun resolveHelperMethodsCoverBranches() {
         val handler =
             OAuth2ErrorApiResultAuthenticationFailureHandler(
@@ -229,5 +291,13 @@ class OAuth2ErrorApiResultAuthenticationFailureHandlerTest {
         writeFailedResponseMethod.isAccessible = true
         writeFailedResponseMethod.invoke(handler, response, "custom", null)
         assertNotNull(response.contentAsString)
+    }
+
+    private class MessageAwareOAuth2AuthenticationException(
+        error: OAuth2Error,
+        private val text: String?,
+    ) : OAuth2AuthenticationException(error) {
+        override val message: String?
+            get() = text
     }
 }
