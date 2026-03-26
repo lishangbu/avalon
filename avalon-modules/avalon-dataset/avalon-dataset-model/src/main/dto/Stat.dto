@@ -1,5 +1,37 @@
 export io.github.lishangbu.avalon.dataset.entity.Stat
 
+StatView {
+    id
+    internalName
+    name
+    gameIndex
+    battleOnly
+    moveDamageClassId
+    flat(moveDamageClass) {
+        as(^ -> moveDamageClass) {
+            internalName
+            name
+        }
+    }
+}
+
+input SaveStatInput {
+    internalName
+    name
+    gameIndex
+    battleOnly
+    moveDamageClassId
+}
+
+input UpdateStatInput {
+    id!
+    internalName
+    name
+    gameIndex
+    battleOnly
+    moveDamageClassId
+}
+
 specification StatSpecification {
     id
     like/i(internalName)

@@ -15,13 +15,20 @@ class StatRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldListAndCrudStat() {
-        val condition = StatSpecification(internalName = "hp")
+        val condition = StatSpecification(internalName = "attack")
 
         val results = statRepository.findAll(condition)
 
         assertFalse(results.isEmpty())
-        assertEquals(1L, results.first().id)
-        assertEquals("hp", results.first().internalName)
+        assertEquals("2", results.first().id)
+        assertEquals("attack", results.first().internalName)
+        assertEquals("2", results.first().moveDamageClassId)
+        assertEquals("physical", results.first().moveDamageClassInternalName)
+        assertEquals("物理", results.first().moveDamageClassName)
+
+        val existing = requireNotNull(statRepository.findById(2L))
+        assertEquals("attack", existing.internalName)
+        assertEquals("物理", existing.moveDamageClassName)
 
         val saved =
             statRepository.save(
@@ -36,10 +43,10 @@ class StatRepositoryTest : AbstractRepositoryTest() {
             )
 
         val inserted = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
-        assertEquals(saved.id, inserted.id)
+        assertEquals(saved.id.toString(), inserted.id)
         assertEquals("单元测试能力", inserted.name)
 
-        statRepository.save(Stat(inserted) { name = "更新后的能力" })
+        statRepository.save(inserted.toEntity { name = "更新后的能力" })
         val updated = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals("更新后的能力", updated.name)
 

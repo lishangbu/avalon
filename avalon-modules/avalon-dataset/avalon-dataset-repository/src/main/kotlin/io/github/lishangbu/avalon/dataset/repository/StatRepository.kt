@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.StatView
 
 /**
  * 能力值仓储接口
@@ -13,7 +14,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
  */
 interface StatRepository {
     /** 按条件查询能力值列表 */
-    fun findAll(specification: StatSpecification?): List<Stat>
+    fun findAll(specification: StatSpecification?): List<StatView>
+
+    /** 按 ID 查询能力值 */
+    fun findById(id: Long): StatView?
 
     /** 保存能力值 */
     fun save(stat: Stat): Stat
