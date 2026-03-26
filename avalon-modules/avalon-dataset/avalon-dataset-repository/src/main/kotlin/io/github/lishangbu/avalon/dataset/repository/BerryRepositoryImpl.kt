@@ -23,7 +23,7 @@ class BerryRepositoryImpl(
         sql
             .createQuery(Berry::class) {
                 specification?.let { where(it) }
-                select(table)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
             }.execute()
 
     /** 按条件分页查询树果 */
@@ -34,11 +34,17 @@ class BerryRepositoryImpl(
         sql
             .createQuery(Berry::class) {
                 specification?.let { where(it) }
-                select(table)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 按 ID 查询单个树果 */
-    override fun findById(id: Long): Berry? = sql.findById(Berry::class, id)
+    override fun findById(id: Long): Berry? =
+        sql
+            .createQuery(Berry::class) {
+                where(table.id eq id)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+            }.execute()
+            .firstOrNull()
 
     /** 保存树果 */
     override fun save(berry: Berry): Berry = sql.save(berry).modifiedEntity

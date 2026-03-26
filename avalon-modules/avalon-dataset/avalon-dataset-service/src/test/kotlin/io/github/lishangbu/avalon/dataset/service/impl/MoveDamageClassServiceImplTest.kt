@@ -2,77 +2,128 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository
 import org.babyfish.jimmer.Page
-import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 
-@ExtendWith(MockitoExtension::class)
 class MoveDamageClassServiceImplTest {
-    @Mock
-    private lateinit var moveDamageClassRepository: MoveDamageClassRepository
-
-    @InjectMocks
-    private lateinit var moveDamageClassService: MoveDamageClassServiceImpl
-
     @Test
     fun getPageByCondition_callsRepository() {
+        val repository = FakeMoveDamageClassRepository()
+        val service = MoveDamageClassServiceImpl(repository)
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical")
-        val moveDamageClass = MoveDamageClass()
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<MoveDamageClass> = Page(listOf(moveDamageClass), 1, 1)
-        Mockito.`when`(moveDamageClassRepository.findAll(specification, pageable)).thenReturn(page)
+        val pageable = PageRequest.of(0, 5)
+        repository.pageResult = Page(listOf(moveDamageClassEntity(1L, "physical", "物理", "desc")), 1, 1)
 
-        val result = moveDamageClassService.getPageByCondition(specification, pageable)
+        val result = service.getPageByCondition(specification, pageable)
 
-        assertSame(page, result)
-        Mockito.verify(moveDamageClassRepository).findAll(specification, pageable)
+        assertEquals(1, result.rows.size)
+        assertEquals("1", result.rows.first().id)
+        assertEquals(specification, repository.pageCondition)
+        assertEquals(pageable, repository.pageable)
     }
 
     @Test
     fun listByCondition_callsRepository() {
+        val repository = FakeMoveDamageClassRepository()
+        val service = MoveDamageClassServiceImpl(repository)
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical")
-        val moveDamageClass = MoveDamageClass()
-        val expected = listOf(moveDamageClass)
-        Mockito.`when`(moveDamageClassRepository.findAll(specification)).thenReturn(expected)
+        repository.listResult = listOf(moveDamageClassEntity(1L, "physical", "物理", "desc"))
 
-        val result = moveDamageClassService.listByCondition(specification)
+        val result = service.listByCondition(specification)
 
-        assertSame(expected, result)
-        Mockito.verify(moveDamageClassRepository).findAll(specification)
+        assertEquals(1, result.size)
+        assertEquals("1", result.first().id)
+        assertEquals(specification, repository.listCondition)
     }
 
     @Test
     fun save_usesRepository() {
-        val moveDamageClass = MoveDamageClass()
-        Mockito.`when`(moveDamageClassRepository.save(moveDamageClass)).thenReturn(moveDamageClass)
+        val repository = FakeMoveDamageClassRepository()
+        val service = MoveDamageClassServiceImpl(repository)
+        val command = SaveMoveDamageClassInput("physical", "物理", "desc")
+        repository.saveResult = moveDamageClassEntity(1L, "physical", "物理", "desc")
 
-        val result = moveDamageClassService.save(moveDamageClass)
+        val result = service.save(command)
 
-        assertSame(moveDamageClass, result)
-        Mockito.verify(moveDamageClassRepository).save(moveDamageClass)
+        assertEquals("1", result.id)
+        assertEquals("physical", repository.savedMoveDamageClass!!.internalName)
     }
 
     @Test
     fun update_usesRepository() {
-        val moveDamageClass = MoveDamageClass()
-        Mockito.`when`(moveDamageClassRepository.save(moveDamageClass)).thenReturn(moveDamageClass)
+        val repository = FakeMoveDamageClassRepository()
+        val service = MoveDamageClassServiceImpl(repository)
+        val command = UpdateMoveDamageClassInput("1", "special", "特殊", "desc")
+        repository.saveResult = moveDamageClassEntity(1L, "special", "特殊", "desc")
 
-        val result = moveDamageClassService.update(moveDamageClass)
+        val result = service.update(command)
 
-        assertSame(moveDamageClass, result)
-        Mockito.verify(moveDamageClassRepository).save(moveDamageClass)
+        assertEquals("1", result.id)
+        assertEquals(1L, repository.savedMoveDamageClass!!.id)
+        assertEquals("special", repository.savedMoveDamageClass!!.internalName)
     }
 
     @Test
     fun removeById_callsRepository() {
-        moveDamageClassService.removeById(1L)
-        Mockito.verify(moveDamageClassRepository).deleteById(1L)
+        val repository = FakeMoveDamageClassRepository()
+        val service = MoveDamageClassServiceImpl(repository)
+
+        service.removeById(1L)
+
+        assertEquals(1L, repository.deletedId)
+    }
+
+    private class FakeMoveDamageClassRepository : MoveDamageClassRepository {
+        var pageCondition: MoveDamageClassSpecification? = null
+        var pageable: Pageable? = null
+        var listCondition: MoveDamageClassSpecification? = null
+        var savedMoveDamageClass: MoveDamageClass? = null
+        var deletedId: Long? = null
+
+        var pageResult: Page<MoveDamageClass> = Page(emptyList(), 0, 0)
+        var listResult: List<MoveDamageClass> = emptyList()
+        var saveResult: MoveDamageClass = MoveDamageClass()
+
+        override fun findAll(specification: MoveDamageClassSpecification?): List<MoveDamageClass> {
+            listCondition = specification
+            return listResult
+        }
+
+        override fun findAll(
+            specification: MoveDamageClassSpecification?,
+            pageable: Pageable,
+        ): Page<MoveDamageClass> {
+            pageCondition = specification
+            this.pageable = pageable
+            return pageResult
+        }
+
+        override fun save(moveDamageClass: MoveDamageClass): MoveDamageClass {
+            savedMoveDamageClass = moveDamageClass
+            return saveResult
+        }
+
+        override fun deleteById(id: Long) {
+            deletedId = id
+        }
     }
 }
+
+private fun moveDamageClassEntity(
+    id: Long,
+    internalName: String,
+    name: String,
+    description: String,
+): MoveDamageClass =
+    MoveDamageClass {
+        this.id = id
+        this.internalName = internalName
+        this.name = name
+        this.description = description
+    }

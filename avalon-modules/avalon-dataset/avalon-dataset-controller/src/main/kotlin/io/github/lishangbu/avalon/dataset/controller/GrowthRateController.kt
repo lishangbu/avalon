@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.GrowthRate
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
 import org.springframework.web.bind.annotation.*
 
@@ -15,14 +17,14 @@ class GrowthRateController(
     /** 保存成长速率 */
     @PostMapping
     fun save(
-        @RequestBody growthRate: GrowthRate,
-    ): GrowthRate = growthRateService.save(growthRate)
+        @RequestBody command: SaveGrowthRateInput,
+    ): GrowthRateView = growthRateService.save(command)
 
     /** 更新成长速率 */
     @PutMapping
     fun update(
-        @RequestBody growthRate: GrowthRate,
-    ): GrowthRate = growthRateService.update(growthRate)
+        @RequestBody command: UpdateGrowthRateInput,
+    ): GrowthRateView = growthRateService.update(command)
 
     /** 按 ID 删除成长速率 */
     @DeleteMapping("/{id:\\d+}")
@@ -36,5 +38,5 @@ class GrowthRateController(
     @GetMapping("/list")
     fun listGrowthRates(
         @ModelAttribute specification: GrowthRateSpecification,
-    ): List<GrowthRate> = growthRateService.listByCondition(specification)
+    ): List<GrowthRateView> = growthRateService.listByCondition(specification)
 }

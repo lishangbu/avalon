@@ -1,5 +1,22 @@
 export io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 
+BerryFirmnessView {
+    id
+    internalName
+    name
+}
+
+input SaveBerryFirmnessInput {
+    internalName
+    name
+}
+
+input UpdateBerryFirmnessInput {
+    id!
+    internalName
+    name
+}
+
 specification BerryFirmnessSpecification {
     id
     like/i(internalName)

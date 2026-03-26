@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.service.BerryService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,10 +17,8 @@ class BerryControllerTest {
     fun getBerryPage_delegatesToService() {
         val service = FakeBerryService()
         val controller = BerryController(service)
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<Berry> = Page(listOf(Berry()), 1, 1)
+        val pageable = PageRequest.of(0, 5)
+        val page: Page<BerryView> = Page(listOf(berryView()), 1, 1)
         service.pageResult = page
         val specification =
             BerrySpecification(
@@ -46,26 +46,26 @@ class BerryControllerTest {
     fun save_delegatesToService() {
         val service = FakeBerryService()
         val controller = BerryController(service)
-        val berry = Berry()
-        service.saveResult = berry
+        val command = SaveBerryInput("cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9)
+        service.saveResult = berryView()
 
-        val result = controller.save(berry)
+        val result = controller.save(command)
 
-        assertSame(berry, result)
-        assertSame(berry, service.savedBerry)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.savedCommand)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeBerryService()
         val controller = BerryController(service)
-        val berry = Berry()
-        service.updateResult = berry
+        val command = UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9)
+        service.updateResult = berryView()
 
-        val result = controller.update(berry)
+        val result = controller.update(command)
 
-        assertSame(berry, result)
-        assertSame(berry, service.updatedBerry)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updatedCommand)
     }
 
     @Test
@@ -81,30 +81,30 @@ class BerryControllerTest {
     private class FakeBerryService : BerryService {
         var pageCondition: BerrySpecification? = null
         var pageable: Pageable? = null
-        var savedBerry: Berry? = null
-        var updatedBerry: Berry? = null
+        var savedCommand: SaveBerryInput? = null
+        var updatedCommand: UpdateBerryInput? = null
         var removedId: Long? = null
 
-        var pageResult: Page<Berry> = Page(emptyList(), 0, 0)
-        var saveResult: Berry = Berry()
-        var updateResult: Berry = Berry()
+        var pageResult: Page<BerryView> = Page(emptyList(), 0, 0)
+        lateinit var saveResult: BerryView
+        lateinit var updateResult: BerryView
 
         override fun getPageByCondition(
             specification: BerrySpecification,
             pageable: Pageable,
-        ): Page<Berry> {
+        ): Page<BerryView> {
             pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
 
-        override fun save(berry: Berry): Berry {
-            savedBerry = berry
+        override fun save(command: SaveBerryInput): BerryView {
+            savedCommand = command
             return saveResult
         }
 
-        override fun update(berry: Berry): Berry {
-            updatedBerry = berry
+        override fun update(command: UpdateBerryInput): BerryView {
+            updatedCommand = command
             return updateResult
         }
 
@@ -113,3 +113,5 @@ class BerryControllerTest {
         }
     }
 }
+
+private fun berryView(): BerryView = BerryView("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9, "hard", "硬", "fire", "火")

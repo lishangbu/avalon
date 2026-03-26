@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFirmnessInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,10 +17,8 @@ class BerryFirmnessControllerTest {
     fun getBerryFirmnessPage_delegatesToService() {
         val service = FakeBerryFirmnessService()
         val controller = BerryFirmnessController(service)
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<BerryFirmness> = Page(listOf(BerryFirmness()), 1, 1)
+        val pageable = PageRequest.of(0, 5)
+        val page: Page<BerryFirmnessView> = Page(listOf(BerryFirmnessView("1", "hard", "硬")), 1, 1)
         service.pageResult = page
         val specification = BerryFirmnessSpecification(id = "1", internalName = "hard", name = "硬")
 
@@ -33,7 +33,7 @@ class BerryFirmnessControllerTest {
     fun listBerryFirmnesses_delegatesToService() {
         val service = FakeBerryFirmnessService()
         val controller = BerryFirmnessController(service)
-        val list = listOf(BerryFirmness())
+        val list = listOf(BerryFirmnessView("1", "hard", "硬"))
         service.listResult = list
         val specification = BerryFirmnessSpecification(id = "1", internalName = "hard", name = "硬")
 
@@ -47,26 +47,26 @@ class BerryFirmnessControllerTest {
     fun save_delegatesToService() {
         val service = FakeBerryFirmnessService()
         val controller = BerryFirmnessController(service)
-        val berryFirmness = BerryFirmness()
-        service.saveResult = berryFirmness
+        val command = SaveBerryFirmnessInput("hard", "硬")
+        service.saveResult = BerryFirmnessView("1", "hard", "硬")
 
-        val result = controller.save(berryFirmness)
+        val result = controller.save(command)
 
-        assertSame(berryFirmness, result)
-        assertSame(berryFirmness, service.saved)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.savedCommand)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeBerryFirmnessService()
         val controller = BerryFirmnessController(service)
-        val berryFirmness = BerryFirmness()
-        service.updateResult = berryFirmness
+        val command = UpdateBerryFirmnessInput("1", "hard", "硬")
+        service.updateResult = BerryFirmnessView("1", "hard", "硬")
 
-        val result = controller.update(berryFirmness)
+        val result = controller.update(command)
 
-        assertSame(berryFirmness, result)
-        assertSame(berryFirmness, service.updated)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updatedCommand)
     }
 
     @Test
@@ -83,31 +83,31 @@ class BerryFirmnessControllerTest {
         var pageCondition: BerryFirmnessSpecification? = null
         var pageable: Pageable? = null
         var listCondition: BerryFirmnessSpecification? = null
-        var saved: BerryFirmness? = null
-        var updated: BerryFirmness? = null
+        var savedCommand: SaveBerryFirmnessInput? = null
+        var updatedCommand: UpdateBerryFirmnessInput? = null
         var removedId: Long? = null
 
-        var pageResult: Page<BerryFirmness> = Page(emptyList(), 0, 0)
-        var listResult: List<BerryFirmness> = emptyList()
-        var saveResult: BerryFirmness = BerryFirmness()
-        var updateResult: BerryFirmness = BerryFirmness()
+        var pageResult: Page<BerryFirmnessView> = Page(emptyList(), 0, 0)
+        var listResult: List<BerryFirmnessView> = emptyList()
+        lateinit var saveResult: BerryFirmnessView
+        lateinit var updateResult: BerryFirmnessView
 
         override fun getPageByCondition(
             specification: BerryFirmnessSpecification,
             pageable: Pageable,
-        ): Page<BerryFirmness> {
+        ): Page<BerryFirmnessView> {
             pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
 
-        override fun save(berryFirmness: BerryFirmness): BerryFirmness {
-            saved = berryFirmness
+        override fun save(command: SaveBerryFirmnessInput): BerryFirmnessView {
+            savedCommand = command
             return saveResult
         }
 
-        override fun update(berryFirmness: BerryFirmness): BerryFirmness {
-            updated = berryFirmness
+        override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView {
+            updatedCommand = command
             return updateResult
         }
 
@@ -115,7 +115,7 @@ class BerryFirmnessControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(specification: BerryFirmnessSpecification): List<BerryFirmness> {
+        override fun listByCondition(specification: BerryFirmnessSpecification): List<BerryFirmnessView> {
             listCondition = specification
             return listResult
         }

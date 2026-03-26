@@ -2,61 +2,106 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
-import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.jupiter.MockitoExtension
 
-@ExtendWith(MockitoExtension::class)
 class GrowthRateServiceImplTest {
-    @Mock
-    private lateinit var growthRateRepository: GrowthRateRepository
-
-    @InjectMocks
-    private lateinit var growthRateService: GrowthRateServiceImpl
-
     @Test
     fun listByCondition_callsRepository() {
-        val specification = GrowthRateSpecification(id = "1", internalName = "medium")
-        val growthRate = GrowthRate {}
-        val expected = listOf(growthRate)
-        Mockito.`when`(growthRateRepository.findAll(specification)).thenReturn(expected)
+        val repository = FakeGrowthRateRepository()
+        val service = GrowthRateServiceImpl(repository)
+        val specification = GrowthRateSpecification(id = "1", internalName = "slow")
+        repository.listResult = listOf(growthRateEntity(1L, "slow", "慢", "slow"))
 
-        val result = growthRateService.listByCondition(specification)
+        val result = service.listByCondition(specification)
 
-        assertSame(expected, result)
-        Mockito.verify(growthRateRepository).findAll(specification)
+        assertEquals(1, result.size)
+        assertEquals("1", result.first().id)
+        assertEquals("slow", result.first().description)
+        assertEquals(specification, repository.listCondition)
     }
 
     @Test
     fun save_usesRepository() {
-        val growthRate = GrowthRate {}
-        Mockito.`when`(growthRateRepository.save(growthRate)).thenReturn(growthRate)
+        val repository = FakeGrowthRateRepository()
+        val service = GrowthRateServiceImpl(repository)
+        val command = SaveGrowthRateInput("slow", "慢", "slow")
+        repository.saveResult = growthRateEntity(1L, "slow", "慢", "slow")
 
-        val result = growthRateService.save(growthRate)
+        val result = service.save(command)
 
-        assertSame(growthRate, result)
-        Mockito.verify(growthRateRepository).save(growthRate)
+        assertEquals("1", result.id)
+        assertEquals("slow", repository.savedGrowthRate!!.description)
     }
 
     @Test
     fun update_usesRepository() {
-        val growthRate = GrowthRate {}
-        Mockito.`when`(growthRateRepository.save(growthRate)).thenReturn(growthRate)
+        val repository = FakeGrowthRateRepository()
+        val service = GrowthRateServiceImpl(repository)
+        val command = UpdateGrowthRateInput("1", "medium", "中", "medium")
+        repository.saveResult = growthRateEntity(1L, "medium", "中", "medium")
 
-        val result = growthRateService.update(growthRate)
+        val result = service.update(command)
 
-        assertSame(growthRate, result)
-        Mockito.verify(growthRateRepository).save(growthRate)
+        assertEquals("1", result.id)
+        assertEquals(1L, repository.savedGrowthRate!!.id)
+        assertEquals("medium", repository.savedGrowthRate!!.internalName)
     }
 
     @Test
     fun removeById_callsRepository() {
-        growthRateService.removeById(1L)
-        Mockito.verify(growthRateRepository).deleteById(1L)
+        val repository = FakeGrowthRateRepository()
+        val service = GrowthRateServiceImpl(repository)
+
+        service.removeById(1L)
+
+        assertEquals(1L, repository.deletedId)
+    }
+
+    private class FakeGrowthRateRepository : GrowthRateRepository {
+        var listCondition: GrowthRateSpecification? = null
+        var savedGrowthRate: GrowthRate? = null
+        var deletedId: Long? = null
+
+        var listResult: List<GrowthRate> = emptyList()
+        var saveResult: GrowthRate = GrowthRate {}
+
+        override fun findAll(): List<GrowthRate> = emptyList()
+
+        override fun findAll(specification: GrowthRateSpecification?): List<GrowthRate> {
+            listCondition = specification
+            return listResult
+        }
+
+        override fun findById(id: Long): GrowthRate? = null
+
+        override fun save(growthRate: GrowthRate): GrowthRate {
+            savedGrowthRate = growthRate
+            return saveResult
+        }
+
+        override fun saveAndFlush(growthRate: GrowthRate): GrowthRate = save(growthRate)
+
+        override fun deleteById(id: Long) {
+            deletedId = id
+        }
+
+        override fun flush() = Unit
     }
 }
+
+private fun growthRateEntity(
+    id: Long,
+    internalName: String,
+    name: String,
+    description: String,
+): GrowthRate =
+    GrowthRate {
+        this.id = id
+        this.internalName = internalName
+        this.name = name
+        this.description = description
+    }

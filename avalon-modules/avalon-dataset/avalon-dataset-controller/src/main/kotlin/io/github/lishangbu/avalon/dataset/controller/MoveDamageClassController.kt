@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
@@ -19,19 +21,19 @@ class MoveDamageClassController(
     fun getMoveDamageClassPage(
         pageable: Pageable,
         @ModelAttribute specification: MoveDamageClassSpecification,
-    ): Page<MoveDamageClass> = moveDamageClassService.getPageByCondition(specification, pageable)
+    ): Page<MoveDamageClassView> = moveDamageClassService.getPageByCondition(specification, pageable)
 
     /** 保存招式伤害分类 */
     @PostMapping
     fun save(
-        @RequestBody moveDamageClass: MoveDamageClass,
-    ): MoveDamageClass = moveDamageClassService.save(moveDamageClass)
+        @RequestBody command: SaveMoveDamageClassInput,
+    ): MoveDamageClassView = moveDamageClassService.save(command)
 
     /** 更新招式伤害分类 */
     @PutMapping
     fun update(
-        @RequestBody moveDamageClass: MoveDamageClass,
-    ): MoveDamageClass = moveDamageClassService.update(moveDamageClass)
+        @RequestBody command: UpdateMoveDamageClassInput,
+    ): MoveDamageClassView = moveDamageClassService.update(command)
 
     /** 按 ID 删除招式伤害分类 */
     @DeleteMapping("/{id:\\d+}")
@@ -45,5 +47,5 @@ class MoveDamageClassController(
     @GetMapping("/list")
     fun listMoveDamageClasses(
         @ModelAttribute specification: MoveDamageClassSpecification,
-    ): List<MoveDamageClass> = moveDamageClassService.listByCondition(specification)
+    ): List<MoveDamageClassView> = moveDamageClassService.listByCondition(specification)
 }

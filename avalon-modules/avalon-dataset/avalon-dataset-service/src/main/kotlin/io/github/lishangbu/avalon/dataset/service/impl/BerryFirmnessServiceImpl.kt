@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFirmnessInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
@@ -18,16 +20,20 @@ class BerryFirmnessServiceImpl(
     override fun getPageByCondition(
         specification: BerryFirmnessSpecification,
         pageable: Pageable,
-    ): Page<BerryFirmness> = berryFirmnessRepository.findAll(specification, pageable)
+    ): Page<BerryFirmnessView> = berryFirmnessRepository.findAll(specification, pageable).mapRows(::BerryFirmnessView)
 
     /** 根据条件查询树果硬度列表 */
-    override fun listByCondition(specification: BerryFirmnessSpecification): List<BerryFirmness> = berryFirmnessRepository.findAll(specification)
+    override fun listByCondition(
+        specification: BerryFirmnessSpecification,
+    ): List<BerryFirmnessView> = berryFirmnessRepository.findAll(specification).map(::BerryFirmnessView)
 
     /** 保存树果硬度 */
-    override fun save(berryFirmness: BerryFirmness): BerryFirmness = berryFirmnessRepository.save(berryFirmness)
+    override fun save(
+        command: SaveBerryFirmnessInput,
+    ): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity()))
 
     /** 更新树果硬度 */
-    override fun update(berryFirmness: BerryFirmness): BerryFirmness = berryFirmnessRepository.save(berryFirmness)
+    override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity()))
 
     /** 按 ID 删除树果硬度 */
     override fun removeById(id: Long) {

@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,10 +17,8 @@ class MoveDamageClassControllerTest {
     fun getMoveDamageClassPage_delegatesToService() {
         val service = FakeMoveDamageClassService()
         val controller = MoveDamageClassController(service)
-        val pageIndex = 0
-        val pageSize = 5
-        val pageable = PageRequest.of(pageIndex, pageSize)
-        val page: Page<MoveDamageClass> = Page(listOf(MoveDamageClass()), 1, 1)
+        val pageable = PageRequest.of(0, 5)
+        val page: Page<MoveDamageClassView> = Page(listOf(MoveDamageClassView("1", "physical", "物理", "desc")), 1, 1)
         service.pageResult = page
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical", name = "物理", description = "desc")
 
@@ -33,7 +33,7 @@ class MoveDamageClassControllerTest {
     fun listMoveDamageClasses_delegatesToService() {
         val service = FakeMoveDamageClassService()
         val controller = MoveDamageClassController(service)
-        val list = listOf(MoveDamageClass())
+        val list = listOf(MoveDamageClassView("1", "physical", "物理", "desc"))
         service.listResult = list
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical", name = "物理", description = "desc")
 
@@ -47,26 +47,26 @@ class MoveDamageClassControllerTest {
     fun save_delegatesToService() {
         val service = FakeMoveDamageClassService()
         val controller = MoveDamageClassController(service)
-        val moveDamageClass = MoveDamageClass()
-        service.saveResult = moveDamageClass
+        val command = SaveMoveDamageClassInput("physical", "物理", "desc")
+        service.saveResult = MoveDamageClassView("1", "physical", "物理", "desc")
 
-        val result = controller.save(moveDamageClass)
+        val result = controller.save(command)
 
-        assertSame(moveDamageClass, result)
-        assertSame(moveDamageClass, service.saved)
+        assertSame(service.saveResult, result)
+        assertSame(command, service.savedCommand)
     }
 
     @Test
     fun update_delegatesToService() {
         val service = FakeMoveDamageClassService()
         val controller = MoveDamageClassController(service)
-        val moveDamageClass = MoveDamageClass()
-        service.updateResult = moveDamageClass
+        val command = UpdateMoveDamageClassInput("1", "physical", "物理", "desc")
+        service.updateResult = MoveDamageClassView("1", "physical", "物理", "desc")
 
-        val result = controller.update(moveDamageClass)
+        val result = controller.update(command)
 
-        assertSame(moveDamageClass, result)
-        assertSame(moveDamageClass, service.updated)
+        assertSame(service.updateResult, result)
+        assertSame(command, service.updatedCommand)
     }
 
     @Test
@@ -83,31 +83,31 @@ class MoveDamageClassControllerTest {
         var pageCondition: MoveDamageClassSpecification? = null
         var pageable: Pageable? = null
         var listCondition: MoveDamageClassSpecification? = null
-        var saved: MoveDamageClass? = null
-        var updated: MoveDamageClass? = null
+        var savedCommand: SaveMoveDamageClassInput? = null
+        var updatedCommand: UpdateMoveDamageClassInput? = null
         var removedId: Long? = null
 
-        var pageResult: Page<MoveDamageClass> = Page(emptyList(), 0, 0)
-        var listResult: List<MoveDamageClass> = emptyList()
-        var saveResult: MoveDamageClass = MoveDamageClass()
-        var updateResult: MoveDamageClass = MoveDamageClass()
+        var pageResult: Page<MoveDamageClassView> = Page(emptyList(), 0, 0)
+        var listResult: List<MoveDamageClassView> = emptyList()
+        lateinit var saveResult: MoveDamageClassView
+        lateinit var updateResult: MoveDamageClassView
 
         override fun getPageByCondition(
             specification: MoveDamageClassSpecification,
             pageable: Pageable,
-        ): Page<MoveDamageClass> {
+        ): Page<MoveDamageClassView> {
             pageCondition = specification
             this.pageable = pageable
             return pageResult
         }
 
-        override fun save(moveDamageClass: MoveDamageClass): MoveDamageClass {
-            saved = moveDamageClass
+        override fun save(command: SaveMoveDamageClassInput): MoveDamageClassView {
+            savedCommand = command
             return saveResult
         }
 
-        override fun update(moveDamageClass: MoveDamageClass): MoveDamageClass {
-            updated = moveDamageClass
+        override fun update(command: UpdateMoveDamageClassInput): MoveDamageClassView {
+            updatedCommand = command
             return updateResult
         }
 
@@ -115,7 +115,7 @@ class MoveDamageClassControllerTest {
             removedId = id
         }
 
-        override fun listByCondition(specification: MoveDamageClassSpecification): List<MoveDamageClass> {
+        override fun listByCondition(specification: MoveDamageClassSpecification): List<MoveDamageClassView> {
             listCondition = specification
             return listResult
         }

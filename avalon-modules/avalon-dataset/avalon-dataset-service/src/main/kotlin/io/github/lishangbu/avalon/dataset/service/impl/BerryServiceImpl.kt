@@ -2,6 +2,9 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
+import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository
 import io.github.lishangbu.avalon.dataset.service.BerryService
 import org.babyfish.jimmer.Page
@@ -22,16 +25,18 @@ class BerryServiceImpl(
     override fun getPageByCondition(
         specification: BerrySpecification,
         pageable: Pageable,
-    ): Page<Berry> = berryRepository.findAll(specification, pageable)
+    ): Page<BerryView> = berryRepository.findAll(specification, pageable).mapRows(::BerryView)
 
     /** 创建树果 */
-    override fun save(berry: Berry): Berry = berryRepository.save(berry)
+    override fun save(command: SaveBerryInput): BerryView = berryRepository.save(command.toEntity()).let(::reloadView)
 
     /** 更新树果 */
-    override fun update(berry: Berry): Berry = berryRepository.save(berry)
+    override fun update(command: UpdateBerryInput): BerryView = berryRepository.save(command.toEntity()).let(::reloadView)
 
     /** 删除指定 ID 的树果*/
     override fun removeById(id: Long) {
         berryRepository.deleteById(id)
     }
+
+    private fun reloadView(berry: Berry): BerryView = BerryView(requireNotNull(berryRepository.findById(berry.id)) { "未找到 ID=${berry.id} 对应的树果" })
 }

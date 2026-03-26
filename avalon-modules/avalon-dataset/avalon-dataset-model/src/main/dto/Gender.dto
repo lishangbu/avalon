@@ -1,5 +1,22 @@
 export io.github.lishangbu.avalon.dataset.entity.Gender
 
+GenderView {
+    id
+    internalName
+    name
+}
+
+input SaveGenderInput {
+    internalName
+    name
+}
+
+input UpdateGenderInput {
+    id!
+    internalName
+    name
+}
+
 specification GenderSpecification {
     id
     like/i(internalName)
