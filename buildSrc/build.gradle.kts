@@ -10,3 +10,11 @@ repositories {
     // buildSrc 的普通库依赖最终回落到 Maven Central。
     mavenCentral()
 }
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

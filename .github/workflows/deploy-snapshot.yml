@@ -33,6 +33,30 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: '9.4.1'
+      - name: 计算 IP 数据缓存周期
+        id: ip-db-cache-epoch
+        shell: bash
+        run: echo "value=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - name: 恢复 IP2Location 数据缓存
+        id: ip-db-cache
+        uses: actions/cache@v4
+        with:
+          path: avalon-platform/avalon-ip2location-spring-boot-starter/src/main/resources/IP2LOCATION-LITE-DB11.IPV6.BIN
+          key: ${{ runner.os }}-ip2location-db11ipv6-${{ steps.ip-db-cache-epoch.outputs.value }}
+          restore-keys: |
+            ${{ runner.os }}-ip2location-db11ipv6-
+      - name: 下载或刷新 IP2Location 数据
+        if: steps.ip-db-cache.outputs.cache-hit != 'true' && secrets.IP2LOCATION_DOWNLOAD_TOKEN != ''
+        env:
+          IP2LOCATION_DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
+        run: gradle downloadIpData -PrefreshIpDb=true
+      - name: 校验 IP2Location 数据已就绪
+        shell: bash
+        run: |
+          test -f avalon-platform/avalon-ip2location-spring-boot-starter/src/main/resources/IP2LOCATION-LITE-DB11.IPV6.BIN || {
+            echo "IP2Location database is missing. Restore the Actions cache or configure the IP2LOCATION_DOWNLOAD_TOKEN secret."
+            exit 1
+          }
       - name: 提取项目版本
         id: projectVersion
         shell: bash
@@ -51,7 +75,7 @@ jobs:
 
       - name: 使用 Gradle 发布快照到 Maven Central
         if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
-        run: gradle downloadIpData generateRsaKeys -Pforce=true publish -x test
+        run: gradle generateRsaKeys -Pforce=true publish -x test
         env:
           ORG_GRADLE_PROJECT_centralSnapshotsUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_centralSnapshotsPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

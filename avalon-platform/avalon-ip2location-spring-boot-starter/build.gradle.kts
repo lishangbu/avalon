@@ -8,13 +8,8 @@ plugins {
 
 dependencies {
     api(libs.ip2location)
-    compileOnly(libs.slf4j.api)
     api(libs.spring.boot.autoconfigure)
     kapt(libs.spring.boot.configuration.processor)
-}
-
-tasks.test {
-    exclude("**/IpToLocationSearcherTest*")
 }
 
 tasks.processResources {

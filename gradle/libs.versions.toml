@@ -6,7 +6,7 @@ dokka = "2.2.0"
 ktlint = "14.2.0"
 aws = "2.42.21"
 jimmer = "0.10.6"
-ip2location = "1.2.6"
+ip2location = "8.6.0"
 
 [libraries]
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
@@ -52,7 +52,7 @@ postgresql = { module = "org.postgresql:postgresql" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 testcontainers-minio = { module = "org.testcontainers:testcontainers-minio" }
-ip2location = { module = "net.renfei:ip2location", version.ref = "ip2location" }
+ip2location = { module = "com.ip2location:ip2location-kotlin", version.ref = "ip2location" }
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

@@ -48,6 +48,31 @@ To see how the project has been applied, see the [online documents](https://lish
 The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it
 locally.
 
+### IP2Location Starter
+
+`avalon-platform/avalon-ip2location-spring-boot-starter` now exposes the official
+`com.ip2location.IP2Location` type directly. The starter only handles Spring Boot
+configuration, BIN resource loading, and bean lifecycle.
+
+```kotlin
+@Service
+class GeoIpService(
+    private val ip2Location: IP2Location,
+) {
+    fun lookup(ip: String): IPResult = ip2Location.ipQuery(ip)
+}
+```
+
+By default the starter loads `classpath:IP2LOCATION-LITE-DB11.IPV6.BIN`. To refresh the
+database from the official IP2Location service, provide a download token and run:
+
+```bash
+./gradlew downloadIpData -PipDbDownloadToken=YOUR_TOKEN -PrefreshIpDb=true
+```
+
+If the BIN file already exists in the repository, the task reuses the local copy and does
+not contact the download service.
+
 ## Repository Layout
 
 - `avalon-application`: executable Spring Boot applications and deployment entry points.
