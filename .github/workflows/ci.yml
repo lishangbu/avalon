@@ -30,6 +30,8 @@ jobs:
     name: CI / Verify
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      IP2LOCATION_DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
     steps:
       - uses: actions/checkout@v6
       - name: 设置 Java 环境 - 使用Oracle JDK 25
@@ -55,9 +57,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ip2location-db11ipv6-
       - name: 下载或刷新 IP2Location 数据
-        if: steps.ip-db-cache.outputs.cache-hit != 'true' && secrets.IP2LOCATION_DOWNLOAD_TOKEN != ''
-        env:
-          IP2LOCATION_DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
+        if: steps.ip-db-cache.outputs.cache-hit != 'true' && env.IP2LOCATION_DOWNLOAD_TOKEN != ''
         run: gradle downloadIpData -PrefreshIpDb=true
       - name: 校验 IP2Location 数据已就绪
         shell: bash
