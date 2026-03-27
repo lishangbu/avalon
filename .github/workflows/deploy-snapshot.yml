@@ -19,6 +19,8 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      IP2LOCATION_DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -46,9 +48,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ip2location-db11ipv6-
       - name: 下载或刷新 IP2Location 数据
-        if: steps.ip-db-cache.outputs.cache-hit != 'true' && secrets.IP2LOCATION_DOWNLOAD_TOKEN != ''
-        env:
-          IP2LOCATION_DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
+        if: steps.ip-db-cache.outputs.cache-hit != 'true' && env.IP2LOCATION_DOWNLOAD_TOKEN != ''
         run: gradle downloadIpData -PrefreshIpDb=true
       - name: 校验 IP2Location 数据已就绪
         shell: bash
