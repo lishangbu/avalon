@@ -14,6 +14,9 @@ class Oauth2PropertiesTest {
         assertEquals("password", properties.passwordParameterName)
         assertEquals(5, properties.maxLoginFailures)
         assertEquals(Duration.ofMinutes(15), properties.getLoginLockDuration())
+        assertEquals(LoginFailureTrackerStoreType.MEMORY, properties.loginFailureTrackerStoreType)
+        assertEquals("oauth2:login-failure", properties.loginFailureTrackerKeyPrefix)
+        assertEquals("oauth2_login_failure", properties.loginFailureTrackerJdbcTableName)
     }
 
     @Test
@@ -46,6 +49,9 @@ class Oauth2PropertiesTest {
         properties.usernameParameterName = "user"
         properties.passwordParameterName = "pwd"
         properties.maxLoginFailures = 10
+        properties.loginFailureTrackerStoreType = LoginFailureTrackerStoreType.JDBC
+        properties.loginFailureTrackerKeyPrefix = "security:login-failure"
+        properties.loginFailureTrackerJdbcTableName = "security_login_failure"
         properties.issuerUrl = "https://issuer"
         properties.jwtPublicKeyLocation = "classpath:pub.pem"
         properties.jwtPrivateKeyLocation = "classpath:pri.pem"
@@ -54,6 +60,9 @@ class Oauth2PropertiesTest {
         assertEquals("user", properties.usernameParameterName)
         assertEquals("pwd", properties.passwordParameterName)
         assertEquals(10, properties.maxLoginFailures)
+        assertEquals(LoginFailureTrackerStoreType.JDBC, properties.loginFailureTrackerStoreType)
+        assertEquals("security:login-failure", properties.loginFailureTrackerKeyPrefix)
+        assertEquals("security_login_failure", properties.loginFailureTrackerJdbcTableName)
         assertEquals("https://issuer", properties.issuerUrl)
         assertEquals("classpath:pub.pem", properties.jwtPublicKeyLocation)
         assertEquals("classpath:pri.pem", properties.jwtPrivateKeyLocation)

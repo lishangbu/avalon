@@ -44,6 +44,7 @@ include(":avalon-modules:avalon-game:avalon-game-battle-engine")
 include(":avalon-modules:avalon-game:avalon-game-calculator")
 // Platform modules provide reusable technical capabilities to business modules.
 include(":avalon-platform:avalon-jimmer")
+include(":avalon-platform:avalon-idempotent-spring-boot-starter")
 include(":avalon-platform:avalon-ip2location-spring-boot-starter")
 include(":avalon-platform:avalon-security:avalon-oauth2-authorization-server")
 include(":avalon-platform:avalon-security:avalon-oauth2-common")

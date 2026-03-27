@@ -10,4 +10,7 @@ dependencies {
     api(libs.spring.boot.autoconfigure)
     api(libs.spring.boot.starter.oauth2.authorization.server)
     api(libs.spring.boot.starter.oauth2.client)
+    implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.spring.boot.starter.jdbc)
+    testImplementation(libs.h2)
 }
