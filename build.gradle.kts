@@ -151,16 +151,21 @@ val defaultIpDbFiles = listOf("IP2LOCATION-LITE-DB11.IPV6.BIN")
 
 tasks.register<DownloadIpDataTask>("downloadIpData") {
     group = "build setup"
-    description = "Downloads and normalizes IP2Location database files into module resources."
+    description = "Normalizes local IP2Location database files and downloads from the official service when needed."
 
-    // 允许外部覆盖下载参数，但日常构建仍然提供可直接使用的默认值
-    val configuredDbVersion =
+    val propertyDownloadToken =
         providers
-            .gradleProperty("ipDbVersion")
+            .gradleProperty("ipDbDownloadToken")
             .orNull
             ?.trim()
             ?.takeIf { it.isNotBlank() }
-            ?: "2025.12.01"
+    val environmentDownloadToken =
+        providers
+            .environmentVariable("IP2LOCATION_DOWNLOAD_TOKEN")
+            .orNull
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+    val configuredDownloadToken = propertyDownloadToken ?: environmentDownloadToken
     val configuredDbFiles =
         providers
             .gradleProperty("ipDbFiles")
@@ -171,9 +176,23 @@ tasks.register<DownloadIpDataTask>("downloadIpData") {
             ?.distinct()
             ?.takeIf { it.isNotEmpty() }
             ?: defaultIpDbFiles
+    val shouldForceRefresh =
+        when (
+            providers
+                .gradleProperty("refreshIpDb")
+                .orNull
+                ?.trim()
+                ?.lowercase()
+        ) {
+            "true", "1", "yes", "y", "on" -> true
+            else -> false
+        }
 
-    dbVersion.set(configuredDbVersion)
     dbFileNames.set(configuredDbFiles)
+    forceRefresh.set(shouldForceRefresh)
+    if (configuredDownloadToken != null) {
+        downloadToken.set(configuredDownloadToken)
+    }
     destinationDir.set(
         layout.projectDirectory.dir(
             "avalon-platform/avalon-ip2location-spring-boot-starter/src/main/resources",
