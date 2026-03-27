@@ -5,6 +5,7 @@ Avalon
 [![Deploy Snapshot With Gradle](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/deploy-snapshot.yml)
 [![Publish API Docs](https://github.com/lishangbu/avalon/actions/workflows/publish-api-docs.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-api-docs.yml)
 [![Publish DockerHub](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-dockerhub.yml)
+[![Publish Quality Reports](https://github.com/lishangbu/avalon/actions/workflows/publish-quality-reports.yml/badge.svg)](https://github.com/lishangbu/avalon/actions/workflows/publish-quality-reports.yml)
 [![License](https://img.shields.io/github/license/lishangbu/avalon)](https://github.com/lishangbu/avalon/blob/main/LICENSE)
 
 [![Kotlin](https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/lishangbu/avalon/main/gradle/libs.versions.toml&query=%24.versions.kotlin&label=Kotlin&color=7F52FF&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
