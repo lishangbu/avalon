@@ -14,12 +14,12 @@ import java.util.zip.ZipOutputStream
 class DownloadIpDataTaskTest {
     @Test
     fun infersOfficialPackageCodeFromIpv6BinName() {
-        assertEquals("DB11BINIPV6", inferOfficialIp2LocationPackageCode("IP2LOCATION-LITE-DB11.IPV6.BIN"))
+        assertEquals("DB11LITEBINIPV6", inferOfficialIp2LocationPackageCode("IP2LOCATION-LITE-DB11.IPV6.BIN"))
     }
 
     @Test
     fun infersOfficialPackageCodeFromIpv4BinName() {
-        assertEquals("DB1BIN", inferOfficialIp2LocationPackageCode("IP2LOCATION-LITE-DB1.BIN"))
+        assertEquals("DB1LITEBIN", inferOfficialIp2LocationPackageCode("IP2LOCATION-LITE-DB1.BIN"))
     }
 
     @Test
@@ -30,8 +30,8 @@ class DownloadIpDataTaskTest {
     @Test
     fun buildsOfficialDownloadUrl() {
         assertEquals(
-            "https://www.ip2location.com/download?token=test-token&file=DB11BINIPV6",
-            officialIp2LocationDownloadUrl("test-token", "DB11BINIPV6"),
+            "https://www.ip2location.com/download?token=test-token&file=DB11LITEBINIPV6",
+            officialIp2LocationDownloadUrl("test-token", "DB11LITEBINIPV6"),
         )
     }
 
