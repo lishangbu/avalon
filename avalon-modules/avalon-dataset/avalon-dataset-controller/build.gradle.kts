@@ -7,5 +7,5 @@ plugins {
 
 dependencies {
     api(project(":avalon-modules:avalon-dataset:avalon-dataset-service"))
-    api(project(":avalon-support:avalon-web-support"))
+    api(project(":avalon-platform:avalon-web"))
 }

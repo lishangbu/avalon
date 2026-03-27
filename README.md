@@ -36,6 +36,7 @@ Avalon
 ## Table of Contents
 
 - [Usage](#usage)
+- [Repository Layout](#repository-layout)
 - [Quality Reports](#quality-reports)
 - [Maintainers](#maintainers)
 - [License](#license)
@@ -46,6 +47,17 @@ To see how the project has been applied, see the [online documents](https://lish
 
 The Document is hosted by [vitepress](https://vitepress.dev) ,you must install it yourself if you want to run it
 locally.
+
+## Repository Layout
+
+- `avalon-application`: executable Spring Boot applications and deployment entry points.
+- `avalon-modules`: business modules that implement domain behavior.
+- `avalon-platform`: reusable platform capabilities shared by business modules.
+- `avalon-platform/avalon-web`: shared web response and exception conventions.
+- `avalon-platform/avalon-security`: reusable OAuth2 and security building blocks.
+- `avalon-platform/avalon-jimmer`: Jimmer integration shared by persistence-facing modules.
+- `avalon-platform/avalon-s3-spring-boot-starter`: reusable S3 starter support.
+- `avalon-platform/avalon-ip2location-spring-boot-starter`: geo/IP platform integration.
 
 ## Quality Reports
 

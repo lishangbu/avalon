@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":avalon-support:avalon-web-support"))
+    api(project(":avalon-platform:avalon-web"))
     compileOnly(libs.slf4j.api)
     api(libs.spring.boot.autoconfigure)
     api(libs.spring.security.core)

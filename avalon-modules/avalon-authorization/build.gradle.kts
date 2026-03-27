@@ -11,8 +11,8 @@ plugins {
 val mainDtoDir = layout.projectDirectory.dir("src/main/dto")
 
 dependencies {
-    api(project(":avalon-extensions:avalon-jimmer-extension"))
-    api(project(":avalon-support:avalon-oauth2-support:avalon-oauth2-authorization-server"))
+    api(project(":avalon-platform:avalon-jimmer"))
+    api(project(":avalon-platform:avalon-security:avalon-oauth2-authorization-server"))
     api(libs.jimmer.spring.boot.starter)
     api(libs.jimmer.sql.kotlin)
     api(libs.spring.boot.starter.jdbc)
