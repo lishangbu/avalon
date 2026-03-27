@@ -61,6 +61,7 @@ runs:
       uses: gradle/actions/setup-gradle@v5
       with:
         gradle-version: ${{ inputs.gradle-version }}
+        cache-read-only: ${{ github.event_name == 'workflow_run' }}
 
     - name: 下载上游 IP2Location 数据制品
       if: inputs.prepare-ip2location-db == 'true' && inputs.ip2location-source-run-id != ''
