@@ -10,7 +10,7 @@ plugins {
 val mainDtoDir = layout.projectDirectory.dir("src/main/dto")
 
 dependencies {
-    api(project(":avalon-extensions:avalon-jimmer-extension"))
+    api(project(":avalon-platform:avalon-jimmer"))
     api(libs.jimmer.sql.kotlin)
     api(libs.jackson.databind)
     ksp(libs.jimmer.ksp)

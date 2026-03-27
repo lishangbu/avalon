@@ -22,7 +22,7 @@ class UserInfo :
     constructor(
         username: String,
         password: String?,
-        authorities: Collection<out GrantedAuthority>,
+        authorities: Collection<GrantedAuthority>,
     ) : super(username, password, authorities)
 
     constructor(
@@ -32,7 +32,7 @@ class UserInfo :
         accountNonExpired: Boolean,
         credentialsNonExpired: Boolean,
         accountNonLocked: Boolean,
-        authorities: Collection<out GrantedAuthority>,
+        authorities: Collection<GrantedAuthority>,
     ) : super(
         username,
         password,

@@ -176,7 +176,7 @@ tasks.register<DownloadIpDataTask>("downloadIpData") {
     dbFileNames.set(configuredDbFiles)
     destinationDir.set(
         layout.projectDirectory.dir(
-            "avalon-extensions/avalon-ip2location-spring-boot-starter/src/main/resources",
+            "avalon-platform/avalon-ip2location-spring-boot-starter/src/main/resources",
         ),
     )
     repoRootDir.set(layout.projectDirectory)

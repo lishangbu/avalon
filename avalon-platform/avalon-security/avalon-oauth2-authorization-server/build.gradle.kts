@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":avalon-support:avalon-oauth2-support:avalon-oauth2-resource-server"))
+    api(project(":avalon-platform:avalon-security:avalon-oauth2-resource-server"))
     api(libs.spring.boot.autoconfigure)
     api(libs.spring.boot.starter.oauth2.authorization.server)
     api(libs.spring.boot.starter.oauth2.client)
