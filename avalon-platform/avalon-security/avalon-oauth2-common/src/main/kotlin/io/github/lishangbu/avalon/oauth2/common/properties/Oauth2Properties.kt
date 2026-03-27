@@ -59,6 +59,15 @@ class Oauth2Properties {
     /** 登录锁定时长 */
     private var loginLockDuration: String? = "15m"
 
+    /** 登录失败跟踪存储类型 */
+    var loginFailureTrackerStoreType: LoginFailureTrackerStoreType = LoginFailureTrackerStoreType.MEMORY
+
+    /** 登录失败跟踪 Redis Key 前缀 */
+    var loginFailureTrackerKeyPrefix: String = "oauth2:login-failure"
+
+    /** 登录失败跟踪 JDBC 表名 */
+    var loginFailureTrackerJdbcTableName: String = "oauth2_login_failure"
+
     /** 签发者 URL */
     var issuerUrl: String? = null
 

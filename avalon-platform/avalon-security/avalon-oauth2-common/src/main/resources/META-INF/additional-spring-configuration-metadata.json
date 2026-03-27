@@ -113,6 +113,27 @@
       "defaultValue": "15m"
     },
     {
+      "name": "oauth2.login-failure-tracker-store-type",
+      "type": "io.github.lishangbu.avalon.oauth2.common.properties.LoginFailureTrackerStoreType",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Storage backend for login failure tracking.",
+      "defaultValue": "MEMORY"
+    },
+    {
+      "name": "oauth2.login-failure-tracker-key-prefix",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "Redis key prefix used by the Redis login failure tracker.",
+      "defaultValue": "oauth2:login-failure"
+    },
+    {
+      "name": "oauth2.login-failure-tracker-jdbc-table-name",
+      "type": "java.lang.String",
+      "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
+      "description": "JDBC table name used by the JDBC login failure tracker.",
+      "defaultValue": "oauth2_login_failure"
+    },
+    {
       "name": "oauth2.issuer-url",
       "type": "java.lang.String",
       "sourceType": "io.github.lishangbu.avalon.oauth2.common.properties.Oauth2Properties",
