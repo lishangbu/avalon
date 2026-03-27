@@ -24,7 +24,7 @@ internal fun inferOfficialIp2LocationPackageCode(dbFileName: String): String? {
     val match = Regex("""^IP2LOCATION-LITE-(DB\d+)(\.IPV6)?\.BIN$""").matchEntire(dbFileName) ?: return null
     val dbCode = match.groupValues[1]
     val ipv6Suffix = if (match.groupValues[2].isNotEmpty()) "IPV6" else ""
-    return "${dbCode}BIN$ipv6Suffix"
+    return "${dbCode}LITEBIN$ipv6Suffix"
 }
 
 internal fun officialIp2LocationDownloadUrl(
