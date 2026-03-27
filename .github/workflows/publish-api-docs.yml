@@ -3,7 +3,7 @@ name: Publish API Docs
 on:
   workflow_run:
     workflows:
-      - Deploy Snapshot
+      - CI
     types:
       - completed
 
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   publish-api-docs:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -25,10 +25,17 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: 准备构建环境
-        uses: ./.github/actions/setup-build-env
+      - name: 设置 Java 环境
+        uses: actions/setup-java@v5
         with:
-          prepare-ip2location-db: 'false'
+          java-version: '25'
+          distribution: oracle
+          architecture: x64
+      - name: 设置 Gradle 环境
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '9.4.1'
+          cache-read-only: true
 
       - name: 生成聚合 API 文档站点（Dokka）
         run: gradle dokkaGeneratePublicationHtml -x test
