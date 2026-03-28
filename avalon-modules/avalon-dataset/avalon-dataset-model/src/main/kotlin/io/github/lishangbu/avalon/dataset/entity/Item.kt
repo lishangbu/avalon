@@ -27,7 +27,6 @@ interface Item {
 
     /** 道具投掷效果 */
     @ManyToOne
-    @JoinColumn(name = "item_fling_effect_id")
     val itemFlingEffect: ItemFlingEffect?
 
     /** 道具属性映射 */

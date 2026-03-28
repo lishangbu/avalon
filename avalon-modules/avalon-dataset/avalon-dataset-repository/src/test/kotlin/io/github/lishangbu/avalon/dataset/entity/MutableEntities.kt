@@ -12,9 +12,7 @@ class MutableBerry : Berry {
     override var smoothness: Int? = null
     override var soilDryness: Int? = null
     override var berryFirmness: BerryFirmness? = null
-    override var berryFirmnessId: Long? = null
     override var naturalGiftType: Type? = null
-    override var naturalGiftTypeId: Long? = null
     override var naturalGiftPower: Int? = null
 }
 
@@ -44,7 +42,6 @@ class MutableStat : Stat {
     override var gameIndex: Int? = null
     override var battleOnly: Boolean? = null
     override var moveDamageClass: MoveDamageClass? = null
-    override var moveDamageClassId: Long? = null
 }
 
 class MutableType : Type {

@@ -18,7 +18,7 @@ input SaveStatInput {
     name
     gameIndex
     battleOnly
-    moveDamageClassId
+    id(moveDamageClass) as moveDamageClassId
 }
 
 input UpdateStatInput {
@@ -27,7 +27,7 @@ input UpdateStatInput {
     name
     gameIndex
     battleOnly
-    moveDamageClassId
+    id(moveDamageClass) as moveDamageClassId
 }
 
 specification StatSpecification {
@@ -36,5 +36,5 @@ specification StatSpecification {
     like/i(name)
     gameIndex
     battleOnly
-    moveDamageClassId
+    associatedIdEq(moveDamageClass) as moveDamageClassId
 }

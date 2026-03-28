@@ -21,6 +21,5 @@ interface EncounterConditionValue {
 
     /** 遭遇条件 */
     @ManyToOne
-    @JoinColumn(name = "encounter_condition_id")
     val encounterCondition: EncounterCondition?
 }

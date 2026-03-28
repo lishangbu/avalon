@@ -51,17 +51,14 @@ interface PokemonSpecies {
 
     /** 成长速率 */
     @ManyToOne
-    @JoinColumn(name = "growth_rate_id")
     val growthRate: GrowthRate?
 
     /** 宝可梦颜色 */
     @ManyToOne
-    @JoinColumn(name = "pokemon_color_id")
     val pokemonColor: PokemonColor?
 
     /** 宝可梦形态 */
     @ManyToOne
-    @JoinColumn(name = "pokemon_shape_id")
     val pokemonShape: PokemonShape?
 
     /** 进化从种族 ID */
@@ -72,6 +69,5 @@ interface PokemonSpecies {
 
     /** 宝可梦栖息地 */
     @ManyToOne
-    @JoinColumn(name = "pokemon_habitat_id")
     val pokemonHabitat: PokemonHabitat?
 }

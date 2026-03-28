@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.dataset.service.impl
 
+import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveStatInput
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
@@ -48,7 +49,10 @@ class StatServiceImplTest {
                 name = "攻击"
                 gameIndex = 2
                 battleOnly = false
-                moveDamageClassId = 2L
+                moveDamageClass =
+                    MoveDamageClass {
+                        this.id = 2L
+                    }
             }
         repository.findByIdResult =
             StatView(
@@ -65,7 +69,7 @@ class StatServiceImplTest {
         assertEquals("2", result.id)
         assertEquals("物理", result.moveDamageClass?.name)
         assertEquals("attack", repository.savedStat!!.internalName)
-        assertEquals(2L, repository.savedStat!!.moveDamageClassId)
+        assertEquals(2L, repository.savedStat!!.moveDamageClass?.id)
         assertEquals(2L, repository.findByIdValue)
     }
 
@@ -81,7 +85,10 @@ class StatServiceImplTest {
                 name = "攻击"
                 gameIndex = 2
                 battleOnly = false
-                moveDamageClassId = 2L
+                moveDamageClass =
+                    MoveDamageClass {
+                        this.id = 2L
+                    }
             }
         repository.findByIdResult =
             StatView(
