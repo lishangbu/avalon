@@ -114,4 +114,17 @@ class BerryControllerTest {
     }
 }
 
-private fun berryView(): BerryView = BerryView("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9, "hard", "硬", "fire", "火")
+private fun berryView(): BerryView =
+    BerryView(
+        "1",
+        "cheri",
+        "樱子",
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        BerryView.TargetOf_berryFirmness("7", "hard", "硬"),
+        BerryView.TargetOf_naturalGiftType("8", "fire", "火"),
+    )

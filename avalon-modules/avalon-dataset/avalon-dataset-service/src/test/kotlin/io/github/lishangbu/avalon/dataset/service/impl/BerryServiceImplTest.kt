@@ -26,7 +26,13 @@ class BerryServiceImplTest {
 
         assertEquals(1, result.rows.size)
         assertEquals("1", result.rows.first().id)
-        assertEquals("hard", result.rows.first().berryFirmnessInternalName)
+        assertEquals(
+            "hard",
+            result.rows
+                .first()
+                .berryFirmness
+                ?.internalName,
+        )
         assertEquals(specification, repository.pageCondition)
         assertEquals(pageable, repository.pageable)
     }
@@ -42,8 +48,8 @@ class BerryServiceImplTest {
         val result = service.save(command)
 
         assertEquals("1", result.id)
-        assertEquals("hard", result.berryFirmnessInternalName)
-        assertEquals("fire", result.naturalGiftTypeInternalName)
+        assertEquals("hard", result.berryFirmness?.internalName)
+        assertEquals("fire", result.naturalGiftType?.internalName)
         assertEquals("cheri", repository.savedBerry!!.internalName)
         assertEquals(7L, repository.savedBerry!!.berryFirmnessId)
         assertEquals(1L, repository.findByIdValue)
@@ -60,7 +66,7 @@ class BerryServiceImplTest {
         val result = service.update(command)
 
         assertEquals("1", result.id)
-        assertEquals("硬", result.berryFirmnessName)
+        assertEquals("硬", result.berryFirmness?.name)
         assertEquals(1L, repository.savedBerry!!.id)
         assertEquals(1L, repository.findByIdValue)
     }

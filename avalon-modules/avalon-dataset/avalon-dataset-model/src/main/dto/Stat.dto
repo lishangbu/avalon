@@ -6,12 +6,10 @@ StatView {
     name
     gameIndex
     battleOnly
-    moveDamageClassId
-    flat(moveDamageClass) {
-        as(^ -> moveDamageClass) {
-            internalName
-            name
-        }
+    moveDamageClass {
+        id
+        internalName
+        name
     }
 }
 

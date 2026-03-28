@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

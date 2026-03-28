@@ -22,13 +22,13 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertFalse(results.isEmpty())
         assertEquals("2", results.first().id)
         assertEquals("attack", results.first().internalName)
-        assertEquals("2", results.first().moveDamageClassId)
-        assertEquals("physical", results.first().moveDamageClassInternalName)
-        assertEquals("物理", results.first().moveDamageClassName)
+        assertEquals("2", results.first().moveDamageClass?.id)
+        assertEquals("physical", results.first().moveDamageClass?.internalName)
+        assertEquals("物理", results.first().moveDamageClass?.name)
 
         val existing = requireNotNull(statRepository.findById(2L))
         assertEquals("attack", existing.internalName)
-        assertEquals("物理", existing.moveDamageClassName)
+        assertEquals("物理", existing.moveDamageClass?.name)
 
         val saved =
             statRepository.save(

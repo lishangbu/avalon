@@ -5,7 +5,7 @@ import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
-import io.github.lishangbu.avalon.authorization.repository.readOrNull
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

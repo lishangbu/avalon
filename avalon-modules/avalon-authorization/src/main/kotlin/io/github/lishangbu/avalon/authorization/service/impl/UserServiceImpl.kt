@@ -6,8 +6,8 @@ import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
-import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.UserService
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

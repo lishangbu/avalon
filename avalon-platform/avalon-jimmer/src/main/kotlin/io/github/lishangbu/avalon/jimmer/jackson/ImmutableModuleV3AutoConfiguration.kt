@@ -20,5 +20,6 @@ class ImmutableModuleV3AutoConfiguration {
     fun jsonMapperBuilderCustomizer(): JsonMapperBuilderCustomizer =
         JsonMapperBuilderCustomizer { builder ->
             builder.addModule(ImmutableModuleV3())
+            builder.addModule(InputModuleV3())
         }
 }

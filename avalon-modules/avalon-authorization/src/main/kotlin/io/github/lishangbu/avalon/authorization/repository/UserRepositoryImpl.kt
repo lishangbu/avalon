@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -74,7 +75,7 @@ class UserRepositoryImpl(
     override fun save(user: User): User =
         sql
             .save(user) {
-                val mode = user.readId()?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
+                val mode = user.readOrNull { id }?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
                 setMode(mode)
             }.modifiedEntity
 
@@ -146,7 +147,4 @@ class UserRepositoryImpl(
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
-
-    /** 安全读取主键 */
-    private fun User?.readId(): Long? = readOrNull { id }
 }

@@ -1,29 +1,31 @@
-package io.github.lishangbu.avalon.dataset.repository
+package io.github.lishangbu.avalon.jimmer.support
 
 import org.babyfish.jimmer.UnloadedException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
-class RepositorySupportTest {
+class JimmerPropertyAccessTest {
     @Test
-    fun takeFilterTrimsAndDropsBlankValues() {
-        assertNull((null as String?).takeFilter())
-        assertNull("   ".takeFilter())
-        assertEquals("value", "  value  ".takeFilter())
-    }
-
-    @Test
-    fun readOrNullReturnsNullForNullReceiverAndUnloadedException() {
+    fun readOrNullReturnsNullForNullReceiverAndUnloadedProperty() {
         assertNull((null as ThrowingReader?).readOrNull { value() })
         assertNull(ThrowingReader().readOrNull { value() })
     }
 
     @Test
     fun readOrNullReturnsLoadedValue() {
-        val result = LoadedReader("loaded").readOrNull { value() }
+        assertEquals("loaded", LoadedReader("loaded").readOrNull { value() })
+    }
 
-        assertEquals("loaded", result)
+    @Test
+    fun readOrNullRethrowsUnexpectedExceptions() {
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                LoadedReader("loaded").readOrNull { throw IllegalStateException("boom") }
+            }
+
+        assertEquals("boom", exception.message)
     }
 
     private class LoadedReader(
