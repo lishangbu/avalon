@@ -38,6 +38,10 @@ jimmer-spring-boot-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp" }
 
 aws-s3 = { module = "software.amazon.awssdk:s3" }
+aws-s3control = { module = "software.amazon.awssdk:s3control" }
+aws-s3-transfer-manager = { module = "software.amazon.awssdk:s3-transfer-manager" }
+aws-apache-client = { module = "software.amazon.awssdk:apache-client" }
+aws-netty-nio-client = { module = "software.amazon.awssdk:netty-nio-client" }
 
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 aspectjweaver = { module = "org.aspectj:aspectjweaver" }
