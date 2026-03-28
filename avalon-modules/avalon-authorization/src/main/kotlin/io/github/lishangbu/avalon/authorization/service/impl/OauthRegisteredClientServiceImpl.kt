@@ -3,8 +3,8 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import io.github.lishangbu.avalon.authorization.repository.Oauth2RegisteredClientRepository
-import io.github.lishangbu.avalon.authorization.repository.readOrNull
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

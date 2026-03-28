@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.Type
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.entity.id
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq

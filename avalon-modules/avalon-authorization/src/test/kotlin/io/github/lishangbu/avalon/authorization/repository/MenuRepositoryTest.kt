@@ -83,6 +83,13 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
         val menus = menuRepository.findAllByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
         assertNotNull(menus)
         assertFalse(menus.isEmpty())
+        menus.zipWithNext().forEach { (previous, current) ->
+            val previousOrder = previous.sortingOrder ?: Int.MAX_VALUE
+            val currentOrder = current.sortingOrder ?: Int.MAX_VALUE
+            assertTrue(
+                previousOrder < currentOrder || (previousOrder == currentOrder && previous.id <= current.id),
+            )
+        }
     }
 
     @Test

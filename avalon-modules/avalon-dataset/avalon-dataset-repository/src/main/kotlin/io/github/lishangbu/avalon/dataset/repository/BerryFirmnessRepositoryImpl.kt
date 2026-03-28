@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.entity.id
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient

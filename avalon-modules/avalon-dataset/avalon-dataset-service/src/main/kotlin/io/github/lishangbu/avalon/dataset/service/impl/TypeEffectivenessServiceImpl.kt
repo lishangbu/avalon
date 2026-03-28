@@ -48,12 +48,12 @@ class TypeEffectivenessServiceImpl(
                     TypeEffectivenessMatchup(
                         defendingType = evaluation.defending.apiView,
                         multiplier = TypeEffectivenessMultiplierCodec.decode(evaluation.multiplierPercent),
-                        status = evaluation.multiplierPercent.toCellStatus(),
+                        status = cellStatusOf(evaluation.multiplierPercent),
                     )
                 },
             finalMultiplier = TypeEffectivenessMultiplierCodec.decode(finalMultiplierPercent),
             status = if (finalMultiplierPercent == null) STATUS_INCOMPLETE else STATUS_COMPLETE,
-            effectiveness = finalMultiplierPercent.toEffectiveness(),
+            effectiveness = effectivenessOf(finalMultiplierPercent),
         )
     }
 
@@ -100,7 +100,7 @@ class TypeEffectivenessServiceImpl(
                             TypeEffectivenessCell(
                                 defendingType = defending.apiView,
                                 multiplier = TypeEffectivenessMultiplierCodec.decode(multiplierPercent),
-                                status = multiplierPercent.toCellStatus(),
+                                status = cellStatusOf(multiplierPercent),
                             )
                         },
                 )
@@ -192,14 +192,19 @@ class TypeEffectivenessServiceImpl(
         )
     }
 
-    private fun Int?.toCellStatus(): String = if (this == null) STATUS_MISSING else STATUS_CONFIGURED
+    private fun cellStatusOf(multiplierPercent: Int?): String =
+        if (multiplierPercent == null) {
+            STATUS_MISSING
+        } else {
+            STATUS_CONFIGURED
+        }
 
-    private fun Int?.toEffectiveness(): String =
+    private fun effectivenessOf(multiplierPercent: Int?): String =
         when {
-            this == null -> EFFECTIVENESS_INCOMPLETE
-            this == 0 -> EFFECTIVENESS_IMMUNE
-            this < TypeEffectivenessMultiplierCodec.ONE_X_PERCENT -> EFFECTIVENESS_NOT_VERY_EFFECTIVE
-            this > TypeEffectivenessMultiplierCodec.ONE_X_PERCENT -> EFFECTIVENESS_SUPER_EFFECTIVE
+            multiplierPercent == null -> EFFECTIVENESS_INCOMPLETE
+            multiplierPercent == 0 -> EFFECTIVENESS_IMMUNE
+            multiplierPercent < TypeEffectivenessMultiplierCodec.ONE_X_PERCENT -> EFFECTIVENESS_NOT_VERY_EFFECTIVE
+            multiplierPercent > TypeEffectivenessMultiplierCodec.ONE_X_PERCENT -> EFFECTIVENESS_SUPER_EFFECTIVE
             else -> EFFECTIVENESS_NORMAL_EFFECTIVE
         }
 

@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Role
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.MethodOrderer

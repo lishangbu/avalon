@@ -15,14 +15,24 @@ class StatServiceImplTest {
         val repository = FakeStatRepository()
         val statService = StatServiceImpl(repository)
         val specification = StatSpecification(id = "1", internalName = "speed")
-        repository.listResult = listOf(StatView("2", "attack", "攻击", 2, false, "2", "physical", "物理"))
+        repository.listResult =
+            listOf(
+                StatView(
+                    "2",
+                    "attack",
+                    "攻击",
+                    2,
+                    false,
+                    StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
+                ),
+            )
 
         val result = statService.listByCondition(specification)
 
         assertEquals(1, result.size)
         assertEquals("2", result.first().id)
-        assertEquals("physical", result.first().moveDamageClassInternalName)
-        assertEquals("物理", result.first().moveDamageClassName)
+        assertEquals("physical", result.first().moveDamageClass?.internalName)
+        assertEquals("物理", result.first().moveDamageClass?.name)
         assertEquals(specification, repository.listCondition)
     }
 
@@ -40,12 +50,20 @@ class StatServiceImplTest {
                 battleOnly = false
                 moveDamageClassId = 2L
             }
-        repository.findByIdResult = StatView("2", "attack", "攻击", 2, false, "2", "physical", "物理")
+        repository.findByIdResult =
+            StatView(
+                "2",
+                "attack",
+                "攻击",
+                2,
+                false,
+                StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
+            )
 
         val result = statService.save(command)
 
         assertEquals("2", result.id)
-        assertEquals("物理", result.moveDamageClassName)
+        assertEquals("物理", result.moveDamageClass?.name)
         assertEquals("attack", repository.savedStat!!.internalName)
         assertEquals(2L, repository.savedStat!!.moveDamageClassId)
         assertEquals(2L, repository.findByIdValue)
@@ -65,12 +83,20 @@ class StatServiceImplTest {
                 battleOnly = false
                 moveDamageClassId = 2L
             }
-        repository.findByIdResult = StatView("2", "attack", "攻击", 2, false, "2", "physical", "物理")
+        repository.findByIdResult =
+            StatView(
+                "2",
+                "attack",
+                "攻击",
+                2,
+                false,
+                StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
+            )
 
         val result = statService.update(command)
 
         assertEquals("2", result.id)
-        assertEquals("physical", result.moveDamageClassInternalName)
+        assertEquals("physical", result.moveDamageClass?.internalName)
         assertEquals(2L, repository.savedStat!!.id)
         assertEquals(2L, repository.findByIdValue)
     }

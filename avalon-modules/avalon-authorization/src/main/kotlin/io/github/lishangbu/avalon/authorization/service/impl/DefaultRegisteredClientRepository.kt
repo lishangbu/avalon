@@ -68,11 +68,11 @@ class DefaultRegisteredClientRepository(
      * @return 对象
      */
     private fun toObject(client: OauthRegisteredClient): RegisteredClient {
-        val clientAuthenticationMethods = client.clientAuthenticationMethods.toCommaDelimitedSet()
-        val authorizationGrantTypes = client.authorizationGrantTypes.toCommaDelimitedSet()
-        val redirectUris = client.redirectUris.toCommaDelimitedSet()
-        val postLogoutRedirectUris = client.postLogoutRedirectUris.toCommaDelimitedSet()
-        val clientScopes = client.scopes.toCommaDelimitedSet()
+        val clientAuthenticationMethods = readCommaDelimitedSet(client.clientAuthenticationMethods)
+        val authorizationGrantTypes = readCommaDelimitedSet(client.authorizationGrantTypes)
+        val redirectUris = readCommaDelimitedSet(client.redirectUris)
+        val postLogoutRedirectUris = readCommaDelimitedSet(client.postLogoutRedirectUris)
+        val clientScopes = readCommaDelimitedSet(client.scopes)
 
         val builder =
             RegisteredClient
@@ -179,13 +179,11 @@ class DefaultRegisteredClientRepository(
             clientSecret = registeredClient.clientSecret
             clientSecretExpiresAt = registeredClient.clientSecretExpiresAt
             clientName = registeredClient.clientName
-            this.clientAuthenticationMethods =
-                clientAuthenticationMethodValues.joinToCommaDelimitedString()
-            this.authorizationGrantTypes = authorizationGrantTypeValues.joinToCommaDelimitedString()
-            redirectUris = registeredClient.redirectUris.joinToCommaDelimitedString()
-            postLogoutRedirectUris =
-                registeredClient.postLogoutRedirectUris.joinToCommaDelimitedString()
-            scopes = registeredClient.scopes.joinToCommaDelimitedString()
+            this.clientAuthenticationMethods = clientAuthenticationMethodValues.joinToString(",")
+            this.authorizationGrantTypes = authorizationGrantTypeValues.joinToString(",")
+            redirectUris = registeredClient.redirectUris.joinToString(",")
+            postLogoutRedirectUris = registeredClient.postLogoutRedirectUris.joinToString(",")
+            scopes = registeredClient.scopes.joinToString(",")
 
             requireProofKey = registeredClientSettings?.isRequireProofKey
             requireAuthorizationConsent =
@@ -210,6 +208,8 @@ class DefaultRegisteredClientRepository(
                 registeredClientTokenSettings?.idTokenSignatureAlgorithm?.name
         }
     }
+
+    private fun readCommaDelimitedSet(value: String?): LinkedHashSet<String> = value?.splitToSequence(',')?.toCollection(linkedSetOf()) ?: linkedSetOf()
 
     companion object {
         /**

@@ -1,10 +1,13 @@
 package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
+import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
+import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.service.MenuService
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import io.github.lishangbu.avalon.web.util.TreeUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional
 class MenuServiceImpl(
     /** 菜单仓储 */
     private val menuRepository: MenuRepository,
+    /** 角色仓储 */
+    private val roleRepository: RoleRepository,
 ) : MenuService {
     /** 根据角色编码列表查询菜单树列表 */
     override fun listMenuTreeByRoleCodes(roleCodes: List<String>): List<MenuTreeNode> {
@@ -70,16 +75,81 @@ class MenuServiceImpl(
 
     /** 保存菜单 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(menu: Menu): Menu = menuRepository.save(menu)
+    override fun save(menu: Menu): Menu {
+        validateParent(menu)
+        return menuRepository.save(menu)
+    }
 
     /** 更新菜单 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(menu: Menu): Menu = menuRepository.save(menu)
+    override fun update(menu: Menu): Menu {
+        requireNotNull(menu.readOrNull { id }) { "更新菜单时必须提供菜单 ID" }
+        validateParent(menu)
+        return menuRepository.save(menu)
+    }
 
     /** 按 ID 删除菜单 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
+        if (menuRepository.findAll(MenuSpecification(parentId = id)).isNotEmpty()) {
+            throw IllegalStateException("请先删除子菜单后再删除当前菜单")
+        }
+        detachMenuFromRoles(id)
         menuRepository.deleteById(id)
+    }
+
+    private fun validateParent(menu: Menu) {
+        val menuId = menu.readOrNull { id }
+        val parentId = menu.parentId ?: return
+
+        if (menuId != null && parentId == menuId) {
+            throw IllegalArgumentException("父菜单不能选择自身")
+        }
+
+        val parent =
+            menuRepository.findById(parentId)
+                ?: throw IllegalArgumentException("父菜单不存在")
+
+        if (menuId != null) {
+            validateNoCircularReference(menuId, parent)
+        }
+    }
+
+    private fun validateNoCircularReference(
+        menuId: Long,
+        parent: Menu,
+    ) {
+        var current: Menu? = parent
+        val visited = mutableSetOf<Long>()
+
+        while (current != null) {
+            if (!visited.add(current.id)) {
+                throw IllegalStateException("菜单层级存在循环引用")
+            }
+            if (current.id == menuId) {
+                throw IllegalStateException("父菜单不能选择当前菜单或其子菜单")
+            }
+            current =
+                current.parentId?.let { parentId ->
+                    menuRepository.findById(parentId)
+                }
+        }
+    }
+
+    private fun detachMenuFromRoles(menuId: Long) {
+        val roles =
+            roleRepository
+                .findAllWithMenus(null)
+                .filter { role -> role.menus.any { menu -> menu.id == menuId } }
+
+        roles.forEach { role ->
+            val remainedMenus = role.menus.filterNot { menu -> menu.id == menuId }
+            roleRepository.save(
+                Role(role) {
+                    menus = remainedMenus
+                },
+            )
+        }
     }
 
     /**

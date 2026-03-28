@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.*
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -50,7 +51,7 @@ class MenuRepositoryImpl(
     override fun save(menu: Menu): Menu =
         sql
             .save(menu) {
-                val mode = menu.readId()?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
+                val mode = menu.readOrNull { id }?.let { SaveMode.UPSERT } ?: SaveMode.INSERT_ONLY
                 setMode(mode)
             }.modifiedEntity
 
@@ -94,11 +95,8 @@ class MenuRepositoryImpl(
         return menus
             .distinctBy { it.id }
             .sortedWith(
-                compareByDescending<Menu> { it.sortingOrder ?: Int.MIN_VALUE }
-                    .thenByDescending { it.id },
+                compareBy<Menu> { it.sortingOrder ?: Int.MAX_VALUE }
+                    .thenBy { it.id },
             )
     }
-
-    /** 安全读取主键 */
-    private fun Menu?.readId(): Long? = readOrNull { id }
 }

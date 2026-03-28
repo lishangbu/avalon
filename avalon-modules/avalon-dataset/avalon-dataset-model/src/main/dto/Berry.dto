@@ -9,20 +9,16 @@ BerryView {
     bulk
     smoothness
     soilDryness
-    berryFirmnessId
-    naturalGiftTypeId
     naturalGiftPower
-    flat(berryFirmness) {
-        as(^ -> berryFirmness) {
-            internalName
-            name
-        }
+    berryFirmness {
+        id
+        internalName
+        name
     }
-    flat(naturalGiftType) {
-        as(^ -> naturalGiftType) {
-            internalName
-            name
-        }
+    naturalGiftType {
+        id
+        internalName
+        name
     }
 }
 

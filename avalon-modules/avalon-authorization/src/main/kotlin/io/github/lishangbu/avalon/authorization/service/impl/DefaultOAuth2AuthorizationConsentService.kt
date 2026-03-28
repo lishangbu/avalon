@@ -72,11 +72,9 @@ class DefaultOAuth2AuthorizationConsentService(
         }
 
         val builder = OAuth2AuthorizationConsent.withId(registeredClientId, principalName)
-        if (oauthAuthorizationConsent.authorities != null) {
-            for (authority in oauthAuthorizationConsent.authorities.toCommaDelimitedSet()) {
-                builder.authority(SimpleGrantedAuthority(authority))
-            }
-        }
+        oauthAuthorizationConsent.authorities
+            ?.splitToSequence(',')
+            ?.forEach { authority -> builder.authority(SimpleGrantedAuthority(authority)) }
 
         return builder.build()
     }
@@ -95,7 +93,7 @@ class DefaultOAuth2AuthorizationConsentService(
                 registeredClientId = authorizationConsent.registeredClientId
                 principalName = authorizationConsent.principalName
             }
-            this.authorities = authorities.joinToCommaDelimitedString()
+            this.authorities = authorities.joinToString(",")
         }
     }
 }

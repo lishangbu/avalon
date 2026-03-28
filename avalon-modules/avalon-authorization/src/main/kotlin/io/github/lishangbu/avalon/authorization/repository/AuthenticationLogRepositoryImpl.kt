@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.AuthenticationLog
+import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Repository

@@ -133,7 +133,7 @@ class DefaultOAuth2AuthorizationService(
                 .id(authorizationId)
                 .principalName(principalName)
                 .authorizationGrantType(resolveAuthorizationGrantType(authorizationGrantType))
-                .authorizedScopes(entity.authorizedScopes.toCommaDelimitedSet())
+                .authorizedScopes(readCommaDelimitedSet(entity.authorizedScopes))
 
         val attributes = readAttributes(entity.attributes)
         if (attributes != null) {
@@ -165,7 +165,7 @@ class DefaultOAuth2AuthorizationService(
                     entity.accessTokenValue,
                     entity.accessTokenIssuedAt,
                     entity.accessTokenExpiresAt,
-                    entity.accessTokenScopes.toCommaDelimitedSet(),
+                    readCommaDelimitedSet(entity.accessTokenScopes),
                 )
             val accessTokenMetadata = readAttributes(entity.accessTokenMetadata)
             builder.token(accessToken) { metadata ->
@@ -260,7 +260,7 @@ class DefaultOAuth2AuthorizationService(
             registeredClientId = authorization.registeredClientId
             principalName = authorization.principalName
             authorizationGrantType = authorization.authorizationGrantType.value
-            authorizedScopes = authorization.authorizedScopes.joinToCommaDelimitedString()
+            authorizedScopes = authorization.authorizedScopes.joinToString(",")
             attributes = writeAttributes(authorization.attributes)
             state = authorization.getAttribute(OAuth2ParameterNames.STATE)
 
@@ -273,7 +273,7 @@ class DefaultOAuth2AuthorizationService(
             accessTokenIssuedAt = accessTokenSnapshot.issuedAt
             accessTokenExpiresAt = accessTokenSnapshot.expiresAt
             accessTokenMetadata = writeAttributes(accessTokenSnapshot.metadata)
-            accessTokenScopes = accessToken?.token?.scopes?.joinToCommaDelimitedString()
+            accessTokenScopes = accessToken?.token?.scopes?.joinToString(",")
             accessTokenType = accessToken?.token?.tokenType?.value
 
             refreshTokenValue = refreshTokenSnapshot.value
@@ -327,6 +327,8 @@ class DefaultOAuth2AuthorizationService(
         }
         return mapper.writeValueAsString(attributes)
     }
+
+    private fun readCommaDelimitedSet(value: String?): LinkedHashSet<String> = value?.splitToSequence(',')?.toCollection(linkedSetOf()) ?: linkedSetOf()
 
     /** 提取 OIDC ID Token claims */
     private fun extractOidcIdTokenClaims(metadata: Map<String, Any>?): Map<String, Any> {
