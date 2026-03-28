@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.repository
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
 /**
@@ -13,7 +14,11 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2023-10-08
  */
-interface Oauth2RegisteredClientRepository {
+interface Oauth2RegisteredClientRepository :
+    KRepository<OauthRegisteredClient, String>,
+    Oauth2RegisteredClientRepositoryExt
+
+interface Oauth2RegisteredClientRepositoryExt {
     /** 按条件查询 OAuth2 注册客户端列表 */
     fun findAll(specification: OauthRegisteredClientSpecification?): List<OauthRegisteredClient>
 
@@ -23,20 +28,8 @@ interface Oauth2RegisteredClientRepository {
         pageable: Pageable,
     ): Page<OauthRegisteredClient>
 
-    /** 按 ID 查询 OAuth2 注册客户端 */
-    fun findById(id: String): OauthRegisteredClient?
-
-    /** 保存OAuth2 注册客户端 */
-    fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient
-
-    /** 保存OAuth2 注册客户端并立即刷新 */
-    fun saveAndFlush(registeredClient: OauthRegisteredClient): OauthRegisteredClient
-
     /** 按 ID 删除 OAuth2 注册客户端 */
-    fun deleteById(id: String)
-
-    /** 刷新持久化上下文 */
-    fun flush()
+    fun removeById(id: String)
 
     /** 根据客户端 ID查找OAuth2 注册客户端 */
     fun findByClientId(clientId: String): OauthRegisteredClient?

@@ -24,9 +24,9 @@ class UserRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testInsert() {
-        val role = requireNotNull(roleRepository.findById(1L))
+        val role = requireNotNull(roleRepository.findNullable(1L))
         val user =
-            userRepository.saveAndFlush(
+            userRepository.save(
                 User {
                     hashedPassword =
                         "{bcrypt}\$2a\$10\$IlYJ6qn4gyXUL.CCLzlN4ujjzlfI.3UbB0VQrYSUmiaPKpcnxdU.G"
@@ -48,13 +48,13 @@ class UserRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testFindByIdDoesNotFetchRolesByDefault() {
-        val user = requireNotNull(userRepository.findById(1L))
+        val user = requireNotNull(userRepository.findNullable(1L))
         assertNull(user.readOrNull { roles })
     }
 
     @Test
     fun testFindByIdWithRoles() {
-        val user = requireNotNull(userRepository.findByIdWithRoles(1L))
+        val user = requireNotNull(userRepository.findNullable(1L, AuthorizationFetchers.USER_WITH_ROLES))
         assertEquals(2, user.roles.size)
     }
 

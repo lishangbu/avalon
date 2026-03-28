@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -28,15 +29,14 @@ class BerryRepositoryTest : AbstractRepositoryTest() {
         assertTrue(page.totalRowCount >= 1)
         assertFalse(page.rows.isEmpty())
 
-        val existing = requireNotNull(berryRepository.findById(1L))
-        berryRepository.saveAndFlush(Berry(existing) { name = "更新后的树果" })
+        val existing = requireNotNull(berryRepository.findByIdWithAssociations(1L))
+        berryRepository.save(Berry(existing) { name = "更新后的树果" }, SaveMode.UPSERT)
 
-        val updated = requireNotNull(berryRepository.findById(1L))
+        val updated = requireNotNull(berryRepository.findByIdWithAssociations(1L))
         assertEquals("更新后的树果", updated.name)
 
-        berryRepository.deleteById(1L)
-        berryRepository.flush()
-        assertNull(berryRepository.findById(1L))
+        berryRepository.removeById(1L)
+        assertNull(berryRepository.findByIdWithAssociations(1L))
     }
 
     private fun assertTrue(value: Boolean) {

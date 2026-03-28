@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.authorization.model.UserWithRoles
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
 import io.github.lishangbu.avalon.authorization.service.UserService
@@ -44,7 +45,7 @@ class UserServiceImpl(
     override fun listByCondition(specification: UserSpecification): List<User> = userRepository.findAllWithRoles(specification)
 
     /** 按 ID 查询用户 */
-    override fun getById(id: Long): User? = userRepository.findByIdWithRoles(id)
+    override fun getById(id: Long): User? = userRepository.findNullable(id, AuthorizationFetchers.USER_WITH_ROLES)
 
     /** 保存用户 */
     @Transactional(rollbackFor = [Exception::class])
@@ -63,7 +64,7 @@ class UserServiceImpl(
     /** 按 ID 删除用户 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        userRepository.deleteById(id)
+        userRepository.removeById(id)
     }
 
     /** 绑定并补全角色信息 */
@@ -73,7 +74,7 @@ class UserServiceImpl(
     ): User {
         val existing =
             if (preserveWhenNull) {
-                user.readOrNull { id }?.let(userRepository::findByIdWithRoles)
+                user.readOrNull { id }?.let { userId -> userRepository.findNullable(userId, AuthorizationFetchers.USER_WITH_ROLES) }
             } else {
                 null
             }

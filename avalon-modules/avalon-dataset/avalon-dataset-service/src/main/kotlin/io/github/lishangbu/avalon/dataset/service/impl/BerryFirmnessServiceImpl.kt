@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -30,13 +31,13 @@ class BerryFirmnessServiceImpl(
     /** 保存树果硬度 */
     override fun save(
         command: SaveBerryFirmnessInput,
-    ): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity()))
+    ): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新树果硬度 */
-    override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity()))
+    override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     /** 按 ID 删除树果硬度 */
     override fun removeById(id: Long) {
-        berryFirmnessRepository.deleteById(id)
+        berryFirmnessRepository.removeById(id)
     }
 }

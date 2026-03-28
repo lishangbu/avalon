@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
+import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
 import org.springframework.data.domain.PageRequest
 
@@ -31,7 +33,7 @@ class RoleServiceImplTest {
         val found = role(3L)
         `when`(roleRepository.findAllWithMenus(specification, pageable)).thenReturn(page)
         `when`(roleRepository.findAllWithMenus(specification)).thenReturn(roles)
-        `when`(roleRepository.findByIdWithMenus(3L)).thenReturn(found)
+        `when`(roleRepository.findNullable(3L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(found)
 
         assertSame(page, service.getPageByCondition(specification, pageable))
         assertSame(roles, service.listByCondition(specification))
@@ -91,7 +93,7 @@ class RoleServiceImplTest {
                 enabled = false
                 menus().addBy(existingMenu)
             }
-        `when`(roleRepository.findByIdWithMenus(3L)).thenReturn(existing)
+        `when`(roleRepository.findNullable(3L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(existing)
         `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(Role { id = 3L })
@@ -113,7 +115,7 @@ class RoleServiceImplTest {
                 enabled = true
                 menus().addBy(menu(8L))
             }
-        `when`(roleRepository.findByIdWithMenus(4L)).thenReturn(null)
+        `when`(roleRepository.findNullable(4L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(null)
         `when`(menuRepository.findAllById(setOf(8L))).thenReturn(listOf(boundMenu))
         `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
 
@@ -123,13 +125,13 @@ class RoleServiceImplTest {
         assertEquals("Supervisor", updated.name)
         assertEquals(true, updated.enabled)
         assertEquals(listOf("Audit"), updated.menus.mapNotNull { it.label })
-        verify(roleRepository).findByIdWithMenus(4L)
+        verify(roleRepository).findNullable(4L, AuthorizationFetchers.ROLE_WITH_MENUS)
         verify(menuRepository).findAllById(setOf(8L))
     }
 
     @Test
     fun updateLeavesOptionalFieldsUnsetWhenExistingRoleCannotBeFound() {
-        `when`(roleRepository.findByIdWithMenus(99L)).thenReturn(null)
+        `when`(roleRepository.findNullable(99L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(null)
         `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(Role { id = 99L })
@@ -139,7 +141,7 @@ class RoleServiceImplTest {
         assertNull(updated.readOrNull { name })
         assertNull(updated.readOrNull { enabled })
         assertNull(updated.readOrNull { menus })
-        verify(roleRepository).findByIdWithMenus(99L)
+        verify(roleRepository).findNullable(99L, AuthorizationFetchers.ROLE_WITH_MENUS)
         verifyNoInteractions(menuRepository)
     }
 
@@ -155,9 +157,8 @@ class RoleServiceImplTest {
             )
 
         assertEquals("DRAFT", updated.code)
-        org.mockito.Mockito
-            .verify(roleRepository, org.mockito.Mockito.never())
-            .findByIdWithMenus(org.mockito.Mockito.anyLong())
+        verify(roleRepository).save(any())
+        verifyNoMoreInteractions(roleRepository)
         verifyNoInteractions(menuRepository)
     }
 
@@ -165,6 +166,6 @@ class RoleServiceImplTest {
     fun removeDelegatesDeleteToRepository() {
         service.removeById(42L)
 
-        verify(roleRepository).deleteById(42L)
+        verify(roleRepository).removeById(42L)
     }
 }

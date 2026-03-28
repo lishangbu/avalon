@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
 /**
@@ -13,7 +14,11 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface MoveDamageClassRepository {
+interface MoveDamageClassRepository :
+    KRepository<MoveDamageClass, Long>,
+    MoveDamageClassRepositoryExt
+
+interface MoveDamageClassRepositoryExt {
     /** 按条件查询招式伤害分类列表 */
     fun findAll(specification: MoveDamageClassSpecification?): List<MoveDamageClass>
 
@@ -23,9 +28,6 @@ interface MoveDamageClassRepository {
         pageable: Pageable,
     ): Page<MoveDamageClass>
 
-    /** 保存招式伤害分类 */
-    fun save(moveDamageClass: MoveDamageClass): MoveDamageClass
-
     /** 按 ID 删除招式伤害分类 */
-    fun deleteById(id: Long)
+    fun removeById(id: Long)
 }

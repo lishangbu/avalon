@@ -54,10 +54,10 @@ class Oauth2AuthorizationRepositoryTest : AbstractRepositoryTest() {
                 deviceCodeMetadata = """{"device":true}"""
             }
 
-        oauth2AuthorizationRepository.saveAndFlush(authorization)
+        oauth2AuthorizationRepository.save(authorization)
         oauth2AuthorizationRepository.save(OauthAuthorization(authorization) { principalName = "alice-updated" })
 
-        assertEquals("alice-updated", oauth2AuthorizationRepository.findById("unit-authorization")!!.principalName)
+        assertEquals("alice-updated", requireNotNull(oauth2AuthorizationRepository.findNullable("unit-authorization")).principalName)
         assertEquals("unit-authorization", oauth2AuthorizationRepository.findByState("state-token")!!.id)
         assertEquals("unit-authorization", oauth2AuthorizationRepository.findByAuthorizationCodeValue("code-token")!!.id)
         assertEquals("unit-authorization", oauth2AuthorizationRepository.findByAccessTokenValue("access-token")!!.id)
@@ -91,8 +91,7 @@ class Oauth2AuthorizationRepositoryTest : AbstractRepositoryTest() {
                 .id,
         )
 
-        oauth2AuthorizationRepository.deleteById("unit-authorization")
-        oauth2AuthorizationRepository.flush()
-        assertNull(oauth2AuthorizationRepository.findById("unit-authorization"))
+        oauth2AuthorizationRepository.removeById("unit-authorization")
+        assertNull(oauth2AuthorizationRepository.findNullable("unit-authorization"))
     }
 }

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository
 class BerryRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : BerryRepository {
+) : BerryRepositoryExt {
     /** 按条件查询树果列表 */
     override fun findAll(specification: BerrySpecification?): List<Berry> =
         sql
@@ -38,7 +38,7 @@ class BerryRepositoryImpl(
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 按 ID 查询单个树果 */
-    override fun findById(id: Long): Berry? =
+    override fun findByIdWithAssociations(id: Long): Berry? =
         sql
             .createQuery(Berry::class) {
                 where(table.id eq id)
@@ -46,21 +46,12 @@ class BerryRepositoryImpl(
             }.execute()
             .firstOrNull()
 
-    /** 保存树果 */
-    override fun save(berry: Berry): Berry = sql.save(berry).modifiedEntity
-
-    /** 保存树果并立即刷新 */
-    override fun saveAndFlush(berry: Berry): Berry = save(berry)
-
     /** 删除指定 ID 的树果 */
-    override fun deleteById(id: Long) {
+    override fun removeById(id: Long) {
         sql
             .createDelete(Berry::class) {
                 where(table.id eq id)
                 disableDissociation()
             }.execute()
     }
-
-    /** 保留与 Spring Data 风格一致的刷新方法 */
-    override fun flush() = Unit
 }

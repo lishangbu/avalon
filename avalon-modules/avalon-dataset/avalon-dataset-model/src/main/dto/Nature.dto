@@ -1,0 +1,56 @@
+export io.github.lishangbu.avalon.dataset.entity.Nature
+
+NatureView {
+    id
+    internalName
+    name
+    decreasedStat {
+        id
+        internalName
+        name
+    }
+    increasedStat {
+        id
+        internalName
+        name
+    }
+    hatesBerryFlavor {
+        id
+        internalName
+        name
+    }
+    likesBerryFlavor {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveNatureInput {
+    internalName
+    name
+    id(decreasedStat) as decreasedStatId
+    id(increasedStat) as increasedStatId
+    id(hatesBerryFlavor) as hatesBerryFlavorId
+    id(likesBerryFlavor) as likesBerryFlavorId
+}
+
+input UpdateNatureInput {
+    id!
+    internalName
+    name
+    id(decreasedStat) as decreasedStatId
+    id(increasedStat) as increasedStatId
+    id(hatesBerryFlavor) as hatesBerryFlavorId
+    id(likesBerryFlavor) as likesBerryFlavorId
+}
+
+specification NatureSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    associatedIdEq(decreasedStat) as decreasedStatId
+    associatedIdEq(increasedStat) as increasedStatId
+    associatedIdEq(hatesBerryFlavor) as hatesBerryFlavorId
+    associatedIdEq(likesBerryFlavor) as likesBerryFlavorId
+}

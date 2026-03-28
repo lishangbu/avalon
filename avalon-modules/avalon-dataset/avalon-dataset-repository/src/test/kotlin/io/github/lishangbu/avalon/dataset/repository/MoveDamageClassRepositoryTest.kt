@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
@@ -34,6 +35,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
                     name = "单元测试伤害分类"
                     description = "test description"
                 },
+                SaveMode.INSERT_ONLY,
             )
 
         val updated =
@@ -46,7 +48,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
         assertEquals(saved.id, updated.id)
         assertEquals("单元测试伤害分类", updated.name)
 
-        moveDamageClassRepository.save(MoveDamageClass(updated) { description = "updated description" })
+        moveDamageClassRepository.save(MoveDamageClass(updated) { description = "updated description" }, SaveMode.UPSERT)
         val afterUpdate =
             requireNotNull(
                 moveDamageClassRepository
@@ -56,7 +58,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
             )
         assertEquals("updated description", afterUpdate.description)
 
-        moveDamageClassRepository.deleteById(saved.id)
+        moveDamageClassRepository.removeById(saved.id)
         assertTrue(
             moveDamageClassRepository
                 .findAll(

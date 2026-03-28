@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 class TypeEffectivenessEntryRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : TypeEffectivenessEntryRepository {
+) : TypeEffectivenessEntryRepositoryExt {
     /** 按条件查询属性相克条目列表 */
     override fun findAll(
         attackingTypeId: Long?,
@@ -41,11 +41,8 @@ class TypeEffectivenessEntryRepositoryImpl(
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
-    /** 保存属性相克条目 */
-    override fun save(typeEffectivenessEntry: TypeEffectivenessEntry): TypeEffectivenessEntry = sql.save(typeEffectivenessEntry).modifiedEntity
-
     /** 按 ID 删除属性相克条目 */
-    override fun deleteById(id: TypeEffectivenessEntryId) {
+    override fun removeById(id: TypeEffectivenessEntryId) {
         sql
             .createDelete(TypeEffectivenessEntry::class) {
                 where(table.id.attackingTypeId eq id.attackingTypeId)

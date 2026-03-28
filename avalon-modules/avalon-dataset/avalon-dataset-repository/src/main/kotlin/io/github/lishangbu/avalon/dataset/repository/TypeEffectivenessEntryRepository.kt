@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntry
 import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntryId
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
 /**
@@ -13,7 +14,11 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface TypeEffectivenessEntryRepository {
+interface TypeEffectivenessEntryRepository :
+    KRepository<TypeEffectivenessEntry, TypeEffectivenessEntryId>,
+    TypeEffectivenessEntryRepositoryExt
+
+interface TypeEffectivenessEntryRepositoryExt {
     /** 按条件查询属性相克条目列表 */
     fun findAll(
         attackingTypeId: Long?,
@@ -29,9 +34,6 @@ interface TypeEffectivenessEntryRepository {
         pageable: Pageable,
     ): Page<TypeEffectivenessEntry>
 
-    /** 保存属性相克条目 */
-    fun save(typeEffectivenessEntry: TypeEffectivenessEntry): TypeEffectivenessEntry
-
     /** 按 ID 删除属性相克条目 */
-    fun deleteById(id: TypeEffectivenessEntryId)
+    fun removeById(id: TypeEffectivenessEntryId)
 }

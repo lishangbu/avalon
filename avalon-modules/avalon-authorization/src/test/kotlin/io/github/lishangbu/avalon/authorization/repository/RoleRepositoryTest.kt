@@ -32,7 +32,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(1)
     fun testSelectRoleById() {
-        val role = requireNotNull(roleRepository.findById(1L))
+        val role = requireNotNull(roleRepository.findNullable(1L))
         assertEquals("ROLE_SUPER_ADMIN", role.code)
         assertEquals("超级管理员", role.name)
         assertEquals(1L, role.id)
@@ -43,7 +43,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(2)
     fun testSelectRoleByIdWithMenus() {
-        val role = requireNotNull(roleRepository.findByIdWithMenus(1L))
+        val role = requireNotNull(roleRepository.findNullable(1L, AuthorizationFetchers.ROLE_WITH_MENUS))
         assertFalse(role.menus.isEmpty())
     }
 
@@ -67,7 +67,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Order(4)
     @Commit
     fun testUpdateRoleById() {
-        val role = requireNotNull(roleRepository.findById(insertId!!))
+        val role = requireNotNull(roleRepository.findNullable(insertId!!))
         roleRepository.save(
             Role(role) {
                 name = "测试员1"
@@ -80,7 +80,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(5)
     fun testSelectUpdatedRoleById() {
-        val role = requireNotNull(roleRepository.findById(insertId!!))
+        val role = requireNotNull(roleRepository.findNullable(insertId!!))
         assertEquals("ROLE_TEST1", role.code)
         assertEquals("测试员1", role.name)
         assertEquals(insertId, role.id)
@@ -90,6 +90,6 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(6)
     fun testDeleteById() {
-        roleRepository.deleteById(insertId!!)
+        roleRepository.removeById(insertId!!)
     }
 }

@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.Type
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
+import org.babyfish.jimmer.spring.repository.KRepository
 
 /**
  * 属性仓储接口
@@ -11,25 +12,15 @@ import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
  * @author lishangbu
  * @since 2025/09/14
  */
-interface TypeRepository {
-    /** 查询全部属性列表 */
-    fun findAll(): List<Type>
+interface TypeRepository :
+    KRepository<Type, Long>,
+    TypeRepositoryExt
 
+/** 属性仓储扩展接口 */
+interface TypeRepositoryExt {
     /** 按条件查询属性列表 */
     fun findAll(specification: TypeSpecification?): List<Type>
 
-    /** 按 ID 查询属性 */
-    fun findById(id: Long): Type?
-
-    /** 保存属性 */
-    fun save(type: Type): Type
-
-    /** 保存属性并立即刷新 */
-    fun saveAndFlush(type: Type): Type
-
     /** 按 ID 删除属性 */
-    fun deleteById(id: Long)
-
-    /** 刷新持久化上下文 */
-    fun flush()
+    fun removeById(id: Long)
 }

@@ -28,7 +28,7 @@ class OauthRegisteredClientServiceImplTest {
         val found = registeredClient("client-3")
         `when`(repository.findAll(specification, pageable)).thenReturn(page)
         `when`(repository.findAll(specification)).thenReturn(list)
-        `when`(repository.findById("client-3")).thenReturn(found)
+        `when`(repository.findNullable("client-3")).thenReturn(found)
 
         assertSame(page, service.getPageByCondition(specification, pageable))
         assertSame(list, service.listByCondition(specification))
@@ -83,6 +83,6 @@ class OauthRegisteredClientServiceImplTest {
         assertSame(registeredClient, service.update(registeredClient))
         service.removeById("client-4")
 
-        verify(repository).deleteById("client-4")
+        verify(repository).removeById("client-4")
     }
 }

@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Sort
 
 /**
@@ -12,7 +13,11 @@ import org.springframework.data.domain.Sort
  * @author lishangbu
  * @since 2025/08/20
  */
-interface MenuRepository {
+interface MenuRepository :
+    KRepository<Menu, Long>,
+    MenuRepositoryExt
+
+interface MenuRepositoryExt {
     /** 按条件查询菜单列表 */
     fun findAll(specification: MenuSpecification?): List<Menu>
 
@@ -22,23 +27,8 @@ interface MenuRepository {
         sort: Sort,
     ): List<Menu>
 
-    /** 按 ID 查询菜单 */
-    fun findById(id: Long): Menu?
-
-    /** 按 ID 列表查询菜单 */
-    fun findAllById(ids: Iterable<Long>): List<Menu>
-
-    /** 保存菜单 */
-    fun save(menu: Menu): Menu
-
-    /** 保存菜单并立即刷新 */
-    fun saveAndFlush(menu: Menu): Menu
-
     /** 按 ID 删除菜单 */
-    fun deleteById(id: Long)
-
-    /** 刷新持久化上下文 */
-    fun flush()
+    fun removeById(id: Long)
 
     /** 按排序顺序和 ID 升序查询菜单列表 */
     fun findAllByOrderBySortingOrderAscIdAsc(): List<Menu>

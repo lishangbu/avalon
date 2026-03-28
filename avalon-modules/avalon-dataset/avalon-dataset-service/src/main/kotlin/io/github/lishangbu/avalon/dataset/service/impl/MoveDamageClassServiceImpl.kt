@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository
 import io.github.lishangbu.avalon.dataset.service.MoveDamageClassService
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -28,15 +29,15 @@ class MoveDamageClassServiceImpl(
     ): List<MoveDamageClassView> = moveDamageClassRepository.findAll(specification).map(::MoveDamageClassView)
 
     /** 保存招式伤害分类 */
-    override fun save(command: SaveMoveDamageClassInput): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity()))
+    override fun save(command: SaveMoveDamageClassInput): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新招式伤害分类 */
     override fun update(
         command: UpdateMoveDamageClassInput,
-    ): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity()))
+    ): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     /** 按 ID 删除招式伤害分类 */
     override fun removeById(id: Long) {
-        moveDamageClassRepository.deleteById(id)
+        moveDamageClassRepository.removeById(id)
     }
 }

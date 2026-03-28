@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntryId
 import io.github.lishangbu.avalon.dataset.repository.TypeEffectivenessEntryRepository
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository
 import io.github.lishangbu.avalon.dataset.service.*
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.Locale
@@ -73,7 +74,7 @@ class TypeEffectivenessServiceImpl(
                 }
             val multiplierPercent = cell.multiplierPercent
             if (multiplierPercent == null) {
-                typeEffectivenessEntryRepository.deleteById(id)
+                typeEffectivenessEntryRepository.removeById(id)
             } else {
                 // API 层传入的是自然倍率；真正写入数据库前必须先编码成整数百分比。
                 typeEffectivenessEntryRepository.save(
@@ -81,6 +82,7 @@ class TypeEffectivenessServiceImpl(
                         this.id = id
                         this.multiplierPercent = multiplierPercent
                     },
+                    SaveMode.UPSERT,
                 )
             }
         }

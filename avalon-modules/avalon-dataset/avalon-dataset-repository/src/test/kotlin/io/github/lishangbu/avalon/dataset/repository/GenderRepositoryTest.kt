@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.Gender
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -22,7 +23,7 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
                 name = "单元测试性别"
             }
 
-        val saved = genderRepository.saveAndFlush(gender)
+        val saved = genderRepository.save(gender, SaveMode.INSERT_ONLY)
 
         Assertions.assertNotNull(saved.id)
         Assertions.assertTrue(saved.id > 0)
@@ -30,7 +31,7 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindGenderById() {
-        val female = requireNotNull(genderRepository.findById(1L))
+        val female = requireNotNull(genderRepository.findNullable(1L))
 
         Assertions.assertEquals(1L, female.id)
         Assertions.assertEquals("female", female.internalName)
@@ -40,39 +41,41 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldUpdateGenderById() {
         val gender =
-            genderRepository.saveAndFlush(
+            genderRepository.save(
                 Gender {
                     internalName = "gender-update"
                     name = "原始性别"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = gender.id
 
-        genderRepository.saveAndFlush(
+        genderRepository.save(
             Gender(gender) {
                 name = "更新后的性别"
             },
+            SaveMode.UPSERT,
         )
 
-        val updatedGender = requireNotNull(genderRepository.findById(id))
+        val updatedGender = requireNotNull(genderRepository.findNullable(id))
         Assertions.assertEquals("更新后的性别", updatedGender.name)
     }
 
     @Test
     fun shouldDeleteGenderById() {
         val gender =
-            genderRepository.saveAndFlush(
+            genderRepository.save(
                 Gender {
                     internalName = "gender-delete"
                     name = "待删除性别"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val deleteRecordId = gender.id
 
-        Assertions.assertNotNull(genderRepository.findById(deleteRecordId))
-        genderRepository.deleteById(deleteRecordId)
-        genderRepository.flush()
-        Assertions.assertNull(genderRepository.findById(deleteRecordId))
+        Assertions.assertNotNull(genderRepository.findNullable(deleteRecordId))
+        genderRepository.removeById(deleteRecordId)
+        Assertions.assertNull(genderRepository.findNullable(deleteRecordId))
     }
 
     @Test

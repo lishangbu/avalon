@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
+import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
 import org.springframework.data.domain.PageRequest
 
@@ -53,7 +55,7 @@ class UserServiceImplTest {
         val found = user(3L)
         `when`(userRepository.findAllWithRoles(specification, pageable)).thenReturn(page)
         `when`(userRepository.findAllWithRoles(specification)).thenReturn(users)
-        `when`(userRepository.findByIdWithRoles(3L)).thenReturn(found)
+        `when`(userRepository.findNullable(3L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(found)
 
         assertSame(page, service.getPageByCondition(specification, pageable))
         assertSame(users, service.listByCondition(specification))
@@ -116,7 +118,7 @@ class UserServiceImplTest {
                 hashedPassword = "old-hash",
                 roles = listOf(existingRole),
             )
-        `when`(userRepository.findByIdWithRoles(9L)).thenReturn(existing)
+        `when`(userRepository.findNullable(9L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(existing)
         `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(User { id = 9L })
@@ -142,7 +144,7 @@ class UserServiceImplTest {
                 hashedPassword = "new-hash"
                 roles().addBy(role(30L))
             }
-        `when`(userRepository.findByIdWithRoles(9L)).thenReturn(null)
+        `when`(userRepository.findNullable(9L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(null)
         `when`(roleRepository.findAllById(setOf(30L))).thenReturn(listOf(boundRole))
         `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
 
@@ -154,13 +156,13 @@ class UserServiceImplTest {
         assertEquals("new.png", updated.avatar)
         assertEquals("new-hash", updated.hashedPassword)
         assertEquals(listOf("MANAGER"), updated.roles.mapNotNull { it.code })
-        verify(userRepository).findByIdWithRoles(9L)
+        verify(userRepository).findNullable(9L, AuthorizationFetchers.USER_WITH_ROLES)
         verify(roleRepository).findAllById(setOf(30L))
     }
 
     @Test
     fun updateLeavesOptionalFieldsUnsetWhenExistingUserCannotBeFound() {
-        `when`(userRepository.findByIdWithRoles(99L)).thenReturn(null)
+        `when`(userRepository.findNullable(99L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(null)
         `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(User { id = 99L })
@@ -172,7 +174,7 @@ class UserServiceImplTest {
         assertNull(updated.readOrNull { avatar })
         assertNull(updated.readOrNull { hashedPassword })
         assertNull(updated.readOrNull { roles })
-        verify(userRepository).findByIdWithRoles(99L)
+        verify(userRepository).findNullable(99L, AuthorizationFetchers.USER_WITH_ROLES)
         verifyNoInteractions(roleRepository)
     }
 
@@ -188,9 +190,8 @@ class UserServiceImplTest {
             )
 
         assertEquals("draft-user", updated.username)
-        org.mockito.Mockito
-            .verify(userRepository, org.mockito.Mockito.never())
-            .findByIdWithRoles(org.mockito.Mockito.anyLong())
+        verify(userRepository).save(any())
+        verifyNoMoreInteractions(userRepository)
         verifyNoInteractions(roleRepository)
     }
 
@@ -198,6 +199,6 @@ class UserServiceImplTest {
     fun removeDelegatesDeleteToRepository() {
         service.removeById(99L)
 
-        verify(userRepository).deleteById(99L)
+        verify(userRepository).removeById(99L)
     }
 }

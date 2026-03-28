@@ -45,13 +45,13 @@ class DefaultOAuth2AuthorizationService(
     /** 删除默认 OAuth2 授权 */
     @Transactional(rollbackFor = [Exception::class])
     override fun remove(authorization: OAuth2Authorization) {
-        oauth2AuthorizationRepository.deleteById(authorization.id)
+        oauth2AuthorizationRepository.removeById(authorization.id)
     }
 
     /** 按 ID 查询默认 OAuth2 授权 */
     override fun findById(id: String): OAuth2Authorization? {
         require(id.isNotBlank()) { "id cannot be empty" }
-        return oauth2AuthorizationRepository.findById(id)?.let(::toObject)
+        return oauth2AuthorizationRepository.findNullable(id)?.let(::toObject)
     }
 
     /** 根据令牌查找默认 OAuth2 授权 */

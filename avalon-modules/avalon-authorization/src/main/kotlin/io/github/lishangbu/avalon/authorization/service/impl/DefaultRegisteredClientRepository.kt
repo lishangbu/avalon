@@ -45,7 +45,7 @@ class DefaultRegisteredClientRepository(
      */
     override fun findById(id: String): RegisteredClient? {
         require(id.isNotBlank()) { "id cannot be empty" }
-        return oauth2RegisteredClientRepository.findById(id)?.let(::toObject)
+        return oauth2RegisteredClientRepository.findNullable(id)?.let(::toObject)
     }
 
     /**

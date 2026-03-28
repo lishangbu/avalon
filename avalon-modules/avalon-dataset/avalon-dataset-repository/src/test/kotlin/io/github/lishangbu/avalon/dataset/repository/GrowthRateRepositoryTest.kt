@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -23,7 +24,7 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
                 description = "unit test growth rate"
             }
 
-        val saved = growthRateRepository.saveAndFlush(growthRate)
+        val saved = growthRateRepository.save(growthRate, SaveMode.INSERT_ONLY)
 
         Assertions.assertNotNull(saved.id)
         Assertions.assertTrue(saved.id > 0)
@@ -31,7 +32,7 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindGrowthRateById() {
-        val slow = requireNotNull(growthRateRepository.findById(1L))
+        val slow = requireNotNull(growthRateRepository.findNullable(1L))
 
         Assertions.assertEquals(1L, slow.id)
         Assertions.assertEquals("slow", slow.internalName)
@@ -42,23 +43,25 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldUpdateGrowthRateById() {
         val growthRate =
-            growthRateRepository.saveAndFlush(
+            growthRateRepository.save(
                 GrowthRate {
                     internalName = "growth-rate-update"
                     name = "原始成长速率"
                     description = "original growth rate"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = growthRate.id
 
-        growthRateRepository.saveAndFlush(
+        growthRateRepository.save(
             GrowthRate(growthRate) {
                 name = "更新后的成长速率"
                 description = "updated growth rate"
             },
+            SaveMode.UPSERT,
         )
 
-        val updatedGrowthRate = requireNotNull(growthRateRepository.findById(id))
+        val updatedGrowthRate = requireNotNull(growthRateRepository.findNullable(id))
         Assertions.assertEquals("更新后的成长速率", updatedGrowthRate.name)
         Assertions.assertEquals("updated growth rate", updatedGrowthRate.description)
     }
@@ -66,19 +69,19 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldDeleteGrowthRateById() {
         val growthRate =
-            growthRateRepository.saveAndFlush(
+            growthRateRepository.save(
                 GrowthRate {
                     internalName = "growth-rate-delete"
                     name = "待删除成长速率"
                     description = "delete growth rate"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val deleteRecordId = growthRate.id
 
-        Assertions.assertNotNull(growthRateRepository.findById(deleteRecordId))
-        growthRateRepository.deleteById(deleteRecordId)
-        growthRateRepository.flush()
-        Assertions.assertNull(growthRateRepository.findById(deleteRecordId))
+        Assertions.assertNotNull(growthRateRepository.findNullable(deleteRecordId))
+        growthRateRepository.removeById(deleteRecordId)
+        Assertions.assertNull(growthRateRepository.findNullable(deleteRecordId))
     }
 
     @Test

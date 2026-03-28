@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateStatInput
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertEquals("physical", results.first().moveDamageClass?.internalName)
         assertEquals("物理", results.first().moveDamageClass?.name)
 
-        val existing = requireNotNull(statRepository.findById(2L))
+        val existing = requireNotNull(statRepository.findViewById(2L))
         assertEquals("attack", existing.internalName)
         assertEquals("物理", existing.moveDamageClass?.name)
 
@@ -45,17 +46,18 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                             this.id = 2L
                         }
                 },
+                SaveMode.INSERT_ONLY,
             )
 
         val inserted = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals(saved.id.toString(), inserted.id)
         assertEquals("单元测试能力", inserted.name)
 
-        statRepository.save(inserted.toEntity { name = "更新后的能力" })
+        statRepository.save(inserted.toEntity { name = "更新后的能力" }, SaveMode.UPSERT)
         val updated = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals("更新后的能力", updated.name)
 
-        statRepository.deleteById(saved.id)
+        statRepository.removeById(saved.id)
         assertTrue(statRepository.findAll(StatSpecification(internalName = "unit-stat")).isEmpty())
     }
 
@@ -71,9 +73,9 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                 moveDamageClassId = "1",
             )
 
-        statRepository.save(command.toEntity())
+        statRepository.save(command.toEntity(), SaveMode.UPSERT)
 
-        val updated = requireNotNull(statRepository.findById(8L))
+        val updated = requireNotNull(statRepository.findViewById(8L))
         assertEquals("8", updated.id)
         assertEquals("闪避", updated.name)
         assertEquals("evasion", updated.internalName)

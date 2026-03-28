@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.repository
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
 /**
@@ -13,7 +14,11 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/08/20
  */
-interface RoleRepository {
+interface RoleRepository :
+    KRepository<Role, Long>,
+    RoleRepositoryExt
+
+interface RoleRepositoryExt {
     /** 按条件查询角色列表 */
     fun findAll(specification: RoleSpecification?): List<Role>
 
@@ -32,24 +37,6 @@ interface RoleRepository {
         pageable: Pageable,
     ): Page<Role>
 
-    /** 按 ID 查询角色 */
-    fun findById(id: Long): Role?
-
-    /** 按 ID 查询角色，并抓取菜单 */
-    fun findByIdWithMenus(id: Long): Role?
-
-    /** 按 ID 列表查询角色 */
-    fun findAllById(ids: Iterable<Long>): List<Role>
-
-    /** 保存角色 */
-    fun save(role: Role): Role
-
-    /** 保存角色并立即刷新 */
-    fun saveAndFlush(role: Role): Role
-
     /** 按 ID 删除角色 */
-    fun deleteById(id: Long)
-
-    /** 刷新持久化上下文 */
-    fun flush()
+    fun removeById(id: Long)
 }

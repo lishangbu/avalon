@@ -13,3 +13,8 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 12,dataset/berry/index,false,false,__NULL__,game-icons:elderberry,berry,树果管理,berry,7,berry,false,,true,true,0
 13,dataset/stat/index,false,false,__NULL__,game-icons:holosphere,stat,能力管理,stat,7,stat,false,,true,true,0
 14,dataset/move-damage-class/index,false,false,__NULL__,game-icons:entangled-typhoon,move-damage-class,招式伤害类别管理,move-damage-class,7,move-damage-class,false,,true,true,0
+15,dataset/ability/index,false,false,__NULL__,game-icons:aura,ability,特性管理,ability,7,ability,false,,true,true,0
+16,dataset/egg-group/index,false,false,__NULL__,game-icons:egg-pod,egg-group,蛋组管理,egg-group,7,egg-group,false,,true,true,0
+17,dataset/gender/index,false,false,__NULL__,game-icons:duality-mask,gender,性别管理,gender,7,gender,false,,true,true,0
+18,dataset/growth-rate/index,false,false,__NULL__,game-icons:growth,growth-rate,成长速度管理,growth-rate,7,growth-rate,false,,true,true,0
+19,dataset/nature/index,false,false,__NULL__,game-icons:yin-yang,nature,性格管理,nature,7,nature,false,,true,true,0

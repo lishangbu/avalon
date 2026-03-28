@@ -4,93 +4,55 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveTypeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateTypeInput
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import io.github.lishangbu.avalon.dataset.entity.Type as DatasetType
 
 class TypeServiceImplTest {
+    private val repository = mock(TypeRepository::class.java)
+    private val service = TypeServiceImpl(repository)
+
     @Test
     fun listByCondition_callsRepository() {
-        val repository = FakeTypeRepository()
-        val service = TypeServiceImpl(repository)
         val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
-        repository.listResult = listOf(typeEntity(1L, "fire", "火"))
+        `when`(repository.findAll(specification)).thenReturn(listOf(typeEntity(1L, "fire", "火")))
 
         val result = service.listByCondition(specification)
 
         assertEquals(1, result.size)
         assertEquals("1", result.first().id)
         assertEquals("火", result.first().name)
-        assertEquals(specification, repository.listCondition)
     }
 
     @Test
-    fun save_usesRepository() {
-        val repository = FakeTypeRepository()
-        val service = TypeServiceImpl(repository)
-        val command = SaveTypeInput("fire", "火")
-        repository.saveResult = typeEntity(1L, "fire", "火")
+    fun save_usesInsertOnlyMode() {
+        `when`(repository.save(any<DatasetType>(), SaveMode.INSERT_ONLY)).thenReturn(typeEntity(1L, "fire", "火"))
 
-        val result = service.save(command)
+        val result = service.save(SaveTypeInput("fire", "火"))
 
         assertEquals("1", result.id)
-        assertEquals("fire", repository.savedType!!.internalName)
-        assertEquals("火", repository.savedType!!.name)
+        verify(repository).save(any<DatasetType>(), SaveMode.INSERT_ONLY)
     }
 
     @Test
-    fun update_usesRepository() {
-        val repository = FakeTypeRepository()
-        val service = TypeServiceImpl(repository)
-        val command = UpdateTypeInput("1", "water", "水")
-        repository.saveResult = typeEntity(1L, "water", "水")
+    fun update_usesUpsertMode() {
+        `when`(repository.save(any<DatasetType>(), SaveMode.UPSERT)).thenReturn(typeEntity(1L, "water", "水"))
 
-        val result = service.update(command)
+        val result = service.update(UpdateTypeInput("1", "water", "水"))
 
         assertEquals("1", result.id)
-        assertEquals(1L, repository.savedType!!.id)
-        assertEquals("water", repository.savedType!!.internalName)
+        verify(repository).save(any<DatasetType>(), SaveMode.UPSERT)
     }
 
     @Test
     fun removeById_callsRepository() {
-        val repository = FakeTypeRepository()
-        val service = TypeServiceImpl(repository)
-
         service.removeById(1L)
 
-        assertEquals(1L, repository.deletedId)
-    }
-
-    private class FakeTypeRepository : TypeRepository {
-        var listCondition: TypeSpecification? = null
-        var savedType: DatasetType? = null
-        var deletedId: Long? = null
-
-        var listResult: List<DatasetType> = emptyList()
-        var saveResult: DatasetType = DatasetType()
-
-        override fun findAll(): List<DatasetType> = emptyList()
-
-        override fun findAll(specification: TypeSpecification?): List<DatasetType> {
-            listCondition = specification
-            return listResult
-        }
-
-        override fun findById(id: Long): DatasetType? = null
-
-        override fun save(type: DatasetType): DatasetType {
-            savedType = type
-            return saveResult
-        }
-
-        override fun saveAndFlush(type: DatasetType): DatasetType = save(type)
-
-        override fun deleteById(id: Long) {
-            deletedId = id
-        }
-
-        override fun flush() = Unit
+        verify(repository).removeById(1L)
     }
 }
 

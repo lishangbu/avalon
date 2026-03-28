@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
@@ -120,7 +121,7 @@ class MenuServiceImplTest {
         val found = menu(9L, label = "Settings")
         val saved = menu(10L, label = "Saved")
         val updated = menu(11L, label = "Updated")
-        `when`(menuRepository.findById(9L)).thenReturn(found)
+        `when`(menuRepository.findNullable(9L, AuthorizationFetchers.MENU)).thenReturn(found)
         `when`(menuRepository.findAll(MenuSpecification(parentId = 12L))).thenReturn(emptyList())
         `when`(menuRepository.save(any())).thenReturn(saved).thenReturn(updated)
         `when`(roleRepository.findAllWithMenus(null)).thenReturn(emptyList())
@@ -130,12 +131,12 @@ class MenuServiceImplTest {
         assertSame(updated, service.update(menu(11L, label = "Changed")))
         service.removeById(12L)
 
-        verify(menuRepository).deleteById(12L)
+        verify(menuRepository).removeById(12L)
     }
 
     @Test
     fun saveRejectsMissingParentMenu() {
-        `when`(menuRepository.findById(99L)).thenReturn(null)
+        `when`(menuRepository.findNullable(99L, AuthorizationFetchers.MENU)).thenReturn(null)
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
@@ -147,9 +148,9 @@ class MenuServiceImplTest {
 
     @Test
     fun updateRejectsCircularParentReference() {
-        `when`(menuRepository.findById(3L)).thenReturn(menu(3L, parentId = 2L, label = "Grandchild"))
-        `when`(menuRepository.findById(2L)).thenReturn(menu(2L, parentId = 1L, label = "Child"))
-        `when`(menuRepository.findById(1L)).thenReturn(menu(1L, parentId = null, label = "Root"))
+        `when`(menuRepository.findNullable(3L, AuthorizationFetchers.MENU)).thenReturn(menu(3L, parentId = 2L, label = "Grandchild"))
+        `when`(menuRepository.findNullable(2L, AuthorizationFetchers.MENU)).thenReturn(menu(2L, parentId = 1L, label = "Child"))
+        `when`(menuRepository.findNullable(1L, AuthorizationFetchers.MENU)).thenReturn(menu(1L, parentId = null, label = "Root"))
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
@@ -172,7 +173,7 @@ class MenuServiceImplTest {
 
         assertEquals("请先删除子菜单后再删除当前菜单", exception.message)
         verify(roleRepository, never()).findAllWithMenus(null)
-        verify(menuRepository, never()).deleteById(1L)
+        verify(menuRepository, never()).removeById(1L)
     }
 
     @Test
@@ -193,6 +194,6 @@ class MenuServiceImplTest {
         val savedMenus = detachedRole.readOrNull { menus } ?: emptyList()
         assertFalse(savedMenus.any { it.id == 12L })
         verify(roleRepository).save(any())
-        verify(menuRepository).deleteById(12L)
+        verify(menuRepository).removeById(12L)
     }
 }

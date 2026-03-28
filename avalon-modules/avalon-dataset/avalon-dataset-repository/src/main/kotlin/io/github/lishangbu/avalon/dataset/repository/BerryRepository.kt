@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
 /**
@@ -13,7 +14,11 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface BerryRepository {
+interface BerryRepository :
+    KRepository<Berry, Long>,
+    BerryRepositoryExt
+
+interface BerryRepositoryExt {
     /** 按条件查询树果列表 */
     fun findAll(specification: BerrySpecification?): List<Berry>
 
@@ -23,18 +28,9 @@ interface BerryRepository {
         pageable: Pageable,
     ): Page<Berry>
 
-    /** 按 ID 查询单个树果 */
-    fun findById(id: Long): Berry?
-
-    /** 保存树果 */
-    fun save(berry: Berry): Berry
-
-    /** 保存树果并立即刷新 */
-    fun saveAndFlush(berry: Berry): Berry
+    /** 按 ID 查询单个树果及其关联 */
+    fun findByIdWithAssociations(id: Long): Berry?
 
     /** 删除指定 ID 的树果 */
-    fun deleteById(id: Long)
-
-    /** 刷新当前持久化上下文 */
-    fun flush()
+    fun removeById(id: Long)
 }

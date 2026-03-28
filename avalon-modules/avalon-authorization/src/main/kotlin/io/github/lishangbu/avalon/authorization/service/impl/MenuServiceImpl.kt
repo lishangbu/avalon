@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.service.MenuService
@@ -71,7 +72,7 @@ class MenuServiceImpl(
     }
 
     /** 按 ID 查询菜单 */
-    override fun getById(id: Long): Menu? = menuRepository.findById(id)
+    override fun getById(id: Long): Menu? = menuRepository.findNullable(id, AuthorizationFetchers.MENU)
 
     /** 保存菜单 */
     @Transactional(rollbackFor = [Exception::class])
@@ -95,7 +96,7 @@ class MenuServiceImpl(
             throw IllegalStateException("请先删除子菜单后再删除当前菜单")
         }
         detachMenuFromRoles(id)
-        menuRepository.deleteById(id)
+        menuRepository.removeById(id)
     }
 
     private fun validateParent(menu: Menu) {
@@ -107,7 +108,7 @@ class MenuServiceImpl(
         }
 
         val parent =
-            menuRepository.findById(parentId)
+            menuRepository.findNullable(parentId, AuthorizationFetchers.MENU)
                 ?: throw IllegalArgumentException("父菜单不存在")
 
         if (menuId != null) {
@@ -131,7 +132,7 @@ class MenuServiceImpl(
             }
             current =
                 current.parentId?.let { parentId ->
-                    menuRepository.findById(parentId)
+                    menuRepository.findNullable(parentId, AuthorizationFetchers.MENU)
                 }
         }
     }

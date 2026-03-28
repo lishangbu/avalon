@@ -86,7 +86,7 @@ class DefaultRegisteredClientRepositoryTest {
 
     @Test
     fun findByIdReturnsNullWhenRepositoryMisses() {
-        `when`(repository.findById("missing")).thenReturn(null)
+        `when`(repository.findNullable("missing")).thenReturn(null)
 
         val found = adapter.findById("missing")
 
@@ -104,7 +104,7 @@ class DefaultRegisteredClientRepositoryTest {
 
     @Test
     fun findByIdMapsEntityUsingMacAlgorithm() {
-        `when`(repository.findById("client-id")).thenReturn(
+        `when`(repository.findNullable("client-id")).thenReturn(
             registeredClientEntity(
                 id = "client-id",
                 tokenEndpointAuthenticationSigningAlgorithm = "HS256",
@@ -142,7 +142,7 @@ class DefaultRegisteredClientRepositoryTest {
 
     @Test
     fun findByIdMapsKnownGrantAndAuthenticationMethodVariants() {
-        `when`(repository.findById("variant-client")).thenReturn(
+        `when`(repository.findNullable("variant-client")).thenReturn(
             registeredClientEntity(
                 id = "variant-client",
                 tokenEndpointAuthenticationSigningAlgorithm = null,
@@ -223,7 +223,7 @@ class DefaultRegisteredClientRepositoryTest {
 
     @Test
     fun findByIdIgnoresUnknownSigningAlgorithms() {
-        `when`(repository.findById("unknown-alg-client")).thenReturn(
+        `when`(repository.findNullable("unknown-alg-client")).thenReturn(
             registeredClientEntity(
                 id = "unknown-alg-client",
                 tokenEndpointAuthenticationSigningAlgorithm = "unknown-alg",

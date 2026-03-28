@@ -68,7 +68,7 @@ class DefaultOAuth2AuthorizationServiceTest {
     fun removeDelegatesDeleteToRepository() {
         service.remove(oauth2Authorization())
 
-        verify(authorizationRepository).deleteById("authorization-id")
+        verify(authorizationRepository).removeById("authorization-id")
     }
 
     @Test
@@ -83,14 +83,14 @@ class DefaultOAuth2AuthorizationServiceTest {
 
     @Test
     fun findByIdReturnsNullWhenRepositoryMisses() {
-        `when`(authorizationRepository.findById("authorization-id")).thenReturn(null)
+        `when`(authorizationRepository.findNullable("authorization-id")).thenReturn(null)
 
         assertNull(service.findById("authorization-id"))
     }
 
     @Test
     fun findByIdThrowsWhenRegisteredClientIsMissing() {
-        `when`(authorizationRepository.findById("authorization-id")).thenReturn(authorizationEntity())
+        `when`(authorizationRepository.findNullable("authorization-id")).thenReturn(authorizationEntity())
         `when`(registeredClientRepository.findById("client-id")).thenReturn(null)
 
         assertThrows(DataRetrievalFailureException::class.java) {
@@ -101,7 +101,7 @@ class DefaultOAuth2AuthorizationServiceTest {
     @Test
     fun findByIdMapsEntityBackToAuthorization() {
         val entity = roundTripAuthorizationEntity()
-        `when`(authorizationRepository.findById("authorization-id")).thenReturn(entity)
+        `when`(authorizationRepository.findNullable("authorization-id")).thenReturn(entity)
         `when`(registeredClientRepository.findById("client-id")).thenReturn(registeredClient())
 
         val authorization = service.findById("authorization-id")
@@ -239,7 +239,7 @@ class DefaultOAuth2AuthorizationServiceTest {
                 }.build()
         service.save(authorization)
 
-        `when`(authorizationRepository.findById("authorization-id")).thenReturn(requireNotNull(entity))
+        `when`(authorizationRepository.findNullable("authorization-id")).thenReturn(requireNotNull(entity))
         `when`(registeredClientRepository.findById("client-id")).thenReturn(registeredClient())
 
         val reloaded = requireNotNull(service.findById("authorization-id"))

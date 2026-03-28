@@ -1,0 +1,32 @@
+export io.github.lishangbu.avalon.dataset.entity.Ability
+
+AbilityView {
+    id
+    internalName
+    name
+    effect
+    introduction
+}
+
+input SaveAbilityInput {
+    internalName
+    name
+    effect
+    introduction
+}
+
+input UpdateAbilityInput {
+    id!
+    internalName
+    name
+    effect
+    introduction
+}
+
+specification AbilitySpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(effect)
+    like/i(introduction)
+}

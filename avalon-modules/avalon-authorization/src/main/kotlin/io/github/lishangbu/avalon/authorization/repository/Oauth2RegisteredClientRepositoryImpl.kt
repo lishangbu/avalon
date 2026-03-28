@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository
 class Oauth2RegisteredClientRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : Oauth2RegisteredClientRepository {
+) : Oauth2RegisteredClientRepositoryExt {
     /** 按条件查询 OAuth2 注册客户端列表 */
     override fun findAll(specification: OauthRegisteredClientSpecification?): List<OauthRegisteredClient> =
         sql
@@ -34,26 +34,14 @@ class Oauth2RegisteredClientRepositoryImpl(
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
-    /** 按 ID 查询 OAuth2 注册客户端 */
-    override fun findById(id: String): OauthRegisteredClient? = sql.findById(OauthRegisteredClient::class, id)
-
-    /** 保存 OAuth2 注册客户端 */
-    override fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient = sql.save(registeredClient).modifiedEntity
-
-    /** 保存 OAuth2 注册客户端并立即刷新 */
-    override fun saveAndFlush(registeredClient: OauthRegisteredClient): OauthRegisteredClient = save(registeredClient)
-
     /** 按 ID 删除 OAuth2 注册客户端 */
-    override fun deleteById(id: String) {
+    override fun removeById(id: String) {
         sql
             .createDelete(OauthRegisteredClient::class) {
                 where(table.id eq id)
                 disableDissociation()
             }.execute()
     }
-
-    /** Jimmer 无需显式刷新，保留空实现 */
-    override fun flush() = Unit
 
     /** 按客户端 ID 查询 OAuth2 注册客户端 */
     override fun findByClientId(clientId: String): OauthRegisteredClient? =

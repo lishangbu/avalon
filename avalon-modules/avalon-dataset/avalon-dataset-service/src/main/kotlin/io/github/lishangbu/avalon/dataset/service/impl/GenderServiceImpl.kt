@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.repository.GenderRepository
 import io.github.lishangbu.avalon.dataset.service.GenderService
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,16 +18,16 @@ class GenderServiceImpl(
 ) : GenderService {
     /** 保存性别 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(command: SaveGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity()))
+    override fun save(command: SaveGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新性别 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity()))
+    override fun update(command: UpdateGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     /** 按 ID 删除性别 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        genderRepository.deleteById(id)
+        genderRepository.removeById(id)
     }
 
     /** 按条件查询性别列表 */

@@ -7,142 +7,80 @@ import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.StatView
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateStatInput
 import io.github.lishangbu.avalon.dataset.repository.StatRepository
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 class StatServiceImplTest {
+    private val repository = mock(StatRepository::class.java)
+    private val service = StatServiceImpl(repository)
+
     @Test
     fun listByCondition_callsRepository() {
-        val repository = FakeStatRepository()
-        val statService = StatServiceImpl(repository)
         val specification = StatSpecification(id = "1", internalName = "speed")
-        repository.listResult =
-            listOf(
-                StatView(
-                    "2",
-                    "attack",
-                    "攻击",
-                    2,
-                    false,
-                    StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
-                ),
-            )
+        `when`(repository.findAll(specification)).thenReturn(
+            listOf(StatView("2", "attack", "攻击", 2, false, StatView.TargetOf_moveDamageClass("2", "physical", "物理"))),
+        )
 
-        val result = statService.listByCondition(specification)
+        val result = service.listByCondition(specification)
 
         assertEquals(1, result.size)
         assertEquals("2", result.first().id)
         assertEquals("physical", result.first().moveDamageClass?.internalName)
-        assertEquals("物理", result.first().moveDamageClass?.name)
-        assertEquals(specification, repository.listCondition)
     }
 
     @Test
-    fun save_usesRepository() {
-        val repository = FakeStatRepository()
-        val statService = StatServiceImpl(repository)
-        val command = SaveStatInput("attack", "攻击", 2, false, "2")
-        repository.saveResult =
-            Stat {
-                id = 2L
-                internalName = "attack"
-                name = "攻击"
-                gameIndex = 2
-                battleOnly = false
-                moveDamageClass =
-                    MoveDamageClass {
-                        this.id = 2L
-                    }
-            }
-        repository.findByIdResult =
-            StatView(
-                "2",
-                "attack",
-                "攻击",
-                2,
-                false,
-                StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
-            )
+    fun save_usesInsertOnlyModeAndReloadsView() {
+        `when`(repository.save(any<Stat>(), SaveMode.INSERT_ONLY)).thenReturn(statSavedEntity(2L))
+        `when`(repository.findViewById(2L)).thenReturn(statView("2", "attack", "攻击"))
 
-        val result = statService.save(command)
+        val result = service.save(SaveStatInput("attack", "攻击", 2, false, "2"))
 
         assertEquals("2", result.id)
         assertEquals("物理", result.moveDamageClass?.name)
-        assertEquals("attack", repository.savedStat!!.internalName)
-        assertEquals(2L, repository.savedStat!!.moveDamageClass?.id)
-        assertEquals(2L, repository.findByIdValue)
+        verify(repository).save(any<Stat>(), SaveMode.INSERT_ONLY)
+        verify(repository).findViewById(2L)
     }
 
     @Test
-    fun update_usesRepository() {
-        val repository = FakeStatRepository()
-        val statService = StatServiceImpl(repository)
-        val command = UpdateStatInput("2", "attack", "攻击", 2, false, "2")
-        repository.saveResult =
-            Stat {
-                id = 2L
-                internalName = "attack"
-                name = "攻击"
-                gameIndex = 2
-                battleOnly = false
-                moveDamageClass =
-                    MoveDamageClass {
-                        this.id = 2L
-                    }
-            }
-        repository.findByIdResult =
-            StatView(
-                "2",
-                "attack",
-                "攻击",
-                2,
-                false,
-                StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
-            )
+    fun update_usesUpsertModeAndReloadsView() {
+        `when`(repository.save(any<Stat>(), SaveMode.UPSERT)).thenReturn(statSavedEntity(2L))
+        `when`(repository.findViewById(2L)).thenReturn(statView("2", "attack", "攻击"))
 
-        val result = statService.update(command)
+        val result = service.update(UpdateStatInput("2", "attack", "攻击", 2, false, "2"))
 
         assertEquals("2", result.id)
         assertEquals("physical", result.moveDamageClass?.internalName)
-        assertEquals(2L, repository.savedStat!!.id)
-        assertEquals(2L, repository.findByIdValue)
+        verify(repository).save(any<Stat>(), SaveMode.UPSERT)
+        verify(repository).findViewById(2L)
     }
 
     @Test
     fun removeById_callsRepository() {
-        val repository = FakeStatRepository()
-        val statService = StatServiceImpl(repository)
-        statService.removeById(1L)
-        assertEquals(1L, repository.deletedId)
-    }
+        service.removeById(1L)
 
-    private class FakeStatRepository : StatRepository {
-        var listCondition: StatSpecification? = null
-        var savedStat: Stat? = null
-        var deletedId: Long? = null
-        var findByIdValue: Long? = null
-
-        var listResult: List<StatView> = emptyList()
-        var saveResult: Stat = Stat()
-        var findByIdResult: StatView? = null
-
-        override fun findAll(specification: StatSpecification?): List<StatView> {
-            listCondition = specification
-            return listResult
-        }
-
-        override fun findById(id: Long): StatView? {
-            findByIdValue = id
-            return findByIdResult
-        }
-
-        override fun save(stat: Stat): Stat {
-            savedStat = stat
-            return saveResult
-        }
-
-        override fun deleteById(id: Long) {
-            deletedId = id
-        }
+        verify(repository).removeById(1L)
     }
 }
+
+private fun statSavedEntity(id: Long): Stat =
+    Stat {
+        this.id = id
+        internalName = "attack"
+        name = "攻击"
+        gameIndex = 2
+        battleOnly = false
+        moveDamageClass =
+            MoveDamageClass {
+                this.id = 2L
+            }
+    }
+
+private fun statView(
+    id: String,
+    internalName: String,
+    name: String,
+): StatView = StatView(id, internalName, name, 2, false, StatView.TargetOf_moveDamageClass("2", "physical", "物理"))

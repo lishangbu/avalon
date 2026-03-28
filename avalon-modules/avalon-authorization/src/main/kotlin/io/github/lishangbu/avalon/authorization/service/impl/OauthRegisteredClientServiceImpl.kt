@@ -35,7 +35,7 @@ class OauthRegisteredClientServiceImpl(
     override fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClient> = oauth2RegisteredClientRepository.findAll(specification)
 
     /** 按 ID 查询 OAuth2 注册客户端 */
-    override fun getById(id: String): OauthRegisteredClient? = oauth2RegisteredClientRepository.findById(id)
+    override fun getById(id: String): OauthRegisteredClient? = oauth2RegisteredClientRepository.findNullable(id)
 
     /** 保存 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
@@ -81,6 +81,6 @@ class OauthRegisteredClientServiceImpl(
     /** 按 ID 删除 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: String) {
-        oauth2RegisteredClientRepository.deleteById(id)
+        oauth2RegisteredClientRepository.removeById(id)
     }
 }

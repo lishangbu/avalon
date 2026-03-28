@@ -9,27 +9,15 @@ import org.springframework.stereotype.Repository
 class Oauth2AuthorizationRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : Oauth2AuthorizationRepository {
-    /** 按 ID 查询 OAuth2 授权 */
-    override fun findById(id: String): OauthAuthorization? = sql.findById(OauthAuthorization::class, id)
-
-    /** 保存 OAuth2 授权 */
-    override fun save(authorization: OauthAuthorization): OauthAuthorization = sql.save(authorization).modifiedEntity
-
-    /** 保存 OAuth2 授权并立即刷新 */
-    override fun saveAndFlush(authorization: OauthAuthorization): OauthAuthorization = save(authorization)
-
+) : Oauth2AuthorizationRepositoryExt {
     /** 按 ID 删除 OAuth2 授权 */
-    override fun deleteById(id: String) {
+    override fun removeById(id: String) {
         sql
             .createDelete(OauthAuthorization::class) {
                 where(table.id eq id)
                 disableDissociation()
             }.execute()
     }
-
-    /** Jimmer 无需显式刷新，保留空实现 */
-    override fun flush() = Unit
 
     /** 按状态查询 OAuth2 授权 */
     override fun findByState(state: String): OauthAuthorization? =

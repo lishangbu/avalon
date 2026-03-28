@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -15,7 +16,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFlavorById() {
         // Act
-        val flavor = requireNotNull(berryFlavorRepository.findById(1L))
+        val flavor = requireNotNull(berryFlavorRepository.findNullable(1L))
         // Assert
         Assertions.assertEquals(1L, flavor.id)
         Assertions.assertEquals("spicy", flavor.internalName)
@@ -60,11 +61,11 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
             }
 
         // Act
-        val saved = berryFlavorRepository.save(bf)
+        val saved = berryFlavorRepository.save(bf, SaveMode.INSERT_ONLY)
 
         // Assert
         Assertions.assertNotNull(saved.id)
-        val berryFlavor = requireNotNull(berryFlavorRepository.findById(saved.id))
+        val berryFlavor = requireNotNull(berryFlavorRepository.findNullable(saved.id))
         Assertions.assertEquals("savory", berryFlavor.internalName)
         Assertions.assertEquals("鲜美", berryFlavor.name)
     }
@@ -74,19 +75,20 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     fun shouldUpdateBerryFlavorById() {
         // Arrange - 先插入一条临时记录
         val created =
-            berryFlavorRepository.saveAndFlush(
+            berryFlavorRepository.save(
                 BerryFlavor {
                     internalName = "fishy"
                     name = "鱼腥"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = created.id
 
         // Act
-        berryFlavorRepository.saveAndFlush(BerryFlavor(created) { name = "鱼腥味" })
+        berryFlavorRepository.save(BerryFlavor(created) { name = "鱼腥味" }, SaveMode.UPSERT)
 
         // Assert
-        val updatedEntity = requireNotNull(berryFlavorRepository.findById(id))
+        val updatedEntity = requireNotNull(berryFlavorRepository.findNullable(id))
         Assertions.assertEquals("鱼腥味", updatedEntity.name)
     }
 
@@ -95,17 +97,17 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     fun shouldDeleteBerryFlavorById() {
         // Arrange - 插入临时记录
         val created =
-            berryFlavorRepository.saveAndFlush(
+            berryFlavorRepository.save(
                 BerryFlavor {
                     internalName = "pungent"
                     name = "刺激性风味"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = created.id
 
         // Act
-        berryFlavorRepository.deleteById(id)
-        berryFlavorRepository.flush()
+        berryFlavorRepository.removeById(id)
         // 验证通过 internalName 查询不到该记录
         val specification = BerryFlavorSpecification(internalName = "pungent")
         val results = berryFlavorRepository.findAll(specification)

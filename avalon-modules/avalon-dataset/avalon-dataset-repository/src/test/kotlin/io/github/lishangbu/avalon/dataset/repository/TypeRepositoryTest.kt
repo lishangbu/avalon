@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.Type
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
             }
 
         // Act
-        val saved = typeRepository.saveAndFlush(type)
+        val saved = typeRepository.save(type, SaveMode.INSERT_ONLY)
 
         // Assert
         Assertions.assertNotNull(saved.id)
@@ -43,7 +44,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
      */
     @Test
     fun shouldFindTypeById() {
-        val normalType = requireNotNull(typeRepository.findById(1L))
+        val normalType = requireNotNull(typeRepository.findNullable(1L))
         Assertions.assertEquals(1L, normalType.id)
         Assertions.assertEquals("normal", normalType.internalName)
         Assertions.assertEquals("一般", normalType.name)
@@ -58,19 +59,20 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
     fun shouldUpdateTypeById() {
         // Arrange - 插入用于更新的记录
         val type =
-            typeRepository.saveAndFlush(
+            typeRepository.save(
                 Type {
                     internalName = "update_internal"
                     name = "原始名称"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = type.id
 
         // Act
-        typeRepository.saveAndFlush(Type(type) { name = "更新后的名称" })
+        typeRepository.save(Type(type) { name = "更新后的名称" }, SaveMode.UPSERT)
 
         // Assert
-        val updatedType = requireNotNull(typeRepository.findById(id))
+        val updatedType = requireNotNull(typeRepository.findNullable(id))
         Assertions.assertEquals("更新后的名称", updatedType.name)
     }
 
@@ -83,17 +85,17 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
     fun shouldDeleteTypeById() {
         // Arrange - 插入用于删除的记录
         val type =
-            typeRepository.saveAndFlush(
+            typeRepository.save(
                 Type {
                     internalName = "update_internal"
                     name = "原始名称"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val deleteRecordId = type.id
-        Assertions.assertNotNull(typeRepository.findById(deleteRecordId))
-        typeRepository.deleteById(deleteRecordId)
-        typeRepository.flush()
-        Assertions.assertNull(typeRepository.findById(deleteRecordId))
+        Assertions.assertNotNull(typeRepository.findNullable(deleteRecordId))
+        typeRepository.removeById(deleteRecordId)
+        Assertions.assertNull(typeRepository.findNullable(deleteRecordId))
     }
 
     /**

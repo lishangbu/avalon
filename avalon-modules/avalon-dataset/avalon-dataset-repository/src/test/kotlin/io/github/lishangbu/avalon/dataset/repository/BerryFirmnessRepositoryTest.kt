@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
@@ -16,7 +17,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFirmnessById() {
         // Act
-        val berryFirmness = requireNotNull(berryFirmnessRepository.findById(1L))
+        val berryFirmness = requireNotNull(berryFirmnessRepository.findNullable(1L))
 
         // Assert
         Assertions.assertEquals(1L, berryFirmness.id)
@@ -66,10 +67,10 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
                 name = "中等"
             }
 
-        val saved = berryFirmnessRepository.save(bf)
+        val saved = berryFirmnessRepository.save(bf, SaveMode.INSERT_ONLY)
         Assertions.assertNotNull(saved.id)
 
-        val berryFirmness = requireNotNull(berryFirmnessRepository.findById(saved.id))
+        val berryFirmness = requireNotNull(berryFirmnessRepository.findNullable(saved.id))
         Assertions.assertEquals("moderate", berryFirmness.internalName)
         Assertions.assertEquals("中等", berryFirmness.name)
     }
@@ -78,15 +79,16 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldUpdateBerryFirmnessById() {
         val created =
-            berryFirmnessRepository.saveAndFlush(
+            berryFirmnessRepository.save(
                 BerryFirmness {
                     internalName = "tender"
                     name = "嫩"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = created.id
-        berryFirmnessRepository.saveAndFlush(BerryFirmness(created) { name = "非常嫩" })
-        val updatedEntity = requireNotNull(berryFirmnessRepository.findById(id))
+        berryFirmnessRepository.save(BerryFirmness(created) { name = "非常嫩" }, SaveMode.UPSERT)
+        val updatedEntity = requireNotNull(berryFirmnessRepository.findNullable(id))
         Assertions.assertEquals("非常嫩", updatedEntity.name)
     }
 
@@ -94,16 +96,16 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldDeleteBerryFirmnessById() {
         val created =
-            berryFirmnessRepository.saveAndFlush(
+            berryFirmnessRepository.save(
                 BerryFirmness {
                     internalName = "ephemeral"
                     name = "短暂"
                 },
+                SaveMode.INSERT_ONLY,
             )
         val id = created.id
 
-        berryFirmnessRepository.deleteById(id)
-        berryFirmnessRepository.flush()
+        berryFirmnessRepository.removeById(id)
 
         // 通过 internalName 查询应该为空
         val specification = BerryFirmnessSpecification(internalName = "ephemeral")

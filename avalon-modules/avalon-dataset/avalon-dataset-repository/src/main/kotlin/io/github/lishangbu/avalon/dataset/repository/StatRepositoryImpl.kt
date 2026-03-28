@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 class StatRepositoryImpl(
     /** Jimmer SQL 客户端 */
     private val sql: KSqlClient,
-) : StatRepository {
+) : StatRepositoryExt {
     /** 按条件查询能力值列表 */
     override fun findAll(specification: StatSpecification?): List<StatView> =
         sql
@@ -21,7 +21,7 @@ class StatRepositoryImpl(
             }.execute()
 
     /** 按 ID 查询能力值 */
-    override fun findById(id: Long): StatView? =
+    override fun findViewById(id: Long): StatView? =
         sql
             .createQuery(Stat::class) {
                 where(table.id eq id)
@@ -29,11 +29,8 @@ class StatRepositoryImpl(
             }.execute()
             .firstOrNull()
 
-    /** 保存能力值 */
-    override fun save(stat: Stat): Stat = sql.save(stat).modifiedEntity
-
     /** 按 ID 删除能力值 */
-    override fun deleteById(id: Long) {
+    override fun removeById(id: Long) {
         sql
             .createDelete(Stat::class) {
                 where(table.id eq id)

@@ -18,4 +18,26 @@ internal object DatasetFetchers {
                 name()
             }
         }
+
+    /** 性格及其关联基础信息抓取器 */
+    val NATURE_WITH_ASSOCIATIONS =
+        newFetcher(Nature::class).`by` {
+            allScalarFields()
+            decreasedStat {
+                internalName()
+                name()
+            }
+            increasedStat {
+                internalName()
+                name()
+            }
+            hatesBerryFlavor {
+                internalName()
+                name()
+            }
+            likesBerryFlavor {
+                internalName()
+                name()
+            }
+        }
 }

@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization
+import org.babyfish.jimmer.spring.repository.KRepository
 
 /**
  * OAuth2 授权仓储接口
@@ -10,21 +11,13 @@ import io.github.lishangbu.avalon.authorization.entity.OauthAuthorization
  * @author lishangbu
  * @since 2025/9/14
  */
-interface Oauth2AuthorizationRepository {
-    /** 按 ID 查询 OAuth2 授权 */
-    fun findById(id: String): OauthAuthorization?
+interface Oauth2AuthorizationRepository :
+    KRepository<OauthAuthorization, String>,
+    Oauth2AuthorizationRepositoryExt
 
-    /** 保存OAuth2 授权 */
-    fun save(authorization: OauthAuthorization): OauthAuthorization
-
-    /** 保存OAuth2 授权并立即刷新 */
-    fun saveAndFlush(authorization: OauthAuthorization): OauthAuthorization
-
+interface Oauth2AuthorizationRepositoryExt {
     /** 按 ID 删除 OAuth2 授权 */
-    fun deleteById(id: String)
-
-    /** 刷新持久化上下文 */
-    fun flush()
+    fun removeById(id: String)
 
     /**
      * 根据 state 查询认证信息

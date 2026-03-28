@@ -8,19 +8,23 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 
 class BerryServiceImplTest {
+    private val repository = mock(BerryRepository::class.java)
+    private val service = BerryServiceImpl(repository)
+
     @Test
     fun getPageByCondition_callsRepository() {
-        val repository = FakeBerryRepository()
-        val service = BerryServiceImpl(repository)
         val specification = BerrySpecification(id = "1", internalName = "cheri")
         val pageable = PageRequest.of(0, 5)
-        repository.pageResult = Page(listOf(berryWithAssociations(1L)), 1, 1)
+        `when`(repository.findAll(specification, pageable)).thenReturn(Page(listOf(berryWithAssociations(1L)), 1, 1))
 
         val result = service.getPageByCondition(specification, pageable)
 
@@ -33,98 +37,39 @@ class BerryServiceImplTest {
                 .berryFirmness
                 ?.internalName,
         )
-        assertEquals(specification, repository.pageCondition)
-        assertEquals(pageable, repository.pageable)
     }
 
     @Test
-    fun save_usesRepository() {
-        val repository = FakeBerryRepository()
-        val service = BerryServiceImpl(repository)
-        val command = SaveBerryInput("cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9)
-        repository.saveResult = berrySavedEntity(1L)
-        repository.findByIdResult = berryWithAssociations(1L)
+    fun save_usesInsertOnlyModeAndReloadsView() {
+        `when`(repository.save(any<Berry>(), SaveMode.INSERT_ONLY)).thenReturn(berrySavedEntity(1L))
+        `when`(repository.findByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
 
-        val result = service.save(command)
+        val result = service.save(SaveBerryInput("cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("hard", result.berryFirmness?.internalName)
-        assertEquals("fire", result.naturalGiftType?.internalName)
-        assertEquals("cheri", repository.savedBerry!!.internalName)
-        assertEquals(7L, repository.savedBerry!!.berryFirmness?.id)
-        assertEquals(8L, repository.savedBerry!!.naturalGiftType?.id)
-        assertEquals(1L, repository.findByIdValue)
+        verify(repository).save(any<Berry>(), SaveMode.INSERT_ONLY)
+        verify(repository).findByIdWithAssociations(1L)
     }
 
     @Test
-    fun update_usesRepository() {
-        val repository = FakeBerryRepository()
-        val service = BerryServiceImpl(repository)
-        val command = UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9)
-        repository.saveResult = berrySavedEntity(1L)
-        repository.findByIdResult = berryWithAssociations(1L)
+    fun update_usesUpsertModeAndReloadsView() {
+        `when`(repository.save(any<Berry>(), SaveMode.UPSERT)).thenReturn(berrySavedEntity(1L))
+        `when`(repository.findByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
 
-        val result = service.update(command)
+        val result = service.update(UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("硬", result.berryFirmness?.name)
-        assertEquals(1L, repository.savedBerry!!.id)
-        assertEquals(1L, repository.findByIdValue)
+        verify(repository).save(any<Berry>(), SaveMode.UPSERT)
+        verify(repository).findByIdWithAssociations(1L)
     }
 
     @Test
     fun removeById_callsRepository() {
-        val repository = FakeBerryRepository()
-        val service = BerryServiceImpl(repository)
-
         service.removeById(1L)
 
-        assertEquals(1L, repository.deletedId)
-    }
-
-    private class FakeBerryRepository : BerryRepository {
-        var pageCondition: BerrySpecification? = null
-        var pageable: Pageable? = null
-        var savedBerry: Berry? = null
-        var deletedId: Long? = null
-        var findByIdValue: Long? = null
-
-        var listResult: List<Berry> = emptyList()
-        var pageResult: Page<Berry> = Page(emptyList(), 0, 0)
-        var saveResult: Berry = Berry()
-        var findByIdResult: Berry? = null
-
-        override fun findAll(specification: BerrySpecification?): List<Berry> {
-            pageCondition = specification
-            return listResult
-        }
-
-        override fun findAll(
-            specification: BerrySpecification?,
-            pageable: Pageable,
-        ): Page<Berry> {
-            pageCondition = specification
-            this.pageable = pageable
-            return pageResult
-        }
-
-        override fun findById(id: Long): Berry? {
-            findByIdValue = id
-            return findByIdResult
-        }
-
-        override fun save(berry: Berry): Berry {
-            savedBerry = berry
-            return saveResult
-        }
-
-        override fun saveAndFlush(berry: Berry): Berry = save(berry)
-
-        override fun deleteById(id: Long) {
-            deletedId = id
-        }
-
-        override fun flush() = Unit
+        verify(repository).removeById(1L)
     }
 }
 

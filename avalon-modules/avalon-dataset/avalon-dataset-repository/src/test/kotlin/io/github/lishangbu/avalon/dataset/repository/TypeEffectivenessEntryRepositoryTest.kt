@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntry
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
@@ -27,6 +28,7 @@ class TypeEffectivenessEntryRepositoryTest : AbstractRepositoryTest() {
                 TypeEffectivenessEntry(existing) {
                     multiplierPercent = 150
                 },
+                SaveMode.UPSERT,
             )
 
         val foundAfterUpdate =
@@ -37,7 +39,7 @@ class TypeEffectivenessEntryRepositoryTest : AbstractRepositoryTest() {
             )
         assertFalse(foundAfterUpdate.isEmpty())
 
-        typeEffectivenessEntryRepository.deleteById(updated.id)
+        typeEffectivenessEntryRepository.removeById(updated.id)
         val afterDelete =
             typeEffectivenessEntryRepository.findAll(
                 updated.id.attackingTypeId,

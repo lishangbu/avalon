@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
+import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.service.RoleService
@@ -37,7 +38,7 @@ class RoleServiceImpl(
     override fun listByCondition(specification: RoleSpecification): List<Role> = roleRepository.findAllWithMenus(specification)
 
     /** 按 ID 查询角色 */
-    override fun getById(id: Long): Role? = roleRepository.findByIdWithMenus(id)
+    override fun getById(id: Long): Role? = roleRepository.findNullable(id, AuthorizationFetchers.ROLE_WITH_MENUS)
 
     /** 保存角色 */
     @Transactional(rollbackFor = [Exception::class])
@@ -56,7 +57,7 @@ class RoleServiceImpl(
     /** 按 ID 删除角色 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        roleRepository.deleteById(id)
+        roleRepository.removeById(id)
     }
 
     /** 返回绑定菜单列表 */
@@ -66,7 +67,7 @@ class RoleServiceImpl(
     ): Role {
         val existing =
             if (preserveWhenNull) {
-                role.readOrNull { id }?.let(roleRepository::findByIdWithMenus)
+                role.readOrNull { id }?.let { roleId -> roleRepository.findNullable(roleId, AuthorizationFetchers.ROLE_WITH_MENUS) }
             } else {
                 null
             }

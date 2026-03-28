@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.stereotype.Service
 
 /** 树果风味服务实现 */
@@ -15,14 +16,14 @@ class BerryFlavorServiceImpl(
     private val berryFlavorRepository: BerryFlavorRepository,
 ) : BerryFlavorService {
     /** 保存树果风味 */
-    override fun save(command: SaveBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity()))
+    override fun save(command: SaveBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新树果风味 */
-    override fun update(command: UpdateBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity()))
+    override fun update(command: UpdateBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     /** 按 ID 删除树果风味 */
     override fun removeById(id: Long) {
-        berryFlavorRepository.deleteById(id)
+        berryFlavorRepository.removeById(id)
     }
 
     /** 按条件查询树果风味列表 */

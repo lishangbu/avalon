@@ -1,0 +1,32 @@
+export io.github.lishangbu.avalon.dataset.entity.EggGroup
+
+EggGroupView {
+    id
+    internalName
+    name
+    text
+    characteristics
+}
+
+input SaveEggGroupInput {
+    internalName
+    name
+    text
+    characteristics
+}
+
+input UpdateEggGroupInput {
+    id!
+    internalName
+    name
+    text
+    characteristics
+}
+
+specification EggGroupSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(text)
+    like/i(characteristics)
+}
