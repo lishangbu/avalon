@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: avalon-site-publish-${{ github.event.workflow_run.head_branch || github.run_id }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish-api-docs:
