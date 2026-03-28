@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.dataset.repository
 
+import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.UpdateStatInput
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -38,7 +40,10 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                     name = "单元测试能力"
                     gameIndex = 99
                     battleOnly = false
-                    moveDamageClassId = 2L
+                    moveDamageClass =
+                        MoveDamageClass {
+                            this.id = 2L
+                        }
                 },
             )
 
@@ -52,6 +57,28 @@ class StatRepositoryTest : AbstractRepositoryTest() {
 
         statRepository.deleteById(saved.id)
         assertTrue(statRepository.findAll(StatSpecification(internalName = "unit-stat")).isEmpty())
+    }
+
+    @Test
+    fun shouldUpdateStatFromFlatInputPayload() {
+        val command =
+            UpdateStatInput(
+                id = "8",
+                name = "闪避",
+                internalName = "evasion",
+                gameIndex = 0,
+                battleOnly = true,
+                moveDamageClassId = "1",
+            )
+
+        statRepository.save(command.toEntity())
+
+        val updated = requireNotNull(statRepository.findById(8L))
+        assertEquals("8", updated.id)
+        assertEquals("闪避", updated.name)
+        assertEquals("evasion", updated.internalName)
+        assertEquals(true, updated.battleOnly)
+        assertEquals("1", updated.moveDamageClass?.id)
     }
 
     private fun assertTrue(value: Boolean) {

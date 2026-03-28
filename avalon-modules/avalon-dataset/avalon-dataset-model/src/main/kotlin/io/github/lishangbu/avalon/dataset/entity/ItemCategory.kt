@@ -21,6 +21,5 @@ interface ItemCategory {
 
     /** 道具口袋 */
     @ManyToOne
-    @JoinColumn(name = "item_pocket_id")
     val itemPocket: ItemPocket?
 }

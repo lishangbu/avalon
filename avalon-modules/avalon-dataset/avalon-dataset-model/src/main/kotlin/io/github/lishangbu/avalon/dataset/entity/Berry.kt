@@ -36,23 +36,11 @@ interface Berry {
 
     /** 树果硬度 */
     @ManyToOne
-    @JoinColumn(name = "berry_firmness_id")
     val berryFirmness: BerryFirmness?
-
-    /** 树果硬度 ID */
-    @IdView("berryFirmness")
-    @JsonConverter(LongToStringConverter::class)
-    val berryFirmnessId: Long?
 
     /** 自然礼物属性 */
     @ManyToOne
-    @JoinColumn(name = "natural_gift_type_id")
     val naturalGiftType: Type?
-
-    /** 自然礼物属性 ID */
-    @IdView("naturalGiftType")
-    @JsonConverter(LongToStringConverter::class)
-    val naturalGiftTypeId: Long?
 
     /** 自然礼物威力 */
     val naturalGiftPower: Int?

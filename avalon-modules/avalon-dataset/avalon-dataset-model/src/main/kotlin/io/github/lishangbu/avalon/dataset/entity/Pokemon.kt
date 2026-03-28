@@ -33,6 +33,5 @@ interface Pokemon {
 
     /** 宝可梦种族 */
     @ManyToOne
-    @JoinColumn(name = "pokemon_species_id")
     val pokemonSpecies: PokemonSpecies?
 }

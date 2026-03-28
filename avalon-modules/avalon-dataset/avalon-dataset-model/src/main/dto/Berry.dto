@@ -30,8 +30,8 @@ input SaveBerryInput {
     bulk
     smoothness
     soilDryness
-    berryFirmnessId
-    naturalGiftTypeId
+    id(berryFirmness) as berryFirmnessId
+    id(naturalGiftType) as naturalGiftTypeId
     naturalGiftPower
 }
 
@@ -44,8 +44,8 @@ input UpdateBerryInput {
     bulk
     smoothness
     soilDryness
-    berryFirmnessId
-    naturalGiftTypeId
+    id(berryFirmness) as berryFirmnessId
+    id(naturalGiftType) as naturalGiftTypeId
     naturalGiftPower
 }
 
@@ -58,7 +58,7 @@ specification BerrySpecification {
     bulk
     smoothness
     soilDryness
-    berryFirmnessId
-    naturalGiftTypeId
+    associatedIdEq(berryFirmness) as berryFirmnessId
+    associatedIdEq(naturalGiftType) as naturalGiftTypeId
     naturalGiftPower
 }

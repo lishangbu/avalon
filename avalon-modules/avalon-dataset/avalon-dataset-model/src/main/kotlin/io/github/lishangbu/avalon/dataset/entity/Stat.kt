@@ -27,11 +27,5 @@ interface Stat {
 
     /** 招式伤害分类 */
     @ManyToOne
-    @JoinColumn(name = "move_damage_class_id")
     val moveDamageClass: MoveDamageClass?
-
-    /** 招式伤害分类 ID */
-    @IdView("moveDamageClass")
-    @JsonConverter(LongToStringConverter::class)
-    val moveDamageClassId: Long?
 }

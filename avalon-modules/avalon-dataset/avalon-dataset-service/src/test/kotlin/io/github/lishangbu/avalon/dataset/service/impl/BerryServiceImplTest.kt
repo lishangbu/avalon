@@ -51,7 +51,8 @@ class BerryServiceImplTest {
         assertEquals("hard", result.berryFirmness?.internalName)
         assertEquals("fire", result.naturalGiftType?.internalName)
         assertEquals("cheri", repository.savedBerry!!.internalName)
-        assertEquals(7L, repository.savedBerry!!.berryFirmnessId)
+        assertEquals(7L, repository.savedBerry!!.berryFirmness?.id)
+        assertEquals(8L, repository.savedBerry!!.naturalGiftType?.id)
         assertEquals(1L, repository.findByIdValue)
     }
 
@@ -137,8 +138,14 @@ private fun berrySavedEntity(id: Long): Berry =
         bulk = 4
         smoothness = 5
         soilDryness = 6
-        berryFirmnessId = 7L
-        naturalGiftTypeId = 8L
+        berryFirmness =
+            BerryFirmness {
+                this.id = 7L
+            }
+        naturalGiftType =
+            Type {
+                this.id = 8L
+            }
         naturalGiftPower = 9
     }
 

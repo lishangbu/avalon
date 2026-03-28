@@ -21,7 +21,6 @@ interface Move {
 
     /** 属性 */
     @ManyToOne
-    @JoinColumn(name = "type_id")
     val type: Type?
 
     /** 命中率 */
@@ -41,12 +40,10 @@ interface Move {
 
     /** 招式伤害分类 */
     @ManyToOne
-    @JoinColumn(name = "move_damage_class_id")
     val moveDamageClass: MoveDamageClass?
 
     /** 招式目标 */
     @ManyToOne
-    @JoinColumn(name = "move_target_id")
     val moveTarget: MoveTarget?
 
     /** 文本 */
@@ -60,12 +57,10 @@ interface Move {
 
     /** 招式分类 */
     @ManyToOne
-    @JoinColumn(name = "move_category_id")
     val moveCategory: MoveCategory?
 
     /** 招式异常状态 */
     @ManyToOne
-    @JoinColumn(name = "move_ailment_id")
     val moveAilment: MoveAilment?
 
     /** 最小命中次数 */
