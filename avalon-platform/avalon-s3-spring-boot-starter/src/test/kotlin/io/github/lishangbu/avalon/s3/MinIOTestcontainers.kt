@@ -17,9 +17,14 @@ class MinIOTestcontainers : BeforeAllCallback {
         container.start()
         val mappedPort = container.firstMappedPort
         val url = "http://${container.host}:$mappedPort"
-        System.setProperty("s3.endpoint", url)
-        System.setProperty("s3.accessKey", "testuser")
-        System.setProperty("s3.secretKey", "testpassword")
+        System.setProperty("avalon.s3.enabled", "true")
+        System.setProperty("avalon.s3.default-client-name", "default")
+        System.setProperty("avalon.s3.clients.default.provider", "MINIO")
+        System.setProperty("avalon.s3.clients.default.endpoint", url)
+        System.setProperty("avalon.s3.clients.default.region", "us-east-1")
+        System.setProperty("avalon.s3.clients.default.path-style-access", "true")
+        System.setProperty("avalon.s3.clients.default.credentials.access-key-id", "testuser")
+        System.setProperty("avalon.s3.clients.default.credentials.secret-access-key", "testpassword")
     }
 
     /** 暴露运行中的 MinIO 容器 */
