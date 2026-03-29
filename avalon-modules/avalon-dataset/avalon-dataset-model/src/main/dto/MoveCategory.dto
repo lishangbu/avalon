@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.MoveCategory
+
+MoveCategoryView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveMoveCategoryInput {
+    internalName
+    name
+    description
+}
+
+input UpdateMoveCategoryInput {
+    id!
+    internalName
+    name
+    description
+}
+
+specification MoveCategorySpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(description)
+}

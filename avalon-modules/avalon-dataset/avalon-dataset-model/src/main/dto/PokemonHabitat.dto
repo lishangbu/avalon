@@ -1,0 +1,24 @@
+export io.github.lishangbu.avalon.dataset.entity.PokemonHabitat
+
+PokemonHabitatView {
+    id
+    internalName
+    name
+}
+
+input SavePokemonHabitatInput {
+    internalName
+    name
+}
+
+input UpdatePokemonHabitatInput {
+    id!
+    internalName
+    name
+}
+
+specification PokemonHabitatSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

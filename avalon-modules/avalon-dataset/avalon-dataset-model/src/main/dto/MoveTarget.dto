@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.MoveTarget
+
+MoveTargetView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveMoveTargetInput {
+    internalName
+    name
+    description
+}
+
+input UpdateMoveTargetInput {
+    id!
+    internalName
+    name
+    description
+}
+
+specification MoveTargetSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(description)
+}

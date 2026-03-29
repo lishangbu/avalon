@@ -1,0 +1,24 @@
+export io.github.lishangbu.avalon.dataset.entity.MoveAilment
+
+MoveAilmentView {
+    id
+    internalName
+    name
+}
+
+input SaveMoveAilmentInput {
+    internalName
+    name
+}
+
+input UpdateMoveAilmentInput {
+    id!
+    internalName
+    name
+}
+
+specification MoveAilmentSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

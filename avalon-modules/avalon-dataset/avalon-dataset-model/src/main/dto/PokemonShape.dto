@@ -1,0 +1,24 @@
+export io.github.lishangbu.avalon.dataset.entity.PokemonShape
+
+PokemonShapeView {
+    id
+    internalName
+    name
+}
+
+input SavePokemonShapeInput {
+    internalName
+    name
+}
+
+input UpdatePokemonShapeInput {
+    id!
+    internalName
+    name
+}
+
+specification PokemonShapeSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

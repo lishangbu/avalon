@@ -22,3 +22,10 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 21,dataset/encounter-condition-value/index,false,false,__NULL__,ph:list-checks-bold,encounter-condition-value,遭遇条件值管理,encounter-condition-value,7,encounter-condition-value,false,,true,true,0
 22,dataset/encounter-method/index,false,false,__NULL__,ph:footprints-bold,encounter-method,遭遇方式管理,encounter-method,7,encounter-method,false,,true,true,0
 23,dataset/evolution-trigger/index,false,false,__NULL__,ph:git-branch-bold,evolution-trigger,进化触发方式管理,evolution-trigger,7,evolution-trigger,false,,true,true,0
+24,dataset/pokemon-color/index,false,false,__NULL__,ph:palette-bold,pokemon-color,宝可梦颜色管理,pokemon-color,7,pokemon-color,false,,true,true,0
+25,dataset/pokemon-habitat/index,false,false,__NULL__,ph:mountains-bold,pokemon-habitat,宝可梦栖息地管理,pokemon-habitat,7,pokemon-habitat,false,,true,true,0
+26,dataset/pokemon-shape/index,false,false,__NULL__,ph:polygon-bold,pokemon-shape,宝可梦形状管理,pokemon-shape,7,pokemon-shape,false,,true,true,0
+27,dataset/move-ailment/index,false,false,__NULL__,ph:first-aid-kit-bold,move-ailment,招式异常管理,move-ailment,7,move-ailment,false,,true,true,0
+28,dataset/move-category/index,false,false,__NULL__,ph:squares-four-bold,move-category,招式类别管理,move-category,7,move-category,false,,true,true,0
+29,dataset/move-learn-method/index,false,false,__NULL__,ph:graduation-cap-bold,move-learn-method,招式学习方式管理,move-learn-method,7,move-learn-method,false,,true,true,0
+30,dataset/move-target/index,false,false,__NULL__,ph:crosshair-bold,move-target,招式目标管理,move-target,7,move-target,false,,true,true,0

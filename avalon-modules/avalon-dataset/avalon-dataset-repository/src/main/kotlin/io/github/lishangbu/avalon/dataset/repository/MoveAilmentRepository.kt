@@ -1,16 +1,27 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.MoveAilment
+import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveAilmentSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveAilmentView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Repository
 
-/**
- * 招式异常仓储接口
- *
- * 定义招式异常数据的查询与持久化操作
- *
- * @author lishangbu
- * @since 2025/09/14
- */
+/** 招式异常仓储接口 */
 @Repository
-interface MoveAilmentRepository : KRepository<MoveAilment, Long>
+interface MoveAilmentRepository : KRepository<MoveAilment, Long> {
+    fun listViews(specification: MoveAilmentSpecification?): List<MoveAilmentView> =
+        sql
+            .createQuery(MoveAilment::class) {
+                specification?.let(::where)
+                select(table.fetch(MoveAilmentView::class))
+            }.execute()
+
+    fun loadViewById(id: Long): MoveAilmentView? =
+        sql
+            .createQuery(MoveAilment::class) {
+                where(table.id eq id)
+                select(table.fetch(MoveAilmentView::class))
+            }.execute()
+            .firstOrNull()
+}

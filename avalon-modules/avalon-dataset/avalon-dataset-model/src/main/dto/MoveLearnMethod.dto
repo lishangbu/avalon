@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.MoveLearnMethod
+
+MoveLearnMethodView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveMoveLearnMethodInput {
+    internalName
+    name
+    description
+}
+
+input UpdateMoveLearnMethodInput {
+    id!
+    internalName
+    name
+    description
+}
+
+specification MoveLearnMethodSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(description)
+}
