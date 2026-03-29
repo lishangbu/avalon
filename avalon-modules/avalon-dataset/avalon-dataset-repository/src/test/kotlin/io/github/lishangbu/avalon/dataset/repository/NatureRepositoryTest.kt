@@ -23,16 +23,16 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
     fun shouldListAndCrudNature() {
         val condition = NatureSpecification(internalName = "bold")
 
-        val results = natureRepository.findAll(condition)
+        val results = natureRepository.listViews(condition)
 
         assertFalse(results.isEmpty())
-        assertEquals(2L, results.first().id)
+        assertEquals("2", results.first().id)
         assertEquals("bold", results.first().internalName)
-        assertEquals(2L, results.first().decreasedStat?.id)
+        assertEquals("2", results.first().decreasedStat?.id)
         assertEquals("attack", results.first().decreasedStat?.internalName)
         assertEquals("辣", results.first().hatesBerryFlavor?.name)
 
-        val neutral = requireNotNull(natureRepository.loadByIdWithAssociations(1L))
+        val neutral = requireNotNull(natureRepository.loadViewById(1L))
         assertEquals("hardy", neutral.internalName)
         assertNull(neutral.decreasedStat)
         assertNull(neutral.likesBerryFlavor)
@@ -62,13 +62,14 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
                 SaveMode.INSERT_ONLY,
             )
 
-        val inserted = requireNotNull(natureRepository.loadByIdWithAssociations(saved.id))
+        val inserted = requireNotNull(natureRepository.loadViewById(saved.id))
         assertEquals("单元测试性格", inserted.name)
         assertEquals("攻击", inserted.decreasedStat?.name)
         assertEquals("酸", inserted.likesBerryFlavor?.name)
 
+        val insertedEntity = requireNotNull(natureRepository.findNullable(saved.id))
         natureRepository.save(
-            Nature(inserted) {
+            Nature(insertedEntity) {
                 name = "更新后的性格"
                 decreasedStat = null
                 increasedStat = null
@@ -77,13 +78,13 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
             },
             SaveMode.UPSERT,
         )
-        val updated = requireNotNull(natureRepository.loadByIdWithAssociations(saved.id))
+        val updated = requireNotNull(natureRepository.loadViewById(saved.id))
         assertEquals("更新后的性格", updated.name)
         assertNull(updated.decreasedStat)
         assertNull(updated.likesBerryFlavor)
 
         natureRepository.deleteById(saved.id)
-        assertNull(natureRepository.loadByIdWithAssociations(saved.id))
+        assertNull(natureRepository.loadViewById(saved.id))
     }
 
     @Test
@@ -101,13 +102,13 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
 
         natureRepository.save(command.toEntity(), SaveMode.UPSERT)
 
-        val updated = requireNotNull(natureRepository.loadByIdWithAssociations(7L))
-        assertEquals(7L, updated.id)
+        val updated = requireNotNull(natureRepository.loadViewById(7L))
+        assertEquals("7", updated.id)
         assertEquals("docile", updated.internalName)
-        assertEquals(2L, updated.decreasedStat?.id)
-        assertEquals(3L, updated.increasedStat?.id)
-        assertEquals(1L, updated.hatesBerryFlavor?.id)
-        assertEquals(5L, updated.likesBerryFlavor?.id)
+        assertEquals("2", updated.decreasedStat?.id)
+        assertEquals("3", updated.increasedStat?.id)
+        assertEquals("1", updated.hatesBerryFlavor?.id)
+        assertEquals("5", updated.likesBerryFlavor?.id)
         assertTrue(updated.likesBerryFlavor?.name == "酸")
     }
 }

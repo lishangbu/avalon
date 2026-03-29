@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.EggGroup
 import io.github.lishangbu.avalon.dataset.entity.dto.EggGroupSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.EggGroupView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEggGroupInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEggGroupInput
 import io.github.lishangbu.avalon.dataset.repository.EggGroupRepository
@@ -20,7 +21,7 @@ class EggGroupServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = EggGroupSpecification(id = "1", internalName = "monster")
-        `when`(repository.findAll(specification)).thenReturn(listOf(eggGroupEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(eggGroupView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -65,3 +66,5 @@ private fun eggGroupEntity(id: Long): EggGroup =
         text = "text"
         characteristics = "characteristics"
     }
+
+private fun eggGroupView(id: Long): EggGroupView = EggGroupView(eggGroupEntity(id))

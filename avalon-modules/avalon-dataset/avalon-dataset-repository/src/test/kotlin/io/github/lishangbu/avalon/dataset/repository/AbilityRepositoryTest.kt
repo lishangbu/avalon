@@ -31,9 +31,9 @@ class AbilityRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindAbilityById() {
-        val ability = requireNotNull(abilityRepository.findNullable(1L))
+        val ability = requireNotNull(abilityRepository.loadViewById(1L))
 
-        assertEquals(1L, ability.id)
+        assertEquals("1", ability.id)
         assertEquals("stench", ability.internalName)
         assertEquals("恶臭", ability.name)
     }
@@ -86,7 +86,7 @@ class AbilityRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListWithDynamicCondition() {
         val condition = AbilitySpecification(internalName = "stench")
 
-        val results = abilityRepository.findAll(condition)
+        val results = abilityRepository.listViews(condition)
 
         assertTrue(results.isNotEmpty())
         assertTrue(results.any { it.name == "恶臭" })
@@ -94,7 +94,7 @@ class AbilityRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldReturnAllAbilitiesWhenNoCondition() {
-        val results = abilityRepository.findAll()
+        val results = abilityRepository.listViews(null)
 
         assertTrue(results.isNotEmpty())
         assertTrue(results.any { it.internalName == "stench" })

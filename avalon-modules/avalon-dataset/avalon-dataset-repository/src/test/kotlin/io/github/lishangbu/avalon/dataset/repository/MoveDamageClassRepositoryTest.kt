@@ -19,11 +19,11 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
     fun shouldQueryPageAndCrudMoveDamageClass() {
         val condition = MoveDamageClassSpecification(internalName = "physical")
 
-        val results = moveDamageClassRepository.findAll(condition)
-        val page = moveDamageClassRepository.findAll(condition, PageRequest.of(0, 10))
+        val results = moveDamageClassRepository.listViews(condition)
+        val page = moveDamageClassRepository.pageViews(condition, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
-        assertEquals(2L, results.first().id)
+        assertEquals("2", results.first().id)
         assertEquals("physical", results.first().internalName)
         assertFalse(page.rows.isEmpty())
 
@@ -41,27 +41,22 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
         val updated =
             requireNotNull(
                 moveDamageClassRepository
-                    .findAll(
+                    .listViews(
                         MoveDamageClassSpecification(internalName = "unit-damage-class"),
                     ).firstOrNull(),
             )
-        assertEquals(saved.id, updated.id)
+        assertEquals(saved.id.toString(), updated.id)
         assertEquals("单元测试伤害分类", updated.name)
 
-        moveDamageClassRepository.save(MoveDamageClass(updated) { description = "updated description" }, SaveMode.UPSERT)
-        val afterUpdate =
-            requireNotNull(
-                moveDamageClassRepository
-                    .findAll(
-                        MoveDamageClassSpecification(internalName = "unit-damage-class"),
-                    ).firstOrNull(),
-            )
+        val existingEntity = requireNotNull(moveDamageClassRepository.findNullable(saved.id))
+        moveDamageClassRepository.save(MoveDamageClass(existingEntity) { description = "updated description" }, SaveMode.UPSERT)
+        val afterUpdate = requireNotNull(moveDamageClassRepository.loadViewById(saved.id))
         assertEquals("updated description", afterUpdate.description)
 
         moveDamageClassRepository.deleteById(saved.id)
         assertTrue(
             moveDamageClassRepository
-                .findAll(
+                .listViews(
                     MoveDamageClassSpecification(internalName = "unit-damage-class"),
                 ).isEmpty(),
         )

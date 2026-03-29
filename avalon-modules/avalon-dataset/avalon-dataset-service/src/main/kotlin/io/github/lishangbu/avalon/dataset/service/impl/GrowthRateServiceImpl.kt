@@ -33,5 +33,5 @@ class GrowthRateServiceImpl(
     /** 按条件查询成长速率列表 */
     override fun listByCondition(
         specification: GrowthRateSpecification,
-    ): List<GrowthRateView> = growthRateRepository.findAll(specification).map(::GrowthRateView)
+    ): List<GrowthRateView> = growthRateRepository.listViews(specification)
 }

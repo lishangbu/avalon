@@ -16,9 +16,9 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFlavorById() {
         // Act
-        val flavor = requireNotNull(berryFlavorRepository.findNullable(1L))
+        val flavor = requireNotNull(berryFlavorRepository.loadViewById(1L))
         // Assert
-        Assertions.assertEquals(1L, flavor.id)
+        Assertions.assertEquals("1", flavor.id)
         Assertions.assertEquals("spicy", flavor.internalName)
         Assertions.assertEquals("辣", flavor.name)
     }
@@ -30,7 +30,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         val specification = BerryFlavorSpecification(internalName = "spicy")
 
         // Act
-        val results = berryFlavorRepository.findAll(specification)
+        val results = berryFlavorRepository.listViews(specification)
 
         // Assert
         Assertions.assertNotNull(results)
@@ -42,7 +42,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldReturnAllPreloadedBerryFlavorsWhenNoCondition() {
         // Act
-        val all = berryFlavorRepository.findAll()
+        val all = berryFlavorRepository.listViews(null)
 
         // Assert
         Assertions.assertNotNull(all)
@@ -65,7 +65,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
 
         // Assert
         Assertions.assertNotNull(saved.id)
-        val berryFlavor = requireNotNull(berryFlavorRepository.findNullable(saved.id))
+        val berryFlavor = requireNotNull(berryFlavorRepository.loadViewById(saved.id))
         Assertions.assertEquals("savory", berryFlavor.internalName)
         Assertions.assertEquals("鲜美", berryFlavor.name)
     }
@@ -110,7 +110,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         berryFlavorRepository.deleteById(id)
         // 验证通过 internalName 查询不到该记录
         val specification = BerryFlavorSpecification(internalName = "pungent")
-        val results = berryFlavorRepository.findAll(specification)
+        val results = berryFlavorRepository.listViews(specification)
         Assertions.assertTrue(results.isEmpty(), "删除后按 internalName 查询应返回空集合")
     }
 }

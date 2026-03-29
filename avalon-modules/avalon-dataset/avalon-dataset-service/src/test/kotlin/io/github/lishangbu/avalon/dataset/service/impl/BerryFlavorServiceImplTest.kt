@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
@@ -20,7 +21,7 @@ class BerryFlavorServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = BerryFlavorSpecification(id = "1", internalName = "spicy")
-        `when`(repository.findAll(specification)).thenReturn(listOf(berryFlavorEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(berryFlavorView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -63,3 +64,5 @@ private fun berryFlavorEntity(id: Long): BerryFlavor =
         internalName = "spicy"
         name = "辣"
     }
+
+private fun berryFlavorView(id: Long): BerryFlavorView = BerryFlavorView(berryFlavorEntity(id))

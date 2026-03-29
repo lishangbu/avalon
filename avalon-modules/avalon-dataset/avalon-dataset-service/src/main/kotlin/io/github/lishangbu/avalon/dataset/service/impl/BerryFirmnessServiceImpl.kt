@@ -21,12 +21,12 @@ class BerryFirmnessServiceImpl(
     override fun getPageByCondition(
         specification: BerryFirmnessSpecification,
         pageable: Pageable,
-    ): Page<BerryFirmnessView> = berryFirmnessRepository.findAll(specification, pageable).mapRows(::BerryFirmnessView)
+    ): Page<BerryFirmnessView> = berryFirmnessRepository.pageViews(specification, pageable)
 
     /** 根据条件查询树果硬度列表 */
     override fun listByCondition(
         specification: BerryFirmnessSpecification,
-    ): List<BerryFirmnessView> = berryFirmnessRepository.findAll(specification).map(::BerryFirmnessView)
+    ): List<BerryFirmnessView> = berryFirmnessRepository.listViews(specification)
 
     /** 保存树果硬度 */
     override fun save(

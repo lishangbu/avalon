@@ -31,5 +31,5 @@ class TypeServiceImpl(
     }
 
     /** 按条件查询属性列表*/
-    override fun listByCondition(specification: TypeSpecification): List<TypeView> = typeRepository.findAll(specification).map(::TypeView)
+    override fun listByCondition(specification: TypeSpecification): List<TypeView> = typeRepository.listViews(specification)
 }

@@ -31,9 +31,9 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindGenderById() {
-        val female = requireNotNull(genderRepository.findNullable(1L))
+        val female = requireNotNull(genderRepository.loadViewById(1L))
 
-        Assertions.assertEquals(1L, female.id)
+        Assertions.assertEquals("1", female.id)
         Assertions.assertEquals("female", female.internalName)
         Assertions.assertEquals("♀", female.name)
     }
@@ -82,7 +82,7 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListWithDynamicCondition() {
         val condition = GenderSpecification(internalName = "female")
 
-        val results = genderRepository.findAll(condition)
+        val results = genderRepository.listViews(condition)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.any { it.name == "♀" })
@@ -90,7 +90,7 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldReturnAllGendersWhenNoCondition() {
-        val results = genderRepository.findAll()
+        val results = genderRepository.listViews(null)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.size >= 3)

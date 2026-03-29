@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Gender
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GenderView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.repository.GenderRepository
@@ -20,7 +21,7 @@ class GenderServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = GenderSpecification(id = "1", internalName = "female")
-        `when`(repository.findAll(specification)).thenReturn(listOf(genderEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(genderView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -63,3 +64,5 @@ private fun genderEntity(id: Long): Gender =
         internalName = "female"
         name = "♀"
     }
+
+private fun genderView(id: Long): GenderView = GenderView(genderEntity(id))

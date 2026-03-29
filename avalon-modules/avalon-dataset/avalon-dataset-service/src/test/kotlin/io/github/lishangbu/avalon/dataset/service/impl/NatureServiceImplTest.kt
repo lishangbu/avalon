@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.Nature
 import io.github.lishangbu.avalon.dataset.entity.Stat
 import io.github.lishangbu.avalon.dataset.entity.dto.NatureSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.NatureView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveNatureInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateNatureInput
 import io.github.lishangbu.avalon.dataset.repository.NatureRepository
@@ -22,7 +23,7 @@ class NatureServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = NatureSpecification(id = "2", internalName = "bold")
-        `when`(repository.findAll(specification)).thenReturn(listOf(natureWithAssociations(2L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(natureView(2L)))
 
         val result = service.listByCondition(specification)
 
@@ -34,7 +35,7 @@ class NatureServiceImplTest {
     @Test
     fun save_usesInsertOnlyModeAndReloadsView() {
         `when`(repository.save(any<Nature>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
-        `when`(repository.loadByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
+        `when`(repository.loadViewById(2L)).thenReturn(natureView(2L))
 
         val result =
             service.save(
@@ -51,13 +52,13 @@ class NatureServiceImplTest {
         assertEquals("2", result.id)
         assertEquals("attack", result.decreasedStat?.internalName)
         verify(repository).save(any<Nature>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
-        verify(repository).loadByIdWithAssociations(2L)
+        verify(repository).loadViewById(2L)
     }
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
         `when`(repository.save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
-        `when`(repository.loadByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
+        `when`(repository.loadViewById(2L)).thenReturn(natureView(2L))
 
         val result =
             service.update(
@@ -75,7 +76,7 @@ class NatureServiceImplTest {
         assertEquals("2", result.id)
         assertEquals("防御", result.increasedStat?.name)
         verify(repository).save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
-        verify(repository).loadByIdWithAssociations(2L)
+        verify(repository).loadViewById(2L)
     }
 
     @Test
@@ -139,3 +140,5 @@ private fun natureWithAssociations(id: Long): Nature =
                 name = "酸"
             }
     }
+
+private fun natureView(id: Long): NatureView = NatureView(natureWithAssociations(id))

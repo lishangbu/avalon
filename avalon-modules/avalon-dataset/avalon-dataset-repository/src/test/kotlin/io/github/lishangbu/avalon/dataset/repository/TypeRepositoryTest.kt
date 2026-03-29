@@ -44,8 +44,8 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
      */
     @Test
     fun shouldFindTypeById() {
-        val normalType = requireNotNull(typeRepository.findNullable(1L))
-        Assertions.assertEquals(1L, normalType.id)
+        val normalType = requireNotNull(typeRepository.loadViewById(1L))
+        Assertions.assertEquals("1", normalType.id)
         Assertions.assertEquals("normal", normalType.internalName)
         Assertions.assertEquals("一般", normalType.name)
     }
@@ -107,7 +107,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListWithDynamicCondition() {
         // Act - 使用部分 internalName 作为查询条件，期望匹配 normal
         val specification = TypeSpecification(internalName = "normal")
-        val results = typeRepository.findAll(specification)
+        val results = typeRepository.listViews(specification)
 
         // Assert
         Assertions.assertNotNull(results)
@@ -116,7 +116,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldReturnAllTypesWhenNoCondition() {
-        val results = typeRepository.findAll()
+        val results = typeRepository.listViews(null)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.size >= 10)

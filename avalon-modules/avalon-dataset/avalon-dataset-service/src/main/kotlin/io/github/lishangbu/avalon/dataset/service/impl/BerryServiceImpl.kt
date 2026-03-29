@@ -26,7 +26,7 @@ class BerryServiceImpl(
     override fun getPageByCondition(
         specification: BerrySpecification,
         pageable: Pageable,
-    ): Page<BerryView> = berryRepository.findAll(specification, pageable).mapRows(::BerryView)
+    ): Page<BerryView> = berryRepository.pageViews(specification, pageable)
 
     /** 创建树果 */
     override fun save(command: SaveBerryInput): BerryView = berryRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
@@ -39,5 +39,5 @@ class BerryServiceImpl(
         berryRepository.deleteById(id)
     }
 
-    private fun reloadView(berry: Berry): BerryView = BerryView(requireNotNull(berryRepository.loadByIdWithAssociations(berry.id)) { "未找到 ID=${berry.id} 对应的树果" })
+    private fun reloadView(berry: Berry): BerryView = requireNotNull(berryRepository.loadViewById(berry.id)) { "未找到 ID=${berry.id} 对应的树果" }
 }

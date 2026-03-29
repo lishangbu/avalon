@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveTypeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.TypeView
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateTypeInput
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository
 import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
@@ -20,7 +21,7 @@ class TypeServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
-        `when`(repository.findAll(specification)).thenReturn(listOf(typeEntity(1L, "fire", "火")))
+        `when`(repository.listViews(specification)).thenReturn(listOf(typeView(1L, "fire", "火")))
 
         val result = service.listByCondition(specification)
 
@@ -67,3 +68,9 @@ private fun typeEntity(
         this.internalName = internalName
         this.name = name
     }
+
+private fun typeView(
+    id: Long,
+    internalName: String,
+    name: String,
+): TypeView = TypeView(typeEntity(id, internalName, name))

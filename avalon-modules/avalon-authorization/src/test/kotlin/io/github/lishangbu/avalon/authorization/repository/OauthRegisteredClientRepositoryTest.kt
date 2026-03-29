@@ -46,4 +46,11 @@ class OauthRegisteredClientRepositoryTest : AbstractRepositoryTest() {
         assertEquals(2, page.totalRowCount)
         assertFalse(page.rows.isEmpty())
     }
+
+    @Test
+    fun testFindAllBySpecification() {
+        val list = oauth2RegisteredClientRepository.findAll(OauthRegisteredClientSpecification(clientId = "client"))
+        assertEquals(1, list.size)
+        assertEquals("client", list.first().clientId)
+    }
 }

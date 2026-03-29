@@ -26,5 +26,5 @@ class AbilityServiceImpl(
         abilityRepository.deleteById(id)
     }
 
-    override fun listByCondition(specification: AbilitySpecification): List<AbilityView> = abilityRepository.findAll(specification).map(::AbilityView)
+    override fun listByCondition(specification: AbilitySpecification): List<AbilityView> = abilityRepository.listViews(specification)
 }

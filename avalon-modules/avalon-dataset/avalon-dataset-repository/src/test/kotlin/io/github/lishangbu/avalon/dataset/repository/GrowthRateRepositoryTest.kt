@@ -32,9 +32,9 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindGrowthRateById() {
-        val slow = requireNotNull(growthRateRepository.findNullable(1L))
+        val slow = requireNotNull(growthRateRepository.loadViewById(1L))
 
-        Assertions.assertEquals(1L, slow.id)
+        Assertions.assertEquals("1", slow.id)
         Assertions.assertEquals("slow", slow.internalName)
         Assertions.assertEquals("慢", slow.name)
         Assertions.assertEquals("slow", slow.description)
@@ -88,7 +88,7 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListWithDynamicCondition() {
         val condition = GrowthRateSpecification(internalName = "medium")
 
-        val results = growthRateRepository.findAll(condition)
+        val results = growthRateRepository.listViews(condition)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.any { it.internalName == "medium" })
@@ -96,7 +96,7 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldReturnAllGrowthRatesWhenNoCondition() {
-        val results = growthRateRepository.findAll()
+        val results = growthRateRepository.listViews(null)
 
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.size >= 3)

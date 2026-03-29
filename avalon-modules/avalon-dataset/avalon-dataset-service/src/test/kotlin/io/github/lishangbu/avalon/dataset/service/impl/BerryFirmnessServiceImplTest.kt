@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFirmnessRepository
@@ -23,7 +24,7 @@ class BerryFirmnessServiceImplTest {
     fun getPageByCondition_callsRepository() {
         val specification = BerryFirmnessSpecification(id = "1", internalName = "hard")
         val pageable = PageRequest.of(0, 5)
-        `when`(repository.findAll(specification, pageable)).thenReturn(Page(listOf(berryFirmnessEntity(1L)), 1, 1))
+        `when`(repository.pageViews(specification, pageable)).thenReturn(Page(listOf(berryFirmnessView(1L)), 1, 1))
 
         val result = service.getPageByCondition(specification, pageable)
 
@@ -34,7 +35,7 @@ class BerryFirmnessServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = BerryFirmnessSpecification(id = "1", internalName = "hard")
-        `when`(repository.findAll(specification)).thenReturn(listOf(berryFirmnessEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(berryFirmnessView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -76,3 +77,5 @@ private fun berryFirmnessEntity(id: Long): BerryFirmness =
         internalName = "hard"
         name = "硬"
     }
+
+private fun berryFirmnessView(id: Long): BerryFirmnessView = BerryFirmnessView(berryFirmnessEntity(id))

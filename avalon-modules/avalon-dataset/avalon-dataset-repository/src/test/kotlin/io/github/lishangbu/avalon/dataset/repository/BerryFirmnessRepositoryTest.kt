@@ -17,10 +17,10 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldFindBerryFirmnessById() {
         // Act
-        val berryFirmness = requireNotNull(berryFirmnessRepository.findNullable(1L))
+        val berryFirmness = requireNotNull(berryFirmnessRepository.loadViewById(1L))
 
         // Assert
-        Assertions.assertEquals(1L, berryFirmness.id)
+        Assertions.assertEquals("1", berryFirmness.id)
         Assertions.assertEquals("very-soft", berryFirmness.internalName)
         Assertions.assertEquals("很柔软", berryFirmness.name)
     }
@@ -30,7 +30,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListMatchByInternalName() {
         val specification = BerryFirmnessSpecification(internalName = "hard")
 
-        val results = berryFirmnessRepository.findAll(specification)
+        val results = berryFirmnessRepository.listViews(specification)
 
         Assertions.assertNotNull(results)
         Assertions.assertFalse(results.isEmpty(), "应至少匹配到一条属性为坚硬的树果硬度记录")
@@ -40,7 +40,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     /** 验证空条件下返回全部预加载记录 */
     @Test
     fun shouldReturnAllPreloadedWhenNoCondition() {
-        val all = berryFirmnessRepository.findAll()
+        val all = berryFirmnessRepository.listViews(null)
         Assertions.assertNotNull(all)
         Assertions.assertTrue(all.size >= 5, "预期至少有 5 条预加载的树果硬度记录")
     }
@@ -49,7 +49,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
     @Test
     fun shouldQueryPageByCondition() {
         val page =
-            berryFirmnessRepository.findAll(
+            berryFirmnessRepository.pageViews(
                 BerryFirmnessSpecification(internalName = "hard"),
                 PageRequest.of(0, 10),
             )
@@ -70,7 +70,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
         val saved = berryFirmnessRepository.save(bf, SaveMode.INSERT_ONLY)
         Assertions.assertNotNull(saved.id)
 
-        val berryFirmness = requireNotNull(berryFirmnessRepository.findNullable(saved.id))
+        val berryFirmness = requireNotNull(berryFirmnessRepository.loadViewById(saved.id))
         Assertions.assertEquals("moderate", berryFirmness.internalName)
         Assertions.assertEquals("中等", berryFirmness.name)
     }
@@ -109,7 +109,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
 
         // 通过 internalName 查询应该为空
         val specification = BerryFirmnessSpecification(internalName = "ephemeral")
-        val results = berryFirmnessRepository.findAll(specification)
+        val results = berryFirmnessRepository.listViews(specification)
         Assertions.assertTrue(results.isEmpty(), "删除后按 internalName 查询应返回空集合")
     }
 }

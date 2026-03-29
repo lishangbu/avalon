@@ -31,9 +31,9 @@ class EggGroupRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldFindEggGroupById() {
-        val eggGroup = requireNotNull(eggGroupRepository.findNullable(1L))
+        val eggGroup = requireNotNull(eggGroupRepository.loadViewById(1L))
 
-        assertEquals(1L, eggGroup.id)
+        assertEquals("1", eggGroup.id)
         assertEquals("monster", eggGroup.internalName)
         assertEquals("怪兽", eggGroup.name)
     }
@@ -86,7 +86,7 @@ class EggGroupRepositoryTest : AbstractRepositoryTest() {
     fun shouldSelectListWithDynamicCondition() {
         val condition = EggGroupSpecification(internalName = "monster")
 
-        val results = eggGroupRepository.findAll(condition)
+        val results = eggGroupRepository.listViews(condition)
 
         assertTrue(results.isNotEmpty())
         assertTrue(results.any { it.name == "怪兽" })
@@ -94,7 +94,7 @@ class EggGroupRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldReturnAllEggGroupsWhenNoCondition() {
-        val results = eggGroupRepository.findAll()
+        val results = eggGroupRepository.listViews(null)
 
         assertTrue(results.isNotEmpty())
         assertTrue(results.any { it.internalName == "monster" })

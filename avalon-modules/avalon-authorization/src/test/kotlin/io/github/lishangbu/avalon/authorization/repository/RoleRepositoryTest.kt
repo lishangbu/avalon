@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Role
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.annotation.Commit
 import org.springframework.transaction.annotation.Transactional
 
@@ -50,6 +52,37 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     @Order(3)
+    fun testFindAllBySpecification() {
+        val roles = roleRepository.findAll(RoleSpecification(code = "ROLE_SUPER_ADMIN"))
+        assertEquals(1, roles.size)
+        assertEquals("ROLE_SUPER_ADMIN", roles.first().code)
+        assertNull(roles.first().readOrNull { menus })
+    }
+
+    @Test
+    @Order(4)
+    fun testListWithMenusAndPageQueries() {
+        val roles = roleRepository.listWithMenus(RoleSpecification(id = "1"))
+        assertEquals(1, roles.size)
+        assertFalse(roles.first().menus.isEmpty())
+
+        val page = roleRepository.findAll(RoleSpecification(enabled = true), PageRequest.of(0, 10))
+        assertFalse(page.rows.isEmpty())
+        assertTrue(page.rows.all { it.enabled == true })
+
+        val pageWithMenus = roleRepository.pageWithMenus(RoleSpecification(id = "1"), PageRequest.of(0, 10))
+        assertEquals(1, pageWithMenus.totalRowCount)
+        assertFalse(
+            pageWithMenus
+                .rows
+                .first()
+                .menus
+                .isEmpty(),
+        )
+    }
+
+    @Test
+    @Order(5)
     @Commit
     fun testInsertRole() {
         val role =
@@ -66,7 +99,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(4)
+    @Order(6)
     @Commit
     fun testUpdateRoleById() {
         val role = requireNotNull(roleRepository.findNullable(insertId!!))
@@ -80,7 +113,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     fun testSelectUpdatedRoleById() {
         val role = requireNotNull(roleRepository.findNullable(insertId!!))
         assertEquals("ROLE_TEST1", role.code)
@@ -90,7 +123,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     fun testDeleteById() {
         roleRepository.deleteById(insertId!!)
     }

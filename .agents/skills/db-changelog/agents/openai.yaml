@@ -1,0 +1,7 @@
+interface:
+  display_name: "DB Changelog"
+  short_description: "Liquibase YAML 变更规范与审查"
+  default_prompt: "Use $db-changelog to create or review a Liquibase YAML schema change."
+
+policy:
+  allow_implicit_invocation: true

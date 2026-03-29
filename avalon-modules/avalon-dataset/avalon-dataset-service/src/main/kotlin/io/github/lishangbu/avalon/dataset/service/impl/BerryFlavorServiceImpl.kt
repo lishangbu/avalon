@@ -29,5 +29,5 @@ class BerryFlavorServiceImpl(
     /** 按条件查询树果风味列表 */
     override fun listByCondition(
         specification: BerryFlavorSpecification,
-    ): List<BerryFlavorView> = berryFlavorRepository.findAll(specification).map(::BerryFlavorView)
+    ): List<BerryFlavorView> = berryFlavorRepository.listViews(specification)
 }

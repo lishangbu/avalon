@@ -21,12 +21,12 @@ class MoveDamageClassServiceImpl(
     override fun getPageByCondition(
         specification: MoveDamageClassSpecification,
         pageable: Pageable,
-    ): Page<MoveDamageClassView> = moveDamageClassRepository.findAll(specification, pageable).mapRows(::MoveDamageClassView)
+    ): Page<MoveDamageClassView> = moveDamageClassRepository.pageViews(specification, pageable)
 
     /** 根据条件查询招式伤害分类列表 */
     override fun listByCondition(
         specification: MoveDamageClassSpecification,
-    ): List<MoveDamageClassView> = moveDamageClassRepository.findAll(specification).map(::MoveDamageClassView)
+    ): List<MoveDamageClassView> = moveDamageClassRepository.listViews(specification)
 
     /** 保存招式伤害分类 */
     override fun save(command: SaveMoveDamageClassInput): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))

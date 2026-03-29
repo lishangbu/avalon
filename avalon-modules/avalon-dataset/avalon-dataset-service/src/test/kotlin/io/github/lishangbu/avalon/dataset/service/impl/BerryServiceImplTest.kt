@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.dataset.entity.Berry
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
 import io.github.lishangbu.avalon.dataset.entity.Type
 import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository
@@ -25,7 +26,7 @@ class BerryServiceImplTest {
     fun getPageByCondition_callsRepository() {
         val specification = BerrySpecification(id = "1", internalName = "cheri")
         val pageable = PageRequest.of(0, 5)
-        `when`(repository.findAll(specification, pageable)).thenReturn(Page(listOf(berryWithAssociations(1L)), 1, 1))
+        `when`(repository.pageViews(specification, pageable)).thenReturn(Page(listOf(berryView(1L)), 1, 1))
 
         val result = service.getPageByCondition(specification, pageable)
 
@@ -43,27 +44,27 @@ class BerryServiceImplTest {
     @Test
     fun save_usesInsertOnlyModeAndReloadsView() {
         `when`(repository.save(any<Berry>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
-        `when`(repository.loadByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
+        `when`(repository.loadViewById(1L)).thenReturn(berryView(1L))
 
         val result = service.save(SaveBerryInput("cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("hard", result.berryFirmness?.internalName)
         verify(repository).save(any<Berry>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
-        verify(repository).loadByIdWithAssociations(1L)
+        verify(repository).loadViewById(1L)
     }
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
         `when`(repository.save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
-        `when`(repository.loadByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
+        `when`(repository.loadViewById(1L)).thenReturn(berryView(1L))
 
         val result = service.update(UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("硬", result.berryFirmness?.name)
         verify(repository).save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
-        verify(repository).loadByIdWithAssociations(1L)
+        verify(repository).loadViewById(1L)
     }
 
     @Test
@@ -119,3 +120,5 @@ private fun berryWithAssociations(id: Long): Berry =
             }
         naturalGiftPower = 9
     }
+
+private fun berryView(id: Long): BerryView = BerryView(berryWithAssociations(id))

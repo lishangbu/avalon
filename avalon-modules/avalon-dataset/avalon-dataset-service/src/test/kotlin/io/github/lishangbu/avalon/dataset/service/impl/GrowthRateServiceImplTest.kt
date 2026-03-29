@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
@@ -20,7 +21,7 @@ class GrowthRateServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = GrowthRateSpecification(id = "1", internalName = "slow")
-        `when`(repository.findAll(specification)).thenReturn(listOf(growthRateEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(growthRateView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -64,3 +65,5 @@ private fun growthRateEntity(id: Long): GrowthRate =
         name = "慢"
         description = "slow"
     }
+
+private fun growthRateView(id: Long): GrowthRateView = GrowthRateView(growthRateEntity(id))

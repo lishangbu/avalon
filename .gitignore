@@ -28,3 +28,7 @@ IP2LOCATION-LITE-DB11**.BIN
 ### Log File ###
 /logs/
 *.log
+
+### Local Reference Snapshots ###
+/tmp-jimmer/
+/tmp-springredis/

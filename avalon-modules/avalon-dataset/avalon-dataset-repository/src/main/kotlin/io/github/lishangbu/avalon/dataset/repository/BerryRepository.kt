@@ -1,8 +1,9 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
 import org.babyfish.jimmer.Page
-import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
@@ -16,31 +17,31 @@ import org.springframework.data.domain.Pageable
  * @since 2025/09/14
  */
 interface BerryRepository : KRepository<Berry, Long> {
-    /** 按条件查询树果列表 */
-    fun findAll(specification: Specification<Berry>?): List<Berry> =
+    /** 按条件查询树果视图 */
+    fun listViews(specification: BerrySpecification?): List<BerryView> =
         sql
             .createQuery(Berry::class) {
                 specification?.let(::where)
-                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+                select(table.fetch(BerryView::class))
             }.execute()
 
-    /** 按条件分页查询树果 */
-    fun findAll(
-        specification: Specification<Berry>?,
+    /** 按条件分页查询树果视图 */
+    fun pageViews(
+        specification: BerrySpecification?,
         pageable: Pageable,
-    ): Page<Berry> =
+    ): Page<BerryView> =
         sql
             .createQuery(Berry::class) {
                 specification?.let(::where)
-                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+                select(table.fetch(BerryView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
-    /** 按 ID 查询单个树果及其关联 */
-    fun loadByIdWithAssociations(id: Long): Berry? =
+    /** 按 ID 查询单个树果视图 */
+    fun loadViewById(id: Long): BerryView? =
         sql
             .createQuery(Berry::class) {
                 where(table.id eq id)
-                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+                select(table.fetch(BerryView::class))
             }.execute()
             .firstOrNull()
 }

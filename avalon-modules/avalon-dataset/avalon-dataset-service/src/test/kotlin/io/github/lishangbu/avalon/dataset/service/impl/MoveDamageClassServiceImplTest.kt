@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository
@@ -23,8 +24,8 @@ class MoveDamageClassServiceImplTest {
     fun getPageByCondition_callsRepository() {
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical")
         val pageable = PageRequest.of(0, 5)
-        `when`(repository.findAll(specification, pageable)).thenReturn(
-            Page(listOf(moveDamageClassEntity(1L, "physical", "物理", "desc")), 1, 1),
+        `when`(repository.pageViews(specification, pageable)).thenReturn(
+            Page(listOf(moveDamageClassView(1L, "physical", "物理", "desc")), 1, 1),
         )
 
         val result = service.getPageByCondition(specification, pageable)
@@ -36,7 +37,7 @@ class MoveDamageClassServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = MoveDamageClassSpecification(id = "1", internalName = "physical")
-        `when`(repository.findAll(specification)).thenReturn(listOf(moveDamageClassEntity(1L, "physical", "物理", "desc")))
+        `when`(repository.listViews(specification)).thenReturn(listOf(moveDamageClassView(1L, "physical", "物理", "desc")))
 
         val result = service.listByCondition(specification)
 
@@ -84,3 +85,10 @@ private fun moveDamageClassEntity(
         this.name = name
         this.description = description
     }
+
+private fun moveDamageClassView(
+    id: Long,
+    internalName: String,
+    name: String,
+    description: String,
+): MoveDamageClassView = MoveDamageClassView(moveDamageClassEntity(id, internalName, name, description))

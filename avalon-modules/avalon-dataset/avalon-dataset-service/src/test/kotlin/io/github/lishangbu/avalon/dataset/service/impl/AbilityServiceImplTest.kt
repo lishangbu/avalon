@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.dataset.service.impl
 
 import io.github.lishangbu.avalon.dataset.entity.Ability
 import io.github.lishangbu.avalon.dataset.entity.dto.AbilitySpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.AbilityView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveAbilityInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateAbilityInput
 import io.github.lishangbu.avalon.dataset.repository.AbilityRepository
@@ -20,7 +21,7 @@ class AbilityServiceImplTest {
     @Test
     fun listByCondition_callsRepository() {
         val specification = AbilitySpecification(id = "1", internalName = "stench")
-        `when`(repository.findAll(specification)).thenReturn(listOf(abilityEntity(1L)))
+        `when`(repository.listViews(specification)).thenReturn(listOf(abilityView(1L)))
 
         val result = service.listByCondition(specification)
 
@@ -82,3 +83,5 @@ private fun abilityEntity(id: Long): Ability =
         effect = "effect"
         introduction = "introduction"
     }
+
+private fun abilityView(id: Long): AbilityView = AbilityView(abilityEntity(id))

@@ -26,5 +26,5 @@ class EggGroupServiceImpl(
         eggGroupRepository.deleteById(id)
     }
 
-    override fun listByCondition(specification: EggGroupSpecification): List<EggGroupView> = eggGroupRepository.findAll(specification).map(::EggGroupView)
+    override fun listByCondition(specification: EggGroupSpecification): List<EggGroupView> = eggGroupRepository.listViews(specification)
 }

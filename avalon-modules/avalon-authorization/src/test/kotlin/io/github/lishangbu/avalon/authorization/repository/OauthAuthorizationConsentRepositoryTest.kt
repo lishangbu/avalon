@@ -11,6 +11,10 @@ import org.junit.jupiter.api.Test
  * 验证授权同意记录的新增、更新和删除行为
  */
 class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
+    private companion object {
+        const val EXISTING_REGISTERED_CLIENT_ID = "1"
+    }
+
     @Resource
     private lateinit var oauthAuthorizationConsentRepository: OauthAuthorizationConsentRepository
 
@@ -24,7 +28,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         val consent =
             OauthAuthorizationConsent {
                 id {
-                    registeredClientId = "client-1"
+                    registeredClientId = EXISTING_REGISTERED_CLIENT_ID
                     principalName = "user-1"
                 }
                 authorities = "scope1,scope2"
@@ -35,11 +39,11 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         assertNotNull(inserted)
         val foundOptional =
             oauthAuthorizationConsentRepository.findByRegisteredClientIdAndPrincipalName(
-                "client-1",
+                EXISTING_REGISTERED_CLIENT_ID,
                 "user-1",
             )
         val oauthAuthorizationConsent = requireNotNull(foundOptional)
-        assertEquals("client-1", oauthAuthorizationConsent.id.registeredClientId)
+        assertEquals(EXISTING_REGISTERED_CLIENT_ID, oauthAuthorizationConsent.id.registeredClientId)
         assertEquals("user-1", oauthAuthorizationConsent.id.principalName)
         assertEquals("scope1,scope2", oauthAuthorizationConsent.authorities)
     }
@@ -54,7 +58,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         val consent =
             OauthAuthorizationConsent {
                 id {
-                    registeredClientId = "client-update"
+                    registeredClientId = EXISTING_REGISTERED_CLIENT_ID
                     principalName = "user-update"
                 }
                 authorities = "scope1,scope2"
@@ -64,7 +68,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         val toUpdate =
             OauthAuthorizationConsent {
                 id {
-                    registeredClientId = "client-update"
+                    registeredClientId = EXISTING_REGISTERED_CLIENT_ID
                     principalName = "user-update"
                 }
                 authorities = "c,d,e"
@@ -74,7 +78,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
 
         val foundOptional =
             oauthAuthorizationConsentRepository.findByRegisteredClientIdAndPrincipalName(
-                "client-update",
+                EXISTING_REGISTERED_CLIENT_ID,
                 "user-update",
             )
         val updatedConsent = requireNotNull(foundOptional)
@@ -91,7 +95,7 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         val consent =
             OauthAuthorizationConsent {
                 id {
-                    registeredClientId = "client-delete"
+                    registeredClientId = EXISTING_REGISTERED_CLIENT_ID
                     principalName = "user-delete"
                 }
                 authorities = "scope1,scope2"
@@ -99,13 +103,13 @@ class OauthAuthorizationConsentRepositoryTest : AbstractRepositoryTest() {
         oauthAuthorizationConsentRepository.save(consent)
 
         oauthAuthorizationConsentRepository.deleteByRegisteredClientIdAndPrincipalName(
-            "client-delete",
+            EXISTING_REGISTERED_CLIENT_ID,
             "user-delete",
         )
 
         val foundOptional =
             oauthAuthorizationConsentRepository.findByRegisteredClientIdAndPrincipalName(
-                "client-delete",
+                EXISTING_REGISTERED_CLIENT_ID,
                 "user-delete",
             )
         assertNull(foundOptional)

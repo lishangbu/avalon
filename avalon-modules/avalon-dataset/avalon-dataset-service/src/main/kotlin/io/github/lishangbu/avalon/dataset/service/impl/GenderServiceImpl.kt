@@ -31,5 +31,5 @@ class GenderServiceImpl(
     }
 
     /** 按条件查询性别列表 */
-    override fun listByCondition(specification: GenderSpecification): List<GenderView> = genderRepository.findAll(specification).map(::GenderView)
+    override fun listByCondition(specification: GenderSpecification): List<GenderView> = genderRepository.listViews(specification)
 }

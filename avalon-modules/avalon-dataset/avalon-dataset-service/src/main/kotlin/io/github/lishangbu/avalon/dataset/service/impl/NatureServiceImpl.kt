@@ -27,7 +27,7 @@ class NatureServiceImpl(
         natureRepository.deleteById(id)
     }
 
-    override fun listByCondition(specification: NatureSpecification): List<NatureView> = natureRepository.findAll(specification).map(::NatureView)
+    override fun listByCondition(specification: NatureSpecification): List<NatureView> = natureRepository.listViews(specification)
 
-    private fun reloadView(nature: Nature): NatureView = NatureView(requireNotNull(natureRepository.loadByIdWithAssociations(nature.id)) { "未找到 ID=${nature.id} 对应的性格" })
+    private fun reloadView(nature: Nature): NatureView = requireNotNull(natureRepository.loadViewById(nature.id)) { "未找到 ID=${nature.id} 对应的性格" }
 }

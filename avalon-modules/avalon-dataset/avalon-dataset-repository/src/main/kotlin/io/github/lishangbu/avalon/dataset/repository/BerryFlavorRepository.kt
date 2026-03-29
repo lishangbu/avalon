@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
-import org.babyfish.jimmer.Specification
+import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 
 /**
  * 树果风味仓储接口
@@ -13,11 +15,20 @@ import org.babyfish.jimmer.spring.repository.KRepository
  * @since 2025/09/14
  */
 interface BerryFlavorRepository : KRepository<BerryFlavor, Long> {
-    /** 按条件查询树果风味列表 */
-    fun findAll(specification: Specification<BerryFlavor>?): List<BerryFlavor> =
+    /** 按条件查询树果风味视图列表 */
+    fun listViews(specification: BerryFlavorSpecification?): List<BerryFlavorView> =
         sql
             .createQuery(BerryFlavor::class) {
                 specification?.let(::where)
-                select(table)
+                select(table.fetch(BerryFlavorView::class))
             }.execute()
+
+    /** 按 ID 查询树果风味视图 */
+    fun loadViewById(id: Long): BerryFlavorView? =
+        sql
+            .createQuery(BerryFlavor::class) {
+                where(table.id eq id)
+                select(table.fetch(BerryFlavorView::class))
+            }.execute()
+            .firstOrNull()
 }

@@ -2,11 +2,13 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
+import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.PageRequest
 
 /**
  * 用户 Repository 测试
@@ -46,6 +48,10 @@ class UserRepositoryTest : AbstractRepositoryTest() {
         assertEquals("https://example.com/avatar/test2.png", savedUser.avatar)
         assertTrue(savedUser.hashedPassword!!.startsWith("{bcrypt}"))
         assertEquals(1, savedUser.roles.size)
+
+        val userByEmail = requireNotNull(userRepository.loadByAccountWithRoles("test2@example.com"))
+        assertEquals("test2", userByEmail.username)
+        assertEquals(1, userByEmail.roles.size)
     }
 
     @Test
@@ -67,5 +73,40 @@ class UserRepositoryTest : AbstractRepositoryTest() {
         assertNull(user.avatar)
         assertTrue(user.hashedPassword!!.startsWith("{bcrypt}"))
         assertEquals(2, user.roles.size)
+    }
+
+    @Test
+    fun testFindAllAndPageQueries() {
+        val users = userRepository.findAll(UserSpecification(username = "admin"))
+        assertEquals(1, users.size)
+        assertNull(users.first().readOrNull { roles })
+
+        val page = userRepository.findAll(UserSpecification(username = "admin"), PageRequest.of(0, 10))
+        assertEquals(1, page.totalRowCount)
+        assertEquals("admin", page.rows.first().username)
+        assertNull(page.rows.first().readOrNull { roles })
+    }
+
+    @Test
+    fun testListWithRolesAndPageWithRoles() {
+        val users = userRepository.listWithRoles(UserSpecification(username = "admin"))
+        assertEquals(1, users.size)
+        assertEquals(2, users.first().roles.size)
+
+        val page = userRepository.pageWithRoles(UserSpecification(id = "1"), PageRequest.of(0, 10))
+        assertEquals(1, page.totalRowCount)
+        assertEquals(
+            2,
+            page
+                .rows
+                .first()
+                .roles
+                .size,
+        )
+    }
+
+    @Test
+    fun testFindByAccountReturnsNullWhenMissing() {
+        assertNull(userRepository.loadByAccountWithRoles("missing-account"))
     }
 }

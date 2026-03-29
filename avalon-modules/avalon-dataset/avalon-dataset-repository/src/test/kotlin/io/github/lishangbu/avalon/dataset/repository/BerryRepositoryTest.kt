@@ -20,23 +20,23 @@ class BerryRepositoryTest : AbstractRepositoryTest() {
     fun shouldQueryPageAndCrudBerry() {
         val condition = BerrySpecification(internalName = "cheri")
 
-        val results = berryRepository.findAll(condition)
-        val page = berryRepository.findAll(condition, PageRequest.of(0, 10))
+        val results = berryRepository.listViews(condition)
+        val page = berryRepository.pageViews(condition, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
-        assertEquals(1L, results.first().id)
+        assertEquals("1", results.first().id)
         assertEquals("cheri", results.first().internalName)
         assertTrue(page.totalRowCount >= 1)
         assertFalse(page.rows.isEmpty())
 
-        val existing = requireNotNull(berryRepository.loadByIdWithAssociations(1L))
+        val existing = requireNotNull(berryRepository.findNullable(1L))
         berryRepository.save(Berry(existing) { name = "更新后的树果" }, SaveMode.UPSERT)
 
-        val updated = requireNotNull(berryRepository.loadByIdWithAssociations(1L))
+        val updated = requireNotNull(berryRepository.loadViewById(1L))
         assertEquals("更新后的树果", updated.name)
 
         berryRepository.deleteById(1L)
-        assertNull(berryRepository.loadByIdWithAssociations(1L))
+        assertNull(berryRepository.loadViewById(1L))
     }
 
     private fun assertTrue(value: Boolean) {
