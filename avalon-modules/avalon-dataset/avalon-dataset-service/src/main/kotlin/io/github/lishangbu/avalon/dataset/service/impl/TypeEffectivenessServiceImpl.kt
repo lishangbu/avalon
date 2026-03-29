@@ -74,7 +74,7 @@ class TypeEffectivenessServiceImpl(
                 }
             val multiplierPercent = cell.multiplierPercent
             if (multiplierPercent == null) {
-                typeEffectivenessEntryRepository.removeById(id)
+                typeEffectivenessEntryRepository.deleteById(id)
             } else {
                 // API 层传入的是自然倍率；真正写入数据库前必须先编码成整数百分比。
                 typeEffectivenessEntryRepository.save(
@@ -129,7 +129,7 @@ class TypeEffectivenessServiceImpl(
         val supportedTypeIds = supportedTypes.associateBy({ it.id }, { it.internalName })
         val storedMultipliers =
             typeEffectivenessEntryRepository
-                .findAll(
+                .listByFilter(
                     attackingTypeId = null,
                     defendingTypeId = null,
                     multiplierPercent = null,

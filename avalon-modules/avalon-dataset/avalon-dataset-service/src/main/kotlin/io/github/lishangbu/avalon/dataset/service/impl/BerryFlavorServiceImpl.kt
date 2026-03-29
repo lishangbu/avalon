@@ -23,7 +23,7 @@ class BerryFlavorServiceImpl(
 
     /** 按 ID 删除树果风味 */
     override fun removeById(id: Long) {
-        berryFlavorRepository.removeById(id)
+        berryFlavorRepository.deleteById(id)
     }
 
     /** 按条件查询树果风味列表 */

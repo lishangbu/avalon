@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -36,10 +37,11 @@ class UserRepositoryTest : AbstractRepositoryTest() {
                     avatar = "https://example.com/avatar/test2.png"
                     roles().addBy(role)
                 },
+                SaveMode.INSERT_ONLY,
             )
         assertNotNull(user.id)
 
-        val savedUser = requireNotNull(userRepository.findByAccountWithRoles("13800000001"))
+        val savedUser = requireNotNull(userRepository.loadByAccountWithRoles("13800000001"))
         assertEquals("test2", savedUser.username)
         assertEquals("https://example.com/avatar/test2.png", savedUser.avatar)
         assertTrue(savedUser.hashedPassword!!.startsWith("{bcrypt}"))
@@ -60,7 +62,7 @@ class UserRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun testFindByAccountWithRoles() {
-        val user = requireNotNull(userRepository.findByAccountWithRoles("admin"))
+        val user = requireNotNull(userRepository.loadByAccountWithRoles("admin"))
         assertEquals("admin", user.username)
         assertNull(user.avatar)
         assertTrue(user.hashedPassword!!.startsWith("{bcrypt}"))

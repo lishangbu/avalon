@@ -42,7 +42,7 @@ class DefaultOAuth2AuthorizationServiceTest {
                 persisted = it.getArgument(0)
                 persisted
             }.`when`(authorizationRepository)
-            .save(any())
+            .save(anyOauthAuthorization())
 
         service.save(oauth2Authorization())
 
@@ -68,7 +68,7 @@ class DefaultOAuth2AuthorizationServiceTest {
     fun removeDelegatesDeleteToRepository() {
         service.remove(oauth2Authorization())
 
-        verify(authorizationRepository).removeById("authorization-id")
+        verify(authorizationRepository).deleteById("authorization-id")
     }
 
     @Test
@@ -128,13 +128,13 @@ class DefaultOAuth2AuthorizationServiceTest {
     @Test
     fun findByTokenRoutesToExpectedRepositoryMethods() {
         `when`(
-            authorizationRepository.findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+            authorizationRepository.loadByTokenValue(
                 "token",
             ),
         ).thenReturn(null)
         service.findByToken("token", null)
         verify(authorizationRepository)
-            .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue("token")
+            .loadByTokenValue("token")
 
         `when`(authorizationRepository.findByState("token")).thenReturn(null)
         service.findByToken("token", OAuth2TokenType(OAuth2ParameterNames.STATE))
@@ -191,7 +191,7 @@ class DefaultOAuth2AuthorizationServiceTest {
                 persisted = it.getArgument(0)
                 persisted
             }.`when`(authorizationRepository)
-            .save(any())
+            .save(anyOauthAuthorization())
 
         val minimalAuthorization =
             org.springframework.security.oauth2.server.authorization.OAuth2Authorization
@@ -225,7 +225,7 @@ class DefaultOAuth2AuthorizationServiceTest {
                 entity = it.getArgument(0)
                 entity
             }.`when`(authorizationRepository)
-            .save(any())
+            .save(anyOauthAuthorization())
         val issuedAt = Instant.parse("2026-03-25T00:00:00Z")
         val expiresAt = issuedAt.plusSeconds(300)
         val authorization =

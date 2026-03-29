@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -30,29 +31,29 @@ class BerryFlavorServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyMode() {
-        `when`(repository.save(any<BerryFlavor>(), SaveMode.INSERT_ONLY)).thenReturn(berryFlavorEntity(1L))
+        `when`(repository.save(any<BerryFlavor>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berryFlavorEntity(1L))
 
         val result = service.save(SaveBerryFlavorInput("spicy", "辣"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<BerryFlavor>(), SaveMode.INSERT_ONLY)
+        verify(repository).save(any<BerryFlavor>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<BerryFlavor>(), SaveMode.UPSERT)).thenReturn(berryFlavorEntity(1L))
+        `when`(repository.save(any<BerryFlavor>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berryFlavorEntity(1L))
 
         val result = service.update(UpdateBerryFlavorInput("1", "spicy", "辣"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<BerryFlavor>(), SaveMode.UPSERT)
+        verify(repository).save(any<BerryFlavor>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(1L)
 
-        verify(repository).removeById(1L)
+        verify(repository).deleteById(1L)
     }
 }
 

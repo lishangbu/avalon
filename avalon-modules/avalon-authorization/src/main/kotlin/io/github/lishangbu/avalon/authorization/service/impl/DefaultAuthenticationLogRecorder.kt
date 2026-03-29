@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.authorization.entity.AuthenticationLog
 import io.github.lishangbu.avalon.authorization.repository.AuthenticationLogRepository
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecord
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecorder
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -25,6 +26,6 @@ class DefaultAuthenticationLogRecorder(
                 errorMessage = record.errorMessage
                 occurredAt = record.timestamp ?: Instant.now()
             }
-        authenticationLogRepository.save(log)
+        authenticationLogRepository.save(log, SaveMode.INSERT_ONLY)
     }
 }

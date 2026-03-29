@@ -23,7 +23,7 @@ class EggGroupServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        eggGroupRepository.removeById(id)
+        eggGroupRepository.deleteById(id)
     }
 
     override fun listByCondition(specification: EggGroupSpecification): List<EggGroupView> = eggGroupRepository.findAll(specification).map(::EggGroupView)

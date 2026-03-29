@@ -24,10 +24,10 @@ class NatureServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        natureRepository.removeById(id)
+        natureRepository.deleteById(id)
     }
 
     override fun listByCondition(specification: NatureSpecification): List<NatureView> = natureRepository.findAll(specification).map(::NatureView)
 
-    private fun reloadView(nature: Nature): NatureView = NatureView(requireNotNull(natureRepository.findByIdWithAssociations(nature.id)) { "未找到 ID=${nature.id} 对应的性格" })
+    private fun reloadView(nature: Nature): NatureView = NatureView(requireNotNull(natureRepository.loadByIdWithAssociations(nature.id)) { "未找到 ID=${nature.id} 对应的性格" })
 }

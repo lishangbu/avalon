@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.BerryFirmness
-import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
@@ -14,21 +14,23 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface BerryFirmnessRepository :
-    KRepository<BerryFirmness, Long>,
-    BerryFirmnessRepositoryExt
-
-/** 树果硬度仓储扩展接口 */
-interface BerryFirmnessRepositoryExt {
+interface BerryFirmnessRepository : KRepository<BerryFirmness, Long> {
     /** 按条件查询树果硬度列表 */
-    fun findAll(specification: BerryFirmnessSpecification?): List<BerryFirmness>
+    fun findAll(specification: Specification<BerryFirmness>?): List<BerryFirmness> =
+        sql
+            .createQuery(BerryFirmness::class) {
+                specification?.let(::where)
+                select(table)
+            }.execute()
 
     /** 按条件分页查询树果硬度 */
     fun findAll(
-        specification: BerryFirmnessSpecification?,
+        specification: Specification<BerryFirmness>?,
         pageable: Pageable,
-    ): Page<BerryFirmness>
-
-    /** 按 ID 删除树果硬度 */
-    fun removeById(id: Long)
+    ): Page<BerryFirmness> =
+        sql
+            .createQuery(BerryFirmness::class) {
+                specification?.let(::where)
+                select(table)
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 }

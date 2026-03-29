@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.authorization.repository.UserRepository
 import io.github.lishangbu.avalon.authorization.service.UserService
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,16 +34,16 @@ class UserServiceImpl(
      * @param username 登录账号
      * @return 查询到的用户详情，未找到时返回 null
      */
-    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.findByAccountWithRoles(username)?.let(::UserWithRoles)
+    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.loadByAccountWithRoles(username)?.let(::UserWithRoles)
 
     /** 按条件分页查询用户 */
     override fun getPageByCondition(
         specification: UserSpecification,
         pageable: Pageable,
-    ): Page<User> = userRepository.findAllWithRoles(specification, pageable)
+    ): Page<User> = userRepository.pageWithRoles(specification, pageable)
 
     /** 按条件查询用户列表 */
-    override fun listByCondition(specification: UserSpecification): List<User> = userRepository.findAllWithRoles(specification)
+    override fun listByCondition(specification: UserSpecification): List<User> = userRepository.listWithRoles(specification)
 
     /** 按 ID 查询用户 */
     override fun getById(id: Long): User? = userRepository.findNullable(id, AuthorizationFetchers.USER_WITH_ROLES)
@@ -51,7 +52,7 @@ class UserServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun save(user: User): User {
         val prepared = bindRoles(user, false)
-        return userRepository.save(prepared)
+        return userRepository.save(prepared, SaveMode.INSERT_ONLY)
     }
 
     /** 更新用户 */
@@ -64,7 +65,7 @@ class UserServiceImpl(
     /** 按 ID 删除用户 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        userRepository.removeById(id)
+        userRepository.deleteById(id)
     }
 
     /** 绑定并补全角色信息 */

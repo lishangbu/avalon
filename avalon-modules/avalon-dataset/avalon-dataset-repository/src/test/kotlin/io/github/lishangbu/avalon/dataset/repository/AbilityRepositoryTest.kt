@@ -78,7 +78,7 @@ class AbilityRepositoryTest : AbstractRepositoryTest() {
         val deleteRecordId = ability.id
 
         assertNotNull(abilityRepository.findNullable(deleteRecordId))
-        abilityRepository.removeById(deleteRecordId)
+        abilityRepository.deleteById(deleteRecordId)
         assertNull(abilityRepository.findNullable(deleteRecordId))
     }
 

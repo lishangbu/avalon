@@ -28,7 +28,7 @@ class DefaultRegisteredClientRepositoryTest {
                 persisted = it.getArgument(0)
                 persisted
             }.`when`(repository)
-            .save(any())
+            .save(anyOauthRegisteredClient())
 
         adapter.save(registeredClient())
 
@@ -189,7 +189,7 @@ class DefaultRegisteredClientRepositoryTest {
                 persisted = it.getArgument(0)
                 persisted
             }.`when`(repository)
-            .save(any())
+            .save(anyOauthRegisteredClient())
 
         val minimalClient =
             org.springframework.security.oauth2.server.authorization.client.RegisteredClient

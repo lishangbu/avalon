@@ -107,7 +107,7 @@ class BerryFlavorRepositoryTest : AbstractRepositoryTest() {
         val id = created.id
 
         // Act
-        berryFlavorRepository.removeById(id)
+        berryFlavorRepository.deleteById(id)
         // 验证通过 internalName 查询不到该记录
         val specification = BerryFlavorSpecification(internalName = "pungent")
         val results = berryFlavorRepository.findAll(specification)

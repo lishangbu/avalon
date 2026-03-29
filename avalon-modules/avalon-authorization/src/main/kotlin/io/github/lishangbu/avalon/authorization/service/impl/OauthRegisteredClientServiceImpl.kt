@@ -81,6 +81,6 @@ class OauthRegisteredClientServiceImpl(
     /** 按 ID 删除 OAuth2 注册客户端 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: String) {
-        oauth2RegisteredClientRepository.removeById(id)
+        oauth2RegisteredClientRepository.deleteById(id)
     }
 }

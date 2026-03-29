@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.NatureSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveNatureInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateNatureInput
 import io.github.lishangbu.avalon.dataset.repository.NatureRepository
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -32,8 +33,8 @@ class NatureServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyModeAndReloadsView() {
-        `when`(repository.save(any<Nature>(), SaveMode.INSERT_ONLY)).thenReturn(natureSavedEntity(2L))
-        `when`(repository.findByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
+        `when`(repository.save(any<Nature>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
+        `when`(repository.loadByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
 
         val result =
             service.save(
@@ -49,14 +50,14 @@ class NatureServiceImplTest {
 
         assertEquals("2", result.id)
         assertEquals("attack", result.decreasedStat?.internalName)
-        verify(repository).save(any<Nature>(), SaveMode.INSERT_ONLY)
-        verify(repository).findByIdWithAssociations(2L)
+        verify(repository).save(any<Nature>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).loadByIdWithAssociations(2L)
     }
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Nature>(), SaveMode.UPSERT)).thenReturn(natureSavedEntity(2L))
-        `when`(repository.findByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
+        `when`(repository.save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
+        `when`(repository.loadByIdWithAssociations(2L)).thenReturn(natureWithAssociations(2L))
 
         val result =
             service.update(
@@ -73,15 +74,15 @@ class NatureServiceImplTest {
 
         assertEquals("2", result.id)
         assertEquals("防御", result.increasedStat?.name)
-        verify(repository).save(any<Nature>(), SaveMode.UPSERT)
-        verify(repository).findByIdWithAssociations(2L)
+        verify(repository).save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).loadByIdWithAssociations(2L)
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(2L)
 
-        verify(repository).removeById(2L)
+        verify(repository).deleteById(2L)
     }
 }
 

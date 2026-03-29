@@ -27,7 +27,7 @@ class TypeServiceImpl(
     /** 按 ID 删除属性*/
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        typeRepository.removeById(id)
+        typeRepository.deleteById(id)
     }
 
     /** 按条件查询属性列表*/

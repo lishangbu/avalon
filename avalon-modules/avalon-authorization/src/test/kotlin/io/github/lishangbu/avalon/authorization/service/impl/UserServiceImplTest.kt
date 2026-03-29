@@ -8,6 +8,8 @@ import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -27,7 +29,7 @@ class UserServiceImplTest {
 
     @Test
     fun wrapsUserWithRolesForAccountLookup() {
-        `when`(userRepository.findByAccountWithRoles("alice")).thenReturn(user(1L, roles = listOf(role(1L, "ADMIN"))))
+        `when`(userRepository.loadByAccountWithRoles("alice")).thenReturn(user(1L, roles = listOf(role(1L, "ADMIN"))))
 
         val result = service.getUserByUsername("alice")
 
@@ -39,7 +41,7 @@ class UserServiceImplTest {
 
     @Test
     fun returnsNullWhenAccountLookupMisses() {
-        `when`(userRepository.findByAccountWithRoles("missing")).thenReturn(null)
+        `when`(userRepository.loadByAccountWithRoles("missing")).thenReturn(null)
 
         val result = service.getUserByUsername("missing")
 
@@ -53,8 +55,8 @@ class UserServiceImplTest {
         val page = Page(listOf(user(1L)), 1, 1)
         val users = listOf(user(2L))
         val found = user(3L)
-        `when`(userRepository.findAllWithRoles(specification, pageable)).thenReturn(page)
-        `when`(userRepository.findAllWithRoles(specification)).thenReturn(users)
+        `when`(userRepository.pageWithRoles(specification, pageable)).thenReturn(page)
+        `when`(userRepository.listWithRoles(specification)).thenReturn(users)
         `when`(userRepository.findNullable(3L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(found)
 
         assertSame(page, service.getPageByCondition(specification, pageable))
@@ -76,7 +78,7 @@ class UserServiceImplTest {
             }
         val boundRoles = listOf(role(10L, "ADMIN"), role(11L, "USER"))
         `when`(roleRepository.findAllById(setOf(10L, 11L))).thenReturn(boundRoles)
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenAnswer { it.getArgument(0) }
 
         val saved = service.save(incoming)
 
@@ -84,12 +86,12 @@ class UserServiceImplTest {
         assertEquals("hashed", saved.hashedPassword)
         assertEquals(setOf("ADMIN", "USER"), saved.roles.mapNotNull { it.code }.toSet())
         verify(roleRepository).findAllById(setOf(10L, 11L))
-        verify(userRepository).save(any())
+        verify(userRepository).save(anyUser(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun saveKeepsRolesEmptyWhenInputDoesNotLoadAnyRoleIds() {
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenAnswer { it.getArgument(0) }
 
         val saved =
             service.save(
@@ -119,7 +121,7 @@ class UserServiceImplTest {
                 roles = listOf(existingRole),
             )
         `when`(userRepository.findNullable(9L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(existing)
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(User { id = 9L })
 
@@ -146,7 +148,7 @@ class UserServiceImplTest {
             }
         `when`(userRepository.findNullable(9L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(null)
         `when`(roleRepository.findAllById(setOf(30L))).thenReturn(listOf(boundRole))
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(incoming)
 
@@ -163,7 +165,7 @@ class UserServiceImplTest {
     @Test
     fun updateLeavesOptionalFieldsUnsetWhenExistingUserCannotBeFound() {
         `when`(userRepository.findNullable(99L, AuthorizationFetchers.USER_WITH_ROLES)).thenReturn(null)
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(User { id = 99L })
 
@@ -180,7 +182,7 @@ class UserServiceImplTest {
 
     @Test
     fun updateDoesNotQueryExistingUserWhenIdIsNotLoaded() {
-        `when`(userRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(userRepository.save(anyUser())).thenAnswer { it.getArgument(0) }
 
         val updated =
             service.update(
@@ -190,7 +192,7 @@ class UserServiceImplTest {
             )
 
         assertEquals("draft-user", updated.username)
-        verify(userRepository).save(any())
+        verify(userRepository).save(anyUser())
         verifyNoMoreInteractions(userRepository)
         verifyNoInteractions(roleRepository)
     }
@@ -199,6 +201,6 @@ class UserServiceImplTest {
     fun removeDelegatesDeleteToRepository() {
         service.removeById(99L)
 
-        verify(userRepository).removeById(99L)
+        verify(userRepository).deleteById(99L)
     }
 }

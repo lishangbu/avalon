@@ -11,14 +11,7 @@ import org.babyfish.jimmer.spring.repository.KRepository
  * @author lishangbu
  * @since 2025/9/14
  */
-interface Oauth2AuthorizationRepository :
-    KRepository<OauthAuthorization, String>,
-    Oauth2AuthorizationRepositoryExt
-
-interface Oauth2AuthorizationRepositoryExt {
-    /** 按 ID 删除 OAuth2 授权 */
-    fun removeById(id: String)
-
+interface Oauth2AuthorizationRepository : KRepository<OauthAuthorization, String> {
     /**
      * 根据 state 查询认证信息
      *
@@ -83,7 +76,14 @@ interface Oauth2AuthorizationRepositoryExt {
      * @param token token 值，可为上述任意一种 token
      * @return 匹配的认证信息
      */
-    fun findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+    fun loadByTokenValue(
         token: String,
-    ): OauthAuthorization?
+    ): OauthAuthorization? =
+        findByState(token)
+            ?: findByAuthorizationCodeValue(token)
+            ?: findByAccessTokenValue(token)
+            ?: findByRefreshTokenValue(token)
+            ?: findByOidcIdTokenValue(token)
+            ?: findByUserCodeValue(token)
+            ?: findByDeviceCodeValue(token)
 }

@@ -8,6 +8,8 @@ import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
@@ -31,8 +33,8 @@ class RoleServiceImplTest {
         val page = Page(listOf(role(1L)), 1, 1)
         val roles = listOf(role(2L))
         val found = role(3L)
-        `when`(roleRepository.findAllWithMenus(specification, pageable)).thenReturn(page)
-        `when`(roleRepository.findAllWithMenus(specification)).thenReturn(roles)
+        `when`(roleRepository.pageWithMenus(specification, pageable)).thenReturn(page)
+        `when`(roleRepository.listWithMenus(specification)).thenReturn(roles)
         `when`(roleRepository.findNullable(3L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(found)
 
         assertSame(page, service.getPageByCondition(specification, pageable))
@@ -52,7 +54,7 @@ class RoleServiceImplTest {
             }
         val boundMenus = listOf(menu(5L, label = "Dashboard"), menu(6L, label = "Users"))
         `when`(menuRepository.findAllById(setOf(5L, 6L))).thenReturn(boundMenus)
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenAnswer { it.getArgument(0) }
 
         val saved = service.save(incoming)
 
@@ -64,7 +66,7 @@ class RoleServiceImplTest {
 
     @Test
     fun saveKeepsMenusUnloadedWhenInputDoesNotLoadAnyMenuIds() {
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenAnswer { it.getArgument(0) }
 
         val saved =
             service.save(
@@ -94,7 +96,7 @@ class RoleServiceImplTest {
                 menus().addBy(existingMenu)
             }
         `when`(roleRepository.findNullable(3L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(existing)
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(Role { id = 3L })
 
@@ -117,7 +119,7 @@ class RoleServiceImplTest {
             }
         `when`(roleRepository.findNullable(4L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(null)
         `when`(menuRepository.findAllById(setOf(8L))).thenReturn(listOf(boundMenu))
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(incoming)
 
@@ -132,7 +134,7 @@ class RoleServiceImplTest {
     @Test
     fun updateLeavesOptionalFieldsUnsetWhenExistingRoleCannotBeFound() {
         `when`(roleRepository.findNullable(99L, AuthorizationFetchers.ROLE_WITH_MENUS)).thenReturn(null)
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole())).thenAnswer { it.getArgument(0) }
 
         val updated = service.update(Role { id = 99L })
 
@@ -147,7 +149,7 @@ class RoleServiceImplTest {
 
     @Test
     fun updateDoesNotQueryExistingRoleWhenIdIsNotLoaded() {
-        `when`(roleRepository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(roleRepository.save(anyRole())).thenAnswer { it.getArgument(0) }
 
         val updated =
             service.update(
@@ -157,7 +159,7 @@ class RoleServiceImplTest {
             )
 
         assertEquals("DRAFT", updated.code)
-        verify(roleRepository).save(any())
+        verify(roleRepository).save(anyRole())
         verifyNoMoreInteractions(roleRepository)
         verifyNoInteractions(menuRepository)
     }
@@ -166,6 +168,6 @@ class RoleServiceImplTest {
     fun removeDelegatesDeleteToRepository() {
         service.removeById(42L)
 
-        verify(roleRepository).removeById(42L)
+        verify(roleRepository).deleteById(42L)
     }
 }

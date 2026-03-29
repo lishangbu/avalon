@@ -2,6 +2,8 @@ package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.repository.AuthenticationLogRepository
 import io.github.lishangbu.avalon.oauth2.common.log.AuthenticationLogRecord
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -22,7 +24,7 @@ class DefaultAuthenticationLogRecorderTest {
                 recorded = it.getArgument(0)
                 recorded
             }.`when`(repository)
-            .save(any())
+            .save(anyAuthenticationLog(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         val timestamp = Instant.parse("2026-03-25T01:02:03Z")
         recorder.record(
             AuthenticationLogRecord(
@@ -55,7 +57,7 @@ class DefaultAuthenticationLogRecorderTest {
                 recorded = it.getArgument(0)
                 recorded
             }.`when`(repository)
-            .save(any())
+            .save(anyAuthenticationLog(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         val before = Instant.now()
 
         recorder.record(

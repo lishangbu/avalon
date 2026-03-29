@@ -7,6 +7,8 @@ import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
@@ -36,7 +38,7 @@ class MenuServiceImplTest {
     fun buildsRoleBasedMenuTree() {
         val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
         val child = menu(2L, parentId = 1L, label = "Child", sortingOrder = 2)
-        `when`(menuRepository.findAllByRoleCodes(listOf("ADMIN"))).thenReturn(listOf(root, child))
+        `when`(menuRepository.listByRoleCodes(listOf("ADMIN"))).thenReturn(listOf(root, child))
 
         val result = service.listMenuTreeByRoleCodes(listOf("ADMIN"))
 
@@ -123,15 +125,16 @@ class MenuServiceImplTest {
         val updated = menu(11L, label = "Updated")
         `when`(menuRepository.findNullable(9L, AuthorizationFetchers.MENU)).thenReturn(found)
         `when`(menuRepository.findAll(MenuSpecification(parentId = 12L))).thenReturn(emptyList())
-        `when`(menuRepository.save(any())).thenReturn(saved).thenReturn(updated)
-        `when`(roleRepository.findAllWithMenus(null)).thenReturn(emptyList())
+        `when`(menuRepository.save(anyMenu(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(saved)
+        `when`(menuRepository.save(anyMenu())).thenReturn(updated)
+        `when`(roleRepository.listWithMenus(null)).thenReturn(emptyList())
 
         assertSame(found, service.getById(9L))
         assertSame(saved, service.save(menu(10L, label = "New")))
         assertSame(updated, service.update(menu(11L, label = "Changed")))
         service.removeById(12L)
 
-        verify(menuRepository).removeById(12L)
+        verify(menuRepository).deleteById(12L)
     }
 
     @Test
@@ -172,8 +175,8 @@ class MenuServiceImplTest {
             }
 
         assertEquals("请先删除子菜单后再删除当前菜单", exception.message)
-        verify(roleRepository, never()).findAllWithMenus(null)
-        verify(menuRepository, never()).removeById(1L)
+        verify(roleRepository, never()).listWithMenus(null)
+        verify(menuRepository, never()).deleteById(1L)
     }
 
     @Test
@@ -183,8 +186,8 @@ class MenuServiceImplTest {
         val unaffectedRole = role(2L, menus = listOf(menu(14L, label = "Another")))
         var savedRole: Role? = null
         `when`(menuRepository.findAll(MenuSpecification(parentId = 12L))).thenReturn(emptyList())
-        `when`(roleRepository.findAllWithMenus(null)).thenReturn(listOf(roleWithMenu, unaffectedRole))
-        `when`(roleRepository.save(any())).thenAnswer {
+        `when`(roleRepository.listWithMenus(null)).thenReturn(listOf(roleWithMenu, unaffectedRole))
+        `when`(roleRepository.save(anyRole())).thenAnswer {
             it.getArgument<Role>(0).also { role -> savedRole = role }
         }
 
@@ -193,7 +196,7 @@ class MenuServiceImplTest {
         val detachedRole = requireNotNull(savedRole)
         val savedMenus = detachedRole.readOrNull { menus } ?: emptyList()
         assertFalse(savedMenus.any { it.id == 12L })
-        verify(roleRepository).save(any())
-        verify(menuRepository).removeById(12L)
+        verify(roleRepository).save(anyRole())
+        verify(menuRepository).deleteById(12L)
     }
 }

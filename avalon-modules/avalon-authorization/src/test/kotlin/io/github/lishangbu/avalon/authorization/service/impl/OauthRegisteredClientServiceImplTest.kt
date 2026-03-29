@@ -37,7 +37,7 @@ class OauthRegisteredClientServiceImplTest {
 
     @Test
     fun saveGeneratesMissingIdAndIssuedAt() {
-        `when`(repository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(repository.save(anyOauthRegisteredClient())).thenAnswer { it.getArgument(0) }
 
         val saved =
             service.save(
@@ -60,7 +60,7 @@ class OauthRegisteredClientServiceImplTest {
     @Test
     fun savePreservesProvidedIdAndIssuedAt() {
         val issuedAt = Instant.parse("2026-03-25T00:00:00Z")
-        `when`(repository.save(any())).thenAnswer { it.getArgument(0) }
+        `when`(repository.save(anyOauthRegisteredClient())).thenAnswer { it.getArgument(0) }
 
         val saved =
             service.save(
@@ -78,11 +78,11 @@ class OauthRegisteredClientServiceImplTest {
     @Test
     fun updateAndDeleteDelegateToRepository() {
         val registeredClient = registeredClient("client-4")
-        `when`(repository.save(any())).thenReturn(registeredClient)
+        `when`(repository.save(anyOauthRegisteredClient())).thenReturn(registeredClient)
 
         assertSame(registeredClient, service.update(registeredClient))
         service.removeById("client-4")
 
-        verify(repository).removeById("client-4")
+        verify(repository).deleteById("client-4")
     }
 }

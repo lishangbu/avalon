@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.AuthenticationLog
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -31,6 +32,7 @@ class AuthenticationLogRepositoryTest : AbstractRepositoryTest() {
                     success = true
                     occurredAt = Instant.now()
                 },
+                SaveMode.INSERT_ONLY,
             )
 
         assertNotNull(saved.id)

@@ -12,20 +12,29 @@ import org.babyfish.jimmer.spring.repository.KRepository
  * @author lishangbu
  * @since 2025/9/14
  */
-interface OauthAuthorizationConsentRepository :
-    KRepository<OauthAuthorizationConsent, OauthAuthorizationConsentId>,
-    OauthAuthorizationConsentRepositoryExt
-
-interface OauthAuthorizationConsentRepositoryExt {
+interface OauthAuthorizationConsentRepository : KRepository<OauthAuthorizationConsent, OauthAuthorizationConsentId> {
     /** 按注册客户端 ID 和主体名称查询 OAuth 授权同意 */
     fun findByRegisteredClientIdAndPrincipalName(
         registeredClientId: String,
         principalName: String,
-    ): OauthAuthorizationConsent?
+    ): OauthAuthorizationConsent? =
+        findNullable(
+            OauthAuthorizationConsentId {
+                this.registeredClientId = registeredClientId
+                this.principalName = principalName
+            },
+        )
 
     /** 按注册客户端 ID 和主体名称删除 OAuth 授权同意 */
     fun deleteByRegisteredClientIdAndPrincipalName(
         registeredClientId: String,
         principalName: String,
-    )
+    ) {
+        deleteById(
+            OauthAuthorizationConsentId {
+                this.registeredClientId = registeredClientId
+                this.principalName = principalName
+            },
+        )
+    }
 }

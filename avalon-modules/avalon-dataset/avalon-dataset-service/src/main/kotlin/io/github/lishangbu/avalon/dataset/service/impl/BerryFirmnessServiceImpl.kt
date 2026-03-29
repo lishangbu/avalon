@@ -38,6 +38,6 @@ class BerryFirmnessServiceImpl(
 
     /** 按 ID 删除树果硬度 */
     override fun removeById(id: Long) {
-        berryFirmnessRepository.removeById(id)
+        berryFirmnessRepository.deleteById(id)
     }
 }

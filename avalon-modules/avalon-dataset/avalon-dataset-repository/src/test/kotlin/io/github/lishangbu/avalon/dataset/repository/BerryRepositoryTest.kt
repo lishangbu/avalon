@@ -29,14 +29,14 @@ class BerryRepositoryTest : AbstractRepositoryTest() {
         assertTrue(page.totalRowCount >= 1)
         assertFalse(page.rows.isEmpty())
 
-        val existing = requireNotNull(berryRepository.findByIdWithAssociations(1L))
+        val existing = requireNotNull(berryRepository.loadByIdWithAssociations(1L))
         berryRepository.save(Berry(existing) { name = "更新后的树果" }, SaveMode.UPSERT)
 
-        val updated = requireNotNull(berryRepository.findByIdWithAssociations(1L))
+        val updated = requireNotNull(berryRepository.loadByIdWithAssociations(1L))
         assertEquals("更新后的树果", updated.name)
 
-        berryRepository.removeById(1L)
-        assertNull(berryRepository.findByIdWithAssociations(1L))
+        berryRepository.deleteById(1L)
+        assertNull(berryRepository.loadByIdWithAssociations(1L))
     }
 
     private fun assertTrue(value: Boolean) {

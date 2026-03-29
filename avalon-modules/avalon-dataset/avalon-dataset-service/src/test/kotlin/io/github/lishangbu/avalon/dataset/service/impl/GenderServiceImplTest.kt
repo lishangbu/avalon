@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.repository.GenderRepository
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -30,29 +31,29 @@ class GenderServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyMode() {
-        `when`(repository.save(any<Gender>(), SaveMode.INSERT_ONLY)).thenReturn(genderEntity(1L))
+        `when`(repository.save(any<Gender>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(genderEntity(1L))
 
         val result = service.save(SaveGenderInput("female", "♀"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<Gender>(), SaveMode.INSERT_ONLY)
+        verify(repository).save(any<Gender>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<Gender>(), SaveMode.UPSERT)).thenReturn(genderEntity(1L))
+        `when`(repository.save(any<Gender>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(genderEntity(1L))
 
         val result = service.update(UpdateGenderInput("1", "female", "♀"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<Gender>(), SaveMode.UPSERT)
+        verify(repository).save(any<Gender>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(1L)
 
-        verify(repository).removeById(1L)
+        verify(repository).deleteById(1L)
     }
 }
 

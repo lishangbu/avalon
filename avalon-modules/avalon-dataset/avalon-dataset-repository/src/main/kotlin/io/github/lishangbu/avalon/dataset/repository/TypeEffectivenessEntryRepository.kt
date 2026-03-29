@@ -1,9 +1,9 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntry
-import io.github.lishangbu.avalon.dataset.entity.TypeEffectivenessEntryId
+import io.github.lishangbu.avalon.dataset.entity.*
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
 
 /**
@@ -14,26 +14,33 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface TypeEffectivenessEntryRepository :
-    KRepository<TypeEffectivenessEntry, TypeEffectivenessEntryId>,
-    TypeEffectivenessEntryRepositoryExt
-
-interface TypeEffectivenessEntryRepositoryExt {
+interface TypeEffectivenessEntryRepository : KRepository<TypeEffectivenessEntry, TypeEffectivenessEntryId> {
     /** 按条件查询属性相克条目列表 */
-    fun findAll(
+    fun listByFilter(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
         multiplierPercent: Int?,
-    ): List<TypeEffectivenessEntry>
+    ): List<TypeEffectivenessEntry> =
+        sql
+            .createQuery(TypeEffectivenessEntry::class) {
+                attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
+                defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
+                multiplierPercent?.let { where(table.multiplierPercent eq it) }
+                select(table)
+            }.execute()
 
     /** 按条件分页查询属性相克条目 */
-    fun findPage(
+    fun pageByFilter(
         attackingTypeId: Long?,
         defendingTypeId: Long?,
         multiplierPercent: Int?,
         pageable: Pageable,
-    ): Page<TypeEffectivenessEntry>
-
-    /** 按 ID 删除属性相克条目 */
-    fun removeById(id: TypeEffectivenessEntryId)
+    ): Page<TypeEffectivenessEntry> =
+        sql
+            .createQuery(TypeEffectivenessEntry::class) {
+                attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
+                defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
+                multiplierPercent?.let { where(table.multiplierPercent eq it) }
+                select(table)
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 }

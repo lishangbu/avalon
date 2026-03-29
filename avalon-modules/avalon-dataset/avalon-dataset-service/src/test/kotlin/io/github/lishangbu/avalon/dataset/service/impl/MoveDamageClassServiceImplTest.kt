@@ -6,6 +6,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveDamageClassInput
 import io.github.lishangbu.avalon.dataset.repository.MoveDamageClassRepository
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -45,29 +46,29 @@ class MoveDamageClassServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyMode() {
-        `when`(repository.save(any<MoveDamageClass>(), SaveMode.INSERT_ONLY)).thenReturn(moveDamageClassEntity(1L, "physical", "物理", "desc"))
+        `when`(repository.save(any<MoveDamageClass>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(moveDamageClassEntity(1L, "physical", "物理", "desc"))
 
         val result = service.save(SaveMoveDamageClassInput("physical", "物理", "desc"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveDamageClass>(), SaveMode.INSERT_ONLY)
+        verify(repository).save(any<MoveDamageClass>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveDamageClass>(), SaveMode.UPSERT)).thenReturn(moveDamageClassEntity(1L, "special", "特殊", "desc"))
+        `when`(repository.save(any<MoveDamageClass>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(moveDamageClassEntity(1L, "special", "特殊", "desc"))
 
         val result = service.update(UpdateMoveDamageClassInput("1", "special", "特殊", "desc"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveDamageClass>(), SaveMode.UPSERT)
+        verify(repository).save(any<MoveDamageClass>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(1L)
 
-        verify(repository).removeById(1L)
+        verify(repository).deleteById(1L)
     }
 }
 

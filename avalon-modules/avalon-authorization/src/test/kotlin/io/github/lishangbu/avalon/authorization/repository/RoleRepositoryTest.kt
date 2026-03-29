@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization.repository
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -58,6 +59,7 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
                     name = "为单元测试而生"
                     enabled = true
                 },
+                SaveMode.INSERT_ONLY,
             )
         assertNotNull(role.id)
         insertId = role.id
@@ -90,6 +92,6 @@ class RoleRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(6)
     fun testDeleteById() {
-        roleRepository.removeById(insertId!!)
+        roleRepository.deleteById(insertId!!)
     }
 }

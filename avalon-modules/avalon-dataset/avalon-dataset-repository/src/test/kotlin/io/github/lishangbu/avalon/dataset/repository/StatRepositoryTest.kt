@@ -20,7 +20,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
     fun shouldListAndCrudStat() {
         val condition = StatSpecification(internalName = "attack")
 
-        val results = statRepository.findAll(condition)
+        val results = statRepository.listViews(condition)
 
         assertFalse(results.isEmpty())
         assertEquals("2", results.first().id)
@@ -29,7 +29,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertEquals("physical", results.first().moveDamageClass?.internalName)
         assertEquals("物理", results.first().moveDamageClass?.name)
 
-        val existing = requireNotNull(statRepository.findViewById(2L))
+        val existing = requireNotNull(statRepository.loadViewById(2L))
         assertEquals("attack", existing.internalName)
         assertEquals("物理", existing.moveDamageClass?.name)
 
@@ -49,16 +49,16 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                 SaveMode.INSERT_ONLY,
             )
 
-        val inserted = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
+        val inserted = requireNotNull(statRepository.listViews(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals(saved.id.toString(), inserted.id)
         assertEquals("单元测试能力", inserted.name)
 
         statRepository.save(inserted.toEntity { name = "更新后的能力" }, SaveMode.UPSERT)
-        val updated = requireNotNull(statRepository.findAll(StatSpecification(internalName = "unit-stat")).firstOrNull())
+        val updated = requireNotNull(statRepository.listViews(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals("更新后的能力", updated.name)
 
-        statRepository.removeById(saved.id)
-        assertTrue(statRepository.findAll(StatSpecification(internalName = "unit-stat")).isEmpty())
+        statRepository.deleteById(saved.id)
+        assertTrue(statRepository.listViews(StatSpecification(internalName = "unit-stat")).isEmpty())
     }
 
     @Test
@@ -75,7 +75,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
 
         statRepository.save(command.toEntity(), SaveMode.UPSERT)
 
-        val updated = requireNotNull(statRepository.findViewById(8L))
+        val updated = requireNotNull(statRepository.loadViewById(8L))
         assertEquals("8", updated.id)
         assertEquals("闪避", updated.name)
         assertEquals("evasion", updated.internalName)

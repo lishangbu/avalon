@@ -3,6 +3,7 @@ package io.github.lishangbu.avalon.authorization
 import io.github.lishangbu.avalon.authorization.service.impl.DefaultOAuth2AuthorizationConsentService
 import io.github.lishangbu.avalon.authorization.service.impl.DefaultOAuth2AuthorizationService
 import io.github.lishangbu.avalon.authorization.service.impl.DefaultRegisteredClientRepository
+import org.babyfish.jimmer.spring.repository.EnableJimmerRepositories
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
@@ -19,6 +20,7 @@ import org.testcontainers.utility.DockerImageName
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration
+@EnableJimmerRepositories("io.github.lishangbu.avalon.authorization.repository")
 @ComponentScan(basePackages = ["io.github.lishangbu.avalon.authorization.repository"])
 @Import(
     DefaultRegisteredClientRepository::class,

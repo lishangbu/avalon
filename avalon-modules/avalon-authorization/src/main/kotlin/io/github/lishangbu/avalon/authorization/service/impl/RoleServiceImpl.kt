@@ -9,6 +9,7 @@ import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.service.RoleService
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,10 +33,10 @@ class RoleServiceImpl(
     override fun getPageByCondition(
         specification: RoleSpecification,
         pageable: Pageable,
-    ): Page<Role> = roleRepository.findAllWithMenus(specification, pageable)
+    ): Page<Role> = roleRepository.pageWithMenus(specification, pageable)
 
     /** 根据条件查询角色列表 */
-    override fun listByCondition(specification: RoleSpecification): List<Role> = roleRepository.findAllWithMenus(specification)
+    override fun listByCondition(specification: RoleSpecification): List<Role> = roleRepository.listWithMenus(specification)
 
     /** 按 ID 查询角色 */
     override fun getById(id: Long): Role? = roleRepository.findNullable(id, AuthorizationFetchers.ROLE_WITH_MENUS)
@@ -44,7 +45,7 @@ class RoleServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun save(role: Role): Role {
         val prepared = bindMenus(role, false)
-        return roleRepository.save(prepared)
+        return roleRepository.save(prepared, SaveMode.INSERT_ONLY)
     }
 
     /** 更新角色 */
@@ -57,7 +58,7 @@ class RoleServiceImpl(
     /** 按 ID 删除角色 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        roleRepository.removeById(id)
+        roleRepository.deleteById(id)
     }
 
     /** 返回绑定菜单列表 */

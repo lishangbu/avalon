@@ -29,7 +29,7 @@ class DefaultUserDetailsService(
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails =
         userRepository
-            .findByAccountWithRoles(username)
+            .loadByAccountWithRoles(username)
             ?.let { user ->
                 UserInfo(
                     user.username ?: "",

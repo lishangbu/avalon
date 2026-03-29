@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Role
-import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
@@ -14,29 +14,42 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/08/20
  */
-interface RoleRepository :
-    KRepository<Role, Long>,
-    RoleRepositoryExt
-
-interface RoleRepositoryExt {
+interface RoleRepository : KRepository<Role, Long> {
     /** 按条件查询角色列表 */
-    fun findAll(specification: RoleSpecification?): List<Role>
+    fun findAll(specification: Specification<Role>?): List<Role> =
+        sql
+            .createQuery(Role::class) {
+                specification?.let(::where)
+                select(table.fetch(AuthorizationFetchers.ROLE))
+            }.execute()
 
     /** 按条件分页查询角色 */
     fun findAll(
-        specification: RoleSpecification?,
+        specification: Specification<Role>?,
         pageable: Pageable,
-    ): Page<Role>
+    ): Page<Role> =
+        sql
+            .createQuery(Role::class) {
+                specification?.let(::where)
+                select(table.fetch(AuthorizationFetchers.ROLE))
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 按条件查询角色列表，并抓取菜单 */
-    fun findAllWithMenus(specification: RoleSpecification?): List<Role>
+    fun listWithMenus(specification: Specification<Role>?): List<Role> =
+        sql
+            .createQuery(Role::class) {
+                specification?.let(::where)
+                select(table.fetch(AuthorizationFetchers.ROLE_WITH_MENUS))
+            }.execute()
 
     /** 按条件分页查询角色，并抓取菜单 */
-    fun findAllWithMenus(
-        specification: RoleSpecification?,
+    fun pageWithMenus(
+        specification: Specification<Role>?,
         pageable: Pageable,
-    ): Page<Role>
-
-    /** 按 ID 删除角色 */
-    fun removeById(id: Long)
+    ): Page<Role> =
+        sql
+            .createQuery(Role::class) {
+                specification?.let(::where)
+                select(table.fetch(AuthorizationFetchers.ROLE_WITH_MENUS))
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 }

@@ -38,6 +38,6 @@ class MoveDamageClassServiceImpl(
 
     /** 按 ID 删除招式伤害分类 */
     override fun removeById(id: Long) {
-        moveDamageClassRepository.removeById(id)
+        moveDamageClassRepository.deleteById(id)
     }
 }

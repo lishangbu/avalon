@@ -34,7 +34,7 @@ class DefaultOAuth2AuthorizationConsentServiceTest {
                 persisted = it.getArgument(0)
                 persisted
             }.`when`(consentRepository)
-            .save(any())
+            .save(anyOauthAuthorizationConsent())
 
         service.save(
             OAuth2AuthorizationConsent

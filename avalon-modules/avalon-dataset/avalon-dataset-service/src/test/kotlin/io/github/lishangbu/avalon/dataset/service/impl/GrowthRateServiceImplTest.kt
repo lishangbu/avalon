@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.repository.GrowthRateRepository
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -30,29 +31,29 @@ class GrowthRateServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyMode() {
-        `when`(repository.save(any<GrowthRate>(), SaveMode.INSERT_ONLY)).thenReturn(growthRateEntity(1L))
+        `when`(repository.save(any<GrowthRate>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(growthRateEntity(1L))
 
         val result = service.save(SaveGrowthRateInput("slow", "慢", "slow"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<GrowthRate>(), SaveMode.INSERT_ONLY)
+        verify(repository).save(any<GrowthRate>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<GrowthRate>(), SaveMode.UPSERT)).thenReturn(growthRateEntity(1L))
+        `when`(repository.save(any<GrowthRate>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(growthRateEntity(1L))
 
         val result = service.update(UpdateGrowthRateInput("1", "slow", "慢", "slow"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<GrowthRate>(), SaveMode.UPSERT)
+        verify(repository).save(any<GrowthRate>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(1L)
 
-        verify(repository).removeById(1L)
+        verify(repository).deleteById(1L)
     }
 }
 

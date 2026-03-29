@@ -1,7 +1,7 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.GrowthRate
-import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 
 /**
@@ -12,15 +12,12 @@ import org.babyfish.jimmer.spring.repository.KRepository
  * @author lishangbu
  * @since 2026/2/10
  */
-interface GrowthRateRepository :
-    KRepository<GrowthRate, Long>,
-    GrowthRateRepositoryExt
-
-/** 成长速率仓储扩展接口 */
-interface GrowthRateRepositoryExt {
+interface GrowthRateRepository : KRepository<GrowthRate, Long> {
     /** 按条件查询成长速率列表 */
-    fun findAll(specification: GrowthRateSpecification?): List<GrowthRate>
-
-    /** 按 ID 删除成长速率 */
-    fun removeById(id: Long)
+    fun findAll(specification: Specification<GrowthRate>?): List<GrowthRate> =
+        sql
+            .createQuery(GrowthRate::class) {
+                specification?.let(::where)
+                select(table)
+            }.execute()
 }

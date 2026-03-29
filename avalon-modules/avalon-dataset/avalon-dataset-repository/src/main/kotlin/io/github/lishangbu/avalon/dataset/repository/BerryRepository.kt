@@ -1,9 +1,10 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.Berry
-import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
+import io.github.lishangbu.avalon.dataset.entity.*
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
 
 /**
@@ -14,23 +15,32 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface BerryRepository :
-    KRepository<Berry, Long>,
-    BerryRepositoryExt
-
-interface BerryRepositoryExt {
+interface BerryRepository : KRepository<Berry, Long> {
     /** 按条件查询树果列表 */
-    fun findAll(specification: BerrySpecification?): List<Berry>
+    fun findAll(specification: Specification<Berry>?): List<Berry> =
+        sql
+            .createQuery(Berry::class) {
+                specification?.let(::where)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+            }.execute()
 
     /** 按条件分页查询树果 */
     fun findAll(
-        specification: BerrySpecification?,
+        specification: Specification<Berry>?,
         pageable: Pageable,
-    ): Page<Berry>
+    ): Page<Berry> =
+        sql
+            .createQuery(Berry::class) {
+                specification?.let(::where)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 按 ID 查询单个树果及其关联 */
-    fun findByIdWithAssociations(id: Long): Berry?
-
-    /** 删除指定 ID 的树果 */
-    fun removeById(id: Long)
+    fun loadByIdWithAssociations(id: Long): Berry? =
+        sql
+            .createQuery(Berry::class) {
+                where(table.id eq id)
+                select(table.fetch(DatasetFetchers.BERRY_WITH_ASSOCIATIONS))
+            }.execute()
+            .firstOrNull()
 }

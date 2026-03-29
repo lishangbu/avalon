@@ -17,7 +17,7 @@ class StatServiceImpl(
     private val statRepository: StatRepository,
 ) : StatService {
     /** 根据条件查询能力值列表*/
-    override fun listByCondition(specification: StatSpecification): List<StatView> = statRepository.findAll(specification)
+    override fun listByCondition(specification: StatSpecification): List<StatView> = statRepository.listViews(specification)
 
     /** 保存能力值*/
     override fun save(command: SaveStatInput): StatView = statRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
@@ -27,8 +27,8 @@ class StatServiceImpl(
 
     /** 按 ID 删除能力值*/
     override fun removeById(id: Long) {
-        statRepository.removeById(id)
+        statRepository.deleteById(id)
     }
 
-    private fun reloadView(stat: Stat): StatView = requireNotNull(statRepository.findViewById(stat.id)) { "未找到 ID=${stat.id} 对应的能力值" }
+    private fun reloadView(stat: Stat): StatView = requireNotNull(statRepository.loadViewById(stat.id)) { "未找到 ID=${stat.id} 对应的能力值" }
 }

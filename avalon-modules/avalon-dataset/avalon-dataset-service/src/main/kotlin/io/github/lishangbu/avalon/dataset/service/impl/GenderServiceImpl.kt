@@ -27,7 +27,7 @@ class GenderServiceImpl(
     /** 按 ID 删除性别 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        genderRepository.removeById(id)
+        genderRepository.deleteById(id)
     }
 
     /** 按条件查询性别列表 */

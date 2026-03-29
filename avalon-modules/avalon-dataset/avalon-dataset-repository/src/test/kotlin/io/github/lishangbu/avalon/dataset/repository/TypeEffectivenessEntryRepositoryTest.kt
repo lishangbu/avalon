@@ -16,8 +16,8 @@ class TypeEffectivenessEntryRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     fun shouldQueryPageAndCrudTypeEffectivenessEntry() {
-        val results = typeEffectivenessEntryRepository.findAll(2L, null, 200)
-        val page = typeEffectivenessEntryRepository.findPage(2L, null, 200, PageRequest.of(0, 10))
+        val results = typeEffectivenessEntryRepository.listByFilter(2L, null, 200)
+        val page = typeEffectivenessEntryRepository.pageByFilter(2L, null, 200, PageRequest.of(0, 10))
 
         assertFalse(results.isEmpty())
         assertFalse(page.rows.isEmpty())
@@ -32,16 +32,16 @@ class TypeEffectivenessEntryRepositoryTest : AbstractRepositoryTest() {
             )
 
         val foundAfterUpdate =
-            typeEffectivenessEntryRepository.findAll(
+            typeEffectivenessEntryRepository.listByFilter(
                 updated.id.attackingTypeId,
                 updated.id.defendingTypeId,
                 150,
             )
         assertFalse(foundAfterUpdate.isEmpty())
 
-        typeEffectivenessEntryRepository.removeById(updated.id)
+        typeEffectivenessEntryRepository.deleteById(updated.id)
         val afterDelete =
-            typeEffectivenessEntryRepository.findAll(
+            typeEffectivenessEntryRepository.listByFilter(
                 updated.id.attackingTypeId,
                 updated.id.defendingTypeId,
                 150,

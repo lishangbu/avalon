@@ -27,7 +27,7 @@ class GrowthRateServiceImpl(
     /** 按 ID 删除成长速率 */
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        growthRateRepository.removeById(id)
+        growthRateRepository.deleteById(id)
     }
 
     /** 按条件查询成长速率列表 */

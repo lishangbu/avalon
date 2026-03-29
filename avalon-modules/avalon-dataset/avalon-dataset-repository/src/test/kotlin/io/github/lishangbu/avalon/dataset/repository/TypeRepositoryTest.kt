@@ -94,7 +94,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
             )
         val deleteRecordId = type.id
         Assertions.assertNotNull(typeRepository.findNullable(deleteRecordId))
-        typeRepository.removeById(deleteRecordId)
+        typeRepository.deleteById(deleteRecordId)
         Assertions.assertNull(typeRepository.findNullable(deleteRecordId))
     }
 

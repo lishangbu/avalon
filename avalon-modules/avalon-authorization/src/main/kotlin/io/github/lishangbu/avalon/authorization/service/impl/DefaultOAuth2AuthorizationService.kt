@@ -45,7 +45,7 @@ class DefaultOAuth2AuthorizationService(
     /** 删除默认 OAuth2 授权 */
     @Transactional(rollbackFor = [Exception::class])
     override fun remove(authorization: OAuth2Authorization) {
-        oauth2AuthorizationRepository.removeById(authorization.id)
+        oauth2AuthorizationRepository.deleteById(authorization.id)
     }
 
     /** 按 ID 查询默认 OAuth2 授权 */
@@ -65,7 +65,7 @@ class DefaultOAuth2AuthorizationService(
             when (tokenType?.value) {
                 null -> {
                     oauth2AuthorizationRepository
-                        .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(
+                        .loadByTokenValue(
                             token,
                         )
                 }

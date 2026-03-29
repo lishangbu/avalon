@@ -2,6 +2,7 @@ package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import jakarta.annotation.Resource
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -51,6 +52,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
                     disabled = false
                     show = true
                 },
+                SaveMode.INSERT_ONLY,
             )
         assertNotNull(menu.id)
         insertId = menu.id
@@ -80,7 +82,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(5)
     fun testFindAllByRoleCodes() {
-        val menus = menuRepository.findAllByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
+        val menus = menuRepository.listByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
         assertNotNull(menus)
         assertFalse(menus.isEmpty())
         menus.zipWithNext().forEach { (previous, current) ->
@@ -95,6 +97,6 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     @Test
     @Order(6)
     fun testDeleteById() {
-        menuRepository.removeById(insertId!!)
+        menuRepository.deleteById(insertId!!)
     }
 }

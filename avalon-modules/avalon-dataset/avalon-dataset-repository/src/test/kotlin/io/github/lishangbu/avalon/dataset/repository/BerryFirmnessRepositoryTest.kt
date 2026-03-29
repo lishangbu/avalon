@@ -105,7 +105,7 @@ class BerryFirmnessRepositoryTest : AbstractRepositoryTest() {
             )
         val id = created.id
 
-        berryFirmnessRepository.removeById(id)
+        berryFirmnessRepository.deleteById(id)
 
         // 通过 internalName 查询应该为空
         val specification = BerryFirmnessSpecification(internalName = "ephemeral")

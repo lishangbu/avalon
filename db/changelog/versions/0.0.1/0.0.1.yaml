@@ -234,6 +234,9 @@ databaseChangeLog:
                   type: int8
                   constraints:
                     nullable: false
+                    foreignKeyName: fk_encounter_condition_value__encounter_condition_id
+                    referencedTableName: encounter_condition
+                    referencedColumnNames: id
         - createTable:
             tableName: encounter_method
             remarks: 遭遇方式
@@ -410,6 +413,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_item_attribute_relation__item_id
+                    referencedTableName: item
+                    referencedColumnNames: id
               - column:
                   name: item_attribute_id
                   remarks: 道具属性 ID
@@ -417,6 +423,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_item_attribute_relation__item_attribute_id
+                    referencedTableName: item_attribute
+                    referencedColumnNames: id
         - createTable:
             tableName: item_category
             remarks: 道具分类
@@ -497,6 +506,10 @@ databaseChangeLog:
                   name: item_id
                   remarks: 道具 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_machine__item_id
+                    referencedTableName: item
+                    referencedColumnNames: id
               - column:
                   name: move_id
                   remarks: 招式 ID
@@ -821,6 +834,10 @@ databaseChangeLog:
                   name: hates_berry_flavor_id
                   remarks: 讨厌风味 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_nature__hates_berry_flavor_id
+                    referencedTableName: berry_flavor
+                    referencedColumnNames: id
               - column:
                   name: increased_stat_id
                   remarks: 提高能力值 ID
@@ -829,6 +846,10 @@ databaseChangeLog:
                   name: likes_berry_flavor_id
                   remarks: 喜欢风味 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_nature__likes_berry_flavor_id
+                    referencedTableName: berry_flavor
+                    referencedColumnNames: id
         - createTable:
             tableName: oauth_authorization
             remarks: OAuth2 授权
@@ -1167,6 +1188,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_pokemon_ability__ability_id
+                    referencedTableName: ability
+                    referencedColumnNames: id
               - column:
                   name: pokemon_id
                   remarks: 宝可梦 ID
@@ -1174,6 +1198,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_pokemon_ability__pokemon_id
+                    referencedTableName: pokemon
+                    referencedColumnNames: id
         - createTable:
             tableName: pokemon_color
             remarks: 宝可梦颜色
@@ -1302,18 +1329,34 @@ databaseChangeLog:
                   name: growth_rate_id
                   remarks: 成长速率 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_species__growth_rate_id
+                    referencedTableName: growth_rate
+                    referencedColumnNames: id
               - column:
                   name: pokemon_color_id
                   remarks: 宝可梦颜色 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_species__pokemon_color_id
+                    referencedTableName: pokemon_color
+                    referencedColumnNames: id
               - column:
                   name: pokemon_habitat_id
                   remarks: 宝可梦栖息地 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_species__pokemon_habitat_id
+                    referencedTableName: pokemon_habitat
+                    referencedColumnNames: id
               - column:
                   name: pokemon_shape_id
                   remarks: 宝可梦形态 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_species__pokemon_shape_id
+                    referencedTableName: pokemon_shape
+                    referencedColumnNames: id
         - createTable:
             tableName: pokemon_stat
             remarks: 宝可梦能力值
@@ -1333,6 +1376,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_pokemon_stat__pokemon_id
+                    referencedTableName: pokemon
+                    referencedColumnNames: id
               - column:
                   name: stat_id
                   remarks: 能力值 ID
@@ -1362,6 +1408,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_pokemon_type__pokemon_id
+                    referencedTableName: pokemon
+                    referencedColumnNames: id
         - createTable:
             tableName: role
             remarks: 角色
@@ -1402,6 +1451,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_role_menu_relation__role_id
+                    referencedTableName: role
+                    referencedColumnNames: id
               - column:
                   name: menu_id
                   remarks: 菜单 ID
@@ -1409,6 +1461,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_role_menu_relation__menu_id
+                    referencedTableName: menu
+                    referencedColumnNames: id
         - createTable:
             tableName: stat
             remarks: 能力值
@@ -1440,6 +1495,10 @@ databaseChangeLog:
                   name: move_damage_class_id
                   remarks: 招式伤害分类 ID
                   type: int8
+                  constraints:
+                    foreignKeyName: fk_stat__move_damage_class_id
+                    referencedTableName: move_damage_class
+                    referencedColumnNames: id
         - createTable:
             tableName: type
             remarks: 属性
@@ -1474,6 +1533,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_type_effectiveness_entry__defending_type_id
+                    referencedTableName: type
+                    referencedColumnNames: id
               - column:
                   name: attacking_type_id
                   remarks: 攻击方属性 ID
@@ -1481,6 +1543,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_type_effectiveness_entry__attacking_type_id
+                    referencedTableName: type
+                    referencedColumnNames: id
         - createTable:
             tableName: user_role_relation
             remarks: 用户角色关联
@@ -1499,6 +1564,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    foreignKeyName: fk_user_role_relation__role_id
+                    referencedTableName: role
+                    referencedColumnNames: id
         - createTable:
             tableName: users
             remarks: 用户
@@ -1584,6 +1652,212 @@ databaseChangeLog:
             columns:
               - column:
                   name: device_code_value
+        - createIndex:
+            tableName: berry
+            indexName: idx_berry__berry_firmness_id
+            columns:
+              - column:
+                  name: berry_firmness_id
+        - createIndex:
+            tableName: berry
+            indexName: idx_berry__natural_gift_type_id
+            columns:
+              - column:
+                  name: natural_gift_type_id
+        - createIndex:
+            tableName: encounter_condition_value
+            indexName: idx_encounter_condition_value__encounter_condition_id
+            columns:
+              - column:
+                  name: encounter_condition_id
+        - createIndex:
+            tableName: item
+            indexName: idx_item__item_fling_effect_id
+            columns:
+              - column:
+                  name: item_fling_effect_id
+        - createIndex:
+            tableName: item_attribute_relation
+            indexName: idx_item_attribute_relation__item_attribute_id
+            columns:
+              - column:
+                  name: item_attribute_id
+        - createIndex:
+            tableName: item_category
+            indexName: idx_item_category__item_pocket_id
+            columns:
+              - column:
+                  name: item_pocket_id
+        - createIndex:
+            tableName: machine
+            indexName: idx_machine__item_id
+            columns:
+              - column:
+                  name: item_id
+        - createIndex:
+            tableName: machine
+            indexName: idx_machine__move_id
+            columns:
+              - column:
+                  name: move_id
+        - createIndex:
+            tableName: menu
+            indexName: idx_menu__parent_id
+            columns:
+              - column:
+                  name: parent_id
+        - createIndex:
+            tableName: menu
+            indexName: idx_menu__sorting_order__id
+            columns:
+              - column:
+                  name: sorting_order
+              - column:
+                  name: id
+        - createIndex:
+            tableName: move
+            indexName: idx_move__move_ailment_id
+            columns:
+              - column:
+                  name: move_ailment_id
+        - createIndex:
+            tableName: move
+            indexName: idx_move__move_category_id
+            columns:
+              - column:
+                  name: move_category_id
+        - createIndex:
+            tableName: move
+            indexName: idx_move__move_damage_class_id
+            columns:
+              - column:
+                  name: move_damage_class_id
+        - createIndex:
+            tableName: move
+            indexName: idx_move__move_target_id
+            columns:
+              - column:
+                  name: move_target_id
+        - createIndex:
+            tableName: move
+            indexName: idx_move__type_id
+            columns:
+              - column:
+                  name: type_id
+        - createIndex:
+            tableName: nature
+            indexName: idx_nature__decreased_stat_id
+            columns:
+              - column:
+                  name: decreased_stat_id
+        - createIndex:
+            tableName: nature
+            indexName: idx_nature__hates_berry_flavor_id
+            columns:
+              - column:
+                  name: hates_berry_flavor_id
+        - createIndex:
+            tableName: nature
+            indexName: idx_nature__increased_stat_id
+            columns:
+              - column:
+                  name: increased_stat_id
+        - createIndex:
+            tableName: nature
+            indexName: idx_nature__likes_berry_flavor_id
+            columns:
+              - column:
+                  name: likes_berry_flavor_id
+        - createIndex:
+            tableName: oauth_authorization
+            indexName: idx_oauth_authorization__registered_client_id
+            columns:
+              - column:
+                  name: registered_client_id
+        - createIndex:
+            tableName: oauth_authorization_consent
+            indexName: idx_oauth_authorization_consent__registered_client_id
+            columns:
+              - column:
+                  name: registered_client_id
+        - createIndex:
+            tableName: pokemon
+            indexName: idx_pokemon__pokemon_species_id
+            columns:
+              - column:
+                  name: pokemon_species_id
+        - createIndex:
+            tableName: pokemon_ability
+            indexName: idx_pokemon_ability__pokemon_id
+            columns:
+              - column:
+                  name: pokemon_id
+        - createIndex:
+            tableName: pokemon_species
+            indexName: idx_pokemon_species__evolves_from_species_id
+            columns:
+              - column:
+                  name: evolves_from_species_id
+        - createIndex:
+            tableName: pokemon_species
+            indexName: idx_pokemon_species__growth_rate_id
+            columns:
+              - column:
+                  name: growth_rate_id
+        - createIndex:
+            tableName: pokemon_species
+            indexName: idx_pokemon_species__pokemon_color_id
+            columns:
+              - column:
+                  name: pokemon_color_id
+        - createIndex:
+            tableName: pokemon_species
+            indexName: idx_pokemon_species__pokemon_habitat_id
+            columns:
+              - column:
+                  name: pokemon_habitat_id
+        - createIndex:
+            tableName: pokemon_species
+            indexName: idx_pokemon_species__pokemon_shape_id
+            columns:
+              - column:
+                  name: pokemon_shape_id
+        - createIndex:
+            tableName: pokemon_stat
+            indexName: idx_pokemon_stat__stat_id
+            columns:
+              - column:
+                  name: stat_id
+        - createIndex:
+            tableName: pokemon_type
+            indexName: idx_pokemon_type__type_id
+            columns:
+              - column:
+                  name: type_id
+        - createIndex:
+            tableName: role_menu_relation
+            indexName: idx_role_menu_relation__menu_id
+            columns:
+              - column:
+                  name: menu_id
+        - createIndex:
+            tableName: stat
+            indexName: idx_stat__move_damage_class_id
+            columns:
+              - column:
+                  name: move_damage_class_id
+        - createIndex:
+            tableName: type_effectiveness_entry
+            indexName: idx_type_effectiveness_entry__attacking_type_id
+            columns:
+              - column:
+                  name: attacking_type_id
+        - createIndex:
+            tableName: user_role_relation
+            indexName: idx_user_role_relation__role_id
+            columns:
+              - column:
+                  name: role_id
         - addForeignKeyConstraint:
             baseTableName: berry
             baseColumnNames: natural_gift_type_id
@@ -1601,14 +1875,6 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: encounter_condition_value
-            baseColumnNames: encounter_condition_id
-            referencedTableName: encounter_condition
-            referencedColumnNames: id
-            constraintName: fk_encounter_condition_value__encounter_condition_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
             baseTableName: item
             baseColumnNames: item_fling_effect_id
             referencedTableName: item_fling_effect
@@ -1617,27 +1883,27 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: item_attribute_relation
-            baseColumnNames: item_attribute_id
-            referencedTableName: item_attribute
-            referencedColumnNames: id
-            constraintName: fk_item_attribute_relation__item_attribute_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: item_attribute_relation
-            baseColumnNames: item_id
-            referencedTableName: item
-            referencedColumnNames: id
-            constraintName: fk_item_attribute_relation__item_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
             baseTableName: item_category
             baseColumnNames: item_pocket_id
             referencedTableName: item_pocket
             referencedColumnNames: id
             constraintName: fk_item_category__item_pocket_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: machine
+            baseColumnNames: move_id
+            referencedTableName: move
+            referencedColumnNames: id
+            constraintName: fk_machine__move_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: menu
+            baseColumnNames: parent_id
+            referencedTableName: menu
+            referencedColumnNames: id
+            constraintName: fk_menu__parent_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1690,14 +1956,6 @@ databaseChangeLog:
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
             baseTableName: nature
-            baseColumnNames: hates_berry_flavor_id
-            referencedTableName: berry_flavor
-            referencedColumnNames: id
-            constraintName: fk_nature__hates_berry_flavor_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: nature
             baseColumnNames: increased_stat_id
             referencedTableName: stat
             referencedColumnNames: id
@@ -1705,11 +1963,19 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: nature
-            baseColumnNames: likes_berry_flavor_id
-            referencedTableName: berry_flavor
+            baseTableName: oauth_authorization
+            baseColumnNames: registered_client_id
+            referencedTableName: oauth_registered_client
             referencedColumnNames: id
-            constraintName: fk_nature__likes_berry_flavor_id
+            constraintName: fk_oauth_authorization__registered_client_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: oauth_authorization_consent
+            baseColumnNames: registered_client_id
+            referencedTableName: oauth_registered_client
+            referencedColumnNames: id
+            constraintName: fk_oauth_authorization_consent__registered_client_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1718,62 +1984,6 @@ databaseChangeLog:
             referencedTableName: pokemon_species
             referencedColumnNames: id
             constraintName: fk_pokemon__pokemon_species_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_ability
-            baseColumnNames: ability_id
-            referencedTableName: ability
-            referencedColumnNames: id
-            constraintName: fk_pokemon_ability__ability_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_ability
-            baseColumnNames: pokemon_id
-            referencedTableName: pokemon
-            referencedColumnNames: id
-            constraintName: fk_pokemon_ability__pokemon_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_species
-            baseColumnNames: pokemon_habitat_id
-            referencedTableName: pokemon_habitat
-            referencedColumnNames: id
-            constraintName: fk_pokemon_species__pokemon_habitat_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_species
-            baseColumnNames: growth_rate_id
-            referencedTableName: growth_rate
-            referencedColumnNames: id
-            constraintName: fk_pokemon_species__growth_rate_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_species
-            baseColumnNames: pokemon_color_id
-            referencedTableName: pokemon_color
-            referencedColumnNames: id
-            constraintName: fk_pokemon_species__pokemon_color_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_species
-            baseColumnNames: pokemon_shape_id
-            referencedTableName: pokemon_shape
-            referencedColumnNames: id
-            constraintName: fk_pokemon_species__pokemon_shape_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_stat
-            baseColumnNames: pokemon_id
-            referencedTableName: pokemon
-            referencedColumnNames: id
-            constraintName: fk_pokemon_stat__pokemon_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1786,66 +1996,10 @@ databaseChangeLog:
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
             baseTableName: pokemon_type
-            baseColumnNames: pokemon_id
-            referencedTableName: pokemon
-            referencedColumnNames: id
-            constraintName: fk_pokemon_type__pokemon_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: pokemon_type
             baseColumnNames: type_id
             referencedTableName: type
             referencedColumnNames: id
             constraintName: fk_pokemon_type__type_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: role_menu_relation
-            baseColumnNames: menu_id
-            referencedTableName: menu
-            referencedColumnNames: id
-            constraintName: fk_role_menu_relation__menu_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: role_menu_relation
-            baseColumnNames: role_id
-            referencedTableName: role
-            referencedColumnNames: id
-            constraintName: fk_role_menu_relation__role_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: stat
-            baseColumnNames: move_damage_class_id
-            referencedTableName: move_damage_class
-            referencedColumnNames: id
-            constraintName: fk_stat__move_damage_class_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: type_effectiveness_entry
-            baseColumnNames: attacking_type_id
-            referencedTableName: type
-            referencedColumnNames: id
-            constraintName: fk_type_effectiveness_entry__attacking_type_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: type_effectiveness_entry
-            baseColumnNames: defending_type_id
-            referencedTableName: type
-            referencedColumnNames: id
-            constraintName: fk_type_effectiveness_entry__defending_type_id
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-        - addForeignKeyConstraint:
-            baseTableName: user_role_relation
-            baseColumnNames: role_id
-            referencedTableName: role
-            referencedColumnNames: id
-            constraintName: fk_user_role_relation__role_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -1856,6 +2010,136 @@ databaseChangeLog:
             constraintName: fk_user_role_relation__user_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: evolves_from_species_id
+            referencedTableName: pokemon_species
+            referencedColumnNames: id
+            constraintName: fk_pokemon_species__evolves_from_species_id
+            deferrable: true
+            initiallyDeferred: true
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addUniqueConstraint:
+            tableName: ability
+            columnNames: internal_name
+            constraintName: uk_ability__internal_name
+        - addUniqueConstraint:
+            tableName: berry
+            columnNames: internal_name
+            constraintName: uk_berry__internal_name
+        - addUniqueConstraint:
+            tableName: berry_firmness
+            columnNames: internal_name
+            constraintName: uk_berry_firmness__internal_name
+        - addUniqueConstraint:
+            tableName: berry_flavor
+            columnNames: internal_name
+            constraintName: uk_berry_flavor__internal_name
+        - addUniqueConstraint:
+            tableName: egg_group
+            columnNames: internal_name
+            constraintName: uk_egg_group__internal_name
+        - addUniqueConstraint:
+            tableName: encounter_condition
+            columnNames: internal_name
+            constraintName: uk_encounter_condition__internal_name
+        - addUniqueConstraint:
+            tableName: encounter_condition_value
+            columnNames: internal_name
+            constraintName: uk_encounter_condition_value__internal_name
+        - addUniqueConstraint:
+            tableName: encounter_method
+            columnNames: internal_name
+            constraintName: uk_encounter_method__internal_name
+        - addUniqueConstraint:
+            tableName: evolution_trigger
+            columnNames: internal_name
+            constraintName: uk_evolution_trigger__internal_name
+        - addUniqueConstraint:
+            tableName: gender
+            columnNames: internal_name
+            constraintName: uk_gender__internal_name
+        - addUniqueConstraint:
+            tableName: growth_rate
+            columnNames: internal_name
+            constraintName: uk_growth_rate__internal_name
+        - addUniqueConstraint:
+            tableName: item_attribute
+            columnNames: internal_name
+            constraintName: uk_item_attribute__internal_name
+        - addUniqueConstraint:
+            tableName: item_category
+            columnNames: internal_name
+            constraintName: uk_item_category__internal_name
+        - addUniqueConstraint:
+            tableName: item_fling_effect
+            columnNames: internal_name
+            constraintName: uk_item_fling_effect__internal_name
+        - addUniqueConstraint:
+            tableName: item_pocket
+            columnNames: internal_name
+            constraintName: uk_item_pocket__internal_name
+        - addUniqueConstraint:
+            tableName: menu
+            columnNames: key
+            constraintName: uk_menu__key
+        - addUniqueConstraint:
+            tableName: move
+            columnNames: internal_name
+            constraintName: uk_move__internal_name
+        - addUniqueConstraint:
+            tableName: move_ailment
+            columnNames: internal_name
+            constraintName: uk_move_ailment__internal_name
+        - addUniqueConstraint:
+            tableName: move_category
+            columnNames: internal_name
+            constraintName: uk_move_category__internal_name
+        - addUniqueConstraint:
+            tableName: move_damage_class
+            columnNames: internal_name
+            constraintName: uk_move_damage_class__internal_name
+        - addUniqueConstraint:
+            tableName: move_learn_method
+            columnNames: internal_name
+            constraintName: uk_move_learn_method__internal_name
+        - addUniqueConstraint:
+            tableName: move_target
+            columnNames: internal_name
+            constraintName: uk_move_target__internal_name
+        - addUniqueConstraint:
+            tableName: nature
+            columnNames: internal_name
+            constraintName: uk_nature__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon
+            columnNames: internal_name
+            constraintName: uk_pokemon__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon_color
+            columnNames: internal_name
+            constraintName: uk_pokemon_color__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon_habitat
+            columnNames: internal_name
+            constraintName: uk_pokemon_habitat__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon_shape
+            columnNames: internal_name
+            constraintName: uk_pokemon_shape__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon_species
+            columnNames: internal_name
+            constraintName: uk_pokemon_species__internal_name
+        - addUniqueConstraint:
+            tableName: stat
+            columnNames: internal_name
+            constraintName: uk_stat__internal_name
+        - addUniqueConstraint:
+            tableName: type
+            columnNames: internal_name
+            constraintName: uk_type__internal_name
         - loadData:
             file: data/ability.csv
             relativeToChangelogFile: true

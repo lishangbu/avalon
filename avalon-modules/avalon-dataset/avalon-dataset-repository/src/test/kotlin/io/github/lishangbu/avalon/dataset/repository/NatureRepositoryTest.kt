@@ -32,7 +32,7 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
         assertEquals("attack", results.first().decreasedStat?.internalName)
         assertEquals("辣", results.first().hatesBerryFlavor?.name)
 
-        val neutral = requireNotNull(natureRepository.findByIdWithAssociations(1L))
+        val neutral = requireNotNull(natureRepository.loadByIdWithAssociations(1L))
         assertEquals("hardy", neutral.internalName)
         assertNull(neutral.decreasedStat)
         assertNull(neutral.likesBerryFlavor)
@@ -62,7 +62,7 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
                 SaveMode.INSERT_ONLY,
             )
 
-        val inserted = requireNotNull(natureRepository.findByIdWithAssociations(saved.id))
+        val inserted = requireNotNull(natureRepository.loadByIdWithAssociations(saved.id))
         assertEquals("单元测试性格", inserted.name)
         assertEquals("攻击", inserted.decreasedStat?.name)
         assertEquals("酸", inserted.likesBerryFlavor?.name)
@@ -77,13 +77,13 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
             },
             SaveMode.UPSERT,
         )
-        val updated = requireNotNull(natureRepository.findByIdWithAssociations(saved.id))
+        val updated = requireNotNull(natureRepository.loadByIdWithAssociations(saved.id))
         assertEquals("更新后的性格", updated.name)
         assertNull(updated.decreasedStat)
         assertNull(updated.likesBerryFlavor)
 
-        natureRepository.removeById(saved.id)
-        assertNull(natureRepository.findByIdWithAssociations(saved.id))
+        natureRepository.deleteById(saved.id)
+        assertNull(natureRepository.loadByIdWithAssociations(saved.id))
     }
 
     @Test
@@ -101,7 +101,7 @@ class NatureRepositoryTest : AbstractRepositoryTest() {
 
         natureRepository.save(command.toEntity(), SaveMode.UPSERT)
 
-        val updated = requireNotNull(natureRepository.findByIdWithAssociations(7L))
+        val updated = requireNotNull(natureRepository.loadByIdWithAssociations(7L))
         assertEquals(7L, updated.id)
         assertEquals("docile", updated.internalName)
         assertEquals(2L, updated.decreasedStat?.id)

@@ -69,29 +69,29 @@ class Oauth2AuthorizationRepositoryTest : AbstractRepositoryTest() {
         assertEquals(
             "unit-authorization",
             oauth2AuthorizationRepository
-                .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue("refresh-token")!!
+                .loadByTokenValue("refresh-token")!!
                 .id,
         )
         assertEquals(
             "unit-authorization",
             oauth2AuthorizationRepository
-                .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue("id-token")!!
+                .loadByTokenValue("id-token")!!
                 .id,
         )
         assertEquals(
             "unit-authorization",
             oauth2AuthorizationRepository
-                .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue("user-code")!!
+                .loadByTokenValue("user-code")!!
                 .id,
         )
         assertEquals(
             "unit-authorization",
             oauth2AuthorizationRepository
-                .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue("device-code")!!
+                .loadByTokenValue("device-code")!!
                 .id,
         )
 
-        oauth2AuthorizationRepository.removeById("unit-authorization")
+        oauth2AuthorizationRepository.deleteById("unit-authorization")
         assertNull(oauth2AuthorizationRepository.findNullable("unit-authorization"))
     }
 }

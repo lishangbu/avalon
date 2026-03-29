@@ -80,7 +80,7 @@ class GrowthRateRepositoryTest : AbstractRepositoryTest() {
         val deleteRecordId = growthRate.id
 
         Assertions.assertNotNull(growthRateRepository.findNullable(deleteRecordId))
-        growthRateRepository.removeById(deleteRecordId)
+        growthRateRepository.deleteById(deleteRecordId)
         Assertions.assertNull(growthRateRepository.findNullable(deleteRecordId))
     }
 

@@ -113,7 +113,7 @@ internal fun roundTripAuthorizationEntity(): OauthAuthorization {
             persisted = it.getArgument(0)
             persisted
         }.`when`(repository)
-        .save(any())
+        .save(anyOauthAuthorization())
     service.save(oauth2Authorization())
     return requireNotNull(persisted)
 }

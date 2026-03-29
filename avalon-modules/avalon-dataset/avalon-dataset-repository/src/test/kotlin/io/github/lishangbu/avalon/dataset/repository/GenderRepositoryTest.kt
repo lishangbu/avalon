@@ -74,7 +74,7 @@ class GenderRepositoryTest : AbstractRepositoryTest() {
         val deleteRecordId = gender.id
 
         Assertions.assertNotNull(genderRepository.findNullable(deleteRecordId))
-        genderRepository.removeById(deleteRecordId)
+        genderRepository.deleteById(deleteRecordId)
         Assertions.assertNull(genderRepository.findNullable(deleteRecordId))
     }
 

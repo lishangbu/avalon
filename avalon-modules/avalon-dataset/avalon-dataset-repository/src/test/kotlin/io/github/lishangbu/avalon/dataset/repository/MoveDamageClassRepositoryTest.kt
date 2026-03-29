@@ -58,7 +58,7 @@ class MoveDamageClassRepositoryTest : AbstractRepositoryTest() {
             )
         assertEquals("updated description", afterUpdate.description)
 
-        moveDamageClassRepository.removeById(saved.id)
+        moveDamageClassRepository.deleteById(saved.id)
         assertTrue(
             moveDamageClassRepository
                 .findAll(

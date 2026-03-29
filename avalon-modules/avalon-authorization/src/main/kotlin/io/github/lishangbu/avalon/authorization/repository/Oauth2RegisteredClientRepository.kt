@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
-import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
@@ -14,22 +14,25 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2023-10-08
  */
-interface Oauth2RegisteredClientRepository :
-    KRepository<OauthRegisteredClient, String>,
-    Oauth2RegisteredClientRepositoryExt
-
-interface Oauth2RegisteredClientRepositoryExt {
+interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, String> {
     /** 按条件查询 OAuth2 注册客户端列表 */
-    fun findAll(specification: OauthRegisteredClientSpecification?): List<OauthRegisteredClient>
+    fun findAll(specification: Specification<OauthRegisteredClient>?): List<OauthRegisteredClient> =
+        sql
+            .createQuery(OauthRegisteredClient::class) {
+                specification?.let(::where)
+                select(table)
+            }.execute()
 
     /** 按条件分页查询 OAuth2 注册客户端 */
     fun findAll(
-        specification: OauthRegisteredClientSpecification?,
+        specification: Specification<OauthRegisteredClient>?,
         pageable: Pageable,
-    ): Page<OauthRegisteredClient>
-
-    /** 按 ID 删除 OAuth2 注册客户端 */
-    fun removeById(id: String)
+    ): Page<OauthRegisteredClient> =
+        sql
+            .createQuery(OauthRegisteredClient::class) {
+                specification?.let(::where)
+                select(table)
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
     /** 根据客户端 ID查找OAuth2 注册客户端 */
     fun findByClientId(clientId: String): OauthRegisteredClient?

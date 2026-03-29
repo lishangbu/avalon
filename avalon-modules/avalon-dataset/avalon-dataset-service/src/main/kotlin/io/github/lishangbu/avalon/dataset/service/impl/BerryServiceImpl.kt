@@ -36,8 +36,8 @@ class BerryServiceImpl(
 
     /** 删除指定 ID 的树果*/
     override fun removeById(id: Long) {
-        berryRepository.removeById(id)
+        berryRepository.deleteById(id)
     }
 
-    private fun reloadView(berry: Berry): BerryView = BerryView(requireNotNull(berryRepository.findByIdWithAssociations(berry.id)) { "未找到 ID=${berry.id} 对应的树果" })
+    private fun reloadView(berry: Berry): BerryView = BerryView(requireNotNull(berryRepository.loadByIdWithAssociations(berry.id)) { "未找到 ID=${berry.id} 对应的树果" })
 }

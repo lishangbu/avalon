@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.dataset.repository
 
 import io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
-import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecification
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.springframework.data.domain.Pageable
 
@@ -14,20 +14,23 @@ import org.springframework.data.domain.Pageable
  * @author lishangbu
  * @since 2025/09/14
  */
-interface MoveDamageClassRepository :
-    KRepository<MoveDamageClass, Long>,
-    MoveDamageClassRepositoryExt
-
-interface MoveDamageClassRepositoryExt {
+interface MoveDamageClassRepository : KRepository<MoveDamageClass, Long> {
     /** 按条件查询招式伤害分类列表 */
-    fun findAll(specification: MoveDamageClassSpecification?): List<MoveDamageClass>
+    fun findAll(specification: Specification<MoveDamageClass>?): List<MoveDamageClass> =
+        sql
+            .createQuery(MoveDamageClass::class) {
+                specification?.let(::where)
+                select(table)
+            }.execute()
 
     /** 按条件分页查询招式伤害分类 */
     fun findAll(
-        specification: MoveDamageClassSpecification?,
+        specification: Specification<MoveDamageClass>?,
         pageable: Pageable,
-    ): Page<MoveDamageClass>
-
-    /** 按 ID 删除招式伤害分类 */
-    fun removeById(id: Long)
+    ): Page<MoveDamageClass> =
+        sql
+            .createQuery(MoveDamageClass::class) {
+                specification?.let(::where)
+                select(table)
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
 }

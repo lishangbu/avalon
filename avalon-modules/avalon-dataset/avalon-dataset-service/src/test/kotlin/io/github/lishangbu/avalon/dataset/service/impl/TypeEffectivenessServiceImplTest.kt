@@ -7,6 +7,7 @@ import io.github.lishangbu.avalon.dataset.repository.TypeEffectivenessEntryRepos
 import io.github.lishangbu.avalon.dataset.repository.TypeRepository
 import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessMatrixCellInput
 import io.github.lishangbu.avalon.dataset.service.UpsertTypeEffectivenessMatrixCommand
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -201,7 +202,7 @@ class TypeEffectivenessServiceImplTest {
         val deletedIds = mutableListOf<TypeEffectivenessEntryId>()
 
         `when`(typeRepository.findAll()).thenReturn(types)
-        `when`(relationRepository.findAll(any<Long?>(), any<Long?>(), any<Int?>())).thenAnswer { invocation ->
+        `when`(relationRepository.listByFilter(isNull(), isNull(), isNull())).thenAnswer { invocation ->
             val attackingTypeId = invocation.getArgument<Long?>(0)
             val defendingTypeId = invocation.getArgument<Long?>(1)
             val multiplierPercent = invocation.getArgument<Int?>(2)
@@ -211,7 +212,7 @@ class TypeEffectivenessServiceImplTest {
                     (multiplierPercent == null || relation.multiplierPercent == multiplierPercent)
             }
         }
-        `when`(relationRepository.save(any<TypeEffectivenessEntry>(), SaveMode.UPSERT)).thenAnswer { invocation ->
+        `when`(relationRepository.save(any<TypeEffectivenessEntry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenAnswer { invocation ->
             val entry = invocation.getArgument<TypeEffectivenessEntry>(0)
             savedRelations += entry
             relations.removeIf { existing ->
@@ -229,7 +230,7 @@ class TypeEffectivenessServiceImplTest {
                     existing.id.defendingTypeId == id.defendingTypeId
             }
             null
-        }.`when`(relationRepository).removeById(any<TypeEffectivenessEntryId>())
+        }.`when`(relationRepository).deleteById(any<TypeEffectivenessEntryId>())
 
         return TestContext(
             service = TypeEffectivenessServiceImpl(typeRepository, relationRepository),

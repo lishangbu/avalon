@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.service.MenuService
 import io.github.lishangbu.avalon.jimmer.support.readOrNull
 import io.github.lishangbu.avalon.web.util.TreeUtils
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Sort
@@ -36,7 +37,7 @@ class MenuServiceImpl(
         if (roleCodes.isEmpty()) {
             return emptyList()
         }
-        val menus = menuRepository.findAllByRoleCodes(roleCodes)
+        val menus = menuRepository.listByRoleCodes(roleCodes)
         log.debug("根据角色编码获取到 [{}] 条菜单记录", menus.size)
         return buildTreeFromMenus(menus)
     }
@@ -78,7 +79,7 @@ class MenuServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun save(menu: Menu): Menu {
         validateParent(menu)
-        return menuRepository.save(menu)
+        return menuRepository.save(menu, SaveMode.INSERT_ONLY)
     }
 
     /** 更新菜单 */
@@ -96,7 +97,7 @@ class MenuServiceImpl(
             throw IllegalStateException("请先删除子菜单后再删除当前菜单")
         }
         detachMenuFromRoles(id)
-        menuRepository.removeById(id)
+        menuRepository.deleteById(id)
     }
 
     private fun validateParent(menu: Menu) {
@@ -140,7 +141,7 @@ class MenuServiceImpl(
     private fun detachMenuFromRoles(menuId: Long) {
         val roles =
             roleRepository
-                .findAllWithMenus(null)
+                .listWithMenus(null)
                 .filter { role -> role.menus.any { menu -> menu.id == menuId } }
 
         roles.forEach { role ->

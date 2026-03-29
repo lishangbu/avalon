@@ -20,7 +20,7 @@ class DefaultUserDetailsServiceTest {
         `when`(found.username).thenReturn("alice")
         `when`(found.hashedPassword).thenReturn("{noop}pwd")
         `when`(found.roles).thenReturn(emptyList())
-        `when`(userRepository.findByAccountWithRoles("alice")).thenReturn(found)
+        `when`(userRepository.loadByAccountWithRoles("alice")).thenReturn(found)
 
         val details = service.loadUserByUsername("alice")
 
@@ -32,7 +32,7 @@ class DefaultUserDetailsServiceTest {
     @Test
     fun returnsAuthoritiesFromRoleCodes() {
         val found = user(1L, username = "alice", hashedPassword = "{noop}pwd", roles = listOf(role(10L, "ROLE_ADMIN")))
-        `when`(userRepository.findByAccountWithRoles("alice")).thenReturn(found)
+        `when`(userRepository.loadByAccountWithRoles("alice")).thenReturn(found)
 
         val details = service.loadUserByUsername("alice")
 
@@ -41,7 +41,7 @@ class DefaultUserDetailsServiceTest {
 
     @Test
     fun throwsWhenUserDoesNotExist() {
-        `when`(userRepository.findByAccountWithRoles("missing")).thenReturn(null)
+        `when`(userRepository.loadByAccountWithRoles("missing")).thenReturn(null)
 
         assertThrows(UsernameNotFoundException::class.java) {
             service.loadUserByUsername("missing")

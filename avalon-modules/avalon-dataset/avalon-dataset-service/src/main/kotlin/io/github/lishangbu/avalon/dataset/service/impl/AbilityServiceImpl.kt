@@ -23,7 +23,7 @@ class AbilityServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {
-        abilityRepository.removeById(id)
+        abilityRepository.deleteById(id)
     }
 
     override fun listByCondition(specification: AbilitySpecification): List<AbilityView> = abilityRepository.findAll(specification).map(::AbilityView)

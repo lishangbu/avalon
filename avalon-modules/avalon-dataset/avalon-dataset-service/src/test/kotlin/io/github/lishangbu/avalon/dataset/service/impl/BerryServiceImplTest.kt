@@ -8,6 +8,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.repository.BerryRepository
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -41,35 +42,35 @@ class BerryServiceImplTest {
 
     @Test
     fun save_usesInsertOnlyModeAndReloadsView() {
-        `when`(repository.save(any<Berry>(), SaveMode.INSERT_ONLY)).thenReturn(berrySavedEntity(1L))
-        `when`(repository.findByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
+        `when`(repository.save(any<Berry>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
+        `when`(repository.loadByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
 
         val result = service.save(SaveBerryInput("cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("hard", result.berryFirmness?.internalName)
-        verify(repository).save(any<Berry>(), SaveMode.INSERT_ONLY)
-        verify(repository).findByIdWithAssociations(1L)
+        verify(repository).save(any<Berry>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).loadByIdWithAssociations(1L)
     }
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Berry>(), SaveMode.UPSERT)).thenReturn(berrySavedEntity(1L))
-        `when`(repository.findByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
+        `when`(repository.save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
+        `when`(repository.loadByIdWithAssociations(1L)).thenReturn(berryWithAssociations(1L))
 
         val result = service.update(UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("硬", result.berryFirmness?.name)
-        verify(repository).save(any<Berry>(), SaveMode.UPSERT)
-        verify(repository).findByIdWithAssociations(1L)
+        verify(repository).save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).loadByIdWithAssociations(1L)
     }
 
     @Test
     fun removeById_callsRepository() {
         service.removeById(1L)
 
-        verify(repository).removeById(1L)
+        verify(repository).deleteById(1L)
     }
 }
 

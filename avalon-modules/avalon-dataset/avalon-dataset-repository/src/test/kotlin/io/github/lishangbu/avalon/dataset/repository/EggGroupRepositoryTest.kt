@@ -78,7 +78,7 @@ class EggGroupRepositoryTest : AbstractRepositoryTest() {
         val deleteRecordId = eggGroup.id
 
         assertNotNull(eggGroupRepository.findNullable(deleteRecordId))
-        eggGroupRepository.removeById(deleteRecordId)
+        eggGroupRepository.deleteById(deleteRecordId)
         assertNull(eggGroupRepository.findNullable(deleteRecordId))
     }
 
