@@ -667,7 +667,7 @@ databaseChangeLog:
               - column:
                   name: short_effect
                   remarks: 简称效果
-                  type: varchar(500)
+                  type: varchar(4000)
               - column:
                   name: stat_chance
                   remarks: 能力值概率
