@@ -33,3 +33,5 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 32,dataset/item-category/index,false,false,__NULL__,ph:stack-bold,item-category,道具类别管理,item-category,7,item-category,false,,true,true,0
 33,dataset/item-fling-effect/index,false,false,__NULL__,ph:shooting-star-bold,item-fling-effect,道具投掷效果管理,item-fling-effect,7,item-fling-effect,false,,true,true,0
 34,dataset/item-attribute/index,false,false,__NULL__,ph:tag-chevron-bold,item-attribute,道具属性管理,item-attribute,7,item-attribute,false,,true,true,0
+35,dataset/item/index,false,false,__NULL__,ph:cube-bold,item,道具管理,item,7,item,false,,true,true,0
+36,dataset/move/index,false,false,__NULL__,ph:sword-bold,move,招式管理,move,7,move,false,,true,true,0

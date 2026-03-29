@@ -24,6 +24,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
             Type {
                 internalName = "unit_test_internal"
                 name = "单元测试类型"
+                battleOnly = false
             }
 
         // Act
@@ -45,6 +46,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
         Assertions.assertEquals("1", normalType.id)
         Assertions.assertEquals("normal", normalType.internalName)
         Assertions.assertEquals("一般", normalType.name)
+        Assertions.assertEquals(false, normalType.battleOnly)
     }
 
     /**
@@ -60,17 +62,25 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
                 Type {
                     internalName = "type-update-internal"
                     name = "原始名称"
+                    battleOnly = false
                 },
                 SaveMode.INSERT_ONLY,
             )
         val id = type.id
 
         // Act
-        typeRepository.save(Type(type) { name = "更新后的名称" }, SaveMode.UPSERT)
+        typeRepository.save(
+            Type(type) {
+                name = "更新后的名称"
+                battleOnly = true
+            },
+            SaveMode.UPSERT,
+        )
 
         // Assert
         val updatedType = requireNotNull(typeRepository.findNullable(id))
         Assertions.assertEquals("更新后的名称", updatedType.name)
+        Assertions.assertEquals(true, updatedType.battleOnly)
     }
 
     /**
@@ -86,6 +96,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
                 Type {
                     internalName = "type-delete-internal"
                     name = "原始名称"
+                    battleOnly = false
                 },
                 SaveMode.INSERT_ONLY,
             )
@@ -109,6 +120,17 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
         // Assert
         Assertions.assertNotNull(results)
         Assertions.assertTrue(results.any { it.name == "一般" })
+    }
+
+    @Test
+    fun shouldFilterBattleOnlyTypes() {
+        val results = typeRepository.listViews(TypeSpecification(battleOnly = true))
+
+        Assertions.assertTrue(results.size >= 3)
+        Assertions.assertTrue(results.all { it.battleOnly == true })
+        Assertions.assertTrue(results.any { it.internalName == "stellar" })
+        Assertions.assertTrue(results.any { it.internalName == "shadow" })
+        Assertions.assertTrue(results.any { it.internalName == "unknown" })
     }
 
     @Test

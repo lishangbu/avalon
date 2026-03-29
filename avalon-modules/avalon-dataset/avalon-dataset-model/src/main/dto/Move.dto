@@ -1,0 +1,122 @@
+export io.github.lishangbu.avalon.dataset.entity.Move
+
+MoveView {
+    id
+    internalName
+    name
+    accuracy
+    effectChance
+    pp
+    priority
+    power
+    text
+    shortEffect
+    effect
+    minHits
+    maxHits
+    minTurns
+    maxTurns
+    drain
+    healing
+    critRate
+    ailmentChance
+    flinchChance
+    statChance
+    type {
+        id
+        internalName
+        name
+    }
+    moveDamageClass {
+        id
+        internalName
+        name
+    }
+    moveTarget {
+        id
+        internalName
+        name
+    }
+    moveCategory {
+        id
+        internalName
+        name
+    }
+    moveAilment {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveMoveInput {
+    internalName
+    name
+    id(type) as typeId
+    accuracy
+    effectChance
+    pp
+    priority
+    power
+    id(moveDamageClass) as moveDamageClassId
+    id(moveTarget) as moveTargetId
+    text
+    shortEffect
+    effect
+    id(moveCategory) as moveCategoryId
+    id(moveAilment) as moveAilmentId
+    minHits
+    maxHits
+    minTurns
+    maxTurns
+    drain
+    healing
+    critRate
+    ailmentChance
+    flinchChance
+    statChance
+}
+
+input UpdateMoveInput {
+    id!
+    internalName
+    name
+    id(type) as typeId
+    accuracy
+    effectChance
+    pp
+    priority
+    power
+    id(moveDamageClass) as moveDamageClassId
+    id(moveTarget) as moveTargetId
+    text
+    shortEffect
+    effect
+    id(moveCategory) as moveCategoryId
+    id(moveAilment) as moveAilmentId
+    minHits
+    maxHits
+    minTurns
+    maxTurns
+    drain
+    healing
+    critRate
+    ailmentChance
+    flinchChance
+    statChance
+}
+
+specification MoveSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    associatedIdEq(type) as typeId
+    associatedIdEq(moveDamageClass) as moveDamageClassId
+    associatedIdEq(moveTarget) as moveTargetId
+    associatedIdEq(moveCategory) as moveCategoryId
+    associatedIdEq(moveAilment) as moveAilmentId
+    accuracy
+    power
+    pp
+    priority
+}

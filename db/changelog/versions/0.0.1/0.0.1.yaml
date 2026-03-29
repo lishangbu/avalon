@@ -1432,8 +1432,9 @@ databaseChangeLog:
                     uniqueConstraintName: uk_role__code
               - column:
                   name: enabled
-                  remarks: 是否启用
+                  remarks: 是否启用,默认启用
                   type: bool
+                  defaultValueBoolean: true
               - column:
                   name: name
                   remarks: 名称
@@ -1524,6 +1525,12 @@ databaseChangeLog:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+              - column:
+                  name: battle_only
+                  remarks: 是否仅战斗可用
+                  type: bool
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: type_effectiveness_entry
             remarks: 属性相克条目

@@ -4,21 +4,25 @@ TypeView {
     id
     internalName
     name
+    battleOnly
 }
 
 input SaveTypeInput {
     internalName
     name
+    battleOnly
 }
 
 input UpdateTypeInput {
     id!
     internalName
     name
+    battleOnly
 }
 
 specification TypeSpecification {
     id
     like/i(internalName)
     like/i(name)
+    battleOnly
 }

@@ -1,0 +1,59 @@
+export io.github.lishangbu.avalon.dataset.entity.Item
+
+ItemView {
+    id
+    internalName
+    name
+    cost
+    flingPower
+    shortEffect
+    effect
+    text
+    itemFlingEffect {
+        id
+        internalName
+        name
+    }
+    itemAttributes {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveItemInput {
+    internalName
+    name
+    cost
+    flingPower
+    shortEffect
+    effect
+    text
+    id(itemFlingEffect) as itemFlingEffectId
+    id(itemAttributes) as itemAttributeIds
+}
+
+input UpdateItemInput {
+    id!
+    internalName
+    name
+    cost
+    flingPower
+    shortEffect
+    effect
+    text
+    id(itemFlingEffect) as itemFlingEffectId
+    id(itemAttributes) as itemAttributeIds
+}
+
+specification ItemSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    cost
+    flingPower
+    like/i(shortEffect)
+    like/i(effect)
+    like/i(text)
+    associatedIdEq(itemFlingEffect) as itemFlingEffectId
+}

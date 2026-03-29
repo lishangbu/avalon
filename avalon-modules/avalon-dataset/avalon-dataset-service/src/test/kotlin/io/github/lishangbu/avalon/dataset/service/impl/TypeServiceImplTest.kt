@@ -20,33 +20,50 @@ class TypeServiceImplTest {
 
     @Test
     fun listByCondition_callsRepository() {
-        val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
-        `when`(repository.listViews(specification)).thenReturn(listOf(typeView(1L, "fire", "火")))
+        val specification = TypeSpecification(id = "1", internalName = "fire", name = "火", battleOnly = false)
+        `when`(repository.listViews(specification)).thenReturn(listOf(typeView(1L, "fire", "火", false)))
 
         val result = service.listByCondition(specification)
 
         assertEquals(1, result.size)
         assertEquals("1", result.first().id)
         assertEquals("火", result.first().name)
+        assertEquals(false, result.first().battleOnly)
     }
 
     @Test
     fun save_usesInsertOnlyMode() {
-        `when`(repository.save(any<DatasetType>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(typeEntity(1L, "fire", "火"))
+        `when`(
+            repository.save(
+                any<DatasetType>(),
+                eq(SaveMode.INSERT_ONLY),
+                eq(AssociatedSaveMode.REPLACE),
+                isNull(),
+            ),
+        ).thenReturn(typeEntity(1L, "fire", "火", false))
 
-        val result = service.save(SaveTypeInput("fire", "火"))
+        val result = service.save(SaveTypeInput("fire", "火", false))
 
         assertEquals("1", result.id)
+        assertEquals(false, result.battleOnly)
         verify(repository).save(any<DatasetType>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<DatasetType>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(typeEntity(1L, "water", "水"))
+        `when`(
+            repository.save(
+                any<DatasetType>(),
+                eq(SaveMode.UPSERT),
+                eq(AssociatedSaveMode.REPLACE),
+                isNull(),
+            ),
+        ).thenReturn(typeEntity(1L, "shadow", "暗", true))
 
-        val result = service.update(UpdateTypeInput("1", "water", "水"))
+        val result = service.update(UpdateTypeInput("1", "shadow", "暗", true))
 
         assertEquals("1", result.id)
+        assertEquals(true, result.battleOnly)
         verify(repository).save(any<DatasetType>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
@@ -62,15 +79,18 @@ private fun typeEntity(
     id: Long,
     internalName: String,
     name: String,
+    battleOnly: Boolean,
 ): DatasetType =
     DatasetType {
         this.id = id
         this.internalName = internalName
         this.name = name
+        this.battleOnly = battleOnly
     }
 
 private fun typeView(
     id: Long,
     internalName: String,
     name: String,
-): TypeView = TypeView(typeEntity(id, internalName, name))
+    battleOnly: Boolean,
+): TypeView = TypeView(typeEntity(id, internalName, name, battleOnly))

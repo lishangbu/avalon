@@ -18,4 +18,7 @@ interface Type {
 
     /** 名称 */
     val name: String?
+
+    /** 是否仅战斗可用 */
+    val battleOnly: Boolean?
 }

@@ -14,22 +14,23 @@ class TypeControllerTest {
     fun listTypes_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val list = listOf(TypeView("1", "fire", "火"))
+        val list = listOf(TypeView("1", "fire", "火", false))
         service.listResult = list
-        val specification = TypeSpecification(id = "1", internalName = "fire", name = "火")
+        val specification = TypeSpecification(id = "1", internalName = "fire", name = "火", battleOnly = false)
 
         val result = controller.listTypes(specification)
 
         assertSame(list, result)
         assertEquals("1", service.listCondition!!.id)
+        assertEquals(false, service.listCondition!!.battleOnly)
     }
 
     @Test
     fun save_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val command = SaveTypeInput("fire", "火")
-        service.saveResult = TypeView("1", "fire", "火")
+        val command = SaveTypeInput("fire", "火", false)
+        service.saveResult = TypeView("1", "fire", "火", false)
 
         val result = controller.save(command)
 
@@ -41,8 +42,8 @@ class TypeControllerTest {
     fun update_delegatesToService() {
         val service = FakeTypeService()
         val controller = TypeController(service)
-        val command = UpdateTypeInput("1", "fire", "火")
-        service.updateResult = TypeView("1", "fire", "火")
+        val command = UpdateTypeInput("1", "shadow", "暗", true)
+        service.updateResult = TypeView("1", "shadow", "暗", true)
 
         val result = controller.update(command)
 
