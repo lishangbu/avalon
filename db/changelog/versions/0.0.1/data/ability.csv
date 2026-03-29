@@ -1,994 +1,1250 @@
 id,effect,internal_name,introduction,name
-1,"This Pokémon's damaging moves have a 10% chance to make the target flinch with each hit if they do not already cause flinching as a secondary effect.
-
-This ability does not stack with a held item.
-
-Overworld: The wild encounter rate is halved while this Pokémon is first in the party.",stench,"通过释放臭臭的气味，
-在攻击的时候，
-有时会使对手畏缩。",恶臭
-2,"The weather changes to rain when this Pokémon enters battle and does not end unless replaced by another weather condition.
-
-If multiple Pokémon with this ability, drought, sand stream, or snow warning are sent out at the same time, the abilities will activate in order of Speed, respecting trick room.  Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.",drizzle,"出场时，
-会将天气变为下雨。",降雨
-3,This Pokémon's Speed rises one stage after each turn.,speed-boost,每一回合速度会变快。,加速
-4,"Moves cannot score critical hits against this Pokémon.
-
-This ability functions identically to shell armor.",battle-armor,"被坚硬的甲壳守护着，
-不会被对手的攻击击中要害。",战斗盔甲
-5,"When this Pokémon is at full HP, any hit that would knock it out will instead leave it with 1 HP.  Regardless of its current HP, it is also immune to the one-hit KO moves: fissure, guillotine, horn drill, and sheer cold.
-
-If this Pokémon is holding a focus sash, this ability takes precedence and the item will not be consumed.",sturdy,"即使受到对手的招式攻击，
-也不会被一击打倒。
-一击必杀的招式也没有效果。",结实
-6,"While this Pokémon is in battle, self destruct and explosion will fail and aftermath will not take effect.",damp,"通过把周围都弄湿，
-使谁都无法使用自爆等爆炸类的招式。",湿气
-7,"This Pokémon cannot be paralyzed.
-
-If a Pokémon is paralyzed and acquires this ability, its paralysis is healed; this includes when regaining a lost ability upon leaving battle.",limber,"因为身体柔软，
-不会变为麻痹状态。",柔软
-8,"During a sandstorm, this Pokémon has 1.25× its evasion, and it does not take sandstorm damage regardless of type.
-
-The evasion bonus does not count as a stat modifier.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is halved in a sandstorm.",sand-veil,"在沙暴的时候，
-闪避率会提高。",沙隐
-9,"Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being paralyzed.
-
-Pokémon that are immune to electric-type moves can still be paralyzed by this ability.
-
-Overworld: If the lead Pokémon has this ability, there is a 50% chance that encounters will be with an electric Pokémon, if applicable.",static,"身上带有静电，
-有时会让接触到的对手麻痹。",静电
-10,"Whenever an electric-type move hits this Pokémon, it heals for 1/4 of its maximum HP, negating any other effect on it.
-
-This ability will not take effect if this Pokémon is ground-type and thus immune to Electric moves.  Electric moves will ignore this Pokémon's substitute.
-
-This effect includes non-damaging moves, i.e. thunder wave.",volt-absorb,"受到电属性的招式攻击时，
-不会受到伤害，而是会回复。",蓄电
-11,"Whenever a water-type move hits this Pokémon, it heals for 1/4 of its maximum HP, negating any other effect on it.
-
-Water moves will ignore this Pokémon's substitute.",water-absorb,"受到水属性的招式攻击时，
-不会受到伤害，而是会回复。",储水
-12,"This Pokémon cannot be infatuated and is immune to captivate.
-
-If a Pokémon is infatuated and acquires this ability, its infatuation is cleared.",oblivious,"因为感觉迟钝，
-不会变为着迷和被挑衅状态。",迟钝
-13,"While this Pokémon is in battle, weather can still be in play, but will not have any of its effects.
-
-This ability functions identically to air lock.",cloud-nine,任何天气的影响都会消失。,无关天气
-14,"This Pokémon's moves have 1.3× their accuracy.
-
-This ability has no effect on the one-hit KO moves (fissure, guillotine, horn drill, and sheer cold).
-
-Overworld: If the first Pokémon in the party has this ability, the chance of a wild Pokémon holding a particular item is raised from 50%, 5%, or 1% to 60%, 20%, or 5%, respectively.",compound-eyes,"因为拥有复眼，
-招式的命中率会提高。",复眼
-15,"This Pokémon cannot be asleep.
-
-This causes rest to fail altogether.  If a Pokémon is asleep and acquires this ability, it will immediately wake up; this includes when regaining a lost ability upon leaving battle.
-
-This ability functions identically to vital spirit in battle.",insomnia,"因为是不会睡觉的体质，
-所以不会变为睡眠状态。",不眠
-16,"Whenever this Pokémon takes damage from a move, the Pokémon's type changes to match the move.
-
-If the Pokémon has two types, both are overridden.  The Pokémon must directly take damage; for example, moves blocked by a substitute will not trigger this ability, nor will moves that deal damage indirectly, such as spikes.
-
-This ability takes effect on only the last hit of a multiple-hit attack.
-
-In Pokémon Colosseum and XD: Gale of Darkness, this ability does not take effect on Shadow-type moves.",color-change,"自己的属性会变为
-从对手处所受招式的属性。",变色
-17,"This Pokémon cannot be poisoned.  This includes bad poison.
-
-If a Pokémon is poisoned and acquires this ability, its poison is healed; this includes when regaining a lost ability upon leaving battle.",immunity,"因为体内拥有免疫能力，
-不会变为中毒状态。",免疫
-18,"This Pokémon is immune to fire-type moves.  Once this Pokémon has been hit by a Fire move, its own Fire moves will inflict 1.5× as much damage until it leaves battle.
-
-This ability has no effect while the Pokémon is frozen.  The Fire damage bonus is retained even if the Pokémon is frozen and thawed or the ability is lost or disabled.  Fire moves will ignore this Pokémon's substitute.  This ability takes effect even on non-damaging moves, i.e. will o wisp.",flash-fire,"受到火属性的招式攻击时，
-吸收火焰，自己使出的
-火属性招式会变强。",引火
-19,"This Pokémon is immune to the extra effects of moves used against it.
-
-An extra effect is a move's chance, listed as an ""effect chance"", to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect.  For example, thunder shock's paralysis is an extra effect, but thunder wave's is not, nor are knock off's item removal and air cutter's increased critical hit rate.",shield-dust,"被鳞粉守护着，
-不会受到招式的追加效果影响。",鳞粉
-20,"This Pokémon cannot be confused.
-
-If a Pokémon is confused and acquires this ability, its confusion will immediately be healed.",own-tempo,"因为我行我素，
-不会变为混乱状态。",我行我素
-21,"This Pokémon cannot be forced out of battle by moves such as whirlwind.
-
-dragon tail and circle throw still inflict damage against this Pokémon.
-
-Overworld: If the lead Pokémon has this ability, the success rate while fishing is increased.",suction-cups,"用吸盘牢牢贴在地面上，
-让替换宝可梦的招式和道具无效。",吸盘
-22,"When this Pokémon enters battle, the opponent's Attack is lowered by one stage.  In a double battle, both opponents are affected.
-
-This ability also takes effect when acquired during a battle, but will not take effect again if lost and reobtained without leaving battle.
-
-This ability has no effect on an opponent that has a substitute.
-
-Overworld: If the first Pokémon in the party has this ability, any random encounter with a Pokémon five or more levels lower than it has a 50% chance of being skipped.",intimidate,"出场时威吓对手，
-让其退缩，
-降低对手的攻击。",威吓
-23,"While this Pokémon is in battle, opposing Pokémon cannot flee or switch out.
-
-Other Pokémon with this ability are unaffected.  Pokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.",shadow-tag,"踩住对手的影子
-使其无法逃走或替换。",踩影
-24,"Whenever a move makes contact with this Pokémon, the move's user takes 1/8 of its maximum HP in damage.
-
-This ability functions identically to iron barbs.",rough-skin,"受到攻击时，
-用粗糙的皮肤弄伤
-接触到自己的对手。",粗糙皮肤
-25,"This Pokémon is immune to damaging moves that are not super effective against it.
-
-Moves that inflict fixed damage, such as night shade or seismic toss, are considered super effective if their types are.  Damage not directly dealt by moves, such as damage from weather, a status ailment, or spikes, is not prevented.
-
-This ability cannot be copied with role play or traded away with skill swap, but it can be copied with trace, disabled with gastro acid, or changed with worry seed.  This Pokémon can still use Role Play itself to lose this ability, but not Skill Swap.
-
-If this Pokémon has a substitute, this ability will block moves as usual and any moves not blocked will react to the Substitute as usual.",wonder-guard,"不可思议的力量，
-只有效果绝佳的招式才能击中。",神奇守护
-26,"This Pokémon is immune to ground-type moves, spikes, toxic spikes, and arena trap.
-
-This ability is disabled during gravity or ingrain, or while holding an iron ball.  This ability is not disabled during roost.",levitate,"从地面浮起，
-从而不会受到地面属性招式的攻击。",飘浮
-27,"Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being paralyzed, poisoned, or put to sleep, chosen at random.
-
-Nothing is done to compensate if the move's user is immune to one of these ailments; there is simply a lower chance that the move's user will be affected.",effect-spore,"受到攻击时，
-有时会把接触到自己的对手
-变为中毒、麻痹或睡眠状态。",孢子
-28,"Whenever this Pokémon is burned, paralyzed, or poisoned, the Pokémon who gave this Pokémon that ailment is also given the ailment.
-
-This ability passes back bad poison when this Pokémon is badly poisoned.  This ability cannot pass on a status ailment that the Pokémon did not directly receive from another Pokémon, such as the poison from toxic spikes or the burn from a flame orb.
-
-Overworld: If the lead Pokémon has this ability, wild Pokémon have a 50% chance of having the lead Pokémon's nature, and a 50% chance of being given a random nature as usual, including the lead Pokémon's nature.  This does not work on Pokémon received outside of battle or roaming legendaries.",synchronize,"将自己的中毒、麻痹
-或灼伤状态传染给对手。",同步
-29,"This Pokémon cannot have its stats lowered by other Pokémon.
-
-This ability does not prevent any stat losses other than stat modifiers, such as the Speed cut from paralysis.  This Pokémon can still be passed negative stat modifiers through guard swap, heart swap, or power swap.
-
-This ability functions identically to white smoke in battle.",clear-body,"不会因为对手的招式或特性
-而被降低能力。",恒净之躯
-30,"This Pokémon is cured of any major status ailment when it is switched out for another Pokémon.
-
-If this ability is acquired during battle, the Pokémon is cured upon leaving battle before losing the temporary ability.",natural-cure,"回到同行队伍后，
-异常状态就会被治愈。",自然回复
-31,"All other Pokémon's single-target electric-type moves are redirected to this Pokémon if it is an eligible target.  Other Pokémon's Electric moves raise this Pokémon's Special Attack one stage, negating any other effect on it, and cannot miss it.
-
-If the move's intended target also has this ability, the move is not redirected.  When multiple Pokémon with this ability are possible targets for redirection, the move is redirected to the one with the highest Speed stat, or, in the case of a tie, to a random tied Pokémon.  follow me takes precedence over this ability.
-
-If the Pokémon is a ground-type and thus immune to Electric moves, its immunity prevents the Special Attack boost.",lightning-rod,"将电属性的招式吸引到自己身上，
-不会受到伤害，而是会提高特攻。",避雷针
-32,"This Pokémon's moves have twice their usual effect chance.
-
-An effect chance is a move's chance to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect.  For example, flamethrower's chance of burning the target is doubled, but protect's chance of success and air cutter's increased critical hit rate are unaffected.
-
-secret power is unaffected.",serene-grace,"托天恩的福，
-招式的追加效果容易出现。",天恩
-33,"This Pokémon's Speed is doubled during rain.
-
-This bonus does not count as a stat modifier.",swift-swim,"下雨天气时，
-速度会提高。",悠游自如
-34,"This Pokémon's Speed is doubled during strong sunlight.
-
-This bonus does not count as a stat modifier.",chlorophyll,"晴朗天气时，
-速度会提高。",叶绿素
-35,"Overworld: If the lead Pokémon has this ability, the wild encounter rate is doubled.
-
-This ability has no effect in battle.",illuminate,"通过让周围变亮，
-变得容易遇到野生的宝可梦。",发光
-36,"When this Pokémon enters battle, it copies a random opponent's ability.
-
-This ability cannot copy flower gift, forecast, illusion, imposter, multitype, trace, wonder guard, or zen mode.",trace,"出场时，复制对手的特性，
-变为与之相同的特性。",复制
-37,"This Pokémon's Attack is doubled while in battle.
-
-This bonus does not count as a stat modifier.
-
-This ability functions identically to pure power.",huge-power,物理攻击的威力会变为２倍。,大力士
-38,"Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being poisoned.",poison-point,"有时会让接触到自己的
-对手变为中毒状态。",毒刺
-39,This Pokémon cannot flinch.,inner-focus,"通过锻炼精神，
-不会因对手的攻击而畏缩。",精神力
-40,"This Pokémon cannot be frozen.
-
-If a Pokémon is frozen and acquires this ability, it will immediately thaw out; this includes when regaining a lost ability upon leaving battle.
-
-Overworld: If any Pokémon in the party has this ability, each egg in the party has its hatch counter decreased by 2 (rather than 1) each step cycle, making eggs hatch roughly twice as quickly.  This effect does not stack if multiple Pokémon have this ability or flame body.",magma-armor,"将炽热的熔岩覆盖在身上，
-不会变为冰冻状态。",熔岩铠甲
-41,"This Pokémon cannot be burned.
-
-If a Pokémon is burned and acquires this ability, its burn is healed; this includes when regaining a lost ability upon leaving battle.",water-veil,"将水幕裹在身上，
-不会变为灼伤状态。",水幕
-42,"While this Pokémon is in battle, opposing steel-type Pokémon cannot flee or switch out.
-
-Pokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.
-
-Overworld: If the lead Pokémon has this ability, Steel-type Pokémon have a higher encounter rate.",magnet-pull,"用磁力吸住钢属性的宝可梦，
-使其无法逃走。",磁力
-43,"This Pokémon is immune to moves flagged as being sound-based.
-
-heal bell is unaffected.  uproar still prevents this Pokémon from sleeping.  This Pokémon can still receive a Perish Song counter through baton pass, and will retain a Perish Song counter if it acquires this ability after Perish Song is used.
-
-howl, roar of time, sonic boom, and yawn are not flagged as sound-based.",soundproof,"通过屏蔽声音，
-不受到声音招式的攻击。",隔音
-44,This Pokémon heals for 1/16 of its maximum HP after each turn during rain.,rain-dish,"下雨天气时，
-会缓缓回复ＨＰ。",雨盘
-45,"The weather changes to a sandstorm when this Pokémon enters battle and does not end unless cancelled by another weather condition.
-
-If multiple Pokémon with this ability, drizzle, drought, or snow warning are sent out at the same time, the abilities will activate in order of Speed, respecting trick room.  Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is halved in a sandstorm.",sand-stream,"出场时，
-会把天气变为沙暴。",扬沙
-46,"Moves targetting this Pokémon use one extra PP.
-
-This ability stacks if multiple targets have it.  This ability still affects moves that fail or miss.  This ability does not affect ally moves that target either the entire field or just its side, nor this Pokémon's self-targetted moves; it does, however, affect single-targetted ally moves aimed at this Pokémon, ally moves that target all other Pokémon, and opponents' moves that target the entire field.  If this ability raises a move's PP cost above its remaining PP, it will use all remaining PP.
-
-When this Pokémon enters battle, all participating trainers are notified that it has this ability.
-
-Overworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",pressure,"给予对手压迫感，
-大量减少其使用招式的ＰＰ。",压迫感
-47,This Pokémon takes half as much damage from fire- and ice-type moves.,thick-fat,"因为被厚厚的脂肪保护着，
-会让火属性和冰属性的招式伤害减半。",厚脂肪
-48,"This Pokémon's remaining sleep turn count falls by 2 rather than 1.
-
-If this Pokémon's sleep counter is at 1, it will fall to 0 and then the Pokémon will wake up.",early-bird,"即使变为睡眠状态，
-也能以２倍的速度提早醒来。",早起
-49,"Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being burned.
-
-Overworld: If any Pokémon in the party has this ability, each egg in the party has its hatch counter decreased by 2 (rather than 1) each step cycle, making eggs hatch roughly twice as quickly.  This effect does not stack if multiple Pokémon have this ability or magma armor.",flame-body,"有时会让接触到自己的
-对手变为灼伤状态。",火焰之躯
-50,"This Pokémon is always successful fleeing from wild battles, even if trapped by a move or ability.",run-away,"一定能从野生宝可梦
-那儿逃走。",逃跑
-51,"This Pokémon cannot have its accuracy lowered.
-
-This ability does not prevent any accuracy losses other than stat modifiers, such as the accuracy cut from fog; nor does it prevent other Pokémon's evasion from making this Pokémon's moves less accurate.  This Pokémon can still be passed negative accuracy modifiers through heart swap.
-
-Overworld: If the first Pokémon in the party has this ability, any random encounter with a Pokémon five or more levels lower than it has a 50% chance of being skipped.",keen-eye,"多亏了锐利的目光，
-命中率不会被降低。",锐利目光
-52,"This Pokémon's Attack cannot be lowered by other Pokémon.
-
-This ability does not prevent any Attack losses other than stat modifiers, such as the Attack cut from a burn.  This Pokémon can still be passed negative Attack modifiers through heart swap or power swap.",hyper-cutter,"因为拥有以力量自豪的钳子，
-不会被对手降低攻击。",怪力钳
-53,"At the end of each turn, if another Pokémon consumed or Flung a held item that turn, this Pokémon picks up the item if it is not already holding one.  After each battle, this Pokémon has a 10% chance of picking up an item if it is not already holding one.
-
-The air balloon and eject button cannot be picked up.
-
-The items that may be found vary by game, and, since Pokémon Emerald, by the Pokémon's level.  This ability is checked after the battle ends, at which point any temporary ability changes have worn off.",pickup,"有时会捡来对手用过的道具，
-冒险过程中也会捡到。",捡拾
-54,"Every second turn on which this Pokémon should attempt to use a move, it will instead do nothing (""loaf around"").
-
-Loafing around interrupts moves that take multiple turns the same way paralysis, flinching, etc do.  Most such moves, for example bide or rollout, are simply cut off upon loafing around.  Attacks with a recharge turn, such as hyper beam, do not have to recharge; attacks with a preparation turn, such as fly, do not end up being used.  Moves that are forced over multiple turns and keep going through failure, such as outrage, uproar, or any move forced by encore, keep going as usual.
-
-If this Pokémon is confused, its confusion is not checked when loafing around; the Pokémon cannot hurt itself, and its confusion does not end or come closer to ending.
-
-If this Pokémon attempts to move but fails, e.g. because of paralysis or gravity, it still counts as having moved and will loaf around the next turn.  If it does not attempt to move, e.g. because it is asleep or frozen, whatever ",truant,"如果使出招式，
-下一回合就会休息。",懒惰
-55,"This Pokémon's physical moves do 1.5× as much regular damage, but have 0.8× their usual accuracy.
-
-Special moves are unaffected.  Moves that do set damage, such as seismic toss, have their accuracy affected, but not their damage.
-
-Overworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",hustle,"自己的攻击变高，
-但命中率会降低。",活力
-56,"Whenever a move makes contact with this Pokémon, the move's user has a 30% chance of being infatuated.
-
-Overworld: If the first Pokémon in the party has this ability, any wild Pokémon whose species can be either gender has a 2/3 chance of being set to the opposite gender, and a 1/3 chance of having a random gender as usual.",cute-charm,有时会让接触到自己的对手着迷。,迷人之躯
-116,"This Pokémon takes 0.75× as much damage from moves that are super effective against it.
-
-This ability functions identically to filter.",solid-rock,"受到效果绝佳的攻击时，
-可以减弱其威力。",坚硬岩石
-57,"This Pokémon has 1.5× its Special Attack if any friendly Pokémon has plus or minus.
-
-This bonus does not count as a stat modifier.  If either ability is disabled by gastro acid, both lose their effect.",plus,"出场的伙伴之间
-如果有正电或负电特性的宝可梦，
-自己的特攻会提高。",正电
-58,"This Pokémon has 1.5× its Special Attack if any friendly Pokémon has plus or minus.
-
-This bonus does not count as a stat modifier.  If either ability is disabled by gastro acid, both lose their effect.",minus,"出场的伙伴之间
-如果有正电或负电特性的宝可梦，
-自己的特攻会提高。",负电
-59,"During rain, strong sunlight, or hail, this Pokémon's type changes to water, fire, or ice, respectively, and its form changes to match.
-
-This ability has no effect for any Pokémon other than castform.
-
-If the weather ends or becomes anything that does not trigger this ability, or a Pokémon with air lock or cloud nine enters battle, this Pokémon's type and form revert to their default.  If this ability is lost or disabled, this Pokémon cannot change its current type and form until it regains its ability.",forecast,"受天气的影响，
-会变为水属性、火属性
-或冰属性中的某一个。",阴晴不定
-60,"This Pokémon's hold item cannot be removed by other Pokémon.
-
-Damaging moves that would remove this Pokémon's item can still inflict damage against this Pokémon, e.g. knock off or pluck.  This Pokémon can still use moves that involve the loss of its own item, e.g. fling or trick.
-
-Overworld: If the lead Pokémon has this ability, the encounter rate while fishing is increased.",sticky-hold,"因为道具是粘在黏性身体上的，
-所以不会被对手夺走。",黏着
-61,"After each turn, this Pokémon has a 33% of being cured of any major status ailment.",shed-skin,"通过蜕去身上的皮，
-有时会治愈异常状态。",蜕皮
-62,"Whenever this Pokémon is asleep, burned, paralyzed, or poisoned, it has 1.5× its Attack.  This Pokémon is not affected by the usual Attack cut from a burn.
-
-This bonus does not count as a stat modifier.",guts,"如果变为异常状态，
-会拿出毅力，
-攻击会提高。",毅力
-63,"Whenever this Pokémon has a major status ailment, it has 1.5× its Defense.
-
-This bonus does not count as a stat modifier.",marvel-scale,"如果变为异常状态，
-神奇鳞片会发生反应，
-防御会提高。",神奇鳞片
-64,"Whenever a Pokémon would heal after hitting this Pokémon with a leeching move like absorb, it instead loses as many HP as it would usually gain.
-
-dream eater is unaffected.",liquid-ooze,"吸收了污泥浆的对手
-会因强烈的恶臭
-而受到伤害，减少ＨＰ。",污泥浆
-65,"When this Pokémon has 1/3 or less of its HP remaining, its grass-type moves inflict 1.5× as much regular damage.",overgrow,"ＨＰ减少的时候，
-草属性的招式威力会提高。",茂盛
-66,"When this Pokémon has 1/3 or less of its HP remaining, its fire-type moves inflict 1.5× as much regular damage.",blaze,"ＨＰ减少的时候，
-火属性的招式威力会提高。",猛火
-67,"When this Pokémon has 1/3 or less of its HP remaining, its water-type moves inflict 1.5× as much regular damage.",torrent,"ＨＰ减少的时候，
-水属性的招式威力会提高。",激流
-68,"When this Pokémon has 1/3 or less of its HP remaining, its bug-type moves inflict 1.5× as much regular damage.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is increased.",swarm,"ＨＰ减少的时候，
-虫属性的招式威力会提高。",虫之预感
-69,"This Pokémon does not receive recoil damage from its recoil moves.
-
-struggle's recoil is unaffected.  This ability does not prevent crash damage from missing with jump kick or high jump kick.",rock-head,"即使使出会受反作用力伤害的招式，
-ＨＰ也不会减少。",坚硬脑袋
-70,"The weather changes to strong sunlight when this Pokémon enters battle and does not end unless cancelled by another weather condition.
-
-If multiple Pokémon with this ability, drizzle, sand stream, or snow warning are sent out at the same time, the abilities will activate in order of Speed, respecting trick room.  Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.",drought,"出场时，
-会将天气变为晴朗。",日照
-71,"While this Pokémon is in battle, opposing Pokémon cannot flee or switch out.  flying-type Pokémon and Pokémon in the air, e.g. due to levitate or magnet rise, are unaffected.
-
-Pokémon with run away can still flee.  Pokémon can still switch out with the use of a move or item.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is doubled.",arena-trap,在战斗中让对手无法逃走。,沙穴
-72,"This Pokémon cannot be asleep.
-
-This causes rest to fail altogether.  If a Pokémon is asleep and acquires this ability, it will immediately wake up; this includes when regaining a lost ability upon leaving battle.
-
-This ability functions identically to insomnia in battle.
-
-Overworld: If the lead Pokémon has this ability, higher-levelled Pokémon have their encounter rate increased.",vital-spirit,"通过激发出干劲，
-不会变为睡眠状态。",干劲
-73,"This Pokémon cannot have its stats lowered by other Pokémon.
-
-This ability does not prevent any stat losses other than stat modifiers, such as the Speed cut from paralysis; nor self-inflicted stat drops, such as the Special Attack drop from overheat; nor opponent-triggered stat boosts, such as the Attack boost from swagger.  This Pokémon can still be passed negative stat modifiers through guard swap, heart swap, or power swap.
-
-This ability functions identically to clear body in battle.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is halved.",white-smoke,"被白色烟雾保护着，
-不会被对手降低能力。",白色烟雾
-74,"This Pokémon's Attack is doubled in battle.
-
-This bonus does not count as a stat modifier.
-
-This ability functions identically to huge power.",pure-power,"因瑜伽的力量，
-物理攻击的威力会变为２倍。",瑜伽之力
-75,"Moves cannot score critical hits against this Pokémon.
-
-This ability functions identically to battle armor.",shell-armor,"被坚硬的壳保护着，
-对手的攻击不会击中要害。",硬壳盔甲
-76,"While this Pokémon is in battle, weather can still be in play, but will not have any of its effects.
-
-This ability functions identically to cloud nine.",air-lock,所有天气的影响都会消失。,气闸
-77,"When this Pokémon is confused, it has twice its evasion.",tangled-feet,"在混乱状态时，
-闪避率会提高。",蹒跚
-78,"Whenever an electric-type move hits this Pokémon, its Speed rises one stage, negating any other effect on it.
-
-This ability will not take effect if this Pokémon is immune to Electric moves.  Electric moves will ignore this Pokémon's substitute.
-
-This effect includes non-damaging moves, i.e. thunder wave.",motor-drive,"受到电属性的招式攻击时，
-不会受到伤害，而是速度会提高。",电气引擎
-263,Increases the power of Dragon-type moves used by this Pokémon by 50%.,dragons-maw,龙属性的招式威力会提高。,龙颚
-79,"This Pokémon inflicts 1.25× as much regular damage against Pokémon of the same gender and 0.75× as much regular damage against Pokémon of the opposite gender.
-
-If either Pokémon is genderless, damage is unaffected.",rivalry,"面对性别相同的对手，
-会燃起斗争心，变得更强。
-而面对性别不同的，则会变弱。",斗争心
-80,"Whenever this Pokémon flinches, its Speed rises one stage.",steadfast,"每次畏缩时，
-不屈之心就会燃起，
-速度也会提高。",不屈之心
-81,"During hail, this Pokémon has 1.25× its evasion, and it does not take hail damage regardless of type.
-
-The evasion bonus does not count as a stat modifier.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is halved in snow.",snow-cloak,"冰雹天气时，
-闪避率会提高。",雪隐
-82,"This Pokémon eats any held Berry triggered by low HP when it falls below 50% of its HP, regardless of the Berry's usual threshold.",gluttony,"原本ＨＰ变得很少时才会吃树果，
-在ＨＰ还有一半时就会把它吃掉。",贪吃鬼
-83,"Whenever this Pokémon receives a critical hit, its Attack rises to the maximum of 6 stages.
-
-This ability will still take effect if the critical hit is received by a substitute.",anger-point,"要害被击中时，
-会大发雷霆，
-攻击力变为最大。",愤怒穴位
-84,"When this Pokémon uses or loses its held item, its Speed is doubled.  If it gains another item or leaves battle, this bonus is lost.
-
-This includes when the Pokémon drops its item because of knock off.  This bonus does not count as a stat modifier.  There is no notification when this ability takes effect.",unburden,"失去所持有的道具时，
-速度会提高。",轻装
-85,This Pokémon takes half as much damage from fire-type moves and burns.,heatproof,"耐热的体质会
-让火属性的招式威力减半。",耐热
-86,"Each stage of this Pokémon's stat modifiers acts as two stages.  These doubled stages are still limited to a minimum of -6 and a maximum of 6.
-
-This Pokémon can still accumulate less than -3 or more than 3 stages of stat modifiers, even though the extra ones have no effect after doubling.",simple,能力变化会变为平时的２倍。,单纯
-87,"This Pokémon takes 1/8 of its maximum HP in damage after each turn during strong sunlight, but it heals for 1/8 of its HP each turn during rain.  This Pokémon takes 1.25× as much damage from fire-type moves, but whenever a water move hits it, it heals for 1/4 its maximum HP instead.",dry-skin,"下雨天气时和受到水属性的招式时，
-ＨＰ会回复。晴朗天气时和受到火属性的
-招式时，ＨＰ会减少。",干燥皮肤
-88,"When this Pokémon enters battle, its Attack or Special Attack, whichever corresponds to its opponents' weaker total defensive stat, rises one stage.  In the event of a tie, Special Attack is raised.
-
-This ability also takes effect when acquired during a battle.",download,"比较对手的防御和特防，
-根据较低的那项能力
-相应地提高自己的攻击或特攻。",下载
-89,"Moves flagged as being punch-based have 1.2× their base power for this Pokémon.
-
-sucker punch is not flagged as punch-based; its original, Japanese name only means ""surprise attack"".",iron-fist,使用拳类招式的威力会提高。,铁拳
-90,"If this Pokémon is poisoned, it will heal for 1/8 of its maximum HP after each turn rather than taking damage.  This includes bad poison.",poison-heal,"变为中毒状态时，
-ＨＰ不会减少，反而会增加起来。",毒疗
-91,"This Pokémon inflicts twice as much damage with moves whose types match its own, rather than the usual same-type attack bonus of 1.5×.",adaptability,"与自身同属性的招式
-威力会提高。",适应力
-92,"This Pokémon always hits five times with two-to-five-hit moves, such as icicle spear.  It also bypasses the accuracy checks on triple kick's second and third hits.",skill-link,"如果使用连续招式，
-总是能使出最高次数。",连续攻击
-93,This Pokémon is cured of any major status ailment after each turn during rain.,hydration,"下雨天气时，
-异常状态会治愈。",湿润之躯
-94,"During strong sunlight, this Pokémon has 1.5× its Special Attack but takes 1/8 of its maximum HP in damage after each turn.",solar-power,"晴朗天气时，
-特攻会提高，
-而每回合ＨＰ会减少。",太阳之力
-95,"Whenever this Pokémon has a major status ailment, it has 1.5× its Speed.  This Pokémon is not affected by the usual Speed cut from paralysis.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is halved.",quick-feet,"变为异常状态时，
-速度会提高。",飞毛腿
-96,"This Pokémon's moves all act as if they were normal-type.
-
-Moves that inflict typeless damage do so as usual.  Moves of variable type, such as hidden power, are affected.  They otherwise work as usual, however; weather ball, for example, is always forced to be Normal, but it still has doubled power and looks different during weather.
-
-As thunder wave is prevented by immunities, unlike most non-damaging moves, it does not affect ghost-type Pokémon under the effect of this ability.",normalize,"无论是什么属性的招式，
-全部会变为一般属性。
-威力会少量提高。",一般皮肤
-97,"This Pokémon inflicts triple damage with critical hits, rather than the usual double damage.",sniper,"击中要害时，
-威力会变得更强。",狙击手
-98,"This Pokémon is immune to damage not directly caused by a move.
-
-For example, this Pokémon takes no damage from from weather, recoil, status ailments, or spikes, but it still suffers from the Attack cut when burned, and a life orb will still power up this Pokémon's moves without damaging it.  Anything that directly depends on such damage will also not happen; for example, leech seed will neither hurt this Pokémon nor heal the opponent, and Pokémon with a jaboca berry or rowap berry will not consume the berry when hit by this Pokémon.
-
-The following are unaffected: struggle, pain split (whether used by or against this Pokémon), belly drum, substitute, curse, moves that knock the user out, and damage from confusion.
-
-This Pokémon will neither lose nor regain HP if it drains HP from a Pokémon with liquid ooze.
-
-If this Pokémon is badly poisoned, the poison counter is still increased each turn; if the Pokémon loses this ability, it will begin taking as much damage as it would be if it had ",magic-guard,不会受到攻击以外的伤害。,魔法防守
-99,"Moves used by or against this Pokémon never miss.
-
-One-hit KO moves are unaffected.  Moves affected by this ability can hit Pokémon during the preparation turn of moves like dig or fly.
-
-Overworld: If the lead Pokémon has this ability, the wild encounter rate is doubled.",no-guard,"由于无防守战术，
-双方使出的招式都必定会击中。",无防守
-141,"After each turn, one of this Pokémon's stats at random rises two stages, and another falls one stage.
-
-If a stat is already at 6 or -6 stages, it will not be chosen to be increased or decreased, respectively.",moody,"每一回合，能力中的某项
-会大幅提高，而某项会降低。",心情不定
-100,"This Pokémon moves last within its priority bracket.
-
-Multiple Pokémon with this ability move in order of Speed amongst themselves.
-
-The full incense and lagging tail take precedence over this ability; that is, Pokémon with these items move after Pokémon with this ability.  Pokémon with both this ability and one of these items are delayed as much as if they had only the item.
-
-This ability works as usual during trick room: Pokémon with this ability will move in reverse order of Speed after Pokémon without it.",stall,"使出招式的顺序
-必定会变为最后。",慢出
-101,"This Pokémon's moves have 1.5× their power if their base power is 60 or less.
-
-This includes moves of variable power, such as hidden power and magnitude, when their power is 60 or less.  helping hand's power boost is taken into account for any move, as is defense curl's power boost for rollout.",technician,"攻击时可以将
-低威力招式的威力提高。",技术高手
-102,"This Pokémon cannot be given a major status ailment during strong sunlight.
-
-This ability does not heal prior status ailments.  rest will fail altogether with this ability in effect.  yawn will immediately fail if used on this Pokémon during strong sunlight, and an already-used Yawn will fail if the weather turns to strong sunlight in the meantime.",leaf-guard,"晴朗天气时，
-不会变为异常状态。",叶子防守
-103,"In battle, this Pokémon cannot use its held item, nor will the item have any passive effect on the battle, positive or negative.  This Pokémon also cannot use fling.
-
-The Speed cut from the iron ball and the effort items (the macho brace, power weight, power bracer, power belt, power lens, power band, and power anklet) is unaffected.  Items that do not directly affect the battle, such as the exp share, the amulet coin, or the soothe bell, work as usual.  All held items work as usual out of battle.
-
-Other moves that use the held item, such as natural gift and switcheroo, work as usual.",klutz,无法使用持有的道具。,笨拙
-104,"This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.
-
-For example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.
-
-Abilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the",mold-breaker,"可以不受对手特性的干扰，
-向对手使出招式。",破格
-105,This Pokémon's moves have critical hit rates one stage higher than normal.,super-luck,"因为拥有超幸运，
-攻击容易击中对手的要害。",超幸运
-106,"When this Pokémon is knocked out by a move that makes contact, the move's user takes 1/4 its maximum HP in damage.",aftermath,"变为濒死时，
-会对接触到自己的对手造成伤害。",引爆
-107,"When this Pokémon enters battle, if one of its opponents has a move that is super effective against it, self destruct, explosion, or a one-hit knockout move, all participating trainers are notified.
-
-The move itself is not revealed; only that there is such a move.  Moves that inflict typeless damage, such as future sight, and moves of variable type, such as hidden power, count as their listed types.  counter, metal burst, mirror coat, and one-hit KO moves to which this Pokémon is immune do not trigger this ability.",anticipation,"可以察觉到
-对手拥有的危险招式。",危险预知
-108,"When this Pokémon enters battle, it reveals the move with the highest base power known by any opposing Pokémon to all participating trainers.
-
-In the event of a tie, one is chosen at random.
-
-Moves without a listed base power are assigned one as follows:
-
-Power | Moves
-  160 | One-hit KO moves: fissure, guillotine, horn drill, and sheer cold
-  120 | Counter moves: counter, metal burst, and mirror coat
-   80 | Variable power or set damage: crush grip, dragon rage, electro ball, endeavor, final gambit, flail, frustration, grass knot, gyro ball, heat crash, heavy slam, hidden power, low kick, natural gift, night shade, psywave, return, reversal, seismic toss, sonic boom, trump card, and wring out
-    0 | Any such move not listed
-",forewarn,"出场时，
-只读取１个对手拥有的招式。",预知梦
-109,"This Pokémon ignores other Pokémon's stat modifiers for the purposes of damage and accuracy calculation.
-
-Effectively, this affects modifiers of every stat except Speed.
-
-The power of punishment and stored power is calculated as usual.  When this Pokémon hurts itself in confusion, its stat modifiers affect damage as usual.",unaware,"可以无视对手能力的变化，
-进行攻击。",纯朴
-110,This Pokémon deals twice as much damage with moves that are not very effective against the target.,tinted-lens,"可以将效果不好的招式
-以通常的威力使出。",有色眼镜
-111,"This Pokémon takes 0.75× as much damage from moves that are super effective against it.
-
-This ability functions identically to solid rock.",filter,"受到效果绝佳的攻击时，
-可以减弱其威力。",过滤
-112,"This Pokémon's Attack and Speed are halved for five turns upon entering battle.
-
-This ability also takes effect when acquired during battle.  If this Pokémon loses its ability before the five turns are up, its Attack and Speed return to normal; if it then regains this ability without leaving battle, its Attack and Speed are halved again, but the counter keeps counting from where it was.",slow-start,"在５回合内，
-攻击和速度减半。",慢启动
-113,"This Pokémon ignores ghost-type Pokémon's immunity to normal- and fighting-type moves.
-
-Ghost Pokémon's other types affect damage as usual.",scrappy,"一般属性和格斗属性的招式
-可以击中幽灵属性的宝可梦。",胆量
-114,"All other Pokémon's single-target water-type moves are redirected to this Pokémon, if it is an eligible target.  Other Pokémon's Water moves raise this Pokémon's Special Attack one stage, negating any other effect on it, and cannot miss it.
-
-If the move's intended target also has this ability, the move is not redirected.  When multiple Pokémon with this ability are possible targets for redirection, the move is redirected to the one with the highest Speed stat, or, in the case of a tie, to a random tied Pokémon.  follow me takes precedence over this ability.",storm-drain,"将水属性的招式引到自己身上，
-不会受到伤害，而是会提高特攻。",引水
-115,"This Pokémon heals for 1/16 of its maximum HP after each turn during hail, and it does not take hail damage regardless of type.",ice-body,"冰雹天气时，
-会缓缓回复ＨＰ。",冰冻之躯
-142,This Pokémon does not take damage from weather.,overcoat,"不会受到沙暴或冰雹等的伤害。
-不会受到粉末类招式的攻击。",防尘
-117,"The weather changes to hail when this Pokémon enters battle and does not end unless cancelled by another weather condition.
-
-If multiple Pokémon with this ability, drizzle, drought, or sand stream are sent out at the same time, the abilities will activate in order of Speed, respecting trick room.  Each ability's weather will cancel the previous weather, and only the weather summoned by the slowest of the Pokémon will stay.",snow-warning,"出场时，
-会将天气变为冰雹。",降雪
-118,"This Pokémon has a chance of picking up honey after each battle.  This chance starts at 5% and rises another 5% after every tenth level: 5% from level 1–10, 10% from 11–20, and so on, up to 50% from 91–100.
-
-This ability is checked after the battle ends, at which point any temporary ability changes have worn off.",honey-gather,"战斗结束时，
-有时候会捡来甜甜蜜。",采蜜
-119,"When this Pokémon enters battle, it reveals an opposing Pokémon's held item to all participating trainers.
-
-In a double battle, if one opponent has an item, this Pokémon will Frisk that Pokémon; if both have an item, it will Frisk one at random.",frisk,"出场时，
-可以察觉对手的持有物。",察觉
-120,"This Pokémon's recoil moves and crash moves have 1.2× their base power.
-
-struggle is unaffected.
-
-The ""crash moves"" are the moves that damage the user upon missing: jump kick and high jump kick.",reckless,"自己会因反作用力受伤的招式，
-其威力会提高。",舍身
-121,"If this Pokémon is holding an elemental Plate, its type and form change to match the Plate.
-
-This Pokémon's held item, whether or not it is a Plate, cannot be taken by covet or thief, nor removed by knock off, nor traded by switcheroo or trick.  Covet, Thief, and Knock Off still inflict damage against this Pokémon.  Unlike with sticky hold, this Pokémon cannot use fling, Switcheroo, or Trick to lose its item itself, nor gain an item through Switcheroo or Trick if it does not have one.
-
-This ability has no effect for any Pokémon other than arceus.  This ability cannot be traded with skill swap, nor copied with role play or trace, nor disabled with gastro acid, nor changed with worry seed.  This Pokémon cannot use Skill Swap or Role Play to lose its ability itself.  mold breaker cannot ignore this ability.
-
-If a Pokémon Transforms into an Arceus with this ability, it will Transform into Arceus's default, normal-type form.  If the Transforming Pokémon is holding a Plate, this ability will",multitype,"自己的属性会根据持有的石板
-或Ｚ纯晶的属性而改变。",多属性
-122,"Friendly Pokémon have 1.5× their Attack and Special Defense during strong sunlight if any friendly Pokémon has this ability.
-
-Unlike forecast, multitype, and zen mode, this ability is not tied to its Pokémon's form change; cherrim will switch between its forms even if it loses this ability.  As such, this ability also works if obtained by a Pokémon other than Cherrim.",flower-gift,"晴朗天气时，
-自己与同伴的攻击和
-特防能力会提高。",花之礼
-123,Opposing Pokémon take 1/8 of their maximum HP in damage after each turn while they are asleep.,bad-dreams,给予睡眠状态的对手伤害。,梦魇
-124,"Whenever a move makes contact with this Pokémon, if it does not have a held item, it steals the attacker's held item.
-
-This Pokémon cannot steal upon being knocked out.  It can steal if the attacker has a substitute, but cannot steal when its own Substitute is hit.  If a move hits multiple times, only the last hit triggers this ability.  If this Pokémon is wild, it cannot steal from a trained Pokémon.",pickpocket,"盗取接触到自己的
-对手的道具。",顺手牵羊
-125,"This Pokémon's moves with extra effects have 1.3× their power, but lose their extra effects.
-
-An effect chance is a move's chance to inflict a status ailment, cause a stat change, or make the target flinch in addition to the move's main effect. For example, thunder shock's paralysis is an extra effect, but thunder wave's is not, nor are knock off's item removal and air cutter's increased critical hit rate.
-
-Moves that lower the user's stats are unaffected.",sheer-force,"招式的追加效果消失，
-但因此能以更高的威力使出招式。",强行
-126,"Whenever this Pokémon's stats would be raised, they are instead lowered by the same amount, and vice versa.",contrary,"能力的变化发生逆转，
-原本提高时会降低，
-而原本降低时会提高。",唱反调
-127,"Opposing Pokémon cannot eat held Berries while this Pokémon is in battle.
-
-Affected Pokémon can still use bug bite or pluck to eat a target's Berry.",unnerve,"让对手紧张，
-使其无法食用树果。",紧张感
-128,"When any of this Pokémon's stats are lowered, its Attack rises by two stages.
-
-If multiple stats are lowered at once, this ability takes effect with each stat lowered.",defiant,"能力被降低时，
-攻击会大幅提高。",不服输
-129,This Pokémon's Attack and Special Attack are halved when it has half its HP or less.,defeatist,"ＨＰ减半时，
-会变得软弱，
-攻击和特攻会减半。",软弱
-130,Moves that hit this Pokémon have a 30% chance of being Disabled afterward.,cursed-body,"受到攻击时，
-有时会把对手的招式
-变为定身法状态。",诅咒之躯
-131,Friendly Pokémon next to this Pokémon in double and triple battles each have a 30% chance of being cured of any major status ailment after each turn.,healer,有时会治愈异常状态的同伴。,治愈之心
-132,"All friendly Pokémon take 0.75× as much direct damage from moves while this Pokémon is in battle.
-
-This effect stacks if multiple allied Pokémon have it.",friend-guard,可以减少我方的伤害。,友情防守
-133,"Whenever a physical move hits this Pokémon, its Speed rises one stage and its Defense falls one stage.
-
-This ability triggers on every hit of a multiple-hit move.",weak-armor,"如果因物理招式受到伤害，
-防御会降低，
-速度会大幅提高。",碎裂铠甲
-134,This Pokémon has double the usual weight for its species.,heavy-metal,自身的重量会变为２倍。,重金属
-135,This Pokémon has half the usual weight for its species.,light-metal,自身的重量会减半。,轻金属
-136,This Pokémon takes half as much damage when it is hit having full HP.,multiscale,"ＨＰ全满时，
-受到的伤害会变少。",多重鳞片
-137,This Pokémon has 1.5× its Attack when poisoned.,toxic-boost,"变为中毒状态时，
-物理招式的威力会提高。",中毒激升
-138,This Pokémon has 1.5× its Special Attack when burned.,flare-boost,"变为灼伤状态时，
-特殊招式的威力会提高。",受热激升
-139,"After each turn, if the last item this Pokémon consumed was a Berry and it is not currently holding an item, it has a 50% chance of regaining that Berry, or a 100% chance during strong sunlight.",harvest,"可以多次制作出
-已被使用掉的树果。",收获
-140,"This Pokémon does not take damage from friendly Pokémon's moves, including single-target moves aimed at it.",telepathy,"读取我方的攻击，
-并闪避其招式伤害。",心灵感应
-143,"This Pokémon's contact moves have a 30% chance of poisoning the target with each hit.
-
-This counts as an extra effect for the purposes of shield dust.  This ability takes effect before mummy.",poison-touch,"只通过接触就有可能
-让对手变为中毒状态。",毒手
-144,"This Pokémon regains 1/3 of its maximum HP when it is switched out for another Pokémon under any circumstances other than having fainted.
-
-This ability does not take effect when a battle ends.",regenerator,"退回同行队伍后，
-ＨＰ会少量回复。",再生力
-145,"This Pokémon's Defense cannot be lowered by other Pokémon.
-
-This Pokémon can still be passed negative Defense modifiers through heart swap or guard swap.",big-pecks,不会受到防御降低的效果。,健壮胸肌
-146,"This Pokémon's Speed is doubled during a sandstorm, and it does not take sandstorm damage, regardless of type.",sand-rush,"沙暴天气时，
-速度会提高。",拨沙
-147,Non-damaging moves have exactly 50% base accuracy against this Pokémon.,wonder-skin,"成为不易受到变化招式
-攻击的身体。",奇迹皮肤
-148,"This Pokémon's moves have 1.3× their power when it moves last in a turn.
-
-future sight and doom desire are unaffected.",analytic,"如果在最后使出招式，
-招式的威力会提高。",分析
-149,"This Pokémon, upon being sent out, appears to have the species, nickname, and Poké Ball of the last Pokémon in the party that is able to battle.  This illusion breaks upon being hit by a damaging move.
-
-Other damage, e.g. from weather or spikes, does not break the illusion, nor does damage done to a substitute.
-
-If the party order becomes temporarily shuffled around as Pokémon are switched out in battle, this ability chooses the last Pokémon according to that shuffled order.",illusion,"假扮成同行队伍中的
-最后一个宝可梦出场，
-迷惑对手。",幻觉
-150,This Pokémon transforms into a random opponent upon entering battle.  This effect is identical to the move transform.,imposter,变身为当前面对的宝可梦。,变身者
-151,"This Pokémon's moves ignore light screen, reflect, and safeguard.",infiltrator,"可以穿透对手的壁障
-或替身进行攻击。",穿透
-152,"Whenever a contact move hits this Pokémon, the attacking Pokémon's ability changes to Mummy.
-
-multitype is unaffected.  If a Pokémon with moxie knocks this Pokémon out, the former's ability will change without taking effect.",mummy,"被对手接触到后，
-会将对手变为木乃伊。",木乃伊
-153,"This Pokémon's Attack rises one stage upon knocking out another Pokémon, even a friendly Pokémon.
-
-This ability does not take effect when the Pokémon indirectly causes another Pokémon to faint, e.g. through poison or spikes.
-
-If this Pokémon knocks out a Pokémon with mummy, the former's ability will change without taking effect.",moxie,"如果打倒对手，
-就会充满自信，攻击会提高。",自信过度
-154,"Whenever a dark-type move hits this Pokémon, its Attack rises one stage.
-
-The move is not negated in any way.",justified,"受到恶属性的招式攻击时，
-因为正义感，攻击会提高。",正义之心
-155,"This Pokémon's Speed rises one stage with each hit from a damaging dark-, ghost-, or bug-type move.",rattled,"受到恶属性、幽灵属性
-和虫属性的招式攻击时，
-会因胆怯而速度提高。",胆怯
-156,"When this Pokémon is targeted by a move flagged as being reflectable, the move is redirected to its user.
-
-All reflectable moves are non-damaging, and most non-damaging moves that target other Pokémon are reflectable.
-
-A move reflected by this ability or magic coat cannot be reflected back.",magic-bounce,"可以不受到由对手使出的
-变化招式影响，并将其反弹。",魔法镜
-157,"Whenever a grass-type move hits this Pokémon, its Attack rises one stage, negating any other effect on it.",sap-sipper,"受到草属性的招式攻击时，
-不会受到伤害，而是攻击会提高。",食草
-158,This Pokémon's non-damaging moves have their priority increased by one stage.,prankster,可以率先使出变化招式。,恶作剧之心
-159,"During a sandstorm, this Pokémon's rock-, ground-, and steel-type moves have 1.3× their base power.  This Pokémon does not take sandstorm damage, regardless of type.",sand-force,"沙暴天气时，
-岩石属性、地面属性
-和钢属性的招式威力会提高。",沙之力
-160,"Whenever a move makes contact with this Pokémon, the move's user takes 1/8 of its maximum HP in damage.
-
-This ability functions identically to rough skin.",iron-barbs,"用铁刺给予接触到自己的
-对手伤害。",铁刺
-161,"This Pokémon switches between Standard Mode and Zen Mode after each turn depending on its HP.  Below 50% of its maximum HP, it switches to Zen Mode, and at 50% or above, it switches to Standard Mode.
-
-This Pokémon returns to Standard Mode upon leaving battle or losing this ability.  This ability has no effect if this Pokémon is not a darmanitan.",zen-mode,"ＨＰ变为一半以下时，
-样子会改变。",达摩模式
-162,"All friendly Pokémon's moves, including this Pokémon's own moves, have 1.1× their usual accuracy while this Pokémon is in battle.",victory-star,自己和同伴的命中率会提高。,胜利之星
-163,"This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.
-
-For example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.
-
-Abilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the",turboblaze,"可以不受对手特性的干扰，
-向对手使出招式。",涡轮火焰
-193,"After this Pokémon is hit by a move, if that move caused this Pokémon's HP to drop below half, it switches out.",wimp-out,"ＨＰ变为一半时，
-会慌慌张张逃走，
-退回同行队伍中。",跃跃欲逃
-194,"After this Pokémon is hit by a move, if that move caused this Pokémon's HP to drop below half, it switches out.",emergency-exit,"ＨＰ变为一半时，
-为了回避危险，
-会退回到同行队伍中。",危险回避
-195,Raises this Pokémon's Defense by two stages when it's hit by a Water move.,water-compaction,"受到水属性的招式攻击时，
-防御会大幅提高。",遇水凝固
-196,This Pokémon's moves critical hit against poisoned targets.,merciless,"攻击中毒状态的对手时，
-必定会击中要害。",不仁不义
-164,"This Pokémon's moves completely ignore abilities that could hinder or prevent their effect on the target.
-
-For example, this Pokémon's moves ignore abilities that would fully negate them, such as water absorb; abilities that would prevent any of their effects, such as clear body, shell armor, or sticky hold; and abilities that grant any general protective benefit, such as simple, snow cloak, or thick fat.  If an ability could either hinder or help this Pokémon's moves, e.g. dry skin or unaware, the ability is ignored either way.
-
-Abilities that do not fit this description, even if they could hinder moves in some other way, are not affected.  For example, cursed body only affects potential future uses of the move, while liquid ooze and shadow tag can only hinder a move's effect on the user.  This ablity cannot ignore type or form changes granted by abilities, for example color change or forecast; nor effects that were caused by abilities but are no longer tied to an ability, such as the",teravolt,"可以不受对手特性的干扰，
-向对手使出招式。",兆级电压
-165,Protects allies against moves that affect their mental state.,aroma-veil,"可以防住向自己和同伴
-发出的心灵攻击。",芳香幕
-166,Protects friendly grass Pokémon from having their stats lowered by other Pokémon.,flower-veil,"我方的草属性宝可梦
-能力不会降低，
-也不会变为异常状态。",花幕
-167,"Restores HP upon eating a Berry, in addition to the Berry's effect.",cheek-pouch,"无论是哪种树果，
-食用后，ＨＰ都会回复。",颊囊
-168,"Changes the bearer's type to match each move it uses.
-
-The type change takes place just before the move is used.",protean,"变为与自己使出的招式
-相同的属性。",变幻自如
-169,Halves damage from physical attacks.,fur-coat,"对手给予的物理招式的
-伤害会减半。",毛皮大衣
-170,Steals the target's held item when the bearer uses a damaging move.,magician,"夺走被自己的招式
-击中的对手的道具。",魔术师
-171,"Protects against bullet, ball, and bomb-based moves.",bulletproof,"可以防住对手的
-球和弹类招式。",防弹
-172,Raises Special Attack by two stages upon having any stat lowered.,competitive,"如果能力被降低，
-特攻就会大幅提高。",好胜
-173,Strengthens biting moves to 1.5× their power.,strong-jaw,"因为颚部强壮，
-啃咬类招式的威力会提高。",强壮之颚
-174,Turns the bearer's normal-type moves into ice-type moves.  Moves changed by this ability have 1.3× their power.,refrigerate,"一般属性的招式
-会变为冰属性。
-威力会少量提高。",冰冻皮肤
-175,Prevents friendly Pokémon from sleeping.,sweet-veil,"我方的宝可梦
-不会变为睡眠状态。",甜幕
-176,"Changes aegislash to Blade Forme before using a damaging move, or Shield Forme before using kings shield.",stance-change,"如果使出攻击招式，会变为刀剑形态，
-如果使出招式“王者盾牌”，
-会变为盾牌形态。",战斗切换
-177,Raises flying moves' priority by one stage.,gale-wings,"ＨＰ全满时，
-飞行属性的招式可以率先使出。",疾风之翼
-178,Strengthens aura and pulse moves to 1.5× their power.,mega-launcher,"波动和波导类招式的
-威力会提高。",超级发射器
-179,Boosts Defense while grassy terrain is in effect.,grass-pelt,"在青草场地时，
-防御会提高。",草之毛皮
-180,Passes the bearer's held item to an ally when the ally uses up its item.,symbiosis,"同伴使用道具时，
-会把自己持有的道具传递给同伴。",共生
-181,Strengthens moves that make contact to 1.33× their power.,tough-claws,"接触到对手的招式
-威力会提高。",硬爪
-182,Turns the bearer's normal-type moves into fairy moves.  Moves changed by this ability have 1.3× their power.,pixilate,"一般属性的招式
-会变为妖精属性。
-威力会少量提高。",妖精皮肤
-183,Lowers attacking Pokémon's Speed by one stage on contact.,gooey,"对于用攻击接触到自己的对手，
-会降低其速度。",黏滑
-184,Turns the bearer's normal-type moves into flying-type moves.  Moves changed by this ability have 1.3× their power.,aerilate,"一般属性的招式
-会变为飞行属性。
-威力会少量提高。",飞行皮肤
-185,Lets the bearer hit twice with damaging moves.  The second hit has half power.,parental-bond,亲子俩可以合计攻击２次。,亲子爱
-186,Strengthens dark moves for all friendly and opposing Pokémon.,dark-aura,全体的恶属性招式变强。,暗黑气场
-187,Strengthens fairy moves for all friendly and opposing Pokémon.,fairy-aura,全体的妖精属性招式变强。,妖精气场
-188,"While this Pokémon is on the field, dark aura and fairy aura weaken moves of their respective types to 2/3 their power, rather than strengthening them.",aura-break,"让气场的效果发生逆转，
-降低威力。",气场破坏
-189,"When this Pokémon enters battle or gains this ability, the weather becomes heavy rain.  Heavy rain has all the properties of rain dance and also causes damaging Fire moves to fail.
-
-Heavy rain ends when this Pokémon leaves battle or loses this ability, or when this ability is nullified.  The weather cannot otherwise be changed except by the effects of delta stream and desolate land.
-
-air lock and cloud nine will prevent the effects of heavy rain, including allowing Fire moves to work, but will not allow the weather to be changed.",primordial-sea,"变为不会受到
-火属性攻击的天气。",始源之海
-190,"When this Pokémon enters battle or gains this ability, the weather becomes extremely harsh sunlight.  Extremely harsh sunlight has all the properties of sunny day and also causes damaging Water moves to fail.
-
-Extremely harsh sunlight ends when this Pokémon leaves battle or loses this ability, or when this ability is nullified.  The weather cannot otherwise be changed except by the effects of delta stream and primordial sea.
-
-air lock and cloud nine will prevent the effects of extremely harsh sunlight, including allowing Water moves to work, but will not allow the weather to be changed.",desolate-land,"变为不会受到
-水属性攻击的天气。",终结之地
-191,"When this Pokémon enters battle or gains this ability, the weather becomes a mysterious air current.  A mysterious air current causes moves to not be super effective against Flying; they do neutral damage instead.  anticipation and stealth rock are not affected.
-
-The mysterious air current ends when this Pokémon leaves battle or loses this ability, or when this ability is nullified.  The weather cannot otherwise be changed except by the effects of desolate land and primordial sea.
-
-air lock and cloud nine will prevent the effect of a mysterious air current, but will not allow the weather to be changed.",delta-stream,"变为令飞行属性的弱点
-消失的天气。",德尔塔气流
-192,Raises this Pokémon's Defense by one stage when it takes damage from a move.,stamina,"受到攻击时，
-防御会提高。",持久力
-197,"When this Pokémon enters battle and at the end of each turn, if its HP is 50% or above, it changes into Meteor Form; otherwise, it changes into Core Form.  In Meteor Form, it cannot be given a major status ailment (though existing ones are not cured), cannot become drowsy from yawn, and cannot use rest (which will simply fail).
-
-This ability cannot be copied, replaced, or nullified.  This ability only takes effect for Minior.",shields-down,"ＨＰ变为一半时，
-壳会坏掉，变得有攻击性。",界限盾壳
-198,This Pokémon's moves have double power against Pokémon that switched in this turn.,stakeout,"可以对替换出场的对手
-以２倍的伤害进行攻击。",蹲守
-199,"When this Pokémon is hit by a Fire move, the damage is halved.  When this Pokémon uses a Water move, the power is doubled. This Pokémon cannot be burned, and if it becomes burned, the burn is immediately cured.",water-bubble,"降低与自己相对的火属性
-招式的威力，不会灼伤。",水泡
-200,This Pokémon's Steel moves have 1.5× power.,steelworker,钢属性的招式威力会提高。,钢能力者
-201,"Whenever this Pokémon takes damage from a move that causes its HP to drop below 50%, its Special Attack rises by one stage.",berserk,"因对手的攻击
-ＨＰ变为一半时，
-特攻会提高。",怒火冲天
-202,"During Hail, this Pokémon has double Speed.",slush-rush,"冰雹天气时，
-速度会提高。",拨雪
-203,A move used by this Pokémon will not make contact.,long-reach,"可以不接触对手
-就使出所有的招式。",远隔
-204,"When this Pokémon uses a move that is sound-based, that move's type is Water.",liquid-voice,"所有的声音招式
-都变为水属性。",湿润之声
-205,This Pokémon's healing moves have their priority increased by 3.,triage,可以率先使出回复招式。,先行治疗
-206,"When this Pokémon uses a Normal moves, that move is Electric its power is 1.2×.",galvanize,"一般属性的招式
-会变为电属性。
-威力会少量提高。",电气皮肤
-207,Doubles this Pokémon's Speed on Electric Terrain.,surge-surfer,"电气场地时，
-速度会变为２倍。",冲浪之尾
-208,"If this Pokémon is a wishiwashi and level 20 or above, then when it enters battle and at the start of each turn, it becomes Schooling Form if its HP is 25% or higher and Solo Form otherwise.
-
-This ability cannot be replaced, copied, or nullified.",schooling,"ＨＰ多的时候会聚起来变强。
-ＨＰ剩余量变少时，
-群体会分崩离析。",鱼群
-209,"If this Pokémon is in its Disguised Form and takes damage from a move, it switches to its Busted Form and the damage is prevented.  Other effects are not prevented.
-
-This ability cannot be copied or replaced.  This ability only takes effect for Mimikyu.",disguise,"通过画皮覆盖住身体，
-可以防住１次攻击。",画皮
-210,"Transforms this Pokémon into Ash-Greninja after fainting an opponent.  Water Shuriken's power is 20 and always hits three times.
-
-This ability cannot be copied or replaced.  This ability only takes effect for Greninja.",battle-bond,"打倒对手时，与训练家的牵绊会增强，
-变为小智版甲贺忍蛙。
-飞水手里剑的招式威力会增强。",牵绊变身
-211,"Transforms 10% or 50% Zygarde into Complete Forme when its HP is below 50%.
-
-This ability cannot be copied or replaced.  This ability only takes effect for Zygarde.",power-construct,"ＨＰ变为一半时，
-细胞们会赶来支援，
-变为完全体形态。",群聚变形
-212,This Pokémon's moves and item ignore the usual immunity of Poison and Steel Pokémon when attempting to inflict poison.,corrosion,"可以使钢属性和毒属性的宝可梦
-也陷入中毒状态。",腐蚀
-213,This Pokémon always acts as though it were Asleep.  It cannot be given another status ailment; it's unaffected by yawn; it can use sleep talk; and so on.,comatose,"总是半梦半醒的状态，
-绝对不会醒来。
-可以就这么睡着进行攻击。",绝对睡眠
-214,"When an opposing Pokémon attempts to use a move that targets this Pokémon or an ally, and that move has priority, it will fail.",queenly-majesty,"向对手施加威慑力，
-使其无法对我方使出先制招式。",女王的威严
-215,"When this Pokémon faints from an opponent's move, that opponent takes damage equal to the HP this Pokémon had remaining.",innards-out,"被对手打倒的时候，
-会给予对手相当于
-ＨＰ剩余量的伤害。",飞出的内在物
-216,"Whenever another Pokémon uses a dance move, this Pokémon will use the same move immediately afterwards.",dancer,"有谁使出跳舞招式时，
-自己也能就这么接着使出跳舞招式。",舞者
-217,Ally Pokémon's moves have their power increased to 1.3×.,battery,"会提高我方的
-特殊招式的威力。",蓄电池
-218,Damage from contact moves is halved.  Damage from Fire moves is doubled.,fluffy,"会将对手所给予的接触类招式的伤害减半，
-但火属性招式的伤害会变为２倍。",毛茸茸
-219,"When an opposing Pokémon attempts to use a move that targets this Pokémon or an ally, and that move has priority, it will fail.",dazzling,"让对手吓一跳，
-使其无法对我方使出先制招式。",鲜艳之躯
-220,This Pokémon's Special Attack rises by one stage every time any Pokémon faints.,soul-heart,"宝可梦每次变为濒死状态时，
-特攻会提高。",魂心
-221,"When this Pokémon takes regular damage from a contact move, the attacking Pokémon's Speed lowers by one stage.",tangling-hair,"对于用攻击接触到自己的对手，
-会降低其速度。",卷发
-222,"When an ally faints, this Pokémon gains its Ability.",receiver,"继承被打倒的同伴的特性，
-变为相同的特性。",接球手
-223,"When an ally faints, this Pokémon gains its Ability.",power-of-alchemy,"继承被打倒的同伴的特性，
-变为相同的特性。",化学之力
-224,Raises this Pokémon's highest stat by one stage when it faints another Pokémon.,beast-boost,"打倒对手的时候，
-自己最高的那项能力会提高。",异兽提升
-225,"Changes this Pokémon's type to match its held Memory.
-
-This ability cannot be copied, replaced, or nullified.  This ability only takes effect for Silvally.",rks-system,"根据持有的存储碟，
-自己的属性会改变。",ＡＲ系统
-226,"When this Pokémon enters battle, it changes the terrain to electric terrain.",electric-surge,"出场时，
-会布下电气场地。",电气制造者
-227,"When this Pokémon enters battle, it changes the terrain to psychic terrain.",psychic-surge,"出场时，
-会布下精神场地。",精神制造者
-228,"When this Pokémon enters battle, it changes the terrain to misty terrain.",misty-surge,"出场时，
-会布下薄雾场地。",薄雾制造者
-229,"When this Pokémon enters battle, it changes the terrain to grassy terrain.",grassy-surge,"出场时，
-会布下青草场地。",青草制造者
-230,"This Pokémon's stats cannot be lowered by other Pokémon's moves or abilities.  This effect only applies to normal stat modifications and not more exotic effects such as topsy turvy or power swap.
-
-This Ability is not bypassed by mold breaker, teravolt, or turboblaze.",full-metal-body,"不会因为对手的招式或特性
-而被降低能力。",金属防护
-231,"When this Pokémon has full HP, regular damage (not fixed damage!) from moves is halved.
-
-This ability cannot be nullified.",shadow-shield,"ＨＰ全满时，
-受到的伤害会变少。",幻影防守
-232,"Super-effective damage this Pokémon takes is reduced to 0.75×.
-
-This Ability is not bypassed by mold breaker, teravolt, or turboblaze.",prism-armor,"受到效果绝佳的攻击时，
-可以减弱其威力。",棱镜装甲
-233,Increases super-effective damage dealt to 1.25×.,neuroforce,"效果绝佳的攻击，
-威力会变得更强。",脑核之力
-234,Boosts the Pokémon’s Attack stat the first time the Pokémon enters a battle.,intrepid-sword,"出场时，
-攻击会提高。",不挠之剑
-235,Boosts the Pokémon’s Defense stat the first time the Pokémon enters a battle.,dauntless-shield,"出场时，
-防御会提高。",不屈之盾
-236,Changes the Pokémon’s type to the type of the move it’s about to use. This works only once each time the Pokémon enters battle.,libero,"变为与自己使出的招式
-相同的属性。",自由者
-237,"At any time after the first Poké Ball is thrown and fails to catch a Pokémon, at the end of a turn, if a Pokémon with Ball Fetch is on the field and not holding another item, it will pick up the same type of ball as the first one thrown.",ball-fetch,"没有携带道具时，
-会拾取第１个投出后
-捕捉失败的精灵球。",捡球
-238,"When the Pokémon is hit by an attack, it scatters cotton fluff around and lowers the Speed stats of all Pokémon except itself.",cotton-down,"受到攻击后撒下棉絮，
-降低除自己以外的
-所有宝可梦的速度。",棉絮
-239,Ignores the effects of opposing Pokémon’s Abilities and moves that draw in moves.,propeller-tail,"能无视具有吸引
-对手招式效果的
-特性或招式的影响。",螺旋尾鳍
-240,Bounces back only the stat-lowering effects that the Pokémon receives.,mirror-armor,"只反弹自己受到的
-能力降低效果。",镜甲
-241,"When the Pokémon uses Surf or Dive, it will come back with prey. When it takes damage, it will spit out the prey to attack.",gulp-missile,"冲浪或潜水时会叼来猎物。
-受到伤害时，
-会吐出猎物进行攻击。",一口导弹
-242,Ignores the effects of opposing Pokémon’s Abilities and moves that draw in moves.,stalwart,"能无视具有吸引
-对手招式效果的
-特性或招式的影响。",坚毅
-243,Raises the user's Speed by three stages when it is hit by a Fire- or Water-type attack. The attack still deals damage.,steam-engine,"受到水属性或
-火属性的招式攻击时，
-速度会巨幅提高。",蒸汽机
-244,Boosts the power of sound-based moves. The Pokémon also takes half the damage from these kinds of moves.,punk-rock,"声音招式的威力会提高。
-受到的声音招式伤害会减半。",庞克摇滚
-245,The Pokémon creates a sandstorm when it’s hit by an attack.,sand-spit,"受到攻击时，
-会刮起沙暴。",吐沙
-246,"The Pokémon is protected by ice scales, which halve the damage taken from special moves.",ice-scales,"由于有冰鳞粉的守护，
-受到的特殊攻击伤害会减半。",冰鳞粉
-247,Ripens Berries and doubles their effect.,ripen,"使树果成熟，
-效果变为２倍。",熟成
-248,"When an Eiscue that's in its Ice Face form is hit by a physical move, it takes no damage and changes into its Noice Face form. If a hailstorm or snowstorm begins while Eiscue is in its Noice Face form, or if it is sent out in its Noice Face form during hail, it will immediately revert to its Ice Face form.",ice-face,"头部的冰会代替自己承受
-物理攻击，但是样子会改变。
-下冰雹时，冰会恢复原状。",结冻头
-249," ""The power of moves used by the allies of the Pokémon with Power Spot is increased by 30%.""",power-spot,"只要处在相邻位置，
-招式的威力就会提高。",能量点
-250,Changes the Pokémon’s type depending on the terrain.,mimicry,"宝可梦的属性会根据
-场地的状态而变化。",拟态
-251,"When the Pokémon enters a battle, the effects of Light Screen, Reflect, and Aurora Veil are nullified for both opposing and ally Pokémon.",screen-cleaner,"出场时，敌方和我方的光墙、
-反射壁和极光幕的效果会消失。",除障
-252,Powers up the Steel-type moves of the Pokémon and its allies.,steely-spirit,"我方的钢属性
-攻击威力会提高。",钢之意志
-253,"When the Pokémon with Perish Body is hit with a contact move, both the attacker and the Pokémon with Perish Body will faint in three turns.",perish-body,"受到接触类招式攻击时，
-双方都会在３回合后变为濒死状态。
-替换后效果消失。",灭亡之躯
-254,The Pokémon exchanges Abilities with a Pokémon that hits it with a move that makes direct contact.,wandering-spirit,"与使用接触类招式
-攻击自己的宝可梦互换特性。",游魂
-255,Boosts the Pokémon’s Attack stat but only allows the use of the first selected move.,gorilla-tactics,"虽然攻击会提高，
-但是只能使出
-一开始所选的招式。",一猩一意
-256,"While the Pokémon is in the battle, the effects of all other Pokémon’s Abilities will be nullified or will not be triggered.",neutralizing-gas,"特性为化学变化气体的宝可梦在场时，
-场上所有宝可梦的
-特性效果都会消失或者无法生效。",化学变化气体
-257,Prevents the Pokémon and its teammates from being poisoned. It also cures teammates of poisoning when it enters the battlefield.,pastel-veil,"自己和同伴都不会
-陷入中毒的异常状态。",粉彩护幕
-258,"The Pokémon changes its form, alternating between its Full Belly Mode and Hangry Mode after the end of every turn.",hunger-switch,"每回合结束时会在
-满腹花纹与空腹花纹之间
-交替改变样子。",饱了又饿
-259,"If a Pokémon with this Ability selects a damaging move, it has a 30% chance of going first in its priority bracket.",quick-draw,有时能比对手先一步行动。,速击
-260,"If the Pokémon uses moves that make direct contact, it can attack the target even if the target protects itself.",unseen-fist,"如果使出的是接触到对手的招式，
-就可以无视守护效果进行攻击。",无形拳
-261,"When the Pokémon enters a battle, it scatters medicine from its shell, which removes all stat changes from allies.",curious-medicine,"出场时会从贝壳撒药，
-将我方的能力变化复原。",怪药
-262,Increases the power of Electric-type moves used by this Pokémon by 50%.,transistor,电属性的招式威力会提高。,电晶体
-264,"When the Pokémon knocks out a target, it utters a chilling neigh, which boosts its Attack stat.",chilling-neigh,"打倒对手时
-会用冰冷的声音嘶鸣
-并提高攻击。",苍白嘶鸣
-265,"When the Pokémon knocks out a target, it utters a terrifying neigh, which boosts its Sp. Atk stat.",grim-neigh,"打倒对手时
-会用恐怖的声音嘶鸣
-并提高特攻。",漆黑嘶鸣
-266,,as-one-glastrier,"兼备蕾冠王的紧张感和
-雪暴马的苍白嘶鸣这两种特性。",人马一体
-267,,as-one-spectrier,"兼备蕾冠王的紧张感和
-灵幽马的漆黑嘶鸣这两种特性。",人马一体
-268,Contact with the Pokémon changes the attacker’s Ability to Lingering Aroma.,lingering-aroma,Contact with the Pokémon changes the attacker's Ability to Lingering Aroma.,Lingering Aroma
-269,Turns the ground into Grassy Terrain when the Pokémon is hit by an attack.,seed-sower,Turns the ground into Grassy Terrain when the Pokémon is hit by an attack.,Seed Sower
-270,Boosts the Attack stat when the Pokémon is hit by a Fire-type move. The Pokémon also cannot be burned.,thermal-exchange,Boosts the Attack stat when the Pokémon is hit by a Fire-type move. The Pokémon also cannot be burned.,Thermal Exchange
-271,"When an attack causes its HP to drop to half or less, the Pokémon gets angry. This lowers its Defense and Sp. Def stats but boosts its Attack, Sp. Atk, and Speed stats.",anger-shell,"When an attack causes its HP to drop to half or less, the Pokémon gets angry. This lowers its Defense and Sp. Def stats but boosts its Attack, Sp. Atk, and Speed stats.",Anger Shell
-272,The Pokémon’s pure salt protects it from status conditions and halves the damage taken from Ghost-type moves.,purifying-salt,The Pokémon's pure salt protects it from status conditions and halves the damage taken from Ghost-type moves.,Purifying Salt
-273,"The Pokémon takes no damage when hit by Fire-type moves. Instead, its Defense stat is sharply boosted.",well-baked-body,"The Pokémon takes no damage when hit by Fire-type moves. Instead, its Defense stat is sharply boosted.",Well-Baked Body
-274,Boosts the Pokémon’s Attack stat if Tailwind takes effect or if the Pokémon is hit by a wind move. The Pokémon also takes no damage from wind moves.,wind-rider,Boosts the Pokémon's Attack stat if Tailwind takes effect or if the Pokémon is hit by a wind move. The Pokémon also takes no damage from wind moves.,Wind Rider
-275,Boosts the Pokémon’s Attack stat if intimidated. Moves and items that would force the Pokémon to switch out also fail to work.,guard-dog,Boosts the Pokémon’s Attack stat if intimidated. Moves and items that would force the Pokémon to switch out also fail to work.,Guard Dog
-276,Increases the power of Rock-type moves used by this Pokémon by 50%.,rocky-payload,Powers up Rock-type moves.,Rocky Payload
-277,"The Pokémon becomes charged when it is hit by a wind move, boosting the power of the next Electric-type move the Pokémon uses.",wind-power,"The Pokémon becomes charged when it is hit by a wind move, boosting the power of the next Electric-type move the Pokémon uses.",Wind Power
-278,The Pokémon transforms into its Hero Form when it switches out.,zero-to-hero,The Pokémon transforms into its Hero Form when it switches out.,Zero to Hero
-279,"When the Pokémon enters a battle, it goes inside the mouth of an ally Dondozo if one is on the field. The Pokémon then issues commands from there.",commander,"When the Pokémon enters a battle, it goes inside the mouth of an ally Dondozo if one is on the field. The Pokémon then issues commands from there.",Commander
-280,"The Pokémon becomes charged when it takes damage, boosting the power of the next Electric-type move the Pokémon uses.",electromorphosis,"The Pokémon becomes charged when it takes damage, boosting the power of the next Electric-type move the Pokémon uses.",Electromorphosis
-281,Boosts the Pokémon’s most proficient stat in harsh sunlight or if the Pokémon is holding Booster Energy.,protosynthesis,Boosts the Pokémon's most proficient stat in harsh sunlight or if the Pokémon is holding Booster Energy.,Protosynthesis
-282,Boosts the Pokémon’s most proficient stat on Electric Terrain or if the Pokémon is holding Booster Energy.,quark-drive,Boosts the Pokémon's most proficient stat on Electric Terrain or if the Pokémon is holding Booster Energy.,Quark Drive
-283,"A body of pure, solid gold gives the Pokémon full immunity to other Pokémon’s status moves.",good-as-gold,"A body of pure, solid gold gives the Pokémon full immunity to other Pokémon's status moves.",Good as Gold
-284,The power of the Pokémon’s ruinous vessel lowers the Sp. Atk stats of all Pokémon except itself.,vessel-of-ruin,The power of the Pokémon's ruinous vessel lowers the Sp. Atk stats of all Pokémon except itself.,Vessel of Ruin
-285,The power of the Pokémon’s ruinous sword lowers the Defense stats of all Pokémon except itself.,sword-of-ruin,The power of the Pokémon's ruinous sword lowers the Defense stats of all Pokémon except itself.,Sword of Ruin
-286,The power of the Pokémon’s ruinous wooden tablets lowers the Attack stats of all Pokémon except itself.,tablets-of-ruin,The power of the Pokémon's ruinous wooden tablets lowers the Attack stats of all Pokémon except itself.,Tablets of Ruin
-287,The power of the Pokémon’s ruinous beads lowers the Sp. Def stats of all Pokémon except itself.,beads-of-ruin,The power of the Pokémon's ruinous beads lowers the Sp. Def stats of all Pokémon except itself.,Beads of Ruin
-288,Turns the sunlight harsh when the Pokémon enters a battle. The ancient pulse thrumming through the Pokémon also boosts its Attack stat in harsh sunlight.,orichalcum-pulse,Turns the sunlight harsh when the Pokémon enters a battle. The ancient pulse thrumming through the Pokémon also boosts its Attack stat in harsh sunlight.,Orichalcum Pulse
-289,Turns the ground into Electric Terrain when the Pokémon enters a battle. The futuristic engine within the Pokémon also boosts its Sp. Atk stat on Electric Terrain.,hadron-engine,Turns the ground into Electric Terrain when the Pokémon enters a battle. The futuristic engine within the Pokémon also boosts its Sp. Atk stat on Electric Terrain.,Hadron Engine
-290,"If an opponent’s stat is boosted, the Pokémon seizes the opportunity to boost the same stat for itself.",opportunist,"If an opponent's stat is boosted, the Pokémon seizes the opportunity to boost the same stat for itself.",Opportunist
-291,"When the Pokémon eats a Berry, it will regurgitate that Berry at the end of the next turn and eat it one more time.",cud-chew,"When the Pokémon eats a Berry, it will regurgitate that Berry at the end of the next turn and eat it one more time.",Cud Chew
-292,Increases the power of all 'slicing' moves by 50%.,sharpness,Powers up slicing moves.,Sharpness
-293,"When the Pokémon enters a battle, its Attack and Sp. Atk stats are slightly boosted for each of the allies in its party that have already been defeated.",supreme-overlord,"When the Pokémon enters a battle, its Attack and Sp. Atk stats are slightly boosted for each of the allies in its party that have already been defeated.",Supreme Overlord
-294,"When the Pokémon enters a battle, it copies an ally’s stat changes.",costar,"When the Pokémon enters a battle, it copies an ally's stat changes.",Costar
-295,Scatters poison spikes at the feet of the opposing team when the Pokémon takes damage from physical moves.,toxic-debris,Scatters poison spikes at the feet of the opposing team when the Pokémon takes damage from physical moves.,Toxic Debris
-296,The mysterious tail covering the Pokémon’s head makes opponents unable to use priority moves against the Pokémon or its allies.,armor-tail,The mysterious tail covering the Pokémon's head makes opponents unable to use priority moves against the Pokémon or its allies.,Armor Tail
-297,"If hit by a Ground-type move, the Pokémon has its HP restored instead of taking damage.",earth-eater,"If hit by a Ground-type move, the Pokémon has its HP restored instead of taking damage.",Earth Eater
-298,"The Pokémon will always act more slowly when using status moves, but these moves will be unimpeded by the Ability of the target.",mycelium-might,"The Pokémon will always act more slowly when using status moves, but these moves will be unimpeded by the Ability of the target.",Mycelium Might
-299,Mind's Eye enables the Pokémon with this Ability to hit Ghost-type Pokémon with damage-dealing Normal- and Fighting-type moves. It also prevents other Pokémon from lowering the Pokémon's accuracy and ignores changes to the opponents' evasion.,minds-eye,"The Pokémon ignores changes to opponents' evasiveness, its accuracy can't be lowered, and it can hit Ghost types with Normal-type and Fighting-type moves",心眼
-300,"A sickly sweet scent spreads across the field the first time the Pokémon enters a battle, lowering the evasiveness of opposing Pokémon.",supersweet-syrup,Lowers the evasion of opposing Pokémon by 1 stage when first sent into battle,甘露之蜜
-301,"When the Pokémon enters a battle, it showers its ally with hospitality, restoring a small amount of the ally's HP.",hospitality,"When the Pokémon enters a battle, it showers its ally with hospitality, restoring a small amount of the ally's HP",款待
-302,The power of the Pokémon's toxic chain may badly poison any target the Pokémon hits with a move.,toxic-chain,The power of the Pokémon's toxic chain may badly poison any target the Pokémon hits with a move,毒锁链
-303,"Embody Aspect boosts a particular stat, depending on the form of a Terastallized Ogerpon",embody-aspect,"The Pokémon's heart fills with memories, causing the Mask to shine and one of the Pokémon's stats to be boosted.",面影辉映
-304,"When the Pokémon enters a battle, it absorbs the energy around itself and transforms into its Terastal Form.",tera-shift,"When the Pokémon enters a battle, it absorbs the energy around itself and transforms into its Terastal Form.",太晶变形
-305,The Pokémon’s shell contains the powers of each type. All damage-dealing moves that hit the Pokémon when its HP is full will not be very effective.,tera-shell,The Pokémon's shell contains the powers of each type. All damage-dealing moves that hit the Pokémon when its HP is full will not be very effective.,太晶甲壳
-306,"When Terapagos changes into its Stellar Form, it uses its hidden powers to eliminate all effects of weather and terrain, reducing them to zero.",teraform-zero,"When Terapagos changes into its Stellar Form, it uses its hidden powers to eliminate all effects of weather and terrain, reducing them to zero.",归零化境
-307,"When a Pokémon is poisoned by any of Pecharunt's moves, it will also become confused.",poison-puppeteer,Pokémon poisoned by Pecharunt's moves will also become confused.,毒傀儡
+1,"使用招式攻击对手造成伤害时，对方有10%几率陷入畏缩状态。
+- 该效果与王者之证／锐利之牙不叠加。
+- 该效果与特效为畏缩的招式（比如空气之刃）不叠加。
+- 连续招式每一下连续的攻击都会有相同的几率造成对手畏缩。",stench,通过释放臭臭的气味，在攻击的时候，有时会使对手畏缩。,恶臭
+2,"当该宝可梦登场时，天气转为下雨并持续5回合。
+- 在携带了道具潮湿岩石的情况下，下雨会持续8回合。
+- 在大雨、大日照和乱流天气下，特性发动失败。
+- 如果有多只拥有可更换天气特性的宝可梦同时登场，那么将会按照宝可梦的速度依次发动特性改变天气，后者覆盖前者。发动失败的情况下除外。",drizzle,出场时，会将天气变为下雨。,降雨
+3,"持有该特性的宝可梦每回合结束速度上升1级，但该回合交换出持有该特性的宝可梦则不会发动。
+拥有该特性的宝可梦每250回合永久增加一次移动速度。
+每到一层，拥有该特性的宝可梦每回合增加1点移动速度，持续20回合。达到最大值之后持续5回合。SMD",speed-boost,每一回合速度会变快。,加速
+4,不会被击中要害，即使是必定命中要害的招式也不会击中要害。,battle-armor,被坚硬的甲壳守护着，不会被对手的攻击击中要害。,战斗盔甲
+5,"一击必杀的招式对拥有该特性的宝可梦无效。
+拥有该特性的宝可梦在满ＨＰ状态下受到一次攻击时，至少会保留1点ＨＰ。
+- 受到连续招式时，第一次攻击就会使结实特性发动或不再满足发动条件，无法对后续攻击生效。
+- 无法抵御造成自身陷入昏厥状态的招式所导致的自身昏厥效果。
+- 无法阻止同命状态生效。
+该特性的宝可梦携带气势披带受到了一击被击倒的招式，优先触发结实特性的效果，不会消耗气势披带。
+该特性的宝可梦受到过伤害后，如果HP回复到全满，能够再次触发特性。",sturdy,在ＨＰ全满时，即使受到招式攻击，也不会被一击打倒。一击必杀的招式也没有效果。,结实
+6,当该宝可梦在场时，玉石俱碎、大爆炸、惊爆大头和薄雾炸裂会使用失败，诱爆特性无效。,damp,通过把周围都弄湿，使谁都无法使用自爆等爆炸类的招式。,湿气
+7,该特性的宝可梦不会陷入麻痹状态，陷入麻痹的宝可梦获得该特性时麻痹状态消除。,limber,因为身体柔软，不会变为麻痹状态。,柔软
+8,在沙暴天气中闪避率提升20%，并且不会受到沙暴天气损失体力的影响。,sand-veil,在沙暴的时候，闪避率会提高。,沙隐
+9,"使用接触类招式攻击该特性的宝可梦时会有30%的机率麻痹。
+连续招式的每一击都会单独触发该特性。",static,身上带有静电，有时会让接触到的对手麻痹。,静电
+10,"具有该特性的宝可梦不受电属性招式的影响，当被电属性的招式击中时，回复最大ＨＰ的1⁄4。
+- 该特性只能令自身不受电属性招式的影响，不能将电属性招式的目标转移至自身。
+- 该特性对电属性的变化招式有效。包括通过其他方式变为电属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的充电电池。
+- 该特性的宝可梦进入守住状态无法通过被电属性招式击中回复ＨＰ。",volt-absorb,受到电属性的招式攻击时，不会受到伤害，而是会回复。,蓄电
+11,"具有该特性的宝可梦不受水属性招式的影响，当被水属性的招式击中时，回复最大ＨＰ的1⁄4。
+- 该特性只能令自身不受水属性招式的影响，不能将水属性招式的目标转移至自身。
+- 该特性对水属性的变化招式有效。包括通过其他方式变为水属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的球根或光苔。
+- 该特性的宝可梦进入守住状态无法通过被水属性招式击中回复ＨＰ。",water-absorb,受到水属性的招式攻击时，不会受到伤害，而是会回复。,储水
+12,"该特性的宝可梦不会陷入着迷和挑衅状态。陷入此状态的宝可梦获得该特性时此状态消除。
+该特性不受威吓影响。",oblivious,因为感觉迟钝，不会变为着迷和被挑衅状态。对威吓也毫不动摇。,迟钝
+13,拥有该特性的宝可梦在场时，任何天气造成的影响无效。天气并不会消失。,cloud-nine,任何天气的影响都会消失。,无关天气
+14,"自身招式的命中率×1.3。
+该特性不影响一击必杀招式的命中率。",compound-eyes,因为拥有复眼，招式的命中率会提高。,复眼
+15,"该特性的宝可梦不会陷入睡眠状态，睡觉招式会无效。陷入睡眠的宝可梦获得该特性时睡眠状态消除。
+烦恼种子可以使宝可梦变成该特性。",insomnia,因为有着睡不着的体质，所以不会陷入睡眠状态。,不眠
+16,"当被造成伤害的招式命中时，自身属性会变成这种招式的属性，但处于替身状态时属性不会改变。
+- 连续招式全部攻击结束后变色特性再发动；
+- 挣扎不会触发该特性；
+- 被持有强行特性的宝可梦攻击时该特性不会发动；
+- 预知未来和破灭之愿可以触发该特性。
+当该特性的宝可梦拥有两种属性，被造成伤害的招式命中后，只会拥有一种属性。如果处于黑暗气场下的气象球命中后，该特性的宝可梦会变为一般属性。
+在改变属性后，属性改变前存在的异常状态和该属性若排斥，异常状态仍生效。（例如毒属性和中毒）",color-change,自己的属性会变为从对手处所受招式的属性。,变色
+17,该特性的宝可梦不会陷入中毒或剧毒状态。陷入中毒或剧毒的宝可梦获得该特性时中毒或剧毒状态消除。,immunity,因为体内拥有免疫能力，不会变为中毒状态。,免疫
+18,"具有该特性的宝可梦不受火属性招式的影响，当被火属性的招式击中时，此宝可梦标记为引火状态，直到换下场或者失去此特性。
+- 该特性只能令自身不受火属性招式的影响，不能将火属性招式的目标转移至自身。
+- 该特性对火属性的变化招式有效。包括通过其他方式变为火属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 当处于引火状态的宝可梦使用火属性攻击招式时，自身攻击和特攻×1.5。当该特性的宝可梦处于冰冻，该特性可以触发。烈焰溅射无法触发引火。",flash-fire,受到火属性的招式攻击时，吸收火焰，自己使出的火属性招式会变强。,引火
+19,"拥有该特性的宝可梦不会受到其他宝可梦招式的追加效果影响。
+- 不能防止变化招式（如催眠粉、电磁波）的效果。
+- 不能防止该特性宝可梦自身使用招式时的副作用（如近身战）。
+- 不能防止招式对攻击方自身（如增强拳）或场地（如岩斧）施加的追加效果。也不能防止极巨招式或超极巨招式的效果。
+- 可以防止毒手、毒锁链特性造成的中毒状态、投掷投出部分道具时造成的效果，尽管这些不属于追加效果。",shield-dust,被鳞粉守护着，不会受到招式的追加效果影响。,鳞粉
+20,"该特性的宝可梦不会陷入混乱状态。陷入混乱的宝可梦获得该特性时混乱状态消除。在该特性的宝可梦使用花瓣舞、逆鳞或者芭亚果等使自身混乱后，混乱状态仍然消除。
+该特性不受威吓影响。",own-tempo,因为我行我素，不会变为混乱状态。对威吓也毫不动摇。,我行我素
+21,"拥有该特性的宝可梦不受强制替换宝可梦的招式以及红牌的影响。
+- 自身使用和后备宝可梦进行替换的招式或携带的逃脱按键不受该特性影响。",suction-cups,用吸盘牢牢贴在地面上，让替换宝可梦的招式和道具无效。,吸盘
+22,"出场或获得此特性时所有攻击范围内的对手的攻击下降1级。
+- 对处于飞翔、潜水、挖洞或暗影潜袭状态的宝可梦有效。
+- 拥有恒净之躯、怪力钳、白色烟雾、金属防护、精神力、迟钝、胆量和我行我素特性的宝可梦不受影响。
+- 处于替身状态的宝可梦不受影响。
+- 在三打对战中，若该特性的宝可梦不是从中间出场，则只能威吓到与该宝可梦相同一侧和中间的宝可梦。
+- 胆怯特性的宝可梦，在受到威吓后能够提升速度。
+- 看门犬特性的宝可梦，威吓效果无效，并且攻击提高1级。
+用物理招式攻击该特性的宝可梦的伤害下降20%。",intimidate,出场时威吓对手，让其退缩，降低对手的攻击。,威吓
+23,使对方全部不持有踩影特性的非幽灵属性宝可梦处于无法逃走状态，无法替换或逃走。,shadow-tag,踩住对手的影子使其无法逃走或替换。,踩影
+24,"受到接触类招式攻击时对手会损失最大体力的1⁄8。
+- 连续招式的每一击都会触发此特性。
+- 有粗糙皮肤特性的宝可梦使用守住并被攻击方使用Ｚ招式攻击时，粗糙皮肤特性不会发动。
+如果受到敌人从正面的近身攻击，会反弹一半伤害。",rough-skin,受到攻击时，用粗糙的皮肤弄伤接触到自己的对手。,粗糙皮肤
+25,"如果招式对拥有该特性的宝可梦不能产生效果绝佳，则招式对该特性的宝可梦没有伤害。
+例如：脱壳忍者（虫.mw-parser-output .type-box-9,.mw-parser-output .type-box-9-other{position:relative;display:inline-block;overflow:hidden;margin:0 1px;height:20px;border-radius:10px;text-align:center;vertical-align:middle;white-space:nowrap;font-size:14px;line-height:20px}.mw-parser-output .type-box-9{padding-left:17px;width:60px}.mw-parser-output .type-box-9-other{width:80px}.mw-parser-output .type-box-9-icon{position:absolute;top:0;left:2px;width:20px;height:20px}.mw-parser-output .type-box-9-text{color:#fff}.mw-parser-output .type-box-9-一般{background-color:#9fa19f}.mw-parser-output .type-box-9-格斗,.mw-parser-output .type-box-9-格鬥{background-color:#ff8000}.mw-parser-output .type-box-9-飞行,.mw-parser-output .type-box-9-飛行{background-color:#81b9ef}.mw-parser-output .type-box-9-毒{background-color:#9141cb}.mw-parser-output .type-box-9-地面{background-color:#915121}.mw-parser-output .type-box-9-岩石{background-color:#afa981}.mw-parser-output .type-box-9-虫,.mw-parser-output .type-box-9-蟲{background-color:#91a119}.mw-parser-output .type-box-9-幽灵,.mw-parser-output .type-box-9-幽靈{background-color:#704170}.mw-parser-output .type-box-9-钢,.mw-parser-output .type-box-9-鋼{background-color:#60a1b8}.mw-parser-output .type-box-9-火{background-color:#e62829}.mw-parser-output .type-box-9-水{background-color:#2980ef}.mw-parser-output .type-box-9-草{background-color:#3fa129}.mw-parser-output .type-box-9-电,.mw-parser-output .type-box-9-電{background-color:#fac000}.mw-parser-output .type-box-9-超能力{background-color:#ef4179}.mw-parser-output .type-box-9-冰{background-color:#3fd8ff}.mw-parser-output .type-box-9-龙,.mw-parser-output .type-box-9-龍{background-color:#5060e1}.mw-parser-output .type-box-9-恶,.mw-parser-output .type-box-9-惡{background-color:#50413f}.mw-parser-output .type-box-9-妖精{background-color:#ef70ef}.mw-parser-output .type-box-9-星晶{background-color:#73c6bc}幽灵）会被以下属性效果绝佳招式受到伤害：飞行岩石幽灵火恶，那么除了这些属性以外，其他所有攻击招式都无法对脱壳忍者造成攻击伤害。
+对于无法产生伤害的攻击招式，其任何效果都无法发动。
+不能防止挣扎、反作用力招式、混乱状态等情况下对自己的伤害。各种非直接伤害效果也不能防止，例如灼伤、中毒、冰雹、沙暴以及对入场宝可梦生效的招式等。
+该特性只能通过复制特性复制，不能通过扮演招式或化学之力、接球手等特性复制。
+该特性不能防止黑暗招式的伤害。即使在《圆形竞技场》中黑暗招式不对任何属性效果绝佳，依然可以对该特性的宝可梦造成伤害。",wonder-guard,不可思议的力量，只有效果绝佳的招式才能击中。,神奇守护
+26,"拥有该特性的宝可梦免疫地面属性招式（除了泼沙和千箭齐发），不会受到沙穴特性和毒菱、撒菱、黏黏网和场地型状态等状态变化的影响。拥有该特性的毒属性的宝可梦无法清除毒菱。
+当宝可梦持有道具黑色铁球，或是宝可梦处于击落、扎根状态，或是场地上存在重力状态时，该特性失效。",levitate,从地面浮起，从而不会受到地面属性招式的攻击。,飘浮
+27,"使用接触类招式攻击该特性的宝可梦时会有30%的机率陷入麻痹、中毒或睡眠状态。
+- 其中，睡眠概率略高于10%，麻痹概率为10%，中毒概率略低于10%。
+连续招式的每一击都可能触发该特性。
+该特性属于粉末类特性，因此对草属性、拥有防尘特性或携带防尘护目镜的宝可梦无效。",effect-spore,受到攻击时，有时会把接触到自己的对手变为中毒、麻痹或睡眠状态。,孢子
+28,"其他宝可梦对自身造成灼伤、中毒、剧毒、麻痹时，自身对那只宝可梦造成相同的异常状态。
+若特性为同步的宝可梦同时携带可以治愈它异常状态的树果，那么触发树果效果前触发同步特性。
+若处于异常状态的非同步特性宝可梦对特性为同步的宝可梦使用精神转移，同步特性会在异常状态被治愈之前触发，使得特性发动失败，前者的异常状态可以解除。
+两只宝可梦连续因为同步而触发，但是字幕会显示同步失败。
+以下情况不会触发同步特性：
+- 若由于接触到毒菱而陷入中毒状态；
+- 若由于携带到剧毒宝珠或火焰宝珠而陷入中毒或灼伤状态。",synchronize,将自己的中毒、麻痹或灼伤状态传染给对手。,同步
+29,"在通常情况下，能力不会被对方及同伴的招式和特性降低（例如招式可怕面孔、特性威吓等）。
+恒净之躯特性不能阻止以下能力的降低方式：
+- 自身使用降低自身能力的招式：蛮力、臂锤等；
+- 自身携带降低能力的道具：黑色铁球等；
+- 降低能力的异常状态：麻痹、灼伤；
+- 与对方平分能力的招式：防守平分、力量平分；
+- 与对方交换能力的招式：心灵互换、防守互换、力量互换；
+- 与同行宝可梦传递能力的招式：接棒；
+- 改变能力的招式：颠倒；
+- 无视恒净之躯的特性：破格、涡轮火焰、兆级电压。",clear-body,不会因为对手的招式或特性而被降低能力。,恒净之躯
+30,"替换该特性的宝可梦后，异常状态自动解除。
+得到该特性的宝可梦替换后，异常状态自动解除。
+该特性的宝可梦变为无特性时，异常状态不会解除。",natural-cure,回到同行队伍后，异常状态就会被治愈。,自然回复
+31,"具有该特性的宝可梦不受电属性招式的影响，当被电属性的招式击中时，提升1级特攻。
+场上其他宝可梦（包括同伴）使出的作用范围为单体的电属性招式的目标强制转移至该特性的宝可梦。若场上有多只宝可梦拥有此特性，将吸引到速度较高的那只。万众瞩目可以覆盖这个效果。螺旋尾鳍、坚毅、狙击可以无视这个效果。
+- 即使处于守住状态，依然能够吸引电属性的招式，但特攻不会提升。
+- 该特性对电属性的变化招式有效。包括通过其他方式变为电属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的充电电池。
+- 可以吸引同伴的极巨闪电，即使极巨闪电无法直接对同伴使用。
+因为等离子浴并不以任何宝可梦为目标，也不直接影响处在场上的宝可梦，所以此招式不会触发避雷针特性。",lightning-rod,将电属性的招式吸引到自己身上，不会受到伤害，而是会提高特攻。,避雷针
+32,"使用招式时追加效果的出现率×2，超过100％则必然出现追加效果。
+- 携带王者之证或锐利之牙的宝可梦触发道具效果的几率×2。
+- 彩虹的效果可与天恩的效果重叠。即追加效果的出现几率×4。
+可能使宝可梦陷入畏缩状态的招式，畏缩几率最多只能×2。
+第八世代及以前，在效果重叠后可能会出现数值溢出错误，导致追加效果的几率计算后大于255%时，会减去256%。这只会出现在充电光束上。
+第九世代开始，效果重叠后追加效果的几率会变为100%。",serene-grace,托天恩的福，招式的追加效果容易出现。,天恩
+33,"下雨或大雨天气时，速度能力变为原来的2倍。
+下雨天气时，拥有该特性的宝可梦一回合招式可以使用2次而不消耗额外ＰＰ。",swift-swim,下雨天气时，速度会提高。,悠游自如
+34,处于大晴天或大日照天气时，该特性的宝可梦速度能力变为原来的2倍。,chlorophyll,晴朗天气时，速度会提高。,叶绿素
+35,"命中率能力变化不会被对方以任何方式降低，无视目标闪避率能力变化的提升。
+- 与能力变化无关的影响命中判定的效果（如奇迹皮肤、沙隐、雪隐等），不会受到发光特性的影响。
+该特性的宝可梦受到攻击后，本层会多出1个对手。RBTDS
+该特性的宝可梦使用发光类招式（如奇异之光、光墙）后会进入“诱饵”状态。在有多个目标可以攻击时，敌人会优先攻击处于该状态的目标。此状态在5回合后或进入下一层时消失。SMD",illuminate,通过让周围变亮来保持命中率不会被降低。,发光
+36,"自身登场时，复制特性变为随机1只对方宝可梦的特性。如果复制到了登场时发动的特性，它会立即发动。自身离场时特性还原为复制。
+当复制其他特性后，该特性的宝可梦再次变为复制特性（比如使用扮演），复制特性无法触发，直到下次替换出场时再次触发。
+复制的目标处于无特性，能触发该特性。
+如果对方场上没有可以复制的特性，则复制特性暂不发动，而是留待对方场上出现能够复制的特性时发动。
+下表所列均为无法复制的特性，打 ✔ 的表示该特性在对应世代可以被复制：
+自身被攻击的回合获得随机一只攻击自己的宝可梦的特性。",trace,出场时，复制对手的特性，变为与之相同的特性。,复制
+37,"伤害计算中，此宝可梦的攻击能力值×２。
+- 此效果不是能力变化。使用其他数据代替攻击能力值（如将对手的攻击能力值代替自身攻击能力值的移花接木、将自身的防御能力值代替自身攻击能力值的扑击）进行伤害计算的物理招式时，伤害计算中的攻击也会×２。
+每回合有1⁄3机率攻击提升50%。",huge-power,物理攻击的威力会变为２倍。,大力士
+38,"使用接触类招式攻击该特性的宝可梦时会有30%的机率中毒。
+连续招式每次攻击时都可能触发该特性。",poison-point,有时会让接触到自己的对手变为中毒状态。,毒刺
+39,"该特性的宝可梦不会陷入畏缩状态。破格、兆级电压和涡轮火焰特性的宝可梦仍能使该特性的宝可梦畏缩。获得该特性并不能解除畏缩状态。
+该特性不受威吓影响。",inner-focus,拥有经过锻炼的精神，而不会因对手的攻击而畏缩。对威吓也毫不动摇。,精神力
+40,"该特性的宝可梦不会陷入冰冻状态。
+当该特性的宝可梦在队伍时，队伍中蛋孵化的速度提高为原来的2倍。
+- 此效果不会与自身、火焰之躯或蒸汽机叠加，但是它会与释出之力、O能量、蛋蛋力或孵蛋碰碰叠加。",magma-armor,将炽热的熔岩覆盖在身上，不会变为冰冻状态。,熔岩铠甲
+41,该特性的宝可梦不会陷入灼伤状态。当灼伤状态的宝可梦获得该特性时灼伤状态会被治愈。,water-veil,将水幕裹在身上，不会变为灼伤状态。,水幕
+42,"使对方非幽灵属性的钢属性宝可梦进入无法逃走状态，无法替换或逃走。
+钢属性宝可梦攻击该特性的宝可梦会被固定，几回合内无法移动。TS",magnet-pull,用磁力吸住钢属性的宝可梦，使其无法逃走。,磁力
+43,"不受其他宝可梦使出的声音的招式影响，但会受到自己使出的声音的招式影响。
+- 双打对战中在场上时不能被同伴的治愈铃声治愈。
+- 隔音特性的宝可梦被接棒传递终焉之歌状态时，终焉之歌仍然有效。
+- 不能防止因灭亡之躯而产生的终焉之歌状态。
+该特性宝可梦不受宝可梦之笛的影响FRLG。",soundproof,通过屏蔽声音，不受到声音招式的影响。,隔音
+44,在下雨天气时每回合结束回复1⁄16体力。,rain-dish,下雨天气时，会缓缓回复ＨＰ。,雨盘
+45,"当该宝可梦登场时，天气转为沙暴并持续5回合。
+- 在携带了道具沙沙岩石的情况下，沙暴会持续8回合。
+- 在大雨、大日照和乱流天气下，特性发动失败。
+- 如果有多只拥有可更换天气特性的宝可梦同时登场，那么将会按照宝可梦的速度依次发动特性改变天气，后者覆盖前者。发动失败的情况下除外。",sand-stream,出场时，会把天气变为沙暴。,扬沙
+46,"使用招式以该特性的宝可梦或以全场为目标时，每有一只该特性的宝可梦，多损失1点ＰＰ。友方宝可梦使用招式时则不会触发该特性。
+- 该特性不受破格、兆级电压和涡轮火焰特性影响。
+- 无论招式是否命中或有效，该效果都会生效。例如被守住或替身阻挡、幽灵属性宝可梦受到近身战的攻击等。
+广域战力和龙箭攻击时，只计算选择位置宝可梦可能的压迫感，至多只会多损失1点ＰＰ。
+- 对手使用撒菱、毒菱、隐形岩、化为己用、封印时也会触发该特性。
+- 对手使用太晶爆发时，即使目标不是持有该特性的宝可梦，也同样会受到该特性影响。",pressure,给予对手压迫感，大量减少其使用招式的ＰＰ。,压迫感
+47,"拥有该特性的宝可梦受到冰属性或火属性招式攻击时，在伤害计算中对方的攻击或特攻减半。
+- 此效果不是能力变化。
+- 不影响固定伤害类招式的伤害。不影响混乱的伤害。
+- 仅第四世代，拥有该特性的宝可梦受到冰属性或火属性招式攻击时，此招式的威力变为原来的1⁄2。
+技术高手仍然以招式原本的威力判定是否适用其效果。",thick-fat,因为被厚厚的脂肪保护着，会让火属性和冰属性的招式伤害减半。,厚脂肪
+48,"该特性的宝可梦陷入睡眠的持续回合变为原来的1⁄2（向下取整）。例如，原本睡眠状态持续3回合时会变为1回合，原本持续1回合时会立刻清醒。
+- 对自身使用睡觉而陷入的睡眠状态同样有效。",early-bird,即使变为睡眠状态，也能以２倍的速度提早醒来。,早起
+49,"使用接触类招式攻击该特性的宝可梦时会有30%的机率灼伤。
+连续招式的每一击都会单独触发该特性。
+当该特性的宝可梦在队伍时，队伍中蛋孵化的速度提高为原来的2倍。
+- 此效果不会与自身、熔岩铠甲或蒸汽机叠加，但是它会与释出之力、O能量、蛋蛋力或孵蛋碰碰叠加。",flame-body,有时会让接触到自己的对手变为灼伤状态。,火焰之躯
+50,"在与野生宝可梦对战时，无视对手任何阻挡逃走的效果，必定逃走成功。
+除队长外拥有该特性的宝可梦在体力不满一半时会变为惊吓状态离开对战。免疫对手某些招式或特性带给该宝可梦的无法逃走状态。",run-away,一定能从野生宝可梦那儿逃走。,逃跑
+51,"命中率能力变化不会被对方以任何方式降低，无视目标闪避率能力变化的提升。
+- 与能力变化无关的影响命中判定的效果（如奇迹皮肤、沙隐、雪隐等），不会受到锐利目光特性的影响。",keen-eye,多亏了锐利的目光，命中率不会被降低。,锐利目光
+52,攻击能力变化不会被对方以任何方式降低。,hyper-cutter,因为拥有以力量自豪的钳子，不会被对手降低攻击。,怪力钳
+53,"当自己没有携带物品时，回合结束后获得在自己的非远程招式攻击范围内，对方宝可梦或同伴宝可梦于该回合使用或投掷而消耗的携带物品。如果回合内对手宝可梦与同伴宝可梦均使用了道具，优先获得对手的道具。
+同一回合内离场或陷入昏厥的宝可梦用掉的道具无法被捡拾，即使在该回合内又重新上场。
+被烧净，啄食，虫咬，拍落的道具无法被捡拾，因受到攻击而破裂的气球无法被捡拾。
+在对战结束后有10%机率会捡拾到特定物品，捡拾以携带表示。
+当宝可梦已携带物品或成功收服野生宝可梦时该特性无效。在部分战斗设施中捡拾无效。",pickup,有时会捡来对手用过的道具，冒险过程中也会捡到。,捡拾
+54,"每2回合才能发动一次招式。在懒惰回合可以做出交换操作。
+可以使用蓄力的招式，但蓄力完毕后下一回合会因为偷懒而不能发出招式。
+可以使用使用后下一回合自己将无法动弹的招式，其停滞与懒惰的回合会在同一回合计算，懒惰回合不能作出任何操作。
+如果没有成功使用招式，例如招式没有命中、受到麻痹的无法行动效果，与懒惰的回合不会在同一回合计算。
+烦恼种子、单纯光束、找伙伴对拥有该特性的宝可梦会使用失败。
+使用特殊招式或不可思议之玉就会变为暂停状态。
+在被敌人包围时会陷入打哈欠状态SMD。",truant,如果使出招式，下一回合就会休息。,懒惰
+55,攻击提升为原来的1.5倍，物理招式的命中率×0.8。,hustle,自己的攻击变高，但命中率会降低。,活力
+56,"异性宝可梦使用接触类招式攻击该特性的宝可梦时会有30%的机率着迷。
+连续招式的每一击都会单独触发该特性。
+在闯入对战中，能让入场宝可梦与队首宝可梦性别不同的概率变为50%。",cute-charm,有时会让接触到自己的对手着迷。,迷人之躯
+116,效果绝佳招式造成的伤害降低1⁄4。,solid-rock,受到效果绝佳的攻击时，可以减弱其威力。,坚硬岩石
+57,"场上己方同伴具有正电或负电特性时，特攻能力×1.5。
+磁场操控可令己方所有特性为正电或负电的宝可梦的防御和特防分别提升1级。辅助齿轮可令己方所有特性为正电或负电的宝可梦的攻击和特攻分别提升1级。",plus,出场的伙伴之间如果有正电或负电特性的宝可梦，自己的特攻会提高。,正电
+58,"场上己方同伴具有负电或正电特性时，特攻能力×1.5。
+磁场操控可令己方所有特性为负电或正电的宝可梦的防御和特防分别提升1级。辅助齿轮可令己方所有特性为负电或正电的宝可梦的攻击和特攻分别提升1级。",minus,出场的伙伴之间如果有正电或负电特性的宝可梦，自己的特攻会提高。,负电
+59,"飘浮泡泡的形态与属性根据天气而改变：
+- 在大晴天或大日照时，变为太阳的样子与火属性；
+- 在下雨或大雨时，变为雨水的样子与水属性；
+- 在冰雹天气时，变为雪云的样子与冰属性；
+- 在无关天气或气闸特性宝可梦在场或其他天气时，变为飘浮泡泡的样子与一般属性。
+该特性仅当拥有者为飘浮泡泡时有效，当飘浮泡泡失去该特性时形态变回一般属性的飘浮泡泡的样子。
+其他宝可梦对飘浮泡泡使用变身后，会变成飘浮泡泡当前的形态。",forecast,受天气的影响，会变为水属性、火属性或冰属性中的某一个。,阴晴不定
+60,"携带物品不会受到其他宝可梦以下招式的影响：
+- 渴望、小偷的夺取；
+- 戏法、掉包的交换；
+- 拍落不会使物品消失，但仍会受到拍落的伤害加成。
+- 虫咬、啄食的消耗。
+黏着特性不影响附着针。
+破格、兆级电压和涡轮火焰影响黏着特性。",sticky-hold,因为道具是粘在黏性身体上的，所以不会被对手夺走。,黏着
+61,在每回合结束时，有1⁄3的几率治愈自身除昏厥以外的异常状态。,shed-skin,通过蜕去身上的皮，有时会治愈异常状态。,蜕皮
+62,"该特性的宝可梦处于除昏厥以外的异常状态时，攻击提升50%，并无视灼伤的非固定伤害类物理招式威力变为原本的50%效果。
+该特性的宝可梦被冰冻时使用解除冰冻状态的招式，攻击不会提升。
+当宝可梦陷入任何异常状态（灼伤、麻痹、中毒、睡眠、封印、挑衅等）时攻击提升100%。",guts,如果变为异常状态，会拿出毅力，攻击会提高。,毅力
+63,"异常状态时防御上升为原来1.5倍。
+陷入异常状态时受到物理攻击防御上升50%。",marvel-scale,如果变为异常状态，神奇鳞片会发生反应，防御会提高。,神奇鳞片
+64,"该特性的宝可梦受到吸取ＨＰ的攻击招式的攻击时，攻击方本应回复的ＨＰ会改为受到同等的伤害。
+该特性的宝可梦被寄生种子状态吸取ＨＰ时，吸取方本应回复的ＨＰ会改为受到同等的伤害。
+如果攻击方携带大根茎，攻击方受到的伤害为会根据大根茎原本吸取提升而增加伤害。",liquid-ooze,吸收了污泥浆的对手会因强烈的恶臭而受到伤害，减少ＨＰ。,污泥浆
+65,"当ＨＰ小于1⁄3时，草属性招式的威力增长为1.5倍。
+当ＨＰ小于1⁄4时，草属性招式造成的伤害增长为2倍。",overgrow,ＨＰ减少的时候，草属性的招式威力会提高。,茂盛
+66,"当ＨＰ小于1⁄3时，火属性招式的威力增长为1.5倍。
+当ＨＰ小于1⁄4时，火属性招式造成的伤害增长为2倍。",blaze,ＨＰ减少的时候，火属性的招式威力会提高。,猛火
+67,"当ＨＰ小于1⁄3时，水属性招式的威力增长为1.5倍。
+当ＨＰ小于1⁄4时，水属性招式造成的伤害增长为2倍。",torrent,ＨＰ减少的时候，水属性的招式威力会提高。,激流
+68,"当ＨＰ不超过1⁄3时，虫属性招式的威力增长为1.5倍。
+当ＨＰ小于1⁄4时，虫属性招式造成的伤害增长为2倍。",swarm,ＨＰ减少的时候，虫属性的招式威力会提高。,虫之预感
+69,"不会受到自身招式的反作用力伤害。作用范围不包括（可能）按自身最大ＨＰ比例损伤自身的招式。
+此特性不影响生命宝珠的副作用。
+如果具有坚硬脑袋特性的宝可梦在使出这类招式后立即失去了此特性（例如使用闪焰冲锋攻击具有木乃伊特性的宝可梦），则仍然要受到反作用力伤害。",rock-head,即使使出会受反作用力伤害的招式，ＨＰ也不会减少。,坚硬脑袋
+70,"当该宝可梦登场时，天气转为大晴天并持续5回合。
+- 在携带了道具炽热岩石的情况下，大晴天会持续8回合。
+- 在大雨、大日照和乱流天气下，特性发动失败。
+- 如果有多只拥有可更换天气特性的宝可梦同时登场，那么将会按照宝可梦的速度依次发动特性改变天气，后者覆盖前者。发动失败的情况下除外。",drought,出场时，会将天气变为晴朗。,日照
+71,使对方所有非幽灵属性的地面上的宝可梦处于无法逃走状态，不能替换或逃走。,arena-trap,在战斗中让对手无法逃走。,沙穴
+72,"该特性的宝可梦不会陷入睡眠状态，另外睡觉招式会无效。
+拥有该特性的宝可梦无法在游戏同步中选择睡眠并被传送至宝可梦梦境世界。
+- 与达克莱伊的梦魇特性相斥。",vital-spirit,通过激发出干劲，不会变为睡眠状态。,干劲
+73,"在通常情况下，能力不会被对方及同伴的招式和特性降低（例如招式可怕面孔、特性威吓等）。
+白色烟雾特性不能阻止以下能力的降低方式：
+- 自身使用降低自身能力的招式：蛮力、臂锤等；
+- 自身携带降低能力的道具：黑色铁球等；
+- 降低能力的异常状态：麻痹、灼伤；
+- 与对方平分能力的招式：防守平分、力量平分；
+- 与对方交换能力的招式：心灵互换、防守互换、力量互换；
+- 与同行宝可梦传递能力的招式：接棒；
+- 改变能力的招式：颠倒；
+- 无视白色烟雾的特性：破格、涡轮火焰、兆级电压。",white-smoke,被白色烟雾保护着，不会被对手降低能力。,白色烟雾
+74,"伤害计算中，此宝可梦的攻击能力值×２。
+- 此效果不是能力变化。使用其他数据代替攻击能力值（如将对手的攻击能力值代替自身攻击能力值的移花接木、将自身的防御能力值代替自身攻击能力值的扑击）进行伤害计算的物理招式时，伤害计算中的攻击也会×２。
+每回合有1⁄3机率攻击提升50%。",pure-power,因瑜伽的力量，物理攻击的威力会变为２倍。,瑜伽之力
+75,不会被击中要害，即使是必定命中要害的招式也不会击中要害。,shell-armor,被坚硬的壳保护着，对手的攻击不会击中要害。,硬壳盔甲
+76,拥有该特性的宝可梦在场时，任何天气造成的影响无效。天气并不会消失。,air-lock,所有天气的影响都会消失。,气闸
+77,对拥有该特性且处于混乱状态的宝可梦使用招式时，命中率仅为原本的一半。,tangled-feet,在混乱状态时，闪避率会提高。,蹒跚
+78,"具有该特性的宝可梦不受电属性招式的影响，当被电属性的招式击中时，提升1级速度。
+- 该特性只能令自身不受电属性招式的影响，不能将电属性招式的目标转移至自身。
+- 该特性对电属性的变化招式有效。包括通过其他方式变为电属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的充电电池。",motor-drive,受到电属性的招式攻击时，不会受到伤害，而是速度会提高。,电气引擎
+263,拥有此特性的宝可梦使出的龙属性招式威力会提高50%。,dragons-maw,龙属性的招式威力会提高。,龙颚
+79,对手与自身性别相同时，招式威力提升25%；性别不同时威力下降25%。双方只要有一方为性别不明时，招式威力不变，群体对战的群体伤害中，多性别仍然为同性威力提升25%，不同性别威力下降25%。,rivalry,面对性别相同的对手，会燃起斗争心，变得更强。而面对性别不同的，则会变弱。,斗争心
+80,"该特性的宝可梦陷入畏缩状态后，速度提升1级。
+该特性的宝可梦进入弱视和畏缩状态时，速度提升1级。",steadfast,每次畏缩时，不屈之心就会燃起，速度也会提高。,不屈之心
+81,"天气处于冰雹或下雪状态时，闪避率提升20%。
+不具有冰属性的宝可梦获得该特性后不受冰雹天气的伤害。",snow-cloak,下雪天气时，闪避率会提高。,雪隐
+82,当宝可梦的ＨＰ不大于最大ＨＰ的1⁄2，而不是通常的1⁄4时，携带的树果就会被食用。,gluttony,原本ＨＰ变得很少时才会吃树果，在ＨＰ还有一半时就会把它吃掉。,贪吃鬼
+83,"当被击中要害时，攻击提升至+6阶级。
+处于替身状态下的宝可梦，无法发动该特性。",anger-point,要害被击中时，会大发雷霆，攻击力变为最大。,愤怒穴位
+84,"当失去携带物品时速度加倍。
+轻装特性发动中，如果获得新的道具、失去轻装特性或者被换下场，则效果消失。
+如果本来就没有携带物品，则轻装特性不发动。
+轻装特性引发的速度加倍状态不会被接棒传递。
+具该特性的宝可梦如无携带物品，每回合可以攻击2次且只消耗1ＰＰ。",unburden,失去所持有的道具时，速度会提高。,轻装
+85,"拥有该特性的宝可梦受到火属性招式攻击时，伤害计算中攻击方的攻击／特攻变为原本的1⁄2。
+- 第八世代及以前，拥有该特性的宝可梦受到火属性招式攻击时，此招式的威力变为原本的1⁄2。
+灼伤造成的伤害变为原本的1⁄2。
+- 灼伤的降低物理招式伤害效果对拥有该特性的宝可梦仍然有效。",heatproof,耐热的体质会让火属性的招式伤害减半。,耐热
+86,"该特性的宝可梦上升或下降能力变化变为原来的两倍。
+- 如果能力变化已经无法再提高或降低，尽管依然能使用改变能力的招式，但能力不会再改变。
+- 该特性在生效时不会展示该特性。
+- 通过接棒把能力变化传递给该特性的宝可梦时，能力变化不会加倍。
+- 若使用自我暗示对对方的能力变化进行复制，能力变化不会加倍。
+- 该特性对变化招式的Ｚ力量效果无效。例如在使用Ｚ重力时，特攻只会上升 1 级 。
+- 该特性对极巨招式产生的变化效果有效。",simple,能力变化会变为平时的２倍。,单纯
+87,"具有该特性的宝可梦不受水属性招式的影响，当被水属性的招式击中时，回复最大ＨＰ的1⁄4。
+- 该特性只能令自身不受水属性招式的影响，不能将水属性招式的目标转移至自身。
+- 该特性对水属性的变化招式有效。包括通过其他方式变为水属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的球根或光苔。
+- 该特性的宝可梦进入守住状态无法通过被水属性招式击中回复ＨＰ。
+在下雨或大雨天气下，该特性的宝可梦每回合回复最大ＨＰ的1⁄8。
+该特性的宝可梦受到火属性招式攻击的话，会受到1.25倍的伤害。
+在大晴天或大日照天气下，该特性的宝可梦每回合失去最大ＨＰ的1⁄8。",dry-skin,下雨天气时和受到水属性的招式时，ＨＰ会回复。晴朗天气时和受到火属性的招式时，ＨＰ会减少。,干燥皮肤
+88,"该特性的宝可梦出场时，对手防御小于特防时，自身攻击提升1级；对手防御大于或等于特防时，自身特攻提升1级。
+在双打对战及三打对战时，用对方所有宝可梦的防御总和与特防总和来计算。
+该特性会受到能力变化与力量戏法状态的影响。
+该特性不会受到携带的道具、沙暴天气对岩石属性的特防加成、影响能力但不影响能力变化的特性（例如神奇鳞片）以及奇妙空间状态的影响。",download,比较对手的防御和特防，根据较低的那项能力相应地提高自己的攻击或特攻。,下载
+89,拳类招式的威力上升20%。,iron-fist,使用拳类招式的威力会提高。,铁拳
+90,"在中毒和剧毒状态下，ＨＰ不会因为中毒而减少；每回合回复最大ＨＰ的1⁄8。
+剧毒状态的伤害计数会在每次行动后增加，失去毒疗特性后剧毒状态的伤害计数不会重置。",poison-heal,变为中毒状态时，ＨＰ不会减少，反而会增加起来。,毒疗
+91,"属性一致加成对攻击招式威力的提升从原本的1.5倍提升至2倍。
+如果具有此特性的宝可梦进行了太晶化，则:
+- 适应力只影响太晶属性的招式，如果太晶属性是自身原属性之一，则提升为2.25倍，否则为2倍；
+- 星晶属性招式不受适应力影响。",adaptability,与自身同属性的招式威力会提高。,适应力
+92,"使用攻击次数浮动在2～5次之间的连续招式时，攻击次数会固定在5次。使用三连踢、三旋击或鼠数儿时，只计算一次命中率。
+- 即使发动攻击的宝可梦的特性在中途失去连续攻击特性（如变为木乃伊特性），仍然会继续攻击最大次数。",skill-link,如果使用连续招式，总是能使出最高次数。,连续攻击
+93,"该特性的宝可梦在下雨时，该回合最后会解除所有异常状态。
+处于瞌睡状态的该特性宝可梦，由于回合结束时，先触发湿润之躯，因此在下雨时也会进入睡眠，睡眠后的下一回合若还在下雨，则可触发湿润之躯解除睡眠。",hydration,下雨天气时，异常状态会治愈。,湿润之躯
+94,大晴天和大日照天气下特攻增至1.5倍，但每回合损失最大ＨＰ的1⁄8。,solar-power,晴朗天气时，特攻会提高，而每回合ＨＰ会减少。,太阳之力
+95,"陷入异常状态时速度提升50%，并无视麻痹降低速度的效果。异常状态恢复或失去特性时速度恢复。
+陷入异常状态时速度提升1级。",quick-feet,变为异常状态时，速度会提高。,飞毛腿
+96,"所有非一般属性的招式属性均变为一般属性，所有因此特性变成一般属性和本身就是一般属性的招式都会威力变为1.2倍。
+该特性的一般属性宝可梦使出受此效果的攻击招式具有属性一致加成，相当于1.2×1.5=1.8，并且能消耗一般宝石增加招式威力。
+该特性的宝可梦使用对原属性没有效果的招式，依然产生效果。例如：使用电磁波可使地面属性宝可梦麻痹。
+该特性的宝可梦使用冷冻干燥，仍会触发招式特效，即对水属性宝可梦的相性为2×。
+变化招式的Ｚ招式会受到该特性的影响，变为一般属性。
+该特性的宝可梦使用飞身重压，招式会变为一般属性和飞行属性，但只对一般属性的宝可梦计算属性一致加成。
+以下情况不会受到该特性的影响：
+- 会改变属性的一般属性招式，如觉醒力量、自然之恩、制裁光砾等招式；
+- 攻击招式的Ｚ招式不受此特性的影响；
+- 该特性的宝可梦进入输电状态或者受到等离子浴的影响后，使出的招式变为电属性。",normalize,无论是什么属性的招式，全部会变为一般属性。威力会少量提高。,一般皮肤
+97,攻击击中要害时伤害为正常击中要害伤害的1.5倍。即伤害变为未击中要害时的2.25倍。,sniper,击中要害时，威力会变得更强。,狙击手
+98,"不会受到天气、道具、特性、异常状态、状态变化、除挣扎之外的反作用力伤害的招式等造成的伤害。
+- 非伤害效果仍然保留：例如灼伤状态的攻击减半效果，剧毒状态的伤害计数增加，生命宝珠对招式威力的增幅作用。
+- 由于未受到寄生种子的伤害，对手也不会回复ＨＰ。
+下列会减少ＨＰ的效果不能被此特性防止：
+- 招式的副作用：
+由于使用咒术、替身、腹鼓、分担痛楚而失去ＨＰ
+由同命、终焉之歌直接导致的昏厥状态
+造成自身陷入昏厥状态的招式
+- 由于挣扎而受到的反作用力伤害
+- 由于混乱而对自己造成的伤害
+在第四世代中，在对战外中毒依然会减少ＨＰ。",magic-guard,不会受到攻击以外的伤害。,魔法防守
+99,"该特性宝可梦使用的招式与以该特性宝可梦为目标的招式都一定会命中，包括在飞翔、挖洞等情况的宝可梦都可以被击中，除非这只宝可梦因发号施令特性在吃吼霸的口中。
+只会影响命中，不能穿透守住、快速防守、广域防守的保护。",no-guard,由于无防守战术，双方使出的招式都必定会击中。,无防守
+141,每回合结束时攻击、防御、特攻、特防、速度中随机一项提升2级，随机另一项降低1级。,moody,每一回合，能力中的某项会大幅提高，而某项会降低。,心情不定
+100,"在其他宝可梦使用的招式的优先度与自身使用的招式的优先度相同的情况下，拥有该特性的宝可梦一定后使用招式。当多只宝可梦同时具有该特性时，优先度仍由速度低的先使用招式。
+慢出特性在场上宝可梦携带有后攻之尾与饱腹薰香时无效。该特性的宝可梦携带了先制之爪或释陀果并触发时，慢出不影响其效果。
+慢出特性的宝可梦与戏法空间同时在场，慢出特性的宝可梦仍最后使用招式。
+获得或失去该特性，被无特性覆盖或解除无特性，该特性的影响在操作的下一回合才能生效。
+除队长外该特性的宝可梦只会命中面前的对手。TS",stall,使出招式的顺序必定会变为最后。,慢出
+101,"使用威力小于等于60的招式，威力提升原来的50%。只计算招式自身的效果对威力的影响，不计算道具、特性等其它任何的效果。
+- 连续招式按单独每次攻击时威力判断是否触发该特性。
+- 当雪崩的伤害因为受到对手的招式攻击而翻倍时，技术高手将不会生效。
+- 当杂技的伤害因为没有携带物品而翻倍时，技术高手将不会生效。
+- 当气象球的伤害因为天气而翻倍时，技术高手将不会生效。
+- 当大地波动的伤害因为场地型状态而翻倍时，技术高手将不会生效。
+- 当追打的伤害因为目标在本回合内准备替换下场而伤害翻倍，技术高手将不会生效。",technician,攻击时可以将低威力招式的威力提高。,技术高手
+102,"天气是大晴天和大日照时不会陷入异常状态。
+不会治愈异常状态。",leaf-guard,晴朗天气时，不会变为异常状态。,叶子防守
+103,"携带物品的能力失效（包括负面效果）。
+拥有笨拙特性的宝可梦无法使用投掷，但能够使用掉包及戏法。
+如果该特性的宝可梦使用能通过道具改变招式属性的招式时（如制裁光砾），招式为一般属性。
+以下道具依然有效：
+- 超级石、朱红色宝珠、靛蓝色宝珠和Ｚ纯晶；
+- 影响基础点数、经验值和亲密度的携带物品（如护符金币、幸运蛋、力量负重、安抚之铃等）；
+- 携带物品的对战外效果（如不变之石、洁净之符、头巾等）。",klutz,无法使用持有的道具。,笨拙
+104,"拥有该特性的宝可梦使出招式时能够使目标自身、目标同伴以及自身同伴的一部分特性失效。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]打破了常规！。
+当拥有该特性的宝可梦强制拉对手的备战宝可梦上场时，上场的备战宝可梦的特性不会对场上的毒菱、撒菱和黏黏网状态生效。
+- 这是破格特性唯一能够令魔法防守特性失效的情况。
+宝可梦仅仅在受到招式影响时，它的特性才有可能因招式施加方拥有破格特性而失效。对于某些特性在受到招式影响以外的时间产生的效果，或者对于不在受到招式影响时发动的特性，破格特性没有任何作用。
+以下特性不会受到破格影响：
+- 魔法防守、金属防护、幻影防守、棱镜装甲、界限盾壳、绝对睡眠等属于特性都是在受到招式影响时发动效果的。
+- 同伴的胜利之星、蓄电池、能量点和钢之意志特性。
+- 压迫感、妖精气场、暗黑气场、气场破坏等会对场上所有宝可梦产生作用的特性不会受到破格。
+- 静电、孢子、火焰之躯、毒刺、迷人之躯、咒术之躯、木乃伊、粗糙皮肤、铁刺、不服输、好胜等在对方使用招式之后才发动的特性不会受到破格特性影响。",mold-breaker,可以不受对手特性的干扰，向对手使出招式。,破格
+105,击中要害等级提升1级。可以与要害攻击、聚气叠加。,super-luck,因为拥有超幸运，攻击容易击中对手的要害。,超幸运
+106,"当拥有这个特性的宝可梦被接触类招式击倒时，发动攻击的宝可梦将损失最大ＨＰ的1⁄4。
+若场上有湿气特性的宝可梦，诱爆特性无效。",aftermath,变为濒死时，会对接触到自己的对手造成伤害。,引爆
+107,"对战开始时，当对手拥有效果绝佳、一击必杀招式、玉石俱碎或大爆炸时会发出警告：<宝可梦的名字>发抖了！。
+其中把制裁光砾、气象球、自然之恩、双倍奉还、金属爆炸、镜面反射、高科技光炮、多属性攻击、觉醒之舞、大地波动都视作游戏中显示的属性。
+危险预知不把乱流下的属性相性计入。
+冷冻干燥被视作冰属性招式，对水属性宝可梦造成的效果绝佳不考虑在内。
+飞身重压被视作格斗属性招式，飞行属性的相性不考虑在内。",anticipation,可以察觉到对手拥有的危险招式。,危险预知
+108,"预知对手威力最强的招式，双打对战中会预知对方2只宝可梦中威力最强的招式。如果这样的招式有多个，将会随机预知一个。
+提示为：读取了<宝可梦的名字>的<招式名称>！
+变化招式的威力视为1。
+基础威力为“变化”的非变化招式，威力根据以下取值。
+拥有该特性的宝可梦可以随机回避攻击，即使是攻击必定会命中的招式。TS",forewarn,出场时，只读取１个对手拥有的招式。,预知梦
+109,"拥有该特性的宝可梦使用招式攻击目标时，无视目标防御、特防和闪避率的能力变化；受到目标的招式攻击时，无视目标的攻击、特攻和命中率的能力变化。
+- 拥有该特性的宝可梦使用移花接木攻击目标时，无视目标防御的能力变化；受到移花接木攻击时，无视自身攻击的能力变化。
+- 拥有该特性的宝可梦受到扑击攻击时，无视目标防御的能力变化。
+- 该特性只在命中和伤害的计算过程中无视目标的能力变化，故：
+不会影响因能力变化而改变的陀螺球、电球、辅助力量、嚣张和惩罚等招式的威力；
+使用吸取力量回复的ＨＰ会根据目标攻击的能力变化而计算。
+- 因混乱而攻击自身时，不会无视自身的能力变化。",unaware,可以无视对手能力的变化，进行攻击。,纯朴
+110,该特性的宝可梦自身发动效果不理想（属性克制≤1⁄2时）的招式伤害×2。,tinted-lens,可以将效果不好的招式以通常的威力使出。,有色眼镜
+111,效果绝佳招式造成的伤害降低1⁄4。,filter,受到效果绝佳的攻击时，可以减弱其威力。,过滤
+112,该特性的宝可梦上场的前五回合物理招式的伤害和速度能力减半。,slow-start,在５回合内，攻击和速度减半。,慢启动
+113,"拥有该特性的宝可梦使用一般属性及格斗属性招式可以命中幽灵属性宝可梦，属性相性改为×1，另一属性参与计算。
+拥有该特性的宝可梦不会受到威吓的影响。",scrappy,一般属性和格斗属性的招式可以击中幽灵属性的宝可梦。对威吓也毫不动摇。,胆量
+114,"具有该特性的宝可梦不受水属性招式的影响，当被水属性的招式击中时，提升1级特攻。
+场上其他宝可梦（包括同伴）使出的作用范围为单体的水属性招式的目标强制转移至该特性的宝可梦。若场上有多只宝可梦拥有此特性，将吸引到速度较高的那只。万众瞩目可以覆盖这个效果。螺旋尾鳍、坚毅、狙击可以无视这个效果。
+- 即使处于守住状态，依然能够吸引水属性的招式，但特攻不会提升。
+- 该特性对水属性的变化招式有效。包括通过其他方式变为水属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦无法触发自身携带的球根或光苔。
+- 可以吸引同伴的极巨水流，即便极巨水流无法直接对同伴使用。
+拥有该特性的宝可梦吸收整层的敌人的水属性招式，使其效果无效化。敌方队伍如果也有拥有引水特性的宝可梦，可以使我方的效果无效化。TS",storm-drain,将水属性的招式引到自己身上，不会受到伤害，而是会提高特攻。,引水
+115,"天气处于冰雹或下雪状态时，每回合结束时回复最大ＨＰ的1⁄16。
+不具有冰属性的宝可梦获得该特性后不受冰雹天气的伤害。",ice-body,下雪天气时，会缓缓回复ＨＰ。,冰冻之躯
+142,该特性的宝可梦不会受到沙暴和冰雹天气带来的负面影响，对粉末类招式免疫。,overcoat,不会受到沙暴的伤害。也不会受到粉末类和孢子类招式的影响。,防尘
+117,"当该宝可梦登场时，天气转为下雪并持续5回合。
+- 在携带了道具冰冷岩石的情况下，下雪会持续8回合。
+- 在大雨、大日照和乱流天气下，特性发动失败。
+- 如果有多只拥有可更换天气特性的宝可梦同时登场，那么将会按照宝可梦的速度依次发动特性改变天气，后者覆盖前者。发动失败的情况下除外。",snow-warning,出场时，会将天气变为下雪。,降雪
+118,"在对战结束后，如果拥有该特性的宝可梦没有携带物品，那么它可能采到甜甜蜜，等级越高采到甜甜蜜的几率越高。
+以下为各等级采到甜甜蜜的概率表。
+拥有该特性的宝可梦得到宝箱后，提升该宝箱开出蜂蜜的概率。",honey-gather,战斗结束时，有时候会捡来甜甜蜜。,采蜜
+119,"该特性的宝可梦出场后，察觉全部对手携带的道具。如果对手没有携带物品，则不会出现任何提示。如果对手有携带物品，则会有一个提示出现：<宝可梦的名字>察觉到了<对手宝可梦的名字>的<道具名称>！如果对手不止一个，还会出现提示：连<对手宝可梦的名字>携带的<道具名称>也察觉到了！。
+对手交换宝可梦后，不管交换上场的宝可梦有没有携带道具，特性均无法发动。",frisk,出场时，可以察觉对手的持有物。,察觉
+120,"使用具有反作用力伤害的招式时，招式威力提升20%。作用范围包括飞踢、飞膝踢、下压踢和闪电强袭，但不包括挣扎、惊爆大头、铁蹄光线和叶绿爆震。
+使受到作用的招式的基础威力翻倍。",reckless,自己会因反作用力受伤的招式，其威力会提高。,舍身
+121,"宝可梦携带相应石板或Ｚ纯晶时改变属性。
+拥有该特性的宝可梦在对战中不能获得或失去石板。",multitype,自己的属性会根据持有的石板而改变。,多属性
+122,"在大晴天或大日照天气时，己方所有宝可梦攻击与特防提升50%，樱花儿的形态会从阴天形态变为晴天形态。
+该特性仅当拥有者为樱花儿时有效，当樱花儿失去该特性时会变回阴天形态。",flower-gift,晴朗天气时，自己与同伴的攻击和特防能力会提高。,花之礼
+123,每个回合结束时，所有处于睡眠状态或者具有特性绝对睡眠的对手宝可梦的ＨＰ损失最大ＨＰ的1⁄8。,bad-dreams,给予睡眠状态的对手伤害。,梦魇
+124,"当该特性的宝可梦未携带任何道具时受到接触类招式攻击，可以获得对手的道具。
+该特性对黏着特性的宝可梦无效。野生宝可梦不会发动该特性。该特性的宝可梦被接触类招式击倒时不发动该特性。
+该特性的宝可梦受到接触类连续招式（如扫尾拍打）时，最后一次攻击发动特性。如果多个拥有该特性的宝可梦被同一接触类招式（如狂舞挥打）命中并满足特性发动条件时，速度最快的宝可梦获得对方的道具。
+该特性可以在自身的道具因接触类招式转移到攻击方身上之后（如通过对方的魔术师特性，小偷等招式，以及自身的附着针等）立即发动将该道具取回。
+该特性的宝可梦所携带的特定物品如果在受到攻击时立即消耗（如被拍落，或发动气势披带，弱点保险等），会在消耗后立即偷取攻击方的道具。
+以下道具无法偷取：
+- 邮件；
+- 阿尔宙斯携带的石板；
+- 盖诺赛克特携带的卡带；
+- 银伴战兽携带的存储碟；
+- 帝牙卢卡携带的大金刚宝玉；
+- 帕路奇亚携带的大白宝玉；
+- 骑拉帝纳携带的大白金宝玉；
+- 固拉多携带的朱红色宝珠；
+- 盖欧卡携带的靛蓝色宝珠；
+- 能够超级进化宝可梦携带的超级石；
+- Ｚ纯晶；
+- 苍响携带的腐朽的剑；
+- 藏玛然特携带的腐朽的盾；
+- 厄诡椪携带的面具。",pickpocket,盗取接触到自己的对手的道具。,顺手牵羊
+125,"附带追加效果的攻击招式的威力提升30%，但这些招式的追加效果不再发动。
+- 对王者之证、锐利之牙和投掷道具带来的效果无效，这些效果能够正常发动，并且招式的威力也不会因此上升。
+- 对极巨招式无效。
+- 对千波激荡、紧咬不放两个造成无法逃走状态的招式无效，但对缝影、掷锚有效。
+- 对上菜能提升招式威力，但追加效果仍然能正常发动。
+- 在《朱／紫》Ver2.0.1前，对喷射拳能提升招式威力，尽管该招式无附带追加效果。
+- 对电光束能提升招式威力，尽管该招式无附带追加效果。
+如果攻击方发动了强行特性，下列在伤害计算后才处理的效果会被忽略：
+- 防御方的变色、怒火冲天、跃跃欲逃、危险回避、顺手牵羊特性；
+- 防御方的陷阱甲壳招式的触发；
+- 攻击方携带的贝壳之铃、防御方携带的红牌、逃脱按键、亚开果、香罗果；
+- 攻击方的生命宝珠的损失ＨＰ的副作用，但不包括增加招式威力的效果。",sheer-force,招式的追加效果消失，但因此能以更高的威力使出招式。,强行
+126,"该特性的宝可梦受到的能力变化变为原本的反向。上升变为下降，下降变为上升。包括受到对方的特性（如威吓）、招式（如摇尾巴）的影响，以及自身使用降低使用者能力的招式带来的影响。
+- 通过接棒或自我暗示传递的能力变化会正常保留。
+- 麻痹或灼伤造成的能力降低不受影响。
+- 唱反调的判定优先于白雾、能力防守和花幕。
+- 使用腹鼓会令攻击能力等级变为↓↓↓↓↓↓，并降低ＨＰ。
+- 变化招式变为Ｚ招式后，Ｚ力量效果附加的能力变化不受该特性的影响。
+例如，变圆变为Ｚ招式后，Ｚ力量效果的命中率↑不受该特性的影响，而招式本身的防御↑效果仍会因为唱反调而变成↓。
+由攻击招式变为的Ｚ招式，如九彩升华齐聚顶、炽魂热舞烈音爆，其附加的能力变化仍会因为该特性而反向变动。",contrary,能力的变化发生逆转，原本提高时会降低，而原本降低时会提高。,唱反调
+127,"对手的宝可梦无法使用树果。
+该特性的宝可梦使用虫咬、啄食攻击对方，依然能获得树果效果。
+紧张感特性在上场时发动，且必定先于其他特性（不包括化学变化气体）。通过复制、找伙伴、特性互换得到的紧张感则不会立即发动，而会等到场上有宝可梦登场后才优先发动。
+紧张感特性的宝可梦一离场（替换、倒下），特性的效果消失的瞬间树果就会发动效果。
+紧张感特性阻碍回复ＨＰ的树果发动效果的情况下，紧张感特性的宝可梦受到同伴的全场攻击招式的伤害倒下后，同回合内对手也受到该招式的伤害，在昏厥判定前树果的效果会发动，回复ＨＰ，最终导致对手虽然ＨＰ变为了0但是由于随后树果的回复而没有陷入昏厥状态。
+- 在第五世代，结算顺序有些不同，紧张感的宝可梦一倒下对手的树果就会立刻发动效果回复ＨＰ，随后再计算受到的该全场攻击招式的伤害，且伤害会大幅减少，但结果还是一样，不会陷入昏厥状态，最终剩余的ＨＰ等于ＨＰ为0的状态下树果回复的ＨＰ量。
+- 只有在对手的ＨＰ变为0之前，对手的ＨＰ在树果可以发动效果的范围之内才会出现此现象。
+- 紧张感特性的宝可梦使用玉石俱碎或者大爆炸令对手的ＨＰ变为0的情况下也会出现此现象。
+以下招式或特性不受该特性的影响：
+- 茶会
+- 大快朵颐
+- 反刍
+增加闯入对战发生的几率。",unnerve,让对手紧张，使其无法食用树果。,紧张感
+128,"能力变化被对手降低时，每降低一种能力，攻击就会提升2级。若有多个能力被下降，那么上升攻击的阶级相应增加。
+下列情况将触发此特性：
+- 受到对手的招式影响导致能力变化降低（例如受到清除浓雾）。
+- 受到对手的特性影响导致能力变化降低（例如受到威吓）。
+- 踩到对手撒出的黏黏网导致速度降低。
+- 极巨团体战中神秘障壁被打破导致防御和特防降低，会触发两次。
+下列情况不能触发此特性：
+- 由于招式的副作用导致能力变化降低（例如使用近身战）。
+- 双打对战中由队友使用招式导致能力变化降低（例如使用抛下狠话、糖浆炸弹）
+- 由于道具的作用导致能力变化降低（例如发动客房服务）",defiant,被对手降低能力时，攻击会大幅提高。,不服输
+129,该特性的宝可梦ＨＰ不足1⁄2时，攻击与特攻降为1⁄2。,defeatist,ＨＰ减半时，会变得软弱，攻击和特攻会减半。,软弱
+130,"该特性的宝可梦受到攻击时，有30%几率使目标陷入定身法状态。
+以下情况时该特性仍能发动：
+- 攻击方处于替身状态；
+- 该特性的宝可梦因攻击而陷入昏厥状态；
+- 攻击方为同伴宝可梦。
+连续招式的每次攻击都可能触发该特性，陷入定身法状态之后剩余的攻击次数仍会正常进行。
+目标通过招式Ａ（如挥指、梦话）间接使出了攻击招式Ｂ，则触发特性时招式Ａ会陷入定身法状态。
+- 若间接使出的招式Ｂ为蓄力的招式，则陷入定身法状态的是蓄力的招式。被定身法后通过通过A招式再次使出这个蓄力的招式，只有蓄力的回合能正常进行，蓄力后的回合会因为定身法状态而攻击失败。
+该特性对Ｚ招式生效，但陷入定身法状态的是Ｚ招式而不是原本的招式。
+- 如果是变化招式升级成的Ｚ招式（例如Ｚ自然之力），则陷入定身法状态的是原本招式。
+拥有该特性的宝可梦在替身状态下时特性不会发动。",cursed-body,受到攻击时，有时会把对手的招式变为定身法状态。,诅咒之躯
+131,在双打和三打对战中，每回合结束有30%的机率治愈一名同伴的异常状态。,healer,有时会治愈异常状态的同伴。,治愈之心
+132,"己方场上除自己以外的宝可梦受到的招式直接造成的伤害减少1⁄4。
+如果自身场上有多个拥有该特性的宝可梦，特性效果可以叠加。
+如在三打对战中有两只拥有友情防守的宝可梦，则另外一只宝可梦受到的伤害就会减少为原来的3⁄4 × 3⁄4 = 9⁄16。",friend-guard,可以减少我方的伤害。,友情防守
+133,受到物理招式攻击时，防御降低1级，速度提升2级。物理连续招式的每一击都会触发此特性。,weak-armor,受到物理招式的伤害时，防御会降低，速度会大幅提高。,碎裂铠甲
+134,自身体重变为正常的两倍。,heavy-metal,自身的重量会变为２倍。,重金属
+135,自身体重变为正常的一半。,light-metal,自身的重量会减半。,轻金属
+136,ＨＰ全满时，受到的攻击伤害减为原来的1⁄2。,multiscale,ＨＰ全满时，受到的伤害会变少。,多重鳞片
+137,中毒或剧毒状态时，攻击力增加50%。,toxic-boost,变为中毒状态时，物理招式的威力会提高。,中毒激升
+138,拥有有该特性的宝可梦陷入灼伤状态时，特攻上升50%。,flare-boost,变为灼伤状态时，特殊招式的威力会提高。,受热激升
+139,"每回合结束有50%机率获得使用过的树果（包括对方宝可梦携带，但被该特性的宝可梦使用），大晴天或大日照下几率为100%。
+收获特性每回合最多触发一次。如果携带的树果在再次获得后立即被消耗，直到下一次收获能再次触发。
+如果超过一个宝可梦有收获特性，速度快的宝可梦先获得使用过的树果。
+收获特性无法重复获得被其他宝可梦使用的树果。例如对方宝可梦使用了虫咬。",harvest,可以多次制作出已被使用掉的树果。,收获
+140,该特性的宝可梦不会被同伴的物理招式和特殊招式命中。例如：在双打对战中，同伴对自身以外的宝可梦使用放电，该特性宝可梦不会受到攻击。,telepathy,读取我方的攻击，并闪避其招式伤害。,心灵感应
+143,"该特性的宝可梦使用接触类招式时，有30%的概率使目标陷入中毒状态。
+- 连续招式每次攻击时都可能使目标中毒。
+- 该特性使目标陷入中毒状态的概率不受彩虹状态影响。
+- 该特性的触发在招式的附加效果之后单独判定。
+例如，该特性的宝可梦使用毒击时，优先判定招式30%概率使目标中毒的附加效果。若未触发，则继续判定毒手特性。
+- 若招式的附加效果造成的异常状态能被目标的道具治愈，该特性在目标道具治愈之后判定。
+例如，该特性的宝可梦使用毒击时，目标因招式的附加效果陷入了中毒状态，此时目标的中毒状态因携带的木子果治愈，治愈后继续判定毒手特性。
+- 拍落、小偷、渴望、虫咬或啄食的附加效果在该特性判定之后发动。若该特性引发的异常状态被目标携带的道具治愈，这些招式的附加效果不发动。
+第六世代后，若毒手造成的异常状态被目标携带的道具治愈，拍落造成的伤害也会×1.5。
+- 若拥有该特性的宝可梦使用流星闪冲或日光回旋下苍穹，则该特性能使拥有鳞粉、免疫或受叶子防守和花幕影响而不会陷入中毒状态的目标陷入中毒状态。
+这种情况下，该特性仍然不能使拥有界限盾壳和绝对睡眠特性或因特性以外的效果不受中毒状态的目标陷入中毒状态。
+- 若拥有该特性的宝可梦使用如狂舞挥打或广域破坏等能命中多个目标的接触类招式，则该特性的判定顺序为：己方的另一只宝可梦→对手视角中，对手左侧的对方宝可梦（己方视角中，己方右侧的对方宝可梦）→对手视角中，对手右侧的对方宝可梦（己方视角中，己方左侧的对方宝可梦）
+- 若目标的特性为木乃伊、甩不掉的气味或游魂，该特性的判定会先于这些特性发动。
+若拥有该特性的宝可梦使用能命中多个目标的接触类招式时，因己方宝可梦的上述特性而失去该特性，则令目标中毒的判定不会对对方宝可梦发动；因对方宝可梦的上述特性而失去该特性，令目标中毒的判定仍然会对对方宝可梦发动。
+- 若目标的拥有特性粗糙皮肤、铁刺、诱爆、飞出的内在物、一口导弹或携带道具凸凸头盔、嘉珍果、雾莲果时，该特性令目标中毒的效果会在这些令攻击方损失ＨＰ的效果之前判定。
+若拥有该特性的宝可梦使用能命中多个目标的接触类招式时，因己方宝可梦的上述效果而陷入昏厥状态，则令目标中毒的判定不会对对方宝可梦发动；因对方宝可梦的上述特性而陷入昏厥状态，令目标中毒的判定仍然会对对方宝可梦发动。
+若目标因巴投、龙尾、逃脱按键或避难背包的效果切换下场，该特性令目标中毒的效果会在目标切换下场之前判定。
+- 若拥有该特性的宝可梦因反作用力伤害的招式或生命宝珠陷入昏厥状态，该特性也会发动。
+若招式对目标没有效果，该特性不会发动。
+- 目标在ＨＰ为１时使用挺住，或因画皮或结冻头等效果影响令招式成功命中而造成的伤害为0时，该特性会发动。
+若目标不会陷入中毒状态，该特性不会发动。
+若目标处于替身状态，该特性不会发动。
+若拥有该特性的宝可梦使用的招式不为接触类招式，该特性不会发动。
+- 拥有该特性的宝可梦携带部位护具使用接触类招式时，该特性会发动。
+- 拥有该特性的宝可梦携带拳击手套使用拳类招式时，该特性不会发动；使用非拳类招式的接触类招式时，该特性会发动。
+若目标特性为鳞粉或携带了密探斗篷，该特性不会发动。
+若场上存在特性为化学变化气体的宝可梦，该特性不会发动。
+- 若拥有该特性的宝可梦使用能命中多个目标的接触类招式时，命中己方拥有化学变化气体的宝可梦令其陷入昏厥状态，则该特性会对对方宝可梦发动；命中对方拥有化学变化气体的宝可梦令其陷入昏厥状态，该特性仍然不会对剩余的对方宝可梦发动。",poison-touch,只通过接触就有可能让对手变为中毒状态。,毒手
+144,"交换下场时，回复自身最大ＨＰ的1⁄3。
+如果在特性受到影响时离场，先判定再生力特性的ＨＰ回复再恢复特性。因此，受无特性或特性互换等效果影响而失去再生力特性的宝可梦离场时不回复ＨＰ。通过特性互换或复制获得再生力特性后离场时回复ＨＰ。
+再生力特性不受回复封锁影响。",regenerator,退回同行队伍后，ＨＰ会少量回复。,再生力
+145,该特性的宝可梦的防御能力不会下降。,big-pecks,不会受到防御降低的效果。,健壮胸肌
+146,"沙暴天气时，速度能力变为原来的2倍。
+拥有该特性的宝可梦不受沙暴天气的伤害。",sand-rush,沙暴天气时，速度会提高。,拨沙
+147,变化招式对该特性的宝可梦命中率减少为50%。如果原本的命中率已低于50%，则不会减少。,wonder-skin,成为不易受到变化招式攻击的身体。,奇迹皮肤
+148,"如果其他所有宝可梦的行动都在自己之前，则自己使用的招式的威力提高30%。
+如果其他所有宝可梦都是在本回合替换上场的，分析特性也能发动。",analytic,如果在最后使出招式，招式的威力会提高。,分析
+149,"出场时幻化为同行宝可梦中最后一只有战斗能力的宝可梦的样子，受到攻击招式伤害时，消除幻觉效果。
+- 此外，使用Ｚ招式后或失去幻觉特性，会消除幻觉效果。
+- 处于幻觉状态中的宝可梦可以极巨化，同时不会消除幻觉效果，但幻化成苍响、藏玛然特及无极汰那时无法极巨化。
+- 处于幻觉状态中的宝可梦可以太晶化，除了幻化为厄诡椪、太乐巴戈斯以外，不会消除幻觉效果。
+幻化为厄诡椪、太乐巴戈斯时，就算太晶属性为该形态仅有的太晶属性（例如太晶属性为草，且幻化为碧草面具厄诡椪），一旦太晶化也会消除幻觉效果。
+拥有这个特性的宝可梦变身时，会连形态、性别、称呼对象的昵称（仅限和朋友对战时）、根据体重而变化的出场落地特效、是否为异色以及精灵球的种类都一并变化，但唯独等级显示的是自身的等级。
+- 替换宝可梦会导致同行宝可梦的排序改变，幻觉特性以交换前的宝可梦顺序决定。如果同行宝可梦中最后一只不处于昏厥状态的宝可梦是幻觉宝可梦本身，幻觉特性不会发动。
+- 幻化仅改变外观和名称，实际属性相克、特性、招式与性别维持不变。但会影响训练家类型AI下达的对战命令。
+对幻觉状态下的宝可梦使用变身会失败，对幻觉特性的宝可梦使用变身后，不会发动该特性，并无法发动变身者。
+在《朱／紫》中，拥有该特性的野生宝可梦会幻化为附近的野生宝可梦的样子，并在进入对战后消除幻觉效果，以原本的形态显示。",illusion,假扮成同行队伍中的最后一只宝可梦出场，迷惑对手。,幻觉
+150,"登场时以对手对应位置的宝可梦为目标进入变身状态。在皇家对战中，以该特性宝可梦的正对面位置为目标进入变身状态。
+如果目标处于幻觉之下、变身状态、替身的保护下，或者目标位置没有宝可梦，则变身者特性发动失败。
+如果目标是太晶化的厄诡椪，或是自身已太晶化且目标是厄诡椪，则变身者特性发动失败。
+如果目标是太晶化的太乐巴戈斯，或是自身已太晶化且目标是太乐巴戈斯，则变身者特性发动失败。",imposter,变身为当前面对的宝可梦。,变身者
+151,"该特性的宝可梦不受对方的反射壁、光墙、神秘守护、白雾、替身和极光幕状态影响。
+如果使用的招式是变身或者自由落体，仍然不能穿透替身。",infiltrator,可以穿透对手的壁障或替身进行攻击。,穿透
+152,"受到接触类招式攻击时，攻击方的特性变为木乃伊。
+如果该接触类招式是连续招式，在第一下攻击后攻击方的特性会变为木乃伊，并且与增减招式伤害无关的特性效果在攻击结束前仍旧存在。
+- 连续攻击特性变为木乃伊后，仍然会继续攻击最大次数。
+- 亲子爱特性变为木乃伊后，仍然会继续攻击第二次，并且第二击的威力仍然是第一击的1⁄4。
+- 胆量特性变为木乃伊后，如果使用的连续招式是一般属性或格斗属性，从第二下开始的攻击仍然能打中幽灵属性。
+- 诸如毅力、大力士之类能增减招式伤害的特性变为木乃伊后，这类特性的效果会立刻消失。
+如果拥有坚硬脑袋特性的宝可梦使用了反作用力伤害的招式，则仍然要受到反作用力伤害。
+如果攻击方特性为甩不掉的气味或无法被覆盖的特性，如多属性、达摩模式、战斗切换、界限盾壳、鱼群、画皮、结冻头、牵绊变身、群聚变形、绝对睡眠、ＡＲ系统、一口导弹、人马一体、全能变身、发号施令、古代活性、夸克充能、绯红脉动、强子引擎等，则攻击方的特性不会变为木乃伊。",mummy,被对手接触到后，会将对手变为木乃伊。,木乃伊
+153,"该特性的宝可梦打败任意一方的一只宝可梦后，自身攻击提升1级。
+该特性的宝可梦使用接触类招式打败特性为木乃伊的宝可梦后，特性变为木乃伊，不触发自信过度的效果。",moxie,如果打倒对手，就会充满自信，攻击会提高。,自信过度
+154,受到恶属性招式攻击时，自身攻击提升1级。该特性的宝可梦受到恶属性连续招式时，每一次攻击都能触发该特性。,justified,受到恶属性的招式攻击时，因为正义感，攻击会提高。,正义之心
+155,"该特性的宝可梦受到恶属性、幽灵属性和虫属性属性招式攻击时，速度提升1级。对于恶属性、幽灵属性和虫属性连续招式，每次攻击都能触发该特性。
+受到威吓影响，该特性的宝可梦速度提升1级。",rattled,受到恶属性、幽灵属性和虫属性的攻击或威吓时，会因胆怯而速度提高。,胆怯
+156,自身在场时持续处于魔法反射状态，将对方以自身为目标的部分变化招式无效化，并反弹给招式的使用者。,magic-bounce,可以不受到由对手使出的变化招式影响，并将其反弹。,魔法镜
+157,"具有该特性的宝可梦不受草属性招式的影响，当被草属性的招式击中时，提升1级攻击。
+- 该特性只能令自身不受草属性招式的影响，不能将草属性招式的目标转移至自身。
+- 该特性对草属性的变化招式有效。包括通过其他方式变为草属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。",sap-sipper,受到草属性的招式攻击时，不会受到伤害，而是攻击会提高。,食草
+158,"该特性的宝可梦使用变化招式时优先度+1，包括变化招式的Ｚ招式。
+受此特性影响的变化招式对对手的恶属性宝可梦无效。
+- 对入场宝可梦生效的招式、影响天气的招式与戏法空间等招式并不直接影响场上的宝可梦，就算对手宝可梦是恶属性也可以正常作用。
+- 恶作剧之心特性的宝可梦自身借助变化招式使出的攻击招式（如通过挥指、借助等）同样无法对恶属性宝可梦造成伤害。
+如果使用的招式本身优先度为 0，经过恶作剧之心的加成后优先度为正，则可以被快速防守、精神场地、女王的威严等所抵挡。
+恶属性的宝可梦受到以自身为目标的变化招式，仍能使用魔法反射或凭借魔法镜把恶作剧之心引起优先度增加的变化招式无效化，并反弹给招式的使用者，除非该使用魔法反射的宝可梦同是恶作剧之心特性的宝可梦且反弹的对象是恶属性宝可梦。",prankster,可以率先使出变化招式。,恶作剧之心
+159,在沙暴天气下，该特性的宝可梦不受沙暴伤害，同时使用的岩石属性、钢属性、地面属性招式威力提升30%。,sand-force,沙暴天气时，岩石属性、地面属性和钢属性的招式威力会提高。,沙之力
+160,"受到接触类招式攻击时对手会损失最大体力的1⁄8。
+- 连续招式的每一击都会触发此特性。
+- 有铁刺特性的宝可梦使用守住并被攻击方使用Ｚ招式攻击时，铁刺特性不会发动。",iron-barbs,用铁刺给予接触到自己的对手伤害。,铁刺
+161,在ＨＰ不足一半时转变为达摩模式形态，替换、ＨＰ恢复至1⁄2以上或者战斗结束后形态恢复。如果进入战斗时ＨＰ不足一半，则会在开始战斗一回合后转变为达摩模式形态。,zen-mode,ＨＰ变为一半以下时，样子会改变。,达摩模式
+162,"场上己方全部宝可梦的招式的命中率×1.1。
+该特性不影响一击必杀招式的命中率。",victory-star,自己和同伴的命中率会提高。,胜利之星
+163,"当拥有该特性的宝可梦登场时会出现提示：「[宝可梦的名字]正在释放炽焰气场！」
+拥有该特性的宝可梦使出招式时能够使目标自身、目标同伴以及自身同伴的一部分特性失效。
+当拥有该特性的宝可梦强制拉对手的备战宝可梦上场时，上场的备战宝可梦的特性不会对场上的毒菱、撒菱和黏黏网状态生效。
+所有会被无效化的特性，都是在受到招式影响时能够发动的特性。
+- 注1：涡轮火焰特性也会使避雷针和引水的强制选择目标效果失效。
+- 注2：涡轮火焰特性能够使免疫、迟钝、干劲、不眠、柔软、我行我素、熔岩铠甲、水幕、热交换等特性失效而使得拥有这些特性的宝可梦暂时陷入对应的异常状态，但轮到拥有上述特性的宝可梦行动时，它们会立即发动特性治愈这些异常状态。
+- 注3：涡轮火焰特性能够使同伴的花之礼、芳香幕、花幕、甜幕等特性失效。即使同伴拥有这些特性，拥有涡轮火焰特性的宝可梦在攻击时也会受到目标的黏滑、迷人之躯、咒术之躯和道具红线等的影响，并且不会因为花之礼而增加攻击。
+- 金属防护、幻影防守、棱镜装甲、界限盾壳、绝对睡眠特性被设定为不会受到涡轮火焰特性影响，即使这些特性都是在受到招式影响时发动效果的。
+- 同伴的胜利之星、蓄电池、能量点和钢之意志特性。
+- 压迫感、妖精气场、暗黑气场、气场破坏等会对场上所有宝可梦产生作用的特性。
+- 静电、孢子、火焰之躯、毒刺、迷人之躯、咒术之躯、木乃伊、粗糙皮肤、铁刺、不服输、好胜等在对方使用招式之后才发动的特性。",turboblaze,可以不受对手特性的干扰，向对手使出招式。,涡轮火焰
+193,"与野生宝可梦对战中，该特性的宝可梦从高于1⁄2ＨＰ变为低于1⁄2时便会使自身退场，与训练家对战时则进行替换。
+如果该特性的宝可梦ＨＰ已经低于1⁄2，即使受到伤害也不会触发特性，除非宝可梦的ＨＰ回复到1⁄2以上，并再次受到伤害变为低于1⁄2。
+- 若该特性的宝可梦携带了能回复ＨＰ的树果，受到伤害后会先食用树果回复ＨＰ，再判定特性是否触发。
+- 若该特性的宝可梦携带了贝壳之铃，对于特性是否发动的判定在回复ＨＰ的效果之前，因此如果在使出招式后自己的ＨＰ变为了1⁄2或以下，随后又因为贝壳之铃的效果回复ＨＰ至1⁄2以上，依然可以触发特性，此时就会以ＨＰ大于1⁄2的状态退场。
+以下使ＨＰ变为低于1⁄2的情况，不会触发特性：
+- 该特性的宝可梦因混乱而攻击自己；
+- 对方宝可梦特性为强行，且使用带有追加效果的招式。
+- 对方宝可梦使用连续招式，在连续攻击完成后才会触发特性。
+- 与训练家对战时，除这只该特性的宝可梦外，队伍内宝可梦全部进入昏厥状态。
+对该特性的宝可梦使用伏特替换、急速折返或快速折返，因而触发该宝可梦特性时，这类招式不会发动替换效果。
+使用追打的同一回合，若该特性的宝可梦因触发特性而替换，则追打不会发动特殊效果。
+踩影无法防止该特性效果",wimp-out,ＨＰ变为一半时，会慌慌张张逃走，退回同行队伍中。,跃跃欲逃
+194,"与野生宝可梦对战中，该特性的宝可梦从高于1⁄2ＨＰ变为低于1⁄2时便会使自身退场，与训练家对战时则进行替换。
+如果该特性的宝可梦ＨＰ已经低于1⁄2，即使受到伤害也不会触发特性，除非宝可梦的ＨＰ回复到1⁄2以上，并再次受到伤害变为低于1⁄2。
+- 若该特性的宝可梦携带了能回复ＨＰ的树果，受到伤害后会先食用树果回复ＨＰ，再判定特性是否触发。
+- 若该特性的宝可梦携带了贝壳之铃，对于特性是否发动的判定在回复ＨＰ的效果之前，因此如果在使出招式后自己的ＨＰ变为了1⁄2或以下，随后又因为贝壳之铃的效果回复ＨＰ至1⁄2以上，依然可以触发特性，此时就会以ＨＰ大于1⁄2的状态退场。
+以下使ＨＰ变为低于1⁄2的情况，不会触发特性：
+- 该特性的宝可梦因混乱而攻击自己；
+- 对方宝可梦特性为强行，且使用带有追加效果的招式。
+- 对方宝可梦使用连续招式，在连续攻击完成后才会触发特性。
+- 与训练家对战时，除这只该特性的宝可梦外，队伍内宝可梦全部进入昏厥状态。
+对该特性的宝可梦使用伏特替换、急速折返或快速折返，因而触发该宝可梦特性时，这类招式不会发动替换效果。
+使用追打的同一回合，若该特性的宝可梦因触发特性而替换，则追打不会发动特殊效果。",emergency-exit,ＨＰ变为一半时，为了回避危险，会退回到同行队伍中。,危险回避
+195,"受到水属性的招式攻击时，防御会提升2个等级。
+若对方以遇水凝固的宝可梦为目标使用水属性连续招式，则每一击都会触发效果。",water-compaction,受到水属性的招式攻击时，防御会大幅提高。,遇水凝固
+196,拥有该特性的宝可梦每次攻击中毒的目标时，都会击中要害。对拥有战斗盔甲和硬壳盔甲特性的宝可梦为目标使用招式则不会触发该特性。,merciless,攻击中毒状态的对手时，必定会击中要害。,不仁不义
+164,"当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]正在释放溅射气场！
+拥有该特性的宝可梦使出招式时能够使目标自身、目标同伴以及自身同伴的一部分特性失效。
+当拥有该特性的宝可梦强制拉对手的后备宝可梦上场时，上场的后备宝可梦的特性不会对场上的毒菱、撒菱和黏黏网状态生效。
+所有会被无效化的特性，都是在受到招式影响时能够发动的特性。
+- 注1：兆级电压特性也会使避雷针和引水的强制选择目标效果失效。
+- 注2：兆级电压特性能够使免疫、迟钝、干劲、不眠、柔软、我行我素、熔岩铠甲、水幕、热交换等特性失效而使得拥有这些特性的宝可梦暂时陷入对应的异常状态，但轮到拥有上述特性的宝可梦行动时，它们会立即发动特性治愈这些异常状态。
+- 注3：兆级电压特性能够使同伴的花之礼、芳香幕、花幕、甜幕等特性失效。即使同伴拥有这些特性，拥有兆级电压特性的宝可梦在攻击时也会受到目标的黏滑、迷人之躯、咒术之躯和道具红线等的影响，并且不会因为花之礼而增加攻击。
+- 金属防护、幻影防守、棱镜装甲、界限盾壳、绝对睡眠特性被设定为不会受到兆级电压特性影响，即使这些特性都是在受到招式影响时发动效果的。
+- 同伴的胜利之星、蓄电池、能量点和钢之意志特性。
+- 压迫感、妖精气场、暗黑气场、气场破坏等会对场上所有宝可梦产生作用的特性。
+- 静电、孢子、火焰之躯、毒刺、迷人之躯、咒术之躯、木乃伊、粗糙皮肤、铁刺、不服输、好胜等在对方使用招式之后才发动的特性。",teravolt,可以不受对手特性的干扰，向对手使出招式。,兆级电压
+165,只要有拥有芳香幕特性的宝可梦在场，己方所有的宝可梦不会受到来自对方的心灵攻击类招式影响，并且不会陷入定身法状态及着迷状态。,aroma-veil,可以防住向自己和同伴发出的心灵攻击。,芳香幕
+166,"存在花幕特性的宝可梦的一方，其所有的草属性宝可梦的能力变化将不会被对方的宝可梦降低，并且其所有的草属性宝可梦不会陷入异常状态。
+可以防止瞌睡状态。已经处于瞌睡状态的宝可梦受到花幕保护后，在下个回合结束时仍会陷入睡眠状态。
+不能防止剧毒宝珠、火焰宝珠造成的剧毒和灼伤状态，睡觉造成的睡眠状态和森林咒术造成的森林咒术状态。
+花幕特性不能避免自身使用近身战、飞叶风暴、流星群等招式和碎裂铠甲、心情不定等特性造成的能力变化下降的效果。",flower-veil,我方的草属性宝可梦能力不会降低，也不会变为异常状态。,花幕
+167,"该特性的宝可梦食用树果时可触发原本的效果，同时额外恢复1⁄3ＨＰ。若处于回复封锁时，无法恢复ＨＰ。
+训练家从包包里拿出来使用的树果对该特性无效。",cheek-pouch,无论是哪种树果，食用后，ＨＰ都会回复。,颊囊
+168,"自身的属性在使用招式之前变为所使用的招式的属性。转换属性的效果持续直到离开场地为止。每一次出场只能转换属性一次，需要替换后再次出场才能再次转换。对于两种属性的宝可梦，触发变幻自如时变为只有一种属性。该特性的宝可梦使用招式后，属性一致加成会以改变后的属性提升招式威力。
+以下情况能触发变幻自如特性：
+- 当招式没有命中或被守住时；
+- 招式属性不固定时，例如觉醒力量，使用者的属性变为不固定属性招式的实际属性。
+以下情况不能触发变幻自如特性：
+- 挣扎；
+- 预知未来或者破灭之愿时，包括使用回合和攻击回合；
+- 太晶化的宝可梦使用招式时。
+特殊情况：
+- 保护色触发变幻自如特性时，使用者属性先变为一般属性，接着再根据场地改变属性。
+- 使用合体招式时，如果该特性的宝可梦是最先使用的话，不会触发该特性。后手的话会触发。",protean,变为与自己使出的招式相同的属性。每次出场战斗仅生效一次。,变幻自如
+169,"伤害计算中，此宝可梦的防御能力值×２。
+- 此效果不是能力变化。受到防御能力值代替特防能力值的招式（如精神击破、精神冲击、神秘之剑等）进行伤害计算时，伤害计算中的防御也会×２。
+- 不影响固定伤害类招式的伤害。不影响混乱的伤害。
+- 不会提升扑击的伤害。",fur-coat,对手给予的物理招式的伤害会减半。,毛皮大衣
+170,"当该特性的宝可梦攻击时可偷取对方的携带物品。该特性的宝可梦使用投掷、自然之恩、破灭之愿和预知未来时，当回合不会发动特性。
+礼物和花粉团只有在造成伤害时发动特性。在魔术师特性发动前，烧净、虫咬、啄食、小偷、渴望和拍落会偷走或消耗道具。
+当该特性的宝可梦携带宝石后，本回合消耗宝石时不会发动特性。但携带强力香草时，在消耗强力香草后会发动特性。
+该特性的宝可梦使用连续招式时，最后一次攻击发动特性。如果发动魔术师特性的当回合，宝可梦由于凸凸头盔等原因昏厥时，不会偷取道具。
+如果招式的追加效果使对手陷入了异常状态，同时对手又携带了能解除这种异常状态的树果的话，树果会先于魔术师特性发动导致其不会被偷取。
+如果对携带了白色香草的对手使用诸如魔法火焰之类可以降低对方能力的招式，在对手的能力降低后，在道具发动效果前魔术师特性就会发动把道具夺取过来。
+如果偷走的是生命宝珠或贝壳之铃，其削减或回复体力的效果会立刻发动。
+对于木乃伊的宝可梦，攻击当回合会消除魔术师特性，无法偷取道具。
+以下道具无法偷取：
+- 邮件；
+- 阿尔宙斯携带的石板；
+- 盖诺赛克特携带的卡带；
+- 银伴战兽携带的存储碟；
+- 帝牙卢卡携带的大金刚宝玉；
+- 帕路奇亚携带的大白宝玉；
+- 骑拉帝纳携带的大白金宝玉；
+- 固拉多携带的朱红色宝珠；
+- 盖欧卡携带的靛蓝色宝珠；
+- 能够超级进化的宝可梦携带的与自己对应的超级石；
+- Ｚ纯晶；
+- 苍响携带的腐朽的剑；
+- 藏玛然特携带的腐朽的盾；
+- 厄诡椪携带的面具。",magician,夺走被自己的招式击中的对手的道具。,魔术师
+171,该特性的宝可梦免疫球和弹类招式的伤害。,bulletproof,可以防住对手的球和弹类招式。,防弹
+172,"能力变化被对手降低时，每降低一种能力，特攻就会提升2级。
+下列情况将触发此特性：
+- 受到对手的招式影响导致能力变化降低（例如受到清除浓雾）
+- 受到对手的特性影响导致能力变化降低（例如受到威吓）
+- 踩到黏黏网导致速度降低
+- 极巨团体战中神秘障壁被打破导致防御和特防降低，会触发两次
+下列情况不能触发此特性：
+- 由于招式的副作用导致能力变化降低（例如使用近身战）
+- 双打对战中由队友使用招式导致能力变化降低（例如使用抛下狠话、糖浆炸弹、重踏）
+- 由于道具的作用导致能力变化降低（例如发动客房服务）",competitive,如果被对手降低能力，特攻会大幅提高。,好胜
+173,该特性的宝可梦使用啃咬类招式的威力上升50%。,strong-jaw,因为颚部强壮，啃咬类招式的威力会提高。,强壮之颚
+174,"一般属性招式变为冰属性招式，且威力变为1.2倍。
+觉醒力量、自然之恩、制裁光砾、高科技光炮、觉醒之舞和多属性攻击这些会改变属性的一般属性招式会先改变自身属性，然后承受冰冻皮肤特性的判定。因此只要这些招式的最终属性不是一般属性，就既不会变成冰属性，又不会被增幅威力。
+具有该特性的宝可梦进入输电状态后，使出的一般属性招式会变为电属性且不会被提升威力。
+被该特性转化为冰属性的招式不会因为等离子浴的效应变成电属性。
+具有此特性的冰属性宝可梦使出的一般属性攻击招式具有属性一致加成，并且能消耗冰之宝石增加招式威力。",refrigerate,一般属性的招式会变为冰属性。威力会少量提高。,冰冻皮肤
+175,"当拥有甜幕特性的宝可梦在场时，不让己方在场中的宝可梦进入瞌睡或睡眠状态。
+已经处于瞌睡状态的宝可梦受到甜幕保护后，不会因为瞌睡而进入睡眠状态。",sweet-veil,自己和同伴的宝可梦不会变为睡眠状态。,甜幕
+176,"坚盾剑怪使用攻击招式时会变为刀剑形态，当使用王者盾牌时变为盾牌形态，使用其余的变化招式，形态不会改变。若招式由梦话抽取到，形态也会改变。
+战斗切换在自己使用招式前发动，该判定于一些可能导致无法行动的状态（如混乱、睡眠）之后。
+战斗切换不能被特性互换交换，不受目标特性改变的招式和木乃伊特性的影响，也不能被扮演招式或复制特性复制。
+使用招式变身或发动特性变身者获得战斗切换特性的宝可梦无法改变形态。",stance-change,如果使出攻击招式，会变为刀剑形态，如果使出招式“王者盾牌”，会变为盾牌形态。,战斗切换
+177,"在ＨＰ全满时，对战中使用的飞行属性招式优先度+1。对原本优先度为正的招式及觉醒力量、自然之恩无效。
+如果使用的招式本身优先度为0，经过疾风之翼的加成后优先度为正，则可以被快速防守所抵挡。
+疾风之翼对Ｚ招式以及极巨招式有效。如果宝可梦发动该特性并使用极速俯冲轰烈撞、极巨飞冲时，目标正处于快速防守状态，攻击也能成功但伤害减少到原来的1⁄4。",gale-wings,ＨＰ全满时，飞行属性的招式可以率先使出。,疾风之翼
+178,该特性的宝可梦所使用除治愈波动以外的波动和波导类招式的威力会提高50%，治愈波动的ＨＰ回复变为最大ＨＰ的3⁄4。,mega-launcher,波动和波导类招式的威力会提高。,超级发射器
+179,当对战场地处于青草场地状态时，拥有草之毛皮特性的宝可梦的防御会提升50%。,grass-pelt,在青草场地时，防御会提高。,草之毛皮
+180,"在双打对战或三打对战中，如果己方其他宝可梦消耗了其携带的道具，拥有共生特性的宝可梦会将自己的道具转移给它。
+包括使用自然之恩和投掷产生的道具转移；包括啄食和虫咬产生的道具消耗。
+对于No.36—No.52的树果，当受到伤害时，才能触发该特性。
+如果在群聚对战或三打对战有多只该特性的宝可梦，共生特性会触发给速度较快的宝可梦。（在戏法空间下相同）
+该特性无效的情况：
+- 其他宝可梦使用了小偷等招式转移其道具，被烧净烧毁。
+- 无法转移下列宝可梦的道具：
+携带了Ｚ纯晶、超级石的宝可梦；
+携带了朱红色宝珠的固拉多；
+携带了靛蓝色宝珠的盖欧卡；
+携带了卡带的盖诺赛克特；
+携带了石板的阿尔宙斯；
+携带了大金刚宝玉的帝牙卢卡；
+携带了大白宝玉的帕路奇亚；
+携带了大白金宝玉的骑拉帝纳；
+携带了腐朽的剑的苍响；
+携带了腐朽的盾的藏玛然特；
+携带了面具的厄诡椪；
+携带了存储碟的银伴战兽。",symbiosis,同伴使用道具时，会把自己持有的道具传递给同伴。,共生
+181,使接触类招式的威力上升30%。,tough-claws,接触到对手的招式威力会提高。,硬爪
+182,"自己使用的一般属性招式会变成妖精属性，且威力变为1.2倍。
+觉醒力量、自然之恩、制裁光砾、高科技光炮、觉醒之舞和多属性攻击这些会改变属性的一般属性招式会先改变自身属性，然后承受妖精皮肤特性的判定。因此只要这些招式的最终属性不是一般属性，就既不会变成妖精属性，又不会被增幅威力。
+具有该特性的宝可梦进入输电状态后，使出的一般属性招式会变为电属性且不会被提升威力。
+被该特性转化为妖精属性的招式不会因为等离子浴的效应变成电属性。
+Ｚ招式不受此特性影响。
+极巨招式受此特性影响会将原本的极巨攻击改为极巨妖精，但是没有威力加成。
+具有此特性的妖精属性宝可梦使出的一般属性攻击招式具有属性一致加成，并且能消耗妖精宝石增加招式威力。",pixilate,一般属性的招式会变为妖精属性。威力会少量提高。,妖精皮肤
+183,"该特性的宝可梦受到接触攻击伤害后，则令攻击方速度降低1级。
+接触类连续招式的每一击都会触发此特性。",gooey,对于用攻击接触到自己的对手，会降低其速度。,黏滑
+184,"自己使用的一般属性招式变为飞行属性招式，且威力变为1.2倍。
+觉醒力量、自然之恩、制裁光砾、高科技光炮、觉醒之舞和多属性攻击这些会改变属性的一般属性招式会先改变自身属性，然后承受飞行皮肤特性的判定。因此只要这些招式的最终属性不是一般属性，就既不会变成飞行属性，又不会被增幅威力。
+具有该特性的宝可梦进入输电状态后，使出的一般属性招式会变为电属性且不会被提升威力。
+被该特性转化为飞行属性的招式不会因为等离子浴的效应变成电属性。
+具有此特性的飞行属性宝可梦使出的一般属性攻击招式具有属性一致加成，并且能消耗飞行宝石增加招式威力。",aerilate,一般属性的招式会变为飞行属性。威力会少量提高。,飞行皮肤
+185,"该特性的宝可梦可以在一回合内，使用同一攻击招式两次。除部分招式外，使用攻击招式时，第二次攻击的伤害为第一次的1⁄4。
+- 拥有该特性的宝可梦尽管受特性影响使出了第二次攻击，招式仍然只消耗1ＰＰ。
+- 命中判定只会进行一次。若第一次攻击命中，第二次攻击不会因为命中率的原因无法命中。若第一次攻击未命中，第二次攻击不会发动；
+- 击中要害判定两次攻击独立进行；
+- 伤害随机数判定两次攻击独立进行。
+- 固定伤害类招式会攻击两次，并且两次攻击的伤害相同；
+- 愤怒门牙、自然之怒会攻击两次，并且两次攻击都会将目标的ＨＰ减少至当前ＨＰ的1⁄2，最终将目标的ＨＰ减少至原ＨＰ的1⁄4；
+- 使用后下一回合自己将无法动弹的招式会攻击两次，次回合正常进入不能行动状态；
+- 反作用力伤害的招式会攻击两次，对自己的伤害根据两次攻击造成的总伤害计算，并且在第二次攻击之后再进行结算；
+特别的，拥有该特性的宝可梦使用挣扎也会攻击两次，但最终只会扣除使用者最大ＨＰ的1⁄4；
+- 金属爆炸、镜面反射、双倍奉还和忍耐会攻击两次，第二次攻击的伤害不会降低；
+- 精神波的随机值判定两次攻击独立进行，第二次攻击的伤害不会降低；
+- 震级的随机值判定只会进行一次。第二次攻击的震级与第一次攻击相同，且伤害会降低为1⁄4；
+- 第二次攻击的威力不会因第一次攻击适用额外的连斩、轮唱、回声、节拍器的威力提升效果。受该特性影响的宝可梦作出的追加攻击不计入总次数。
+- 拥有该特性的宝可梦第一次攻击若受木乃伊影响特性变为木乃伊，或受咒术之躯影响陷入定身法，仍会适用该特性的效果使出第二次攻击；
+- 如果该特性宝可梦第一次攻击因王者盾牌等招式没有使用成功，则该招式的效果（降低攻击）只会发动一次，降低1级攻击。
+如果这一招式拥有追加效果，这一追加效果也会连续判定两次，例如：
+- 使用增强拳会连续攻击两次，提升2级攻击；
+- 使用咬碎会连续攻击两次，每次都有20%概率降低目标1级防御，最终将有32%概率降低目标1级防御（20%×80%+80%×20%），有4%概率降低目标2级防御（20%×20%）；
+- 使用岩崩会连续攻击两次，每次都有30%概率使目标畏缩，合计有51%概率使目标畏缩（30%+70%×30%）；
+- 具有副作用的招式同样会判定两次，例如使用臂锤会降低使用者2级速度；
+以下招式的追加效果在第二次攻击时即可发动：
+- 使用恶意追击时第一次攻击造成伤害的情况下，第二次攻击恶意追击的威力会变成2倍；
+- 使用盐水时如果第一次攻击使对方的ＨＰ变为1⁄2或以下，第二次攻击时威力会变成2倍。
+以下招式的特殊效果会在第二次攻击之后才发动：
+- 秘密之力；
+- 喷出；
+- 巴投与龙尾的强制离场效果；
+- 急速折返与伏特替换的退场效果；
+- 治愈异常状态的效果（例如唤醒巴掌、清醒；对处于冰冻的宝可梦使用火属性招式、热水、蒸汽爆炸同样不会使其立刻陷入灼伤状态）；
+- 移除道具的效果（例如小偷、渴望、虫咬、烧净、啄食、拍落、自然之恩等）；
+如果在上述招式在第一次攻击之后就使目标的道具满足发动条件，那么目标会先消耗道具，导致之后特效无法发动；
+- 击落和千箭齐发的击落效果；
+- 高速旋转移除入场可生效的状态的效果；
+- 绑紧招式的束缚效果；
+- 千波激荡的无法逃走效果；
+- 等离子闪电拳将一般属性招式变为电属性的效果；
+- 燃尽将自身火属性变成无属性的效果；
+- 合体招式产生对应场地的效果；
+发动合体后的招式时，拥有该特性的宝可梦只有后使用合体招式才会使出第二次攻击。
+- 美洛耶塔使用古老之歌的变身效果。
+该特性不发动的情况包括：
+- 在双打对战、三打对战中，使用能够命中多个目标的招式（地震、岩崩等）时，招式范围内存在多只宝可梦。
+无论招式是否命中所有目标、是否属性相性无效、目标是否处于守住状态、目标是否包括同伴，特性都不发动。
+使用招式时，若招式目标仅剩一个，特性会发动。
+- 蛮干、投掷、滚动、冰球、极巨炮；
+- 礼物、花粉团的治疗效果；
+若这些招式造成伤害，则特性正常发动。
+- 造成自身陷入昏厥状态的招式；
+- 蓄力的招式；
+- Ｚ招式；
+- 一击必杀招式；
+- 因混乱对自己的伤害；
+- 连续招式；
+- 变化招式（通过使出其它招式的招式使出攻击招式的情况除外）。
+其他方面该特性的判定适用连续招式的判定。",parental-bond,亲子俩可以合计攻击２次。,亲子爱
+186,"拥有该特性的宝可梦在场时场上所有宝可梦使用恶属性招式的伤害×4⁄3。
+- 场上有多只该特性的宝可梦时效果不会叠加。
+- 拥有气场破坏特性的宝可梦在场会使得该特性效果逆转为全场恶属性招式伤害×3⁄4。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]正在释放暗黑气场！",dark-aura,全体的恶属性招式变强。,暗黑气场
+187,"拥有该特性的宝可梦在场时场上所有宝可梦使用妖精属性招式的伤害×4⁄3。
+- 场上有多只该特性的宝可梦时效果不会叠加。
+- 拥有气场破坏特性的宝可梦在场会使得该特性效果逆转为全场妖精属性招式伤害×3⁄4。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]正在释放妖精气场！",fairy-aura,全体的妖精属性招式变强。,妖精气场
+188,"当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]压制了所有气场！
+拥有该特性的宝可梦和拥有妖精气场的宝可梦同时在场时，妖精气场效果发生逆转，双方场上所有宝可梦使用妖精属性招式造成的伤害×3⁄4。
+拥有该特性的宝可梦和拥有暗黑气场的宝可梦同时在场时，暗黑气场效果发生逆转，双方场上所有宝可梦使用恶属性招式造成的伤害×3⁄4。
+拥有破格、涡轮火焰与兆级电压特性的宝可梦使用妖精属性与恶属性招式时，气场破坏特性仍会生效。
+使用基格尔德多面体能改变基格尔德特性为群聚变形（第八世代起）。特性胶囊和特性膏药对基格尔德无效。",aura-break,让气场的效果发生逆转，降低威力。,气场破坏
+189,"当拥有该特性的宝可梦登场时，天气转为大雨，直到该宝可梦离场、失去该特性，或被德尔塔气流或终结之地覆盖。
+大雨无法被更改为其他天气，除非是因为德尔塔气流或终结之地。",primordial-sea,变为不会受到火属性攻击的天气。,始源之海
+190,"当拥有该特性的宝可梦登场时，天气转为大日照，直到该宝可梦离场、失去该特性，或被始源之海或德尔塔气流覆盖。
+大日照无法被更改为其他天气，除非是因为始源之海或德尔塔气流。",desolate-land,变为不会受到水属性攻击的天气。,终结之地
+191,"当拥有该特性的宝可梦登场时，天气转为乱流，直到该宝可梦离场、失去该特性，或被始源之海或终结之地覆盖。
+乱流无法被更改为其他天气，除非是因为始源之海或终结之地。",delta-stream,变为令飞行属性的弱点消失的天气。,德尔塔气流
+192,"受到攻击时防御会提高1个等级。
+- 连续招式每一击都会触发该特性。
+- 由于混乱而攻击自身时不会触发该特性。",stamina,受到攻击时，防御会提高。,持久力
+197,"当该特性的宝可梦为小陨星时，ＨＰ超过50%时，变为流星的样子，期间不会陷入异常状态和瞌睡。如果已经受到异常状态效果，则不会回复。
+当ＨＰ变为50％或以下时，回合结束后变为核心，降低防御与特防种族值，提高攻击、特攻与速度种族值，可以陷入异常状态。",shields-down,ＨＰ变为一半时，壳会坏掉，变得有攻击性。,界限盾壳
+198,该特性的宝可梦使用的招式对本回合替换上场的宝可梦造成的伤害×2。,stakeout,可以对替换出场的对手以２倍的伤害进行攻击。,蹲守
+199,"拥有该特性的宝可梦受到火属性招式造成的伤害降低50%，不会陷入灼伤状态，并且水属性招式的威力变为原来的两倍。
+已经处于灼伤状态的宝可梦因特性互换等招式获得此特性后可以治愈灼伤。",water-bubble,降低自己受到的火属性招式的威力，不会灼伤。,水泡
+200,拥有钢能力者特性的宝可梦使用钢属性招式的威力会提高50%。,steelworker,钢属性的招式威力会提高。,钢能力者
+201,"当ＨＰ因受到攻击变为1⁄2以下时，特攻会提高1个等级。该特性能重复触发。
+- 若ＨＰ是由于间接伤害而降为1⁄2以下（如寄生种子、天气伤害、因混乱而攻击自身、生命宝珠等），该特性不会触发。",berserk,因对手的攻击ＨＰ变为一半时，特攻会提高。,怒火冲天
+202,"天气处于冰雹或下雪状态时，拥有该特性的宝可梦的速度能力变为原来的2倍。
+- 不具有冰属性的宝可梦仍会受到冰雹天气的伤害。",slush-rush,下雪天气时，速度会提高。,拨雪
+203,拥有远隔特性的宝可梦使用接触类招式时，不会触发攻击目标任何与接触类招式有关的效果。,long-reach,可以不接触对手就使出所有的招式。,远隔
+204,拥有湿润之声特性的宝可梦使用的声音的招式属性均变为水属性。,liquid-voice,所有的声音招式都变为水属性。,湿润之声
+205,"在使出能回复ＨＰ的招式时，招式优先度+3。
+只对目标回复而不对自身回复的招式也会受影响，例如治愈波动和花疗。
+不会对水流环、扎根、寄生种子和分担痛楚造成影响。
+不稳定回复的招式不受影响，例如礼物和花粉团。
+造成场地型状态间接回复的招式也不受影响，例如青草场地。
+能回复生命的Ｚ招式也不受影响，例如芳香治疗。",triage,可以率先使出回复招式。,先行治疗
+206,"自己使用的一般属性招式会变成电属性，且威力变为1.2倍。
+觉醒力量、自然之恩、制裁光砾、高科技光炮、觉醒之舞和多属性攻击这些会改变属性的一般属性招式会先改变自身属性，然后承受电气皮肤特性的判定。因此只要这些招式的最终属性不是一般属性，就既不会变成电属性，又不会被增幅威力。
+具有此特性的宝可梦进入输电状态后，使出的一般属性招式会变为电属性但不会被提升威力。
+具有此特性的电属性宝可梦使出的一般属性攻击招式具有属性一致加成，并且能消耗电之宝石增加招式威力。",galvanize,一般属性的招式会变为电属性。威力会少量提高。,电气皮肤
+207,当对战场地处于电气场地状态时，速度能力变为原来的2倍。,surge-surfer,电气场地时，速度会变为２倍。,冲浪之尾
+208,"弱丁鱼达到20或以上的等级时，在对战中出场时，若ＨＰ高于25%便能从单独的样子变为鱼群的样子。
+- 在鱼群的样子的形态下，回合结束时，若ＨＰ低于25%则变回单独的样子。
+- 在单独的样子的形态下，回合结束时，若ＨＰ高于25%则变回鱼群的样子。",schooling,ＨＰ多的时候会聚起来变强。ＨＰ剩余量变少时，群体会分崩离析。,鱼群
+209,"如果具有此特性的宝可梦是谜拟丘（化形的样子），则画皮特性会防止任何攻击招式（包括Ｚ招式和极巨招式）或者混乱造成的伤害仅1次，并使谜拟丘损失1⁄8的最大ＨＰ及变成现形的样子直到战斗结束。
+- 能够防止以下情况：
+声音的招式和穿透特性宝可梦使用攻击招式的伤害；
+连续招式的仅第一次攻击的伤害；
+- 不能防止以下情况：
+破格特性或者其他相同效果宝可梦使用攻击招式的伤害；
+变化招式；
+攻击招式附带的追加效果；
+中毒、火海、沙暴等异常状态、状态变化和天气造成的伤害；
+树果的ＨＰ降低效果。
+与携带物品相关：
+- 画皮特性发动时，防御方携带的弱点保险和伤害减半类树果不会发动，但其他道具如凸凸头盔、红牌、逃脱按键、光苔、雪球、球根、充电电池等照常发动。
+- 画皮特性不能阻止气球被打破，不能阻止附着针的转移。
+与替身状态相关：
+- 在替身状态下受到除了声音的招式和带有穿透特性的宝可梦的攻击伤害时，替身会先防止受到伤害，而画皮特性不被触发。
+- 在替身状态下受到声音的招式或带有穿透特性的宝可梦的攻击伤害时，替身被保留而触发画皮特性。
+其他：
+- 如果谜拟丘被浸水等追加或改变属性的招式改变了属性，则在画皮脱落时会恢复为原本的属性。
+- 特性发动时如果使用双倍奉还、镜面反射或者金属爆炸，会对对手造成1ＨＰ的伤害。",disguise,通过画皮覆盖住身体，可以防住１次攻击。,画皮
+210,"击败一只宝可梦后，攻击、特攻、速度上升一级。该特性一场战斗只能发动一次。
+攻击、特攻、速度均提升至最大或者拥有该特性的宝可梦不为甲贺忍蛙时，该特性不会发动。",battle-bond,打倒对手时，与训练家的牵绊会增强，自己的攻击、特攻、速度会提高。,牵绊变身
+211,"持有该特性的基格尔德・１０％形态和基格尔德・５０％形态，在回合结束时，如果ＨＰ为最大ＨＰ的50%或更少，就会变成基格尔德・完全体形态。
+该特性发动前会出现提示：感到了强大气息的存在！
+- 如果基格尔德在回合结束前ＨＰ重新回到了50%以上，则不能变身。
+- ＨＰ直接降低至0时群聚变形不会发动。
+- 由于“基格尔德・完全体形态”拥有更高的ＨＰ种族值，改变形态后ＨＰ和ＨＰ最大值会同时增加，保持损失的ＨＰ与改变形态前一致。
+对战结束后变回原本形态时，ＨＰ最大值降低，ＨＰ高于最大值时会降低至最大值，低于最大值时不会降低。
+- 携带基格尔德进化石的基格尔德只有成为完全体形态才可以超级进化成为超级基格尔德。
+基格尔德在对战外不会自动转变形态，使用基格尔德多面体才能让它从５０％形态和１０％形态之间变换以及改变特性为气场破坏（第八世代起）。特性胶囊和特性膏药对基格尔德无效。",power-construct,ＨＰ变为一半时，细胞们会赶来支援，变为完全体形态。,群聚变形
+212,"- 拥有该特性的宝可梦使用的招式可以令毒属性和钢属性的宝可梦中毒。
+例如该特性的宝可梦对钢属性宝可梦使用变化招式剧毒，会让后者陷入剧毒状态。
+- 毒属性攻击招式依然对钢属性宝可梦完全无效。
+例如该特性的宝可梦对钢属性宝可梦使用攻击招式污泥波，不仅没有任何伤害，且10%中毒的追加效果不会触发。但会对毒属性宝可梦触发中毒的追加效果。
+- 拥有该特性的宝可梦所布下的毒菱不会让毒属性和钢属性的宝可梦中毒。
+- 拥有该特性的宝可梦自身会受到剧毒宝珠的影响。投掷剧毒宝珠或毒针也会让对手中毒。
+- 拥有该特性的宝可梦自身不会因为对手的反射类招式或同步特性而中毒。
+- 拥有该特性的宝可梦不会让拥有免疫特性的对手中毒。",corrosion,可以使钢属性和毒属性的宝可梦也陷入中毒状态。,腐蚀
+213,"持有此特性的宝可梦不会陷入任何异常状态。
+持有此特性的宝可梦在进行各类效果的处理时，视同它已处于睡眠状态。这代表：
+- 无法成功使出睡觉。
+- 可以成功使出打鼾和梦话等在睡着时才能使出的招式。但无法触发硬撑的伤害翻倍效果。
+- 可以被食梦造成伤害。
+- 场上有特性为梦魇的宝可梦的话，此宝可梦每回合都要损失ＨＰ。
+- 受到唤醒巴掌的攻击会受到翻倍的伤害，不过并不会解除任何状态。
+解眠药等能解除睡眠的道具对绝对睡眠无效。",comatose,总是半梦半醒的状态，绝对不会醒来。可以就这么睡着进行攻击。,绝对睡眠
+214,"让对方使出会影响己方的先制招式失败，包含受到恶作剧之心、先行治疗或疾风之翼影响使优先度大于0的招式。
+- 该效果与出招顺序无关。只要是先制招式，即使慢于优先度为0的招式使出，己方仍会受到该特性的保护。",queenly-majesty,向对手施加威慑力，使其无法对我方使出先制招式。,女王的威严
+215,"拥有此特性的宝可梦在被击倒时，给对手带来与自身被最后一击之前同等ＨＰ的伤害。
+- 如果具有该特性的宝可梦并非直接被击倒，那么不会给对手带来伤害。
+- 如果具有该特性的宝可梦被预知未来或破灭之愿击倒，而且此时招式的使用者不在场上，那么不会给另外的对手带来伤害。
+- 如果具有该特性的宝可梦被种子机关枪或飞水手里剑等连续攻击招击倒，那么将会带来从第一击到击倒前的所有伤害。
+- 如果对手可以被具有该特性的宝可梦以此特性击倒，即使对手有气势披带，也无法保留1ＨＰ。
+- 如果双方只有一只宝可梦的情况，拥有该特性的宝可梦被击倒但因为飞出的内在物造成对方同时倒下，拥有该特性的宝可梦一方算失败。",innards-out,被对手打倒的时候，会给予对手相当于ＨＰ剩余量的伤害。,飞出的内在物
+216,"如果场上有宝可梦成功使出跳舞招式，其他所有具有舞者特性的宝可梦根据其速度顺序，依次使出相同招式。
+- 如果该特性的宝可梦携带了突击背心，仍然能触发舞者特性，使用变化招式。
+- 如果该特性的宝可梦携带了讲究头带、讲究眼镜、讲究围巾等道具，且自身已使用过招式，则虽仍能触发舞者特性，但招式会使用失败，除非其他宝可梦使出的跳舞招式与自身曾使用的招式一致。
+- 如果该特性的宝可梦携带了讲究头带、讲究眼镜、讲究围巾等道具，但自身未使用过招式，则在触发舞者特性并使出招式后，当前回合再通过舞者使用的招式与自身使用的招式会失败，除非该招式与首次触发舞者特性时的招式一致。次回合，宝可梦可重新选择要使用的招式。
+- 如果跳舞招式没有使用成功，例如属性相性无效、攻击目标处于守住状态；舞者特性不会触发。
+- 使用破坏光线等招式后，因反作用力自身处于无法动弹的状态下，舞者特性可以触发。
+- 使用蓄力的招式时，自身处于蓄力状态下也可以触发该特性。
+自身处于飞翔、潜水等暂时不在场上的状态时不会触发该特性。
+- 如果其他宝可梦使用跳舞招式的Ｚ招式，该特性的宝可梦能触发除Ｚ力量效果以外的效果。
+通过舞者特性使出的招式不会被再次使出。
+通过舞者特性所使出的多回合攻击类招式只会进行一回合攻击。
+如果己方其他宝可梦使用作用范围为单体选择的跳舞招式，如果是对对方宝可梦使用，那么舞者特性的宝可梦会对同一个目标使用。
+通过舞者使用的招式可以被化为己用夺走，通过魔法镜和魔法反射反弹。
+- 被魔法镜或魔法反射反弹的跳舞招式，无论是反弹前还是反弹后都不会触发该特性。
+太晶团体战中舞者特性会完全无效。",dancer,有谁使出跳舞招式时，自己也能就这么接着使出跳舞招式。,舞者
+217,该特性的宝可梦在场时，场上全部同伴宝可梦的特殊招式威力提升为原本的1.3倍。,battery,会提高我方的特殊招式的威力。,蓄电池
+218,"该特性的宝可梦所受到的接触类招式攻击伤害是原本的1⁄2，但火属性招式的伤害×2。
+- 所受到的火属性接触类招式攻击伤害不变。
+- 远隔特性的宝可梦对毛茸茸特性的宝可梦使用接触类招式伤害不变。。
+- 携带拳击手套的宝可梦对毛茸茸特性的宝可梦使用拳类招式伤害不变。",fluffy,会将对手所给予的接触类招式的伤害减半，但火属性招式的伤害会变为２倍。,毛茸茸
+219,"让对方使出会影响己方的先制招式失败，包含受到恶作剧之心、先行治疗或疾风之翼影响使优先度大于0的招式。
+- 该效果与出招顺序无关。只要是先制招式，即使慢于优先度为0的招式使出，己方仍会受到该特性的保护。",dazzling,让对手吓一跳，使其无法对我方使出先制招式。,鲜艳之躯
+220,每当场上有宝可梦被打倒时，特攻提高1个等级。,soul-heart,宝可梦每次变为濒死状态时，特攻会提高。,魂心
+221,"该特性的宝可梦被接触类招式命中时，对手的速度降低1个等级。
+接触类连续招式的每一击都会触发此特性。",tangling-hair,对于用攻击接触到自己的对手，会降低其速度。,卷发
+222,"当同伴陷入昏厥状态后，无论是何原因，此宝可梦的特性变成与该同伴相同。自身离场时特性还原为接球手。
+在单打对战中，此特性没有作用。
+不能接收同伴的以下特性：
+- 神奇守护
+- 无法被复制的特性",receiver,继承被打倒的同伴的特性，变为相同的特性。,接球手
+223,"当同伴陷入昏厥状态后（无论何原因造成），此宝可梦的特性变成与该同伴相同。自身离场时特性还原为化学之力。
+在单打对战中，此特性没有作用。
+不能接收同伴的以下特性：
+- 神奇守护
+- 无法被复制的特性",power-of-alchemy,继承被打倒的同伴的特性，变为相同的特性。,化学之力
+224,"拥有该特性的宝可梦使用攻击招式打倒宝可梦的时候，会提高自己除ＨＰ外能力值最高的一项常规能力。
+- 打倒队友时也会触发该特性。
+- 以下因素不会影响最高一项能力的判定：
+能力变化
+对战影响道具
+异常状态
+- 以下因素会影响最高一项能力的判定：
+力量平分
+防守平分
+力量戏法
+奇妙空间
+速度互换
+- 当数项能力同为最高时，按攻击、防御、特攻、特防、速度的顺序提升其中的一项。",beast-boost,打倒对手的时候，自己最高的那项能力会提高。,异兽提升
+225,携带对应各属性的存储碟，借此改变属性。,rks-system,根据持有的存储碟，自己的属性会改变。,ＡＲ系统
+226,"透过让脚下布满电力，布下电气场地，持续5回合。地面上的宝可梦的电属性招式威力将会提高，并且不会变成睡眠状态。
+- 携带了道具大地膜的情况下，电气场地会持续8回合。",electric-surge,出场时，会布下电气场地。,电气制造者
+227,"透过在脚下张开精神场地，布下精神场地，持续5回合。让在地面上的宝可梦所持的超能力属性招式的威力提升，且不会受到对手先制招式的攻击以及优先度+1以上变化招式之影响。
+- 携带了道具大地膜的情况下，精神场地会持续8回合。",psychic-surge,出场时，会布下精神场地。,精神制造者
+228,"在脚下张开薄雾场地，持续5回合。让在地面上的宝可梦因龙属性招式所受到的伤害减半，且变得不会陷入异常状态及混乱的状态。
+- 携带了道具大地膜的情况下，薄雾场地会持续8回合。
+- 如果我方场上存在毒菱，则拥有此特性的宝可梦会先踩到毒菱，然后发动此特性。这会导致此宝可梦中毒，然后才会布下薄雾场地。",misty-surge,出场时，会布下薄雾场地。,薄雾制造者
+229,"透过在脚下张开青草场地，布下青草场地，持续5回合。让在地面上的宝可梦所持的草属性招式的威力提升，且在每一回合ＨＰ会逐渐回复。此外，因地震、震级或重踏的招式造成的伤害将会减半。
+- 携带了道具大地膜的情况下，青草场地会持续8回合。",grassy-surge,出场时，会布下青草场地。,青草制造者
+230,"在通常情况下，能力不会被对方及同伴的招式和特性降低（例如招式可怕面孔、特性威吓等）。
+金属防护特性不能阻止以下能力的降低方式：
+- 自身使用降低自身能力的招式：蛮力、臂锤等；
+- 自身携带降低能力的道具：黑色铁球等；
+- 降低能力的异常状态：麻痹、灼伤；
+- 与对方平分能力的招式：防守平分、力量平分；
+- 与对方交换能力的招式：心灵互换、防守互换、力量互换；
+- 与同行宝可梦传递能力的招式：接棒；
+- 改变能力的招式：颠倒；",full-metal-body,不会因为对手的招式或特性而被降低能力。,金属防护
+231,ＨＰ全满时，受到的攻击伤害减为原来的1⁄2。,shadow-shield,ＨＰ全满时，受到的伤害会变少。,幻影防守
+232,效果绝佳招式造成的伤害降低1⁄4。,prism-armor,受到效果绝佳的攻击时，可以减弱其威力。,棱镜装甲
+233,使用的效果绝佳招式的威力提升25%。,neuroforce,效果绝佳的攻击，威力会变得更强。,脑核之力
+234,"出场时，自身的攻击上升1级。
+每只宝可梦一场战斗中仅能发动1次。",intrepid-sword,首次出场时，攻击会提高。,不挠之剑
+235,"出场时，自身的防御上升1级。
+每只宝可梦一场战斗中仅能发动1次。",dauntless-shield,首次出场时，防御会提高。,不屈之盾
+236,"自身的属性在使用招式之前变为所使用的招式的属性。转换属性的效果持续直到离开场地为止。每一次出场只能转换属性一次，需要替换后再次出场才能再次转换。对于两种属性的宝可梦，触发自由者时变为只有一种属性。该特性的宝可梦使用招式后，属性一致加成会以改变后的属性提升招式威力。
+挣扎不会触发自由者特性。
+该特性的宝可梦使用招式后，属性一致加成会根据改变后的属性提升招式威力。
+当招式使用失败时，不会触发自由者；但是招式没有命中或被守住时，仍会触发自由者。
+太晶化的宝可梦使用招式时不会触发自由者。",libero,变为与自己使出的招式相同的属性。每次出场战斗仅生效一次。,自由者
+237,"在该特性的宝可梦没有携带道具的情况下，只要投出任何种类的第１个精灵球并且收服失败后，该特性的宝可梦会捡回此精灵球。一次对战只会发动一次（包含野生宝可梦），若收服失败时速度最快的宝可梦发动特性，其余速度较慢的便不会再发动。
+在极巨团体战中不会发动。",ball-fetch,没有携带道具时，会拾取第１个投出后捕捉失败的精灵球。,捡球
+238,"该特性的宝可梦受到攻击时，令除该特性以外的宝可梦速度降低1级。
+连续招式的每一击都会触发此特性。",cotton-down,受到攻击后撒下棉絮，降低除自己以外的所有宝可梦的速度。,棉絮
+239,"攻击原本选定的目标，无视交换场地、场上万众瞩目状态、引水、避雷针、对手宝可梦的交换。
+只有目标不在场上时，才攻击同位置宝可梦。
+螺旋尾鳍特性的宝可梦使用梦话、挥指会失败。
+目前类似特性拥有一个游戏漏洞，请见游戏漏洞。",propeller-tail,能无视具有吸引对手招式效果的特性或招式的影响。,螺旋尾鳍
+240,"该特性的宝可梦受到对方的能力下降的招式或特性时，能将这些效果反弹到使用该招式或触发该特性的宝可梦。包括黏黏网的效果。
+例如：风速狗触发了威吓，使钢铠鸦的攻击下降1级。此时镜甲效果的反弹目标仅是风速狗，不会触发威吓的所有目标降低攻击效果。",mirror-armor,只反弹自己受到的能力降低效果。,镜甲
+241,"此特性对古月鸟以外的其他宝可梦无效。
+当拥有此特性的古月鸟使出冲浪或潜水时，会从水中叼来猎物。
+如果在这个状态下受到攻击，会将嘴里的猎物吐出，使对手ＨＰ减少1⁄4。
+当ＨＰ多于一半时，会叼来刺梭鱼，反击后，令目标的防御降低1级。
+当ＨＰ少于或等于一半时，会叼来皮卡丘，反击后，使目标陷入麻痹状态。
+当处于一口导弹状态时昏厥，会先触发反击，然后陷入昏厥状态。
+极巨化后会变为不叼着猎物的形态，且即使在极巨化后使用冲浪或潜水（只有极巨团体战中的野生古月鸟可以做到），也不会叼来猎物。
+一口导弹的伤害和附加效果能穿过替身。",gulp-missile,冲浪或潜水时会叼来猎物。受到伤害时，会吐出猎物进行攻击。,一口导弹
+242,"攻击原本选定的目标，无视交换场地、场上万众瞩目状态、引水、避雷针、对手宝可梦的交换。
+只有目标不在场上时，才攻击同位置宝可梦。
+坚毅特性的宝可梦使用梦话、挥指会失败。
+目前类似特性拥有一个游戏漏洞，请见游戏漏洞。",stalwart,能无视具有吸引对手招式效果的特性或招式的影响。,坚毅
+243,"对战中受到对手的水属性或火属性招式攻击时，自身速度提升6级。
+- 该特性的宝可梦受到水属性或火属性连续招式时，每一次攻击都能触发该特性。
+- 在泡沫光线、超极巨激漩泡涡等招式导致的能力变化之后，才会触发该特性。
+当该特性的宝可梦在队伍时，队伍中蛋孵化的速度提高为原来的2倍。
+- 此效果不会与自身、火焰之躯或熔岩铠甲叠加，但是它会与释出之力、O能量、蛋蛋力或孵蛋碰碰叠加。",steam-engine,受到水属性或火属性的招式攻击时，速度会巨幅提高。,蒸汽机
+244,"拥有此特性的宝可梦使出的声音的招式的威力会提高至1.3倍；
+同时受到的声音的招式伤害会减半。",punk-rock,声音招式的威力会提高。受到的声音招式伤害会减半。,庞克摇滚
+245,"当该宝可梦受到攻击时，天气转为沙暴并持续5回合。即使在受到攻击后昏厥，效果也会触发。
+- 在携带了道具沙沙岩石的情况下，沙暴会持续8回合。",sand-spit,受到攻击时，会刮起沙暴。,吐沙
+246,"该特性的宝可梦受到特殊招式的伤害减半。
+即使招式使用目标的防御代替目标的特防进行伤害计算（例如精神冲击和精神击破），该特性依然减半伤害。
+- 该特性无法减半固定伤害类招式的伤害。",ice-scales,由于有冰鳞粉的守护，受到的特殊攻击伤害会减半。,冰鳞粉
+247,"该特性的宝可梦使树果效果变为２倍，包括回复ＨＰ（如文柚果）、恢复ＰＰ（如苹野果）、减半１种属性招式的伤害（如烛木果）、提升能力变化（如星桃果）、对手损伤最大ＨＰ的树果（如嘉珍果）。
+熟成对以下树果无效（即使发动以下树果效果时仍然会显示特性信息）：
+- 治愈异常状态或混乱状态的树果，例如：木子果等；
+- 释陀果、奇秘果、兰萨果。",ripen,使树果成熟，效果变为２倍。,熟成
+248,"该特性可以为冰砌鹅完全抵御一次物理招式的伤害（包括混乱对自身造成的伤害），并使冰砌鹅转变为解冻头形态，同时冰砌鹅的种族值也会发生变化。天气从其他天气变成冰雹或下雪时，会恢复为结冻头形态。
+战斗结束时冰砌鹅会恢复为结冻头形态，但替换不会令已解冻的结冻头复原。如果在解冻时天气已经为冰雹或下雪，则结冻头也不会复原。
+替身受到物理攻击不会令结冻头解冻。",ice-face,头部的冰会代替自己承受物理攻击，但是样子会改变。下雪时，冰会恢复原状。,结冻头
+249,拥有此特性的宝可梦一方，除拥有该特性的宝可梦以外的宝可梦招式威力提高30%。,power-spot,只要处在相邻位置，招式的威力就会提高。,能量点
+250,"拥有此特性的宝可梦，自身的属性将取决于当前的场地型状态而改变。
+- 对战场地处于电气场地状态时，会变为电属性。
+- 对战场地处于青草场地状态时，会变为草属性。
+- 对战场地处于薄雾场地状态时，会变为妖精属性。
+- 对战场地处于精神场地状态时，会变为超能力属性。
+当场地型状态消失时，宝可梦会恢复原本的属性。拥有拟态特性的宝可梦在变身状态下会先恢复变身前的原属性，而非所变身对象的属性。
+拟态特性的触发条件为：当拥有该特性的宝可梦在场地存在时替换上场，或场地型状态发生变化；通过其他方式（如浸水）改变属性会覆盖拟态特性带来的属性变化。
+无论拥有拟态特性的宝可梦是否具有地面属性，该特性都会生效。
+若拥有拟态特性的宝可梦因森林咒术或万圣夜获得额外属性，当场地型状态触发拟态特性时，通常仅会改变其常规属性而不影响额外属性。但若该宝可梦因森林咒术变为草属性时又因青草场地变为草属性，则森林咒术的效果会消失。",mimicry,宝可梦的属性会根据场地的状态而变化。,拟态
+251,当该特性的宝可梦出场时，解除双方场地的光墙、反射壁和极光幕状态。,screen-cleaner,出场时，敌方和我方的光墙、反射壁和极光幕的效果会消失。,除障
+252,"拥有该特性的宝可梦在场时，自身和场上全部同伴宝可梦使用钢属性招式威力×1.5。
+一方场上存在多只该特性的宝可梦时，效果累积。",steely-spirit,我方的钢属性攻击威力会提高。,钢之意志
+253,该特性的宝可梦受到接触类招式攻击时，会令双方陷入终焉之歌状态。3回合后，处于终焉之歌状态的宝可梦会陷入昏厥状态。替换后效果消失。,perish-body,受到接触类招式攻击时，双方都会在３回合后变为濒死状态。替换后效果消失。,灭亡之躯
+254,"受到接触类招式攻击时，互换双方的特性。在极巨化的情况下，游魂不会发动。
+- 如果连续攻击特性的宝可梦使用连续招式攻击游魂特性的宝可梦，该宝可梦的特性在第一次攻击之后就会变为游魂，但仍然会继续攻击最大次数。
+- 如果拥有坚硬脑袋特性的宝可梦使用了反作用力伤害的招式，则仍然要受到反作用力伤害。
+- 如果拥有亲子爱特性的宝可梦使用接触类招式攻击游魂特性的宝可梦，该宝可梦的特性在第一次攻击之后就会变为游魂，但仍然会继续攻击第二次，并且第二击的威力仍然是第一击的1⁄4。
+- 如果攻击方特性为无法被交换的特性，如神奇守护、多属性、达摩模式、牵绊变身、战斗切换、鱼群、画皮、绝对睡眠、群聚变形、界限盾壳、ＡＲ系统等，则游魂特性不发动。",wandering-spirit,与使用接触类招式攻击自己的宝可梦互换特性。,游魂
+255,"- 拥有该特性的宝可梦攻击会提高50%，但只能使用一开始使用的招式。
+重新上场或重新获得该特性时效果重置。
+该特性的宝可梦极巨化时，特性效果会暂时消失（不提升攻击且不会锁定招式），极巨化结束后，特性效果恢复。如果极巨化前已经使出过某招式，则极巨化结束后仍然只能使用该招式；如果极巨化前未曾成功使出过招式，则极巨化结束后仍可以自由选择招式，使用成功后只能使用该招式。
+如果宝可梦在特性效果下锁定的招式ＰＰ为零或者因为挑衅、定身法或无理取闹不能使用锁定的招式，则只能使用挣扎。此时无法进入招式选择界面。",gorilla-tactics,虽然攻击会提高，但是只能使出一开始所选的招式。,一猩一意
+256,"此特性能让周围宝可梦变为无特性状态。
+该特性在上场时发动，仅在太晶变形后发动，先于包括紧张感在内的其他特性。
+该特性无法消除其他宝可梦的化学变化气体和所有无法被覆盖的特性。
+该特性的宝可梦一旦被击倒或替换，其他宝可梦的特性就会生效，在此情况下：
+- 部分入场时发动的特性（如威吓、破格等）会在同位置的新宝可梦上场前按照速度顺序发动一次，无论之前是否发动过；
+- 满足一定条件才发动的特性（如贪吃鬼等）需要再次触发条件才能发动（如贪吃鬼需要ＨＰ在一半以下变化一次）；
+- 拥有自信过度、苍白嘶鸣、漆黑嘶鸣和异兽提升等特性的宝可梦在击倒特性为化学变化气体的宝可梦后可以提升能力。",neutralizing-gas,特性为化学变化气体的宝可梦在场时，场上所有宝可梦的特性效果都会消失或者无法生效。,化学变化气体
+257,拥有此特性的宝可梦不仅能使自己及同伴免疫中毒状态，在对战中出场时，还能回复我方的中毒状态。,pastel-veil,自己和同伴都不会陷入中毒的异常状态。,粉彩护幕
+258,"该特性的宝可梦每一回合都会在满腹花纹和空腹花纹之间改变自身的样子。
+气场轮会根据不同形态变为不同的属性，在满腹花纹时是电属性的招式，在空腹花纹时则会变成恶属性的招式。
+该特性在宝可梦太晶化后不再发动。宝可梦不再每一回合改变自身的样子，而是维持太晶化前的样子。",hunger-switch,每回合结束时会在满腹花纹与空腹花纹之间交替改变样子。,饱了又饿
+259,"对战中使用非变化招式时，有30%概率在相同优先度下先出手。
+- 速击触发时，无视后攻之尾的效果。",quick-draw,有时能比对手先一步行动。,速击
+260,"使用接触类招式时，能无视对方除极巨防壁外的防住类招式，正常造成伤害。
+- 不会触发王者盾牌、尖刺防守、碉堡、拦堵、线阱、火焰守护等招式的特殊效果。
+- 不会解除守住或快速防守状态。这与佯攻、潜灵奇袭或暗影潜袭不同。受该特性影响的招式无视防住类招式正常造成伤害后，目标在本回合仍然能阻挡大部分目标含自己的招式，下一回合连续使用招式的成功率也会降低。
+拥有此特性的宝可梦使用潜灵奇袭或暗影潜袭会正常接触守住或快速防守状态。
+- 如果该特性的宝可梦携带拳击手套使用拳类招式，招式不受该特性影响，依旧会被防住类招式阻挡。
+这种情况下，如果使用拳类招式以外的接触类招式，招式会受该特性影响，无视对方除极巨防壁外的防住类招式正常造成伤害。
+- 如果该特性的宝可梦携带部位护具使用接触类招式，招式会受该特性影响，无视对方除极巨防壁外的防住类招式正常造成伤害。
+拥有该特性的宝可梦使用连续招式命中拥有木乃伊、甩不掉的气味或游魂状态的目标时，宝可梦会在连续招式的第一次攻击受对应特性影响而失去该特性，但连续招式的剩余攻击仍会适用该特性效果，直到攻击结束。",unseen-fist,如果使出的是接触到对手的招式，就可以无视守护效果进行攻击。,无形拳
+261,当拥有这个特性的宝可梦上场战斗时，能产生将我方宝可梦能力变化复原的效果。,curious-medicine,出场时会从贝壳撒药，将我方的能力变化复原。,怪药
+262,拥有此特性的宝可梦使出的电属性招式威力会提高30%。,transistor,电属性的招式威力会提高。,电晶体
+264,该特性的宝可梦打败任意一方的一只宝可梦后，自身攻击提升1级。,chilling-neigh,打倒对手时会用冰冷的声音嘶鸣并提高攻击。,苍白嘶鸣
+265,该特性的宝可梦打败任意一方的一只宝可梦后，自身特攻提升1级。,grim-neigh,打倒对手时会用恐怖的声音嘶鸣并提高特攻。,漆黑嘶鸣
+266,"同时发动蕾冠王以及所骑爱马的特性（即紧张感及苍白嘶鸣／漆黑嘶鸣）。
+该特性的发动优先级高于除化学变化气体外的所有特性，与紧张感优先级相同。
+人马一体特性在宝可梦上场时会出现提示：“ [宝可梦的名字]同时拥有了两种特性！”，随后立刻出现紧张感的提示。",as-one-glastrier,兼备蕾冠王的紧张感和雪暴马的苍白嘶鸣这两种特性。兼备蕾冠王的紧张感和灵幽马的漆黑嘶鸣这两种特性。,人马一体
+267,"同时发动蕾冠王以及所骑爱马的特性（即紧张感及苍白嘶鸣／漆黑嘶鸣）。
+该特性的发动优先级高于除化学变化气体外的所有特性，与紧张感优先级相同。
+人马一体特性在宝可梦上场时会出现提示：“ [宝可梦的名字]同时拥有了两种特性！”，随后立刻出现紧张感的提示。",as-one-spectrier,兼备蕾冠王的紧张感和雪暴马的苍白嘶鸣这两种特性。兼备蕾冠王的紧张感和灵幽马的漆黑嘶鸣这两种特性。,人马一体
+268,"拥有该特性的宝可梦在受到接触类招式的攻击时，对手的特性会变成甩不掉的气味。
+如果该接触类招式是连续招式，在第一下攻击后攻击方的特性会变为甩不掉的气味，并且与增减招式伤害无关的特性效果在攻击结束前仍旧存在。
+- 连续攻击特性变为甩不掉的气味后，仍然会继续攻击最大次数。
+- 胆量特性变为甩不掉的气味后，如果使用的连续招式是一般属性或格斗属性，从第二下开始的攻击仍然能打中幽灵属性的宝可梦。
+- 诸如毅力、大力士之类能增减招式伤害的特性变为甩不掉的气味后，这类特性的效果会立刻消失。
+如果拥有坚硬脑袋特性的宝可梦使用了反作用力伤害的招式，则仍然要受到反作用力伤害。
+如果攻击方特性为木乃伊或无法被覆盖的特性，如多属性、达摩模式、战斗切换、界限盾壳、鱼群、画皮、结冻头、牵绊变身、群聚变形、绝对睡眠、ＡＲ系统、一口导弹、人马一体、全能变身、发号施令、古代活性、夸克充能、绯红脉动、强子引擎等，则攻击方的特性不会变为甩不掉的气味。",lingering-aroma,被对手接触到后，甩不掉的气味会沾上对手。,甩不掉的气味
+269,"拥有该特性的宝可梦在受到攻击时，场地会变为青草场地，持续5回合。
+- 携带了道具大地膜的情况下，青草场地会持续8回合。
+- 如果受到连续招式的攻击，则会在第一下攻击后布下青草场地。",seed-sower,受到攻击时，会将脚下变成青草场地。,掉出种子
+270,"拥有该特性的宝可梦在受到火属性攻击招式攻击时，自身攻击提升1级，且不会陷入灼伤状态。
+处于替身状态时，不会触发此特性。",thermal-exchange,受到火属性的招式攻击时，攻击会提高，且不会陷入灼伤状态。,热交换
+271,"当ＨＰ因受到攻击变为1⁄2以下时，防御和特防降低1级，攻击、特攻、速度提高1级。
+- 若ＨＰ是由于间接伤害而降为1⁄2以下（如寄生种子、天气伤害、因混乱而攻击自身、生命宝珠等），该特性不会触发。",anger-shell,因被对手攻击而ＨＰ变为一半时，会因愤怒降低防御和特防。但攻击、特攻、速度会提高。,愤怒甲壳
+272,"拥有该特性的宝可梦不会陷入异常状态。受到幽灵属性的招式的伤害变为1⁄2。
+- 无法成功使出睡觉。
+- 已经陷入异常状态的宝可梦获得该特性后，异常状态不会解除。
+- 不影响幽灵属性的固定伤害类招式，如黑夜魔影的伤害。",purifying-salt,因洁净的盐而不会陷入异常状态。会让幽灵属性的招式伤害减半。,洁净之盐
+273,"具有该特性的宝可梦不受火属性招式的影响，当被火属性的招式击中时，提升2级防御。
+- 该特性只能令自身不受火属性招式的影响，不能将火属性招式的目标转移至自身。
+- 该特性对火属性的变化招式有效。包括通过其他方式变为火属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。",well-baked-body,受到火属性的招式攻击时，不会受到伤害，而是会大幅提高防御。,焦香之躯
+274,"拥有该特性的宝可梦不受风的招式影响，当被风的招式击中时，提升1级攻击。
+己方场地上存在顺风时，攻击提高1级。",wind-rider,吹起了顺风或受到风的招式攻击时，不会受到伤害，而是会提高攻击。,乘风
+275,"拥有该特性的宝可梦受到威吓时，攻击不会下降，而是提升1级。
+不受强制替换宝可梦的招式以及红牌的影响。
+- 自身使用和后备宝可梦进行替换的招式或携带的逃脱按键不受该特性影响。",guard-dog,受到威吓时，攻击会提高。让替换宝可梦的招式和道具无效。,看门犬
+276,拥有该特性的宝可梦使出的岩石属性的招式威力会提高50%。,rocky-payload,岩石属性的招式威力会提高。,搬岩
+277,受到风的招式攻击或己方使用顺风时，会进入充电状态。,wind-power,受到风的招式攻击时，会变为充电状态。,风力发电
+278,"回到同行队伍后，会变为全能形态。
+- 全能形态的海豚侠在陷入昏厥状态、并在对战中恢复之后，仍然保持全能形态。",zero-to-hero,回到同行队伍后，会变为全能形态。,全能变身
+279,"拥有该特性的米立龙出场时，若同伴之一为吃吼霸，就会进入其口中，出现提示：[米立龙的名字]作为发号施令的要员而被[吃吼霸的名字]吞下去了！。吃吼霸的攻击、防御、特攻、特防、速度提升2级，且无法替换下场（即使米立龙陷入昏厥状态）。
+米立龙在吃吼霸口中时，其状态与使用蓄力的招式离场时类似。无法对其下达指令，以其为目标的招式不会命中（即使使用者的特性为无防守）。
+进入吃吼霸口中的米立龙仍会因为沙暴、异常状态等效果的影响而受到伤害。若米立龙此前已经陷入终焉之歌状态，进入口中后回合数仍会继续计算。
+当吃吼霸陷入昏厥状态时，米立龙从其口中离开并回到原来的位置。若另一只吃吼霸替换上场，发号施令会再次发动。相反，若吃吼霸口中的米立龙陷入昏厥状态，即使再次换上任何一只米立龙，发号施令也不会再次发动。
+米立龙的姿势会影响吃吼霸使用上菜时提高的能力。
+该特性在多人对战或太晶团体战中没有效果。",commander,出场时，若我方当中有吃吼霸，就会进入其口中，并从其口中发出指令。,发号施令
+280,"受到伤害时，会进入充电状态。
+- 连续招式每一击都会单独触发该特性。
+- 充电状态不能叠加。",electromorphosis,受到伤害时，会变为充电状态。,电力转换
+281,"携带驱劲能量或天气为大晴天时，除ＨＰ外数值最高的能力会提高30%；若该项能力为速度，则会提高50%。
+- 即使携带万能伞，在大晴天下依旧能够发动该特性。
+- 数值最高的能力的判断会计算能力变化，但不会计算携带道具、特性、状态变化等其他情况。
+- 在大晴天下，发动该特性时即使携带了驱劲能量也不会消耗。
+- 当数项能力同为最高时，按攻击、防御、特攻、特防、速度的顺序提升其中的一项。
+- 在己方场地上存在黏黏网（状态）时，受影响的己方宝可梦交换上场时，速度先下降1级，再根据当前速度实际值判定能力提升。",protosynthesis,携带着驱劲能量或天气为晴朗时，数值最高的能力会提高。,古代活性
+282,"携带驱劲能量或对战场地处于电气场地状态时，除ＨＰ外数值最高的能力会提高30%；若该项能力为速度，则会提高50%。
+- 场地处于电气场地时，无论特性拥有者是否为地面上的宝可梦均会发动。
+- 数值最高的能力的判断会计算能力变化，但不会计算携带道具、特性、状态变化等其他情况。
+- 在电气场地下，发动该特性时即使携带了驱劲能量也不会消耗。
+- 当数项能力同为最高时，按攻击、防御、特攻、特防、速度的顺序提升其中的一项。
+- 在己方场地上存在黏黏网（状态）时，受影响的己方宝可梦交换上场时，速度先下降1级，再根据当前速度实际值判定能力提升。
+- 出场时，当前没有电气场地，因特性或招式启动电气场地时，夸克充能会优先于电气种子发动。
+- 出场时，当前存在电气场地，电气种子会优先于夸克充能发动。",quark-drive,携带着驱劲能量或在电气场地上时，数值最高的能力会提高。,夸克充能
+283,"拥有该特性的宝可梦不会受到其他宝可梦以该特性宝可梦为目标（之一）的变化招式的影响，例如：终焉之歌。
+包括己方的其他宝可梦对该特性宝可梦使用变化招式依然无效，例如：帮助。
+该特性宝可梦依然会受到以下招式的影响：
+- 作用于该特性宝可梦一方范围的招式，例如：隐形岩；
+- 作用于全场的招式，例如：黑雾、戏法空间。",good-as-gold,不会氧化的坚固黄金身躯不会受到对手的变化招式的影响。,黄金之躯
+284,"拥有该特性的宝可梦在场时，除拥有灾祸之鼎特性的宝可梦外，其他特性的宝可梦的特攻降低为原本的3⁄4。
+- 破格不能无视该特性的效果。
+- 场上存在多只特性为灾祸之鼎的宝可梦时，其他宝可梦受到的特攻降低效果不叠加。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]的灾祸之鼎令周围的宝可梦的特攻减弱了！",vessel-of-ruin,以能呼唤灾厄的鼎的力量降低除自己以外的宝可梦的特攻。,灾祸之鼎
+285,"拥有该特性的宝可梦在场时，除拥有灾祸之剑特性的宝可梦外，其他特性的宝可梦的防御降低为原本的3⁄4。
+- 破格不能无视该特性的效果。
+- 场上存在多只特性为灾祸之剑的宝可梦时，其他宝可梦受到的防御降低效果不叠加。
+- 其他特性的宝可梦使用扑击，用防御代替攻击进行计算时，其防御不视为3⁄4。
+- 因混乱而攻击自身时，造成的伤害不会受到该特性的影响。
+- 若场上处于奇妙空间，该特性的效果变为降低特防为原本的3⁄4。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]的灾祸之剑令周围的宝可梦的防御减弱了！",sword-of-ruin,以能呼唤灾厄的剑的力量降低除自己以外的宝可梦的防御。,灾祸之剑
+286,"拥有该特性的宝可梦在场时，除拥有灾祸之简特性的宝可梦外，其他特性的宝可梦的攻击降低为原本的3⁄4。
+- 破格不能无视该特性的效果。
+- 场上存在多只特性为灾祸之简的宝可梦时，其他宝可梦受到的攻击降低效果不叠加。
+- 其他特性的宝可梦因混乱而攻击自身时，受到的伤害不受该特性的影响。
+- 其他特性的宝可梦使用扑击，用防御代替攻击进行计算时，将自身的防御视为3⁄4。
+- 拥有该特性的宝可梦使用移花接木攻击其他特性的宝可梦时，不将目标的攻击视为3⁄4。
+- 拥有该特性的宝可梦受到其他特性的宝可梦的移花接木攻击时，将自身的攻击视为3⁄4。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]的灾祸之简令周围的宝可梦的攻击减弱了！",tablets-of-ruin,以能呼唤灾厄的简的力量降低除自己以外的宝可梦的攻击。,灾祸之简
+287,"拥有该特性的宝可梦在场时，除拥有灾祸之玉特性的宝可梦外，其他特性的宝可梦的特防降低为原本的3⁄4。
+- 破格不能无视该特性的效果。
+- 场上存在多只特性为灾祸之玉的宝可梦时，其他宝可梦受到的特防降低效果不叠加。
+- 若场上处于奇妙空间，该特性的效果变为降低防御为原本的3⁄4。
+当拥有该特性的宝可梦登场时会出现提示：[宝可梦的名字]的灾祸之玉令周围的宝可梦的特防减弱了！",beads-of-ruin,以能呼唤灾厄的勾玉的力量降低除自己以外的宝可梦的特防。,灾祸之玉
+288,"拥有该特性的宝可梦出场时，天气转为大晴天并持续5回合。
+天气为大晴天时，攻击提高1⁄3。
+- 携带炽热岩石时，大晴天会持续8回合。
+- 在大晴天下攻击携带万能伞的目标时，提高的攻击不会被无视。但自身携带万能伞时，在大晴天下攻击不会提高（即使上场时依旧会出现提示：“[宝可梦的名字]令日照变强，激起了古代的脉动！”或“[宝可梦的名字]受到日照而激起了古代的脉动！！”）。",orichalcum-pulse,出场时，会将天气变为晴朗。日照强烈时，会通过古代的脉动升高攻击。,绯红脉动
+289,"拥有该特性的宝可梦出场时，会布下电气场地并持续5回合。
+场地为电气场地时，特攻提高1⁄3。
+- 携带大地膜时，电气场地会持续8回合。
+- 无论特性拥有者是否为地面上的宝可梦，在电气场地下特攻都会提高。",hadron-engine,出场时，会布下电气场地。处于电气场地时，会通过未来的机关升高特攻。,强子引擎
+290,对手的能力提高时，拥有该特性的宝可梦也会提高相同的能力。,opportunist,对手的能力提高时，自己也会趁机同样地提高能力。,跟风
+291,"拥有该特性的宝可梦食用携带的树果，或受到投掷的树果影响后，会在下一回合结束时，无视食用该树果的前提条件再食用1次。如果中途替换宝可梦，则特性不会发动。
+- 该特性不受紧张感影响。
+- 通过包包使用的树果不受影响。
+- 如果多次食用树果，反刍的回合数从食用最后一个树果开始重新计算，且反刍发动时只食用最后的树果。
+- 与回收利用不同，该特性只会再次食用树果，并不会回收树果。
+- 使用投掷把树果投出去的情况下，无论是使用投掷一方还是受到投掷一方都可以触发反刍。
+如果反刍宝可梦A使用投掷把携带的树果投掷给反刍宝可梦B，那么两只宝可梦都可以发动反刍。
+- 反刍发动前，如果拥有该特性的宝可梦无法受到该树果的影响，则特性不会发动：
+ＨＰ全满时，不会食用回复ＨＰ的树果；
+勿花果、异奇果、芒芒果、乐芭果和芭亚果除回复ＨＰ以外，还有令使用者陷入混乱状态的效果，因此即使ＨＰ全满也会食用。
+对应能力变化等级已达最大时，不会食用提升能力变化等级的树果；
+未处于对应异常状态时，不会食用解除异常状态的树果；
+已经处于易中要害状态时，不会食用兰萨果。",cud-chew,吃了树果后，会在下一回合结束时从胃反刍出来再吃１次。,反刍
+292,拥有该特性的宝可梦使出的切割类招式威力会提高50%。,sharpness,提高切割对手的招式的威力。,锋锐
+293,"拥有该特性的宝可梦一方，每有一只宝可梦陷入过昏厥状态，该特性的宝可梦的招式威力提升10%，上限为50%。
+- 若己方无宝可梦陷入昏厥状态，则入场时不会发动该特性。
+- 在双打对战中，该特性发动后，友方宝可梦倒下并不会使招式威力进一步提升。
+- 进入战斗之前的昏厥宝可梦不参与计算。
+- 拥有该特性的宝可梦自身陷入昏厥状态也会参与计算，且不会重置特性效果。
+- 在对战中复活不会降低特性提升的数值。
+- 在多人对战或太晶团体战中，同伴训练家的宝可梦陷入昏厥状态不参与计算。",supreme-overlord,出场时，攻击和特攻会按照目前被打倒的同伴数量逐渐提升，被打倒越多，提升越多。,大将
+294,拥有该特性的宝可梦出场时，会复制同伴的能力变化。,costar,出场时，复制同伴的能力变化。,同台共演
+295,"拥有该特性的宝可梦受到物理招式攻击时，会向对手的场地撒下毒菱，使交换上场的宝可梦中毒。
+可撒下两层毒菱，使交换上场的宝可梦进入剧毒状态。
+- 对手场地上已有两层毒菱时，该特性不会触发。
+- 连续招式的每一击都会触发此特性。
+- 受到高速旋转或晶光转转攻击时，会先触发该特性撒下毒菱，然后毒菱被移除。",toxic-debris,受到物理招式的伤害时，会在对手脚下散布毒菱。,毒满地
+296,"让对方使出会影响己方的先制招式失败，包含受到恶作剧之心、先行治疗或疾风之翼影响使优先度大于0的招式。
+- 该效果与出招顺序无关。只要是先制招式，即使慢于优先度为0的招式使出，己方仍会受到该特性的保护。",armor-tail,包裹头部的神秘尾巴使对手无法对我方使出先制招式。,尾甲
+297,"具有该特性的宝可梦不受地面属性招式的影响，当被地面属性的招式击中时，回复最大ＨＰ的1⁄4。
+- 该特性只能令自身不受地面属性招式的影响，不能将地面属性招式的目标转移至自身。
+- 该特性对地面属性的变化招式有效。包括通过其他方式变为地面属性的变化招式。
+- 对于连续招式，只会触发1次特性效果。
+- 触发该特性时，与没有效果相同，不会发动招式的追加效果。
+- 该特性的宝可梦进入守住状态无法通过被地面属性招式击中回复ＨＰ。",earth-eater,受到地面属性的招式攻击时，不会受到伤害，而是会得到回复。,食土
+298,"拥有该特性的宝可梦使出变化招式时，能够使目标自身、目标同伴以及自身同伴的一部分特性失效，并且在同一优先度下最晚行动。
+- 获得或失去该特性，被无特性覆盖或解除无特性，该特性对出手顺序的影响在操作的下一回合才能生效。",mycelium-might,使出变化招式时，虽然行动必定会变慢，但能不受对手的特性妨碍。,菌丝之力
+299,"持有该特性的宝可梦使出一般属性和格斗属性的招式时可以击中幽灵属性的宝可梦。
+持有该特性的宝可梦无视对手的闪避率能力变化，且命中率能力变化不会被降低。",minds-eye,一般属性和格斗属性的招式可以击中幽灵属性的宝可梦。无视对手的闪避率的变化，且命中率不会被降低。,心眼
+300,"首次出场时，令对手的闪避率下降1级。
+- 对处于飞翔、潜水、挖洞或暗影潜袭状态的宝可梦有效。
+- 拥有恒净之躯、白色烟雾、金属防护特性的宝可梦不受影响。
+- 处于替身状态的宝可梦不受影响。
+每只宝可梦一场战斗中仅能发动1次。",supersweet-syrup,首次出场时，会散发出甜腻的蜜的香味来降低对手的闪避率。,甘露之蜜
+301,出场时款待同伴，使其回复最大ＨＰ的1⁄4。,hospitality,出场时款待同伴，回复其少量ＨＰ。,款待
+302,持有该特性的宝可梦攻击命中目标时，有30%的概率会令目标陷入剧毒状态。,toxic-chain,凭借含有毒素的锁链的力量，有时能让被招式击中的对手陷入剧毒状态。,毒锁链
+303,"根据厄诡椪的形态而改变效果。
+碧草面具：每次出场时，速度上升1级。
+水井面具：每次出场时，特防上升1级。
+火灶面具：每次出场时，攻击上升1级。
+础石面具：每次出场时，防御上升1级。",embody-aspect,"将回忆映于心中，让碧草面具发出光辉，提高自己的速度。
+将回忆映于心中，让火灶面具发出光辉，提高自己的攻击。
+将回忆映于心中，让水井面具发出光辉，提高自己的特防。
+将回忆映于心中，让础石面具发出光辉，提高自己的防御。",面影辉映
+304,出场时，会吸收周围的能量，变为太晶形态。,tera-shift,出场时，会吸收周围的能量，变为太晶形态。,太晶变形
+305,拥有该特性的宝可梦在自身ＨＰ全满时，如果受到的攻击招式的属性相性倍率为1或以上，将变为效果不好（倍率为1⁄2）。,tera-shell,甲壳蕴藏着全部属性的力量，会将自己ＨＰ全满时受到的伤害全都变为效果不好。,太晶甲壳
+306,"令场上所有的天气型状态和场地型状态消失。
+每只宝可梦一场战斗中仅能发动1次，仅能在首次获得该特性时发动，如果发动特性的回合因化学变化气体陷入无特性状态，解除无特性状态后不会发动特性。",teraform-zero,太乐巴戈斯变为星晶形态时，蕴藏在它身上的力量会将天气和场地的影响全部归零。,归零化境
+307,桃歹郎的招式对其他宝可梦造成中毒状态时，那只宝可梦也会陷入混乱状态。,poison-puppeteer,因桃歹郎的招式而陷入中毒状态的对手同时也会陷入混乱状态。,毒傀儡
 10001,,mountaineer,,Mountaineer
 10002,,wave-rider,,Wave Rider
 10003,,skater,,Skater

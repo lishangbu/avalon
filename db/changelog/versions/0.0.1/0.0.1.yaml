@@ -18,7 +18,7 @@ databaseChangeLog:
               - column:
                   name: effect
                   remarks: 效果
-                  type: varchar(1000)
+                  type: text
               - column:
                   name: internal_name
                   remarks: 内部名称
