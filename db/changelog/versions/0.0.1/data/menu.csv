@@ -18,3 +18,7 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 17,dataset/gender/index,false,false,__NULL__,game-icons:duality-mask,gender,性别管理,gender,7,gender,false,,true,true,0
 18,dataset/growth-rate/index,false,false,__NULL__,game-icons:growth,growth-rate,成长速度管理,growth-rate,7,growth-rate,false,,true,true,0
 19,dataset/nature/index,false,false,__NULL__,game-icons:yin-yang,nature,性格管理,nature,7,nature,false,,true,true,0
+20,dataset/encounter-condition/index,false,false,__NULL__,ph:sliders-horizontal-bold,encounter-condition,遭遇条件管理,encounter-condition,7,encounter-condition,false,,true,true,0
+21,dataset/encounter-condition-value/index,false,false,__NULL__,ph:list-checks-bold,encounter-condition-value,遭遇条件值管理,encounter-condition-value,7,encounter-condition-value,false,,true,true,0
+22,dataset/encounter-method/index,false,false,__NULL__,ph:footprints-bold,encounter-method,遭遇方式管理,encounter-method,7,encounter-method,false,,true,true,0
+23,dataset/evolution-trigger/index,false,false,__NULL__,ph:git-branch-bold,evolution-trigger,进化触发方式管理,evolution-trigger,7,evolution-trigger,false,,true,true,0

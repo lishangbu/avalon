@@ -1,0 +1,24 @@
+export io.github.lishangbu.avalon.dataset.entity.EncounterCondition
+
+EncounterConditionView {
+    id
+    internalName
+    name
+}
+
+input SaveEncounterConditionInput {
+    internalName
+    name
+}
+
+input UpdateEncounterConditionInput {
+    id!
+    internalName
+    name
+}
+
+specification EncounterConditionSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

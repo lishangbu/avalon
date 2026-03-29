@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.EncounterMethod
+
+EncounterMethodView {
+    id
+    internalName
+    name
+    sortingOrder
+}
+
+input SaveEncounterMethodInput {
+    internalName
+    name
+    sortingOrder
+}
+
+input UpdateEncounterMethodInput {
+    id!
+    internalName
+    name
+    sortingOrder
+}
+
+specification EncounterMethodSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    sortingOrder
+}

@@ -1,16 +1,29 @@
 package io.github.lishangbu.avalon.dataset.repository
 
-import io.github.lishangbu.avalon.dataset.entity.EncounterMethod
+import io.github.lishangbu.avalon.dataset.entity.*
+import io.github.lishangbu.avalon.dataset.entity.dto.EncounterMethodSpecification
+import io.github.lishangbu.avalon.dataset.entity.dto.EncounterMethodView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Repository
 
-/**
- * 遭遇方法仓储接口
- *
- * 定义遭遇方法数据的查询与持久化操作
- *
- * @author lishangbu
- * @since 2026/2/12
- */
+/** 遭遇方式仓储接口 */
 @Repository
-interface EncounterMethodRepository : KRepository<EncounterMethod, Long>
+interface EncounterMethodRepository : KRepository<EncounterMethod, Long> {
+    /** 按条件查询遭遇方式视图 */
+    fun listViews(specification: EncounterMethodSpecification?): List<EncounterMethodView> =
+        sql
+            .createQuery(EncounterMethod::class) {
+                specification?.let(::where)
+                select(table.fetch(EncounterMethodView::class))
+            }.execute()
+
+    /** 按 ID 查询遭遇方式视图 */
+    fun loadViewById(id: Long): EncounterMethodView? =
+        sql
+            .createQuery(EncounterMethod::class) {
+                where(table.id eq id)
+                select(table.fetch(EncounterMethodView::class))
+            }.execute()
+            .firstOrNull()
+}
