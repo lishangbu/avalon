@@ -29,3 +29,7 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 28,dataset/move-category/index,false,false,__NULL__,ph:squares-four-bold,move-category,招式类别管理,move-category,7,move-category,false,,true,true,0
 29,dataset/move-learn-method/index,false,false,__NULL__,ph:graduation-cap-bold,move-learn-method,招式学习方式管理,move-learn-method,7,move-learn-method,false,,true,true,0
 30,dataset/move-target/index,false,false,__NULL__,ph:crosshair-bold,move-target,招式目标管理,move-target,7,move-target,false,,true,true,0
+31,dataset/item-pocket/index,false,false,__NULL__,ph:backpack-bold,item-pocket,道具口袋管理,item-pocket,7,item-pocket,false,,true,true,0
+32,dataset/item-category/index,false,false,__NULL__,ph:stack-bold,item-category,道具类别管理,item-category,7,item-category,false,,true,true,0
+33,dataset/item-fling-effect/index,false,false,__NULL__,ph:shooting-star-bold,item-fling-effect,道具投掷效果管理,item-fling-effect,7,item-fling-effect,false,,true,true,0
+34,dataset/item-attribute/index,false,false,__NULL__,ph:tag-chevron-bold,item-attribute,道具属性管理,item-attribute,7,item-attribute,false,,true,true,0

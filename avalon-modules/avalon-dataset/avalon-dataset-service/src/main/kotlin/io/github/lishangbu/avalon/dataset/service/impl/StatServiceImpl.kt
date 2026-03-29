@@ -23,12 +23,26 @@ class StatServiceImpl(
     override fun save(command: SaveStatInput): StatView = statRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
     /** 更新能力值*/
-    override fun update(command: UpdateStatInput): StatView = statRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateStatInput): StatView {
+        requireStatEditable(command.id.toLong(), "能力值已设为只读，禁止修改")
+        return statRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    }
 
     /** 按 ID 删除能力值*/
     override fun removeById(id: Long) {
+        requireStatEditable(id, "能力值已设为只读，禁止删除")
         statRepository.deleteById(id)
     }
 
     private fun reloadView(stat: Stat): StatView = requireNotNull(statRepository.loadViewById(stat.id)) { "未找到 ID=${stat.id} 对应的能力值" }
+
+    private fun requireStatEditable(
+        id: Long,
+        errorMessage: String,
+    ) {
+        val stat = requireNotNull(statRepository.findNullable(id)) { "未找到 ID=$id 对应的能力值" }
+        if (stat.readonly) {
+            throw IllegalStateException(errorMessage)
+        }
+    }
 }

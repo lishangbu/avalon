@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.ItemAttribute
+
+ItemAttributeView {
+    id
+    internalName
+    name
+    description
+}
+
+input SaveItemAttributeInput {
+    internalName
+    name
+    description
+}
+
+input UpdateItemAttributeInput {
+    id!
+    internalName
+    name
+    description
+}
+
+specification ItemAttributeSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(description)
+}

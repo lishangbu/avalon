@@ -1488,6 +1488,12 @@ databaseChangeLog:
                   remarks: 是否仅战斗可用
                   type: bool
               - column:
+                  name: readonly
+                  remarks: 是否只读
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)

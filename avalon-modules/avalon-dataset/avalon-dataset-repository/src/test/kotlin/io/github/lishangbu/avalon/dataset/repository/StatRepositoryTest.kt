@@ -25,6 +25,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertFalse(results.isEmpty())
         assertEquals("2", results.first().id)
         assertEquals("attack", results.first().internalName)
+        assertEquals(true, results.first().readonly)
         assertEquals("2", results.first().moveDamageClass?.id)
         assertEquals("physical", results.first().moveDamageClass?.internalName)
         assertEquals("物理", results.first().moveDamageClass?.name)
@@ -41,6 +42,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                     name = "单元测试能力"
                     gameIndex = 99
                     battleOnly = false
+                    readonly = false
                     moveDamageClass =
                         MoveDamageClass {
                             this.id = 2L
@@ -70,6 +72,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
                 internalName = "evasion",
                 gameIndex = 0,
                 battleOnly = true,
+                readonly = true,
                 moveDamageClassId = "1",
             )
 
@@ -80,6 +83,7 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertEquals("闪避", updated.name)
         assertEquals("evasion", updated.internalName)
         assertEquals(true, updated.battleOnly)
+        assertEquals(true, updated.readonly)
         assertEquals("1", updated.moveDamageClass?.id)
     }
 

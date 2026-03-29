@@ -1,0 +1,28 @@
+export io.github.lishangbu.avalon.dataset.entity.ItemFlingEffect
+
+ItemFlingEffectView {
+    id
+    internalName
+    name
+    effect
+}
+
+input SaveItemFlingEffectInput {
+    internalName
+    name
+    effect
+}
+
+input UpdateItemFlingEffectInput {
+    id!
+    internalName
+    name
+    effect
+}
+
+specification ItemFlingEffectSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(effect)
+}

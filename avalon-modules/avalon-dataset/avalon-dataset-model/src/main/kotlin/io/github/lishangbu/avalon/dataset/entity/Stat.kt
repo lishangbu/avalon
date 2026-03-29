@@ -25,6 +25,9 @@ interface Stat {
     /** 是否仅战斗可用 */
     val battleOnly: Boolean?
 
+    /** 是否只读 */
+    val readonly: Boolean
+
     /** 招式伤害分类 */
     @ManyToOne
     val moveDamageClass: MoveDamageClass?

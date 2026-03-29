@@ -1,0 +1,24 @@
+export io.github.lishangbu.avalon.dataset.entity.ItemPocket
+
+ItemPocketView {
+    id
+    internalName
+    name
+}
+
+input SaveItemPocketInput {
+    internalName
+    name
+}
+
+input UpdateItemPocketInput {
+    id!
+    internalName
+    name
+}
+
+specification ItemPocketSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

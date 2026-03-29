@@ -22,11 +22,21 @@ class StatControllerTest {
                     "生命",
                     1,
                     false,
+                    false,
                     StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
                 ),
             )
         service.listResult = list
-        val specification = StatSpecification(id = "1", internalName = "hp", name = "生命", gameIndex = 1, battleOnly = false, moveDamageClassId = "2")
+        val specification =
+            StatSpecification(
+                id = "1",
+                internalName = "hp",
+                name = "生命",
+                gameIndex = 1,
+                battleOnly = false,
+                readonly = false,
+                moveDamageClassId = "2",
+            )
 
         val result = controller.listStats(specification)
 
@@ -38,13 +48,14 @@ class StatControllerTest {
     fun save_delegatesToService() {
         val service = FakeStatService()
         val controller = StatController(service)
-        val command = SaveStatInput("hp", "生命", 1, false, "2")
+        val command = SaveStatInput("hp", "生命", 1, false, false, "2")
         service.saveResult =
             StatView(
                 "1",
                 "hp",
                 "生命",
                 1,
+                false,
                 false,
                 StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
             )
@@ -59,13 +70,14 @@ class StatControllerTest {
     fun update_delegatesToService() {
         val service = FakeStatService()
         val controller = StatController(service)
-        val command = UpdateStatInput("1", "hp", "生命", 1, false, "2")
+        val command = UpdateStatInput("1", "hp", "生命", 1, false, false, "2")
         service.updateResult =
             StatView(
                 "1",
                 "hp",
                 "生命",
                 1,
+                false,
                 false,
                 StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
             )

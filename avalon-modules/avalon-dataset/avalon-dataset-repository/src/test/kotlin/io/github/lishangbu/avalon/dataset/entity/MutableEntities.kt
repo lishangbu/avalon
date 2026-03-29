@@ -41,6 +41,7 @@ class MutableStat : Stat {
     override var name: String? = null
     override var gameIndex: Int? = null
     override var battleOnly: Boolean? = null
+    override var readonly: Boolean = false
     override var moveDamageClass: MoveDamageClass? = null
 }
 

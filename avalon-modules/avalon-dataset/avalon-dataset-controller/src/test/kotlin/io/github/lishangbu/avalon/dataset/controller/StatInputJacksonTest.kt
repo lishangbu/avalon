@@ -26,6 +26,7 @@ class StatInputJacksonTest {
               "name": "攻击",
               "gameIndex": 2,
               "battleOnly": false,
+              "readonly": true,
               "moveDamageClassId": "2"
             }
             """.trimIndent()
@@ -34,6 +35,7 @@ class StatInputJacksonTest {
 
         assertEquals("2", input.id)
         assertEquals("attack", input.internalName)
+        assertEquals(true, input.readonly)
         assertEquals("2", input.moveDamageClassId)
     }
 }

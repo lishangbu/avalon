@@ -6,6 +6,7 @@ StatView {
     name
     gameIndex
     battleOnly
+    readonly
     moveDamageClass {
         id
         internalName
@@ -18,6 +19,7 @@ input SaveStatInput {
     name
     gameIndex
     battleOnly
+    readonly
     id(moveDamageClass) as moveDamageClassId
 }
 
@@ -27,6 +29,7 @@ input UpdateStatInput {
     name
     gameIndex
     battleOnly
+    readonly
     id(moveDamageClass) as moveDamageClassId
 }
 
@@ -36,5 +39,6 @@ specification StatSpecification {
     like/i(name)
     gameIndex
     battleOnly
+    readonly
     associatedIdEq(moveDamageClass) as moveDamageClassId
 }

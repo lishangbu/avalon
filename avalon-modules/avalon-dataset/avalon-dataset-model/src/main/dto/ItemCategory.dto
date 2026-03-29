@@ -1,0 +1,32 @@
+export io.github.lishangbu.avalon.dataset.entity.ItemCategory
+
+ItemCategoryView {
+    id
+    internalName
+    name
+    itemPocket {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveItemCategoryInput {
+    internalName
+    name
+    id(itemPocket) as itemPocketId
+}
+
+input UpdateItemCategoryInput {
+    id!
+    internalName
+    name
+    id(itemPocket) as itemPocketId
+}
+
+specification ItemCategorySpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    associatedIdEq(itemPocket) as itemPocketId
+}

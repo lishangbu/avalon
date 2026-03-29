@@ -10,6 +10,7 @@ import io.github.lishangbu.avalon.dataset.repository.StatRepository
 import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -23,7 +24,17 @@ class StatServiceImplTest {
     fun listByCondition_callsRepository() {
         val specification = StatSpecification(id = "1", internalName = "speed")
         `when`(repository.listViews(specification)).thenReturn(
-            listOf(StatView("2", "attack", "攻击", 2, false, StatView.TargetOf_moveDamageClass("2", "physical", "物理"))),
+            listOf(
+                StatView(
+                    "2",
+                    "attack",
+                    "攻击",
+                    2,
+                    false,
+                    false,
+                    StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
+                ),
+            ),
         )
 
         val result = service.listByCondition(specification)
@@ -38,7 +49,7 @@ class StatServiceImplTest {
         `when`(repository.save(any<Stat>(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(statSavedEntity(2L))
         `when`(repository.loadViewById(2L)).thenReturn(statView("2", "attack", "攻击"))
 
-        val result = service.save(SaveStatInput("attack", "攻击", 2, false, "2"))
+        val result = service.save(SaveStatInput("attack", "攻击", 2, false, false, "2"))
 
         assertEquals("2", result.id)
         assertEquals("物理", result.moveDamageClass?.name)
@@ -48,10 +59,11 @@ class StatServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
+        `when`(repository.findNullable(2L)).thenReturn(statSavedEntity(2L))
         `when`(repository.save(any<Stat>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(statSavedEntity(2L))
         `when`(repository.loadViewById(2L)).thenReturn(statView("2", "attack", "攻击"))
 
-        val result = service.update(UpdateStatInput("2", "attack", "攻击", 2, false, "2"))
+        val result = service.update(UpdateStatInput("2", "attack", "攻击", 2, false, false, "2"))
 
         assertEquals("2", result.id)
         assertEquals("physical", result.moveDamageClass?.internalName)
@@ -61,19 +73,49 @@ class StatServiceImplTest {
 
     @Test
     fun removeById_callsRepository() {
+        `when`(repository.findNullable(1L)).thenReturn(statSavedEntity(1L))
+
         service.removeById(1L)
 
         verify(repository).deleteById(1L)
     }
+
+    @Test
+    fun update_rejectsReadonlyStat() {
+        `when`(repository.findNullable(2L)).thenReturn(statSavedEntity(2L, readonly = true))
+
+        val error =
+            assertThrows(IllegalStateException::class.java) {
+                service.update(UpdateStatInput("2", "attack", "攻击", 2, false, true, "2"))
+            }
+
+        assertEquals("能力值已设为只读，禁止修改", error.message)
+    }
+
+    @Test
+    fun removeById_rejectsReadonlyStat() {
+        `when`(repository.findNullable(1L)).thenReturn(statSavedEntity(1L, readonly = true))
+
+        val error =
+            assertThrows(IllegalStateException::class.java) {
+                service.removeById(1L)
+            }
+
+        assertEquals("能力值已设为只读，禁止删除", error.message)
+    }
 }
 
-private fun statSavedEntity(id: Long): Stat =
+private fun statSavedEntity(
+    id: Long,
+    readonly: Boolean = false,
+): Stat =
     Stat {
         this.id = id
         internalName = "attack"
         name = "攻击"
         gameIndex = 2
         battleOnly = false
+        this.readonly = readonly
         moveDamageClass =
             MoveDamageClass {
                 this.id = 2L
@@ -84,4 +126,14 @@ private fun statView(
     id: String,
     internalName: String,
     name: String,
-): StatView = StatView(id, internalName, name, 2, false, StatView.TargetOf_moveDamageClass("2", "physical", "物理"))
+    readonly: Boolean = false,
+): StatView =
+    StatView(
+        id,
+        internalName,
+        name,
+        2,
+        false,
+        readonly,
+        StatView.TargetOf_moveDamageClass("2", "physical", "物理"),
+    )
