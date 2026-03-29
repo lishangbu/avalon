@@ -5,12 +5,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import jakarta.annotation.Resource
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestMethodOrder
 
 /** 属性仓储测试 */
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TypeRepositoryTest : AbstractRepositoryTest() {
     @Resource
     private lateinit var typeRepository: TypeRepository
@@ -61,7 +58,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
         val type =
             typeRepository.save(
                 Type {
-                    internalName = "update_internal"
+                    internalName = "type-update-internal"
                     name = "原始名称"
                 },
                 SaveMode.INSERT_ONLY,
@@ -87,7 +84,7 @@ class TypeRepositoryTest : AbstractRepositoryTest() {
         val type =
             typeRepository.save(
                 Type {
-                    internalName = "update_internal"
+                    internalName = "type-delete-internal"
                     name = "原始名称"
                 },
                 SaveMode.INSERT_ONLY,

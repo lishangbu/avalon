@@ -1,0 +1,7 @@
+interface:
+  display_name: "Jimmer Dev"
+  short_description: "项目内 Jimmer 开发约定与最佳实践"
+  default_prompt: "Use $jimmer-dev to design or modify repository-local Jimmer entities, dto files, repositories, and service save/query flows."
+
+policy:
+  allow_implicit_invocation: true
