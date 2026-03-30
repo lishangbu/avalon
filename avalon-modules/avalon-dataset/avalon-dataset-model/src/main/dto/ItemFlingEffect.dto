@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.ItemFlingEffect
+import jakarta.validation.constraints.NotBlank
 
 ItemFlingEffectView {
     id
@@ -8,15 +9,21 @@ ItemFlingEffectView {
 }
 
 input SaveItemFlingEffectInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     effect
 }
 
 input UpdateItemFlingEffectInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     effect
 }
 

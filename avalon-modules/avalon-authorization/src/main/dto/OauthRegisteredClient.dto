@@ -1,4 +1,95 @@
 export io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
+import jakarta.validation.constraints.NotBlank
+
+OauthRegisteredClientView {
+    id
+    clientId
+    clientIdIssuedAt
+    clientSecret
+    clientSecretExpiresAt
+    clientName
+    clientAuthenticationMethods
+    authorizationGrantTypes
+    redirectUris
+    postLogoutRedirectUris
+    scopes
+    requireProofKey
+    requireAuthorizationConsent
+    jwkSetUrl
+    tokenEndpointAuthenticationSigningAlgorithm
+    x509CertificateSubjectDn
+    authorizationCodeTimeToLive
+    accessTokenTimeToLive
+    accessTokenFormat
+    deviceCodeTimeToLive
+    reuseRefreshTokens
+    refreshTokenTimeToLive
+    idTokenSignatureAlgorithm
+    x509CertificateBoundAccessTokens
+}
+
+input SaveOauthRegisteredClientInput {
+    id
+    @NotBlank(message = "客户端 ID 不能为空")
+    clientId
+    clientIdIssuedAt
+    clientSecret
+    clientSecretExpiresAt
+    @NotBlank(message = "客户端名称不能为空")
+    clientName
+    @NotBlank(message = "客户端认证方式不能为空")
+    clientAuthenticationMethods
+    @NotBlank(message = "授权类型不能为空")
+    authorizationGrantTypes
+    redirectUris
+    postLogoutRedirectUris
+    scopes
+    requireProofKey
+    requireAuthorizationConsent
+    jwkSetUrl
+    tokenEndpointAuthenticationSigningAlgorithm
+    x509CertificateSubjectDn
+    authorizationCodeTimeToLive
+    accessTokenTimeToLive
+    accessTokenFormat
+    deviceCodeTimeToLive
+    reuseRefreshTokens
+    refreshTokenTimeToLive
+    idTokenSignatureAlgorithm
+    x509CertificateBoundAccessTokens
+}
+
+input UpdateOauthRegisteredClientInput {
+    @NotBlank(message = "主键不能为空")
+    id
+    @NotBlank(message = "客户端 ID 不能为空")
+    clientId
+    clientIdIssuedAt
+    clientSecret
+    clientSecretExpiresAt
+    @NotBlank(message = "客户端名称不能为空")
+    clientName
+    @NotBlank(message = "客户端认证方式不能为空")
+    clientAuthenticationMethods
+    @NotBlank(message = "授权类型不能为空")
+    authorizationGrantTypes
+    redirectUris
+    postLogoutRedirectUris
+    scopes
+    requireProofKey
+    requireAuthorizationConsent
+    jwkSetUrl
+    tokenEndpointAuthenticationSigningAlgorithm
+    x509CertificateSubjectDn
+    authorizationCodeTimeToLive
+    accessTokenTimeToLive
+    accessTokenFormat
+    deviceCodeTimeToLive
+    reuseRefreshTokens
+    refreshTokenTimeToLive
+    idTokenSignatureAlgorithm
+    x509CertificateBoundAccessTokens
+}
 
 specification OauthRegisteredClientSpecification {
     id

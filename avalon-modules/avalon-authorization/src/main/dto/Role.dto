@@ -1,4 +1,52 @@
 export io.github.lishangbu.avalon.authorization.entity.Role
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+
+RoleView {
+    id
+    code
+    name
+    enabled
+    menus {
+        id
+        id(parent) as parentId
+        disabled
+        extra
+        icon
+        key
+        label
+        show
+        path
+        name
+        redirect
+        component
+        sortingOrder
+        pinned
+        showTab
+        enableMultiTab
+    }
+}
+
+input SaveRoleInput {
+    @NotBlank(message = "角色编码不能为空")
+    code
+    @NotBlank(message = "角色名称不能为空")
+    name
+    @NotNull(message = "角色启用状态不能为空")
+    enabled
+    id(menus) as menuIds
+}
+
+input UpdateRoleInput {
+    id!
+    @NotBlank(message = "角色编码不能为空")
+    code
+    @NotBlank(message = "角色名称不能为空")
+    name
+    @NotNull(message = "角色启用状态不能为空")
+    enabled
+    id(menus) as menuIds
+}
 
 specification RoleSpecification {
     id

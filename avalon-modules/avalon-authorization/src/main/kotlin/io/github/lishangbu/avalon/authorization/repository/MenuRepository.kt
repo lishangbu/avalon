@@ -1,10 +1,13 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuTreeView
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuView
 import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
 import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.babyfish.jimmer.sql.kt.ast.expression.isNull
 import org.springframework.data.domain.Sort
 
 /**
@@ -24,23 +27,44 @@ interface MenuRepository : KRepository<Menu, Long> {
                 select(table.fetch(AuthorizationFetchers.MENU))
             }.execute()
 
-    /** 按条件排序查询菜单列表 */
-    fun findAll(
-        specification: Specification<Menu>?,
-        sort: Sort,
-    ): List<Menu> =
+    /** 按条件查询菜单视图列表 */
+    fun listViews(specification: Specification<Menu>?): List<MenuView> =
         sql
             .createQuery(Menu::class) {
                 specification?.let(::where)
-                orderBy(sort)
-                select(table.fetch(AuthorizationFetchers.MENU))
+                orderBy(DEFAULT_SORT)
+                select(table.fetch(MenuView::class))
             }.execute()
 
-    /** 按排序顺序和 ID 升序查询菜单列表 */
-    fun findAllByOrderBySortingOrderAscIdAsc(): List<Menu>
+    /** 查询根节点菜单树 */
+    fun listTreeViews(): List<MenuTreeView> =
+        sql
+            .createQuery(Menu::class) {
+                where(table.parentId.isNull())
+                orderBy(DEFAULT_SORT)
+                select(table.fetch(MenuTreeView::class))
+            }.execute()
 
-    /** 按角色编码列表查询菜单 */
-    fun listByRoleCodes(roleCodes: List<String>): List<Menu> {
+    /** 判断是否存在子菜单 */
+    fun hasChildren(parentId: Long): Boolean =
+        sql
+            .createQuery(Menu::class) {
+                where(table.parentId eq parentId)
+                select(table.id)
+            }.execute()
+            .isNotEmpty()
+
+    /** 按 ID 查询菜单视图 */
+    fun loadViewById(id: Long): MenuView? =
+        sql
+            .createQuery(Menu::class) {
+                where(table.id eq id)
+                select(table.fetch(MenuView::class))
+            }.execute()
+            .firstOrNull()
+
+    /** 按角色编码列表查询授权菜单视图 */
+    fun listViewsByRoleCodes(roleCodes: List<String>): List<MenuView> {
         if (roleCodes.isEmpty()) {
             return emptyList()
         }
@@ -51,10 +75,16 @@ interface MenuRepository : KRepository<Menu, Long> {
                         where(table.code eq roleCode)
                         select(table.fetch(AuthorizationFetchers.ROLE_WITH_MENUS))
                     }.execute()
-                    .flatMap { it.menus }
+                    .flatMap { role -> role.menus }
+                    .map(::MenuView)
             }
         return menus
             .distinctBy { it.id }
-            .sortedWith(compareBy<Menu> { it.sortingOrder ?: Int.MAX_VALUE }.thenBy { it.id })
+            .sortedWith(compareBy<MenuView> { it.sortingOrder ?: Int.MAX_VALUE }.thenBy { it.id })
+    }
+
+    companion object {
+        private val DEFAULT_SORT: Sort =
+            Sort.by(Sort.Order.asc("sortingOrder"), Sort.Order.asc("id"))
     }
 }

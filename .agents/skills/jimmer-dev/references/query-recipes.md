@@ -14,6 +14,7 @@
 2. repository 用 `table.fetch(View::class)` 返回读模型
 3. service 用 `input.toEntity()` + `SaveMode`
 4. 写入后如果要返回完整关联信息，再按 ID reload
+5. `View` 只做读模型；update 和相关测试不要把 `View` 反向 `toEntity()` 后直接保存
 
 参考文件：
 
@@ -47,6 +48,11 @@ override fun save(command: SaveXxxInput): XxxView =
     repository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 ```
 
+注意：
+
+- 对 DTO-first 聚合，`XxxView` 可能只携带部分关联字段；把它 round-trip 成 entity 再 `save`，可能触发非预期的关联 upsert。
+- 更新优先使用 `UpdateXxxInput.toEntity()`，或者基于已加载 entity copy 做定向修改。
+
 ## 2. Dataset Pagination: Query View Directly
 
 适用场景：
@@ -73,7 +79,59 @@ fun pageViews(
         }.fetchPage(pageable.pageNumber, pageable.pageSize)
 ```
 
-## 3. Authorization Query: Fetcher First
+## 3. Authorization Management CRUD: Generated View + Generated Input
+
+适用场景：
+
+- `authorization` 的管理端分页、列表、详情、创建、更新
+- 返回值需要稳定读模型
+- service 内部仍要保留 entity merge 或关联绑定
+
+参考文件：
+
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/UserRepository.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/RoleRepository.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/Oauth2RegisteredClientRepository.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/UserServiceImpl.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/OauthRegisteredClientServiceImpl.kt`
+
+推荐做法：
+
+1. `.dto` 中同时定义 `XxxView`、`SaveXxxInput`、`UpdateXxxInput`、`Specification`
+2. repository 默认补 `pageViews`、`listViews`、`loadViewById`
+3. service 的 `page/list/getById` 直接返回 generated `XxxView`
+4. `save/update` 里先做 entity 绑定或 merge，再 `let(::reloadView)`
+
+示例骨架：
+
+```kotlin
+fun pageViews(
+    specification: XxxSpecification?,
+    pageable: Pageable,
+): Page<XxxView> =
+    sql
+        .createQuery(Xxx::class) {
+            specification?.let(::where)
+            select(table.fetch(XxxView::class))
+        }.fetchPage(pageable.pageNumber, pageable.pageSize)
+
+fun loadViewById(id: Long): XxxView? =
+    sql
+        .createQuery(Xxx::class) {
+            where(table.id eq id)
+            select(table.fetch(XxxView::class))
+        }.execute()
+        .firstOrNull()
+```
+
+```kotlin
+override fun save(command: SaveXxxInput): XxxView =
+    repository.save(bindSomething(command.toEntity()), SaveMode.INSERT_ONLY).let(::reloadView)
+```
+
+不要把这条 recipe 扩展到认证、授权装配等内部流程。
+
+## 4. Authorization Internal Query: Fetcher First
 
 适用场景：
 
@@ -100,7 +158,7 @@ fun listWithMenus(specification: Specification<Role>?): List<Role> =
 
 不要把这类已有模式硬改成 DTO，除非任务明确要求做授权模块整体收敛。
 
-## 4. Many-To-Many Bind: Merge Existing Entity Carefully
+## 5. Many-To-Many Bind: Preserve Unloaded, Clear Explicit Empty
 
 适用场景：
 
@@ -116,9 +174,10 @@ fun listWithMenus(specification: Specification<Role>?): List<Role> =
 推荐步骤：
 
 1. 如果是 update，先按带 fetcher 的方式加载 existing
-2. 用 `readOrNull` 读取当前请求中可能未加载的属性
-3. 提取关联 ID，回库加载受控实体
-4. 用新的 detached entity 重建写入对象
+2. 用 `readOrNull` 判断请求中的关联集合是否已加载
+3. 如果集合已加载，提取关联 ID，回库加载受控实体
+4. 如果集合未加载且是 update，回退到 existing 的关联集合
+5. 用新的 detached entity 重建写入对象，并在“显式空集合”时主动标记集合为已加载
 
 示例骨架：
 
@@ -130,40 +189,38 @@ val existing =
         null
     }
 
-val currentIds = aggregate.readOrNull { relations }?.mapNotNull { it.readOrNull { id } }.orEmpty()
+val currentRelations = aggregate.readOrNull { relations }
+val relationIds =
+    currentRelations
+        ?.mapNotNull { it.readOrNull { id } }
+        ?.toCollection(LinkedHashSet())
+val shouldLoadRelations = currentRelations != null
 val boundRelations =
     when {
-        currentIds.isNotEmpty() -> relationRepository.findAllById(currentIds.toSet())
-        preserveWhenNull -> existing?.readOrNull { relations }.orEmpty()
+        currentRelations != null && !relationIds.isNullOrEmpty() ->
+            relationRepository.findAllById(relationIds)
+        currentRelations != null ->
+            emptyList()
+        preserveWhenNull ->
+            existing?.readOrNull { relations } ?: emptyList()
         else -> emptyList()
     }
+
+return Aggregate {
+    aggregate.readOrNull { id }?.let { id = it }
+    if (shouldLoadRelations) {
+        relations()
+    }
+    boundRelations.forEach { relation -> relations().addBy(relation) }
+}
 ```
 
 注意：
 
 - `readOrNull` 只用于保留未加载语义。
+- 不要对 `aggregate.readOrNull { relations }` 直接 `.orEmpty()`；那会把“未加载”和“显式空集合”混成一种情况。
+- 只有集合已加载但为空时，才表示“清空关联”；此时要显式调用 `relations()` 把空集合标记为已加载。
 - 如果新模块已经是 DTO-first，优先设计明确 input，不要复制这套 merge 流程。
-
-## 5. Scalar Tree Model: Keep `parentId`
-
-适用场景：
-
-- 菜单树、分类树
-- 前端主要做树展示和表单编辑
-- 业务并不依赖复杂自关联抓取
-
-参考文件：
-
-- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/entity/Menu.kt`
-- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/MenuServiceImpl.kt`
-
-推荐做法：
-
-- 实体保留 `parentId: Long?`
-- 树组装放在 service 或专门的 tree util
-- 父节点合法性校验单独做，不依赖 ORM 自关联图
-
-这类模型不要因为 Jimmer 支持关联，就机械改成 `@ManyToOne` 自关联。
 
 ## 6. Composite Key Upsert/Delete
 
@@ -229,7 +286,7 @@ repository.save(
 优先顺序：
 
 - 返回简单标量即可：可直接包装保存结果
-- 返回 DTO view 且依赖关联名称：保存后 reload view
+- 返回 DTO view 且依赖关联名称或稳定管理端读模型：保存后 reload view
 - 返回 entity 且内部继续传递：保留 entity/fetcher 风格
 
 参考文件：

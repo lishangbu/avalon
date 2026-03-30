@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.PokemonShapeView
 import io.github.lishangbu.avalon.dataset.entity.dto.SavePokemonShapeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdatePokemonShapeInput
 import io.github.lishangbu.avalon.dataset.service.PokemonShapeService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class PokemonShapeController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SavePokemonShapeInput,
     ): PokemonShapeView = pokemonShapeService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdatePokemonShapeInput,
     ): PokemonShapeView = pokemonShapeService.update(command)
 

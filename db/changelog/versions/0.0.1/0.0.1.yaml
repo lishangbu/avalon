@@ -23,6 +23,8 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: introduction
                   remarks: 介绍
@@ -31,6 +33,8 @@ databaseChangeLog:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: authentication_log
             remarks: 认证日志
@@ -62,10 +66,14 @@ databaseChangeLog:
                   name: occurred_at
                   remarks: 发生时间
                   type: timestamptz
+                  constraints:
+                    nullable: false
               - column:
                   name: success
                   remarks: 是否成功
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: user_agent
                   remarks: 用户代理
@@ -89,42 +97,62 @@ databaseChangeLog:
                   name: bulk
                   remarks: 体积
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: growth_time
                   remarks: 成长时间
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: max_harvest
                   remarks: 最大收获量
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: natural_gift_power
                   remarks: 自然礼物威力
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: smoothness
                   remarks: 顺滑度
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: soil_dryness
                   remarks: 土壤干燥度
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: berry_firmness_id
                   remarks: 树果硬度 ID
                   type: int8
+                  constraints:
+                    nullable: false
               - column:
                   name: natural_gift_type_id
                   remarks: 自然礼物属性 ID
                   type: int8
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: berry_firmness
             remarks: 树果硬度
@@ -140,10 +168,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: berry_flavor
             remarks: 树果风味
@@ -159,10 +191,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: egg_group
             remarks: 蛋组
@@ -178,18 +214,26 @@ databaseChangeLog:
                   name: characteristics
                   remarks: 特性
                   type: varchar(500)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: text
                   remarks: 文本
                   type: varchar(200)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: encounter_condition
             remarks: 遭遇条件
@@ -205,10 +249,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: encounter_condition_value
             remarks: 遭遇条件值
@@ -224,10 +272,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: encounter_condition_id
                   remarks: 遭遇条件 ID
@@ -252,14 +304,20 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: sorting_order
                   remarks: 排序顺序
                   type: int4
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: evolution_chain
             remarks: 进化链
@@ -290,10 +348,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: gender
             remarks: 性别
@@ -309,10 +371,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: growth_rate
             remarks: 成长速率
@@ -328,14 +394,20 @@ databaseChangeLog:
                   name: description
                   remarks: 描述
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: item
             remarks: 道具
@@ -351,6 +423,8 @@ databaseChangeLog:
                   name: cost
                   remarks: 价格
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: effect
                   remarks: 效果
@@ -363,10 +437,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: short_effect
                   remarks: 简称效果
@@ -394,14 +472,20 @@ databaseChangeLog:
                   name: description
                   remarks: 描述
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: item_attribute_relation
             remarks: 道具属性关联
@@ -441,14 +525,20 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: item_pocket_id
                   remarks: 道具口袋 ID
                   type: int8
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: item_fling_effect
             remarks: 道具投掷效果
@@ -464,14 +554,20 @@ databaseChangeLog:
                   name: effect
                   remarks: 效果
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: item_pocket
             remarks: 道具口袋
@@ -487,10 +583,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: machine
             remarks: 招式机
@@ -529,14 +629,20 @@ databaseChangeLog:
                   name: component
                   remarks: 组件
                   type: varchar(500)
+                  constraints:
+                    nullable: false
               - column:
                   name: disabled
                   remarks: 是否禁用
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: enable_multi_tab
                   remarks: 是否启用多标签页
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: extra
                   remarks: 扩展信息
@@ -549,14 +655,20 @@ databaseChangeLog:
                   name: key
                   remarks: 键名
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: label
                   remarks: 标签
                   type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(500)
+                  constraints:
+                    nullable: false
               - column:
                   name: parent_id
                   remarks: 父节点 ID
@@ -565,10 +677,14 @@ databaseChangeLog:
                   name: path
                   remarks: 路径
                   type: varchar(500)
+                  constraints:
+                    nullable: false
               - column:
                   name: pinned
                   remarks: 是否固定
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: redirect
                   remarks: 重定向
@@ -577,14 +693,20 @@ databaseChangeLog:
                   name: show
                   remarks: 是否显示
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: show_tab
                   remarks: 是否显示标签页
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: sorting_order
                   remarks: 排序顺序
                   type: int4
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move
             remarks: 招式
@@ -632,6 +754,8 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: max_hits
                   remarks: 最大命中次数
@@ -652,6 +776,8 @@ databaseChangeLog:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: power
                   remarks: 威力
@@ -664,6 +790,8 @@ databaseChangeLog:
                   name: priority
                   remarks: 优先级
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: short_effect
                   remarks: 简称效果
@@ -688,14 +816,20 @@ databaseChangeLog:
                   name: move_damage_class_id
                   remarks: 招式伤害分类 ID
                   type: int8
+                  constraints:
+                    nullable: false
               - column:
                   name: move_target_id
                   remarks: 招式目标 ID
                   type: int8
+                  constraints:
+                    nullable: false
               - column:
                   name: type_id
                   remarks: 属性 ID
                   type: int8
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move_ailment
             remarks: 招式异常状态
@@ -711,10 +845,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move_category
             remarks: 招式分类
@@ -730,14 +868,20 @@ databaseChangeLog:
                   name: description
                   remarks: 描述
                   type: varchar(300)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move_damage_class
             remarks: 招式伤害分类
@@ -753,14 +897,20 @@ databaseChangeLog:
                   name: description
                   remarks: 描述
                   type: varchar(300)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move_learn_method
             remarks: 招式学习方法
@@ -776,14 +926,20 @@ databaseChangeLog:
                   name: description
                   remarks: 描述
                   type: varchar(300)
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: move_target
             remarks: 招式目标
@@ -803,10 +959,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: nature
             remarks: 性格
@@ -822,10 +982,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: decreased_stat_id
                   remarks: 降低能力值 ID
@@ -1044,10 +1208,14 @@ databaseChangeLog:
                   name: authorization_grant_types
                   remarks: 授权类型列表
                   type: varchar(1000)
+                  constraints:
+                    nullable: false
               - column:
                   name: client_authentication_methods
                   remarks: 客户端认证方式列表
                   type: varchar(1000)
+                  constraints:
+                    nullable: false
               - column:
                   name: client_id
                   remarks: 客户端 ID
@@ -1060,6 +1228,8 @@ databaseChangeLog:
                   name: client_id_issued_at
                   remarks: 客户端 ID 签发时间
                   type: timestamptz
+                  constraints:
+                    nullable: false
               - column:
                   name: client_name
                   remarks: 客户端名称
@@ -1149,10 +1319,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: sorting_order
                   remarks: 排序顺序
@@ -1216,10 +1390,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: pokemon_habitat
             remarks: 宝可梦栖息地
@@ -1235,10 +1413,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: pokemon_shape
             remarks: 宝可梦形态
@@ -1434,6 +1616,8 @@ databaseChangeLog:
                   name: enabled
                   remarks: 是否启用,默认启用
                   type: bool
+                  constraints:
+                    nullable: false
                   defaultValueBoolean: true
               - column:
                   name: name
@@ -1480,14 +1664,20 @@ databaseChangeLog:
                   name: game_index
                   remarks: 游戏索引
                   type: int4
+                  constraints:
+                    nullable: false
               - column:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: battle_only
                   remarks: 是否仅战斗可用
                   type: bool
+                  constraints:
+                    nullable: false
               - column:
                   name: readonly
                   remarks: 是否只读
@@ -1498,6 +1688,8 @@ databaseChangeLog:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: move_damage_class_id
                   remarks: 招式伤害分类 ID
@@ -1521,10 +1713,14 @@ databaseChangeLog:
                   name: internal_name
                   remarks: 内部名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: name
                   remarks: 名称
                   type: varchar(100)
+                  constraints:
+                    nullable: false
               - column:
                   name: battle_only
                   remarks: 是否仅战斗可用

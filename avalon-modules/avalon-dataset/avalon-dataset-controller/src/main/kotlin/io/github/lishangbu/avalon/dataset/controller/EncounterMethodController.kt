@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterMethodView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterMethodInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterMethodInput
 import io.github.lishangbu.avalon.dataset.service.EncounterMethodService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class EncounterMethodController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveEncounterMethodInput,
     ): EncounterMethodView = encounterMethodService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateEncounterMethodInput,
     ): EncounterMethodView = encounterMethodService.update(command)
 

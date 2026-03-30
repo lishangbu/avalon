@@ -1,4 +1,56 @@
 export io.github.lishangbu.avalon.authorization.entity.User
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+
+UserView {
+    id
+    username
+    phone
+    email
+    avatar
+    roles {
+        id
+        code
+        name
+        enabled
+    }
+}
+
+CurrentUserView {
+    id
+    username
+    avatar
+    roles {
+        id
+        code
+        name
+        enabled
+    }
+}
+
+input SaveUserInput {
+    @NotBlank(message = "用户名不能为空")
+    username
+    phone
+    @Email(message = "邮箱格式不正确")
+    email
+    avatar
+    @NotBlank(message = "密码不能为空")
+    hashedPassword
+    id(roles) as roleIds
+}
+
+input UpdateUserInput {
+    id!
+    @NotBlank(message = "用户名不能为空")
+    username
+    phone
+    @Email(message = "邮箱格式不正确")
+    email
+    avatar
+    hashedPassword
+    id(roles) as roleIds
+}
 
 specification UserSpecification {
     id

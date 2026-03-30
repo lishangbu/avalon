@@ -3,6 +3,9 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.addBy
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveRoleInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateRoleInput
 import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
@@ -33,26 +36,26 @@ class RoleServiceImpl(
     override fun getPageByCondition(
         specification: RoleSpecification,
         pageable: Pageable,
-    ): Page<Role> = roleRepository.pageWithMenus(specification, pageable)
+    ): Page<RoleView> = roleRepository.pageViews(specification, pageable)
 
     /** 根据条件查询角色列表 */
-    override fun listByCondition(specification: RoleSpecification): List<Role> = roleRepository.listWithMenus(specification)
+    override fun listByCondition(specification: RoleSpecification): List<RoleView> = roleRepository.listViews(specification)
 
     /** 按 ID 查询角色 */
-    override fun getById(id: Long): Role? = roleRepository.findNullable(id, AuthorizationFetchers.ROLE_WITH_MENUS)
+    override fun getById(id: Long): RoleView? = roleRepository.loadViewById(id)
 
     /** 保存角色 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(role: Role): Role {
-        val prepared = bindMenus(role, false)
-        return roleRepository.save(prepared, SaveMode.INSERT_ONLY)
+    override fun save(command: SaveRoleInput): RoleView {
+        val prepared = bindMenus(command.toEntity(), false)
+        return roleRepository.save(prepared, SaveMode.INSERT_ONLY).let(::reloadView)
     }
 
     /** 更新角色 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(role: Role): Role {
-        val prepared = bindMenus(role, true)
-        return roleRepository.save(prepared)
+    override fun update(command: UpdateRoleInput): RoleView {
+        val prepared = bindMenus(command.toEntity(), true)
+        return roleRepository.save(prepared).let(::reloadView)
     }
 
     /** 按 ID 删除角色 */
@@ -73,11 +76,13 @@ class RoleServiceImpl(
                 null
             }
 
-        val currentMenus = role.readOrNull { menus } ?: emptyList()
-        val menuIds = currentMenus.mapNotNull { it.readOrNull { id } }.toCollection(LinkedHashSet())
+        val currentMenus = role.readOrNull { menus }
+        val menuIds = currentMenus?.mapNotNull { it.readOrNull { id } }?.toCollection(LinkedHashSet())
+        val shouldLoadMenus = currentMenus != null
         val boundMenus =
             when {
-                menuIds.isNotEmpty() -> menuRepository.findAllById(menuIds)
+                currentMenus != null && !menuIds.isNullOrEmpty() -> menuRepository.findAllById(menuIds)
+                currentMenus != null -> emptyList()
                 preserveWhenNull -> existing?.readOrNull { menus } ?: emptyList()
                 else -> emptyList()
             }
@@ -87,7 +92,12 @@ class RoleServiceImpl(
             code = role.readOrNull { code } ?: existing?.readOrNull { code }
             name = role.readOrNull { name } ?: existing?.readOrNull { name }
             enabled = role.readOrNull { enabled } ?: existing?.readOrNull { enabled }
+            if (shouldLoadMenus) {
+                menus()
+            }
             boundMenus.forEach { boundMenu -> menus().addBy(boundMenu) }
         }
     }
+
+    private fun reloadView(role: Role): RoleView = requireNotNull(roleRepository.loadViewById(role.id)) { "未找到 ID=${role.id} 对应的角色" }
 }

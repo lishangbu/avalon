@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.Ability
+import jakarta.validation.constraints.NotBlank
 
 AbilityView {
     id
@@ -9,7 +10,9 @@ AbilityView {
 }
 
 input SaveAbilityInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
     effect
     introduction
@@ -17,7 +20,9 @@ input SaveAbilityInput {
 
 input UpdateAbilityInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
     effect
     introduction

@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.Type
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 TypeView {
     id
@@ -8,15 +10,21 @@ TypeView {
 }
 
 input SaveTypeInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     battleOnly
 }
 
 input UpdateTypeInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     battleOnly
 }
 

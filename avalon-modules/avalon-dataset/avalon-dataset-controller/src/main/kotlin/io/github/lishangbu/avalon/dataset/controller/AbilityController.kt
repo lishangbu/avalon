@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.AbilityView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveAbilityInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateAbilityInput
 import io.github.lishangbu.avalon.dataset.service.AbilityService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class AbilityController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveAbilityInput,
     ): AbilityView = abilityService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateAbilityInput,
     ): AbilityView = abilityService.update(command)
 

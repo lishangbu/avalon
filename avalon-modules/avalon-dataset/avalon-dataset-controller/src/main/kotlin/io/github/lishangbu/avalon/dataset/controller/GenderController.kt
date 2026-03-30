@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.GenderView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGenderInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGenderInput
 import io.github.lishangbu.avalon.dataset.service.GenderService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -25,12 +26,14 @@ class GenderController(
     /** 保存性别 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveGenderInput,
     ): GenderView = genderService.save(command)
 
     /** 更新性别 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateGenderInput,
     ): GenderView = genderService.update(command)
 

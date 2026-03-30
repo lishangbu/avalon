@@ -12,7 +12,8 @@ val mainDtoDir = layout.projectDirectory.dir("src/main/dto")
 dependencies {
     api(project(":avalon-platform:avalon-jimmer"))
     api(libs.jimmer.sql.kotlin)
-    api(libs.jackson.databind)
+    api(libs.spring.boot.jackson)
+    api(libs.spring.boot.starter.validation)
     ksp(libs.jimmer.ksp)
 }
 

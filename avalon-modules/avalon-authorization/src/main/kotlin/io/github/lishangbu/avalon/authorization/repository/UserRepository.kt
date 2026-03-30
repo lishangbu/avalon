@@ -1,6 +1,7 @@
 package io.github.lishangbu.avalon.authorization.repository
 
 import io.github.lishangbu.avalon.authorization.entity.*
+import io.github.lishangbu.avalon.authorization.entity.dto.UserView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
@@ -53,6 +54,34 @@ interface UserRepository : KRepository<User, Long> {
                 specification?.let(::where)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
+
+    /** 按条件分页查询用户视图 */
+    fun pageViews(
+        specification: Specification<User>?,
+        pageable: Pageable,
+    ): Page<UserView> =
+        sql
+            .createQuery(User::class) {
+                specification?.let(::where)
+                select(table.fetch(UserView::class))
+            }.fetchPage(pageable.pageNumber, pageable.pageSize)
+
+    /** 按条件查询用户视图列表 */
+    fun listViews(specification: Specification<User>?): List<UserView> =
+        sql
+            .createQuery(User::class) {
+                specification?.let(::where)
+                select(table.fetch(UserView::class))
+            }.execute()
+
+    /** 按 ID 查询用户视图 */
+    fun loadViewById(id: Long): UserView? =
+        sql
+            .createQuery(User::class) {
+                where(table.id eq id)
+                select(table.fetch(UserView::class))
+            }.execute()
+            .firstOrNull()
 
     /** 根据账号查找用户及角色列表 */
     fun loadByAccountWithRoles(account: String): User? {

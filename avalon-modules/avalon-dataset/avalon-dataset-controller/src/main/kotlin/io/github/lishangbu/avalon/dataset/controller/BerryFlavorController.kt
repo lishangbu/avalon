@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 /** 树果风味控制器*/
@@ -23,12 +24,14 @@ class BerryFlavorController(
     /** 保存树果风味 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveBerryFlavorInput,
     ): BerryFlavorView = berryFlavorService.save(command)
 
     /** 更新树果风味 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateBerryFlavorInput,
     ): BerryFlavorView = berryFlavorService.update(command)
 

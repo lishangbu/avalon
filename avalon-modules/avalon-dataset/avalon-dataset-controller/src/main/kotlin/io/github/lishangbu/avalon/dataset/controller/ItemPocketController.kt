@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemPocketView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemPocketInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemPocketInput
 import io.github.lishangbu.avalon.dataset.service.ItemPocketService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class ItemPocketController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveItemPocketInput,
     ): ItemPocketView = itemPocketService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateItemPocketInput,
     ): ItemPocketView = itemPocketService.update(command)
 

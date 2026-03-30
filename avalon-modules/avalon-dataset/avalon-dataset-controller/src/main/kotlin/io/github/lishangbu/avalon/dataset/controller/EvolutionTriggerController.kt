@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionTriggerView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEvolutionTriggerInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEvolutionTriggerInput
 import io.github.lishangbu.avalon.dataset.service.EvolutionTriggerService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class EvolutionTriggerController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveEvolutionTriggerInput,
     ): EvolutionTriggerView = evolutionTriggerService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateEvolutionTriggerInput,
     ): EvolutionTriggerView = evolutionTriggerService.update(command)
 

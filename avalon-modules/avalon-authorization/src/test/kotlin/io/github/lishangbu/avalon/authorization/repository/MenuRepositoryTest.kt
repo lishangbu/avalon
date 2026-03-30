@@ -4,12 +4,15 @@ import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
 import jakarta.annotation.Resource
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.springframework.data.domain.Sort
 import org.springframework.test.annotation.Commit
 import org.springframework.transaction.annotation.Transactional
 
@@ -42,38 +45,31 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
 
     @Test
     @Order(2)
-    fun testFindAllQueries() {
-        val menus = menuRepository.findAll(MenuSpecification(key = "dashboard"))
+    fun testListViews() {
+        val menus = menuRepository.listViews(MenuSpecification(key = "dashboard"))
         assertEquals(1, menus.size)
         assertEquals("dashboard", menus.first().key)
-
-        val sortedMenus =
-            menuRepository.findAll(
-                MenuSpecification(show = true),
-                Sort.by(Sort.Order.asc("sortingOrder"), Sort.Order.asc("id")),
-            )
-        assertFalse(sortedMenus.isEmpty())
-        sortedMenus.zipWithNext().forEach { (previous, current) ->
-            val previousOrder = previous.sortingOrder ?: Int.MAX_VALUE
-            val currentOrder = current.sortingOrder ?: Int.MAX_VALUE
-            assertTrue(previousOrder < currentOrder || (previousOrder == currentOrder && previous.id <= current.id))
-        }
+        assertNull(menus.first().parentId)
     }
 
     @Test
     @Order(3)
-    fun testFindAllByOrderBySortingOrderAscIdAsc() {
-        val menus = menuRepository.findAllByOrderBySortingOrderAscIdAsc()
+    fun testListTreeViews() {
+        val menus = menuRepository.listTreeViews()
         assertFalse(menus.isEmpty())
-        menus.zipWithNext().forEach { (previous, current) ->
-            val previousOrder = previous.sortingOrder ?: Int.MAX_VALUE
-            val currentOrder = current.sortingOrder ?: Int.MAX_VALUE
-            assertTrue(previousOrder < currentOrder || (previousOrder == currentOrder && previous.id <= current.id))
-        }
+        assertTrue(menus.all { it.parentId == null })
+        assertTrue(menus.any { !it.children.isNullOrEmpty() })
     }
 
     @Test
     @Order(4)
+    fun testHasChildren() {
+        assertTrue(menuRepository.hasChildren(2L))
+        assertFalse(menuRepository.hasChildren(Long.MAX_VALUE))
+    }
+
+    @Test
+    @Order(5)
     @Commit
     fun testInsertMenu() {
         val menu =
@@ -81,10 +77,15 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
                 Menu {
                     key = "unit_test_menu"
                     label = "单元测试菜单"
+                    name = "unit-test-menu"
                     path = "/unit-test"
+                    component = "system/unit-test/index"
                     sortingOrder = 100
                     disabled = false
                     show = true
+                    pinned = false
+                    showTab = true
+                    enableMultiTab = false
                 },
                 SaveMode.INSERT_ONLY,
             )
@@ -93,7 +94,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @Commit
     fun testUpdateMenuById() {
         val menu = requireNotNull(menuRepository.findNullable(insertId!!, AuthorizationFetchers.MENU))
@@ -106,7 +107,7 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     fun testSelectUpdatedMenuById() {
         val menu = requireNotNull(menuRepository.findNullable(insertId!!, AuthorizationFetchers.MENU))
         assertEquals("更新单元测试菜单", menu.label)
@@ -114,9 +115,9 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(7)
-    fun testFindAllByRoleCodes() {
-        val menus = menuRepository.listByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
+    @Order(8)
+    fun testListViewsByRoleCodes() {
+        val menus = menuRepository.listViewsByRoleCodes(listOf("ROLE_SUPER_ADMIN"))
         assertNotNull(menus)
         assertFalse(menus.isEmpty())
         menus.zipWithNext().forEach { (previous, current) ->
@@ -129,13 +130,13 @@ class MenuRepositoryTest : AbstractRepositoryTest() {
     }
 
     @Test
-    @Order(8)
-    fun testFindAllByRoleCodesWhenEmpty() {
-        assertTrue(menuRepository.listByRoleCodes(emptyList()).isEmpty())
+    @Order(9)
+    fun testListViewsByRoleCodesWhenEmpty() {
+        assertTrue(menuRepository.listViewsByRoleCodes(emptyList()).isEmpty())
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     fun testDeleteById() {
         menuRepository.deleteById(insertId!!)
     }

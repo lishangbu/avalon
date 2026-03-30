@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveLearnMethodView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveLearnMethodInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveLearnMethodInput
 import io.github.lishangbu.avalon.dataset.service.MoveLearnMethodService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class MoveLearnMethodController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveMoveLearnMethodInput,
     ): MoveLearnMethodView = moveLearnMethodService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateMoveLearnMethodInput,
     ): MoveLearnMethodView = moveLearnMethodService.update(command)
 

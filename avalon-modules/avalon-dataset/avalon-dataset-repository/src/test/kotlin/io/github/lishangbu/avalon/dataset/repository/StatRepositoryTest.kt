@@ -55,7 +55,18 @@ class StatRepositoryTest : AbstractRepositoryTest() {
         assertEquals(saved.id.toString(), inserted.id)
         assertEquals("单元测试能力", inserted.name)
 
-        statRepository.save(inserted.toEntity { name = "更新后的能力" }, SaveMode.UPSERT)
+        statRepository.save(
+            UpdateStatInput(
+                id = saved.id.toString(),
+                internalName = "unit-stat",
+                name = "更新后的能力",
+                gameIndex = 99,
+                battleOnly = false,
+                readonly = false,
+                moveDamageClassId = "2",
+            ).toEntity(),
+            SaveMode.UPSERT,
+        )
         val updated = requireNotNull(statRepository.listViews(StatSpecification(internalName = "unit-stat")).firstOrNull())
         assertEquals("更新后的能力", updated.name)
 

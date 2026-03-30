@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.Move
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 MoveView {
     id
@@ -50,15 +52,21 @@ MoveView {
 }
 
 input SaveMoveInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(type) as typeId
     accuracy
     effectChance
     pp
+    @NotNull
     priority
     power
+    @NotNull
     id(moveDamageClass) as moveDamageClassId
+    @NotNull
     id(moveTarget) as moveTargetId
     text
     shortEffect
@@ -79,15 +87,21 @@ input SaveMoveInput {
 
 input UpdateMoveInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(type) as typeId
     accuracy
     effectChance
     pp
+    @NotNull
     priority
     power
+    @NotNull
     id(moveDamageClass) as moveDamageClassId
+    @NotNull
     id(moveTarget) as moveTargetId
     text
     shortEffect

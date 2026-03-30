@@ -13,8 +13,9 @@ interface Menu {
     @JsonConverter(LongToStringConverter::class)
     val id: Long
 
-    /** 父节点 ID */
-    val parentId: Long?
+    /** 父节点 */
+    @ManyToOne
+    val parent: Menu?
 
     /** 禁用状态 */
     val disabled: Boolean?
@@ -58,4 +59,11 @@ interface Menu {
 
     /** 启用多标签页 */
     val enableMultiTab: Boolean?
+
+    /** 子节点列表 */
+    @OneToMany(
+        mappedBy = "parent",
+        orderedProps = [OrderedProp("sortingOrder"), OrderedProp("id")],
+    )
+    val children: List<Menu>
 }

@@ -2,8 +2,11 @@ package io.github.lishangbu.avalon.authorization.service.impl
 
 import io.github.lishangbu.avalon.authorization.entity.User
 import io.github.lishangbu.avalon.authorization.entity.addBy
+import io.github.lishangbu.avalon.authorization.entity.dto.CurrentUserView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveUserInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateUserInput
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
-import io.github.lishangbu.avalon.authorization.model.UserWithRoles
+import io.github.lishangbu.avalon.authorization.entity.dto.UserView
 import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
 import io.github.lishangbu.avalon.authorization.repository.UserRepository
@@ -34,32 +37,32 @@ class UserServiceImpl(
      * @param username 登录账号
      * @return 查询到的用户详情，未找到时返回 null
      */
-    override fun getUserByUsername(username: String): UserWithRoles? = userRepository.loadByAccountWithRoles(username)?.let(::UserWithRoles)
+    override fun getUserByUsername(username: String): CurrentUserView? = userRepository.loadByAccountWithRoles(username)?.let(::CurrentUserView)
 
     /** 按条件分页查询用户 */
     override fun getPageByCondition(
         specification: UserSpecification,
         pageable: Pageable,
-    ): Page<User> = userRepository.pageWithRoles(specification, pageable)
+    ): Page<UserView> = userRepository.pageViews(specification, pageable)
 
     /** 按条件查询用户列表 */
-    override fun listByCondition(specification: UserSpecification): List<User> = userRepository.listWithRoles(specification)
+    override fun listByCondition(specification: UserSpecification): List<UserView> = userRepository.listViews(specification)
 
     /** 按 ID 查询用户 */
-    override fun getById(id: Long): User? = userRepository.findNullable(id, AuthorizationFetchers.USER_WITH_ROLES)
+    override fun getById(id: Long): UserView? = userRepository.loadViewById(id)
 
     /** 保存用户 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun save(user: User): User {
-        val prepared = bindRoles(user, false)
-        return userRepository.save(prepared, SaveMode.INSERT_ONLY)
+    override fun save(command: SaveUserInput): UserView {
+        val prepared = bindRoles(command.toEntity(), false)
+        return userRepository.save(prepared, SaveMode.INSERT_ONLY).let(::reloadView)
     }
 
     /** 更新用户 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(user: User): User {
-        val prepared = bindRoles(user, true)
-        return userRepository.save(prepared)
+    override fun update(command: UpdateUserInput): UserView {
+        val prepared = bindRoles(command.toEntity(), true)
+        return userRepository.save(prepared).let(::reloadView)
     }
 
     /** 按 ID 删除用户 */
@@ -80,11 +83,13 @@ class UserServiceImpl(
                 null
             }
 
-        val currentRoles = user.readOrNull { roles } ?: emptyList()
-        val roleIds = currentRoles.mapNotNull { it.readOrNull { id } }.toCollection(LinkedHashSet())
+        val currentRoles = user.readOrNull { roles }
+        val roleIds = currentRoles?.mapNotNull { it.readOrNull { id } }?.toCollection(LinkedHashSet())
+        val shouldLoadRoles = currentRoles != null
         val boundRoles =
             when {
-                roleIds.isNotEmpty() -> roleRepository.findAllById(roleIds)
+                currentRoles != null && !roleIds.isNullOrEmpty() -> roleRepository.findAllById(roleIds)
+                currentRoles != null -> emptyList()
                 preserveWhenNull -> existing?.readOrNull { roles } ?: emptyList()
                 else -> emptyList()
             }
@@ -99,7 +104,12 @@ class UserServiceImpl(
             email = user.readOrNull { email } ?: existing?.readOrNull { email }
             avatar = user.readOrNull { avatar } ?: existing?.readOrNull { avatar }
             this.hashedPassword = hashedPassword
+            if (shouldLoadRoles) {
+                roles()
+            }
             boundRoles.forEach { boundRole -> roles().addBy(boundRole) }
         }
     }
+
+    private fun reloadView(user: User): UserView = requireNotNull(userRepository.loadViewById(user.id)) { "未找到 ID=${user.id} 对应的用户" }
 }

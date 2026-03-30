@@ -45,11 +45,6 @@ interface Book {
 
 当前仓库已经采用这套默认命名优先策略，因此看到多余注解时应先怀疑是否可以删除，而不是继续复制。
 
-### 2.3 Self Reference Is A Capability, Not A Mandate
-
-- Jimmer 支持标准自关联树模型。
-- 但当前仓库的 `Menu.parentId` 是显式保留的标量外键例外，不要因为 ORM 支持自关联，就自动把管理端树模型改造成 `@ManyToOne`。
-
 ## 3. DTO Language Basics
 
 - 一个 `.dto` 文件只 `export` 一个实体。

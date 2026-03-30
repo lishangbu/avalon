@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.ItemCategory
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 ItemCategoryView {
     id
@@ -12,15 +14,21 @@ ItemCategoryView {
 }
 
 input SaveItemCategoryInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(itemPocket) as itemPocketId
 }
 
 input UpdateItemCategoryInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(itemPocket) as itemPocketId
 }
 

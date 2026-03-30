@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemCategoryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemCategoryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemCategoryInput
 import io.github.lishangbu.avalon.dataset.service.ItemCategoryService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class ItemCategoryController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveItemCategoryInput,
     ): ItemCategoryView = itemCategoryService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateItemCategoryInput,
     ): ItemCategoryView = itemCategoryService.update(command)
 

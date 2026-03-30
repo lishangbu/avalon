@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryInput
 import io.github.lishangbu.avalon.dataset.service.BerryService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
@@ -29,12 +30,14 @@ class BerryController(
     /** 创建树果 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveBerryInput,
     ): BerryView = berryService.save(command)
 
     /** 更新树果 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateBerryInput,
     ): BerryView = berryService.update(command)
 

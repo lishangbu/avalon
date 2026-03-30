@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.GrowthRate
+import jakarta.validation.constraints.NotBlank
 
 GrowthRateView {
     id
@@ -8,15 +9,21 @@ GrowthRateView {
 }
 
 input SaveGrowthRateInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     description
 }
 
 input UpdateGrowthRateInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     description
 }
 

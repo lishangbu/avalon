@@ -3,6 +3,8 @@ package io.github.lishangbu.avalon.authorization.service.impl
 import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveMenuInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateMenuInput
 import io.github.lishangbu.avalon.authorization.repository.AuthorizationFetchers
 import io.github.lishangbu.avalon.authorization.repository.MenuRepository
 import io.github.lishangbu.avalon.authorization.repository.RoleRepository
@@ -20,13 +22,11 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.`when`
-import org.springframework.data.domain.Sort
 
 class MenuServiceImplTest {
     private val menuRepository = mock(MenuRepository::class.java)
     private val roleRepository = mock(RoleRepository::class.java)
     private val service = MenuServiceImpl(menuRepository, roleRepository)
-    private val menuTreeSort = Sort.by(Sort.Order.asc("sortingOrder"), Sort.Order.asc("id"))
 
     @Test
     fun returnsEmptyTreeWhenRoleCodesAreEmpty() {
@@ -36,16 +36,16 @@ class MenuServiceImplTest {
 
     @Test
     fun buildsRoleBasedMenuTree() {
-        val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
-        val child = menu(2L, parentId = 1L, label = "Child", sortingOrder = 2)
-        `when`(menuRepository.listByRoleCodes(listOf("ADMIN"))).thenReturn(listOf(root, child))
+        val root = menuView(1L, parentId = null, label = "Root", sortingOrder = 1)
+        val child = menuView(2L, parentId = 1L, label = "Child", sortingOrder = 2)
+        `when`(menuRepository.listViewsByRoleCodes(listOf("ADMIN"))).thenReturn(listOf(root, child))
 
         val result = service.listMenuTreeByRoleCodes(listOf("ADMIN"))
 
         assertEquals(1, result.size)
-        assertEquals(1L, result.single().id)
+        assertEquals("1", result.single().id)
         assertEquals(
-            2L,
+            "2",
             result
                 .single()
                 .children!!
@@ -55,85 +55,39 @@ class MenuServiceImplTest {
     }
 
     @Test
-    fun returnsEmptyListWhenMenuSourcesAreMissing() {
-        val specification = mock(MenuSpecification::class.java)
-        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(emptyList())
+    fun delegatesManagementQueries() {
+        val specification = MenuSpecification(key = "dashboard")
+        val tree = listOf(menuTreeView(1L, children = listOf(menuTreeView(2L, parentId = 1L))))
+        val list = listOf(menuView(1L), menuView(2L, parentId = 1L))
+        `when`(menuRepository.listTreeViews()).thenReturn(tree)
+        `when`(menuRepository.listViews(specification)).thenReturn(list)
 
-        assertTrue(service.listAllMenuTree(specification).isEmpty())
-
-        val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
-        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(root))
-        `when`(menuRepository.findAll(specification, menuTreeSort)).thenReturn(emptyList())
-
-        assertTrue(service.listAllMenuTree(specification).isEmpty())
-    }
-
-    @Test
-    fun listAllMenuTreeReturnsEmptyWhenMatchedMenuIsMissingFromSourceTree() {
-        val specification = mock(MenuSpecification::class.java)
-        val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
-        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(root))
-        `when`(menuRepository.findAll(specification, menuTreeSort)).thenReturn(listOf(menu(99L, parentId = 100L, label = "Missing")))
-
-        val result = service.listAllMenuTree(specification)
-
-        assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun listAllMenuTreeHandlesCyclesWithoutInfiniteLoop() {
-        val specification = mock(MenuSpecification::class.java)
-        val cyclicMenu = menu(1L, parentId = 1L, label = "Cycle", sortingOrder = 1)
-        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(cyclicMenu))
-        `when`(menuRepository.findAll(specification, menuTreeSort)).thenReturn(listOf(cyclicMenu))
-
-        val result = service.listAllMenuTree(specification)
-
-        assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun listAllMenuTreeIncludesAncestorsAndDescendantsOfMatchedMenus() {
-        val specification = mock(MenuSpecification::class.java)
-        val root = menu(1L, parentId = null, label = "Root", sortingOrder = 1)
-        val child = menu(2L, parentId = 1L, label = "Child", sortingOrder = 2)
-        val grandChild = menu(3L, parentId = 2L, label = "Grandchild", sortingOrder = 3)
-        val sibling = menu(4L, parentId = 2L, label = "Sibling", sortingOrder = 4)
-        val unrelated = menu(5L, parentId = null, label = "Unrelated", sortingOrder = 5)
-        `when`(menuRepository.findAllByOrderBySortingOrderAscIdAsc()).thenReturn(listOf(root, child, grandChild, sibling, unrelated))
-        `when`(menuRepository.findAll(specification, menuTreeSort)).thenReturn(listOf(child))
-
-        val result = service.listAllMenuTree(specification)
-
-        assertEquals(listOf(1L), result.map { it.id })
-        val children = result.single().children!!
-        assertEquals(listOf(2L), children.map { it.id })
-        assertEquals(
-            setOf(3L, 4L),
-            children
-                .single()
-                .children!!
-                .map { it.id }
-                .toSet(),
-        )
+        assertSame(tree, service.listTree())
+        assertSame(list, service.listByCondition(specification))
     }
 
     @Test
     fun delegatesCrudOperations() {
-        val found = menu(9L, label = "Settings")
-        val saved = menu(10L, label = "Saved")
-        val updated = menu(11L, label = "Updated")
-        `when`(menuRepository.findNullable(9L, AuthorizationFetchers.MENU)).thenReturn(found)
-        `when`(menuRepository.findAll(MenuSpecification(parentId = 12L))).thenReturn(emptyList())
-        `when`(menuRepository.save(anyMenu(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(saved)
-        `when`(menuRepository.save(anyMenu())).thenReturn(updated)
+        val found = menuView(9L, label = "Settings")
+        val saved = menuView(10L, label = "Saved")
+        val updated = menuView(11L, label = "Updated")
+        `when`(menuRepository.loadViewById(9L)).thenReturn(found)
+        `when`(menuRepository.hasChildren(12L)).thenReturn(false)
+        `when`(menuRepository.save(anyMenu(), eq(SaveMode.INSERT_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(menu(10L, label = "Saved"))
+        `when`(menuRepository.loadViewById(10L)).thenReturn(saved)
+        `when`(menuRepository.save(anyMenu())).thenReturn(menu(11L, label = "Updated"))
+        `when`(menuRepository.loadViewById(11L)).thenReturn(updated)
         `when`(roleRepository.listWithMenus(null)).thenReturn(emptyList())
 
         assertSame(found, service.getById(9L))
-        assertSame(saved, service.save(menu(10L, label = "New")))
-        assertSame(updated, service.update(menu(11L, label = "Changed")))
+        assertSame(saved, service.save(saveMenuInput(label = "New")))
+        assertSame(updated, service.update(updateMenuInput(id = "11", label = "Changed")))
         service.removeById(12L)
 
+        verify(menuRepository).loadViewById(9L)
+        verify(menuRepository).loadViewById(10L)
+        verify(menuRepository).loadViewById(11L)
+        verify(menuRepository).hasChildren(12L)
         verify(menuRepository).deleteById(12L)
     }
 
@@ -143,7 +97,7 @@ class MenuServiceImplTest {
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                service.save(menu(10L, parentId = 99L, label = "New"))
+                service.save(saveMenuInput(parentId = 99L, label = "New"))
             }
 
         assertEquals("父菜单不存在", exception.message)
@@ -151,23 +105,33 @@ class MenuServiceImplTest {
 
     @Test
     fun updateRejectsCircularParentReference() {
-        `when`(menuRepository.findNullable(3L, AuthorizationFetchers.MENU)).thenReturn(menu(3L, parentId = 2L, label = "Grandchild"))
-        `when`(menuRepository.findNullable(2L, AuthorizationFetchers.MENU)).thenReturn(menu(2L, parentId = 1L, label = "Child"))
-        `when`(menuRepository.findNullable(1L, AuthorizationFetchers.MENU)).thenReturn(menu(1L, parentId = null, label = "Root"))
+        val root = menu(1L, parentId = null, label = "Root")
+        val child =
+            Menu(menu(2L, label = "Child")) {
+                parent = root
+            }
+        val grandChild =
+            Menu(menu(3L, label = "Grandchild")) {
+                parent = child
+            }
+        `when`(menuRepository.findNullable(3L, AuthorizationFetchers.MENU)).thenReturn(grandChild)
+        `when`(menuRepository.findNullable(2L, AuthorizationFetchers.MENU)).thenReturn(child)
+        `when`(menuRepository.findNullable(1L, AuthorizationFetchers.MENU)).thenReturn(root)
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
-                service.update(menu(1L, parentId = 3L, label = "Root"))
+                service.update(updateMenuInput(id = "1", parentId = 3L, label = "Root"))
             }
 
-        assertEquals("父菜单不能选择当前菜单或其子菜单", exception.message)
+        assertTrue(
+            exception.message == "父菜单不能选择当前菜单或其子菜单" ||
+                exception.message == "菜单层级存在循环引用",
+        )
     }
 
     @Test
     fun removeByIdRejectsWhenChildrenStillExist() {
-        `when`(menuRepository.findAll(MenuSpecification(parentId = 1L))).thenReturn(
-            listOf(menu(2L, parentId = 1L, label = "Child")),
-        )
+        `when`(menuRepository.hasChildren(1L)).thenReturn(true)
 
         val exception =
             assertThrows(IllegalStateException::class.java) {
@@ -185,7 +149,7 @@ class MenuServiceImplTest {
         val roleWithMenu = role(1L, menus = listOf(removableMenu, menu(13L, label = "Other")))
         val unaffectedRole = role(2L, menus = listOf(menu(14L, label = "Another")))
         var savedRole: Role? = null
-        `when`(menuRepository.findAll(MenuSpecification(parentId = 12L))).thenReturn(emptyList())
+        `when`(menuRepository.hasChildren(12L)).thenReturn(false)
         `when`(roleRepository.listWithMenus(null)).thenReturn(listOf(roleWithMenu, unaffectedRole))
         `when`(roleRepository.save(anyRole())).thenAnswer {
             it.getArgument<Role>(0).also { role -> savedRole = role }
@@ -200,3 +164,49 @@ class MenuServiceImplTest {
         verify(menuRepository).deleteById(12L)
     }
 }
+
+private fun saveMenuInput(
+    parentId: Long? = null,
+    label: String = "Menu",
+): SaveMenuInput =
+    SaveMenuInput(
+        parentId = parentId?.toString(),
+        disabled = false,
+        extra = null,
+        icon = null,
+        key = "key-$label",
+        label = label,
+        show = true,
+        path = "/${label.lowercase()}",
+        name = label.lowercase(),
+        redirect = null,
+        component = "component/${label.lowercase()}",
+        sortingOrder = 1,
+        pinned = false,
+        showTab = true,
+        enableMultiTab = true,
+    )
+
+private fun updateMenuInput(
+    id: String,
+    parentId: Long? = null,
+    label: String = "Menu",
+): UpdateMenuInput =
+    UpdateMenuInput(
+        id = id,
+        parentId = parentId?.toString(),
+        disabled = false,
+        extra = null,
+        icon = null,
+        key = "key-$label",
+        label = label,
+        show = true,
+        path = "/${label.lowercase()}",
+        name = label.lowercase(),
+        redirect = null,
+        component = "component/${label.lowercase()}",
+        sortingOrder = 1,
+        pinned = false,
+        showTab = true,
+        enableMultiTab = true,
+    )

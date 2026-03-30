@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.PokemonColor
+import jakarta.validation.constraints.NotBlank
 
 PokemonColorView {
     id
@@ -7,13 +8,17 @@ PokemonColorView {
 }
 
 input SavePokemonColorInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
 }
 
 input UpdatePokemonColorInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
 }
 

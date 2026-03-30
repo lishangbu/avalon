@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemFlingEffectView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemFlingEffectInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemFlingEffectInput
 import io.github.lishangbu.avalon.dataset.service.ItemFlingEffectService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class ItemFlingEffectController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveItemFlingEffectInput,
     ): ItemFlingEffectView = itemFlingEffectService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateItemFlingEffectInput,
     ): ItemFlingEffectView = itemFlingEffectService.update(command)
 

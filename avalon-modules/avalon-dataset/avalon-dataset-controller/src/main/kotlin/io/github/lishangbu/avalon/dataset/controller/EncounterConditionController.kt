@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterConditionInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterConditionInput
 import io.github.lishangbu.avalon.dataset.service.EncounterConditionService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class EncounterConditionController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveEncounterConditionInput,
     ): EncounterConditionView = encounterConditionService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateEncounterConditionInput,
     ): EncounterConditionView = encounterConditionService.update(command)
 

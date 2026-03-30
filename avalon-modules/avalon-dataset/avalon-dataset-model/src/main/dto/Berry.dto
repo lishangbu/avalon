@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.Berry
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 BerryView {
     id
@@ -23,29 +25,49 @@ BerryView {
 }
 
 input SaveBerryInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     growthTime
+    @NotNull
     maxHarvest
+    @NotNull
     bulk
+    @NotNull
     smoothness
+    @NotNull
     soilDryness
+    @NotNull
     id(berryFirmness) as berryFirmnessId
+    @NotNull
     id(naturalGiftType) as naturalGiftTypeId
+    @NotNull
     naturalGiftPower
 }
 
 input UpdateBerryInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     growthTime
+    @NotNull
     maxHarvest
+    @NotNull
     bulk
+    @NotNull
     smoothness
+    @NotNull
     soilDryness
+    @NotNull
     id(berryFirmness) as berryFirmnessId
+    @NotNull
     id(naturalGiftType) as naturalGiftTypeId
+    @NotNull
     naturalGiftPower
 }
 

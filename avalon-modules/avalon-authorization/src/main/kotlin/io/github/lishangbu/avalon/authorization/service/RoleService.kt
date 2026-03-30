@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.authorization.service
 
-import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveRoleInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateRoleInput
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -18,19 +20,19 @@ interface RoleService {
     fun getPageByCondition(
         specification: RoleSpecification,
         pageable: Pageable,
-    ): Page<Role>
+    ): Page<RoleView>
 
     /** 按条件查询角色列表 */
-    fun listByCondition(specification: RoleSpecification): List<Role>
+    fun listByCondition(specification: RoleSpecification): List<RoleView>
 
     /** 按 ID 查询角色 */
-    fun getById(id: Long): Role?
+    fun getById(id: Long): RoleView?
 
     /** 保存角色 */
-    fun save(role: Role): Role
+    fun save(command: SaveRoleInput): RoleView
 
     /** 更新角色 */
-    fun update(role: Role): Role
+    fun update(command: UpdateRoleInput): RoleView
 
     /** 按 ID 删除角色 */
     fun removeById(id: Long)

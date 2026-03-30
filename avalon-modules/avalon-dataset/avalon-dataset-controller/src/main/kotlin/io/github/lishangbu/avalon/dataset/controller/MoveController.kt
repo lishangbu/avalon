@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveInput
 import io.github.lishangbu.avalon.dataset.service.MoveService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -33,12 +34,14 @@ class MoveController(
     /** 创建招式 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveMoveInput,
     ): MoveView = moveService.save(command)
 
     /** 更新招式 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateMoveInput,
     ): MoveView = moveService.update(command)
 

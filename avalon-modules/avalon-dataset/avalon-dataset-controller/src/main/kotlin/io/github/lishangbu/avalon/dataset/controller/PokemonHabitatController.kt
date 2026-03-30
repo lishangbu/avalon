@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.PokemonHabitatView
 import io.github.lishangbu.avalon.dataset.entity.dto.SavePokemonHabitatInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdatePokemonHabitatInput
 import io.github.lishangbu.avalon.dataset.service.PokemonHabitatService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class PokemonHabitatController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SavePokemonHabitatInput,
     ): PokemonHabitatView = pokemonHabitatService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdatePokemonHabitatInput,
     ): PokemonHabitatView = pokemonHabitatService.update(command)
 

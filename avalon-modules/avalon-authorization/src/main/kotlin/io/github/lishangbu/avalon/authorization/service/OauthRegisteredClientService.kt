@@ -1,7 +1,9 @@
 package io.github.lishangbu.avalon.authorization.service
 
-import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveOauthRegisteredClientInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateOauthRegisteredClientInput
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -18,19 +20,19 @@ interface OauthRegisteredClientService {
     fun getPageByCondition(
         specification: OauthRegisteredClientSpecification,
         pageable: Pageable,
-    ): Page<OauthRegisteredClient>
+    ): Page<OauthRegisteredClientView>
 
     /** 按条件查询 OAuth2 注册客户端列表 */
-    fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClient>
+    fun listByCondition(specification: OauthRegisteredClientSpecification): List<OauthRegisteredClientView>
 
     /** 按 ID 查询 OAuth2 注册客户端 */
-    fun getById(id: String): OauthRegisteredClient?
+    fun getById(id: String): OauthRegisteredClientView?
 
     /** 保存 OAuth2 注册客户端 */
-    fun save(registeredClient: OauthRegisteredClient): OauthRegisteredClient
+    fun save(command: SaveOauthRegisteredClientInput): OauthRegisteredClientView
 
     /** 更新 OAuth2 注册客户端 */
-    fun update(registeredClient: OauthRegisteredClient): OauthRegisteredClient
+    fun update(command: UpdateOauthRegisteredClientInput): OauthRegisteredClientView
 
     /** 按 ID 删除 OAuth2 注册客户端 */
     fun removeById(id: String)

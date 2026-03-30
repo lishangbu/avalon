@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveTargetView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveTargetInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveTargetInput
 import io.github.lishangbu.avalon.dataset.service.MoveTargetService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class MoveTargetController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveMoveTargetInput,
     ): MoveTargetView = moveTargetService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateMoveTargetInput,
     ): MoveTargetView = moveTargetService.update(command)
 

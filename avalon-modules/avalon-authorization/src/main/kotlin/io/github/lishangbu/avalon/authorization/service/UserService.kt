@@ -1,8 +1,10 @@
 package io.github.lishangbu.avalon.authorization.service
 
-import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.dto.CurrentUserView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveUserInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateUserInput
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
-import io.github.lishangbu.avalon.authorization.model.UserWithRoles
+import io.github.lishangbu.avalon.authorization.entity.dto.UserView
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 
@@ -21,25 +23,25 @@ interface UserService {
      * @param username 登录账号
      * @return 查询到的用户详情，未找到时返回 null
      */
-    fun getUserByUsername(username: String): UserWithRoles?
+    fun getUserByUsername(username: String): CurrentUserView?
 
     /** 按条件分页查询用户 */
     fun getPageByCondition(
         specification: UserSpecification,
         pageable: Pageable,
-    ): Page<User>
+    ): Page<UserView>
 
     /** 根据条件查询用户列表 */
-    fun listByCondition(specification: UserSpecification): List<User>
+    fun listByCondition(specification: UserSpecification): List<UserView>
 
     /** 按 ID 查询用户 */
-    fun getById(id: Long): User?
+    fun getById(id: Long): UserView?
 
     /** 保存用户 */
-    fun save(user: User): User
+    fun save(command: SaveUserInput): UserView
 
     /** 更新用户 */
-    fun update(user: User): User
+    fun update(command: UpdateUserInput): UserView
 
     /** 按 ID 删除用户 */
     fun removeById(id: Long)

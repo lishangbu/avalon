@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemInput
 import io.github.lishangbu.avalon.dataset.service.ItemService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -33,12 +34,14 @@ class ItemController(
     /** 创建道具 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveItemInput,
     ): ItemView = itemService.save(command)
 
     /** 更新道具 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateItemInput,
     ): ItemView = itemService.update(command)
 

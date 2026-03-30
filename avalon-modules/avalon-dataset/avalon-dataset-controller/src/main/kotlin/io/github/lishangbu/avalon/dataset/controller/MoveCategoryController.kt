@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveCategoryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveCategoryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveCategoryInput
 import io.github.lishangbu.avalon.dataset.service.MoveCategoryService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class MoveCategoryController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveMoveCategoryInput,
     ): MoveCategoryView = moveCategoryService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateMoveCategoryInput,
     ): MoveCategoryView = moveCategoryService.update(command)
 

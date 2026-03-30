@@ -1,12 +1,23 @@
 package io.github.lishangbu.avalon.authorization.controller
 
-import io.github.lishangbu.avalon.authorization.entity.Menu
 import io.github.lishangbu.avalon.authorization.entity.dto.MenuSpecification
-import io.github.lishangbu.avalon.authorization.model.MenuTreeNode
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuTreeView
+import io.github.lishangbu.avalon.authorization.entity.dto.MenuView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveMenuInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateMenuInput
 import io.github.lishangbu.avalon.authorization.service.MenuService
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo
+import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * 菜单控制器
@@ -31,18 +42,17 @@ class MenuController(
     @GetMapping("/role-tree")
     fun listCurrentRoleMenuTree(
         @AuthenticationPrincipal user: UserInfo,
-    ): List<MenuTreeNode> = menuService.listMenuTreeByRoleCodes(user.authorities.mapNotNull { it.authority })
+    ): List<MenuTreeView> = menuService.listMenuTreeByRoleCodes(user.authorities.mapNotNull { it.authority })
 
-    /**
-     * 查询全量菜单树（支持按完整菜单条件筛选）
-     *
-     * @param specification 菜单查询条件
-     * @return 菜单树
-     */
+    /** 查询全量菜单树 */
     @GetMapping("/tree")
-    fun listAllMenuTree(
+    fun listTree(): List<MenuTreeView> = menuService.listTree()
+
+    /** 按条件查询菜单列表 */
+    @GetMapping("/list")
+    fun listByCondition(
         @ModelAttribute specification: MenuSpecification,
-    ): List<MenuTreeNode> = menuService.listAllMenuTree(specification)
+    ): List<MenuView> = menuService.listByCondition(specification)
 
     /**
      * 根据 ID 查询菜单
@@ -53,29 +63,29 @@ class MenuController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): Menu? = menuService.getById(id)
+    ): MenuView? = menuService.getById(id)
 
     /**
      * 新增菜单
      *
-     * @param menu 菜单实体
+     * @param input 菜单写入请求
      * @return 保存后的菜单
      */
     @PostMapping
     fun save(
-        @RequestBody menu: Menu,
-    ): Menu = menuService.save(menu)
+        @RequestBody @Valid input: SaveMenuInput,
+    ): MenuView = menuService.save(input)
 
     /**
      * 更新菜单
      *
-     * @param menu 菜单实体
+     * @param input 菜单写入请求
      * @return 更新后的菜单
      */
     @PutMapping
     fun update(
-        @RequestBody menu: Menu,
-    ): Menu = menuService.update(menu)
+        @RequestBody @Valid input: UpdateMenuInput,
+    ): MenuView = menuService.update(input)
 
     /**
      * 根据 ID 删除菜单

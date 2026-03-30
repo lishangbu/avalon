@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeView
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateTypeInput
 import io.github.lishangbu.avalon.dataset.service.TypeService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 /** 属性控制器 */
@@ -17,12 +18,14 @@ class TypeController(
     /** 保存属性 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveTypeInput,
     ): TypeView = typeService.save(command)
 
     /** 更新属性 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateTypeInput,
     ): TypeView = typeService.update(command)
 

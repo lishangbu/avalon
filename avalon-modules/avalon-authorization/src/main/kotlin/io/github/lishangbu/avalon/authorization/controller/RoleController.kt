@@ -1,8 +1,11 @@
 package io.github.lishangbu.avalon.authorization.controller
 
-import io.github.lishangbu.avalon.authorization.entity.Role
 import io.github.lishangbu.avalon.authorization.entity.dto.RoleSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.RoleView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveRoleInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateRoleInput
 import io.github.lishangbu.avalon.authorization.service.RoleService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
@@ -32,7 +35,7 @@ class RoleController(
     fun getRolePage(
         pageable: Pageable,
         @ModelAttribute specification: RoleSpecification,
-    ): Page<Role> = roleService.getPageByCondition(specification, pageable)
+    ): Page<RoleView> = roleService.getPageByCondition(specification, pageable)
 
     /**
      * 条件查询角色列表
@@ -43,7 +46,7 @@ class RoleController(
     @GetMapping("/list")
     fun listRoles(
         @ModelAttribute specification: RoleSpecification,
-    ): List<Role> = roleService.listByCondition(specification)
+    ): List<RoleView> = roleService.listByCondition(specification)
 
     /**
      * 根据 ID 查询角色
@@ -54,29 +57,29 @@ class RoleController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): Role? = roleService.getById(id)
+    ): RoleView? = roleService.getById(id)
 
     /**
      * 新增角色
      *
-     * @param role 角色实体
+     * @param input 角色写入请求
      * @return 保存后的角色
      */
     @PostMapping
     fun save(
-        @RequestBody role: Role,
-    ): Role = roleService.save(role)
+        @RequestBody @Valid input: SaveRoleInput,
+    ): RoleView = roleService.save(input)
 
     /**
      * 更新角色
      *
-     * @param role 角色实体
+     * @param input 角色写入请求
      * @return 更新后的角色
      */
     @PutMapping
     fun update(
-        @RequestBody role: Role,
-    ): Role = roleService.update(role)
+        @RequestBody @Valid input: UpdateRoleInput,
+    ): RoleView = roleService.update(input)
 
     /**
      * 根据 ID 删除角色

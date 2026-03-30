@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.MoveDamageClass
+import jakarta.validation.constraints.NotBlank
 
 MoveDamageClassView {
     id
@@ -8,15 +9,21 @@ MoveDamageClassView {
 }
 
 input SaveMoveDamageClassInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     description
 }
 
 input UpdateMoveDamageClassInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     description
 }
 

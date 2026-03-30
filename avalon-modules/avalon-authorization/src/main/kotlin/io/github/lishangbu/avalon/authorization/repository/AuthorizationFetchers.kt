@@ -32,6 +32,9 @@ internal object AuthorizationFetchers {
             allScalarFields()
             menus {
                 allScalarFields()
+                parent {
+                    allScalarFields()
+                }
             }
         }
 
@@ -39,5 +42,8 @@ internal object AuthorizationFetchers {
     val MENU =
         newFetcher(Menu::class).`by` {
             allScalarFields()
+            parent {
+                allScalarFields()
+            }
         }
 }

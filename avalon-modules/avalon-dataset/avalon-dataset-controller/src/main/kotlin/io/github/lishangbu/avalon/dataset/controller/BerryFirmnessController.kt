@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFirmnessInput
 import io.github.lishangbu.avalon.dataset.service.BerryFirmnessService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
@@ -26,12 +27,14 @@ class BerryFirmnessController(
     /** 保存树果硬度 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveBerryFirmnessInput,
     ): BerryFirmnessView = berryFirmnessService.save(command)
 
     /** 更新树果硬度 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateBerryFirmnessInput,
     ): BerryFirmnessView = berryFirmnessService.update(command)
 

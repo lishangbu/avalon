@@ -25,23 +25,32 @@
 - repository 默认方法直接 `select(table.fetch(View::class))`。
 - service 优先 `save(command.toEntity(), SaveMode.INSERT_ONLY | SaveMode.UPSERT)`。
 - 如果返回模型要带关联名称或嵌套对象，保存后再 `loadViewById`。
+- generated `View` 只作为读模型；实现和测试里的 update 不要把 `View` round-trip 成 entity 再保存，优先 `UpdateXxxInput.toEntity()` 或 `Entity(existing)`。
 
-## 3. Authorization Module: Fetcher/Entity Mix
+## 3. Authorization Module: Management CRUD DTO First, Internal Flows Fetcher First
 
 优先参考以下文件：
 
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/controller/RoleController.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/controller/UserController.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/controller/OauthRegisteredClientController.kt`
 - `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/AuthorizationFetchers.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/UserRepository.kt`
 - `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/repository/MenuRepository.kt`
 - `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/MenuServiceImpl.kt`
 - `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/RoleServiceImpl.kt`
+- `avalon-modules/avalon-authorization/src/main/kotlin/io/github/lishangbu/avalon/authorization/service/impl/OauthRegisteredClientServiceImpl.kt`
 - `avalon-modules/avalon-authorization/src/main/dto/Menu.dto`
 
 遵循这些模式：
 
-- 现有授权逻辑直接消费实体图时，继续保留 fetcher。
+- 管理端 CRUD：controller/service 契约优先使用 generated `XxxView`、`SaveXxxInput`、`UpdateXxxInput`。
+- 管理端读侧：repository 默认补 `pageViews`、`listViews`、`loadViewById`，直接 `fetch(XxxView::class)`。
+- 管理端写侧：service 内部仍允许用 entity 做关联绑定、partial merge 与校验，但最终返回值优先 `save(...).let(::reloadView)` / `update(...).let(::reloadView)`。
+- 内部授权流程：现有认证、安全、角色装配等直接消费实体图时，继续保留 fetcher 或实体，不要为了“统一”强行改成 dataset 风格。
 - repository 仍优先继承 `KRepository`，并把定制查询写成接口默认方法。
-- `Menu` 树目前保留 `parentId: Long?` 标量外键；这是显式设计，不要自动改造成自关联实体。
 - 需要保留“未加载字段”语义的更新流程，才用 `readOrNull` 手工合并新旧实体。
+- 对 `User.roles` / `Role.menus`，显式空集合表示清空关联；字段未加载才表示保留 existing，不要把这两种语义合并。
 
 ## 4. Entity Mapping Rules
 
@@ -83,7 +92,8 @@
 ## 6. Default Decision Table
 
 - 新的 dataset 基础 CRUD: 选 DTO language。
-- 现有 authorization 查询扩展: 先延续 fetcher/entity 风格。
+- authorization 管理端 CRUD: 优先 generated `View` + generated input + controller `@Valid` + service reload view。
+- authorization 内部查询扩展: 先延续 fetcher/entity 或现有专用模型风格。
 - 简单 FK 写入: 选扁平 `assocId`，不要嵌套写对象。
 - 需要直接拿 FK 值给前端: 先放 DTO，不先加 `@IdView`。
 - 只是默认命名的列映射: 不写 `@JoinColumn`。

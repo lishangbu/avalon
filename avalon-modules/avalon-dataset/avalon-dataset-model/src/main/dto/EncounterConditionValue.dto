@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.EncounterConditionValue
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 EncounterConditionValueView {
     id
@@ -12,15 +14,21 @@ EncounterConditionValueView {
 }
 
 input SaveEncounterConditionValueInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(encounterCondition) as encounterConditionId
 }
 
 input UpdateEncounterConditionValueInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     id(encounterCondition) as encounterConditionId
 }
 

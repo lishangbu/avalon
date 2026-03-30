@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EggGroupView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEggGroupInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEggGroupInput
 import io.github.lishangbu.avalon.dataset.service.EggGroupService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class EggGroupController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveEggGroupInput,
     ): EggGroupView = eggGroupService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateEggGroupInput,
     ): EggGroupView = eggGroupService.update(command)
 

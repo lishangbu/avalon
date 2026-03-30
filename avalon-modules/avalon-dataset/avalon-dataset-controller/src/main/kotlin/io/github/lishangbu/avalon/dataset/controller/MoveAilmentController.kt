@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveAilmentView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveAilmentInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveAilmentInput
 import io.github.lishangbu.avalon.dataset.service.MoveAilmentService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class MoveAilmentController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveMoveAilmentInput,
     ): MoveAilmentView = moveAilmentService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateMoveAilmentInput,
     ): MoveAilmentView = moveAilmentService.update(command)
 

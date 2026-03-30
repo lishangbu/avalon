@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.PokemonHabitat
+import jakarta.validation.constraints.NotBlank
 
 PokemonHabitatView {
     id
@@ -7,13 +8,17 @@ PokemonHabitatView {
 }
 
 input SavePokemonHabitatInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
 }
 
 input UpdatePokemonHabitatInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
 }
 

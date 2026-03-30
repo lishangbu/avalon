@@ -1,4 +1,5 @@
 export io.github.lishangbu.avalon.dataset.entity.EggGroup
+import jakarta.validation.constraints.NotBlank
 
 EggGroupView {
     id
@@ -9,17 +10,25 @@ EggGroupView {
 }
 
 input SaveEggGroupInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     text
+    @NotBlank
     characteristics
 }
 
 input UpdateEggGroupInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotBlank
     text
+    @NotBlank
     characteristics
 }
 

@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.PokemonColorView
 import io.github.lishangbu.avalon.dataset.entity.dto.SavePokemonColorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdatePokemonColorInput
 import io.github.lishangbu.avalon.dataset.service.PokemonColorService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -23,11 +24,13 @@ class PokemonColorController(
 ) {
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SavePokemonColorInput,
     ): PokemonColorView = pokemonColorService.save(command)
 
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdatePokemonColorInput,
     ): PokemonColorView = pokemonColorService.update(command)
 

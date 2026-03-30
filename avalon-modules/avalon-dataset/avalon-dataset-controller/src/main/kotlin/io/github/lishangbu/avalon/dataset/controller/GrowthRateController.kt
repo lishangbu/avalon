@@ -5,6 +5,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveGrowthRateInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateGrowthRateInput
 import io.github.lishangbu.avalon.dataset.service.GrowthRateService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 /** 成长速率控制器 */
@@ -17,12 +18,14 @@ class GrowthRateController(
     /** 保存成长速率 */
     @PostMapping
     fun save(
+        @Valid
         @RequestBody command: SaveGrowthRateInput,
     ): GrowthRateView = growthRateService.save(command)
 
     /** 更新成长速率 */
     @PutMapping
     fun update(
+        @Valid
         @RequestBody command: UpdateGrowthRateInput,
     ): GrowthRateView = growthRateService.update(command)
 

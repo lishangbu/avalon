@@ -1,8 +1,108 @@
 export io.github.lishangbu.avalon.authorization.entity.Menu
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+
+MenuView {
+    id
+    id(parent) as parentId
+    disabled
+    extra
+    icon
+    key
+    label
+    show
+    path
+    name
+    redirect
+    component
+    sortingOrder
+    pinned
+    showTab
+    enableMultiTab
+}
+
+MenuTreeView {
+    id
+    id(parent) as parentId
+    disabled
+    extra
+    icon
+    key
+    label
+    show
+    path
+    name
+    redirect
+    component
+    sortingOrder
+    pinned
+    showTab
+    enableMultiTab
+    children*
+}
+
+input SaveMenuInput {
+    id(parent) as parentId
+    @NotNull(message = "菜单禁用状态不能为空")
+    disabled
+    extra
+    icon
+    @NotBlank(message = "菜单键名不能为空")
+    key
+    @NotBlank(message = "菜单标签不能为空")
+    label
+    @NotNull(message = "菜单显示状态不能为空")
+    show
+    @NotBlank(message = "菜单路径不能为空")
+    path
+    @NotBlank(message = "菜单名称不能为空")
+    name
+    redirect
+    @NotBlank(message = "组件路径不能为空")
+    component
+    @NotNull(message = "菜单排序不能为空")
+    sortingOrder
+    @NotNull(message = "菜单固定状态不能为空")
+    pinned
+    @NotNull(message = "菜单标签页显示状态不能为空")
+    showTab
+    @NotNull(message = "菜单多标签页状态不能为空")
+    enableMultiTab
+}
+
+input UpdateMenuInput {
+    id!
+    id(parent) as parentId
+    @NotNull(message = "菜单禁用状态不能为空")
+    disabled
+    extra
+    icon
+    @NotBlank(message = "菜单键名不能为空")
+    key
+    @NotBlank(message = "菜单标签不能为空")
+    label
+    @NotNull(message = "菜单显示状态不能为空")
+    show
+    @NotBlank(message = "菜单路径不能为空")
+    path
+    @NotBlank(message = "菜单名称不能为空")
+    name
+    redirect
+    @NotBlank(message = "组件路径不能为空")
+    component
+    @NotNull(message = "菜单排序不能为空")
+    sortingOrder
+    @NotNull(message = "菜单固定状态不能为空")
+    pinned
+    @NotNull(message = "菜单标签页显示状态不能为空")
+    showTab
+    @NotNull(message = "菜单多标签页状态不能为空")
+    enableMultiTab
+}
 
 specification MenuSpecification {
     id
-    parentId
+    associatedIdEq(parent) as parentId
     disabled
     like/i(extra)
     like/i(icon)

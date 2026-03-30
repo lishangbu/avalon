@@ -1,8 +1,11 @@
 package io.github.lishangbu.avalon.authorization.controller
 
-import io.github.lishangbu.avalon.authorization.entity.OauthRegisteredClient
 import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientSpecification
+import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClientView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveOauthRegisteredClientInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateOauthRegisteredClientInput
 import io.github.lishangbu.avalon.authorization.service.OauthRegisteredClientService
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
@@ -31,7 +34,7 @@ class OauthRegisteredClientController(
     fun getPage(
         pageable: Pageable,
         @ModelAttribute specification: OauthRegisteredClientSpecification,
-    ): Page<OauthRegisteredClient> = oauthRegisteredClientService.getPageByCondition(specification, pageable)
+    ): Page<OauthRegisteredClientView> = oauthRegisteredClientService.getPageByCondition(specification, pageable)
 
     /**
      * 条件查询注册客户端列表
@@ -41,7 +44,7 @@ class OauthRegisteredClientController(
     @GetMapping("/list")
     fun list(
         @ModelAttribute specification: OauthRegisteredClientSpecification,
-    ): List<OauthRegisteredClient> = oauthRegisteredClientService.listByCondition(specification)
+    ): List<OauthRegisteredClientView> = oauthRegisteredClientService.listByCondition(specification)
 
     /**
      * 根据 ID 查询注册客户端
@@ -52,29 +55,29 @@ class OauthRegisteredClientController(
     @GetMapping("/{id}")
     fun getById(
         @PathVariable id: String,
-    ): OauthRegisteredClient? = oauthRegisteredClientService.getById(id)
+    ): OauthRegisteredClientView? = oauthRegisteredClientService.getById(id)
 
     /**
      * 新增注册客户端
      *
-     * @param registeredClient 注册客户端实体
+     * @param input 注册客户端写入请求
      * @return 保存后的注册客户端
      */
     @PostMapping
     fun save(
-        @RequestBody registeredClient: OauthRegisteredClient,
-    ): OauthRegisteredClient = oauthRegisteredClientService.save(registeredClient)
+        @RequestBody @Valid input: SaveOauthRegisteredClientInput,
+    ): OauthRegisteredClientView = oauthRegisteredClientService.save(input)
 
     /**
      * 更新注册客户端
      *
-     * @param registeredClient 注册客户端实体
+     * @param input 注册客户端写入请求
      * @return 更新后的注册客户端
      */
     @PutMapping
     fun update(
-        @RequestBody registeredClient: OauthRegisteredClient,
-    ): OauthRegisteredClient = oauthRegisteredClientService.update(registeredClient)
+        @RequestBody @Valid input: UpdateOauthRegisteredClientInput,
+    ): OauthRegisteredClientView = oauthRegisteredClientService.update(input)
 
     /**
      * 根据 ID 删除注册客户端

@@ -1,10 +1,13 @@
 package io.github.lishangbu.avalon.authorization.controller
 
-import io.github.lishangbu.avalon.authorization.entity.User
+import io.github.lishangbu.avalon.authorization.entity.dto.CurrentUserView
+import io.github.lishangbu.avalon.authorization.entity.dto.SaveUserInput
+import io.github.lishangbu.avalon.authorization.entity.dto.UpdateUserInput
 import io.github.lishangbu.avalon.authorization.entity.dto.UserSpecification
-import io.github.lishangbu.avalon.authorization.model.UserWithRoles
+import io.github.lishangbu.avalon.authorization.entity.dto.UserView
 import io.github.lishangbu.avalon.authorization.service.UserService
 import io.github.lishangbu.avalon.oauth2.common.userdetails.UserInfo
+import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -31,7 +34,7 @@ class UserController(
     @GetMapping("/info")
     fun getUserInfo(
         @AuthenticationPrincipal user: UserInfo,
-    ): UserWithRoles? = userService.getUserByUsername(user.username)
+    ): CurrentUserView? = userService.getUserByUsername(user.username)
 
     /**
      * 分页条件查询用户
@@ -44,7 +47,7 @@ class UserController(
     fun getUserPage(
         pageable: Pageable,
         @ModelAttribute specification: UserSpecification,
-    ): Page<User> = userService.getPageByCondition(specification, pageable)
+    ): Page<UserView> = userService.getPageByCondition(specification, pageable)
 
     /**
      * 条件查询用户列表
@@ -55,7 +58,7 @@ class UserController(
     @GetMapping("/list")
     fun listUsers(
         @ModelAttribute specification: UserSpecification,
-    ): List<User> = userService.listByCondition(specification)
+    ): List<UserView> = userService.listByCondition(specification)
 
     /**
      * 根据 ID 查询用户
@@ -66,29 +69,29 @@ class UserController(
     @GetMapping("/{id:\\d+}")
     fun getById(
         @PathVariable id: Long,
-    ): User? = userService.getById(id)
+    ): UserView? = userService.getById(id)
 
     /**
      * 新增用户
      *
-     * @param user 用户实体
+     * @param input 用户写入请求
      * @return 保存后的用户
      */
     @PostMapping
     fun save(
-        @RequestBody user: User,
-    ): User = userService.save(user)
+        @RequestBody @Valid input: SaveUserInput,
+    ): UserView = userService.save(input)
 
     /**
      * 更新用户
      *
-     * @param user 用户实体
+     * @param input 用户写入请求
      * @return 更新后的用户
      */
     @PutMapping
     fun update(
-        @RequestBody user: User,
-    ): User = userService.update(user)
+        @RequestBody @Valid input: UpdateUserInput,
+    ): UserView = userService.update(input)
 
     /**
      * 根据 ID 删除用户

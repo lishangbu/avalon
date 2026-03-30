@@ -1,6 +1,6 @@
 ---
 name: jimmer-dev
-description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimmer entity interface、`.dto` 文件、`KRepository` 查询、`SaveMode` 写入流程、关联映射和 fetcher/DTO 取舍。适用于：(1) 新增或重构 dataset/authorization 模块的 Jimmer 模型；(2) 定义 `View`、`SaveInput`、`UpdateInput`、`Specification`；(3) 处理 `@ManyToOne`、复合主键、`@JsonConverter(LongToStringConverter::class)`、`readOrNull` 等仓库约定；(4) 判断何时使用 DTO language、何时保留 fetcher 或实体返回。
+description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimmer entity interface、`.dto` 文件、`KRepository` 查询、`SaveMode` 写入流程、关联映射，以及 dataset/authorization 模块里 generated view、generated input 与 fetcher/entity 的取舍。适用于：(1) 新增或重构 dataset/authorization 模块的 Jimmer 模型；(2) 定义 `View`、`SaveInput`、`UpdateInput`、`Specification`；(3) 处理 `@ManyToOne`、复合主键、`@JsonConverter(LongToStringConverter::class)`、`readOrNull` 等仓库约定；(4) 判断何时让管理端 CRUD 走 DTO First，何时保留内部授权查询为 fetcher 或实体返回。
 ---
 
 # Jimmer Dev
@@ -10,7 +10,7 @@ description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimm
 先按模块判断风格，再按场景选 Jimmer 能力。
 
 - `dataset` 的基础信息 CRUD 默认走 DTO language first。
-- `authorization` 目前仍是 fetcher + entity/部分 DTO 的混合风格。除非任务明确要求重构，否则优先保持既有模式。
+- `authorization` 现在采用双轨：管理端 CRUD 默认继续向 DTO First 收敛，读写契约优先使用 generated `XxxView`、`SaveXxxInput`、`UpdateXxxInput`；认证、安全、权限装配等内部流程仍优先保留 fetcher/entity 或现有专用模型。
 - 优先复用仓库现有的 `jimmer-spring-boot-starter`、`jimmer-sql-kotlin`、`jimmer-ksp` 和 `KRepository` 基础设施，不要回退到手写映射层。
 
 以下基础语义在两个模块里都成立：
@@ -23,7 +23,7 @@ description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimm
 
 ### 1. 先套仓库决策，再调用底层 ORM 能力
 
-- 先用本技能的模块决策表确定是 DTO-first 还是 fetcher/entity mix。
+- 先用本技能的模块决策表确定是 DTO-first，还是 `authorization` 里的“管理端 CRUD 用 generated view/input、内部授权查询保留 fetcher/entity”的双轨。
 - 需要补底层映射或 DSL 语法时，先读 `references/orm-primitives.md`，再回到当前仓库约定落地。
 - 不要因为 Jimmer 支持某种“更通用”的写法，就覆盖当前仓库已经稳定下来的输入输出契约。
 
@@ -31,6 +31,7 @@ description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimm
 
 - 为新的后台 CRUD 页面，优先定义 `.dto` 文件，并生成 `XxxView`、`SaveXxxInput`、`UpdateXxxInput`、`XxxSpecification`。
 - 让 repository 直接 `select(table.fetch(XxxView::class))`，不要在此基础上再额外手写输出 DTO。
+- `authorization` 的管理端分页、列表、详情、保存、更新默认都可以切到 generated `XxxView`；保存后按 ID reload view。
 - 如果现有调用方直接消费实体图，或安全/授权逻辑已经复用 fetcher，继续使用 fetcher，不为“统一”而强行改造。
 - 只有在 DTO view 不存在且实体图会被多个内部流程复用时，再新增 manual fetcher。
 
@@ -42,7 +43,6 @@ description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimm
 - 如果列名已经符合 Jimmer 默认命名，不要保留多余的 `@JoinColumn`。
 - 一对多必须作为多对一的镜像，`mappedBy` 要与关联属性名对齐。
 - 多对多要区分主动端和镜像端；只有默认中间表或列名不满足 schema 时，才补 `@JoinTable`。
-- 对树形或高度偏管理端的自关联模型，可以保留标量外键。`Menu.parentId: Long?` 是当前仓库允许的例外，不要为了理论完整性强制改成自关联 `@ManyToOne`。
 - 对复合主键或桥表，使用 `@Embeddable` + `@PropOverride`。
 
 ### 4. 设计 DTO language
@@ -59,15 +59,22 @@ description: 当前仓库中的 Jimmer 开发助手。用于设计或修改 Jimm
 - 把简单定制查询写成 repository interface 默认方法，不要为少量 DSL 额外创建 `*RepositoryExt` 或 impl。
 - 可选查询参数优先用动态谓词，例如 `eq?`、`ilike?`、`between?`，减少手写条件分支。
 - 关联筛选优先复用关联路径 join 或集合关联隐式子查询，不要把同一条关联链拆成重复的手写 join 逻辑。
+- `authorization` 管理端 CRUD 如果已经进入 DTO First，repository 优先补 `pageViews`、`listViews`、`loadViewById`，service 优先让 `page/list/getById/save/update` 返回 generated `XxxView`。
 - 写入优先使用 `input.toEntity()` + `save(..., SaveMode.INSERT_ONLY | SaveMode.UPSERT)`。
+- 对 DTO-first 聚合，generated `XxxView` 只作为读模型；不要把 `XxxView` round-trip 成 entity 后再 `save`。更新优先使用 `UpdateXxxInput.toEntity()`，或基于已加载 entity copy 更新，避免部分关联视图触发非预期的关联 upsert。
 - 当返回值需要完整关联视图时，保存后按 ID reload `XxxView`。
+- 对 `authorization` 的内部授权查询，例如账号查用户角色等，继续保留 fetcher/entity 或已有专用模型，不必为了对称性硬切 DTO。
 - 只有在“未加载字段”和“显式 null”必须区分的部分更新流程里，才使用 `readOrNull`。普通可空属性读取不要滥用它。
 - 对集合关联替换写入，沿用现有显式保存模式；不要在不知道关联保存策略的情况下随意改动 `AssociatedSaveMode`。
+- 对 `User.roles`、`Role.menus` 这类集合关联更新，要显式区分三种语义：字段未加载/未传、字段已加载且有值、字段已加载但为空。不要用 `orEmpty()` 把“未加载”和“显式清空”折叠成同一种情况。
+- 如果输入边界已经采用 generated input，字段级必填/格式约束优先放在 `.dto` 注解和 controller `@Valid`。service 不要重复做同层必填校验；service 仍负责关联绑定、reload、partial merge 和未加载语义。
 
 ### 6. 收尾检查
 
 - 检查输入输出 JSON 是否仍然是前端使用的扁平结构，尤其是关联 ID 和字符串化 Long ID。
 - 检查是否误把简单关联更新改成了嵌套对象写入。
+- 检查是否把 generated `XxxView` 当成写模型回写到 repository；DTO-first 的实现和测试里，更新都优先使用 input 或现有 entity，而不是 `view.toEntity()`。
+- 检查集合关联 update 是否仍然保留“未传则保留、显式空列表则清空”的语义。
 - 检查是否新增了重复镜像字段、无必要 fetcher、无必要 repository 派生类。
 - 至少运行受影响模块的编译和相关测试，确认 KSP 生成代码可用。
 

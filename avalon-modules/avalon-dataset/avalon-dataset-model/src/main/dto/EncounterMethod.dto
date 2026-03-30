@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.EncounterMethod
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 EncounterMethodView {
     id
@@ -8,15 +10,21 @@ EncounterMethodView {
 }
 
 input SaveEncounterMethodInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     sortingOrder
 }
 
 input UpdateEncounterMethodInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     sortingOrder
 }
 

@@ -1,4 +1,6 @@
 export io.github.lishangbu.avalon.dataset.entity.Stat
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 StatView {
     id
@@ -15,20 +17,30 @@ StatView {
 }
 
 input SaveStatInput {
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     gameIndex
+    @NotNull
     battleOnly
+    @NotNull
     readonly
     id(moveDamageClass) as moveDamageClassId
 }
 
 input UpdateStatInput {
     id!
+    @NotBlank
     internalName
+    @NotBlank
     name
+    @NotNull
     gameIndex
+    @NotNull
     battleOnly
+    @NotNull
     readonly
     id(moveDamageClass) as moveDamageClassId
 }
