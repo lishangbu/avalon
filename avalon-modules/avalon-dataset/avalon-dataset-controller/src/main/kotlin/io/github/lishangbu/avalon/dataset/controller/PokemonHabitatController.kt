@@ -4,8 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.PokemonHabitatSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.PokemonHabitatView
 import io.github.lishangbu.avalon.dataset.entity.dto.SavePokemonHabitatInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdatePokemonHabitatInput
-import io.github.lishangbu.avalon.dataset.service.PokemonHabitatService
+import io.github.lishangbu.avalon.dataset.repository.PokemonHabitatRepository
 import jakarta.validation.Valid
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -20,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/pokemon-habitat")
 class PokemonHabitatController(
-    private val pokemonHabitatService: PokemonHabitatService,
+    private val pokemonHabitatRepository: PokemonHabitatRepository,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SavePokemonHabitatInput,
-    ): PokemonHabitatView = pokemonHabitatService.save(command)
+    ): PokemonHabitatView = PokemonHabitatView(pokemonHabitatRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdatePokemonHabitatInput,
-    ): PokemonHabitatView = pokemonHabitatService.update(command)
+    ): PokemonHabitatView = PokemonHabitatView(pokemonHabitatRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        pokemonHabitatService.removeById(id)
+        pokemonHabitatRepository.deleteById(id)
     }
 
     @GetMapping("/list")
     fun listPokemonHabitats(
         @ModelAttribute specification: PokemonHabitatSpecification,
-    ): List<PokemonHabitatView> = pokemonHabitatService.listByCondition(specification)
+    ): List<PokemonHabitatView> = pokemonHabitatRepository.listViews(specification)
 }

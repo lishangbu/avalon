@@ -4,8 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemFlingEffectSpecificatio
 import io.github.lishangbu.avalon.dataset.entity.dto.ItemFlingEffectView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemFlingEffectInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemFlingEffectInput
-import io.github.lishangbu.avalon.dataset.service.ItemFlingEffectService
+import io.github.lishangbu.avalon.dataset.repository.ItemFlingEffectRepository
 import jakarta.validation.Valid
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -20,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/item-fling-effect")
 class ItemFlingEffectController(
-    private val itemFlingEffectService: ItemFlingEffectService,
+    private val itemFlingEffectRepository: ItemFlingEffectRepository,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveItemFlingEffectInput,
-    ): ItemFlingEffectView = itemFlingEffectService.save(command)
+    ): ItemFlingEffectView = ItemFlingEffectView(itemFlingEffectRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateItemFlingEffectInput,
-    ): ItemFlingEffectView = itemFlingEffectService.update(command)
+    ): ItemFlingEffectView = ItemFlingEffectView(itemFlingEffectRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        itemFlingEffectService.removeById(id)
+        itemFlingEffectRepository.deleteById(id)
     }
 
     @GetMapping("/list")
     fun listItemFlingEffects(
         @ModelAttribute specification: ItemFlingEffectSpecification,
-    ): List<ItemFlingEffectView> = itemFlingEffectService.listByCondition(specification)
+    ): List<ItemFlingEffectView> = itemFlingEffectRepository.listViews(specification)
 }

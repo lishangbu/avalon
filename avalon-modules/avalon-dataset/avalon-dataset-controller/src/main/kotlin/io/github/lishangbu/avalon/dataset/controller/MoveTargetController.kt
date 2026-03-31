@@ -4,8 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveTargetSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveTargetView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveTargetInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveTargetInput
-import io.github.lishangbu.avalon.dataset.service.MoveTargetService
+import io.github.lishangbu.avalon.dataset.repository.MoveTargetRepository
 import jakarta.validation.Valid
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -20,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/move-target")
 class MoveTargetController(
-    private val moveTargetService: MoveTargetService,
+    private val moveTargetRepository: MoveTargetRepository,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveMoveTargetInput,
-    ): MoveTargetView = moveTargetService.save(command)
+    ): MoveTargetView = MoveTargetView(moveTargetRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateMoveTargetInput,
-    ): MoveTargetView = moveTargetService.update(command)
+    ): MoveTargetView = MoveTargetView(moveTargetRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        moveTargetService.removeById(id)
+        moveTargetRepository.deleteById(id)
     }
 
     @GetMapping("/list")
     fun listMoveTargets(
         @ModelAttribute specification: MoveTargetSpecification,
-    ): List<MoveTargetView> = moveTargetService.listByCondition(specification)
+    ): List<MoveTargetView> = moveTargetRepository.listViews(specification)
 }

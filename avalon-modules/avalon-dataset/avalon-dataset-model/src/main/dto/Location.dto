@@ -1,0 +1,37 @@
+export io.github.lishangbu.avalon.dataset.entity.Location
+import jakarta.validation.constraints.NotBlank
+
+LocationView {
+    id
+    internalName
+    name
+    region {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveLocationInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    id(region) as regionId
+}
+
+input UpdateLocationInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    id(region) as regionId
+}
+
+specification LocationSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    associatedIdEq(region) as regionId
+}

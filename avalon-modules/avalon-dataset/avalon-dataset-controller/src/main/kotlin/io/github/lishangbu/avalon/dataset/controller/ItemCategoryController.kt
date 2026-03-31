@@ -4,8 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemCategorySpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.ItemCategoryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemCategoryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemCategoryInput
-import io.github.lishangbu.avalon.dataset.service.ItemCategoryService
+import io.github.lishangbu.avalon.dataset.repository.ItemCategoryRepository
 import jakarta.validation.Valid
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -20,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/item-category")
 class ItemCategoryController(
-    private val itemCategoryService: ItemCategoryService,
+    private val itemCategoryRepository: ItemCategoryRepository,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveItemCategoryInput,
-    ): ItemCategoryView = itemCategoryService.save(command)
+    ): ItemCategoryView = ItemCategoryView(itemCategoryRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateItemCategoryInput,
-    ): ItemCategoryView = itemCategoryService.update(command)
+    ): ItemCategoryView = ItemCategoryView(itemCategoryRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        itemCategoryService.removeById(id)
+        itemCategoryRepository.deleteById(id)
     }
 
     @GetMapping("/list")
     fun listItemCategories(
         @ModelAttribute specification: ItemCategorySpecification,
-    ): List<ItemCategoryView> = itemCategoryService.listByCondition(specification)
+    ): List<ItemCategoryView> = itemCategoryRepository.listViews(specification)
 }

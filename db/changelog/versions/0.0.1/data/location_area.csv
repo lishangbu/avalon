@@ -1,0 +1,1153 @@
+id,game_index,internal_name,name,location_id
+1,1,canalave-city-area,Canalave City,1
+2,2,eterna-city-area,Eterna City,2
+3,3,pastoria-city-area,Pastoria City,3
+4,4,sunyshore-city-area,Sunyshore City,4
+5,5,sinnoh-pokemon-league-area,Sinnoh League,5
+6,6,oreburgh-mine-1f,Oreburgh mine (1F),6
+7,7,oreburgh-mine-b1f,Oreburgh mine (B1F),6
+8,8,valley-windworks-area,Valley Windworks,7
+9,9,eterna-forest-area,Eterna Forest,8
+10,10,fuego-ironworks-area,Fuego Ironworks,9
+11,11,mt-coronet-1f-route-207,Mount Coronet (1F Road 207),10
+12,12,mt-coronet-2f,Mount Coronet (2F),10
+13,13,mt-coronet-3f,Mount Coronet (3F),10
+14,14,mt-coronet-exterior-snowfall,Mount Coronet (exterior snowfall),10
+15,15,mt-coronet-exterior-blizzard,Mount Coronet (exterior blizzard),10
+16,16,mt-coronet-4f,Mount Coronet (4F),10
+17,17,mt-coronet-4f-small-room,Mount Coronet (4F small room),10
+18,18,mt-coronet-5f,Mount Coronet (5F),10
+19,19,mt-coronet-6f,Mount Coronet (6F),10
+20,20,mt-coronet-1f-from-exterior,Mount Coronet (1F from exterior),10
+21,21,mt-coronet-1f-route-216,Mount Coronet (1F Road 216),10
+22,22,mt-coronet-1f-route-211,Mount Coronet (1F Road 211),10
+23,23,mt-coronet-b1f,Mount Coronet (B1F),10
+24,24,great-marsh-area-1,Great Marsh Area 1,11
+25,25,great-marsh-area-2,Great Marsh Area 2,11
+26,26,great-marsh-area-3,Great Marsh Area 3,11
+27,27,great-marsh-area-4,Great Marsh Area 4,11
+28,28,great-marsh-area-5,Great Marsh Area 5,11
+29,29,great-marsh-area-6,Great Marsh Area 6,11
+30,30,solaceon-ruins-2f,Solaceon Ruins (2F),12
+31,31,solaceon-ruins-1f,Solaceon Ruins (1F),12
+32,32,solaceon-ruins-b1f-a,Solaceon Ruins (B1F A),12
+33,33,solaceon-ruins-b1f-b,Solaceon Ruins (B1F B),12
+34,34,solaceon-ruins-b1f-c,Solaceon Ruins (B1F C),12
+35,35,solaceon-ruins-b2f-a,Solaceon Ruins (B2F A),12
+36,36,solaceon-ruins-b2f-b,Solaceon Ruins (B2F B),12
+37,37,solaceon-ruins-b2f-c,Solaceon Ruins (B2F C),12
+38,38,solaceon-ruins-b3f-a,Solaceon Ruins (B3F A),12
+39,39,solaceon-ruins-b3f-b,Solaceon Ruins (B3F B),12
+40,40,solaceon-ruins-b3f-c,Solaceon Ruins (B3F C),12
+41,41,solaceon-ruins-b3f-d,Solaceon Ruins (B3F D),12
+42,42,solaceon-ruins-b3f-e,Solaceon Ruins (B3F E),12
+43,43,solaceon-ruins-b4f-a,Solaceon Ruins (B4F A),12
+44,44,solaceon-ruins-b4f-b,Solaceon Ruins (B4F B),12
+45,45,solaceon-ruins-b4f-c,Solaceon Ruins (B4F C),12
+46,46,solaceon-ruins-b4f-d,Solaceon Ruins (B4F D),12
+47,47,solaceon-ruins-b5f,Solaceon Ruins (B5F),12
+48,48,sinnoh-victory-road-1f,Victory Road (1F),13
+49,49,sinnoh-victory-road-2f,Victory Road (2F),13
+50,50,sinnoh-victory-road-b1f,Victory Road (B1F),13
+51,51,sinnoh-victory-road-inside-b1f,Victory Road (inside B1F),13
+52,52,sinnoh-victory-road-inside,Victory Road (inside),13
+53,53,sinnoh-victory-road-inside-exit,Victory Road (inside exit),13
+54,54,ravaged-path-area,Ravaged Path,14
+55,55,oreburgh-gate-1f,Oreburgh Gate (1F),15
+56,56,oreburgh-gate-b1f,Oreburgh Gate (B1F),15
+57,57,stark-mountain-area,Stark Mountain exterior,16
+58,58,stark-mountain-entrance,Stark Mountain entrance,16
+59,59,stark-mountain-inside,Stark Mountain main cavern,16
+60,60,sendoff-spring-area,Sendoff Spring,178
+61,61,turnback-cave-pillar-1,Turnback Cave (pillar 1),18
+62,62,turnback-cave-pillar-2,Turnback Cave (pillar 2),18
+63,63,turnback-cave-pillar-3,Turnback Cave (pillar 3),18
+64,64,turnback-cave-before-pillar-1,Turnback Cave (before pillar 1),18
+70,70,turnback-cave-between-pillars-1-and-2,Turnback Cave (between pillars 1 and 2),18
+76,76,turnback-cave-between-pillars-2-and-3,Turnback Cave (between pillars 2 and 3),18
+82,82,turnback-cave-after-pillar-3,Turnback Cave (after pillar 3),18
+107,107,snowpoint-temple-1f,Snowpoint Temple (1F),19
+108,108,snowpoint-temple-b1f,Snowpoint Temple (B1F),19
+109,109,snowpoint-temple-b2f,Snowpoint Temple (B2F),19
+110,110,snowpoint-temple-b3f,Snowpoint Temple (B3F),19
+111,111,snowpoint-temple-b4f,Snowpoint Temple (B4F),19
+112,112,snowpoint-temple-b5f,Snowpoint Temple (B5F),19
+113,113,wayward-cave-1f,Wayward Cave (1F),20
+114,114,wayward-cave-b1f,Wayward Cave (B1F),20
+115,115,ruin-maniac-cave-0-9-different-unown-caught,Ruin Maniac Cave (0–9 different Unown caught),22
+116,116,ruin-maniac-cave-10-25-different-unown-caught,Ruin Maniac Cave (10–25 different Unown caught),22
+117,117,maniac-tunnel-26-plus-different-unown-caught,Maniac Tunnel (26+ different Unown caught),180
+118,118,trophy-garden-area,Trophy Garden,23
+119,119,iron-island-area,Iron Island area,24
+120,120,iron-island-1f,Iron Island (1F),24
+121,121,iron-island-b1f-left,Iron Island (B1F left),24
+122,122,iron-island-b1f-right,Iron Island (B1F right),24
+123,123,iron-island-b2f-right,Iron Island (B2F right),24
+124,124,iron-island-b2f-left,Iron Island (B2F left),24
+125,125,iron-island-b3f,Iron Island (B3F),24
+126,126,old-chateau-entrance,Old Chateau (entrance),25
+127,127,old-chateau-dining-room,Old Chateau (dining room),25
+128,128,old-chateau-2f-private-room,Old Chateau (2F private room),25
+129,129,old-chateau-2f,Old Chateau (2F),25
+130,130,old-chateau-2f-leftmost-room,Old Chateau (2F leftmost room),25
+131,131,old-chateau-2f-left-room,Old Chateau (2F left room),25
+132,132,old-chateau-2f-middle-room,Old Chateau (2F middle room),25
+133,133,old-chateau-2f-right-room,Old Chateau (2F right room),25
+134,134,old-chateau-2f-rightmost-room,Old Chateau (2F rightmost room),25
+135,135,lake-verity-before-galactic-intervention,Lake Verity (before Galactic intervention),26
+136,136,lake-verity-after-galactic-intervention,Lake Verity (after Galactic intervention),26
+137,137,lake-valor-area,Lake Valor,27
+138,138,lake-acuity-area,Lake Acuity,28
+139,139,valor-lakefront-area,Valor Lakefront,29
+140,140,acuity-lakefront-area,Acuity Lakefront,30
+141,141,sinnoh-route-201-area,Road 201,31
+142,142,sinnoh-route-202-area,Road 202,32
+143,143,sinnoh-route-203-area,Road 203,33
+144,144,sinnoh-route-204-south-towards-jubilife-city,"Road 204 (south, towards Jubilife City)",34
+145,145,sinnoh-route-204-north-towards-floaroma-town,"Road 204 (north, towards Floaroma Town)",34
+146,146,sinnoh-route-205-south-towards-floaroma-town,"Road 205 (south, towards Floaroma Town)",35
+147,147,sinnoh-route-205-east-towards-eterna-city,"Road 205 (east, towards Eterna City)",35
+148,148,sinnoh-route-206-area,Road 206,36
+149,149,sinnoh-route-207-area,Road 207,37
+150,150,sinnoh-route-208-area,Road 208,38
+151,151,sinnoh-route-209-area,Road 209,39
+152,152,lost-tower-1f,Lost Tower (1F),40
+153,153,lost-tower-2f,Lost Tower (2F),40
+154,154,lost-tower-3f,Lost Tower (3F),40
+155,155,lost-tower-4f,Lost Tower (4F),40
+156,156,lost-tower-5f,Lost Tower (5F),40
+157,157,sinnoh-route-210-south-towards-solaceon-town,"Road 210 (south, towards Solaceon Town)",41
+158,158,sinnoh-route-210-west-towards-celestic-town,"Road 210 (west, towards Celestic Town)",41
+159,159,sinnoh-route-211-west-towards-eterna-city,"Road 211 (west, towards Eterna City)",42
+160,160,sinnoh-route-211-east-towards-celestic-town,"Road 211 (east, towards Celestic Town)",42
+161,161,sinnoh-route-212-north-towards-hearthome-city,"Road 212 (north, towards Hearthome City)",43
+162,162,sinnoh-route-212-east-towards-pastoria-city,"Road 212 (east, towards Pastoria City)",43
+163,163,sinnoh-route-213-area,Road 213,44
+164,164,sinnoh-route-214-area,Road 214,45
+165,165,sinnoh-route-215-area,Road 215,46
+166,166,sinnoh-route-216-area,Road 216,47
+167,167,sinnoh-route-217-area,Road 217,48
+168,168,sinnoh-route-218-area,Road 218,49
+169,169,sinnoh-route-219-area,Road 219,50
+170,170,sinnoh-route-221-area,Road 221,51
+171,171,sinnoh-route-222-area,Road 222,52
+172,172,sinnoh-route-224-area,Road 224,53
+173,173,sinnoh-route-225-area,Road 225,54
+174,174,sinnoh-route-227-area,Road 227,55
+175,175,sinnoh-route-228-area,Road 228,56
+176,176,sinnoh-route-229-area,Road 229,57
+177,177,twinleaf-town-area,Twinleaf Town,58
+178,178,celestic-town-area,Celestic Town,59
+179,179,resort-area-area,Resort Area,60
+180,180,sinnoh-sea-route-220-area,Road 220,61
+181,181,sinnoh-sea-route-223-area,Road 223,62
+182,182,sinnoh-sea-route-226-area,Road 226,63
+183,183,sinnoh-sea-route-230-area,Road 230,64
+184,1,new-bark-town-area,New Bark Town,84
+185,2,johto-route-29-area,Road 29,108
+186,3,cherrygrove-city-area,Cherrygrove City,69
+187,4,johto-route-30-area,Road 30,110
+188,5,johto-route-31-area,Road 31,111
+189,6,violet-city-area,Violet City,153
+190,7,sprout-tower-2f,Sprout Tower (2F),138
+191,8,sprout-tower-3f,Sprout Tower (3F),138
+192,9,johto-route-32-area,Road 32,112
+193,10,ruins-of-alph-outside,Ruins of Alph (outside),135
+194,11,ruins-of-alph-interior-a,Ruins of Alph (interior A),135
+195,12,ruins-of-alph-interior-b,Ruins of Alph (interior B),135
+196,13,ruins-of-alph-interior-c,Ruins of Alph (interior C),135
+197,14,ruins-of-alph-interior-d,Ruins of Alph (interior D),135
+198,15,union-cave-1f,Union Cave (1F),141
+199,16,union-cave-b1f,Union Cave (B1F),141
+200,17,union-cave-b2f,Union Cave (B2F),141
+201,18,johto-route-33-area,Road 33,113
+202,19,slowpoke-well-1f,Slowpoke Well (1F),137
+203,20,slowpoke-well-b1f,Slowpoke Well (B1F),137
+204,21,ilex-forest-area,Ilex Forest,78
+205,22,johto-route-34-area,Road 34,114
+206,23,johto-route-35-area,Road 35,115
+207,24,national-park-area,National Park,83
+208,25,unknown-all-bugs-area,Unknown Area; all bugs,150
+209,26,johto-route-36-area,Road 36,116
+210,27,johto-route-37-area,Road 37,117
+211,28,ecruteak-city-area,Ecruteak City,75
+212,29,burned-tower-1f,Burned Tower (1F),66
+213,30,burned-tower-b1f,Burned Tower (B1F),66
+214,31,bell-tower-2f,Bell Tower (2F),139
+215,32,bell-tower-3f,Bell Tower (3F),139
+216,33,bell-tower-4f,Bell Tower (4F),139
+217,34,bell-tower-5f,Bell Tower (5F),139
+218,35,bell-tower-6f,Bell Tower (6F),139
+219,36,bell-tower-7f,Bell Tower (7F),139
+220,37,bell-tower-8f,Bell Tower (8F),139
+221,38,bell-tower-9f,Bell Tower (9F),139
+222,39,johto-route-38-area,Road 38,118
+223,40,johto-route-39-area,Road 39,119
+224,41,olivine-city-area,Olivine City,85
+225,42,johto-sea-route-40-area,Road 40,121
+226,43,johto-sea-route-41-area,Road 41,122
+227,44,whirl-islands-1f,Whirl Islands (1F),156
+228,45,whirl-islands-b1f,Whirl Islands (B1F),156
+229,46,whirl-islands-empty-floor-x,Whirl Islands (empty floor X),156
+230,47,whirl-islands-b2f,Whirl Islands (B2F),156
+231,48,whirl-islands-empty-floor-y,Whirl Islands (empty floor Y),156
+232,49,whirl-islands-b3f,Whirl Islands (B3F),156
+235,52,cianwood-city-area,Cianwood City,70
+236,53,johto-route-42-area,Road 42,123
+237,54,mt-mortar-1f,Mount Mortar (1F),81
+238,55,mt-mortar-lower-cave,Mount Mortar (Lower Cave),81
+239,56,mt-mortar-upper-cave,Mount Mortar (Upper Cave),81
+240,57,mt-mortar-b1f,Mount Mortar (B1F),81
+241,58,johto-route-43-area,Road 43,124
+242,59,lake-of-rage-area,Lake of Rage,79
+243,60,johto-route-44-area,Road 44,125
+244,61,ice-path-1f,Ice Path (1F),77
+245,62,ice-path-b1f,Ice Path (B1F),77
+246,63,ice-path-b2f,Ice Path (B2F),77
+247,64,ice-path-b3f,Ice Path (B3F),77
+249,66,blackthorn-city-area,Blackthorn City,65
+250,67,dragons-den-area,Dragon's Den,74
+251,68,johto-route-45-area,Road 45,126
+252,69,johto-route-46-area,Road 46,127
+253,70,dark-cave-violet-city-entrance,Dark Cave (Violet City entrance),72
+254,71,dark-cave-blackthorn-city-entrance,Dark Cave (Blackthorn City entrance),72
+255,72,johto-route-47-area,Road 47,128
+256,73,mt-moon-mt-moon-square,Mount Moon Square,80
+257,74,unknown-all-poliwag-area,Unknown Area; all Poliwag,148
+258,75,seafoam-islands-1f,Seafoam Islands (1F),136
+259,76,seafoam-islands-b1f,Seafoam Islands (B1F),136
+260,77,seafoam-islands-b2f,Seafoam Islands (B2F),136
+261,78,seafoam-islands-b3f,Seafoam Islands (B3F),136
+262,79,seafoam-islands-b4f,Seafoam Islands (B4F),136
+263,80,mt-silver-2f,Mount Silver (2F),82
+264,81,mt-silver-1f-top,Mount Silver (1F top),82
+265,82,mt-silver-4f,Mount Silver (4F),82
+266,83,johto-route-47-cave-gate,Road 47 (cave gate),128
+267,84,johto-route-47-inside-cave,Road 47 (inside cave),128
+268,85,bell-tower-10f,Bell Tower (10F),139
+269,86,mt-silver-outside,Mount Silver (outside),82
+270,87,mt-silver-1f,Mount Silver (1F),82
+271,88,mt-silver-mountainside,Mount Silver (mountainside),82
+272,89,mt-silver-3f,Mount Silver (3F),82
+273,90,mt-silver-top,Mount Silver (top),82
+275,92,unknown-all-rattata-area,Unknown Area; all Rattata,149
+276,93,kanto-route-12-area,Road 12,91
+277,94,kanto-sea-route-19-area,Road 19,98
+278,95,kanto-sea-route-20-area,Road 20,100
+279,96,cinnabar-island-area,Cinnabar Island,71
+280,97,viridian-city-area,Viridian City,154
+281,98,cerulean-city-area,Cerulean City,68
+282,99,vermilion-city-area,Vermilion City,151
+283,100,celadon-city-area,Celadon City,67
+284,101,fuchsia-city-area,Fuchsia City,76
+285,102,pallet-town-area,Pallet Town,86
+286,103,johto-route-48-area,Road 48,129
+287,104,kanto-route-26-area,Road 26,105
+288,105,kanto-route-27-area,Road 27,106
+289,106,kanto-route-28-area,Road 28,107
+290,107,mt-moon-1f,Mount Moon (1F),80
+291,108,mt-moon-2f,Mount Moon (2F),80
+292,109,rock-tunnel-1f,Rock Tunnel (1F),87
+293,110,rock-tunnel-b1f,Rock Tunnel (B1F),87
+294,111,kanto-victory-road-1-1f,Victory Road 1 (1F),152
+295,112,kanto-route-1-area,Road 1,88
+296,113,kanto-route-2-south-towards-viridian-city,"Road 2 (south, towards Viridian City)",99
+297,114,kanto-route-3-area,Road 3,109
+298,115,kanto-route-4-area,Road 4,120
+299,116,kanto-route-5-area,Road 5,130
+300,117,kanto-route-6-area,Road 6,131
+301,118,kanto-route-7-area,Road 7,132
+302,119,kanto-route-8-area,Road 8,133
+303,120,kanto-route-9-area,Road 9,134
+304,121,kanto-route-10-area,Road 10,89
+305,122,kanto-route-11-area,Road 11,90
+306,123,kanto-route-13-area,Road 13,92
+307,124,kanto-route-14-area,Road 14,93
+308,125,kanto-route-15-area,Road 15,94
+309,126,kanto-route-16-area,Road 16,95
+310,127,kanto-route-17-area,Road 17,96
+311,128,kanto-route-18-area,Road 18,97
+312,129,kanto-sea-route-21-area,Road 21,101
+313,130,kanto-route-22-area,Road 22,102
+314,131,kanto-route-24-area,Road 24,103
+315,132,kanto-route-25-area,Road 25,104
+316,133,tohjo-falls-area,Tohjo Falls,140
+317,134,digletts-cave-area,Digletts Cave,73
+318,135,kanto-victory-road-1-2f,Victory Road 1 (2F),152
+319,136,kanto-victory-road-1-3f,Victory Road 1 (3F),152
+320,137,kanto-route-2-north-towards-pewter-city,"Road 2 (north, towards Pewter City)",99
+321,138,viridian-forest-area,Viridian Forest,155
+323,140,cerulean-cave-1f,Cerulean Cave (1F),147
+324,141,cerulean-cave-2f,Cerulean Cave (2F),147
+325,142,cerulean-cave-b1f,Cerulean Cave (B1F),147
+326,0,mt-moon-b1f,Mount Moon (B1F),80
+327,0,mt-moon-b2f,Mount Moon (B2F),80
+328,0,rock-tunnel-b2f,Rock Tunnel (B2F),87
+329,0,kanto-route-23-area,Road 23,157
+330,0,power-plant-area,Power Plant,158
+331,0,kanto-victory-road-2-1f,Victory Road 2 (1F),159
+332,0,kanto-victory-road-2-2f,Victory Road 2 (2F),159
+333,0,kanto-victory-road-2-3f,Victory Road 2 (3F),159
+334,0,pokemon-tower-1f,Pokemon Tower (1F),160
+335,0,pokemon-tower-2f,Pokemon Tower (2F),160
+336,0,pokemon-tower-3f,Pokemon Tower (3F),160
+337,0,pokemon-tower-4f,Pokemon Tower (4F),160
+338,0,pokemon-tower-5f,Pokemon Tower (5F),160
+339,0,pokemon-tower-6f,Pokemon Tower (6F),160
+340,0,pokemon-tower-7f,Pokemon Tower (7F),160
+341,0,pokemon-mansion-1f,Pokemon Mansion (1F),161
+342,0,pokemon-mansion-2f,Pokemon Mansion (2F),161
+343,0,pokemon-mansion-3f,Pokemon Mansion (3F),161
+344,0,pokemon-mansion-b1f,Pokemon Mansion (B1F),161
+345,0,kanto-safari-zone-middle,Safari Zone (middle),162
+346,0,kanto-safari-zone-area-1-east,"Safari Zone (Area 1, east)",162
+347,0,kanto-safari-zone-area-2-north,"Safari Zone (Area 2, north)",162
+348,0,kanto-safari-zone-area-3-west,"Safari Zone (Area 3, west)",162
+349,0,vermilion-city-ss-anne-dock,S.S. Anne dock,151
+350,0,petalburg-city-area,Petalburg City,429
+351,1,slateport-city-area,Slateport City,430
+352,2,lilycove-city-area,Lilycove City,431
+353,3,mossdeep-city-area,Mossdeep City,432
+354,4,sootopolis-city-area,Sootopolis City,433
+355,5,ever-grande-city-area,Ever Grande City,434
+356,6,meteor-falls-area,Meteor Falls,435
+357,7,meteor-falls-back,Meteor Falls (back),435
+358,8,meteor-falls-b1f,Meteor Falls (B1F),435
+359,9,meteor-falls-backsmall-room,Meteor Falls (back/small room),435
+360,10,rusturf-tunnel-area,Rusturf Tunnel,436
+361,11,granite-cave-1f,Granite Cave (1F),437
+362,12,granite-cave-b1f,Granite Cave (B1F),437
+363,13,granite-cave-b2f,Granite Cave (B2F),437
+364,14,granite-cave-1fsmall-room,Granite Cave (1F/small room),437
+365,15,petalburg-woods-area,Petalburg Woods,438
+366,16,jagged-pass-area,Jagged Pass,439
+367,17,fiery-path-area,Fiery Path,440
+368,18,mt-pyre-1f,Mount Pyre (1F),441
+369,19,mt-pyre-2f,Mount Pyre (2F),441
+370,20,mt-pyre-3f,Mount Pyre (3F),441
+371,21,mt-pyre-4f,Mount Pyre (4F),441
+372,22,mt-pyre-5f,Mount Pyre (5F),441
+373,23,mt-pyre-6f,Mount Pyre (6F),441
+374,24,mt-pyre-outside,Mount Pyre (outside),441
+375,25,mt-pyre-summit,Mount Pyre (summit),441
+376,26,seafloor-cavern-area,Seafloor Cavern,442
+377,35,cave-of-origin-entrance,Cave of Origin (entrance),443
+378,36,cave-of-origin-1f,Cave of Origin (1F),443
+379,37,cave-of-origin-b1f,Cave of Origin (B1F),443
+380,38,cave-of-origin-b2f,Cave of Origin (B2F),443
+381,39,cave-of-origin-b3f,Cave of Origin (B3F),443
+382,40,hoenn-victory-road-1f,Victory Road (1F),444
+383,41,hoenn-victory-road-b1f,Victory Road (B1F),444
+384,42,hoenn-victory-road-b2f,Victory Road (B2F),444
+385,43,shoal-cave-high-tide,Shoal Cave,445
+386,47,shoal-cave-b1f,Shoal Cave (B1F),445
+387,48,new-mauville-entrance,New Mauville (entrance),446
+388,49,new-mauville-area,New Mauville,446
+389,50,abandoned-ship-area,Abandoned Ship,447
+390,52,sky-pillar-1f,Sky Pillar (1F),448
+391,53,sky-pillar-3f,Sky Pillar (3F),448
+392,54,sky-pillar-5f,Sky Pillar (5F),448
+393,55,hoenn-route-101-area,Road 101,449
+394,56,hoenn-route-102-area,Road 102,450
+395,57,hoenn-route-103-area,Road 103,451
+396,58,hoenn-route-104-area,Road 104,452
+397,59,hoenn-route-105-area,Road 105,453
+398,60,hoenn-route-106-area,Road 106,454
+399,61,hoenn-route-107-area,Road 107,455
+400,62,hoenn-route-108-area,Road 108,456
+401,63,hoenn-route-109-area,Road 109,457
+402,64,hoenn-route-110-area,Road 110,458
+403,65,hoenn-route-111-area,Road 111,459
+404,66,hoenn-route-112-area,Road 112,460
+405,67,hoenn-route-113-area,Road 113,461
+406,68,hoenn-route-114-area,Road 114,462
+407,69,hoenn-route-115-area,Road 115,463
+408,70,hoenn-route-116-area,Road 116,464
+409,71,hoenn-route-117-area,Road 117,465
+410,72,hoenn-route-118-area,Road 118,466
+411,73,hoenn-route-119-area,Road 119,467
+412,74,hoenn-route-120-area,Road 120,468
+413,75,hoenn-route-121-area,Road 121,469
+414,76,hoenn-route-122-area,Road 122,470
+415,77,hoenn-route-123-area,Road 123,471
+416,78,hoenn-route-124-area,Road 124,472
+417,95,hoenn-route-124-underwater,Road 124 (underwater),472
+418,79,hoenn-route-125-area,Road 125,473
+419,80,hoenn-route-126-area,Road 126,474
+420,96,hoenn-route-126-underwater,Road 126 (underwater),474
+421,81,hoenn-route-127-area,Road 127,475
+422,82,hoenn-route-128-area,Road 128,476
+423,83,hoenn-route-129-area,Road 129,477
+424,84,hoenn-route-130-area,Road 130,478
+425,85,hoenn-route-131-area,Road 131,479
+426,86,hoenn-route-132-area,Road 132,480
+427,87,hoenn-route-133-area,Road 133,481
+428,88,hoenn-route-134-area,Road 134,482
+429,89,hoenn-safari-zone-nwmach-bike-area,Safari Zone (NW/mach bike area),483
+430,90,hoenn-safari-zone-neacro-bike-area,Safari Zone (NE/acro bike area),483
+431,91,hoenn-safari-zone-sw,Safari Zone (SW),483
+432,92,hoenn-safari-zone-se,Safari Zone (SE),483
+433,93,dewford-town-area,Dewford Town,484
+434,94,pacifidlog-town-area,Pacifidlog Town,485
+435,97,hoenn-safari-zone-expansion-south,Safari Zone (expansion south),483
+436,98,hoenn-safari-zone-expansion-north,Safari Zone (expansion north),483
+437,99,magma-hideout-area,Magma Hideout,486
+438,107,mirage-tower-area,Mirage Tower,487
+439,111,desert-underpass-area,Desert Underpass,488
+440,112,artisan-cave-area,Artisan Cave,489
+441,114,hoenn-altering-cave-a,Altering Cave (A),490
+442,115,hoenn-altering-cave-b,Altering Cave (B),490
+443,116,hoenn-altering-cave-c,Altering Cave (C),490
+444,117,hoenn-altering-cave-d,Altering Cave (D),490
+445,118,hoenn-altering-cave-e,Altering Cave (E),490
+446,119,hoenn-altering-cave-f,Altering Cave (F),490
+447,120,hoenn-altering-cave-g,Altering Cave (G),490
+448,121,hoenn-altering-cave-h,Altering Cave (H),490
+449,122,hoenn-altering-cave-i,Altering Cave (I),490
+450,0,monean-chamber-area,Monean Chamber,491
+451,1,liptoo-chamber-area,Liptoo Chamber,492
+452,2,weepth-chamber-area,Weepth Chamber,493
+453,3,dilford-chamber-area,Dilford Chamber,494
+454,4,scufib-chamber-area,Scufib Chamber,495
+455,5,rixy-chamber-area,Rixy Chamber,496
+456,6,viapos-chamber-area,Viapos Chamber,497
+461,11,ss-anne-area,S.S. Anne,498
+488,40,mt-ember-area,Mount Ember,500
+489,41,mt-ember-cave,Mount Ember (cave),500
+490,42,mt-ember-inside,Mount Ember (inside),500
+491,44,mt-ember-1f-cave-behind-team-rocket,"Mount Ember (1F, cave behind team rocket)",500
+492,45,mt-ember-b1f,Mount Ember (B1F),500
+493,46,mt-ember-b2f,Mount Ember (B2F),500
+494,47,mt-ember-b3f,Mount Ember (B3F),500
+495,50,berry-forest-area,Berry Forest,501
+496,51,icefall-cave-entrance,Icefall Cave (entrance),502
+497,52,icefall-cave-1f,Icefall Cave (1F),502
+498,53,icefall-cave-b1f,Icefall Cave (B1F),502
+499,54,icefall-cave-waterfall,Icefall Cave (waterfall),502
+500,55,pattern-bush-area,Pattern Bush,503
+501,56,lost-cave-room-1,Lost Cave (room 1),504
+502,57,lost-cave-room-2,Lost Cave (room 2),504
+503,58,lost-cave-room-3,Lost Cave (room 3),504
+504,59,lost-cave-room-4,Lost Cave (room 4),504
+505,60,lost-cave-room-5,Lost Cave (room 5),504
+506,61,lost-cave-room-6,Lost Cave (room 6),504
+507,62,lost-cave-room-7,Lost Cave (room 7),504
+508,63,lost-cave-room-8,Lost Cave (room 8),504
+509,64,lost-cave-room-9,Lost Cave (room 9),504
+510,65,lost-cave-room-10,Lost Cave (room 10),504
+511,66,lost-cave-item-rooms,Lost Cave (item rooms),504
+512,70,kindle-road-area,Kindle Road,505
+513,71,treasure-beach-area,Treasure Beach,506
+514,72,cape-brink-area,Cape Brink,507
+515,73,bond-bridge-area,Bond Bridge,508
+516,74,three-isle-port-area,Three Isle Port,509
+517,75,resort-gorgeous-area,Resort Gorgeous,510
+518,76,water-labyrinth-area,Water Labyrinth,511
+519,77,five-isle-meadow-area,Five Isle Meadow,512
+520,78,memorial-pillar-area,Memorial Pillar,513
+521,79,outcast-island-area,Outcast Island,514
+522,80,green-path-area,Green Path,515
+523,81,water-path-area,Water Path,516
+524,82,ruin-valley-area,Ruin Valley,517
+525,83,trainer-tower-area,Trainer Tower,518
+526,84,canyon-entrance-area,Canyon Entrance,519
+527,85,sevault-canyon-area,Sevault Canyon,520
+528,86,tanoby-ruins-area,Tanoby Ruins,521
+561,120,one-island-area,One Island,526
+562,121,four-island-area,Four Island,527
+563,122,five-island-area,Five Island,528
+564,123,kanto-altering-cave-a,Altering Cave (A),529
+565,124,kanto-altering-cave-b,Altering Cave (B),529
+566,125,kanto-altering-cave-c,Altering Cave (C),529
+567,126,kanto-altering-cave-d,Altering Cave (D),529
+568,127,kanto-altering-cave-e,Altering Cave (E),529
+569,128,kanto-altering-cave-f,Altering Cave (F),529
+570,129,kanto-altering-cave-g,Altering Cave (G),529
+571,130,kanto-altering-cave-h,Altering Cave (H),529
+572,131,kanto-altering-cave-i,Altering Cave (I),529
+576,0,striaton-city-area,Striaton City,348
+577,1,driftveil-city-area,Driftveil City,352
+578,2,icirrus-city-area,Icirrus City,354
+579,3,dreamyard-area,Dreamyard,374
+580,4,dreamyard-b1f,Dreamyard (B1F),374
+581,5,pinwheel-forest-outside,Pinwheel Forest (outside),375
+582,6,pinwheel-forest-inside,Pinwheel Forest (inside),375
+583,7,desert-resort-entrance,Desert Resort (entrance),376
+584,8,desert-resort-area,Desert Resort,376
+585,9,relic-castle-a,Relic Castle (A),377
+586,11,relic-castle-b,Relic Castle (B),377
+587,15,relic-castle-c,Relic Castle (C),377
+588,30,relic-castle-d,Relic Castle (D),377
+589,40,cold-storage-area,Cold Storage,378
+590,41,chargestone-cave-1f,Chargestone Cave (1F),379
+591,42,chargestone-cave-b1f,Chargestone Cave (B1F),379
+592,43,chargestone-cave-b2f,Chargestone Cave (B2F),379
+593,44,twist-mountain-b1f-3f,Twist Mountain,380
+594,48,dragonspiral-tower-entrance,Dragonspiral Tower (entrance),381
+595,49,dragonspiral-tower-outside,Dragonspiral Tower (outside),381
+596,50,dragonspiral-tower-1f,Dragonspiral Tower (1F),381
+597,51,dragonspiral-tower-2f,Dragonspiral Tower (2F),381
+598,52,unova-victory-road-outside,Victory Road (outside),382
+599,53,unova-victory-road-unknown-area-53,Victory Road (unknown area 53),382
+600,54,unova-victory-road-unknown-area-54,Victory Road (unknown area 54),382
+601,55,unova-victory-road-unknown-area-55,Victory Road (unknown area 55),382
+602,56,unova-victory-road-4f-middle-room,Victory Road (4f Middle Room),382
+603,57,unova-victory-road-unknown-area-57,Victory Road (unknown area 57),382
+604,58,unova-victory-road-1f-unknown-room,Victory Road (unknown area 58),382
+605,59,unova-victory-road-unknown-area-59,Victory Road (unknown area 59),382
+606,60,unova-victory-road-unknown-area-60,Victory Road (unknown area 60),382
+607,61,unova-victory-road-unknown-area-61,Victory Road (unknown area 61),382
+608,62,unova-victory-road-unknown-area-62,Victory Road (unknown area 62),382
+609,63,unova-victory-road-unknown-area-63,Victory Road (unknown area 63),382
+610,64,unova-victory-road-unknown-area-64,Victory Road (unknown area 64),382
+611,65,unova-victory-road-unknown-area-65,Victory Road (unknown area 65),382
+612,66,unova-victory-road-unknown-area-66,Victory Road (unknown area 66),382
+613,67,trial-chamber-area,Trial Chamber,415
+614,68,giant-chasm-outside,Giant Chasm (outside),403
+615,69,giant-chasm-area,Giant Chasm,403
+616,70,giant-chasm-forest,Giant Chasm (forest),403
+617,71,giant-chasm-forest-cave,Giant Chasm (forest cave),403
+618,72,p2-laboratory-area,P2 Laboratory,405
+619,73,undella-bay-area,Undella Bay,413
+620,74,driftveil-drawbridge-area,Driftveil Drawbridge,407
+621,75,village-bridge-area,Village Bridge,409
+622,76,marvelous-bridge-area,Marvelous Bridge,410
+623,77,unova-route-1-area,Road 1,356
+624,78,unova-route-2-area,Road 2,357
+625,79,unova-route-3-area,Road 3,358
+626,80,wellspring-cave-area,Wellspring Cave,395
+627,82,unova-route-4-area,Road 4,359
+628,83,unova-route-5-area,Road 5,360
+629,84,unova-route-6-area,Road 6,361
+630,85,mistralton-cave-area,Mistralton Cave,396
+631,87,guidance-chamber-area,Guidance Chamber,416
+632,88,unova-route-7-area,Road 7,362
+633,89,celestial-tower-2f,Celestial Tower (2F),398
+634,90,celestial-tower-3f,Celestial Tower (3F),398
+635,91,celestial-tower-4f,Celestial Tower (4F),398
+636,92,celestial-tower-5f,Celestial Tower (5F),398
+637,93,unova-route-8-area,Road 8,363
+638,94,moor-of-icirrus-area,Moor of Icirrus,399
+639,95,unova-route-9-area,Road 9,364
+640,96,challengers-cave-1f,Challengers Cave (1F),401
+641,97,challengers-cave-b1f,Challengers Cave (B1F),401
+642,98,challengers-cave-b2f,Challengers Cave (B2F),401
+643,99,unova-route-10-area,Road 10,365
+644,100,unova-route-10-victory-road-gate,Road 10 (Victory Road gate),365
+645,101,unova-route-11-area,Road 11,366
+646,102,unova-route-12-area,Road 12,367
+647,103,unova-route-13-area,Road 13,368
+648,104,unova-route-14-area,Road 14,369
+649,105,abundant-shrine-area,Abundant Shrine,412
+650,106,unova-route-15-area,Road 15,370
+651,107,unova-route-16-area,Road 16,371
+652,108,lostlorn-forest-area,Lostlorn Forest,414
+653,109,unova-route-18-area,Road 18,373
+654,110,undella-town-area,Undella Town,384
+655,111,unova-route-17-area,Road 17,372
+656,1,castelia-city-area,Castelia City,350
+657,3,aspertia-city-area,Aspertia City,531
+658,4,virbank-city-area,Virbank City,532
+659,5,humilau-city-area,Humilau City,533
+660,31,unova-victory-road-7f,Victory Road (7F),382
+661,71,unova-victory-road-2-unknown-area-71,Victory Road 2 (unknown area 71),548
+662,72,unova-victory-road-2-unknown-area-72,Victory Road 2 (unknown area 72),548
+663,73,unova-victory-road-2-unknown-area-73,Victory Road 2 (unknown area 73),548
+664,74,unova-victory-road-2-unknown-area-74,Victory Road 2 (unknown area 74),548
+665,75,unova-victory-road-2-unknown-area-75,Victory Road 2 (unknown area 75),548
+666,76,unova-victory-road-2-unknown-area-76,Victory Road 2 (unknown area 76),548
+667,77,unova-victory-road-2-unknown-area-77,Victory Road 2 (unknown area 77),548
+668,78,unova-victory-road-2-unknown-area-78,Victory Road 2 (unknown area 78),548
+669,79,unova-victory-road-2-unknown-area-79,Victory Road 2 (unknown area 79),548
+670,80,unova-victory-road-2-unknown-area-80,Victory Road 2 (unknown area 80),548
+671,37,castelia-sewers-area,Castelia Sewers,543
+672,38,castelia-sewers-unknown-area-38,Castelia Sewers (unknown area 38),543
+673,44,floccesy-ranch-outer,Floccesy Ranch (outer),544
+674,45,floccesy-ranch-inner,Floccesy Ranch (inner),544
+675,46,virbank-complex-outer,Virbank Complex (outer),545
+676,47,virbank-complex-inner,Virbank Complex (inner),545
+677,48,reversal-mountain-unknown-area-48,Reversal Mountain (unknown area 48),546
+678,49,reversal-mountain-unknown-area-49,Reversal Mountain (unknown area 49),546
+679,50,reversal-mountain-unknown-area-50,Reversal Mountain (unknown area 50),546
+680,51,reversal-mountain-unknown-area-51,Reversal Mountain (unknown area 51),546
+681,52,reversal-mountain-unknown-area-52,Reversal Mountain (unknown area 52),546
+682,53,reversal-mountain-unknown-area-53,Reversal Mountain (unknown area 53),546
+683,54,reversal-mountain-unknown-area-54,Reversal Mountain (unknown area 54),546
+684,55,reversal-mountain-unknown-area-55,Reversal Mountain (unknown area 55),546
+685,56,reversal-mountain-unknown-area-56,Reversal Mountain (unknown area 56),546
+686,57,reversal-mountain-unknown-area-57,Reversal Mountain (unknown area 57),546
+687,58,reversal-mountain-unknown-area-58,Reversal Mountain (unknown area 58),546
+688,59,reversal-mountain-unknown-area-59,Reversal Mountain (unknown area 59),546
+689,60,reversal-mountain-unknown-area-60,Reversal Mountain (unknown area 60),546
+690,61,strange-house-1f,Strange House (1F),547
+691,65,strange-house-b1f,Strange House (B1F),547
+692,81,relic-passage-castelia-sewers-entrance,Relic Tunnel (Castelia Sewers entrance),550
+693,82,relic-passage-relic-castle-entrance,Relic Tunnel (Relic Castle entrance),550
+694,83,relic-passage-pwt-entrance,Relic Tunnel (PWT entrance),550
+695,84,clay-tunnel-area,Clay Tunnel,551
+696,87,underground-ruins-area,Underground Ruins,562
+697,90,rocky-mountain-room-area,Rocky Mountain Room,563
+698,91,glacier-room-area,Glacier Room,564
+699,92,iron-room-area,Iron Room,565
+700,93,seaside-cave-1f,Seaside Cave (1F),554
+701,94,seaside-cave-b1f,Seaside Cave (B1F),554
+702,95,nature-sanctuary-area,Nature Sanctuary,560
+703,128,unova-route-19-area,Road 19,538
+704,129,unova-route-20-area,Road 20,539
+705,130,unova-route-22-area,Road 22,541
+706,131,unova-route-23-area,Road 23,542
+707,134,unova-route-21-area,Road 21,540
+708,0,couriway-town-area,Couriway Town,646
+709,0,ambrette-town-area,Ambrette Town,614
+710,0,cyllage-city-area,Cyllage City,611
+711,0,shalour-city-area,Shalour City,624
+712,0,laverre-city-area,Laverre City,633
+713,0,kalos-route-2-area,Road 2,591
+714,0,kalos-route-3-area,Road 3,594
+715,0,kalos-route-4-area,Road 4,597
+716,0,kalos-route-5-area,Road 5,602
+717,0,kalos-route-6-area,Road 6,606
+718,0,kalos-route-7-area,Road 7,609
+719,0,kalos-route-8-area,Road 8,612
+720,0,kalos-route-9-area,Road 9,615
+721,0,kalos-route-10-area,Road 10,618
+722,0,kalos-route-11-area,Road 11,621
+723,0,kalos-route-12-area,Road 12,626
+724,0,kalos-route-13-area,Road 13,629
+725,0,kalos-route-14-area,Road 14,631
+726,0,kalos-route-15-area,Road 15,635
+727,0,kalos-route-16-area,Road 16,638
+728,0,kalos-route-17-area,Road 17,641
+729,0,kalos-route-18-area,Road 18,644
+730,0,kalos-route-19-area,Road 19,647
+731,0,kalos-route-20-area,Road 20,650
+732,0,kalos-route-21-area,Road 21,653
+733,0,kalos-route-22-area,Road 22,655
+734,0,santalune-forest-area,Santalune Forest,593
+735,0,parfum-palace-area,Parfum Palace,608
+736,0,glittering-cave-unknown-area-303,Glittering Cave (unknown area 303),671
+737,0,glittering-cave-unknown-area-304,Glittering Cave (unknown area 304),671
+738,0,reflection-cave-unknown-area-305,Reflection Cave (unknown area 305),623
+739,0,reflection-cave-unknown-area-306,Reflection Cave (unknown area 306),623
+740,0,reflection-cave-unknown-area-307,Reflection Cave (unknown area 307),623
+741,0,reflection-cave-unknown-area-308,Reflection Cave (unknown area 308),623
+742,0,frost-cavern-unknown-area-313,Frost Cavern (unknown area 313),640
+743,0,frost-cavern-unknown-area-314,Frost Cavern (unknown area 314),640
+744,0,frost-cavern-unknown-area-315,Frost Cavern (unknown area 315),640
+745,0,frost-cavern-unknown-area-316,Frost Cavern (unknown area 316),640
+746,0,frost-cavern-unknown-area-317,Frost Cavern (unknown area 317),640
+747,0,pokemon-village-area,Pokemon Village,652
+748,0,kalos-victory-road-unknown-area-322,Victory Road (unknown area 322),657
+749,0,kalos-victory-road-unknown-area-324,Victory Road (unknown area 324),657
+750,0,kalos-victory-road-unknown-area-326,Victory Road (unknown area 326),657
+751,0,kalos-victory-road-outside,Victory Road (unknown area 327),657
+752,0,kalos-victory-road-unknown-area-328,Victory Road (unknown area 328),657
+753,0,connecting-cave-area,Connecting Cave,672
+754,0,terminus-cave-1f,Terminus Cave (unknown area 343),676
+755,0,terminus-cave-b1f-left,Terminus Cave (unknown area 344),676
+756,0,terminus-cave-b1f-right,Terminus Cave (unknown area 345),676
+757,0,terminus-cave-b2f,Terminus Cave (unknown area 347),676
+758,0,terminus-cave-zygardes-chamber,Terminus Cave (unknown area 348),676
+759,0,lost-hotel-area,Lost Hotel,677
+760,0,azure-bay-area,Azure Bay,661
+761,0,kanto-route-4-pokemon-center,Pokemon Center (Road 4),120
+762,0,saffron-city-fighting-dojo,Fighting Dojo,234
+763,0,celadon-city-celadon-mansion,Celadon Mansion rooftop,67
+764,0,saffron-city-silph-co-7f,Silph Co. 7F,234
+765,0,goldenrod-city-north-gate,Goldenrod City (north gate),229
+766,0,goldenrod-city-bills-house,Goldenrod City (Bill's house),229
+767,0,cianwood-city-manias-house,Cianwood City (Mania's house),70
+768,0,hoenn-route-119-weather-institute,Weather Institute (Road 119),467
+769,0,mossdeep-city-stevens-house,Mossdeep City (Steven's house),432
+770,0,littleroot-town-area,Littleroot Town,567
+771,0,hearthome-city-area,Hearthome City,169
+772,0,veilstone-city-area,Veilstone City,170
+773,0,cianwood-city-kirks-house,Cianwood City (Kirk's house),70
+774,0,nuvema-town-area,Nuvema Town,346
+775,0,castelia-city-game-freak-hq-1f,Game Freak HQ 1F (Castelia City),350
+776,0,unova-route-6-weather-institute,Weather Institute (Road 6),361
+777,0,floccesy-town-area,Floccesy Town,536
+778,0,aquacorde-town-area,Aquacorde Town,590
+779,0,lumiose-city-area,Lumiose City,599
+780,0,tower-of-mastery-area,Tower of Mastery,625
+781,0,slateport-city-contest-hall,Contest Hall (Slateport City),430
+782,0,verdanturf-town-contest-hall,Contest Hall (Verdanturf Town),571
+783,0,fallarbor-town-contest-hall,Contest Hall (Fallarbor Town),570
+784,0,lilycove-city-contest-hall,Contest Hall (Lilycove City),431
+785,0,southern-island-area,Southern Island,578
+786,0,battle-resort-area,Battle Resort,695
+787,0,lavaridge-town-area,Lavaridge Town,569
+788,0,eterna-city-west-gate,Eterna City (west gate),2
+789,0,hearthome-city-west-gate,Hearthome City (west gate),169
+790,0,violet-city-poke-mart,Violet City (Poke Mart),153
+791,0,violet-city-pokemon-center,Violet City (Pokemon Center),153
+792,0,nacrene-city-west-gate,Nacrene City (west gate),349
+793,0,bell-tower-roof,Bell Tower (roof),139
+794,0,roaming-kanto-area,Roaming Kanto,799
+795,0,roaming-johto-area,Wandert durch Johto,800
+796,0,roaming-hoenn-area,Roaming Hoenn,801
+797,0,roaming-sinnoh-area,Roaming Sinnoh,802
+798,0,azalea-town-area,Azalea Town,228
+800,0,mahogany-town-area,Mahogany City,230
+801,0,cave-of-origin-b4f,Cave of Origin (B4F),443
+802,0,terra-cave-area,Terra Cave,803
+803,0,marine-cave-area,Marine Cave,804
+804,0,sky-pillar-apex,Sky Pillar Apex,448
+805,0,bell-tower-1f,Bell Tower (1F),139
+806,0,birth-island-area,Birth Island,810
+807,0,navel-rock-area,Navel Rock,811
+808,0,faraway-island-area,Faraway Island,812
+809,0,hoenn-battle-frontier-area,Hoenn Battle Frontier,813
+810,0,desert-ruins-area,Desert Ruins,582
+811,0,island-cave-area,Island Cave,581
+812,0,ancient-tomb-area,Ancient Tomb,583
+813,0,johto-safari-zone-zone-peak,Safari Zone Peak,814
+814,0,johto-safari-zone-zone-desert,Safari Zone Desert,814
+815,0,johto-safari-zone-zone-plains,Safari Zone Plains,814
+816,0,johto-safari-zone-zone-meadow,Safari Zone Meadow,814
+817,0,johto-safari-zone-zone-forest,Safari Zone Forest,814
+818,0,johto-safari-zone-zone-swamp,Safari Zone Swamp,814
+819,0,johto-safari-zone-zone-marshland,Safari Zone Marshland,814
+820,0,johto-safari-zone-zone-mountain,Safari Zone Mountain,814
+821,0,johto-safari-zone-zone-rocky-beach,Safari Zone Rocky Beach,814
+822,0,johto-safari-zone-zone-wasteland,Safari Zone Wasteland,814
+823,0,johto-safari-zone-zone-savannah,Safari Zone Savannah,814
+824,0,johto-safari-zone-zone-wetland,Safari Zone Wetland,814
+825,0,mt-ember-summit,Mount Ember Summit,500
+826,0,embedded-tower-kyogre-room,Embedded Tower (Kyogre’s room),248
+827,0,embedded-tower-groundon-room,Embedded Tower (Groudon’s room),248
+828,0,embedded-tower-rayquaza-room,Embedded Tower (Rayquaza’s room),248
+829,0,lake-acuity-cavern,Lake Acuity Cavern,28
+830,0,lake-valor-cavern,Lake Valor Cavern,27
+831,0,spear-pillar-area,Spear Pillar,172
+832,0,kanto-route-3-pokemon-center,Pokemon Center (Road 3),109
+833,0,cinnabar-island-cinnabar-lab,Cinnabar Lab (Cinnabar Island),71
+834,0,rustboro-city-area,Rustboro City,573
+835,0,saffron-city-silph-co,Silph Co.,234
+836,0,cianwood-city-pokemon-center,Pokemon Center (Cianwood City),70
+837,0,stark-mountain-heatran-chamber,Stark Mountain (Heatran Chamber),16
+838,0,newmoon-island-area,Newmoon Island,183
+839,0,flower-paradise-area,Flower Paradise,179
+840,0,sinnoh-hall-of-origin-1-area,Hall of Origin,188
+841,0,team-rocket-hq-area,Team Rocket HQ,237
+842,0,sinjoh-ruins-area,Sinjoy Ruins,247
+843,0,galar-route-1-area,galar-route-1-area,868
+844,0,galar-route-2-area,galar-route-2-area,869
+845,0,galar-route-3-main,galar-route-3-main,870
+846,0,galar-route-3-garbage,galar-route-3-garbage,870
+847,0,galar-route-4-area,galar-route-4-area,871
+848,0,galar-route-5-area,galar-route-5-area,872
+849,0,galar-route-6-area,galar-route-6-area,873
+850,0,galar-route-7-area,galar-route-7-area,874
+851,0,galar-route-8-main,galar-route-8-main,875
+852,0,galar-route-8-steamdrift-way,galar-route-8-steamdrift-way,875
+853,0,galar-route-9-main,galar-route-9-main,876
+854,0,galar-route-9-circhester-bay,galar-route-9-circhester-bay,876
+855,0,galar-route-9-outer-spikemouth,galar-route-9-outer-spikemouth,876
+856,0,galar-route-10-main,galar-route-10-main,877
+857,0,galar-route-10-near-station,galar-route-10-near-station,877
+858,0,axews-eye-area,axews-eye-area,878
+859,0,ballimere-lake-area,ballimere-lake-area,879
+860,0,ballonlea-area,ballonlea-area,880
+861,0,battle-tower-area,battle-tower-area,881
+862,0,brawlers-cave-area,brawlers-cave-area,882
+863,0,bridge-field-area,bridge-field-area,883
+864,0,challenge-beach-main,challenge-beach-main,884
+865,0,challenge-beach-ocean,challenge-beach-ocean,884
+866,0,challenge-beach-river,challenge-beach-river,884
+867,0,challenge-beach-beach,challenge-beach-beach,884
+868,0,challenge-road-area,challenge-road-area,885
+869,0,circhester-area,circhester-area,886
+870,0,courageous-cavern-area,courageous-cavern-area,887
+871,0,crown-shrine-area,crown-shrine-area,888
+872,0,dappled-grove-area,dappled-grove-area,889
+873,0,dusty-bowl-area,dusty-bowl-area,890
+874,0,dyna-tree-hill-area,dyna-tree-hill-area,891
+875,0,east-lake-axewell-area,east-lake-axewell-area,892
+876,0,fields-of-honor-main,fields-of-honor-main,893
+877,0,fields-of-honor-beach,fields-of-honor-beach,893
+878,0,forest-of-focus-area,forest-of-focus-area,894
+879,0,freezington-area,freezington-area,895
+880,0,frigid-sea-area,frigid-sea-area,896
+881,0,frostpoint-field-area,frostpoint-field-area,897
+882,0,galar-mine-area,galar-mine-area,898
+883,0,galar-mine-no-2-area,galar-mine-no-2-area,899
+884,0,giants-bed-area,giants-bed-area,900
+885,0,giants-cap-main,giants-cap-main,1041
+886,0,giants-cap-2,giants-cap-2,1041
+887,0,giants-cap-3,giants-cap-3,1041
+888,0,giants-foot-area,giants-foot-area,901
+889,0,giants-mirror-area,giants-mirror-area,902
+890,0,giants-seat-area,giants-seat-area,903
+891,0,glimwood-tangle-area,glimwood-tangle-area,904
+892,0,hammerlocke-area,hammerlocke-area,905
+893,0,hammerlocke-hills-area,hammerlocke-hills-area,906
+894,0,honeycalm-island-area,honeycalm-island-area,907
+895,0,honeycalm-sea-area,honeycalm-sea-area,908
+896,0,hulbury-area,hulbury-area,909
+897,0,galar-iceberg-ruins-area,galar-iceberg-ruins-area,910
+898,0,insular-sea-area,insular-sea-area,911
+899,0,galar-iron-ruins-area,galar-iron-ruins-area,912
+900,0,lake-of-outrage-area,lake-of-outrage-area,913
+901,0,lakeside-cave-area,lakeside-cave-area,914
+902,0,loop-lagoon-main,loop-lagoon-main,915
+903,0,loop-lagoon-beach,loop-lagoon-beach,915
+904,0,master-dojo-area,master-dojo-area,916
+905,0,max-lair-area,max-lair-area,917
+906,0,motostoke-area,motostoke-area,918
+907,0,motostoke-outskirts-area,motostoke-outskirts-area,919
+908,0,motostoke-riverbank-area,motostoke-riverbank-area,920
+909,0,north-lake-miloch-area,north-lake-miloch-area,921
+910,0,old-cemetery-area,old-cemetery-area,922
+911,0,path-to-the-peak-area,path-to-the-peak-area,923
+912,0,postwick-area,postwick-area,924
+913,0,potbottom-desert-area,potbottom-desert-area,925
+914,0,roaring-sea-caves-area,roaring-sea-caves-area,926
+915,0,galar-rock-peak-ruins-area,galar-rock-peak-ruins-area,927
+916,0,rolling-fields-main,rolling-fields-main,928
+917,0,rolling-fields-2,rolling-fields-2,928
+918,0,slippery-slope-area,slippery-slope-area,929
+919,0,slumbering-weald-area,slumbering-weald-area,930
+920,0,snowslide-slope-area,snowslide-slope-area,931
+921,0,soothing-wetlands-area,soothing-wetlands-area,932
+922,0,south-lake-miloch-main,south-lake-miloch-main,933
+923,0,south-lake-miloch-2,south-lake-miloch-2,933
+924,0,spikemuth-area,spikemuth-area,934
+925,0,split-decision-ruins-area,split-decision-ruins-area,935
+926,0,steamdrift-way-area,steamdrift-way-area,936
+927,0,stepping-stone-sea-main,stepping-stone-sea-main,937
+928,0,stepping-stone-sea-2,stepping-stone-sea-2,937
+929,0,stony-wilderness-main,stony-wilderness-main,938
+930,0,stony-wilderness-2,stony-wilderness-2,938
+931,0,stony-wilderness-3,stony-wilderness-3,938
+932,0,stow-on-side-area,stow-on-side-area,939
+933,0,three-point-pass-area,three-point-pass-area,940
+934,0,tower-of-darkness-area,tower-of-darkness-area,941
+935,0,tower-of-waters-area,tower-of-waters-area,942
+936,0,training-lowlands-main,training-lowlands-main,943
+937,0,training-lowlands-beach,training-lowlands-beach,943
+938,0,tunnel-to-the-top-area,tunnel-to-the-top-area,944
+939,0,turffield-area,turffield-area,945
+940,0,warm-up-tunnel-area,warm-up-tunnel-area,946
+941,0,watchtower-ruins-area,watchtower-ruins-area,947
+942,0,wedgehurst-area,wedgehurst-area,948
+943,0,west-lake-axewell-area,west-lake-axewell-area,949
+944,0,workout-sea-area,workout-sea-area,950
+945,0,wyndon-area,wyndon-area,951
+946,0,aipom-hill-area,aipom-hill-area,952
+947,0,ancient-quarry-area,ancient-quarry-area,953
+948,0,arenas-approach-area,arenas-approach-area,954
+949,0,aspiration-hill-area,aspiration-hill-area,955
+950,0,avalanche-slopes-area,avalanche-slopes-area,956
+951,0,avaluggs-legacy-area,avaluggs-legacy-area,957
+952,0,bathers-lagoon-area,bathers-lagoon-area,958
+953,0,bolderoll-ravine-area,bolderoll-ravine-area,959
+954,0,bolderoll-slope-area,bolderoll-slope-area,960
+955,0,bonechill-wastes-area,bonechill-wastes-area,961
+956,0,brava-arena-area,brava-arena-area,962
+957,0,castaway-shore-area,castaway-shore-area,963
+958,0,celestica-ruins-area,celestica-ruins-area,964
+959,0,celestica-trail-area,celestica-trail-area,965
+960,0,clamberclaw-cliffs-area,clamberclaw-cliffs-area,966
+961,0,cloudcap-pass-area,cloudcap-pass-area,967
+962,0,cloudpool-ridge-area,cloudpool-ridge-area,968
+963,0,coastlands-camp-area,coastlands-camp-area,969
+964,0,cottonsedge-prairie-area,cottonsedge-prairie-area,970
+965,0,crossing-slope-area,crossing-slope-area,971
+966,0,deadwood-haunt-area,deadwood-haunt-area,972
+967,0,deertrack-heights-area,deertrack-heights-area,973
+968,0,deertrack-path-area,deertrack-path-area,974
+969,0,diamond-heath-area,diamond-heath-area,975
+970,0,diamond-settlement-area,diamond-settlement-area,976
+971,0,droning-meadow-area,droning-meadow-area,977
+972,0,fabled-spring-area,fabled-spring-area,978
+973,0,firespit-island-area,firespit-island-area,979
+974,0,floaro-gardens-area,floaro-gardens-area,980
+975,0,gapejaw-bog-area,gapejaw-bog-area,981
+976,0,ginkgo-landing-area,ginkgo-landing-area,982
+977,0,glacier-terrace-area,glacier-terrace-area,983
+978,0,golden-lowlands-area,golden-lowlands-area,984
+979,0,grandtree-arena-area,grandtree-arena-area,985
+980,0,grueling-grove-area,grueling-grove-area,986
+981,0,hearts-crag-area,hearts-crag-area,987
+982,0,heavenward-lookout-area,heavenward-lookout-area,988
+983,0,heights-camp-area,heights-camp-area,989
+984,0,hideaway-bay-area,hideaway-bay-area,990
+985,0,holm-of-trials-area,holm-of-trials-area,991
+986,0,horseshoe-plains-area,horseshoe-plains-area,992
+987,0,ice-column-chamber-area,ice-column-chamber-area,993
+988,0,icebound-falls-area,icebound-falls-area,994
+989,0,icepeak-arena-area,icepeak-arena-area,995
+990,0,icepeak-cavern-area,icepeak-cavern-area,996
+991,0,islespy-shore-area,islespy-shore-area,997
+992,0,jubilife-village-area,jubilife-village-area,998
+993,0,hisui-lake-acuity-area,hisui-lake-acuity-area,999
+994,0,hisui-lake-valor-area,hisui-lake-valor-area,1000
+995,0,hisui-lake-verity-area,hisui-lake-verity-area,1001
+996,0,lonely-spring-area,lonely-spring-area,1002
+997,0,lunkers-lair-area,lunkers-lair-area,1003
+998,0,molten-arena-area,molten-arena-area,1004
+999,0,moonview-arena-area,moonview-arena-area,1005
+1000,0,natures-pantry-area,natures-pantry-area,1006
+1001,0,obsidian-falls-area,obsidian-falls-area,1007
+1002,0,oreburrow-tunnel-area,oreburrow-tunnel-area,1008
+1003,0,pearl-settlement-area,pearl-settlement-area,1009
+1004,0,primeval-grotto-area,primeval-grotto-area,1010
+1005,0,ramanas-island-area,ramanas-island-area,1011
+1006,0,sacred-plaza-area,sacred-plaza-area,1012
+1007,0,sands-reach-area,sands-reach-area,1013
+1008,0,sandgem-flats-area,sandgem-flats-area,1014
+1009,0,scarlet-bog-area,scarlet-bog-area,1015
+1010,0,seagrass-haven-area,seagrass-haven-area,1016
+1011,0,seaside-hollow-area,seaside-hollow-area,1017
+1012,0,shrouded-ruins-area,shrouded-ruins-area,1018
+1013,0,sludge-mound-area,sludge-mound-area,1019
+1014,0,snowfall-hot-spring-area,snowfall-hot-spring-area,1020
+1015,0,hisui-snowpoint-temple-area,hisui-snowpoint-temple-area,1021
+1016,0,hisui-solaceon-ruins-area,hisui-solaceon-ruins-area,1022
+1017,0,sonorous-path-area,sonorous-path-area,1023
+1018,0,space-time-distortion-area,space-time-distortion-area,1024
+1019,0,hisui-spring-path-area,hisui-spring-path-area,1025
+1020,0,stonetooth-rows-area,stonetooth-rows-area,1026
+1021,0,temple-of-sinnoh-area,temple-of-sinnoh-area,1027
+1022,0,the-heartwood-area,the-heartwood-area,1028
+1023,0,tidewater-dam-area,tidewater-dam-area,1029
+1024,0,tombolo-walk-area,tombolo-walk-area,1030
+1025,0,tranquility-cove-area,tranquility-cove-area,1031
+1026,0,hisui-turnback-cave-area,hisui-turnback-cave-area,1032
+1027,0,ursas-ring-area,ursas-ring-area,1033
+1028,0,veilstone-cape-area,veilstone-cape-area,1034
+1029,0,hisui-wayward-cave-area,hisui-wayward-cave-area,1035
+1030,0,wayward-wood-area,wayward-wood-area,1036
+1031,0,whiteout-valley-area,whiteout-valley-area,1037
+1032,0,windbreak-stand-area,windbreak-stand-area,1038
+1033,0,windswept-run-area,windswept-run-area,1039
+1034,0,worn-bridge-area,worn-bridge-area,1040
+1035,0,alola-route-1-east,alola-route-1-east,711
+1036,0,alola-route-1-hauoli-outskirts,alola-route-1-hauoli-outskirts,711
+1037,0,alola-route-1-south,alola-route-1-south,711
+1038,0,alola-route-1-trainers-school,alola-route-1-trainers-school,711
+1039,0,alola-route-1-west,alola-route-1-west,711
+1040,0,alola-route-2-main,alola-route-2-main,713
+1041,0,alola-route-2-north,alola-route-2-north,713
+1042,0,alola-route-2-south,alola-route-2-south,713
+1043,0,alola-route-3-main,alola-route-3-main,712
+1044,0,alola-route-3-north,alola-route-3-north,712
+1045,0,alola-route-3-south,alola-route-3-south,712
+1046,0,alola-route-4-area,alola-route-4-area,731
+1047,0,alola-route-5-area,alola-route-5-area,732
+1048,0,alola-route-6-north,alola-route-6-north,733
+1049,0,alola-route-6-south,alola-route-6-south,733
+1050,0,alola-route-7-area,alola-route-7-area,734
+1051,0,alola-route-8-main,alola-route-8-main,735
+1052,0,alola-route-8-fossil-restoration-center,alola-route-8-fossil-restoration-center,735
+1053,0,alola-route-9-main,alola-route-9-main,736
+1054,0,alola-route-9-police-station,alola-route-9-police-station,736
+1055,0,alola-route-10-area,alola-route-10-area,755
+1056,0,alola-route-11-area,alola-route-11-area,756
+1057,0,alola-route-12-area,alola-route-12-area,763
+1058,0,alola-route-13-area,alola-route-13-area,758
+1059,0,alola-route-14-area,alola-route-14-area,765
+1060,0,alola-route-15-main,alola-route-15-main,760
+1061,0,alola-route-15-aether-house,alola-route-15-aether-house,760
+1062,0,alola-route-16-main,alola-route-16-main,761
+1063,0,alola-route-16-east,alola-route-16-east,761
+1064,0,alola-route-16-west,alola-route-16-west,761
+1065,0,alola-route-17-northeast,alola-route-17-northeast,762
+1066,0,alola-route-17-west,alola-route-17-west,762
+1067,0,aether-paradise-2f,aether-paradise-2f,796
+1068,0,akala-outskirts-area,akala-outskirts-area,752
+1069,0,altar-of-the-moone-area,altar-of-the-moone-area,791
+1070,0,altar-of-the-sunne-area,altar-of-the-sunne-area,790
+1071,0,ancient-poni-path-area,ancient-poni-path-area,782
+1072,0,berry-fields-area,berry-fields-area,728
+1073,0,blush-mountain-area,blush-mountain-area,771
+1074,0,brooklet-hill-main,brooklet-hill-main,748
+1075,0,brooklet-hill-north,brooklet-hill-north,748
+1076,0,brooklet-hill-south,brooklet-hill-south,748
+1077,0,brooklet-hill-totems-den,brooklet-hill-totems-den,748
+1078,0,digletts-tunnel-area,digletts-tunnel-area,753
+1079,0,dividing-peak-tunnel-area,dividing-peak-tunnel-area,1046
+1080,0,exeggutor-island-area,exeggutor-island-area,794
+1081,0,haina-desert-area,haina-desert-area,764
+1082,0,hano-beach-area,hano-beach-area,738
+1083,0,hauoli-cemetery-area,hauoli-cemetery-area,725
+1084,0,hauoli-city-main,hauoli-city-main,1042
+1085,0,hauoli-city-shopping-district,hauoli-city-shopping-district,1042
+1086,0,hauoli-city-beachfront,hauoli-city-beachfront,1042
+1087,0,heahea-beach-area,heahea-beach-area,1047
+1088,0,heahea-city-surf-association,heahea-city-surf-association,741
+1089,0,iki-town-area,iki-town-area,719
+1090,0,kalae-bay-area,kalae-bay-area,714
+1091,0,konikoni-city-area,konikoni-city-area,742
+1092,0,lake-of-the-moone-area,lake-of-the-moone-area,774
+1093,0,lake-of-the-sunne-area,lake-of-the-sunne-area,773
+1094,0,lush-jungle-east-cave,lush-jungle-east-cave,750
+1095,0,lush-jungle-north,lush-jungle-north,750
+1096,0,lush-jungle-south,lush-jungle-south,750
+1097,0,lush-jungle-west,lush-jungle-west,750
+1098,0,mahalo-trail-area,mahalo-trail-area,720
+1099,0,malie-city-main,malie-city-main,1045
+1100,0,malie-city-outer-cape,malie-city-outer-cape,1045
+1101,0,malie-garden-area,malie-garden-area,769
+1102,0,melemele-meadow-area,melemele-meadow-area,726
+1103,0,melemele-sea-area,melemele-sea-area,715
+1104,0,memorial-hill-area,memorial-hill-area,744
+1105,0,mount-hokulani-main,mount-hokulani-main,770
+1106,0,mount-hokulani-east,mount-hokulani-east,770
+1107,0,mount-hokulani-west,mount-hokulani-west,770
+1108,0,mount-lanakila-base,mount-lanakila-base,775
+1109,0,mount-lanakila-cave,mount-lanakila-cave,775
+1110,0,mount-lanakila-outside,mount-lanakila-outside,775
+1111,0,paniola-ranch-area,paniola-ranch-area,745
+1112,0,paniola-town-area,paniola-town-area,740
+1113,0,poni-breaker-coast-area,poni-breaker-coast-area,783
+1114,0,poni-coast-area,poni-coast-area,786
+1115,0,poni-gauntlet-area,poni-gauntlet-area,787
+1116,0,poni-grove-area,poni-grove-area,784
+1117,0,poni-meadow-area,poni-meadow-area,780
+1118,0,poni-plains-center,poni-plains-center,785
+1119,0,poni-plains-east,poni-plains-east,785
+1120,0,poni-plains-north,poni-plains-north,785
+1121,0,poni-plains-west,poni-plains-west,785
+1122,0,poni-wilds-area,poni-wilds-area,781
+1123,0,resolution-cave-area,resolution-cave-area,793
+1124,0,royal-avenue-area,royal-avenue-area,743
+1125,0,ruins-of-abundance-area,ruins-of-abundance-area,772
+1126,0,ruins-of-conflict-area,ruins-of-conflict-area,722
+1127,0,ruins-of-hope-area,ruins-of-hope-area,792
+1128,0,ruins-of-life-area,ruins-of-life-area,751
+1129,0,sandy-cave-area,sandy-cave-area,1048
+1130,0,seafolk-village-main,seafolk-village-main,788
+1131,0,seafolk-village-huntail-boat,seafolk-village-huntail-boat,788
+1132,0,seaward-cave-area,seaward-cave-area,727
+1133,0,secluded-shore-area,secluded-shore-area,757
+1134,0,tapu-village-area,tapu-village-area,759
+1135,0,ten-carat-hill-farthest-hollow,ten-carat-hill-farthest-hollow,723
+1136,0,ten-carat-hill-inside,ten-carat-hill-inside,723
+1137,0,thrifty-megamart-abandoned-site,thrifty-megamart-abandoned-site,1044
+1138,0,ulaula-beach-area,ulaula-beach-area,1049
+1139,0,ulaula-meadow-area,ulaula-meadow-area,766
+1140,0,ultra-space-ultra-crater,ultra-space-ultra-crater,797
+1141,0,ultra-space-ultra-deep-sea,ultra-space-ultra-deep-sea,797
+1142,0,ultra-space-ultra-desert,ultra-space-ultra-desert,797
+1143,0,ultra-space-ultra-forest,ultra-space-ultra-forest,797
+1144,0,ultra-space-ultra-jungle,ultra-space-ultra-jungle,797
+1145,0,ultra-space-ultra-plant,ultra-space-ultra-plant,797
+1146,0,ultra-space-ultra-ruin,ultra-space-ultra-ruin,797
+1147,0,ultra-space-wilds-cave,ultra-space-wilds-cave,1051
+1148,0,ultra-space-wilds-cliff,ultra-space-wilds-cliff,1051
+1149,0,ultra-space-wilds-crag,ultra-space-wilds-crag,1051
+1150,0,ultra-space-wilds-waterfall,ultra-space-wilds-waterfall,1051
+1151,0,vast-poni-canyon-inside,vast-poni-canyon-inside,789
+1152,0,vast-poni-canyon-northwest,vast-poni-canyon-northwest,789
+1153,0,vast-poni-canyon-outside,vast-poni-canyon-outside,789
+1154,0,verdant-cavern-trial-site,verdant-cavern-trial-site,1043
+1155,0,verdant-cavern-totems-den,verdant-cavern-totems-den,1043
+1156,0,wela-volcano-park-area,wela-volcano-park-area,746
+1157,0,wela-volcano-park-totems-den,wela-volcano-park-totems-den,746
+1158,0,poke-pelago-poni-island-reached,poke-pelago-poni-island-reached,1052
+1159,0,poke-pelago-ulaula-island-reached,poke-pelago-ulaula-island-reached,1052
+1160,0,poke-pelago-elite-four-defeated,poke-pelago-elite-four-defeated,1052
+1161,0,team-rockets-castle-area,team-rockets-castle-area,1053
+1162,0,ultra-megalopolis-area,ultra-megalopolis-area,1050
+1163,0,lush-jungle-all-areas,lush-jungle-all-areas,750
+1164,0,alola-route-17-all-areas,alola-route-17-all-areas,762
+1165,0,team-aqua-hideout-area,team-aqua-hideout-area,692
+1166,0,team-magma-hideout-area,team-magma-hideout-area,694
+1167,0,liberty-garden-lighthouse-basement,Lighthouse Basement,404
+1168,0,pinwheel-forest-rumination-field,pinwheel-forest-rumination-field,375
+1169,0,roaming-unova-area,Rumination Field,1054
+1170,0,ns-castle-throne-room,ns-castle-throne-room,387
+1171,0,dragonspiral-tower-7f,dragonspiral-tower-7f,381
+1172,0,reversal-mountain-b1f,reversal-mountain-b1f,546
+1173,0,twist-mountain-b4f,twist-mountain-b4f,380
+1174,0,sea-spirits-den-area,sea-spirits-den-area,679
+1175,0,unknown-dungeon-area,unknown-dungeon-area,690
+1176,0,team-flare-secret-hq-area,team-flare-secret-hq-area,675
+1177,0,trackless-forest-area,trackless-forest-area,700
+1178,0,sea-mauville-area,sea-mauville-area,693
+1179,0,sea-mauville-outside,Sea Mauville (Outside),693
+1180,0,sea-mauville-inside,Sea Mauville (Inside),693
+1181,0,mossdeep-space-center-area,Mossdeep Space Center,1055
+1182,0,roaming-kalos-area,Roaming Kalos,1056
+1183,0,nameless-cavern-area,Nameless Cavern,702
+1184,0,soaring-in-the-sky-area,Soaring in the Sky,707
+1185,0,scorched-slab-1f,Scorched Slab (1F),580
+1186,0,scorched-slab-b1f,Scorched Slab (B1F),580
+1187,0,scorched-slab-b2f,Scorched Slab (B2F),580
+1188,0,scorched-slab-b3f,Scorched Slab (B3F),580
+1189,0,crescent-isle-area,Crescent Isle,705
+1190,0,pathless-plain-area,Pathless Plain,701
+1191,0,fabled-cave-area,Fabled Cave,703
+1192,0,gnarled-den-area,Gnarled Den,704
+1193,0,verdant-cavern--trial-site-area,verdant-cavern--trial-site-area,729
+1194,0,trainers-school-area,Trainers' School,196
+1195,0,ultra-space-ultra-space-wilds-cliff,Ultra Space Wilds Cliff World,797
+1196,0,ultra-space-ultra-space-wilds-water,Ultra Space Wilds Water World,797
+1197,0,ultra-space-ultra-space-wilds-rocky,Ultra Space Wilds Rocky World,797
+1198,0,ultra-space-ultra-space-wilds-cave,Ultra Space Wilds Cave World,797
+1199,0,mount-lanakila-crater,Mount Lanakila Crater,775
+1200,0,pewter-city-area,pewter-city-area,231
+1201,0,lavender-town-area,lavender-town-area,232
+1202,0,indigo-plateau-area,indigo-plateau-area,233
+1203,0,saffron-city-area,saffron-city-area,234
+1204,0,shoal-cave-low-tide,shoal-cave-low-tide,445
+1205,0,shoal-cave-b2f,shoal-cave-b2f,445
+1206,0,shoal-cave-b3f,shoal-cave-b3f,445
+1207,0,hoenn-route-104-north-oras,hoenn-route-104-north-oras,452
+1208,0,hoenn-route-104-south-oras,hoenn-route-104-south-oras,452
+1209,0,hoenn-pokemart-area,hoenn-pokemart-area,1088
+1210,0,hoenn-pokecenter-area,hoenn-pokecenter-area,1089
+1211,0,kanto-pokemart-area,kanto-pokemart-area,1090
+1212,0,kanto-pokecenter-area,kanto-pokecenter-area,1091
+1213,0,sinnoh-pokemart-area,sinnoh-pokemart-area,1092
+1214,0,johto-pokemart-area,johto-pokemart-area,1093
+1215,0,mirage-spot-island-west-of-dewford-town,Mirage Island (West Of Dewford Town),577
+1216,0,mirage-spot-island-west-of-route-104,Mirage Island (West Of Route 104),577
+1217,0,mirage-spot-island-route-114,Mirage Island (Route 114),577
+1218,0,mirage-spot-island-route-124,Mirage Island (Route 124),577
+1219,0,mirage-spot-island-route-132,Mirage Island (Route 132),577
+1220,0,mirage-spot-island-south-of-route-134,Mirage Island (South of Route 134),577
+1221,0,mirage-spot-island-south-of-pacifidlog,Mirage Island (South of Pacofidlog),577
+1222,0,mirage-spot-island-east-of-shoal-cave,Mirage Island (East of Shoal Cave),577
+1223,0,mirage-island-area,Mirage Island,1094
+1224,0,mirage-spot-forest-north-of-lilycove,Mirage Forest (North of Lilycove),697
+1225,0,mirage-spot-forest-south-of-route-132,Mirage Forest (South of Route 132),697
+1226,0,mirage-spot-forest-east-of-mossdeep,Mirage Forest (East of Mossdeep),697
+1227,0,mirage-spot-forest-south-of-route-109,Mirage Forest (South of Route 109),697
+1228,0,mirage-spot-forest-north-of-route-124,Mirage Forest (North of Route 124),697
+1229,0,mirage-spot-forest-west-of-route-114,Mirage Forest (West of Route 114),697
+1230,0,mirage-spot-forest-west-of-route-105,Mirage Forest (West of Route 105),697
+1231,0,mirage-spot-forest-south-of-route-111,Mirage Forest (South of Route 111),697
+1232,0,outskirt-stand-outside,Outskirt Stand (Outside),1095
+1233,0,phenac-city-mayors-house,Phenac City (Mayor's House),1096
+1234,0,snagem-hideout-1f,Snagem Hideout 1F,1097
+1235,0,shadow-pokemon-lab-bf2,Shadow Pokémon Lab B2F,1098
+1236,0,phenac-city-west-exit,Phenac City (West Exit),1096
+1237,0,phenac-city-east-exit,Phenac City (East Exit),1096
+1238,0,phenac-city-south-exit,Phenac City (South Exit),1096
+1239,0,pyrite-town-duel-square,Pyrite Town (Duel Square),1099
+1240,0,pyrite-town-entrance,Pyrite Town (Entrance),1099
+1241,0,pyrite-bldg-1f,Pyrite Bldg 1F,1100
+1242,0,pyrite-cave-mirors-hideout,Pyrite Cave (Miror's Hideout),1101
+1243,0,pyrite-bldg-4f,Pyrite Bldg 4F,1100
+1244,0,pyrite-cave-outside,Pyrite Cave (Outside),1101
+1245,0,pyrite-cave-south-sewers,Pyrite Cave (South Sewers),1101
+1246,0,pyrite-cave-bf1,Pyrite Cave B1F,1101
+1247,0,pyrite-cave-bf1-post-sewers,Pyrite Cave B1F (Post Sewers),1101
+1248,0,realgam-tower-area,Realgam Tower,1102
+1249,0,phenac-city-colosseum,Phenac City Colosseum,1096
+1250,0,pyrite-town-dukings-house,Pyrite Town (Duking's House),1099
+1251,0,shadow-pokemon-lab-bf1,Shadow Pokémon Lab B1F,1098
+1252,0,agate-village-relic-forest,Agate Village (Relic Forest),1103
+1253,0,the-under-colosseum,The Under Colosseum,1104
+1254,0,mt-battle-10f,Mt. Battle 10F,1105
+1255,0,the-under-area,The Under,1104
+1256,0,the-under-tv-studio,The Under (TV Studio),1104
+1257,0,the-under-subway,The Under (Subway),1104
+1258,0,snagem-hideout-2f,Snagem Hideout 2F,1097
+1259,0,realgam-tower-colosseum,Realgam Tower Colosseum,1102
+1260,0,the-under-deep-colosseum,The Under (Deep Colosseum),1104
+1261,0,mt-battle-100f,Mt. Battle 100F,1105
+1262,0,phenac-city-card-e-room,Phenac City (Card E Room),1096

@@ -1,0 +1,109 @@
+export io.github.lishangbu.avalon.dataset.entity.PokemonSpecies
+import jakarta.validation.constraints.NotBlank
+
+PokemonSpeciesView {
+    id
+    internalName
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    growthRate {
+        id
+        internalName
+        name
+    }
+    pokemonColor {
+        id
+        internalName
+        name
+    }
+    pokemonHabitat {
+        id
+        internalName
+        name
+    }
+    pokemonShape {
+        id
+        internalName
+        name
+    }
+}
+
+input SavePokemonSpeciesInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    id(growthRate) as growthRateId
+    id(pokemonColor) as pokemonColorId
+    id(pokemonHabitat) as pokemonHabitatId
+    id(pokemonShape) as pokemonShapeId
+}
+
+input UpdatePokemonSpeciesInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    id(growthRate) as growthRateId
+    id(pokemonColor) as pokemonColorId
+    id(pokemonHabitat) as pokemonHabitatId
+    id(pokemonShape) as pokemonShapeId
+}
+
+specification PokemonSpeciesSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    associatedIdEq(growthRate) as growthRateId
+    associatedIdEq(pokemonColor) as pokemonColorId
+    associatedIdEq(pokemonHabitat) as pokemonHabitatId
+    associatedIdEq(pokemonShape) as pokemonShapeId
+}

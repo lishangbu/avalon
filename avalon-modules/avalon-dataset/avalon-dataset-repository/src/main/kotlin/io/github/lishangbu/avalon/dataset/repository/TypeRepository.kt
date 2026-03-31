@@ -15,6 +15,12 @@ import org.babyfish.jimmer.sql.kt.ast.expression.eq
  * @since 2025/09/14
  */
 interface TypeRepository : KRepository<Type, Long> {
+    fun listAll(): List<Type> =
+        sql
+            .createQuery(Type::class) {
+                select(table)
+            }.execute()
+
     /** 按条件查询属性视图列表 */
     fun listViews(specification: TypeSpecification?): List<TypeView> =
         sql

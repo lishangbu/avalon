@@ -1,0 +1,25 @@
+export io.github.lishangbu.avalon.dataset.entity.EvolutionChain
+import jakarta.validation.constraints.NotNull
+
+EvolutionChainView {
+    id
+    babyTriggerItem {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveEvolutionChainInput {
+    id(babyTriggerItem) as babyTriggerItemId
+}
+
+input UpdateEvolutionChainInput {
+    id!
+    id(babyTriggerItem) as babyTriggerItemId
+}
+
+specification EvolutionChainSpecification {
+    id
+    associatedIdEq(babyTriggerItem) as babyTriggerItemId
+}

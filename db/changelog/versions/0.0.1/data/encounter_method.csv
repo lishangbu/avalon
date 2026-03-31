@@ -36,3 +36,18 @@ id,internal_name,name,sorting_order
 35,berry-piles,berry-piles,35
 36,npc-trade,npc-trade,36
 37,sos-from-bubbling-spot,sos-from-bubbling-spot,37
+38,overworld,Walking in the overworld,38
+39,overworld-water,Surfing in the overworld,39
+40,overworld-flying,Flying Pokemon in the sky,40
+41,overworld-special,Rare spawn in grass with lure or catch combo,41
+42,overworld-flying-special,Rare spawn in the sky with lure or catch combo,42
+43,overworld-water-special,Rare spawn in water with lure or catch combo,43
+44,horde,"Encountering 5 Pokemon within grass, flowers, or within a cave",44
+45,colosseum-bonus-disc-us,Receiving a Jirachi from the USA Colosseum Bonus Disc,45
+46,colosseum-bonus-disc-jpn,Receiving a Celebi or Pikachu from the Japanese Colosseum Bonus Disc,46
+47,pokemon-channel-pal,Receiving a Jirachi from the PAL copy of Pokemon channel,47
+48,pokemon-ranger,Receiving a Manaphy from Pokemon Ranger,48
+49,pokemon-battle-revolution,"Receiving a Pikachu, Electivire, or Magmar from Pokemon Battle Revolution",49
+50,new-york-pokecenter-wish-eggs,Receiving an egg from the Pokemon center in New York City that contains the special move Wish.,50
+51,snag,Snagging a Pokemon from a trainer in Pokemon Colosseum or Pokemon XD: Gale of Darkness.,51
+52,snag-rematch,"Snagging a Pokemon from a trainer in Pokemon Colosseum or Pokemon XD: Gale of Darkness, after you have failed to capture them once.",52

@@ -35,3 +35,11 @@ id,component,disabled,enable_multi_tab,extra,icon,key,label,name,parent_id,path,
 34,dataset/item-attribute/index,false,false,__NULL__,ph:tag-chevron-bold,item-attribute,道具属性管理,item-attribute,7,item-attribute,false,,true,true,0
 35,dataset/item/index,false,false,__NULL__,ph:cube-bold,item,道具管理,item,7,item,false,,true,true,0
 36,dataset/move/index,false,false,__NULL__,ph:sword-bold,move,招式管理,move,7,move,false,,true,true,0
+37,dataset/pokemon-species/index,false,false,__NULL__,ph:dna-bold,pokemon-species,宝可梦种族管理,pokemon-species,7,pokemon-species,false,,true,true,0
+38,dataset/pokemon/index,false,false,__NULL__,ph:paw-print-bold,pokemon,宝可梦管理,pokemon,7,pokemon,false,,true,true,0
+39,dataset/region/index,false,false,__NULL__,ph:globe-hemisphere-west-bold,region,地区管理,region,7,region,false,,true,true,0
+40,dataset/location/index,false,false,__NULL__,ph:map-pin-line-bold,location,地点管理,location,7,location,false,,true,true,0
+41,dataset/location-area/index,false,false,__NULL__,ph:map-trifold-bold,location-area,地点区域管理,location-area,7,location-area,false,,true,true,0
+42,dataset/pokemon-form/index,false,false,__NULL__,ph:sparkle-bold,pokemon-form,宝可梦形态管理,pokemon-form,7,pokemon-form,false,,true,true,0
+43,dataset/evolution-chain/index,false,false,__NULL__,ph:share-network-bold,evolution-chain,进化链管理,evolution-chain,7,evolution-chain,false,,true,true,0
+44,dataset/pokemon-evolution/index,false,false,__NULL__,ph:git-merge-bold,pokemon-evolution,进化条件管理,pokemon-evolution,7,pokemon-evolution,false,,true,true,0

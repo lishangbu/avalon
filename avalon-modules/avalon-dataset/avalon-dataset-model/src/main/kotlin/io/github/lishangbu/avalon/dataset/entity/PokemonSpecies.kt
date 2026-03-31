@@ -37,7 +37,7 @@ interface PokemonSpecies {
     /** 是否传说 */
     val legendary: Boolean?
 
-    /** 是否幻之 */
+    /** 是否幻之宝可梦 */
     val mythical: Boolean?
 
     /** 孵化计数器 */
@@ -64,7 +64,12 @@ interface PokemonSpecies {
     /** 进化从种族 ID */
     val evolvesFromSpeciesId: Long?
 
-    /** 进化链 ID */
+    /**
+     * 进化链 ID。
+     *
+     * 保留在 `pokemon_species` 上作为快速导航字段；
+     * 详细进化条件统一存储在 `pokemon_evolution` 中。
+     */
     val evolutionChainId: Long?
 
     /** 宝可梦栖息地 */

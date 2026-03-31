@@ -19,6 +19,12 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 interface MoveRepository : KRepository<Move, Long> {
+    fun listAll(): List<Move> =
+        sql
+            .createQuery(Move::class) {
+                select(table)
+            }.execute()
+
     /** 按条件查询招式视图 */
     fun listViews(specification: MoveSpecification?): List<MoveView> =
         sql

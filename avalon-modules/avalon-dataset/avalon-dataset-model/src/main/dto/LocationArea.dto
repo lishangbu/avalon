@@ -1,0 +1,46 @@
+export io.github.lishangbu.avalon.dataset.entity.LocationArea
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+
+LocationAreaView {
+    id
+    gameIndex
+    internalName
+    name
+    location {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveLocationAreaInput {
+    @NotNull
+    gameIndex
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    @NotNull
+    id(location) as locationId
+}
+
+input UpdateLocationAreaInput {
+    id!
+    @NotNull
+    gameIndex
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    @NotNull
+    id(location) as locationId
+}
+
+specification LocationAreaSpecification {
+    id
+    gameIndex
+    like/i(internalName)
+    like/i(name)
+    associatedIdEq(location) as locationId
+}

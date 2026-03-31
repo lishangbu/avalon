@@ -1,0 +1,29 @@
+export io.github.lishangbu.avalon.dataset.entity.Region
+import jakarta.validation.constraints.NotBlank
+
+RegionView {
+    id
+    internalName
+    name
+}
+
+input SaveRegionInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+input UpdateRegionInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+specification RegionSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

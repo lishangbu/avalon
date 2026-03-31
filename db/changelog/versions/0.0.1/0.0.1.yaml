@@ -32,7 +32,7 @@ databaseChangeLog:
               - column:
                   name: name
                   remarks: 名称
-                  type: varchar(100)
+                  type: varchar(500)
                   constraints:
                     nullable: false
         - createTable:
@@ -120,7 +120,7 @@ databaseChangeLog:
               - column:
                   name: name
                   remarks: 名称
-                  type: varchar(100)
+                  type: varchar(500)
                   constraints:
                     nullable: false
               - column:
@@ -173,7 +173,7 @@ databaseChangeLog:
               - column:
                   name: name
                   remarks: 名称
-                  type: varchar(100)
+                  type: varchar(500)
                   constraints:
                     nullable: false
         - createTable:
@@ -309,7 +309,7 @@ databaseChangeLog:
               - column:
                   name: name
                   remarks: 名称
-                  type: varchar(100)
+                  type: varchar(500)
                   constraints:
                     nullable: false
               - column:
@@ -1497,7 +1497,7 @@ databaseChangeLog:
                   type: bool
               - column:
                   name: mythical
-                  remarks: 是否幻之
+                  remarks: 是否幻之宝可梦
                   type: bool
               - column:
                   name: name
@@ -1592,6 +1592,309 @@ databaseChangeLog:
                     primaryKey: true
                     foreignKeyName: fk_pokemon_type__pokemon_id
                     referencedTableName: pokemon
+                    referencedColumnNames: id
+        - createTable:
+            tableName: region
+            remarks: 地区
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  remarks: 内部名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: 名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: location
+            remarks: 地点
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: internal_name
+                  remarks: 内部名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: 名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: region_id
+                  remarks: 地区 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_location__region_id
+                    referencedTableName: region
+                    referencedColumnNames: id
+        - createTable:
+            tableName: location_area
+            remarks: 地点区域
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: game_index
+                  remarks: 游戏索引
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: internal_name
+                  remarks: 内部名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: 名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location_id
+                  remarks: 地点 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_location_area__location_id
+                    referencedTableName: location
+                    referencedColumnNames: id
+        - createTable:
+            tableName: location_area_encounter
+            remarks: 地点区域遭遇
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: chance
+                  remarks: 概率
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_level
+                  remarks: 最大等级
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: min_level
+                  remarks: 最小等级
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: encounter_method_id
+                  remarks: 遭遇方式 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_location_area_encounter__encounter_method_id
+                    referencedTableName: encounter_method
+                    referencedColumnNames: id
+              - column:
+                  name: location_area_id
+                  remarks: 地点区域 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_location_area_encounter__location_area_id
+                    referencedTableName: location_area
+                    referencedColumnNames: id
+              - column:
+                  name: pokemon_id
+                  remarks: 宝可梦 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_location_area_encounter__pokemon_id
+                    referencedTableName: pokemon
+                    referencedColumnNames: id
+              - column:
+                  name: max_chance
+                  remarks: 最大概率
+                  type: int4
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: location_area_encounter_condition_value
+            remarks: 地点区域遭遇条件值
+            columns:
+              - column:
+                  name: location_area_encounter_id
+                  remarks: 地点区域遭遇 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_location_area_encounter_cv__location_area_encounter_id
+                    referencedTableName: location_area_encounter
+                    referencedColumnNames: id
+              - column:
+                  name: encounter_condition_value_id
+                  remarks: 遭遇条件值 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_location_area_encounter_cv__encounter_condition_value_id
+                    referencedTableName: encounter_condition_value
+                    referencedColumnNames: id
+        - createTable:
+            tableName: pokemon_form
+            remarks: 宝可梦形态
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: back_default
+                  remarks: 背面默认图片
+                  type: varchar(500)
+              - column:
+                  name: back_female
+                  remarks: 背面雌性图片
+                  type: varchar(500)
+              - column:
+                  name: back_shiny
+                  remarks: 背面闪光图片
+                  type: varchar(500)
+              - column:
+                  name: back_shiny_female
+                  remarks: 背面闪光雌性图片
+                  type: varchar(500)
+              - column:
+                  name: battle_only
+                  remarks: 是否仅战斗形态
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: default_form
+                  remarks: 是否默认形态
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: form_name
+                  remarks: 形态名称
+                  type: varchar(100)
+              - column:
+                  name: form_order
+                  remarks: 形态顺序
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: front_default
+                  remarks: 正面默认图片
+                  type: varchar(500)
+              - column:
+                  name: front_female
+                  remarks: 正面雌性图片
+                  type: varchar(500)
+              - column:
+                  name: front_shiny
+                  remarks: 正面闪光图片
+                  type: varchar(500)
+              - column:
+                  name: front_shiny_female
+                  remarks: 正面闪光雌性图片
+                  type: varchar(500)
+              - column:
+                  name: internal_name
+                  remarks: 内部名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: mega
+                  remarks: 是否超级进化形态
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: 名称
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pokemon_id
+                  remarks: 宝可梦 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pokemon_form__pokemon_id
+                    referencedTableName: pokemon
+                    referencedColumnNames: id
+              - column:
+                  name: sorting_order
+                  remarks: 排序顺序
+                  type: int4
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: pokemon_form_type
+            remarks: 宝可梦形态属性
+            columns:
+              - column:
+                  name: slot
+                  remarks: 槽位
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type_id
+                  remarks: 属性 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: pokemon_form_id
+                  remarks: 宝可梦形态 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_pokemon_form_type__pokemon_form_id
+                    referencedTableName: pokemon_form
                     referencedColumnNames: id
         - createTable:
             tableName: role
@@ -1754,6 +2057,208 @@ databaseChangeLog:
                     primaryKey: true
                     foreignKeyName: fk_type_effectiveness_entry__attacking_type_id
                     referencedTableName: type
+                    referencedColumnNames: id
+        - createTable:
+            tableName: pokemon_evolution
+            remarks: 宝可梦进化条件
+            columns:
+              - column:
+                  name: id
+                  remarks: ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: branch_sort_order
+                  remarks: 分支顺序
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: detail_sort_order
+                  remarks: 条件顺序
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: needs_multiplayer
+                  remarks: 是否需要多人联机
+                  type: bool
+              - column:
+                  name: needs_overworld_rain
+                  remarks: 是否需要大地图下雨
+                  type: bool
+              - column:
+                  name: turn_upside_down
+                  remarks: 是否需要设备倒置
+                  type: bool
+              - column:
+                  name: time_of_day
+                  remarks: 时间段
+                  type: varchar(100)
+              - column:
+                  name: gender_id
+                  remarks: 性别 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__gender_id
+                    referencedTableName: gender
+                    referencedColumnNames: id
+              - column:
+                  name: min_affection
+                  remarks: 最低亲密互动值
+                  type: int4
+              - column:
+                  name: min_beauty
+                  remarks: 最低美丽值
+                  type: int4
+              - column:
+                  name: min_damage_taken
+                  remarks: 最低承伤值
+                  type: int4
+              - column:
+                  name: min_happiness
+                  remarks: 最低亲密度
+                  type: int4
+              - column:
+                  name: min_level
+                  remarks: 最低等级
+                  type: int4
+              - column:
+                  name: min_move_count
+                  remarks: 最低招式使用次数
+                  type: int4
+              - column:
+                  name: min_steps
+                  remarks: 最低步数
+                  type: int4
+              - column:
+                  name: relative_physical_stats
+                  remarks: 相对物攻物防关系
+                  type: int4
+              - column:
+                  name: base_form_id
+                  remarks: 基础形态 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__base_form_id
+                    referencedTableName: pokemon_form
+                    referencedColumnNames: id
+              - column:
+                  name: region_id
+                  remarks: 地区 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__region_id
+                    referencedTableName: region
+                    referencedColumnNames: id
+              - column:
+                  name: evolution_chain_id
+                  remarks: 进化链 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pokemon_evolution__evolution_chain_id
+                    referencedTableName: evolution_chain
+                    referencedColumnNames: id
+              - column:
+                  name: from_pokemon_species_id
+                  remarks: 起始种族 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pokemon_evolution__from_pokemon_species_id
+                    referencedTableName: pokemon_species
+                    referencedColumnNames: id
+              - column:
+                  name: to_pokemon_species_id
+                  remarks: 目标种族 ID
+                  type: int8
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pokemon_evolution__to_pokemon_species_id
+                    referencedTableName: pokemon_species
+                    referencedColumnNames: id
+              - column:
+                  name: held_item_id
+                  remarks: 携带道具 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__held_item_id
+                    referencedTableName: item
+                    referencedColumnNames: id
+              - column:
+                  name: item_id
+                  remarks: 使用道具 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__item_id
+                    referencedTableName: item
+                    referencedColumnNames: id
+              - column:
+                  name: known_move_id
+                  remarks: 已学会招式 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__known_move_id
+                    referencedTableName: move
+                    referencedColumnNames: id
+              - column:
+                  name: known_move_type_id
+                  remarks: 已学会招式属性 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__known_move_type_id
+                    referencedTableName: type
+                    referencedColumnNames: id
+              - column:
+                  name: location_id
+                  remarks: 地点 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__location_id
+                    referencedTableName: location
+                    referencedColumnNames: id
+              - column:
+                  name: party_species_id
+                  remarks: 同队种族 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__party_species_id
+                    referencedTableName: pokemon_species
+                    referencedColumnNames: id
+              - column:
+                  name: party_type_id
+                  remarks: 同队属性 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__party_type_id
+                    referencedTableName: type
+                    referencedColumnNames: id
+              - column:
+                  name: trade_species_id
+                  remarks: 交换种族 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__trade_species_id
+                    referencedTableName: pokemon_species
+                    referencedColumnNames: id
+              - column:
+                  name: trigger_id
+                  remarks: 进化触发方式 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__trigger_id
+                    referencedTableName: evolution_trigger
+                    referencedColumnNames: id
+              - column:
+                  name: used_move_id
+                  remarks: 使用招式 ID
+                  type: int8
+                  constraints:
+                    foreignKeyName: fk_pokemon_evolution__used_move_id
+                    referencedTableName: move
                     referencedColumnNames: id
         - createTable:
             tableName: user_role_relation
@@ -2044,6 +2549,84 @@ databaseChangeLog:
               - column:
                   name: type_id
         - createIndex:
+            tableName: location
+            indexName: idx_location__region_id
+            columns:
+              - column:
+                  name: region_id
+        - createIndex:
+            tableName: evolution_chain
+            indexName: idx_evolution_chain__baby_trigger_item_id
+            columns:
+              - column:
+                  name: baby_trigger_item_id
+        - createIndex:
+            tableName: location_area
+            indexName: idx_location_area__location_id
+            columns:
+              - column:
+                  name: location_id
+        - createIndex:
+            tableName: pokemon_evolution
+            indexName: idx_pokemon_evolution__evolution_chain_id
+            columns:
+              - column:
+                  name: evolution_chain_id
+        - createIndex:
+            tableName: pokemon_evolution
+            indexName: idx_pokemon_evolution__from_pokemon_species_id
+            columns:
+              - column:
+                  name: from_pokemon_species_id
+        - createIndex:
+            tableName: pokemon_evolution
+            indexName: idx_pokemon_evolution__to_pokemon_species_id
+            columns:
+              - column:
+                  name: to_pokemon_species_id
+        - createIndex:
+            tableName: pokemon_evolution
+            indexName: idx_pokemon_evolution__trigger_id
+            columns:
+              - column:
+                  name: trigger_id
+        - createIndex:
+            tableName: location_area_encounter
+            indexName: idx_location_area_encounter__location_area_id
+            columns:
+              - column:
+                  name: location_area_id
+        - createIndex:
+            tableName: location_area_encounter
+            indexName: idx_location_area_encounter__pokemon_id
+            columns:
+              - column:
+                  name: pokemon_id
+        - createIndex:
+            tableName: location_area_encounter
+            indexName: idx_location_area_encounter__encounter_method_id
+            columns:
+              - column:
+                  name: encounter_method_id
+        - createIndex:
+            tableName: location_area_encounter_condition_value
+            indexName: idx_location_area_encounter_cv__encounter_condition_value_id
+            columns:
+              - column:
+                  name: encounter_condition_value_id
+        - createIndex:
+            tableName: pokemon_form
+            indexName: idx_pokemon_form__pokemon_id
+            columns:
+              - column:
+                  name: pokemon_id
+        - createIndex:
+            tableName: pokemon_form_type
+            indexName: idx_pokemon_form_type__type_id
+            columns:
+              - column:
+                  name: type_id
+        - createIndex:
             tableName: role_menu_relation
             indexName: idx_role_menu_relation__menu_id
             columns:
@@ -2196,6 +2779,22 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
+            baseTableName: evolution_chain
+            baseColumnNames: baby_trigger_item_id
+            referencedTableName: item
+            referencedColumnNames: id
+            constraintName: fk_evolution_chain__baby_trigger_item_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_species
+            baseColumnNames: evolution_chain_id
+            referencedTableName: evolution_chain
+            referencedColumnNames: id
+            constraintName: fk_pokemon_species__evolution_chain_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
             baseTableName: pokemon_stat
             baseColumnNames: stat_id
             referencedTableName: stat
@@ -2209,6 +2808,14 @@ databaseChangeLog:
             referencedTableName: type
             referencedColumnNames: id
             constraintName: fk_pokemon_type__type_id
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+        - addForeignKeyConstraint:
+            baseTableName: pokemon_form_type
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            constraintName: fk_pokemon_form_type__type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -2338,9 +2945,29 @@ databaseChangeLog:
             columnNames: internal_name
             constraintName: uk_pokemon_shape__internal_name
         - addUniqueConstraint:
+            tableName: pokemon_form
+            columnNames: internal_name
+            constraintName: uk_pokemon_form__internal_name
+        - addUniqueConstraint:
+            tableName: pokemon_evolution
+            columnNames: evolution_chain_id,from_pokemon_species_id,to_pokemon_species_id,detail_sort_order
+            constraintName: uk_pokemon_evolution__chain__from__to__detail
+        - addUniqueConstraint:
             tableName: pokemon_species
             columnNames: internal_name
             constraintName: uk_pokemon_species__internal_name
+        - addUniqueConstraint:
+            tableName: location
+            columnNames: internal_name
+            constraintName: uk_location__internal_name
+        - addUniqueConstraint:
+            tableName: location_area
+            columnNames: internal_name
+            constraintName: uk_location_area__internal_name
+        - addUniqueConstraint:
+            tableName: region
+            columnNames: internal_name
+            constraintName: uk_region__internal_name
         - addUniqueConstraint:
             tableName: stat
             columnNames: internal_name
@@ -2385,6 +3012,30 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: encounter_method
+        - loadData:
+            file: data/region.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: region
+        - loadData:
+            file: data/location.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: location
+            columns:
+              - column:
+                  header: region_id
+                  name: region_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+        - loadData:
+            file: data/location_area.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: location_area
         - loadData:
             file: data/evolution_trigger.csv
             relativeToChangelogFile: true
@@ -2457,6 +3108,18 @@ databaseChangeLog:
               - column:
                   header: item_fling_effect_id
                   name: item_fling_effect_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+        - loadData:
+            file: data/evolution_chain.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: evolution_chain
+            columns:
+              - column:
+                  header: baby_trigger_item_id
+                  name: baby_trigger_item_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
         - loadData:
@@ -2588,11 +3251,69 @@ databaseChangeLog:
             separator: ','
             tableName: type
         - loadData:
+            file: data/pokemon_form.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_form
+            columns:
+              - column:
+                  header: back_default
+                  name: back_default
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: back_female
+                  name: back_female
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: back_shiny
+                  name: back_shiny
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: back_shiny_female
+                  name: back_shiny_female
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: form_name
+                  name: form_name
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: front_default
+                  name: front_default
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: front_female
+                  name: front_female
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: front_shiny
+                  name: front_shiny
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: front_shiny_female
+                  name: front_shiny_female
+                  type: STRING
+                  nullPlaceholder: __NULL__
+        - loadData:
             file: data/pokemon_type.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
             tableName: pokemon_type
+        - loadData:
+            file: data/pokemon_form_type.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_form_type
         - loadData:
             file: data/pokemon_stat.csv
             relativeToChangelogFile: true
@@ -2605,6 +3326,18 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: pokemon_ability
+        - loadData:
+            file: data/location_area_encounter.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: location_area_encounter
+        - loadData:
+            file: data/location_area_encounter_condition_value.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: location_area_encounter_condition_value
         - loadData:
             file: data/move.csv
             relativeToChangelogFile: true
@@ -2705,6 +3438,138 @@ databaseChangeLog:
               - column:
                   header: move_category_id
                   name: move_category_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+        - loadData:
+            file: data/pokemon_evolution.csv
+            relativeToChangelogFile: true
+            encoding: utf-8
+            separator: ','
+            tableName: pokemon_evolution
+            columns:
+              - column:
+                  header: needs_multiplayer
+                  name: needs_multiplayer
+                  type: BOOLEAN
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: needs_overworld_rain
+                  name: needs_overworld_rain
+                  type: BOOLEAN
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: turn_upside_down
+                  name: turn_upside_down
+                  type: BOOLEAN
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: time_of_day
+                  name: time_of_day
+                  type: STRING
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: gender_id
+                  name: gender_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_affection
+                  name: min_affection
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_beauty
+                  name: min_beauty
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_damage_taken
+                  name: min_damage_taken
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_happiness
+                  name: min_happiness
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_level
+                  name: min_level
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_move_count
+                  name: min_move_count
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: min_steps
+                  name: min_steps
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: relative_physical_stats
+                  name: relative_physical_stats
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: base_form_id
+                  name: base_form_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: region_id
+                  name: region_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: held_item_id
+                  name: held_item_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: item_id
+                  name: item_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: known_move_id
+                  name: known_move_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: known_move_type_id
+                  name: known_move_type_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: location_id
+                  name: location_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: party_species_id
+                  name: party_species_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: party_type_id
+                  name: party_type_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: trade_species_id
+                  name: trade_species_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: trigger_id
+                  name: trigger_id
+                  type: NUMERIC
+                  nullPlaceholder: __NULL__
+              - column:
+                  header: used_move_id
+                  name: used_move_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
         - loadData:

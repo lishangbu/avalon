@@ -8,6 +8,12 @@ import org.babyfish.jimmer.sql.kt.ast.expression.eq
 
 /** 特性仓储接口 */
 interface AbilityRepository : KRepository<Ability, Long> {
+    fun listAll(): List<Ability> =
+        sql
+            .createQuery(Ability::class) {
+                select(table)
+            }.execute()
+
     /** 按条件查询特性视图 */
     fun listViews(specification: AbilitySpecification?): List<AbilityView> =
         sql

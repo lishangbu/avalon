@@ -4,8 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.dto.PokemonColorSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.PokemonColorView
 import io.github.lishangbu.avalon.dataset.entity.dto.SavePokemonColorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdatePokemonColorInput
-import io.github.lishangbu.avalon.dataset.service.PokemonColorService
+import io.github.lishangbu.avalon.dataset.repository.PokemonColorRepository
 import jakarta.validation.Valid
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -20,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/pokemon-color")
 class PokemonColorController(
-    private val pokemonColorService: PokemonColorService,
+    private val pokemonColorRepository: PokemonColorRepository,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SavePokemonColorInput,
-    ): PokemonColorView = pokemonColorService.save(command)
+    ): PokemonColorView = PokemonColorView(pokemonColorRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdatePokemonColorInput,
-    ): PokemonColorView = pokemonColorService.update(command)
+    ): PokemonColorView = PokemonColorView(pokemonColorRepository.save(command.toEntity(), SaveMode.UPSERT))
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        pokemonColorService.removeById(id)
+        pokemonColorRepository.deleteById(id)
     }
 
     @GetMapping("/list")
     fun listPokemonColors(
         @ModelAttribute specification: PokemonColorSpecification,
-    ): List<PokemonColorView> = pokemonColorService.listByCondition(specification)
+    ): List<PokemonColorView> = pokemonColorRepository.listViews(specification)
 }
