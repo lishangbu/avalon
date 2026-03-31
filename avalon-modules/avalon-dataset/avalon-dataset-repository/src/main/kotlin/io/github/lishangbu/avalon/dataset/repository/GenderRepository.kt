@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.*
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.GenderView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.springframework.data.domain.Sort
 
 /**
  * 性别仓储接口
@@ -20,6 +22,7 @@ interface GenderRepository : KRepository<Gender, Long> {
         sql
             .createQuery(Gender::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(GenderView::class))
             }.execute()
 
@@ -28,7 +31,12 @@ interface GenderRepository : KRepository<Gender, Long> {
         sql
             .createQuery(Gender::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(GenderView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

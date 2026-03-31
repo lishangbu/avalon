@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionTriggerSpecificati
 import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionTriggerView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEvolutionTriggerInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEvolutionTriggerInput
-import io.github.lishangbu.avalon.dataset.repository.EvolutionTriggerRepository
+import io.github.lishangbu.avalon.dataset.service.EvolutionTriggerService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/evolution-trigger")
 class EvolutionTriggerController(
-    private val evolutionTriggerRepository: EvolutionTriggerRepository,
+    private val evolutionTriggerService: EvolutionTriggerService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveEvolutionTriggerInput,
-    ): EvolutionTriggerView = EvolutionTriggerView(evolutionTriggerRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): EvolutionTriggerView = evolutionTriggerService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateEvolutionTriggerInput,
-    ): EvolutionTriggerView = EvolutionTriggerView(evolutionTriggerRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): EvolutionTriggerView = evolutionTriggerService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        evolutionTriggerRepository.deleteById(id)
+        evolutionTriggerService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listEvolutionTriggers(
         @ModelAttribute specification: EvolutionTriggerSpecification,
-    ): List<EvolutionTriggerView> = evolutionTriggerRepository.listViews(specification)
+    ): List<EvolutionTriggerView> = evolutionTriggerService.listByCondition(specification)
 }

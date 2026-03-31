@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveAilmentSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveAilmentView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveAilmentInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveAilmentInput
-import io.github.lishangbu.avalon.dataset.repository.MoveAilmentRepository
+import io.github.lishangbu.avalon.dataset.service.MoveAilmentService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/move-ailment")
 class MoveAilmentController(
-    private val moveAilmentRepository: MoveAilmentRepository,
+    private val moveAilmentService: MoveAilmentService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveMoveAilmentInput,
-    ): MoveAilmentView = MoveAilmentView(moveAilmentRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): MoveAilmentView = moveAilmentService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateMoveAilmentInput,
-    ): MoveAilmentView = MoveAilmentView(moveAilmentRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): MoveAilmentView = moveAilmentService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        moveAilmentRepository.deleteById(id)
+        moveAilmentService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listMoveAilments(
         @ModelAttribute specification: MoveAilmentSpecification,
-    ): List<MoveAilmentView> = moveAilmentRepository.listViews(specification)
+    ): List<MoveAilmentView> = moveAilmentService.listByCondition(specification)
 }

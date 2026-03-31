@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.authorization.entity.dto.OauthRegisteredClient
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * OAuth2 注册客户端仓储接口
@@ -22,6 +24,7 @@ interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, 
         sql
             .createQuery(OauthRegisteredClient::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table)
             }.execute()
 
@@ -33,6 +36,7 @@ interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, 
         sql
             .createQuery(OauthRegisteredClient::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -41,6 +45,7 @@ interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, 
         sql
             .createQuery(OauthRegisteredClient::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(OauthRegisteredClientView::class))
             }.execute()
 
@@ -52,6 +57,7 @@ interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, 
         sql
             .createQuery(OauthRegisteredClient::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(OauthRegisteredClientView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -60,10 +66,15 @@ interface Oauth2RegisteredClientRepository : KRepository<OauthRegisteredClient, 
         sql
             .createQuery(OauthRegisteredClient::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(OauthRegisteredClientView::class))
             }.execute()
             .firstOrNull()
 
     /** 根据客户端 ID查找OAuth2 注册客户端 */
     fun findByClientId(clientId: String): OauthRegisteredClient?
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

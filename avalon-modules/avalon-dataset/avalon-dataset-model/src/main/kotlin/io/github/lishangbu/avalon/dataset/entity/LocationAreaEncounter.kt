@@ -6,6 +6,7 @@ import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
+import org.babyfish.jimmer.sql.JoinColumn
 import org.babyfish.jimmer.sql.ManyToOne
 
 @Entity
@@ -33,9 +34,10 @@ interface LocationAreaEncounter {
     @ManyToOne
     val locationArea: LocationArea?
 
-    /** 宝可梦 */
+    /** 生物 */
     @ManyToOne
-    val pokemon: Pokemon?
+    @JoinColumn(name = "creature_id")
+    val creature: Creature?
 
     /** 最大概率 */
     val maxChance: Int?

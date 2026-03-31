@@ -1,0 +1,29 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureHabitat
+import jakarta.validation.constraints.NotBlank
+
+CreatureHabitatView {
+    id
+    internalName
+    name
+}
+
+input SaveCreatureHabitatInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+input UpdateCreatureHabitatInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+specification CreatureHabitatSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

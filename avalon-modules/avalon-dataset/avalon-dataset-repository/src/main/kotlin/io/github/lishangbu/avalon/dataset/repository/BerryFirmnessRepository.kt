@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFirmnessView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 树果硬度仓储接口
@@ -22,6 +24,7 @@ interface BerryFirmnessRepository : KRepository<BerryFirmness, Long> {
         sql
             .createQuery(BerryFirmness::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(BerryFirmnessView::class))
             }.execute()
 
@@ -33,6 +36,7 @@ interface BerryFirmnessRepository : KRepository<BerryFirmness, Long> {
         sql
             .createQuery(BerryFirmness::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(BerryFirmnessView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -41,7 +45,12 @@ interface BerryFirmnessRepository : KRepository<BerryFirmness, Long> {
         sql
             .createQuery(BerryFirmness::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(BerryFirmnessView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

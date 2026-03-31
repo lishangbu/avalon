@@ -1,0 +1,31 @@
+{
+  "id": "tangled-feet",
+  "kind": "ability",
+  "name": "蹒跚",
+  "tags": [
+    "evasion",
+    "confusion_combo"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "tangled-feet"
+  },
+  "hooks": {
+    "on_modify_evasion": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "has_volatile",
+          "actor": "self",
+          "value": "confusion"
+        },
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 2.0
+          }
+        ]
+      }
+    ]
+  }
+}

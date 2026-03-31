@@ -20,7 +20,7 @@ class NatureServiceImpl(
     override fun save(command: SaveNatureInput): NatureView = natureRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateNatureInput): NatureView = natureRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateNatureInput): NatureView = natureRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

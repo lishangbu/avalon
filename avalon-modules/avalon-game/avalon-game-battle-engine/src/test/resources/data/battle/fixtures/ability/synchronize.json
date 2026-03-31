@@ -1,0 +1,31 @@
+{
+  "id": "synchronize",
+  "kind": "ability",
+  "name": "同步",
+  "tags": [
+    "status_reflect"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "synchronize"
+  },
+  "hooks": {
+    "on_after_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "has_status",
+          "actor": "self",
+          "value": "par"
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "source",
+            "value": "par"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionSpecifica
 import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterConditionInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterConditionInput
-import io.github.lishangbu.avalon.dataset.repository.EncounterConditionRepository
+import io.github.lishangbu.avalon.dataset.service.EncounterConditionService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/encounter-condition")
 class EncounterConditionController(
-    private val encounterConditionRepository: EncounterConditionRepository,
+    private val encounterConditionService: EncounterConditionService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveEncounterConditionInput,
-    ): EncounterConditionView = EncounterConditionView(encounterConditionRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): EncounterConditionView = encounterConditionService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateEncounterConditionInput,
-    ): EncounterConditionView = EncounterConditionView(encounterConditionRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): EncounterConditionView = encounterConditionService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        encounterConditionRepository.deleteById(id)
+        encounterConditionService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listEncounterConditions(
         @ModelAttribute specification: EncounterConditionSpecification,
-    ): List<EncounterConditionView> = encounterConditionRepository.listViews(specification)
+    ): List<EncounterConditionView> = encounterConditionService.listByCondition(specification)
 }

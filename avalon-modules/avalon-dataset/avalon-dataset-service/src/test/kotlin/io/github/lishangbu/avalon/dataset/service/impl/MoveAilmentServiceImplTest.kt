@@ -44,14 +44,14 @@ class MoveAilmentServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveAilment>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<MoveAilment>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             moveAilmentEntity(1L),
         )
 
         val result = service.update(UpdateMoveAilmentInput("1", "paralysis", "paralysis"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveAilment>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<MoveAilment>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

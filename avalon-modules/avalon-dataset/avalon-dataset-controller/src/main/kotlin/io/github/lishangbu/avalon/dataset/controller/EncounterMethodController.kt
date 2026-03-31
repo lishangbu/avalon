@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterMethodSpecificatio
 import io.github.lishangbu.avalon.dataset.entity.dto.EncounterMethodView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterMethodInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterMethodInput
-import io.github.lishangbu.avalon.dataset.repository.EncounterMethodRepository
+import io.github.lishangbu.avalon.dataset.service.EncounterMethodService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/encounter-method")
 class EncounterMethodController(
-    private val encounterMethodRepository: EncounterMethodRepository,
+    private val encounterMethodService: EncounterMethodService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveEncounterMethodInput,
-    ): EncounterMethodView = EncounterMethodView(encounterMethodRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): EncounterMethodView = encounterMethodService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateEncounterMethodInput,
-    ): EncounterMethodView = EncounterMethodView(encounterMethodRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): EncounterMethodView = encounterMethodService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        encounterMethodRepository.deleteById(id)
+        encounterMethodService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listEncounterMethods(
         @ModelAttribute specification: EncounterMethodSpecification,
-    ): List<EncounterMethodView> = encounterMethodRepository.listViews(specification)
+    ): List<EncounterMethodView> = encounterMethodService.listByCondition(specification)
 }

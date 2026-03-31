@@ -1,0 +1,210 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureEvolution
+import jakarta.validation.constraints.NotNull
+
+CreatureEvolutionView {
+    id
+    branchSortOrder
+    detailSortOrder
+    needsMultiplayer
+    needsOverworldRain
+    turnUpsideDown
+    timeOfDay
+    minAffection
+    minBeauty
+    minDamageTaken
+    minHappiness
+    minLevel
+    minMoveCount
+    minSteps
+    relativePhysicalStats
+    evolutionChain {
+        id
+    }
+    fromCreatureSpecies {
+        id
+        internalName
+        name
+    }
+    toCreatureSpecies {
+        id
+        internalName
+        name
+    }
+    gender {
+        id
+        internalName
+        name
+    }
+    heldItem {
+        id
+        internalName
+        name
+    }
+    item {
+        id
+        internalName
+        name
+    }
+    knownMove {
+        id
+        internalName
+        name
+    }
+    knownMoveType {
+        id
+        internalName
+        name
+    }
+    location {
+        id
+        internalName
+        name
+    }
+    partyCreatureSpecies {
+        id
+        internalName
+        name
+    }
+    partyType {
+        id
+        internalName
+        name
+    }
+    tradeCreatureSpecies {
+        id
+        internalName
+        name
+    }
+    trigger {
+        id
+        internalName
+        name
+    }
+    usedMove {
+        id
+        internalName
+        name
+    }
+    region {
+        id
+        internalName
+        name
+    }
+    baseVariant {
+        id
+        internalName
+        name
+        formName
+    }
+}
+
+input SaveCreatureEvolutionInput {
+    @NotNull
+    branchSortOrder
+    @NotNull
+    detailSortOrder
+    needsMultiplayer
+    needsOverworldRain
+    turnUpsideDown
+    timeOfDay
+    minAffection
+    minBeauty
+    minDamageTaken
+    minHappiness
+    minLevel
+    minMoveCount
+    minSteps
+    relativePhysicalStats
+    id(gender) as genderId
+    id(baseVariant) as baseVariantId
+    id(region) as regionId
+    @NotNull
+    id(evolutionChain) as evolutionChainId
+    @NotNull
+    id(fromCreatureSpecies) as fromCreatureSpeciesId
+    @NotNull
+    id(toCreatureSpecies) as toCreatureSpeciesId
+    id(heldItem) as heldItemId
+    id(item) as itemId
+    id(knownMove) as knownMoveId
+    id(knownMoveType) as knownMoveTypeId
+    id(location) as locationId
+    id(partyCreatureSpecies) as partyCreatureSpeciesId
+    id(partyType) as partyTypeId
+    id(tradeCreatureSpecies) as tradeCreatureSpeciesId
+    id(trigger) as triggerId
+    id(usedMove) as usedMoveId
+}
+
+input UpdateCreatureEvolutionInput {
+    id!
+    @NotNull
+    branchSortOrder
+    @NotNull
+    detailSortOrder
+    needsMultiplayer
+    needsOverworldRain
+    turnUpsideDown
+    timeOfDay
+    minAffection
+    minBeauty
+    minDamageTaken
+    minHappiness
+    minLevel
+    minMoveCount
+    minSteps
+    relativePhysicalStats
+    id(gender) as genderId
+    id(baseVariant) as baseVariantId
+    id(region) as regionId
+    @NotNull
+    id(evolutionChain) as evolutionChainId
+    @NotNull
+    id(fromCreatureSpecies) as fromCreatureSpeciesId
+    @NotNull
+    id(toCreatureSpecies) as toCreatureSpeciesId
+    id(heldItem) as heldItemId
+    id(item) as itemId
+    id(knownMove) as knownMoveId
+    id(knownMoveType) as knownMoveTypeId
+    id(location) as locationId
+    id(partyCreatureSpecies) as partyCreatureSpeciesId
+    id(partyType) as partyTypeId
+    id(tradeCreatureSpecies) as tradeCreatureSpeciesId
+    id(trigger) as triggerId
+    id(usedMove) as usedMoveId
+}
+
+specification CreatureEvolutionSpecification {
+    id
+    branchSortOrder
+    detailSortOrder
+    needsMultiplayer
+    needsOverworldRain
+    turnUpsideDown
+    like/i(timeOfDay)
+    minAffection
+    minBeauty
+    minDamageTaken
+    minHappiness
+    minLevel
+    minMoveCount
+    minSteps
+    relativePhysicalStats
+    associatedIdEq(gender) as genderId
+    associatedIdEq(baseVariant) as baseVariantId
+    associatedIdEq(region) as regionId
+    associatedIdEq(evolutionChain) as evolutionChainId
+    associatedIdEq(fromCreatureSpecies) as fromCreatureSpeciesId
+    associatedIdEq(toCreatureSpecies) as toCreatureSpeciesId
+    associatedIdEq(heldItem) as heldItemId
+    associatedIdEq(item) as itemId
+    associatedIdEq(knownMove) as knownMoveId
+    associatedIdEq(knownMoveType) as knownMoveTypeId
+    associatedIdEq(location) as locationId
+    associatedIdEq(partyCreatureSpecies) as partyCreatureSpeciesId
+    associatedIdEq(partyType) as partyTypeId
+    associatedIdEq(tradeCreatureSpecies) as tradeCreatureSpeciesId
+    associatedIdEq(trigger) as triggerId
+    associatedIdEq(usedMove) as usedMoveId
+}

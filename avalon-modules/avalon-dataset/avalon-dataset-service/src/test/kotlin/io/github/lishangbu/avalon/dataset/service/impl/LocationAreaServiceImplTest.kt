@@ -52,13 +52,13 @@ class LocationAreaServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<LocationArea>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(locationAreaEntity(1L))
+        `when`(repository.save(any<LocationArea>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(locationAreaEntity(1L))
         `when`(repository.loadViewById(1L)).thenReturn(locationAreaView(1L))
 
         val result = service.update(UpdateLocationAreaInput("1", 1, "canalave-city-area", "Canalave City", "1"))
 
         assertEquals(1, result.gameIndex)
-        verify(repository).save(any<LocationArea>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<LocationArea>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

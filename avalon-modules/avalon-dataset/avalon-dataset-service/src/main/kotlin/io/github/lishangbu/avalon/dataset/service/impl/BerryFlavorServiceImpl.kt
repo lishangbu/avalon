@@ -19,7 +19,7 @@ class BerryFlavorServiceImpl(
     override fun save(command: SaveBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新树果风味 */
-    override fun update(command: UpdateBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateBerryFlavorInput): BerryFlavorView = BerryFlavorView(berryFlavorRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除树果风味 */
     override fun removeById(id: Long) {

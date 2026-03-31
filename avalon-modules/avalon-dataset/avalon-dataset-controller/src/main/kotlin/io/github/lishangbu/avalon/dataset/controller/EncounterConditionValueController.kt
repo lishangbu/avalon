@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionValueSpec
 import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionValueView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterConditionValueInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterConditionValueInput
-import io.github.lishangbu.avalon.dataset.repository.EncounterConditionValueRepository
+import io.github.lishangbu.avalon.dataset.service.EncounterConditionValueService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/encounter-condition-value")
 class EncounterConditionValueController(
-    private val encounterConditionValueRepository: EncounterConditionValueRepository,
+    private val encounterConditionValueService: EncounterConditionValueService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveEncounterConditionValueInput,
-    ): EncounterConditionValueView = EncounterConditionValueView(encounterConditionValueRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): EncounterConditionValueView = encounterConditionValueService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateEncounterConditionValueInput,
-    ): EncounterConditionValueView = EncounterConditionValueView(encounterConditionValueRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): EncounterConditionValueView = encounterConditionValueService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        encounterConditionValueRepository.deleteById(id)
+        encounterConditionValueService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listEncounterConditionValues(
         @ModelAttribute specification: EncounterConditionValueSpecification,
-    ): List<EncounterConditionValueView> = encounterConditionValueRepository.listViews(specification)
+    ): List<EncounterConditionValueView> = encounterConditionValueService.listByCondition(specification)
 }

@@ -44,14 +44,14 @@ class MoveCategoryServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveCategory>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<MoveCategory>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             moveCategoryEntity(1L),
         )
 
         val result = service.update(UpdateMoveCategoryInput("1", "damage", "damage", "Inflicts damage"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveCategory>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<MoveCategory>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

@@ -44,14 +44,14 @@ class MoveTargetServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveTarget>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<MoveTarget>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             moveTargetEntity(1L),
         )
 
         val result = service.update(UpdateMoveTargetInput("1", "specific-move", "specific-move", "One specific move."))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveTarget>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<MoveTarget>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

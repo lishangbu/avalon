@@ -19,7 +19,7 @@ class MoveLearnMethodServiceImpl(
     override fun save(command: SaveMoveLearnMethodInput): MoveLearnMethodView = MoveLearnMethodView(moveLearnMethodRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateMoveLearnMethodInput): MoveLearnMethodView = MoveLearnMethodView(moveLearnMethodRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateMoveLearnMethodInput): MoveLearnMethodView = MoveLearnMethodView(moveLearnMethodRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

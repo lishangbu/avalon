@@ -1,0 +1,53 @@
+export io.github.lishangbu.avalon.dataset.entity.Creature
+import jakarta.validation.constraints.NotBlank
+
+CreatureView {
+    id
+    internalName
+    name
+    height
+    weight
+    baseExperience
+    sortingOrder
+    creatureSpecies {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveCreatureInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    height
+    weight
+    baseExperience
+    sortingOrder
+    id(creatureSpecies) as creatureSpeciesId
+}
+
+input UpdateCreatureInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    height
+    weight
+    baseExperience
+    sortingOrder
+    id(creatureSpecies) as creatureSpeciesId
+}
+
+specification CreatureSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    height
+    weight
+    baseExperience
+    sortingOrder
+    associatedIdEq(creatureSpecies) as creatureSpeciesId
+}

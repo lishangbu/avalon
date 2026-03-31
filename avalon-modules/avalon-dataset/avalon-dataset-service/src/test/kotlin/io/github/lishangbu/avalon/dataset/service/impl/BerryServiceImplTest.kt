@@ -56,14 +56,14 @@ class BerryServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
+        `when`(repository.save(any<Berry>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berrySavedEntity(1L))
         `when`(repository.loadViewById(1L)).thenReturn(berryView(1L))
 
         val result = service.update(UpdateBerryInput("1", "cheri", "樱子", 2, 3, 4, 5, 6, "7", "8", 9))
 
         assertEquals("1", result.id)
         assertEquals("硬", result.berryFirmness?.name)
-        verify(repository).save(any<Berry>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Berry>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(1L)
     }
 

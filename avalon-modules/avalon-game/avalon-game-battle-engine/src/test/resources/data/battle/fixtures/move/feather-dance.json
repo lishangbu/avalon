@@ -1,0 +1,38 @@
+{
+  "id": "feather-dance",
+  "kind": "move",
+  "name": "羽毛舞",
+  "tags": [
+    "status",
+    "flying",
+    "debuff"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "feather-dance",
+    "accuracy": 100,
+    "pp": 15,
+    "type": "flying",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "target_relation",
+          "value": "foe"
+        },
+        "then": [
+          {
+            "type": "boost",
+            "target": "target",
+            "stats": {
+              "atk": -2
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

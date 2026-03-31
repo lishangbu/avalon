@@ -1,0 +1,31 @@
+{
+  "id": "swords-dance",
+  "kind": "move",
+  "name": "剑舞",
+  "tags": [
+    "status",
+    "self_boost"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "swords-dance",
+    "pp": 20,
+    "type": "normal"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "boost",
+            "target": "self",
+            "stats": {
+              "atk": 2
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

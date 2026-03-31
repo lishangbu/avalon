@@ -23,7 +23,7 @@ class EvolutionChainServiceImpl(
 
     override fun save(command: SaveEvolutionChainInput): EvolutionChainView = evolutionChainRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
-    override fun update(command: UpdateEvolutionChainInput): EvolutionChainView = evolutionChainRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateEvolutionChainInput): EvolutionChainView = evolutionChainRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     override fun removeById(id: Long) {
         evolutionChainRepository.deleteById(id)

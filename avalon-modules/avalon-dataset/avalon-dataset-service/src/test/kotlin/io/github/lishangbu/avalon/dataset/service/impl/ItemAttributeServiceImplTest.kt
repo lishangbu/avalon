@@ -44,14 +44,14 @@ class ItemAttributeServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<ItemAttribute>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<ItemAttribute>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             itemAttributeEntity(1L),
         )
 
         val result = service.update(UpdateItemAttributeInput("1", "countable", "Countable", "Has a count in the bag"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<ItemAttribute>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<ItemAttribute>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

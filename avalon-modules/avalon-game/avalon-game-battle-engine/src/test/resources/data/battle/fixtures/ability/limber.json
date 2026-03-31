@@ -1,0 +1,30 @@
+{
+  "id": "limber",
+  "kind": "ability",
+  "name": "柔软",
+  "tags": [
+    "status_immunity",
+    "paralysis"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "limber"
+  },
+  "hooks": {
+    "on_set_status": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "attribute_equals",
+          "key": "statusId",
+          "value": "par"
+        },
+        "then": [
+          {
+            "type": "fail_move"
+          }
+        ]
+      }
+    ]
+  }
+}

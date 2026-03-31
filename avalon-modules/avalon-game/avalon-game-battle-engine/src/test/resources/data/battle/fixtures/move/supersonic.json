@@ -1,0 +1,44 @@
+{
+  "id": "supersonic",
+  "kind": "move",
+  "name": "超音波",
+  "tags": [
+    "status",
+    "confusion"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "supersonic",
+    "accuracy": 55,
+    "pp": 20,
+    "type": "normal",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_prepare_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "set_flag",
+            "target": "self",
+            "key": "prepared_move",
+            "value": "supersonic"
+          }
+        ]
+      }
+    ],
+    "on_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "add_volatile",
+            "target": "target",
+            "value": "confusion"
+          }
+        ]
+      }
+    ]
+  }
+}

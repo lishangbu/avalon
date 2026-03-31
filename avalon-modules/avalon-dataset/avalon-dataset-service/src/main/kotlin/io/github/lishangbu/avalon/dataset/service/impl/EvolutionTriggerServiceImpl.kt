@@ -19,7 +19,7 @@ class EvolutionTriggerServiceImpl(
     override fun save(command: SaveEvolutionTriggerInput): EvolutionTriggerView = EvolutionTriggerView(evolutionTriggerRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateEvolutionTriggerInput): EvolutionTriggerView = EvolutionTriggerView(evolutionTriggerRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateEvolutionTriggerInput): EvolutionTriggerView = EvolutionTriggerView(evolutionTriggerRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

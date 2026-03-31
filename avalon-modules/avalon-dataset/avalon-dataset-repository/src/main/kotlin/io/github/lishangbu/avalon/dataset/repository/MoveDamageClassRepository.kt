@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassSpecificatio
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveDamageClassView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 招式伤害分类仓储接口
@@ -22,6 +24,7 @@ interface MoveDamageClassRepository : KRepository<MoveDamageClass, Long> {
         sql
             .createQuery(MoveDamageClass::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveDamageClassView::class))
             }.execute()
 
@@ -33,6 +36,7 @@ interface MoveDamageClassRepository : KRepository<MoveDamageClass, Long> {
         sql
             .createQuery(MoveDamageClass::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveDamageClassView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -41,7 +45,12 @@ interface MoveDamageClassRepository : KRepository<MoveDamageClass, Long> {
         sql
             .createQuery(MoveDamageClass::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveDamageClassView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

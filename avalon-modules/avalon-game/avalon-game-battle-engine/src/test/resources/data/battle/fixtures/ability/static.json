@@ -1,0 +1,40 @@
+{
+  "id": "static",
+  "kind": "ability",
+  "name": "静电",
+  "tags": [
+    "contact_reactive",
+    "electric"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "static"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "all",
+          "conditions": [
+            {
+              "type": "chance",
+              "value": 30
+            },
+            {
+              "type": "target_relation",
+              "value": "foe"
+            }
+          ]
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "source",
+            "value": "par"
+          }
+        ]
+      }
+    ]
+  }
+}

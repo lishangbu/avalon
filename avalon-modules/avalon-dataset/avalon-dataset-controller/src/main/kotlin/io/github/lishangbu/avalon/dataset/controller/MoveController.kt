@@ -1,14 +1,12 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.Move
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveInput
-import io.github.lishangbu.avalon.dataset.repository.MoveRepository
+import io.github.lishangbu.avalon.dataset.service.MoveService
 import jakarta.validation.Valid
 import org.babyfish.jimmer.Page
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,36 +22,34 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/move")
 class MoveController(
-    private val moveRepository: MoveRepository,
+    private val moveService: MoveService,
 ) {
     /** 按筛选条件分页查询招式 */
     @GetMapping("/page")
     fun getMovePage(
         pageable: Pageable,
         @ModelAttribute specification: MoveSpecification,
-    ): Page<MoveView> = moveRepository.pageViews(specification, pageable)
+    ): Page<MoveView> = moveService.getPageByCondition(specification, pageable)
 
     /** 创建招式 */
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveMoveInput,
-    ): MoveView = moveRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
+    ): MoveView = moveService.save(command)
 
     /** 更新招式 */
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateMoveInput,
-    ): MoveView = moveRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    ): MoveView = moveService.update(command)
 
     /** 删除指定 ID 的招式 */
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        moveRepository.deleteById(id)
+        moveService.removeById(id)
     }
-
-    private fun reloadView(move: Move): MoveView = requireNotNull(moveRepository.loadViewById(move.id)) { "未找到 ID=${move.id} 对应的招式" }
 }

@@ -25,7 +25,7 @@ class StatServiceImpl(
     /** 更新能力值*/
     override fun update(command: UpdateStatInput): StatView {
         requireStatEditable(command.id.toLong(), "能力值已设为只读，禁止修改")
-        return statRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+        return statRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
     }
 
     /** 按 ID 删除能力值*/

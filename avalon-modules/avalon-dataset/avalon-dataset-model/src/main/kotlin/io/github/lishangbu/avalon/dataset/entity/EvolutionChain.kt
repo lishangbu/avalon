@@ -27,5 +27,5 @@ interface EvolutionChain {
 
     /** 进化边列表 */
     @OneToMany(mappedBy = "evolutionChain")
-    val pokemonEvolutions: List<PokemonEvolution>
+    val creatureEvolutions: List<CreatureEvolution>
 }

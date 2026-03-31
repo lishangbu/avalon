@@ -1,0 +1,32 @@
+{
+  "id": "teeter-dance",
+  "kind": "move",
+  "name": "摇晃舞",
+  "tags": [
+    "status",
+    "field",
+    "confusion"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "teeter-dance",
+    "accuracy": 100,
+    "pp": 20,
+    "type": "normal",
+    "target": "all-other-pokemon"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "add_volatile",
+            "target": "all",
+            "value": "confusion"
+          }
+        ]
+      }
+    ]
+  }
+}

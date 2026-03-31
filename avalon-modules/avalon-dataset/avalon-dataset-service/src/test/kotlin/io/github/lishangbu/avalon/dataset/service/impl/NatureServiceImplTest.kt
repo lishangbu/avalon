@@ -57,7 +57,7 @@ class NatureServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
+        `when`(repository.save(any<Nature>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(natureSavedEntity(2L))
         `when`(repository.loadViewById(2L)).thenReturn(natureView(2L))
 
         val result =
@@ -75,7 +75,7 @@ class NatureServiceImplTest {
 
         assertEquals("2", result.id)
         assertEquals("防御", result.increasedStat?.name)
-        verify(repository).save(any<Nature>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Nature>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(2L)
     }
 

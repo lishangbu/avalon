@@ -1,0 +1,109 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureSpecies
+import jakarta.validation.constraints.NotBlank
+
+CreatureSpeciesView {
+    id
+    internalName
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    growthRate {
+        id
+        internalName
+        name
+    }
+    creatureColor {
+        id
+        internalName
+        name
+    }
+    creatureHabitat {
+        id
+        internalName
+        name
+    }
+    creatureShape {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveCreatureSpeciesInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    id(growthRate) as growthRateId
+    id(creatureColor) as creatureColorId
+    id(creatureHabitat) as creatureHabitatId
+    id(creatureShape) as creatureShapeId
+}
+
+input UpdateCreatureSpeciesInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    id(growthRate) as growthRateId
+    id(creatureColor) as creatureColorId
+    id(creatureHabitat) as creatureHabitatId
+    id(creatureShape) as creatureShapeId
+}
+
+specification CreatureSpeciesSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    sortingOrder
+    genderRate
+    captureRate
+    baseHappiness
+    baby
+    legendary
+    mythical
+    hatchCounter
+    hasGenderDifferences
+    formsSwitchable
+    evolvesFromSpeciesId
+    evolutionChainId
+    associatedIdEq(growthRate) as growthRateId
+    associatedIdEq(creatureColor) as creatureColorId
+    associatedIdEq(creatureHabitat) as creatureHabitatId
+    associatedIdEq(creatureShape) as creatureShapeId
+}

@@ -48,7 +48,7 @@ class ItemCategoryServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<ItemCategory>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<ItemCategory>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             itemCategorySavedEntity(1L),
         )
         `when`(repository.loadViewById(1L)).thenReturn(itemCategoryView(1L))
@@ -57,7 +57,7 @@ class ItemCategoryServiceImplTest {
 
         assertEquals("1", result.id)
         assertEquals("misc", result.itemPocket?.internalName)
-        verify(repository).save(any<ItemCategory>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<ItemCategory>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(1L)
     }
 

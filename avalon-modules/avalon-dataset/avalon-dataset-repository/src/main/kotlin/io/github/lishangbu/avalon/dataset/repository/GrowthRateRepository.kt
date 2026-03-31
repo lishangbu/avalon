@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.*
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.GrowthRateView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.springframework.data.domain.Sort
 
 /**
  * 成长速率仓储接口
@@ -20,6 +22,7 @@ interface GrowthRateRepository : KRepository<GrowthRate, Long> {
         sql
             .createQuery(GrowthRate::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(GrowthRateView::class))
             }.execute()
 
@@ -28,7 +31,12 @@ interface GrowthRateRepository : KRepository<GrowthRate, Long> {
         sql
             .createQuery(GrowthRate::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(GrowthRateView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

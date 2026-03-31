@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EggGroupSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.EggGroupView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEggGroupInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEggGroupInput
-import io.github.lishangbu.avalon.dataset.repository.EggGroupRepository
+import io.github.lishangbu.avalon.dataset.service.EggGroupService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/egg-group")
 class EggGroupController(
-    private val eggGroupRepository: EggGroupRepository,
+    private val eggGroupService: EggGroupService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveEggGroupInput,
-    ): EggGroupView = EggGroupView(eggGroupRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): EggGroupView = eggGroupService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateEggGroupInput,
-    ): EggGroupView = EggGroupView(eggGroupRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): EggGroupView = eggGroupService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        eggGroupRepository.deleteById(id)
+        eggGroupService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listEggGroups(
         @ModelAttribute specification: EggGroupSpecification,
-    ): List<EggGroupView> = eggGroupRepository.listViews(specification)
+    ): List<EggGroupView> = eggGroupService.listByCondition(specification)
 }

@@ -32,7 +32,7 @@ class BerryServiceImpl(
     override fun save(command: SaveBerryInput): BerryView = berryRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
     /** 更新树果 */
-    override fun update(command: UpdateBerryInput): BerryView = berryRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateBerryInput): BerryView = berryRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     /** 删除指定 ID 的树果*/
     override fun removeById(id: Long) {

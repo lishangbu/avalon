@@ -50,7 +50,7 @@ class AbilityServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<Ability>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(abilityEntity(1L))
+        `when`(repository.save(any<Ability>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(abilityEntity(1L))
 
         val result =
             service.update(
@@ -64,7 +64,7 @@ class AbilityServiceImplTest {
             )
 
         assertEquals("1", result.id)
-        verify(repository).save(any<Ability>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Ability>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

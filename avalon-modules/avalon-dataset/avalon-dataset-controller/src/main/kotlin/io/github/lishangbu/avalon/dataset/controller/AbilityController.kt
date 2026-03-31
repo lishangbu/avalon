@@ -4,7 +4,7 @@ import io.github.lishangbu.avalon.dataset.entity.dto.AbilitySpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.AbilityView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveAbilityInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateAbilityInput
-import io.github.lishangbu.avalon.dataset.repository.AbilityRepository
+import io.github.lishangbu.avalon.dataset.service.AbilityService
 import jakarta.validation.Valid
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,29 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/ability")
 class AbilityController(
-    private val abilityRepository: AbilityRepository,
+    private val abilityService: AbilityService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveAbilityInput,
-    ): AbilityView = AbilityView(abilityRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): AbilityView = abilityService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateAbilityInput,
-    ): AbilityView = AbilityView(abilityRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): AbilityView = abilityService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        abilityRepository.deleteById(id)
+        abilityService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listAbilities(
         @ModelAttribute specification: AbilitySpecification,
-    ): List<AbilityView> = abilityRepository.listViews(specification)
+    ): List<AbilityView> = abilityService.listByCondition(specification)
 }

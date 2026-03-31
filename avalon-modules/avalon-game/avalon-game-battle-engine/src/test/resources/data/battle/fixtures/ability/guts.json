@@ -1,0 +1,30 @@
+{
+  "id": "guts",
+  "kind": "ability",
+  "name": "毅力",
+  "tags": [
+    "attack_modifier",
+    "status_combo"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "guts"
+  },
+  "hooks": {
+    "on_modify_attack": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "has_status",
+          "actor": "self"
+        },
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 1.5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemPocketSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.ItemPocketView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemPocketInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemPocketInput
-import io.github.lishangbu.avalon.dataset.repository.ItemPocketRepository
+import io.github.lishangbu.avalon.dataset.service.ItemPocketService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/item-pocket")
 class ItemPocketController(
-    private val itemPocketRepository: ItemPocketRepository,
+    private val itemPocketService: ItemPocketService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveItemPocketInput,
-    ): ItemPocketView = ItemPocketView(itemPocketRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): ItemPocketView = itemPocketService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateItemPocketInput,
-    ): ItemPocketView = ItemPocketView(itemPocketRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): ItemPocketView = itemPocketService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        itemPocketRepository.deleteById(id)
+        itemPocketService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listItemPockets(
         @ModelAttribute specification: ItemPocketSpecification,
-    ): List<ItemPocketView> = itemPocketRepository.listViews(specification)
+    ): List<ItemPocketView> = itemPocketService.listByCondition(specification)
 }

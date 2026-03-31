@@ -1,0 +1,48 @@
+{
+  "id": "refresh",
+  "kind": "move",
+  "name": "焕然一新",
+  "tags": [
+    "status",
+    "self_cleanse"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "refresh",
+    "pp": 20,
+    "type": "normal"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "any",
+          "conditions": [
+            {
+              "type": "has_status",
+              "actor": "self",
+              "value": "brn"
+            },
+            {
+              "type": "has_status",
+              "actor": "self",
+              "value": "par"
+            },
+            {
+              "type": "has_status",
+              "actor": "self",
+              "value": "psn"
+            }
+          ]
+        },
+        "then": [
+          {
+            "type": "remove_status",
+            "target": "self"
+          }
+        ]
+      }
+    ]
+  }
+}

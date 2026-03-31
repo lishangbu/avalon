@@ -19,7 +19,7 @@ class ItemPocketServiceImpl(
     override fun save(command: SaveItemPocketInput): ItemPocketView = ItemPocketView(itemPocketRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateItemPocketInput): ItemPocketView = ItemPocketView(itemPocketRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateItemPocketInput): ItemPocketView = ItemPocketView(itemPocketRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

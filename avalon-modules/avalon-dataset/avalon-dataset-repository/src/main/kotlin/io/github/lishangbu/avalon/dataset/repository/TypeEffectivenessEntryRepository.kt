@@ -3,8 +3,10 @@ package io.github.lishangbu.avalon.dataset.repository
 import io.github.lishangbu.avalon.dataset.entity.*
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 属性相克条目仓储接口
@@ -26,6 +28,7 @@ interface TypeEffectivenessEntryRepository : KRepository<TypeEffectivenessEntry,
                 attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
                 defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
                 multiplierPercent?.let { where(table.multiplierPercent eq it) }
+                orderBy(table.id.attackingTypeId)
                 select(table)
             }.execute()
 
@@ -41,6 +44,7 @@ interface TypeEffectivenessEntryRepository : KRepository<TypeEffectivenessEntry,
                 attackingTypeId?.let { where(table.id.attackingTypeId eq it) }
                 defendingTypeId?.let { where(table.id.defendingTypeId eq it) }
                 multiplierPercent?.let { where(table.multiplierPercent eq it) }
+                orderBy(table.id.attackingTypeId)
                 select(table)
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 }

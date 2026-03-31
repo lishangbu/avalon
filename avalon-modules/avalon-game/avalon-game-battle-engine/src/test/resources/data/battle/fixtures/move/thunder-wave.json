@@ -1,0 +1,39 @@
+{
+  "id": "thunder-wave",
+  "kind": "move",
+  "name": "电磁波",
+  "tags": [
+    "status",
+    "electric"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "thunder-wave",
+    "accuracy": 90,
+    "pp": 20,
+    "type": "electric",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "not",
+          "condition": {
+            "type": "has_type",
+            "actor": "target",
+            "value": "ground"
+          }
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "target",
+            "value": "par"
+          }
+        ]
+      }
+    ]
+  }
+}

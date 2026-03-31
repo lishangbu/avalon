@@ -63,13 +63,13 @@ class EvolutionChainServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<EvolutionChain>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(evolutionChainEntity(100L))
+        `when`(repository.save(any<EvolutionChain>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(evolutionChainEntity(100L))
         `when`(repository.loadViewById(100L)).thenReturn(evolutionChainView(100L))
 
         val result = service.update(UpdateEvolutionChainInput("100", "232"))
 
         assertEquals("232", result.babyTriggerItem?.id)
-        verify(repository).save(any<EvolutionChain>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<EvolutionChain>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

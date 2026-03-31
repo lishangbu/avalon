@@ -1,0 +1,28 @@
+{
+  "id": "oran-berry-use",
+  "kind": "item",
+  "name": "橙橙果",
+  "tags": [
+    "item",
+    "healing"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/item.csv",
+    "csvInternalName": "oran-berry",
+    "target": "self"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "heal",
+            "target": "target",
+            "value": 10
+          }
+        ]
+      }
+    ]
+  }
+}

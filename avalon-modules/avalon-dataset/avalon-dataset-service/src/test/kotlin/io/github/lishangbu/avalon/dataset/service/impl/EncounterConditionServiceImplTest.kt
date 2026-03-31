@@ -6,17 +6,21 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EncounterConditionView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveEncounterConditionInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateEncounterConditionInput
 import io.github.lishangbu.avalon.dataset.repository.EncounterConditionRepository
+import io.github.lishangbu.avalon.dataset.repository.EncounterConditionValueRepository
 import org.babyfish.jimmer.sql.ast.mutation.AssociatedSaveMode
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class EncounterConditionServiceImplTest {
     private val repository = mock(EncounterConditionRepository::class.java)
-    private val service = EncounterConditionServiceImpl(repository)
+    private val encounterConditionValueRepository = mock(EncounterConditionValueRepository::class.java)
+    private val service = EncounterConditionServiceImpl(repository, encounterConditionValueRepository)
 
     @Test
     fun listByCondition_callsRepository() {
@@ -44,21 +48,36 @@ class EncounterConditionServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<EncounterCondition>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<EncounterCondition>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             encounterConditionEntity(1L),
         )
 
         val result = service.update(UpdateEncounterConditionInput("1", "swarm", "Swarm"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<EncounterCondition>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<EncounterCondition>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test
     fun removeById_callsRepository() {
+        `when`(encounterConditionValueRepository.existsByEncounterConditionId(1L)).thenReturn(false)
+
         service.removeById(1L)
 
         verify(repository).deleteById(1L)
+    }
+
+    @Test
+    fun removeById_throwsFriendlyMessageWhenConditionValueExists() {
+        `when`(encounterConditionValueRepository.existsByEncounterConditionId(1L)).thenReturn(true)
+
+        val error =
+            assertThrows(IllegalStateException::class.java) {
+                service.removeById(1L)
+            }
+
+        assertEquals("当前遭遇条件下仍存在遭遇条件值，请先删除相关遭遇条件值后再删除当前遭遇条件", error.message)
+        verify(repository, never()).deleteById(1L)
     }
 }
 

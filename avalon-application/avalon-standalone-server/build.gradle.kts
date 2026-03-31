@@ -8,6 +8,8 @@ plugins {
 dependencies {
     implementation(project(":avalon-modules:avalon-authorization"))
     implementation(project(":avalon-modules:avalon-dataset:avalon-dataset-repository"))
+    implementation(project(":avalon-modules:avalon-game:avalon-game-controller"))
+    implementation(project(":avalon-modules:avalon-game:avalon-game-service"))
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.web)
     implementation(libs.jimmer.spring.boot.starter)

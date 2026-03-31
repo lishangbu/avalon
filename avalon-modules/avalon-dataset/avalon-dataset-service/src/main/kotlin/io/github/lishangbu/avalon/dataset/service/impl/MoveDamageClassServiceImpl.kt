@@ -34,7 +34,7 @@ class MoveDamageClassServiceImpl(
     /** 更新招式伤害分类 */
     override fun update(
         command: UpdateMoveDamageClassInput,
-    ): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): MoveDamageClassView = MoveDamageClassView(moveDamageClassRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除招式伤害分类 */
     override fun removeById(id: Long) {

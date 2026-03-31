@@ -1,0 +1,30 @@
+{
+  "id": "own-tempo",
+  "kind": "ability",
+  "name": "我行我素",
+  "tags": [
+    "volatile_immunity",
+    "confusion"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "own-tempo"
+  },
+  "hooks": {
+    "on_try_add_volatile": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "attribute_equals",
+          "key": "volatileId",
+          "value": "confusion"
+        },
+        "then": [
+          {
+            "type": "fail_move"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -22,7 +22,7 @@ class TypeServiceImpl(
 
     /** 更新属性*/
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateTypeInput): TypeView = TypeView(typeRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateTypeInput): TypeView = TypeView(typeRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除属性*/
     @Transactional(rollbackFor = [Exception::class])

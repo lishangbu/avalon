@@ -44,14 +44,14 @@ class ItemFlingEffectServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<ItemFlingEffect>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<ItemFlingEffect>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             itemFlingEffectEntity(1L),
         )
 
         val result = service.update(UpdateItemFlingEffectInput("1", "badly-poison", "badly-poison", "Badly poisons the target."))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<ItemFlingEffect>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<ItemFlingEffect>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

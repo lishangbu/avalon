@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.BerrySpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 树果仓储接口
@@ -22,6 +24,7 @@ interface BerryRepository : KRepository<Berry, Long> {
         sql
             .createQuery(Berry::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(BerryView::class))
             }.execute()
 
@@ -33,6 +36,7 @@ interface BerryRepository : KRepository<Berry, Long> {
         sql
             .createQuery(Berry::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(BerryView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -44,4 +48,8 @@ interface BerryRepository : KRepository<Berry, Long> {
                 select(table.fetch(BerryView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

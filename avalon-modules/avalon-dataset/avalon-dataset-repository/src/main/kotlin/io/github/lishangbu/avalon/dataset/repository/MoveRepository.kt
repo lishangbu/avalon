@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 /**
@@ -22,6 +24,7 @@ interface MoveRepository : KRepository<Move, Long> {
     fun listAll(): List<Move> =
         sql
             .createQuery(Move::class) {
+                orderBy(DEFAULT_SORT)
                 select(table)
             }.execute()
 
@@ -30,6 +33,7 @@ interface MoveRepository : KRepository<Move, Long> {
         sql
             .createQuery(Move::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveView::class))
             }.execute()
 
@@ -41,6 +45,7 @@ interface MoveRepository : KRepository<Move, Long> {
         sql
             .createQuery(Move::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -49,7 +54,12 @@ interface MoveRepository : KRepository<Move, Long> {
         sql
             .createQuery(Move::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(MoveView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

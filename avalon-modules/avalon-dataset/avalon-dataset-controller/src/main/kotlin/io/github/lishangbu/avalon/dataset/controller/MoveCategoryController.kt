@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveCategorySpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveCategoryView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveCategoryInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveCategoryInput
-import io.github.lishangbu.avalon.dataset.repository.MoveCategoryRepository
+import io.github.lishangbu.avalon.dataset.service.MoveCategoryService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/move-category")
 class MoveCategoryController(
-    private val moveCategoryRepository: MoveCategoryRepository,
+    private val moveCategoryService: MoveCategoryService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveMoveCategoryInput,
-    ): MoveCategoryView = MoveCategoryView(moveCategoryRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): MoveCategoryView = moveCategoryService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateMoveCategoryInput,
-    ): MoveCategoryView = MoveCategoryView(moveCategoryRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): MoveCategoryView = moveCategoryService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        moveCategoryRepository.deleteById(id)
+        moveCategoryService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listMoveCategories(
         @ModelAttribute specification: MoveCategorySpecification,
-    ): List<MoveCategoryView> = moveCategoryRepository.listViews(specification)
+    ): List<MoveCategoryView> = moveCategoryService.listByCondition(specification)
 }

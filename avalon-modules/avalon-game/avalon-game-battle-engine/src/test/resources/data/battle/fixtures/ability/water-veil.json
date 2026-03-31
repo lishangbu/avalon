@@ -1,0 +1,30 @@
+{
+  "id": "water-veil",
+  "kind": "ability",
+  "name": "水幕",
+  "tags": [
+    "status_immunity",
+    "burn"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "water-veil"
+  },
+  "hooks": {
+    "on_set_status": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "attribute_equals",
+          "key": "statusId",
+          "value": "brn"
+        },
+        "then": [
+          {
+            "type": "fail_move"
+          }
+        ]
+      }
+    ]
+  }
+}

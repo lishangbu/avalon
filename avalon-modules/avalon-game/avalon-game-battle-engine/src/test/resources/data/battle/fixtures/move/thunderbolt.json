@@ -1,0 +1,38 @@
+{
+  "id": "thunderbolt",
+  "kind": "move",
+  "name": "十万伏特",
+  "tags": [
+    "damaging",
+    "special",
+    "electric"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "thunderbolt",
+    "basePower": 90,
+    "accuracy": 100,
+    "pp": 15,
+    "type": "electric",
+    "damageClass": "special",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "chance",
+          "value": 10
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "target",
+            "value": "par"
+          }
+        ]
+      }
+    ]
+  }
+}

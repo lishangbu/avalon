@@ -54,7 +54,7 @@ class TypeServiceImplTest {
         `when`(
             repository.save(
                 any<DatasetType>(),
-                eq(SaveMode.UPSERT),
+                eq(SaveMode.UPDATE_ONLY),
                 eq(AssociatedSaveMode.REPLACE),
                 isNull(),
             ),
@@ -64,7 +64,7 @@ class TypeServiceImplTest {
 
         assertEquals("1", result.id)
         assertEquals(true, result.battleOnly)
-        verify(repository).save(any<DatasetType>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<DatasetType>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

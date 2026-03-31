@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionChainSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionChainView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 /**
@@ -23,6 +25,7 @@ interface EvolutionChainRepository : KRepository<EvolutionChain, Long> {
         sql
             .createQuery(EvolutionChain::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(EvolutionChainView::class))
             }.execute()
 
@@ -33,6 +36,7 @@ interface EvolutionChainRepository : KRepository<EvolutionChain, Long> {
         sql
             .createQuery(EvolutionChain::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(EvolutionChainView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -40,6 +44,7 @@ interface EvolutionChainRepository : KRepository<EvolutionChain, Long> {
         sql
             .createQuery(EvolutionChain::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(EvolutionChainView::class))
             }.execute()
             .firstOrNull()
@@ -48,7 +53,12 @@ interface EvolutionChainRepository : KRepository<EvolutionChain, Long> {
         sql
             .createQuery(EvolutionChain::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.babyTriggerItem.id)
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

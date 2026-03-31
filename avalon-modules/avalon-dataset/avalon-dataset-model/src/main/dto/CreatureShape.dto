@@ -1,0 +1,29 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureShape
+import jakarta.validation.constraints.NotBlank
+
+CreatureShapeView {
+    id
+    internalName
+    name
+}
+
+input SaveCreatureShapeInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+input UpdateCreatureShapeInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+specification CreatureShapeSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

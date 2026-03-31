@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.*
 import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionTriggerSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.EvolutionTriggerView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 /** 进化触发方式仓储接口 */
@@ -15,6 +17,7 @@ interface EvolutionTriggerRepository : KRepository<EvolutionTrigger, Long> {
         sql
             .createQuery(EvolutionTrigger::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(EvolutionTriggerView::class))
             }.execute()
 
@@ -23,7 +26,12 @@ interface EvolutionTriggerRepository : KRepository<EvolutionTrigger, Long> {
         sql
             .createQuery(EvolutionTrigger::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(EvolutionTriggerView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

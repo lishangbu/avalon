@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.ItemView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 /**
@@ -24,6 +26,7 @@ interface ItemRepository : KRepository<Item, Long> {
         sql
             .createQuery(Item::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(ItemView::class))
             }.execute()
 
@@ -35,6 +38,7 @@ interface ItemRepository : KRepository<Item, Long> {
         sql
             .createQuery(Item::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(ItemView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -43,7 +47,12 @@ interface ItemRepository : KRepository<Item, Long> {
         sql
             .createQuery(Item::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(ItemView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

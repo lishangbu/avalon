@@ -44,14 +44,14 @@ class EvolutionTriggerServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<EvolutionTrigger>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<EvolutionTrigger>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             evolutionTriggerEntity(1L),
         )
 
         val result = service.update(UpdateEvolutionTriggerInput("1", "level-up", "Level up"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<EvolutionTrigger>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<EvolutionTrigger>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

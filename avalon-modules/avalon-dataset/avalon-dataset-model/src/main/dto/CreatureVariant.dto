@@ -1,0 +1,98 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureVariant
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+
+CreatureVariantView {
+    id
+    backDefault
+    backFemale
+    backShiny
+    backShinyFemale
+    battleOnly
+    defaultForm
+    formName
+    formOrder
+    frontDefault
+    frontFemale
+    frontShiny
+    frontShinyFemale
+    internalName
+    mega
+    name
+    sortingOrder
+    creature {
+        id
+        internalName
+        name
+    }
+}
+
+input SaveCreatureVariantInput {
+    backDefault
+    backFemale
+    backShiny
+    backShinyFemale
+    @NotNull
+    battleOnly
+    @NotNull
+    defaultForm
+    formName
+    @NotNull
+    formOrder
+    frontDefault
+    frontFemale
+    frontShiny
+    frontShinyFemale
+    @NotBlank
+    internalName
+    @NotNull
+    mega
+    @NotBlank
+    name
+    @NotNull
+    id(creature) as creatureId
+    @NotNull
+    sortingOrder
+}
+
+input UpdateCreatureVariantInput {
+    id!
+    backDefault
+    backFemale
+    backShiny
+    backShinyFemale
+    @NotNull
+    battleOnly
+    @NotNull
+    defaultForm
+    formName
+    @NotNull
+    formOrder
+    frontDefault
+    frontFemale
+    frontShiny
+    frontShinyFemale
+    @NotBlank
+    internalName
+    @NotNull
+    mega
+    @NotBlank
+    name
+    @NotNull
+    id(creature) as creatureId
+    @NotNull
+    sortingOrder
+}
+
+specification CreatureVariantSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+    like/i(formName)
+    battleOnly
+    defaultForm
+    mega
+    formOrder
+    sortingOrder
+    associatedIdEq(creature) as creatureId
+}

@@ -58,7 +58,7 @@ class MoveServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Move>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<Move>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             moveSavedEntity(1L),
         )
         `when`(repository.loadViewById(1L)).thenReturn(moveView(1L))
@@ -69,7 +69,7 @@ class MoveServiceImplTest {
         assertEquals("selected-pokemon", result.moveTarget?.internalName)
         assertEquals("damage", result.moveCategory?.internalName)
         assertEquals("none", result.moveAilment?.internalName)
-        verify(repository).save(any<Move>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Move>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(1L)
     }
 

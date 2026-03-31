@@ -1,0 +1,37 @@
+{
+  "id": "ember",
+  "kind": "move",
+  "name": "火花",
+  "tags": [
+    "damaging",
+    "special",
+    "fire"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "ember",
+    "basePower": 40,
+    "accuracy": 100,
+    "pp": 25,
+    "type": "fire",
+    "damageClass": "special"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "chance",
+          "value": 10
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "target",
+            "value": "brn"
+          }
+        ]
+      }
+    ]
+  }
+}

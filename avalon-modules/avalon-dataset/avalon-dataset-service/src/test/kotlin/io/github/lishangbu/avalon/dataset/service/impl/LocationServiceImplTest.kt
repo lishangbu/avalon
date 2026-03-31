@@ -57,13 +57,13 @@ class LocationServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Location>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(locationEntity(1L))
+        `when`(repository.save(any<Location>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(locationEntity(1L))
         `when`(repository.loadViewById(1L)).thenReturn(locationView(1L))
 
         val result = service.update(UpdateLocationInput("1", "canalave-city", "Canalave City", "4"))
 
         assertEquals("sinnoh", result.region?.internalName)
-        verify(repository).save(any<Location>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Location>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

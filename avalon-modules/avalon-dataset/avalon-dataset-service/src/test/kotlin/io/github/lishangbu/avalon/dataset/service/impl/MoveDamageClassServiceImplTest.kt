@@ -57,12 +57,12 @@ class MoveDamageClassServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveDamageClass>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(moveDamageClassEntity(1L, "special", "特殊", "desc"))
+        `when`(repository.save(any<MoveDamageClass>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(moveDamageClassEntity(1L, "special", "特殊", "desc"))
 
         val result = service.update(UpdateMoveDamageClassInput("1", "special", "特殊", "desc"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveDamageClass>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<MoveDamageClass>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

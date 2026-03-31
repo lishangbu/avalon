@@ -42,12 +42,12 @@ class EggGroupServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<EggGroup>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(eggGroupEntity(1L))
+        `when`(repository.save(any<EggGroup>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(eggGroupEntity(1L))
 
         val result = service.update(UpdateEggGroupInput("1", "monster", "怪兽", "text", "characteristics"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<EggGroup>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<EggGroup>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

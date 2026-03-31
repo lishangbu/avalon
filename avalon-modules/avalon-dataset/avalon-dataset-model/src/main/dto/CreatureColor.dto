@@ -1,0 +1,29 @@
+export io.github.lishangbu.avalon.dataset.entity.CreatureColor
+import jakarta.validation.constraints.NotBlank
+
+CreatureColorView {
+    id
+    internalName
+    name
+}
+
+input SaveCreatureColorInput {
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+input UpdateCreatureColorInput {
+    id!
+    @NotBlank
+    internalName
+    @NotBlank
+    name
+}
+
+specification CreatureColorSpecification {
+    id
+    like/i(internalName)
+    like/i(name)
+}

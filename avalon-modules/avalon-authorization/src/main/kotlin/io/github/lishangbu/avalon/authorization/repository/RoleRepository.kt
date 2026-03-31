@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.authorization.entity.dto.RoleView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 角色仓储接口
@@ -22,6 +24,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.ROLE))
             }.execute()
 
@@ -33,6 +36,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.ROLE))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -41,6 +45,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.ROLE_WITH_MENUS))
             }.execute()
 
@@ -52,6 +57,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.ROLE_WITH_MENUS))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -63,6 +69,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(RoleView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -71,6 +78,7 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(RoleView::class))
             }.execute()
 
@@ -79,7 +87,12 @@ interface RoleRepository : KRepository<Role, Long> {
         sql
             .createQuery(Role::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(RoleView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

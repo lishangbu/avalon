@@ -1,0 +1,28 @@
+{
+  "id": "haze",
+  "kind": "move",
+  "name": "黑雾",
+  "tags": [
+    "status",
+    "field"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "haze",
+    "pp": 30,
+    "type": "ice"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "clear_boosts",
+            "target": "all"
+          }
+        ]
+      }
+    ]
+  }
+}

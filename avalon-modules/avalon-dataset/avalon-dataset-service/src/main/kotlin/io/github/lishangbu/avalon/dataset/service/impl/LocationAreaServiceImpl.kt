@@ -23,7 +23,7 @@ class LocationAreaServiceImpl(
 
     override fun save(command: SaveLocationAreaInput): LocationAreaView = locationAreaRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
-    override fun update(command: UpdateLocationAreaInput): LocationAreaView = locationAreaRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateLocationAreaInput): LocationAreaView = locationAreaRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     override fun removeById(id: Long) {
         locationAreaRepository.deleteById(id)

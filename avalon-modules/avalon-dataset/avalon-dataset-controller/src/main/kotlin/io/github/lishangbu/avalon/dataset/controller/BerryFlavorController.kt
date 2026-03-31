@@ -1,49 +1,53 @@
 package io.github.lishangbu.avalon.dataset.controller
 
-import io.github.lishangbu.avalon.dataset.entity.BerryFlavor
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.BerryFlavorView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveBerryFlavorInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateBerryFlavorInput
-import io.github.lishangbu.avalon.dataset.repository.BerryFlavorRepository
+import io.github.lishangbu.avalon.dataset.service.BerryFlavorService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /** 树果风味控制器*/
 @RestController
 @RequestMapping("/berry-flavor")
 class BerryFlavorController(
-    /** 树果风味仓储 */
-    private val berryFlavorRepository: BerryFlavorRepository,
+    /** 树果风味应用服务 */
+    private val berryFlavorService: BerryFlavorService,
 ) {
     /** 查询树果风味列表 */
     @GetMapping("/list")
     fun listBerryFlavors(
         @ModelAttribute specification: BerryFlavorSpecification,
-    ): List<BerryFlavorView> = berryFlavorRepository.listViews(specification)
+    ): List<BerryFlavorView> = berryFlavorService.listByCondition(specification)
 
     /** 保存树果风味 */
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveBerryFlavorInput,
-    ): BerryFlavorView = berryFlavorRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
+    ): BerryFlavorView = berryFlavorService.save(command)
 
     /** 更新树果风味 */
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateBerryFlavorInput,
-    ): BerryFlavorView = berryFlavorRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    ): BerryFlavorView = berryFlavorService.update(command)
 
     /** 按 ID 删除树果风味 */
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        berryFlavorRepository.deleteById(id)
+        berryFlavorService.removeById(id)
     }
-
-    private fun reloadView(berryFlavor: BerryFlavor): BerryFlavorView = requireNotNull(berryFlavorRepository.loadViewById(berryFlavor.id)) { "未找到 ID=${berryFlavor.id} 对应的树果风味" }
 }

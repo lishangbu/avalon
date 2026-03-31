@@ -16,7 +16,7 @@ class RegionServiceImpl(
 ) : RegionService {
     override fun save(command: SaveRegionInput): RegionView = regionRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
-    override fun update(command: UpdateRegionInput): RegionView = regionRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateRegionInput): RegionView = regionRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     override fun removeById(id: Long) {
         regionRepository.deleteById(id)

@@ -1,0 +1,37 @@
+{
+  "id": "surf",
+  "kind": "move",
+  "name": "冲浪",
+  "tags": [
+    "damaging",
+    "special",
+    "water"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "surf",
+    "basePower": 90,
+    "accuracy": 100,
+    "pp": 15,
+    "type": "water",
+    "damageClass": "special",
+    "target": "all-opponents"
+  },
+  "hooks": {
+    "on_modify_damage": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "weather_is",
+          "value": "rain"
+        },
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 1.5
+          }
+        ]
+      }
+    ]
+  }
+}

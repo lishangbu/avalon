@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.MoveLearnMethodSpecificatio
 import io.github.lishangbu.avalon.dataset.entity.dto.MoveLearnMethodView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveMoveLearnMethodInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateMoveLearnMethodInput
-import io.github.lishangbu.avalon.dataset.repository.MoveLearnMethodRepository
+import io.github.lishangbu.avalon.dataset.service.MoveLearnMethodService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/move-learn-method")
 class MoveLearnMethodController(
-    private val moveLearnMethodRepository: MoveLearnMethodRepository,
+    private val moveLearnMethodService: MoveLearnMethodService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveMoveLearnMethodInput,
-    ): MoveLearnMethodView = MoveLearnMethodView(moveLearnMethodRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): MoveLearnMethodView = moveLearnMethodService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateMoveLearnMethodInput,
-    ): MoveLearnMethodView = MoveLearnMethodView(moveLearnMethodRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): MoveLearnMethodView = moveLearnMethodService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        moveLearnMethodRepository.deleteById(id)
+        moveLearnMethodService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listMoveLearnMethods(
         @ModelAttribute specification: MoveLearnMethodSpecification,
-    ): List<MoveLearnMethodView> = moveLearnMethodRepository.listViews(specification)
+    ): List<MoveLearnMethodView> = moveLearnMethodService.listByCondition(specification)
 }

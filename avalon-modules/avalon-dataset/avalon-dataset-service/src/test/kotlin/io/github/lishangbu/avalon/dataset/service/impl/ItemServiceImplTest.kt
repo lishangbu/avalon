@@ -74,7 +74,7 @@ class ItemServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Item>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<Item>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             itemSavedEntity(1L),
         )
         `when`(repository.loadViewById(1L)).thenReturn(itemView(1L))
@@ -98,7 +98,7 @@ class ItemServiceImplTest {
         assertEquals("1", result.id)
         assertEquals("Immediately activates the berry’s effect on the target.", result.itemFlingEffect?.name)
         assertEquals(setOf("1", "2"), result.itemAttributes.map { it.id }.toSet())
-        verify(repository).save(any<Item>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Item>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(1L)
     }
 

@@ -1,0 +1,39 @@
+{
+  "id": "electro-ball",
+  "kind": "move",
+  "name": "电球",
+  "tags": [
+    "damaging",
+    "special",
+    "electric",
+    "speed_based"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "electro-ball",
+    "accuracy": 100,
+    "pp": 10,
+    "type": "electric",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_modify_base_power": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "stat_compare",
+          "actor": "self",
+          "stat": "spe",
+          "operator": ">=",
+          "value": 150
+        },
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 1.5
+          }
+        ]
+      }
+    ]
+  }
+}

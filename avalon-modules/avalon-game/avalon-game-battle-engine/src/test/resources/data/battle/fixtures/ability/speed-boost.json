@@ -1,0 +1,34 @@
+{
+  "id": "speed-boost",
+  "kind": "ability",
+  "name": "加速",
+  "tags": [
+    "residual",
+    "self_boost"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "speed-boost"
+  },
+  "hooks": {
+    "on_residual": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "turn_compare",
+          "operator": ">=",
+          "value": 1
+        },
+        "then": [
+          {
+            "type": "boost",
+            "target": "self",
+            "stats": {
+              "spe": 1
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

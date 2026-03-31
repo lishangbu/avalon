@@ -44,7 +44,7 @@ class MoveLearnMethodServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<MoveLearnMethod>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
+        `when`(repository.save(any<MoveLearnMethod>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(
             moveLearnMethodEntity(1L),
         )
 
@@ -54,7 +54,7 @@ class MoveLearnMethodServiceImplTest {
             )
 
         assertEquals("1", result.id)
-        verify(repository).save(any<MoveLearnMethod>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<MoveLearnMethod>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

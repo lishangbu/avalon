@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.*
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.TypeView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.springframework.data.domain.Sort
 
 /**
  * 属性仓储接口
@@ -18,6 +20,7 @@ interface TypeRepository : KRepository<Type, Long> {
     fun listAll(): List<Type> =
         sql
             .createQuery(Type::class) {
+                orderBy(DEFAULT_SORT)
                 select(table)
             }.execute()
 
@@ -26,6 +29,7 @@ interface TypeRepository : KRepository<Type, Long> {
         sql
             .createQuery(Type::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(TypeView::class))
             }.execute()
 
@@ -34,7 +38,12 @@ interface TypeRepository : KRepository<Type, Long> {
         sql
             .createQuery(Type::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(TypeView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

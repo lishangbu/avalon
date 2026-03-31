@@ -22,7 +22,7 @@ class GrowthRateServiceImpl(
 
     /** 更新成长速率 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateGrowthRateInput): GrowthRateView = GrowthRateView(growthRateRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateGrowthRateInput): GrowthRateView = GrowthRateView(growthRateRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除成长速率 */
     @Transactional(rollbackFor = [Exception::class])

@@ -60,14 +60,14 @@ class StatServiceImplTest {
     @Test
     fun update_usesUpsertModeAndReloadsView() {
         `when`(repository.findNullable(2L)).thenReturn(statSavedEntity(2L))
-        `when`(repository.save(any<Stat>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(statSavedEntity(2L))
+        `when`(repository.save(any<Stat>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(statSavedEntity(2L))
         `when`(repository.loadViewById(2L)).thenReturn(statView("2", "attack", "攻击"))
 
         val result = service.update(UpdateStatInput("2", "attack", "攻击", 2, false, false, "2"))
 
         assertEquals("2", result.id)
         assertEquals("physical", result.moveDamageClass?.internalName)
-        verify(repository).save(any<Stat>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Stat>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(2L)
     }
 

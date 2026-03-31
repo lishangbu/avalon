@@ -1,0 +1,48 @@
+{
+  "id": "sitrus-berry",
+  "kind": "item",
+  "name": "文柚果",
+  "tags": [
+    "berry",
+    "recovery"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/item.csv",
+    "csvInternalName": "sitrus-berry"
+  },
+  "hooks": {
+    "on_residual": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "all",
+          "conditions": [
+            {
+              "type": "has_item",
+              "actor": "self",
+              "value": "sitrus-berry"
+            },
+            {
+              "type": "hp_ratio",
+              "actor": "self",
+              "operator": "<=",
+              "value": 0.5
+            }
+          ]
+        },
+        "then": [
+          {
+            "type": "consume_item",
+            "target": "self"
+          },
+          {
+            "type": "heal",
+            "target": "self",
+            "mode": "max_hp_ratio",
+            "value": 0.25
+          }
+        ]
+      }
+    ]
+  }
+}

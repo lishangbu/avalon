@@ -24,7 +24,7 @@ class MoveServiceImpl(
 
     override fun save(command: SaveMoveInput): MoveView = moveRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
-    override fun update(command: UpdateMoveInput): MoveView = moveRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateMoveInput): MoveView = moveRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     override fun removeById(id: Long) {
         moveRepository.deleteById(id)

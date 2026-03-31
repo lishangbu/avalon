@@ -43,13 +43,13 @@ class RegionServiceImplTest {
 
     @Test
     fun update_usesUpsertModeAndReloadsView() {
-        `when`(repository.save(any<Region>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(regionEntity(1L))
+        `when`(repository.save(any<Region>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(regionEntity(1L))
         `when`(repository.loadViewById(1L)).thenReturn(regionView(1L))
 
         val result = service.update(UpdateRegionInput("1", "kanto", "Kanto"))
 
         assertEquals("Kanto", result.name)
-        verify(repository).save(any<Region>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<Region>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
         verify(repository).loadViewById(1L)
     }
 

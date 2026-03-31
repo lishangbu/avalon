@@ -24,7 +24,7 @@ class ItemServiceImpl(
 
     override fun save(command: SaveItemInput): ItemView = itemRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
-    override fun update(command: UpdateItemInput): ItemView = itemRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateItemInput): ItemView = itemRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     override fun removeById(id: Long) {
         itemRepository.deleteById(id)

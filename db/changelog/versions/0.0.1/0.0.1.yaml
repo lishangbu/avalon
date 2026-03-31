@@ -1297,8 +1297,8 @@ databaseChangeLog:
                   remarks: X509 证书主题 DN
                   type: varchar(500)
         - createTable:
-            tableName: pokemon
-            remarks: 宝可梦
+            tableName: creature
+            remarks: 精灵
             columns:
               - column:
                   name: id
@@ -1336,11 +1336,11 @@ databaseChangeLog:
                   remarks: 体重
                   type: int4
               - column:
-                  name: pokemon_species_id
-                  remarks: 宝可梦种族 ID
+                  name: creature_species_id
+                  remarks: 精灵种族 ID
                   type: int8
         - createTable:
-            tableName: pokemon_ability
+            tableName: creature_ability
             remarks: 宝可梦特性
             columns:
               - column:
@@ -1362,21 +1362,21 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_pokemon_ability__ability_id
+                    foreignKeyName: fk_creature_ability__ability_id
                     referencedTableName: ability
                     referencedColumnNames: id
               - column:
-                  name: pokemon_id
+                  name: creature_id
                   remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_pokemon_ability__pokemon_id
-                    referencedTableName: pokemon
+                    foreignKeyName: fk_creature_ability__creature_id
+                    referencedTableName: creature
                     referencedColumnNames: id
         - createTable:
-            tableName: pokemon_color
+            tableName: creature_color
             remarks: 宝可梦颜色
             columns:
               - column:
@@ -1399,7 +1399,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createTable:
-            tableName: pokemon_habitat
+            tableName: creature_habitat
             remarks: 宝可梦栖息地
             columns:
               - column:
@@ -1422,7 +1422,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createTable:
-            tableName: pokemon_shape
+            tableName: creature_shape
             remarks: 宝可梦形态
             columns:
               - column:
@@ -1441,7 +1441,7 @@ databaseChangeLog:
                   remarks: 名称
                   type: varchar(100)
         - createTable:
-            tableName: pokemon_species
+            tableName: creature_species
             remarks: 宝可梦种族
             columns:
               - column:
@@ -1512,35 +1512,35 @@ databaseChangeLog:
                   remarks: 成长速率 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_species__growth_rate_id
+                    foreignKeyName: fk_creature_species__growth_rate_id
                     referencedTableName: growth_rate
                     referencedColumnNames: id
               - column:
-                  name: pokemon_color_id
+                  name: creature_color_id
                   remarks: 宝可梦颜色 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_species__pokemon_color_id
-                    referencedTableName: pokemon_color
+                    foreignKeyName: fk_creature_species__creature_color_id
+                    referencedTableName: creature_color
                     referencedColumnNames: id
               - column:
-                  name: pokemon_habitat_id
+                  name: creature_habitat_id
                   remarks: 宝可梦栖息地 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_species__pokemon_habitat_id
-                    referencedTableName: pokemon_habitat
+                    foreignKeyName: fk_creature_species__creature_habitat_id
+                    referencedTableName: creature_habitat
                     referencedColumnNames: id
               - column:
-                  name: pokemon_shape_id
+                  name: creature_shape_id
                   remarks: 宝可梦形态 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_species__pokemon_shape_id
-                    referencedTableName: pokemon_shape
+                    foreignKeyName: fk_creature_species__creature_shape_id
+                    referencedTableName: creature_shape
                     referencedColumnNames: id
         - createTable:
-            tableName: pokemon_stat
+            tableName: creature_stat
             remarks: 宝可梦能力值
             columns:
               - column:
@@ -1552,14 +1552,14 @@ databaseChangeLog:
                   remarks: 努力值
                   type: int4
               - column:
-                  name: pokemon_id
+                  name: creature_id
                   remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_pokemon_stat__pokemon_id
-                    referencedTableName: pokemon
+                    foreignKeyName: fk_creature_stat__creature_id
+                    referencedTableName: creature
                     referencedColumnNames: id
               - column:
                   name: stat_id
@@ -1569,7 +1569,7 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
         - createTable:
-            tableName: pokemon_type
+            tableName: creature_element
             remarks: 宝可梦属性
             columns:
               - column:
@@ -1584,14 +1584,14 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
               - column:
-                  name: pokemon_id
+                  name: creature_id
                   remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_pokemon_type__pokemon_id
-                    referencedTableName: pokemon
+                    foreignKeyName: fk_creature_element__creature_id
+                    referencedTableName: creature
                     referencedColumnNames: id
         - createTable:
             tableName: region
@@ -1733,13 +1733,13 @@ databaseChangeLog:
                     referencedTableName: location_area
                     referencedColumnNames: id
               - column:
-                  name: pokemon_id
+                  name: creature_id
                   remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_location_area_encounter__pokemon_id
-                    referencedTableName: pokemon
+                    foreignKeyName: fk_location_area_encounter__creature_id
+                    referencedTableName: creature
                     referencedColumnNames: id
               - column:
                   name: max_chance
@@ -1772,7 +1772,7 @@ databaseChangeLog:
                     referencedTableName: encounter_condition_value
                     referencedColumnNames: id
         - createTable:
-            tableName: pokemon_form
+            tableName: creature_variant
             remarks: 宝可梦形态
             columns:
               - column:
@@ -1855,13 +1855,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: pokemon_id
+                  name: creature_id
                   remarks: 宝可梦 ID
                   type: int8
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_pokemon_form__pokemon_id
-                    referencedTableName: pokemon
+                    foreignKeyName: fk_creature_variant__creature_id
+                    referencedTableName: creature
                     referencedColumnNames: id
               - column:
                   name: sorting_order
@@ -1870,7 +1870,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createTable:
-            tableName: pokemon_form_type
+            tableName: creature_variant_type
             remarks: 宝可梦形态属性
             columns:
               - column:
@@ -1887,14 +1887,14 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
               - column:
-                  name: pokemon_form_id
+                  name: creature_variant_id
                   remarks: 宝可梦形态 ID
                   type: int8
                   constraints:
                     nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_pokemon_form_type__pokemon_form_id
-                    referencedTableName: pokemon_form
+                    foreignKeyName: fk_creature_variant_type__creature_variant_id
+                    referencedTableName: creature_variant
                     referencedColumnNames: id
         - createTable:
             tableName: role
@@ -2059,7 +2059,7 @@ databaseChangeLog:
                     referencedTableName: type
                     referencedColumnNames: id
         - createTable:
-            tableName: pokemon_evolution
+            tableName: creature_evolution
             remarks: 宝可梦进化条件
             columns:
               - column:
@@ -2102,7 +2102,7 @@ databaseChangeLog:
                   remarks: 性别 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__gender_id
+                    foreignKeyName: fk_creature_evolution__gender_id
                     referencedTableName: gender
                     referencedColumnNames: id
               - column:
@@ -2138,19 +2138,19 @@ databaseChangeLog:
                   remarks: 相对物攻物防关系
                   type: int4
               - column:
-                  name: base_form_id
+                  name: base_variant_id
                   remarks: 基础形态 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__base_form_id
-                    referencedTableName: pokemon_form
+                    foreignKeyName: fk_creature_evolution__base_variant_id
+                    referencedTableName: creature_variant
                     referencedColumnNames: id
               - column:
                   name: region_id
                   remarks: 地区 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__region_id
+                    foreignKeyName: fk_creature_evolution__region_id
                     referencedTableName: region
                     referencedColumnNames: id
               - column:
@@ -2159,33 +2159,33 @@ databaseChangeLog:
                   type: int8
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_pokemon_evolution__evolution_chain_id
+                    foreignKeyName: fk_creature_evolution__evolution_chain_id
                     referencedTableName: evolution_chain
                     referencedColumnNames: id
               - column:
-                  name: from_pokemon_species_id
+                  name: from_creature_species_id
                   remarks: 起始种族 ID
                   type: int8
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_pokemon_evolution__from_pokemon_species_id
-                    referencedTableName: pokemon_species
+                    foreignKeyName: fk_creature_evolution__from_creature_species_id
+                    referencedTableName: creature_species
                     referencedColumnNames: id
               - column:
-                  name: to_pokemon_species_id
+                  name: to_creature_species_id
                   remarks: 目标种族 ID
                   type: int8
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_pokemon_evolution__to_pokemon_species_id
-                    referencedTableName: pokemon_species
+                    foreignKeyName: fk_creature_evolution__to_creature_species_id
+                    referencedTableName: creature_species
                     referencedColumnNames: id
               - column:
                   name: held_item_id
                   remarks: 携带道具 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__held_item_id
+                    foreignKeyName: fk_creature_evolution__held_item_id
                     referencedTableName: item
                     referencedColumnNames: id
               - column:
@@ -2193,7 +2193,7 @@ databaseChangeLog:
                   remarks: 使用道具 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__item_id
+                    foreignKeyName: fk_creature_evolution__item_id
                     referencedTableName: item
                     referencedColumnNames: id
               - column:
@@ -2201,7 +2201,7 @@ databaseChangeLog:
                   remarks: 已学会招式 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__known_move_id
+                    foreignKeyName: fk_creature_evolution__known_move_id
                     referencedTableName: move
                     referencedColumnNames: id
               - column:
@@ -2209,7 +2209,7 @@ databaseChangeLog:
                   remarks: 已学会招式属性 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__known_move_type_id
+                    foreignKeyName: fk_creature_evolution__known_move_type_id
                     referencedTableName: type
                     referencedColumnNames: id
               - column:
@@ -2217,39 +2217,39 @@ databaseChangeLog:
                   remarks: 地点 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__location_id
+                    foreignKeyName: fk_creature_evolution__location_id
                     referencedTableName: location
                     referencedColumnNames: id
               - column:
-                  name: party_species_id
+                  name: party_creature_species_id
                   remarks: 同队种族 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__party_species_id
-                    referencedTableName: pokemon_species
+                    foreignKeyName: fk_creature_evolution__party_creature_species_id
+                    referencedTableName: creature_species
                     referencedColumnNames: id
               - column:
                   name: party_type_id
                   remarks: 同队属性 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__party_type_id
+                    foreignKeyName: fk_creature_evolution__party_type_id
                     referencedTableName: type
                     referencedColumnNames: id
               - column:
-                  name: trade_species_id
+                  name: trade_creature_species_id
                   remarks: 交换种族 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__trade_species_id
-                    referencedTableName: pokemon_species
+                    foreignKeyName: fk_creature_evolution__trade_creature_species_id
+                    referencedTableName: creature_species
                     referencedColumnNames: id
               - column:
                   name: trigger_id
                   remarks: 进化触发方式 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__trigger_id
+                    foreignKeyName: fk_creature_evolution__trigger_id
                     referencedTableName: evolution_trigger
                     referencedColumnNames: id
               - column:
@@ -2257,7 +2257,7 @@ databaseChangeLog:
                   remarks: 使用招式 ID
                   type: int8
                   constraints:
-                    foreignKeyName: fk_pokemon_evolution__used_move_id
+                    foreignKeyName: fk_creature_evolution__used_move_id
                     referencedTableName: move
                     referencedColumnNames: id
         - createTable:
@@ -2495,56 +2495,56 @@ databaseChangeLog:
               - column:
                   name: registered_client_id
         - createIndex:
-            tableName: pokemon
-            indexName: idx_pokemon__pokemon_species_id
+            tableName: creature
+            indexName: idx_creature__creature_species_id
             columns:
               - column:
-                  name: pokemon_species_id
+                  name: creature_species_id
         - createIndex:
-            tableName: pokemon_ability
-            indexName: idx_pokemon_ability__pokemon_id
+            tableName: creature_ability
+            indexName: idx_creature_ability__creature_id
             columns:
               - column:
-                  name: pokemon_id
+                  name: creature_id
         - createIndex:
-            tableName: pokemon_species
-            indexName: idx_pokemon_species__evolves_from_species_id
+            tableName: creature_species
+            indexName: idx_creature_species__evolves_from_species_id
             columns:
               - column:
                   name: evolves_from_species_id
         - createIndex:
-            tableName: pokemon_species
-            indexName: idx_pokemon_species__growth_rate_id
+            tableName: creature_species
+            indexName: idx_creature_species__growth_rate_id
             columns:
               - column:
                   name: growth_rate_id
         - createIndex:
-            tableName: pokemon_species
-            indexName: idx_pokemon_species__pokemon_color_id
+            tableName: creature_species
+            indexName: idx_creature_species__creature_color_id
             columns:
               - column:
-                  name: pokemon_color_id
+                  name: creature_color_id
         - createIndex:
-            tableName: pokemon_species
-            indexName: idx_pokemon_species__pokemon_habitat_id
+            tableName: creature_species
+            indexName: idx_creature_species__creature_habitat_id
             columns:
               - column:
-                  name: pokemon_habitat_id
+                  name: creature_habitat_id
         - createIndex:
-            tableName: pokemon_species
-            indexName: idx_pokemon_species__pokemon_shape_id
+            tableName: creature_species
+            indexName: idx_creature_species__creature_shape_id
             columns:
               - column:
-                  name: pokemon_shape_id
+                  name: creature_shape_id
         - createIndex:
-            tableName: pokemon_stat
-            indexName: idx_pokemon_stat__stat_id
+            tableName: creature_stat
+            indexName: idx_creature_stat__stat_id
             columns:
               - column:
                   name: stat_id
         - createIndex:
-            tableName: pokemon_type
-            indexName: idx_pokemon_type__type_id
+            tableName: creature_element
+            indexName: idx_creature_element__type_id
             columns:
               - column:
                   name: type_id
@@ -2567,26 +2567,26 @@ databaseChangeLog:
               - column:
                   name: location_id
         - createIndex:
-            tableName: pokemon_evolution
-            indexName: idx_pokemon_evolution__evolution_chain_id
+            tableName: creature_evolution
+            indexName: idx_creature_evolution__evolution_chain_id
             columns:
               - column:
                   name: evolution_chain_id
         - createIndex:
-            tableName: pokemon_evolution
-            indexName: idx_pokemon_evolution__from_pokemon_species_id
+            tableName: creature_evolution
+            indexName: idx_creature_evolution__from_creature_species_id
             columns:
               - column:
-                  name: from_pokemon_species_id
+                  name: from_creature_species_id
         - createIndex:
-            tableName: pokemon_evolution
-            indexName: idx_pokemon_evolution__to_pokemon_species_id
+            tableName: creature_evolution
+            indexName: idx_creature_evolution__to_creature_species_id
             columns:
               - column:
-                  name: to_pokemon_species_id
+                  name: to_creature_species_id
         - createIndex:
-            tableName: pokemon_evolution
-            indexName: idx_pokemon_evolution__trigger_id
+            tableName: creature_evolution
+            indexName: idx_creature_evolution__trigger_id
             columns:
               - column:
                   name: trigger_id
@@ -2598,10 +2598,10 @@ databaseChangeLog:
                   name: location_area_id
         - createIndex:
             tableName: location_area_encounter
-            indexName: idx_location_area_encounter__pokemon_id
+            indexName: idx_location_area_encounter__creature_id
             columns:
               - column:
-                  name: pokemon_id
+                  name: creature_id
         - createIndex:
             tableName: location_area_encounter
             indexName: idx_location_area_encounter__encounter_method_id
@@ -2615,14 +2615,14 @@ databaseChangeLog:
               - column:
                   name: encounter_condition_value_id
         - createIndex:
-            tableName: pokemon_form
-            indexName: idx_pokemon_form__pokemon_id
+            tableName: creature_variant
+            indexName: idx_creature_variant__creature_id
             columns:
               - column:
-                  name: pokemon_id
+                  name: creature_id
         - createIndex:
-            tableName: pokemon_form_type
-            indexName: idx_pokemon_form_type__type_id
+            tableName: creature_variant_type
+            indexName: idx_creature_variant_type__type_id
             columns:
               - column:
                   name: type_id
@@ -2771,11 +2771,11 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon
-            baseColumnNames: pokemon_species_id
-            referencedTableName: pokemon_species
+            baseTableName: creature
+            baseColumnNames: creature_species_id
+            referencedTableName: creature_species
             referencedColumnNames: id
-            constraintName: fk_pokemon__pokemon_species_id
+            constraintName: fk_creature__creature_species_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -2787,35 +2787,35 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon_species
+            baseTableName: creature_species
             baseColumnNames: evolution_chain_id
             referencedTableName: evolution_chain
             referencedColumnNames: id
-            constraintName: fk_pokemon_species__evolution_chain_id
+            constraintName: fk_creature_species__evolution_chain_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon_stat
+            baseTableName: creature_stat
             baseColumnNames: stat_id
             referencedTableName: stat
             referencedColumnNames: id
-            constraintName: fk_pokemon_stat__stat_id
+            constraintName: fk_creature_stat__stat_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon_type
+            baseTableName: creature_element
             baseColumnNames: type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fk_pokemon_type__type_id
+            constraintName: fk_creature_element__type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon_form_type
+            baseTableName: creature_variant_type
             baseColumnNames: type_id
             referencedTableName: type
             referencedColumnNames: id
-            constraintName: fk_pokemon_form_type__type_id
+            constraintName: fk_creature_variant_type__type_id
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
@@ -2827,11 +2827,11 @@ databaseChangeLog:
             onDelete: NO ACTION
             onUpdate: NO ACTION
         - addForeignKeyConstraint:
-            baseTableName: pokemon_species
+            baseTableName: creature_species
             baseColumnNames: evolves_from_species_id
-            referencedTableName: pokemon_species
+            referencedTableName: creature_species
             referencedColumnNames: id
-            constraintName: fk_pokemon_species__evolves_from_species_id
+            constraintName: fk_creature_species__evolves_from_species_id
             deferrable: true
             initiallyDeferred: true
             onDelete: NO ACTION
@@ -2929,33 +2929,33 @@ databaseChangeLog:
             columnNames: internal_name
             constraintName: uk_nature__internal_name
         - addUniqueConstraint:
-            tableName: pokemon
+            tableName: creature
             columnNames: internal_name
-            constraintName: uk_pokemon__internal_name
+            constraintName: uk_creature__internal_name
         - addUniqueConstraint:
-            tableName: pokemon_color
+            tableName: creature_color
             columnNames: internal_name
-            constraintName: uk_pokemon_color__internal_name
+            constraintName: uk_creature_color__internal_name
         - addUniqueConstraint:
-            tableName: pokemon_habitat
+            tableName: creature_habitat
             columnNames: internal_name
-            constraintName: uk_pokemon_habitat__internal_name
+            constraintName: uk_creature_habitat__internal_name
         - addUniqueConstraint:
-            tableName: pokemon_shape
+            tableName: creature_shape
             columnNames: internal_name
-            constraintName: uk_pokemon_shape__internal_name
+            constraintName: uk_creature_shape__internal_name
         - addUniqueConstraint:
-            tableName: pokemon_form
+            tableName: creature_variant
             columnNames: internal_name
-            constraintName: uk_pokemon_form__internal_name
+            constraintName: uk_creature_variant__internal_name
         - addUniqueConstraint:
-            tableName: pokemon_evolution
-            columnNames: evolution_chain_id,from_pokemon_species_id,to_pokemon_species_id,detail_sort_order
-            constraintName: uk_pokemon_evolution__chain__from__to__detail
+            tableName: creature_evolution
+            columnNames: evolution_chain_id,from_creature_species_id,to_creature_species_id,detail_sort_order
+            constraintName: uk_creature_evolution__chain__from__to__detail
         - addUniqueConstraint:
-            tableName: pokemon_species
+            tableName: creature_species
             columnNames: internal_name
-            constraintName: uk_pokemon_species__internal_name
+            constraintName: uk_creature_species__internal_name
         - addUniqueConstraint:
             tableName: location
             columnNames: internal_name
@@ -3198,29 +3198,29 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
         - loadData:
-            file: data/pokemon_color.csv
+            file: data/creature_color.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_color
+            tableName: creature_color
         - loadData:
-            file: data/pokemon_shape.csv
+            file: data/creature_shape.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_shape
+            tableName: creature_shape
         - loadData:
-            file: data/pokemon_habitat.csv
+            file: data/creature_habitat.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_habitat
+            tableName: creature_habitat
         - loadData:
-            file: data/pokemon_species.csv
+            file: data/creature_species.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_species
+            tableName: creature_species
             columns:
               - column:
                   header: evolves_from_species_id
@@ -3228,16 +3228,16 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
-                  header: pokemon_habitat_id
-                  name: pokemon_habitat_id
+                  header: creature_habitat_id
+                  name: creature_habitat_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
         - loadData:
-            file: data/pokemon.csv
+            file: data/creature.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon
+            tableName: creature
             columns:
               - column:
                   header: base_experience
@@ -3251,11 +3251,11 @@ databaseChangeLog:
             separator: ','
             tableName: type
         - loadData:
-            file: data/pokemon_form.csv
+            file: data/creature_variant.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_form
+            tableName: creature_variant
             columns:
               - column:
                   header: back_default
@@ -3303,29 +3303,29 @@ databaseChangeLog:
                   type: STRING
                   nullPlaceholder: __NULL__
         - loadData:
-            file: data/pokemon_type.csv
+            file: data/creature_element.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_type
+            tableName: creature_element
         - loadData:
-            file: data/pokemon_form_type.csv
+            file: data/creature_variant_type.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_form_type
+            tableName: creature_variant_type
         - loadData:
-            file: data/pokemon_stat.csv
+            file: data/creature_stat.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_stat
+            tableName: creature_stat
         - loadData:
-            file: data/pokemon_ability.csv
+            file: data/creature_ability.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_ability
+            tableName: creature_ability
         - loadData:
             file: data/location_area_encounter.csv
             relativeToChangelogFile: true
@@ -3441,11 +3441,11 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
         - loadData:
-            file: data/pokemon_evolution.csv
+            file: data/creature_evolution.csv
             relativeToChangelogFile: true
             encoding: utf-8
             separator: ','
-            tableName: pokemon_evolution
+            tableName: creature_evolution
             columns:
               - column:
                   header: needs_multiplayer
@@ -3513,8 +3513,8 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
-                  header: base_form_id
-                  name: base_form_id
+                  header: base_variant_id
+                  name: base_variant_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
@@ -3548,8 +3548,8 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
-                  header: party_species_id
-                  name: party_species_id
+                  header: party_creature_species_id
+                  name: party_creature_species_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
@@ -3558,8 +3558,8 @@ databaseChangeLog:
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
-                  header: trade_species_id
-                  name: trade_species_id
+                  header: trade_creature_species_id
+                  name: trade_creature_species_id
                   type: NUMERIC
                   nullPlaceholder: __NULL__
               - column:
@@ -3652,3 +3652,631 @@ databaseChangeLog:
             encoding: utf-8
             separator: ','
             tableName: user_role_relation
+  - changeSet:
+      id: 0.0.1-game-capture
+      author: 'codex'
+      dbms: postgresql
+      changes:
+        - createTable:
+            tableName: player
+            remarks: 玩家角色
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: int8
+                  remarks: 账号 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: slot_no
+                  type: int4
+                  remarks: 角色槽位
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nickname
+                  type: varchar(50)
+                  remarks: 玩家昵称
+                  constraints:
+                    nullable: false
+              - column:
+                  name: avatar
+                  type: varchar(500)
+                  remarks: 玩家头像
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  remarks: 创建时间
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  remarks: 更新时间
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: creature_storage_box
+            remarks: 玩家精灵盒
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: player_id
+                  type: int8
+                  remarks: 玩家 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  remarks: 盒子名称
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sorting_order
+                  type: int4
+                  remarks: 排序顺序
+                  constraints:
+                    nullable: false
+              - column:
+                  name: capacity
+                  type: int4
+                  remarks: 容量
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  remarks: 创建时间
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  remarks: 更新时间
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: player_inventory_item
+            remarks: 玩家背包道具库存
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: player_id
+                  type: int8
+                  remarks: 玩家 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: item_id
+                  type: int8
+                  remarks: 道具 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: int4
+                  remarks: 数量
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  remarks: 更新时间
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: owned_creature
+            remarks: 玩家拥有的精灵
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: player_id
+                  type: int8
+                  remarks: 玩家 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creature_id
+                  type: int8
+                  remarks: 宝可梦 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creature_species_id
+                  type: int8
+                  remarks: 宝可梦种族 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nickname
+                  type: varchar(100)
+                  remarks: 昵称
+              - column:
+                  name: level
+                  type: int4
+                  remarks: 等级
+                  constraints:
+                    nullable: false
+              - column:
+                  name: experience
+                  type: int4
+                  remarks: 当前经验
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nature_id
+                  type: int8
+                  remarks: 性格 ID
+              - column:
+                  name: ability_internal_name
+                  type: varchar(100)
+                  remarks: 特性内部名
+              - column:
+                  name: current_hp
+                  type: int4
+                  remarks: 当前 HP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_hp
+                  type: int4
+                  remarks: 最大 HP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status_id
+                  type: varchar(50)
+                  remarks: 当前状态
+              - column:
+                  name: storage_type
+                  type: varchar(20)
+                  remarks: 存储类型
+                  constraints:
+                    nullable: false
+              - column:
+                  name: storage_box_id
+                  type: int8
+                  remarks: 盒子 ID
+              - column:
+                  name: storage_slot
+                  type: int4
+                  remarks: 盒子槽位
+              - column:
+                  name: party_slot
+                  type: int4
+                  remarks: 队伍槽位
+              - column:
+                  name: captured_at
+                  type: timestamptz
+                  remarks: 捕获时间
+              - column:
+                  name: capture_item_id
+                  type: int8
+                  remarks: 捕获使用的道具 ID
+              - column:
+                  name: capture_session_id
+                  type: varchar(100)
+                  remarks: 捕获战斗会话 ID
+              - column:
+                  name: source_type
+                  type: varchar(30)
+                  remarks: 来源类型
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  remarks: 创建时间
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  remarks: 更新时间
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: owned_creature_stat
+            remarks: 玩家精灵能力值明细
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: owned_creature_id
+                  type: int8
+                  remarks: 玩家精灵 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stat_id
+                  type: int8
+                  remarks: 能力值 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: iv
+                  type: int4
+                  remarks: 个体值
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ev
+                  type: int4
+                  remarks: 努力值
+                  constraints:
+                    nullable: false
+              - column:
+                  name: calculated_value
+                  type: int4
+                  remarks: 计算后的能力值
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: owned_creature_move
+            remarks: 玩家精灵当前招式
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: owned_creature_id
+                  type: int8
+                  remarks: 玩家精灵 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: slot
+                  type: int4
+                  remarks: 招式槽位
+                  constraints:
+                    nullable: false
+              - column:
+                  name: move_id
+                  type: int8
+                  remarks: 招式 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_pp
+                  type: int4
+                  remarks: 当前 PP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_pp
+                  type: int4
+                  remarks: 最大 PP
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: battle_capture_record
+            remarks: 战斗捕捉记录
+            columns:
+              - column:
+                  name: id
+                  type: int8
+                  remarks: ID
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: session_id
+                  type: varchar(100)
+                  remarks: 战斗会话 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: player_id
+                  type: int8
+                  remarks: 玩家 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: target_unit_id
+                  type: varchar(100)
+                  remarks: 目标单位 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ball_item_id
+                  type: int8
+                  remarks: 精灵球道具 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creature_id
+                  type: int8
+                  remarks: 宝可梦 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creature_species_id
+                  type: int8
+                  remarks: 宝可梦种族 ID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: capture_rate
+                  type: int4
+                  remarks: 捕获率
+                  constraints:
+                    nullable: false
+              - column:
+                  name: current_hp
+                  type: int4
+                  remarks: 当前 HP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_hp
+                  type: int4
+                  remarks: 最大 HP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status_id
+                  type: varchar(50)
+                  remarks: 捕捉时状态
+              - column:
+                  name: shakes
+                  type: int4
+                  remarks: 摇晃次数
+                  constraints:
+                    nullable: false
+              - column:
+                  name: success
+                  type: bool
+                  remarks: 是否成功
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: varchar(100)
+                  remarks: 结果原因
+                  constraints:
+                    nullable: false
+              - column:
+                  name: final_rate
+                  type: numeric(12, 6)
+                  remarks: 最终捕捉率
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owned_creature_id
+                  type: int8
+                  remarks: 成功后生成的玩家精灵 ID
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  remarks: 创建时间
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: player
+            columnNames: user_id, slot_no
+            constraintName: uk_player__user_id__slot_no
+        - addUniqueConstraint:
+            tableName: creature_storage_box
+            columnNames: player_id, sorting_order
+            constraintName: uk_creature_storage_box__player_id__sorting_order
+        - addUniqueConstraint:
+            tableName: player_inventory_item
+            columnNames: player_id, item_id
+            constraintName: uk_player_inventory_item__player_id__item_id
+        - addUniqueConstraint:
+            tableName: owned_creature_stat
+            columnNames: owned_creature_id, stat_id
+            constraintName: uk_owned_creature_stat__owned_creature_id__stat_id
+        - addUniqueConstraint:
+            tableName: owned_creature_move
+            columnNames: owned_creature_id, slot
+            constraintName: uk_owned_creature_move__owned_creature_id__slot
+        - createIndex:
+            tableName: player
+            indexName: idx_player__user_id
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            tableName: creature_storage_box
+            indexName: idx_creature_storage_box__player_id
+            columns:
+              - column:
+                  name: player_id
+        - createIndex:
+            tableName: player_inventory_item
+            indexName: idx_player_inventory_item__item_id
+            columns:
+              - column:
+                  name: item_id
+        - createIndex:
+            tableName: owned_creature
+            indexName: idx_owned_creature__player_id
+            columns:
+              - column:
+                  name: player_id
+        - createIndex:
+            tableName: owned_creature
+            indexName: idx_owned_creature__creature_species_id
+            columns:
+              - column:
+                  name: creature_species_id
+        - createIndex:
+            tableName: owned_creature
+            indexName: idx_owned_creature__storage_box_id
+            columns:
+              - column:
+                  name: storage_box_id
+        - createIndex:
+            tableName: owned_creature_stat
+            indexName: idx_owned_creature_stat__stat_id
+            columns:
+              - column:
+                  name: stat_id
+        - createIndex:
+            tableName: owned_creature_move
+            indexName: idx_owned_creature_move__move_id
+            columns:
+              - column:
+                  name: move_id
+        - createIndex:
+            tableName: battle_capture_record
+            indexName: idx_battle_capture_record__session_id
+            columns:
+              - column:
+                  name: session_id
+        - createIndex:
+            tableName: battle_capture_record
+            indexName: idx_battle_capture_record__player_id
+            columns:
+              - column:
+                  name: player_id
+        - addForeignKeyConstraint:
+            baseTableName: player
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_player__user_id
+        - addForeignKeyConstraint:
+            baseTableName: creature_storage_box
+            baseColumnNames: player_id
+            referencedTableName: player
+            referencedColumnNames: id
+            constraintName: fk_creature_storage_box__player_id
+        - addForeignKeyConstraint:
+            baseTableName: player_inventory_item
+            baseColumnNames: player_id
+            referencedTableName: player
+            referencedColumnNames: id
+            constraintName: fk_player_inventory_item__player_id
+        - addForeignKeyConstraint:
+            baseTableName: player_inventory_item
+            baseColumnNames: item_id
+            referencedTableName: item
+            referencedColumnNames: id
+            constraintName: fk_player_inventory_item__item_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: player_id
+            referencedTableName: player
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__player_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: creature_id
+            referencedTableName: creature
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__creature_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: creature_species_id
+            referencedTableName: creature_species
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__creature_species_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: nature_id
+            referencedTableName: nature
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__nature_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: storage_box_id
+            referencedTableName: creature_storage_box
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__storage_box_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature
+            baseColumnNames: capture_item_id
+            referencedTableName: item
+            referencedColumnNames: id
+            constraintName: fk_owned_creature__capture_item_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature_stat
+            baseColumnNames: owned_creature_id
+            referencedTableName: owned_creature
+            referencedColumnNames: id
+            constraintName: fk_owned_creature_stat__owned_creature_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature_stat
+            baseColumnNames: stat_id
+            referencedTableName: stat
+            referencedColumnNames: id
+            constraintName: fk_owned_creature_stat__stat_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature_move
+            baseColumnNames: owned_creature_id
+            referencedTableName: owned_creature
+            referencedColumnNames: id
+            constraintName: fk_owned_creature_move__owned_creature_id
+        - addForeignKeyConstraint:
+            baseTableName: owned_creature_move
+            baseColumnNames: move_id
+            referencedTableName: move
+            referencedColumnNames: id
+            constraintName: fk_owned_creature_move__move_id
+        - addForeignKeyConstraint:
+            baseTableName: battle_capture_record
+            baseColumnNames: player_id
+            referencedTableName: player
+            referencedColumnNames: id
+            constraintName: fk_battle_capture_record__player_id
+        - addForeignKeyConstraint:
+            baseTableName: battle_capture_record
+            baseColumnNames: ball_item_id
+            referencedTableName: item
+            referencedColumnNames: id
+            constraintName: fk_battle_capture_record__ball_item_id
+        - addForeignKeyConstraint:
+            baseTableName: battle_capture_record
+            baseColumnNames: creature_id
+            referencedTableName: creature
+            referencedColumnNames: id
+            constraintName: fk_battle_capture_record__creature_id
+        - addForeignKeyConstraint:
+            baseTableName: battle_capture_record
+            baseColumnNames: creature_species_id
+            referencedTableName: creature_species
+            referencedColumnNames: id
+            constraintName: fk_battle_capture_record__creature_species_id
+        - addForeignKeyConstraint:
+            baseTableName: battle_capture_record
+            baseColumnNames: owned_creature_id
+            referencedTableName: owned_creature
+            referencedColumnNames: id
+            constraintName: fk_battle_capture_record__owned_creature_id

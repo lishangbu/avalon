@@ -2,8 +2,6 @@
 
 本参考文件用于兜底说明 Liquibase 变更文件的常用规则。
 
-如果目标仓库存在 `db/changelog/CONVENTIONS.md`，应优先读取仓库内文件，并把它视为最终规则来源。
-
 ## 1. 外键声明
 
 - 被引用表已经在当前 `changeSet` 前面创建时，优先将外键内联到 `createTable.columns[].constraints`

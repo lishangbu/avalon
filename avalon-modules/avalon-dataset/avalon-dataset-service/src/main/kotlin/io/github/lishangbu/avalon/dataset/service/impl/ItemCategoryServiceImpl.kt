@@ -20,7 +20,7 @@ class ItemCategoryServiceImpl(
     override fun save(command: SaveItemCategoryInput): ItemCategoryView = itemCategoryRepository.save(command.toEntity(), SaveMode.INSERT_ONLY).let(::reloadView)
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateItemCategoryInput): ItemCategoryView = itemCategoryRepository.save(command.toEntity(), SaveMode.UPSERT).let(::reloadView)
+    override fun update(command: UpdateItemCategoryInput): ItemCategoryView = itemCategoryRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY).let(::reloadView)
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

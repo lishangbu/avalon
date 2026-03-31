@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.dataset.entity.dto.LocationAreaSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.LocationAreaView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -18,6 +20,7 @@ interface LocationAreaRepository : KRepository<LocationArea, Long> {
         sql
             .createQuery(LocationArea::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(LocationAreaView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -25,7 +28,12 @@ interface LocationAreaRepository : KRepository<LocationArea, Long> {
         sql
             .createQuery(LocationArea::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(LocationAreaView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

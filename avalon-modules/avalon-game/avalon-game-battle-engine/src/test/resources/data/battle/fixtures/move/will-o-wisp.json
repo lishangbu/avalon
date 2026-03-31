@@ -1,0 +1,39 @@
+{
+  "id": "will-o-wisp",
+  "kind": "move",
+  "name": "鬼火",
+  "tags": [
+    "status",
+    "fire"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "will-o-wisp",
+    "accuracy": 85,
+    "pp": 15,
+    "type": "fire",
+    "target": "selected-pokemon"
+  },
+  "hooks": {
+    "on_hit": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "not",
+          "condition": {
+            "type": "has_type",
+            "actor": "target",
+            "value": "fire"
+          }
+        },
+        "then": [
+          {
+            "type": "add_status",
+            "target": "target",
+            "value": "brn"
+          }
+        ]
+      }
+    ]
+  }
+}

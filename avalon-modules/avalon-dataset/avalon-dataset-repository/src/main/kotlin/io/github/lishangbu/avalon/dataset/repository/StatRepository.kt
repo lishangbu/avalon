@@ -4,7 +4,9 @@ import io.github.lishangbu.avalon.dataset.entity.*
 import io.github.lishangbu.avalon.dataset.entity.dto.StatSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.StatView
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.springframework.data.domain.Sort
 
 /**
  * 能力值仓储接口
@@ -20,6 +22,7 @@ interface StatRepository : KRepository<Stat, Long> {
         sql
             .createQuery(Stat::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(StatView::class))
             }.execute()
 
@@ -28,7 +31,12 @@ interface StatRepository : KRepository<Stat, Long> {
         sql
             .createQuery(Stat::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(StatView::class))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

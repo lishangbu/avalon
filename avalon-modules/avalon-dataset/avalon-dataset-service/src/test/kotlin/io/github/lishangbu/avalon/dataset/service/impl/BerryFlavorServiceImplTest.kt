@@ -42,12 +42,12 @@ class BerryFlavorServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<BerryFlavor>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berryFlavorEntity(1L))
+        `when`(repository.save(any<BerryFlavor>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(berryFlavorEntity(1L))
 
         val result = service.update(UpdateBerryFlavorInput("1", "spicy", "辣"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<BerryFlavor>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<BerryFlavor>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

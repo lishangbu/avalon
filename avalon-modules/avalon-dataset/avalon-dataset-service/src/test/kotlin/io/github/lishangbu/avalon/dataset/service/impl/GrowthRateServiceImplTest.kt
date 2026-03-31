@@ -42,12 +42,12 @@ class GrowthRateServiceImplTest {
 
     @Test
     fun update_usesUpsertMode() {
-        `when`(repository.save(any<GrowthRate>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(growthRateEntity(1L))
+        `when`(repository.save(any<GrowthRate>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())).thenReturn(growthRateEntity(1L))
 
         val result = service.update(UpdateGrowthRateInput("1", "slow", "慢", "slow"))
 
         assertEquals("1", result.id)
-        verify(repository).save(any<GrowthRate>(), eq(SaveMode.UPSERT), eq(AssociatedSaveMode.REPLACE), isNull())
+        verify(repository).save(any<GrowthRate>(), eq(SaveMode.UPDATE_ONLY), eq(AssociatedSaveMode.REPLACE), isNull())
     }
 
     @Test

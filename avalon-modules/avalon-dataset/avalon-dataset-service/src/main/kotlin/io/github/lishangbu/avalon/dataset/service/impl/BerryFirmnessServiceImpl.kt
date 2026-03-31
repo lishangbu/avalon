@@ -34,7 +34,7 @@ class BerryFirmnessServiceImpl(
     ): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     /** 更新树果硬度 */
-    override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateBerryFirmnessInput): BerryFirmnessView = BerryFirmnessView(berryFirmnessRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除树果硬度 */
     override fun removeById(id: Long) {

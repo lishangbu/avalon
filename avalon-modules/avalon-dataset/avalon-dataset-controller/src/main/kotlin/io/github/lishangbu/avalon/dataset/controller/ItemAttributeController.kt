@@ -4,9 +4,8 @@ import io.github.lishangbu.avalon.dataset.entity.dto.ItemAttributeSpecification
 import io.github.lishangbu.avalon.dataset.entity.dto.ItemAttributeView
 import io.github.lishangbu.avalon.dataset.entity.dto.SaveItemAttributeInput
 import io.github.lishangbu.avalon.dataset.entity.dto.UpdateItemAttributeInput
-import io.github.lishangbu.avalon.dataset.repository.ItemAttributeRepository
+import io.github.lishangbu.avalon.dataset.service.ItemAttributeService
 import jakarta.validation.Valid
-import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -21,29 +20,29 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/item-attribute")
 class ItemAttributeController(
-    private val itemAttributeRepository: ItemAttributeRepository,
+    private val itemAttributeService: ItemAttributeService,
 ) {
     @PostMapping
     fun save(
         @Valid
         @RequestBody command: SaveItemAttributeInput,
-    ): ItemAttributeView = ItemAttributeView(itemAttributeRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
+    ): ItemAttributeView = itemAttributeService.save(command)
 
     @PutMapping
     fun update(
         @Valid
         @RequestBody command: UpdateItemAttributeInput,
-    ): ItemAttributeView = ItemAttributeView(itemAttributeRepository.save(command.toEntity(), SaveMode.UPSERT))
+    ): ItemAttributeView = itemAttributeService.update(command)
 
     @DeleteMapping("/{id:\\d+}")
     fun deleteById(
         @PathVariable id: Long,
     ) {
-        itemAttributeRepository.deleteById(id)
+        itemAttributeService.removeById(id)
     }
 
     @GetMapping("/list")
     fun listItemAttributes(
         @ModelAttribute specification: ItemAttributeSpecification,
-    ): List<ItemAttributeView> = itemAttributeRepository.listViews(specification)
+    ): List<ItemAttributeView> = itemAttributeService.listByCondition(specification)
 }

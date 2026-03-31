@@ -22,7 +22,7 @@ class GenderServiceImpl(
 
     /** 更新性别 */
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateGenderInput): GenderView = GenderView(genderRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     /** 按 ID 删除性别 */
     @Transactional(rollbackFor = [Exception::class])

@@ -5,8 +5,10 @@ import io.github.lishangbu.avalon.authorization.entity.dto.UserView
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.Specification
 import org.babyfish.jimmer.spring.repository.KRepository
+import org.babyfish.jimmer.spring.repository.orderBy
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 
 /**
  * 用户仓储接口
@@ -22,6 +24,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER))
             }.execute()
 
@@ -33,6 +36,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -41,6 +45,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
 
@@ -52,6 +57,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -63,6 +69,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(UserView::class))
             }.fetchPage(pageable.pageNumber, pageable.pageSize)
 
@@ -71,6 +78,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 specification?.let(::where)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(UserView::class))
             }.execute()
 
@@ -79,6 +87,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 where(table.id eq id)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(UserView::class))
             }.execute()
             .firstOrNull()
@@ -112,6 +121,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 where(table.username eq account)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
@@ -120,6 +130,7 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 where(table.phone eq account)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
@@ -128,7 +139,12 @@ interface UserRepository : KRepository<User, Long> {
         sql
             .createQuery(User::class) {
                 where(table.email eq account)
+                orderBy(DEFAULT_SORT)
                 select(table.fetch(AuthorizationFetchers.USER_WITH_ROLES))
             }.execute()
             .firstOrNull()
+
+    companion object {
+        private val DEFAULT_SORT: Sort = Sort.by(Sort.Order.asc("id"))
+    }
 }

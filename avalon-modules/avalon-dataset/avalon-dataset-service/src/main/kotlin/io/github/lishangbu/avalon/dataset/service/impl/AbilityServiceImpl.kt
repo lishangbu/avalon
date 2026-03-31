@@ -19,7 +19,7 @@ class AbilityServiceImpl(
     override fun save(command: SaveAbilityInput): AbilityView = AbilityView(abilityRepository.save(command.toEntity(), SaveMode.INSERT_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(command: UpdateAbilityInput): AbilityView = AbilityView(abilityRepository.save(command.toEntity(), SaveMode.UPSERT))
+    override fun update(command: UpdateAbilityInput): AbilityView = AbilityView(abilityRepository.save(command.toEntity(), SaveMode.UPDATE_ONLY))
 
     @Transactional(rollbackFor = [Exception::class])
     override fun removeById(id: Long) {

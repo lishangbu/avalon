@@ -29,6 +29,8 @@ IP2LOCATION-LITE-DB11**.BIN
 /logs/
 *.log
 
-### Local Reference Snapshots ###
-/tmp-jimmer/
-/tmp-springredis/
+### Kotlin ###
+.kotlin
+
+### Local Docs ###
+/docs/
