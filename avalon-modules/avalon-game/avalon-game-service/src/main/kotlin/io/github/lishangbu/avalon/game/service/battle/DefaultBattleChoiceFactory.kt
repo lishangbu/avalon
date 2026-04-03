@@ -1,6 +1,5 @@
 package io.github.lishangbu.avalon.game.service.battle
 
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessService
 import io.github.lishangbu.avalon.game.battle.engine.dsl.EffectDefinition
 import io.github.lishangbu.avalon.game.battle.engine.model.UnitState
 import io.github.lishangbu.avalon.game.battle.engine.repository.EffectDefinitionRepository
@@ -10,7 +9,6 @@ import io.github.lishangbu.avalon.game.battle.engine.session.MoveChoice
 import io.github.lishangbu.avalon.game.battle.engine.session.target.BattleSessionTargetQuery
 import io.github.lishangbu.avalon.game.battle.engine.session.target.BattleSessionTargetQueryService
 import org.springframework.stereotype.Service
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -19,7 +17,6 @@ import kotlin.math.roundToInt
 @Service
 class DefaultBattleChoiceFactory(
     private val effectDefinitionRepository: EffectDefinitionRepository,
-    private val typeEffectivenessService: TypeEffectivenessService,
     private val targetQueryService: BattleSessionTargetQueryService,
 ) : BattleChoiceFactory {
     override fun queryTargets(
@@ -47,7 +44,7 @@ class DefaultBattleChoiceFactory(
         val targetEvasion = request.evasion ?: defaultEvasion(target)
         val priority = request.priority ?: effect.intData("priority") ?: 0
         val speed = request.speed ?: effectiveStat(attacker, "speed")
-        val damage = request.damage ?: estimateDamage(effect, attacker, target, basePower)
+        val damage = request.damage ?: 0
 
         return MoveChoice(
             moveId = request.moveId,
@@ -64,6 +61,10 @@ class DefaultBattleChoiceFactory(
                     mapOfNotNull(
                         "accuracyRoll" to request.accuracyRoll,
                         "chanceRoll" to request.chanceRoll,
+                        "criticalRoll" to request.criticalRoll,
+                        "damageRoll" to request.damageRoll,
+                        "criticalHit" to request.criticalHit,
+                        "computeDamage" to (request.damage == null),
                     ),
         )
     }
@@ -101,41 +102,6 @@ class DefaultBattleChoiceFactory(
             return targetQuery.availableTargetUnitIds.single()
         }
         error("Effect '${targetQuery.effectId}' requires an explicit target for actor '${targetQuery.actorUnitId}'.")
-    }
-
-    private fun estimateDamage(
-        effect: EffectDefinition,
-        attacker: UnitState,
-        target: UnitState,
-        basePower: Int,
-    ): Int {
-        if (basePower <= 0) {
-            return 0
-        }
-        val damageClass = effect.data["damageClass"]?.toString()
-        if (damageClass == null || damageClass == "status") {
-            return 0
-        }
-        val attackStatName = if (damageClass == "special") "special-attack" else "attack"
-        val defenseStatName = if (damageClass == "special") "special-defense" else "defense"
-        val level = attacker.flags["level"]?.toIntOrNull() ?: 50
-        val attack = effectiveStat(attacker, attackStatName).coerceAtLeast(1)
-        val defense = effectiveStat(target, defenseStatName).coerceAtLeast(1)
-        val typeId = effect.data["type"]?.toString()
-        val stab = if (typeId != null && typeId in attacker.typeIds) 1.5 else 1.0
-        val typeMultiplier =
-            if (typeId != null && target.typeIds.isNotEmpty()) {
-                typeEffectivenessService.calculate(typeId, target.typeIds.toList()).finalMultiplier?.toDouble() ?: 1.0
-            } else {
-                1.0
-            }
-        val rawDamage = (((((2.0 * level) / 5.0) + 2.0) * basePower * attack / defense) / 50.0) + 2.0
-        val finalDamage = floor(rawDamage * stab * typeMultiplier).toInt()
-        return when {
-            typeMultiplier <= 0.0 -> 0
-            finalDamage <= 0 -> 1
-            else -> finalDamage
-        }
     }
 
     private fun defaultAccuracy(

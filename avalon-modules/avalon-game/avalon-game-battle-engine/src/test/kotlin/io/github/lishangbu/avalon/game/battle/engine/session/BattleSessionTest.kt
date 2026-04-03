@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.game.battle.engine.capture.CaptureContext
 import io.github.lishangbu.avalon.game.battle.engine.capture.CaptureFormulaInput
 import io.github.lishangbu.avalon.game.battle.engine.capture.DefaultCaptureFormulaService
 import io.github.lishangbu.avalon.game.battle.engine.loader.JsonEffectDefinitionBattleDataLoader
+import io.github.lishangbu.avalon.game.battle.engine.model.BattleType
 import io.github.lishangbu.avalon.game.battle.engine.model.UnitState
 import io.github.lishangbu.avalon.game.battle.engine.registry.memory.StandardActionExecutorRegistryFactory
 import io.github.lishangbu.avalon.game.battle.engine.registry.memory.StandardConditionInterpreterRegistryFactory
@@ -17,6 +18,7 @@ import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleFlowEngi
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleFlowPhaseProcessor
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAccuracyEvasionPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAfterMovePhaseStep
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveCriticalHitPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitHooksPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitResolutionStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMovePowerDamagePhaseStep
@@ -66,6 +68,9 @@ class BattleSessionTest {
                     "data/battle/fixtures/ability/speed-boost.json",
                     "data/battle/fixtures/item/sitrus-berry.json",
                     "data/battle/fixtures/item/oran-berry-use.json",
+                    "data/battle/fixtures/move/slash.json",
+                    "data/battle/fixtures/ability/super-luck.json",
+                    "data/battle/fixtures/ability/battle-armor.json",
                 ),
         ).loadEffects()
 
@@ -169,6 +174,7 @@ class BattleSessionTest {
                         BattleMovePreHitPhaseStep(phaseProcessor),
                         BattleMoveAccuracyEvasionPhaseStep(phaseProcessor),
                         BattleMoveHitResolutionStep(DefaultBattleHitResolutionPolicy()),
+                        BattleMoveCriticalHitPhaseStep(phaseProcessor),
                         BattleMovePowerDamagePhaseStep(phaseProcessor),
                         BattleMoveHitHooksPhaseStep(phaseProcessor),
                         BattleMoveAfterMovePhaseStep(phaseProcessor),
@@ -1206,8 +1212,9 @@ class BattleSessionTest {
             )
         runSession.registerSide("p1")
         runSession.registerSide("p2")
-        runSession.registerUnit("p1", UnitState(id = "p1a", currentHp = 120, maxHp = 120))
-        runSession.registerUnit("p2", UnitState(id = "p2a", currentHp = 120, maxHp = 120))
+        runSession.registerUnit("p1", UnitState(id = "p1a", currentHp = 120, maxHp = 120, stats = mapOf("speed" to 200)))
+        runSession.registerUnit("p2", UnitState(id = "p2a", currentHp = 120, maxHp = 120, stats = mapOf("speed" to 4)))
+        runSession.configureBattle(BattleType.WILD)
         runSession.start()
 
         runSession.submitChoice(RunChoice(sideId = "p1"))
@@ -1215,6 +1222,66 @@ class BattleSessionTest {
 
         assertTrue(runSession.snapshot().battle.ended)
         assertEquals("p2", runSession.snapshot().battle.winner)
+        assertEquals("run", runSession.snapshot().battle.endedReason)
+    }
+
+    @Test
+    fun shouldRejectRunChoiceWhenBattleIsNotWild() {
+        val trainerSession =
+            createSession(
+                effectRepository = InMemoryEffectDefinitionRepository(effects.associateBy { it.id }),
+                battleFlowEngine = createFlowEngine(InMemoryEffectDefinitionRepository(effects.associateBy { it.id })),
+                battleId = "session-run-trainer-1",
+                formatId = "singles",
+            )
+        trainerSession.registerSide("p1")
+        trainerSession.registerSide("p2")
+        trainerSession.registerUnit("p1", UnitState(id = "p1a", currentHp = 120, maxHp = 120))
+        trainerSession.registerUnit("p2", UnitState(id = "p2a", currentHp = 120, maxHp = 120))
+        trainerSession.start()
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                trainerSession.submitChoice(RunChoice(sideId = "p1"))
+            }
+
+        assertTrue(exception.message!!.contains("Run is only allowed in wild battles."))
+    }
+
+    @Test
+    fun shouldFailRunChoiceWhenRunnerIsTrappedAndContinueBattle() {
+        val trappedSession =
+            createSession(
+                effectRepository = InMemoryEffectDefinitionRepository(effects.associateBy { it.id }),
+                battleFlowEngine = createFlowEngine(InMemoryEffectDefinitionRepository(effects.associateBy { it.id })),
+                battleId = "session-run-trapped-1",
+                formatId = "singles",
+            )
+        trappedSession.registerSide("p1")
+        trappedSession.registerSide("p2")
+        trappedSession.registerUnit(
+            "p1",
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                stats = mapOf("speed" to 200),
+                conditionIds = setOf("cannot-escape"),
+            ),
+        )
+        trappedSession.registerUnit("p2", UnitState(id = "p2a", currentHp = 120, maxHp = 120, stats = mapOf("speed" to 4)))
+        trappedSession.configureBattle(BattleType.WILD)
+        trappedSession.start()
+
+        trappedSession.submitChoice(RunChoice(sideId = "p1"))
+        trappedSession.submitChoice(WaitChoice(unitId = "p2a"))
+
+        val result = trappedSession.resolveTurn()
+
+        assertTrue(!result.snapshot.battle.ended)
+        assertEquals(2, result.snapshot.battle.turn)
+        assertEquals(1, result.snapshot.battle.failedRunAttempts["p1"])
+        assertTrue(trappedSession.eventLogs().any { event -> event.type == BattleSessionEventType.RUN_FAILED })
     }
 
     /**
@@ -1278,11 +1345,15 @@ class BattleSessionTest {
             targetId = "p2a",
             basePower = 90,
             damage = 20,
-            attributes = mapOf("chanceRoll" to 80, "targetRelation" to "foe"),
+            attributes = mapOf("chanceRoll" to 80, "damageRoll" to 100, "targetRelation" to "foe"),
         )
         eventSession.executeQueuedActions()
 
         val events = eventSession.eventLogs()
+        val moveExecutedPayload =
+            events
+                .mapNotNull { event -> event.payload as? BattleSessionMoveExecutedPayload }
+                .single()
 
         assertTrue(events.any { event -> event.type == BattleSessionEventType.SESSION_STARTED })
         assertTrue(events.any { event -> event.type == BattleSessionEventType.SIDE_REGISTERED })
@@ -1291,6 +1362,8 @@ class BattleSessionTest {
         assertTrue(events.any { event -> event.type == BattleSessionEventType.MOVE_EXECUTED })
         assertTrue(events.any { event -> event.payload is BattleSessionMoveQueuedPayload })
         assertTrue(events.any { event -> event.payload is BattleSessionMoveExecutedPayload })
+        assertEquals(100, moveExecutedPayload.damageRoll)
+        assertEquals(100, events.first { event -> event.payload === moveExecutedPayload }.attributes["damageRoll"])
         assertTrue(eventSession.query().eventPayloads.any { payload -> payload is BattleSessionMoveQueuedPayload })
         assertTrue(eventSession.query().executedActionEvents.any { payload -> payload is BattleSessionMoveExecutedPayload })
     }
@@ -1359,7 +1432,7 @@ class BattleSessionTest {
             targetId = "p2a",
             basePower = 90,
             damage = 20,
-            attributes = mapOf("targetRelation" to "foe"),
+            attributes = mapOf("targetRelation" to "foe", "criticalHit" to false),
         )
         multiTargetSession.submitMoveChoice(
             moveId = "recover",
@@ -1464,6 +1537,52 @@ class BattleSessionTest {
                 .getValue("p2a")
                 .statusId,
         )
+        assertEquals(originalResult.snapshot.battle.randomState, replayedResult.snapshot.battle.randomState)
+    }
+
+    @Test
+    fun shouldReplayCriticalHitRandomnessAfterRestoringState() {
+        val replaySession =
+            createSession(
+                effectRepository = InMemoryEffectDefinitionRepository(effects.associateBy { it.id }),
+                battleFlowEngine = createFlowEngine(InMemoryEffectDefinitionRepository(effects.associateBy { it.id })),
+                battleId = "session-replay-crit-1",
+                formatId = "singles",
+            )
+        replaySession.registerSide("p1")
+        replaySession.registerSide("p2")
+        replaySession.registerUnit("p1", UnitState(id = "p1a", currentHp = 120, maxHp = 120))
+        replaySession.registerUnit("p2", UnitState(id = "p2a", currentHp = 100, maxHp = 100))
+        replaySession.start()
+
+        val restoredSession =
+            createSession(
+                effectRepository = InMemoryEffectDefinitionRepository(effects.associateBy { it.id }),
+                battleFlowEngine = createFlowEngine(InMemoryEffectDefinitionRepository(effects.associateBy { it.id })),
+                battleId = "session-replay-crit-restored",
+                formatId = "singles",
+            )
+        restoredSession.restoreState(replaySession.exportState())
+
+        val originalResult =
+            replaySession.useMove(
+                moveId = "slash",
+                attackerId = "p1a",
+                targetId = "p2a",
+                basePower = 70,
+                damage = 100,
+            )
+        val replayedResult =
+            restoredSession.useMove(
+                moveId = "slash",
+                attackerId = "p1a",
+                targetId = "p2a",
+                basePower = 70,
+                damage = 100,
+            )
+
+        assertEquals(originalResult.criticalHit, replayedResult.criticalHit)
+        assertEquals(originalResult.damage, replayedResult.damage)
         assertEquals(originalResult.snapshot.battle.randomState, replayedResult.snapshot.battle.randomState)
     }
 

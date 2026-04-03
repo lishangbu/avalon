@@ -92,6 +92,43 @@ data class BattleSessionCaptureFailedPayload(
 }
 
 /**
+ * 逃跑失败事件 payload。
+ *
+ * @property sideId 发起逃跑的 side 标识。
+ * @property runnerUnitId 代表本次逃跑尝试的单位标识。
+ * @property reason 本次逃跑失败原因。
+ * @property failedAttempts 当前 side 已累计的失败逃跑次数。
+ * @property escapeValue 本次公式计算得到的逃走值；若未进入公式则为空。
+ * @property roll 本次随机判定值；若未进入随机判定则为空。
+ */
+data class BattleSessionRunFailedPayload(
+    val sideId: String,
+    val runnerUnitId: String?,
+    val reason: String,
+    val failedAttempts: Int,
+    val escapeValue: Int? = null,
+    val roll: Int? = null,
+) : BattleSessionEventPayload {
+    /**
+     * 当前 payload 对应的结构化事件类型。
+     */
+    override val type: BattleSessionEventType = BattleSessionEventType.RUN_FAILED
+
+    /**
+     * 把当前 payload 映射为兼容现有读模型的 attributes。
+     */
+    override fun toAttributes(): Map<String, Any?> =
+        buildMap {
+            put("sideId", sideId)
+            put("reason", reason)
+            put("failedAttempts", failedAttempts)
+            runnerUnitId?.let { put("runnerUnitId", it) }
+            escapeValue?.let { put("escapeValue", it) }
+            roll?.let { put("roll", it) }
+        }
+}
+
+/**
  * 捕捉成功事件 payload。
  *
  * @property targetUnitId 被成功捕捉的目标单位标识。

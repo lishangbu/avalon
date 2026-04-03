@@ -169,7 +169,7 @@ class DefaultGameBattleService internal constructor(
                 RunChoice(
                     sideId = request.sideId,
                     priority = request.priority ?: 0,
-                    speed = request.speed ?: 0,
+                    speed = request.speed ?: resolveRunSpeed(battleSessionService.querySession(sessionId), request.sideId),
                 ),
             ),
         )
@@ -250,6 +250,16 @@ class DefaultGameBattleService internal constructor(
             ?.firstOrNull()
             ?: error("No active source unit is available for capture.")
     }
+
+    private fun resolveRunSpeed(
+        session: BattleSessionQuery,
+        sideId: String,
+    ): Int =
+        session.snapshot.sides[sideId]
+            ?.activeUnitIds
+            ?.mapNotNull(session.snapshot.units::get)
+            ?.maxOfOrNull { unit -> unit.stats["speed"] ?: unit.stats["spe"] ?: 0 }
+            ?: 0
 
     private fun preparedCaptureContextFromUsage(
         sessionId: String,

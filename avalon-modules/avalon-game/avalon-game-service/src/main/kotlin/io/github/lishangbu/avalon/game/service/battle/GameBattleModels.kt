@@ -34,6 +34,9 @@ data class SmartMoveChoiceRequest(
     val damage: Int? = null,
     val accuracyRoll: Int? = null,
     val chanceRoll: Int? = null,
+    val criticalRoll: Int? = null,
+    val damageRoll: Int? = null,
+    val criticalHit: Boolean? = null,
     val attributes: Map<String, Any?> = emptyMap(),
 )
 

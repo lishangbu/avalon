@@ -1,5 +1,6 @@
 package io.github.lishangbu.avalon.game.battle.engine.session.specification
 
+import io.github.lishangbu.avalon.game.battle.engine.model.BattleType
 import io.github.lishangbu.avalon.game.battle.engine.session.BattleSession
 
 /**
@@ -13,6 +14,9 @@ class DefaultBattleSessionRunChoiceSpecification : BattleSessionRunChoiceSpecifi
         session: BattleSession,
         sideId: String,
     ): BattleSessionValidationResult {
+        if (session.currentSnapshot.battle.battleKind != BattleType.WILD) {
+            return BattleSessionValidationResult.rejected("Run is only allowed in wild battles.")
+        }
         val side =
             session.currentSnapshot.sides[sideId]
                 ?: return BattleSessionValidationResult.rejected("Side '$sideId' was not found.")

@@ -246,6 +246,11 @@ class JsonEffectDefinitionSchemaValidator(
                 }
             }
 
+            "add_relay" -> {
+                require(actionNode.has("value")) { "Action 'add_relay' requires field 'value'." }
+                require(actionNode.path("value").isNumber) { "Action 'add_relay.value' must be numeric." }
+            }
+
             "set_flag" -> {
                 requireTargetField(actionNode, "target", "Action 'set_flag'")
                 requireTextField(actionNode, "key", "Action 'set_flag'")
@@ -358,6 +363,7 @@ class JsonEffectDefinitionSchemaValidator(
                 StandardActionTypeIds.APPLY_CONDITION.value,
                 StandardActionTypeIds.REMOVE_CONDITION.value,
                 StandardActionTypeIds.MODIFY_MULTIPLIER.value,
+                StandardActionTypeIds.ADD_RELAY.value,
                 StandardActionTypeIds.SET_FLAG.value,
                 StandardActionTypeIds.CLEAR_FLAG.value,
             )

@@ -1,0 +1,22 @@
+{
+  "id": "slash",
+  "kind": "move",
+  "name": "劈开",
+  "tags": [
+    "damaging",
+    "physical",
+    "normal",
+    "high_crit"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/move.csv",
+    "csvInternalName": "slash",
+    "basePower": 70,
+    "accuracy": 100,
+    "pp": 20,
+    "type": "normal",
+    "damageClass": "physical",
+    "target": "selected-pokemon",
+    "critRatio": 1
+  }
+}

@@ -31,7 +31,7 @@ class BattleMoveHitHooksPhaseStep(
                 targetId = context.targetId,
                 sourceId = context.sourceId,
                 relay = null,
-                attributes = context.attributes,
+                attributes = context.attributes + mapOf("criticalHit" to context.criticalHit),
             )
         context.snapshot = hitResult.snapshot
 
@@ -44,7 +44,7 @@ class BattleMoveHitHooksPhaseStep(
                 targetId = context.targetId,
                 sourceId = context.sourceId,
                 relay = null,
-                attributes = context.attributes,
+                attributes = context.attributes + mapOf("criticalHit" to context.criticalHit),
             )
         context.snapshot = afterHitResult.snapshot
     }

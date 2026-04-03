@@ -212,9 +212,11 @@ class GameBattleViewAssembler {
         GameBattleMoveResolutionView(
             cancelled = result.cancelled,
             hitSuccessful = result.hitSuccessful,
+            criticalHit = result.criticalHit,
             accuracy = result.accuracy,
             evasion = result.evasion,
             basePower = result.basePower,
+            damageRoll = result.damageRoll,
             damage = result.damage,
         )
 

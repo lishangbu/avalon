@@ -115,6 +115,34 @@ class TypeEffectivenessServiceImplTest {
     }
 
     @Test
+    fun getChartExcludesBattleOnlyTypesFromMatrix() {
+        val context =
+            newContext(
+                typeViews =
+                    listOf(
+                        TypeView(id = 1, internalName = "fire"),
+                        TypeView(id = 2, internalName = "grass"),
+                        TypeView(id = 3, internalName = "stellar", battleOnly = true),
+                    ),
+                relationViews =
+                    mutableListOf(
+                        relation("fire", "grass", "2"),
+                        relation("fire", "stellar", "2"),
+                        relation("stellar", "fire", "0.5"),
+                    ),
+            )
+
+        val chart = context.service.getChart()
+
+        assertEquals(listOf("fire", "grass"), chart.supportedTypes.map { it.internalName })
+        assertEquals(4, chart.completeness.expectedPairs)
+        assertEquals(1, chart.completeness.configuredPairs)
+        assertEquals(3, chart.completeness.missingPairs)
+        assertEquals(listOf("fire", "grass"), chart.rows.map { it.attackingType.internalName })
+        assertTrue(chart.rows.flatMap { it.cells }.none { it.defendingType.internalName == "stellar" })
+    }
+
+    @Test
     fun upsertMatrixSavesConfiguredCellsDeletesNullCellsAndReturnsLatestChart() {
         val context =
             newContext(
@@ -162,6 +190,31 @@ class TypeEffectivenessServiceImplTest {
     }
 
     @Test
+    fun upsertMatrixRejectsBattleOnlyTypes() {
+        val context =
+            newContext(
+                typeViews =
+                    listOf(
+                        TypeView(id = 1, internalName = "fire"),
+                        TypeView(id = 2, internalName = "stellar", battleOnly = true),
+                    ),
+            )
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                context.service.upsertMatrix(
+                    UpsertTypeEffectivenessMatrixCommand(
+                        cells = listOf(TypeEffectivenessMatrixCellInput("fire", "stellar", BigDecimal("2"))),
+                    ),
+                )
+            }
+
+        assertTrue(exception.message!!.contains("Unsupported cells.defendingType: stellar"))
+        assertTrue(context.savedRelations.isEmpty())
+        assertTrue(context.deletedIds.isEmpty())
+    }
+
+    @Test
     fun upsertMatrixRejectsUnsupportedMultiplier() {
         val context = newContext(typeViews = typeViews("fire", "grass"))
 
@@ -191,6 +244,7 @@ class TypeEffectivenessServiceImplTest {
                     id = view.id
                     internalName = view.internalName
                     name = view.internalName
+                    battleOnly = view.battleOnly
                 }
             }
         val idsByInternalName = typeViews.associate { it.internalName to it.id }
@@ -271,6 +325,7 @@ class TypeEffectivenessServiceImplTest {
     private data class TypeView(
         val id: Long,
         val internalName: String,
+        val battleOnly: Boolean = false,
     )
 
     private data class RelationView(

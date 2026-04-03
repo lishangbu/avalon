@@ -4,11 +4,6 @@ import io.github.lishangbu.avalon.dataset.repository.CreatureSpeciesRepository
 import io.github.lishangbu.avalon.dataset.repository.ItemRepository
 import io.github.lishangbu.avalon.dataset.repository.MoveRepository
 import io.github.lishangbu.avalon.dataset.repository.StatRepository
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessChart
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessResult
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessService
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessTypeView
-import io.github.lishangbu.avalon.dataset.service.UpsertTypeEffectivenessMatrixCommand
 import io.github.lishangbu.avalon.game.battle.engine.capture.CaptureContext
 import io.github.lishangbu.avalon.game.battle.engine.capture.CaptureFormulaResult
 import io.github.lishangbu.avalon.game.battle.engine.model.BattleType
@@ -22,10 +17,12 @@ import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.AddVolatileBat
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleFlowEngine
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAccuracyEvasionPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAfterMovePhaseStep
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveCriticalHitPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitHooksPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitResolutionStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMovePowerDamagePhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMovePreHitPhaseStep
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleTypeEffectivenessResolver
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleFlowEngine
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleFlowPhaseProcessor
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleHitResolutionPolicy
@@ -91,7 +88,6 @@ import io.github.lishangbu.avalon.game.service.unit.BattleUnitImportResult
 import io.github.lishangbu.avalon.game.service.unit.BattleUnitImporter
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
-import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -127,7 +123,6 @@ class DefaultGameBattleServiceTest {
     private val battleChoiceFactory =
         DefaultBattleChoiceFactory(
             effectDefinitionRepository = InMemoryEffectDefinitionRepository(mapOf(thunderbolt.id to thunderbolt)),
-            typeEffectivenessService = FakeTypeEffectivenessService(),
             targetQueryService =
                 DefaultBattleSessionTargetQueryService(
                     targetModeResolver =
@@ -232,7 +227,8 @@ class DefaultGameBattleServiceTest {
                         BattleMovePreHitPhaseStep(phaseProcessor),
                         BattleMoveAccuracyEvasionPhaseStep(phaseProcessor),
                         BattleMoveHitResolutionStep(DefaultBattleHitResolutionPolicy()),
-                        BattleMovePowerDamagePhaseStep(phaseProcessor),
+                        BattleMoveCriticalHitPhaseStep(phaseProcessor),
+                        BattleMovePowerDamagePhaseStep(phaseProcessor, FakeBattleTypeEffectivenessResolver()),
                         BattleMoveHitHooksPhaseStep(phaseProcessor),
                         BattleMoveAfterMovePhaseStep(phaseProcessor),
                     ),
@@ -251,6 +247,8 @@ class DefaultGameBattleServiceTest {
                 CreateImportedBattleSessionApiRequest(
                     sessionId = "session-import-1",
                     formatId = "single",
+                    battleKind = BattleType.WILD,
+                    capturableSideId = "side-a",
                     sides =
                         listOf(
                             GameBattleImportedSideApiRequest(
@@ -296,11 +294,94 @@ class DefaultGameBattleServiceTest {
                         accuracyRoll = 1,
                     ),
             )
-        service.submitRunChoice("session-import-1", SubmitRunChoiceRequest(sideId = "side-b", priority = -1))
+        service.submitRunChoice("session-import-1", SubmitRunChoiceRequest(sideId = "side-b", priority = 1))
         val turnResult = service.resolveTurn("session-import-1")
 
         assertEquals(1, afterMove.pendingActions.size)
         assertEquals(BattleSessionActionKind.MOVE, afterMove.pendingActions.first().kind)
+        assertTrue(turnResult.snapshot.battle.ended)
+        assertEquals("run", turnResult.snapshot.battle.endedReason)
+    }
+
+    @Test
+    fun shouldComputeNativeDamageThroughServiceWhenRequestDoesNotProvideDamage() {
+        service.createImportedSession(
+            CreateImportedBattleSessionApiRequest(
+                sessionId = "session-native-damage-1",
+                formatId = "single",
+                battleKind = BattleType.TRAINER,
+                sides =
+                    listOf(
+                        GameBattleImportedSideApiRequest(
+                            sideId = "side-a",
+                            units =
+                                listOf(
+                                    GameBattleImportedUnitApiRequest(
+                                        unitId = "unit-a",
+                                        level = 50,
+                                        creatureInternalName = "pikachu",
+                                        moves = listOf(GameBattleImportedMoveApiRequest("thunderbolt")),
+                                    ),
+                                ),
+                        ),
+                        GameBattleImportedSideApiRequest(
+                            sideId = "side-b",
+                            units =
+                                listOf(
+                                    GameBattleImportedUnitApiRequest(
+                                        unitId = "unit-b",
+                                        level = 50,
+                                        creatureInternalName = "squirtle",
+                                        moves = listOf(GameBattleImportedMoveApiRequest("thunderbolt")),
+                                    ),
+                                ),
+                        ),
+                    ),
+            ),
+        )
+
+        service.submitMoveChoice(
+            sessionId = "session-native-damage-1",
+            request =
+                SmartMoveChoiceRequest(
+                    attackerId = "unit-a",
+                    moveId = "thunderbolt",
+                    targetId = "unit-b",
+                    accuracyRoll = 1,
+                    criticalHit = false,
+                    chanceRoll = 99,
+                    damageRoll = 100,
+                ),
+        )
+        service.submitMoveChoice(
+            sessionId = "session-native-damage-1",
+            request =
+                SmartMoveChoiceRequest(
+                    attackerId = "unit-b",
+                    moveId = "thunderbolt",
+                    targetId = "unit-a",
+                    accuracyRoll = 1,
+                    criticalHit = false,
+                    chanceRoll = 99,
+                    damageRoll = 100,
+                ),
+        )
+
+        val turnResult = service.resolveTurn("session-native-damage-1")
+        val playerMoveResult =
+            turnResult.actionResults.first { result ->
+                result.action.submittingUnitId == "unit-a"
+            }
+        val defeatedTarget =
+            turnResult.snapshot.units.first { unit ->
+                unit.id == "unit-b"
+            }
+
+        assertEquals(146, playerMoveResult.moveResult?.damage)
+        assertEquals(100, playerMoveResult.moveResult?.damageRoll)
+        assertEquals(true, playerMoveResult.moveResult?.hitSuccessful)
+        assertEquals(false, playerMoveResult.moveResult?.criticalHit)
+        assertEquals(0, defeatedTarget.currentHp)
         assertTrue(turnResult.snapshot.battle.ended)
     }
 
@@ -359,6 +440,10 @@ class DefaultGameBattleServiceTest {
 
     private class FakeBattleUnitImporter : BattleUnitImporter {
         override fun importUnit(request: BattleUnitImportRequest): BattleUnitImportResult {
+            val movePp =
+                request.moves.associate { move ->
+                    move.moveId to (move.currentPp ?: 15)
+                }
             val unit =
                 when (request.unitId) {
                     "unit-a" -> {
@@ -374,10 +459,10 @@ class DefaultGameBattleServiceTest {
                                     "special-attack" to 120,
                                     "special-defense" to 90,
                                 ),
-                            movePp = mapOf("thunderbolt" to 15),
+                            movePp = movePp,
                             flags =
                                 mapOf(
-                                    "level" to "50",
+                                    "level" to request.level.toString(),
                                     "creatureId" to "25",
                                     "creatureSpeciesId" to "25",
                                     "creatureInternalName" to "pikachu",
@@ -392,6 +477,7 @@ class DefaultGameBattleServiceTest {
                             id = "unit-b",
                             currentHp = 120,
                             maxHp = 120,
+                            itemId = "smoke-ball",
                             typeIds = setOf("water"),
                             stats =
                                 mapOf(
@@ -399,10 +485,10 @@ class DefaultGameBattleServiceTest {
                                     "special-attack" to 60,
                                     "special-defense" to 100,
                                 ),
-                            movePp = emptyMap(),
+                            movePp = movePp,
                             flags =
                                 mapOf(
-                                    "level" to "10",
+                                    "level" to request.level.toString(),
                                     "creatureId" to "7",
                                     "creatureSpeciesId" to "7",
                                     "creatureInternalName" to "squirtle",
@@ -527,28 +613,11 @@ class DefaultGameBattleServiceTest {
         )
     }
 
-    private class FakeTypeEffectivenessService : TypeEffectivenessService {
-        override fun calculate(
-            attackingType: String,
-            defendingTypes: List<String>,
-        ): TypeEffectivenessResult =
-            TypeEffectivenessResult(
-                attackingType = TypeEffectivenessTypeView(attackingType, attackingType),
-                defendingTypes =
-                    defendingTypes.map { defendingType ->
-                        io.github.lishangbu.avalon.dataset.service.TypeEffectivenessMatchup(
-                            defendingType = TypeEffectivenessTypeView(defendingType, defendingType),
-                            multiplier = if (attackingType == "electric" && defendingType == "water") BigDecimal("2") else BigDecimal.ONE,
-                            status = "configured",
-                        )
-                    },
-                finalMultiplier = if (attackingType == "electric" && defendingTypes == listOf("water")) BigDecimal("2") else BigDecimal.ONE,
-                status = "configured",
-                effectiveness = "computed",
-            )
-
-        override fun getChart(): TypeEffectivenessChart = error("Not needed for test.")
-
-        override fun upsertMatrix(command: UpsertTypeEffectivenessMatrixCommand): TypeEffectivenessChart = error("Not needed for test.")
+    private class FakeBattleTypeEffectivenessResolver : BattleTypeEffectivenessResolver {
+        override fun resolve(
+            moveType: String?,
+            attacker: UnitState?,
+            target: UnitState?,
+        ): Double = if (moveType == "electric" && target?.typeIds == setOf("water")) 2.0 else 1.0
     }
 }

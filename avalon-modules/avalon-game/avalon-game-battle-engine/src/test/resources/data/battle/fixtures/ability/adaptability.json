@@ -1,0 +1,30 @@
+{
+  "id": "adaptability",
+  "kind": "ability",
+  "name": "适应力",
+  "tags": [
+    "stab_modifier"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "adaptability"
+  },
+  "hooks": {
+    "on_modify_stab": [
+      {
+        "priority": 0,
+        "if": {
+          "type": "attribute_equals",
+          "key": "stabMatched",
+          "value": "true"
+        },
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 1.3333333334
+          }
+        ]
+      }
+    ]
+  }
+}

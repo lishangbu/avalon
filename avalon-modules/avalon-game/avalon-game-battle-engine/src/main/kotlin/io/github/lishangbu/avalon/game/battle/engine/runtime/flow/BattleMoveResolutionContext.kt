@@ -20,6 +20,7 @@ import io.github.lishangbu.avalon.game.battle.engine.dsl.EffectDefinition
  * @property basePower 当前阶段持有的威力值。
  * @property damage 当前阶段持有的伤害值。
  * @property hitSuccessful 本次出招是否成功命中。
+ * @property criticalHit 本次出招是否击中要害。
  * @property cancelled 本次出招是否已经在前置阶段被取消。
  */
 class BattleMoveResolutionContext(
@@ -65,6 +66,16 @@ class BattleMoveResolutionContext(
     var hitSuccessful: Boolean = false
 
     /**
+     * 本次出招是否击中要害。
+     */
+    var criticalHit: Boolean = false
+
+    /**
+     * 本次伤害浮动使用的随机倍率。
+     */
+    var damageRoll: Int? = null
+
+    /**
      * 本次出招是否已经在前置阶段被取消。
      */
     var cancelled: Boolean = false
@@ -89,9 +100,11 @@ class BattleMoveResolutionContext(
             snapshot = snapshot,
             cancelled = cancelled,
             hitSuccessful = hitSuccessful,
+            criticalHit = criticalHit,
             accuracy = accuracy,
             evasion = evasion,
             basePower = basePower,
+            damageRoll = damageRoll,
             damage = damage,
         )
 }

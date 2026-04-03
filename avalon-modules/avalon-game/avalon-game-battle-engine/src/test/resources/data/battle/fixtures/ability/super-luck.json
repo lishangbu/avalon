@@ -1,0 +1,25 @@
+{
+  "id": "super-luck",
+  "kind": "ability",
+  "name": "超幸运",
+  "tags": [
+    "critical_hit"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "super-luck"
+  },
+  "hooks": {
+    "on_modify_crit_ratio": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "add_relay",
+            "value": 1
+          }
+        ]
+      }
+    ]
+  }
+}

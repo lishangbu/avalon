@@ -29,6 +29,7 @@ object StandardActionTypeIds {
     val APPLY_CONDITION: ActionTypeId = ActionTypeId("apply_condition")
     val REMOVE_CONDITION: ActionTypeId = ActionTypeId("remove_condition")
     val MODIFY_MULTIPLIER: ActionTypeId = ActionTypeId("modify_multiplier")
+    val ADD_RELAY: ActionTypeId = ActionTypeId("add_relay")
     val SET_FLAG: ActionTypeId = ActionTypeId("set_flag")
     val CLEAR_FLAG: ActionTypeId = ActionTypeId("clear_flag")
 }

@@ -1,10 +1,5 @@
 package io.github.lishangbu.avalon.game.service.battle
 
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessChart
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessResult
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessService
-import io.github.lishangbu.avalon.dataset.service.TypeEffectivenessTypeView
-import io.github.lishangbu.avalon.dataset.service.UpsertTypeEffectivenessMatrixCommand
 import io.github.lishangbu.avalon.game.battle.engine.model.BattleState
 import io.github.lishangbu.avalon.game.battle.engine.model.FieldState
 import io.github.lishangbu.avalon.game.battle.engine.model.SideState
@@ -18,7 +13,6 @@ import io.github.lishangbu.avalon.game.battle.engine.session.target.DefaultBattl
 import io.github.lishangbu.avalon.game.service.effect.MoveImportRecord
 import io.github.lishangbu.avalon.game.service.effect.SmartBattleEffectAssembler
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
@@ -48,7 +42,6 @@ class DefaultBattleChoiceFactoryTest {
     private val factory =
         DefaultBattleChoiceFactory(
             effectDefinitionRepository = InMemoryEffectDefinitionRepository(mapOf(thunderbolt.id to thunderbolt)),
-            typeEffectivenessService = FakeTypeEffectivenessService(),
             targetQueryService =
                 DefaultBattleSessionTargetQueryService(
                     targetModeResolver =
@@ -71,6 +64,8 @@ class DefaultBattleChoiceFactoryTest {
                         attackerId = "attacker",
                         moveId = "thunderbolt",
                         accuracyRoll = 17,
+                        criticalRoll = 0,
+                        damageRoll = 100,
                     ),
             )
 
@@ -79,8 +74,11 @@ class DefaultBattleChoiceFactoryTest {
         assertEquals(100, choice.accuracy)
         assertEquals(100, choice.evasion)
         assertEquals(90, choice.basePower)
-        assertEquals(148, choice.damage)
+        assertEquals(0, choice.damage)
         assertEquals(17, choice.attributes["accuracyRoll"])
+        assertEquals(0, choice.attributes["criticalRoll"])
+        assertEquals(100, choice.attributes["damageRoll"])
+        assertEquals(true, choice.attributes["computeDamage"])
     }
 
     @Test
@@ -145,29 +143,4 @@ class DefaultBattleChoiceFactoryTest {
             battleLogs = emptyList(),
             eventLogs = emptyList(),
         )
-
-    private class FakeTypeEffectivenessService : TypeEffectivenessService {
-        override fun calculate(
-            attackingType: String,
-            defendingTypes: List<String>,
-        ): TypeEffectivenessResult =
-            TypeEffectivenessResult(
-                attackingType = TypeEffectivenessTypeView(attackingType, attackingType),
-                defendingTypes =
-                    defendingTypes.map { defendingType ->
-                        io.github.lishangbu.avalon.dataset.service.TypeEffectivenessMatchup(
-                            defendingType = TypeEffectivenessTypeView(defendingType, defendingType),
-                            multiplier = if (attackingType == "electric" && defendingType == "water") BigDecimal("2") else BigDecimal.ONE,
-                            status = "configured",
-                        )
-                    },
-                finalMultiplier = if (attackingType == "electric" && defendingTypes == listOf("water")) BigDecimal("2") else BigDecimal.ONE,
-                status = "configured",
-                effectiveness = "computed",
-            )
-
-        override fun getChart(): TypeEffectivenessChart = error("Not needed for test.")
-
-        override fun upsertMatrix(command: UpsertTypeEffectivenessMatrixCommand): TypeEffectivenessChart = error("Not needed for test.")
-    }
 }

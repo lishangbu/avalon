@@ -1,0 +1,25 @@
+{
+  "id": "battle-armor",
+  "kind": "ability",
+  "name": "战斗盔甲",
+  "tags": [
+    "critical_hit_blocker"
+  ],
+  "data": {
+    "sourceCsv": "db/changelog/versions/0.0.1/data/ability.csv",
+    "csvInternalName": "battle-armor"
+  },
+  "hooks": {
+    "on_modify_crit_ratio": [
+      {
+        "priority": 0,
+        "then": [
+          {
+            "type": "modify_multiplier",
+            "value": 0
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -29,4 +29,5 @@ data class BattleState(
     val endedReason: String? = null,
     val capturableSideId: String? = null,
     val capturedUnitId: String? = null,
+    val failedRunAttempts: Map<String, Int> = emptyMap(),
 )

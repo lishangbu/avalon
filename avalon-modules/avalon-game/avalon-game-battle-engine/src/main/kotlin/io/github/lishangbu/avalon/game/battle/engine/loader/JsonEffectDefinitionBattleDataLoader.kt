@@ -4,6 +4,7 @@ import io.github.lishangbu.avalon.game.battle.engine.dsl.ActionNode
 import io.github.lishangbu.avalon.game.battle.engine.dsl.ConditionNode
 import io.github.lishangbu.avalon.game.battle.engine.dsl.EffectDefinition
 import io.github.lishangbu.avalon.game.battle.engine.dsl.HookRule
+import io.github.lishangbu.avalon.game.battle.engine.dsl.action.AddRelayActionNode
 import io.github.lishangbu.avalon.game.battle.engine.dsl.action.AddStatusActionNode
 import io.github.lishangbu.avalon.game.battle.engine.dsl.action.AddVolatileActionNode
 import io.github.lishangbu.avalon.game.battle.engine.dsl.action.ApplyConditionActionNode
@@ -102,6 +103,7 @@ import tools.jackson.databind.ObjectMapper
  * - `apply_condition`
  * - `remove_condition`
  * - `modify_multiplier`
+ * - `add_relay`
  * - `set_flag`
  * - `clear_flag`
  *
@@ -417,6 +419,12 @@ class JsonEffectDefinitionBattleDataLoader(
                 ModifyMultiplierActionNode(
                     value = node.path("value").asDouble(),
                     rounding = node.optionalText("rounding"),
+                )
+            }
+
+            "add_relay" -> {
+                AddRelayActionNode(
+                    value = node.path("value").asDouble(),
                 )
             }
 

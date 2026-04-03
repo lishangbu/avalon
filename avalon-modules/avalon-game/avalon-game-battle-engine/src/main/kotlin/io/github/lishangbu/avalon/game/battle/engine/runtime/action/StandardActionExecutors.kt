@@ -10,6 +10,7 @@ object StandardActionExecutors {
         listOf(
             DamageActionExecutor(),
             HealActionExecutor(),
+            AddRelayActionExecutor(),
             AddStatusActionExecutor(),
             RemoveStatusActionExecutor(),
             AddVolatileActionExecutor(),

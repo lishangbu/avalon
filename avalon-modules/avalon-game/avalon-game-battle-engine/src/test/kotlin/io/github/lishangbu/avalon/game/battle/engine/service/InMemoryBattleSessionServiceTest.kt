@@ -11,6 +11,7 @@ import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.AddVolatileBat
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleFlowEngine
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAccuracyEvasionPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAfterMovePhaseStep
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveCriticalHitPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitHooksPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitResolutionStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMovePowerDamagePhaseStep
@@ -142,6 +143,7 @@ class InMemoryBattleSessionServiceTest {
                         BattleMovePreHitPhaseStep(phaseProcessor),
                         BattleMoveAccuracyEvasionPhaseStep(phaseProcessor),
                         BattleMoveHitResolutionStep(DefaultBattleHitResolutionPolicy()),
+                        BattleMoveCriticalHitPhaseStep(phaseProcessor),
                         BattleMovePowerDamagePhaseStep(phaseProcessor),
                         BattleMoveHitHooksPhaseStep(phaseProcessor),
                         BattleMoveAfterMovePhaseStep(phaseProcessor),

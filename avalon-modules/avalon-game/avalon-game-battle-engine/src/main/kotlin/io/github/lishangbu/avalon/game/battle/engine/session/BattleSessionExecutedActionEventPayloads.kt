@@ -19,7 +19,9 @@ sealed interface BattleSessionExecutedActionPayload : BattleSessionEventPayload 
  * @property attackerId 出手单位标识。
  * @property targetId 目标单位标识。
  * @property hitSuccessful 当前招式是否命中。
+ * @property criticalHit 当前招式是否击中要害。
  * @property basePower 当前招式最终威力。
+ * @property damageRoll 当前招式最终伤害浮动倍率；未参与伤害浮动时为空。
  * @property damage 当前招式最终伤害。
  */
 data class BattleSessionMoveExecutedPayload(
@@ -27,7 +29,9 @@ data class BattleSessionMoveExecutedPayload(
     val attackerId: String,
     val targetId: String,
     val hitSuccessful: Boolean,
+    val criticalHit: Boolean,
     val basePower: Int,
+    val damageRoll: Int? = null,
     val damage: Int,
 ) : BattleSessionExecutedActionPayload {
     /**
@@ -45,7 +49,9 @@ data class BattleSessionMoveExecutedPayload(
             "attackerId" to attackerId,
             "targetId" to targetId,
             "hitSuccessful" to hitSuccessful,
+            "criticalHit" to criticalHit,
             "basePower" to basePower,
+            "damageRoll" to damageRoll,
             "damage" to damage,
         )
 }

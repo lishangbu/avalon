@@ -39,6 +39,11 @@ class DefaultBattleFlowEngineTest {
                     "data/battle/fixtures/ability/synchronize.json",
                     "data/battle/fixtures/move/supersonic.json",
                     "data/battle/fixtures/move/thunder-wave-immunity.json",
+                    "data/battle/fixtures/ability/adaptability.json",
+                    "data/battle/fixtures/ability/guts.json",
+                    "data/battle/fixtures/move/slash.json",
+                    "data/battle/fixtures/ability/super-luck.json",
+                    "data/battle/fixtures/ability/battle-armor.json",
                 ),
         ).loadEffects()
 
@@ -78,6 +83,7 @@ class DefaultBattleFlowEngineTest {
                         BattleMovePreHitPhaseStep(phaseProcessor),
                         BattleMoveAccuracyEvasionPhaseStep(phaseProcessor),
                         BattleMoveHitResolutionStep(DefaultBattleHitResolutionPolicy()),
+                        BattleMoveCriticalHitPhaseStep(phaseProcessor),
                         BattleMovePowerDamagePhaseStep(phaseProcessor),
                         BattleMoveHitHooksPhaseStep(phaseProcessor),
                         BattleMoveAfterMovePhaseStep(phaseProcessor),
@@ -259,6 +265,485 @@ class DefaultBattleFlowEngineTest {
         assertEquals(150, resolved.basePower)
         assertEquals(100, resolved.damage)
         assertTrue(resolved.hitSuccessful)
+    }
+
+    /**
+     * 验证：
+     * - battle flow 会原生计算基础 STAB，而不是要求调用方预先把 STAB 乘进 `damage`。
+     */
+    @Test
+    fun shouldApplyDefaultStabDuringMoveActionWhenMoveTypeMatchesAttackerType() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                typeIds = setOf("electric"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                typeIds = setOf("water"),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-stab-1", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 100,
+                attributes = mapOf("chanceRoll" to 80),
+            )
+
+        assertEquals(150, resolved.damage)
+        assertTrue(resolved.hitSuccessful)
+    }
+
+    /**
+     * 验证：
+     * - 攻击方挂载的 `on_modify_stab` effect 可以在默认 STAB 之上继续改写倍率。
+     */
+    @Test
+    fun shouldApplyAdaptabilityOnTopOfDefaultStabDuringMoveAction() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                abilityId = "adaptability",
+                typeIds = setOf("electric"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                typeIds = setOf("water"),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-stab-2", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 100,
+                attributes = mapOf("chanceRoll" to 80),
+            )
+
+        assertEquals(200, resolved.damage)
+        assertTrue(resolved.hitSuccessful)
+    }
+
+    /**
+     * 验证：
+     * - 高要害率招式会在 battle flow 中触发要害判定并乘上现代 1.5 倍倍率。
+     */
+    @Test
+    fun shouldApplyCriticalHitDamageWhenHighCriticalMoveSucceeds() {
+        val attacker = UnitState(id = "p1a", currentHp = 120, maxHp = 120)
+        val target = UnitState(id = "p2a", currentHp = 100, maxHp = 100)
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-crit-1", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "slash",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 70,
+                damage = 100,
+                attributes = mapOf("criticalRoll" to 0),
+            )
+
+        assertTrue(resolved.hitSuccessful)
+        assertTrue(resolved.criticalHit)
+        assertEquals(150, resolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - 攻击方挂载的 `on_modify_crit_ratio` effect 可以把普通招式提升到会判定要害的等级。
+     */
+    @Test
+    fun shouldApplyCriticalHitWhenAttackerHasSuperLuck() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                abilityId = "super-luck",
+            )
+        val target = UnitState(id = "p2a", currentHp = 100, maxHp = 100)
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-crit-2", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 100,
+                attributes = mapOf("criticalRoll" to 0, "chanceRoll" to 80),
+            )
+
+        assertTrue(resolved.hitSuccessful)
+        assertTrue(resolved.criticalHit)
+        assertEquals(150, resolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - 当调用方要求 engine 原生计算伤害时，会基于攻击/防御能力值计算基础伤害，
+     *   而不是继续依赖外部预估的 `damage` 输入。
+     */
+    @Test
+    fun shouldComputeDamageFromAttackAndDefenseWhenComputeDamageAttributeIsEnabled() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                typeIds = setOf("electric"),
+                stats = mapOf("special-attack" to 120),
+                flags = mapOf("level" to "50"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                typeIds = setOf("water"),
+                stats = mapOf("special-defense" to 100),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-damage-1", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "chanceRoll" to 80, "criticalHit" to false, "damageRoll" to 100),
+            )
+
+        assertTrue(resolved.hitSuccessful)
+        assertTrue(!resolved.criticalHit)
+        assertEquals(100, resolved.damageRoll)
+        assertEquals(73, resolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - 原生伤害计算会应用 85 到 100 的随机浮动区间。
+     * - 显式传入 `damageRoll` 时，battle engine 会按该值稳定计算。
+     */
+    @Test
+    fun shouldApplyDamageVarianceDuringNativeDamageCalculation() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                typeIds = setOf("electric"),
+                stats = mapOf("special-attack" to 120),
+                flags = mapOf("level" to "50"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                stats = mapOf("special-defense" to 100),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-damage-variance-1", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val lowRollResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "chanceRoll" to 80, "criticalHit" to false, "damageRoll" to 85),
+            )
+        val highRollResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "chanceRoll" to 80, "criticalHit" to false, "damageRoll" to 100),
+            )
+
+        assertEquals(85, lowRollResolved.damageRoll)
+        assertEquals(61, lowRollResolved.damage)
+        assertEquals(100, highRollResolved.damageRoll)
+        assertEquals(73, highRollResolved.damage)
+        assertTrue(highRollResolved.damage > lowRollResolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - 未显式提供 `damageRoll` 时，原生伤害随机数会从 battle RNG 中消费。
+     * - 同一初始随机状态重复回放时，伤害结果与推进后的随机状态保持一致。
+     */
+    @Test
+    fun shouldReplayDamageVarianceRngWhenDamageRollIsNotProvided() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                typeIds = setOf("electric"),
+                stats = mapOf("special-attack" to 120),
+                flags = mapOf("level" to "50"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                stats = mapOf("special-defense" to 100),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-damage-variance-2", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val firstResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "chanceRoll" to 80, "criticalHit" to false),
+            )
+        val replayResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot.copy(battle = snapshot.battle.copy()),
+                moveId = "thunderbolt",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 90,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "chanceRoll" to 80, "criticalHit" to false),
+            )
+
+        assertEquals(firstResolved.damage, replayResolved.damage)
+        assertEquals(firstResolved.damageRoll, replayResolved.damageRoll)
+        assertEquals(firstResolved.snapshot.battle.randomState, replayResolved.snapshot.battle.randomState)
+        assertTrue(firstResolved.damageRoll != null)
+        assertTrue(firstResolved.snapshot.battle.randomState.generatedValueCount > snapshot.battle.randomState.generatedValueCount)
+    }
+
+    /**
+     * 验证：
+     * - 要害命中时，目标的正向防御能力阶级不会继续压低原始伤害。
+     */
+    @Test
+    fun shouldIgnorePositiveDefenseBoostOnCriticalHitWhenComputingDamage() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                stats = mapOf("attack" to 120),
+                flags = mapOf("level" to "50"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                stats = mapOf("defense" to 100),
+                boosts = mapOf("defense" to 6),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-damage-2", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val normalResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "slash",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 70,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "criticalHit" to false, "damageRoll" to 100),
+            )
+        val criticalResolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "slash",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 70,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "criticalHit" to true, "damageRoll" to 100),
+            )
+
+        assertEquals(11, normalResolved.damage)
+        assertEquals(57, criticalResolved.damage)
+        assertTrue(criticalResolved.damage > normalResolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - `on_modify_attack` 会真正进入原生伤害公式，而不是只停留在 relay 单测。
+     */
+    @Test
+    fun shouldApplyAttackModifierHookInsideNativeDamageFormula() {
+        val attacker =
+            UnitState(
+                id = "p1a",
+                currentHp = 120,
+                maxHp = 120,
+                abilityId = "guts",
+                statusId = "brn",
+                stats = mapOf("attack" to 120),
+                flags = mapOf("level" to "50"),
+            )
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                stats = mapOf("defense" to 100),
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-damage-3", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "slash",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 70,
+                damage = 0,
+                attributes = mapOf("computeDamage" to true, "criticalHit" to false, "damageRoll" to 100),
+            )
+
+        assertEquals(57, resolved.damage)
+    }
+
+    /**
+     * 验证：
+     * - 目标挂载的 `on_modify_crit_ratio` effect 可以阻止本次要害。
+     */
+    @Test
+    fun shouldBlockCriticalHitWhenTargetHasBattleArmor() {
+        val attacker = UnitState(id = "p1a", currentHp = 120, maxHp = 120)
+        val target =
+            UnitState(
+                id = "p2a",
+                currentHp = 100,
+                maxHp = 100,
+                abilityId = "battle-armor",
+            )
+        val snapshot =
+            BattleRuntimeSnapshot(
+                battle = BattleState(id = "battle-flow-crit-3", formatId = "singles", turn = 4),
+                field = FieldState(),
+                units = mapOf(attacker.id to attacker, target.id to target),
+            )
+
+        val resolved =
+            flow.resolveMoveAction(
+                snapshot = snapshot,
+                moveId = "slash",
+                attackerId = attacker.id,
+                targetId = target.id,
+                accuracy = 100,
+                evasion = 100,
+                basePower = 70,
+                damage = 100,
+                attributes = mapOf("criticalRoll" to 0),
+            )
+
+        assertTrue(resolved.hitSuccessful)
+        assertTrue(!resolved.criticalHit)
+        assertEquals(100, resolved.damage)
     }
 
     /**

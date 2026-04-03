@@ -50,12 +50,16 @@ class JsonEffectDefinitionBattleDataLoaderTest {
                         "data/battle/fixtures/ability/limber.json",
                         "data/battle/fixtures/ability/water-veil.json",
                         "data/battle/fixtures/ability/own-tempo.json",
+                        "data/battle/fixtures/ability/adaptability.json",
+                        "data/battle/fixtures/move/slash.json",
+                        "data/battle/fixtures/ability/super-luck.json",
+                        "data/battle/fixtures/ability/battle-armor.json",
                     ),
             )
 
         val effects = loader.loadEffects()
 
-        assertEquals(24, effects.size)
+        assertEquals(28, effects.size)
         assertTrue(effects.any { effect -> effect.id == "thunderbolt" && StandardHookNames.ON_HIT in effect.hooks.keys })
         assertTrue(effects.any { effect -> effect.id == "ember" && StandardHookNames.ON_HIT in effect.hooks.keys })
         assertTrue(effects.any { effect -> effect.id == "speed-boost" && StandardHookNames.ON_RESIDUAL in effect.hooks.keys })
@@ -80,5 +84,9 @@ class JsonEffectDefinitionBattleDataLoaderTest {
         assertTrue(effects.any { effect -> effect.id == "limber" && StandardHookNames.ON_SET_STATUS in effect.hooks.keys })
         assertTrue(effects.any { effect -> effect.id == "water-veil" && StandardHookNames.ON_SET_STATUS in effect.hooks.keys })
         assertTrue(effects.any { effect -> effect.id == "own-tempo" && StandardHookNames.ON_TRY_ADD_VOLATILE in effect.hooks.keys })
+        assertTrue(effects.any { effect -> effect.id == "adaptability" && StandardHookNames.ON_MODIFY_STAB in effect.hooks.keys })
+        assertTrue(effects.any { effect -> effect.id == "slash" && effect.data["critRatio"] == 1 })
+        assertTrue(effects.any { effect -> effect.id == "super-luck" && StandardHookNames.ON_MODIFY_CRIT_RATIO in effect.hooks.keys })
+        assertTrue(effects.any { effect -> effect.id == "battle-armor" && StandardHookNames.ON_MODIFY_CRIT_RATIO in effect.hooks.keys })
     }
 }

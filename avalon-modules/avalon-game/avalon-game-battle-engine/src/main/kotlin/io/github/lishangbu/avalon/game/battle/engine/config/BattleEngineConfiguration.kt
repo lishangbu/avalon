@@ -19,6 +19,7 @@ import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleFlowPhas
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleHitResolutionPolicy
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAccuracyEvasionPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveAfterMovePhaseStep
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveCriticalHitPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitHooksPhaseStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveHitResolutionStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMovePowerDamagePhaseStep
@@ -27,11 +28,13 @@ import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveReso
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMoveResolutionStep
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMutationInterceptor
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleMutationInterceptorChain
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.BattleTypeEffectivenessResolver
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleFlowEngine
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleFlowPhaseProcessor
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleHitResolutionPolicy
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleMoveResolutionPipeline
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.DefaultBattleMutationInterceptorChain
+import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.NoopBattleTypeEffectivenessResolver
 import io.github.lishangbu.avalon.game.battle.engine.runtime.flow.SetStatusBattleMutationInterceptor
 import io.github.lishangbu.avalon.game.battle.engine.service.BattleSessionFactory
 import io.github.lishangbu.avalon.game.battle.engine.service.BattleSessionService
@@ -189,6 +192,10 @@ class BattleEngineConfiguration {
     fun battleHitResolutionPolicy(): BattleHitResolutionPolicy = DefaultBattleHitResolutionPolicy()
 
     @Bean
+    @ConditionalOnMissingBean(BattleTypeEffectivenessResolver::class)
+    fun battleTypeEffectivenessResolver(): BattleTypeEffectivenessResolver = NoopBattleTypeEffectivenessResolver
+
+    @Bean
     @ConditionalOnMissingBean(BattleMovePreHitPhaseStep::class)
     fun battleMovePreHitPhaseStep(
         battleFlowPhaseProcessor: BattleFlowPhaseProcessor,
@@ -207,10 +214,17 @@ class BattleEngineConfiguration {
     ): BattleMoveHitResolutionStep = BattleMoveHitResolutionStep(battleHitResolutionPolicy)
 
     @Bean
+    @ConditionalOnMissingBean(BattleMoveCriticalHitPhaseStep::class)
+    fun battleMoveCriticalHitPhaseStep(
+        battleFlowPhaseProcessor: BattleFlowPhaseProcessor,
+    ): BattleMoveCriticalHitPhaseStep = BattleMoveCriticalHitPhaseStep(battleFlowPhaseProcessor)
+
+    @Bean
     @ConditionalOnMissingBean(BattleMovePowerDamagePhaseStep::class)
     fun battleMovePowerDamagePhaseStep(
         battleFlowPhaseProcessor: BattleFlowPhaseProcessor,
-    ): BattleMovePowerDamagePhaseStep = BattleMovePowerDamagePhaseStep(battleFlowPhaseProcessor)
+        battleTypeEffectivenessResolver: BattleTypeEffectivenessResolver,
+    ): BattleMovePowerDamagePhaseStep = BattleMovePowerDamagePhaseStep(battleFlowPhaseProcessor, battleTypeEffectivenessResolver)
 
     @Bean
     @ConditionalOnMissingBean(BattleMoveHitHooksPhaseStep::class)

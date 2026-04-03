@@ -9,6 +9,7 @@ enum class BattleSessionEventType {
     UNIT_REGISTERED,
     MOVE_QUEUED,
     MOVE_EXECUTED,
+    RUN_FAILED,
     CAPTURE_FAILED,
     CAPTURE_SUCCEEDED,
     TURN_RESOLVED,

@@ -58,11 +58,11 @@ class TypeEffectivenessServiceImpl(
         )
     }
 
-    override fun getChart(): TypeEffectivenessChart = buildChart(loadContext())
+    override fun getChart(): TypeEffectivenessChart = buildChart(loadMatrixContext())
 
     @Transactional(rollbackFor = [Exception::class])
     override fun upsertMatrix(command: UpsertTypeEffectivenessMatrixCommand): TypeEffectivenessChart {
-        val context = loadContext()
+        val context = loadMatrixContext()
         val normalizedCells = normalizeMatrixCells(command.cells)
         normalizedCells.forEach { cell ->
             val attacking = context.requireType(cell.attackingType, "cells.attackingType")
@@ -86,7 +86,7 @@ class TypeEffectivenessServiceImpl(
                 )
             }
         }
-        return buildChart(loadContext())
+        return buildChart(loadMatrixContext())
     }
 
     private fun buildChart(context: TypeEffectivenessContext): TypeEffectivenessChart {
@@ -121,30 +121,47 @@ class TypeEffectivenessServiceImpl(
 
     private fun loadContext(): TypeEffectivenessContext {
         val supportedTypes =
-            typeRepository
-                .findAll()
-                .map { entity -> entity.toSupportedTypeView() }
+            loadSupportedTypes()
                 .sortedBy { type -> type.id }
-
-        val supportedTypeIds = supportedTypes.associateBy({ it.id }, { it.internalName })
-        val storedMultipliers =
-            typeEffectivenessEntryRepository
-                .listByFilter(
-                    attackingTypeId = null,
-                    defendingTypeId = null,
-                    multiplierPercent = null,
-                ).mapNotNull { entry ->
-                    // 上下文内部始终只缓存数据库中的定点整数，避免后续计算退回到浮点路径。
-                    val attackingInternalName = supportedTypeIds[entry.id.attackingTypeId] ?: return@mapNotNull null
-                    val defendingInternalName = supportedTypeIds[entry.id.defendingTypeId] ?: return@mapNotNull null
-                    (attackingInternalName to defendingInternalName) to entry.multiplierPercent
-                }.toMap(LinkedHashMap())
 
         return TypeEffectivenessContext(
             supportedTypes = supportedTypes,
             typesByInternalName = supportedTypes.associateBy { it.internalName },
-            storedMultipliers = storedMultipliers,
+            storedMultipliers = loadStoredMultipliers(supportedTypes),
         )
+    }
+
+    private fun loadMatrixContext(): TypeEffectivenessContext {
+        val supportedTypes =
+            loadSupportedTypes()
+                .filter { type -> type.battleOnly == false }
+                .sortedBy { type -> type.id }
+
+        return TypeEffectivenessContext(
+            supportedTypes = supportedTypes,
+            typesByInternalName = supportedTypes.associateBy { it.internalName },
+            storedMultipliers = loadStoredMultipliers(supportedTypes),
+        )
+    }
+
+    private fun loadSupportedTypes(): List<SupportedTypeView> =
+        typeRepository
+            .findAll()
+            .map { entity -> entity.toSupportedTypeView() }
+
+    private fun loadStoredMultipliers(supportedTypes: List<SupportedTypeView>): Map<Pair<String, String>, Int?> {
+        val supportedTypeIds = supportedTypes.associateBy({ it.id }, { it.internalName })
+        return typeEffectivenessEntryRepository
+            .listByFilter(
+                attackingTypeId = null,
+                defendingTypeId = null,
+                multiplierPercent = null,
+            ).mapNotNull { entry ->
+                // 上下文内部始终只缓存数据库中的定点整数，避免后续计算退回到浮点路径。
+                val attackingInternalName = supportedTypeIds[entry.id.attackingTypeId] ?: return@mapNotNull null
+                val defendingInternalName = supportedTypeIds[entry.id.defendingTypeId] ?: return@mapNotNull null
+                (attackingInternalName to defendingInternalName) to entry.multiplierPercent
+            }.toMap(LinkedHashMap())
     }
 
     private fun normalizeDefendingTypes(defendingTypes: List<String>): List<String> {
@@ -186,6 +203,7 @@ class TypeEffectivenessServiceImpl(
         require(internalName.isNotEmpty()) { "Type id=$id has blank internalName" }
         return SupportedTypeView(
             id = id,
+            battleOnly = battleOnly,
             apiView =
                 TypeEffectivenessTypeView(
                     internalName = internalName,
@@ -217,6 +235,7 @@ class TypeEffectivenessServiceImpl(
 
     private data class SupportedTypeView(
         val id: Long,
+        val battleOnly: Boolean?,
         val apiView: TypeEffectivenessTypeView,
     ) {
         val internalName: String
