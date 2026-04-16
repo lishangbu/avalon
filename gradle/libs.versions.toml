@@ -1,0 +1,33 @@
+[versions]
+quarkus = "3.34.3"
+kotlin = "2.3.20"
+kotlinx-coroutines = "1.10.2"
+
+[libraries]
+quarkus-bom = { module = "io.quarkus.platform:quarkus-bom", version.ref = "quarkus" }
+quarkus-arc = { module = "io.quarkus:quarkus-arc" }
+quarkus-config-yaml = { module = "io.quarkus:quarkus-config-yaml" }
+quarkus-kotlin = { module = "io.quarkus:quarkus-kotlin" }
+quarkus-rest = { module = "io.quarkus:quarkus-rest" }
+quarkus-rest-jackson = { module = "io.quarkus:quarkus-rest-jackson" }
+quarkus-scheduler = { module = "io.quarkus:quarkus-scheduler" }
+quarkus-smallrye-openapi = { module = "io.quarkus:quarkus-smallrye-openapi" }
+quarkus-smallrye-health = { module = "io.quarkus:quarkus-smallrye-health" }
+quarkus-smallrye-jwt = { module = "io.quarkus:quarkus-smallrye-jwt" }
+quarkus-smallrye-jwt-build = { module = "io.quarkus:quarkus-smallrye-jwt-build" }
+quarkus-reactive-pg-client = { module = "io.quarkus:quarkus-reactive-pg-client" }
+quarkus-jdbc-postgresql = { module = "io.quarkus:quarkus-jdbc-postgresql" }
+quarkus-flyway = { module = "io.quarkus:quarkus-flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+quarkus-redis-client = { module = "io.quarkus:quarkus-redis-client" }
+quarkus-websockets-next = { module = "io.quarkus:quarkus-websockets-next" }
+quarkus-junit5 = { module = "io.quarkus:quarkus-junit5" }
+quarkus-elytron-security-common = { module = "io.quarkus:quarkus-elytron-security-common" }
+quarkus-hibernate-validator = { module = "io.quarkus:quarkus-hibernate-validator" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
+rest-assured = { module = "io.rest-assured:rest-assured" }
+
+[plugins]
+quarkus = { id = "io.quarkus", version.ref = "quarkus" }
+jandex = { id = "org.kordamp.gradle.jandex", version = "2.3.0" }

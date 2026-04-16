@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avalon 注释规范"
+  short_description: "Avalon 中文注释触发条件、模板与评审基线"
+  default_prompt: "使用 $avalon-code-commenting，在 avalon 项目中判断哪些代码必须补中文注释，并按模块入口、核心抽象和复杂单元的要求补齐说明。"

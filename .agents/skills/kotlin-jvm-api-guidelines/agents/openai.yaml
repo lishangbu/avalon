@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kotlin/JVM 写法规范"
+  short_description: "Kotlin/JVM 语法、API 设计与纯 Kotlin 稳定性规则"
+  default_prompt: "使用 $kotlin-jvm-api-guidelines，帮我按 Kotlin 官方 API guidelines 审查或设计一段 Kotlin/JVM 代码的语法写法、公共 API 和纯 Kotlin 稳定性；只有明确存在 Java 调用方时再考虑互操作。"

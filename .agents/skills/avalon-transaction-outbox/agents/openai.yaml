@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avalon Transaction Outbox"
+  short_description: "Avalon 本地事务、outbox、重试与幂等约束"
+  default_prompt: "使用 $avalon-transaction-outbox，在 avalon 项目中判断何时必须使用 outbox，并实现本地事务加 outbox、dispatcher、重试和幂等流程。"

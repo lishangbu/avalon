@@ -1,0 +1,83 @@
+quarkus:
+  application:
+    name: avalon
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: postgres
+  http:
+    auth:
+      permission:
+        public:
+          paths: /api/app-info,/api/auth/login,/api/auth/refresh
+          policy: permit
+        authenticated:
+          paths: /api/*
+          policy: authenticated
+  swagger-ui:
+    always-include: true
+  smallrye-openapi:
+    path: /q/openapi
+  flyway:
+    locations: db/migration
+    schemas: integration,iam,catalog,player,battle
+    default-schema: integration
+    migrate-at-start: false
+    validate-at-start: false
+
+mp:
+  jwt:
+    verify:
+      issuer: avalon
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: security/jwt/jwt-secret.jwk
+    verify:
+      algorithm: HS512
+      key:
+        location: security/jwt/jwt-secret.jwk
+    new-token:
+      signature-algorithm: HS512
+
+avalon:
+  auth:
+    issuer: avalon
+    access-token-ttl: PT10M
+    refresh-token-ttl: PT720H
+    max-admin-sessions: 1
+  outbox:
+    dispatch-interval: 5s
+
+"%dev":
+  quarkus:
+    datasource:
+      devservices:
+        enabled: true
+        image-name: postgres:18.3
+        db-name: avalon
+    flyway:
+      migrate-at-start: true
+      validate-at-start: false
+    redis:
+      devservices:
+        enabled: true
+        image-name: valkey/valkey:9.0.3
+        service-name: avalon-redis
+
+"%test":
+  quarkus:
+    datasource:
+      devservices:
+        enabled: true
+        image-name: postgres:18.3
+        db-name: avalon_test
+    flyway:
+      migrate-at-start: true
+      validate-at-start: false
+    redis:
+      devservices:
+        enabled: true
+        image-name: valkey/valkey:9.0.3

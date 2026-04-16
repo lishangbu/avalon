@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avalon 架构护栏"
+  short_description: "Avalon 后端架构、事务、schema 与边界约束"
+  default_prompt: "使用 $avalon-guardrails，在修改 avalon 后端前先遵守架构、schema、事务、outbox 和安全约束。"
