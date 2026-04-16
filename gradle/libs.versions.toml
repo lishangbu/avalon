@@ -2,7 +2,7 @@
 quarkus = "3.34.3"
 kotlin = "2.3.20"
 jackson-kotlin = "2.21.1"
-flyway-postgresql = "12.0.0"
+flyway-postgresql = "12.4.0"
 kotlinx-coroutines = "1.10.2"
 rest-assured = "5.5.6"
 
