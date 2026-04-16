@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avalon Flyway Schema"
+  short_description: "Avalon Flyway、schema、表结构与命名约束"
+  default_prompt: "使用 $avalon-flyway-schema，在 avalon 项目中创建或审查 Flyway migration、schema 分配、表设计、索引、约束和 outbox DDL。"

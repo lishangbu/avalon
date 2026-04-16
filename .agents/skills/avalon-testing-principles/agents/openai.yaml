@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avalon 测试原则"
+  short_description: "Avalon 测试分层、取舍与补测原则"
+  default_prompt: "使用 $avalon-testing-principles，在 avalon 项目中判断该补哪些测试、放在哪一层，以及哪些测试可以收敛或简化。"

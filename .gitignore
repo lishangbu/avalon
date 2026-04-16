@@ -1,0 +1,10 @@
+.gradle/
+**/.gradle/
+.kotlin/
+**/.kotlin/
+build/
+**/build/
+out/
+.idea/
+*.iml
+docs/
