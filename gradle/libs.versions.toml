@@ -1,5 +1,5 @@
 [versions]
-quarkus = "3.34.3"
+quarkus = "3.34.5"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 
