@@ -3,163 +3,132 @@ package io.github.lishangbu.avalon.app.interfaces.http
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.ContentType.JSON
 import io.restassured.RestAssured.given
-import io.github.lishangbu.avalon.shared.infra.mutiny.awaitSuspending
-import io.vertx.mutiny.sqlclient.Pool
-import jakarta.inject.Inject
-import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.hasItem
+import org.hamcrest.Matchers.hasItems
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 @QuarkusTest
 class TypeResourceTest : AuthenticatedHttpResourceTest() {
-    @Inject
-    lateinit var pool: Pool
-
     private val createdTypeIds = mutableListOf<UUID>()
+    private var originalChartEntries: List<Map<String, Any?>>? = null
 
     @AfterEach
-    fun cleanupTypes() {
-        if (createdTypeIds.isEmpty()) {
-            return
+    fun cleanup() {
+        originalChartEntries?.let { entries ->
+            givenAsSeedAdmin()
+                .contentType(JSON)
+                .body(mapOf("entries" to entries))
+                .put("/catalog/type-chart")
+                .then()
+                .statusCode(200)
+            originalChartEntries = null
         }
 
-        runBlocking {
-            val quotedIds = createdTypeIds.joinToString(",") { "'$it'" }
-            pool.query("DELETE FROM catalog.type_effectiveness WHERE attacking_type_id IN ($quotedIds) OR defending_type_id IN ($quotedIds)")
-                .execute()
-                .awaitSuspending()
-            pool.query("DELETE FROM catalog.type_definition WHERE id IN ($quotedIds)")
-                .execute()
-                .awaitSuspending()
+        createdTypeIds.asReversed().forEach { id ->
+            givenAsSeedAdmin()
+                .delete("/catalog/types/$id")
+                .then()
+                .statusCode(204)
         }
         createdTypeIds.clear()
     }
 
     @Test
-    fun shouldManageTypeDefinitionsAndTypeChart() {
-        val suffix = UUID.randomUUID().toString().takeLast(8)
-        val fireCode = "TYPE-FIRE-$suffix".uppercase()
-        val waterCode = "TYPE-WATER-$suffix".uppercase()
-        val fireTypeId =
-            createType(
-                code = "type-fire-$suffix",
-                name = "Type Fire $suffix",
-                sortingOrder = 10,
-            )
-        val waterTypeId =
-            createType(
-                code = "type-water-$suffix",
-                name = "Type Water $suffix",
-                sortingOrder = 20,
-            )
-
+    fun shouldExposeSeededTypesAndTypeChart() {
         given()
-            .contentType(JSON)
-            .body(
-                mapOf(
-                    "code" to "type-fire-$suffix",
-                    "name" to "Type Flame $suffix",
-                    "description" to "Updated fire type",
-                    "sortingOrder" to 5,
-                    "enabled" to false,
-                ),
-            ).put("/catalog/types/$fireTypeId")
+            .`when`()
+            .get("/catalog/types")
             .then()
             .statusCode(200)
-            .body("name", equalTo("Type Flame $suffix"))
-            .body("enabled", equalTo(false))
-
-        given()
-            .contentType(JSON)
-            .body(
-                mapOf(
-                    "entries" to
-                        listOf(
-                            mapOf(
-                                "attackingTypeId" to fireTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 1.0,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to fireTypeId,
-                                "defendingTypeId" to waterTypeId,
-                                "multiplier" to 0.5,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to waterTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 2.0,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to waterTypeId,
-                                "defendingTypeId" to waterTypeId,
-                                "multiplier" to 1.0,
-                            ),
-                        ),
-                ),
-            ).put("/catalog/type-chart")
-            .then()
-            .statusCode(200)
-            .body("types.size()", equalTo(2))
-            .body("types.code", hasItem(fireCode))
-            .body("types.code", hasItem(waterCode))
-            .body("entries.size()", equalTo(4))
+            .body("size()", equalTo(18))
+            .body("code", hasItems("NORMAL", "FIGHTING", "FIRE", "WATER", "GRASS", "ELECTRIC", "DRAGON", "FAIRY"))
+            .body("find { it.code == 'FIRE' }.name", equalTo("火"))
+            .body("find { it.code == 'FAIRY' }.name", equalTo("妖精"))
 
         given()
             .`when`()
             .get("/catalog/type-chart")
             .then()
             .statusCode(200)
-            .body("types.size()", equalTo(2))
-            .body("entries.size()", equalTo(4))
-            .body("entries.find { it.attackingType.code == '$waterCode' && it.defendingType.code == '$fireCode' }.multiplier", equalTo(2.0f))
-
-        given()
-            .`when`()
-            .get("/catalog/types")
-            .then()
-            .statusCode(200)
-            .body("find { it.id == '$fireTypeId' }.name", equalTo("Type Flame $suffix"))
+            .body("types.size()", equalTo(18))
+            .body("entries.size()", equalTo(324))
+            .body("entries.find { it.attackingType.code == 'WATER' && it.defendingType.code == 'FIRE' }.multiplier", equalTo(2.0f))
+            .body("entries.find { it.attackingType.code == 'NORMAL' && it.defendingType.code == 'GHOST' }.multiplier", equalTo(0.0f))
+            .body("entries.find { it.attackingType.code == 'FAIRY' && it.defendingType.code == 'DRAGON' }.multiplier", equalTo(2.0f))
     }
 
     @Test
-    fun shouldRejectIncompleteTypeChart() {
+    fun shouldManageCustomTypeDefinitions() {
         val suffix = UUID.randomUUID().toString().takeLast(8)
-        val fireTypeId =
+        val typeCode = "TYPE-CUSTOM-$suffix".uppercase()
+        val typeId =
             createType(
-                code = "chart-fire-$suffix",
-                name = "Chart Fire $suffix",
-                sortingOrder = 10,
-            )
-        val waterTypeId =
-            createType(
-                code = "chart-water-$suffix",
-                name = "Chart Water $suffix",
-                sortingOrder = 20,
+                code = "type-custom-$suffix",
+                name = "Type Custom $suffix",
+                sortingOrder = 999,
             )
 
         given()
             .contentType(JSON)
             .body(
                 mapOf(
-                    "entries" to
-                        listOf(
-                            mapOf(
-                                "attackingTypeId" to fireTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 1.0,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to waterTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 2.0,
-                            ),
-                        ),
+                    "code" to "type-custom-$suffix",
+                    "name" to "Type Custom Revised $suffix",
+                    "description" to "Custom type for test",
+                    "sortingOrder" to 888,
+                    "enabled" to false,
                 ),
-            ).put("/catalog/type-chart")
+            ).put("/catalog/types/$typeId")
+            .then()
+            .statusCode(200)
+            .body("name", equalTo("Type Custom Revised $suffix"))
+            .body("enabled", equalTo(false))
+
+        given()
+            .`when`()
+            .get("/catalog/types")
+            .then()
+            .statusCode(200)
+            .body("code", hasItems(typeCode))
+            .body("find { it.id == '$typeId' }.name", equalTo("Type Custom Revised $suffix"))
+    }
+
+    @Test
+    fun shouldReplaceTypeChart() {
+        val entries = currentChartEntries()
+        originalChartEntries = entries
+
+        val updatedEntries =
+            entries.map { entry ->
+                val attackingTypeId = entry["attackingTypeId"]
+                val defendingTypeId = entry["defendingTypeId"]
+                if (attackingTypeId == waterTypeId() && defendingTypeId == fireTypeId()) {
+                    entry + ("multiplier" to 0.5)
+                } else {
+                    entry
+                }
+            }
+
+        given()
+            .contentType(JSON)
+            .body(mapOf("entries" to updatedEntries))
+            .put("/catalog/type-chart")
+            .then()
+            .statusCode(200)
+            .body("entries.size()", equalTo(324))
+            .body("entries.find { it.attackingType.code == 'WATER' && it.defendingType.code == 'FIRE' }.multiplier", equalTo(0.5f))
+    }
+
+    @Test
+    fun shouldRejectIncompleteTypeChart() {
+        val entries = currentChartEntries()
+
+        given()
+            .contentType(JSON)
+            .body(mapOf("entries" to entries.dropLast(1)))
+            .put("/catalog/type-chart")
             .then()
             .statusCode(400)
     }
@@ -187,4 +156,39 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
         createdTypeIds += id
         return id
     }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun currentChartEntries(): List<Map<String, Any?>> {
+        val rawEntries =
+            given()
+                .`when`()
+                .get("/catalog/type-chart")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path<List<Map<String, Any?>>>("entries")
+
+        return rawEntries.map { entry ->
+            val attackingType = entry["attackingType"] as Map<String, Any?>
+            val defendingType = entry["defendingType"] as Map<String, Any?>
+            mapOf(
+                "attackingTypeId" to attackingType["id"],
+                "defendingTypeId" to defendingType["id"],
+                "multiplier" to entry["multiplier"],
+            )
+        }
+    }
+
+    private fun fireTypeId(): String = typeIdByCode("FIRE")
+
+    private fun waterTypeId(): String = typeIdByCode("WATER")
+
+    private fun typeIdByCode(code: String): String =
+        given()
+            .`when`()
+            .get("/catalog/types")
+            .then()
+            .statusCode(200)
+            .extract()
+            .path("find { it.code == '$code' }.id")
 }

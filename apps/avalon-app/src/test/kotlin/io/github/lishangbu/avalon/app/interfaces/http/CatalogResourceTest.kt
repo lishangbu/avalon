@@ -8,8 +8,10 @@ import io.vertx.mutiny.sqlclient.Pool
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.hasItems
 import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 @QuarkusTest
 class CatalogResourceTest : AuthenticatedHttpResourceTest() {
@@ -18,21 +20,24 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
     @Test
     fun shouldManageCatalogReferenceDataSlices() {
+        val suffix = UUID.randomUUID().toString().takeLast(8)
+        val fireCode = "FIRE-$suffix".uppercase()
+        val waterCode = "WATER-$suffix".uppercase()
         val fireTypeId =
             given()
                 .contentType(JSON)
                 .body(
                     mapOf(
-                        "code" to "fire",
-                        "name" to "Fire",
+                        "code" to fireCode,
+                        "name" to "Fire $suffix",
                         "description" to "Fire attribute",
                         "sortingOrder" to 10,
                     ),
                 ).post("/catalog/types")
                 .then()
                 .statusCode(200)
-                .body("code", equalTo("FIRE"))
-                .body("name", equalTo("Fire"))
+                .body("code", equalTo(fireCode))
+                .body("name", equalTo("Fire $suffix"))
                 .extract()
                 .path<String>("id")
                 .toUuid()
@@ -42,14 +47,14 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .contentType(JSON)
                 .body(
                     mapOf(
-                        "code" to "water",
-                        "name" to "Water",
+                        "code" to waterCode,
+                        "name" to "Water $suffix",
                         "sortingOrder" to 20,
                     ),
                 ).post("/catalog/types")
                 .then()
                 .statusCode(200)
-                .body("code", equalTo("WATER"))
+                .body("code", equalTo(waterCode))
                 .extract()
                 .path<String>("id")
                 .toUuid()
@@ -58,8 +63,8 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .contentType(JSON)
             .body(
                 mapOf(
-                    "code" to "fire",
-                    "name" to "Flame",
+                    "code" to fireCode,
+                    "name" to "Flame $suffix",
                     "description" to "Renamed fire attribute",
                     "sortingOrder" to 5,
                     "enabled" to false,
@@ -67,50 +72,16 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             ).put("/catalog/types/$fireTypeId")
             .then()
             .statusCode(200)
-            .body("name", equalTo("Flame"))
+            .body("name", equalTo("Flame $suffix"))
             .body("enabled", equalTo(false))
-
-        given()
-            .contentType(JSON)
-            .body(
-                mapOf(
-                    "entries" to
-                        listOf(
-                            mapOf(
-                                "attackingTypeId" to fireTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 1.0,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to fireTypeId,
-                                "defendingTypeId" to waterTypeId,
-                                "multiplier" to 0.5,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to waterTypeId,
-                                "defendingTypeId" to fireTypeId,
-                                "multiplier" to 2.0,
-                            ),
-                            mapOf(
-                                "attackingTypeId" to waterTypeId,
-                                "defendingTypeId" to waterTypeId,
-                                "multiplier" to 1.0,
-                            ),
-                        ),
-                ),
-            ).put("/catalog/type-chart")
-            .then()
-            .statusCode(200)
-            .body("entries.size()", equalTo(4))
-            .body("entries.find { it.attackingType.code == 'WATER' && it.defendingType.code == 'FIRE' }.multiplier", equalTo(2.0f))
 
         given()
             .`when`()
             .get("/catalog/types")
             .then()
             .statusCode(200)
-            .body("size()", equalTo(2))
-            .body("[0].code", equalTo("FIRE"))
+            .body("code", hasItems(fireCode, waterCode))
+            .body("find { it.id == '$fireTypeId' }.name", equalTo("Flame $suffix"))
 
         val hardyNatureId =
             given()
@@ -499,7 +470,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("EMBER"))
-                .body("type.code", equalTo("FIRE"))
+                .body("type.code", equalTo(fireCode))
                 .body("categoryCode", equalTo("SPECIAL"))
                 .body("moveCategory.code", equalTo("DAMAGE+AILMENT"))
                 .body("moveAilment.code", equalTo("BURN"))
@@ -535,7 +506,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("GROWL"))
-                .body("type.code", equalTo("WATER"))
+                .body("type.code", equalTo(waterCode))
                 .body("categoryCode", equalTo("STATUS"))
                 .body("moveCategory.code", equalTo("AILMENT"))
                 .body("moveAilment", nullValue())
@@ -723,7 +694,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .statusCode(200)
                 .body("code", equalTo("FLARE-CUB"))
                 .body("dexNumber", equalTo(4))
-                .body("primaryType.code", equalTo("FIRE"))
+                .body("primaryType.code", equalTo(fireCode))
                 .body("secondaryType", nullValue())
                 .body("growthRate.code", equalTo("MEDIUM-FAST"))
                 .body("baseStats.hp", equalTo(39))
@@ -757,8 +728,8 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("STEAM-DRAKE"))
-                .body("primaryType.code", equalTo("FIRE"))
-                .body("secondaryType.code", equalTo("WATER"))
+                .body("primaryType.code", equalTo(fireCode))
+                .body("secondaryType.code", equalTo(waterCode))
                 .body("growthRate.code", equalTo("SLOW"))
                 .extract()
                 .path<String>("id")
@@ -800,7 +771,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .then()
             .statusCode(200)
             .body("name", equalTo("Flare Cub Prime"))
-            .body("secondaryType.code", equalTo("WATER"))
+            .body("secondaryType.code", equalTo(waterCode))
             .body("growthRate.code", equalTo("SLOW"))
             .body("baseStats.hp", equalTo(45))
             .body("enabled", equalTo(false))
