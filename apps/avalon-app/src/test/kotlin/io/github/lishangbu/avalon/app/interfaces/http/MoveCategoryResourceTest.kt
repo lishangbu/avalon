@@ -20,7 +20,7 @@ class MoveCategoryResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Inflicts damage and a status ailment",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-categories")
+                ).post("/catalog/move-categories")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("DAMAGE+AILMENT-CRUD"))
@@ -31,7 +31,7 @@ class MoveCategoryResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-categories/$categoryId")
+            .get("/catalog/move-categories/$categoryId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Inflicts damage and a status ailment"))
@@ -46,7 +46,7 @@ class MoveCategoryResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/move-categories/$categoryId")
+            ).put("/catalog/move-categories/$categoryId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Damage + Ailment Plus"))
@@ -54,14 +54,14 @@ class MoveCategoryResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-categories")
+            .get("/catalog/move-categories")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
             .body("[0].code", equalTo("DAMAGE+AILMENT-CRUD"))
 
         given()
-            .delete("/api/catalog/move-categories/$categoryId")
+            .delete("/catalog/move-categories/$categoryId")
             .then()
             .statusCode(204)
     }

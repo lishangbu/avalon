@@ -13,7 +13,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken
  * 这里对外暴露登录、刷新令牌、会话管理和当前用户查询能力，
  * Resource 本身只负责接收 HTTP 参数并调用贴近 DTO 的映射函数。
  */
-@Path("/api/auth")
+@Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 class AuthResource(
     private val authenticationService: AuthenticationService,

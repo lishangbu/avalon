@@ -22,7 +22,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "type" to "DIRECTORY",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/iam/menus")
+                ).post("/iam/menus")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -43,7 +43,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "component" to "iam/user/index",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/iam/menus")
+                ).post("/iam/menus")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -60,7 +60,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "name" to "Read Users",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/iam/permissions")
+                ).post("/iam/permissions")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -77,7 +77,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "menuIds" to listOf(childMenuId),
                         "permissionIds" to listOf(permissionId),
                     ),
-                ).post("/api/iam/roles")
+                ).post("/iam/roles")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -94,7 +94,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "enabled" to true,
                         "roleIds" to listOf(roleId),
                     ),
-                ).post("/api/iam/users")
+                ).post("/iam/users")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -103,7 +103,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/iam/authorization-snapshots/users/$userId")
+            .get("/iam/authorization-snapshots/users/$userId")
             .then()
             .statusCode(200)
             .body("user.username", equalTo("graph-admin"))
@@ -127,7 +127,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                         "enabled" to true,
                         "passwordHash" to BcryptUtil.bcryptHash(password),
                     ),
-                ).post("/api/iam/users")
+                ).post("/iam/users")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -142,7 +142,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                     "email" to "password-keep-user-updated@example.com",
                     "enabled" to true,
                 ),
-            ).put("/api/iam/users/$userId")
+            ).put("/iam/users/$userId")
             .then()
             .statusCode(200)
 
@@ -155,7 +155,7 @@ class IdentityAccessResourceTest : AuthenticatedHttpResourceTest() {
                     "password" to password,
                     "clientType" to "WEB",
                 ),
-            ).post("/api/auth/login")
+            ).post("/auth/login")
             .then()
             .statusCode(200)
     }

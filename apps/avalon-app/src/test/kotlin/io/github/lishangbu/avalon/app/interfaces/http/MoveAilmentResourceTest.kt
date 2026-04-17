@@ -20,7 +20,7 @@ class MoveAilmentResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Inflicts burn",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-ailments")
+                ).post("/catalog/move-ailments")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("BURN-CRUD"))
@@ -31,7 +31,7 @@ class MoveAilmentResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-ailments/$ailmentId")
+            .get("/catalog/move-ailments/$ailmentId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Inflicts burn"))
@@ -46,7 +46,7 @@ class MoveAilmentResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/move-ailments/$ailmentId")
+            ).put("/catalog/move-ailments/$ailmentId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Burn Plus"))
@@ -54,14 +54,14 @@ class MoveAilmentResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-ailments")
+            .get("/catalog/move-ailments")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
             .body("[0].code", equalTo("BURN-CRUD"))
 
         given()
-            .delete("/api/catalog/move-ailments/$ailmentId")
+            .delete("/catalog/move-ailments/$ailmentId")
             .then()
             .statusCode(204)
     }

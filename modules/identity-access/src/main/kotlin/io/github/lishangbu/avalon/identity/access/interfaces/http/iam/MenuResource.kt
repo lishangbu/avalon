@@ -13,7 +13,7 @@ import java.util.UUID
 /**
  * 菜单管理 HTTP 入口。
  */
-@Path("/api/iam/menus")
+@Path("/iam/menus")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MenuResource(

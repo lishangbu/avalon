@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 物种招式学习关系维护 HTTP 入口。
  */
-@Path("/api/catalog/species-move-learnsets")
+@Path("/catalog/species-move-learnsets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class SpeciesMoveLearnsetResource(

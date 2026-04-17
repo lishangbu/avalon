@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 招式分类定义的 HTTP 入口。
  */
-@Path("/api/catalog/move-categories")
+@Path("/catalog/move-categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MoveCategoryResource(

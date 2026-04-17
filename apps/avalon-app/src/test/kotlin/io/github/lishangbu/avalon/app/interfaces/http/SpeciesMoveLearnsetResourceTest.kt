@@ -29,7 +29,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                             "description" to "Type used by learnset tests",
                             "sortingOrder" to 10,
                         ),
-                    ).post("/api/catalog/types")
+                    ).post("/catalog/types")
                     .then()
                     .statusCode(200)
                     .body("code", equalTo("FIRE-LEARNSET"))
@@ -58,7 +58,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                                     ),
                             "sortingOrder" to 10,
                         ),
-                    ).post("/api/catalog/species")
+                    ).post("/catalog/species")
                     .then()
                     .statusCode(200)
                     .body("code", equalTo("FLAMELING-LEARNSET"))
@@ -78,7 +78,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                             "powerPoints" to 25,
                             "sortingOrder" to 10,
                         ),
-                    ).post("/api/catalog/moves")
+                    ).post("/catalog/moves")
                     .then()
                     .statusCode(200)
                     .body("code", equalTo("EMBER-LEARNSET"))
@@ -96,7 +96,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                             "description" to "Learned by leveling up",
                             "sortingOrder" to 10,
                         ),
-                    ).post("/api/catalog/move-learn-methods")
+                    ).post("/catalog/move-learn-methods")
                     .then()
                     .statusCode(200)
                     .body("code", equalTo("LEVEL-UP"))
@@ -114,7 +114,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                             "description" to "Learned from a machine",
                             "sortingOrder" to 20,
                         ),
-                    ).post("/api/catalog/move-learn-methods")
+                    ).post("/catalog/move-learn-methods")
                     .then()
                     .statusCode(200)
                     .body("code", equalTo("MACHINE"))
@@ -131,7 +131,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                         "learnMethodId" to levelUpLearnMethodId,
                         "sortingOrder" to 15,
                     ),
-                ).post("/api/catalog/species-move-learnsets")
+                ).post("/catalog/species-move-learnsets")
                 .then()
                 .statusCode(400)
                 .body("type", equalTo("urn:avalon:problem:catalog:bad-request"))
@@ -151,7 +151,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                             "level" to 7,
                             "sortingOrder" to 10,
                         ),
-                    ).post("/api/catalog/species-move-learnsets")
+                    ).post("/catalog/species-move-learnsets")
                     .then()
                     .statusCode(200)
                     .body("species.code", equalTo("FLAMELING-LEARNSET"))
@@ -164,7 +164,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species-move-learnsets/$learnsetId")
+                .get("/catalog/species-move-learnsets/$learnsetId")
                 .then()
                 .statusCode(200)
                 .body("move.name", equalTo("Ember Learnset"))
@@ -180,7 +180,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
                         "sortingOrder" to 5,
                         "enabled" to false,
                     ),
-                ).put("/api/catalog/species-move-learnsets/$learnsetId")
+                ).put("/catalog/species-move-learnsets/$learnsetId")
                 .then()
                 .statusCode(400)
                 .body("type", equalTo("urn:avalon:problem:catalog:bad-request"))
@@ -191,7 +191,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species-move-learnsets/$learnsetId")
+                .get("/catalog/species-move-learnsets/$learnsetId")
                 .then()
                 .statusCode(200)
                 .body("learnMethod.code", equalTo("LEVEL-UP"))
@@ -199,7 +199,7 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species-move-learnsets")
+                .get("/catalog/species-move-learnsets")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))
@@ -207,42 +207,42 @@ class SpeciesMoveLearnsetResourceTest : AuthenticatedHttpResourceTest() {
         } finally {
             learnsetId?.let {
                 given()
-                    .delete("/api/catalog/species-move-learnsets/$it")
+                    .delete("/catalog/species-move-learnsets/$it")
                     .then()
                     .statusCode(204)
             }
 
             machineLearnMethodId?.let {
                 given()
-                    .delete("/api/catalog/move-learn-methods/$it")
+                    .delete("/catalog/move-learn-methods/$it")
                     .then()
                     .statusCode(204)
             }
 
             levelUpLearnMethodId?.let {
                 given()
-                    .delete("/api/catalog/move-learn-methods/$it")
+                    .delete("/catalog/move-learn-methods/$it")
                     .then()
                     .statusCode(204)
             }
 
             moveId?.let {
                 given()
-                    .delete("/api/catalog/moves/$it")
+                    .delete("/catalog/moves/$it")
                     .then()
                     .statusCode(204)
             }
 
             speciesId?.let {
                 given()
-                    .delete("/api/catalog/species/$it")
+                    .delete("/catalog/species/$it")
                     .then()
                     .statusCode(204)
             }
 
             typeId?.let {
                 given()
-                    .delete("/api/catalog/types/$it")
+                    .delete("/catalog/types/$it")
                     .then()
                     .statusCode(204)
             }

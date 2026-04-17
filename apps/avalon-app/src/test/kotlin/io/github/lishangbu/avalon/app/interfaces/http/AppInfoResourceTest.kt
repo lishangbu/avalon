@@ -11,7 +11,7 @@ class AppInfoResourceTest {
     @Test
     fun shouldExposeApplicationMetadata() {
         given()
-            .`when`().get("/api/app-info")
+            .`when`().get("/app-info")
             .then()
             .statusCode(200)
             .body("name", equalTo("avalon"))

@@ -12,7 +12,7 @@ import java.util.UUID
 /**
  * 角色管理 HTTP 入口。
  */
-@Path("/api/iam/roles")
+@Path("/iam/roles")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class RoleResource(

@@ -6,13 +6,15 @@ quarkus:
     username: postgres
     password: postgres
   http:
+    root-path: /api
+    non-application-root-path: /q
     auth:
       permission:
         public:
-          paths: /api/app-info,/api/auth/login,/api/auth/refresh
+          paths: ${quarkus.http.root-path}/app-info,${quarkus.http.root-path}/auth/login,${quarkus.http.root-path}/auth/refresh
           policy: permit
         authenticated:
-          paths: /api/*
+          paths: ${quarkus.http.root-path}/*
           policy: authenticated
   swagger-ui:
     always-include: true

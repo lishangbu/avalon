@@ -44,7 +44,7 @@ private object SeedAdminToken {
                     "password" to SEEDED_ADMIN_PASSWORD,
                     "clientType" to "ADMIN",
                 ),
-            ).post("/api/auth/login")
+            ).post("/auth/login")
             .then()
             .statusCode(200)
             .extract()

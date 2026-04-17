@@ -16,7 +16,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
         val initialTotalItems =
             given()
                 .`when`()
-                .get("/api/catalog/species?size=1")
+                .get("/catalog/species?size=1")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -77,7 +77,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species?page=$firstNewPage&size=1")
+                .get("/catalog/species?page=$firstNewPage&size=1")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(1))
@@ -90,7 +90,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species?page=$lastNewPage&size=1")
+                .get("/catalog/species?page=$lastNewPage&size=1")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(1))
@@ -103,7 +103,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/catalog/species?page=${lastNewPage + 1}&size=1")
+                .get("/catalog/species?page=${lastNewPage + 1}&size=1")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(0))
@@ -124,7 +124,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
     fun shouldRejectInvalidSpeciesPageParameters() {
         given()
             .`when`()
-            .get("/api/catalog/species?page=0&size=101")
+            .get("/catalog/species?page=0&size=101")
             .then()
             .statusCode(400)
             .body("code", equalTo("request_validation_failed"))
@@ -144,7 +144,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
                     "name" to name,
                     "sortingOrder" to sortingOrder,
                 ),
-            ).post("/api/catalog/types")
+            ).post("/catalog/types")
             .then()
             .statusCode(200)
             .extract()
@@ -166,7 +166,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
                     "formulaCode" to formulaCode,
                     "sortingOrder" to sortingOrder,
                 ),
-            ).post("/api/catalog/growth-rates")
+            ).post("/catalog/growth-rates")
             .then()
             .statusCode(200)
             .extract()
@@ -201,7 +201,7 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
                             ),
                     "sortingOrder" to sortingOrder,
                 ),
-            ).post("/api/catalog/species")
+            ).post("/catalog/species")
             .then()
             .statusCode(200)
             .extract()
@@ -210,21 +210,21 @@ class SpeciesResourceTest : AuthenticatedHttpResourceTest() {
 
     private fun deleteSpecies(id: UUID) {
         given()
-            .delete("/api/catalog/species/$id")
+            .delete("/catalog/species/$id")
             .then()
             .statusCode(204)
     }
 
     private fun deleteGrowthRate(id: UUID) {
         given()
-            .delete("/api/catalog/growth-rates/$id")
+            .delete("/catalog/growth-rates/$id")
             .then()
             .statusCode(204)
     }
 
     private fun deleteType(id: UUID) {
         given()
-            .delete("/api/catalog/types/$id")
+            .delete("/catalog/types/$id")
             .then()
             .statusCode(204)
     }

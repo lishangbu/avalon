@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType
  *
  * 对外以整张 `type chart` 为边界读写，避免把矩阵维护暴露成散落的行级 CRUD。
  */
-@Path("/api/catalog/type-chart")
+@Path("/catalog/type-chart")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class TypeChartResource(

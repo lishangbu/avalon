@@ -17,7 +17,7 @@ import java.util.UUID
 /**
  * 属性定义维护 HTTP 入口。
  */
-@Path("/api/catalog/types")
+@Path("/catalog/types")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class TypeDefinitionResource(

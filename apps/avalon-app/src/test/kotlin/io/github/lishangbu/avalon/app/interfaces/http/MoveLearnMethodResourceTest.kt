@@ -20,7 +20,7 @@ class MoveLearnMethodResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Learned by leveling up",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-learn-methods")
+                ).post("/catalog/move-learn-methods")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("LEVEL-UP-CRUD"))
@@ -31,7 +31,7 @@ class MoveLearnMethodResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-learn-methods/$methodId")
+            .get("/catalog/move-learn-methods/$methodId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Learned by leveling up"))
@@ -46,7 +46,7 @@ class MoveLearnMethodResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/move-learn-methods/$methodId")
+            ).put("/catalog/move-learn-methods/$methodId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Level Up Plus"))
@@ -54,14 +54,14 @@ class MoveLearnMethodResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-learn-methods")
+            .get("/catalog/move-learn-methods")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
             .body("[0].code", equalTo("LEVEL-UP-CRUD"))
 
         given()
-            .delete("/api/catalog/move-learn-methods/$methodId")
+            .delete("/catalog/move-learn-methods/$methodId")
             .then()
             .statusCode(204)
     }

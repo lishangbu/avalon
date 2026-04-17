@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 招式目标定义的 HTTP 入口。
  */
-@Path("/api/catalog/move-targets")
+@Path("/catalog/move-targets")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MoveTargetResource(

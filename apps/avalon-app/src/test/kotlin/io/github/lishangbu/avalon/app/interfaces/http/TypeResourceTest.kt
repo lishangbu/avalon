@@ -66,7 +66,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/types/$fireTypeId")
+            ).put("/catalog/types/$fireTypeId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Type Flame $suffix"))
@@ -100,7 +100,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
                             ),
                         ),
                 ),
-            ).put("/api/catalog/type-chart")
+            ).put("/catalog/type-chart")
             .then()
             .statusCode(200)
             .body("types.size()", equalTo(2))
@@ -110,7 +110,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/type-chart")
+            .get("/catalog/type-chart")
             .then()
             .statusCode(200)
             .body("types.size()", equalTo(2))
@@ -119,7 +119,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/types")
+            .get("/catalog/types")
             .then()
             .statusCode(200)
             .body("find { it.id == '$fireTypeId' }.name", equalTo("Type Flame $suffix"))
@@ -159,7 +159,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
                             ),
                         ),
                 ),
-            ).put("/api/catalog/type-chart")
+            ).put("/catalog/type-chart")
             .then()
             .statusCode(400)
     }
@@ -178,7 +178,7 @@ class TypeResourceTest : AuthenticatedHttpResourceTest() {
                         "name" to name,
                         "sortingOrder" to sortingOrder,
                     ),
-                ).post("/api/catalog/types")
+                ).post("/catalog/types")
                 .then()
                 .statusCode(200)
                 .extract()

@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 道具定义维护 HTTP 入口。
  */
-@Path("/api/catalog/items")
+@Path("/catalog/items")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class ItemResource(

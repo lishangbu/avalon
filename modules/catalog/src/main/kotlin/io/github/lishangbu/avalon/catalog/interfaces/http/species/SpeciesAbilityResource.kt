@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 物种特性关联维护 HTTP 入口。
  */
-@Path("/api/catalog/species-abilities")
+@Path("/catalog/species-abilities")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class SpeciesAbilityResource(

@@ -12,7 +12,7 @@ import java.util.UUID
 /**
  * 用户管理 HTTP 入口。
  */
-@Path("/api/iam/users")
+@Path("/iam/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class UserResource(

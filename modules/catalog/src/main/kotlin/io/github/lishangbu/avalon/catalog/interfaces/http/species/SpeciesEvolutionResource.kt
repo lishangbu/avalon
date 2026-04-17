@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 物种进化定义维护 HTTP 入口。
  */
-@Path("/api/catalog/species-evolutions")
+@Path("/catalog/species-evolutions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class SpeciesEvolutionResource(

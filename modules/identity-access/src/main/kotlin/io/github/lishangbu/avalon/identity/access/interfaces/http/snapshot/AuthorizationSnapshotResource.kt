@@ -13,7 +13,7 @@ import java.util.UUID
 /**
  * 对外提供授权快照查询的 HTTP 入口。
  */
-@Path("/api/iam/authorization-snapshots")
+@Path("/iam/authorization-snapshots")
 @Produces(MediaType.APPLICATION_JSON)
 class AuthorizationSnapshotResource(
     private val service: IdentityAccessService,

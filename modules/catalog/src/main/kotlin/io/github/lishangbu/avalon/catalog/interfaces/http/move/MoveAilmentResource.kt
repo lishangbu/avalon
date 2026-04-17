@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 招式异常状态定义的 HTTP 入口。
  */
-@Path("/api/catalog/move-ailments")
+@Path("/catalog/move-ailments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MoveAilmentResource(

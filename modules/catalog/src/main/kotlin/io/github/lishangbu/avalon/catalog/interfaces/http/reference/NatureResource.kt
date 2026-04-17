@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 性格定义维护 HTTP 入口。
  */
-@Path("/api/catalog/natures")
+@Path("/catalog/natures")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class NatureResource(

@@ -20,7 +20,7 @@ class AuthenticationResourceTest {
                         "code" to "auth-admin",
                         "name" to "Auth Administrator",
                     ),
-                ).post("/api/iam/roles")
+                ).post("/iam/roles")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -39,7 +39,7 @@ class AuthenticationResourceTest {
                     "passwordHash" to BcryptUtil.bcryptHash(password),
                     "roleIds" to listOf(roleId),
                 ),
-            ).post("/api/iam/users")
+            ).post("/iam/users")
             .then()
             .statusCode(200)
 
@@ -54,7 +54,7 @@ class AuthenticationResourceTest {
                         "clientType" to "ADMIN",
                         "deviceName" to "Chrome",
                     ),
-                ).post("/api/auth/login")
+                ).post("/auth/login")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -66,7 +66,7 @@ class AuthenticationResourceTest {
         given()
             .auth().oauth2(firstAccessToken)
             .`when`()
-            .get("/api/auth/current-user")
+            .get("/auth/current-user")
             .then()
             .statusCode(200)
             .body("sessionId", equalTo(firstSessionId))
@@ -77,7 +77,7 @@ class AuthenticationResourceTest {
             given()
                 .contentType(JSON)
                 .body(mapOf("refreshToken" to firstRefreshToken))
-                .post("/api/auth/refresh")
+                .post("/auth/refresh")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -87,7 +87,7 @@ class AuthenticationResourceTest {
         given()
             .auth().oauth2(refreshedAccessToken)
             .`when`()
-            .get("/api/auth/sessions")
+            .get("/auth/sessions")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
@@ -105,7 +105,7 @@ class AuthenticationResourceTest {
                         "clientType" to "ADMIN",
                         "deviceName" to "Safari",
                     ),
-                ).post("/api/auth/login")
+                ).post("/auth/login")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -117,7 +117,7 @@ class AuthenticationResourceTest {
         given()
             .contentType(JSON)
             .body(mapOf("refreshToken" to firstRefreshToken))
-            .post("/api/auth/refresh")
+            .post("/auth/refresh")
             .then()
             .statusCode(401)
             .body("type", equalTo("urn:avalon:problem:authentication:failed"))
@@ -129,7 +129,7 @@ class AuthenticationResourceTest {
         given()
             .auth().oauth2(secondAccessToken)
             .`when`()
-            .get("/api/auth/sessions")
+            .get("/auth/sessions")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
@@ -138,14 +138,14 @@ class AuthenticationResourceTest {
 
         given()
             .auth().oauth2(secondAccessToken)
-            .post("/api/auth/logout")
+            .post("/auth/logout")
             .then()
             .statusCode(204)
 
         given()
             .contentType(JSON)
             .body(mapOf("refreshToken" to secondRefreshToken))
-            .post("/api/auth/refresh")
+            .post("/auth/refresh")
             .then()
             .statusCode(401)
     }
@@ -161,7 +161,7 @@ class AuthenticationResourceTest {
                     "password" to "Secret123!",
                     "clientType" to "WEB",
                 ),
-            ).post("/api/auth/login")
+            ).post("/auth/login")
             .then()
             .statusCode(400)
             .body("type", equalTo("urn:avalon:problem:identity-access:bad-request"))
@@ -182,7 +182,7 @@ class AuthenticationResourceTest {
                     "password" to "Secret123!",
                     "clientType" to "WEB",
                 ),
-            ).post("/api/auth/login")
+            ).post("/auth/login")
             .then()
             .statusCode(400)
             .body("type", equalTo("urn:avalon:problem:request:body-invalid"))
@@ -197,7 +197,7 @@ class AuthenticationResourceTest {
         given()
             .contentType(JSON)
             .body("""{"identityType":"USERNAME","principal":"broken" """)
-            .post("/api/auth/login")
+            .post("/auth/login")
             .then()
             .statusCode(400)
             .body("type", equalTo("urn:avalon:problem:request:body-malformed"))

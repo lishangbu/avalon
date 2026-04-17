@@ -28,7 +28,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Fire attribute",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/types")
+                ).post("/catalog/types")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("FIRE"))
@@ -46,7 +46,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "name" to "Water",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/types")
+                ).post("/catalog/types")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("WATER"))
@@ -64,7 +64,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/types/$fireTypeId")
+            ).put("/catalog/types/$fireTypeId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Flame"))
@@ -98,7 +98,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                             ),
                         ),
                 ),
-            ).put("/api/catalog/type-chart")
+            ).put("/catalog/type-chart")
             .then()
             .statusCode(200)
             .body("entries.size()", equalTo(4))
@@ -106,7 +106,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/types")
+            .get("/catalog/types")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -122,7 +122,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Neutral nature",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/natures")
+                ).post("/catalog/natures")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("HARDY"))
@@ -143,7 +143,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "decreasedStatCode" to "special_attack",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/natures")
+                ).post("/catalog/natures")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("ADAMANT"))
@@ -155,7 +155,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/natures/$adamantNatureId")
+            .get("/catalog/natures/$adamantNatureId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Adamant"))
@@ -173,7 +173,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 15,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/natures/$adamantNatureId")
+            ).put("/catalog/natures/$adamantNatureId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Adamant Revised"))
@@ -190,13 +190,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "increasedStatCode" to "attack",
                     "decreasedStatCode" to "attack",
                 ),
-            ).post("/api/catalog/natures")
+            ).post("/catalog/natures")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/natures")
+            .get("/catalog/natures")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -215,7 +215,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "consumable" to true,
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/items")
+                ).post("/catalog/items")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("POTION"))
@@ -238,7 +238,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "consumable" to false,
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/items")
+                ).post("/catalog/items")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("ANCIENT-KEY"))
@@ -249,7 +249,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/items/$potionItemId")
+            .get("/catalog/items/$potionItemId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Potion"))
@@ -268,7 +268,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/items/$potionItemId")
+            ).put("/catalog/items/$potionItemId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Potion Plus"))
@@ -284,13 +284,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "categoryCode" to "consumable",
                     "maxStackSize" to 0,
                 ),
-            ).post("/api/catalog/items")
+            ).post("/catalog/items")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/items")
+            .get("/catalog/items")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -306,7 +306,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Empowers fire techniques at low health",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/abilities")
+                ).post("/catalog/abilities")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("BLAZE"))
@@ -325,7 +325,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Empowers water techniques at low health",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/abilities")
+                ).post("/catalog/abilities")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("TORRENT"))
@@ -335,7 +335,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/abilities/$blazeAbilityId")
+            .get("/catalog/abilities/$blazeAbilityId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Empowers fire techniques at low health"))
@@ -351,7 +351,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/abilities/$blazeAbilityId")
+            ).put("/catalog/abilities/$blazeAbilityId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Blaze Revised"))
@@ -365,13 +365,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "code" to "",
                     "name" to "Broken Ability",
                 ),
-            ).post("/api/catalog/abilities")
+            ).post("/catalog/abilities")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/abilities")
+            .get("/catalog/abilities")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -387,7 +387,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Damage plus a status ailment",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-categories")
+                ).post("/catalog/move-categories")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("DAMAGE+AILMENT"))
@@ -406,7 +406,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Pure status ailments",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/move-categories")
+                ).post("/catalog/move-categories")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("AILMENT"))
@@ -425,7 +425,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Inflicts burn",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-ailments")
+                ).post("/catalog/move-ailments")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("BURN"))
@@ -444,7 +444,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Inflicts paralysis",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/move-ailments")
+                ).post("/catalog/move-ailments")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("PARALYSIS"))
@@ -463,7 +463,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Targets the selected opponent",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-targets")
+                ).post("/catalog/move-targets")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("SELECTED-POKEMON"))
@@ -495,7 +495,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "effect" to "A small flame attack with a burn chance.",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/moves")
+                ).post("/catalog/moves")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("EMBER"))
@@ -531,7 +531,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "effect" to "Lowers the target attack.",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/moves")
+                ).post("/catalog/moves")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("GROWL"))
@@ -548,7 +548,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/moves/$emberMoveId")
+            .get("/catalog/moves/$emberMoveId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Ember"))
@@ -577,7 +577,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/moves/$emberMoveId")
+            ).put("/catalog/moves/$emberMoveId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Ember Plus"))
@@ -600,13 +600,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "categoryCode" to "unknown",
                     "powerPoints" to 10,
                 ),
-            ).post("/api/catalog/moves")
+            ).post("/catalog/moves")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/moves")
+            .get("/catalog/moves")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -623,7 +623,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Standard balanced growth",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/growth-rates")
+                ).post("/catalog/growth-rates")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("MEDIUM-FAST"))
@@ -642,7 +642,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "formulaCode" to "slow",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/growth-rates")
+                ).post("/catalog/growth-rates")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("SLOW"))
@@ -653,7 +653,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/growth-rates/$mediumFastGrowthRateId")
+            .get("/catalog/growth-rates/$mediumFastGrowthRateId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Medium Fast"))
@@ -669,7 +669,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/growth-rates/$mediumFastGrowthRateId")
+            ).put("/catalog/growth-rates/$mediumFastGrowthRateId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Medium Fast Revised"))
@@ -684,13 +684,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "name" to "Broken Growth",
                     "formulaCode" to "unknown",
                 ),
-            ).post("/api/catalog/growth-rates")
+            ).post("/catalog/growth-rates")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/growth-rates")
+            .get("/catalog/growth-rates")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
@@ -718,7 +718,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                                 ),
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/species")
+                ).post("/catalog/species")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("FLARE-CUB"))
@@ -753,7 +753,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                                 ),
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/species")
+                ).post("/catalog/species")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("STEAM-DRAKE"))
@@ -766,7 +766,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/species/$flareCubSpeciesId")
+            .get("/catalog/species/$flareCubSpeciesId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Flare Cub"))
@@ -796,7 +796,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/species/$flareCubSpeciesId")
+            ).put("/catalog/species/$flareCubSpeciesId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Flare Cub Prime"))
@@ -825,13 +825,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                                 "speed" to 10,
                             ),
                 ),
-            ).post("/api/catalog/species")
+            ).post("/catalog/species")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/species")
+            .get("/catalog/species")
             .then()
             .statusCode(200)
             .body("items.size()", equalTo(2))
@@ -844,7 +844,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/species?page=2&size=1")
+            .get("/catalog/species?page=2&size=1")
             .then()
             .statusCode(200)
             .body("items.size()", equalTo(1))
@@ -867,7 +867,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Evolves after sustained training",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/species-evolutions")
+                ).post("/catalog/species-evolutions")
                 .then()
                 .statusCode(200)
                 .body("fromSpecies.code", equalTo("FLARE-CUB"))
@@ -880,7 +880,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/species-evolutions/$flareEvolutionId")
+            .get("/catalog/species-evolutions/$flareEvolutionId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Evolves after sustained training"))
@@ -897,7 +897,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/species-evolutions/$flareEvolutionId")
+            ).put("/catalog/species-evolutions/$flareEvolutionId")
             .then()
             .statusCode(200)
             .body("minLevel", equalTo(18))
@@ -912,7 +912,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "toSpeciesId" to steamDrakeSpeciesId,
                     "triggerCode" to "level",
                 ),
-            ).post("/api/catalog/species-evolutions")
+            ).post("/catalog/species-evolutions")
             .then()
             .statusCode(400)
 
@@ -924,13 +924,13 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "toSpeciesId" to flareCubSpeciesId,
                     "triggerCode" to "other",
                 ),
-            ).post("/api/catalog/species-evolutions")
+            ).post("/catalog/species-evolutions")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/species-evolutions")
+            .get("/catalog/species-evolutions")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
@@ -946,7 +946,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "slotCode" to "primary",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/species-abilities")
+                ).post("/catalog/species-abilities")
                 .then()
                 .statusCode(200)
                 .body("species.code", equalTo("FLARE-CUB"))
@@ -966,7 +966,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                         "slotCode" to "hidden",
                         "sortingOrder" to 20,
                     ),
-                ).post("/api/catalog/species-abilities")
+                ).post("/catalog/species-abilities")
                 .then()
                 .statusCode(200)
                 .body("slotCode", equalTo("HIDDEN"))
@@ -976,7 +976,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/species-abilities/$flarePrimaryAbilityId")
+            .get("/catalog/species-abilities/$flarePrimaryAbilityId")
             .then()
             .statusCode(200)
             .body("ability.name", equalTo("Blaze Revised"))
@@ -991,7 +991,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 15,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/species-abilities/$flareHiddenAbilityId")
+            ).put("/catalog/species-abilities/$flareHiddenAbilityId")
             .then()
             .statusCode(200)
             .body("slotCode", equalTo("SECONDARY"))
@@ -1005,7 +1005,7 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "abilityId" to torrentAbilityId,
                     "slotCode" to "primary",
                 ),
-            ).post("/api/catalog/species-abilities")
+            ).post("/catalog/species-abilities")
             .then()
             .statusCode(409)
             .body("type", equalTo("urn:avalon:problem:catalog:conflict"))
@@ -1022,142 +1022,142 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                     "abilityId" to blazeAbilityId,
                     "slotCode" to "unknown",
                 ),
-            ).post("/api/catalog/species-abilities")
+            ).post("/catalog/species-abilities")
             .then()
             .statusCode(400)
 
         given()
             .`when`()
-            .get("/api/catalog/species-abilities")
+            .get("/catalog/species-abilities")
             .then()
             .statusCode(200)
             .body("size()", equalTo(2))
             .body("[0].species.code", equalTo("FLARE-CUB"))
 
         given()
-            .delete("/api/catalog/types/$fireTypeId")
+            .delete("/catalog/types/$fireTypeId")
             .then()
             .statusCode(409)
 
         given()
-            .delete("/api/catalog/species/$flareCubSpeciesId")
+            .delete("/catalog/species/$flareCubSpeciesId")
             .then()
             .statusCode(409)
 
         given()
-            .delete("/api/catalog/abilities/$blazeAbilityId")
+            .delete("/catalog/abilities/$blazeAbilityId")
             .then()
             .statusCode(409)
 
         given()
-            .delete("/api/catalog/natures/$adamantNatureId")
+            .delete("/catalog/natures/$adamantNatureId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/natures/$hardyNatureId")
+            .delete("/catalog/natures/$hardyNatureId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/items/$potionItemId")
+            .delete("/catalog/items/$potionItemId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/items/$keyItemId")
+            .delete("/catalog/items/$keyItemId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/moves/$emberMoveId")
+            .delete("/catalog/moves/$emberMoveId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/moves/$growlMoveId")
+            .delete("/catalog/moves/$growlMoveId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/move-targets/$selectedPokemonTargetId")
+            .delete("/catalog/move-targets/$selectedPokemonTargetId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/move-categories/$damageAilmentMoveCategoryId")
+            .delete("/catalog/move-categories/$damageAilmentMoveCategoryId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/move-categories/$ailmentMoveCategoryId")
+            .delete("/catalog/move-categories/$ailmentMoveCategoryId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/move-ailments/$burnMoveAilmentId")
+            .delete("/catalog/move-ailments/$burnMoveAilmentId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/move-ailments/$paralysisMoveAilmentId")
+            .delete("/catalog/move-ailments/$paralysisMoveAilmentId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/species-abilities/$flarePrimaryAbilityId")
+            .delete("/catalog/species-abilities/$flarePrimaryAbilityId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/species-abilities/$flareHiddenAbilityId")
+            .delete("/catalog/species-abilities/$flareHiddenAbilityId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/abilities/$blazeAbilityId")
+            .delete("/catalog/abilities/$blazeAbilityId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/abilities/$torrentAbilityId")
+            .delete("/catalog/abilities/$torrentAbilityId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/species-evolutions/$flareEvolutionId")
+            .delete("/catalog/species-evolutions/$flareEvolutionId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/species/$flareCubSpeciesId")
+            .delete("/catalog/species/$flareCubSpeciesId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/species/$steamDrakeSpeciesId")
+            .delete("/catalog/species/$steamDrakeSpeciesId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/growth-rates/$mediumFastGrowthRateId")
+            .delete("/catalog/growth-rates/$mediumFastGrowthRateId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/growth-rates/$slowGrowthRateId")
+            .delete("/catalog/growth-rates/$slowGrowthRateId")
             .then()
             .statusCode(204)
 
         clearTypeChartEntries(fireTypeId, waterTypeId)
 
         given()
-            .delete("/api/catalog/types/$fireTypeId")
+            .delete("/catalog/types/$fireTypeId")
             .then()
             .statusCode(204)
 
         given()
-            .delete("/api/catalog/types/$waterTypeId")
+            .delete("/catalog/types/$waterTypeId")
             .then()
             .statusCode(204)
     }

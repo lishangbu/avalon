@@ -9,12 +9,12 @@ class HttpSecurityConfigurationTest {
     @Test
     fun shouldRequireAuthenticationForProtectedApiRoutes() {
         given()
-            .`when`().get("/api/catalog/types")
+            .`when`().get("/catalog/types")
             .then()
             .statusCode(401)
 
         given()
-            .`when`().get("/api/iam/users")
+            .`when`().get("/iam/users")
             .then()
             .statusCode(401)
     }

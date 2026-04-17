@@ -13,10 +13,10 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
     @Test
     fun shouldPageUsersRolesPermissionsAndMenus() {
         val suffix = System.nanoTime().toString()
-        val initialMenuTotal = currentTotalItems("/api/iam/menus")
-        val initialPermissionTotal = currentTotalItems("/api/iam/permissions")
-        val initialRoleTotal = currentTotalItems("/api/iam/roles")
-        val initialUserTotal = currentTotalItems("/api/iam/users")
+        val initialMenuTotal = currentTotalItems("/iam/menus")
+        val initialPermissionTotal = currentTotalItems("/iam/permissions")
+        val initialRoleTotal = currentTotalItems("/iam/roles")
+        val initialUserTotal = currentTotalItems("/iam/users")
 
         val menuIds = mutableListOf<UUID>()
         val permissionIds = mutableListOf<UUID>()
@@ -67,7 +67,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
             }
 
             assertSingleItemPage(
-                path = "/api/iam/menus",
+                path = "/iam/menus",
                 page = initialMenuTotal.toInt() + 1,
                 expectedField = "items[0].key",
                 expectedValue = "iam-page-menu-$suffix-1",
@@ -75,7 +75,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                 hasNext = true,
             )
             assertSingleItemPage(
-                path = "/api/iam/menus",
+                path = "/iam/menus",
                 page = initialMenuTotal.toInt() + 3,
                 expectedField = "items[0].key",
                 expectedValue = "iam-page-menu-$suffix-3",
@@ -84,7 +84,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
             )
 
             assertSingleItemPage(
-                path = "/api/iam/permissions",
+                path = "/iam/permissions",
                 page = initialPermissionTotal.toInt() + 1,
                 expectedField = "items[0].code",
                 expectedValue = "iam:page:permission:$suffix:1",
@@ -92,7 +92,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                 hasNext = true,
             )
             assertSingleItemPage(
-                path = "/api/iam/permissions",
+                path = "/iam/permissions",
                 page = initialPermissionTotal.toInt() + 3,
                 expectedField = "items[0].code",
                 expectedValue = "iam:page:permission:$suffix:3",
@@ -102,19 +102,19 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             val firstCreatedRolePage =
                 findSingleItemPageByFieldValue(
-                    path = "/api/iam/roles",
+                    path = "/iam/roles",
                     field = "code",
                     expectedValue = "~iam-page-role-$suffix-1",
                 )
             val lastCreatedRolePage =
                 findSingleItemPageByFieldValue(
-                    path = "/api/iam/roles",
+                    path = "/iam/roles",
                     field = "code",
                     expectedValue = "~iam-page-role-$suffix-3",
                 )
 
             assertSingleItemPage(
-                path = "/api/iam/roles",
+                path = "/iam/roles",
                 page = firstCreatedRolePage,
                 expectedField = "items[0].code",
                 expectedValue = "~iam-page-role-$suffix-1",
@@ -122,7 +122,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                 hasNext = firstCreatedRolePage < (initialRoleTotal + 3L).toInt(),
             )
             assertSingleItemPage(
-                path = "/api/iam/roles",
+                path = "/iam/roles",
                 page = lastCreatedRolePage,
                 expectedField = "items[0].code",
                 expectedValue = "~iam-page-role-$suffix-3",
@@ -131,7 +131,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
             )
 
             assertSingleItemPage(
-                path = "/api/iam/users",
+                path = "/iam/users",
                 page = initialUserTotal.toInt() + 1,
                 expectedField = "items[0].username",
                 expectedValue = "iam-page-user-$suffix-1",
@@ -139,7 +139,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                 hasNext = true,
             )
             assertSingleItemPage(
-                path = "/api/iam/users",
+                path = "/iam/users",
                 page = initialUserTotal.toInt() + 3,
                 expectedField = "items[0].username",
                 expectedValue = "iam-page-user-$suffix-3",
@@ -158,7 +158,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
     fun shouldRejectInvalidPageParametersOnUserList() {
         given()
             .`when`()
-            .get("/api/iam/users?page=0&size=101")
+            .get("/iam/users?page=0&size=101")
             .then()
             .statusCode(400)
             .body("code", equalTo("request_validation_failed"))
@@ -246,7 +246,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/users?page=1&size=10&username=$enabledUserName&enabled=true")
+                .get("/iam/users?page=1&size=10&username=$enabledUserName&enabled=true")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(1))
@@ -255,7 +255,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/roles?page=1&size=10&code=disabled-$suffix&enabled=false")
+                .get("/iam/roles?page=1&size=10&code=disabled-$suffix&enabled=false")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(1))
@@ -264,7 +264,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/roles/lookup?code=enabled-$suffix&enabled=true")
+                .get("/iam/roles/lookup?code=enabled-$suffix&enabled=true")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))
@@ -272,7 +272,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/permissions?page=1&size=10&menuId=$disabledMenuId&enabled=false")
+                .get("/iam/permissions?page=1&size=10&menuId=$disabledMenuId&enabled=false")
                 .then()
                 .statusCode(200)
                 .body("items.size()", equalTo(1))
@@ -281,7 +281,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/permissions/lookup?code=enabled:$suffix&enabled=true")
+                .get("/iam/permissions/lookup?code=enabled:$suffix&enabled=true")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))
@@ -373,7 +373,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                     "type" to "DIRECTORY",
                     "sortingOrder" to sortingOrder,
                 ),
-            ).post("/api/iam/menus")
+            ).post("/iam/menus")
             .then()
             .statusCode(200)
             .extract()
@@ -397,7 +397,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                     "enabled" to enabled,
                     "sortingOrder" to sortingOrder,
                 ),
-            ).post("/api/iam/permissions")
+            ).post("/iam/permissions")
             .then()
             .statusCode(200)
             .extract()
@@ -421,7 +421,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                     "menuIds" to menuIds.toList(),
                     "permissionIds" to permissionIds.toList(),
                 ),
-            ).post("/api/iam/roles")
+            ).post("/iam/roles")
             .then()
             .statusCode(200)
             .extract()
@@ -443,7 +443,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
                     "enabled" to enabled,
                     "roleIds" to roleIds.toList(),
                 ),
-            ).post("/api/iam/users")
+            ).post("/iam/users")
             .then()
             .statusCode(200)
             .extract()
@@ -452,28 +452,28 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
     private fun deleteUser(id: UUID) {
         given()
-            .delete("/api/iam/users/$id")
+            .delete("/iam/users/$id")
             .then()
             .statusCode(204)
     }
 
     private fun deleteRole(id: UUID) {
         given()
-            .delete("/api/iam/roles/$id")
+            .delete("/iam/roles/$id")
             .then()
             .statusCode(204)
     }
 
     private fun deletePermission(id: UUID) {
         given()
-            .delete("/api/iam/permissions/$id")
+            .delete("/iam/permissions/$id")
             .then()
             .statusCode(204)
     }
 
     private fun deleteMenu(id: UUID) {
         given()
-            .delete("/api/iam/menus/$id")
+            .delete("/iam/menus/$id")
             .then()
             .statusCode(204)
     }

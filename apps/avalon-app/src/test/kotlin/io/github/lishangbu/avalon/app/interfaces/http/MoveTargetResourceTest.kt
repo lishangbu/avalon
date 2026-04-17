@@ -20,7 +20,7 @@ class MoveTargetResourceTest : AuthenticatedHttpResourceTest() {
                         "description" to "Targets the selected opponent",
                         "sortingOrder" to 10,
                     ),
-                ).post("/api/catalog/move-targets")
+                ).post("/catalog/move-targets")
                 .then()
                 .statusCode(200)
                 .body("code", equalTo("SELECTED-POKEMON"))
@@ -31,7 +31,7 @@ class MoveTargetResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-targets/$targetId")
+            .get("/catalog/move-targets/$targetId")
             .then()
             .statusCode(200)
             .body("description", equalTo("Targets the selected opponent"))
@@ -46,7 +46,7 @@ class MoveTargetResourceTest : AuthenticatedHttpResourceTest() {
                     "sortingOrder" to 5,
                     "enabled" to false,
                 ),
-            ).put("/api/catalog/move-targets/$targetId")
+            ).put("/catalog/move-targets/$targetId")
             .then()
             .statusCode(200)
             .body("name", equalTo("Selected Pokemon Plus"))
@@ -54,14 +54,14 @@ class MoveTargetResourceTest : AuthenticatedHttpResourceTest() {
 
         given()
             .`when`()
-            .get("/api/catalog/move-targets")
+            .get("/catalog/move-targets")
             .then()
             .statusCode(200)
             .body("size()", equalTo(1))
             .body("[0].code", equalTo("SELECTED-POKEMON"))
 
         given()
-            .delete("/api/catalog/move-targets/$targetId")
+            .delete("/catalog/move-targets/$targetId")
             .then()
             .statusCode(204)
     }

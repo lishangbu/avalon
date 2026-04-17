@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 招式学习方法维护 HTTP 入口。
  */
-@Path("/api/catalog/move-learn-methods")
+@Path("/catalog/move-learn-methods")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MoveLearnMethodResource(

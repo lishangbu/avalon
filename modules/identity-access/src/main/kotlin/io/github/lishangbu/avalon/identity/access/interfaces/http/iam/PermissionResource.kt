@@ -12,7 +12,7 @@ import java.util.UUID
 /**
  * 权限管理 HTTP 入口。
  */
-@Path("/api/iam/permissions")
+@Path("/iam/permissions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class PermissionResource(

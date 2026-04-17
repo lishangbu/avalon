@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 技能定义维护 HTTP 入口。
  */
-@Path("/api/catalog/moves")
+@Path("/catalog/moves")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class MoveResource(

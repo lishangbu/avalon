@@ -10,7 +10,7 @@ import java.util.UUID
 /**
  * 成长率定义维护 HTTP 入口。
  */
-@Path("/api/catalog/growth-rates")
+@Path("/catalog/growth-rates")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class GrowthRateResource(
