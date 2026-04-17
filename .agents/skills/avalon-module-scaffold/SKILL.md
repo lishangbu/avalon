@@ -1,6 +1,6 @@
 ---
 name: avalon-module-scaffold
-description: 使用 `avalon` 项目的标准 `Gradle Kotlin DSL`、bounded context 模块布局、分层包结构和依赖规则来创建或调整模块。适用于新增上下文模块、引入 `shared-kernel`、`shared-application`、`shared-infra` 等共享模块、拆分已有模块、建立标准的 `domain/application/infrastructure/interfaces/projection` 结构，整理 `interfaces/http` 的按能力分包与 Kotlin 文件拆分，或检查文件是否放在正确的模块与包路径中。
+description: Use when creating, splitting, or reorganizing avalon modules, bounded contexts, shared modules, package layers, or interfaces/http file layout.
 ---
 
 # Avalon 模块脚手架

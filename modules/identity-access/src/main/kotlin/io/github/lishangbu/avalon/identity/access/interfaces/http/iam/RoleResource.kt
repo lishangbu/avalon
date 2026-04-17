@@ -35,14 +35,17 @@ class RoleResource(
         service.pageRoles(parameters.toPageQuery(pageParameters.toPageRequest())).toResponse { it.toResponse() }
 
     /**
-     * 按固定排序列出角色。
+     * 查找可供管理端选择器消费的角色集合。
+     *
+     * 这里保留无分页读取，是为了支撑角色关联选择等轻量 lookup 场景，
+     * 并与默认的分页列表接口区分为不同的对外语义。
      *
      * @param parameters 角色查询参数。
-     * @return 角色列表响应。
+     * @return 命中的角色列表响应。
      */
     @GET
-    @Path("/list")
-    suspend fun list(
+    @Path("/lookup")
+    suspend fun lookup(
         @BeanParam
         parameters: RoleQueryParameters,
     ): List<RoleResponse> = service.listRoles(parameters.toListQuery()).map { it.toResponse() }

@@ -1,6 +1,6 @@
 ---
 name: avalon-flyway-schema
-description: 在 `avalon` 项目中创建或审查 Flyway migration 与关系型数据库 schema 变更。适用于新增 schema、表、字段、索引、唯一约束、外键、通用审计列或共享 outbox DDL，也适用于检查 migration 是否遵守 schema 归属、命名规范以及 bounded context 之间禁止强外键耦合的规则。
+description: Use when creating or reviewing Flyway migrations, relational schema changes, table design, indexes, constraints, audit columns, or outbox DDL in avalon.
 ---
 
 # Avalon Flyway Schema 规则

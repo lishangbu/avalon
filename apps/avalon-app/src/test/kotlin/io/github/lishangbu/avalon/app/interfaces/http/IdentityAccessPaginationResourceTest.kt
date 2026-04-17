@@ -264,7 +264,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/roles/list?code=enabled-$suffix&enabled=true")
+                .get("/api/iam/roles/lookup?code=enabled-$suffix&enabled=true")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))
@@ -281,7 +281,7 @@ class IdentityAccessPaginationResourceTest : AuthenticatedHttpResourceTest() {
 
             given()
                 .`when`()
-                .get("/api/iam/permissions/list?code=enabled:$suffix&enabled=true")
+                .get("/api/iam/permissions/lookup?code=enabled:$suffix&enabled=true")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(1))

@@ -35,14 +35,17 @@ class PermissionResource(
         service.pagePermissions(parameters.toPageQuery(pageParameters.toPageRequest())).toResponse { it.toResponse() }
 
     /**
-     * 按固定排序列出权限。
+     * 查找可供管理端选择器消费的权限集合。
+     *
+     * 这里保留无分页读取，是为了支撑角色授权等轻量 lookup 场景，
+     * 并与默认的分页列表接口区分为不同的对外语义。
      *
      * @param parameters 权限查询参数。
-     * @return 权限列表响应。
+     * @return 命中的权限列表响应。
      */
     @GET
-    @Path("/list")
-    suspend fun list(
+    @Path("/lookup")
+    suspend fun lookup(
         @BeanParam
         parameters: PermissionQueryParameters,
     ): List<PermissionResponse> = service.listPermissions(parameters.toListQuery()).map { it.toResponse() }

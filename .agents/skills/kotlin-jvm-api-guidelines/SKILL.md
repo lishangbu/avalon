@@ -1,6 +1,6 @@
 ---
 name: kotlin-jvm-api-guidelines
-description: 为 Kotlin/JVM 代码提供语法、惯用写法、文件组织与公共 API 设计约束。适用于编写、重构或审查 Kotlin/JVM 代码时决定 nullability、默认参数、扩展函数、顶层函数、sealed/data/value class、一个类一个文件还是按概念聚合、错误处理、KDoc，以及纯 Kotlin API 的稳定性约束；仅在明确存在 Java 调用方时考虑 Java 互操作。
+description: Use when writing or reviewing Kotlin/JVM code in avalon and deciding API shape, nullability, defaults, extensions, file organization, KDoc, or Java interop for explicit Java callers.
 ---
 
 # Kotlin/JVM 语法与 API 技能

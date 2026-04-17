@@ -1,6 +1,6 @@
 ---
 name: avalon-transaction-outbox
-description: 在 `avalon` 项目中应用 `local transaction + outbox` 基线。适用于业务写入成功提交后需要通知其他 bounded context、判断是否必须使用 outbox、实现 outbox writer 或 dispatcher、设计重试与发布状态流转，或审查代码中的双写、事务边界和幂等问题。
+description: Use when a committed write in avalon must notify another bounded context, or when implementing or reviewing local transaction plus outbox, dispatcher retries, and idempotency.
 ---
 
 # Avalon Transaction Outbox

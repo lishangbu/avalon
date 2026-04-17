@@ -1,6 +1,6 @@
 ---
 name: avalon-testing-principles
-description: 在 `avalon` 项目中讨论、设计、编写、审查或补充测试时使用。适用于选择单元测试、集成测试、HTTP smoke test、契约测试或回归测试，拆分过大的接口测试，判断是否需要真实数据库、Quarkus、认证、outbox 或跨上下文验证，并避免过度 mock、重复验证和无重点覆盖。
+description: Use when choosing, adding, reviewing, or restructuring tests in avalon, including unit, integration, HTTP smoke, contract, persistence, outbox, auth, and cross-context verification.
 ---
 
 # Avalon 测试原则

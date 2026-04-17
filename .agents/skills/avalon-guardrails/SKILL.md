@@ -1,6 +1,6 @@
 ---
 name: avalon-guardrails
-description: Avalon 项目级后端架构护栏。用于在 `avalon` 项目中设计或修改模块结构、共享模块、数据库 schema、事务边界、outbox 事件、安全接入、bounded context 集成规则时，统一遵守本仓库的模块化单体、DDD、schema 隔离、禁止跨上下文直连，以及本地事务加 outbox 的核心约束。
+description: Use when working on avalon backend architecture, bounded context boundaries, shared modules, schema ownership, transaction boundaries, outbox, or security-sensitive integration points.
 ---
 
 # Avalon 架构护栏

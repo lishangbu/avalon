@@ -12,6 +12,7 @@
 - `./.agents/skills/avalon-module-scaffold`
 - `./.agents/skills/avalon-flyway-schema`
 - `./.agents/skills/avalon-transaction-outbox`
+- `./.agents/skills/avalon-testing-principles`
 - `./.agents/skills/kotlin-jvm-api-guidelines`
 
 详细项目约束以：

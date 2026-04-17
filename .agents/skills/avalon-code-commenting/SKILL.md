@@ -1,6 +1,6 @@
 ---
 name: avalon-code-commenting
-description: 为 `avalon` 项目中的模块入口文件、接口与公共契约、对外 Request/Response DTO、`shared-kernel` 核心抽象、`shared-application` 应用层公共契约、复杂 `application service`、SQL-first repository、安全敏感路径、`outbox`、ACL、递归树构建和批处理补充或审查中文注释。适用于判断哪些代码必须写 KDoc 风格注释、接口方法与边界 DTO 该如何说明作用、字段语义、入参/返回值/设计思路，以及如何识别低信息量或过期注释。
+description: Use when adding or reviewing Chinese comments and KDoc for avalon module entry files, public contracts, boundary DTOs, shared abstractions, complex services, repositories, security-sensitive paths, or outbox flows.
 ---
 
 # Avalon 注释技能
