@@ -1,8 +1,15 @@
-package io.github.lishangbu.avalon.catalog.interfaces.http.reference
+package io.github.lishangbu.avalon.catalog.interfaces.http.type
 
-import io.github.lishangbu.avalon.catalog.application.CatalogService
+import io.github.lishangbu.avalon.catalog.application.type.TypeDefinitionApplicationService
 import jakarta.validation.Valid
-import jakarta.ws.rs.*
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.PUT
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import java.util.UUID
@@ -14,21 +21,16 @@ import java.util.UUID
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class TypeDefinitionResource(
-    private val service: CatalogService,
+    private val service: TypeDefinitionApplicationService,
 ) {
     /**
      * 列出全部属性定义。
-     *
-     * @return 属性定义响应列表。
      */
     @GET
     suspend fun list(): List<TypeDefinitionResponse> = service.listTypeDefinitions().map { it.toResponse() }
 
     /**
      * 查询单个属性定义。
-     *
-     * @param id 属性定义主键值。
-     * @return 命中的属性定义响应。
      */
     @GET
     @Path("/{id}")
@@ -38,9 +40,6 @@ class TypeDefinitionResource(
 
     /**
      * 创建属性定义。
-     *
-     * @param request 属性定义写入请求体。
-     * @return 已创建的属性定义响应。
      */
     @POST
     suspend fun create(
@@ -49,10 +48,6 @@ class TypeDefinitionResource(
 
     /**
      * 更新属性定义。
-     *
-     * @param id 属性定义主键值。
-     * @param request 属性定义更新请求体。
-     * @return 更新后的属性定义响应。
      */
     @PUT
     @Path("/{id}")
@@ -63,9 +58,6 @@ class TypeDefinitionResource(
 
     /**
      * 删除属性定义。
-     *
-     * @param id 属性定义主键值。
-     * @return `204 No Content`。
      */
     @DELETE
     @Path("/{id}")
@@ -76,4 +68,3 @@ class TypeDefinitionResource(
         return Response.noContent().build()
     }
 }
-

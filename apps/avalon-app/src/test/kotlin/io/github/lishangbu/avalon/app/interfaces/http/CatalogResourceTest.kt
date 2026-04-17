@@ -1,14 +1,21 @@
 package io.github.lishangbu.avalon.app.interfaces.http
 
+import io.github.lishangbu.avalon.shared.infra.mutiny.awaitSuspending
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.ContentType.JSON
 import io.restassured.RestAssured.given
+import io.vertx.mutiny.sqlclient.Pool
+import jakarta.inject.Inject
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class CatalogResourceTest : AuthenticatedHttpResourceTest() {
+    @Inject
+    lateinit var pool: Pool
+
     @Test
     fun shouldManageCatalogReferenceDataSlices() {
         val fireTypeId =
@@ -47,25 +54,6 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
                 .path<String>("id")
                 .toUuid()
 
-        val effectivenessId =
-            given()
-                .contentType(JSON)
-                .body(
-                    mapOf(
-                        "attackingTypeId" to waterTypeId,
-                        "defendingTypeId" to fireTypeId,
-                        "multiplier" to 2.0,
-                    ),
-                ).post("/api/catalog/type-effectiveness")
-                .then()
-                .statusCode(200)
-                .body("attackingType.code", equalTo("WATER"))
-                .body("defendingType.code", equalTo("FIRE"))
-                .body("multiplier", equalTo(2.0f))
-                .extract()
-                .path<String>("id")
-                .toUuid()
-
         given()
             .contentType(JSON)
             .body(
@@ -86,14 +74,35 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .contentType(JSON)
             .body(
                 mapOf(
-                    "attackingTypeId" to waterTypeId,
-                    "defendingTypeId" to fireTypeId,
-                    "multiplier" to 0.5,
+                    "entries" to
+                        listOf(
+                            mapOf(
+                                "attackingTypeId" to fireTypeId,
+                                "defendingTypeId" to fireTypeId,
+                                "multiplier" to 1.0,
+                            ),
+                            mapOf(
+                                "attackingTypeId" to fireTypeId,
+                                "defendingTypeId" to waterTypeId,
+                                "multiplier" to 0.5,
+                            ),
+                            mapOf(
+                                "attackingTypeId" to waterTypeId,
+                                "defendingTypeId" to fireTypeId,
+                                "multiplier" to 2.0,
+                            ),
+                            mapOf(
+                                "attackingTypeId" to waterTypeId,
+                                "defendingTypeId" to waterTypeId,
+                                "multiplier" to 1.0,
+                            ),
+                        ),
                 ),
-            ).put("/api/catalog/type-effectiveness/$effectivenessId")
+            ).put("/api/catalog/type-chart")
             .then()
             .statusCode(200)
-            .body("multiplier", equalTo(0.5f))
+            .body("entries.size()", equalTo(4))
+            .body("entries.find { it.attackingType.code == 'WATER' && it.defendingType.code == 'FIRE' }.multiplier", equalTo(2.0f))
 
         given()
             .`when`()
@@ -1041,11 +1050,6 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .statusCode(409)
 
         given()
-            .delete("/api/catalog/type-effectiveness/$effectivenessId")
-            .then()
-            .statusCode(204)
-
-        given()
             .delete("/api/catalog/natures/$adamantNatureId")
             .then()
             .statusCode(204)
@@ -1145,6 +1149,8 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .then()
             .statusCode(204)
 
+        clearTypeChartEntries(fireTypeId, waterTypeId)
+
         given()
             .delete("/api/catalog/types/$fireTypeId")
             .then()
@@ -1154,5 +1160,14 @@ class CatalogResourceTest : AuthenticatedHttpResourceTest() {
             .delete("/api/catalog/types/$waterTypeId")
             .then()
             .statusCode(204)
+    }
+
+    private fun clearTypeChartEntries(vararg typeIds: java.util.UUID) {
+        runBlocking {
+            val quotedIds = typeIds.joinToString(",") { "'$it'" }
+            pool.query("DELETE FROM catalog.type_effectiveness WHERE attacking_type_id IN ($quotedIds) OR defending_type_id IN ($quotedIds)")
+                .execute()
+                .awaitSuspending()
+        }
     }
 }

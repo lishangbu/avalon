@@ -2,7 +2,47 @@ package io.github.lishangbu.avalon.catalog.application
 
 import io.github.lishangbu.avalon.catalog.application.query.SpeciesPageQuery
 import io.github.lishangbu.avalon.catalog.application.query.SpeciesQueryRepository
-import io.github.lishangbu.avalon.catalog.domain.*
+import io.github.lishangbu.avalon.catalog.domain.Ability
+import io.github.lishangbu.avalon.catalog.domain.AbilityDraft
+import io.github.lishangbu.avalon.catalog.domain.AbilityId
+import io.github.lishangbu.avalon.catalog.domain.CatalogNotFound
+import io.github.lishangbu.avalon.catalog.domain.CatalogRepository
+import io.github.lishangbu.avalon.catalog.domain.GrowthRate
+import io.github.lishangbu.avalon.catalog.domain.GrowthRateDraft
+import io.github.lishangbu.avalon.catalog.domain.GrowthRateId
+import io.github.lishangbu.avalon.catalog.domain.Item
+import io.github.lishangbu.avalon.catalog.domain.ItemDraft
+import io.github.lishangbu.avalon.catalog.domain.ItemId
+import io.github.lishangbu.avalon.catalog.domain.Move
+import io.github.lishangbu.avalon.catalog.domain.MoveAilment
+import io.github.lishangbu.avalon.catalog.domain.MoveAilmentDraft
+import io.github.lishangbu.avalon.catalog.domain.MoveAilmentId
+import io.github.lishangbu.avalon.catalog.domain.MoveCategory
+import io.github.lishangbu.avalon.catalog.domain.MoveCategoryDraft
+import io.github.lishangbu.avalon.catalog.domain.MoveCategoryId
+import io.github.lishangbu.avalon.catalog.domain.MoveDraft
+import io.github.lishangbu.avalon.catalog.domain.MoveId
+import io.github.lishangbu.avalon.catalog.domain.MoveLearnMethod
+import io.github.lishangbu.avalon.catalog.domain.MoveLearnMethodDraft
+import io.github.lishangbu.avalon.catalog.domain.MoveLearnMethodId
+import io.github.lishangbu.avalon.catalog.domain.MoveTarget
+import io.github.lishangbu.avalon.catalog.domain.MoveTargetDraft
+import io.github.lishangbu.avalon.catalog.domain.MoveTargetId
+import io.github.lishangbu.avalon.catalog.domain.Nature
+import io.github.lishangbu.avalon.catalog.domain.NatureDraft
+import io.github.lishangbu.avalon.catalog.domain.NatureId
+import io.github.lishangbu.avalon.catalog.domain.Species
+import io.github.lishangbu.avalon.catalog.domain.SpeciesAbility
+import io.github.lishangbu.avalon.catalog.domain.SpeciesAbilityDraft
+import io.github.lishangbu.avalon.catalog.domain.SpeciesAbilityId
+import io.github.lishangbu.avalon.catalog.domain.SpeciesDraft
+import io.github.lishangbu.avalon.catalog.domain.SpeciesEvolution
+import io.github.lishangbu.avalon.catalog.domain.SpeciesEvolutionDraft
+import io.github.lishangbu.avalon.catalog.domain.SpeciesEvolutionId
+import io.github.lishangbu.avalon.catalog.domain.SpeciesId
+import io.github.lishangbu.avalon.catalog.domain.SpeciesMoveLearnset
+import io.github.lishangbu.avalon.catalog.domain.SpeciesMoveLearnsetDraft
+import io.github.lishangbu.avalon.catalog.domain.SpeciesMoveLearnsetId
 import io.github.lishangbu.avalon.shared.application.query.Page
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID
@@ -10,7 +50,7 @@ import java.util.UUID
 /**
  * Catalog 第一阶段手工维护 CRUD 的应用服务入口。
  *
- * 当前主要协调属性定义、属性克制关系、性格定义、道具定义、技能定义、技能参考切片、
+ * 当前主要协调性格定义、道具定义、技能定义、技能参考切片、
  * 特性定义、成长率定义、物种定义、物种进化定义、物种特性关联和物种招式学习关系的读取与写入，
  * 负责把接口层使用的基础数值标识转换为领域标识，并统一处理 not-found 语义。
  */
@@ -19,101 +59,6 @@ class CatalogService(
     private val repository: CatalogRepository,
     private val speciesQueryRepository: SpeciesQueryRepository,
 ) {
-    /**
-     * 列出全部属性定义。
-     *
-     * @return 属性定义列表；若无数据则返回空列表。
-     */
-    suspend fun listTypeDefinitions(): List<TypeDefinition> = repository.listTypeDefinitions()
-
-    /**
-     * 查询单个属性定义。
-     *
-     * @param id 属性定义主键值。
-     * @return 命中的属性定义。
-     * @throws CatalogNotFound 当属性定义不存在时抛出。
-     */
-    suspend fun getTypeDefinition(id: UUID): TypeDefinition =
-        repository.findTypeDefinition(TypeDefinitionId(id))
-            ?: throw CatalogNotFound("type_definition", id.toString())
-
-    /**
-     * 创建属性定义。
-     *
-     * @param draft 属性定义草稿。
-     * @return 已持久化的属性定义。
-     */
-    suspend fun createTypeDefinition(draft: TypeDefinitionDraft): TypeDefinition =
-        repository.createTypeDefinition(draft)
-
-    /**
-     * 更新属性定义。
-     *
-     * @param id 属性定义主键值。
-     * @param draft 更新草稿。
-     * @return 更新后的属性定义。
-     */
-    suspend fun updateTypeDefinition(
-        id: UUID,
-        draft: TypeDefinitionDraft,
-    ): TypeDefinition = repository.updateTypeDefinition(TypeDefinitionId(id), draft)
-
-    /**
-     * 删除属性定义。
-     *
-     * @param id 属性定义主键值。
-     */
-    suspend fun deleteTypeDefinition(id: UUID) {
-        repository.deleteTypeDefinition(TypeDefinitionId(id))
-    }
-
-    /**
-     * 列出全部属性克制关系。
-     *
-     * @return 属性克制关系列表；若无数据则返回空列表。
-     */
-    suspend fun listTypeEffectiveness(): List<TypeEffectiveness> = repository.listTypeEffectiveness()
-
-    /**
-     * 查询单个属性克制关系。
-     *
-     * @param id 属性克制关系主键值。
-     * @return 命中的属性克制关系。
-     * @throws CatalogNotFound 当克制关系不存在时抛出。
-     */
-    suspend fun getTypeEffectiveness(id: UUID): TypeEffectiveness =
-        repository.findTypeEffectiveness(TypeEffectivenessId(id))
-            ?: throw CatalogNotFound("type_effectiveness", id.toString())
-
-    /**
-     * 创建属性克制关系。
-     *
-     * @param draft 属性克制关系草稿。
-     * @return 已持久化的属性克制关系。
-     */
-    suspend fun createTypeEffectiveness(draft: TypeEffectivenessDraft): TypeEffectiveness =
-        repository.createTypeEffectiveness(draft)
-
-    /**
-     * 更新属性克制关系。
-     *
-     * @param id 属性克制关系主键值。
-     * @param draft 更新草稿。
-     * @return 更新后的属性克制关系。
-     */
-    suspend fun updateTypeEffectiveness(
-        id: UUID,
-        draft: TypeEffectivenessDraft,
-    ): TypeEffectiveness = repository.updateTypeEffectiveness(TypeEffectivenessId(id), draft)
-
-    /**
-     * 删除属性克制关系。
-     *
-     * @param id 属性克制关系主键值。
-     */
-    suspend fun deleteTypeEffectiveness(id: UUID) {
-        repository.deleteTypeEffectiveness(TypeEffectivenessId(id))
-    }
 
     /**
      * 列出全部性格定义。

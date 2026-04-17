@@ -109,6 +109,36 @@ internal class TypeSqlGateway(
         }
     }
 
+    suspend fun replaceTypeEffectiveness(entries: List<TypeEffectivenessDraft>) {
+        pool.withSuspendingTransaction { connection ->
+            connection.query("DELETE FROM catalog.type_effectiveness")
+                .execute()
+                .awaitSuspending()
+
+            if (entries.isEmpty()) {
+                return@withSuspendingTransaction
+            }
+
+            connection.preparedQuery(
+                """
+                INSERT INTO catalog.type_effectiveness (
+                    attacking_type_id,
+                    defending_type_id,
+                    multiplier
+                )
+                VALUES ($1, $2, $3)
+                """.trimIndent(),
+            ).executeBatch(
+                entries.map { draft ->
+                    Tuple.tuple()
+                        .addValue(draft.attackingTypeId.value)
+                        .addValue(draft.defendingTypeId.value)
+                        .addBigDecimal(draft.multiplier)
+                },
+            ).awaitSuspending()
+        }
+    }
+
     suspend fun listTypeEffectiveness(): List<TypeEffectiveness> =
         pool.query("$TYPE_EFFECTIVENESS_SELECT_SQL ORDER BY te.id")
             .execute()

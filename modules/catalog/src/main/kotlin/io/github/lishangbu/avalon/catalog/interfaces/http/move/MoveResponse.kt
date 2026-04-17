@@ -1,8 +1,8 @@
 package io.github.lishangbu.avalon.catalog.interfaces.http.move
 
 import io.github.lishangbu.avalon.catalog.domain.Move
-import io.github.lishangbu.avalon.catalog.interfaces.http.reference.toResponse
-import io.github.lishangbu.avalon.catalog.interfaces.http.reference.TypeDefinitionSummaryResponse
+import io.github.lishangbu.avalon.catalog.interfaces.http.type.TypeDefinitionSummaryResponse
+import io.github.lishangbu.avalon.catalog.interfaces.http.type.toResponse
 import java.util.UUID
 
 /**

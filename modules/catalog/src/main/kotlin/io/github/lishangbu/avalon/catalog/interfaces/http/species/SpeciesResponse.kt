@@ -3,7 +3,8 @@ package io.github.lishangbu.avalon.catalog.interfaces.http.species
 import io.github.lishangbu.avalon.catalog.domain.Species
 import io.github.lishangbu.avalon.catalog.interfaces.http.reference.GrowthRateSummaryResponse
 import io.github.lishangbu.avalon.catalog.interfaces.http.reference.toResponse
-import io.github.lishangbu.avalon.catalog.interfaces.http.reference.TypeDefinitionSummaryResponse
+import io.github.lishangbu.avalon.catalog.interfaces.http.type.TypeDefinitionSummaryResponse
+import io.github.lishangbu.avalon.catalog.interfaces.http.type.toResponse
 import java.util.UUID
 
 /**

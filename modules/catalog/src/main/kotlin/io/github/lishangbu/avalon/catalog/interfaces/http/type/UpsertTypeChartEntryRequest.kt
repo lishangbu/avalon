@@ -1,4 +1,4 @@
-package io.github.lishangbu.avalon.catalog.interfaces.http.reference
+package io.github.lishangbu.avalon.catalog.interfaces.http.type
 
 import io.github.lishangbu.avalon.catalog.domain.TypeDefinitionId
 import io.github.lishangbu.avalon.catalog.domain.TypeEffectivenessDraft
@@ -10,13 +10,13 @@ import java.math.BigDecimal
 import java.util.UUID
 
 /**
- * 创建或更新属性克制关系时使用的请求体。
+ * 属性矩阵中的单个写入条目。
  *
- * @property attackingTypeId 攻击方类型主键。
- * @property defendingTypeId 防守方类型主键。
+ * @property attackingTypeId 攻击方属性主键。
+ * @property defendingTypeId 防守方属性主键。
  * @property multiplier 攻击方对防守方的倍率。
  */
-data class UpsertTypeEffectivenessRequest(
+data class UpsertTypeChartEntryRequest(
     @field:NotNull
     val attackingTypeId: UUID,
     @field:NotNull
@@ -29,14 +29,11 @@ data class UpsertTypeEffectivenessRequest(
 )
 
 /**
- * 将属性克制关系请求转换为领域草稿。
- *
- * @return 已完成标识封装和倍率标准化的领域草稿。
+ * 将矩阵条目请求转换为领域草稿。
  */
-fun UpsertTypeEffectivenessRequest.toDraft(): TypeEffectivenessDraft =
+fun UpsertTypeChartEntryRequest.toDraft(): TypeEffectivenessDraft =
     TypeEffectivenessDraft(
         attackingTypeId = TypeDefinitionId(attackingTypeId),
         defendingTypeId = TypeDefinitionId(defendingTypeId),
         multiplier = multiplier.stripTrailingZeros(),
     )
-

@@ -7,7 +7,6 @@ import io.github.lishangbu.avalon.catalog.infrastructure.move.sql.MoveSqlGateway
 import io.github.lishangbu.avalon.catalog.infrastructure.reference.sql.ReferenceSqlGateway
 import io.github.lishangbu.avalon.catalog.infrastructure.species.sql.SpeciesSqlGateway
 import io.github.lishangbu.avalon.catalog.infrastructure.sql.mapCatalogDatabaseError
-import io.github.lishangbu.avalon.catalog.infrastructure.type.sql.TypeSqlGateway
 import io.github.lishangbu.avalon.shared.application.query.Page
 import io.github.lishangbu.avalon.shared.infra.sql.translateSqlErrors
 import io.vertx.mutiny.sqlclient.Pool
@@ -23,48 +22,9 @@ import jakarta.enterprise.context.ApplicationScoped
 class CatalogSqlRepository(
     pool: Pool,
 ) : CatalogRepository, SpeciesQueryRepository {
-    private val typeGateway = TypeSqlGateway(pool)
     private val referenceGateway = ReferenceSqlGateway(pool)
     private val moveGateway = MoveSqlGateway(pool)
     private val speciesGateway = SpeciesSqlGateway(pool)
-
-    override suspend fun listTypeDefinitions(): List<TypeDefinition> =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.listTypeDefinitions() }
-
-    override suspend fun findTypeDefinition(id: TypeDefinitionId): TypeDefinition? =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.findTypeDefinition(id) }
-
-    override suspend fun createTypeDefinition(draft: TypeDefinitionDraft): TypeDefinition =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.createTypeDefinition(draft) }
-
-    override suspend fun updateTypeDefinition(
-        id: TypeDefinitionId,
-        draft: TypeDefinitionDraft,
-    ): TypeDefinition =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.updateTypeDefinition(id, draft) }
-
-    override suspend fun deleteTypeDefinition(id: TypeDefinitionId) {
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.deleteTypeDefinition(id) }
-    }
-
-    override suspend fun listTypeEffectiveness(): List<TypeEffectiveness> =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.listTypeEffectiveness() }
-
-    override suspend fun findTypeEffectiveness(id: TypeEffectivenessId): TypeEffectiveness? =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.findTypeEffectiveness(id) }
-
-    override suspend fun createTypeEffectiveness(draft: TypeEffectivenessDraft): TypeEffectiveness =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.createTypeEffectiveness(draft) }
-
-    override suspend fun updateTypeEffectiveness(
-        id: TypeEffectivenessId,
-        draft: TypeEffectivenessDraft,
-    ): TypeEffectiveness =
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.updateTypeEffectiveness(id, draft) }
-
-    override suspend fun deleteTypeEffectiveness(id: TypeEffectivenessId) {
-        translateSqlErrors(::mapCatalogDatabaseError) { typeGateway.deleteTypeEffectiveness(id) }
-    }
 
     override suspend fun listNatures(): List<Nature> =
         translateSqlErrors(::mapCatalogDatabaseError) { referenceGateway.listNatures() }

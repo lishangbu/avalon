@@ -1,19 +1,19 @@
-package io.github.lishangbu.avalon.catalog.interfaces.http.reference
+package io.github.lishangbu.avalon.catalog.interfaces.http.type
 
 import io.github.lishangbu.avalon.catalog.domain.TypeDefinitionDraft
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import java.util.*
+import java.util.Locale
 
 /**
  * 创建或更新属性定义时使用的请求体。
  *
- * @property code 类型业务编码；映射到领域草稿时会统一转成大写。
- * @property name 类型展示名称。
- * @property description 类型说明，可为空。
+ * @property code 属性业务编码；映射到领域草稿时会统一转成大写。
+ * @property name 属性展示名称。
+ * @property description 属性说明，可为空。
  * @property icon 前端展示时使用的图标标识，可为空。
  * @property sortingOrder 列表展示顺序，值越小越靠前。
- * @property enabled 当前类型是否启用。
+ * @property enabled 当前属性是否启用。
  */
 data class UpsertTypeDefinitionRequest(
     @field:NotBlank
@@ -31,9 +31,7 @@ data class UpsertTypeDefinitionRequest(
 )
 
 /**
- * 将类型定义请求转换为领域草稿。
- *
- * @return 供应用服务直接写入的类型定义草稿。
+ * 将属性定义请求转换为领域草稿。
  */
 fun UpsertTypeDefinitionRequest.toDraft(): TypeDefinitionDraft =
     TypeDefinitionDraft(
