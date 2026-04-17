@@ -54,6 +54,42 @@ Windows PowerShell:
 .\gradlew.bat :apps:avalon-app:quarkusDev
 ```
 
+### Docker Compose 运行
+
+仓库根目录提供了一个可直接运行的 [compose.yaml](/C:/Users/baoy/Documents/study/avalon/compose.yaml:1)，默认会拉起：
+
+- `docker.io/slf4j/avalon-admin-ui:latest`
+- `docker.io/slf4j/avalon:latest`
+- `postgres:18.3`
+- `valkey/valkey:9.0.3`
+
+直接启动：
+
+```bash
+docker compose up -d
+```
+
+首次启动会自动执行 Flyway migration，应用启动后可通过 `http://localhost:8080/api/app-info` 检查服务状态。
+前端默认会运行在 `http://localhost:3000`，并将 `/api/*` 代理到后端服务。
+
+如需覆盖镜像或端口，可在启动前设置环境变量：
+
+```bash
+AVALON_FRONTEND_IMAGE=docker.io/slf4j/avalon-admin-ui:latest
+AVALON_IMAGE=docker.io/slf4j/avalon:latest
+AVALON_FRONTEND_PORT=3000
+AVALON_HTTP_PORT=8080
+AVALON_DB_PORT=5432
+AVALON_VALKEY_PORT=6379
+docker compose up -d
+```
+
+停止并清理：
+
+```bash
+docker compose down -v
+```
+
 ### 调试入口
 
 - 应用探针：`/api/app-info`
