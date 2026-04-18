@@ -63,6 +63,7 @@ Windows PowerShell:
 - `postgres:18.3`
 - `valkey/valkey:9.0.3`
 - `prom/prometheus:latest`
+- `grafana/grafana:latest`
 
 直接启动：
 
@@ -71,20 +72,24 @@ docker compose up -d
 ```
 
 首次启动会自动执行 Flyway migration，应用启动后可通过 `http://localhost:8080/q/health` 检查服务状态。
-前端默认会运行在 `http://localhost:3000`，并将 `/api/*` 代理到后端服务。
-Prometheus 默认运行在 `http://localhost:9090`，并抓取后端的 `http://app:8080/q/metrics`。
-Compose 会使用后端自身的 `/q/health/ready` 作为 `app` 健康检查，前端和 Prometheus 会在后端进入 ready 后再启动。
+前端默认会运行在 `http://localhost:4000`，并将 `/api/*` 代理到后端服务。
+Prometheus 作为内部指标抓取与查询组件运行，不再默认对宿主机暴露 UI。
+Grafana 默认运行在 `http://localhost:3000`，并自动接入 Prometheus 数据源与 `Avalon Overview` 看板。
+Compose 会使用后端自身的 `/q/health/ready` 作为 `app` 健康检查，前端与 Prometheus 会在后端进入 ready 后再启动。
 
 如需覆盖镜像或端口，可在启动前设置环境变量：
 
 ```bash
 AVALON_FRONTEND_IMAGE=docker.io/slf4j/avalon-admin-ui:latest
 AVALON_IMAGE=docker.io/slf4j/avalon:latest
-AVALON_FRONTEND_PORT=3000
+AVALON_GRAFANA_IMAGE=grafana/grafana:latest
+AVALON_FRONTEND_PORT=4000
 AVALON_HTTP_PORT=8080
 AVALON_DB_PORT=5432
 AVALON_VALKEY_PORT=6379
-AVALON_PROMETHEUS_PORT=9090
+AVALON_GRAFANA_PORT=3000
+AVALON_GRAFANA_USER=admin
+AVALON_GRAFANA_PASSWORD=admin
 docker compose up -d
 ```
 
@@ -98,7 +103,7 @@ docker compose down -v
 
 - 健康探针：`/q/health`
 - Prometheus 指标：`/q/metrics`
-- Prometheus UI：`http://localhost:9090`
+- Grafana UI：`http://localhost:3000`
 - OpenAPI：`/q/openapi`
 - Swagger UI：`/q/swagger-ui`
 

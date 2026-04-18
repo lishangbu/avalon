@@ -7,7 +7,7 @@ services:
     environment:
       NGINX_API_PROXY_PASS: http://app:8080
     ports:
-      - "${AVALON_FRONTEND_PORT:-3000}:80"
+      - "${AVALON_FRONTEND_PORT:-4000}:80"
     restart: unless-stopped
 
   postgres:
@@ -46,11 +46,27 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
-    ports:
-      - "${AVALON_PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - avalon-prometheus-data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: "${AVALON_GRAFANA_IMAGE:-grafana/grafana:latest}"
+    depends_on:
+      prometheus:
+        condition: service_started
+    environment:
+      GF_SECURITY_ADMIN_USER: "${AVALON_GRAFANA_USER:-admin}"
+      GF_SECURITY_ADMIN_PASSWORD: "${AVALON_GRAFANA_PASSWORD:-admin}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "${AVALON_GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./ops/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./ops/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./ops/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - avalon-grafana-data:/var/lib/grafana
     restart: unless-stopped
 
   app:
@@ -84,3 +100,4 @@ services:
 volumes:
   avalon-postgres-data:
   avalon-prometheus-data:
+  avalon-grafana-data:
