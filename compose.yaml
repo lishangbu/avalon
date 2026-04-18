@@ -71,12 +71,10 @@ services:
       QUARKUS_FLYWAY_MIGRATE_AT_START: "true"
       QUARKUS_FLYWAY_VALIDATE_AT_START: "false"
     healthcheck:
-      test:
-        - CMD-SHELL
-        - >-
-          bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8080 &&
-          printf "GET /q/health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 &&
-          grep -q "200 OK" <&3'
+      test: >-
+        bash -lc "exec 3<>/dev/tcp/127.0.0.1/8080; printf 'GET
+        /q/health/ready HTTP/1.1\r\nHost: localhost\r\nConnection:
+        close\r\n\r\n' >&3; grep -q '200 OK' <&3"
       interval: 5s
       timeout: 5s
       retries: 20
