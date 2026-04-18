@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.quarkus.scheduler)
     implementation(libs.quarkus.smallrye.openapi)
     implementation(libs.quarkus.smallrye.health)
+    implementation(libs.quarkus.micrometer.registry.prometheus)
     implementation(libs.quarkus.reactive.pg.client)
     implementation(libs.quarkus.jdbc.postgresql)
     implementation(libs.quarkus.flyway)

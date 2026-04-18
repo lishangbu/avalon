@@ -3,7 +3,7 @@ services:
     image: "${AVALON_FRONTEND_IMAGE:-docker.io/slf4j/avalon-admin-ui:latest}"
     depends_on:
       app:
-        condition: service_started
+        condition: service_healthy
     environment:
       NGINX_API_PROXY_PASS: http://app:8080
     ports:
@@ -37,6 +37,22 @@ services:
       timeout: 5s
       retries: 20
 
+  prometheus:
+    image: prom/prometheus:latest
+    depends_on:
+      app:
+        condition: service_healthy
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    ports:
+      - "${AVALON_PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - avalon-prometheus-data:/prometheus
+    restart: unless-stopped
+
   app:
     image: "${AVALON_IMAGE:-docker.io/slf4j/avalon:latest}"
     depends_on:
@@ -54,7 +70,19 @@ services:
       QUARKUS_REDIS_HOSTS: redis://valkey:6379
       QUARKUS_FLYWAY_MIGRATE_AT_START: "true"
       QUARKUS_FLYWAY_VALIDATE_AT_START: "false"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8080 &&
+          printf "GET /q/health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 &&
+          grep -q "200 OK" <&3'
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
     restart: unless-stopped
 
 volumes:
   avalon-postgres-data:
+  avalon-prometheus-data:

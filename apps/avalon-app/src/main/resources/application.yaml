@@ -8,10 +8,15 @@ quarkus:
   http:
     root-path: /api
     non-application-root-path: /q
+    record-request-start-time: true
+    access-log:
+      enabled: true
+      pattern: '%a "%r" %s %D request.id=%{o,X-Request-ID}'
+      exclude-pattern: '^/q/(metrics|health.*|openapi|swagger-ui.*)$'
     auth:
       permission:
         public:
-          paths: ${quarkus.http.root-path}/app-info,${quarkus.http.root-path}/auth/login,${quarkus.http.root-path}/auth/refresh
+          paths: ${quarkus.http.root-path}/auth/login,${quarkus.http.root-path}/auth/refresh
           policy: permit
         authenticated:
           paths: ${quarkus.http.root-path}/*
@@ -20,6 +25,17 @@ quarkus:
     always-include: true
   smallrye-openapi:
     path: /q/openapi
+  log:
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p request.id=%X{request.id} [%c{2.}] (%t) %s%e%n"
+  micrometer:
+    binder:
+      http-server:
+        ignore-patterns:
+          - /q/metrics
+          - /q/health.*
+          - /q/openapi
+          - /q/swagger-ui.*
   flyway:
     locations: db/migration
     schemas: integration,iam,catalog,player,battle
