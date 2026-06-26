@@ -17,8 +17,12 @@ import org.babyfish.jimmer.sql.kt.ast.expression.desc
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+
+private const val JWK_ROTATION_LOCK_NAMESPACE = 0x41564F4E
+private const val JWK_ROTATION_LOCK_RESOURCE = 0x4A574B01
 
 /**
  * JWK 系统管理服务。
@@ -31,6 +35,7 @@ class OAuthJwkService(
 	private val jwkRepository: OAuth2JwkRepository,
 	private val sqlClient: KSqlClient,
 	private val jwkKeyFactory: OAuth2JwkKeyFactory,
+	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 查询 JWK 元数据，响应不包含私钥 JSON。
@@ -67,6 +72,7 @@ class OAuthJwkService(
 	 */
 	@Transactional
 	fun rotateJwk(): OAuthJwkResponse {
+		acquireRotationLock()
 		deactivateActiveJwks()
 
 		val rsaKey = jwkKeyFactory.generateRsaJwk()
@@ -77,6 +83,16 @@ class OAuthJwkService(
 				active = true
 			},
 		).toResponse()
+	}
+
+	/**
+	 * 使用 PostgreSQL 事务级 advisory lock 串行化 JWK 轮换。
+	 *
+	 * 数据库唯一索引仍然是最终保护；这里提前串行化管理端轮换请求，避免并发事务在
+	 * “停用旧 key”和“插入新 active key”之间互相撞到唯一 active 约束。
+	 */
+	private fun acquireRotationLock() {
+		jdbcTemplate.execute("select pg_advisory_xact_lock($JWK_ROTATION_LOCK_NAMESPACE, $JWK_ROTATION_LOCK_RESOURCE)")
 	}
 
 	/**
