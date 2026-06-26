@@ -1,0 +1,4 @@
+interface:
+  display_name: "后端提交"
+  short_description: "后端提交说明与提交边界"
+  default_prompt: "使用 $commit 生成或执行 后端提交。"

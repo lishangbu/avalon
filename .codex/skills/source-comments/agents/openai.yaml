@@ -1,0 +1,4 @@
+interface:
+  display_name: "源码注释"
+  short_description: "Kotlin 后端中文源码注释与 KDoc 规则"
+  default_prompt: "使用 $source-comments 审查或补充 Avalon Kotlin 源码注释。"

@@ -1,0 +1,1063 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-001-create-security-rbac
+      author: backend
+      changes:
+        - createTable:
+            tableName: security_user
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_security_user
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: account_non_locked
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: security_user
+            columnNames: username
+            constraintName: uk_security_user__username
+        - createTable:
+            tableName: security_role
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_security_role
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: security_role
+            columnNames: code
+            constraintName: uk_security_role__code
+        - createTable:
+            tableName: security_user_role
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: security_user_role
+            columnNames: user_id, role_id
+            constraintName: pk_security_user_role
+        - addForeignKeyConstraint:
+            baseTableName: security_user_role
+            baseColumnNames: user_id
+            referencedTableName: security_user
+            referencedColumnNames: id
+            constraintName: fk_security_user_role__user_id
+        - addForeignKeyConstraint:
+            baseTableName: security_user_role
+            baseColumnNames: role_id
+            referencedTableName: security_role
+            referencedColumnNames: id
+            constraintName: fk_security_user_role__role_id
+        - createIndex:
+            tableName: security_user_role
+            indexName: idx_security_user_role__role_id
+            columns:
+              - column:
+                  name: role_id
+        - createTable:
+            tableName: security_access_node
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_security_access_node
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: parent_id
+                  type: bigint
+              - column:
+                  name: path
+                  type: varchar(255)
+              - column:
+                  name: component_key
+                  type: varchar(255)
+              - column:
+                  name: icon
+                  type: varchar(120)
+              - column:
+                  name: sort_order
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: visible
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: api_method
+                  type: varchar(16)
+              - column:
+                  name: api_pattern
+                  type: varchar(255)
+        - addUniqueConstraint:
+            tableName: security_access_node
+            columnNames: code
+            constraintName: uk_security_access_node__code
+        - addForeignKeyConstraint:
+            baseTableName: security_access_node
+            baseColumnNames: parent_id
+            referencedTableName: security_access_node
+            referencedColumnNames: id
+            constraintName: fk_security_access_node__parent_id
+        - createIndex:
+            tableName: security_access_node
+            indexName: idx_security_access_node__parent_id
+            columns:
+              - column:
+                  name: parent_id
+        - createIndex:
+            tableName: security_access_node
+            indexName: idx_security_access_node__type
+            columns:
+              - column:
+                  name: type
+        - createIndex:
+            tableName: security_access_node
+            indexName: idx_security_access_node__visible_enabled
+            columns:
+              - column:
+                  name: visible
+              - column:
+                  name: enabled
+        - createTable:
+            tableName: security_role_access_node
+            columns:
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: access_node_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: security_role_access_node
+            columnNames: role_id, access_node_id
+            constraintName: pk_security_role_access_node
+        - addForeignKeyConstraint:
+            baseTableName: security_role_access_node
+            baseColumnNames: role_id
+            referencedTableName: security_role
+            referencedColumnNames: id
+            constraintName: fk_security_role_access_node__role_id
+        - addForeignKeyConstraint:
+            baseTableName: security_role_access_node
+            baseColumnNames: access_node_id
+            referencedTableName: security_access_node
+            referencedColumnNames: id
+            constraintName: fk_security_role_access_node__access_node_id
+        - createIndex:
+            tableName: security_role_access_node
+            indexName: idx_security_role_access_node__access_node_id
+            columns:
+              - column:
+                  name: access_node_id
+
+  - changeSet:
+      id: 001-002-seed-security-rbac
+      author: backend
+      changes:
+        - insert:
+            tableName: security_role
+            columns:
+              - column: { name: id, valueNumeric: 201 }
+              - column: { name: code, value: "system-admin" }
+              - column: { name: name, value: "System Admin" }
+        - insert:
+            tableName: security_user
+            columns:
+              - column: { name: id, valueNumeric: 301 }
+              - column: { name: username, value: "admin" }
+              - column: { name: password_hash, value: "{noop}secret" }
+              - column: { name: display_name, value: "System Admin" }
+              - column: { name: enabled, valueBoolean: true }
+              - column: { name: account_non_locked, valueBoolean: true }
+              - column: { name: created_at, valueComputed: current_timestamp }
+              - column: { name: updated_at, valueComputed: current_timestamp }
+        - insert:
+            tableName: security_user_role
+            columns:
+              - column: { name: user_id, valueNumeric: 301 }
+              - column: { name: role_id, valueNumeric: 201 }
+        - sql:
+            sql: |
+              insert into security_access_node (
+                id, code, name, type, parent_id, path, component_key, icon,
+                sort_order, visible, enabled, api_method, api_pattern
+              ) values
+                (301, 'security:admin', 'System Management API', 'API', null, null, null, null, 1000, false, true, '*', '/api/system/**'),
+                (310, 'system', 'System Management', 'DIRECTORY', null, '/system', null, 'SettingOutlined', 10, true, true, null, null),
+                (311, 'system.rbac', 'Access Control', 'DIRECTORY', 310, '/system/rbac', null, 'SafetyCertificateOutlined', 10, true, true, null, null),
+                (312, 'system.rbac.users', 'User Management', 'ROUTE', 311, '/system/rbac/users', 'system/rbac/users', 'UserOutlined', 10, true, true, null, null),
+                (313, 'system.rbac.roles', 'Role Management', 'ROUTE', 311, '/system/rbac/roles', 'system/rbac/roles', 'TeamOutlined', 20, true, true, null, null),
+                (314, 'system.rbac.access-nodes', 'Access Nodes', 'ROUTE', 311, '/system/rbac/access-nodes', 'system/rbac/access-nodes', 'ApartmentOutlined', 30, true, true, null, null),
+                (320, 'system.oauth', 'OAuth Management', 'DIRECTORY', 310, '/system/oauth', null, 'KeyOutlined', 20, true, true, null, null),
+                (321, 'system.oauth.clients', 'Client Management', 'ROUTE', 320, '/system/oauth/clients', 'system/oauth/clients', 'ApiOutlined', 10, true, true, null, null),
+                (322, 'system.oauth.jwks', 'JWK Management', 'ROUTE', 320, '/system/oauth/jwks', 'system/oauth/jwks', 'KeyOutlined', 20, true, true, null, null),
+                (330, 'system.scheduler', 'Scheduler', 'DIRECTORY', 310, '/system/scheduler', null, 'ClockCircleOutlined', 30, true, true, null, null),
+                (331, 'system.scheduler.tasks', 'Scheduled Tasks', 'ROUTE', 330, '/system/scheduler/tasks', 'system/scheduler/tasks', 'ScheduleOutlined', 10, true, true, null, null);
+        - sql:
+            sql: |
+              insert into security_role_access_node (role_id, access_node_id)
+              select 201, id
+              from security_access_node
+              where code in (
+                'security:admin',
+                'system',
+                'system.rbac',
+                'system.rbac.users',
+                'system.rbac.roles',
+                'system.rbac.access-nodes',
+                'system.oauth',
+                'system.oauth.clients',
+                'system.oauth.jwks',
+                'system.scheduler',
+                'system.scheduler.tasks'
+              );
+
+  - changeSet:
+      id: 001-003-create-oauth2-authorization
+      author: backend
+      changes:
+        - createTable:
+            tableName: oauth2_authorization
+            columns:
+              - column:
+                  name: id
+                  type: varchar(100)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_oauth2_authorization
+                    nullable: false
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorization_grant_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorized_scopes
+                  type: varchar(1000)
+              - column:
+                  name: attributes
+                  type: text
+              - column:
+                  name: state
+                  type: varchar(500)
+              - column:
+                  name: authorization_code_value
+                  type: text
+              - column:
+                  name: authorization_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: authorization_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: authorization_code_metadata
+                  type: text
+              - column:
+                  name: access_token_value
+                  type: text
+              - column:
+                  name: access_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: access_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: access_token_metadata
+                  type: text
+              - column:
+                  name: access_token_type
+                  type: varchar(100)
+              - column:
+                  name: access_token_scopes
+                  type: varchar(1000)
+              - column:
+                  name: oidc_id_token_value
+                  type: text
+              - column:
+                  name: oidc_id_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: oidc_id_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: oidc_id_token_metadata
+                  type: text
+              - column:
+                  name: refresh_token_value
+                  type: text
+              - column:
+                  name: refresh_token_issued_at
+                  type: timestamptz
+              - column:
+                  name: refresh_token_expires_at
+                  type: timestamptz
+              - column:
+                  name: refresh_token_metadata
+                  type: text
+              - column:
+                  name: user_code_value
+                  type: text
+              - column:
+                  name: user_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: user_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: user_code_metadata
+                  type: text
+              - column:
+                  name: device_code_value
+                  type: text
+              - column:
+                  name: device_code_issued_at
+                  type: timestamptz
+              - column:
+                  name: device_code_expires_at
+                  type: timestamptz
+              - column:
+                  name: device_code_metadata
+                  type: text
+        - createIndex:
+            tableName: oauth2_authorization
+            indexName: idx_oauth2_authorization__registered_client_id
+            columns:
+              - column:
+                  name: registered_client_id
+        - createTable:
+            tableName: oauth2_authorization_consent
+            columns:
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorities
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: oauth2_authorization_consent
+            columnNames: registered_client_id, principal_name
+            constraintName: pk_oauth2_authorization_consent
+
+  - changeSet:
+      id: 001-004-create-oauth2-client-and-jwk
+      author: backend
+      changes:
+        - createTable:
+            tableName: oauth2_client
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_oauth2_client
+                    nullable: false
+              - column:
+                  name: client_id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: client_id_issued_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: client_secret
+                  type: varchar(255)
+              - column:
+                  name: client_secret_expires_at
+                  type: timestamptz
+              - column:
+                  name: client_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: client_authentication_methods
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorization_grant_types
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: redirect_uris
+                  type: varchar(1000)
+              - column:
+                  name: post_logout_redirect_uris
+                  type: varchar(1000)
+              - column:
+                  name: scopes
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: require_proof_key
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: require_authorization_consent
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: jwk_set_url
+                  type: varchar(1000)
+              - column:
+                  name: token_endpoint_authentication_signing_algorithm
+                  type: varchar(120)
+              - column:
+                  name: x509_certificate_subject_dn
+                  type: varchar(500)
+              - column:
+                  name: authorization_code_ttl_seconds
+                  type: bigint
+                  defaultValueNumeric: 300
+                  constraints:
+                    nullable: false
+              - column:
+                  name: access_token_ttl_seconds
+                  type: bigint
+                  defaultValueNumeric: 1800
+                  constraints:
+                    nullable: false
+              - column:
+                  name: access_token_format
+                  type: varchar(40)
+                  defaultValue: self-contained
+                  constraints:
+                    nullable: false
+              - column:
+                  name: device_code_ttl_seconds
+                  type: bigint
+                  defaultValueNumeric: 300
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reuse_refresh_tokens
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: refresh_token_ttl_seconds
+                  type: bigint
+                  defaultValueNumeric: 604800
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_token_signature_algorithm
+                  type: varchar(40)
+                  defaultValue: RS256
+                  constraints:
+                    nullable: false
+              - column:
+                  name: x509_certificate_bound_access_tokens
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: oauth2_client
+            columnNames: client_id
+            constraintName: uk_oauth2_client__client_id
+        - createTable:
+            tableName: oauth2_jwk
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_oauth2_jwk
+                    nullable: false
+              - column:
+                  name: key_id
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: jwk_json
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: oauth2_jwk
+            columnNames: key_id
+            constraintName: uk_oauth2_jwk__key_id
+        - createIndex:
+            tableName: oauth2_jwk
+            indexName: idx_oauth2_jwk__active
+            columns:
+              - column:
+                  name: active
+        - sql:
+            sql: |
+              create unique index uk_oauth2_jwk__active_true
+              on oauth2_jwk (active)
+              where active = true;
+
+  - changeSet:
+      id: 001-005-seed-oauth2-clients
+      author: backend
+      changes:
+        - insert:
+            tableName: oauth2_client
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: client_id, value: "system-admin-jwt" }
+              - column: { name: client_secret, value: "{noop}system-admin-jwt-secret" }
+              - column: { name: client_name, value: "System Admin JWT Client" }
+              - column: { name: client_authentication_methods, value: "client_secret_basic" }
+              - column: { name: authorization_grant_types, value: "urn:security:params:oauth:grant-type:password" }
+              - column: { name: scopes, value: "security:admin" }
+              - column: { name: require_proof_key, valueBoolean: true }
+              - column: { name: require_authorization_consent, valueBoolean: false }
+              - column: { name: access_token_format, value: "self-contained" }
+              - column: { name: access_token_ttl_seconds, valueNumeric: 1800 }
+              - column: { name: refresh_token_ttl_seconds, valueNumeric: 604800 }
+              - column: { name: reuse_refresh_tokens, valueBoolean: true }
+        - insert:
+            tableName: oauth2_client
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: client_id, value: "system-admin-opaque" }
+              - column: { name: client_secret, value: "{noop}system-admin-opaque-secret" }
+              - column: { name: client_name, value: "System Admin Opaque Client" }
+              - column: { name: client_authentication_methods, value: "client_secret_basic" }
+              - column: { name: authorization_grant_types, value: "urn:security:params:oauth:grant-type:password" }
+              - column: { name: scopes, value: "security:admin" }
+              - column: { name: require_proof_key, valueBoolean: true }
+              - column: { name: require_authorization_consent, valueBoolean: false }
+              - column: { name: access_token_format, value: "reference" }
+              - column: { name: access_token_ttl_seconds, valueNumeric: 1800 }
+              - column: { name: refresh_token_ttl_seconds, valueNumeric: 604800 }
+              - column: { name: reuse_refresh_tokens, valueBoolean: true }
+
+  - changeSet:
+      id: 001-006-create-quartz-job-store
+      author: backend
+      changes:
+        - sql:
+            splitStatements: true
+            sql: |
+              create table qrtz_job_details
+              (
+                sched_name varchar(120) not null,
+                job_name varchar(200) not null,
+                job_group varchar(200) not null,
+                description varchar(250),
+                job_class_name varchar(250) not null,
+                is_durable boolean not null,
+                is_nonconcurrent boolean not null,
+                is_update_data boolean not null,
+                requests_recovery boolean not null,
+                job_data bytea,
+                constraint pk_qrtz_job_details primary key (sched_name, job_name, job_group)
+              );
+
+              create table qrtz_triggers
+              (
+                sched_name varchar(120) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                job_name varchar(200) not null,
+                job_group varchar(200) not null,
+                description varchar(250),
+                next_fire_time bigint,
+                prev_fire_time bigint,
+                priority integer,
+                trigger_state varchar(16) not null,
+                trigger_type varchar(8) not null,
+                start_time bigint not null,
+                end_time bigint,
+                calendar_name varchar(200),
+                misfire_instr smallint,
+                job_data bytea,
+                constraint pk_qrtz_triggers primary key (sched_name, trigger_name, trigger_group),
+                constraint fk_qrtz_triggers__job_details foreign key (sched_name, job_name, job_group)
+                  references qrtz_job_details (sched_name, job_name, job_group)
+              );
+
+              create table qrtz_simple_triggers
+              (
+                sched_name varchar(120) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                repeat_count bigint not null,
+                repeat_interval bigint not null,
+                times_triggered bigint not null,
+                constraint pk_qrtz_simple_triggers primary key (sched_name, trigger_name, trigger_group),
+                constraint fk_qrtz_simple_triggers__triggers foreign key (sched_name, trigger_name, trigger_group)
+                  references qrtz_triggers (sched_name, trigger_name, trigger_group)
+              );
+
+              create table qrtz_cron_triggers
+              (
+                sched_name varchar(120) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                cron_expression varchar(120) not null,
+                time_zone_id varchar(80),
+                constraint pk_qrtz_cron_triggers primary key (sched_name, trigger_name, trigger_group),
+                constraint fk_qrtz_cron_triggers__triggers foreign key (sched_name, trigger_name, trigger_group)
+                  references qrtz_triggers (sched_name, trigger_name, trigger_group)
+              );
+
+              create table qrtz_simprop_triggers
+              (
+                sched_name varchar(120) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                str_prop_1 varchar(512),
+                str_prop_2 varchar(512),
+                str_prop_3 varchar(512),
+                int_prop_1 integer,
+                int_prop_2 integer,
+                long_prop_1 bigint,
+                long_prop_2 bigint,
+                dec_prop_1 numeric(13, 4),
+                dec_prop_2 numeric(13, 4),
+                bool_prop_1 boolean,
+                bool_prop_2 boolean,
+                constraint pk_qrtz_simprop_triggers primary key (sched_name, trigger_name, trigger_group),
+                constraint fk_qrtz_simprop_triggers__triggers foreign key (sched_name, trigger_name, trigger_group)
+                  references qrtz_triggers (sched_name, trigger_name, trigger_group)
+              );
+
+              create table qrtz_blob_triggers
+              (
+                sched_name varchar(120) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                blob_data bytea,
+                constraint pk_qrtz_blob_triggers primary key (sched_name, trigger_name, trigger_group),
+                constraint fk_qrtz_blob_triggers__triggers foreign key (sched_name, trigger_name, trigger_group)
+                  references qrtz_triggers (sched_name, trigger_name, trigger_group)
+              );
+
+              create table qrtz_calendars
+              (
+                sched_name varchar(120) not null,
+                calendar_name varchar(200) not null,
+                calendar bytea not null,
+                constraint pk_qrtz_calendars primary key (sched_name, calendar_name)
+              );
+
+              create table qrtz_paused_trigger_grps
+              (
+                sched_name varchar(120) not null,
+                trigger_group varchar(200) not null,
+                constraint pk_qrtz_paused_trigger_grps primary key (sched_name, trigger_group)
+              );
+
+              create table qrtz_fired_triggers
+              (
+                sched_name varchar(120) not null,
+                entry_id varchar(95) not null,
+                trigger_name varchar(200) not null,
+                trigger_group varchar(200) not null,
+                instance_name varchar(200) not null,
+                fired_time bigint not null,
+                sched_time bigint not null,
+                priority integer not null,
+                state varchar(16) not null,
+                job_name varchar(200),
+                job_group varchar(200),
+                is_nonconcurrent boolean,
+                requests_recovery boolean,
+                constraint pk_qrtz_fired_triggers primary key (sched_name, entry_id)
+              );
+
+              create table qrtz_scheduler_state
+              (
+                sched_name varchar(120) not null,
+                instance_name varchar(200) not null,
+                last_checkin_time bigint not null,
+                checkin_interval bigint not null,
+                constraint pk_qrtz_scheduler_state primary key (sched_name, instance_name)
+              );
+
+              create table qrtz_locks
+              (
+                sched_name varchar(120) not null,
+                lock_name varchar(40) not null,
+                constraint pk_qrtz_locks primary key (sched_name, lock_name)
+              );
+
+              create index idx_qrtz_j_req_recovery
+                on qrtz_job_details (sched_name, requests_recovery);
+              create index idx_qrtz_j_grp
+                on qrtz_job_details (sched_name, job_group);
+
+              create index idx_qrtz_t_j
+                on qrtz_triggers (sched_name, job_name, job_group);
+              create index idx_qrtz_t_jg
+                on qrtz_triggers (sched_name, job_group);
+              create index idx_qrtz_t_c
+                on qrtz_triggers (sched_name, calendar_name);
+              create index idx_qrtz_t_g
+                on qrtz_triggers (sched_name, trigger_group);
+              create index idx_qrtz_t_state
+                on qrtz_triggers (sched_name, trigger_state);
+              create index idx_qrtz_t_n_state
+                on qrtz_triggers (sched_name, trigger_name, trigger_group, trigger_state);
+              create index idx_qrtz_t_n_g_state
+                on qrtz_triggers (sched_name, trigger_group, trigger_state);
+              create index idx_qrtz_t_next_fire_time
+                on qrtz_triggers (sched_name, next_fire_time);
+              create index idx_qrtz_t_nft_st
+                on qrtz_triggers (sched_name, trigger_state, next_fire_time);
+              create index idx_qrtz_t_nft_misfire
+                on qrtz_triggers (sched_name, misfire_instr, next_fire_time);
+              create index idx_qrtz_t_nft_st_misfire
+                on qrtz_triggers (sched_name, misfire_instr, next_fire_time, trigger_state);
+              create index idx_qrtz_t_nft_st_misfire_grp
+                on qrtz_triggers (sched_name, misfire_instr, next_fire_time, trigger_group, trigger_state);
+
+              create index idx_qrtz_ft_trig_inst_name
+                on qrtz_fired_triggers (sched_name, instance_name);
+              create index idx_qrtz_ft_inst_job_req_rcvry
+                on qrtz_fired_triggers (sched_name, instance_name, requests_recovery);
+              create index idx_qrtz_ft_j_g
+                on qrtz_fired_triggers (sched_name, job_name, job_group);
+              create index idx_qrtz_ft_jg
+                on qrtz_fired_triggers (sched_name, job_group);
+              create index idx_qrtz_ft_t_g
+                on qrtz_fired_triggers (sched_name, trigger_name, trigger_group);
+              create index idx_qrtz_ft_tg
+                on qrtz_fired_triggers (sched_name, trigger_group);
+
+  - changeSet:
+      id: 001-007-create-scheduled-task-management
+      author: backend
+      changes:
+        - createTable:
+            tableName: scheduled_task
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_scheduled_task
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: handler_code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(500)
+              - column:
+                  name: group_name
+                  type: varchar(100)
+                  defaultValue: default
+                  constraints:
+                    nullable: false
+              - column:
+                  name: schedule_type
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cron_expression
+                  type: varchar(120)
+              - column:
+                  name: interval_seconds
+                  type: bigint
+              - column:
+                  name: run_at
+                  type: timestamptz
+              - column:
+                  name: time_zone
+                  type: varchar(80)
+                  defaultValue: UTC
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload_json
+                  type: text
+                  defaultValue: "{}"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: scheduled_task
+            columnNames: code
+            constraintName: uk_scheduled_task__code
+        - createIndex:
+            tableName: scheduled_task
+            indexName: idx_scheduled_task__handler_code
+            columns:
+              - column:
+                  name: handler_code
+        - createIndex:
+            tableName: scheduled_task
+            indexName: idx_scheduled_task__enabled
+            columns:
+              - column:
+                  name: enabled
+        - sql:
+            sql: |
+              alter table scheduled_task
+              add constraint ck_scheduled_task__schedule_type
+              check (schedule_type in ('ONCE', 'FIXED_INTERVAL', 'CRON'));
+        - createTable:
+            tableName: scheduled_task_execution
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_scheduled_task_execution
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: handler_code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scheduled_fire_time
+                  type: timestamptz
+              - column:
+                  name: actual_fire_time
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: finished_at
+                  type: timestamptz
+              - column:
+                  name: status
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration_ms
+                  type: bigint
+              - column:
+                  name: refire_count
+                  type: int
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload_snapshot_json
+                  type: text
+                  defaultValue: "{}"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: error_message
+                  type: varchar(1000)
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: scheduled_task_execution
+            baseColumnNames: task_id
+            referencedTableName: scheduled_task
+            referencedColumnNames: id
+            constraintName: fk_scheduled_task_execution__task_id
+            onDelete: CASCADE
+        - createIndex:
+            tableName: scheduled_task_execution
+            indexName: idx_scheduled_task_execution__task_id_actual_fire_time
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: actual_fire_time
+                  descending: true
+        - createIndex:
+            tableName: scheduled_task_execution
+            indexName: idx_scheduled_task_execution__status
+            columns:
+              - column:
+                  name: status
+        - sql:
+            sql: |
+              alter table scheduled_task_execution
+              add constraint ck_scheduled_task_execution__status
+              check (status in ('RUNNING', 'SUCCESS', 'FAILED'));

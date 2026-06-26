@@ -1,0 +1,4 @@
+interface:
+  display_name: "Liquibase"
+  short_description: "数据库迁移与约束规则"
+  default_prompt: "使用 $liquibase 处理 后端数据库迁移。"

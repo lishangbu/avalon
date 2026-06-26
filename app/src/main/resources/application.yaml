@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: avalon
+  datasource:
+    url: jdbc:postgresql://localhost:5432/avalon
+    username: postgres
+    password: postgres
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    scheduler-name: avalon-scheduler
+    wait-for-jobs-to-complete-on-shutdown: true
+    properties:
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.tablePrefix: QRTZ_
+      org.quartz.threadPool.threadCount: 5
+
+jimmer:
+  language: kotlin
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
+
+cosid:
+  machine:
+    enabled: true
+    distributor:
+      manual:
+        machine-id: ${COSID_MACHINE_ID:0}
+  snowflake:
+    enabled: true
+    zone-id: UTC
+
+server:
+  port: 8080
+
+backend:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+  security:
+    issuer: ${AVALON_SECURITY_ISSUER:http://localhost:8080}

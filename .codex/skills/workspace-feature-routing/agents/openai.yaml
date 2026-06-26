@@ -1,0 +1,4 @@
+interface:
+  display_name: "后端功能路由"
+  short_description: "按任务选择后端领域技能"
+  default_prompt: "使用 $workspace-feature-routing 判断 后端下一步应加载哪些领域技能。"
