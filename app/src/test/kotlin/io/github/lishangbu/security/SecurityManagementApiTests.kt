@@ -28,8 +28,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -885,7 +883,6 @@ class SecurityManagementApiTests(
 
 	private fun insertUser(username: String, roleId: Long) {
 		val userId = nextUserId.getAndIncrement()
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		userRepository.save(
 			SecurityUser {
 				id = userId
@@ -894,8 +891,6 @@ class SecurityManagementApiTests(
 				displayName = username
 				enabled = true
 				accountNonLocked = true
-				createdAt = now
-				updatedAt = now
 			},
 		)
 		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)

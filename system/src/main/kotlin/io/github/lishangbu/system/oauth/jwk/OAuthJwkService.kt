@@ -2,10 +2,8 @@ package io.github.lishangbu.system.oauth.jwk
 
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.active
-import io.github.lishangbu.security.entity.createdAt
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.keyId
-import io.github.lishangbu.security.entity.updatedAt
 import io.github.lishangbu.security.oauth.OAuth2JwkKeyFactory
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
 import io.github.lishangbu.system.error.notFound
@@ -21,8 +19,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * JWK 系统管理服务。
@@ -47,7 +43,7 @@ class OAuthJwkService(
 			searchFilter.pattern?.let { pattern ->
 				where(table.keyId ilike pattern)
 			}
-			orderBy(table.active.desc(), table.createdAt.asc())
+			orderBy(table.active.desc(), table.id.asc())
 			select(table)
 		}.fetchPage(page, size)
 			.mapRows { it.toResponse() }
@@ -71,8 +67,7 @@ class OAuthJwkService(
 	 */
 	@Transactional
 	fun rotateJwk(): OAuthJwkResponse {
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
-		deactivateActiveJwks(now)
+		deactivateActiveJwks()
 
 		val rsaKey = jwkKeyFactory.generateRsaJwk()
 		return jwkRepository.save(
@@ -80,8 +75,6 @@ class OAuthJwkService(
 				keyId = rsaKey.keyID
 				jwkJson = rsaKey.toJSONString()
 				active = true
-				createdAt = now
-				updatedAt = now
 			},
 		).toResponse()
 	}
@@ -89,11 +82,10 @@ class OAuthJwkService(
 	/**
 	 * 使用 Jimmer 批量更新停用旧的活跃 JWK。
 	 */
-	private fun deactivateActiveJwks(now: OffsetDateTime) {
+	private fun deactivateActiveJwks() {
 		sqlClient.executeUpdate(OAuth2Jwk::class) {
 			where(table.active eq true)
 			set(table.active, false)
-			set(table.updatedAt, now)
 		}
 	}
 
@@ -105,8 +97,6 @@ class OAuthJwkService(
 			id = id,
 			keyId = keyId,
 			active = active,
-			createdAt = createdAt,
-			updatedAt = updatedAt,
 		)
 
 }

@@ -23,6 +23,4 @@ data class ManagedScheduledTaskResponse(
 	val triggerState: String?,
 	val lastExecutionStatus: String?,
 	val lastExecutionAt: Instant?,
-	val createdAt: Instant,
-	val updatedAt: Instant,
 )

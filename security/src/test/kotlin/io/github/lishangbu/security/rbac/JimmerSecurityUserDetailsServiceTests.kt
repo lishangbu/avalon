@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.test.context.ContextConfiguration
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @SpringBootTest(
 	classes = [SecurityRbacTestApplication::class],
@@ -34,7 +32,6 @@ class JimmerSecurityUserDetailsServiceTests(
 	@Test
 	fun `loads user with roles and access nodes as authorities`() {
 		val userId = 30001L
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		sqlClient.save(
 			SecurityUser {
 				id = userId
@@ -43,8 +40,6 @@ class JimmerSecurityUserDetailsServiceTests(
 				displayName = "管理员"
 				enabled = true
 				accountNonLocked = true
-				createdAt = now
-				updatedAt = now
 			},
 		)
 		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, 201L)

@@ -7,14 +7,11 @@ import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.active
-import io.github.lishangbu.security.entity.createdAt
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.beans.factory.InitializingBean
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * 从数据库读取并维护授权服务器的活跃 JWK。
@@ -49,14 +46,11 @@ class JwkSource(
 		}
 
 		val rsaKey = jwkKeyFactory.generateRsaJwk()
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		repository.save(
 			OAuth2Jwk {
 				keyId = rsaKey.keyID
 				jwkJson = rsaKey.toJSONString()
 				active = true
-				createdAt = now
-				updatedAt = now
 			},
 		)
 	}
@@ -64,7 +58,7 @@ class JwkSource(
 	private fun activeJwks(): List<OAuth2Jwk> =
 		sqlClient.executeQuery(OAuth2Jwk::class) {
 			where(table.active eq true)
-			orderBy(table.createdAt)
+			orderBy(table.id)
 			select(table)
 		}
 

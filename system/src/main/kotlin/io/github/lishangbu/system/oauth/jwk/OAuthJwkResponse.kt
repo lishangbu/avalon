@@ -1,7 +1,6 @@
 package io.github.lishangbu.system.oauth.jwk
 
 import io.swagger.v3.oas.annotations.media.Schema
-import java.time.OffsetDateTime
 
 /**
  * JWK 系统管理响应。
@@ -16,8 +15,4 @@ data class OAuthJwkResponse(
 	val keyId: String,
 	@field:Schema(description = "是否为当前签发 JWT 使用的 active key。", example = "true")
 	val active: Boolean,
-	@field:Schema(description = "创建时间。", example = "2026-06-25T15:30:00Z")
-	val createdAt: OffsetDateTime,
-	@field:Schema(description = "最近更新时间。轮换 key 状态时会刷新。", example = "2026-06-25T15:35:00Z")
-	val updatedAt: OffsetDateTime,
 )

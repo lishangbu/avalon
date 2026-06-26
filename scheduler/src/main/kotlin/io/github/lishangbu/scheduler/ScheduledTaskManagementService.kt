@@ -80,7 +80,6 @@ open class ScheduledTaskManagementService(
 		if (taskExists(normalized.code)) {
 			throw ManagedScheduledTaskConflictException("定时任务 code 已存在: ${normalized.code}")
 		}
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		val task = taskRepository.save(
 			ScheduledTask {
 				code = normalized.code
@@ -95,8 +94,6 @@ open class ScheduledTaskManagementService(
 				timeZone = normalized.timeZone.id
 				payloadJson = objectMapper.writePayload(normalized.payload)
 				enabled = normalized.enabled
-				createdAt = now
-				updatedAt = now
 			},
 		)
 		if (task.enabled) {
@@ -128,8 +125,6 @@ open class ScheduledTaskManagementService(
 				timeZone = normalized.timeZone.id
 				payloadJson = objectMapper.writePayload(normalized.payload)
 				enabled = normalized.enabled
-				createdAt = current.createdAt
-				updatedAt = OffsetDateTime.now(ZoneOffset.UTC)
 			},
 		)
 		if (updated.enabled) {
@@ -230,8 +225,6 @@ open class ScheduledTaskManagementService(
 				timeZone = task.timeZone
 				payloadJson = task.payloadJson
 				this.enabled = enabled
-				createdAt = task.createdAt
-				updatedAt = OffsetDateTime.now(ZoneOffset.UTC)
 			},
 		)
 
@@ -308,8 +301,6 @@ open class ScheduledTaskManagementService(
 			triggerState = triggerState,
 			lastExecutionStatus = lastExecution?.status,
 			lastExecutionAt = lastExecution?.actualFireTime?.toInstant(),
-			createdAt = createdAt.toInstant(),
-			updatedAt = updatedAt.toInstant(),
 		)
 	}
 
@@ -327,7 +318,6 @@ open class ScheduledTaskManagementService(
 			refireCount = refireCount,
 			payloadSnapshot = objectMapper.readPayload(payloadSnapshotJson),
 			errorMessage = errorMessage,
-			createdAt = createdAt.toInstant(),
 		)
 
 	private fun ScheduledTask.basePayload(): Map<String, Any?> =

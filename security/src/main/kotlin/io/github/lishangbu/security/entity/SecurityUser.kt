@@ -8,7 +8,6 @@ import org.babyfish.jimmer.sql.JoinTable
 import org.babyfish.jimmer.sql.Key
 import org.babyfish.jimmer.sql.ManyToMany
 import org.babyfish.jimmer.sql.Table
-import java.time.OffsetDateTime
 
 /**
  * RBAC 用户账号。
@@ -30,8 +29,6 @@ interface SecurityUser {
 	val displayName: String
 	val enabled: Boolean
 	val accountNonLocked: Boolean
-	val createdAt: OffsetDateTime
-	val updatedAt: OffsetDateTime
 
 	/**
 	 * 用户绑定的 RBAC 角色。

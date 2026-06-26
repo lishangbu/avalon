@@ -115,8 +115,6 @@ class OAuthClientService(
 				refreshTokenTtlSeconds = REFRESH_TOKEN_TTL_SECONDS
 				idTokenSignatureAlgorithm = ID_TOKEN_SIGNATURE_ALGORITHM
 				x509CertificateBoundAccessTokens = false
-				createdAt = now
-				updatedAt = now
 			},
 		).toResponse()
 	}
@@ -227,8 +225,6 @@ class OAuthClientService(
 				this.refreshTokenTtlSeconds = refreshTokenTtlSeconds
 				idTokenSignatureAlgorithm = client.idTokenSignatureAlgorithm
 				x509CertificateBoundAccessTokens = client.x509CertificateBoundAccessTokens
-				createdAt = client.createdAt
-				updatedAt = OffsetDateTime.now(ZoneOffset.UTC)
 			},
 		)
 
@@ -246,8 +242,6 @@ class OAuthClientService(
 			accessTokenFormat = accessTokenFormat,
 			accessTokenTtlSeconds = accessTokenTtlSeconds,
 			refreshTokenTtlSeconds = refreshTokenTtlSeconds,
-			createdAt = createdAt,
-			updatedAt = updatedAt,
 		)
 
 	/**

@@ -6,7 +6,6 @@ import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
 import org.babyfish.jimmer.sql.Key
 import org.babyfish.jimmer.sql.Table
-import java.time.OffsetDateTime
 
 /**
  * 授权服务器用于签发 JWT 的 JWK 持久化记录。
@@ -26,6 +25,4 @@ interface OAuth2Jwk {
 
 	val jwkJson: String
 	val active: Boolean
-	val createdAt: OffsetDateTime
-	val updatedAt: OffsetDateTime
 }

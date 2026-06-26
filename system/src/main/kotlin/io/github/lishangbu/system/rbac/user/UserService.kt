@@ -30,8 +30,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 /**
  * RBAC 用户系统管理服务。
@@ -106,7 +104,6 @@ class UserService(
 			conflict("username", "username 已存在")
 		}
 		val roleIds = resolveRoleIds(request.roleCodes)
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		val user = userRepository.save(
 			SecurityUser {
 				this.username = username
@@ -116,8 +113,6 @@ class UserService(
 				displayName = request.displayName.requiredText("displayName", maxLength = 80)
 				enabled = true
 				accountNonLocked = true
-				createdAt = now
-				updatedAt = now
 			},
 		)
 		insertRoleBindings(user.id, roleIds)
@@ -215,8 +210,6 @@ class UserService(
 				displayName = user.displayName
 				this.enabled = enabled
 				this.accountNonLocked = accountNonLocked
-				createdAt = user.createdAt
-				updatedAt = OffsetDateTime.now(ZoneOffset.UTC)
 			},
 		)
 
@@ -274,8 +267,6 @@ class UserService(
 			enabled = enabled,
 			accountNonLocked = accountNonLocked,
 			roleCodes = roleCodes,
-			createdAt = createdAt,
-			updatedAt = updatedAt,
 		)
 
 	/**

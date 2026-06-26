@@ -1,7 +1,6 @@
 package io.github.lishangbu.system.rbac.user
 
 import io.swagger.v3.oas.annotations.media.Schema
-import java.time.OffsetDateTime
 
 /**
  * RBAC 用户系统管理响应。
@@ -22,8 +21,4 @@ data class UserResponse(
 	val accountNonLocked: Boolean,
 	@field:Schema(description = "用户当前绑定的完整角色 code 集合。", example = "[\"system-admin\"]")
 	val roleCodes: List<String>,
-	@field:Schema(description = "创建时间，使用服务端 OffsetDateTime 序列化格式。", example = "2026-06-25T15:30:00Z")
-	val createdAt: OffsetDateTime,
-	@field:Schema(description = "最近更新时间，状态、密码或角色绑定变化都会刷新。", example = "2026-06-25T15:35:00Z")
-	val updatedAt: OffsetDateTime,
 )

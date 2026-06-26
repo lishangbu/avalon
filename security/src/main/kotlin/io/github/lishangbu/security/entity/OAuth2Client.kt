@@ -14,7 +14,7 @@ import java.time.OffsetDateTime
  *
  * 该实体是 Backend 自有的客户端持久化模型，不复用 Spring Authorization Server
  * JDBC schema。`clientSettings` 与 `tokenSettings` 的标准字段在表中拍平，便于后续
- * 管理端按列检索、审计和变更。
+ * 管理端按列检索和变更。
  */
 @Entity
 @Table(name = "oauth2_client")
@@ -53,7 +53,4 @@ interface OAuth2Client {
 
 	@Column(name = "x509_certificate_bound_access_tokens")
 	val x509CertificateBoundAccessTokens: Boolean
-
-	val createdAt: OffsetDateTime
-	val updatedAt: OffsetDateTime
 }

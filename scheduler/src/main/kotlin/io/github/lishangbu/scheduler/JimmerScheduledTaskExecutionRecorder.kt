@@ -39,7 +39,6 @@ open class JimmerScheduledTaskExecutionRecorder(
 				refireCount = execution.refireCount
 				payloadSnapshotJson = objectMapper.writePayload(execution.payload)
 				errorMessage = null
-				createdAt = start
 			},
 			SaveMode.INSERT_ONLY,
 		)
@@ -74,7 +73,6 @@ open class JimmerScheduledTaskExecutionRecorder(
 				refireCount = record.refireCount
 				payloadSnapshotJson = record.payloadSnapshotJson
 				this.errorMessage = errorMessage
-				createdAt = record.createdAt
 			},
 		)
 	}

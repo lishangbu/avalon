@@ -64,8 +64,6 @@ class JimmerRegisteredClientRepository(
 				idTokenSignatureAlgorithm = registeredClient.tokenSettings.idTokenSignatureAlgorithm.name
 				x509CertificateBoundAccessTokens =
 					registeredClient.tokenSettings.isX509CertificateBoundAccessTokens
-				createdAt = existingClient?.createdAt ?: now
-				updatedAt = now
 			},
 		)
 	}

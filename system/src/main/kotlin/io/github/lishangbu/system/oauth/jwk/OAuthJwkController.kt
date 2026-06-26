@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/system/oauth/jwks")
 @Tag(
 	name = "OAuth JWK",
-	description = "管理授权服务器用于 JWT 签名的 JWK 元数据。管理接口不返回私钥材料，只返回 keyId、active 状态和审计时间。",
+	description = "管理授权服务器用于 JWT 签名的 JWK 元数据。管理接口不返回私钥材料，只返回 keyId 和 active 状态。",
 )
 class OAuthJwkController(
 	private val service: OAuthJwkService,
@@ -75,7 +75,7 @@ class OAuthJwkController(
 	@GetMapping("/{keyId}")
 	@Operation(
 		summary = "查询 JWK 详情",
-		description = "按 keyId 查询 JWK 元数据。响应只包含 keyId、active 和审计时间，不包含私钥材料。",
+		description = "按 keyId 查询 JWK 元数据。响应只包含 keyId 和 active 状态，不包含私钥材料。",
 		security = [SecurityRequirement(name = SYSTEM_API_BEARER_AUTH)],
 	)
 	@ApiResponses(

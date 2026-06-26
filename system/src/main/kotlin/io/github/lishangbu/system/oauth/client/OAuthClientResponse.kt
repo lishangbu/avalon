@@ -1,7 +1,6 @@
 package io.github.lishangbu.system.oauth.client
 
 import io.swagger.v3.oas.annotations.media.Schema
-import java.time.OffsetDateTime
 
 /**
  * OAuth client 系统管理响应。
@@ -28,8 +27,4 @@ data class OAuthClientResponse(
 	val accessTokenTtlSeconds: Long,
 	@field:Schema(description = "refresh token 有效期，单位秒。", example = "7200")
 	val refreshTokenTtlSeconds: Long,
-	@field:Schema(description = "创建时间。", example = "2026-06-25T15:30:00Z")
-	val createdAt: OffsetDateTime,
-	@field:Schema(description = "最近更新时间。", example = "2026-06-25T15:35:00Z")
-	val updatedAt: OffsetDateTime,
 )

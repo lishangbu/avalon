@@ -29,8 +29,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import tools.jackson.databind.ObjectMapper
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.concurrent.atomic.AtomicLong
 
 @SpringBootTest(
@@ -145,7 +143,6 @@ class BackendTokenEndpointTests(
 
 	private fun insertUser(username: String) {
 		val userId = nextUserId.getAndIncrement()
-		val now = OffsetDateTime.now(ZoneOffset.UTC)
 		userRepository.save(
 			SecurityUser {
 				id = userId
@@ -154,8 +151,6 @@ class BackendTokenEndpointTests(
 				displayName = username
 				enabled = true
 				accountNonLocked = true
-				createdAt = now
-				updatedAt = now
 			},
 		)
 		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, 201L)

@@ -38,16 +38,6 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: false
-              - column:
-                  name: created_at
-                  type: timestamptz
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: timestamptz
-                  constraints:
-                    nullable: false
         - addUniqueConstraint:
             tableName: security_user
             columnNames: username
@@ -244,18 +234,16 @@ databaseChangeLog:
             columns:
               - column: { name: id, valueNumeric: 201 }
               - column: { name: code, value: "system-admin" }
-              - column: { name: name, value: "System Admin" }
+              - column: { name: name, value: "系统管理员" }
         - insert:
             tableName: security_user
             columns:
               - column: { name: id, valueNumeric: 301 }
               - column: { name: username, value: "admin" }
               - column: { name: password_hash, value: "{noop}secret" }
-              - column: { name: display_name, value: "System Admin" }
+              - column: { name: display_name, value: "系统管理员" }
               - column: { name: enabled, valueBoolean: true }
               - column: { name: account_non_locked, valueBoolean: true }
-              - column: { name: created_at, valueComputed: current_timestamp }
-              - column: { name: updated_at, valueComputed: current_timestamp }
         - insert:
             tableName: security_user_role
             columns:
@@ -267,17 +255,17 @@ databaseChangeLog:
                 id, code, name, type, parent_id, path, component_key, icon,
                 sort_order, visible, enabled, api_method, api_pattern
               ) values
-                (301, 'security:admin', 'System Management API', 'API', null, null, null, null, 1000, false, true, '*', '/api/system/**'),
-                (310, 'system', 'System Management', 'DIRECTORY', null, '/system', null, 'SettingOutlined', 10, true, true, null, null),
-                (311, 'system.rbac', 'Access Control', 'DIRECTORY', 310, '/system/rbac', null, 'SafetyCertificateOutlined', 10, true, true, null, null),
-                (312, 'system.rbac.users', 'User Management', 'ROUTE', 311, '/system/rbac/users', 'system/rbac/users', 'UserOutlined', 10, true, true, null, null),
-                (313, 'system.rbac.roles', 'Role Management', 'ROUTE', 311, '/system/rbac/roles', 'system/rbac/roles', 'TeamOutlined', 20, true, true, null, null),
-                (314, 'system.rbac.access-nodes', 'Access Nodes', 'ROUTE', 311, '/system/rbac/access-nodes', 'system/rbac/access-nodes', 'ApartmentOutlined', 30, true, true, null, null),
-                (320, 'system.oauth', 'OAuth Management', 'DIRECTORY', 310, '/system/oauth', null, 'KeyOutlined', 20, true, true, null, null),
-                (321, 'system.oauth.clients', 'Client Management', 'ROUTE', 320, '/system/oauth/clients', 'system/oauth/clients', 'ApiOutlined', 10, true, true, null, null),
-                (322, 'system.oauth.jwks', 'JWK Management', 'ROUTE', 320, '/system/oauth/jwks', 'system/oauth/jwks', 'KeyOutlined', 20, true, true, null, null),
-                (330, 'system.scheduler', 'Scheduler', 'DIRECTORY', 310, '/system/scheduler', null, 'ClockCircleOutlined', 30, true, true, null, null),
-                (331, 'system.scheduler.tasks', 'Scheduled Tasks', 'ROUTE', 330, '/system/scheduler/tasks', 'system/scheduler/tasks', 'ScheduleOutlined', 10, true, true, null, null);
+                (301, 'security:admin', '系统管理 API', 'API', null, null, null, null, 1000, false, true, '*', '/api/system/**'),
+                (310, 'system', '系统管理', 'DIRECTORY', null, '/system', null, 'SettingOutlined', 10, true, true, null, null),
+                (311, 'system.rbac', '访问控制', 'DIRECTORY', 310, '/system/rbac', null, 'SafetyCertificateOutlined', 10, true, true, null, null),
+                (312, 'system.rbac.users', '用户管理', 'ROUTE', 311, '/system/rbac/users', 'system/rbac/users', 'UserOutlined', 10, true, true, null, null),
+                (313, 'system.rbac.roles', '角色管理', 'ROUTE', 311, '/system/rbac/roles', 'system/rbac/roles', 'TeamOutlined', 20, true, true, null, null),
+                (314, 'system.rbac.access-nodes', '访问节点', 'ROUTE', 311, '/system/rbac/access-nodes', 'system/rbac/access-nodes', 'ApartmentOutlined', 30, true, true, null, null),
+                (320, 'system.oauth', 'OAuth 管理', 'DIRECTORY', 310, '/system/oauth', null, 'KeyOutlined', 20, true, true, null, null),
+                (321, 'system.oauth.clients', 'OAuth 客户端', 'ROUTE', 320, '/system/oauth/clients', 'system/oauth/clients', 'ApiOutlined', 10, true, true, null, null),
+                (322, 'system.oauth.jwks', 'JWK 管理', 'ROUTE', 320, '/system/oauth/jwks', 'system/oauth/jwks', 'KeyOutlined', 20, true, true, null, null),
+                (330, 'system.scheduler', '任务调度', 'DIRECTORY', 310, '/system/scheduler', null, 'ClockCircleOutlined', 30, true, true, null, null),
+                (331, 'system.scheduler.tasks', '定时任务', 'ROUTE', 330, '/system/scheduler/tasks', 'system/scheduler/tasks', 'ScheduleOutlined', 10, true, true, null, null);
         - sql:
             sql: |
               insert into security_role_access_node (role_id, access_node_id)
@@ -568,18 +556,6 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
-              - column:
-                  name: created_at
-                  type: timestamptz
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: timestamptz
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
         - addUniqueConstraint:
             tableName: oauth2_client
             columnNames: client_id
@@ -609,16 +585,6 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     nullable: false
-              - column:
-                  name: created_at
-                  type: timestamptz
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: timestamptz
-                  constraints:
-                    nullable: false
         - addUniqueConstraint:
             tableName: oauth2_jwk
             columnNames: key_id
@@ -645,7 +611,7 @@ databaseChangeLog:
               - column: { name: id, valueNumeric: 1 }
               - column: { name: client_id, value: "system-admin-jwt" }
               - column: { name: client_secret, value: "{noop}system-admin-jwt-secret" }
-              - column: { name: client_name, value: "System Admin JWT Client" }
+              - column: { name: client_name, value: "系统管理 JWT 客户端" }
               - column: { name: client_authentication_methods, value: "client_secret_basic" }
               - column: { name: authorization_grant_types, value: "urn:security:params:oauth:grant-type:password" }
               - column: { name: scopes, value: "security:admin" }
@@ -661,7 +627,7 @@ databaseChangeLog:
               - column: { name: id, valueNumeric: 2 }
               - column: { name: client_id, value: "system-admin-opaque" }
               - column: { name: client_secret, value: "{noop}system-admin-opaque-secret" }
-              - column: { name: client_name, value: "System Admin Opaque Client" }
+              - column: { name: client_name, value: "系统管理 Opaque 客户端" }
               - column: { name: client_authentication_methods, value: "client_secret_basic" }
               - column: { name: authorization_grant_types, value: "urn:security:params:oauth:grant-type:password" }
               - column: { name: scopes, value: "security:admin" }
@@ -936,18 +902,6 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
-              - column:
-                  name: created_at
-                  type: timestamptz
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: timestamptz
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
         - addUniqueConstraint:
             tableName: scheduled_task
             columnNames: code
@@ -1028,12 +982,6 @@ databaseChangeLog:
               - column:
                   name: error_message
                   type: varchar(1000)
-              - column:
-                  name: created_at
-                  type: timestamptz
-                  defaultValueComputed: CURRENT_TIMESTAMP
-                  constraints:
-                    nullable: false
         - addForeignKeyConstraint:
             baseTableName: scheduled_task_execution
             baseColumnNames: task_id

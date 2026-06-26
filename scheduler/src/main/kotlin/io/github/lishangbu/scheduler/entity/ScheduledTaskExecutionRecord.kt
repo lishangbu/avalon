@@ -11,7 +11,7 @@ import java.time.OffsetDateTime
 /**
  * 定时任务的一次执行记录。
  *
- * 该记录面向管理端审计和排错，不参与 Quartz 调度决策。
+ * 该记录面向管理端排错，不参与 Quartz 调度决策。
  */
 @Entity
 @Table(name = "scheduled_task_execution")
@@ -34,5 +34,4 @@ interface ScheduledTaskExecutionRecord {
 	val payloadSnapshotJson: String
 
 	val errorMessage: String?
-	val createdAt: OffsetDateTime
 }

@@ -18,5 +18,4 @@ data class ManagedScheduledTaskExecutionResponse(
 	val refireCount: Int,
 	val payloadSnapshot: Map<String, Any?>,
 	val errorMessage: String?,
-	val createdAt: Instant,
 )
