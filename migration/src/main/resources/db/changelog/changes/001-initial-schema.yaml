@@ -256,16 +256,16 @@ databaseChangeLog:
                 sort_order, visible, enabled, api_method, api_pattern
               ) values
                 (301, 'security:admin', '系统管理 API', 'API', null, null, null, null, 1000, false, true, '*', '/api/system/**'),
-                (310, 'system', '系统管理', 'DIRECTORY', null, '/system', null, 'SettingOutlined', 10, true, true, null, null),
-                (311, 'system.rbac', '访问控制', 'DIRECTORY', 310, '/system/rbac', null, 'SafetyCertificateOutlined', 10, true, true, null, null),
-                (312, 'system.rbac.users', '用户管理', 'ROUTE', 311, '/system/rbac/users', 'system/rbac/users', 'UserOutlined', 10, true, true, null, null),
-                (313, 'system.rbac.roles', '角色管理', 'ROUTE', 311, '/system/rbac/roles', 'system/rbac/roles', 'TeamOutlined', 20, true, true, null, null),
-                (314, 'system.rbac.access-nodes', '访问节点', 'ROUTE', 311, '/system/rbac/access-nodes', 'system/rbac/access-nodes', 'ApartmentOutlined', 30, true, true, null, null),
-                (320, 'system.oauth', 'OAuth 管理', 'DIRECTORY', 310, '/system/oauth', null, 'KeyOutlined', 20, true, true, null, null),
-                (321, 'system.oauth.clients', 'OAuth 客户端', 'ROUTE', 320, '/system/oauth/clients', 'system/oauth/clients', 'ApiOutlined', 10, true, true, null, null),
-                (322, 'system.oauth.jwks', 'JWK 管理', 'ROUTE', 320, '/system/oauth/jwks', 'system/oauth/jwks', 'KeyOutlined', 20, true, true, null, null),
-                (330, 'system.scheduler', '任务调度', 'DIRECTORY', 310, '/system/scheduler', null, 'ClockCircleOutlined', 30, true, true, null, null),
-                (331, 'system.scheduler.tasks', '定时任务', 'ROUTE', 330, '/system/scheduler/tasks', 'system/scheduler/tasks', 'ScheduleOutlined', 10, true, true, null, null);
+                (310, 'system', '系统管理', 'DIRECTORY', null, '/system', null, 'lucide:settings', 10, true, true, null, null),
+                (311, 'system.rbac', '访问控制', 'DIRECTORY', 310, '/system/rbac', null, 'lucide:shield-check', 10, true, true, null, null),
+                (312, 'system.rbac.users', '用户管理', 'ROUTE', 311, '/system/rbac/users', 'system/rbac/users', 'lucide:users', 10, true, true, null, null),
+                (313, 'system.rbac.roles', '角色管理', 'ROUTE', 311, '/system/rbac/roles', 'system/rbac/roles', 'lucide:shield-user', 20, true, true, null, null),
+                (314, 'system.rbac.access-nodes', '访问节点', 'ROUTE', 311, '/system/rbac/access-nodes', 'system/rbac/access-nodes', 'lucide:network', 30, true, true, null, null),
+                (320, 'system.oauth', 'OAuth 管理', 'DIRECTORY', 310, '/system/oauth', null, 'lucide:key-round', 20, true, true, null, null),
+                (321, 'system.oauth.clients', 'OAuth 客户端', 'ROUTE', 320, '/system/oauth/clients', 'system/oauth/clients', 'lucide:plug', 10, true, true, null, null),
+                (322, 'system.oauth.jwks', 'JWK 管理', 'ROUTE', 320, '/system/oauth/jwks', 'system/oauth/jwks', 'lucide:key', 20, true, true, null, null),
+                (330, 'system.scheduler', '任务调度', 'DIRECTORY', 310, '/system/scheduler', null, 'lucide:calendar-clock', 30, true, true, null, null),
+                (331, 'system.scheduler.tasks', '定时任务', 'ROUTE', 330, '/system/scheduler/tasks', 'system/scheduler/tasks', 'lucide:clock', 10, true, true, null, null);
         - sql:
             sql: |
               insert into security_role_access_node (role_id, access_node_id)

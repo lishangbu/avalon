@@ -80,9 +80,12 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.roles[*].code", hasItem("system-admin")))
 			.andExpect(jsonPath("$.accessNodeCodes", hasItem("security:admin")))
 			.andExpect(jsonPath("$.menus[0].code").value("system"))
+			.andExpect(jsonPath("$.menus[0].icon").value("lucide:settings"))
 			.andExpect(jsonPath("$.menus[0].children[0].code").value("system.rbac"))
+			.andExpect(jsonPath("$.menus[0].children[0].icon").value("lucide:shield-check"))
 			.andExpect(jsonPath("$.menus[0].children[0].children[0].code").value("system.rbac.users"))
 			.andExpect(jsonPath("$.menus[0].children[0].children[0].componentKey").value("system/rbac/users"))
+			.andExpect(jsonPath("$.menus[0].children[0].children[0].icon").value("lucide:users"))
 			.andReturn()
 			.response
 			.contentAsString

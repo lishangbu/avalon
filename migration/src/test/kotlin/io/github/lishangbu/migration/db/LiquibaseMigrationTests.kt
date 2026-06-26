@@ -194,6 +194,21 @@ class LiquibaseMigrationTests(
 			"api_pattern",
 		)
 
+		val menuIcons = queryStrings(
+			"""
+			select icon
+			from security_access_node
+			where code in ('system', 'system.rbac.users', 'system.oauth.clients', 'system.scheduler.tasks')
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(menuIcons).containsExactly(
+			"lucide:settings",
+			"lucide:plug",
+			"lucide:users",
+			"lucide:clock",
+		)
+
 		val jwkIdType = queryStrings(
 			"""
 			select data_type

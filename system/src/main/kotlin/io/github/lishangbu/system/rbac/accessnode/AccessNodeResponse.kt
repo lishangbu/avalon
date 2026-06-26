@@ -21,7 +21,7 @@ data class AccessNodeResponse(
 	val path: String?,
 	@field:Schema(description = "前端组件标识。前端可据此映射实际页面组件。", example = "system/rbac/users", nullable = true)
 	val componentKey: String?,
-	@field:Schema(description = "前端图标标识。", example = "Users", nullable = true)
+	@field:Schema(description = "前端图标标识。", example = "lucide:users", nullable = true)
 	val icon: String?,
 	@field:Schema(description = "同级节点排序值，数值越小越靠前。", example = "10")
 	val sortOrder: Int,
