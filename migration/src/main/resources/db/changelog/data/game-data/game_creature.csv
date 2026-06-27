@@ -634,7 +634,7 @@ id,code,name,species_id,height,weight,base_experience,sort_order,default_form,en
 633,deino,单首龙,633,8,173,60,756,true,true
 634,zweilous,双首暴龙,634,14,500,147,757,true,true
 635,hydreigon,三首恶龙,635,18,1600,270,758,true,true
-636,larvesta,燃烧虫,636,11,288,72,759,true,true
+636,larvesta,灼伤虫,636,11,288,72,759,true,true
 637,volcarona,火神蛾,637,16,460,248,760,true,true
 638,cobalion,勾帕路翁,638,21,2500,261,761,true,true
 639,terrakion,代拉基翁,639,19,2600,261,762,true,true

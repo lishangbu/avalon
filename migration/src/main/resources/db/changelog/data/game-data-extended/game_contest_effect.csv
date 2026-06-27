@@ -1,34 +1,34 @@
 id,appeal,jam,effect,flavor_text
-1,4,0,Gives a high number of appeal points with no other effects.,A highly appealing move.
-2,3,0,"If the Pokémon that appealed before the user earned less than three appeal points, user earns six; if three, user earns three; if more than three, user earns none.",Affected by how well the appeal in front goes.
-3,6,0,"If the user is jammed this turn after using this move, it will receive twice as many jam points.","After this move, the user is more easily startled."
-4,1,4,Attempts to jam the Pokémon that appealed before the user.,Badly startles the Pokémon in front.
-5,1,3,Attempts to jam all Pokémon that have appealed this turn.,Badly startles those that have made appeals.
-6,4,4,"Attempts to jam the other Pokémon. The user cannot make an appeal on the next turn, but it cannot be jammed either.","Jams the others, and misses one turn of appeals."
-7,8,0,User cannot make any more appeals for the remainder of the contest.,"Makes a great appeal, but allows no more to the end."
-8,2,2,Attempts to jam all Pokémon that have appealed this turn.,Startles all Pokémon that have done their appeals.
-9,2,3,Attempts to jam the Pokémon that appealed before the user.,Startles the Pokémon that appealed before the user.
-10,2,1,"Attempts to jam all Pokémon that have appealed this turn. If a Pokémon is in combo standby status, it is jammed 5 points instead of 1.",Startles the Pokémon that has the judge’s attention.
-11,1,0,"If the Applause meter is empty or at one, earns one point; if two, earns three points; if three, earns four points; if four, earns six points.",The appeal works best the more the crowd is excited.
-12,2,0,"If the last Pokémon’s appeal is the same type as this move, user earns six points instead of two.",Works well if it’s the same type as the one before.
-13,1,0,"Always adds a point to the applause meter, regardless of whether the move matches the contest, and can likewise gain the applause bonus.",An appeal that excites the audience in any contest.
-14,2,1,Attempts to jam all Pokémon that have appealed this turn for half their appeal points (minimum 1).,Badly startles all Pokémon that made good appeals.
-15,1,0,Prevents jamming for the rest of this turn.,Can avoid being startled by others.
-16,2,0,Prevents the next jam on this turn.,Can avoid being startled by others once.
-17,3,0,Repeated use does not incur a penalty.,Can be repeatedly used without boring the judge.
-18,2,0,Attempts to make all following Pokémon nervous (and thus unable to appeal).,Makes all Pokémon after the user nervous.
-19,1,0,User earns appeal points equal to the points the previous Pokémon earned plus one.,Makes the appeal as good as the one before it.
-20,1,0,User earns appeal points equal to half the points ALL the previous Pokémon earned plus one.,Makes the appeal as good as those before it.
-21,3,0,Shuffles the next turn’s turn order.,Scrambles up the order of appeals on the next turn.
-22,3,0,Cancels combo standby status for all Pokémon that have appealed this turn.,Shifts the judge’s attention from others.
-23,2,1,"Attempts to jam all Pokémon that have appealed this turn. If a Pokémon used the same type move as this one, it is jammed for 4 points instead of 1.",Startles Pokémon that made a same-type appeal.
-24,3,0,Prevents the Applause Meter from rising for the rest of the turn.,Temporarily stops the crowd from getting excited.
-25,1,0,"Randomly earns one, two, four, or eight points.",The appeal’s quality depends on its timing.
-26,1,0,"If user appeals first this turn, earns one point; if second, two points; if third, four points; if last, six points.",The appeal works better the later it is performed.
-27,2,0,"If user appeals first this turn, earns six points instead of two.",The appeal works great if performed first.
-28,2,0,"If user appeals last this turn, earns six points instead of two.",The appeal works great if performed last.
-29,1,0,"If user has no stars, earns one point; if one, three points; if two, five points; if three, seven points. This does not include the appeal point bonus the stars give.",The appeal works well if the user’s condition is good.
-30,3,0,User will go first next turn.,The next appeal can be made earlier next turn.
-31,3,0,User will go last next turn.,The next appeal can be made later next turn.
-32,1,0,User gains one star.,Ups the user’s condition. Helps prevent nervousness.
-33,3,0,Removes all stars from all Pokémon that have appealed this turn.,Worsens the condition of those that made appeals.
+1,4,0,提供大量吸引力，且没有其他效果。,这是一个非常有吸引力的举动。
+2,3,0,如果在使用者之前申诉的生物获得的申诉点少于 3 点，则使用者获得 6 点；如果是三，则使用者赚取三；如果超过三个，使用者将一无所获。,受前面上诉的进展情况影响。
+3,6,0,如果使用者在使用此技能后本回合被卡住，它将获得两倍的卡住点。,此技能之后，使用者更容易受到惊吓。
+4,1,4,尝试干扰使用者感兴趣的生物。,使前方的生物受到严重惊吓。
+5,1,3,尝试干扰本回合已上诉的所有生物。,让那些提出上诉的人大吃一惊。
+6,4,4,试图干扰其他生物。使用者不能在下一回合提出上诉，但也不能被卡住。,干扰了其他人，错过了一轮上诉。
+7,8,0,使用者不能对剩余的比赛提出任何上诉。,具有很大的吸引力，但到最后却不允许更多。
+8,2,2,尝试干扰本回合已上诉的所有生物。,惊动所有已完成呼吁的生物。
+9,2,3,尝试干扰使用者感兴趣的生物。,惊吓在使用者面前呼吁的生物。
+10,2,1,尝试干扰本回合已上诉的所有生物。如果生物处于连击待机状态，它会被卡住 5 点而不是 1 点。,惊吓引起评委注意的生物。
+11,1,0,如果掌声表为空或为一，则获得一分；如果是两分，则得三分；如果是三分，则获得四分；如果是四分，则得六分。,人群越兴奋，吸引力效果越好。
+12,2,0,如果最后一个生物的吸引力与此技能相同，则使用者将获得六点而不是两点。,如果与之前的类型相同，则效果很好。
+13,1,0,无论技能是否符合比赛，总是在掌声计上加分，同样可以获得掌声奖励。,在任何比赛中都能激发观众的吸引力。
+14,2,1,尝试干扰本回合已提出申诉的所有生物，使其申诉点数减半（最低 1）。,使所有具有良好吸引力的生物受到严重惊吓。
+15,1,0,防止在本回合的剩余时间内发生干扰。,可以避免被别人惊吓。
+16,2,0,防止本回合发生下一次堵塞。,可以避免被别人惊吓一次。
+17,3,0,重复使用不会受到处罚。,可反复使用，不令法官厌烦。
+18,2,0,试图让所有跟随的生物感到紧张（从而无法上诉）。,让使用者之后的所有生物都紧张起来。
+19,1,0,使用者获得的吸引力积分等于之前生物获得的积分加一。,使吸引力与之前的吸引力一样好。
+20,1,0,使用者获得的吸引力积分等于之前所有生物获得的积分的一半加一。,使吸引力与之前的一样好。
+21,3,0,打乱下一回合的回合顺序。,打乱下一回合的上诉顺序。
+22,3,0,取消本回合所有已申诉的生物的连击待机状态。,转移法官的注意力从其他人身上。
+23,2,1,尝试干扰本回合已上诉的所有生物。如果一只生物使用了与此相同属性的技能，它会被卡住 4 点而不是 1 点。,惊动具有同种魅力的生物。
+24,3,0,防止掌声计在接下来的回合中上升。,暂时阻止了众人的兴奋。
+25,1,0,随机获得一分、二分、四分或八分。,上诉的质量取决于其时机。
+26,1,0,如果使用者本回合首先申诉，则获得一分；如果是第二，则得两分；如果是第三，则得四分；如果最后，六分。,上诉越晚执行效果越好。
+27,2,0,如果使用者本回合首先提出上诉，则获得 6 分而不是 2 分。,如果先执行，上诉效果会很好。
+28,2,0,如果使用者本回合最后提出上诉，则将获得六分而不是两分。,如果最后执行，上诉效果会很好。
+29,1,0,如果使用者没有星星，则获得一分；如果是一分，则三分；如果是两分，则五分；如果是三分，那就是七分。这还不包括明星给予的号召力加成。,如果使用者的状况良好，上诉效果会很好。
+30,3,0,下回合使用者将先走。,下一次上诉可以在下一轮早些时候提出。
+31,3,0,使用者将在下一轮最后走。,下一次上诉可以在下一轮晚些时候提出。
+32,1,0,使用者获得一颗星。,提高使用者的状态。有助于防止紧张。
+33,3,0,移除本回合所有已上诉的生物中的所有星星。,使上诉者的状况恶化。

@@ -1,56 +1,56 @@
 id,code,name,sort_order,enabled
-1,walk,Walking in tall grass or a cave,1,true
-2,old-rod,Fishing with an Old Rod,10,true
-3,good-rod,Fishing with a Good Rod,11,true
-4,super-rod,Fishing with a Super Rod,12,true
-5,surf,Surfing,14,true
-6,rock-smash,Smashing rocks,16,true
-7,headbutt,Headbutting trees,17,true
-8,dark-grass,Walking in dark grass,5,true
-9,grass-spots,Walking in rustling grass,2,true
-10,cave-spots,Walking in dust clouds,3,true
-11,bridge-spots,Walking in bridge shadows,4,true
-12,super-rod-spots,Fishing in dark spots,13,true
-13,surf-spots,Surfing in dark spots,15,true
-14,yellow-flowers,Walking in yellow flowers,6,true
-15,purple-flowers,Walking in purple flowers,7,true
-16,red-flowers,Walking in red flowers,8,true
-17,rough-terrain,Walking on rough terrain,9,true
-18,gift,Receive as a gift,18,true
-19,gift-egg,Receive egg as a gift,19,true
-20,only-one,"Static encounter, only one chance",20,true
-21,pokeflute,Playing Pokéflute,21,true
-22,headbutt-low,Headbutting a low encounter rate tree,22,true
-23,headbutt-normal,Headbutting a normal encounter rate tree,23,true
-24,headbutt-high,Headbutting a high encounter rate tree,24,true
-25,squirt-bottle,Using the Squirt Bottle on a Sudowoodo,25,true
-26,wailmer-pail,Using the Wailmer Pail on a Sudowoodo,26,true
-27,seaweed,Diving on seaweed,27,true
-28,roaming-grass,On any overworld patch of grass,28,true
-29,roaming-water,On any overworld water tile,29,true
-30,devon-scope,Using Devon Scope,30,true
-31,feebas-tile-fishing,Fishing in a Feebas Tile,31,true
-32,island-scan,island scan,32,true
-33,sos-encounter,sos encounter,33,true
-34,bubbling-spots,Fishing at bubbling spots in the water,34,true
-35,berry-trees,berry trees,35,true
+1,walk,在高高的草丛或洞穴中行走,1,true
+2,old-rod,用旧鱼竿钓鱼,10,true
+3,good-rod,用好竿钓鱼,11,true
+4,super-rod,用超级竿钓鱼,12,true
+5,surf,冲浪,14,true
+6,rock-smash,粉碎岩石,16,true
+7,headbutt,用头撞树,17,true
+8,dark-grass,走在漆黑的草丛中,5,true
+9,grass-spots,走在沙沙作响的草地上,2,true
+10,cave-spots,行走在尘埃云中,3,true
+11,bridge-spots,行走在桥影中,4,true
+12,super-rod-spots,在黑暗的地方钓鱼,13,true
+13,surf-spots,在黑暗的地方冲浪,15,true
+14,yellow-flowers,行走在黄色的花朵中,6,true
+15,purple-flowers,行走在紫色的花丛中,7,true
+16,red-flowers,行走在红花中,8,true
+17,rough-terrain,在崎岖不平的地形上行走,9,true
+18,gift,作为礼物接收,18,true
+19,gift-egg,收到鸡蛋作为礼物,19,true
+20,only-one,静态的相遇，只有一次机会,20,true
+21,pokeflute,吹奏神奇笛,21,true
+22,headbutt-low,用头撞一棵遭遇率较低的树,22,true
+23,headbutt-normal,用头撞正常的遭遇率树,23,true
+24,headbutt-high,用头撞高遭遇率树,24,true
+25,squirt-bottle,在 Sudowoodo 上使用喷射瓶,25,true
+26,wailmer-pail,在 Sudowoodo 上使用 Wailmer 桶,26,true
+27,seaweed,在海藻上潜水,27,true
+28,roaming-grass,在世界上任何一块草地上,28,true
+29,roaming-water,在任何主世界水板块上,29,true
+30,devon-scope,使用德文郡范围,30,true
+31,feebas-tile-fishing,在 Feebas 瓷砖中钓鱼,31,true
+32,island-scan,岛屿扫描,32,true
+33,sos-encounter,求救遭遇,33,true
+34,bubbling-spots,在水中冒泡的地方钓鱼,34,true
+35,berry-trees,浆果树,35,true
 36,npc-trade,npc交换,36,true
-37,sos-from-bubbling-spot,sos from bubbling spot,37,true
-38,overworld,Walking in the overworld,38,true
-39,overworld-water,Surfing in the overworld,39,true
-40,overworld-flying,Flying Pokemon in the sky,40,true
-41,overworld-special,Rare spawn in grass with lure or catch combo,41,true
-42,overworld-flying-special,Rare spawn in the sky with lure or catch combo,42,true
-43,overworld-water-special,Rare spawn in water with lure or catch combo,43,true
-44,horde,"Encountering 5 Pokemon within grass, flowers, or within a cave",44,true
-45,colosseum-bonus-disc-us,Receiving a Jirachi from the USA Colosseum Bonus Disc,45,true
-46,colosseum-bonus-disc-jpn,Receiving a Celebi or Pikachu from the Japanese Colosseum Bonus Disc,46,true
-47,pokemon-channel-pal,Receiving a Jirachi from the PAL copy of Pokemon channel,47,true
-48,pokemon-ranger,Receiving a Manaphy from Pokemon Ranger,48,true
-49,pokemon-battle-revolution,"Receiving a Pikachu, Electivire, or Magmar from Pokemon Battle Revolution",49,true
-50,new-york-pokecenter-wish-eggs,Receiving an egg from the Pokemon center in New York City that contains the special move Wish.,50,true
-51,snag,Snagging a Pokemon from a trainer in Pokemon Colosseum or Pokemon XD: Gale of Darkness.,51,true
-52,snag-rematch,"Snagging a Pokemon from a trainer in Pokemon Colosseum or Pokemon XD: Gale of Darkness, after you have failed to capture them once.",52,true
-53,pokespot,Finding a Wild Pokemon at any of the three Pokespots in Pokemon XD: Gale of Darkness.,53,true
-54,hidden-grotto,Finding a Pokemon in a Hidden Grotto,54,true
-55,honey-tree,Slathering a Honey Tree with Honey and waiting for a Pokémon to appear.,54,true
+37,sos-from-bubbling-spot,从冒泡的地方求救,37,true
+38,overworld,行走在天地间,38,true
+39,overworld-water,在主世界中冲浪,39,true
+40,overworld-flying,天空中飞行的生物,40,true
+41,overworld-special,通过诱饵或捕获组合在草丛中罕见产卵,41,true
+42,overworld-flying-special,通过诱饵或捕捉组合在天空中罕见生成,42,true
+43,overworld-water-special,使用诱饵或捕获组合在水中罕见产卵,43,true
+44,horde,在草丛、花丛或洞穴中遭遇 5 只生物,44,true
+45,colosseum-bonus-disc-us,从美国斗兽场获得吉拉祈奖励光盘,45,true
+46,colosseum-bonus-disc-jpn,从日本斗兽场奖励光盘中获得雪拉比或皮卡丘,46,true
+47,pokemon-channel-pal,从生物频道的 PAL 副本接收基拉祈,47,true
+48,pokemon-ranger,从《精灵生物游侠》获得玛纳菲,48,true
+49,pokemon-battle-revolution,从《精灵生物对战革命》中获得皮卡丘、电弹或岩浆,49,true
+50,new-york-pokecenter-wish-eggs,从纽约市的生物中心收到一个鸡蛋，其中包含特殊技能“愿望”。,50,true
+51,snag,在 生物 Colosseum 或 生物 XD：Gale of Darkness 中从训练师那里抢到 生物。,51,true
+52,snag-rematch,在 生物 Colosseum 或 生物 XD：Gale of Darkness 中，在捕获一次失败后，从训练师那里抢走 生物。,52,true
+53,pokespot,在《精灵生物 XD：黑暗之风》中的三个 生物出没点 中的任意一个处找到野生精灵。,53,true
+54,hidden-grotto,在隐藏的洞穴中寻找生物,54,true
+55,honey-tree,在蜂蜜树上涂抹蜂蜜，等待生物出现。,54,true

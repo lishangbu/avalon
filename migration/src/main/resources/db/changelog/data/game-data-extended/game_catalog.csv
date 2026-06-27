@@ -1,36 +1,36 @@
 id,code,name,region_id,main_series,description,enabled
-1,national,National,,true,Entire National dex,true
-2,kanto,Kanto,1,true,Red/Blue/Yellow Kanto dex,true
-3,original-johto,Original Johto,2,true,"Gold/Silver/Crystal Johto dex—called the ""New"" Pokédex in-game",true
-4,hoenn,Original Hoenn,3,true,Ruby/Sapphire/Emerald Hoenn dex,true
-5,original-sinnoh,Original Sinnoh,4,true,Diamond/Pearl Sinnoh dex,true
-6,extended-sinnoh,Extended Sinnoh,4,true,Platinum Sinnoh dex—an extended version of Diamond and Pearl’s,true
-7,updated-johto,Updated Johto,2,true,"HeartGold/SoulSilver Johto dex—Gold/Silver/Crystal’s, extended to add move-based Generation IV evolutions",true
-8,original-unova,Original Unova,5,true,Black/White Unova dex,true
-9,updated-unova,Updated Unova,5,true,Black 2/White 2 Unova dex,true
-11,conquest-gallery,Gallery,,false,Pokémon Conquest gallery order,true
-12,kalos-central,Central Kalos,6,true,,true
-13,kalos-coastal,Coastal Kalos,6,true,,true
-14,kalos-mountain,Mountain Kalos,6,true,,true
-15,updated-hoenn,New Hoenn,3,true,"Omega Ruby/Alpha Sapphire Hoenn Dex—Ruby/Sapphire/Emerald’s, updated to add new evolutions",true
-16,original-alola,Original Alola,7,true,Sun/Moon Alola dex,true
-17,original-melemele,Original Melemele,7,true,Sun/Moon Melemele dex,true
-18,original-akala,Original Akala,7,true,Sun/Moon Akala dex,true
-19,original-ulaula,Original Ula’ula,7,true,Sun/Moon Ula’ula dex,true
-20,original-poni,Original Poni,7,true,Sun/Moon Poni dex,true
-21,updated-alola,Updated Alola,7,true,Ultra Sun/Ultra Moon Alola dex,true
-22,updated-melemele,Updated Melemele,7,true,Ultra Sun/Ultra Moon Melemele dex,true
-23,updated-akala,Updated Akala,7,true,Ultra Sun/Ultra Moon Akala dex,true
-24,updated-ulaula,Updated Ula’ula,7,true,Ultra Sun/Ultra Moon Ula’ula dex,true
-25,updated-poni,Updated Poni,7,true,Ultra Sun/Ultra Moon Poni dex,true
-26,letsgo-kanto,Let’s Go Kanto,1,true,Let’s Go: Pikachu/Let’s Go: Eevee Kanto dex,true
-27,galar,Galar,8,true,Sword/Shield Galar dex,true
-28,isle-of-armor,Isle of Armor,8,true,Isle of Armor dex,true
-29,crown-tundra,Crown Tundra,8,true,Crown Tundra dex,true
-30,hisui,Hisui,9,true,Hisui dex,true
-31,paldea,Paldea,10,true,Paldea dex,true
-32,kitakami,Kitakami,10,true,Kitakami dex,true
-33,blueberry,Blueberry,10,true,Blueberry Academy dex,true
-34,lumiose-city,Lumiose,6,true,Lumiose City dex,true
-35,hyperspace,Hyperspace,6,true,Hyperspace dex,true
-36,champions,Champions,,false,Champions dex,true
+1,national,全国图鉴,,true,整个国家指数,true
+2,kanto,关都,1,true,红/蓝/黄关东 图鉴,true
+3,original-johto,原始城都图鉴,2,true,"Gold/Silver/Crystal Johto dex—called the ""New"" 图鉴 in-game",true
+4,hoenn,原始丰缘图鉴,3,true,红宝石/蓝宝石/祖母绿 Hoenn 图鉴,true
+5,original-sinnoh,原始神奥图鉴,4,true,钻石/珍珠神奥 图鉴,true
+6,extended-sinnoh,扩展神奥图鉴,4,true,Platinum Sinnoh 图鉴——Diamond and Pearl 的扩展版本,true
+7,updated-johto,更新城都图鉴,2,true,心金/魂银城都dex—金/银/水晶，扩展添加基于技能的第四代进化,true
+8,original-unova,原始合众图鉴,5,true,黑色/白色 Unova 图鉴,true
+9,updated-unova,更新合众图鉴,5,true,黑 2/白 2 合众 图鉴,true
+11,conquest-gallery,画廊,,false,生物 Conquest gallery order,true
+12,kalos-central,卡洛斯中部图鉴,6,true,,true
+13,kalos-coastal,卡洛斯海岸图鉴,6,true,,true
+14,kalos-mountain,卡洛斯山岳图鉴,6,true,,true
+15,updated-hoenn,新丰缘,3,true,Omega Ruby/Alpha Sapphire Hoenn 图鉴—Ruby/Sapphire/Emerald’s，updated to add new evolutions,true
+16,original-alola,原始阿罗拉图鉴,7,true,太阳/月亮阿罗拉 图鉴,true
+17,original-melemele,原始美乐美乐图鉴,7,true,太阳/月亮美乐美乐指数,true
+18,original-akala,原始阿卡拉图鉴,7,true,太阳/月亮阿卡拉指数,true
+19,original-ulaula,原始乌拉乌拉,7,true,太阳/月亮乌拉乌拉 图鉴,true
+20,original-poni,原始波尼图鉴,7,true,太阳/月亮波尼指数,true
+21,updated-alola,更新阿罗拉图鉴,7,true,究极之日/究极之月阿罗拉dex,true
+22,updated-melemele,更新美乐美乐图鉴,7,true,究极之日/究极之月 美乐美乐dex,true
+23,updated-akala,更新阿卡拉图鉴,7,true,究极之日/究极之月 阿卡拉 dex,true
+24,updated-ulaula,更新了乌拉乌拉,7,true,究极之日/究极之月 乌拉乌拉 dex,true
+25,updated-poni,更新波尼图鉴,7,true,究极之日/究极之月 波尼 dex,true
+26,letsgo-kanto,去关东吧,1,true,出发吧：皮卡丘/出发吧：伊布关东 dex,true
+27,galar,伽勒尔,8,true,剑/盾伽勒尔图鉴,true
+28,isle-of-armor,铠岛图鉴,8,true,盔甲岛 图鉴,true
+29,crown-tundra,王冠雪原图鉴,8,true,皇冠苔原 图鉴,true
+30,hisui,洗翠,9,true,翡翠指数,true
+31,paldea,帕底亚,10,true,帕尔迪亚指数,true
+32,kitakami,北上图鉴,10,true,北上指数,true
+33,blueberry,蓝莓图鉴,10,true,蓝莓学院 图鉴,true
+34,lumiose-city,卢米奥塞,6,true,Lumiose城市指数,true
+35,hyperspace,超空间,6,true,超空间索引,true
+36,champions,冠军,,false,冠军指数,true

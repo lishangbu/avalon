@@ -1,0 +1,23 @@
+package io.github.lishangbu.gamedata.repository
+
+import org.springframework.stereotype.Repository
+
+private val GAME_STAT_SKILL_EFFECTS_TABLE = GameDataTableSpec(
+	tableName = "game_stat_skill_effect",
+	label = "数值项技能影响",
+	columns = listOf(
+		GameDataColumnSpec(name = "stat_id", type = GameDataColumnType.LONG, required = true),
+		GameDataColumnSpec(name = "skill_id", type = GameDataColumnType.LONG, required = true),
+		GameDataColumnSpec(name = "change_value", type = GameDataColumnType.INT, required = true),
+		GameDataColumnSpec(name = "effect_type", type = GameDataColumnType.STRING, required = true, maxLength = 20),
+	),
+	searchColumns = listOf("stat_id", "skill_id"),
+)
+
+/**
+ * 数值项技能影响持久化访问。
+ */
+@Repository
+class GameStatSkillEffectsRepository(
+	operations: GameDataJdbcOperations,
+) : GameDataTableRepository(operations, GAME_STAT_SKILL_EFFECTS_TABLE)

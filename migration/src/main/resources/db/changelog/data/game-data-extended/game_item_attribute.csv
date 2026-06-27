@@ -1,9 +1,9 @@
 id,code,name,description,enabled
-1,countable,Countable,Has a count in the bag,true
-2,consumable,Consumable,Consumed when used,true
-3,usable-overworld,Usable_overworld,Usable outside battle,true
-4,usable-in-battle,Usable_in_battle,Usable in battle,true
-5,holdable,Holdable,Can be held by a Pokémon,true
-6,holdable-passive,Holdable_passive,Works passively when held,true
-7,holdable-active,Holdable_active,Usable by a Pokémon when held,true
-8,underground,Underground,Appears in Sinnoh Underground,true
+1,countable,可计数,包里有计数,true
+2,consumable,消耗型,使用时消耗,true
+3,usable-overworld,可在场景使用,战斗外可用,true
+4,usable-in-battle,可在对战使用,可以在战斗中使用,true
+5,holdable,可携带,可由生物持有,true
+6,holdable-passive,携带被动生效,持有时被动工作,true
+7,holdable-active,携带主动生效,生物持有时可以使用,true
+8,underground,地下可用,出现在神奥地下城,true

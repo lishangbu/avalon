@@ -1,734 +1,734 @@
 id,code,name,location_id,game_index,enabled
-1,canalave-city-area,Canalave City,1,1,true
-2,eterna-city-area,Eterna City,2,2,true
-3,pastoria-city-area,Pastoria City,3,3,true
-4,sunyshore-city-area,Sunyshore City,4,4,true
-5,sinnoh-pokemon-league-area,Sinnoh League,5,5,true
-6,oreburgh-mine-1f,Oreburgh mine (1F),6,6,true
-7,oreburgh-mine-b1f,Oreburgh mine (B1F),6,7,true
-8,valley-windworks-area,Valley Windworks,7,8,true
-9,eterna-forest-area,Eterna Forest,8,9,true
-10,fuego-ironworks-area,Fuego Ironworks,9,10,true
-11,mt-coronet-1f-route-207,Mount Coronet (1F Road 207),10,11,true
-12,mt-coronet-2f,Mount Coronet (2F),10,12,true
-13,mt-coronet-3f,Mount Coronet (3F),10,13,true
-14,mt-coronet-exterior-snowfall,Mount Coronet (exterior snowfall),10,14,true
-15,mt-coronet-exterior-blizzard,Mount Coronet (exterior blizzard),10,15,true
-16,mt-coronet-4f,Mount Coronet (4F),10,16,true
-17,mt-coronet-4f-small-room,Mount Coronet (4F small room),10,17,true
-18,mt-coronet-5f,Mount Coronet (5F),10,18,true
-19,mt-coronet-6f,Mount Coronet (6F),10,19,true
-20,mt-coronet-1f-from-exterior,Mount Coronet (1F from exterior),10,20,true
-21,mt-coronet-1f-route-216,Mount Coronet (1F Road 216),10,21,true
-22,mt-coronet-1f-route-211,Mount Coronet (1F Road 211),10,22,true
-23,mt-coronet-b1f,Mount Coronet (B1F),10,23,true
-24,great-marsh-area-1,Great Marsh Area 1,11,24,true
-25,great-marsh-area-2,Great Marsh Area 2,11,25,true
-26,great-marsh-area-3,Great Marsh Area 3,11,26,true
-27,great-marsh-area-4,Great Marsh Area 4,11,27,true
-28,great-marsh-area-5,Great Marsh Area 5,11,28,true
-29,great-marsh-area-6,Great Marsh Area 6,11,29,true
-30,solaceon-ruins-2f,Solaceon Ruins (2F),12,30,true
-31,solaceon-ruins-1f,Solaceon Ruins (1F),12,31,true
-32,solaceon-ruins-b1f-a,Solaceon Ruins (B1F A),12,32,true
-33,solaceon-ruins-b1f-b,Solaceon Ruins (B1F B),12,33,true
-34,solaceon-ruins-b1f-c,Solaceon Ruins (B1F C),12,34,true
-35,solaceon-ruins-b2f-a,Solaceon Ruins (B2F A),12,35,true
-36,solaceon-ruins-b2f-b,Solaceon Ruins (B2F B),12,36,true
-37,solaceon-ruins-b2f-c,Solaceon Ruins (B2F C),12,37,true
-38,solaceon-ruins-b3f-a,Solaceon Ruins (B3F A),12,38,true
-39,solaceon-ruins-b3f-b,Solaceon Ruins (B3F B),12,39,true
-40,solaceon-ruins-b3f-c,Solaceon Ruins (B3F C),12,40,true
-41,solaceon-ruins-b3f-d,Solaceon Ruins (B3F D),12,41,true
-42,solaceon-ruins-b3f-e,Solaceon Ruins (B3F E),12,42,true
-43,solaceon-ruins-b4f-a,Solaceon Ruins (B4F A),12,43,true
-44,solaceon-ruins-b4f-b,Solaceon Ruins (B4F B),12,44,true
-45,solaceon-ruins-b4f-c,Solaceon Ruins (B4F C),12,45,true
-46,solaceon-ruins-b4f-d,Solaceon Ruins (B4F D),12,46,true
-47,solaceon-ruins-b5f,Solaceon Ruins (B5F),12,47,true
-48,sinnoh-victory-road-1f,Victory Road (1F),13,48,true
-49,sinnoh-victory-road-2f,Victory Road (2F),13,49,true
-50,sinnoh-victory-road-b1f,Victory Road (B1F),13,50,true
-51,sinnoh-victory-road-inside-b1f,Victory Road (inside B1F),13,51,true
-52,sinnoh-victory-road-inside,Victory Road (inside),13,52,true
-53,sinnoh-victory-road-inside-exit,Victory Road (inside exit),13,53,true
-54,ravaged-path-area,Ravaged Path,14,54,true
-55,oreburgh-gate-1f,Oreburgh Gate (1F),15,55,true
-56,oreburgh-gate-b1f,Oreburgh Gate (B1F),15,56,true
-57,stark-mountain-area,Stark Mountain exterior,16,57,true
-58,stark-mountain-entrance,Stark Mountain entrance,16,58,true
-59,stark-mountain-inside,Stark Mountain main cavern,16,59,true
-60,sendoff-spring-area,Sendoff Spring,178,60,true
-61,turnback-cave-pillar-1,Turnback Cave (pillar 1),18,61,true
-62,turnback-cave-pillar-2,Turnback Cave (pillar 2),18,62,true
-63,turnback-cave-pillar-3,Turnback Cave (pillar 3),18,63,true
-64,turnback-cave-before-pillar-1,Turnback Cave (before pillar 1),18,64,true
-70,turnback-cave-between-pillars-1-and-2,Turnback Cave (between pillars 1 and 2),18,70,true
-76,turnback-cave-between-pillars-2-and-3,Turnback Cave (between pillars 2 and 3),18,76,true
-82,turnback-cave-after-pillar-3,Turnback Cave (after pillar 3),18,82,true
-107,snowpoint-temple-1f,Snowpoint Temple (1F),19,107,true
-108,snowpoint-temple-b1f,Snowpoint Temple (B1F),19,108,true
-109,snowpoint-temple-b2f,Snowpoint Temple (B2F),19,109,true
-110,snowpoint-temple-b3f,Snowpoint Temple (B3F),19,110,true
-111,snowpoint-temple-b4f,Snowpoint Temple (B4F),19,111,true
-112,snowpoint-temple-b5f,Snowpoint Temple (B5F),19,112,true
-113,wayward-cave-1f,Wayward Cave (1F),20,113,true
-114,wayward-cave-b1f,Wayward Cave (B1F),20,114,true
-115,ruin-maniac-cave-0-9-different-unown-caught,Ruin Maniac Cave (0–9 different Unown caught),22,115,true
-116,ruin-maniac-cave-10-25-different-unown-caught,Ruin Maniac Cave (10–25 different Unown caught),22,116,true
-117,maniac-tunnel-26-plus-different-unown-caught,Maniac Tunnel (26+ different Unown caught),180,117,true
-118,trophy-garden-area,Trophy Garden,23,118,true
-119,iron-island-area,Iron Island area,24,119,true
-120,iron-island-1f,Iron Island (1F),24,120,true
-121,iron-island-b1f-left,Iron Island (B1F left),24,121,true
-122,iron-island-b1f-right,Iron Island (B1F right),24,122,true
-123,iron-island-b2f-right,Iron Island (B2F right),24,123,true
-124,iron-island-b2f-left,Iron Island (B2F left),24,124,true
-125,iron-island-b3f,Iron Island (B3F),24,125,true
-126,old-chateau-entrance,Old Chateau (entrance),25,126,true
-127,old-chateau-dining-room,Old Chateau (dining room),25,127,true
-128,old-chateau-2f-private-room,Old Chateau (2F private room),25,128,true
-129,old-chateau-2f,Old Chateau (2F),25,129,true
-130,old-chateau-2f-leftmost-room,Old Chateau (2F leftmost room),25,130,true
-131,old-chateau-2f-left-room,Old Chateau (2F left room),25,131,true
-132,old-chateau-2f-middle-room,Old Chateau (2F middle room),25,132,true
-133,old-chateau-2f-right-room,Old Chateau (2F right room),25,133,true
-134,old-chateau-2f-rightmost-room,Old Chateau (2F rightmost room),25,134,true
-135,lake-verity-before-galactic-intervention,Lake Verity (before Galactic intervention),26,135,true
-136,lake-verity-after-galactic-intervention,Lake Verity (after Galactic intervention),26,136,true
-137,lake-valor-area,Lake Valor,27,137,true
-138,lake-acuity-area,Lake Acuity,28,138,true
-139,valor-lakefront-area,Valor Lakefront,29,139,true
-140,acuity-lakefront-area,Acuity Lakefront,30,140,true
-141,sinnoh-route-201-area,Road 201,31,141,true
-142,sinnoh-route-202-area,Road 202,32,142,true
-143,sinnoh-route-203-area,Road 203,33,143,true
-144,sinnoh-route-204-south-towards-jubilife-city,"Road 204 (south, towards Jubilife City)",34,144,true
-145,sinnoh-route-204-north-towards-floaroma-town,"Road 204 (north, towards Floaroma Town)",34,145,true
-146,sinnoh-route-205-south-towards-floaroma-town,"Road 205 (south, towards Floaroma Town)",35,146,true
-147,sinnoh-route-205-east-towards-eterna-city,"Road 205 (east, towards Eterna City)",35,147,true
-148,sinnoh-route-206-area,Road 206,36,148,true
-149,sinnoh-route-207-area,Road 207,37,149,true
-150,sinnoh-route-208-area,Road 208,38,150,true
-151,sinnoh-route-209-area,Road 209,39,151,true
-152,lost-tower-1f,Lost Tower (1F),40,152,true
-153,lost-tower-2f,Lost Tower (2F),40,153,true
-154,lost-tower-3f,Lost Tower (3F),40,154,true
-155,lost-tower-4f,Lost Tower (4F),40,155,true
-156,lost-tower-5f,Lost Tower (5F),40,156,true
-157,sinnoh-route-210-south-towards-solaceon-town,"Road 210 (south, towards Solaceon Town)",41,157,true
-158,sinnoh-route-210-west-towards-celestic-town,"Road 210 (west, towards Celestic Town)",41,158,true
-159,sinnoh-route-211-west-towards-eterna-city,"Road 211 (west, towards Eterna City)",42,159,true
-160,sinnoh-route-211-east-towards-celestic-town,"Road 211 (east, towards Celestic Town)",42,160,true
-161,sinnoh-route-212-north-towards-hearthome-city,"Road 212 (north, towards Hearthome City)",43,161,true
-162,sinnoh-route-212-east-towards-pastoria-city,"Road 212 (east, towards Pastoria City)",43,162,true
-163,sinnoh-route-213-area,Road 213,44,163,true
-164,sinnoh-route-214-area,Road 214,45,164,true
-165,sinnoh-route-215-area,Road 215,46,165,true
-166,sinnoh-route-216-area,Road 216,47,166,true
-167,sinnoh-route-217-area,Road 217,48,167,true
-168,sinnoh-route-218-area,Road 218,49,168,true
-169,sinnoh-route-219-area,Road 219,50,169,true
-170,sinnoh-route-221-area,Road 221,51,170,true
-171,sinnoh-route-222-area,Road 222,52,171,true
-172,sinnoh-route-224-area,Road 224,53,172,true
-173,sinnoh-route-225-area,Road 225,54,173,true
-174,sinnoh-route-227-area,Road 227,55,174,true
-175,sinnoh-route-228-area,Road 228,56,175,true
-176,sinnoh-route-229-area,Road 229,57,176,true
-177,twinleaf-town-area,Twinleaf Town,58,177,true
-178,celestic-town-area,Celestic Town,59,178,true
-179,resort-area-area,Resort Area,60,179,true
-180,sinnoh-sea-route-220-area,Road 220,61,180,true
-181,sinnoh-sea-route-223-area,Road 223,62,181,true
-182,sinnoh-sea-route-226-area,Road 226,63,182,true
-183,sinnoh-sea-route-230-area,Road 230,64,183,true
-184,new-bark-town-area,New Bark Town,84,1,true
-185,johto-route-29-area,Road 29,108,2,true
-186,cherrygrove-city-area,Cherrygrove City,69,3,true
-187,johto-route-30-area,Road 30,110,4,true
-188,johto-route-31-area,Road 31,111,5,true
-189,violet-city-area,Violet City,153,6,true
-190,sprout-tower-2f,Sprout Tower (2F),138,7,true
-191,sprout-tower-3f,Sprout Tower (3F),138,8,true
-192,johto-route-32-area,Road 32,112,9,true
-193,ruins-of-alph-outside,Ruins of Alph (outside),135,10,true
-194,ruins-of-alph-interior-a,Ruins of Alph (interior A),135,11,true
-195,ruins-of-alph-interior-b,Ruins of Alph (interior B),135,12,true
-196,ruins-of-alph-interior-c,Ruins of Alph (interior C),135,13,true
-197,ruins-of-alph-interior-d,Ruins of Alph (interior D),135,14,true
-198,union-cave-1f,Union Cave (1F),141,15,true
-199,union-cave-b1f,Union Cave (B1F),141,16,true
-200,union-cave-b2f,Union Cave (B2F),141,17,true
-201,johto-route-33-area,Road 33,113,18,true
-202,slowpoke-well-1f,Slowpoke Well (1F),137,19,true
-203,slowpoke-well-b1f,Slowpoke Well (B1F),137,20,true
-204,ilex-forest-area,Ilex Forest,78,21,true
-205,johto-route-34-area,Road 34,114,22,true
-206,johto-route-35-area,Road 35,115,23,true
-207,national-park-area,National Park,83,24,true
-208,unknown-all-bugs-area,Unknown Area; all bugs,150,25,true
-209,johto-route-36-area,Road 36,116,26,true
-210,johto-route-37-area,Road 37,117,27,true
-211,ecruteak-city-area,Ecruteak City,75,28,true
-212,burned-tower-1f,Burned Tower (1F),66,29,true
-213,burned-tower-b1f,Burned Tower (B1F),66,30,true
-214,bell-tower-2f,Bell Tower (2F),139,31,true
-215,bell-tower-3f,Bell Tower (3F),139,32,true
-216,bell-tower-4f,Bell Tower (4F),139,33,true
-217,bell-tower-5f,Bell Tower (5F),139,34,true
-218,bell-tower-6f,Bell Tower (6F),139,35,true
-219,bell-tower-7f,Bell Tower (7F),139,36,true
-220,bell-tower-8f,Bell Tower (8F),139,37,true
-221,bell-tower-9f,Bell Tower (9F),139,38,true
-222,johto-route-38-area,Road 38,118,39,true
-223,johto-route-39-area,Road 39,119,40,true
-224,olivine-city-area,Olivine City,85,41,true
-225,johto-sea-route-40-area,Road 40,121,42,true
-226,johto-sea-route-41-area,Road 41,122,43,true
-227,whirl-islands-1f,Whirl Islands (1F),156,44,true
-228,whirl-islands-b1f,Whirl Islands (B1F),156,45,true
-229,whirl-islands-empty-floor-x,Whirl Islands (empty floor X),156,46,true
-230,whirl-islands-b2f,Whirl Islands (B2F),156,47,true
-231,whirl-islands-empty-floor-y,Whirl Islands (empty floor Y),156,48,true
-232,whirl-islands-b3f,Whirl Islands (B3F),156,49,true
-235,cianwood-city-area,Cianwood City,70,52,true
-236,johto-route-42-area,Road 42,123,53,true
-237,mt-mortar-1f,Mount Mortar (1F),81,54,true
-238,mt-mortar-lower-cave,Mount Mortar (Lower Cave),81,55,true
-239,mt-mortar-upper-cave,Mount Mortar (Upper Cave),81,56,true
-240,mt-mortar-b1f,Mount Mortar (B1F),81,57,true
-241,johto-route-43-area,Road 43,124,58,true
-242,lake-of-rage-area,Lake of Rage,79,59,true
-243,johto-route-44-area,Road 44,125,60,true
-244,ice-path-1f,Ice Path (1F),77,61,true
-245,ice-path-b1f,Ice Path (B1F),77,62,true
-246,ice-path-b2f,Ice Path (B2F),77,63,true
-247,ice-path-b3f,Ice Path (B3F),77,64,true
-249,blackthorn-city-area,Blackthorn City,65,66,true
-250,dragons-den-area,Dragon's Den,74,67,true
-251,johto-route-45-area,Road 45,126,68,true
-252,johto-route-46-area,Road 46,127,69,true
-253,dark-cave-violet-city-entrance,Dark Cave (Violet City entrance),72,70,true
-254,dark-cave-blackthorn-city-entrance,Dark Cave (Blackthorn City entrance),72,71,true
-255,johto-route-47-area,Road 47,128,72,true
-256,mt-moon-mt-moon-square,Mount Moon Square,80,73,true
-257,unknown-all-poliwag-area,Unknown Area; all Poliwag,148,74,true
-258,seafoam-islands-1f,Seafoam Islands (1F),136,75,true
-259,seafoam-islands-b1f,Seafoam Islands (B1F),136,76,true
-260,seafoam-islands-b2f,Seafoam Islands (B2F),136,77,true
-261,seafoam-islands-b3f,Seafoam Islands (B3F),136,78,true
-262,seafoam-islands-b4f,Seafoam Islands (B4F),136,79,true
-263,mt-silver-2f,Mount Silver (2F),82,80,true
-264,mt-silver-1f-top,Mount Silver (1F top),82,81,true
-265,mt-silver-4f,Mount Silver (4F),82,82,true
-266,johto-route-47-cave-gate,Road 47 (cave gate),128,83,true
-267,johto-route-47-inside-cave,Road 47 (inside cave),128,84,true
-268,bell-tower-10f,Bell Tower (10F),139,85,true
-269,mt-silver-outside,Mount Silver (outside),82,86,true
-270,mt-silver-1f,Mount Silver (1F),82,87,true
-271,mt-silver-mountainside,Mount Silver (mountainside),82,88,true
-272,mt-silver-3f,Mount Silver (3F),82,89,true
-273,mt-silver-top,Mount Silver (top),82,90,true
-275,unknown-all-rattata-area,Unknown Area; all Rattata,149,92,true
-276,kanto-route-12-area,Road 12,91,93,true
-277,kanto-sea-route-19-area,Road 19,98,94,true
-278,kanto-sea-route-20-area,Road 20,100,95,true
-279,cinnabar-island-area,Cinnabar Island,71,96,true
-280,viridian-city-area,Viridian City,154,97,true
-281,cerulean-city-area,Cerulean City,68,98,true
-282,vermilion-city-area,Vermilion City,151,99,true
-283,celadon-city-area,Celadon City,67,100,true
-284,fuchsia-city-area,Fuchsia City,76,101,true
-285,pallet-town-area,Pallet Town,86,102,true
-286,johto-route-48-area,Road 48,129,103,true
-287,kanto-route-26-area,Road 26,105,104,true
-288,kanto-route-27-area,Road 27,106,105,true
-289,kanto-route-28-area,Road 28,107,106,true
-290,mt-moon-1f,Mount Moon (1F),80,107,true
-291,mt-moon-2f,Mount Moon (2F),80,108,true
-292,rock-tunnel-1f,Rock Tunnel (1F),87,109,true
-293,rock-tunnel-b1f,Rock Tunnel (B1F),87,110,true
-294,kanto-victory-road-1-1f,Victory Road 1 (1F),152,111,true
-295,kanto-route-1-area,Road 1,88,112,true
-296,kanto-route-2-south-towards-viridian-city,"Road 2 (south, towards Viridian City)",99,113,true
-297,kanto-route-3-area,Road 3,109,114,true
-298,kanto-route-4-area,Road 4,120,115,true
-299,kanto-route-5-area,Road 5,130,116,true
-300,kanto-route-6-area,Road 6,131,117,true
-301,kanto-route-7-area,Road 7,132,118,true
-302,kanto-route-8-area,Road 8,133,119,true
-303,kanto-route-9-area,Road 9,134,120,true
-304,kanto-route-10-area,Road 10,89,121,true
-305,kanto-route-11-area,Road 11,90,122,true
-306,kanto-route-13-area,Road 13,92,123,true
-307,kanto-route-14-area,Road 14,93,124,true
-308,kanto-route-15-area,Road 15,94,125,true
-309,kanto-route-16-area,Road 16,95,126,true
-310,kanto-route-17-area,Road 17,96,127,true
-311,kanto-route-18-area,Road 18,97,128,true
-312,kanto-sea-route-21-area,Road 21,101,129,true
-313,kanto-route-22-area,Road 22,102,130,true
-314,kanto-route-24-area,Road 24,103,131,true
-315,kanto-route-25-area,Road 25,104,132,true
-316,tohjo-falls-area,Tohjo Falls,140,133,true
-317,digletts-cave-area,Digletts Cave,73,134,true
-318,kanto-victory-road-1-2f,Victory Road 1 (2F),152,135,true
-319,kanto-victory-road-1-3f,Victory Road 1 (3F),152,136,true
-320,kanto-route-2-north-towards-pewter-city,"Road 2 (north, towards Pewter City)",99,137,true
-321,viridian-forest-area,Viridian Forest,155,138,true
-323,cerulean-cave-1f,Cerulean Cave (1F),147,140,true
-324,cerulean-cave-2f,Cerulean Cave (2F),147,141,true
-325,cerulean-cave-b1f,Cerulean Cave (B1F),147,142,true
-326,mt-moon-b1f,Mount Moon (B1F),80,0,true
-327,mt-moon-b2f,Mount Moon (B2F),80,0,true
-328,rock-tunnel-b2f,Rock Tunnel (B2F),87,0,true
-329,kanto-route-23-area,Road 23,157,0,true
-330,kanto-power-plant-area,Power Plant,158,0,true
-331,kanto-victory-road-2-1f,Victory Road 2 (1F),159,0,true
-332,kanto-victory-road-2-2f,Victory Road 2 (2F),159,0,true
-333,kanto-victory-road-2-3f,Victory Road 2 (3F),159,0,true
-334,pokemon-tower-1f,Pokemon Tower (1F),160,0,true
-335,pokemon-tower-2f,Pokemon Tower (2F),160,0,true
-336,pokemon-tower-3f,Pokemon Tower (3F),160,0,true
-337,pokemon-tower-4f,Pokemon Tower (4F),160,0,true
-338,pokemon-tower-5f,Pokemon Tower (5F),160,0,true
-339,pokemon-tower-6f,Pokemon Tower (6F),160,0,true
-340,pokemon-tower-7f,Pokemon Tower (7F),160,0,true
-341,pokemon-mansion-1f,Pokemon Mansion (1F),161,0,true
-342,pokemon-mansion-2f,Pokemon Mansion (2F),161,0,true
-343,pokemon-mansion-3f,Pokemon Mansion (3F),161,0,true
-344,pokemon-mansion-b1f,Pokemon Mansion (B1F),161,0,true
-345,kanto-safari-zone-middle,Safari Zone (middle),162,0,true
-346,kanto-safari-zone-area-1-east,"Safari Zone (Area 1, east)",162,0,true
-347,kanto-safari-zone-area-2-north,"Safari Zone (Area 2, north)",162,0,true
-348,kanto-safari-zone-area-3-west,"Safari Zone (Area 3, west)",162,0,true
-349,vermilion-city-ss-anne-dock,S.S. Anne dock,151,0,true
-350,petalburg-city-area,Petalburg City,429,0,true
-351,slateport-city-area,Slateport City,430,1,true
-352,lilycove-city-area,Lilycove City,431,2,true
-353,mossdeep-city-area,Mossdeep City,432,3,true
-354,sootopolis-city-area,Sootopolis City,433,4,true
-355,ever-grande-city-area,Ever Grande City,434,5,true
-356,meteor-falls-area,Meteor Falls,435,6,true
-357,meteor-falls-back,Meteor Falls (back),435,7,true
-358,meteor-falls-b1f,Meteor Falls (B1F),435,8,true
-359,meteor-falls-backsmall-room,Meteor Falls (back/small room),435,9,true
-360,rusturf-tunnel-area,Rusturf Tunnel,436,10,true
-361,granite-cave-1f,Granite Cave (1F),437,11,true
-362,granite-cave-b1f,Granite Cave (B1F),437,12,true
-363,granite-cave-b2f,Granite Cave (B2F),437,13,true
-364,granite-cave-1fsmall-room,Granite Cave (1F/small room),437,14,true
-365,petalburg-woods-area,Petalburg Woods,438,15,true
-366,jagged-pass-area,Jagged Pass,439,16,true
-367,fiery-path-area,Fiery Path,440,17,true
-368,mt-pyre-1f,Mount Pyre (1F),441,18,true
-369,mt-pyre-2f,Mount Pyre (2F),441,19,true
-370,mt-pyre-3f,Mount Pyre (3F),441,20,true
-371,mt-pyre-4f,Mount Pyre (4F),441,21,true
-372,mt-pyre-5f,Mount Pyre (5F),441,22,true
-373,mt-pyre-6f,Mount Pyre (6F),441,23,true
-374,mt-pyre-outside,Mount Pyre (outside),441,24,true
-375,mt-pyre-summit,Mount Pyre (summit),441,25,true
-376,seafloor-cavern-area,Seafloor Cavern,442,26,true
-377,cave-of-origin-entrance,Cave of Origin (entrance),443,35,true
-378,cave-of-origin-1f,Cave of Origin (1F),443,36,true
-379,cave-of-origin-b1f,Cave of Origin (B1F),443,37,true
-380,cave-of-origin-b2f,Cave of Origin (B2F),443,38,true
-381,cave-of-origin-b3f,Cave of Origin (B3F),443,39,true
-382,hoenn-victory-road-1f,Victory Road (1F),444,40,true
-383,hoenn-victory-road-b1f,Victory Road (B1F),444,41,true
-384,hoenn-victory-road-b2f,Victory Road (B2F),444,42,true
-385,shoal-cave-high-tide,Shoal Cave,445,43,true
-386,shoal-cave-b1f,Shoal Cave (B1F),445,47,true
-387,new-mauville-entrance,New Mauville (entrance),446,48,true
-388,new-mauville-area,New Mauville,446,49,true
-389,abandoned-ship-area,Abandoned Ship,447,50,true
-390,sky-pillar-1f,Sky Pillar (1F),448,52,true
-391,sky-pillar-3f,Sky Pillar (3F),448,53,true
-392,sky-pillar-5f,Sky Pillar (5F),448,54,true
-393,hoenn-route-101-area,Road 101,449,55,true
-394,hoenn-route-102-area,Road 102,450,56,true
-395,hoenn-route-103-area,Road 103,451,57,true
-396,hoenn-route-104-area,Road 104,452,58,true
-397,hoenn-route-105-area,Road 105,453,59,true
-398,hoenn-route-106-area,Road 106,454,60,true
-399,hoenn-route-107-area,Road 107,455,61,true
-400,hoenn-route-108-area,Road 108,456,62,true
-401,hoenn-route-109-area,Road 109,457,63,true
-402,hoenn-route-110-area,Road 110,458,64,true
-403,hoenn-route-111-area,Road 111,459,65,true
-404,hoenn-route-112-area,Road 112,460,66,true
-405,hoenn-route-113-area,Road 113,461,67,true
-406,hoenn-route-114-area,Road 114,462,68,true
-407,hoenn-route-115-area,Road 115,463,69,true
-408,hoenn-route-116-area,Road 116,464,70,true
-409,hoenn-route-117-area,Road 117,465,71,true
-410,hoenn-route-118-area,Road 118,466,72,true
-411,hoenn-route-119-area,Road 119,467,73,true
-412,hoenn-route-120-area,Road 120,468,74,true
-413,hoenn-route-121-area,Road 121,469,75,true
-414,hoenn-route-122-area,Road 122,470,76,true
-415,hoenn-route-123-area,Road 123,471,77,true
-416,hoenn-route-124-area,Road 124,472,78,true
-417,hoenn-route-124-underwater,Road 124 (underwater),472,95,true
-418,hoenn-route-125-area,Road 125,473,79,true
-419,hoenn-route-126-area,Road 126,474,80,true
-420,hoenn-route-126-underwater,Road 126 (underwater),474,96,true
-421,hoenn-route-127-area,Road 127,475,81,true
-422,hoenn-route-128-area,Road 128,476,82,true
-423,hoenn-route-129-area,Road 129,477,83,true
-424,hoenn-route-130-area,Road 130,478,84,true
-425,hoenn-route-131-area,Road 131,479,85,true
-426,hoenn-route-132-area,Road 132,480,86,true
-427,hoenn-route-133-area,Road 133,481,87,true
-428,hoenn-route-134-area,Road 134,482,88,true
-429,hoenn-safari-zone-nwmach-bike-area,Safari Zone (NW/mach bike area),483,89,true
-430,hoenn-safari-zone-neacro-bike-area,Safari Zone (NE/acro bike area),483,90,true
-431,hoenn-safari-zone-sw,Safari Zone (SW),483,91,true
-432,hoenn-safari-zone-se,Safari Zone (SE),483,92,true
-433,dewford-town-area,Dewford Town,484,93,true
-434,pacifidlog-town-area,Pacifidlog Town,485,94,true
-435,hoenn-safari-zone-expansion-south,Safari Zone (expansion south),483,97,true
-436,hoenn-safari-zone-expansion-north,Safari Zone (expansion north),483,98,true
-437,magma-hideout-area,Magma Hideout,486,99,true
-438,mirage-tower-area,Mirage Tower,487,107,true
-439,desert-underpass-area,Desert Underpass,488,111,true
-440,artisan-cave-area,Artisan Cave,489,112,true
-441,hoenn-altering-cave-area,Altering Cave,490,114,true
-450,monean-chamber-area,Monean Chamber,491,0,true
-451,liptoo-chamber-area,Liptoo Chamber,492,1,true
-452,weepth-chamber-area,Weepth Chamber,493,2,true
-453,dilford-chamber-area,Dilford Chamber,494,3,true
-454,scufib-chamber-area,Scufib Chamber,495,4,true
-455,rixy-chamber-area,Rixy Chamber,496,5,true
-456,viapos-chamber-area,Viapos Chamber,497,6,true
-461,ss-anne-area,S.S. Anne,498,11,true
-488,mt-ember-area,Mount Ember,500,40,true
-489,mt-ember-cave,Mount Ember (cave),500,41,true
-490,mt-ember-inside,Mount Ember (inside),500,42,true
-491,mt-ember-1f-cave-behind-team-rocket,"Mount Ember (1F, cave behind team rocket)",500,44,true
-492,mt-ember-b1f,Mount Ember (B1F),500,45,true
-493,mt-ember-b2f,Mount Ember (B2F),500,46,true
-494,mt-ember-b3f,Mount Ember (B3F),500,47,true
-495,berry-forest-area,Berry Forest,501,50,true
-496,icefall-cave-entrance,Icefall Cave (entrance),502,51,true
-497,icefall-cave-1f,Icefall Cave (1F),502,52,true
-498,icefall-cave-b1f,Icefall Cave (B1F),502,53,true
-499,icefall-cave-waterfall,Icefall Cave (waterfall),502,54,true
-500,pattern-bush-area,Pattern Bush,503,55,true
-501,lost-cave-room-1,Lost Cave (room 1),504,56,true
-502,lost-cave-room-2,Lost Cave (room 2),504,57,true
-503,lost-cave-room-3,Lost Cave (room 3),504,58,true
-504,lost-cave-room-4,Lost Cave (room 4),504,59,true
-505,lost-cave-room-5,Lost Cave (room 5),504,60,true
-506,lost-cave-room-6,Lost Cave (room 6),504,61,true
-507,lost-cave-room-7,Lost Cave (room 7),504,62,true
-508,lost-cave-room-8,Lost Cave (room 8),504,63,true
-509,lost-cave-room-9,Lost Cave (room 9),504,64,true
-510,lost-cave-room-10,Lost Cave (room 10),504,65,true
-511,lost-cave-item-rooms,Lost Cave (item rooms),504,66,true
-512,kindle-road-area,Kindle Road,505,70,true
-513,treasure-beach-area,Treasure Beach,506,71,true
-514,cape-brink-area,Cape Brink,507,72,true
-515,bond-bridge-area,Bond Bridge,508,73,true
-516,three-isle-port-area,Three Isle Port,509,74,true
-517,resort-gorgeous-area,Resort Gorgeous,510,75,true
-518,water-labyrinth-area,Water Labyrinth,511,76,true
-519,five-isle-meadow-area,Five Isle Meadow,512,77,true
-520,memorial-pillar-area,Memorial Pillar,513,78,true
-521,outcast-island-area,Outcast Island,514,79,true
-522,green-path-area,Green Path,515,80,true
-523,water-path-area,Water Path,516,81,true
-524,ruin-valley-area,Ruin Valley,517,82,true
-525,trainer-tower-area,Trainer Tower,518,83,true
-526,canyon-entrance-area,Canyon Entrance,519,84,true
-527,sevault-canyon-area,Sevault Canyon,520,85,true
-528,tanoby-ruins-area,Tanoby Ruins,521,86,true
-561,one-island-area,One Island,526,120,true
-562,four-island-area,Four Island,527,121,true
-563,five-island-area,Five Island,528,122,true
-564,kanto-altering-cave-a,Altering Cave (A),529,123,true
-565,kanto-altering-cave-b,Altering Cave (B),529,124,true
-566,kanto-altering-cave-c,Altering Cave (C),529,125,true
-567,kanto-altering-cave-d,Altering Cave (D),529,126,true
-568,kanto-altering-cave-e,Altering Cave (E),529,127,true
-569,kanto-altering-cave-f,Altering Cave (F),529,128,true
-570,kanto-altering-cave-g,Altering Cave (G),529,129,true
-571,kanto-altering-cave-h,Altering Cave (H),529,130,true
-572,kanto-altering-cave-i,Altering Cave (I),529,131,true
-576,striaton-city-area,Striaton City,348,0,true
-577,driftveil-city-area,Driftveil City,352,1,true
-578,icirrus-city-area,Icirrus City,354,2,true
-579,dreamyard-area,Dreamyard,374,3,true
-580,dreamyard-b1f,Dreamyard (B1F),374,4,true
-581,pinwheel-forest-outside,Pinwheel Forest (outside),375,5,true
-582,pinwheel-forest-inside,Pinwheel Forest (inside),375,6,true
-583,desert-resort-entrance,Desert Resort (entrance),376,7,true
-584,desert-resort-area,Desert Resort,376,8,true
-585,relic-castle-a,Relic Castle (A),377,9,true
-586,relic-castle-b,Relic Castle (B),377,11,true
-587,relic-castle-c,Relic Castle (C),377,15,true
-588,relic-castle-d,Relic Castle (D),377,30,true
-589,cold-storage-area,Cold Storage,378,40,true
-590,chargestone-cave-1f,Chargestone Cave (1F),379,41,true
-591,chargestone-cave-b1f,Chargestone Cave (B1F),379,42,true
-592,chargestone-cave-b2f,Chargestone Cave (B2F),379,43,true
-593,twist-mountain-b1f-3f,Twist Mountain,380,44,true
-594,dragonspiral-tower-entrance,Dragonspiral Tower (entrance),381,48,true
-595,dragonspiral-tower-outside,Dragonspiral Tower (outside),381,49,true
-596,dragonspiral-tower-1f,Dragonspiral Tower (1F),381,50,true
-597,dragonspiral-tower-2f,Dragonspiral Tower (2F),381,51,true
-598,unova-victory-road-outside,Victory Road (outside),382,52,true
-599,unova-victory-road-unknown-area-53,Victory Road (unknown area 53),382,53,true
-600,unova-victory-road-unknown-area-54,Victory Road (unknown area 54),382,54,true
-601,unova-victory-road-unknown-area-55,Victory Road (unknown area 55),382,55,true
-602,unova-victory-road-4f-middle-room,Victory Road (4f Middle Room),382,56,true
-603,unova-victory-road-unknown-area-57,Victory Road (unknown area 57),382,57,true
-604,unova-victory-road-1f-unknown-room,Victory Road (unknown area 58),382,58,true
-605,unova-victory-road-unknown-area-59,Victory Road (unknown area 59),382,59,true
-606,unova-victory-road-unknown-area-60,Victory Road (unknown area 60),382,60,true
-607,unova-victory-road-unknown-area-61,Victory Road (unknown area 61),382,61,true
-608,unova-victory-road-unknown-area-62,Victory Road (unknown area 62),382,62,true
-609,unova-victory-road-unknown-area-63,Victory Road (unknown area 63),382,63,true
-610,unova-victory-road-unknown-area-64,Victory Road (unknown area 64),382,64,true
-611,unova-victory-road-unknown-area-65,Victory Road (unknown area 65),382,65,true
-612,unova-victory-road-unknown-area-66,Victory Road (unknown area 66),382,66,true
-613,trial-chamber-area,Trial Chamber,415,67,true
-614,giant-chasm-outside,Giant Chasm (outside),403,68,true
-615,giant-chasm-area,Giant Chasm,403,69,true
-616,giant-chasm-forest,Giant Chasm (forest),403,70,true
-617,giant-chasm-forest-cave,Giant Chasm (forest cave),403,71,true
-618,p2-laboratory-area,P2 Laboratory,405,72,true
-619,undella-bay-area,Undella Bay,413,73,true
-620,driftveil-drawbridge-area,Driftveil Drawbridge,407,74,true
-621,village-bridge-area,Village Bridge,409,75,true
-622,marvelous-bridge-area,Marvelous Bridge,410,76,true
-623,unova-route-1-area,Road 1,356,77,true
-624,unova-route-2-area,Road 2,357,78,true
-625,unova-route-3-area,Road 3,358,79,true
-626,wellspring-cave-area,Wellspring Cave,395,80,true
-627,unova-route-4-area,Road 4,359,82,true
-628,unova-route-5-area,Road 5,360,83,true
-629,unova-route-6-area,Road 6,361,84,true
-630,mistralton-cave-area,Mistralton Cave,396,85,true
-631,guidance-chamber-area,Guidance Chamber,416,87,true
-632,unova-route-7-area,Road 7,362,88,true
-633,celestial-tower-2f,Celestial Tower (2F),398,89,true
-634,celestial-tower-3f,Celestial Tower (3F),398,90,true
-635,celestial-tower-4f,Celestial Tower (4F),398,91,true
-636,celestial-tower-5f,Celestial Tower (5F),398,92,true
-637,unova-route-8-area,Road 8,363,93,true
-638,moor-of-icirrus-area,Moor of Icirrus,399,94,true
-639,unova-route-9-area,Road 9,364,95,true
-640,challengers-cave-1f,Challengers Cave (1F),401,96,true
-641,challengers-cave-b1f,Challengers Cave (B1F),401,97,true
-642,challengers-cave-b2f,Challengers Cave (B2F),401,98,true
-643,unova-route-10-area,Road 10,365,99,true
-644,unova-route-10-victory-road-gate,Road 10 (Victory Road gate),365,100,true
-645,unova-route-11-area,Road 11,366,101,true
-646,unova-route-12-area,Road 12,367,102,true
-647,unova-route-13-area,Road 13,368,103,true
-648,unova-route-14-area,Road 14,369,104,true
-649,abundant-shrine-area,Abundant Shrine,412,105,true
-650,unova-route-15-area,Road 15,370,106,true
-651,unova-route-16-area,Road 16,371,107,true
-652,lostlorn-forest-area,Lostlorn Forest,414,108,true
-653,unova-route-18-area,Road 18,373,109,true
-654,undella-town-area,Undella Town,384,110,true
-655,unova-route-17-area,Road 17,372,111,true
-656,castelia-city-area,Castelia City,350,1,true
-657,aspertia-city-area,Aspertia City,531,3,true
-658,virbank-city-area,Virbank City,532,4,true
-659,humilau-city-area,Humilau City,533,5,true
-660,unova-victory-road-7f,Victory Road (7F),382,31,true
-661,unova-victory-road-2-unknown-area-71,Victory Road 2 (unknown area 71),548,71,true
-662,unova-victory-road-2-unknown-area-72,Victory Road 2 (unknown area 72),548,72,true
-663,unova-victory-road-2-unknown-area-73,Victory Road 2 (unknown area 73),548,73,true
-664,unova-victory-road-2-unknown-area-74,Victory Road 2 (unknown area 74),548,74,true
-665,unova-victory-road-2-unknown-area-75,Victory Road 2 (unknown area 75),548,75,true
-666,unova-victory-road-2-unknown-area-76,Victory Road 2 (unknown area 76),548,76,true
-667,unova-victory-road-2-unknown-area-77,Victory Road 2 (unknown area 77),548,77,true
-668,unova-victory-road-2-unknown-area-78,Victory Road 2 (unknown area 78),548,78,true
-669,unova-victory-road-2-unknown-area-79,Victory Road 2 (unknown area 79),548,79,true
-670,unova-victory-road-2-unknown-area-80,Victory Road 2 (unknown area 80),548,80,true
-671,castelia-sewers-area,Castelia Sewers,543,37,true
-672,castelia-sewers-unknown-area-38,Castelia Sewers (unknown area 38),543,38,true
-673,floccesy-ranch-outer,Floccesy Ranch (outer),544,44,true
-674,floccesy-ranch-inner,Floccesy Ranch (inner),544,45,true
-675,virbank-complex-outer,Virbank Complex (outer),545,46,true
-676,virbank-complex-inner,Virbank Complex (inner),545,47,true
-677,reversal-mountain-unknown-area-48,Reversal Mountain (unknown area 48),546,48,true
-678,reversal-mountain-unknown-area-49,Reversal Mountain (unknown area 49),546,49,true
-679,reversal-mountain-unknown-area-50,Reversal Mountain (unknown area 50),546,50,true
-680,reversal-mountain-unknown-area-51,Reversal Mountain (unknown area 51),546,51,true
-681,reversal-mountain-unknown-area-52,Reversal Mountain (unknown area 52),546,52,true
-682,reversal-mountain-unknown-area-53,Reversal Mountain (unknown area 53),546,53,true
-683,reversal-mountain-unknown-area-54,Reversal Mountain (unknown area 54),546,54,true
-684,reversal-mountain-unknown-area-55,Reversal Mountain (unknown area 55),546,55,true
-685,reversal-mountain-unknown-area-56,Reversal Mountain (unknown area 56),546,56,true
-686,reversal-mountain-unknown-area-57,Reversal Mountain (unknown area 57),546,57,true
-687,reversal-mountain-unknown-area-58,Reversal Mountain (unknown area 58),546,58,true
-688,reversal-mountain-unknown-area-59,Reversal Mountain (unknown area 59),546,59,true
-689,reversal-mountain-unknown-area-60,Reversal Mountain (unknown area 60),546,60,true
-690,strange-house-1f,Strange House (1F),547,61,true
-691,strange-house-b1f,Strange House (B1F),547,65,true
-692,relic-passage-castelia-sewers-entrance,Relic Tunnel (Castelia Sewers entrance),550,81,true
-693,relic-passage-relic-castle-entrance,Relic Tunnel (Relic Castle entrance),550,82,true
-694,relic-passage-pwt-entrance,Relic Tunnel (PWT entrance),550,83,true
-695,clay-tunnel-area,Clay Tunnel,551,84,true
-696,underground-ruins-area,Underground Ruins,562,87,true
-697,rocky-mountain-room-area,Rocky Mountain Room,563,90,true
-698,glacier-room-area,Glacier Room,564,91,true
-699,iron-room-area,Iron Room,565,92,true
-700,seaside-cave-1f,Seaside Cave (1F),554,93,true
-701,seaside-cave-b1f,Seaside Cave (B1F),554,94,true
-702,nature-sanctuary-area,Nature Sanctuary,560,95,true
-703,unova-route-19-area,Road 19,538,128,true
-704,unova-route-20-area,Road 20,539,129,true
-705,unova-route-22-area,Road 22,541,130,true
-706,unova-route-23-area,Road 23,542,131,true
-707,unova-route-21-area,Road 21,540,134,true
-708,couriway-town-area,Couriway Town,646,0,true
-709,ambrette-town-area,Ambrette Town,614,0,true
-710,cyllage-city-area,Cyllage City,611,0,true
-711,shalour-city-area,Shalour City,624,0,true
-712,laverre-city-area,Laverre City,633,0,true
-713,kalos-route-2-area,Road 2,591,0,true
-714,kalos-route-3-area,Road 3,594,0,true
-715,kalos-route-4-area,Road 4,597,0,true
-716,kalos-route-5-area,Road 5,602,0,true
-717,kalos-route-6-area,Road 6,606,0,true
-718,kalos-route-7-area,Road 7,609,0,true
-719,kalos-route-8-area,Road 8,612,0,true
-720,kalos-route-9-area,Road 9,615,0,true
-721,kalos-route-10-area,Road 10,618,0,true
-722,kalos-route-11-area,Road 11,621,0,true
-723,kalos-route-12-area,Road 12,626,0,true
-724,kalos-route-13-area,Road 13,629,0,true
-725,kalos-route-14-area,Road 14,631,0,true
-726,kalos-route-15-area,Road 15,635,0,true
-727,kalos-route-16-area,Road 16,638,0,true
-728,kalos-route-17-area,Road 17,641,0,true
-729,kalos-route-18-area,Road 18,644,0,true
-730,kalos-route-19-area,Road 19,647,0,true
-731,kalos-route-20-area,Road 20,650,0,true
-732,kalos-route-21-area,Road 21,653,0,true
-733,kalos-route-22-area,Road 22,655,0,true
-734,santalune-forest-area,Santalune Forest,593,0,true
-735,parfum-palace-area,Parfum Palace,608,0,true
-736,glittering-cave-unknown-area-303,Glittering Cave (unknown area 303),671,0,true
-737,glittering-cave-unknown-area-304,Glittering Cave (unknown area 304),671,0,true
-738,reflection-cave-unknown-area-305,Reflection Cave (unknown area 305),623,0,true
-739,reflection-cave-unknown-area-306,Reflection Cave (unknown area 306),623,0,true
-740,reflection-cave-unknown-area-307,Reflection Cave (unknown area 307),623,0,true
-741,reflection-cave-unknown-area-308,Reflection Cave (unknown area 308),623,0,true
-742,frost-cavern-unknown-area-313,Frost Cavern (unknown area 313),640,0,true
-743,frost-cavern-unknown-area-314,Frost Cavern (unknown area 314),640,0,true
-744,frost-cavern-unknown-area-315,Frost Cavern (unknown area 315),640,0,true
-745,frost-cavern-unknown-area-316,Frost Cavern (unknown area 316),640,0,true
-746,frost-cavern-unknown-area-317,Frost Cavern (unknown area 317),640,0,true
-747,pokemon-village-area,Pokemon Village,652,0,true
-748,kalos-victory-road-unknown-area-322,Victory Road (unknown area 322),657,0,true
-749,kalos-victory-road-unknown-area-324,Victory Road (unknown area 324),657,0,true
-750,kalos-victory-road-unknown-area-326,Victory Road (unknown area 326),657,0,true
-751,kalos-victory-road-outside,Victory Road (unknown area 327),657,0,true
-752,kalos-victory-road-unknown-area-328,Victory Road (unknown area 328),657,0,true
-753,connecting-cave-area,Connecting Cave,672,0,true
-754,terminus-cave-1f,Terminus Cave (1F),676,0,true
-755,terminus-cave-b1f-left,Terminus Cave (B1F left),676,0,true
-756,terminus-cave-b1f-right,Terminus Cave (B1F right),676,0,true
-757,terminus-cave-b2f,Terminus Cave (B2F),676,0,true
-758,terminus-cave-zygardes-chamber,Terminus Cave (Zygarde's Chamber),676,0,true
-759,lost-hotel-area,Lost Hotel,677,0,true
-760,azure-bay-area,Azure Bay,661,0,true
-761,kanto-route-4-pokemon-center,Pokemon Center (Road 4),120,0,true
-762,saffron-city-fighting-dojo,Fighting Dojo,234,0,true
-763,celadon-city-celadon-mansion,Celadon Mansion rooftop,67,0,true
-764,saffron-city-silph-co-7f,Silph Co. 7F,234,0,true
-765,goldenrod-city-north-gate,Goldenrod City (north gate),229,0,true
-766,goldenrod-city-bills-house,Goldenrod City (Bill's house),229,0,true
-767,cianwood-city-manias-house,Cianwood City (Mania's house),70,0,true
-768,hoenn-route-119-weather-institute,Weather Institute (Road 119),467,0,true
-769,mossdeep-city-stevens-house,Mossdeep City (Steven's house),432,0,true
-770,littleroot-town-area,Littleroot Town,567,0,true
-771,hearthome-city-area,Hearthome City,169,0,true
-772,veilstone-city-area,Veilstone City,170,0,true
-773,cianwood-city-kirks-house,Cianwood City (Kirk's house),70,0,true
-774,nuvema-town-area,Nuvema Town,346,0,true
-775,castelia-city-game-freak-hq-1f,Game Freak HQ 1F (Castelia City),350,0,true
-776,unova-route-6-weather-institute,Weather Institute (Road 6),361,0,true
-777,floccesy-town-area,Floccesy Town,536,0,true
-778,aquacorde-town-area,Aquacorde Town,590,0,true
-779,lumiose-city-area,Lumiose City,599,0,true
-780,tower-of-mastery-area,Tower of Mastery,625,0,true
-781,slateport-city-contest-hall,Contest Hall (Slateport City),430,0,true
-782,verdanturf-town-contest-hall,Contest Hall (Verdanturf Town),571,0,true
-783,fallarbor-town-contest-hall,Contest Hall (Fallarbor Town),570,0,true
-784,lilycove-city-contest-hall,Contest Hall (Lilycove City),431,0,true
-785,southern-island-area,Southern Island,578,0,true
-786,battle-resort-area,Battle Resort,695,0,true
-787,lavaridge-town-area,Lavaridge Town,569,0,true
-788,eterna-city-west-gate,Eterna City (west gate),2,0,true
-789,hearthome-city-west-gate,Hearthome City (west gate),169,0,true
-790,violet-city-poke-mart,Violet City (Poke Mart),153,0,true
-791,violet-city-pokemon-center,Violet City (Pokemon Center),153,0,true
-792,nacrene-city-west-gate,Nacrene City (west gate),349,0,true
-793,bell-tower-roof,Bell Tower (roof),139,0,true
-794,roaming-kanto-area,Roaming Kanto,799,0,true
-795,roaming-johto-area,Wandert durch Johto,800,0,true
-796,roaming-hoenn-area,Roaming Hoenn,801,0,true
-797,roaming-sinnoh-area,Roaming Sinnoh,802,0,true
-798,azalea-town-area,Azalea Town,228,0,true
-800,mahogany-town-area,Mahogany City,230,0,true
-801,cave-of-origin-b4f,Cave of Origin (B4F),443,0,true
-802,terra-cave-area,Terra Cave,803,0,true
-803,marine-cave-area,Marine Cave,804,0,true
-804,sky-pillar-apex,Sky Pillar Apex,448,0,true
-805,bell-tower-1f,Bell Tower (1F),139,0,true
-806,birth-island-area,Birth Island,810,0,true
-807,navel-rock-area,Navel Rock,811,0,true
-808,faraway-island-area,Faraway Island,812,0,true
-809,hoenn-battle-frontier-area,Hoenn Battle Frontier,813,0,true
-810,desert-ruins-area,Desert Ruins,582,0,true
-811,island-cave-area,Island Cave,581,0,true
-812,ancient-tomb-area,Ancient Tomb,583,0,true
-813,johto-safari-zone-zone-peak,Safari Zone Peak,814,0,true
-814,johto-safari-zone-zone-desert,Safari Zone Desert,814,0,true
-815,johto-safari-zone-zone-plains,Safari Zone Plains,814,0,true
-816,johto-safari-zone-zone-meadow,Safari Zone Meadow,814,0,true
-817,johto-safari-zone-zone-forest,Safari Zone Forest,814,0,true
-818,johto-safari-zone-zone-swamp,Safari Zone Swamp,814,0,true
-819,johto-safari-zone-zone-marshland,Safari Zone Marshland,814,0,true
-820,johto-safari-zone-zone-mountain,Safari Zone Mountain,814,0,true
-821,johto-safari-zone-zone-rocky-beach,Safari Zone Rocky Beach,814,0,true
-822,johto-safari-zone-zone-wasteland,Safari Zone Wasteland,814,0,true
-823,johto-safari-zone-zone-savannah,Safari Zone Savannah,814,0,true
-824,johto-safari-zone-zone-wetland,Safari Zone Wetland,814,0,true
-825,mt-ember-summit,Mount Ember Summit,500,0,true
-826,embedded-tower-kyogre-room,Embedded Tower (Kyogre’s room),248,0,true
-827,embedded-tower-groundon-room,Embedded Tower (Groudon’s room),248,0,true
-828,embedded-tower-rayquaza-room,Embedded Tower (Rayquaza’s room),248,0,true
-829,lake-acuity-cavern,Lake Acuity Cavern,28,0,true
-830,lake-valor-cavern,Lake Valor Cavern,27,0,true
-831,spear-pillar-area,Spear Pillar,172,0,true
-832,kanto-route-3-pokemon-center,Pokemon Center (Road 3),109,0,true
-833,cinnabar-island-cinnabar-lab,Cinnabar Lab (Cinnabar Island),71,0,true
-834,rustboro-city-area,Rustboro City,573,0,true
-835,saffron-city-silph-co,Silph Co.,234,0,true
-836,cianwood-city-pokemon-center,Pokemon Center (Cianwood City),70,0,true
-837,stark-mountain-heatran-chamber,Stark Mountain (Heatran Chamber),16,0,true
-838,newmoon-island-area,Newmoon Island,183,0,true
-839,flower-paradise-area,Flower Paradise,179,0,true
-840,sinnoh-hall-of-origin-1-area,Hall of Origin,188,0,true
-841,team-rocket-hq-area,Team Rocket HQ,237,0,true
-842,sinjoh-ruins-area,Sinjoy Ruins,247,0,true
-843,galar-route-1-area,Route 1,868,0,true
-844,galar-route-2-main,Route 2,869,0,true
-845,galar-route-3-east,Route 3 (East),870,0,true
-847,galar-route-4-area,Route 4,871,0,true
-848,galar-route-5-area,Route 5,872,0,true
-849,galar-route-6-area,Route 6,873,0,true
+1,canalave-city-area,卡纳拉夫城,1,1,true
+2,eterna-city-area,绮年华城,2,2,true
+3,pastoria-city-area,帕斯托里亚市,3,3,true
+4,sunyshore-city-area,阳光海岸城,4,4,true
+5,sinnoh-pokemon-league-area,神奥联赛,5,5,true
+6,oreburgh-mine-1f,奥勒堡矿山（1层）,6,6,true
+7,oreburgh-mine-b1f,奥勒堡矿山（地下1层）,6,7,true
+8,valley-windworks-area,山谷风厂,7,8,true
+9,eterna-forest-area,永恒森林,8,9,true
+10,fuego-ironworks-area,富埃戈钢铁厂,9,10,true
+11,mt-coronet-1f-route-207,皇冠山 (207路1楼),10,11,true
+12,mt-coronet-2f,皇冠山 (2层),10,12,true
+13,mt-coronet-3f,皇冠山 (3层),10,13,true
+14,mt-coronet-exterior-snowfall,皇冠山（外部降雪）,10,14,true
+15,mt-coronet-exterior-blizzard,皇冠山（外部暴风雪）,10,15,true
+16,mt-coronet-4f,皇冠山 (4层),10,16,true
+17,mt-coronet-4f-small-room,皇冠山（4楼小房间）,10,17,true
+18,mt-coronet-5f,皇冠山 (5层),10,18,true
+19,mt-coronet-6f,皇冠山 (6层),10,19,true
+20,mt-coronet-1f-from-exterior,皇冠山（从外部看1层）,10,20,true
+21,mt-coronet-1f-route-216,皇冠山 (216路1楼),10,21,true
+22,mt-coronet-1f-route-211,皇冠山 (211路1楼),10,22,true
+23,mt-coronet-b1f,皇冠山 (地下1层),10,23,true
+24,great-marsh-area-1,大沼泽地区 1,11,24,true
+25,great-marsh-area-2,大沼泽地区 2,11,25,true
+26,great-marsh-area-3,大沼泽区 3,11,26,true
+27,great-marsh-area-4,大沼泽4区,11,27,true
+28,great-marsh-area-5,大沼泽5区,11,28,true
+29,great-marsh-area-6,大沼泽6区,11,29,true
+30,solaceon-ruins-2f,索拉西翁遗迹（2层）,12,30,true
+31,solaceon-ruins-1f,索拉西翁遗迹（1层）,12,31,true
+32,solaceon-ruins-b1f-a,索拉森遗址 (地下1层 A),12,32,true
+33,solaceon-ruins-b1f-b,索拉西翁遗址 (地下1层 B),12,33,true
+34,solaceon-ruins-b1f-c,索拉西翁遗址 (地下1层 C),12,34,true
+35,solaceon-ruins-b2f-a,索拉森遗址 (地下2层 A),12,35,true
+36,solaceon-ruins-b2f-b,索拉西翁遗址 (地下2层 B),12,36,true
+37,solaceon-ruins-b2f-c,索拉西翁遗址 (地下2层 C),12,37,true
+38,solaceon-ruins-b3f-a,索拉森遗址 (地下3层 A),12,38,true
+39,solaceon-ruins-b3f-b,索拉森遗迹 (地下3层 B),12,39,true
+40,solaceon-ruins-b3f-c,索拉森遗址 (地下3层 C),12,40,true
+41,solaceon-ruins-b3f-d,索拉森遗迹 (地下3层 D),12,41,true
+42,solaceon-ruins-b3f-e,索拉森废墟 (地下3层 E),12,42,true
+43,solaceon-ruins-b4f-a,索拉森遗址 (地下4层 A),12,43,true
+44,solaceon-ruins-b4f-b,索拉森遗迹 (地下4层 B),12,44,true
+45,solaceon-ruins-b4f-c,索拉森遗址 (地下4层 C),12,45,true
+46,solaceon-ruins-b4f-d,索拉森遗址 (地下4层 D),12,46,true
+47,solaceon-ruins-b5f,索拉西翁遗迹 (地下5层),12,47,true
+48,sinnoh-victory-road-1f,胜利路(1楼),13,48,true
+49,sinnoh-victory-road-2f,胜利路(2楼),13,49,true
+50,sinnoh-victory-road-b1f,胜利路 (地下1层),13,50,true
+51,sinnoh-victory-road-inside-b1f,胜利路(地下1层内),13,51,true
+52,sinnoh-victory-road-inside,胜利路（内）,13,52,true
+53,sinnoh-victory-road-inside-exit,胜利路（内侧出口）,13,53,true
+54,ravaged-path-area,蹂躏之路,14,54,true
+55,oreburgh-gate-1f,奥勒堡门 (1层),15,55,true
+56,oreburgh-gate-b1f,奥勒堡门 (地下1层),15,56,true
+57,stark-mountain-area,斯塔克山外景,16,57,true
+58,stark-mountain-entrance,史塔克山入口,16,58,true
+59,stark-mountain-inside,斯塔克山主洞,16,59,true
+60,sendoff-spring-area,送别春天,178,60,true
+61,turnback-cave-pillar-1,折返洞（1号柱）,18,61,true
+62,turnback-cave-pillar-2,折返洞（2号柱）,18,62,true
+63,turnback-cave-pillar-3,折返洞（3号柱）,18,63,true
+64,turnback-cave-before-pillar-1,折返洞（1号柱前）,18,64,true
+70,turnback-cave-between-pillars-1-and-2,折返洞（1号柱和2号柱之间）,18,70,true
+76,turnback-cave-between-pillars-2-and-3,折返洞（2号柱和3号柱之间）,18,76,true
+82,turnback-cave-after-pillar-3,折返洞（3号柱后）,18,82,true
+107,snowpoint-temple-1f,雪点寺 (1层),19,107,true
+108,snowpoint-temple-b1f,雪点寺 (地下1层),19,108,true
+109,snowpoint-temple-b2f,雪点寺 (地下2层),19,109,true
+110,snowpoint-temple-b3f,雪点寺 (地下3层),19,110,true
+111,snowpoint-temple-b4f,雪点寺（地下4层）,19,111,true
+112,snowpoint-temple-b5f,雪点寺（地下5层）,19,112,true
+113,wayward-cave-1f,任性洞窟（1层）,20,113,true
+114,wayward-cave-b1f,任性洞窟（地下1层）,20,114,true
+115,ruin-maniac-cave-0-9-different-unown-caught,废墟疯狂洞穴（0-9 个不同的未知捕获者）,22,115,true
+116,ruin-maniac-cave-10-25-different-unown-caught,废墟狂人洞穴（捕获了 10-25 个不同的未知物种）,22,116,true
+117,maniac-tunnel-26-plus-different-unown-caught,疯狂隧道（捕获了超过 26 个不同的未知物种）,180,117,true
+118,trophy-garden-area,奖杯花园,23,118,true
+119,iron-island-area,铁岛地区,24,119,true
+120,iron-island-1f,铁岛（1层）,24,120,true
+121,iron-island-b1f-left,铁岛（地下1层左）,24,121,true
+122,iron-island-b1f-right,铁岛（地下1层右）,24,122,true
+123,iron-island-b2f-right,铁岛（地下2层右）,24,123,true
+124,iron-island-b2f-left,铁岛（地下2层左）,24,124,true
+125,iron-island-b3f,铁岛（地下3层）,24,125,true
+126,old-chateau-entrance,老城堡（入口）,25,126,true
+127,old-chateau-dining-room,老城堡（餐厅）,25,127,true
+128,old-chateau-2f-private-room,老城堡（2层包间）,25,128,true
+129,old-chateau-2f,老城堡（2层）,25,129,true
+130,old-chateau-2f-leftmost-room,老城堡（2楼最左边的房间）,25,130,true
+131,old-chateau-2f-left-room,老城堡（2楼左房间）,25,131,true
+132,old-chateau-2f-middle-room,老城堡（2层中间）,25,132,true
+133,old-chateau-2f-right-room,老城堡（2楼右室）,25,133,true
+134,old-chateau-2f-rightmost-room,老城堡（2楼最右边的房间）,25,134,true
+135,lake-verity-before-galactic-intervention,维里蒂湖（银河干预前）,26,135,true
+136,lake-verity-after-galactic-intervention,维里蒂湖（银河干预后）,26,136,true
+137,lake-valor-area,勇气湖,27,137,true
+138,lake-acuity-area,敏锐湖,28,138,true
+139,valor-lakefront-area,勇敢湖畔,29,139,true
+140,acuity-lakefront-area,敏锐湖畔,30,140,true
+141,sinnoh-route-201-area,201路,31,141,true
+142,sinnoh-route-202-area,202路,32,142,true
+143,sinnoh-route-203-area,203路,33,143,true
+144,sinnoh-route-204-south-towards-jubilife-city,204号公路（向南，往Jubilife City方向）,34,144,true
+145,sinnoh-route-204-north-towards-floaroma-town,204号公路（向北，前往Floaroma镇）,34,145,true
+146,sinnoh-route-205-south-towards-floaroma-town,205 号公路（向南，前往 Floaroma 镇）,35,146,true
+147,sinnoh-route-205-east-towards-eterna-city,205号公路（向东，往绮年华城方向）,35,147,true
+148,sinnoh-route-206-area,206路,36,148,true
+149,sinnoh-route-207-area,207路,37,149,true
+150,sinnoh-route-208-area,208路,38,150,true
+151,sinnoh-route-209-area,209路,39,151,true
+152,lost-tower-1f,失落塔 (1层),40,152,true
+153,lost-tower-2f,失落之塔（2层）,40,153,true
+154,lost-tower-3f,失落塔 (3层),40,154,true
+155,lost-tower-4f,失落之塔（4层）,40,155,true
+156,lost-tower-5f,失落塔 (5层),40,156,true
+157,sinnoh-route-210-south-towards-solaceon-town,210号公路（向南，向Solaceon镇方向）,41,157,true
+158,sinnoh-route-210-west-towards-celestic-town,210路（西，往仙境镇方向）,41,158,true
+159,sinnoh-route-211-west-towards-eterna-city,211号公路（向西，往绮年华城方向）,42,159,true
+160,sinnoh-route-211-east-towards-celestic-town,211路（东，往仙境镇方向）,42,160,true
+161,sinnoh-route-212-north-towards-hearthome-city,212号公路（向北，往心家城方向）,43,161,true
+162,sinnoh-route-212-east-towards-pastoria-city,212 号公路（向东，朝帕斯托里亚市方向）,43,162,true
+163,sinnoh-route-213-area,213路,44,163,true
+164,sinnoh-route-214-area,214路,45,164,true
+165,sinnoh-route-215-area,215路,46,165,true
+166,sinnoh-route-216-area,216路,47,166,true
+167,sinnoh-route-217-area,217路,48,167,true
+168,sinnoh-route-218-area,218路,49,168,true
+169,sinnoh-route-219-area,219路,50,169,true
+170,sinnoh-route-221-area,221路,51,170,true
+171,sinnoh-route-222-area,222路,52,171,true
+172,sinnoh-route-224-area,224路,53,172,true
+173,sinnoh-route-225-area,225路,54,173,true
+174,sinnoh-route-227-area,227路,55,174,true
+175,sinnoh-route-228-area,228路,56,175,true
+176,sinnoh-route-229-area,229号路,57,176,true
+177,twinleaf-town-area,双叶镇,58,177,true
+178,celestic-town-area,仙境小镇,59,178,true
+179,resort-area-area,度假区,60,179,true
+180,sinnoh-sea-route-220-area,220号公路,61,180,true
+181,sinnoh-sea-route-223-area,223路,62,181,true
+182,sinnoh-sea-route-226-area,226路,63,182,true
+183,sinnoh-sea-route-230-area,230号公路,64,183,true
+184,new-bark-town-area,新树皮镇,84,1,true
+185,johto-route-29-area,29号路,108,2,true
+186,cherrygrove-city-area,切里格罗夫市,69,3,true
+187,johto-route-30-area,30号公路,110,4,true
+188,johto-route-31-area,31号路,111,5,true
+189,violet-city-area,紫城,153,6,true
+190,sprout-tower-2f,芽芽塔 (2层),138,7,true
+191,sprout-tower-3f,芽芽塔 (3层),138,8,true
+192,johto-route-32-area,32号路,112,9,true
+193,ruins-of-alph-outside,阿尔夫遗址（外观）,135,10,true
+194,ruins-of-alph-interior-a,阿尔夫废墟（内部A）,135,11,true
+195,ruins-of-alph-interior-b,阿尔夫遗址（内部B）,135,12,true
+196,ruins-of-alph-interior-c,阿尔夫废墟（内部C）,135,13,true
+197,ruins-of-alph-interior-d,阿尔夫废墟（内部D）,135,14,true
+198,union-cave-1f,联合洞 (1层),141,15,true
+199,union-cave-b1f,联合洞 (地下1层),141,16,true
+200,union-cave-b2f,联合洞 (地下2层),141,17,true
+201,johto-route-33-area,33号路,113,18,true
+202,slowpoke-well-1f,呆呆之井（1层）,137,19,true
+203,slowpoke-well-b1f,呆呆之井（地下1层）,137,20,true
+204,ilex-forest-area,冬青林,78,21,true
+205,johto-route-34-area,34号路,114,22,true
+206,johto-route-35-area,35号公路,115,23,true
+207,national-park-area,国家公园,83,24,true
+208,unknown-all-bugs-area,未知区域；所有错误,150,25,true
+209,johto-route-36-area,36号路,116,26,true
+210,johto-route-37-area,37号路,117,27,true
+211,ecruteak-city-area,埃克鲁特克城,75,28,true
+212,burned-tower-1f,烧毁之塔 (1层),66,29,true
+213,burned-tower-b1f,烧毁之塔 (地下1层),66,30,true
+214,bell-tower-2f,钟楼 (2层),139,31,true
+215,bell-tower-3f,钟楼 (3层),139,32,true
+216,bell-tower-4f,钟楼（4楼）,139,33,true
+217,bell-tower-5f,钟楼（5楼）,139,34,true
+218,bell-tower-6f,钟楼 (6层),139,35,true
+219,bell-tower-7f,钟楼 (7层),139,36,true
+220,bell-tower-8f,钟楼 (8层),139,37,true
+221,bell-tower-9f,钟楼 (9层),139,38,true
+222,johto-route-38-area,38号路,118,39,true
+223,johto-route-39-area,39号路,119,40,true
+224,olivine-city-area,橄榄城,85,41,true
+225,johto-sea-route-40-area,40号公路,121,42,true
+226,johto-sea-route-41-area,41号公路,122,43,true
+227,whirl-islands-1f,漩涡群岛 (1层),156,44,true
+228,whirl-islands-b1f,漩涡群岛 (地下1层),156,45,true
+229,whirl-islands-empty-floor-x,漩涡群岛（空楼层X）,156,46,true
+230,whirl-islands-b2f,漩涡群岛 (地下2层),156,47,true
+231,whirl-islands-empty-floor-y,漩涡群岛（空楼层Y）,156,48,true
+232,whirl-islands-b3f,漩涡群岛 (地下3层),156,49,true
+235,cianwood-city-area,西安伍德城,70,52,true
+236,johto-route-42-area,42号路,123,53,true
+237,mt-mortar-1f,摩塔山 (1层),81,54,true
+238,mt-mortar-lower-cave,莫塔山（下洞）,81,55,true
+239,mt-mortar-upper-cave,莫塔山（上洞）,81,56,true
+240,mt-mortar-b1f,摩塔山 (地下1层),81,57,true
+241,johto-route-43-area,43号路,124,58,true
+242,lake-of-rage-area,愤怒之湖,79,59,true
+243,johto-route-44-area,44号公路,125,60,true
+244,ice-path-1f,冰之道（1层）,77,61,true
+245,ice-path-b1f,冰之道（地下1层）,77,62,true
+246,ice-path-b2f,冰之道（地下2层）,77,63,true
+247,ice-path-b3f,冰之道（地下3层）,77,64,true
+249,blackthorn-city-area,黑荆棘城,65,66,true
+250,dragons-den-area,龙穴,74,67,true
+251,johto-route-45-area,45号公路,126,68,true
+252,johto-route-46-area,46号路,127,69,true
+253,dark-cave-violet-city-entrance,黑暗洞窟（紫罗城入口）,72,70,true
+254,dark-cave-blackthorn-city-entrance,黑暗洞穴（黑荆棘城入口）,72,71,true
+255,johto-route-47-area,47号路,128,72,true
+256,mt-moon-mt-moon-square,月亮山广场,80,73,true
+257,unknown-all-poliwag-area,未知区域；全部 波利瓦格,148,74,true
+258,seafoam-islands-1f,海泡沫群岛 (1层),136,75,true
+259,seafoam-islands-b1f,海泡沫群岛 (地下1层),136,76,true
+260,seafoam-islands-b2f,海泡沫群岛 (地下2层),136,77,true
+261,seafoam-islands-b3f,海泡沫群岛 (地下3层),136,78,true
+262,seafoam-islands-b4f,海泡沫群岛 (地下4层),136,79,true
+263,mt-silver-2f,银山 (2层),82,80,true
+264,mt-silver-1f-top,银山（1层顶部）,82,81,true
+265,mt-silver-4f,银山 (4层),82,82,true
+266,johto-route-47-cave-gate,47路（洞门）,128,83,true
+267,johto-route-47-inside-cave,47号路（洞内）,128,84,true
+268,bell-tower-10f,钟楼 (10楼),139,85,true
+269,mt-silver-outside,银山（外观）,82,86,true
+270,mt-silver-1f,山,82,87,true
+271,mt-silver-mountainside,银山（山上）,82,88,true
+272,mt-silver-3f,银山 (3层),82,89,true
+273,mt-silver-top,银山（上）,82,90,true
+275,unknown-all-rattata-area,未知区域；所有拉达,149,92,true
+276,kanto-route-12-area,12号路,91,93,true
+277,kanto-sea-route-19-area,19号路,98,94,true
+278,kanto-sea-route-20-area,20号公路,100,95,true
+279,cinnabar-island-area,朱砂岛,71,96,true
+280,viridian-city-area,常磐城,154,97,true
+281,cerulean-city-area,华蓝城,68,98,true
+282,vermilion-city-area,朱红城,151,99,true
+283,celadon-city-area,青瓷城,67,100,true
+284,fuchsia-city-area,紫红色城,76,101,true
+285,pallet-town-area,托盘镇,86,102,true
+286,johto-route-48-area,48号路,129,103,true
+287,kanto-route-26-area,26号路,105,104,true
+288,kanto-route-27-area,27号路,106,105,true
+289,kanto-route-28-area,28号路,107,106,true
+290,mt-moon-1f,月亮山 (1层),80,107,true
+291,mt-moon-2f,月亮山 (2层),80,108,true
+292,rock-tunnel-1f,岩石隧道（1层）,87,109,true
+293,rock-tunnel-b1f,岩石隧道 (地下1层),87,110,true
+294,kanto-victory-road-1-1f,胜利路1号(1楼),152,111,true
+295,kanto-route-1-area,1号路,88,112,true
+296,kanto-route-2-south-towards-viridian-city,2号公路（向南，往常磐城方向）,99,113,true
+297,kanto-route-3-area,3号公路,109,114,true
+298,kanto-route-4-area,4号公路,120,115,true
+299,kanto-route-5-area,5号公路,130,116,true
+300,kanto-route-6-area,6号路,131,117,true
+301,kanto-route-7-area,7号路,132,118,true
+302,kanto-route-8-area,8号路,133,119,true
+303,kanto-route-9-area,9号路,134,120,true
+304,kanto-route-10-area,10号路,89,121,true
+305,kanto-route-11-area,11号路,90,122,true
+306,kanto-route-13-area,13号路,92,123,true
+307,kanto-route-14-area,14号路,93,124,true
+308,kanto-route-15-area,15号路,94,125,true
+309,kanto-route-16-area,16号路,95,126,true
+310,kanto-route-17-area,17号路,96,127,true
+311,kanto-route-18-area,18号路,97,128,true
+312,kanto-sea-route-21-area,21号路,101,129,true
+313,kanto-route-22-area,22号路,102,130,true
+314,kanto-route-24-area,24号路,103,131,true
+315,kanto-route-25-area,25号路,104,132,true
+316,tohjo-falls-area,东条瀑布,140,133,true
+317,digletts-cave-area,地鼠洞,73,134,true
+318,kanto-victory-road-1-2f,胜利路1号(2层),152,135,true
+319,kanto-victory-road-1-3f,胜利路1号（3楼）,152,136,true
+320,kanto-route-2-north-towards-pewter-city,2 号公路（向北，前往锡城）,99,137,true
+321,viridian-forest-area,常磐森林,155,138,true
+323,cerulean-cave-1f,蔚蓝洞窟 (1层),147,140,true
+324,cerulean-cave-2f,蔚蓝洞窟 (2层),147,141,true
+325,cerulean-cave-b1f,蔚蓝洞窟 (地下1层),147,142,true
+326,mt-moon-b1f,月亮山 (地下1层),80,0,true
+327,mt-moon-b2f,月亮山 (地下2层),80,0,true
+328,rock-tunnel-b2f,岩石隧道 (地下2层),87,0,true
+329,kanto-route-23-area,23号路,157,0,true
+330,kanto-power-plant-area,发电厂,158,0,true
+331,kanto-victory-road-2-1f,胜利路2号(1楼),159,0,true
+332,kanto-victory-road-2-2f,胜利路2号(2楼),159,0,true
+333,kanto-victory-road-2-3f,胜利路2号(3楼),159,0,true
+334,pokemon-tower-1f,精灵生物塔（1层）,160,0,true
+335,pokemon-tower-2f,精灵生物塔（2层）,160,0,true
+336,pokemon-tower-3f,精灵生物塔（3层）,160,0,true
+337,pokemon-tower-4f,精灵生物塔（4楼）,160,0,true
+338,pokemon-tower-5f,精灵生物塔（5楼）,160,0,true
+339,pokemon-tower-6f,精灵生物塔（6楼）,160,0,true
+340,pokemon-tower-7f,精灵生物塔（7楼）,160,0,true
+341,pokemon-mansion-1f,精灵生物馆（1层）,161,0,true
+342,pokemon-mansion-2f,精灵生物馆（2层）,161,0,true
+343,pokemon-mansion-3f,精灵生物馆（3层）,161,0,true
+344,pokemon-mansion-b1f,精灵生物馆（地下1层）,161,0,true
+345,kanto-safari-zone-middle,野生动物园区（中）,162,0,true
+346,kanto-safari-zone-area-1-east,狩猎地带（1区，东部）,162,0,true
+347,kanto-safari-zone-area-2-north,狩猎地带（2区，北）,162,0,true
+348,kanto-safari-zone-area-3-west,狩猎地带（3区西侧）,162,0,true
+349,vermilion-city-ss-anne-dock,安妮号船坞,151,0,true
+350,petalburg-city-area,佩塔堡市,429,0,true
+351,slateport-city-area,斯莱特波特城,430,1,true
+352,lilycove-city-area,莉利科夫城,431,2,true
+353,mossdeep-city-area,莫斯迪普城,432,3,true
+354,sootopolis-city-area,苏托波利斯市,433,4,true
+355,ever-grande-city-area,恒盛城,434,5,true
+356,meteor-falls-area,流星瀑布,435,6,true
+357,meteor-falls-back,流星瀑布（背面）,435,7,true
+358,meteor-falls-b1f,流星瀑布（地下1层）,435,8,true
+359,meteor-falls-backsmall-room,流星瀑布（后面/小房间）,435,9,true
+360,rusturf-tunnel-area,锈草隧道,436,10,true
+361,granite-cave-1f,花岗岩洞 (1层),437,11,true
+362,granite-cave-b1f,花岗岩洞 (地下1层),437,12,true
+363,granite-cave-b2f,花岗岩洞 (地下2层),437,13,true
+364,granite-cave-1fsmall-room,花岗岩洞（1层/小房间）,437,14,true
+365,petalburg-woods-area,佩塔堡伍兹,438,15,true
+366,jagged-pass-area,锯齿状通行证,439,16,true
+367,fiery-path-area,火热之路,440,17,true
+368,mt-pyre-1f,柴堆山 (1层),441,18,true
+369,mt-pyre-2f,柴堆山 (2层),441,19,true
+370,mt-pyre-3f,柴堆山 (3层),441,20,true
+371,mt-pyre-4f,柴堆山 (4层),441,21,true
+372,mt-pyre-5f,柴堆山 (5层),441,22,true
+373,mt-pyre-6f,柴堆山 (6层),441,23,true
+374,mt-pyre-outside,柴堆山（外观）,441,24,true
+375,mt-pyre-summit,皮尔山（山顶）,441,25,true
+376,seafloor-cavern-area,海底洞穴,442,26,true
+377,cave-of-origin-entrance,起源之洞（入口）,443,35,true
+378,cave-of-origin-1f,起源洞窟（1层）,443,36,true
+379,cave-of-origin-b1f,起源之洞 (地下1层),443,37,true
+380,cave-of-origin-b2f,起源之洞 (地下2层),443,38,true
+381,cave-of-origin-b3f,起源之洞 (地下3层),443,39,true
+382,hoenn-victory-road-1f,胜利路(1楼),444,40,true
+383,hoenn-victory-road-b1f,胜利路 (地下1层),444,41,true
+384,hoenn-victory-road-b2f,胜利路 (地下2层),444,42,true
+385,shoal-cave-high-tide,浅滩洞,445,43,true
+386,shoal-cave-b1f,浅滩洞 (地下1层),445,47,true
+387,new-mauville-entrance,新莫维尔（入口）,446,48,true
+388,new-mauville-area,新莫维尔,446,49,true
+389,abandoned-ship-area,废弃的船,447,50,true
+390,sky-pillar-1f,天空之柱 (1层),448,52,true
+391,sky-pillar-3f,天空之柱 (3层),448,53,true
+392,sky-pillar-5f,天空之柱 (5层),448,54,true
+393,hoenn-route-101-area,101路,449,55,true
+394,hoenn-route-102-area,102路,450,56,true
+395,hoenn-route-103-area,103路,451,57,true
+396,hoenn-route-104-area,104路,452,58,true
+397,hoenn-route-105-area,105路,453,59,true
+398,hoenn-route-106-area,106号路,454,60,true
+399,hoenn-route-107-area,107路,455,61,true
+400,hoenn-route-108-area,108路,456,62,true
+401,hoenn-route-109-area,109路,457,63,true
+402,hoenn-route-110-area,110路,458,64,true
+403,hoenn-route-111-area,111路,459,65,true
+404,hoenn-route-112-area,112路,460,66,true
+405,hoenn-route-113-area,113路,461,67,true
+406,hoenn-route-114-area,114路,462,68,true
+407,hoenn-route-115-area,115路,463,69,true
+408,hoenn-route-116-area,116路,464,70,true
+409,hoenn-route-117-area,117路,465,71,true
+410,hoenn-route-118-area,118路,466,72,true
+411,hoenn-route-119-area,119路,467,73,true
+412,hoenn-route-120-area,120路,468,74,true
+413,hoenn-route-121-area,121路,469,75,true
+414,hoenn-route-122-area,122路,470,76,true
+415,hoenn-route-123-area,123路,471,77,true
+416,hoenn-route-124-area,124路,472,78,true
+417,hoenn-route-124-underwater,124号公路（水下）,472,95,true
+418,hoenn-route-125-area,125路,473,79,true
+419,hoenn-route-126-area,126号路,474,80,true
+420,hoenn-route-126-underwater,126号公路（水下）,474,96,true
+421,hoenn-route-127-area,127路,475,81,true
+422,hoenn-route-128-area,128号路,476,82,true
+423,hoenn-route-129-area,129号路,477,83,true
+424,hoenn-route-130-area,130号公路,478,84,true
+425,hoenn-route-131-area,131路,479,85,true
+426,hoenn-route-132-area,132路,480,86,true
+427,hoenn-route-133-area,133路,481,87,true
+428,hoenn-route-134-area,134号路,482,88,true
+429,hoenn-safari-zone-nwmach-bike-area,狩猎地带（西北/马赫自行车区）,483,89,true
+430,hoenn-safari-zone-neacro-bike-area,野生动物园区（NE/杂技自行车区）,483,90,true
+431,hoenn-safari-zone-sw,野生动物园区 (SW),483,91,true
+432,hoenn-safari-zone-se,野生动物园区 (SE),483,92,true
+433,dewford-town-area,杜福德镇,484,93,true
+434,pacifidlog-town-area,和平日志镇,485,94,true
+435,hoenn-safari-zone-expansion-south,野生动物园区（向南扩展）,483,97,true
+436,hoenn-safari-zone-expansion-north,野生动物园区（向北扩展）,483,98,true
+437,magma-hideout-area,岩浆藏身处,486,99,true
+438,mirage-tower-area,海市蜃楼塔,487,107,true
+439,desert-underpass-area,沙漠地下通道,488,111,true
+440,artisan-cave-area,工匠洞穴,489,112,true
+441,hoenn-altering-cave-area,改变洞穴,490,114,true
+450,monean-chamber-area,莫尼恩商会,491,0,true
+451,liptoo-chamber-area,利普图室,492,1,true
+452,weepth-chamber-area,深度室,493,2,true
+453,dilford-chamber-area,迪尔福德商会,494,3,true
+454,scufib-chamber-area,斯库菲布室,495,4,true
+455,rixy-chamber-area,瑞克西室,496,5,true
+456,viapos-chamber-area,维波斯室,497,6,true
+461,ss-anne-area,安妮号,498,11,true
+488,mt-ember-area,余烬山,500,40,true
+489,mt-ember-cave,余烬山（洞穴）,500,41,true
+490,mt-ember-inside,余烬山（内部）,500,42,true
+491,mt-ember-1f-cave-behind-team-rocket,Mount Ember（1层，火箭队后面的洞穴）,500,44,true
+492,mt-ember-b1f,余烬山 (地下1层),500,45,true
+493,mt-ember-b2f,余烬山 (地下2层),500,46,true
+494,mt-ember-b3f,余烬山 (地下3层),500,47,true
+495,berry-forest-area,浆果森林,501,50,true
+496,icefall-cave-entrance,冰瀑布洞（入口）,502,51,true
+497,icefall-cave-1f,冰瀑洞 (1层),502,52,true
+498,icefall-cave-b1f,冰瀑洞 (地下1层),502,53,true
+499,icefall-cave-waterfall,冰瀑布洞（瀑布）,502,54,true
+500,pattern-bush-area,图案布什,503,55,true
+501,lost-cave-room-1,失落的洞穴（1号房间）,504,56,true
+502,lost-cave-room-2,失落的洞穴（2号房间）,504,57,true
+503,lost-cave-room-3,失落的洞穴（3号房间）,504,58,true
+504,lost-cave-room-4,失落的洞穴（4号房间）,504,59,true
+505,lost-cave-room-5,失落的洞穴（5号房间）,504,60,true
+506,lost-cave-room-6,失落的洞穴（6号房间）,504,61,true
+507,lost-cave-room-7,失落的洞穴（7号房间）,504,62,true
+508,lost-cave-room-8,失落的洞穴（8号房间）,504,63,true
+509,lost-cave-room-9,失落的洞穴（9号房间）,504,64,true
+510,lost-cave-room-10,失落的洞穴（10号房间）,504,65,true
+511,lost-cave-item-rooms,失落的洞穴（物品室）,504,66,true
+512,kindle-road-area,Kindle 路,505,70,true
+513,treasure-beach-area,宝藏海滩,506,71,true
+514,cape-brink-area,布林克角,507,72,true
+515,bond-bridge-area,邦德桥,508,73,true
+516,three-isle-port-area,三岛港口,509,74,true
+517,resort-gorgeous-area,度假村华丽,510,75,true
+518,water-labyrinth-area,水迷宫,511,76,true
+519,five-isle-meadow-area,五岛草甸,512,77,true
+520,memorial-pillar-area,纪念柱,513,78,true
+521,outcast-island-area,流放岛,514,79,true
+522,green-path-area,绿色通道,515,80,true
+523,water-path-area,水路,516,81,true
+524,ruin-valley-area,废墟谷,517,82,true
+525,trainer-tower-area,训练塔,518,83,true
+526,canyon-entrance-area,峡谷入口,519,84,true
+527,sevault-canyon-area,塞沃特峡谷,520,85,true
+528,tanoby-ruins-area,塔诺比遗址,521,86,true
+561,one-island-area,一岛,526,120,true
+562,four-island-area,四岛,527,121,true
+563,five-island-area,五岛,528,122,true
+564,kanto-altering-cave-a,改变洞穴 (A),529,123,true
+565,kanto-altering-cave-b,改变洞窟 (B),529,124,true
+566,kanto-altering-cave-c,改变洞穴 (C),529,125,true
+567,kanto-altering-cave-d,改变洞穴 (D),529,126,true
+568,kanto-altering-cave-e,改变洞穴 (E),529,127,true
+569,kanto-altering-cave-f,改变洞穴 (F),529,128,true
+570,kanto-altering-cave-g,改变洞穴 (G),529,129,true
+571,kanto-altering-cave-h,改变洞穴 (H),529,130,true
+572,kanto-altering-cave-i,改变洞穴（一）,529,131,true
+576,striaton-city-area,斯特里亚顿市,348,0,true
+577,driftveil-city-area,漂流城,352,1,true
+578,icirrus-city-area,伊西鲁斯城,354,2,true
+579,dreamyard-area,梦想园,374,3,true
+580,dreamyard-b1f,梦想园（地下1层）,374,4,true
+581,pinwheel-forest-outside,风车森林（外观）,375,5,true
+582,pinwheel-forest-inside,风车森林（内部）,375,6,true
+583,desert-resort-entrance,沙漠度假村（入口）,376,7,true
+584,desert-resort-area,沙漠度假村,376,8,true
+585,relic-castle-a,遗迹城堡 (A),377,9,true
+586,relic-castle-b,遗迹城堡（B）,377,11,true
+587,relic-castle-c,遗迹城堡 (C),377,15,true
+588,relic-castle-d,遗迹城堡 (D),377,30,true
+589,cold-storage-area,冷库,378,40,true
+590,chargestone-cave-1f,充能石洞 (1层),379,41,true
+591,chargestone-cave-b1f,充石洞 (地下1层),379,42,true
+592,chargestone-cave-b2f,充石洞 (地下2层),379,43,true
+593,twist-mountain-b1f-3f,扭曲山,380,44,true
+594,dragonspiral-tower-entrance,龙螺旋塔（入口）,381,48,true
+595,dragonspiral-tower-outside,龙螺旋塔（外观）,381,49,true
+596,dragonspiral-tower-1f,龙旋塔（1层）,381,50,true
+597,dragonspiral-tower-2f,龙螺旋塔（2层）,381,51,true
+598,unova-victory-road-outside,胜利路（外观）,382,52,true
+599,unova-victory-road-unknown-area-53,胜利路（未知53区）,382,53,true
+600,unova-victory-road-unknown-area-54,胜利路（未知54区）,382,54,true
+601,unova-victory-road-unknown-area-55,胜利路（未知55区）,382,55,true
+602,unova-victory-road-4f-middle-room,胜利路(4楼中室),382,56,true
+603,unova-victory-road-unknown-area-57,胜利路（未知57区）,382,57,true
+604,unova-victory-road-1f-unknown-room,胜利路（未知58区）,382,58,true
+605,unova-victory-road-unknown-area-59,胜利路（未知59区）,382,59,true
+606,unova-victory-road-unknown-area-60,胜利路（未知60区）,382,60,true
+607,unova-victory-road-unknown-area-61,胜利路（未知61区）,382,61,true
+608,unova-victory-road-unknown-area-62,胜利路（未知62区）,382,62,true
+609,unova-victory-road-unknown-area-63,胜利路（未知63区）,382,63,true
+610,unova-victory-road-unknown-area-64,胜利路（未知64区）,382,64,true
+611,unova-victory-road-unknown-area-65,胜利路（未知65区）,382,65,true
+612,unova-victory-road-unknown-area-66,胜利路（未知66区）,382,66,true
+613,trial-chamber-area,审判分庭,415,67,true
+614,giant-chasm-outside,巨大的裂缝（外部）,403,68,true
+615,giant-chasm-area,巨大的鸿沟,403,69,true
+616,giant-chasm-forest,巨大的峡谷（森林）,403,70,true
+617,giant-chasm-forest-cave,巨大的峡谷（森林洞穴）,403,71,true
+618,p2-laboratory-area,P2实验室,405,72,true
+619,undella-bay-area,安德拉湾,413,73,true
+620,driftveil-drawbridge-area,飘流吊桥,407,74,true
+621,village-bridge-area,村桥,409,75,true
+622,marvelous-bridge-area,奇妙的桥梁,410,76,true
+623,unova-route-1-area,1号路,356,77,true
+624,unova-route-2-area,2号公路,357,78,true
+625,unova-route-3-area,3号公路,358,79,true
+626,wellspring-cave-area,洞窟区域,395,80,true
+627,unova-route-4-area,4号公路,359,82,true
+628,unova-route-5-area,5号公路,360,83,true
+629,unova-route-6-area,6号路,361,84,true
+630,mistralton-cave-area,米斯特拉尔顿洞穴,396,85,true
+631,guidance-chamber-area,指导室,416,87,true
+632,unova-route-7-area,7号路,362,88,true
+633,celestial-tower-2f,天空塔 (2层),398,89,true
+634,celestial-tower-3f,天空塔 (3层),398,90,true
+635,celestial-tower-4f,天空塔 (4层),398,91,true
+636,celestial-tower-5f,天空塔 (5层),398,92,true
+637,unova-route-8-area,8号路,363,93,true
+638,moor-of-icirrus-area,伊西洛斯的摩尔,399,94,true
+639,unova-route-9-area,9号路,364,95,true
+640,challengers-cave-1f,挑战者洞窟（1层）,401,96,true
+641,challengers-cave-b1f,挑战者洞窟（地下1层）,401,97,true
+642,challengers-cave-b2f,挑战者洞窟（地下2层）,401,98,true
+643,unova-route-10-area,10号路,365,99,true
+644,unova-route-10-victory-road-gate,10号路（胜利路门口）,365,100,true
+645,unova-route-11-area,11号路,366,101,true
+646,unova-route-12-area,12号路,367,102,true
+647,unova-route-13-area,13号路,368,103,true
+648,unova-route-14-area,14号路,369,104,true
+649,abundant-shrine-area,丰富的神社,412,105,true
+650,unova-route-15-area,15号路,370,106,true
+651,unova-route-16-area,16号路,371,107,true
+652,lostlorn-forest-area,失落森林,414,108,true
+653,unova-route-18-area,18号路,373,109,true
+654,undella-town-area,安德拉镇,384,110,true
+655,unova-route-17-area,17号路,372,111,true
+656,castelia-city-area,卡斯特利亚市,350,1,true
+657,aspertia-city-area,阿斯佩蒂亚市,531,3,true
+658,virbank-city-area,维尔班克市,532,4,true
+659,humilau-city-area,胡米劳市,533,5,true
+660,unova-victory-road-7f,胜利路(7楼),382,31,true
+661,unova-victory-road-2-unknown-area-71,胜利路2号（未知71区）,548,71,true
+662,unova-victory-road-2-unknown-area-72,胜利路2号（未知72区）,548,72,true
+663,unova-victory-road-2-unknown-area-73,胜利路2号（未知73区）,548,73,true
+664,unova-victory-road-2-unknown-area-74,胜利路2号（未知74区）,548,74,true
+665,unova-victory-road-2-unknown-area-75,胜利路2号（未知75区）,548,75,true
+666,unova-victory-road-2-unknown-area-76,胜利路2号（未知76区）,548,76,true
+667,unova-victory-road-2-unknown-area-77,胜利路2号（未知77区）,548,77,true
+668,unova-victory-road-2-unknown-area-78,胜利路2号（未知78区）,548,78,true
+669,unova-victory-road-2-unknown-area-79,胜利路2号（未知79区）,548,79,true
+670,unova-victory-road-2-unknown-area-80,胜利路2号（未知80区）,548,80,true
+671,castelia-sewers-area,卡斯特利亚下水道,543,37,true
+672,castelia-sewers-unknown-area-38,卡斯特利亚下水道（未知区域38）,543,38,true
+673,floccesy-ranch-outer,絮状牧场（外）,544,44,true
+674,floccesy-ranch-inner,絮状牧场（内）,544,45,true
+675,virbank-complex-outer,Virbank 综合大楼（外）,545,46,true
+676,virbank-complex-inner,Virbank 综合大楼（内部）,545,47,true
+677,reversal-mountain-unknown-area-48,逆转山（未知区48）,546,48,true
+678,reversal-mountain-unknown-area-49,逆转山（未知区49）,546,49,true
+679,reversal-mountain-unknown-area-50,反转山（未知区域50）,546,50,true
+680,reversal-mountain-unknown-area-51,逆转山（未知51区）,546,51,true
+681,reversal-mountain-unknown-area-52,逆转山（未知52区）,546,52,true
+682,reversal-mountain-unknown-area-53,逆转山（未知53区）,546,53,true
+683,reversal-mountain-unknown-area-54,逆转山（未知54区）,546,54,true
+684,reversal-mountain-unknown-area-55,逆转山（未知55区）,546,55,true
+685,reversal-mountain-unknown-area-56,逆转山（未知56区）,546,56,true
+686,reversal-mountain-unknown-area-57,逆转山（未知57区）,546,57,true
+687,reversal-mountain-unknown-area-58,逆转山（未知58区）,546,58,true
+688,reversal-mountain-unknown-area-59,逆转山（未知59区）,546,59,true
+689,reversal-mountain-unknown-area-60,逆转山（未知60区）,546,60,true
+690,strange-house-1f,奇怪的房子（1层）,547,61,true
+691,strange-house-b1f,奇怪的房子（地下1层）,547,65,true
+692,relic-passage-castelia-sewers-entrance,遗迹隧道（卡斯特利亚下水道入口）,550,81,true
+693,relic-passage-relic-castle-entrance,遗迹隧道（遗迹城堡入口）,550,82,true
+694,relic-passage-pwt-entrance,遗迹隧道（PWT 入口）,550,83,true
+695,clay-tunnel-area,粘土隧道,551,84,true
+696,underground-ruins-area,地下遗迹,562,87,true
+697,rocky-mountain-room-area,落基山房,563,90,true
+698,glacier-room-area,冰川房,564,91,true
+699,iron-room-area,铁房,565,92,true
+700,seaside-cave-1f,海边洞窟（1层）,554,93,true
+701,seaside-cave-b1f,海边洞窟（地下1层）,554,94,true
+702,nature-sanctuary-area,自然保护区,560,95,true
+703,unova-route-19-area,19号路,538,128,true
+704,unova-route-20-area,20号公路,539,129,true
+705,unova-route-22-area,22号路,541,130,true
+706,unova-route-23-area,23号路,542,131,true
+707,unova-route-21-area,21号路,540,134,true
+708,couriway-town-area,库里威镇,646,0,true
+709,ambrette-town-area,安布雷特镇,614,0,true
+710,cyllage-city-area,赛利吉城,611,0,true
+711,shalour-city-area,夏洛尔城,624,0,true
+712,laverre-city-area,拉维尔市,633,0,true
+713,kalos-route-2-area,2号公路,591,0,true
+714,kalos-route-3-area,3号公路,594,0,true
+715,kalos-route-4-area,4号公路,597,0,true
+716,kalos-route-5-area,5号公路,602,0,true
+717,kalos-route-6-area,6号路,606,0,true
+718,kalos-route-7-area,7号路,609,0,true
+719,kalos-route-8-area,8号路,612,0,true
+720,kalos-route-9-area,9号路,615,0,true
+721,kalos-route-10-area,10号路,618,0,true
+722,kalos-route-11-area,11号路,621,0,true
+723,kalos-route-12-area,12号路,626,0,true
+724,kalos-route-13-area,13号路,629,0,true
+725,kalos-route-14-area,14号路,631,0,true
+726,kalos-route-15-area,15号路,635,0,true
+727,kalos-route-16-area,16号路,638,0,true
+728,kalos-route-17-area,17号路,641,0,true
+729,kalos-route-18-area,18号路,644,0,true
+730,kalos-route-19-area,19号路,647,0,true
+731,kalos-route-20-area,20号公路,650,0,true
+732,kalos-route-21-area,21号路,653,0,true
+733,kalos-route-22-area,22号路,655,0,true
+734,santalune-forest-area,檀香森林,593,0,true
+735,parfum-palace-area,香水宫,608,0,true
+736,glittering-cave-unknown-area-303,洞窟区域303区域,671,0,true
+737,glittering-cave-unknown-area-304,闪闪发光的洞穴（未知区304）,671,0,true
+738,reflection-cave-unknown-area-305,倒影洞（未知区305）,623,0,true
+739,reflection-cave-unknown-area-306,倒影洞（未知区306）,623,0,true
+740,reflection-cave-unknown-area-307,倒影洞（未知区307）,623,0,true
+741,reflection-cave-unknown-area-308,倒影洞（未知区308）,623,0,true
+742,frost-cavern-unknown-area-313,冰霜洞窟（未知区313）,640,0,true
+743,frost-cavern-unknown-area-314,冰霜洞窟（未知区314）,640,0,true
+744,frost-cavern-unknown-area-315,冰霜洞窟（未知区315）,640,0,true
+745,frost-cavern-unknown-area-316,冰霜洞窟（未知区316）,640,0,true
+746,frost-cavern-unknown-area-317,冰霜洞窟（未知区317）,640,0,true
+747,pokemon-village-area,生物村,652,0,true
+748,kalos-victory-road-unknown-area-322,胜利路（未知322区）,657,0,true
+749,kalos-victory-road-unknown-area-324,胜利路（未知324区）,657,0,true
+750,kalos-victory-road-unknown-area-326,胜利路（未知326区）,657,0,true
+751,kalos-victory-road-outside,胜利路（未知327区）,657,0,true
+752,kalos-victory-road-unknown-area-328,胜利路（未知328区）,657,0,true
+753,connecting-cave-area,连接洞,672,0,true
+754,terminus-cave-1f,终点洞窟（1层）,676,0,true
+755,terminus-cave-b1f-left,终点洞窟（地下1层左）,676,0,true
+756,terminus-cave-b1f-right,终点洞窟（地下1层右）,676,0,true
+757,terminus-cave-b2f,终点洞窟（地下2层）,676,0,true
+758,terminus-cave-zygardes-chamber,终点站洞穴（齐加德的密室）,676,0,true
+759,lost-hotel-area,迷失酒店,677,0,true
+760,azure-bay-area,蔚蓝湾,661,0,true
+761,kanto-route-4-pokemon-center,生物中心（4号路）,120,0,true
+762,saffron-city-fighting-dojo,格斗道场,234,0,true
+763,celadon-city-celadon-mansion,青瓷府屋顶,67,0,true
+764,saffron-city-silph-co-7f,西尔夫公司7层,234,0,true
+765,goldenrod-city-north-gate,一金城（北门）,229,0,true
+766,goldenrod-city-bills-house,满金城（比尔的家）,229,0,true
+767,cianwood-city-manias-house,Cianwood City（马尼亚的房子）,70,0,true
+768,hoenn-route-119-weather-institute,气象研究所（119路）,467,0,true
+769,mossdeep-city-stevens-house,莫斯迪普城（史蒂文的房子）,432,0,true
+770,littleroot-town-area,利特尔鲁特镇,567,0,true
+771,hearthome-city-area,心家城,169,0,true
+772,veilstone-city-area,面纱城,170,0,true
+773,cianwood-city-kirks-house,锡安伍德城（柯克的房子）,70,0,true
+774,nuvema-town-area,努韦马镇,346,0,true
+775,castelia-city-game-freak-hq-1f,Game Freak HQ 1层 (卡斯特利亚市),350,0,true
+776,unova-route-6-weather-institute,气象研究所（6号路）,361,0,true
+777,floccesy-town-area,絮镇,536,0,true
+778,aquacorde-town-area,阿奎科德镇,590,0,true
+779,lumiose-city-area,卢米奥塞城,599,0,true
+780,tower-of-mastery-area,精通之塔,625,0,true
+781,slateport-city-contest-hall,比赛大厅（斯莱特波特城）,430,0,true
+782,verdanturf-town-contest-hall,比赛大厅（Verdanturf 镇）,571,0,true
+783,fallarbor-town-contest-hall,比赛大厅（法拉伯镇）,570,0,true
+784,lilycove-city-contest-hall,竞赛厅（Lilycove City）,431,0,true
+785,southern-island-area,南岛,578,0,true
+786,battle-resort-area,对战度假村,695,0,true
+787,lavaridge-town-area,拉瓦里奇镇,569,0,true
+788,eterna-city-west-gate,绮年华城（西门）,2,0,true
+789,hearthome-city-west-gate,心家城（西门）,169,0,true
+790,violet-city-poke-mart,紫罗兰城(Poke Mart),153,0,true
+791,violet-city-pokemon-center,紫罗兰城（生物中心）,153,0,true
+792,nacrene-city-west-gate,纳克林城（西门）,349,0,true
+793,bell-tower-roof,钟楼（屋顶）,139,0,true
+794,roaming-kanto-area,漫游关东,799,0,true
+795,roaming-johto-area,城都漫步,800,0,true
+796,roaming-hoenn-area,漫游丰缘,801,0,true
+797,roaming-sinnoh-area,漫游神奥,802,0,true
+798,azalea-town-area,杜鹃花镇,228,0,true
+800,mahogany-town-area,桃花心木城,230,0,true
+801,cave-of-origin-b4f,起源之洞 (地下4层),443,0,true
+802,terra-cave-area,泰拉洞穴,803,0,true
+803,marine-cave-area,海洋洞穴,804,0,true
+804,sky-pillar-apex,天柱顶端,448,0,true
+805,bell-tower-1f,钟楼 (1层),139,0,true
+806,birth-island-area,出生岛,810,0,true
+807,navel-rock-area,肚脐岩,811,0,true
+808,faraway-island-area,遥远的岛屿,812,0,true
+809,hoenn-battle-frontier-area,丰缘战场边境,813,0,true
+810,desert-ruins-area,沙漠遗迹,582,0,true
+811,island-cave-area,岛洞,581,0,true
+812,ancient-tomb-area,古墓,583,0,true
+813,johto-safari-zone-zone-peak,狩猎地带高峰,814,0,true
+814,johto-safari-zone-zone-desert,野生动物园区 沙漠,814,0,true
+815,johto-safari-zone-zone-plains,野生动物园区平原,814,0,true
+816,johto-safari-zone-zone-meadow,野生动物园区草甸,814,0,true
+817,johto-safari-zone-zone-forest,狩猎地带森林,814,0,true
+818,johto-safari-zone-zone-swamp,野生动物园区沼泽,814,0,true
+819,johto-safari-zone-zone-marshland,野生动物园区沼泽地,814,0,true
+820,johto-safari-zone-zone-mountain,野生动物园区山,814,0,true
+821,johto-safari-zone-zone-rocky-beach,落基海滩野生动物园区,814,0,true
+822,johto-safari-zone-zone-wasteland,野生动物园区荒地,814,0,true
+823,johto-safari-zone-zone-savannah,萨凡纳野生动物园区,814,0,true
+824,johto-safari-zone-zone-wetland,狩猎地带湿地,814,0,true
+825,mt-ember-summit,余烬山山顶,500,0,true
+826,embedded-tower-kyogre-room,嵌入塔（盖欧卡的房间）,248,0,true
+827,embedded-tower-groundon-room,嵌入塔（固拉多的房间）,248,0,true
+828,embedded-tower-rayquaza-room,嵌入式塔（Rayquaza 的房间）,248,0,true
+829,lake-acuity-cavern,敏锐湖洞穴,28,0,true
+830,lake-valor-cavern,勇敢湖洞穴,27,0,true
+831,spear-pillar-area,矛柱,172,0,true
+832,kanto-route-3-pokemon-center,生物中心（3号路）,109,0,true
+833,cinnabar-island-cinnabar-lab,朱砂实验室（朱砂岛）,71,0,true
+834,rustboro-city-area,鲁斯特伯勒市,573,0,true
+835,saffron-city-silph-co,西尔夫公司,234,0,true
+836,cianwood-city-pokemon-center,生物中心（Cianwood City）,70,0,true
+837,stark-mountain-heatran-chamber,斯塔克山（Heatran 室）,16,0,true
+838,newmoon-island-area,新月岛,183,0,true
+839,flower-paradise-area,花之乐园,179,0,true
+840,sinnoh-hall-of-origin-1-area,起源大厅,188,0,true
+841,team-rocket-hq-area,火箭队总部,237,0,true
+842,sinjoh-ruins-area,新城遗址,247,0,true
+843,galar-route-1-area,道路1,868,0,true
+844,galar-route-2-main,道路2,869,0,true
+845,galar-route-3-east,3号线（东）,870,0,true
+847,galar-route-4-area,4号公路,871,0,true
+848,galar-route-5-area,5号公路,872,0,true
+849,galar-route-6-area,6号公路,873,0,true
 850,galar-route-7-area,伽勒尔route7area,874,0,true
 851,galar-route-8-main,伽勒尔route8main,875,0,true
 852,galar-route-8-steamdrift-way,伽勒尔route8steamdriftway,875,0,true
@@ -737,183 +737,183 @@ id,code,name,location_id,game_index,enabled
 855,galar-route-9-outer-spikemouth,伽勒尔route9outerspikemouth,876,0,true
 856,galar-route-10-main,伽勒尔route10main,877,0,true
 857,galar-route-10-near-station,伽勒尔route10nearstation,877,0,true
-858,axews-eye-area,axews eye area,878,0,true
-859,ballimere-lake-area,ballimere lake area,879,0,true
-860,ballonlea-area,ballonlea area,880,0,true
-861,battle-tower-area,battle tower area,881,0,true
+858,axews-eye-area,轴眼区域,878,0,true
+859,ballimere-lake-area,巴利米尔湖地区,879,0,true
+860,ballonlea-area,巴隆利区,880,0,true
+861,battle-tower-area,战斗塔区,881,0,true
 862,brawlers-cave-area,brawlers洞窟area,882,0,true
-863,bridge-field-area,bridge field area,883,0,true
-864,challenge-beach-main,challenge beach main,884,0,true
-865,challenge-beach-ocean,challenge beach ocean,884,0,true
-866,challenge-beach-river,challenge beach river,884,0,true
-867,challenge-beach-beach,challenge beach beach,884,0,true
-868,challenge-road-area,challenge road area,885,0,true
-869,circhester-area,circhester area,886,0,true
-870,courageous-cavern-area,courageous cavern area,887,0,true
-871,crown-shrine-area,crown shrine area,888,0,true
-872,dappled-grove-area,dappled grove area,889,0,true
-873,dusty-bowl-area,dusty bowl area,890,0,true
-874,dyna-tree-hill-area,dyna tree hill area,891,0,true
-875,east-lake-axewell-area,east lake axewell area,892,0,true
-876,fields-of-honor-main,fields of honor main,893,0,true
-877,fields-of-honor-beach,fields of honor beach,893,0,true
+863,bridge-field-area,桥场区,883,0,true
+864,challenge-beach-main,挑战海滩主要,884,0,true
+865,challenge-beach-ocean,挑战海滩海洋,884,0,true
+866,challenge-beach-river,挑战海滩河,884,0,true
+867,challenge-beach-beach,挑战海滩 海滩,884,0,true
+868,challenge-road-area,挑战路段,885,0,true
+869,circhester-area,瑟切斯特地区,886,0,true
+870,courageous-cavern-area,勇敢的洞穴区,887,0,true
+871,crown-shrine-area,皇冠神社区,888,0,true
+872,dappled-grove-area,斑驳的树林区,889,0,true
+873,dusty-bowl-area,尘土飞扬的碗区,890,0,true
+874,dyna-tree-hill-area,迪纳树山地区,891,0,true
+875,east-lake-axewell-area,东湖阿克斯韦尔地区,892,0,true
+876,fields-of-honor-main,荣誉领域 主要,893,0,true
+877,fields-of-honor-beach,荣誉田野海滩,893,0,true
 878,forest-of-focus-area,森林offocusarea,894,0,true
-879,freezington-area,freezington area,895,0,true
-880,frigid-sea-area,frigid sea area,896,0,true
-881,frostpoint-field-area,frostpoint field area,897,0,true
-882,galar-mine-area,Galar Mine,898,0,true
-883,galar-mine-no-2-area,Galar Mine No. 2,899,0,true
-884,giants-bed-area,giants bed area,900,0,true
-885,giants-cap-main,giants cap main,1041,0,true
-886,giants-cap-2,giants cap 2,1041,0,true
-887,giants-cap-3,giants cap 3,1041,0,true
-888,giants-foot-area,giants foot area,901,0,true
-889,giants-mirror-area,giants mirror area,902,0,true
-890,giants-seat-area,giants seat area,903,0,true
-891,glimwood-tangle-area,Glimwood Tangle,904,0,true
-892,hammerlocke-area,hammerlocke area,905,0,true
-893,hammerlocke-hills-area,hammerlocke hills area,906,0,true
-894,honeycalm-island-area,honeycalm island area,907,0,true
-895,honeycalm-sea-area,honeycalm sea area,908,0,true
-896,hulbury-area,Hulbury,909,0,true
+879,freezington-area,弗利宁顿地区,895,0,true
+880,frigid-sea-area,寒冷海域,896,0,true
+881,frostpoint-field-area,霜点场面积,897,0,true
+882,galar-mine-area,伽勒尔矿山,898,0,true
+883,galar-mine-no-2-area,伽勒尔第二矿山,899,0,true
+884,giants-bed-area,巨人床区,900,0,true
+885,giants-cap-main,巨人帽主要,1041,0,true
+886,giants-cap-2,巨人帽2,1041,0,true
+887,giants-cap-3,巨人帽3,1041,0,true
+888,giants-foot-area,巨人脚区,901,0,true
+889,giants-mirror-area,巨人镜区,902,0,true
+890,giants-seat-area,巨人队座位区,903,0,true
+891,glimwood-tangle-area,格林伍德缠结,904,0,true
+892,hammerlocke-area,哈默洛克地区,905,0,true
+893,hammerlocke-hills-area,哈默洛克丘陵地区,906,0,true
+894,honeycalm-island-area,蜜平静岛地区,907,0,true
+895,honeycalm-sea-area,蜂蜜般平静的海域,908,0,true
+896,hulbury-area,赫尔伯里,909,0,true
 897,galar-iceberg-ruins-area,伽勒尔icebergruinsarea,910,0,true
-898,insular-sea-area,insular sea area,911,0,true
+898,insular-sea-area,岛屿海域,911,0,true
 899,galar-iron-ruins-area,伽勒尔ironruinsarea,912,0,true
-900,lake-of-outrage-area,lake of outrage area,913,0,true
+900,lake-of-outrage-area,愤怒区湖,913,0,true
 901,lakeside-cave-area,lakeside洞窟area,914,0,true
-902,loop-lagoon-main,loop lagoon main,915,0,true
-903,loop-lagoon-beach,loop lagoon beach,915,0,true
-904,master-dojo-area,master dojo area,916,0,true
-905,max-lair-area,max lair area,917,0,true
-906,motostoke-main,Motostoke,918,0,true
-907,motostoke-outskirts-area,Motostoke Outskirts,919,0,true
-908,motostoke-riverbank-area,motostoke riverbank area,920,0,true
-909,north-lake-miloch-area,north lake miloch area,921,0,true
-910,old-cemetery-area,old cemetery area,922,0,true
-911,path-to-the-peak-area,path to the peak area,923,0,true
-912,postwick-area,postwick area,924,0,true
-913,potbottom-desert-area,potbottom desert area,925,0,true
-914,roaring-sea-caves-area,roaring sea caves area,926,0,true
+902,loop-lagoon-main,主环礁湖,915,0,true
+903,loop-lagoon-beach,环礁湖海滩,915,0,true
+904,master-dojo-area,大师道场区,916,0,true
+905,max-lair-area,最大巢穴面积,917,0,true
+906,motostoke-main,摩托斯托克,918,0,true
+907,motostoke-outskirts-area,莫托斯托克郊区,919,0,true
+908,motostoke-riverbank-area,莫托斯托克河岸地区,920,0,true
+909,north-lake-miloch-area,北米洛赫湖地区,921,0,true
+910,old-cemetery-area,老墓地区,922,0,true
+911,path-to-the-peak-area,到达峰区的路径,923,0,true
+912,postwick-area,波斯特威克地区,924,0,true
+913,potbottom-desert-area,盆底沙漠地区,925,0,true
+914,roaring-sea-caves-area,咆哮海洞区,926,0,true
 915,galar-rock-peak-ruins-area,伽勒尔rockpeakruinsarea,927,0,true
-916,rolling-fields-main,rolling fields main,928,0,true
-917,rolling-fields-2,rolling fields 2,928,0,true
-918,slippery-slope-area,slippery slope area,929,0,true
-919,slumbering-weald-area,slumbering weald area,930,0,true
-920,snowslide-slope-area,snowslide slope area,931,0,true
-921,soothing-wetlands-area,soothing wetlands area,932,0,true
-922,south-lake-miloch-main,south lake miloch main,933,0,true
-923,south-lake-miloch-2,south lake miloch 2,933,0,true
-924,spikemuth-area,spikemuth area,934,0,true
-925,split-decision-ruins-area,split decision ruins area,935,0,true
-926,steamdrift-way-area,steamdrift way area,936,0,true
-927,stepping-stone-sea-main,stepping stone sea main,937,0,true
-928,stepping-stone-sea-2,stepping stone sea 2,937,0,true
-929,stony-wilderness-main,stony wilderness main,938,0,true
-930,stony-wilderness-2,stony wilderness 2,938,0,true
-931,stony-wilderness-3,stony wilderness 3,938,0,true
-932,stow-on-side-area,stow on side area,939,0,true
-933,three-point-pass-area,three point pass area,940,0,true
-934,tower-of-darkness-area,tower of darkness area,941,0,true
-935,tower-of-waters-area,tower of waters area,942,0,true
-936,training-lowlands-main,training lowlands main,943,0,true
-937,training-lowlands-beach,training lowlands beach,943,0,true
-938,tunnel-to-the-top-area,tunnel to the top area,944,0,true
-939,turffield-area,Turffield,945,0,true
+916,rolling-fields-main,滚动场主要,928,0,true
+917,rolling-fields-2,连绵起伏的田野 2,928,0,true
+918,slippery-slope-area,滑坡区,929,0,true
+919,slumbering-weald-area,沉睡的森林区域,930,0,true
+920,snowslide-slope-area,雪崩斜坡区,931,0,true
+921,soothing-wetlands-area,舒缓湿地区域,932,0,true
+922,south-lake-miloch-main,南米洛赫美因湖,933,0,true
+923,south-lake-miloch-2,南湖米洛赫 2,933,0,true
+924,spikemuth-area,斯派穆特区,934,0,true
+925,split-decision-ruins-area,分裂决定废墟区域,935,0,true
+926,steamdrift-way-area,蒸汽漂流路区域,936,0,true
+927,stepping-stone-sea-main,海主踏脚石,937,0,true
+928,stepping-stone-sea-2,踏脚石海2,937,0,true
+929,stony-wilderness-main,石质荒野主要,938,0,true
+930,stony-wilderness-2,石质荒野2,938,0,true
+931,stony-wilderness-3,石质荒野 3,938,0,true
+932,stow-on-side-area,存放在侧面区域,939,0,true
+933,three-point-pass-area,三分传球区,940,0,true
+934,tower-of-darkness-area,黑暗之塔区域,941,0,true
+935,tower-of-waters-area,水塔区,942,0,true
+936,training-lowlands-main,训练低地主要,943,0,true
+937,training-lowlands-beach,训练低地海滩,943,0,true
+938,tunnel-to-the-top-area,通往顶部区域的隧道,944,0,true
+939,turffield-area,特菲尔德,945,0,true
 940,warm-up-tunnel-area,warm提升tunnelarea,946,0,true
-941,watchtower-ruins-area,watchtower ruins area,947,0,true
-942,wedgehurst-area,Wegehurst,948,0,true
-943,west-lake-axewell-area,west lake axewell area,949,0,true
-944,workout-sea-area,workout sea area,950,0,true
-945,wyndon-area,wyndon area,951,0,true
-946,aipom-hill-area,aipom hill area,952,0,true
-947,ancient-quarry-area,ancient quarry area,953,0,true
-948,arenas-approach-area,arenas approach area,954,0,true
-949,aspiration-hill-area,aspiration hill area,955,0,true
-950,avalanche-slopes-area,avalanche slopes area,956,0,true
-951,avaluggs-legacy-area,avaluggs legacy area,957,0,true
-952,bathers-lagoon-area,bathers lagoon area,958,0,true
-953,bolderoll-ravine-area,bolderoll ravine area,959,0,true
-954,bolderoll-slope-area,bolderoll slope area,960,0,true
-955,bonechill-wastes-area,bonechill wastes area,961,0,true
-956,brava-arena-area,brava arena area,962,0,true
-957,castaway-shore-area,castaway shore area,963,0,true
-958,celestica-ruins-area,celestica ruins area,964,0,true
-959,celestica-trail-area,celestica trail area,965,0,true
-960,clamberclaw-cliffs-area,clamberclaw cliffs area,966,0,true
-961,cloudcap-pass-area,cloudcap pass area,967,0,true
-962,cloudpool-ridge-area,cloudpool ridge area,968,0,true
-963,coastlands-camp-area,coastlands camp area,969,0,true
-964,cottonsedge-prairie-area,cottonsedge prairie area,970,0,true
-965,crossing-slope-area,crossing slope area,971,0,true
-966,deadwood-haunt-area,deadwood haunt area,972,0,true
-967,deertrack-heights-area,deertrack heights area,973,0,true
-968,deertrack-path-area,deertrack path area,974,0,true
+941,watchtower-ruins-area,了望塔遗址区,947,0,true
+942,wedgehurst-area,韦格赫斯特,948,0,true
+943,west-lake-axewell-area,西湖阿克斯韦尔地区,949,0,true
+944,workout-sea-area,锻炼海域,950,0,true
+945,wyndon-area,温登地区,951,0,true
+946,aipom-hill-area,艾波姆山区,952,0,true
+947,ancient-quarry-area,古采石场区,953,0,true
+948,arenas-approach-area,竞技场进场区,954,0,true
+949,aspiration-hill-area,愿望山地区,955,0,true
+950,avalanche-slopes-area,雪崩斜坡区,956,0,true
+951,avaluggs-legacy-area,avaluggs遗留区域,957,0,true
+952,bathers-lagoon-area,沐浴者泻湖区,958,0,true
+953,bolderoll-ravine-area,博尔德罗尔峡谷地区,959,0,true
+954,bolderoll-slope-area,博尔德罗尔斜坡区,960,0,true
+955,bonechill-wastes-area,骨冷废物区,961,0,true
+956,brava-arena-area,布拉瓦竞技场区域,962,0,true
+957,castaway-shore-area,被遗弃的海岸地区,963,0,true
+958,celestica-ruins-area,天穹遗迹区,964,0,true
+959,celestica-trail-area,天弘步道区域,965,0,true
+960,clamberclaw-cliffs-area,攀缘爪悬崖地区,966,0,true
+961,cloudcap-pass-area,云顶通行证区域,967,0,true
+962,cloudpool-ridge-area,云池山脊区域,968,0,true
+963,coastlands-camp-area,海岸营地区,969,0,true
+964,cottonsedge-prairie-area,棉莎草原地区,970,0,true
+965,crossing-slope-area,穿越斜坡面积,971,0,true
+966,deadwood-haunt-area,朽木出没区,972,0,true
+967,deertrack-heights-area,鹿轨高地地区,973,0,true
+968,deertrack-path-area,鹿踪路径区域,974,0,true
 969,diamond-heath-area,钻石heatharea,975,0,true
 970,diamond-settlement-area,钻石settlementarea,976,0,true
-971,droning-meadow-area,droning meadow area,977,0,true
-972,fabled-spring-area,fabled spring area,978,0,true
-973,firespit-island-area,firespit island area,979,0,true
-974,floaro-gardens-area,floaro gardens area,980,0,true
-975,gapejaw-bog-area,gapejaw bog area,981,0,true
-976,ginkgo-landing-area,ginkgo landing area,982,0,true
-977,glacier-terrace-area,glacier terrace area,983,0,true
-978,golden-lowlands-area,golden lowlands area,984,0,true
-979,grandtree-arena-area,grandtree arena area,985,0,true
-980,grueling-grove-area,grueling grove area,986,0,true
-981,hearts-crag-area,hearts crag area,987,0,true
-982,heavenward-lookout-area,heavenward lookout area,988,0,true
-983,heights-camp-area,heights camp area,989,0,true
-984,hideaway-bay-area,hideaway bay area,990,0,true
-985,holm-of-trials-area,holm of trials area,991,0,true
-986,horseshoe-plains-area,horseshoe plains area,992,0,true
-987,ice-column-chamber-area,ice column chamber area,993,0,true
-988,icebound-falls-area,icebound falls area,994,0,true
-989,icepeak-arena-area,icepeak arena area,995,0,true
-990,icepeak-cavern-area,icepeak cavern area,996,0,true
-991,islespy-shore-area,islespy shore area,997,0,true
-992,jubilife-village-area,jubilife village area,998,0,true
-993,hisui-lake-acuity-area,hisui lake acuity area,999,0,true
-994,hisui-lake-valor-area,hisui lake valor area,1000,0,true
-995,hisui-lake-verity-area,hisui lake verity area,1001,0,true
-996,lonely-spring-area,lonely spring area,1002,0,true
-997,lunkers-lair-area,lunkers lair area,1003,0,true
-998,molten-arena-area,molten arena area,1004,0,true
-999,moonview-arena-area,moonview arena area,1005,0,true
-1000,natures-pantry-area,natures pantry area,1006,0,true
-1001,obsidian-falls-area,obsidian falls area,1007,0,true
-1002,oreburrow-tunnel-area,oreburrow tunnel area,1008,0,true
+971,droning-meadow-area,嗡嗡草甸地区,977,0,true
+972,fabled-spring-area,传说中的泉水区,978,0,true
+973,firespit-island-area,火嘴岛地区,979,0,true
+974,floaro-gardens-area,弗洛阿罗花园区,980,0,true
+975,gapejaw-bog-area,张嘴沼泽区,981,0,true
+976,ginkgo-landing-area,银杏登陆区,982,0,true
+977,glacier-terrace-area,冰川台地区,983,0,true
+978,golden-lowlands-area,黄金低地地区,984,0,true
+979,grandtree-arena-area,格兰德树竞技场区域,985,0,true
+980,grueling-grove-area,艰苦的树林地区,986,0,true
+981,hearts-crag-area,红心岩区域,987,0,true
+982,heavenward-lookout-area,天堂观景区,988,0,true
+983,heights-camp-area,高地营地区,989,0,true
+984,hideaway-bay-area,世外桃源湾区,990,0,true
+985,holm-of-trials-area,试验区霍尔姆,991,0,true
+986,horseshoe-plains-area,马蹄平原地区,992,0,true
+987,ice-column-chamber-area,冰柱室面积,993,0,true
+988,icebound-falls-area,冰封瀑布区,994,0,true
+989,icepeak-arena-area,冰峰竞技场区域,995,0,true
+990,icepeak-cavern-area,冰峰洞穴区,996,0,true
+991,islespy-shore-area,岛屿海岸地区,997,0,true
+992,jubilife-village-area,欢乐村地区,998,0,true
+993,hisui-lake-acuity-area,翡翠湖敏锐区,999,0,true
+994,hisui-lake-valor-area,翡翠湖勇气区,1000,0,true
+995,hisui-lake-verity-area,翡翠湖真域地区,1001,0,true
+996,lonely-spring-area,孤独的泉域,1002,0,true
+997,lunkers-lair-area,伦克斯巢穴区域,1003,0,true
+998,molten-arena-area,熔融竞技场区域,1004,0,true
+999,moonview-arena-area,月景竞技场区域,1005,0,true
+1000,natures-pantry-area,自然食品储藏室区,1006,0,true
+1001,obsidian-falls-area,黑曜石瀑布地区,1007,0,true
+1002,oreburrow-tunnel-area,矿洞区,1008,0,true
 1003,pearl-settlement-area,珍珠settlementarea,1009,0,true
-1004,primeval-grotto-area,primeval grotto area,1010,0,true
-1005,ramanas-island-area,ramanas island area,1011,0,true
-1006,sacred-plaza-area,sacred plaza area,1012,0,true
-1007,sands-reach-area,sands reach area,1013,0,true
-1008,sandgem-flats-area,sandgem flats area,1014,0,true
+1004,primeval-grotto-area,原始石窟区,1010,0,true
+1005,ramanas-island-area,拉马纳斯岛地区,1011,0,true
+1006,sacred-plaza-area,神圣广场地区,1012,0,true
+1007,sands-reach-area,沙到达区,1013,0,true
+1008,sandgem-flats-area,沙宝石平原地区,1014,0,true
 1009,scarlet-bog-area,朱bogarea,1015,0,true
-1010,seagrass-haven-area,seagrass haven area,1016,0,true
-1011,seaside-hollow-area,seaside hollow area,1017,0,true
-1012,shrouded-ruins-area,shrouded ruins area,1018,0,true
-1013,sludge-mound-area,sludge mound area,1019,0,true
-1014,snowfall-hot-spring-area,snowfall hot spring area,1020,0,true
-1015,hisui-snowpoint-temple-area,hisui snowpoint temple area,1021,0,true
-1016,hisui-solaceon-ruins-area,hisui solaceon ruins area,1022,0,true
-1017,sonorous-path-area,sonorous path area,1023,0,true
-1018,space-time-distortion-area,space time distortion area,1024,0,true
-1019,hisui-spring-path-area,hisui spring path area,1025,0,true
-1020,stonetooth-rows-area,stonetooth rows area,1026,0,true
+1010,seagrass-haven-area,海草避风港区,1016,0,true
+1011,seaside-hollow-area,海边空地,1017,0,true
+1012,shrouded-ruins-area,废墟笼罩区域,1018,0,true
+1013,sludge-mound-area,污泥堆面积,1019,0,true
+1014,snowfall-hot-spring-area,降雪温泉区,1020,0,true
+1015,hisui-snowpoint-temple-area,翡翠雪点寺地区,1021,0,true
+1016,hisui-solaceon-ruins-area,翡翠安慰遗址地区,1022,0,true
+1017,sonorous-path-area,响亮路径区域,1023,0,true
+1018,space-time-distortion-area,时空扭曲区域,1024,0,true
+1019,hisui-spring-path-area,翡翠泉道区域,1025,0,true
+1020,stonetooth-rows-area,石齿行区域,1026,0,true
 1021,temple-of-sinnoh-area,templeof神奥area,1027,0,true
-1022,the-heartwood-area,the heartwood area,1028,0,true
-1023,tidewater-dam-area,tidewater dam area,1029,0,true
+1022,the-heartwood-area,心材区,1028,0,true
+1023,tidewater-dam-area,潮水坝区,1029,0,true
 1024,tombolo-walk-area,tombolo行走area,1030,0,true
-1025,tranquility-cove-area,tranquility cove area,1031,0,true
-1026,hisui-turnback-cave-area,hisuiturnback洞窟area,1032,0,true
-1027,ursas-ring-area,ursas ring area,1033,0,true
-1028,veilstone-cape-area,veilstone cape area,1034,0,true
+1025,tranquility-cove-area,宁静湾区,1031,0,true
+1026,hisui-turnback-cave-area,hisui回合back洞窟area,1032,0,true
+1027,ursas-ring-area,乌萨环区域,1033,0,true
+1028,veilstone-cape-area,面纱海角地区,1034,0,true
 1029,hisui-wayward-cave-area,hisuiwayward洞窟area,1035,0,true
-1030,wayward-wood-area,wayward wood area,1036,0,true
-1031,whiteout-valley-area,whiteout valley area,1037,0,true
-1032,windbreak-stand-area,windbreak stand area,1038,0,true
-1033,windswept-run-area,windswept run area,1039,0,true
-1034,worn-bridge-area,worn bridge area,1040,0,true
+1030,wayward-wood-area,任性的木区,1036,0,true
+1031,whiteout-valley-area,白化谷地区,1037,0,true
+1032,windbreak-stand-area,防风看台区,1038,0,true
+1033,windswept-run-area,风吹跑步区,1039,0,true
+1034,worn-bridge-area,磨损桥区,1040,0,true
 1035,alola-route-1-east,阿罗拉route1east,711,0,true
 1036,alola-route-1-hauoli-outskirts,阿罗拉route1hauolioutskirts,711,0,true
 1037,alola-route-1-south,阿罗拉route1south,711,0,true
@@ -946,143 +946,143 @@ id,code,name,location_id,game_index,enabled
 1064,alola-route-16-west,阿罗拉route16west,761,0,true
 1065,alola-route-17-northeast,阿罗拉route17northeast,762,0,true
 1066,alola-route-17-west,阿罗拉route17west,762,0,true
-1067,aether-paradise-2f,aether paradise 2f,796,0,true
-1068,akala-outskirts-area,akala outskirts area,752,0,true
-1069,altar-of-the-moone-area,altar of the moone area,791,0,true
-1070,altar-of-the-sunne-area,altar of the sunne area,790,0,true
-1071,ancient-poni-path-area,ancient poni path area,782,0,true
-1072,berry-fields-area,berry fields area,728,0,true
-1073,blush-mountain-area,blush mountain area,771,0,true
-1074,brooklet-hill-main,brooklet hill main,748,0,true
-1075,brooklet-hill-north,brooklet hill north,748,0,true
-1076,brooklet-hill-south,brooklet hill south,748,0,true
-1077,brooklet-hill-totems-den,brooklet hill totems den,748,0,true
-1078,digletts-tunnel-area,digletts tunnel area,753,0,true
-1079,dividing-peak-tunnel-area,dividing peak tunnel area,1046,0,true
-1080,exeggutor-island-area,exeggutor island area,794,0,true
-1081,haina-desert-area,haina desert area,764,0,true
-1082,hano-beach-area,hano beach area,738,0,true
-1083,hauoli-cemetery-area,hauoli cemetery area,725,0,true
-1084,hauoli-city-main,hauoli city main,1042,0,true
-1085,hauoli-city-shopping-district,hauoli city shopping district,1042,0,true
-1086,hauoli-city-beachfront,hauoli city beachfront,1042,0,true
-1087,heahea-beach-area,heahea beach area,1047,0,true
+1067,aether-paradise-2f,以太天堂2f,796,0,true
+1068,akala-outskirts-area,阿卡拉郊区,752,0,true
+1069,altar-of-the-moone-area,穆恩地区的祭坛,791,0,true
+1070,altar-of-the-sunne-area,苏尼区的祭坛,790,0,true
+1071,ancient-poni-path-area,古波尼小径地区,782,0,true
+1072,berry-fields-area,浆果田地区,728,0,true
+1073,blush-mountain-area,腮红山区,771,0,true
+1074,brooklet-hill-main,布鲁克特山美因河,748,0,true
+1075,brooklet-hill-north,布鲁克山北,748,0,true
+1076,brooklet-hill-south,布鲁克山南,748,0,true
+1077,brooklet-hill-totems-den,布鲁克山图腾巢穴,748,0,true
+1078,digletts-tunnel-area,地沟隧道区,753,0,true
+1079,dividing-peak-tunnel-area,划分山顶隧道区域,1046,0,true
+1080,exeggutor-island-area,椰蛋岛地区,794,0,true
+1081,haina-desert-area,海纳沙漠地区,764,0,true
+1082,hano-beach-area,哈诺海滩地区,738,0,true
+1083,hauoli-cemetery-area,好里墓地区,725,0,true
+1084,hauoli-city-main,好里城主楼,1042,0,true
+1085,hauoli-city-shopping-district,好丽城商圈,1042,0,true
+1086,hauoli-city-beachfront,好利城海滨,1042,0,true
+1087,heahea-beach-area,希希海滩地区,1047,0,true
 1088,heahea-city-surf-association,heaheacity冲浪association,741,0,true
-1089,iki-town-area,iki town area,719,0,true
-1090,kalae-bay-area,kalae bay area,714,0,true
-1091,konikoni-city-area,konikoni city area,742,0,true
-1092,lake-of-the-moone-area,lake of the moone area,774,0,true
-1093,lake-of-the-sunne-area,lake of the sunne area,773,0,true
+1089,iki-town-area,益城镇地区,719,0,true
+1090,kalae-bay-area,卡莱湾地区,714,0,true
+1091,konikoni-city-area,科尼科尼城区,742,0,true
+1092,lake-of-the-moone-area,穆恩湖地区,774,0,true
+1093,lake-of-the-sunne-area,苏尼湖地区,773,0,true
 1094,lush-jungle-east-cave,lushjungleeast洞窟,750,0,true
-1095,lush-jungle-north,lush jungle north,750,0,true
-1096,lush-jungle-south,lush jungle south,750,0,true
-1097,lush-jungle-west,lush jungle west,750,0,true
-1098,mahalo-trail-area,mahalo trail area,720,0,true
-1099,malie-city-main,malie city main,1045,0,true
-1100,malie-city-outer-cape,malie city outer cape,1045,0,true
-1101,malie-garden-area,malie garden area,769,0,true
-1102,melemele-meadow-area,melemele meadow area,726,0,true
-1103,melemele-sea-area,melemele sea area,715,0,true
-1104,memorial-hill-area,memorial hill area,744,0,true
-1105,mount-hokulani-main,mount hokulani main,770,0,true
-1106,mount-hokulani-east,mount hokulani east,770,0,true
-1107,mount-hokulani-west,mount hokulani west,770,0,true
-1108,mount-lanakila-base,mount lanakila base,775,0,true
+1095,lush-jungle-north,北部茂密的丛林,750,0,true
+1096,lush-jungle-south,南边茂密的丛林,750,0,true
+1097,lush-jungle-west,西部茂密的丛林,750,0,true
+1098,mahalo-trail-area,马哈洛步道区域,720,0,true
+1099,malie-city-main,马里市主要,1045,0,true
+1100,malie-city-outer-cape,马利市外角,1045,0,true
+1101,malie-garden-area,马里花园区,769,0,true
+1102,melemele-meadow-area,梅勒梅勒草甸地区,726,0,true
+1103,melemele-sea-area,梅莱梅莱海域,715,0,true
+1104,memorial-hill-area,纪念山地区,744,0,true
+1105,mount-hokulani-main,霍库拉尼山主峰,770,0,true
+1106,mount-hokulani-east,霍库拉尼山东,770,0,true
+1107,mount-hokulani-west,霍库拉尼山西,770,0,true
+1108,mount-lanakila-base,拉纳基拉山基地,775,0,true
 1109,mount-lanakila-cave,mountlanakila洞窟,775,0,true
-1110,mount-lanakila-outside,mount lanakila outside,775,0,true
-1111,paniola-ranch-area,paniola ranch area,745,0,true
-1112,paniola-town-area,paniola town area,740,0,true
-1113,poni-breaker-coast-area,poni breaker coast area,783,0,true
-1114,poni-coast-area,poni coast area,786,0,true
-1115,poni-gauntlet-area,poni gauntlet area,787,0,true
-1116,poni-grove-area,poni grove area,784,0,true
-1117,poni-meadow-area,poni meadow area,780,0,true
-1118,poni-plains-center,poni plains center,785,0,true
-1119,poni-plains-east,poni plains east,785,0,true
-1120,poni-plains-north,poni plains north,785,0,true
-1121,poni-plains-west,poni plains west,785,0,true
-1122,poni-wilds-area,poni wilds area,781,0,true
+1110,mount-lanakila-outside,拉纳基拉山外面,775,0,true
+1111,paniola-ranch-area,帕尼奥拉牧场地区,745,0,true
+1112,paniola-town-area,帕尼奥拉镇地区,740,0,true
+1113,poni-breaker-coast-area,波尼碎浪海岸地区,783,0,true
+1114,poni-coast-area,波尼海岸地区,786,0,true
+1115,poni-gauntlet-area,波尼挑战区,787,0,true
+1116,poni-grove-area,波尼格罗夫地区,784,0,true
+1117,poni-meadow-area,波尼草甸地区,780,0,true
+1118,poni-plains-center,波尼平原中心,785,0,true
+1119,poni-plains-east,波尼平原东,785,0,true
+1120,poni-plains-north,波尼平原北部,785,0,true
+1121,poni-plains-west,西波尼平原,785,0,true
+1122,poni-wilds-area,波尼荒野地区,781,0,true
 1123,resolution-cave-area,resolution洞窟area,793,0,true
-1124,royal-avenue-area,royal avenue area,743,0,true
-1125,ruins-of-abundance-area,ruins of abundance area,772,0,true
-1126,ruins-of-conflict-area,ruins of conflict area,722,0,true
-1127,ruins-of-hope-area,ruins of hope area,792,0,true
-1128,ruins-of-life-area,ruins of life area,751,0,true
+1124,royal-avenue-area,皇家大道地区,743,0,true
+1125,ruins-of-abundance-area,丰富地区废墟,772,0,true
+1126,ruins-of-conflict-area,冲突地区废墟,722,0,true
+1127,ruins-of-hope-area,希望遗址区,792,0,true
+1128,ruins-of-life-area,生命遗址区,751,0,true
 1129,sandy-cave-area,sandy洞窟area,1048,0,true
-1130,seafolk-village-main,seafolk village main,788,0,true
-1131,seafolk-village-huntail-boat,seafolk village huntail boat,788,0,true
+1130,seafolk-village-main,海鲜村主要,788,0,true
+1131,seafolk-village-huntail-boat,渔民村狩猎船,788,0,true
 1132,seaward-cave-area,seaward洞窟area,727,0,true
-1133,secluded-shore-area,secluded shore area,757,0,true
-1134,tapu-village-area,tapu village area,759,0,true
-1135,ten-carat-hill-farthest-hollow,ten carat hill farthest hollow,723,0,true
-1136,ten-carat-hill-inside,ten carat hill inside,723,0,true
-1137,thrifty-megamart-abandoned-site,thrifty megamart abandoned site,1044,0,true
-1138,ulaula-beach-area,ulaula beach area,1049,0,true
-1139,ulaula-meadow-area,ulaula meadow area,766,0,true
-1140,ultra-space-ultra-crater,ultra space ultra crater,797,0,true
-1141,ultra-space-ultra-deep-sea,ultra space ultra deep sea,797,0,true
-1142,ultra-space-ultra-desert,ultra space ultra desert,797,0,true
+1133,secluded-shore-area,僻静的海岸地区,757,0,true
+1134,tapu-village-area,塔普村地区,759,0,true
+1135,ten-carat-hill-farthest-hollow,十克拉山最远的洼地,723,0,true
+1136,ten-carat-hill-inside,十克拉山内,723,0,true
+1137,thrifty-megamart-abandoned-site,节俭的超级市场废弃场地,1044,0,true
+1138,ulaula-beach-area,乌乌拉海滩区,1049,0,true
+1139,ulaula-meadow-area,乌乌拉草甸地区,766,0,true
+1140,ultra-space-ultra-crater,超空间 超陨石坑,797,0,true
+1141,ultra-space-ultra-deep-sea,超空间超深海,797,0,true
+1142,ultra-space-ultra-desert,超空间 超沙漠,797,0,true
 1143,ultra-space-ultra-forest,ultraspaceultra森林,797,0,true
-1144,ultra-space-ultra-jungle,ultra space ultra jungle,797,0,true
-1145,ultra-space-ultra-plant,ultra space ultra plant,797,0,true
-1146,ultra-space-ultra-ruin,ultra space ultra ruin,797,0,true
+1144,ultra-space-ultra-jungle,超空间 超丛林,797,0,true
+1145,ultra-space-ultra-plant,超空间 超植物,797,0,true
+1146,ultra-space-ultra-ruin,超空间 超毁灭,797,0,true
 1147,ultra-space-wilds-cave,ultraspacewilds洞窟,1051,0,true
-1148,ultra-space-wilds-cliff,ultra space wilds cliff,1051,0,true
-1149,ultra-space-wilds-crag,ultra space wilds crag,1051,0,true
-1150,ultra-space-wilds-waterfall,ultra space wilds waterfall,1051,0,true
-1151,vast-poni-canyon-inside,vast poni canyon inside,789,0,true
-1152,vast-poni-canyon-northwest,vast poni canyon northwest,789,0,true
-1153,vast-poni-canyon-outside,vast poni canyon outside,789,0,true
-1154,verdant-cavern-trial-site,verdant cavern trial site,1043,0,true
-1155,verdant-cavern-totems-den,verdant cavern totems den,1043,0,true
-1156,wela-volcano-park-area,wela volcano park area,746,0,true
-1157,wela-volcano-park-totems-den,wela volcano park totems den,746,0,true
-1158,poke-pelago-poni-island-reached,poke pelago poni island reached,1052,0,true
-1159,poke-pelago-ulaula-island-reached,poke pelago ulaula island reached,1052,0,true
-1160,poke-pelago-elite-four-defeated,poke pelago elite four defeated,1052,0,true
-1161,team-rockets-castle-area,team rockets castle area,1053,0,true
-1162,ultra-megalopolis-area,ultra megalopolis area,1050,0,true
-1163,lush-jungle-all-areas,lush jungle all areas,750,0,true
+1148,ultra-space-wilds-cliff,超太空荒野悬崖,1051,0,true
+1149,ultra-space-wilds-crag,超太空荒野峭壁,1051,0,true
+1150,ultra-space-wilds-waterfall,超太空荒野瀑布,1051,0,true
+1151,vast-poni-canyon-inside,里面有广阔的波尼峡谷,789,0,true
+1152,vast-poni-canyon-northwest,西北广阔的波尼峡谷,789,0,true
+1153,vast-poni-canyon-outside,外面广阔的波尼峡谷,789,0,true
+1154,verdant-cavern-trial-site,青翠的洞穴试验场,1043,0,true
+1155,verdant-cavern-totems-den,翠绿的洞穴图腾巢穴,1043,0,true
+1156,wela-volcano-park-area,韦拉火山公园区,746,0,true
+1157,wela-volcano-park-totems-den,韦拉火山公园图腾巢穴,746,0,true
+1158,poke-pelago-poni-island-reached,到达 Poke pelago 波尼岛,1052,0,true
+1159,poke-pelago-ulaula-island-reached,到达 Poke pelago ulaula 岛,1052,0,true
+1160,poke-pelago-elite-four-defeated,戳佩拉戈精英四败,1052,0,true
+1161,team-rockets-castle-area,火箭队城堡区,1053,0,true
+1162,ultra-megalopolis-area,超级都市圈,1050,0,true
+1163,lush-jungle-all-areas,所有区域都有茂密的丛林,750,0,true
 1164,alola-route-17-all-areas,阿罗拉route17allareas,762,0,true
-1165,team-aqua-hideout-area,team aqua hideout area,692,0,true
-1166,team-magma-hideout-area,team magma hideout area,694,0,true
-1167,liberty-garden-lighthouse-basement,Lighthouse Basement,404,0,true
+1165,team-aqua-hideout-area,水上团队藏身处,692,0,true
+1166,team-magma-hideout-area,团队岩浆藏身处,694,0,true
+1167,liberty-garden-lighthouse-basement,灯塔地下室,404,0,true
 1168,pinwheel-forest-rumination-field,pinwheel森林ruminationfield,375,0,true
-1169,roaming-unova-area,Roaming Unova,1054,0,true
-1170,ns-castle-throne-room,ns castle throne room,387,0,true
-1171,dragonspiral-tower-7f,dragonspiral tower 7f,381,0,true
-1172,reversal-mountain-b1f,reversal mountain b1f,546,0,true
-1173,twist-mountain-b4f,twist mountain b4f,380,0,true
-1174,sea-spirits-den-area,sea spirits den area,679,0,true
-1175,unknown-dungeon-area,unknown dungeon area,690,0,true
-1176,team-flare-secret-hq-area,team flare secret hq area,675,0,true
+1169,roaming-unova-area,漫游合众国,1054,0,true
+1170,ns-castle-throne-room,NS城堡王座室,387,0,true
+1171,dragonspiral-tower-7f,龙螺旋塔7层,381,0,true
+1172,reversal-mountain-b1f,逆转山b1f,546,0,true
+1173,twist-mountain-b4f,山,380,0,true
+1174,sea-spirits-den-area,海神巢穴区,679,0,true
+1175,unknown-dungeon-area,未知地牢区域,690,0,true
+1176,team-flare-secret-hq-area,火炬队秘密总部区域,675,0,true
 1177,trackless-forest-area,trackless森林area,700,0,true
-1178,sea-mauville-area,sea mauville area,693,0,true
-1179,sea-mauville-outside,Sea Mauville (Outside),693,0,true
-1180,sea-mauville-inside,Sea Mauville (Inside),693,0,true
-1181,mossdeep-space-center-area,Mossdeep Space Center,1055,0,true
-1182,roaming-kalos-area,Roaming Kalos,1056,0,true
-1183,nameless-cavern-area,Nameless Cavern,702,0,true
-1184,soaring-in-the-sky-area,Soaring in the Sky,707,0,true
-1185,scorched-slab-1f,Scorched Slab (1F),580,0,true
-1186,scorched-slab-b1f,Scorched Slab (B1F),580,0,true
-1187,scorched-slab-b2f,Scorched Slab (B2F),580,0,true
-1188,scorched-slab-b3f,Scorched Slab (B3F),580,0,true
-1189,crescent-isle-area,Crescent Isle,705,0,true
-1190,pathless-plain-area,Pathless Plain,701,0,true
-1191,fabled-cave-area,Fabled Cave,703,0,true
-1192,gnarled-den-area,Gnarled Den,704,0,true
-1193,verdant-cavern--trial-site-area,verdant cavern  trial site area,729,0,true
-1194,trainers-school-area,Trainers' School,196,0,true
-1195,ultra-space-ultra-space-wilds-cliff,Ultra Space Wilds Cliff World,797,0,true
-1196,ultra-space-ultra-space-wilds-water,Ultra Space Wilds Water World,797,0,true
-1197,ultra-space-ultra-space-wilds-rocky,Ultra Space Wilds Rocky World,797,0,true
-1198,ultra-space-ultra-space-wilds-cave,Ultra Space Wilds Cave World,797,0,true
-1199,mount-lanakila-crater,Mount Lanakila Crater,775,0,true
-1200,pewter-city-area,pewter city area,231,0,true
-1201,lavender-town-area,lavender town area,232,0,true
-1202,indigo-plateau-area,indigo plateau area,233,0,true
-1203,saffron-city-area,saffron city area,234,0,true
+1178,sea-mauville-area,海莫维尔地区,693,0,true
+1179,sea-mauville-outside,海淡紫（外观）,693,0,true
+1180,sea-mauville-inside,海莫维尔（内部）,693,0,true
+1181,mossdeep-space-center-area,莫斯迪普航天中心,1055,0,true
+1182,roaming-kalos-area,漫游卡洛斯,1056,0,true
+1183,nameless-cavern-area,无名洞窟,702,0,true
+1184,soaring-in-the-sky-area,翱翔在天空,707,0,true
+1185,scorched-slab-1f,烧焦的石板（1层）,580,0,true
+1186,scorched-slab-b1f,烧焦的石板（地下1层）,580,0,true
+1187,scorched-slab-b2f,烧焦的石板（地下2层）,580,0,true
+1188,scorched-slab-b3f,烧焦的石板 (地下3层),580,0,true
+1189,crescent-isle-area,新月岛,705,0,true
+1190,pathless-plain-area,无路平原,701,0,true
+1191,fabled-cave-area,传说中的洞穴,703,0,true
+1192,gnarled-den-area,粗糙的巢穴,704,0,true
+1193,verdant-cavern--trial-site-area,青翠的洞穴试验场地区域,729,0,true
+1194,trainers-school-area,培训师学校,196,0,true
+1195,ultra-space-ultra-space-wilds-cliff,超太空荒野悬崖世界,797,0,true
+1196,ultra-space-ultra-space-wilds-water,超太空荒野水世界,797,0,true
+1197,ultra-space-ultra-space-wilds-rocky,超太空荒野洛基世界,797,0,true
+1198,ultra-space-ultra-space-wilds-cave,超太空荒野洞穴世界,797,0,true
+1199,mount-lanakila-crater,拉纳基拉火山口,775,0,true
+1200,pewter-city-area,锡城市地区,231,0,true
+1201,lavender-town-area,薰衣草镇地区,232,0,true
+1202,indigo-plateau-area,靛蓝高原地区,233,0,true
+1203,saffron-city-area,藏红花城区,234,0,true
 1204,shoal-cave-low-tide,shoal洞窟lowtide,445,0,true
 1205,shoal-cave-b2f,shoal洞窟b2f,445,0,true
 1206,shoal-cave-b3f,shoal洞窟b3f,445,0,true
@@ -1094,157 +1094,157 @@ id,code,name,location_id,game_index,enabled
 1212,kanto-pokecenter-area,关都pokecenterarea,1091,0,true
 1213,sinnoh-pokemart-area,神奥pokemartarea,1092,0,true
 1214,johto-pokemart-area,城都pokemartarea,1093,0,true
-1215,mirage-spot-island-west-of-dewford-town,Mirage Island (West Of Dewford Town),577,0,true
-1216,mirage-spot-island-west-of-route-104,Mirage Island (West Of Route 104),577,0,true
-1217,mirage-spot-island-route-114,Mirage Island (Route 114),577,0,true
-1218,mirage-spot-island-route-124,Mirage Island (Route 124),577,0,true
-1219,mirage-spot-island-route-132,Mirage Island (Route 132),577,0,true
-1220,mirage-spot-island-south-of-route-134,Mirage Island (South of Route 134),577,0,true
-1221,mirage-spot-island-south-of-pacifidlog,Mirage Island (South of Pacofidlog),577,0,true
-1222,mirage-spot-island-east-of-shoal-cave,Mirage Island (East of Shoal Cave),577,0,true
-1223,mirage-island-area,Mirage Island,1094,0,true
-1224,mirage-spot-forest-north-of-lilycove,Mirage Forest (North of Lilycove),697,0,true
-1225,mirage-spot-forest-south-of-route-132,Mirage Forest (South of Route 132),697,0,true
-1226,mirage-spot-forest-east-of-mossdeep,Mirage Forest (East of Mossdeep),697,0,true
-1227,mirage-spot-forest-south-of-route-109,Mirage Forest (South of Route 109),697,0,true
-1228,mirage-spot-forest-north-of-route-124,Mirage Forest (North of Route 124),697,0,true
-1229,mirage-spot-forest-west-of-route-114,Mirage Forest (West of Route 114),697,0,true
-1230,mirage-spot-forest-west-of-route-105,Mirage Forest (West of Route 105),697,0,true
-1231,mirage-spot-forest-south-of-route-111,Mirage Forest (South of Route 111),697,0,true
-1232,outskirt-stand-outside,Outskirt Stand (Outside),1095,0,true
-1233,phenac-city-mayors-house,Phenac City (Mayor's House),1096,0,true
-1234,snagem-hideout-1f,Snagem Hideout 1F,1097,0,true
-1235,shadow-pokemon-lab-bf2,Shadow Pokémon Lab B2F,1098,0,true
-1236,phenac-city-west-exit,Phenac City (West Exit),1096,0,true
-1237,phenac-city-east-exit,Phenac City (East Exit),1096,0,true
-1238,phenac-city-south-exit,Phenac City (South Exit),1096,0,true
-1239,pyrite-town-duel-square,Pyrite Town (Duel Square),1099,0,true
-1240,pyrite-town-entrance,Pyrite Town (Entrance),1099,0,true
-1241,pyrite-bldg-1f,Pyrite Bldg 1F,1100,0,true
-1242,pyrite-cave-mirors-hideout,Pyrite Cave (Miror's Hideout),1101,0,true
-1243,pyrite-bldg-4f,Pyrite Bldg 4F,1100,0,true
-1244,pyrite-cave-outside,Pyrite Cave (Outside),1101,0,true
-1245,pyrite-cave-south-sewers,Pyrite Cave (South Sewers),1101,0,true
-1246,pyrite-cave-bf1,Pyrite Cave B1F,1101,0,true
-1247,pyrite-cave-bf1-post-sewers,Pyrite Cave B1F (Post Sewers),1101,0,true
-1248,realgam-tower-area,Realgam Tower,1102,0,true
-1249,phenac-city-stadium,Phenac City Stadium,1096,0,true
-1250,pyrite-town-dukings-house,Pyrite Town (Duking's House),1099,0,true
-1251,shadow-pokemon-lab-bf1,Shadow Pokémon Lab B1F,1098,0,true
-1252,agate-village-relic-forest,Agate Village (Relic Forest),1103,0,true
-1253,the-under-colosseum,The Under Colosseum,1104,0,true
-1254,mt-battle-10f,Mt. Battle 10F,1105,0,true
-1255,the-under-area,The Under,1104,0,true
-1256,the-under-tv-studio,The Under (TV Studio),1104,0,true
-1257,the-under-subway,The Under (Subway),1104,0,true
-1258,snagem-hideout-2f,Snagem Hideout 2F,1097,0,true
-1259,realgam-tower-colosseum,Realgam Tower Colosseum,1102,0,true
-1260,the-under-deep-colosseum,The Under (Deep Colosseum),1104,0,true
-1261,mt-battle-100f,Mt. Battle 100F,1105,0,true
-1262,phenac-city-card-e-room,Phenac City (Card E Room),1096,0,true
-1263,pokemon-hq-lab-area,Pokemon HQ Lab,1106,0,true
-1264,pokemon-hq-lab-outside,Pokemon HQ Lab (Outside),1106,0,true
-1265,gateon-port-across-bridge,Gateon Port (Across Bridge),1107,0,true
-1266,gateon-port-lighthouse-top,Gateon Port (Lighthouse Top),1107,0,true
-1267,cipher-lab-outside,Cipher Lab (Outside),1108,0,true
-1268,cipher-lab-bf2,Cipher Lab B2F,1108,0,true
-1269,cipher-lab-bf1,Cipher Lab B1F,1108,0,true
-1270,pokespot-cave,Cave Pokespot,1109,0,true
-1271,onbs-2f,ONBS 2F,1110,0,true
-1272,onbs-3f,ONBS 3F,1110,0,true
-1273,onbs-roof,ONBS Roof,1110,0,true
-1274,onbs-4f,ONBS 4F,1110,0,true
-1275,phenac-city-prestige-precept-center,Phenac City Prestige Precept Center,1096,0,true
-1276,cipher-key-lair-outside,Cipher Key Lair (Outside),1111,0,true
-1277,cipher-key-lair-1f,Cipher Key Lair 1F,1111,0,true
-1278,cipher-key-lair-2f,Cipher Key Lair 2F,1111,0,true
-1279,cipher-key-lair-3f,Cipher Key Lair 3F,1111,0,true
-1280,cipher-key-lair-4f,Cipher Key Lair 4F,1111,0,true
-1281,cipher-key-lair-roof,Cipher Key Lair Roof,1111,0,true
-1282,cipher-key-lair-5f,Cipher Key Lair 5F,1111,0,true
-1283,citadark-isle-outside,Citadark Isle (Outside),1112,0,true
-1284,citadark-isle-1f,Citadark Isle 1F,1112,0,true
-1285,citadark-isle-bf1,Citadark Isle B1F,1112,0,true
-1286,citadark-isle-2f,Citadark Isle 2F,1112,0,true
-1287,citadark-isle-3f,Citadark Isle 3F,1112,0,true
-1288,citadark-isle-6f,Citadark Isle 6F,1112,0,true
-1289,citadark-isle-dome-exterior,Citadark Isle Dome Exterior,1112,0,true
-1290,citadark-isle-dome-bf1,Citadark Isle Dome B1F,1112,0,true
-1291,citadark-isle-dome-1f,Citadark Isle Dome 1F,1112,0,true
-1292,citadark-isle-dome-2f,Citadark Isle Dome 2F,1112,0,true
-1293,gateon-port-area,Gateon Port,1107,0,true
-1294,pokespot-rock,Rock Pokespot,1109,0,true
-1295,pokespot-oasis,Oasis Pokespot,1109,0,true
-1296,mt-battle-lobby,Mt. Battle Lobby,1105,0,true
-1297,outskirt-stand-inside,Outskirt Stand (Inside),1095,0,true
-1298,pyrite-town-colosseum,Pyrite Town Colosseum,1099,0,true
-1299,phenac-city-stadium-outside,Phenac City Stadium (Outside),1096,0,true
-1300,celadon-city-prize-corner,Celadon City Prize Corner,67,0,true
-1301,goldenrod-city-game-corner,Goldenrod City Game Corner,229,0,true
-1302,kanto-underground-path-area,Kanto Underground Path,1113,0,true
-1303,violet-city-southwest-house,Violet City (Southwest House),153,0,true
-1304,goldenrod-city-department-store-5f,Goldenrod City Department Store 5F,229,0,true
-1305,mirage-spot-cave-south-of-pacifidlog,Mirage Cave (South of Pacifidlog),698,0,true
-1306,mirage-spot-cave-north-of-route-132,Mirage Cave (North of Route 132),698,0,true
-1307,mirage-spot-cave-north-of-fallarbor,Mirage Cave (North of Fallarbor),698,0,true
-1308,mirage-spot-cave-north-of-fortree,Mirage Cave (North of Fortree),698,0,true
-1309,mirage-spot-cave-south-east-of-route-129,Mirage Cave (South East of Route 129),698,0,true
-1310,mirage-spot-cave-south-of-route-107,Mirage Cave (South of Route 107),698,0,true
-1311,mirage-spot-cave-north-of-route-124,Mirage Cave (North of Route 124),698,0,true
-1312,mirage-spot-cave-west-of-rustburo,Mirage Cave (West of Rustboro),698,0,true
-1313,mirage-spot-mountain-east-of-mossdeep,Mirage Mountain (East of Mossdeep),699,0,true
-1314,mirage-spot-mountain-north-of-mossdeep,Mirage Mountain (North of Mossdeep),699,0,true
-1315,mirage-spot-mountain-south-east-of-route-129,Mirage Mountain (South East of Route 129),699,0,true
-1316,mirage-spot-mountain-north-of-lilycove,Mirage Mountain (North of Lilycove),699,0,true
-1317,mirage-spot-mountain-west-of-route-104,Mirage Mountain (West of Route 104),699,0,true
-1318,mirage-spot-mountain-south-of-route-129,Mirage Mountain (South of Route 129),699,0,true
-1319,mirage-spot-mountain-south-of-route-131,Mirage Mountain (South of Route 131),699,0,true
-1320,mirage-spot-mountain-north-east-of-route-125,Mirage Mountain (North East of Route 125),699,0,true
-1321,fortree-city-area,Fortree City,574,0,true
-1322,friend-safari-normal,Friend Safari (Normal),680,0,true
-1323,friend-safari-fire,Friend Safari (Fire),680,0,true
-1324,friend-safari-fighting,Friend Safari (Fighting),680,0,true
-1325,friend-safari-water,Friend Safari (Water),680,0,true
-1326,friend-safari-flying,Friend Safari (Flying),680,0,true
-1327,friend-safari-grass,Friend Safari (Grass),680,0,true
-1328,friend-safari-poison,Friend Safari (Poison),680,0,true
-1329,friend-safari-electric,Friend Safari (Electric),680,0,true
-1330,friend-safari-ground,Friend Safari (Ground),680,0,true
-1331,friend-safari-psychic,Friend Safari (Psychic),680,0,true
-1332,friend-safari-rock,Friend Safari (Rock),680,0,true
-1333,friend-safari-ice,Friend Safari (Ice),680,0,true
-1334,friend-safari-bug,Friend Safari (Bug),680,0,true
-1335,friend-safari-dragon,Friend Safari (Dragon),680,0,true
-1336,friend-safari-ghost,Friend Safari (Ghost),680,0,true
-1337,friend-safari-dark,Friend Safari (Dark),680,0,true
-1338,friend-safari-steel,Friend Safari (Steel),680,0,true
-1339,friend-safari-fairy,Friend Safari (Fairy),680,0,true
-1340,unova-route-2-hidden-grotto,Route 2 (Hidden Grotto),357,15,true
-1341,unova-route-3-hidden-grotto-dark-grass,Unova Route 3 (Hidden Grotto – Dark Grass),358,16,true
-1342,unova-route-3-hidden-grotto-pond,Unova Route 3 (Hidden Grotto – Pond),358,16,true
-1343,unova-route-5-hidden-grotto,Unova Route 5 (Hidden Grotto),360,93,true
-1344,unova-route-6-hidden-grotto-near-pokemon-breeder,Unova Route 6 (Hidden Grotto – Near Pokemon Breeder),361,94,true
-1345,unova-route-6-hidden-grotto-mistralton-cave,Unova Route 6 (Hidden Grotto – Mistralton Cave),361,94,true
-1346,unova-route-7-hidden-grotto,Unova Route 7 (Hidden Grotto),362,95,true
-1347,unova-route-9-hidden-grotto,Unova Route 9 (Hidden Grotto),364,97,true
-1348,unova-route-13-hidden-grotto-giant-chasm,Unova Route 13 (Hidden Grotto – Giant Chasm),368,100,true
-1349,unova-route-13-hidden-grotto-stairs,Unova Route 13 (Hidden Grotto – Stairs),368,100,true
-1350,unova-route-18-hidden-grotto,Unova Route 18 (Hidden Grotto),373,31,true
-1351,unova-route-22-hidden-grotto,Unova Route 22 (Hidden Grotto),541,127,true
-1352,unova-route-23-hidden-grotto,Unova Route 23 (Hidden Grotto),542,128,true
-1353,floccesy-ranch-hidden-grotto,Floccesy Ranch (Hidden Grotto),544,130,true
-1354,lostlorn-forest-hidden-grotto,Lostlorn Forest (Hidden Grotto),414,72,true
-1355,giant-chasm-hidden-grotto,Giant Chasm (Hidden Grotto),403,88,true
-1356,abundant-shrine-hidden-grotto-near-youngster,Abundant Shrine (Hidden Grotto – Near Youngster),412,70,true
-1357,abundant-shrine-hidden-grotto-shrine,Abundant Shrine (Hidden Grotto – Shrine),412,70,true
-1358,pinwheel-forest-hidden-grotto-outer-area,Pinwheel Forest (Hidden Grotto – Outer area),375,33,true
-1359,pinwheel-forest-hidden-grotto-inner-area,Pinwheel Forest (Hidden Grotto – Inner area),375,33,true
-1360,oreburgh-city-oreburgh-mining-museum,Oreburgh Mining Museum,168,0,true
-1361,pewter-city-pewter-museum-of-science,Pewter Museum of Science,231,0,true
-1362,floaroma-meadow-area,Floaroma Meadow,175,0,true
-1363,safari-zone-gate-area,Safari Zone Gate,243,0,true
-1364,accumula-town-area,Accumula Town,347,0,true
-1365,galar-route-2-lake,Route 2 (Lake),869,0,true
-1366,galar-route-2-lakeside,Route 2 (Lakeside),869,0,true
-1367,motostoke-gym,Motostoke (Gym),918,0,true
-1368,galar-route-3-west,Route 3 (West),870,0,true
+1215,mirage-spot-island-west-of-dewford-town,幻影岛（杜福德镇以西）,577,0,true
+1216,mirage-spot-island-west-of-route-104,海市蜃楼岛（104号国道以西）,577,0,true
+1217,mirage-spot-island-route-114,海市蜃楼岛（114号公路）,577,0,true
+1218,mirage-spot-island-route-124,海市蜃楼岛（124号公路）,577,0,true
+1219,mirage-spot-island-route-132,海市蜃楼岛（132号公路）,577,0,true
+1220,mirage-spot-island-south-of-route-134,海市蜃楼岛（134号国道以南）,577,0,true
+1221,mirage-spot-island-south-of-pacifidlog,幻影岛（Pacofidlog 以南）,577,0,true
+1222,mirage-spot-island-east-of-shoal-cave,海市蜃楼岛（浅滩洞东）,577,0,true
+1223,mirage-island-area,幻影岛,1094,0,true
+1224,mirage-spot-forest-north-of-lilycove,幻影森林（莉莉科夫北部）,697,0,true
+1225,mirage-spot-forest-south-of-route-132,幻影森林（132号公路以南）,697,0,true
+1226,mirage-spot-forest-east-of-mossdeep,幻影森林（莫斯迪普以东）,697,0,true
+1227,mirage-spot-forest-south-of-route-109,幻影森林（109号公路以南）,697,0,true
+1228,mirage-spot-forest-north-of-route-124,幻影森林（124号公路以北）,697,0,true
+1229,mirage-spot-forest-west-of-route-114,幻影森林（114号公路西侧）,697,0,true
+1230,mirage-spot-forest-west-of-route-105,幻影森林（105号公路西侧）,697,0,true
+1231,mirage-spot-forest-south-of-route-111,幻影森林（111号公路以南）,697,0,true
+1232,outskirt-stand-outside,外围看台（外部）,1095,0,true
+1233,phenac-city-mayors-house,菲纳克市（市长官邸）,1096,0,true
+1234,snagem-hideout-1f,斯纳吉姆藏身处 1层,1097,0,true
+1235,shadow-pokemon-lab-bf2,影子生物实验室地下2层,1098,0,true
+1236,phenac-city-west-exit,菲纳克城（西口）,1096,0,true
+1237,phenac-city-east-exit,菲纳克城（东口）,1096,0,true
+1238,phenac-city-south-exit,菲纳克城（南口）,1096,0,true
+1239,pyrite-town-duel-square,黄铁矿镇（决斗广场）,1099,0,true
+1240,pyrite-town-entrance,黄铁矿镇（入口）,1099,0,true
+1241,pyrite-bldg-1f,黄铁矿大厦1层,1100,0,true
+1242,pyrite-cave-mirors-hideout,黄铁洞（镜子的藏身处）,1101,0,true
+1243,pyrite-bldg-4f,黄铁矿大厦4层,1100,0,true
+1244,pyrite-cave-outside,黄铁矿洞（外观）,1101,0,true
+1245,pyrite-cave-south-sewers,黄铁洞（南下水道）,1101,0,true
+1246,pyrite-cave-bf1,黄铁洞地下1层,1101,0,true
+1247,pyrite-cave-bf1-post-sewers,黄铁洞地下1层（下水道后）,1101,0,true
+1248,realgam-tower-area,瑞金大厦,1102,0,true
+1249,phenac-city-stadium,菲纳克城体育场,1096,0,true
+1250,pyrite-town-dukings-house,黄铁矿镇（杜金之家）,1099,0,true
+1251,shadow-pokemon-lab-bf1,影子生物实验室地下1层,1098,0,true
+1252,agate-village-relic-forest,玛瑙村（遗迹林）,1103,0,true
+1253,the-under-colosseum,斗兽场下,1104,0,true
+1254,mt-battle-10f,对战山10层,1105,0,true
+1255,the-under-area,下层,1104,0,true
+1256,the-under-tv-studio,地下（电视演播室）,1104,0,true
+1257,the-under-subway,地下（地铁）,1104,0,true
+1258,snagem-hideout-2f,斯纳吉姆藏身处 2层,1097,0,true
+1259,realgam-tower-colosseum,瑞金塔斗兽场,1102,0,true
+1260,the-under-deep-colosseum,地下（深斗兽场）,1104,0,true
+1261,mt-battle-100f,山战100层,1105,0,true
+1262,phenac-city-card-e-room,菲那克城（卡E房）,1096,0,true
+1263,pokemon-hq-lab-area,生物总部实验室,1106,0,true
+1264,pokemon-hq-lab-outside,生物总部实验室（外部）,1106,0,true
+1265,gateon-port-across-bridge,Gateon港口（桥对面）,1107,0,true
+1266,gateon-port-lighthouse-top,Gateon港口（灯塔顶部）,1107,0,true
+1267,cipher-lab-outside,密码实验室（外部）,1108,0,true
+1268,cipher-lab-bf2,密码实验室地下2层,1108,0,true
+1269,cipher-lab-bf1,密码实验室地下1层,1108,0,true
+1270,pokespot-cave,洞穴宝点,1109,0,true
+1271,onbs-2f,区域2,1110,0,true
+1272,onbs-3f,区域3,1110,0,true
+1273,onbs-roof,ONBS 屋顶,1110,0,true
+1274,onbs-4f,区域4,1110,0,true
+1275,phenac-city-prestige-precept-center,菲纳克市威望戒律中心,1096,0,true
+1276,cipher-key-lair-outside,密码钥匙巢穴（外部）,1111,0,true
+1277,cipher-key-lair-1f,密码钥匙巢穴1层,1111,0,true
+1278,cipher-key-lair-2f,密码钥匙巢穴2层,1111,0,true
+1279,cipher-key-lair-3f,密码钥匙巢穴 3层,1111,0,true
+1280,cipher-key-lair-4f,密码钥匙巢穴 4层,1111,0,true
+1281,cipher-key-lair-roof,密码钥匙巢穴屋顶,1111,0,true
+1282,cipher-key-lair-5f,密码钥匙巢穴 5层,1111,0,true
+1283,citadark-isle-outside,城达克岛（外观）,1112,0,true
+1284,citadark-isle-1f,城暗岛1层,1112,0,true
+1285,citadark-isle-bf1,城堡岛地下1层,1112,0,true
+1286,citadark-isle-2f,城堡暗岛2层,1112,0,true
+1287,citadark-isle-3f,城堡暗岛 3层,1112,0,true
+1288,citadark-isle-6f,城堡暗岛 6层,1112,0,true
+1289,citadark-isle-dome-exterior,Citadark 岛圆顶外观,1112,0,true
+1290,citadark-isle-dome-bf1,岛,1112,0,true
+1291,citadark-isle-dome-1f,岛,1112,0,true
+1292,citadark-isle-dome-2f,岛,1112,0,true
+1293,gateon-port-area,加顿港,1107,0,true
+1294,pokespot-rock,摇滚点,1109,0,true
+1295,pokespot-oasis,绿洲斑点点,1109,0,true
+1296,mt-battle-lobby,对战山大厅,1105,0,true
+1297,outskirt-stand-inside,外围看台（内部）,1095,0,true
+1298,pyrite-town-colosseum,黄铁矿镇斗兽场,1099,0,true
+1299,phenac-city-stadium-outside,菲纳克城体育场（外观）,1096,0,true
+1300,celadon-city-prize-corner,青瓷城奖品角,67,0,true
+1301,goldenrod-city-game-corner,满金城游戏角,229,0,true
+1302,kanto-underground-path-area,关东地下通道,1113,0,true
+1303,violet-city-southwest-house,紫城(西南楼),153,0,true
+1304,goldenrod-city-department-store-5f,满金城百货5层,229,0,true
+1305,mirage-spot-cave-south-of-pacifidlog,海市蜃楼洞（太平洋日志以南）,698,0,true
+1306,mirage-spot-cave-north-of-route-132,海市蜃楼（132号公路以北）,698,0,true
+1307,mirage-spot-cave-north-of-fallarbor,Mirage Cave（法拉伯以北）,698,0,true
+1308,mirage-spot-cave-north-of-fortree,Mirage Cave（福特里以北）,698,0,true
+1309,mirage-spot-cave-south-east-of-route-129,洞窟南东道路129区域,698,0,true
+1310,mirage-spot-cave-south-of-route-107,海市蜃楼（107号公路以南）,698,0,true
+1311,mirage-spot-cave-north-of-route-124,海市蜃楼（124号公路以北）,698,0,true
+1312,mirage-spot-cave-west-of-rustburo,Mirage Cave（拉斯特伯勒以西）,698,0,true
+1313,mirage-spot-mountain-east-of-mossdeep,幻影山（莫斯迪普以东）,699,0,true
+1314,mirage-spot-mountain-north-of-mossdeep,幻影山（莫斯迪普以北）,699,0,true
+1315,mirage-spot-mountain-south-east-of-route-129,幻影山（129号公路东南）,699,0,true
+1316,mirage-spot-mountain-north-of-lilycove,幻影山（莉莉科夫以北）,699,0,true
+1317,mirage-spot-mountain-west-of-route-104,幻影山（104号国道以西）,699,0,true
+1318,mirage-spot-mountain-south-of-route-129,幻影山（129号公路以南）,699,0,true
+1319,mirage-spot-mountain-south-of-route-131,幻影山（131号公路以南）,699,0,true
+1320,mirage-spot-mountain-north-east-of-route-125,幻影山（125号公路东北侧）,699,0,true
+1321,fortree-city-area,福特里城,574,0,true
+1322,friend-safari-normal,朋友狩猎（普通）,680,0,true
+1323,friend-safari-fire,朋友狩猎之旅（火）,680,0,true
+1324,friend-safari-fighting,朋友狩猎（格斗）,680,0,true
+1325,friend-safari-water,朋友野生动物园（水）,680,0,true
+1326,friend-safari-flying,朋友野生动物园（飞行）,680,0,true
+1327,friend-safari-grass,朋友野生动物园（草）,680,0,true
+1328,friend-safari-poison,朋友狩猎（毒）,680,0,true
+1329,friend-safari-electric,朋友狩猎之旅（电动）,680,0,true
+1330,friend-safari-ground,朋友野生动物园（地面）,680,0,true
+1331,friend-safari-psychic,朋友狩猎（通灵）,680,0,true
+1332,friend-safari-rock,朋友野生动物园（岩石）,680,0,true
+1333,friend-safari-ice,朋友野生动物园（冰）,680,0,true
+1334,friend-safari-bug,朋友野生动物园（错误）,680,0,true
+1335,friend-safari-dragon,朋友野生动物园（龙）,680,0,true
+1336,friend-safari-ghost,朋友野生动物园（幽灵）,680,0,true
+1337,friend-safari-dark,朋友野生动物园（深色）,680,0,true
+1338,friend-safari-steel,朋友狩猎（钢）,680,0,true
+1339,friend-safari-fairy,朋友狩猎（仙女）,680,0,true
+1340,unova-route-2-hidden-grotto,2号线（隐秘石窟）,357,15,true
+1341,unova-route-3-hidden-grotto-dark-grass,合众国道 3 号（隐藏石窟 – 暗草）,358,16,true
+1342,unova-route-3-hidden-grotto-pond,Unova 3 号道路（隐藏石窟 - 池塘）,358,16,true
+1343,unova-route-5-hidden-grotto,合众 5 号公路（隐藏石窟）,360,93,true
+1344,unova-route-6-hidden-grotto-near-pokemon-breeder,合众国道 6 号（隐藏石窟 – 靠近 生物 Breeder）,361,94,true
+1345,unova-route-6-hidden-grotto-mistralton-cave,Unova 6 号公路（隐藏石窟 – 米斯特拉尔顿洞穴）,361,94,true
+1346,unova-route-7-hidden-grotto,合众 7 号公路（隐藏石窟）,362,95,true
+1347,unova-route-9-hidden-grotto,合众 9 号公路（隐藏石窟）,364,97,true
+1348,unova-route-13-hidden-grotto-giant-chasm,Unova 13 号公路（隐藏石窟 – 巨大峡谷）,368,100,true
+1349,unova-route-13-hidden-grotto-stairs,Unova 13 号公路（隐藏石窟 - 楼梯）,368,100,true
+1350,unova-route-18-hidden-grotto,合众 18 号公路（隐藏石窟）,373,31,true
+1351,unova-route-22-hidden-grotto,合众 22 号公路（隐藏石窟）,541,127,true
+1352,unova-route-23-hidden-grotto,合众 23 号公路（隐藏石窟）,542,128,true
+1353,floccesy-ranch-hidden-grotto,絮状牧场（隐藏石窟）,544,130,true
+1354,lostlorn-forest-hidden-grotto,失落森林（隐藏石窟）,414,72,true
+1355,giant-chasm-hidden-grotto,巨大峡谷（隐藏石窟）,403,88,true
+1356,abundant-shrine-hidden-grotto-near-youngster,丰富的神社（隐藏石窟 - 近年轻人）,412,70,true
+1357,abundant-shrine-hidden-grotto-shrine,丰富的神社（隐藏石窟 - 神社）,412,70,true
+1358,pinwheel-forest-hidden-grotto-outer-area,风车森林（隐藏石窟-外围区域）,375,33,true
+1359,pinwheel-forest-hidden-grotto-inner-area,风车森林（隐藏石窟 - 内部区域）,375,33,true
+1360,oreburgh-city-oreburgh-mining-museum,奥勒堡矿业博物馆,168,0,true
+1361,pewter-city-pewter-museum-of-science,锡合金科学博物馆,231,0,true
+1362,floaroma-meadow-area,花草甸,175,0,true
+1363,safari-zone-gate-area,狩猎地带大门,243,0,true
+1364,accumula-town-area,阿卡穆拉镇,347,0,true
+1365,galar-route-2-lake,2号线（湖）,869,0,true
+1366,galar-route-2-lakeside,2号线（湖畔）,869,0,true
+1367,motostoke-gym,莫托斯托克（健身房）,918,0,true
+1368,galar-route-3-west,3号线（西）,870,0,true

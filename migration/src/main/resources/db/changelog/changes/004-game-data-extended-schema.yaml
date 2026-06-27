@@ -538,13 +538,13 @@ databaseChangeLog:
         constraintName: uk_game_item_category_pocket__category_id
     - createTable:
         tableName: game_item_game_index
-        remarks: 道具在发布批次中的索引值。
+        remarks: 道具当前索引值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 道具版本索引主键，内置数据保留资料源稳定 ID。
+            remarks: 道具索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_item_game_index
@@ -556,21 +556,15 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: generation_id
-            type: bigint
-            remarks: 发布代际 ID，引用 game_release_generation。
-            constraints:
-              nullable: false
-        - column:
             name: game_index
             type: int
-            remarks: 资料源中的版本索引值。
+            remarks: 当前索引值。
             constraints:
               nullable: false
     - addUniqueConstraint:
         tableName: game_item_game_index
-        columnNames: item_id, generation_id
-        constraintName: uk_game_item_game_index__item_id_generation_id
+        columnNames: item_id
+        constraintName: uk_game_item_game_index__item_id
     - createTable:
         tableName: game_skill_ailment
         remarks: 技能异常状态字典。
@@ -949,35 +943,6 @@ databaseChangeLog:
         columnNames: skill_id, combo_type, relation_type, related_skill_id
         constraintName: uk_game_skill_contest_combo__skill_id_combo_type_re_ff5c0fe2
     - createTable:
-        tableName: game_skill_learn_method_version_group
-        remarks: 技能学习方式适用的版本组关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 学习方式版本组主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_skill_learn_method_version_group
-              nullable: false
-        - column:
-            name: learn_method_id
-            type: bigint
-            remarks: 学习方式 ID，引用 game_skill_learn_method。
-            constraints:
-              nullable: false
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_skill_learn_method_version_group
-        columnNames: learn_method_id, version_group_id
-        constraintName: uk_game_skill_learn_method_version_group__learn_met_2d34df32
-    - createTable:
         tableName: game_growth_rate
         remarks: 成长速率资料。
         columns:
@@ -1262,42 +1227,6 @@ databaseChangeLog:
         columnNames: event_stat_id, nature_id, effect_type
         constraintName: uk_game_event_stat_nature_effect__event_stat_id_nat_77f1b396
     - createTable:
-        tableName: game_release_generation
-        remarks: 发布代际资料，用于版本和索引归类。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 发布代际主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_release_generation
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_release_generation
-        columnNames: code
-        constraintName: uk_game_release_generation__code
-    - createTable:
         tableName: game_region
         remarks: 地区资料表。
         columns:
@@ -1323,10 +1252,6 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: main_generation_id
-            type: bigint
-            remarks: 主要发布代际 ID，引用 game_release_generation。
-        - column:
             name: enabled
             type: boolean
             remarks: 是否启用该资料。
@@ -1337,121 +1262,6 @@ databaseChangeLog:
         tableName: game_region
         columnNames: code
         constraintName: uk_game_region__code
-    - createTable:
-        tableName: game_version_group
-        remarks: 版本组资料。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 版本组主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_version_group
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: generation_id
-            type: bigint
-            remarks: 发布代际 ID，引用 game_release_generation。
-        - column:
-            name: sort_order
-            type: int
-            remarks: 展示排序值。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_version_group
-        columnNames: code
-        constraintName: uk_game_version_group__code
-    - createTable:
-        tableName: game_version
-        remarks: 版本资料表。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 版本资料主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_version
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_version
-        columnNames: code
-        constraintName: uk_game_version__code
-    - createTable:
-        tableName: game_version_group_region
-        remarks: 版本组与地区的绑定关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 版本组地区绑定主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_version_group_region
-              nullable: false
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-            constraints:
-              nullable: false
-        - column:
-            name: region_id
-            type: bigint
-            remarks: 地区 ID，引用 game_region。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_version_group_region
-        columnNames: version_group_id, region_id
-        constraintName: uk_game_version_group_region__version_group_id_region_id
 - changeSet:
     id: 004-003-create-game-data-extended-3
     author: backend
@@ -1498,13 +1308,13 @@ databaseChangeLog:
         constraintName: uk_game_location__code
     - createTable:
         tableName: game_location_game_index
-        remarks: 地点在发布代际中的索引值。
+        remarks: 地点当前索引值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 地点版本索引主键，内置数据保留资料源稳定 ID。
+            remarks: 地点索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_location_game_index
@@ -1516,21 +1326,15 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: generation_id
-            type: bigint
-            remarks: 发布代际 ID，引用 game_release_generation。
-            constraints:
-              nullable: false
-        - column:
             name: game_index
             type: int
-            remarks: 资料源中的版本索引值。
+            remarks: 当前索引值。
             constraints:
               nullable: false
     - addUniqueConstraint:
         tableName: game_location_game_index
-        columnNames: location_id, generation_id, game_index
-        constraintName: uk_game_location_game_index__location_id_generat_327cb9b1
+        columnNames: location_id
+        constraintName: uk_game_location_game_index__location_id
     - createTable:
         tableName: game_encounter_method
         remarks: 遭遇方式字典。
@@ -1695,7 +1499,7 @@ databaseChangeLog:
         constraintName: uk_game_location_area__code
     - createTable:
         tableName: game_location_area_method_rate
-        remarks: 地点区域在版本下的遭遇方式概率。
+        remarks: 地点区域当前遭遇方式概率。
         columns:
         - column:
             name: id
@@ -1719,12 +1523,6 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: version_id
-            type: bigint
-            remarks: 版本 ID，引用 game_version。
-            constraints:
-              nullable: false
-        - column:
             name: rate
             type: int
             remarks: 遭遇概率。
@@ -1732,11 +1530,11 @@ databaseChangeLog:
               nullable: false
     - addUniqueConstraint:
         tableName: game_location_area_method_rate
-        columnNames: area_id, method_id, version_id
-        constraintName: uk_game_location_area_method_rate__area_id_method_i_ad69e2b7
+        columnNames: area_id, method_id
+        constraintName: uk_game_location_area_method_rate__area_id_method_id
     - createTable:
         tableName: game_location_area_encounter
-        remarks: 地点区域中的生物遭遇明细。
+        remarks: 地点区域中的当前生物遭遇明细。
         columns:
         - column:
             name: id
@@ -1757,12 +1555,6 @@ databaseChangeLog:
             name: creature_id
             type: bigint
             remarks: 生物 ID，引用 game_creature。
-            constraints:
-              nullable: false
-        - column:
-            name: version_id
-            type: bigint
-            remarks: 版本 ID，引用 game_version。
             constraints:
               nullable: false
         - column:
@@ -2040,10 +1832,6 @@ databaseChangeLog:
             type: bigint
             remarks: 地区 ID，引用 game_region。
         - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-        - column:
             name: min_level
             type: int
             remarks: 最低等级。
@@ -2253,35 +2041,6 @@ databaseChangeLog:
     author: backend
     changes:
     - createTable:
-        tableName: game_catalog_version_group
-        remarks: 目录适用版本组关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            remarks: 目录版本组绑定主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_catalog_version_group
-              nullable: false
-        - column:
-            name: catalog_id
-            type: bigint
-            remarks: 目录 ID，引用 game_catalog。
-            constraints:
-              nullable: false
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_catalog_version_group
-        columnNames: catalog_id, version_group_id
-        constraintName: uk_game_catalog_version_group__catalog_id_version_group_id
-    - createTable:
         tableName: game_creature_form
         remarks: 生物形态资料表。
         columns:
@@ -2310,10 +2069,6 @@ databaseChangeLog:
             name: creature_id
             type: bigint
             remarks: 生物 ID，引用 game_creature。
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
         - column:
             name: form_name
             type: varchar(120)
@@ -2392,7 +2147,7 @@ databaseChangeLog:
         constraintName: uk_game_creature_form_element__form_id_slot_order
     - createTable:
         tableName: game_machine
-        remarks: 机器资料表，维护道具、技能和版本组关系。
+        remarks: 机器资料表，维护当前道具和技能关系。
         columns:
         - column:
             name: id
@@ -2415,16 +2170,10 @@ databaseChangeLog:
             remarks: 技能 ID，引用 game_skill。
             constraints:
               nullable: false
-        - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-            constraints:
-              nullable: false
     - addUniqueConstraint:
         tableName: game_machine
-        columnNames: item_id, skill_id, version_group_id
-        constraintName: uk_game_machine__item_id_skill_id_version_group_id
+        columnNames: item_id
+        constraintName: uk_game_machine__item_id
     - createTable:
         tableName: game_transfer_area
         remarks: 迁移或联动玩法中的区域字典。
@@ -2668,7 +2417,7 @@ databaseChangeLog:
         constraintName: uk_game_species_creature_variety__species_id_creature_id
     - createTable:
         tableName: game_creature_skill_learn
-        remarks: 生物可学习技能的版本组和学习方式明细。
+        remarks: 生物当前可学习技能和学习方式明细。
         columns:
         - column:
             name: id
@@ -2692,12 +2441,6 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: version_group_id
-            type: bigint
-            remarks: 版本组 ID，引用 game_version_group。
-            constraints:
-              nullable: false
-        - column:
             name: learn_method_id
             type: bigint
             remarks: 学习方式 ID，引用 game_skill_learn_method。
@@ -2711,11 +2454,11 @@ databaseChangeLog:
               nullable: false
     - addUniqueConstraint:
         tableName: game_creature_skill_learn
-        columnNames: creature_id, skill_id, version_group_id, learn_method_id, level_learned_at
-        constraintName: uk_game_creature_skill_learn__creature_id_skill_id__1cfdb2c2
+        columnNames: creature_id, skill_id, learn_method_id, level_learned_at
+        constraintName: uk_game_creature_skill_learn__creature_skill_method_level
     - createTable:
         tableName: game_creature_held_item
-        remarks: 生物可能持有的道具明细。
+        remarks: 生物当前可能持有的道具明细。
         columns:
         - column:
             name: id
@@ -2739,22 +2482,18 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: version_id
-            type: bigint
-            remarks: 版本 ID，引用 game_version。
-        - column:
             name: rarity
             type: int
             remarks: 稀有度。
     - createTable:
         tableName: game_creature_game_index
-        remarks: 生物在版本中的索引值。
+        remarks: 生物当前索引值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物版本索引主键，内置数据保留资料源稳定 ID。
+            remarks: 生物索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_game_index
@@ -2766,24 +2505,18 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: version_id
-            type: bigint
-            remarks: 版本 ID，引用 game_version。
-            constraints:
-              nullable: false
-        - column:
             name: game_index
             type: int
-            remarks: 资料源中的版本索引值。
+            remarks: 当前索引值。
             constraints:
               nullable: false
     - addUniqueConstraint:
         tableName: game_creature_game_index
-        columnNames: creature_id, version_id
-        constraintName: uk_game_creature_game_index__creature_id_version_id
+        columnNames: creature_id
+        constraintName: uk_game_creature_game_index__creature_id
     - createTable:
         tableName: game_element_damage_relation
-        remarks: 属性之间的伤害倍率关系。
+        remarks: 当前属性之间的伤害倍率关系。
         columns:
         - column:
             name: id
@@ -2812,23 +2545,19 @@ databaseChangeLog:
             remarks: 关系类型，例如 double_damage_to。
             constraints:
               nullable: false
-        - column:
-            name: generation_id
-            type: bigint
-            remarks: 适用发布代际 ID，空值表示当前关系。
     - addUniqueConstraint:
         tableName: game_element_damage_relation
-        columnNames: source_element_id, target_element_id, relation_type, generation_id
-        constraintName: uk_game_element_damage_relation__source_element_id__21d775db
+        columnNames: source_element_id, target_element_id, relation_type
+        constraintName: uk_game_element_damage_relation__source_target_relation
     - createTable:
         tableName: game_element_game_index
-        remarks: 属性在发布代际中的索引值。
+        remarks: 属性当前索引值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 属性版本索引主键，内置数据保留资料源稳定 ID。
+            remarks: 属性索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_element_game_index
@@ -2840,21 +2569,15 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
-            name: generation_id
-            type: bigint
-            remarks: 发布代际 ID，引用 game_release_generation。
-            constraints:
-              nullable: false
-        - column:
             name: game_index
             type: int
-            remarks: 资料源中的版本索引值。
+            remarks: 当前索引值。
             constraints:
               nullable: false
     - addUniqueConstraint:
         tableName: game_element_game_index
-        columnNames: element_id, generation_id
-        constraintName: uk_game_element_game_index__element_id_generation_id
+        columnNames: element_id
+        constraintName: uk_game_element_game_index__element_id
     - createTable:
         tableName: game_stat_skill_effect
         remarks: 技能对数值项的提升或降低关系。
@@ -3234,18 +2957,6 @@ databaseChangeLog:
         - column:
             name: item_id
     - addForeignKeyConstraint:
-        baseTableName: game_item_game_index
-        baseColumnNames: generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_item_game_index__generation_id
-    - createIndex:
-        tableName: game_item_game_index
-        indexName: idx_game_item_game_index__generation_id
-        columns:
-        - column:
-            name: generation_id
-    - addForeignKeyConstraint:
         baseTableName: game_skill_detail
         baseColumnNames: skill_id
         referencedTableName: game_skill
@@ -3380,31 +3091,6 @@ databaseChangeLog:
         columns:
         - column:
             name: related_skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_skill_learn_method_version_group
-        baseColumnNames: learn_method_id
-        referencedTableName: game_skill_learn_method
-        referencedColumnNames: id
-        constraintName: fk_game_skill_learn_method_version_group__learn_method_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_skill_learn_method_version_group
-        indexName: idx_game_skill_learn_method_version_group__learn_method_id
-        columns:
-        - column:
-            name: learn_method_id
-    - addForeignKeyConstraint:
-        baseTableName: game_skill_learn_method_version_group
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_skill_learn_method_version_group__version_group_id
-    - createIndex:
-        tableName: game_skill_learn_method_version_group
-        indexName: idx_game_skill_learn_method_version_group__version_group_id
-        columns:
-        - column:
-            name: version_group_id
     - addForeignKeyConstraint:
         baseTableName: game_growth_rate_level
         baseColumnNames: growth_rate_id
@@ -3542,67 +3228,6 @@ databaseChangeLog:
         - column:
             name: nature_id
     - addForeignKeyConstraint:
-        baseTableName: game_region
-        baseColumnNames: main_generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_region__main_generation_id
-    - createIndex:
-        tableName: game_region
-        indexName: idx_game_region__main_generation_id
-        columns:
-        - column:
-            name: main_generation_id
-    - addForeignKeyConstraint:
-        baseTableName: game_version_group
-        baseColumnNames: generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_version_group__generation_id
-    - createIndex:
-        tableName: game_version_group
-        indexName: idx_game_version_group__generation_id
-        columns:
-        - column:
-            name: generation_id
-    - addForeignKeyConstraint:
-        baseTableName: game_version
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_version__version_group_id
-    - createIndex:
-        tableName: game_version
-        indexName: idx_game_version__version_group_id
-        columns:
-        - column:
-            name: version_group_id
-    - addForeignKeyConstraint:
-        baseTableName: game_version_group_region
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_version_group_region__version_group_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_version_group_region
-        indexName: idx_game_version_group_region__version_group_id
-        columns:
-        - column:
-            name: version_group_id
-    - addForeignKeyConstraint:
-        baseTableName: game_version_group_region
-        baseColumnNames: region_id
-        referencedTableName: game_region
-        referencedColumnNames: id
-        constraintName: fk_game_version_group_region__region_id
-    - createIndex:
-        tableName: game_version_group_region
-        indexName: idx_game_version_group_region__region_id
-        columns:
-        - column:
-            name: region_id
-    - addForeignKeyConstraint:
         baseTableName: game_location
         baseColumnNames: region_id
         referencedTableName: game_region
@@ -3627,18 +3252,6 @@ databaseChangeLog:
         columns:
         - column:
             name: location_id
-    - addForeignKeyConstraint:
-        baseTableName: game_location_game_index
-        baseColumnNames: generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_location_game_index__generation_id
-    - createIndex:
-        tableName: game_location_game_index
-        indexName: idx_game_location_game_index__generation_id
-        columns:
-        - column:
-            name: generation_id
     - addForeignKeyConstraint:
         baseTableName: game_encounter_condition_value
         baseColumnNames: condition_id
@@ -3689,18 +3302,6 @@ databaseChangeLog:
         - column:
             name: method_id
     - addForeignKeyConstraint:
-        baseTableName: game_location_area_method_rate
-        baseColumnNames: version_id
-        referencedTableName: game_version
-        referencedColumnNames: id
-        constraintName: fk_game_location_area_method_rate__version_id
-    - createIndex:
-        tableName: game_location_area_method_rate
-        indexName: idx_game_location_area_method_rate__version_id
-        columns:
-        - column:
-            name: version_id
-    - addForeignKeyConstraint:
         baseTableName: game_location_area_encounter
         baseColumnNames: area_id
         referencedTableName: game_location_area
@@ -3725,18 +3326,6 @@ databaseChangeLog:
         columns:
         - column:
             name: creature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_location_area_encounter
-        baseColumnNames: version_id
-        referencedTableName: game_version
-        referencedColumnNames: id
-        constraintName: fk_game_location_area_encounter__version_id
-    - createIndex:
-        tableName: game_location_area_encounter
-        indexName: idx_game_location_area_encounter__version_id
-        columns:
-        - column:
-            name: version_id
     - addForeignKeyConstraint:
         baseTableName: game_location_area_encounter
         baseColumnNames: method_id
@@ -3993,18 +3582,6 @@ databaseChangeLog:
         - column:
             name: region_id
     - addForeignKeyConstraint:
-        baseTableName: game_evolution_detail
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_evolution_detail__version_group_id
-    - createIndex:
-        tableName: game_evolution_detail
-        indexName: idx_game_evolution_detail__version_group_id
-        columns:
-        - column:
-            name: version_group_id
-    - addForeignKeyConstraint:
         baseTableName: game_gender_species_rate
         baseColumnNames: gender_id
         referencedTableName: game_gender
@@ -4092,31 +3669,6 @@ databaseChangeLog:
         - column:
             name: species_id
     - addForeignKeyConstraint:
-        baseTableName: game_catalog_version_group
-        baseColumnNames: catalog_id
-        referencedTableName: game_catalog
-        referencedColumnNames: id
-        constraintName: fk_game_catalog_version_group__catalog_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_catalog_version_group
-        indexName: idx_game_catalog_version_group__catalog_id
-        columns:
-        - column:
-            name: catalog_id
-    - addForeignKeyConstraint:
-        baseTableName: game_catalog_version_group
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_catalog_version_group__version_group_id
-    - createIndex:
-        tableName: game_catalog_version_group
-        indexName: idx_game_catalog_version_group__version_group_id
-        columns:
-        - column:
-            name: version_group_id
-    - addForeignKeyConstraint:
         baseTableName: game_creature_form
         baseColumnNames: creature_id
         referencedTableName: game_creature
@@ -4128,18 +3680,6 @@ databaseChangeLog:
         columns:
         - column:
             name: creature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_creature_form
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_creature_form__version_group_id
-    - createIndex:
-        tableName: game_creature_form
-        indexName: idx_game_creature_form__version_group_id
-        columns:
-        - column:
-            name: version_group_id
     - addForeignKeyConstraint:
         baseTableName: game_creature_form_element
         baseColumnNames: form_id
@@ -4189,18 +3729,6 @@ databaseChangeLog:
         columns:
         - column:
             name: skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_machine
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_machine__version_group_id
-    - createIndex:
-        tableName: game_machine
-        indexName: idx_game_machine__version_group_id
-        columns:
-        - column:
-            name: version_group_id
     - addForeignKeyConstraint:
         baseTableName: game_transfer_area_species
         baseColumnNames: area_id
@@ -4365,18 +3893,6 @@ databaseChangeLog:
             name: skill_id
     - addForeignKeyConstraint:
         baseTableName: game_creature_skill_learn
-        baseColumnNames: version_group_id
-        referencedTableName: game_version_group
-        referencedColumnNames: id
-        constraintName: fk_game_creature_skill_learn__version_group_id
-    - createIndex:
-        tableName: game_creature_skill_learn
-        indexName: idx_game_creature_skill_learn__version_group_id
-        columns:
-        - column:
-            name: version_group_id
-    - addForeignKeyConstraint:
-        baseTableName: game_creature_skill_learn
         baseColumnNames: learn_method_id
         referencedTableName: game_skill_learn_method
         referencedColumnNames: id
@@ -4413,18 +3929,6 @@ databaseChangeLog:
         - column:
             name: item_id
     - addForeignKeyConstraint:
-        baseTableName: game_creature_held_item
-        baseColumnNames: version_id
-        referencedTableName: game_version
-        referencedColumnNames: id
-        constraintName: fk_game_creature_held_item__version_id
-    - createIndex:
-        tableName: game_creature_held_item
-        indexName: idx_game_creature_held_item__version_id
-        columns:
-        - column:
-            name: version_id
-    - addForeignKeyConstraint:
         baseTableName: game_creature_game_index
         baseColumnNames: creature_id
         referencedTableName: game_creature
@@ -4437,18 +3941,6 @@ databaseChangeLog:
         columns:
         - column:
             name: creature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_creature_game_index
-        baseColumnNames: version_id
-        referencedTableName: game_version
-        referencedColumnNames: id
-        constraintName: fk_game_creature_game_index__version_id
-    - createIndex:
-        tableName: game_creature_game_index
-        indexName: idx_game_creature_game_index__version_id
-        columns:
-        - column:
-            name: version_id
     - addForeignKeyConstraint:
         baseTableName: game_element_damage_relation
         baseColumnNames: source_element_id
@@ -4475,18 +3967,6 @@ databaseChangeLog:
         - column:
             name: target_element_id
     - addForeignKeyConstraint:
-        baseTableName: game_element_damage_relation
-        baseColumnNames: generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_element_damage_relation__generation_id
-    - createIndex:
-        tableName: game_element_damage_relation
-        indexName: idx_game_element_damage_relation__generation_id
-        columns:
-        - column:
-            name: generation_id
-    - addForeignKeyConstraint:
         baseTableName: game_element_game_index
         baseColumnNames: element_id
         referencedTableName: game_element
@@ -4499,18 +3979,6 @@ databaseChangeLog:
         columns:
         - column:
             name: element_id
-    - addForeignKeyConstraint:
-        baseTableName: game_element_game_index
-        baseColumnNames: generation_id
-        referencedTableName: game_release_generation
-        referencedColumnNames: id
-        constraintName: fk_game_element_game_index__generation_id
-    - createIndex:
-        tableName: game_element_game_index
-        indexName: idx_game_element_game_index__generation_id
-        columns:
-        - column:
-            name: generation_id
     - addForeignKeyConstraint:
         baseTableName: game_stat_skill_effect
         baseColumnNames: stat_id

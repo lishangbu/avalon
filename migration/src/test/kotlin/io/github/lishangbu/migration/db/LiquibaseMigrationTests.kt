@@ -350,7 +350,6 @@ class LiquibaseMigrationTests(
 			"game_skill_ailment",
 			"game_growth_rate",
 			"game_region",
-			"game_version_group",
 			"game_location_area_encounter",
 			"game_evolution_chain",
 			"game_catalog",
@@ -383,8 +382,8 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("game_creature_stat", 8100L)
 		assertThat(seedCounts).containsEntry("game_berry", 64L)
 		assertThat(seedCounts).containsEntry("game_region", 11L)
-		assertThat(seedCounts).containsEntry("game_location_area_encounter", 69714L)
-		assertThat(seedCounts).containsEntry("game_creature_skill_learn", 635905L)
+		assertThat(seedCounts).containsEntry("game_location_area_encounter", 22491L)
+		assertThat(seedCounts).containsEntry("game_creature_skill_learn", 139841L)
 
 		val creatureNames = queryStrings(
 			"""

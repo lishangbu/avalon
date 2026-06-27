@@ -1,17 +1,17 @@
 id,code,name,description,enabled
-1,specific-move,Specific move,One specific move. How this move is chosen depends upon on the move being used.,true
-2,selected-pokemon-me-first,Selected Pokémon,"One other Pokémon on the field, selected by the trainer. Stolen moves reuse the same target.",true
-3,ally,Ally,The user’s ally (if any).,true
-4,users-field,User’s field,The user’s side of the field. Affects the user and its ally (if any).,true
-5,user-or-ally,User or ally,"Either the user or its ally, selected by the trainer.",true
-6,opponents-field,Opponent’s field,The opposing side of the field. Affects opposing Pokémon.,true
-7,user,User,The user.,true
-8,random-opponent,Random opponent,"One opposing Pokémon, selected at random.",true
-9,all-other-pokemon,All other Pokémon,Every other Pokémon on the field.,true
-10,selected-pokemon,Selected Pokémon,"One other Pokémon on the field, selected by the trainer.",true
-11,all-opponents,All opponents,All opposing Pokémon.,true
-12,entire-field,Entire field,The entire field. Affects all Pokémon.,true
-13,user-and-allies,User and allies,The user and its allies.,true
-14,all-pokemon,All Pokémon,Every Pokémon on the field.,true
-15,all-allies,All allies,All of the user’s allies.,true
-16,fainting-pokemon,fainting pokemon,,true
+1,specific-move,指定技能,一项具体举措。如何选择此技能取决于所使用的技能。,true
+2,selected-pokemon-me-first,指定生物,场上的另一只生物，由训练师选择。被盗的技能会重复使用相同的目标。,true
+3,ally,同伴,使用者的同伴（如果有）。,true
+4,users-field,己方场地,使用者这边的场地。影响使用者及其同伴（如果有）。,true
+5,user-or-ally,使用者或同伴,由训练师选择的使用者或其同伴。,true
+6,opponents-field,对手场地,场上的对方。影响对手生物。,true
+7,user,使用者,使用者。,true
+8,random-opponent,随机对手,随机选择一只对立的生物。,true
+9,all-other-pokemon,除自身外所有生物,场上的所有其他生物。,true
+10,selected-pokemon,指定生物,场上的另一只生物，由训练师选择。,true
+11,all-opponents,所有对手,所有对立的生物。,true
+12,entire-field,整个场地,整个领域。影响所有生物。,true
+13,user-and-allies,使用者与同伴,使用者及其同伴。,true
+14,all-pokemon,所有生物,场上的所有生物。,true
+15,all-allies,所有同伴,使用者的所有同伴。,true
+16,fainting-pokemon,晕倒的生物,,true

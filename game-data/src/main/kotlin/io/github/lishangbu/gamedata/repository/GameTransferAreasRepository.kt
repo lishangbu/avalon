@@ -1,0 +1,22 @@
+package io.github.lishangbu.gamedata.repository
+
+import org.springframework.stereotype.Repository
+
+private val GAME_TRANSFER_AREAS_TABLE = GameDataTableSpec(
+	tableName = "game_transfer_area",
+	label = "迁移区域",
+	columns = listOf(
+		GameDataColumnSpec(name = "code", type = GameDataColumnType.STRING, required = true, maxLength = 80),
+		GameDataColumnSpec(name = "name", type = GameDataColumnType.STRING, required = true, maxLength = 120),
+		GameDataColumnSpec(name = "enabled", type = GameDataColumnType.BOOLEAN, required = true),
+	),
+	searchColumns = listOf("code", "name"),
+)
+
+/**
+ * 迁移区域持久化访问。
+ */
+@Repository
+class GameTransferAreasRepository(
+	operations: GameDataJdbcOperations,
+) : GameDataTableRepository(operations, GAME_TRANSFER_AREAS_TABLE)

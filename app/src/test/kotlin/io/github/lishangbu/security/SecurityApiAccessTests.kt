@@ -107,13 +107,42 @@ class SecurityApiAccessTests(
 				.header("Authorization", "Bearer $token"),
 		)
 			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.rows[0].fields.code").value("bulbasaur"))
-			.andExpect(jsonPath("$.rows[0].fields.name").value("妙蛙种子"))
+			.andExpect(jsonPath("$.rows[0].code").value("bulbasaur"))
+			.andExpect(jsonPath("$.rows[0].name").value("妙蛙种子"))
 
 		mockMvc.perform(
 			get("/api/system/rbac/access-nodes")
 				.header("Authorization", "Bearer $token"),
 		).andExpect(status().isForbidden)
+	}
+
+	@Test
+	fun `game data api supports exact field filters`() {
+		insertUser("game-data-filter-admin", roleId = 202L)
+		val token = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "game-data-filter-admin",
+			scope = "game-data:admin",
+		)
+
+		mockMvc.perform(
+			get("/api/game-data/creatures")
+				.header("Authorization", "Bearer $token")
+				.param("species_id", "1"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].code").value("bulbasaur"))
+			.andExpect(jsonPath("$.rows[0].species_id").value(1))
+
+		mockMvc.perform(
+			get("/api/game-data/creatures")
+				.header("Authorization", "Bearer $token")
+				.param("unknown_id", "1"),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+			.andExpect(jsonPath("$.field").value("unknown_id"))
 	}
 
 	private fun issueToken(

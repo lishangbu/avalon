@@ -1,206 +1,206 @@
 id,code,name,condition_id,enabled
-1,swarm-yes,During a swarm,1,true
-2,swarm-no,Not during a swarm,1,true
-3,time-morning,In the morning,2,true
-4,time-day,During the day,2,true
-5,time-night,At night,2,true
-6,radar-on,Using PokéRadar,3,true
-7,radar-off,Not using PokéRadar,3,true
-8,slot2-none,No game in slot 2,4,true
-9,slot2-ruby,Ruby in slot 2,4,true
-10,slot2-sapphire,Sapphire in slot 2,4,true
-11,slot2-emerald,Emerald in slot 2,4,true
-12,slot2-firered,FireRed in slot 2,4,true
-13,slot2-leafgreen,LeafGreen in slot 2,4,true
-14,radio-off,Radio off,5,true
-15,radio-hoenn,Hoenn radio,5,true
-16,radio-sinnoh,Sinnoh radio,5,true
-17,season-spring,During Spring,6,true
-18,season-summer,During Summer,6,true
-19,season-autumn,During Autumn,6,true
-20,season-winter,During Winter,6,true
-21,starter-bulbasaur,Bulbasaur as starter,7,true
-22,starter-squirtle,Squirtle as starter,7,true
-23,starter-charmander,Charmander as starter,7,true
-24,starter-chespin,Chespin as starter,7,true
-25,starter-fennekin,Fennekin as starter,7,true
-26,starter-froakie,Froakie as starter,7,true
-27,tv-option-blue,Chose ‘Blue’ on the TV news report,8,true
-28,tv-option-red,Chose ‘Red’ on the TV news report,8,true
-29,story-progress-awakened-beasts,Awakened the legendary beasts at Burned Tower,9,true
-30,story-progress-beat-galactic-coronet,Visited Lake Verity after defeating Team Galactic at Mt. Coronet,9,true
-31,story-progress-oak-eterna-city,Talked to Professor Oak at Eterna City,9,true
-32,story-progress-vermilion-copycat,Visited the Pokémon Fan Club with Copycat’s doll,9,true
-33,story-progress-met-tornadus-thundurus,Met Tornadus or Thundurus in a cutscene,9,true
-34,story-progress-beat-elite-four-round-two,Beat the Elite 4 for the second time,9,true
-35,story-progress-hall-of-fame,Enter the Hall of Fame,9,true
-36,story-progress-none,None,9,true
-37,story-progress-national-dex,Acquired National Pokédex,9,true
-38,other-none,None,10,true
-39,other-snorlax-11-beat-league,Beat the Pokémon league after knocking out Snorlax at Route 11,10,true
-40,other-virtual-console,Playing on the Virtual Console Release,10,true
-41,story-progress-cure-eldritch-nightmares,Cure the nightmares of Eldritch’s Son,9,true
-42,other-talk-to-cynthias-grandmother,Talk to Cynthia’s grandmother,10,true
-43,item-none,No item requirement,11,true
-44,item-adamant-orb,Have Adamant Orb in bag,11,true
-45,item-lustrous-orb,Have Lustrous Orb in bag,11,true
-46,item-helix-fossil,Have Helix Fossil in bag,11,true
-47,item-dome-fossil,Have Dome Fossil in bag,11,true
-48,item-old-amber,Have Old Amber in bag,11,true
-49,item-root-fossil,Have Root Fossil in bag,11,true
-50,item-claw-fossil,Have Claw Fossil in bag,11,true
-51,story-progress-defeat-jupiter,Defeat Jupiter,9,true
-52,story-progress-beat-team-galactic-iron-island,Defeat Team Galactic at Iron Island,9,true
-53,other-correct-password,Input correct password,10,true
-54,story-progress-zephyr-badge,Obtained Zephyr badge,9,true
-55,story-progress-beat-red,Defeat Red,9,true
-56,other-received-kanto-starter,Received a Kanto Starter,10,true
-57,story-progress-receive-tm-from-claire,Received TM59 From Claire,9,true
-58,other-regirock-regice-registeel-in-party,"Have Regirock, Regice and Registeel in the party",10,true
-59,weekday-sunday,Sunday,12,true
-60,weekday-monday,Monday,12,true
-61,weekday-tuesday,Tuesday,12,true
-62,weekday-wednesday,Wednesday,12,true
-63,weekday-thursday,Thursday,12,true
-64,weekday-friday,Friday,12,true
-65,weekday-saturday,Saturday,12,true
-66,first-party-pokemon-high-friendship,The first Pokémon in the player’s party has a high friendship stat,13,true
-67,story-progress-defeat-mars,Beat Mars for the first time,9,true
-68,item-odd-keystone,Have Odd Keystone in bag,11,true
-69,other-talked-to-32-people-underground,Has talked to at least 32 people in the underground,10,true
-70,story-progress-returned-machine-part,Returned Machine Part to Power Plant,9,true
-71,other-event-arceus-in-party,Have an Event Arceus in the party,10,true
-72,special-encounter-couldnt-capture-before,This special Pokémon couldn’t be captured in previous encounters (either fainted or ran from battle),14,true
-73,item-ice-key,Have Ice Key in bag,11,true
-74,item-iron-key,Have Iron Key in bag,11,true
-75,story-progress-juniper-cave-of-being,Spoke to Professor Juniper in the Cave of Being,9,true
-76,item-lunar-wing,Have Lunar Wing in bag,11,true
-77,story-progress-quake-badge,Obtained Quake Badge,9,true
-78,item-light-stone,Have Light Stone in bag,11,true
-79,item-dark-stone,Have Dark Stone in bag,11,true
-80,other-captured-reshiram-or-zekrom,Captured Reshiram or Zekrom previously,10,true
-81,defeated-ghetsis,Defeated Ghetsis,9,true
-82,other-found-11-times-roaming,Has been unsuccesfully battled 11 times before,10,true
-83,time-minute-00-to-19,The current minute is between 00 and 19,2,true
-84,time-minute-20-to-39,The current minute is between 20 and 39,2,true
-85,time-minute-40-to-59,The current minute is between 40 and 59,2,true
-86,time-04-00-to-19-59,The current time is between 04:00 and 19:59,2,true
-87,time-20-00-to-21-59,The current time is between 20:00 and 21:59,2,true
-88,time-21-00-to-03-59,The current time is between 22:00 and 03:59,2,true
-89,item-tidal-bell,Have Tidal Bell in bag,11,true
-90,item-clear-bell,Have Clear Bell in bag,11,true
-91,story-progress-defeated-groudon-or-kyogre,Defeated or captured Groudon or Kyogre,9,true
-92,other-uxie-mesprit-azelf-in-party,"Have Uxie, Mesprit, and Azelf in the party",10,true
-93,other-nicknamed-cold-item-regice-regirock-registeel3,"After capturing the three regis in the game, have a nicknamed Regice holding a cold-based item, plus Regirock and Registeel in the party",10,true
-94,other-dialga-or-palkia-in-party,Have Dialga or Palkia in the party,10,true
-95,other-castform-in-party,Have Castform in party,10,true
-96,other-level-100-pokemon-in-party,Have a Level 100 Pokémon in party,10,true
-97,other-tornadus-thundurus-in-party,Have Tornadus and Thundurus in party,10,true
-98,other-reshiram-zekrom-in-party,Have Reshiram and Zekrom in party,10,true
-99,other-captured-all-ultra-beasts,Captured all Ultra Beasts,10,true
-100,story-progress-finished-looker-sidequest,Finished Looker’s Sidequest,9,true
-101,story-progress-beat-olivias-trial,After finishing Olivia’s trial,9,true
-102,other-raikou-entei-in-party,Have Raikou and Entei in party,10,true
-103,other-groudon-kyogre-in-party,Have Groudon and Kyogre in party,10,true
-104,other-dialga-palkia-in-party,Have Dialga and Palkia in party,10,true
-105,other-scan-qr-code,Scan a specific QR Code,10,true
-106,other-caught-articuno,other caught articuno,10,true
-107,other-caught-zapdos,other caught zapdos,10,true
-108,other-caught-moltres,other caught moltres,10,true
-109,trade-togepi-or-togetic,Give Togepi or Togetic in a Trade,15,true
-110,trade-trapinch,Give Trapunch in a Trade,15,true
-111,trade-surskit,Give Surskit in a Trade,15,true
-112,trade-wooper,Give Wooper in a Trade,15,true
-113,story-progress-catch-all-shadow-pokemon,Catch all 82 Shadow Pokemon and Mirror B will appear in Gateon with a Shadow Dragonite,9,true
-114,other-complete-mt-battle,Complete Mt. Battle to receive a special prize Pokemon,9,true
-115,coins-180,Have at least 180 coins in your Coin Case,16,true
-116,coins-500,Have at least 500 coins in your Coin Case,16,true
-117,coins-1200,Have at least 1200 coins in your Coin Case,16,true
-118,coins-2800,Have at least 2800 coins in your Coin Case,16,true
-119,coins-5500,Have at least 5500 coins in your Coin Case,16,true
-120,coins-9999,Have at least 9999 coins in your Coin Case,16,true
-121,coins-120,Have at least 120 coins in your Coin Case,16,true
-122,coins-750,Have at least 750 coins in your Coin Case,16,true
-123,coins-2500,Have at least 2500 coins in your Coin Case,16,true
-124,coins-4600,Have at least 4600 coins in your Coin Case,16,true
-125,coins-6500,Have at least 6500 coins in your Coin Case,16,true
-126,coins-230,Have at least 230 coins in your Coin Case,16,true
-127,coins-1000,Have at least 1000 coins in your Coin Case,16,true
-128,coins-2680,Have at least 2680 coins in your Coin Case,16,true
-129,coins-3333,Have at least 3333 coins in your Coin Case,16,true
-130,coins-6666,Have at least 6666 coins in your Coin Case,16,true
-131,coins-200,Have at least 200 coins in your Coin Case,16,true
-132,coins-700,Have at least 700 coins in your Coin Case,16,true
-133,coins-2100,Have at least 2100 coins in your Coin Case,16,true
-134,coins-100,Have at least 100 coins in your Coin Case,16,true
-135,coins-800,Have at least 800 coins in your Coin Case,16,true
-136,coins-1500,Have at least 1500 coins in your Coin Case,16,true
-137,coins-2222,Have at least 2222 coins in your Coin Case,16,true
-138,coins-5555,Have at least 5555 coins in your Coin Case,16,true
-139,coins-8888,Have at least 8888 coins in your Coin Case,16,true
-140,coins-150,Have at least 150 coins in your Coin Case,16,true
-141,coins-620,Have at least 620 coins in your Coin Case,16,true
-142,coins-2880,Have at least 2880 coins in your Coin Case,16,true
-143,coins-5400,Have at least 5400 coins in your Coin Case,16,true
-144,coins-8300,Have at least 8300 coins in your Coin Case,16,true
-145,trade-abra,Give Abra in a Trade,15,true
-146,trade-nidoran-m,Give Nidoran-M in a Trade,15,true
-147,trade-nidorino,Give Nidorino in a Trade,15,true
-148,trade-slowbro,Give Slowbro in a Trade,15,true
-149,trade-poliwhirl,Give Poliwhirl in a Trade,15,true
-150,trade-spearow,Give Spearow in a Trade,15,true
-151,trade-raichu,Give Raichu in a Trade,15,true
-152,trade-venonat,Give Venonat in a Trade,15,true
-153,trade-ponyta,Give Ponyta in a Trade,15,true
-154,trade-clefairy,Give Clefairy in a Trade,15,true
-155,trade-cubone,Give Cubone in a Trade,15,true
-156,trade-lickitung,Give Lickitung in a Trade,15,true
-157,trade-tangela,Give Tangela in a Trade,15,true
-158,trade-golduck,Give Golduck in a Trade,15,true
-159,trade-growlithe,Give Growlithe in a Trade,15,true
-160,trade-kangaskhan,Give Kangaskhan in a Trade,15,true
-161,trade-bellsprout,Give Bellsprout in a Trade,15,true
-162,trade-drowzee,Give Drowzee in a Trade,15,true
-163,trade-krabby,Give Krabby in a Trade,15,true
-164,trade-dragonair,Give Dragonair in a Trade,15,true
-165,trade-chansey,Give Chansey in a Trade,15,true
-166,trade-gloom,Give Gloom in a Trade,15,true
-167,trade-haunter,Give Haunter in a Trade,15,true
-168,trade-dugtrio,Give Dugtrio in a Trade,15,true
-169,trade-slakoth,Give Slakoth in a Trade,15,true
-170,trade-pikachu,Give Pikachu in a Trade,15,true
-171,trade-bellossom,Give Bellossom in a Trade,15,true
-172,trade-ralts,Give Ralts in a Trade,15,true
-173,trade-volbeat,Give Volbeat in a Trade,15,true
-174,trade-bagon,Give Bagon in a Trade,15,true
-175,trade-skitty,Give Skitty in a Trade,15,true
-176,friend-safari-slot-1,Randomly assigned to Friend Safari Slot 1,17,true
-177,friend-safari-slot-2,Randomly assigned to Friend Safari Slot 2,17,true
-178,friend-safari-slot-3,Randomly assigned to Friend Safari Slot 3,17,true
-179,item-skull-fossil,Have Skull Fossil in bag,11,true
-180,item-armor-fossil,Have Armor Fossil in bag,11,true
-181,great-marsh-daily-slot-none,Great Marsh Daily Chance: None,18,true
-182,great-marsh-daily-slot-1-of-32,Great Marsh Daily Chance: 1 in 32,18,true
-183,great-marsh-daily-slot-2-of-32,Great Marsh Daily Chance: 2 in 32,18,true
-184,great-marsh-daily-slot-3-of-32,Great Marsh Daily Chance: 3 in 32,18,true
-185,great-marsh-daily-slot-5-of-32,Great Marsh Daily Chance: 5 in 32,18,true
-186,story-progress-before-national-dex,Before National Pokédex,9,true
-187,great-marsh-daily-slot-4-of-32,Great Marsh Daily Chance: 4 in 32,18,true
-188,great-marsh-daily-slot-15-of-32,Great Marsh Daily Chance: 15 in 32,18,true
-189,honey-tree-group-a,Honey Tree Group A (70% on normal trees / 20% on Munchlax trees),19,true
-190,honey-tree-group-b,Honey Tree Group B (20% on normal trees / 70% on Munchlax trees),19,true
-191,honey-tree-group-c,Honey Tree Group C (0% on normal trees / 1% on Munchlax trees),19,true
-192,headbutt-tree-common,Headbutt Tree (Common),20,true
-193,headbutt-tree-rare,Headbutt Tree (Rare),20,true
-194,headbutt-tree-secret,Headbutt Tree (Secret),20,true
-195,trade-cottonee,Give Cottonee in a Trade,15,true
-196,trade-petilil,Give Petilil in a Trade,15,true
-197,trade-emolga,Give Emolga in a Trade,15,true
-198,trade-mantine,Give Mantine in a Trade,15,true
-199,trade-ditto,Give Ditto in a Trade,15,true
-200,trade-excadrill,Give Excadrill in a Trade,15,true
-201,trade-hippowdon,Give Hippowdon in a Trade,15,true
-202,backlot-not-mentioned,Mr. Backlot hasn't mentioned any Pokemon,21,true
-203,backlot-mentioned,Mr. Backlot has mentioned seeing this Pokemon in the garden,21,true
-204,bug-catching-contest-no,Not during the Bug-Catching Contest,22,true
-205,bug-catching-contest-yes,During the Bug-Catching Contest,22,true
+1,swarm-yes,群聚期间,1,true
+2,swarm-no,不是在蜂群期间,1,true
+3,time-morning,在早晨,2,true
+4,time-day,白天,2,true
+5,time-night,晚上,2,true
+6,radar-on,使用 生物雷达,3,true
+7,radar-off,不使用 生物雷达,3,true
+8,slot2-none,插槽 2 中没有游戏,4,true
+9,slot2-ruby,红宝石位于插槽 2,4,true
+10,slot2-sapphire,蓝宝石位于插槽 2,4,true
+11,slot2-emerald,绿宝石位于插槽 2,4,true
+12,slot2-firered,火红位于插槽 2,4,true
+13,slot2-leafgreen,LeafGreen 位于插槽 2,4,true
+14,radio-off,无线电关闭,5,true
+15,radio-hoenn,丰缘广播电台,5,true
+16,radio-sinnoh,神奥广播电台,5,true
+17,season-spring,春季期间,6,true
+18,season-summer,夏季期间,6,true
+19,season-autumn,秋季期间,6,true
+20,season-winter,冬季期间,6,true
+21,starter-bulbasaur,妙蛙种子作为首发,7,true
+22,starter-squirtle,杰尼龟作为开胃菜,7,true
+23,starter-charmander,小火龙作为首发,7,true
+24,starter-chespin,切斯平首发,7,true
+25,starter-fennekin,芬内金作为首发,7,true
+26,starter-froakie,弗拉基担任首发,7,true
+27,tv-option-blue,在电视新闻报道中选择“蓝色”,8,true
+28,tv-option-red,在电视新闻报道中选择“红色”,8,true
+29,story-progress-awakened-beasts,唤醒灼伤之塔的传奇野兽,9,true
+30,story-progress-beat-galactic-coronet,在皇冠山击败银河队后访问了维里蒂湖,9,true
+31,story-progress-oak-eterna-city,与 Eterna City 的 Oak 教授交谈,9,true
+32,story-progress-vermilion-copycat,带着模仿猫的玩偶参观了生物粉丝俱乐部,9,true
+33,story-progress-met-tornadus-thundurus,在过场动画中遇见龙卷风或雷霆,9,true
+34,story-progress-beat-elite-four-round-two,第二次击败精英 4,9,true
+35,story-progress-hall-of-fame,进入名人堂,9,true
+36,story-progress-none,没有任何,9,true
+37,story-progress-national-dex,获得国家图鉴,9,true
+38,other-none,没有任何,10,true
+39,other-snorlax-11-beat-league,在 11 号公路击败卡纳拉克斯后，击败生物联盟,10,true
+40,other-virtual-console,在虚拟控制台版本上玩,10,true
+41,story-progress-cure-eldritch-nightmares,治愈埃尔德里奇之子的噩梦,9,true
+42,other-talk-to-cynthias-grandmother,与辛西娅的祖母交谈,10,true
+43,item-none,无物品要求,11,true
+44,item-adamant-orb,包里有金刚球,11,true
+45,item-lustrous-orb,包里有光泽宝珠,11,true
+46,item-helix-fossil,包里有螺旋化石,11,true
+47,item-dome-fossil,袋子里有圆顶化石,11,true
+48,item-old-amber,袋子里有老琥珀,11,true
+49,item-root-fossil,袋子里有根化石,11,true
+50,item-claw-fossil,袋子里有爪化石,11,true
+51,story-progress-defeat-jupiter,击败木星,9,true
+52,story-progress-beat-team-galactic-iron-island,在铁岛击败银河队,9,true
+53,other-correct-password,输入正确的密码,10,true
+54,story-progress-zephyr-badge,获得Zephyr徽章,9,true
+55,story-progress-beat-red,击败红色,9,true
+56,other-received-kanto-starter,收到关东开胃菜,10,true
+57,story-progress-receive-tm-from-claire,收到克莱尔寄来的 TM59,9,true
+58,other-regirock-regice-registeel-in-party,让Regirock、Regice 和Registeel 加入队伍,10,true
+59,weekday-sunday,星期日,12,true
+60,weekday-monday,周一,12,true
+61,weekday-tuesday,周二,12,true
+62,weekday-wednesday,周三,12,true
+63,weekday-thursday,周四,12,true
+64,weekday-friday,星期五,12,true
+65,weekday-saturday,周六,12,true
+66,first-party-pokemon-high-friendship,玩家队伍中的第一只生物有很高的友谊值,13,true
+67,story-progress-defeat-mars,首次击败火星,9,true
+68,item-odd-keystone,包里有奇怪的梯形石,11,true
+69,other-talked-to-32-people-underground,已与至少 32 名地下人士交谈,10,true
+70,story-progress-returned-machine-part,将学习机零件返回发电厂,9,true
+71,other-event-arceus-in-party,在聚会中举办活动阿尔宙斯,10,true
+72,special-encounter-couldnt-capture-before,这种特殊的生物在之前的遭遇中无法被捕获（要么晕倒，要么逃离对战）,14,true
+73,item-ice-key,包里有冰钥匙,11,true
+74,item-iron-key,包里有铁钥匙,11,true
+75,story-progress-juniper-cave-of-being,在存在之洞与杜松教授交谈,9,true
+76,item-lunar-wing,包里有月翼,11,true
+77,story-progress-quake-badge,获得地震徽章,9,true
+78,item-light-stone,包里有轻石,11,true
+79,item-dark-stone,包里有黑石,11,true
+80,other-captured-reshiram-or-zekrom,之前捕获过莱希拉姆或捷克罗姆,10,true
+81,defeated-ghetsis,击败盖西斯,9,true
+82,other-found-11-times-roaming,此前已对战11次未果,10,true
+83,time-minute-00-to-19,当前分钟介于 00 到 19 之间,2,true
+84,time-minute-20-to-39,当前分钟在 20 到 39 之间,2,true
+85,time-minute-40-to-59,当前分钟在 40 到 59 之间,2,true
+86,time-04-00-to-19-59,当前时间为 04:00 至 19:59,2,true
+87,time-20-00-to-21-59,当前时间为 20:00 至 21:59,2,true
+88,time-21-00-to-03-59,当前时间在 22:00 至 03:59 之间,2,true
+89,item-tidal-bell,包里有潮汐钟,11,true
+90,item-clear-bell,名称,11,true
+91,story-progress-defeated-groudon-or-kyogre,击败或俘获固拉多或盖欧卡,9,true
+92,other-uxie-mesprit-azelf-in-party,让 Uxie、Mesprit 和 Azelf 加入队伍,10,true
+93,other-nicknamed-cold-item-regice-regirock-registeel3,捕获游戏中的三个雷吉斯后，昵称雷吉斯持有冷系物品，队伍中还有雷吉洛克和雷吉斯钢,10,true
+94,other-dialga-or-palkia-in-party,队伍中有帝牙卢卡或帕路奇犽,10,true
+95,other-castform-in-party,让 漂浮泡泡 参加队伍,10,true
+96,other-level-100-pokemon-in-party,队伍中有 100 级生物,10,true
+97,other-tornadus-thundurus-in-party,让龙卷风和雷霆都加入队伍,10,true
+98,other-reshiram-zekrom-in-party,让莱希拉姆和捷克罗姆加入队伍,10,true
+99,other-captured-all-ultra-beasts,捕获所有究极异兽,10,true
+100,story-progress-finished-looker-sidequest,完成了观察者的支线任务,9,true
+101,story-progress-beat-olivias-trial,完成奥莉薇娅的审判后,9,true
+102,other-raikou-entei-in-party,让雷公和炎帝参加聚会,10,true
+103,other-groudon-kyogre-in-party,让固拉多和盖欧卡加入队伍,10,true
+104,other-dialga-palkia-in-party,让帝牙卢卡和帕路奇犽参加队伍,10,true
+105,other-scan-qr-code,扫描特定二维码,10,true
+106,other-caught-articuno,其他捕获的Articuno,10,true
+107,other-caught-zapdos,其他捕获的 zapdos,10,true
+108,other-caught-moltres,其他捕获的蜕皮动物,10,true
+109,trade-togepi-or-togetic,在交易中给予 Togepi 或 Togetic,15,true
+110,trade-trapinch,在交易中给予陷阱,15,true
+111,trade-surskit,在交易中给予 Surskit,15,true
+112,trade-wooper,给伍珀交易,15,true
+113,story-progress-catch-all-shadow-pokemon,捕获全部 82 只暗影生物，镜子 B 将与暗影龙一起出现在 Gateon 中,9,true
+114,other-complete-mt-battle,完成山对战即可获得特别奖品生物,9,true
+115,coins-180,您的硬币盒中至少有 180 枚硬币,16,true
+116,coins-500,您的硬币盒中至少有 500 枚硬币,16,true
+117,coins-1200,您的硬币盒中至少有 1200 枚硬币,16,true
+118,coins-2800,您的硬币盒中至少有 2800 枚硬币,16,true
+119,coins-5500,您的硬币盒中至少有 5500 枚硬币,16,true
+120,coins-9999,您的硬币盒中至少有 9999 枚硬币,16,true
+121,coins-120,您的硬币盒中至少有 120 枚硬币,16,true
+122,coins-750,您的硬币盒中至少有 750 个硬币,16,true
+123,coins-2500,您的硬币盒中至少有 2500 个硬币,16,true
+124,coins-4600,您的硬币盒中至少有 4600 枚硬币,16,true
+125,coins-6500,您的硬币盒中至少有 6500 枚硬币,16,true
+126,coins-230,您的硬币盒中至少有 230 枚硬币,16,true
+127,coins-1000,您的硬币盒中至少有 1000 枚硬币,16,true
+128,coins-2680,您的硬币盒中至少有 2680 个硬币,16,true
+129,coins-3333,您的硬币盒中至少有 3333 枚硬币,16,true
+130,coins-6666,您的硬币盒中至少有 6666 枚硬币,16,true
+131,coins-200,您的硬币盒中至少有 200 枚硬币,16,true
+132,coins-700,您的硬币盒中至少有 700 枚硬币,16,true
+133,coins-2100,您的硬币盒中至少有 2100 个硬币,16,true
+134,coins-100,您的硬币盒中至少有 100 枚硬币,16,true
+135,coins-800,您的硬币盒中至少有 800 枚硬币,16,true
+136,coins-1500,您的硬币盒中至少有 1500 枚硬币,16,true
+137,coins-2222,您的硬币盒中至少有 2222 枚硬币,16,true
+138,coins-5555,您的硬币盒中至少有 5555 枚硬币,16,true
+139,coins-8888,您的硬币盒中至少有 8888 个硬币,16,true
+140,coins-150,您的硬币盒中至少有 150 枚硬币,16,true
+141,coins-620,您的硬币盒中至少有 620 枚硬币,16,true
+142,coins-2880,您的硬币盒中至少有 2880 个硬币,16,true
+143,coins-5400,您的硬币盒中至少有 5400 个硬币,16,true
+144,coins-8300,您的硬币盒中至少有 8300 个硬币,16,true
+145,trade-abra,在交易中给予阿布拉,15,true
+146,trade-nidoran-m,在交易中给予 Nidoran-M,15,true
+147,trade-nidorino,在交易中给予尼多里诺,15,true
+148,trade-slowbro,在交易中给予 Slowbro,15,true
+149,trade-poliwhirl,在交易中给予 Poliwhirl,15,true
+150,trade-spearow,在交易中给予 Spearow,15,true
+151,trade-raichu,在交易中给予雷丘,15,true
+152,trade-venonat,在交易中给予 Venonat,15,true
+153,trade-ponyta,在交易中给予 Ponyta,15,true
+154,trade-clefairy,在交易中给予 Clefairy,15,true
+155,trade-cubone,在交易中给予 Cubon,15,true
+156,trade-lickitung,在交易中给予 Lickitung,15,true
+157,trade-tangela,在交易中给予 Tangela,15,true
+158,trade-golduck,在交易中给予戈达克,15,true
+159,trade-growlithe,在交易中给予成长,15,true
+160,trade-kangaskhan,在交易中给予坎加斯坎,15,true
+161,trade-bellsprout,在交易中给予铃芽菜,15,true
+162,trade-drowzee,在交易中给予 Drowzee,15,true
+163,trade-krabby,在交易中给予蟹蟹,15,true
+164,trade-dragonair,在交易中给予港龙航空,15,true
+165,trade-chansey,在交易中给予钱西,15,true
+166,trade-gloom,给交易带来悲观情绪,15,true
+167,trade-haunter,名称,15,true
+168,trade-dugtrio,在交易中给予 Dugtrio,15,true
+169,trade-slakoth,在交易中给予斯拉科斯,15,true
+170,trade-pikachu,在交易中给予皮卡丘,15,true
+171,trade-bellossom,在交易中给予贝洛索姆,15,true
+172,trade-ralts,在交易中给予拉特,15,true
+173,trade-volbeat,在交易中给予 Volbeat,15,true
+174,trade-bagon,在交易中给予巴贡,15,true
+175,trade-skitty,在交易中给予斯基蒂,15,true
+176,friend-safari-slot-1,随机分配给 Friend Safari Slot 1,17,true
+177,friend-safari-slot-2,随机分配给 Friend Safari Slot 2,17,true
+178,friend-safari-slot-3,随机分配给 Friend Safari Slot 3,17,true
+179,item-skull-fossil,包里有头骨化石,11,true
+180,item-armor-fossil,包里有铠甲化石,11,true
+181,great-marsh-daily-slot-none,大沼泽每日机会：无,18,true
+182,great-marsh-daily-slot-1-of-32,大沼泽每日几率：三十二分之一,18,true
+183,great-marsh-daily-slot-2-of-32,大沼泽每日几率：32 分之 2,18,true
+184,great-marsh-daily-slot-3-of-32,大沼泽每日几率：32 分之 3,18,true
+185,great-marsh-daily-slot-5-of-32,大沼泽每日几率：32 分之 5,18,true
+186,story-progress-before-national-dex,全国图鉴之前,9,true
+187,great-marsh-daily-slot-4-of-32,大沼泽每日几率：32 分之 4,18,true
+188,great-marsh-daily-slot-15-of-32,大沼泽每日几率：32 中 15,18,true
+189,honey-tree-group-a,蜜树 A 组（普通树上 70% / Munchlax 树上 20%）,19,true
+190,honey-tree-group-b,蜜树 B 组（普通树为 20% / Munchlax 树为 70%）,19,true
+191,honey-tree-group-c,C 组蜜树（普通树为 0% / Munchlax 树为 1%）,19,true
+192,headbutt-tree-common,头撞树（普通）,20,true
+193,headbutt-tree-rare,头撞树（稀有）,20,true
+194,headbutt-tree-secret,头撞树（秘密）,20,true
+195,trade-cottonee,在交易中给予 Cottonee,15,true
+196,trade-petilil,在交易中给予 Petilil,15,true
+197,trade-emolga,在交易中给予 Emolga,15,true
+198,trade-mantine,在交易中给予 Mantine,15,true
+199,trade-ditto,在交易中同样如此,15,true
+200,trade-excadrill,在交易中给予 Excadrill,15,true
+201,trade-hippowdon,在交易中给予希波顿,15,true
+202,backlot-not-mentioned,Mr. Backlot 没有提到任何 生物,21,true
+203,backlot-mentioned,巴克洛特先生提到在花园里看到了这只生物,21,true
+204,bug-catching-contest-no,不是在捉虫大赛期间,22,true
+205,bug-catching-contest-yes,捉虫大赛期间,22,true

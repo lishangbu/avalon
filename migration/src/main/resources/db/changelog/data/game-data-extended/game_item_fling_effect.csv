@@ -1,8 +1,8 @@
 id,code,name,effect,enabled
-1,badly-poison,badly poison,Badly poisons the target.,true
-2,burn,burn,Burns the target.,true
-3,berry-effect,berry effect,Immediately activates the berry’s effect on the target.,true
-4,herb-effect,herb effect,Immediately activates the herb’s effect on the target.,true
-5,paralyze,paralyze,Paralyzes the target.,true
-6,poison,poison,Poisons the target.,true
-7,flinch,flinch,Target will flinch if it has not yet gone this turn.,true
+1,badly-poison,剧毒,使目标剧毒。,true
+2,burn,灼伤,效果,true
+3,berry-effect,树果效果,立即激活目标身上的浆果效果。,true
+4,herb-effect,药草效果,立即激活草药对目标的效果。,true
+5,paralyze,麻痹,使目标麻痹。,true
+6,poison,中毒,使目标中毒。,true
+7,flinch,畏缩,如果目标本回合尚未离开，它将退缩。,true

@@ -26,7 +26,7 @@ id,code,name,sort_order,enabled
 25,all-mail,邮件,25,true
 26,vitamins,营养剂,26,true
 27,healing,回复,27,true
-28,pp-recovery,招式点数回复,28,true
+28,pp-recovery,技能点数回复,28,true
 29,revival,复活,29,true
 30,status-cures,异常状态治疗,30,true
 32,mulch,覆盖肥,32,true
