@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+	implementation(project(":common-web"))
 	implementation(project(":migration"))
 	implementation(project(":scheduler"))
 	implementation(project(":game-data"))

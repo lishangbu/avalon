@@ -1,5 +1,6 @@
 package io.github.lishangbu.config
 
+import io.github.lishangbu.common.web.openapi.OPENAPI_BEARER_SECURITY_SCHEME
 import io.github.lishangbu.security.oauth.PASSWORD_GRANT_TYPE_VALUE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
@@ -23,13 +24,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * Controller `@SecurityRequirement` 统一引用的 OpenAPI 安全方案名称。
- *
- * 名称继续保留 `bearerAuth`，避免既有接口注解和前端生成规则跟随认证方式展示细节一起变动。
- */
-const val OPENAPI_BEARER_SECURITY_SCHEME = "bearerAuth"
-
-/**
  * Swagger UI password flow 获取 access token 时调用的授权服务器 token endpoint。
  */
 const val OPENAPI_OAUTH_TOKEN_URL = "/oauth2/token"
@@ -51,7 +45,7 @@ class OpenApiConfig {
 					.version("0.0.1")
 					.description(
 						"""
-						Avalon 后端管理 API 文档。文档覆盖当前登录态、RBAC、OAuth client、JWK、定时任务与游戏资料管理接口。
+						Avalon 后端管理 API 文档。文档覆盖当前登录态、RBAC、OAuth client、OAuth token、JWK、定时任务与游戏资料管理接口。
 
 						除 OAuth2 标准授权端点外，管理接口需要携带 Bearer access token。`/api/system/**` 需要 `security:admin` 权限，`/api/game-data/**` 需要 `game-data:admin` 权限。
 						分页接口统一使用从 0 开始的 `page` 和最大 100 的 `size` 参数；错误响应统一返回稳定的 `code`、`message` 与可选 `field`。

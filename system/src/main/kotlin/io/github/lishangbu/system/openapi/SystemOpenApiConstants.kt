@@ -1,6 +1,8 @@
 package io.github.lishangbu.system.openapi
 
-const val SYSTEM_API_BEARER_AUTH = "bearerAuth"
+import io.github.lishangbu.common.web.openapi.OPENAPI_BEARER_SECURITY_SCHEME
+
+const val SYSTEM_API_BEARER_AUTH = OPENAPI_BEARER_SECURITY_SCHEME
 const val SYSTEM_API_UNAUTHORIZED_DESCRIPTION = "未提供 Bearer access token，或 access token 已过期、格式错误、无法通过资源服务器校验。"
 const val SYSTEM_API_FORBIDDEN_DESCRIPTION = "access token 有效，但缺少访问系统管理 API 所需的 security:admin 权限。"
 const val SYSTEM_API_BAD_REQUEST_DESCRIPTION = "请求参数、请求体或业务校验未通过；响应体会给出稳定错误码、中文说明和可选字段名。"
