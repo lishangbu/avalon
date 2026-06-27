@@ -2,6 +2,7 @@ package io.github.lishangbu.migration.db
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.yaml.snakeyaml.Yaml
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -28,11 +29,13 @@ class LiquibaseMigrationTests(
 		val resource = javaClass.getResource("/db/changelog/db.changelog-master.yaml")
 
 		assertThat(resource).isNotNull()
-		assertThat(resource!!.readText()).contains("includeAll")
+		assertThat(resource!!.readText())
+			.contains("includeAll")
+			.contains("db/changelog/changes")
 	}
 
 	@Test
-	fun `liquibase changelog history keeps ordered feature files`() {
+	fun `liquibase changelog history keeps single initial file`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -43,12 +46,57 @@ class LiquibaseMigrationTests(
 				.sorted()
 				.toList()
 		}
-		assertThat(changelogFiles).containsExactly(
-			"001-initial-schema.yaml",
-			"002-game-data-schema.yaml",
-			"003-game-data-seed.yaml",
-			"004-game-data-extended-schema.yaml",
-			"005-game-data-extended-seed.yaml",
+		assertThat(changelogFiles).containsExactly("001-initial-schema.yaml")
+	}
+
+	@Test
+	fun `liquibase create table changes declare inline remarks`() {
+		val missingRemarks = buildList {
+			initialChanges().forEach { change ->
+				val createTable = change["createTable"] as? Map<*, *> ?: return@forEach
+				val tableName = createTable["tableName"]
+				if ((createTable["remarks"] as? String).isNullOrBlank()) {
+					add(tableName.toString())
+				}
+				val columns = createTable["columns"] as? List<*> ?: emptyList<Any>()
+				columns.forEach { entry ->
+					val column = (entry as? Map<*, *>)?.get("column") as? Map<*, *> ?: return@forEach
+					if ((column["remarks"] as? String).isNullOrBlank()) {
+						add("$tableName.${column["name"]}")
+					}
+				}
+			}
+		}
+
+		assertThat(missingRemarks).isEmpty()
+	}
+
+	@Test
+	fun `liquibase seed data uses load data files`() {
+		val changes = initialChanges()
+		val inlineInsertTables = changes.mapNotNull { change ->
+			(change["insert"] as? Map<*, *>)?.get("tableName")?.toString()
+		}
+		val sqlInserts = changes.mapNotNull { change ->
+			(change["sql"] as? Map<*, *>)?.get("sql")?.toString()
+		}.filter { sql ->
+			sql.contains("insert into", ignoreCase = true)
+		}
+		val systemSeedFiles = changes.mapNotNull { change ->
+			(change["loadData"] as? Map<*, *>)?.get("file")?.toString()
+		}.filter { file ->
+			file.startsWith("db/changelog/data/system/")
+		}
+
+		assertThat(inlineInsertTables).isEmpty()
+		assertThat(sqlInserts).isEmpty()
+		assertThat(systemSeedFiles).containsExactly(
+			"db/changelog/data/system/security_role.csv",
+			"db/changelog/data/system/security_user.csv",
+			"db/changelog/data/system/security_access_node.csv",
+			"db/changelog/data/system/security_user_role.csv",
+			"db/changelog/data/system/security_role_access_node.csv",
+			"db/changelog/data/system/oauth2_client.csv",
 		)
 	}
 
@@ -138,6 +186,7 @@ class LiquibaseMigrationTests(
 			"system.oauth",
 			"system.oauth.clients",
 			"system.oauth.jwks",
+			"system.oauth.tokens",
 			"system.rbac",
 			"system.rbac.access-nodes",
 			"system.rbac.roles",
@@ -584,6 +633,15 @@ class LiquibaseMigrationTests(
 		query(sql) { resultSet ->
 			resultSet.getString(1)
 		}
+
+	@Suppress("UNCHECKED_CAST")
+	private fun initialChanges(): List<Map<String, Any?>> {
+		val resource = javaClass.getResource("/db/changelog/changes/001-initial-schema.yaml")
+		val root = Yaml().load<Map<String, Any?>>(resource!!.readText())
+		val databaseChangeLog = root["databaseChangeLog"] as List<Map<String, Any?>>
+		val changeSet = databaseChangeLog.single()["changeSet"] as Map<String, Any?>
+		return changeSet["changes"] as List<Map<String, Any?>>
+	}
 
 	private fun queryMaps(sql: String): List<Map<String, Any?>> =
 		query(sql) { resultSet ->
