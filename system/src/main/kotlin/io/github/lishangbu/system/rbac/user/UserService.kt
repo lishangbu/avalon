@@ -9,17 +9,17 @@ import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.username
 import io.github.lishangbu.security.repository.SecurityUserRepository
-import io.github.lishangbu.system.error.conflict
-import io.github.lishangbu.system.error.invalidReference
-import io.github.lishangbu.system.error.notFound
-import io.github.lishangbu.system.error.normalizedSlugCodes
-import io.github.lishangbu.system.error.requiredPassword
-import io.github.lishangbu.system.error.requiredText
-import io.github.lishangbu.system.error.requiredUsername
-import io.github.lishangbu.system.page.mapRows
-import io.github.lishangbu.system.page.systemFilterValue
-import io.github.lishangbu.system.page.systemSearchFilter
-import io.github.lishangbu.system.page.validateSystemPage
+import io.github.lishangbu.common.web.conflict
+import io.github.lishangbu.common.web.invalidReference
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.normalizedSlugCodes
+import io.github.lishangbu.common.web.requiredPassword
+import io.github.lishangbu.common.web.requiredText
+import io.github.lishangbu.common.web.requiredUsername
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.filterValue
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -55,9 +55,9 @@ class UserService(
 		enabled: Boolean?,
 		accountNonLocked: Boolean?,
 	): Page<UserResponse> {
-		validateSystemPage(page, size)
-		val searchFilter = systemSearchFilter(query)
-		val roleCodeFilter = systemFilterValue("roleCode", roleCode)
+		validatePage(page, size)
+		val searchFilter = searchFilter(query)
+		val roleCodeFilter = filterValue("roleCode", roleCode)
 		val userPage = sqlClient.createQuery(SecurityUser::class) {
 			searchFilter.pattern?.let { pattern ->
 				where(

@@ -6,6 +6,7 @@ plugins {
 dependencies {
 	implementation(project(":migration"))
 	implementation(project(":scheduler"))
+	implementation(project(":game-data"))
 	implementation(project(":security"))
 	implementation(project(":system"))
 	implementation(libs.spring.boot.starter)

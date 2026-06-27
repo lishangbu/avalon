@@ -1,6 +1,6 @@
 package io.github.lishangbu.system.rbac.user
 
-import io.github.lishangbu.system.error.SystemApiErrorResponse
+import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.system.openapi.SYSTEM_API_BAD_REQUEST_DESCRIPTION
 import io.github.lishangbu.system.openapi.SYSTEM_API_BEARER_AUTH
 import io.github.lishangbu.system.openapi.SYSTEM_API_CONFLICT_DESCRIPTION
@@ -61,17 +61,17 @@ class UserController(
 			ApiResponse(
 				responseCode = "400",
 				description = SYSTEM_API_BAD_REQUEST_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -110,17 +110,17 @@ class UserController(
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "404",
 				description = SYSTEM_API_NOT_FOUND_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -155,22 +155,22 @@ class UserController(
 			ApiResponse(
 				responseCode = "400",
 				description = SYSTEM_API_BAD_REQUEST_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "409",
 				description = SYSTEM_API_CONFLICT_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -196,9 +196,9 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户已启用。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun enableUser(
@@ -219,9 +219,9 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户已禁用。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun disableUser(
@@ -242,9 +242,9 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户已锁定。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun lockUser(
@@ -265,9 +265,9 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户已解锁。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun unlockUser(
@@ -288,10 +288,10 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户密码已重置。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun resetPassword(
@@ -322,10 +322,10 @@ class UserController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "用户角色已更新。", content = [Content(schema = Schema(implementation = UserResponse::class))]),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun updateUserRoles(

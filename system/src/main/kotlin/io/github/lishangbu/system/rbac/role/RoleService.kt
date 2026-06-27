@@ -7,16 +7,16 @@ import io.github.lishangbu.security.entity.code
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.name
 import io.github.lishangbu.security.repository.SecurityRoleRepository
-import io.github.lishangbu.system.error.conflict
-import io.github.lishangbu.system.error.invalidReference
-import io.github.lishangbu.system.error.normalizedAccessNodeCodes
-import io.github.lishangbu.system.error.notFound
-import io.github.lishangbu.system.error.requiredSlugCode
-import io.github.lishangbu.system.error.requiredText
-import io.github.lishangbu.system.page.mapRows
-import io.github.lishangbu.system.page.systemFilterValue
-import io.github.lishangbu.system.page.systemSearchFilter
-import io.github.lishangbu.system.page.validateSystemPage
+import io.github.lishangbu.common.web.conflict
+import io.github.lishangbu.common.web.invalidReference
+import io.github.lishangbu.common.web.normalizedAccessNodeCodes
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.requiredSlugCode
+import io.github.lishangbu.common.web.requiredText
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.filterValue
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -43,9 +43,9 @@ class RoleService(
 	 */
 	@Transactional(readOnly = true)
 	fun listRoles(page: Int, size: Int, query: String?, accessNodeCode: String?): Page<RoleResponse> {
-		validateSystemPage(page, size)
-		val searchFilter = systemSearchFilter(query)
-		val accessNodeCodeFilter = systemFilterValue("accessNodeCode", accessNodeCode)
+		validatePage(page, size)
+		val searchFilter = searchFilter(query)
+		val accessNodeCodeFilter = filterValue("accessNodeCode", accessNodeCode)
 		val rolePage = sqlClient.createQuery(SecurityRole::class) {
 			searchFilter.pattern?.let { pattern ->
 				where(

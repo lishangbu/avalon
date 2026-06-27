@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+	implementation(project(":common-web"))
 	implementation(project(":scheduler"))
 	implementation(project(":security"))
 	implementation(libs.spring.boot.starter)

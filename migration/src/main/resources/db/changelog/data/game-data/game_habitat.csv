@@ -1,0 +1,10 @@
+id,code,name,sort_order,enabled
+1,cave,洞窟,1,true
+2,forest,森林,2,true
+3,grassland,草原,3,true
+4,mountain,山地,4,true
+5,rare,稀有地点,5,true
+6,rough-terrain,崎岖地形,6,true
+7,sea,海洋,7,true
+8,urban,城镇,8,true
+9,waters-edge,水边,9,true

@@ -32,7 +32,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase changelog history is squashed into one initial file`() {
+	fun `liquibase changelog history keeps ordered feature files`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -43,7 +43,11 @@ class LiquibaseMigrationTests(
 				.sorted()
 				.toList()
 		}
-		assertThat(changelogFiles).containsExactly("001-initial-schema.yaml")
+		assertThat(changelogFiles).containsExactly(
+			"001-initial-schema.yaml",
+			"002-game-data-schema.yaml",
+			"003-game-data-seed.yaml",
+		)
 	}
 
 	@Test
@@ -126,7 +130,7 @@ class LiquibaseMigrationTests(
 		val accessNodeCodes = queryStrings(
 			"select code from security_access_node order by code",
 		)
-		assertThat(accessNodeCodes).containsExactly(
+		val systemAccessNodeCodes = listOf(
 			"security:admin",
 			"system",
 			"system.oauth",
@@ -139,11 +143,36 @@ class LiquibaseMigrationTests(
 			"system.scheduler",
 			"system.scheduler.tasks",
 		)
+		val gameDataAccessNodeCodes = listOf(
+			"game-data",
+			"game-data:admin",
+			"game-data.abilities",
+			"game-data.core",
+			"game-data.creature-abilities",
+			"game-data.creature-elements",
+			"game-data.creature-stats",
+			"game-data.creatures",
+			"game-data.dictionary",
+			"game-data.egg-groups",
+			"game-data.elements",
+			"game-data.habitats",
+			"game-data.item-categories",
+			"game-data.items",
+			"game-data.relations",
+			"game-data.skill-damage-classes",
+			"game-data.skills",
+			"game-data.species",
+			"game-data.species-colors",
+			"game-data.species-egg-groups",
+			"game-data.species-shapes",
+			"game-data.stats",
+		)
+		assertThat(accessNodeCodes).containsExactlyInAnyOrderElementsOf(gameDataAccessNodeCodes + systemAccessNodeCodes)
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",
 		)
-		assertThat(roleCodes).containsExactly("system-admin")
+		assertThat(roleCodes).containsExactly("game-data-admin", "system-admin")
 
 		val systemAdminAccessNodeCodes = queryStrings(
 			"""
@@ -155,7 +184,19 @@ class LiquibaseMigrationTests(
 			order by n.code
 			""".trimIndent(),
 		)
-		assertThat(systemAdminAccessNodeCodes).containsExactlyElementsOf(accessNodeCodes)
+		assertThat(systemAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(systemAccessNodeCodes)
+
+		val gameDataAdminAccessNodeCodes = queryStrings(
+			"""
+			select n.code
+			from security_access_node n
+			join security_role_access_node ran on ran.access_node_id = n.id
+			join security_role r on r.id = ran.role_id
+			where r.code = 'game-data-admin'
+			order by n.code
+			""".trimIndent(),
+		)
+		assertThat(gameDataAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(gameDataAccessNodeCodes)
 
 		val rbacIdTypes = queryMaps(
 			"""
@@ -260,7 +301,100 @@ class LiquibaseMigrationTests(
 		val clientScopes = queryStrings(
 			"select scopes from oauth2_client order by client_id",
 		)
-		assertThat(clientScopes).containsOnly("security:admin")
+		assertThat(clientScopes).containsOnly("game-data:admin security:admin")
+	}
+
+	@Test
+	fun `liquibase creates game data tables with seed rows`() {
+		val tableNames = queryStrings(
+			"""
+			select table_name
+			from information_schema.tables
+			where table_schema = 'public'
+			""".trimIndent(),
+		)
+
+		assertThat(tableNames).contains(
+			"game_element",
+			"game_stat",
+			"game_skill_damage_class",
+			"game_item_category",
+			"game_species_color",
+			"game_species_shape",
+			"game_habitat",
+			"game_egg_group",
+			"game_ability",
+			"game_skill",
+			"game_item",
+			"game_species",
+			"game_creature",
+			"game_species_egg_group",
+			"game_creature_element",
+			"game_creature_stat",
+			"game_creature_ability",
+		)
+
+		val seedCounts = queryMaps(
+			"""
+			select 'game_element' as table_name, count(*) as row_count from game_element
+			union all select 'game_ability', count(*) from game_ability
+			union all select 'game_skill', count(*) from game_skill
+			union all select 'game_item', count(*) from game_item
+			union all select 'game_species', count(*) from game_species
+			union all select 'game_creature', count(*) from game_creature
+			union all select 'game_creature_stat', count(*) from game_creature_stat
+			order by table_name
+			""".trimIndent(),
+		).associate { it["table_name"] to it["row_count"].toString().toLong() }
+		assertThat(seedCounts).containsEntry("game_element", 21L)
+		assertThat(seedCounts).containsEntry("game_ability", 373L)
+		assertThat(seedCounts).containsEntry("game_skill", 937L)
+		assertThat(seedCounts).containsEntry("game_item", 2176L)
+		assertThat(seedCounts).containsEntry("game_species", 1025L)
+		assertThat(seedCounts).containsEntry("game_creature", 1351L)
+		assertThat(seedCounts).containsEntry("game_creature_stat", 8100L)
+
+		val creatureNames = queryStrings(
+			"""
+			select name
+			from game_creature
+			where id in (1, 4, 7)
+			order by id
+			""".trimIndent(),
+		)
+		assertThat(creatureNames).containsExactly("妙蛙种子", "小火龙", "杰尼龟")
+	}
+
+	@Test
+	fun `liquibase remarks every application table and column`() {
+		val tablesWithoutRemarks = queryStrings(
+			"""
+			select c.relname
+			from pg_class c
+			join pg_namespace n on n.oid = c.relnamespace
+			where n.nspname = 'public'
+				and c.relkind = 'r'
+				and c.relname not in ('databasechangelog', 'databasechangeloglock')
+				and obj_description(c.oid, 'pg_class') is null
+			order by c.relname
+			""".trimIndent(),
+		)
+		assertThat(tablesWithoutRemarks).isEmpty()
+
+		val columnsWithoutRemarks = queryStrings(
+			"""
+			select cols.table_name || '.' || cols.column_name
+			from information_schema.columns cols
+			where cols.table_schema = 'public'
+				and cols.table_name not in ('databasechangelog', 'databasechangeloglock')
+				and col_description(
+					(quote_ident(cols.table_schema) || '.' || quote_ident(cols.table_name))::regclass::oid,
+					cols.ordinal_position
+				) is null
+			order by cols.table_name, cols.ordinal_position
+			""".trimIndent(),
+		)
+		assertThat(columnsWithoutRemarks).isEmpty()
 	}
 
 	@Test
@@ -412,7 +546,7 @@ class LiquibaseMigrationTests(
 			order by r.code
 			""".trimIndent(),
 		)
-		assertThat(roleCodes).containsExactly("system-admin")
+		assertThat(roleCodes).containsExactly("game-data-admin", "system-admin")
 	}
 
 	private fun queryStrings(sql: String): List<String> =

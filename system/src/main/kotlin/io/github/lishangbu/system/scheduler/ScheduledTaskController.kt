@@ -3,7 +3,7 @@ package io.github.lishangbu.system.scheduler
 import io.github.lishangbu.scheduler.ManagedScheduledTaskExecutionResponse
 import io.github.lishangbu.scheduler.ManagedScheduledTaskResponse
 import io.github.lishangbu.scheduler.ScheduledTaskManagementService
-import io.github.lishangbu.system.error.SystemApiErrorResponse
+import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.system.openapi.SYSTEM_API_BAD_REQUEST_DESCRIPTION
 import io.github.lishangbu.system.openapi.SYSTEM_API_BEARER_AUTH
 import io.github.lishangbu.system.openapi.SYSTEM_API_CONFLICT_DESCRIPTION
@@ -55,9 +55,9 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "定时任务列表读取成功。"),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun listTasks(
@@ -79,9 +79,9 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "定时任务详情读取成功。", content = [Content(schema = Schema(implementation = ManagedScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun getTask(
@@ -104,10 +104,10 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "201", description = "定时任务创建成功。", content = [Content(schema = Schema(implementation = ManagedScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "409", description = SYSTEM_API_CONFLICT_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "409", description = SYSTEM_API_CONFLICT_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun createTask(
@@ -133,10 +133,10 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "定时任务更新成功。", content = [Content(schema = Schema(implementation = ManagedScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun updateTask(
@@ -160,9 +160,9 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "定时任务已启用。", content = [Content(schema = Schema(implementation = ManagedScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun enableTask(
@@ -180,9 +180,9 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "定时任务已禁用。", content = [Content(schema = Schema(implementation = ManagedScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun disableTask(
@@ -206,10 +206,10 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "202", description = "已接受触发请求", content = [Content(schema = Schema(implementation = TriggerScheduledTaskResponse::class))]),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun triggerTask(
@@ -233,10 +233,10 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "执行记录列表读取成功。"),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun listExecutions(
@@ -259,9 +259,9 @@ class ScheduledTaskController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "定时任务已删除。"),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun deleteTask(

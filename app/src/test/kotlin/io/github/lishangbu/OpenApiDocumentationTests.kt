@@ -45,6 +45,16 @@ class OpenApiDocumentationTests(
 	}
 
 	@Test
+	fun `admin openapi group exposes game data api contract and scope`() {
+		mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['game-data:admin']").value("游戏资料管理 API 访问权限"))
+			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].get.summary").value("分页查询游戏资料"))
+			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].post.summary").value("新增游戏资料"))
+			.andExpect(jsonPath("$.paths['/api/game-data/creatures/{id}'].put.summary").value("修改游戏资料"))
+	}
+
+	@Test
 	fun `swagger ui token request uses backend password grant type`() {
 		mockMvc.perform(get("/swagger-ui/swagger-initializer.js"))
 			.andExpect(status().isOk)

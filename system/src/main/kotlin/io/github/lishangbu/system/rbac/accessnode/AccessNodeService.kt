@@ -14,11 +14,11 @@ import io.github.lishangbu.security.entity.path
 import io.github.lishangbu.security.entity.sortOrder
 import io.github.lishangbu.security.entity.type
 import io.github.lishangbu.security.entity.visible
-import io.github.lishangbu.system.error.notFound
-import io.github.lishangbu.system.page.mapRows
-import io.github.lishangbu.system.page.systemFilterValue
-import io.github.lishangbu.system.page.systemSearchFilter
-import io.github.lishangbu.system.page.validateSystemPage
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.filterValue
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -49,10 +49,10 @@ class AccessNodeService(
 		visible: Boolean?,
 		enabled: Boolean?,
 	): Page<AccessNodeResponse> {
-		validateSystemPage(page, size)
-		val searchFilter = systemSearchFilter(query)
-		val codePrefixFilter = systemFilterValue("codePrefix", codePrefix)
-		val typeFilter = systemFilterValue("type", type)?.uppercase()
+		validatePage(page, size)
+		val searchFilter = searchFilter(query)
+		val codePrefixFilter = filterValue("codePrefix", codePrefix)
+		val typeFilter = filterValue("type", type)?.uppercase()
 		return sqlClient.createQuery(SecurityAccessNode::class) {
 			searchFilter.pattern?.let { pattern ->
 				where(

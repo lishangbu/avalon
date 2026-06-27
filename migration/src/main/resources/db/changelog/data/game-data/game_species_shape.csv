@@ -1,0 +1,15 @@
+id,code,name,sort_order,enabled
+1,ball,球形,1,true
+2,squiggle,蛇形,2,true
+3,fish,鱼形,3,true
+4,arms,双臂形,4,true
+5,blob,团块形,5,true
+6,upright,直立形,6,true
+7,legs,双足形,7,true
+8,quadruped,四足形,8,true
+9,wings,双翼形,9,true
+10,tentacles,触手形,10,true
+11,heads,多头形,11,true
+12,humanoid,人形,12,true
+13,bug-wings,虫翼形,13,true
+14,armor,甲壳形,14,true

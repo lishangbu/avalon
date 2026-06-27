@@ -1,0 +1,16 @@
+id,code,name,sort_order,enabled
+1,monster,怪兽,1,true
+2,water1,水中1,2,true
+3,bug,虫,3,true
+4,flying,飞行,4,true
+5,ground,陆上,5,true
+6,fairy,妖精,6,true
+7,plant,植物,7,true
+8,humanshape,人型,8,true
+9,water3,水中３,9,true
+10,mineral,矿物,10,true
+11,indeterminate,不定形,11,true
+12,water2,水中2,12,true
+13,ditto,百变怪,13,true
+14,dragon,龙,14,true
+15,no-eggs,未发现,15,true

@@ -13,7 +13,7 @@ import io.github.lishangbu.security.entity.sortOrder
 import io.github.lishangbu.security.entity.type
 import io.github.lishangbu.security.entity.username
 import io.github.lishangbu.security.entity.visible
-import io.github.lishangbu.system.error.notFound
+import io.github.lishangbu.common.web.notFound
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.valueIn

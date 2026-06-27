@@ -1,6 +1,6 @@
 package io.github.lishangbu.system.rbac.role
 
-import io.github.lishangbu.system.error.SystemApiErrorResponse
+import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.system.openapi.SYSTEM_API_BAD_REQUEST_DESCRIPTION
 import io.github.lishangbu.system.openapi.SYSTEM_API_BEARER_AUTH
 import io.github.lishangbu.system.openapi.SYSTEM_API_CONFLICT_DESCRIPTION
@@ -61,17 +61,17 @@ class RoleController(
 			ApiResponse(
 				responseCode = "400",
 				description = SYSTEM_API_BAD_REQUEST_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -106,17 +106,17 @@ class RoleController(
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "404",
 				description = SYSTEM_API_NOT_FOUND_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -150,22 +150,22 @@ class RoleController(
 			ApiResponse(
 				responseCode = "400",
 				description = SYSTEM_API_BAD_REQUEST_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "409",
 				description = SYSTEM_API_CONFLICT_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)
@@ -202,22 +202,22 @@ class RoleController(
 			ApiResponse(
 				responseCode = "400",
 				description = SYSTEM_API_BAD_REQUEST_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "403",
 				description = SYSTEM_API_FORBIDDEN_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 			ApiResponse(
 				responseCode = "404",
 				description = SYSTEM_API_NOT_FOUND_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)

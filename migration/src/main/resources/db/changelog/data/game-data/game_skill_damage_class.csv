@@ -1,0 +1,4 @@
+id,code,name,description,sort_order,enabled
+1,status,变化,没有伤害,1,true
+2,physical,物理,物理伤害，受攻击和防御影响,2,true
+3,special,特殊,特殊伤害，受特攻和特防影响,3,true

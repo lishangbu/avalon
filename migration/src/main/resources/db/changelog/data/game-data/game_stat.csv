@@ -1,0 +1,10 @@
+id,code,name,sort_order,battle_only,enabled
+1,hp,体力,1,false,true
+2,attack,攻击,2,false,true
+3,defense,防御,3,false,true
+4,special-attack,特攻,4,false,true
+5,special-defense,特防,5,false,true
+6,speed,速度,6,false,true
+7,accuracy,命中,7,true,true
+8,evasion,闪避,8,true,true
+9,special,数值 9,9,false,true

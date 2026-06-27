@@ -6,20 +6,21 @@ import io.github.lishangbu.security.entity.clientId
 import io.github.lishangbu.security.entity.clientName
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.oauth.PASSWORD_GRANT_TYPE_VALUE
+import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.repository.OAuth2ClientRepository
-import io.github.lishangbu.system.error.conflict
-import io.github.lishangbu.system.error.invalidValue
-import io.github.lishangbu.system.error.notFound
-import io.github.lishangbu.system.error.normalizedAccessNodeCodes
-import io.github.lishangbu.system.error.requireSupportedValues
-import io.github.lishangbu.system.error.requiredRange
-import io.github.lishangbu.system.error.requiredSlugCode
-import io.github.lishangbu.system.error.requiredSupportedValue
-import io.github.lishangbu.system.error.requiredText
-import io.github.lishangbu.system.page.mapRows
-import io.github.lishangbu.system.page.systemSearchFilter
-import io.github.lishangbu.system.page.validateSystemPage
+import io.github.lishangbu.common.web.conflict
+import io.github.lishangbu.common.web.invalidValue
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.normalizedAccessNodeCodes
+import io.github.lishangbu.common.web.requireSupportedValues
+import io.github.lishangbu.common.web.requiredRange
+import io.github.lishangbu.common.web.requiredSlugCode
+import io.github.lishangbu.common.web.requiredSupportedValue
+import io.github.lishangbu.common.web.requiredText
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -47,8 +48,8 @@ class OAuthClientService(
 	 */
 	@Transactional(readOnly = true)
 	fun listClients(page: Int, size: Int, query: String?): Page<OAuthClientResponse> {
-		validateSystemPage(page, size)
-		val searchFilter = systemSearchFilter(query)
+		validatePage(page, size)
+		val searchFilter = searchFilter(query)
 		return sqlClient.createQuery(OAuth2Client::class) {
 			searchFilter.pattern?.let { pattern ->
 				where(
@@ -266,6 +267,6 @@ class OAuthClientService(
 		private const val MIN_CLIENT_SECRET_LENGTH = 8
 		private const val ID_TOKEN_SIGNATURE_ALGORITHM = "RS256"
 		private val ACCESS_TOKEN_FORMATS = setOf("self-contained", "reference")
-		private val SUPPORTED_SCOPES = setOf(SECURITY_ADMIN_ACCESS_NODE)
+		private val SUPPORTED_SCOPES = setOf(SECURITY_ADMIN_ACCESS_NODE, GAME_DATA_ADMIN_ACCESS_NODE)
 	}
 }

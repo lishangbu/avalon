@@ -6,10 +6,10 @@ import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.keyId
 import io.github.lishangbu.security.oauth.OAuth2JwkKeyFactory
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
-import io.github.lishangbu.system.error.notFound
-import io.github.lishangbu.system.page.mapRows
-import io.github.lishangbu.system.page.systemSearchFilter
-import io.github.lishangbu.system.page.validateSystemPage
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.asc
@@ -42,8 +42,8 @@ class OAuthJwkService(
 	 */
 	@Transactional(readOnly = true)
 	fun listJwks(page: Int, size: Int, query: String?): Page<OAuthJwkResponse> {
-		validateSystemPage(page, size)
-		val searchFilter = systemSearchFilter(query)
+		validatePage(page, size)
+		val searchFilter = searchFilter(query)
 		return sqlClient.createQuery(OAuth2Jwk::class) {
 			searchFilter.pattern?.let { pattern ->
 				where(table.keyId ilike pattern)

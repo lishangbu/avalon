@@ -43,6 +43,7 @@ spring-boot-starter-security-oauth2-resource-server = { module = "org.springfram
 spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-tx = { module = "org.springframework:spring-tx" }
 springdoc-openapi-starter-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "springdoc" }
 springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }

@@ -19,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
@@ -91,7 +92,36 @@ class SecurityApiAccessTests(
 		).andExpect(status().isOk)
 	}
 
-	private fun issueToken(clientId: String, clientSecret: String, username: String): String {
+	@Test
+	fun `jwt token with game data admin can access game data api only`() {
+		insertUser("game-data-api-admin", roleId = 202L)
+		val token = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "game-data-api-admin",
+			scope = "game-data:admin",
+		)
+
+		mockMvc.perform(
+			get("/api/game-data/creatures")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].fields.code").value("bulbasaur"))
+			.andExpect(jsonPath("$.rows[0].fields.name").value("妙蛙种子"))
+
+		mockMvc.perform(
+			get("/api/system/rbac/access-nodes")
+				.header("Authorization", "Bearer $token"),
+		).andExpect(status().isForbidden)
+	}
+
+	private fun issueToken(
+		clientId: String,
+		clientSecret: String,
+		username: String,
+		scope: String = "security:admin",
+	): String {
 		val response = mockMvc.perform(
 			post("/oauth2/token")
 				.with(httpBasic(clientId, clientSecret))
@@ -99,7 +129,7 @@ class SecurityApiAccessTests(
 				.param("grant_type", "urn:security:params:oauth:grant-type:password")
 				.param("username", username)
 				.param("password", "secret")
-				.param("scope", "security:admin"),
+				.param("scope", scope),
 		)
 			.andExpect(status().isOk)
 			.andReturn()
@@ -109,7 +139,7 @@ class SecurityApiAccessTests(
 		return JsonPath.read(response, "$.access_token")
 	}
 
-	private fun insertUser(username: String) {
+	private fun insertUser(username: String, roleId: Long = 201L) {
 		val userId = nextUserId.getAndIncrement()
 		userRepository.save(
 			SecurityUser {
@@ -121,7 +151,7 @@ class SecurityApiAccessTests(
 				accountNonLocked = true
 			},
 		)
-		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, 201L)
+		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)
 	}
 
 	private companion object {

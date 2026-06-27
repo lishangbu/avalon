@@ -2,6 +2,8 @@ package io.github.lishangbu.security.oauth
 
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SecurityUserPrincipal
 import io.github.lishangbu.security.repository.OAuth2AuthorizationConsentRecordRepository
 import io.github.lishangbu.security.repository.OAuth2AuthorizationRecordRepository
@@ -109,7 +111,7 @@ class TokenConfig {
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
 				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
-					context.claims.claim("access_nodes", principal.accessNodes.map { it.code })
+					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
 					context.claims.claim("roles", principal.roles.map { it.code })
 				}
 			}
@@ -123,7 +125,7 @@ class TokenConfig {
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
 				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
-					context.claims.claim("access_nodes", principal.accessNodes.map { it.code })
+					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
 					context.claims.claim("roles", principal.roles.map { it.code })
 				}
 			}
@@ -134,4 +136,19 @@ class TokenConfig {
 	 */
 	private fun org.springframework.security.core.Authentication.backendPrincipal(): SecurityUserPrincipal? =
 		principal as? SecurityUserPrincipal
+
+	private fun SecurityUserPrincipal.scopedAccessNodeCodes(authorizedScopes: Set<String>): List<String> =
+		accessNodes
+			.map { it.code }
+			.filter { code ->
+				authorizedScopes.any { scope -> code == scope || code.isMenuNodeForScope(scope) }
+			}
+			.sorted()
+
+	private fun String.isMenuNodeForScope(scope: String): Boolean =
+		when (scope) {
+			SECURITY_ADMIN_ACCESS_NODE -> startsWith("system")
+			GAME_DATA_ADMIN_ACCESS_NODE -> startsWith("game-data")
+			else -> false
+		}
 }

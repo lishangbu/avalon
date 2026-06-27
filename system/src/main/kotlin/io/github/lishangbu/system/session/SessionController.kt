@@ -1,6 +1,6 @@
 package io.github.lishangbu.system.session
 
-import io.github.lishangbu.system.error.SystemApiErrorResponse
+import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.system.openapi.SYSTEM_API_BEARER_AUTH
 import io.github.lishangbu.system.openapi.SYSTEM_API_UNAUTHORIZED_DESCRIPTION
 import io.swagger.v3.oas.annotations.Operation
@@ -53,7 +53,7 @@ class SessionController(
 			ApiResponse(
 				responseCode = "401",
 				description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION,
-				content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))],
+				content = [Content(schema = Schema(implementation = ApiErrorResponse::class))],
 			),
 		],
 	)

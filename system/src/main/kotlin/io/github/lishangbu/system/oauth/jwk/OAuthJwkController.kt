@@ -1,6 +1,6 @@
 package io.github.lishangbu.system.oauth.jwk
 
-import io.github.lishangbu.system.error.SystemApiErrorResponse
+import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.system.openapi.SYSTEM_API_BAD_REQUEST_DESCRIPTION
 import io.github.lishangbu.system.openapi.SYSTEM_API_BEARER_AUTH
 import io.github.lishangbu.system.openapi.SYSTEM_API_FORBIDDEN_DESCRIPTION
@@ -54,9 +54,9 @@ class OAuthJwkController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "JWK 列表读取成功。"),
-			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "400", description = SYSTEM_API_BAD_REQUEST_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun listJwks(
@@ -81,9 +81,9 @@ class OAuthJwkController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "JWK 详情读取成功。", content = [Content(schema = Schema(implementation = OAuthJwkResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "404", description = SYSTEM_API_NOT_FOUND_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun getJwk(
@@ -110,8 +110,8 @@ class OAuthJwkController(
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "201", description = "JWK 已轮换，新 key 已激活。", content = [Content(schema = Schema(implementation = OAuthJwkResponse::class))]),
-			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
-			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = SystemApiErrorResponse::class))]),
+			ApiResponse(responseCode = "401", description = SYSTEM_API_UNAUTHORIZED_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
+			ApiResponse(responseCode = "403", description = SYSTEM_API_FORBIDDEN_DESCRIPTION, content = [Content(schema = Schema(implementation = ApiErrorResponse::class))]),
 		],
 	)
 	fun rotateJwk(): OAuthJwkResponse =

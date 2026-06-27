@@ -8,8 +8,8 @@ import io.github.lishangbu.scheduler.ManagedScheduledTaskValidationException
 import io.github.lishangbu.scheduler.SaveManagedScheduledTaskCommand
 import io.github.lishangbu.scheduler.ScheduledTaskManagementService
 import io.github.lishangbu.scheduler.ScheduledTaskNotFoundException
-import io.github.lishangbu.system.error.SystemApiErrorCode
-import io.github.lishangbu.system.error.SystemApiException
+import io.github.lishangbu.common.web.ApiErrorCode
+import io.github.lishangbu.common.web.ApiException
 import org.babyfish.jimmer.Page
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
@@ -92,9 +92,9 @@ class ScheduledTaskSystemService(
 		try {
 			ZoneId.of(value.ifBlank { "UTC" })
 		} catch (ex: RuntimeException) {
-			throw SystemApiException(
+			throw ApiException(
 				status = HttpStatus.BAD_REQUEST,
-				code = SystemApiErrorCode.VALIDATION_INVALID,
+				code = ApiErrorCode.VALIDATION_INVALID,
 				message = "timeZone 不支持: $value",
 				field = "timeZone",
 			)
@@ -104,30 +104,30 @@ class ScheduledTaskSystemService(
 		try {
 			action()
 		} catch (ex: ManagedScheduledTaskValidationException) {
-			throw SystemApiException(
+			throw ApiException(
 				status = HttpStatus.BAD_REQUEST,
-				code = SystemApiErrorCode.VALIDATION_INVALID,
+				code = ApiErrorCode.VALIDATION_INVALID,
 				message = ex.message.orEmpty(),
 				field = ex.field,
 			)
 		} catch (ex: ManagedScheduledTaskConflictException) {
-			throw SystemApiException(
+			throw ApiException(
 				status = HttpStatus.CONFLICT,
-				code = SystemApiErrorCode.RESOURCE_CONFLICT,
+				code = ApiErrorCode.RESOURCE_CONFLICT,
 				message = ex.message.orEmpty(),
 				field = "code",
 			)
 		} catch (ex: ManagedScheduledTaskNotFoundException) {
-			throw SystemApiException(
+			throw ApiException(
 				status = HttpStatus.NOT_FOUND,
-				code = SystemApiErrorCode.RESOURCE_NOT_FOUND,
+				code = ApiErrorCode.RESOURCE_NOT_FOUND,
 				message = ex.message.orEmpty(),
 				field = "taskId",
 			)
 		} catch (ex: ScheduledTaskNotFoundException) {
-			throw SystemApiException(
+			throw ApiException(
 				status = HttpStatus.BAD_REQUEST,
-				code = SystemApiErrorCode.VALIDATION_INVALID,
+				code = ApiErrorCode.VALIDATION_INVALID,
 				message = ex.message.orEmpty(),
 				field = "handlerCode",
 			)
