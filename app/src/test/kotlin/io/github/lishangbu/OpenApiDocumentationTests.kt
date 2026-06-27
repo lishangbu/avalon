@@ -41,6 +41,10 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].get.summary").value("查询用户列表"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].post.summary").value("创建用户"))
 			.andExpect(jsonPath("$.paths['/api/system/oauth/clients/{clientId}/secret'].put.summary").value("重置 OAuth client secret"))
+			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens'].get.summary").value("查询 OAuth 令牌列表"))
+			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens'].get.security[0].bearerAuth").isArray)
+			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens/{authorizationId}'].get.summary").value("查询 OAuth 令牌详情"))
+			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens/{authorizationId}/revoke'].post.summary").value("撤销 OAuth 令牌"))
 			.andExpect(jsonPath("$.paths['/api/system/scheduler/tasks/{taskId}/trigger'].post.responses['202'].description").value("已接受触发请求"))
 	}
 

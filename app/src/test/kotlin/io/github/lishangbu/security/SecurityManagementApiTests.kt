@@ -1,4 +1,4 @@
-﻿package io.github.lishangbu.security
+package io.github.lishangbu.security
 
 import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.BackendApplication
@@ -92,7 +92,7 @@ class SecurityManagementApiTests(
 
 		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
 		assertThat(menuCodes)
-			.contains("system.rbac.access-nodes", "system.oauth.clients", "system.scheduler.tasks")
+			.contains("system.rbac.access-nodes", "system.oauth.clients", "system.oauth.tokens", "system.scheduler.tasks")
 			.doesNotContain("security:admin")
 	}
 
@@ -290,6 +290,63 @@ class SecurityManagementApiTests(
 		}
 		assertThat(activeKeys).hasSize(1)
 		assertThat(activeKeys.single()).isNotEqualTo(firstKeyId)
+	}
+
+	@Test
+	fun `security admin can inspect and revoke opaque oauth tokens`() {
+		insertUser("token-manager", 201)
+		insertUser("token-target", 201)
+		val adminToken = issueToken(
+			username = "token-manager",
+			scope = "security:admin",
+			clientId = "system-admin-opaque",
+			clientSecret = "system-admin-opaque-secret",
+		)
+		val targetToken = issueToken(
+			username = "token-target",
+			scope = "security:admin",
+			clientId = "system-admin-opaque",
+			clientSecret = "system-admin-opaque-secret",
+		)
+
+		val listResponse = mockMvc.perform(
+			get("/api/system/oauth/tokens")
+				.header("Authorization", "Bearer $adminToken")
+				.param("clientId", "system-admin-opaque")
+				.param("principalName", "token-target"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].principalName").value("token-target"))
+			.andExpect(jsonPath("$.rows[0].clientId").value("system-admin-opaque"))
+			.andExpect(jsonPath("$.rows[0].status").value("ACTIVE"))
+			.andExpect(jsonPath("$.rows[0].active").value(true))
+			.andReturn()
+			.response
+			.contentAsString
+		val authorizationId = JsonPath.read<String>(listResponse, "$.rows[0].id")
+
+		mockMvc.perform(
+			get("/api/system/oauth/tokens/{authorizationId}", authorizationId)
+				.header("Authorization", "Bearer $adminToken"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.id").value(authorizationId))
+			.andExpect(jsonPath("$.accessTokenScopes", hasItem("security:admin")))
+
+		mockMvc.perform(
+			post("/api/system/oauth/tokens/{authorizationId}/revoke", authorizationId)
+				.header("Authorization", "Bearer $adminToken"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.id").value(authorizationId))
+			.andExpect(jsonPath("$.status").value("REVOKED"))
+			.andExpect(jsonPath("$.active").value(false))
+
+		mockMvc.perform(
+			get("/api/session")
+				.header("Authorization", "Bearer $targetToken"),
+		)
+			.andExpect(status().isUnauthorized)
 	}
 
 	@Test
