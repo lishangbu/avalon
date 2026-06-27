@@ -1,0 +1,13 @@
+id,code,name,description,enabled
+1,level-up,Level up,Learned when a Pokémon reaches a certain level.,true
+2,egg,Egg,"Appears on a newly-hatched Pokémon, if the father had the same move.",true
+3,tutor,Tutor,Can be taught at any time by an NPC.,true
+4,machine,Machine,Can be taught at any time by using a TM or HM.,true
+5,stadium-surfing-pikachu,Stadium: Surfing Pikachu,"Learned when a non-rental Pikachu helps beat Prime Cup Master Ball R-2. It must participate in every battle, and you must win with no continues.",true
+6,light-ball-egg,Volt Tackle Pichu,Appears on a Pichu whose mother was holding a Light Ball. The father cannot be Ditto.,true
+7,colosseum-purification,Colosseum: Purification,Appears on a Shadow Pokémon as it becomes increasingly purified.,true
+8,xd-shadow,XD: Shadow,Appears on a Snatched Shadow Pokémon.,true
+9,xd-purification,XD: Purification,Appears on a Shadow Pokémon as it becomes increasingly purified.,true
+10,form-change,Form Change,Appears when Rotom or Cosplay Pikachu changes form. Disappears if the Pokémon becomes another form and this move can only be learned by form change.,true
+11,zygarde-cube,Zygarde Cube,Can be taught using the Zygarde Cube. Must find the corresponding Zygarde Core first in Sun/Moon. All moves are available immediately in Ultra Sun/Ultra Moon.,true
+12,train,Train,Taught via the training menu in Pokémon Champions.,true

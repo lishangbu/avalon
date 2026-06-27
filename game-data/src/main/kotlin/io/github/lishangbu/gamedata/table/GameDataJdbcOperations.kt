@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.sql.ResultSet
 
-private val codePattern = Regex("^[a-z0-9][a-z0-9-]{1,79}$")
+private val codePattern = Regex("^[a-z0-9][a-z0-9-]{0,79}$")
 
 /**
  * 游戏资料通用 JDBC CRUD 操作。
@@ -168,7 +168,7 @@ class GameDataJdbcOperations(
 			return null
 		}
 		if (column.name == "code" && !codePattern.matches(value)) {
-			invalidValue(fieldName, "code 只能包含小写字母、数字和连字符，长度为 2 到 80")
+			invalidValue(fieldName, "code 只能包含小写字母、数字和连字符，长度为 1 到 80")
 		}
 		val maxLength = column.maxLength
 		if (maxLength != null && value.length > maxLength) {

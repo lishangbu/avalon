@@ -1,0 +1,50 @@
+id,code,name,version_group_id,enabled
+1,red,紅,1,true
+2,blue,藍,1,true
+3,yellow,皮卡丘,2,true
+4,gold,金,3,true
+5,silver,銀,3,true
+6,crystal,水晶,4,true
+7,ruby,紅寶石,5,true
+8,sapphire,藍寶石,5,true
+9,emerald,綠寶石,6,true
+10,firered,火紅,7,true
+11,leafgreen,葉綠,7,true
+12,diamond,钻石,8,true
+13,pearl,珍珠,8,true
+14,platinum,白金,9,true
+15,heartgold,心金,10,true
+16,soulsilver,魂銀,10,true
+17,black,黑,11,true
+18,white,白,11,true
+19,colosseum,Colosseum,12,true
+20,xd,XD,13,true
+21,black-2,黑2,14,true
+22,white-2,白2,14,true
+23,x,X,15,true
+24,y,Y,15,true
+25,omega-ruby,欧米伽红宝石,16,true
+26,alpha-sapphire,阿尔法蓝宝石,16,true
+27,sun,太阳,17,true
+28,moon,月亮,17,true
+29,ultra-sun,究极之日,18,true
+30,ultra-moon,究极之月,18,true
+31,lets-go-pikachu,Let’s Go！皮卡丘,19,true
+32,lets-go-eevee,Let’s Go！伊布,19,true
+33,sword,剑,20,true
+34,shield,盾,20,true
+35,the-isle-of-armor,铠之孤岛,21,true
+36,the-crown-tundra,冠之雪原,22,true
+37,brilliant-diamond,晶灿钻石,23,true
+38,shining-pearl,明亮珍珠,23,true
+39,legends-arceus,传说 阿尔宙斯,24,true
+40,scarlet,朱,25,true
+41,violet,紫,25,true
+42,the-teal-mask,碧之假面,26,true
+43,the-indigo-disk,藍之圓盤,27,true
+44,red-japan,Red,28,true
+45,green-japan,Green,28,true
+46,blue-japan,Blue,29,true
+47,legends-za,传说 Z-A,30,true
+48,mega-dimension,超次元爆涌,31,true
+49,champions,Champions,32,true

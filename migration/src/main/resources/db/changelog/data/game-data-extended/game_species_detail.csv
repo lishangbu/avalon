@@ -1,0 +1,1026 @@
+id,species_id,growth_rate_id,evolves_from_species_id,evolution_chain_id,sort_order,gender_differences,forms_switchable,genus,flavor_text
+1,1,4,,1,1,false,false,种子宝可梦,在出生后的一段时间内， 它会吸收背上种子里 储存着的营养成长。
+2,2,4,1,1,2,false,false,种子宝可梦,沐浴在阳光下越久， 身体内会涌出越多力量， 背上的花苞也会渐渐成长。
+3,3,4,2,1,3,true,true,种子宝可梦,花朵散发出的迷人香味 能安抚激动的心情， 甚至消弭斗争。
+4,4,4,,2,4,false,false,蜥蜴宝可梦,生下来的时候， 尾巴上就有火焰在燃烧。 火焰熄灭时，它的生命也会结束。
+5,5,4,4,2,5,false,false,火焰宝可梦,如果它在战斗中亢奋起来， 就会喷出灼热的火焰， 把周围的东西烧得一干二净。
+6,6,4,5,2,6,false,true,火焰宝可梦,能用翅膀飞到距地面 １４００米的高度。 会吐出高温火焰。
+7,7,4,,3,7,false,false,小龟宝可梦,当它遇到危险的时候， 会将四肢收回龟壳里保护自己， 同时从嘴里喷出水来。
+8,8,4,7,3,8,false,false,龟宝可梦,会灵巧地摆动自己 毛茸茸的耳朵和尾巴， 借此在水中保持平衡。
+9,9,4,8,3,9,false,true,甲壳宝可梦,从龟壳上的大炮里 放出的喷射水流 足以贯穿厚实的铁板。
+10,10,2,,4,10,false,false,虫宝宝宝可梦,别看它的脚很短， 因为是吸盘，所以无论是 斜坡还是墙壁都能轻松前进。
+11,11,2,10,4,11,false,false,蛹宝可梦,虽然有坚硬的外壳， 因为壳里的身体很软， 所以无法抵抗强力的攻击。
+12,12,2,11,4,12,true,false,蝴蝶宝可梦,每天都忙着采集花蜜。 习惯往腿部的细毛上涂满花蜜， 然后带回巢穴里。
+13,13,2,,5,13,false,false,毛毛虫宝可梦,头上长有尖锐的针。 它喜欢藏在森林或 草丛里大量吞食树叶。
+14,14,2,13,5,14,false,false,蛹宝可梦,虽然几乎动也动不了， 但是如果遇到了危险， 有时似乎会竖起毒刺来反抗。
+15,15,2,14,5,15,false,true,毒蜂宝可梦,它会用双手和 尾部的３根毒针 反复刺伤敌人。
+16,16,4,,6,16,false,false,小鸟宝可梦,性格沉着冷静，即使受到 攻击也很少反击，只会朝 对手扬起沙子保护自己。
+17,17,4,16,6,17,false,false,鸟宝可梦,拥有超群的体力，而且 飞翔范围广，经常飞到 很远的地方寻找食物。
+18,18,4,17,6,18,false,true,鸟宝可梦,以２马赫的飞行速度来 觅食。它巨大的爪子是 非常令人惧怕的武器。
+19,19,2,,7,19,true,false,鼠宝可梦,有两颗大门牙，见什么咬什么。 只要看到１只小拉达出没， 附近肯定还住着40只以上。
+20,20,2,19,7,20,true,false,鼠宝可梦,它的后脚上长着 小蹼，以便它在 水中游泳寻找食物。
+21,21,2,,8,21,false,false,小鸟宝可梦,不擅长高空飞行。 会以超高速在地盘里四处盘旋， 以保护自己的地盘不被侵犯。
+22,22,2,21,8,22,false,false,鸟嘴宝可梦,很久以前就存在的宝可梦。 哪怕只察觉到一丝危险， 都会立即飞向高空。
+23,23,2,,9,23,false,false,蛇宝可梦,身体会随着年龄增长不断变长。 每到夜里，它会一圈圈地 将身体缠绕在树枝上休息。
+24,24,2,23,9,24,false,false,眼镜蛇宝可梦,根据研究证实，它腹部 那可怕的纹路大约有 ６个种类已经得到确认。
+25,25,2,172,10,26,true,false,鼠宝可梦,皮卡丘们把尾巴 贴在一起交换电流， 其实是在互相打招呼。
+26,26,2,25,10,27,true,false,鼠宝可梦,如果电囊空了， 它就会直直地竖起尾巴， 收集空气中的电流。
+27,27,2,,11,28,false,false,鼠宝可梦,会在地上挖洞建造巢穴。 挖洞时，即便遇到地里的坚硬岩石， 也能用尖锐的爪子弄碎后继续挖进。
+28,28,2,27,11,29,false,false,鼠宝可梦,会将锐利的爪子钩在树上爬树。 这是为了设法使树果掉落， 分给等在树下的穿山鼠们。
+29,29,4,,12,30,false,false,毒针宝可梦,用坚硬的门牙咬碎 树果吃。和雄性相比， 角的尖端稍圆一些。
+30,30,4,29,12,31,false,false,毒针宝可梦,如果族群遇到了危险， 会和伙伴们团结起来， 施展出超音波大合唱。
+31,31,4,30,12,32,false,false,钻锥宝可梦,把孩子放在背上刺与刺的 空隙里来哄它们。在这时 绝对不会释放毒素。
+32,32,4,,13,33,false,false,毒针宝可梦,身材虽小，却性格勇敢。 为了保护相好的雌性， 会不顾生命果敢地战斗。
+33,33,4,32,13,34,false,false,毒针宝可梦,神经敏感，动不动就打架。 体内的肾上腺素一增加， 毒素的浓度也会提高。
+34,34,4,33,13,35,false,false,钻锥宝可梦,以力量为傲的宝可梦。 用自己的粗尾巴和连钻石 都能击碎的角，豪爽地战斗。
+35,35,3,173,14,37,false,false,妖精宝可梦,因可爱的举止和叫声 而广受欢迎的宝可梦。 不过很少被人发现。
+36,36,3,35,14,38,false,false,妖精宝可梦,听觉灵敏，连１公里以外 针落地的声音都听得见， 因此平时会待在安静的地方。
+37,37,2,,15,39,false,false,狐狸宝可梦,随着身体的成长， ６根尾巴的毛发也会变得更漂亮。 紧紧抱着它时能感到微微的温暖。
+38,38,2,37,15,40,false,false,狐狸宝可梦,聪明伶俐，但爱记仇。 据说如果敢乱抓它的尾巴， 它就会缠着你作祟１０００年。
+39,39,3,174,16,42,false,false,气球宝可梦,能够随意改变声音的波长， 唱出听了绝对会 犯困的神奇旋律。
+40,40,3,39,16,43,false,false,气球宝可梦,以自己细腻的体毛为傲。 尤其是额头上的卷毛， 更是有着天堂般的极致触感。
+41,41,2,,17,44,true,false,蝙蝠宝可梦,栖息在晒不到阳光的洞窟里。 到了早晨便会和同伴聚集起来， 一边互相取暖一边睡觉。
+42,42,2,41,17,45,true,false,蝙蝠宝可梦,用小而灵活的脚走路。 会悄悄接近正在睡觉的猎物， 用尖牙咬住对方吸取血液。
+43,43,4,,18,47,false,false,杂草宝可梦,白天会为躲避太阳 而钻入凉爽的地下。 会通过沐浴月光成长。
+44,44,4,43,18,48,true,false,杂草宝可梦,雌蕊会散发一种 极其强烈的恶臭， 能让２公里远的人昏倒。
+45,45,4,44,18,49,true,false,花宝可梦,虽然花瓣越大， 就能放出越多的花粉， 但这样脑袋会变沉，容易疲倦。
+46,46,2,,19,51,false,false,蘑菇宝可梦,它会通过挖洞来从树根里 吸取营养，但大部分营养 都会被背上的蘑菇抢走。
+47,47,2,46,19,52,false,false,蘑菇宝可梦,由于虫子的精华不断被吸走， 在思考的似乎已经不是虫子， 而是背上的蘑菇了。
+48,48,2,,20,53,false,false,昆虫宝可梦,在明亮的地方你便能发现它 具有雷达功能的大眼其实是 由许多个小眼睛聚集而成的。
+49,49,2,48,20,54,false,false,毒蛾宝可梦,如果不小心把它翅膀上的鳞粉 沾到了身上，那不但会很难去除， 更糟的是毒素也会从那里渗入。
+50,50,2,,21,55,false,false,鼹鼠宝可梦,在地下较浅的地方移动。 被它挖掘过的地面会鼓起来， 所以非常容易发现。
+51,51,2,50,21,56,false,false,鼹鼠宝可梦,三胞胎的地鼠，拥有能够挖掘到 地下１００公里深的潜力。没人知道 它在地下的部分究竟长成什么样子。
+52,52,2,,22,57,false,false,妖怪猫宝可梦,为了不弄脏额头上的 金币，会常常洗脸。 和伽勒尔的喵喵关系不好。
+53,53,2,52,22,58,false,false,暹罗猫宝可梦,拥有优雅高贵的身姿。 与野蛮的喵头目性格不合， 互相看不起对方。
+54,54,2,,23,59,false,false,鸭宝可梦,头痛会随着压力逐渐累积 而不断加剧。会用强大的 念力击垮周围的一切。
+55,55,2,54,23,60,false,false,鸭宝可梦,古老的故事中说， 它会把污染河水的 人类拖进水中带走。
+56,56,2,,24,61,false,false,猪猴宝可梦,身体轻盈，在树上生活。 常因鸡毛蒜皮的小事发火 而飞扑到周围的东西上。
+57,57,2,56,24,62,false,false,猪猴宝可梦,只有在谁都不在身边的 时候才不生气，但几乎 没有人目击过这种情况。
+58,58,1,,25,63,false,false,小狗宝可梦,性格忠诚。 为了保护自己的训练家， 会拼命地朝对手狂吠。
+59,59,1,58,25,64,false,false,传说宝可梦,从古时候起就是俘获了 众多人心的美丽宝可梦。 能像飞一样轻巧地奔跑。
+60,60,4,,26,65,false,false,蝌蚪宝可梦,在水流湍急的河里， 会把厚厚的嘴唇像吸盘那样 紧紧吸在岩石上避免被冲走。
+61,61,4,60,26,66,false,false,蝌蚪宝可梦,流出的汗是黏滑的粘液状。 即使被敌人捉住， 也能哧溜一下滑走逃脱。
+62,62,4,61,26,67,false,false,蝌蚪宝可梦,除了游泳还擅长格斗技。 能用经过锻炼的手臂 使出豪迈强力的拳击。
+63,63,4,,27,69,false,false,念力宝可梦,能够在睡梦中使出瞬间移动。 据说它睡得越熟，就能 移动到越遥远的地方。
+64,64,4,63,27,70,true,false,念力宝可梦,念力的威力大得惊人。 会把精神力量储存在额头的 星星里，以备进化之需。
+65,65,4,64,27,71,true,true,念力宝可梦,会操纵强大的超能力。 据说它双手握着的汤勺 就是用那力量制造出来的。
+66,66,4,,28,72,false,false,怪力宝可梦,时时刻刻都充满力量。 由于体力过剩而去举起岩石 消磨时间，也因此变得更强。
+67,67,4,66,28,73,false,false,怪力宝可梦,有着不会疲劳的强韧肉体。 会去帮助人类完成例如 搬运沉重行李之类的工作。
+68,68,4,67,28,74,false,false,怪力宝可梦,４只手臂在思考之前 就会反射性地行动， 使出多发拳击。
+69,69,4,,29,75,false,false,花宝可梦,喜欢温度高，有一定 湿度的地方。它会用 身上的藤蔓抓小虫来吃。
+70,70,4,69,29,76,false,false,捕蝇宝可梦,它在肚子饿的时候会 吞掉周围会动的东西， 分泌溶解液让其致命。
+71,71,4,70,29,77,false,false,捕蝇宝可梦,用花蜜的香味引诱猎物。 据说被它吞入嘴里的东西， 只要1天就会溶解到连骨头都不剩。
+72,72,1,,30,78,false,false,水母宝可梦,身体的大部分由水组成。 在海中，会和海水混为一体， 非常难以发现。
+73,73,1,72,30,79,false,false,水母宝可梦,８０根触手伸缩自如。 会像撒网那样伸开触手 抓住猎物并刺入毒针。
+74,74,4,,31,80,false,false,岩石宝可梦,大多栖息于山路。由于 不留神踩到它会使它 大发雷霆，得多加小心。
+75,75,4,74,31,81,false,false,岩石宝可梦,常在山路上滚来滚去。 滚动时从来不关心 前面的路上都有什么。
+76,76,4,75,31,82,false,false,重量级宝可梦,刚蜕皮时浑身都白白的 非常柔软，但是接触到 空气之后会迅速变坚硬。
+77,77,2,,32,83,false,false,火马宝可梦,得到了小火马认可的人， 在触摸它燃烧着的鬃毛时 不会觉得烫手，真是不可思议。
+78,78,2,77,32,84,false,false,火马宝可梦,奔跑速度最快的烈焰马 会成为首领，决定族群 前往的地点和奔跑速度。
+79,79,2,,33,85,false,false,憨憨宝可梦,把尾巴泡在水里后会有甜味渗出， 因此它会以尾巴为诱饵 吸引宝可梦并将其钓起。
+80,80,2,79,33,86,false,true,寄居蟹宝可梦,因为被大舌贝咬住而受到的刺激使它 变得能够两足直立行走。当大舌贝 离开后，它似乎就会变回呆呆兽。
+81,81,2,,34,88,false,false,磁铁宝可梦,靠吃电来维持生命。 会一边从左右两边的组件 放射电磁波一边在空中飞行。
+82,82,2,81,34,89,false,false,磁铁宝可梦,会不断释放很强的的磁力。 在三合一磁怪接近时，大多数 电脑都会发生异常情况。
+83,83,2,,35,91,false,false,黄嘴鸭宝可梦,用植物的茎来战斗。 茎的挥舞方式存在着 好几种不同的流派。
+84,84,2,,36,92,true,false,两头鸟宝可梦,羽毛较短所以不擅长飞行， 但是拥有发达的双脚， 能够以很快的速度奔跑。
+85,85,2,84,36,93,true,false,三头鸟宝可梦,由嘟嘟的某个头分裂 出的变种。以60千米的 时速在草原上奔跑。
+86,86,2,,37,94,false,false,海狮宝可梦,喜欢天寒地冻的地方， 就算零下10度 也能愉快地游泳。
+87,87,2,86,37,95,false,false,海狮宝可梦,全身像雪一样白。十分耐寒， 即使是在有浮冰的大海里 也能很精神地游来游去。
+88,88,2,,38,96,false,false,污泥宝可梦,它由囤积的淤泥而形成。 臭到让人无法碰触，凡是 它走过的地方都寸草不生。
+89,89,2,88,38,97,false,false,污泥宝可梦,非常难闻！气味臭到让人 窒息，但由于鼻子的退化， 它自己完全闻不到味道。
+90,90,1,,39,98,false,false,双壳贝宝可梦,坚硬的壳能反弹任何攻击。 壳打开时，如果里面的部分 受到攻击，就会变得很脆弱。
+91,91,1,90,39,99,false,false,双壳贝宝可梦,一旦它把壳闭上， 无论是拥有什么样怪力的人 都无法将其打开。
+92,92,4,,40,100,false,false,气体状宝可梦,能用稀薄气体状的 身体潜入任何地方， 但只要起风就会被吹跑。
+93,93,4,92,40,101,false,false,气体状宝可梦,如果黑暗中空空如也， 但你却感觉被什么盯上了， 那么鬼斯通一定就在那里。
+94,94,4,93,40,102,false,true,影子宝可梦,据说它会为了夺取 山中遇难者的生命 而从黑暗中出现。
+95,95,2,,41,103,false,false,岩蛇宝可梦,弯曲扭动巨大结实的身体， 以时速８０公里的 猛烈劲头向前挖进。
+96,96,2,,42,105,false,false,催眠宝可梦,如果你每晚与它一起睡觉， 它偶尔会让你梦见 它以前吃过的梦。
+97,97,2,96,42,106,true,false,催眠宝可梦,无意中遇到它的时候，如果 不小心和它对上视线会很危险。 它手里拿着的钟摆会让人睡着。
+98,98,2,,43,107,false,false,清水蟹宝可梦,如果危险逼近， 就会从嘴里吐出泡沫包裹全身， 让身体看起来更大。
+99,99,2,98,43,108,false,false,钳子宝可梦,巨大的钳子破坏力十足， 但是因为太过沉重， 不战斗的时候就很碍事。
+100,100,2,,44,109,false,false,球宝可梦,据说它与精灵球相似的外形 其实是它的保护色，但它 很容易自爆这一点也出人意料。
+101,101,2,100,44,110,false,false,球宝可梦,只要受到一点撞击， 就会由于体内的 电能溢出导致爆炸。
+102,102,1,,45,111,false,false,蛋宝可梦,６只不在一起就不安心。 哪怕只是少了１只， 都会马上想要逃跑。
+103,103,1,102,45,112,false,false,椰子宝可梦,３个脑袋联合起来 能使出强大的精神力量。 天气变阴时动作会变得迟钝。
+104,104,2,,46,113,false,false,孤独宝可梦,它头上戴着死去母亲的头骨。 虽然也会因悲伤的梦境而哭泣， 但每流一次泪，都会变得更加坚强。
+105,105,2,104,46,114,false,false,爱骨宝可梦,进化后，与原本戴在头上的 母亲头骨完全融为一体， 而且性格也变得十分凶暴。
+106,106,2,236,47,116,false,false,踢腿宝可梦,腿能自由地伸缩， 即使离得很远， 也能把对手踢飞。
+107,107,2,236,47,117,false,false,拳击宝可梦,打出的拳击甚至能劈开空气。 但攻击３分钟后， 它似乎就会想休息一下。
+108,108,2,,48,119,false,false,舔舔宝可梦,主要以虫宝可梦为食。 会用长长的舌头舔对手， 等对手麻痹后将其整个吞下。
+109,109,2,,49,121,false,false,毒气宝可梦,污浊的空气是它的美味大餐。 据说在昔日的伽勒尔地区 曾经存在着更多的瓦斯弹。
+110,110,2,109,49,122,false,false,毒气宝可梦,虽然吸入空气的力量 稍弱于伽勒尔的双弹瓦斯， 制造出的毒素却更加强力。
+111,111,1,,50,123,true,false,尖尖宝可梦,脑子里只能记住一件事。 一旦开始猛冲，不管理由是什么 都会很快感到无所谓而忘掉。
+112,112,1,111,50,124,true,false,钻锥宝可梦,全身被铠甲般的皮肤保护着。 甚至能在２０００度的熔岩里生存。
+113,113,3,440,51,127,false,false,蛋宝可梦,原本动作迟缓。 为了保护蛋不被抢走， 逃跑的速度才变快了。
+114,114,2,,52,129,false,false,藤蔓状宝可梦,藤蔓有着独特的香气。 在伽勒尔的部分地区 被当做香草使用。
+115,115,2,,53,131,false,true,亲子宝可梦,据记载，曾有没孩子的 袋兽将遇难人类的 小孩抚养长大。
+116,116,2,,54,132,false,false,龙宝可梦,会像跳舞一样在水中游动 以制造漩涡。作为娱乐， 会和伙伴比拼谁的漩涡更大。
+117,117,2,116,54,133,false,false,龙宝可梦,嘴巴虽然细，吸引力却很强。 就算是比嘴巴还大的猎物， 也能一瞬间吸进嘴里吃掉。
+118,118,2,,55,135,true,false,金鱼宝可梦,背鳍和尾鳍像肌肉 那样发达。能够以 ５节的速度在水中游泳。
+119,119,2,118,55,136,true,false,金鱼宝可梦,金鱼王之所以会用角挖穿 河底的岩石来筑巢，是为了 防止产下的卵被水流冲走。
+120,120,1,,56,137,false,false,星形宝可梦,虽然会遭到鱼宝可梦的啄食， 但身体即使被咬掉一块也能 马上再生，所以完全不在意。
+121,121,1,120,56,138,false,false,谜宝可梦,会高速旋转着身体 一边游泳一边吸收 微小的浮游生物。
+122,122,2,439,57,140,false,false,屏障宝可梦,擅长表演默剧。 用手指放出的波动制造墙壁， 保护自己免于大多数攻击。
+123,123,2,,58,141,true,false,螳螂宝可梦,如果在森林中发现某个地方 有大量树木被砍倒，就说明 那里是飞天螳螂的领地。
+124,124,2,238,59,144,false,false,人形宝可梦,伽勒尔的迷唇姐外表靓丽， 拥有纤细叫声的也不在少数， 甚至有为其着迷的粉丝。
+125,125,2,239,60,146,false,false,电击宝可梦,暴风雨来临时，它们就会 集结在高高的大树周围， 耐心地等待落雷。
+126,126,2,240,61,149,false,false,吐火宝可梦,全身时刻都在燃烧。 大家认为它是引发火灾的 原因之一，非常惧怕它。
+127,127,1,,62,151,false,true,锹形虫宝可梦,用角夹住猎物后， 不是直接把对方切成两半， 就是强行把对方扔飞。
+128,128,1,,63,152,false,false,暴牛宝可梦,栖息在伽勒尔的肯泰罗 性格暴躁，决不允许 人类骑在自己的背上。
+129,129,1,,64,153,true,false,鱼宝可梦,又弱又可怜的宝可梦。 在水流比较快的地方 只能任凭自己被水冲走。
+130,130,1,129,64,154,true,true,凶恶宝可梦,就算是在狂风暴雨中， 只要发狂的暴鲤龙出现， 一切都会被它烧毁殆尽。
+131,131,1,,65,155,false,false,乘载宝可梦,十分耐寒，不畏冰海。 皮肤滑滑的， 摸上去会有点凉。
+132,132,2,,66,156,false,false,变身宝可梦,当两只百变怪相遇的时候， 为了能变成和对方相同的样子， 它们动起来会比平常更加剧烈。
+133,133,2,,67,157,true,false,进化宝可梦,由于不稳定的遗传基因， 蕴含着各种各样进化 可能性的特殊宝可梦。
+134,134,2,133,67,158,false,false,吐泡宝可梦,身体细胞的结构与水分子相似。 它能和水融为一体， 让别人无法看见它。
+135,135,2,133,67,159,false,false,雷宝可梦,能够吸入空气中的负离子， 有时会吐出大约有 １００００伏特的高压电。
+136,136,2,133,67,160,false,false,火宝可梦,会将吸入的空气的一部分 传送到自己体内的火囊里， 制造出１７００度的火焰。
+137,137,2,,68,166,false,false,虚拟宝可梦,近年来十分活跃于 电脑空间。到处检查 有没有可疑的数据。
+138,138,2,,69,169,false,false,漩涡宝可梦,已经灭绝的古代宝可梦。 依靠１０只脚来划水， 在水中轻盈地游曳。
+139,139,2,138,69,170,false,false,漩涡宝可梦,拥有足以咬碎岩石的锋利牙齿， 但是能够袭击的猎物仅限 触手可以伸展的范围之内。
+140,140,2,,70,171,false,false,甲壳宝可梦,虽然存在已经灭绝的说法， 但据说在一部分地区 还是经常能见到它的身影。
+141,141,2,140,70,172,false,false,甲壳宝可梦,灭绝的原因尚不明确。 曾经栖息在温暖的大海， 是性格残暴的古代宝可梦。
+142,142,1,,71,173,false,true,化石宝可梦,长着锯子般的牙齿。 甚至连钢属性宝可梦的皮肤 都会被它的牙齿撕成碎片。
+143,143,1,446,72,175,false,false,瞌睡宝可梦,拥有一个结实的胃， 即使吃了发霉腐烂的东西， 也完全不会吃坏肚子。
+144,144,1,,73,176,false,false,冰冻宝可梦,拥有能够自由操纵冰 的能力。据说它栖息在 永久冻土的雪山。
+145,145,1,,74,177,false,false,电击宝可梦,传说的鸟宝可梦。 据说只要它一摩擦翅膀， 就会立刻发生落雷。
+146,146,1,,75,178,false,false,火焰宝可梦,相传它会用燃烧着的 美丽翅膀照亮山道， 救助在此遇险的人。
+147,147,1,,76,179,false,false,龙宝可梦,长久以来被认为只存在于 幻想之中。额头小小的突起 是正在发育的角。
+148,148,1,147,76,180,false,false,龙宝可梦,把力量集中在尾巴的 珠子上操纵天气。 散发气场的样子非常神秘。
+149,149,1,148,76,181,false,false,龙宝可梦,被称为大海的化身。 很多船都会把快龙的 雕像设置在船头。
+150,150,1,,77,182,false,true,基因宝可梦,超梦的基因几乎和梦幻 完全一样，但是大小和 性格却迥异得让人吃惊。
+151,151,4,,78,183,false,false,新种宝可梦,用显微镜可以看到 它身上极短极细 且密集的体毛。
+152,152,4,,79,184,false,false,叶子宝可梦,"In battle, Chikorita waves its leaf around to keep the foe at bay. However, a sweet fragrance also wafts from the leaf, becalming the battling Pokémon and creating a cozy, friendly atmosphere all around."
+153,153,4,152,79,185,false,false,叶子宝可梦,Bayleef’s neck is ringed by curled-up leaves. Inside each tubular leaf is a small shoot of a tree. The fragrance of this shoot makes people peppy.
+154,154,4,153,79,186,true,false,芳草宝可梦,"The fragrance of Meganium’s flower soothes and calms emotions. In battle, this Pokémon gives off more of its becalming scent to blunt the foe’s fighting spirit."
+155,155,4,,80,187,false,false,火鼠宝可梦,"Hails from the Johto region. Though usually curled into a ball due to its timid disposition, it harbors tremendous firepower."
+156,156,4,155,80,188,false,false,火山宝可梦,"This creature's fur is most mysterious—it is wholly impervious to the burning touch of flame. Should Quilava turn its back to you, take heed! Such a posture indicates a forthcoming attack."
+157,157,4,156,80,189,false,false,火山宝可梦,"Said to purify lost, forsaken souls with its flames and guide them to the afterlife. I believe its form has been influenced by the energy of the sacred mountain towering at Hisui's center."
+158,158,4,,81,190,false,false,大颚宝可梦,"Despite the smallness of its body, Totodile’s jaws are very powerful. While the Pokémon may think it is just playfully nipping, its bite has enough power to cause serious injury."
+159,159,4,158,81,191,false,false,大颚宝可梦,"Once Croconaw has clamped its jaws on its foe, it will absolutely not let go. Because the tips of its fangs are forked back like barbed fishhooks, they become impossible to remove when they have sunk in."
+160,160,4,159,81,192,false,false,大颚宝可梦,"Feraligatr intimidates its foes by opening its huge mouth. In battle, it will kick the ground hard with its thick and powerful hind legs to charge at the foe at an incredible speed."
+161,161,2,,82,193,false,false,放哨宝可梦,"When Sentret sleeps, it does so while another stands guard. The sentry wakes the others at the first sign of danger. When this Pokémon becomes separated from its pack, it becomes incapable of sleep due to fear."
+162,162,2,161,82,194,false,false,长躯干宝可梦,"Furret has a very slim build. When under attack, it can slickly squirm through narrow spaces and get away. In spite of its short limbs, this Pokémon is very nimble and fleet."
+163,163,2,,83,195,false,false,猫头鹰宝可梦,总是在固定的时间鸣叫， 因此也有训练家 拿它来代替钟表带出门。
+164,164,2,163,83,196,false,false,猫头鹰宝可梦,开始思考事情时， 会将脖子旋转１８０度， 以此提高大脑的工作效率。
+165,165,3,,84,197,true,false,五星宝可梦,非常胆小的宝可梦。 会和伙伴一起张开反射壁来保护巢穴。
+166,166,3,165,84,198,true,false,五星宝可梦,在夜空中飞翔的同时 会抛撒闪闪发光的粉末。 据说粉末沾到身上就会有好事发生。
+167,167,3,,85,199,false,false,吐丝宝可梦,牙齿上的毒并不强烈， 但用来削弱那些挂在网上 无法动弹的猎物是绰绰有余了。
+168,168,3,167,85,200,false,false,长腿宝可梦,会通过吐丝来捕捉猎物。 到了晚上，就会离开 巢穴并积极地狩猎。
+169,169,2,42,17,46,false,false,蝙蝠宝可梦,可以自由地控制４根翅膀 振翅而飞。即使在狭窄的 洞窟内也能保持速度飞来飞去。
+170,170,1,,86,201,false,false,琵琶鱼宝可梦,在黑暗的海底， 触手上不断闪烁着的光 是它们唯一的通信手段。
+171,171,1,170,86,202,false,false,灯宝可梦,发出强光蒙住猎物的眼睛。 抓住那一瞬间的空档， 使其遭受电的攻击。
+172,172,2,,10,25,false,false,小鼠宝可梦,脸颊上的电囊还很小， 如果囊里的电太多了， 就会漏出来电到自己。
+173,173,3,,14,36,false,false,星形宝可梦,有着星星一样的轮廓。 由于那外形，人们相信 它是乘着流星而来的。
+174,174,3,,16,41,false,false,气球宝可梦,用柔软的身体弹跳著移动。 当它的体温上升时， 身体会变成深粉红色。
+175,175,3,,87,203,false,false,针球宝可梦,好运的象征。 据说在它的壳里 装着满满的幸福。
+176,176,3,175,87,204,false,false,幸福宝可梦,不待在温柔的人身边 就会变得没有精神。 不挥动翅膀也能浮在空中。
+177,177,2,,88,206,false,false,小鸟宝可梦,由于羽翼未丰， 所以会跳着移动。 一直在注视着什么。
+178,178,2,177,88,207,true,false,神秘宝可梦,能够看穿过去和未来。 日复一日注视着太阳 动向的奇异宝可梦。
+179,179,4,,89,208,false,false,绵毛宝可梦,绒毛摩擦产生的电力会被储存起来。 如果觉得可爱而直接用手碰它的话， 就会被啪地一下电得又麻又痛。
+180,180,4,179,89,209,false,false,绵毛宝可梦,能将电力储存在松软的毛发中。 因为储存了太多电力，所以身上 有些地方已经变得光秃秃的了。
+181,181,4,180,89,210,false,true,灯宝可梦,尾巴会发出很强的亮光。 从以前起，它就被船员们 当做路标而深受重视。
+182,182,4,44,18,50,false,false,花宝可梦,有时能看到美丽花聚在一起 做着像是跳舞一样的动作。 据说这是呼唤太阳的仪式。
+183,183,3,298,90,212,false,false,水鼠宝可梦,体毛的防水性能很好， 就算是从冰冷的海里上岸， 身体也会立刻干掉，一点都不冷。
+184,184,3,183,90,213,false,false,水兔宝可梦,会制作填满空气的泡泡。 当露力丽在河里玩的时候， 它就会用这个泡泡包住露力丽。
+185,185,2,438,91,215,true,false,模仿宝可梦,为了不被袭击会模仿树的样子。 很讨厌水，所以下雨后， 不知什么时候就会消失。
+186,186,4,61,26,68,true,false,蛙宝可梦,雄性的叫声更响亮。 叫声低沉可怕的蚊香蛙皇 更能受到雌性的欢迎。
+187,187,4,,92,216,false,false,棉草宝可梦,"This Pokémon drifts and floats with the wind. If it senses the approach of strong winds, Hoppip links its leaves with other Hoppip to prepare against being blown away."
+188,188,4,187,92,217,false,false,棉草宝可梦,"Skiploom’s flower blossoms when the temperature rises above 64 degrees Fahrenheit. How much the flower opens depends on the temperature. For that reason, this Pokémon is sometimes used as a thermometer."
+189,189,4,188,92,218,false,false,棉草宝可梦,Jumpluff rides warm southern winds to cross the sea and fly to foreign lands. The Pokémon descends to the ground when it encounters cold air while it is floating.
+190,190,3,,93,219,true,false,长尾宝可梦,会从树上寻找猎物。 发现喜食的甜竹竹后， 就会兴奋地飞扑过去。
+191,191,4,,94,221,false,false,种子宝可梦,"Sunkern tries to move as little as it possibly can. It does so because it tries to conserve all the nutrients it has stored in its body for its evolution. It will not eat a thing, subsisting only on morning dew."
+192,192,4,191,94,222,false,false,太阳宝可梦,Sunflora converts solar energy into nutrition. It moves around actively in the daytime when it is warm. It stops moving as soon as the sun goes down for the night.
+193,193,2,,95,223,false,false,薄翼宝可梦,"Its frail wings are so thin that one can see clear through them. However, during flight these wings exhibit the power to churn air with force enough to launch a house skyward."
+194,194,2,,96,225,true,false,水鱼宝可梦,为了在地面上行走时 不让皮肤干燥，会用 有毒的粘膜覆盖身体。
+195,195,2,194,96,226,true,false,水鱼宝可梦,身体总是滑溜溜的。 虽然游泳时头总会撞到河底， 但它自己毫不在意。
+196,196,2,133,67,161,false,false,太阳宝可梦,从额头的珠子放射出精神力量 进行战斗。当力量用尽时， 珠子的颜色也会褪去。
+197,197,2,133,67,162,false,false,月光宝可梦,在满月之夜或是兴奋的时候， 它身上圈圈一样的花纹 就会发出金黄色的光。
+198,198,4,,97,227,true,false,黑暗宝可梦,会为老大去寻找闪闪发光的东西。 据说它很不吉利，厌恶它的人也很多。
+199,199,2,79,33,87,false,false,王者宝可梦,虽然无论向呆呆王提出 什么难题它都会帮忙解决， 但是谁都无法理解它的语言。
+200,200,3,,98,229,false,false,夜啼宝可梦,会通过模仿人哭叫的声音 来吓唬大家并以此为乐。 不擅长对付胆大的对手。
+201,201,2,,99,231,false,false,象征宝可梦,It is hard to believe these strangely shaped Pokémon are truly living creatures. I've pointed out that the species' many forms resemble writing from other lands; no one will take me seriously.
+202,202,2,360,100,233,true,false,忍耐宝可梦,为了隐藏漆黑的尾巴 而悄悄地生活在黑暗之中。 不会主动发起攻击。
+203,203,2,,101,234,true,false,长颈宝可梦,"Girafarig’s rear head contains a tiny brain that is too small for thinking. However, the rear head doesn’t need to sleep, so it can keep watch over its surroundings 24 hours a day."
+204,204,2,,102,235,false,false,蓑衣虫宝可梦,会用唾液将树皮粘在自己身上， 从而让自己变得又厚又大。 上了年纪的榛果球是无比巨大的。
+205,205,2,204,102,236,false,false,蓑衣虫宝可梦,仅在吞下猎物的瞬间，壳里面的 身体才会出现，但至今仍未有 人或宝可梦见过其真面目。
+206,206,2,,103,237,false,false,地蛇宝可梦,栖息在像迷宫一样的巢穴里。 能通过土壤的气味来判断自己的 位置，所以绝对不会迷路。
+207,207,4,,104,238,true,false,飞蝎宝可梦,"Its tail is tipped by a thick, horrible stinger. To bring down prey, it will first obscure their vision by covering their faces with its body, and then it will use the stinger to inject them with venom."
+208,208,2,95,41,104,true,true,铁蛇宝可梦,人们认为它的身体是因为 堆积了很多和泥土一起吞下的 铁元素，才会发生变化的。
+209,209,3,,105,240,false,false,妖精宝可梦,它和看上去不同，其实很胆小。 所以如果把它和小狗宝可梦 放在一起，它就有可能会受到欺负。
+210,210,3,209,105,241,false,false,妖精宝可梦,虽然深受年轻女性的欢迎， 但它胆小怕事，内心柔弱， 所以无法成为一条看门犬。
+211,211,2,,106,242,false,false,气球宝可梦,全身上下的小针都是由鳞片 变化而来的。如果被刺中的话， 就会因中毒而昏迷。
+212,212,2,123,58,142,true,true,钳子宝可梦,虽然身体纤细，却有着 惊人的攻击力。身体的 肌肉也是由金属构成的。
+213,213,4,,107,243,false,false,发酵宝可梦,储存在壶形甲壳里的 树果会在不知不觉间 变成黏糊糊的果汁。
+214,214,1,,108,244,true,true,独角宝可梦,能轻轻松松地举起比自己 体重还重１００倍的东西， 是以一身怪力为傲的宝可梦。
+215,215,4,,109,245,true,false,钩爪宝可梦,狡黠凶恶的性格。 趁着双亲不在就侵入巢穴， 将蛋盗出。
+216,216,2,,110,247,false,false,小熊宝可梦,"It licks its paws because of the sweet honey that has soaked into them. It is cunning, stealing into the nests of Combee and taking for itself the honey that the Combee have amassed."
+217,217,2,216,110,248,true,false,冬眠宝可梦,"When the cold season arrives in Hisui, this Pokémon will wander fields and mountains alike in search of its favorite berries. Ursaring's hunger during this time makes it a ferocious danger."
+218,218,2,,111,249,false,false,熔岩宝可梦,"Slugma does not have any blood in its body. Instead, intensely hot magma circulates throughout this Pokémon’s body, carrying essential nutrients and oxygen to its organs."
+219,219,2,218,111,250,false,false,熔岩宝可梦,"Magcargo’s body temperature is approximately 18,000 degrees Fahrenheit. Water is vaporized on contact. If this Pokémon is caught in the rain, the raindrops instantly turn into steam, cloaking the area in a thick fog."
+220,220,1,,112,251,false,false,小猪宝可梦,嗅到诱人的香味时， 便会不顾一切地朝着 气味的方向飞奔过去。
+221,221,1,220,112,252,true,false,野猪宝可梦,虽然４只脚很短， 但因为蹄子很宽很粗糙， 所以就算在雪地上行走也不会打滑。
+222,222,3,,113,254,false,false,珊瑚宝可梦,在温暖的大海里生活。 也曾经大量栖息于 上古时期的伽勒尔近海。
+223,223,2,,114,255,false,false,喷射宝可梦,会用变成吸盘状的背鳍 吸附在巨翅飞鱼身上， 让它分一点吃剩的东西给自己吃。
+224,224,2,223,114,256,true,false,喷射宝可梦,有着结实的坚硬脑袋。 会用带吸盘的脚缠住对手， 然后再一个劲地用头猛撞。
+225,225,3,,115,257,false,false,搬运宝可梦,因为有跟人类及宝可梦 分享自己食物的习性， 所以一直都在到处寻找食物。
+226,226,1,458,116,259,false,false,风筝宝可梦,悠然地畅游在大海中。 就算有觊觎食物残渣的铁炮鱼 吸附在自己身上也毫不在意。
+227,227,1,,117,260,false,false,钢甲鸟宝可梦,锐利的羽毛比剑还要锋利。 与钢铠鸦为领地 展开激烈的争斗。
+228,228,1,,118,261,false,false,阴暗宝可梦,会在天亮之前反复发出恐怖的长嚎， 并以此来彰显自己群体的存在。
+229,229,1,228,118,262,true,true,阴暗宝可梦,恐怖的长嚎是其特征。 过去人们曾认为它是来自 地狱的使者而对其心存畏惧。
+230,230,2,117,54,134,false,false,龙宝可梦,身上掉下的鳞片闪耀着 高雅而有深度的光泽， 甚至会被拿去进献给王族。
+231,231,2,,119,263,false,false,长鼻宝可梦,"Phanpy uses its long nose to shower itself. When others gather around, they thoroughly douse each other with water. These Pokémon can be seen drying their soaking-wet bodies at the edge of water."
+232,232,2,231,119,264,true,false,铠甲宝可梦,"If Donphan were to tackle with its hard body, even a house could be destroyed. Using its massive strength, the Pokémon helps clear rock and mud slides that block mountain trails."
+233,233,2,137,68,167,false,false,虚拟宝可梦,在装载了ＡＩ功能后， 多边兽２型便开始用只有彼此 能懂的神秘语言互相交流了。
+234,234,1,,120,265,false,false,大角宝可梦,Its strangely shaped antlers have the power to bewitch those who see them. Medicine made by grinding up the black orbs from fallen antlers is an effective treatment for insomnia.
+235,235,3,,121,266,false,false,画画宝可梦,会用尾巴前端渗出的体液画下标记。 对于有些标记，爱好者会以高价买卖。
+236,236,2,,47,115,false,false,打斗宝可梦,体型偏小却不可轻视， 因为它只要发现合适的对手 便会马上扑上去大打出手。
+237,237,2,236,47,118,false,false,倒立宝可梦,会通过倒立来扰乱 对方的节奏，然后 趁隙施展华丽的踢击。
+238,238,2,,59,143,false,false,亲吻宝可梦,好奇心旺盛的宝可梦。 不管是什么都会试着用 嘴唇去触碰，确认是否喜欢。
+239,239,2,,60,145,false,false,电气宝可梦,储存电力的本领还不到家。 为了吸取电力，会偷偷 潜入民宅寻找插座。
+240,240,2,,61,148,false,false,火种宝可梦,栖息在火山地带。 会浸泡在岩浆中， 疗愈一整天的疲劳。
+241,241,1,,122,267,false,false,奶牛宝可梦,能挤出营养十足的鲜奶， 因此从很久以前开始就一直 支持着人类和宝可梦的生活。
+242,242,3,113,51,128,false,false,幸福宝可梦,会生下装满幸福的奇妙之蛋。 据说，吃下它的蛋的人， 能够对所有人都温柔相待。
+243,243,1,,123,268,false,false,天雷宝可梦,Raikou embodies the speed of lightning. The roars of this Pokémon send shock waves shuddering through the air and shake the ground as if lightning bolts had come crashing down.
+244,244,1,,124,269,false,false,火山宝可梦,Entei embodies the passion of magma. This Pokémon is thought to have been born in the eruption of a volcano. It sends up massive bursts of fire that utterly consume all that they touch.
+245,245,1,,125,270,false,false,极光宝可梦,Suicune embodies the compassion of a pure spring of water. It runs across the land with gracefulness. This Pokémon has the power to purify dirty water.
+246,246,1,,126,271,false,false,岩石肤宝可梦,以吃土为生。 吃掉一座大山后， 就会为了成长而开始沉睡。
+247,247,1,246,126,272,false,false,子弹宝可梦,虽然是蛹却不会呆着不动。 在坚硬的甲壳之下 已经长出了手脚。
+248,248,1,247,126,273,false,true,铠甲宝可梦,当它带着巨大轰鸣声迈开脚步， 就连大山都会为之崩裂， 周围的地形也会因此改变。
+249,249,1,,127,274,false,false,潜水宝可梦,"Lugia’s wings pack devastating power—a light fluttering of its wings can blow apart regular houses. As a result, this Pokémon chooses to live out of sight deep under the sea."
+250,250,1,,128,275,false,false,虹色宝可梦,Ho-Oh’s feathers glow in seven colors depending on the angle at which they are struck by light. These feathers are said to bring happiness to the bearers. This Pokémon is said to live at the foot of a rainbow.
+251,251,4,,129,276,false,false,时空穿越宝可梦,从未来穿越时光而来。 能够治愈伤痛， 也会把自己的力量分给草木。
+252,252,4,,130,277,false,false,林蜥宝可梦,"Treecko is cool, calm, and collected—it never panics under any situation. If a bigger foe were to glare at this Pokémon, it would glare right back without conceding an inch of ground."
+253,253,4,252,130,278,false,false,林蜥宝可梦,"This Pokémon adeptly flies from branch to branch in trees. In a forest, no Pokémon can ever hope to catch a fleeing Grovyle however fast they may be."
+254,254,4,253,130,279,false,true,密林宝可梦,Sceptile has seeds growing on its back. They are said to be bursting with nutrients that revitalize trees. This Pokémon raises the trees in a forest with loving care.
+255,255,4,,131,280,true,false,雏鸡宝可梦,Torchic has a place inside its body where it keeps its flame. Give it a hug—it will be glowing with warmth. This Pokémon is covered all over by a fluffy coat of down.
+256,256,4,255,131,281,true,false,幼鸡宝可梦,Combusken battles with the intensely hot flames it spews from its beak and with outstandingly destructive kicks. This Pokémon’s cry is very loud and distracting.
+257,257,4,256,131,282,true,true,猛火宝可梦,Blaziken has incredibly strong legs—it can easily clear a 30-story building in one leap. This Pokémon’s blazing punches leave its foes scorched and blackened.
+258,258,4,,132,283,false,false,沼鱼宝可梦,"In water, Mudkip breathes using the gills on its cheeks. If it is faced with a tight situation in battle, this Pokémon will unleash its amazing power—it can crush rocks bigger than itself."
+259,259,4,258,132,284,false,false,沼鱼宝可梦,"Marshtomp is much faster at traveling through mud than it is at swimming. This Pokémon’s hindquarters exhibit obvious development, giving it the ability to walk on just its hind legs."
+260,260,4,259,132,285,false,true,沼鱼宝可梦,"Swampert predicts storms by sensing subtle differences in the sounds of waves and tidal winds with its fins. If a storm is approaching, it piles up boulders to protect itself."
+261,261,2,,133,286,false,false,紧咬宝可梦,Poochyena is an omnivore—it will eat anything. A distinguishing feature is how large its fangs are compared to its body. This Pokémon tries to intimidate its foes by making the hair on its tail bristle out.
+262,262,2,261,133,287,false,false,紧咬宝可梦,Mightyena travel and act as a pack in the wild. The memory of its life in the wild compels the Pokémon to obey only those Trainers that it recognizes to possess superior skill.
+263,263,2,,134,288,false,false,豆狸宝可梦,伽勒尔的蛇纹熊适应了 其他地区环境后的样子。 十分擅长找东西。
+264,264,2,263,134,289,false,false,猛冲宝可梦,用自己超群的爆发力 和锐利的爪子来制服猎物。 不擅长在弯曲的道路上奔跑。
+265,265,2,,135,290,false,false,虫宝宝宝可梦,Likes sap and is abundant in the wild. Why it evolves into various different forms is unknown. One cannot tell from a Wurmple's appearance which form it will take when it evolves.
+266,266,2,265,135,291,false,false,蛹宝可梦,"Wraps itself in thin strings of silk while it stores energy for evolution. It can't extend its limbs and its movement is slow, but its eyes keep a sharp lookout—Silcoon is always on guard."
+267,267,2,266,135,292,true,false,蝴蝶宝可梦,"A colorful and incredibly beautiful but also greedy Pokémon. In an effort to keep its favorite food all to itself, it will chase away Combee as they try to gather nectar."
+268,268,2,265,135,293,false,false,蛹宝可梦,"The silk coating its body is thin but sufficiently strong. Cascoon's silk has a luster and texture superior to that of Silcoon's, and clothes made using Cascoon silk are regarded as top-notch."
+269,269,2,268,135,294,true,false,毒蛾宝可梦,Tends to be drawn to bonfires on dark nights. Difficult to chase away from settlements because of the way it scatters highly toxic scales.
+270,270,4,,136,295,false,false,浮萍宝可梦,因为叶子长得太大太重， 所以才会改变习性， 漂浮在水面上生活。
+271,271,4,270,136,296,false,false,爽朗宝可梦,住在日照良好的水边。 白天在水草做的床上睡觉， 太阳下山后就会出来活动。
+272,272,4,271,136,297,true,false,乐天宝可梦,乐天河童会跟着 欢快的音乐摇摆身体， 从而增强自己的力量。
+273,273,4,,137,298,false,false,橡实宝可梦,会将头顶粘在树枝上悬挂着。 也有被大风吹落的时候。
+274,274,4,273,137,299,true,false,捉弄宝可梦,长鼻叶居住在大树上的洞穴里， 它吹奏出的草笛声 会让听到的人感到不安。
+275,275,4,274,137,300,true,false,邪恶宝可梦,在森林深处静静地生活。 据说当它扇动大大的团扇， 就会刮起冬日寒风。
+276,276,4,,138,301,false,false,幼燕宝可梦,"Taillow is young—it has only just left its nest. As a result, it sometimes becomes lonesome and cries at night. This Pokémon feeds on Wurmple that live in forests."
+277,277,4,276,138,302,false,false,燕子宝可梦,"Swellow is very conscientious about the upkeep of its glossy wings. Once two Swellow are gathered, they diligently take care of cleaning each other’s wings."
+278,278,2,,139,303,false,false,海鸥宝可梦,利用气流， 不拍打翅膀就能飞上天空。 会在海边的岩壁上筑巢。
+279,279,2,278,139,304,false,false,水鸟宝可梦,会贴着海面飞行， 用大大的鸟嘴连着海水一起 把食物捞起来带走。
+280,280,1,,140,305,false,false,心情宝可梦,用红色的角捕捉到 人和宝可梦的温情后， 全身也会稍稍变暖起来。
+281,281,1,280,140,306,false,false,感情宝可梦,可以通过操纵精神力量 扭曲周围的空间来看清未来。
+282,282,1,281,140,307,false,true,包容宝可梦,如果是为了保护训练家， 它就会用尽自己的精神力量 制造出小型黑洞。
+283,283,2,,141,309,false,false,水黾宝可梦,栖息在水草丛生的池塘或沼泽里。 会经常和栖息地以及食物 都与自己相近的滴蛛争斗。
+284,284,2,283,141,310,false,false,眼珠宝可梦,像薄薄的翅膀一样的触角 很容易吸收湿气。 雨天会静静地待在树洞等地方度过。
+285,285,6,,142,311,false,false,蘑菇宝可梦,"If Shroomish senses danger, it shakes its body and scatters spores from the top of its head. This Pokémon’s spores are so toxic, they make trees and weeds wilt."
+286,286,6,285,142,312,false,false,蘑菇宝可梦,The seeds ringing Breloom’s tail are made of hardened toxic spores. It is horrible to eat the seeds. Just taking a bite of this Pokémon’s seed will cause your stomach to rumble.
+287,287,1,,143,313,false,false,懒人宝可梦,"Slakoth’s heart beats just once a minute. Whatever happens, it is content to loaf around motionless. It is rare to see this Pokémon in motion."
+288,288,1,287,143,314,false,false,暴猿宝可梦,"Vigoroth is simply incapable of remaining still. Even when it tries to sleep, the blood in its veins grows agitated, compelling this Pokémon to run wild throughout the jungle before it can settle down."
+289,289,1,288,143,315,false,false,怕麻烦宝可梦,"Wherever Slaking live, rings of over a yard in diameter appear in grassy fields. They are made by the Pokémon as it eats all the grass within reach while lying prone on the ground."
+290,290,5,,144,316,false,false,入门宝可梦,有时能在土里生活１０年以上。 会从树木的根部那里吸取营养。
+291,291,5,290,144,317,false,false,忍者宝可梦,行动十分迅速的宝可梦。 说它无论什么攻击都能避开也不夸张。 非常喜欢甘甜的树液。
+292,292,5,290,144,318,false,false,空壳宝可梦,不拍动翅膀也能四处飞行。 身体里面空空的，是一种 不呼吸的奇妙宝可梦。
+293,293,4,,145,319,false,false,细语宝可梦,一旦开始喊叫，就会被自己的声音 惊吓到，然后以更大的声音 大吼大叫起来。叫累了以后就会睡着，
+294,294,4,293,145,320,false,false,大声宝可梦,它发出的大叫声不仅会刺激听觉， 还会压缩空气造成冲击波 将敌人吹飞给予伤害。
+295,295,4,294,145,321,false,false,噪音宝可梦,它不仅仅会大喊大叫。为了和 伙伴相互传情达意，它会从 身体的洞里发出各种各样的音色。
+296,296,6,,146,322,false,false,毅力宝可梦,据说为了培育强大的幕下力士， 存在着一种训练家们按传统 手法制作的火锅料理。
+297,297,6,296,146,323,false,false,猛推宝可梦,体型粗壮的铁掌力士未必强大。 即便身型矮小，也有身轻如燕， 擅长巧力的铁掌力士。
+298,298,3,,90,211,false,false,水珠宝可梦,虽然是种性情温顺的宝可梦， 但生起气来，便会嗖嗖地挥舞起 尾巴上的大球来猛烈击打对手。
+299,299,2,,147,324,false,false,罗盘宝可梦,它会一动不动地用强力的 磁力将猎物吸过来狩猎。 但有时也会吸到天敌。
+300,300,3,,148,326,false,false,小猫宝可梦,"Skitty is known to chase around playfully after its own tail. In the wild, this Pokémon lives in holes in the trees of forests. It is very popular as a pet because of its adorable looks."
+301,301,3,300,148,327,false,false,清高宝可梦,"Delcatty sleeps anywhere it wants without keeping a permanent nest. If other Pokémon approach it as it sleeps, this Pokémon will never fight—it will just move away somewhere else."
+302,302,4,,149,328,false,true,黑暗宝可梦,会去吃宝石的结晶。 双眼在漆黑一片的地方 会发出宝石的光芒。
+303,303,3,,150,329,false,true,欺骗宝可梦,大嘴娃能用自己那由钢角 变化而成的巨大颚部 将对手一口紧紧咬住。
+304,304,1,,151,330,false,false,铁铠宝可梦,进化的时候，钢铁盔甲会 全部脱落。人们曾经 将其捡来活用于生活。
+305,305,1,304,151,331,false,false,铁铠宝可梦,会用钢铁之躯互相撞击 来争夺地盘。仔细看会发现 钢铁盔甲上有伤痕和凹陷。
+306,306,1,305,151,332,false,true,铁铠宝可梦,很久以前，有位国王由于希望 像波士可多拉一样强大而戴上了 模仿它的头部制成的头盔。
+307,307,2,,152,333,true,false,冥想宝可梦,Meditite heightens its inner energy through meditation. It survives on just one berry a day. Minimal eating is another aspect of this Pokémon’s training.
+308,308,2,307,152,334,true,true,冥想宝可梦,"Through the power of meditation, Medicham developed its sixth sense. It gained the ability to use psychokinetic powers. This Pokémon is known to meditate for a whole month without eating."
+309,309,1,,153,335,false,false,闪电宝可梦,会在体毛中储存静电。 在空气干燥的季节 会从全身散发出火花。
+310,310,1,309,153,336,false,true,放电宝可梦,极少出现在人前。 据说它的住所就在雷电落下的地方。
+311,311,2,,154,337,false,false,加油宝可梦,"When Plusle is cheering on its partner, it flashes with electric sparks from all over its body. If its partner loses, this Pokémon cries loudly."
+312,312,2,,155,338,false,false,加油宝可梦,"Minun loves to cheer on its partner in battle. It gives off sparks from its body while it is doing so. If its partner is in trouble, this Pokémon gives off increasing amounts of sparks."
+313,313,5,,156,339,false,false,萤火虫宝可梦,"Volbeat’s tail glows like a lightbulb. With other Volbeat, it uses its tail to draw geometric shapes in the night sky. This Pokémon loves the sweet aroma given off by Illumise."
+314,314,6,,157,340,false,false,萤火虫宝可梦,Illumise leads a flight of illuminated Volbeat to draw signs in the night sky. This Pokémon is said to earn greater respect from its peers by composing more complex designs in the sky.
+315,315,4,406,158,342,true,false,荆棘宝可梦,会用右手和左手分别放出 ２种不同的毒来进行攻击。 香气越浓越有精神。
+316,316,6,,159,344,true,false,胃袋宝可梦,Most of Gulpin’s body is made up of its stomach—its heart and brain are very small in comparison. This Pokémon’s stomach contains special enzymes that dissolve anything.
+317,317,6,316,159,345,true,false,毒袋宝可梦,"Swalot has no teeth, so what it eats, it swallows whole, no matter what. Its cavernous mouth yawns widely. An automobile tire could easily fit inside this Pokémon’s mouth."
+318,318,1,,160,346,false,false,凶猛宝可梦,拥有锋利的牙齿和 结实的下颚。水手们绝不会 主动靠近利牙鱼的栖息地。
+319,319,1,318,160,347,false,true,凶暴宝可梦,被称为大海恶霸。 进入它栖息海域的船只 会无一例外地遭到袭击。
+320,320,6,,161,348,false,false,球鲸宝可梦,喝入大量的海水之后， 身体会鼓成像球一样。 每天要吃掉１吨的食物。
+321,321,6,320,161,349,false,false,浮鲸宝可梦,总之，因为超级巨大而受欢迎。 观看吼鲸王在各地都是 非常受欢迎的游览项目。
+322,322,2,,162,350,true,false,迟钝宝可梦,"Numel stores magma of almost 2,200 degrees Fahrenheit within its body. If it gets wet, the magma cools and hardens. In that event, the Pokémon’s body grows heavy and its movements become sluggish."
+323,323,2,322,162,351,true,true,喷火宝可梦,The humps on Camerupt’s back are formed by a transformation of its bones. They sometimes blast out molten magma. This Pokémon apparently erupts often when it is enraged.
+324,324,2,,163,352,false,false,煤炭宝可梦,在弃用的煤矿中 住着很多煤炭龟， 它们会不停地挖掘煤炭。
+325,325,3,,164,353,false,false,弹跳宝可梦,Spoink keeps a pearl on top of its head. The pearl functions to amplify this Pokémon’s psychokinetic powers. It is therefore on a constant search for a bigger pearl.
+326,326,3,325,164,354,false,false,操纵宝可梦,"Grumpig uses the black pearls on its body to wield its fantastic powers. When it is doing so, it dances bizarrely. This Pokémon’s black pearls are valuable as works of art."
+327,327,3,,165,355,false,false,斑点熊猫宝可梦,每一只身上的斑点花纹都不同。 会用晃晃悠悠的动作 绝妙地躲避对手的攻击。
+328,328,4,,166,356,false,false,蚁狮宝可梦,建造了绝对无法逃脱的 捣蒜钵状巢穴，并在巢穴里 等着猎物自己掉进来。
+329,329,4,328,166,357,false,false,振动宝可梦,为了让翅膀成长， 每天要用消化液溶化 并吸食大量的猎物。
+330,330,4,329,166,358,false,false,神秘宝可梦,由于它挥动翅膀的声音 好似女性优美的歌声， 因此被称为沙漠精灵。
+331,331,4,,167,359,false,false,仙人掌宝可梦,"The more arid and harsh the environment, the more pretty and fragrant a flower Cacnea grows. This Pokémon battles by wildly swinging its thorny arms."
+332,332,4,331,167,360,true,false,稻草人宝可梦,"If a traveler is going through a desert in the thick of night, Cacturne will follow in a ragtag group. The Pokémon are biding their time, waiting for the traveler to tire and become incapable of moving."
+333,333,5,,168,361,false,false,绵鸟宝可梦,看起来像是一团棉花云，因此 不易被敌人发现。据说翅膀是 随着世代演进逐渐变白的。
+334,334,5,333,168,362,false,true,哼唱宝可梦,虽然性情温顺，但如果被惹怒， 就会用尖锐的叫声威吓对方， 并且毫不留情地发动进攻。
+335,335,5,,169,363,false,false,猫鼬宝可梦,"Zangoose usually stays on all fours, but when angered, it gets up on its hind legs and extends its claws. This Pokémon shares a bitter rivalry with Seviper that dates back over generations."
+336,336,6,,170,364,false,false,牙蛇宝可梦,Seviper’s swordlike tail serves two purposes—it slashes foes and douses them with secreted poison. This Pokémon will not give up its long-running blood feud with Zangoose.
+337,337,3,,171,365,false,false,陨石宝可梦,第一次发现它是在 ４０年前陨石坠落的地方。 只要注视敌人就能使其入睡。
+338,338,3,,172,366,false,false,陨石宝可梦,太阳能量是其力量之源， 所以白天会很强。 旋转时身体会发光。
+339,339,2,,173,367,false,false,须鱼宝可梦,会用２根长长的胡须 探索浑浊的河底。 用湿滑的粘膜保护着身体。
+340,340,2,339,173,368,false,false,须鱼宝可梦,会将大沼泽划为自己的领地。 如果有敌人接近的话，它就会狂暴起来， 并引发大地震。
+341,341,6,,174,369,false,false,无赖宝可梦,来自于外国的宝可梦， 现在已经回归了野生环境。 不管多么污浊的河水都能适应。
+342,342,6,341,174,370,false,false,流氓宝可梦,有着热爱战斗的性格。 当遇到靠近自己领地的对手， 会毫不留情地将之打倒。
+343,343,2,,175,371,false,false,泥偶宝可梦,在古代遗迹被发现。 会一边旋转一边移动。 晚上睡觉的时候也是单脚站着。
+344,344,2,343,175,372,false,false,泥偶宝可梦,似乎是从古代人做的 泥偶诞生而来的宝可梦。 能靠念力浮在空中移动。
+345,345,5,,176,373,false,false,海百合宝可梦,会吸附在海底岩石上， 用花瓣一样的触手 缠住接近自己的猎物。
+346,346,5,345,176,374,false,false,藤壶宝可梦,用触手将猎物缠住后， 会用消化液将其溶化， 然后吸收其中的养分。
+347,347,5,,177,375,false,false,古虾宝可梦,会把８根翅膀当做船桨划水， 并且游泳的速度相当快。 是虫宝可梦的一种祖先。
+348,348,5,347,177,376,false,false,甲胄宝可梦,栖息在陆地，但也擅长游泳。 会潜入大海寻找猎物， 用锋利的爪子给予致命一击。
+349,349,5,,178,377,false,false,鱼宝可梦,虽然外表丑陋， 但拥有顽强的生命力， 只要少量的水就能存活。
+350,350,5,349,178,378,true,false,慈爱宝可梦,据说目睹了美纳斯美丽 身姿的人，心中一切的 愤恨都能得到抚慰。
+351,351,2,,179,379,false,true,天气宝可梦,样子会根据天气发生变化。 天气越恶劣， 性格也会变得越暴躁。
+352,352,4,,180,380,false,false,变色宝可梦,在不隐身的时候，身体的颜色 也会随着心情和状态改变。 颜色越浓的时候越有精神。
+353,353,3,,181,381,false,false,人偶宝可梦,流传着这样的古老俗语， 日暮时分，不要去 排列着怨影娃娃的房子。
+354,354,3,353,181,382,false,true,布偶宝可梦,因被丢弃的怨念而诞生。 听说，如果满足它受重视的需求， 就会变回原来的玩偶。
+355,355,3,,182,383,false,false,渡魂宝可梦,会让身体变透明， 然后偷偷地靠近猎物。 拥有穿过厚墙壁的能力。
+356,356,3,355,182,384,false,false,招手宝可梦,寻找游走的灵魂，吸入自己 空洞的身体里。没人知道 被吸入后会发生什么事。
+357,357,1,,183,386,false,false,水果宝可梦,脖子上的那串水果很美味， 很受欢迎。在温暖的地方， 有许多培育热带龙的牧场。
+358,358,3,433,184,388,false,false,风铃宝可梦,Can emit waves of air powerful enough to knock out prey taller than itself. I hypothesize that it amplifies the faint sound of wind within its body.
+359,359,4,,185,389,false,true,灾祸宝可梦,由于拥有感知危险的能力， 因此它被人们误解为是 会招来灾祸的宝可梦。
+360,360,2,,100,232,false,false,开朗宝可梦,具有集体行动的习性。 睡觉的时候会聚集在洞窟中， 和伙伴们把身体挨在一起。
+361,361,2,,186,390,false,false,雪笠宝可梦,只能在寒冷的土地上生存。 即使在零下１００度的环境下 也能充满活力地到处蹦蹦跳跳。
+362,362,2,361,186,391,false,true,脸面宝可梦,用令空气中的水分 瞬间冻结的力量， 将猎物冰冻起来。
+363,363,4,,187,393,false,false,拍手宝可梦,会漂浮在波浪当中观察 大海的状况。一旦发现猎物， 就会通知群体里的帝牙海狮。
+364,364,4,363,187,394,false,false,滚球宝可梦,不管是海豹球还是精灵球， 只要是圆的物体都会 顶在鼻子上转来转去。
+365,365,4,364,187,395,false,false,破冰宝可梦,它的獠牙一生都会持续生长。 即使在战斗中被折断也能逐渐恢复， 只需要１年的时间便能完好如初。
+366,366,5,,188,396,false,false,双壳贝宝可梦,珍珠贝的珍珠非常贵重。 据说，其价值或许是 大舌贝珍珠的１０倍以上。
+367,367,5,366,188,397,false,false,深海宝可梦,栖息在深海中。 传说，如果猎斑鱼被冲上沙滩， 就会有不祥的事情发生。
+368,368,5,366,188,398,false,false,南海宝可梦,吸食猎物的体液。 剩下的肉会沉入海底， 成为其他宝可梦的食物。
+369,369,1,,189,399,true,false,长寿宝可梦,在深海调查中被发现的宝可梦。 样子在１亿年间都没有任何变化， 被人们称为活化石。
+370,370,3,,190,400,false,false,相随宝可梦,温暖海域的珊瑚礁是它的栖息地。 特别喜欢在太阳珊瑚的枝条间睡觉。
+371,371,1,,191,401,false,false,坚硬脑袋宝可梦,不会成群结队，喜欢单独生活。 脑袋很硬，只要猛地一撞， 就能把坚硬的岩石一分为二。
+372,372,1,371,191,402,false,false,耐力宝可梦,可以不吃食物忍受饥饿。 据说当它用尽积蓄的能量后， 就会开始进化。
+373,373,1,372,191,403,false,true,龙宝可梦,虽然在空中翱翔能够让它 乐在其中，但是一旦被惹怒， 就会大闹一番，不可收拾。
+374,374,1,,192,404,false,false,铁球宝可梦,身体的细胞由磁铁构成。 循环于全身的不是血液， 而是磁力。
+375,375,1,374,192,405,false,false,铁爪宝可梦,依靠磁力飞行。能够在空中 以高速穿过险峻的山岳， 让追捕的猎物无处可逃。
+376,376,1,375,192,406,false,true,铁足宝可梦,２只金属怪组合起来的样子。 运用堪比超级计算机的 头脑打败敌人。
+377,377,1,,193,407,false,false,岩山宝可梦,人们通过最新的科学技术 对它的岩石身体做了调查， 但是并未发现大脑和心脏。
+378,378,1,,194,408,false,false,冰山宝可梦,拥有一副由冰构成的身体。 据说是诞生于冰河时期 冻得厚厚实实的冰块之下。
+379,379,1,,195,409,false,false,黑金宝可梦,据说诞生于地幔之中， 在距今约１万年前 现身于地面之上。
+380,380,1,,196,410,false,true,无限宝可梦,Latias is highly intelligent and capable of understanding human speech. It is covered with a glass-like down. The Pokémon enfolds its body with its down and refracts light to alter its appearance.
+381,381,1,,197,411,false,true,无限宝可梦,Latios will only open its heart to a Trainer with a compassionate spirit. This Pokémon can fly faster than a jet plane by folding its forelegs to minimize air resistance.
+382,382,1,,198,412,false,true,海底宝可梦,"Kyogre is said to be the personification of the sea itself. Legends tell of its many clashes against Groudon, as each sought to gain the power of nature."
+383,383,1,,199,413,false,true,大陆宝可梦,"Through Primal Reversion and with nature’s full power, it will take back its true form. It can cause magma to erupt and expand the landmass of the world."
+384,384,1,,200,414,false,true,天空宝可梦,"It flies forever through the ozone layer, consuming meteoroids for sustenance. The many meteoroids in its body provide the energy it needs to Mega Evolve."
+385,385,1,,201,415,false,false,祈愿宝可梦,传说当它从１０００年的 沉睡中醒来时，会实现 写在它头部许愿笺上的愿望。
+386,386,1,,202,416,false,true,ＤＮＡ宝可梦,Deoxys emerged from a virus that came from space. It is highly intelligent and wields psychokinetic powers. This Pokémon shoots lasers from the crystalline organ on its chest.
+387,387,4,,203,417,false,false,嫩叶宝可梦,This Pokémon becomes more energetic the more sunlight there is. The part resembling a shell is similar to silt and is slightly damp and warm to the touch.
+388,388,4,387,203,418,false,false,树丛宝可梦,"Appears where there is clean spring water. The fruit that grows on the shrubs on its shell is sweet, nutritious, and truly delicious."
+389,389,4,388,203,419,false,false,大陆宝可梦,"This remarkable, large-bodied Pokémon would serve beautifully as borrowed scenery for a garden, and its strength is peerless. Torterra roams the wilderness in search of clean water."
+390,390,4,,204,420,false,false,小猴宝可梦,Full of vigor and always in high spirits. It was once known by the name ”Lantern-Tail” and feared as some kind of apparition.
+391,391,4,390,204,421,false,false,顽皮宝可梦,"The deeper the blue on its face, the more powerful it will grow to become. It leaps about every which way and lands powerful blows against its opponents with the flame on its tail."
+392,392,4,391,204,422,false,false,火焰宝可梦,"A tall, hardy Pokémon with a dazzling appearance. It shrouds itself in flame and battles as if engaged in dance—truly a sight to behold."
+393,393,4,,205,423,false,false,企鹅宝可梦,"Prefers cold climes and appears along coasts. It's an adorable little thing—as cute as any child—but it's also prideful, unwilling to accept handouts from people."
+394,394,4,393,205,424,false,false,企鹅宝可梦,"It swims gracefully through the frigid sea and sings with a voice like the roaring tide. It has powerful, sturdy wings and dignity to match."
+395,395,4,394,205,425,false,false,皇帝宝可梦,"Since ancient times, it has been revered by the people of Hisui, who call it the Master of the Waves. Its wings are a match for even master-crafted blades."
+396,396,4,,206,426,true,false,椋鸟宝可梦,"They live in the fields and mountains, gathering in large flocks. Their cries are quite obnoxious. Though small, their wings are strong—a strike from them leaves pain that persists for a week."
+397,397,4,396,206,427,true,false,椋鸟宝可梦,They form remarkably large flocks and are constantly fighting amongst themselves. I suspect that those with magnificent plumes on their heads are the strong ones.
+398,398,4,397,206,428,true,false,猛禽宝可梦,"It has left the flock, having gained strength enough to survive on its own. The astounding force with which Staraptor flies through the air allows it to carry away large, burly targets."
+399,399,2,,207,429,true,false,圆鼠宝可梦,Bidoof has an unsophisticated face and is rarely flustered by anything. There have been incidents involving Bidoof sauntering into villages and gnawing on the houses without a single care.
+400,400,2,399,207,430,true,false,河狸宝可梦,Bibarel fur repels water and is also a fantastic material for heat retention. These Pokémon create dams on rivers to live in.
+401,401,4,,208,431,true,false,蟋蟀宝可梦,"When the trees take on new hues, more of these Pokémon appear. The tone they create by striking their antennae together resembles that of the marimba, an instrument of foreign lands."
+402,402,4,401,208,432,true,false,蟋蟀宝可梦,"It uses its cutlass-like arms to produce sound, the melody of which varies from individual to individual. It is a worthwhile endeavor to seek out one's favorite tunes."
+403,403,4,,209,433,true,false,闪光宝可梦,体毛通电后就会发光。 会摇晃明亮发光的尾巴 尖端来向伙伴发送信号。
+404,404,4,403,209,434,true,false,电光宝可梦,遇到敌人时会从脚 伸出有着百万伏特 威力的爪子来迎战。
+405,405,4,404,209,435,true,false,目光宝可梦,由于透视需要消耗 大量的电能，因此它会 睡很长时间来积蓄能量。
+406,406,4,,158,341,false,false,花苞宝可梦,对气温的变化很敏感。 当它开始打开花苞， 便是冬去春来之时。
+407,407,4,315,158,343,true,false,花束宝可梦,右手的毒是速效的， 左手的毒则是慢性的。 无论哪边的毒性都能致命。
+408,408,5,,211,436,false,false,头锤宝可梦,坚硬的头盖骨是其特征。 会用头锤撞断树木， 吃树上结的树果。
+409,409,5,408,211,437,false,false,头锤宝可梦,擅长头锤的古代宝可梦。 因为大脑真的很小， 所以也有说法它是因愚笨而灭亡的。
+410,410,5,,212,438,false,false,护盾宝可梦,虽然从太古时代的地层中 发现了它的化石， 但尚未发现除了脸以外的部分。
+411,411,5,410,212,439,false,false,护盾宝可梦,大约１亿年前的宝可梦。 极其结实的脸有着超越钢铁的硬度。
+412,412,2,,213,440,false,true,蓑衣虫宝可梦,"If its cloak is even slightly damaged, Burmy will immediately repair it with whatever is close at hand. The Pokémon within the cloak is scrawny and vulnerable to the cold."
+413,413,2,412,213,441,false,false,蓑衣虫宝可梦,"When Burmy evolved, its cloak became a part of this Pokémon’s body. The cloak is never shed."
+414,414,2,412,213,442,false,false,蓑衣蛾宝可梦,"Scatters steel-colored scales as it flaps its wings. Despite being observed feeding primarily on the nectar of flowers, Mothim is not often seen around flower gardens."
+415,415,4,,214,443,true,false,幼蜂宝可梦,从早到晚都在采集花蜜。 这一切都是为了 自己的族群和蜂女王。
+416,416,4,415,214,444,false,false,蜂巢宝可梦,能释放越多费洛蒙的蜂女王， 就能让越多的三蜜蜂 听从自己的指挥。
+417,417,2,,215,445,true,false,电松鼠宝可梦,"A species related to the Pikachu line. Though Pachirisu is a calm Pokémon, it still presents a danger should one touch its electrified tail or cheeks."
+418,418,2,,216,446,true,false,海鼬宝可梦,It moves freely in the water by spinning its forked tail for propulsion. The resemblance to the screw of a steamboat is coincidental.
+419,419,2,418,216,447,true,false,海鼬宝可梦,"Has a long, rather splendid flotation sac, which prevents Floatzel from drowning even in stormy seas. One might glimpse this species around fishing hamlets from time to time."
+420,420,2,,217,448,false,false,樱桃宝可梦,身体越红的樱花宝 含有的营养越丰富， 味道也很甜很好吃。
+421,421,2,420,217,449,false,true,樱花宝可梦,盖起来的花瓣很硬。 即使被鸟宝可梦啄到， 也完全没问题。
+422,422,2,,218,450,false,false,海兔宝可梦,如果用力按住它， 它就会分泌出神秘的紫色液体。 虽然液体无害，不过黏糊糊的。
+423,423,2,422,218,451,false,false,海兔宝可梦,身体软瘫瘫的但十分强韧。 因为它身体的软度可以 帮助分散它所受到的冲击。
+424,424,3,190,93,220,true,false,长尾宝可梦,无论做什么都会用到尾巴。 如果被它的２条尾巴抱紧， 那就证明是真的和你很亲近。
+425,425,6,,219,452,false,false,气球宝可梦,因魂魄聚集在一起而诞生。 到了湿气大的季节 就有可能大量出现。
+426,426,6,425,219,453,false,false,热气球宝可梦,会抓住人和宝可梦， 然后运到某个地方。 没人知道那地方是哪里。
+427,427,2,,220,454,false,false,兔子宝可梦,会利用把卷卷的耳朵伸直 时产生的威力进行攻击。 越训练，这一招式的威力就越强。
+428,428,2,427,220,455,false,true,兔子宝可梦,当高温的季节结束后， 就会换上富含空气的 体毛，准备抵御寒冷。
+429,429,3,200,98,230,false,false,魔法宝可梦,会吟诵诅咒的语言， 让对方极度头疼，或是看到 恐怖的幻觉，深受折磨。
+430,430,4,198,97,228,false,false,大头目宝可梦,和敌人战斗的基本都是跟班。 只有在最后刺入对手的致命一击 才会弄脏自己的手。
+431,431,3,,221,456,false,false,装乖宝可梦,"Bewitches humans with its helical tail and piercing gaze. Its hidden claws are quite sharp as well, making this Pokémon an exceedingly tricky opponent if antagonized."
+432,432,3,431,221,457,false,false,虎斑猫宝可梦,"Though impudent and difficult to tame, Purugly enjoys great popularity due to its fur, the beauty of which surpasses even velveteen."
+433,433,3,,184,387,false,false,铃铛宝可梦,This Pokémon gave me an excruciating headache when it seemingly cried out without making a sound. Perhaps there are some sounds that the human ear is simply incapable of hearing.
+434,434,2,,223,458,false,false,臭鼬宝可梦,要是它翘起尾巴把屁股对准了你， 请一定要小心。因为这表示它将要 喷出足以让人窒息的臭液。
+435,435,2,434,223,459,false,false,臭鼬宝可梦,从尾巴尖端喷出的液体 带有强烈的恶臭。 会在地面上挖洞建造巢穴。
+436,436,2,,224,460,false,false,青铜宝可梦,虽然人们说把铜镜怪打磨到发光， 它就能映照出真相， 但其实它非常讨厌被打磨。
+437,437,2,436,224,461,false,false,铜钟宝可梦,它身上的纹路让 许多学者都认为它 原本并不存在于伽勒尔。
+438,438,2,,91,214,false,false,盆栽宝可梦,栖息在空气干燥岩石裸露的地方。 空气越是干燥，它身上的绿球 就越是会泛出暗淡的光泽。
+439,439,2,,57,139,false,false,默剧宝可梦,像徒弟一样跟随着 擅长跳舞的踏冰人偶， 拼命模仿它的舞步。
+440,440,3,,51,126,false,false,家家酒宝可梦,会把自己珍贵的浑圆石头 借给关系变得很要好的对象。 如果不还给它，它便会大哭大闹。
+441,441,4,,228,462,false,false,音符宝可梦,"A versatile performer skilled in the imitation of human speech. It is said that older, more experienced Chatot can even understand the meaning of the words they mimic."
+442,442,2,,229,463,false,false,封印宝可梦,总是作恶多端， 于是被使用神奇法术的 旅人绑缚在楔石里。
+443,443,1,,230,464,true,false,陆鲨宝可梦,遇到会动的东西就会扑上去 将其拉回到自己住的横洞内。 虽然嘴很大，但胃口却比较小。
+444,444,1,443,230,465,true,false,洞穴宝可梦,会把宝石埋藏在栖息的洞窟内。 入侵者闯入洞窟后，会立刻 被它用爪子和牙齿撕碎。
+445,445,1,444,230,466,true,true,音速宝可梦,身手在陆地上也很矫捷， 在雪山上会赶在身体冻僵前 干掉猎物并返回住处。
+446,446,1,,72,174,false,false,大胃王宝可梦,在体毛下面储存食物。 如果是自己信赖的对象， 也会把食物分给对方一口。
+447,447,4,,232,467,false,false,波纹宝可梦,除了能读懂对手的感情， 也能以“波导”这种形式的波 来观察大自然的样子。
+448,448,4,447,232,468,false,true,波导宝可梦,他能理解人类的想法， 因此只会去亲近 内心端正的训练家。
+449,449,1,,233,469,true,false,河马宝可梦,主要在白天活动。 因为沙漠的夜晚会降温， 所以会钻到沙子的深处睡觉。
+450,450,1,449,233,470,true,false,重量宝可梦,生气的时候非常凶暴。 会喷出储存在体内的 沙子来引发沙尘暴。
+451,451,1,,234,471,false,false,蝎子宝可梦,用尾巴上带毒的钩爪袭击对手。 一旦被夹住，毒素就会扩散开来， 导致全身无法动弹。
+452,452,1,451,234,472,false,false,蝎怪宝可梦,虽然狰狞凶猛到被人们 称为沙之恶魔，但在河马兽 面前却表现得低调温顺。
+453,453,2,,235,473,true,false,毒击宝可梦,毒素在稀释后能制成药品。 它是制药公司的吉祥物， 广受众人的欢迎。
+454,454,2,453,235,474,true,false,毒击宝可梦,制服了猎物之后， 便会呱呱地发出胜利的欢呼。 与蟾蜍王是相近的物种。
+455,455,1,,236,475,false,false,捕虫宝可梦,"Though this is a plant Pokémon, it has a gluttonous and unruly temperament. Carnivine attacks its prey with its cavernous maw wide open."
+456,456,5,,237,476,true,false,飞翅鱼宝可梦,用发光的尾鳍引诱猎物。 白天会在海面附近， 到了夜里就向海的深处移动。
+457,457,5,456,237,477,true,false,霓虹宝可梦,像是爬行一样在深海的海底游泳。 鳍上发出的充满幻想的光 就像是夜空的星星。
+458,458,1,,116,258,false,false,风筝宝可梦,混在铁炮鱼的大群里游泳。 受到敌人袭击的时候， 会和铁炮鱼们并肩作战。
+459,459,1,,239,478,true,false,树冰宝可梦,雪笠怪肚子上结出来的 口感好似冰棍的树果 是伽勒尔的火红不倒翁们的最爱。
+460,460,1,459,239,479,true,true,树冰宝可梦,会引发暴风雪的宝可梦。 只要它摇动巨大的身体， 周围立刻会变得一片雪白。
+461,461,4,215,109,246,true,false,钩爪宝可梦,通过用爪子留下记号 来与伙伴联络。据说记号 的种类有５００种以上。
+462,462,2,82,34,90,false,false,磁场宝可梦,人们认为，它是因为受到特殊 磁场的影响，身体的分子构造 发生了变化，才进化成这样的。
+463,463,2,108,48,120,false,false,舔舔宝可梦,舌头的灵巧程度甚至不输给 人手，没有它做不到的事。 相反，手指却相当笨拙，
+464,464,1,112,50,125,true,false,钻锥宝可梦,用护具弹开敌人的攻击， 在对手畏缩时用自己 引以为傲的钻头贯穿对方。
+465,465,2,114,52,130,true,false,藤蔓状宝可梦,栖息的地域越是温暖，藤蔓 生长得就越快。藤蔓变长后， 它会亲手将其扯断使其变短。
+466,466,2,125,60,147,false,false,雷电宝可梦,发电量在电气宝可梦当中 属于最高级别。可以从 尾巴尖端释放高压电流。
+467,467,2,126,61,150,false,false,爆炎宝可梦,由于栖息在火山口，因此 身体逐渐变得像火山一样， 还长着类似岩浆库的器官。
+468,468,3,176,87,205,false,false,祝福宝可梦,被称为会带来恩惠的宝可梦， 从很久很久以前开始， 人们就视它为吉祥之物。
+469,469,2,193,95,224,false,false,勾蜓宝可梦,"Extremely violent. When hunting, it wastes none of its energy, aiming only for prey's most vulnerable spots. Any who manage to tame this Pokémon must be of incredible bravery."
+470,470,2,133,67,163,false,false,新绿宝可梦,尾巴好似锐利的刀刃， 锋利得无与伦比， 连大树都能一斩为二。
+471,471,2,133,67,164,false,false,新雪宝可梦,冰伊布释放出的冷气能 制造出粉状的雪。这使它受到 各个滑雪场的热烈欢迎。
+472,472,4,207,104,239,false,false,牙蝎宝可梦,It glides soundlessly on pitch-black wings and sinks sharp fangs into the throat of its prey. It takes on a look of satisfaction once it has entirely drained its prey of blood.
+473,473,1,221,112,253,true,false,双牙宝可梦,它的力量就如外表那样强大。 天气越是寒冷，它的冰牙 就会长得越粗、越长、越结实。
+474,474,2,233,68,168,false,false,虚拟宝可梦,有人说它是通过追加程序进化的， 但关于它的改变是否真是进化， 在学会中也存在着意见分歧。
+475,475,1,281,140,308,false,true,利刃宝可梦,能够敏锐地感知到 寻求帮助的感情， 并且火速赶去援助对方。
+476,476,2,299,147,325,false,false,罗盘宝可梦,使用３个小部件获取食物， 或是和敌人战斗。 本体基本上只负责下命令。
+477,477,3,356,182,385,false,false,抓握宝可梦,用腹部的嘴将猎物整个吞下。 只会吃掉对方的魂魄， 离去时会把肉体吐出来。
+478,478,2,361,186,392,false,false,雪国宝可梦,会吐出零下５０度的冷气 冻住猎物，并把它们带回 自己的巢穴，整齐地摆成一排。
+479,479,2,,240,480,false,true,等离子宝可梦,会用由离子构成的身体 潜入各种各样的机器里。 最喜欢恶作剧吓人。
+480,480,1,,241,481,false,false,知识宝可梦,A Pokémon feared but also respected for stealing away the memories of evildoers. I have found records that suggest Uxie holds dominion over knowledge.
+481,481,1,,242,482,false,false,感情宝可梦,"Known as the Being of Emotion. In legend, this Pokémon was feared, as any who showed disrespect would have their emotions thrown into disarray."
+482,482,1,,243,483,false,false,意志宝可梦,The dreaded Being of Willpower. Legends tell of this Pokémon manipulating the will of its adversaries and turning them into puppets of its own.
+483,483,1,,244,484,false,false,时间宝可梦,This Pokémon is revered as a deity in Hisuian legend. The birth of Dialga was what caused the vast river of time to begin flowing in our world.
+484,484,1,,245,485,false,false,空间宝可梦,"This Pokémon is feared as a deity in Hisuian legend. The birth of Palkia was what caused the walls of our world to disappear, creating a sky that spans for infinity."
+485,485,1,,246,486,false,false,火山口宝可梦,Stories tell of this Pokémon being birthed from the boiling magma within Mount Coronet. Its molten-steel body holds many mysteries.
+486,486,1,,247,487,false,false,巨大宝可梦,据说它用各种各样的材料 制作了宝可梦后，把大陆 移动到了现在的位置。
+487,487,1,,248,488,false,true,反抗宝可梦,There is one Hisuian verse that tells of a powerful light creating a deep shadow. I imagine that this deep shadow is Giratina.
+488,488,1,,249,489,false,false,新月宝可梦,Cresselia is reminiscent of the crescent moon. It leaves a brilliant line of light in its wake as it flies across the night sky. I daresay it resembles the heavenly maiden who created the Milky Way.
+489,489,1,,250,490,false,false,海洋宝可梦,Can be seen floating offshore during seasons when the seas are warm. Its azure body blends in with the ocean waters—logic suggests this is a defense mechanism against natural predators.
+490,490,1,,250,491,false,false,回游宝可梦,"Rumored to migrate across the oceans and visit Hisui's coastal waters only rarely. Although Manaphy resembles Phione, it is also quite different. The relation between the two is unclear."
+491,491,1,,252,492,false,false,暗黑宝可梦,"On a moonless night, a strange incident occurred in which every one of a village's inhabitants suffered nightmares. The villagers attested that Darkrai appeared before them in these nightmares."
+492,492,4,,253,493,false,true,感谢宝可梦,"When the turning of seasons brings the cruel winter to its end and the joyous people give thanks to the heavens, Shaymin appears and covers the withered land with flowers."
+493,493,1,,254,494,false,true,创造宝可梦,It is the heavenly fount from which pours the light that shines across Hisui. Its luminance guides and protects all Pokémon. Hisuian mythology states that Arceus is the creator of all things.
+494,494,1,,255,495,false,false,胜利宝可梦,"When it shares the infinite energy it creates, that being’s entire body will be overflowing with power."
+495,495,4,,256,496,false,false,草蛇宝可梦,"They photosynthesize by bathing their tails in sunlight. When they are not feeling well, their tails droop."
+496,496,4,495,256,497,false,false,草蛇宝可梦,"When it gets dirty, its leaves can’t be used in photosynthesis, so it always keeps itself clean."
+497,497,4,496,256,498,false,false,皇家宝可梦,It can stop its opponents’ movements with just a glare. It takes in solar energy and boosts it internally.
+498,498,4,,257,499,false,false,火猪宝可梦,"It loves to eat roasted berries, but sometimes it gets too excited and burns them to a crisp."
+499,499,4,498,257,500,false,false,火猪宝可梦,"When its internal fire flares up, its movements grow sharper and faster. When in trouble, it emits smoke."
+500,500,4,499,257,501,false,false,大火猪宝可梦,It has mastered fast and powerful fighting moves. It grows a beard of fire.
+501,501,4,,258,502,false,false,海獭宝可梦,"This Pokémon from the Unova region uses the shell on its belly as a weapon to cut down its foes. Thus, I've conferred upon this shell the name ”scalchop”."
+502,502,4,501,258,503,false,false,修行宝可梦,"Its exquisite double-scalchop technique is likely the result of daily training, and it can send even masters of the blade fleeing in defeat."
+503,503,4,502,258,504,false,false,威严宝可梦,"Hard of heart and deft of blade, this rare form of Samurott is a product of the Pokémon's evolution in the region of Hisui. Its turbulent blows crash into foes like ceaseless pounding waves."
+504,504,2,,259,505,false,false,放哨宝可梦,"Extremely cautious, one of them will always be on the lookout, but it won’t notice a foe coming from behind."
+505,505,2,504,259,506,false,false,警戒宝可梦,"When they see an enemy, their tails stand high, and they spit the seeds of berries stored in their cheek pouches."
+506,506,4,,260,507,false,false,小狗宝可梦,比普通的小孩子还要 聪明许多。对于得到的关爱 和受到的伤害都不会忘怀。
+507,507,4,506,260,508,false,false,忠犬宝可梦,覆盖在身上的黑色体毛 既厚又有弹性，甚至能 把尖锐的牙齿也反弹回去。
+508,508,4,507,260,509,false,false,宽大宝可梦,以自己气派的胡须为傲。 据说，每只个体在族群中的地位， 就是根据胡须长度来决定的。
+509,509,2,,261,510,false,false,坏心眼宝可梦,会用可爱的动作让对手放下戒心， 趁对方靠过来时冷不防地用爪子 猛抓，然后得意地大笑。
+510,510,2,509,261,511,false,false,冷酷宝可梦,和猾大狐争抢地盘。 能够悄无声息地 从背后偷偷靠近猎物。
+511,511,2,,262,512,false,false,草猴宝可梦,It’s good at finding berries and gathers them from all over. It’s kind enough to share them with friends.
+512,512,2,511,262,513,false,false,刺猴宝可梦,"Ill tempered, it fights by swinging its barbed tail around wildly. The leaf growing on its head is very bitter."
+513,513,2,,263,514,false,false,高温宝可梦,This Pokémon lives in caves in volcanoes. The fire within the tuft on its head can reach 600 degrees Fahrenheit.
+514,514,2,513,263,515,false,false,火花宝可梦,"When it gets excited, embers rise from its head and tail and it gets hot. For some reason, it loves sweets."
+515,515,2,,264,516,false,false,泼水宝可梦,The water stored inside the tuft on its head is full of nutrients. Plants that receive its water grow large.
+516,516,2,515,264,517,false,false,放水宝可梦,"It prefers places with clean water. When its tuft runs low, it replenishes it by siphoning up water with its tail."
+517,517,3,,265,518,false,false,食梦宝可梦,在吃掉梦之后会吐出烟雾。 吃了快乐的梦时，烟雾是粉红色的； 如果是噩梦，烟雾则是黑灰色的。
+518,518,3,517,265,519,false,false,半梦半醒宝可梦,总是在打瞌睡做梦。 刚睡醒的时候会闹脾气， 所以最好别去招惹它。
+519,519,4,,266,520,false,false,小鸽宝可梦,虽然既健忘又不太聪明， 因为性格认真且容易亲近人， 所以受到了许多训练家的喜爱。
+520,520,4,519,266,521,false,false,野鸽宝可梦,头脑聪明而且记性很好。 似乎有许多快递员 将它选为自己的搭档。
+521,521,4,520,266,522,true,false,自尊心宝可梦,头脑聪明，所以自尊心也强。 如果能成为高傲雉鸡的训练家， 所有人都会对你刮目相看。
+522,522,2,,267,523,false,false,带电宝可梦,Its mane shines when it discharges electricity. They use the frequency and rhythm of these flashes to communicate.
+523,523,2,522,267,524,false,false,雷电宝可梦,"They have lightning-like movements. When Zebstrika run at full speed, the sound of thunder reverberates."
+524,524,4,,268,525,false,false,地幔宝可梦,会对声音产生反应而动起来。 在能量核心的影响下， 它摸起来暖暖的。
+525,525,4,524,268,526,false,false,矿石宝可梦,通过声音来探测四周。 要是惹它生气了，它会连 身体方向也不转就朝你追来。
+526,526,4,525,268,527,false,false,高压宝可梦,它射出的能量弹具有 可以击飞翻斗车的破坏力。 不过只有在晴天才能射击。
+527,527,2,,269,528,false,false,蝙蝠宝可梦,一边发出超音波，一边 飞来飞去寻找虫宝可梦 来填饱自己的肚子。
+528,528,2,527,269,529,false,false,求爱宝可梦,据说有些地区的人觉得 它鼻子的形状很吉利， 而把它当成幸福的象征来祭拜。
+529,529,2,,270,530,false,false,鼹鼠宝可梦,会用爪子在地底挖掘前进。 一些农民因为担心它会 因此糟蹋蔬菜而讨厌它。
+530,530,2,529,270,531,false,false,地底宝可梦,别名钻头王。在地底下 挖掘前进的速度 达到了每小时１５０公里。
+531,531,3,,271,532,false,true,听力宝可梦,心地善良的宝可梦。 通过触角接触，就能了解 对方的心情和身体状况。
+532,532,4,,272,533,false,false,筋骨宝可梦,如果搬运小匠可以搬起 自己体重３倍左右的方材， 就代表它进化的日子要到了。
+533,533,4,532,272,534,false,false,筋骨宝可梦,能够灵巧地操纵工字钢。 虽然对拆除得心应手， 但却不太擅长组装。
+534,534,4,533,272,535,false,false,筋骨宝可梦,要是认真起来就会 扔掉手中的混凝土柱， 赤手空拳地扑向敌人。
+535,535,4,,273,536,false,false,蝌蚪宝可梦,通过音波来联系伙伴。 人类和其他宝可梦都 听不见它发出的警告声。
+536,536,4,535,273,537,false,false,振动宝可梦,有时也会发出悦耳的叫声。 身上突起物越大的蓝蟾蜍 越能在更广的音域来鸣叫。
+537,537,4,536,273,538,false,false,振动宝可梦,在老年人之间广受欢迎。 因为他们觉得它身上的瘤 发出的震动拿来按摩刚刚好。
+538,538,2,,274,539,false,false,柔道宝可梦,５只一组一起努力练习。 在练习中掉队的投摔鬼 会扔掉带子离开团队。
+539,539,2,,275,540,false,false,空手道宝可梦,不断重复练习的打击鬼 所使出的空手劈拥有 足以劈开大海的破坏力。
+540,540,4,,276,541,false,false,裁缝宝可梦,"Since this Pokémon makes its own clothes out of leaves, it is a popular mascot for fashion designers."
+541,541,4,540,276,542,false,false,足不出叶宝可梦,"It protects itself from the cold by wrapping up in leaves. It stays on the move, eating leaves in forests."
+542,542,4,541,276,543,false,false,育儿宝可梦,It keeps its eggs warm with heat from fermenting leaves. It also uses leaves to make warm wrappings for Sewaddle.
+543,543,4,,277,544,false,false,蜈蚣宝可梦,牙齿上有剧毒。一旦 发现看上去能吃的猎物， 就会不假思索地扑上去。
+544,544,4,543,277,545,false,false,茧蜈蚣宝可梦,用坚硬的壳和带毒的刺 保护自己的身体， 积蓄进化所需的能量。
+545,545,4,544,277,546,false,false,巨蜈蚣宝可梦,会和焚焰蚣激烈地争夺 领地。输掉的那一方 会成为另一方的猎物。
+546,546,2,,278,547,false,false,棉球宝可梦,将木棉球和白蓬蓬的棉花 混合后编织出的布料极其精致， 因此常被高级品牌选用。
+547,547,2,546,278,548,false,false,风隐宝可梦,每当沐浴阳光，身上的棉花 就会膨胀。如果膨胀过了头， 它就会把棉花扯开到处乱撒。
+548,548,2,,279,549,false,false,根茎宝可梦,叶子的颜色越深就越健康。 有时也会在被精心照料过的 田地或花坛里定居下来。
+549,549,2,548,279,550,false,false,花饰宝可梦,用它的花朵制成的精油 虽有着极致香气，但价格 同时也贵得令人大跌眼镜。
+550,550,2,,280,551,false,false,粗暴宝可梦,从前也曾经登上餐桌。 红条纹野蛮鲈鱼的肉脂肪含量高， 适合年轻人食用。
+551,551,4,,281,552,false,false,沙漠鳄鱼宝可梦,个头虽小，腰腿却很有力。 会拨开沙子，在沙漠里 犹如游泳般地自在移动。
+552,552,4,551,281,553,false,false,沙漠鳄鱼宝可梦,虽然拥有能在黑暗中看清事物的 特殊双眼，但由于沙漠的夜晚寒冷， 所以一般不怎么活动。
+553,553,4,552,281,554,false,false,威吓宝可梦,虽然凶暴，但也有擅长忍耐的一面。 为了捕获猎物，可以在 沙子里静静等上好几天。
+554,554,4,,282,555,false,false,不倒翁宝可梦,在它睡觉的时候， 无论是推是拉，它都不会倒下。 因为象征着吉利而大受欢迎。
+555,555,4,554,282,556,false,true,爆燃宝可梦,体内的火焰燃得越旺， 力量就越大。火焰的温度 有时甚至能超过１４００度。
+556,556,2,,283,557,false,false,仙人掌宝可梦,一年散播一次种子。 花的种子营养十足， 是沙漠中贵重的食粮。
+557,557,2,,284,558,false,false,石居宝可梦,如果找不到大小合适 的石头来当成自己的家， 它也会住到河马兽的洞里。
+558,558,2,557,284,559,false,false,岩居宝可梦,厚实的钳子是它最大的武器。 硬度高到甚至能让 超甲狂犀的护具裂开。
+559,559,2,,285,560,false,false,蜕皮宝可梦,用结实的皮保护身体。 据说在皮伸展到极限时， 它就会开始进化。
+560,560,2,559,285,561,false,false,恶党宝可梦,虽然性格非常粗鲁， 但也有重视家族、 伙伴和领地的另一面。
+561,561,2,,286,562,false,false,似鸟宝可梦,人们在象征鸟飞过的沙漠 的地下调查，结果在那里 发现了疑似古代都市的遗迹。
+562,562,2,,287,563,false,false,魂宝可梦,古代人的灵魂变成了宝可梦。 为了寻找认得自己长相的人 而在遗迹里徘徊。
+563,563,2,562,287,564,false,false,棺木宝可梦,迭失棺象征着国王的财富， 因此许多古墓里 都有它的壁画。
+564,564,2,,288,565,false,false,古代龟宝可梦,由化石复活的宝可梦。 人们认为它是很多 龟宝可梦的祖先。
+565,565,2,564,288,566,false,false,古代龟宝可梦,虽然和在水中相比动作 会变得迟缓，但是为了寻找 猎物也会登上陆地活动。
+566,566,2,,289,567,false,false,远古鸟宝可梦,被称为鸟宝可梦的祖先。 栖息在树上，以树果和 虫宝可梦为食。
+567,567,2,566,289,568,false,false,远古鸟宝可梦,虽然也会飞行， 但是似乎更擅长在 地面上捕捉猎物。
+568,568,2,,290,569,false,false,垃圾袋宝可梦,诞生于塞满垃圾的垃圾袋里。 它嘴里喷出的毒气 是伽勒尔双弹瓦斯的最爱。
+569,569,2,568,290,570,false,false,垃圾场宝可梦,从右臂喷出的毒液十分危险， 虚弱的生物只要一沾到， 立刻就会丢掉性命。
+570,570,4,,291,571,false,false,恶狐宝可梦,为了寻找食物，有时甚至会 幻化成人类出现在城镇里。 多数情况下会幻化成小孩。
+571,571,4,570,291,572,false,false,妖狐宝可梦,孤独的训练家会命令 索罗亚克为自己展现幻像， 借以排遣孤身一人的寂寞。
+572,572,3,,292,573,false,false,栗鼠宝可梦,用尾巴互相抚摸来打招呼。 尾巴的毛比较蓬松的那一方 会表现得稍微威风些。
+573,573,3,572,292,574,false,false,围巾宝可梦,覆盖着特别油脂的毛发 可以挡住攻击。这种油 以高价在市场上流通。
+574,574,4,,293,575,false,false,凝视宝可梦,哥德宝宝会在看似无人的地方 轻声地叫。它好像是在与某种 只有它才看得见的东西说话。
+575,575,4,574,293,576,false,false,操纵宝可梦,哥德小童的精神力量似乎会 在星光闪耀的夜晚达到最高点。 它与宇宙的关系至今不明。
+576,576,4,575,293,577,false,false,天体宝可梦,从哥德小姐那里 看到了自己下场的恶人 在那之后便销声匿迹了。
+577,577,4,,294,578,false,false,细胞宝可梦,身体被特殊的液体包裹着， 许多人因此认为它 即使在宇宙中也能存活。
+578,578,4,577,294,579,false,false,分割宝可梦,由于它一分为二的大脑 思考的内容几乎完全不同， 导致它的行动非常难以预测。
+579,579,4,578,294,580,false,false,增幅宝可梦,虽然有人说只要喝掉它特殊的液体 就能得到智慧，但对人造细胞卵 以外来说，那其实是剧毒。
+580,580,2,,295,581,false,false,水鸟宝可梦,"They are better at swimming than flying, and they happily eat their favorite food, peat moss, as they dive underwater."
+581,581,2,580,295,582,false,false,白鸟宝可梦,Swanna start to dance at dusk. The one dancing in the middle is the leader of the flock.
+582,582,1,,296,583,false,false,新雪宝可梦,据说它是从冰柱中诞生的。 为了能让自己生活得更舒适， 会吐出零下５０度的冷气冻住四周。
+583,583,1,582,296,584,false,false,冰雪宝可梦,性格和善，虽然会用 零下１００度的冷气冻住敌人， 但并不会伤及它们的性命。
+584,584,1,583,296,585,false,false,暴风雪宝可梦,体温在零下６度左右。 据说是由２只多多冰 贴在一起而诞生的。
+585,585,2,,297,586,false,true,季节宝可梦,The turning of the seasons changes the color and scent of this Pokémon’s fur. People use it to mark the seasons.
+586,586,2,585,297,587,false,true,季节宝可梦,"They migrate according to the seasons, so some people call Sawsbuck the harbingers of spring."
+587,587,2,,298,588,false,false,飞鼠宝可梦,最喜欢甜甜的树果。有时也会 因为在脸颊的袋子里囤了太多 食物而无法好好飞行。
+588,588,2,,299,589,false,false,啃咬宝可梦,用嘴里吐出的液体 来溶化小嘴蜗的壳， 只会去吃里面的身体。
+589,589,2,588,299,590,false,false,骑兵宝可梦,会举起长矛突击敌人。 有一幅名画描绘着 它和葱游兵决斗的场景。
+590,590,2,,300,591,false,false,蘑菇宝可梦,从双手喷出的孢子虽然 含有剧毒，但据说彻底干燥后 可以用作治疗肠胃的药。
+591,591,2,590,300,592,false,false,蘑菇宝可梦,平常一般不太动。 只是一动不动地待在 掉落于地面的精灵球旁边。
+592,592,2,,301,593,true,false,漂浮宝可梦,据流传至今的传说里所述， 它是由沉没到海底的古代都市 的居民变成的宝可梦。
+593,593,2,592,301,594,true,false,漂浮宝可梦,每到满月时，胖嘟嘟会 成群结队地来到海面上。 这么做是为了等待猎物上门。
+594,594,3,,302,595,false,false,看护宝可梦,之所以会救助体弱的宝可梦， 好像是因为盯上它们的 宝可梦也会攻击它自己。
+595,595,2,,303,596,false,false,吸附宝可梦,会附在其他宝可梦身上 吸取静电。经常会把自己 贴在来电汪的屁股上。
+596,596,2,595,303,597,false,false,电蜘蛛宝可梦,为了捕捉不太会飞的幼鸟， 会在鸟宝可梦的巢穴附近 用带电的丝设下陷阱。
+597,597,2,,304,598,false,false,刺果宝可梦,偏爱长着青苔的洞窟。 青苔中所含的酶能使它的 尖刺成长得又大又结实。
+598,598,2,597,304,599,false,false,刺球宝可梦,拥有比钢铁还坚硬的尖刺。 会利用触手上的尖刺 攀附在岩壁上移动。
+599,599,4,,305,600,false,false,齿轮宝可梦,２个身体比双胞胎还要亲近。 要是换成别的齿轮儿。 就没有办法好好咬合。
+600,600,4,599,305,601,false,false,齿轮宝可梦,被认为是工业技术的象征。 有许多伽勒尔当地的公司 选择它作为企业的标志。
+601,601,4,600,305,602,false,false,齿轮宝可梦,让３个齿轮高速旋转。 新增出来的那个带着 尖刺的齿轮并不是生物。
+602,602,1,,306,603,false,false,电鱼宝可梦,"One alone can emit only a trickle of electricity, so a group of them gathers to unleash a powerful electric shock."
+603,603,1,602,306,604,false,false,电鱼宝可梦,"These Pokémon have a big appetite. When they spot their prey, they attack it and paralyze it with electricity."
+604,604,1,603,306,605,false,false,电鱼宝可梦,They crawl out of the ocean using their arms. They will attack prey on shore and immediately drag it into the ocean.
+605,605,2,,307,606,false,false,脑宝可梦,在大约５０年前被发现的宝可梦。 会用又大又发达的大脑 操纵精神力量。
+606,606,2,605,307,607,false,false,脑宝可梦,能控制对方的记忆。 经常有人看到它 在麦田的上方徘徊。
+607,607,4,,308,608,false,false,蜡烛宝可梦,吸取到的灵魂越年轻， 头上的烛光就会 燃烧得越旺越诡异。
+608,608,4,607,308,609,false,false,油灯宝可梦,伪装成灯的样子藏身在城镇里。 一旦发现了临近死期的人， 便会悄悄地跟在后面。
+609,609,4,608,308,610,false,false,引诱宝可梦,据说在用水晶灯火灵 来充当照明设备的房子里， 丧事会接连不断。
+610,610,1,,309,611,false,false,牙宝可梦,会和伙伴们一起互撞牙齿来玩。 折断的牙齿会马上长出来， 所以丝毫都不会去在意。
+611,611,1,610,309,612,false,false,颚斧宝可梦,皮肤像盔甲一样坚硬。 非常擅长在撞击的同时 用牙齿猛刺的战法。
+612,612,1,611,309,613,false,false,颚斧宝可梦,性格温和，但生起气来非常恐怖。 会用自己那引以为傲，可以 削铁如泥的牙齿攻击敌人。
+613,613,2,,310,614,false,false,结冰宝可梦,使出招式前会先倒吸鼻涕。 鼻涕里所含有的强烈冷气 是冰属性招式的能量来源。
+614,614,2,613,310,615,false,false,冻结宝可梦,在冰冷的大海里精力十足地游泳。 感到疲劳的时候会吐出气息 冻结海水，在冰面上休息。
+615,615,2,,311,616,false,false,结晶宝可梦,天气一热就会化为水蒸气。 到了夏天几乎到处都 看不到它的踪影。
+616,616,2,,312,617,false,false,蜗牛宝可梦,有着会对电能产生反应 的奇异体质。不知为何， 和盖盖虫待在一起就会进化。
+617,617,2,616,312,618,false,false,脱壳宝可梦,脱壳后变得更轻巧了。 为了防止干燥，会将 带状的粘膜裹在身上。
+618,618,2,,313,619,false,false,陷阱宝可梦,当从身上的黄色斑纹 里释放出强大电流时， 它会莫名地露出微笑。
+619,619,4,,314,620,false,false,武术宝可梦,个头虽小脾气却很暴躁。 面对疏忽大意接近自己的 对手，会施展出华丽的连击。
+620,620,4,619,314,621,false,false,武术宝可梦,以迅雷不及掩耳的速度 使出踢击，即使是巨大的 岩石也能击得粉碎。
+621,621,2,,315,622,false,false,洞穴宝可梦,性情凶暴而狡猾。 会把其他宝可梦挖出的巢穴 抢来当做自己的住处。
+622,622,2,,316,623,false,false,魔像宝可梦,用黏土制成的宝可梦。 即使现在也一直遵循着 数千年前主人的命令。
+623,623,2,622,316,624,false,false,魔像宝可梦,虽然有人认为它体内 有着生成能量的永动机， 但至今仍未得到证实。
+624,624,2,,317,625,false,false,利器宝可梦,以劈斩司令为首领组成族群。 目标是有朝一日能统领同类， 所以每天都在不懈地锻炼。
+625,625,2,624,317,626,false,false,刀刃宝可梦,为了抢占能找到磨刀石 的地方，和斧牙龙展开了 激烈的斗争。
+626,626,2,,318,627,false,false,头锤牛宝可梦,会以约２０只的规模群居。 不知为何，背叛了族群的 爆炸头水牛脑袋上的毛会脱落。
+627,627,1,,319,628,false,false,雏鹰宝可梦,握力强，能把坚硬的树果 弄得粉碎。性急爱吵架， 无论对谁都会挑起战斗。
+628,628,1,627,319,629,false,false,勇猛宝可梦,性格粗暴、血气方刚， 因此被钢铠鸦夺走了 伽勒尔运送员的地位。
+629,629,1,,320,630,false,false,尿布宝可梦,由于很快就会长大， 屁股上的骸骨会接着传给 巢里更小的秃鹰丫头用。
+630,630,1,629,320,631,false,false,骨鹰宝可梦,把捡来的骨头装饰在身上。 在骨头形状这方面 似乎也是有流行趋势的。
+631,631,2,,321,632,false,false,食蚁兽宝可梦,将火焰当成舌头来使用。 会一点一点地熔化铁蚁 坚硬的外骨骼，然后把它吃掉。
+632,632,2,,322,633,false,false,铁蚁宝可梦,巨大的颚部能咬碎岩石。 为了不让沙螺蟒把蛋抢走， 会和其他同类一起并肩战斗。
+633,633,1,,323,634,false,false,粗鲁宝可梦,因为眼睛看不见， 所以会又撞又咬， 来判断四周的状况。
+634,634,1,633,323,635,false,false,粗暴宝可梦,２个头会争抢同一个食物。 明明没有去和别人战斗， 却总是遍体鳞伤。
+635,635,1,634,323,636,false,false,凶暴宝可梦,３个头会轮流去咬敌人。 在对方倒下之前， 绝对不会停止攻击。
+636,636,1,,324,637,false,false,火炬宝可梦,全身都相当温暖。 会从角的尖端喷出火焰， 借此威吓天敌或猎物。
+637,637,1,636,324,638,false,false,太阳宝可梦,从熊熊燃烧的火焰之茧中 诞生。在古代的壁画上 被描绘为火之神。
+638,638,1,,325,639,false,false,铁心宝可梦,生来就具有领导风范。 即使是性格狂暴的宝可梦， 在勾帕路翁面前也会变得温顺。
+639,639,1,,326,640,false,false,岩窟宝可梦,代拉基翁为保护宝可梦 而与人类作战的传说 在合众地区广为流传。
+640,640,1,,327,641,false,false,草原宝可梦,以敏捷的身手像旋风一般将敌人 玩弄于股掌之中，会用锋利的角 毫不留情地切斩对手。
+641,641,1,,328,642,false,true,旋风宝可梦,This storm-stirring Pokémon is said to cause the seasons to turn by whipping up the air. I suspect its humanlike form to be a false one.
+642,642,1,,329,643,false,true,雷击宝可梦,"They say this wielder of electricity has waged war with its nemesis, Tornadus, since time immemorial. The lightning bolts it hurls pierce the very earth and enrich the soil."
+643,643,1,,330,644,false,false,白阳宝可梦,在神话的叙述里，如果人类 蔑视真实、放纵欲望，它就会 用火焰烧尽他们的王国。
+644,644,1,,331,645,false,false,黑阴宝可梦,在神话的描述里，如果人类 失去了正义之心，它就会用 狂暴的雷电毁灭他们的王国。
+645,645,1,,332,646,false,true,丰饶宝可梦,"When the incarnations of wind and of lightning clash, Landorus arrives to quell the conflict. After the tempests and thunderbolts abate, the land is sure to be blessed with bountiful harvests."
+646,646,1,,333,647,false,true,境界宝可梦,为了稳定细胞组织， 它似乎用自己制造出 的冷气冰冻着身体。
+647,647,1,,334,648,false,true,幼马宝可梦,据说当它挺过了艰难的战斗， 额头上的角就能得到锻炼， 从而激发出自己真正的力量。
+648,648,1,,335,649,false,true,旋律宝可梦,Its melodies are sung with a special vocalization method that can control the feelings of those who hear it.
+649,649,1,,336,650,false,true,古生代宝可梦,This Pokémon existed 300 million years ago. Team Plasma altered it and attached a cannon to its back.
+650,650,4,,337,651,false,false,刺栗宝可梦,Such a thick shell of wood covers its head and back that even a direct hit from a truck wouldn’t faze it.
+651,651,4,650,337,652,false,false,刺铠宝可梦,They strengthen their lower bodies by running into one another. They are very kind and won’t start fights.
+652,652,4,651,337,653,false,false,刺铠宝可梦,"When it takes a defensive posture with its fists guarding its face, it could withstand a bomb blast."
+653,653,4,,338,654,false,false,狐狸宝可梦,"As it walks, it munches on a twig in place of a snack. It intimidates opponents by puffing hot air out of its ears."
+654,654,4,653,338,655,false,false,狐狸宝可梦,"When the twig is plucked from its tail, friction sets the twig alight. The flame is used to send signals to its allies."
+655,655,4,654,338,656,false,false,狐狸宝可梦,"Using psychic power, it generates a fiery vortex of 5,400 degrees Fahrenheit, incinerating foes swept into this whirl of flame."
+656,656,4,,339,657,false,false,泡蛙宝可梦,"It protects its skin by covering its body in delicate bubbles. Beneath its happy-go-lucky air, it keeps a watchful eye on its surroundings."
+657,657,4,656,339,658,false,false,泡蛙宝可梦,"Its swiftness is unparalleled. It can scale a tower of more than 2,000 feet in a minute’s time."
+658,658,4,657,339,659,false,false,忍者宝可梦,"It appears and vanishes with a ninja’s grace. It toys with its enemies using swift movements, while slicing them with throwing stars of sharpest water."
+659,659,2,,340,660,false,false,挖洞宝可梦,对危险很敏感。只要听到 钢铠鸦拍打翅膀的声音， 就会马上挖洞钻进地下藏身。
+660,660,2,659,340,661,false,false,挖洞宝可梦,肚子上的体毛保温性能优秀。 在过去，人们会用它的落毛 来制作保暖服装。
+661,661,4,,341,662,false,false,知更鸟宝可梦,一旦兴奋体温就会 急剧上升。赤手去摸 甚至有可能会被灼伤。
+662,662,4,661,341,663,false,false,火花宝可梦,领地意识很强，性格好战。 火箭雀彼此之间会为了 觅食的地方发生争斗。
+663,663,4,662,341,664,false,false,烈火宝可梦,会以５００公里的时速进行突击。 不给猎物留下逃跑的机会， 直接以猛烈的踢击将其解决。
+664,664,2,,342,665,false,false,喷粉宝可梦,"The powder that covers its body regulates its temperature, so it can live in any region or climate."
+665,665,2,664,342,666,false,false,喷粉宝可梦,"The beaks of bird Pokémon can’t begin to scratch its stalwart body. To defend itself, it spews powder."
+666,666,2,665,342,667,false,false,鳞粉宝可梦,The patterns on this Pokémon’s wings depend on the climate and topography of its habitat. It scatters colorful scales.
+667,667,4,,343,668,false,false,幼狮宝可梦,血气方刚且好奇心旺盛。 如果生气或是开始战斗， 短短的鬃毛就会变热。
+668,668,4,667,343,669,true,false,王者宝可梦,会吐出摄氏６０００度的气息， 但不会用于猎物。 因为更喜欢吃生的肉。
+669,669,2,,344,670,false,false,单朵宝可梦,头上的冠是收集花粉做成的。 蕴藏着治愈的效果。
+670,670,2,669,344,671,false,false,单朵宝可梦,把自己的力量给花，用心地照料。 绝不原谅那些破坏花坛者。
+671,671,2,670,344,672,false,false,花园宝可梦,拥有几百年的寿命。 据说会终其一生不断地守护着庭园。
+672,672,2,,345,673,false,false,坐骑宝可梦,"If it has sunshine and water, it doesn’t need to eat, because it can generate energy from the leaves on its back."
+673,673,2,672,345,674,false,false,坐骑宝可梦,They inhabit mountainous regions. The leader of the herd is decided by a battle of clashing horns.
+674,674,2,,346,675,false,false,顽皮宝可梦,为了不被小看而一直瞪着对手， 然而绷紧的神经一旦稍有放松， 它就会在无意中露出笑脸。
+675,675,2,674,346,676,false,false,恶颜宝可梦,通过叶子来洞悉敌人的动向。 只要使出一记拳击就能 让大型翻斗车变成废铁。
+676,676,2,,347,677,false,true,贵宾犬宝可梦,如果置之不理， 体毛会不断地长长， 但只允许信赖的人修剪。
+677,677,2,,348,678,false,false,自制宝可梦,虽然拥有可以弹飞 职业摔角手的精神力量， 却因无法好好控制而感到烦恼。
+678,678,2,677,348,679,true,false,抑制宝可梦,雄性的防卫本能很强， 在保护自己和伙伴时 能发挥最大的威力。
+679,679,2,,349,680,false,false,刀剑宝可梦,独剑鞘剑格上的 蓝色眼珠是它的本体。 会用陈旧的布吸取人类的精气。
+680,680,2,679,349,681,false,false,刀剑宝可梦,２把剑会用令人眼花缭乱的 速度不断交替攻击和防御， 借以制服猎物。
+681,681,2,680,349,682,false,true,王剑宝可梦,坚盾剑怪曾经用强大的灵力 控制人和宝可梦，建立了 适合自己生活的国家。
+682,682,2,,350,683,false,false,香水宝可梦,身上飘出的香气 能让人们神魂颠倒。 贵妇们对它钟爱万分。
+683,683,2,682,350,684,false,false,芳香宝可梦,会发出恶臭让敌人丧失战意， 或者发出芳香的味道 来帮助自己的伙伴。
+684,684,2,,351,685,false,false,棉花糖宝可梦,蓬松的体毛闻起来 就像棉花糖一样甜甜的。 会放出黏糊糊的丝缠住敌人。
+685,685,2,684,351,686,false,false,泡沫奶油宝可梦,因为体毛里富含空气， 所以摸起来十分柔软， 重量也比看起来要轻。
+686,686,2,,352,687,false,false,回转宝可梦,会让敌人看到自己闪烁的 发光体来让对方丧失战意， 然后趁机逃之夭夭。
+687,687,2,686,352,688,false,false,倒转宝可梦,据说那些能够改变历史 的重大事件其实都和 乌贼王的催眠能力有关。
+688,688,2,,353,689,false,false,双手宝可梦,如果２只龟脚脚配合得不好， 不但无法有效地攻击和防御， 甚至没办法生存下去。
+689,689,2,688,353,690,false,false,集合宝可梦,用手掌上的眼珠来观察 前后左右的状况。遇上危机时 手脚会自己动起来打倒对手。
+690,690,2,,354,691,false,false,似草宝可梦,看上去很像腐烂的海藻， 因此会藏身于漂在海里的 碎藻中，骗过敌人的眼睛。
+691,691,2,690,354,692,false,false,似草宝可梦,会通过将头上的伞状部分 伸出海面吸收阳光的方式， 在体内制造龙之能量。
+692,692,1,,355,693,false,false,水枪宝可梦,通过引爆积蓄在右臂钳子中的 气体，像发射子弹般 将水喷射出去，击倒敌人。
+693,693,1,692,355,694,false,false,发射器宝可梦,右臂是能够喷射 海水炮弹的大炮。 威力大到足以击沉油轮。
+694,694,2,,356,695,false,false,发电宝可梦,拥有太阳能发电的结构。 如果有人打扰它发电， 它就会因心理压力而衰弱。
+695,695,2,694,356,696,false,false,发电宝可梦,如果展开颈伞沐浴阳光， 单凭１只光电伞蜥就能 制造出大城市所需的电力。
+696,696,2,,357,697,false,false,幼君宝可梦,又任性又爱撒娇。 即使它只是闹着玩， 也会让训练家受重伤。
+697,697,2,696,357,698,false,false,暴君宝可梦,如果被它的大颚咬到， 连汽车都会变得粉碎。 是古代世界的王者。
+698,698,2,,358,699,false,false,冻原宝可梦,已经灭绝的古代宝可梦。 有时候它还会以冰封的 状态被发现喔。
+699,699,2,698,358,700,false,false,冻原宝可梦,当它被激怒时， 就会喷出猛烈的冷气， 把周围都冰封起来。
+700,700,2,133,67,165,false,false,连结宝可梦,伽勒尔地区的童话中有着 美丽的仙子伊布击退了 可怕的龙宝可梦的故事。
+701,701,2,,359,701,false,false,摔角宝可梦,在使出致命的绝招之前 一定要先摆出华丽的姿势。 有时也会在这一刻遭到反击。
+702,702,2,,360,702,false,false,天线宝可梦,由于发电的能力弱， 会从插座或其他的 电气宝可梦那里偷电。
+703,703,1,,361,703,false,false,宝石宝可梦,据说在世界上的某处，有个 沉睡着许多小碎钻的矿脉， 它们的女王也在那里。
+704,704,1,,362,704,false,false,软体生物宝可梦,它的触角是优秀的感觉器官。 只要感觉到有敌人就会立刻 藏起来，以此存活到了现在。
+705,705,1,704,362,705,false,false,软体生物宝可梦,背上的突起物里装着它 小小的脑子，里面只想着 吃饭和逃离敌人这两件事。
+706,706,1,705,362,706,false,false,龙宝可梦,用伸长角产生的力道来 攻击对手，产生的威力比 重量级拳击手的拳击还强１００倍。
+707,707,3,,363,707,false,false,钥匙串宝可梦,会用头的前端吸取金属离子。 之所以长得像钥匙，据说是因为 太过喜欢钥匙，情不自禁进行了模仿。
+708,708,2,,364,708,false,false,树桩宝可梦,用类似人类小孩的声音鸣叫， 把大人引到森林的深处， 让他们在其中迷失方向。
+709,709,2,708,364,709,false,false,老树宝可梦,脚尖伸出来的根须 能连结森林中的树木， 并且自由自在地加以操纵。
+710,710,2,,365,710,false,false,南瓜宝可梦,南瓜的洞里发出的光 会催眠并控制 看到它的人和宝可梦。
+711,711,2,710,365,711,false,false,南瓜宝可梦,南瓜怪人会在朔月的夜里 去别人家门口敲门。开了门的人 会被它带往另一个世界。
+712,712,2,,366,712,false,false,冰块宝可梦,栖息在极其寒冷的地域。 会把自己的脚冻在 冰岩怪的背上固定起来。
+713,713,2,712,366,713,false,false,冰山宝可梦,虽然身体的裂缝会因 白天的活动而变大， 但只要一晚就能全部长好。
+714,714,2,,367,714,false,false,音波宝可梦,可以控制所有频率的音波。 就算是体型巨大的宝可梦， 也对它的超音波束手无策。
+715,715,2,714,367,715,false,false,音波宝可梦,在黑暗中一边飞行一边发出 能粉碎岩石的超音波痛击敌人， 然后用利齿给予致命的一击。
+716,716,1,,368,716,false,true,生命宝可梦,"When the horns on its head shine in seven colors, it is said to be sharing everlasting life."
+717,717,1,,369,717,false,false,破坏宝可梦,"When its life comes to an end, it absorbs the life energy of every living thing and turns into a cocoon once more."
+718,718,1,,370,718,false,false,秩序宝可梦,据说，在与威胁到生态系统者战斗时， 它会变化为更强大的样子。
+719,719,1,,371,719,false,true,宝石宝可梦,It can instantly create many diamonds by compressing the carbon in the air between its hands.
+720,720,1,,372,720,false,false,顽童宝可梦,"It is said to be able to seize anything it desires with its six rings and six huge arms. With its power sealed, it is transformed into a much smaller form."
+721,721,1,,373,721,false,false,蒸汽宝可梦,It expels its internal steam from the arms on its back. It has enough power to blow away a mountain.
+722,722,4,,374,722,false,false,草羽宝可梦,白天利用光合作用积蓄力量， 到了晚上则会悄无声息地 在空中飞翔，寻找猎物。
+723,723,4,722,374,723,false,false,刃羽宝可梦,对整理翅膀丝毫不会怠慢。 这不单是因为它注重形象， 也是为了让刃羽保持锐利。
+724,724,4,723,374,724,false,false,箭羽宝可梦,只要０.１秒就可以在翅膀的 藤蔓上搭好箭羽、射向敌人， 并在敌人发现前贯穿其要害。
+725,725,4,,375,725,false,false,火猫宝可梦,如果在得到火斑喵的 信任前就想抚摸它的话， 要小心它用尖锐的爪子抓你。
+726,726,4,725,375,726,false,false,火猫宝可梦,如果敌人实力强劲， 它便会更有战斗的欲望， 火焰铃铛的火力也会随之上升。
+727,727,4,726,375,727,false,false,反派宝可梦,虽然行为举止十分粗野， 却也有着会去帮助 弱小宝可梦的温柔一面。
+728,728,4,,376,728,false,false,海狮宝可梦,每天拼命地练习， 才终于能够制造出 又大又好用的气球。
+729,729,4,728,376,729,false,false,偶像宝可梦,到了风平浪静的夜晚， 会配合领队西狮海壬的歌声 和伙伴们一起跳舞。
+730,730,4,729,376,730,false,false,独唱者宝可梦,对战就是西狮海壬的舞台。 它那歌声和舞动气球的样子 使观战的人们为之倾倒。
+731,731,2,,377,731,false,false,啄木鸟宝可梦,拥有看着很细， 却很强韧的颈部肌肉。 能以每秒１６连击的速度猛啄树木。
+732,732,2,731,377,732,false,false,喇叭喙宝可梦,会将吃掉的树果种子从 口中射出。种子散落在大地上， 新的草木便会生长出来。
+733,733,2,732,377,733,false,false,铳炮宝可梦,因成双成对感情和睦而闻名。 它被视为一种吉祥的象征， 常被带到结婚仪式去。
+734,734,2,,378,734,false,false,巡回宝可梦,什么都吃，但喜欢吃新鲜的活物。 所以会为了寻找猎物在路上四处游走。
+735,735,2,734,378,735,false,false,蹲守宝可梦,忍耐力非常强， 但如果见到它爱吃的小拉达， 就会忘乎所以地扑过去。
+736,736,2,,379,736,false,false,幼虫宝可梦,会用巨大的颚部 在森林中挖地制造巢穴。 最喜欢甜甜的树汁。
+737,737,2,736,379,737,false,false,蓄电池宝可梦,虫电宝消化吃掉的落叶时 会产生电能。它会把这些电能 储存在自己肚子上的电囊中。
+738,738,2,737,379,738,false,false,锹形虫宝可梦,如果它在飞翔时把虫电宝抱住 当作备用电池，就能连续发射 电力超高的电磁光束。
+739,739,2,,380,739,false,false,拳斗宝可梦,有时会把椰蛋树错认为椰子树 而爬上去。惹怒椰蛋树后 被抖落下来，并遭到踩踏。
+740,740,2,739,380,740,false,false,毛蟹宝可梦,比起思考，会先试着打打看。 曾经有过用拳头猛攻 打退雪崩的记录。
+741,741,2,,381,741,false,false,舞蹈宝可梦,吸食了朱红色花蜜的花舞鸟。 训练家弄错指示的话就会非常生气。 是情感变化非常剧烈的家伙。
+742,742,2,,382,742,false,false,蜂虻宝可梦,从敌人散发出的气场 来判断对方下一步的行动。 能轻盈地躲开攻击并进行反击。
+743,743,2,742,382,743,false,false,蜂虻宝可梦,最讨厌雨水弄湿自己。 因为伽勒尔地区阴天居多， 所以很难见得到它的身影。
+744,744,2,,383,744,false,false,小狗宝可梦,将脖子上的岩石向地面 发射，以此威吓对手。 在对方畏缩的刹那发起袭击。
+745,745,2,744,383,745,false,false,狼宝可梦,会用敏捷的动作将猎物 一点一点逼入绝境。 利齿总是瞄准着对方的要害。
+746,746,3,,384,746,false,false,小鱼宝可梦,感觉到危险时眼睛就会变得湿润。 眼泪的光亮会成为召集伙伴的信号， 让许多的弱丁鱼聚在一起。
+747,747,2,,385,747,false,false,非星宝可梦,和阿罗拉的好坏星不同， 伽勒尔的好坏星还没发现到 太阳珊瑚的枝有多好吃。
+748,748,2,747,385,748,false,false,非星宝可梦,体内的毒囊中储存着 满满的剧毒，毒性强到 能让吼鲸王都痛苦三天三夜。
+749,749,2,,386,749,false,false,驴宝可梦,在把自己吃土制造出的泥巴 涂在脚上之后，无论走在路况 多么差的路上都不会打滑。
+750,750,2,749,386,750,false,false,挽马宝可梦,拥有很强的耐力， 可以不眠不休地拉着１０吨重的 货物纵贯伽勒尔地区。
+751,751,2,,387,751,false,false,水泡宝可梦,平时生活在水中， 也会戴上水泡去 陆地上寻找食物。
+752,752,2,751,387,752,false,false,水泡宝可梦,把滴蛛放进头上的水泡里， 一边喂它吃剩的食物， 一边照顾它。
+753,753,2,,388,753,false,false,镰草宝可梦,白天沐浴阳光， 呼呼大睡。到了半夜 才醒来并开始活动。
+754,754,2,753,388,754,false,false,花镰宝可梦,双臂的花瓣既薄 又锋利。还能够 积蓄阳光发射光束。
+755,755,2,,389,755,false,false,发光宝可梦,白天也生活在昏暗的森林里。 会一边闪烁一边散播发光的孢子 来让敌人陷入沉睡。
+756,756,2,755,389,756,false,false,发光宝可梦,如果大半夜在森林的深处 看见光亮，记住千万不要接近。 灯罩夜菇会让你睡着的。
+757,757,2,,390,757,false,false,毒蜥宝可梦,悄悄地从背后靠近猎物， 在对方察觉之前释放毒气， 让对方动弹不得。
+758,758,2,757,390,758,false,false,毒蜥宝可梦,据说焰后蜥之间在争斗时， 是通过比拼谁带着更多只 雄性夜盗火蜥来定胜负的。
+759,759,2,,391,759,false,false,抓狂宝可梦,为了保护自己的身体而 胡乱挥舞前脚的样子虽然可爱， 威力却大到能将大树折断。
+760,760,2,759,391,760,false,false,强臂宝可梦,会用令格斗家都无地自容的技术 把逮住的猎物夹在腋下， 带回自己的住处。
+761,761,4,,392,761,false,false,水果宝可梦,受到袭击时流下的汗水 非常甜美可口。那种香气 会吸引更多敌人的注意。
+762,762,4,761,392,762,false,false,水果宝可梦,会用头部的壳盖击打 飞来啄食自己的蓝鸦， 并且对它使出猛烈的踢击。
+763,763,4,762,392,763,false,false,水果宝可梦,用又尖又硬的脚尖施展脚踢， 朝对手的身体和心灵 留下无法磨灭的创伤。
+764,764,3,,393,764,false,false,摘花宝可梦,散发着迷人香气的宝可梦。 由于每只花疗环环身上的花都 不一样，所以香味也各不相同。
+765,765,1,,394,765,false,false,贤者宝可梦,对森林的各个角落都了如指掌。 如果有宝可梦受伤了， 就会去寻找药草为它们治疗。
+766,766,1,,395,766,false,false,配合宝可梦,２０几只形成团队来生活。 靠着每个成员明确的分工， 在严苛的大自然中生存下来。
+767,767,2,,396,767,false,false,疾行宝可梦,成群聚集，随时提高警惕。 只要察觉到有敌人， 就会分散开来四处逃窜。
+768,768,2,767,396,768,false,false,装甲宝可梦,生活在海底的洞窟或沉船里。 会去和八爪武师决战， 输掉的一方便会成为对方的食物。
+769,769,2,,397,769,false,false,沙丘宝可梦,主要栖息在沙滩上。 操纵把手伸进自己嘴里的 对手，从而让自己变得更大。
+770,770,2,769,397,770,false,false,沙堡宝可梦,虽然住在沙滩上，但是 讨厌水。要是淋了大雨， 就无法维持城堡的造型。
+771,771,3,,398,771,false,false,海参宝可梦,覆盖着皮肤的粘液 具有出众的保湿效果， 即使在陆地上待好几天也不会干掉。
+772,772,1,,399,772,false,false,人工宝可梦,以神话中的宝可梦为原型所 创造出的宝可梦，被戴上了 抑制力量失控的面罩。
+773,773,1,772,399,773,false,false,人工宝可梦,与所信赖的训练家之间的牵绊 是解放它真正力量的 最后一个要素。
+774,774,4,,400,774,false,false,流星宝可梦,外壳非常坚固，但落到地上的 冲击会让它碎成细屑。
+775,775,1,,401,775,false,false,半梦半醒宝可梦,到死都一直是睡着的状态， 是因为吃的叶子里含有 类似麻醉药的成分。
+776,776,2,,402,776,false,false,爆炸龟宝可梦,在火山上生活，吃下的硫磺 就是甲壳上炸药的原料。 连粪便也会爆炸，十分危险。
+777,777,2,,403,777,false,false,蜷缩宝可梦,在危急时刻会把身体卷成一团， 倒竖起背上的尖刺， 不分青红皂白地发出电击。
+778,778,2,,404,778,false,false,画皮宝可梦,有一位学者为了研究 而看了它的破布里面， 结果患上怪病而离开人世。
+779,779,2,,405,779,false,false,磨牙宝可梦,厚实的皮肤连好坏星的针 也穿不透。会用结实的牙齿 嘎嘣嘎嘣地咬碎针吃下去。
+780,780,2,,406,780,false,false,悠游宝可梦,心地善良爱亲近人， 但只要生气就会 刮起强风吹倒一切。
+781,781,2,,407,781,false,false,碎藻宝可梦,把锚抛到海里，伏击猎物。 会去捕捉巨大的吼鲸王， 吸取它们的精气。
+782,782,1,,408,782,false,false,鳞片宝可梦,体毛变成了像金属一般 坚硬的鳞片。通过敲击 鳞片来和伙伴交流。
+783,783,1,782,408,783,false,false,鳞片宝可梦,敲响鳞片，发出吼声， 接着向对手发起挑战， 并用锋利的爪子撕裂对手。
+784,784,1,783,408,784,false,false,鳞片宝可梦,遗迹壁画中古代战士 身上穿着的盔甲是用 杖尾鳞甲龙的鳞片制成的。
+785,785,1,,409,785,false,false,土地神宝可梦,操纵雷的美乐美乐的守护神。 好奇心旺盛， 会时不时在人们面前现身。
+786,786,1,,410,786,false,false,土地神宝可梦,被称为守护神，却兼有 天真无邪与残酷的性格， 被誉为自然的化身。
+787,787,1,,411,787,false,false,土地神宝可梦,会鸣响尾巴，告知自己的居所， 以避免不必要的战争。 是操纵草木的乌拉乌拉的守护神。
+788,788,1,,412,788,false,false,土地神宝可梦,被称为守护神，但有时会给 随便靠近的对方带去恐怖的灾难。
+789,789,1,,413,789,false,false,星云宝可梦,没有警戒心且好奇心强， 所以经常会遇到麻烦。 危急时会用瞬间移动来逃跑。
+790,790,1,789,413,790,false,false,原始星宝可梦,以惊人的气势吸入 大气中的尘埃，努力用 内核制造着进化的能源。
+791,791,1,790,413,791,false,false,日轮宝可梦,曾经被称为 吞食太阳之兽。 能释放出无尽的光能。
+792,792,1,790,413,792,false,false,月轮宝可梦,夺走四周所有的光， 自己则变身为满月的模样， 在黑夜中散发出光芒。
+793,793,1,,414,793,false,false,寄生宝可梦,从究极之洞出现，来到这个世界。 好像会寄生在宝可梦或 人类的身上生存下去。
+794,794,1,,415,794,false,false,膨胀宝可梦,会炫耀膨胀到异常程度的肌肉。 是究极异兽中的一种。
+795,795,1,,416,795,false,false,美艳宝可梦,在这个世界是异类，很危险， 但在它原本栖息的世界， 好像只是寻常能见的生物。
+796,796,1,,417,796,false,false,灯饰宝可梦,被称为究极异兽。 也有像树木一样将手脚 插入地面后一动不动的。
+797,797,1,,418,797,false,false,发射宝可梦,在这个世界是异类，很危险， 但在它原本栖息的世界， 好像只是寻常能见的生物。
+798,798,1,,419,798,false,false,拔刀宝可梦,在这个世界是异类，很危险， 但在它原本栖息的世界， 好像只是寻常能见的生物。
+799,799,1,,420,799,false,false,异食宝可梦,被称为究极异兽的未知生命。 不知是不是经常觉得肚子饿， 一直都在吃着什么东西。
+800,800,1,,421,800,false,false,棱镜宝可梦,为生存而发狂般地寻找着光。 会发射出激光， 将所有东西切成碎片。
+801,801,1,,422,801,false,false,人造宝可梦,大约５００年前由科学家制作而成。 被称为魂心的部分是它的本体。
+802,802,1,,423,802,false,false,栖影宝可梦,拥有潜入一切影子里的能力， 所以在很长一段时间里 都没有任何人发现它。
+803,803,1,,424,803,false,false,毒针宝可梦,栖息在异世界的究极异兽。 会从头部的毒针朝对手 喷出毒液，咯咯咯大笑。
+804,804,1,803,424,804,false,false,毒针宝可梦,究极异兽中的一种。 会从毒针发射出 黏性很大又发光的毒液。
+805,805,1,,425,805,false,false,石墙宝可梦,像是究极异兽的谜一般的生命体。 突然动起来并展开袭击的石墙， 正身就是这家伙。
+806,806,1,,426,806,false,false,烟火宝可梦,从究极之洞里出现的究极异兽。 用爆炸吓唬对手， 趁那空当夺走对方的生命气息。
+807,807,1,,427,807,false,false,奔雷宝可梦,从手脚的肉球放电。 当捷拉奥拉奔驰而过时， 周围将充斥着电闪雷鸣，
+808,808,1,,428,808,false,false,螺帽宝可梦,美录坦们虽然聚在一起生活， 但当时机到来，会由最强的那１只 吸收其他的伙伴来进化。
+809,809,1,808,429,809,false,false,螺帽宝可梦,美录梅塔利用离心力带动 沉重的螺帽挥出的拳击 被认为是宝可梦界之最。
+810,810,4,,430,810,false,false,小猴宝可梦,会用木棒连续击打来攻击。 在以飞快的速度击打的同时， 情绪也会变得越来越高涨。
+811,811,4,810,430,811,false,false,节拍宝可梦,打着激烈的节拍战斗时， 由于过于忘我，甚至不会 意识到自己已经把对手打昏了。
+812,812,4,811,430,812,false,false,鼓手宝可梦,打鼓技巧最高超的那一只 会成为首领。性情温和， 重视族群的和谐相处。
+813,813,4,,431,813,false,false,兔子宝可梦,一旦做好了战斗的准备， 它鼻头上和脚底的肉球 就会发出极度的高温。
+814,814,4,813,431,814,false,false,兔子宝可梦,会用脚把树果从树木上 踢落，用来练习颠球， 借此锻炼自己的脚法。
+815,815,4,814,431,815,false,false,前锋宝可梦,拥有熟练的进攻和防守技巧。 只要得到声援就会更有冲劲， 但有时会为了出风头而弄巧成拙。
+816,816,4,,432,816,false,false,水蜥宝可梦,皮肤在湿掉时会变色， 仿佛像是隐身了一样， 谁都看不见它的身影。
+817,817,4,816,432,817,false,false,水蜥宝可梦,头脑聪明但是怕麻烦。 为了不让敌人接近自己的地盘， 在各个地方都设下了陷阱。
+818,818,4,817,432,818,false,false,特工宝可梦,能从指尖射出速度高达３马赫 的水枪。它的瞬膜能帮助它看穿 敌人的弱点，准确地击中要害。
+819,819,2,,433,819,false,false,贪吃宝可梦,由于它无论何时都在吃树果， 使得它比外表看起来还要顽强。 会出现在田地里寻找树果。
+820,820,2,819,433,820,false,false,贪欲宝可梦,无论多么坚硬的树果壳 都能用引以为傲的大牙咬碎。 在伽勒尔是很常见的宝可梦。
+821,821,4,,434,821,false,false,小鸟宝可梦,娇小的体型让它能敏捷地飞翔。 利用攻其不备的战法将体型 巨大的对手玩弄于股掌之间。
+822,822,4,821,434,822,false,false,乌鸦宝可梦,经历无数次艰难的战斗后， 它学会了该如何正确地 判断敌人的力量。
+823,823,4,822,434,823,false,false,乌鸦宝可梦,拥有优秀飞行能力和极度 聪明头脑的它在伽勒尔地区 从事飞翔出租车的工作。
+824,824,2,,435,824,false,false,幼虫宝可梦,经常出现在田地里的宝可梦。 会通过长在身体上的毛 来感应周围发生的事。
+825,825,2,824,435,825,false,false,天线罩宝可梦,正在壳里成长着。 用精神力量掌握外界的 状况，做好进化的准备。
+826,826,2,825,435,826,false,false,七星宝可梦,释放出精神力量来调查 周围的情况。它的侦测范围 甚至可以达到方圆１０公里。
+827,827,3,,436,827,false,false,狐狸宝可梦,性格谨慎且狡猾。 在偷盗食物逃走的时候 会用尾巴擦掉自己的足迹。
+828,828,3,827,436,828,false,false,狐狸宝可梦,靠着轻盈的身体和锐利的 爪子到处去偷食物和蛋。 逐电犬是它的天敌。
+829,829,2,,437,829,false,false,花饰宝可梦,会随着微风一边转圈圈一边 愉快地唱歌。许多人因为喜欢 这可爱的模样而培育它。
+830,830,2,829,437,830,false,false,棉饰宝可梦,用它头上的棉絮制成的线 有着十分美丽动人的光泽， 是伽勒尔地区的名产。
+831,831,2,,438,831,false,false,绵羊宝可梦,要是身上的毛长得太长就会 不能动弹。用毛辫羊的体毛 织成的布结实得让人吃惊。
+832,832,2,831,438,832,false,false,绵羊宝可梦,长得长长的角是为了 向异性求爱而存在的。 它从不会把角当做武器。
+833,833,2,,439,833,false,false,咬住宝可梦,会用头上硬如岩石的角攻击敌人。 趁其不备之时大口咬住对方， 一旦咬住便再也不会松口。
+834,834,2,833,439,834,false,false,紧咬宝可梦,颈部可以伸缩。 能从远处迅速伸长颈部， 用锐利的牙齿解决对手。
+835,835,3,,440,835,false,false,小狗宝可梦,因为想要得到零食而 帮助人类工作的贪吃鬼。 总是带着电火花跑来跑去。
+836,836,3,835,440,836,false,false,狗宝可梦,电力增强了它的脚力。 当以最高速度奔跑时， 时速可以轻易超过９０公里。
+837,837,4,,441,837,false,false,煤炭宝可梦,在满是岩石的崎岖之路上 也能像独轮车那样自在移动。 靠燃烧煤炭维持生命。
+838,838,4,837,441,838,false,false,煤炭宝可梦,能通过高速旋转自己的脚， 以３０公里的时速奔跑。 能喷出１０００度的火焰。
+839,839,4,838,441,839,false,false,煤炭宝可梦,进入战斗状态后， 它会把煤炭山燃烧得通红， 飞撒火花来烧焦四周。
+840,840,5,,442,840,false,false,苹果居宝可梦,一出生就躲进了苹果中。 一边吃果肉一边成长。 进化方向因苹果的味道而定。
+841,841,5,840,442,841,false,false,苹果翅宝可梦,会用苹果皮的翅膀飞翔， 并吐出强酸性的唾液。 可以变成苹果的形状。
+842,842,5,840,442,842,false,false,苹果汁宝可梦,身体被甜甜的蜜汁包裹， 背部的皮尤其甘甜， 过去曾经是小孩的零食。
+843,843,2,,443,843,false,false,沙蛇宝可梦,会从鼻孔喷射出沙子， 趁敌人看不清的时候 躲进地底下藏身。
+844,844,2,843,443,844,false,false,沙蛇宝可梦,它之所以会以独特的方式 盘绕自己的身体，是为了能 更高效地喷射砂囊中的沙子。
+845,845,2,,444,845,false,false,一口吞宝可梦,非常贪吃，会把刺梭鱼整只 吞进嘴里。偶尔也会搞错对象 去咬其他的宝可梦。
+846,846,1,,445,846,false,false,突击宝可梦,吃饱了之后动作会变得 极度迟缓，于是就被 古月鸟整只吞了下去。
+847,847,1,846,445,847,false,false,穿刺宝可梦,会旋转着自己的尾鳍 一口气突击。能够以超过 １００节的速度贯穿猎物。
+848,848,4,,446,848,false,false,婴儿宝可梦,通过让自身的毒素产生 化学反应来发电。电力 虽然弱，却能造成麻痹。
+849,849,4,848,446,849,false,false,庞克宝可梦,气势汹汹的急性子。 会大口喝下浑浊的水， 吸收其中所含的毒素。
+850,850,2,,447,850,false,false,发热宝可梦,会用滚烫的身体勒紧猎物， 等到烤得恰到好处之时， 就把它们大口大口地吃掉。
+851,851,2,850,447,851,false,false,发热宝可梦,性格极具攻击性。 危险的不只是它烧烫的身体， 大大的獠牙也锐利无比。
+852,852,4,,448,852,false,false,缠人宝可梦,智商大致相当于３岁的儿童。 虽然触手经常断掉，但因为 能再生，所以它并不在意。
+853,853,4,852,448,853,false,false,柔术宝可梦,会为了试自己的身手 而登上陆地寻找对手。 战斗结束后就会回到海里。
+854,854,2,,449,854,false,false,红茶宝可梦,被它当成住处的茶杯 是有名的古董餐具。 市面上有很多赝品。
+855,855,2,854,449,855,false,false,红茶宝可梦,每当发现喝剩的红茶， 它就会把自己的身体倒进去， 让那壶红茶变成怖思壶。
+856,856,1,,450,856,false,false,宁静宝可梦,喜欢没有人烟的地方。 一旦感觉到强烈的感情， 就会一溜烟地逃走。
+857,857,1,856,450,857,false,false,肃静宝可梦,会用头上的辫子攻击对手， 让对方安静下来。破坏力 强到能一击ＫＯ职业拳击手。
+858,858,1,857,450,858,false,false,寂静宝可梦,又被称为森林魔女。 如果有人大吵大闹，可能会 被它用触手上的爪子撕碎。
+859,859,2,,451,859,false,false,捉弄宝可梦,不但会溜进民宅偷盗， 还会吸收人们悔恨时 的负面能量。
+860,860,2,859,451,860,false,false,坏心眼宝可梦,喜欢动歪脑筋，把人们 引诱到深夜的森林中。 似乎拥有培育农作物的能力。
+861,861,2,860,451,861,false,false,健美宝可梦,毛发能发挥肌肉纤维般的作用。 伸展开来时会像触手那样 把对手缠绕起来。
+862,862,2,264,134,862,false,false,停止宝可梦,在不断的斗争中得到了进化。 它交叉着双臂发出的怒吼 能让一切对手都为之胆怯。
+863,863,2,52,22,863,false,false,维京宝可梦,在日复一日的战斗中得以进化。 进化的结果是那危险的指甲， 留长后能当作短剑来用。
+864,864,3,222,113,864,false,false,珊瑚宝可梦,一定要小心它那包覆着 灵魂的灵体。如果触摸到， 就会像石头一样动弹不得。
+865,865,2,83,35,865,false,false,黄嘴鸭宝可梦,会用坚硬的葱叶抵挡攻击， 接着用锋利的茎反击。 它的葱既是武器也是食材。
+866,866,2,122,57,866,false,false,喜剧演员宝可梦,幽默的动作使它获得了 众人的喜爱。能从腹部的 图案释放出精神力量。
+867,867,2,562,287,867,false,false,怨念宝可梦,绝对不能触摸它影子般的 身体，否则它会让你看到 印刻在它画中的恐怖记忆。
+868,868,2,,452,868,false,false,鲜奶油宝可梦,据说有小仙奶 现身过的蛋糕店 保证能生意兴隆。
+869,869,2,868,452,869,false,false,鲜奶油宝可梦,当它感到幸福的时候， 手中产生出的鲜奶油 会变得更加香浓甜美。
+870,870,2,,453,870,false,false,阵形宝可梦,６只为一体的宝可梦。 惯于团队行动，会一边 变换阵形一边战斗。
+871,871,2,,454,871,false,false,海胆宝可梦,每根刺里都储存着电力。 即使是折断的刺也至少 能连续放电３小时。
+872,872,2,,455,872,false,false,虫宝宝宝可梦,会吃地面上的积雪。 吃得越多，背上的 刺就会长得越挺拔。
+873,873,2,872,455,873,false,false,冰蛾宝可梦,绝不放过破坏山野环境的人。 会用冰冷的翅膀四处飞翔， 制造出暴风雪来惩罚他们。
+874,874,1,,456,874,false,false,巨石宝可梦,每年会有一天，它们会在 特定的时间突然出现， 聚集在一起排成一个圈。
+875,875,1,,457,875,false,false,企鹅宝可梦,无论何时都用冰块冰镇着 自己怕热的脸。会把头顶 上的毛垂到海里钓食物吃。
+876,876,3,,458,876,true,false,感情宝可梦,能通过自己的角去 感受附近生物的情感。 正面情绪是它的能量之源。
+877,877,2,,459,877,false,false,双面宝可梦,无论怎么吃都会马上肚子饿。 十分珍爱自己用电烘烤过的 种子，随时都带在身上。
+878,878,2,,460,878,false,false,像铜宝可梦,擅长需要力气的工作。 铜质的身体会因雨水而生锈， 转变成鲜艳的绿色。
+879,879,2,878,460,879,false,false,像铜宝可梦,群居的宝可梦。 鼻子的握力十分强劲， 甚至能把大石头弄得粉碎。
+880,880,1,,461,880,false,false,化石宝可梦,会用尾部结实的肌肉 发电。与下半身相比， 上半身真的太小了。
+881,881,1,,462,881,false,false,化石宝可梦,曾经生活在古代的海边， 能用身体的冰来保存食物， 但由于动作太迟缓而灭绝了。
+882,882,1,,463,882,false,false,化石宝可梦,虽然能用自豪的脚力 以６０公里的时速奔跑， 但是只能在水中呼吸。
+883,883,1,,464,883,false,false,化石宝可梦,面部的皮肤无论受到什么攻击 都不会受伤，但由于呼吸起来 不方便而灭绝了。
+884,884,2,,465,884,false,false,合金宝可梦,由特殊金属构成的身体 十分轻盈，能够灵活地活动。 不喜欢下雨，所以住在洞窟里。
+885,885,1,,466,885,false,false,哀怨宝可梦,虽然单独１只弱得甚至敌不过小孩， 但会和伙伴合作一起锻炼， 通过进化而变得更强。
+886,886,1,885,466,886,false,false,保姆宝可梦,要是没让自己在照顾的多龙梅西亚 乘在头上就静不下心来，甚至会 因此试图把别的宝可梦放到头上。
+887,887,1,886,466,887,false,false,隐形宝可梦,它角里的多龙梅西亚 似乎满心期待着能被 以音速发射出去。
+888,888,1,,467,888,false,false,强者宝可梦,这只宝可梦被认为是沉睡已久的 藏玛然特的姐姐，也有人 认为它们之间是劲敌关系。
+889,889,1,,468,889,false,false,强者宝可梦,以石像般的姿态陷入 长久沉眠的宝可梦。 几乎就要被人们所遗忘。
+890,890,1,,469,890,false,false,超极巨宝可梦,来自于２万年前坠落 到地上的陨石之中。 似乎与极巨化之谜有所关联。
+891,891,1,,470,891,false,false,拳法宝可梦,拉紧头上又白又长的体毛， 就会变得斗气势高昂， 并从丹田涌出力量。
+892,892,1,891,470,892,false,false,拳法宝可梦,生活在遥远地区的山岳地带。 通过在断崖绝壁上奔跑 来锻炼腰腿，磨炼招式。
+893,893,1,,471,893,false,false,恶猿宝可梦,长在身上的藤蔓断掉之后 会变成土壤的养分， 帮助森林中的植物成长。
+894,894,1,,472,894,false,false,电子宝可梦,整个身体是制造电能的 器官。可以制造出 伽勒尔全域所需的电力。
+895,895,1,,473,895,false,false,龙玉宝可梦,整个身体是龙之能量的 结晶。据说它拥有 所有龙宝可梦的能力。
+896,896,1,,474,896,false,false,烈马宝可梦,拥有十分惊人的怪力。 戴在脸上的冰之面罩 硬度是钻石的１００倍
+897,897,1,,475,897,false,false,骏马宝可梦,在黑暗的夜晚中奔跑，吸取 正在睡觉的生物的生命能量。 喜欢孤独和静寂。
+898,898,1,,476,898,false,false,国王宝可梦,曾经在很久以前统治着 伽勒尔的传说之王。拥有 治愈心灵和让草木发芽的能力。
+899,899,1,234,120,899,false,false,大角宝可梦,The black orbs shine with an uncanny light when the Pokémon is erecting invisible barriers. The fur shed from its beard retains heat well and is a highly useful material for winter clothing.
+900,900,2,123,58,900,false,false,斧钺宝可梦,"A violent creature that fells towering trees with its crude axes and shields itself with hard stone. If one should chance upon this Pokémon in the wilds, one's only recourse is to flee."
+901,901,2,217,110,901,false,false,泥炭宝可梦,I believe it was Hisui's swampy terrain that gave Ursaluna its burly physique and newfound capacity to manipulate peat at will.
+902,902,2,550,280,902,true,true,大鱼宝可梦,Clads itself in the souls of comrades that perished before fulfilling their goals of journeying upstream. No other species throughout all Hisui's rivers is Basculegion's equal.
+903,903,4,215,109,903,false,false,攀崖宝可梦,"Because of Sneasler's virulent poison and daunting physical prowess, no other species could hope to best it on the frozen highlands. Preferring solitude, this species does not form packs."
+904,904,2,211,106,904,false,false,剑山宝可梦,Its lancelike spikes and savage temperament have earned it the nickname ”sea fiend.” It slurps up poison to nourish itself.
+905,905,1,,477,905,false,true,爱憎宝可梦,"When it flies to this land from across the sea, the bitter winter comes to an end. According to legend, this Pokémon's love gives rise to the budding of fresh life across Hisui."
+906,906,4,,478,906,false,false,草猫宝可梦,The sweet scent its body gives off mesmerizes those around it. The scent grows stronger when this Pokémon is in the sun.
+907,907,4,906,478,907,false,false,草猫宝可梦,"The hardness of Floragato’s fur depends on the Pokémon’s mood. When Floragato is prepared to battle, its fur becomes pointed and needle sharp."
+908,908,4,907,478,908,false,false,魔术师宝可梦,"With skillful misdirection, it rigs foes with pollen-packed flower bombs. Meowscarada sets off the bombs before its foes realize what’s going on."
+909,909,4,,479,909,false,false,火鳄宝可梦,"Its flame sac is small, so energy is always leaking out. This energy is released from the dent atop Fuecoco’s head and flickers to and fro."
+910,910,4,909,479,910,false,false,火鳄宝可梦,The valve in Crocalor’s flame sac is closely connected to its vocal cords. This Pokémon utters a guttural cry as it spews flames every which way.
+911,911,4,910,479,911,false,false,歌手宝可梦,"Skeledirge’s gentle singing soothes the souls of all that hear it. It burns its enemies to a crisp with flames of over 5,400 degrees Fahrenheit."
+912,912,4,,480,912,false,false,小鸭宝可梦,Its strong legs let it easily swim around in even fast-flowing rivers. It likes to keep things tidy and is prone to overthinking things.
+913,913,4,912,480,913,false,false,习艺宝可梦,The hardworking Quaxwell observes people and Pokémon from various regions and incorporates their movements into its own dance routines.
+914,914,4,913,480,914,false,false,舞者宝可梦,"Dancing in ways that evoke far-away places, this Pokémon mesmerizes all that see it. Flourishes of its decorative water feathers slice into its foes."
+915,915,2,,481,915,false,false,猪宝可梦,This Pokémon spurns all but the finest of foods. Its body gives off an herblike scent that bug Pokémon detest.
+916,916,2,915,481,916,true,false,猪宝可梦,"It entrances female Pokémon with the sweet, alluring scent that wafts from all over its body."
+917,917,5,,482,918,false,false,线球宝可梦,The thread it secretes from its rear is as strong as wire. The secret behind the thread’s strength is the topic of ongoing research.
+918,918,5,917,482,919,false,false,陷阱宝可梦,"Spidops covers its territory in tough, sticky threads to set up traps for intruders."
+919,919,2,,483,920,false,false,蝗虫宝可梦,It’s highly skilled at a fighting style in which it uses its jumping capabilities to dodge incoming attacks while also dealing damage to opponents.
+920,920,2,919,483,921,false,false,蝗虫宝可梦,"It uses its normally folded third set of legs when in Showdown Mode. This places a huge burden on its body, so it can’t stay in this mode for long."
+921,921,2,,484,954,false,false,鼠宝可梦,The pads of its paws are electricity-discharging organs. Pawmi fires electricity from its forepaws while standing unsteadily on its hind legs.
+922,922,2,921,484,955,false,false,鼠宝可梦,Pawmo uses a unique fighting technique in which it uses its forepaws to strike foes and zap them with electricity from its paw pads simultaneously.
+923,923,2,922,484,956,false,false,押掌宝可梦,Pawmot’s fluffy fur acts as a battery. It can store the same amount of electricity as an electric car.
+924,924,3,,485,945,false,false,成对宝可梦,The pair sticks together no matter what. They split any food they find exactly in half and then eat it together.
+925,925,3,924,485,946,false,false,家族宝可梦,"The larger pair protects the little ones during battles. When facing strong opponents, the whole group will join the fight."
+926,926,4,,486,970,false,false,小狗宝可梦,"The yeast in Fidough’s breath is useful for cooking, so this Pokémon has been protected by people since long ago."
+927,927,4,926,486,971,false,false,狗宝可梦,"The surface of this Pokémon’s skin hardens when exposed to intense heat, and its body has an appetizing aroma."
+928,928,4,,487,935,false,false,橄榄宝可梦,"This Pokémon converts nutrients into oil, which it stores in the fruit on its head. It can easily go a whole week without eating or drinking."
+929,929,4,928,487,936,false,false,橄榄宝可梦,"It basks in the sun to its heart’s content until the fruits on its head ripen. After that, Dolliv departs from human settlements and goes on a journey."
+930,930,4,929,487,937,false,false,橄榄宝可梦,"This Pokémon drives back enemies by launching its rich, aromatic oil at them with enough force to smash a boulder."
+931,931,5,,488,960,false,false,鹦鹉宝可梦,"Green-feathered flocks hold the most sway. When they’re out searching for food in the mornings and evenings, it gets very noisy."
+932,932,4,,489,963,false,false,岩盐宝可梦,"The ground scrapes its body as it travels, causing it to leave salt behind. Salt is constantly being created and replenished inside Nacli’s body."
+933,933,4,932,489,964,false,false,岩盐宝可梦,It compresses rock salt inside its body and shoots out hardened salt pellets with enough force to perforate an iron sheet.
+934,934,4,933,489,965,false,false,岩盐宝可梦,"Many Pokémon gather around Garganacl, hoping to lick at its mineral-rich salt."
+935,935,1,,490,1003,false,false,小火星宝可梦,"Its firepower increases when it fights, reaching over 1,800 degrees Fahrenheit. It likes berries that are rich in fat."
+936,936,1,935,490,1004,false,false,火战士宝可梦,"This Pokémon clads itself in armor that has been fortified by psychic and fire energy, and it shoots blazing fireballs."
+937,937,1,935,490,1005,false,false,火剑士宝可梦,An old set of armor steeped in grudges caused this Pokémon’s evolution. Ceruledge cuts its enemies to pieces without mercy.
+938,938,2,,491,940,false,false,电蝌蚪宝可梦,"It floats using the electricity stored in its body. When thunderclouds are around, Tadbulb will float higher off the ground."
+939,939,2,938,491,941,false,false,电蛙宝可梦,What appear to be eyeballs are actually organs for discharging the electricity generated by Bellibolt’s belly-button dynamo.
+940,940,4,,492,957,false,false,海燕宝可梦,"These Pokémon make their nests on coastal cliffs. The nests have a strange, crackling texture, and they’re a popular delicacy."
+941,941,4,940,492,958,false,false,军舰鸟宝可梦,"It uses its throat sac to store electricity generated by its wings. There’s hardly any oil in its feathers, so it is a poor swimmer."
+942,942,4,,493,972,false,false,小辈宝可梦,"Its well-developed jaw and fangs are strong enough to crunch through boulders, and its thick fat makes for an excellent defense."
+943,943,4,942,493,973,false,false,大佬宝可梦,"Mabosstiff loves playing with children. Though usually gentle, it takes on an intimidating look when protecting its family."
+944,944,4,,494,968,false,false,毒鼠宝可梦,"To keep enemies away from its territory, it paints markings around its nest using a poisonous liquid that has an acrid odor."
+945,945,4,944,494,969,false,false,毒猴宝可梦,"Each Grafaiai paints its own individual pattern, and it will paint that same pattern over and over again throughout its life."
+946,946,2,,495,974,false,false,滚草宝可梦,"Not even Bramblin knows where it is headed as it tumbles across the wilderness, blown by the wind. It loathes getting wet."
+947,947,2,946,495,975,false,false,滚草宝可梦,"Brambleghast wanders around arid regions. On rare occasions, mass outbreaks of these Pokémon will bury an entire town."
+948,948,4,,496,1006,false,false,木耳宝可梦,"Though it looks like Tentacool, Toedscool is a completely different species. Its legs may be thin, but it can run at a speed of 30 mph."
+949,949,4,948,496,1007,false,false,木耳宝可梦,"It coils its 10 tentacles around prey and sucks out their nutrients, causing the prey pain. The folds along the rim of its head are a popular delicacy."
+950,950,2,,497,962,false,false,埋伏宝可梦,"This Pokémon lives on sheer cliffs. It sidesteps opponents’ attacks, then lunges for their weak spots with its claws."
+951,951,2,,498,938,false,false,热辣宝可梦,Traditional Paldean dishes can be extremely spicy because they include the shed front teeth of Capsakid among their ingredients.
+952,952,2,951,498,939,false,false,热辣宝可梦,"The green head has turned vicious due to the spicy chemicals stimulating its brain. Once it goes on a rampage, there is no stopping it."
+953,953,3,,499,922,false,false,滚动宝可梦,It rolls its mud ball around while the energy it needs for evolution matures. Eventually the time comes for it to evolve.
+954,954,3,953,499,923,false,false,滚动宝可梦,An infant sleeps inside the ball. Rabsca rolls the ball soothingly with its legs to ensure the infant sleeps comfortably.
+955,955,4,,500,926,false,false,褶边宝可梦,"It spends its time running around wastelands. If anyone steals its beloved berries, it will chase them down and exact its revenge."
+956,956,4,955,500,927,false,false,鸵鸟宝可梦,It emits psychic power from the gaps between its multicolored frills and sprints at speeds greater than 120 mph.
+957,957,4,,501,1000,false,false,锤炼宝可梦,This Pokémon pounds iron scraps together to make a hammer. It will remake the hammer again and again until it’s satisfied with the result.
+958,958,4,957,501,1001,false,false,锤子宝可梦,These Pokémon make their homes in piles of scrap metal. They test the strength of each other’s hammers by smashing them together.
+959,959,4,958,501,1002,false,false,锤子宝可梦,"The hammer tops 220 pounds, yet it gets swung around easily by Tinkaton as it steals whatever it pleases and carries its plunder back home."
+960,960,2,,502,929,false,false,糯鳗宝可梦,"Though it looks like Diglett, Wiglett is an entirely different species. The resemblance seems to be a coincidental result of environmental adaptation."
+961,961,2,960,502,930,false,false,糯鳗宝可梦,"A variety of fish Pokémon, Wugtrio was once considered to be a regional form of Dugtrio."
+962,962,1,,503,959,false,false,掉东西宝可梦,"Bombirdier uses the apron on its chest to bundle up food, which it carries back to its nest. It enjoys dropping things that make loud noises."
+963,963,1,,504,933,false,false,海豚宝可梦,Its water ring is made from seawater mixed with a sticky fluid that Finizen secretes from its blowhole.
+964,964,1,963,504,934,false,false,海豚宝可梦,"Its physical capabilities are no different than a Finizen’s, but when its allies are in danger, it transforms and powers itself up."
+965,965,2,,505,942,false,false,单汽缸宝可梦,The steel section is Varoom’s actual body. This Pokémon clings to rocks and converts the minerals within into energy to fuel its activities.
+966,966,2,965,505,943,false,false,多汽缸宝可梦,Revavroom viciously threatens others with the sound of its exhaust. It sticks its tongue out from its cylindrical mouth and sprays toxic fluids.
+967,967,4,,506,953,false,false,坐骑宝可梦,It can sprint at over 70 mph while carrying a human. The rider’s body heat warms Cyclizar’s back and lifts the Pokémon’s spirit.
+968,968,1,,507,944,false,false,蚯蚓宝可梦,This Pokémon lives in arid deserts. It maintains its metal body by consuming iron from the soil.
+969,969,4,,508,966,false,false,矿石宝可梦,Glimmet’s toxic mineral crystals look just like flower petals. This Pokémon scatters poisonous powder like pollen to protect itself.
+970,970,4,969,508,967,false,false,矿石宝可梦,Glimmora’s petals are made of crystallized poison energy. It has recently become evident that these petals resemble Tera Jewels.
+971,971,4,,509,924,false,false,鬼犬宝可梦,"This friendly Pokémon doesn’t like being alone. Pay it even the slightest bit of attention, and it will follow you forever."
+972,972,4,971,509,925,false,false,鬼犬宝可梦,A lovingly mourned Pokémon was reborn as Houndstone. It doesn’t like anyone touching the protuberance atop its head.
+973,973,4,,510,961,false,false,同步宝可梦,"Thanks to a behavior of theirs known as “synchronizing,” an entire flock of these Pokémon can attack simultaneously in perfect harmony."
+974,974,4,,511,947,false,false,陆鲸宝可梦,It lives in frigid regions in pods of five or so individuals. It loves the minerals found in snow and ice.
+975,975,4,974,511,948,false,false,陆鲸宝可梦,"Ice energy builds up in the horn on its upper jaw, causing the horn to reach cryogenic temperatures that freeze its surroundings."
+976,976,3,,512,932,false,false,卸除宝可梦,"Veluza has excellent regenerative capabilities. It sheds spare flesh from its body to boost its agility, then charges at its prey."
+977,977,1,,513,931,false,false,大鲶宝可梦,"It treats Tatsugiri like its boss and follows it loyally. Though powerful, Dondozo is apparently not very smart."
+978,978,4,,514,952,false,false,拟态宝可梦,"Tatsugiri is an extremely cunning Pokémon. It feigns weakness to lure in prey, then orders its partner to attack."
+979,979,2,57,24,1010,false,false,愤怒猴宝可梦,It imbues its fists with the power of the rage that it kept hidden in its heart. Opponents struck by these imbued fists will be shattered to their core.
+980,980,2,194,96,1009,false,false,刺鱼宝可梦,It lives at the bottom of ponds and swamps. It will carry Wooper on its back and ferry them across water from one shore to the other.
+981,981,2,203,101,928,false,false,长颈宝可梦,The hardened head from the tail protects the head of the main body as Farigiraf whips its long neck around to headbutt enemies.
+982,982,2,206,103,917,false,false,地蛇宝可梦,"It drives enemies out of its nest by sucking in enough air to fill its long, narrow lungs, then releasing the air in an intense blast."
+983,983,2,625,317,1008,false,false,大刀宝可梦,"Though it commands a massive army in battle, it’s not skilled at devising complex strategies. It just uses brute strength to keep pushing."
+984,984,1,,515,978,false,false,悖谬宝可梦,"This creature resembles a mysterious Pokémon that, according to a paranormal magazine, has lived since ancient times."
+985,985,1,,516,982,false,false,悖谬宝可梦,It resembles a mysterious Pokémon described in a paranormal magazine as a Jigglypuff from one billion years ago.
+986,986,1,,517,979,false,false,悖谬宝可梦,It bears a slight resemblance to a Pokémon described in a dubious magazine as a cross between a dinosaur and a mushroom.
+987,987,1,,518,983,false,false,悖谬宝可梦,"It has similar features to a ghostly pterosaur that was covered in a paranormal magazine, but the two have little else in common."
+988,988,1,,519,984,false,false,悖谬宝可梦,This Pokémon somewhat resembles an ancient form of Volcarona that was introduced in a dubious magazine.
+989,989,1,,520,981,false,false,悖谬宝可梦,"No records exist of this Pokémon being caught. Data is lacking, but the Pokémon’s traits match up with a creature shown in an expedition journal."
+990,990,1,,521,986,false,false,悖谬宝可梦,Sightings of this Pokémon have occurred in recent years. It resembles a mysterious object described in an old expedition journal.
+991,991,1,,522,992,false,false,悖谬宝可梦,It resembles a mysterious object mentioned in an old book. There are only two reported sightings of this Pokémon.
+992,992,1,,523,989,false,false,悖谬宝可梦,"This Pokémon shares many similarities with Iron Hands, an object mentioned in a certain expedition journal."
+993,993,1,,524,990,false,false,悖谬宝可梦,"It’s possible that Iron Jugulis, an object described in an old book, may actually be this Pokémon."
+994,994,1,,525,988,false,false,悖谬宝可梦,"No records exist of this species being caught. Data is lacking, but the Pokémon’s traits match up with an object described in an old book."
+995,995,1,,526,991,false,false,悖谬宝可梦,Some of its notable features match those of an object named within a certain expedition journal as Iron Thorns.
+996,996,1,,527,949,false,false,冰鳍宝可梦,"This Pokémon lives in forests and craggy areas. Using the power of its dorsal fin, it cools the inside of its nest like a refrigerator."
+997,997,1,996,527,950,false,false,冰鳍宝可梦,It attacks with the blade of its frozen dorsal fin by doing a front flip in the air. Arctibax’s strong back and legs allow it to pull off this technique.
+998,998,1,997,527,951,false,false,冰龙宝可梦,It launches itself into battle by flipping upside down and spewing frigid air from its mouth. It finishes opponents off with its dorsal blade.
+999,999,1,,528,976,false,false,宝箱宝可梦,It lives inside an old treasure chest. Sometimes it gets left in shop corners since no one realizes it’s actually a Pokémon.
+1000,1000,1,999,528,977,false,false,宝者宝可梦,It has a sturdy body made up of stacked coins. Gholdengo overwhelms its enemies by firing coin after coin at them in quick succession.
+1001,1001,1,,529,996,false,false,灾厄宝可梦,"It drains the life-force from vegetation, causing nearby forests to instantly wither and fields to turn barren."
+1002,1002,1,,530,995,false,false,灾厄宝可梦,The hatred of those who perished by the sword long ago has clad itself in snow and become a Pokémon.
+1003,1003,1,,531,994,false,false,灾厄宝可梦,"It slowly brings its exceedingly heavy head down upon the ground, splitting the earth open with huge fissures that run over 160 feet deep."
+1004,1004,1,,532,997,false,false,灾厄宝可梦,The envy accumulated within curved beads that sparked multiple conflicts has clad itself in fire and become a Pokémon.
+1005,1005,1,,533,985,false,false,悖谬宝可梦,"According to an article in a dubious magazine, this Pokémon has some connection to a phenomenon that occurs in a certain region."
+1006,1006,1,,534,993,false,false,悖谬宝可梦,It’s possible that this is the object listed as Iron Valiant in a certain expedition journal.
+1007,1007,1,,535,998,false,false,悖谬宝可梦,"This Pokémon resembles Cyclizar, but it is far burlier and more ferocious. Nothing is known about its ecology or other features."
+1008,1008,1,,536,999,false,false,悖谬宝可梦,This seems to be the Iron Serpent mentioned in an old book. The Iron Serpent is said to have turned the land to ash with its lightning.
+1009,1009,1,,537,1011,false,false,悖谬宝可梦,"It resembles an illustration published in a paranormal magazine, said to be a depiction of a super-ancient Suicune."
+1010,1010,1,,538,1012,false,false,悖谬宝可梦,"According to the few eyewitness accounts that exist, it used its shining blades to julienne large trees and boulders."
+1011,1011,1,840,442,1013,false,false,Candy Apple Pokémon,"The head sticking out belongs to the fore-wyrm, while the tail belongs to the core-wyrm. The two share one apple and help each other out."
+1012,1012,1,,539,1014,false,false,Matcha Pokémon,"Poltchageist looks like a regional form of Sinistea, but it was recently discovered that the two Pokémon are entirely unrelated."
+1013,1013,1,1012,539,1015,false,false,Matcha Pokémon,"It prefers cool, dark places, such as the back of a shelf or the space beneath a home's floorboards. It wanders in search of prey after sunset."
+1014,1014,1,,540,1016,false,false,Retainer Pokémon,Okidogi is a ruffian with a short temper. It can pulverize anything by swinging around the chain on its neck.
+1015,1015,1,,541,1017,false,false,Retainer Pokémon,"Munkidori keeps itself somewhere safe while it toys with its foes, using psychokinesis to induce intense dizziness."
+1016,1016,1,,542,1018,false,false,Retainer Pokémon,Fezandipiti beats its glossy wings to scatter pheromones that captivate people and Pokémon.
+1017,1017,1,,543,1019,false,false,Mask Pokémon,This mischief-loving Pokémon is full of curiosity. It battles by drawing out the type-based energy contained within its masks.
+1018,1018,2,884,465,1020,false,false,Alloy Pokémon,"It digs holes on mountains, searching for food. It’s so durable that being caught in a cave-in won’t faze it."
+1019,1019,5,1011,442,1021,false,false,Apple Hydra Pokémon,"These capricious syrpents have banded together. On the rare occasion that their moods align, their true power is unleashed."
+1020,1020,1,,544,1022,false,false,Paradox Pokémon,It resembles an eerie Pokémon once shown in a paranormal magazine. That Pokémon was said to be an Entei regenerated from a fossil.
+1021,1021,1,,545,1023,false,false,Paradox Pokémon,It bears resemblance to a Pokémon that became a hot topic for a short while after a paranormal magazine touted it as Raikou's ancestor.
+1022,1022,1,,547,1024,false,false,Paradox Pokémon,It was named after a mysterious object recorded in an old book. Its body seems to be metallic.
+1023,1023,1,,546,1025,false,false,Paradox Pokémon,There was supposedly an incident in which it launched shining blades to cut everything around it to pieces. Little else is known about it.
+1024,1024,1,,548,1026,false,false,Tera Pokémon,It’s thought that this Pokémon lived in ancient Paldea until it got caught in seismic shifts and went extinct.
+1025,1025,1,,549,1027,false,false,Subjugation Pokémon,Its peach-shaped shell serves as storage for a potent poison. It makes poisonous mochi and serves them to people and Pokémon.

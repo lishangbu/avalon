@@ -1,0 +1,1580 @@
+id,code,name,creature_id,version_group_id,form_name,sort_order,form_order,battle_only,default_form,enhanced_form,enabled
+1,bulbasaur,bulbasaur,1,28,,1,1,false,true,false,true
+2,ivysaur,ivysaur,2,28,,2,1,false,true,false,true
+3,venusaur,venusaur,3,28,,3,1,false,true,false,true
+4,charmander,charmander,4,28,,5,1,false,true,false,true
+5,charmeleon,charmeleon,5,28,,6,1,false,true,false,true
+6,charizard,charizard,6,28,,7,1,false,true,false,true
+7,squirtle,squirtle,7,28,,10,1,false,true,false,true
+8,wartortle,wartortle,8,28,,11,1,false,true,false,true
+9,blastoise,blastoise,9,28,,12,1,false,true,false,true
+10,caterpie,caterpie,10,28,,14,1,false,true,false,true
+11,metapod,metapod,11,28,,15,1,false,true,false,true
+12,butterfree,butterfree,12,28,,16,1,false,true,false,true
+13,weedle,weedle,13,28,,17,1,false,true,false,true
+14,kakuna,kakuna,14,28,,18,1,false,true,false,true
+15,beedrill,beedrill,15,28,,19,1,false,true,false,true
+16,pidgey,pidgey,16,28,,21,1,false,true,false,true
+17,pidgeotto,pidgeotto,17,28,,22,1,false,true,false,true
+18,pidgeot,pidgeot,18,28,,23,1,false,true,false,true
+19,rattata,rattata,19,28,,25,1,false,true,false,true
+20,raticate,raticate,20,28,,27,1,false,true,false,true
+21,spearow,spearow,21,28,,30,1,false,true,false,true
+22,fearow,fearow,22,28,,31,1,false,true,false,true
+23,ekans,ekans,23,28,,32,1,false,true,false,true
+24,arbok,arbok,24,28,,33,1,false,true,false,true
+25,pikachu,pikachu,25,28,,36,1,false,true,false,true
+26,raichu,raichu,26,28,,52,1,false,true,false,true
+27,sandshrew,sandshrew,27,28,,56,1,false,true,false,true
+28,sandslash,sandslash,28,28,,58,1,false,true,false,true
+29,nidoran-f,nidoran-f,29,28,,60,1,false,true,false,true
+30,nidorina,nidorina,30,28,,61,1,false,true,false,true
+31,nidoqueen,nidoqueen,31,28,,62,1,false,true,false,true
+32,nidoran-m,nidoran-m,32,28,,63,1,false,true,false,true
+33,nidorino,nidorino,33,28,,64,1,false,true,false,true
+34,nidoking,nidoking,34,28,,65,1,false,true,false,true
+35,clefairy,clefairy,35,28,,67,1,false,true,false,true
+36,clefable,clefable,36,28,,68,1,false,true,false,true
+37,vulpix,vulpix,37,28,,70,1,false,true,false,true
+38,ninetales,ninetales,38,28,,72,1,false,true,false,true
+39,jigglypuff,jigglypuff,39,28,,75,1,false,true,false,true
+40,wigglytuff,wigglytuff,40,28,,76,1,false,true,false,true
+41,zubat,zubat,41,28,,77,1,false,true,false,true
+42,golbat,golbat,42,28,,78,1,false,true,false,true
+43,oddish,oddish,43,28,,80,1,false,true,false,true
+44,gloom,gloom,44,28,,81,1,false,true,false,true
+45,vileplume,vileplume,45,28,,82,1,false,true,false,true
+46,paras,paras,46,28,,84,1,false,true,false,true
+47,parasect,parasect,47,28,,85,1,false,true,false,true
+48,venonat,venonat,48,28,,86,1,false,true,false,true
+49,venomoth,venomoth,49,28,,87,1,false,true,false,true
+50,diglett,diglett,50,28,,88,1,false,true,false,true
+51,dugtrio,dugtrio,51,28,,90,1,false,true,false,true
+52,meowth,meowth,52,28,,92,1,false,true,false,true
+53,persian,persian,53,28,,95,1,false,true,false,true
+54,psyduck,psyduck,54,28,,97,1,false,true,false,true
+55,golduck,golduck,55,28,,98,1,false,true,false,true
+56,mankey,mankey,56,28,,99,1,false,true,false,true
+57,primeape,primeape,57,28,,100,1,false,true,false,true
+58,growlithe,growlithe,58,28,,101,1,false,true,false,true
+59,arcanine,arcanine,59,28,,102,1,false,true,false,true
+60,poliwag,poliwag,60,28,,103,1,false,true,false,true
+61,poliwhirl,poliwhirl,61,28,,104,1,false,true,false,true
+62,poliwrath,poliwrath,62,28,,105,1,false,true,false,true
+63,abra,abra,63,28,,107,1,false,true,false,true
+64,kadabra,kadabra,64,28,,108,1,false,true,false,true
+65,alakazam,alakazam,65,28,,109,1,false,true,false,true
+66,machop,machop,66,28,,111,1,false,true,false,true
+67,machoke,machoke,67,28,,112,1,false,true,false,true
+68,machamp,machamp,68,28,,113,1,false,true,false,true
+69,bellsprout,bellsprout,69,28,,114,1,false,true,false,true
+70,weepinbell,weepinbell,70,28,,115,1,false,true,false,true
+71,victreebel,victreebel,71,28,,116,1,false,true,false,true
+72,tentacool,tentacool,72,28,,118,1,false,true,false,true
+73,tentacruel,tentacruel,73,28,,119,1,false,true,false,true
+74,geodude,geodude,74,28,,120,1,false,true,false,true
+75,graveler,graveler,75,28,,122,1,false,true,false,true
+76,golem,golem,76,28,,124,1,false,true,false,true
+77,ponyta,ponyta,77,28,,126,1,false,true,false,true
+78,rapidash,rapidash,78,28,,128,1,false,true,false,true
+79,slowpoke,slowpoke,79,28,,130,1,false,true,false,true
+80,slowbro,slowbro,80,28,,132,1,false,true,false,true
+81,magnemite,magnemite,81,28,,137,1,false,true,false,true
+82,magneton,magneton,82,28,,138,1,false,true,false,true
+83,farfetchd,farfetchd,83,28,,140,1,false,true,false,true
+84,doduo,doduo,84,28,,142,1,false,true,false,true
+85,dodrio,dodrio,85,28,,143,1,false,true,false,true
+86,seel,seel,86,28,,144,1,false,true,false,true
+87,dewgong,dewgong,87,28,,145,1,false,true,false,true
+88,grimer,grimer,88,28,,146,1,false,true,false,true
+89,muk,muk,89,28,,148,1,false,true,false,true
+90,shellder,shellder,90,28,,150,1,false,true,false,true
+91,cloyster,cloyster,91,28,,151,1,false,true,false,true
+92,gastly,gastly,92,28,,152,1,false,true,false,true
+93,haunter,haunter,93,28,,153,1,false,true,false,true
+94,gengar,gengar,94,28,,154,1,false,true,false,true
+95,onix,onix,95,28,,156,1,false,true,false,true
+96,drowzee,drowzee,96,28,,159,1,false,true,false,true
+97,hypno,hypno,97,28,,160,1,false,true,false,true
+98,krabby,krabby,98,28,,161,1,false,true,false,true
+99,kingler,kingler,99,28,,162,1,false,true,false,true
+100,voltorb,voltorb,100,28,,163,1,false,true,false,true
+101,electrode,electrode,101,28,,164,1,false,true,false,true
+102,exeggcute,exeggcute,102,28,,165,1,false,true,false,true
+103,exeggutor,exeggutor,103,28,,166,1,false,true,false,true
+104,cubone,cubone,104,28,,168,1,false,true,false,true
+105,marowak,marowak,105,28,,169,1,false,true,false,true
+106,hitmonlee,hitmonlee,106,28,,173,1,false,true,false,true
+107,hitmonchan,hitmonchan,107,28,,174,1,false,true,false,true
+108,lickitung,lickitung,108,28,,176,1,false,true,false,true
+109,koffing,koffing,109,28,,178,1,false,true,false,true
+110,weezing,weezing,110,28,,179,1,false,true,false,true
+111,rhyhorn,rhyhorn,111,28,,181,1,false,true,false,true
+112,rhydon,rhydon,112,28,,182,1,false,true,false,true
+113,chansey,chansey,113,28,,185,1,false,true,false,true
+114,tangela,tangela,114,28,,187,1,false,true,false,true
+115,kangaskhan,kangaskhan,115,28,,189,1,false,true,false,true
+116,horsea,horsea,116,28,,191,1,false,true,false,true
+117,seadra,seadra,117,28,,192,1,false,true,false,true
+118,goldeen,goldeen,118,28,,194,1,false,true,false,true
+119,seaking,seaking,119,28,,195,1,false,true,false,true
+120,staryu,staryu,120,28,,196,1,false,true,false,true
+121,starmie,starmie,121,28,,197,1,false,true,false,true
+122,mr-mime,mr-mime,122,28,,200,1,false,true,false,true
+123,scyther,scyther,123,28,,202,1,false,true,false,true
+124,jynx,jynx,124,28,,206,1,false,true,false,true
+125,electabuzz,electabuzz,125,28,,208,1,false,true,false,true
+126,magmar,magmar,126,28,,211,1,false,true,false,true
+127,pinsir,pinsir,127,28,,213,1,false,true,false,true
+128,tauros,tauros,128,28,,215,1,false,true,false,true
+129,magikarp,magikarp,129,28,,216,1,false,true,false,true
+130,gyarados,gyarados,130,28,,217,1,false,true,false,true
+131,lapras,lapras,131,28,,219,1,false,true,false,true
+132,ditto,ditto,132,28,,220,1,false,true,false,true
+133,eevee,eevee,133,28,,221,1,false,true,false,true
+134,vaporeon,vaporeon,134,28,,223,1,false,true,false,true
+135,jolteon,jolteon,135,28,,224,1,false,true,false,true
+136,flareon,flareon,136,28,,225,1,false,true,false,true
+137,porygon,porygon,137,28,,231,1,false,true,false,true
+138,omanyte,omanyte,138,28,,234,1,false,true,false,true
+139,omastar,omastar,139,28,,235,1,false,true,false,true
+140,kabuto,kabuto,140,28,,236,1,false,true,false,true
+141,kabutops,kabutops,141,28,,237,1,false,true,false,true
+142,aerodactyl,aerodactyl,142,28,,238,1,false,true,false,true
+143,snorlax,snorlax,143,28,,241,1,false,true,false,true
+144,articuno,articuno,144,28,,242,1,false,true,false,true
+145,zapdos,zapdos,145,28,,244,1,false,true,false,true
+146,moltres,moltres,146,28,,246,1,false,true,false,true
+147,dratini,dratini,147,28,,248,1,false,true,false,true
+148,dragonair,dragonair,148,28,,249,1,false,true,false,true
+149,dragonite,dragonite,149,28,,250,1,false,true,false,true
+150,mewtwo,mewtwo,150,28,,252,1,false,true,false,true
+151,mew,mew,151,28,,255,1,false,true,false,true
+152,chikorita,chikorita,152,3,,256,1,false,true,false,true
+153,bayleef,bayleef,153,3,,257,1,false,true,false,true
+154,meganium,meganium,154,3,,258,1,false,true,false,true
+155,cyndaquil,cyndaquil,155,3,,260,1,false,true,false,true
+156,quilava,quilava,156,3,,261,1,false,true,false,true
+157,typhlosion,typhlosion,157,3,,262,1,false,true,false,true
+158,totodile,totodile,158,3,,263,1,false,true,false,true
+159,croconaw,croconaw,159,3,,264,1,false,true,false,true
+160,feraligatr,feraligatr,160,3,,265,1,false,true,false,true
+161,sentret,sentret,161,3,,267,1,false,true,false,true
+162,furret,furret,162,3,,268,1,false,true,false,true
+163,hoothoot,hoothoot,163,3,,269,1,false,true,false,true
+164,noctowl,noctowl,164,3,,270,1,false,true,false,true
+165,ledyba,ledyba,165,3,,271,1,false,true,false,true
+166,ledian,ledian,166,3,,272,1,false,true,false,true
+167,spinarak,spinarak,167,3,,273,1,false,true,false,true
+168,ariados,ariados,168,3,,274,1,false,true,false,true
+169,crobat,crobat,169,3,,79,1,false,true,false,true
+170,chinchou,chinchou,170,3,,275,1,false,true,false,true
+171,lanturn,lanturn,171,3,,276,1,false,true,false,true
+172,pichu,pichu,172,3,,34,1,false,true,false,true
+173,cleffa,cleffa,173,3,,66,1,false,true,false,true
+174,igglybuff,igglybuff,174,3,,74,1,false,true,false,true
+175,togepi,togepi,175,3,,277,1,false,true,false,true
+176,togetic,togetic,176,3,,278,1,false,true,false,true
+177,natu,natu,177,3,,280,1,false,true,false,true
+178,xatu,xatu,178,3,,281,1,false,true,false,true
+179,mareep,mareep,179,3,,282,1,false,true,false,true
+180,flaaffy,flaaffy,180,3,,283,1,false,true,false,true
+181,ampharos,ampharos,181,3,,284,1,false,true,false,true
+182,bellossom,bellossom,182,3,,83,1,false,true,false,true
+183,marill,marill,183,3,,287,1,false,true,false,true
+184,azumarill,azumarill,184,3,,288,1,false,true,false,true
+185,sudowoodo,sudowoodo,185,3,,290,1,false,true,false,true
+186,politoed,politoed,186,3,,106,1,false,true,false,true
+187,hoppip,hoppip,187,3,,291,1,false,true,false,true
+188,skiploom,skiploom,188,3,,292,1,false,true,false,true
+189,jumpluff,jumpluff,189,3,,293,1,false,true,false,true
+190,aipom,aipom,190,3,,294,1,false,true,false,true
+191,sunkern,sunkern,191,3,,296,1,false,true,false,true
+192,sunflora,sunflora,192,3,,297,1,false,true,false,true
+193,yanma,yanma,193,3,,298,1,false,true,false,true
+194,wooper,wooper,194,3,,300,1,false,true,false,true
+195,quagsire,quagsire,195,3,,301,1,false,true,false,true
+196,espeon,espeon,196,3,,226,1,false,true,false,true
+197,umbreon,umbreon,197,3,,227,1,false,true,false,true
+198,murkrow,murkrow,198,3,,302,1,false,true,false,true
+199,slowking,slowking,199,3,,135,1,false,true,false,true
+200,misdreavus,misdreavus,200,3,,304,1,false,true,false,true
+201,unown-a,Unown A,201,3,a,306,1,false,true,false,true
+202,wobbuffet,wobbuffet,202,3,,335,1,false,true,false,true
+203,girafarig,girafarig,203,3,,336,1,false,true,false,true
+204,pineco,pineco,204,3,,337,1,false,true,false,true
+205,forretress,forretress,205,3,,338,1,false,true,false,true
+206,dunsparce,dunsparce,206,3,,339,1,false,true,false,true
+207,gligar,gligar,207,3,,340,1,false,true,false,true
+208,steelix,steelix,208,3,,157,1,false,true,false,true
+209,snubbull,snubbull,209,3,,342,1,false,true,false,true
+210,granbull,granbull,210,3,,343,1,false,true,false,true
+211,qwilfish,qwilfish,211,3,,344,1,false,true,false,true
+212,scizor,scizor,212,3,,203,1,false,true,false,true
+213,shuckle,shuckle,213,3,,345,1,false,true,false,true
+214,heracross,heracross,214,3,,346,1,false,true,false,true
+215,sneasel,sneasel,215,3,,348,1,false,true,false,true
+216,teddiursa,teddiursa,216,3,,350,1,false,true,false,true
+217,ursaring,ursaring,217,3,,351,1,false,true,false,true
+218,slugma,slugma,218,3,,352,1,false,true,false,true
+219,magcargo,magcargo,219,3,,353,1,false,true,false,true
+220,swinub,swinub,220,3,,354,1,false,true,false,true
+221,piloswine,piloswine,221,3,,355,1,false,true,false,true
+222,corsola,corsola,222,3,,357,1,false,true,false,true
+223,remoraid,remoraid,223,3,,359,1,false,true,false,true
+224,octillery,octillery,224,3,,360,1,false,true,false,true
+225,delibird,delibird,225,3,,361,1,false,true,false,true
+226,mantine,mantine,226,3,,363,1,false,true,false,true
+227,skarmory,skarmory,227,3,,364,1,false,true,false,true
+228,houndour,houndour,228,3,,366,1,false,true,false,true
+229,houndoom,houndoom,229,3,,367,1,false,true,false,true
+230,kingdra,kingdra,230,3,,193,1,false,true,false,true
+231,phanpy,phanpy,231,3,,369,1,false,true,false,true
+232,donphan,donphan,232,3,,370,1,false,true,false,true
+233,porygon2,porygon2,233,3,,232,1,false,true,false,true
+234,stantler,stantler,234,3,,371,1,false,true,false,true
+235,smeargle,smeargle,235,3,,372,1,false,true,false,true
+236,tyrogue,tyrogue,236,3,,172,1,false,true,false,true
+237,hitmontop,hitmontop,237,3,,175,1,false,true,false,true
+238,smoochum,smoochum,238,3,,205,1,false,true,false,true
+239,elekid,elekid,239,3,,207,1,false,true,false,true
+240,magby,magby,240,3,,210,1,false,true,false,true
+241,miltank,miltank,241,3,,373,1,false,true,false,true
+242,blissey,blissey,242,3,,186,1,false,true,false,true
+243,raikou,raikou,243,3,,374,1,false,true,false,true
+244,entei,entei,244,3,,375,1,false,true,false,true
+245,suicune,suicune,245,3,,376,1,false,true,false,true
+246,larvitar,larvitar,246,3,,377,1,false,true,false,true
+247,pupitar,pupitar,247,3,,378,1,false,true,false,true
+248,tyranitar,tyranitar,248,3,,379,1,false,true,false,true
+249,lugia,lugia,249,3,,381,1,false,true,false,true
+250,ho-oh,ho-oh,250,3,,382,1,false,true,false,true
+251,celebi,celebi,251,3,,383,1,false,true,false,true
+252,treecko,treecko,252,5,,384,1,false,true,false,true
+253,grovyle,grovyle,253,5,,385,1,false,true,false,true
+254,sceptile,sceptile,254,5,,386,1,false,true,false,true
+255,torchic,torchic,255,5,,388,1,false,true,false,true
+256,combusken,combusken,256,5,,389,1,false,true,false,true
+257,blaziken,blaziken,257,5,,390,1,false,true,false,true
+258,mudkip,mudkip,258,5,,392,1,false,true,false,true
+259,marshtomp,marshtomp,259,5,,393,1,false,true,false,true
+260,swampert,swampert,260,5,,394,1,false,true,false,true
+261,poochyena,poochyena,261,5,,396,1,false,true,false,true
+262,mightyena,mightyena,262,5,,397,1,false,true,false,true
+263,zigzagoon,zigzagoon,263,5,,398,1,false,true,false,true
+264,linoone,linoone,264,5,,400,1,false,true,false,true
+265,wurmple,wurmple,265,5,,402,1,false,true,false,true
+266,silcoon,silcoon,266,5,,403,1,false,true,false,true
+267,beautifly,beautifly,267,5,,404,1,false,true,false,true
+268,cascoon,cascoon,268,5,,405,1,false,true,false,true
+269,dustox,dustox,269,5,,406,1,false,true,false,true
+270,lotad,lotad,270,5,,407,1,false,true,false,true
+271,lombre,lombre,271,5,,408,1,false,true,false,true
+272,ludicolo,ludicolo,272,5,,409,1,false,true,false,true
+273,seedot,seedot,273,5,,410,1,false,true,false,true
+274,nuzleaf,nuzleaf,274,5,,411,1,false,true,false,true
+275,shiftry,shiftry,275,5,,412,1,false,true,false,true
+276,taillow,taillow,276,5,,413,1,false,true,false,true
+277,swellow,swellow,277,5,,414,1,false,true,false,true
+278,wingull,wingull,278,5,,415,1,false,true,false,true
+279,pelipper,pelipper,279,5,,416,1,false,true,false,true
+280,ralts,ralts,280,5,,417,1,false,true,false,true
+281,kirlia,kirlia,281,5,,418,1,false,true,false,true
+282,gardevoir,gardevoir,282,5,,419,1,false,true,false,true
+283,surskit,surskit,283,5,,423,1,false,true,false,true
+284,masquerain,masquerain,284,5,,424,1,false,true,false,true
+285,shroomish,shroomish,285,5,,425,1,false,true,false,true
+286,breloom,breloom,286,5,,426,1,false,true,false,true
+287,slakoth,slakoth,287,5,,427,1,false,true,false,true
+288,vigoroth,vigoroth,288,5,,428,1,false,true,false,true
+289,slaking,slaking,289,5,,429,1,false,true,false,true
+290,nincada,nincada,290,5,,430,1,false,true,false,true
+291,ninjask,ninjask,291,5,,431,1,false,true,false,true
+292,shedinja,shedinja,292,5,,432,1,false,true,false,true
+293,whismur,whismur,293,5,,433,1,false,true,false,true
+294,loudred,loudred,294,5,,434,1,false,true,false,true
+295,exploud,exploud,295,5,,435,1,false,true,false,true
+296,makuhita,makuhita,296,5,,436,1,false,true,false,true
+297,hariyama,hariyama,297,5,,437,1,false,true,false,true
+298,azurill,azurill,298,5,,286,1,false,true,false,true
+299,nosepass,nosepass,299,5,,438,1,false,true,false,true
+300,skitty,skitty,300,5,,440,1,false,true,false,true
+301,delcatty,delcatty,301,5,,441,1,false,true,false,true
+302,sableye,sableye,302,5,,442,1,false,true,false,true
+303,mawile,mawile,303,5,,444,1,false,true,false,true
+304,aron,aron,304,5,,446,1,false,true,false,true
+305,lairon,lairon,305,5,,447,1,false,true,false,true
+306,aggron,aggron,306,5,,448,1,false,true,false,true
+307,meditite,meditite,307,5,,450,1,false,true,false,true
+308,medicham,medicham,308,5,,451,1,false,true,false,true
+309,electrike,electrike,309,5,,453,1,false,true,false,true
+310,manectric,manectric,310,5,,454,1,false,true,false,true
+311,plusle,plusle,311,5,,456,1,false,true,false,true
+312,minun,minun,312,5,,457,1,false,true,false,true
+313,volbeat,volbeat,313,5,,458,1,false,true,false,true
+314,illumise,illumise,314,5,,459,1,false,true,false,true
+315,roselia,roselia,315,5,,461,1,false,true,false,true
+316,gulpin,gulpin,316,5,,463,1,false,true,false,true
+317,swalot,swalot,317,5,,464,1,false,true,false,true
+318,carvanha,carvanha,318,5,,465,1,false,true,false,true
+319,sharpedo,sharpedo,319,5,,466,1,false,true,false,true
+320,wailmer,wailmer,320,5,,468,1,false,true,false,true
+321,wailord,wailord,321,5,,469,1,false,true,false,true
+322,numel,numel,322,5,,470,1,false,true,false,true
+323,camerupt,camerupt,323,5,,471,1,false,true,false,true
+324,torkoal,torkoal,324,5,,473,1,false,true,false,true
+325,spoink,spoink,325,5,,474,1,false,true,false,true
+326,grumpig,grumpig,326,5,,475,1,false,true,false,true
+327,spinda,spinda,327,5,,476,1,false,true,false,true
+328,trapinch,trapinch,328,5,,477,1,false,true,false,true
+329,vibrava,vibrava,329,5,,478,1,false,true,false,true
+330,flygon,flygon,330,5,,479,1,false,true,false,true
+331,cacnea,cacnea,331,5,,480,1,false,true,false,true
+332,cacturne,cacturne,332,5,,481,1,false,true,false,true
+333,swablu,swablu,333,5,,482,1,false,true,false,true
+334,altaria,altaria,334,5,,483,1,false,true,false,true
+335,zangoose,zangoose,335,5,,485,1,false,true,false,true
+336,seviper,seviper,336,5,,486,1,false,true,false,true
+337,lunatone,lunatone,337,5,,487,1,false,true,false,true
+338,solrock,solrock,338,5,,488,1,false,true,false,true
+339,barboach,barboach,339,5,,489,1,false,true,false,true
+340,whiscash,whiscash,340,5,,490,1,false,true,false,true
+341,corphish,corphish,341,5,,491,1,false,true,false,true
+342,crawdaunt,crawdaunt,342,5,,492,1,false,true,false,true
+343,baltoy,baltoy,343,5,,493,1,false,true,false,true
+344,claydol,claydol,344,5,,494,1,false,true,false,true
+345,lileep,lileep,345,5,,495,1,false,true,false,true
+346,cradily,cradily,346,5,,496,1,false,true,false,true
+347,anorith,anorith,347,5,,497,1,false,true,false,true
+348,armaldo,armaldo,348,5,,498,1,false,true,false,true
+349,feebas,feebas,349,5,,499,1,false,true,false,true
+350,milotic,milotic,350,5,,500,1,false,true,false,true
+351,castform,Morphéo,351,5,,501,1,false,true,false,true
+352,kecleon,kecleon,352,5,,505,1,false,true,false,true
+353,shuppet,shuppet,353,5,,506,1,false,true,false,true
+354,banette,banette,354,5,,507,1,false,true,false,true
+355,duskull,duskull,355,5,,509,1,false,true,false,true
+356,dusclops,dusclops,356,5,,510,1,false,true,false,true
+357,tropius,tropius,357,5,,512,1,false,true,false,true
+358,chimecho,chimecho,358,5,,514,1,false,true,false,true
+359,absol,absol,359,5,,516,1,false,true,false,true
+360,wynaut,wynaut,360,5,,334,1,false,true,false,true
+361,snorunt,snorunt,361,5,,519,1,false,true,false,true
+362,glalie,glalie,362,5,,520,1,false,true,false,true
+363,spheal,spheal,363,5,,524,1,false,true,false,true
+364,sealeo,sealeo,364,5,,525,1,false,true,false,true
+365,walrein,walrein,365,5,,526,1,false,true,false,true
+366,clamperl,clamperl,366,5,,527,1,false,true,false,true
+367,huntail,huntail,367,5,,528,1,false,true,false,true
+368,gorebyss,gorebyss,368,5,,529,1,false,true,false,true
+369,relicanth,relicanth,369,5,,530,1,false,true,false,true
+370,luvdisc,luvdisc,370,5,,531,1,false,true,false,true
+371,bagon,bagon,371,5,,532,1,false,true,false,true
+372,shelgon,shelgon,372,5,,533,1,false,true,false,true
+373,salamence,salamence,373,5,,534,1,false,true,false,true
+374,beldum,beldum,374,5,,536,1,false,true,false,true
+375,metang,metang,375,5,,537,1,false,true,false,true
+376,metagross,metagross,376,5,,538,1,false,true,false,true
+377,regirock,regirock,377,5,,540,1,false,true,false,true
+378,regice,regice,378,5,,541,1,false,true,false,true
+379,registeel,registeel,379,5,,542,1,false,true,false,true
+380,latias,latias,380,5,,543,1,false,true,false,true
+381,latios,latios,381,5,,545,1,false,true,false,true
+382,kyogre,Kyogre,382,5,,547,1,false,true,false,true
+383,groudon,Groudon,383,5,,549,1,false,true,false,true
+384,rayquaza,rayquaza,384,5,,551,1,false,true,false,true
+385,jirachi,jirachi,385,5,,553,1,false,true,false,true
+386,deoxys-normal,Normal Deoxys,386,5,normal,554,1,false,true,false,true
+387,turtwig,turtwig,387,8,,558,1,false,true,false,true
+388,grotle,grotle,388,8,,559,1,false,true,false,true
+389,torterra,torterra,389,8,,560,1,false,true,false,true
+390,chimchar,chimchar,390,8,,561,1,false,true,false,true
+391,monferno,monferno,391,8,,562,1,false,true,false,true
+392,infernape,infernape,392,8,,563,1,false,true,false,true
+393,piplup,piplup,393,8,,564,1,false,true,false,true
+394,prinplup,prinplup,394,8,,565,1,false,true,false,true
+395,empoleon,empoleon,395,8,,566,1,false,true,false,true
+396,starly,starly,396,8,,567,1,false,true,false,true
+397,staravia,staravia,397,8,,568,1,false,true,false,true
+398,staraptor,staraptor,398,8,,569,1,false,true,false,true
+399,bidoof,bidoof,399,8,,571,1,false,true,false,true
+400,bibarel,bibarel,400,8,,572,1,false,true,false,true
+401,kricketot,kricketot,401,8,,573,1,false,true,false,true
+402,kricketune,kricketune,402,8,,574,1,false,true,false,true
+403,shinx,shinx,403,8,,575,1,false,true,false,true
+404,luxio,luxio,404,8,,576,1,false,true,false,true
+405,luxray,luxray,405,8,,577,1,false,true,false,true
+406,budew,budew,406,8,,460,1,false,true,false,true
+407,roserade,roserade,407,8,,462,1,false,true,false,true
+408,cranidos,cranidos,408,8,,578,1,false,true,false,true
+409,rampardos,rampardos,409,8,,579,1,false,true,false,true
+410,shieldon,shieldon,410,8,,580,1,false,true,false,true
+411,bastiodon,bastiodon,411,8,,581,1,false,true,false,true
+412,burmy-plant,Plant Burmy,412,8,plant,582,1,false,true,false,true
+413,wormadam-plant,Plant Wormadam,413,8,plant,585,1,false,true,false,true
+414,mothim-plant,plant,414,8,plant,588,1,false,true,false,true
+415,combee,combee,415,8,,591,1,false,true,false,true
+416,vespiquen,vespiquen,416,8,,592,1,false,true,false,true
+417,pachirisu,pachirisu,417,8,,593,1,false,true,false,true
+418,buizel,buizel,418,8,,594,1,false,true,false,true
+419,floatzel,floatzel,419,8,,595,1,false,true,false,true
+420,cherubi,cherubi,420,8,,596,1,false,true,false,true
+421,cherrim-overcast,Overcast Cherrim,421,8,overcast,597,1,false,true,false,true
+422,shellos-west,West Shellos,422,8,west,599,1,false,true,false,true
+423,gastrodon-west,West Gastrodon,423,8,west,601,1,false,true,false,true
+424,ambipom,ambipom,424,8,,295,1,false,true,false,true
+425,drifloon,drifloon,425,8,,603,1,false,true,false,true
+426,drifblim,drifblim,426,8,,604,1,false,true,false,true
+427,buneary,buneary,427,8,,605,1,false,true,false,true
+428,lopunny,lopunny,428,8,,606,1,false,true,false,true
+429,mismagius,mismagius,429,8,,305,1,false,true,false,true
+430,honchkrow,honchkrow,430,8,,303,1,false,true,false,true
+431,glameow,glameow,431,8,,608,1,false,true,false,true
+432,purugly,purugly,432,8,,609,1,false,true,false,true
+433,chingling,chingling,433,8,,513,1,false,true,false,true
+434,stunky,stunky,434,8,,610,1,false,true,false,true
+435,skuntank,skuntank,435,8,,611,1,false,true,false,true
+436,bronzor,bronzor,436,8,,612,1,false,true,false,true
+437,bronzong,bronzong,437,8,,613,1,false,true,false,true
+438,bonsly,bonsly,438,8,,289,1,false,true,false,true
+439,mime-jr,mime-jr,439,8,,199,1,false,true,false,true
+440,happiny,happiny,440,8,,184,1,false,true,false,true
+441,chatot,chatot,441,8,,614,1,false,true,false,true
+442,spiritomb,spiritomb,442,8,,615,1,false,true,false,true
+443,gible,gible,443,8,,616,1,false,true,false,true
+444,gabite,gabite,444,8,,617,1,false,true,false,true
+445,garchomp,garchomp,445,8,,618,1,false,true,false,true
+446,munchlax,munchlax,446,8,,240,1,false,true,false,true
+447,riolu,riolu,447,8,,621,1,false,true,false,true
+448,lucario,lucario,448,8,,622,1,false,true,false,true
+449,hippopotas,hippopotas,449,8,,625,1,false,true,false,true
+450,hippowdon,hippowdon,450,8,,626,1,false,true,false,true
+451,skorupi,skorupi,451,8,,627,1,false,true,false,true
+452,drapion,drapion,452,8,,628,1,false,true,false,true
+453,croagunk,croagunk,453,8,,629,1,false,true,false,true
+454,toxicroak,toxicroak,454,8,,630,1,false,true,false,true
+455,carnivine,carnivine,455,8,,631,1,false,true,false,true
+456,finneon,finneon,456,8,,632,1,false,true,false,true
+457,lumineon,lumineon,457,8,,633,1,false,true,false,true
+458,mantyke,mantyke,458,8,,362,1,false,true,false,true
+459,snover,snover,459,8,,634,1,false,true,false,true
+460,abomasnow,abomasnow,460,8,,635,1,false,true,false,true
+461,weavile,weavile,461,8,,349,1,false,true,false,true
+462,magnezone,magnezone,462,8,,139,1,false,true,false,true
+463,lickilicky,lickilicky,463,8,,177,1,false,true,false,true
+464,rhyperior,rhyperior,464,8,,183,1,false,true,false,true
+465,tangrowth,tangrowth,465,8,,188,1,false,true,false,true
+466,electivire,electivire,466,8,,209,1,false,true,false,true
+467,magmortar,magmortar,467,8,,212,1,false,true,false,true
+468,togekiss,togekiss,468,8,,279,1,false,true,false,true
+469,yanmega,yanmega,469,8,,299,1,false,true,false,true
+470,leafeon,leafeon,470,8,,228,1,false,true,false,true
+471,glaceon,glaceon,471,8,,229,1,false,true,false,true
+472,gliscor,gliscor,472,8,,341,1,false,true,false,true
+473,mamoswine,mamoswine,473,8,,356,1,false,true,false,true
+474,porygon-z,porygon-z,474,8,,233,1,false,true,false,true
+475,gallade,gallade,475,8,,421,1,false,true,false,true
+476,probopass,probopass,476,8,,439,1,false,true,false,true
+477,dusknoir,dusknoir,477,8,,511,1,false,true,false,true
+478,froslass,froslass,478,8,,522,1,false,true,false,true
+479,rotom,Motisma,479,8,,637,1,false,true,false,true
+480,uxie,uxie,480,8,,643,1,false,true,false,true
+481,mesprit,mesprit,481,8,,644,1,false,true,false,true
+482,azelf,azelf,482,8,,645,1,false,true,false,true
+483,dialga,dialga,483,8,,646,1,false,true,false,true
+484,palkia,palkia,484,8,,647,1,false,true,false,true
+485,heatran,heatran,485,8,,648,1,false,true,false,true
+486,regigigas,regigigas,486,8,,650,1,false,true,false,true
+487,giratina-altered,Altered Giratina,487,8,altered,651,1,false,true,false,true
+488,cresselia,cresselia,488,8,,653,1,false,true,false,true
+489,phione,phione,489,8,,654,1,false,true,false,true
+490,manaphy,manaphy,490,8,,655,1,false,true,false,true
+491,darkrai,darkrai,491,8,,656,1,false,true,false,true
+492,shaymin-land,Land Shaymin,492,8,land,658,1,false,true,false,true
+493,arceus-normal,Normal Arceus,493,8,normal,660,1,false,true,false,true
+494,victini,victini,494,11,,679,1,false,true,false,true
+495,snivy,snivy,495,11,,680,1,false,true,false,true
+496,servine,servine,496,11,,681,1,false,true,false,true
+497,serperior,serperior,497,11,,682,1,false,true,false,true
+498,tepig,tepig,498,11,,683,1,false,true,false,true
+499,pignite,pignite,499,11,,684,1,false,true,false,true
+500,emboar,emboar,500,11,,685,1,false,true,false,true
+501,oshawott,oshawott,501,11,,687,1,false,true,false,true
+502,dewott,dewott,502,11,,688,1,false,true,false,true
+503,samurott,samurott,503,11,,689,1,false,true,false,true
+504,patrat,patrat,504,11,,690,1,false,true,false,true
+505,watchog,watchog,505,11,,691,1,false,true,false,true
+506,lillipup,lillipup,506,11,,692,1,false,true,false,true
+507,herdier,herdier,507,11,,693,1,false,true,false,true
+508,stoutland,stoutland,508,11,,694,1,false,true,false,true
+509,purrloin,purrloin,509,11,,695,1,false,true,false,true
+510,liepard,liepard,510,11,,696,1,false,true,false,true
+511,pansage,pansage,511,11,,697,1,false,true,false,true
+512,simisage,simisage,512,11,,698,1,false,true,false,true
+513,pansear,pansear,513,11,,699,1,false,true,false,true
+514,simisear,simisear,514,11,,700,1,false,true,false,true
+515,panpour,panpour,515,11,,701,1,false,true,false,true
+516,simipour,simipour,516,11,,702,1,false,true,false,true
+517,munna,munna,517,11,,703,1,false,true,false,true
+518,musharna,musharna,518,11,,704,1,false,true,false,true
+519,pidove,pidove,519,11,,705,1,false,true,false,true
+520,tranquill,tranquill,520,11,,706,1,false,true,false,true
+521,unfezant,unfezant,521,11,,707,1,false,true,false,true
+522,blitzle,blitzle,522,11,,708,1,false,true,false,true
+523,zebstrika,zebstrika,523,11,,709,1,false,true,false,true
+524,roggenrola,roggenrola,524,11,,710,1,false,true,false,true
+525,boldore,boldore,525,11,,711,1,false,true,false,true
+526,gigalith,gigalith,526,11,,712,1,false,true,false,true
+527,woobat,woobat,527,11,,713,1,false,true,false,true
+528,swoobat,swoobat,528,11,,714,1,false,true,false,true
+529,drilbur,drilbur,529,11,,715,1,false,true,false,true
+530,excadrill,excadrill,530,11,,716,1,false,true,false,true
+531,audino,audino,531,11,,718,1,false,true,false,true
+532,timburr,timburr,532,11,,720,1,false,true,false,true
+533,gurdurr,gurdurr,533,11,,721,1,false,true,false,true
+534,conkeldurr,conkeldurr,534,11,,722,1,false,true,false,true
+535,tympole,tympole,535,11,,723,1,false,true,false,true
+536,palpitoad,palpitoad,536,11,,724,1,false,true,false,true
+537,seismitoad,seismitoad,537,11,,725,1,false,true,false,true
+538,throh,throh,538,11,,726,1,false,true,false,true
+539,sawk,sawk,539,11,,727,1,false,true,false,true
+540,sewaddle,sewaddle,540,11,,728,1,false,true,false,true
+541,swadloon,swadloon,541,11,,729,1,false,true,false,true
+542,leavanny,leavanny,542,11,,730,1,false,true,false,true
+543,venipede,venipede,543,11,,731,1,false,true,false,true
+544,whirlipede,whirlipede,544,11,,732,1,false,true,false,true
+545,scolipede,scolipede,545,11,,733,1,false,true,false,true
+546,cottonee,cottonee,546,11,,735,1,false,true,false,true
+547,whimsicott,whimsicott,547,11,,736,1,false,true,false,true
+548,petilil,petilil,548,11,,737,1,false,true,false,true
+549,lilligant,lilligant,549,11,,738,1,false,true,false,true
+550,basculin-red-striped,Red-Striped Basculin,550,11,red-striped,739,1,false,true,false,true
+551,sandile,sandile,551,11,,741,1,false,true,false,true
+552,krokorok,krokorok,552,11,,742,1,false,true,false,true
+553,krookodile,krookodile,553,11,,743,1,false,true,false,true
+554,darumaka,darumaka,554,11,,744,1,false,true,false,true
+555,darmanitan-standard,Standard Darmanitan,555,11,standard,746,1,false,true,false,true
+556,maractus,maractus,556,11,,750,1,false,true,false,true
+557,dwebble,dwebble,557,11,,751,1,false,true,false,true
+558,crustle,crustle,558,11,,752,1,false,true,false,true
+559,scraggy,scraggy,559,11,,753,1,false,true,false,true
+560,scrafty,scrafty,560,11,,754,1,false,true,false,true
+561,sigilyph,sigilyph,561,11,,756,1,false,true,false,true
+562,yamask,yamask,562,11,,757,1,false,true,false,true
+563,cofagrigus,cofagrigus,563,11,,759,1,false,true,false,true
+564,tirtouga,tirtouga,564,11,,760,1,false,true,false,true
+565,carracosta,carracosta,565,11,,761,1,false,true,false,true
+566,archen,archen,566,11,,762,1,false,true,false,true
+567,archeops,archeops,567,11,,763,1,false,true,false,true
+568,trubbish,trubbish,568,11,,764,1,false,true,false,true
+569,garbodor,garbodor,569,11,,765,1,false,true,false,true
+570,zorua,zorua,570,11,,766,1,false,true,false,true
+571,zoroark,zoroark,571,11,,767,1,false,true,false,true
+572,minccino,minccino,572,11,,768,1,false,true,false,true
+573,cinccino,cinccino,573,11,,769,1,false,true,false,true
+574,gothita,gothita,574,11,,770,1,false,true,false,true
+575,gothorita,gothorita,575,11,,771,1,false,true,false,true
+576,gothitelle,gothitelle,576,11,,772,1,false,true,false,true
+577,solosis,solosis,577,11,,773,1,false,true,false,true
+578,duosion,duosion,578,11,,774,1,false,true,false,true
+579,reuniclus,reuniclus,579,11,,775,1,false,true,false,true
+580,ducklett,ducklett,580,11,,776,1,false,true,false,true
+581,swanna,swanna,581,11,,777,1,false,true,false,true
+582,vanillite,vanillite,582,11,,778,1,false,true,false,true
+583,vanillish,vanillish,583,11,,779,1,false,true,false,true
+584,vanilluxe,vanilluxe,584,11,,780,1,false,true,false,true
+585,deerling-spring,Spring Deerling,585,11,spring,781,1,false,true,false,true
+586,sawsbuck-spring,Spring Sawsbuck,586,11,spring,785,1,false,true,false,true
+587,emolga,emolga,587,11,,789,1,false,true,false,true
+588,karrablast,karrablast,588,11,,790,1,false,true,false,true
+589,escavalier,escavalier,589,11,,791,1,false,true,false,true
+590,foongus,foongus,590,11,,792,1,false,true,false,true
+591,amoonguss,amoonguss,591,11,,793,1,false,true,false,true
+592,frillish-male,Male Frillish,592,11,male,794,1,false,true,false,true
+593,jellicent-male,Male Jellicent,593,11,male,795,1,false,true,false,true
+594,alomomola,alomomola,594,11,,796,1,false,true,false,true
+595,joltik,joltik,595,11,,797,1,false,true,false,true
+596,galvantula,galvantula,596,11,,798,1,false,true,false,true
+597,ferroseed,ferroseed,597,11,,799,1,false,true,false,true
+598,ferrothorn,ferrothorn,598,11,,800,1,false,true,false,true
+599,klink,klink,599,11,,801,1,false,true,false,true
+600,klang,klang,600,11,,802,1,false,true,false,true
+601,klinklang,klinklang,601,11,,803,1,false,true,false,true
+602,tynamo,tynamo,602,11,,804,1,false,true,false,true
+603,eelektrik,eelektrik,603,11,,805,1,false,true,false,true
+604,eelektross,eelektross,604,11,,806,1,false,true,false,true
+605,elgyem,elgyem,605,11,,808,1,false,true,false,true
+606,beheeyem,beheeyem,606,11,,809,1,false,true,false,true
+607,litwick,litwick,607,11,,810,1,false,true,false,true
+608,lampent,lampent,608,11,,811,1,false,true,false,true
+609,chandelure,chandelure,609,11,,812,1,false,true,false,true
+610,axew,axew,610,11,,814,1,false,true,false,true
+611,fraxure,fraxure,611,11,,815,1,false,true,false,true
+612,haxorus,haxorus,612,11,,816,1,false,true,false,true
+613,cubchoo,cubchoo,613,11,,817,1,false,true,false,true
+614,beartic,beartic,614,11,,818,1,false,true,false,true
+615,cryogonal,cryogonal,615,11,,819,1,false,true,false,true
+616,shelmet,shelmet,616,11,,820,1,false,true,false,true
+617,accelgor,accelgor,617,11,,821,1,false,true,false,true
+618,stunfisk,stunfisk,618,11,,822,1,false,true,false,true
+619,mienfoo,mienfoo,619,11,,824,1,false,true,false,true
+620,mienshao,mienshao,620,11,,825,1,false,true,false,true
+621,druddigon,druddigon,621,11,,826,1,false,true,false,true
+622,golett,golett,622,11,,827,1,false,true,false,true
+623,golurk,golurk,623,11,,828,1,false,true,false,true
+624,pawniard,pawniard,624,11,,830,1,false,true,false,true
+625,bisharp,bisharp,625,11,,831,1,false,true,false,true
+626,bouffalant,bouffalant,626,11,,832,1,false,true,false,true
+627,rufflet,rufflet,627,11,,833,1,false,true,false,true
+628,braviary,braviary,628,11,,834,1,false,true,false,true
+629,vullaby,vullaby,629,11,,835,1,false,true,false,true
+630,mandibuzz,mandibuzz,630,11,,836,1,false,true,false,true
+631,heatmor,heatmor,631,11,,837,1,false,true,false,true
+632,durant,durant,632,11,,838,1,false,true,false,true
+633,deino,deino,633,11,,839,1,false,true,false,true
+634,zweilous,zweilous,634,11,,840,1,false,true,false,true
+635,hydreigon,hydreigon,635,11,,841,1,false,true,false,true
+636,larvesta,larvesta,636,11,,842,1,false,true,false,true
+637,volcarona,volcarona,637,11,,843,1,false,true,false,true
+638,cobalion,cobalion,638,11,,844,1,false,true,false,true
+639,terrakion,terrakion,639,11,,845,1,false,true,false,true
+640,virizion,virizion,640,11,,846,1,false,true,false,true
+641,tornadus-incarnate,Incarnate Tornadus,641,11,incarnate,847,1,false,true,false,true
+642,thundurus-incarnate,Incarnate Thundurus,642,11,incarnate,849,1,false,true,false,true
+643,reshiram,reshiram,643,11,,851,1,false,true,false,true
+644,zekrom,zekrom,644,11,,852,1,false,true,false,true
+645,landorus-incarnate,Incarnate Landorus,645,11,incarnate,853,1,false,true,false,true
+646,kyurem,Kyurem,646,11,,855,1,false,true,false,true
+647,keldeo-ordinary,Ordinary Keldeo,647,11,ordinary,858,1,false,true,false,true
+648,meloetta-aria,Aria Meloetta,648,11,aria,860,1,false,true,false,true
+649,genesect,genesect,649,11,,862,1,false,true,false,true
+650,chespin,chespin,650,15,,867,1,false,true,false,true
+651,quilladin,quilladin,651,15,,868,1,false,true,false,true
+652,chesnaught,chesnaught,652,15,,869,1,false,true,false,true
+653,fennekin,fennekin,653,15,,871,1,false,true,false,true
+654,braixen,braixen,654,15,,872,1,false,true,false,true
+655,delphox,delphox,655,15,,873,1,false,true,false,true
+656,froakie,froakie,656,15,,875,1,false,true,false,true
+657,frogadier,frogadier,657,15,,876,1,false,true,false,true
+658,greninja,greninja,658,15,,877,1,false,true,false,true
+659,bunnelby,bunnelby,659,15,,881,1,false,true,false,true
+660,diggersby,diggersby,660,15,,882,1,false,true,false,true
+661,fletchling,fletchling,661,15,,883,1,false,true,false,true
+662,fletchinder,fletchinder,662,15,,884,1,false,true,false,true
+663,talonflame,talonflame,663,15,,885,1,false,true,false,true
+664,scatterbug-icy-snow,icy-snow,664,15,icy-snow,886,1,false,true,false,true
+665,spewpa-icy-snow,icy-snow,665,15,icy-snow,906,1,false,true,false,true
+666,vivillon-meadow,Meadow Vivillon,666,15,meadow,932,7,false,true,false,true
+667,litleo,litleo,667,15,,946,1,false,true,false,true
+668,pyroar-male,Male Pyroar,668,15,male,947,1,false,true,false,true
+669,flabebe-red,Red Flabébé,669,15,red,949,1,false,true,false,true
+670,floette-red,Red Floette,670,15,red,954,1,false,true,false,true
+671,florges-red,Red Florges,671,15,red,961,1,false,true,false,true
+672,skiddo,skiddo,672,15,,966,1,false,true,false,true
+673,gogoat,gogoat,673,15,,967,1,false,true,false,true
+674,pancham,pancham,674,15,,968,1,false,true,false,true
+675,pangoro,pangoro,675,15,,969,1,false,true,false,true
+676,furfrou-natural,Natural Furfrou,676,15,natural,970,1,false,true,false,true
+677,espurr,espurr,677,15,,980,1,false,true,false,true
+678,meowstic-male,Male Meowstic,678,15,male,981,1,false,true,false,true
+679,honedge,honedge,679,15,,985,1,false,true,false,true
+680,doublade,doublade,680,15,,986,1,false,true,false,true
+681,aegislash-shield,Shield Aegislash,681,15,shield,987,1,false,true,false,true
+682,spritzee,spritzee,682,15,,989,1,false,true,false,true
+683,aromatisse,aromatisse,683,15,,990,1,false,true,false,true
+684,swirlix,swirlix,684,15,,991,1,false,true,false,true
+685,slurpuff,slurpuff,685,15,,992,1,false,true,false,true
+686,inkay,inkay,686,15,,993,1,false,true,false,true
+687,malamar,malamar,687,15,,994,1,false,true,false,true
+688,binacle,binacle,688,15,,996,1,false,true,false,true
+689,barbaracle,barbaracle,689,15,,997,1,false,true,false,true
+690,skrelp,skrelp,690,15,,999,1,false,true,false,true
+691,dragalge,dragalge,691,15,,1000,1,false,true,false,true
+692,clauncher,clauncher,692,15,,1002,1,false,true,false,true
+693,clawitzer,clawitzer,693,15,,1003,1,false,true,false,true
+694,helioptile,helioptile,694,15,,1004,1,false,true,false,true
+695,heliolisk,heliolisk,695,15,,1005,1,false,true,false,true
+696,tyrunt,tyrunt,696,15,,1006,1,false,true,false,true
+697,tyrantrum,tyrantrum,697,15,,1007,1,false,true,false,true
+698,amaura,amaura,698,15,,1008,1,false,true,false,true
+699,aurorus,aurorus,699,15,,1009,1,false,true,false,true
+700,sylveon,sylveon,700,15,,230,1,false,true,false,true
+701,hawlucha,hawlucha,701,15,,1010,1,false,true,false,true
+702,dedenne,dedenne,702,15,,1012,1,false,true,false,true
+703,carbink,carbink,703,15,,1013,1,false,true,false,true
+704,goomy,goomy,704,15,,1014,1,false,true,false,true
+705,sliggoo,sliggoo,705,15,,1015,1,false,true,false,true
+706,goodra,goodra,706,15,,1016,1,false,true,false,true
+707,klefki,klefki,707,15,,1017,1,false,true,false,true
+708,phantump,phantump,708,15,,1018,1,false,true,false,true
+709,trevenant,trevenant,709,15,,1019,1,false,true,false,true
+710,pumpkaboo-average,Average Pumpkaboo,710,15,average,1020,1,false,true,false,true
+711,gourgeist-average,Average Gourgeist,711,15,average,1024,1,false,true,false,true
+712,bergmite,bergmite,712,15,,1028,1,false,true,false,true
+713,avalugg,avalugg,713,15,,1029,1,false,true,false,true
+714,noibat,noibat,714,15,,1030,1,false,true,false,true
+715,noivern,noivern,715,15,,1031,1,false,true,false,true
+716,xerneas-active,Active Xerneas,716,15,active,1033,2,true,false,false,true
+717,yveltal,yveltal,717,15,,1034,1,false,true,false,true
+718,zygarde-50,Zygarde Forme 50 %,718,15,50,1035,1,false,true,false,true
+719,diancie,diancie,719,15,,1041,1,false,true,false,true
+720,hoopa,Confined Hoopa,720,15,confined,1043,1,false,true,false,true
+721,volcanion,volcanion,721,15,,1045,1,false,true,false,true
+722,rowlet,rowlet,722,17,,1046,1,false,true,false,true
+723,dartrix,dartrix,723,17,,1047,1,false,true,false,true
+724,decidueye,decidueye,724,17,,1048,1,false,true,false,true
+725,litten,litten,725,17,,1049,1,false,true,false,true
+726,torracat,torracat,726,17,,1050,1,false,true,false,true
+727,incineroar,incineroar,727,17,,1051,1,false,true,false,true
+728,popplio,popplio,728,17,,1052,1,false,true,false,true
+729,brionne,brionne,729,17,,1053,1,false,true,false,true
+730,primarina,primarina,730,17,,1054,1,false,true,false,true
+731,pikipek,pikipek,731,17,,1055,1,false,true,false,true
+732,trumbeak,trumbeak,732,17,,1056,1,false,true,false,true
+733,toucannon,toucannon,733,17,,1057,1,false,true,false,true
+734,yungoos,yungoos,734,17,,1058,1,false,true,false,true
+735,gumshoos,gumshoos,735,17,,1059,1,false,true,false,true
+736,grubbin,grubbin,736,17,,1061,1,false,true,false,true
+737,charjabug,charjabug,737,17,,1062,1,false,true,false,true
+738,vikavolt,vikavolt,738,17,,1063,1,false,true,false,true
+739,crabrawler,crabrawler,739,17,,1065,1,false,true,false,true
+740,crabominable,crabominable,740,17,,1066,1,false,true,false,true
+741,oricorio-baile,Baile Oricorio,741,17,baile,1068,1,false,true,false,true
+742,cutiefly,cutiefly,742,17,,1072,1,false,true,false,true
+743,ribombee,ribombee,743,17,,1073,1,false,true,false,true
+744,rockruff,rockruff,744,17,,1075,1,false,true,false,true
+745,lycanroc-midday,Midday Lycanroc,745,17,midday,1077,1,false,true,false,true
+746,wishiwashi-solo,Solo Wishiwashi,746,17,solo,1080,1,false,true,false,true
+747,mareanie,mareanie,747,17,,1082,1,false,true,false,true
+748,toxapex,toxapex,748,17,,1083,1,false,true,false,true
+749,mudbray,mudbray,749,17,,1084,1,false,true,false,true
+750,mudsdale,mudsdale,750,17,,1085,1,false,true,false,true
+751,dewpider,dewpider,751,17,,1086,1,false,true,false,true
+752,araquanid,araquanid,752,17,,1087,1,false,true,false,true
+753,fomantis,fomantis,753,17,,1089,1,false,true,false,true
+754,lurantis,lurantis,754,17,,1090,1,false,true,false,true
+755,morelull,morelull,755,17,,1092,1,false,true,false,true
+756,shiinotic,shiinotic,756,17,,1093,1,false,true,false,true
+757,salandit,salandit,757,17,,1094,1,false,true,false,true
+758,salazzle,salazzle,758,17,,1095,1,false,true,false,true
+759,stufful,stufful,759,17,,1097,1,false,true,false,true
+760,bewear,bewear,760,17,,1098,1,false,true,false,true
+761,bounsweet,bounsweet,761,17,,1099,1,false,true,false,true
+762,steenee,steenee,762,17,,1100,1,false,true,false,true
+763,tsareena,tsareena,763,17,,1101,1,false,true,false,true
+764,comfey,comfey,764,17,,1102,1,false,true,false,true
+765,oranguru,oranguru,765,17,,1103,1,false,true,false,true
+766,passimian,passimian,766,17,,1104,1,false,true,false,true
+767,wimpod,wimpod,767,17,,1105,1,false,true,false,true
+768,golisopod,golisopod,768,17,,1106,1,false,true,false,true
+769,sandygast,sandygast,769,17,,1108,1,false,true,false,true
+770,palossand,palossand,770,17,,1109,1,false,true,false,true
+771,pyukumuku,pyukumuku,771,17,,1110,1,false,true,false,true
+772,type-null,type-null,772,17,,1111,1,false,true,false,true
+773,silvally-normal,Amigento,773,17,normal,1112,1,false,true,false,true
+774,minior-red-meteor,Red Meteor Minior,774,17,red-meteor,1130,1,false,true,false,true
+775,komala,komala,775,17,,1144,1,false,true,false,true
+776,turtonator,turtonator,776,17,,1145,1,false,true,false,true
+777,togedemaru,togedemaru,777,17,,1146,1,false,true,false,true
+778,mimikyu-disguised,Disguised Mimikyu,778,17,disguised,1148,1,false,true,false,true
+779,bruxish,bruxish,779,17,,1152,1,false,true,false,true
+780,drampa,drampa,780,17,,1153,1,false,true,false,true
+781,dhelmise,dhelmise,781,17,,1155,1,false,true,false,true
+782,jangmo-o,jangmo-o,782,17,,1156,1,false,true,false,true
+783,hakamo-o,hakamo-o,783,17,,1157,1,false,true,false,true
+784,kommo-o,kommo-o,784,17,,1158,1,false,true,false,true
+785,tapu-koko,tapu-koko,785,17,,1160,1,false,true,false,true
+786,tapu-lele,tapu-lele,786,17,,1161,1,false,true,false,true
+787,tapu-bulu,tapu-bulu,787,17,,1162,1,false,true,false,true
+788,tapu-fini,tapu-fini,788,17,,1163,1,false,true,false,true
+789,cosmog,cosmog,789,17,,1164,1,false,true,false,true
+790,cosmoem,cosmoem,790,17,,1165,1,false,true,false,true
+791,solgaleo,solgaleo,791,17,,1166,1,false,true,false,true
+792,lunala,lunala,792,17,,1167,1,false,true,false,true
+793,nihilego,nihilego,793,17,,1168,1,false,true,false,true
+794,buzzwole,buzzwole,794,17,,1169,1,false,true,false,true
+795,pheromosa,pheromosa,795,17,,1170,1,false,true,false,true
+796,xurkitree,xurkitree,796,17,,1171,1,false,true,false,true
+797,celesteela,celesteela,797,17,,1172,1,false,true,false,true
+798,kartana,kartana,798,17,,1173,1,false,true,false,true
+799,guzzlord,guzzlord,799,17,,1174,1,false,true,false,true
+800,necrozma,necrozma,800,17,,1175,1,false,true,false,true
+801,magearna,magearna,801,17,,1179,1,false,true,false,true
+802,marshadow,marshadow,802,17,,1183,1,false,true,false,true
+803,poipole,poipole,803,18,,1184,1,false,true,false,true
+804,naganadel,naganadel,804,18,,1185,1,false,true,false,true
+805,stakataka,stakataka,805,18,,1186,1,false,true,false,true
+806,blacephalon,blacephalon,806,18,,1187,1,false,true,false,true
+807,zeraora,zeraora,807,18,,1188,1,false,true,false,true
+808,meltan,meltan,808,19,,1190,1,false,true,false,true
+809,melmetal,melmetal,809,19,,1191,1,false,true,false,true
+810,grookey,grookey,810,20,,1192,1,false,true,false,true
+811,thwackey,thwackey,811,20,,1193,1,false,true,false,true
+812,rillaboom,rillaboom,812,20,,1194,1,false,true,false,true
+813,scorbunny,scorbunny,813,20,,1195,1,false,true,false,true
+814,raboot,raboot,814,20,,1196,1,false,true,false,true
+815,cinderace,cinderace,815,20,,1197,1,false,true,false,true
+816,sobble,sobble,816,20,,1198,1,false,true,false,true
+817,drizzile,drizzile,817,20,,1199,1,false,true,false,true
+818,inteleon,inteleon,818,20,,1200,1,false,true,false,true
+819,skwovet,skwovet,819,20,,1201,1,false,true,false,true
+820,greedent,greedent,820,20,,1202,1,false,true,false,true
+821,rookidee,rookidee,821,20,,1203,1,false,true,false,true
+822,corvisquire,corvisquire,822,20,,1204,1,false,true,false,true
+823,corviknight,corviknight,823,20,,1205,1,false,true,false,true
+824,blipbug,blipbug,824,20,,1206,1,false,true,false,true
+825,dottler,dottler,825,20,,1207,1,false,true,false,true
+826,orbeetle,orbeetle,826,20,,1208,1,false,true,false,true
+827,nickit,nickit,827,20,,1209,1,false,true,false,true
+828,thievul,thievul,828,20,,1210,1,false,true,false,true
+829,gossifleur,gossifleur,829,20,,1211,1,false,true,false,true
+830,eldegoss,eldegoss,830,20,,1212,1,false,true,false,true
+831,wooloo,wooloo,831,20,,1213,1,false,true,false,true
+832,dubwool,dubwool,832,20,,1214,1,false,true,false,true
+833,chewtle,chewtle,833,20,,1215,1,false,true,false,true
+834,drednaw,drednaw,834,20,,1216,1,false,true,false,true
+835,yamper,yamper,835,20,,1217,1,false,true,false,true
+836,boltund,boltund,836,20,,1218,1,false,true,false,true
+837,rolycoly,rolycoly,837,20,,1219,1,false,true,false,true
+838,carkol,carkol,838,20,,1220,1,false,true,false,true
+839,coalossal,coalossal,839,20,,1221,1,false,true,false,true
+840,applin,applin,840,20,,1222,1,false,true,false,true
+841,flapple,flapple,841,20,,1223,1,false,true,false,true
+842,appletun,appletun,842,20,,1224,1,false,true,false,true
+843,silicobra,silicobra,843,20,,1225,1,false,true,false,true
+844,sandaconda,sandaconda,844,20,,1226,1,false,true,false,true
+845,cramorant,cramorant,845,20,,1227,1,false,true,false,true
+846,arrokuda,arrokuda,846,20,,1230,1,false,true,false,true
+847,barraskewda,barraskewda,847,20,,1231,1,false,true,false,true
+848,toxel,toxel,848,20,,1232,1,false,true,false,true
+849,toxtricity-amped,Amped Toxtricity,849,20,amped,1233,1,false,true,false,true
+850,sizzlipede,sizzlipede,850,20,,1235,1,false,true,false,true
+851,centiskorch,centiskorch,851,20,,1236,1,false,true,false,true
+852,clobbopus,clobbopus,852,20,,1237,1,false,true,false,true
+853,grapploct,grapploct,853,20,,1238,1,false,true,false,true
+854,sinistea-phony,Phony Sinistea,854,20,phony,1239,1,false,true,false,true
+855,polteageist-phony,Phony Polteageist,855,20,phony,1241,1,false,true,false,true
+856,hatenna,hatenna,856,20,,1243,1,false,true,false,true
+857,hattrem,hattrem,857,20,,1244,1,false,true,false,true
+858,hatterene,hatterene,858,20,,1245,1,false,true,false,true
+859,impidimp,impidimp,859,20,,1246,1,false,true,false,true
+860,morgrem,morgrem,860,20,,1247,1,false,true,false,true
+861,grimmsnarl,grimmsnarl,861,20,,1248,1,false,true,false,true
+862,obstagoon,obstagoon,862,20,,1249,1,false,true,false,true
+863,perrserker,perrserker,863,20,,1250,1,false,true,false,true
+864,cursola,cursola,864,20,,1251,1,false,true,false,true
+865,sirfetchd,sirfetchd,865,20,,1252,1,false,true,false,true
+866,mr-rime,mr-rime,866,20,,1253,1,false,true,false,true
+867,runerigus,runerigus,867,20,,1254,1,false,true,false,true
+868,milcery,milcery,868,20,,1255,1,false,true,false,true
+869,alcremie-vanilla-cream-strawberry-sweet,Vanilla Cream Strawberry Sweet Alcremie,869,20,vanilla-cream-strawberry-sweet,1256,1,false,true,false,true
+870,falinks,falinks,870,20,,1265,1,false,true,false,true
+871,pincurchin,pincurchin,871,20,,1267,1,false,true,false,true
+872,snom,snom,872,20,,1268,1,false,true,false,true
+873,frosmoth,frosmoth,873,20,,1269,1,false,true,false,true
+874,stonjourner,stonjourner,874,20,,1270,1,false,true,false,true
+875,eiscue-ice,Ice Eiscue,875,20,ice,1271,1,false,true,false,true
+876,indeedee-male,Male Indeedee,876,20,male,1273,1,false,true,false,true
+877,morpeko-full-belly,Full Belly Morpeko,877,20,full-belly,1275,1,false,true,false,true
+878,cufant,cufant,878,20,,1277,1,false,true,false,true
+879,copperajah,copperajah,879,20,,1278,1,false,true,false,true
+880,dracozolt,dracozolt,880,20,,1279,1,false,true,false,true
+881,arctozolt,arctozolt,881,20,,1280,1,false,true,false,true
+882,dracovish,dracovish,882,20,,1281,1,false,true,false,true
+883,arctovish,arctovish,883,20,,1282,1,false,true,false,true
+884,duraludon,duraludon,884,20,,1283,1,false,true,false,true
+885,dreepy,dreepy,885,20,,1284,1,false,true,false,true
+886,drakloak,drakloak,886,20,,1285,1,false,true,false,true
+887,dragapult,dragapult,887,20,,1286,1,false,true,false,true
+888,zacian,Zacian,888,20,,1287,1,false,true,false,true
+889,zamazenta,Zamazenta,889,20,,1289,1,false,true,false,true
+890,eternatus,eternatus,890,20,,1291,1,false,true,false,true
+891,kubfu,kubfu,891,20,,1293,1,false,true,false,true
+892,urshifu-single-strike,Single Strike Urshifu,892,20,single-strike,1294,1,false,true,false,true
+893,zarude,zarude,893,20,,1296,1,false,true,false,true
+894,regieleki,regieleki,894,20,,1298,1,false,true,false,true
+895,regidrago,regidrago,895,20,,1299,1,false,true,false,true
+896,glastrier,glastrier,896,20,,1300,1,false,true,false,true
+897,spectrier,spectrier,897,20,,1301,1,false,true,false,true
+898,calyrex,calyrex,898,20,,1302,1,false,true,false,true
+899,wyrdeer,wyrdeer,899,24,,1302,1,false,true,false,true
+900,kleavor,kleavor,900,24,,1303,1,false,true,false,true
+901,ursaluna,ursaluna,901,24,,1305,1,false,true,false,true
+902,basculegion-male,Male Basculegion,902,24,male,1306,1,false,true,false,true
+903,sneasler,sneasler,903,24,,1307,1,false,true,false,true
+904,overqwil,overqwil,904,24,,1308,1,false,true,false,true
+905,enamorus-incarnate,Incarnate Enamorus,905,24,incarnate,1309,1,false,true,false,true
+906,sprigatito,sprigatito,906,25,,1310,1,false,true,false,true
+907,floragato,floragato,907,25,,1311,1,false,true,false,true
+908,meowscarada,meowscarada,908,25,,1312,1,false,true,false,true
+909,fuecoco,fuecoco,909,25,,1313,1,false,true,false,true
+910,crocalor,crocalor,910,25,,1314,1,false,true,false,true
+911,skeledirge,skeledirge,911,25,,1315,1,false,true,false,true
+912,quaxly,quaxly,912,25,,1316,1,false,true,false,true
+913,quaxwell,quaxwell,913,25,,1317,1,false,true,false,true
+914,quaquaval,quaquaval,914,25,,1318,1,false,true,false,true
+915,lechonk,lechonk,915,25,,1319,1,false,true,false,true
+916,oinkologne-male,Male Oinkologne,916,25,male,1320,1,false,true,false,true
+917,tarountula,tarountula,917,25,,1322,1,false,true,false,true
+918,spidops,spidops,918,25,,1323,1,false,true,false,true
+919,nymble,nymble,919,25,,1324,1,false,true,false,true
+920,lokix,lokix,920,25,,1325,1,false,true,false,true
+921,pawmi,pawmi,921,25,,1363,1,false,true,false,true
+922,pawmo,pawmo,922,25,,1364,1,false,true,false,true
+923,pawmot,pawmot,923,25,,1365,1,false,true,false,true
+924,tandemaus,tandemaus,924,25,,1350,1,false,true,false,true
+925,maushold-family-of-four,Maushold (Family of Four),925,25,family-of-four,1351,2,false,true,false,true
+926,fidough,fidough,926,25,,1380,1,false,true,false,true
+927,dachsbun,dachsbun,927,25,,1381,1,false,true,false,true
+928,smoliv,smoliv,928,25,,1339,1,false,true,false,true
+929,dolliv,dolliv,929,25,,1340,1,false,true,false,true
+930,arboliva,arboliva,930,25,,1341,1,false,true,false,true
+931,squawkabilly-green-plumage,Green Plumage Squawkabilly,931,25,green-plumage,1369,1,false,true,false,true
+932,nacli,nacli,932,25,,1372,1,false,true,false,true
+933,naclstack,naclstack,933,25,,1373,1,false,true,false,true
+934,garganacl,garganacl,934,25,,1374,1,false,true,false,true
+935,charcadet,charcadet,935,25,,1411,1,false,true,false,true
+936,armarouge,armarouge,936,25,,1412,1,false,true,false,true
+937,ceruledge,ceruledge,937,25,,1413,1,false,true,false,true
+938,tadbulb,tadbulb,938,25,,1345,1,false,true,false,true
+939,bellibolt,bellibolt,939,25,,1346,1,false,true,false,true
+940,wattrel,wattrel,940,25,,1366,1,false,true,false,true
+941,kilowattrel,kilowattrel,941,25,,1367,1,false,true,false,true
+942,maschiff,maschiff,942,25,,1382,1,false,true,false,true
+943,mabosstiff,mabosstiff,943,25,,1383,1,false,true,false,true
+944,shroodle,shroodle,944,25,,1378,1,false,true,false,true
+945,grafaiai,grafaiai,945,25,,1379,1,false,true,false,true
+946,bramblin,bramblin,946,25,,1384,1,false,true,false,true
+947,brambleghast,brambleghast,947,25,,1385,1,false,true,false,true
+948,toedscool,toedscool,948,25,,1414,1,false,true,false,true
+949,toedscruel,toedscruel,949,25,,1415,1,false,true,false,true
+950,klawf,klawf,950,25,,1371,1,false,true,false,true
+951,capsakid,capsakid,951,25,,1342,1,false,true,false,true
+952,scovillain,scovillain,952,25,,1343,1,false,true,false,true
+953,rellor,rellor,953,25,,1326,1,false,true,false,true
+954,rabsca,rabsca,954,25,,1327,1,false,true,false,true
+955,flittle,flittle,955,25,,1330,1,false,true,false,true
+956,espathra,espathra,956,25,,1331,1,false,true,false,true
+957,tinkatink,tinkatink,957,25,,1408,1,false,true,false,true
+958,tinkatuff,tinkatuff,958,25,,1409,1,false,true,false,true
+959,tinkaton,tinkaton,959,25,,1410,1,false,true,false,true
+960,wiglett,wiglett,960,25,,1333,1,false,true,false,true
+961,wugtrio,wugtrio,961,25,,1334,1,false,true,false,true
+962,bombirdier,bombirdier,962,25,,1368,1,false,true,false,true
+963,finizen,finizen,963,25,,1337,1,false,true,false,true
+964,palafin-zero,Zero Form Palafin,964,25,zero,1338,1,false,true,false,true
+965,varoom,varoom,965,25,,1347,1,false,true,false,true
+966,revavroom,revavroom,966,25,,1348,1,false,true,false,true
+967,cyclizar,cyclizar,967,25,,1361,1,false,true,false,true
+968,orthworm,orthworm,968,25,,1349,1,false,true,false,true
+969,glimmet,glimmet,969,25,,1375,1,false,true,false,true
+970,glimmora,glimmora,970,25,,1376,1,false,true,false,true
+971,greavard,greavard,971,25,,1328,1,false,true,false,true
+972,houndstone,houndstone,972,25,,1329,1,false,true,false,true
+973,flamigo,flamigo,973,25,,1370,1,false,true,false,true
+974,cetoddle,cetoddle,974,25,,1352,1,false,true,false,true
+975,cetitan,cetitan,975,25,,1353,1,false,true,false,true
+976,veluza,veluza,976,25,,1336,1,false,true,false,true
+977,dondozo,dondozo,977,25,,1335,1,false,true,false,true
+978,tatsugiri-curly,Curly Form Tatsugiri,978,25,curly,1358,1,false,true,false,true
+979,annihilape,annihilape,979,25,,1418,1,false,true,false,true
+980,clodsire,clodsire,980,25,,1417,1,false,true,false,true
+981,farigiraf,farigiraf,981,25,,1332,1,false,true,false,true
+982,dudunsparce-two-segment,Two-Segment Form Dudunsparce,982,25,two-segment,1321,1,false,true,false,true
+983,kingambit,kingambit,983,25,,1416,1,false,true,false,true
+984,great-tusk,great-tusk,984,25,,1388,1,false,true,false,true
+985,scream-tail,scream-tail,985,25,,1391,1,false,true,false,true
+986,brute-bonnet,brute-bonnet,986,25,,1389,1,false,true,false,true
+987,flutter-mane,flutter-mane,987,25,,1392,1,false,true,false,true
+988,slither-wing,slither-wing,988,25,,1393,1,false,true,false,true
+989,sandy-shocks,sandy-shocks,989,25,,1390,1,false,true,false,true
+990,iron-treads,iron-treads,990,25,,1395,1,false,true,false,true
+991,iron-bundle,iron-bundle,991,25,,1400,1,false,true,false,true
+992,iron-hands,iron-hands,992,25,,1397,1,false,true,false,true
+993,iron-jugulis,iron-jugulis,993,25,,1398,1,false,true,false,true
+994,iron-moth,iron-moth,994,25,,1396,1,false,true,false,true
+995,iron-thorns,iron-thorns,995,25,,1399,1,false,true,false,true
+996,frigibax,frigibax,996,25,,1354,1,false,true,false,true
+997,arctibax,arctibax,997,25,,1355,1,false,true,false,true
+998,baxcalibur,baxcalibur,998,25,,1356,1,false,true,false,true
+999,gimmighoul-chest,Chest Form Gimmighoul,999,25,chest,1386,1,false,true,false,true
+1000,gholdengo,gholdengo,1000,25,,1387,1,false,true,false,true
+1001,wo-chien,wo-chien,1001,25,,1404,1,false,true,false,true
+1002,chien-pao,chien-pao,1002,25,,1403,1,false,true,false,true
+1003,ting-lu,ting-lu,1003,25,,1402,1,false,true,false,true
+1004,chi-yu,chi-yu,1004,25,,1405,1,false,true,false,true
+1005,roaring-moon,roaring-moon,1005,25,,1394,1,false,true,false,true
+1006,iron-valiant,iron-valiant,1006,25,,1401,1,false,true,false,true
+1007,koraidon-apex-build,Koraidon Forme Finale,1007,25,apex-build,1406,1,false,true,false,true
+1008,miraidon-ultimate-mode,Miraidon Mode Ultime,1008,25,ultimate-mode,1407,1,false,true,false,true
+1009,walking-wake,walking-wake,1009,25,,1419,1,false,true,false,true
+1010,iron-leaves,iron-leaves,1010,25,,1420,1,false,true,false,true
+1011,dipplin,dipplin,1011,26,,1422,1,false,true,false,true
+1012,poltchageist-counterfeit,Counterfeit Form Poltchageist,1012,26,counterfeit,1423,1,false,true,false,true
+1013,sinistcha-unremarkable,Unremarkable Form Sinistcha,1013,26,unremarkable,1425,1,false,true,false,true
+1014,okidogi,okidogi,1014,26,,1427,1,false,true,false,true
+1015,munkidori,munkidori,1015,26,,1428,1,false,true,false,true
+1016,fezandipiti,fezandipiti,1016,26,,1429,1,false,true,false,true
+1017,ogerpon,Teal Mask Ogerpon,1017,26,,1430,1,false,true,false,true
+1018,archaludon,archaludon,1018,27,,1434,1,false,true,false,true
+1019,hydrapple,hydrapple,1019,27,,1435,1,false,true,false,true
+1020,gouging-fire,gouging-fire,1020,27,,1436,1,false,true,false,true
+1021,raging-bolt,raging-bolt,1021,27,,1437,1,false,true,false,true
+1022,iron-boulder,iron-boulder,1022,27,,1438,1,false,true,false,true
+1023,iron-crown,iron-crown,1023,27,,1439,1,false,true,false,true
+1024,terapagos,Normal Form Terapagos,1024,27,,1440,1,false,true,false,true
+1025,pecharunt,pecharunt,1025,27,,1443,1,false,true,false,true
+10001,unown-b,Unown B,201,3,b,307,2,false,false,false,true
+10002,unown-c,Unown C,201,3,c,308,3,false,false,false,true
+10003,unown-d,Unown D,201,3,d,309,4,false,false,false,true
+10004,unown-e,Unown E,201,3,e,310,5,false,false,false,true
+10005,unown-f,Unown F,201,3,f,311,6,false,false,false,true
+10006,unown-g,Unown G,201,3,g,312,7,false,false,false,true
+10007,unown-h,Unown H,201,3,h,313,8,false,false,false,true
+10008,unown-i,Unown I,201,3,i,314,9,false,false,false,true
+10009,unown-j,Unown J,201,3,j,315,10,false,false,false,true
+10010,unown-k,Unown K,201,3,k,316,11,false,false,false,true
+10011,unown-l,Unown L,201,3,l,317,12,false,false,false,true
+10012,unown-m,Unown M,201,3,m,318,13,false,false,false,true
+10013,unown-n,Unown N,201,3,n,319,14,false,false,false,true
+10014,unown-o,Unown O,201,3,o,320,15,false,false,false,true
+10015,unown-p,Unown P,201,3,p,321,16,false,false,false,true
+10016,unown-q,Unown Q,201,3,q,322,17,false,false,false,true
+10017,unown-r,Unown R,201,3,r,323,18,false,false,false,true
+10018,unown-s,Unown S,201,3,s,324,19,false,false,false,true
+10019,unown-t,Unown T,201,3,t,325,20,false,false,false,true
+10020,unown-u,Unown U,201,3,u,326,21,false,false,false,true
+10021,unown-v,Unown V,201,3,v,327,22,false,false,false,true
+10022,unown-w,Unown W,201,3,w,328,23,false,false,false,true
+10023,unown-x,Unown X,201,3,x,329,24,false,false,false,true
+10024,unown-y,Unown Y,201,3,y,330,25,false,false,false,true
+10025,unown-z,Unown Z,201,3,z,331,26,false,false,false,true
+10026,unown-exclamation,Unown !,201,5,exclamation,332,27,false,false,false,true
+10027,unown-question,Unown ?,201,5,question,333,28,false,false,false,true
+10028,castform-sunny,Sunny Castform,10013,5,sunny,502,2,true,true,false,true
+10029,castform-rainy,Rainy Castform,10014,5,rainy,503,3,true,true,false,true
+10030,castform-snowy,Snowy Castform,10015,5,snowy,504,4,true,true,false,true
+10031,deoxys-attack,Attack Deoxys,10001,7,attack,555,2,false,true,false,true
+10032,deoxys-defense,Defense Deoxys,10002,7,defense,556,3,false,true,false,true
+10033,deoxys-speed,Speed Deoxys,10003,6,speed,557,4,false,true,false,true
+10034,burmy-sandy,Sandy Burmy,412,8,sandy,583,2,false,false,false,true
+10035,burmy-trash,Trash Burmy,412,8,trash,584,3,false,false,false,true
+10036,wormadam-sandy,Sandy Wormadam,10004,8,sandy,586,2,false,true,false,true
+10037,wormadam-trash,Trash Wormadam,10005,8,trash,587,3,false,true,false,true
+10038,cherrim-sunshine,Sunshine Cherrim,421,8,sunshine,598,2,true,false,false,true
+10039,shellos-east,East Shellos,422,8,east,600,2,false,false,false,true
+10040,gastrodon-east,East Gastrodon,423,8,east,602,2,false,false,false,true
+10041,arceus-bug,Bug Arceus,493,8,bug,666,7,false,false,false,true
+10042,arceus-dark,Dark Arceus,493,8,dark,676,17,false,false,false,true
+10043,arceus-dragon,Dragon Arceus,493,8,dragon,675,16,false,false,false,true
+10044,arceus-electric,Electric Arceus,493,8,electric,672,13,false,false,false,true
+10045,arceus-fighting,Fighting Arceus,493,8,fighting,661,2,false,false,false,true
+10046,arceus-fire,Fire Arceus,493,8,fire,669,10,false,false,false,true
+10047,arceus-flying,Flying Arceus,493,8,flying,662,3,false,false,false,true
+10048,arceus-ghost,Ghost Arceus,493,8,ghost,667,8,false,false,false,true
+10049,arceus-grass,Grass Arceus,493,8,grass,671,12,false,false,false,true
+10050,arceus-ground,Ground Arceus,493,8,ground,664,5,false,false,false,true
+10051,arceus-ice,Ice Arceus,493,8,ice,674,15,false,false,false,true
+10052,arceus-poison,Poison Arceus,493,8,poison,663,4,false,false,false,true
+10053,arceus-psychic,Psychic Arceus,493,8,psychic,673,14,false,false,false,true
+10054,arceus-rock,Rock Arceus,493,8,rock,665,6,false,false,false,true
+10055,arceus-steel,Steel Arceus,493,8,steel,668,9,false,false,false,true
+10056,arceus-water,Water Arceus,493,8,water,670,11,false,false,false,true
+10057,arceus-unknown,??? Arceus,493,8,unknown,678,19,false,false,false,true
+10058,rotom-heat,Heat Rotom,10008,9,heat,638,2,false,true,false,true
+10059,rotom-wash,Wash Rotom,10009,9,wash,639,3,false,true,false,true
+10060,rotom-frost,Frost Rotom,10010,9,frost,640,4,false,true,false,true
+10061,rotom-fan,Fan Rotom,10011,9,fan,641,5,false,true,false,true
+10062,rotom-mow,Mow Rotom,10012,9,mow,642,6,false,true,false,true
+10063,giratina-origin,Origin Giratina,10007,9,origin,652,2,false,true,false,true
+10064,shaymin-sky,Sky Shaymin,10006,9,sky,659,2,false,true,false,true
+10065,pichu-spiky-eared,Spiky-eared Pichu,172,10,spiky-eared,35,2,false,false,false,true
+10066,basculin-blue-striped,Blue-Striped Basculin,10016,11,blue-striped,740,2,false,true,false,true
+10067,darmanitan-zen,Zen Darmanitan,10017,11,zen,747,2,true,true,false,true
+10068,deerling-summer,Summer Deerling,585,11,summer,782,2,false,false,false,true
+10069,deerling-autumn,Autumn Deerling,585,11,autumn,783,3,false,false,false,true
+10070,deerling-winter,Winter Deerling,585,11,winter,784,4,false,false,false,true
+10071,sawsbuck-summer,Summer Sawsbuck,586,11,summer,786,2,false,false,false,true
+10072,sawsbuck-autumn,Autumn Sawsbuck,586,11,autumn,787,3,false,false,false,true
+10073,sawsbuck-winter,Winter Sawsbuck,586,11,winter,788,4,false,false,false,true
+10074,meloetta-pirouette,Pirouette Meloetta,10018,11,pirouette,861,2,true,true,false,true
+10075,genesect-douse,Douse Genesect,649,11,douse,863,2,false,false,false,true
+10076,genesect-shock,Shock Genesect,649,11,shock,864,3,false,false,false,true
+10077,genesect-burn,Burn Genesect,649,11,burn,865,4,false,false,false,true
+10078,genesect-chill,Chill Genesect,649,11,chill,866,5,false,false,false,true
+10079,tornadus-therian,Therian Tornadus,10019,14,therian,848,2,false,true,false,true
+10080,thundurus-therian,Therian Thundurus,10020,14,therian,850,2,false,true,false,true
+10081,landorus-therian,Therian Landorus,10021,14,therian,854,2,false,true,false,true
+10082,kyurem-black,Black Kyurem,10022,14,black,857,3,false,true,false,true
+10083,kyurem-white,White Kyurem,10023,14,white,856,2,false,true,false,true
+10084,keldeo-resolute,Resolute Keldeo,10024,14,resolute,859,2,false,true,false,true
+10085,arceus-fairy,Fairy Arceus,493,15,fairy,677,18,false,false,false,true
+10086,vivillon-icy-snow,Icy Snow Vivillon,666,15,icy-snow,926,1,false,false,false,true
+10087,vivillon-polar,Polar Vivillon,666,15,polar,927,2,false,false,false,true
+10088,vivillon-tundra,Tundra Vivillon,666,15,tundra,928,3,false,false,false,true
+10089,vivillon-continental,Continental Vivillon,666,15,continental,929,4,false,false,false,true
+10090,vivillon-garden,Garden Vivillon,666,15,garden,930,5,false,false,false,true
+10091,vivillon-elegant,Elegant Vivillon,666,15,elegant,931,6,false,false,false,true
+10092,vivillon-modern,Modern Vivillon,666,15,modern,933,8,false,false,false,true
+10093,vivillon-marine,Marine Vivillon,666,15,marine,934,9,false,false,false,true
+10094,vivillon-archipelago,Archipelago Vivillon,666,15,archipelago,935,10,false,false,false,true
+10095,vivillon-high-plains,High Plains Vivillon,666,15,high-plains,936,11,false,false,false,true
+10096,vivillon-sandstorm,Sandstorm Vivillon,666,15,sandstorm,937,12,false,false,false,true
+10097,vivillon-river,River Vivillon,666,15,river,938,13,false,false,false,true
+10098,vivillon-monsoon,Monsoon Vivillon,666,15,monsoon,939,14,false,false,false,true
+10099,vivillon-savanna,Savanna Vivillon,666,15,savanna,940,15,false,false,false,true
+10100,vivillon-sun,Sun Vivillon,666,15,sun,941,16,false,false,false,true
+10101,vivillon-ocean,Ocean Vivillon,666,15,ocean,942,17,false,false,false,true
+10102,vivillon-jungle,Jungle Vivillon,666,15,jungle,943,18,false,false,false,true
+10103,flabebe-yellow,Yellow Flabébé,669,15,yellow,950,2,false,false,false,true
+10104,flabebe-orange,Orange Flabébé,669,15,orange,951,3,false,false,false,true
+10105,flabebe-blue,Blue Flabébé,669,15,blue,952,4,false,false,false,true
+10106,flabebe-white,White Flabébé,669,15,white,953,5,false,false,false,true
+10107,floette-yellow,Yellow Floette,670,15,yellow,955,2,false,false,false,true
+10108,floette-orange,Orange Floette,670,15,orange,956,3,false,false,false,true
+10109,floette-blue,Blue Floette,670,15,blue,957,4,false,false,false,true
+10110,floette-white,White Floette,670,15,white,958,5,false,false,false,true
+10111,florges-yellow,Yellow Florges,671,15,yellow,962,2,false,false,false,true
+10112,florges-orange,Orange Florges,671,15,orange,963,3,false,false,false,true
+10113,florges-blue,Blue Florges,671,15,blue,964,4,false,false,false,true
+10114,florges-white,White Florges,671,15,white,965,5,false,false,false,true
+10115,furfrou-heart,Heart Furfrou,676,15,heart,971,2,false,false,false,true
+10116,furfrou-star,Star Furfrou,676,15,star,972,3,false,false,false,true
+10117,furfrou-diamond,Diamond Furfrou,676,15,diamond,973,4,false,false,false,true
+10118,furfrou-debutante,Debutante Furfrou,676,15,debutante,974,5,false,false,false,true
+10119,furfrou-matron,Matron Furfrou,676,15,matron,975,6,false,false,false,true
+10120,furfrou-dandy,Dandy Furfrou,676,15,dandy,976,7,false,false,false,true
+10121,furfrou-la-reine,La Reine Furfrou,676,15,la-reine,977,8,false,false,false,true
+10122,furfrou-kabuki,Kabuki Furfrou,676,15,kabuki,978,9,false,false,false,true
+10123,furfrou-pharaoh,Pharaoh Furfrou,676,15,pharaoh,979,10,false,false,false,true
+10124,meowstic-female,Female Meowstic,10025,15,female,982,2,false,true,false,true
+10125,aegislash-blade,Blade Aegislash,10026,15,blade,988,2,true,true,false,true
+10126,pumpkaboo-small,Small Pumpkaboo,10027,15,small,1021,2,false,true,false,true
+10127,pumpkaboo-large,Large Pumpkaboo,10028,15,large,1022,3,false,true,false,true
+10128,pumpkaboo-super,Super Pumpkaboo,10029,15,super,1023,4,false,true,false,true
+10129,gourgeist-small,Small Gourgeist,10030,15,small,1025,2,false,true,false,true
+10130,gourgeist-large,Large Gourgeist,10031,15,large,1026,3,false,true,false,true
+10131,gourgeist-super,Super Gourgeist,10032,15,super,1027,4,false,true,false,true
+10132,xerneas-neutral,Neutral Xerneas,716,15,neutral,1032,1,false,true,false,true
+10133,venusaur-mega,Mega Venusaur,10033,15,mega,4,2,true,true,true,true
+10134,charizard-mega-x,Mega Charizard X,10034,15,mega-x,8,2,true,true,true,true
+10135,charizard-mega-y,Mega Charizard Y,10035,15,mega-y,9,3,true,true,true,true
+10136,blastoise-mega,Mega Blastoise,10036,15,mega,13,2,true,true,true,true
+10137,alakazam-mega,Mega Alakazam,10037,15,mega,110,2,true,true,true,true
+10138,gengar-mega,Mega Gengar,10038,15,mega,155,2,true,true,true,true
+10139,kangaskhan-mega,Mega Kangaskhan,10039,15,mega,190,2,true,true,true,true
+10140,pinsir-mega,Mega Pinsir,10040,15,mega,214,2,true,true,true,true
+10141,gyarados-mega,Mega Gyarados,10041,15,mega,218,2,true,true,true,true
+10142,aerodactyl-mega,Mega Aerodactyl,10042,15,mega,239,2,true,true,true,true
+10143,mewtwo-mega-x,Mega Mewtwo X,10043,15,mega-x,253,2,true,true,true,true
+10144,mewtwo-mega-y,Mega Mewtwo Y,10044,15,mega-y,254,3,true,true,true,true
+10145,ampharos-mega,Mega Ampharos,10045,15,mega,285,2,true,true,true,true
+10146,scizor-mega,Mega Scizor,10046,15,mega,204,2,true,true,true,true
+10147,heracross-mega,Mega Heracross,10047,15,mega,347,2,true,true,true,true
+10148,houndoom-mega,Mega Houndoom,10048,15,mega,368,2,true,true,true,true
+10149,tyranitar-mega,Mega Tyranitar,10049,15,mega,380,2,true,true,true,true
+10150,blaziken-mega,Mega Blaziken,10050,15,mega,391,2,true,true,true,true
+10151,gardevoir-mega,Mega Gardevoir,10051,15,mega,420,2,true,true,true,true
+10152,mawile-mega,Mega Mawile,10052,15,mega,445,2,true,true,true,true
+10153,aggron-mega,Mega Aggron,10053,15,mega,449,2,true,true,true,true
+10154,medicham-mega,Mega Medicham,10054,15,mega,452,2,true,true,true,true
+10155,manectric-mega,Mega Manectric,10055,15,mega,455,2,true,true,true,true
+10156,banette-mega,Mega Banette,10056,15,mega,508,2,true,true,true,true
+10157,absol-mega,Mega Absol,10057,15,mega,517,2,true,true,true,true
+10158,garchomp-mega,Mega Garchomp,10058,15,mega,619,2,true,true,true,true
+10159,lucario-mega,Mega Lucario,10059,15,mega,623,2,true,true,true,true
+10160,abomasnow-mega,Mega Abomasnow,10060,15,mega,636,2,true,true,true,true
+10161,vivillon-fancy,Fancy Vivillon,666,15,fancy,944,19,false,false,false,true
+10162,vivillon-poke-ball,Poké Ball Vivillon,666,15,poke-ball,945,20,false,false,false,true
+10163,floette-eternal,Eternal Floette,10061,15,eternal,959,6,false,true,false,true
+10164,latias-mega,Mega Latias,10062,15,mega,544,2,true,true,true,true
+10165,latios-mega,Mega Latios,10063,15,mega,546,2,true,true,true,true
+10166,swampert-mega,Mega Swampert,10064,16,mega,395,2,true,true,true,true
+10167,sceptile-mega,Mega Sceptile,10065,16,mega,387,2,true,true,true,true
+10168,sableye-mega,Mega Sableye,10066,16,mega,443,2,true,true,true,true
+10169,altaria-mega,Mega Altaria,10067,16,mega,484,2,true,true,true,true
+10170,gallade-mega,Mega Gallade,10068,16,mega,422,2,true,true,true,true
+10171,audino-mega,Mega Audino,10069,16,mega,719,2,true,true,true,true
+10172,sharpedo-mega,Mega Sharpedo,10070,16,mega,467,2,true,true,true,true
+10173,slowbro-mega,Mega Slowbro,10071,16,mega,133,2,true,true,true,true
+10174,steelix-mega,Mega Steelix,10072,16,mega,158,2,true,true,true,true
+10175,pidgeot-mega,Mega Pidgeot,10073,16,mega,24,2,true,true,true,true
+10176,glalie-mega,Mega Glalie,10074,16,mega,521,2,true,true,true,true
+10177,diancie-mega,Mega Diancie,10075,16,mega,1042,2,true,true,true,true
+10178,metagross-mega,Mega Metagross,10076,16,mega,539,2,true,true,true,true
+10179,kyogre-primal,Primal Kyogre,10077,16,primal,548,2,true,true,false,true
+10180,groudon-primal,Primal Groudon,10078,16,primal,550,2,true,true,false,true
+10181,rayquaza-mega,Mega Rayquaza,10079,16,mega,552,2,true,true,true,true
+10182,pikachu-rock-star,Pikachu Rock Star,10080,16,rock-star,38,3,false,true,false,true
+10183,pikachu-belle,Pikachu Belle,10081,16,belle,39,4,false,true,false,true
+10184,pikachu-pop-star,Pikachu Pop Star,10082,16,pop-star,40,5,false,true,false,true
+10185,pikachu-phd,Pikachu Ph.D.,10083,16,phd,41,6,false,true,false,true
+10186,pikachu-libre,Pikachu Libre,10084,16,libre,42,7,false,true,false,true
+10187,pikachu-cosplay,Cosplay Pikachu,10085,16,cosplay,37,2,false,true,false,true
+10188,hoopa-unbound,Hoopa Unbound,10086,16,unbound,1044,2,false,true,false,true
+10189,camerupt-mega,Mega Camerupt,10087,16,mega,472,2,true,true,true,true
+10190,lopunny-mega,Mega Lopunny,10088,16,mega,607,2,true,true,true,true
+10191,salamence-mega,Mega Salamence,10089,16,mega,535,2,true,true,true,true
+10192,beedrill-mega,Mega Beedrill,10090,16,mega,20,2,true,true,true,true
+10193,rattata-alola,Alolan Rattata,10091,17,alola,26,2,false,true,false,true
+10194,raticate-alola,Alolan Raticate,10092,17,alola,28,2,false,true,false,true
+10195,raticate-totem-alola,Totem Alolan Raticate,10093,17,totem-alola,29,3,false,true,false,true
+10196,pikachu-original-cap,Original Cap Pikachu,10094,17,original-cap,43,8,false,true,false,true
+10197,pikachu-hoenn-cap,Hoenn Cap Pikachu,10095,17,hoenn-cap,44,9,false,true,false,true
+10198,pikachu-sinnoh-cap,Sinnoh Cap Pikachu,10096,17,sinnoh-cap,45,10,false,true,false,true
+10199,pikachu-unova-cap,Unova Cap Pikachu,10097,17,unova-cap,46,11,false,true,false,true
+10200,pikachu-kalos-cap,Kalos Cap Pikachu,10098,17,kalos-cap,47,12,false,true,false,true
+10201,pikachu-alola-cap,Alola Cap Pikachu,10099,17,alola-cap,48,13,false,true,false,true
+10202,raichu-alola,Alolan Raichu,10100,17,alola,53,2,false,true,false,true
+10203,sandshrew-alola,Alolan Sandshrew,10101,17,alola,57,2,false,true,false,true
+10204,sandslash-alola,Alolan Sandslash,10102,17,alola,59,2,false,true,false,true
+10205,vulpix-alola,Alolan Vulpix,10103,17,alola,71,2,false,true,false,true
+10206,ninetales-alola,Alolan Ninetales,10104,17,alola,73,2,false,true,false,true
+10207,diglett-alola,Alolan Diglett,10105,17,alola,89,2,false,true,false,true
+10208,dugtrio-alola,Alolan Dugtrio,10106,17,alola,91,2,false,true,false,true
+10209,meowth-alola,Alolan Meowth,10107,17,alola,93,2,false,true,false,true
+10210,persian-alola,Alolan Persian,10108,17,alola,96,2,false,true,false,true
+10211,geodude-alola,Alolan Geodude,10109,17,alola,121,2,false,true,false,true
+10212,graveler-alola,Alolan Graveler,10110,17,alola,123,2,false,true,false,true
+10213,golem-alola,Alolan Golem,10111,17,alola,125,2,false,true,false,true
+10214,grimer-alola,Alolan Grimer,10112,17,alola,147,2,false,true,false,true
+10215,muk-alola,Alolan Muk,10113,17,alola,149,2,false,true,false,true
+10216,exeggutor-alola,Alolan Exeggutor,10114,17,alola,167,2,false,true,false,true
+10217,marowak-alola,Alolan Marowak,10115,17,alola,170,2,false,true,false,true
+10218,greninja-battle-bond,Battle Bond Greninja,10116,17,battle-bond,878,2,false,true,false,true
+10219,greninja-ash,Ash’s Greninja,10117,17,ash,879,3,true,true,false,true
+10220,zygarde-10-power-construct,10% Zygarde,10118,17,10-power-construct,1037,3,false,true,false,true
+10221,zygarde-50-power-construct,50% Zygarde,10119,17,50-power-construct,1038,4,false,true,false,true
+10222,zygarde-complete,Complete Zygarde,10120,17,complete,1039,5,true,true,false,true
+10223,gumshoos-totem,Totem Gumshoos,10121,17,totem,1060,2,false,true,false,true
+10224,vikavolt-totem,Totem Vikavolt,10122,17,totem,1064,2,false,true,false,true
+10225,oricorio-pom-pom,Pom-pom Oricorio,10123,17,pom-pom,1069,2,false,true,false,true
+10226,oricorio-pau,Pa’u Oricorio,10124,17,pau,1070,3,false,true,false,true
+10227,oricorio-sensu,Sensu Oricorio,10125,17,sensu,1071,4,false,true,false,true
+10228,lycanroc-midnight,Midnight Lycanroc,10126,17,midnight,1078,2,false,true,false,true
+10229,wishiwashi-school,School Wishiwashi,10127,17,school,1081,2,true,true,false,true
+10230,lurantis-totem,Totem Lurantis,10128,17,totem,1091,2,false,true,false,true
+10231,salazzle-totem,Totem Salazzle,10129,17,totem,1096,2,false,true,false,true
+10232,silvally-fighting,Amigento (Kampf),773,17,fighting,1113,2,false,false,false,true
+10233,silvally-flying,Amigento (Flug),773,17,flying,1114,3,false,false,false,true
+10234,silvally-poison,Amigento (Gift),773,17,poison,1115,4,false,false,false,true
+10235,silvally-ground,Amigento (Boden),773,17,ground,1116,5,false,false,false,true
+10236,silvally-rock,Amigento (Gestein),773,17,rock,1117,6,false,false,false,true
+10237,silvally-bug,Amigento (Käfer),773,17,bug,1118,7,false,false,false,true
+10238,silvally-ghost,Amigento (Geist),773,17,ghost,1119,8,false,false,false,true
+10239,silvally-steel,Amigento (Stahl),773,17,steel,1120,9,false,false,false,true
+10240,silvally-fire,Amigento (Feuer),773,17,fire,1121,10,false,false,false,true
+10241,silvally-water,Amigento (Wasser),773,17,water,1122,11,false,false,false,true
+10242,silvally-grass,Amigento (Pflanze),773,17,grass,1123,12,false,false,false,true
+10243,silvally-electric,Amigento (Elektro),773,17,electric,1124,13,false,false,false,true
+10244,silvally-psychic,Amigento (Psycho),773,17,psychic,1125,14,false,false,false,true
+10245,silvally-ice,Amigento (Eis),773,17,ice,1126,15,false,false,false,true
+10246,silvally-dragon,Amigento (Drache),773,17,dragon,1127,16,false,false,false,true
+10247,silvally-dark,Amigento (Unlicht),773,17,dark,1128,17,false,false,false,true
+10248,silvally-fairy,Amigento (Fee),773,17,fairy,1129,18,false,false,false,true
+10249,minior-orange-meteor,Orange Meteor Minior,10130,17,orange-meteor,1131,2,true,true,false,true
+10250,minior-yellow-meteor,Yellow Meteor Minior,10131,17,yellow-meteor,1132,3,true,true,false,true
+10251,minior-green-meteor,Green Meteor Minior,10132,17,green-meteor,1133,4,true,true,false,true
+10252,minior-blue-meteor,Blue Meteor Minior,10133,17,blue-meteor,1134,5,true,true,false,true
+10253,minior-indigo-meteor,Indigo Meteor Minior,10134,17,indigo-meteor,1135,6,true,true,false,true
+10254,minior-violet-meteor,Violet Meteor Minior,10135,17,violet-meteor,1136,7,true,true,false,true
+10255,minior-red,Red Core Minior,10136,17,red,1137,8,false,true,false,true
+10256,minior-orange,Orange Core Minior,10137,17,orange,1138,9,false,true,false,true
+10257,minior-yellow,Yellow Core Minior,10138,17,yellow,1139,10,false,true,false,true
+10258,minior-green,Green Core Minior,10139,17,green,1140,11,false,true,false,true
+10259,minior-blue,Blue Core Minior,10140,17,blue,1141,12,false,true,false,true
+10260,minior-indigo,Indigo Core Minior,10141,17,indigo,1142,13,false,true,false,true
+10261,minior-violet,Violet Core Minior,10142,17,violet,1143,14,false,true,false,true
+10262,mimikyu-busted,Busted Mimikyu,10143,17,busted,1149,2,true,true,false,true
+10263,mimikyu-totem-disguised,Totem Disguised Mimikyu,10144,17,totem-disguised,1150,3,false,true,false,true
+10264,mimikyu-totem-busted,Totem Busted Mimikyu,10145,17,totem-busted,1151,4,true,true,false,true
+10265,kommo-o-totem,Totem Kommo-o,10146,17,totem,1159,2,false,true,false,true
+10266,magearna-original,Original Magearna,10147,17,original,1180,2,false,true,false,true
+10267,pikachu-partner-cap,Partner Cap Pikachu,10148,18,partner-cap,49,14,false,true,false,true
+10268,marowak-totem,Totem Alolan Marowak,10149,18,totem,171,3,false,true,false,true
+10269,mothim-sandy,sandy,414,18,sandy,589,2,false,false,false,true
+10270,mothim-trash,trash,414,18,trash,590,3,false,false,false,true
+10271,scatterbug-polar,polar,664,18,polar,887,2,false,false,false,true
+10272,scatterbug-tundra,tundra,664,18,tundra,888,3,false,false,false,true
+10273,scatterbug-continental,continental,664,18,continental,889,4,false,false,false,true
+10274,scatterbug-garden,garden,664,18,garden,890,5,false,false,false,true
+10275,scatterbug-elegant,elegant,664,18,elegant,891,6,false,false,false,true
+10276,scatterbug-meadow,meadow,664,18,meadow,892,7,false,false,false,true
+10277,scatterbug-modern,modern,664,18,modern,893,8,false,false,false,true
+10278,scatterbug-marine,marine,664,18,marine,894,9,false,false,false,true
+10279,scatterbug-archipelago,archipelago,664,18,archipelago,895,10,false,false,false,true
+10280,scatterbug-high-plains,high-plains,664,18,high-plains,896,11,false,false,false,true
+10281,scatterbug-sandstorm,sandstorm,664,18,sandstorm,897,12,false,false,false,true
+10282,scatterbug-river,river,664,18,river,898,13,false,false,false,true
+10283,scatterbug-monsoon,monsoon,664,18,monsoon,899,14,false,false,false,true
+10284,scatterbug-savanna,savanna,664,18,savanna,900,15,false,false,false,true
+10285,scatterbug-sun,sun,664,18,sun,901,16,false,false,false,true
+10286,scatterbug-ocean,ocean,664,18,ocean,902,17,false,false,false,true
+10287,scatterbug-jungle,jungle,664,18,jungle,903,18,false,false,false,true
+10288,scatterbug-fancy,fancy,664,18,fancy,904,19,false,false,false,true
+10289,scatterbug-poke-ball,poke-ball,664,18,poke-ball,905,20,false,false,false,true
+10290,spewpa-polar,polar,665,18,polar,907,2,false,false,false,true
+10291,spewpa-tundra,tundra,665,18,tundra,908,3,false,false,false,true
+10292,spewpa-continental,continental,665,18,continental,909,4,false,false,false,true
+10293,spewpa-garden,garden,665,18,garden,910,5,false,false,false,true
+10294,spewpa-elegant,elegant,665,18,elegant,911,6,false,false,false,true
+10295,spewpa-meadow,meadow,665,18,meadow,912,7,false,false,false,true
+10296,spewpa-modern,modern,665,18,modern,913,8,false,false,false,true
+10297,spewpa-marine,marine,665,18,marine,914,9,false,false,false,true
+10298,spewpa-archipelago,archipelago,665,18,archipelago,915,10,false,false,false,true
+10299,spewpa-high-plains,high-plains,665,18,high-plains,916,11,false,false,false,true
+10300,spewpa-sandstorm,sandstorm,665,18,sandstorm,917,12,false,false,false,true
+10301,spewpa-river,river,665,18,river,918,13,false,false,false,true
+10302,spewpa-monsoon,monsoon,665,18,monsoon,919,14,false,false,false,true
+10303,spewpa-savanna,savanna,665,18,savanna,920,15,false,false,false,true
+10304,spewpa-sun,sun,665,18,sun,921,16,false,false,false,true
+10305,spewpa-ocean,ocean,665,18,ocean,922,17,false,false,false,true
+10306,spewpa-jungle,jungle,665,18,jungle,923,18,false,false,false,true
+10307,spewpa-fancy,fancy,665,18,fancy,924,19,false,false,false,true
+10308,spewpa-poke-ball,poke-ball,665,18,poke-ball,925,20,false,false,false,true
+10309,ribombee-totem,Totem Ribombee,10150,18,totem,1074,2,false,true,false,true
+10310,rockruff-own-tempo,Own Tempo Rockruff,10151,18,own-tempo,1076,2,false,true,false,true
+10311,lycanroc-dusk,Dusk Lycanroc,10152,18,dusk,1079,3,false,true,false,true
+10312,araquanid-totem,Totem Araquanid,10153,18,totem,1088,2,false,true,false,true
+10313,togedemaru-totem,Totem Togedemaru,10154,18,totem,1147,2,false,true,false,true
+10314,necrozma-dusk,Dusk Necrozma,10155,18,dusk,1176,2,false,true,false,true
+10315,necrozma-dawn,Dawn Necrozma,10156,18,dawn,1177,3,false,true,false,true
+10316,necrozma-ultra,Ultra Necrozma,10157,18,ultra,1178,4,false,true,false,true
+10317,pikachu-starter,Partner Pikachu,10158,19,starter,50,15,false,true,false,true
+10318,eevee-starter,Partner Eevee,10159,19,starter,222,2,false,true,false,true
+10319,pikachu-world-cap,World Cap Pikachu,10160,20,world-cap,51,16,false,true,false,true
+10320,meowth-galar,Galarian Meowth,10161,20,galar,94,3,false,true,false,true
+10321,ponyta-galar,Galarian Ponyta,10162,20,galar,127,2,false,true,false,true
+10322,rapidash-galar,Galarian Rapidash,10163,20,galar,129,2,false,true,false,true
+10323,slowpoke-galar,Galarian Slowpoke,10164,20,galar,131,2,false,true,false,true
+10324,slowbro-galar,Galarian Slowbro,10165,20,galar,134,3,false,true,false,true
+10325,farfetchd-galar,Galarian Farfetch’d,10166,20,galar,141,2,false,true,false,true
+10326,weezing-galar,Galarian Weezing,10167,20,galar,180,2,false,true,false,true
+10327,mr-mime-galar,Galarian Mr. Mime,10168,20,galar,201,2,false,true,false,true
+10328,articuno-galar,Galarian Articuno,10169,20,galar,243,2,false,true,false,true
+10329,zapdos-galar,Galarian Zapdos,10170,20,galar,245,2,false,true,false,true
+10330,moltres-galar,Galarian Moltres,10171,20,galar,247,2,false,true,false,true
+10331,slowking-galar,Galarian Slowking,10172,20,galar,136,2,false,true,false,true
+10332,corsola-galar,Galarian Corsola,10173,20,galar,358,2,false,true,false,true
+10333,zigzagoon-galar,Galarian Zigzagoon,10174,20,galar,399,2,false,true,false,true
+10334,linoone-galar,Galarian Linoone,10175,20,galar,401,2,false,true,false,true
+10335,darumaka-galar,Galarian Darumaka,10176,20,galar,745,2,false,true,false,true
+10336,darmanitan-galar-standard,Standard Galarian Darmanitan,10177,20,galar-standard,748,3,false,true,false,true
+10337,darmanitan-galar-zen,Zen Galarian Darmanitan,10178,20,galar-zen,749,4,true,true,false,true
+10338,yamask-galar,Galarian Yamask,10179,20,galar,758,2,false,true,false,true
+10339,stunfisk-galar,Galarian Stunfisk,10180,20,galar,823,2,false,true,false,true
+10340,zygarde-10,10% Zygarde,10181,17,10,1036,2,false,true,false,true
+10341,cramorant-gulping,Gulping Cramorant,10182,20,gulping,1228,2,true,true,false,true
+10342,cramorant-gorging,Gorging Cramorant,10183,20,gorging,1229,3,true,true,false,true
+10343,toxtricity-low-key,Low Key Toxtricity,10184,20,low-key,1234,2,false,true,false,true
+10344,sinistea-antique,Antique Sinistea,854,20,antique,1240,2,false,false,false,true
+10345,polteageist-antique,Antique Polteageist,855,20,antique,1242,2,false,false,false,true
+10346,alcremie-ruby-cream-strawberry-sweet,Ruby Cream Strawberry Sweet Alcremie,869,20,ruby-cream-strawberry-sweet,1257,2,false,false,false,true
+10347,alcremie-matcha-cream-strawberry-sweet,Matcha Cream Strawberry Sweet Alcremie,869,20,matcha-cream-strawberry-sweet,1258,3,false,false,false,true
+10348,alcremie-mint-cream-strawberry-sweet,Mint Cream Strawberry Sweet Alcremie,869,20,mint-cream-strawberry-sweet,1259,4,false,false,false,true
+10349,alcremie-lemon-cream-strawberry-sweet,Lemon Cream Strawberry Sweet Alcremie,869,20,lemon-cream-strawberry-sweet,1260,5,false,false,false,true
+10350,alcremie-salted-cream-strawberry-sweet,Salted Cream Strawberry Sweet Alcremie,869,20,salted-cream-strawberry-sweet,1261,6,false,false,false,true
+10351,alcremie-ruby-swirl-strawberry-sweet,Ruby Swirl Strawberry Sweet Alcremie,869,20,ruby-swirl-strawberry-sweet,1262,7,false,false,false,true
+10352,alcremie-caramel-swirl-strawberry-sweet,Caramel Swirl Strawberry Sweet Alcremie,869,20,caramel-swirl-strawberry-sweet,1263,8,false,false,false,true
+10353,alcremie-rainbow-swirl-strawberry-sweet,Rainbow Swirl Strawberry Sweet Alcremie,869,20,rainbow-swirl-strawberry-sweet,1264,9,false,false,false,true
+10354,eiscue-noice,Noice Eiscue,10185,20,noice,1272,2,true,true,false,true
+10355,indeedee-female,Female Indeedee,10186,20,female,1274,2,false,true,false,true
+10356,morpeko-hangry,Hangry Morpeko,10187,20,hangry,1276,2,true,true,false,true
+10357,zacian-crowned,Crowned Zacian,10188,20,crowned,1288,2,true,true,false,true
+10358,zamazenta-crowned,Crowned Zamazenta,10189,20,crowned,1290,2,true,true,false,true
+10359,eternatus-eternamax,Eternamax Eternatus,10190,20,eternamax,1292,2,false,true,false,true
+10360,urshifu-rapid-strike,Rapid Strike Urshifu,10191,20,rapid-strike,1295,2,false,true,false,true
+10361,zarude-dada,Dada Zarude,10192,20,dada,1297,2,false,true,false,true
+10362,calyrex-ice,Ice Calyrex,10193,20,ice,1303,2,false,true,false,true
+10363,calyrex-shadow,Shadow Calyrex,10194,20,shadow,1304,3,false,true,false,true
+10364,venusaur-gmax,Gigantamax Venusaur,10195,20,gmax,1292,1,true,true,false,true
+10365,charizard-gmax,Gigantamax Charizard,10196,20,gmax,1293,1,true,true,false,true
+10366,blastoise-gmax,Gigantamax Blastoise,10197,20,gmax,1294,1,true,true,false,true
+10367,butterfree-gmax,Gigantamax Butterfree,10198,20,gmax,1295,1,true,true,false,true
+10368,pikachu-gmax,Gigantamax Pikachu,10199,20,gmax,1296,1,true,true,false,true
+10369,meowth-gmax,Gigantamax Meowth,10200,20,gmax,1297,1,true,true,false,true
+10370,machamp-gmax,Gigantamax Machamp,10201,20,gmax,1298,1,true,true,false,true
+10371,gengar-gmax,Gigantamax Gengar,10202,20,gmax,1299,1,true,true,false,true
+10372,kingler-gmax,Gigantamax Kingler,10203,20,gmax,1300,1,true,true,false,true
+10373,lapras-gmax,Gigantamax Lapras,10204,20,gmax,1301,1,true,true,false,true
+10374,eevee-gmax,Gigantamax Eevee,10205,20,gmax,1302,1,true,true,false,true
+10375,snorlax-gmax,Gigantamax Snorlax,10206,20,gmax,1303,1,true,true,false,true
+10376,garbodor-gmax,Gigantamax Garbodor,10207,20,gmax,1304,1,true,true,false,true
+10377,melmetal-gmax,Gigantamax Melmetal,10208,20,gmax,1305,1,true,true,false,true
+10378,rillaboom-gmax,Gigantamax Rillaboom,10209,20,gmax,1306,1,true,true,false,true
+10379,cinderace-gmax,Gigantamax Cinderace,10210,20,gmax,1307,1,true,true,false,true
+10380,inteleon-gmax,Gigantamax Inteleon,10211,20,gmax,1308,1,true,true,false,true
+10381,corviknight-gmax,Gigantamax Corviknight,10212,20,gmax,1309,1,true,true,false,true
+10382,orbeetle-gmax,Gigantamax Orbeetle,10213,20,gmax,1310,1,true,true,false,true
+10383,drednaw-gmax,Gigantamax Drednaw,10214,20,gmax,1311,1,true,true,false,true
+10384,coalossal-gmax,Gigantamax Coalossal,10215,20,gmax,1312,1,true,true,false,true
+10385,flapple-gmax,Gigantamax Flapple,10216,20,gmax,1313,1,true,true,false,true
+10386,appletun-gmax,Gigantamax Appletun,10217,20,gmax,1314,1,true,true,false,true
+10387,sandaconda-gmax,Gigantamax Sandaconda,10218,20,gmax,1315,1,true,true,false,true
+10388,toxtricity-amped-gmax,Gigantamax Amped Toxtricity,10219,20,gmax,1316,1,true,true,false,true
+10389,centiskorch-gmax,Gigantamax Centiskorch,10220,20,gmax,1317,1,true,true,false,true
+10390,hatterene-gmax,Gigantamax Hatterene,10221,20,gmax,1318,1,true,true,false,true
+10391,grimmsnarl-gmax,Gigantamax Grimmsnarl,10222,20,gmax,1319,1,true,true,false,true
+10392,alcremie-gmax,Gigantamax Alcremie,10223,20,gmax,1320,1,true,true,false,true
+10393,copperajah-gmax,Gigantamax Copperajah,10224,20,gmax,1321,1,true,true,false,true
+10394,duraludon-gmax,Gigantamax Duraludon,10225,20,gmax,1322,1,true,true,false,true
+10395,urshifu-single-strike-gmax,Gigantamax Single Strike Urshifu,10226,20,gmax,1324,1,true,true,false,true
+10396,urshifu-rapid-strike-gmax,Gigantamax Rapid Strike Urshifu,10227,20,gmax,1325,1,true,true,false,true
+10397,toxtricity-low-key-gmax,Gigantamax Low Key Toxtricity,10228,20,gmax,1326,1,true,true,false,true
+10398,growlithe-hisui,Hisuian Growlithe,10229,24,hisui,1327,2,false,true,false,true
+10399,arcanine-hisui,Hisuian Arcanine,10230,24,hisui,1328,2,false,true,false,true
+10400,voltorb-hisui,Hisuian Voltorb,10231,24,hisui,1329,2,false,true,false,true
+10401,electrode-hisui,Hisuian Electrode,10232,24,hisui,1330,2,false,true,false,true
+10402,typhlosion-hisui,Hisuian Typhlosion,10233,24,hisui,1331,2,false,true,false,true
+10403,qwilfish-hisui,Hisuian Qwilfish,10234,24,hisui,1332,2,false,true,false,true
+10404,sneasel-hisui,Hisuian Sneasel,10235,24,hisui,1333,2,false,true,false,true
+10405,samurott-hisui,Hisuian Samurott,10236,24,hisui,1334,2,false,true,false,true
+10406,lilligant-hisui,Hisuian Lilligant,10237,24,hisui,1335,2,false,true,false,true
+10407,zorua-hisui,Hisuian Zorua,10238,24,hisui,1336,2,false,true,false,true
+10408,zoroark-hisui,Hisuian Zoroark,10239,24,hisui,1337,2,false,true,false,true
+10409,braviary-hisui,Hisuian Braviary,10240,24,hisui,1338,2,false,true,false,true
+10410,sliggoo-hisui,Hisuian Sliggoo,10241,24,hisui,1339,2,false,true,false,true
+10411,goodra-hisui,Hisuian Goodra,10242,24,hisui,1340,2,false,true,false,true
+10412,avalugg-hisui,Hisuian Avalugg,10243,24,hisui,1341,2,false,true,false,true
+10413,decidueye-hisui,Hisuian Decidueye,10244,24,hisui,1342,2,false,true,false,true
+10414,dialga-origin,Origin Dialga,10245,24,origin,1343,2,false,true,false,true
+10415,palkia-origin,Origin Palkia,10246,24,origin,1345,2,false,true,false,true
+10416,basculin-white-striped,White-Striped Basculin,10247,24,white-striped,1346,3,false,true,false,true
+10417,basculegion-female,Female Basculegion,10248,24,female,1347,2,false,true,false,true
+10418,enamorus-therian,Therian Enamorus,10249,24,therian,1348,2,false,true,false,true
+10419,tauros-paldea-combat-breed,Paldean Tauros (Combat Breed),10250,25,paldea-combat-breed,1349,2,false,true,false,true
+10420,tauros-paldea-blaze-breed,Paldean Tauros (Blaze Breed),10251,25,paldea-blaze-breed,1350,3,false,true,false,true
+10421,tauros-paldea-aqua-breed,Paldean Tauros (Aqua Breed),10252,25,paldea-aqua-breed,1351,4,false,true,false,true
+10422,wooper-paldea,Paldean Wooper,10253,25,paldea,1352,2,false,true,false,true
+10423,oinkologne-female,Female Oinkologne,10254,25,female,1353,2,false,true,false,true
+10424,dudunsparce-three-segment,Three-Segment Form Dudunsparce,10255,25,three-segment,1354,2,false,true,false,true
+10425,palafin-hero,Hero Form Palafin,10256,25,hero,1355,2,true,true,false,true
+10426,maushold-family-of-three,Maushold (Family of Three),10257,25,family-of-three,1356,1,false,true,false,true
+10427,tatsugiri-droopy,Droopy Form Tatsugiri,10258,25,droopy,1358,2,false,true,false,true
+10428,tatsugiri-stretchy,Stretchy Form Tatsugiri,10259,25,stretchy,1361,3,false,true,false,true
+10429,squawkabilly-blue-plumage,Blue Plumage Squawkabilly,10260,25,blue-plumage,1363,2,false,true,false,true
+10430,squawkabilly-yellow-plumage,Yellow Plumage Squawkabilly,10261,25,yellow-plumage,1364,3,false,true,false,true
+10431,squawkabilly-white-plumage,White Plumage Squawkabilly,10262,25,white-plumage,1365,4,false,true,false,true
+10432,gimmighoul-roaming,Roaming Form Gimmighoul,10263,25,roaming,1366,2,false,true,false,true
+10433,koraidon-limited-build,Koraidon Forme Limitée,10264,25,limited-build,1367,2,false,false,false,true
+10434,koraidon-sprinting-build,Koraidon Forme de Course,10265,25,sprinting-build,1368,3,false,false,false,true
+10435,koraidon-swimming-build,Koraidon Forme de Nage,10266,25,swimming-build,1369,4,false,false,false,true
+10436,koraidon-gliding-build,Koraidon Forme de Vol,10267,25,gliding-build,1370,5,false,false,false,true
+10437,miraidon-low-power-mode,Miraidon Mode Bridé,10268,25,low-power-mode,1371,2,false,false,false,true
+10438,miraidon-drive-mode,Miraidon Mode Terrestre,10269,25,drive-mode,1372,3,false,false,false,true
+10439,miraidon-aquatic-mode,Miraidon Mode Aquatique,10270,25,aquatic-mode,1373,4,false,false,false,true
+10440,miraidon-glide-mode,Miraidon Mode Aérien,10271,25,glide-mode,1374,5,false,false,false,true
+10441,ursaluna-bloodmoon,Bloodmoon Ursaluna,10272,26,bloodmoon,1421,2,false,true,false,true
+10442,ogerpon-wellspring-mask,Wellspring Mask Ogerpon,10273,26,wellspring-mask,1431,2,false,true,false,true
+10443,ogerpon-hearthflame-mask,Hearthflame Mask Ogerpon,10274,26,hearthflame-mask,1432,3,false,true,false,true
+10444,ogerpon-cornerstone-mask,Cornerstone Mask Ogerpon,10275,26,cornerstone-mask,1433,4,false,true,false,true
+10445,terapagos-terastal,Terastal Form Terapagos,10276,27,terastal,1441,2,true,true,false,true
+10446,terapagos-stellar,Stellar Form Terapagos,10277,27,stellar,1442,3,true,true,false,true
+10447,poltchageist-artisan,Artisan Form Poltchageist,1012,26,artisan,1424,2,false,false,false,true
+10448,sinistcha-masterpiece,Masterpiece Form Sinistcha,1013,26,masterpiece,1426,2,false,false,false,true
+10449,alcremie-vanilla-cream-berry-sweet,Vanilla Cream Berry Sweet Alcremie,869,20,vanilla-cream-berry-sweet,1256,10,false,false,false,true
+10450,alcremie-ruby-cream-berry-sweet,Ruby Cream Berry Sweet Alcremie,869,20,ruby-cream-berry-sweet,1257,11,false,false,false,true
+10451,alcremie-matcha-cream-berry-sweet,Matcha Cream Berry Sweet Alcremie,869,20,matcha-cream-berry-sweet,1258,12,false,false,false,true
+10452,alcremie-mint-cream-berry-sweet,Mint Cream Berry Sweet Alcremie,869,20,mint-cream-berry-sweet,1259,13,false,false,false,true
+10453,alcremie-lemon-cream-berry-sweet,Lemon Cream Berry Sweet Alcremie,869,20,lemon-cream-berry-sweet,1260,14,false,false,false,true
+10454,alcremie-salted-cream-berry-sweet,Salted Cream Berry Sweet Alcremie,869,20,salted-cream-berry-sweet,1261,15,false,false,false,true
+10455,alcremie-ruby-swirl-berry-sweet,Ruby Swirl Berry Sweet Alcremie,869,20,ruby-swirl-berry-sweet,1262,16,false,false,false,true
+10456,alcremie-caramel-swirl-berry-sweet,Caramel Swirl Berry Sweet Alcremie,869,20,caramel-swirl-berry-sweet,1263,17,false,false,false,true
+10457,alcremie-rainbow-swirl-berry-sweet,Rainbow Swirl Berry Sweet Alcremie,869,20,rainbow-swirl-berry-sweet,1264,18,false,false,false,true
+10458,alcremie-vanilla-cream-love-sweet,Vanilla Cream Love Sweet Alcremie,869,20,vanilla-cream-love-sweet,1256,19,false,false,false,true
+10459,alcremie-ruby-cream-love-sweet,Ruby Cream Love Sweet Alcremie,869,20,ruby-cream-love-sweet,1257,20,false,false,false,true
+10460,alcremie-matcha-cream-love-sweet,Matcha Cream Love Sweet Alcremie,869,20,matcha-cream-love-sweet,1258,21,false,false,false,true
+10461,alcremie-mint-cream-love-sweet,Mint Cream Love Sweet Alcremie,869,20,mint-cream-love-sweet,1259,22,false,false,false,true
+10462,alcremie-lemon-cream-love-sweet,Lemon Cream Love Sweet Alcremie,869,20,lemon-cream-love-sweet,1260,23,false,false,false,true
+10463,alcremie-salted-cream-love-sweet,Salted Cream Love Sweet Alcremie,869,20,salted-cream-love-sweet,1261,24,false,false,false,true
+10464,alcremie-ruby-swirl-love-sweet,Ruby Swirl Love Sweet Alcremie,869,20,ruby-swirl-love-sweet,1262,25,false,false,false,true
+10465,alcremie-caramel-swirl-love-sweet,Caramel Swirl Love Sweet Alcremie,869,20,caramel-swirl-love-sweet,1263,26,false,false,false,true
+10466,alcremie-rainbow-swirl-love-sweet,Rainbow Swirl Love Sweet Alcremie,869,20,rainbow-swirl-love-sweet,1264,27,false,false,false,true
+10467,alcremie-vanilla-cream-star-sweet,Vanilla Cream Star Sweet Alcremie,869,20,vanilla-cream-star-sweet,1256,28,false,false,false,true
+10468,alcremie-ruby-cream-star-sweet,Ruby Cream Star Sweet Alcremie,869,20,ruby-cream-star-sweet,1257,29,false,false,false,true
+10469,alcremie-matcha-cream-star-sweet,Matcha Cream Star Sweet Alcremie,869,20,matcha-cream-star-sweet,1258,30,false,false,false,true
+10470,alcremie-mint-cream-star-sweet,Mint Cream Star Sweet Alcremie,869,20,mint-cream-star-sweet,1259,31,false,false,false,true
+10471,alcremie-lemon-cream-star-sweet,Lemon Cream Star Sweet Alcremie,869,20,lemon-cream-star-sweet,1260,32,false,false,false,true
+10472,alcremie-salted-cream-star-sweet,Salted Cream Star Sweet Alcremie,869,20,salted-cream-star-sweet,1261,33,false,false,false,true
+10473,alcremie-ruby-swirl-star-sweet,Ruby Swirl Star Sweet Alcremie,869,20,ruby-swirl-star-sweet,1262,34,false,false,false,true
+10474,alcremie-caramel-swirl-star-sweet,Caramel Swirl Star Sweet Alcremie,869,20,caramel-swirl-star-sweet,1263,35,false,false,false,true
+10475,alcremie-rainbow-swirl-star-sweet,Rainbow Swirl Star Sweet Alcremie,869,20,rainbow-swirl-star-sweet,1264,36,false,false,false,true
+10476,alcremie-vanilla-cream-clover-sweet,Vanilla Cream Clover Sweet Alcremie,869,20,vanilla-cream-clover-sweet,1256,37,false,false,false,true
+10477,alcremie-ruby-cream-clover-sweet,Ruby Cream Clover Sweet Alcremie,869,20,ruby-cream-clover-sweet,1257,38,false,false,false,true
+10478,alcremie-matcha-cream-clover-sweet,Matcha Cream Clover Sweet Alcremie,869,20,matcha-cream-clover-sweet,1258,39,false,false,false,true
+10479,alcremie-mint-cream-clover-sweet,Mint Cream Clover Sweet Alcremie,869,20,mint-cream-clover-sweet,1259,40,false,false,false,true
+10480,alcremie-lemon-cream-clover-sweet,Lemon Cream Clover Sweet Alcremie,869,20,lemon-cream-clover-sweet,1260,41,false,false,false,true
+10481,alcremie-salted-cream-clover-sweet,Salted Cream Clover Sweet Alcremie,869,20,salted-cream-clover-sweet,1261,42,false,false,false,true
+10482,alcremie-ruby-swirl-clover-sweet,Ruby Swirl Clover Sweet Alcremie,869,20,ruby-swirl-clover-sweet,1262,43,false,false,false,true
+10483,alcremie-caramel-swirl-clover-sweet,Caramel Swirl Clover Sweet Alcremie,869,20,caramel-swirl-clover-sweet,1263,44,false,false,false,true
+10484,alcremie-rainbow-swirl-clover-sweet,Rainbow Swirl Clover Sweet Alcremie,869,20,rainbow-swirl-clover-sweet,1264,45,false,false,false,true
+10485,alcremie-vanilla-cream-flower-sweet,Vanilla Cream Flower Sweet Alcremie,869,20,vanilla-cream-flower-sweet,1256,46,false,false,false,true
+10486,alcremie-ruby-cream-flower-sweet,Ruby Cream Flower Sweet Alcremie,869,20,ruby-cream-flower-sweet,1257,47,false,false,false,true
+10487,alcremie-matcha-cream-flower-sweet,Matcha Cream Flower Sweet Alcremie,869,20,matcha-cream-flower-sweet,1258,48,false,false,false,true
+10488,alcremie-mint-cream-flower-sweet,Mint Cream Flower Sweet Alcremie,869,20,mint-cream-flower-sweet,1259,49,false,false,false,true
+10489,alcremie-lemon-cream-flower-sweet,Lemon Cream Flower Sweet Alcremie,869,20,lemon-cream-flower-sweet,1260,50,false,false,false,true
+10490,alcremie-salted-cream-flower-sweet,Salted Cream Flower Sweet Alcremie,869,20,salted-cream-flower-sweet,1261,51,false,false,false,true
+10491,alcremie-ruby-swirl-flower-sweet,Ruby Swirl Flower Sweet Alcremie,869,20,ruby-swirl-flower-sweet,1262,52,false,false,false,true
+10492,alcremie-caramel-swirl-flower-sweet,Caramel Swirl Flower Sweet Alcremie,869,20,caramel-swirl-flower-sweet,1263,53,false,false,false,true
+10493,alcremie-rainbow-swirl-flower-sweet,Rainbow Swirl Flower Sweet Alcremie,869,20,rainbow-swirl-flower-sweet,1264,54,false,false,false,true
+10494,alcremie-vanilla-cream-ribbon-sweet,Vanilla Cream Ribbon Sweet Alcremie,869,20,vanilla-cream-ribbon-sweet,1256,55,false,false,false,true
+10495,alcremie-ruby-cream-ribbon-sweet,Ruby Cream Ribbon Sweet Alcremie,869,20,ruby-cream-ribbon-sweet,1257,56,false,false,false,true
+10496,alcremie-matcha-cream-ribbon-sweet,Matcha Cream Ribbon Sweet Alcremie,869,20,matcha-cream-ribbon-sweet,1258,57,false,false,false,true
+10497,alcremie-mint-cream-ribbon-sweet,Mint Cream Ribbon Sweet Alcremie,869,20,mint-cream-ribbon-sweet,1259,58,false,false,false,true
+10498,alcremie-lemon-cream-ribbon-sweet,Lemon Cream Ribbon Sweet Alcremie,869,20,lemon-cream-ribbon-sweet,1260,59,false,false,false,true
+10499,alcremie-salted-cream-ribbon-sweet,Salted Cream Ribbon Sweet Alcremie,869,20,salted-cream-ribbon-sweet,1261,60,false,false,false,true
+10500,alcremie-ruby-swirl-ribbon-sweet,Ruby Swirl Ribbon Sweet Alcremie,869,20,ruby-swirl-ribbon-sweet,1262,61,false,false,false,true
+10501,alcremie-caramel-swirl-ribbon-sweet,Caramel Swirl Ribbon Sweet Alcremie,869,20,caramel-swirl-ribbon-sweet,1263,62,false,false,false,true
+10502,alcremie-rainbow-swirl-ribbon-sweet,Rainbow Swirl Ribbon Sweet Alcremie,869,20,rainbow-swirl-ribbon-sweet,1264,63,false,false,false,true
+10503,clefable-mega,Mega Clefable,10278,31,mega,69,2,true,true,true,true
+10504,victreebel-mega,Mega Victreebel,10279,31,mega,117,2,true,true,true,true
+10505,starmie-mega,Mega Starmie,10280,31,mega,198,2,true,true,true,true
+10506,dragonite-mega,Mega Dragonite,10281,31,mega,251,2,true,true,true,true
+10507,meganium-mega,Mega Meganium,10282,31,mega,259,2,true,true,true,true
+10508,feraligatr-mega,Mega Feraligatr,10283,31,mega,266,2,true,true,true,true
+10509,skarmory-mega,Mega Skarmory,10284,31,mega,365,2,true,true,true,true
+10510,froslass-mega,Mega Froslass,10285,31,mega,523,2,true,true,true,true
+10511,emboar-mega,Mega Emboar,10286,31,mega,686,2,true,true,true,true
+10512,excadrill-mega,Mega Excadrill,10287,31,mega,717,2,true,true,true,true
+10513,scolipede-mega,Mega Scolipede,10288,31,mega,734,2,true,true,true,true
+10514,scrafty-mega,Mega Scrafty,10289,31,mega,755,2,true,true,true,true
+10515,eelektross-mega,Mega Eelektross,10290,31,mega,807,2,true,true,true,true
+10516,chandelure-mega,Mega Chandelure,10291,31,mega,813,2,true,true,true,true
+10517,chesnaught-mega,Mega Chesnaught,10292,31,mega,870,2,true,true,true,true
+10518,delphox-mega,Mega Delphox,10293,31,mega,874,2,true,true,true,true
+10519,greninja-mega,Mega Greninja,10294,31,mega,880,4,true,true,true,true
+10520,pyroar-mega,Mega Pyroar,10295,31,mega,948,3,true,true,true,true
+10521,floette-mega,Mega Floette,10296,31,mega,960,7,true,true,true,true
+10522,malamar-mega,Mega Malamar,10297,31,mega,995,2,true,true,true,true
+10523,barbaracle-mega,Mega Barbaracle,10298,31,mega,998,2,true,true,true,true
+10524,dragalge-mega,Mega Dragalge,10299,31,mega,1001,2,true,true,true,true
+10525,hawlucha-mega,Mega Hawlucha,10300,31,mega,1011,2,true,true,true,true
+10526,zygarde-mega,Mega Zygarde,10301,31,mega,1040,6,true,true,true,true
+10527,drampa-mega,Mega Drampa,10302,31,mega,1154,2,true,true,true,true
+10528,falinks-mega,Mega Falinks,10303,31,mega,1266,2,true,true,true,true
+10529,raichu-mega-x,Mega Raichu X,10304,31,mega-x,54,3,true,true,true,true
+10530,raichu-mega-y,Mega Raichu Y,10305,31,mega-y,55,4,true,true,true,true
+10531,chimecho-mega,Mega Chimecho,10306,31,mega,515,2,true,true,true,true
+10532,absol-mega-z,Mega Absol Z,10307,31,mega-z,518,3,true,true,true,true
+10533,staraptor-mega,Mega Staraptor,10308,31,mega,570,2,true,true,true,true
+10534,garchomp-mega-z,Mega Garchomp Z,10309,31,mega-z,620,3,true,true,true,true
+10535,lucario-mega-z,Mega Lucario Z,10310,31,mega-z,624,3,true,true,true,true
+10536,heatran-mega,Mega Heatran,10311,31,mega,649,2,true,true,true,true
+10537,darkrai-mega,Mega Darkrai,10312,31,mega,657,2,true,true,true,true
+10538,golurk-mega,Mega Golurk,10313,31,mega,829,2,true,true,true,true
+10539,meowstic-male-mega,Mega Meowstic,10314,31,mega-male,983,3,true,true,true,true
+10540,crabominable-mega,Mega Crabominable,10315,31,mega,1067,2,true,true,true,true
+10541,golisopod-mega,Mega Golisopod,10316,31,mega,1107,2,true,true,true,true
+10542,magearna-mega,Mega Magearna,10317,31,mega,1181,3,true,true,true,true
+10543,magearna-original-mega,Mega Original Magearna,10318,31,mega,1182,4,true,true,true,true
+10544,zeraora-mega,Mega Zeraora,10319,31,mega,1189,2,true,true,true,true
+10545,scovillain-mega,Mega Scovillain,10320,31,mega,1344,2,true,true,true,true
+10546,glimmora-mega,Mega Glimmora,10321,31,mega,1377,2,true,true,true,true
+10547,tatsugiri-curly-mega,Mega Curly Tatsugiri,10322,31,mega,1359,4,true,true,true,true
+10548,tatsugiri-droopy-mega,Mega Droopy Tatsugiri,10323,31,mega,1360,5,true,true,true,true
+10549,tatsugiri-stretchy-mega,Mega Stretchy Tatsugiri,10324,31,mega,1362,6,true,true,true,true
+10550,baxcalibur-mega,Mega Baxcalibur,10325,31,mega,1357,2,true,true,true,true
+10551,pyroar-female,Female Pyroar,668,15,female,949,2,false,false,false,true
+10552,frillish-female,Female Frillish,592,11,female,794,2,false,false,false,true
+10553,jellicent-female,Female Jellicent,593,11,female,795,2,false,false,false,true
+10554,meowstic-female-mega,Mega Meowstic,10326,31,mega-female,984,4,true,true,true,true

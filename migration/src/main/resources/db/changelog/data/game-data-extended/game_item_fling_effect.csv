@@ -1,0 +1,8 @@
+id,code,name,effect,enabled
+1,badly-poison,badly poison,Badly poisons the target.,true
+2,burn,burn,Burns the target.,true
+3,berry-effect,berry effect,Immediately activates the berry’s effect on the target.,true
+4,herb-effect,herb effect,Immediately activates the herb’s effect on the target.,true
+5,paralyze,paralyze,Paralyzes the target.,true
+6,poison,poison,Poisons the target.,true
+7,flinch,flinch,Target will flinch if it has not yet gone this turn.,true

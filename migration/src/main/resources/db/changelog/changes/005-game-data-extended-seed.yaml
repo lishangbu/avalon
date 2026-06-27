@@ -1,0 +1,1901 @@
+databaseChangeLog:
+- changeSet:
+    id: 005-001-seed-game-data-extended-menu
+    author: backend
+    changes:
+    - sql:
+        sql: "insert into security_access_node (\n                id, code, name, type, parent_id, path, component_key, icon,\n                sort_order, visible, enabled, api_method, api_pattern\n              ) values\n                (450, 'game-data.berry', '树果资料', 'DIRECTORY', 410, '/game-data/berry', null, 'lucide:cherry', 35, true, true, null, null),\n                (460, 'game-data.item-extra', '道具扩展', 'DIRECTORY', 410, '/game-data/item-extra', null, 'lucide:package-search', 40, true, true, null, null),\n                (470, 'game-data.skill-extra', '技能扩展', 'DIRECTORY', 410, '/game-data/skill-extra', null, 'lucide:sparkles', 45, true, true, null, null),\n                (480, 'game-data.creature-extra', '生物扩展', 'DIRECTORY', 410, '/game-data/creature-extra', null, 'lucide:badge', 50, true, true, null, null),\n                (490, 'game-data.world', '世界资料', 'DIRECTORY', 410, '/game-data/world', null, 'lucide:globe-2', 55, true, true, null, null),\n                (510, 'game-data.encounter',\
+          \ '遭遇资料', 'DIRECTORY', 410, '/game-data/encounter', null, 'lucide:radar', 60, true, true, null, null),\n                (530, 'game-data.evolution', '进化资料', 'DIRECTORY', 410, '/game-data/evolution', null, 'lucide:workflow', 65, true, true, null, null),\n                (550, 'game-data.contest', '评价资料', 'DIRECTORY', 410, '/game-data/contest', null, 'lucide:trophy', 70, true, true, null, null),\n                (570, 'game-data.catalog', '目录资料', 'DIRECTORY', 410, '/game-data/catalog', null, 'lucide:book-open', 75, true, true, null, null),\n                (590, 'game-data.ext-relations', '扩展关系', 'DIRECTORY', 410, '/game-data/ext-relations', null, 'lucide:network', 80, true, true, null, null),\n                (620, 'game-data.extended', '扩展资料', 'DIRECTORY', 410, '/game-data/extended', null, 'lucide:table-2', 85, true, true, null, null),\n                (700, 'game-data.contest-types', '评分类别', 'ROUTE', 550, '/game-data/contest-types', 'game-data/contest-types', 'lucide:trophy',\
+          \ 10, true, true, null, null),\n                (701, 'game-data.contest-effects', '评价效果', 'ROUTE', 550, '/game-data/contest-effects', 'game-data/contest-effects', 'lucide:star', 20, true, true, null, null),\n                (702, 'game-data.advanced-contest-effects', '高级评价效果', 'ROUTE', 550, '/game-data/advanced-contest-effects', 'game-data/advanced-contest-effects', 'lucide:sparkles', 30, true, true, null, null),\n                (703, 'game-data.advanced-contest-effect-skills', '高级评价效果技能', 'ROUTE', 590, '/game-data/advanced-contest-effect-skills', 'game-data/advanced-contest-effect-skills', 'lucide:git-branch', 10, true, true, null, null),\n                (704, 'game-data.berry-firmnesses', '树果硬度', 'ROUTE', 450, '/game-data/berry-firmnesses', 'game-data/berry-firmnesses', 'lucide:gauge', 10, true, true, null, null),\n                (705, 'game-data.berry-flavors', '树果口味', 'ROUTE', 450, '/game-data/berry-flavors', 'game-data/berry-flavors', 'lucide:candy', 20, true, true, null,\
+          \ null),\n                (706, 'game-data.berries', '树果资料', 'ROUTE', 450, '/game-data/berries', 'game-data/berries', 'lucide:cherry', 30, true, true, null, null),\n                (707, 'game-data.berry-flavor-potencies', '树果口味强度', 'ROUTE', 590, '/game-data/berry-flavor-potencies', 'game-data/berry-flavor-potencies', 'lucide:git-branch', 20, true, true, null, null),\n                (708, 'game-data.item-attributes', '道具属性', 'ROUTE', 460, '/game-data/item-attributes', 'game-data/item-attributes', 'lucide:badge-info', 10, true, true, null, null),\n                (709, 'game-data.item-fling-effects', '道具投掷效果', 'ROUTE', 460, '/game-data/item-fling-effects', 'game-data/item-fling-effects', 'lucide:send', 20, true, true, null, null),\n                (710, 'game-data.item-pockets', '道具口袋', 'ROUTE', 460, '/game-data/item-pockets', 'game-data/item-pockets', 'lucide:briefcase', 30, true, true, null, null),\n                (711, 'game-data.item-details', '道具详情', 'ROUTE', 460, '/game-data/item-details',\
+          \ 'game-data/item-details', 'lucide:file-text', 40, true, true, null, null),\n                (712, 'game-data.item-attribute-bindings', '道具属性绑定', 'ROUTE', 590, '/game-data/item-attribute-bindings', 'game-data/item-attribute-bindings', 'lucide:git-branch', 30, true, true, null, null),\n                (713, 'game-data.item-category-pockets', '道具分类口袋', 'ROUTE', 590, '/game-data/item-category-pockets', 'game-data/item-category-pockets', 'lucide:git-branch', 40, true, true, null, null),\n                (714, 'game-data.item-game-indices', '道具版本索引', 'ROUTE', 590, '/game-data/item-game-indices', 'game-data/item-game-indices', 'lucide:hash', 50, true, true, null, null),\n                (715, 'game-data.skill-ailments', '技能异常', 'ROUTE', 470, '/game-data/skill-ailments', 'game-data/skill-ailments', 'lucide:activity', 10, true, true, null, null),\n                (716, 'game-data.skill-battle-styles', '技能战斗风格', 'ROUTE', 470, '/game-data/skill-battle-styles', 'game-data/skill-battle-styles',\
+          \ 'lucide:swords', 20, true, true, null, null),\n                (717, 'game-data.skill-categories', '技能元分类', 'ROUTE', 470, '/game-data/skill-categories', 'game-data/skill-categories', 'lucide:folder-tree', 30, true, true, null, null),\n                (718, 'game-data.skill-learn-methods', '技能学习方式', 'ROUTE', 470, '/game-data/skill-learn-methods', 'game-data/skill-learn-methods', 'lucide:graduation-cap', 40, true, true, null, null),\n                (719, 'game-data.skill-targets', '技能目标', 'ROUTE', 470, '/game-data/skill-targets', 'game-data/skill-targets', 'lucide:crosshair', 50, true, true, null, null),\n                (720, 'game-data.skill-details', '技能详情', 'ROUTE', 470, '/game-data/skill-details', 'game-data/skill-details', 'lucide:file-text', 60, true, true, null, null),\n                (721, 'game-data.skill-stat-changes', '技能数值变化', 'ROUTE', 590, '/game-data/skill-stat-changes', 'game-data/skill-stat-changes', 'lucide:chart-no-axes-column', 60, true, true, null, null),\n\
+          \                (722, 'game-data.skill-contest-combos', '技能评价组合', 'ROUTE', 590, '/game-data/skill-contest-combos', 'game-data/skill-contest-combos', 'lucide:git-branch', 70, true, true, null, null),\n                (723, 'game-data.skill-learn-method-version-groups', '学习方式版本组', 'ROUTE', 590, '/game-data/skill-learn-method-version-groups', 'game-data/skill-learn-method-version-groups', 'lucide:git-branch', 80, true, true, null, null),\n                (724, 'game-data.growth-rates', '成长速率', 'ROUTE', 480, '/game-data/growth-rates', 'game-data/growth-rates', 'lucide:trending-up', 10, true, true, null, null),\n                (725, 'game-data.growth-rate-levels', '成长等级经验', 'ROUTE', 590, '/game-data/growth-rate-levels', 'game-data/growth-rate-levels', 'lucide:hash', 90, true, true, null, null),\n                (726, 'game-data.event-stats', '活动能力项', 'ROUTE', 550, '/game-data/event-stats', 'game-data/event-stats', 'lucide:chart-column', 40, true, true, null, null),\n             \
+          \   (727, 'game-data.natures', '性格资料', 'ROUTE', 480, '/game-data/natures', 'game-data/natures', 'lucide:smile', 20, true, true, null, null),\n                (728, 'game-data.nature-battle-style-preferences', '性格战斗风格偏好', 'ROUTE', 590, '/game-data/nature-battle-style-preferences', 'game-data/nature-battle-style-preferences', 'lucide:git-branch', 100, true, true, null, null),\n                (729, 'game-data.nature-event-stat-changes', '性格活动能力变化', 'ROUTE', 590, '/game-data/nature-event-stat-changes', 'game-data/nature-event-stat-changes', 'lucide:git-branch', 110, true, true, null, null),\n                (730, 'game-data.event-stat-nature-effects', '活动能力性格影响', 'ROUTE', 590, '/game-data/event-stat-nature-effects', 'game-data/event-stat-nature-effects', 'lucide:git-branch', 120, true, true, null, null),\n                (731, 'game-data.release-generations', '发布代际', 'ROUTE', 490, '/game-data/release-generations', 'game-data/release-generations', 'lucide:layers', 10, true, true, null,\
+          \ null),\n                (732, 'game-data.regions', '地区资料', 'ROUTE', 490, '/game-data/regions', 'game-data/regions', 'lucide:map', 20, true, true, null, null),\n                (733, 'game-data.version-groups', '版本组', 'ROUTE', 490, '/game-data/version-groups', 'game-data/version-groups', 'lucide:folders', 30, true, true, null, null),\n                (734, 'game-data.versions', '版本资料', 'ROUTE', 490, '/game-data/versions', 'game-data/versions', 'lucide:tag', 40, true, true, null, null),\n                (735, 'game-data.version-group-regions', '版本组地区绑定', 'ROUTE', 590, '/game-data/version-group-regions', 'game-data/version-group-regions', 'lucide:git-branch', 130, true, true, null, null),\n                (736, 'game-data.locations', '地点资料', 'ROUTE', 490, '/game-data/locations', 'game-data/locations', 'lucide:map-pin', 50, true, true, null, null),\n                (737, 'game-data.location-game-indices', '地点版本索引', 'ROUTE', 590, '/game-data/location-game-indices', 'game-data/location-game-indices',\
+          \ 'lucide:hash', 140, true, true, null, null),\n                (738, 'game-data.encounter-methods', '遭遇方式', 'ROUTE', 510, '/game-data/encounter-methods', 'game-data/encounter-methods', 'lucide:footprints', 10, true, true, null, null),\n                (739, 'game-data.encounter-conditions', '遭遇条件', 'ROUTE', 510, '/game-data/encounter-conditions', 'game-data/encounter-conditions', 'lucide:filter', 20, true, true, null, null),\n                (740, 'game-data.encounter-condition-values', '遭遇条件值', 'ROUTE', 510, '/game-data/encounter-condition-values', 'game-data/encounter-condition-values', 'lucide:list-checks', 30, true, true, null, null),\n                (741, 'game-data.location-areas', '地点区域', 'ROUTE', 510, '/game-data/location-areas', 'game-data/location-areas', 'lucide:map-pinned', 40, true, true, null, null),\n                (742, 'game-data.location-area-method-rates', '区域遭遇方式概率', 'ROUTE', 590, '/game-data/location-area-method-rates', 'game-data/location-area-method-rates',\
+          \ 'lucide:percent', 150, true, true, null, null),\n                (743, 'game-data.location-area-encounters', '区域生物遭遇', 'ROUTE', 590, '/game-data/location-area-encounters', 'game-data/location-area-encounters', 'lucide:radar', 160, true, true, null, null),\n                (744, 'game-data.location-area-encounter-condition-values', '区域遭遇条件绑定', 'ROUTE', 590, '/game-data/location-area-encounter-condition-values', 'game-data/location-area-encounter-condition-values', 'lucide:git-branch', 170, true, true, null, null),\n                (745, 'game-data.genders', '性别资料', 'ROUTE', 480, '/game-data/genders', 'game-data/genders', 'lucide:venus-and-mars', 30, true, true, null, null),\n                (746, 'game-data.evolution-triggers', '进化触发器', 'ROUTE', 530, '/game-data/evolution-triggers', 'game-data/evolution-triggers', 'lucide:zap', 10, true, true, null, null),\n                (747, 'game-data.evolution-chains', '进化链', 'ROUTE', 530, '/game-data/evolution-chains', 'game-data/evolution-chains',\
+          \ 'lucide:workflow', 20, true, true, null, null),\n                (748, 'game-data.evolution-nodes', '进化链节点', 'ROUTE', 530, '/game-data/evolution-nodes', 'game-data/evolution-nodes', 'lucide:git-fork', 30, true, true, null, null),\n                (749, 'game-data.evolution-details', '进化条件', 'ROUTE', 530, '/game-data/evolution-details', 'game-data/evolution-details', 'lucide:route', 40, true, true, null, null),\n                (750, 'game-data.gender-species-rates', '性别种类比例', 'ROUTE', 590, '/game-data/gender-species-rates', 'game-data/gender-species-rates', 'lucide:percent', 180, true, true, null, null),\n                (751, 'game-data.gender-evolution-requirements', '性别进化要求', 'ROUTE', 590, '/game-data/gender-evolution-requirements', 'game-data/gender-evolution-requirements', 'lucide:git-branch', 190, true, true, null, null),\n                (752, 'game-data.catalogs', '图鉴目录', 'ROUTE', 570, '/game-data/catalogs', 'game-data/catalogs', 'lucide:book-open', 10, true, true, null,\
+          \ null),\n                (753, 'game-data.catalog-entries', '图鉴目录条目', 'ROUTE', 570, '/game-data/catalog-entries', 'game-data/catalog-entries', 'lucide:list-ordered', 20, true, true, null, null),\n                (754, 'game-data.catalog-version-groups', '目录版本组绑定', 'ROUTE', 590, '/game-data/catalog-version-groups', 'game-data/catalog-version-groups', 'lucide:git-branch', 200, true, true, null, null),\n                (755, 'game-data.creature-forms', '生物形态', 'ROUTE', 480, '/game-data/creature-forms', 'game-data/creature-forms', 'lucide:badge', 40, true, true, null, null),\n                (756, 'game-data.creature-form-elements', '生物形态属性', 'ROUTE', 590, '/game-data/creature-form-elements', 'game-data/creature-form-elements', 'lucide:git-branch', 210, true, true, null, null),\n                (757, 'game-data.machines', '机器资料', 'ROUTE', 460, '/game-data/machines', 'game-data/machines', 'lucide:disc-3', 50, true, true, null, null),\n                (758, 'game-data.transfer-areas',\
+          \ '迁移区域', 'ROUTE', 490, '/game-data/transfer-areas', 'game-data/transfer-areas', 'lucide:trees', 60, true, true, null, null),\n                (759, 'game-data.transfer-area-species', '迁移区域种类', 'ROUTE', 590, '/game-data/transfer-area-species', 'game-data/transfer-area-species', 'lucide:git-branch', 220, true, true, null, null),\n                (760, 'game-data.ability-details', '特性详情', 'ROUTE', 480, '/game-data/ability-details', 'game-data/ability-details', 'lucide:file-text', 50, true, true, null, null),\n                (761, 'game-data.species-details', '种类详情', 'ROUTE', 480, '/game-data/species-details', 'game-data/species-details', 'lucide:file-text', 60, true, true, null, null),\n                (762, 'game-data.species-catalog-numbers', '种类目录编号', 'ROUTE', 590, '/game-data/species-catalog-numbers', 'game-data/species-catalog-numbers', 'lucide:list-ordered', 230, true, true, null, null),\n                (763, 'game-data.species-creature-varieties', '种类生物变种', 'ROUTE', 590,\
+          \ '/game-data/species-creature-varieties', 'game-data/species-creature-varieties', 'lucide:git-branch', 240, true, true, null, null),\n                (764, 'game-data.creature-skill-learns', '生物技能学习', 'ROUTE', 590, '/game-data/creature-skill-learns', 'game-data/creature-skill-learns', 'lucide:graduation-cap', 250, true, true, null, null),\n                (765, 'game-data.creature-held-items', '生物持有道具', 'ROUTE', 590, '/game-data/creature-held-items', 'game-data/creature-held-items', 'lucide:package', 260, true, true, null, null),\n                (766, 'game-data.creature-game-indices', '生物版本索引', 'ROUTE', 590, '/game-data/creature-game-indices', 'game-data/creature-game-indices', 'lucide:hash', 270, true, true, null, null),\n                (767, 'game-data.element-damage-relations', '属性克制关系', 'ROUTE', 590, '/game-data/element-damage-relations', 'game-data/element-damage-relations', 'lucide:split', 280, true, true, null, null),\n                (768, 'game-data.element-game-indices',\
+          \ '属性版本索引', 'ROUTE', 590, '/game-data/element-game-indices', 'game-data/element-game-indices', 'lucide:hash', 290, true, true, null, null),\n                (769, 'game-data.stat-skill-effects', '数值项技能影响', 'ROUTE', 590, '/game-data/stat-skill-effects', 'game-data/stat-skill-effects', 'lucide:chart-no-axes-column', 300, true, true, null, null),\n                (770, 'game-data.stat-nature-effects', '数值项性格影响', 'ROUTE', 590, '/game-data/stat-nature-effects', 'game-data/stat-nature-effects', 'lucide:git-branch', 310, true, true, null, null),\n                (771, 'game-data.characteristics', '个体特征', 'ROUTE', 480, '/game-data/characteristics', 'game-data/characteristics', 'lucide:fingerprint', 70, true, true, null, null),\n                (772, 'game-data.characteristic-values', '个体特征取值', 'ROUTE', 590, '/game-data/characteristic-values', 'game-data/characteristic-values', 'lucide:list-ordered', 320, true, true, null, null),\n                (773, 'game-data.stat-characteristics',\
+          \ '数值项特征', 'ROUTE', 590, '/game-data/stat-characteristics', 'game-data/stat-characteristics', 'lucide:git-branch', 330, true, true, null, null);\n"
+    - sql:
+        sql: "insert into security_role_access_node (role_id, access_node_id)\n              select 202, id\n              from security_access_node\n              where code like 'game-data.%'\n              on conflict do nothing;\n"
+- changeSet:
+    id: 005-002-load-game-data-extended
+    author: backend
+    changes:
+    - loadData:
+        tableName: game_evolution_chain
+        file: db/changelog/data/game-data-extended/game_evolution_chain.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: baby_trigger_item_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_item_fling_effect
+        file: db/changelog/data/game-data-extended/game_item_fling_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: effect
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_stat_change
+        file: db/changelog/data/game-data-extended/game_skill_stat_change.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: stat_id
+            type: NUMERIC
+        - column:
+            name: change_value
+            type: NUMERIC
+    - loadData:
+        tableName: game_encounter_method
+        file: db/changelog/data/game-data-extended/game_encounter_method.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_advanced_contest_effect
+        file: db/changelog/data/game-data-extended/game_advanced_contest_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: appeal
+            type: NUMERIC
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_contest_type
+        file: db/changelog/data/game-data-extended/game_contest_type.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: color
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_characteristic
+        file: db/changelog/data/game-data-extended/game_characteristic.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: highest_stat_id
+            type: NUMERIC
+        - column:
+            name: gene_modulo
+            type: NUMERIC
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_growth_rate
+        file: db/changelog/data/game-data-extended/game_growth_rate.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: formula
+            type: STRING
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_gender
+        file: db/changelog/data/game-data-extended/game_gender.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_evolution_trigger
+        file: db/changelog/data/game-data-extended/game_evolution_trigger.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_item_pocket
+        file: db/changelog/data/game-data-extended/game_item_pocket.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_evolution_node
+        file: db/changelog/data/game-data-extended/game_evolution_node.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: chain_id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: parent_species_id
+            type: NUMERIC
+        - column:
+            name: baby
+            type: BOOLEAN
+        - column:
+            name: node_order
+            type: NUMERIC
+    - loadData:
+        tableName: game_skill_category
+        file: db/changelog/data/game-data-extended/game_skill_category.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_stat_skill_effect
+        file: db/changelog/data/game-data-extended/game_stat_skill_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: stat_id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: change_value
+            type: NUMERIC
+        - column:
+            name: effect_type
+            type: STRING
+    - loadData:
+        tableName: game_skill_target
+        file: db/changelog/data/game-data-extended/game_skill_target.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_ailment
+        file: db/changelog/data/game-data-extended/game_skill_ailment.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_ability_detail
+        file: db/changelog/data/game-data-extended/game_ability_detail.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: ability_id
+            type: NUMERIC
+        - column:
+            name: effect
+            type: STRING
+        - column:
+            name: short_effect
+            type: STRING
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_event_stat
+        file: db/changelog/data/game-data-extended/game_event_stat.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_advanced_contest_effect_skill
+        file: db/changelog/data/game-data-extended/game_advanced_contest_effect_skill.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: advanced_contest_effect_id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_release_generation
+        file: db/changelog/data/game-data-extended/game_release_generation.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_contest_combo
+        file: db/changelog/data/game-data-extended/game_skill_contest_combo.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: combo_type
+            type: STRING
+        - column:
+            name: relation_type
+            type: STRING
+        - column:
+            name: related_skill_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_berry_firmness
+        file: db/changelog/data/game-data-extended/game_berry_firmness.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_battle_style
+        file: db/changelog/data/game-data-extended/game_skill_battle_style.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_gender_species_rate
+        file: db/changelog/data/game-data-extended/game_gender_species_rate.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: gender_id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: rate
+            type: NUMERIC
+    - loadData:
+        tableName: game_species_creature_variety
+        file: db/changelog/data/game-data-extended/game_species_creature_variety.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: default_variety
+            type: BOOLEAN
+    - loadData:
+        tableName: game_berry
+        file: db/changelog/data/game-data-extended/game_berry.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: firmness_id
+            type: NUMERIC
+        - column:
+            name: natural_gift_element_id
+            type: NUMERIC
+        - column:
+            name: growth_time
+            type: NUMERIC
+        - column:
+            name: max_harvest
+            type: NUMERIC
+        - column:
+            name: natural_gift_power
+            type: NUMERIC
+        - column:
+            name: size
+            type: NUMERIC
+        - column:
+            name: smoothness
+            type: NUMERIC
+        - column:
+            name: soil_dryness
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_transfer_area
+        file: db/changelog/data/game-data-extended/game_transfer_area.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_contest_effect
+        file: db/changelog/data/game-data-extended/game_contest_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: appeal
+            type: NUMERIC
+        - column:
+            name: jam
+            type: NUMERIC
+        - column:
+            name: effect
+            type: STRING
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_encounter_condition
+        file: db/changelog/data/game-data-extended/game_encounter_condition.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_item_attribute
+        file: db/changelog/data/game-data-extended/game_item_attribute.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_detail
+        file: db/changelog/data/game-data-extended/game_skill_detail.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: ailment_id
+            type: NUMERIC
+        - column:
+            name: category_id
+            type: NUMERIC
+        - column:
+            name: target_id
+            type: NUMERIC
+        - column:
+            name: contest_type_id
+            type: NUMERIC
+        - column:
+            name: contest_effect_id
+            type: NUMERIC
+        - column:
+            name: advanced_contest_effect_id
+            type: NUMERIC
+        - column:
+            name: min_hits
+            type: NUMERIC
+        - column:
+            name: max_hits
+            type: NUMERIC
+        - column:
+            name: min_turns
+            type: NUMERIC
+        - column:
+            name: max_turns
+            type: NUMERIC
+        - column:
+            name: drain
+            type: NUMERIC
+        - column:
+            name: healing
+            type: NUMERIC
+        - column:
+            name: crit_rate
+            type: NUMERIC
+        - column:
+            name: ailment_chance
+            type: NUMERIC
+        - column:
+            name: flinch_chance
+            type: NUMERIC
+        - column:
+            name: stat_chance
+            type: NUMERIC
+        - column:
+            name: effect
+            type: STRING
+        - column:
+            name: short_effect
+            type: STRING
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_item_detail
+        file: db/changelog/data/game-data-extended/game_item_detail.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: fling_effect_id
+            type: NUMERIC
+        - column:
+            name: effect
+            type: STRING
+        - column:
+            name: short_effect
+            type: STRING
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_item_category_pocket
+        file: db/changelog/data/game-data-extended/game_item_category_pocket.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: category_id
+            type: NUMERIC
+        - column:
+            name: pocket_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_item_game_index
+        file: db/changelog/data/game-data-extended/game_item_game_index.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: generation_id
+            type: NUMERIC
+        - column:
+            name: game_index
+            type: NUMERIC
+    - loadData:
+        tableName: game_encounter_condition_value
+        file: db/changelog/data/game-data-extended/game_encounter_condition_value.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: condition_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_berry_flavor
+        file: db/changelog/data/game-data-extended/game_berry_flavor.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: contest_type_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_skill_learn_method
+        file: db/changelog/data/game-data-extended/game_skill_learn_method.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_gender_evolution_requirement
+        file: db/changelog/data/game-data-extended/game_gender_evolution_requirement.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: gender_id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_stat_characteristic
+        file: db/changelog/data/game-data-extended/game_stat_characteristic.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: stat_id
+            type: NUMERIC
+        - column:
+            name: characteristic_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_item_attribute_binding
+        file: db/changelog/data/game-data-extended/game_item_attribute_binding.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: attribute_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_characteristic_value
+        file: db/changelog/data/game-data-extended/game_characteristic_value.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: characteristic_id
+            type: NUMERIC
+        - column:
+            name: possible_value
+            type: NUMERIC
+    - loadData:
+        tableName: game_region
+        file: db/changelog/data/game-data-extended/game_region.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: main_generation_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_catalog
+        file: db/changelog/data/game-data-extended/game_catalog.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: region_id
+            type: NUMERIC
+        - column:
+            name: main_series
+            type: BOOLEAN
+        - column:
+            name: description
+            type: STRING
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_species_detail
+        file: db/changelog/data/game-data-extended/game_species_detail.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: growth_rate_id
+            type: NUMERIC
+        - column:
+            name: evolves_from_species_id
+            type: NUMERIC
+        - column:
+            name: evolution_chain_id
+            type: NUMERIC
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: gender_differences
+            type: BOOLEAN
+        - column:
+            name: forms_switchable
+            type: BOOLEAN
+        - column:
+            name: genus
+            type: STRING
+        - column:
+            name: flavor_text
+            type: STRING
+    - loadData:
+        tableName: game_element_damage_relation
+        file: db/changelog/data/game-data-extended/game_element_damage_relation.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: source_element_id
+            type: NUMERIC
+        - column:
+            name: target_element_id
+            type: NUMERIC
+        - column:
+            name: relation_type
+            type: STRING
+        - column:
+            name: generation_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_growth_rate_level
+        file: db/changelog/data/game-data-extended/game_growth_rate_level.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: growth_rate_id
+            type: NUMERIC
+        - column:
+            name: level
+            type: NUMERIC
+        - column:
+            name: experience
+            type: NUMERIC
+    - loadData:
+        tableName: game_berry_flavor_potency
+        file: db/changelog/data/game-data-extended/game_berry_flavor_potency.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: berry_id
+            type: NUMERIC
+        - column:
+            name: flavor_id
+            type: NUMERIC
+        - column:
+            name: potency
+            type: NUMERIC
+    - loadData:
+        tableName: game_version_group
+        file: db/changelog/data/game-data-extended/game_version_group.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: generation_id
+            type: NUMERIC
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_species_catalog_number
+        file: db/changelog/data/game-data-extended/game_species_catalog_number.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: catalog_id
+            type: NUMERIC
+        - column:
+            name: entry_number
+            type: NUMERIC
+    - loadData:
+        tableName: game_element_game_index
+        file: db/changelog/data/game-data-extended/game_element_game_index.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: element_id
+            type: NUMERIC
+        - column:
+            name: generation_id
+            type: NUMERIC
+        - column:
+            name: game_index
+            type: NUMERIC
+    - loadData:
+        tableName: game_nature
+        file: db/changelog/data/game-data-extended/game_nature.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: increased_stat_id
+            type: NUMERIC
+        - column:
+            name: decreased_stat_id
+            type: NUMERIC
+        - column:
+            name: likes_flavor_id
+            type: NUMERIC
+        - column:
+            name: hates_flavor_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_transfer_area_species
+        file: db/changelog/data/game-data-extended/game_transfer_area_species.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: area_id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: base_score
+            type: NUMERIC
+        - column:
+            name: rate
+            type: NUMERIC
+    - loadData:
+        tableName: game_creature_skill_learn
+        file: db/changelog/data/game-data-extended/game_creature_skill_learn.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+        - column:
+            name: learn_method_id
+            type: NUMERIC
+        - column:
+            name: level_learned_at
+            type: NUMERIC
+    - loadData:
+        tableName: game_version
+        file: db/changelog/data/game-data-extended/game_version.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: version_group_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_creature_form
+        file: db/changelog/data/game-data-extended/game_creature_form.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+        - column:
+            name: form_name
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: form_order
+            type: NUMERIC
+        - column:
+            name: battle_only
+            type: BOOLEAN
+        - column:
+            name: default_form
+            type: BOOLEAN
+        - column:
+            name: enhanced_form
+            type: BOOLEAN
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_catalog_entry
+        file: db/changelog/data/game-data-extended/game_catalog_entry.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: catalog_id
+            type: NUMERIC
+        - column:
+            name: species_id
+            type: NUMERIC
+        - column:
+            name: entry_number
+            type: NUMERIC
+    - loadData:
+        tableName: game_creature_game_index
+        file: db/changelog/data/game-data-extended/game_creature_game_index.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: version_id
+            type: NUMERIC
+        - column:
+            name: game_index
+            type: NUMERIC
+    - loadData:
+        tableName: game_creature_form_element
+        file: db/changelog/data/game-data-extended/game_creature_form_element.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: form_id
+            type: NUMERIC
+        - column:
+            name: element_id
+            type: NUMERIC
+        - column:
+            name: slot_order
+            type: NUMERIC
+    - loadData:
+        tableName: game_version_group_region
+        file: db/changelog/data/game-data-extended/game_version_group_region.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+        - column:
+            name: region_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_nature_battle_style_preference
+        file: db/changelog/data/game-data-extended/game_nature_battle_style_preference.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: nature_id
+            type: NUMERIC
+        - column:
+            name: battle_style_id
+            type: NUMERIC
+        - column:
+            name: low_hp_preference
+            type: NUMERIC
+        - column:
+            name: high_hp_preference
+            type: NUMERIC
+    - loadData:
+        tableName: game_nature_event_stat_change
+        file: db/changelog/data/game-data-extended/game_nature_event_stat_change.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: nature_id
+            type: NUMERIC
+        - column:
+            name: event_stat_id
+            type: NUMERIC
+        - column:
+            name: max_change
+            type: NUMERIC
+    - loadData:
+        tableName: game_catalog_version_group
+        file: db/changelog/data/game-data-extended/game_catalog_version_group.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: catalog_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_skill_learn_method_version_group
+        file: db/changelog/data/game-data-extended/game_skill_learn_method_version_group.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: learn_method_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_creature_held_item
+        file: db/changelog/data/game-data-extended/game_creature_held_item.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: version_id
+            type: NUMERIC
+        - column:
+            name: rarity
+            type: NUMERIC
+    - loadData:
+        tableName: game_location
+        file: db/changelog/data/game-data-extended/game_location.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: region_id
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_machine
+        file: db/changelog/data/game-data-extended/game_machine.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: skill_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+    - loadData:
+        tableName: game_stat_nature_effect
+        file: db/changelog/data/game-data-extended/game_stat_nature_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: stat_id
+            type: NUMERIC
+        - column:
+            name: nature_id
+            type: NUMERIC
+        - column:
+            name: effect_type
+            type: STRING
+    - loadData:
+        tableName: game_location_area
+        file: db/changelog/data/game-data-extended/game_location_area.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: location_id
+            type: NUMERIC
+        - column:
+            name: game_index
+            type: NUMERIC
+        - column:
+            name: enabled
+            type: BOOLEAN
+    - loadData:
+        tableName: game_event_stat_nature_effect
+        file: db/changelog/data/game-data-extended/game_event_stat_nature_effect.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: event_stat_id
+            type: NUMERIC
+        - column:
+            name: nature_id
+            type: NUMERIC
+        - column:
+            name: effect_type
+            type: STRING
+    - loadData:
+        tableName: game_evolution_detail
+        file: db/changelog/data/game-data-extended/game_evolution_detail.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: chain_id
+            type: NUMERIC
+        - column:
+            name: from_species_id
+            type: NUMERIC
+        - column:
+            name: to_species_id
+            type: NUMERIC
+        - column:
+            name: trigger_id
+            type: NUMERIC
+        - column:
+            name: item_id
+            type: NUMERIC
+        - column:
+            name: held_item_id
+            type: NUMERIC
+        - column:
+            name: known_skill_id
+            type: NUMERIC
+        - column:
+            name: known_element_id
+            type: NUMERIC
+        - column:
+            name: location_id
+            type: NUMERIC
+        - column:
+            name: party_species_id
+            type: NUMERIC
+        - column:
+            name: party_element_id
+            type: NUMERIC
+        - column:
+            name: trade_species_id
+            type: NUMERIC
+        - column:
+            name: gender_id
+            type: NUMERIC
+        - column:
+            name: region_id
+            type: NUMERIC
+        - column:
+            name: version_group_id
+            type: NUMERIC
+        - column:
+            name: min_level
+            type: NUMERIC
+        - column:
+            name: min_happiness
+            type: NUMERIC
+        - column:
+            name: min_beauty
+            type: NUMERIC
+        - column:
+            name: min_affection
+            type: NUMERIC
+        - column:
+            name: relative_physical_stats
+            type: NUMERIC
+        - column:
+            name: min_damage_taken
+            type: NUMERIC
+        - column:
+            name: min_move_count
+            type: NUMERIC
+        - column:
+            name: min_steps
+            type: NUMERIC
+        - column:
+            name: time_of_day
+            type: STRING
+        - column:
+            name: needs_overworld_rain
+            type: BOOLEAN
+        - column:
+            name: turn_upside_down
+            type: BOOLEAN
+        - column:
+            name: near_special_rock
+            type: BOOLEAN
+        - column:
+            name: needs_multiplayer
+            type: BOOLEAN
+        - column:
+            name: is_default
+            type: BOOLEAN
+    - loadData:
+        tableName: game_location_game_index
+        file: db/changelog/data/game-data-extended/game_location_game_index.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: location_id
+            type: NUMERIC
+        - column:
+            name: generation_id
+            type: NUMERIC
+        - column:
+            name: game_index
+            type: NUMERIC
+    - loadData:
+        tableName: game_location_area_encounter
+        file: db/changelog/data/game-data-extended/game_location_area_encounter.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: area_id
+            type: NUMERIC
+        - column:
+            name: creature_id
+            type: NUMERIC
+        - column:
+            name: version_id
+            type: NUMERIC
+        - column:
+            name: method_id
+            type: NUMERIC
+        - column:
+            name: min_level
+            type: NUMERIC
+        - column:
+            name: max_level
+            type: NUMERIC
+        - column:
+            name: chance
+            type: NUMERIC
+        - column:
+            name: max_chance
+            type: NUMERIC
+    - loadData:
+        tableName: game_location_area_method_rate
+        file: db/changelog/data/game-data-extended/game_location_area_method_rate.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: area_id
+            type: NUMERIC
+        - column:
+            name: method_id
+            type: NUMERIC
+        - column:
+            name: version_id
+            type: NUMERIC
+        - column:
+            name: rate
+            type: NUMERIC
+    - loadData:
+        tableName: game_location_area_encounter_condition_value
+        file: db/changelog/data/game-data-extended/game_location_area_encounter_condition_value.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: encounter_id
+            type: NUMERIC
+        - column:
+            name: condition_value_id
+            type: NUMERIC
+    - sql:
+        sql: 'select setval(pg_get_serial_sequence(''game_contest_type'', ''id''), greatest(coalesce((select max(id) from game_contest_type), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_contest_effect'', ''id''), greatest(coalesce((select max(id) from game_contest_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_advanced_contest_effect'', ''id''), greatest(coalesce((select max(id) from game_advanced_contest_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_advanced_contest_effect_skill'', ''id''), greatest(coalesce((select max(id) from game_advanced_contest_effect_skill), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_berry_firmness'', ''id''), greatest(coalesce((select max(id) from game_berry_firmness), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_berry_flavor'', ''id''), greatest(coalesce((select max(id) from game_berry_flavor), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_berry'', ''id''), greatest(coalesce((select max(id) from game_berry), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_berry_flavor_potency'', ''id''), greatest(coalesce((select max(id) from game_berry_flavor_potency), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_attribute'', ''id''), greatest(coalesce((select max(id) from game_item_attribute), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_fling_effect'', ''id''), greatest(coalesce((select max(id) from game_item_fling_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_pocket'', ''id''), greatest(coalesce((select max(id) from game_item_pocket), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_detail'', ''id''), greatest(coalesce((select max(id) from game_item_detail), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_attribute_binding'', ''id''), greatest(coalesce((select max(id) from game_item_attribute_binding), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_category_pocket'', ''id''), greatest(coalesce((select max(id) from game_item_category_pocket), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_item_game_index'', ''id''), greatest(coalesce((select max(id) from game_item_game_index), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_ailment'', ''id''), greatest(coalesce((select max(id) from game_skill_ailment), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_battle_style'', ''id''), greatest(coalesce((select max(id) from game_skill_battle_style), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_category'', ''id''), greatest(coalesce((select max(id) from game_skill_category), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_learn_method'', ''id''), greatest(coalesce((select max(id) from game_skill_learn_method), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_target'', ''id''), greatest(coalesce((select max(id) from game_skill_target), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_detail'', ''id''), greatest(coalesce((select max(id) from game_skill_detail), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_stat_change'', ''id''), greatest(coalesce((select max(id) from game_skill_stat_change), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_contest_combo'', ''id''), greatest(coalesce((select max(id) from game_skill_contest_combo), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_skill_learn_method_version_group'', ''id''), greatest(coalesce((select max(id) from game_skill_learn_method_version_group), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_growth_rate'', ''id''), greatest(coalesce((select max(id) from game_growth_rate), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_growth_rate_level'', ''id''), greatest(coalesce((select max(id) from game_growth_rate_level), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_event_stat'', ''id''), greatest(coalesce((select max(id) from game_event_stat), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_nature'', ''id''), greatest(coalesce((select max(id) from game_nature), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_nature_battle_style_preference'', ''id''), greatest(coalesce((select max(id) from game_nature_battle_style_preference), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_nature_event_stat_change'', ''id''), greatest(coalesce((select max(id) from game_nature_event_stat_change), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_event_stat_nature_effect'', ''id''), greatest(coalesce((select max(id) from game_event_stat_nature_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_release_generation'', ''id''), greatest(coalesce((select max(id) from game_release_generation), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_region'', ''id''), greatest(coalesce((select max(id) from game_region), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_version_group'', ''id''), greatest(coalesce((select max(id) from game_version_group), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_version'', ''id''), greatest(coalesce((select max(id) from game_version), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_version_group_region'', ''id''), greatest(coalesce((select max(id) from game_version_group_region), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location'', ''id''), greatest(coalesce((select max(id) from game_location), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location_game_index'', ''id''), greatest(coalesce((select max(id) from game_location_game_index), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_encounter_method'', ''id''), greatest(coalesce((select max(id) from game_encounter_method), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_encounter_condition'', ''id''), greatest(coalesce((select max(id) from game_encounter_condition), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_encounter_condition_value'', ''id''), greatest(coalesce((select max(id) from game_encounter_condition_value), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location_area'', ''id''), greatest(coalesce((select max(id) from game_location_area), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location_area_method_rate'', ''id''), greatest(coalesce((select max(id) from game_location_area_method_rate), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location_area_encounter'', ''id''), greatest(coalesce((select max(id) from game_location_area_encounter), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_location_area_encounter_condition_value'', ''id''), greatest(coalesce((select max(id) from game_location_area_encounter_condition_value), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_gender'', ''id''), greatest(coalesce((select max(id) from game_gender), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_evolution_trigger'', ''id''), greatest(coalesce((select max(id) from game_evolution_trigger), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_evolution_chain'', ''id''), greatest(coalesce((select max(id) from game_evolution_chain), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_evolution_node'', ''id''), greatest(coalesce((select max(id) from game_evolution_node), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_evolution_detail'', ''id''), greatest(coalesce((select max(id) from game_evolution_detail), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_gender_species_rate'', ''id''), greatest(coalesce((select max(id) from game_gender_species_rate), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_gender_evolution_requirement'', ''id''), greatest(coalesce((select max(id) from game_gender_evolution_requirement), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_catalog'', ''id''), greatest(coalesce((select max(id) from game_catalog), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_catalog_entry'', ''id''), greatest(coalesce((select max(id) from game_catalog_entry), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_catalog_version_group'', ''id''), greatest(coalesce((select max(id) from game_catalog_version_group), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_creature_form'', ''id''), greatest(coalesce((select max(id) from game_creature_form), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_creature_form_element'', ''id''), greatest(coalesce((select max(id) from game_creature_form_element), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_machine'', ''id''), greatest(coalesce((select max(id) from game_machine), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_transfer_area'', ''id''), greatest(coalesce((select max(id) from game_transfer_area), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_transfer_area_species'', ''id''), greatest(coalesce((select max(id) from game_transfer_area_species), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_ability_detail'', ''id''), greatest(coalesce((select max(id) from game_ability_detail), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_species_detail'', ''id''), greatest(coalesce((select max(id) from game_species_detail), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_species_catalog_number'', ''id''), greatest(coalesce((select max(id) from game_species_catalog_number), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_species_creature_variety'', ''id''), greatest(coalesce((select max(id) from game_species_creature_variety), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_creature_skill_learn'', ''id''), greatest(coalesce((select max(id) from game_creature_skill_learn), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_creature_held_item'', ''id''), greatest(coalesce((select max(id) from game_creature_held_item), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_creature_game_index'', ''id''), greatest(coalesce((select max(id) from game_creature_game_index), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_element_damage_relation'', ''id''), greatest(coalesce((select max(id) from game_element_damage_relation), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_element_game_index'', ''id''), greatest(coalesce((select max(id) from game_element_game_index), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_stat_skill_effect'', ''id''), greatest(coalesce((select max(id) from game_stat_skill_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_stat_nature_effect'', ''id''), greatest(coalesce((select max(id) from game_stat_nature_effect), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_characteristic'', ''id''), greatest(coalesce((select max(id) from game_characteristic), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_characteristic_value'', ''id''), greatest(coalesce((select max(id) from game_characteristic_value), 1), 1), true);
+
+          select setval(pg_get_serial_sequence(''game_stat_characteristic'', ''id''), greatest(coalesce((select max(id) from game_stat_characteristic), 1), 1), true);'

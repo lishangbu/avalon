@@ -1,0 +1,1097 @@
+id,code,name,region_id,enabled
+1,canalave-city,Canalave City,4,true
+2,eterna-city,Eterna City,4,true
+3,pastoria-city,Pastoria City,4,true
+4,sunyshore-city,Sunyshore City,4,true
+5,sinnoh-pokemon-league,Pokémon League,4,true
+6,oreburgh-mine,Oreburgh Mine,4,true
+7,valley-windworks,Valley Windworks,4,true
+8,eterna-forest,Eterna Forest,4,true
+9,fuego-ironworks,Fuego Ironworks,4,true
+10,mt-coronet,Mt. Coronet,4,true
+11,great-marsh,Great Marsh,4,true
+12,solaceon-ruins,Solaceon Ruins,4,true
+13,sinnoh-victory-road,Victory Road,4,true
+14,ravaged-path,Ravaged Path,4,true
+15,oreburgh-gate,Oreburgh Gate,4,true
+16,stark-mountain,Stark Mountain,4,true
+17,spring-path,Spring Path,4,true
+18,turnback-cave,Turnback Cave,4,true
+19,snowpoint-temple,Snowpoint Temple,4,true
+20,wayward-cave,Wayward Cave,4,true
+22,ruin-maniac-cave,Ruin Maniac Cave,4,true
+23,trophy-garden,Trophy Garden,4,true
+24,iron-island,Iron Island,4,true
+25,old-chateau,Old Chateau,4,true
+26,lake-verity,Lake Verity,4,true
+27,lake-valor,Lake Valor,4,true
+28,lake-acuity,Lake Acuity,4,true
+29,valor-lakefront,Valor Lakefront,4,true
+30,acuity-lakefront,Acuity Lakefront,4,true
+31,sinnoh-route-201,Route 201,4,true
+32,sinnoh-route-202,Route 202,4,true
+33,sinnoh-route-203,Route 203,4,true
+34,sinnoh-route-204,Route 204,4,true
+35,sinnoh-route-205,Route 205,4,true
+36,sinnoh-route-206,Route 206,4,true
+37,sinnoh-route-207,Route 207,4,true
+38,sinnoh-route-208,Route 208,4,true
+39,sinnoh-route-209,Route 209,4,true
+40,lost-tower,Lost Tower,4,true
+41,sinnoh-route-210,Route 210,4,true
+42,sinnoh-route-211,Route 211,4,true
+43,sinnoh-route-212,Route 212,4,true
+44,sinnoh-route-213,Route 213,4,true
+45,sinnoh-route-214,Route 214,4,true
+46,sinnoh-route-215,Route 215,4,true
+47,sinnoh-route-216,Route 216,4,true
+48,sinnoh-route-217,Route 217,4,true
+49,sinnoh-route-218,Route 218,4,true
+50,sinnoh-route-219,Route 219,4,true
+51,sinnoh-route-221,Route 221,4,true
+52,sinnoh-route-222,Route 222,4,true
+53,sinnoh-route-224,Route 224,4,true
+54,sinnoh-route-225,Route 225,4,true
+55,sinnoh-route-227,Route 227,4,true
+56,sinnoh-route-228,Route 228,4,true
+57,sinnoh-route-229,Route 229,4,true
+58,twinleaf-town,Twinleaf Town,4,true
+59,celestic-town,Celestic Town,4,true
+60,resort-area,Resort Area,4,true
+61,sinnoh-sea-route-220,Sea Route 220,4,true
+62,sinnoh-sea-route-223,Sea Route 223,4,true
+63,sinnoh-sea-route-226,Sea Route 226,4,true
+64,sinnoh-sea-route-230,Sea Route 230,4,true
+65,blackthorn-city,Blackthorn City,2,true
+66,burned-tower,Burned Tower,2,true
+67,celadon-city,Celadon City,1,true
+68,cerulean-city,Cerulean City,1,true
+69,cherrygrove-city,Cherrygrove City,2,true
+70,cianwood-city,Cianwood City,2,true
+71,cinnabar-island,Cinnabar Island,1,true
+72,dark-cave,Dark Cave,2,true
+73,digletts-cave,Diglett's Cave,1,true
+74,dragons-den,Dragon's Den,2,true
+75,ecruteak-city,Ecruteak City,2,true
+76,fuchsia-city,Fuchsia City,1,true
+77,ice-path,Ice Path,2,true
+78,ilex-forest,Ilex Forest,2,true
+79,lake-of-rage,Lake of Rage,2,true
+80,mt-moon,Mt. Moon,1,true
+81,mt-mortar,Mt. Mortar,2,true
+82,mt-silver,Mt. Silver,2,true
+83,national-park,National Park,2,true
+84,new-bark-town,New Bark Town,2,true
+85,olivine-city,Olivine City,2,true
+86,pallet-town,Pallet Town,1,true
+87,rock-tunnel,Rock Tunnel,1,true
+88,kanto-route-1,Route 1,1,true
+89,kanto-route-10,Route 10,1,true
+90,kanto-route-11,Route 11,1,true
+91,kanto-route-12,Route 12,1,true
+92,kanto-route-13,Route 13,1,true
+93,kanto-route-14,Route 14,1,true
+94,kanto-route-15,Route 15,1,true
+95,kanto-route-16,Route 16,1,true
+96,kanto-route-17,Route 17,1,true
+97,kanto-route-18,Route 18,1,true
+98,kanto-sea-route-19,Sea Route 19,1,true
+99,kanto-route-2,Route 2,1,true
+100,kanto-sea-route-20,Sea Route 20,1,true
+101,kanto-sea-route-21,Sea Route 21,1,true
+102,kanto-route-22,Route 22,1,true
+103,kanto-route-24,Route 24,1,true
+104,kanto-route-25,Route 25,1,true
+105,kanto-route-26,Route 26,1,true
+106,kanto-route-27,Route 27,1,true
+107,kanto-route-28,Route 28,1,true
+108,johto-route-29,Route 29,2,true
+109,kanto-route-3,Route 3,1,true
+110,johto-route-30,Route 30,2,true
+111,johto-route-31,Route 31,2,true
+112,johto-route-32,Route 32,2,true
+113,johto-route-33,Route 33,2,true
+114,johto-route-34,Route 34,2,true
+115,johto-route-35,Route 35,2,true
+116,johto-route-36,Route 36,2,true
+117,johto-route-37,Route 37,2,true
+118,johto-route-38,Route 38,2,true
+119,johto-route-39,Route 39,2,true
+120,kanto-route-4,Route 4,1,true
+121,johto-sea-route-40,Sea Route 40,2,true
+122,johto-sea-route-41,Sea Route 41,2,true
+123,johto-route-42,Route 42,2,true
+124,johto-route-43,Route 43,2,true
+125,johto-route-44,Route 44,2,true
+126,johto-route-45,Route 45,2,true
+127,johto-route-46,Route 46,2,true
+128,johto-route-47,Route 47,2,true
+129,johto-route-48,Route 48,2,true
+130,kanto-route-5,Route 5,1,true
+131,kanto-route-6,Route 6,1,true
+132,kanto-route-7,Route 7,1,true
+133,kanto-route-8,Route 8,1,true
+134,kanto-route-9,Route 9,1,true
+135,ruins-of-alph,Ruins of Alph,2,true
+136,seafoam-islands,Seafoam Islands,1,true
+137,slowpoke-well,Slowpoke Well,2,true
+138,sprout-tower,Sprout Tower,2,true
+139,bell-tower,Bell Tower,2,true
+140,tohjo-falls,Tohjo Falls,2,true
+141,union-cave,Union Cave,2,true
+147,cerulean-cave,Cerulean Cave,1,true
+148,unknown-all-poliwag,Unknown; all Poliwag,2,true
+149,unknown-all-rattata,Unknown; all Rattata,2,true
+150,unknown-all-bugs,Unknown; all bugs,2,true
+151,vermilion-city,Vermilion City,1,true
+152,kanto-victory-road-1,Victory Road,1,true
+153,violet-city,Violet City,2,true
+154,viridian-city,Viridian City,1,true
+155,viridian-forest,Viridian Forest,1,true
+156,whirl-islands,Whirl Islands,2,true
+157,kanto-route-23,Route 23,1,true
+158,kanto-power-plant,Kanto Power Plant,1,true
+159,kanto-victory-road-2,Victory Road,1,true
+160,pokemon-tower,Pokémon Tower,1,true
+161,pokemon-mansion,Pokémon Mansion,1,true
+162,kanto-safari-zone,Safari Zone,1,true
+163,sandgem-town,Sandgem Town,4,true
+164,floaroma-town,Floaroma Town,4,true
+165,solaceon-town,Solaceon Town,4,true
+167,jubilife-city,Jubilife City,4,true
+168,oreburgh-city,Oreburgh City,4,true
+169,hearthome-city,Hearthome City,4,true
+170,veilstone-city,Veilstone City,4,true
+171,snowpoint-city,Snowpoint City,4,true
+172,spear-pillar,Spear Pillar,4,true
+173,pal-park,Pal Park,4,true
+174,amity-square,Amity Square,4,true
+175,floaroma-meadow,Floaroma Meadow,4,true
+177,fullmoon-island,Fullmoon Island,4,true
+178,sendoff-spring,Sendoff Spring,4,true
+179,flower-paradise,Flower Paradise,4,true
+180,maniac-tunnel,Maniac Tunnel,4,true
+181,galactic-hq,Galactic HQ,4,true
+182,verity-lakefront,Verity Lakefront,4,true
+183,newmoon-island,Newmoon Island,4,true
+184,sinnoh-battle-tower,Battle Tower,4,true
+185,fight-area,Fight Area,4,true
+186,survival-area,Survival Area,4,true
+187,seabreak-path,Seabreak Path,4,true
+188,sinnoh-hall-of-origin-1,Hall of Origin,4,true
+189,sinnoh-hall-of-origin-2,Hall of Origin,4,true
+190,verity-cavern,Verity Cavern,4,true
+191,valor-cavern,Valor Cavern,4,true
+192,acuity-cavern,Acuity Cavern,4,true
+193,jubilife-tv,Jubilife TV,4,true
+194,poketch-co,Pokétch Co.,4,true
+195,gts,GTS,4,true
+196,trainers-school,Trainers’ School,4,true
+197,mining-museum,Mining Museum,4,true
+198,sinnoh-flower-shop,Flower Shop,4,true
+199,sinnoh-cycle-shop,Cycle Shop,4,true
+200,contest-hall,Contest Hall,4,true
+201,poffin-house,Poffin House,4,true
+202,sinnoh-foreign-building,Foreign Building,4,true
+203,pokemon-day-care,Pokémon Day Care,4,true
+204,veilstone-store,Veilstone Store,4,true
+205,sinnoh-game-corner,Game Corner,4,true
+206,canalave-library,Canalave Library,4,true
+207,vista-lighthouse,Vista Lighthouse,4,true
+208,sunyshore-market,Sunyshore Market,4,true
+209,footstep-house,Footstep House,4,true
+210,sinnoh-cafe,Café,4,true
+211,grand-lake,Grand Lake,4,true
+212,sinnoh-restaurant,Restaurant,4,true
+213,battle-park,Battle Park,4,true
+214,battle-frontier,Battle Frontier,4,true
+215,battle-factory,Battle Factory,4,true
+216,battle-castle,Battle Castle,4,true
+217,battle-arcade,Battle Arcade,4,true
+218,battle-hall,Battle Hall,4,true
+219,distortion-world,Distortion World,4,true
+220,sinnoh-global-terminal,Global Terminal,4,true
+221,sinnoh-villa,Villa,4,true
+222,battleground,Battleground,4,true
+223,rotoms-room,ROTOM's Room,4,true
+224,tg-eterna-bldg,T.G. Eterna Bldg,4,true
+225,iron-ruins,Iron Ruins,4,true
+226,iceberg-ruins,Iceberg Ruins,4,true
+227,rock-peak-ruins,Rock Peak Ruins,4,true
+228,azalea-town,Azalea Town,2,true
+229,goldenrod-city,Goldenrod City,2,true
+230,mahogany-town,Mahogany Town,2,true
+231,pewter-city,Pewter City,1,true
+232,lavender-town,Lavender Town,1,true
+233,indigo-plateau,Indigo Plateau,1,true
+234,saffron-city,Saffron City,1,true
+236,johto-lighthouse,Lighthouse,2,true
+237,team-rocket-hq,Team Rocket HQ,2,true
+238,goldenrod-tunnel,Goldenrod Tunnel,2,true
+239,mt-silver-cave,Mt. Silver Cave,2,true
+241,pokeathlon-dome,Pokéathlon Dome,2,true
+242,ss-aqua,S.S. Aqua,2,true
+243,safari-zone-gate,Safari Zone Gate,2,true
+244,cliff-cave,Cliff Cave,2,true
+245,frontier-access,Frontier Access,2,true
+246,bellchime-trail,Bellchime Trail,2,true
+247,sinjoh-ruins,Sinjoh Ruins,2,true
+248,embedded-tower,Embedded Tower,2,true
+249,pokewalker,Pokéwalker,2,true
+250,cliff-edge-gate,Cliff Edge Gate,2,true
+252,radio-tower,Radio Tower,2,true
+253,day-care-couple,Day-Care Couple,,true
+254,link-trade-arrive,Link trade (arrive),,true
+255,link-trade-met,Link trade (met),,true
+256,kanto,Kanto,,true
+257,johto,Johto,,true
+258,hoenn,Hoenn,,true
+259,sinnoh,Sinnoh,,true
+260,distant-land,Distant land,,true
+261,traveling-man,Traveling Man,,true
+262,riley,Riley,,true
+263,cynthia,Cynthia,,true
+264,mystery-zone,Mystery Zone,,true
+265,lovely-place,Lovely place,,true
+266,pokemon-ranger,Pokémon Ranger,,true
+267,faraway-place,Faraway place,,true
+268,pokemon-movie,Pokémon Movie,,true
+269,pokemon-movie-06,Pokémon Movie 06,,true
+270,pokemon-movie-07,Pokémon Movie 07,,true
+271,pokemon-movie-08,Pokémon Movie 08,,true
+272,pokemon-movie-09,Pokémon Movie 09,,true
+273,pokemon-movie-10,Pokémon Movie 10,,true
+274,pokemon-movie-11,Pokémon Movie 11,,true
+275,pokemon-movie-12,Pokémon Movie 12,,true
+276,pokemon-movie-13,Pokémon Movie 13,,true
+277,pokemon-movie-14,Pokémon Movie 14,,true
+278,pokemon-movie-15,Pokémon Movie 15,,true
+279,pokemon-movie-16,Pokémon Movie 16,,true
+280,pokemon-cartoon,Pokémon Cartoon,,true
+281,space-world,Space World,,true
+282,space-world-06,Space World 06,,true
+283,space-world-07,Space World 07,,true
+284,space-world-08,Space World 08,,true
+285,space-world-09,Space World 09,,true
+286,space-world-10,Space World 10,,true
+287,space-world-11,Space World 11,,true
+288,space-world-12,Space World 12,,true
+289,space-world-13,Space World 13,,true
+290,space-world-14,Space World 14,,true
+291,space-world-15,Space World 15,,true
+292,space-world-16,Space World 16,,true
+293,pokemon-festa,Pokémon Festa,,true
+294,pokemon-festa-06,Pokémon Festa 06,,true
+295,pokemon-festa-07,Pokémon Festa 07,,true
+296,pokemon-festa-08,Pokémon Festa 08,,true
+297,pokemon-festa-09,Pokémon Festa 09,,true
+298,pokemon-festa-10,Pokémon Festa 10,,true
+299,pokemon-festa-11,Pokémon Festa 11,,true
+300,pokemon-festa-12,Pokémon Festa 12,,true
+301,pokemon-festa-13,Pokémon Festa 13,,true
+302,pokemon-festa-14,Pokémon Festa 14,,true
+303,pokemon-festa-15,Pokémon Festa 15,,true
+304,pokemon-festa-16,Pokémon Festa 16,,true
+305,pokepark,POKéPARK,,true
+306,pokepark-06,POKéPARK 06,,true
+307,pokepark-07,POKéPARK 07,,true
+308,pokepark-08,POKéPARK 08,,true
+309,pokepark-09,POKéPARK 09,,true
+310,pokepark-10,POKéPARK 10,,true
+311,pokepark-11,POKéPARK 11,,true
+312,pokepark-12,POKéPARK 12,,true
+313,pokepark-13,POKéPARK 13,,true
+314,pokepark-14,POKéPARK 14,,true
+315,pokepark-15,POKéPARK 15,,true
+316,pokepark-16,POKéPARK 16,,true
+317,pokemon-center,Pokémon Center,,true
+318,pc-tokyo,PC Tokyo,,true
+319,pc-osaka,PC Osaka,,true
+320,pc-fukuoka,PC Fukuoka,,true
+321,pc-nagoya,PC Nagoya,,true
+322,pc-sapporo,PC Sapporo,,true
+323,pc-yokohama,PC Yokohama,,true
+324,nintendo-world,Nintendo World,,true
+325,pokemon-event,Pokémon Event,,true
+326,pokemon-event-06,Pokémon Event 06,,true
+327,pokemon-event-07,Pokémon Event 07,,true
+328,pokemon-event-08,Pokémon Event 08,,true
+329,pokemon-event-09,Pokémon Event 09,,true
+330,pokemon-event-10,Pokémon Event 10,,true
+331,pokemon-event-11,Pokémon Event 11,,true
+332,pokemon-event-12,Pokémon Event 12,,true
+333,pokemon-event-13,Pokémon Event 13,,true
+334,pokemon-event-14,Pokémon Event 14,,true
+335,pokemon-event-15,Pokémon Event 15,,true
+336,pokemon-event-16,Pokémon Event 16,,true
+337,wi-fi-event,Wi-Fi Event,,true
+338,wi-fi-gift,Wi-Fi Gift,,true
+339,pokemon-fan-club,Pokémon Fan Club,,true
+340,event-site,Event Site,,true
+341,concert-event,Concert Event,,true
+342,mr-pokemon,Mr. Pokémon,,true
+343,primo,Primo,,true
+344,unova-mystery-zone,Mystery Zone,5,true
+345,unova-faraway-place,Faraway place,5,true
+346,nuvema-town,Nuvema Town,5,true
+347,accumula-town,Accumula Town,5,true
+348,striaton-city,Striaton City,5,true
+349,nacrene-city,Nacrene City,5,true
+350,castelia-city,Castelia City,5,true
+351,nimbasa-city,Nimbasa City,5,true
+352,driftveil-city,Driftveil City,5,true
+353,mistralton-city,Mistralton City,5,true
+354,icirrus-city,Icirrus City,5,true
+355,opelucid-city,Opelucid City,5,true
+356,unova-route-1,Route 1,5,true
+357,unova-route-2,Route 2,5,true
+358,unova-route-3,Route 3,5,true
+359,unova-route-4,Route 4,5,true
+360,unova-route-5,Route 5,5,true
+361,unova-route-6,Route 6,5,true
+362,unova-route-7,Route 7,5,true
+363,unova-route-8,Route 8,5,true
+364,unova-route-9,Route 9,5,true
+365,unova-route-10,Route 10,5,true
+366,unova-route-11,Route 11,5,true
+367,unova-route-12,Route 12,5,true
+368,unova-route-13,Route 13,5,true
+369,unova-route-14,Route 14,5,true
+370,unova-route-15,Route 15,5,true
+371,unova-route-16,Route 16,5,true
+372,unova-route-17,Route 17,5,true
+373,unova-route-18,Route 18,5,true
+374,dreamyard,Dreamyard,5,true
+375,pinwheel-forest,Pinwheel Forest,5,true
+376,desert-resort,Desert Resort,5,true
+377,relic-castle,Relic Castle,5,true
+378,cold-storage,Cold Storage,5,true
+379,chargestone-cave,Chargestone Cave,5,true
+380,twist-mountain,Twist Mountain,5,true
+381,dragonspiral-tower,Dragonspiral Tower,5,true
+382,unova-victory-road,Victory Road,5,true
+383,lacunosa-town,Lacunosa Town,5,true
+384,undella-town,Undella Town,5,true
+385,anville-town,Anville Town,5,true
+386,unova-pokemon-league,Pokémon League,5,true
+387,ns-castle,N's Castle,5,true
+388,royal-unova,Royal Unova,5,true
+389,gear-station,Gear Station,5,true
+390,battle-subway,Battle Subway,5,true
+391,musical-theater,Musical Theater,5,true
+392,black-city,Black City,5,true
+393,white-forest,White Forest,5,true
+394,unity-tower,Unity Tower,5,true
+395,wellspring-cave,Wellspring Cave,5,true
+396,mistralton-cave,Mistralton Cave,5,true
+397,rumination-field,Rumination Field,5,true
+398,celestial-tower,Celestial Tower,5,true
+399,moor-of-icirrus,Moor of Icirrus,5,true
+400,unova-shopping-mall,Shopping Mall,5,true
+401,challengers-cave,Challenger's Cave,5,true
+402,poke-transfer-lab,Poké Transfer Lab,5,true
+403,giant-chasm,Giant Chasm,5,true
+404,liberty-garden,Liberty Garden,5,true
+405,p2-laboratory,P2 Laboratory,5,true
+406,skyarrow-bridge,Skyarrow Bridge,5,true
+407,driftveil-drawbridge,Driftveil Drawbridge,5,true
+408,tubeline-bridge,Tubeline Bridge,5,true
+409,village-bridge,Village Bridge,5,true
+410,marvelous-bridge,Marvelous Bridge,5,true
+411,entralink,Entralink,5,true
+412,abundant-shrine,Abundant Shrine,5,true
+413,undella-bay,Undella Bay,5,true
+414,lostlorn-forest,Lostlorn Forest,5,true
+415,trial-chamber,Trial Chamber,5,true
+416,guidance-chamber,Guidance Chamber,5,true
+417,entree-forest,Entree Forest,5,true
+418,accumula-gate,Accumula Gate,5,true
+419,undella-gate,Undella Gate,5,true
+420,nacrene-gate,Nacrene Gate,5,true
+421,castelia-gate,Castelia Gate,5,true
+422,nimbasa-gate,Nimbasa Gate,5,true
+423,opelucid-gate,Opelucid Gate,5,true
+424,black-gate,Black Gate,5,true
+425,white-gate,White Gate,5,true
+426,bridge-gate,Bridge Gate,5,true
+427,route-gate,Route Gate,5,true
+428,abyssal-ruins,Abyssal Ruins,5,true
+429,petalburg-city,Petalburg City,3,true
+430,slateport-city,Slateport City,3,true
+431,lilycove-city,Lilycove City,3,true
+432,mossdeep-city,Mossdeep City,3,true
+433,sootopolis-city,Sootopolis City,3,true
+434,ever-grande-city,Ever Grande City,3,true
+435,meteor-falls,Meteor Falls,3,true
+436,rusturf-tunnel,Rusturf Tunnel,3,true
+437,granite-cave,Granite Cave,3,true
+438,petalburg-woods,Petalburg Woods,3,true
+439,jagged-pass,Jagged Pass,3,true
+440,fiery-path,Fiery Path,3,true
+441,mt-pyre,Mt. Pyre,3,true
+442,seafloor-cavern,Seafloor Cavern,3,true
+443,cave-of-origin,Cave of Origin,3,true
+444,hoenn-victory-road,Victory Road,3,true
+445,shoal-cave,Shoal Cave,3,true
+446,new-mauville,New Mauville,3,true
+447,abandoned-ship,Abandoned Ship,3,true
+448,sky-pillar,Sky Pillar,3,true
+449,hoenn-route-101,Route 101,3,true
+450,hoenn-route-102,Route 102,3,true
+451,hoenn-route-103,Route 103,3,true
+452,hoenn-route-104,Route 104,3,true
+453,hoenn-route-105,Route 105,3,true
+454,hoenn-route-106,Route 106,3,true
+455,hoenn-route-107,Route 107,3,true
+456,hoenn-route-108,Route 108,3,true
+457,hoenn-route-109,Route 109,3,true
+458,hoenn-route-110,Route 110,3,true
+459,hoenn-route-111,Route 111,3,true
+460,hoenn-route-112,Route 112,3,true
+461,hoenn-route-113,Route 113,3,true
+462,hoenn-route-114,Route 114,3,true
+463,hoenn-route-115,Route 115,3,true
+464,hoenn-route-116,Route 116,3,true
+465,hoenn-route-117,Route 117,3,true
+466,hoenn-route-118,Route 118,3,true
+467,hoenn-route-119,Route 119,3,true
+468,hoenn-route-120,Route 120,3,true
+469,hoenn-route-121,Route 121,3,true
+470,hoenn-route-122,Route 122,3,true
+471,hoenn-route-123,Route 123,3,true
+472,hoenn-route-124,Route 124,3,true
+473,hoenn-route-125,Route 125,3,true
+474,hoenn-route-126,Route 126,3,true
+475,hoenn-route-127,Route 127,3,true
+476,hoenn-route-128,Route 128,3,true
+477,hoenn-route-129,Route 129,3,true
+478,hoenn-route-130,Route 130,3,true
+479,hoenn-route-131,Route 131,3,true
+480,hoenn-route-132,Route 132,3,true
+481,hoenn-route-133,Route 133,3,true
+482,hoenn-route-134,Route 134,3,true
+483,hoenn-safari-zone,Safari Zone,3,true
+484,dewford-town,Dewford Town,3,true
+485,pacifidlog-town,Pacifidlog Town,3,true
+486,magma-hideout,Magma Hideout,3,true
+487,mirage-tower,Mirage Tower,3,true
+488,desert-underpass,Desert Underpass,3,true
+489,artisan-cave,Artisan Cave,3,true
+490,hoenn-altering-cave,Altering Cave,3,true
+491,monean-chamber,Monean Chamber,1,true
+492,liptoo-chamber,Liptoo Chamber,1,true
+493,weepth-chamber,Weepth Chamber,1,true
+494,dilford-chamber,Dilford Chamber,1,true
+495,scufib-chamber,Scufib Chamber,1,true
+496,rixy-chamber,Rixy Chamber,1,true
+497,viapos-chamber,Viapos Chamber,1,true
+498,ss-anne,S.S. Anne,1,true
+500,mt-ember,Mt. Ember,1,true
+501,berry-forest,Berry Forest,1,true
+502,icefall-cave,Icefall Cave,1,true
+503,pattern-bush,Pattern Bush,1,true
+504,lost-cave,Lost Cave,1,true
+505,kindle-road,Kindle Road,1,true
+506,treasure-beach,Treasure Beach,1,true
+507,cape-brink,Cape Brink,1,true
+508,bond-bridge,Bond Bridge,1,true
+509,three-isle-port,Three Isle Port,1,true
+510,resort-gorgeous,Resort Gorgeous,1,true
+511,water-labyrinth,Water Labyrinth,1,true
+512,five-isle-meadow,Five Isle Meadow,1,true
+513,memorial-pillar,Memorial Pillar,1,true
+514,outcast-island,Outcast Island,1,true
+515,green-path,Green Path,1,true
+516,water-path,Water Path,1,true
+517,ruin-valley,Ruin Valley,1,true
+518,trainer-tower,Trainer Tower,1,true
+519,canyon-entrance,Canyon Entrance,1,true
+520,sevault-canyon,Sevault Canyon,1,true
+521,tanoby-ruins,Tanoby Ruins,1,true
+526,one-island,One Island,1,true
+527,four-island,Four Island,1,true
+528,five-island,Five Island,1,true
+529,kanto-altering-cave,Altering Cave,1,true
+531,aspertia-city,Aspertia City,5,true
+532,virbank-city,Virbank City,5,true
+533,humilau-city,Humilau City,5,true
+534,pokestar-studios,PokéStar Studios,5,true
+535,join-avenue,Join Avenue,5,true
+536,floccesy-town,Floccesy Town,5,true
+537,lentimas-town,Lentimas Town,5,true
+538,unova-route-19,Route 19,5,true
+539,unova-route-20,Route 20,5,true
+540,unova-route-21,Route 21,5,true
+541,unova-route-22,Route 22,5,true
+542,unova-route-23,Route 23,5,true
+543,castelia-sewers,Castelia Sewers,5,true
+544,floccesy-ranch,Floccesy Ranch,5,true
+545,virbank-complex,Virbank Complex,5,true
+546,reversal-mountain,Reversal Mountain,5,true
+547,strange-house,Strange House,5,true
+548,unova-victory-road-2,Victory Road,5,true
+549,plasma-frigate,Plasma Frigate,5,true
+550,relic-passage,Relic Passage,5,true
+551,clay-tunnel,Clay Tunnel,5,true
+552,white-treehollow,White Treehollow,5,true
+553,black-tower,Black Tower,5,true
+554,seaside-cave,Seaside Cave,5,true
+555,cave-of-being,Cave of Being,5,true
+556,hidden-grotto,Hidden Grotto,5,true
+557,marine-tube,Marine Tube,5,true
+558,virbank-gate,Virbank Gate,5,true
+559,aspertia-gate,Aspertia Gate,5,true
+560,nature-sanctuary,Nature Sanctuary,5,true
+561,medal-secretariat,Medal Secretariat,5,true
+562,underground-ruins,Underground Ruins,5,true
+563,rocky-mountain-room,Rocky Mountain Room,5,true
+564,glacier-room,Glacier Room,5,true
+565,iron-room,Iron Room,5,true
+566,pledge-grove,Pledge Grove,5,true
+567,littleroot-town,Littleroot Town,3,true
+568,oldale-town,Oldale Town,3,true
+569,lavaridge-town,Lavaridge Town,3,true
+570,fallarbor-town,Fallarbor Town,3,true
+571,verdanturf-town,Verdanturf Town,3,true
+572,mauville-city,Mauville City,3,true
+573,rustboro-city,Rustboro City,3,true
+574,fortree-city,Fortree City,3,true
+575,underwater,Underwater,3,true
+576,mt-chimney,Mt. Chimney,3,true
+577,mirage-spot-island,Mirage Island,3,true
+578,southern-island,Southern Island,3,true
+579,sealed-chamber,Sealed Chamber,3,true
+580,scorched-slab,Scorched Slab,3,true
+581,island-cave,Island Cave,3,true
+582,desert-ruins,Desert Ruins,3,true
+583,ancient-tomb,Ancient Tomb,3,true
+584,inside-of-truck,???,3,true
+585,secret-base,Secret Base,3,true
+586,hoenn-battle-tower,Battle Tower,3,true
+587,vaniville-town,Vaniville Town,6,true
+588,kalos-route-1,Route 1,6,true
+589,vaniville-pathway,Vaniville Pathway,6,true
+590,aquacorde-town,Aquacorde Town,6,true
+591,kalos-route-2,Route 2,6,true
+592,avance-trail,Avance Trail,6,true
+593,santalune-forest,Santalune Forest,6,true
+594,kalos-route-3,Route 3,6,true
+595,ouvert-way,Ouvert Way,6,true
+596,santalune-city,Santalune City,6,true
+597,kalos-route-4,Route 4,6,true
+598,parterre-way,Parterre Way,6,true
+599,lumiose-city,Lumiose City,6,true
+600,prism-tower,Prism Tower,6,true
+601,lysandre-labs,Lysandre Labs,6,true
+602,kalos-route-5,Route 5,6,true
+603,versant-road,Versant Road,6,true
+604,camphrier-town,Camphrier Town,6,true
+605,shabboneau-castle,Shabboneau Castle,6,true
+606,kalos-route-6,Route 6,6,true
+607,palais-lane,Palais Lane,6,true
+608,parfum-palace,Parfum Palace,6,true
+609,kalos-route-7,Route 7,6,true
+610,riviere-walk,Rivière Walk,6,true
+611,cyllage-city,Cyllage City,6,true
+612,kalos-route-8,Route 8,6,true
+613,muraille-coast,Muraille Coast,6,true
+614,ambrette-town,Ambrette Town,6,true
+615,kalos-route-9,Route 9,6,true
+616,spikes-passage,Spikes Passage,6,true
+617,battle-chateau,Battle Chateau,6,true
+618,kalos-route-10,Route 10,6,true
+619,menhir-trail,Menhir Trail,6,true
+620,geosenge-town,Geosenge Town,6,true
+621,kalos-route-11,Route 11,6,true
+622,miroir-way,Miroir Way,6,true
+623,reflection-cave,Reflection Cave,6,true
+624,shalour-city,Shalour City,6,true
+625,tower-of-mastery,Tower of Mastery,6,true
+626,kalos-route-12,Route 12,6,true
+627,fourrage-road,Fourrage Road,6,true
+628,coumarine-city,Coumarine City,6,true
+629,kalos-route-13,Route 13,6,true
+630,lumiose-badlands,Lumiose Badlands,6,true
+631,kalos-route-14,Route 14,6,true
+632,laverre-nature-trail,Laverre Nature Trail,6,true
+633,laverre-city,Laverre City,6,true
+634,poke-ball-factory,Poké Ball Factory,6,true
+635,kalos-route-15,Route 15,6,true
+636,brun-way,Brun Way,6,true
+637,dendemille-town,Dendemille Town,6,true
+638,kalos-route-16,Route 16,6,true
+639,melancolie-path,Mélancolie Path,6,true
+640,frost-cavern,Frost Cavern,6,true
+641,kalos-route-17,Route 17,6,true
+642,mamoswine-road,Mamoswine Road,6,true
+643,anistar-city,Anistar City,6,true
+644,kalos-route-18,Route 18,6,true
+645,vallee-etroite-way,Vallée Étroite Way,6,true
+646,couriway-town,Couriway Town,6,true
+647,kalos-route-19,Route 19,6,true
+648,grande-vallee-way,Grande Vallée Way,6,true
+649,snowbelle-city,Snowbelle City,6,true
+650,kalos-route-20,Route 20,6,true
+651,winding-woods,Winding Woods,6,true
+652,pokemon-village,Pokémon Village,6,true
+653,kalos-route-21,Route 21,6,true
+654,derniere-way,Dernière Way,6,true
+655,kalos-route-22,Route 22,6,true
+656,detourner-way,Détourner Way,6,true
+657,kalos-victory-road,Victory Road,6,true
+658,kalos-pokemon-league,Pokémon League,6,true
+659,kiloude-city,Kiloude City,6,true
+660,battle-maison,Battle Maison,6,true
+661,azure-bay,Azure Bay,6,true
+662,dendemille-gate,Dendemille Gate,6,true
+663,couriway-gate,Couriway Gate,6,true
+664,ambrette-gate,Ambrette Gate,6,true
+665,lumiose-gate,Lumiose Gate,6,true
+666,shalour-gate,Shalour Gate,6,true
+667,coumarine-gate,Coumarine Gate,6,true
+668,laverre-gate,Laverre Gate,6,true
+669,anistar-gate,Anistar Gate,6,true
+670,snowbelle-gate,Snowbelle Gate,6,true
+671,glittering-cave,Glittering Cave,6,true
+672,connecting-cave,Connecting Cave,6,true
+673,zubat-roost,Zubat Roost,6,true
+674,kalos-power-plant,Kalos Power Plant,6,true
+675,team-flare-secret-hq,Team Flare Secret HQ,6,true
+676,terminus-cave,Terminus Cave,6,true
+677,lost-hotel,Lost Hotel,6,true
+678,chamber-of-emptiness,Chamber of Emptiness,6,true
+679,sea-spirits-den,Sea Spirit’s Den,6,true
+680,friend-safari,Friend Safari,6,true
+681,blazing-chamber,Blazing Chamber,6,true
+682,flood-chamber,Flood Chamber,6,true
+683,ironworks-chamber,Ironworks Chamber,6,true
+684,dragonmark-chamber,Dragonmark Chamber,6,true
+685,radiant-chamber,Radiant Chamber,6,true
+686,pokemon-league-gate,Pokémon League Gate,6,true
+687,lumiose-station,Lumiose Station,6,true
+688,kiloude-station,Kiloude Station,6,true
+689,ambrette-aquarium,Ambrette Aquarium,6,true
+690,unknown-dungeon,Unknown Dungeon,6,true
+691,hoenn-pokemon-league,Pokémon League,3,true
+692,team-aqua-hideout,Team Aqua Hideout,3,true
+693,sea-mauville,Sea Mauville,3,true
+694,team-magma-hideout,Team Magma Hideout,3,true
+695,battle-resort,Battle Resort,3,true
+696,ss-tidal,S.S. Tidal,3,true
+697,mirage-spot-forest,Mirage Forest,3,true
+698,mirage-spot-cave,Mirage Cave,3,true
+699,mirage-spot-mountain,Mirage Mountain,3,true
+700,trackless-forest,Trackless Forest,3,true
+701,pathless-plain,Pathless Plain,3,true
+702,nameless-cavern,Nameless Cavern,3,true
+703,fabled-cave,Fabled Cave,3,true
+704,gnarled-den,Gnarled Den,3,true
+705,crescent-isle,Crescent Isle,3,true
+706,secret-islet,Secret Islet,3,true
+707,soaring-in-the-sky,Soaring in the sky,3,true
+708,secret-shore,Secret Shore,3,true
+709,secret-meadow,Secret Meadow,3,true
+710,alola-route-1--hauoli-outskirts,１号道路,7,true
+711,alola-route-1,１号道路,7,true
+712,alola-route-3,３号道路,7,true
+713,alola-route-2,２号道路,7,true
+714,kalae-bay,卡拉蔚湾,7,true
+715,melemele-sea,美乐美乐海,7,true
+716,hauoli-city--beachfront,好奥乐市,7,true
+717,hauoli-city--shopping-district,好奥乐市,7,true
+718,hauoli-city--marina,好奥乐市,7,true
+719,iki-town,利利小镇,7,true
+720,mahalo-trail,马哈罗山路,7,true
+721,mahalo-trail--plank-bridge,马哈罗山路,7,true
+722,ruins-of-conflict,战争遗迹,7,true
+723,ten-carat-hill,十克拉山丘,7,true
+724,ten-carat-hill--farthest-hollow,十克拉山丘,7,true
+725,hauoli-cemetery,好奥乐墓园,7,true
+726,melemele-meadow,美乐美乐花园,7,true
+727,seaward-cave,通海洞穴,7,true
+728,berry-fields,树果园,7,true
+729,verdant-cavern--trial-site,葱郁洞窟,7,true
+730,verdant-cavern--totems-den,葱郁洞窟,7,true
+731,alola-route-4,４号道路,7,true
+732,alola-route-5,５号道路,7,true
+733,alola-route-6,６号道路,7,true
+734,alola-route-7,７号道路,7,true
+735,alola-route-8,８号道路,7,true
+736,alola-route-9,９号道路,7,true
+737,hano-grand-resort,豪诺豪诺度假地,7,true
+738,hano-beach,豪诺豪诺海滩,7,true
+739,akala-meadow,阿卡拉花园,7,true
+740,paniola-town,欧哈纳镇,7,true
+741,heahea-city,慷待市,7,true
+742,konikoni-city,可霓可市,7,true
+743,royal-avenue,皇家大道,7,true
+744,memorial-hill,回忆之丘,7,true
+745,paniola-ranch,欧哈纳牧场,7,true
+746,wela-volcano-park,维拉火山公园,7,true
+747,wela-volcano-park--totems-den,维拉火山公园,7,true
+748,brooklet-hill,潺潺之丘,7,true
+749,brooklet-hill--totems-den,潺潺之丘,7,true
+750,lush-jungle,树荫丛林,7,true
+751,ruins-of-life,生命遗迹,7,true
+752,akala-outskirts,阿卡拉岛郊外,7,true
+753,digletts-tunnel,地鼠隧道,7,true
+754,battle-royal-dome,皇家巨蛋,7,true
+755,alola-route-10,１０号道路,7,true
+756,alola-route-11,１１号道路,7,true
+757,secluded-shore,乌拉乌拉后海岸,7,true
+758,alola-route-13,１３号道路,7,true
+759,tapu-village,卡璞村,7,true
+760,alola-route-15,１５号水路,7,true
+761,alola-route-16,１６号道路,7,true
+762,alola-route-17,１７号道路,7,true
+763,alola-route-12,１２号道路,7,true
+764,haina-desert,哈伊纳沙漠,7,true
+765,alola-route-14,１４号道路,7,true
+766,ulaula-meadow,乌拉乌拉花园,7,true
+767,po-town,魄镇,7,true
+768,malie-city-proper,马利埃静市,7,true
+769,malie-garden,马利埃庭园,7,true
+770,mount-hokulani,辉克拉尼山,7,true
+771,blush-mountain,火特力山,7,true
+772,ruins-of-abundance,丰收遗迹,7,true
+773,lake-of-the-sunne,日轮湖,7,true
+774,lake-of-the-moone,月轮湖,7,true
+775,mount-lanakila,拉纳基拉山,7,true
+776,shady-house,可疑宅邸,7,true
+777,thrifty-megamart--abandoned-site,超值超市,7,true
+778,hokulani-observatory,辉克拉尼天文台,7,true
+779,alola-pokemon-league,宝可梦联盟,7,true
+780,poni-meadow,波尼花园,7,true
+781,poni-wilds,波尼原野,7,true
+782,ancient-poni-path,波尼古道,7,true
+783,poni-breaker-coast,波尼鼓浪岩岸,7,true
+784,poni-grove,波尼树林,7,true
+785,poni-plains,波尼旷野,7,true
+786,poni-coast,波尼海岸,7,true
+787,poni-gauntlet,波尼险路,7,true
+788,seafolk-village,海洋居民之村,7,true
+789,vast-poni-canyon,波尼大峡谷,7,true
+790,altar-of-the-sunne,日轮祭坛,7,true
+791,altar-of-the-moone,月轮祭坛,7,true
+792,ruins-of-hope,彼岸遗迹,7,true
+793,resolution-cave,终结洞窟,7,true
+794,exeggutor-island,椰蛋树岛,7,true
+795,battle-tree,对战树,7,true
+796,aether-paradise,以太乐园,7,true
+797,ultra-space,究极空间,7,true
+798,malie-city--outer-cape,马利埃静市,7,true
+799,roaming-kanto,Roaming Kanto,1,true
+800,roaming-johto,Roaming Johto,2,true
+801,roaming-hoenn,Roaming Hoenn,3,true
+802,roaming-sinnoh,Roaming Sinnoh,4,true
+803,terra-cave,Terra Cave,3,true
+804,marine-cave,Marine Cave,3,true
+805,two-island,Two Island,1,true
+806,three-island,Three Island,1,true
+807,three-isle-path,Three Isle Path,1,true
+808,six-island,Six Island,1,true
+809,seven-island,Seven Island,1,true
+810,birth-island,Birth Island,1,true
+811,navel-rock,Navel Rock,1,true
+812,faraway-island,Faraway Island,3,true
+813,hoenn-battle-frontier,Hoenn Battle Frontier,3,true
+814,johto-safari-zone,Johto Safari Zone,2,true
+815,cabo-poco,Cabo Poco,10,true
+816,los-platos,Los Platos,10,true
+817,mesagoza,Mesagoza,10,true
+818,cortondo,Cortondo,10,true
+819,alfornada,Alfornada,10,true
+820,pokemon-league,Pokémon League,10,true
+821,artazon,Artazon,10,true
+822,levincia,Levincia,10,true
+823,zapapico,Zapapico,10,true
+824,cascarrafa,Cascarrafa,10,true
+825,porto-marinada,Porto Marinada,10,true
+826,medali,Medali,10,true
+827,montenevera,Montenevera,10,true
+828,paldea-south-province-area-one,South Province (Area One),10,true
+829,paldea-south-province-area-two,South Province (Area Two),10,true
+830,paldea-south-province-area-three,South Province (Area Three),10,true
+831,paldea-south-province-area-four,South Province (Area Four),10,true
+832,paldea-south-province-area-five,South Province (Area Five),10,true
+833,paldea-south-province-area-six,South Province (Area Six),10,true
+834,south-paldean-sea,South Paldean Sea,10,true
+835,poco-path,Poco Path,10,true
+836,inlet-grotto,Inlet Grotto,10,true
+837,naranja-academy,Naranja Academy,10,true
+838,alfornada-cavern,Alfornada Cavern,10,true
+839,grasswither-shrine,Grasswither Shrine,10,true
+840,paldea-east-province-area-one,East Province (Area One),10,true
+841,paldea-east-province-area-two,East Province (Area Two),10,true
+842,paldea-east-province-area-three,East Province (Area Three),10,true
+843,east-paldean-sea,East Paldean Sea,10,true
+844,tagtree-thicket,Tagtree Thicket,10,true
+845,schedar-squads-base,Schedar Squad's Base,10,true
+846,navi-squads-base,Navi Squad's Base,10,true
+847,paldea-west-province-area-one,West Province (Area One),10,true
+848,paldea-west-province-area-two,West Province (Area Two),10,true
+849,paldea-west-province-area-three,West Province (Area Three),10,true
+850,asado-desert,Asado Desert,10,true
+851,west-paldean-sea,West Paldean Sea,10,true
+852,segin-squads-base,Segin Squad's Base,10,true
+853,icerend-shrine,Icerend Shrine,10,true
+854,paldea-north-province-area-one,North Province (Area One),10,true
+855,paldea-north-province-area-two,North Province (Area Two),10,true
+856,paldea-north-province-area-three,North Province (Area Three),10,true
+857,casseroya-lake,Casseroya Lake,10,true
+858,dalizapa-passage,Dalizapa Passage,10,true
+859,glaseado-mountain,Glaseado Mountain,10,true
+860,socarrat-trail,Socarrat Trail,10,true
+861,groundblight-shrine,Groundblight Shrine,10,true
+862,firescourge-shrine,Firescourge Shrine,10,true
+863,north-paldean-sea,North Paldean Sea,10,true
+864,ruchbah-squads-base,Ruchbah Squad's Base,10,true
+865,caph-squads-base,Caph Squad's Base,10,true
+866,area-zero,Area Zero,10,true
+867,zero-lab,Zero Lab,10,true
+868,galar-route-1,Route 1,8,true
+869,galar-route-2,Route 2,8,true
+870,galar-route-3,Route 3,8,true
+871,galar-route-4,Route 4,8,true
+872,galar-route-5,Route 5,8,true
+873,galar-route-6,Route 6,8,true
+874,galar-route-7,Route 7,8,true
+875,galar-route-8,Route 8,8,true
+876,galar-route-9,Route 9,8,true
+877,galar-route-10,Route 10,8,true
+878,axews-eye,Axew's Eye,8,true
+879,ballimere-lake,Ballimere Lake,8,true
+880,ballonlea,Ballonlea,8,true
+881,battle-tower,Battle Tower,8,true
+882,brawlers-cave,Brawlers' Cave,8,true
+883,bridge-field,Bridge Field,8,true
+884,challenge-beach,Challenge Beach,8,true
+885,challenge-road,Challenge Road,8,true
+886,circhester,Circhester,8,true
+887,courageous-cavern,Courageous Cavern,8,true
+888,crown-shrine,Crown Shrine,8,true
+889,dappled-grove,Dappled Grove,8,true
+890,dusty-bowl,Dusty Bowl,8,true
+891,dyna-tree-hill,Dyna Tree Hill,8,true
+892,east-lake-axewell,East Lake Axewell,8,true
+893,fields-of-honor,Fields of Honor,8,true
+894,forest-of-focus,Forest of Focus,8,true
+895,freezington,Freezington,8,true
+896,frigid-sea,Frigid Sea,8,true
+897,frostpoint-field,Frostpoint Field,8,true
+898,galar-mine,Galar Mine,8,true
+899,galar-mine-no-2,Galar Mine No. 2,8,true
+900,giants-bed,Giant's Bed,8,true
+901,giants-foot,Giant's Foot,8,true
+902,giants-mirror,Giant's Mirror,8,true
+903,giants-seat,Giant's Seat,8,true
+904,glimwood-tangle,Glimwood Tangle,8,true
+905,hammerlocke,Hammerlocke,8,true
+906,hammerlocke-hills,Hammerlocke Hills,8,true
+907,honeycalm-island,Honeycalm Island,8,true
+908,honeycalm-sea,Honeycalm Sea,8,true
+909,hulbury,Hulbury,8,true
+910,galar-iceberg-ruins,Iceberg Ruins,8,true
+911,insular-sea,Insular Sea,8,true
+912,galar-iron-ruins,Iron Ruins,8,true
+913,lake-of-outrage,Lake of Outrage,8,true
+914,lakeside-cave,Lakeside Cave,8,true
+915,loop-lagoon,Loop Lagoon,8,true
+916,master-dojo,Master Dojo,8,true
+917,max-lair,Max Lair,8,true
+918,motostoke,Motostoke,8,true
+919,motostoke-outskirts,Motostoke Outskirts,8,true
+920,motostoke-riverbank,Motostoke Riverbank,8,true
+921,north-lake-miloch,North Lake Miloch,8,true
+922,old-cemetery,Old Cemetery,8,true
+923,path-to-the-peak,Path to the Peak,8,true
+924,postwick,Postwick,8,true
+925,potbottom-desert,Potbottom Desert,8,true
+926,roaring-sea-caves,Roaring-Sea Caves,8,true
+927,galar-rock-peak-ruins,Rock Peak Ruins,8,true
+928,rolling-fields,Rolling Fields,8,true
+929,slippery-slope,Slippery Slope,8,true
+930,slumbering-weald,Slumbering Weald,8,true
+931,snowslide-slope,Snowslide Slope,8,true
+932,soothing-wetlands,Soothing Wetlands,8,true
+933,south-lake-miloch,South Lake Miloch,8,true
+934,spikemuth,Spikemuth,8,true
+935,split-decision-ruins,Split-Decision Ruins,8,true
+936,steamdrift-way,Route 8,8,true
+937,stepping-stone-sea,Stepping-Stone Sea,8,true
+938,stony-wilderness,Stony Wilderness,8,true
+939,stow-on-side,Stow-on-Side,8,true
+940,three-point-pass,Three-Point Pass,8,true
+941,tower-of-darkness,Tower of Darkness,8,true
+942,tower-of-waters,Tower of Waters,8,true
+943,training-lowlands,Training Lowlands,8,true
+944,tunnel-to-the-top,Tunnel to the Top,8,true
+945,turffield,Turffield,8,true
+946,warm-up-tunnel,Warm-Up Tunnel,8,true
+947,watchtower-ruins,Watchtower Ruins,8,true
+948,wedgehurst,Wedgehurst,8,true
+949,west-lake-axewell,West Lake Axewell,8,true
+950,workout-sea,Workout Sea,8,true
+951,wyndon,Wyndon,8,true
+952,aipom-hill,Aipom Hill,9,true
+953,ancient-quarry,Ancient Quarry,9,true
+954,arenas-approach,Arena's Approach,9,true
+955,aspiration-hill,Aspiration Hill,9,true
+956,avalanche-slopes,Avalanche Slopes,9,true
+957,avaluggs-legacy,Avalugg's Legacy,9,true
+958,bathers-lagoon,Bathers' Lagoon,9,true
+959,bolderoll-ravine,Bolderoll Ravine,9,true
+960,bolderoll-slope,Bolderoll Slope,9,true
+961,bonechill-wastes,Bonechill Wastes,9,true
+962,brava-arena,Brava Arena,9,true
+963,castaway-shore,Castaway Shore,9,true
+964,celestica-ruins,Celestica Ruins,9,true
+965,celestica-trail,Celestica Trail,9,true
+966,clamberclaw-cliffs,Clamberclaw Cliffs,9,true
+967,cloudcap-pass,Cloudcap Pass,9,true
+968,cloudpool-ridge,Cloudpool Ridge,9,true
+969,coastlands-camp,Coastlands Base Camp,9,true
+970,cottonsedge-prairie,Cottonsedge Prairie,9,true
+971,crossing-slope,Crossing Slope,9,true
+972,deadwood-haunt,Deadwood Haunt,9,true
+973,deertrack-heights,Deertrack Heights,9,true
+974,deertrack-path,Deertrack Path,9,true
+975,diamond-heath,Diamond Heath,9,true
+976,diamond-settlement,Diamond Settlement,9,true
+977,droning-meadow,Droning Meadow,9,true
+978,fabled-spring,Fabled Spring,9,true
+979,firespit-island,Firespit Island,9,true
+980,floaro-gardens,Floaro Gardens,9,true
+981,gapejaw-bog,Gapejaw Bog,9,true
+982,ginkgo-landing,Ginkgo Landing,9,true
+983,glacier-terrace,Glacier Terrace,9,true
+984,golden-lowlands,Golden Lowlands,9,true
+985,grandtree-arena,Grandtree Arena,9,true
+986,grueling-grove,Grueling Grove,9,true
+987,hearts-crag,Heart's Crag,9,true
+988,heavenward-lookout,Heavenward Lookout,9,true
+989,heights-camp,Heights Base Camp,9,true
+990,hideaway-bay,Hideaway Bay,9,true
+991,holm-of-trials,Holm of Trials,9,true
+992,horseshoe-plains,Horseshoe Plains,9,true
+993,ice-column-chamber,Ice Column Chamber,9,true
+994,icebound-falls,Icebound Falls,9,true
+995,icepeak-arena,Icepeak Arena,9,true
+996,icepeak-cavern,Icepeak Cavern,9,true
+997,islespy-shore,Islespy Shore,9,true
+998,jubilife-village,Jubilife Village,9,true
+999,hisui-lake-acuity,Lake Acuity,9,true
+1000,hisui-lake-valor,Lake Valor,9,true
+1001,hisui-lake-verity,Lake Verity,9,true
+1002,lonely-spring,Lonely Spring,9,true
+1003,lunkers-lair,Lunker's Lair,9,true
+1004,molten-arena,Molten Arena,9,true
+1005,moonview-arena,Moonview Arena,9,true
+1006,natures-pantry,Nature's Pantry,9,true
+1007,obsidian-falls,Obsidian Falls,9,true
+1008,oreburrow-tunnel,Oreburrow Tunnel,9,true
+1009,pearl-settlement,Pearl Settlement,9,true
+1010,primeval-grotto,Primeval Grotto,9,true
+1011,ramanas-island,Ramanas Island,9,true
+1012,sacred-plaza,Sacred Plaza,9,true
+1013,sands-reach,Sand's Reach,9,true
+1014,sandgem-flats,Sandgem Flats,9,true
+1015,scarlet-bog,Scarlet Bog,9,true
+1016,seagrass-haven,Seagrass Haven,9,true
+1017,seaside-hollow,Seaside Hollow,9,true
+1018,shrouded-ruins,Shrouded Ruins,9,true
+1019,sludge-mound,Sludge Mound,9,true
+1020,snowfall-hot-spring,Snowfall Hot Spring,9,true
+1021,hisui-snowpoint-temple,Snowpoint Temple,9,true
+1022,hisui-solaceon-ruins,Solaceon Ruins,9,true
+1023,sonorous-path,Sonorous Path,9,true
+1024,space-time-distortion,Space-time distortion,9,true
+1025,hisui-spring-path,Spring Path,9,true
+1026,stonetooth-rows,Stonetooth Rows,9,true
+1027,temple-of-sinnoh,Temple of Sinnoh,9,true
+1028,the-heartwood,The Heartwood,9,true
+1029,tidewater-dam,Tidewater Dam,9,true
+1030,tombolo-walk,Tombolo Walk,9,true
+1031,tranquility-cove,Tranquility Cove,9,true
+1032,hisui-turnback-cave,Turnback Cave,9,true
+1033,ursas-ring,Ursa's Ring,9,true
+1034,veilstone-cape,Veilstone Cape,9,true
+1035,hisui-wayward-cave,Wayward Cave,9,true
+1036,wayward-wood,Wayward Wood,9,true
+1037,whiteout-valley,Whiteout Valley,9,true
+1038,windbreak-stand,Windbreak Stand,9,true
+1039,windswept-run,Windswept Run,9,true
+1040,worn-bridge,Worn Bridge,9,true
+1041,giants-cap,Giant's Cap,8,true
+1042,hauoli-city,Hau'oli City,7,true
+1043,verdant-cavern,Verdant Cavern,7,true
+1044,thrifty-megamart,Royal Avenue,7,true
+1045,malie-city,Malie City,7,true
+1046,dividing-peak-tunnel,Dividing Peak Tunnel,7,true
+1047,heahea-beach,Heahea Beach,7,true
+1048,sandy-cave,Sandy Cave,7,true
+1049,ulaula-beach,Ula'ula Beach,7,true
+1050,ultra-megalopolis,Ultra Megalopolis,7,true
+1051,ultra-space-wilds,Ultra Space Wilds,7,true
+1052,poke-pelago,Poké Pelago,7,true
+1053,team-rockets-castle,Team Rocket's Castle,7,true
+1054,roaming-unova,Unova (Roaming),5,true
+1055,mossdeep-space-center,Mossdeep Space Center,3,true
+1056,roaming-kalos,Kalos (Roaming),6,true
+1057,uva-academy,Uva Academy,10,true
+1058,apple-hills,Apple Hills,10,true
+1059,chilling-waterhead,Chilling Waterhead,10,true
+1060,crystal-pool,Crystal Pool,10,true
+1061,dreaded-den,Dreaded Den,10,true
+1062,fellhorn-gorge,Fellhorn Gorge,10,true
+1063,infernal-pass,Infernal Pass,10,true
+1064,kitakami-hall,Kitakami Hall,10,true
+1065,kitakami-road,Kitakami Road,10,true
+1066,kitakami-wilds,Kitakami Wilds,10,true
+1067,loyalty-plaza,Loyalty Plaza,10,true
+1068,mossfell-confluence,Mossfell Confluence,10,true
+1069,mossui-town,Mossui Town,10,true
+1070,oni-mountain,Oni Mountain,10,true
+1071,onis-maw,Oni's Maw,10,true
+1072,paradise-barrens,Paradise Barrens,10,true
+1073,revelers-road,Reveler's Road,10,true
+1074,timeless-woods,Timeless Woods,10,true
+1075,wistful-fields,Wistful Fields,10,true
+1076,canyon-biome,Canyon Biome,10,true
+1077,canyon-plaza,Canyon Plaza,10,true
+1078,central-plaza,Central Plaza,10,true
+1079,chargestone-cavern,Chargestone Cavern,10,true
+1080,coastal-biome,Coastal Biome,10,true
+1081,coastal-plaza,Coastal Plaza,10,true
+1082,league-club-room,League Club Room,10,true
+1083,polar-biome,Polar Biome,10,true
+1084,polar-plaza,Polar Plaza,10,true
+1085,savanna-biome,Savanna Biome,10,true
+1086,savanna-plaza,Savanna Plaza,10,true
+1087,torchlit-labyrinth,Torchlit Labyrinth,10,true
+1088,hoenn-pokemart,丰缘pokemart,3,true
+1089,hoenn-pokecenter,丰缘pokecenter,3,true
+1090,kanto-pokemart,关都pokemart,1,true
+1091,kanto-pokecenter,关都pokecenter,1,true
+1092,sinnoh-pokemart,神奥pokemart,4,true
+1093,johto-pokemart,城都pokemart,2,true
+1094,mirage-island,mirage island,3,true
+1095,outskirt-stand,Outskirt Stand,11,true
+1096,phenac-city,Phenac City,11,true
+1097,snagem-hideout,Snagem Hideout,11,true
+1098,shadow-pokemon-lab,Shadow Pokémon Lab,11,true
+1099,pyrite-town,Pyrite Town,11,true
+1100,pyrite-bldg,Pyrite Bldg,11,true
+1101,pyrite-cave,Pyrite Cave,11,true
+1102,realgam-tower,Realgam Tower,11,true
+1103,agate-village,Agate Village,11,true
+1104,the-under,The Under,11,true
+1105,mt-battle,Mt. Battle,11,true
+1106,pokemon-hq-lab,Pokemon Hq Lab,11,true
+1107,gateon-port,Gateon Port,11,true
+1108,cipher-lab,Cipher Lab,11,true
+1109,pokespot,Pokespot,11,true
+1110,onbs,ONBS,11,true
+1111,cipher-key-lair,Cipher Key Lair,11,true
+1112,citadark-isle,Citadark Isle,11,true
+1113,kanto-underground-path,Kanto Underground Path,1,true

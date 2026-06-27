@@ -1,0 +1,9 @@
+id,code,name,description,enabled
+1,countable,Countable,Has a count in the bag,true
+2,consumable,Consumable,Consumed when used,true
+3,usable-overworld,Usable_overworld,Usable outside battle,true
+4,usable-in-battle,Usable_in_battle,Usable in battle,true
+5,holdable,Holdable,Can be held by a Pokémon,true
+6,holdable-passive,Holdable_passive,Works passively when held,true
+7,holdable-active,Holdable_active,Usable by a Pokémon when held,true
+8,underground,Underground,Appears in Sinnoh Underground,true

@@ -1,0 +1,33 @@
+id,code,name,generation_id,sort_order,enabled
+1,red-blue,红蓝,1,3,true
+2,yellow,黄,1,4,true
+3,gold-silver,金银,2,5,true
+4,crystal,水晶,2,6,true
+5,ruby-sapphire,红宝石蓝宝石,3,7,true
+6,emerald,绿宝石,3,8,true
+7,firered-leafgreen,firered leafgreen,3,11,true
+8,diamond-pearl,钻石珍珠,4,12,true
+9,platinum,白金,4,13,true
+10,heartgold-soulsilver,heartgold soulsilver,4,14,true
+11,black-white,黑白,5,15,true
+12,colosseum,colosseum,3,9,true
+13,xd,xd,3,10,true
+14,black-2-white-2,黑2白2,5,16,true
+15,x-y,XY,6,17,true
+16,omega-ruby-alpha-sapphire,omega红宝石alpha蓝宝石,6,18,true
+17,sun-moon,太阳月亮,7,19,true
+18,ultra-sun-ultra-moon,ultra太阳ultra月亮,7,20,true
+19,lets-go-pikachu-lets-go-eevee,lets go pikachu lets go eevee,7,21,true
+20,sword-shield,剑盾,8,22,true
+21,the-isle-of-armor,the isle of armor,8,23,true
+22,the-crown-tundra,the crown tundra,8,24,true
+23,brilliant-diamond-shining-pearl,brilliant钻石shining珍珠,8,25,true
+24,legends-arceus,legends arceus,8,26,true
+25,scarlet-violet,朱紫,9,27,true
+26,the-teal-mask,the teal mask,9,28,true
+27,the-indigo-disk,the indigo disk,9,29,true
+28,red-green-japan,红greenjapan,1,1,true
+29,blue-japan,蓝japan,1,2,true
+30,legends-za,legends za,9,30,true
+31,mega-dimension,mega dimension,9,31,true
+32,champions,champions,9,32,true

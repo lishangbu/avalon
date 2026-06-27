@@ -1,0 +1,15 @@
+id,code,name,description,enabled
+0,damage,伤害,Inflicts damage,true
+1,ailment,异常,No damage; inflicts status ailment,true
+2,net-good-stats,净值goodstats,No damage; lowers target’s stats or raises user’s stats,true
+3,heal,回复,No damage; heals the user,true
+4,damage-ailment,伤害异常,Inflicts damage; inflicts status ailment,true
+5,swagger,摇晃,No damage; inflicts status ailment; raises target’s stats,true
+6,damage-lower,伤害降低,Inflicts damage; lowers target’s stats,true
+7,damage-raise,伤害提升,Inflicts damage; raises user’s stats,true
+8,damage-heal,伤害回复,Inflicts damage; absorbs damage done to heal the user,true
+9,ohko,ohko,One-hit KO,true
+10,whole-field-effect,whole field effect,Effect on the whole field,true
+11,field-effect,field effect,Effect on one side of the field,true
+12,force-switch,force switch,Forces target to switch out,true
+13,unique,unique,Unique effect,true

@@ -1,0 +1,22 @@
+id,code,name,enabled
+0,none,none,true
+1,paralysis,Paralysis,true
+2,sleep,Sleep,true
+3,freeze,Freeze,true
+4,burn,Burn,true
+5,poison,Poison,true
+6,confusion,Confusion,true
+7,infatuation,Infatuation,true
+8,trap,Trap,true
+9,nightmare,Nightmare,true
+12,torment,Torment,true
+13,disable,Disable,true
+14,yawn,Yawn,true
+15,heal-block,Heal Block,true
+17,no-type-immunity,No type immunity,true
+18,leech-seed,Leech Seed,true
+19,embargo,Embargo,true
+20,perish-song,Perish Song,true
+21,ingrain,Ingrain,true
+24,silence,Silence,true
+42,tar-shot,Tar shot,true

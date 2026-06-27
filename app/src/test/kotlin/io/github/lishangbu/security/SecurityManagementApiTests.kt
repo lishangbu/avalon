@@ -299,7 +299,8 @@ class SecurityManagementApiTests(
 
 		mockMvc.perform(
 			get("/api/system/rbac/access-nodes")
-				.header("Authorization", "Bearer $token"),
+				.header("Authorization", "Bearer $token")
+				.param("codePrefix", "security"),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.rows[*].code", hasItem("security:admin")))

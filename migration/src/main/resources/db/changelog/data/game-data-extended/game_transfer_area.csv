@@ -1,0 +1,6 @@
+id,code,name,enabled
+1,forest,Forest,true
+2,field,Field,true
+3,mountain,Mountain,true
+4,pond,Pond,true
+5,sea,Sea,true

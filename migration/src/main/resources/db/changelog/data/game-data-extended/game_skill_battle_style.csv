@@ -1,0 +1,4 @@
+id,code,name,sort_order,enabled
+1,attack,Attack,1,true
+2,defense,Defense,2,true
+3,support,Support,3,true

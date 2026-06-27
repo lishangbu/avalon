@@ -1,0 +1,4 @@
+id,code,name,sort_order,enabled
+1,female,雌性,1,true
+2,male,雄性,2,true
+3,genderless,无性别,3,true

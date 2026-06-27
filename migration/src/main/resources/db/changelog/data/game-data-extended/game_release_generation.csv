@@ -1,0 +1,10 @@
+id,code,name,enabled
+1,generation-i,第一世代,true
+2,generation-ii,第二世代,true
+3,generation-iii,第三世代,true
+4,generation-iv,第四世代,true
+5,generation-v,第五世代,true
+6,generation-vi,第六世代,true
+7,generation-vii,第七世代,true
+8,generation-viii,第八世代,true
+9,generation-ix,第九世代,true

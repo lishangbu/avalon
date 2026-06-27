@@ -1,0 +1,12 @@
+id,code,name,main_generation_id,enabled
+1,kanto,关都,1,true
+2,johto,城都,2,true
+3,hoenn,丰缘,3,true
+4,sinnoh,神奥,4,true
+5,unova,合众,5,true
+6,kalos,卡洛斯,6,true
+7,alola,阿罗拉,7,true
+8,galar,伽勒尔,8,true
+9,hisui,洗翠,,true
+10,paldea,帕底亚,9,true
+11,orre,Orre,,true

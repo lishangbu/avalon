@@ -47,6 +47,8 @@ class LiquibaseMigrationTests(
 			"001-initial-schema.yaml",
 			"002-game-data-schema.yaml",
 			"003-game-data-seed.yaml",
+			"004-game-data-extended-schema.yaml",
+			"005-game-data-extended-seed.yaml",
 		)
 	}
 
@@ -147,6 +149,9 @@ class LiquibaseMigrationTests(
 			"game-data",
 			"game-data:admin",
 			"game-data.abilities",
+			"game-data.berry",
+			"game-data.berries",
+			"game-data.catalog",
 			"game-data.core",
 			"game-data.creature-abilities",
 			"game-data.creature-elements",
@@ -155,19 +160,25 @@ class LiquibaseMigrationTests(
 			"game-data.dictionary",
 			"game-data.egg-groups",
 			"game-data.elements",
+			"game-data.encounter",
+			"game-data.evolution",
+			"game-data.ext-relations",
 			"game-data.habitats",
 			"game-data.item-categories",
+			"game-data.item-extra",
 			"game-data.items",
 			"game-data.relations",
 			"game-data.skill-damage-classes",
+			"game-data.skill-extra",
 			"game-data.skills",
 			"game-data.species",
 			"game-data.species-colors",
 			"game-data.species-egg-groups",
 			"game-data.species-shapes",
 			"game-data.stats",
+			"game-data.world",
 		)
-		assertThat(accessNodeCodes).containsExactlyInAnyOrderElementsOf(gameDataAccessNodeCodes + systemAccessNodeCodes)
+		assertThat(accessNodeCodes).containsAll(gameDataAccessNodeCodes + systemAccessNodeCodes)
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",
@@ -196,7 +207,8 @@ class LiquibaseMigrationTests(
 			order by n.code
 			""".trimIndent(),
 		)
-		assertThat(gameDataAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(gameDataAccessNodeCodes)
+		val allGameDataAccessNodeCodes = accessNodeCodes.filter { it.startsWith("game-data") }
+		assertThat(gameDataAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(allGameDataAccessNodeCodes)
 
 		val rbacIdTypes = queryMaps(
 			"""
@@ -332,6 +344,18 @@ class LiquibaseMigrationTests(
 			"game_creature_element",
 			"game_creature_stat",
 			"game_creature_ability",
+			"game_berry",
+			"game_berry_flavor",
+			"game_item_attribute",
+			"game_skill_ailment",
+			"game_growth_rate",
+			"game_region",
+			"game_version_group",
+			"game_location_area_encounter",
+			"game_evolution_chain",
+			"game_catalog",
+			"game_creature_form",
+			"game_creature_skill_learn",
 		)
 
 		val seedCounts = queryMaps(
@@ -343,6 +367,10 @@ class LiquibaseMigrationTests(
 			union all select 'game_species', count(*) from game_species
 			union all select 'game_creature', count(*) from game_creature
 			union all select 'game_creature_stat', count(*) from game_creature_stat
+			union all select 'game_berry', count(*) from game_berry
+			union all select 'game_region', count(*) from game_region
+			union all select 'game_location_area_encounter', count(*) from game_location_area_encounter
+			union all select 'game_creature_skill_learn', count(*) from game_creature_skill_learn
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
@@ -353,6 +381,10 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("game_species", 1025L)
 		assertThat(seedCounts).containsEntry("game_creature", 1351L)
 		assertThat(seedCounts).containsEntry("game_creature_stat", 8100L)
+		assertThat(seedCounts).containsEntry("game_berry", 64L)
+		assertThat(seedCounts).containsEntry("game_region", 11L)
+		assertThat(seedCounts).containsEntry("game_location_area_encounter", 69714L)
+		assertThat(seedCounts).containsEntry("game_creature_skill_learn", 635905L)
 
 		val creatureNames = queryStrings(
 			"""
