@@ -4,8 +4,8 @@ import io.github.lishangbu.BackendApplication
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.active
 import io.github.lishangbu.security.entity.keyId
-import io.github.lishangbu.system.oauth.jwk.OAuthJwkResponse
-import io.github.lishangbu.system.oauth.jwk.OAuthJwkService
+import io.github.lishangbu.system.dto.OAuthJwkResponse
+import io.github.lishangbu.system.service.OAuthJwkService
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.assertj.core.api.Assertions.assertThat
