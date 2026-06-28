@@ -162,7 +162,23 @@ class BattleRuleCoverageService {
 				status = PARTIAL,
 				fixtures = listOf("grassy-terrain-heals-active-participants-at-end-turn"),
 				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)"),
-				note = "已覆盖接地成员固定比例回复；场地持续时间和其它场地效果仍需补齐。",
+				note = "已覆盖接地成员固定比例回复；其它场地效果仍需补齐。",
+			),
+			item(
+				code = "field.environment-duration",
+				name = "天气和场地持续回合",
+				category = "天气/场地",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"weather-duration-decrements-and-ends",
+					"terrain-duration-ends-at-turn-end",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather",
+					"https://bulbapedia.bulbagarden.net/wiki/Terrain",
+				),
+				note = "非永久天气/场地在回合末递减，耗尽时恢复为无并产生结束事件。",
 			),
 			item(
 				code = "weather.sun-rain-damage",
@@ -174,7 +190,7 @@ class BattleRuleCoverageService {
 					"rain-boosts-water-and-weakens-fire-damage",
 				),
 				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Weather"),
-				note = "已用公开 fixture 覆盖晴天/下雨对火/水伤害的倍率；天气持续时间和天气回合末效果仍需补齐。",
+				note = "已用公开 fixture 覆盖晴天/下雨对火/水伤害的倍率；天气回合末伤害和免疫等副作用仍需补齐。",
 			),
 			item(
 				code = "status.freeze",
