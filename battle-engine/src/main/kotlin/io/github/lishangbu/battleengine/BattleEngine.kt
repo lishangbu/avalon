@@ -898,6 +898,12 @@ class BattleEngine(
 		elementId != null && elementId in elementIds
 
 	/**
+	 * 判断成员是否天然免疫沙暴回合末伤害。
+	 */
+	private fun BattleParticipant.immuneToSandstorm(rules: BattleRuleSnapshot): Boolean =
+		hasElement(rules.rockElementId) || hasElement(rules.groundElementId) || hasElement(rules.steelElementId)
+
+	/**
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数。
@@ -1076,8 +1082,47 @@ class BattleEngine(
 		return if (afterResidual.result != null) {
 			afterResidual
 		} else {
-			applyEndTurnHealing(applyEndTurnTerrainEffects(afterResidual))
+			val afterWeather = applyEndTurnWeatherEffects(afterResidual)
+			if (afterWeather.result != null) {
+				afterWeather
+			} else {
+				applyEndTurnHealing(applyEndTurnTerrainEffects(afterWeather))
+			}
 		}
+	}
+
+	/**
+	 * 处理回合末天气伤害。
+	 *
+	 * 当前只覆盖现代沙暴固定伤害：当前上场、仍可战斗，且不是岩/地面/钢属性的成员会受到最大 HP 的 1/16 伤害。
+	 * 特性、道具、潜水/挖洞等免疫来源尚未进入成员运行态，后续会在这里扩展结构化判断。
+	 */
+	private fun applyEndTurnWeatherEffects(state: BattleState): BattleState {
+		if (state.environment.weather != BattleWeather.SANDSTORM) {
+			return state
+		}
+		return state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (!latest.canBattle() || latest.immuneToSandstorm(current.rules)) {
+					current
+				} else {
+					val damage = (latest.maxHp / WEATHER_DAMAGE_DENOMINATOR).coerceAtLeast(1)
+					val damaged = latest.receiveDamage(damage)
+					current
+						.replaceParticipant(damaged)
+						.appendEvent(
+							BattleEvent.WeatherDamageApplied(
+								turnNumber = current.turnNumber,
+								actorId = latest.actorId,
+								weather = BattleWeather.SANDSTORM,
+								amount = damage,
+							),
+						)
+						.handleFaintAndResult(damaged)
+				}
+			}
 	}
 
 	/**
@@ -1327,5 +1372,6 @@ class BattleEngine(
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
+		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}
 }

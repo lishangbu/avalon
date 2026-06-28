@@ -38,8 +38,10 @@ internal fun neutralRules(): BattleRuleSnapshot =
 		elementChart = ElementEffectivenessChart.neutral(),
 		electricElementId = 13,
 		fireElementId = 10,
+		groundElementId = 5,
 		iceElementId = 15,
 		poisonElementId = 4,
+		rockElementId = 6,
 		steelElementId = 9,
 		waterElementId = 11,
 	)

@@ -14,8 +14,10 @@ data class BattleRuleSnapshot(
 	val elementChart: ElementEffectivenessChart = ElementEffectivenessChart.neutral(),
 	val electricElementId: Long? = null,
 	val fireElementId: Long? = null,
+	val groundElementId: Long? = null,
 	val iceElementId: Long? = null,
 	val poisonElementId: Long? = null,
+	val rockElementId: Long? = null,
 	val steelElementId: Long? = null,
 	val waterElementId: Long? = null,
 	val grassyTerrainHealDenominator: Int = 16,
@@ -30,8 +32,10 @@ data class BattleRuleSnapshot(
 	init {
 		require(electricElementId == null || electricElementId > 0) { "electricElementId must be positive when present" }
 		require(fireElementId == null || fireElementId > 0) { "fireElementId must be positive when present" }
+		require(groundElementId == null || groundElementId > 0) { "groundElementId must be positive when present" }
 		require(iceElementId == null || iceElementId > 0) { "iceElementId must be positive when present" }
 		require(poisonElementId == null || poisonElementId > 0) { "poisonElementId must be positive when present" }
+		require(rockElementId == null || rockElementId > 0) { "rockElementId must be positive when present" }
 		require(steelElementId == null || steelElementId > 0) { "steelElementId must be positive when present" }
 		require(waterElementId == null || waterElementId > 0) { "waterElementId must be positive when present" }
 		require(grassyTerrainHealDenominator > 0) { "grassyTerrainHealDenominator must be positive" }

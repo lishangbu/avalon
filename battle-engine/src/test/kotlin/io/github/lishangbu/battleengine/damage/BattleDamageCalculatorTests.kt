@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine.damage
 import io.github.lishangbu.battleengine.damagingSkill
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEnvironment
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -284,5 +285,61 @@ class BattleDamageCalculatorTests {
 		assertEquals(42, waterResult.amount)
 		assertEquals(0.5, fireResult.weatherMultiplier)
 		assertEquals(14, fireResult.amount)
+	}
+
+	@Test
+	fun `sandstorm boosts rock special defense before special damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sandstorm-boosts-rock-special-defense",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition)",
+			),
+			inputSummary = "沙暴环境下，普通特殊技能命中岩属性目标。",
+			expectedSummary = "目标特防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 2),
+				defender = participant("rock-defender", speed = 80, elementId = 6),
+				skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.SPECIAL, power = 40),
+				rules = neutralRules(),
+				environment = BattleEnvironment(weather = BattleWeather.SANDSTORM),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("sandstorm-boosts-rock-special-defense")
+		assertEquals(13, result.baseDamage)
+		assertEquals(13, result.amount)
+	}
+
+	@Test
+	fun `snow boosts ice physical defense before physical damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "snow-boosts-ice-physical-defense",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Snow",
+			),
+			inputSummary = "雪景环境下，普通物理技能命中冰属性目标。",
+			expectedSummary = "目标物防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 2),
+				defender = participant("ice-defender", speed = 80, elementId = 15),
+				skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+				rules = neutralRules(),
+				environment = BattleEnvironment(weather = BattleWeather.SNOW),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("snow-boosts-ice-physical-defense")
+		assertEquals(13, result.baseDamage)
+		assertEquals(13, result.amount)
 	}
 }

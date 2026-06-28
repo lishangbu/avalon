@@ -50,8 +50,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(snapshot.rules.bannedSkillIds).isEmpty()
 		assertThat(snapshot.rules.electricElementId).isEqualTo(13)
 		assertThat(snapshot.rules.fireElementId).isEqualTo(10)
+		assertThat(snapshot.rules.groundElementId).isEqualTo(5)
 		assertThat(snapshot.rules.iceElementId).isEqualTo(15)
 		assertThat(snapshot.rules.poisonElementId).isEqualTo(4)
+		assertThat(snapshot.rules.rockElementId).isEqualTo(6)
 		assertThat(snapshot.rules.steelElementId).isEqualTo(9)
 		assertThat(snapshot.rules.waterElementId).isEqualTo(11)
 	}

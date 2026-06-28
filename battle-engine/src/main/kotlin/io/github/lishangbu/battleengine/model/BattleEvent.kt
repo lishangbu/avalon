@@ -263,6 +263,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 天气在回合末对成员造成了伤害。
+	 *
+	 * 目前用于沙暴固定比例伤害。天气带来的能力修正属于伤害公式输入，不通过该事件表达。
+	 */
+	data class WeatherDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val weather: BattleWeather,
+		val amount: Int,
+	) : BattleEvent
+
+	/**
 	 * 当前天气因持续回合耗尽而结束。
 	 *
 	 * 事件只表示环境事实变化，不暗含本回合天气伤害或免疫效果；这些副作用应在更早的回合末阶段单独记录。
