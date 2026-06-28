@@ -11,6 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.neutralRules
 import io.github.lishangbu.battleengine.participant
+import io.github.lishangbu.battleengine.publicBattleRuleFixture
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,8 +19,8 @@ import kotlin.test.assertEquals
  * 验证第一版普通伤害公式。
  *
  * 场景类型：公式级 fixture。
- * 参考来源类型：公开主系列普通伤害公式的通用结构；本测试只覆盖可独立确认的等级、威力、攻防、随机、
- * 属性一致加成和属性克制取整，不声称已经覆盖击中要害、天气、状态、道具或特性。
+ * 参考来源类型：公开主系列普通伤害公式的通用结构；本测试覆盖可独立确认的等级、威力、攻防、随机、
+ * 属性一致加成、属性克制、击中要害、天气、状态、道具和特性。
  * 验证重点：基础伤害中间值稳定、随机百分比可控、0 倍免疫不产生最小 1 点伤害。
  */
 class BattleDamageCalculatorTests {
@@ -203,6 +204,15 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sun-boosts-fire-and-weakens-water-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Harsh_sunlight",
+			),
+			inputSummary = "晴天环境下分别计算火属性技能和水属性技能的普通伤害。",
+			expectedSummary = "火属性伤害使用 1.5 倍天气倍率，水属性伤害使用 0.5 倍天气倍率。",
+		)
 		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
 		val sun = BattleEnvironment(weather = BattleWeather.SUN)
 
@@ -227,6 +237,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
+		fixture.assertNamed("sun-boosts-fire-and-weakens-water-damage")
 		assertEquals(1.5, fireResult.weatherMultiplier)
 		assertEquals(42, fireResult.amount)
 		assertEquals(0.5, waterResult.weatherMultiplier)
@@ -235,6 +246,15 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `rain boosts water damage and weakens fire damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "rain-boosts-water-and-weakens-fire-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Rain",
+			),
+			inputSummary = "下雨环境下分别计算水属性技能和火属性技能的普通伤害。",
+			expectedSummary = "水属性伤害使用 1.5 倍天气倍率，火属性伤害使用 0.5 倍天气倍率。",
+		)
 		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
 		val rain = BattleEnvironment(weather = BattleWeather.RAIN)
 
@@ -259,6 +279,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
+		fixture.assertNamed("rain-boosts-water-and-weakens-fire-damage")
 		assertEquals(1.5, waterResult.weatherMultiplier)
 		assertEquals(42, waterResult.amount)
 		assertEquals(0.5, fireResult.weatherMultiplier)
