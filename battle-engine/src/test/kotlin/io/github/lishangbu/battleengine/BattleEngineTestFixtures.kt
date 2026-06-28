@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleEnvironment
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
@@ -171,6 +172,7 @@ internal fun damagingSkill(
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
 	sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
+	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
 		skillId = skillId,
@@ -202,6 +204,7 @@ internal fun damagingSkill(
 		statStageEffects = statStageEffects,
 		sideConditionApplications = sideConditionApplications,
 		sideSpeedModifierApplications = sideSpeedModifierApplications,
+		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
 	)
 
 internal fun protectionSkill(

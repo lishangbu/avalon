@@ -11,6 +11,7 @@ data class BattleEnvironment(
 	val weatherTurnsRemaining: Int? = null,
 	val terrain: BattleTerrain = BattleTerrain.NONE,
 	val terrainTurnsRemaining: Int? = null,
+	val fieldSpeedOrderEffect: BattleFieldSpeedOrderEffect? = null,
 ) {
 	init {
 		require(weatherTurnsRemaining == null || weatherTurnsRemaining > 0) {

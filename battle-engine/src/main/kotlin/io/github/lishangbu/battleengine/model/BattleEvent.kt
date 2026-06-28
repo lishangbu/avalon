@@ -353,6 +353,32 @@ sealed interface BattleEvent {
 		val turnsRemaining: Int?,
 	) : BattleEvent
 
+	/**
+	 * 全场速度顺序效果已经建立。
+	 *
+	 * 该事件用于戏法空间这类会改变行动队列比较方向的全场规则。它不表示任何成员速度数值被修改，只表示后续
+	 * 行动排序在同优先度内应按该效果的定义比较有效速度。
+	 */
+	data class FieldSpeedOrderStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val kind: BattleFieldSpeedOrderKind,
+		val turnsRemaining: Int?,
+	) : BattleEvent
+
+	/**
+	 * 全场速度顺序效果已经结束。
+	 *
+	 * `actorId` 与 `skillId` 为空时表示持续回合自然耗尽；非空时表示某个技能触发了现代规则中的重启/解除语义。
+	 */
+	data class FieldSpeedOrderEnded(
+		override val turnNumber: Int,
+		val kind: BattleFieldSpeedOrderKind,
+		val actorId: String? = null,
+		val skillId: Long? = null,
+	) : BattleEvent
+
 	data class ResidualDamageApplied(
 		override val turnNumber: Int,
 		val actorId: String,

@@ -57,6 +57,7 @@ class LiquibaseMigrationTests(
 			"008-battle-skill-runtime-seed-corrections.yaml",
 			"009-battle-skill-field-effects.yaml",
 			"010-battle-skill-speed-field-effects.yaml",
+			"011-battle-skill-global-field-effects.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -435,9 +436,10 @@ class LiquibaseMigrationTests(
 			"battle_field_rule",
 			"battle_skill_rule",
 			"battle_skill_status_effect",
-				"battle_skill_stat_stage_effect",
-				"battle_skill_field_effect",
-				"battle_skill_weather_accuracy_override",
+			"battle_skill_stat_stage_effect",
+			"battle_skill_field_effect",
+			"battle_skill_global_field_effect",
+			"battle_skill_weather_accuracy_override",
 			"battle_skill_weather_power_modifier",
 			"battle_ability_rule",
 			"battle_item_rule",
@@ -459,6 +461,7 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_status_effect', count(*) from battle_skill_status_effect
 			union all select 'battle_skill_stat_stage_effect', count(*) from battle_skill_stat_stage_effect
 			union all select 'battle_skill_field_effect', count(*) from battle_skill_field_effect
+			union all select 'battle_skill_global_field_effect', count(*) from battle_skill_global_field_effect
 			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
@@ -478,10 +481,11 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 17L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 18L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 4L)
+		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 

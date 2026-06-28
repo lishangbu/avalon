@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -129,9 +130,12 @@ class BattleEngine(
 			}
 			ActionPlan(action, actor, skill, input.lockedContinuation)
 		}
+		val speedComparator = speedComparator(state)
+		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
+			.thenComparator { left, right -> speedComparator.compare(left.second, right.second) }
 		return plans
 			.groupBy { it.skill.priority to effectiveSpeed(state, it.actor) }
-			.toSortedMap(compareByDescending<Pair<Int, Int>> { it.first }.thenByDescending { it.second })
+			.toSortedMap(orderComparator)
 			.values
 			.flatMap { sameOrderPlans ->
 				if (sameOrderPlans.size == 1) {
@@ -183,7 +187,7 @@ class BattleEngine(
 				SwitchPlan(action, actor)
 			}
 			.groupBy { effectiveSpeed(state, it.actor) }
-			.toSortedMap(compareByDescending { it })
+			.toSortedMap(speedComparator(state))
 			.values
 			.flatMap { sameSpeedPlans ->
 				if (sameSpeedPlans.size == 1) {
@@ -1060,11 +1064,18 @@ class BattleEngine(
 				applySideConditionEffect(current, actorId, targetActorId, skill, application)
 			}
 		}
-		return skill.sideSpeedModifierApplications.fold(afterSideDamageReductions) { current, application ->
+		val afterSideSpeedModifiers = skill.sideSpeedModifierApplications.fold(afterSideDamageReductions) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "side speed condition chance for ${skill.skillId}")) {
 				current
 			} else {
 				applySideSpeedModifierEffect(current, actorId, targetActorId, skill, application)
+			}
+		}
+		return skill.fieldSpeedOrderApplications.fold(afterSideSpeedModifiers) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
+				current
+			} else {
+				applyFieldSpeedOrderEffect(current, actorId, skill, application)
 			}
 		}
 	}
@@ -1137,6 +1148,50 @@ class BattleEngine(
 				),
 			)
 			?: state
+	}
+
+	/**
+	 * 将命中后的全场速度顺序效果写入环境。
+	 *
+	 * 公开成熟实现中，戏法空间在已经存在时再次使用会解除该全场效果；未存在时建立新的持续效果。这里把这条
+	 * “重启即解除”的规则放在引擎层处理，资料层只声明技能会尝试建立哪种全场速度顺序效果。
+	 */
+	private fun applyFieldSpeedOrderEffect(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		application: BattleFieldSpeedOrderApplication,
+	): BattleState {
+		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
+			return state
+		}
+		val current = state.environment.fieldSpeedOrderEffect
+		if (current?.kind == application.speedOrderEffect.kind) {
+			return state
+				.copy(environment = state.environment.copy(fieldSpeedOrderEffect = null))
+				.appendEvent(
+					BattleEvent.FieldSpeedOrderEnded(
+						turnNumber = state.turnNumber,
+						kind = current.kind,
+						actorId = actorId,
+						skillId = skill.skillId,
+					),
+				)
+		}
+		if (current != null) {
+			return state
+		}
+		return state
+			.copy(environment = state.environment.copy(fieldSpeedOrderEffect = application.speedOrderEffect))
+			.appendEvent(
+				BattleEvent.FieldSpeedOrderStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					skillId = skill.skillId,
+					kind = application.speedOrderEffect.kind,
+					turnsRemaining = application.speedOrderEffect.turnsRemaining,
+				),
+			)
 	}
 
 	/**
@@ -1944,7 +1999,8 @@ class BattleEngine(
 	 */
 	private fun advanceEnvironmentDurations(state: BattleState): BattleState {
 		val afterWeather = advanceWeatherDuration(state)
-		return advanceTerrainDuration(afterWeather)
+		val afterTerrain = advanceTerrainDuration(afterWeather)
+		return advanceFieldSpeedOrderDuration(afterTerrain)
 	}
 
 	/**
@@ -1988,6 +2044,28 @@ class BattleEngine(
 				)
 		} else {
 			state.copy(environment = state.environment.copy(terrainTurnsRemaining = turnsRemaining - 1))
+		}
+	}
+
+	/**
+	 * 推进全场速度顺序效果持续回合。
+	 *
+	 * 戏法空间等全场速度顺序效果在回合末按天气/场地同样的生命周期递减，耗尽时恢复普通速度排序并记录事件。
+	 */
+	private fun advanceFieldSpeedOrderDuration(state: BattleState): BattleState {
+		val effect = state.environment.fieldSpeedOrderEffect ?: return state
+		val nextEffect = effect.advanceTurn()
+		return if (nextEffect == null) {
+			state
+				.copy(environment = state.environment.copy(fieldSpeedOrderEffect = null))
+				.appendEvent(
+					BattleEvent.FieldSpeedOrderEnded(
+						turnNumber = state.turnNumber,
+						kind = effect.kind,
+					),
+				)
+		} else {
+			state.copy(environment = state.environment.copy(fieldSpeedOrderEffect = nextEffect))
 		}
 	}
 
@@ -2051,6 +2129,19 @@ class BattleEngine(
 			.toInt()
 			.coerceAtLeast(1)
 	}
+
+	/**
+	 * 返回当前环境下行动队列使用的速度比较器。
+	 *
+	 * 普通环境中高有效速度先行动；戏法空间存在时只反转速度比较方向，优先度、锁招续回合和同速随机仍沿用
+	 * 原有排序层次。
+	 */
+	private fun speedComparator(state: BattleState): Comparator<Int> =
+		if (state.environment.fieldSpeedOrderEffect?.kind?.reversesSpeedOrder == true) {
+			compareBy<Int> { it }
+		} else {
+			compareByDescending<Int> { it }
+		}
 
 	/**
 	 * 计算天气触发的速度倍率。

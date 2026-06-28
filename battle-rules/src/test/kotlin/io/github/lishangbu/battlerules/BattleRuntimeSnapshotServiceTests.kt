@@ -2,6 +2,7 @@ package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -82,7 +83,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 366, 694))
+		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 366, 433, 694))
 			.associateBy { it.skillId }
 
 		val growl = slots.getValue(45)
@@ -146,6 +147,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(tailwind.speedModifier.kind).isEqualTo(BattleSideSpeedModifierKind.TAILWIND)
 		assertThat(tailwind.speedModifier.multiplier).isEqualTo(2.0)
 		assertThat(tailwind.speedModifier.turnsRemaining).isEqualTo(4)
+
+		val trickRoom = slots.getValue(433).fieldSpeedOrderApplications.single()
+		assertThat(trickRoom.speedOrderEffect.kind).isEqualTo(BattleFieldSpeedOrderKind.TRICK_ROOM)
+		assertThat(trickRoom.speedOrderEffect.turnsRemaining).isEqualTo(5)
 	}
 
 	@Test

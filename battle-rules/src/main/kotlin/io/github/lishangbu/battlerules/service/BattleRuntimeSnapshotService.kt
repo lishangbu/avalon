@@ -5,6 +5,9 @@ import io.github.lishangbu.battleengine.BattlePreparationViolation
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -503,6 +506,7 @@ class BattleRuntimeSnapshotService(
 			statStageEffects = statStageEffects(row.ruleId),
 			sideConditionApplications = sideConditionApplications(row.ruleId),
 			sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
+			fieldSpeedOrderApplications = fieldSpeedOrderApplications(row.ruleId),
 		)
 	}
 
@@ -725,6 +729,42 @@ class BattleRuntimeSnapshotService(
 		).filterNotNull()
 	}
 
+	private fun fieldSpeedOrderApplications(ruleId: Long?): List<BattleFieldSpeedOrderApplication> {
+		if (ruleId == null) {
+			return emptyList()
+		}
+		return jdbcTemplate.query(
+			"""
+			select
+				fr.effect_policy as field_effect_policy,
+				fr.min_turns,
+				e.chance_percent,
+				w.code as required_weather_code
+			from battle_skill_global_field_effect e
+			join battle_field_rule fr on fr.id = e.field_rule_id
+			left join battle_weather_rule w on w.id = e.required_weather_rule_id
+			where e.skill_rule_id = ?
+				and e.enabled = true
+				and fr.enabled = true
+				and fr.effect_scope = 'FIELD'
+				and e.effect_timing = 'AFTER_HIT'
+			order by e.sort_order, e.id
+			""".trimIndent(),
+			{ rs, _ ->
+				val speedOrderKind = rs.getString("field_effect_policy").toBattleFieldSpeedOrderKind() ?: return@query null
+				BattleFieldSpeedOrderApplication(
+					speedOrderEffect = BattleFieldSpeedOrderEffect(
+						kind = speedOrderKind,
+						turnsRemaining = rs.nullableInt("min_turns"),
+					),
+					chancePercent = rs.getInt("chance_percent"),
+					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
+				)
+			},
+			ruleId,
+		).filterNotNull()
+	}
+
 	private fun String?.toBattleSkillTargetScope(): BattleSkillTargetScope =
 		when (this) {
 			"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS
@@ -767,6 +807,12 @@ class BattleRuntimeSnapshotService(
 	private fun String.toBattleSideSpeedModifierKind(): BattleSideSpeedModifierKind? =
 		when (this) {
 			"side-tailwind" -> BattleSideSpeedModifierKind.TAILWIND
+			else -> null
+		}
+
+	private fun String.toBattleFieldSpeedOrderKind(): BattleFieldSpeedOrderKind? =
+		when (this) {
+			"field-trick-room" -> BattleFieldSpeedOrderKind.TRICK_ROOM
 			else -> null
 		}
 

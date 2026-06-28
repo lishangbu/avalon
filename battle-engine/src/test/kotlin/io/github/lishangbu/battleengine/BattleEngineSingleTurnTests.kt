@@ -6,6 +6,9 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
@@ -767,6 +770,136 @@ class BattleEngineSingleTurnTests {
 		val damageEvents = afterActionOrder.events.filterIsInstance<BattleEvent.DamageApplied>()
 		assertEquals("support", damageEvents.first().actorId)
 		assertEquals(2, afterActionOrder.sideOf("support")?.speedModifiers?.single()?.turnsRemaining)
+	}
+
+	@Test
+	fun `trick room reverses speed order inside the same priority bracket`() {
+		val fixture = publicBattleRuleFixture(
+			name = "trick-room-reverses-speed-order-inside-same-priority-bracket",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)",
+			),
+			inputSummary = "使用者建立戏法空间；后续同优先度行动中，速度 50 的成员和速度 100 的成员同时使用普通攻击。",
+			expectedSummary = "戏法空间建立事件记录 5 回合初始持续；下一回合同优先度行动按低速优先，速度 50 的成员先行动。",
+		)
+		val trickRoomSkill = damagingSkill(
+			skillId = 15,
+			name = "戏法空间测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			priority = -7,
+			fieldSpeedOrderApplications = listOf(
+				BattleFieldSpeedOrderApplication(
+					speedOrderEffect = BattleFieldSpeedOrderEffect(
+						kind = BattleFieldSpeedOrderKind.TRICK_ROOM,
+						turnsRemaining = 5,
+					),
+				),
+			),
+		)
+		val fastSkill = damagingSkill(skillId = 16, name = "高速后续攻击")
+		val slowSkill = damagingSkill(skillId = 17, name = "低速后续攻击")
+		val state = engine.start(
+			initialState(
+				first = participant("fast", speed = 100, skill = trickRoomSkill),
+				second = participant("slow", speed = 50, skill = slowSkill),
+			),
+		)
+
+		val afterTrickRoom = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("fast", skillId = 15, targetActorId = "fast")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val started = afterTrickRoom.events.filterIsInstance<BattleEvent.FieldSpeedOrderStarted>().single()
+		fixture.assertNamed("trick-room-reverses-speed-order-inside-same-priority-bracket")
+		assertEquals(BattleFieldSpeedOrderKind.TRICK_ROOM, started.kind)
+		assertEquals(5, started.turnsRemaining)
+		assertEquals(4, afterTrickRoom.environment.fieldSpeedOrderEffect?.turnsRemaining)
+
+		val nextTurnState = afterTrickRoom.replaceParticipant(
+			requireNotNull(afterTrickRoom.participant("fast")).copy(skillSlots = listOf(fastSkill)),
+		)
+		val afterActionOrder = engine.resolveTurn(
+			nextTurnState,
+			listOf(
+				BattleAction.UseSkill("fast", skillId = 16, targetActorId = "slow"),
+				BattleAction.UseSkill("slow", skillId = 17, targetActorId = "fast"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+
+		val damageEvents = afterActionOrder.events.filterIsInstance<BattleEvent.DamageApplied>()
+		assertEquals("slow", damageEvents.first().actorId)
+		assertEquals(3, afterActionOrder.environment.fieldSpeedOrderEffect?.turnsRemaining)
+	}
+
+	@Test
+	fun `trick room used while active ends the field speed order effect`() {
+		val trickRoomSkill = damagingSkill(
+			skillId = 18,
+			name = "戏法空间解除测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			fieldSpeedOrderApplications = listOf(
+				BattleFieldSpeedOrderApplication(
+					speedOrderEffect = BattleFieldSpeedOrderEffect(
+						kind = BattleFieldSpeedOrderKind.TRICK_ROOM,
+						turnsRemaining = 5,
+					),
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("setter", speed = 80, skill = trickRoomSkill),
+				second = participant("observer", speed = 60),
+				environment = BattleEnvironment(
+					fieldSpeedOrderEffect = BattleFieldSpeedOrderEffect(
+						kind = BattleFieldSpeedOrderKind.TRICK_ROOM,
+						turnsRemaining = 4,
+					),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("setter", skillId = 18, targetActorId = "setter")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val ended = resolved.events.filterIsInstance<BattleEvent.FieldSpeedOrderEnded>().single()
+		assertEquals(BattleFieldSpeedOrderKind.TRICK_ROOM, ended.kind)
+		assertEquals("setter", ended.actorId)
+		assertEquals(18, ended.skillId)
+		assertNull(resolved.environment.fieldSpeedOrderEffect)
+	}
+
+	@Test
+	fun `field speed order effect expires after final turn`() {
+		val state = engine.start(
+			initialState(
+				first = participant("observer-a", speed = 80),
+				second = participant("observer-b", speed = 60),
+				environment = BattleEnvironment(
+					fieldSpeedOrderEffect = BattleFieldSpeedOrderEffect(
+						kind = BattleFieldSpeedOrderKind.TRICK_ROOM,
+						turnsRemaining = 1,
+					),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			emptyList(),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertNull(resolved.environment.fieldSpeedOrderEffect)
+		assertEquals(BattleFieldSpeedOrderKind.TRICK_ROOM, resolved.events.filterIsInstance<BattleEvent.FieldSpeedOrderEnded>().single().kind)
 	}
 
 	@Test

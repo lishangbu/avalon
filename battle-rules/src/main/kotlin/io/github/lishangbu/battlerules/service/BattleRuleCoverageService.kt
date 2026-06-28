@@ -98,6 +98,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖顺风在使用者一侧建立 2 倍速度结算修正，效果从后续行动排序开始生效，并按回合末统一递减。",
 			),
 			item(
+				code = "field.speed-order",
+				name = "全场速度顺序效果",
+				category = "场上效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"trick-room-reverses-speed-order-inside-same-priority-bracket",
+					"trick-room-used-while-active-ends-the-field-speed-order-effect",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)",
+				),
+				note = "已覆盖戏法空间建立全场低速先动规则、同优先度内反转速度比较、再次使用解除效果，以及持续回合自然结束。",
+			),
+			item(
 				code = "turn.target-slot-switch",
 				name = "替换后的目标槽位重定向",
 				category = "回合流程",
