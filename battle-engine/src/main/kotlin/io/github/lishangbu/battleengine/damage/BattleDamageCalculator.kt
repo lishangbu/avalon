@@ -260,6 +260,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.IndirectDamageImmunity -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
 				is BattleAbilityEffect.PriorityMoveImmunityForSide -> multiplier
+				is BattleAbilityEffect.SkillRecoilDamageImmunity -> multiplier
 				is BattleAbilityEffect.StatusSkillPriorityBoost -> multiplier
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp -> multiplier

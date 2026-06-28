@@ -1069,7 +1069,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
+		if (!actor.canBattle() || actor.hasIndirectDamageImmunity() || actor.hasSkillRecoilDamageImmunity()) {
 			return state
 		}
 		val recoilAmount = roundedHalfUpFractionAmount(damageAmount, numerator, denominator)
@@ -2660,6 +2660,7 @@ class BattleEngine(
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
+			is BattleAbilityEffect.SkillRecoilDamageImmunity,
 			is BattleAbilityEffect.StatusSkillPriorityBoost,
 			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
@@ -3232,6 +3233,15 @@ class BattleEngine(
 	 */
 	private fun BattleParticipant.hasIndirectDamageImmunity(): Boolean =
 		abilityEffects.any { it is BattleAbilityEffect.IndirectDamageImmunity }
+
+	/**
+	 * 判断成员是否免疫技能自身带来的反作用伤害。
+	 *
+	 * 该效果只服务 [BattleEvent.SkillRecoilDamageApplied] 写入前的窄范围判断；携带道具反伤仍由道具流程处理，
+	 * 不会因为这里返回 true 而被跳过。
+	 */
+	private fun BattleParticipant.hasSkillRecoilDamageImmunity(): Boolean =
+		abilityEffects.any { it is BattleAbilityEffect.SkillRecoilDamageImmunity }
 
 	/**
 	 * 判断成员是否在命中判定中忽略对手的命中或闪避阶级变化。
@@ -3926,6 +3936,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
+				is BattleAbilityEffect.SkillRecoilDamageImmunity,
 				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
@@ -3955,6 +3966,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
+				is BattleAbilityEffect.SkillRecoilDamageImmunity,
 				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,

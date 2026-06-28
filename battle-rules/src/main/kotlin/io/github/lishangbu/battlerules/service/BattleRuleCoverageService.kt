@@ -395,6 +395,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖特性阻止异常状态回合末伤害、沙暴伤害、入场陷阱伤害、技能反作用伤害和携带道具反伤；直接技能伤害和伤害增幅道具倍率仍正常生效。",
 			),
 			item(
+				code = "ability.skill-recoil-damage-immunity",
+				name = "特性免疫技能反作用伤害",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"skill-recoil-immunity-blocks-move-recoil-damage",
+					"skill-recoil-immunity-does-not-block-held-item-recoil",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Rock_Head_(Ability)",
+				),
+				note = "已覆盖特性阻止技能自身反作用伤害，但不会阻止携带道具在造成伤害后产生的固定反伤。",
+			),
+			item(
 				code = "ability.ignore-opponent-damage-stat-stages",
 				name = "特性无视对手伤害阶级变化",
 				category = "特性",

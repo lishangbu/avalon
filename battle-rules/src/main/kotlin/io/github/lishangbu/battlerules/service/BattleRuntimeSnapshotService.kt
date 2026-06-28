@@ -284,6 +284,7 @@ class BattleRuntimeSnapshotService(
 	 * - 指定天气下回合末按最大 HP 固定比例回复。
 	 * - 满 HP 承受致命直接伤害时保留 1 HP。
 	 * - 间接伤害免疫。
+	 * - 技能反作用伤害免疫。
 	 * - 无视对手伤害公式能力阶级变化。
 	 * - 无视对手命中/闪避阶级变化。
 	 * - 阻止对手先制技能影响己方。
@@ -1140,6 +1141,7 @@ class BattleRuntimeSnapshotService(
 			)
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity
+			"skill-recoil-damage-immunity" -> BattleAbilityEffect.SkillRecoilDamageImmunity
 			"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages
 			"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages
 			"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
