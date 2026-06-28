@@ -162,10 +162,11 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 技能被目标特性吸收并转换为回复。
+	 * 技能被目标特性吸收。
 	 *
-	 * 当前用于指定属性技能命中目标后，被目标特性阻止继续结算并按目标最大 HP 回复。技能已经使用且 PP 已消耗；
-	 * `healAmount` 是夹取后的实际回复量，目标满 HP 时可以为 0。事件记录属性 ID 和特性 ID，不记录本地化名称。
+	 * 当前用于指定属性技能命中目标后，被目标特性阻止继续结算，并可能转换为 HP 回复或能力阶级提升。技能已经
+	 * 使用且 PP 已消耗；`healAmount` 是夹取后的实际回复量，满 HP 或非回复型吸收时为 0。事件记录属性 ID 和
+	 * 特性 ID，不记录本地化名称；能力阶级提升使用独立 [StatStageChanged] 事件记录。
 	 */
 	data class SkillAbsorbedByAbility(
 		override val turnNumber: Int,

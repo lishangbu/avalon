@@ -1,0 +1,174 @@
+databaseChangeLog:
+- changeSet:
+    id: 057-battle-element-absorb-stat-ability-rules
+    author: backend
+    comment: 新增吸收指定属性技能并提升能力阶级的特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 30 }
+        - column: { name: ability_id, valueNumeric: 78 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: element-electric-absorb-speed-up }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 被电属性技能命中时吸收该技能并提升自身速度 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 300 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 31 }
+        - column: { name: ability_id, valueNumeric: 157 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: element-grass-absorb-attack-up }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 被草属性技能命中时吸收该技能并提升自身攻击 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 310 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 32 }
+        - column: { name: ability_id, valueNumeric: 273 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: element-fire-absorb-defense-up-two }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 被火属性技能命中时吸收该技能并提升自身防御 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 320 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 119 }
+        - column: { name: code, value: element-absorb-stat-ability-blocks-electric-damage-and-raises-speed }
+        - column: { name: name, value: 属性吸收提阶特性阻止电属性伤害并提升速度 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证吸收电属性技能的特性会阻止伤害并提升速度。 }
+        - column: { name: input_summary, value: 目标拥有吸收电属性技能并提升速度的结构化特性，对手使用电属性攻击。 }
+        - column: { name: expected_summary, value: 技能命中后被目标特性吸收，目标不受伤害，速度能力阶级提升 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1190 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 120 }
+        - column: { name: code, value: element-absorb-stat-ability-blocks-grass-damage-and-raises-attack }
+        - column: { name: name, value: 属性吸收提阶特性阻止草属性伤害并提升攻击 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证吸收草属性技能的特性会阻止伤害并提升攻击。 }
+        - column: { name: input_summary, value: 目标拥有吸收草属性技能并提升攻击的结构化特性，对手使用草属性攻击。 }
+        - column: { name: expected_summary, value: 技能命中后被目标特性吸收，目标不受伤害，攻击能力阶级提升 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1200 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 121 }
+        - column: { name: code, value: element-absorb-stat-ability-blocks-fire-damage-and-raises-defense-by-two }
+        - column: { name: name, value: 属性吸收提阶特性阻止火属性伤害并大幅提升防御 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证吸收火属性技能的特性会阻止伤害并提升防御 2 级。 }
+        - column: { name: input_summary, value: 目标拥有吸收火属性技能并大幅提升防御的结构化特性，对手使用火属性攻击。 }
+        - column: { name: expected_summary, value: 技能命中后被目标特性吸收，目标不受伤害，防御能力阶级提升 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1210 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 254 }
+        - column: { name: fixture_id, valueNumeric: 119 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照吸收电属性技能并提升速度的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 255 }
+        - column: { name: fixture_id, valueNumeric: 119 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Motor_Drive_(Ability) }
+        - column: { name: source_label, value: 属性吸收提阶特性公开说明 }
+        - column: { name: source_note, value: 用于验证吸收电属性攻击后提升速度。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 256 }
+        - column: { name: fixture_id, valueNumeric: 120 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照吸收草属性技能并提升攻击的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 257 }
+        - column: { name: fixture_id, valueNumeric: 120 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sap_Sipper_(Ability) }
+        - column: { name: source_label, value: 属性吸收提阶特性公开说明 }
+        - column: { name: source_note, value: 用于验证吸收草属性攻击后提升攻击。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 258 }
+        - column: { name: fixture_id, valueNumeric: 121 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照吸收火属性技能并提升防御的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 259 }
+        - column: { name: fixture_id, valueNumeric: 121 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Well-Baked_Body_(Ability) }
+        - column: { name: source_label, value: 属性吸收提阶特性公开说明 }
+        - column: { name: source_note, value: 用于验证吸收火属性攻击后提升防御 2 级。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 119 }
+        - column: { name: run_code, value: element-absorb-stat-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 119 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:58:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T06:01:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 1190 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 120 }
+        - column: { name: run_code, value: element-absorb-stat-ability-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 120 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:58:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T06:01:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1200 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 121 }
+        - column: { name: run_code, value: element-absorb-stat-ability-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 121 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:58:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T06:01:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1210 }

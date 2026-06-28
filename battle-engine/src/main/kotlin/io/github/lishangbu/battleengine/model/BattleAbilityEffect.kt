@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、吸收指定属性技能并回复、阻止对手先制技能影响己方、
+ * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、吸收指定属性技能并回复或提阶、阻止对手先制技能影响己方、
  * 天气下速度修正、天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
  * 以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
@@ -156,6 +156,24 @@ sealed interface BattleAbilityEffect {
 		init {
 			require(elementId > 0) { "elementId must be positive" }
 			require(healDenominator > 0) { "healDenominator must be positive" }
+		}
+	}
+
+	/**
+	 * 吸收指定属性技能并提升自身能力阶级。
+	 *
+	 * 该效果用于表达现代规则中“被指定属性技能命中时无效，并提升自身某项能力”的稳定特性。触发位置与
+	 * [ElementSkillAbsorbHeal] 一致：命中判定成功后、普通伤害或附加效果写入前。能力阶级仍受 -6..6 边界夹取；
+	 * 如果已经到达上限，技能仍被吸收，只是不产生 [BattleEvent.StatStageChanged] 事件。
+	 */
+	data class ElementSkillAbsorbStatStage(
+		val elementId: Long,
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(stageDelta in -6..6 && stageDelta != 0) { "stageDelta must be between -6 and 6 and not zero" }
 		}
 	}
 

@@ -103,6 +103,7 @@ class LiquibaseMigrationTests(
 			"054-battle-priority-blocking-ability-rules.yaml",
 			"055-battle-status-priority-ability-rules.yaml",
 			"056-battle-element-absorb-ability-rules.yaml",
+			"057-battle-element-absorb-stat-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -526,7 +527,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 29L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 32L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -546,9 +547,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 118L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 253L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 118L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 121L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 259L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 121L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -733,6 +734,32 @@ class LiquibaseMigrationTests(
 				"ability_id" to 297L,
 				"trigger_timing" to "BEFORE_HIT",
 				"effect_policy" to "element-ground-absorb-heal",
+			),
+		)
+
+		val elementAbsorbStatAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (78, 157, 273)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(elementAbsorbStatAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 78L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-electric-absorb-speed-up",
+			),
+			mapOf(
+				"ability_id" to 157L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-grass-absorb-attack-up",
+			),
+			mapOf(
+				"ability_id" to 273L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-fire-absorb-defense-up-two",
 			),
 		)
 

@@ -1141,6 +1141,21 @@ class BattleRuntimeSnapshotService(
 			"element-ground-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(
 				elementId = elementIds.requiredElementId("ground"),
 			)
+			"element-electric-absorb-speed-up" -> BattleAbilityEffect.ElementSkillAbsorbStatStage(
+				elementId = elementIds.requiredElementId("electric"),
+				stat = BattleStat.SPEED,
+				stageDelta = 1,
+			)
+			"element-grass-absorb-attack-up" -> BattleAbilityEffect.ElementSkillAbsorbStatStage(
+				elementId = elementIds.requiredElementId("grass"),
+				stat = BattleStat.ATTACK,
+				stageDelta = 1,
+			)
+			"element-fire-absorb-defense-up-two" -> BattleAbilityEffect.ElementSkillAbsorbStatStage(
+				elementId = elementIds.requiredElementId("fire"),
+				stat = BattleStat.DEFENSE,
+				stageDelta = 2,
+			)
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
 			"ground-immunity" -> null
 			else -> null

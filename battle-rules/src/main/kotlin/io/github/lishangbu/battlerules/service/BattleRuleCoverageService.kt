@@ -347,6 +347,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖匹配属性技能命中目标后被特性吸收、按最大 HP 1/4 回复、满 HP 不溢出回复，以及变化技能附加效果被阻止。",
 			),
 			item(
+				code = "ability.element-absorb-stat",
+				name = "特性吸收指定属性技能并提升能力",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"element-absorb-stat-ability-blocks-electric-damage-and-raises-speed",
+					"element-absorb-stat-ability-blocks-grass-damage-and-raises-attack",
+					"element-absorb-stat-ability-blocks-fire-damage-and-raises-defense-by-two",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Motor_Drive_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Sap_Sipper_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Well-Baked_Body_(Ability)",
+				),
+				note = "已覆盖匹配属性技能命中目标后被特性吸收并阻止伤害，同时提升速度、攻击或防御能力阶级。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

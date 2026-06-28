@@ -550,7 +550,9 @@ class BattleEngine(
 				),
 			)
 		}
-		val absorbedByAbility = elementSkillAbsorbHeal(state, actor, target, skill)
+		val absorbedByAbility =
+			elementSkillAbsorbHeal(state, actor, target, skill)
+				?: elementSkillAbsorbStatStage(state, actor, target, skill)
 		if (absorbedByAbility != null) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -1629,6 +1631,55 @@ class BattleEngine(
 	}
 
 	/**
+	 * 应用目标特性对指定属性技能的吸收和自身能力阶级提升。
+	 *
+	 * 技能被吸收后不会继续进入普通伤害或附加效果流程。能力阶级提升独立夹取，目标已经达到上限时只记录吸收事件；
+	 * 没有阶级变化事件表示“触发了吸收，但提阶被上限吃掉”，而不是技能继续生效。
+	 */
+	private fun elementSkillAbsorbStatStage(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState? {
+		val effect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
+			.firstOrNull { it.elementId == skill.elementId }
+			?: return null
+		val absorbedState = state.appendEvent(
+			BattleEvent.SkillAbsorbedByAbility(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skillId = skill.skillId,
+				abilityHolderActorId = target.actorId,
+				abilityId = target.abilityId,
+				elementId = effect.elementId,
+				healAmount = 0,
+			),
+		)
+		val beforeStage = target.statStage(effect.stat)
+		val updatedTarget = target.changeStatStage(effect.stat, effect.stageDelta)
+		val afterStage = updatedTarget.statStage(effect.stat)
+		return if (beforeStage == afterStage) {
+			absorbedState
+		} else {
+			absorbedState
+				.replaceParticipant(updatedTarget)
+				.appendEvent(
+					BattleEvent.StatStageChanged(
+						turnNumber = state.turnNumber,
+						actorId = target.actorId,
+						targetActorId = target.actorId,
+						stat = effect.stat,
+						delta = afterStage - beforeStage,
+						currentStage = afterStage,
+					),
+				)
+		}
+	}
+
+	/**
 	 * 决定本次技能使用的实际命中段数。
 	 *
 	 * 单段技能不消费随机数。现代 2..5 段技能使用公开规则中的非均匀分布：2 段和 3 段各 35%，4 段和 5 段各 15%。
@@ -2587,6 +2638,7 @@ class BattleEngine(
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.ElementSkillAbsorbHeal,
+			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3818,6 +3870,7 @@ class BattleEngine(
 					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
+				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3843,6 +3896,7 @@ class BattleEngine(
 					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
+				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
