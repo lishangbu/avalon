@@ -188,9 +188,12 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"sun-boosts-fire-and-weakens-water-damage",
 					"rain-boosts-water-and-weakens-fire-damage",
+					"sandstorm-boosts-rock-special-defense",
+					"snow-boosts-ice-physical-defense",
+					"sandstorm-damages-only-non-immune-active-participants",
 				),
 				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Weather"),
-				note = "已用公开 fixture 覆盖晴天/下雨对火/水伤害的倍率；天气回合末伤害和免疫等副作用仍需补齐。",
+				note = "已覆盖晴雨火水伤害倍率、沙暴岩属性特防、雪景冰属性物防和沙暴固定伤害；天气触发特性、道具免疫和特殊技能例外仍需补齐。",
 			),
 			item(
 				code = "status.freeze",
