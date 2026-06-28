@@ -4,12 +4,14 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -281,6 +283,28 @@ class BattleEngineSingleTurnTests {
 
 		assertEquals(86, resolved.participant("holder")?.currentHp)
 		assertIs<BattleEvent.HealingApplied>(resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single())
+	}
+
+	@Test
+	fun `grassy terrain heals active participants at end turn`() {
+		val state = engine.start(
+			initialState(
+				first = participant("grounded", speed = 100, currentHp = 80),
+				second = participant("observer", speed = 50),
+				environment = BattleEnvironment(terrain = BattleTerrain.GRASSY),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			emptyList(),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(86, resolved.participant("grounded")?.currentHp)
+		val event = resolved.events.filterIsInstance<BattleEvent.TerrainHealingApplied>().single()
+		assertEquals(BattleTerrain.GRASSY, event.terrain)
+		assertEquals(6, event.amount)
 	}
 
 	@Test

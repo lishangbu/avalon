@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
@@ -30,10 +31,12 @@ internal fun initialState(
 	firstBench: List<BattleParticipant> = emptyList(),
 	secondBench: List<BattleParticipant> = emptyList(),
 	rules: BattleRuleSnapshot = neutralRules(),
+	environment: BattleEnvironment = BattleEnvironment(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = singleFormat(),
 		rules = rules,
+		environment = environment,
 		sides = listOf(
 			BattleSide("side-a", listOf(first.actorId), listOf(first) + firstBench),
 			BattleSide("side-b", listOf(second.actorId), listOf(second) + secondBench),

@@ -11,6 +11,7 @@ package io.github.lishangbu.battleengine.model
 data class BattleInitialState(
 	val format: BattleFormatSnapshot,
 	val rules: BattleRuleSnapshot,
+	val environment: BattleEnvironment = BattleEnvironment(),
 	val sides: List<BattleSide>,
 ) {
 	init {

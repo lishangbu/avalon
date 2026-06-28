@@ -2,10 +2,12 @@ package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.damagingSkill
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.neutralRules
 import io.github.lishangbu.battleengine.participant
@@ -139,5 +141,69 @@ class BattleDamageCalculatorTests {
 		assertEquals(1.5, result.abilityMultiplier)
 		assertEquals(1.3, result.itemMultiplier)
 		assertEquals(55, result.amount)
+	}
+
+	@Test
+	fun `sun boosts fire damage and weakens water damage`() {
+		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
+		val sun = BattleEnvironment(weather = BattleWeather.SUN)
+
+		val fireResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("fire-attacker", speed = 100, elementId = 10),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 10, power = 40),
+				rules = rules,
+				environment = sun,
+				randomPercent = 100,
+			),
+		)
+		val waterResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("water-attacker", speed = 100, elementId = 11),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 11, power = 40),
+				rules = rules,
+				environment = sun,
+				randomPercent = 100,
+			),
+		)
+
+		assertEquals(1.5, fireResult.weatherMultiplier)
+		assertEquals(42, fireResult.amount)
+		assertEquals(0.5, waterResult.weatherMultiplier)
+		assertEquals(14, waterResult.amount)
+	}
+
+	@Test
+	fun `rain boosts water damage and weakens fire damage`() {
+		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
+		val rain = BattleEnvironment(weather = BattleWeather.RAIN)
+
+		val waterResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("water-attacker", speed = 100, elementId = 11),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 11, power = 40),
+				rules = rules,
+				environment = rain,
+				randomPercent = 100,
+			),
+		)
+		val fireResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("fire-attacker", speed = 100, elementId = 10),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 10, power = 40),
+				rules = rules,
+				environment = rain,
+				randomPercent = 100,
+			),
+		)
+
+		assertEquals(1.5, waterResult.weatherMultiplier)
+		assertEquals(42, waterResult.amount)
+		assertEquals(0.5, fireResult.weatherMultiplier)
+		assertEquals(14, fireResult.amount)
 	}
 }

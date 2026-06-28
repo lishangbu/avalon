@@ -16,6 +16,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -42,6 +43,7 @@ class BattleEngine(
 		BattleState(
 			format = initialState.format,
 			rules = initialState.rules,
+			environment = initialState.environment,
 			sides = initialState.sides,
 			turnNumber = 0,
 			events = listOf(
@@ -202,6 +204,7 @@ class BattleEngine(
 				defender = target,
 				skill = skill,
 				rules = state.rules,
+				environment = state.environment,
 				randomPercent = randomPercent,
 			),
 		)
@@ -428,8 +431,41 @@ class BattleEngine(
 		return if (afterResidual.result != null) {
 			afterResidual
 		} else {
-			applyEndTurnHealing(afterResidual)
+			applyEndTurnHealing(applyEndTurnTerrainEffects(afterResidual))
 		}
+	}
+
+	/**
+	 * 处理回合末场地回复。
+	 *
+	 * 第一批只实现青草场地的固定比例回复，并暂时认为所有当前上场且仍可战斗的成员都满足受场地影响条件。
+	 * 飞行、漂浮、携带道具免疫地面场地等例外会在成员运行态具备“是否接地”后接入。
+	 */
+	private fun applyEndTurnTerrainEffects(state: BattleState): BattleState {
+		if (state.environment.terrain != BattleTerrain.GRASSY) {
+			return state
+		}
+		return state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
+					current
+				} else {
+					val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
+						.coerceAtMost(latest.maxHp - latest.currentHp)
+					current
+						.replaceParticipant(latest.heal(healAmount))
+						.appendEvent(
+							BattleEvent.TerrainHealingApplied(
+								turnNumber = current.turnNumber,
+								actorId = latest.actorId,
+								terrain = BattleTerrain.GRASSY,
+								amount = healAmount,
+							),
+						)
+				}
+			}
 	}
 
 	/**

@@ -6,13 +6,14 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
+import io.github.lishangbu.battleengine.model.BattleWeather
 import kotlin.math.floor
 
 /**
  * 现代普通伤害公式计算器。
  *
  * 该实现覆盖第一阶段 MVP 需要的基础公式：等级、威力、攻击/防御、随机浮动、属性一致加成和属性克制。
- * 它暂不处理击中要害、灼伤、天气、场地、道具、特性、范围技能、护盾和其它倍率；这些倍率会在后续 hook
+ * 它暂不处理击中要害、场地伤害修正、范围技能、护盾和其它倍率；这些倍率会在后续 hook
  * 管线中以结构化 modifier 追加，并由对照 fixture 分别验证。
  *
  * 取整规则按主系列常见公开公式建模：基础伤害部分在整数除法中逐步截断，最终倍率组合后向下取整。
@@ -54,16 +55,18 @@ class BattleDamageCalculator(
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
 		val sameElementBonus = if (request.skill.elementId in request.attacker.elementIds) 1.5 else 1.0
 		val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
+		val weatherMultiplier = weatherDamageMultiplier(request)
 		val abilityMultiplier = abilityDamageMultiplier(request)
 		val itemMultiplier = itemDamageMultiplier(request)
 		val combined = baseDamage * (request.randomPercent / 100.0) * sameElementBonus *
-			effectiveness * abilityMultiplier * itemMultiplier
+			effectiveness * weatherMultiplier * abilityMultiplier * itemMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
 			baseDamage = baseDamage,
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
+			weatherMultiplier = weatherMultiplier,
 			abilityMultiplier = abilityMultiplier,
 			itemMultiplier = itemMultiplier,
 		)
@@ -85,6 +88,29 @@ class BattleDamageCalculator(
 			stagedAttack
 		}
 	}
+
+	/**
+	 * 计算天气对火/水属性普通伤害的倍率。
+	 *
+	 * 元素 ID 来自规则快照，避免引擎硬编码资料库编号。若快照缺少对应元素 ID，天气不会修改伤害。
+	 * 第一批实现晴天和下雨对火/水伤害的互相增强/削弱；沙暴、雪景和特定技能例外会通过后续 fixture 接入。
+	 */
+	private fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
+		when (request.environment.weather) {
+			BattleWeather.SUN -> when (request.skill.elementId) {
+				request.rules.fireElementId -> 1.5
+				request.rules.waterElementId -> 0.5
+				else -> 1.0
+			}
+			BattleWeather.RAIN -> when (request.skill.elementId) {
+				request.rules.waterElementId -> 1.5
+				request.rules.fireElementId -> 0.5
+				else -> 1.0
+			}
+			BattleWeather.NONE,
+			BattleWeather.SANDSTORM,
+			BattleWeather.SNOW -> 1.0
+		}
 
 	/**
 	 * 计算攻击方特性带来的伤害倍率。

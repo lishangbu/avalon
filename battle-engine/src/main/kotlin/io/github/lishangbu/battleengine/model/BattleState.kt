@@ -9,6 +9,7 @@ package io.github.lishangbu.battleengine.model
 data class BattleState(
 	val format: BattleFormatSnapshot,
 	val rules: BattleRuleSnapshot,
+	val environment: BattleEnvironment,
 	val sides: List<BattleSide>,
 	val turnNumber: Int,
 	val events: List<BattleEvent>,

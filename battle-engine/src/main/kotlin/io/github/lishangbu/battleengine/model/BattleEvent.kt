@@ -93,6 +93,13 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	data class TerrainHealingApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val terrain: BattleTerrain,
+		val amount: Int,
+	) : BattleEvent
+
 	data class ParticipantFainted(
 		override val turnNumber: Int,
 		val actorId: String,

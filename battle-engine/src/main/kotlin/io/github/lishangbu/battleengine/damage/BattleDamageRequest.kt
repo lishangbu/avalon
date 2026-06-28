@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 
@@ -15,6 +16,7 @@ data class BattleDamageRequest(
 	val defender: BattleParticipant,
 	val skill: BattleSkillSlot,
 	val rules: BattleRuleSnapshot,
+	val environment: BattleEnvironment = BattleEnvironment(),
 	val randomPercent: Int,
 ) {
 	init {
