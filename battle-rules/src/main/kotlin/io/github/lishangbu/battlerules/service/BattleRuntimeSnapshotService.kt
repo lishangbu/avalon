@@ -520,6 +520,9 @@ class BattleRuntimeSnapshotService(
 		when (this) {
 			"USER" -> BattleEffectTarget.USER
 			"TARGET" -> BattleEffectTarget.TARGET
+			// 技能执行器已经按实际命中的目标逐个调用附加效果；资料中的全体对手在这里映射为
+			// “当前实际目标”，避免范围技能在效果层再次展开后重复结算。
+			"ALL_OPPONENTS" -> BattleEffectTarget.TARGET
 			else -> null
 		}
 

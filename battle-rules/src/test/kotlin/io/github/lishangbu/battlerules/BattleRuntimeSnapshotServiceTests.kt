@@ -1,7 +1,9 @@
 package io.github.lishangbu.battlerules
 
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
@@ -75,7 +77,17 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(76, 85, 87, 94, 311)).associateBy { it.skillId }
+		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 311)).associateBy { it.skillId }
+
+		val growl = slots.getValue(45)
+		assertThat(growl.targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
+		assertThat(growl.statStageEffects)
+			.anySatisfy {
+				assertThat(it.target).isEqualTo(BattleEffectTarget.TARGET)
+				assertThat(it.stat).isEqualTo(BattleStat.ATTACK)
+				assertThat(it.stageDelta).isEqualTo(-1)
+				assertThat(it.chancePercent).isEqualTo(100)
+			}
 
 		val solarBeam = slots.getValue(76)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(0.5)
