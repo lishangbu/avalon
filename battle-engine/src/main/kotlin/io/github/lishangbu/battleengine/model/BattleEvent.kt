@@ -98,6 +98,17 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因冰冻无法执行本次技能行动。
+	 *
+	 * 冰冻每次行动前先尝试自然解冻；只有未解冻时才产生该事件。若该事件出现，技能不会使用，
+	 * PP 不会消耗，也不会继续进入命中、伤害或附加效果流程。
+	 */
+	data class SkillPreventedByFreeze(
+		override val turnNumber: Int,
+		val actorId: String,
+	) : BattleEvent
+
+	/**
 	 * 行动者因麻痹无法执行本次技能行动。
 	 *
 	 * 麻痹不会像睡眠那样保存持续计数；每次行动前独立按现代规则判定。若该事件出现，技能不会使用，

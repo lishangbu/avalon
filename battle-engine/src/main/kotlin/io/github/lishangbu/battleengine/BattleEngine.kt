@@ -568,9 +568,10 @@ class BattleEngine(
 	/**
 	 * 处理行动前可能阻止技能的状态。
 	 *
-	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠先处理，畏缩随后处理，混乱早于麻痹处理。
-	 * 睡眠和畏缩必定阻止本次技能行动且不消耗 PP；混乱会先递减内部计数，若计数归零则解除并继续行动，
-	 * 否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动；麻痹最后按 25% 概率阻止行动。
+	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠和冰冻最早，畏缩随后处理，混乱早于麻痹处理。
+	 * 睡眠和畏缩必定阻止本次技能行动且不消耗 PP；冰冻先尝试自然解冻，未解冻才阻止行动；混乱会先递减
+	 * 内部计数，若计数归零则解除并继续行动，否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动；
+	 * 麻痹最后按 25% 概率阻止行动。
 	 */
 	private fun resolveBeforeMoveEffects(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
@@ -578,6 +579,9 @@ class BattleEngine(
 				context = context.copy(state = consumeSleepBlockedAction(context.state, actor)),
 				blocked = true,
 			)
+		}
+		if (actor.majorStatus == BattleMajorStatus.FREEZE) {
+			return resolveFreezeBeforeMove(context, actor, random)
 		}
 		if (actor.flinched) {
 			return BeforeMoveResult(
@@ -595,6 +599,37 @@ class BattleEngine(
 			)
 		}
 		return BeforeMoveResult(context = context, blocked = false)
+	}
+
+	/**
+	 * 处理冰冻的行动前自然解冻和行动阻止。
+	 *
+	 * 现代规则中，被冰冻成员每次准备行动时都有 20% 概率自然解冻；解冻后继续执行原技能，不额外消耗 PP。
+	 * 若本次没有解冻，则技能不会使用、PP 不会消耗。当前技能槽尚未建模“使用后解除自身冰冻”的标记，
+	 * 因此火属性攻击或特定技能自解冻会在技能规则字段具备后接入。
+	 */
+	private fun resolveFreezeBeforeMove(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
+		if (chanceSucceeds(FREEZE_THAW_CHANCE_PERCENT, random, "freeze thaw chance for ${actor.actorId}")) {
+			val cleared = actor.clearMajorStatus()
+			return BeforeMoveResult(
+				context = context.copy(
+					state = context.state
+						.replaceParticipant(cleared)
+						.appendEvent(
+							BattleEvent.StatusCleared(
+								turnNumber = context.state.turnNumber,
+								actorId = actor.actorId,
+								status = BattleMajorStatus.FREEZE,
+							),
+						),
+				),
+				blocked = false,
+			)
+		}
+		return BeforeMoveResult(
+			context = context.copy(state = consumeFreezeBlockedAction(context.state, actor)),
+			blocked = true,
+		)
 	}
 
 	/**
@@ -627,6 +662,19 @@ class BattleEngine(
 			blocked
 		}
 	}
+
+	/**
+	 * 记录冰冻未解冻时对本次技能行动的阻止效果。
+	 *
+	 * 冰冻状态本身保持不变；后续行动还会再次尝试自然解冻。该函数只追加事件，不修改成员快照。
+	 */
+	private fun consumeFreezeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByFreeze(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+			),
+		)
 
 	/**
 	 * 消耗畏缩对本次技能行动的阻止效果。
@@ -1153,6 +1201,7 @@ class BattleEngine(
 	private companion object {
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
+		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 	}
 }
