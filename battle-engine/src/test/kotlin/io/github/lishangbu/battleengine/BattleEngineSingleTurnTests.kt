@@ -330,6 +330,16 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `status skill applies burn and end turn residual damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "status-skill-applies-burn-and-end-turn-residual-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Will-O-Wisp_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)",
+			),
+			inputSummary = "使用者使用命中后必定附加灼伤的变化技能，目标没有状态免疫。",
+			expectedSummary = "目标获得灼伤主要状态；回合末按灼伤规则受到最大 HP 1/16 的固定伤害。",
+		)
 		val burnSkill = damagingSkill(
 			damageClass = BattleDamageClass.STATUS,
 			statusApplications = listOf(
@@ -353,6 +363,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
+		fixture.assertNamed("status-skill-applies-burn-and-end-turn-residual-damage")
 		assertEquals(BattleMajorStatus.BURN, resolved.participant("defender")?.majorStatus)
 		assertEquals(94, resolved.participant("defender")?.currentHp)
 		assertIs<BattleEvent.StatusApplied>(resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single())

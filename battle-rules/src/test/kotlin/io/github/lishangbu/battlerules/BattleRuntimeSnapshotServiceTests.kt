@@ -88,7 +88,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(14, 39, 45, 71, 76, 85, 87, 94, 103, 105, 113, 115, 184, 191, 235, 240, 311, 319, 347, 349, 366, 390, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 694),
+			listOf(14, 39, 45, 71, 76, 77, 78, 79, 85, 87, 94, 95, 103, 105, 113, 115, 147, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -129,6 +129,33 @@ class BattleRuntimeSnapshotServiceTests(
 				assertThat(it.status).isEqualTo(BattleMajorStatus.PARALYSIS)
 				assertThat(it.chancePercent).isEqualTo(10)
 			}
+
+		val poisonPowder = slots.getValue(77)
+		assertThat(poisonPowder.powderBased).isTrue()
+		val poisonPowderStatus = poisonPowder.statusApplications.single()
+		assertThat(poisonPowderStatus.status).isEqualTo(BattleMajorStatus.POISON)
+		assertThat(poisonPowderStatus.target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(poisonPowderStatus.chancePercent).isEqualTo(100)
+
+		val stunSpore = slots.getValue(78)
+		assertThat(stunSpore.powderBased).isTrue()
+		assertThat(stunSpore.statusApplications.single().status).isEqualTo(BattleMajorStatus.PARALYSIS)
+
+		val sleepPowder = slots.getValue(79)
+		assertThat(sleepPowder.powderBased).isTrue()
+		assertThat(sleepPowder.statusApplications.single().status).isEqualTo(BattleMajorStatus.SLEEP)
+
+		val hypnosis = slots.getValue(95)
+		assertThat(hypnosis.powderBased).isFalse()
+		assertThat(hypnosis.statusApplications.single().status).isEqualTo(BattleMajorStatus.SLEEP)
+
+		val spore = slots.getValue(147)
+		assertThat(spore.powderBased).isTrue()
+		assertThat(spore.statusApplications.single().status).isEqualTo(BattleMajorStatus.SLEEP)
+
+		val willOWisp = slots.getValue(261)
+		assertThat(willOWisp.powderBased).isFalse()
+		assertThat(willOWisp.statusApplications.single().status).isEqualTo(BattleMajorStatus.BURN)
 
 		val thunder = slots.getValue(87)
 		assertThat(thunder.accuracyOverridesByWeather).containsKey(BattleWeather.RAIN)

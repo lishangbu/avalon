@@ -1,0 +1,234 @@
+databaseChangeLog:
+- changeSet:
+    id: 026-battle-skill-major-status-effects
+    author: backend
+    comment: 接入基础主要异常状态类变化技能规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 61 }
+        - column: { name: skill_id, valueNumeric: 77 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: true }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 粉末类变化技能，命中后使目标陷入中毒状态；草属性目标免疫粉末类技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 610 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 62 }
+        - column: { name: skill_id, valueNumeric: 78 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: true }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 粉末类变化技能，命中后使目标陷入麻痹状态；草属性目标免疫粉末类技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 620 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 63 }
+        - column: { name: skill_id, valueNumeric: 79 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: true }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 粉末类变化技能，命中后使目标陷入睡眠状态；草属性目标免疫粉末类技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 630 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 64 }
+        - column: { name: skill_id, valueNumeric: 95 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 变化技能，命中后使目标陷入睡眠状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 640 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 65 }
+        - column: { name: skill_id, valueNumeric: 147 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: true }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 粉末类变化技能，命中后使目标陷入睡眠状态；草属性目标免疫粉末类技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 650 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 66 }
+        - column: { name: skill_id, valueNumeric: 261 }
+        - column: { name: effect_policy, value: status-application }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 变化技能，命中后使目标陷入灼伤状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 660 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 61 }
+        - column: { name: status_rule_id, valueNumeric: 2 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 62 }
+        - column: { name: status_rule_id, valueNumeric: 4 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 63 }
+        - column: { name: status_rule_id, valueNumeric: 5 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: skill_rule_id, valueNumeric: 64 }
+        - column: { name: status_rule_id, valueNumeric: 5 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: skill_rule_id, valueNumeric: 65 }
+        - column: { name: status_rule_id, valueNumeric: 5 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 8 }
+        - column: { name: skill_rule_id, valueNumeric: 66 }
+        - column: { name: status_rule_id, valueNumeric: 1 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 80 }

@@ -462,6 +462,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖 2..5 段命中分布、单次 PP 消耗、倒下中断、锁招续回合、目标槽位重定向、主动替换阻止和疲劳混乱。",
 			),
 			item(
+				code = "skill.major-status-effects",
+				name = "技能主要异常状态附加",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-skill-applies-burn-and-end-turn-residual-damage",
+					"grass-target-blocks-powder-based-status-skill",
+					"sleep-prevents-two-actions-from-scripted-duration",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Will-O-Wisp_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Powder_and_spore_moves",
+					"https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)",
+				),
+				note = "已覆盖变化技能附加灼伤、中毒、麻痹和睡眠，粉末类技能标签与草属性免疫，以及睡眠持续行动阻止；基础状态类技能规则资料已接入运行时快照。",
+			),
+			item(
 				code = "skill.stat-stage-effects",
 				name = "技能能力阶级变化",
 				category = "技能效果",
