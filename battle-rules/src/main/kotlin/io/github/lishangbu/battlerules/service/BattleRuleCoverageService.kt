@@ -86,6 +86,18 @@ class BattleRuleCoverageService {
 				note = "已覆盖物理/特殊/全伤害屏障、单打 0.5、双打目标侧多人 2/3、击中要害忽略屏障，以及极光类屏障的天气前置条件。",
 			),
 			item(
+				code = "field.side-speed-modifier",
+				name = "一侧速度结算修正",
+				category = "场上效果",
+				status = IMPLEMENTED,
+				fixtures = listOf("tailwind-doubles-user-side-speed-for-later-action-order"),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)",
+				),
+				note = "已覆盖顺风在使用者一侧建立 2 倍速度结算修正，效果从后续行动排序开始生效，并按回合末统一递减。",
+			),
+			item(
 				code = "turn.target-slot-switch",
 				name = "替换后的目标槽位重定向",
 				category = "回合流程",

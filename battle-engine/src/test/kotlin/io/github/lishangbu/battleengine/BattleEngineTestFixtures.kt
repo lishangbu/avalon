@@ -12,6 +12,7 @@ import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -169,6 +170,7 @@ internal fun damagingSkill(
 	volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
 	sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
+	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
 		skillId = skillId,
@@ -199,6 +201,7 @@ internal fun damagingSkill(
 		volatileStatusApplications = volatileStatusApplications,
 		statStageEffects = statStageEffects,
 		sideConditionApplications = sideConditionApplications,
+		sideSpeedModifierApplications = sideSpeedModifierApplications,
 	)
 
 internal fun protectionSkill(

@@ -17,6 +17,9 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -499,6 +502,7 @@ class BattleRuntimeSnapshotService(
 			volatileStatusApplications = volatileStatusApplications(row.ruleId),
 			statStageEffects = statStageEffects(row.ruleId),
 			sideConditionApplications = sideConditionApplications(row.ruleId),
+			sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
 		)
 	}
 
@@ -683,6 +687,44 @@ class BattleRuntimeSnapshotService(
 		).filterNotNull()
 	}
 
+	private fun sideSpeedModifierApplications(ruleId: Long?): List<BattleSideSpeedModifierApplication> {
+		if (ruleId == null) {
+			return emptyList()
+		}
+		return jdbcTemplate.query(
+			"""
+			select
+				fr.effect_policy as field_effect_policy,
+				fr.min_turns,
+				e.target_side,
+				e.chance_percent,
+				w.code as required_weather_code
+			from battle_skill_field_effect e
+			join battle_field_rule fr on fr.id = e.field_rule_id
+			left join battle_weather_rule w on w.id = e.required_weather_rule_id
+			where e.skill_rule_id = ?
+				and e.enabled = true
+				and fr.enabled = true
+				and fr.effect_scope = 'SIDE'
+				and e.effect_timing = 'AFTER_HIT'
+			order by e.sort_order, e.id
+			""".trimIndent(),
+			{ rs, _ ->
+				val modifierKind = rs.getString("field_effect_policy").toBattleSideSpeedModifierKind() ?: return@query null
+				BattleSideSpeedModifierApplication(
+					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
+					speedModifier = BattleSideSpeedModifier(
+						kind = modifierKind,
+						turnsRemaining = rs.nullableInt("min_turns"),
+					),
+					chancePercent = rs.getInt("chance_percent"),
+					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
+				)
+			},
+			ruleId,
+		).filterNotNull()
+	}
+
 	private fun String?.toBattleSkillTargetScope(): BattleSkillTargetScope =
 		when (this) {
 			"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS
@@ -719,6 +761,12 @@ class BattleRuntimeSnapshotService(
 			"side-reflect" -> BattleSideDamageReductionKind.PHYSICAL
 			"side-light-screen" -> BattleSideDamageReductionKind.SPECIAL
 			"side-aurora-veil" -> BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE
+			else -> null
+		}
+
+	private fun String.toBattleSideSpeedModifierKind(): BattleSideSpeedModifierKind? =
+		when (this) {
+			"side-tailwind" -> BattleSideSpeedModifierKind.TAILWIND
 			else -> null
 		}
 

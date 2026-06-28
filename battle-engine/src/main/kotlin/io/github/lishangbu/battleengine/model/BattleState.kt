@@ -64,6 +64,24 @@ data class BattleState(
 	}
 
 	/**
+	 * 在指定一侧新增速度结算修正。
+	 *
+	 * 返回 null 表示目标侧不存在，或该侧已经有同种速度修正。调用方据此决定是否产生事件；状态对象自身不推断
+	 * 技能失败原因，保持这里仅表达不可变状态变更。
+	 */
+	fun addSideSpeedModifier(sideId: String, modifier: BattleSideSpeedModifier): BattleState? {
+		var changed = false
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				side.addSpeedModifier(modifier)?.also { changed = true } ?: side
+			}
+		}
+		return if (changed) copy(sides = nextSides) else null
+	}
+
+	/**
 	 * 替换当前上场成员。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =

@@ -18,6 +18,7 @@ import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -1052,11 +1053,18 @@ class BattleEngine(
 				}
 			}
 		}
-		return skill.sideConditionApplications.fold(afterStatStageEffects) { current, application ->
+		val afterSideDamageReductions = skill.sideConditionApplications.fold(afterStatStageEffects) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
 				current
 			} else {
 				applySideConditionEffect(current, actorId, targetActorId, skill, application)
+			}
+		}
+		return skill.sideSpeedModifierApplications.fold(afterSideDamageReductions) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side speed condition chance for ${skill.skillId}")) {
+				current
+			} else {
+				applySideSpeedModifierEffect(current, actorId, targetActorId, skill, application)
 			}
 		}
 	}
@@ -1091,6 +1099,41 @@ class BattleEngine(
 					skillId = skill.skillId,
 					kind = application.damageReduction.kind,
 					turnsRemaining = application.damageReduction.turnsRemaining,
+				),
+			)
+			?: state
+	}
+
+	/**
+	 * 将命中后的技能一侧速度修正写入对应战斗侧。
+	 *
+	 * 速度修正和伤害减免同属一侧场上状态，但它们影响的结算阶段完全不同：伤害减免在伤害公式阶段读取，
+	 * 速度修正在下一次行动排序时读取。因此这里单独建模、单独发事件，避免后续新增速度规则时误走伤害屏障分支。
+	 */
+	private fun applySideSpeedModifierEffect(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		application: BattleSideSpeedModifierApplication,
+	): BattleState {
+		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
+			return state
+		}
+		val side = when (application.targetSide) {
+			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
+			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
+		} ?: return state
+		return state.addSideSpeedModifier(side.sideId, application.speedModifier)
+			?.appendEvent(
+				BattleEvent.SideSpeedModifierStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					sideId = side.sideId,
+					skillId = skill.skillId,
+					kind = application.speedModifier.kind,
+					multiplier = application.speedModifier.multiplier,
+					turnsRemaining = application.speedModifier.turnsRemaining,
 				),
 			)
 			?: state
@@ -1999,7 +2042,12 @@ class BattleEngine(
 		} else {
 			staged
 		}
-		return floor(afterStatus * weatherSpeedMultiplier(state, participant) * itemSpeedMultiplier(participant))
+		return floor(
+			afterStatus *
+				weatherSpeedMultiplier(state, participant) *
+				itemSpeedMultiplier(participant) *
+				sideSpeedModifierMultiplier(state, participant),
+		)
 			.toInt()
 			.coerceAtLeast(1)
 	}
@@ -2038,6 +2086,18 @@ class BattleEngine(
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}
 		}
+
+	/**
+	 * 计算一侧场上效果提供的速度倍率。
+	 *
+	 * 顺风等效果挂在战斗侧上，所有当前属于这一侧的成员都共享倍率。这里只读取结构化模型，不识别技能 ID、
+	 * 数据库字段或本地化文本；运行时资料到引擎模型的转换由 battle-rules 适配层负责。
+	 */
+	private fun sideSpeedModifierMultiplier(state: BattleState, participant: BattleParticipant): Double =
+		state.sideOf(participant.actorId)
+			?.speedModifiers
+			?.fold(1.0) { multiplier, modifier -> multiplier * modifier.multiplier }
+			?: 1.0
 
 	/**
 	 * 根据效果目标枚举找到实际承受效果的成员。

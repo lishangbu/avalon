@@ -11,6 +11,7 @@ data class BattleSide(
 	val activeActorIds: List<String>,
 	val participants: List<BattleParticipant>,
 	val damageReductions: List<BattleSideDamageReduction> = emptyList(),
+	val speedModifiers: List<BattleSideSpeedModifier> = emptyList(),
 ) {
 	init {
 		require(sideId.isNotBlank()) { "sideId must not be blank" }
@@ -23,6 +24,9 @@ data class BattleSide(
 		}
 		require(damageReductions.map { it.kind }.toSet().size == damageReductions.size) {
 			"damage reductions must not contain duplicate kinds"
+		}
+		require(speedModifiers.map { it.kind }.toSet().size == speedModifiers.size) {
+			"speed modifiers must not contain duplicate kinds"
 		}
 	}
 
@@ -70,12 +74,28 @@ data class BattleSide(
 	}
 
 	/**
+	 * 在这一侧新增一个速度结算修正。
+	 *
+	 * 现代规则中，同一种一侧速度效果已经存在时再次使用通常不会刷新持续时间；这里返回 null 表示本次没有写入新状态。
+	 * 不同种类的速度效果未来可以共存，行动排序时会按结构化倍率相乘，调用方不需要了解资料表 code。
+	 */
+	fun addSpeedModifier(modifier: BattleSideSpeedModifier): BattleSide? {
+		if (speedModifiers.any { it.kind == modifier.kind }) {
+			return null
+		}
+		return copy(speedModifiers = speedModifiers + modifier)
+	}
+
+	/**
 	 * 推进这一侧的回合型场上状态。
 	 *
-	 * 当前只包含伤害减免屏障。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。
+	 * 当前包含伤害减免屏障和速度修正。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。
 	 */
 	fun advanceSideConditionDurations(): BattleSide =
-		copy(damageReductions = damageReductions.mapNotNull { it.advanceTurn() })
+		copy(
+			damageReductions = damageReductions.mapNotNull { it.advanceTurn() },
+			speedModifiers = speedModifiers.mapNotNull { it.advanceTurn() },
+		)
 
 	/**
 	 * 替换一个上场席位。

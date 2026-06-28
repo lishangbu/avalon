@@ -52,11 +52,12 @@ class LiquibaseMigrationTests(
 			"003-battle-effect-rules-schema.yaml",
 			"004-battle-rule-coverage-menu.yaml",
 			"005-normalize-flinch-status-kind.yaml",
-				"006-battle-skill-rule-runtime-fields.yaml",
-				"007-battle-skill-weather-modifiers.yaml",
-				"008-battle-skill-runtime-seed-corrections.yaml",
-				"009-battle-skill-field-effects.yaml",
-			)
+			"006-battle-skill-rule-runtime-fields.yaml",
+			"007-battle-skill-weather-modifiers.yaml",
+			"008-battle-skill-runtime-seed-corrections.yaml",
+			"009-battle-skill-field-effects.yaml",
+			"010-battle-skill-speed-field-effects.yaml",
+		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
 
@@ -454,11 +455,11 @@ class LiquibaseMigrationTests(
 			union all select 'battle_weather_rule', count(*) from battle_weather_rule
 			union all select 'battle_terrain_rule', count(*) from battle_terrain_rule
 			union all select 'battle_field_rule', count(*) from battle_field_rule
-				union all select 'battle_skill_rule', count(*) from battle_skill_rule
-				union all select 'battle_skill_status_effect', count(*) from battle_skill_status_effect
-				union all select 'battle_skill_stat_stage_effect', count(*) from battle_skill_stat_stage_effect
-				union all select 'battle_skill_field_effect', count(*) from battle_skill_field_effect
-				union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
+			union all select 'battle_skill_rule', count(*) from battle_skill_rule
+			union all select 'battle_skill_status_effect', count(*) from battle_skill_status_effect
+			union all select 'battle_skill_stat_stage_effect', count(*) from battle_skill_stat_stage_effect
+			union all select 'battle_skill_field_effect', count(*) from battle_skill_field_effect
+			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
@@ -477,10 +478,10 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-			assertThat(seedCounts).containsEntry("battle_skill_rule", 16L)
-			assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
-			assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
-			assertThat(seedCounts).containsEntry("battle_skill_field_effect", 3L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 17L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
+		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 

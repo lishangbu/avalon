@@ -12,6 +12,9 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -699,6 +702,71 @@ class BattleEngineSingleTurnTests {
 		)
 
 		assertEquals(emptyList(), resolved.sideOf("observer-b")?.damageReductions)
+	}
+
+	@Test
+	fun `tailwind doubles user side speed for later action order`() {
+		val fixture = publicBattleRuleFixture(
+			name = "tailwind-doubles-user-side-speed-for-later-action-order",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)",
+			),
+			inputSummary = "使用者速度 40，对手速度 70；使用者一侧建立顺风后，后续行动排序按 2 倍速度参与比较。",
+			expectedSummary = "顺风建立事件记录 2 倍速度修正和 4 回合初始持续；下一回合使用者有效速度 80，先于速度 70 的对手行动。",
+		)
+		val tailwindSkill = damagingSkill(
+			skillId = 12,
+			name = "顺风测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			sideSpeedModifierApplications = listOf(
+				BattleSideSpeedModifierApplication(
+					targetSide = BattleSideConditionTarget.USER_SIDE,
+					speedModifier = BattleSideSpeedModifier(
+						kind = BattleSideSpeedModifierKind.TAILWIND,
+						turnsRemaining = 4,
+					),
+				),
+			),
+		)
+		val allySkill = damagingSkill(skillId = 13, name = "己方后续攻击")
+		val opponentSkill = damagingSkill(skillId = 14, name = "对手后续攻击")
+		val state = engine.start(
+			initialState(
+				first = participant("support", speed = 40, skill = tailwindSkill),
+				second = participant("opponent", speed = 70, skill = opponentSkill),
+			),
+		)
+
+		val afterTailwind = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("support", skillId = 12, targetActorId = "support")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val started = afterTailwind.events.filterIsInstance<BattleEvent.SideSpeedModifierStarted>().single()
+		fixture.assertNamed("tailwind-doubles-user-side-speed-for-later-action-order")
+		assertEquals("side-a", started.sideId)
+		assertEquals(BattleSideSpeedModifierKind.TAILWIND, started.kind)
+		assertEquals(2.0, started.multiplier)
+		assertEquals(4, started.turnsRemaining)
+		assertEquals(3, afterTailwind.sideOf("support")?.speedModifiers?.single()?.turnsRemaining)
+
+		val nextTurnState = afterTailwind.replaceParticipant(
+			requireNotNull(afterTailwind.participant("support")).copy(skillSlots = listOf(allySkill)),
+		)
+		val afterActionOrder = engine.resolveTurn(
+			nextTurnState,
+			listOf(
+				BattleAction.UseSkill("support", skillId = 13, targetActorId = "opponent"),
+				BattleAction.UseSkill("opponent", skillId = 14, targetActorId = "support"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+
+		val damageEvents = afterActionOrder.events.filterIsInstance<BattleEvent.DamageApplied>()
+		assertEquals("support", damageEvents.first().actorId)
+		assertEquals(2, afterActionOrder.sideOf("support")?.speedModifiers?.single()?.turnsRemaining)
 	}
 
 	@Test

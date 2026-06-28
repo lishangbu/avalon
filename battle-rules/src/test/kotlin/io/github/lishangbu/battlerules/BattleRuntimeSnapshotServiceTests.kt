@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -81,7 +82,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 694))
+		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 366, 694))
 			.associateBy { it.skillId }
 
 		val growl = slots.getValue(45)
@@ -139,6 +140,12 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(auroraVeil.damageReduction.kind).isEqualTo(BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE)
 		assertThat(auroraVeil.damageReduction.turnsRemaining).isEqualTo(5)
 		assertThat(auroraVeil.requiredWeather).isEqualTo(BattleWeather.SNOW)
+
+		val tailwind = slots.getValue(366).sideSpeedModifierApplications.single()
+		assertThat(tailwind.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(tailwind.speedModifier.kind).isEqualTo(BattleSideSpeedModifierKind.TAILWIND)
+		assertThat(tailwind.speedModifier.multiplier).isEqualTo(2.0)
+		assertThat(tailwind.speedModifier.turnsRemaining).isEqualTo(4)
 	}
 
 	@Test
