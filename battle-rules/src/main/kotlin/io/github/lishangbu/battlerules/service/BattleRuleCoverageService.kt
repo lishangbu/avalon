@@ -113,6 +113,27 @@ class BattleRuleCoverageService {
 				note = "已覆盖戏法空间建立全场低速先动规则、同优先度内反转速度比较、再次使用解除效果，以及持续回合自然结束。",
 			),
 			item(
+				code = "field.side-entry-hazard",
+				name = "一侧入场陷阱",
+				category = "场上效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"spikes-establishes-target-side-and-stacks-to-three-layers",
+					"stealth-rock-damage-uses-rock-effectiveness-after-switch",
+					"spikes-third-layer-damages-grounded-switch-in-only",
+					"toxic-spikes-two-layers-badly-poisons-and-poison-element-absorbs",
+					"sticky-web-lowers-grounded-switch-in-speed-stage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Stealth_Rock_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Spikes_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Toxic_Spikes_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Sticky_Web_(move)",
+				),
+				note = "已覆盖目标侧建立、撒菱三层上限、隐形岩按岩属性相性扣血、撒菱只影响接地换入成员、毒菱中毒/剧毒与毒属性吸收，以及黏黏网降低接地换入成员速度阶级。",
+			),
+			item(
 				code = "turn.target-slot-switch",
 				name = "替换后的目标槽位重定向",
 				category = "回合流程",
