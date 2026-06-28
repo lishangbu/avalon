@@ -108,6 +108,15 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `burn halves physical attacking stat before damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "burn-halves-physical-attacking-stat-before-damage",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+			),
+			inputSummary = "灼伤状态的使用者以 100 攻击使用物理技能攻击无特殊防御修正目标。",
+			expectedSummary = "物理攻击数值先按灼伤减半参与普通伤害公式，最终伤害低于同条件未灼伤物理攻击。",
+		)
 		val result = calculator.calculate(
 			BattleDamageRequest(
 				attacker = participant("attacker", speed = 100, elementId = 1).copy(majorStatus = BattleMajorStatus.BURN),
@@ -118,6 +127,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
+		fixture.assertNamed("burn-halves-physical-attacking-stat-before-damage")
 		assertEquals(10, result.baseDamage)
 		assertEquals(15, result.amount)
 	}

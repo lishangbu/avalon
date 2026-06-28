@@ -196,6 +196,18 @@ class BattleRuleCoverageService {
 				note = "灼伤和普通中毒按固定比例扣血，剧毒递增计数并在离场时重置为 1。",
 			),
 			item(
+				code = "status.burn-physical-damage",
+				name = "灼伤物理伤害减半",
+				category = "主要状态",
+				status = IMPLEMENTED,
+				fixtures = listOf("burn-halves-physical-attacking-stat-before-damage"),
+				references = listOf(
+					"https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				),
+				note = "已覆盖灼伤成员使用物理技能时，攻击侧数值先减半再进入普通伤害公式；击中要害仍不会绕过灼伤减半。",
+			),
+			item(
 				code = "status.sleep-electric-terrain",
 				name = "睡眠持续和电气场地防睡眠",
 				category = "主要状态",
