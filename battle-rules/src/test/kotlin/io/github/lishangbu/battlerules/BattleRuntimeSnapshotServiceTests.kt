@@ -122,6 +122,19 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `creature runtime profile uses game data stats and elements`() {
+		val profile = service.creatureRuntimeProfile(creatureId = 1, level = 50)
+
+		assertThat(profile.maxHp).isEqualTo(120)
+		assertThat(profile.attack).isEqualTo(69)
+		assertThat(profile.defense).isEqualTo(69)
+		assertThat(profile.specialAttack).isEqualTo(85)
+		assertThat(profile.specialDefense).isEqualTo(85)
+		assertThat(profile.speed).isEqualTo(65)
+		assertThat(profile.elementIds).containsExactlyInAnyOrder(12L, 4L)
+	}
+
+	@Test
 	fun `ability and item rule assembly includes supported engine effects`() {
 		val grassBoost = service.abilityEffectsByAbilityId(65)
 			.filterIsInstance<BattleAbilityEffect.LowHpElementDamageBoost>()

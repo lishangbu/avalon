@@ -55,6 +55,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+private const val DEFAULT_INDIVIDUAL_VALUE = 31
+private const val DEFAULT_EFFORT_VALUE = 0
+
 /**
  * 战斗运行时规则快照装配服务。
  *
@@ -157,6 +160,62 @@ class BattleRuntimeSnapshotService(
 			}
 			skillSlotBySkillId(skillId)
 		}
+	}
+
+	/**
+	 * 按基础成员资料和等级装配战斗引擎需要的能力值与属性集合。
+	 *
+	 * 第一版请求 DTO 尚未携带个体值、努力值和性格，因此这里采用现代对战常用的中性默认：
+	 * - 个体值使用 31。
+	 * - 努力值使用 0。
+	 * - 性格修正使用 1.0。
+	 *
+	 * 这样得到的数值仍然来自三范式资料表和标准能力公式，不再使用占位 1。后续 DTO 增加个体/努力/性格后，
+	 * 只需要扩展该装配函数的输入，不需要改纯引擎模型。
+	 */
+	@Transactional(readOnly = true)
+	fun creatureRuntimeProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile {
+		if (creatureId <= 0) {
+			invalidValue("creatureId", "creatureId 必须大于 0")
+		}
+		if (level !in 1..100) {
+			invalidValue("level", "level 必须在 1 到 100 之间")
+		}
+		val elementIds = jdbcTemplate.query(
+			"""
+			select element_id
+			from game_creature_element
+			where creature_id = ?
+			order by slot_order, id
+			""".trimIndent(),
+			{ rs, _ -> rs.getLong("element_id") },
+			creatureId,
+		)
+		if (elementIds.isEmpty()) {
+			notFound("creatureId", "成员属性资料不存在: $creatureId")
+		}
+		val baseStats = jdbcTemplate.query(
+			"""
+			select s.code, cs.base_value
+			from game_creature_stat cs
+			join game_stat s on s.id = cs.stat_id
+			where cs.creature_id = ?
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("code") to rs.getInt("base_value") },
+			creatureId,
+		).toMap()
+		if (baseStats.isEmpty()) {
+			notFound("creatureId", "成员能力资料不存在: $creatureId")
+		}
+		return BattleCreatureRuntimeProfile(
+			maxHp = baseStats.requiredBaseStat("hp").toRuntimeHp(level),
+			attack = baseStats.requiredBaseStat("attack").toRuntimeBattleStat(level),
+			defense = baseStats.requiredBaseStat("defense").toRuntimeBattleStat(level),
+			specialAttack = baseStats.requiredBaseStat("special-attack").toRuntimeBattleStat(level),
+			specialDefense = baseStats.requiredBaseStat("special-defense").toRuntimeBattleStat(level),
+			speed = baseStats.requiredBaseStat("speed").toRuntimeBattleStat(level),
+			elementIds = elementIds.toSet(),
+		)
 	}
 
 	/**
@@ -326,18 +385,19 @@ class BattleRuntimeSnapshotService(
 		}
 		val abilityPolicies = abilityId?.let(::enabledAbilityPolicies).orEmpty()
 		val itemPolicies = itemId?.let(::enabledItemPolicies).orEmpty()
+		val profile = creatureRuntimeProfile(creatureId, level)
 		return BattleParticipant(
 			actorId = normalizedActorId,
 			creatureId = creatureId,
 			level = level,
-			maxHp = 1,
-			currentHp = 1,
-			attack = 1,
-			defense = 1,
-			specialAttack = 1,
-			specialDefense = 1,
-			speed = 1,
-			elementIds = setOf(1),
+			maxHp = profile.maxHp,
+			currentHp = profile.maxHp,
+			attack = profile.attack,
+			defense = profile.defense,
+			specialAttack = profile.specialAttack,
+			specialDefense = profile.specialDefense,
+			speed = profile.speed,
+			elementIds = profile.elementIds,
 			skillSlots = skillSlotsBySkillIds(skillIds),
 			abilityId = abilityId,
 			itemId = itemId,
@@ -678,6 +738,15 @@ class BattleRuntimeSnapshotService(
 			else -> null
 		}
 
+	private fun Map<String, Int>.requiredBaseStat(code: String): Int =
+		this[code] ?: notFound("creatureId", "成员基础能力缺失: $code")
+
+	private fun Int.toRuntimeHp(level: Int): Int =
+		(((2 * this + DEFAULT_INDIVIDUAL_VALUE + DEFAULT_EFFORT_VALUE / 4) * level) / 100) + level + 10
+
+	private fun Int.toRuntimeBattleStat(level: Int): Int =
+		(((2 * this + DEFAULT_INDIVIDUAL_VALUE + DEFAULT_EFFORT_VALUE / 4) * level) / 100) + 5
+
 	private fun ResultSet.nullableInt(column: String): Int? {
 		val value = getInt(column)
 		return if (wasNull()) null else value
@@ -711,6 +780,16 @@ class BattleRuntimeSnapshotService(
 data class BattleRuntimeSnapshot(
 	val format: BattleFormatSnapshot,
 	val rules: BattleRuleSnapshot,
+)
+
+data class BattleCreatureRuntimeProfile(
+	val maxHp: Int,
+	val attack: Int,
+	val defense: Int,
+	val specialAttack: Int,
+	val specialDefense: Int,
+	val speed: Int,
+	val elementIds: Set<Long>,
 )
 
 private data class SkillRuntimeRow(
