@@ -130,12 +130,12 @@ class BattleEngine(
 			val action = input.action
 			val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
 			val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
-			if (!input.lockedContinuation) {
+			if (input.source == SkillActionSource.SUBMITTED) {
 				require(!actor.choiceLockedToAnotherSkill(action.skillId)) {
 					"choice locked to skill: ${actor.choiceLockedSkillId}"
 				}
 			}
-			ActionPlan(action, actor, skill, input.lockedContinuation)
+			ActionPlan(action, actor, skill, input.source)
 		}
 		val speedComparator = speedComparator(state)
 		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
@@ -156,8 +156,8 @@ class BattleEngine(
 	/**
 	 * 组装技能阶段实际要执行的行动。
 	 *
-	 * 锁招成员会强制继续使用锁定技能：如果玩家提交了其它技能选择，会被这里替换；如果玩家没有提交技能行动，
-	 * 引擎也会自动生成一次锁招行动。目标仍保存为首次锁定时选择的目标槽位，以复用现有目标重定向语义。
+	 * 锁招和蓄力成员会强制继续使用对应技能：如果玩家提交了其它技能选择，会被这里替换；如果玩家没有提交技能
+	 * 行动，引擎也会自动生成一次强制行动。目标仍保存为首次选择的目标槽位，以复用现有目标重定向语义。
 	 */
 	private fun skillActionsForTurn(state: BattleState, submittedActions: List<BattleAction.UseSkill>): List<SkillActionInput> {
 		val lockedActions = state.sides
@@ -168,13 +168,24 @@ class BattleEngine(
 				val targetActorId = actor.lockedMoveTargetActorId ?: return@mapNotNull null
 				SkillActionInput(
 					action = BattleAction.UseSkill(actor.actorId, skillId = skillId, targetActorId = targetActorId),
-					lockedContinuation = true,
+					source = SkillActionSource.LOCKED_CONTINUATION,
 				)
 			}
-		val lockedActorIds = lockedActions.map { it.action.actorId }.toSet()
+		val chargingActions = state.sides
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() && it.chargingTurnsRemaining > 0 }
+			.mapNotNull { actor ->
+				val skillId = actor.chargingSkillId ?: return@mapNotNull null
+				val targetActorId = actor.chargingTargetActorId ?: return@mapNotNull null
+				SkillActionInput(
+					action = BattleAction.UseSkill(actor.actorId, skillId = skillId, targetActorId = targetActorId),
+					source = SkillActionSource.CHARGED_RELEASE,
+				)
+			}
+		val forcedActorIds = (lockedActions + chargingActions).map { it.action.actorId }.toSet()
 		return submittedActions
-			.filterNot { it.actorId in lockedActorIds }
-			.map { SkillActionInput(it, lockedContinuation = false) } + lockedActions
+			.filterNot { it.actorId in forcedActorIds }
+			.map { SkillActionInput(it, source = SkillActionSource.SUBMITTED) } + lockedActions + chargingActions
 	}
 
 	/**
@@ -215,6 +226,16 @@ class BattleEngine(
 					BattleEvent.SwitchPreventedByRecharge(
 						turnNumber = current.turnNumber,
 						actorId = actor.actorId,
+					),
+				)
+			}
+			if (actor.canBattle() && actor.chargingTurnsRemaining > 0) {
+				val chargingSkillId = actor.chargingSkillId ?: return@fold current
+				return@fold current.appendEvent(
+					BattleEvent.SwitchPreventedByCharging(
+						turnNumber = current.turnNumber,
+						actorId = actor.actorId,
+						skillId = chargingSkillId,
 					),
 				)
 			}
@@ -262,12 +283,14 @@ class BattleEngine(
 		}
 		val beforeMove = resolveBeforeMoveEffects(context, actor, plan.skill, random)
 		if (beforeMove.blocked) {
-			return if (plan.lockedContinuation) {
-				beforeMove.context.copy(
+			return when (plan.source) {
+				SkillActionSource.LOCKED_CONTINUATION -> beforeMove.context.copy(
 					state = endLockedMoveAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill, random),
 				)
-			} else {
-				beforeMove.context
+				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
+					state = endChargingAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill),
+				)
+				SkillActionSource.SUBMITTED -> beforeMove.context
 			}
 		}
 		val actionState = beforeMove.context.state
@@ -275,39 +298,58 @@ class BattleEngine(
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMove.context
 		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill)
 		if (targets.isEmpty()) {
-			return if (plan.lockedContinuation) {
-				beforeMove.context.copy(
+			return when (plan.source) {
+				SkillActionSource.LOCKED_CONTINUATION -> beforeMove.context.copy(
 					state = endLockedMoveAfterDisruption(actionState, readyActor.actorId, skill, random),
 				)
-			} else {
-				beforeMove.context
+				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
+					state = endChargingAfterDisruption(actionState, readyActor.actorId, skill),
+				)
+				SkillActionSource.SUBMITTED -> beforeMove.context
 			}
 		}
-		if (!plan.lockedContinuation) {
+		if (plan.source == SkillActionSource.SUBMITTED) {
 			require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 		}
 
-		val actorAfterPp = if (plan.lockedContinuation) {
-			readyActor
+		val stateBeforeUse = if (plan.source == SkillActionSource.CHARGED_RELEASE) {
+			releaseChargedSkill(actionState, readyActor, skill, targets.first().actorId)
 		} else {
-			readyActor.replaceSkillSlot(skill.consumePp())
+			actionState
 		}
-		val actorAfterActionSetup = if (plan.lockedContinuation) {
-			actorAfterPp
+		val readyActorBeforePp = stateBeforeUse.participant(action.actorId) ?: return beforeMove.context
+		val actorAfterPp = if (plan.source == SkillActionSource.SUBMITTED) {
+			readyActorBeforePp.replaceSkillSlot(skill.consumePp())
 		} else {
+			readyActorBeforePp
+		}
+		val actorAfterActionSetup = if (plan.source == SkillActionSource.SUBMITTED) {
 			actorAfterPp.lockChoiceSkillIfNeeded(skill.skillId)
+		} else {
+			actorAfterPp
 		}
-		val usedState = actionState
+		val usedState = stateBeforeUse
 			.replaceParticipant(actorAfterActionSetup)
 			.appendEvent(
 				BattleEvent.SkillUsed(
-					turnNumber = actionState.turnNumber,
-					actorId = readyActor.actorId,
+					turnNumber = stateBeforeUse.turnNumber,
+					actorId = readyActorBeforePp.actorId,
 					targetActorId = targets.first().actorId,
 					skillId = skill.skillId,
 					skillName = skill.name,
 				),
 			)
+
+		if (skill.chargesBeforeUse && plan.source == SkillActionSource.SUBMITTED) {
+			return beforeMove.context.copy(
+				state = startSkillCharge(
+					state = usedState,
+					actorId = readyActorBeforePp.actorId,
+					targetActorId = targets.first().actorId,
+					skill = skill,
+				),
+			)
+		}
 
 		if (skill.protectsUser) {
 			if (!protectionSucceeds(readyActor, skill, random)) {
@@ -1116,6 +1158,84 @@ class BattleEngine(
 			}
 		}
 		return skill.minHits + random.nextInt(skill.maxHits - skill.minHits + 1, "multi-hit count for ${skill.skillId}")
+	}
+
+	/**
+	 * 首次使用蓄力技能时写入等待释放状态。
+	 *
+	 * 这里发生在 PP 已消耗和 `SkillUsed` 已记录之后，但早于命中、保护、属性和伤害流程；也就是说第一回合只是
+	 * 宣告并进入蓄力，真正的攻击会由下一次自动生成的技能行动释放。
+	 */
+	private fun startSkillCharge(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
+		}
+		val charging = actor.startChargingSkill(skill.skillId, targetActorId)
+		return state
+			.replaceParticipant(charging)
+			.appendEvent(
+				BattleEvent.SkillChargeStarted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					turnsRemainingBeforeUse = charging.chargingTurnsRemaining,
+				),
+			)
+	}
+
+	/**
+	 * 释放已蓄力技能。
+	 *
+	 * 释放只清理蓄力计数并追加事件；PP、命中、保护和伤害仍由后续统一技能流程处理。
+	 */
+	private fun releaseChargedSkill(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		targetActorId: String,
+	): BattleState {
+		if (actor.chargingTurnsRemaining <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.consumeChargingTurn())
+			.appendEvent(
+				BattleEvent.SkillChargeReleased(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+				),
+			)
+	}
+
+	/**
+	 * 处理蓄力释放前被行动前状态阻止的情况。
+	 *
+	 * 如果成员在第二回合因为睡眠、冰冻、麻痹、休整或临时状态无法行动，本次蓄力会结束，不会在后续回合继续
+	 * 反复尝试释放同一个技能。
+	 */
+	private fun endChargingAfterDisruption(state: BattleState, actorId: String, skill: BattleSkillSlot): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (actor.chargingTurnsRemaining <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.clearChargingSkill())
+			.appendEvent(
+				BattleEvent.SkillChargeInterrupted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+				),
+			)
 	}
 
 	/**
@@ -3200,15 +3320,21 @@ class BattleEngine(
 
 	private data class SkillActionInput(
 		val action: BattleAction.UseSkill,
-		val lockedContinuation: Boolean,
+		val source: SkillActionSource,
 	)
 
 	private data class ActionPlan(
 		val action: BattleAction.UseSkill,
 		val actor: BattleParticipant,
 		val skill: BattleSkillSlot,
-		val lockedContinuation: Boolean,
+		val source: SkillActionSource,
 	)
+
+	private enum class SkillActionSource {
+		SUBMITTED,
+		LOCKED_CONTINUATION,
+		CHARGED_RELEASE,
+	}
 
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,

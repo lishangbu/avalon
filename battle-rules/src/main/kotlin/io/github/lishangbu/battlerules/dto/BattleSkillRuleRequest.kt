@@ -33,6 +33,8 @@ data class BattleSkillRuleRequest(
 	var thawsUserBeforeMove: Boolean = false,
 	@field:Schema(description = "是否属于会被青草场地削弱的地面震动类技能。", example = "false")
 	var weakenedByGrassyTerrain: Boolean = false,
+	@field:Schema(description = "首次使用时是否需要先蓄力，下一次行动才释放技能效果。", example = "false")
+	var chargesBeforeUse: Boolean = false,
 	@field:Schema(description = "成功造成实际伤害后是否让使用者下一次行动前休整。", example = "false")
 	var rechargesAfterUse: Boolean = false,
 	@field:Schema(description = "是否属于声音类效果。", example = "false")

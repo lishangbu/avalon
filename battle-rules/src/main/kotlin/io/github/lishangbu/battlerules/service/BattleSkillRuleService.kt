@@ -4,6 +4,7 @@ import io.github.lishangbu.battlerules.dto.BattleSkillRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillRuleResponse
 import io.github.lishangbu.battlerules.entity.BattleSkillRule
 import io.github.lishangbu.battlerules.entity.affectedByProtect
+import io.github.lishangbu.battlerules.entity.chargesBeforeUse
 import io.github.lishangbu.battlerules.entity.confusesUserAfterLock
 import io.github.lishangbu.battlerules.entity.criticalHitStage
 import io.github.lishangbu.battlerules.entity.damagePolicy
@@ -111,6 +112,7 @@ class BattleSkillRuleService(
 				protectsUser = normalized.protectsUser
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
+				chargesBeforeUse = normalized.chargesBeforeUse
 				rechargesAfterUse = normalized.rechargesAfterUse
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
@@ -153,6 +155,7 @@ class BattleSkillRuleService(
 				protectsUser = normalized.protectsUser
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
+				chargesBeforeUse = normalized.chargesBeforeUse
 				rechargesAfterUse = normalized.rechargesAfterUse
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
@@ -206,8 +209,14 @@ class BattleSkillRuleService(
 		if (request.protectsUser && damageClassCode != "status") {
 			invalidValue("protectsUser", "只有变化类技能才能配置保护自身")
 		}
+		if (request.chargesBeforeUse && damageClassCode == "status") {
+			invalidValue("chargesBeforeUse", "变化类技能不能配置蓄力后发动")
+		}
 		if (request.rechargesAfterUse && damageClassCode == "status") {
 			invalidValue("rechargesAfterUse", "变化类技能不能配置成功后休整")
+		}
+		if (request.chargesBeforeUse && request.rechargesAfterUse) {
+			invalidValue("rechargesAfterUse", "蓄力技能不能同时配置成功后休整")
 		}
 		if (request.lockMoveTurnsMax < request.lockMoveTurnsMin) {
 			invalidValue("lockMoveTurnsMax", "lockMoveTurnsMax 不能小于 lockMoveTurnsMin")
@@ -260,6 +269,7 @@ class BattleSkillRuleService(
 			protectsUser = protectsUser,
 			thawsUserBeforeMove = thawsUserBeforeMove,
 			weakenedByGrassyTerrain = weakenedByGrassyTerrain,
+			chargesBeforeUse = chargesBeforeUse,
 			rechargesAfterUse = rechargesAfterUse,
 			soundBased = soundBased,
 			powderBased = powderBased,

@@ -55,6 +55,17 @@ sealed interface BattleEvent {
 		val actorId: String,
 	) : BattleEvent
 
+	/**
+	 * 成员因正在蓄力而不能主动替换。
+	 *
+	 * 蓄力技能的下一次行动会自动释放原技能；该事件只记录非法替换请求被忽略，不会消费蓄力计数。
+	 */
+	data class SwitchPreventedByCharging(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -562,6 +573,42 @@ sealed interface BattleEvent {
 		val actorId: String,
 		val skillId: Long,
 		val turnsRemainingAfterCurrent: Int,
+	) : BattleEvent
+
+	/**
+	 * 技能首次宣告后进入蓄力状态。
+	 *
+	 * `turnsRemainingBeforeUse` 表示未来还需要等待几次技能行动才会释放；常规蓄力技能为 1。
+	 */
+	data class SkillChargeStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val turnsRemainingBeforeUse: Int,
+	) : BattleEvent
+
+	/**
+	 * 已蓄力技能在后续行动中释放。
+	 *
+	 * 释放不再次消耗 PP，也不会重新选择技能；目标仍按首次选择的目标槽位进行重定向。
+	 */
+	data class SkillChargeReleased(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
+	/**
+	 * 已蓄力技能在释放前被行动前状态中断。
+	 *
+	 * 这类中断会清除蓄力状态，避免后续回合重复释放同一技能。
+	 */
+	data class SkillChargeInterrupted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
 	) : BattleEvent
 
 	data class TerrainHealingApplied(

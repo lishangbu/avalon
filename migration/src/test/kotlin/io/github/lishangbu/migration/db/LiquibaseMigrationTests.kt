@@ -93,6 +93,7 @@ class LiquibaseMigrationTests(
 			"044-battle-action-validation-menu.yaml",
 			"045-battle-rule-skill-recoil-fixtures.yaml",
 			"046-battle-skill-recharge-rules.yaml",
+			"047-battle-skill-charge-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -532,9 +533,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 94L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 199L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 94L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 95L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 201L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 95L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -576,6 +577,20 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 63L,
 				"recharges_after_use" to true,
+			),
+		)
+
+		val chargeSkillRules = queryMaps(
+			"""
+			select skill_id, charges_before_use
+			from battle_skill_rule
+			where skill_id = 76
+			""".trimIndent(),
+		)
+		assertThat(chargeSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 76L,
+				"charges_before_use" to true,
 			),
 		)
 

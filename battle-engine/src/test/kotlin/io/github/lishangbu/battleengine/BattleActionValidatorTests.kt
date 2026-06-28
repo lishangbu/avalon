@@ -137,6 +137,28 @@ class BattleActionValidatorTests {
 	}
 
 	@Test
+	fun `reports charging prevents voluntary switch`() {
+		val state = engine.start(
+			initialState(
+				first = participant("charging", speed = 100).copy(
+					chargingSkillId = 1,
+					chargingTargetActorId = "opponent",
+					chargingTurnsRemaining = 1,
+				),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("opponent", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.SwitchParticipant("charging", targetActorId = "reserve")),
+		)
+
+		assertEquals(listOf("charging-prevents-switch"), violations.map { it.code })
+	}
+
+	@Test
 	fun `reports battle ended and require valid throws`() {
 		val state = engine.start(
 			initialState(

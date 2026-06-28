@@ -38,6 +38,7 @@ interface BattleSkillRule {
 	val protectsUser: Boolean
 	val thawsUserBeforeMove: Boolean
 	val weakenedByGrassyTerrain: Boolean
+	val chargesBeforeUse: Boolean
 	val rechargesAfterUse: Boolean
 	val soundBased: Boolean
 	val powderBased: Boolean

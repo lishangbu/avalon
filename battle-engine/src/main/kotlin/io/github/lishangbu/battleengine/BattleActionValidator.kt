@@ -13,8 +13,8 @@ import io.github.lishangbu.battleengine.model.BattleState
  *
  * 该校验器只依赖当前 [BattleState] 和本回合提交的 [BattleAction]，不访问数据库，也不读取资料表文本。
  * 它检查的是“能否把这批行动交给引擎结算”的通用条件：战斗是否已结束、同一成员是否重复提交、行动者是否
- * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招是否限制选择、休整是否禁止主动替换，以及替换目标是否
- * 属于同一方且可以上场。
+ * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招是否限制选择、蓄力/休整是否禁止主动替换，以及替换目标
+ * 是否属于同一方且可以上场。
  *
  * 复杂规则仍由引擎结算阶段处理。例如命中、保护、属性免疫、精神场地阻挡、睡眠/麻痹/畏缩等会产生事件的
  * 运行时效果，不应在这里提前当成非法输入；否则 replay 会失去这些可观察事实。
@@ -161,6 +161,14 @@ class BattleActionValidator {
 				code = "recharge-prevents-switch",
 				actorId = actor.actorId,
 				message = "成员正在休整，不能主动替换",
+			)
+		}
+		if (actor.chargingTurnsRemaining > 0) {
+			violations += violation(
+				code = "charging-prevents-switch",
+				actorId = actor.actorId,
+				resourceId = actor.chargingSkillId,
+				message = "成员正在蓄力，不能主动替换: ${actor.chargingSkillId}",
 			)
 		}
 		val targetSide = state.sideOf(action.targetActorId)

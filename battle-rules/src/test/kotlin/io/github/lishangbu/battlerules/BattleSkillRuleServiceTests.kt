@@ -82,6 +82,7 @@ class BattleSkillRuleServiceTests(
 				makesContact = false,
 				affectedByProtect = false,
 				thawsUserBeforeMove = true,
+				chargesBeforeUse = true,
 				rechargesAfterUse = false,
 				soundBased = true,
 				lockMoveTurnsMin = 1,
@@ -97,6 +98,7 @@ class BattleSkillRuleServiceTests(
 		assertThat(updated.soundBased).isTrue()
 		assertThat(updated.criticalHitStage).isEqualTo(2)
 		assertThat(updated.thawsUserBeforeMove).isTrue()
+		assertThat(updated.chargesBeforeUse).isTrue()
 		assertThat(updated.rechargesAfterUse).isFalse()
 		assertThat(updated.confusesUserAfterLock).isFalse()
 		assertThat(updated.description).isNull()
@@ -231,5 +233,21 @@ class BattleSkillRuleServiceTests(
 		}
 		assertThat(statusRecharge.status).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(statusRecharge.field).isEqualTo("rechargesAfterUse")
+
+		val statusCharge = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 14,
+					effectPolicy = "test-invalid-status-charge",
+					targetPolicy = "self",
+					hitPolicy = "standard-hit",
+					damagePolicy = "no-damage",
+					chargesBeforeUse = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(statusCharge.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(statusCharge.field).isEqualTo("chargesBeforeUse")
 	}
 }

@@ -9,8 +9,8 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能休整计数、技能锁招运行态、讲究类道具锁定技能，
- * 以及畏缩/混乱等临时状态。
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
+ * 讲究类道具锁定技能，以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -39,6 +39,9 @@ data class BattleParticipant(
 	val protectionChain: Int = 0,
 	val badPoisonCounter: Int = 0,
 	val sleepTurnsRemaining: Int = 0,
+	val chargingSkillId: Long? = null,
+	val chargingTargetActorId: String? = null,
+	val chargingTurnsRemaining: Int = 0,
 	val rechargeTurnsRemaining: Int = 0,
 	val flinched: Boolean = false,
 	val confusionTurnsRemaining: Int = 0,
@@ -73,12 +76,26 @@ data class BattleParticipant(
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
 		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
 		require(sleepTurnsRemaining >= 0) { "sleepTurnsRemaining must not be negative" }
+		require(chargingSkillId == null || chargingSkillId > 0) { "chargingSkillId must be positive when present" }
+		require(chargingTargetActorId == null || chargingTargetActorId.isNotBlank()) {
+			"chargingTargetActorId must not be blank when present"
+		}
+		require(chargingTurnsRemaining >= 0) { "chargingTurnsRemaining must not be negative" }
 		require(rechargeTurnsRemaining >= 0) { "rechargeTurnsRemaining must not be negative" }
 		require(majorStatus == BattleMajorStatus.SLEEP || sleepTurnsRemaining == 0) {
 			"sleepTurnsRemaining must be zero unless participant is asleep"
 		}
 		require(majorStatus != BattleMajorStatus.SLEEP || sleepTurnsRemaining > 0) {
 			"sleepTurnsRemaining must be positive when participant is asleep"
+		}
+		require(chargingTurnsRemaining == 0 || chargingSkillId != null) {
+			"chargingSkillId must be present while charging turns remain"
+		}
+		require(chargingTurnsRemaining == 0 || chargingTargetActorId != null) {
+			"chargingTargetActorId must be present while charging turns remain"
+		}
+		require(chargingTurnsRemaining > 0 || (chargingSkillId == null && chargingTargetActorId == null)) {
+			"charging skill state must be cleared when no charging turns remain"
 		}
 		require(confusionTurnsRemaining >= 0) { "confusionTurnsRemaining must not be negative" }
 		require(lockedMoveSkillId == null || lockedMoveSkillId > 0) { "lockedMoveSkillId must be positive when present" }
@@ -94,6 +111,9 @@ data class BattleParticipant(
 		}
 		require(lockedMoveTurnsRemaining > 0 || !lockedMoveConfusesOnEnd) {
 			"lockedMoveConfusesOnEnd must be false when no locked move remains"
+		}
+		require(chargingTurnsRemaining == 0 || lockedMoveTurnsRemaining == 0) {
+			"participant cannot be charging and locked into a move at the same time"
 		}
 		require(choiceLockedSkillId == null || choiceLockedSkillId > 0) {
 			"choiceLockedSkillId must be positive when present"
@@ -223,6 +243,52 @@ data class BattleParticipant(
 			rechargeTurnsRemaining > 1 -> copy(rechargeTurnsRemaining = rechargeTurnsRemaining - 1)
 			rechargeTurnsRemaining == 1 -> copy(rechargeTurnsRemaining = 0)
 			else -> this
+		}
+
+	/**
+	 * 标记成员进入技能蓄力状态。
+	 *
+	 * 该状态表示本次技能已经支付 PP 并完成宣告，但真正效果要在未来技能行动中释放。`turnsRemainingBeforeUse`
+	 * 保存未来还要等待几次技能行动；现代常见蓄力技能为 1。目标保存为首次选择的目标槽位，以便下一回合复用
+	 * 现有目标重定向规则。
+	 */
+	fun startChargingSkill(
+		skillId: Long,
+		targetActorId: String,
+		turnsRemainingBeforeUse: Int = 1,
+	): BattleParticipant {
+		require(skillId > 0) { "skillId must be positive" }
+		require(targetActorId.isNotBlank()) { "targetActorId must not be blank" }
+		require(turnsRemainingBeforeUse > 0) { "turnsRemainingBeforeUse must be positive" }
+		return copy(
+			chargingSkillId = skillId,
+			chargingTargetActorId = targetActorId,
+			chargingTurnsRemaining = turnsRemainingBeforeUse,
+		)
+	}
+
+	/**
+	 * 消耗一次技能蓄力等待。
+	 */
+	fun consumeChargingTurn(): BattleParticipant =
+		when {
+			chargingTurnsRemaining > 1 -> copy(chargingTurnsRemaining = chargingTurnsRemaining - 1)
+			chargingTurnsRemaining == 1 -> clearChargingSkill()
+			else -> this
+		}
+
+	/**
+	 * 清除技能蓄力运行态。
+	 */
+	fun clearChargingSkill(): BattleParticipant =
+		if (chargingTurnsRemaining == 0 && chargingSkillId == null && chargingTargetActorId == null) {
+			this
+		} else {
+			copy(
+				chargingSkillId = null,
+				chargingTargetActorId = null,
+				chargingTurnsRemaining = 0,
+			)
 		}
 
 	/**
@@ -396,6 +462,9 @@ data class BattleParticipant(
 			statStages = emptyMap(),
 			protectionChain = 0,
 			badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
+			chargingSkillId = null,
+			chargingTargetActorId = null,
+			chargingTurnsRemaining = 0,
 			rechargeTurnsRemaining = 0,
 			flinched = false,
 			confusionTurnsRemaining = 0,

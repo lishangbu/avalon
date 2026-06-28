@@ -130,6 +130,7 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(63).rechargesAfterUse).isTrue()
 
 		val solarBeam = slots.getValue(76)
+		assertThat(solarBeam.chargesBeforeUse).isTrue()
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(0.5)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SANDSTORM]).isEqualTo(0.5)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SNOW]).isEqualTo(0.5)
