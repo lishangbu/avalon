@@ -72,6 +72,7 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/battle-rules/battle-formats'].get.summary").value("分页查询战斗赛制"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/battle-formats'].post.summary").value("新增战斗赛制"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/status-rules'].get.summary").value("分页查询状态规则"))
+			.andExpect(jsonPath("$.paths['/api/battle-rules/coverage'].get.summary").value("读取战斗规则覆盖报告"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/weather-rules'].get.summary").value("分页查询天气规则"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/skill-rules'].get.summary").value("分页查询技能规则"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/skill-status-effects'].post.summary").value("新增技能状态效果"))

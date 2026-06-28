@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: 004-battle-rule-coverage-menu
+    author: backend
+    changes:
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column:
+            name: id
+            valueNumeric: 842
+        - column:
+            name: code
+            value: battle-rules.coverage
+        - column:
+            name: name
+            value: 规则覆盖
+        - column:
+            name: type
+            value: ROUTE
+        - column:
+            name: parent_id
+            valueNumeric: 810
+        - column:
+            name: path
+            value: /battle-rules/coverage
+        - column:
+            name: component_key
+            value: battle-rules/coverage
+        - column:
+            name: icon
+            value: lucide:chart-no-axes-column
+        - column:
+            name: sort_order
+            valueNumeric: 5
+        - column:
+            name: visible
+            valueBoolean: true
+        - column:
+            name: enabled
+            valueBoolean: true
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column:
+            name: role_id
+            valueNumeric: 203
+        - column:
+            name: access_node_id
+            valueNumeric: 842

@@ -1,0 +1,31 @@
+package io.github.lishangbu.battlerules
+
+import io.github.lishangbu.battlerules.service.BattleRuleCoverageService
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+/**
+ * 验证战斗规则覆盖报告的汇总一致性。
+ *
+ * 覆盖报告是手工维护的代码清单，测试重点不是业务规则本身，而是防止新增条目时漏更新状态或汇总计算。
+ */
+class BattleRuleCoverageServiceTests {
+	private val service = BattleRuleCoverageService()
+
+	@Test
+	fun `coverage summary matches item statuses`() {
+		val coverage = service.getCoverage()
+		val implementedCount = coverage.items.count { it.status == "IMPLEMENTED" }
+		val partialCount = coverage.items.count { it.status == "PARTIAL" }
+		val plannedCount = coverage.items.count { it.status == "PLANNED" }
+
+		assertTrue(coverage.items.isNotEmpty())
+		assertEquals(coverage.items.size, coverage.summary.totalCount)
+		assertEquals(implementedCount, coverage.summary.implementedCount)
+		assertEquals(partialCount, coverage.summary.partialCount)
+		assertEquals(plannedCount, coverage.summary.plannedCount)
+		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
+		assertTrue(coverage.items.any { it.code == "status.volatile-flinch-confusion" })
+	}
+}

@@ -35,7 +35,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase changelog history keeps single initial file`() {
+	fun `liquibase changelog history keeps single initial file and numbered follow ups`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -50,6 +50,7 @@ class LiquibaseMigrationTests(
 			"001-initial-schema.yaml",
 			"002-battle-rules-schema.yaml",
 			"003-battle-effect-rules-schema.yaml",
+			"004-battle-rule-coverage-menu.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -237,6 +238,7 @@ class LiquibaseMigrationTests(
 			"battle-rules:admin",
 			"battle-rules.ability-rules",
 			"battle-rules.battle-formats",
+			"battle-rules.coverage",
 			"battle-rules.effects",
 			"battle-rules.field-rules",
 			"battle-rules.format-clause-bindings",
