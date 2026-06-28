@@ -14,6 +14,7 @@ package io.github.lishangbu.battleengine.model
  * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
+ * `soundBased` 表示声音类技能，现代规则中这类技能可以穿过替身影响目标。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
@@ -48,6 +49,7 @@ data class BattleSkillSlot(
 	val affectedByProtect: Boolean = true,
 	val protectsUser: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
+	val soundBased: Boolean = false,
 	val powderBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
 	val chargesBeforeUse: Boolean = false,

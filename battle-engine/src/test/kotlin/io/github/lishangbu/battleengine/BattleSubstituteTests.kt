@@ -6,6 +6,8 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -194,6 +196,90 @@ class BattleSubstituteTests {
 		assertEquals(BattleStatusBlockReason.SUBSTITUTE, blocked.reason)
 	}
 
+	@Test
+	fun `sound damaging skill bypasses substitute and damages target body`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sound-damage-skill-bypasses-substitute",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Sound-based_move",
+			),
+			inputSummary = "目标已经拥有替身，对手使用声音类伤害技能。",
+			expectedSummary = "声音类伤害技能穿过替身直接伤害本体，替身 HP 保持不变。",
+		)
+		val soundSkill = damagingSkill(name = "声音伤害测试", soundBased = true)
+		val state = engine.start(
+			initialState(
+				first = participant("sound-user", speed = 100, skill = soundSkill),
+				second = participant("protected-target", speed = 50, currentHp = 75).copy(substituteHp = 25),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sound-user", skillId = 1, targetActorId = "protected-target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("sound-damage-skill-bypasses-substitute")
+		assertEquals(47, resolved.participant("protected-target")?.currentHp)
+		assertEquals(25, resolved.participant("protected-target")?.substituteHp)
+		assertEquals(28, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteDamageApplied>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteBroken>())
+	}
+
+	@Test
+	fun `sound status skill bypasses substitute while ordinary stat stage skill is blocked`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sound-status-skill-bypasses-substitute",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Metal_Sound_(move)",
+			),
+			inputSummary = "目标已经拥有替身；一个普通降能力变化技和一个声音类降能力变化技分别命中该目标。",
+			expectedSummary = "普通降能力变化技被替身阻止；声音类降能力变化技穿过替身并实际降低目标能力阶级。",
+		)
+		val ordinaryStageSkill = statStageDropSkill(skillId = 103, name = "普通降防测试", soundBased = false)
+		val soundStageSkill = statStageDropSkill(skillId = 319, name = "声音降防测试", soundBased = true)
+		val ordinaryBlocked = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("stage-user", speed = 100, skill = ordinaryStageSkill),
+					second = participant("protected-target", speed = 50, currentHp = 75).copy(substituteHp = 25),
+				),
+			),
+			listOf(BattleAction.UseSkill("stage-user", skillId = 103, targetActorId = "protected-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val soundBypassed = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("stage-user", speed = 100, skill = soundStageSkill),
+					second = participant("protected-target", speed = 50, currentHp = 75).copy(substituteHp = 25),
+				),
+			),
+			listOf(BattleAction.UseSkill("stage-user", skillId = 319, targetActorId = "protected-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("sound-status-skill-bypasses-substitute")
+		assertEquals(0, ordinaryBlocked.participant("protected-target")?.statStage(BattleStat.SPECIAL_DEFENSE))
+		assertEquals(25, ordinaryBlocked.participant("protected-target")?.substituteHp)
+		assertEquals(emptyList(), ordinaryBlocked.events.filterIsInstance<BattleEvent.StatStageChanged>())
+		assertEquals(-2, soundBypassed.participant("protected-target")?.statStage(BattleStat.SPECIAL_DEFENSE))
+		assertEquals(25, soundBypassed.participant("protected-target")?.substituteHp)
+		val changed = soundBypassed.events.filterIsInstance<BattleEvent.StatStageChanged>().single()
+		assertEquals("protected-target", changed.targetActorId)
+		assertEquals(BattleStat.SPECIAL_DEFENSE, changed.stat)
+		assertEquals(-2, changed.delta)
+	}
+
 	private fun substituteSkill() =
 		damagingSkill(
 			skillId = 164,
@@ -202,5 +288,22 @@ class BattleSubstituteTests {
 			power = null,
 			affectedByProtect = false,
 			hpEffects = listOf(BattleSkillHpEffect.CreateSubstitute(numerator = 1, denominator = 4)),
+		).copy(remainingPp = 10, maxPp = 10)
+
+	private fun statStageDropSkill(skillId: Long, name: String, soundBased: Boolean) =
+		damagingSkill(
+			skillId = skillId,
+			name = name,
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			soundBased = soundBased,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.SPECIAL_DEFENSE,
+					target = BattleEffectTarget.TARGET,
+					stageDelta = -2,
+					chancePercent = 100,
+				),
+			),
 		).copy(remainingPp = 10, maxPp = 10)
 }

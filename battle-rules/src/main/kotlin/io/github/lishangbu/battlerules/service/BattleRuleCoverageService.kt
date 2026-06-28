@@ -674,13 +674,16 @@ class BattleRuleCoverageService {
 					"substitute-keeps-remaining-hp-after-partial-damage",
 					"substitute-blocks-opponent-major-status",
 					"substitute-blocks-opponent-volatile-status",
+					"sound-damage-skill-bypasses-substitute",
+					"sound-status-skill-bypasses-substitute",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Sound-based_move",
 				),
-				note = "已覆盖支付最大 HP 1/4 建立替身、对手普通伤害先扣替身 HP、替身破裂或保留剩余 HP，以及替身阻止对手主要异常状态和混乱等临时状态。",
+				note = "已覆盖支付最大 HP 1/4 建立替身、对手普通伤害先扣替身 HP、替身破裂或保留剩余 HP、替身阻止对手主要异常状态和混乱等临时状态、普通降能力变化技被替身阻止，以及声音类伤害和声音类变化技穿过替身。",
 			),
 			item(
 				code = "skill.major-status-effects",

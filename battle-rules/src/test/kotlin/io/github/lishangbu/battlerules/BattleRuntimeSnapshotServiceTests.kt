@@ -234,6 +234,7 @@ class BattleRuntimeSnapshotServiceTests(
 		val metalSound = slots.getValue(319)
 			.statStageEffects
 			.single()
+		assertThat(slots.getValue(319).soundBased).isTrue()
 		assertThat(metalSound.stat).isEqualTo(BattleStat.SPECIAL_DEFENSE)
 		assertThat(metalSound.stageDelta).isEqualTo(-2)
 

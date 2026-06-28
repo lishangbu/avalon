@@ -685,7 +685,7 @@ class BattleEngine(
 				criticalHit = criticalHitCheck.hit,
 			),
 		)
-		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId)) {
+		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)) {
 			return resolveDamageAgainstSubstitute(
 				context = context,
 				state = state,
@@ -2083,6 +2083,7 @@ class BattleEngine(
 						status = application.status,
 						random = random,
 						randomReason = "sleep duration for ${skill.skillId}",
+						skill = skill,
 					)
 				}
 			}
@@ -2102,6 +2103,7 @@ class BattleEngine(
 						status = application.status,
 						random = random,
 						randomReason = "confusion duration for ${skill.skillId}",
+						skill = skill,
 					)
 				}
 			}
@@ -2111,6 +2113,9 @@ class BattleEngine(
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
+				if (substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
+					return@fold current
+				}
 				val beforeStage = recipient.statStage(effect.stat)
 				val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
 				val afterStage = updated.statStage(effect.stat)
@@ -3057,11 +3062,12 @@ class BattleEngine(
 		status: BattleMajorStatus,
 		random: BattleRandom,
 		randomReason: String,
+		skill: BattleSkillSlot? = null,
 	): BattleState {
 		val blockedReason = if (recipient.majorStatus != null) {
 			BattleStatusBlockReason.EXISTING_STATUS
 		} else {
-			blockedMajorStatusReason(state, actorId, recipient, status)
+			blockedMajorStatusReason(state, actorId, recipient, status, skill)
 		}
 		if (blockedReason != null) {
 			return state.appendEvent(
@@ -3103,11 +3109,12 @@ class BattleEngine(
 		actorId: String,
 		recipient: BattleParticipant,
 		status: BattleMajorStatus,
+		skill: BattleSkillSlot? = null,
 	): BattleStatusBlockReason? =
 		when {
 			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
-			substituteBlocksOpponentEffect(state, actorId, recipient.actorId) -> BattleStatusBlockReason.SUBSTITUTE
+			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) -> BattleStatusBlockReason.SUBSTITUTE
 			statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
@@ -3157,14 +3164,18 @@ class BattleEngine(
 	/**
 	 * 判断目标替身是否会阻止来自对手的技能伤害或状态效果。
 	 *
-	 * 替身只保护当前有替身的成员免受对手技能影响；使用者对自己施加的效果、同侧辅助效果以及目标没有替身时
-	 * 都不会被这里阻止。穿透替身、声音类穿透、接棒传递等例外后续会以明确技能标签或状态规则扩展。
+	 * 替身只保护当前有替身的成员免受对手非声音类技能影响；使用者对自己施加的效果、同侧辅助效果、声音类技能
+	 * 以及目标没有替身时都不会被这里阻止。接棒传递等例外后续会以明确技能标签或状态规则扩展。
 	 */
 	private fun substituteBlocksOpponentEffect(
 		state: BattleState,
 		actorId: String,
 		targetActorId: String,
+		skill: BattleSkillSlot,
 	): Boolean {
+		if (skill.soundBased) {
+			return false
+		}
 		val target = state.participant(targetActorId) ?: return false
 		if (!target.hasSubstitute()) {
 			return false
@@ -3246,6 +3257,7 @@ class BattleEngine(
 		status: BattleVolatileStatus,
 		random: BattleRandom,
 		randomReason: String,
+		skill: BattleSkillSlot? = null,
 	): BattleState {
 		if (status == BattleVolatileStatus.CONFUSION && recipient.confusionTurnsRemaining > 0) {
 			return state.appendEvent(
@@ -3258,7 +3270,7 @@ class BattleEngine(
 				),
 			)
 		}
-		val blockedReason = blockedVolatileStatusReason(state, actorId, recipient, status)
+		val blockedReason = blockedVolatileStatusReason(state, actorId, recipient, status, skill)
 		if (blockedReason != null) {
 			return state.appendEvent(
 				BattleEvent.VolatileStatusApplicationBlocked(
@@ -3299,10 +3311,11 @@ class BattleEngine(
 		actorId: String,
 		recipient: BattleParticipant,
 		status: BattleVolatileStatus,
+		skill: BattleSkillSlot? = null,
 	): BattleStatusBlockReason? =
 		when {
 			volatileStatusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
-			substituteBlocksOpponentEffect(state, actorId, recipient.actorId) -> BattleStatusBlockReason.SUBSTITUTE
+			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) -> BattleStatusBlockReason.SUBSTITUTE
 			volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
