@@ -3,7 +3,7 @@ package io.github.lishangbu.battleengine.model
 /**
  * 一名参与战斗的成员快照。
  *
- * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽和连续保护计数。
+ * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、连续保护计数和剧毒计数。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -27,6 +27,7 @@ data class BattleParticipant(
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val protectionChain: Int = 0,
+	val badPoisonCounter: Int = 0,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
@@ -46,6 +47,7 @@ data class BattleParticipant(
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
+		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
 	}
 
 	/**
@@ -87,7 +89,14 @@ data class BattleParticipant(
 	 * 第一批不允许覆盖已有主要异常状态；调用方应在事件层决定是否记录失败原因。
 	 */
 	fun applyMajorStatus(status: BattleMajorStatus): BattleParticipant =
-		if (majorStatus == null) copy(majorStatus = status) else this
+		if (majorStatus == null) {
+			copy(
+				majorStatus = status,
+				badPoisonCounter = if (status == BattleMajorStatus.BAD_POISON) 1 else 0,
+			)
+		} else {
+			this
+		}
 
 	/**
 	 * 改变一个能力阶级，并夹取到现代规则允许的 -6..6。
@@ -121,14 +130,28 @@ data class BattleParticipant(
 		if (protectionChain == 0) this else copy(protectionChain = 0)
 
 	/**
+	 * 推进剧毒计数。
+	 *
+	 * 剧毒伤害在每次回合末结算后递增一次。若当前成员不是剧毒状态，则保持原样，避免普通中毒误用计数。
+	 */
+	fun advanceBadPoisonCounter(): BattleParticipant =
+		if (majorStatus == BattleMajorStatus.BAD_POISON) {
+			copy(badPoisonCounter = badPoisonCounter.coerceAtLeast(1) + 1)
+		} else {
+			this
+		}
+
+	/**
 	 * 处理成员离开上场席位时应清除的运行态。
 	 *
 	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
-	 * 后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失的状态也应在这里统一清理。
+	 * 剧毒状态会保留，但剧毒递增计数回到 1。后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失
+	 * 的状态也应在这里统一清理。
 	 */
 	fun leaveBattlefield(): BattleParticipant =
 		copy(
 			statStages = emptyMap(),
 			protectionChain = 0,
+			badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
 		)
 }

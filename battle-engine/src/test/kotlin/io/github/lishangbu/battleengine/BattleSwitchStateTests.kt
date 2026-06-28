@@ -19,11 +19,12 @@ class BattleSwitchStateTests {
 	private val engine = BattleEngine()
 
 	@Test
-	fun `switching out clears stat stages and protection chain but keeps major status`() {
+	fun `switching out clears volatile counters but keeps major status`() {
 		val starter = participant("starter", speed = 100).copy(
-			majorStatus = BattleMajorStatus.BURN,
+			majorStatus = BattleMajorStatus.BAD_POISON,
 			statStages = mapOf(BattleStat.ATTACK to 2, BattleStat.SPEED to -1),
 			protectionChain = 1,
+			badPoisonCounter = 4,
 		)
 		val state = engine.start(
 			initialState(
@@ -40,10 +41,11 @@ class BattleSwitchStateTests {
 		)
 
 		val switchedOut = resolved.participant("starter")
-		assertEquals(BattleMajorStatus.BURN, switchedOut?.majorStatus)
+		assertEquals(BattleMajorStatus.BAD_POISON, switchedOut?.majorStatus)
 		assertEquals(0, switchedOut?.statStage(BattleStat.ATTACK))
 		assertEquals(0, switchedOut?.statStage(BattleStat.SPEED))
 		assertEquals(0, switchedOut?.protectionChain)
+		assertEquals(1, switchedOut?.badPoisonCounter)
 		assertEquals(35, switchedOut?.skillSlot(1)?.remainingPp)
 	}
 }

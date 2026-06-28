@@ -551,12 +551,12 @@ class BattleEngine(
 	/**
 	 * 结算回合末主要异常状态伤害。
 	 *
-	 * 当前实现覆盖灼伤、中毒和剧毒的固定扣血入口。剧毒的逐回合递增计数尚未建模，因此暂按普通中毒比例处理；
-	 * 后续会把持续状态计数加入成员运行态，并用公开 fixture 验证递增伤害。
+	 * 当前实现覆盖灼伤、中毒和剧毒扣血。剧毒按成员运行态中的递增计数计算，并在成员存活时推进计数；
+	 * 后续接入替身、魔法防守、治愈类效果时，会在这里之前追加状态伤害 modifier。
 	 */
 	private fun applyEndTurnEffects(state: BattleState): BattleState {
 		val afterResidual = state.sides
-			.flatMap { it.participants }
+			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				if (!latest.canBattle()) {
@@ -564,8 +564,13 @@ class BattleEngine(
 				} else {
 					val residualDamage = residualDamage(latest) ?: return@fold current
 					val damaged = latest.receiveDamage(residualDamage)
+					val afterStatusCounter = if (damaged.canBattle()) {
+						damaged.advanceBadPoisonCounter()
+					} else {
+						damaged
+					}
 					current
-						.replaceParticipant(damaged)
+						.replaceParticipant(afterStatusCounter)
 						.appendEvent(
 							BattleEvent.ResidualDamageApplied(
 								turnNumber = current.turnNumber,
@@ -574,7 +579,7 @@ class BattleEngine(
 								amount = residualDamage,
 							),
 						)
-						.handleFaintAndResult(damaged)
+						.handleFaintAndResult(afterStatusCounter)
 				}
 			}
 		return if (afterResidual.result != null) {
@@ -620,11 +625,11 @@ class BattleEngine(
 	/**
 	 * 处理回合末携带道具回复。
 	 *
-	 * 第一批只实现固定最大 HP 比例回复，不处理道具消耗、回复封锁或复杂场地顺序。
+	 * 第一批只实现当前上场成员的固定最大 HP 比例回复，不处理道具消耗、回复封锁或复杂场地顺序。
 	 */
 	private fun applyEndTurnHealing(state: BattleState): BattleState =
 		state.sides
-			.flatMap { it.participants }
+			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
@@ -660,7 +665,8 @@ class BattleEngine(
 		when (participant.majorStatus) {
 			BattleMajorStatus.BURN -> (participant.maxHp / 16).coerceAtLeast(1)
 			BattleMajorStatus.POISON,
-			BattleMajorStatus.BAD_POISON -> (participant.maxHp / 8).coerceAtLeast(1)
+			BattleMajorStatus.BAD_POISON -> (participant.maxHp * participant.badPoisonCounter.coerceAtLeast(1) / 16)
+				.coerceAtLeast(1)
 			else -> null
 		}
 
