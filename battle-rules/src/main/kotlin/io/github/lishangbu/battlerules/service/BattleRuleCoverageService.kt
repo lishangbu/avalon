@@ -85,6 +85,15 @@ class BattleRuleCoverageService {
 				note = "主动替换先于普通技能结算，单体技能会命中同一槽位的新上场成员。",
 			),
 			item(
+				code = "format.max-turn-limit",
+				name = "格式回合上限裁定",
+				category = "格式裁定",
+				status = IMPLEMENTED,
+				fixtures = listOf("max-turn-limit-ends-battle-as-draw-after-end-turn-effects"),
+				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Battle#Turn"),
+				note = "格式声明最大回合数时，引擎在完整回合末检查上限；没有其它胜负结果时以无胜方平局结束。",
+			),
+			item(
 				code = "turn.protection",
 				name = "保护和连续保护成功率",
 				category = "回合流程",
