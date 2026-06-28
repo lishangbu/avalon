@@ -2,8 +2,10 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -92,5 +94,66 @@ class BattleSkillHpEffectTests {
 		assertEquals("heal-user", healing.actorId)
 		assertEquals(1, healing.skillId)
 		assertEquals(50, healing.amount)
+	}
+
+	@Test
+	fun `weather sensitive self healing skill uses current weather fraction`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-sensitive-self-healing-skill-uses-current-weather-fraction",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Synthesis_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Moonlight_(move)",
+			),
+			inputSummary = "使用者分别在晴天和下雨环境中使用天气变量自我回复技能。",
+			expectedSummary = "晴天回复最大 HP 的 2/3；下雨回复最大 HP 的 1/4。",
+		)
+		val skill = damagingSkill(
+			name = "天气回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(
+				BattleSkillHpEffect.SelfHealMaxHpByWeather(
+					defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+					weatherFractions = mapOf(
+						BattleWeather.SUN to BattleSkillHpEffect.HpFraction(2, 3),
+						BattleWeather.RAIN to BattleSkillHpEffect.HpFraction(1, 4),
+						BattleWeather.SANDSTORM to BattleSkillHpEffect.HpFraction(1, 4),
+						BattleWeather.SNOW to BattleSkillHpEffect.HpFraction(1, 4),
+					),
+				),
+			),
+		)
+		val sunState = engine.start(
+			initialState(
+				first = participant("sun-healer", speed = 100, currentHp = 20, skill = skill),
+				second = participant("sun-observer", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.SUN),
+			),
+		)
+		val rainState = engine.start(
+			initialState(
+				first = participant("rain-healer", speed = 100, currentHp = 20, skill = skill),
+				second = participant("rain-observer", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.RAIN),
+			),
+		)
+
+		val sunResolved = engine.resolveTurn(
+			sunState,
+			listOf(BattleAction.UseSkill("sun-healer", skillId = 1, targetActorId = "sun-healer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val rainResolved = engine.resolveTurn(
+			rainState,
+			listOf(BattleAction.UseSkill("rain-healer", skillId = 1, targetActorId = "rain-healer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("weather-sensitive-self-healing-skill-uses-current-weather-fraction")
+		assertEquals(86, sunResolved.participant("sun-healer")?.currentHp)
+		assertEquals(66, sunResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
+		assertEquals(45, rainResolved.participant("rain-healer")?.currentHp)
+		assertEquals(25, rainResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
 	}
 }

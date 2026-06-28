@@ -666,30 +666,61 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState =
 		skill.hpEffects
-			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpFraction>()
 			.fold(state) { current, effect ->
-				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
-					current
-				} else {
-					val healAmount = fractionAmount(actor.maxHp, effect.numerator, effect.denominator)
-						.coerceAtMost(actor.maxHp - actor.currentHp)
-					if (healAmount <= 0) {
-						current
-					} else {
-						current
-							.replaceParticipant(actor.heal(healAmount))
-							.appendEvent(
-								BattleEvent.SkillHealingApplied(
-									turnNumber = current.turnNumber,
-									actorId = actor.actorId,
-									skillId = skill.skillId,
-									amount = healAmount,
-								),
-							)
+				when (effect) {
+					is BattleSkillHpEffect.SelfHealMaxHpFraction -> applySelfHealMaxHpFraction(
+						state = current,
+						actorId = actorId,
+						skill = skill,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
+					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> {
+						val fraction = effect.weatherFractions[current.environment.weather] ?: effect.defaultFraction
+						applySelfHealMaxHpFraction(
+							state = current,
+							actorId = actorId,
+							skill = skill,
+							numerator = fraction.numerator,
+							denominator = fraction.denominator,
+						)
 					}
+					is BattleSkillHpEffect.DrainDamage -> current
 				}
 			}
+
+	/**
+	 * 按最大 HP 比例回复使用者。
+	 *
+	 * 固定回复和天气变量回复最终都汇入这里，确保满 HP 跳过、缺失 HP 夹取和事件写入规则完全一致。
+	 */
+	private fun applySelfHealMaxHpFraction(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
+			return state
+		}
+		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
+			.coerceAtMost(actor.maxHp - actor.currentHp)
+		if (healAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.heal(healAmount))
+			.appendEvent(
+				BattleEvent.SkillHealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = healAmount,
+				),
+			)
+	}
 
 	/**
 	 * 计算比例型 HP 变化的基础数值。

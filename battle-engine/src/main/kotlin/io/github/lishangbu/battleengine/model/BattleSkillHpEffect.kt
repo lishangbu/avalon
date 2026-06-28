@@ -7,11 +7,29 @@ package io.github.lishangbu.battleengine.model
  * 第一批只覆盖现代主系列中最稳定、最常见的两类 HP 效果：
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例回复。
  * - 变化技能成功后，使用者按自身最大 HP 的一定比例回复。
+ * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
  *
- * 天气可变回复、吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或环境依赖的规则，会以新的
- * 明确效果继续扩展，而不是把条件藏进自由文本。
+ * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
+ * 而不是把条件藏进自由文本。
  */
 sealed interface BattleSkillHpEffect {
+	/**
+	 * HP 比例值。
+	 *
+	 * 作为独立值对象而不是两个散落的数字使用，方便天气变量回复这类规则用 `Map<BattleWeather, HpFraction>`
+	 * 精确表达“在某个天气下改用另一个比例”。比例必须是正数且不超过 1，避免资料层把扣血或超量回复误塞进这里。
+	 */
+	data class HpFraction(
+		val numerator: Int,
+		val denominator: Int,
+	) {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
+
 	/**
 	 * 造成伤害后按实际伤害比例回复使用者。
 	 *
@@ -32,8 +50,7 @@ sealed interface BattleSkillHpEffect {
 	/**
 	 * 技能成功后按使用者最大 HP 比例回复。
 	 *
-	 * 该效果用于表达自我再生、生蛋、羽栖等固定 1/2 最大 HP 回复的稳定规则。天气影响回复量的技能不复用该
-	 * 效果，避免把天气分支硬塞进一个看似简单的固定比例模型里。
+	 * 该效果用于表达自我再生、生蛋、羽栖等固定 1/2 最大 HP 回复的稳定规则。
 	 */
 	data class SelfHealMaxHpFraction(
 		val numerator: Int,
@@ -43,6 +60,23 @@ sealed interface BattleSkillHpEffect {
 			require(numerator > 0) { "numerator must be positive" }
 			require(denominator > 0) { "denominator must be positive" }
 			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
+
+	/**
+	 * 技能成功后按当前天气选择最大 HP 回复比例。
+	 *
+	 * 该效果用于表达晨光、光合作用、月光这类现代规则：无相关天气时使用默认比例，晴天等强化天气下改用更高比例，
+	 * 雨天、沙暴、雪天等削弱天气下改用更低比例。天气持续、强天气和封锁回复不在这里处理；该对象只负责把
+	 * “当前天气 -> 回复比例”变成可复盘的规则快照。
+	 */
+	data class SelfHealMaxHpByWeather(
+		val defaultFraction: HpFraction,
+		val weatherFractions: Map<BattleWeather, HpFraction>,
+	) : BattleSkillHpEffect {
+		init {
+			require(weatherFractions.isNotEmpty()) { "weatherFractions must not be empty" }
+			require(BattleWeather.NONE !in weatherFractions.keys) { "weather-specific healing cannot target NONE" }
 		}
 	}
 }

@@ -839,6 +839,17 @@ class BattleRuntimeSnapshotService(
 					denominator = 2,
 				),
 			)
+			"weather-self-heal-max-hp" -> listOf(
+				BattleSkillHpEffect.SelfHealMaxHpByWeather(
+					defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+					weatherFractions = mapOf(
+						BattleWeather.SUN to BattleSkillHpEffect.HpFraction(2, 3),
+						BattleWeather.RAIN to BattleSkillHpEffect.HpFraction(1, 4),
+						BattleWeather.SANDSTORM to BattleSkillHpEffect.HpFraction(1, 4),
+						BattleWeather.SNOW to BattleSkillHpEffect.HpFraction(1, 4),
+					),
+				),
+			)
 			else -> emptyList()
 		}
 

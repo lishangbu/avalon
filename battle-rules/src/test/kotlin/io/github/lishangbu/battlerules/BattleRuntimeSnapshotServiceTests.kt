@@ -87,7 +87,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 311, 366, 390, 433, 446, 564, 694),
+			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 311, 366, 390, 433, 446, 564, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -139,6 +139,17 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(recover.numerator).isEqualTo(1)
 		assertThat(recover.denominator).isEqualTo(2)
+
+		val weatherHealing = slots.getValue(235)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpByWeather>()
+			.single()
+		assertThat(weatherHealing.defaultFraction.numerator).isEqualTo(1)
+		assertThat(weatherHealing.defaultFraction.denominator).isEqualTo(2)
+		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.SUN).numerator).isEqualTo(2)
+		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.SUN).denominator).isEqualTo(3)
+		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).numerator).isEqualTo(1)
+		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).denominator).isEqualTo(4)
 
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
