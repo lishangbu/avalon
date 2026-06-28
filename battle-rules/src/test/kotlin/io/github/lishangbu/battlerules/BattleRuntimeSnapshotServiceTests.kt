@@ -217,6 +217,11 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.switchInTerrainByAbilityId(228)).isEqualTo(BattleTerrain.MISTY)
 		assertThat(service.switchInTerrainByAbilityId(229)).isEqualTo(BattleTerrain.GRASSY)
 
+		assertThat(service.weatherSpeedByAbilityId(33)).isEqualTo(BattleWeather.RAIN to 2.0)
+		assertThat(service.weatherSpeedByAbilityId(34)).isEqualTo(BattleWeather.SUN to 2.0)
+		assertThat(service.weatherSpeedByAbilityId(146)).isEqualTo(BattleWeather.SANDSTORM to 2.0)
+		assertThat(service.weatherSpeedByAbilityId(202)).isEqualTo(BattleWeather.SNOW to 2.0)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -298,6 +303,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.SwitchInTerrainChange>()
 			.single()
 			.terrain
+
+	private fun BattleRuntimeSnapshotService.weatherSpeedByAbilityId(abilityId: Long): Pair<BattleWeather, Double> =
+		abilityEffectsByAbilityId(abilityId)
+			.filterIsInstance<BattleAbilityEffect.WeatherSpeedMultiplier>()
+			.single()
+			.let { it.weather to it.multiplier }
 
 	private fun participant(
 		actorId: String,

@@ -296,7 +296,7 @@ class BattleRuleCoverageService {
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Weather",
 				),
-				note = "已覆盖晴雨火水伤害倍率、天气威力和命中例外、沙暴岩属性特防、雪景冰属性物防、沙暴固定伤害、天气速度特性和天气伤害免疫。",
+				note = "已覆盖晴雨火水伤害倍率、天气威力和命中例外、沙暴岩属性特防、雪景冰属性物防、沙暴固定伤害、天气速度特性和天气伤害免疫；天气速度特性的规则资料种子已接入运行时快照。",
 			),
 			item(
 				code = "status.freeze",
