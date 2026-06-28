@@ -101,6 +101,24 @@ class BattleActionValidatorTests {
 	}
 
 	@Test
+	fun `allows forced switch for fainted active participant`() {
+		val state = engine.start(
+			initialState(
+				first = participant("fainted-active", speed = 100, currentHp = 0),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("opponent", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.SwitchParticipant("fainted-active", targetActorId = "reserve")),
+		)
+
+		assertEquals(emptyList(), violations)
+	}
+
+	@Test
 	fun `reports battle ended and require valid throws`() {
 		val state = engine.start(
 			initialState(

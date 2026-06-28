@@ -66,8 +66,10 @@ class BattleActionValidator {
 			return violations
 		}
 		if (!actor.canBattle()) {
-			violations += violation("actor-fainted", actor.actorId, message = "行动成员已经无法战斗: ${actor.actorId}")
-			return violations
+			if (action is BattleAction.SwitchParticipant) {
+				return violations + validateSwitch(state, action, actor)
+			}
+			return violations + violation("actor-fainted", actor.actorId, message = "行动成员已经无法战斗: ${actor.actorId}")
 		}
 
 		when (action) {
