@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: 008-battle-skill-runtime-seed-corrections
+    author: backend
+    comment: 修正早期技能规则种子数据在运行时字段上的具体含义。
+    changes:
+    - update:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: protects_user
+            valueBoolean: true
+        where: skill_id = 182
+    - update:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: min_hits
+            valueNumeric: 2
+        - column:
+            name: max_hits
+            valueNumeric: 5
+        where: skill_id = 331

@@ -52,6 +52,9 @@ class LiquibaseMigrationTests(
 			"003-battle-effect-rules-schema.yaml",
 			"004-battle-rule-coverage-menu.yaml",
 			"005-normalize-flinch-status-kind.yaml",
+			"006-battle-skill-rule-runtime-fields.yaml",
+			"007-battle-skill-weather-modifiers.yaml",
+			"008-battle-skill-runtime-seed-corrections.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -431,6 +434,8 @@ class LiquibaseMigrationTests(
 			"battle_skill_rule",
 			"battle_skill_status_effect",
 			"battle_skill_stat_stage_effect",
+			"battle_skill_weather_accuracy_override",
+			"battle_skill_weather_power_modifier",
 			"battle_ability_rule",
 			"battle_item_rule",
 		)
@@ -450,6 +455,8 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_rule', count(*) from battle_skill_rule
 			union all select 'battle_skill_status_effect', count(*) from battle_skill_status_effect
 			union all select 'battle_skill_stat_stage_effect', count(*) from battle_skill_stat_stage_effect
+			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
+			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
 			order by table_name
@@ -467,9 +474,11 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 8L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
+		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
+		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -498,6 +507,29 @@ class LiquibaseMigrationTests(
 			"standard-damage-with-status",
 			"standard-damage-with-status",
 			"protect-self",
+		)
+
+		val runtimeCorrections = queryMaps(
+			"""
+			select skill_id, min_hits, max_hits, protects_user
+			from battle_skill_rule
+			where skill_id in (182, 331)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(runtimeCorrections).containsExactly(
+			mapOf(
+				"skill_id" to 182L,
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"protects_user" to true,
+			),
+			mapOf(
+				"skill_id" to 331L,
+				"min_hits" to 2,
+				"max_hits" to 5,
+				"protects_user" to false,
+			),
 		)
 	}
 
