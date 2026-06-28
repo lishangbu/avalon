@@ -236,10 +236,11 @@ class BattleRuleCoverageService {
 					"element-immunities-block-major-statuses",
 					"electric-terrain-does-not-block-sleep-for-ungrounded-target",
 					"misty-terrain-blocks-major-status-for-grounded-target",
+					"grass-target-blocks-powder-based-status-skill",
 					"grassy-terrain-heals-only-grounded-active-participants",
 				),
 				references = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts"),
-				note = "已覆盖主要状态的基础属性免疫、接地场地状态免疫和青草场地接地回复；特性、道具、临时状态免疫和粉末类免疫仍需补齐。",
+				note = "已覆盖主要状态的基础属性免疫、粉末类技能草属性免疫、接地场地状态免疫和青草场地接地回复；特性、道具和临时状态免疫仍需补齐。",
 			),
 			item(
 				code = "turn.multi-hit-and-locked-move",
