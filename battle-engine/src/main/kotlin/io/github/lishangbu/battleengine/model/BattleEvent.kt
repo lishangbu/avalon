@@ -289,6 +289,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 目标试图获得临时状态，但被规则条件阻止。
+	 *
+	 * 当前用于薄雾场地阻止混乱，以及特性/道具提供的临时状态免疫。与主要异常状态一样，阻止事件表示
+	 * 状态没有写入成员运行态，也不会消费该临时状态的私有持续时间随机数。
+	 */
+	data class VolatileStatusApplicationBlocked(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val status: BattleVolatileStatus,
+		val reason: BattleStatusBlockReason,
+	) : BattleEvent
+
+	/**
 	 * 成员已有的临时状态被清除。
 	 *
 	 * 第一批主要用于混乱行动前计数归零。畏缩在回合末静默消失，不额外产生解除事件。

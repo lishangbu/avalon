@@ -1271,7 +1271,8 @@ class BattleEngine(
 	 * 判断主要异常状态是否会在附加前被稳定免疫规则阻止。
 	 *
 	 * 顺序选择先属性、后场地：如果目标自身属性已经免疫该状态，就不再把阻止原因归给场地，便于 fixture
-	 * 明确定位是个体免疫还是全场效果。特性、道具和技能护盾等更细的免疫来源会以新的 reason 扩展。
+	 * 明确定位是个体免疫还是全场效果。特性和道具作为资料驱动的稳定免疫排在场地之后，避免它们遮蔽
+	 * 场地这类全场公开状态。
 	 */
 	private fun blockedMajorStatusReason(
 		state: BattleState,
@@ -1281,6 +1282,8 @@ class BattleEngine(
 		when {
 			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
+			statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
 		}
 
@@ -1326,6 +1329,22 @@ class BattleEngine(
 	}
 
 	/**
+	 * 判断目标特性是否稳定免疫指定主要异常状态。
+	 */
+	private fun statusBlockedByAbility(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
+		recipient.abilityEffects.any { effect ->
+			effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses
+		}
+
+	/**
+	 * 判断目标携带道具是否稳定免疫指定主要异常状态。
+	 */
+	private fun statusBlockedByItem(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
+		recipient.itemEffects.any { effect ->
+			effect is BattleItemEffect.MajorStatusImmunity && status in effect.statuses
+		}
+
+	/**
 	 * 判断成员是否具有指定属性。
 	 */
 	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
@@ -1341,7 +1360,8 @@ class BattleEngine(
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数。
-	 * 若目标已经处于同一种混乱状态，成员快照不会变化，事件也不会重复追加。
+	 * 若目标已经处于同一种混乱状态，成员快照不会变化，事件也不会重复追加。场地、特性或道具免疫会在
+	 * 消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
 	 */
 	private fun applyVolatileStatusEffect(
 		state: BattleState,
@@ -1353,6 +1373,18 @@ class BattleEngine(
 	): BattleState {
 		if (status == BattleVolatileStatus.CONFUSION && recipient.confusionTurnsRemaining > 0) {
 			return state
+		}
+		val blockedReason = blockedVolatileStatusReason(state, recipient, status)
+		if (blockedReason != null) {
+			return state.appendEvent(
+				BattleEvent.VolatileStatusApplicationBlocked(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+					reason = blockedReason,
+				),
+			)
 		}
 		val confusionTurnsRemaining = if (status == BattleVolatileStatus.CONFUSION) {
 			random.nextInt(4, randomReason) + 2
@@ -1370,6 +1402,53 @@ class BattleEngine(
 				),
 			)
 	}
+
+	/**
+	 * 判断临时状态是否会在附加前被稳定免疫规则阻止。
+	 *
+	 * 当前只有混乱具备明确的持续计数和公开免疫来源：薄雾场地会保护接地成员免受混乱影响，部分特性/道具也能
+	 * 提供混乱免疫。畏缩暂不受场地阻止；后续接入精神力等畏缩免疫时会通过同一结构化效果表达。
+	 */
+	private fun blockedVolatileStatusReason(
+		state: BattleState,
+		recipient: BattleParticipant,
+		status: BattleVolatileStatus,
+	): BattleStatusBlockReason? =
+		when {
+			volatileStatusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
+			volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
+			else -> null
+		}
+
+	/**
+	 * 判断当前场地是否阻止目标获得临时状态。
+	 */
+	private fun volatileStatusBlockedByTerrain(
+		state: BattleState,
+		recipient: BattleParticipant,
+		status: BattleVolatileStatus,
+	): Boolean =
+		state.isActive(recipient.actorId) &&
+			recipient.grounded &&
+			state.environment.terrain == BattleTerrain.MISTY &&
+			status == BattleVolatileStatus.CONFUSION
+
+	/**
+	 * 判断目标特性是否稳定免疫指定临时状态。
+	 */
+	private fun volatileStatusBlockedByAbility(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
+		recipient.abilityEffects.any { effect ->
+			effect is BattleAbilityEffect.VolatileStatusImmunity && status in effect.statuses
+		}
+
+	/**
+	 * 判断目标携带道具是否稳定免疫指定临时状态。
+	 */
+	private fun volatileStatusBlockedByItem(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
+		recipient.itemEffects.any { effect ->
+			effect is BattleItemEffect.VolatileStatusImmunity && status in effect.statuses
+		}
 
 	/**
 	 * 处理目标方“受到接触技能后影响攻击方”的特性效果。

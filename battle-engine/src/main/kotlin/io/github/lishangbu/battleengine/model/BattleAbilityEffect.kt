@@ -3,12 +3,39 @@ package io.github.lishangbu.battleengine.model
 /**
  * 特性在战斗中的可执行效果。
  *
- * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批只实现两个高价值 hook：
- * 低体力时强化指定属性伤害，以及受到接触类技能后有概率给攻击方附加主要异常状态。
+ * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
+ * 低体力时强化指定属性伤害、受到接触类技能后有概率给攻击方附加主要异常状态，以及稳定状态免疫。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
 sealed interface BattleAbilityEffect {
+	/**
+	 * 免疫一组主要异常状态。
+	 *
+	 * 用于表达免疫中毒、免疫灼伤、免疫睡眠等稳定特性。具体特性名不进入引擎，避免把本地化文本或资料库名称
+	 * 混进规则状态机；资料层负责把特性翻译成这类结构化效果。
+	 */
+	data class MajorStatusImmunity(
+		val statuses: Set<BattleMajorStatus>,
+	) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/**
+	 * 免疫一组临时状态。
+	 *
+	 * 当前主要用于表达混乱免疫；畏缩免疫、着迷免疫等后续临时状态增加后也可以复用同一结构。
+	 */
+	data class VolatileStatusImmunity(
+		val statuses: Set<BattleVolatileStatus>,
+	) : BattleAbilityEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
 	data class LowHpElementDamageBoost(
 		val elementId: Long,
 		val hpThresholdNumerator: Int = 1,

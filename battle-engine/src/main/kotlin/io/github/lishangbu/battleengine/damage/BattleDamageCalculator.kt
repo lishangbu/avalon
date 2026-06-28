@@ -211,6 +211,8 @@ class BattleDamageCalculator(
 					}
 				}
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
+				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
+				is BattleAbilityEffect.VolatileStatusImmunity -> multiplier
 			}
 		}
 
@@ -224,6 +226,8 @@ class BattleDamageCalculator(
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
+				is BattleItemEffect.MajorStatusImmunity -> multiplier
+				is BattleItemEffect.VolatileStatusImmunity -> multiplier
 			}
 		}
 

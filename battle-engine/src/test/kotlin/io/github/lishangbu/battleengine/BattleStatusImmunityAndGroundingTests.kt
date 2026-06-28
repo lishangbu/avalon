@@ -1,14 +1,19 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
+import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -179,6 +184,130 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `ability and item immunities block matching major statuses before private random`() {
+		val fixture = publicBattleRuleFixture(
+			name = "ability-and-item-immunities-block-matching-major-statuses",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+			),
+			inputSummary = "目标分别通过特性免疫中毒、通过携带道具免疫睡眠。",
+			expectedSummary = "状态不会写入，事件流分别记录特性和道具作为阻止原因，且睡眠持续随机数不会被消费。",
+		)
+		val cases = listOf(
+			StatusEffectImmunityCase(
+				actorId = "ability-immune-target",
+				status = BattleMajorStatus.POISON,
+				target = participant("ability-immune-target", speed = 50).copy(
+					abilityEffects = listOf(
+						BattleAbilityEffect.MajorStatusImmunity(setOf(BattleMajorStatus.POISON)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ABILITY,
+			),
+			StatusEffectImmunityCase(
+				actorId = "item-immune-target",
+				status = BattleMajorStatus.SLEEP,
+				target = participant("item-immune-target", speed = 50).copy(
+					itemEffects = listOf(
+						BattleItemEffect.MajorStatusImmunity(setOf(BattleMajorStatus.SLEEP)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ITEM,
+			),
+		)
+
+		fixture.assertNamed("ability-and-item-immunities-block-matching-major-statuses")
+		cases.forEach { case ->
+			val random = ScriptedBattleRandom(emptyList())
+			val state = engine.start(
+				initialState(
+					first = participant("status-user-${case.actorId}", speed = 100, skill = statusSkill(case.status)),
+					second = case.target,
+				),
+			)
+
+			val resolved = engine.resolveTurn(
+				state,
+				listOf(BattleAction.UseSkill("status-user-${case.actorId}", skillId = 1, targetActorId = case.actorId)),
+				random,
+			)
+
+			assertEquals(emptyList(), random.consumedReasons())
+			assertEquals(null, resolved.participant(case.actorId)?.majorStatus)
+			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplied>())
+			val blocked = resolved.events.filterIsInstance<BattleEvent.StatusApplicationBlocked>().single()
+			assertEquals(case.status, blocked.status)
+			assertEquals(case.expectedReason, blocked.reason)
+		}
+	}
+
+	@Test
+	fun `terrain ability and item immunities block confusion before duration random`() {
+		val fixture = publicBattleRuleFixture(
+			name = "terrain-ability-and-item-immunities-block-confusion-before-duration-random",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+			),
+			inputSummary = "目标分别因薄雾场地、特性和携带道具免疫混乱。",
+			expectedSummary = "混乱不会写入，事件流记录对应阻止原因，且混乱持续时间随机数不会被消费。",
+		)
+		val cases = listOf(
+			VolatileEffectImmunityCase(
+				actorId = "misty-target",
+				target = participant("misty-target", speed = 50),
+				environment = BattleEnvironment(terrain = BattleTerrain.MISTY),
+				expectedReason = BattleStatusBlockReason.TERRAIN,
+			),
+			VolatileEffectImmunityCase(
+				actorId = "ability-confusion-immune-target",
+				target = participant("ability-confusion-immune-target", speed = 50).copy(
+					abilityEffects = listOf(
+						BattleAbilityEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.CONFUSION)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ABILITY,
+			),
+			VolatileEffectImmunityCase(
+				actorId = "item-confusion-immune-target",
+				target = participant("item-confusion-immune-target", speed = 50).copy(
+					itemEffects = listOf(
+						BattleItemEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.CONFUSION)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ITEM,
+			),
+		)
+
+		fixture.assertNamed("terrain-ability-and-item-immunities-block-confusion-before-duration-random")
+		cases.forEach { case ->
+			val random = ScriptedBattleRandom(emptyList())
+			val state = engine.start(
+				initialState(
+					first = participant("confusion-user-${case.actorId}", speed = 100, skill = confusionSkill()),
+					second = case.target,
+					environment = case.environment,
+				),
+			)
+
+			val resolved = engine.resolveTurn(
+				state,
+				listOf(BattleAction.UseSkill("confusion-user-${case.actorId}", skillId = 1, targetActorId = case.actorId)),
+				random,
+			)
+
+			assertEquals(emptyList(), random.consumedReasons())
+			assertEquals(0, resolved.participant(case.actorId)?.confusionTurnsRemaining)
+			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>())
+			val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
+			assertEquals(BattleVolatileStatus.CONFUSION, blocked.status)
+			assertEquals(case.expectedReason, blocked.reason)
+		}
+	}
+
+	@Test
 	fun `grassy terrain heals only grounded active participants`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-heals-only-grounded-active-participants",
@@ -221,10 +350,36 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 		)
 
+	private fun confusionSkill() =
+		damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			volatileStatusApplications = listOf(
+				BattleVolatileStatusApplication(
+					status = BattleVolatileStatus.CONFUSION,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+
 	private data class StatusImmunityCase(
 		val actorId: String,
 		val status: BattleMajorStatus,
 		val elementId: Long,
+	)
+
+	private data class StatusEffectImmunityCase(
+		val actorId: String,
+		val status: BattleMajorStatus,
+		val target: BattleParticipant,
+		val expectedReason: BattleStatusBlockReason,
+	)
+
+	private data class VolatileEffectImmunityCase(
+		val actorId: String,
+		val target: BattleParticipant,
+		val environment: BattleEnvironment = BattleEnvironment(),
+		val expectedReason: BattleStatusBlockReason,
 	)
 
 	private companion object {
