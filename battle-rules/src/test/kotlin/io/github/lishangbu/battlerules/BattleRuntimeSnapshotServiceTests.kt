@@ -1,6 +1,9 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battleengine.model.BattleMode
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
@@ -68,6 +71,40 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(exception.status).isEqualTo(HttpStatus.NOT_FOUND)
 		assertThat(exception.code).isEqualTo(ApiErrorCode.RESOURCE_NOT_FOUND)
 		assertThat(exception.field).isEqualTo("formatCode")
+	}
+
+	@Test
+	fun `skill slot assembly includes explicit battle rule effects`() {
+		val slots = service.skillSlotsBySkillIds(listOf(76, 85, 87, 94, 311)).associateBy { it.skillId }
+
+		val solarBeam = slots.getValue(76)
+		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(0.5)
+		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SANDSTORM]).isEqualTo(0.5)
+		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SNOW]).isEqualTo(0.5)
+
+		val thunderShock = slots.getValue(85)
+		assertThat(thunderShock.statusApplications)
+			.anySatisfy {
+				assertThat(it.status).isEqualTo(BattleMajorStatus.PARALYSIS)
+				assertThat(it.chancePercent).isEqualTo(10)
+			}
+
+		val thunder = slots.getValue(87)
+		assertThat(thunder.accuracyOverridesByWeather).containsKey(BattleWeather.RAIN)
+		assertThat(thunder.accuracyOverridesByWeather[BattleWeather.RAIN]).isNull()
+		assertThat(thunder.accuracyOverridesByWeather[BattleWeather.SUN]).isEqualTo(50)
+
+		val psychic = slots.getValue(94)
+		assertThat(psychic.statStageEffects)
+			.anySatisfy {
+				assertThat(it.stat).isEqualTo(BattleStat.SPECIAL_DEFENSE)
+				assertThat(it.stageDelta).isEqualTo(-1)
+				assertThat(it.chancePercent).isEqualTo(10)
+			}
+
+		val weatherBall = slots.getValue(311)
+		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
+		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(2.0)
 	}
 
 	@Test
