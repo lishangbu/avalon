@@ -1069,7 +1069,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle()) {
+		if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
 			return state
 		}
 		val recoilAmount = roundedHalfUpFractionAmount(damageAmount, numerator, denominator)
@@ -2550,7 +2550,7 @@ class BattleEngine(
 		amount: Int,
 		effectiveness: Double,
 	): BattleState {
-		if (amount <= 0) {
+		if (amount <= 0 || participant.hasIndirectDamageImmunity()) {
 			return state
 		}
 		val damaged = participant.receiveDamage(amount)
@@ -2644,6 +2644,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.ElementSkillAbsorbHeal,
 			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+			is BattleAbilityEffect.IndirectDamageImmunity,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3006,16 +3007,19 @@ class BattleEngine(
 		}
 		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
 		val damage = confusionSelfDamage(decremented, randomPercent)
+		val blockedState = afterDecrement.appendEvent(
+			BattleEvent.SkillPreventedByVolatileStatus(
+				turnNumber = context.state.turnNumber,
+				actorId = actor.actorId,
+				status = BattleVolatileStatus.CONFUSION,
+			),
+		)
+		if (decremented.hasIndirectDamageImmunity()) {
+			return BeforeMoveResult(context = context.copy(state = blockedState), blocked = true)
+		}
 		val damaged = decremented.receiveDamage(damage)
-		val afterDamage = afterDecrement
+		val afterDamage = blockedState
 			.replaceParticipant(damaged)
-			.appendEvent(
-				BattleEvent.SkillPreventedByVolatileStatus(
-					turnNumber = context.state.turnNumber,
-					actorId = actor.actorId,
-					status = BattleVolatileStatus.CONFUSION,
-				),
-			)
 			.appendEvent(
 				BattleEvent.ConfusionDamageApplied(
 					turnNumber = context.state.turnNumber,
@@ -3208,13 +3212,24 @@ class BattleEngine(
 		elementId != null && elementId in elementIds
 
 	/**
+	 * 判断成员是否免疫非技能直接伤害。
+	 *
+	 * 该入口只读取结构化特性效果，不判断具体特性名称。调用方负责保证传入的伤害来源确实不是普通技能直接命中；
+	 * 因此普通 [BattleEvent.DamageApplied] 不会经过这里，而异常状态回合末伤害、天气伤害、入场陷阱、混乱自伤、
+	 * 技能反作用伤害和携带道具反伤等都会在写入 HP 前调用它。
+	 */
+	private fun BattleParticipant.hasIndirectDamageImmunity(): Boolean =
+		abilityEffects.any { it is BattleAbilityEffect.IndirectDamageImmunity }
+
+	/**
 	 * 判断成员是否免疫指定天气的回合末伤害。
 	 *
 	 * 沙暴天然不会伤害岩、地面、钢属性成员；特性和道具提供的天气伤害免疫作为更通用的结构化效果处理，
 	 * 便于表达防尘类道具或防天气伤害特性。
 	 */
 	private fun BattleParticipant.immuneToWeatherDamage(state: BattleState, weather: BattleWeather): Boolean =
-		weatherDamageBlockedByAbility(weather) ||
+		hasIndirectDamageImmunity() ||
+			weatherDamageBlockedByAbility(weather) ||
 			weatherDamageBlockedByItem(weather) ||
 			when (weather) {
 				BattleWeather.SANDSTORM -> hasElement(state.rules.rockElementId) ||
@@ -3410,7 +3425,7 @@ class BattleEngine(
 			.filterIsInstance<BattleItemEffect.DamageBoostWithRecoil>()
 			.fold(state) { current, effect ->
 				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle()) {
+				if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
 					current
 				} else {
 					val recoil = (actor.maxHp / effect.recoilDenominator)
@@ -3506,7 +3521,7 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle()) {
+				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
 					current
 				} else {
 					val residualDamage = residualDamage(latest) ?: return@fold current
@@ -3884,6 +3899,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3910,6 +3926,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,

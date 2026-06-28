@@ -1136,6 +1136,7 @@ class BattleRuntimeSnapshotService(
 				healDenominator = 16,
 			)
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
+			"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity
 			"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
 			"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()
 			"element-electric-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(

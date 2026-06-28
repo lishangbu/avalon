@@ -379,6 +379,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖 HP 小于等于最大 HP 1/3 时指定属性技能获得 1.5 倍伤害倍率，并验证高于阈值或技能属性不匹配时不触发；草、火、水、虫四类低体力增伤规则资料已接入运行时快照。",
 			),
 			item(
+				code = "ability.indirect-damage-immunity",
+				name = "特性免疫间接伤害",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"indirect-damage-immunity-blocks-residual-status-and-weather-damage",
+					"indirect-damage-immunity-keeps-direct-damage-boost-but-blocks-item-recoil",
+					"indirect-damage-immunity-blocks-move-recoil-and-entry-hazard-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Magic_Guard_(Ability)",
+				),
+				note = "已覆盖特性阻止异常状态回合末伤害、沙暴伤害、入场陷阱伤害、技能反作用伤害和携带道具反伤；直接技能伤害和伤害增幅道具倍率仍正常生效。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

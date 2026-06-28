@@ -1,0 +1,170 @@
+databaseChangeLog:
+- changeSet:
+    id: 060-battle-indirect-damage-immunity-rules
+    author: backend
+    comment: 补齐间接伤害免疫特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 34 }
+        - column: { name: ability_id, valueNumeric: 98 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: indirect-damage-immunity }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 阻止异常状态、天气、入场陷阱、反作用等非技能直接伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 340 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 125 }
+        - column: { name: code, value: indirect-damage-immunity-blocks-residual-status-and-weather-damage }
+        - column: { name: name, value: 间接伤害免疫阻止异常和天气伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证拥有间接伤害免疫特性的成员不会承受灼伤回合末伤害和沙暴回合末伤害。 }
+        - column: { name: input_summary, value: 普通属性成员拥有间接伤害免疫特性并处于灼伤状态，全场天气为沙暴。 }
+        - column: { name: expected_summary, value: 完整回合末不产生异常状态或天气伤害事件，成员 HP 保持不变，已有灼伤状态仍保留。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1250 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 126 }
+        - column: { name: code, value: indirect-damage-immunity-keeps-direct-damage-boost-but-blocks-item-recoil }
+        - column: { name: name, value: 间接伤害免疫保留伤害增幅但阻止道具反伤 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证间接伤害免疫不会移除伤害增幅道具倍率，但会阻止该道具造成的反伤。 }
+        - column: { name: input_summary, value: 使用者拥有间接伤害免疫特性，并携带造成伤害提升 1.3 倍且按最大 HP 1/10 反伤的道具。 }
+        - column: { name: expected_summary, value: 目标受到 1.3 倍后的直接技能伤害，使用者不承受道具反伤。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1260 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 127 }
+        - column: { name: code, value: indirect-damage-immunity-blocks-move-recoil-and-entry-hazard-damage }
+        - column: { name: name, value: 间接伤害免疫阻止技能反作用和入场陷阱伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证间接伤害免疫阻止技能反作用伤害和换入时的入场陷阱伤害。 }
+        - column: { name: input_summary, value: 使用者拥有间接伤害免疫特性，使用带反作用伤害的技能；同类特性后备成员换入已有隐形岩的一侧。 }
+        - column: { name: expected_summary, value: 直接攻击仍扣减目标 HP，但使用者不受技能反作用伤害；后备成员换入时不受隐形岩伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1270 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 266 }
+        - column: { name: fixture_id, valueNumeric: 125 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照间接伤害免疫对非技能直接伤害的阻止条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 267 }
+        - column: { name: fixture_id, valueNumeric: 125 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Magic_Guard_(Ability) }
+        - column: { name: source_label, value: 间接伤害免疫特性公开说明 }
+        - column: { name: source_note, value: 用于验证异常状态和天气等间接伤害不扣减 HP。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 268 }
+        - column: { name: fixture_id, valueNumeric: 126 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照间接伤害免疫不会移除直接伤害倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 269 }
+        - column: { name: fixture_id, valueNumeric: 126 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照伤害增幅道具提供倍率并造成反伤的行为。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 270 }
+        - column: { name: fixture_id, valueNumeric: 126 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Life_Orb }
+        - column: { name: source_label, value: 伤害增幅反伤道具公开说明 }
+        - column: { name: source_note, value: 用于验证伤害倍率和最大 HP 1/10 反伤口径。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 271 }
+        - column: { name: fixture_id, valueNumeric: 127 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照间接伤害免疫对反作用和入场陷阱伤害的阻止条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 272 }
+        - column: { name: fixture_id, valueNumeric: 127 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照反作用技能和入场陷阱技能的现代行为。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 273 }
+        - column: { name: fixture_id, valueNumeric: 127 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Stealth_Rock_(move) }
+        - column: { name: source_label, value: 入场陷阱公开说明 }
+        - column: { name: source_note, value: 用于验证换入时触发的入场陷阱伤害属于间接伤害。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 125 }
+        - column: { name: run_code, value: indirect-damage-immunity-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 125 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:10:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:13:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1250 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 126 }
+        - column: { name: run_code, value: indirect-damage-immunity-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 126 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:10:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:13:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1260 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 127 }
+        - column: { name: run_code, value: indirect-damage-immunity-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 127 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:10:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:13:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1270 }

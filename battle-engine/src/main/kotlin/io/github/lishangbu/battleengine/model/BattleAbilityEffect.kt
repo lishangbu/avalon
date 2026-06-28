@@ -6,7 +6,7 @@ package io.github.lishangbu.battleengine.model
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
  * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、吸收指定属性技能并回复或提阶、阻止对手先制技能影响己方、
  * 天气下速度修正、天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
- * 以及成员出场时的能力阶级变化、天气设置和场地设置。
+ * 间接伤害免疫，以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
@@ -99,6 +99,19 @@ sealed interface BattleAbilityEffect {
 			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
 	}
+
+	/**
+	 * 免疫非技能直接伤害。
+	 *
+	 * 该效果用于表达现代规则中“只会被直接攻击伤害扣减 HP”的稳定特性。引擎把普通物理/特殊技能命中后写入目标
+	 * 的 [io.github.lishangbu.battleengine.model.BattleEvent.DamageApplied] 视为直接伤害；异常状态回合末伤害、
+	 * 天气伤害、入场陷阱、技能反作用伤害、携带道具反伤和混乱自伤等都属于间接伤害，命中该效果时不改变 HP、
+	 * 不触发低体力回复道具，也不追加对应伤害事件。
+	 *
+	 * 该效果只描述伤害免疫，不阻止主要异常状态或临时状态本身写入，也不移除已存在的天气、陷阱或携带道具倍率。
+	 * 例如造成伤害后附带反伤的道具仍然提供伤害倍率，但它产生的反伤会被这里阻止。
+	 */
+	object IndirectDamageImmunity : BattleAbilityEffect
 
 	/**
 	 * 满 HP 承受会导致倒下的直接伤害时保留 1 HP。
