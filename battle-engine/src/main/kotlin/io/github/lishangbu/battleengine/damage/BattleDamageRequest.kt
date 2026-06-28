@@ -8,8 +8,9 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
 /**
  * 一次普通伤害计算输入。
  *
- * 输入同时包含攻击方、目标、技能槽、规则快照和伤害随机百分比。随机数在进入计算器之前已经被消费，
- * 因此计算器本身是纯函数，便于公式级测试直接覆盖取整、属性一致加成和属性克制。
+ * 输入同时包含攻击方、目标、技能槽、规则快照、伤害随机百分比和本次是否击中要害。
+ * 命中、击中要害和伤害浮动等随机数在进入计算器之前已经被消费，因此计算器本身是纯函数，
+ * 便于公式级测试直接覆盖取整、属性一致加成、属性克制和击中要害倍率。
  */
 data class BattleDamageRequest(
 	val attacker: BattleParticipant,
@@ -18,6 +19,7 @@ data class BattleDamageRequest(
 	val rules: BattleRuleSnapshot,
 	val environment: BattleEnvironment = BattleEnvironment(),
 	val randomPercent: Int,
+	val criticalHit: Boolean = false,
 ) {
 	init {
 		require(randomPercent in 85..100) { "randomPercent must be between 85 and 100" }

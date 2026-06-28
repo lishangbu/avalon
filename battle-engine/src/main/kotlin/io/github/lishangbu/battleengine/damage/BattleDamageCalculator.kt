@@ -12,9 +12,9 @@ import kotlin.math.floor
 /**
  * 现代普通伤害公式计算器。
  *
- * 该实现覆盖第一阶段 MVP 需要的基础公式：等级、威力、攻击/防御、随机浮动、属性一致加成和属性克制。
- * 它暂不处理击中要害、场地伤害修正、范围技能、护盾和其它倍率；这些倍率会在后续 hook
- * 管线中以结构化 modifier 追加，并由对照 fixture 分别验证。
+ * 该实现覆盖第一阶段 MVP 需要的基础公式：等级、威力、攻击/防御、随机浮动、击中要害、
+ * 属性一致加成和属性克制。它暂不处理范围技能、护盾和其它复杂倍率；这些倍率会在后续 hook
+ * 管线中以结构化 modifier 继续追加，并由对照 fixture 分别验证。
  *
  * 取整规则按主系列常见公开公式建模：基础伤害部分在整数除法中逐步截断，最终倍率组合后向下取整。
  * 如果属性克制倍率为 0，最终伤害为 0；否则普通命中造成的最小伤害为 1。
@@ -34,18 +34,18 @@ class BattleDamageCalculator(
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.attacker.specialAttack,
-				request.attacker.statStage(BattleStat.SPECIAL_ATTACK),
+				attackingStage(request.attacker.statStage(BattleStat.SPECIAL_ATTACK), request.criticalHit),
 			)
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		val defendingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> statStageModifiers.modifiedBattleStat(
 				request.defender.defense,
-				request.defender.statStage(BattleStat.DEFENSE),
+				defendingStage(request.defender.statStage(BattleStat.DEFENSE), request.criticalHit),
 			)
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.defender.specialDefense,
-				request.defender.statStage(BattleStat.SPECIAL_DEFENSE),
+				defendingStage(request.defender.statStage(BattleStat.SPECIAL_DEFENSE), request.criticalHit),
 			)
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
@@ -55,17 +55,19 @@ class BattleDamageCalculator(
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
 		val sameElementBonus = if (request.skill.elementId in request.attacker.elementIds) 1.5 else 1.0
 		val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
+		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = weatherDamageMultiplier(request)
 		val abilityMultiplier = abilityDamageMultiplier(request)
 		val itemMultiplier = itemDamageMultiplier(request)
 		val combined = baseDamage * (request.randomPercent / 100.0) * sameElementBonus *
-			effectiveness * weatherMultiplier * abilityMultiplier * itemMultiplier
+			effectiveness * criticalHitMultiplier * weatherMultiplier * abilityMultiplier * itemMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
 			baseDamage = baseDamage,
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
+			criticalHitMultiplier = criticalHitMultiplier,
 			weatherMultiplier = weatherMultiplier,
 			abilityMultiplier = abilityMultiplier,
 			itemMultiplier = itemMultiplier,
@@ -80,7 +82,7 @@ class BattleDamageCalculator(
 	private fun physicalAttackAfterBurn(request: BattleDamageRequest): Int {
 		val stagedAttack = statStageModifiers.modifiedBattleStat(
 			request.attacker.attack,
-			request.attacker.statStage(BattleStat.ATTACK),
+			attackingStage(request.attacker.statStage(BattleStat.ATTACK), request.criticalHit),
 		)
 		return if (request.attacker.majorStatus == BattleMajorStatus.BURN) {
 			(stagedAttack / 2).coerceAtLeast(1)
@@ -88,6 +90,22 @@ class BattleDamageCalculator(
 			stagedAttack
 		}
 	}
+
+	/**
+	 * 计算击中要害时参与攻击侧公式的能力阶级。
+	 *
+	 * 现代规则下，击中要害会忽略攻击方不利的攻击/特攻阶级，但不会忽略有利阶级，也不会忽略灼伤本身的物理减半。
+	 */
+	private fun attackingStage(stage: Int, criticalHit: Boolean): Int =
+		if (criticalHit && stage < 0) 0 else stage
+
+	/**
+	 * 计算击中要害时参与防御侧公式的能力阶级。
+	 *
+	 * 现代规则下，击中要害会忽略防御方有利的防御/特防阶级，但不会忽略防御方不利阶级。
+	 */
+	private fun defendingStage(stage: Int, criticalHit: Boolean): Int =
+		if (criticalHit && stage > 0) 0 else stage
 
 	/**
 	 * 计算天气对火/水属性普通伤害的倍率。

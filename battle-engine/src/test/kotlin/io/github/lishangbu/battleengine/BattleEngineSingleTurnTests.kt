@@ -54,7 +54,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("fast", skillId = 1, targetActorId = "slow"),
 				BattleAction.UseSkill("slow", skillId = 1, targetActorId = "fast"),
 			),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals("side-a", resolved.result?.winningSideId)
@@ -89,7 +89,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("fast-normal", skillId = 1, targetActorId = "slow-priority"),
 				BattleAction.UseSkill("slow-priority", skillId = 2, targetActorId = "fast-normal"),
 			),
-			ScriptedBattleRandom(listOf(15, 15)),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
 		)
 
 		val usedEvents = resolved.events.filterIsInstance<BattleEvent.SkillUsed>()
@@ -153,7 +153,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
 				BattleAction.UseSkill("attacker", skillId = 3, targetActorId = "protector"),
 			),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals(72, resolved.participant("protector")?.currentHp)
@@ -183,6 +183,52 @@ class BattleEngineSingleTurnTests {
 		assertEquals(100, resolved.participant("defender")?.currentHp)
 		assertIs<BattleEvent.SkillMissed>(resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single())
 		assertEquals(listOf("accuracy for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `evasion stage can make accurate skill miss`() {
+		val accurateSkill = damagingSkill(accuracy = 100)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = accurateSkill),
+				second = participant("defender", speed = 50).copy(
+					statStages = mapOf(BattleStat.EVASION to 1),
+				),
+			),
+		)
+		val random = ScriptedBattleRandom(listOf(75))
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		assertEquals(100, resolved.participant("defender")?.currentHp)
+		assertEquals(76, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
+		assertEquals(listOf("accuracy for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `guaranteed critical hit marks damage event and increases damage`() {
+		val criticalSkill = damagingSkill(criticalHitStage = 3)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = criticalSkill),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		val damageEvent = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+		assertEquals(true, damageEvent.criticalHit)
+		assertEquals(42, damageEvent.amount)
+		assertEquals(58, resolved.participant("defender")?.currentHp)
 	}
 
 	@Test
@@ -242,7 +288,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("stage-user", skillId = 1, targetActorId = "damager"),
 				BattleAction.UseSkill("damager", skillId = 1, targetActorId = "stage-user"),
 			),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals(-1, resolved.participant("damager")?.statStage(BattleStat.ATTACK))
@@ -265,7 +311,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("paralyzed-fast", skillId = 1, targetActorId = "normal-mid"),
 				BattleAction.UseSkill("normal-mid", skillId = 1, targetActorId = "paralyzed-fast"),
 			),
-			ScriptedBattleRandom(listOf(15, 15)),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
 		)
 
 		val usedEvents = resolved.events.filterIsInstance<BattleEvent.SkillUsed>()
@@ -293,7 +339,7 @@ class BattleEngineSingleTurnTests {
 		val resolved = engine.resolveTurn(
 			state,
 			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("attacker")?.majorStatus)
@@ -318,7 +364,7 @@ class BattleEngineSingleTurnTests {
 		val resolved = engine.resolveTurn(
 			state,
 			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals(63, resolved.participant("defender")?.currentHp)
@@ -388,7 +434,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.SwitchParticipant("starter", targetActorId = "reserve"),
 				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "starter"),
 			),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals(listOf("reserve"), resolved.sideOf("reserve")?.activeActorIds)

@@ -47,6 +47,36 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
+	fun `modern critical hit damage matches public calculator fixture`() {
+		val fixture = PublicReferenceFixture(
+			name = "level-50-neutral-same-element-critical-hit-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Critical_hit",
+			),
+			inputSummary = "等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%，击中要害。",
+			expectedSummary = "基础伤害 19，同属性倍率 1.5，现代击中要害倍率 1.5，最终伤害 42。",
+		)
+
+		val result = BattleDamageCalculator().calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("defender", speed = 80),
+				skill = damagingSkill(power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+				criticalHit = true,
+			),
+		)
+
+		assertEquals("level-50-neutral-same-element-critical-hit-damage", fixture.name)
+		assertEquals(19, result.baseDamage)
+		assertEquals(1.5, result.sameElementBonus)
+		assertEquals(1.5, result.criticalHitMultiplier)
+		assertEquals(42, result.amount)
+	}
+
+	@Test
 	fun `target slot follows switched in participant like public simulator fixture`() {
 		val fixture = PublicReferenceFixture(
 			name = "single-target-move-follows-replacement-slot",
@@ -71,7 +101,7 @@ class BattleEnginePublicReferenceTests {
 				BattleAction.SwitchParticipant("starter", targetActorId = "reserve"),
 				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "starter"),
 			),
-			ScriptedBattleRandom(listOf(15)),
+			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
 		assertEquals("single-target-move-follows-replacement-slot", fixture.name)

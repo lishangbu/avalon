@@ -120,6 +120,46 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `critical hit multiplies damage and ignores unfavorable attack and favorable defense stages`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1).copy(
+					statStages = mapOf(BattleStat.ATTACK to -2),
+				),
+				defender = participant("defender", speed = 80, elementId = 2).copy(
+					statStages = mapOf(BattleStat.DEFENSE to 2),
+				),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+				criticalHit = true,
+			),
+		)
+
+		assertEquals(19, result.baseDamage)
+		assertEquals(1.5, result.criticalHitMultiplier)
+		assertEquals(42, result.amount)
+	}
+
+	@Test
+	fun `critical hit still keeps burn physical penalty`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1).copy(majorStatus = BattleMajorStatus.BURN),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+				criticalHit = true,
+			),
+		)
+
+		assertEquals(10, result.baseDamage)
+		assertEquals(1.5, result.criticalHitMultiplier)
+		assertEquals(22, result.amount)
+	}
+
+	@Test
 	fun `low hp ability and damage boost item multiply damage`() {
 		val result = calculator.calculate(
 			BattleDamageRequest(

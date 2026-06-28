@@ -18,16 +18,17 @@ import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.BattleRandom
+import kotlin.math.floor
 
 /**
  * 现代回合制战斗引擎的第一阶段核心状态机。
  *
  * 该类不依赖 Spring、Jimmer 或数据库。调用方传入已经冻结的初始状态、规则快照、行动列表和随机源，
  * 引擎返回新的不可变战斗状态和事件流。第一阶段实现单打的最小闭环：启动、回合开始、技能行动排序、
- * 替换、PP 消耗、命中判定、基础伤害、倒下检测和胜负判定。
+ * 替换、PP 消耗、命中/闪避判定、击中要害、基础伤害、倒下检测和胜负判定。
  *
- * 当前不负责的边界包括：道具使用、状态持续效果细分、天气地形、双打目标重定向、保护、击中要害和
- * 复杂技能脚本。这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
+ * 当前不负责的边界包括：道具使用、状态持续效果细分、双打范围技能、连续保护成功率和复杂技能脚本。
+ * 这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
  */
 class BattleEngine(
 	private val damageCalculator: BattleDamageCalculator = BattleDamageCalculator(),
@@ -60,7 +61,7 @@ class BattleEngine(
 	 *
 	 * @param state 当前战斗状态，不能已经结束。
 	 * @param actions 本回合行动。第一阶段要求每个可行动上场成员最多提交一个 `UseSkill`。
-	 * @param random 所有命中、伤害浮动和同速排序都从这里消费随机数。
+	 * @param random 所有命中、击中要害、伤害浮动和同速排序都从这里消费随机数。
 	 * @return 结算后的新状态。若战斗结束，事件流最后会包含 `BattleEnded`；否则包含 `TurnEnded`。
 	 */
 	fun resolveTurn(state: BattleState, actions: List<BattleAction>, random: BattleRandom): BattleState {
@@ -208,7 +209,7 @@ class BattleEngine(
 			)
 		}
 
-		val accuracyCheck = accuracyCheck(skill, random)
+		val accuracyCheck = accuracyCheck(actor, target, skill, random)
 		if (!accuracyCheck.hit) {
 			return context.copy(
 				state = usedState.appendEvent(
@@ -226,6 +227,7 @@ class BattleEngine(
 			return context.copy(state = applySkillEffects(usedState, actor.actorId, target.actorId, skill, random))
 		}
 
+		val criticalHitCheck = criticalHitCheck(skill, random)
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
@@ -235,6 +237,7 @@ class BattleEngine(
 				rules = state.rules,
 				environment = state.environment,
 				randomPercent = randomPercent,
+				criticalHit = criticalHitCheck.hit,
 			),
 		)
 		val damagedTarget = target.receiveDamage(damage.amount)
@@ -248,6 +251,7 @@ class BattleEngine(
 					skillId = skill.skillId,
 					amount = damage.amount,
 					effectiveness = damage.effectiveness,
+					criticalHit = criticalHitCheck.hit,
 				),
 			)
 		val afterContactAbilities = applyContactAbilityEffects(
@@ -280,13 +284,47 @@ class BattleEngine(
 	/**
 	 * 处理命中判定。
 	 *
-	 * 空命中表示必中；否则消费一个 1 到 100 的随机掷点，掷点小于等于命中值时命中。
-	 * 未来命中/闪避阶级、天气必中、无防守等规则会在这里之前或这里内部追加 modifier。
+	 * 空命中表示必中；否则先应用攻击方命中阶级和目标闪避阶级，再消费一个 1 到 100 的随机掷点。
+	 * 若修正后命中率已经达到或超过 100，则直接命中且不消费随机数。天气必中、无防守和蓄力中目标等
+	 * 例外规则会在这里之前或这里内部追加结构化 modifier。
 	 */
-	private fun accuracyCheck(skill: BattleSkillSlot, random: BattleRandom): AccuracyCheck {
+	private fun accuracyCheck(
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): AccuracyCheck {
 		val accuracy = skill.accuracy ?: return AccuracyCheck(hit = true, roll = null)
+		val modifiedAccuracy = floor(
+			accuracy *
+				statStageModifiers.accuracyMultiplier(actor.statStage(BattleStat.ACCURACY)) /
+				statStageModifiers.accuracyMultiplier(target.statStage(BattleStat.EVASION)),
+		).toInt().coerceAtLeast(1)
+		if (modifiedAccuracy >= 100) {
+			return AccuracyCheck(hit = true, roll = null)
+		}
 		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
-		return AccuracyCheck(hit = roll <= accuracy, roll = roll)
+		return AccuracyCheck(hit = roll <= modifiedAccuracy, roll = roll)
+	}
+
+	/**
+	 * 结算击中要害概率。
+	 *
+	 * 现代规则下，普通等级概率为 1/24，+1 为 1/8，+2 为 1/2，+3 及以上视为必定击中要害。
+	 * 必定要害不消费随机数；其它等级消费 `[0, denominator)`，掷到 0 表示成功。
+	 */
+	private fun criticalHitCheck(skill: BattleSkillSlot, random: BattleRandom): CriticalHitCheck {
+		val denominator = when (skill.criticalHitStage.coerceAtMost(3)) {
+			0 -> 24
+			1 -> 8
+			2 -> 2
+			else -> 1
+		}
+		if (denominator == 1) {
+			return CriticalHitCheck(hit = true, roll = null)
+		}
+		val roll = random.nextInt(denominator, "critical hit for ${skill.skillId}")
+		return CriticalHitCheck(hit = roll == 0, roll = roll)
 	}
 
 	/**
@@ -634,6 +672,11 @@ class BattleEngine(
 	)
 
 	private data class AccuracyCheck(
+		val hit: Boolean,
+		val roll: Int?,
+	)
+
+	private data class CriticalHitCheck(
 		val hit: Boolean,
 		val roll: Int?,
 	)
