@@ -422,8 +422,9 @@ class BattleEngine(
 					criticalHit = criticalHitCheck.hit,
 				),
 			)
+		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
 		val afterContactAbilities = applyContactAbilityEffects(
-			state = damagedState,
+			state = afterFireThaw,
 			actorId = actor.actorId,
 			targetActorId = damagedTarget.actorId,
 			skill = skill,
@@ -442,6 +443,35 @@ class BattleEngine(
 			return context.copy(state = afterTargetFaint)
 		}
 		return context.copy(state = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage))
+	}
+
+	/**
+	 * 处理火属性伤害命中后解除目标冰冻。
+	 *
+	 * 现代规则中，冰冻目标被火属性伤害技能命中会解冻。这里要求目标在该段伤害后仍可战斗，避免对已经倒下的
+	 * 成员追加无意义的状态解除事件；特定“冰冻中也可使用并解除自身冰冻”的技能会通过后续技能标签接入。
+	 */
+	private fun clearFreezeAfterFireDamage(
+		state: BattleState,
+		damagedTarget: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (
+			skill.elementId != state.rules.fireElementId ||
+			damagedTarget.majorStatus != BattleMajorStatus.FREEZE ||
+			!damagedTarget.canBattle()
+		) {
+			return state
+		}
+		return state
+			.replaceParticipant(damagedTarget.clearMajorStatus())
+			.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = damagedTarget.actorId,
+					status = BattleMajorStatus.FREEZE,
+				),
+			)
 	}
 
 	/**

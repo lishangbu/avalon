@@ -94,4 +94,38 @@ class BattleFreezeStatusTests {
 		assertEquals("frozen", resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single().actorId)
 		assertEquals("frozen", resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().actorId)
 	}
+
+	@Test
+	fun `fire damage thaws frozen target that survives the hit`() {
+		val fixture = publicBattleRuleFixture(
+			name = "fire-damage-thaws-frozen-target-that-survives",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
+			),
+			inputSummary = "冰冻目标被火属性伤害技能命中且没有倒下。",
+			expectedSummary = "目标先承受伤害，随后解除冰冻状态。",
+		)
+		val fireSkill = damagingSkill(name = "解冻测试", elementId = 10)
+		val state = engine.start(
+			initialState(
+				first = participant("fire-user", speed = 100, elementId = 10, skill = fireSkill),
+				second = participant("frozen-target", speed = 50).copy(majorStatus = BattleMajorStatus.FREEZE),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("fire-user", skillId = 1, targetActorId = "frozen-target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("fire-damage-thaws-frozen-target-that-survives")
+		assertEquals(72, resolved.participant("frozen-target")?.currentHp)
+		assertEquals(null, resolved.participant("frozen-target")?.majorStatus)
+		assertEquals(28, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
+		assertEquals("frozen-target", cleared.actorId)
+		assertEquals(BattleMajorStatus.FREEZE, cleared.status)
+	}
 }
