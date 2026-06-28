@@ -1,0 +1,384 @@
+databaseChangeLog:
+- changeSet:
+    id: 038-battle-rule-major-status-fixtures
+    author: backend
+    comment: 新增睡眠、麻痹、冰冻和剧毒递增公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 40 }
+        - column: { name: code, value: sleep-prevents-two-actions-from-scripted-duration }
+        - column: { name: name, value: 睡眠固定持续阻止两次行动 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证睡眠状态按固定随机持续次数阻止行动，不消耗被阻止技能的 PP，并在计数归零时解除。 }
+        - column: { name: input_summary, value: 睡眠技能命中较慢目标，固定随机数让睡眠阻止行动次数为 2。 }
+        - column: { name: expected_summary, value: 目标本回合和下一回合各被睡眠阻止一次，期间不消耗 PP；计数归零后状态解除，之后可正常行动。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 400 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 41 }
+        - column: { name: code, value: electric-terrain-blocks-new-sleep }
+        - column: { name: name, value: 电气场地阻止新睡眠 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证电气场地会阻止接地当前上场成员获得睡眠，且不会消费睡眠持续随机数。 }
+        - column: { name: input_summary, value: 电气场地存在时，上场目标被睡眠技能命中。 }
+        - column: { name: expected_summary, value: 目标不会获得睡眠状态，事件流记录场地阻止；睡眠持续回合随机数不被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 410 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 42 }
+        - column: { name: code, value: paralysis-prevents-action-without-pp-loss }
+        - column: { name: name, value: 麻痹触发行动阻止且不消耗 PP }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证麻痹行动前 25% 阻止分支不会消耗 PP，也不会清除麻痹状态。 }
+        - column: { name: input_summary, value: 麻痹成员本回合选择使用普通攻击，固定随机数触发 25% 行动阻止。 }
+        - column: { name: expected_summary, value: 成员不会使用技能、不消耗 PP，麻痹状态仍然保留到后续回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 420 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 43 }
+        - column: { name: code, value: paralysis-allows-action-after-failed-block-roll }
+        - column: { name: name, value: 麻痹未阻止时继续普通技能流程 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证麻痹行动前判定未触发阻止时，会先消费麻痹随机数，再进入普通技能随机流程。 }
+        - column: { name: input_summary, value: 麻痹成员本回合选择普通攻击，固定随机数未触发行动阻止。 }
+        - column: { name: expected_summary, value: 成员先消费麻痹判定随机数，再按普通伤害流程消耗要害和伤害浮动随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 430 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 44 }
+        - column: { name: code, value: freeze-prevents-action-after-failed-thaw-roll }
+        - column: { name: name, value: 冰冻未自然解冻时阻止行动 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证冰冻行动前自然解冻判定失败时，本次行动被阻止且不消耗 PP。 }
+        - column: { name: input_summary, value: 冰冻成员本回合选择使用普通攻击，固定随机数未触发自然解冻。 }
+        - column: { name: expected_summary, value: 成员不会使用技能、不消耗 PP，冰冻状态仍然保留到后续回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 440 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 45 }
+        - column: { name: code, value: freeze-thaws-before-action-and-continues }
+        - column: { name: name, value: 冰冻自然解冻后继续行动 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证冰冻行动前自然解冻成功时，状态先解除，原技能继续按普通流程执行。 }
+        - column: { name: input_summary, value: 冰冻成员本回合选择普通攻击，固定随机数触发自然解冻。 }
+        - column: { name: expected_summary, value: 成员先解除冰冻，再使用技能并按普通伤害流程消费要害和伤害浮动随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 450 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 46 }
+        - column: { name: code, value: fire-damage-thaws-frozen-target-that-survives }
+        - column: { name: name, value: 火属性伤害命中后解除目标冰冻 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证冰冻目标被火属性伤害技能命中且仍存活时，会在伤害后解除冰冻。 }
+        - column: { name: input_summary, value: 冰冻目标被火属性伤害技能命中且没有倒下。 }
+        - column: { name: expected_summary, value: 目标先承受伤害，随后解除冰冻状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 460 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 47 }
+        - column: { name: code, value: self-thawing-skill-can-be-used-while-frozen }
+        - column: { name: name, value: 自解冻技能无需自然解冻判定 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证带有行动前自解冻标签的技能可在冰冻中使用，并不会消费自然解冻随机数。 }
+        - column: { name: input_summary, value: 冰冻成员选择带有行动前自解冻标签的伤害技能。 }
+        - column: { name: expected_summary, value: 成员不进行自然解冻概率判定，先解除自身冰冻，再正常使用技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 470 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 48 }
+        - column: { name: code, value: bad-poison-residual-damage-increases-each-active-turn }
+        - column: { name: name, value: 剧毒回合末伤害逐回合递增 }
+        - column: { name: category, value: MAJOR_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证剧毒首次按 1/16 最大 HP 扣血，之后在仍然上场且存活时逐回合递增计数。 }
+        - column: { name: input_summary, value: 目标被剧毒技能命中后，连续经过两个完整回合末状态伤害阶段。 }
+        - column: { name: expected_summary, value: 第一次回合末扣除 1/16 最大 HP，第二次扣除 2/16 最大 HP，剧毒计数推进到 3。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 480 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 88 }
+        - column: { name: fixture_id, valueNumeric: 40 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition) }
+        - column: { name: source_label, value: 睡眠公开规则说明 }
+        - column: { name: source_note, value: 用于验证睡眠持续次数、行动阻止和解除时机。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 89 }
+        - column: { name: fixture_id, valueNumeric: 41 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move) }
+        - column: { name: source_label, value: 电气场地公开说明 }
+        - column: { name: source_note, value: 用于验证电气场地阻止接地成员获得睡眠。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 90 }
+        - column: { name: fixture_id, valueNumeric: 42 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照麻痹行动前阻止概率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 91 }
+        - column: { name: fixture_id, valueNumeric: 42 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition) }
+        - column: { name: source_label, value: 麻痹公开规则说明 }
+        - column: { name: source_note, value: 用于验证麻痹不消耗被阻止技能 PP。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 92 }
+        - column: { name: fixture_id, valueNumeric: 43 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照麻痹判定未阻止后的行动流程。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 93 }
+        - column: { name: fixture_id, valueNumeric: 43 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition) }
+        - column: { name: source_label, value: 麻痹公开规则说明 }
+        - column: { name: source_note, value: 用于验证麻痹行动前概率和速度修正。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 94 }
+        - column: { name: fixture_id, valueNumeric: 44 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照冰冻自然解冻失败分支。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 95 }
+        - column: { name: fixture_id, valueNumeric: 44 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition) }
+        - column: { name: source_label, value: 冰冻公开规则说明 }
+        - column: { name: source_note, value: 用于验证冰冻行动前自然解冻概率。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 96 }
+        - column: { name: fixture_id, valueNumeric: 45 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照冰冻自然解冻成功后继续行动。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 97 }
+        - column: { name: fixture_id, valueNumeric: 45 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition) }
+        - column: { name: source_label, value: 冰冻公开规则说明 }
+        - column: { name: source_note, value: 用于验证自然解冻后技能继续结算。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 98 }
+        - column: { name: fixture_id, valueNumeric: 46 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照火属性伤害解除目标冰冻。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 99 }
+        - column: { name: fixture_id, valueNumeric: 46 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition) }
+        - column: { name: source_label, value: 冰冻公开规则说明 }
+        - column: { name: source_note, value: 用于验证冰冻目标受到火属性伤害后的解除时机。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 100 }
+        - column: { name: fixture_id, valueNumeric: 47 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照可在冰冻中使用并自解冻的技能标签。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 101 }
+        - column: { name: fixture_id, valueNumeric: 47 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition) }
+        - column: { name: source_label, value: 冰冻公开规则说明 }
+        - column: { name: source_note, value: 用于验证自解冻技能不进行自然解冻概率判定。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 102 }
+        - column: { name: fixture_id, valueNumeric: 48 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Poison_(status_condition) }
+        - column: { name: source_label, value: 中毒和剧毒公开规则说明 }
+        - column: { name: source_note, value: 用于验证剧毒回合末伤害递增。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 40 }
+        - column: { name: run_code, value: major-status-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 40 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 11 }
+        - column: { name: sort_order, valueNumeric: 400 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 41 }
+        - column: { name: run_code, value: major-status-coverage-20260628-2 }
+        - column: { name: fixture_id, valueNumeric: 41 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 410 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 42 }
+        - column: { name: run_code, value: major-status-coverage-20260628-3 }
+        - column: { name: fixture_id, valueNumeric: 42 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 420 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 43 }
+        - column: { name: run_code, value: major-status-coverage-20260628-4 }
+        - column: { name: fixture_id, valueNumeric: 43 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 430 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 44 }
+        - column: { name: run_code, value: major-status-coverage-20260628-5 }
+        - column: { name: fixture_id, valueNumeric: 44 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 440 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 45 }
+        - column: { name: run_code, value: major-status-coverage-20260628-6 }
+        - column: { name: fixture_id, valueNumeric: 45 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 450 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 46 }
+        - column: { name: run_code, value: major-status-coverage-20260628-7 }
+        - column: { name: fixture_id, valueNumeric: 46 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 460 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 47 }
+        - column: { name: run_code, value: major-status-coverage-20260628-8 }
+        - column: { name: fixture_id, valueNumeric: 47 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 470 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 48 }
+        - column: { name: run_code, value: major-status-coverage-20260628-9 }
+        - column: { name: fixture_id, valueNumeric: 48 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 480 }
