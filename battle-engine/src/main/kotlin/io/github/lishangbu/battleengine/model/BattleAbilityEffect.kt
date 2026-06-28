@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
  * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、受到接触类技能后有概率给攻击方附加主要异常状态，
- * 稳定状态免疫，以及成员出场时的能力阶级变化和天气设置。
+ * 稳定状态免疫，以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
@@ -118,6 +118,24 @@ sealed interface BattleAbilityEffect {
 	) : BattleAbilityEffect {
 		init {
 			require(weather != BattleWeather.NONE) { "switch-in weather change requires an active weather" }
+			require(turnsRemaining == null || turnsRemaining > 0) {
+				"turnsRemaining must be positive when present"
+			}
+		}
+	}
+
+	/**
+	 * 成员出场时设置全场场地。
+	 *
+	 * 该结构覆盖现代规则中“进入场地后改变场地”的稳定特性。场地具体如何影响伤害、状态免疫、回合末回复或
+	 * 先制封锁，仍由环境规则和状态机在对应阶段解释；出场特性只负责把环境事实写入战斗状态。
+	 */
+	data class SwitchInTerrainChange(
+		val terrain: BattleTerrain,
+		val turnsRemaining: Int? = 5,
+	) : BattleAbilityEffect {
+		init {
+			require(terrain != BattleTerrain.NONE) { "switch-in terrain change requires an active terrain" }
 			require(turnsRemaining == null || turnsRemaining > 0) {
 				"turnsRemaining must be positive when present"
 			}

@@ -1523,8 +1523,8 @@ class BattleEngine(
 	 * 结算单个成员成功进入场地后的出场特性。
 	 *
 	 * 该函数要求成员当前仍在场且可战斗；如果成员刚换入后已经被入场陷阱击倒，则不会触发出场特性。当前支持
-	 * 对手当前上场成员的能力阶级变化，以及全场天气覆盖。其它能力效果会在它们所属阶段显式忽略，避免出场阶段
-	 * 误处理低体力伤害增幅、接触反制或免疫类稳定效果。
+	 * 对手当前上场成员的能力阶级变化、全场天气覆盖和全场场地覆盖。其它能力效果会在它们所属阶段显式忽略，
+	 * 避免出场阶段误处理低体力伤害增幅、接触反制或免疫类稳定效果。
 	 */
 	private fun applySwitchInAbilityEffects(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state
@@ -1548,6 +1548,7 @@ class BattleEngine(
 	): BattleState =
 		when (effect) {
 			is BattleAbilityEffect.SwitchInStatStageChange -> applySwitchInStatStageChange(state, actorId, effect)
+			is BattleAbilityEffect.SwitchInTerrainChange -> applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
@@ -1628,6 +1629,41 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					weather = effect.weather,
+					turnsRemaining = effect.turnsRemaining,
+				),
+			)
+	}
+
+	/**
+	 * 执行出场特性的场地设置。
+	 *
+	 * 普通场地会覆盖当前场地并写入固定持续回合。若当前环境已经是同一场地且剩余回合一致，则不产生事件；
+	 * 这样 replay 可以把 `TerrainStarted` 当作真实环境变化，而不是触发尝试日志。场地延长道具、强制封锁或特殊
+	 * 机制尚未进入结构化规则，后续会以独立效果扩展。
+	 */
+	private fun applySwitchInTerrainChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.SwitchInTerrainChange,
+	): BattleState {
+		if (
+			state.environment.terrain == effect.terrain &&
+			state.environment.terrainTurnsRemaining == effect.turnsRemaining
+		) {
+			return state
+		}
+		return state
+			.copy(
+				environment = state.environment.copy(
+					terrain = effect.terrain,
+					terrainTurnsRemaining = effect.turnsRemaining,
+				),
+			)
+			.appendEvent(
+				BattleEvent.TerrainStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					terrain = effect.terrain,
 					turnsRemaining = effect.turnsRemaining,
 				),
 			)
@@ -2594,6 +2630,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SwitchInTerrainChange,
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier

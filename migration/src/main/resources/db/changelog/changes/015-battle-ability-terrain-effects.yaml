@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: 015-battle-ability-terrain-effects
+    author: backend
+    comment: 接入出场设置场地的特性规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: ability_id, valueNumeric: 226 }
+        - column: { name: trigger_timing, value: SWITCH_IN }
+        - column: { name: effect_policy, value: switch-in-terrain-electric }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 成员进入场地时，将全场场地设置为电气场地并按现代普通场地持续回合结算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: ability_id, valueNumeric: 227 }
+        - column: { name: trigger_timing, value: SWITCH_IN }
+        - column: { name: effect_policy, value: switch-in-terrain-psychic }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 成员进入场地时，将全场场地设置为精神场地并按现代普通场地持续回合结算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 13 }
+        - column: { name: ability_id, valueNumeric: 228 }
+        - column: { name: trigger_timing, value: SWITCH_IN }
+        - column: { name: effect_policy, value: switch-in-terrain-misty }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 成员进入场地时，将全场场地设置为薄雾场地并按现代普通场地持续回合结算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 130 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 14 }
+        - column: { name: ability_id, valueNumeric: 229 }
+        - column: { name: trigger_timing, value: SWITCH_IN }
+        - column: { name: effect_policy, value: switch-in-terrain-grassy }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 成员进入场地时，将全场场地设置为青草场地并按现代普通场地持续回合结算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 140 }

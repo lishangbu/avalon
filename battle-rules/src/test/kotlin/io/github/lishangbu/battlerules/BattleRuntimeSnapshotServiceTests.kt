@@ -12,6 +12,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
@@ -211,6 +212,11 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.switchInWeatherByAbilityId(70)).isEqualTo(BattleWeather.SUN)
 		assertThat(service.switchInWeatherByAbilityId(117)).isEqualTo(BattleWeather.SNOW)
 
+		assertThat(service.switchInTerrainByAbilityId(226)).isEqualTo(BattleTerrain.ELECTRIC)
+		assertThat(service.switchInTerrainByAbilityId(227)).isEqualTo(BattleTerrain.PSYCHIC)
+		assertThat(service.switchInTerrainByAbilityId(228)).isEqualTo(BattleTerrain.MISTY)
+		assertThat(service.switchInTerrainByAbilityId(229)).isEqualTo(BattleTerrain.GRASSY)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -286,6 +292,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.SwitchInWeatherChange>()
 			.single()
 			.weather
+
+	private fun BattleRuntimeSnapshotService.switchInTerrainByAbilityId(abilityId: Long): BattleTerrain =
+		abilityEffectsByAbilityId(abilityId)
+			.filterIsInstance<BattleAbilityEffect.SwitchInTerrainChange>()
+			.single()
+			.terrain
 
 	private fun participant(
 		actorId: String,

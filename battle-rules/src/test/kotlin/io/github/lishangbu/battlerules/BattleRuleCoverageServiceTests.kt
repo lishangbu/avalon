@@ -35,6 +35,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "status.immunity-and-grounding" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.switch-in-stat-stage" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.switch-in-weather" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "ability.switch-in-terrain" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.environment-duration" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.side-entry-hazard" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "turn.multi-hit-and-locked-move" && it.status == "IMPLEMENTED" })

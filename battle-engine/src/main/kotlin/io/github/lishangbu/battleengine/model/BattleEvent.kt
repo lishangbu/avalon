@@ -544,6 +544,19 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 当前场地被出场特性或后续环境规则设置。
+	 *
+	 * 事件记录触发者、目标场地和写入时的剩余回合。它不表达场地带来的状态免疫、回复、先制封锁或伤害修正；
+	 * 这些效果仍在各自规则阶段独立产生事件或参与公式计算。
+	 */
+	data class TerrainStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val terrain: BattleTerrain,
+		val turnsRemaining: Int?,
+	) : BattleEvent
+
+	/**
 	 * 当前场地因持续回合耗尽而结束。
 	 *
 	 * 事件只表示环境事实变化，不暗含场地回复、状态免疫或优先度封锁等副作用。

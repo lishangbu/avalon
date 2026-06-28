@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -213,6 +214,103 @@ class BattleSwitchInAbilityTests {
 		assertEquals(4, resolved.environment.weatherTurnsRemaining)
 	}
 
+	@Test
+	fun `switch in terrain ability starts terrain at battle start`() {
+		val fixture = publicBattleRuleFixture(
+			name = "switch-in-terrain-starts-electric-terrain-at-battle-start",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Electric_Surge_(Ability)",
+			),
+			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置电气场地的结构化特性。",
+			expectedSummary = "战斗开始事件之后，场地变为电气场地并写入 5 回合持续时间，同时记录场地开始事件。",
+		)
+
+		val state = engine.start(
+			initialState(
+				first = participant("terrain-user", speed = 100, abilityEffects = listOf(switchInTerrain(BattleTerrain.ELECTRIC))),
+				second = participant("opponent", speed = 80),
+			),
+		)
+		val terrainEvent = state.events.filterIsInstance<BattleEvent.TerrainStarted>().single()
+		val battleStartedIndex = state.events.indexOfFirst { it is BattleEvent.BattleStarted }
+		val terrainEventIndex = state.events.indexOf(terrainEvent)
+
+		fixture.assertNamed("switch-in-terrain-starts-electric-terrain-at-battle-start")
+		assertTrue(battleStartedIndex in 0 until terrainEventIndex)
+		assertEquals("terrain-user", terrainEvent.actorId)
+		assertEquals(BattleTerrain.ELECTRIC, terrainEvent.terrain)
+		assertEquals(5, terrainEvent.turnsRemaining)
+		assertEquals(BattleTerrain.ELECTRIC, state.environment.terrain)
+		assertEquals(5, state.environment.terrainTurnsRemaining)
+	}
+
+	@Test
+	fun `slower initial terrain ability overwrites faster terrain ability`() {
+		val fixture = publicBattleRuleFixture(
+			name = "slower-switch-in-terrain-overwrites-faster-terrain-at-battle-start",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Terrain#Abilities_that_create_terrain",
+			),
+			inputSummary = "单打战斗开始时，双方当前上场成员分别拥有出场设置场地的特性；己方速度更快，对方速度更慢。",
+			expectedSummary = "较快成员先设置电气场地，较慢成员后设置精神场地，最终保留较慢成员设置的场地。",
+		)
+
+		val state = engine.start(
+			initialState(
+				first = participant("electric-user", speed = 100, abilityEffects = listOf(switchInTerrain(BattleTerrain.ELECTRIC))),
+				second = participant("psychic-user", speed = 80, abilityEffects = listOf(switchInTerrain(BattleTerrain.PSYCHIC))),
+			),
+		)
+		val terrainEvents = state.events.filterIsInstance<BattleEvent.TerrainStarted>()
+
+		fixture.assertNamed("slower-switch-in-terrain-overwrites-faster-terrain-at-battle-start")
+		assertEquals(listOf("electric-user", "psychic-user"), terrainEvents.map { it.actorId })
+		assertEquals(listOf(BattleTerrain.ELECTRIC, BattleTerrain.PSYCHIC), terrainEvents.map { it.terrain })
+		assertEquals(BattleTerrain.PSYCHIC, state.environment.terrain)
+		assertEquals(5, state.environment.terrainTurnsRemaining)
+	}
+
+	@Test
+	fun `switch in terrain ability triggers after voluntary switch`() {
+		val fixture = publicBattleRuleFixture(
+			name = "switch-in-terrain-triggers-after-voluntary-switch",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "单打中己方主动替换到拥有出场设置薄雾场地特性的后备成员。",
+			expectedSummary = "替换事件先记录，随后场地变为薄雾场地并写入 5 回合持续时间。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("front", speed = 100),
+				firstBench = listOf(
+					participant("terrain-user", speed = 60, abilityEffects = listOf(switchInTerrain(BattleTerrain.MISTY))),
+				),
+				second = participant("opponent", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.SwitchParticipant("front", targetActorId = "terrain-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val switchIndex = resolved.events.indexOfFirst { it is BattleEvent.ParticipantSwitched }
+		val terrainIndex = resolved.events.indexOfFirst {
+			it is BattleEvent.TerrainStarted && it.actorId == "terrain-user"
+		}
+		val terrainEvent = resolved.events.filterIsInstance<BattleEvent.TerrainStarted>().single()
+
+		fixture.assertNamed("switch-in-terrain-triggers-after-voluntary-switch")
+		assertTrue(switchIndex in 0 until terrainIndex)
+		assertEquals(5, terrainEvent.turnsRemaining)
+		assertEquals(BattleTerrain.MISTY, resolved.environment.terrain)
+		assertEquals(4, resolved.environment.terrainTurnsRemaining)
+	}
+
 	private fun switchInAttackDrop(): BattleAbilityEffect.SwitchInStatStageChange =
 		BattleAbilityEffect.SwitchInStatStageChange(
 			stat = BattleStat.ATTACK,
@@ -221,4 +319,7 @@ class BattleSwitchInAbilityTests {
 
 	private fun switchInWeather(weather: BattleWeather): BattleAbilityEffect.SwitchInWeatherChange =
 		BattleAbilityEffect.SwitchInWeatherChange(weather = weather, turnsRemaining = 5)
+
+	private fun switchInTerrain(terrain: BattleTerrain): BattleAbilityEffect.SwitchInTerrainChange =
+		BattleAbilityEffect.SwitchInTerrainChange(terrain = terrain, turnsRemaining = 5)
 }

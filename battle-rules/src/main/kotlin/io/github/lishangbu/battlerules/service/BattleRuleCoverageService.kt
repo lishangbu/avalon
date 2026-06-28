@@ -370,6 +370,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖出场设置普通天气、战斗开始多天气按有效速度顺序覆盖，以及主动换入后的天气触发。",
 			),
 			item(
+				code = "ability.switch-in-terrain",
+				name = "出场特性设置场地",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"switch-in-terrain-starts-electric-terrain-at-battle-start",
+					"slower-switch-in-terrain-overwrites-faster-terrain-at-battle-start",
+					"switch-in-terrain-triggers-after-voluntary-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Terrain#Abilities_that_create_terrain",
+				),
+				note = "已覆盖出场设置普通场地、战斗开始多场地按有效速度顺序覆盖，以及主动换入后的场地触发。",
+			),
+			item(
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",
