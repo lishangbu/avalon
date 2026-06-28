@@ -4,7 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、受到接触类技能后有概率给攻击方附加主要异常状态，以及稳定状态免疫。
+ * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、受到接触类技能后有概率给攻击方附加主要异常状态，
+ * 以及稳定状态免疫。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
@@ -33,6 +34,34 @@ sealed interface BattleAbilityEffect {
 	) : BattleAbilityEffect {
 		init {
 			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/**
+	 * 指定天气下的速度倍率。
+	 *
+	 * 用于表达雨天下速度提升、晴天下速度提升、沙暴/雪景下速度提升等稳定特性。具体特性名称不进入公式；
+	 * 引擎只读取天气和倍率，保证同一快照可复盘。
+	 */
+	data class WeatherSpeedMultiplier(
+		val weather: BattleWeather,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(weather != BattleWeather.NONE) { "weather speed multiplier requires an active weather" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 免疫一组天气造成的回合末伤害。
+	 */
+	data class WeatherDamageImmunity(
+		val weathers: Set<BattleWeather>,
+	) : BattleAbilityEffect {
+		init {
+			require(weathers.isNotEmpty()) { "weathers must not be empty" }
+			require(BattleWeather.NONE !in weathers) { "weather damage immunity cannot target NONE" }
 		}
 	}
 

@@ -15,6 +15,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 
 internal fun singleFormat(teamSize: Int? = null): BattleFormatSnapshot =
@@ -132,6 +133,8 @@ internal fun damagingSkill(
 	thawsUserBeforeMove: Boolean = false,
 	powderBased: Boolean = false,
 	weakenedByGrassyTerrain: Boolean = false,
+	accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
+	powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
 	lockMoveTurnsMin: Int = 1,
 	lockMoveTurnsMax: Int = 1,
 	confusesUserAfterLock: Boolean = false,
@@ -157,6 +160,8 @@ internal fun damagingSkill(
 		thawsUserBeforeMove = thawsUserBeforeMove,
 		powderBased = powderBased,
 		weakenedByGrassyTerrain = weakenedByGrassyTerrain,
+		accuracyOverridesByWeather = accuracyOverridesByWeather,
+		powerMultipliersByWeather = powerMultipliersByWeather,
 		lockMoveTurnsMin = lockMoveTurnsMin,
 		lockMoveTurnsMax = lockMoveTurnsMax,
 		confusesUserAfterLock = confusesUserAfterLock,

@@ -115,7 +115,7 @@ class BattleEngine(
 			ActionPlan(action, actor, skill, input.lockedContinuation)
 		}
 		return plans
-			.groupBy { it.skill.priority to effectiveSpeed(it.actor) }
+			.groupBy { it.skill.priority to effectiveSpeed(state, it.actor) }
 			.toSortedMap(compareByDescending<Pair<Int, Int>> { it.first }.thenByDescending { it.second })
 			.values
 			.flatMap { sameOrderPlans ->
@@ -167,7 +167,7 @@ class BattleEngine(
 				val actor = requireNotNull(state.participant(action.actorId)) { "switch actor not found: ${action.actorId}" }
 				SwitchPlan(action, actor)
 			}
-			.groupBy { effectiveSpeed(it.actor) }
+			.groupBy { effectiveSpeed(state, it.actor) }
 			.toSortedMap(compareByDescending { it })
 			.values
 			.flatMap { sameSpeedPlans ->
@@ -387,7 +387,7 @@ class BattleEngine(
 			)
 		}
 
-		val accuracyCheck = accuracyCheck(actor, target, skill, random)
+		val accuracyCheck = accuracyCheck(state, actor, target, skill, random)
 		if (!accuracyCheck.hit) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -833,17 +833,17 @@ class BattleEngine(
 	/**
 	 * 处理命中判定。
 	 *
-	 * 空命中表示必中；否则先应用攻击方命中阶级和目标闪避阶级，再消费一个 1 到 100 的随机掷点。
-	 * 若修正后命中率已经达到或超过 100，则直接命中且不消费随机数。天气必中、无防守和蓄力中目标等
-	 * 例外规则会在这里之前或这里内部追加结构化 modifier。
+	 * 空命中表示必中；技能可按当前天气覆盖命中率，例如雨天必中或晴天降为固定命中。否则先应用攻击方命中阶级
+	 * 和目标闪避阶级，再消费一个 1 到 100 的随机掷点。若修正后命中率已经达到或超过 100，则直接命中且不消费随机数。
 	 */
 	private fun accuracyCheck(
+		state: BattleState,
 		actor: BattleParticipant,
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): AccuracyCheck {
-		val accuracy = skill.accuracy ?: return AccuracyCheck(hit = true, roll = null)
+		val accuracy = effectiveAccuracy(state, skill) ?: return AccuracyCheck(hit = true, roll = null)
 		val modifiedAccuracy = floor(
 			accuracy *
 				statStageModifiers.accuracyMultiplier(actor.statStage(BattleStat.ACCURACY)) /
@@ -855,6 +855,18 @@ class BattleEngine(
 		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
 		return AccuracyCheck(hit = roll <= modifiedAccuracy, roll = roll)
 	}
+
+	/**
+	 * 读取当前天气下的技能命中率。
+	 *
+	 * 资料层可以显式声明某天气下覆盖为固定命中率，或覆盖为 null 表示必中；没有覆盖时使用技能基础命中率。
+	 */
+	private fun effectiveAccuracy(state: BattleState, skill: BattleSkillSlot): Int? =
+		if (skill.accuracyOverridesByWeather.containsKey(state.environment.weather)) {
+			skill.accuracyOverridesByWeather[state.environment.weather]
+		} else {
+			skill.accuracy
+		}
 
 	/**
 	 * 结算击中要害概率。
@@ -1351,10 +1363,39 @@ class BattleEngine(
 		elementId != null && elementId in elementIds
 
 	/**
-	 * 判断成员是否天然免疫沙暴回合末伤害。
+	 * 判断成员是否免疫指定天气的回合末伤害。
+	 *
+	 * 沙暴天然不会伤害岩、地面、钢属性成员；特性和道具提供的天气伤害免疫作为更通用的结构化效果处理，
+	 * 便于表达防尘类道具或防天气伤害特性。
 	 */
-	private fun BattleParticipant.immuneToSandstorm(rules: BattleRuleSnapshot): Boolean =
-		hasElement(rules.rockElementId) || hasElement(rules.groundElementId) || hasElement(rules.steelElementId)
+	private fun BattleParticipant.immuneToWeatherDamage(state: BattleState, weather: BattleWeather): Boolean =
+		weatherDamageBlockedByAbility(weather) ||
+			weatherDamageBlockedByItem(weather) ||
+			when (weather) {
+				BattleWeather.SANDSTORM -> hasElement(state.rules.rockElementId) ||
+					hasElement(state.rules.groundElementId) ||
+					hasElement(state.rules.steelElementId)
+				BattleWeather.NONE,
+				BattleWeather.SUN,
+				BattleWeather.RAIN,
+				BattleWeather.SNOW -> false
+			}
+
+	/**
+	 * 判断成员特性是否免疫指定天气伤害。
+	 */
+	private fun BattleParticipant.weatherDamageBlockedByAbility(weather: BattleWeather): Boolean =
+		abilityEffects.any { effect ->
+			effect is BattleAbilityEffect.WeatherDamageImmunity && weather in effect.weathers
+		}
+
+	/**
+	 * 判断成员携带道具是否免疫指定天气伤害。
+	 */
+	private fun BattleParticipant.weatherDamageBlockedByItem(weather: BattleWeather): Boolean =
+		itemEffects.any { effect ->
+			effect is BattleItemEffect.WeatherDamageImmunity && weather in effect.weathers
+		}
 
 	/**
 	 * 附加临时状态并处理状态私有计数。
@@ -1618,7 +1659,7 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.immuneToSandstorm(current.rules)) {
+				if (!latest.canBattle() || latest.immuneToWeatherDamage(current, BattleWeather.SANDSTORM)) {
 					current
 				} else {
 					val damage = (latest.maxHp / WEATHER_DAMAGE_DENOMINATOR).coerceAtLeast(1)
@@ -1777,19 +1818,37 @@ class BattleEngine(
 	/**
 	 * 计算行动排序使用的有效速度。
 	 *
-	 * 速度先应用能力阶级，再应用麻痹减半。天气、道具、特性和顺风等速度修正会在后续 modifier 管线中加入。
+	 * 速度先应用能力阶级，再应用麻痹减半，最后应用天气触发的特性倍率。天气速度特性放在这里而不是动作排序外部，
+	 * 是为了替换排序、技能排序和未来追击类规则共享同一套有效速度定义。
 	 */
-	private fun effectiveSpeed(participant: BattleParticipant): Int {
+	private fun effectiveSpeed(state: BattleState, participant: BattleParticipant): Int {
 		val staged = statStageModifiers.modifiedBattleStat(
 			participant.speed,
 			participant.statStage(BattleStat.SPEED),
 		)
-		return if (participant.majorStatus == BattleMajorStatus.PARALYSIS) {
+		val afterStatus = if (participant.majorStatus == BattleMajorStatus.PARALYSIS) {
 			(staged / 2).coerceAtLeast(1)
 		} else {
 			staged
 		}
+		return floor(afterStatus * weatherSpeedMultiplier(state, participant)).toInt().coerceAtLeast(1)
 	}
+
+	/**
+	 * 计算天气触发的速度倍率。
+	 */
+	private fun weatherSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
+		participant.abilityEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleAbilityEffect.WeatherSpeedMultiplier ->
+					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.LowHpElementDamageBoost,
+				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.VolatileStatusImmunity,
+				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+			}
+		}
 
 	/**
 	 * 根据效果目标枚举找到实际承受效果的成员。

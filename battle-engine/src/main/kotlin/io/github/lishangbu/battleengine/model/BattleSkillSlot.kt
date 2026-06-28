@@ -16,6 +16,8 @@ package io.github.lishangbu.battleengine.model
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
+ * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
+ * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  *
@@ -39,6 +41,8 @@ data class BattleSkillSlot(
 	val thawsUserBeforeMove: Boolean = false,
 	val powderBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
+	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
+	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
 	val lockMoveTurnsMin: Int = 1,
 	val lockMoveTurnsMax: Int = 1,
 	val confusesUserAfterLock: Boolean = false,
@@ -59,6 +63,18 @@ data class BattleSkillSlot(
 		require(maxHits >= minHits) { "maxHits must be greater than or equal to minHits" }
 		require(damageClass != BattleDamageClass.STATUS || (minHits == 1 && maxHits == 1)) {
 			"status skill cannot use multi-hit settings"
+		}
+		require(accuracyOverridesByWeather.keys.none { it == BattleWeather.NONE }) {
+			"accuracyOverridesByWeather cannot target NONE"
+		}
+		require(accuracyOverridesByWeather.values.all { it == null || it in 1..100 }) {
+			"weather accuracy override must be null or between 1 and 100"
+		}
+		require(powerMultipliersByWeather.keys.none { it == BattleWeather.NONE }) {
+			"powerMultipliersByWeather cannot target NONE"
+		}
+		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
+			"weather power multiplier must be positive"
 		}
 		require(lockMoveTurnsMin > 0) { "lockMoveTurnsMin must be positive" }
 		require(lockMoveTurnsMax >= lockMoveTurnsMin) { "lockMoveTurnsMax must be greater than or equal to lockMoveTurnsMin" }

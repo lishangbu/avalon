@@ -31,7 +31,7 @@ class BattleDamageCalculator(
 	 */
 	fun calculate(request: BattleDamageRequest): BattleDamageResult {
 		require(request.skill.damageClass != BattleDamageClass.STATUS) { "status skill does not use standard damage formula" }
-		val power = requireNotNull(request.skill.power) { "damaging skill must define power" }
+		val power = effectivePower(request)
 		val attackingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
@@ -94,6 +94,18 @@ class BattleDamageCalculator(
 		} else {
 			stagedAttack
 		}
+	}
+
+	/**
+	 * 计算进入普通伤害公式的有效威力。
+	 *
+	 * 天气球、日光束类技能会在特定天气下改变威力。这里把资料层给出的倍率应用在基础威力上并向下取整；
+	 * 取整后至少为 1，避免极端自定义倍率产生无效威力。
+	 */
+	private fun effectivePower(request: BattleDamageRequest): Int {
+		val basePower = requireNotNull(request.skill.power) { "damaging skill must define power" }
+		val multiplier = request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0
+		return floor(basePower * multiplier).toInt().coerceAtLeast(1)
 	}
 
 	/**
@@ -213,6 +225,8 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
 				is BattleAbilityEffect.VolatileStatusImmunity -> multiplier
+				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 			}
 		}
 
@@ -228,6 +242,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
+				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}
 		}
 

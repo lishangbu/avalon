@@ -289,6 +289,38 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `weather power multiplier modifies base power before damage formula`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-power-multiplier-modifies-base-power",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Weather",
+			),
+			inputSummary = "下雨环境下，技能资料声明威力按 0.5 倍参与普通伤害公式。",
+			expectedSummary = "伤害计算器先把基础威力折半，再进入等级、攻防和倍率公式。",
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("weather-power-user", speed = 100, elementId = 2),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(
+					elementId = 1,
+					power = 120,
+					powerMultipliersByWeather = mapOf(BattleWeather.RAIN to 0.5),
+				),
+				rules = neutralRules(),
+				environment = BattleEnvironment(weather = BattleWeather.RAIN),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("weather-power-multiplier-modifies-base-power")
+		assertEquals(28, result.baseDamage)
+		assertEquals(28, result.amount)
+	}
+
+	@Test
 	fun `sandstorm boosts rock special defense before special damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sandstorm-boosts-rock-special-defense",
