@@ -15,6 +15,8 @@ package io.github.lishangbu.battleengine.model
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
+ * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
+ * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
  * 当前显式支持主要异常状态、临时状态和能力阶级变化三类命中后效果，避免用弱类型脚本描述核心规则。
@@ -35,6 +37,9 @@ data class BattleSkillSlot(
 	val protectsUser: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
 	val powderBased: Boolean = false,
+	val lockMoveTurnsMin: Int = 1,
+	val lockMoveTurnsMax: Int = 1,
+	val confusesUserAfterLock: Boolean = false,
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,
@@ -52,6 +57,11 @@ data class BattleSkillSlot(
 		require(maxHits >= minHits) { "maxHits must be greater than or equal to minHits" }
 		require(damageClass != BattleDamageClass.STATUS || (minHits == 1 && maxHits == 1)) {
 			"status skill cannot use multi-hit settings"
+		}
+		require(lockMoveTurnsMin > 0) { "lockMoveTurnsMin must be positive" }
+		require(lockMoveTurnsMax >= lockMoveTurnsMin) { "lockMoveTurnsMax must be greater than or equal to lockMoveTurnsMin" }
+		require(!confusesUserAfterLock || lockMoveTurnsMax > 1) {
+			"confusesUserAfterLock requires a locking move"
 		}
 		require(criticalHitStage >= 0) { "criticalHitStage must not be negative" }
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }

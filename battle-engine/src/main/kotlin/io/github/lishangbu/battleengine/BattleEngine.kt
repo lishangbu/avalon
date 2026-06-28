@@ -83,7 +83,8 @@ class BattleEngine(
 		if (afterSwitches.result != null) {
 			return afterSwitches
 		}
-		val orderedActions = orderSkillActions(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>(), random)
+		val skillActions = skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
+		val orderedActions = orderSkillActions(afterSwitches, skillActions, random)
 		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
 			if (current.state.result != null) current else executeUseSkill(current, plan, random)
 		}
@@ -106,11 +107,12 @@ class BattleEngine(
 	 * 第一阶段只支持技能行动，所以优先度来自技能槽。速度相同的行动会消费随机数作为排序键；
 	 * 这不是最终双打同速规则的完整实现，但已经保证同一随机脚本下的 replay 稳定。
 	 */
-	private fun orderSkillActions(state: BattleState, actions: List<BattleAction.UseSkill>, random: BattleRandom): List<ActionPlan> {
-		val plans = actions.map { action ->
+	private fun orderSkillActions(state: BattleState, actions: List<SkillActionInput>, random: BattleRandom): List<ActionPlan> {
+		val plans = actions.map { input ->
+			val action = input.action
 			val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
 			val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
-			ActionPlan(action, actor, skill)
+			ActionPlan(action, actor, skill, input.lockedContinuation)
 		}
 		return plans
 			.groupBy { it.skill.priority to effectiveSpeed(it.actor) }
@@ -123,6 +125,30 @@ class BattleEngine(
 					sameOrderPlans.sortedBy { random.nextInt(1_000_000, "speed tie for ${it.actor.actorId}") }
 				}
 			}
+	}
+
+	/**
+	 * 组装技能阶段实际要执行的行动。
+	 *
+	 * 锁招成员会强制继续使用锁定技能：如果玩家提交了其它技能选择，会被这里替换；如果玩家没有提交技能行动，
+	 * 引擎也会自动生成一次锁招行动。目标仍保存为首次锁定时选择的目标槽位，以复用现有目标重定向语义。
+	 */
+	private fun skillActionsForTurn(state: BattleState, submittedActions: List<BattleAction.UseSkill>): List<SkillActionInput> {
+		val lockedActions = state.sides
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() && it.lockedMoveTurnsRemaining > 0 }
+			.mapNotNull { actor ->
+				val skillId = actor.lockedMoveSkillId ?: return@mapNotNull null
+				val targetActorId = actor.lockedMoveTargetActorId ?: return@mapNotNull null
+				SkillActionInput(
+					action = BattleAction.UseSkill(actor.actorId, skillId = skillId, targetActorId = targetActorId),
+					lockedContinuation = true,
+				)
+			}
+		val lockedActorIds = lockedActions.map { it.action.actorId }.toSet()
+		return submittedActions
+			.filterNot { it.actorId in lockedActorIds }
+			.map { SkillActionInput(it, lockedContinuation = false) } + lockedActions
 	}
 
 	/**
@@ -155,6 +181,16 @@ class BattleEngine(
 			val actor = current.participant(plan.action.actorId) ?: return@fold current
 			val side = current.sideOf(actor.actorId) ?: return@fold current
 			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
+			if (actor.canBattle() && actor.lockedMoveTurnsRemaining > 0) {
+				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
+				return@fold current.appendEvent(
+					BattleEvent.SwitchPreventedByLockedMove(
+						turnNumber = current.turnNumber,
+						actorId = actor.actorId,
+						skillId = lockedSkillId,
+					),
+				)
+			}
 			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
 			switched.appendEvent(
 				BattleEvent.ParticipantSwitched(
@@ -176,25 +212,43 @@ class BattleEngine(
 	 */
 	private fun executeUseSkill(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
 		val state = context.state
-		val action = plan.action as BattleAction.UseSkill
+		val action = plan.action
 		val actor = state.participant(action.actorId) ?: return context
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
 		}
 		val beforeMove = resolveBeforeMoveEffects(context, actor, plan.skill, random)
 		if (beforeMove.blocked) {
-			return beforeMove.context
+			return if (plan.lockedContinuation) {
+				beforeMove.context.copy(
+					state = endLockedMoveAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill, random),
+				)
+			} else {
+				beforeMove.context
+			}
 		}
 		val actionState = beforeMove.context.state
 		val readyActor = actionState.participant(action.actorId) ?: return beforeMove.context
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMove.context
 		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill)
 		if (targets.isEmpty()) {
-			return beforeMove.context
+			return if (plan.lockedContinuation) {
+				beforeMove.context.copy(
+					state = endLockedMoveAfterDisruption(actionState, readyActor.actorId, skill, random),
+				)
+			} else {
+				beforeMove.context
+			}
 		}
-		require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
+		if (!plan.lockedContinuation) {
+			require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
+		}
 
-		val actorAfterPp = readyActor.replaceSkillSlot(skill.consumePp())
+		val actorAfterPp = if (plan.lockedContinuation) {
+			readyActor
+		} else {
+			readyActor.replaceSkillSlot(skill.consumePp())
+		}
 		val usedState = actionState
 			.replaceParticipant(actorAfterPp)
 			.appendEvent(
@@ -279,41 +333,56 @@ class BattleEngine(
 		val powderBlockedElementId = powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
 			return context.copy(
-				state = state.appendEvent(
-					BattleEvent.SkillBlockedByElement(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						elementId = powderBlockedElementId,
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByElement(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							elementId = powderBlockedElementId,
+						),
 					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
 				),
 			)
 		}
 
 		if (skillBlockedByTerrain(state, actor, target, skill)) {
 			return context.copy(
-				state = state.appendEvent(
-					BattleEvent.SkillBlockedByTerrain(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						terrain = state.environment.terrain,
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByTerrain(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							terrain = state.environment.terrain,
+						),
 					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
 				),
 			)
 		}
 
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
 			return context.copy(
-				state = state.appendEvent(
-					BattleEvent.SkillBlockedByProtection(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByProtection(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+						),
 					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
 				),
 			)
 		}
@@ -321,34 +390,53 @@ class BattleEngine(
 		val accuracyCheck = accuracyCheck(actor, target, skill, random)
 		if (!accuracyCheck.hit) {
 			return context.copy(
-				state = state.appendEvent(
-					BattleEvent.SkillMissed(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						accuracyRoll = accuracyCheck.roll ?: 0,
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillMissed(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							accuracyRoll = accuracyCheck.roll ?: 0,
+						),
 					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
 				),
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			return context.copy(state = applySkillEffects(state, actor.actorId, target.actorId, skill, random))
+			val afterEffects = applySkillEffects(state, actor.actorId, target.actorId, skill, random)
+			return context.copy(
+				state = updateLockedMoveAfterSuccessfulUse(
+					state = afterEffects,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
 		}
 
 		val effectiveness = state.rules.elementChart.multiplier(skill.elementId, target.elementIds)
 		if (effectiveness == 0.0) {
 			return context.copy(
-				state = state.appendEvent(
-					BattleEvent.DamageApplied(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						amount = 0,
-						effectiveness = 0.0,
-						targetMultiplier = targetMultiplier,
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.DamageApplied(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							amount = 0,
+							effectiveness = 0.0,
+							targetMultiplier = targetMultiplier,
+						),
 					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
 				),
 			)
 		}
@@ -385,7 +473,16 @@ class BattleEngine(
 			return afterHits
 		}
 		val latestTarget = afterHits.state.participant(target.actorId) ?: target
-		return afterHits.copy(state = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random))
+		val afterEffects = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
+		return afterHits.copy(
+			state = updateLockedMoveAfterSuccessfulUse(
+				state = afterEffects,
+				actorId = actor.actorId,
+				targetActorId = latestTarget.actorId,
+				skill = skill,
+				random = random,
+			),
+		)
 	}
 
 	/**
@@ -578,6 +675,159 @@ class BattleEngine(
 			}
 		}
 		return skill.minHits + random.nextInt(skill.maxHits - skill.minHits + 1, "multi-hit count for ${skill.skillId}")
+	}
+
+	/**
+	 * 决定锁招技能本次会持续的总回合数。
+	 *
+	 * 公开成熟实现会在首次成功使用时决定 2 或 3 回合等持续时间，并把当前回合计入总数。固定持续时间不消费
+	 * 随机数，避免普通单回合技能或测试 fixture 因无意义随机消费破坏 replay 脚本。
+	 */
+	private fun determineLockMoveTotalTurns(skill: BattleSkillSlot, random: BattleRandom): Int {
+		if (skill.lockMoveTurnsMin == skill.lockMoveTurnsMax) {
+			return skill.lockMoveTurnsMin
+		}
+		return skill.lockMoveTurnsMin +
+			random.nextInt(skill.lockMoveTurnsMax - skill.lockMoveTurnsMin + 1, "locked move duration for ${skill.skillId}")
+	}
+
+	/**
+	 * 在技能成功执行后推进锁招状态。
+	 *
+	 * 首次成功使用锁招技能时，成员进入“未来回合必须继续使用同一技能”的状态；后续锁定回合成功执行时，
+	 * 只递减未来剩余次数，不再次扣 PP。剩余次数耗尽后，如果技能声明会疲劳混乱，则立即给使用者附加混乱。
+	 */
+	private fun updateLockedMoveAfterSuccessfulUse(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return if (actor.lockedMoveTurnsRemaining > 0) state.replaceParticipant(actor.clearLockedMove()) else state
+		}
+		if (actor.lockedMoveTurnsRemaining > 0) {
+			return advanceLockedMoveAfterSuccessfulUse(state, actor, skill, random)
+		}
+		if (skill.lockMoveTurnsMax <= 1) {
+			return state
+		}
+		val totalTurns = determineLockMoveTotalTurns(skill, random)
+		val turnsRemainingAfterCurrent = totalTurns - 1
+		if (turnsRemainingAfterCurrent <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(
+				actor.startLockedMove(
+					skillId = skill.skillId,
+					targetActorId = targetActorId,
+					turnsRemainingAfterCurrent = turnsRemainingAfterCurrent,
+					confusesOnEnd = skill.confusesUserAfterLock,
+				),
+			)
+			.appendEvent(
+				BattleEvent.LockedMoveStarted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					totalTurns = totalTurns,
+					turnsRemainingAfterCurrent = turnsRemainingAfterCurrent,
+				),
+			)
+	}
+
+	/**
+	 * 消耗一次已经存在的锁招强制行动。
+	 *
+	 * 锁招的剩余次数只表示未来还会被强制行动几次，因此每次后续成功发动后递减。若递减后仍大于 0，只记录
+	 * `LockedMoveAdvanced`；若正好结束，则清除锁招并按技能配置处理疲劳混乱。
+	 */
+	private fun advanceLockedMoveAfterSuccessfulUse(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		val updated = actor.consumeLockedMoveTurn()
+		val afterConsume = state.replaceParticipant(updated)
+		return if (actor.lockedMoveTurnsRemaining > 1) {
+			afterConsume.appendEvent(
+				BattleEvent.LockedMoveAdvanced(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					turnsRemainingAfterCurrent = updated.lockedMoveTurnsRemaining,
+				),
+			)
+		} else {
+			val shouldConfuse = actor.lockedMoveConfusesOnEnd && updated.canBattle()
+			val ended = afterConsume.appendEvent(
+				BattleEvent.LockedMoveEnded(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					confusesUser = shouldConfuse,
+				),
+			)
+			if (shouldConfuse) {
+				applyVolatileStatusEffect(
+					state = ended,
+					actorId = actor.actorId,
+					recipient = updated,
+					status = BattleVolatileStatus.CONFUSION,
+					random = random,
+					randomReason = "locked move confusion duration for ${skill.skillId}",
+				)
+			} else {
+				ended
+			}
+		}
+	}
+
+	/**
+	 * 处理中断锁招的失败分支。
+	 *
+	 * 现代规则中，锁招后续回合如果被行动前状态阻止、找不到目标、未命中、被保护/场地/属性免疫挡下，
+	 * 会退出锁招。若中断正好发生在本应结束并疲劳的最后一次强制行动上，仍按公开说明附加疲劳混乱。
+	 */
+	private fun endLockedMoveAfterDisruption(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (actor.lockedMoveTurnsRemaining <= 0) {
+			return state
+		}
+		val shouldConfuse = actor.lockedMoveConfusesOnEnd && actor.lockedMoveTurnsRemaining == 1 && actor.canBattle()
+		val cleared = actor.clearLockedMove()
+		val ended = state
+			.replaceParticipant(cleared)
+			.appendEvent(
+				BattleEvent.LockedMoveEnded(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					confusesUser = shouldConfuse,
+				),
+			)
+		return if (shouldConfuse) {
+			applyVolatileStatusEffect(
+				state = ended,
+				actorId = actor.actorId,
+				recipient = cleared,
+				status = BattleVolatileStatus.CONFUSION,
+				random = random,
+				randomReason = "locked move confusion duration for ${skill.skillId}",
+			)
+		} else {
+			ended
+		}
 	}
 
 	/**
@@ -1511,10 +1761,16 @@ class BattleEngine(
 			)
 	}
 
+	private data class SkillActionInput(
+		val action: BattleAction.UseSkill,
+		val lockedContinuation: Boolean,
+	)
+
 	private data class ActionPlan(
-		val action: BattleAction,
+		val action: BattleAction.UseSkill,
 		val actor: BattleParticipant,
 		val skill: BattleSkillSlot,
+		val lockedContinuation: Boolean,
 	)
 
 	private data class SwitchPlan(

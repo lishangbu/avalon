@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数，以及畏缩/混乱等临时状态。
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、锁招运行态，以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -35,6 +35,10 @@ data class BattleParticipant(
 	val sleepTurnsRemaining: Int = 0,
 	val flinched: Boolean = false,
 	val confusionTurnsRemaining: Int = 0,
+	val lockedMoveSkillId: Long? = null,
+	val lockedMoveTargetActorId: String? = null,
+	val lockedMoveTurnsRemaining: Int = 0,
+	val lockedMoveConfusesOnEnd: Boolean = false,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
@@ -65,6 +69,20 @@ data class BattleParticipant(
 			"sleepTurnsRemaining must be positive when participant is asleep"
 		}
 		require(confusionTurnsRemaining >= 0) { "confusionTurnsRemaining must not be negative" }
+		require(lockedMoveSkillId == null || lockedMoveSkillId > 0) { "lockedMoveSkillId must be positive when present" }
+		require(lockedMoveTargetActorId == null || lockedMoveTargetActorId.isNotBlank()) {
+			"lockedMoveTargetActorId must not be blank when present"
+		}
+		require(lockedMoveTurnsRemaining >= 0) { "lockedMoveTurnsRemaining must not be negative" }
+		require(lockedMoveTurnsRemaining == 0 || lockedMoveSkillId != null) {
+			"lockedMoveSkillId must be present while locked move remains"
+		}
+		require(lockedMoveTurnsRemaining == 0 || lockedMoveTargetActorId != null) {
+			"lockedMoveTargetActorId must be present while locked move remains"
+		}
+		require(lockedMoveTurnsRemaining > 0 || !lockedMoveConfusesOnEnd) {
+			"lockedMoveConfusesOnEnd must be false when no locked move remains"
+		}
 	}
 
 	/**
@@ -200,6 +218,55 @@ data class BattleParticipant(
 		}
 
 	/**
+	 * 开始锁定连续使用某个技能。
+	 *
+	 * `turnsRemainingAfterCurrent` 只记录未来还会被强制行动几次；首次使用的当前回合不保存在计数中。
+	 */
+	fun startLockedMove(
+		skillId: Long,
+		targetActorId: String,
+		turnsRemainingAfterCurrent: Int,
+		confusesOnEnd: Boolean,
+	): BattleParticipant {
+		require(skillId > 0) { "skillId must be positive" }
+		require(targetActorId.isNotBlank()) { "targetActorId must not be blank" }
+		require(turnsRemainingAfterCurrent > 0) { "turnsRemainingAfterCurrent must be positive" }
+		return copy(
+			lockedMoveSkillId = skillId,
+			lockedMoveTargetActorId = targetActorId,
+			lockedMoveTurnsRemaining = turnsRemainingAfterCurrent,
+			lockedMoveConfusesOnEnd = confusesOnEnd,
+		)
+	}
+
+	/**
+	 * 消耗一次锁招强制行动。
+	 *
+	 * 若返回值的 `lockedMoveTurnsRemaining` 变为 0，调用方需要根据原状态决定是否追加疲劳混乱。
+	 */
+	fun consumeLockedMoveTurn(): BattleParticipant =
+		when {
+			lockedMoveTurnsRemaining > 1 -> copy(lockedMoveTurnsRemaining = lockedMoveTurnsRemaining - 1)
+			lockedMoveTurnsRemaining == 1 -> clearLockedMove()
+			else -> this
+		}
+
+	/**
+	 * 清除锁招运行态。
+	 */
+	fun clearLockedMove(): BattleParticipant =
+		if (lockedMoveTurnsRemaining == 0 && lockedMoveSkillId == null && lockedMoveTargetActorId == null && !lockedMoveConfusesOnEnd) {
+			this
+		} else {
+			copy(
+				lockedMoveSkillId = null,
+				lockedMoveTargetActorId = null,
+				lockedMoveTurnsRemaining = 0,
+				lockedMoveConfusesOnEnd = false,
+			)
+		}
+
+	/**
 	 * 清理回合结束时不会跨回合保留的临时状态。
 	 */
 	fun clearEndTurnVolatileStatuses(): BattleParticipant =
@@ -263,5 +330,9 @@ data class BattleParticipant(
 			badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
 			flinched = false,
 			confusionTurnsRemaining = 0,
+			lockedMoveSkillId = null,
+			lockedMoveTargetActorId = null,
+			lockedMoveTurnsRemaining = 0,
+			lockedMoveConfusesOnEnd = false,
 		)
 }

@@ -33,6 +33,17 @@ sealed interface BattleEvent {
 		val forced: Boolean,
 	) : BattleEvent
 
+	/**
+	 * 成员因锁招状态无法主动替换。
+	 *
+	 * 锁招期间成员会在技能阶段继续使用被锁定的技能。该事件只表示本次替换请求被忽略，不会清除锁招状态。
+	 */
+	data class SwitchPreventedByLockedMove(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -124,6 +135,40 @@ sealed interface BattleEvent {
 		val targetActorId: String,
 		val skillId: Long,
 		val hitCount: Int,
+	) : BattleEvent
+
+	/**
+	 * 成员开始进入锁招状态。
+	 *
+	 * `totalTurns` 包含当前首次使用回合；`turnsRemainingAfterCurrent` 表示未来还会被强制继续行动几次。
+	 */
+	data class LockedMoveStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val totalTurns: Int,
+		val turnsRemainingAfterCurrent: Int,
+	) : BattleEvent
+
+	/**
+	 * 锁招状态消耗了一次未来强制行动。
+	 */
+	data class LockedMoveAdvanced(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val turnsRemainingAfterCurrent: Int,
+	) : BattleEvent
+
+	/**
+	 * 锁招状态在本次行动后结束。
+	 */
+	data class LockedMoveEnded(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val confusesUser: Boolean,
 	) : BattleEvent
 
 	/**
