@@ -121,7 +121,7 @@ class BattleRuleCoverageService {
 					"https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)",
 					"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
 				),
-				note = "睡眠按 1..3 次阻止行动建模；电气场地当前按上场成员均受影响处理。",
+				note = "睡眠按 1..3 次阻止行动建模；电气场地只阻止当前上场且接地的成员新获得睡眠。",
 			),
 			item(
 				code = "status.paralysis-speed-action",
@@ -162,7 +162,7 @@ class BattleRuleCoverageService {
 				status = PARTIAL,
 				fixtures = listOf("grassy-terrain-heals-active-participants-at-end-turn"),
 				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)"),
-				note = "已覆盖固定比例回复；是否接地、场地持续时间和其它场地效果仍需补齐。",
+				note = "已覆盖接地成员固定比例回复；场地持续时间和其它场地效果仍需补齐。",
 			),
 			item(
 				code = "weather.sun-rain-damage",
@@ -192,10 +192,15 @@ class BattleRuleCoverageService {
 				code = "status.immunity-and-grounding",
 				name = "状态免疫和是否接地",
 				category = "免疫",
-				status = PLANNED,
-				fixtures = emptyList(),
+				status = PARTIAL,
+				fixtures = listOf(
+					"element-immunities-block-major-statuses",
+					"electric-terrain-does-not-block-sleep-for-ungrounded-target",
+					"misty-terrain-blocks-major-status-for-grounded-target",
+					"grassy-terrain-heals-only-grounded-active-participants",
+				),
 				references = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts"),
-				note = "需要按类型、特性、道具、场地和是否接地判定主要状态或临时状态是否可附加。",
+				note = "已覆盖主要状态的基础属性免疫、接地场地状态免疫和青草场地接地回复；特性、道具、临时状态免疫和粉末类免疫仍需补齐。",
 			),
 			item(
 				code = "turn.multi-hit-and-locked-move",
