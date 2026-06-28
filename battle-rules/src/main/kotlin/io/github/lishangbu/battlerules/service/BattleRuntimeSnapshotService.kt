@@ -37,6 +37,7 @@ import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battleengine.model.MAX_BATTLE_SKILL_SLOTS
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
@@ -398,6 +399,12 @@ class BattleRuntimeSnapshotService(
 		}
 		if (skillIds.isEmpty()) {
 			invalidValue("skillIds", "skillIds 不能为空")
+		}
+		if (skillIds.size > MAX_BATTLE_SKILL_SLOTS) {
+			invalidValue("skillIds", "skillIds 最多只能包含 $MAX_BATTLE_SKILL_SLOTS 个技能")
+		}
+		if (skillIds.toSet().size != skillIds.size) {
+			invalidValue("skillIds", "skillIds 不能包含重复技能")
 		}
 		abilityId?.takeIf { it <= 0 }?.let {
 			invalidValue("abilityId", "abilityId 必须大于 0")

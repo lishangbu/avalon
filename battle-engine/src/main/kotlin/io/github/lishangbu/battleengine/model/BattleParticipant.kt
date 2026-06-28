@@ -1,6 +1,11 @@
 package io.github.lishangbu.battleengine.model
 
 /**
+ * 现代主系列规则中单个成员最多可携带的技能数量。
+ */
+const val MAX_BATTLE_SKILL_SLOTS = 4
+
+/**
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
@@ -10,7 +15,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一阶段状态不变量：
  * - `currentHp` 必须位于 `0..maxHp`。
- * - 可行动成员必须拥有至少一个技能槽。
+ * - 可行动成员必须拥有 1 到 4 个技能槽，且同一成员内技能不能重复。
  * - 攻击、防御、特攻、特防、速度必须为正数，避免公式除零或负速度排序。
  */
 data class BattleParticipant(
@@ -57,6 +62,9 @@ data class BattleParticipant(
 		require(speed > 0) { "speed must be positive" }
 		require(elementIds.all { it > 0 }) { "elementIds must contain only positive ids" }
 		require(skillSlots.isNotEmpty()) { "skillSlots must not be empty" }
+		require(skillSlots.size <= MAX_BATTLE_SKILL_SLOTS) {
+			"skillSlots must contain at most $MAX_BATTLE_SKILL_SLOTS skills"
+		}
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
 		require(abilityId == null || abilityId > 0) { "abilityId must be positive when present" }
 		require(itemId == null || itemId > 0) { "itemId must be positive when present" }

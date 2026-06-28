@@ -459,6 +459,33 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.violations.map { it.actorId }).doesNotContain("b-1")
 	}
 
+	@Test
+	fun `preparation validation rejects invalid skill slot input before engine assembly`() {
+		val tooManySkills = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant("a-1", creatureId = 1, level = 50, itemId = 10).copy(
+						skillIds = listOf(1, 2, 3, 4, 5),
+					),
+				),
+			)
+		}
+		assertThat(tooManySkills.field).isEqualTo("skillIds")
+		assertThat(tooManySkills.message).isEqualTo("skillIds 最多只能包含 4 个技能")
+
+		val duplicateSkill = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant("a-1", creatureId = 1, level = 50, itemId = 10).copy(
+						skillIds = listOf(1, 1),
+					),
+				),
+			)
+		}
+		assertThat(duplicateSkill.field).isEqualTo("skillIds")
+		assertThat(duplicateSkill.message).isEqualTo("skillIds 不能包含重复技能")
+	}
+
 	private fun BattleRuntimeSnapshotService.switchInWeatherByAbilityId(abilityId: Long): BattleWeather =
 		abilityEffectsByAbilityId(abilityId)
 			.filterIsInstance<BattleAbilityEffect.SwitchInWeatherChange>()
@@ -488,6 +515,29 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
 			.single()
 			.let { it.weathers to it.healDenominator }
+
+	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =
+		BattlePreparationValidationRequest(
+			formatCode = "official-double",
+			sides = listOf(
+				BattlePreparationSideRequest(
+					sideId = "side-a",
+					activeActorIds = listOf("a-1", "a-2"),
+					participants = listOf(
+						firstParticipant,
+						participant("a-2", creatureId = 2, level = 50, itemId = 11),
+					),
+				),
+				BattlePreparationSideRequest(
+					sideId = "side-b",
+					activeActorIds = listOf("b-1", "b-2"),
+					participants = listOf(
+						participant("b-1", creatureId = 3, level = 50, itemId = 12),
+						participant("b-2", creatureId = 4, level = 50, itemId = 13),
+					),
+				),
+			),
+		)
 
 	private fun participant(
 		actorId: String,

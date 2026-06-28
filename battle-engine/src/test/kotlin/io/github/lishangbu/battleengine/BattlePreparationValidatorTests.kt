@@ -1,5 +1,6 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.MAX_BATTLE_SKILL_SLOTS
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -85,6 +86,17 @@ class BattlePreparationValidatorTests {
 
 		assertFailsWith<IllegalArgumentException> {
 			validator.requireValid(state)
+		}
+	}
+
+	@Test
+	fun `participant rejects more than four skill slots`() {
+		val skills = (1L..(MAX_BATTLE_SKILL_SLOTS + 1L)).map { skillId ->
+			damagingSkill(skillId = skillId, name = "技能$skillId")
+		}
+
+		assertFailsWith<IllegalArgumentException> {
+			participant("too-many-skills", speed = 100).copy(skillSlots = skills)
 		}
 	}
 }
