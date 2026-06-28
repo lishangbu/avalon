@@ -1,7 +1,9 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.common.web.invalidValue
+import io.github.lishangbu.common.web.invalidReference
 import io.github.lishangbu.common.web.requiredText
+import org.springframework.jdbc.core.JdbcTemplate
 
 /**
  * 战斗规则管理服务共用的输入清洗函数。
@@ -50,6 +52,23 @@ internal fun optionalIntRange(value: Int?, fieldName: String, min: Int, max: Int
 		return null
 	}
 	return requiredIntRange(value, fieldName, min, max)
+}
+
+internal fun requireExistingGameDataReference(
+	jdbcTemplate: JdbcTemplate,
+	tableName: String,
+	id: Long,
+	fieldName: String,
+	displayName: String,
+) {
+	val exists = jdbcTemplate.queryForObject(
+		"select exists(select 1 from $tableName where id = ?)",
+		Boolean::class.java,
+		id,
+	) == true
+	if (!exists) {
+		invalidReference(fieldName, "$displayName 不存在: $id")
+	}
 }
 
 private val POLICY_CODE_PATTERN = Regex("^[a-z][a-z0-9-]{1,79}$")

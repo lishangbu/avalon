@@ -49,6 +49,7 @@ class LiquibaseMigrationTests(
 		assertThat(changelogFiles).containsExactly(
 			"001-initial-schema.yaml",
 			"002-battle-rules-schema.yaml",
+			"003-battle-effect-rules-schema.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -234,6 +235,7 @@ class LiquibaseMigrationTests(
 		val battleRulesAccessNodeCodes = listOf(
 			"battle-rules",
 			"battle-rules:admin",
+			"battle-rules.ability-rules",
 			"battle-rules.battle-formats",
 			"battle-rules.effects",
 			"battle-rules.field-rules",
@@ -242,7 +244,11 @@ class LiquibaseMigrationTests(
 			"battle-rules.format-restrictions",
 			"battle-rules.format-special-mechanics",
 			"battle-rules.formats",
+			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
+			"battle-rules.skill-rules",
+			"battle-rules.skill-stat-stage-effects",
+			"battle-rules.skill-status-effects",
 			"battle-rules.status-rules",
 			"battle-rules.terrain-rules",
 			"battle-rules.weather-rules",
@@ -419,6 +425,11 @@ class LiquibaseMigrationTests(
 			"battle_weather_rule",
 			"battle_terrain_rule",
 			"battle_field_rule",
+			"battle_skill_rule",
+			"battle_skill_status_effect",
+			"battle_skill_stat_stage_effect",
+			"battle_ability_rule",
+			"battle_item_rule",
 		)
 
 		val seedCounts = queryMaps(
@@ -433,9 +444,16 @@ class LiquibaseMigrationTests(
 			union all select 'battle_weather_rule', count(*) from battle_weather_rule
 			union all select 'battle_terrain_rule', count(*) from battle_terrain_rule
 			union all select 'battle_field_rule', count(*) from battle_field_rule
+			union all select 'battle_skill_rule', count(*) from battle_skill_rule
+			union all select 'battle_skill_status_effect', count(*) from battle_skill_status_effect
+			union all select 'battle_skill_stat_stage_effect', count(*) from battle_skill_stat_stage_effect
+			union all select 'battle_ability_rule', count(*) from battle_ability_rule
+			union all select 'battle_item_rule', count(*) from battle_item_rule
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 5L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -446,6 +464,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 8L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -456,6 +477,20 @@ class LiquibaseMigrationTests(
 			"select name from battle_status_rule where code in ('burn', 'paralysis', 'sleep') order by code",
 		)
 		assertThat(statusNames).containsExactly("灼伤", "麻痹", "睡眠")
+
+		val skillRulePolicies = queryStrings(
+			"""
+			select effect_policy
+			from battle_skill_rule
+			where skill_id in (52, 85, 182)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(skillRulePolicies).containsExactly(
+			"standard-damage-with-status",
+			"standard-damage-with-status",
+			"protect-self",
+		)
 	}
 
 	@Test

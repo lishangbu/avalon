@@ -1,0 +1,6 @@
+id,item_id,trigger_timing,effect_policy,consumable,trigger_order,description,enabled,sort_order
+1,211,HELD_END_TURN,leftovers-heal,false,100,回合结束时回复少量体力。,true,10
+2,132,ON_HP_LOW,small-berry-heal,true,100,体力较低时消耗并回复体力。,true,20
+3,135,ON_HP_LOW,medium-berry-heal,true,100,体力较低时消耗并回复更多体力。,true,30
+4,247,AFTER_DAMAGE,life-orb-boost-and-recoil,false,100,提升造成的伤害并在命中后损失体力。,true,40
+5,264,BEFORE_STAT,choice-speed-lock,false,100,提升速度但限制只能连续使用首次选择的技能。,true,50

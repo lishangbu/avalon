@@ -1,0 +1,3 @@
+id,skill_rule_id,status_rule_id,target_scope,effect_timing,chance_percent,enabled,sort_order
+1,4,1,TARGET,AFTER_HIT,10,true,10
+2,5,4,TARGET,AFTER_HIT,10,true,20

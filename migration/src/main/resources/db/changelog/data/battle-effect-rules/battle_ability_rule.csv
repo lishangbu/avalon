@@ -1,0 +1,6 @@
+id,ability_id,trigger_timing,effect_policy,trigger_order,description,enabled,sort_order
+1,65,BEFORE_DAMAGE,low-hp-grass-boost,100,体力降低时强化草属性伤害。,true,10
+2,66,BEFORE_DAMAGE,low-hp-fire-boost,100,体力降低时强化火属性伤害。,true,20
+3,67,BEFORE_DAMAGE,low-hp-water-boost,100,体力降低时强化水属性伤害。,true,30
+4,9,AFTER_CONTACT,contact-paralysis,100,受到接触类攻击后有概率使攻击方麻痹。,true,40
+5,26,GROUND_CHECK,ground-immunity,100,让成员不被地面相关效果视为接触地面。,true,50

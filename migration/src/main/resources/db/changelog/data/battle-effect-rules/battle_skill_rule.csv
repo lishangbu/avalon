@@ -1,0 +1,9 @@
+id,skill_id,effect_policy,target_policy,hit_policy,damage_policy,makes_contact,affected_by_protect,sound_based,powder_based,punch_based,slicing_based,description,enabled,sort_order
+1,1,standard-damage,selected-target,standard-hit,standard-damage,true,true,false,false,false,false,造成常规接触伤害。,true,10
+2,33,standard-damage,selected-target,standard-hit,standard-damage,true,true,false,false,false,false,造成常规接触伤害。,true,20
+3,45,stat-stage-change,all-opponents,standard-hit,no-damage,false,true,true,false,false,false,降低目标攻击阶级。,true,30
+4,52,standard-damage-with-status,selected-target,standard-hit,standard-damage,false,true,false,false,false,false,造成火属性伤害并可能灼伤。,true,40
+5,85,standard-damage-with-status,selected-target,standard-hit,standard-damage,false,true,false,false,false,false,造成电属性伤害并可能麻痹。,true,50
+6,94,standard-damage-with-stat,selected-target,standard-hit,standard-damage,false,true,false,false,false,false,造成超能力属性伤害并可能降低特防。,true,60
+7,182,protect-self,self,protect-hit,no-damage,false,false,false,false,false,false,本回合保护自己免受多数技能影响。,true,70
+8,331,multi-hit-damage,selected-target,multi-hit,standard-damage,false,true,false,false,false,false,一回合连续命中二到五次。,true,80
