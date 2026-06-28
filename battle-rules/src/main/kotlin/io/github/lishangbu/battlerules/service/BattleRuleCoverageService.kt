@@ -228,10 +228,13 @@ class BattleRuleCoverageService {
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",
-				status = PLANNED,
-				fixtures = emptyList(),
+				status = PARTIAL,
+				fixtures = listOf(
+					"multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count",
+					"multi-hit-skill-stops-after-target-faints",
+				),
 				references = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts"),
-				note = "需要技能执行上下文支持多段命中、锁定技能、疲劳混乱和中断规则。",
+				note = "已覆盖 2..5 段命中分布、单次 PP 消耗和倒下中断；锁定技能、疲劳混乱和中断规则仍需补齐。",
 			),
 		)
 
