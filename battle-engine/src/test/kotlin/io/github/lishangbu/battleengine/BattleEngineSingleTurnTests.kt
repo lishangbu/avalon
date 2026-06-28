@@ -530,7 +530,7 @@ class BattleEngineSingleTurnTests {
 		)
 
 		assertEquals(63, resolved.participant("defender")?.currentHp)
-		assertEquals(97, resolved.participant("attacker")?.currentHp)
+		assertEquals(90, resolved.participant("attacker")?.currentHp)
 		assertIs<BattleEvent.RecoilDamageApplied>(resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().single())
 	}
 

@@ -3,7 +3,7 @@ package io.github.lishangbu.battleengine.model
 /**
  * 携带道具在战斗中的可执行效果。
  *
- * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按伤害反伤、回合末按最大 HP 比例回复、天气伤害免疫、
+ * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 低体力一次性回复，以及稳定状态免疫。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
@@ -46,6 +46,12 @@ sealed interface BattleItemEffect {
 		}
 	}
 
+	/**
+	 * 造成伤害时提升最终伤害倍率，并在成功造成伤害后让使用者承受最大 HP 比例反伤。
+	 *
+	 * `recoilDenominator` 表示使用者最大 HP 的分母，例如 10 表示反伤为 `floor(maxHp / 10)`，最少 1 点。
+	 * 反伤不取决于实际造成了多少伤害，因此不会被随机浮动、属性克制、屏障或其它伤害修正间接改变。
+	 */
 	data class DamageBoostWithRecoil(
 		val multiplier: Double,
 		val recoilDenominator: Int,
@@ -56,6 +62,12 @@ sealed interface BattleItemEffect {
 		}
 	}
 
+	/**
+	 * 当前上场成员在完整回合末按最大 HP 固定比例回复。
+	 *
+	 * `healDenominator` 表示回复分母，例如 16 表示回复 `floor(maxHp / 16)`，最少 1 点且不超过缺失 HP。
+	 * 该效果描述稳定的携带道具回复，不消费道具，也不表达回复封锁、强制失效或复杂优先级。
+	 */
 	data class HeldEndTurnHeal(
 		val healDenominator: Int,
 	) : BattleItemEffect {

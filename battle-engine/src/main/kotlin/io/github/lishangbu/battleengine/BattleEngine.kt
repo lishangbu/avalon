@@ -2439,7 +2439,9 @@ class BattleEngine(
 	/**
 	 * 处理造成伤害后的道具反伤。
 	 *
-	 * 伤害增幅本身由伤害计算器读取道具效果完成；这里根据最终伤害扣除攻击方 HP 并产生反伤事件。
+	 * 伤害增幅本身由伤害计算器读取道具效果完成；这里按攻击方最大 HP 的固定比例扣除 HP 并产生反伤事件。
+	 * 生命宝珠类现代主系列规则不是“按造成伤害反伤”，而是“按使用者最大 HP 反伤”；这个函数故意只读取
+	 * 成员快照中的 `maxHp`，避免伤害随机浮动、属性倍率或屏障倍率改变反伤数值。
 	 */
 	private fun applyPostDamageItemEffects(
 		state: BattleState,
@@ -2459,7 +2461,9 @@ class BattleEngine(
 				if (!actor.canBattle()) {
 					current
 				} else {
-					val recoil = (damageAmount / effect.recoilDenominator).coerceAtLeast(1)
+					val recoil = (actor.maxHp / effect.recoilDenominator)
+						.coerceAtLeast(1)
+						.coerceAtMost(actor.currentHp)
 					current
 						.replaceParticipant(actor.receiveDamage(recoil))
 						.appendEvent(

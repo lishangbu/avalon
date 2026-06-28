@@ -471,6 +471,26 @@ class BattleRuleCoverageService {
 				note = "已覆盖出场设置普通场地、战斗开始多场地按有效速度顺序覆盖，以及主动换入后的场地触发。",
 			),
 			item(
+				code = "item.held-core-effects",
+				name = "携带道具核心触发效果",
+				category = "道具",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"low-hp-berry-heals-once-after-damage",
+					"choice-speed-item-modifies-action-order",
+					"damage-boost-item-uses-max-hp-recoil-after-damage",
+					"end-turn-healing-item-restores-one-sixteenth-max-hp",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Oran_Berry",
+					"https://bulbapedia.bulbagarden.net/wiki/Sitrus_Berry",
+					"https://bulbapedia.bulbagarden.net/wiki/Life_Orb",
+					"https://bulbapedia.bulbagarden.net/wiki/Leftovers",
+				),
+				note = "已覆盖低体力树果一次性回复并消费、讲究类速度道具改变行动顺序并锁定首次技能、生命宝珠类伤害增幅按最大 HP 反伤，以及剩饭类回合末最大 HP 1/16 回复。",
+			),
+			item(
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",
