@@ -534,6 +534,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖 2..5 段命中分布、单次 PP 消耗、倒下中断、锁招续回合、目标槽位重定向、主动替换阻止和疲劳混乱。",
 			),
 			item(
+				code = "turn.recharge-after-use",
+				name = "成功后休整技能",
+				category = "技能流程",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"recharge-skill-prevents-next-turn-action-without-pp-loss",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Hyper_Beam_(move)",
+				),
+				note = "已覆盖成功造成实际伤害后写入一次休整、下一次技能行动前阻止执行且不扣 PP，以及主动替换校验阻止；未造成实际伤害时不会进入休整。",
+			),
+			item(
 				code = "skill.major-status-effects",
 				name = "技能主要异常状态附加",
 				category = "技能效果",

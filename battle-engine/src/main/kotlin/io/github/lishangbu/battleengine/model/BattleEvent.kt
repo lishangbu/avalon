@@ -44,6 +44,17 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
+	/**
+	 * 成员因必须休整而不能主动替换。
+	 *
+	 * 该事件是引擎防御性事件；正常调用方应在行动校验阶段阻止这类提交。若非法提交进入引擎，成员不会离场，
+	 * 休整计数也不会在替换阶段被消费。
+	 */
+	data class SwitchPreventedByRecharge(
+		override val turnNumber: Int,
+		val actorId: String,
+	) : BattleEvent
+
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -203,6 +214,18 @@ sealed interface BattleEvent {
 	data class SkillPreventedByParalysis(
 		override val turnNumber: Int,
 		val actorId: String,
+	) : BattleEvent
+
+	/**
+	 * 行动者因上一回合成功使用休整技能而无法执行本次技能行动。
+	 *
+	 * 休整不会消耗本次提交技能的 PP，也不会进入命中、伤害或附加效果流程。事件中的 `turnsRemainingBefore`
+	 * 记录本次行动前还会被休整阻止几次，方便 replay 校验计数消费。
+	 */
+	data class SkillPreventedByRecharge(
+		override val turnNumber: Int,
+		val actorId: String,
+		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
 	/**
@@ -526,6 +549,19 @@ sealed interface BattleEvent {
 		val skillId: Long,
 		val amount: Int,
 		val sourceDamageAmount: Int,
+	) : BattleEvent
+
+	/**
+	 * 技能成功造成实际伤害后，使用者进入休整状态。
+	 *
+	 * `turnsRemainingAfterCurrent` 表示未来还会阻止几次技能行动。该事件不表示当前回合的行动被阻止，而是为
+	 * 下一次行动前钩子写入可复盘的运行态。
+	 */
+	data class RechargeStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val turnsRemainingAfterCurrent: Int,
 	) : BattleEvent
 
 	data class TerrainHealingApplied(

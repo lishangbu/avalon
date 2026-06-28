@@ -119,6 +119,24 @@ class BattleActionValidatorTests {
 	}
 
 	@Test
+	fun `reports recharge prevents voluntary switch`() {
+		val state = engine.start(
+			initialState(
+				first = participant("recharging", speed = 100).copy(rechargeTurnsRemaining = 1),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("opponent", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.SwitchParticipant("recharging", targetActorId = "reserve")),
+		)
+
+		assertEquals(listOf("recharge-prevents-switch"), violations.map { it.code })
+	}
+
+	@Test
 	fun `reports battle ended and require valid throws`() {
 		val state = engine.start(
 			initialState(

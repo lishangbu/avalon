@@ -46,6 +46,7 @@ class BattleSkillRuleServiceTests(
 				makesContact = true,
 				affectedByProtect = true,
 				weakenedByGrassyTerrain = true,
+				rechargesAfterUse = true,
 				lockMoveTurnsMin = 2,
 				lockMoveTurnsMax = 3,
 				confusesUserAfterLock = true,
@@ -60,6 +61,7 @@ class BattleSkillRuleServiceTests(
 		assertThat(created.maxHits).isEqualTo(5)
 		assertThat(created.criticalHitStage).isEqualTo(1)
 		assertThat(created.weakenedByGrassyTerrain).isTrue()
+		assertThat(created.rechargesAfterUse).isTrue()
 		assertThat(created.lockMoveTurnsMin).isEqualTo(2)
 		assertThat(created.lockMoveTurnsMax).isEqualTo(3)
 		assertThat(created.confusesUserAfterLock).isTrue()
@@ -80,6 +82,7 @@ class BattleSkillRuleServiceTests(
 				makesContact = false,
 				affectedByProtect = false,
 				thawsUserBeforeMove = true,
+				rechargesAfterUse = false,
 				soundBased = true,
 				lockMoveTurnsMin = 1,
 				lockMoveTurnsMax = 1,
@@ -94,6 +97,7 @@ class BattleSkillRuleServiceTests(
 		assertThat(updated.soundBased).isTrue()
 		assertThat(updated.criticalHitStage).isEqualTo(2)
 		assertThat(updated.thawsUserBeforeMove).isTrue()
+		assertThat(updated.rechargesAfterUse).isFalse()
 		assertThat(updated.confusesUserAfterLock).isFalse()
 		assertThat(updated.description).isNull()
 
@@ -211,5 +215,21 @@ class BattleSkillRuleServiceTests(
 		}
 		assertThat(lockConfusion.status).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(lockConfusion.field).isEqualTo("confusesUserAfterLock")
+
+		val statusRecharge = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 14,
+					effectPolicy = "test-invalid-status-recharge",
+					targetPolicy = "self",
+					hitPolicy = "standard-hit",
+					damagePolicy = "no-damage",
+					rechargesAfterUse = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(statusRecharge.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(statusRecharge.field).isEqualTo("rechargesAfterUse")
 	}
 }

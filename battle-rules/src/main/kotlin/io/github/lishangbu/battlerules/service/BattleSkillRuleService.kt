@@ -20,6 +20,7 @@ import io.github.lishangbu.battlerules.entity.minHits
 import io.github.lishangbu.battlerules.entity.powderBased
 import io.github.lishangbu.battlerules.entity.protectsUser
 import io.github.lishangbu.battlerules.entity.punchBased
+import io.github.lishangbu.battlerules.entity.rechargesAfterUse
 import io.github.lishangbu.battlerules.entity.slicingBased
 import io.github.lishangbu.battlerules.entity.skillId
 import io.github.lishangbu.battlerules.entity.sortOrder
@@ -110,6 +111,7 @@ class BattleSkillRuleService(
 				protectsUser = normalized.protectsUser
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
+				rechargesAfterUse = normalized.rechargesAfterUse
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
@@ -151,6 +153,7 @@ class BattleSkillRuleService(
 				protectsUser = normalized.protectsUser
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
+				rechargesAfterUse = normalized.rechargesAfterUse
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
@@ -203,6 +206,9 @@ class BattleSkillRuleService(
 		if (request.protectsUser && damageClassCode != "status") {
 			invalidValue("protectsUser", "只有变化类技能才能配置保护自身")
 		}
+		if (request.rechargesAfterUse && damageClassCode == "status") {
+			invalidValue("rechargesAfterUse", "变化类技能不能配置成功后休整")
+		}
 		if (request.lockMoveTurnsMax < request.lockMoveTurnsMin) {
 			invalidValue("lockMoveTurnsMax", "lockMoveTurnsMax 不能小于 lockMoveTurnsMin")
 		}
@@ -254,6 +260,7 @@ class BattleSkillRuleService(
 			protectsUser = protectsUser,
 			thawsUserBeforeMove = thawsUserBeforeMove,
 			weakenedByGrassyTerrain = weakenedByGrassyTerrain,
+			rechargesAfterUse = rechargesAfterUse,
 			soundBased = soundBased,
 			powderBased = powderBased,
 			punchBased = punchBased,

@@ -25,6 +25,7 @@ package io.github.lishangbu.battleengine.model
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
  * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
+ * `rechargesAfterUse` 表示技能成功造成实际伤害后，使用者下一次技能行动前必须休整一次。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
@@ -47,6 +48,7 @@ data class BattleSkillSlot(
 	val thawsUserBeforeMove: Boolean = false,
 	val powderBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
+	val rechargesAfterUse: Boolean = false,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
 	val lockMoveTurnsMin: Int = 1,

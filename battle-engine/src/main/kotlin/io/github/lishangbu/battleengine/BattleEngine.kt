@@ -210,6 +210,14 @@ class BattleEngine(
 			val actor = current.participant(plan.action.actorId) ?: return@fold current
 			val side = current.sideOf(actor.actorId) ?: return@fold current
 			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
+			if (actor.canBattle() && actor.rechargeTurnsRemaining > 0) {
+				return@fold current.appendEvent(
+					BattleEvent.SwitchPreventedByRecharge(
+						turnNumber = current.turnNumber,
+						actorId = actor.actorId,
+					),
+				)
+			}
 			if (actor.canBattle() && actor.lockedMoveTurnsRemaining > 0) {
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
 				return@fold current.appendEvent(
@@ -591,7 +599,13 @@ class BattleEngine(
 			skill = skill,
 			damageAmount = actualDamageAmount,
 		)
-		val afterTargetLowHpItem = applyLowHpHealingItem(afterSkillHpEffects, damagedTarget.actorId)
+		val afterSkillRecharge = applySkillRechargeAfterDamage(
+			state = afterSkillHpEffects,
+			actorId = actor.actorId,
+			skill = skill,
+			damageAmount = actualDamageAmount,
+		)
+		val afterTargetLowHpItem = applyLowHpHealingItem(afterSkillRecharge, damagedTarget.actorId)
 		val afterContactAbilities = applyContactAbilityEffects(
 			state = afterTargetLowHpItem,
 			actorId = actor.actorId,
@@ -654,6 +668,39 @@ class BattleEngine(
 					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> current
 				}
 			}
+	}
+
+	/**
+	 * 处理成功造成实际伤害后的技能休整写入。
+	 *
+	 * 休整只由真正扣掉目标 HP 的技能触发；未命中、保护、属性无效、目标已经没有可扣除 HP 等情况都不会写入。
+	 * 写入发生在技能自身 HP 后效之后、目标低体力道具和接触类反制之前；由于休整只影响未来行动，这个顺序不会
+	 * 改变当前回合其它后效，只是让事件流更贴近“技能自身效果先完成”的阅读顺序。
+	 */
+	private fun applySkillRechargeAfterDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (!skill.rechargesAfterUse || damageAmount <= 0) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.rechargeTurnsRemaining > 0) {
+			return state
+		}
+		val recharging = actor.startRecharge()
+		return state
+			.replaceParticipant(recharging)
+			.appendEvent(
+				BattleEvent.RechargeStarted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					turnsRemainingAfterCurrent = recharging.rechargeTurnsRemaining,
+				),
+			)
 	}
 
 	/**
@@ -2000,6 +2047,12 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): BeforeMoveResult {
+		if (actor.rechargeTurnsRemaining > 0) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeRechargeBlockedAction(context.state, actor)),
+				blocked = true,
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeSleepBlockedAction(context.state, actor)),
@@ -2103,6 +2156,25 @@ class BattleEngine(
 		} else {
 			blocked
 		}
+	}
+
+	/**
+	 * 消耗休整对本次技能行动的阻止效果。
+	 *
+	 * 休整是由上一次成功技能写入的强制空过状态。它不消耗本次提交技能的 PP，也不会触发讲究锁定、命中、
+	 * 伤害或其它行动前随机判定。阻止发生后递减计数，第一批休整技能只需要一次阻止，因此通常会直接清零。
+	 */
+	private fun consumeRechargeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
+		val turnsRemainingBefore = actor.rechargeTurnsRemaining
+		return state
+			.replaceParticipant(actor.consumeRechargeTurn())
+			.appendEvent(
+				BattleEvent.SkillPreventedByRecharge(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					turnsRemainingBefore = turnsRemainingBefore,
+				),
+			)
 	}
 
 	/**

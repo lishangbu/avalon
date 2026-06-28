@@ -35,6 +35,8 @@ data class BattleSkillRuleResponse(
 	val thawsUserBeforeMove: Boolean,
 	@field:Schema(description = "是否属于会被青草场地削弱的地面震动类技能。", example = "false")
 	val weakenedByGrassyTerrain: Boolean,
+	@field:Schema(description = "成功造成实际伤害后是否让使用者下一次行动前休整。", example = "false")
+	val rechargesAfterUse: Boolean,
 	@field:Schema(description = "是否属于声音类效果。", example = "false")
 	val soundBased: Boolean,
 	@field:Schema(description = "是否属于粉末或孢子类效果。", example = "false")

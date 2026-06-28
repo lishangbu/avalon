@@ -9,7 +9,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能锁招运行态、讲究类道具锁定技能，
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能休整计数、技能锁招运行态、讲究类道具锁定技能，
  * 以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
@@ -39,6 +39,7 @@ data class BattleParticipant(
 	val protectionChain: Int = 0,
 	val badPoisonCounter: Int = 0,
 	val sleepTurnsRemaining: Int = 0,
+	val rechargeTurnsRemaining: Int = 0,
 	val flinched: Boolean = false,
 	val confusionTurnsRemaining: Int = 0,
 	val lockedMoveSkillId: Long? = null,
@@ -72,6 +73,7 @@ data class BattleParticipant(
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
 		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
 		require(sleepTurnsRemaining >= 0) { "sleepTurnsRemaining must not be negative" }
+		require(rechargeTurnsRemaining >= 0) { "rechargeTurnsRemaining must not be negative" }
 		require(majorStatus == BattleMajorStatus.SLEEP || sleepTurnsRemaining == 0) {
 			"sleepTurnsRemaining must be zero unless participant is asleep"
 		}
@@ -200,6 +202,27 @@ data class BattleParticipant(
 			copy(majorStatus = null, sleepTurnsRemaining = 0)
 		} else {
 			this
+		}
+
+	/**
+	 * 标记成员进入技能休整状态。
+	 *
+	 * 现代规则中，部分强力技能在成功造成伤害后会让使用者下一次技能行动前休整一次。该计数只保存“未来还会
+	 * 阻止几次技能行动”，当前成功使用技能的回合不计入。若成员已经处于休整状态，调用方不应重复叠加。
+	 */
+	fun startRecharge(turnsRemainingAfterCurrent: Int = 1): BattleParticipant {
+		require(turnsRemainingAfterCurrent > 0) { "turnsRemainingAfterCurrent must be positive" }
+		return copy(rechargeTurnsRemaining = turnsRemainingAfterCurrent)
+	}
+
+	/**
+	 * 消耗一次技能休整阻止行动。
+	 */
+	fun consumeRechargeTurn(): BattleParticipant =
+		when {
+			rechargeTurnsRemaining > 1 -> copy(rechargeTurnsRemaining = rechargeTurnsRemaining - 1)
+			rechargeTurnsRemaining == 1 -> copy(rechargeTurnsRemaining = 0)
+			else -> this
 		}
 
 	/**
@@ -373,6 +396,7 @@ data class BattleParticipant(
 			statStages = emptyMap(),
 			protectionChain = 0,
 			badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
+			rechargeTurnsRemaining = 0,
 			flinched = false,
 			confusionTurnsRemaining = 0,
 			lockedMoveSkillId = null,
