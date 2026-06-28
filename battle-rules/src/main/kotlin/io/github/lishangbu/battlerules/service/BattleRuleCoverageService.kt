@@ -410,6 +410,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖特性阻止技能自身反作用伤害，但不会阻止携带道具在造成伤害后产生的固定反伤。",
 			),
 			item(
+				code = "ability.critical-hit-immunity",
+				name = "特性免疫击中要害",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"critical-hit-immunity-blocks-guaranteed-critical-hit-damage",
+					"critical-hit-immunity-blocks-successful-random-critical-hit",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				),
+				note = "已覆盖目标特性阻止必定要害和普通随机要害；随机要害仍消费随机数，但最终伤害事件按非要害记录。",
+			),
+			item(
 				code = "ability.ignore-opponent-damage-stat-stages",
 				name = "特性无视对手伤害阶级变化",
 				category = "特性",

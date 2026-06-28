@@ -110,6 +110,7 @@ class LiquibaseMigrationTests(
 			"061-battle-stat-stage-ignore-ability-rules.yaml",
 			"062-battle-accuracy-stage-ignore-ability-rules.yaml",
 			"063-battle-skill-recoil-immunity-ability-rules.yaml",
+			"064-battle-critical-hit-immunity-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -533,7 +534,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 37L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 39L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -553,9 +554,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 134L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 287L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 134L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 136L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 291L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 136L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -827,6 +828,27 @@ class LiquibaseMigrationTests(
 				"ability_id" to 69L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "skill-recoil-damage-immunity",
+			),
+		)
+
+		val criticalHitImmunityAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (4, 75)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(criticalHitImmunityAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 4L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "critical-hit-immunity",
+			),
+			mapOf(
+				"ability_id" to 75L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "critical-hit-immunity",
 			),
 		)
 

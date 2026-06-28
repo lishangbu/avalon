@@ -285,6 +285,7 @@ class BattleRuntimeSnapshotService(
 	 * - 满 HP 承受致命直接伤害时保留 1 HP。
 	 * - 间接伤害免疫。
 	 * - 技能反作用伤害免疫。
+	 * - 被技能击中要害免疫。
 	 * - 无视对手伤害公式能力阶级变化。
 	 * - 无视对手命中/闪避阶级变化。
 	 * - 阻止对手先制技能影响己方。
@@ -1139,6 +1140,7 @@ class BattleRuntimeSnapshotService(
 				weathers = setOf(BattleWeather.SNOW),
 				healDenominator = 16,
 			)
+			"critical-hit-immunity" -> BattleAbilityEffect.CriticalHitImmunity
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity
 			"skill-recoil-damage-immunity" -> BattleAbilityEffect.SkillRecoilDamageImmunity

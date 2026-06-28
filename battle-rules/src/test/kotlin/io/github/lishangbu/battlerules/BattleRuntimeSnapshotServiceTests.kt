@@ -418,6 +418,10 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.abilityEffectsByAbilityId(5))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.SurviveFatalDamageAtFullHp::class.java)
+		assertThat(service.abilityEffectsByAbilityId(4))
+			.containsExactly(BattleAbilityEffect.CriticalHitImmunity)
+		assertThat(service.abilityEffectsByAbilityId(75))
+			.containsExactly(BattleAbilityEffect.CriticalHitImmunity)
 		assertThat(service.abilityEffectsByAbilityId(69))
 			.containsExactly(BattleAbilityEffect.SkillRecoilDamageImmunity)
 		assertThat(service.abilityEffectsByAbilityId(98))

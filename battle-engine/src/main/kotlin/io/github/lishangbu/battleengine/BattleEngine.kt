@@ -665,12 +665,13 @@ class BattleEngine(
 			return context
 		}
 		val criticalHitCheck = criticalHitCheck(skill, random)
+		val criticalHit = criticalHitCheck.hit && !target.hasCriticalHitImmunity()
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val sideDamageReductionMultiplier = sideDamageReductionMultiplier(
 			state = state,
 			target = target,
 			skill = skill,
-			criticalHit = criticalHitCheck.hit,
+			criticalHit = criticalHit,
 		)
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
@@ -682,7 +683,7 @@ class BattleEngine(
 				randomPercent = randomPercent,
 				targetMultiplier = targetMultiplier,
 				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
-				criticalHit = criticalHitCheck.hit,
+				criticalHit = criticalHit,
 			),
 		)
 		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)) {
@@ -716,7 +717,7 @@ class BattleEngine(
 					amount = actualDamageAmount,
 					effectiveness = damage.effectiveness,
 					targetMultiplier = damage.targetMultiplier,
-					criticalHit = criticalHitCheck.hit,
+					criticalHit = criticalHit,
 				),
 			)
 			.let { current ->
@@ -2652,6 +2653,7 @@ class BattleEngine(
 			is BattleAbilityEffect.SwitchInTerrainChange -> applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
 			is BattleAbilityEffect.ContactStatusOnAttacker,
+			is BattleAbilityEffect.CriticalHitImmunity,
 			is BattleAbilityEffect.ElementSkillAbsorbHeal,
 			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 			is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
@@ -3242,6 +3244,15 @@ class BattleEngine(
 	 */
 	private fun BattleParticipant.hasSkillRecoilDamageImmunity(): Boolean =
 		abilityEffects.any { it is BattleAbilityEffect.SkillRecoilDamageImmunity }
+
+	/**
+	 * 判断成员是否免疫被技能击中要害。
+	 *
+	 * 调用方在普通要害概率已经结算后读取该效果，把本次伤害请求降回非要害；这样随机轨迹和必定要害技能的
+	 * 前置事实都不会被抹掉，只是最终伤害不再按要害倍率和要害绕过屏障规则处理。
+	 */
+	private fun BattleParticipant.hasCriticalHitImmunity(): Boolean =
+		abilityEffects.any { it is BattleAbilityEffect.CriticalHitImmunity }
 
 	/**
 	 * 判断成员是否在命中判定中忽略对手的命中或闪避阶级变化。
@@ -3928,6 +3939,7 @@ class BattleEngine(
 				is BattleAbilityEffect.WeatherSpeedMultiplier ->
 					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
@@ -3958,6 +3970,7 @@ class BattleEngine(
 				is BattleAbilityEffect.TerrainSpeedMultiplier ->
 					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,

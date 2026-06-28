@@ -1,0 +1,118 @@
+databaseChangeLog:
+- changeSet:
+    id: 064-battle-critical-hit-immunity-ability-rules
+    author: backend
+    comment: 补齐击中要害免疫特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 38 }
+        - column: { name: ability_id, valueNumeric: 4 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: critical-hit-immunity }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 阻止对手技能对自身造成击中要害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 380 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 39 }
+        - column: { name: ability_id, valueNumeric: 75 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: critical-hit-immunity }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 阻止对手技能对自身造成击中要害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 390 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 135 }
+        - column: { name: code, value: critical-hit-immunity-blocks-guaranteed-critical-hit-damage }
+        - column: { name: name, value: 击中要害免疫阻止必定要害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证拥有击中要害免疫特性的目标不会被必定要害技能按要害伤害计算。 }
+        - column: { name: input_summary, value: 使用者使用基础要害等级达到必定要害的物理技能，目标拥有击中要害免疫特性。 }
+        - column: { name: expected_summary, value: 技能仍命中并造成普通直接伤害，但伤害事件中的 criticalHit 为 false，最终伤害不乘以要害倍率。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1350 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 136 }
+        - column: { name: code, value: critical-hit-immunity-blocks-successful-random-critical-hit }
+        - column: { name: name, value: 击中要害免疫阻止随机要害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证普通要害随机数成功后，目标特性仍会让最终伤害按非要害计算。 }
+        - column: { name: input_summary, value: 普通要害等级技能的要害随机数成功，目标拥有击中要害免疫特性。 }
+        - column: { name: expected_summary, value: 要害随机数仍被消费并命中成功，但目标特性让最终伤害按非要害计算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1360 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 288 }
+        - column: { name: fixture_id, valueNumeric: 135 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照击中要害免疫特性返回 false 的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 289 }
+        - column: { name: fixture_id, valueNumeric: 135 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开伤害流程实现 }
+        - column: { name: source_note, value: 用于验证要害判定后仍会经过目标特性事件取消要害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 290 }
+        - column: { name: fixture_id, valueNumeric: 136 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照击中要害免疫特性返回 false 的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 291 }
+        - column: { name: fixture_id, valueNumeric: 136 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开伤害流程实现 }
+        - column: { name: source_note, value: 用于验证普通要害随机数成功后仍会被目标特性取消。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 135 }
+        - column: { name: run_code, value: critical-hit-immunity-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 135 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T08:30:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T08:33:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1350 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 136 }
+        - column: { name: run_code, value: critical-hit-immunity-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 136 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T08:30:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T08:33:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1360 }
