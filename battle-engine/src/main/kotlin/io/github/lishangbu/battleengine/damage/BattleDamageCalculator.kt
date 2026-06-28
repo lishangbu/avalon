@@ -63,12 +63,14 @@ class BattleDamageCalculator(
 		val abilityMultiplier = abilityDamageMultiplier(request)
 		val itemMultiplier = itemDamageMultiplier(request)
 		val combined = baseDamage * request.targetMultiplier * (request.randomPercent / 100.0) * sameElementBonus *
-			effectiveness * criticalHitMultiplier * weatherMultiplier * terrainMultiplier * abilityMultiplier * itemMultiplier
+			effectiveness * criticalHitMultiplier * weatherMultiplier * terrainMultiplier * abilityMultiplier * itemMultiplier *
+			request.sideDamageReductionMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
 			baseDamage = baseDamage,
 			targetMultiplier = request.targetMultiplier,
+			sideDamageReductionMultiplier = request.sideDamageReductionMultiplier,
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
 			criticalHitMultiplier = criticalHitMultiplier,

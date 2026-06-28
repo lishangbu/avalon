@@ -5,6 +5,8 @@ import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -116,6 +118,40 @@ class BattleEnginePublicReferenceTests {
 		assertEquals(79, resolved.participant("opponent-left")?.currentHp)
 		assertEquals(79, resolved.participant("opponent-right")?.currentHp)
 		assertEquals(100, resolved.participant("ally")?.currentHp)
+	}
+
+	@Test
+	fun `side damage reduction uses public double battle screen modifier`() {
+		val fixture = publicBattleRuleFixture(
+			name = "double-battle-side-screen-uses-two-thirds-damage-modifier",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Light_Screen_(move)",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+			),
+			inputSummary = "双打中目标方有两名可战斗上场成员，并存在影响物理伤害的防守方屏障。",
+			expectedSummary = "非要害普通物理伤害按约 2/3 的防守方屏障倍率结算，不与目标范围倍率混淆。",
+		)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("attacker", speed = 100),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("defender-left", speed = 50),
+				secondB = participant("defender-right", speed = 40),
+				secondSideDamageReductions = listOf(
+					BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender-left")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("double-battle-side-screen-uses-two-thirds-damage-modifier")
+		assertEquals(81, resolved.participant("defender-left")?.currentHp)
 	}
 
 	@Test

@@ -8,6 +8,8 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -511,6 +513,94 @@ class BattleEngineSingleTurnTests {
 		assertEquals(57, defender.currentHp)
 		assertNull(defender.itemId)
 		assertEquals(25, resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single().amount)
+	}
+
+	@Test
+	fun `physical side damage reduction halves single battle physical damage`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant("defender", speed = 50),
+				secondSideDamageReductions = listOf(
+					BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL, turnsRemaining = 3),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		assertEquals(86, resolved.participant("defender")?.currentHp)
+		assertEquals(2, resolved.sideOf("defender")?.damageReductions?.single()?.turnsRemaining)
+	}
+
+	@Test
+	fun `critical hit ignores side damage reduction`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant("defender", speed = 50),
+				secondSideDamageReductions = listOf(
+					BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(0, 15)),
+		)
+
+		assertEquals(58, resolved.participant("defender")?.currentHp)
+		assertEquals(true, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().criticalHit)
+	}
+
+	@Test
+	fun `side damage reduction uses weaker double battle multiplier when target side has two active participants`() {
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("attacker", speed = 100),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("defender-left", speed = 50),
+				secondB = participant("defender-right", speed = 40),
+				secondSideDamageReductions = listOf(
+					BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender-left")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		assertEquals(81, resolved.participant("defender-left")?.currentHp)
+	}
+
+	@Test
+	fun `side damage reduction expires after final turn`() {
+		val state = engine.start(
+			initialState(
+				first = participant("observer-a", speed = 100),
+				second = participant("observer-b", speed = 50),
+				secondSideDamageReductions = listOf(
+					BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL, turnsRemaining = 1),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			emptyList(),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(emptyList(), resolved.sideOf("observer-b")?.damageReductions)
 	}
 
 	@Test

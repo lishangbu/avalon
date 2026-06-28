@@ -54,6 +54,12 @@ data class BattleState(
 		})
 
 	/**
+	 * 推进所有一侧场上状态的持续回合。
+	 */
+	fun advanceSideConditionDurations(): BattleState =
+		copy(sides = sides.map { it.advanceSideConditionDurations() })
+
+	/**
 	 * 解析目标槽位当前成员。
 	 *
 	 * 若 `targetActorId` 已经不在场，返回其所属方当前可战斗的第一个上场成员。单打第一版用该行为表达

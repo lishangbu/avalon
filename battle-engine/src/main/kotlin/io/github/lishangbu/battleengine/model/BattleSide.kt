@@ -3,13 +3,14 @@ package io.github.lishangbu.battleengine.model
 /**
  * 战斗中的一方。
  *
- * 一方包含队伍成员和当前上场成员 ID。`activeActorIds` 的数量由 `BattleFormatSnapshot` 校验：
- * 单打为 1，双打为 2。目标选择和范围技能会基于这些上场席位继续扩展。
+ * 一方包含队伍成员、当前上场成员 ID，以及只属于这一侧的场上状态。`activeActorIds` 的数量由
+ * `BattleFormatSnapshot` 校验：单打为 1，双打为 2。目标选择、范围技能和防守方屏障会基于这些上场席位继续扩展。
  */
 data class BattleSide(
 	val sideId: String,
 	val activeActorIds: List<String>,
 	val participants: List<BattleParticipant>,
+	val damageReductions: List<BattleSideDamageReduction> = emptyList(),
 ) {
 	init {
 		require(sideId.isNotBlank()) { "sideId must not be blank" }
@@ -19,6 +20,9 @@ data class BattleSide(
 		require(activeActorIds.toSet().size == activeActorIds.size) { "activeActorIds must not contain duplicates" }
 		require(activeActorIds.all { activeId -> participants.any { it.actorId == activeId } }) {
 			"activeActorIds must reference participants on the same side"
+		}
+		require(damageReductions.map { it.kind }.toSet().size == damageReductions.size) {
+			"damage reductions must not contain duplicate kinds"
 		}
 	}
 
@@ -51,6 +55,14 @@ data class BattleSide(
 	 */
 	fun replaceParticipant(participant: BattleParticipant): BattleSide =
 		copy(participants = participants.map { current -> if (current.actorId == participant.actorId) participant else current })
+
+	/**
+	 * 推进这一侧的回合型场上状态。
+	 *
+	 * 当前只包含伤害减免屏障。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。
+	 */
+	fun advanceSideConditionDurations(): BattleSide =
+		copy(damageReductions = damageReductions.mapNotNull { it.advanceTurn() })
 
 	/**
 	 * 替换一个上场席位。

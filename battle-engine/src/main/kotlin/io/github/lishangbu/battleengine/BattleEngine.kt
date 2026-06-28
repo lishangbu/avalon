@@ -10,9 +10,12 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
+import io.github.lishangbu.battleengine.model.BattleSide
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -97,8 +100,10 @@ class BattleEngine(
 			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
 		val afterEnvironmentDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
 			?: advanceEnvironmentDurations(afterEndTurnVolatileStatuses)
-		val afterTurnLimit = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
-			?: applyTurnLimit(afterEnvironmentDurations)
+		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
+			?: afterEnvironmentDurations.advanceSideConditionDurations()
+		val afterTurnLimit = afterSideConditionDurations.result?.let { afterSideConditionDurations }
+			?: applyTurnLimit(afterSideConditionDurations)
 		return afterTurnLimit.result?.let { afterTurnLimit }
 			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
@@ -519,6 +524,12 @@ class BattleEngine(
 		}
 		val criticalHitCheck = criticalHitCheck(skill, random)
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
+		val sideDamageReductionMultiplier = sideDamageReductionMultiplier(
+			state = state,
+			target = target,
+			skill = skill,
+			criticalHit = criticalHitCheck.hit,
+		)
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
 				attacker = actor,
@@ -528,6 +539,7 @@ class BattleEngine(
 				environment = state.environment,
 				randomPercent = randomPercent,
 				targetMultiplier = targetMultiplier,
+				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
 				criticalHit = criticalHitCheck.hit,
 			),
 		)
@@ -635,6 +647,39 @@ class BattleEngine(
 		} else {
 			1.0
 		}
+
+	/**
+	 * 计算防守方一侧伤害减免倍率。
+	 *
+	 * 现代主系列中，防守方屏障只对普通物理/特殊伤害生效，击中要害会忽略屏障。单打或目标侧只剩一名可战斗上场
+	 * 成员时使用 0.5；双打目标侧存在多名可战斗上场成员时使用约 2/3。若同一侧同时有多个可覆盖屏障，本次伤害
+	 * 只套用一次倍率，不叠加。
+	 */
+	private fun sideDamageReductionMultiplier(
+		state: BattleState,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		criticalHit: Boolean,
+	): Double {
+		if (criticalHit || skill.damageClass == BattleDamageClass.STATUS) {
+			return 1.0
+		}
+		val targetSide = state.sideOf(target.actorId) ?: return 1.0
+		val reduction = targetSide.damageReductions.firstOrNull { it.appliesTo(skill.damageClass) } ?: return 1.0
+		return reduction.damageReductionMultiplier(state, targetSide)
+	}
+
+	private fun BattleSideDamageReduction.damageReductionMultiplier(
+		state: BattleState,
+		targetSide: BattleSide,
+	): Double {
+		val targetSideActiveCount = targetSide.activeParticipants().count { it.canBattle() }
+		return if (state.format.mode == BattleMode.DOUBLE && targetSideActiveCount > 1) {
+			MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
+		} else {
+			SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
+		}
+	}
 
 	/**
 	 * 判断技能是否被场地规则阻挡。
@@ -2050,7 +2095,9 @@ class BattleEngine(
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
+		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
+		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
 		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}
 }

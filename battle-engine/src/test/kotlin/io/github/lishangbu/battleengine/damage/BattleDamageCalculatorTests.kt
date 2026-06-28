@@ -181,6 +181,23 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `side damage reduction multiplier reduces standard damage`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+				sideDamageReductionMultiplier = 0.5,
+			),
+		)
+
+		assertEquals(0.5, result.sideDamageReductionMultiplier)
+		assertEquals(14, result.amount)
+	}
+
+	@Test
 	fun `low hp ability and damage boost item multiply damage`() {
 		val result = calculator.calculate(
 			BattleDamageRequest(

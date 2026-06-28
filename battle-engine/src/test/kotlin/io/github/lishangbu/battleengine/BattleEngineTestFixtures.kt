@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -55,14 +56,26 @@ internal fun initialState(
 	secondBench: List<BattleParticipant> = emptyList(),
 	rules: BattleRuleSnapshot = neutralRules(),
 	environment: BattleEnvironment = BattleEnvironment(),
+	firstSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
+	secondSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = singleFormat(),
 		rules = rules,
 		environment = environment,
 		sides = listOf(
-			BattleSide("side-a", listOf(first.actorId), listOf(first) + firstBench),
-			BattleSide("side-b", listOf(second.actorId), listOf(second) + secondBench),
+			BattleSide(
+				sideId = "side-a",
+				activeActorIds = listOf(first.actorId),
+				participants = listOf(first) + firstBench,
+				damageReductions = firstSideDamageReductions,
+			),
+			BattleSide(
+				sideId = "side-b",
+				activeActorIds = listOf(second.actorId),
+				participants = listOf(second) + secondBench,
+				damageReductions = secondSideDamageReductions,
+			),
 		),
 	)
 
@@ -73,14 +86,26 @@ internal fun doubleInitialState(
 	secondB: BattleParticipant = participant("side-b-active-2", speed = 70),
 	rules: BattleRuleSnapshot = neutralRules(),
 	environment: BattleEnvironment = BattleEnvironment(),
+	firstSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
+	secondSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = doubleFormat(),
 		rules = rules,
 		environment = environment,
 		sides = listOf(
-			BattleSide("side-a", listOf(firstA.actorId, firstB.actorId), listOf(firstA, firstB)),
-			BattleSide("side-b", listOf(secondA.actorId, secondB.actorId), listOf(secondA, secondB)),
+			BattleSide(
+				sideId = "side-a",
+				activeActorIds = listOf(firstA.actorId, firstB.actorId),
+				participants = listOf(firstA, firstB),
+				damageReductions = firstSideDamageReductions,
+			),
+			BattleSide(
+				sideId = "side-b",
+				activeActorIds = listOf(secondA.actorId, secondB.actorId),
+				participants = listOf(secondA, secondB),
+				damageReductions = secondSideDamageReductions,
+			),
 		),
 	)
 
