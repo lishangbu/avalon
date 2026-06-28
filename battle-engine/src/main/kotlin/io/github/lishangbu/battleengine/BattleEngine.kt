@@ -1498,19 +1498,33 @@ class BattleEngine(
 	 * 结算战斗开始时所有当前上场成员的出场特性。
 	 *
 	 * 初始上场不是一次 `SwitchParticipant` 行动，但现代规则中“出场时触发”的特性同样会在战斗开始阶段生效。
-	 * 第一批只处理已经在 [BattleAbilityEffect] 中结构化建模的出场能力阶级变化。处理顺序按战斗侧顺序和席位顺序
-	 * 固定，保证 replay 在没有复杂反制特性参与时稳定可复现。
+	 * 当前按有效速度排序触发，戏法空间存在时复用引擎已有的速度比较器反转速度顺序；同速成员保持初始侧和席位
+	 * 顺序，直到战斗开始阶段引入随机源。这样天气覆盖、出场降能力等效果在没有同速争议时已经与公开实现一致。
 	 */
 	private fun applyInitialSwitchInAbilityEffects(state: BattleState): BattleState =
-		state.sides
-			.flatMap { side -> side.activeActorIds }
+		initialSwitchInActorIds(state)
 			.fold(state) { current, actorId -> applySwitchInAbilityEffects(current, actorId) }
+
+	/**
+	 * 计算战斗开始阶段出场特性的稳定触发顺序。
+	 *
+	 * 输入是当前初始状态中的所有上场成员；输出只保留成员 ID，避免后续某个成员的出场特性改变环境后导致已排序
+	 * 队列重新计算。有效速度在初始状态上一次性计算，包含麻痹、天气速度特性、道具速度倍率和一侧速度修正。
+	 */
+	private fun initialSwitchInActorIds(state: BattleState): List<String> =
+		state.sides
+			.flatMap { side -> side.activeActorIds.mapNotNull { actorId -> state.participant(actorId) } }
+			.groupBy { participant -> effectiveSpeed(state, participant) }
+			.toSortedMap(speedComparator(state))
+			.values
+			.flatMap { sameSpeedParticipants -> sameSpeedParticipants.map { it.actorId } }
 
 	/**
 	 * 结算单个成员成功进入场地后的出场特性。
 	 *
-	 * 该函数要求成员当前仍在场且可战斗；如果成员刚换入后已经被入场陷阱击倒，则不会触发出场特性。当前只支持
-	 * 对手当前上场成员的能力阶级变化，后续若加入天气覆盖、场地覆盖或道具反制，会继续扩展结构化效果类型。
+	 * 该函数要求成员当前仍在场且可战斗；如果成员刚换入后已经被入场陷阱击倒，则不会触发出场特性。当前支持
+	 * 对手当前上场成员的能力阶级变化，以及全场天气覆盖。其它能力效果会在它们所属阶段显式忽略，避免出场阶段
+	 * 误处理低体力伤害增幅、接触反制或免疫类稳定效果。
 	 */
 	private fun applySwitchInAbilityEffects(state: BattleState, actorId: String): BattleState {
 		val actor = state.participant(actorId) ?: return state
@@ -1518,9 +1532,30 @@ class BattleEngine(
 			return state
 		}
 		return actor.abilityEffects
-			.filterIsInstance<BattleAbilityEffect.SwitchInStatStageChange>()
-			.fold(state) { current, effect -> applySwitchInStatStageChange(current, actor.actorId, effect) }
+			.fold(state) { current, effect -> applySwitchInAbilityEffect(current, actor.actorId, effect) }
 	}
+
+	/**
+	 * 将单个结构化特性效果分派到出场阶段实现。
+	 *
+	 * 只有明确属于 SWITCH_IN 生命周期的效果会改变状态；其它效果返回原状态。保持这个穷尽分派可以让新增特性效果
+	 * 时编译器提示所有阶段是否需要处理，而不是让字符串 policy 悄悄穿透到纯引擎内部。
+	 */
+	private fun applySwitchInAbilityEffect(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect,
+	): BattleState =
+		when (effect) {
+			is BattleAbilityEffect.SwitchInStatStageChange -> applySwitchInStatStageChange(state, actorId, effect)
+			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
+			is BattleAbilityEffect.ContactStatusOnAttacker,
+			is BattleAbilityEffect.LowHpElementDamageBoost,
+			is BattleAbilityEffect.MajorStatusImmunity,
+			is BattleAbilityEffect.VolatileStatusImmunity,
+			is BattleAbilityEffect.WeatherDamageImmunity,
+			is BattleAbilityEffect.WeatherSpeedMultiplier -> state
+		}
 
 	/**
 	 * 执行出场特性的能力阶级变化。
@@ -1561,6 +1596,41 @@ class BattleEngine(
 					)
 			}
 		}
+	}
+
+	/**
+	 * 执行出场特性的天气设置。
+	 *
+	 * 现代普通天气特性会覆盖当前普通天气并写入固定持续回合。这里不处理强天气、天气延长道具或天气被封锁的情况；
+	 * 这些都需要独立结构化规则后再接入。若当前环境已经是同一天气且剩余回合一致，则保持状态并跳过事件，避免
+	 * replay 端看到没有状态变化的重复天气开始事实。
+	 */
+	private fun applySwitchInWeatherChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.SwitchInWeatherChange,
+	): BattleState {
+		if (
+			state.environment.weather == effect.weather &&
+			state.environment.weatherTurnsRemaining == effect.turnsRemaining
+		) {
+			return state
+		}
+		return state
+			.copy(
+				environment = state.environment.copy(
+					weather = effect.weather,
+					weatherTurnsRemaining = effect.turnsRemaining,
+				),
+			)
+			.appendEvent(
+				BattleEvent.WeatherStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					weather = effect.weather,
+					turnsRemaining = effect.turnsRemaining,
+				),
+			)
 	}
 
 	/**
@@ -2524,6 +2594,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
 			}

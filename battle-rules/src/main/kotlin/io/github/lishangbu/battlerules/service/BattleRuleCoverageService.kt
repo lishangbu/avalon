@@ -353,6 +353,23 @@ class BattleRuleCoverageService {
 				note = "已覆盖战斗开始和主动换入时触发出场降攻特性，单打影响当前对手，双打影响对方两个当前上场成员。",
 			),
 			item(
+				code = "ability.switch-in-weather",
+				name = "出场特性设置天气",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"switch-in-weather-starts-rain-at-battle-start",
+					"slower-switch-in-weather-overwrites-faster-weather-at-battle-start",
+					"switch-in-weather-triggers-after-voluntary-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather#Abilities_that_create_weather",
+				),
+				note = "已覆盖出场设置普通天气、战斗开始多天气按有效速度顺序覆盖，以及主动换入后的天气触发。",
+			),
+			item(
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",

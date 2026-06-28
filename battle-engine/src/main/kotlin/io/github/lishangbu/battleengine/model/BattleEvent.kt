@@ -520,6 +520,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 当前天气被出场特性或后续环境规则设置。
+	 *
+	 * 事件记录触发者、目标天气和写入时的剩余回合。它不表达天气带来的伤害、回复、命中或能力修正；这些副作用
+	 * 在对应阶段继续用独立事件或伤害公式输入表达。若尝试设置的天气与当前天气相同且持续回合也相同，引擎不会
+	 * 产生重复事件。
+	 */
+	data class WeatherStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val weather: BattleWeather,
+		val turnsRemaining: Int?,
+	) : BattleEvent
+
+	/**
 	 * 当前天气因持续回合耗尽而结束。
 	 *
 	 * 事件只表示环境事实变化，不暗含本回合天气伤害或免疫效果；这些副作用应在更早的回合末阶段单独记录。

@@ -205,6 +205,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(switchInAttackDrop.stat).isEqualTo(BattleStat.ATTACK)
 		assertThat(switchInAttackDrop.stageDelta).isEqualTo(-1)
+
+		assertThat(service.switchInWeatherByAbilityId(2)).isEqualTo(BattleWeather.RAIN)
+		assertThat(service.switchInWeatherByAbilityId(45)).isEqualTo(BattleWeather.SANDSTORM)
+		assertThat(service.switchInWeatherByAbilityId(70)).isEqualTo(BattleWeather.SUN)
+		assertThat(service.switchInWeatherByAbilityId(117)).isEqualTo(BattleWeather.SNOW)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -274,6 +280,12 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.violations.map { it.actorId }.toSet()).contains("a-1", "a-2")
 		assertThat(response.violations.map { it.actorId }).doesNotContain("b-1")
 	}
+
+	private fun BattleRuntimeSnapshotService.switchInWeatherByAbilityId(abilityId: Long): BattleWeather =
+		abilityEffectsByAbilityId(abilityId)
+			.filterIsInstance<BattleAbilityEffect.SwitchInWeatherChange>()
+			.single()
+			.weather
 
 	private fun participant(
 		actorId: String,

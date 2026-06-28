@@ -238,6 +238,7 @@ class BattleRuntimeSnapshotService(
 	 * - 低体力时强化草/火/水属性伤害。
 	 * - 受到接触类攻击后概率让攻击方麻痹。
 	 * - 出场时降低当前对手上场成员攻击阶级。
+	 * - 出场时设置现代普通天气。
 	 *
 	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
 	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
@@ -928,6 +929,10 @@ class BattleRuntimeSnapshotService(
 				stat = BattleStat.ATTACK,
 				stageDelta = -1,
 			)
+			"switch-in-weather-rain" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.RAIN)
+			"switch-in-weather-sandstorm" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SANDSTORM)
+			"switch-in-weather-snow" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SNOW)
+			"switch-in-weather-sun" -> BattleAbilityEffect.SwitchInWeatherChange(BattleWeather.SUN)
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
 			"ground-immunity" -> null
 			else -> null
