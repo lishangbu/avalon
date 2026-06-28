@@ -62,6 +62,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 保护类技能因连续使用概率递减而失败。
+	 *
+	 * 技能已经使用且 PP 已经消耗，但本回合不会建立保护屏障，也不会阻挡后续技能。该事件不表示命中失败；
+	 * 它发生在保护类技能自身的成功率判定阶段。
+	 */
+	data class ProtectionFailed(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
+	/**
 	 * 技能被目标本回合的保护屏障阻挡。
 	 *
 	 * 行动者已经使用技能并消耗 PP 后才会产生该事件；被阻挡后不再进行命中判定、伤害计算或附加效果结算。

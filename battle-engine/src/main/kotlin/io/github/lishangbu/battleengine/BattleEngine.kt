@@ -78,9 +78,13 @@ class BattleEngine(
 			return afterSwitches
 		}
 		val orderedActions = orderSkillActions(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>(), random)
-		val resolved = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
+		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
 			if (current.state.result != null) current else executeUseSkill(current, plan, random)
-		}.state
+		}
+		val resolved = resetProtectionChains(
+			state = resolvedContext.state,
+			successfulProtectionActorIds = resolvedContext.successfulProtectionActorIds,
+		)
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
 		return afterEndTurnEffects.result?.let { afterEndTurnEffects }
 			?: afterEndTurnEffects.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
@@ -184,15 +188,32 @@ class BattleEngine(
 			)
 
 		if (skill.protectsUser) {
+			if (!protectionSucceeds(actor, skill, random)) {
+				return context.copy(
+					state = usedState
+						.replaceParticipant(actorAfterPp.resetProtectionChain())
+						.appendEvent(
+							BattleEvent.ProtectionFailed(
+								turnNumber = state.turnNumber,
+								actorId = actor.actorId,
+								skillId = skill.skillId,
+							),
+						),
+				)
+			}
+			val protectedActor = actorAfterPp.markProtectionSuccess()
 			return context.copy(
-				state = usedState.appendEvent(
-					BattleEvent.ProtectionStarted(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						skillId = skill.skillId,
+				state = usedState
+					.replaceParticipant(protectedActor)
+					.appendEvent(
+						BattleEvent.ProtectionStarted(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							skillId = skill.skillId,
+						),
 					),
-				),
 				protectedActorIds = context.protectedActorIds + actor.actorId,
+				successfulProtectionActorIds = context.successfulProtectionActorIds + actor.actorId,
 			)
 		}
 
@@ -325,6 +346,33 @@ class BattleEngine(
 		}
 		val roll = random.nextInt(denominator, "critical hit for ${skill.skillId}")
 		return CriticalHitCheck(hit = roll == 0, roll = roll)
+	}
+
+	/**
+	 * 结算保护类行动的连续使用成功率。
+	 *
+	 * 第一次保护必定成功；如果上一回合已经成功保护过，则下一次按 `1 / 3^chain` 掷点，
+	 * 例如第二次 1/3、第三次 1/9。该函数只负责概率，不消耗 PP，也不修改战斗状态。
+	 */
+	private fun protectionSucceeds(actor: BattleParticipant, skill: BattleSkillSlot, random: BattleRandom): Boolean {
+		val denominator = protectionChanceDenominator(actor.protectionChain)
+		if (denominator == 1) {
+			return true
+		}
+		return random.nextInt(denominator, "protection chance for ${skill.skillId}") == 0
+	}
+
+	/**
+	 * 根据已经连续成功保护的次数计算下一次保护成功率分母。
+	 *
+	 * 分母按 3 的幂增长，并夹在 Int 范围内，避免极端测试 fixture 构造出不可表示的概率。
+	 */
+	private fun protectionChanceDenominator(chain: Int): Int {
+		var denominator = 1
+		repeat(chain) {
+			denominator = (denominator * 3L).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+		}
+		return denominator
 	}
 
 	/**
@@ -465,6 +513,24 @@ class BattleEngine(
 				}
 			}
 	}
+
+	/**
+	 * 清理本回合没有成功保护的成员连续保护计数。
+	 *
+	 * 保护递减概率只看连续成功的保护类行动。成员使用其它技能、替换、无法行动或没有提交行动时，都应在回合末
+	 * 失去连续计数；只有 `successfulProtectionActorIds` 中的成员把计数保留到下一回合。
+	 */
+	private fun resetProtectionChains(state: BattleState, successfulProtectionActorIds: Set<String>): BattleState =
+		state.sides
+			.flatMap { it.participants }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (latest.actorId in successfulProtectionActorIds || latest.protectionChain == 0) {
+					current
+				} else {
+					current.replaceParticipant(latest.resetProtectionChain())
+				}
+			}
 
 	/**
 	 * 结算回合末主要异常状态伤害。
@@ -662,13 +728,15 @@ class BattleEngine(
 	/**
 	 * 单个回合技能阶段的临时上下文。
 	 *
-	 * `state` 是不断推进的不可变战斗状态；`protectedActorIds` 保存本回合已经成功建立保护屏障的成员。
+	 * `state` 是不断推进的不可变战斗状态；`protectedActorIds` 保存本回合已经成功建立保护屏障的成员；
+	 * `successfulProtectionActorIds` 保存回合结束后应保留连续保护计数的成员。
 	 * 这类回合内临时标记不进入 `BattleState`，避免被误认为跨回合持久状态，也方便后续扩展击掌奇袭、
 	 * 守住连续成功率、先制阻挡等同样只在当前回合有效的规则。
 	 */
 	private data class TurnContext(
 		val state: BattleState,
 		val protectedActorIds: Set<String> = emptySet(),
+		val successfulProtectionActorIds: Set<String> = emptySet(),
 	)
 
 	private data class AccuracyCheck(

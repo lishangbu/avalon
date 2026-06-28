@@ -164,6 +164,91 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `second consecutive protection can succeed on one third roll`() {
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+		val afterFirst = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val resolved = engine.resolveTurn(
+			afterFirst,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(listOf(0)),
+		)
+
+		assertEquals(2, resolved.participant("protector")?.protectionChain)
+		assertEquals(100, resolved.participant("protector")?.currentHp)
+		assertEquals(8, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertIs<BattleEvent.SkillBlockedByProtection>(
+			resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single(),
+		)
+	}
+
+	@Test
+	fun `second consecutive protection can fail and leave user unprotected`() {
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+		val afterFirst = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val resolved = engine.resolveTurn(
+			afterFirst,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(listOf(1, 1, 15)),
+		)
+
+		assertEquals(0, resolved.participant("protector")?.protectionChain)
+		assertEquals(72, resolved.participant("protector")?.currentHp)
+		assertEquals(8, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertIs<BattleEvent.ProtectionFailed>(resolved.events.filterIsInstance<BattleEvent.ProtectionFailed>().single())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>())
+	}
+
+	@Test
+	fun `protection chain resets when user does not protect this turn`() {
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("observer", speed = 100),
+			),
+		)
+		val afterProtection = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("protector", skillId = 2, targetActorId = "observer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val resolved = engine.resolveTurn(
+			afterProtection,
+			emptyList(),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(1, afterProtection.participant("protector")?.protectionChain)
+		assertEquals(0, resolved.participant("protector")?.protectionChain)
+	}
+
+	@Test
 	fun `miss consumes accuracy random and does not apply damage`() {
 		val inaccurateSkill = damagingSkill(accuracy = 50)
 		val state = engine.start(

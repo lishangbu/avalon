@@ -146,6 +146,44 @@ class BattleEnginePublicReferenceTests {
 		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
 	}
 
+	@Test
+	fun `consecutive protection uses public simulator stalling chance fixture`() {
+		val fixture = PublicReferenceFixture(
+			name = "consecutive-protection-second-use-one-third-success",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+			),
+			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动。",
+			expectedSummary = "第二次连续保护按 1/3 成功率判定；掷中成功后继续阻挡本回合普通攻击。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+		val afterFirst = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val resolved = engine.resolveTurn(
+			afterFirst,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(listOf(0)),
+		)
+
+		assertEquals("consecutive-protection-second-use-one-third-success", fixture.name)
+		assertEquals(2, resolved.participant("protector")?.protectionChain)
+		assertEquals(100, resolved.participant("protector")?.currentHp)
+		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
+	}
+
 	private data class PublicReferenceFixture(
 		val name: String,
 		val sourceUrls: List<String>,

@@ -3,7 +3,7 @@ package io.github.lishangbu.battleengine.model
 /**
  * 一名参与战斗的成员快照。
  *
- * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合和技能槽。
+ * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽和连续保护计数。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -26,6 +26,7 @@ data class BattleParticipant(
 	val skillSlots: List<BattleSkillSlot>,
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
+	val protectionChain: Int = 0,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
@@ -44,6 +45,7 @@ data class BattleParticipant(
 		require(skillSlots.isNotEmpty()) { "skillSlots must not be empty" }
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
+		require(protectionChain >= 0) { "protectionChain must not be negative" }
 	}
 
 	/**
@@ -101,4 +103,20 @@ data class BattleParticipant(
 	 */
 	fun statStage(stat: BattleStat): Int =
 		statStages[stat] ?: 0
+
+	/**
+	 * 标记本成员本回合成功使用保护类行动。
+	 *
+	 * `protectionChain` 表示连续成功保护次数，用于下一次保护类行动计算递减成功率。
+	 */
+	fun markProtectionSuccess(): BattleParticipant =
+		copy(protectionChain = protectionChain + 1)
+
+	/**
+	 * 清空连续保护计数。
+	 *
+	 * 只要本成员在一个回合内没有成功建立保护屏障，回合末就应调用该函数，确保下一次保护重新从必定成功开始。
+	 */
+	fun resetProtectionChain(): BattleParticipant =
+		if (protectionChain == 0) this else copy(protectionChain = 0)
 }
