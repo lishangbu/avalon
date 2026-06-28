@@ -284,6 +284,15 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `evasion stage can make accurate skill miss`() {
+		val fixture = publicBattleRuleFixture(
+			name = "target-evasion-stage-lowers-effective-accuracy",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+			),
+			inputSummary = "使用者使用基础命中 100 的技能，目标闪避阶级为 +1，固定命中随机数为 76。",
+			expectedSummary = "目标 +1 闪避把有效命中降为 75；随机数 76 大于有效命中，因此技能未命中且不造成伤害。",
+		)
 		val accurateSkill = damagingSkill(accuracy = 100)
 		val state = engine.start(
 			initialState(
@@ -301,9 +310,44 @@ class BattleEngineSingleTurnTests {
 			random,
 		)
 
+		fixture.assertNamed("target-evasion-stage-lowers-effective-accuracy")
 		assertEquals(100, resolved.participant("defender")?.currentHp)
 		assertEquals(76, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
 		assertEquals(listOf("accuracy for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `accuracy stage can turn lowered accuracy skill into guaranteed hit`() {
+		val fixture = publicBattleRuleFixture(
+			name = "user-accuracy-stage-raises-effective-accuracy",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+			),
+			inputSummary = "使用者命中阶级为 +1，使用基础命中 75 的技能攻击无闪避修正目标。",
+			expectedSummary = "命中阶级 +1 把有效命中提升到 100；引擎不消耗命中随机数，技能直接命中并正常造成伤害。",
+		)
+		val loweredAccuracySkill = damagingSkill(accuracy = 75)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = loweredAccuracySkill).copy(
+					statStages = mapOf(BattleStat.ACCURACY to 1),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		fixture.assertNamed("user-accuracy-stage-raises-effective-accuracy")
+		assertEquals(72, resolved.participant("defender")?.currentHp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillMissed>())
+		assertEquals(listOf("critical hit for 1", "damage random for 1"), random.consumedReasons())
 	}
 
 	@Test

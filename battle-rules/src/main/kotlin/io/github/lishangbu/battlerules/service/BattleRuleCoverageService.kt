@@ -170,6 +170,23 @@ class BattleRuleCoverageService {
 				note = "保护类技能建立本回合屏障，连续成功按 1/3、1/9 等概率递减。",
 			),
 			item(
+				code = "turn.accuracy-evasion-stage",
+				name = "命中和闪避阶级",
+				category = "命中",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"target-evasion-stage-lowers-effective-accuracy",
+					"user-accuracy-stage-raises-effective-accuracy",
+					"weather-accuracy-overrides-support-sure-hit-and-lowered-accuracy",
+				),
+				references = listOf(
+					"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖使用者命中阶级和目标闪避阶级参与有效命中计算，以及天气命中覆盖对必中和降命中的影响。",
+			),
+			item(
 				code = "status.residual-major",
 				name = "灼伤、中毒和剧毒回合末伤害",
 				category = "主要状态",
