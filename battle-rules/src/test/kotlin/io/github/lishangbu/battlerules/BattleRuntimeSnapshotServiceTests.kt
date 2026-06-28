@@ -224,6 +224,9 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.terrainSpeedByAbilityId(207)).isEqualTo(BattleTerrain.ELECTRIC to 2.0)
 
+		assertThat(service.weatherHealByAbilityId(44)).isEqualTo(setOf(BattleWeather.RAIN) to 16)
+		assertThat(service.weatherHealByAbilityId(115)).isEqualTo(setOf(BattleWeather.SNOW) to 16)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -317,6 +320,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.TerrainSpeedMultiplier>()
 			.single()
 			.let { it.terrain to it.multiplier }
+
+	private fun BattleRuntimeSnapshotService.weatherHealByAbilityId(abilityId: Long): Pair<Set<BattleWeather>, Int> =
+		abilityEffectsByAbilityId(abilityId)
+			.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
+			.single()
+			.let { it.weathers to it.healDenominator }
 
 	private fun participant(
 		actorId: String,

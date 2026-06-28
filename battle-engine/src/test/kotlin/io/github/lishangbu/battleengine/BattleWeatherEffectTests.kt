@@ -52,6 +52,56 @@ class BattleWeatherEffectTests {
 	}
 
 	@Test
+	fun `weather healing ability heals active participant at end turn`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-healing-ability-heals-active-participant-at-end-turn",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Rain",
+			),
+			inputSummary = "下雨环境下，当前上场成员未满 HP，且拥有雨天回合末回复特性。",
+			expectedSummary = "天气阶段按最大 HP 1/16 回复并产生天气回复事件；非匹配天气特性不会回复。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"rain-healer",
+					speed = 100,
+					currentHp = 80,
+					abilityEffects = listOf(
+						BattleAbilityEffect.WeatherEndTurnHeal(
+							weathers = setOf(BattleWeather.RAIN),
+							healDenominator = 16,
+						),
+					),
+				),
+				second = participant(
+					"snow-healer",
+					speed = 50,
+					currentHp = 80,
+					abilityEffects = listOf(
+						BattleAbilityEffect.WeatherEndTurnHeal(
+							weathers = setOf(BattleWeather.SNOW),
+							healDenominator = 16,
+						),
+					),
+				),
+				environment = BattleEnvironment(weather = BattleWeather.RAIN),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+
+		fixture.assertNamed("weather-healing-ability-heals-active-participant-at-end-turn")
+		assertEquals(86, resolved.participant("rain-healer")?.currentHp)
+		assertEquals(80, resolved.participant("snow-healer")?.currentHp)
+		val event = resolved.events.filterIsInstance<BattleEvent.WeatherHealingApplied>().single()
+		assertEquals("rain-healer", event.actorId)
+		assertEquals(BattleWeather.RAIN, event.weather)
+		assertEquals(6, event.amount)
+	}
+
+	@Test
 	fun `weather speed ability changes skill action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-speed-ability-changes-skill-action-order",

@@ -232,6 +232,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.TerrainSpeedMultiplier -> multiplier
 				is BattleAbilityEffect.VolatileStatusImmunity -> multiplier
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 			}
 		}

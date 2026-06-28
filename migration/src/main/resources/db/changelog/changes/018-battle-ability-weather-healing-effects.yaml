@@ -1,0 +1,28 @@
+databaseChangeLog:
+- changeSet:
+    id: 018-battle-ability-weather-healing-effects
+    author: backend
+    comment: 接入指定天气下回合末回复的特性规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 20 }
+        - column: { name: ability_id, valueNumeric: 44 }
+        - column: { name: trigger_timing, value: END_TURN_WEATHER }
+        - column: { name: effect_policy, value: weather-heal-rain }
+        - column: { name: trigger_order, valueNumeric: 200 }
+        - column: { name: description, value: 下雨天气的回合末，成员回复最大 HP 的 1/16。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 200 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 21 }
+        - column: { name: ability_id, valueNumeric: 115 }
+        - column: { name: trigger_timing, value: END_TURN_WEATHER }
+        - column: { name: effect_policy, value: weather-heal-snow }
+        - column: { name: trigger_order, valueNumeric: 200 }
+        - column: { name: description, value: 下雪天气的回合末，成员回复最大 HP 的 1/16。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 210 }

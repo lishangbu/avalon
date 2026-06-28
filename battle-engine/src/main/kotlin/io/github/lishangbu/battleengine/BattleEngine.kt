@@ -1556,6 +1556,7 @@ class BattleEngine(
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
 			is BattleAbilityEffect.WeatherDamageImmunity,
+			is BattleAbilityEffect.WeatherEndTurnHeal,
 			is BattleAbilityEffect.WeatherSpeedMultiplier -> state
 		}
 
@@ -2355,7 +2356,8 @@ class BattleEngine(
 			if (afterWeather.result != null) {
 				afterWeather
 			} else {
-				applyEndTurnHealing(applyEndTurnTerrainEffects(afterWeather))
+				val afterWeatherHealing = applyEndTurnWeatherHealing(afterWeather)
+				applyEndTurnHealing(applyEndTurnTerrainEffects(afterWeatherHealing))
 			}
 		}
 	}
@@ -2394,6 +2396,54 @@ class BattleEngine(
 							val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
 							afterLowHpItem.handleFaintAndResult(latestAfterItem)
 						}
+				}
+			}
+	}
+
+	/**
+	 * 处理天气阶段的特性回复。
+	 *
+	 * 现代规则中，部分特性会在指定天气存在时于回合末按最大 HP 固定比例回复。这里放在天气伤害之后、
+	 * 场地回复之前，保持事件流阶段清晰：天气先造成或免除伤害，再处理同属天气阶段的回复，最后进入场地和道具。
+	 */
+	private fun applyEndTurnWeatherHealing(state: BattleState): BattleState {
+		val weather = state.environment.weather
+		if (weather == BattleWeather.NONE) {
+			return state
+		}
+		return state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
+					current
+				} else {
+					val healEffects = latest.abilityEffects
+						.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
+						.filter { weather in it.weathers }
+					healEffects.fold(current) { healingState, effect ->
+						val currentParticipant = healingState.participant(latest.actorId)
+						if (
+							currentParticipant == null ||
+							!currentParticipant.canBattle() ||
+							currentParticipant.currentHp == currentParticipant.maxHp
+						) {
+							healingState
+						} else {
+							val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
+								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
+							healingState
+								.replaceParticipant(currentParticipant.heal(healAmount))
+								.appendEvent(
+									BattleEvent.WeatherHealingApplied(
+										turnNumber = healingState.turnNumber,
+										actorId = currentParticipant.actorId,
+										weather = weather,
+										amount = healAmount,
+									),
+								)
+						}
+					}
 				}
 			}
 	}
@@ -2636,7 +2686,8 @@ class BattleEngine(
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.TerrainSpeedMultiplier,
 				is BattleAbilityEffect.VolatileStatusImmunity,
-				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
 			}
 		}
 
@@ -2656,6 +2707,7 @@ class BattleEngine(
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherEndTurnHeal,
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 			}
 		}

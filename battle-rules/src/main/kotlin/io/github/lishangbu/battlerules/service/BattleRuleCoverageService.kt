@@ -313,6 +313,18 @@ class BattleRuleCoverageService {
 				note = "已覆盖晴雨火水伤害倍率、天气威力和命中例外、沙暴岩属性特防、雪景冰属性物防、沙暴固定伤害、天气速度特性和天气伤害免疫；天气速度特性的规则资料种子已接入运行时快照。",
 			),
 			item(
+				code = "weather.healing-ability",
+				name = "天气回复特性",
+				category = "天气",
+				status = IMPLEMENTED,
+				fixtures = listOf("weather-healing-ability-heals-active-participant-at-end-turn"),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather",
+				),
+				note = "已覆盖指定天气存在时，当前上场未满 HP 成员按最大 HP 1/16 回复；规则资料种子已接入运行时快照。",
+			),
+			item(
 				code = "status.freeze",
 				name = "冰冻和解冻流程",
 				category = "主要状态",

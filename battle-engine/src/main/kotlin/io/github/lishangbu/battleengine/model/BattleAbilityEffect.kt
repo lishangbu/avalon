@@ -4,8 +4,9 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、受到接触类技能后有概率给攻击方附加主要异常状态，
- * 稳定状态免疫、环境下速度修正，以及成员出场时的能力阶级变化、天气设置和场地设置。
+ * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、天气下回合末回复、
+ * 受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
+ * 以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
@@ -78,6 +79,23 @@ sealed interface BattleAbilityEffect {
 		init {
 			require(weathers.isNotEmpty()) { "weathers must not be empty" }
 			require(BattleWeather.NONE !in weathers) { "weather damage immunity cannot target NONE" }
+		}
+	}
+
+	/**
+	 * 指定天气下的回合末回复。
+	 *
+	 * 该效果用于表达雨天、雪天等环境中按最大 HP 固定比例回复的特性。它只描述回复条件和比例，不处理天气本身
+	 * 的持续回合、天气伤害或道具回复；状态机在回合末天气阶段读取它并产生专用天气回复事件。
+	 */
+	data class WeatherEndTurnHeal(
+		val weathers: Set<BattleWeather>,
+		val healDenominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(weathers.isNotEmpty()) { "weathers must not be empty" }
+			require(BattleWeather.NONE !in weathers) { "weather healing cannot target NONE" }
+			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
 	}
 

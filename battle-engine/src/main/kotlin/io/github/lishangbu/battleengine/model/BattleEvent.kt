@@ -520,6 +520,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 天气相关特性在回合末为成员回复了 HP。
+	 *
+	 * 该事件和普通 [HealingApplied] 分开，避免 replay 端把天气特性回复误判成携带道具或其它通用治疗来源。
+	 */
+	data class WeatherHealingApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val weather: BattleWeather,
+		val amount: Int,
+	) : BattleEvent
+
+	/**
 	 * 当前天气被出场特性或后续环境规则设置。
 	 *
 	 * 事件记录触发者、目标天气和写入时的剩余回合。它不表达天气带来的伤害、回复、命中或能力修正；这些副作用
