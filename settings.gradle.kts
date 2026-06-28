@@ -7,6 +7,7 @@ include(
 	":s3-spring-boot-autoconfigure",
 	":s3-spring-boot-starter",
 	":scheduler",
+	":battle-engine",
 	":battle-rules",
 	":game-data",
 	":migration",
