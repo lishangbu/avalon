@@ -119,4 +119,16 @@ data class BattleParticipant(
 	 */
 	fun resetProtectionChain(): BattleParticipant =
 		if (protectionChain == 0) this else copy(protectionChain = 0)
+
+	/**
+	 * 处理成员离开上场席位时应清除的运行态。
+	 *
+	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
+	 * 后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失的状态也应在这里统一清理。
+	 */
+	fun leaveBattlefield(): BattleParticipant =
+		copy(
+			statStages = emptyMap(),
+			protectionChain = 0,
+		)
 }

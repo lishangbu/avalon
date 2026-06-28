@@ -56,14 +56,19 @@ data class BattleSide(
 	 * 替换一个上场席位。
 	 *
 	 * `previousActorId` 必须当前在场；`nextActorId` 必须属于同一方、未在场并且仍可战斗。该函数只修改
-	 * 上场席位，不清除能力阶级、异常状态或其它运行态，因为现代规则下主动替换是否清除某些状态需要
-	 * 由专门的持续状态系统决定。
+	 * 上场席位，并清理离场成员的能力阶级和回合内连续保护计数。HP、PP 和主要异常状态保留在成员快照上。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleSide {
 		require(isActive(previousActorId)) { "switch actor must be active: $previousActorId" }
 		require(!isActive(nextActorId)) { "switch target must not already be active: $nextActorId" }
+		val previous = requireNotNull(participant(previousActorId)) { "switch actor must belong to the same side: $previousActorId" }
 		val next = requireNotNull(participant(nextActorId)) { "switch target must belong to the same side: $nextActorId" }
 		require(next.canBattle()) { "switch target must be able to battle: $nextActorId" }
-		return copy(activeActorIds = activeActorIds.map { current -> if (current == previousActorId) nextActorId else current })
+		return copy(
+			activeActorIds = activeActorIds.map { current -> if (current == previousActorId) nextActorId else current },
+			participants = participants.map { current ->
+				if (current.actorId == previous.actorId) previous.leaveBattlefield() else current
+			},
+		)
 	}
 }
