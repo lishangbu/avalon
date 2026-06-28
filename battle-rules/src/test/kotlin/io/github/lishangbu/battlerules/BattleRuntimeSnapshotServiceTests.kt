@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -85,7 +86,9 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 191, 311, 366, 390, 433, 446, 564, 694))
+		val slots = service.skillSlotsBySkillIds(
+			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 311, 366, 390, 433, 446, 564, 694),
+		)
 			.associateBy { it.skillId }
 
 		val growl = slots.getValue(45)
@@ -97,6 +100,13 @@ class BattleRuntimeSnapshotServiceTests(
 				assertThat(it.stageDelta).isEqualTo(-1)
 				assertThat(it.chancePercent).isEqualTo(100)
 			}
+
+		val absorb = slots.getValue(71)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
+			.single()
+		assertThat(absorb.numerator).isEqualTo(1)
+		assertThat(absorb.denominator).isEqualTo(2)
 
 		val solarBeam = slots.getValue(76)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(0.5)
@@ -122,6 +132,13 @@ class BattleRuntimeSnapshotServiceTests(
 				assertThat(it.stageDelta).isEqualTo(-1)
 				assertThat(it.chancePercent).isEqualTo(10)
 			}
+
+		val recover = slots.getValue(105)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpFraction>()
+			.single()
+		assertThat(recover.numerator).isEqualTo(1)
+		assertThat(recover.denominator).isEqualTo(2)
 
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)

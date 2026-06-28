@@ -1,0 +1,303 @@
+databaseChangeLog:
+- changeSet:
+    id: 019-battle-skill-hp-effects
+    author: backend
+    comment: 接入固定比例吸取回复和自我回复类技能规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: skill_id, valueNumeric: 71 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 230 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: skill_id, valueNumeric: 72 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 240 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: skill_id, valueNumeric: 141 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: true }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 接触造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 250 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 26 }
+        - column: { name: skill_id, valueNumeric: 202 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 260 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 27 }
+        - column: { name: skill_id, valueNumeric: 409 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: true }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: true }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 拳击接触造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 270 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 28 }
+        - column: { name: skill_id, valueNumeric: 532 }
+        - column: { name: effect_policy, value: drain-half-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: true }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 接触造成常规伤害后，使用者回复本次实际伤害的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 280 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 29 }
+        - column: { name: skill_id, valueNumeric: 105 }
+        - column: { name: effect_policy, value: self-heal-half-max-hp }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后，使用者回复最大 HP 的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 290 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 30 }
+        - column: { name: skill_id, valueNumeric: 135 }
+        - column: { name: effect_policy, value: self-heal-half-max-hp }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后，使用者回复最大 HP 的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 300 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 31 }
+        - column: { name: skill_id, valueNumeric: 208 }
+        - column: { name: effect_policy, value: self-heal-half-max-hp }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后，使用者回复最大 HP 的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 310 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 32 }
+        - column: { name: skill_id, valueNumeric: 303 }
+        - column: { name: effect_policy, value: self-heal-half-max-hp }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后，使用者回复最大 HP 的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 320 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 33 }
+        - column: { name: skill_id, valueNumeric: 355 }
+        - column: { name: effect_policy, value: self-heal-half-max-hp }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后，使用者回复最大 HP 的 1/2。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 330 }

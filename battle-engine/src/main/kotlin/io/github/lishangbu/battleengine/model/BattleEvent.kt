@@ -500,6 +500,19 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 技能自身效果为使用者回复了 HP。
+	 *
+	 * 该事件用于吸取类伤害技能和自我回复类变化技能。它记录技能 ID，方便 replay、日志和对照测试区分
+	 * “技能带来的回复”和携带道具、场地、天气等其它回复来源。
+	 */
+	data class SkillHealingApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val amount: Int,
+	) : BattleEvent
+
 	data class TerrainHealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,

@@ -16,6 +16,7 @@ import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -180,6 +181,7 @@ internal fun damagingSkill(
 	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
+	hpEffects: List<BattleSkillHpEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
 		skillId = skillId,
@@ -213,6 +215,7 @@ internal fun damagingSkill(
 		sideSpeedModifierApplications = sideSpeedModifierApplications,
 		sideEntryHazardApplications = sideEntryHazardApplications,
 		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
+		hpEffects = hpEffects,
 	)
 
 internal fun protectionSkill(

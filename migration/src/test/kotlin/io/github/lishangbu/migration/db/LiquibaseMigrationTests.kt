@@ -65,6 +65,7 @@ class LiquibaseMigrationTests(
 			"016-battle-ability-weather-speed-effects.yaml",
 			"017-battle-ability-terrain-speed-effects.yaml",
 			"018-battle-ability-weather-healing-effects.yaml",
+			"019-battle-skill-hp-effects.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -488,7 +489,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 22L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 33L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 2L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 2L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)

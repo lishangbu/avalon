@@ -40,6 +40,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "field.environment-duration" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.side-entry-hazard" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "turn.multi-hit-and-locked-move" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "skill.hp-effects" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.psychic-priority-block" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.speed-ability" && it.status == "IMPLEMENTED" })
 	}

@@ -26,6 +26,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -157,7 +158,7 @@ class BattleRuntimeSnapshotService(
 	 * 装配分为两层：
 	 * - 基础事实来自 `game_skill`：名称、属性、伤害分类、威力、命中、PP 和优先度。
 	 * - 战斗规则来自 `battle_skill_rule` 及其子表：多段命中、保护交互、天气命中覆盖、天气威力倍率、
-	 *   状态附加和能力阶级变化。
+	 *   状态附加、能力阶级变化和技能 HP 效果。
 	 *
 	 * 如果某个基础技能暂时没有显式技能规则，仍会使用引擎默认行为构建技能槽。这个默认只发生在运行时适配层，
 	 * 不是通用 CRUD 或原始 JSON fallback；它确保准备校验和早期战斗用例可以消费完整基础资料，同时让需要特殊规则的
@@ -464,6 +465,7 @@ class BattleRuntimeSnapshotService(
 				s.pp,
 				s.priority,
 				r.id as rule_id,
+				r.effect_policy,
 				r.target_policy,
 				r.min_hits,
 				r.max_hits,
@@ -518,6 +520,7 @@ class BattleRuntimeSnapshotService(
 			sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
 			sideEntryHazardApplications = sideEntryHazardApplications(row.ruleId),
 			fieldSpeedOrderApplications = fieldSpeedOrderApplications(row.ruleId),
+			hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
 		)
 	}
 
@@ -532,6 +535,7 @@ class BattleRuntimeSnapshotService(
 			pp = getInt("pp").coerceAtLeast(0),
 			priority = getInt("priority"),
 			ruleId = nullableLong("rule_id"),
+			effectPolicy = getString("effect_policy"),
 			targetPolicy = getString("target_policy"),
 			minHits = nullableInt("min_hits"),
 			maxHits = nullableInt("max_hits"),
@@ -821,6 +825,23 @@ class BattleRuntimeSnapshotService(
 			else -> BattleSkillTargetScope.SELECTED_TARGET
 		}
 
+	private fun String?.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
+		when (this) {
+			"drain-half-damage" -> listOf(
+				BattleSkillHpEffect.DrainDamage(
+					numerator = 1,
+					denominator = 2,
+				),
+			)
+			"self-heal-half-max-hp" -> listOf(
+				BattleSkillHpEffect.SelfHealMaxHpFraction(
+					numerator = 1,
+					denominator = 2,
+				),
+			)
+			else -> emptyList()
+		}
+
 	private fun String.toBattleDamageClass(): BattleDamageClass =
 		when (this) {
 			"physical" -> BattleDamageClass.PHYSICAL
@@ -1052,6 +1073,7 @@ private data class SkillRuntimeRow(
 	val pp: Int,
 	val priority: Int,
 	val ruleId: Long?,
+	val effectPolicy: String?,
 	val targetPolicy: String?,
 	val minHits: Int?,
 	val maxHits: Int?,

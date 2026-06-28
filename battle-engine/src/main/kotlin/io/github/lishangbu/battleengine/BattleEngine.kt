@@ -23,6 +23,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -446,9 +447,10 @@ class BattleEngine(
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
 			val afterEffects = applySkillEffects(state, actor.actorId, target.actorId, skill, random)
+			val afterHpEffects = applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
 			return context.copy(
 				state = updateLockedMoveAfterSuccessfulUse(
-					state = afterEffects,
+					state = afterHpEffects,
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
 					skill = skill,
@@ -580,7 +582,13 @@ class BattleEngine(
 				),
 		)
 		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
-		val afterTargetLowHpItem = applyLowHpHealingItem(afterFireThaw, damagedTarget.actorId)
+		val afterSkillHpEffects = applyPostDamageSkillHpEffects(
+			state = afterFireThaw,
+			actorId = actor.actorId,
+			skill = skill,
+			damageAmount = damage.amount,
+		)
+		val afterTargetLowHpItem = applyLowHpHealingItem(afterSkillHpEffects, damagedTarget.actorId)
 		val afterContactAbilities = applyContactAbilityEffects(
 			state = afterTargetLowHpItem,
 			actorId = actor.actorId,
@@ -601,6 +609,101 @@ class BattleEngine(
 			return context.copy(state = afterTargetFaint)
 		}
 		return context.copy(state = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage))
+	}
+
+	/**
+	 * 处理造成伤害后的技能 HP 效果。
+	 *
+	 * 当前只支持“按本次实际伤害吸取回复使用者”。该函数在伤害事件之后、目标低体力道具和接触类反制之前运行；
+	 * 这样事件流能直接表达“本段伤害造成多少，随后使用者按该伤害得到多少回复”。如果本段没有造成实际伤害，
+	 * 或使用者已经无法战斗，则不产生回复事件。
+	 */
+	private fun applyPostDamageSkillHpEffects(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0) {
+			return state
+		}
+		return skill.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
+			.fold(state) { current, effect ->
+				val actor = current.participant(actorId) ?: return@fold current
+				if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
+					current
+				} else {
+					val healAmount = fractionAmount(damageAmount, effect.numerator, effect.denominator)
+						.coerceAtMost(actor.maxHp - actor.currentHp)
+					if (healAmount <= 0) {
+						current
+					} else {
+						current
+							.replaceParticipant(actor.heal(healAmount))
+							.appendEvent(
+								BattleEvent.SkillHealingApplied(
+									turnNumber = current.turnNumber,
+									actorId = actor.actorId,
+									skillId = skill.skillId,
+									amount = healAmount,
+								),
+							)
+					}
+				}
+			}
+	}
+
+	/**
+	 * 处理变化技能成功后的 HP 回复效果。
+	 *
+	 * 自我回复类技能不依赖目标 HP，也不进入普通伤害公式；只要技能经过目标、保护、命中等前置判定并成功，
+	 * 就按使用者最大 HP 的固定比例回复。满 HP 时保持状态不变且不产生事件，后续若需要“技能失败”事件再单独建模。
+	 */
+	private fun applyStatusSkillHpEffects(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState =
+		skill.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpFraction>()
+			.fold(state) { current, effect ->
+				val actor = current.participant(actorId) ?: return@fold current
+				if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
+					current
+				} else {
+					val healAmount = fractionAmount(actor.maxHp, effect.numerator, effect.denominator)
+						.coerceAtMost(actor.maxHp - actor.currentHp)
+					if (healAmount <= 0) {
+						current
+					} else {
+						current
+							.replaceParticipant(actor.heal(healAmount))
+							.appendEvent(
+								BattleEvent.SkillHealingApplied(
+									turnNumber = current.turnNumber,
+									actorId = actor.actorId,
+									skillId = skill.skillId,
+									amount = healAmount,
+								),
+							)
+					}
+				}
+			}
+
+	/**
+	 * 计算比例型 HP 变化的基础数值。
+	 *
+	 * 现代规则中的常见比例回复以整数 HP 结算；这里统一向下取整，并对正比例至少保留 1 点，避免小额伤害的
+	 * 吸取回复被截成 0。调用方负责再根据当前缺失 HP 夹取最终回复量。
+	 */
+	private fun fractionAmount(value: Int, numerator: Int, denominator: Int): Int {
+		if (value <= 0) {
+			return 0
+		}
+		return ((value.toLong() * numerator) / denominator)
+			.coerceIn(1, Int.MAX_VALUE.toLong())
+			.toInt()
 	}
 
 	/**

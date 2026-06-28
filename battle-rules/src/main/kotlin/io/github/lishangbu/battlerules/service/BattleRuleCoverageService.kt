@@ -431,6 +431,22 @@ class BattleRuleCoverageService {
 				),
 				note = "已覆盖 2..5 段命中分布、单次 PP 消耗、倒下中断、锁招续回合、目标槽位重定向、主动替换阻止和疲劳混乱。",
 			),
+			item(
+				code = "skill.hp-effects",
+				name = "技能 HP 回复效果",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"draining-damage-skill-heals-user-by-half-damage-dealt",
+					"self-healing-status-skill-restores-half-max-hp",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Absorb_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Recover_(move)",
+				),
+				note = "已覆盖造成伤害后按实际伤害 1/2 吸取回复，以及变化技能成功后按最大 HP 1/2 自我回复；天气变量回复和 75% 吸取另行接入。",
+			),
 		)
 
 	private fun item(
