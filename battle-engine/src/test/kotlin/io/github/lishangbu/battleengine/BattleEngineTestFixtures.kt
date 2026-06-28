@@ -80,6 +80,7 @@ internal fun participant(
 	skill: BattleSkillSlot = damagingSkill(),
 	abilityId: Long? = null,
 	itemId: Long? = null,
+	grounded: Boolean = true,
 	abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	itemEffects: List<BattleItemEffect> = emptyList(),
 ): BattleParticipant =
@@ -98,6 +99,7 @@ internal fun participant(
 		skillSlots = listOf(skill),
 		abilityId = abilityId,
 		itemId = itemId,
+		grounded = grounded,
 		abilityEffects = abilityEffects,
 		itemEffects = itemEffects,
 	)

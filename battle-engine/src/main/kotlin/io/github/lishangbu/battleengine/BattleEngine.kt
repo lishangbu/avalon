@@ -786,11 +786,11 @@ class BattleEngine(
 	}
 
 	/**
-	 * 附加主要异常状态并处理现代场地免疫和状态私有计数。
+	 * 附加主要异常状态并处理现代属性免疫、接地场地免疫和状态私有计数。
 	 *
 	 * 睡眠附加成功时消费一个 `[0, 3)` 随机数并转成 1..3 次阻止行动；其它主要异常状态不消费持续回合随机数。
-	 * 当前尚未建模“是否接地”，因此电气场地只按当前上场成员处理睡眠免疫。该函数不覆盖已有主要异常状态，
-	 * 调用方需要在进入前完成“已有状态”判断。
+	 * 属性免疫和场地免疫都会在消费状态私有随机数前短路，确保“无法附加状态”不会污染随机脚本。
+	 * 该函数不覆盖已有主要异常状态，调用方需要在进入前完成“已有状态”判断。
 	 */
 	private fun applyMajorStatusEffect(
 		state: BattleState,
@@ -800,14 +800,15 @@ class BattleEngine(
 		random: BattleRandom,
 		randomReason: String,
 	): BattleState {
-		if (status == BattleMajorStatus.SLEEP && state.environment.terrain == BattleTerrain.ELECTRIC && state.isActive(recipient.actorId)) {
+		val blockedReason = blockedMajorStatusReason(state, recipient, status)
+		if (blockedReason != null) {
 			return state.appendEvent(
 				BattleEvent.StatusApplicationBlocked(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					targetActorId = recipient.actorId,
 					status = status,
-					reason = BattleStatusBlockReason.TERRAIN,
+					reason = blockedReason,
 				),
 			)
 		}
@@ -827,6 +828,66 @@ class BattleEngine(
 				),
 			)
 	}
+
+	/**
+	 * 判断主要异常状态是否会在附加前被稳定免疫规则阻止。
+	 *
+	 * 顺序选择先属性、后场地：如果目标自身属性已经免疫该状态，就不再把阻止原因归给场地，便于 fixture
+	 * 明确定位是个体免疫还是全场效果。特性、道具和技能护盾等更细的免疫来源会以新的 reason 扩展。
+	 */
+	private fun blockedMajorStatusReason(
+		state: BattleState,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+	): BattleStatusBlockReason? =
+		when {
+			statusBlockedByElement(recipient, status) -> BattleStatusBlockReason.ELEMENT
+			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
+			else -> null
+		}
+
+	/**
+	 * 判断目标属性是否天然免疫指定主要异常状态。
+	 *
+	 * 当前覆盖现代主系列最稳定的类型免疫：火属性免疫灼伤，电属性免疫麻痹，毒/钢属性免疫中毒和剧毒，
+	 * 冰属性免疫冰冻。睡眠没有通用属性免疫，因此返回 false。
+	 */
+	private fun statusBlockedByElement(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
+		when (status) {
+			BattleMajorStatus.BURN -> recipient.hasElement(FIRE_ELEMENT_ID)
+			BattleMajorStatus.PARALYSIS -> recipient.hasElement(ELECTRIC_ELEMENT_ID)
+			BattleMajorStatus.POISON,
+			BattleMajorStatus.BAD_POISON -> recipient.hasElement(POISON_ELEMENT_ID) || recipient.hasElement(STEEL_ELEMENT_ID)
+			BattleMajorStatus.FREEZE -> recipient.hasElement(ICE_ELEMENT_ID)
+			BattleMajorStatus.SLEEP -> false
+		}
+
+	/**
+	 * 判断当前场地是否阻止目标获得主要异常状态。
+	 *
+	 * 现代场地免疫只影响当前上场且接地的成员。电气场地阻止睡眠；薄雾场地阻止所有主要异常状态。
+	 * 由于成员是否接地已经显式进入运行态，飞行、漂浮、携带道具等来源可以在进入引擎前折算到该布尔值。
+	 */
+	private fun statusBlockedByTerrain(
+		state: BattleState,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+	): Boolean {
+		if (!state.isActive(recipient.actorId) || !recipient.grounded) {
+			return false
+		}
+		return when (state.environment.terrain) {
+			BattleTerrain.ELECTRIC -> status == BattleMajorStatus.SLEEP
+			BattleTerrain.MISTY -> true
+			else -> false
+		}
+	}
+
+	/**
+	 * 判断成员是否具有指定属性。
+	 */
+	private fun BattleParticipant.hasElement(elementId: Long): Boolean =
+		elementId in elementIds
 
 	/**
 	 * 附加临时状态并处理状态私有计数。
@@ -1014,8 +1075,8 @@ class BattleEngine(
 	/**
 	 * 处理回合末场地回复。
 	 *
-	 * 第一批只实现青草场地的固定比例回复，并暂时认为所有当前上场且仍可战斗的成员都满足受场地影响条件。
-	 * 飞行、漂浮、携带道具免疫地面场地等例外会在成员运行态具备“是否接地”后接入。
+	 * 第一批只实现青草场地的固定比例回复，并只作用于当前上场、仍可战斗且接地的成员。
+	 * 飞行、漂浮、携带道具免疫地面场地等来源应在进入引擎前折算为成员的 `grounded=false`。
 	 */
 	private fun applyEndTurnTerrainEffects(state: BattleState): BattleState {
 		if (state.environment.terrain != BattleTerrain.GRASSY) {
@@ -1025,7 +1086,7 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
+				if (!latest.canBattle() || !latest.grounded || latest.currentHp == latest.maxHp) {
 					current
 				} else {
 					val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
@@ -1201,7 +1262,12 @@ class BattleEngine(
 	private companion object {
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
+		private const val ELECTRIC_ELEMENT_ID = 13L
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
+		private const val FIRE_ELEMENT_ID = 10L
+		private const val ICE_ELEMENT_ID = 15L
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
+		private const val POISON_ELEMENT_ID = 4L
+		private const val STEEL_ELEMENT_ID = 9L
 	}
 }

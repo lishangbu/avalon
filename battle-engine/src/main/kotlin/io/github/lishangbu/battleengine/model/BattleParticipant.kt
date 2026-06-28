@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 连续保护计数、剧毒计数、睡眠剩余阻止行动次数，以及畏缩/混乱等临时状态。
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数，以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -27,6 +27,7 @@ data class BattleParticipant(
 	val skillSlots: List<BattleSkillSlot>,
 	val abilityId: Long? = null,
 	val itemId: Long? = null,
+	val grounded: Boolean = true,
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val protectionChain: Int = 0,
