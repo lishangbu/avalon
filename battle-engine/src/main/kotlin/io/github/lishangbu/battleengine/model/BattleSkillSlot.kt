@@ -13,6 +13,7 @@ package io.github.lishangbu.battleengine.model
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
  * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
+ * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
  * 当前显式支持主要异常状态、临时状态和能力阶级变化三类命中后效果，避免用弱类型脚本描述核心规则。
@@ -31,6 +32,7 @@ data class BattleSkillSlot(
 	val criticalHitStage: Int = 0,
 	val affectedByProtect: Boolean = true,
 	val protectsUser: Boolean = false,
+	val thawsUserBeforeMove: Boolean = false,
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,

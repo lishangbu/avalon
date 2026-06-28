@@ -181,7 +181,7 @@ class BattleEngine(
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
 		}
-		val beforeMove = resolveBeforeMoveEffects(context, actor, random)
+		val beforeMove = resolveBeforeMoveEffects(context, actor, plan.skill, random)
 		if (beforeMove.blocked) {
 			return beforeMove.context
 		}
@@ -710,7 +710,12 @@ class BattleEngine(
 	 * 内部计数，若计数归零则解除并继续行动，否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动；
 	 * 麻痹最后按 25% 概率阻止行动。
 	 */
-	private fun resolveBeforeMoveEffects(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
+	private fun resolveBeforeMoveEffects(
+		context: TurnContext,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BeforeMoveResult {
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeSleepBlockedAction(context.state, actor)),
@@ -718,7 +723,7 @@ class BattleEngine(
 			)
 		}
 		if (actor.majorStatus == BattleMajorStatus.FREEZE) {
-			return resolveFreezeBeforeMove(context, actor, random)
+			return resolveFreezeBeforeMove(context, actor, skill, random)
 		}
 		if (actor.flinched) {
 			return BeforeMoveResult(
@@ -745,21 +750,21 @@ class BattleEngine(
 	 * 若本次没有解冻，则技能不会使用、PP 不会消耗。当前技能槽尚未建模“使用后解除自身冰冻”的标记，
 	 * 因此火属性攻击或特定技能自解冻会在技能规则字段具备后接入。
 	 */
-	private fun resolveFreezeBeforeMove(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
-		if (chanceSucceeds(FREEZE_THAW_CHANCE_PERCENT, random, "freeze thaw chance for ${actor.actorId}")) {
-			val cleared = actor.clearMajorStatus()
+	private fun resolveFreezeBeforeMove(
+		context: TurnContext,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BeforeMoveResult {
+		if (skill.thawsUserBeforeMove) {
 			return BeforeMoveResult(
-				context = context.copy(
-					state = context.state
-						.replaceParticipant(cleared)
-						.appendEvent(
-							BattleEvent.StatusCleared(
-								turnNumber = context.state.turnNumber,
-								actorId = actor.actorId,
-								status = BattleMajorStatus.FREEZE,
-							),
-						),
-				),
+				context = context.copy(state = clearFrozenActorBeforeMove(context.state, actor)),
+				blocked = false,
+			)
+		}
+		if (chanceSucceeds(FREEZE_THAW_CHANCE_PERCENT, random, "freeze thaw chance for ${actor.actorId}")) {
+			return BeforeMoveResult(
+				context = context.copy(state = clearFrozenActorBeforeMove(context.state, actor)),
 				blocked = false,
 			)
 		}
@@ -768,6 +773,22 @@ class BattleEngine(
 			blocked = true,
 		)
 	}
+
+	/**
+	 * 清除行动者自身冰冻状态。
+	 *
+	 * 该函数同时服务自然解冻和带有自解冻标签的技能。调用方负责决定是否需要先消费自然解冻随机数。
+	 */
+	private fun clearFrozenActorBeforeMove(state: BattleState, actor: BattleParticipant): BattleState =
+		state
+			.replaceParticipant(actor.clearMajorStatus())
+			.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					status = BattleMajorStatus.FREEZE,
+				),
+			)
 
 	/**
 	 * 消耗睡眠对本次技能行动的阻止效果。

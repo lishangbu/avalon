@@ -128,4 +128,45 @@ class BattleFreezeStatusTests {
 		assertEquals("frozen-target", cleared.actorId)
 		assertEquals(BattleMajorStatus.FREEZE, cleared.status)
 	}
+
+	@Test
+	fun `self thawing skill can be used while frozen without thaw chance roll`() {
+		val fixture = publicBattleRuleFixture(
+			name = "self-thawing-skill-can-be-used-while-frozen",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
+			),
+			inputSummary = "冰冻成员选择带有行动前自解冻标签的伤害技能。",
+			expectedSummary = "成员不进行自然解冻概率判定，先解除自身冰冻，再正常使用技能。",
+		)
+		val thawingSkill = damagingSkill(name = "自解冻测试", thawsUserBeforeMove = true)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant("frozen-user", speed = 100, skill = thawingSkill).copy(majorStatus = BattleMajorStatus.FREEZE),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("frozen-user", skillId = 1, targetActorId = "target")),
+			random,
+		)
+
+		fixture.assertNamed("self-thawing-skill-can-be-used-while-frozen")
+		assertEquals(
+			listOf(
+				"critical hit for 1",
+				"damage random for 1",
+			),
+			random.consumedReasons(),
+		)
+		assertEquals(null, resolved.participant("frozen-user")?.majorStatus)
+		assertEquals(72, resolved.participant("target")?.currentHp)
+		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
+		assertEquals("frozen-user", cleared.actorId)
+		assertEquals("frozen-user", resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().actorId)
+	}
 }
