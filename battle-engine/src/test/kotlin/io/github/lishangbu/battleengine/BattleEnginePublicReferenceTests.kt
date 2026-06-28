@@ -337,4 +337,46 @@ class BattleEnginePublicReferenceTests {
 		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
 	}
 
+	@Test
+	fun `failed consecutive protection leaves user vulnerable like public simulator fixture`() {
+		val fixture = publicBattleRuleFixture(
+			name = "consecutive-protection-second-use-can-fail-and-leave-user-unprotected",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Protect_(move)",
+			),
+			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动且 1/3 掷点失败，对手同回合攻击保护使用者。",
+			expectedSummary = "第二次保护消耗 PP 但不建立保护屏障；对手攻击不会被保护阻挡，使用者受到普通伤害并重置连续保护计数。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+		val afterFirst = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		val resolved = engine.resolveTurn(
+			afterFirst,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(listOf(1, 1, 15)),
+		)
+
+		fixture.assertNamed("consecutive-protection-second-use-can-fail-and-leave-user-unprotected")
+		assertEquals(0, resolved.participant("protector")?.protectionChain)
+		assertEquals(72, resolved.participant("protector")?.currentHp)
+		assertEquals(8, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
+		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.ProtectionFailed>().single().actorId)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>())
+	}
+
 }

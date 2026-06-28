@@ -162,12 +162,13 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"protect-move-blocks-ordinary-target-move",
 					"consecutive-protection-second-use-one-third-success",
+					"consecutive-protection-second-use-can-fail-and-leave-user-unprotected",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
 				),
-				note = "保护类技能建立本回合屏障，连续成功按 1/3、1/9 等概率递减。",
+				note = "保护类技能建立本回合屏障，连续保护按 1/3、1/9 等概率递减；失败时仍消耗 PP，但不会阻挡同回合攻击。",
 			),
 			item(
 				code = "turn.accuracy-evasion-stage",
@@ -279,12 +280,13 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"psychic-terrain-blocks-priority-move-against-grounded-opponent",
 					"psychic-terrain-does-not-block-priority-move-against-ungrounded-opponent",
+					"psychic-terrain-does-not-block-priority-move-against-ally",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
 				),
-				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标不受影响。",
+				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标和同侧目标不受影响。",
 			),
 			item(
 				code = "terrain.setting-skill",
