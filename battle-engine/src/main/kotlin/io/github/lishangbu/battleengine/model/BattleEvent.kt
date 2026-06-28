@@ -262,6 +262,26 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 当前天气因持续回合耗尽而结束。
+	 *
+	 * 事件只表示环境事实变化，不暗含本回合天气伤害或免疫效果；这些副作用应在更早的回合末阶段单独记录。
+	 */
+	data class WeatherEnded(
+		override val turnNumber: Int,
+		val weather: BattleWeather,
+	) : BattleEvent
+
+	/**
+	 * 当前场地因持续回合耗尽而结束。
+	 *
+	 * 事件只表示环境事实变化，不暗含场地回复、状态免疫或优先度封锁等副作用。
+	 */
+	data class TerrainEnded(
+		override val turnNumber: Int,
+		val terrain: BattleTerrain,
+	) : BattleEvent
+
 	data class ParticipantFainted(
 		override val turnNumber: Int,
 		val actorId: String,

@@ -20,6 +20,7 @@ import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
 
@@ -92,8 +93,10 @@ class BattleEngine(
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
 			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
-		return afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
-			?: afterEndTurnVolatileStatuses.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
+		val afterEnvironmentDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
+			?: advanceEnvironmentDurations(afterEndTurnVolatileStatuses)
+		return afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
+			?: afterEnvironmentDurations.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
 
 	/**
@@ -1140,6 +1143,61 @@ class BattleEngine(
 						}
 				}
 			}
+
+	/**
+	 * 推进天气和场地的持续回合。
+	 *
+	 * 剩余回合为空表示该环境来自永久规则或 fixture 不关心持续时间，不会被这里修改。剩余回合为 1 时，
+	 * 本回合末结束环境并产生结束事件；大于 1 时只递减计数，不产生额外事件，避免 replay 事件流过于嘈杂。
+	 */
+	private fun advanceEnvironmentDurations(state: BattleState): BattleState {
+		val afterWeather = advanceWeatherDuration(state)
+		return advanceTerrainDuration(afterWeather)
+	}
+
+	/**
+	 * 推进天气持续回合并在耗尽时恢复无天气。
+	 */
+	private fun advanceWeatherDuration(state: BattleState): BattleState {
+		val turnsRemaining = state.environment.weatherTurnsRemaining ?: return state
+		if (state.environment.weather == BattleWeather.NONE) {
+			return state.copy(environment = state.environment.copy(weatherTurnsRemaining = null))
+		}
+		return if (turnsRemaining <= 1) {
+			state
+				.copy(environment = state.environment.copy(weather = BattleWeather.NONE, weatherTurnsRemaining = null))
+				.appendEvent(
+					BattleEvent.WeatherEnded(
+						turnNumber = state.turnNumber,
+						weather = state.environment.weather,
+					),
+				)
+		} else {
+			state.copy(environment = state.environment.copy(weatherTurnsRemaining = turnsRemaining - 1))
+		}
+	}
+
+	/**
+	 * 推进场地持续回合并在耗尽时恢复无场地。
+	 */
+	private fun advanceTerrainDuration(state: BattleState): BattleState {
+		val turnsRemaining = state.environment.terrainTurnsRemaining ?: return state
+		if (state.environment.terrain == BattleTerrain.NONE) {
+			return state.copy(environment = state.environment.copy(terrainTurnsRemaining = null))
+		}
+		return if (turnsRemaining <= 1) {
+			state
+				.copy(environment = state.environment.copy(terrain = BattleTerrain.NONE, terrainTurnsRemaining = null))
+				.appendEvent(
+					BattleEvent.TerrainEnded(
+						turnNumber = state.turnNumber,
+						terrain = state.environment.terrain,
+					),
+				)
+		} else {
+			state.copy(environment = state.environment.copy(terrainTurnsRemaining = turnsRemaining - 1))
+		}
+	}
 
 	/**
 	 * 计算主要异常状态在回合末造成的固定伤害。
