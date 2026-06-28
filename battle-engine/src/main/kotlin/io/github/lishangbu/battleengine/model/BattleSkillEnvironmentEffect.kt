@@ -25,4 +25,22 @@ sealed interface BattleSkillEnvironmentEffect {
 			}
 		}
 	}
+
+	/**
+	 * 技能成功后设置全场场地。
+	 *
+	 * 现代普通场地技能默认持续 5 回合。延长场地的携带道具、已有相同场地下的失败语义、场地覆盖限制等复杂交互
+	 * 会作为独立规则逐步接入；该结构只承载“成功后把全场场地写成指定值”的事实。
+	 */
+	data class SetTerrain(
+		val terrain: BattleTerrain,
+		val turnsRemaining: Int? = 5,
+	) : BattleSkillEnvironmentEffect {
+		init {
+			require(terrain != BattleTerrain.NONE) { "set terrain effect requires an active terrain" }
+			require(turnsRemaining == null || turnsRemaining > 0) {
+				"turnsRemaining must be positive when present"
+			}
+		}
+	}
 }

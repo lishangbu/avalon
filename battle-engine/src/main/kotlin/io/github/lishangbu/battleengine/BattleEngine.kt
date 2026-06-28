@@ -757,6 +757,11 @@ class BattleEngine(
 					actorId = actorId,
 					effect = effect,
 				)
+				is BattleSkillEnvironmentEffect.SetTerrain -> applySkillTerrainChange(
+					state = current,
+					actorId = actorId,
+					effect = effect,
+				)
 			}
 		}
 
@@ -788,6 +793,39 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					weather = effect.weather,
+					turnsRemaining = effect.turnsRemaining,
+				),
+			)
+	}
+
+	/**
+	 * 将技能场地效果写入战斗环境。
+	 *
+	 * 该函数与出场场地特性保持相同事件类型和去重语义；区别只在触发来源来自技能槽而不是成员特性。
+	 */
+	private fun applySkillTerrainChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleSkillEnvironmentEffect.SetTerrain,
+	): BattleState {
+		if (
+			state.environment.terrain == effect.terrain &&
+			state.environment.terrainTurnsRemaining == effect.turnsRemaining
+		) {
+			return state
+		}
+		return state
+			.copy(
+				environment = state.environment.copy(
+					terrain = effect.terrain,
+					terrainTurnsRemaining = effect.turnsRemaining,
+				),
+			)
+			.appendEvent(
+				BattleEvent.TerrainStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					terrain = effect.terrain,
 					turnsRemaining = effect.turnsRemaining,
 				),
 			)

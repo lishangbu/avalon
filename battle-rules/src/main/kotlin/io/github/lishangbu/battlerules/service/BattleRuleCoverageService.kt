@@ -258,6 +258,21 @@ class BattleRuleCoverageService {
 				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标不受影响。",
 			),
 			item(
+				code = "terrain.setting-skill",
+				name = "场地设置技能",
+				category = "场地",
+				status = IMPLEMENTED,
+				fixtures = listOf("status-skill-starts-terrain-for-five-turns"),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Misty_Terrain_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
+				),
+				note = "已覆盖变化技能成功后设置电气、青草、薄雾和精神场地，普通持续 5 回合；规则资料种子已接入运行时快照。",
+			),
+			item(
 				code = "terrain.speed-ability",
 				name = "场地速度特性",
 				category = "场地",

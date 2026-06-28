@@ -88,7 +88,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 240, 311, 366, 390, 433, 446, 564, 570, 577, 883, 694),
+			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 240, 311, 366, 390, 433, 446, 564, 570, 577, 580, 604, 883, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -225,6 +225,20 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(snowscape.weather).isEqualTo(BattleWeather.SNOW)
 		assertThat(snowscape.turnsRemaining).isEqualTo(5)
+
+		val grassyTerrain = slots.getValue(580)
+			.environmentEffects
+			.filterIsInstance<BattleSkillEnvironmentEffect.SetTerrain>()
+			.single()
+		assertThat(grassyTerrain.terrain).isEqualTo(BattleTerrain.GRASSY)
+		assertThat(grassyTerrain.turnsRemaining).isEqualTo(5)
+
+		val electricTerrain = slots.getValue(604)
+			.environmentEffects
+			.filterIsInstance<BattleSkillEnvironmentEffect.SetTerrain>()
+			.single()
+		assertThat(electricTerrain.terrain).isEqualTo(BattleTerrain.ELECTRIC)
+		assertThat(electricTerrain.turnsRemaining).isEqualTo(5)
 	}
 
 	@Test
