@@ -99,6 +99,7 @@ class LiquibaseMigrationTests(
 			"050-battle-environment-duration-items.yaml",
 			"051-battle-side-condition-duration-item.yaml",
 			"052-battle-skill-substitute-rules.yaml",
+			"053-battle-fatal-damage-survival-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -522,8 +523,8 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 21L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 12L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 22L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -542,9 +543,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 106L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 228L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 106L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 109L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 234L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 109L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -646,6 +647,37 @@ class LiquibaseMigrationTests(
 				"item_id" to 248L,
 				"trigger_timing" to "BEFORE_MOVE",
 				"effect_policy" to "charge-skip-once",
+				"consumable" to true,
+			),
+		)
+
+		val fatalDamageSurvivalAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 5
+			""".trimIndent(),
+		)
+		assertThat(fatalDamageSurvivalAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 5L,
+				"trigger_timing" to "BEFORE_FAINT",
+				"effect_policy" to "full-hp-fatal-damage-survival",
+			),
+		)
+
+		val fatalDamageSurvivalItemRules = queryMaps(
+			"""
+			select item_id, trigger_timing, effect_policy, consumable
+			from battle_item_rule
+			where item_id = 252
+			""".trimIndent(),
+		)
+		assertThat(fatalDamageSurvivalItemRules).containsExactly(
+			mapOf(
+				"item_id" to 252L,
+				"trigger_timing" to "BEFORE_FAINT",
+				"effect_policy" to "consumable-full-hp-fatal-damage-survival",
 				"consumable" to true,
 			),
 		)

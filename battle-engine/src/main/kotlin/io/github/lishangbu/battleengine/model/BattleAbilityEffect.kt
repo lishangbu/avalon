@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、天气下回合末回复、
+ * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、天气下速度修正、天气伤害免疫、天气下回合末回复、
  * 受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
  * 以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
@@ -97,6 +97,21 @@ sealed interface BattleAbilityEffect {
 			require(weathers.isNotEmpty()) { "weathers must not be empty" }
 			require(BattleWeather.NONE !in weathers) { "weather healing cannot target NONE" }
 			require(healDenominator > 0) { "healDenominator must be positive" }
+		}
+	}
+
+	/**
+	 * 满 HP 承受会导致倒下的直接伤害时保留 1 HP。
+	 *
+	 * 该效果只处理普通伤害结算中的“从满 HP 被一击打倒”场景，不阻止异常状态、天气、入场陷阱、混乱自伤、
+	 * 反作用伤害或其它非技能直接伤害。破格、特性失效等绕过条件会在对应规则模型存在后接入，不在这里判断具体
+	 * 特性名称。
+	 */
+	data class SurviveFatalDamageAtFullHp(
+		val remainingHp: Int = 1,
+	) : BattleAbilityEffect {
+		init {
+			require(remainingHp > 0) { "remainingHp must be positive" }
 		}
 	}
 

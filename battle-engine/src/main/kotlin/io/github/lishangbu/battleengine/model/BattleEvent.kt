@@ -563,6 +563,24 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 目标从满 HP 承受致命直接伤害时，通过特性或携带道具保留了 HP。
+	 *
+	 * `incomingDamage` 是普通伤害公式产出的原始伤害，`preventedDamage` 是为了让目标保留 HP 而抵消的部分。
+	 * 目标最终损失的 HP 仍由同一次 [DamageApplied] 事件记录；本事件只说明为什么没有倒下。
+	 */
+	data class FatalDamageSurvived(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val source: BattleFatalDamageSurvivalSource,
+		val sourceId: Long?,
+		val consumed: Boolean,
+		val incomingDamage: Int,
+		val preventedDamage: Int,
+	) : BattleEvent
+
+	/**
 	 * 使用者成功支付 HP 并建立替身。
 	 *
 	 * `hpCost` 是从本体扣除的 HP，也等于替身建立时的初始 HP。该事件只在替身真正写入运行态后产生；

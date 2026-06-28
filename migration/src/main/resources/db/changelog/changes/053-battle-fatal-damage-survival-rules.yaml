@@ -1,0 +1,164 @@
+databaseChangeLog:
+- changeSet:
+    id: 053-battle-fatal-damage-survival-rules
+    author: backend
+    comment: 新增满 HP 致命伤害保留 1 HP 的特性和道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: ability_id, valueNumeric: 5 }
+        - column: { name: trigger_timing, value: BEFORE_FAINT }
+        - column: { name: effect_policy, value: full-hp-fatal-damage-survival }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 满 HP 承受会导致倒下的技能直接伤害时保留 1 HP。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 220 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 13 }
+        - column: { name: item_id, valueNumeric: 252 }
+        - column: { name: trigger_timing, value: BEFORE_FAINT }
+        - column: { name: effect_policy, value: consumable-full-hp-fatal-damage-survival }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 满 HP 承受会导致倒下的技能直接伤害时保留 1 HP，并在触发后消费携带道具。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 130 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 107 }
+        - column: { name: code, value: full-hp-survival-ability-leaves-one-hp-before-faint }
+        - column: { name: name, value: 满 HP 保命特性保留一点 HP }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证满 HP 致命伤害保留 1 HP 的结构化特性在目标倒下前触发。 }
+        - column: { name: input_summary, value: 目标满 HP 且拥有保命特性效果，受到足以一击倒下的普通技能伤害。 }
+        - column: { name: expected_summary, value: 目标不会倒下，最终保留 1 HP，事件流记录保命来源为特性。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1070 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 108 }
+        - column: { name: code, value: consumable-full-hp-survival-item-leaves-one-hp-and-consumes-item }
+        - column: { name: name, value: 一次性保命道具保留一点 HP 并消费 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证满 HP 致命伤害保留 1 HP 的携带道具在触发后会被消费。 }
+        - column: { name: input_summary, value: 目标满 HP 且携带一次性保命道具，受到足以一击倒下的普通技能伤害。 }
+        - column: { name: expected_summary, value: 目标保留 1 HP，道具 ID 和道具效果被清空，事件流记录保命来源为道具。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1080 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 109 }
+        - column: { name: code, value: full-hp-survival-does-not-trigger-after-prior-damage }
+        - column: { name: name, value: 非满 HP 不触发保命规则 }
+        - column: { name: category, value: DAMAGE }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证满 HP 保命规则只在目标当前 HP 等于最大 HP 时触发。 }
+        - column: { name: input_summary, value: 目标已经损失 1 点 HP，随后受到足以倒下的普通技能伤害。 }
+        - column: { name: expected_summary, value: 保命规则不触发，目标 HP 被扣到 0，事件流不出现保命事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1090 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 229 }
+        - column: { name: fixture_id, valueNumeric: 107 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability) }
+        - column: { name: source_label, value: 满 HP 保命特性公开说明 }
+        - column: { name: source_note, value: 用于验证满 HP 被一击打倒前保留 1 HP 的触发条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 230 }
+        - column: { name: fixture_id, valueNumeric: 107 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照保命特性在伤害写入前的触发阶段。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 231 }
+        - column: { name: fixture_id, valueNumeric: 108 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Focus_Sash }
+        - column: { name: source_label, value: 一次性保命道具公开说明 }
+        - column: { name: source_note, value: 用于验证满 HP 致命伤害保留 1 HP 与触发后消费道具。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 232 }
+        - column: { name: fixture_id, valueNumeric: 108 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照一次性保命道具的触发和消费行为。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 233 }
+        - column: { name: fixture_id, valueNumeric: 109 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability) }
+        - column: { name: source_label, value: 满 HP 保命特性公开说明 }
+        - column: { name: source_note, value: 用于验证非满 HP 时不会触发保命特性。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 234 }
+        - column: { name: fixture_id, valueNumeric: 109 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Focus_Sash }
+        - column: { name: source_label, value: 一次性保命道具公开说明 }
+        - column: { name: source_note, value: 用于验证非满 HP 时不会触发一次性保命道具。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 107 }
+        - column: { name: run_code, value: fatal-damage-survival-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 107 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:08:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:11:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 1070 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 108 }
+        - column: { name: run_code, value: fatal-damage-survival-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 108 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:08:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:11:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 1080 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 109 }
+        - column: { name: run_code, value: fatal-damage-survival-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 109 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:08:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:11:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1090 }

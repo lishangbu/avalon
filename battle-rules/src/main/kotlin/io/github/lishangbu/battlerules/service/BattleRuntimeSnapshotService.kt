@@ -281,6 +281,7 @@ class BattleRuntimeSnapshotService(
 	 * - 指定天气下修改速度倍率。
 	 * - 指定场地下修改速度倍率。
 	 * - 指定天气下回合末按最大 HP 固定比例回复。
+	 * - 满 HP 承受致命直接伤害时保留 1 HP。
 	 *
 	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
 	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
@@ -319,7 +320,7 @@ class BattleRuntimeSnapshotService(
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
 	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；天气、场地和屏障延长类
-	 * 道具会映射为成功设置对应持续效果时的回合覆盖。
+	 * 道具会映射为成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -1126,6 +1127,7 @@ class BattleRuntimeSnapshotService(
 				weathers = setOf(BattleWeather.SNOW),
 				healDenominator = 16,
 			)
+			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
 			"ground-immunity" -> null
 			else -> null
@@ -1142,6 +1144,7 @@ class BattleRuntimeSnapshotService(
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 			"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
 			"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
+			"consumable-full-hp-fatal-damage-survival" -> BattleItemEffect.SurviveFatalDamageAtFullHp()
 			"side-condition-duration-screen" -> BattleItemEffect.SideDamageReductionDurationExtension(
 				kinds = setOf(
 					BattleSideDamageReductionKind.PHYSICAL,

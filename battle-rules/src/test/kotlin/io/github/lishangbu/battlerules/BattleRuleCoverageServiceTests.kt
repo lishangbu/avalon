@@ -41,6 +41,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "ability.switch-in-weather" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.switch-in-terrain" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.contact-status" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "damage.full-hp-survival" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "item.held-core-effects" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.environment-duration" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.side-entry-hazard" && it.status == "IMPLEMENTED" })

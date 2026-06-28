@@ -409,6 +409,9 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.weatherHealByAbilityId(44)).isEqualTo(setOf(BattleWeather.RAIN) to 16)
 		assertThat(service.weatherHealByAbilityId(115)).isEqualTo(setOf(BattleWeather.SNOW) to 16)
 
+		assertThat(service.abilityEffectsByAbilityId(5))
+			.hasExactlyElementsOfTypes(BattleAbilityEffect.SurviveFatalDamageAtFullHp::class.java)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -442,6 +445,11 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.itemEffectsByItemId(248))
 			.hasExactlyElementsOfTypes(BattleItemEffect.ChargeSkipOnce::class.java)
+
+		val fatalDamageSurvival = service.itemEffectsByItemId(252)
+			.filterIsInstance<BattleItemEffect.SurviveFatalDamageAtFullHp>()
+			.single()
+		assertThat(fatalDamageSurvival.consumesItem).isTrue()
 
 		val screenDuration = service.itemEffectsByItemId(246)
 			.filterIsInstance<BattleItemEffect.SideDamageReductionDurationExtension>()

@@ -227,6 +227,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
+				is BattleAbilityEffect.SurviveFatalDamageAtFullHp -> multiplier
 				is BattleAbilityEffect.SwitchInTerrainChange -> multiplier
 				is BattleAbilityEffect.SwitchInWeatherChange -> multiplier
 				is BattleAbilityEffect.TerrainSpeedMultiplier -> multiplier
@@ -252,6 +253,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier
 				is BattleItemEffect.SideDamageReductionDurationExtension -> multiplier
+				is BattleItemEffect.SurviveFatalDamageAtFullHp -> multiplier
 				is BattleItemEffect.TerrainDurationExtension -> multiplier
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
 				is BattleItemEffect.WeatherDurationExtension -> multiplier

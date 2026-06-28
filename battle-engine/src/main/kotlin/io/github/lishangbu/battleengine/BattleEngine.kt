@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -633,8 +634,15 @@ class BattleEngine(
 			)
 		}
 
-		val damagedTarget = target.receiveDamage(damage.amount)
-		val actualDamageAmount = target.currentHp - damagedTarget.currentHp
+		val survival = fatalDamageSurvival(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			damageAmount = damage.amount,
+		)
+		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
+		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
 		val damagedState = state
 			.replaceParticipant(damagedTarget)
 			.appendEvent(
@@ -648,7 +656,10 @@ class BattleEngine(
 					targetMultiplier = damage.targetMultiplier,
 					criticalHit = criticalHitCheck.hit,
 				),
-		)
+			)
+			.let { current ->
+				survival.event?.let(current::appendEvent) ?: current
+			}
 		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
 		return finishPostDamageEffects(
 			context = context,
@@ -661,6 +672,90 @@ class BattleEngine(
 			allowTargetLowHpItem = true,
 			allowContactAbilities = true,
 			random = random,
+		)
+	}
+
+	/**
+	 * 在直接伤害写入目标 HP 前，套用“满 HP 致命伤害保留 1 HP”的特性和道具规则。
+	 *
+	 * 这类规则必须发生在低体力道具、接触特性和倒下判定之前；否则一次本应保留 1 HP 的攻击会先把目标写成倒下。
+	 * 特性优先于道具，避免同一成员同时拥有两种来源时错误消耗携带道具。
+	 */
+	private fun fatalDamageSurvival(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): FatalDamageSurvivalResult {
+		if (
+			damageAmount <= 0 ||
+			!target.canBattle() ||
+			target.currentHp != target.maxHp ||
+			damageAmount < target.currentHp
+		) {
+			return FatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
+		}
+		val abilityEffect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.SurviveFatalDamageAtFullHp>()
+			.firstOrNull()
+		if (abilityEffect != null) {
+			return target.toFatalDamageSurvivalResult(
+				state = state,
+				actor = actor,
+				skill = skill,
+				damageAmount = damageAmount,
+				remainingHp = abilityEffect.remainingHp,
+				source = BattleFatalDamageSurvivalSource.ABILITY,
+				sourceId = target.abilityId,
+				consumed = false,
+			)
+		}
+		val itemId = target.itemId
+		val itemEffect = target.itemEffects
+			.filterIsInstance<BattleItemEffect.SurviveFatalDamageAtFullHp>()
+			.firstOrNull()
+		if (itemId != null && itemEffect != null) {
+			val updatedTarget = if (itemEffect.consumesItem) target.consumeHeldItem() else target
+			return updatedTarget.toFatalDamageSurvivalResult(
+				state = state,
+				actor = actor,
+				skill = skill,
+				damageAmount = damageAmount,
+				remainingHp = itemEffect.remainingHp,
+				source = BattleFatalDamageSurvivalSource.ITEM,
+				sourceId = itemId,
+				consumed = itemEffect.consumesItem,
+			)
+		}
+		return FatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
+	}
+
+	private fun BattleParticipant.toFatalDamageSurvivalResult(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		remainingHp: Int,
+		source: BattleFatalDamageSurvivalSource,
+		sourceId: Long?,
+		consumed: Boolean,
+	): FatalDamageSurvivalResult {
+		val adjustedDamage = (currentHp - remainingHp).coerceAtLeast(0)
+		return FatalDamageSurvivalResult(
+			target = this,
+			damageAmount = adjustedDamage,
+			event = BattleEvent.FatalDamageSurvived(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = actorId,
+				skillId = skill.skillId,
+				source = source,
+				sourceId = sourceId,
+				consumed = consumed,
+				incomingDamage = damageAmount,
+				preventedDamage = damageAmount - adjustedDamage,
+			),
 		)
 	}
 
@@ -2344,6 +2439,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
+			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
 			is BattleAbilityEffect.WeatherDamageImmunity,
@@ -3553,6 +3649,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.TerrainSpeedMultiplier,
@@ -3574,6 +3671,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
@@ -3599,6 +3697,7 @@ class BattleEngine(
 				is BattleItemEffect.LowHpHeal,
 				is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
+				is BattleItemEffect.SurviveFatalDamageAtFullHp,
 				is BattleItemEffect.TerrainDurationExtension,
 				is BattleItemEffect.VolatileStatusImmunity,
 				is BattleItemEffect.WeatherDurationExtension,
@@ -3717,6 +3816,12 @@ class BattleEngine(
 	private data class CriticalHitCheck(
 		val hit: Boolean,
 		val roll: Int?,
+	)
+
+	private data class FatalDamageSurvivalResult(
+		val target: BattleParticipant,
+		val damageAmount: Int,
+		val event: BattleEvent.FatalDamageSurvived? = null,
 	)
 
 	private companion object {

@@ -499,6 +499,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖接触类技能成功造成伤害后触发目标特性，100% 概率不额外消费随机数，30% 概率失败时不附加状态，并复用攻击方主要异常免疫流程。",
 			),
 			item(
+				code = "damage.full-hp-survival",
+				name = "满 HP 致命伤害保留 1 HP",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"full-hp-survival-ability-leaves-one-hp-before-faint",
+					"consumable-full-hp-survival-item-leaves-one-hp-and-consumes-item",
+					"full-hp-survival-does-not-trigger-after-prior-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Focus_Sash",
+				),
+				note = "已覆盖满 HP 被技能直接伤害一击打倒前由特性或一次性携带道具保留 1 HP；道具来源会在触发后被消费，非满 HP 不触发。",
+			),
+			item(
 				code = "item.held-core-effects",
 				name = "携带道具核心触发效果",
 				category = "道具",

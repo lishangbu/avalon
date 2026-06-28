@@ -4,7 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 携带道具在战斗中的可执行效果。
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
- * 环境和一侧屏障持续回合延长、低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
+ * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待，
+ * 以及稳定状态免疫。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -170,6 +171,22 @@ sealed interface BattleItemEffect {
 		 */
 		fun healAmount(maxHp: Int): Int =
 			fixedHealAmount ?: (maxHp / requireNotNull(healDenominator)).coerceAtLeast(1)
+	}
+
+	/**
+	 * 满 HP 承受会导致倒下的直接伤害时保留 1 HP。
+	 *
+	 * 该效果用于一次性保命类携带道具。它只在技能直接伤害写入 HP 前触发；如果持有者已经不是满 HP，
+	 * 或伤害来源是异常、天气、入场陷阱、混乱自伤、反作用伤害等非普通技能伤害，则不会触发。
+	 * `consumesItem` 为 true 时，触发后会清空携带道具和其效果，保证同一成员不会重复触发。
+	 */
+	data class SurviveFatalDamageAtFullHp(
+		val remainingHp: Int = 1,
+		val consumesItem: Boolean = true,
+	) : BattleItemEffect {
+		init {
+			require(remainingHp > 0) { "remainingHp must be positive" }
+		}
 	}
 
 	/**
