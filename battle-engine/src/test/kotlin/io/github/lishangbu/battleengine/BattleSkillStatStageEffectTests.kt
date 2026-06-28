@@ -6,6 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -73,5 +74,54 @@ class BattleSkillStatStageEffectTests {
 		assertEquals(2, events.size)
 		assertEquals(listOf(BattleStat.ATTACK, BattleStat.SPEED), events.map { it.stat })
 		assertEquals(setOf("stage-user"), events.map { it.targetActorId }.toSet())
+	}
+
+	@Test
+	fun `all opponents status skill applies stat stage change to each active opponent`() {
+		val fixture = publicBattleRuleFixture(
+			name = "all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Growl_(move)",
+				"https://bulbapedia.bulbagarden.net/wiki/Noble_Roar_(move)",
+			),
+			inputSummary = "双打中使用者成功使用影响所有相邻对手的变化技能。",
+			expectedSummary = "两个当前对手分别降低对应能力阶级，己方队友不受影响，并为每个实际目标记录事件。",
+		)
+		val skill = damagingSkill(
+			name = "全体降攻测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.ATTACK,
+					target = BattleEffectTarget.TARGET,
+					stageDelta = -1,
+					chancePercent = 100,
+				),
+			),
+		)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("stage-user", speed = 100, skill = skill),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("opponent-a", speed = 80),
+				secondB = participant("opponent-b", speed = 70),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("stage-user", skillId = 1, targetActorId = "opponent-a")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent")
+		assertEquals(0, resolved.participant("ally")?.statStage(BattleStat.ATTACK))
+		assertEquals(-1, resolved.participant("opponent-a")?.statStage(BattleStat.ATTACK))
+		assertEquals(-1, resolved.participant("opponent-b")?.statStage(BattleStat.ATTACK))
+		val events = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>()
+		assertEquals(listOf("opponent-a", "opponent-b"), events.map { it.targetActorId }.sorted())
 	}
 }

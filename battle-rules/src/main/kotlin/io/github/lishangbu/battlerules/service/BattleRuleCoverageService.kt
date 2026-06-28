@@ -469,6 +469,7 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"stat-stage-effect-changes-later-action-damage-in-the-same-turn",
 					"status-skill-applies-multiple-user-stat-stage-changes",
+					"all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
@@ -476,7 +477,7 @@ class BattleRuleCoverageService {
 					"https://bulbapedia.bulbagarden.net/wiki/Swords_Dance_(move)",
 					"https://bulbapedia.bulbagarden.net/wiki/Shell_Smash_(move)",
 				),
-				note = "已覆盖命中后降低目标能力阶级、变化技能提升使用者单项或多项能力阶级，并已接入基础自我强化技能规则资料。",
+				note = "已覆盖命中后降低目标能力阶级、变化技能提升使用者单项或多项能力阶级、双打全体对手逐个降阶，并已接入基础自我强化和目标降阶技能规则资料。",
 			),
 			item(
 				code = "skill.hp-effects",
