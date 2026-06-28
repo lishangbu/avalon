@@ -15,11 +15,20 @@ import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 
-internal fun singleFormat(): BattleFormatSnapshot =
+internal fun singleFormat(teamSize: Int? = null): BattleFormatSnapshot =
 	BattleFormatSnapshot(
 		code = "standard-single",
 		mode = BattleMode.SINGLE,
 		activeParticipantsPerSide = 1,
+		teamSize = teamSize,
+	)
+
+internal fun doubleFormat(teamSize: Int? = null): BattleFormatSnapshot =
+	BattleFormatSnapshot(
+		code = "standard-double",
+		mode = BattleMode.DOUBLE,
+		activeParticipantsPerSide = 2,
+		teamSize = teamSize,
 	)
 
 internal fun neutralRules(): BattleRuleSnapshot =
@@ -40,6 +49,24 @@ internal fun initialState(
 		sides = listOf(
 			BattleSide("side-a", listOf(first.actorId), listOf(first) + firstBench),
 			BattleSide("side-b", listOf(second.actorId), listOf(second) + secondBench),
+		),
+	)
+
+internal fun doubleInitialState(
+	firstA: BattleParticipant = participant("side-a-active-1", speed = 100),
+	firstB: BattleParticipant = participant("side-a-active-2", speed = 90),
+	secondA: BattleParticipant = participant("side-b-active-1", speed = 80),
+	secondB: BattleParticipant = participant("side-b-active-2", speed = 70),
+	rules: BattleRuleSnapshot = neutralRules(),
+	environment: BattleEnvironment = BattleEnvironment(),
+): BattleInitialState =
+	BattleInitialState(
+		format = doubleFormat(),
+		rules = rules,
+		environment = environment,
+		sides = listOf(
+			BattleSide("side-a", listOf(firstA.actorId, firstB.actorId), listOf(firstA, firstB)),
+			BattleSide("side-b", listOf(secondA.actorId, secondB.actorId), listOf(secondA, secondB)),
 		),
 	)
 
