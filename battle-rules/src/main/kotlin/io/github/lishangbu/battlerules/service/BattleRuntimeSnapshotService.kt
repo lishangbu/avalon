@@ -118,6 +118,7 @@ class BattleRuntimeSnapshotService(
 		return BattleRuntimeSnapshot(
 			format = format.toEngineFormatSnapshot(),
 			rules = BattleRuleSnapshot(
+				darkElementId = elementIds.requiredElementId("dark"),
 				electricElementId = elementIds.requiredElementId("electric"),
 				fireElementId = elementIds.requiredElementId("fire"),
 				grassElementId = elementIds.requiredElementId("grass"),
@@ -373,7 +374,7 @@ class BattleRuntimeSnapshotService(
 			"""
 			select code, id
 			from game_element
-			where code in ('electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
+			where code in ('dark', 'electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
 			""".trimIndent(),
 		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
 
@@ -1130,6 +1131,7 @@ class BattleRuntimeSnapshotService(
 			)
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
+			"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
 			"ground-immunity" -> null
 			else -> null

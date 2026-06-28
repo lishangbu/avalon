@@ -12,6 +12,7 @@ package io.github.lishangbu.battleengine.model
  */
 data class BattleRuleSnapshot(
 	val elementChart: ElementEffectivenessChart = ElementEffectivenessChart.neutral(),
+	val darkElementId: Long? = null,
 	val electricElementId: Long? = null,
 	val fireElementId: Long? = null,
 	val grassElementId: Long? = null,
@@ -31,6 +32,7 @@ data class BattleRuleSnapshot(
 	val uniqueItemRequired: Boolean = false,
 ) {
 	init {
+		require(darkElementId == null || darkElementId > 0) { "darkElementId must be positive when present" }
 		require(electricElementId == null || electricElementId > 0) { "electricElementId must be positive when present" }
 		require(fireElementId == null || fireElementId > 0) { "fireElementId must be positive when present" }
 		require(grassElementId == null || grassElementId > 0) { "grassElementId must be positive when present" }

@@ -101,6 +101,7 @@ class LiquibaseMigrationTests(
 			"052-battle-skill-substitute-rules.yaml",
 			"053-battle-fatal-damage-survival-rules.yaml",
 			"054-battle-priority-blocking-ability-rules.yaml",
+			"055-battle-status-priority-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -524,7 +525,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 25L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 26L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -544,9 +545,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 112L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 241L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 112L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 115L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 247L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 115L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -690,6 +691,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 296L,
 				"trigger_timing" to "BEFORE_HIT",
 				"effect_policy" to "side-priority-move-immunity",
+			),
+		)
+
+		val statusPriorityAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 158
+			""".trimIndent(),
+		)
+		assertThat(statusPriorityAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 158L,
+				"trigger_timing" to "BEFORE_MOVE",
+				"effect_policy" to "status-skill-priority-boost",
 			),
 		)
 

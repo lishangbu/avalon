@@ -53,6 +53,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "skill.stat-stage-effects" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "skill.hp-effects" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.psychic-priority-block" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "ability.status-priority-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.priority-move-block" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.setting-skill" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.speed-ability" && it.status == "IMPLEMENTED" })

@@ -126,6 +126,22 @@ sealed interface BattleAbilityEffect {
 		val protectsAllies: Boolean = true,
 	) : BattleAbilityEffect
 
+	/**
+	 * 提升变化类技能的行动优先度。
+	 *
+	 * 该效果只作用于 [BattleDamageClass.STATUS] 技能，不改变物理或特殊技能的基础优先度。现代规则中，由这类
+	 * 特性提升优先度的对手变化技能无法影响恶属性目标；`darkElementTargetsImmune` 明确保存这一副作用，避免
+	 * 状态机靠具体特性名判断。该免疫只针对对手目标，同侧辅助技能仍正常结算。
+	 */
+	data class StatusSkillPriorityBoost(
+		val priorityDelta: Int = 1,
+		val darkElementTargetsImmune: Boolean = true,
+	) : BattleAbilityEffect {
+		init {
+			require(priorityDelta > 0) { "priorityDelta must be positive" }
+		}
+	}
+
 	data class LowHpElementDamageBoost(
 		val elementId: Long,
 		val hpThresholdNumerator: Int = 1,

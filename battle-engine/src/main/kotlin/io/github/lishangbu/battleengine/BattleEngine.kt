@@ -121,10 +121,10 @@ class BattleEngine(
 	}
 
 	/**
-	 * 按优先度、速度和同速随机数排序行动。
+	 * 按有效优先度、速度和同速随机数排序行动。
 	 *
-	 * 第一阶段只支持技能行动，所以优先度来自技能槽。速度相同的行动会消费随机数作为排序键；
-	 * 这不是最终双打同速规则的完整实现，但已经保证同一随机脚本下的 replay 稳定。
+	 * 第一阶段只支持技能行动，所以优先度先来自技能槽，再叠加特性对变化类技能的修正。速度相同的行动会消费
+	 * 随机数作为排序键；这不是最终双打同速规则的完整实现，但已经保证同一随机脚本下的 replay 稳定。
 	 */
 	private fun orderSkillActions(state: BattleState, actions: List<SkillActionInput>, random: BattleRandom): List<ActionPlan> {
 		val plans = actions.map { input ->
@@ -136,13 +136,19 @@ class BattleEngine(
 					"choice locked to skill: ${actor.choiceLockedSkillId}"
 				}
 			}
-			ActionPlan(action, actor, skill, input.source)
+			ActionPlan(
+				action = action,
+				actor = actor,
+				skill = skill,
+				source = input.source,
+				priorityContext = skillPriorityContext(actor, skill),
+			)
 		}
 		val speedComparator = speedComparator(state)
 		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
 			.thenComparator { left, right -> speedComparator.compare(left.second, right.second) }
 		return plans
-			.groupBy { it.skill.priority to effectiveSpeed(state, it.actor) }
+			.groupBy { it.priorityContext.effectivePriority to effectiveSpeed(state, it.actor) }
 			.toSortedMap(orderComparator)
 			.values
 			.flatMap { sameOrderPlans ->
@@ -396,6 +402,7 @@ class BattleEngine(
 					actorId = readyActor.actorId,
 					targetActorId = target.actorId,
 					skill = skill,
+					priorityContext = plan.priorityContext,
 					targetMultiplier = targetMultiplier,
 					random = random,
 				)
@@ -415,6 +422,7 @@ class BattleEngine(
 		actorId: String,
 		targetActorId: String,
 		skill: BattleSkillSlot,
+		priorityContext: SkillPriorityContext,
 		targetMultiplier: Double,
 		random: BattleRandom,
 	): TurnContext {
@@ -445,7 +453,27 @@ class BattleEngine(
 			)
 		}
 
-		if (skillBlockedByTerrain(state, actor, target, skill)) {
+		val darkPriorityBlockedElementId = darkPriorityBlockedElementId(state, actor, target, priorityContext)
+		if (darkPriorityBlockedElementId != null) {
+			return context.copy(
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByElement(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							elementId = darkPriorityBlockedElementId,
+						),
+					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
+		}
+
+		if (skillBlockedByTerrain(state, actor, target, priorityContext)) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
 					state = state.appendEvent(
@@ -464,7 +492,7 @@ class BattleEngine(
 			)
 		}
 
-		val priorityBlocker = priorityMoveAbilityBlocker(state, actor, target, skill)
+		val priorityBlocker = priorityMoveAbilityBlocker(state, actor, target, priorityContext)
 		if (priorityBlocker != null) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -1478,10 +1506,10 @@ class BattleEngine(
 		state: BattleState,
 		actor: BattleParticipant,
 		target: BattleParticipant,
-		skill: BattleSkillSlot,
+		priorityContext: SkillPriorityContext,
 	): Boolean =
 		state.environment.terrain == BattleTerrain.PSYCHIC &&
-			skill.priority > 0 &&
+			priorityContext.effectivePriority > 0 &&
 			target.grounded &&
 			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
 
@@ -1495,9 +1523,9 @@ class BattleEngine(
 		state: BattleState,
 		actor: BattleParticipant,
 		target: BattleParticipant,
-		skill: BattleSkillSlot,
+		priorityContext: SkillPriorityContext,
 	): BattleParticipant? {
-		if (skill.priority <= 0) {
+		if (priorityContext.effectivePriority <= 0) {
 			return null
 		}
 		val actorSide = state.sideOf(actor.actorId) ?: return null
@@ -1524,6 +1552,31 @@ class BattleEngine(
 		val grassElementId = state.rules.grassElementId ?: return null
 		return if (skill.powderBased && target.hasElement(grassElementId)) {
 			grassElementId
+		} else {
+			null
+		}
+	}
+
+	/**
+	 * 判断由特性提升优先度的对手变化技能是否被目标恶属性免疫。
+	 *
+	 * 该免疫只绑定“特性把变化技能提升为先制”这一事实；普通基础先制度的变化技能、未被特性提升的技能以及
+	 * 同侧辅助技能都不会触发。这里返回恶属性 ID，便于复用属性阻挡事件并保持事件流不依赖本地化属性名称。
+	 */
+	private fun darkPriorityBlockedElementId(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		priorityContext: SkillPriorityContext,
+	): Long? {
+		val darkElementId = state.rules.darkElementId ?: return null
+		if (!priorityContext.statusPriorityBoostedByAbility || !priorityContext.darkElementTargetsImmune) {
+			return null
+		}
+		val actorSide = state.sideOf(actor.actorId) ?: return null
+		val targetSide = state.sideOf(target.actorId) ?: return null
+		return if (actorSide.sideId != targetSide.sideId && target.hasElement(darkElementId)) {
+			darkElementId
 		} else {
 			null
 		}
@@ -2490,6 +2543,7 @@ class BattleEngine(
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
+			is BattleAbilityEffect.StatusSkillPriorityBoost,
 			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
@@ -3689,6 +3743,25 @@ class BattleEngine(
 		}
 
 	/**
+	 * 计算技能行动的有效优先度和随优先度提升产生的目标免疫标记。
+	 *
+	 * 变化类先制度特性会同时影响行动排序、精神场地/先制阻挡特性的判断，以及现代规则中恶属性目标对这类
+	 * 对手变化技能的免疫。把这些事实集中成上下文，可以保证同一次行动在所有判断点使用同一份结论。
+	 */
+	private fun skillPriorityContext(actor: BattleParticipant, skill: BattleSkillSlot): SkillPriorityContext {
+		if (skill.damageClass != BattleDamageClass.STATUS) {
+			return SkillPriorityContext(effectivePriority = skill.priority)
+		}
+		val effects = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.StatusSkillPriorityBoost>()
+		val priorityDelta = effects.maxOfOrNull { it.priorityDelta } ?: 0
+		return SkillPriorityContext(
+			effectivePriority = skill.priority + priorityDelta,
+			statusPriorityBoostedByAbility = priorityDelta > 0,
+			darkElementTargetsImmune = priorityDelta > 0 && effects.any { it.darkElementTargetsImmune },
+		)
+	}
+
+	/**
 	 * 计算天气触发的速度倍率。
 	 */
 	private fun weatherSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
@@ -3700,6 +3773,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
+				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,
@@ -3723,6 +3797,7 @@ class BattleEngine(
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
+				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,
@@ -3829,6 +3904,13 @@ class BattleEngine(
 		val actor: BattleParticipant,
 		val skill: BattleSkillSlot,
 		val source: SkillActionSource,
+		val priorityContext: SkillPriorityContext,
+	)
+
+	private data class SkillPriorityContext(
+		val effectivePriority: Int,
+		val statusPriorityBoostedByAbility: Boolean = false,
+		val darkElementTargetsImmune: Boolean = false,
 	)
 
 	private enum class SkillActionSource {

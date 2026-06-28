@@ -45,6 +45,7 @@ internal fun doubleFormat(teamSize: Int? = null): BattleFormatSnapshot =
 internal fun neutralRules(): BattleRuleSnapshot =
 	BattleRuleSnapshot(
 		elementChart = ElementEffectivenessChart.neutral(),
+		darkElementId = 17,
 		electricElementId = 13,
 		fireElementId = 10,
 		grassElementId = 12,

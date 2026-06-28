@@ -295,6 +295,22 @@ class BattleRuleCoverageService {
 				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标和同侧目标不受影响。",
 			),
 			item(
+				code = "ability.status-priority-boost",
+				name = "特性提升变化技能先制度",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-priority-ability-moves-status-skill-before-faster-opponent",
+					"dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability",
+					"status-priority-ability-does-not-make-ally-dark-target-immune",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Prankster_(Ability)",
+				),
+				note = "已覆盖变化技能获得额外优先度、对手恶属性目标免疫，以及同侧恶属性目标不触发免疫。",
+			),
+			item(
 				code = "ability.priority-move-block",
 				name = "特性阻止对手先制技能",
 				category = "特性",

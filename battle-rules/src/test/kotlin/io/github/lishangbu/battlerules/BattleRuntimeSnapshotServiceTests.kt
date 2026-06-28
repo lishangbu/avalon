@@ -65,6 +65,7 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(snapshot.rules.uniqueItemRequired).isTrue()
 		assertThat(snapshot.rules.bannedCreatureIds).isEmpty()
 		assertThat(snapshot.rules.bannedSkillIds).isEmpty()
+		assertThat(snapshot.rules.darkElementId).isEqualTo(17)
 		assertThat(snapshot.rules.electricElementId).isEqualTo(13)
 		assertThat(snapshot.rules.fireElementId).isEqualTo(10)
 		assertThat(snapshot.rules.grassElementId).isEqualTo(12)
@@ -418,6 +419,8 @@ class BattleRuntimeSnapshotServiceTests(
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
 		assertThat(service.abilityEffectsByAbilityId(296))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
+		assertThat(service.abilityEffectsByAbilityId(158))
+			.hasExactlyElementsOfTypes(BattleAbilityEffect.StatusSkillPriorityBoost::class.java)
 
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()

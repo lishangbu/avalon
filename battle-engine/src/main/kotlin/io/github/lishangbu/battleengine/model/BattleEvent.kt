@@ -150,7 +150,8 @@ sealed interface BattleEvent {
 	/**
 	 * 技能被目标属性天然免疫。
 	 *
-	 * 当前用于草属性目标免疫粉末类技能。技能已经使用且 PP 已消耗，但不会继续进入命中、伤害或附加效果流程。
+	 * 当前用于草属性目标免疫粉末类技能，以及恶属性目标免疫由特性提升先制度的对手变化技能。技能已经使用且
+	 * PP 已消耗，但不会继续进入命中、伤害或附加效果流程。
 	 */
 	data class SkillBlockedByElement(
 		override val turnNumber: Int,
