@@ -39,6 +39,7 @@ import io.github.lishangbu.common.web.requiredText
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -59,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class BattleRuntimeSnapshotService(
 	private val sqlClient: KSqlClient,
+	private val jdbcTemplate: JdbcTemplate,
 ) {
 	private val preparationValidator = BattlePreparationValidator()
 
@@ -70,9 +72,16 @@ class BattleRuntimeSnapshotService(
 		val format = formatByCode(formatCode)
 		val restrictions = enabledRestrictions(format.id)
 		val clauseCodes = enabledClauseCodes(format.id)
+		val elementIds = coreElementIds()
 		return BattleRuntimeSnapshot(
 			format = format.toEngineFormatSnapshot(),
 			rules = BattleRuleSnapshot(
+				electricElementId = elementIds.requiredElementId("electric"),
+				fireElementId = elementIds.requiredElementId("fire"),
+				iceElementId = elementIds.requiredElementId("ice"),
+				poisonElementId = elementIds.requiredElementId("poison"),
+				steelElementId = elementIds.requiredElementId("steel"),
+				waterElementId = elementIds.requiredElementId("water"),
 				maxParticipantLevel = restrictions
 					.filter { it.restrictionType == "LEVEL" && it.restrictionOperator == "MAX" }
 					.mapNotNull { it.operandNumber }
@@ -136,6 +145,24 @@ class BattleRuntimeSnapshotService(
 			select(table.code)
 		}.toSet()
 	}
+
+	/**
+	 * 读取引擎基础规则需要识别的核心属性 ID。
+	 *
+	 * 这里按稳定 code 而不是硬编码资料 ID 装配快照，保持纯引擎不依赖资料库编号。查询范围只包含当前已由
+	 * 伤害、天气和主要异常状态规则使用的属性；后续新增规则需要更多属性时，在这里扩展 code 清单。
+	 */
+	private fun coreElementIds(): Map<String, Long> =
+		jdbcTemplate.query(
+			"""
+			select code, id
+			from game_element
+			where code in ('electric', 'fire', 'ice', 'poison', 'steel', 'water')
+			""".trimIndent(),
+		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
+
+	private fun Map<String, Long>.requiredElementId(code: String): Long =
+		this[code] ?: error("核心属性资料缺失: $code")
 
 	private fun BattleFormat.toEngineFormatSnapshot(): BattleFormatSnapshot =
 		BattleFormatSnapshot(

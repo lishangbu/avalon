@@ -34,7 +34,15 @@ internal fun doubleFormat(teamSize: Int? = null): BattleFormatSnapshot =
 	)
 
 internal fun neutralRules(): BattleRuleSnapshot =
-	BattleRuleSnapshot(elementChart = ElementEffectivenessChart.neutral())
+	BattleRuleSnapshot(
+		elementChart = ElementEffectivenessChart.neutral(),
+		electricElementId = 13,
+		fireElementId = 10,
+		iceElementId = 15,
+		poisonElementId = 4,
+		steelElementId = 9,
+		waterElementId = 11,
+	)
 
 internal fun initialState(
 	first: BattleParticipant = participant("side-a-active", speed = 100),

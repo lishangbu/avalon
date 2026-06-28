@@ -12,6 +12,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
+import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -844,7 +845,7 @@ class BattleEngine(
 		status: BattleMajorStatus,
 	): BattleStatusBlockReason? =
 		when {
-			statusBlockedByElement(recipient, status) -> BattleStatusBlockReason.ELEMENT
+			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			else -> null
 		}
@@ -855,13 +856,17 @@ class BattleEngine(
 	 * 当前覆盖现代主系列最稳定的类型免疫：火属性免疫灼伤，电属性免疫麻痹，毒/钢属性免疫中毒和剧毒，
 	 * 冰属性免疫冰冻。睡眠没有通用属性免疫，因此返回 false。
 	 */
-	private fun statusBlockedByElement(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
+	private fun statusBlockedByElement(
+		rules: BattleRuleSnapshot,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+	): Boolean =
 		when (status) {
-			BattleMajorStatus.BURN -> recipient.hasElement(FIRE_ELEMENT_ID)
-			BattleMajorStatus.PARALYSIS -> recipient.hasElement(ELECTRIC_ELEMENT_ID)
+			BattleMajorStatus.BURN -> recipient.hasElement(rules.fireElementId)
+			BattleMajorStatus.PARALYSIS -> recipient.hasElement(rules.electricElementId)
 			BattleMajorStatus.POISON,
-			BattleMajorStatus.BAD_POISON -> recipient.hasElement(POISON_ELEMENT_ID) || recipient.hasElement(STEEL_ELEMENT_ID)
-			BattleMajorStatus.FREEZE -> recipient.hasElement(ICE_ELEMENT_ID)
+			BattleMajorStatus.BAD_POISON -> recipient.hasElement(rules.poisonElementId) || recipient.hasElement(rules.steelElementId)
+			BattleMajorStatus.FREEZE -> recipient.hasElement(rules.iceElementId)
 			BattleMajorStatus.SLEEP -> false
 		}
 
@@ -889,8 +894,8 @@ class BattleEngine(
 	/**
 	 * 判断成员是否具有指定属性。
 	 */
-	private fun BattleParticipant.hasElement(elementId: Long): Boolean =
-		elementId in elementIds
+	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
+		elementId != null && elementId in elementIds
 
 	/**
 	 * 附加临时状态并处理状态私有计数。
@@ -1320,12 +1325,7 @@ class BattleEngine(
 	private companion object {
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
-		private const val ELECTRIC_ELEMENT_ID = 13L
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
-		private const val FIRE_ELEMENT_ID = 10L
-		private const val ICE_ELEMENT_ID = 15L
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
-		private const val POISON_ELEMENT_ID = 4L
-		private const val STEEL_ELEMENT_ID = 9L
 	}
 }

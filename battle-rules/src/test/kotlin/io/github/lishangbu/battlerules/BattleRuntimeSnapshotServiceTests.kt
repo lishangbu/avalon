@@ -48,6 +48,12 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(snapshot.rules.uniqueItemRequired).isTrue()
 		assertThat(snapshot.rules.bannedCreatureIds).isEmpty()
 		assertThat(snapshot.rules.bannedSkillIds).isEmpty()
+		assertThat(snapshot.rules.electricElementId).isEqualTo(13)
+		assertThat(snapshot.rules.fireElementId).isEqualTo(10)
+		assertThat(snapshot.rules.iceElementId).isEqualTo(15)
+		assertThat(snapshot.rules.poisonElementId).isEqualTo(4)
+		assertThat(snapshot.rules.steelElementId).isEqualTo(9)
+		assertThat(snapshot.rules.waterElementId).isEqualTo(11)
 	}
 
 	@Test
