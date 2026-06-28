@@ -550,6 +550,17 @@ class BattleEngine(
 				),
 			)
 		}
+		val absorbedByAbility = elementSkillAbsorbHeal(state, actor, target, skill)
+		if (absorbedByAbility != null) {
+			return context.copy(
+				state = endLockedMoveAfterDisruption(
+					state = absorbedByAbility,
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
+		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
 			val afterEffects = applySkillEffects(state, actor.actorId, target.actorId, skill, random)
 			val afterHpEffects = applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
@@ -1583,6 +1594,41 @@ class BattleEngine(
 	}
 
 	/**
+	 * 应用目标特性对指定属性技能的吸收回复。
+	 *
+	 * 这类特性发生在技能通过保护和命中判定之后，但早于普通伤害、状态和能力阶级效果写入。满 HP 目标仍然会
+	 * 吸收并阻止技能继续结算，只是事件中的实际回复量为 0；这样 replay 能区分“未触发”和“触发但无需回复”。
+	 */
+	private fun elementSkillAbsorbHeal(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState? {
+		val effect = target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
+			.firstOrNull { it.elementId == skill.elementId }
+			?: return null
+		val rawHealAmount = (target.maxHp / effect.healDenominator).coerceAtLeast(1)
+		val healedTarget = target.heal(rawHealAmount)
+		val actualHealAmount = healedTarget.currentHp - target.currentHp
+		return state
+			.replaceParticipant(healedTarget)
+			.appendEvent(
+				BattleEvent.SkillAbsorbedByAbility(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					abilityHolderActorId = target.actorId,
+					abilityId = target.abilityId,
+					elementId = effect.elementId,
+					healAmount = actualHealAmount,
+				),
+			)
+	}
+
+	/**
 	 * 决定本次技能使用的实际命中段数。
 	 *
 	 * 单段技能不消费随机数。现代 2..5 段技能使用公开规则中的非均匀分布：2 段和 3 段各 35%，4 段和 5 段各 15%。
@@ -2540,6 +2586,7 @@ class BattleEngine(
 			is BattleAbilityEffect.SwitchInTerrainChange -> applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
 			is BattleAbilityEffect.ContactStatusOnAttacker,
+			is BattleAbilityEffect.ElementSkillAbsorbHeal,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3770,6 +3817,7 @@ class BattleEngine(
 				is BattleAbilityEffect.WeatherSpeedMultiplier ->
 					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
@@ -3794,6 +3842,7 @@ class BattleEngine(
 				is BattleAbilityEffect.TerrainSpeedMultiplier ->
 					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,

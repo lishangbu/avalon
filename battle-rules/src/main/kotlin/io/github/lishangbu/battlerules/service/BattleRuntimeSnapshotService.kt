@@ -1132,6 +1132,15 @@ class BattleRuntimeSnapshotService(
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
 			"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()
+			"element-electric-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(
+				elementId = elementIds.requiredElementId("electric"),
+			)
+			"element-water-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(
+				elementId = elementIds.requiredElementId("water"),
+			)
+			"element-ground-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(
+				elementId = elementIds.requiredElementId("ground"),
+			)
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
 			"ground-immunity" -> null
 			else -> null

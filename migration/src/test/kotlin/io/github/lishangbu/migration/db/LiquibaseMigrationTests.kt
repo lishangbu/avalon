@@ -102,6 +102,7 @@ class LiquibaseMigrationTests(
 			"053-battle-fatal-damage-survival-rules.yaml",
 			"054-battle-priority-blocking-ability-rules.yaml",
 			"055-battle-status-priority-ability-rules.yaml",
+			"056-battle-element-absorb-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -525,7 +526,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 26L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 29L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -545,9 +546,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 115L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 247L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 115L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 118L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 253L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 118L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -706,6 +707,32 @@ class LiquibaseMigrationTests(
 				"ability_id" to 158L,
 				"trigger_timing" to "BEFORE_MOVE",
 				"effect_policy" to "status-skill-priority-boost",
+			),
+		)
+
+		val elementAbsorbAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (10, 11, 297)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(elementAbsorbAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 10L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-electric-absorb-heal",
+			),
+			mapOf(
+				"ability_id" to 11L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-water-absorb-heal",
+			),
+			mapOf(
+				"ability_id" to 297L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "element-ground-absorb-heal",
 			),
 		)
 

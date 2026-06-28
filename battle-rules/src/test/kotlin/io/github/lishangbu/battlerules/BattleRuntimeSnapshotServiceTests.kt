@@ -422,6 +422,20 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.abilityEffectsByAbilityId(158))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.StatusSkillPriorityBoost::class.java)
 
+		val electricAbsorb = service.abilityEffectsByAbilityId(10)
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
+			.single()
+		assertThat(electricAbsorb.elementId).isEqualTo(13)
+		assertThat(electricAbsorb.healDenominator).isEqualTo(4)
+		val waterAbsorb = service.abilityEffectsByAbilityId(11)
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
+			.single()
+		assertThat(waterAbsorb.elementId).isEqualTo(11)
+		val groundAbsorb = service.abilityEffectsByAbilityId(297)
+			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
+			.single()
+		assertThat(groundAbsorb.elementId).isEqualTo(5)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 

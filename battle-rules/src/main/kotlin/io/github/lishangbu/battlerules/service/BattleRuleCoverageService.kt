@@ -329,6 +329,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖目标自身特性和同侧伙伴特性阻止对手先制技能；同侧成员主动使用先制技能不受阻挡。",
 			),
 			item(
+				code = "ability.element-absorb-heal",
+				name = "特性吸收指定属性技能并回复",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"element-absorb-ability-heals-and-blocks-matching-damage",
+					"element-absorb-ability-at-full-hp-blocks-without-overhealing",
+					"element-absorb-ability-blocks-matching-status-skill",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Volt_Absorb_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Water_Absorb_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Earth_Eater_(Ability)",
+				),
+				note = "已覆盖匹配属性技能命中目标后被特性吸收、按最大 HP 1/4 回复、满 HP 不溢出回复，以及变化技能附加效果被阻止。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

@@ -4,8 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、阻止对手先制技能影响己方、天气下速度修正、
- * 天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
+ * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、吸收指定属性技能并回复、阻止对手先制技能影响己方、
+ * 天气下速度修正、天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
  * 以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
@@ -139,6 +139,23 @@ sealed interface BattleAbilityEffect {
 	) : BattleAbilityEffect {
 		init {
 			require(priorityDelta > 0) { "priorityDelta must be positive" }
+		}
+	}
+
+	/**
+	 * 吸收指定属性技能并按最大 HP 回复。
+	 *
+	 * 该效果用于表达现代规则中“被指定属性技能命中时无效并回复 HP”的稳定特性。它在命中判定成功后、
+	 * 普通伤害或附加效果写入前触发；即使目标已经满 HP，也仍会阻止该技能继续结算，只是回复量会被夹取为 0。
+	 * `healDenominator` 表示回复最大 HP 的分母，例如 4 表示最多回复最大 HP 的 1/4。
+	 */
+	data class ElementSkillAbsorbHeal(
+		val elementId: Long,
+		val healDenominator: Int = 4,
+	) : BattleAbilityEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
 	}
 
