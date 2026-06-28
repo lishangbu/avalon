@@ -56,8 +56,8 @@ class BattleEngine(
 	 * @param initialState 已冻结的战斗初始快照。
 	 * @return turnNumber 为 0 的战斗状态，事件流包含 `BattleStarted`。
 	 */
-	fun start(initialState: BattleInitialState): BattleState =
-		BattleState(
+	fun start(initialState: BattleInitialState): BattleState {
+		val started = BattleState(
 			format = initialState.format,
 			rules = initialState.rules,
 			environment = initialState.environment,
@@ -71,6 +71,8 @@ class BattleEngine(
 				),
 			),
 		)
+		return applyInitialSwitchInAbilityEffects(started)
+	}
 
 	/**
 	 * 结算一个完整回合。
@@ -226,11 +228,12 @@ class BattleEngine(
 					forced = !actor.canBattle(),
 				),
 			)
-			applyEntryHazardsOnSwitchIn(
+			val afterEntryHazards = applyEntryHazardsOnSwitchIn(
 				state = withSwitchEvent,
 				sideId = side.sideId,
 				actorId = plan.action.targetActorId,
 			)
+			applySwitchInAbilityEffects(afterEntryHazards, plan.action.targetActorId)
 		}
 	}
 
@@ -1492,6 +1495,75 @@ class BattleEngine(
 		}
 
 	/**
+	 * 结算战斗开始时所有当前上场成员的出场特性。
+	 *
+	 * 初始上场不是一次 `SwitchParticipant` 行动，但现代规则中“出场时触发”的特性同样会在战斗开始阶段生效。
+	 * 第一批只处理已经在 [BattleAbilityEffect] 中结构化建模的出场能力阶级变化。处理顺序按战斗侧顺序和席位顺序
+	 * 固定，保证 replay 在没有复杂反制特性参与时稳定可复现。
+	 */
+	private fun applyInitialSwitchInAbilityEffects(state: BattleState): BattleState =
+		state.sides
+			.flatMap { side -> side.activeActorIds }
+			.fold(state) { current, actorId -> applySwitchInAbilityEffects(current, actorId) }
+
+	/**
+	 * 结算单个成员成功进入场地后的出场特性。
+	 *
+	 * 该函数要求成员当前仍在场且可战斗；如果成员刚换入后已经被入场陷阱击倒，则不会触发出场特性。当前只支持
+	 * 对手当前上场成员的能力阶级变化，后续若加入天气覆盖、场地覆盖或道具反制，会继续扩展结构化效果类型。
+	 */
+	private fun applySwitchInAbilityEffects(state: BattleState, actorId: String): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
+			return state
+		}
+		return actor.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.SwitchInStatStageChange>()
+			.fold(state) { current, effect -> applySwitchInStatStageChange(current, actor.actorId, effect) }
+	}
+
+	/**
+	 * 执行出场特性的能力阶级变化。
+	 *
+	 * 目标集合为触发者对侧当前上场且仍可战斗的成员。每个目标独立夹取 -6..6 的现代能力阶级边界；
+	 * 如果某个目标已经达到边界，本次不会写入状态，也不会产生事件。该函数不消费随机数。
+	 */
+	private fun applySwitchInStatStageChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleAbilityEffect.SwitchInStatStageChange,
+	): BattleState {
+		val actorSide = state.sideOf(actorId) ?: return state
+		val targetActorIds = state.sides
+			.filter { it.sideId != actorSide.sideId }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+			.map { it.actorId }
+		return targetActorIds.fold(state) { current, targetActorId ->
+			val target = current.participant(targetActorId) ?: return@fold current
+			val beforeStage = target.statStage(effect.stat)
+			val updated = target.changeStatStage(effect.stat, effect.stageDelta)
+			val afterStage = updated.statStage(effect.stat)
+			if (beforeStage == afterStage) {
+				current
+			} else {
+				current
+					.replaceParticipant(updated)
+					.appendEvent(
+						BattleEvent.StatStageChanged(
+							turnNumber = current.turnNumber,
+							actorId = actorId,
+							targetActorId = target.actorId,
+							stat = effect.stat,
+							delta = afterStage - beforeStage,
+							currentStage = afterStage,
+						),
+					)
+			}
+		}
+	}
+
+	/**
 	 * 处理行动前可能阻止技能的状态。
 	 *
 	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠和冰冻最早，畏缩随后处理，混乱早于麻痹处理。
@@ -2451,6 +2523,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
 			}

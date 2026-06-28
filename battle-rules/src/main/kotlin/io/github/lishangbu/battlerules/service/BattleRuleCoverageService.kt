@@ -337,6 +337,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖主要状态属性免疫、粉末类技能草属性免疫、接地场地免疫、青草场地接地回复，以及特性/道具提供的主要状态和混乱免疫。",
 			),
 			item(
+				code = "ability.switch-in-stat-stage",
+				name = "出场特性能力阶级变化",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"switch-in-attack-drop-triggers-at-battle-start",
+					"switch-in-attack-drop-targets-both-double-battle-opponents",
+					"switch-in-attack-drop-triggers-after-voluntary-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Intimidate_(Ability)",
+				),
+				note = "已覆盖战斗开始和主动换入时触发出场降攻特性，单打影响当前对手，双打影响对方两个当前上场成员。",
+			),
+			item(
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",

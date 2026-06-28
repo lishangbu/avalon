@@ -59,6 +59,7 @@ class LiquibaseMigrationTests(
 			"010-battle-skill-speed-field-effects.yaml",
 			"011-battle-skill-global-field-effects.yaml",
 			"012-battle-skill-entry-hazard-effects.yaml",
+			"013-battle-ability-switch-in-effects.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -470,7 +471,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 5L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 6L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)

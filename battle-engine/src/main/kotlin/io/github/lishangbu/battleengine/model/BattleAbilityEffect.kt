@@ -88,4 +88,20 @@ sealed interface BattleAbilityEffect {
 			require(chancePercent in 0..100) { "chancePercent must be between 0 and 100" }
 		}
 	}
+
+	/**
+	 * 成员出场时修改当前对手上场成员的能力阶级。
+	 *
+	 * 该结构用于表达现代规则中“出场时令对手能力下降”的稳定特性。它不保存具体特性名称，也不保存本地化文本；
+	 * 资料层把特性 policy 转换为要修改的能力项和阶级变化量。第一批只支持当前对手上场成员作为目标，
+	 * 适合单打和双打中的常见出场降攻规则。替身、反制能力提升、特性失效等复杂交互会在对应模型具备后继续扩展。
+	 */
+	data class SwitchInStatStageChange(
+		val stat: BattleStat,
+		val stageDelta: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(stageDelta in -6..6 && stageDelta != 0) { "stageDelta must be between -6 and 6 and not zero" }
+		}
+	}
 }

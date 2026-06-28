@@ -1,0 +1,17 @@
+databaseChangeLog:
+- changeSet:
+    id: 013-battle-ability-switch-in-effects
+    author: backend
+    comment: 接入出场降低对手攻击阶级的特性规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: ability_id, valueNumeric: 22 }
+        - column: { name: trigger_timing, value: SWITCH_IN }
+        - column: { name: effect_policy, value: switch-in-opponents-attack-down }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 成员进入场地时，降低当前对手上场成员攻击阶级一级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }

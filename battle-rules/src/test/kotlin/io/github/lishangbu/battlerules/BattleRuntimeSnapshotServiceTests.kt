@@ -200,6 +200,11 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(contactParalysis.status).isEqualTo(BattleMajorStatus.PARALYSIS)
 		assertThat(contactParalysis.chancePercent).isEqualTo(30)
+		val switchInAttackDrop = service.abilityEffectsByAbilityId(22)
+			.filterIsInstance<BattleAbilityEffect.SwitchInStatStageChange>()
+			.single()
+		assertThat(switchInAttackDrop.stat).isEqualTo(BattleStat.ATTACK)
+		assertThat(switchInAttackDrop.stageDelta).isEqualTo(-1)
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 

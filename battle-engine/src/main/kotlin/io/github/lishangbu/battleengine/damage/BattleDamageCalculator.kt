@@ -226,6 +226,7 @@ class BattleDamageCalculator(
 				}
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
+				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.VolatileStatusImmunity -> multiplier
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
