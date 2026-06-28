@@ -324,6 +324,61 @@ class BattleEngine(
 			)
 		}
 
+		val hitCount = determineHitCount(skill, random)
+		val stateWithHitCount = if (hitCount > 1) {
+			state.appendEvent(
+				BattleEvent.MultiHitCountDetermined(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					hitCount = hitCount,
+				),
+			)
+		} else {
+			state
+		}
+		val afterHits = (1..hitCount).fold(context.copy(state = stateWithHitCount)) { current, _ ->
+			if (current.state.result != null) {
+				current
+			} else {
+				resolveDamagingHit(
+					context = current,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skill = skill,
+					targetMultiplier = targetMultiplier,
+					random = random,
+				)
+			}
+		}
+		if (afterHits.state.result != null) {
+			return afterHits
+		}
+		val latestTarget = afterHits.state.participant(target.actorId) ?: target
+		return afterHits.copy(state = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random))
+	}
+
+	/**
+	 * 结算多段或单段伤害中的一段。
+	 *
+	 * 命中判定、PP 消耗和技能使用事件都已经在外层完成；这里每段独立消费要害和伤害浮动随机数，并在目标
+	 * 或使用者因伤害、接触特性、反伤倒下时立即停止后续段数。
+	 */
+	private fun resolveDamagingHit(
+		context: TurnContext,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		random: BattleRandom,
+	): TurnContext {
+		val state = context.state
+		val actor = state.participant(actorId) ?: return context
+		val target = state.participant(targetActorId) ?: return context
+		if (!actor.canBattle() || !target.canBattle()) {
+			return context
+		}
 		val criticalHitCheck = criticalHitCheck(skill, random)
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val damage = damageCalculator.calculate(
@@ -372,12 +427,7 @@ class BattleEngine(
 		if (afterTargetFaint.result != null) {
 			return context.copy(state = afterTargetFaint)
 		}
-		val afterDamage = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage)
-		return context.copy(state = if (afterDamage.result != null) {
-			afterDamage
-		} else {
-			applySkillEffects(afterDamage, actor.actorId, damagedTarget.actorId, skill, random)
-		})
+		return context.copy(state = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage))
 	}
 
 	/**
@@ -416,6 +466,28 @@ class BattleEngine(
 		} else {
 			1.0
 		}
+
+	/**
+	 * 决定本次技能使用的实际命中段数。
+	 *
+	 * 单段技能不消费随机数。现代 2..5 段技能使用公开规则中的非均匀分布：2 段和 3 段各 35%，4 段和 5 段各 15%。
+	 * 其它自定义范围暂按均匀分布处理，便于未来接入固定 2 段或资料驱动特殊段数时仍有确定行为。
+	 */
+	private fun determineHitCount(skill: BattleSkillSlot, random: BattleRandom): Int {
+		if (skill.minHits == skill.maxHits) {
+			return skill.minHits
+		}
+		if (skill.minHits == 2 && skill.maxHits == 5) {
+			val roll = random.nextInt(100, "multi-hit count for ${skill.skillId}")
+			return when {
+				roll < 35 -> 2
+				roll < 70 -> 3
+				roll < 85 -> 4
+				else -> 5
+			}
+		}
+		return skill.minHits + random.nextInt(skill.maxHits - skill.minHits + 1, "multi-hit count for ${skill.skillId}")
+	}
 
 	/**
 	 * 处理命中判定。

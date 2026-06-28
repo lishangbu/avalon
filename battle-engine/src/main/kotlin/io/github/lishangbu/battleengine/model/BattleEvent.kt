@@ -86,6 +86,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 多段技能本次使用的实际命中段数已经确定。
+	 *
+	 * 该事件只在段数大于 1 时产生。随后每一段伤害仍使用独立的 [DamageApplied] 事件记录，目标提前倒下时
+	 * 事件中的 `hitCount` 表示原本抽到的段数，不表示最终实际造成了多少段伤害。
+	 */
+	data class MultiHitCountDetermined(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val hitCount: Int,
+	) : BattleEvent
+
+	/**
 	 * 行动者因睡眠无法执行本次技能行动。
 	 *
 	 * `turnsRemainingBefore` 记录本次判定前还会被阻止行动几次。事件产生后，引擎会消耗一次计数；
