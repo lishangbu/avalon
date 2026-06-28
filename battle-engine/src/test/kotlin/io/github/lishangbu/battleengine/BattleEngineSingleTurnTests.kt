@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
@@ -280,5 +281,92 @@ class BattleEngineSingleTurnTests {
 
 		assertEquals(86, resolved.participant("holder")?.currentHp)
 		assertIs<BattleEvent.HealingApplied>(resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single())
+	}
+
+	@Test
+	fun `switch action happens before attacks and redirects target slot to replacement`() {
+		val state = engine.start(
+			initialState(
+				first = participant("starter", speed = 100),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("attacker", speed = 60),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.SwitchParticipant("starter", targetActorId = "reserve"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "starter"),
+			),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		assertEquals(listOf("reserve"), resolved.sideOf("reserve")?.activeActorIds)
+		assertEquals(100, resolved.participant("starter")?.currentHp)
+		assertEquals(72, resolved.participant("reserve")?.currentHp)
+		val switchEvent = resolved.events.filterIsInstance<BattleEvent.ParticipantSwitched>().single()
+		val skillEvent = resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single()
+		assertEquals(false, switchEvent.forced)
+		assertEquals("reserve", skillEvent.targetActorId)
+		assertEquals(
+			listOf(
+				BattleEvent.BattleStarted::class,
+				BattleEvent.TurnStarted::class,
+				BattleEvent.ParticipantSwitched::class,
+				BattleEvent.SkillUsed::class,
+				BattleEvent.DamageApplied::class,
+				BattleEvent.TurnEnded::class,
+			),
+			resolved.events.map { it::class },
+		)
+	}
+
+	@Test
+	fun `fainted active participant can be replaced by a reserve`() {
+		val state = engine.start(
+			initialState(
+				first = participant("fainted-active", speed = 100, currentHp = 0),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("observer", speed = 60),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.SwitchParticipant("fainted-active", targetActorId = "reserve")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertNull(resolved.result)
+		assertEquals(listOf("reserve"), resolved.sideOf("reserve")?.activeActorIds)
+		val switchEvent = resolved.events.filterIsInstance<BattleEvent.ParticipantSwitched>().single()
+		assertEquals(true, switchEvent.forced)
+	}
+
+	@Test
+	fun `switch target must belong to same side and be able to battle`() {
+		val state = engine.start(
+			initialState(
+				first = participant("starter", speed = 100),
+				firstBench = listOf(participant("fainted-reserve", speed = 80, currentHp = 0)),
+				second = participant("opponent", speed = 60),
+			),
+		)
+
+		assertFailsWith<IllegalArgumentException> {
+			engine.resolveTurn(
+				state,
+				listOf(BattleAction.SwitchParticipant("starter", targetActorId = "opponent")),
+				ScriptedBattleRandom(emptyList()),
+			)
+		}
+		assertFailsWith<IllegalArgumentException> {
+			engine.resolveTurn(
+				state,
+				listOf(BattleAction.SwitchParticipant("starter", targetActorId = "fainted-reserve")),
+				ScriptedBattleRandom(emptyList()),
+			)
+		}
 	}
 }

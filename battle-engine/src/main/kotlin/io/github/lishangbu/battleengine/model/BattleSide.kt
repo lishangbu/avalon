@@ -15,7 +15,8 @@ data class BattleSide(
 		require(sideId.isNotBlank()) { "sideId must not be blank" }
 		require(participants.isNotEmpty()) { "participants must not be empty" }
 		require(participants.map { it.actorId }.toSet().size == participants.size) { "actor ids must be unique inside a side" }
-		require(activeActorIds.isNotEmpty()) { "activeActorIds must not be empty" }
+	require(activeActorIds.isNotEmpty()) { "activeActorIds must not be empty" }
+		require(activeActorIds.toSet().size == activeActorIds.size) { "activeActorIds must not contain duplicates" }
 		require(activeActorIds.all { activeId -> participants.any { it.actorId == activeId } }) {
 			"activeActorIds must reference participants on the same side"
 		}
@@ -34,8 +35,35 @@ data class BattleSide(
 		participants.firstOrNull { it.actorId == actorId }
 
 	/**
+	 * 判断成员是否位于当前上场席位。
+	 */
+	fun isActive(actorId: String): Boolean =
+		actorId in activeActorIds
+
+	/**
+	 * 返回当前上场成员快照。
+	 */
+	fun activeParticipants(): List<BattleParticipant> =
+		activeActorIds.mapNotNull(::participant)
+
+	/**
 	 * 替换成员运行态。
 	 */
 	fun replaceParticipant(participant: BattleParticipant): BattleSide =
 		copy(participants = participants.map { current -> if (current.actorId == participant.actorId) participant else current })
+
+	/**
+	 * 替换一个上场席位。
+	 *
+	 * `previousActorId` 必须当前在场；`nextActorId` 必须属于同一方、未在场并且仍可战斗。该函数只修改
+	 * 上场席位，不清除能力阶级、异常状态或其它运行态，因为现代规则下主动替换是否清除某些状态需要
+	 * 由专门的持续状态系统决定。
+	 */
+	fun switchActive(previousActorId: String, nextActorId: String): BattleSide {
+		require(isActive(previousActorId)) { "switch actor must be active: $previousActorId" }
+		require(!isActive(nextActorId)) { "switch target must not already be active: $nextActorId" }
+		val next = requireNotNull(participant(nextActorId)) { "switch target must belong to the same side: $nextActorId" }
+		require(next.canBattle()) { "switch target must be able to battle: $nextActorId" }
+		return copy(activeActorIds = activeActorIds.map { current -> if (current == previousActorId) nextActorId else current })
+	}
 }

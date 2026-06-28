@@ -31,12 +31,40 @@ data class BattleState(
 		sides.firstOrNull { side -> side.participant(actorId) != null }
 
 	/**
+	 * 判断成员是否当前上场。
+	 */
+	fun isActive(actorId: String): Boolean =
+		sideOf(actorId)?.isActive(actorId) == true
+
+	/**
 	 * 替换成员状态。
 	 */
 	fun replaceParticipant(participant: BattleParticipant): BattleState =
 		copy(sides = sides.map { side ->
 			if (side.participant(participant.actorId) == null) side else side.replaceParticipant(participant)
 		})
+
+	/**
+	 * 替换当前上场成员。
+	 */
+	fun switchActive(previousActorId: String, nextActorId: String): BattleState =
+		copy(sides = sides.map { side ->
+			if (side.participant(previousActorId) == null) side else side.switchActive(previousActorId, nextActorId)
+		})
+
+	/**
+	 * 解析目标槽位当前成员。
+	 *
+	 * 若 `targetActorId` 已经不在场，返回其所属方当前可战斗的第一个上场成员。单打第一版用该行为表达
+	 * “攻击目标槽位而非固定成员”的换人后目标重定向。
+	 */
+	fun activeTargetFor(targetActorId: String): BattleParticipant? {
+		val side = sideOf(targetActorId) ?: return null
+		if (side.isActive(targetActorId)) {
+			return side.participant(targetActorId)
+		}
+		return side.activeParticipants().firstOrNull { it.canBattle() }
+	}
 
 	/**
 	 * 追加事件。

@@ -27,14 +27,16 @@ internal fun neutralRules(): BattleRuleSnapshot =
 internal fun initialState(
 	first: BattleParticipant = participant("side-a-active", speed = 100),
 	second: BattleParticipant = participant("side-b-active", speed = 80),
+	firstBench: List<BattleParticipant> = emptyList(),
+	secondBench: List<BattleParticipant> = emptyList(),
 	rules: BattleRuleSnapshot = neutralRules(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = singleFormat(),
 		rules = rules,
 		sides = listOf(
-			BattleSide("side-a", listOf(first.actorId), listOf(first)),
-			BattleSide("side-b", listOf(second.actorId), listOf(second)),
+			BattleSide("side-a", listOf(first.actorId), listOf(first) + firstBench),
+			BattleSide("side-b", listOf(second.actorId), listOf(second) + secondBench),
 		),
 	)
 

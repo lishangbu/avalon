@@ -19,6 +19,20 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 	) : BattleEvent
 
+	/**
+	 * 一个上场席位发生替换。
+	 *
+	 * `forced=false` 表示主动替换；`forced=true` 表示原上场成员已经无法战斗，需要由同一方后备成员补位。
+	 * 事件只记录席位变化，不暗含入场特性、状态清除或道具触发；这些副作用会用后续事件单独表达。
+	 */
+	data class ParticipantSwitched(
+		override val turnNumber: Int,
+		val sideId: String,
+		val previousActorId: String,
+		val nextActorId: String,
+		val forced: Boolean,
+	) : BattleEvent
+
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,

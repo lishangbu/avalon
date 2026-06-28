@@ -23,10 +23,10 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  *
  * 该类不依赖 Spring、Jimmer 或数据库。调用方传入已经冻结的初始状态、规则快照、行动列表和随机源，
  * 引擎返回新的不可变战斗状态和事件流。第一阶段实现单打的最小闭环：启动、回合开始、技能行动排序、
- * PP 消耗、命中判定、基础伤害、倒下检测和胜负判定。
+ * 替换、PP 消耗、命中判定、基础伤害、倒下检测和胜负判定。
  *
- * 当前不负责的边界包括：替换、道具使用、状态持续效果、天气地形、特性 hook、双打目标重定向、保护、
- * 击中要害和复杂技能脚本。这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
+ * 当前不负责的边界包括：道具使用、状态持续效果细分、天气地形、双打目标重定向、保护、击中要害和
+ * 复杂技能脚本。这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
  */
 class BattleEngine(
 	private val damageCalculator: BattleDamageCalculator = BattleDamageCalculator(),
@@ -63,12 +63,19 @@ class BattleEngine(
 	 */
 	fun resolveTurn(state: BattleState, actions: List<BattleAction>, random: BattleRandom): BattleState {
 		require(state.result == null) { "battle already ended" }
+		require(actions.map { it.actorId }.toSet().size == actions.size) {
+			"each actor can submit at most one action per turn"
+		}
 		val nextTurnNumber = state.turnNumber + 1
 		val started = state
 			.copy(turnNumber = nextTurnNumber)
 			.appendEvent(BattleEvent.TurnStarted(nextTurnNumber))
-		val orderedActions = orderActions(started, actions, random)
-		val resolved = orderedActions.fold(started) { current, plan ->
+		val afterSwitches = resolveSwitches(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random)
+		if (afterSwitches.result != null) {
+			return afterSwitches
+		}
+		val orderedActions = orderSkillActions(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>(), random)
+		val resolved = orderedActions.fold(afterSwitches) { current, plan ->
 			if (current.result != null) current else executeUseSkill(current, plan, random)
 		}
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
@@ -82,15 +89,11 @@ class BattleEngine(
 	 * 第一阶段只支持技能行动，所以优先度来自技能槽。速度相同的行动会消费随机数作为排序键；
 	 * 这不是最终双打同速规则的完整实现，但已经保证同一随机脚本下的 replay 稳定。
 	 */
-	private fun orderActions(state: BattleState, actions: List<BattleAction>, random: BattleRandom): List<ActionPlan> {
+	private fun orderSkillActions(state: BattleState, actions: List<BattleAction.UseSkill>, random: BattleRandom): List<ActionPlan> {
 		val plans = actions.map { action ->
-			when (action) {
-				is BattleAction.UseSkill -> {
-					val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
-					val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
-					ActionPlan(action, actor, skill)
-				}
-			}
+			val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
+			val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
+			ActionPlan(action, actor, skill)
 		}
 		return plans
 			.groupBy { it.skill.priority to effectiveSpeed(it.actor) }
@@ -106,6 +109,49 @@ class BattleEngine(
 	}
 
 	/**
+	 * 结算本回合所有替换行动。
+	 *
+	 * 替换阶段先于技能阶段。第一版按离场成员的有效速度排序，速度相同时消费随机数打破平手；这让未来接入
+	 * 入场特性时能得到可复盘的确定顺序。若离场成员已经倒下，事件标记为 `forced=true`。
+	 */
+	private fun resolveSwitches(
+		state: BattleState,
+		actions: List<BattleAction.SwitchParticipant>,
+		random: BattleRandom,
+	): BattleState {
+		val ordered = actions
+			.map { action ->
+				val actor = requireNotNull(state.participant(action.actorId)) { "switch actor not found: ${action.actorId}" }
+				SwitchPlan(action, actor)
+			}
+			.groupBy { effectiveSpeed(it.actor) }
+			.toSortedMap(compareByDescending { it })
+			.values
+			.flatMap { sameSpeedPlans ->
+				if (sameSpeedPlans.size == 1) {
+					sameSpeedPlans
+				} else {
+					sameSpeedPlans.sortedBy { random.nextInt(1_000_000, "switch speed tie for ${it.actor.actorId}") }
+				}
+			}
+		return ordered.fold(state) { current, plan ->
+			val actor = current.participant(plan.action.actorId) ?: return@fold current
+			val side = current.sideOf(actor.actorId) ?: return@fold current
+			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
+			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
+			switched.appendEvent(
+				BattleEvent.ParticipantSwitched(
+					turnNumber = current.turnNumber,
+					sideId = side.sideId,
+					previousActorId = actor.actorId,
+					nextActorId = plan.action.targetActorId,
+					forced = !actor.canBattle(),
+				),
+			)
+		}
+	}
+
+	/**
 	 * 执行一次使用技能行动。
 	 *
 	 * 行动者若已经倒下会被跳过；目标若已经倒下或不存在也会被跳过，后续双打目标重定向会替换这里的简单规则。
@@ -113,8 +159,8 @@ class BattleEngine(
 	private fun executeUseSkill(state: BattleState, plan: ActionPlan, random: BattleRandom): BattleState {
 		val action = plan.action as BattleAction.UseSkill
 		val actor = state.participant(action.actorId) ?: return state
-		val target = state.participant(action.targetActorId) ?: return state
-		if (!actor.canBattle() || !target.canBattle()) {
+		val target = state.activeTargetFor(action.targetActorId) ?: return state
+		if (!state.isActive(actor.actorId) || !actor.canBattle() || !target.canBattle()) {
 			return state
 		}
 		val skill = actor.skillSlot(action.skillId) ?: return state
@@ -503,6 +549,11 @@ class BattleEngine(
 		val action: BattleAction,
 		val actor: BattleParticipant,
 		val skill: BattleSkillSlot,
+	)
+
+	private data class SwitchPlan(
+		val action: BattleAction.SwitchParticipant,
+		val actor: BattleParticipant,
 	)
 
 	private data class AccuracyCheck(
