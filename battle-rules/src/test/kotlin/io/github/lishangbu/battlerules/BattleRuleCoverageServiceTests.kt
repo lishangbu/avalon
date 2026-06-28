@@ -30,7 +30,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "terrain.grassy-heal" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.paralysis-speed-action" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.freeze" && it.status == "IMPLEMENTED" })
-		assertTrue(coverage.items.any { it.code == "status.immunity-and-grounding" && it.status == "PARTIAL" })
+		assertTrue(coverage.items.any { it.code == "status.immunity-and-grounding" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.environment-duration" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "turn.multi-hit-and-locked-move" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "terrain.psychic-priority-block" && it.status == "IMPLEMENTED" })
