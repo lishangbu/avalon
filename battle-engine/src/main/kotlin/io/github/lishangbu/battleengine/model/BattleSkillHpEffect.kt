@@ -6,6 +6,7 @@ package io.github.lishangbu.battleengine.model
  * 这里刻意不把技能名称或本地化描述写进引擎，而是把资料层的 policy code 转换成可复盘的数值规则。
  * 第一批只覆盖现代主系列中最稳定、最常见的两类 HP 效果：
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例回复。
+ * - 造成普通伤害后，使用者按本次实际伤害的一定比例承受反作用伤害。
  * - 变化技能成功后，使用者按自身最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
  *
@@ -37,6 +38,25 @@ sealed interface BattleSkillHpEffect {
 	 * 夹取最终回复量；当伤害为 0 或使用者已经倒下时不会触发。
 	 */
 	data class DrainDamage(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleSkillHpEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
+
+	/**
+	 * 造成伤害后按目标实际损失 HP 的比例伤害使用者。
+	 *
+	 * `numerator / denominator` 表达反作用比例，例如 1/3 表示使用者承受目标本次实际损失 HP 的三分之一。
+	 * 该效果只在目标实际损失 HP 后触发；属性免疫、保护、未命中或目标剩余 HP 小于公式伤害时，调用方必须以
+	 * 最终实际 HP 损失作为基数。现代公开实现对这类反作用伤害采用四舍五入到最近整数、最少 1 点的口径，
+	 * 因此该效果和回复类效果分开建模，避免复用向下取整的回复计算。
+	 */
+	data class RecoilByDamageDealt(
 		val numerator: Int,
 		val denominator: Int,
 	) : BattleSkillHpEffect {

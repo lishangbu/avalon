@@ -569,6 +569,7 @@ class BattleEngine(
 			),
 		)
 		val damagedTarget = target.receiveDamage(damage.amount)
+		val actualDamageAmount = target.currentHp - damagedTarget.currentHp
 		val damagedState = state
 			.replaceParticipant(damagedTarget)
 			.appendEvent(
@@ -577,7 +578,7 @@ class BattleEngine(
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
 					skillId = skill.skillId,
-					amount = damage.amount,
+					amount = actualDamageAmount,
 					effectiveness = damage.effectiveness,
 					targetMultiplier = damage.targetMultiplier,
 					criticalHit = criticalHitCheck.hit,
@@ -588,7 +589,7 @@ class BattleEngine(
 			state = afterFireThaw,
 			actorId = actor.actorId,
 			skill = skill,
-			damageAmount = damage.amount,
+			damageAmount = actualDamageAmount,
 		)
 		val afterTargetLowHpItem = applyLowHpHealingItem(afterSkillHpEffects, damagedTarget.actorId)
 		val afterContactAbilities = applyContactAbilityEffects(
@@ -602,7 +603,7 @@ class BattleEngine(
 			state = afterContactAbilities,
 			actorId = actor.actorId,
 			skill = skill,
-			damageAmount = damage.amount,
+			damageAmount = actualDamageAmount,
 		)
 		val targetAfterPostDamage = afterRecoil.participant(damagedTarget.actorId) ?: damagedTarget
 		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actor
@@ -616,9 +617,10 @@ class BattleEngine(
 	/**
 	 * 处理造成伤害后的技能 HP 效果。
 	 *
-	 * 当前只支持“按本次实际伤害吸取回复使用者”。该函数在伤害事件之后、目标低体力道具和接触类反制之前运行；
-	 * 这样事件流能直接表达“本段伤害造成多少，随后使用者按该伤害得到多少回复”。如果本段没有造成实际伤害，
-	 * 或使用者已经无法战斗，则不产生回复事件。
+	 * 当前支持两类直接绑定在技能上的 HP 后效：按本次实际伤害吸取回复使用者，以及按本次实际伤害让使用者
+	 * 承受反作用伤害。该函数在伤害事件之后、目标低体力道具和接触类反制之前运行；这样事件流能直接表达
+	 * “本段真实扣掉了多少 HP，随后技能自身基于该数值造成了什么”。如果本段没有造成实际伤害，或使用者已经
+	 * 无法战斗，则不产生技能 HP 后效事件。
 	 */
 	private fun applyPostDamageSkillHpEffects(
 		state: BattleState,
@@ -630,30 +632,99 @@ class BattleEngine(
 			return state
 		}
 		return skill.hpEffects
-			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
 			.fold(state) { current, effect ->
-				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
-					current
-				} else {
-					val healAmount = fractionAmount(damageAmount, effect.numerator, effect.denominator)
-						.coerceAtMost(actor.maxHp - actor.currentHp)
-					if (healAmount <= 0) {
-						current
-					} else {
-						current
-							.replaceParticipant(actor.heal(healAmount))
-							.appendEvent(
-								BattleEvent.SkillHealingApplied(
-									turnNumber = current.turnNumber,
-									actorId = actor.actorId,
-									skillId = skill.skillId,
-									amount = healAmount,
-								),
-							)
-					}
+				when (effect) {
+					is BattleSkillHpEffect.DrainDamage -> applySkillDrainDamage(
+						state = current,
+						actorId = actorId,
+						skill = skill,
+						damageAmount = damageAmount,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
+					is BattleSkillHpEffect.RecoilByDamageDealt -> applySkillRecoilDamage(
+						state = current,
+						actorId = actorId,
+						skill = skill,
+						damageAmount = damageAmount,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
+					is BattleSkillHpEffect.SelfHealMaxHpFraction,
+					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> current
 				}
 			}
+	}
+
+	/**
+	 * 按本次实际伤害回复使用者。
+	 *
+	 * 吸取回复使用向下取整的比例口径，并在最后按当前缺失 HP 夹取；它不负责处理污泥浆、回复封锁、吸取强化等
+	 * 额外规则，那些会以新的明确效果或 hook 接入，避免这里出现难以复盘的隐式分支。
+	 */
+	private fun applySkillDrainDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
+			return state
+		}
+		val healAmount = fractionAmount(damageAmount, numerator, denominator)
+			.coerceAtMost(actor.maxHp - actor.currentHp)
+		if (healAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.heal(healAmount))
+			.appendEvent(
+				BattleEvent.SkillHealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = healAmount,
+				),
+			)
+	}
+
+	/**
+	 * 按本次实际伤害让使用者承受技能反作用伤害。
+	 *
+	 * 反作用伤害使用现代公开实现中“按目标实际损失 HP 计算，四舍五入到最近整数，最少 1 点”的规则。这里不会
+	 * 重新读取公式伤害，也不会因为目标已经倒下而跳过；只要本段确实让目标损失 HP，使用者仍会承受对应自损。
+	 */
+	private fun applySkillRecoilDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
+		}
+		val recoilAmount = roundedHalfUpFractionAmount(damageAmount, numerator, denominator)
+			.coerceAtMost(actor.currentHp)
+		if (recoilAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.receiveDamage(recoilAmount))
+			.appendEvent(
+				BattleEvent.SkillRecoilDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = recoilAmount,
+					sourceDamageAmount = damageAmount,
+				),
+			)
 	}
 
 	/**
@@ -688,6 +759,7 @@ class BattleEngine(
 						)
 					}
 					is BattleSkillHpEffect.DrainDamage -> current
+					is BattleSkillHpEffect.RecoilByDamageDealt -> current
 				}
 			}
 
@@ -735,6 +807,21 @@ class BattleEngine(
 			return 0
 		}
 		return ((value.toLong() * numerator) / denominator)
+			.coerceIn(1, Int.MAX_VALUE.toLong())
+			.toInt()
+	}
+
+	/**
+	 * 计算四舍五入到最近整数的比例型 HP 变化。
+	 *
+	 * 技能反作用伤害和吸取回复的取整口径不同，因此单独保留这个函数。正比例在造成实际伤害后至少为 1 点，
+	 * 让低伤害命中仍能产生可观察的反作用伤害。
+	 */
+	private fun roundedHalfUpFractionAmount(value: Int, numerator: Int, denominator: Int): Int {
+		if (value <= 0) {
+			return 0
+		}
+		return ((value.toLong() * numerator * 2 + denominator) / (denominator * 2L))
 			.coerceIn(1, Int.MAX_VALUE.toLong())
 			.toInt()
 	}

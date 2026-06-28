@@ -513,6 +513,21 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 技能自身反作用让使用者承受了 HP 伤害。
+	 *
+	 * 该事件专门表示带反作用伤害的普通攻击这类“技能本身带来的自损”，与携带道具产生的
+	 * [RecoilDamageApplied] 分开。`sourceDamageAmount` 记录目标本次实际损失的 HP，便于 replay 和对照测试
+	 * 确认反作用基数没有使用溢出公式伤害。
+	 */
+	data class SkillRecoilDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val amount: Int,
+		val sourceDamageAmount: Int,
+	) : BattleEvent
+
 	data class TerrainHealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,

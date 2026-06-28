@@ -907,6 +907,12 @@ class BattleRuntimeSnapshotService(
 					denominator = 4,
 				),
 			)
+			"recoil-third-damage" -> listOf(
+				BattleSkillHpEffect.RecoilByDamageDealt(
+					numerator = 1,
+					denominator = 3,
+				),
+			)
 			"self-heal-half-max-hp" -> listOf(
 				BattleSkillHpEffect.SelfHealMaxHpFraction(
 					numerator = 1,

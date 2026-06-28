@@ -1,0 +1,78 @@
+databaseChangeLog:
+- changeSet:
+    id: 045-battle-rule-skill-recoil-fixtures
+    author: backend
+    comment: 新增技能反作用伤害公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: skill_id, valueNumeric: 38 }
+        - column: { name: effect_policy, value: recoil-third-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: true }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 接触造成常规伤害后，使用者承受目标实际损失 HP 的 1/3 反作用伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 670 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 93 }
+        - column: { name: code, value: recoil-damage-skill-uses-target-hp-actually-lost }
+        - column: { name: name, value: 反作用伤害按目标实际损失 HP 计算 }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证带反作用伤害的技能在目标剩余 HP 低于公式伤害时，按目标实际损失 HP 计算使用者自损。 }
+        - column: { name: input_summary, value: 目标剩余 HP 低于公式伤害时，使用者使用带 1/3 反作用伤害的物理技能命中目标。 }
+        - column: { name: expected_summary, value: 目标只损失剩余 HP；反作用伤害按实际损失 HP 的 1/3 四舍五入计算，而不是按溢出公式伤害计算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 930 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 196 }
+        - column: { name: fixture_id, valueNumeric: 93 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照技能反作用伤害比例和取整口径。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 197 }
+        - column: { name: fixture_id, valueNumeric: 93 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Double-Edge_(move) }
+        - column: { name: source_label, value: 反作用伤害公开说明 }
+        - column: { name: source_note, value: 用于验证普通反作用伤害按造成伤害的一定比例回扣使用者。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 93 }
+        - column: { name: run_code, value: skill-hp-effect-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 93 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T01:40:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T01:43:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 930 }

@@ -24,7 +24,7 @@ package io.github.lishangbu.battleengine.model
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
- * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复或自我回复。
+ * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。

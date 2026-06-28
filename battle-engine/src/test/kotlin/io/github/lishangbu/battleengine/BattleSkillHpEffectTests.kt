@@ -15,8 +15,8 @@ import kotlin.test.assertEquals
  *
  * 场景类型：技能 HP 效果 fixture。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。吸取类技能按本次造成的实际伤害回复使用者；自我回复类变化
- * 技能按使用者最大 HP 的固定比例回复。
- * 验证重点：回复来源以专用技能回复事件表达，并且最终回复量会被当前缺失 HP 夹取。
+ * 技能按使用者最大 HP 的固定比例回复；反作用伤害按目标实际损失 HP 计算。
+ * 验证重点：回复和反作用来源以专用技能事件表达，并且最终数值会按当前缺失 HP 或剩余 HP 夹取。
  */
 class BattleSkillHpEffectTests {
 	private val engine = BattleEngine()
@@ -92,6 +92,44 @@ class BattleSkillHpEffectTests {
 		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
 		assertEquals(expectedHealing, healing.amount)
 		assertEquals(20 + expectedHealing, resolved.participant("drain-user")?.currentHp)
+	}
+
+	@Test
+	fun `recoil damage skill damages user by rounded fraction of hp actually lost by target`() {
+		val fixture = publicBattleRuleFixture(
+			name = "recoil-damage-skill-uses-target-hp-actually-lost",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Double-Edge_(move)",
+			),
+			inputSummary = "目标剩余 HP 低于公式伤害时，使用者使用带 1/3 反作用伤害的物理技能命中目标。",
+			expectedSummary = "目标只损失剩余 17 HP；反作用伤害按 17 的 1/3 四舍五入为 6，而不是按溢出公式伤害计算。",
+		)
+		val skill = damagingSkill(
+			name = "反作用测试",
+			hpEffects = listOf(BattleSkillHpEffect.RecoilByDamageDealt(numerator = 1, denominator = 3)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("recoil-user", speed = 100, currentHp = 100, skill = skill),
+				second = participant("low-hp-target", speed = 50, currentHp = 17),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("recoil-user", skillId = 1, targetActorId = "low-hp-target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("recoil-damage-skill-uses-target-hp-actually-lost")
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+		val recoil = resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>().single()
+		assertEquals(17, damage.amount)
+		assertEquals(6, recoil.amount)
+		assertEquals(17, recoil.sourceDamageAmount)
+		assertEquals(94, resolved.participant("recoil-user")?.currentHp)
+		assertEquals(0, resolved.participant("low-hp-target")?.currentHp)
 	}
 
 	@Test

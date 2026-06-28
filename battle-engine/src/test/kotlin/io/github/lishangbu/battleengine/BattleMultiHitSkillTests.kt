@@ -90,7 +90,7 @@ class BattleMultiHitSkillTests {
 
 		fixture.assertNamed("multi-hit-skill-stops-after-target-faints")
 		assertEquals(5, resolved.events.filterIsInstance<BattleEvent.MultiHitCountDetermined>().single().hitCount)
-		assertEquals(listOf(28, 28), resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.amount })
+		assertEquals(listOf(28, 12), resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.amount })
 		assertEquals(0, resolved.participant("target")?.currentHp)
 		assertEquals("side-a", resolved.result?.winningSideId)
 		assertEquals(

@@ -87,11 +87,12 @@ class LiquibaseMigrationTests(
 			"038-battle-rule-major-status-fixtures.yaml",
 			"039-battle-rule-terrain-fixtures.yaml",
 			"040-battle-rule-field-turn-fixtures.yaml",
-				"041-battle-rule-switch-in-ability-fixtures.yaml",
-				"042-battle-rule-skill-effect-fixtures.yaml",
-				"043-battle-rule-move-flow-fixtures.yaml",
-				"044-battle-action-validation-menu.yaml",
-			)
+			"041-battle-rule-switch-in-ability-fixtures.yaml",
+			"042-battle-rule-skill-effect-fixtures.yaml",
+			"043-battle-rule-move-flow-fixtures.yaml",
+			"044-battle-action-validation-menu.yaml",
+			"045-battle-rule-skill-recoil-fixtures.yaml",
+		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
 
@@ -523,16 +524,16 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 66L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 67L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 92L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 195L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 92L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 93L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 197L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 93L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",

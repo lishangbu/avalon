@@ -579,6 +579,7 @@ class BattleRuleCoverageService {
 					"draining-damage-skill-honors-configured-drain-fraction",
 					"self-healing-status-skill-restores-half-max-hp",
 					"weather-sensitive-self-healing-skill-uses-current-weather-fraction",
+					"recoil-damage-skill-uses-target-hp-actually-lost",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
@@ -586,8 +587,9 @@ class BattleRuleCoverageService {
 					"https://bulbapedia.bulbagarden.net/wiki/Draining_Kiss_(move)",
 					"https://bulbapedia.bulbagarden.net/wiki/Recover_(move)",
 					"https://bulbapedia.bulbagarden.net/wiki/Synthesis_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Double-Edge_(move)",
 				),
-				note = "已覆盖造成伤害后按实际伤害 1/2 或 3/4 吸取回复、变化技能固定 1/2 自我回复，以及晨光/光合作用/月光类天气变量回复。",
+				note = "已覆盖造成伤害后按实际伤害 1/2 或 3/4 吸取回复、变化技能固定 1/2 自我回复、晨光/光合作用/月光类天气变量回复，以及按目标实际损失 HP 计算的技能反作用伤害。",
 			),
 		)
 
