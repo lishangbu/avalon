@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.controller
 
+import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
+import io.github.lishangbu.battlerules.dto.BattleActionValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_RULES_API_BEARER_AUTH
@@ -36,4 +38,9 @@ class BattleRuntimeSnapshotController(
 	@Operation(summary = "校验战斗准备阶段队伍")
 	fun validatePreparation(@RequestBody request: BattlePreparationValidationRequest): BattlePreparationValidationResponse =
 		service.validatePreparation(request)
+
+	@PostMapping("/action-validation")
+	@Operation(summary = "校验战斗首回合行动")
+	fun validateActions(@RequestBody request: BattleActionValidationRequest): BattleActionValidationResponse =
+		service.validateActions(request)
 }

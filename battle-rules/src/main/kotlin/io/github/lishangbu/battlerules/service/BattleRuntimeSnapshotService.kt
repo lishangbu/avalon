@@ -1,7 +1,11 @@
 package io.github.lishangbu.battlerules.service
 
+import io.github.lishangbu.battleengine.BattleActionValidator
+import io.github.lishangbu.battleengine.BattleActionViolation
+import io.github.lishangbu.battleengine.BattleEngine
 import io.github.lishangbu.battleengine.BattlePreparationValidator
 import io.github.lishangbu.battleengine.BattlePreparationViolation
+import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
@@ -38,6 +42,10 @@ import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.MAX_BATTLE_SKILL_SLOTS
+import io.github.lishangbu.battlerules.dto.BattleActionRequest
+import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
+import io.github.lishangbu.battlerules.dto.BattleActionValidationResponse
+import io.github.lishangbu.battlerules.dto.BattleActionViolationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
@@ -95,6 +103,8 @@ class BattleRuntimeSnapshotService(
 	private val jdbcTemplate: JdbcTemplate,
 ) {
 	private val preparationValidator = BattlePreparationValidator()
+	private val actionValidator = BattleActionValidator()
+	private val battleEngine = BattleEngine()
 
 	/**
 	 * 按赛制 code 装配运行时快照。
@@ -149,6 +159,30 @@ class BattleRuntimeSnapshotService(
 		)
 		val violations = preparationValidator.validate(initialState)
 		return BattlePreparationValidationResponse(
+			valid = violations.isEmpty(),
+			violations = violations.map { it.toResponse() },
+		)
+	}
+
+	/**
+	 * 按赛制 code 校验首回合行动提交。
+	 *
+	 * 该接口和准备阶段校验共享同一套轻量队伍请求。服务会先装配运行时规则快照，再启动一份纯内存战斗状态，
+	 * 最后调用 battle-engine 的行动校验器。它不执行回合结算、不消费随机数，也不把校验结果写入数据库。
+	 */
+	@Transactional(readOnly = true)
+	fun validateActions(request: BattleActionValidationRequest): BattleActionValidationResponse {
+		val normalized = request.normalized()
+		val runtime = getByFormatCode(normalized.formatCode)
+		val elementIds = coreElementIds()
+		val initialState = BattleInitialState(
+			format = runtime.format,
+			rules = runtime.rules,
+			sides = normalized.sides.map { it.toBattleSide(elementIds) },
+		)
+		val state = battleEngine.start(initialState)
+		val violations = actionValidator.validate(state, normalized.actions.map { it.toBattleAction() })
+		return BattleActionValidationResponse(
 			valid = violations.isEmpty(),
 			violations = violations.map { it.toResponse() },
 		)
@@ -374,6 +408,13 @@ class BattleRuntimeSnapshotService(
 			sides = sides.takeIf { it.isNotEmpty() } ?: invalidValue("sides", "sides 不能为空"),
 		)
 
+	private fun BattleActionValidationRequest.normalized(): BattleActionValidationRequest =
+		copy(
+			formatCode = formatCode.requiredText("formatCode", maxLength = 80),
+			sides = sides.takeIf { it.isNotEmpty() } ?: invalidValue("sides", "sides 不能为空"),
+			actions = actions.takeIf { it.isNotEmpty() } ?: invalidValue("actions", "actions 不能为空"),
+		)
+
 	private fun BattlePreparationSideRequest.toBattleSide(elementIds: Map<String, Long>): BattleSide {
 		val normalizedSideId = sideId.requiredText("sideId", maxLength = 80)
 		if (activeActorIds.isEmpty()) {
@@ -434,6 +475,24 @@ class BattleRuntimeSnapshotService(
 			abilityEffects = abilityPolicies.mapNotNull { it.toBattleAbilityEffect(elementIds) },
 			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect() },
 		)
+	}
+
+	private fun BattleActionRequest.toBattleAction(): BattleAction {
+		val normalizedType = type.requiredText("type", maxLength = 40).uppercase()
+		val normalizedActorId = actorId.requiredText("actorId", maxLength = 80)
+		val normalizedTargetActorId = targetActorId.requiredText("targetActorId", maxLength = 80)
+		return when (normalizedType) {
+			"USE_SKILL" -> BattleAction.UseSkill(
+				actorId = normalizedActorId,
+				skillId = skillId?.takeIf { it > 0 } ?: invalidValue("skillId", "skillId 必须大于 0"),
+				targetActorId = normalizedTargetActorId,
+			)
+			"SWITCH_PARTICIPANT" -> BattleAction.SwitchParticipant(
+				actorId = normalizedActorId,
+				targetActorId = normalizedTargetActorId,
+			)
+			else -> invalidValue("type", "type 只支持 USE_SKILL 或 SWITCH_PARTICIPANT")
+		}
 	}
 
 	private fun enabledAbilityPolicies(abilityId: Long): List<String> =
@@ -1077,6 +1136,15 @@ class BattleRuntimeSnapshotService(
 			code = code,
 			sideId = sideId,
 			actorId = actorId,
+			resourceId = resourceId,
+			message = message,
+		)
+
+	private fun BattleActionViolation.toResponse(): BattleActionViolationResponse =
+		BattleActionViolationResponse(
+			code = code,
+			actorId = actorId,
+			targetActorId = targetActorId,
 			resourceId = resourceId,
 			message = message,
 		)

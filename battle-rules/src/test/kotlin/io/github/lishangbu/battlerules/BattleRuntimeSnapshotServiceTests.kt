@@ -16,6 +16,8 @@ import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battlerules.dto.BattleActionRequest
+import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
@@ -486,6 +488,52 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(duplicateSkill.message).isEqualTo("skillIds 不能包含重复技能")
 	}
 
+	@Test
+	fun `action validation uses assembled runtime snapshot`() {
+		val response = service.validateActions(
+			actionValidationRequest(
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 999,
+						targetActorId = "b-1",
+					),
+					BattleActionRequest(
+						type = "SWITCH_PARTICIPANT",
+						actorId = "a-2",
+						targetActorId = "b-2",
+					),
+				),
+			),
+		)
+
+		assertThat(response.valid).isFalse()
+		assertThat(response.violations.map { it.code }).containsExactly("skill-not-found", "switch-target-opponent")
+		assertThat(response.violations.first().resourceId).isEqualTo(999)
+		assertThat(response.violations[1].targetActorId).isEqualTo("b-2")
+	}
+
+	@Test
+	fun `action validation rejects unsupported action type`() {
+		val exception = assertThrows<ApiException> {
+			service.validateActions(
+				actionValidationRequest(
+					actions = listOf(
+						BattleActionRequest(
+							type = "USE_ITEM",
+							actorId = "a-1",
+							targetActorId = "a-1",
+						),
+					),
+				),
+			)
+		}
+
+		assertThat(exception.field).isEqualTo("type")
+		assertThat(exception.message).isEqualTo("type 只支持 USE_SKILL 或 SWITCH_PARTICIPANT")
+	}
+
 	private fun BattleRuntimeSnapshotService.switchInWeatherByAbilityId(abilityId: Long): BattleWeather =
 		abilityEffectsByAbilityId(abilityId)
 			.filterIsInstance<BattleAbilityEffect.SwitchInWeatherChange>()
@@ -535,6 +583,33 @@ class BattleRuntimeSnapshotServiceTests(
 						participant("b-1", creatureId = 3, level = 50, itemId = 12),
 						participant("b-2", creatureId = 4, level = 50, itemId = 13),
 					),
+				),
+			),
+		)
+
+	private fun actionValidationRequest(actions: List<BattleActionRequest>): BattleActionValidationRequest =
+		BattleActionValidationRequest(
+			formatCode = "official-double",
+			sides = validDoubleSides(),
+			actions = actions,
+		)
+
+	private fun validDoubleSides(): List<BattlePreparationSideRequest> =
+		listOf(
+			BattlePreparationSideRequest(
+				sideId = "side-a",
+				activeActorIds = listOf("a-1", "a-2"),
+				participants = listOf(
+					participant("a-1", creatureId = 1, level = 50, itemId = 10),
+					participant("a-2", creatureId = 2, level = 50, itemId = 11),
+				),
+			),
+			BattlePreparationSideRequest(
+				sideId = "side-b",
+				activeActorIds = listOf("b-1", "b-2"),
+				participants = listOf(
+					participant("b-1", creatureId = 3, level = 50, itemId = 12),
+					participant("b-2", creatureId = 4, level = 50, itemId = 13),
 				),
 			),
 		)
