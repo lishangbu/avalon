@@ -26,6 +26,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -158,7 +159,7 @@ class BattleRuntimeSnapshotService(
 	 * 装配分为两层：
 	 * - 基础事实来自 `game_skill`：名称、属性、伤害分类、威力、命中、PP 和优先度。
 	 * - 战斗规则来自 `battle_skill_rule` 及其子表：多段命中、保护交互、天气命中覆盖、天气威力倍率、
-	 *   状态附加、能力阶级变化和技能 HP 效果。
+	 *   状态附加、能力阶级变化、技能 HP 效果和全场环境效果。
 	 *
 	 * 如果某个基础技能暂时没有显式技能规则，仍会使用引擎默认行为构建技能槽。这个默认只发生在运行时适配层，
 	 * 不是通用 CRUD 或原始 JSON fallback；它确保准备校验和早期战斗用例可以消费完整基础资料，同时让需要特殊规则的
@@ -521,6 +522,7 @@ class BattleRuntimeSnapshotService(
 			sideEntryHazardApplications = sideEntryHazardApplications(row.ruleId),
 			fieldSpeedOrderApplications = fieldSpeedOrderApplications(row.ruleId),
 			hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
+			environmentEffects = row.effectPolicy.toBattleSkillEnvironmentEffects(),
 		)
 	}
 
@@ -530,8 +532,8 @@ class BattleRuntimeSnapshotService(
 			name = getString("skill_name"),
 			elementId = getLong("element_id"),
 			damageClassCode = getString("damage_class_code"),
-			power = nullableInt("power"),
-			accuracy = nullableInt("accuracy"),
+			power = nullableInt("power")?.takeIf { it > 0 },
+			accuracy = nullableInt("accuracy")?.takeIf { it > 0 },
 			pp = getInt("pp").coerceAtLeast(0),
 			priority = getInt("priority"),
 			ruleId = nullableLong("rule_id"),
@@ -856,6 +858,15 @@ class BattleRuntimeSnapshotService(
 					),
 				),
 			)
+			else -> emptyList()
+		}
+
+	private fun String?.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironmentEffect> =
+		when (this) {
+			"set-weather-rain" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.RAIN))
+			"set-weather-sandstorm" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SANDSTORM))
+			"set-weather-snow" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SNOW))
+			"set-weather-sun" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SUN))
 			else -> emptyList()
 		}
 

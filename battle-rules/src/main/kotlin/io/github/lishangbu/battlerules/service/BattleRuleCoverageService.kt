@@ -325,6 +325,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖指定天气存在时，当前上场未满 HP 成员按最大 HP 1/16 回复；规则资料种子已接入运行时快照。",
 			),
 			item(
+				code = "weather.setting-skill",
+				name = "天气设置技能",
+				category = "天气",
+				status = IMPLEMENTED,
+				fixtures = listOf("status-skill-starts-weather-for-five-turns"),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Rain_Dance_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Sunny_Day_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Snowscape_(move)",
+				),
+				note = "已覆盖变化技能成功后设置雨天、晴天、沙暴和雪天天气，普通持续 5 回合；规则资料种子已接入运行时快照。",
+			),
+			item(
 				code = "status.freeze",
 				name = "冰冻和解冻流程",
 				category = "主要状态",

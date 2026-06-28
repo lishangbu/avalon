@@ -32,6 +32,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "status.paralysis-speed-action" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "weather.sun-rain-damage" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "weather.healing-ability" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "weather.setting-skill" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.freeze" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.immunity-and-grounding" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.switch-in-stat-stage" && it.status == "IMPLEMENTED" })

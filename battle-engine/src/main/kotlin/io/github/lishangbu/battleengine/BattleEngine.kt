@@ -23,6 +23,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -448,9 +449,10 @@ class BattleEngine(
 		if (skill.damageClass == BattleDamageClass.STATUS) {
 			val afterEffects = applySkillEffects(state, actor.actorId, target.actorId, skill, random)
 			val afterHpEffects = applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
+			val afterEnvironmentEffects = applySkillEnvironmentEffects(afterHpEffects, actor.actorId, skill)
 			return context.copy(
 				state = updateLockedMoveAfterSuccessfulUse(
-					state = afterHpEffects,
+					state = afterEnvironmentEffects,
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
 					skill = skill,
@@ -735,6 +737,60 @@ class BattleEngine(
 		return ((value.toLong() * numerator) / denominator)
 			.coerceIn(1, Int.MAX_VALUE.toLong())
 			.toInt()
+	}
+
+	/**
+	 * 处理技能成功后的全场环境效果。
+	 *
+	 * 环境写入放在技能命中成功之后执行，只读取 [BattleSkillEnvironmentEffect] 这类结构化效果。当前支持普通天气技能；
+	 * 若天气和剩余回合没有变化，则不追加事件，避免 replay 端把重复设置误读成真实环境变化。
+	 */
+	private fun applySkillEnvironmentEffects(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState =
+		skill.environmentEffects.fold(state) { current, effect ->
+			when (effect) {
+				is BattleSkillEnvironmentEffect.SetWeather -> applySkillWeatherChange(
+					state = current,
+					actorId = actorId,
+					effect = effect,
+				)
+			}
+		}
+
+	/**
+	 * 将技能天气效果写入战斗环境。
+	 *
+	 * 该函数与出场天气特性保持相同事件类型和去重语义；区别只在触发来源来自技能槽而不是成员特性。
+	 */
+	private fun applySkillWeatherChange(
+		state: BattleState,
+		actorId: String,
+		effect: BattleSkillEnvironmentEffect.SetWeather,
+	): BattleState {
+		if (
+			state.environment.weather == effect.weather &&
+			state.environment.weatherTurnsRemaining == effect.turnsRemaining
+		) {
+			return state
+		}
+		return state
+			.copy(
+				environment = state.environment.copy(
+					weather = effect.weather,
+					weatherTurnsRemaining = effect.turnsRemaining,
+				),
+			)
+			.appendEvent(
+				BattleEvent.WeatherStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					weather = effect.weather,
+					turnsRemaining = effect.turnsRemaining,
+				),
+			)
 	}
 
 	/**

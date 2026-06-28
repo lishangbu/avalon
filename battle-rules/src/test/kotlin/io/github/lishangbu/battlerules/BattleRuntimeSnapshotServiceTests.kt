@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -87,7 +88,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 311, 366, 390, 433, 446, 564, 570, 577, 694),
+			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 240, 311, 366, 390, 433, 446, 564, 570, 577, 883, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -151,6 +152,13 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).numerator).isEqualTo(1)
 		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).denominator).isEqualTo(4)
 
+		val rainDance = slots.getValue(240)
+			.environmentEffects
+			.filterIsInstance<BattleSkillEnvironmentEffect.SetWeather>()
+			.single()
+		assertThat(rainDance.weather).isEqualTo(BattleWeather.RAIN)
+		assertThat(rainDance.turnsRemaining).isEqualTo(5)
+
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(2.0)
@@ -210,6 +218,13 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(highDrain.numerator).isEqualTo(3)
 		assertThat(highDrain.denominator).isEqualTo(4)
+
+		val snowscape = slots.getValue(883)
+			.environmentEffects
+			.filterIsInstance<BattleSkillEnvironmentEffect.SetWeather>()
+			.single()
+		assertThat(snowscape.weather).isEqualTo(BattleWeather.SNOW)
+		assertThat(snowscape.turnsRemaining).isEqualTo(5)
 	}
 
 	@Test
