@@ -98,6 +98,7 @@ class LiquibaseMigrationTests(
 			"049-battle-charge-skip-item.yaml",
 			"050-battle-environment-duration-items.yaml",
 			"051-battle-side-condition-duration-item.yaml",
+			"052-battle-skill-substitute-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -533,7 +534,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 68L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 69L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -541,9 +542,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 102L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 220L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 102L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 106L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 228L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 106L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -599,6 +600,21 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 76L,
 				"charges_before_use" to true,
+			),
+		)
+
+		val substituteSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy
+			from battle_skill_rule
+			where skill_id = 164
+			""".trimIndent(),
+		)
+		assertThat(substituteSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 164L,
+				"effect_policy" to "create-substitute-quarter-max-hp",
+				"target_policy" to "self",
 			),
 		)
 

@@ -563,6 +563,43 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 使用者成功支付 HP 并建立替身。
+	 *
+	 * `hpCost` 是从本体扣除的 HP，也等于替身建立时的初始 HP。该事件只在替身真正写入运行态后产生；
+	 * 当前已有替身或 HP 不足导致技能没有建立替身时，不会产生该事件。
+	 */
+	data class SubstituteStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val hpCost: Int,
+		val substituteHp: Int,
+	) : BattleEvent
+
+	/**
+	 * 目标的替身吸收了一次对手技能伤害。
+	 *
+	 * `amount` 是本次实际扣除的替身 HP，已经按替身剩余 HP 夹取；`substituteHpRemaining` 为本次扣除后的
+	 * 剩余 HP。该事件不表示目标本体 HP 变化，因此不会和 [DamageApplied] 混用。
+	 */
+	data class SubstituteDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val amount: Int,
+		val substituteHpRemaining: Int,
+	) : BattleEvent
+
+	/**
+	 * 目标替身因伤害耗尽而破裂。
+	 */
+	data class SubstituteBroken(
+		override val turnNumber: Int,
+		val actorId: String,
+	) : BattleEvent
+
+	/**
 	 * 技能成功造成实际伤害后，使用者进入休整状态。
 	 *
 	 * `turnsRemainingAfterCurrent` 表示未来还会阻止几次技能行动。该事件不表示当前回合的行动被阻止，而是为

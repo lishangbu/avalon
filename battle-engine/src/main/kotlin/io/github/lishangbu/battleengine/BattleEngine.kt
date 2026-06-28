@@ -622,6 +622,17 @@ class BattleEngine(
 				criticalHit = criticalHitCheck.hit,
 			),
 		)
+		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId)) {
+			return resolveDamageAgainstSubstitute(
+				context = context,
+				state = state,
+				actor = actor,
+				target = target,
+				skill = skill,
+				damageAmount = damage.amount,
+			)
+		}
+
 		val damagedTarget = target.receiveDamage(damage.amount)
 		val actualDamageAmount = target.currentHp - damagedTarget.currentHp
 		val damagedState = state
@@ -639,39 +650,140 @@ class BattleEngine(
 				),
 		)
 		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
-		val afterSkillHpEffects = applyPostDamageSkillHpEffects(
+		return finishPostDamageEffects(
+			context = context,
 			state = afterFireThaw,
-			actorId = actor.actorId,
-			skill = skill,
-			damageAmount = actualDamageAmount,
-		)
-		val afterSkillRecharge = applySkillRechargeAfterDamage(
-			state = afterSkillHpEffects,
-			actorId = actor.actorId,
-			skill = skill,
-			damageAmount = actualDamageAmount,
-		)
-		val afterTargetLowHpItem = applyLowHpHealingItem(afterSkillRecharge, damagedTarget.actorId)
-		val afterContactAbilities = applyContactAbilityEffects(
-			state = afterTargetLowHpItem,
 			actorId = actor.actorId,
 			targetActorId = damagedTarget.actorId,
 			skill = skill,
+			damageAmount = actualDamageAmount,
+			targetCanFaint = true,
+			allowTargetLowHpItem = true,
+			allowContactAbilities = true,
 			random = random,
 		)
-		val afterRecoil = applyPostDamageItemEffects(
-			state = afterContactAbilities,
+	}
+
+	/**
+	 * 让目标替身吸收本段普通伤害。
+	 *
+	 * 替身受击时目标本体 HP 不变，也不会触发目标低体力道具、接触反制特性或目标倒下判定。造成的替身 HP 损失
+	 * 仍作为本次实际伤害传给吸取回复、休整和攻击方道具反伤等“成功造成伤害后”的来源规则，符合公开实现中
+	 * 吸取类技能可以从替身伤害中回复的行为。
+	 */
+	private fun resolveDamageAgainstSubstitute(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): TurnContext {
+		val actualDamageAmount = damageAmount.coerceAtMost(target.substituteHp)
+		val damagedTarget = target.damageSubstitute(actualDamageAmount)
+		val damagedState = state
+			.replaceParticipant(damagedTarget)
+			.appendEvent(
+				BattleEvent.SubstituteDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					amount = actualDamageAmount,
+					substituteHpRemaining = damagedTarget.substituteHp,
+				),
+			)
+			.let { current ->
+				if (target.substituteHp > 0 && damagedTarget.substituteHp == 0) {
+					current.appendEvent(
+						BattleEvent.SubstituteBroken(
+							turnNumber = state.turnNumber,
+							actorId = target.actorId,
+						),
+					)
+				} else {
+					current
+				}
+			}
+		return finishPostDamageEffects(
+			context = context,
+			state = damagedState,
 			actorId = actor.actorId,
+			targetActorId = damagedTarget.actorId,
 			skill = skill,
 			damageAmount = actualDamageAmount,
+			targetCanFaint = false,
+			allowTargetLowHpItem = false,
+			allowContactAbilities = false,
+			random = null,
 		)
-		val targetAfterPostDamage = afterRecoil.participant(damagedTarget.actorId) ?: damagedTarget
-		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actor
-		val afterTargetFaint = afterRecoil.handleFaintAndResult(targetAfterPostDamage)
+	}
+
+	/**
+	 * 收拢普通伤害和替身伤害共享的“造成实际伤害后”流程。
+	 *
+	 * 目标本体受伤时启用低体力道具、接触特性和倒下判定；替身受伤时关闭这些目标侧 hook，但仍保留攻击方技能
+	 * HP 后效、休整和道具反伤，避免两条伤害路径出现重复实现。
+	 */
+	private fun finishPostDamageEffects(
+		context: TurnContext,
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		targetCanFaint: Boolean,
+		allowTargetLowHpItem: Boolean,
+		allowContactAbilities: Boolean,
+		random: BattleRandom?,
+	): TurnContext {
+		val afterSkillHpEffects = applyPostDamageSkillHpEffects(
+			state = state,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val afterSkillRecharge = applySkillRechargeAfterDamage(
+			state = afterSkillHpEffects,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val afterTargetLowHpItem = if (allowTargetLowHpItem) {
+			applyLowHpHealingItem(afterSkillRecharge, targetActorId)
+		} else {
+			afterSkillRecharge
+		}
+		val afterContactAbilities = if (allowContactAbilities && random != null) {
+			applyContactAbilityEffects(
+				state = afterTargetLowHpItem,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				skill = skill,
+				random = random,
+			)
+		} else {
+			afterTargetLowHpItem
+		}
+		val afterRecoil = applyPostDamageItemEffects(
+			state = afterContactAbilities,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val actorAfterPostDamage = afterRecoil.participant(actorId)
+		val afterTargetFaint = if (targetCanFaint) {
+			val targetAfterPostDamage = afterRecoil.participant(targetActorId)
+			if (targetAfterPostDamage == null) afterRecoil else afterRecoil.handleFaintAndResult(targetAfterPostDamage)
+		} else {
+			afterRecoil
+		}
 		if (afterTargetFaint.result != null) {
 			return context.copy(state = afterTargetFaint)
 		}
-		return context.copy(state = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage))
+		return context.copy(
+			state = actorAfterPostDamage?.let { afterTargetFaint.handleFaintAndResult(it) } ?: afterTargetFaint,
+		)
 	}
 
 	/**
@@ -710,6 +822,7 @@ class BattleEngine(
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
+					is BattleSkillHpEffect.CreateSubstitute,
 					is BattleSkillHpEffect.SelfHealMaxHpFraction,
 					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> current
 				}
@@ -851,6 +964,13 @@ class BattleEngine(
 							denominator = fraction.denominator,
 						)
 					}
+					is BattleSkillHpEffect.CreateSubstitute -> applyCreateSubstitute(
+						state = current,
+						actorId = actorId,
+						skill = skill,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
 					is BattleSkillHpEffect.DrainDamage -> current
 					is BattleSkillHpEffect.RecoilByDamageDealt -> current
 				}
@@ -885,6 +1005,42 @@ class BattleEngine(
 					actorId = actor.actorId,
 					skillId = skill.skillId,
 					amount = healAmount,
+				),
+			)
+	}
+
+	/**
+	 * 支付使用者最大 HP 的固定比例来建立替身。
+	 *
+	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，
+	 * 但不产生额外事件；成功时本体扣除费用、替身获得同等 HP，并用专用事件记录该运行态事实。
+	 */
+	private fun applyCreateSubstitute(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.hasSubstitute()) {
+			return state
+		}
+		val hpCost = fractionAmount(actor.maxHp, numerator, denominator)
+			.coerceAtMost(actor.maxHp - 1)
+		if (actor.currentHp <= hpCost) {
+			return state
+		}
+		val substituted = actor.startSubstitute(hpCost)
+		return state
+			.replaceParticipant(substituted)
+			.appendEvent(
+				BattleEvent.SubstituteStarted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					hpCost = hpCost,
+					substituteHp = substituted.substituteHp,
 				),
 			)
 	}
@@ -2018,7 +2174,7 @@ class BattleEngine(
 			return state
 		}
 		val status = if (hazard.layers >= 2) BattleMajorStatus.BAD_POISON else BattleMajorStatus.POISON
-		val blockedReason = blockedMajorStatusReason(state, participant, status)
+		val blockedReason = blockedMajorStatusReason(state, participant.actorId, participant, status)
 		if (blockedReason != null) {
 			return state.appendEvent(
 				BattleEvent.EntryHazardStatusApplicationBlocked(
@@ -2605,7 +2761,7 @@ class BattleEngine(
 		val blockedReason = if (recipient.majorStatus != null) {
 			BattleStatusBlockReason.EXISTING_STATUS
 		} else {
-			blockedMajorStatusReason(state, recipient, status)
+			blockedMajorStatusReason(state, actorId, recipient, status)
 		}
 		if (blockedReason != null) {
 			return state.appendEvent(
@@ -2644,12 +2800,14 @@ class BattleEngine(
 	 */
 	private fun blockedMajorStatusReason(
 		state: BattleState,
+		actorId: String,
 		recipient: BattleParticipant,
 		status: BattleMajorStatus,
 	): BattleStatusBlockReason? =
 		when {
 			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
+			substituteBlocksOpponentEffect(state, actorId, recipient.actorId) -> BattleStatusBlockReason.SUBSTITUTE
 			statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
@@ -2694,6 +2852,26 @@ class BattleEngine(
 			BattleTerrain.MISTY -> true
 			else -> false
 		}
+	}
+
+	/**
+	 * 判断目标替身是否会阻止来自对手的技能伤害或状态效果。
+	 *
+	 * 替身只保护当前有替身的成员免受对手技能影响；使用者对自己施加的效果、同侧辅助效果以及目标没有替身时
+	 * 都不会被这里阻止。穿透替身、声音类穿透、接棒传递等例外后续会以明确技能标签或状态规则扩展。
+	 */
+	private fun substituteBlocksOpponentEffect(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+	): Boolean {
+		val target = state.participant(targetActorId) ?: return false
+		if (!target.hasSubstitute()) {
+			return false
+		}
+		val actorSide = state.sideOf(actorId)?.sideId ?: return false
+		val targetSide = state.sideOf(targetActorId)?.sideId ?: return false
+		return actorSide != targetSide
 	}
 
 	/**
@@ -2780,7 +2958,7 @@ class BattleEngine(
 				),
 			)
 		}
-		val blockedReason = blockedVolatileStatusReason(state, recipient, status)
+		val blockedReason = blockedVolatileStatusReason(state, actorId, recipient, status)
 		if (blockedReason != null) {
 			return state.appendEvent(
 				BattleEvent.VolatileStatusApplicationBlocked(
@@ -2818,11 +2996,13 @@ class BattleEngine(
 	 */
 	private fun blockedVolatileStatusReason(
 		state: BattleState,
+		actorId: String,
 		recipient: BattleParticipant,
 		status: BattleVolatileStatus,
 	): BattleStatusBlockReason? =
 		when {
 			volatileStatusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
+			substituteBlocksOpponentEffect(state, actorId, recipient.actorId) -> BattleStatusBlockReason.SUBSTITUTE
 			volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null

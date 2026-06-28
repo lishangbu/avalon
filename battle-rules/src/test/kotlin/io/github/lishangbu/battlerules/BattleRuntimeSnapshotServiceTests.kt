@@ -90,7 +90,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(14, 38, 39, 45, 63, 71, 76, 77, 78, 79, 85, 87, 94, 95, 103, 105, 113, 115, 147, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 694),
+			listOf(14, 38, 39, 45, 63, 71, 76, 77, 78, 79, 85, 87, 94, 95, 103, 105, 113, 115, 147, 164, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -249,6 +249,13 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(recover.numerator).isEqualTo(1)
 		assertThat(recover.denominator).isEqualTo(2)
+
+		val substitute = slots.getValue(164)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.CreateSubstitute>()
+			.single()
+		assertThat(substitute.numerator).isEqualTo(1)
+		assertThat(substitute.denominator).isEqualTo(4)
 
 		val weatherHealing = slots.getValue(235)
 			.hpEffects

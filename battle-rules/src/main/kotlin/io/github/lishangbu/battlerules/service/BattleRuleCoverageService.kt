@@ -577,6 +577,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖首次使用消耗 PP 并进入蓄力、下一次技能行动自动释放且不重复扣 PP、主动替换阻止、指定天气跳过蓄力、一次性道具消费后同回合释放，以及释放阶段复用普通命中和伤害流程。",
 			),
 			item(
+				code = "turn.substitute",
+				name = "替身建立、代伤和状态阻止",
+				category = "技能流程",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"substitute-pays-quarter-max-hp-and-absorbs-damage-until-broken",
+					"substitute-keeps-remaining-hp-after-partial-damage",
+					"substitute-blocks-opponent-major-status",
+					"substitute-blocks-opponent-volatile-status",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
+				),
+				note = "已覆盖支付最大 HP 1/4 建立替身、对手普通伤害先扣替身 HP、替身破裂或保留剩余 HP，以及替身阻止对手主要异常状态和混乱等临时状态。",
+			),
+			item(
 				code = "skill.major-status-effects",
 				name = "技能主要异常状态附加",
 				category = "技能效果",

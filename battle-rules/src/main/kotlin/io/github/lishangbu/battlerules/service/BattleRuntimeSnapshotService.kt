@@ -955,6 +955,12 @@ class BattleRuntimeSnapshotService(
 					),
 				),
 			)
+			"create-substitute-quarter-max-hp" -> listOf(
+				BattleSkillHpEffect.CreateSubstitute(
+					numerator = 1,
+					denominator = 4,
+				),
+			)
 			else -> emptyList()
 		}
 

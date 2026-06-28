@@ -10,7 +10,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
  * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
- * 讲究类道具锁定技能，以及畏缩/混乱等临时状态。
+ * 讲究类道具锁定技能、替身剩余 HP，以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -52,6 +52,7 @@ data class BattleParticipant(
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 	val choiceLockedSkillId: Long? = null,
+	val substituteHp: Int = 0,
 ) {
 	init {
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
@@ -118,6 +119,9 @@ data class BattleParticipant(
 		require(choiceLockedSkillId == null || choiceLockedSkillId > 0) {
 			"choiceLockedSkillId must be positive when present"
 		}
+		require(substituteHp in 0 until maxHp) {
+			"substituteHp must be non-negative and less than maxHp"
+		}
 	}
 
 	/**
@@ -139,6 +143,42 @@ data class BattleParticipant(
 	fun heal(amount: Int): BattleParticipant {
 		require(amount >= 0) { "heal amount must not be negative" }
 		return copy(currentHp = (currentHp + amount).coerceAtMost(maxHp))
+	}
+
+	/**
+	 * 判断成员当前是否拥有替身。
+	 */
+	fun hasSubstitute(): Boolean = substituteHp > 0
+
+	/**
+	 * 支付 HP 并建立替身。
+	 *
+	 * `hpCost` 同时也是替身初始 HP。调用方必须先判断成员没有既有替身、仍可战斗且当前 HP 高于费用；
+	 * 这里保留 require 作为状态机不变量保护，避免资料层或测试误把失败的替身创建写入运行态。
+	 */
+	fun startSubstitute(hpCost: Int): BattleParticipant {
+		require(hpCost > 0) { "substitute HP cost must be positive" }
+		require(!hasSubstitute()) { "participant already has a substitute" }
+		require(currentHp > hpCost) { "participant must have more HP than substitute cost" }
+		return copy(
+			currentHp = currentHp - hpCost,
+			substituteHp = hpCost,
+		)
+	}
+
+	/**
+	 * 让替身承受伤害。
+	 *
+	 * 返回值只修改替身剩余 HP，不修改成员本体 HP。调用方负责根据返回值追加“替身受击”或“替身破裂”等事件，
+	 * 并决定本次技能后续效果是否仍被替身阻止。
+	 */
+	fun damageSubstitute(amount: Int): BattleParticipant {
+		require(amount >= 0) { "substitute damage amount must not be negative" }
+		return if (amount == 0 || substituteHp == 0) {
+			this
+		} else {
+			copy(substituteHp = (substituteHp - amount).coerceAtLeast(0))
+		}
 	}
 
 	/**
@@ -473,5 +513,6 @@ data class BattleParticipant(
 			lockedMoveTurnsRemaining = 0,
 			lockedMoveConfusesOnEnd = false,
 			choiceLockedSkillId = null,
+			substituteHp = 0,
 		)
 }

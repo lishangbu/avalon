@@ -9,6 +9,7 @@ package io.github.lishangbu.battleengine.model
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例承受反作用伤害。
  * - 变化技能成功后，使用者按自身最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
+ * - 变化技能成功后，支付最大 HP 的一定比例建立替身。
  *
  * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
  * 而不是把条件藏进自由文本。
@@ -97,6 +98,24 @@ sealed interface BattleSkillHpEffect {
 		init {
 			require(weatherFractions.isNotEmpty()) { "weatherFractions must not be empty" }
 			require(BattleWeather.NONE !in weatherFractions.keys) { "weather-specific healing cannot target NONE" }
+		}
+	}
+
+	/**
+	 * 技能成功后支付最大 HP 的固定比例建立替身。
+	 *
+	 * 该效果用于表达现代主系列中的替身核心动作：使用者必须拥有多于费用的当前 HP，且当前没有替身；
+	 * 成功后本体扣除费用，替身获得同等 HP。替身随后由状态机在伤害和状态附加阶段读取，吸收来自对手的普通伤害，
+	 * 并阻止多数主要异常状态和临时状态。接棒传递、穿透替身、束缚和其它复杂例外会用后续显式规则继续扩展。
+	 */
+	data class CreateSubstitute(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleSkillHpEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
 		}
 	}
 }
