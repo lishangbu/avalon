@@ -133,6 +133,21 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能被目标侧当前上场成员的特性阻挡。
+	 *
+	 * 当前用于阻止对手先制技能影响特性拥有者或同侧伙伴。技能已经使用且 PP 已消耗，但不会继续进入命中、
+	 * 伤害或附加效果流程。事件记录特性拥有者和特性 ID，不记录本地化特性名称。
+	 */
+	data class SkillBlockedByAbility(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val abilityHolderActorId: String,
+		val abilityId: Long?,
+	) : BattleEvent
+
+	/**
 	 * 技能被目标属性天然免疫。
 	 *
 	 * 当前用于草属性目标免疫粉末类技能。技能已经使用且 PP 已消耗，但不会继续进入命中、伤害或附加效果流程。

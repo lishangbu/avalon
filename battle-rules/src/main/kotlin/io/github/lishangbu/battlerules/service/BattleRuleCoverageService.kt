@@ -295,6 +295,24 @@ class BattleRuleCoverageService {
 				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标和同侧目标不受影响。",
 			),
 			item(
+				code = "ability.priority-move-block",
+				name = "特性阻止对手先制技能",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"priority-blocking-ability-blocks-opponent-priority-move-against-holder",
+					"priority-blocking-ability-protects-active-ally-from-opponent-priority-move",
+					"priority-blocking-ability-does-not-block-ally-priority-move",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Queenly_Majesty_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Dazzling_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Armor_Tail_(Ability)",
+				),
+				note = "已覆盖目标自身特性和同侧伙伴特性阻止对手先制技能；同侧成员主动使用先制技能不受阻挡。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

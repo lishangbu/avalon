@@ -412,6 +412,13 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.abilityEffectsByAbilityId(5))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.SurviveFatalDamageAtFullHp::class.java)
 
+		assertThat(service.abilityEffectsByAbilityId(214))
+			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
+		assertThat(service.abilityEffectsByAbilityId(219))
+			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
+		assertThat(service.abilityEffectsByAbilityId(296))
+			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 

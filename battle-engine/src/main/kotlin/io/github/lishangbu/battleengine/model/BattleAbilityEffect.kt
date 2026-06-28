@@ -4,8 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 特性在战斗中的可执行效果。
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
- * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、天气下速度修正、天气伤害免疫、天气下回合末回复、
- * 受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
+ * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、阻止对手先制技能影响己方、天气下速度修正、
+ * 天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
  * 以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
@@ -114,6 +114,17 @@ sealed interface BattleAbilityEffect {
 			require(remainingHp > 0) { "remainingHp must be positive" }
 		}
 	}
+
+	/**
+	 * 阻止对手先制技能影响拥有者所在一侧。
+	 *
+	 * 现代规则中，这类特性保护拥有者和同侧伙伴，不阻止同侧成员主动使用先制技能，也不阻止没有目标到己方成员的
+	 * 场地、撒场或自我目标技能。`protectsAllies` 保留为结构化字段，便于后续接入只保护自身的变体时不改变事件
+	 * 和状态机入口。
+	 */
+	data class PriorityMoveImmunityForSide(
+		val protectsAllies: Boolean = true,
+	) : BattleAbilityEffect
 
 	data class LowHpElementDamageBoost(
 		val elementId: Long,

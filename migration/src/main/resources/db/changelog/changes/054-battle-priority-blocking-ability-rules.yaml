@@ -1,0 +1,183 @@
+databaseChangeLog:
+- changeSet:
+    id: 054-battle-priority-blocking-ability-rules
+    author: backend
+    comment: 新增阻止对手先制技能影响己方的特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: ability_id, valueNumeric: 214 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: side-priority-move-immunity }
+        - column: { name: trigger_order, valueNumeric: 70 }
+        - column: { name: description, value: 当前上场时阻止对手先制技能影响自身或同侧伙伴。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 230 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: ability_id, valueNumeric: 219 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: side-priority-move-immunity }
+        - column: { name: trigger_order, valueNumeric: 70 }
+        - column: { name: description, value: 当前上场时阻止对手先制技能影响自身或同侧伙伴。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 240 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: ability_id, valueNumeric: 296 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: side-priority-move-immunity }
+        - column: { name: trigger_order, valueNumeric: 70 }
+        - column: { name: description, value: 当前上场时阻止对手先制技能影响自身或同侧伙伴。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 250 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 110 }
+        - column: { name: code, value: priority-blocking-ability-blocks-opponent-priority-move-against-holder }
+        - column: { name: name, value: 先制阻挡特性保护拥有者 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证当前上场成员的先制阻挡特性会阻止对手先制技能影响自身。 }
+        - column: { name: input_summary, value: 目标拥有阻止对手先制技能影响己方的结构化特性，对手使用先制攻击指定该目标。 }
+        - column: { name: expected_summary, value: 技能消耗 PP 后被目标特性阻挡，不产生命中、伤害或附加效果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1100 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 111 }
+        - column: { name: code, value: priority-blocking-ability-protects-active-ally-from-opponent-priority-move }
+        - column: { name: name, value: 先制阻挡特性保护同侧伙伴 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证双打中同侧当前上场伙伴的先制阻挡特性会保护目标。 }
+        - column: { name: input_summary, value: 目标没有阻挡特性，但同侧另一个当前上场成员拥有先制阻挡特性，对手使用先制攻击指定目标。 }
+        - column: { name: expected_summary, value: 技能消耗 PP 后被伙伴特性阻挡，目标不受到伤害，事件记录实际特性拥有者。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1110 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 112 }
+        - column: { name: code, value: priority-blocking-ability-does-not-block-ally-priority-move }
+        - column: { name: name, value: 先制阻挡特性不阻止同侧先制技能 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证先制阻挡特性只阻止对手先制技能，不阻止同侧成员主动使用先制技能。 }
+        - column: { name: input_summary, value: 同侧成员对拥有先制阻挡特性的伙伴使用先制攻击。 }
+        - column: { name: expected_summary, value: 特性不触发，技能按普通伤害流程结算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1120 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 235 }
+        - column: { name: fixture_id, valueNumeric: 110 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照阻止对手先制技能的特性触发条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 236 }
+        - column: { name: fixture_id, valueNumeric: 110 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Queenly_Majesty_(Ability) }
+        - column: { name: source_label, value: 先制阻挡特性公开说明 }
+        - column: { name: source_note, value: 用于验证目标自身特性阻止对手先制技能。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 237 }
+        - column: { name: fixture_id, valueNumeric: 111 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照先制阻挡特性保护同侧伙伴的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 238 }
+        - column: { name: fixture_id, valueNumeric: 111 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Dazzling_(Ability) }
+        - column: { name: source_label, value: 先制阻挡特性公开说明 }
+        - column: { name: source_note, value: 用于验证同侧伙伴的特性保护目标。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 239 }
+        - column: { name: fixture_id, valueNumeric: 111 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Armor_Tail_(Ability) }
+        - column: { name: source_label, value: 先制阻挡特性公开说明 }
+        - column: { name: source_note, value: 用于验证同类特性共享同一结构化规则。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 240 }
+        - column: { name: fixture_id, valueNumeric: 112 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于验证同侧成员使用先制技能不会被阻挡。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 241 }
+        - column: { name: fixture_id, valueNumeric: 112 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Queenly_Majesty_(Ability) }
+        - column: { name: source_label, value: 先制阻挡特性公开说明 }
+        - column: { name: source_note, value: 用于验证先制阻挡特性只针对对手。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 110 }
+        - column: { name: run_code, value: priority-blocking-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 110 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:28:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:31:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 1100 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 111 }
+        - column: { name: run_code, value: priority-blocking-ability-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 111 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:28:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:31:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1110 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 112 }
+        - column: { name: run_code, value: priority-blocking-ability-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 112 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T05:28:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T05:31:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1120 }

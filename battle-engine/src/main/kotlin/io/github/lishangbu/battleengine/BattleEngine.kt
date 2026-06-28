@@ -464,6 +464,27 @@ class BattleEngine(
 			)
 		}
 
+		val priorityBlocker = priorityMoveAbilityBlocker(state, actor, target, skill)
+		if (priorityBlocker != null) {
+			return context.copy(
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByAbility(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							abilityHolderActorId = priorityBlocker.actorId,
+							abilityId = priorityBlocker.abilityId,
+						),
+					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
+		}
+
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -1465,6 +1486,35 @@ class BattleEngine(
 			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
 
 	/**
+	 * 返回阻止本次先制技能影响目标侧的特性拥有者。
+	 *
+	 * 这类特性保护拥有者所在一侧的当前上场成员；同侧成员主动对自己或伙伴使用先制技能时不触发。返回具体拥有者
+	 * 是为了让事件流在双打中能区分“目标自身阻挡”和“伙伴特性保护”。
+	 */
+	private fun priorityMoveAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (skill.priority <= 0) {
+			return null
+		}
+		val actorSide = state.sideOf(actor.actorId) ?: return null
+		val targetSide = state.sideOf(target.actorId) ?: return null
+		if (actorSide.sideId == targetSide.sideId) {
+			return null
+		}
+		return targetSide.activeParticipants()
+			.firstOrNull { participant ->
+				val effect = participant.abilityEffects
+					.filterIsInstance<BattleAbilityEffect.PriorityMoveImmunityForSide>()
+					.firstOrNull() ?: return@firstOrNull false
+				participant.canBattle() && (participant.actorId == target.actorId || effect.protectsAllies)
+			}
+	}
+
+	/**
 	 * 判断粉末类技能是否被目标属性免疫。
 	 *
 	 * 现代规则中，草属性成员天然免疫粉末/孢子类技能。这里返回实际触发免疫的属性 ID，便于事件流记录；
@@ -2439,6 +2489,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
+			is BattleAbilityEffect.PriorityMoveImmunityForSide,
 			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
@@ -3648,6 +3699,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.PriorityMoveImmunityForSide,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,
@@ -3670,6 +3722,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.PriorityMoveImmunityForSide,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 				is BattleAbilityEffect.SwitchInTerrainChange,

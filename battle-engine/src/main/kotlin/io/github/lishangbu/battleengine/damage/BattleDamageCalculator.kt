@@ -226,6 +226,7 @@ class BattleDamageCalculator(
 				}
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
+				is BattleAbilityEffect.PriorityMoveImmunityForSide -> multiplier
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp -> multiplier
 				is BattleAbilityEffect.SwitchInTerrainChange -> multiplier
