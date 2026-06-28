@@ -73,6 +73,7 @@ class LiquibaseMigrationTests(
 			"024-battle-skill-user-stat-stage-effects.yaml",
 			"025-battle-skill-target-stat-stage-effects.yaml",
 			"026-battle-skill-major-status-effects.yaml",
+			"027-battle-rule-fixtures.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -268,6 +269,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.format-restrictions",
 			"battle-rules.format-special-mechanics",
 			"battle-rules.formats",
+			"battle-rules.fixtures",
 			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
 			"battle-rules.skill-rules",
@@ -275,6 +277,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.skill-status-effects",
 			"battle-rules.status-rules",
 			"battle-rules.terrain-rules",
+			"battle-rules.test-runs",
 			"battle-rules.weather-rules",
 		)
 		assertThat(accessNodeCodes).containsAll(battleRulesAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes)
@@ -458,6 +461,9 @@ class LiquibaseMigrationTests(
 			"battle_skill_weather_power_modifier",
 			"battle_ability_rule",
 			"battle_item_rule",
+			"battle_rule_fixture",
+			"battle_rule_fixture_source",
+			"battle_rule_test_run",
 		)
 
 		val seedCounts = queryMaps(
@@ -481,6 +487,9 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
+			union all select 'battle_rule_fixture', count(*) from battle_rule_fixture
+			union all select 'battle_rule_fixture_source', count(*) from battle_rule_fixture_source
+			union all select 'battle_rule_test_run', count(*) from battle_rule_test_run
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
@@ -503,6 +512,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 4L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 8L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 4L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
