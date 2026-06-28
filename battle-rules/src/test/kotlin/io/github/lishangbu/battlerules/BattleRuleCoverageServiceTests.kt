@@ -29,6 +29,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "status.volatile-flinch-confusion" })
 		assertTrue(coverage.items.any { it.code == "terrain.grassy-heal" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.paralysis-speed-action" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "weather.sun-rain-damage" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.freeze" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.immunity-and-grounding" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "field.environment-duration" && it.status == "IMPLEMENTED" })
