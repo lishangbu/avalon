@@ -1,6 +1,9 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battleengine.model.BattleMode
+import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
+import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
+import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.service.BattleRuntimeSnapshotService
 import io.github.lishangbu.common.web.ApiErrorCode
 import io.github.lishangbu.common.web.ApiException
@@ -57,4 +60,57 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(exception.code).isEqualTo(ApiErrorCode.RESOURCE_NOT_FOUND)
 		assertThat(exception.field).isEqualTo("formatCode")
 	}
+
+	@Test
+	fun `preparation validation uses assembled official double rules`() {
+		val response = service.validatePreparation(
+			BattlePreparationValidationRequest(
+				formatCode = "official-double",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1", "a-2"),
+						participants = listOf(
+							participant("a-1", creatureId = 1, level = 60, itemId = 10),
+							participant("a-2", creatureId = 1, level = 50, itemId = 10),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1", "b-2"),
+						participants = listOf(
+							participant("b-1", creatureId = 1, level = 50, itemId = 10),
+							participant("b-2", creatureId = 2, level = 50, itemId = 11),
+						),
+					),
+				),
+			),
+		)
+
+		assertThat(response.valid).isFalse()
+		assertThat(response.violations.map { it.code }).containsExactlyInAnyOrder(
+			"level-too-high",
+			"duplicate-creature",
+			"duplicate-creature",
+			"duplicate-item",
+			"duplicate-item",
+		)
+		assertThat(response.violations.map { it.actorId }.toSet()).contains("a-1", "a-2")
+		assertThat(response.violations.map { it.actorId }).doesNotContain("b-1")
+	}
+
+	private fun participant(
+		actorId: String,
+		creatureId: Long,
+		level: Int,
+		itemId: Long,
+	): BattlePreparationParticipantRequest =
+		BattlePreparationParticipantRequest(
+			actorId = actorId,
+			creatureId = creatureId,
+			level = level,
+			skillIds = listOf(1, 2, 3, 4),
+			abilityId = 1,
+			itemId = itemId,
+		)
 }
