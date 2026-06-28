@@ -1,0 +1,537 @@
+databaseChangeLog:
+- changeSet:
+    id: 040-battle-rule-field-turn-fixtures
+    author: backend
+    comment: 新增顺风、戏法空间、入场陷阱、目标槽位、回合上限和保护公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 58 }
+        - column: { name: code, value: tailwind-doubles-user-side-speed-for-later-action-order }
+        - column: { name: name, value: 顺风让己方后续行动速度翻倍 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证顺风建立在使用者一侧后，后续行动排序按 2 倍速度参与比较并在回合末递减。 }
+        - column: { name: input_summary, value: 使用者速度 40，对手速度 70；使用者一侧建立顺风后，后续行动排序按 2 倍速度参与比较。 }
+        - column: { name: expected_summary, value: 顺风建立事件记录 2 倍速度修正和 4 回合初始持续；下一回合使用者有效速度 80，先于速度 70 的对手行动。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 580 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 59 }
+        - column: { name: code, value: trick-room-reverses-speed-order-inside-same-priority-bracket }
+        - column: { name: name, value: 戏法空间反转同优先度速度顺序 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证戏法空间建立后，同优先度行动按低速优先排序。 }
+        - column: { name: input_summary, value: 使用者建立戏法空间；后续同优先度行动中，速度 50 的成员和速度 100 的成员同时使用普通攻击。 }
+        - column: { name: expected_summary, value: 戏法空间建立事件记录 5 回合初始持续；下一回合同优先度行动按低速优先，速度 50 的成员先行动。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 590 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 60 }
+        - column: { name: code, value: trick-room-used-while-active-ends-the-field-speed-order-effect }
+        - column: { name: name, value: 戏法空间生效中再次使用会解除 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证戏法空间已经存在时再次成功使用同类全场速度顺序技能，会结束当前全场速度顺序效果。 }
+        - column: { name: input_summary, value: 全场已有剩余 4 回合的戏法空间，使用者再次成功使用戏法空间技能。 }
+        - column: { name: expected_summary, value: 引擎产生戏法空间结束事件并清空全场速度顺序效果，不重新写入新的持续回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 600 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 61 }
+        - column: { name: code, value: spikes-establishes-target-side-and-stacks-to-three-layers }
+        - column: { name: name, value: 撒菱建立目标侧并最多叠三层 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证一侧入场陷阱技能会放置在目标所在侧，撒菱层数按公开最大三层封顶。 }
+        - column: { name: input_summary, value: 一名成员连续三次成功使用一侧入场陷阱技能，目标为对手当前上场成员所在侧。 }
+        - column: { name: expected_summary, value: 目标侧陷阱层数依次变为 1、2、3；达到公开规则最大三层后再次使用不继续增加层数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 610 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 62 }
+        - column: { name: code, value: stealth-rock-damage-uses-rock-effectiveness-after-switch }
+        - column: { name: name, value: 隐形岩按岩属性相性造成入场伤害 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证隐形岩类入场陷阱在成员换入后，按岩属性对目标属性相性计算最大 HP 比例伤害。 }
+        - column: { name: input_summary, value: 目标侧已有隐形岩类入场陷阱，火属性后备成员主动换入，规则快照声明岩属性打火属性为 2 倍。 }
+        - column: { name: expected_summary, value: 换入事件先发生，随后按最大 HP * 2 / 8 扣除 25 点伤害，并记录入场陷阱专用伤害事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 620 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 63 }
+        - column: { name: code, value: spikes-third-layer-damages-grounded-switch-in-only }
+        - column: { name: name, value: 三层撒菱只伤害接地换入成员 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证撒菱伤害按层数结算，并只影响接地换入成员。 }
+        - column: { name: input_summary, value: 目标侧已有三层撒菱类入场陷阱；一个接地成员换入，另一个非接地成员在独立场景换入。 }
+        - column: { name: expected_summary, value: 接地成员受到最大 HP 1/4 的入场伤害，非接地成员不触发撒菱伤害事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 630 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 64 }
+        - column: { name: code, value: toxic-spikes-two-layers-badly-poisons-and-poison-element-absorbs }
+        - column: { name: name, value: 两层毒菱使接地换入成员剧毒且毒属性吸收 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证两层毒菱会让普通接地换入成员陷入剧毒，接地毒属性换入成员会吸收并移除毒菱。 }
+        - column: { name: input_summary, value: 目标侧已有两层毒菱类入场陷阱；普通接地成员换入，另一个接地毒属性成员在独立场景换入。 }
+        - column: { name: expected_summary, value: 普通接地成员获得剧毒；接地毒属性成员不获得异常状态，并移除该侧毒菱。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 640 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 65 }
+        - column: { name: code, value: sticky-web-lowers-grounded-switch-in-speed-stage }
+        - column: { name: name, value: 黏黏网降低接地换入成员速度阶级 }
+        - column: { name: category, value: FIELD }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证黏黏网类入场陷阱只对接地换入成员生效，并降低速度能力阶级 1 级。 }
+        - column: { name: input_summary, value: 目标侧已有黏黏网类入场陷阱；一个接地成员换入，另一个非接地成员在独立场景换入。 }
+        - column: { name: expected_summary, value: 接地成员速度能力阶级降低 1 级，非接地成员不触发能力阶级变化事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 650 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 66 }
+        - column: { name: code, value: single-target-move-follows-replacement-slot }
+        - column: { name: name, value: 单体技能跟随替换后的目标槽位 }
+        - column: { name: category, value: TURN }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证主动替换先于普通技能结算，单体技能会命中原目标槽位的新上场成员。 }
+        - column: { name: input_summary, value: 单打中一方主动替换，另一方本回合选择攻击原上场成员所在目标槽位。 }
+        - column: { name: expected_summary, value: 替换先结算，随后技能命中同一槽位的新上场成员。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 660 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: code, value: max-turn-limit-ends-battle-as-draw-after-end-turn-effects }
+        - column: { name: name, value: 回合上限在完整回合末裁定平局 }
+        - column: { name: category, value: FORMAT }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证赛制声明最大回合数时，引擎会在完整回合末检查上限并在没有胜方时判定平局。 }
+        - column: { name: input_summary, value: 格式声明最大回合数为 1，双方在第 1 回合结束时都仍可战斗。 }
+        - column: { name: expected_summary, value: 引擎在完整回合末按回合上限产生平局结果，不再追加普通回合结束事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 670 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 68 }
+        - column: { name: code, value: protect-move-blocks-ordinary-target-move }
+        - column: { name: name, value: 保护阻挡普通单体攻击 }
+        - column: { name: category, value: TURN }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证保护类变化技能以高优先度建立保护屏障后，可以阻挡同回合普通目标技能。 }
+        - column: { name: input_summary, value: 保护类变化技能以更高优先度先行动，同回合普通单体攻击以被保护成员为目标。 }
+        - column: { name: expected_summary, value: 保护屏障建立后，受保护影响的普通攻击被阻挡，目标 HP 不变化，双方仍正常消耗 PP。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 680 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 69 }
+        - column: { name: code, value: consecutive-protection-second-use-one-third-success }
+        - column: { name: name, value: 连续第二次保护以三分之一概率成功 }
+        - column: { name: category, value: TURN }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证连续使用保护类行动时，第二次保护按公开的约三分之一成功率判定，成功后仍能阻挡攻击。 }
+        - column: { name: input_summary, value: 保护类行动第一回合成功后，下一回合再次使用保护类行动。 }
+        - column: { name: expected_summary, value: 第二次连续保护按 1/3 成功率判定；掷中成功后继续阻挡本回合普通攻击。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 690 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 122 }
+        - column: { name: fixture_id, valueNumeric: 58 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎场上条件 }
+        - column: { name: source_note, value: 用于对照顺风的一侧速度修正和持续回合。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 123 }
+        - column: { name: fixture_id, valueNumeric: 58 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move) }
+        - column: { name: source_label, value: 顺风公开说明 }
+        - column: { name: source_note, value: 用于验证顺风倍速和基础持续回合。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 124 }
+        - column: { name: fixture_id, valueNumeric: 59 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照戏法空间技能和速度顺序效果。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 125 }
+        - column: { name: fixture_id, valueNumeric: 59 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move) }
+        - column: { name: source_label, value: 戏法空间公开说明 }
+        - column: { name: source_note, value: 用于验证同优先度内速度顺序反转。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 126 }
+        - column: { name: fixture_id, valueNumeric: 60 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照再次使用戏法空间时的解除语义。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 127 }
+        - column: { name: fixture_id, valueNumeric: 60 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move) }
+        - column: { name: source_label, value: 戏法空间公开说明 }
+        - column: { name: source_note, value: 用于验证戏法空间生效中再次使用会解除效果。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 128 }
+        - column: { name: fixture_id, valueNumeric: 61 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照入场陷阱技能目标侧和层数上限。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 129 }
+        - column: { name: fixture_id, valueNumeric: 61 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Spikes_(move) }
+        - column: { name: source_label, value: 撒菱公开说明 }
+        - column: { name: source_note, value: 用于验证撒菱最大三层。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 130 }
+        - column: { name: fixture_id, valueNumeric: 62 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照隐形岩入场伤害计算。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 131 }
+        - column: { name: fixture_id, valueNumeric: 62 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Stealth_Rock_(move) }
+        - column: { name: source_label, value: 隐形岩公开说明 }
+        - column: { name: source_note, value: 用于验证隐形岩按岩属性相性调整 HP 比例。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 132 }
+        - column: { name: fixture_id, valueNumeric: 63 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照撒菱伤害按层数和接地条件结算。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 133 }
+        - column: { name: fixture_id, valueNumeric: 63 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Spikes_(move) }
+        - column: { name: source_label, value: 撒菱公开说明 }
+        - column: { name: source_note, value: 用于验证三层撒菱的 1/4 最大 HP 伤害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 134 }
+        - column: { name: fixture_id, valueNumeric: 64 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照毒菱层数、剧毒和吸收规则。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 135 }
+        - column: { name: fixture_id, valueNumeric: 64 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Toxic_Spikes_(move) }
+        - column: { name: source_label, value: 毒菱公开说明 }
+        - column: { name: source_note, value: 用于验证两层毒菱剧毒和毒属性吸收。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 136 }
+        - column: { name: fixture_id, valueNumeric: 65 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照黏黏网接地条件和速度降阶。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 137 }
+        - column: { name: fixture_id, valueNumeric: 65 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sticky_Web_(move) }
+        - column: { name: source_label, value: 黏黏网公开说明 }
+        - column: { name: source_note, value: 用于验证换入时速度能力阶级降低。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 138 }
+        - column: { name: fixture_id, valueNumeric: 66 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开引擎行动结算 }
+        - column: { name: source_note, value: 用于对照主动替换与目标槽位重定向。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 139 }
+        - column: { name: fixture_id, valueNumeric: 66 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts }
+        - column: { name: source_label, value: 公开引擎行动队列 }
+        - column: { name: source_note, value: 用于验证普通技能跟随目标槽位而不是旧成员实例。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 140 }
+        - column: { name: fixture_id, valueNumeric: 67 }
+        - column: { name: source_url, value: "https://bulbapedia.bulbagarden.net/wiki/Battle#Turn" }
+        - column: { name: source_label, value: 回合公开规则说明 }
+        - column: { name: source_note, value: 用于验证完整回合末的回合上限裁定语义。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 141 }
+        - column: { name: fixture_id, valueNumeric: 68 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照保护类技能资料。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 142 }
+        - column: { name: fixture_id, valueNumeric: 68 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开引擎行动结算 }
+        - column: { name: source_note, value: 用于对照保护屏障阻挡普通攻击。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 143 }
+        - column: { name: fixture_id, valueNumeric: 69 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照保护类行动连续成功率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 144 }
+        - column: { name: fixture_id, valueNumeric: 69 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开引擎行动结算 }
+        - column: { name: source_note, value: 用于验证连续第二次保护成功后仍会阻挡攻击。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 58 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 58 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 580 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 59 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-2 }
+        - column: { name: fixture_id, valueNumeric: 59 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 590 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 60 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-3 }
+        - column: { name: fixture_id, valueNumeric: 60 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 600 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 61 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-4 }
+        - column: { name: fixture_id, valueNumeric: 61 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 610 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 62 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-5 }
+        - column: { name: fixture_id, valueNumeric: 62 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 620 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 63 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-6 }
+        - column: { name: fixture_id, valueNumeric: 63 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 630 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 64 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-7 }
+        - column: { name: fixture_id, valueNumeric: 64 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 640 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 65 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-8 }
+        - column: { name: fixture_id, valueNumeric: 65 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 650 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 66 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-9 }
+        - column: { name: fixture_id, valueNumeric: 66 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 660 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-10 }
+        - column: { name: fixture_id, valueNumeric: 67 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 670 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 68 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-11 }
+        - column: { name: fixture_id, valueNumeric: 68 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 680 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 69 }
+        - column: { name: run_code, value: field-turn-coverage-20260628-12 }
+        - column: { name: fixture_id, valueNumeric: 69 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 690 }
