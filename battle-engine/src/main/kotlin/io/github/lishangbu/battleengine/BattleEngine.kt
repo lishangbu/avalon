@@ -17,6 +17,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
@@ -172,6 +173,9 @@ class BattleEngine(
 		val actor = state.participant(action.actorId) ?: return context
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
+		}
+		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
+			return context.copy(state = consumeSleepBlockedAction(state, actor))
 		}
 		val skill = actor.skillSlot(action.skillId) ?: return context
 		val targets = targetsForSkill(state, actor.actorId, action.targetActorId, skill)
@@ -497,16 +501,14 @@ class BattleEngine(
 				if (!recipient.canBattle() || recipient.majorStatus != null) {
 					current
 				} else {
-					current
-						.replaceParticipant(recipient.applyMajorStatus(application.status))
-						.appendEvent(
-							BattleEvent.StatusApplied(
-								turnNumber = current.turnNumber,
-								actorId = actorId,
-								targetActorId = recipient.actorId,
-								status = application.status,
-							),
-						)
+					applyMajorStatusEffect(
+						state = current,
+						actorId = actorId,
+						recipient = recipient,
+						status = application.status,
+						random = random,
+						randomReason = "sleep duration for ${skill.skillId}",
+					)
 				}
 			}
 		}
@@ -539,6 +541,80 @@ class BattleEngine(
 	}
 
 	/**
+	 * 消耗睡眠对本次技能行动的阻止效果。
+	 *
+	 * 睡眠不消耗 PP、不产生技能使用事件，也不会继续进入命中或伤害流程。`BattleParticipant` 保存的是还会
+	 * 被阻止行动几次，因此每次阻止后递减；递减到 0 时立即清除睡眠，并记录状态解除事件，供 replay 对齐。
+	 */
+	private fun consumeSleepBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
+		val turnsRemainingBefore = actor.sleepTurnsRemaining
+		val updated = actor.consumeSleepBlockedTurn()
+		val blocked = state
+			.replaceParticipant(updated)
+			.appendEvent(
+				BattleEvent.SkillPreventedBySleep(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					turnsRemainingBefore = turnsRemainingBefore,
+				),
+			)
+		return if (updated.majorStatus == null) {
+			blocked.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					status = BattleMajorStatus.SLEEP,
+				),
+			)
+		} else {
+			blocked
+		}
+	}
+
+	/**
+	 * 附加主要异常状态并处理现代场地免疫和状态私有计数。
+	 *
+	 * 睡眠附加成功时消费一个 `[0, 3)` 随机数并转成 1..3 次阻止行动；其它主要异常状态不消费持续回合随机数。
+	 * 当前尚未建模“是否接地”，因此电气场地只按当前上场成员处理睡眠免疫。该函数不覆盖已有主要异常状态，
+	 * 调用方需要在进入前完成“已有状态”判断。
+	 */
+	private fun applyMajorStatusEffect(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+		random: BattleRandom,
+		randomReason: String,
+	): BattleState {
+		if (status == BattleMajorStatus.SLEEP && state.environment.terrain == BattleTerrain.ELECTRIC && state.isActive(recipient.actorId)) {
+			return state.appendEvent(
+				BattleEvent.StatusApplicationBlocked(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+					reason = BattleStatusBlockReason.TERRAIN,
+				),
+			)
+		}
+		val sleepTurnsRemaining = if (status == BattleMajorStatus.SLEEP) {
+			random.nextInt(3, randomReason) + 1
+		} else {
+			0
+		}
+		return state
+			.replaceParticipant(recipient.applyMajorStatus(status, sleepTurnsRemaining))
+			.appendEvent(
+				BattleEvent.StatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+				),
+			)
+	}
+
+	/**
 	 * 处理目标方“受到接触技能后影响攻击方”的特性效果。
 	 *
 	 * 第一批只实现概率附加主要异常状态。该 hook 在伤害事件之后、反伤和倒下判定之前执行，
@@ -564,16 +640,14 @@ class BattleEngine(
 				} else if (!chanceSucceeds(effect.chancePercent, random, "contact status for $targetActorId")) {
 					current
 				} else {
-					current
-						.replaceParticipant(actor.applyMajorStatus(effect.status))
-						.appendEvent(
-							BattleEvent.StatusApplied(
-								turnNumber = current.turnNumber,
-								actorId = targetActorId,
-								targetActorId = actor.actorId,
-								status = effect.status,
-							),
-						)
+					applyMajorStatusEffect(
+						state = current,
+						actorId = targetActorId,
+						recipient = actor,
+						status = effect.status,
+						random = random,
+						randomReason = "contact sleep duration for $targetActorId",
+					)
 				}
 			}
 	}

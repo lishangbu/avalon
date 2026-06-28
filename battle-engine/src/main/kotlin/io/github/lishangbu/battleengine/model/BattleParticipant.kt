@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 连续保护计数和剧毒计数。
+ * 连续保护计数、剧毒计数和睡眠剩余阻止行动次数。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -31,6 +31,7 @@ data class BattleParticipant(
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val protectionChain: Int = 0,
 	val badPoisonCounter: Int = 0,
+	val sleepTurnsRemaining: Int = 0,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
@@ -53,6 +54,13 @@ data class BattleParticipant(
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
 		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
+		require(sleepTurnsRemaining >= 0) { "sleepTurnsRemaining must not be negative" }
+		require(majorStatus == BattleMajorStatus.SLEEP || sleepTurnsRemaining == 0) {
+			"sleepTurnsRemaining must be zero unless participant is asleep"
+		}
+		require(majorStatus != BattleMajorStatus.SLEEP || sleepTurnsRemaining > 0) {
+			"sleepTurnsRemaining must be positive when participant is asleep"
+		}
 	}
 
 	/**
@@ -91,16 +99,50 @@ data class BattleParticipant(
 	/**
 	 * 附加主要异常状态。
 	 *
-	 * 第一批不允许覆盖已有主要异常状态；调用方应在事件层决定是否记录失败原因。
+	 * 第一批不允许覆盖已有主要异常状态；调用方应在事件层决定是否记录失败原因。睡眠状态使用
+	 * `sleepTurnsRemaining` 表达还会阻止行动几次，而不是保存历史版本的原始睡眠计数。
 	 */
-	fun applyMajorStatus(status: BattleMajorStatus): BattleParticipant =
-		if (majorStatus == null) {
+	fun applyMajorStatus(status: BattleMajorStatus, sleepTurnsRemaining: Int = 0): BattleParticipant {
+		require(status == BattleMajorStatus.SLEEP || sleepTurnsRemaining == 0) {
+			"sleepTurnsRemaining can only be set for sleep"
+		}
+		require(status != BattleMajorStatus.SLEEP || sleepTurnsRemaining > 0) {
+			"sleepTurnsRemaining must be positive for sleep"
+		}
+		return if (majorStatus == null) {
 			copy(
 				majorStatus = status,
 				badPoisonCounter = if (status == BattleMajorStatus.BAD_POISON) 1 else 0,
+				sleepTurnsRemaining = if (status == BattleMajorStatus.SLEEP) sleepTurnsRemaining else 0,
 			)
 		} else {
 			this
+		}
+	}
+
+	/**
+	 * 消耗一次睡眠阻止行动次数。
+	 *
+	 * 返回值只修改成员运行态，不产生事件；调用方需要根据 `sleepTurnsRemaining` 的前后变化追加
+	 * “睡眠阻止行动”或“状态解除”等可观察事实。
+	 */
+	fun consumeSleepBlockedTurn(): BattleParticipant =
+		if (majorStatus == BattleMajorStatus.SLEEP && sleepTurnsRemaining > 1) {
+			copy(sleepTurnsRemaining = sleepTurnsRemaining - 1)
+		} else if (majorStatus == BattleMajorStatus.SLEEP) {
+			copy(majorStatus = null, sleepTurnsRemaining = 0)
+		} else {
+			this
+		}
+
+	/**
+	 * 清除主要异常状态以及该状态绑定的运行态计数。
+	 */
+	fun clearMajorStatus(): BattleParticipant =
+		if (majorStatus == null) {
+			this
+		} else {
+			copy(majorStatus = null, badPoisonCounter = 0, sleepTurnsRemaining = 0)
 		}
 
 	/**
@@ -150,8 +192,8 @@ data class BattleParticipant(
 	 * 处理成员离开上场席位时应清除的运行态。
 	 *
 	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
-	 * 剧毒状态会保留，但剧毒递增计数回到 1。后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失
-	 * 的状态也应在这里统一清理。
+	 * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
+	 * 后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失的状态也应在这里统一清理。
 	 */
 	fun leaveBattlefield(): BattleParticipant =
 		copy(

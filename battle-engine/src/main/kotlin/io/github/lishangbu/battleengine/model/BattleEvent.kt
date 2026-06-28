@@ -86,6 +86,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因睡眠无法执行本次技能行动。
+	 *
+	 * `turnsRemainingBefore` 记录本次判定前还会被阻止行动几次。事件产生后，引擎会消耗一次计数；
+	 * 若计数归零，会继续追加 `StatusCleared` 事件。
+	 */
+	data class SkillPreventedBySleep(
+		override val turnNumber: Int,
+		val actorId: String,
+		val turnsRemainingBefore: Int,
+	) : BattleEvent
+
+	/**
 	 * 一次伤害已经结算到目标身上。
 	 *
 	 * `amount` 可以为 0，用于表达属性免疫等“技能已经命中流程但没有造成 HP 变化”的情况。
@@ -104,10 +116,42 @@ sealed interface BattleEvent {
 		val criticalHit: Boolean = false,
 	) : BattleEvent
 
+	/**
+	 * 目标成功获得主要异常状态。
+	 *
+	 * 该事件只在状态真正写入成员运行态后产生；命中但被场地、特性、道具或既有状态阻止的情况，
+	 * 应使用独立阻止事件表达，避免 replay 端误判目标已经带有该状态。
+	 */
 	data class StatusApplied(
 		override val turnNumber: Int,
 		val actorId: String,
 		val targetActorId: String,
+		val status: BattleMajorStatus,
+	) : BattleEvent
+
+	/**
+	 * 目标试图获得主要异常状态，但被规则条件阻止。
+	 *
+	 * 阻止事件保留行动者、目标、状态和稳定原因，便于对照测试确认“没有写入状态”也是一个可观察结果。
+	 * 第一批主要用于场地阻止睡眠；后续免疫类规则会继续扩展 [BattleStatusBlockReason]。
+	 */
+	data class StatusApplicationBlocked(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val status: BattleMajorStatus,
+		val reason: BattleStatusBlockReason,
+	) : BattleEvent
+
+	/**
+	 * 成员已有的主要异常状态被清除。
+	 *
+	 * 该事件由状态计数归零或后续治愈规则产生，不表示目标重新获得了行动机会；
+	 * 行动是否已经被阻止仍以同一回合内更早的 `SkillPreventedBySleep` 等事件为准。
+	 */
+	data class StatusCleared(
+		override val turnNumber: Int,
+		val actorId: String,
 		val status: BattleMajorStatus,
 	) : BattleEvent
 
