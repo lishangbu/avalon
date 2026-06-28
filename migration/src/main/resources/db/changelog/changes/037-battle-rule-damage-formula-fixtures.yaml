@@ -1,0 +1,420 @@
+databaseChangeLog:
+- changeSet:
+    id: 037-battle-rule-damage-formula-fixtures
+    author: backend
+    comment: 新增基础伤害公式、双打倍率和天气伤害修正公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 31 }
+        - column: { name: code, value: level-50-neutral-same-element-physical-damage }
+        - column: { name: name, value: 等级 50 同属性普通物理伤害 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证现代普通伤害公式的等级、威力、攻防、同属性和随机浮动基础路径。 }
+        - column: { name: input_summary, value: 等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%。 }
+        - column: { name: expected_summary, value: 基础伤害 19，同属性倍率 1.5，最终伤害 28。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 310 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 32 }
+        - column: { name: code, value: level-50-neutral-same-element-critical-hit-damage }
+        - column: { name: name, value: 等级 50 同属性击中要害伤害 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证现代击中要害按 1.5 倍参与最终伤害倍率链。 }
+        - column: { name: input_summary, value: 等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%，击中要害。 }
+        - column: { name: expected_summary, value: 基础伤害 19，同属性倍率 1.5，现代击中要害倍率 1.5，最终伤害 42。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 320 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 33 }
+        - column: { name: code, value: double-battle-spread-damage-uses-three-quarter-target-modifier }
+        - column: { name: name, value: 双打范围技能使用四分之三目标倍率 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证双打中范围技能命中多个目标时，每个目标独立套用 0.75 目标倍率。 }
+        - column: { name: input_summary, value: 双打中一名行动者使用能影响对方两个上场成员的物理伤害技能，两个目标均可被命中。 }
+        - column: { name: expected_summary, value: 每个目标独立结算命中、要害、伤害随机数，并在普通伤害公式中使用 0.75 目标倍率。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 330 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 34 }
+        - column: { name: code, value: double-battle-side-screen-uses-two-thirds-damage-modifier }
+        - column: { name: name, value: 双打防守屏障使用三分之二倍率 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证双打目标方有两名可战斗上场成员时，防守方屏障对非要害普通伤害使用约 2/3 倍率。 }
+        - column: { name: input_summary, value: 双打中目标方有两名可战斗上场成员，并存在影响物理伤害的防守方屏障。 }
+        - column: { name: expected_summary, value: 非要害普通物理伤害按约 2/3 的防守方屏障倍率结算，不与目标范围倍率混淆。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 340 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 35 }
+        - column: { name: code, value: sun-boosts-fire-and-weakens-water-damage }
+        - column: { name: name, value: 晴天增强火属性并削弱水属性伤害 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证晴天环境对火属性和水属性普通伤害的天气倍率修正。 }
+        - column: { name: input_summary, value: 晴天环境下分别计算火属性技能和水属性技能的普通伤害。 }
+        - column: { name: expected_summary, value: 火属性伤害使用 1.5 倍天气倍率，水属性伤害使用 0.5 倍天气倍率。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 350 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 36 }
+        - column: { name: code, value: rain-boosts-water-and-weakens-fire-damage }
+        - column: { name: name, value: 下雨增强水属性并削弱火属性伤害 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证下雨环境对水属性和火属性普通伤害的天气倍率修正。 }
+        - column: { name: input_summary, value: 下雨环境下分别计算水属性技能和火属性技能的普通伤害。 }
+        - column: { name: expected_summary, value: 水属性伤害使用 1.5 倍天气倍率，火属性伤害使用 0.5 倍天气倍率。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 360 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 37 }
+        - column: { name: code, value: weather-power-multiplier-modifies-base-power }
+        - column: { name: name, value: 天气威力倍率先修正基础威力 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证技能声明的天气威力倍率会在普通伤害公式读取威力前生效。 }
+        - column: { name: input_summary, value: 下雨环境下，技能资料声明威力按 0.5 倍参与普通伤害公式。 }
+        - column: { name: expected_summary, value: 伤害计算器先把基础威力折半，再进入等级、攻防和倍率公式。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 370 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 38 }
+        - column: { name: code, value: sandstorm-boosts-rock-special-defense }
+        - column: { name: name, value: 沙暴提高岩属性目标特防 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证沙暴环境下岩属性目标的特防按 1.5 倍参与特殊伤害公式。 }
+        - column: { name: input_summary, value: 沙暴环境下，普通特殊技能命中岩属性目标。 }
+        - column: { name: expected_summary, value: 目标特防按 1.5 倍参与伤害公式，最终伤害低于普通天气。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 380 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 39 }
+        - column: { name: code, value: snow-boosts-ice-physical-defense }
+        - column: { name: name, value: 雪景提高冰属性目标物防 }
+        - column: { name: category, value: DAMAGE_FORMULA }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证雪景环境下冰属性目标的物防按 1.5 倍参与物理伤害公式。 }
+        - column: { name: input_summary, value: 雪景环境下，普通物理技能命中冰属性目标。 }
+        - column: { name: expected_summary, value: 目标物防按 1.5 倍参与伤害公式，最终伤害低于普通天气。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 390 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 69 }
+        - column: { name: fixture_id, valueNumeric: 31 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害计算器现代公式 }
+        - column: { name: source_note, value: 用于对照现代普通伤害公式主体结构。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 70 }
+        - column: { name: fixture_id, valueNumeric: 31 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/util.ts }
+        - column: { name: source_label, value: 公开伤害计算器工具公式 }
+        - column: { name: source_note, value: 用于对照倍率取整和随机浮动。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 71 }
+        - column: { name: fixture_id, valueNumeric: 32 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害计算器现代公式 }
+        - column: { name: source_note, value: 用于对照击中要害倍率进入最终倍率链。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 72 }
+        - column: { name: fixture_id, valueNumeric: 32 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Critical_hit }
+        - column: { name: source_label, value: 击中要害公开说明 }
+        - column: { name: source_note, value: 用于验证现代击中要害倍率。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 73 }
+        - column: { name: fixture_id, valueNumeric: 33 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Damage }
+        - column: { name: source_label, value: 伤害公开规则说明 }
+        - column: { name: source_note, value: 用于验证双打范围技能目标倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 74 }
+        - column: { name: fixture_id, valueNumeric: 33 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-moves.ts }
+        - column: { name: source_label, value: 公开引擎技能目标资料 }
+        - column: { name: source_note, value: 用于对照范围技能目标集合和范围倍率。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 75 }
+        - column: { name: fixture_id, valueNumeric: 34 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Reflect_(move) }
+        - column: { name: source_label, value: 物理屏障公开说明 }
+        - column: { name: source_note, value: 用于验证双打屏障倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 76 }
+        - column: { name: fixture_id, valueNumeric: 34 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Light_Screen_(move) }
+        - column: { name: source_label, value: 特殊屏障公开说明 }
+        - column: { name: source_note, value: 用于对照防守方标准屏障在双打中的倍率。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 77 }
+        - column: { name: fixture_id, valueNumeric: 34 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎屏障条件 }
+        - column: { name: source_note, value: 用于对照屏障倍率和击中要害绕过条件。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 78 }
+        - column: { name: fixture_id, valueNumeric: 35 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎天气条件 }
+        - column: { name: source_note, value: 用于对照晴天对火和水属性伤害的倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 79 }
+        - column: { name: fixture_id, valueNumeric: 35 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Harsh_sunlight }
+        - column: { name: source_label, value: 晴天公开规则说明 }
+        - column: { name: source_note, value: 用于验证晴天增强火属性并削弱水属性伤害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 80 }
+        - column: { name: fixture_id, valueNumeric: 36 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎天气条件 }
+        - column: { name: source_note, value: 用于对照下雨对水和火属性伤害的倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 81 }
+        - column: { name: fixture_id, valueNumeric: 36 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Rain }
+        - column: { name: source_label, value: 下雨天气公开说明 }
+        - column: { name: source_note, value: 用于验证下雨增强水属性并削弱火属性伤害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 82 }
+        - column: { name: fixture_id, valueNumeric: 37 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照天气下技能威力修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 83 }
+        - column: { name: fixture_id, valueNumeric: 37 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Weather }
+        - column: { name: source_label, value: 天气公开规则说明 }
+        - column: { name: source_note, value: 用于验证天气可以修改技能威力。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 84 }
+        - column: { name: fixture_id, valueNumeric: 38 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎天气条件 }
+        - column: { name: source_note, value: 用于对照沙暴下岩属性特防修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 85 }
+        - column: { name: fixture_id, valueNumeric: 38 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition) }
+        - column: { name: source_label, value: 沙暴公开规则说明 }
+        - column: { name: source_note, value: 用于验证沙暴提高岩属性目标特防。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 86 }
+        - column: { name: fixture_id, valueNumeric: 39 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎天气条件 }
+        - column: { name: source_note, value: 用于对照雪景下冰属性物防修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 87 }
+        - column: { name: fixture_id, valueNumeric: 39 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Snow }
+        - column: { name: source_label, value: 雪景公开规则说明 }
+        - column: { name: source_note, value: 用于验证雪景提高冰属性目标物防。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 31 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 31 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 310 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 32 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-2 }
+        - column: { name: fixture_id, valueNumeric: 32 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 320 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 33 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-3 }
+        - column: { name: fixture_id, valueNumeric: 33 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 330 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 34 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-4 }
+        - column: { name: fixture_id, valueNumeric: 34 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 1 }
+        - column: { name: sort_order, valueNumeric: 340 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 35 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-5 }
+        - column: { name: fixture_id, valueNumeric: 35 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 350 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 36 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-6 }
+        - column: { name: fixture_id, valueNumeric: 36 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 360 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 37 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-7 }
+        - column: { name: fixture_id, valueNumeric: 37 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 2 }
+        - column: { name: sort_order, valueNumeric: 370 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 38 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-8 }
+        - column: { name: fixture_id, valueNumeric: 38 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 2 }
+        - column: { name: sort_order, valueNumeric: 380 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 39 }
+        - column: { name: run_code, value: damage-formula-coverage-20260628-9 }
+        - column: { name: fixture_id, valueNumeric: 39 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 2 }
+        - column: { name: sort_order, valueNumeric: 390 }
