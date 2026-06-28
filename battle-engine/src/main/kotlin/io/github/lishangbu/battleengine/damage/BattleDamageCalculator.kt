@@ -36,18 +36,18 @@ class BattleDamageCalculator(
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.attacker.specialAttack,
-				attackingStage(request.attacker.statStage(BattleStat.SPECIAL_ATTACK), request.criticalHit),
+				effectiveAttackingStage(request, BattleStat.SPECIAL_ATTACK),
 			)
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		val defendingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> statStageModifiers.modifiedBattleStat(
 				request.defender.defense,
-				defendingStage(request.defender.statStage(BattleStat.DEFENSE), request.criticalHit),
+				effectiveDefendingStage(request, BattleStat.DEFENSE),
 			).let { physicalDefenseAfterWeather(request, it) }
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.defender.specialDefense,
-				defendingStage(request.defender.statStage(BattleStat.SPECIAL_DEFENSE), request.criticalHit),
+				effectiveDefendingStage(request, BattleStat.SPECIAL_DEFENSE),
 			).let { specialDefenseAfterWeather(request, it) }
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
@@ -89,7 +89,7 @@ class BattleDamageCalculator(
 	private fun physicalAttackAfterBurn(request: BattleDamageRequest): Int {
 		val stagedAttack = statStageModifiers.modifiedBattleStat(
 			request.attacker.attack,
-			attackingStage(request.attacker.statStage(BattleStat.ATTACK), request.criticalHit),
+			effectiveAttackingStage(request, BattleStat.ATTACK),
 		)
 		return if (request.attacker.majorStatus == BattleMajorStatus.BURN) {
 			(stagedAttack / 2).coerceAtLeast(1)
@@ -97,6 +97,34 @@ class BattleDamageCalculator(
 			stagedAttack
 		}
 	}
+
+	/**
+	 * 读取攻击侧在普通伤害公式中使用的有效攻击/特攻阶级。
+	 *
+	 * 防守方拥有“无视对手伤害公式能力阶级变化”效果时，攻击方的相关阶级固定按 0 处理；这不会删除攻击方
+	 * 快照里的实际阶级，只影响当前这次伤害公式。若没有该效果，则继续应用现代击中要害规则：击中要害忽略
+	 * 攻击方不利阶级，但保留攻击方有利阶级。
+	 */
+	private fun effectiveAttackingStage(request: BattleDamageRequest, stat: BattleStat): Int =
+		if (request.defender.ignoresOpponentDamageStatStages()) {
+			0
+		} else {
+			attackingStage(request.attacker.statStage(stat), request.criticalHit)
+		}
+
+	/**
+	 * 读取防御侧在普通伤害公式中使用的有效防御/特防阶级。
+	 *
+	 * 攻击方拥有“无视对手伤害公式能力阶级变化”效果时，防守方的相关阶级固定按 0 处理；这保留了防守方
+	 * 快照中的实际阶级，便于后续行动和事件继续看到真实状态。若没有该效果，则继续应用现代击中要害规则：
+	 * 击中要害忽略防守方有利阶级，但保留防守方不利阶级。
+	 */
+	private fun effectiveDefendingStage(request: BattleDamageRequest, stat: BattleStat): Int =
+		if (request.attacker.ignoresOpponentDamageStatStages()) {
+			0
+		} else {
+			defendingStage(request.defender.statStage(stat), request.criticalHit)
+		}
 
 	/**
 	 * 计算进入普通伤害公式的有效威力。
@@ -227,6 +255,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
+				is BattleAbilityEffect.IgnoreOpponentDamageStatStages -> multiplier
 				is BattleAbilityEffect.IndirectDamageImmunity -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
 				is BattleAbilityEffect.PriorityMoveImmunityForSide -> multiplier
@@ -268,6 +297,14 @@ class BattleDamageCalculator(
 
 	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
 		elementId != null && elementId in elementIds
+
+	/**
+	 * 判断成员是否在普通伤害公式中忽略对手相关能力阶级。
+	 *
+	 * 计算器只关心结构化效果，不关心数据库特性名称；这样同类规则资料可以共享同一个公式行为。
+	 */
+	private fun BattleParticipant.ignoresOpponentDamageStatStages(): Boolean =
+		abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentDamageStatStages }
 
 	private companion object {
 		private const val GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER = 1.3

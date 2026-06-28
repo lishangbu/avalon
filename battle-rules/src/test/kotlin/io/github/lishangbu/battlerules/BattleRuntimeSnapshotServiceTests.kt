@@ -420,6 +420,8 @@ class BattleRuntimeSnapshotServiceTests(
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.SurviveFatalDamageAtFullHp::class.java)
 		assertThat(service.abilityEffectsByAbilityId(98))
 			.containsExactly(BattleAbilityEffect.IndirectDamageImmunity)
+		assertThat(service.abilityEffectsByAbilityId(109))
+			.containsExactly(BattleAbilityEffect.IgnoreOpponentDamageStatStages)
 
 		assertThat(service.abilityEffectsByAbilityId(214))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)

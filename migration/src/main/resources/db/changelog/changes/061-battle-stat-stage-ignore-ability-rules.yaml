@@ -1,0 +1,152 @@
+databaseChangeLog:
+- changeSet:
+    id: 061-battle-stat-stage-ignore-ability-rules
+    author: backend
+    comment: 补齐无视对手伤害公式能力阶级变化特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 35 }
+        - column: { name: ability_id, valueNumeric: 109 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: ignore-opponent-damage-stat-stages }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 伤害公式中忽略对手攻击、防御、特攻、特防阶级变化。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 350 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 128 }
+        - column: { name: code, value: defender-stat-stage-ignore-ability-ignores-attacker-attack-boost }
+        - column: { name: name, value: 防守方无视攻击方物理攻击强化 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证防守方拥有无视对手伤害公式能力阶级变化特性时，物理伤害不读取攻击方攻击强化。 }
+        - column: { name: input_summary, value: 攻击方攻击阶级为 +2，防守方拥有无视对手伤害公式能力阶级变化特性。 }
+        - column: { name: expected_summary, value: 物理伤害按攻击方原始攻击数值计算，不读取 +2 攻击阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1280 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 129 }
+        - column: { name: code, value: attacker-stat-stage-ignore-ability-ignores-defender-defense-boost }
+        - column: { name: name, value: 攻击方无视防守方物理防御强化 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证攻击方拥有无视对手伤害公式能力阶级变化特性时，物理伤害不读取目标防御强化。 }
+        - column: { name: input_summary, value: 防守方防御阶级为 +2，攻击方拥有无视对手伤害公式能力阶级变化特性。 }
+        - column: { name: expected_summary, value: 物理伤害按防守方原始防御数值计算，不读取 +2 防御阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1290 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 130 }
+        - column: { name: code, value: stat-stage-ignore-ability-applies-to-special-damage-stages }
+        - column: { name: name, value: 无视对手伤害阶级变化适用于特殊伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证无视对手伤害公式能力阶级变化特性同样适用于特攻和特防阶级。 }
+        - column: { name: input_summary, value: 特殊攻击方特攻阶级为 +2，特殊防守方特防阶级为 +2；双方分别拥有无视对手伤害公式能力阶级变化特性。 }
+        - column: { name: expected_summary, value: 特殊伤害分别在防守方持有和攻击方持有两种情况下按原始特攻或特防数值计算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1300 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 274 }
+        - column: { name: fixture_id, valueNumeric: 128 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照无视对手能力阶级变化特性的触发范围。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 275 }
+        - column: { name: fixture_id, valueNumeric: 128 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害公式实现 }
+        - column: { name: source_note, value: 用于验证防守方特性忽略攻击方攻击或特攻阶级。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 276 }
+        - column: { name: fixture_id, valueNumeric: 129 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照无视对手能力阶级变化特性的触发范围。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 277 }
+        - column: { name: fixture_id, valueNumeric: 129 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害公式实现 }
+        - column: { name: source_note, value: 用于验证攻击方特性忽略防守方防御或特防阶级。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 278 }
+        - column: { name: fixture_id, valueNumeric: 130 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照特攻、特防阶级同样属于伤害公式能力阶级变化。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 279 }
+        - column: { name: fixture_id, valueNumeric: 130 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害公式实现 }
+        - column: { name: source_note, value: 用于验证无视能力阶级变化在物理和特殊伤害公式中的一致行为。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 128 }
+        - column: { name: run_code, value: stat-stage-ignore-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 128 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:30:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:33:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1280 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 129 }
+        - column: { name: run_code, value: stat-stage-ignore-ability-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 129 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:30:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:33:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1290 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 130 }
+        - column: { name: run_code, value: stat-stage-ignore-ability-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 130 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:30:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:33:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1300 }

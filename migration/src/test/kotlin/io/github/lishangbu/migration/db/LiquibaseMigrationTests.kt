@@ -107,6 +107,7 @@ class LiquibaseMigrationTests(
 			"058-battle-substitute-sound-bypass-fixtures.yaml",
 			"059-battle-low-hp-element-ability-rules.yaml",
 			"060-battle-indirect-damage-immunity-rules.yaml",
+			"061-battle-stat-stage-ignore-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -530,7 +531,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 34L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 35L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -550,9 +551,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 127L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 273L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 127L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 130L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 279L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 130L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -809,6 +810,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 98L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "indirect-damage-immunity",
+			),
+		)
+
+		val statStageIgnoreAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 109
+			""".trimIndent(),
+		)
+		assertThat(statStageIgnoreAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 109L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "ignore-opponent-damage-stat-stages",
 			),
 		)
 

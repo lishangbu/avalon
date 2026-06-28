@@ -395,6 +395,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖特性阻止异常状态回合末伤害、沙暴伤害、入场陷阱伤害、技能反作用伤害和携带道具反伤；直接技能伤害和伤害增幅道具倍率仍正常生效。",
 			),
 			item(
+				code = "ability.ignore-opponent-damage-stat-stages",
+				name = "特性无视对手伤害阶级变化",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"defender-stat-stage-ignore-ability-ignores-attacker-attack-boost",
+					"attacker-stat-stage-ignore-ability-ignores-defender-defense-boost",
+					"stat-stage-ignore-ability-applies-to-special-damage-stages",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
+				),
+				note = "已覆盖持有者作为防守方时忽略攻击方攻击/特攻阶级、作为攻击方时忽略防守方防御/特防阶级；命中/闪避阶级会在命中流程中单独接入。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",
