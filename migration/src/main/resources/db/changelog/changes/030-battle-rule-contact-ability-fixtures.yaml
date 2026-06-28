@@ -1,0 +1,150 @@
+databaseChangeLog:
+- changeSet:
+    id: 030-battle-rule-contact-ability-fixtures
+    author: backend
+    comment: 新增接触类特性异常状态公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 9 }
+        - column: { name: code, value: contact-status-ability-applies-paralysis-after-contact }
+        - column: { name: name, value: 接触异常特性成功麻痹攻击方 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证目标在受到接触类技能命中后，可通过结构化特性效果让攻击方获得主要异常状态。 }
+        - column: { name: input_summary, value: 攻击方使用接触类物理技能命中目标；目标携带接触后 100% 麻痹攻击方的结构化特性效果。 }
+        - column: { name: expected_summary, value: 目标先受到普通伤害；随后攻击方获得麻痹状态，且 100% 概率不额外消费接触特性随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 90 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 10 }
+        - column: { name: code, value: contact-status-ability-misses-when-chance-roll-fails }
+        - column: { name: name, value: 接触异常特性概率未触发 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证非 100% 的接触类异常特性会消费独立概率掷点，掷点失败时不附加状态。 }
+        - column: { name: input_summary, value: 攻击方使用接触类技能命中目标；目标携带接触后 30% 灼伤攻击方的结构化特性效果，脚本掷点为 81。 }
+        - column: { name: expected_summary, value: 目标正常受到伤害；接触特性的概率掷点失败，攻击方不会获得灼伤状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 100 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: code, value: contact-status-ability-respects-attacker-immunity }
+        - column: { name: name, value: 接触异常特性遵守攻击方免疫 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证接触类异常特性触发后仍复用攻击方主要异常免疫流程，并在事件流记录稳定阻止原因。 }
+        - column: { name: input_summary, value: 攻击方使用接触类技能命中目标；目标接触后 100% 麻痹攻击方，但攻击方自身有麻痹免疫特性。 }
+        - column: { name: expected_summary, value: 目标受到普通伤害；麻痹附加流程被攻击方特性免疫阻止，事件流记录 ABILITY 阻止原因。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 18 }
+        - column: { name: fixture_id, valueNumeric: 9 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Static_(Ability) }
+        - column: { name: source_label, value: 接触麻痹特性说明 }
+        - column: { name: source_note, value: 用于验证接触类技能命中后附加麻痹的触发条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 19 }
+        - column: { name: fixture_id, valueNumeric: 9 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照接触类异常特性的状态机触发阶段。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 20 }
+        - column: { name: fixture_id, valueNumeric: 10 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability) }
+        - column: { name: source_label, value: 接触灼伤特性说明 }
+        - column: { name: source_note, value: 用于验证接触类异常特性的概率触发语义。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 21 }
+        - column: { name: fixture_id, valueNumeric: 10 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照接触类异常特性的概率掷点和失败结果。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: fixture_id, valueNumeric: 11 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Static_(Ability) }
+        - column: { name: source_label, value: 接触麻痹特性说明 }
+        - column: { name: source_note, value: 用于验证接触类异常特性触发后尝试附加麻痹。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: fixture_id, valueNumeric: 11 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Limber_(Ability) }
+        - column: { name: source_label, value: 麻痹免疫特性说明 }
+        - column: { name: source_note, value: 用于验证攻击方自身主要异常免疫会阻止接触返还状态。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: fixture_id, valueNumeric: 11 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照接触返还状态与攻击方免疫特性的组合行为。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 9 }
+        - column: { name: run_code, value: contact-ability-status-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 9 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T22:25:07+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T22:28:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 173000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 90 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 10 }
+        - column: { name: run_code, value: contact-ability-status-coverage-20260628-2 }
+        - column: { name: fixture_id, valueNumeric: 10 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T22:25:07+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T22:28:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 173000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 100 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: run_code, value: contact-ability-status-coverage-20260628-3 }
+        - column: { name: fixture_id, valueNumeric: 11 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T22:25:07+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T22:28:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 173000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 110 }

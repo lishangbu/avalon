@@ -471,6 +471,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖出场设置普通场地、战斗开始多场地按有效速度顺序覆盖，以及主动换入后的场地触发。",
 			),
 			item(
+				code = "ability.contact-status",
+				name = "接触类特性返还异常状态",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"contact-status-ability-applies-paralysis-after-contact",
+					"contact-status-ability-misses-when-chance-roll-fails",
+					"contact-status-ability-respects-attacker-immunity",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Static_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Flame_Body_(Ability)",
+					"https://bulbapedia.bulbagarden.net/wiki/Limber_(Ability)",
+				),
+				note = "已覆盖接触类技能成功造成伤害后触发目标特性，100% 概率不额外消费随机数，30% 概率失败时不附加状态，并复用攻击方主要异常免疫流程。",
+			),
+			item(
 				code = "item.held-core-effects",
 				name = "携带道具核心触发效果",
 				category = "道具",
