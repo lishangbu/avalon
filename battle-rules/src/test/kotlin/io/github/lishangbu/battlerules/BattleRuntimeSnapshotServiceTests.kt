@@ -5,6 +5,8 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -79,7 +81,8 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 311)).associateBy { it.skillId }
+		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 694))
+			.associateBy { it.skillId }
 
 		val growl = slots.getValue(45)
 		assertThat(growl.targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
@@ -119,6 +122,23 @@ class BattleRuntimeSnapshotServiceTests(
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(2.0)
+
+		val lightScreen = slots.getValue(113).sideConditionApplications.single()
+		assertThat(lightScreen.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(lightScreen.damageReduction.kind).isEqualTo(BattleSideDamageReductionKind.SPECIAL)
+		assertThat(lightScreen.damageReduction.turnsRemaining).isEqualTo(5)
+		assertThat(lightScreen.requiredWeather).isNull()
+
+		val reflect = slots.getValue(115).sideConditionApplications.single()
+		assertThat(reflect.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(reflect.damageReduction.kind).isEqualTo(BattleSideDamageReductionKind.PHYSICAL)
+		assertThat(reflect.damageReduction.turnsRemaining).isEqualTo(5)
+
+		val auroraVeil = slots.getValue(694).sideConditionApplications.single()
+		assertThat(auroraVeil.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(auroraVeil.damageReduction.kind).isEqualTo(BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE)
+		assertThat(auroraVeil.damageReduction.turnsRemaining).isEqualTo(5)
+		assertThat(auroraVeil.requiredWeather).isEqualTo(BattleWeather.SNOW)
 	}
 
 	@Test

@@ -73,6 +73,19 @@ class BattleRuleCoverageService {
 				note = "多个实际目标时使用 0.75 目标倍率，只剩一个可战斗目标时保持 1.0。",
 			),
 			item(
+				code = "field.side-damage-reduction",
+				name = "一侧防守屏障伤害减免",
+				category = "场上效果",
+				status = IMPLEMENTED,
+				fixtures = listOf("double-battle-side-screen-uses-two-thirds-damage-modifier"),
+				references = listOf(
+					"https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Light_Screen_(move)",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				),
+				note = "已覆盖物理/特殊/全伤害屏障、单打 0.5、双打目标侧多人 2/3、击中要害忽略屏障，以及极光类屏障的天气前置条件。",
+			),
+			item(
 				code = "turn.target-slot-switch",
 				name = "替换后的目标槽位重定向",
 				category = "回合流程",

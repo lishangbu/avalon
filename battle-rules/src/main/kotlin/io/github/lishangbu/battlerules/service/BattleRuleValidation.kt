@@ -25,6 +25,14 @@ internal fun optionalText(value: String?, fieldName: String, maxLength: Int): St
 internal fun requiredUpperText(value: String, fieldName: String, maxLength: Int): String =
 	value.requiredText(fieldName, maxLength).uppercase()
 
+internal fun requiredEnumText(value: String, fieldName: String, allowedValues: Set<String>): String {
+	val text = requiredUpperText(value, fieldName, maxLength = 40)
+	if (text !in allowedValues) {
+		invalidValue(fieldName, "$fieldName 只能是 ${allowedValues.joinToString()}")
+	}
+	return text
+}
+
 internal fun requiredPolicyCode(value: String, fieldName: String): String {
 	val text = value.requiredText(fieldName, maxLength = 80)
 	if (!POLICY_CODE_PATTERN.matches(text)) {
