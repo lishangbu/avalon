@@ -8,6 +8,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.neutralRules
@@ -341,5 +342,93 @@ class BattleDamageCalculatorTests {
 		fixture.assertNamed("snow-boosts-ice-physical-defense")
 		assertEquals(13, result.baseDamage)
 		assertEquals(13, result.amount)
+	}
+
+	@Test
+	fun `grassy terrain boosts grounded grass damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "grassy-terrain-boosts-grounded-grass-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
+			),
+			inputSummary = "青草场地中，接地草属性成员使用草属性技能。",
+			expectedSummary = "伤害公式额外应用 1.3 倍场地倍率；非接地使用者不会获得该倍率。",
+		)
+		val rules = neutralRules().copy(grassElementId = 12)
+		val grassy = BattleEnvironment(terrain = BattleTerrain.GRASSY)
+
+		val groundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("grounded-grass", speed = 100, elementId = 12),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 12, power = 40),
+				rules = rules,
+				environment = grassy,
+				randomPercent = 100,
+			),
+		)
+		val ungroundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-grass", speed = 100, elementId = 12, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 12, power = 40),
+				rules = rules,
+				environment = grassy,
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("grassy-terrain-boosts-grounded-grass-damage")
+		assertEquals(1.3, groundedResult.terrainMultiplier)
+		assertEquals(37, groundedResult.amount)
+		assertEquals(1.0, ungroundedResult.terrainMultiplier)
+		assertEquals(28, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `grassy terrain weakens tagged ground shaking moves against grounded targets`() {
+		val fixture = publicBattleRuleFixture(
+			name = "grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
+			),
+			inputSummary = "青草场地中，带震动削弱标签的地面物理技能分别命中接地和非接地目标。",
+			expectedSummary = "接地目标受到 0.5 倍场地倍率伤害，非接地目标不受该削弱影响。",
+		)
+		val grassy = BattleEnvironment(terrain = BattleTerrain.GRASSY)
+		val shakingMove = damagingSkill(
+			elementId = 5,
+			power = 100,
+			weakenedByGrassyTerrain = true,
+		)
+
+		val groundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1),
+				defender = participant("grounded-defender", speed = 80, elementId = 1),
+				skill = shakingMove,
+				rules = neutralRules(),
+				environment = grassy,
+				randomPercent = 100,
+			),
+		)
+		val ungroundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1),
+				defender = participant("ungrounded-defender", speed = 80, elementId = 1, grounded = false),
+				skill = shakingMove,
+				rules = neutralRules(),
+				environment = grassy,
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets")
+		assertEquals(0.5, groundedResult.terrainMultiplier)
+		assertEquals(23, groundedResult.amount)
+		assertEquals(1.0, ungroundedResult.terrainMultiplier)
+		assertEquals(46, ungroundedResult.amount)
 	}
 }

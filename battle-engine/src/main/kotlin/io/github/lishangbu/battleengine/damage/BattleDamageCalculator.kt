@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import kotlin.math.floor
 
@@ -58,10 +59,11 @@ class BattleDamageCalculator(
 		val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = weatherDamageMultiplier(request)
+		val terrainMultiplier = terrainDamageMultiplier(request)
 		val abilityMultiplier = abilityDamageMultiplier(request)
 		val itemMultiplier = itemDamageMultiplier(request)
 		val combined = baseDamage * request.targetMultiplier * (request.randomPercent / 100.0) * sameElementBonus *
-			effectiveness * criticalHitMultiplier * weatherMultiplier * abilityMultiplier * itemMultiplier
+			effectiveness * criticalHitMultiplier * weatherMultiplier * terrainMultiplier * abilityMultiplier * itemMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
@@ -71,6 +73,7 @@ class BattleDamageCalculator(
 			effectiveness = effectiveness,
 			criticalHitMultiplier = criticalHitMultiplier,
 			weatherMultiplier = weatherMultiplier,
+			terrainMultiplier = terrainMultiplier,
 			abilityMultiplier = abilityMultiplier,
 			itemMultiplier = itemMultiplier,
 		)
@@ -159,6 +162,37 @@ class BattleDamageCalculator(
 		}
 
 	/**
+	 * 计算场地对普通伤害的倍率。
+	 *
+	 * 现代青草场地有两个伤害侧效果：接地成员使用草属性技能时伤害按 1.3 倍计算；地震、重踏、震级等带有
+	 * 明确震动标签的技能命中接地目标时伤害减半。其它场地的状态免疫、先制阻挡和回合末回复不属于伤害公式。
+	 */
+	private fun terrainDamageMultiplier(request: BattleDamageRequest): Double =
+		when (request.environment.terrain) {
+			BattleTerrain.GRASSY -> {
+				val grassBoost = if (
+					request.attacker.grounded &&
+					request.rules.grassElementId != null &&
+					request.skill.elementId == request.rules.grassElementId
+				) {
+					GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER
+				} else {
+					1.0
+				}
+				val groundMoveReduction = if (request.defender.grounded && request.skill.weakenedByGrassyTerrain) {
+					GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER
+				} else {
+					1.0
+				}
+				grassBoost * groundMoveReduction
+			}
+			BattleTerrain.NONE,
+			BattleTerrain.ELECTRIC,
+			BattleTerrain.MISTY,
+			BattleTerrain.PSYCHIC -> 1.0
+		}
+
+	/**
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
 	 * 第一批只支持低体力指定属性增伤。触发条件按当前 HP 与最大 HP 比例判断，满足阈值且技能属性匹配时叠乘倍率。
@@ -197,6 +231,8 @@ class BattleDamageCalculator(
 		elementId != null && elementId in elementIds
 
 	private companion object {
+		private const val GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER = 1.3
+		private const val GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER = 0.5
 		private const val WEATHER_DEFENSE_BOOST_MULTIPLIER = 1.5
 	}
 }
