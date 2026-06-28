@@ -1,7 +1,9 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -92,5 +94,45 @@ class BattleChargeSkillTests {
 		assertTrue(resolved.isActive("charge-user"))
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(0, resolved.participant("charge-user")?.chargingTurnsRemaining)
+	}
+
+	@Test
+	fun `configured weather skips charge and resolves skill immediately`() {
+		val fixture = publicBattleRuleFixture(
+			name = "charge-skill-skips-charge-in-sun",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move)",
+			),
+			inputSummary = "使用者在晴天下使用被配置为跳过蓄力的特殊伤害技能。",
+			expectedSummary = "技能只消耗一次 PP，不产生蓄力开始事件，并在同回合造成伤害。",
+		)
+		val skill = damagingSkill(
+			name = "晴天蓄力测试",
+			chargesBeforeUse = true,
+			chargeSkippedByWeathers = setOf(BattleWeather.SUN),
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant("charge-user", speed = 100, skill = skill),
+				second = participant("target", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.SUN),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("charge-user", skillId = 1, targetActorId = "target")),
+			random,
+		)
+
+		fixture.assertNamed("charge-skill-skips-charge-in-sun")
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillChargeStarted>())
+		assertEquals(0, resolved.participant("charge-user")?.chargingTurnsRemaining)
+		assertEquals(34, resolved.participant("charge-user")?.skillSlot(1)?.remainingPp)
+		assertEquals(72, resolved.participant("target")?.currentHp)
+		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.SkillUsed>().size)
+		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().size)
 	}
 }

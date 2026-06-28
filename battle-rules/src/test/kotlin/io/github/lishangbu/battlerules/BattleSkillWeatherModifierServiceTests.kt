@@ -1,7 +1,11 @@
 package io.github.lishangbu.battlerules
 
+import io.github.lishangbu.battlerules.dto.BattleSkillChargeSkipWeatherRequest
+import io.github.lishangbu.battlerules.dto.BattleSkillRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherAccuracyOverrideRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherPowerModifierRequest
+import io.github.lishangbu.battlerules.service.BattleSkillChargeSkipWeatherService
+import io.github.lishangbu.battlerules.service.BattleSkillRuleService
 import io.github.lishangbu.battlerules.service.BattleSkillWeatherAccuracyOverrideService
 import io.github.lishangbu.battlerules.service.BattleSkillWeatherPowerModifierService
 import io.github.lishangbu.common.web.ApiErrorCode
@@ -33,6 +37,8 @@ import org.springframework.test.context.ContextConfiguration
 class BattleSkillWeatherModifierServiceTests(
 	@Autowired private val accuracyService: BattleSkillWeatherAccuracyOverrideService,
 	@Autowired private val powerService: BattleSkillWeatherPowerModifierService,
+	@Autowired private val chargeSkipService: BattleSkillChargeSkipWeatherService,
+	@Autowired private val skillRuleService: BattleSkillRuleService,
 ) {
 	@Test
 	fun `create update read list and delete weather accuracy override`() {
@@ -197,4 +203,104 @@ class BattleSkillWeatherModifierServiceTests(
 		assertThat(invalidMultiplier.status).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(invalidMultiplier.field).isEqualTo("powerMultiplier")
 	}
+
+	@Test
+	fun `create update read list and delete charge skip weather`() {
+		val skillRule = skillRuleService.create(chargeSkillRuleRequest())
+		try {
+			val created = chargeSkipService.create(
+				BattleSkillChargeSkipWeatherRequest(
+					skillRuleId = skillRule.id,
+					weatherRuleId = 2,
+					enabled = true,
+					sortOrder = 901,
+				),
+			)
+
+			assertThat(created.skillRuleId).isEqualTo(skillRule.id)
+			assertThat(created.weatherRuleId).isEqualTo(2)
+			assertThat(chargeSkipService.get(created.id).weatherRuleId).isEqualTo(2)
+			assertThat(chargeSkipService.list(0, 20, skillRuleId = skillRule.id, weatherRuleId = null).rows.map { it.id })
+				.contains(created.id)
+
+			val updated = chargeSkipService.update(
+				created.id,
+				BattleSkillChargeSkipWeatherRequest(
+					skillRuleId = skillRule.id,
+					weatherRuleId = 3,
+					enabled = false,
+					sortOrder = 902,
+				),
+			)
+			assertThat(updated.weatherRuleId).isEqualTo(3)
+			assertThat(updated.enabled).isFalse()
+			assertThat(updated.sortOrder).isEqualTo(902)
+
+			chargeSkipService.delete(created.id)
+			val missing = assertThrows<ApiException> {
+				chargeSkipService.get(created.id)
+			}
+			assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
+		} finally {
+			skillRuleService.delete(skillRule.id)
+		}
+	}
+
+	@Test
+	fun `rejects invalid charge skip weather`() {
+		val duplicate = assertThrows<ApiException> {
+			chargeSkipService.create(
+				BattleSkillChargeSkipWeatherRequest(
+					skillRuleId = 10,
+					weatherRuleId = 2,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(duplicate.status).isEqualTo(HttpStatus.CONFLICT)
+		assertThat(duplicate.field).isEqualTo("weatherRuleId")
+
+		val clearWeather = assertThrows<ApiException> {
+			chargeSkipService.create(
+				BattleSkillChargeSkipWeatherRequest(
+					skillRuleId = 10,
+					weatherRuleId = 1,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(clearWeather.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(clearWeather.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+		assertThat(clearWeather.field).isEqualTo("weatherRuleId")
+
+		val nonChargeSkill = assertThrows<ApiException> {
+			chargeSkipService.create(
+				BattleSkillChargeSkipWeatherRequest(
+					skillRuleId = 1,
+					weatherRuleId = 2,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(nonChargeSkill.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(nonChargeSkill.field).isEqualTo("skillRuleId")
+	}
+
+	private fun chargeSkillRuleRequest(): BattleSkillRuleRequest =
+		BattleSkillRuleRequest(
+			skillId = 10,
+			effectPolicy = "test-charge-skip",
+			targetPolicy = "selected-target",
+			hitPolicy = "standard-hit",
+			damagePolicy = "standard-damage",
+			minHits = 1,
+			maxHits = 1,
+			criticalHitStage = 0,
+			affectedByProtect = true,
+			chargesBeforeUse = true,
+			lockMoveTurnsMin = 1,
+			lockMoveTurnsMax = 1,
+			enabled = true,
+			sortOrder = 903,
+		)
 }

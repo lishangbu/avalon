@@ -1,0 +1,138 @@
+databaseChangeLog:
+- changeSet:
+    id: 048-battle-skill-charge-skip-weather
+    author: backend
+    comment: 新增蓄力技能按天气跳过等待回合的规则表、菜单权限和公开对照 fixture 数据。
+    changes:
+    - createTable:
+        tableName: battle_skill_charge_skip_weather
+        remarks: 战斗技能跳过蓄力天气表，保存蓄力技能在指定天气下可省略等待回合的规则。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能跳过蓄力天气主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_charge_skip_weather
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule，必须是蓄力后发动的技能规则。
+            constraints:
+              nullable: false
+        - column:
+            name: weather_rule_id
+            type: bigint
+            remarks: 天气规则 ID，引用 battle_weather_rule，不能引用无天气。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该跳过蓄力天气规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 跳过蓄力天气规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_charge_skip_weather
+        columnNames: skill_rule_id, weather_rule_id
+        constraintName: uk_battle_skill_charge_skip_weather__skill_weather
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_charge_skip_weather
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_charge_skip_weather__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_charge_skip_weather
+        baseColumnNames: weather_rule_id
+        referencedTableName: battle_weather_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_charge_skip_weather__weather_rule_id
+    - createIndex:
+        tableName: battle_skill_charge_skip_weather
+        indexName: idx_battle_skill_charge_skip_weather__weather_rule_id
+        columns:
+        - column:
+            name: weather_rule_id
+    - insert:
+        tableName: battle_skill_charge_skip_weather
+        columns:
+        - column: { name: id, valueNumeric: 1 }
+        - column: { name: skill_rule_id, valueNumeric: 10 }
+        - column: { name: weather_rule_id, valueNumeric: 2 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 850 }
+        - column: { name: code, value: battle-rules.skill-charge-skip-weathers }
+        - column: { name: name, value: 技能蓄力天气 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-charge-skip-weathers }
+        - column: { name: component_key, value: battle-rules/skill-charge-skip-weathers }
+        - column: { name: icon, value: lucide:sun }
+        - column: { name: sort_order, valueNumeric: 37 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 850 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 96 }
+        - column: { name: code, value: charge-skill-skips-charge-in-sun }
+        - column: { name: name, value: 蓄力技能在晴天下同回合发动 }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证被配置为晴天跳过蓄力的技能，在晴天下首次宣告后不进入等待状态，而是同回合进入命中和伤害流程。 }
+        - column: { name: input_summary, value: 使用者在晴天下使用被配置为跳过蓄力的特殊伤害技能。 }
+        - column: { name: expected_summary, value: 技能只消耗一次 PP，不产生蓄力开始事件，并在同回合造成伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 960 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 202 }
+        - column: { name: fixture_id, valueNumeric: 96 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照晴天会让部分蓄力技能跳过等待回合。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 203 }
+        - column: { name: fixture_id, valueNumeric: 96 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move) }
+        - column: { name: source_label, value: 蓄力技能公开说明 }
+        - column: { name: source_note, value: 用于验证晴天下无需蓄力、部分其它天气下威力下降的公开规则描述。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 96 }
+        - column: { name: run_code, value: charge-skill-sun-skip-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 96 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T03:05:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T03:08:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 960 }

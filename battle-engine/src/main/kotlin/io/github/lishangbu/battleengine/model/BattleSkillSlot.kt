@@ -24,7 +24,8 @@ package io.github.lishangbu.battleengine.model
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
- * `chargesBeforeUse` 表示技能首次使用时先进入蓄力，下一次技能行动才真正释放效果。
+ * `chargesBeforeUse` 表示技能首次使用时先进入蓄力，下一次技能行动才真正释放效果；
+ * `chargeSkippedByWeathers` 表示指定天气下该蓄力等待可以省略，技能会在宣告回合直接进入命中和伤害流程。
  * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
  * `rechargesAfterUse` 表示技能成功造成实际伤害后，使用者下一次技能行动前必须休整一次。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
@@ -50,6 +51,7 @@ data class BattleSkillSlot(
 	val powderBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
 	val chargesBeforeUse: Boolean = false,
+	val chargeSkippedByWeathers: Set<BattleWeather> = emptySet(),
 	val rechargesAfterUse: Boolean = false,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
@@ -91,6 +93,12 @@ data class BattleSkillSlot(
 		}
 		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
 			"weather power multiplier must be positive"
+		}
+		require(BattleWeather.NONE !in chargeSkippedByWeathers) {
+			"chargeSkippedByWeathers cannot target NONE"
+		}
+		require(chargeSkippedByWeathers.isEmpty() || chargesBeforeUse) {
+			"chargeSkippedByWeathers requires chargesBeforeUse"
 		}
 		require(lockMoveTurnsMin > 0) { "lockMoveTurnsMin must be positive" }
 		require(lockMoveTurnsMax >= lockMoveTurnsMin) { "lockMoveTurnsMax must be greater than or equal to lockMoveTurnsMin" }

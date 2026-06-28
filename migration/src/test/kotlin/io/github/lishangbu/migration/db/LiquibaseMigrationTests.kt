@@ -94,6 +94,7 @@ class LiquibaseMigrationTests(
 			"045-battle-rule-skill-recoil-fixtures.yaml",
 			"046-battle-skill-recharge-rules.yaml",
 			"047-battle-skill-charge-rules.yaml",
+			"048-battle-skill-charge-skip-weather.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -294,6 +295,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
 			"battle-rules.skill-rules",
+			"battle-rules.skill-charge-skip-weathers",
 			"battle-rules.skill-stat-stage-effects",
 			"battle-rules.skill-status-effects",
 			"battle-rules.status-rules",
@@ -480,6 +482,7 @@ class LiquibaseMigrationTests(
 			"battle_skill_global_field_effect",
 			"battle_skill_weather_accuracy_override",
 			"battle_skill_weather_power_modifier",
+			"battle_skill_charge_skip_weather",
 			"battle_ability_rule",
 			"battle_item_rule",
 			"battle_rule_fixture",
@@ -506,6 +509,7 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_global_field_effect', count(*) from battle_skill_global_field_effect
 			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
+			union all select 'battle_skill_charge_skip_weather', count(*) from battle_skill_charge_skip_weather
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
 			union all select 'battle_rule_fixture', count(*) from battle_rule_fixture
@@ -533,9 +537,10 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 95L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 201L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 95L)
+		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 96L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 203L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 96L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -591,6 +596,22 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 76L,
 				"charges_before_use" to true,
+			),
+		)
+
+		val chargeSkipWeathers = queryMaps(
+			"""
+			select sr.skill_id, wr.code as weather_code
+			from battle_skill_charge_skip_weather cs
+			join battle_skill_rule sr on sr.id = cs.skill_rule_id
+			join battle_weather_rule wr on wr.id = cs.weather_rule_id
+			where sr.skill_id = 76
+			""".trimIndent(),
+		)
+		assertThat(chargeSkipWeathers).containsExactly(
+			mapOf(
+				"skill_id" to 76L,
+				"weather_code" to "harsh-sunlight",
 			),
 		)
 

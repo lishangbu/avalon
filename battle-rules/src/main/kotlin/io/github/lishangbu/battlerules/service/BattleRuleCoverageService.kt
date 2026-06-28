@@ -554,12 +554,13 @@ class BattleRuleCoverageService {
 				status = IMPLEMENTED,
 				fixtures = listOf(
 					"charge-skill-releases-next-turn-without-extra-pp",
+					"charge-skill-skips-charge-in-sun",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move)",
 				),
-				note = "已覆盖首次使用消耗 PP 并进入蓄力、下一次技能行动自动释放且不重复扣 PP、主动替换阻止，以及释放阶段复用普通命中和伤害流程。",
+				note = "已覆盖首次使用消耗 PP 并进入蓄力、下一次技能行动自动释放且不重复扣 PP、主动替换阻止、指定天气跳过蓄力，以及释放阶段复用普通命中和伤害流程。",
 			),
 			item(
 				code = "skill.major-status-effects",

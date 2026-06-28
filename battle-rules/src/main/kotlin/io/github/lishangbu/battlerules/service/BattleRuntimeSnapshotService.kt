@@ -575,6 +575,7 @@ class BattleRuntimeSnapshotService(
 			powderBased = row.powderBased ?: false,
 			weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
 			chargesBeforeUse = row.chargesBeforeUse ?: false,
+			chargeSkippedByWeathers = chargeSkippedByWeathers(row.ruleId),
 			rechargesAfterUse = row.rechargesAfterUse ?: false,
 			accuracyOverridesByWeather = weatherAccuracyOverrides(row.ruleId),
 			powerMultipliersByWeather = weatherPowerMultipliers(row.ruleId),
@@ -657,6 +658,23 @@ class BattleRuntimeSnapshotService(
 			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") },
 			ruleId,
 		).toMap()
+	}
+
+	private fun chargeSkippedByWeathers(ruleId: Long?): Set<BattleWeather> {
+		if (ruleId == null) {
+			return emptySet()
+		}
+		return jdbcTemplate.query(
+			"""
+			select w.code as weather_code
+			from battle_skill_charge_skip_weather s
+			join battle_weather_rule w on w.id = s.weather_rule_id
+			where s.skill_rule_id = ? and s.enabled = true and w.enabled = true
+			order by s.sort_order, s.id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("weather_code").toBattleWeather() },
+			ruleId,
+		).toSet()
 	}
 
 	private fun statusApplications(ruleId: Long?): List<BattleStatusApplication> {

@@ -131,6 +131,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 		val solarBeam = slots.getValue(76)
 		assertThat(solarBeam.chargesBeforeUse).isTrue()
+		assertThat(solarBeam.chargeSkippedByWeathers).containsExactly(BattleWeather.SUN)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(0.5)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SANDSTORM]).isEqualTo(0.5)
 		assertThat(solarBeam.powerMultipliersByWeather[BattleWeather.SNOW]).isEqualTo(0.5)

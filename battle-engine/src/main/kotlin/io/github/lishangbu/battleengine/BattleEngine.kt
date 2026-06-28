@@ -340,7 +340,7 @@ class BattleEngine(
 				),
 			)
 
-		if (skill.chargesBeforeUse && plan.source == SkillActionSource.SUBMITTED) {
+		if (skill.requiresChargeBeforeUse(actionState.environment.weather) && plan.source == SkillActionSource.SUBMITTED) {
 			return beforeMove.context.copy(
 				state = startSkillCharge(
 					state = usedState,
@@ -1159,6 +1159,15 @@ class BattleEngine(
 		}
 		return skill.minHits + random.nextInt(skill.maxHits - skill.minHits + 1, "multi-hit count for ${skill.skillId}")
 	}
+
+	/**
+	 * 判断技能在当前天气下是否仍需要等待蓄力回合。
+	 *
+	 * `chargesBeforeUse` 只说明技能存在蓄力流程；是否能被天气跳过由运行时快照中的
+	 * `chargeSkippedByWeathers` 精确声明，避免把晴天加速误套到所有蓄力技能上。
+	 */
+	private fun BattleSkillSlot.requiresChargeBeforeUse(weather: BattleWeather): Boolean =
+		chargesBeforeUse && weather !in chargeSkippedByWeathers
 
 	/**
 	 * 首次使用蓄力技能时写入等待释放状态。
