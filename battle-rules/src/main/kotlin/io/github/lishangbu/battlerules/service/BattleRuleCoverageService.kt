@@ -246,13 +246,21 @@ class BattleRuleCoverageService {
 				code = "turn.multi-hit-and-locked-move",
 				name = "多段技能和锁招混乱",
 				category = "技能流程",
-				status = PARTIAL,
+				status = IMPLEMENTED,
 				fixtures = listOf(
 					"multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count",
 					"multi-hit-skill-stops-after-target-faints",
+					"locked-move-overrides-submitted-skill-follows-target-slot-and-confuses",
+					"locked-move-prevents-voluntary-switch-and-executes-continuation",
+					"locked-move-disruption-before-final-turn-clears-lock-without-fatigue-confusion",
 				),
-				references = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts"),
-				note = "已覆盖 2..5 段命中分布、单次 PP 消耗和倒下中断；锁定技能、疲劳混乱和中断规则仍需补齐。",
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Outrage_(move)",
+					"https://pokemondb.net/move/outrage",
+				),
+				note = "已覆盖 2..5 段命中分布、单次 PP 消耗、倒下中断、锁招续回合、目标槽位重定向、主动替换阻止和疲劳混乱。",
 			),
 		)
 
