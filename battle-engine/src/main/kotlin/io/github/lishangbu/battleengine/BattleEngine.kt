@@ -97,8 +97,10 @@ class BattleEngine(
 			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
 		val afterEnvironmentDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
 			?: advanceEnvironmentDurations(afterEndTurnVolatileStatuses)
-		return afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
-			?: afterEnvironmentDurations.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
+		val afterTurnLimit = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
+			?: applyTurnLimit(afterEnvironmentDurations)
+		return afterTurnLimit.result?.let { afterTurnLimit }
+			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
 
 	/**
@@ -1804,6 +1806,29 @@ class BattleEngine(
 	}
 
 	/**
+	 * 应用格式级回合上限裁定。
+	 *
+	 * 回合上限只在完整回合末检查，因此最后一回合的主要异常伤害、天气/场地副作用和持续时间推进都会先结算。
+	 * 当前格式快照没有声明点数裁定规则时，到达上限按平局结束，`winningSideId=null` 明确表示没有胜方。
+	 */
+	private fun applyTurnLimit(state: BattleState): BattleState {
+		val maxTurns = state.format.maxTurns ?: return state
+		if (state.turnNumber < maxTurns) {
+			return state
+		}
+		val result = BattleResult(winningSideId = null, reason = MAX_TURNS_REACHED_REASON)
+		return state
+			.copy(result = result)
+			.appendEvent(
+				BattleEvent.BattleEnded(
+					turnNumber = state.turnNumber,
+					winningSideId = result.winningSideId,
+					reason = result.reason,
+				),
+			)
+	}
+
+	/**
 	 * 计算主要异常状态在回合末造成的固定伤害。
 	 */
 	private fun residualDamage(participant: BattleParticipant): Int? =
@@ -1949,6 +1974,7 @@ class BattleEngine(
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
+		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}

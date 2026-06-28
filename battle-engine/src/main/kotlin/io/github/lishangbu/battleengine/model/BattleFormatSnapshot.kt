@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 该快照来自规则资料模块，但引擎只接收已经组装好的不可变值，不直接读取数据库。
  * `activeParticipantsPerSide` 必须与 `mode` 的现代站位定义一致；`teamSize` 用于限制单方登记成员数量；
- * `maxTurns` 用于后续实现回合上限和裁定逻辑，目前仅保存在状态里，不主动结束战斗。
+ * `maxTurns` 用于格式级回合上限裁定，达到上限且没有其它胜负结果时按平局结束。
  */
 data class BattleFormatSnapshot(
 	val code: String,

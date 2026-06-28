@@ -405,7 +405,7 @@ sealed interface BattleEvent {
 
 	data class BattleEnded(
 		override val turnNumber: Int,
-		val winningSideId: String,
+		val winningSideId: String?,
 		val reason: String,
 	) : BattleEvent
 }

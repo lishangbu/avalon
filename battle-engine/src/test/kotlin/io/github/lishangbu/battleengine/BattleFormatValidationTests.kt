@@ -2,8 +2,10 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
+import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleSide
+import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -17,6 +19,8 @@ import kotlin.test.assertFailsWith
  * 验证重点：单打/双打上场数量、整场成员 ID 唯一性和队伍规模限制都在战斗开始前失败。
  */
 class BattleFormatValidationTests {
+	private val engine = BattleEngine()
+
 	@Test
 	fun `double format accepts two active participants per side`() {
 		val state = doubleInitialState()
@@ -72,5 +76,30 @@ class BattleFormatValidationTests {
 				),
 			)
 		}
+	}
+
+	@Test
+	fun `max turn limit ends battle as draw after end turn effects`() {
+		val fixture = publicBattleRuleFixture(
+			name = "max-turn-limit-ends-battle-as-draw-after-end-turn-effects",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Battle#Turn",
+			),
+			inputSummary = "格式声明最大回合数为 1，双方在第 1 回合结束时都仍可战斗。",
+			expectedSummary = "引擎在完整回合末按回合上限产生平局结果，不再追加普通回合结束事件。",
+		)
+		val state = engine.start(
+			initialState().copy(format = singleFormat().copy(maxTurns = 1)),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+
+		fixture.assertNamed("max-turn-limit-ends-battle-as-draw-after-end-turn-effects")
+		assertEquals(null, resolved.result?.winningSideId)
+		assertEquals("max-turns-reached", resolved.result?.reason)
+		val ended = resolved.events.filterIsInstance<BattleEvent.BattleEnded>().single()
+		assertEquals(null, ended.winningSideId)
+		assertEquals("max-turns-reached", ended.reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.TurnEnded>())
 	}
 }
