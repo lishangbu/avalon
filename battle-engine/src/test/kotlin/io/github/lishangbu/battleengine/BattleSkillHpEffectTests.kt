@@ -59,6 +59,42 @@ class BattleSkillHpEffectTests {
 	}
 
 	@Test
+	fun `draining damage skill honors configured drain fraction`() {
+		val fixture = publicBattleRuleFixture(
+			name = "draining-damage-skill-honors-configured-drain-fraction",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Draining_Kiss_(move)",
+			),
+			inputSummary = "使用者未满 HP，使用带有 3/4 吸取比例的伤害技能命中目标。",
+			expectedSummary = "目标受到普通伤害后，使用者按本次实际伤害的 3/4 回复 HP。",
+		)
+		val skill = damagingSkill(
+			name = "高比例吸取测试",
+			hpEffects = listOf(BattleSkillHpEffect.DrainDamage(numerator = 3, denominator = 4)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("drain-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("drain-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("draining-damage-skill-honors-configured-drain-fraction")
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount
+		val expectedHealing = (damage * 3) / 4
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals(expectedHealing, healing.amount)
+		assertEquals(20 + expectedHealing, resolved.participant("drain-user")?.currentHp)
+	}
+
+	@Test
 	fun `self healing status skill restores half max hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "self-healing-status-skill-restores-half-max-hp",

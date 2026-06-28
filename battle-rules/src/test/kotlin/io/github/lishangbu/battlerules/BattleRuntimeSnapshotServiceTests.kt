@@ -87,7 +87,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 311, 366, 390, 433, 446, 564, 694),
+			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 311, 366, 390, 433, 446, 564, 570, 577, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -201,6 +201,15 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(stickyWeb.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
 		assertThat(stickyWeb.hazard.kind).isEqualTo(BattleSideEntryHazardKind.STICKY_WEB)
 		assertThat(stickyWeb.hazard.maxLayers).isEqualTo(1)
+
+		val parabolicCharge = slots.getValue(570)
+		assertThat(parabolicCharge.targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS)
+		val highDrain = slots.getValue(577)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
+			.single()
+		assertThat(highDrain.numerator).isEqualTo(3)
+		assertThat(highDrain.denominator).isEqualTo(4)
 	}
 
 	@Test

@@ -833,6 +833,12 @@ class BattleRuntimeSnapshotService(
 					denominator = 2,
 				),
 			)
+			"drain-three-quarter-damage" -> listOf(
+				BattleSkillHpEffect.DrainDamage(
+					numerator = 3,
+					denominator = 4,
+				),
+			)
 			"self-heal-half-max-hp" -> listOf(
 				BattleSkillHpEffect.SelfHealMaxHpFraction(
 					numerator = 1,
