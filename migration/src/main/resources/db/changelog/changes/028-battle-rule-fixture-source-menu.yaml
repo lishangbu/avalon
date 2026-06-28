@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 028-battle-rule-fixture-source-menu
+    author: backend
+    comment: 新增战斗规则 Fixture 公开来源独立维护菜单。
+    changes:
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 849 }
+        - column: { name: code, value: battle-rules.fixture-sources }
+        - column: { name: name, value: Fixture 来源 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/fixture-sources }
+        - column: { name: component_key, value: battle-rules/fixture-sources }
+        - column: { name: icon, value: lucide:link }
+        - column: { name: sort_order, valueNumeric: 75 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 849 }

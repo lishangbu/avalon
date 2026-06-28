@@ -74,6 +74,7 @@ class LiquibaseMigrationTests(
 			"025-battle-skill-target-stat-stage-effects.yaml",
 			"026-battle-skill-major-status-effects.yaml",
 			"027-battle-rule-fixtures.yaml",
+			"028-battle-rule-fixture-source-menu.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -270,6 +271,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.format-special-mechanics",
 			"battle-rules.formats",
 			"battle-rules.fixtures",
+			"battle-rules.fixture-sources",
 			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
 			"battle-rules.skill-rules",
