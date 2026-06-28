@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 携带道具在战斗中的可执行效果。
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
- * 低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
+ * 环境持续回合延长、低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -46,6 +46,43 @@ sealed interface BattleItemEffect {
 		init {
 			require(weathers.isNotEmpty()) { "weathers must not be empty" }
 			require(BattleWeather.NONE !in weathers) { "weather damage immunity cannot target NONE" }
+		}
+	}
+
+	/**
+	 * 携带者主动建立指定天气时，把原本的普通持续回合替换为更长持续回合。
+	 *
+	 * 该效果用于表达现代规则中的天气延长道具。它只在“携带者通过技能或特性成功设置天气”这类明确有来源成员的
+	 * 流程中读取，不会修改已经存在的环境，也不会影响其它成员、无来源规则或永久天气。`weathers` 是允许被延长
+	 * 的天气集合，避免把某个天气专属道具误用于其它天气；`turnsRemaining` 是写入环境前的完整持续回合数，回合
+	 * 末仍会由统一持续时间系统递减。
+	 */
+	data class WeatherDurationExtension(
+		val weathers: Set<BattleWeather>,
+		val turnsRemaining: Int,
+	) : BattleItemEffect {
+		init {
+			require(weathers.isNotEmpty()) { "weathers must not be empty" }
+			require(BattleWeather.NONE !in weathers) { "weather duration extension cannot target NONE" }
+			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
+		}
+	}
+
+	/**
+	 * 携带者主动建立场地时，把原本的普通持续回合替换为更长持续回合。
+	 *
+	 * 该效果覆盖现代规则中的场地延长道具。它不保存具体道具名称，也不解析技能或特性文本；资料层负责把道具
+	 * policy 转成这里的结构化效果。引擎只在携带者成功设置场地时根据目标场地匹配 `terrains`，然后把即将写入的
+	 * 持续回合替换为 `turnsRemaining`。场地的伤害、状态免疫、先制阻挡和回合末回复仍由其它环境规则处理。
+	 */
+	data class TerrainDurationExtension(
+		val terrains: Set<BattleTerrain>,
+		val turnsRemaining: Int,
+	) : BattleItemEffect {
+		init {
+			require(terrains.isNotEmpty()) { "terrains must not be empty" }
+			require(BattleTerrain.NONE !in terrains) { "terrain duration extension cannot target NONE" }
+			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
 		}
 	}
 

@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -100,5 +101,114 @@ class BattleSkillEnvironmentEffectTests {
 		assertEquals("terrain-user", event.actorId)
 		assertEquals(BattleTerrain.ELECTRIC, event.terrain)
 		assertEquals(5, event.turnsRemaining)
+	}
+
+	@Test
+	fun `weather extending item makes weather skill last eight turns`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-extending-item-makes-weather-skill-last-eight-turns",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Damp_Rock",
+			),
+			inputSummary = "使用者携带匹配下雨天气的延长道具，成功使用设置下雨的变化技能。",
+			expectedSummary = "下雨天气按 8 回合建立；同一回合结束后剩余 7 回合，并产生记录 8 回合的天气开始事件。",
+		)
+		val skill = damagingSkill(
+			name = "天气延长测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			affectedByProtect = false,
+			environmentEffects = listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.RAIN, turnsRemaining = 5)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"weather-user",
+					speed = 100,
+					skill = skill,
+					itemId = 262,
+					itemEffects = listOf(
+						BattleItemEffect.WeatherDurationExtension(
+							weathers = setOf(BattleWeather.RAIN),
+							turnsRemaining = 8,
+						),
+					),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("weather-user", skillId = 1, targetActorId = "weather-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("weather-extending-item-makes-weather-skill-last-eight-turns")
+		assertEquals(BattleWeather.RAIN, resolved.environment.weather)
+		assertEquals(7, resolved.environment.weatherTurnsRemaining)
+		val event = resolved.events.filterIsInstance<BattleEvent.WeatherStarted>().single()
+		assertEquals("weather-user", event.actorId)
+		assertEquals(BattleWeather.RAIN, event.weather)
+		assertEquals(8, event.turnsRemaining)
+	}
+
+	@Test
+	fun `terrain extending item makes terrain skill last eight turns`() {
+		val fixture = publicBattleRuleFixture(
+			name = "terrain-extending-item-makes-terrain-skill-last-eight-turns",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender",
+			),
+			inputSummary = "使用者携带场地延长道具，成功使用设置青草场地的变化技能。",
+			expectedSummary = "青草场地按 8 回合建立；同一回合结束后剩余 7 回合，并产生记录 8 回合的场地开始事件。",
+		)
+		val skill = damagingSkill(
+			name = "场地延长测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			affectedByProtect = false,
+			environmentEffects = listOf(BattleSkillEnvironmentEffect.SetTerrain(BattleTerrain.GRASSY, turnsRemaining = 5)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"terrain-user",
+					speed = 100,
+					skill = skill,
+					itemId = 896,
+					itemEffects = listOf(
+						BattleItemEffect.TerrainDurationExtension(
+							terrains = setOf(
+								BattleTerrain.ELECTRIC,
+								BattleTerrain.GRASSY,
+								BattleTerrain.MISTY,
+								BattleTerrain.PSYCHIC,
+							),
+							turnsRemaining = 8,
+						),
+					),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("terrain-user", skillId = 1, targetActorId = "terrain-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("terrain-extending-item-makes-terrain-skill-last-eight-turns")
+		assertEquals(BattleTerrain.GRASSY, resolved.environment.terrain)
+		assertEquals(7, resolved.environment.terrainTurnsRemaining)
+		val event = resolved.events.filterIsInstance<BattleEvent.TerrainStarted>().single()
+		assertEquals("terrain-user", event.actorId)
+		assertEquals(BattleTerrain.GRASSY, event.terrain)
+		assertEquals(8, event.turnsRemaining)
 	}
 }

@@ -1,0 +1,282 @@
+databaseChangeLog:
+- changeSet:
+    id: 050-battle-environment-duration-items
+    author: backend
+    comment: 新增天气和场地持续时间延长道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: item_id, valueNumeric: 262 }
+        - column: { name: trigger_timing, value: AFTER_HIT }
+        - column: { name: effect_policy, value: weather-duration-rain }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 60 }
+        - column: { name: description, value: 携带者成功设置下雨天气时，将普通持续回合延长为 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 8 }
+        - column: { name: item_id, valueNumeric: 261 }
+        - column: { name: trigger_timing, value: AFTER_HIT }
+        - column: { name: effect_policy, value: weather-duration-sun }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 60 }
+        - column: { name: description, value: 携带者成功设置晴天天气时，将普通持续回合延长为 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 80 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 9 }
+        - column: { name: item_id, valueNumeric: 260 }
+        - column: { name: trigger_timing, value: AFTER_HIT }
+        - column: { name: effect_policy, value: weather-duration-sandstorm }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 60 }
+        - column: { name: description, value: 携带者成功设置沙暴天气时，将普通持续回合延长为 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 90 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 10 }
+        - column: { name: item_id, valueNumeric: 259 }
+        - column: { name: trigger_timing, value: AFTER_HIT }
+        - column: { name: effect_policy, value: weather-duration-snow }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 60 }
+        - column: { name: description, value: 携带者成功设置雪天天气时，将普通持续回合延长为 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 100 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: item_id, valueNumeric: 896 }
+        - column: { name: trigger_timing, value: AFTER_HIT }
+        - column: { name: effect_policy, value: terrain-duration-all }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 60 }
+        - column: { name: description, value: 携带者成功设置现代普通场地时，将普通持续回合延长为 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 98 }
+        - column: { name: code, value: weather-extending-item-makes-weather-skill-last-eight-turns }
+        - column: { name: name, value: 天气延长道具让天气技能持续八回合 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证携带者成功使用设置天气技能时，匹配天气延长道具会把普通五回合天气改为八回合。 }
+        - column: { name: input_summary, value: 使用者携带匹配下雨天气的延长道具，成功使用设置下雨天气的变化技能。 }
+        - column: { name: expected_summary, value: 下雨天气按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 980 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 99 }
+        - column: { name: code, value: terrain-extending-item-makes-terrain-skill-last-eight-turns }
+        - column: { name: name, value: 场地延长道具让场地技能持续八回合 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证携带者成功使用设置场地技能时，场地延长道具会把普通五回合场地改为八回合。 }
+        - column: { name: input_summary, value: 使用者携带场地延长道具，成功使用设置青草场地的变化技能。 }
+        - column: { name: expected_summary, value: 青草场地按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 990 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 100 }
+        - column: { name: code, value: weather-extending-item-makes-weather-ability-last-eight-turns }
+        - column: { name: name, value: 天气延长道具让出场天气特性持续八回合 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证携带者通过出场特性设置天气时，匹配天气延长道具会把普通五回合天气改为八回合。 }
+        - column: { name: input_summary, value: 当前上场成员拥有出场设置下雨天气特性，并携带匹配下雨天气的延长道具。 }
+        - column: { name: expected_summary, value: 战斗开始后下雨天气按 8 回合建立，事件记录完整持续 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1000 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 101 }
+        - column: { name: code, value: terrain-extending-item-makes-terrain-ability-last-eight-turns }
+        - column: { name: name, value: 场地延长道具让出场场地特性持续八回合 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证携带者通过出场特性设置场地时，场地延长道具会把普通五回合场地改为八回合。 }
+        - column: { name: input_summary, value: 当前上场成员拥有出场设置精神场地特性，并携带场地延长道具。 }
+        - column: { name: expected_summary, value: 战斗开始后精神场地按 8 回合建立，事件记录完整持续 8 回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1010 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 206 }
+        - column: { name: fixture_id, valueNumeric: 98 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照天气延长道具的持续回合规则。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 207 }
+        - column: { name: fixture_id, valueNumeric: 98 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照天气设置技能的普通持续回合。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 208 }
+        - column: { name: fixture_id, valueNumeric: 98 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Damp_Rock }
+        - column: { name: source_label, value: 天气延长道具公开说明 }
+        - column: { name: source_note, value: 用于验证携带者设置匹配天气时持续回合变为 8。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 209 }
+        - column: { name: fixture_id, valueNumeric: 99 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照场地延长道具的持续回合规则。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 210 }
+        - column: { name: fixture_id, valueNumeric: 99 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照场地设置技能的普通持续回合。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 211 }
+        - column: { name: fixture_id, valueNumeric: 99 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender }
+        - column: { name: source_label, value: 场地延长道具公开说明 }
+        - column: { name: source_note, value: 用于验证携带者设置场地时持续回合变为 8。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 212 }
+        - column: { name: fixture_id, valueNumeric: 100 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照出场天气特性建立普通天气。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 213 }
+        - column: { name: fixture_id, valueNumeric: 100 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照天气延长道具对特性设置天气的持续回合影响。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 214 }
+        - column: { name: fixture_id, valueNumeric: 100 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Damp_Rock }
+        - column: { name: source_label, value: 天气延长道具公开说明 }
+        - column: { name: source_note, value: 用于验证携带者设置匹配天气时持续回合变为 8。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 215 }
+        - column: { name: fixture_id, valueNumeric: 101 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照出场场地特性建立普通场地。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 216 }
+        - column: { name: fixture_id, valueNumeric: 101 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照场地延长道具对特性设置场地的持续回合影响。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 217 }
+        - column: { name: fixture_id, valueNumeric: 101 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender }
+        - column: { name: source_label, value: 场地延长道具公开说明 }
+        - column: { name: source_note, value: 用于验证携带者设置场地时持续回合变为 8。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 98 }
+        - column: { name: run_code, value: environment-duration-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 98 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T03:47:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T03:50:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 980 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 99 }
+        - column: { name: run_code, value: environment-duration-item-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 99 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T03:47:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T03:50:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 990 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 100 }
+        - column: { name: run_code, value: environment-duration-item-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 100 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T03:47:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T03:50:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1000 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 101 }
+        - column: { name: run_code, value: environment-duration-item-coverage-20260629-4 }
+        - column: { name: fixture_id, valueNumeric: 101 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T03:47:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T03:50:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1010 }

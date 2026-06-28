@@ -318,7 +318,8 @@ class BattleRuntimeSnapshotService(
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
-	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定。
+	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；天气和场地延长类道具
+	 * 会映射为成功设置环境时的持续回合覆盖。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -1135,6 +1136,31 @@ class BattleRuntimeSnapshotService(
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 			"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
 			"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
+			"weather-duration-rain" -> BattleItemEffect.WeatherDurationExtension(
+				weathers = setOf(BattleWeather.RAIN),
+				turnsRemaining = 8,
+			)
+			"weather-duration-sandstorm" -> BattleItemEffect.WeatherDurationExtension(
+				weathers = setOf(BattleWeather.SANDSTORM),
+				turnsRemaining = 8,
+			)
+			"weather-duration-snow" -> BattleItemEffect.WeatherDurationExtension(
+				weathers = setOf(BattleWeather.SNOW),
+				turnsRemaining = 8,
+			)
+			"weather-duration-sun" -> BattleItemEffect.WeatherDurationExtension(
+				weathers = setOf(BattleWeather.SUN),
+				turnsRemaining = 8,
+			)
+			"terrain-duration-all" -> BattleItemEffect.TerrainDurationExtension(
+				terrains = setOf(
+					BattleTerrain.ELECTRIC,
+					BattleTerrain.GRASSY,
+					BattleTerrain.MISTY,
+					BattleTerrain.PSYCHIC,
+				),
+				turnsRemaining = 8,
+			)
 			else -> null
 		}
 

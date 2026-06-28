@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -149,6 +150,46 @@ class BattleSwitchInAbilityTests {
 	}
 
 	@Test
+	fun `weather extending item makes switch in weather ability last eight turns`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-extending-item-makes-weather-ability-last-eight-turns",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Damp_Rock",
+			),
+			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置下雨天气特性，并携带匹配天气的延长道具。",
+			expectedSummary = "战斗开始后下雨天气按 8 回合建立，并产生记录 8 回合的天气开始事件。",
+		)
+
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"weather-user",
+					speed = 100,
+					abilityEffects = listOf(switchInWeather(BattleWeather.RAIN)),
+					itemId = 262,
+					itemEffects = listOf(
+						BattleItemEffect.WeatherDurationExtension(
+							weathers = setOf(BattleWeather.RAIN),
+							turnsRemaining = 8,
+						),
+					),
+				),
+				second = participant("opponent", speed = 80),
+			),
+		)
+		val weatherEvent = state.events.filterIsInstance<BattleEvent.WeatherStarted>().single()
+
+		fixture.assertNamed("weather-extending-item-makes-weather-ability-last-eight-turns")
+		assertEquals("weather-user", weatherEvent.actorId)
+		assertEquals(BattleWeather.RAIN, weatherEvent.weather)
+		assertEquals(8, weatherEvent.turnsRemaining)
+		assertEquals(BattleWeather.RAIN, state.environment.weather)
+		assertEquals(8, state.environment.weatherTurnsRemaining)
+	}
+
+	@Test
 	fun `slower initial weather ability overwrites faster weather ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "slower-switch-in-weather-overwrites-faster-weather-at-battle-start",
@@ -243,6 +284,51 @@ class BattleSwitchInAbilityTests {
 		assertEquals(5, terrainEvent.turnsRemaining)
 		assertEquals(BattleTerrain.ELECTRIC, state.environment.terrain)
 		assertEquals(5, state.environment.terrainTurnsRemaining)
+	}
+
+	@Test
+	fun `terrain extending item makes switch in terrain ability last eight turns`() {
+		val fixture = publicBattleRuleFixture(
+			name = "terrain-extending-item-makes-terrain-ability-last-eight-turns",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender",
+			),
+			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置精神场地特性，并携带场地延长道具。",
+			expectedSummary = "战斗开始后精神场地按 8 回合建立，并产生记录 8 回合的场地开始事件。",
+		)
+
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"terrain-user",
+					speed = 100,
+					abilityEffects = listOf(switchInTerrain(BattleTerrain.PSYCHIC)),
+					itemId = 896,
+					itemEffects = listOf(
+						BattleItemEffect.TerrainDurationExtension(
+							terrains = setOf(
+								BattleTerrain.ELECTRIC,
+								BattleTerrain.GRASSY,
+								BattleTerrain.MISTY,
+								BattleTerrain.PSYCHIC,
+							),
+							turnsRemaining = 8,
+						),
+					),
+				),
+				second = participant("opponent", speed = 80),
+			),
+		)
+		val terrainEvent = state.events.filterIsInstance<BattleEvent.TerrainStarted>().single()
+
+		fixture.assertNamed("terrain-extending-item-makes-terrain-ability-last-eight-turns")
+		assertEquals("terrain-user", terrainEvent.actorId)
+		assertEquals(BattleTerrain.PSYCHIC, terrainEvent.terrain)
+		assertEquals(8, terrainEvent.turnsRemaining)
+		assertEquals(BattleTerrain.PSYCHIC, state.environment.terrain)
+		assertEquals(8, state.environment.terrainTurnsRemaining)
 	}
 
 	@Test

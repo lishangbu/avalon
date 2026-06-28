@@ -924,6 +924,7 @@ class BattleEngine(
 	 *
 	 * 环境写入放在技能命中成功之后执行，只读取 [BattleSkillEnvironmentEffect] 这类结构化效果。当前支持普通天气技能；
 	 * 若天气和剩余回合没有变化，则不追加事件，避免 replay 端把重复设置误读成真实环境变化。
+	 * 携带道具带来的持续时间延长在具体天气/场地写入函数中处理，确保普通环境写入仍是一个可复盘的原子事实。
 	 */
 	private fun applySkillEnvironmentEffects(
 		state: BattleState,
@@ -955,9 +956,10 @@ class BattleEngine(
 		actorId: String,
 		effect: BattleSkillEnvironmentEffect.SetWeather,
 	): BattleState {
+		val turnsRemaining = extendedWeatherTurnsRemaining(state, actorId, effect)
 		if (
 			state.environment.weather == effect.weather &&
-			state.environment.weatherTurnsRemaining == effect.turnsRemaining
+			state.environment.weatherTurnsRemaining == turnsRemaining
 		) {
 			return state
 		}
@@ -965,7 +967,7 @@ class BattleEngine(
 			.copy(
 				environment = state.environment.copy(
 					weather = effect.weather,
-					weatherTurnsRemaining = effect.turnsRemaining,
+					weatherTurnsRemaining = turnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -973,7 +975,7 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					weather = effect.weather,
-					turnsRemaining = effect.turnsRemaining,
+					turnsRemaining = turnsRemaining,
 				),
 			)
 	}
@@ -988,9 +990,10 @@ class BattleEngine(
 		actorId: String,
 		effect: BattleSkillEnvironmentEffect.SetTerrain,
 	): BattleState {
+		val turnsRemaining = extendedTerrainTurnsRemaining(state, actorId, effect)
 		if (
 			state.environment.terrain == effect.terrain &&
-			state.environment.terrainTurnsRemaining == effect.turnsRemaining
+			state.environment.terrainTurnsRemaining == turnsRemaining
 		) {
 			return state
 		}
@@ -998,7 +1001,7 @@ class BattleEngine(
 			.copy(
 				environment = state.environment.copy(
 					terrain = effect.terrain,
-					terrainTurnsRemaining = effect.turnsRemaining,
+					terrainTurnsRemaining = turnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -1006,9 +1009,92 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					terrain = effect.terrain,
-					turnsRemaining = effect.turnsRemaining,
+					turnsRemaining = turnsRemaining,
 				),
 			)
+	}
+
+	/**
+	 * 计算技能设置天气时最终写入的持续回合。
+	 *
+	 * 普通天气技能会先声明自己的基础持续回合；携带者若拥有匹配天气的延长道具效果，则以道具声明的回合数覆盖。
+	 * 基础持续回合为空表示永久天气或调用方不希望引擎管理持续时间，此时道具不会把它改成有限回合，避免改变 fixture
+	 * 或后续强天气规则的语义。
+	 */
+	private fun extendedWeatherTurnsRemaining(
+		state: BattleState,
+		actorId: String,
+		effect: BattleSkillEnvironmentEffect.SetWeather,
+	): Int? =
+		extendedWeatherTurnsRemaining(
+			state = state,
+			actorId = actorId,
+			weather = effect.weather,
+			baseTurnsRemaining = effect.turnsRemaining,
+		)
+
+	/**
+	 * 计算指定来源成员建立天气时最终写入的持续回合。
+	 *
+	 * 该 helper 同时供技能环境效果和出场天气特性使用。调用方给出目标天气与基础持续回合；这里只负责读取来源成员
+	 * 的携带道具效果并选择是否延长，保持所有“建立天气”的入口在同一条规则路径上。
+	 */
+	private fun extendedWeatherTurnsRemaining(
+		state: BattleState,
+		actorId: String,
+		weather: BattleWeather,
+		baseTurnsRemaining: Int?,
+	): Int? {
+		if (baseTurnsRemaining == null) {
+			return null
+		}
+		val actor = state.participant(actorId) ?: return baseTurnsRemaining
+		return actor.itemEffects
+			.filterIsInstance<BattleItemEffect.WeatherDurationExtension>()
+			.filter { weather in it.weathers }
+			.maxOfOrNull { it.turnsRemaining }
+			?: baseTurnsRemaining
+	}
+
+	/**
+	 * 计算技能设置场地时最终写入的持续回合。
+	 *
+	 * 场地延长道具只影响携带者自己成功展开的场地，并按匹配场地选择最长的结构化持续回合。这样能同时支持
+	 * 普通场地延长器和未来可能出现的自定义场地道具，而不会把道具 ID 或本地化名称写进引擎状态机。
+	 */
+	private fun extendedTerrainTurnsRemaining(
+		state: BattleState,
+		actorId: String,
+		effect: BattleSkillEnvironmentEffect.SetTerrain,
+	): Int? =
+		extendedTerrainTurnsRemaining(
+			state = state,
+			actorId = actorId,
+			terrain = effect.terrain,
+			baseTurnsRemaining = effect.turnsRemaining,
+		)
+
+	/**
+	 * 计算指定来源成员建立场地时最终写入的持续回合。
+	 *
+	 * 该 helper 同时供技能环境效果和出场场地特性使用。场地延长道具只影响来源成员自己建立的场地；若基础持续回合
+	 * 为空，则保留永久/不管理持续回合的语义。
+	 */
+	private fun extendedTerrainTurnsRemaining(
+		state: BattleState,
+		actorId: String,
+		terrain: BattleTerrain,
+		baseTurnsRemaining: Int?,
+	): Int? {
+		if (baseTurnsRemaining == null) {
+			return null
+		}
+		val actor = state.participant(actorId) ?: return baseTurnsRemaining
+		return actor.itemEffects
+			.filterIsInstance<BattleItemEffect.TerrainDurationExtension>()
+			.filter { terrain in it.terrains }
+			.maxOfOrNull { it.turnsRemaining }
+			?: baseTurnsRemaining
 	}
 
 	/**
@@ -2128,18 +2214,24 @@ class BattleEngine(
 	/**
 	 * 执行出场特性的天气设置。
 	 *
-	 * 现代普通天气特性会覆盖当前普通天气并写入固定持续回合。这里不处理强天气、天气延长道具或天气被封锁的情况；
-	 * 这些都需要独立结构化规则后再接入。若当前环境已经是同一天气且剩余回合一致，则保持状态并跳过事件，避免
-	 * replay 端看到没有状态变化的重复天气开始事实。
+	 * 现代普通天气特性会覆盖当前普通天气并写入固定持续回合。携带者若有匹配天气的延长道具效果，则与天气技能
+	 * 使用同一套持续回合延长逻辑。若当前环境已经是同一天气且剩余回合一致，则保持状态并跳过事件，避免 replay
+	 * 端看到没有状态变化的重复天气开始事实。
 	 */
 	private fun applySwitchInWeatherChange(
 		state: BattleState,
 		actorId: String,
 		effect: BattleAbilityEffect.SwitchInWeatherChange,
 	): BattleState {
+		val turnsRemaining = extendedWeatherTurnsRemaining(
+			state = state,
+			actorId = actorId,
+			weather = effect.weather,
+			baseTurnsRemaining = effect.turnsRemaining,
+		)
 		if (
 			state.environment.weather == effect.weather &&
-			state.environment.weatherTurnsRemaining == effect.turnsRemaining
+			state.environment.weatherTurnsRemaining == turnsRemaining
 		) {
 			return state
 		}
@@ -2147,7 +2239,7 @@ class BattleEngine(
 			.copy(
 				environment = state.environment.copy(
 					weather = effect.weather,
-					weatherTurnsRemaining = effect.turnsRemaining,
+					weatherTurnsRemaining = turnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -2155,7 +2247,7 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					weather = effect.weather,
-					turnsRemaining = effect.turnsRemaining,
+					turnsRemaining = turnsRemaining,
 				),
 			)
 	}
@@ -2164,17 +2256,23 @@ class BattleEngine(
 	 * 执行出场特性的场地设置。
 	 *
 	 * 普通场地会覆盖当前场地并写入固定持续回合。若当前环境已经是同一场地且剩余回合一致，则不产生事件；
-	 * 这样 replay 可以把 `TerrainStarted` 当作真实环境变化，而不是触发尝试日志。场地延长道具、强制封锁或特殊
-	 * 机制尚未进入结构化规则，后续会以独立效果扩展。
+	 * 这样 replay 可以把 `TerrainStarted` 当作真实环境变化，而不是触发尝试日志。携带者若拥有匹配场地的延长
+	 * 道具效果，则与场地技能使用同一套持续回合延长逻辑；强制封锁或特殊机制后续会以独立效果扩展。
 	 */
 	private fun applySwitchInTerrainChange(
 		state: BattleState,
 		actorId: String,
 		effect: BattleAbilityEffect.SwitchInTerrainChange,
 	): BattleState {
+		val turnsRemaining = extendedTerrainTurnsRemaining(
+			state = state,
+			actorId = actorId,
+			terrain = effect.terrain,
+			baseTurnsRemaining = effect.turnsRemaining,
+		)
 		if (
 			state.environment.terrain == effect.terrain &&
-			state.environment.terrainTurnsRemaining == effect.turnsRemaining
+			state.environment.terrainTurnsRemaining == turnsRemaining
 		) {
 			return state
 		}
@@ -2182,7 +2280,7 @@ class BattleEngine(
 			.copy(
 				environment = state.environment.copy(
 					terrain = effect.terrain,
-					terrainTurnsRemaining = effect.turnsRemaining,
+					terrainTurnsRemaining = turnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -2190,7 +2288,7 @@ class BattleEngine(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					terrain = effect.terrain,
-					turnsRemaining = effect.turnsRemaining,
+					turnsRemaining = turnsRemaining,
 				),
 			)
 	}
@@ -3295,7 +3393,9 @@ class BattleEngine(
 				is BattleItemEffect.HeldEndTurnHeal,
 				is BattleItemEffect.LowHpHeal,
 				is BattleItemEffect.MajorStatusImmunity,
+				is BattleItemEffect.TerrainDurationExtension,
 				is BattleItemEffect.VolatileStatusImmunity,
+				is BattleItemEffect.WeatherDurationExtension,
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}
 		}

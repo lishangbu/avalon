@@ -251,7 +251,9 @@ class BattleDamageCalculator(
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier
+				is BattleItemEffect.TerrainDurationExtension -> multiplier
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
+				is BattleItemEffect.WeatherDurationExtension -> multiplier
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}
 		}

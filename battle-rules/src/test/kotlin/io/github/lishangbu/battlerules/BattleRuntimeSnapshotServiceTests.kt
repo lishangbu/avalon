@@ -435,6 +435,30 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.itemEffectsByItemId(248))
 			.hasExactlyElementsOfTypes(BattleItemEffect.ChargeSkipOnce::class.java)
+
+		val rainDuration = service.itemEffectsByItemId(262)
+			.filterIsInstance<BattleItemEffect.WeatherDurationExtension>()
+			.single()
+		assertThat(rainDuration.weathers).containsExactly(BattleWeather.RAIN)
+		assertThat(rainDuration.turnsRemaining).isEqualTo(8)
+
+		val sandstormDuration = service.itemEffectsByItemId(260)
+			.filterIsInstance<BattleItemEffect.WeatherDurationExtension>()
+			.single()
+		assertThat(sandstormDuration.weathers).containsExactly(BattleWeather.SANDSTORM)
+		assertThat(sandstormDuration.turnsRemaining).isEqualTo(8)
+
+		val terrainDuration = service.itemEffectsByItemId(896)
+			.filterIsInstance<BattleItemEffect.TerrainDurationExtension>()
+			.single()
+		assertThat(terrainDuration.terrains)
+			.containsExactlyInAnyOrder(
+				BattleTerrain.ELECTRIC,
+				BattleTerrain.GRASSY,
+				BattleTerrain.MISTY,
+				BattleTerrain.PSYCHIC,
+			)
+		assertThat(terrainDuration.turnsRemaining).isEqualTo(8)
 	}
 
 	@Test
