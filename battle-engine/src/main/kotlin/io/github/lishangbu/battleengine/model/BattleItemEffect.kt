@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按伤害反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 低体力一次性回复，以及稳定状态免疫。
- * 锁招和更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
+ * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
 	/**
@@ -101,5 +101,19 @@ sealed interface BattleItemEffect {
 		 */
 		fun healAmount(maxHp: Int): Int =
 			fixedHealAmount ?: (maxHp / requireNotNull(healDenominator)).coerceAtLeast(1)
+	}
+
+	/**
+	 * 限制成员只能继续选择首次宣告的技能，并提供速度倍率。
+	 *
+	 * 该结构用于表达讲究类速度道具。它不是技能自身的“锁招”：技能锁招会强制继续执行并保存目标槽位，
+	 * 而讲究类道具只限制后续可提交的技能，目标仍由玩家每回合重新选择。替换离场会清除成员上的锁定技能。
+	 */
+	data class ChoiceSkillLock(
+		val speedMultiplier: Double,
+	) : BattleItemEffect {
+		init {
+			require(speedMultiplier > 0.0) { "speedMultiplier must be positive" }
+		}
 	}
 }

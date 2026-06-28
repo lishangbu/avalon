@@ -4,7 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、锁招运行态，以及畏缩/混乱等临时状态。
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能锁招运行态、讲究类道具锁定技能，
+ * 以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -41,6 +42,7 @@ data class BattleParticipant(
 	val lockedMoveConfusesOnEnd: Boolean = false,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
+	val choiceLockedSkillId: Long? = null,
 ) {
 	init {
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
@@ -83,6 +85,9 @@ data class BattleParticipant(
 		require(lockedMoveTurnsRemaining > 0 || !lockedMoveConfusesOnEnd) {
 			"lockedMoveConfusesOnEnd must be false when no locked move remains"
 		}
+		require(choiceLockedSkillId == null || choiceLockedSkillId > 0) {
+			"choiceLockedSkillId must be positive when present"
+		}
 	}
 
 	/**
@@ -119,7 +124,30 @@ data class BattleParticipant(
 	 * 因为成员快照只允许一个携带道具；后续如果要支持道具被替换、回收或禁用而不移除，会增加更细的状态字段。
 	 */
 	fun consumeHeldItem(): BattleParticipant =
-		copy(itemId = null, itemEffects = emptyList())
+		copy(itemId = null, itemEffects = emptyList(), choiceLockedSkillId = null)
+
+	/**
+	 * 按讲究类道具规则记录首次成功宣告的技能。
+	 *
+	 * 只有携带对应道具效果且尚未锁定时才会写入。已经锁定的成员保持原技能，避免一次异常行动覆盖既有选择。
+	 */
+	fun lockChoiceSkillIfNeeded(skillId: Long): BattleParticipant {
+		require(skillId > 0) { "skillId must be positive" }
+		val hasChoiceLock = itemEffects.any { it is BattleItemEffect.ChoiceSkillLock }
+		return if (!hasChoiceLock || choiceLockedSkillId != null) {
+			this
+		} else {
+			copy(choiceLockedSkillId = skillId)
+		}
+	}
+
+	/**
+	 * 判断讲究类道具是否禁止本次技能选择。
+	 */
+	fun choiceLockedToAnotherSkill(skillId: Long): Boolean {
+		require(skillId > 0) { "skillId must be positive" }
+		return choiceLockedSkillId != null && choiceLockedSkillId != skillId
+	}
 
 	/**
 	 * 查找本成员可使用的技能槽。
@@ -343,5 +371,6 @@ data class BattleParticipant(
 			lockedMoveTargetActorId = null,
 			lockedMoveTurnsRemaining = 0,
 			lockedMoveConfusesOnEnd = false,
+			choiceLockedSkillId = null,
 		)
 }

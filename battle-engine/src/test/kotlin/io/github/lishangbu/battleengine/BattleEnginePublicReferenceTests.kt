@@ -158,6 +158,42 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
+	fun `choice speed item modifies action order like public item fixture`() {
+		val fixture = publicBattleRuleFixture(
+			name = "choice-speed-item-modifies-action-order",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+			),
+			inputSummary = "速度 60 的成员持有讲究类速度道具，速度 80 的对手同优先度使用普通技能。",
+			expectedSummary = "持有者有效速度按 1.5 倍变为 90，因此先于速度 80 的对手行动。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"choice-user",
+					speed = 60,
+					itemEffects = listOf(BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)),
+				),
+				second = participant("opponent", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("choice-user", skillId = 1, targetActorId = "opponent"),
+				BattleAction.UseSkill("opponent", skillId = 1, targetActorId = "choice-user"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
+
+		fixture.assertNamed("choice-speed-item-modifies-action-order")
+		assertEquals(listOf("choice-user", "opponent"), damageEvents.map { it.actorId })
+	}
+
+	@Test
 	fun `target slot follows switched in participant like public simulator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "single-target-move-follows-replacement-slot",

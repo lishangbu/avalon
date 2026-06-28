@@ -239,6 +239,7 @@ class BattleDamageCalculator(
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
+				is BattleItemEffect.ChoiceSkillLock -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier

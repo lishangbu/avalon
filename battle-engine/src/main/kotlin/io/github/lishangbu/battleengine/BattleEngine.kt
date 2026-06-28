@@ -114,6 +114,11 @@ class BattleEngine(
 			val action = input.action
 			val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
 			val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
+			if (!input.lockedContinuation) {
+				require(!actor.choiceLockedToAnotherSkill(action.skillId)) {
+					"choice locked to skill: ${actor.choiceLockedSkillId}"
+				}
+			}
 			ActionPlan(action, actor, skill, input.lockedContinuation)
 		}
 		return plans
@@ -251,8 +256,13 @@ class BattleEngine(
 		} else {
 			readyActor.replaceSkillSlot(skill.consumePp())
 		}
+		val actorAfterActionSetup = if (plan.lockedContinuation) {
+			actorAfterPp
+		} else {
+			actorAfterPp.lockChoiceSkillIfNeeded(skill.skillId)
+		}
 		val usedState = actionState
-			.replaceParticipant(actorAfterPp)
+			.replaceParticipant(actorAfterActionSetup)
 			.appendEvent(
 				BattleEvent.SkillUsed(
 					turnNumber = actionState.turnNumber,
@@ -267,7 +277,7 @@ class BattleEngine(
 			if (!protectionSucceeds(readyActor, skill, random)) {
 				return beforeMove.context.copy(
 					state = usedState
-						.replaceParticipant(actorAfterPp.resetProtectionChain())
+						.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
 						.appendEvent(
 							BattleEvent.ProtectionFailed(
 								turnNumber = actionState.turnNumber,
@@ -277,7 +287,7 @@ class BattleEngine(
 						),
 				)
 			}
-			val protectedActor = actorAfterPp.markProtectionSuccess()
+			val protectedActor = actorAfterActionSetup.markProtectionSuccess()
 			return beforeMove.context.copy(
 				state = usedState
 					.replaceParticipant(protectedActor)
@@ -1900,7 +1910,9 @@ class BattleEngine(
 		} else {
 			staged
 		}
-		return floor(afterStatus * weatherSpeedMultiplier(state, participant)).toInt().coerceAtLeast(1)
+		return floor(afterStatus * weatherSpeedMultiplier(state, participant) * itemSpeedMultiplier(participant))
+			.toInt()
+			.coerceAtLeast(1)
 	}
 
 	/**
@@ -1916,6 +1928,25 @@ class BattleEngine(
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+			}
+		}
+
+	/**
+	 * 计算携带道具提供的速度倍率。
+	 *
+	 * 当前只接入讲究类速度道具。其它道具效果不参与速度排序，保持乘数不变；未来若加入铁球、围巾以外的速度道具，
+	 * 也应继续通过结构化效果表达具体倍率，而不是在行动排序中判断道具 ID。
+	 */
+	private fun itemSpeedMultiplier(participant: BattleParticipant): Double =
+		participant.itemEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
+				is BattleItemEffect.DamageBoostWithRecoil,
+				is BattleItemEffect.HeldEndTurnHeal,
+				is BattleItemEffect.LowHpHeal,
+				is BattleItemEffect.MajorStatusImmunity,
+				is BattleItemEffect.VolatileStatusImmunity,
+				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}
 		}
 

@@ -514,6 +514,52 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `choice speed lock item boosts speed and locks first selected skill`() {
+		val firstSkill = damagingSkill(skillId = 1, name = "一号技能")
+		val secondSkill = damagingSkill(skillId = 2, name = "二号技能")
+		val choiceUser = participant(
+			"choice-user",
+			speed = 60,
+			skill = firstSkill,
+			itemId = 264,
+			itemEffects = listOf(BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)),
+		).copy(skillSlots = listOf(firstSkill, secondSkill))
+		val state = engine.start(
+			initialState(
+				first = choiceUser,
+				firstBench = listOf(participant("reserve", speed = 50)),
+				second = participant("opponent", speed = 80),
+			),
+		)
+
+		val firstTurn = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("choice-user", skillId = 1, targetActorId = "opponent"),
+				BattleAction.UseSkill("opponent", skillId = 1, targetActorId = "choice-user"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+
+		assertEquals("choice-user", firstTurn.events.filterIsInstance<BattleEvent.DamageApplied>().first().actorId)
+		assertEquals(1, firstTurn.participant("choice-user")?.choiceLockedSkillId)
+		assertFailsWith<IllegalArgumentException> {
+			engine.resolveTurn(
+				firstTurn,
+				listOf(BattleAction.UseSkill("choice-user", skillId = 2, targetActorId = "opponent")),
+				ScriptedBattleRandom(emptyList()),
+			)
+		}
+
+		val afterSwitch = engine.resolveTurn(
+			firstTurn,
+			listOf(BattleAction.SwitchParticipant("choice-user", targetActorId = "reserve")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		assertNull(afterSwitch.participant("choice-user")?.choiceLockedSkillId)
+	}
+
+	@Test
 	fun `end turn healing item restores hp`() {
 		val state = engine.start(
 			initialState(

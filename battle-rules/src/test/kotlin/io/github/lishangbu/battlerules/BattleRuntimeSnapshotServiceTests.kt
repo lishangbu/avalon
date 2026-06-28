@@ -159,6 +159,11 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(mediumBerry.fixedHealAmount).isNull()
 		assertThat(mediumBerry.healDenominator).isEqualTo(4)
+
+		val choiceSpeedLock = service.itemEffectsByItemId(264)
+			.filterIsInstance<BattleItemEffect.ChoiceSkillLock>()
+			.single()
+		assertThat(choiceSpeedLock.speedMultiplier).isEqualTo(1.5)
 	}
 
 	@Test
