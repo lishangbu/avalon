@@ -27,5 +27,7 @@ class BattleRuleCoverageServiceTests {
 		assertEquals(plannedCount, coverage.summary.plannedCount)
 		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
 		assertTrue(coverage.items.any { it.code == "status.volatile-flinch-confusion" })
+		assertTrue(coverage.items.any { it.code == "status.paralysis-speed-action" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "status.freeze" && it.status == "PARTIAL" })
 	}
 }

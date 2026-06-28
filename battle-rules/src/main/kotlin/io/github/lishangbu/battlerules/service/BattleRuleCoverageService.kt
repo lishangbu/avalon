@@ -124,6 +124,21 @@ class BattleRuleCoverageService {
 				note = "睡眠按 1..3 次阻止行动建模；电气场地当前按上场成员均受影响处理。",
 			),
 			item(
+				code = "status.paralysis-speed-action",
+				name = "麻痹速度和行动阻止",
+				category = "主要状态",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"paralysis-prevents-action-without-pp-loss",
+					"paralysis-allows-action-after-failed-block-roll",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition)",
+				),
+				note = "麻痹按有效速度减半参与行动排序，并在每次行动前以 25% 概率阻止技能且不消耗 PP。",
+			),
+			item(
 				code = "status.volatile-flinch-confusion",
 				name = "畏缩和混乱临时状态",
 				category = "临时状态",
@@ -162,10 +177,16 @@ class BattleRuleCoverageService {
 				code = "status.freeze",
 				name = "冰冻和解冻流程",
 				category = "主要状态",
-				status = PLANNED,
-				fixtures = emptyList(),
-				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)"),
-				note = "需要行动前不能行动、概率解冻、火属性技能和特定技能解冻等规则。",
+				status = PARTIAL,
+				fixtures = listOf(
+					"freeze-prevents-action-after-failed-thaw-roll",
+					"freeze-thaws-before-action-and-continues",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
+				),
+				note = "已覆盖行动前自然解冻和未解冻阻止行动；火属性技能、特定技能自解冻和状态免疫仍需补齐。",
 			),
 			item(
 				code = "status.immunity-and-grounding",
