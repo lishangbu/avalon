@@ -248,6 +248,22 @@ class BattleEngine(
 			return context.copy(state = applySkillEffects(usedState, actor.actorId, target.actorId, skill, random))
 		}
 
+		val effectiveness = state.rules.elementChart.multiplier(skill.elementId, target.elementIds)
+		if (effectiveness == 0.0) {
+			return context.copy(
+				state = usedState.appendEvent(
+					BattleEvent.DamageApplied(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						amount = 0,
+						effectiveness = 0.0,
+					),
+				),
+			)
+		}
+
 		val criticalHitCheck = criticalHitCheck(skill, random)
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val damage = damageCalculator.calculate(
