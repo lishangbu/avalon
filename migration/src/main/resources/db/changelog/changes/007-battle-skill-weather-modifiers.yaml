@@ -1,0 +1,413 @@
+databaseChangeLog:
+- changeSet:
+    id: 007-battle-skill-weather-modifiers
+    author: backend
+    changes:
+    - createTable:
+        tableName: battle_skill_weather_accuracy_override
+        remarks: 战斗技能天气命中覆盖表，保存技能在指定天气下的命中覆盖规则。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能天气命中覆盖主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_weather_accuracy_override
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: weather_rule_id
+            type: bigint
+            remarks: 天气规则 ID，引用 battle_weather_rule，不能引用无天气。
+            constraints:
+              nullable: false
+        - column:
+            name: accuracy_percent
+            type: int
+            remarks: 命中覆盖百分比，1 到 100；为空表示该天气下必中。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该命中覆盖规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 命中覆盖规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_weather_accuracy_override
+        columnNames: skill_rule_id, weather_rule_id
+        constraintName: uk_battle_skill_weather_accuracy_override__skill_weather
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_accuracy_override
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_accuracy_override__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_accuracy_override
+        baseColumnNames: weather_rule_id
+        referencedTableName: battle_weather_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_accuracy_override__weather_rule_id
+    - createIndex:
+        tableName: battle_skill_weather_accuracy_override
+        indexName: idx_battle_skill_weather_accuracy_override__weather_rule_id
+        columns:
+        - column:
+            name: weather_rule_id
+    - createTable:
+        tableName: battle_skill_weather_power_modifier
+        remarks: 战斗技能天气威力倍率表，保存技能在指定天气下参与普通伤害公式前的威力倍率。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能天气威力倍率主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_weather_power_modifier
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: weather_rule_id
+            type: bigint
+            remarks: 天气规则 ID，引用 battle_weather_rule，不能引用无天气。
+            constraints:
+              nullable: false
+        - column:
+            name: power_multiplier
+            type: double precision
+            remarks: 威力倍率，必须大于 0，例如 0.5 表示威力减半，2 表示威力翻倍。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该威力倍率规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 威力倍率规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_weather_power_modifier
+        columnNames: skill_rule_id, weather_rule_id
+        constraintName: uk_battle_skill_weather_power_modifier__skill_weather
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_power_modifier
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_power_modifier__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_power_modifier
+        baseColumnNames: weather_rule_id
+        referencedTableName: battle_weather_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_power_modifier__weather_rule_id
+    - createIndex:
+        tableName: battle_skill_weather_power_modifier
+        indexName: idx_battle_skill_weather_power_modifier__weather_rule_id
+        columns:
+        - column:
+            name: weather_rule_id
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 9 }
+        - column: { name: skill_id, valueNumeric: 59 }
+        - column: { name: effect_policy, value: standard-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 下雪天气下必中，其他效果按普通特殊伤害处理。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 90 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 10 }
+        - column: { name: skill_id, valueNumeric: 76 }
+        - column: { name: effect_policy, value: standard-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 部分非晴朗天气下威力减半，蓄力逻辑由后续显式策略补充。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 100 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: skill_id, valueNumeric: 87 }
+        - column: { name: effect_policy, value: standard-damage-with-status }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 下雨天气必中，大晴天命中降低，并可能附加麻痹。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: skill_id, valueNumeric: 542 }
+        - column: { name: effect_policy, value: standard-damage-with-status }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 下雨天气必中，大晴天命中降低，并可能附加混乱。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 13 }
+        - column: { name: skill_id, valueNumeric: 311 }
+        - column: { name: effect_policy, value: standard-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 非无天气状态下威力翻倍，属性变化由后续显式策略补充。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 130 }
+    - insert:
+        tableName: battle_skill_weather_accuracy_override
+        columns:
+        - column: { name: id, valueNumeric: 1 }
+        - column: { name: skill_rule_id, valueNumeric: 9 }
+        - column: { name: weather_rule_id, valueNumeric: 5 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_skill_weather_accuracy_override
+        columns:
+        - column: { name: id, valueNumeric: 2 }
+        - column: { name: skill_rule_id, valueNumeric: 11 }
+        - column: { name: weather_rule_id, valueNumeric: 3 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_skill_weather_accuracy_override
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 11 }
+        - column: { name: weather_rule_id, valueNumeric: 2 }
+        - column: { name: accuracy_percent, valueNumeric: 50 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_weather_accuracy_override
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 12 }
+        - column: { name: weather_rule_id, valueNumeric: 3 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_skill_weather_accuracy_override
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 12 }
+        - column: { name: weather_rule_id, valueNumeric: 2 }
+        - column: { name: accuracy_percent, valueNumeric: 50 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 1 }
+        - column: { name: skill_rule_id, valueNumeric: 10 }
+        - column: { name: weather_rule_id, valueNumeric: 3 }
+        - column: { name: power_multiplier, valueNumeric: 0.5 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 2 }
+        - column: { name: skill_rule_id, valueNumeric: 10 }
+        - column: { name: weather_rule_id, valueNumeric: 4 }
+        - column: { name: power_multiplier, valueNumeric: 0.5 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 10 }
+        - column: { name: weather_rule_id, valueNumeric: 5 }
+        - column: { name: power_multiplier, valueNumeric: 0.5 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 2 }
+        - column: { name: power_multiplier, valueNumeric: 2.0 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 3 }
+        - column: { name: power_multiplier, valueNumeric: 2.0 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 4 }
+        - column: { name: power_multiplier, valueNumeric: 2.0 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }
+    - insert:
+        tableName: battle_skill_weather_power_modifier
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 5 }
+        - column: { name: power_multiplier, valueNumeric: 2.0 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 843 }
+        - column: { name: code, value: battle-rules.skill-weather-accuracy-overrides }
+        - column: { name: name, value: 技能天气命中 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-weather-accuracy-overrides }
+        - column: { name: component_key, value: battle-rules/skill-weather-accuracy-overrides }
+        - column: { name: icon, value: lucide:cloud-sun }
+        - column: { name: sort_order, valueNumeric: 35 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 844 }
+        - column: { name: code, value: battle-rules.skill-weather-power-modifiers }
+        - column: { name: name, value: 技能天气威力 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-weather-power-modifiers }
+        - column: { name: component_key, value: battle-rules/skill-weather-power-modifiers }
+        - column: { name: icon, value: lucide:cloud-lightning }
+        - column: { name: sort_order, valueNumeric: 36 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 843 }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 844 }
