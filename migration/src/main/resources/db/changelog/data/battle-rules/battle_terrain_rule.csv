@@ -1,0 +1,5 @@
+id,code,name,effect_policy,default_duration_turns,description,enabled,sort_order
+1,electric-terrain,电气场地,terrain-electric,5,地面上的成员不会陷入睡眠，电属性招式威力提升。,true,10
+2,grassy-terrain,青草场地,terrain-grassy,5,地面上的成员回合结束时回复体力，草属性招式威力提升。,true,20
+3,misty-terrain,薄雾场地,terrain-misty,5,地面上的成员不会陷入主要异常，龙属性招式伤害降低。,true,30
+4,psychic-terrain,精神场地,terrain-psychic,5,地面上的成员不受对方先制招式影响，超能力属性招式威力提升。,true,40

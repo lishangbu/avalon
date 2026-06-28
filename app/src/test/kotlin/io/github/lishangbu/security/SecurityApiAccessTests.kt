@@ -117,6 +117,30 @@ class SecurityApiAccessTests(
 	}
 
 	@Test
+	fun `jwt token with battle rules admin can access battle rules api only`() {
+		insertUser("battle-rules-api-admin", roleId = 203L)
+		val token = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "battle-rules-api-admin",
+			scope = "battle-rules:admin",
+		)
+
+		mockMvc.perform(
+			get("/api/battle-rules/battle-formats")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].code").value("standard-single"))
+			.andExpect(jsonPath("$.rows[0].name").value("标准单打"))
+
+		mockMvc.perform(
+			get("/api/system/rbac/access-nodes")
+				.header("Authorization", "Bearer $token"),
+		).andExpect(status().isForbidden)
+	}
+
+	@Test
 	fun `game data api supports exact field filters`() {
 		insertUser("game-data-filter-admin", roleId = 202L)
 		val token = issueToken(

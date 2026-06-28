@@ -7,6 +7,7 @@ dependencies {
 	implementation(project(":common-web"))
 	implementation(project(":migration"))
 	implementation(project(":scheduler"))
+	implementation(project(":battle-rules"))
 	implementation(project(":game-data"))
 	implementation(project(":security"))
 	implementation(project(":system"))

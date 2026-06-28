@@ -1,0 +1,5 @@
+id,code,name,clause_type,description,enabled,sort_order
+1,species-unique,种类唯一,TEAM,同一队伍不能登记重复种类。,true,10
+2,item-unique,道具唯一,ITEM,同一队伍不能重复携带同一种道具。,true,20
+3,level-flattened,等级拉平,LEVEL,进入战斗时按赛制默认等级进行拉平。,true,30
+4,team-preview,队伍预览,PREVIEW,开局前展示双方登记队伍并选择出场成员。,true,40

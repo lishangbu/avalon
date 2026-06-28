@@ -41,14 +41,3 @@ data class OAuthTokenResponse(
 	@field:Schema(description = "access token 当前是否仍可用。", example = "true")
 	val active: Boolean,
 )
-
-/**
- * access token 生命周期状态。
- */
-@Schema(description = "access token 生命周期状态。")
-enum class OAuthTokenStatus {
-	ACTIVE,
-	EXPIRED,
-	REVOKED,
-	NO_ACCESS_TOKEN,
-}

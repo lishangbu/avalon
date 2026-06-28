@@ -28,11 +28,11 @@ class JimmerQueryConventionTests {
 
 	private fun monitoredSources(): List<Path> =
 		listOf(
-			"../system/src/main/kotlin/io/github/lishangbu/system/oauth/client/OAuthClientService.kt",
-			"../system/src/main/kotlin/io/github/lishangbu/system/oauth/jwk/OAuthJwkService.kt",
-			"../system/src/main/kotlin/io/github/lishangbu/system/rbac/accessnode/AccessNodeService.kt",
-			"../system/src/main/kotlin/io/github/lishangbu/system/rbac/role/RoleService.kt",
-			"../system/src/main/kotlin/io/github/lishangbu/system/rbac/user/UserService.kt",
+			"../system/src/main/kotlin/io/github/lishangbu/system/service/OAuthClientService.kt",
+			"../system/src/main/kotlin/io/github/lishangbu/system/service/OAuthJwkService.kt",
+			"../system/src/main/kotlin/io/github/lishangbu/system/service/AccessNodeService.kt",
+			"../system/src/main/kotlin/io/github/lishangbu/system/service/RoleService.kt",
+			"../system/src/main/kotlin/io/github/lishangbu/system/service/UserService.kt",
 			"src/main/kotlin/io/github/lishangbu/security/oauth/JwkSource.kt",
 			"src/main/kotlin/io/github/lishangbu/security/repository/JimmerRegisteredClientRepository.kt",
 		).map(Path::of)

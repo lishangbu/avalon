@@ -55,6 +55,7 @@ class JimmerSecurityUserDetailsServiceTests(
 			"system.oauth",
 			"system.oauth.clients",
 			"system.oauth.jwks",
+			"system.oauth.tokens",
 			"system.rbac",
 			"system.rbac.access-nodes",
 			"system.rbac.roles",

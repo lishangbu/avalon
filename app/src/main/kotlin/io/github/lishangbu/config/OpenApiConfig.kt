@@ -2,6 +2,7 @@ package io.github.lishangbu.config
 
 import io.github.lishangbu.common.web.openapi.OPENAPI_BEARER_SECURITY_SCHEME
 import io.github.lishangbu.security.oauth.PASSWORD_GRANT_TYPE_VALUE
+import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.swagger.v3.oas.models.Components
@@ -45,9 +46,9 @@ class OpenApiConfig {
 					.version("0.0.1")
 					.description(
 						"""
-						Avalon 后端管理 API 文档。文档覆盖当前登录态、RBAC、OAuth client、OAuth token、JWK、定时任务与游戏资料管理接口。
+						Avalon 后端管理 API 文档。文档覆盖当前登录态、RBAC、OAuth client、OAuth token、JWK、定时任务、战斗规则和游戏资料管理接口。
 
-						除 OAuth2 标准授权端点外，管理接口需要携带 Bearer access token。`/api/system/**` 需要 `security:admin` 权限，`/api/game-data/**` 需要 `game-data:admin` 权限。
+						除 OAuth2 标准授权端点外，管理接口需要携带 Bearer access token。`/api/system/**` 需要 `security:admin` 权限，`/api/battle-rules/**` 需要 `battle-rules:admin` 权限，`/api/game-data/**` 需要 `game-data:admin` 权限。
 						分页接口统一使用从 0 开始的 `page` 和最大 100 的 `size` 参数；错误响应统一返回稳定的 `code`、`message` 与可选 `field`。
 						""".trimIndent(),
 					)
@@ -85,6 +86,7 @@ class OpenApiConfig {
 											.scopes(
 												Scopes()
 													.addString(SECURITY_ADMIN_ACCESS_NODE, "系统管理 API 访问权限")
+													.addString(BATTLE_RULES_ADMIN_ACCESS_NODE, "战斗规则管理 API 访问权限")
 													.addString(GAME_DATA_ADMIN_ACCESS_NODE, "游戏资料管理 API 访问权限"),
 											),
 									),
@@ -105,7 +107,15 @@ class OpenApiConfig {
 		GroupedOpenApi.builder()
 			.group("admin")
 			.displayName("后台 API")
-			.pathsToMatch("/api/session", "/api/system/**", "/api/game-data/**")
+			.pathsToMatch("/api/session", "/api/system/**", "/api/battle-rules/**", "/api/game-data/**")
+			.build()
+
+	@Bean
+	fun battleRulesOpenApiGroup(): GroupedOpenApi =
+		GroupedOpenApi.builder()
+			.group("battle-rules")
+			.displayName("战斗规则 API")
+			.pathsToMatch("/api/battle-rules/**")
 			.build()
 
 	/**

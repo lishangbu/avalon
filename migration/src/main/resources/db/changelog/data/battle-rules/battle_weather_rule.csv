@@ -1,0 +1,6 @@
+id,code,name,effect_policy,default_duration_turns,description,enabled,sort_order
+1,clear,无天气,weather-clear,,没有天气效果，作为清除天气后的默认状态。,true,10
+2,harsh-sunlight,大晴天,weather-sun,5,强化火属性伤害并削弱水属性伤害，部分技能和特性会改变行为。,true,20
+3,rain,下雨,weather-rain,5,强化水属性伤害并削弱火属性伤害，部分技能和特性会改变行为。,true,30
+4,sandstorm,沙暴,weather-sandstorm,5,回合结束时对非岩石钢地面成员造成伤害，并强化岩石成员特防。,true,40
+5,snow,下雪,weather-snow,5,强化冰属性成员防御，部分技能和特性会改变行为。,true,50

@@ -46,13 +46,17 @@ class LiquibaseMigrationTests(
 				.sorted()
 				.toList()
 		}
-		assertThat(changelogFiles).containsExactly("001-initial-schema.yaml")
+		assertThat(changelogFiles).containsExactly(
+			"001-initial-schema.yaml",
+			"002-battle-rules-schema.yaml",
+		)
+		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
 
 	@Test
 	fun `liquibase create table changes declare inline remarks`() {
 		val missingRemarks = buildList {
-			initialChanges().forEach { change ->
+			changelogChanges().forEach { change ->
 				val createTable = change["createTable"] as? Map<*, *> ?: return@forEach
 				val tableName = createTable["tableName"]
 				if ((createTable["remarks"] as? String).isNullOrBlank()) {
@@ -227,12 +231,28 @@ class LiquibaseMigrationTests(
 			"game-data.stats",
 			"game-data.world",
 		)
-		assertThat(accessNodeCodes).containsAll(gameDataAccessNodeCodes + systemAccessNodeCodes)
+		val battleRulesAccessNodeCodes = listOf(
+			"battle-rules",
+			"battle-rules:admin",
+			"battle-rules.battle-formats",
+			"battle-rules.effects",
+			"battle-rules.field-rules",
+			"battle-rules.format-clause-bindings",
+			"battle-rules.format-clauses",
+			"battle-rules.format-restrictions",
+			"battle-rules.format-special-mechanics",
+			"battle-rules.formats",
+			"battle-rules.special-mechanics",
+			"battle-rules.status-rules",
+			"battle-rules.terrain-rules",
+			"battle-rules.weather-rules",
+		)
+		assertThat(accessNodeCodes).containsAll(battleRulesAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes)
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",
 		)
-		assertThat(roleCodes).containsExactly("game-data-admin", "system-admin")
+		assertThat(roleCodes).containsExactly("battle-rules-admin", "game-data-admin", "system-admin")
 
 		val systemAdminAccessNodeCodes = queryStrings(
 			"""
@@ -258,6 +278,19 @@ class LiquibaseMigrationTests(
 		)
 		val allGameDataAccessNodeCodes = accessNodeCodes.filter { it.startsWith("game-data") }
 		assertThat(gameDataAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(allGameDataAccessNodeCodes)
+
+		val battleRulesAdminAccessNodeCodes = queryStrings(
+			"""
+			select n.code
+			from security_access_node n
+			join security_role_access_node ran on ran.access_node_id = n.id
+			join security_role r on r.id = ran.role_id
+			where r.code = 'battle-rules-admin'
+			order by n.code
+			""".trimIndent(),
+		)
+		val allBattleRulesAccessNodeCodes = accessNodeCodes.filter { it.startsWith("battle-rules") }
+		assertThat(battleRulesAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(allBattleRulesAccessNodeCodes)
 
 		val rbacIdTypes = queryMaps(
 			"""
@@ -362,7 +395,67 @@ class LiquibaseMigrationTests(
 		val clientScopes = queryStrings(
 			"select scopes from oauth2_client order by client_id",
 		)
-		assertThat(clientScopes).containsOnly("game-data:admin security:admin")
+		assertThat(clientScopes).containsOnly("battle-rules:admin game-data:admin security:admin")
+	}
+
+	@Test
+	fun `liquibase creates battle rules tables with seed rows`() {
+		val tableNames = queryStrings(
+			"""
+			select table_name
+			from information_schema.tables
+			where table_schema = 'public'
+			""".trimIndent(),
+		)
+
+		assertThat(tableNames).contains(
+			"battle_format",
+			"battle_format_clause",
+			"battle_format_clause_binding",
+			"battle_format_restriction",
+			"battle_special_mechanic",
+			"battle_format_special_mechanic",
+			"battle_status_rule",
+			"battle_weather_rule",
+			"battle_terrain_rule",
+			"battle_field_rule",
+		)
+
+		val seedCounts = queryMaps(
+			"""
+			select 'battle_format' as table_name, count(*) as row_count from battle_format
+			union all select 'battle_format_clause', count(*) from battle_format_clause
+			union all select 'battle_format_clause_binding', count(*) from battle_format_clause_binding
+			union all select 'battle_format_restriction', count(*) from battle_format_restriction
+			union all select 'battle_special_mechanic', count(*) from battle_special_mechanic
+			union all select 'battle_format_special_mechanic', count(*) from battle_format_special_mechanic
+			union all select 'battle_status_rule', count(*) from battle_status_rule
+			union all select 'battle_weather_rule', count(*) from battle_weather_rule
+			union all select 'battle_terrain_rule', count(*) from battle_terrain_rule
+			union all select 'battle_field_rule', count(*) from battle_field_rule
+			order by table_name
+			""".trimIndent(),
+		).associate { it["table_name"] to it["row_count"].toString().toLong() }
+		assertThat(seedCounts).containsEntry("battle_format", 4L)
+		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
+		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
+		assertThat(seedCounts).containsEntry("battle_format_restriction", 3L)
+		assertThat(seedCounts).containsEntry("battle_special_mechanic", 3L)
+		assertThat(seedCounts).containsEntry("battle_format_special_mechanic", 6L)
+		assertThat(seedCounts).containsEntry("battle_status_rule", 8L)
+		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
+		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
+		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
+
+		val formatNames = queryStrings(
+			"select name from battle_format order by id",
+		)
+		assertThat(formatNames).containsExactly("标准单打", "标准双打", "官方双打", "自定义规则")
+
+		val statusNames = queryStrings(
+			"select name from battle_status_rule where code in ('burn', 'paralysis', 'sleep') order by code",
+		)
+		assertThat(statusNames).containsExactly("灼伤", "麻痹", "睡眠")
 	}
 
 	@Test
@@ -626,7 +719,7 @@ class LiquibaseMigrationTests(
 			order by r.code
 			""".trimIndent(),
 		)
-		assertThat(roleCodes).containsExactly("game-data-admin", "system-admin")
+		assertThat(roleCodes).containsExactly("battle-rules-admin", "game-data-admin", "system-admin")
 	}
 
 	private fun queryStrings(sql: String): List<String> =
@@ -641,6 +734,25 @@ class LiquibaseMigrationTests(
 		val databaseChangeLog = root["databaseChangeLog"] as List<Map<String, Any?>>
 		val changeSet = databaseChangeLog.single()["changeSet"] as Map<String, Any?>
 		return changeSet["changes"] as List<Map<String, Any?>>
+	}
+
+	@Suppress("UNCHECKED_CAST")
+	private fun changelogChanges(): List<Map<String, Any?>> {
+		val resource = javaClass.getResource("/db/changelog/changes")
+		return Files.list(Path.of(resource!!.toURI())).use { paths ->
+			paths
+				.filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".yaml") }
+				.sorted()
+				.flatMap { path ->
+					val root = Yaml().load<Map<String, Any?>>(Files.readString(path))
+					val databaseChangeLog = root["databaseChangeLog"] as List<Map<String, Any?>>
+					databaseChangeLog.stream().flatMap { entry ->
+						val changeSet = entry["changeSet"] as Map<String, Any?>
+						(changeSet["changes"] as List<Map<String, Any?>>).stream()
+					}
+				}
+				.toList()
+		}
 	}
 
 	private fun queryMaps(sql: String): List<Map<String, Any?>> =

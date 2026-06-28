@@ -38,6 +38,7 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.type").value("oauth2"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.tokenUrl").value("/oauth2/token"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['security:admin']").value("系统管理 API 访问权限"))
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-rules:admin']").value("战斗规则管理 API 访问权限"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].get.summary").value("查询用户列表"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].post.summary").value("创建用户"))
 			.andExpect(jsonPath("$.paths['/api/system/oauth/clients/{clientId}/secret'].put.summary").value("重置 OAuth client secret"))
@@ -61,6 +62,17 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures/{id}'].put.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/GameCreatureRequest"))
 			.andExpect(jsonPath("$.components.schemas.GameCreatureRequest.properties.species_id.description").value("种类 ID"))
 			.andExpect(jsonPath("$.components.schemas.GameCreatureResponse.properties.species_id.description").value("种类 ID"))
+	}
+
+	@Test
+	fun `battle rules openapi group exposes battle rules api contract and scope`() {
+		mockMvc.perform(get("/v3/api-docs/battle-rules"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-rules:admin']").value("战斗规则管理 API 访问权限"))
+			.andExpect(jsonPath("$.paths['/api/battle-rules/battle-formats'].get.summary").value("分页查询战斗赛制"))
+			.andExpect(jsonPath("$.paths['/api/battle-rules/battle-formats'].post.summary").value("新增战斗赛制"))
+			.andExpect(jsonPath("$.paths['/api/battle-rules/status-rules'].get.summary").value("分页查询状态规则"))
+			.andExpect(jsonPath("$.paths['/api/battle-rules/weather-rules'].get.summary").value("分页查询天气规则"))
 	}
 
 	@Test

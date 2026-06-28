@@ -2,6 +2,7 @@ package io.github.lishangbu.security.oauth
 
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SecurityUserPrincipal
@@ -148,6 +149,7 @@ class TokenConfig {
 	private fun String.isMenuNodeForScope(scope: String): Boolean =
 		when (scope) {
 			SECURITY_ADMIN_ACCESS_NODE -> startsWith("system")
+			BATTLE_RULES_ADMIN_ACCESS_NODE -> startsWith("battle-rules")
 			GAME_DATA_ADMIN_ACCESS_NODE -> startsWith("game-data")
 			else -> false
 		}

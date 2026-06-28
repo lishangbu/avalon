@@ -1,0 +1,15 @@
+id,code,name,type,parent_id,path,component_key,icon,sort_order,visible,enabled,api_method,api_pattern
+801,battle-rules:admin,战斗规则 API,API,,,,,2100,false,true,*,/api/battle-rules/**
+810,battle-rules,战斗规则,DIRECTORY,,/battle-rules,,lucide:swords,30,true,true,,
+820,battle-rules.formats,赛制配置,DIRECTORY,810,/battle-rules/formats,,lucide:list-tree,10,true,true,,
+821,battle-rules.battle-formats,战斗赛制,ROUTE,820,/battle-rules/battle-formats,battle-rules/battle-formats,lucide:layout-list,10,true,true,,
+822,battle-rules.format-clauses,赛制条款,ROUTE,820,/battle-rules/format-clauses,battle-rules/format-clauses,lucide:list-checks,20,true,true,,
+823,battle-rules.format-clause-bindings,赛制条款绑定,ROUTE,820,/battle-rules/format-clause-bindings,battle-rules/format-clause-bindings,lucide:git-branch,30,true,true,,
+824,battle-rules.format-restrictions,赛制限制,ROUTE,820,/battle-rules/format-restrictions,battle-rules/format-restrictions,lucide:ban,40,true,true,,
+830,battle-rules.effects,规则效果,DIRECTORY,810,/battle-rules/effects,,lucide:sparkles,20,true,true,,
+831,battle-rules.special-mechanics,特殊机制,ROUTE,830,/battle-rules/special-mechanics,battle-rules/special-mechanics,lucide:sparkles,10,true,true,,
+832,battle-rules.format-special-mechanics,赛制特殊机制,ROUTE,830,/battle-rules/format-special-mechanics,battle-rules/format-special-mechanics,lucide:git-branch,20,true,true,,
+833,battle-rules.status-rules,状态规则,ROUTE,830,/battle-rules/status-rules,battle-rules/status-rules,lucide:activity,30,true,true,,
+834,battle-rules.weather-rules,天气规则,ROUTE,830,/battle-rules/weather-rules,battle-rules/weather-rules,lucide:cloud-sun,40,true,true,,
+835,battle-rules.terrain-rules,场地规则,ROUTE,830,/battle-rules/terrain-rules,battle-rules/terrain-rules,lucide:land-plot,50,true,true,,
+836,battle-rules.field-rules,场上效果,ROUTE,830,/battle-rules/field-rules,battle-rules/field-rules,lucide:shield,60,true,true,,

@@ -1,0 +1,4 @@
+id,format_id,code,name,restriction_type,restriction_operator,operand_text,operand_number,description,enabled,sort_order
+1,3,level-cap-50,等级上限,LEVEL,MAX,,50,进入官方双打时高于五十级的成员按五十级结算。,true,10
+2,3,team-size-6,登记六名成员,TEAM,LIMIT_COUNT,,6,队伍登记最多六名成员。,true,20
+3,3,active-size-4,选择四名出战,TEAM,SELECT_COUNT,,4,队伍预览后选择四名成员参与战斗。,true,30

@@ -1,0 +1,4 @@
+id,code,name,description,enabled,sort_order
+1,temporary-type-boost,临时属性强化,允许成员在战斗中触发一次临时属性和威力强化。,true,10
+2,temporary-form-boost,临时形态强化,允许成员在战斗中触发一次临时形态和能力强化。,false,20
+3,ultimate-technique,终极招式,允许成员在战斗中消耗专用条件释放一次高威力招式。,false,30

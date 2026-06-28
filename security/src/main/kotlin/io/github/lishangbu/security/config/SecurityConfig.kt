@@ -5,6 +5,7 @@ import io.github.lishangbu.security.oauth.PasswordGrantAuthenticationProvider
 import io.github.lishangbu.security.oauth.BearerTokenAuthenticationManagerResolver
 import io.github.lishangbu.security.oauth.OpaqueTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.securityAuthoritiesFromClaims
+import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.JimmerSecurityUserDetailsService
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
@@ -188,6 +189,7 @@ class SecurityConfig {
 					.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 					// 管理端路由权限在后端强制校验，前端只负责改善交互体验。
 					.requestMatchers("/api/system/**").hasAuthority(SECURITY_ADMIN_ACCESS_NODE)
+					.requestMatchers("/api/battle-rules/**").hasAuthority(BATTLE_RULES_ADMIN_ACCESS_NODE)
 					.requestMatchers("/api/game-data/**").hasAuthority(GAME_DATA_ADMIN_ACCESS_NODE)
 					.anyRequest().authenticated()
 			}

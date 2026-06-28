@@ -1,0 +1,860 @@
+databaseChangeLog:
+- changeSet:
+    id: 002-battle-rules-schema
+    author: backend
+    changes:
+    - createTable:
+        tableName: battle_format
+        remarks: 战斗赛制表，保存现代规则下可选的对战模式和默认队伍配置。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 赛制主键，内置数据使用稳定数字 ID，后台新增数据由 Jimmer 主键生成器生成。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_format
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 赛制稳定编码，用于规则加载、接口筛选和对照测试夹具引用。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 赛制简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: description
+            type: varchar(600)
+            remarks: 赛制说明，描述适用场景和主要限制。
+        - column:
+            name: battle_mode
+            type: varchar(32)
+            remarks: 对战站位模式，例如 SINGLE 或 DOUBLE。
+            constraints:
+              nullable: false
+        - column:
+            name: player_count
+            type: int
+            remarks: 参与玩家数量，标准对战为 2。
+            constraints:
+              nullable: false
+        - column:
+            name: team_size
+            type: int
+            remarks: 队伍登记成员数量。
+            constraints:
+              nullable: false
+        - column:
+            name: active_participant_count
+            type: int
+            remarks: 单方同时上场成员数量。
+            constraints:
+              nullable: false
+        - column:
+            name: default_level
+            type: int
+            remarks: 自动拉平等级，空值表示保留队伍原等级。
+        - column:
+            name: allow_custom_rules
+            type: boolean
+            defaultValueBoolean: false
+            remarks: 是否允许管理员在该赛制上继续叠加自定义规则。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该赛制，禁用后不再作为新战斗入口。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 赛制展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_format
+        columnNames: code
+        constraintName: uk_battle_format__code
+    - createIndex:
+        tableName: battle_format
+        indexName: idx_battle_format__enabled_sort_order
+        columns:
+        - column:
+            name: enabled
+        - column:
+            name: sort_order
+    - createTable:
+        tableName: battle_format_clause
+        remarks: 战斗赛制条款字典，保存唯一成员、唯一道具、队伍预览等可复用条款。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 条款主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_format_clause
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 条款稳定编码，用于赛制绑定和引擎规则开关。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 条款简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: clause_type
+            type: varchar(40)
+            remarks: 条款类型，例如 TEAM、ITEM、LEVEL 或 PREVIEW。
+            constraints:
+              nullable: false
+        - column:
+            name: description
+            type: varchar(600)
+            remarks: 条款说明，描述引擎应强制检查的条件。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该条款。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 条款展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_format_clause
+        columnNames: code
+        constraintName: uk_battle_format_clause__code
+    - createIndex:
+        tableName: battle_format_clause
+        indexName: idx_battle_format_clause__enabled_sort_order
+        columns:
+        - column:
+            name: enabled
+        - column:
+            name: sort_order
+    - createTable:
+        tableName: battle_format_clause_binding
+        remarks: 战斗赛制条款绑定表，维护赛制启用哪些可复用条款。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 条款绑定主键，后台新增绑定由 Jimmer 主键生成器生成。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_format_clause_binding
+              nullable: false
+        - column:
+            name: format_id
+            type: bigint
+            remarks: 赛制 ID，引用 battle_format。
+            constraints:
+              nullable: false
+        - column:
+            name: clause_id
+            type: bigint
+            remarks: 条款 ID，引用 battle_format_clause。
+            constraints:
+              nullable: false
+        - column:
+            name: required
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否为该赛制不可关闭的强制条款。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 条款在赛制详情中的展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_format_clause_binding
+        columnNames: format_id, clause_id
+        constraintName: uk_battle_format_clause_binding__format_clause
+    - addForeignKeyConstraint:
+        baseTableName: battle_format_clause_binding
+        baseColumnNames: format_id
+        referencedTableName: battle_format
+        referencedColumnNames: id
+        constraintName: fk_battle_format_clause_binding__format_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_format_clause_binding
+        baseColumnNames: clause_id
+        referencedTableName: battle_format_clause
+        referencedColumnNames: id
+        constraintName: fk_battle_format_clause_binding__clause_id
+    - createIndex:
+        tableName: battle_format_clause_binding
+        indexName: idx_battle_format_clause_binding__clause_id
+        columns:
+        - column:
+            name: clause_id
+    - createTable:
+        tableName: battle_format_restriction
+        remarks: 战斗赛制限制表，保存某个赛制上的等级、队伍、技能、道具或成员限制。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 限制主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_format_restriction
+              nullable: false
+        - column:
+            name: format_id
+            type: bigint
+            remarks: 赛制 ID，引用 battle_format。
+            constraints:
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 限制稳定编码，在同一赛制内唯一。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 限制简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: restriction_type
+            type: varchar(40)
+            remarks: 限制类型，例如 LEVEL、TEAM、CREATURE、SKILL、ITEM 或 ABILITY。
+            constraints:
+              nullable: false
+        - column:
+            name: restriction_operator
+            type: varchar(40)
+            remarks: 限制判定方式，例如 MAX、MIN、BAN、LIMIT_COUNT 或 REQUIRE。
+            constraints:
+              nullable: false
+        - column:
+            name: operand_text
+            type: varchar(120)
+            remarks: 文本操作数，例如资料 code；仅文本型限制使用。
+        - column:
+            name: operand_number
+            type: int
+            remarks: 数值操作数，例如等级上限或数量上限；仅数值型限制使用。
+        - column:
+            name: description
+            type: varchar(600)
+            remarks: 限制说明，描述管理员和引擎应如何理解该限制。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该限制。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 限制展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_format_restriction
+        columnNames: format_id, code
+        constraintName: uk_battle_format_restriction__format_code
+    - addForeignKeyConstraint:
+        baseTableName: battle_format_restriction
+        baseColumnNames: format_id
+        referencedTableName: battle_format
+        referencedColumnNames: id
+        constraintName: fk_battle_format_restriction__format_id
+        onDelete: CASCADE
+    - createIndex:
+        tableName: battle_format_restriction
+        indexName: idx_battle_format_restriction__format_id
+        columns:
+        - column:
+            name: format_id
+    - createTable:
+        tableName: battle_special_mechanic
+        remarks: 战斗特殊机制字典，保存可由赛制选择启用或禁用的现代特殊规则。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 特殊机制主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_special_mechanic
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 特殊机制稳定编码，用于赛制绑定和引擎功能开关。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 特殊机制简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: description
+            type: varchar(600)
+            remarks: 特殊机制说明，避免在代码标识符中暴露来源品牌术语。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该特殊机制。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 特殊机制展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_special_mechanic
+        columnNames: code
+        constraintName: uk_battle_special_mechanic__code
+    - createTable:
+        tableName: battle_format_special_mechanic
+        remarks: 战斗赛制特殊机制绑定表，维护赛制允许使用哪些特殊机制。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 赛制特殊机制绑定主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_format_special_mechanic
+              nullable: false
+        - column:
+            name: format_id
+            type: bigint
+            remarks: 赛制 ID，引用 battle_format。
+            constraints:
+              nullable: false
+        - column:
+            name: mechanic_id
+            type: bigint
+            remarks: 特殊机制 ID，引用 battle_special_mechanic。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 该赛制是否启用该特殊机制。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 特殊机制在赛制详情中的展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_format_special_mechanic
+        columnNames: format_id, mechanic_id
+        constraintName: uk_battle_format_special_mechanic__format_mechanic
+    - addForeignKeyConstraint:
+        baseTableName: battle_format_special_mechanic
+        baseColumnNames: format_id
+        referencedTableName: battle_format
+        referencedColumnNames: id
+        constraintName: fk_battle_format_special_mechanic__format_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_format_special_mechanic
+        baseColumnNames: mechanic_id
+        referencedTableName: battle_special_mechanic
+        referencedColumnNames: id
+        constraintName: fk_battle_format_special_mechanic__mechanic_id
+    - createIndex:
+        tableName: battle_format_special_mechanic
+        indexName: idx_battle_format_special_mechanic__mechanic_id
+        columns:
+        - column:
+            name: mechanic_id
+    - createTable:
+        tableName: battle_status_rule
+        remarks: 战斗状态规则表，保存主要状态、临时状态和行动限制的现代规则配置。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 状态规则主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_status_rule
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 状态规则稳定编码，用于引擎状态机和对照测试夹具。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 状态规则简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: status_kind
+            type: varchar(40)
+            remarks: 状态类型，例如 MAJOR、VOLATILE 或 ACTION_LOCK。
+            constraints:
+              nullable: false
+        - column:
+            name: effect_policy
+            type: varchar(80)
+            remarks: 引擎效果策略编码，指向代码中的具名规则实现。
+            constraints:
+              nullable: false
+        - column:
+            name: min_turns
+            type: int
+            remarks: 最少持续回合，空值表示不按回合自然消退。
+        - column:
+            name: max_turns
+            type: int
+            remarks: 最多持续回合，空值表示不按回合自然消退。
+        - column:
+            name: description
+            type: varchar(800)
+            remarks: 状态规则说明，描述现代规则下的结算边界。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该状态规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 状态规则展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_status_rule
+        columnNames: code
+        constraintName: uk_battle_status_rule__code
+    - createTable:
+        tableName: battle_weather_rule
+        remarks: 战斗天气规则表，保存晴、雨、沙暴、雪等全场天气的现代结算配置。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 天气规则主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_weather_rule
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 天气规则稳定编码，用于场地状态和对照测试夹具。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 天气规则简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: effect_policy
+            type: varchar(80)
+            remarks: 引擎效果策略编码，描述天气对伤害、回复或持续伤害的影响。
+            constraints:
+              nullable: false
+        - column:
+            name: default_duration_turns
+            type: int
+            remarks: 默认持续回合，空值表示由触发来源决定或永久持续。
+        - column:
+            name: description
+            type: varchar(800)
+            remarks: 天气规则说明，描述现代规则下的主要效果。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该天气规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 天气规则展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_weather_rule
+        columnNames: code
+        constraintName: uk_battle_weather_rule__code
+    - createTable:
+        tableName: battle_terrain_rule
+        remarks: 战斗场地规则表，保存电气、青草、薄雾、精神等地形规则。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 地形规则主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_terrain_rule
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 地形规则稳定编码，用于场地状态和对照测试夹具。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 地形规则简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: effect_policy
+            type: varchar(80)
+            remarks: 引擎效果策略编码，描述地形对伤害、状态或优先级的影响。
+            constraints:
+              nullable: false
+        - column:
+            name: default_duration_turns
+            type: int
+            remarks: 默认持续回合，空值表示由触发来源决定或永久持续。
+        - column:
+            name: description
+            type: varchar(800)
+            remarks: 地形规则说明，描述现代规则下的主要效果。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该地形规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 地形规则展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_terrain_rule
+        columnNames: code
+        constraintName: uk_battle_terrain_rule__code
+    - createTable:
+        tableName: battle_field_rule
+        remarks: 战斗场上效果规则表，保存墙、顺风、空间、入场陷阱等持续效果。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 场上效果规则主键，内置数据使用稳定数字 ID。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_field_rule
+              nullable: false
+        - column:
+            name: code
+            type: varchar(80)
+            remarks: 场上效果稳定编码，用于引擎状态机和对照测试夹具。
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: varchar(80)
+            remarks: 场上效果简体中文显示名称。
+            constraints:
+              nullable: false
+        - column:
+            name: effect_scope
+            type: varchar(40)
+            remarks: 效果范围，例如 SIDE、FIELD 或 SLOT。
+            constraints:
+              nullable: false
+        - column:
+            name: effect_policy
+            type: varchar(80)
+            remarks: 引擎效果策略编码，描述该场上效果的结算入口。
+            constraints:
+              nullable: false
+        - column:
+            name: min_turns
+            type: int
+            remarks: 最少持续回合，空值表示不按回合自然消退。
+        - column:
+            name: max_turns
+            type: int
+            remarks: 最多持续回合，空值表示不按回合自然消退。
+        - column:
+            name: max_layers
+            type: int
+            remarks: 可叠加层数上限，空值表示不可叠加或由策略决定。
+        - column:
+            name: description
+            type: varchar(800)
+            remarks: 场上效果说明，描述现代规则下的主要效果。
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该场上效果规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 场上效果展示排序，数值越小越靠前。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_field_rule
+        columnNames: code
+        constraintName: uk_battle_field_rule__code
+    - createIndex:
+        tableName: battle_field_rule
+        indexName: idx_battle_field_rule__scope_enabled
+        columns:
+        - column:
+            name: effect_scope
+        - column:
+            name: enabled
+    - loadData:
+        tableName: battle_format
+        file: db/changelog/data/battle-rules/battle_format.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: description, type: STRING }
+        - column: { name: battle_mode, type: STRING }
+        - column: { name: player_count, type: NUMERIC }
+        - column: { name: team_size, type: NUMERIC }
+        - column: { name: active_participant_count, type: NUMERIC }
+        - column: { name: default_level, type: NUMERIC }
+        - column: { name: allow_custom_rules, type: BOOLEAN }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_format_clause
+        file: db/changelog/data/battle-rules/battle_format_clause.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: clause_type, type: STRING }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_format_clause_binding
+        file: db/changelog/data/battle-rules/battle_format_clause_binding.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: format_id, type: NUMERIC }
+        - column: { name: clause_id, type: NUMERIC }
+        - column: { name: required, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_format_restriction
+        file: db/changelog/data/battle-rules/battle_format_restriction.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: format_id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: restriction_type, type: STRING }
+        - column: { name: restriction_operator, type: STRING }
+        - column: { name: operand_text, type: STRING }
+        - column: { name: operand_number, type: NUMERIC }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_special_mechanic
+        file: db/changelog/data/battle-rules/battle_special_mechanic.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_format_special_mechanic
+        file: db/changelog/data/battle-rules/battle_format_special_mechanic.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: format_id, type: NUMERIC }
+        - column: { name: mechanic_id, type: NUMERIC }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_status_rule
+        file: db/changelog/data/battle-rules/battle_status_rule.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: status_kind, type: STRING }
+        - column: { name: effect_policy, type: STRING }
+        - column: { name: min_turns, type: NUMERIC }
+        - column: { name: max_turns, type: NUMERIC }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_weather_rule
+        file: db/changelog/data/battle-rules/battle_weather_rule.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: effect_policy, type: STRING }
+        - column: { name: default_duration_turns, type: NUMERIC }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_terrain_rule
+        file: db/changelog/data/battle-rules/battle_terrain_rule.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: effect_policy, type: STRING }
+        - column: { name: default_duration_turns, type: NUMERIC }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: battle_field_rule
+        file: db/changelog/data/battle-rules/battle_field_rule.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: effect_scope, type: STRING }
+        - column: { name: effect_policy, type: STRING }
+        - column: { name: min_turns, type: NUMERIC }
+        - column: { name: max_turns, type: NUMERIC }
+        - column: { name: max_layers, type: NUMERIC }
+        - column: { name: description, type: STRING }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: sort_order, type: NUMERIC }
+    - loadData:
+        tableName: security_role
+        file: db/changelog/data/battle-rules/security_role.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+    - loadData:
+        tableName: security_access_node
+        file: db/changelog/data/battle-rules/security_access_node.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: id, type: NUMERIC }
+        - column: { name: code, type: STRING }
+        - column: { name: name, type: STRING }
+        - column: { name: type, type: STRING }
+        - column: { name: parent_id, type: NUMERIC }
+        - column: { name: path, type: STRING }
+        - column: { name: component_key, type: STRING }
+        - column: { name: icon, type: STRING }
+        - column: { name: sort_order, type: NUMERIC }
+        - column: { name: visible, type: BOOLEAN }
+        - column: { name: enabled, type: BOOLEAN }
+        - column: { name: api_method, type: STRING }
+        - column: { name: api_pattern, type: STRING }
+    - loadData:
+        tableName: security_role_access_node
+        file: db/changelog/data/battle-rules/security_role_access_node.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: role_id, type: NUMERIC }
+        - column: { name: access_node_id, type: NUMERIC }
+    - loadData:
+        tableName: security_user_role
+        file: db/changelog/data/battle-rules/security_user_role.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column: { name: user_id, type: NUMERIC }
+        - column: { name: role_id, type: NUMERIC }
+    - update:
+        tableName: oauth2_client
+        columns:
+        - column:
+            name: scopes
+            value: battle-rules:admin game-data:admin security:admin

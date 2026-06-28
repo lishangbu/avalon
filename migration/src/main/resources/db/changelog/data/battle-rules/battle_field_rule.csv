@@ -1,0 +1,10 @@
+id,code,name,effect_scope,effect_policy,min_turns,max_turns,max_layers,description,enabled,sort_order
+1,reflect,反射壁,SIDE,side-reflect,5,8,,降低己方受到的物理伤害。,true,10
+2,light-screen,光墙,SIDE,side-light-screen,5,8,,降低己方受到的特殊伤害。,true,20
+3,aurora-veil,极光幕,SIDE,side-aurora-veil,5,8,,在指定天气下同时降低己方受到的物理和特殊伤害。,true,30
+4,tailwind,顺风,SIDE,side-tailwind,4,4,,提高己方速度结算值。,true,40
+5,trick-room,戏法空间,FIELD,field-trick-room,5,5,,让速度较低的成员优先行动，优先级仍按正常规则处理。,true,50
+6,stealth-rock,隐形岩,SIDE,hazard-stealth-rock,,,,对换入成员造成与属性相性相关的伤害。,true,60
+7,spikes,撒菱,SIDE,hazard-spikes,,,3,对换入且接触地面的成员造成按层数变化的伤害。,true,70
+8,toxic-spikes,毒菱,SIDE,hazard-toxic-spikes,,,2,让换入且接触地面的成员陷入中毒或剧毒。,true,80
+9,sticky-web,黏黏网,SIDE,hazard-sticky-web,,,1,降低换入且接触地面的成员速度等级。,true,90

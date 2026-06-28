@@ -1,0 +1,5 @@
+id,code,name,description,battle_mode,player_count,team_size,active_participant_count,default_level,allow_custom_rules,enabled,sort_order
+1,standard-single,标准单打,现代主系列一对一单打规则，双方各一名成员在场。,SINGLE,2,6,1,,true,true,10
+2,standard-double,标准双打,现代主系列二对二双打规则，双方各两名成员在场。,DOUBLE,2,6,2,,true,true,20
+3,official-double,官方双打,按现代官方双打思路配置的队伍预览和等级拉平规则。,DOUBLE,2,6,2,50,false,true,30
+4,custom,自定义规则,允许管理员组合条款和特殊机制的自定义赛制。,SINGLE,2,6,1,,true,true,90
