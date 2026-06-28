@@ -354,6 +354,94 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 一侧入场陷阱的层数已经建立或增加。
+	 *
+	 * 该事件发生在技能命中并成功改变目标侧状态之后。`layers` 记录当前最终层数，而不是本次增加的层数；这样
+	 * replay 可以直接重建一侧场上陷阱状态。若同类陷阱已经达到最大层数，引擎不会产生该事件。
+	 */
+	data class SideEntryHazardChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val kind: BattleSideEntryHazardKind,
+		val layers: Int,
+		val maxLayers: Int,
+	) : BattleEvent
+
+	/**
+	 * 一侧入场陷阱已经被换入成员吸收并移除。
+	 *
+	 * 当前用于毒菱被接地毒属性成员换入吸收。事件保留吸收者 `actorId`，便于 replay 区分自然持续结束和由成员
+	 * 入场触发的移除。
+	 */
+	data class SideEntryHazardRemoved(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val kind: BattleSideEntryHazardKind,
+	) : BattleEvent
+
+	/**
+	 * 入场陷阱在成员换入后造成了 HP 伤害。
+	 *
+	 * 该事件独立于普通技能伤害，避免 replay 端误把伤害归因到本回合使用的技能。`effectiveness` 只对按属性克制
+	 * 计算的陷阱有意义；其它固定比例陷阱使用 1.0。
+	 */
+	data class EntryHazardDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val kind: BattleSideEntryHazardKind,
+		val amount: Int,
+		val layers: Int,
+		val effectiveness: Double = 1.0,
+	) : BattleEvent
+
+	/**
+	 * 入场陷阱在成员换入后成功附加主要异常状态。
+	 *
+	 * 当前用于毒菱。由于来源是一侧场上状态而不是某个行动者，事件只记录换入成员、所属侧和陷阱种类。
+	 */
+	data class EntryHazardStatusApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val kind: BattleSideEntryHazardKind,
+		val status: BattleMajorStatus,
+	) : BattleEvent
+
+	/**
+	 * 入场陷阱试图附加主要异常状态，但被稳定免疫规则阻止。
+	 *
+	 * 当前用于毒菱遇到钢属性、薄雾场地、免疫特性或免疫道具等情况。阻止事件是可观察事实，能让公开对照测试
+	 * 区分“没有触发陷阱”和“触发了但被规则免疫”。
+	 */
+	data class EntryHazardStatusApplicationBlocked(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val kind: BattleSideEntryHazardKind,
+		val status: BattleMajorStatus,
+		val reason: BattleStatusBlockReason,
+	) : BattleEvent
+
+	/**
+	 * 入场陷阱在成员换入后改变了能力阶级。
+	 *
+	 * 当前用于黏黏网降低接地换入成员速度。若能力阶级已经在下限，状态不会改变，也不会产生该事件。
+	 */
+	data class EntryHazardStatStageChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val kind: BattleSideEntryHazardKind,
+		val stat: BattleStat,
+		val delta: Int,
+		val currentStage: Int,
+	) : BattleEvent
+
+	/**
 	 * 全场速度顺序效果已经建立。
 	 *
 	 * 该事件用于戏法空间这类会改变行动队列比较方向的全场规则。它不表示任何成员速度数值被修改，只表示后续

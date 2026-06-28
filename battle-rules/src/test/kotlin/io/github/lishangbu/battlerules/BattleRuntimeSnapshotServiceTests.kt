@@ -8,6 +8,7 @@ import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -83,7 +84,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
-		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 311, 366, 433, 694))
+		val slots = service.skillSlotsBySkillIds(listOf(45, 76, 85, 87, 94, 113, 115, 191, 311, 366, 390, 433, 446, 564, 694))
 			.associateBy { it.skillId }
 
 		val growl = slots.getValue(45)
@@ -151,6 +152,26 @@ class BattleRuntimeSnapshotServiceTests(
 		val trickRoom = slots.getValue(433).fieldSpeedOrderApplications.single()
 		assertThat(trickRoom.speedOrderEffect.kind).isEqualTo(BattleFieldSpeedOrderKind.TRICK_ROOM)
 		assertThat(trickRoom.speedOrderEffect.turnsRemaining).isEqualTo(5)
+
+		val spikes = slots.getValue(191).sideEntryHazardApplications.single()
+		assertThat(spikes.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
+		assertThat(spikes.hazard.kind).isEqualTo(BattleSideEntryHazardKind.SPIKES)
+		assertThat(spikes.hazard.maxLayers).isEqualTo(3)
+
+		val toxicSpikes = slots.getValue(390).sideEntryHazardApplications.single()
+		assertThat(toxicSpikes.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
+		assertThat(toxicSpikes.hazard.kind).isEqualTo(BattleSideEntryHazardKind.TOXIC_SPIKES)
+		assertThat(toxicSpikes.hazard.maxLayers).isEqualTo(2)
+
+		val stealthRock = slots.getValue(446).sideEntryHazardApplications.single()
+		assertThat(stealthRock.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
+		assertThat(stealthRock.hazard.kind).isEqualTo(BattleSideEntryHazardKind.STEALTH_ROCK)
+		assertThat(stealthRock.hazard.maxLayers).isEqualTo(1)
+
+		val stickyWeb = slots.getValue(564).sideEntryHazardApplications.single()
+		assertThat(stickyWeb.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
+		assertThat(stickyWeb.hazard.kind).isEqualTo(BattleSideEntryHazardKind.STICKY_WEB)
+		assertThat(stickyWeb.hazard.maxLayers).isEqualTo(1)
 	}
 
 	@Test

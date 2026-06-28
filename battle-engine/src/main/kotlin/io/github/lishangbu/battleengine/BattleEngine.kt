@@ -19,6 +19,9 @@ import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -197,6 +200,9 @@ class BattleEngine(
 				}
 			}
 		return ordered.fold(state) { current, plan ->
+			if (current.result != null) {
+				return@fold current
+			}
 			val actor = current.participant(plan.action.actorId) ?: return@fold current
 			val side = current.sideOf(actor.actorId) ?: return@fold current
 			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
@@ -211,7 +217,7 @@ class BattleEngine(
 				)
 			}
 			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
-			switched.appendEvent(
+			val withSwitchEvent = switched.appendEvent(
 				BattleEvent.ParticipantSwitched(
 					turnNumber = current.turnNumber,
 					sideId = side.sideId,
@@ -219,6 +225,11 @@ class BattleEngine(
 					nextActorId = plan.action.targetActorId,
 					forced = !actor.canBattle(),
 				),
+			)
+			applyEntryHazardsOnSwitchIn(
+				state = withSwitchEvent,
+				sideId = side.sideId,
+				actorId = plan.action.targetActorId,
 			)
 		}
 	}
@@ -1071,7 +1082,14 @@ class BattleEngine(
 				applySideSpeedModifierEffect(current, actorId, targetActorId, skill, application)
 			}
 		}
-		return skill.fieldSpeedOrderApplications.fold(afterSideSpeedModifiers) { current, application ->
+		val afterSideEntryHazards = skill.sideEntryHazardApplications.fold(afterSideSpeedModifiers) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side entry hazard chance for ${skill.skillId}")) {
+				current
+			} else {
+				applySideEntryHazardEffect(current, actorId, targetActorId, skill, application)
+			}
+		}
+		return skill.fieldSpeedOrderApplications.fold(afterSideEntryHazards) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
 				current
 			} else {
@@ -1151,6 +1169,41 @@ class BattleEngine(
 	}
 
 	/**
+	 * 将命中后的技能入场陷阱写入对应战斗侧。
+	 *
+	 * 入场陷阱属于一侧场上状态，但触发时机是后续成员换入，因此这里仅负责建立或叠层，不立即造成伤害或状态。
+	 * 目标侧解析规则与其它一侧场上效果一致：使用者侧效果直接绑定使用者所属侧，目标侧效果绑定本次实际命中的
+	 * 目标所属侧。若同类陷阱无法再叠层，状态保持不变，也不会产生层数变化事件。
+	 */
+	private fun applySideEntryHazardEffect(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		application: BattleSideEntryHazardApplication,
+	): BattleState {
+		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
+			return state
+		}
+		val side = when (application.targetSide) {
+			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
+			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
+		} ?: return state
+		val change = state.addSideEntryHazard(side.sideId, application.hazard) ?: return state
+		return change.state.appendEvent(
+			BattleEvent.SideEntryHazardChanged(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				sideId = side.sideId,
+				skillId = skill.skillId,
+				kind = change.hazard.kind,
+				layers = change.hazard.layers,
+				maxLayers = change.hazard.maxLayers,
+			),
+		)
+	}
+
+	/**
 	 * 将命中后的全场速度顺序效果写入环境。
 	 *
 	 * 公开成熟实现中，戏法空间在已经存在时再次使用会解除该全场效果；未存在时建立新的持续效果。这里把这条
@@ -1193,6 +1246,250 @@ class BattleEngine(
 				),
 			)
 	}
+
+	/**
+	 * 结算成员换入后所在侧已有的入场陷阱。
+	 *
+	 * 调用点位于 `ParticipantSwitched` 事件之后，因此事件流会稳定表达“先进入场地，再承受入场效果”。同一侧存在
+	 * 多种入场陷阱时按状态列表顺序结算；每个陷阱都会重新读取当前成员快照，若成员已经倒下或战斗已经结束，
+	 * 后续陷阱不再继续触发。该策略避免已经无法战斗的成员继续获得异常状态或能力阶级变化。
+	 */
+	private fun applyEntryHazardsOnSwitchIn(
+		state: BattleState,
+		sideId: String,
+		actorId: String,
+	): BattleState {
+		val hazards = state.sides.firstOrNull { it.sideId == sideId }?.entryHazards.orEmpty()
+		return hazards.fold(state) { current, hazard ->
+			if (current.result != null) {
+				current
+			} else {
+				val participant = current.participant(actorId) ?: return@fold current
+				if (!participant.canBattle()) {
+					current
+				} else {
+					applyEntryHazardOnSwitchIn(current, sideId, participant, hazard)
+				}
+			}
+		}
+	}
+
+	/**
+	 * 结算单个入场陷阱对换入成员的影响。
+	 *
+	 * 每种陷阱的公开现代规则差异较大，因此这里保持显式分支，而不是把行为藏进字符串策略或反射脚本。资料层只负责
+	 * 把技能和场上规则映射成 [BattleSideEntryHazardKind]；真正会改变 HP、异常状态或能力阶级的语义由引擎持有。
+	 */
+	private fun applyEntryHazardOnSwitchIn(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+	): BattleState =
+		when (hazard.kind) {
+			BattleSideEntryHazardKind.STEALTH_ROCK -> applyStealthRockEntryDamage(state, sideId, participant, hazard)
+			BattleSideEntryHazardKind.SPIKES -> applySpikesEntryDamage(state, sideId, participant, hazard)
+			BattleSideEntryHazardKind.TOXIC_SPIKES -> applyToxicSpikesEntryEffect(state, sideId, participant, hazard)
+			BattleSideEntryHazardKind.STICKY_WEB -> applyStickyWebEntryEffect(state, sideId, participant, hazard)
+		}
+
+	/**
+	 * 结算隐形岩类入场伤害。
+	 *
+	 * 现代规则按岩属性攻击换入成员的属性克制倍率计算 `最大 HP * 倍率 / 8`，向下取整且正倍率至少造成 1 点伤害。
+	 * 如果规则快照没有提供岩属性 ID，本场战斗无法可靠计算克制关系，函数会保持状态不变，而不是硬编码资料编号。
+	 */
+	private fun applyStealthRockEntryDamage(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+	): BattleState {
+		val rockElementId = state.rules.rockElementId ?: return state
+		val effectiveness = state.rules.elementChart.multiplier(rockElementId, participant.elementIds)
+		val damage = entryHazardFractionDamage(participant.maxHp, effectiveness / STEALTH_ROCK_DAMAGE_DENOMINATOR)
+		return applyEntryHazardDamage(
+			state = state,
+			sideId = sideId,
+			participant = participant,
+			hazard = hazard,
+			amount = damage,
+			effectiveness = effectiveness,
+		)
+	}
+
+	/**
+	 * 结算撒菱类入场伤害。
+	 *
+	 * 撒菱只影响接地成员。现代规则层数伤害为一层最大 HP 的 1/8，二层 1/6，三层 1/4；层数超过上限在模型层
+	 * 已经被拒绝，因此这里仍使用 `when` 让伤害分母和公开规则直接对应。
+	 */
+	private fun applySpikesEntryDamage(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+	): BattleState {
+		if (!participant.grounded) {
+			return state
+		}
+		val denominator = when (hazard.layers) {
+			1 -> SPIKES_ONE_LAYER_DAMAGE_DENOMINATOR
+			2 -> SPIKES_TWO_LAYER_DAMAGE_DENOMINATOR
+			else -> SPIKES_THREE_LAYER_DAMAGE_DENOMINATOR
+		}
+		return applyEntryHazardDamage(
+			state = state,
+			sideId = sideId,
+			participant = participant,
+			hazard = hazard,
+			amount = (participant.maxHp / denominator).coerceAtLeast(1),
+			effectiveness = 1.0,
+		)
+	}
+
+	/**
+	 * 结算毒菱类入场效果。
+	 *
+	 * 毒菱只影响接地成员。接地毒属性成员换入时会吸收并移除该侧毒菱；其它接地成员在一层时获得普通中毒、
+	 * 两层时获得剧毒。毒/钢属性免疫、薄雾场地、特性和道具免疫复用主要异常状态的统一阻止逻辑，确保毒菱和
+	 * 普通技能附加中毒不会出现两套相互矛盾的免疫判断。
+	 */
+	private fun applyToxicSpikesEntryEffect(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+	): BattleState {
+		if (!participant.grounded) {
+			return state
+		}
+		if (participant.hasElement(state.rules.poisonElementId)) {
+			return state.removeSideEntryHazard(sideId, BattleSideEntryHazardKind.TOXIC_SPIKES)
+				?.appendEvent(
+					BattleEvent.SideEntryHazardRemoved(
+						turnNumber = state.turnNumber,
+						actorId = participant.actorId,
+						sideId = sideId,
+						kind = BattleSideEntryHazardKind.TOXIC_SPIKES,
+					),
+				)
+				?: state
+		}
+		if (participant.majorStatus != null) {
+			return state
+		}
+		val status = if (hazard.layers >= 2) BattleMajorStatus.BAD_POISON else BattleMajorStatus.POISON
+		val blockedReason = blockedMajorStatusReason(state, participant, status)
+		if (blockedReason != null) {
+			return state.appendEvent(
+				BattleEvent.EntryHazardStatusApplicationBlocked(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					sideId = sideId,
+					kind = hazard.kind,
+					status = status,
+					reason = blockedReason,
+				),
+			)
+		}
+		return state
+			.replaceParticipant(participant.applyMajorStatus(status))
+			.appendEvent(
+				BattleEvent.EntryHazardStatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					sideId = sideId,
+					kind = hazard.kind,
+					status = status,
+				),
+			)
+	}
+
+	/**
+	 * 结算黏黏网类入场效果。
+	 *
+	 * 黏黏网只影响接地成员，并在换入时降低速度能力阶级 1 级。能力阶级已经达到 -6 时不会产生状态变化或事件；
+	 * 这让 replay 可以把事件直接视为“能力阶级确实发生变化”的事实。
+	 */
+	private fun applyStickyWebEntryEffect(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+	): BattleState {
+		if (!participant.grounded) {
+			return state
+		}
+		val beforeStage = participant.statStage(BattleStat.SPEED)
+		val updated = participant.changeStatStage(BattleStat.SPEED, -1)
+		val afterStage = updated.statStage(BattleStat.SPEED)
+		if (beforeStage == afterStage) {
+			return state
+		}
+		return state
+			.replaceParticipant(updated)
+			.appendEvent(
+				BattleEvent.EntryHazardStatStageChanged(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					sideId = sideId,
+					kind = hazard.kind,
+					stat = BattleStat.SPEED,
+					delta = afterStage - beforeStage,
+					currentStage = afterStage,
+				),
+			)
+	}
+
+	/**
+	 * 写入入场陷阱伤害并接续道具、倒下和胜负判定。
+	 *
+	 * 入场伤害不是普通技能伤害，但仍会触发低体力回复类道具，并可能导致成员倒下和战斗结束。因此这里复用
+	 * 已有的低体力道具与倒下处理函数，只把可观察事件换成入场陷阱专用事件。
+	 */
+	private fun applyEntryHazardDamage(
+		state: BattleState,
+		sideId: String,
+		participant: BattleParticipant,
+		hazard: BattleSideEntryHazard,
+		amount: Int,
+		effectiveness: Double,
+	): BattleState {
+		if (amount <= 0) {
+			return state
+		}
+		val damaged = participant.receiveDamage(amount)
+		val afterDamage = state
+			.replaceParticipant(damaged)
+			.appendEvent(
+				BattleEvent.EntryHazardDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					sideId = sideId,
+					kind = hazard.kind,
+					amount = amount,
+					layers = hazard.layers,
+					effectiveness = effectiveness,
+				),
+			)
+		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
+		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
+		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
+	}
+
+	/**
+	 * 计算最大 HP 比例型入场伤害。
+	 *
+	 * 公开规则中的比例伤害通常向下取整；当倍率为正但向下取整得到 0 时，仍至少造成 1 点伤害。倍率为 0 或负数
+	 * 表示没有实际伤害，调用方会跳过伤害事件。
+	 */
+	private fun entryHazardFractionDamage(maxHp: Int, fraction: Double): Int =
+		if (fraction <= 0.0) {
+			0
+		} else {
+			floor(maxHp * fraction).toInt().coerceAtLeast(1)
+		}
 
 	/**
 	 * 处理行动前可能阻止技能的状态。
@@ -2293,6 +2590,10 @@ class BattleEngine(
 		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
+		private const val SPIKES_ONE_LAYER_DAMAGE_DENOMINATOR = 8
+		private const val SPIKES_TWO_LAYER_DAMAGE_DENOMINATOR = 6
+		private const val SPIKES_THREE_LAYER_DAMAGE_DENOMINATOR = 4
+		private const val STEALTH_ROCK_DAMAGE_DENOMINATOR = 8.0
 		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}
 }

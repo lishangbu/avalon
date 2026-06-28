@@ -12,6 +12,7 @@ data class BattleSide(
 	val participants: List<BattleParticipant>,
 	val damageReductions: List<BattleSideDamageReduction> = emptyList(),
 	val speedModifiers: List<BattleSideSpeedModifier> = emptyList(),
+	val entryHazards: List<BattleSideEntryHazard> = emptyList(),
 ) {
 	init {
 		require(sideId.isNotBlank()) { "sideId must not be blank" }
@@ -27,6 +28,9 @@ data class BattleSide(
 		}
 		require(speedModifiers.map { it.kind }.toSet().size == speedModifiers.size) {
 			"speed modifiers must not contain duplicate kinds"
+		}
+		require(entryHazards.map { it.kind }.toSet().size == entryHazards.size) {
+			"entry hazards must not contain duplicate kinds"
 		}
 	}
 
@@ -87,9 +91,43 @@ data class BattleSide(
 	}
 
 	/**
+	 * 在这一侧新增或叠加入场陷阱。
+	 *
+	 * 不存在同种陷阱时写入第一层；存在同种陷阱时只在该陷阱允许叠层且尚未达到最大层数时递增层数。返回 null
+	 * 表示本次技能没有改变一侧场上状态，调用方不应产生层数变化事件。入场陷阱没有回合持续时间，因此不参与
+	 * [advanceSideConditionDurations]。
+	 */
+	fun addEntryHazard(hazard: BattleSideEntryHazard): BattleSideEntryHazardAddResult? {
+		val current = entryHazards.firstOrNull { it.kind == hazard.kind }
+		val nextHazard = if (current == null) hazard else current.addLayer() ?: return null
+		val nextHazards = if (current == null) {
+			entryHazards + nextHazard
+		} else {
+			entryHazards.map { existing -> if (existing.kind == nextHazard.kind) nextHazard else existing }
+		}
+		return BattleSideEntryHazardAddResult(
+			side = copy(entryHazards = nextHazards),
+			hazard = nextHazard,
+		)
+	}
+
+	/**
+	 * 从这一侧移除指定入场陷阱。
+	 *
+	 * 当前用于毒菱被接地毒属性成员换入吸收。若陷阱不存在，返回 null 表示状态未变化，调用方也不应产生移除事件。
+	 */
+	fun removeEntryHazard(kind: BattleSideEntryHazardKind): BattleSide? {
+		if (entryHazards.none { it.kind == kind }) {
+			return null
+		}
+		return copy(entryHazards = entryHazards.filterNot { it.kind == kind })
+	}
+
+	/**
 	 * 推进这一侧的回合型场上状态。
 	 *
 	 * 当前包含伤害减免屏障和速度修正。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。
+	 * 入场陷阱没有回合持续时间，不在这里递减。
 	 */
 	fun advanceSideConditionDurations(): BattleSide =
 		copy(

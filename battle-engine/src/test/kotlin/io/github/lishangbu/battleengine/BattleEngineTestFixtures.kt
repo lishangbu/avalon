@@ -13,6 +13,8 @@ import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -61,6 +63,8 @@ internal fun initialState(
 	environment: BattleEnvironment = BattleEnvironment(),
 	firstSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
 	secondSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
+	firstSideEntryHazards: List<BattleSideEntryHazard> = emptyList(),
+	secondSideEntryHazards: List<BattleSideEntryHazard> = emptyList(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = singleFormat(),
@@ -72,12 +76,14 @@ internal fun initialState(
 				activeActorIds = listOf(first.actorId),
 				participants = listOf(first) + firstBench,
 				damageReductions = firstSideDamageReductions,
+				entryHazards = firstSideEntryHazards,
 			),
 			BattleSide(
 				sideId = "side-b",
 				activeActorIds = listOf(second.actorId),
 				participants = listOf(second) + secondBench,
 				damageReductions = secondSideDamageReductions,
+				entryHazards = secondSideEntryHazards,
 			),
 		),
 	)
@@ -172,6 +178,7 @@ internal fun damagingSkill(
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
 	sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
+	sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
@@ -204,6 +211,7 @@ internal fun damagingSkill(
 		statStageEffects = statStageEffects,
 		sideConditionApplications = sideConditionApplications,
 		sideSpeedModifierApplications = sideSpeedModifierApplications,
+		sideEntryHazardApplications = sideEntryHazardApplications,
 		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
 	)
 

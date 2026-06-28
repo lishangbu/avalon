@@ -1,0 +1,158 @@
+databaseChangeLog:
+- changeSet:
+    id: 012-battle-skill-entry-hazard-effects
+    author: backend
+    comment: 接入入场陷阱类技能规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 19 }
+        - column: { name: skill_id, valueNumeric: 191 }
+        - column: { name: effect_policy, value: side-entry-hazard }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 在目标一侧建立可叠加的接地入场伤害陷阱，最多三层。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 190 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 20 }
+        - column: { name: skill_id, valueNumeric: 390 }
+        - column: { name: effect_policy, value: side-entry-hazard }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 在目标一侧建立可叠加的接地入场中毒陷阱，最多两层。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 200 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 21 }
+        - column: { name: skill_id, valueNumeric: 446 }
+        - column: { name: effect_policy, value: side-entry-hazard }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 在目标一侧建立按属性相性造成入场伤害的陷阱。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 210 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: skill_id, valueNumeric: 564 }
+        - column: { name: effect_policy, value: side-entry-hazard }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 在目标一侧建立降低接地换入成员速度阶级的陷阱。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 220 }
+    - insert:
+        tableName: battle_skill_field_effect
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 19 }
+        - column: { name: field_rule_id, valueNumeric: 7 }
+        - column: { name: target_side, value: TARGET_SIDE }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_field_effect
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: skill_rule_id, valueNumeric: 20 }
+        - column: { name: field_rule_id, valueNumeric: 8 }
+        - column: { name: target_side, value: TARGET_SIDE }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }
+    - insert:
+        tableName: battle_skill_field_effect
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: skill_rule_id, valueNumeric: 21 }
+        - column: { name: field_rule_id, valueNumeric: 6 }
+        - column: { name: target_side, value: TARGET_SIDE }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: battle_skill_field_effect
+        columns:
+        - column: { name: id, valueNumeric: 8 }
+        - column: { name: skill_rule_id, valueNumeric: 22 }
+        - column: { name: field_rule_id, valueNumeric: 9 }
+        - column: { name: target_side, value: TARGET_SIDE }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 80 }

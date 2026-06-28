@@ -22,6 +22,7 @@ package io.github.lishangbu.battleengine.model
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
+ * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
@@ -57,6 +58,7 @@ data class BattleSkillSlot(
 	val statStageEffects: List<BattleStatStageEffect> = emptyList(),
 	val sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
+	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 ) {
 	init {

@@ -82,6 +82,47 @@ data class BattleState(
 	}
 
 	/**
+	 * 在指定一侧新增或叠加入场陷阱。
+	 *
+	 * 返回 null 表示目标侧不存在、同种不可叠层陷阱已存在，或可叠层陷阱已经达到最大层数。调用方据此决定是否
+	 * 产生层数变化事件；状态对象自身不理解技能成功或失败的叙事，只表达不可变状态是否发生了变化。
+	 */
+	fun addSideEntryHazard(sideId: String, hazard: BattleSideEntryHazard): BattleSideEntryHazardStateChange? {
+		var changedHazard: BattleSideEntryHazard? = null
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				val result = side.addEntryHazard(hazard)
+				if (result == null) {
+					side
+				} else {
+					changedHazard = result.hazard
+					result.side
+				}
+			}
+		}
+		return changedHazard?.let { BattleSideEntryHazardStateChange(copy(sides = nextSides), it) }
+	}
+
+	/**
+	 * 从指定一侧移除入场陷阱。
+	 *
+	 * 当前用于毒菱吸收。返回 null 表示目标侧不存在或该陷阱本来就不存在，调用方不应产生移除事件。
+	 */
+	fun removeSideEntryHazard(sideId: String, kind: BattleSideEntryHazardKind): BattleState? {
+		var changed = false
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				side.removeEntryHazard(kind)?.also { changed = true } ?: side
+			}
+		}
+		return if (changed) copy(sides = nextSides) else null
+	}
+
+	/**
 	 * 替换当前上场成员。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =

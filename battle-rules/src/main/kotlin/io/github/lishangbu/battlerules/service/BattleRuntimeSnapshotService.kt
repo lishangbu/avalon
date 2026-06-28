@@ -20,6 +20,9 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
@@ -506,6 +509,7 @@ class BattleRuntimeSnapshotService(
 			statStageEffects = statStageEffects(row.ruleId),
 			sideConditionApplications = sideConditionApplications(row.ruleId),
 			sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
+			sideEntryHazardApplications = sideEntryHazardApplications(row.ruleId),
 			fieldSpeedOrderApplications = fieldSpeedOrderApplications(row.ruleId),
 		)
 	}
@@ -729,6 +733,44 @@ class BattleRuntimeSnapshotService(
 		).filterNotNull()
 	}
 
+	private fun sideEntryHazardApplications(ruleId: Long?): List<BattleSideEntryHazardApplication> {
+		if (ruleId == null) {
+			return emptyList()
+		}
+		return jdbcTemplate.query(
+			"""
+			select
+				fr.effect_policy as field_effect_policy,
+				fr.max_layers,
+				e.target_side,
+				e.chance_percent,
+				w.code as required_weather_code
+			from battle_skill_field_effect e
+			join battle_field_rule fr on fr.id = e.field_rule_id
+			left join battle_weather_rule w on w.id = e.required_weather_rule_id
+			where e.skill_rule_id = ?
+				and e.enabled = true
+				and fr.enabled = true
+				and fr.effect_scope = 'SIDE'
+				and e.effect_timing = 'AFTER_HIT'
+			order by e.sort_order, e.id
+			""".trimIndent(),
+			{ rs, _ ->
+				val hazardKind = rs.getString("field_effect_policy").toBattleSideEntryHazardKind() ?: return@query null
+				BattleSideEntryHazardApplication(
+					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
+					hazard = BattleSideEntryHazard(
+						kind = hazardKind,
+						maxLayers = rs.nullableInt("max_layers") ?: hazardKind.defaultMaxLayers,
+					),
+					chancePercent = rs.getInt("chance_percent"),
+					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
+				)
+			},
+			ruleId,
+		).filterNotNull()
+	}
+
 	private fun fieldSpeedOrderApplications(ruleId: Long?): List<BattleFieldSpeedOrderApplication> {
 		if (ruleId == null) {
 			return emptyList()
@@ -807,6 +849,15 @@ class BattleRuntimeSnapshotService(
 	private fun String.toBattleSideSpeedModifierKind(): BattleSideSpeedModifierKind? =
 		when (this) {
 			"side-tailwind" -> BattleSideSpeedModifierKind.TAILWIND
+			else -> null
+		}
+
+	private fun String.toBattleSideEntryHazardKind(): BattleSideEntryHazardKind? =
+		when (this) {
+			"hazard-stealth-rock" -> BattleSideEntryHazardKind.STEALTH_ROCK
+			"hazard-spikes" -> BattleSideEntryHazardKind.SPIKES
+			"hazard-toxic-spikes" -> BattleSideEntryHazardKind.TOXIC_SPIKES
+			"hazard-sticky-web" -> BattleSideEntryHazardKind.STICKY_WEB
 			else -> null
 		}
 
