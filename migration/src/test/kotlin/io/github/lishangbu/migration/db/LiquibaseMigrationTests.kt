@@ -108,6 +108,7 @@ class LiquibaseMigrationTests(
 			"059-battle-low-hp-element-ability-rules.yaml",
 			"060-battle-indirect-damage-immunity-rules.yaml",
 			"061-battle-stat-stage-ignore-ability-rules.yaml",
+			"062-battle-accuracy-stage-ignore-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -531,7 +532,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 35L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 36L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -551,9 +552,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 130L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 279L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 130L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 132L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 283L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 132L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -818,6 +819,7 @@ class LiquibaseMigrationTests(
 			select ability_id, trigger_timing, effect_policy
 			from battle_ability_rule
 			where ability_id = 109
+			order by trigger_timing, effect_policy
 			""".trimIndent(),
 		)
 		assertThat(statStageIgnoreAbilityRules).containsExactly(
@@ -825,6 +827,11 @@ class LiquibaseMigrationTests(
 				"ability_id" to 109L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "ignore-opponent-damage-stat-stages",
+			),
+			mapOf(
+				"ability_id" to 109L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "ignore-opponent-accuracy-stat-stages",
 			),
 		)
 

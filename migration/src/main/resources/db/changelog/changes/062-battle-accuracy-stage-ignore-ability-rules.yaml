@@ -1,0 +1,107 @@
+databaseChangeLog:
+- changeSet:
+    id: 062-battle-accuracy-stage-ignore-ability-rules
+    author: backend
+    comment: 补齐无视对手命中与闪避阶级变化特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 36 }
+        - column: { name: ability_id, valueNumeric: 109 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: ignore-opponent-accuracy-stat-stages }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 命中判定中忽略对手命中或闪避阶级变化。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 360 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 131 }
+        - column: { name: code, value: defender-accuracy-stage-ignore-ability-ignores-attacker-accuracy-drop }
+        - column: { name: name, value: 防守方无视攻击方命中降低 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证防守方拥有无视对手命中阶级变化特性时，命中判定不读取使用者降低后的命中阶级。 }
+        - column: { name: input_summary, value: 使用者命中阶级为 -1，技能基础命中为 75，防守方拥有无视对手命中阶级变化特性，固定命中随机数为 75。 }
+        - column: { name: expected_summary, value: 防守方特性使使用者命中阶级按 0 处理，有效命中保持 75；随机数 75 命中并继续造成伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1310 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 132 }
+        - column: { name: code, value: attacker-accuracy-stage-ignore-ability-ignores-target-evasion-boost }
+        - column: { name: name, value: 攻击方无视目标闪避提高 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证攻击方拥有无视对手闪避阶级变化特性时，命中判定不读取目标提高后的闪避阶级。 }
+        - column: { name: input_summary, value: 目标闪避阶级为 +1，使用者拥有无视对手闪避阶级变化特性，并使用基础命中 100 的技能。 }
+        - column: { name: expected_summary, value: 目标闪避阶级按 0 处理，有效命中达到 100；引擎不消耗命中随机数，技能直接命中。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1320 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 280 }
+        - column: { name: fixture_id, valueNumeric: 131 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照无视对手命中或闪避阶级变化特性的触发范围。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 281 }
+        - column: { name: fixture_id, valueNumeric: 131 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开命中流程实现 }
+        - column: { name: source_note, value: 用于验证命中判定读取使用者命中阶级和目标闪避阶级的流程位置。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 282 }
+        - column: { name: fixture_id, valueNumeric: 132 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照无视对手命中或闪避阶级变化特性的触发范围。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 283 }
+        - column: { name: fixture_id, valueNumeric: 132 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开命中流程实现 }
+        - column: { name: source_note, value: 用于验证目标闪避阶级在有效命中计算中的影响。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 131 }
+        - column: { name: run_code, value: accuracy-stage-ignore-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 131 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:50:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:53:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1310 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 132 }
+        - column: { name: run_code, value: accuracy-stage-ignore-ability-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 132 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T07:50:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T07:53:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1320 }

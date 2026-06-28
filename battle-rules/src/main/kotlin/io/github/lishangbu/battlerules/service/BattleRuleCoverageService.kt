@@ -408,7 +408,22 @@ class BattleRuleCoverageService {
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
 					"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
 				),
-				note = "已覆盖持有者作为防守方时忽略攻击方攻击/特攻阶级、作为攻击方时忽略防守方防御/特防阶级；命中/闪避阶级会在命中流程中单独接入。",
+				note = "已覆盖持有者作为防守方时忽略攻击方攻击/特攻阶级、作为攻击方时忽略防守方防御/特防阶级；命中/闪避阶级由命中流程覆盖项单独验证。",
+			),
+			item(
+				code = "ability.ignore-opponent-accuracy-stat-stages",
+				name = "特性无视对手命中阶级变化",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"defender-accuracy-stage-ignore-ability-ignores-attacker-accuracy-drop",
+					"attacker-accuracy-stage-ignore-ability-ignores-target-evasion-boost",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				),
+				note = "已覆盖持有者作为防守方时忽略攻击方命中阶级、作为攻击方时忽略目标闪避阶级；必中和天气命中覆盖仍按原流程处理。",
 			),
 			item(
 				code = "terrain.setting-skill",

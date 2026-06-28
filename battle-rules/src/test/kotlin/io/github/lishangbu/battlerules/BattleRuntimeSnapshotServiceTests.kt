@@ -421,7 +421,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.abilityEffectsByAbilityId(98))
 			.containsExactly(BattleAbilityEffect.IndirectDamageImmunity)
 		assertThat(service.abilityEffectsByAbilityId(109))
-			.containsExactly(BattleAbilityEffect.IgnoreOpponentDamageStatStages)
+			.containsExactly(
+				BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+				BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
+			)
 
 		assertThat(service.abilityEffectsByAbilityId(214))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)

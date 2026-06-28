@@ -1984,10 +1984,20 @@ class BattleEngine(
 		random: BattleRandom,
 	): AccuracyCheck {
 		val accuracy = effectiveAccuracy(state, skill) ?: return AccuracyCheck(hit = true, roll = null)
+		val actorAccuracyStage = if (target.ignoresOpponentAccuracyStatStages()) {
+			0
+		} else {
+			actor.statStage(BattleStat.ACCURACY)
+		}
+		val targetEvasionStage = if (actor.ignoresOpponentAccuracyStatStages()) {
+			0
+		} else {
+			target.statStage(BattleStat.EVASION)
+		}
 		val modifiedAccuracy = floor(
 			accuracy *
-				statStageModifiers.accuracyMultiplier(actor.statStage(BattleStat.ACCURACY)) /
-				statStageModifiers.accuracyMultiplier(target.statStage(BattleStat.EVASION)),
+				statStageModifiers.accuracyMultiplier(actorAccuracyStage) /
+				statStageModifiers.accuracyMultiplier(targetEvasionStage),
 		).toInt().coerceAtLeast(1)
 		if (modifiedAccuracy >= 100) {
 			return AccuracyCheck(hit = true, roll = null)
@@ -2644,6 +2654,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.ElementSkillAbsorbHeal,
 			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+			is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 			is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
 			is BattleAbilityEffect.IndirectDamageImmunity,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
@@ -3221,6 +3232,15 @@ class BattleEngine(
 	 */
 	private fun BattleParticipant.hasIndirectDamageImmunity(): Boolean =
 		abilityEffects.any { it is BattleAbilityEffect.IndirectDamageImmunity }
+
+	/**
+	 * 判断成员是否在命中判定中忽略对手的命中或闪避阶级变化。
+	 *
+	 * 攻击方拥有该效果时，命中流程不读取目标闪避阶级；防守方拥有该效果时，命中流程不读取攻击方命中阶级。
+	 * 这里不判断具体特性名称，让资料层可以用同一个结构化效果挂接同类现代规则。
+	 */
+	private fun BattleParticipant.ignoresOpponentAccuracyStatStages(): Boolean =
+		abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages }
 
 	/**
 	 * 判断成员是否免疫指定天气的回合末伤害。
@@ -3900,6 +3920,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
 				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
@@ -3928,6 +3949,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
 				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,

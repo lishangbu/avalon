@@ -255,6 +255,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
+				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages -> multiplier
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages -> multiplier
 				is BattleAbilityEffect.IndirectDamageImmunity -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
