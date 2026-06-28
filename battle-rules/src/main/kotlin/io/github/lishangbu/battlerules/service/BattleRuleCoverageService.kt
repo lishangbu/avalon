@@ -157,12 +157,20 @@ class BattleRuleCoverageService {
 			),
 			item(
 				code = "terrain.grassy-heal",
-				name = "青草场地回合末回复",
+				name = "青草场地核心效果",
 				category = "场地",
-				status = PARTIAL,
-				fixtures = listOf("grassy-terrain-heals-active-participants-at-end-turn"),
-				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)"),
-				note = "已覆盖接地成员固定比例回复；其它场地效果仍需补齐。",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"grassy-terrain-heals-active-participants-at-end-turn",
+					"grassy-terrain-heals-only-grounded-active-participants",
+					"grassy-terrain-boosts-grounded-grass-damage",
+					"grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
+				),
+				note = "已覆盖接地成员回合末回复、接地使用者草属性伤害增强，以及地面震动类技能命中接地目标减半。",
 			),
 			item(
 				code = "terrain.psychic-priority-block",
