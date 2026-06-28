@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -115,6 +116,45 @@ class BattleEnginePublicReferenceTests {
 		assertEquals(79, resolved.participant("opponent-left")?.currentHp)
 		assertEquals(79, resolved.participant("opponent-right")?.currentHp)
 		assertEquals(100, resolved.participant("ally")?.currentHp)
+	}
+
+	@Test
+	fun `low hp berry heals once after damage like public item fixture`() {
+		val fixture = publicBattleRuleFixture(
+			name = "low-hp-berry-heals-once-after-damage",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Oran_Berry",
+				"https://bulbapedia.bulbagarden.net/wiki/Sitrus_Berry",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+			),
+			inputSummary = "持有者最大 HP 100，当前 HP 60，受到 28 点普通伤害后 HP 降到 32，达到半血触发线。",
+			expectedSummary = "一次性回复道具立即回复 10 点并被消费，成员最终 HP 为 42，后续不再保留携带道具效果。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant(
+					"holder",
+					speed = 50,
+					currentHp = 60,
+					itemId = 132,
+					itemEffects = listOf(BattleItemEffect.LowHpHeal(fixedHealAmount = 10)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "holder")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val holder = requireNotNull(resolved.participant("holder"))
+
+		fixture.assertNamed("low-hp-berry-heals-once-after-damage")
+		assertEquals(42, holder.currentHp)
+		assertEquals(null, holder.itemId)
+		assertEquals(emptyList(), holder.itemEffects)
+		assertEquals(10, resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single().amount)
 	}
 
 	@Test

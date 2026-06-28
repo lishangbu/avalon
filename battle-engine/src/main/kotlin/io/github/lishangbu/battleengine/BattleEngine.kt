@@ -535,10 +535,11 @@ class BattleEngine(
 					targetMultiplier = damage.targetMultiplier,
 					criticalHit = criticalHitCheck.hit,
 				),
-			)
+		)
 		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
+		val afterTargetLowHpItem = applyLowHpHealingItem(afterFireThaw, damagedTarget.actorId)
 		val afterContactAbilities = applyContactAbilityEffects(
-			state = afterFireThaw,
+			state = afterTargetLowHpItem,
 			actorId = actor.actorId,
 			targetActorId = damagedTarget.actorId,
 			skill = skill,
@@ -1217,8 +1218,10 @@ class BattleEngine(
 					turnsRemainingBefore = turnsRemainingBefore,
 				),
 			)
-			.handleFaintAndResult(damaged)
-		return BeforeMoveResult(context = context.copy(state = afterDamage), blocked = true)
+		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
+		val latest = afterLowHpItem.participant(damaged.actorId) ?: damaged
+		val afterFaint = afterLowHpItem.handleFaintAndResult(latest)
+		return BeforeMoveResult(context = context.copy(state = afterFaint), blocked = true)
 	}
 
 	/**
@@ -1569,6 +1572,39 @@ class BattleEngine(
 	}
 
 	/**
+	 * 处理低体力一次性回复类携带道具。
+	 *
+	 * 现代主系列中，这类道具在持有者受到伤害后，如果 HP 降到触发线及以下且仍未倒下，会立刻回复并被消费。
+	 * 这里把触发点集中成一个小函数，供普通伤害、混乱自伤、异常状态伤害和天气伤害复用。函数不会处理主动使用道具、
+	 * 回复封锁、紧张感等更复杂来源；这些规则后续会以结构化字段加入，而不是让调用方传入自由文本开关。
+	 */
+	private fun applyLowHpHealingItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		if (!participant.canBattle() || participant.currentHp == participant.maxHp) {
+			return state
+		}
+		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpHeal>().firstOrNull() ?: return state
+		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp)) {
+			return state
+		}
+		val healAmount = effect.healAmount(participant.maxHp)
+			.coerceAtMost(participant.maxHp - participant.currentHp)
+		if (healAmount <= 0) {
+			return state
+		}
+		val healed = participant.heal(healAmount).consumeHeldItem()
+		return state
+			.replaceParticipant(healed)
+			.appendEvent(
+				BattleEvent.HealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					amount = healAmount,
+				),
+			)
+	}
+
+	/**
 	 * 清理本回合没有成功保护的成员连续保护计数。
 	 *
 	 * 保护递减概率只看连续成功的保护类行动。成员使用其它技能、替换、无法行动或没有提交行动时，都应在回合末
@@ -1632,7 +1668,11 @@ class BattleEngine(
 								amount = residualDamage,
 							),
 						)
-						.handleFaintAndResult(afterStatusCounter)
+						.let { afterDamage ->
+							val afterLowHpItem = applyLowHpHealingItem(afterDamage, afterStatusCounter.actorId)
+							val latestAfterItem = afterLowHpItem.participant(afterStatusCounter.actorId) ?: afterStatusCounter
+							afterLowHpItem.handleFaintAndResult(latestAfterItem)
+						}
 				}
 			}
 		return if (afterResidual.result != null) {
@@ -1676,7 +1716,11 @@ class BattleEngine(
 								amount = damage,
 							),
 						)
-						.handleFaintAndResult(damaged)
+						.let { afterDamage ->
+							val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
+							val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
+							afterLowHpItem.handleFaintAndResult(latestAfterItem)
+						}
 				}
 			}
 	}

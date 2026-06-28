@@ -459,6 +459,61 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `low hp fixed healing item triggers after damage and is consumed`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant(
+					"defender",
+					speed = 50,
+					currentHp = 60,
+					itemId = 132,
+					itemEffects = listOf(BattleItemEffect.LowHpHeal(fixedHealAmount = 10)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val defender = requireNotNull(resolved.participant("defender"))
+
+		assertEquals(42, defender.currentHp)
+		assertNull(defender.itemId)
+		assertEquals(emptyList(), defender.itemEffects)
+		assertEquals(10, resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single().amount)
+	}
+
+	@Test
+	fun `low hp fractional healing item restores max hp fraction`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100),
+				second = participant(
+					"defender",
+					speed = 50,
+					currentHp = 60,
+					itemId = 135,
+					itemEffects = listOf(BattleItemEffect.LowHpHeal(healDenominator = 4)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val defender = requireNotNull(resolved.participant("defender"))
+
+		assertEquals(57, defender.currentHp)
+		assertNull(defender.itemId)
+		assertEquals(25, resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single().amount)
+	}
+
+	@Test
 	fun `end turn healing item restores hp`() {
 		val state = engine.start(
 			initialState(

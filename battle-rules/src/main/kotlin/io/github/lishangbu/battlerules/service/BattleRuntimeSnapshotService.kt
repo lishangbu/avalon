@@ -202,7 +202,7 @@ class BattleRuntimeSnapshotService(
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
-	 * 低体力树果、讲究类锁招和道具消耗生命周期还需要新的结构化效果类型，暂不在这里用自由文本模拟。
+	 * 低体力树果会映射为一次性回复；讲究类锁招还需要新的结构化效果类型，暂不在这里用自由文本模拟。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -672,9 +672,9 @@ class BattleRuntimeSnapshotService(
 				multiplier = 1.3,
 				recoilDenominator = 10,
 			)
-			// 低体力树果、讲究锁招和消耗生命周期还没有结构化引擎模型，暂不映射。
-			"small-berry-heal",
-			"medium-berry-heal",
+			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
+			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
+			// 讲究锁招还没有结构化引擎模型，暂不映射。
 			"choice-speed-lock" -> null
 			else -> null
 		}

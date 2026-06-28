@@ -113,6 +113,15 @@ data class BattleParticipant(
 		copy(skillSlots = skillSlots.map { current -> if (current.skillId == slot.skillId) slot else current })
 
 	/**
+	 * 消费当前携带道具。
+	 *
+	 * 第一批道具生命周期只需要表达“一次性触发后不再拥有该道具效果”。道具 ID 和所有道具效果一起清空，
+	 * 因为成员快照只允许一个携带道具；后续如果要支持道具被替换、回收或禁用而不移除，会增加更细的状态字段。
+	 */
+	fun consumeHeldItem(): BattleParticipant =
+		copy(itemId = null, itemEffects = emptyList())
+
+	/**
 	 * 查找本成员可使用的技能槽。
 	 */
 	fun skillSlot(skillId: Long): BattleSkillSlot? =

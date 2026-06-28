@@ -147,7 +147,18 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(lifeOrb.multiplier).isEqualTo(1.3)
 		assertThat(lifeOrb.recoilDenominator).isEqualTo(10)
-		assertThat(service.itemEffectsByItemId(132)).isEmpty()
+
+		val smallBerry = service.itemEffectsByItemId(132)
+			.filterIsInstance<BattleItemEffect.LowHpHeal>()
+			.single()
+		assertThat(smallBerry.fixedHealAmount).isEqualTo(10)
+		assertThat(smallBerry.healDenominator).isNull()
+
+		val mediumBerry = service.itemEffectsByItemId(135)
+			.filterIsInstance<BattleItemEffect.LowHpHeal>()
+			.single()
+		assertThat(mediumBerry.fixedHealAmount).isNull()
+		assertThat(mediumBerry.healDenominator).isEqualTo(4)
 	}
 
 	@Test

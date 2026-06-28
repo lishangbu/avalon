@@ -240,6 +240,7 @@ class BattleDamageCalculator(
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
+				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier

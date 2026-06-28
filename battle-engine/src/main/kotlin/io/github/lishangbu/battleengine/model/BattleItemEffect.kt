@@ -3,9 +3,9 @@ package io.github.lishangbu.battleengine.model
 /**
  * 携带道具在战斗中的可执行效果。
  *
- * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按伤害反伤、回合末按最大 HP 比例回复、天气伤害免疫，
- * 以及稳定状态免疫。
- * 是否消耗、锁招、低体力树果和复杂触发顺序会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
+ * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按伤害反伤、回合末按最大 HP 比例回复、天气伤害免疫、
+ * 低体力一次性回复，以及稳定状态免疫。
+ * 锁招和更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
 	/**
@@ -62,5 +62,44 @@ sealed interface BattleItemEffect {
 		init {
 			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
+	}
+
+	/**
+	 * HP 降到指定比例及以下时触发的一次性回复。
+	 *
+	 * 该结构覆盖现代主系列里常见的低体力树果：触发线通常是最大 HP 的 1/2；回复量可以是固定值
+	 * （例如固定回复 10 点），也可以是最大 HP 的固定分母比例（例如回复 1/4）。触发后由状态机消费携带道具，
+	 * 因此同一个成员不会在后续伤害中重复触发。
+	 */
+	data class LowHpHeal(
+		val triggerHpNumerator: Int = 1,
+		val triggerHpDenominator: Int = 2,
+		val fixedHealAmount: Int? = null,
+		val healDenominator: Int? = null,
+	) : BattleItemEffect {
+		init {
+			require(triggerHpNumerator > 0) { "triggerHpNumerator must be positive" }
+			require(triggerHpDenominator > 0) { "triggerHpDenominator must be positive" }
+			require(triggerHpNumerator <= triggerHpDenominator) {
+				"trigger HP numerator must not exceed denominator"
+			}
+			require((fixedHealAmount != null) xor (healDenominator != null)) {
+				"exactly one healing amount strategy must be configured"
+			}
+			require(fixedHealAmount == null || fixedHealAmount > 0) { "fixedHealAmount must be positive when present" }
+			require(healDenominator == null || healDenominator > 0) { "healDenominator must be positive when present" }
+		}
+
+		/**
+		 * 判断当前 HP 是否已经达到触发线。
+		 */
+		fun shouldTrigger(currentHp: Int, maxHp: Int): Boolean =
+			currentHp > 0 && currentHp * triggerHpDenominator <= maxHp * triggerHpNumerator
+
+		/**
+		 * 计算本次触发的原始回复量，调用方再根据当前缺失 HP 夹取。
+		 */
+		fun healAmount(maxHp: Int): Int =
+			fixedHealAmount ?: (maxHp / requireNotNull(healDenominator)).coerceAtLeast(1)
 	}
 }
