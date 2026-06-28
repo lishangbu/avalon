@@ -87,10 +87,11 @@ class LiquibaseMigrationTests(
 			"038-battle-rule-major-status-fixtures.yaml",
 			"039-battle-rule-terrain-fixtures.yaml",
 			"040-battle-rule-field-turn-fixtures.yaml",
-			"041-battle-rule-switch-in-ability-fixtures.yaml",
-			"042-battle-rule-skill-effect-fixtures.yaml",
-			"043-battle-rule-move-flow-fixtures.yaml",
-		)
+				"041-battle-rule-switch-in-ability-fixtures.yaml",
+				"042-battle-rule-skill-effect-fixtures.yaml",
+				"043-battle-rule-move-flow-fixtures.yaml",
+				"044-battle-action-validation-menu.yaml",
+			)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
 
