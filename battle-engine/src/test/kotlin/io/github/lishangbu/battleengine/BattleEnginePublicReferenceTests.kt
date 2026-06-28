@@ -21,7 +21,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `ordinary same element physical damage matches public calculator fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "level-50-neutral-same-element-physical-damage",
 			sourceUrls = listOf(
 				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
@@ -41,7 +41,7 @@ class BattleEnginePublicReferenceTests {
 			),
 		)
 
-		assertEquals("level-50-neutral-same-element-physical-damage", fixture.name)
+		fixture.assertNamed("level-50-neutral-same-element-physical-damage")
 		assertEquals(19, result.baseDamage)
 		assertEquals(1.5, result.sameElementBonus)
 		assertEquals(28, result.amount)
@@ -49,7 +49,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `modern critical hit damage matches public calculator fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "level-50-neutral-same-element-critical-hit-damage",
 			sourceUrls = listOf(
 				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
@@ -70,7 +70,7 @@ class BattleEnginePublicReferenceTests {
 			),
 		)
 
-		assertEquals("level-50-neutral-same-element-critical-hit-damage", fixture.name)
+		fixture.assertNamed("level-50-neutral-same-element-critical-hit-damage")
 		assertEquals(19, result.baseDamage)
 		assertEquals(1.5, result.sameElementBonus)
 		assertEquals(1.5, result.criticalHitMultiplier)
@@ -79,7 +79,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `double battle spread damage modifier matches public rule fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "double-battle-spread-damage-uses-three-quarter-target-modifier",
 			sourceUrls = listOf(
 				"https://bulbapedia.bulbagarden.net/wiki/Damage",
@@ -108,7 +108,7 @@ class BattleEnginePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		assertEquals("double-battle-spread-damage-uses-three-quarter-target-modifier", fixture.name)
+		fixture.assertNamed("double-battle-spread-damage-uses-three-quarter-target-modifier")
 		assertEquals(listOf("opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(listOf(21, 21), damageEvents.map { it.amount })
 		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })
@@ -119,7 +119,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `target slot follows switched in participant like public simulator fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "single-target-move-follows-replacement-slot",
 			sourceUrls = listOf(
 				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
@@ -145,7 +145,7 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		assertEquals("single-target-move-follows-replacement-slot", fixture.name)
+		fixture.assertNamed("single-target-move-follows-replacement-slot")
 		assertEquals(listOf("reserve"), resolved.sideOf("reserve")?.activeActorIds)
 		assertEquals(100, resolved.participant("starter")?.currentHp)
 		assertEquals(72, resolved.participant("reserve")?.currentHp)
@@ -154,7 +154,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `protection blocks ordinary target move like public simulator fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "protect-move-blocks-ordinary-target-move",
 			sourceUrls = listOf(
 				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
@@ -179,7 +179,7 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		assertEquals("protect-move-blocks-ordinary-target-move", fixture.name)
+		fixture.assertNamed("protect-move-blocks-ordinary-target-move")
 		assertEquals(100, resolved.participant("protector")?.currentHp)
 		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
 		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
@@ -189,7 +189,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `consecutive protection uses public simulator stalling chance fixture`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "consecutive-protection-second-use-one-third-success",
 			sourceUrls = listOf(
 				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
@@ -219,16 +219,10 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(0)),
 		)
 
-		assertEquals("consecutive-protection-second-use-one-third-success", fixture.name)
+		fixture.assertNamed("consecutive-protection-second-use-one-third-success")
 		assertEquals(2, resolved.participant("protector")?.protectionChain)
 		assertEquals(100, resolved.participant("protector")?.currentHp)
 		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
 	}
 
-	private data class PublicReferenceFixture(
-		val name: String,
-		val sourceUrls: List<String>,
-		val inputSummary: String,
-		val expectedSummary: String,
-	)
 }

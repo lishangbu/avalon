@@ -27,7 +27,7 @@ class BattleSleepStatusTests {
 
 	@Test
 	fun `sleep consumes deterministic duration and prevents actions without pp loss`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "sleep-prevents-two-actions-from-scripted-duration",
 			sourceUrls = listOf(
 				"https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)",
@@ -72,7 +72,7 @@ class BattleSleepStatusTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		assertEquals("sleep-prevents-two-actions-from-scripted-duration", fixture.name)
+		fixture.assertNamed("sleep-prevents-two-actions-from-scripted-duration")
 		assertEquals(listOf("sleep duration for 1"), firstRandom.consumedReasons())
 		assertEquals(BattleMajorStatus.SLEEP, afterFirst.participant("target")?.majorStatus)
 		assertEquals(1, afterFirst.participant("target")?.sleepTurnsRemaining)
@@ -88,7 +88,7 @@ class BattleSleepStatusTests {
 
 	@Test
 	fun `electric terrain blocks new sleep without consuming duration random`() {
-		val fixture = PublicReferenceFixture(
+		val fixture = publicBattleRuleFixture(
 			name = "electric-terrain-blocks-new-sleep",
 			sourceUrls = listOf(
 				"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
@@ -121,7 +121,7 @@ class BattleSleepStatusTests {
 			random,
 		)
 
-		assertEquals("electric-terrain-blocks-new-sleep", fixture.name)
+		fixture.assertNamed("electric-terrain-blocks-new-sleep")
 		assertEquals(null, resolved.participant("target")?.majorStatus)
 		assertEquals(emptyList(), random.consumedReasons())
 		assertTrue(resolved.events.filterIsInstance<BattleEvent.StatusApplied>().isEmpty())
@@ -131,10 +131,4 @@ class BattleSleepStatusTests {
 		assertEquals(BattleStatusBlockReason.TERRAIN, blocked.reason)
 	}
 
-	private data class PublicReferenceFixture(
-		val name: String,
-		val sourceUrls: List<String>,
-		val inputSummary: String,
-		val expectedSummary: String,
-	)
 }
