@@ -88,7 +88,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 240, 311, 366, 390, 433, 446, 564, 570, 577, 580, 604, 883, 694),
+			listOf(14, 45, 71, 76, 85, 87, 94, 105, 113, 115, 191, 235, 240, 311, 347, 349, 366, 390, 433, 446, 504, 526, 564, 570, 577, 580, 604, 883, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -133,6 +133,40 @@ class BattleRuntimeSnapshotServiceTests(
 				assertThat(it.stageDelta).isEqualTo(-1)
 				assertThat(it.chancePercent).isEqualTo(10)
 			}
+
+		val swordsDance = slots.getValue(14)
+			.statStageEffects
+			.single()
+		assertThat(swordsDance.target).isEqualTo(BattleEffectTarget.USER)
+		assertThat(swordsDance.stat).isEqualTo(BattleStat.ATTACK)
+		assertThat(swordsDance.stageDelta).isEqualTo(2)
+
+		val calmMindStats = slots.getValue(347)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(calmMindStats).containsEntry(BattleStat.SPECIAL_ATTACK, 1)
+		assertThat(calmMindStats).containsEntry(BattleStat.SPECIAL_DEFENSE, 1)
+
+		val dragonDanceStats = slots.getValue(349)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(dragonDanceStats).containsEntry(BattleStat.ATTACK, 1)
+		assertThat(dragonDanceStats).containsEntry(BattleStat.SPEED, 1)
+
+		val shellSmashStats = slots.getValue(504)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(shellSmashStats).containsEntry(BattleStat.DEFENSE, -1)
+		assertThat(shellSmashStats).containsEntry(BattleStat.SPECIAL_DEFENSE, -1)
+		assertThat(shellSmashStats).containsEntry(BattleStat.ATTACK, 2)
+		assertThat(shellSmashStats).containsEntry(BattleStat.SPECIAL_ATTACK, 2)
+		assertThat(shellSmashStats).containsEntry(BattleStat.SPEED, 2)
+
+		val workUpStats = slots.getValue(526)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(workUpStats).containsEntry(BattleStat.ATTACK, 1)
+		assertThat(workUpStats).containsEntry(BattleStat.SPECIAL_ATTACK, 1)
 
 		val recover = slots.getValue(105)
 			.hpEffects

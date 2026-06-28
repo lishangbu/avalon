@@ -462,6 +462,23 @@ class BattleRuleCoverageService {
 				note = "已覆盖 2..5 段命中分布、单次 PP 消耗、倒下中断、锁招续回合、目标槽位重定向、主动替换阻止和疲劳混乱。",
 			),
 			item(
+				code = "skill.stat-stage-effects",
+				name = "技能能力阶级变化",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"stat-stage-effect-changes-later-action-damage-in-the-same-turn",
+					"status-skill-applies-multiple-user-stat-stage-changes",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+					"https://bulbapedia.bulbagarden.net/wiki/Swords_Dance_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Shell_Smash_(move)",
+				),
+				note = "已覆盖命中后降低目标能力阶级、变化技能提升使用者单项或多项能力阶级，并已接入基础自我强化技能规则资料。",
+			),
+			item(
 				code = "skill.hp-effects",
 				name = "技能 HP 回复效果",
 				category = "技能效果",

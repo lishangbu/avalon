@@ -361,6 +361,15 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `stat stage effect changes later action damage in the same turn`() {
+		val fixture = publicBattleRuleFixture(
+			name = "stat-stage-effect-changes-later-action-damage-in-the-same-turn",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+			),
+			inputSummary = "高速成员先用变化技能降低对手攻击，随后对手在同一回合使用物理攻击。",
+			expectedSummary = "对手攻击阶级立即降低，本回合后续物理伤害按降低后的攻击阶级计算。",
+		)
 		val attackDropSkill = damagingSkill(
 			damageClass = BattleDamageClass.STATUS,
 			statStageEffects = listOf(
@@ -388,6 +397,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
+		fixture.assertNamed("stat-stage-effect-changes-later-action-damage-in-the-same-turn")
 		assertEquals(-1, resolved.participant("damager")?.statStage(BattleStat.ATTACK))
 		assertEquals(81, resolved.participant("stage-user")?.currentHp)
 		assertIs<BattleEvent.StatStageChanged>(resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single())

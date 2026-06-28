@@ -1,0 +1,363 @@
+databaseChangeLog:
+- changeSet:
+    id: 024-battle-skill-user-stat-stage-effects
+    author: backend
+    comment: 接入基础自我强化类变化技能的能力阶级规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 48 }
+        - column: { name: skill_id, valueNumeric: 14 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者攻击 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 480 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 49 }
+        - column: { name: skill_id, valueNumeric: 97 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者速度 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 490 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 50 }
+        - column: { name: skill_id, valueNumeric: 334 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者防御 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 500 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 51 }
+        - column: { name: skill_id, valueNumeric: 347 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者特攻 1 级、特防 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 510 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 52 }
+        - column: { name: skill_id, valueNumeric: 349 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者攻击 1 级、速度 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 520 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 53 }
+        - column: { name: skill_id, valueNumeric: 504 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后降低使用者防御 1 级、特防 1 级，并提升攻击、特攻、速度各 2 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 530 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 54 }
+        - column: { name: skill_id, valueNumeric: 526 }
+        - column: { name: effect_policy, value: stat-stage-change }
+        - column: { name: target_policy, value: self }
+        - column: { name: hit_policy, value: always-hit }
+        - column: { name: damage_policy, value: no-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 技能成功后提升使用者攻击 1 级、特攻 1 级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 540 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 48 }
+        - column: { name: stat_id, valueNumeric: 2 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 49 }
+        - column: { name: stat_id, valueNumeric: 6 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 50 }
+        - column: { name: stat_id, valueNumeric: 3 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: skill_rule_id, valueNumeric: 51 }
+        - column: { name: stat_id, valueNumeric: 4 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: skill_rule_id, valueNumeric: 51 }
+        - column: { name: stat_id, valueNumeric: 5 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 8 }
+        - column: { name: skill_rule_id, valueNumeric: 52 }
+        - column: { name: stat_id, valueNumeric: 2 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 80 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 9 }
+        - column: { name: skill_rule_id, valueNumeric: 52 }
+        - column: { name: stat_id, valueNumeric: 6 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 90 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 10 }
+        - column: { name: skill_rule_id, valueNumeric: 53 }
+        - column: { name: stat_id, valueNumeric: 3 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: -1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 100 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: skill_rule_id, valueNumeric: 53 }
+        - column: { name: stat_id, valueNumeric: 5 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: -1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: skill_rule_id, valueNumeric: 53 }
+        - column: { name: stat_id, valueNumeric: 2 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 13 }
+        - column: { name: skill_rule_id, valueNumeric: 53 }
+        - column: { name: stat_id, valueNumeric: 4 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 130 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 14 }
+        - column: { name: skill_rule_id, valueNumeric: 53 }
+        - column: { name: stat_id, valueNumeric: 6 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 2 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 140 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 15 }
+        - column: { name: skill_rule_id, valueNumeric: 54 }
+        - column: { name: stat_id, valueNumeric: 2 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 150 }
+    - insert:
+        tableName: battle_skill_stat_stage_effect
+        columns:
+        - column: { name: id, valueNumeric: 16 }
+        - column: { name: skill_rule_id, valueNumeric: 54 }
+        - column: { name: stat_id, valueNumeric: 4 }
+        - column: { name: target_scope, value: USER }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: stage_delta, valueNumeric: 1 }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 160 }
