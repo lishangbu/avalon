@@ -24,6 +24,8 @@ data class BattleParticipant(
 	val speed: Int,
 	val elementIds: Set<Long>,
 	val skillSlots: List<BattleSkillSlot>,
+	val majorStatus: BattleMajorStatus? = null,
+	val statStages: Map<BattleStat, Int> = emptyMap(),
 ) {
 	init {
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
@@ -39,6 +41,7 @@ data class BattleParticipant(
 		require(elementIds.all { it > 0 }) { "elementIds must contain only positive ids" }
 		require(skillSlots.isNotEmpty()) { "skillSlots must not be empty" }
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
+		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 	}
 
 	/**
@@ -65,4 +68,27 @@ data class BattleParticipant(
 	 */
 	fun skillSlot(skillId: Long): BattleSkillSlot? =
 		skillSlots.firstOrNull { it.skillId == skillId }
+
+	/**
+	 * 附加主要异常状态。
+	 *
+	 * 第一批不允许覆盖已有主要异常状态；调用方应在事件层决定是否记录失败原因。
+	 */
+	fun applyMajorStatus(status: BattleMajorStatus): BattleParticipant =
+		if (majorStatus == null) copy(majorStatus = status) else this
+
+	/**
+	 * 改变一个能力阶级，并夹取到现代规则允许的 -6..6。
+	 */
+	fun changeStatStage(stat: BattleStat, delta: Int): BattleParticipant {
+		require(delta != 0) { "delta must not be zero" }
+		val next = ((statStages[stat] ?: 0) + delta).coerceIn(-6, 6)
+		return copy(statStages = statStages + (stat to next))
+	}
+
+	/**
+	 * 读取指定能力项当前阶级。
+	 */
+	fun statStage(stat: BattleStat): Int =
+		statStages[stat] ?: 0
 }

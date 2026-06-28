@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.damagingSkill
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.neutralRules
 import io.github.lishangbu.battleengine.participant
@@ -77,5 +79,39 @@ class BattleDamageCalculatorTests {
 		assertEquals(1.0, result.sameElementBonus)
 		assertEquals(1.0, result.effectiveness)
 		assertEquals(19, result.amount)
+	}
+
+	@Test
+	fun `burn halves physical attacking stat before damage`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1).copy(majorStatus = BattleMajorStatus.BURN),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		assertEquals(10, result.baseDamage)
+		assertEquals(15, result.amount)
+	}
+
+	@Test
+	fun `attack stage modifies physical damage`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1).copy(
+					statStages = mapOf(BattleStat.ATTACK to 2),
+				),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		assertEquals(37, result.baseDamage)
+		assertEquals(55, result.amount)
 	}
 }

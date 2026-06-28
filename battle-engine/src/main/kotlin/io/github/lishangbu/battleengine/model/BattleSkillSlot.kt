@@ -19,6 +19,8 @@ data class BattleSkillSlot(
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,
+	val statusApplications: List<BattleStatusApplication> = emptyList(),
+	val statStageEffects: List<BattleStatStageEffect> = emptyList(),
 ) {
 	init {
 		require(skillId > 0) { "skillId must be positive" }

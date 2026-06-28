@@ -44,6 +44,29 @@ sealed interface BattleEvent {
 		val effectiveness: Double,
 	) : BattleEvent
 
+	data class StatusApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val status: BattleMajorStatus,
+	) : BattleEvent
+
+	data class StatStageChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val stat: BattleStat,
+		val delta: Int,
+		val currentStage: Int,
+	) : BattleEvent
+
+	data class ResidualDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val status: BattleMajorStatus,
+		val amount: Int,
+	) : BattleEvent
+
 	data class ParticipantFainted(
 		override val turnNumber: Int,
 		val actorId: String,

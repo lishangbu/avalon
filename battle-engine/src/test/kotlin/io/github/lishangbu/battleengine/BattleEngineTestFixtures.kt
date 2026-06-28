@@ -8,6 +8,8 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 
 internal fun singleFormat(): BattleFormatSnapshot =
@@ -64,6 +66,8 @@ internal fun damagingSkill(
 	power: Int = 40,
 	accuracy: Int? = null,
 	priority: Int = 0,
+	statusApplications: List<BattleStatusApplication> = emptyList(),
+	statStageEffects: List<BattleStatStageEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
 		skillId = skillId,
@@ -75,4 +79,6 @@ internal fun damagingSkill(
 		priority = priority,
 		remainingPp = 35,
 		maxPp = 35,
+		statusApplications = statusApplications,
+		statStageEffects = statStageEffects,
 	)

@@ -1,7 +1,13 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -107,5 +113,92 @@ class BattleEngineSingleTurnTests {
 		assertEquals(100, resolved.participant("defender")?.currentHp)
 		assertIs<BattleEvent.SkillMissed>(resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single())
 		assertEquals(listOf("accuracy for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `status skill applies burn and end turn residual damage`() {
+		val burnSkill = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			statusApplications = listOf(
+				BattleStatusApplication(
+					status = BattleMajorStatus.BURN,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = burnSkill),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(BattleMajorStatus.BURN, resolved.participant("defender")?.majorStatus)
+		assertEquals(94, resolved.participant("defender")?.currentHp)
+		assertIs<BattleEvent.StatusApplied>(resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single())
+		assertIs<BattleEvent.ResidualDamageApplied>(resolved.events.filterIsInstance<BattleEvent.ResidualDamageApplied>().single())
+	}
+
+	@Test
+	fun `stat stage effect changes later action damage in the same turn`() {
+		val attackDropSkill = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.ATTACK,
+					target = BattleEffectTarget.TARGET,
+					stageDelta = -1,
+					chancePercent = 100,
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("stage-user", speed = 100, skill = attackDropSkill),
+				second = participant("damager", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("stage-user", skillId = 1, targetActorId = "damager"),
+				BattleAction.UseSkill("damager", skillId = 1, targetActorId = "stage-user"),
+			),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		assertEquals(-1, resolved.participant("damager")?.statStage(BattleStat.ATTACK))
+		assertEquals(81, resolved.participant("stage-user")?.currentHp)
+		assertIs<BattleEvent.StatStageChanged>(resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single())
+	}
+
+	@Test
+	fun `paralysis halves speed for action ordering`() {
+		val state = engine.start(
+			initialState(
+				first = participant("paralyzed-fast", speed = 100).copy(majorStatus = BattleMajorStatus.PARALYSIS),
+				second = participant("normal-mid", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("paralyzed-fast", skillId = 1, targetActorId = "normal-mid"),
+				BattleAction.UseSkill("normal-mid", skillId = 1, targetActorId = "paralyzed-fast"),
+			),
+			ScriptedBattleRandom(listOf(15, 15)),
+		)
+
+		val usedEvents = resolved.events.filterIsInstance<BattleEvent.SkillUsed>()
+		assertEquals(listOf("normal-mid", "paralyzed-fast"), usedEvents.map { it.actorId })
 	}
 }

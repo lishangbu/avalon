@@ -1,6 +1,9 @@
 package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import kotlin.math.floor
 
 /**
@@ -13,7 +16,9 @@ import kotlin.math.floor
  * 取整规则按主系列常见公开公式建模：基础伤害部分在整数除法中逐步截断，最终倍率组合后向下取整。
  * 如果属性克制倍率为 0，最终伤害为 0；否则普通命中造成的最小伤害为 1。
  */
-class BattleDamageCalculator {
+class BattleDamageCalculator(
+	private val statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
+) {
 	/**
 	 * 计算一次物理或特殊技能的普通伤害。
 	 *
@@ -23,13 +28,22 @@ class BattleDamageCalculator {
 		require(request.skill.damageClass != BattleDamageClass.STATUS) { "status skill does not use standard damage formula" }
 		val power = requireNotNull(request.skill.power) { "damaging skill must define power" }
 		val attackingStat = when (request.skill.damageClass) {
-			BattleDamageClass.PHYSICAL -> request.attacker.attack
-			BattleDamageClass.SPECIAL -> request.attacker.specialAttack
+			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
+			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
+				request.attacker.specialAttack,
+				request.attacker.statStage(BattleStat.SPECIAL_ATTACK),
+			)
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		val defendingStat = when (request.skill.damageClass) {
-			BattleDamageClass.PHYSICAL -> request.defender.defense
-			BattleDamageClass.SPECIAL -> request.defender.specialDefense
+			BattleDamageClass.PHYSICAL -> statStageModifiers.modifiedBattleStat(
+				request.defender.defense,
+				request.defender.statStage(BattleStat.DEFENSE),
+			)
+			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
+				request.defender.specialDefense,
+				request.defender.statStage(BattleStat.SPECIAL_DEFENSE),
+			)
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		require(defendingStat > 0) { "defending stat must be positive" }
@@ -46,5 +60,22 @@ class BattleDamageCalculator {
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
 		)
+	}
+
+	/**
+	 * 计算物理攻击侧数值。
+	 *
+	 * 第一批把灼伤减半作为普通物理伤害的固定修正接入，不处理特性或道具绕过灼伤减半的例外。
+	 */
+	private fun physicalAttackAfterBurn(request: BattleDamageRequest): Int {
+		val stagedAttack = statStageModifiers.modifiedBattleStat(
+			request.attacker.attack,
+			request.attacker.statStage(BattleStat.ATTACK),
+		)
+		return if (request.attacker.majorStatus == BattleMajorStatus.BURN) {
+			(stagedAttack / 2).coerceAtLeast(1)
+		} else {
+			stagedAttack
+		}
 	}
 }

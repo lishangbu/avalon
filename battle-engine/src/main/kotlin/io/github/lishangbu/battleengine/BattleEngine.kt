@@ -4,11 +4,15 @@ import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
 
@@ -24,6 +28,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 class BattleEngine(
 	private val damageCalculator: BattleDamageCalculator = BattleDamageCalculator(),
+	private val statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
 ) {
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -64,7 +69,9 @@ class BattleEngine(
 		val resolved = orderedActions.fold(started) { current, plan ->
 			if (current.result != null) current else executeUseSkill(current, plan, random)
 		}
-		return resolved.result?.let { resolved } ?: resolved.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
+		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
+		return afterEndTurnEffects.result?.let { afterEndTurnEffects }
+			?: afterEndTurnEffects.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
 
 	/**
@@ -84,7 +91,7 @@ class BattleEngine(
 			}
 		}
 		return plans
-			.groupBy { it.skill.priority to it.actor.speed }
+			.groupBy { it.skill.priority to effectiveSpeed(it.actor) }
 			.toSortedMap(compareByDescending<Pair<Int, Int>> { it.first }.thenByDescending { it.second })
 			.values
 			.flatMap { sameOrderPlans ->
@@ -137,7 +144,7 @@ class BattleEngine(
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			return usedState
+			return applySkillEffects(usedState, actor.actorId, target.actorId, skill, random)
 		}
 
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
@@ -163,7 +170,12 @@ class BattleEngine(
 					effectiveness = damage.effectiveness,
 				),
 			)
-		return damagedState.handleFaintAndResult(damagedTarget)
+		val afterDamage = damagedState.handleFaintAndResult(damagedTarget)
+		return if (afterDamage.result != null) {
+			afterDamage
+		} else {
+			applySkillEffects(afterDamage, actor.actorId, damagedTarget.actorId, skill, random)
+		}
 	}
 
 	/**
@@ -177,6 +189,147 @@ class BattleEngine(
 		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
 		return AccuracyCheck(hit = roll <= accuracy, roll = roll)
 	}
+
+	/**
+	 * 应用技能命中后的结构化附加效果。
+	 *
+	 * 第一批只处理主要异常状态和能力阶级变化。效果按技能槽中的顺序结算；概率小于 100 的效果会消费随机数。
+	 * 若目标已经倒下、已有主要异常状态或阶级变化被上下限夹住，则保持状态不变并跳过事件。
+	 */
+	private fun applySkillEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		val afterStatuses = skill.statusApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "status chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
+				if (!recipient.canBattle() || recipient.majorStatus != null) {
+					current
+				} else {
+					current
+						.replaceParticipant(recipient.applyMajorStatus(application.status))
+						.appendEvent(
+							BattleEvent.StatusApplied(
+								turnNumber = current.turnNumber,
+								actorId = actorId,
+								targetActorId = recipient.actorId,
+								status = application.status,
+							),
+						)
+				}
+			}
+		}
+		return skill.statStageEffects.fold(afterStatuses) { current, effect ->
+			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
+				val beforeStage = recipient.statStage(effect.stat)
+				val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
+				val afterStage = updated.statStage(effect.stat)
+				if (beforeStage == afterStage) {
+					current
+				} else {
+					current
+						.replaceParticipant(updated)
+						.appendEvent(
+							BattleEvent.StatStageChanged(
+								turnNumber = current.turnNumber,
+								actorId = actorId,
+								targetActorId = recipient.actorId,
+								stat = effect.stat,
+								delta = afterStage - beforeStage,
+								currentStage = afterStage,
+							),
+						)
+				}
+			}
+		}
+	}
+
+	/**
+	 * 结算回合末主要异常状态伤害。
+	 *
+	 * 当前实现覆盖灼伤、中毒和剧毒的固定扣血入口。剧毒的逐回合递增计数尚未建模，因此暂按普通中毒比例处理；
+	 * 后续会把持续状态计数加入成员运行态，并用公开 fixture 验证递增伤害。
+	 */
+	private fun applyEndTurnEffects(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.participants }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (!latest.canBattle()) {
+					current
+				} else {
+					val residualDamage = residualDamage(latest) ?: return@fold current
+					val damaged = latest.receiveDamage(residualDamage)
+					current
+						.replaceParticipant(damaged)
+						.appendEvent(
+							BattleEvent.ResidualDamageApplied(
+								turnNumber = current.turnNumber,
+								actorId = latest.actorId,
+								status = requireNotNull(latest.majorStatus),
+								amount = residualDamage,
+							),
+						)
+						.handleFaintAndResult(damaged)
+				}
+			}
+
+	/**
+	 * 计算主要异常状态在回合末造成的固定伤害。
+	 */
+	private fun residualDamage(participant: BattleParticipant): Int? =
+		when (participant.majorStatus) {
+			BattleMajorStatus.BURN -> (participant.maxHp / 16).coerceAtLeast(1)
+			BattleMajorStatus.POISON,
+			BattleMajorStatus.BAD_POISON -> (participant.maxHp / 8).coerceAtLeast(1)
+			else -> null
+		}
+
+	/**
+	 * 计算行动排序使用的有效速度。
+	 *
+	 * 速度先应用能力阶级，再应用麻痹减半。天气、道具、特性和顺风等速度修正会在后续 modifier 管线中加入。
+	 */
+	private fun effectiveSpeed(participant: BattleParticipant): Int {
+		val staged = statStageModifiers.modifiedBattleStat(
+			participant.speed,
+			participant.statStage(BattleStat.SPEED),
+		)
+		return if (participant.majorStatus == BattleMajorStatus.PARALYSIS) {
+			(staged / 2).coerceAtLeast(1)
+		} else {
+			staged
+		}
+	}
+
+	/**
+	 * 根据效果目标枚举找到实际承受效果的成员。
+	 */
+	private fun BattleState.effectRecipient(actorId: String, targetActorId: String, target: BattleEffectTarget): BattleParticipant? =
+		when (target) {
+			BattleEffectTarget.USER -> participant(actorId)
+			BattleEffectTarget.TARGET -> participant(targetActorId)
+		}
+
+	/**
+	 * 结算百分比概率。
+	 *
+	 * 100% 不消费随机数，0% 永远失败；中间概率消费 1..100 掷点。
+	 */
+	private fun chanceSucceeds(chancePercent: Int, random: BattleRandom, reason: String): Boolean =
+		when (chancePercent) {
+			100 -> true
+			0 -> false
+			else -> random.nextInt(100, reason) + 1 <= chancePercent
+		}
 
 	/**
 	 * 在伤害后追加倒下事件并判断胜负。
