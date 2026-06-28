@@ -218,12 +218,13 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"freeze-prevents-action-after-failed-thaw-roll",
 					"freeze-thaws-before-action-and-continues",
+					"fire-damage-thaws-frozen-target-that-survives",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
 				),
-				note = "已覆盖行动前自然解冻和未解冻阻止行动；火属性技能、特定技能自解冻和状态免疫仍需补齐。",
+				note = "已覆盖行动前自然解冻、未解冻阻止行动和被火属性伤害命中后解冻；特定技能自解冻和更多免疫来源仍需补齐。",
 			),
 			item(
 				code = "status.immunity-and-grounding",
