@@ -2,10 +2,12 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.BattlePreparationValidator
 import io.github.lishangbu.battleengine.BattlePreparationViolation
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -119,10 +121,11 @@ class BattleRuntimeSnapshotService(
 	fun validatePreparation(request: BattlePreparationValidationRequest): BattlePreparationValidationResponse {
 		val normalized = request.normalized()
 		val runtime = getByFormatCode(normalized.formatCode)
+		val elementIds = coreElementIds()
 		val initialState = BattleInitialState(
 			format = runtime.format,
 			rules = runtime.rules,
-			sides = normalized.sides.map { it.toBattleSide() },
+			sides = normalized.sides.map { it.toBattleSide(elementIds) },
 		)
 		val violations = preparationValidator.validate(initialState)
 		return BattlePreparationValidationResponse(
@@ -154,6 +157,62 @@ class BattleRuntimeSnapshotService(
 			}
 			skillSlotBySkillId(skillId)
 		}
+	}
+
+	/**
+	 * 按基础特性 ID 装配战斗引擎可消费的结构化特性效果。
+	 *
+	 * 这里显式识别 `battle_ability_rule.effect_policy` 中已经有引擎模型承载的策略：
+	 * - 低体力时强化草/火/水属性伤害。
+	 * - 受到接触类攻击后概率让攻击方麻痹。
+	 *
+	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
+	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
+	 */
+	@Transactional(readOnly = true)
+	fun abilityEffectsByAbilityId(abilityId: Long?): List<BattleAbilityEffect> {
+		if (abilityId == null) {
+			return emptyList()
+		}
+		if (abilityId <= 0) {
+			invalidValue("abilityId", "abilityId 必须大于 0")
+		}
+		val elementIds = coreElementIds()
+		return enabledAbilityPolicies(abilityId).mapNotNull { it.toBattleAbilityEffect(elementIds) }
+	}
+
+	/**
+	 * 判断特性是否让成员在现代规则中不被视为接地。
+	 *
+	 * 这会影响地面属性免疫、场地是否作用、部分粉末/电属性规则等多个 hook。当前资料用独立 policy 表达，
+	 * 装配时转换成成员快照上的稳定布尔值，让引擎后续所有接地判断共享同一个事实。
+	 */
+	@Transactional(readOnly = true)
+	fun groundedByAbilityId(abilityId: Long?): Boolean {
+		if (abilityId == null) {
+			return true
+		}
+		if (abilityId <= 0) {
+			invalidValue("abilityId", "abilityId 必须大于 0")
+		}
+		return "ground-immunity" !in enabledAbilityPolicies(abilityId)
+	}
+
+	/**
+	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
+	 *
+	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
+	 * 低体力树果、讲究类锁招和道具消耗生命周期还需要新的结构化效果类型，暂不在这里用自由文本模拟。
+	 */
+	@Transactional(readOnly = true)
+	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
+		if (itemId == null) {
+			return emptyList()
+		}
+		if (itemId <= 0) {
+			invalidValue("itemId", "itemId 必须大于 0")
+		}
+		return enabledItemPolicies(itemId).mapNotNull { it.toBattleItemEffect() }
 	}
 
 	private fun formatByCode(formatCode: String): BattleFormat =
@@ -233,7 +292,7 @@ class BattleRuntimeSnapshotService(
 			sides = sides.takeIf { it.isNotEmpty() } ?: invalidValue("sides", "sides 不能为空"),
 		)
 
-	private fun BattlePreparationSideRequest.toBattleSide(): BattleSide {
+	private fun BattlePreparationSideRequest.toBattleSide(elementIds: Map<String, Long>): BattleSide {
 		val normalizedSideId = sideId.requiredText("sideId", maxLength = 80)
 		if (activeActorIds.isEmpty()) {
 			invalidValue("activeActorIds", "activeActorIds 不能为空")
@@ -244,11 +303,11 @@ class BattleRuntimeSnapshotService(
 		return BattleSide(
 			sideId = normalizedSideId,
 			activeActorIds = activeActorIds.map { it.requiredText("activeActorIds", maxLength = 80) },
-			participants = participants.map { it.toBattleParticipant() },
+			participants = participants.map { it.toBattleParticipant(elementIds) },
 		)
 	}
 
-	private fun BattlePreparationParticipantRequest.toBattleParticipant(): BattleParticipant {
+	private fun BattlePreparationParticipantRequest.toBattleParticipant(elementIds: Map<String, Long>): BattleParticipant {
 		val normalizedActorId = actorId.requiredText("actorId", maxLength = 80)
 		if (creatureId <= 0) {
 			invalidValue("creatureId", "creatureId 必须大于 0")
@@ -265,6 +324,8 @@ class BattleRuntimeSnapshotService(
 		itemId?.takeIf { it <= 0 }?.let {
 			invalidValue("itemId", "itemId 必须大于 0")
 		}
+		val abilityPolicies = abilityId?.let(::enabledAbilityPolicies).orEmpty()
+		val itemPolicies = itemId?.let(::enabledItemPolicies).orEmpty()
 		return BattleParticipant(
 			actorId = normalizedActorId,
 			creatureId = creatureId,
@@ -280,8 +341,35 @@ class BattleRuntimeSnapshotService(
 			skillSlots = skillSlotsBySkillIds(skillIds),
 			abilityId = abilityId,
 			itemId = itemId,
+			grounded = "ground-immunity" !in abilityPolicies,
+			abilityEffects = abilityPolicies.mapNotNull { it.toBattleAbilityEffect(elementIds) },
+			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect() },
 		)
 	}
+
+	private fun enabledAbilityPolicies(abilityId: Long): List<String> =
+		jdbcTemplate.query(
+			"""
+			select effect_policy
+			from battle_ability_rule
+			where ability_id = ? and enabled = true
+			order by trigger_order, sort_order, id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("effect_policy") },
+			abilityId,
+		)
+
+	private fun enabledItemPolicies(itemId: Long): List<String> =
+		jdbcTemplate.query(
+			"""
+			select effect_policy
+			from battle_item_rule
+			where item_id = ? and enabled = true
+			order by trigger_order, sort_order, id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("effect_policy") },
+			itemId,
+		)
 
 	private fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 		val row = jdbcTemplate.query(
@@ -554,6 +642,41 @@ class BattleRuntimeSnapshotService(
 			"accuracy" -> BattleStat.ACCURACY
 			"evasion" -> BattleStat.EVASION
 			else -> invalidValue("statId", "不支持的战斗能力项: $this")
+		}
+
+	private fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): BattleAbilityEffect? =
+		when (this) {
+			"low-hp-grass-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
+				elementId = elementIds.requiredElementId("grass"),
+			)
+			"low-hp-fire-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
+				elementId = elementIds.requiredElementId("fire"),
+			)
+			"low-hp-water-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
+				elementId = elementIds.requiredElementId("water"),
+			)
+			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
+			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
+				status = BattleMajorStatus.PARALYSIS,
+				chancePercent = 30,
+			)
+			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。
+			"ground-immunity" -> null
+			else -> null
+		}
+
+	private fun String.toBattleItemEffect(): BattleItemEffect? =
+		when (this) {
+			"leftovers-heal" -> BattleItemEffect.HeldEndTurnHeal(healDenominator = 16)
+			"life-orb-boost-and-recoil" -> BattleItemEffect.DamageBoostWithRecoil(
+				multiplier = 1.3,
+				recoilDenominator = 10,
+			)
+			// 低体力树果、讲究锁招和消耗生命周期还没有结构化引擎模型，暂不映射。
+			"small-berry-heal",
+			"medium-berry-heal",
+			"choice-speed-lock" -> null
+			else -> null
 		}
 
 	private fun ResultSet.nullableInt(column: String): Int? {

@@ -1,6 +1,8 @@
 package io.github.lishangbu.battlerules
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -117,6 +119,35 @@ class BattleRuntimeSnapshotServiceTests(
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(2.0)
+	}
+
+	@Test
+	fun `ability and item rule assembly includes supported engine effects`() {
+		val grassBoost = service.abilityEffectsByAbilityId(65)
+			.filterIsInstance<BattleAbilityEffect.LowHpElementDamageBoost>()
+			.single()
+		assertThat(grassBoost.elementId).isEqualTo(12)
+		assertThat(grassBoost.multiplier).isEqualTo(1.5)
+
+		val contactParalysis = service.abilityEffectsByAbilityId(9)
+			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
+			.single()
+		assertThat(contactParalysis.status).isEqualTo(BattleMajorStatus.PARALYSIS)
+		assertThat(contactParalysis.chancePercent).isEqualTo(30)
+		assertThat(service.groundedByAbilityId(26)).isFalse()
+		assertThat(service.groundedByAbilityId(null)).isTrue()
+
+		val leftovers = service.itemEffectsByItemId(211)
+			.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
+			.single()
+		assertThat(leftovers.healDenominator).isEqualTo(16)
+
+		val lifeOrb = service.itemEffectsByItemId(247)
+			.filterIsInstance<BattleItemEffect.DamageBoostWithRecoil>()
+			.single()
+		assertThat(lifeOrb.multiplier).isEqualTo(1.3)
+		assertThat(lifeOrb.recoilDenominator).isEqualTo(10)
+		assertThat(service.itemEffectsByItemId(132)).isEmpty()
 	}
 
 	@Test
