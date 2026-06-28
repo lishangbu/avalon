@@ -169,9 +169,12 @@ class BattleRuleCoverageService {
 				name = "晴天/下雨伤害倍率",
 				category = "天气",
 				status = PARTIAL,
-				fixtures = emptyList(),
+				fixtures = listOf(
+					"sun-boosts-fire-and-weakens-water-damage",
+					"rain-boosts-water-and-weakens-fire-damage",
+				),
 				references = listOf("https://bulbapedia.bulbagarden.net/wiki/Weather"),
-				note = "伤害计算器已有火/水倍率入口，仍需要公开 fixture、天气持续时间和天气回合末效果。",
+				note = "已用公开 fixture 覆盖晴天/下雨对火/水伤害的倍率；天气持续时间和天气回合末效果仍需补齐。",
 			),
 			item(
 				code = "status.freeze",
