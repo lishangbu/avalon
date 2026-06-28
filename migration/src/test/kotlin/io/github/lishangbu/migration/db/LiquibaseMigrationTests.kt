@@ -51,6 +51,7 @@ class LiquibaseMigrationTests(
 			"002-battle-rules-schema.yaml",
 			"003-battle-effect-rules-schema.yaml",
 			"004-battle-rule-coverage-menu.yaml",
+			"005-normalize-flinch-status-kind.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -479,6 +480,11 @@ class LiquibaseMigrationTests(
 			"select name from battle_status_rule where code in ('burn', 'paralysis', 'sleep') order by code",
 		)
 		assertThat(statusNames).containsExactly("灼伤", "麻痹", "睡眠")
+
+		val flinchStatusKind = queryStrings(
+			"select status_kind from battle_status_rule where code = 'flinch'",
+		)
+		assertThat(flinchStatusKind).containsExactly("VOLATILE")
 
 		val skillRulePolicies = queryStrings(
 			"""

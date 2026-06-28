@@ -6,4 +6,4 @@ id,code,name,status_kind,effect_policy,min_turns,max_turns,description,enabled,s
 5,sleep,睡眠,MAJOR,major-sleep,1,3,持续若干回合无法行动，部分技能可在睡眠中使用。,true,50
 6,freeze,冰冻,MAJOR,major-freeze,,,通常无法行动，部分火属性效果可解除。,true,60
 7,confusion,混乱,VOLATILE,volatile-confusion,1,4,行动前可能伤害自身，持续回合结束后解除。,true,70
-8,flinch,畏缩,ACTION_LOCK,volatile-flinch,1,1,本回合若尚未行动则无法出招，回合结束后解除。,true,80
+8,flinch,畏缩,VOLATILE,volatile-flinch,1,1,本回合若尚未行动则无法出招，回合结束后解除。,true,80
