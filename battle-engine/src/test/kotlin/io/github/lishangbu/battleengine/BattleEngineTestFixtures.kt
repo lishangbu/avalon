@@ -74,9 +74,11 @@ internal fun damagingSkill(
 	name: String = "撞击",
 	elementId: Long = 1,
 	damageClass: BattleDamageClass = BattleDamageClass.PHYSICAL,
-	power: Int = 40,
+	power: Int? = 40,
 	accuracy: Int? = null,
 	makesContact: Boolean = false,
+	affectedByProtect: Boolean = true,
+	protectsUser: Boolean = false,
 	priority: Int = 0,
 	statusApplications: List<BattleStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
@@ -89,9 +91,25 @@ internal fun damagingSkill(
 		power = power,
 		accuracy = accuracy,
 		makesContact = makesContact,
+		affectedByProtect = affectedByProtect,
+		protectsUser = protectsUser,
 		priority = priority,
 		remainingPp = 35,
 		maxPp = 35,
 		statusApplications = statusApplications,
 		statStageEffects = statStageEffects,
 	)
+
+internal fun protectionSkill(
+	skillId: Long = 2,
+	name: String = "防护",
+): BattleSkillSlot =
+	damagingSkill(
+		skillId = skillId,
+		name = name,
+		damageClass = BattleDamageClass.STATUS,
+		power = null,
+		affectedByProtect = false,
+		protectsUser = true,
+		priority = 4,
+	).copy(remainingPp = 10, maxPp = 10)

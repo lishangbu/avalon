@@ -81,6 +81,41 @@ class BattleEnginePublicReferenceTests {
 		assertEquals("reserve", resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().targetActorId)
 	}
 
+	@Test
+	fun `protection blocks ordinary target move like public simulator fixture`() {
+		val fixture = PublicReferenceFixture(
+			name = "protect-move-blocks-ordinary-target-move",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+			),
+			inputSummary = "保护类变化技能以更高优先度先行动，同回合普通单体攻击以被保护成员为目标。",
+			expectedSummary = "保护屏障建立后，受保护影响的普通攻击被阻挡，目标 HP 不变化，双方仍正常消耗 PP。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals("protect-move-blocks-ordinary-target-move", fixture.name)
+		assertEquals(100, resolved.participant("protector")?.currentHp)
+		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
+		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.ProtectionStarted>().single().actorId)
+		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
+	}
+
 	private data class PublicReferenceFixture(
 		val name: String,
 		val sourceUrls: List<String>,

@@ -99,6 +99,71 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `protection skill blocks affected damage in the same turn`() {
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(100, resolved.participant("protector")?.currentHp)
+		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
+		assertIs<BattleEvent.ProtectionStarted>(resolved.events.filterIsInstance<BattleEvent.ProtectionStarted>().single())
+		assertIs<BattleEvent.SkillBlockedByProtection>(
+			resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single(),
+		)
+		assertEquals(
+			listOf(
+				BattleEvent.BattleStarted::class,
+				BattleEvent.TurnStarted::class,
+				BattleEvent.SkillUsed::class,
+				BattleEvent.ProtectionStarted::class,
+				BattleEvent.SkillUsed::class,
+				BattleEvent.SkillBlockedByProtection::class,
+				BattleEvent.TurnEnded::class,
+			),
+			resolved.events.map { it::class },
+		)
+	}
+
+	@Test
+	fun `skill marked as unaffected by protection bypasses protection`() {
+		val bypassSkill = damagingSkill(skillId = 3, name = "破防测试", affectedByProtect = false)
+		val state = engine.start(
+			initialState(
+				first = participant("protector", speed = 50, skill = protectionSkill()),
+				second = participant("attacker", speed = 100, skill = bypassSkill),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("protector", skillId = 2, targetActorId = "attacker"),
+				BattleAction.UseSkill("attacker", skillId = 3, targetActorId = "protector"),
+			),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		assertEquals(72, resolved.participant("protector")?.currentHp)
+		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
+		assertEquals(34, resolved.participant("attacker")?.skillSlot(3)?.remainingPp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>())
+		assertIs<BattleEvent.DamageApplied>(resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single())
+	}
+
+	@Test
 	fun `miss consumes accuracy random and does not apply damage`() {
 		val inaccurateSkill = damagingSkill(accuracy = 50)
 		val state = engine.start(

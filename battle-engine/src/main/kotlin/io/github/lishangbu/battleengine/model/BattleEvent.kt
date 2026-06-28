@@ -49,6 +49,30 @@ sealed interface BattleEvent {
 		val accuracyRoll: Int,
 	) : BattleEvent
 
+	/**
+	 * 成员成功建立本回合保护屏障。
+	 *
+	 * 该事件只表达“保护状态已经生效”，不表达技能命中目标或造成效果。保护屏障是回合内临时状态，
+	 * 由引擎上下文持有，回合结束后自动失效。
+	 */
+	data class ProtectionStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
+	/**
+	 * 技能被目标本回合的保护屏障阻挡。
+	 *
+	 * 行动者已经使用技能并消耗 PP 后才会产生该事件；被阻挡后不再进行命中判定、伤害计算或附加效果结算。
+	 */
+	data class SkillBlockedByProtection(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	data class DamageApplied(
 		override val turnNumber: Int,
 		val actorId: String,

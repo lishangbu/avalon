@@ -77,9 +77,9 @@ class BattleEngine(
 			return afterSwitches
 		}
 		val orderedActions = orderSkillActions(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>(), random)
-		val resolved = orderedActions.fold(afterSwitches) { current, plan ->
-			if (current.result != null) current else executeUseSkill(current, plan, random)
-		}
+		val resolved = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
+			if (current.state.result != null) current else executeUseSkill(current, plan, random)
+		}.state
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
 		return afterEndTurnEffects.result?.let { afterEndTurnEffects }
 			?: afterEndTurnEffects.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
@@ -158,14 +158,15 @@ class BattleEngine(
 	 *
 	 * 行动者若已经倒下会被跳过；目标若已经倒下或不存在也会被跳过，后续双打目标重定向会替换这里的简单规则。
 	 */
-	private fun executeUseSkill(state: BattleState, plan: ActionPlan, random: BattleRandom): BattleState {
+	private fun executeUseSkill(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
+		val state = context.state
 		val action = plan.action as BattleAction.UseSkill
-		val actor = state.participant(action.actorId) ?: return state
-		val target = state.activeTargetFor(action.targetActorId) ?: return state
+		val actor = state.participant(action.actorId) ?: return context
+		val target = state.activeTargetFor(action.targetActorId) ?: return context
 		if (!state.isActive(actor.actorId) || !actor.canBattle() || !target.canBattle()) {
-			return state
+			return context
 		}
-		val skill = actor.skillSlot(action.skillId) ?: return state
+		val skill = actor.skillSlot(action.skillId) ?: return context
 		require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 
 		val actorAfterPp = actor.replaceSkillSlot(skill.consumePp())
@@ -181,20 +182,48 @@ class BattleEngine(
 				),
 			)
 
+		if (skill.protectsUser) {
+			return context.copy(
+				state = usedState.appendEvent(
+					BattleEvent.ProtectionStarted(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						skillId = skill.skillId,
+					),
+				),
+				protectedActorIds = context.protectedActorIds + actor.actorId,
+			)
+		}
+
+		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
+			return context.copy(
+				state = usedState.appendEvent(
+					BattleEvent.SkillBlockedByProtection(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+					),
+				),
+			)
+		}
+
 		val accuracyCheck = accuracyCheck(skill, random)
 		if (!accuracyCheck.hit) {
-			return usedState.appendEvent(
-				BattleEvent.SkillMissed(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					accuracyRoll = accuracyCheck.roll ?: 0,
+			return context.copy(
+				state = usedState.appendEvent(
+					BattleEvent.SkillMissed(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						accuracyRoll = accuracyCheck.roll ?: 0,
+					),
 				),
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			return applySkillEffects(usedState, actor.actorId, target.actorId, skill, random)
+			return context.copy(state = applySkillEffects(usedState, actor.actorId, target.actorId, skill, random))
 		}
 
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
@@ -238,14 +267,14 @@ class BattleEngine(
 		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actorAfterPp
 		val afterTargetFaint = afterRecoil.handleFaintAndResult(targetAfterPostDamage)
 		if (afterTargetFaint.result != null) {
-			return afterTargetFaint
+			return context.copy(state = afterTargetFaint)
 		}
 		val afterDamage = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage)
-		return if (afterDamage.result != null) {
+		return context.copy(state = if (afterDamage.result != null) {
 			afterDamage
 		} else {
 			applySkillEffects(afterDamage, actor.actorId, damagedTarget.actorId, skill, random)
-		}
+		})
 	}
 
 	/**
@@ -590,6 +619,18 @@ class BattleEngine(
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,
 		val actor: BattleParticipant,
+	)
+
+	/**
+	 * 单个回合技能阶段的临时上下文。
+	 *
+	 * `state` 是不断推进的不可变战斗状态；`protectedActorIds` 保存本回合已经成功建立保护屏障的成员。
+	 * 这类回合内临时标记不进入 `BattleState`，避免被误认为跨回合持久状态，也方便后续扩展击掌奇袭、
+	 * 守住连续成功率、先制阻挡等同样只在当前回合有效的规则。
+	 */
+	private data class TurnContext(
+		val state: BattleState,
+		val protectedActorIds: Set<String> = emptySet(),
 	)
 
 	private data class AccuracyCheck(
