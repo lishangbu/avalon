@@ -379,6 +379,11 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(grassBoost.elementId).isEqualTo(12)
 		assertThat(grassBoost.multiplier).isEqualTo(1.5)
+		val bugBoost = service.abilityEffectsByAbilityId(68)
+			.filterIsInstance<BattleAbilityEffect.LowHpElementDamageBoost>()
+			.single()
+		assertThat(bugBoost.elementId).isEqualTo(7)
+		assertThat(bugBoost.multiplier).isEqualTo(1.5)
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

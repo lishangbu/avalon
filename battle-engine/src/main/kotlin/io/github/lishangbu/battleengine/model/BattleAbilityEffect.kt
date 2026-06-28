@@ -177,6 +177,13 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/**
+	 * 低体力时强化指定属性技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“当前 HP 小于等于最大 HP 的 1/3 时，指定属性技能伤害提高 50%”这类稳定特性。
+	 * 它只影响使用者主动造成的普通物理/特殊技能伤害；是否匹配属性、当前 HP 是否达到阈值以及倍率叠乘都由
+	 * 伤害计算阶段读取，状态机本身不关心具体特性名称。
+	 */
 	data class LowHpElementDamageBoost(
 		val elementId: Long,
 		val hpThresholdNumerator: Int = 1,

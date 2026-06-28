@@ -367,14 +367,14 @@ class BattleRuntimeSnapshotService(
 	 * 读取引擎基础规则需要识别的核心属性 ID。
 	 *
 	 * 这里按稳定 code 而不是硬编码资料 ID 装配快照，保持纯引擎不依赖资料库编号。查询范围只包含当前已由
-	 * 伤害、天气和主要异常状态规则使用的属性；后续新增规则需要更多属性时，在这里扩展 code 清单。
+	 * 伤害、天气、主要异常状态和属性限定特性规则使用的属性；后续新增规则需要更多属性时，在这里扩展 code 清单。
 	 */
 	private fun coreElementIds(): Map<String, Long> =
 		jdbcTemplate.query(
 			"""
 			select code, id
 			from game_element
-			where code in ('dark', 'electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
+			where code in ('bug', 'dark', 'electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
 			""".trimIndent(),
 		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
 
@@ -1086,6 +1086,9 @@ class BattleRuntimeSnapshotService(
 			)
 			"low-hp-water-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
 				elementId = elementIds.requiredElementId("water"),
+			)
+			"low-hp-bug-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
+				elementId = elementIds.requiredElementId("bug"),
 			)
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(

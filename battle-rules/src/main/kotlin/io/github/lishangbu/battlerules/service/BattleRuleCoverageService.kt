@@ -365,6 +365,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖匹配属性技能命中目标后被特性吸收并阻止伤害，同时提升速度、攻击或防御能力阶级。",
 			),
 			item(
+				code = "ability.low-hp-element-boost",
+				name = "低体力指定属性增伤特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"low-hp-element-ability-boosts-matching-damage-at-threshold",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Swarm_(Ability)",
+				),
+				note = "已覆盖 HP 小于等于最大 HP 1/3 时指定属性技能获得 1.5 倍伤害倍率，并验证高于阈值或技能属性不匹配时不触发；草、火、水、虫四类低体力增伤规则资料已接入运行时快照。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

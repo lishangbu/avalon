@@ -232,6 +232,73 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `low hp element ability boosts matching element damage at one third hp`() {
+		val fixture = publicBattleRuleFixture(
+			name = "low-hp-element-ability-boosts-matching-damage-at-threshold",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Swarm_(Ability)",
+			),
+			inputSummary = "使用者当前 HP 等于最大 HP 的 1/3，拥有低体力强化虫属性伤害的结构化特性，并使用虫属性技能。",
+			expectedSummary = "技能属性匹配且 HP 达到阈值时，伤害倍率按 1.5 叠乘；高于阈值或属性不匹配时不触发该倍率。",
+		)
+
+		val boosted = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant(
+					"bug-attacker",
+					speed = 100,
+					currentHp = 33,
+					elementId = 7,
+					abilityEffects = listOf(BattleAbilityEffect.LowHpElementDamageBoost(elementId = 7)),
+				),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 7, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val aboveThreshold = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant(
+					"bug-attacker",
+					speed = 100,
+					currentHp = 34,
+					elementId = 7,
+					abilityEffects = listOf(BattleAbilityEffect.LowHpElementDamageBoost(elementId = 7)),
+				),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 7, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val nonMatching = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant(
+					"bug-attacker",
+					speed = 100,
+					currentHp = 33,
+					elementId = 7,
+					abilityEffects = listOf(BattleAbilityEffect.LowHpElementDamageBoost(elementId = 7)),
+				),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("low-hp-element-ability-boosts-matching-damage-at-threshold")
+		assertEquals(1.5, boosted.abilityMultiplier)
+		assertEquals(42, boosted.amount)
+		assertEquals(1.0, aboveThreshold.abilityMultiplier)
+		assertEquals(28, aboveThreshold.amount)
+		assertEquals(1.0, nonMatching.abilityMultiplier)
+		assertEquals(19, nonMatching.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",

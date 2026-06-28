@@ -105,6 +105,7 @@ class LiquibaseMigrationTests(
 			"056-battle-element-absorb-ability-rules.yaml",
 			"057-battle-element-absorb-stat-ability-rules.yaml",
 			"058-battle-substitute-sound-bypass-fixtures.yaml",
+			"059-battle-low-hp-element-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -528,7 +529,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 32L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 33L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -548,9 +549,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 123L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 263L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 123L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 124L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 265L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 124L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -761,6 +762,37 @@ class LiquibaseMigrationTests(
 				"ability_id" to 273L,
 				"trigger_timing" to "BEFORE_HIT",
 				"effect_policy" to "element-fire-absorb-defense-up-two",
+			),
+		)
+
+		val lowHpElementBoostAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (65, 66, 67, 68)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(lowHpElementBoostAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 65L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "low-hp-grass-boost",
+			),
+			mapOf(
+				"ability_id" to 66L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "low-hp-fire-boost",
+			),
+			mapOf(
+				"ability_id" to 67L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "low-hp-water-boost",
+			),
+			mapOf(
+				"ability_id" to 68L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "low-hp-bug-boost",
 			),
 		)
 
