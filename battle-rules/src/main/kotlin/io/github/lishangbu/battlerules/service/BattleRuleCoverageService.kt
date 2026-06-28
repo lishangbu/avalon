@@ -258,6 +258,20 @@ class BattleRuleCoverageService {
 				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标不受影响。",
 			),
 			item(
+				code = "terrain.speed-ability",
+				name = "场地速度特性",
+				category = "场地",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"terrain-speed-ability-changes-skill-action-order",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
+				),
+				note = "已覆盖电气场地下速度翻倍特性改变行动顺序，并已接入运行时规则资料。",
+			),
+			item(
 				code = "field.environment-duration",
 				name = "天气和场地持续回合",
 				category = "天气/场地",

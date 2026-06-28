@@ -1,0 +1,17 @@
+databaseChangeLog:
+- changeSet:
+    id: 017-battle-ability-terrain-speed-effects
+    author: backend
+    comment: 接入场地下速度翻倍的特性规则种子数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 19 }
+        - column: { name: ability_id, valueNumeric: 207 }
+        - column: { name: trigger_timing, value: SPEED_CALCULATION }
+        - column: { name: effect_policy, value: terrain-speed-electric }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 电气场地下，成员有效速度按 2 倍参与行动顺序计算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 190 }

@@ -242,6 +242,7 @@ class BattleRuntimeSnapshotService(
 	 * - 出场时设置现代普通天气。
 	 * - 出场时设置现代普通场地。
 	 * - 指定天气下修改速度倍率。
+	 * - 指定场地下修改速度倍率。
 	 *
 	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
 	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
@@ -954,6 +955,10 @@ class BattleRuntimeSnapshotService(
 			)
 			"weather-speed-sun" -> BattleAbilityEffect.WeatherSpeedMultiplier(
 				weather = BattleWeather.SUN,
+				multiplier = 2.0,
+			)
+			"terrain-speed-electric" -> BattleAbilityEffect.TerrainSpeedMultiplier(
+				terrain = BattleTerrain.ELECTRIC,
 				multiplier = 2.0,
 			)
 			// 接地免疫会写入 BattleParticipant.grounded，不作为独立效果返回。

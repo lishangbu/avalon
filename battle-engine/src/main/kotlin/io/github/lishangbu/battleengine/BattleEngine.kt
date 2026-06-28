@@ -1553,6 +1553,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
+			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
 			is BattleAbilityEffect.WeatherDamageImmunity,
 			is BattleAbilityEffect.WeatherSpeedMultiplier -> state
@@ -2598,6 +2599,7 @@ class BattleEngine(
 		return floor(
 			afterStatus *
 				weatherSpeedMultiplier(state, participant) *
+				terrainSpeedMultiplier(state, participant) *
 				itemSpeedMultiplier(participant) *
 				sideSpeedModifierMultiplier(state, participant),
 		)
@@ -2632,8 +2634,29 @@ class BattleEngine(
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SwitchInTerrainChange,
 				is BattleAbilityEffect.SwitchInWeatherChange,
+				is BattleAbilityEffect.TerrainSpeedMultiplier,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
+			}
+		}
+
+	/**
+	 * 计算场地触发的速度倍率。
+	 */
+	private fun terrainSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
+		participant.abilityEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleAbilityEffect.TerrainSpeedMultiplier ->
+					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.LowHpElementDamageBoost,
+				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SwitchInTerrainChange,
+				is BattleAbilityEffect.SwitchInWeatherChange,
+				is BattleAbilityEffect.VolatileStatusImmunity,
+				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 			}
 		}
 

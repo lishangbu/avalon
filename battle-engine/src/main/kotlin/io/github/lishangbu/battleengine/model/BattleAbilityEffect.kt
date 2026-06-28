@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 该 sealed 类型是规则资料 policy code 进入纯引擎后的结构化形态。第一批实现几个高价值 hook：
  * 低体力时强化指定属性伤害、天气下速度修正、天气伤害免疫、受到接触类技能后有概率给攻击方附加主要异常状态，
- * 稳定状态免疫，以及成员出场时的能力阶级变化、天气设置和场地设置。
+ * 稳定状态免疫、环境下速度修正，以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
  */
@@ -49,6 +49,22 @@ sealed interface BattleAbilityEffect {
 	) : BattleAbilityEffect {
 		init {
 			require(weather != BattleWeather.NONE) { "weather speed multiplier requires an active weather" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 指定场地下的速度倍率。
+	 *
+	 * 用于表达电气场地下速度提升等稳定特性。该效果只参与行动排序、替换排序和其它读取有效速度的流程；
+	 * 场地本身的持续时间、伤害修正或状态免疫仍由环境状态和其它规则处理。
+	 */
+	data class TerrainSpeedMultiplier(
+		val terrain: BattleTerrain,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(terrain != BattleTerrain.NONE) { "terrain speed multiplier requires an active terrain" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
 		}
 	}

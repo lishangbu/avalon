@@ -222,6 +222,8 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.weatherSpeedByAbilityId(146)).isEqualTo(BattleWeather.SANDSTORM to 2.0)
 		assertThat(service.weatherSpeedByAbilityId(202)).isEqualTo(BattleWeather.SNOW to 2.0)
 
+		assertThat(service.terrainSpeedByAbilityId(207)).isEqualTo(BattleTerrain.ELECTRIC to 2.0)
+
 		assertThat(service.groundedByAbilityId(26)).isFalse()
 		assertThat(service.groundedByAbilityId(null)).isTrue()
 
@@ -309,6 +311,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.WeatherSpeedMultiplier>()
 			.single()
 			.let { it.weather to it.multiplier }
+
+	private fun BattleRuntimeSnapshotService.terrainSpeedByAbilityId(abilityId: Long): Pair<BattleTerrain, Double> =
+		abilityEffectsByAbilityId(abilityId)
+			.filterIsInstance<BattleAbilityEffect.TerrainSpeedMultiplier>()
+			.single()
+			.let { it.terrain to it.multiplier }
 
 	private fun participant(
 		actorId: String,

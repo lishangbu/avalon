@@ -229,6 +229,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.SwitchInTerrainChange -> multiplier
 				is BattleAbilityEffect.SwitchInWeatherChange -> multiplier
+				is BattleAbilityEffect.TerrainSpeedMultiplier -> multiplier
 				is BattleAbilityEffect.VolatileStatusImmunity -> multiplier
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
