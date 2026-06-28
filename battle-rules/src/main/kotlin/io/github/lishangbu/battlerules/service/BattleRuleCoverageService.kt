@@ -165,6 +165,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖接地成员固定比例回复；其它场地效果仍需补齐。",
 			),
 			item(
+				code = "terrain.psychic-priority-block",
+				name = "精神场地先制阻挡",
+				category = "场地",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"psychic-terrain-blocks-priority-move-against-grounded-opponent",
+					"psychic-terrain-does-not-block-priority-move-against-ungrounded-opponent",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
+				),
+				note = "精神场地阻止对手针对接地成员的先制技能，非接地目标不受影响。",
+			),
+			item(
 				code = "field.environment-duration",
 				name = "天气和场地持续回合",
 				category = "天气/场地",
