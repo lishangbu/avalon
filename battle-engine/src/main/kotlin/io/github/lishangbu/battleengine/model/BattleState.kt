@@ -46,6 +46,24 @@ data class BattleState(
 		})
 
 	/**
+	 * 在指定一侧新增防守方伤害减免屏障。
+	 *
+	 * 返回 null 表示目标侧不存在，或该侧已经有同种屏障。调用方据此决定是否产生事件；状态对象自身不猜测
+	 * “技能失败”文案，保持领域模型只表达确定的状态变更。
+	 */
+	fun addSideDamageReduction(sideId: String, reduction: BattleSideDamageReduction): BattleState? {
+		var changed = false
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				side.addDamageReduction(reduction)?.also { changed = true } ?: side
+			}
+		}
+		return if (changed) copy(sides = nextSides) else null
+	}
+
+	/**
 	 * 替换当前上场成员。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =

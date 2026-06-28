@@ -20,9 +20,10 @@ package io.github.lishangbu.battleengine.model
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
+ * `sideConditionApplications` 表示技能命中后建立的一侧场上效果，例如反射类防守屏障。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
- * 当前显式支持主要异常状态、临时状态和能力阶级变化三类命中后效果，避免用弱类型脚本描述核心规则。
+ * 当前显式支持主要异常状态、临时状态、能力阶级变化和一侧场上效果，避免用弱类型脚本描述核心规则。
  */
 data class BattleSkillSlot(
 	val skillId: Long,
@@ -52,6 +53,7 @@ data class BattleSkillSlot(
 	val statusApplications: List<BattleStatusApplication> = emptyList(),
 	val volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	val statStageEffects: List<BattleStatStageEffect> = emptyList(),
+	val sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 ) {
 	init {
 		require(skillId > 0) { "skillId must be positive" }

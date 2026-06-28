@@ -322,6 +322,21 @@ sealed interface BattleEvent {
 		val currentStage: Int,
 	) : BattleEvent
 
+	/**
+	 * 一侧成功建立了防守方标准伤害减免屏障。
+	 *
+	 * 屏障属于一侧场上状态，而不是某个成员的临时状态。`turnsRemaining` 记录建立时写入的持续回合；
+	 * 如果为 null，表示外部 fixture 或调用方暂不要求引擎递减该屏障。
+	 */
+	data class SideDamageReductionStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val kind: BattleSideDamageReductionKind,
+		val turnsRemaining: Int?,
+	) : BattleEvent
+
 	data class ResidualDamageApplied(
 		override val turnNumber: Int,
 		val actorId: String,

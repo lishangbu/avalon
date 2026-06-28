@@ -15,6 +15,8 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
+import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
+import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -976,8 +978,8 @@ class BattleEngine(
 	/**
 	 * 应用技能命中后的结构化附加效果。
 	 *
-	 * 第一批只处理主要异常状态和能力阶级变化。效果按技能槽中的顺序结算；概率小于 100 的效果会消费随机数。
-	 * 若目标已经倒下、已有主要异常状态或阶级变化被上下限夹住，则保持状态不变并跳过事件。
+	 * 效果按技能槽中的顺序结算；概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
+	 * 阶级变化被上下限夹住，或同类一侧场上屏障已经存在，则保持状态不变并跳过对应事件。
 	 */
 	private fun applySkillEffects(
 		state: BattleState,
@@ -1024,7 +1026,7 @@ class BattleEngine(
 				}
 			}
 		}
-		return skill.statStageEffects.fold(afterVolatileStatuses) { current, effect ->
+		val afterStatStageEffects = skill.statStageEffects.fold(afterVolatileStatuses) { current, effect ->
 			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
 				current
 			} else {
@@ -1050,6 +1052,48 @@ class BattleEngine(
 				}
 			}
 		}
+		return skill.sideConditionApplications.fold(afterStatStageEffects) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
+				current
+			} else {
+				applySideConditionEffect(current, actorId, targetActorId, skill, application)
+			}
+		}
+	}
+
+	/**
+	 * 将命中后的技能一侧场上效果写入对应战斗侧。
+	 *
+	 * 当前只接入防守方伤害减免屏障。目标侧解析在这里完成：使用者侧屏障不依赖本次目标是否仍可战斗；
+	 * 目标侧屏障则跟随实际命中的目标所属侧。若同种屏障已存在，`BattleState` 会拒绝写入，本函数也不会产生
+	 * 新事件，避免把重复使用误记录为刷新持续回合。
+	 */
+	private fun applySideConditionEffect(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		application: BattleSideConditionApplication,
+	): BattleState {
+		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
+			return state
+		}
+		val side = when (application.targetSide) {
+			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
+			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
+		} ?: return state
+		return state.addSideDamageReduction(side.sideId, application.damageReduction)
+			?.appendEvent(
+				BattleEvent.SideDamageReductionStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					sideId = side.sideId,
+					skillId = skill.skillId,
+					kind = application.damageReduction.kind,
+					turnsRemaining = application.damageReduction.turnsRemaining,
+				),
+			)
+			?: state
 	}
 
 	/**

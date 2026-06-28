@@ -8,6 +8,8 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
+import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -15,6 +17,7 @@ import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -535,6 +538,101 @@ class BattleEngineSingleTurnTests {
 
 		assertEquals(86, resolved.participant("defender")?.currentHp)
 		assertEquals(2, resolved.sideOf("defender")?.damageReductions?.single()?.turnsRemaining)
+	}
+
+	@Test
+	fun `status skill can establish user side damage reduction before later damage`() {
+		val screenSkill = damagingSkill(
+			skillId = 10,
+			name = "物理屏障测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			sideConditionApplications = listOf(
+				BattleSideConditionApplication(
+					targetSide = BattleSideConditionTarget.USER_SIDE,
+					damageReduction = BattleSideDamageReduction(
+						kind = BattleSideDamageReductionKind.PHYSICAL,
+						turnsRemaining = 5,
+					),
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("support", speed = 100, skill = screenSkill),
+				second = participant("attacker", speed = 50),
+			),
+		)
+
+		val afterScreen = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("support", skillId = 10, targetActorId = "support")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val started = afterScreen.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>().single()
+		assertEquals("side-a", started.sideId)
+		assertEquals(BattleSideDamageReductionKind.PHYSICAL, started.kind)
+		assertEquals(5, started.turnsRemaining)
+		assertEquals(4, afterScreen.sideOf("support")?.damageReductions?.single()?.turnsRemaining)
+
+		val afterDamage = engine.resolveTurn(
+			afterScreen,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "support")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		assertEquals(86, afterDamage.participant("support")?.currentHp)
+		assertEquals(3, afterDamage.sideOf("support")?.damageReductions?.single()?.turnsRemaining)
+	}
+
+	@Test
+	fun `side condition skill respects required weather`() {
+		val snowScreenSkill = damagingSkill(
+			skillId = 11,
+			name = "天气屏障测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			sideConditionApplications = listOf(
+				BattleSideConditionApplication(
+					targetSide = BattleSideConditionTarget.USER_SIDE,
+					damageReduction = BattleSideDamageReduction(
+						kind = BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE,
+						turnsRemaining = 5,
+					),
+					requiredWeather = BattleWeather.SNOW,
+				),
+			),
+		)
+		val noWeatherState = engine.start(
+			initialState(
+				first = participant("support", speed = 100, skill = snowScreenSkill),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val withoutWeather = engine.resolveTurn(
+			noWeatherState,
+			listOf(BattleAction.UseSkill("support", skillId = 11, targetActorId = "support")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		assertEquals(emptyList(), withoutWeather.sideOf("support")?.damageReductions)
+		assertEquals(emptyList(), withoutWeather.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>())
+
+		val snowState = engine.start(
+			initialState(
+				first = participant("support", speed = 100, skill = snowScreenSkill),
+				second = participant("observer", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.SNOW),
+			),
+		)
+		val withWeather = engine.resolveTurn(
+			snowState,
+			listOf(BattleAction.UseSkill("support", skillId = 11, targetActorId = "support")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE, withWeather.sideOf("support")?.damageReductions?.single()?.kind)
+		assertIs<BattleEvent.SideDamageReductionStarted>(withWeather.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>().single())
 	}
 
 	@Test

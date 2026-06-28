@@ -57,6 +57,19 @@ data class BattleSide(
 		copy(participants = participants.map { current -> if (current.actorId == participant.actorId) participant else current })
 
 	/**
+	 * 在这一侧新增一个防守方伤害减免屏障。
+	 *
+	 * 现代规则中，同一种屏障已经存在时再次使用通常不会刷新持续时间；这里返回 null 表示本次没有写入新状态。
+	 * 其它种类的屏障可以共存，但单次伤害只会由引擎选中一个适用屏障参与倍率计算。
+	 */
+	fun addDamageReduction(reduction: BattleSideDamageReduction): BattleSide? {
+		if (damageReductions.any { it.kind == reduction.kind }) {
+			return null
+		}
+		return copy(damageReductions = damageReductions + reduction)
+	}
+
+	/**
 	 * 推进这一侧的回合型场上状态。
 	 *
 	 * 当前只包含伤害减免屏障。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。
