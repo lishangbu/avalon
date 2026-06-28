@@ -568,9 +568,9 @@ class BattleEngine(
 	/**
 	 * 处理行动前可能阻止技能的状态。
 	 *
-	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠先处理，畏缩随后处理，混乱最后处理。
+	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠先处理，畏缩随后处理，混乱早于麻痹处理。
 	 * 睡眠和畏缩必定阻止本次技能行动且不消耗 PP；混乱会先递减内部计数，若计数归零则解除并继续行动，
-	 * 否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动。
+	 * 否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动；麻痹最后按 25% 概率阻止行动。
 	 */
 	private fun resolveBeforeMoveEffects(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
@@ -587,6 +587,12 @@ class BattleEngine(
 		}
 		if (actor.confusionTurnsRemaining > 0) {
 			return resolveConfusionBeforeMove(context, actor, random)
+		}
+		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
+				blocked = true,
+			)
 		}
 		return BeforeMoveResult(context = context, blocked = false)
 	}
@@ -638,6 +644,29 @@ class BattleEngine(
 					status = BattleVolatileStatus.FLINCH,
 				),
 			)
+
+	/**
+	 * 消耗麻痹对本次技能行动的阻止效果。
+	 *
+	 * 麻痹本身不会因为阻止一次行动而解除，也不消耗技能 PP。这里不修改成员快照，只把“本次行动被麻痹挡下”
+	 * 写入事件流，方便 replay 和公开规则 fixture 验证随机消费顺序。
+	 */
+	private fun consumeParalysisBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByParalysis(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+			),
+		)
+
+	/**
+	 * 判断麻痹是否阻止本次行动。
+	 *
+	 * 现代主系列规则为每次行动前 25% 概率无法行动。该判定发生在睡眠、畏缩和混乱之后；因此如果前置状态
+	 * 已经阻止了本次行动，就不会额外消费麻痹随机数。
+	 */
+	private fun paralysisBlocksMove(actor: BattleParticipant, random: BattleRandom): Boolean =
+		chanceSucceeds(PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT, random, "paralysis chance for ${actor.actorId}")
 
 	/**
 	 * 处理混乱的行动前计数、解除、自伤和行动阻止。
@@ -1124,5 +1153,6 @@ class BattleEngine(
 	private companion object {
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
+		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 	}
 }

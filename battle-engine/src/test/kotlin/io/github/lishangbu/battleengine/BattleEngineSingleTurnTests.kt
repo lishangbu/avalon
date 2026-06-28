@@ -397,7 +397,7 @@ class BattleEngineSingleTurnTests {
 				BattleAction.UseSkill("paralyzed-fast", skillId = 1, targetActorId = "normal-mid"),
 				BattleAction.UseSkill("normal-mid", skillId = 1, targetActorId = "paralyzed-fast"),
 			),
-			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+			ScriptedBattleRandom(listOf(1, 15, 99, 1, 15)),
 		)
 
 		val usedEvents = resolved.events.filterIsInstance<BattleEvent.SkillUsed>()

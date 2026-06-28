@@ -98,6 +98,17 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因麻痹无法执行本次技能行动。
+	 *
+	 * 麻痹不会像睡眠那样保存持续计数；每次行动前独立按现代规则判定。若该事件出现，技能不会使用，
+	 * PP 不会消耗，也不会继续进入命中、伤害或附加效果流程。
+	 */
+	data class SkillPreventedByParalysis(
+		override val turnNumber: Int,
+		val actorId: String,
+	) : BattleEvent
+
+	/**
 	 * 行动者因临时状态无法执行本次技能行动。
 	 *
 	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生
