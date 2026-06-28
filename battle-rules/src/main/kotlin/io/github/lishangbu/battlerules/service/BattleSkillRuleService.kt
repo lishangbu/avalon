@@ -4,22 +4,32 @@ import io.github.lishangbu.battlerules.dto.BattleSkillRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillRuleResponse
 import io.github.lishangbu.battlerules.entity.BattleSkillRule
 import io.github.lishangbu.battlerules.entity.affectedByProtect
+import io.github.lishangbu.battlerules.entity.confusesUserAfterLock
+import io.github.lishangbu.battlerules.entity.criticalHitStage
 import io.github.lishangbu.battlerules.entity.damagePolicy
 import io.github.lishangbu.battlerules.entity.description
 import io.github.lishangbu.battlerules.entity.effectPolicy
 import io.github.lishangbu.battlerules.entity.enabled
 import io.github.lishangbu.battlerules.entity.hitPolicy
 import io.github.lishangbu.battlerules.entity.id
+import io.github.lishangbu.battlerules.entity.lockMoveTurnsMax
+import io.github.lishangbu.battlerules.entity.lockMoveTurnsMin
 import io.github.lishangbu.battlerules.entity.makesContact
+import io.github.lishangbu.battlerules.entity.maxHits
+import io.github.lishangbu.battlerules.entity.minHits
 import io.github.lishangbu.battlerules.entity.powderBased
+import io.github.lishangbu.battlerules.entity.protectsUser
 import io.github.lishangbu.battlerules.entity.punchBased
 import io.github.lishangbu.battlerules.entity.slicingBased
 import io.github.lishangbu.battlerules.entity.skillId
 import io.github.lishangbu.battlerules.entity.sortOrder
 import io.github.lishangbu.battlerules.entity.soundBased
 import io.github.lishangbu.battlerules.entity.targetPolicy
+import io.github.lishangbu.battlerules.entity.thawsUserBeforeMove
+import io.github.lishangbu.battlerules.entity.weakenedByGrassyTerrain
 import io.github.lishangbu.battlerules.repository.BattleSkillRuleRepository
 import io.github.lishangbu.common.web.conflict
+import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.mapRows
 import io.github.lishangbu.common.web.notFound
 import io.github.lishangbu.common.web.searchFilter
@@ -83,7 +93,7 @@ class BattleSkillRuleService(
 	@Transactional
 	fun create(request: BattleSkillRuleRequest): BattleSkillRuleResponse {
 		val normalized = request.normalized()
-		validateSkillReference(normalized.skillId)
+		validateSkillRuntimeConstraints(normalized, validateSkillReference(normalized.skillId))
 		ensureSkillAvailable(normalized.skillId, null)
 		return repository.save(
 			BattleSkillRule {
@@ -92,12 +102,21 @@ class BattleSkillRuleService(
 				targetPolicy = normalized.targetPolicy
 				hitPolicy = normalized.hitPolicy
 				damagePolicy = normalized.damagePolicy
+				minHits = normalized.minHits
+				maxHits = normalized.maxHits
+				criticalHitStage = normalized.criticalHitStage
 				makesContact = normalized.makesContact
 				affectedByProtect = normalized.affectedByProtect
+				protectsUser = normalized.protectsUser
+				thawsUserBeforeMove = normalized.thawsUserBeforeMove
+				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
 				slicingBased = normalized.slicingBased
+				lockMoveTurnsMin = normalized.lockMoveTurnsMin
+				lockMoveTurnsMax = normalized.lockMoveTurnsMax
+				confusesUserAfterLock = normalized.confusesUserAfterLock
 				description = normalized.description
 				enabled = normalized.enabled
 				sortOrder = normalized.sortOrder
@@ -114,7 +133,7 @@ class BattleSkillRuleService(
 	fun update(id: Long, request: BattleSkillRuleRequest): BattleSkillRuleResponse {
 		ruleByIdOrNotFound(id)
 		val normalized = request.normalized()
-		validateSkillReference(normalized.skillId)
+		validateSkillRuntimeConstraints(normalized, validateSkillReference(normalized.skillId))
 		ensureSkillAvailable(normalized.skillId, id)
 		return repository.save(
 			BattleSkillRule {
@@ -124,12 +143,21 @@ class BattleSkillRuleService(
 				targetPolicy = normalized.targetPolicy
 				hitPolicy = normalized.hitPolicy
 				damagePolicy = normalized.damagePolicy
+				minHits = normalized.minHits
+				maxHits = normalized.maxHits
+				criticalHitStage = normalized.criticalHitStage
 				makesContact = normalized.makesContact
 				affectedByProtect = normalized.affectedByProtect
+				protectsUser = normalized.protectsUser
+				thawsUserBeforeMove = normalized.thawsUserBeforeMove
+				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
 				soundBased = normalized.soundBased
 				powderBased = normalized.powderBased
 				punchBased = normalized.punchBased
 				slicingBased = normalized.slicingBased
+				lockMoveTurnsMin = normalized.lockMoveTurnsMin
+				lockMoveTurnsMax = normalized.lockMoveTurnsMax
+				confusesUserAfterLock = normalized.confusesUserAfterLock
 				description = normalized.description
 				enabled = normalized.enabled
 				sortOrder = normalized.sortOrder
@@ -151,8 +179,36 @@ class BattleSkillRuleService(
 	private fun ruleByIdOrNotFound(id: Long): BattleSkillRule =
 		repository.findNullable(id) ?: notFound("id", "技能规则不存在: $id")
 
-	private fun validateSkillReference(skillId: Long) {
+	private fun validateSkillReference(skillId: Long): String {
 		requireExistingGameDataReference(jdbcTemplate, "game_skill", skillId, "skillId", "技能")
+		return jdbcTemplate.queryForObject(
+			"""
+			select c.code
+			from game_skill s
+			join game_skill_damage_class c on c.id = s.damage_class_id
+			where s.id = ?
+			""".trimIndent(),
+			String::class.java,
+			skillId,
+		) ?: invalidValue("skillId", "技能缺少伤害分类: $skillId")
+	}
+
+	private fun validateSkillRuntimeConstraints(request: BattleSkillRuleRequest, damageClassCode: String) {
+		if (request.maxHits < request.minHits) {
+			invalidValue("maxHits", "maxHits 不能小于 minHits")
+		}
+		if (damageClassCode == "status" && (request.minHits != 1 || request.maxHits != 1)) {
+			invalidValue("maxHits", "变化类技能不能配置多段命中")
+		}
+		if (request.protectsUser && damageClassCode != "status") {
+			invalidValue("protectsUser", "只有变化类技能才能配置保护自身")
+		}
+		if (request.lockMoveTurnsMax < request.lockMoveTurnsMin) {
+			invalidValue("lockMoveTurnsMax", "lockMoveTurnsMax 不能小于 lockMoveTurnsMin")
+		}
+		if (request.confusesUserAfterLock && request.lockMoveTurnsMax <= 1) {
+			invalidValue("confusesUserAfterLock", "锁招结束混乱需要配置超过 1 回合的锁招")
+		}
 	}
 
 	private fun ensureSkillAvailable(skillId: Long, selfId: Long?) {
@@ -173,6 +229,11 @@ class BattleSkillRuleService(
 			targetPolicy = requiredPolicyCode(targetPolicy, "targetPolicy"),
 			hitPolicy = requiredPolicyCode(hitPolicy, "hitPolicy"),
 			damagePolicy = requiredPolicyCode(damagePolicy, "damagePolicy"),
+			minHits = requiredIntRange(minHits, "minHits", 1, 10),
+			maxHits = requiredIntRange(maxHits, "maxHits", 1, 10),
+			criticalHitStage = requiredIntRange(criticalHitStage, "criticalHitStage", 0, 4),
+			lockMoveTurnsMin = requiredIntRange(lockMoveTurnsMin, "lockMoveTurnsMin", 1, 10),
+			lockMoveTurnsMax = requiredIntRange(lockMoveTurnsMax, "lockMoveTurnsMax", 1, 10),
 			description = optionalText(description, "description", 800),
 			sortOrder = requiredIntRange(sortOrder, "sortOrder", 0, 10000),
 		)
@@ -185,12 +246,21 @@ class BattleSkillRuleService(
 			targetPolicy = targetPolicy,
 			hitPolicy = hitPolicy,
 			damagePolicy = damagePolicy,
+			minHits = minHits,
+			maxHits = maxHits,
+			criticalHitStage = criticalHitStage,
 			makesContact = makesContact,
 			affectedByProtect = affectedByProtect,
+			protectsUser = protectsUser,
+			thawsUserBeforeMove = thawsUserBeforeMove,
+			weakenedByGrassyTerrain = weakenedByGrassyTerrain,
 			soundBased = soundBased,
 			powderBased = powderBased,
 			punchBased = punchBased,
 			slicingBased = slicingBased,
+			lockMoveTurnsMin = lockMoveTurnsMin,
+			lockMoveTurnsMax = lockMoveTurnsMax,
+			confusesUserAfterLock = confusesUserAfterLock,
 			description = description,
 			enabled = enabled,
 			sortOrder = sortOrder,

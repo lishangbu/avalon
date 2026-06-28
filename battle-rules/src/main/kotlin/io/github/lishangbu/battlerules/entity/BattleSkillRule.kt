@@ -30,12 +30,21 @@ interface BattleSkillRule {
 	val targetPolicy: String
 	val hitPolicy: String
 	val damagePolicy: String
+	val minHits: Int
+	val maxHits: Int
+	val criticalHitStage: Int
 	val makesContact: Boolean
 	val affectedByProtect: Boolean
+	val protectsUser: Boolean
+	val thawsUserBeforeMove: Boolean
+	val weakenedByGrassyTerrain: Boolean
 	val soundBased: Boolean
 	val powderBased: Boolean
 	val punchBased: Boolean
 	val slicingBased: Boolean
+	val lockMoveTurnsMin: Int
+	val lockMoveTurnsMax: Int
+	val confusesUserAfterLock: Boolean
 	val description: String?
 	val enabled: Boolean
 	val sortOrder: Int

@@ -40,8 +40,15 @@ class BattleSkillRuleServiceTests(
 				targetPolicy = "selected-target",
 				hitPolicy = "standard-hit",
 				damagePolicy = "standard-damage",
+				minHits = 2,
+				maxHits = 5,
+				criticalHitStage = 1,
 				makesContact = true,
 				affectedByProtect = true,
+				weakenedByGrassyTerrain = true,
+				lockMoveTurnsMin = 2,
+				lockMoveTurnsMax = 3,
+				confusesUserAfterLock = true,
 				description = "测试技能规则。",
 				enabled = true,
 				sortOrder = 901,
@@ -49,6 +56,13 @@ class BattleSkillRuleServiceTests(
 		)
 
 		assertThat(created.skillId).isEqualTo(10)
+		assertThat(created.minHits).isEqualTo(2)
+		assertThat(created.maxHits).isEqualTo(5)
+		assertThat(created.criticalHitStage).isEqualTo(1)
+		assertThat(created.weakenedByGrassyTerrain).isTrue()
+		assertThat(created.lockMoveTurnsMin).isEqualTo(2)
+		assertThat(created.lockMoveTurnsMax).isEqualTo(3)
+		assertThat(created.confusesUserAfterLock).isTrue()
 		assertThat(service.get(created.id).effectPolicy).isEqualTo("test-standard-damage")
 		assertThat(service.list(0, 20, skillId = 10, query = "standard").rows.map { it.id }).contains(created.id)
 
@@ -60,9 +74,16 @@ class BattleSkillRuleServiceTests(
 				targetPolicy = "selected-target",
 				hitPolicy = "standard-hit",
 				damagePolicy = "standard-damage",
+				minHits = 1,
+				maxHits = 1,
+				criticalHitStage = 2,
 				makesContact = false,
 				affectedByProtect = false,
+				thawsUserBeforeMove = true,
 				soundBased = true,
+				lockMoveTurnsMin = 1,
+				lockMoveTurnsMax = 1,
+				confusesUserAfterLock = false,
 				description = null,
 				enabled = false,
 				sortOrder = 902,
@@ -71,6 +92,9 @@ class BattleSkillRuleServiceTests(
 		assertThat(updated.makesContact).isFalse()
 		assertThat(updated.affectedByProtect).isFalse()
 		assertThat(updated.soundBased).isTrue()
+		assertThat(updated.criticalHitStage).isEqualTo(2)
+		assertThat(updated.thawsUserBeforeMove).isTrue()
+		assertThat(updated.confusesUserAfterLock).isFalse()
 		assertThat(updated.description).isNull()
 
 		service.delete(created.id)
@@ -118,5 +142,74 @@ class BattleSkillRuleServiceTests(
 		assertThat(exception.status).isEqualTo(HttpStatus.CONFLICT)
 		assertThat(exception.code).isEqualTo(ApiErrorCode.RESOURCE_CONFLICT)
 		assertThat(exception.field).isEqualTo("skillId")
+	}
+
+	@Test
+	fun `rejects runtime fields that break engine invariants`() {
+		val reversedHits = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 11,
+					effectPolicy = "test-reversed-hit",
+					targetPolicy = "selected-target",
+					hitPolicy = "multi-hit",
+					damagePolicy = "standard-damage",
+					minHits = 5,
+					maxHits = 2,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(reversedHits.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(reversedHits.field).isEqualTo("maxHits")
+
+		val statusMultiHit = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 14,
+					effectPolicy = "test-status-multi-hit",
+					targetPolicy = "self",
+					hitPolicy = "multi-hit",
+					damagePolicy = "no-damage",
+					minHits = 2,
+					maxHits = 2,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(statusMultiHit.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(statusMultiHit.field).isEqualTo("maxHits")
+
+		val nonStatusProtect = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 11,
+					effectPolicy = "test-invalid-protect",
+					targetPolicy = "selected-target",
+					hitPolicy = "standard-hit",
+					damagePolicy = "standard-damage",
+					protectsUser = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(nonStatusProtect.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(nonStatusProtect.field).isEqualTo("protectsUser")
+
+		val lockConfusion = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 11,
+					effectPolicy = "test-invalid-lock-confusion",
+					targetPolicy = "selected-target",
+					hitPolicy = "standard-hit",
+					damagePolicy = "standard-damage",
+					confusesUserAfterLock = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(lockConfusion.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(lockConfusion.field).isEqualTo("confusesUserAfterLock")
 	}
 }
