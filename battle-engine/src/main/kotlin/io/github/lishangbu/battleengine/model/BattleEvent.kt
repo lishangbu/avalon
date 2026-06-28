@@ -86,6 +86,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能被当前场地规则阻挡。
+	 *
+	 * 当前用于精神场地阻止针对接地对手的先制技能。技能已经使用且 PP 已消耗，但不会继续进入命中、
+	 * 伤害或附加效果流程。
+	 */
+	data class SkillBlockedByTerrain(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val terrain: BattleTerrain,
+	) : BattleEvent
+
+	/**
 	 * 多段技能本次使用的实际命中段数已经确定。
 	 *
 	 * 该事件只在段数大于 1 时产生。随后每一段伤害仍使用独立的 [DamageApplied] 事件记录，目标提前倒下时

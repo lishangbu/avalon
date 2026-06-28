@@ -276,6 +276,20 @@ class BattleEngine(
 			return context
 		}
 
+		if (skillBlockedByTerrain(state, actor, target, skill)) {
+			return context.copy(
+				state = state.appendEvent(
+					BattleEvent.SkillBlockedByTerrain(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						terrain = state.environment.terrain,
+					),
+				),
+			)
+		}
+
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
 			return context.copy(
 				state = state.appendEvent(
@@ -466,6 +480,23 @@ class BattleEngine(
 		} else {
 			1.0
 		}
+
+	/**
+	 * 判断技能是否被场地规则阻挡。
+	 *
+	 * 现代精神场地会保护接地成员免受对手先制技能影响。该判断按目标逐个执行：范围技能中某个目标被阻挡时，
+	 * 其它不满足条件的目标仍可继续结算。
+	 */
+	private fun skillBlockedByTerrain(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): Boolean =
+		state.environment.terrain == BattleTerrain.PSYCHIC &&
+			skill.priority > 0 &&
+			target.grounded &&
+			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
 
 	/**
 	 * 决定本次技能使用的实际命中段数。
