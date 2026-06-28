@@ -14,6 +14,7 @@ package io.github.lishangbu.battleengine.model
  * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
+ * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
  * 当前显式支持主要异常状态、临时状态和能力阶级变化三类命中后效果，避免用弱类型脚本描述核心规则。
@@ -33,6 +34,7 @@ data class BattleSkillSlot(
 	val affectedByProtect: Boolean = true,
 	val protectsUser: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
+	val powderBased: Boolean = false,
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,

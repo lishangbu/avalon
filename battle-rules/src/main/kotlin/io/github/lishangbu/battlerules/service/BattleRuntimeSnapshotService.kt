@@ -78,6 +78,7 @@ class BattleRuntimeSnapshotService(
 			rules = BattleRuleSnapshot(
 				electricElementId = elementIds.requiredElementId("electric"),
 				fireElementId = elementIds.requiredElementId("fire"),
+				grassElementId = elementIds.requiredElementId("grass"),
 				groundElementId = elementIds.requiredElementId("ground"),
 				iceElementId = elementIds.requiredElementId("ice"),
 				poisonElementId = elementIds.requiredElementId("poison"),
@@ -159,7 +160,7 @@ class BattleRuntimeSnapshotService(
 			"""
 			select code, id
 			from game_element
-			where code in ('electric', 'fire', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
+			where code in ('electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
 			""".trimIndent(),
 		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
 

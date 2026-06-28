@@ -276,6 +276,21 @@ class BattleEngine(
 			return context
 		}
 
+		val powderBlockedElementId = powderBlockedElementId(state, target, skill)
+		if (powderBlockedElementId != null) {
+			return context.copy(
+				state = state.appendEvent(
+					BattleEvent.SkillBlockedByElement(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						elementId = powderBlockedElementId,
+					),
+				),
+			)
+		}
+
 		if (skillBlockedByTerrain(state, actor, target, skill)) {
 			return context.copy(
 				state = state.appendEvent(
@@ -527,6 +542,21 @@ class BattleEngine(
 			skill.priority > 0 &&
 			target.grounded &&
 			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
+
+	/**
+	 * 判断粉末类技能是否被目标属性免疫。
+	 *
+	 * 现代规则中，草属性成员天然免疫粉末/孢子类技能。这里返回实际触发免疫的属性 ID，便于事件流记录；
+	 * 如果规则快照缺少草属性 ID，则不猜测资料编号，也不启用该免疫。
+	 */
+	private fun powderBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
+		val grassElementId = state.rules.grassElementId ?: return null
+		return if (skill.powderBased && target.hasElement(grassElementId)) {
+			grassElementId
+		} else {
+			null
+		}
+	}
 
 	/**
 	 * 决定本次技能使用的实际命中段数。

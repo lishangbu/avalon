@@ -133,6 +133,52 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `grass target blocks powder based status skill before status random`() {
+		val fixture = publicBattleRuleFixture(
+			name = "grass-target-blocks-powder-based-status-skill",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Powder_and_spore_moves",
+			),
+			inputSummary = "草属性目标被粉末类睡眠技能选中。",
+			expectedSummary = "技能使用并消耗 PP，但被目标草属性免疫阻挡，不消费睡眠持续随机数。",
+		)
+		val powderSleep = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			powderBased = true,
+			statusApplications = listOf(
+				BattleStatusApplication(
+					status = BattleMajorStatus.SLEEP,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val state = engine.start(
+			initialState(
+				first = participant("powder-user", speed = 100, skill = powderSleep),
+				second = participant("grass-target", speed = 50, elementId = GRASS_ELEMENT_ID),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("powder-user", skillId = 1, targetActorId = "grass-target")),
+			random,
+		)
+
+		fixture.assertNamed("grass-target-blocks-powder-based-status-skill")
+		assertEquals(emptyList(), random.consumedReasons())
+		assertEquals(34, resolved.participant("powder-user")?.skillSlot(1)?.remainingPp)
+		assertEquals(null, resolved.participant("grass-target")?.majorStatus)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplied>())
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByElement>().single()
+		assertEquals(GRASS_ELEMENT_ID, blocked.elementId)
+		assertEquals("grass-target", blocked.targetActorId)
+	}
+
+	@Test
 	fun `grassy terrain heals only grounded active participants`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-heals-only-grounded-active-participants",
@@ -184,6 +230,7 @@ class BattleStatusImmunityAndGroundingTests {
 	private companion object {
 		private const val ELECTRIC_ELEMENT_ID = 13L
 		private const val FIRE_ELEMENT_ID = 10L
+		private const val GRASS_ELEMENT_ID = 12L
 		private const val ICE_ELEMENT_ID = 15L
 		private const val POISON_ELEMENT_ID = 4L
 		private const val STEEL_ELEMENT_ID = 9L
