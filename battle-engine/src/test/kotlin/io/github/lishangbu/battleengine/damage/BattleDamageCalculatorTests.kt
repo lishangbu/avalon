@@ -86,6 +86,24 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `multi target damage modifier reduces spread damage`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, elementId = 1),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+				targetMultiplier = 0.75,
+			),
+		)
+
+		assertEquals(19, result.baseDamage)
+		assertEquals(0.75, result.targetMultiplier)
+		assertEquals(21, result.amount)
+	}
+
+	@Test
 	fun `burn halves physical attacking stat before damage`() {
 		val result = calculator.calculate(
 			BattleDamageRequest(

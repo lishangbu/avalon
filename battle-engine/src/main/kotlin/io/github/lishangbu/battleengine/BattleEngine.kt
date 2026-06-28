@@ -3,8 +3,8 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
-import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
@@ -24,10 +25,11 @@ import kotlin.math.floor
  * 现代回合制战斗引擎的第一阶段核心状态机。
  *
  * 该类不依赖 Spring、Jimmer 或数据库。调用方传入已经冻结的初始状态、规则快照、行动列表和随机源，
- * 引擎返回新的不可变战斗状态和事件流。第一阶段实现单打的最小闭环：启动、回合开始、技能行动排序、
- * 替换、PP 消耗、命中/闪避判定、击中要害、基础伤害、倒下检测和胜负判定。
+ * 引擎返回新的不可变战斗状态和事件流。第一阶段实现基础战斗闭环：启动、回合开始、技能行动排序、
+ * 替换、PP 消耗、命中/闪避判定、击中要害、基础伤害、保护、状态、天气、场地、双打范围目标修正、
+ * 倒下检测和胜负判定。
  *
- * 当前不负责的边界包括：道具使用、状态持续效果细分、双打范围技能、连续保护成功率和复杂技能脚本。
+ * 当前不负责的边界包括：主动使用道具、状态持续效果细分、复杂技能脚本和完整官方竞技裁定。
  * 这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
  */
 class BattleEngine(
@@ -161,17 +163,21 @@ class BattleEngine(
 	/**
 	 * 执行一次使用技能行动。
 	 *
-	 * 行动者若已经倒下会被跳过；目标若已经倒下或不存在也会被跳过，后续双打目标重定向会替换这里的简单规则。
+	 * 行动者若已经倒下会被跳过；单体目标按席位语义重定向，范围目标按当前站位重新收集。
+	 * 技能使用事件和 PP 消耗只发生一次，随后每个实际目标独立结算命中、要害、伤害和附加效果。
 	 */
 	private fun executeUseSkill(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
 		val state = context.state
 		val action = plan.action as BattleAction.UseSkill
 		val actor = state.participant(action.actorId) ?: return context
-		val target = state.activeTargetFor(action.targetActorId) ?: return context
-		if (!state.isActive(actor.actorId) || !actor.canBattle() || !target.canBattle()) {
+		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
 		}
 		val skill = actor.skillSlot(action.skillId) ?: return context
+		val targets = targetsForSkill(state, actor.actorId, action.targetActorId, skill)
+		if (targets.isEmpty()) {
+			return context
+		}
 		require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 
 		val actorAfterPp = actor.replaceSkillSlot(skill.consumePp())
@@ -181,7 +187,7 @@ class BattleEngine(
 				BattleEvent.SkillUsed(
 					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					targetActorId = target.actorId,
+					targetActorId = targets.first().actorId,
 					skillId = skill.skillId,
 					skillName = skill.name,
 				),
@@ -217,9 +223,48 @@ class BattleEngine(
 			)
 		}
 
+		val targetMultiplier = targetDamageMultiplier(skill, targets)
+		return targets.fold(context.copy(state = usedState)) { current, target ->
+			if (current.state.result != null) {
+				current
+			} else {
+				resolveSkillAgainstTarget(
+					context = current,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skill = skill,
+					targetMultiplier = targetMultiplier,
+					random = random,
+				)
+			}
+		}
+	}
+
+	/**
+	 * 结算已经宣告使用的技能对单个实际目标的影响。
+	 *
+	 * 多目标技能在使用阶段只消耗一次 PP，并在这里按目标逐个处理保护、命中、属性免疫、伤害和附加效果。
+	 * 命中、击中要害和伤害随机数按目标独立消费；范围伤害倍率由使用阶段根据原始目标集合提前计算，
+	 * 因此某个目标后续被保护或闪避时，不会改变其它目标的范围修正。
+	 */
+	private fun resolveSkillAgainstTarget(
+		context: TurnContext,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		random: BattleRandom,
+	): TurnContext {
+		val state = context.state
+		val actor = state.participant(actorId) ?: return context
+		val target = state.participant(targetActorId) ?: return context
+		if (!actor.canBattle() || !target.canBattle()) {
+			return context
+		}
+
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
 			return context.copy(
-				state = usedState.appendEvent(
+				state = state.appendEvent(
 					BattleEvent.SkillBlockedByProtection(
 						turnNumber = state.turnNumber,
 						actorId = actor.actorId,
@@ -233,7 +278,7 @@ class BattleEngine(
 		val accuracyCheck = accuracyCheck(actor, target, skill, random)
 		if (!accuracyCheck.hit) {
 			return context.copy(
-				state = usedState.appendEvent(
+				state = state.appendEvent(
 					BattleEvent.SkillMissed(
 						turnNumber = state.turnNumber,
 						actorId = actor.actorId,
@@ -245,13 +290,13 @@ class BattleEngine(
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			return context.copy(state = applySkillEffects(usedState, actor.actorId, target.actorId, skill, random))
+			return context.copy(state = applySkillEffects(state, actor.actorId, target.actorId, skill, random))
 		}
 
 		val effectiveness = state.rules.elementChart.multiplier(skill.elementId, target.elementIds)
 		if (effectiveness == 0.0) {
 			return context.copy(
-				state = usedState.appendEvent(
+				state = state.appendEvent(
 					BattleEvent.DamageApplied(
 						turnNumber = state.turnNumber,
 						actorId = actor.actorId,
@@ -259,6 +304,7 @@ class BattleEngine(
 						skillId = skill.skillId,
 						amount = 0,
 						effectiveness = 0.0,
+						targetMultiplier = targetMultiplier,
 					),
 				),
 			)
@@ -268,17 +314,18 @@ class BattleEngine(
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
-				attacker = actorAfterPp,
+				attacker = actor,
 				defender = target,
 				skill = skill,
 				rules = state.rules,
 				environment = state.environment,
 				randomPercent = randomPercent,
+				targetMultiplier = targetMultiplier,
 				criticalHit = criticalHitCheck.hit,
 			),
 		)
 		val damagedTarget = target.receiveDamage(damage.amount)
-		val damagedState = usedState
+		val damagedState = state
 			.replaceParticipant(damagedTarget)
 			.appendEvent(
 				BattleEvent.DamageApplied(
@@ -288,6 +335,7 @@ class BattleEngine(
 					skillId = skill.skillId,
 					amount = damage.amount,
 					effectiveness = damage.effectiveness,
+					targetMultiplier = damage.targetMultiplier,
 					criticalHit = criticalHitCheck.hit,
 				),
 			)
@@ -305,7 +353,7 @@ class BattleEngine(
 			damageAmount = damage.amount,
 		)
 		val targetAfterPostDamage = afterRecoil.participant(damagedTarget.actorId) ?: damagedTarget
-		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actorAfterPp
+		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actor
 		val afterTargetFaint = afterRecoil.handleFaintAndResult(targetAfterPostDamage)
 		if (afterTargetFaint.result != null) {
 			return context.copy(state = afterTargetFaint)
@@ -317,6 +365,43 @@ class BattleEngine(
 			applySkillEffects(afterDamage, actor.actorId, damagedTarget.actorId, skill, random)
 		})
 	}
+
+	/**
+	 * 根据技能目标范围计算本次行动会尝试影响的实际目标。
+	 *
+	 * 单体技能保留“目标席位”语义：若行动选择的成员已经替换，技能会打到同一方当前可战斗的上场成员。
+	 * 范围技能会根据行动者所在方重新收集当前上场成员，不把已经倒下的成员计入目标集合。
+	 */
+	private fun targetsForSkill(
+		state: BattleState,
+		actorId: String,
+		selectedTargetActorId: String,
+		skill: BattleSkillSlot,
+	): List<BattleParticipant> =
+		when (skill.targetScope) {
+			BattleSkillTargetScope.SELECTED_TARGET -> listOfNotNull(state.activeTargetFor(selectedTargetActorId))
+				.filter { it.canBattle() }
+			BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS -> state.sides
+				.filter { it.participant(actorId) == null }
+				.flatMap { it.activeParticipants() }
+				.filter { it.canBattle() }
+			BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS -> state.sides
+				.flatMap { it.activeParticipants() }
+				.filter { it.actorId != actorId && it.canBattle() }
+		}
+
+	/**
+	 * 计算现代双打范围技能的目标倍率。
+	 *
+	 * 公开规则中，能同时命中多个目标的伤害技能在实际存在多个目标时使用 0.75 倍目标修正。
+	 * 若范围内只剩一个可战斗目标，则不套用该修正。
+	 */
+	private fun targetDamageMultiplier(skill: BattleSkillSlot, targets: List<BattleParticipant>): Double =
+		if (skill.targetScope.canAffectMultipleTargets && targets.size > 1) {
+			0.75
+		} else {
+			1.0
+		}
 
 	/**
 	 * 处理命中判定。

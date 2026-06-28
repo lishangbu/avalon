@@ -8,6 +8,7 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
@@ -501,6 +502,35 @@ class BattleEngineSingleTurnTests {
 		val event = resolved.events.filterIsInstance<BattleEvent.TerrainHealingApplied>().single()
 		assertEquals(BattleTerrain.GRASSY, event.terrain)
 		assertEquals(6, event.amount)
+	}
+
+	@Test
+	fun `spread skill keeps full damage when only one target can battle`() {
+		val spreadSkill = damagingSkill(
+			name = "范围攻击",
+			targetScope = BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS,
+		)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("spread-user", speed = 100, skill = spreadSkill),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("opponent-left", speed = 80),
+				secondB = participant("opponent-right", speed = 70, currentHp = 0),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("spread-user", skillId = 1, targetActorId = "opponent-left")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damageEvent = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		assertEquals("opponent-left", damageEvent.targetActorId)
+		assertEquals(28, damageEvent.amount)
+		assertEquals(1.0, damageEvent.targetMultiplier)
+		assertEquals(72, resolved.participant("opponent-left")?.currentHp)
+		assertEquals(0, resolved.participant("opponent-right")?.currentHp)
 	}
 
 	@Test

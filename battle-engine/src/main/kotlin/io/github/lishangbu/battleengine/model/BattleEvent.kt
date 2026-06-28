@@ -89,6 +89,7 @@ sealed interface BattleEvent {
 	 * 一次伤害已经结算到目标身上。
 	 *
 	 * `amount` 可以为 0，用于表达属性免疫等“技能已经命中流程但没有造成 HP 变化”的情况。
+	 * `targetMultiplier` 记录范围技能在双打等站位中应用的目标倍率，普通单体技能为 1.0。
 	 * `criticalHit` 标记本次伤害是否按击中要害公式计算。它放在伤害事件上，而不是单独事件上，
 	 * 是为了让回放系统直接从同一条事实里读取“扣了多少 HP”和“为什么有这个倍率”。
 	 */
@@ -99,6 +100,7 @@ sealed interface BattleEvent {
 		val skillId: Long,
 		val amount: Int,
 		val effectiveness: Double,
+		val targetMultiplier: Double = 1.0,
 		val criticalHit: Boolean = false,
 	) : BattleEvent
 

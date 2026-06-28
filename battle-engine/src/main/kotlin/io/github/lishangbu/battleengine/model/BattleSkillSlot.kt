@@ -8,6 +8,7 @@ package io.github.lishangbu.battleengine.model
  * 也不保存数据库实体引用对象。
  *
  * `power` 和 `accuracy` 允许为空，用于表达变化技能、必中技能或由特殊策略决定数值的技能。
+ * `targetScope` 表示技能在站位中的目标范围，供双打范围技能计算实际目标和 0.75 伤害修正。
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
  * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
@@ -21,6 +22,7 @@ data class BattleSkillSlot(
 	val damageClass: BattleDamageClass,
 	val power: Int?,
 	val accuracy: Int?,
+	val targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	val makesContact: Boolean = false,
 	val criticalHitStage: Int = 0,
 	val affectedByProtect: Boolean = true,

@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -74,6 +75,46 @@ class BattleEnginePublicReferenceTests {
 		assertEquals(1.5, result.sameElementBonus)
 		assertEquals(1.5, result.criticalHitMultiplier)
 		assertEquals(42, result.amount)
+	}
+
+	@Test
+	fun `double battle spread damage modifier matches public rule fixture`() {
+		val fixture = PublicReferenceFixture(
+			name = "double-battle-spread-damage-uses-three-quarter-target-modifier",
+			sourceUrls = listOf(
+				"https://bulbapedia.bulbagarden.net/wiki/Damage",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-moves.ts",
+			),
+			inputSummary = "双打中一名行动者使用能影响对方两个上场成员的物理伤害技能，两个目标均可被命中。",
+			expectedSummary = "每个目标独立结算命中/要害/伤害随机数，并在普通伤害公式中使用 0.75 目标倍率。",
+		)
+		val spreadSkill = damagingSkill(
+			name = "范围攻击",
+			targetScope = BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS,
+		)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("spread-user", speed = 100, skill = spreadSkill),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("opponent-left", speed = 80),
+				secondB = participant("opponent-right", speed = 70),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("spread-user", skillId = 1, targetActorId = "opponent-left")),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
+
+		assertEquals("double-battle-spread-damage-uses-three-quarter-target-modifier", fixture.name)
+		assertEquals(listOf("opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
+		assertEquals(listOf(21, 21), damageEvents.map { it.amount })
+		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })
+		assertEquals(79, resolved.participant("opponent-left")?.currentHp)
+		assertEquals(79, resolved.participant("opponent-right")?.currentHp)
+		assertEquals(100, resolved.participant("ally")?.currentHp)
 	}
 
 	@Test

@@ -13,7 +13,7 @@ import kotlin.math.floor
  * 现代普通伤害公式计算器。
  *
  * 该实现覆盖第一阶段 MVP 需要的基础公式：等级、威力、攻击/防御、随机浮动、击中要害、
- * 属性一致加成和属性克制。它暂不处理范围技能、护盾和其它复杂倍率；这些倍率会在后续 hook
+ * 范围目标修正、属性一致加成和属性克制。它暂不处理护盾和其它复杂倍率；这些倍率会在后续 hook
  * 管线中以结构化 modifier 继续追加，并由对照 fixture 分别验证。
  *
  * 取整规则按主系列常见公开公式建模：基础伤害部分在整数除法中逐步截断，最终倍率组合后向下取整。
@@ -59,12 +59,13 @@ class BattleDamageCalculator(
 		val weatherMultiplier = weatherDamageMultiplier(request)
 		val abilityMultiplier = abilityDamageMultiplier(request)
 		val itemMultiplier = itemDamageMultiplier(request)
-		val combined = baseDamage * (request.randomPercent / 100.0) * sameElementBonus *
+		val combined = baseDamage * request.targetMultiplier * (request.randomPercent / 100.0) * sameElementBonus *
 			effectiveness * criticalHitMultiplier * weatherMultiplier * abilityMultiplier * itemMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
 			baseDamage = baseDamage,
+			targetMultiplier = request.targetMultiplier,
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
 			criticalHitMultiplier = criticalHitMultiplier,

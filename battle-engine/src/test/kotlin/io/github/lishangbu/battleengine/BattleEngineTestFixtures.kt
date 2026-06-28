@@ -11,6 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
@@ -107,6 +108,7 @@ internal fun damagingSkill(
 	damageClass: BattleDamageClass = BattleDamageClass.PHYSICAL,
 	power: Int? = 40,
 	accuracy: Int? = null,
+	targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	makesContact: Boolean = false,
 	criticalHitStage: Int = 0,
 	affectedByProtect: Boolean = true,
@@ -122,6 +124,7 @@ internal fun damagingSkill(
 		damageClass = damageClass,
 		power = power,
 		accuracy = accuracy,
+		targetScope = targetScope,
 		makesContact = makesContact,
 		criticalHitStage = criticalHitStage,
 		affectedByProtect = affectedByProtect,
