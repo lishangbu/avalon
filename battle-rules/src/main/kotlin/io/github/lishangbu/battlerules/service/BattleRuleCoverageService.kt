@@ -247,13 +247,14 @@ class BattleRuleCoverageService {
 					"flinch-prevents-slower-target-before-move",
 					"late-flinch-does-not-carry-to-next-turn",
 					"confusion-self-damage-and-later-clear",
+					"existing-confusion-blocks-new-confusion-without-refresh",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
 				),
-				note = "畏缩只阻止本回合未行动成员；混乱使用 2..5 内部计数、33% 自伤和 40 威力物理自伤公式。",
+				note = "畏缩只阻止本回合未行动成员；混乱使用 2..5 内部计数、33% 自伤和 40 威力物理自伤公式，已有混乱不会被再次附加刷新持续时间。",
 			),
 			item(
 				code = "terrain.grassy-heal",

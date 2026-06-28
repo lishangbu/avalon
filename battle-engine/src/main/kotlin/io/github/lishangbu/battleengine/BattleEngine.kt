@@ -2313,8 +2313,9 @@ class BattleEngine(
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数。
-	 * 若目标已经处于同一种混乱状态，成员快照不会变化，事件也不会重复追加。场地、特性或道具免疫会在
-	 * 消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
+	 * 若目标已经处于混乱状态，成员快照不会变化，旧持续计数也不会被刷新；状态机会追加阻止事件，便于 replay
+	 * 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。场地、特性或道具免疫会在消费混乱持续时间
+	 * 随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
 	 */
 	private fun applyVolatileStatusEffect(
 		state: BattleState,
@@ -2325,7 +2326,15 @@ class BattleEngine(
 		randomReason: String,
 	): BattleState {
 		if (status == BattleVolatileStatus.CONFUSION && recipient.confusionTurnsRemaining > 0) {
-			return state
+			return state.appendEvent(
+				BattleEvent.VolatileStatusApplicationBlocked(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+					reason = BattleStatusBlockReason.EXISTING_STATUS,
+				),
+			)
 		}
 		val blockedReason = blockedVolatileStatusReason(state, recipient, status)
 		if (blockedReason != null) {

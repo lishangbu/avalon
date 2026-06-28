@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -185,5 +186,51 @@ class BattleVolatileStatusTests {
 		val cleared = afterThird.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().single()
 		assertEquals("target", cleared.actorId)
 		assertEquals(BattleVolatileStatus.CONFUSION, cleared.status)
+	}
+
+	@Test
+	fun `existing confusion blocks new confusion without refreshing duration`() {
+		val fixture = publicBattleRuleFixture(
+			name = "existing-confusion-blocks-new-confusion-without-refresh",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
+			),
+			inputSummary = "目标已经处于剩余 3 次行动检查的混乱状态，随后再次被 100% 附加混乱的变化技能命中。",
+			expectedSummary = "目标仍保留原有混乱持续计数，不刷新到新的随机持续时间；事件流记录 EXISTING_STATUS，且不消费混乱持续随机数。",
+		)
+		val confusionSkill = damagingSkill(
+			damageClass = BattleDamageClass.STATUS,
+			volatileStatusApplications = listOf(
+				BattleVolatileStatusApplication(
+					status = BattleVolatileStatus.CONFUSION,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val state = engine.start(
+			initialState(
+				first = participant("confusion-user", speed = 100, skill = confusionSkill),
+				second = participant("already-confused-target", speed = 50)
+					.applyVolatileStatus(BattleVolatileStatus.CONFUSION, confusionTurnsRemaining = 3),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("confusion-user", skillId = 1, targetActorId = "already-confused-target")),
+			random,
+		)
+
+		fixture.assertNamed("existing-confusion-blocks-new-confusion-without-refresh")
+		assertEquals(emptyList(), random.consumedReasons())
+		assertEquals(3, resolved.participant("already-confused-target")?.confusionTurnsRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>())
+		val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
+		assertEquals("already-confused-target", blocked.targetActorId)
+		assertEquals(BattleVolatileStatus.CONFUSION, blocked.status)
+		assertEquals(BattleStatusBlockReason.EXISTING_STATUS, blocked.reason)
 	}
 }
