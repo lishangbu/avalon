@@ -657,6 +657,71 @@ class BattleEngineSingleTurnTests {
 	}
 
 	@Test
+	fun `screen extending item makes user side damage reduction last eight turns`() {
+		val fixture = publicBattleRuleFixture(
+			name = "screen-extending-item-makes-side-damage-reduction-last-eight-turns",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Light_Clay",
+			),
+			inputSummary = "使用者携带屏障延长道具，成功使用建立己方特殊伤害减免屏障的变化技能。",
+			expectedSummary = "屏障按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。",
+		)
+		val screenSkill = damagingSkill(
+			skillId = 12,
+			name = "特殊屏障延长测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			sideConditionApplications = listOf(
+				BattleSideConditionApplication(
+					targetSide = BattleSideConditionTarget.USER_SIDE,
+					damageReduction = BattleSideDamageReduction(
+						kind = BattleSideDamageReductionKind.SPECIAL,
+						turnsRemaining = 5,
+					),
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"support",
+					speed = 100,
+					skill = screenSkill,
+					itemId = 246,
+					itemEffects = listOf(
+						BattleItemEffect.SideDamageReductionDurationExtension(
+							kinds = setOf(
+								BattleSideDamageReductionKind.PHYSICAL,
+								BattleSideDamageReductionKind.SPECIAL,
+								BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE,
+							),
+							turnsRemaining = 8,
+						),
+					),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("support", skillId = 12, targetActorId = "support")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		fixture.assertNamed("screen-extending-item-makes-side-damage-reduction-last-eight-turns")
+		val started = resolved.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>().single()
+		assertEquals("side-a", started.sideId)
+		assertEquals(BattleSideDamageReductionKind.SPECIAL, started.kind)
+		assertEquals(8, started.turnsRemaining)
+		val reduction = resolved.sideOf("support")?.damageReductions?.single()
+		assertEquals(BattleSideDamageReductionKind.SPECIAL, reduction?.kind)
+		assertEquals(7, reduction?.turnsRemaining)
+	}
+
+	@Test
 	fun `side condition skill respects required weather`() {
 		val snowScreenSkill = damagingSkill(
 			skillId = 11,

@@ -97,6 +97,7 @@ class LiquibaseMigrationTests(
 			"048-battle-skill-charge-skip-weather.yaml",
 			"049-battle-charge-skip-item.yaml",
 			"050-battle-environment-duration-items.yaml",
+			"051-battle-side-condition-duration-item.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -521,7 +522,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 21L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 11L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 12L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -540,9 +541,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 101L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 217L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 101L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 102L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 220L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 102L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -637,7 +638,8 @@ class LiquibaseMigrationTests(
 			"""
 			select item_id, trigger_timing, effect_policy, consumable
 			from battle_item_rule
-			where effect_policy like '%-duration-%'
+			where effect_policy like 'weather-duration-%'
+				or effect_policy = 'terrain-duration-all'
 			order by item_id
 			""".trimIndent(),
 		)
@@ -670,6 +672,22 @@ class LiquibaseMigrationTests(
 				"item_id" to 896L,
 				"trigger_timing" to "AFTER_HIT",
 				"effect_policy" to "terrain-duration-all",
+				"consumable" to false,
+			),
+		)
+
+		val sideConditionDurationItemRules = queryMaps(
+			"""
+			select item_id, trigger_timing, effect_policy, consumable
+			from battle_item_rule
+			where item_id = 246
+			""".trimIndent(),
+		)
+		assertThat(sideConditionDurationItemRules).containsExactly(
+			mapOf(
+				"item_id" to 246L,
+				"trigger_timing" to "AFTER_HIT",
+				"effect_policy" to "side-condition-duration-screen",
 				"consumable" to false,
 			),
 		)

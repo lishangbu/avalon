@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 携带道具在战斗中的可执行效果。
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
- * 环境持续回合延长、低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
+ * 环境和一侧屏障持续回合延长、低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -82,6 +82,23 @@ sealed interface BattleItemEffect {
 		init {
 			require(terrains.isNotEmpty()) { "terrains must not be empty" }
 			require(BattleTerrain.NONE !in terrains) { "terrain duration extension cannot target NONE" }
+			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
+		}
+	}
+
+	/**
+	 * 携带者成功建立指定一侧防守屏障时，把普通持续回合替换为更长持续回合。
+	 *
+	 * 该效果用于表达现代规则中的屏障延长道具。它只在携带者通过技能成功建立 [BattleSideDamageReduction] 时读取；
+	 * 已经存在的同类屏障仍然不会被刷新，屏障被清除、被破坏或特殊失败语义也由后续专门规则处理。`kinds` 限定
+	 * 可以被延长的屏障种类，使物理屏障、特殊屏障和同时覆盖两类标准伤害的屏障能共享同一种结构化道具效果。
+	 */
+	data class SideDamageReductionDurationExtension(
+		val kinds: Set<BattleSideDamageReductionKind>,
+		val turnsRemaining: Int,
+	) : BattleItemEffect {
+		init {
+			require(kinds.isNotEmpty()) { "kinds must not be empty" }
 			require(turnsRemaining > 0) { "turnsRemaining must be positive" }
 		}
 	}

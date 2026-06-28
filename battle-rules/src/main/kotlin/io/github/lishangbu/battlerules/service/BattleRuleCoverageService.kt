@@ -77,13 +77,18 @@ class BattleRuleCoverageService {
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
 				status = IMPLEMENTED,
-				fixtures = listOf("double-battle-side-screen-uses-two-thirds-damage-modifier"),
+				fixtures = listOf(
+					"double-battle-side-screen-uses-two-thirds-damage-modifier",
+					"screen-extending-item-makes-side-damage-reduction-last-eight-turns",
+				),
 				references = listOf(
 					"https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)",
 					"https://bulbapedia.bulbagarden.net/wiki/Light_Screen_(move)",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Light_Clay",
 				),
-				note = "已覆盖物理/特殊/全伤害屏障、单打 0.5、双打目标侧多人 2/3、击中要害忽略屏障，以及极光类屏障的天气前置条件。",
+				note = "已覆盖物理/特殊/全伤害屏障、单打 0.5、双打目标侧多人 2/3、击中要害忽略屏障、极光类屏障的天气前置条件，以及屏障延长道具把普通持续回合改为 8。",
 			),
 			item(
 				code = "field.side-speed-modifier",

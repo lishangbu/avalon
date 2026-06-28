@@ -1716,7 +1716,8 @@ class BattleEngine(
 	 *
 	 * 当前只接入防守方伤害减免屏障。目标侧解析在这里完成：使用者侧屏障不依赖本次目标是否仍可战斗；
 	 * 目标侧屏障则跟随实际命中的目标所属侧。若同种屏障已存在，`BattleState` 会拒绝写入，本函数也不会产生
-	 * 新事件，避免把重复使用误记录为刷新持续回合。
+	 * 新事件，避免把重复使用误记录为刷新持续回合。携带者若有匹配屏障种类的持续时间延长道具，则只在首次
+	 * 成功建立屏障时改写即将写入的完整持续回合。
 	 */
 	private fun applySideConditionEffect(
 		state: BattleState,
@@ -1732,18 +1733,42 @@ class BattleEngine(
 			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
 			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
 		} ?: return state
-		return state.addSideDamageReduction(side.sideId, application.damageReduction)
+		val damageReduction = extendedSideDamageReduction(state, actorId, application.damageReduction)
+		return state.addSideDamageReduction(side.sideId, damageReduction)
 			?.appendEvent(
 				BattleEvent.SideDamageReductionStarted(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					sideId = side.sideId,
 					skillId = skill.skillId,
-					kind = application.damageReduction.kind,
-					turnsRemaining = application.damageReduction.turnsRemaining,
+					kind = damageReduction.kind,
+					turnsRemaining = damageReduction.turnsRemaining,
 				),
 			)
 			?: state
+	}
+
+	/**
+	 * 计算一侧伤害减免屏障建立时最终写入的持续回合。
+	 *
+	 * 普通屏障技能会在资料中声明基础持续回合；携带者若拥有匹配屏障种类的延长道具效果，则用道具声明的最长回合
+	 * 覆盖基础值。基础持续回合为空时保持为空，避免测试 fixture 或未来永久屏障规则被普通道具强行改成有限回合。
+	 */
+	private fun extendedSideDamageReduction(
+		state: BattleState,
+		actorId: String,
+		damageReduction: BattleSideDamageReduction,
+	): BattleSideDamageReduction {
+		if (damageReduction.turnsRemaining == null) {
+			return damageReduction
+		}
+		val actor = state.participant(actorId) ?: return damageReduction
+		val turnsRemaining = actor.itemEffects
+			.filterIsInstance<BattleItemEffect.SideDamageReductionDurationExtension>()
+			.filter { damageReduction.kind in it.kinds }
+			.maxOfOrNull { it.turnsRemaining }
+			?: damageReduction.turnsRemaining
+		return damageReduction.copy(turnsRemaining = turnsRemaining)
 	}
 
 	/**
@@ -3393,6 +3418,7 @@ class BattleEngine(
 				is BattleItemEffect.HeldEndTurnHeal,
 				is BattleItemEffect.LowHpHeal,
 				is BattleItemEffect.MajorStatusImmunity,
+				is BattleItemEffect.SideDamageReductionDurationExtension,
 				is BattleItemEffect.TerrainDurationExtension,
 				is BattleItemEffect.VolatileStatusImmunity,
 				is BattleItemEffect.WeatherDurationExtension,

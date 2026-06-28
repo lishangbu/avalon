@@ -436,6 +436,17 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.itemEffectsByItemId(248))
 			.hasExactlyElementsOfTypes(BattleItemEffect.ChargeSkipOnce::class.java)
 
+		val screenDuration = service.itemEffectsByItemId(246)
+			.filterIsInstance<BattleItemEffect.SideDamageReductionDurationExtension>()
+			.single()
+		assertThat(screenDuration.kinds)
+			.containsExactlyInAnyOrder(
+				BattleSideDamageReductionKind.PHYSICAL,
+				BattleSideDamageReductionKind.SPECIAL,
+				BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE,
+			)
+		assertThat(screenDuration.turnsRemaining).isEqualTo(8)
+
 		val rainDuration = service.itemEffectsByItemId(262)
 			.filterIsInstance<BattleItemEffect.WeatherDurationExtension>()
 			.single()
