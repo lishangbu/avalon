@@ -19,6 +19,7 @@ import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
 
@@ -89,8 +90,10 @@ class BattleEngine(
 			successfulProtectionActorIds = resolvedContext.successfulProtectionActorIds,
 		)
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
-		return afterEndTurnEffects.result?.let { afterEndTurnEffects }
-			?: afterEndTurnEffects.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
+		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
+			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
+		return afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
+			?: afterEndTurnVolatileStatuses.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
 
 	/**
@@ -174,23 +177,26 @@ class BattleEngine(
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
 		}
-		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
-			return context.copy(state = consumeSleepBlockedAction(state, actor))
+		val beforeMove = resolveBeforeMoveEffects(context, actor, random)
+		if (beforeMove.blocked) {
+			return beforeMove.context
 		}
-		val skill = actor.skillSlot(action.skillId) ?: return context
-		val targets = targetsForSkill(state, actor.actorId, action.targetActorId, skill)
+		val actionState = beforeMove.context.state
+		val readyActor = actionState.participant(action.actorId) ?: return beforeMove.context
+		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMove.context
+		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill)
 		if (targets.isEmpty()) {
-			return context
+			return beforeMove.context
 		}
 		require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 
-		val actorAfterPp = actor.replaceSkillSlot(skill.consumePp())
-		val usedState = state
+		val actorAfterPp = readyActor.replaceSkillSlot(skill.consumePp())
+		val usedState = actionState
 			.replaceParticipant(actorAfterPp)
 			.appendEvent(
 				BattleEvent.SkillUsed(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
+					turnNumber = actionState.turnNumber,
+					actorId = readyActor.actorId,
 					targetActorId = targets.first().actorId,
 					skillId = skill.skillId,
 					skillName = skill.name,
@@ -198,43 +204,43 @@ class BattleEngine(
 			)
 
 		if (skill.protectsUser) {
-			if (!protectionSucceeds(actor, skill, random)) {
-				return context.copy(
+			if (!protectionSucceeds(readyActor, skill, random)) {
+				return beforeMove.context.copy(
 					state = usedState
 						.replaceParticipant(actorAfterPp.resetProtectionChain())
 						.appendEvent(
 							BattleEvent.ProtectionFailed(
-								turnNumber = state.turnNumber,
-								actorId = actor.actorId,
+								turnNumber = actionState.turnNumber,
+								actorId = readyActor.actorId,
 								skillId = skill.skillId,
 							),
 						),
 				)
 			}
 			val protectedActor = actorAfterPp.markProtectionSuccess()
-			return context.copy(
+			return beforeMove.context.copy(
 				state = usedState
 					.replaceParticipant(protectedActor)
 					.appendEvent(
 						BattleEvent.ProtectionStarted(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
+							turnNumber = actionState.turnNumber,
+							actorId = readyActor.actorId,
 							skillId = skill.skillId,
 						),
 					),
-				protectedActorIds = context.protectedActorIds + actor.actorId,
-				successfulProtectionActorIds = context.successfulProtectionActorIds + actor.actorId,
+				protectedActorIds = beforeMove.context.protectedActorIds + readyActor.actorId,
+				successfulProtectionActorIds = beforeMove.context.successfulProtectionActorIds + readyActor.actorId,
 			)
 		}
 
 		val targetMultiplier = targetDamageMultiplier(skill, targets)
-		return targets.fold(context.copy(state = usedState)) { current, target ->
+		return targets.fold(beforeMove.context.copy(state = usedState)) { current, target ->
 			if (current.state.result != null) {
 				current
 			} else {
 				resolveSkillAgainstTarget(
 					context = current,
-					actorId = actor.actorId,
+					actorId = readyActor.actorId,
 					targetActorId = target.actorId,
 					skill = skill,
 					targetMultiplier = targetMultiplier,
@@ -512,7 +518,26 @@ class BattleEngine(
 				}
 			}
 		}
-		return skill.statStageEffects.fold(afterStatuses) { current, effect ->
+		val afterVolatileStatuses = skill.volatileStatusApplications.fold(afterStatuses) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "volatile status chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
+				if (!recipient.canBattle()) {
+					current
+				} else {
+					applyVolatileStatusEffect(
+						state = current,
+						actorId = actorId,
+						recipient = recipient,
+						status = application.status,
+						random = random,
+						randomReason = "confusion duration for ${skill.skillId}",
+					)
+				}
+			}
+		}
+		return skill.statStageEffects.fold(afterVolatileStatuses) { current, effect ->
 			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
 				current
 			} else {
@@ -538,6 +563,32 @@ class BattleEngine(
 				}
 			}
 		}
+	}
+
+	/**
+	 * 处理行动前可能阻止技能的状态。
+	 *
+	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠先处理，畏缩随后处理，混乱最后处理。
+	 * 睡眠和畏缩必定阻止本次技能行动且不消耗 PP；混乱会先递减内部计数，若计数归零则解除并继续行动，
+	 * 否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动。
+	 */
+	private fun resolveBeforeMoveEffects(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
+		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeSleepBlockedAction(context.state, actor)),
+				blocked = true,
+			)
+		}
+		if (actor.flinched) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeFlinchBlockedAction(context.state, actor)),
+				blocked = true,
+			)
+		}
+		if (actor.confusionTurnsRemaining > 0) {
+			return resolveConfusionBeforeMove(context, actor, random)
+		}
+		return BeforeMoveResult(context = context, blocked = false)
 	}
 
 	/**
@@ -569,6 +620,92 @@ class BattleEngine(
 		} else {
 			blocked
 		}
+	}
+
+	/**
+	 * 消耗畏缩对本次技能行动的阻止效果。
+	 *
+	 * 畏缩是回合内临时状态，只会阻止一次行动。阻止发生后立即清掉成员上的标记；如果成员本回合没有尝试行动，
+	 * 回合末清理会静默移除该标记，不产生解除事件。
+	 */
+	private fun consumeFlinchBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
+		state
+			.replaceParticipant(actor.consumeFlinch())
+			.appendEvent(
+				BattleEvent.SkillPreventedByVolatileStatus(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					status = BattleVolatileStatus.FLINCH,
+				),
+			)
+
+	/**
+	 * 处理混乱的行动前计数、解除、自伤和行动阻止。
+	 *
+	 * 混乱保存的是公开实现中的内部计数，而不是“还会自伤判定几次”。行动前先递减；
+	 * 递减到 0 表示成员恢复清醒并继续执行原技能，不消费混乱概率随机数。递减后仍大于 0 时，
+	 * 消费 1 次 33/100 自伤判定；若自伤，再消费 1 次 85..100 伤害浮动并跳过原技能行动。
+	 */
+	private fun resolveConfusionBeforeMove(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
+		val turnsRemainingBefore = actor.confusionTurnsRemaining
+		val decremented = actor.decrementConfusionBeforeMove()
+		val afterDecrement = context.state.replaceParticipant(decremented)
+		if (decremented.confusionTurnsRemaining == 0) {
+			return BeforeMoveResult(
+				context = context.copy(
+					state = afterDecrement.appendEvent(
+						BattleEvent.VolatileStatusCleared(
+							turnNumber = context.state.turnNumber,
+							actorId = actor.actorId,
+							status = BattleVolatileStatus.CONFUSION,
+						),
+					),
+				),
+				blocked = false,
+			)
+		}
+		if (!chanceSucceeds(CONFUSION_SELF_DAMAGE_CHANCE_PERCENT, random, "confusion self-hit chance for ${actor.actorId}")) {
+			return BeforeMoveResult(context = context.copy(state = afterDecrement), blocked = false)
+		}
+		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
+		val damage = confusionSelfDamage(decremented, randomPercent)
+		val damaged = decremented.receiveDamage(damage)
+		val afterDamage = afterDecrement
+			.replaceParticipant(damaged)
+			.appendEvent(
+				BattleEvent.SkillPreventedByVolatileStatus(
+					turnNumber = context.state.turnNumber,
+					actorId = actor.actorId,
+					status = BattleVolatileStatus.CONFUSION,
+				),
+			)
+			.appendEvent(
+				BattleEvent.ConfusionDamageApplied(
+					turnNumber = context.state.turnNumber,
+					actorId = actor.actorId,
+					amount = damage,
+					randomPercent = randomPercent,
+					turnsRemainingBefore = turnsRemainingBefore,
+				),
+			)
+			.handleFaintAndResult(damaged)
+		return BeforeMoveResult(context = context.copy(state = afterDamage), blocked = true)
+	}
+
+	/**
+	 * 计算混乱自伤。
+	 *
+	 * 公开成熟实现把混乱自伤当作特殊的 40 威力物理伤害：使用攻击和防御能力阶级，带 85..100 随机浮动，
+	 * 但不套用属性一致、属性克制、要害、道具和多数特性修正。这里独立实现公式，避免伪造一个普通技能后
+	 * 意外吃到普通伤害管线中的额外 modifier。
+	 */
+	private fun confusionSelfDamage(actor: BattleParticipant, randomPercent: Int): Int {
+		val attack = statStageModifiers.modifiedBattleStat(actor.attack, actor.statStage(BattleStat.ATTACK))
+		val defense = statStageModifiers.modifiedBattleStat(actor.defense, actor.statStage(BattleStat.DEFENSE))
+		require(defense > 0) { "confusion defending stat must be positive" }
+		val levelFactor = (2 * actor.level) / 5 + 2
+		val baseDamage = (((levelFactor * CONFUSION_BASE_POWER * attack) / defense) / 50) + 2
+		return floor(baseDamage * (randomPercent / 100.0)).toInt().coerceAtLeast(1)
 	}
 
 	/**
@@ -606,6 +743,40 @@ class BattleEngine(
 			.replaceParticipant(recipient.applyMajorStatus(status, sleepTurnsRemaining))
 			.appendEvent(
 				BattleEvent.StatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+				),
+			)
+	}
+
+	/**
+	 * 附加临时状态并处理状态私有计数。
+	 *
+	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数。
+	 * 若目标已经处于同一种混乱状态，成员快照不会变化，事件也不会重复追加。
+	 */
+	private fun applyVolatileStatusEffect(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		status: BattleVolatileStatus,
+		random: BattleRandom,
+		randomReason: String,
+	): BattleState {
+		if (status == BattleVolatileStatus.CONFUSION && recipient.confusionTurnsRemaining > 0) {
+			return state
+		}
+		val confusionTurnsRemaining = if (status == BattleVolatileStatus.CONFUSION) {
+			random.nextInt(4, randomReason) + 2
+		} else {
+			0
+		}
+		return state
+			.replaceParticipant(recipient.applyVolatileStatus(status, confusionTurnsRemaining))
+			.appendEvent(
+				BattleEvent.VolatileStatusApplied(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					targetActorId = recipient.actorId,
@@ -705,6 +876,21 @@ class BattleEngine(
 				} else {
 					current.replaceParticipant(latest.resetProtectionChain())
 				}
+			}
+
+	/**
+	 * 清理回合结束时不会跨回合保留的临时状态。
+	 *
+	 * 目前只有畏缩需要该阶段兜底：如果目标已经行动后才被附加畏缩，它不会阻止任何行动，也不应该进入下一回合。
+	 * 混乱有自己的持续计数和解除事件，因此不会在这里清理。
+	 */
+	private fun clearEndTurnVolatileStatuses(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				val cleared = latest.clearEndTurnVolatileStatuses()
+				if (cleared == latest) current else current.replaceParticipant(cleared)
 			}
 
 	/**
@@ -906,6 +1092,11 @@ class BattleEngine(
 		val actor: BattleParticipant,
 	)
 
+	private data class BeforeMoveResult(
+		val context: TurnContext,
+		val blocked: Boolean,
+	)
+
 	/**
 	 * 单个回合技能阶段的临时上下文。
 	 *
@@ -929,4 +1120,9 @@ class BattleEngine(
 		val hit: Boolean,
 		val roll: Int?,
 	)
+
+	private companion object {
+		private const val CONFUSION_BASE_POWER = 40
+		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
+	}
 }

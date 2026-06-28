@@ -14,6 +14,7 @@ package io.github.lishangbu.battleengine.model
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
  *
  * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
+ * 当前显式支持主要异常状态、临时状态和能力阶级变化三类命中后效果，避免用弱类型脚本描述核心规则。
  */
 data class BattleSkillSlot(
 	val skillId: Long,
@@ -31,6 +32,7 @@ data class BattleSkillSlot(
 	val remainingPp: Int,
 	val maxPp: Int,
 	val statusApplications: List<BattleStatusApplication> = emptyList(),
+	val volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	val statStageEffects: List<BattleStatStageEffect> = emptyList(),
 ) {
 	init {

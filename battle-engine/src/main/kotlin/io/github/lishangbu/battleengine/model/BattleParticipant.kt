@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 连续保护计数、剧毒计数和睡眠剩余阻止行动次数。
+ * 连续保护计数、剧毒计数、睡眠剩余阻止行动次数，以及畏缩/混乱等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -32,6 +32,8 @@ data class BattleParticipant(
 	val protectionChain: Int = 0,
 	val badPoisonCounter: Int = 0,
 	val sleepTurnsRemaining: Int = 0,
+	val flinched: Boolean = false,
+	val confusionTurnsRemaining: Int = 0,
 	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
@@ -61,6 +63,7 @@ data class BattleParticipant(
 		require(majorStatus != BattleMajorStatus.SLEEP || sleepTurnsRemaining > 0) {
 			"sleepTurnsRemaining must be positive when participant is asleep"
 		}
+		require(confusionTurnsRemaining >= 0) { "confusionTurnsRemaining must not be negative" }
 	}
 
 	/**
@@ -146,6 +149,62 @@ data class BattleParticipant(
 		}
 
 	/**
+	 * 附加临时状态。
+	 *
+	 * 畏缩只持续到本回合行动前或回合末，因此不需要额外计数。混乱使用公开实现中的内部计数：
+	 * 成员行动前先递减一次，递减后为 0 则解除并照常行动，否则再进行混乱自伤判定。
+	 */
+	fun applyVolatileStatus(status: BattleVolatileStatus, confusionTurnsRemaining: Int = 0): BattleParticipant {
+		require(status == BattleVolatileStatus.CONFUSION || confusionTurnsRemaining == 0) {
+			"confusionTurnsRemaining can only be set for confusion"
+		}
+		require(status != BattleVolatileStatus.CONFUSION || confusionTurnsRemaining > 0) {
+			"confusionTurnsRemaining must be positive for confusion"
+		}
+		return when (status) {
+			BattleVolatileStatus.FLINCH -> copy(flinched = true)
+			BattleVolatileStatus.CONFUSION -> if (this.confusionTurnsRemaining > 0) {
+				this
+			} else {
+				copy(confusionTurnsRemaining = confusionTurnsRemaining)
+			}
+		}
+	}
+
+	/**
+	 * 消耗一次畏缩阻止行动。
+	 *
+	 * 畏缩阻止本次行动后立即消失；如果成员本回合没有行动，回合末也会被静默清理。
+	 */
+	fun consumeFlinch(): BattleParticipant =
+		if (flinched) copy(flinched = false) else this
+
+	/**
+	 * 混乱行动前递减一次内部计数。
+	 */
+	fun decrementConfusionBeforeMove(): BattleParticipant =
+		if (confusionTurnsRemaining > 0) {
+			copy(confusionTurnsRemaining = confusionTurnsRemaining - 1)
+		} else {
+			this
+		}
+
+	/**
+	 * 清除指定临时状态。
+	 */
+	fun clearVolatileStatus(status: BattleVolatileStatus): BattleParticipant =
+		when (status) {
+			BattleVolatileStatus.FLINCH -> if (flinched) copy(flinched = false) else this
+			BattleVolatileStatus.CONFUSION -> if (confusionTurnsRemaining > 0) copy(confusionTurnsRemaining = 0) else this
+		}
+
+	/**
+	 * 清理回合结束时不会跨回合保留的临时状态。
+	 */
+	fun clearEndTurnVolatileStatuses(): BattleParticipant =
+		if (flinched) copy(flinched = false) else this
+
+	/**
 	 * 改变一个能力阶级，并夹取到现代规则允许的 -6..6。
 	 */
 	fun changeStatStage(stat: BattleStat, delta: Int): BattleParticipant {
@@ -193,12 +252,15 @@ data class BattleParticipant(
 	 *
 	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
 	 * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
-	 * 后续接入更细的易失状态系统时，混乱、畏缩、锁招等离场即消失的状态也应在这里统一清理。
+	 * 畏缩和混乱属于临时状态，离场时会被清除。后续接入锁招、束缚、寄生等离场即消失的状态时，
+	 * 也应在这里统一清理。
 	 */
 	fun leaveBattlefield(): BattleParticipant =
 		copy(
 			statStages = emptyMap(),
 			protectionChain = 0,
 			badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
+			flinched = false,
+			confusionTurnsRemaining = 0,
 		)
 }

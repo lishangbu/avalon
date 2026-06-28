@@ -14,6 +14,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
+import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 
 internal fun singleFormat(teamSize: Int? = null): BattleFormatSnapshot =
@@ -115,6 +116,7 @@ internal fun damagingSkill(
 	protectsUser: Boolean = false,
 	priority: Int = 0,
 	statusApplications: List<BattleStatusApplication> = emptyList(),
+	volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
@@ -133,6 +135,7 @@ internal fun damagingSkill(
 		remainingPp = 35,
 		maxPp = 35,
 		statusApplications = statusApplications,
+		volatileStatusApplications = volatileStatusApplications,
 		statStageEffects = statStageEffects,
 	)
 

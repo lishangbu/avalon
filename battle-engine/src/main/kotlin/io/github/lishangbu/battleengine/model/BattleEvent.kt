@@ -98,6 +98,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因临时状态无法执行本次技能行动。
+	 *
+	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生
+	 * `ConfusionDamageApplied` 事件记录自伤结果。
+	 */
+	data class SkillPreventedByVolatileStatus(
+		override val turnNumber: Int,
+		val actorId: String,
+		val status: BattleVolatileStatus,
+	) : BattleEvent
+
+	/**
 	 * 一次伤害已经结算到目标身上。
 	 *
 	 * `amount` 可以为 0，用于表达属性免疫等“技能已经命中流程但没有造成 HP 变化”的情况。
@@ -155,6 +167,30 @@ sealed interface BattleEvent {
 		val status: BattleMajorStatus,
 	) : BattleEvent
 
+	/**
+	 * 目标成功获得临时状态。
+	 *
+	 * 临时状态可以和主要异常状态共存，并且一般会在行动前、回合末或离场时清理。
+	 * 该事件只在状态真正写入成员运行态后产生。
+	 */
+	data class VolatileStatusApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val status: BattleVolatileStatus,
+	) : BattleEvent
+
+	/**
+	 * 成员已有的临时状态被清除。
+	 *
+	 * 第一批主要用于混乱行动前计数归零。畏缩在回合末静默消失，不额外产生解除事件。
+	 */
+	data class VolatileStatusCleared(
+		override val turnNumber: Int,
+		val actorId: String,
+		val status: BattleVolatileStatus,
+	) : BattleEvent
+
 	data class StatStageChanged(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -175,6 +211,20 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 		val actorId: String,
 		val amount: Int,
+	) : BattleEvent
+
+	/**
+	 * 混乱自伤已经结算到行动者身上。
+	 *
+	 * 自伤使用公开实现中的 40 威力物理公式，不套用属性一致、属性克制、要害、道具和多数特性修正；
+	 * `randomPercent` 记录 85..100 的伤害浮动，便于 fixture 精确校验随机消费顺序。
+	 */
+	data class ConfusionDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val amount: Int,
+		val randomPercent: Int,
+		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
 	data class HealingApplied(
