@@ -23,6 +23,9 @@ sealed interface BattleItemEffect {
 
 	/**
 	 * 携带道具提供的一组临时状态免疫。
+	 *
+	 * 该效果用于资料层把“阻止附加效果造成的畏缩/混乱”等稳定保护转成引擎可执行规则。道具是否被消耗、
+	 * 能否被禁用或拍落不在这里表达，由后续道具生命周期规则单独处理。
 	 */
 	data class VolatileStatusImmunity(
 		val statuses: Set<BattleVolatileStatus>,

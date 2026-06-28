@@ -28,7 +28,8 @@ sealed interface BattleAbilityEffect {
 	/**
 	 * 免疫一组临时状态。
 	 *
-	 * 当前主要用于表达混乱免疫；畏缩免疫、着迷免疫等后续临时状态增加后也可以复用同一结构。
+	 * 用于表达混乱免疫、畏缩免疫等稳定特性。不同临时状态的生命周期仍由状态机决定：畏缩只持续到本回合
+	 * 行动前或回合末，混乱使用独立持续计数；该效果只负责在附加前阻止状态写入。
 	 */
 	data class VolatileStatusImmunity(
 		val statuses: Set<BattleVolatileStatus>,

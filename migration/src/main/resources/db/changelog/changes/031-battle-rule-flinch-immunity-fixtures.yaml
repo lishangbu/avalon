@@ -1,0 +1,69 @@
+databaseChangeLog:
+- changeSet:
+    id: 031-battle-rule-flinch-immunity-fixtures
+    author: backend
+    comment: 新增畏缩免疫公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: code, value: ability-and-item-immunities-block-flinch-before-action }
+        - column: { name: name, value: 特性和道具免疫畏缩后仍可行动 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证目标通过特性或携带道具免疫畏缩时，畏缩不会写入运行态，目标仍能在同回合正常行动。 }
+        - column: { name: input_summary, value: 较快成员使用 100% 附加畏缩的普通技能命中目标；目标分别通过特性和携带道具免疫畏缩。 }
+        - column: { name: expected_summary, value: 事件流记录 ABILITY 或 ITEM 阻止原因；目标不进入畏缩状态，随后正常消耗 PP 并造成伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: fixture_id, valueNumeric: 12 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Inner_Focus_(Ability) }
+        - column: { name: source_label, value: 畏缩免疫特性说明 }
+        - column: { name: source_note, value: 用于验证特性提供的畏缩免疫会阻止临时状态写入。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 26 }
+        - column: { name: fixture_id, valueNumeric: 12 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Covert_Cloak }
+        - column: { name: source_label, value: 附加效果保护道具说明 }
+        - column: { name: source_note, value: 用于验证携带道具提供的畏缩保护会让目标继续行动。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 27 }
+        - column: { name: fixture_id, valueNumeric: 12 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照畏缩免疫特性的状态阻止行为。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 28 }
+        - column: { name: fixture_id, valueNumeric: 12 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照附加效果保护道具阻止畏缩后的行动流程。 }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: run_code, value: flinch-immunity-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 12 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T22:36:06+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T22:38:49+08:00" }
+        - column: { name: duration_ms, valueNumeric: 163000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 120 }

@@ -2354,8 +2354,9 @@ class BattleEngine(
 	/**
 	 * 判断临时状态是否会在附加前被稳定免疫规则阻止。
 	 *
-	 * 当前只有混乱具备明确的持续计数和公开免疫来源：薄雾场地会保护接地成员免受混乱影响，部分特性/道具也能
-	 * 提供混乱免疫。畏缩暂不受场地阻止；后续接入精神力等畏缩免疫时会通过同一结构化效果表达。
+	 * 薄雾场地只阻止接地成员获得混乱；特性和道具的 [BattleAbilityEffect.VolatileStatusImmunity] /
+	 * [BattleItemEffect.VolatileStatusImmunity] 可以阻止资料层声明的任意临时状态，例如畏缩或混乱。
+	 * 阻止发生在混乱持续时间随机数消费和畏缩行动前检查之前，保证 replay 随机脚本稳定。
 	 */
 	private fun blockedVolatileStatusReason(
 		state: BattleState,

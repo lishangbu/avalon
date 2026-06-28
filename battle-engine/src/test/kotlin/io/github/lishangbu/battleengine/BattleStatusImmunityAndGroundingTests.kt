@@ -308,6 +308,75 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `ability and item immunities block flinch so target still acts`() {
+		val fixture = publicBattleRuleFixture(
+			name = "ability-and-item-immunities-block-flinch-before-action",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Inner_Focus_(Ability)",
+				"https://bulbapedia.bulbagarden.net/wiki/Covert_Cloak",
+			),
+			inputSummary = "较快成员使用 100% 附加畏缩的接触外普通技能命中目标；目标分别通过特性和携带道具免疫畏缩。",
+			expectedSummary = "畏缩不会写入目标运行态，事件流记录对应阻止原因；目标随后仍能在同回合正常行动并造成伤害。",
+		)
+		val cases = listOf(
+			VolatileEffectImmunityCase(
+				actorId = "ability-flinch-immune-target",
+				target = participant("ability-flinch-immune-target", speed = 50).copy(
+					abilityEffects = listOf(
+						BattleAbilityEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.FLINCH)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ABILITY,
+			),
+			VolatileEffectImmunityCase(
+				actorId = "item-flinch-immune-target",
+				target = participant("item-flinch-immune-target", speed = 50).copy(
+					itemEffects = listOf(
+						BattleItemEffect.VolatileStatusImmunity(setOf(BattleVolatileStatus.FLINCH)),
+					),
+				),
+				expectedReason = BattleStatusBlockReason.ITEM,
+			),
+		)
+
+		fixture.assertNamed("ability-and-item-immunities-block-flinch-before-action")
+		cases.forEach { case ->
+			val random = ScriptedBattleRandom(listOf(1, 15, 1, 15))
+			val state = engine.start(
+				initialState(
+					first = participant("flinch-user-${case.actorId}", speed = 100, skill = flinchSkill()),
+					second = case.target,
+					environment = case.environment,
+				),
+			)
+
+			val resolved = engine.resolveTurn(
+				state,
+				listOf(
+					BattleAction.UseSkill("flinch-user-${case.actorId}", skillId = 1, targetActorId = case.actorId),
+					BattleAction.UseSkill(case.actorId, skillId = 1, targetActorId = "flinch-user-${case.actorId}"),
+				),
+				random,
+			)
+
+			assertEquals(
+				listOf("critical hit for 1", "damage random for 1", "critical hit for 1", "damage random for 1"),
+				random.consumedReasons(),
+			)
+			assertEquals(72, resolved.participant(case.actorId)?.currentHp)
+			assertEquals(72, resolved.participant("flinch-user-${case.actorId}")?.currentHp)
+			assertEquals(34, resolved.participant(case.actorId)?.skillSlot(1)?.remainingPp)
+			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>())
+			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPreventedByVolatileStatus>())
+			val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
+			assertEquals(BattleVolatileStatus.FLINCH, blocked.status)
+			assertEquals(case.expectedReason, blocked.reason)
+		}
+	}
+
+	@Test
 	fun `grassy terrain heals only grounded active participants`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-heals-only-grounded-active-participants",
@@ -356,6 +425,17 @@ class BattleStatusImmunityAndGroundingTests {
 			volatileStatusApplications = listOf(
 				BattleVolatileStatusApplication(
 					status = BattleVolatileStatus.CONFUSION,
+					target = BattleEffectTarget.TARGET,
+					chancePercent = 100,
+				),
+			),
+		)
+
+	private fun flinchSkill() =
+		damagingSkill(
+			volatileStatusApplications = listOf(
+				BattleVolatileStatusApplication(
+					status = BattleVolatileStatus.FLINCH,
 					target = BattleEffectTarget.TARGET,
 					chancePercent = 100,
 				),

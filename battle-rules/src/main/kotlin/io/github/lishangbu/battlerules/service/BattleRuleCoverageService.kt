@@ -413,13 +413,14 @@ class BattleRuleCoverageService {
 					"grassy-terrain-heals-only-grounded-active-participants",
 					"ability-and-item-immunities-block-matching-major-statuses",
 					"terrain-ability-and-item-immunities-block-confusion-before-duration-random",
+					"ability-and-item-immunities-block-flinch-before-action",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 				),
-				note = "已覆盖主要状态属性免疫、粉末类技能草属性免疫、接地场地免疫、青草场地接地回复，以及特性/道具提供的主要状态和混乱免疫。",
+				note = "已覆盖主要状态属性免疫、粉末类技能草属性免疫、接地场地免疫、青草场地接地回复，以及特性/道具提供的主要状态、混乱和畏缩免疫。",
 			),
 			item(
 				code = "ability.switch-in-stat-stage",
