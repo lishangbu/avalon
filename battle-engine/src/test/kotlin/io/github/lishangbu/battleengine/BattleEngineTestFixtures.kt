@@ -76,6 +76,8 @@ internal fun participant(
 	currentHp: Int = 100,
 	elementId: Long = 1,
 	skill: BattleSkillSlot = damagingSkill(),
+	abilityId: Long? = null,
+	itemId: Long? = null,
 	abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	itemEffects: List<BattleItemEffect> = emptyList(),
 ): BattleParticipant =
@@ -92,6 +94,8 @@ internal fun participant(
 		speed = speed,
 		elementIds = setOf(elementId),
 		skillSlots = listOf(skill),
+		abilityId = abilityId,
+		itemId = itemId,
 		abilityEffects = abilityEffects,
 		itemEffects = itemEffects,
 	)
