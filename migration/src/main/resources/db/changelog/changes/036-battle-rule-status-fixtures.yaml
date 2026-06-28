@@ -1,0 +1,429 @@
+databaseChangeLog:
+- changeSet:
+    id: 036-battle-rule-status-fixtures
+    author: backend
+    comment: 新增临时状态、主要异常状态免疫和场地阻止状态公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: code, value: flinch-prevents-slower-target-before-move }
+        - column: { name: name, value: 畏缩阻止尚未行动目标 }
+        - column: { name: category, value: VOLATILE_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证较快成员附加畏缩后，较慢目标本回合无法行动且不消耗 PP。 }
+        - column: { name: input_summary, value: 较快成员先造成伤害并附加畏缩，较慢目标本回合也选择使用普通攻击。 }
+        - column: { name: expected_summary, value: 目标本回合无法行动，不消耗 PP；畏缩在阻止行动后立即清除。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 220 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: code, value: late-flinch-does-not-carry-to-next-turn }
+        - column: { name: name, value: 已行动目标获得畏缩不跨回合 }
+        - column: { name: category, value: VOLATILE_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证畏缩只影响本回合尚未行动的成员，晚到畏缩会在回合末清理。 }
+        - column: { name: input_summary, value: 较快目标已经行动后，较慢成员命中并附加畏缩；下一回合较快目标再次行动。 }
+        - column: { name: expected_summary, value: 第一回合晚到的畏缩不会阻止已经行动的目标，也不会保留到下一回合。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 230 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: code, value: confusion-self-damage-and-later-clear }
+        - column: { name: name, value: 混乱自伤和计数解除 }
+        - column: { name: category, value: VOLATILE_STATUS }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证混乱行动前递减计数、可能造成 40 威力物理自伤，并在计数归零时解除。 }
+        - column: { name: input_summary, value: 较快成员用变化技能让目标混乱，固定内部计数为 3；目标随后三次尝试行动。 }
+        - column: { name: expected_summary, value: 第一次行动前自伤并跳过技能，第二次通过混乱判定并正常攻击，第三次先解除混乱再正常攻击。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 240 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: code, value: element-immunities-block-major-statuses }
+        - column: { name: name, value: 属性免疫阻止主要异常状态 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证火、电、毒、钢、冰等属性对对应主要异常状态的天然免疫。 }
+        - column: { name: input_summary, value: 分别尝试给火、电、毒、钢、冰属性目标附加其天然免疫的主要异常状态。 }
+        - column: { name: expected_summary, value: 目标不会获得对应状态，事件流以属性免疫作为阻止原因。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 250 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 26 }
+        - column: { name: code, value: electric-terrain-does-not-block-sleep-for-ungrounded-target }
+        - column: { name: name, value: 非接地目标不受电气场地防睡眠影响 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证电气场地只阻止当前上场且接地的成员获得睡眠。 }
+        - column: { name: input_summary, value: 电气场地存在时，非接地上场目标被睡眠技能命中。 }
+        - column: { name: expected_summary, value: 目标仍会获得睡眠状态，并正常消费睡眠持续随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 260 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 27 }
+        - column: { name: code, value: misty-terrain-blocks-major-status-for-grounded-target }
+        - column: { name: name, value: 薄雾场地阻止接地目标主要异常状态 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证薄雾场地阻止接地当前上场成员获得主要异常状态。 }
+        - column: { name: input_summary, value: 薄雾场地存在时，接地上场目标被灼伤技能命中。 }
+        - column: { name: expected_summary, value: 目标不会获得灼伤状态，事件流以场地作为阻止原因。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 270 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 28 }
+        - column: { name: code, value: grass-target-blocks-powder-based-status-skill }
+        - column: { name: name, value: 草属性目标阻止粉末类状态技能 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证粉末类技能命中草属性目标时被属性免疫阻止，且不会消费状态私有随机数。 }
+        - column: { name: input_summary, value: 草属性目标被粉末类睡眠技能选中。 }
+        - column: { name: expected_summary, value: 技能使用并消耗 PP，但被目标草属性免疫阻挡，不消费睡眠持续随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 280 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 29 }
+        - column: { name: code, value: ability-and-item-immunities-block-matching-major-statuses }
+        - column: { name: name, value: 特性和道具阻止对应主要异常状态 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证主要异常状态免疫特性和道具会在状态私有随机数前阻止状态写入。 }
+        - column: { name: input_summary, value: 目标分别通过特性免疫中毒、通过携带道具免疫睡眠。 }
+        - column: { name: expected_summary, value: 状态不会写入，事件流分别记录特性和道具作为阻止原因，且睡眠持续随机数不会被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 290 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 30 }
+        - column: { name: code, value: terrain-ability-and-item-immunities-block-confusion-before-duration-random }
+        - column: { name: name, value: 场地特性和道具阻止混乱随机数 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证薄雾场地、临时状态免疫特性和临时状态免疫道具都会在混乱持续随机数前阻止混乱。 }
+        - column: { name: input_summary, value: 目标分别因薄雾场地、特性和携带道具免疫混乱。 }
+        - column: { name: expected_summary, value: 混乱不会写入，事件流记录对应阻止原因，且混乱持续时间随机数不会被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 300 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 49 }
+        - column: { name: fixture_id, valueNumeric: 22 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照畏缩阻止行动和清理时机。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 50 }
+        - column: { name: fixture_id, valueNumeric: 22 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Flinch }
+        - column: { name: source_label, value: 畏缩公开规则说明 }
+        - column: { name: source_note, value: 用于验证畏缩只阻止尚未行动成员。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 51 }
+        - column: { name: fixture_id, valueNumeric: 23 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照晚到畏缩不会跨回合保留。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 52 }
+        - column: { name: fixture_id, valueNumeric: 23 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Flinch }
+        - column: { name: source_label, value: 畏缩公开规则说明 }
+        - column: { name: source_note, value: 用于验证畏缩生命周期只在本回合内有效。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 53 }
+        - column: { name: fixture_id, valueNumeric: 24 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照混乱持续计数和解除时机。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 54 }
+        - column: { name: fixture_id, valueNumeric: 24 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开引擎行动结算 }
+        - column: { name: source_note, value: 用于对照混乱行动前自伤判断。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 55 }
+        - column: { name: fixture_id, valueNumeric: 24 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition) }
+        - column: { name: source_label, value: 混乱公开规则说明 }
+        - column: { name: source_note, value: 用于验证混乱自伤威力和持续期。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 56 }
+        - column: { name: fixture_id, valueNumeric: 25 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照属性天然免疫主要异常状态。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 57 }
+        - column: { name: fixture_id, valueNumeric: 25 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Status_condition }
+        - column: { name: source_label, value: 主要异常状态公开说明 }
+        - column: { name: source_note, value: 用于验证状态和属性免疫关系。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 58 }
+        - column: { name: fixture_id, valueNumeric: 26 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎场地条件 }
+        - column: { name: source_note, value: 用于对照电气场地防睡眠的接地条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 59 }
+        - column: { name: fixture_id, valueNumeric: 26 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move) }
+        - column: { name: source_label, value: 电气场地公开说明 }
+        - column: { name: source_note, value: 用于验证非接地成员不受电气场地防睡眠影响。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 60 }
+        - column: { name: fixture_id, valueNumeric: 27 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎场地条件 }
+        - column: { name: source_note, value: 用于对照薄雾场地阻止主要异常状态。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 61 }
+        - column: { name: fixture_id, valueNumeric: 27 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Misty_Terrain_(move) }
+        - column: { name: source_label, value: 薄雾场地公开说明 }
+        - column: { name: source_note, value: 用于验证薄雾场地只保护接地成员。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 62 }
+        - column: { name: fixture_id, valueNumeric: 28 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照粉末类技能的草属性免疫。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 63 }
+        - column: { name: fixture_id, valueNumeric: 28 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Powder_and_spore_moves }
+        - column: { name: source_label, value: 粉末类技能公开说明 }
+        - column: { name: source_note, value: 用于验证草属性目标免疫粉末类技能。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 64 }
+        - column: { name: fixture_id, valueNumeric: 29 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照特性提供的主要异常状态免疫。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 65 }
+        - column: { name: fixture_id, valueNumeric: 29 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照道具提供的主要异常状态免疫。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 66 }
+        - column: { name: fixture_id, valueNumeric: 30 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于对照薄雾场地阻止混乱。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: fixture_id, valueNumeric: 30 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照特性提供的临时状态免疫。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 68 }
+        - column: { name: fixture_id, valueNumeric: 30 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照道具提供的临时状态免疫。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: run_code, value: status-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 22 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 220 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: run_code, value: status-coverage-20260628-2 }
+        - column: { name: fixture_id, valueNumeric: 23 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 230 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: run_code, value: status-coverage-20260628-3 }
+        - column: { name: fixture_id, valueNumeric: 24 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 9 }
+        - column: { name: sort_order, valueNumeric: 240 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: run_code, value: status-coverage-20260628-4 }
+        - column: { name: fixture_id, valueNumeric: 25 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 250 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 26 }
+        - column: { name: run_code, value: status-coverage-20260628-5 }
+        - column: { name: fixture_id, valueNumeric: 26 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 260 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 27 }
+        - column: { name: run_code, value: status-coverage-20260628-6 }
+        - column: { name: fixture_id, valueNumeric: 27 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 270 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 28 }
+        - column: { name: run_code, value: status-coverage-20260628-7 }
+        - column: { name: fixture_id, valueNumeric: 28 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 280 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 29 }
+        - column: { name: run_code, value: status-coverage-20260628-8 }
+        - column: { name: fixture_id, valueNumeric: 29 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 290 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 30 }
+        - column: { name: run_code, value: status-coverage-20260628-9 }
+        - column: { name: fixture_id, valueNumeric: 30 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T23:12:51+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:15:38+08:00" }
+        - column: { name: duration_ms, valueNumeric: 167000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 300 }
