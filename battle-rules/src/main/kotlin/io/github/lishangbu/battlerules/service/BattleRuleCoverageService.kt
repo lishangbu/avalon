@@ -413,6 +413,7 @@ class BattleRuleCoverageService {
 					"misty-terrain-blocks-major-status-for-grounded-target",
 					"grass-target-blocks-powder-based-status-skill",
 					"grassy-terrain-heals-only-grounded-active-participants",
+					"existing-major-status-blocks-new-major-status",
 					"ability-and-item-immunities-block-matching-major-statuses",
 					"terrain-ability-and-item-immunities-block-confusion-before-duration-random",
 					"ability-and-item-immunities-block-flinch-before-action",
@@ -422,7 +423,7 @@ class BattleRuleCoverageService {
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 				),
-				note = "已覆盖主要状态属性免疫、粉末类技能草属性免疫、接地场地免疫、青草场地接地回复，以及特性/道具提供的主要状态、混乱和畏缩免疫。",
+				note = "已覆盖已有主要状态阻止覆盖、主要状态属性免疫、粉末类技能草属性免疫、接地场地免疫、青草场地接地回复，以及特性/道具提供的主要状态、混乱和畏缩免疫。",
 			),
 			item(
 				code = "ability.switch-in-stat-stage",

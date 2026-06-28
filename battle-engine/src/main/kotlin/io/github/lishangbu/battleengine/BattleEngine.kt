@@ -1240,7 +1240,7 @@ class BattleEngine(
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
-				if (!recipient.canBattle() || recipient.majorStatus != null) {
+				if (!recipient.canBattle()) {
 					current
 				} else {
 					applyMajorStatusEffect(
@@ -2147,7 +2147,8 @@ class BattleEngine(
 	 *
 	 * 睡眠附加成功时消费一个 `[0, 3)` 随机数并转成 1..3 次阻止行动；其它主要异常状态不消费持续回合随机数。
 	 * 属性免疫和场地免疫都会在消费状态私有随机数前短路，确保“无法附加状态”不会污染随机脚本。
-	 * 该函数不覆盖已有主要异常状态，调用方需要在进入前完成“已有状态”判断。
+	 * 该函数不覆盖已有主要异常状态；已有状态、属性免疫、场地免疫、特性免疫和道具免疫都会在消费状态私有
+	 * 随机数前短路并产生阻止事件，保证 replay 可以区分“概率没触发”和“规则阻止写入”。
 	 */
 	private fun applyMajorStatusEffect(
 		state: BattleState,
@@ -2157,7 +2158,11 @@ class BattleEngine(
 		random: BattleRandom,
 		randomReason: String,
 	): BattleState {
-		val blockedReason = blockedMajorStatusReason(state, recipient, status)
+		val blockedReason = if (recipient.majorStatus != null) {
+			BattleStatusBlockReason.EXISTING_STATUS
+		} else {
+			blockedMajorStatusReason(state, recipient, status)
+		}
 		if (blockedReason != null) {
 			return state.appendEvent(
 				BattleEvent.StatusApplicationBlocked(

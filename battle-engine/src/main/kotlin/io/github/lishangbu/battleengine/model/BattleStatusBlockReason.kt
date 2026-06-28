@@ -7,6 +7,7 @@ package io.github.lishangbu.battleengine.model
  * 具体资料名称由上层 replay 或资料系统根据成员快照补充。
  */
 enum class BattleStatusBlockReason {
+	EXISTING_STATUS,
 	ELEMENT,
 	TERRAIN,
 	ABILITY,

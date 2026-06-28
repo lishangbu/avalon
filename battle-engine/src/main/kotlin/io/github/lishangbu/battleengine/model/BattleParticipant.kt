@@ -158,7 +158,7 @@ data class BattleParticipant(
 	/**
 	 * 附加主要异常状态。
 	 *
-	 * 第一批不允许覆盖已有主要异常状态；调用方应在事件层决定是否记录失败原因。睡眠状态使用
+	 * 主要异常状态不会覆盖已有主要异常状态；调用方会在进入这里前记录对应阻止事件。睡眠状态使用
 	 * `sleepTurnsRemaining` 表达还会阻止行动几次，而不是保存历史版本的原始睡眠计数。
 	 */
 	fun applyMajorStatus(status: BattleMajorStatus, sleepTurnsRemaining: Int = 0): BattleParticipant {

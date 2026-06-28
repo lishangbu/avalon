@@ -243,6 +243,42 @@ class BattleStatusImmunityAndGroundingTests {
 	}
 
 	@Test
+	fun `existing major status blocks new major status without private random`() {
+		val fixture = publicBattleRuleFixture(
+			name = "existing-major-status-blocks-new-major-status",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Status_condition",
+			),
+			inputSummary = "目标已经处于麻痹状态，随后被 100% 附加睡眠的变化技能命中。",
+			expectedSummary = "目标仍保持原有麻痹状态，不获得睡眠；事件流记录 EXISTING_STATUS 阻止原因，且不消费睡眠持续随机数。",
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val state = engine.start(
+			initialState(
+				first = participant("sleep-user", speed = 100, skill = statusSkill(BattleMajorStatus.SLEEP)),
+				second = participant("already-statused-target", speed = 50)
+					.applyMajorStatus(BattleMajorStatus.PARALYSIS),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sleep-user", skillId = 1, targetActorId = "already-statused-target")),
+			random,
+		)
+
+		fixture.assertNamed("existing-major-status-blocks-new-major-status")
+		assertEquals(emptyList(), random.consumedReasons())
+		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("already-statused-target")?.majorStatus)
+		assertEquals(0, resolved.participant("already-statused-target")?.sleepTurnsRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplied>())
+		val blocked = resolved.events.filterIsInstance<BattleEvent.StatusApplicationBlocked>().single()
+		assertEquals(BattleMajorStatus.SLEEP, blocked.status)
+		assertEquals(BattleStatusBlockReason.EXISTING_STATUS, blocked.reason)
+	}
+
+	@Test
 	fun `terrain ability and item immunities block confusion before duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-ability-and-item-immunities-block-confusion-before-duration-random",

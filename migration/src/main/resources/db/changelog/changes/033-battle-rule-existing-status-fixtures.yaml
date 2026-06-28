@@ -1,0 +1,51 @@
+databaseChangeLog:
+- changeSet:
+    id: 033-battle-rule-existing-status-fixtures
+    author: backend
+    comment: 新增已有主要异常状态阻止覆盖公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 15 }
+        - column: { name: code, value: existing-major-status-blocks-new-major-status }
+        - column: { name: name, value: 已有主要异常状态阻止新状态覆盖 }
+        - column: { name: category, value: STATUS_IMMUNITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证目标已有主要异常状态时，新主要异常状态不会覆盖原状态，且事件流记录已有状态阻止原因。 }
+        - column: { name: input_summary, value: 目标已经处于麻痹状态，随后被 100% 附加睡眠的变化技能命中。 }
+        - column: { name: expected_summary, value: 目标仍保持麻痹，不获得睡眠；事件流记录 EXISTING_STATUS，且不消费睡眠持续随机数。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 150 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 34 }
+        - column: { name: fixture_id, valueNumeric: 15 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态条件 }
+        - column: { name: source_note, value: 用于验证目标已有主要异常状态时不会被新主要异常状态覆盖。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 35 }
+        - column: { name: fixture_id, valueNumeric: 15 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Status_condition }
+        - column: { name: source_label, value: 主要异常状态公开说明 }
+        - column: { name: source_note, value: 用于验证单个成员只能同时拥有一个主要异常状态。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 15 }
+        - column: { name: run_code, value: existing-status-coverage-20260628-1 }
+        - column: { name: fixture_id, valueNumeric: 15 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-28T22:58:59+08:00" }
+        - column: { name: finished_at, value: "2026-06-28T23:01:36+08:00" }
+        - column: { name: duration_ms, valueNumeric: 157000 }
+        - column: { name: assertion_count, valueNumeric: 6 }
+        - column: { name: sort_order, valueNumeric: 150 }

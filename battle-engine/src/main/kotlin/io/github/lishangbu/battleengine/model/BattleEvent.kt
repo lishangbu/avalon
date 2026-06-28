@@ -253,7 +253,7 @@ sealed interface BattleEvent {
 	 * 目标试图获得主要异常状态，但被规则条件阻止。
 	 *
 	 * 阻止事件保留行动者、目标、状态和稳定原因，便于对照测试确认“没有写入状态”也是一个可观察结果。
-	 * 第一批主要用于场地阻止睡眠；后续免疫类规则会继续扩展 [BattleStatusBlockReason]。
+	 * 当前覆盖目标已有主要异常状态、属性免疫、场地免疫、特性免疫和道具免疫。
 	 */
 	data class StatusApplicationBlocked(
 		override val turnNumber: Int,
