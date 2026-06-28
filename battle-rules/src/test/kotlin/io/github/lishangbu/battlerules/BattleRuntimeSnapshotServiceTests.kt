@@ -432,6 +432,9 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleItemEffect.ChoiceSkillLock>()
 			.single()
 		assertThat(choiceSpeedLock.speedMultiplier).isEqualTo(1.5)
+
+		assertThat(service.itemEffectsByItemId(248))
+			.hasExactlyElementsOfTypes(BattleItemEffect.ChargeSkipOnce::class.java)
 	}
 
 	@Test

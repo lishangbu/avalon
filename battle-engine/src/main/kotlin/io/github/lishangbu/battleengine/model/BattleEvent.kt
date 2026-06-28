@@ -589,6 +589,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 携带道具让本次蓄力技能跳过等待回合。
+	 *
+	 * 该事件表示道具已经在技能宣告后被触发；如果 `consumed=true`，成员快照中的携带道具已经被移除。
+	 * 后续仍会继续普通命中、保护、免疫和伤害流程，因此本事件不是技能命中或造成效果的替代事实。
+	 */
+	data class SkillChargeSkippedByItem(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val itemId: Long,
+		val consumed: Boolean,
+	) : BattleEvent
+
+	/**
 	 * 已蓄力技能在后续行动中释放。
 	 *
 	 * 释放不再次消耗 PP，也不会重新选择技能；目标仍按首次选择的目标槽位进行重定向。

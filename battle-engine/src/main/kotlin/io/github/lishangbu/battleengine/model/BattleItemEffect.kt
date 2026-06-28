@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.model
  * 携带道具在战斗中的可执行效果。
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
- * 低体力一次性回复，以及稳定状态免疫。
+ * 低体力一次性回复、蓄力技能一次性跳过等待，以及稳定状态免疫。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -117,6 +117,17 @@ sealed interface BattleItemEffect {
 		fun healAmount(maxHp: Int): Int =
 			fixedHealAmount ?: (maxHp / requireNotNull(healDenominator)).coerceAtLeast(1)
 	}
+
+	/**
+	 * 首次宣告蓄力技能时消耗携带道具并跳过等待回合。
+	 *
+	 * 该效果用于表达现代规则中的“一次性立刻释放蓄力技能”道具。触发阶段位于技能宣告、PP 消耗和 `SkillUsed`
+	 * 事件之后，但早于保护、命中、免疫和伤害流程；因此 replay 会看到技能被使用、道具被消费，然后技能同回合
+	 * 正常结算。效果本身不指定技能名单，是否需要蓄力仍由 [BattleSkillSlot.chargesBeforeUse] 决定。
+	 */
+	data class ChargeSkipOnce(
+		val consumesItem: Boolean = true,
+	) : BattleItemEffect
 
 	/**
 	 * 限制成员只能继续选择首次宣告的技能，并提供速度倍率。

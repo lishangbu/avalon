@@ -555,12 +555,15 @@ class BattleRuleCoverageService {
 				fixtures = listOf(
 					"charge-skill-releases-next-turn-without-extra-pp",
 					"charge-skill-skips-charge-in-sun",
+					"charge-skill-consumes-item-to-skip-charge",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Power_Herb",
 				),
-				note = "已覆盖首次使用消耗 PP 并进入蓄力、下一次技能行动自动释放且不重复扣 PP、主动替换阻止、指定天气跳过蓄力，以及释放阶段复用普通命中和伤害流程。",
+				note = "已覆盖首次使用消耗 PP 并进入蓄力、下一次技能行动自动释放且不重复扣 PP、主动替换阻止、指定天气跳过蓄力、一次性道具消费后同回合释放，以及释放阶段复用普通命中和伤害流程。",
 			),
 			item(
 				code = "skill.major-status-effects",

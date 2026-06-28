@@ -1134,6 +1134,7 @@ class BattleRuntimeSnapshotService(
 			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 			"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
+			"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
 			else -> null
 		}
 

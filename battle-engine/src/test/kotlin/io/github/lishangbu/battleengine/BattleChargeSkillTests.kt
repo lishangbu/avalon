@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -134,5 +135,50 @@ class BattleChargeSkillTests {
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.SkillUsed>().size)
 		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().size)
+	}
+
+	@Test
+	fun `charge skipping item is consumed and resolves skill immediately`() {
+		val fixture = publicBattleRuleFixture(
+			name = "charge-skill-consumes-item-to-skip-charge",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				"https://bulbapedia.bulbagarden.net/wiki/Power_Herb",
+			),
+			inputSummary = "使用者携带一次性跳过蓄力道具，使用需要蓄力的特殊伤害技能。",
+			expectedSummary = "技能宣告后道具被消费，不产生蓄力开始事件，并在同回合造成伤害。",
+		)
+		val skill = damagingSkill(name = "道具蓄力测试", chargesBeforeUse = true)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"charge-user",
+					speed = 100,
+					skill = skill,
+					itemId = 248,
+					itemEffects = listOf(BattleItemEffect.ChargeSkipOnce()),
+				),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("charge-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+
+		fixture.assertNamed("charge-skill-consumes-item-to-skip-charge")
+		val skipped = resolved.events.filterIsInstance<BattleEvent.SkillChargeSkippedByItem>().single()
+		assertEquals("charge-user", skipped.actorId)
+		assertEquals(1, skipped.skillId)
+		assertEquals(248, skipped.itemId)
+		assertTrue(skipped.consumed)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillChargeStarted>())
+		assertEquals(0, resolved.participant("charge-user")?.chargingTurnsRemaining)
+		assertEquals(null, resolved.participant("charge-user")?.itemId)
+		assertEquals(emptyList(), resolved.participant("charge-user")?.itemEffects)
+		assertEquals(34, resolved.participant("charge-user")?.skillSlot(1)?.remainingPp)
+		assertEquals(72, resolved.participant("target")?.currentHp)
 	}
 }

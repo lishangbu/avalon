@@ -340,21 +340,25 @@ class BattleEngine(
 				),
 			)
 
-		if (skill.requiresChargeBeforeUse(actionState.environment.weather) && plan.source == SkillActionSource.SUBMITTED) {
-			return beforeMove.context.copy(
-				state = startSkillCharge(
-					state = usedState,
-					actorId = readyActorBeforePp.actorId,
-					targetActorId = targets.first().actorId,
-					skill = skill,
-				),
-			)
-		}
+		val stateAfterChargeDecision =
+			if (skill.requiresChargeBeforeUse(actionState.environment.weather) && plan.source == SkillActionSource.SUBMITTED) {
+				skipChargeWithHeldItem(usedState, readyActorBeforePp.actorId, skill)
+					?: return beforeMove.context.copy(
+						state = startSkillCharge(
+							state = usedState,
+							actorId = readyActorBeforePp.actorId,
+							targetActorId = targets.first().actorId,
+							skill = skill,
+						),
+					)
+			} else {
+				usedState
+			}
 
 		if (skill.protectsUser) {
 			if (!protectionSucceeds(readyActor, skill, random)) {
 				return beforeMove.context.copy(
-					state = usedState
+					state = stateAfterChargeDecision
 						.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
 						.appendEvent(
 							BattleEvent.ProtectionFailed(
@@ -367,7 +371,7 @@ class BattleEngine(
 			}
 			val protectedActor = actorAfterActionSetup.markProtectionSuccess()
 			return beforeMove.context.copy(
-				state = usedState
+				state = stateAfterChargeDecision
 					.replaceParticipant(protectedActor)
 					.appendEvent(
 						BattleEvent.ProtectionStarted(
@@ -382,7 +386,7 @@ class BattleEngine(
 		}
 
 		val targetMultiplier = targetDamageMultiplier(skill, targets)
-		return targets.fold(beforeMove.context.copy(state = usedState)) { current, target ->
+		return targets.fold(beforeMove.context.copy(state = stateAfterChargeDecision)) { current, target ->
 			if (current.state.result != null) {
 				current
 			} else {
@@ -1168,6 +1172,35 @@ class BattleEngine(
 	 */
 	private fun BattleSkillSlot.requiresChargeBeforeUse(weather: BattleWeather): Boolean =
 		chargesBeforeUse && weather !in chargeSkippedByWeathers
+
+	/**
+	 * 尝试用携带道具跳过本次蓄力等待。
+	 *
+	 * 该函数只服务首次提交的蓄力技能：技能已经宣告并消耗 PP，但还没有进入命中和伤害流程。若行动者携带
+	 * [BattleItemEffect.ChargeSkipOnce]，引擎会按道具效果声明消费道具、追加可复盘事件，并返回继续结算用的新状态。
+	 * 若没有可用道具，返回 null，让调用方写入常规蓄力等待状态。
+	 */
+	private fun skipChargeWithHeldItem(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState? {
+		val actor = state.participant(actorId) ?: return null
+		val itemId = actor.itemId ?: return null
+		val effect = actor.itemEffects.filterIsInstance<BattleItemEffect.ChargeSkipOnce>().firstOrNull() ?: return null
+		val updatedActor = if (effect.consumesItem) actor.consumeHeldItem() else actor
+		return state
+			.replaceParticipant(updatedActor)
+			.appendEvent(
+				BattleEvent.SkillChargeSkippedByItem(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					itemId = itemId,
+					consumed = effect.consumesItem,
+				),
+			)
+	}
 
 	/**
 	 * 首次使用蓄力技能时写入等待释放状态。
@@ -3257,6 +3290,7 @@ class BattleEngine(
 		participant.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
+				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.DamageBoostWithRecoil,
 				is BattleItemEffect.HeldEndTurnHeal,
 				is BattleItemEffect.LowHpHeal,
