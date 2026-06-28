@@ -11,4 +11,6 @@ data class BattleDamageResult(
 	val baseDamage: Int,
 	val sameElementBonus: Double,
 	val effectiveness: Double,
+	val abilityMultiplier: Double,
+	val itemMultiplier: Double,
 )

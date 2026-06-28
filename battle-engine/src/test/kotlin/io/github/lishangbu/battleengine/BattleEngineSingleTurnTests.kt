@@ -1,9 +1,11 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -200,5 +202,83 @@ class BattleEngineSingleTurnTests {
 
 		val usedEvents = resolved.events.filterIsInstance<BattleEvent.SkillUsed>()
 		assertEquals(listOf("normal-mid", "paralyzed-fast"), usedEvents.map { it.actorId })
+	}
+
+	@Test
+	fun `contact ability can apply status to attacker`() {
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = damagingSkill(makesContact = true)),
+				second = participant(
+					"defender",
+					speed = 50,
+					abilityEffects = listOf(
+						BattleAbilityEffect.ContactStatusOnAttacker(
+							status = BattleMajorStatus.PARALYSIS,
+							chancePercent = 100,
+						),
+					),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("attacker")?.majorStatus)
+		val statusEvent = resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single()
+		assertEquals("defender", statusEvent.actorId)
+		assertEquals("attacker", statusEvent.targetActorId)
+	}
+
+	@Test
+	fun `damage boost item applies recoil after damage`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					itemEffects = listOf(BattleItemEffect.DamageBoostWithRecoil(multiplier = 1.3, recoilDenominator = 10)),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(15)),
+		)
+
+		assertEquals(63, resolved.participant("defender")?.currentHp)
+		assertEquals(97, resolved.participant("attacker")?.currentHp)
+		assertIs<BattleEvent.RecoilDamageApplied>(resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().single())
+	}
+
+	@Test
+	fun `end turn healing item restores hp`() {
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"holder",
+					speed = 100,
+					currentHp = 80,
+					itemEffects = listOf(BattleItemEffect.HeldEndTurnHeal(healDenominator = 16)),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			emptyList(),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		assertEquals(86, resolved.participant("holder")?.currentHp)
+		assertIs<BattleEvent.HealingApplied>(resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single())
 	}
 }

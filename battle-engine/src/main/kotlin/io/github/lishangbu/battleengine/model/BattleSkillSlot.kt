@@ -16,6 +16,7 @@ data class BattleSkillSlot(
 	val damageClass: BattleDamageClass,
 	val power: Int?,
 	val accuracy: Int?,
+	val makesContact: Boolean = false,
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,

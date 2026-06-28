@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
@@ -52,13 +54,18 @@ class BattleDamageCalculator(
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
 		val sameElementBonus = if (request.skill.elementId in request.attacker.elementIds) 1.5 else 1.0
 		val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
-		val combined = baseDamage * (request.randomPercent / 100.0) * sameElementBonus * effectiveness
+		val abilityMultiplier = abilityDamageMultiplier(request)
+		val itemMultiplier = itemDamageMultiplier(request)
+		val combined = baseDamage * (request.randomPercent / 100.0) * sameElementBonus *
+			effectiveness * abilityMultiplier * itemMultiplier
 		val amount = if (effectiveness == 0.0) 0 else floor(combined).toInt().coerceAtLeast(1)
 		return BattleDamageResult(
 			amount = amount,
 			baseDamage = baseDamage,
 			sameElementBonus = sameElementBonus,
 			effectiveness = effectiveness,
+			abilityMultiplier = abilityMultiplier,
+			itemMultiplier = itemMultiplier,
 		)
 	}
 
@@ -78,4 +85,39 @@ class BattleDamageCalculator(
 			stagedAttack
 		}
 	}
+
+	/**
+	 * 计算攻击方特性带来的伤害倍率。
+	 *
+	 * 第一批只支持低体力指定属性增伤。触发条件按当前 HP 与最大 HP 比例判断，满足阈值且技能属性匹配时叠乘倍率。
+	 */
+	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
+		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleAbilityEffect.LowHpElementDamageBoost -> {
+					val hpAtOrBelowThreshold =
+						request.attacker.currentHp * effect.hpThresholdDenominator <=
+							request.attacker.maxHp * effect.hpThresholdNumerator
+					if (hpAtOrBelowThreshold && request.skill.elementId == effect.elementId) {
+						multiplier * effect.multiplier
+					} else {
+						multiplier
+					}
+				}
+				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
+			}
+		}
+
+	/**
+	 * 计算攻击方携带道具带来的伤害倍率。
+	 *
+	 * 第一批只支持造成伤害时直接提升倍率的道具。反伤本身由状态机在伤害事件之后处理，避免计算器修改战斗状态。
+	 */
+	private fun itemDamageMultiplier(request: BattleDamageRequest): Double =
+		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
+				is BattleItemEffect.HeldEndTurnHeal -> multiplier
+			}
+		}
 }

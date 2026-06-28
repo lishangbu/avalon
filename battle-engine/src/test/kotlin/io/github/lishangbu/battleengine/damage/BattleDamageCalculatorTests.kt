@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.damagingSkill
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -112,6 +114,30 @@ class BattleDamageCalculatorTests {
 		)
 
 		assertEquals(37, result.baseDamage)
+		assertEquals(55, result.amount)
+	}
+
+	@Test
+	fun `low hp ability and damage boost item multiply damage`() {
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant(
+					"attacker",
+					speed = 100,
+					currentHp = 30,
+					elementId = 1,
+					abilityEffects = listOf(BattleAbilityEffect.LowHpElementDamageBoost(elementId = 1)),
+					itemEffects = listOf(BattleItemEffect.DamageBoostWithRecoil(multiplier = 1.3, recoilDenominator = 10)),
+				),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		assertEquals(1.5, result.abilityMultiplier)
+		assertEquals(1.3, result.itemMultiplier)
 		assertEquals(55, result.amount)
 	}
 }

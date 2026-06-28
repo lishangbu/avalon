@@ -4,9 +4,11 @@ import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
@@ -170,7 +172,26 @@ class BattleEngine(
 					effectiveness = damage.effectiveness,
 				),
 			)
-		val afterDamage = damagedState.handleFaintAndResult(damagedTarget)
+		val afterContactAbilities = applyContactAbilityEffects(
+			state = damagedState,
+			actorId = actor.actorId,
+			targetActorId = damagedTarget.actorId,
+			skill = skill,
+			random = random,
+		)
+		val afterRecoil = applyPostDamageItemEffects(
+			state = afterContactAbilities,
+			actorId = actor.actorId,
+			skill = skill,
+			damageAmount = damage.amount,
+		)
+		val targetAfterPostDamage = afterRecoil.participant(damagedTarget.actorId) ?: damagedTarget
+		val actorAfterPostDamage = afterRecoil.participant(actor.actorId) ?: actorAfterPp
+		val afterTargetFaint = afterRecoil.handleFaintAndResult(targetAfterPostDamage)
+		if (afterTargetFaint.result != null) {
+			return afterTargetFaint
+		}
+		val afterDamage = afterTargetFaint.handleFaintAndResult(actorAfterPostDamage)
 		return if (afterDamage.result != null) {
 			afterDamage
 		} else {
@@ -253,13 +274,90 @@ class BattleEngine(
 	}
 
 	/**
+	 * 处理目标方“受到接触技能后影响攻击方”的特性效果。
+	 *
+	 * 第一批只实现概率附加主要异常状态。该 hook 在伤害事件之后、反伤和倒下判定之前执行，
+	 * 可以覆盖接触后攻击方被麻痹等常见场景。
+	 */
+	private fun applyContactAbilityEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		if (!skill.makesContact) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		return target.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
+			.fold(state) { current, effect ->
+				val actor = current.participant(actorId) ?: return@fold current
+				if (!actor.canBattle() || actor.majorStatus != null) {
+					current
+				} else if (!chanceSucceeds(effect.chancePercent, random, "contact status for $targetActorId")) {
+					current
+				} else {
+					current
+						.replaceParticipant(actor.applyMajorStatus(effect.status))
+						.appendEvent(
+							BattleEvent.StatusApplied(
+								turnNumber = current.turnNumber,
+								actorId = targetActorId,
+								targetActorId = actor.actorId,
+								status = effect.status,
+							),
+						)
+				}
+			}
+	}
+
+	/**
+	 * 处理造成伤害后的道具反伤。
+	 *
+	 * 伤害增幅本身由伤害计算器读取道具效果完成；这里根据最终伤害扣除攻击方 HP 并产生反伤事件。
+	 */
+	private fun applyPostDamageItemEffects(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
+			return state
+		}
+		return state.participant(actorId)
+			?.itemEffects
+			.orEmpty()
+			.filterIsInstance<BattleItemEffect.DamageBoostWithRecoil>()
+			.fold(state) { current, effect ->
+				val actor = current.participant(actorId) ?: return@fold current
+				if (!actor.canBattle()) {
+					current
+				} else {
+					val recoil = (damageAmount / effect.recoilDenominator).coerceAtLeast(1)
+					current
+						.replaceParticipant(actor.receiveDamage(recoil))
+						.appendEvent(
+							BattleEvent.RecoilDamageApplied(
+								turnNumber = current.turnNumber,
+								actorId = actor.actorId,
+								amount = recoil,
+							),
+						)
+				}
+			}
+	}
+
+	/**
 	 * 结算回合末主要异常状态伤害。
 	 *
 	 * 当前实现覆盖灼伤、中毒和剧毒的固定扣血入口。剧毒的逐回合递增计数尚未建模，因此暂按普通中毒比例处理；
 	 * 后续会把持续状态计数加入成员运行态，并用公开 fixture 验证递增伤害。
 	 */
-	private fun applyEndTurnEffects(state: BattleState): BattleState =
-		state.sides
+	private fun applyEndTurnEffects(state: BattleState): BattleState {
+		val afterResidual = state.sides
 			.flatMap { it.participants }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
@@ -279,6 +377,48 @@ class BattleEngine(
 							),
 						)
 						.handleFaintAndResult(damaged)
+				}
+			}
+		return if (afterResidual.result != null) {
+			afterResidual
+		} else {
+			applyEndTurnHealing(afterResidual)
+		}
+	}
+
+	/**
+	 * 处理回合末携带道具回复。
+	 *
+	 * 第一批只实现固定最大 HP 比例回复，不处理道具消耗、回复封锁或复杂场地顺序。
+	 */
+	private fun applyEndTurnHealing(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.participants }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
+					current
+				} else {
+					latest.itemEffects
+						.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
+						.fold(current) { healingState, effect ->
+							val currentParticipant = healingState.participant(latest.actorId) ?: return@fold healingState
+							val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
+								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
+							if (healAmount <= 0) {
+								healingState
+							} else {
+								healingState
+									.replaceParticipant(currentParticipant.heal(healAmount))
+									.appendEvent(
+										BattleEvent.HealingApplied(
+											turnNumber = healingState.turnNumber,
+											actorId = currentParticipant.actorId,
+											amount = healAmount,
+										),
+									)
+							}
+						}
 				}
 			}
 

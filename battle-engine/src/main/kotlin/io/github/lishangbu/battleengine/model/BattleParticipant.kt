@@ -26,6 +26,8 @@ data class BattleParticipant(
 	val skillSlots: List<BattleSkillSlot>,
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
+	val abilityEffects: List<BattleAbilityEffect> = emptyList(),
+	val itemEffects: List<BattleItemEffect> = emptyList(),
 ) {
 	init {
 		require(actorId.isNotBlank()) { "actorId must not be blank" }
@@ -55,6 +57,14 @@ data class BattleParticipant(
 	fun receiveDamage(amount: Int): BattleParticipant {
 		require(amount >= 0) { "damage amount must not be negative" }
 		return copy(currentHp = (currentHp - amount).coerceAtLeast(0))
+	}
+
+	/**
+	 * 回复 HP，并把结果夹取到最大 HP。
+	 */
+	fun heal(amount: Int): BattleParticipant {
+		require(amount >= 0) { "heal amount must not be negative" }
+		return copy(currentHp = (currentHp + amount).coerceAtMost(maxHp))
 	}
 
 	/**

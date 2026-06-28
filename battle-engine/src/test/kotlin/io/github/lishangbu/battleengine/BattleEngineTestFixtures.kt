@@ -1,6 +1,8 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
@@ -42,6 +44,8 @@ internal fun participant(
 	currentHp: Int = 100,
 	elementId: Long = 1,
 	skill: BattleSkillSlot = damagingSkill(),
+	abilityEffects: List<BattleAbilityEffect> = emptyList(),
+	itemEffects: List<BattleItemEffect> = emptyList(),
 ): BattleParticipant =
 	BattleParticipant(
 		actorId = actorId,
@@ -56,6 +60,8 @@ internal fun participant(
 		speed = speed,
 		elementIds = setOf(elementId),
 		skillSlots = listOf(skill),
+		abilityEffects = abilityEffects,
+		itemEffects = itemEffects,
 	)
 
 internal fun damagingSkill(
@@ -65,6 +71,7 @@ internal fun damagingSkill(
 	damageClass: BattleDamageClass = BattleDamageClass.PHYSICAL,
 	power: Int = 40,
 	accuracy: Int? = null,
+	makesContact: Boolean = false,
 	priority: Int = 0,
 	statusApplications: List<BattleStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
@@ -76,6 +83,7 @@ internal fun damagingSkill(
 		damageClass = damageClass,
 		power = power,
 		accuracy = accuracy,
+		makesContact = makesContact,
 		priority = priority,
 		remainingPp = 35,
 		maxPp = 35,
