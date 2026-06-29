@@ -755,6 +755,22 @@ class BattleRuleCoverageService {
 					note = "已覆盖主要异常状态成功写入后由携带道具立即解除并消费；技能附加状态和接触特性返还状态共用同一 after-status 钩子，非匹配状态不会消费道具。规则资料已接入全状态解除，以及麻痹、睡眠、中毒、灼伤、冰冻的指定状态解除道具。",
 				),
 				item(
+					code = "item.volatile-status-cure",
+					name = "携带道具解除临时状态",
+					category = "道具",
+					status = IMPLEMENTED,
+					fixtures = listOf(
+						"volatile-status-cure-item-clears-confusion-after-application",
+					),
+					references = listOf(
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+						"https://bulbapedia.bulbagarden.net/wiki/Persim_Berry",
+						"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
+					),
+					note = "已覆盖混乱成功写入并消费持续时间随机数后，由携带道具立即解除混乱并消费自身。该规则使用独立临时状态治愈模型，不与主要异常状态混用。",
+				),
+				item(
 					code = "turn.multi-hit-and-locked-move",
 					name = "多段技能和锁招混乱",
 				category = "技能流程",

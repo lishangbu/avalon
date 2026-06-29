@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
- * 稳定状态免疫，以及成功获得主要异常状态后的即时解除。
+ * 稳定状态免疫，以及成功获得主要异常状态或临时状态后的即时解除。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -50,6 +50,25 @@ sealed interface BattleItemEffect {
 	 */
 	data class VolatileStatusImmunity(
 		val statuses: Set<BattleVolatileStatus>,
+	) : BattleItemEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/**
+	 * 成员获得匹配的临时状态后，立刻解除该状态并可消费携带道具。
+	 *
+	 * 该效果用于表达现代规则中“不会阻止临时状态写入，但会在写入后立刻治愈”的一次性携带道具。它与
+	 * [VolatileStatusImmunity] 的区别和主要异常状态一致：免疫发生在状态写入前，而治愈发生在
+	 * [BattleEvent.VolatileStatusApplied] 之后，随后追加 [BattleEvent.VolatileStatusCleared]。
+	 *
+	 * 当前引擎第一批临时状态包含畏缩和混乱。资料层通常会把该效果挂到解除混乱的道具上；如果未来扩展其它临时
+	 * 状态，只需要把对应枚举加入 `statuses`，无需在状态机里判断具体道具名称。
+	 */
+	data class VolatileStatusCure(
+		val statuses: Set<BattleVolatileStatus>,
+		val consumesItem: Boolean = true,
 	) : BattleItemEffect {
 		init {
 			require(statuses.isNotEmpty()) { "statuses must not be empty" }

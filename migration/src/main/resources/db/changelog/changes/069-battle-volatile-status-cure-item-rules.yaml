@@ -1,0 +1,81 @@
+databaseChangeLog:
+- changeSet:
+    id: 069-battle-volatile-status-cure-item-rules
+    author: backend
+    comment: 新增临时状态解除道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 20 }
+        - column: { name: item_id, valueNumeric: 133 }
+        - column: { name: trigger_timing, value: AFTER_VOLATILE_STATUS_APPLIED }
+        - column: { name: effect_policy, value: volatile-status-cure-confusion }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 获得混乱状态后立即解除该状态，并在触发后消费携带道具。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 200 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 147 }
+        - column: { name: code, value: volatile-status-cure-item-clears-confusion-after-application }
+        - column: { name: name, value: 临时状态解除道具在混乱写入后触发 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证目标获得混乱状态后，携带道具会立即解除混乱并被消费。 }
+        - column: { name: input_summary, value: 目标携带解除混乱的一次性道具，对手使用 100% 附加混乱的变化技能。 }
+        - column: { name: expected_summary, value: 混乱先写入目标运行态并消费持续时间随机数，随后携带道具立即解除混乱并被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1470 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 313 }
+        - column: { name: fixture_id, valueNumeric: 147 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照临时状态解除道具在混乱存在后触发并消费。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 314 }
+        - column: { name: fixture_id, valueNumeric: 147 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎临时状态资料 }
+        - column: { name: source_note, value: 用于对照混乱持续时间随机数和临时状态运行态。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 315 }
+        - column: { name: fixture_id, valueNumeric: 147 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Persim_Berry }
+        - column: { name: source_label, value: 混乱解除道具公开说明 }
+        - column: { name: source_note, value: 用于验证该道具会解除混乱并被消费。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 316 }
+        - column: { name: fixture_id, valueNumeric: 147 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition) }
+        - column: { name: source_label, value: 混乱临时状态公开说明 }
+        - column: { name: source_note, value: 用于验证混乱作为临时状态的写入和解除顺序。 }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 147 }
+        - column: { name: run_code, value: volatile-status-cure-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 147 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:00:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:03:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 1470 }

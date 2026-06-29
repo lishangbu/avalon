@@ -15,6 +15,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
@@ -523,6 +524,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.containsExactly(BattleMajorStatus.BURN)
 		assertThat(service.itemEffectsByItemId(130).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
 			.containsExactly(BattleMajorStatus.FREEZE)
+
+		val confusionCure = service.itemEffectsByItemId(133)
+			.filterIsInstance<BattleItemEffect.VolatileStatusCure>()
+			.single()
+		assertThat(confusionCure.statuses).containsExactly(BattleVolatileStatus.CONFUSION)
+		assertThat(confusionCure.consumesItem).isTrue()
 
 		val majorStatusCure = service.itemEffectsByItemId(134)
 			.filterIsInstance<BattleItemEffect.MajorStatusCure>()

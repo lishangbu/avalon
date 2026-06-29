@@ -295,6 +295,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.SideDamageReductionDurationExtension -> multiplier
 				is BattleItemEffect.SurviveFatalDamageAtFullHp -> multiplier
 				is BattleItemEffect.TerrainDurationExtension -> multiplier
+				is BattleItemEffect.VolatileStatusCure -> multiplier
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
 				is BattleItemEffect.WeatherDurationExtension -> multiplier
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier

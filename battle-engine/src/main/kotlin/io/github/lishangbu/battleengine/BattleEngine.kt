@@ -3479,14 +3479,52 @@ class BattleEngine(
 			random.nextInt(4, randomReason) + 2
 		} else {
 			0
+			}
+			val appliedState = state
+				.replaceParticipant(recipient.applyVolatileStatus(status, confusionTurnsRemaining))
+				.appendEvent(
+					BattleEvent.VolatileStatusApplied(
+						turnNumber = state.turnNumber,
+						actorId = actorId,
+						targetActorId = recipient.actorId,
+						status = status,
+					),
+				)
+			return applyVolatileStatusCureItem(appliedState, recipient.actorId, status)
+		}
+
+	/**
+	 * 处理成功获得临时状态后的即时治愈携带道具。
+	 *
+	 * 该阶段只在 [applyVolatileStatusEffect] 已经写入临时状态并追加 [BattleEvent.VolatileStatusApplied] 后运行，
+	 * 因此不会遮蔽薄雾场地、特性免疫、道具免疫或已有混乱的前置阻止语义。触发成功时，函数先清除目标临时状态，
+	 * 再按 [BattleItemEffect.VolatileStatusCure.consumesItem] 决定是否消费携带道具，最后追加
+	 * [BattleEvent.VolatileStatusCleared]。
+	 *
+	 * 畏缩和混乱的运行态字段不同：畏缩是布尔标记，混乱是剩余检查次数。这里统一调用
+	 * [BattleParticipant.clearVolatileStatus]，由成员模型维护每种临时状态的清理不变量。
+	 */
+	private fun applyVolatileStatusCureItem(
+		state: BattleState,
+		actorId: String,
+		status: BattleVolatileStatus,
+	): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.VolatileStatusCure>()
+			.firstOrNull { status in it.statuses }
+			?: return state
+		val cured = if (effect.consumesItem) {
+			participant.clearVolatileStatus(status).consumeHeldItem()
+		} else {
+			participant.clearVolatileStatus(status)
 		}
 		return state
-			.replaceParticipant(recipient.applyVolatileStatus(status, confusionTurnsRemaining))
+			.replaceParticipant(cured)
 			.appendEvent(
-				BattleEvent.VolatileStatusApplied(
+				BattleEvent.VolatileStatusCleared(
 					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = recipient.actorId,
+					actorId = participant.actorId,
 					status = status,
 				),
 			)
@@ -4154,8 +4192,9 @@ class BattleEngine(
 			is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
 				is BattleItemEffect.SurviveFatalDamageAtFullHp,
-				is BattleItemEffect.TerrainDurationExtension,
-				is BattleItemEffect.VolatileStatusImmunity,
+			is BattleItemEffect.TerrainDurationExtension,
+			is BattleItemEffect.VolatileStatusCure,
+			is BattleItemEffect.VolatileStatusImmunity,
 				is BattleItemEffect.WeatherDurationExtension,
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}

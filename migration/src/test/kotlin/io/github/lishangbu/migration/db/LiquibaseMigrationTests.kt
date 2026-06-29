@@ -115,6 +115,7 @@ class LiquibaseMigrationTests(
 			"066-battle-sound-immunity-ability-rules.yaml",
 			"067-battle-status-cure-item-rules.yaml",
 			"068-battle-specific-status-cure-item-rules.yaml",
+			"069-battle-volatile-status-cure-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -539,7 +540,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 19L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 20L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -558,9 +559,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 146L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 312L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 146L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 147L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 316L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 147L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -719,6 +720,22 @@ class LiquibaseMigrationTests(
 					"item_id" to 130L,
 					"trigger_timing" to "AFTER_STATUS_APPLIED",
 					"effect_policy" to "major-status-cure-freeze",
+					"consumable" to true,
+				),
+			)
+
+			val volatileStatusCureItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id = 133
+				""".trimIndent(),
+			)
+			assertThat(volatileStatusCureItemRules).containsExactly(
+				mapOf(
+					"item_id" to 133L,
+					"trigger_timing" to "AFTER_VOLATILE_STATUS_APPLIED",
+					"effect_policy" to "volatile-status-cure-confusion",
 					"consumable" to true,
 				),
 			)
