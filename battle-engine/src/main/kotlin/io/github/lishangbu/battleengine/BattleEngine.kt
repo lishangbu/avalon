@@ -3582,6 +3582,12 @@ class BattleEngine(
 				blocked = true,
 			)
 		}
+		if (actor.tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeTauntBlockedAction(context.state, actor, skill)),
+				blocked = true,
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
@@ -3720,6 +3726,34 @@ class BattleEngine(
 				effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
 				effect is BattleSkillHpEffect.DrainDamage
 		}
+
+	/**
+	 * 消耗一次“挑衅阻止本次变化技能”的行动结果。
+	 *
+	 * 挑衅不会因为成功阻止一次行动而提前减少持续回合；它只在完整回合末统一递减。这里不消耗 PP、不写入
+	 * `SkillUsed`，也不触发命中、保护、附加效果或讲究类锁定流程，确保被挑衅成员的变化技能稳定停在行动前。
+	 */
+	private fun consumeTauntBlockedAction(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByTaunt(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				skillId = skill.skillId,
+				turnsRemainingBefore = actor.tauntTurnsRemaining,
+			),
+		)
+
+	/**
+	 * 判断挑衅是否禁止成员宣告该技能。
+	 *
+	 * 现代规则中挑衅只阻止变化分类技能；物理和特殊分类技能即使没有造成伤害，仍不由挑衅在这里拦截。
+	 */
+	private fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
+		skill.damageClass == BattleDamageClass.STATUS
 
 	/**
 	 * 记录冰冻未解冻时对本次技能行动的阻止效果。
@@ -4200,12 +4234,14 @@ class BattleEngine(
 			0
 		}
 		val healBlockTurnsRemaining = if (status == BattleVolatileStatus.HEAL_BLOCK) HEAL_BLOCK_TURNS else 0
+		val tauntTurnsRemaining = if (status == BattleVolatileStatus.TAUNT) TAUNT_TURNS else 0
 		val appliedState = state
 			.replaceParticipant(
 				recipient.applyVolatileStatus(
 					status = status,
 					confusionTurnsRemaining = confusionTurnsRemaining,
 					healBlockTurnsRemaining = healBlockTurnsRemaining,
+					tauntTurnsRemaining = tauntTurnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -4222,13 +4258,14 @@ class BattleEngine(
 	/**
 	 * 判断目标是否已经拥有同类临时状态。
 	 *
-	 * 当前只有混乱和回复封锁有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
+	 * 当前只有混乱、回复封锁和挑衅有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
 	 * 后续行动前或回合末都会清除，所以重复附加不会改变可观察持续时间。
 	 */
 	private fun volatileStatusAlreadyPresent(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
 		when (status) {
 			BattleVolatileStatus.CONFUSION -> recipient.confusionTurnsRemaining > 0
 			BattleVolatileStatus.HEAL_BLOCK -> recipient.healBlockTurnsRemaining > 0
+			BattleVolatileStatus.TAUNT -> recipient.tauntTurnsRemaining > 0
 			BattleVolatileStatus.FLINCH -> false
 		}
 
@@ -4585,7 +4622,7 @@ class BattleEngine(
 	/**
 	 * 推进跨回合临时状态的持续回合。
 	 *
-	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里专门推进回复封锁：
+	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里推进回复封锁和挑衅：
 	 * 每个回合末减少 1，归零时追加 [BattleEvent.VolatileStatusCleared]，让 replay 能看到状态自然结束的时间点。
 	 */
 	private fun advanceEndTurnVolatileStatusDurations(state: BattleState): BattleState =
@@ -4593,24 +4630,53 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (latest.healBlockTurnsRemaining <= 0) {
-					current
-				} else {
-					val updated = latest.decrementHealBlockEndTurn()
-					val advanced = current.replaceParticipant(updated)
-					if (updated.healBlockTurnsRemaining == 0) {
-						advanced.appendEvent(
-							BattleEvent.VolatileStatusCleared(
-								turnNumber = current.turnNumber,
-								actorId = latest.actorId,
-								status = BattleVolatileStatus.HEAL_BLOCK,
-							),
-						)
-					} else {
-						advanced
-					}
-				}
+				val afterHealBlock = advanceEndTurnVolatileStatusDuration(
+					state = current,
+					participant = latest,
+					status = BattleVolatileStatus.HEAL_BLOCK,
+					turnsRemaining = latest.healBlockTurnsRemaining,
+					decrement = BattleParticipant::decrementHealBlockEndTurn,
+				)
+				val latestAfterHealBlock = afterHealBlock.participant(participant.actorId) ?: return@fold afterHealBlock
+				advanceEndTurnVolatileStatusDuration(
+					state = afterHealBlock,
+					participant = latestAfterHealBlock,
+					status = BattleVolatileStatus.TAUNT,
+					turnsRemaining = latestAfterHealBlock.tauntTurnsRemaining,
+					decrement = BattleParticipant::decrementTauntEndTurn,
+				)
 			}
+
+	/**
+	 * 推进一个按回合末递减的临时状态计数。
+	 *
+	 * 该 helper 只处理“计数大于 0 时递减，归零时追加解除事件”的共同行为；具体状态字段仍由
+	 * [BattleParticipant] 的专用方法维护，避免用字符串或反射读写运行态。
+	 */
+	private fun advanceEndTurnVolatileStatusDuration(
+		state: BattleState,
+		participant: BattleParticipant,
+		status: BattleVolatileStatus,
+		turnsRemaining: Int,
+		decrement: BattleParticipant.() -> BattleParticipant,
+	): BattleState {
+		if (turnsRemaining <= 0) {
+			return state
+		}
+		val updated = participant.decrement()
+		val advanced = state.replaceParticipant(updated)
+		return if (turnsRemaining == 1) {
+			advanced.appendEvent(
+				BattleEvent.VolatileStatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					status = status,
+				),
+			)
+		} else {
+			advanced
+		}
+	}
 
 	/**
 	 * 结算回合末主要异常状态伤害。
@@ -5274,6 +5340,7 @@ class BattleEngine(
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val HEAL_BLOCK_TURNS = 5
+		private const val TAUNT_TURNS = 3
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
 		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25

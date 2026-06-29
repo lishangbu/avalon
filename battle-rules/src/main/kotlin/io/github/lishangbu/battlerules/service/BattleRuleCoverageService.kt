@@ -334,6 +334,26 @@ class BattleRuleCoverageService {
 				note = "已覆盖回复封锁附加、主动回复技能失败、吸取回复技能失败、回合末道具回复被抑制，以及持续回合在回合末递减并自然解除。",
 			),
 			item(
+				code = "status.taunt",
+				name = "挑衅临时状态",
+				category = "临时状态",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-skill-applies-taunt-to-target",
+					"taunted-participant-cannot-use-status-skill",
+					"taunted-participant-can-use-damaging-skill",
+					"taunt-clears-when-end-turn-duration-reaches-zero",
+					"existing-taunt-blocks-new-taunt-without-refreshing-duration",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://wiki.52poke.com/wiki/挑衅（招式）",
+					"https://wiki.52poke.com/wiki/挑衅（状态变化）",
+				),
+				note = "已覆盖挑衅附加、变化技能在 PP 消耗前失败、攻击分类技能继续结算、回合末递减解除，以及已有挑衅不会刷新持续时间。",
+			),
+			item(
 				code = "terrain.grassy-heal",
 				name = "青草场地核心效果",
 				category = "场地",
@@ -1227,7 +1247,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 100
+		private const val FINAL_COVERED_RULE_COUNT = 105
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

@@ -316,6 +316,19 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因挑衅无法执行本次变化技能。
+	 *
+	 * 挑衅只限制变化分类技能，不限制物理或特殊攻击技能。该事件发生在 PP 消耗和 `SkillUsed` 之前，
+	 * 因此被阻止的技能不会进入命中、保护、附加效果或讲究类锁定流程。
+	 */
+	data class SkillPreventedByTaunt(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val turnsRemainingBefore: Int,
+	) : BattleEvent
+
+	/**
 	 * 行动者因临时状态无法执行本次技能行动。
 	 *
 	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生

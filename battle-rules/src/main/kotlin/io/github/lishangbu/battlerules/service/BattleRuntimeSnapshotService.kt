@@ -1191,6 +1191,7 @@ class BattleRuntimeSnapshotService(
 			"confusion" -> BattleVolatileStatus.CONFUSION
 			"flinch" -> BattleVolatileStatus.FLINCH
 			"heal-block" -> BattleVolatileStatus.HEAL_BLOCK
+			"taunt" -> BattleVolatileStatus.TAUNT
 			else -> invalidValue("statusRuleId", "不支持的临时状态: $this")
 		}
 

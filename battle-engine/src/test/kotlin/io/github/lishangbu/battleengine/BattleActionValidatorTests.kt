@@ -13,8 +13,8 @@ import kotlin.test.assertFailsWith
  *
  * 场景类型：行动合法性 fixture。
  * 参考来源类型：现代回合制对战通用提交约束；本测试不替代事件级规则测试，只覆盖提交阶段就应被拦截的问题。
-	 * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、目标不存在、替换目标非法和战斗结束后继续提交都能
-	 * 返回稳定 code。
+ * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、目标不存在、替换目标非法和战斗结束后继续提交都能
+ * 返回稳定 code。
  */
 class BattleActionValidatorTests {
 	private val engine = BattleEngine()
@@ -56,6 +56,31 @@ class BattleActionValidatorTests {
 
 		assertEquals(listOf("heal-blocked"), violations.map { it.code })
 		assertEquals(105, violations.single().resourceId)
+	}
+
+	@Test
+	fun `reports taunt prevents status skill selection`() {
+		val statusSkill = damagingSkill(
+			skillId = 269,
+			name = "挑衅",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("taunted", speed = 100, skill = statusSkill)
+					.copy(tauntTurnsRemaining = 2),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("taunted", skillId = 269, targetActorId = "target")),
+		)
+
+		assertEquals(listOf("taunted"), violations.map { it.code })
+		assertEquals(269, violations.single().resourceId)
 	}
 
 	@Test

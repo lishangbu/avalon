@@ -9,8 +9,8 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
-	 * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
-	 * 讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁等临时状态。
+ * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
+ * 讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁、挑衅等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -46,6 +46,7 @@ data class BattleParticipant(
 	val flinched: Boolean = false,
 	val confusionTurnsRemaining: Int = 0,
 	val healBlockTurnsRemaining: Int = 0,
+	val tauntTurnsRemaining: Int = 0,
 	val lockedMoveSkillId: Long? = null,
 	val lockedMoveTargetActorId: String? = null,
 	val lockedMoveTurnsRemaining: Int = 0,
@@ -99,9 +100,10 @@ data class BattleParticipant(
 		require(chargingTurnsRemaining > 0 || (chargingSkillId == null && chargingTargetActorId == null)) {
 			"charging skill state must be cleared when no charging turns remain"
 		}
-			require(confusionTurnsRemaining >= 0) { "confusionTurnsRemaining must not be negative" }
-			require(healBlockTurnsRemaining >= 0) { "healBlockTurnsRemaining must not be negative" }
-			require(lockedMoveSkillId == null || lockedMoveSkillId > 0) { "lockedMoveSkillId must be positive when present" }
+		require(confusionTurnsRemaining >= 0) { "confusionTurnsRemaining must not be negative" }
+		require(healBlockTurnsRemaining >= 0) { "healBlockTurnsRemaining must not be negative" }
+		require(tauntTurnsRemaining >= 0) { "tauntTurnsRemaining must not be negative" }
+		require(lockedMoveSkillId == null || lockedMoveSkillId > 0) { "lockedMoveSkillId must be positive when present" }
 		require(lockedMoveTargetActorId == null || lockedMoveTargetActorId.isNotBlank()) {
 			"lockedMoveTargetActorId must not be blank when present"
 		}
@@ -347,13 +349,14 @@ data class BattleParticipant(
 	 * 附加临时状态。
 	 *
 	 * 畏缩只持续到本回合行动前或回合末，因此不需要额外计数。混乱使用公开实现中的内部计数：
-	 * 成员行动前先递减一次，递减后为 0 则解除并照常行动，否则再进行混乱自伤判定。回复封锁保存
-	 * 回合末递减计数，用于阻止主动回复技能以及运行态中的 HP 回复来源。
+	 * 成员行动前先递减一次，递减后为 0 则解除并照常行动，否则再进行混乱自伤判定。回复封锁和挑衅保存
+	 * 回合末递减计数，分别用于阻止回复类技能和变化类技能。
 	 */
 	fun applyVolatileStatus(
 		status: BattleVolatileStatus,
 		confusionTurnsRemaining: Int = 0,
 		healBlockTurnsRemaining: Int = 0,
+		tauntTurnsRemaining: Int = 0,
 	): BattleParticipant {
 		require(status == BattleVolatileStatus.CONFUSION || confusionTurnsRemaining == 0) {
 			"confusionTurnsRemaining can only be set for confusion"
@@ -367,6 +370,12 @@ data class BattleParticipant(
 		require(status != BattleVolatileStatus.HEAL_BLOCK || healBlockTurnsRemaining > 0) {
 			"healBlockTurnsRemaining must be positive for heal block"
 		}
+		require(status == BattleVolatileStatus.TAUNT || tauntTurnsRemaining == 0) {
+			"tauntTurnsRemaining can only be set for taunt"
+		}
+		require(status != BattleVolatileStatus.TAUNT || tauntTurnsRemaining > 0) {
+			"tauntTurnsRemaining must be positive for taunt"
+		}
 		return when (status) {
 			BattleVolatileStatus.FLINCH -> copy(flinched = true)
 			BattleVolatileStatus.CONFUSION -> if (this.confusionTurnsRemaining > 0) {
@@ -378,6 +387,11 @@ data class BattleParticipant(
 				this
 			} else {
 				copy(healBlockTurnsRemaining = healBlockTurnsRemaining)
+			}
+			BattleVolatileStatus.TAUNT -> if (this.tauntTurnsRemaining > 0) {
+				this
+			} else {
+				copy(tauntTurnsRemaining = tauntTurnsRemaining)
 			}
 		}
 	}
@@ -414,6 +428,19 @@ data class BattleParticipant(
 		}
 
 	/**
+	 * 回合末推进挑衅剩余回合。
+	 *
+	 * 挑衅在现代规则下按固定持续回合处理，效果期间只限制变化技能的使用；持续回合归零时调用方追加
+	 * 临时状态解除事件，方便 replay 明确看到挑衅自然结束。
+	 */
+	fun decrementTauntEndTurn(): BattleParticipant =
+		when {
+			tauntTurnsRemaining > 1 -> copy(tauntTurnsRemaining = tauntTurnsRemaining - 1)
+			tauntTurnsRemaining == 1 -> copy(tauntTurnsRemaining = 0)
+			else -> this
+		}
+
+	/**
 	 * 清除指定临时状态。
 	 */
 	fun clearVolatileStatus(status: BattleVolatileStatus): BattleParticipant =
@@ -421,6 +448,7 @@ data class BattleParticipant(
 			BattleVolatileStatus.FLINCH -> if (flinched) copy(flinched = false) else this
 			BattleVolatileStatus.CONFUSION -> if (confusionTurnsRemaining > 0) copy(confusionTurnsRemaining = 0) else this
 			BattleVolatileStatus.HEAL_BLOCK -> if (healBlockTurnsRemaining > 0) copy(healBlockTurnsRemaining = 0) else this
+			BattleVolatileStatus.TAUNT -> if (tauntTurnsRemaining > 0) copy(tauntTurnsRemaining = 0) else this
 		}
 
 	/**
@@ -541,7 +569,7 @@ data class BattleParticipant(
 	 *
 	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
 	 * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
-	 * 畏缩、混乱和回复封锁属于临时状态，离场时会被清除。后续接入锁招、束缚、寄生等离场即消失的状态时，
+	 * 畏缩、混乱、回复封锁和挑衅属于临时状态，离场时会被清除。后续接入锁招、束缚、寄生等离场即消失的状态时，
 	 * 也应在这里统一清理。
 	 */
 	fun leaveBattlefield(): BattleParticipant =
@@ -552,11 +580,12 @@ data class BattleParticipant(
 			chargingSkillId = null,
 			chargingTargetActorId = null,
 			chargingTurnsRemaining = 0,
-				rechargeTurnsRemaining = 0,
-				flinched = false,
-				confusionTurnsRemaining = 0,
-				healBlockTurnsRemaining = 0,
-				lockedMoveSkillId = null,
+			rechargeTurnsRemaining = 0,
+			flinched = false,
+			confusionTurnsRemaining = 0,
+			healBlockTurnsRemaining = 0,
+			tauntTurnsRemaining = 0,
+			lockedMoveSkillId = null,
 			lockedMoveTargetActorId = null,
 			lockedMoveTurnsRemaining = 0,
 			lockedMoveConfusesOnEnd = false,
