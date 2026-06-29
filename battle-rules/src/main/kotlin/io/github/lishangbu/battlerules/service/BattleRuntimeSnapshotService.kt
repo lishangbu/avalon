@@ -19,6 +19,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
@@ -589,6 +590,7 @@ class BattleRuntimeSnapshotService(
 			damageClass = row.damageClassCode.toBattleDamageClass(),
 			power = row.power,
 			fixedDamage = row.effectPolicy.toBattleFixedDamage(),
+			proportionalDamage = row.effectPolicy.toBattleProportionalDamage(),
 			accuracy = row.accuracy,
 			targetScope = row.targetPolicy.toBattleSkillTargetScope(),
 			minHits = row.minHits ?: 1,
@@ -1019,6 +1021,15 @@ class BattleRuntimeSnapshotService(
 			"fixed-damage-20" -> BattleFixedDamage.FixedAmount(20)
 			"fixed-damage-40" -> BattleFixedDamage.FixedAmount(40)
 			"user-level-fixed-damage" -> BattleFixedDamage.UserLevel
+			else -> null
+		}
+
+	private fun String?.toBattleProportionalDamage(): BattleProportionalDamage? =
+		when (this) {
+			"target-current-hp-half-damage" -> BattleProportionalDamage.TargetCurrentHpFraction(
+				numerator = 1,
+				denominator = 2,
+			)
 			else -> null
 		}
 

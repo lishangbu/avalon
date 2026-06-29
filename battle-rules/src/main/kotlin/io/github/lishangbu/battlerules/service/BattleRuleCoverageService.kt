@@ -96,6 +96,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖固定数值伤害和按使用者等级造成固定伤害；这类技能不进入普通伤害公式、不消费要害或伤害浮动随机数，但仍受保护、命中、属性免疫、替身和伤害后流程影响。",
 			),
 			item(
+				code = "damage.proportional-damage",
+				name = "比例伤害技能",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"proportional-damage-skill-halves-target-current-hp",
+					"proportional-damage-skill-respects-element-immunity",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖按目标当前 HP 的 1/2 向下取整且至少 1 点的直接伤害；该规则不进入普通伤害公式，但仍受保护、命中、属性免疫、替身和伤害后流程影响。",
+			),
+			item(
 				code = "field.side-damage-reduction",
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
@@ -1134,7 +1148,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 83
+		private const val FINAL_COVERED_RULE_COUNT = 84
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

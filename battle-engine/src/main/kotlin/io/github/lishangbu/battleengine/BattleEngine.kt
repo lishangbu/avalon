@@ -15,6 +15,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
@@ -626,42 +627,44 @@ class BattleEngine(
 			)
 		}
 
-		if (skill.fixedDamage != null) {
+		val directDamageAmount = directDamageAmount(skill, actor, target)
+		if (directDamageAmount != null) {
 			val damageEventStartIndex = state.events.size
-			val afterFixedDamage = resolveFixedDamageHit(
+			val afterDirectDamage = resolveDirectDamageHit(
 				context = context,
 				actorId = actor.actorId,
 				targetActorId = target.actorId,
 				skill = skill,
+				damageAmount = directDamageAmount,
 				targetMultiplier = targetMultiplier,
 				effectiveness = effectiveness,
 				random = random,
 			)
 			val moveDamageAmount = damageDealtByMove(
-				state = afterFixedDamage.state,
+				state = afterDirectDamage.state,
 				eventStartIndex = damageEventStartIndex,
 				actorId = actor.actorId,
 				skillId = skill.skillId,
 			)
-			if (afterFixedDamage.state.result != null) {
-				return afterFixedDamage.copy(
+			if (afterDirectDamage.state.result != null) {
+				return afterDirectDamage.copy(
 					state = applyPostMoveDamageDealtHealingItem(
-						state = afterFixedDamage.state,
+						state = afterDirectDamage.state,
 						actorId = actor.actorId,
 						skill = skill,
 						damageAmount = moveDamageAmount,
 					),
 				)
 			}
-			val latestTarget = afterFixedDamage.state.participant(target.actorId) ?: target
-			val afterEffects = applySkillEffects(afterFixedDamage.state, actor.actorId, latestTarget.actorId, skill, random)
+			val latestTarget = afterDirectDamage.state.participant(target.actorId) ?: target
+			val afterEffects = applySkillEffects(afterDirectDamage.state, actor.actorId, latestTarget.actorId, skill, random)
 			val afterPostMoveItemEffects = applyPostMoveDamageDealtHealingItem(
 				state = afterEffects,
 				actorId = actor.actorId,
 				skill = skill,
 				damageAmount = moveDamageAmount,
 			)
-			return afterFixedDamage.copy(
+			return afterDirectDamage.copy(
 				state = updateLockedMoveAfterSuccessfulUse(
 					state = afterPostMoveItemEffects,
 					actorId = actor.actorId,
@@ -871,20 +874,43 @@ class BattleEngine(
 	}
 
 	/**
-	 * 结算一段固定伤害技能。
+	 * 计算不进入普通伤害公式的直接技能伤害。
 	 *
-	 * 调用点已经完成行动可用性、PP、保护、命中、属性吸收和属性免疫判定；本函数只负责把固定伤害写入目标或替身。
-	 * 固定伤害不会进入普通伤害公式，因此不会消费击中要害随机数或伤害浮动随机数，也不会读取威力、攻防、
+	 * 固定伤害和比例伤害都在命中、保护、属性吸收和属性免疫之后结算，但它们的数值来源不同：
+	 * 固定伤害读取技能规则给出的固定数值或使用者等级；比例伤害读取目标当前 HP 并按规则比例向下取整。
+	 * 若技能没有直接伤害模型，返回 null，调用方继续走普通伤害公式。
+	 */
+	private fun directDamageAmount(skill: BattleSkillSlot, actor: BattleParticipant, target: BattleParticipant): Int? =
+		when (val fixedDamage = skill.fixedDamage) {
+			is BattleFixedDamage.FixedAmount -> fixedDamage.amount
+			BattleFixedDamage.UserLevel -> actor.level
+			null -> when (val proportionalDamage = skill.proportionalDamage) {
+				is BattleProportionalDamage.TargetCurrentHpFraction ->
+					fractionAmount(
+						value = target.currentHp,
+						numerator = proportionalDamage.numerator,
+						denominator = proportionalDamage.denominator,
+					).coerceAtLeast(proportionalDamage.minimumDamage)
+				null -> null
+			}
+		}
+
+	/**
+	 * 结算一段直接伤害技能。
+	 *
+	 * 调用点已经完成行动可用性、PP、保护、命中、属性吸收和属性免疫判定；本函数只负责把固定或比例伤害写入目标
+	 * 或替身。直接伤害不会进入普通伤害公式，因此不会消费击中要害随机数或伤害浮动随机数，也不会读取威力、攻防、
 	 * 能力阶级、属性一致加成、天气、场地、道具和特性伤害倍率。
 	 *
 	 * 写入 HP 后仍复用 [finishPostDamageEffects]，让目标低体力道具、接触触发特性、使用者反伤、伤害后回复、
-	 * 倒下判定和胜负判定保持同一条事件顺序。若目标有替身且该技能不能穿透替身，则固定伤害先扣替身 HP。
+	 * 倒下判定和胜负判定保持同一条事件顺序。若目标有替身且该技能不能穿透替身，则直接伤害先扣替身 HP。
 	 */
-	private fun resolveFixedDamageHit(
+	private fun resolveDirectDamageHit(
 		context: TurnContext,
 		actorId: String,
 		targetActorId: String,
 		skill: BattleSkillSlot,
+		damageAmount: Int,
 		targetMultiplier: Double,
 		effectiveness: Double,
 		random: BattleRandom,
@@ -895,11 +921,6 @@ class BattleEngine(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
-		val fixedDamageAmount = when (val fixedDamage = skill.fixedDamage) {
-			is BattleFixedDamage.FixedAmount -> fixedDamage.amount
-			BattleFixedDamage.UserLevel -> actor.level
-			null -> return context
-		}
 		val substituteBlocksDamage = substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
 		if (substituteBlocksDamage) {
 			return resolveDamageAgainstSubstitute(
@@ -908,7 +929,7 @@ class BattleEngine(
 				actor = actor,
 				target = target,
 				skill = skill,
-				damageAmount = fixedDamageAmount,
+				damageAmount = damageAmount,
 			)
 		}
 
@@ -918,7 +939,7 @@ class BattleEngine(
 			actor = actor,
 			target = target,
 			skill = skill,
-			damageAmount = fixedDamageAmount,
+			damageAmount = damageAmount,
 			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)

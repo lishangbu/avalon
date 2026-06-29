@@ -9,6 +9,7 @@ package io.github.lishangbu.battleengine.model
  *
  * `power` 和 `accuracy` 允许为空，用于表达变化技能、必中技能或由特殊策略决定数值的技能。
  * `fixedDamage` 表示命中后使用固定伤害口径，不进入普通物理/特殊伤害公式，也不消费要害或伤害随机数。
+ * `proportionalDamage` 表示命中后按目标当前 HP 比例扣血，也不进入普通伤害公式。
  * `targetScope` 表示技能在站位中的目标范围，供双打范围技能计算实际目标和 0.75 伤害修正。
  * `minHits`/`maxHits` 表示一次技能使用中的连续命中段数；单段技能二者都为 1，多段技能会在命中后决定段数。
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
@@ -45,6 +46,7 @@ data class BattleSkillSlot(
 	val damageClass: BattleDamageClass,
 	val power: Int?,
 	val fixedDamage: BattleFixedDamage? = null,
+	val proportionalDamage: BattleProportionalDamage? = null,
 	val accuracy: Int?,
 	val targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	val minHits: Int = 1,
@@ -87,6 +89,12 @@ data class BattleSkillSlot(
 		require(elementId > 0) { "elementId must be positive" }
 		require(power == null || power > 0) { "power must be positive when present" }
 		require(fixedDamage == null || damageClass != BattleDamageClass.STATUS) { "fixed damage requires a damaging skill" }
+		require(proportionalDamage == null || damageClass != BattleDamageClass.STATUS) {
+			"proportional damage requires a damaging skill"
+		}
+		require(fixedDamage == null || proportionalDamage == null) {
+			"fixed damage and proportional damage cannot be used together"
+		}
 		require(accuracy == null || accuracy in 1..100) { "accuracy must be between 1 and 100 when present" }
 		require(minHits > 0) { "minHits must be positive" }
 		require(maxHits >= minHits) { "maxHits must be greater than or equal to minHits" }

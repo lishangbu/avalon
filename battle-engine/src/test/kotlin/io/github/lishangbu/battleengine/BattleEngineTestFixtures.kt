@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
@@ -161,6 +162,7 @@ internal fun damagingSkill(
 	damageClass: BattleDamageClass = BattleDamageClass.PHYSICAL,
 	power: Int? = 40,
 	fixedDamage: BattleFixedDamage? = null,
+	proportionalDamage: BattleProportionalDamage? = null,
 	accuracy: Int? = null,
 	targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	minHits: Int = 1,
@@ -202,6 +204,7 @@ internal fun damagingSkill(
 		damageClass = damageClass,
 		power = power,
 		fixedDamage = fixedDamage,
+		proportionalDamage = proportionalDamage,
 		accuracy = accuracy,
 		targetScope = targetScope,
 		minHits = minHits,
