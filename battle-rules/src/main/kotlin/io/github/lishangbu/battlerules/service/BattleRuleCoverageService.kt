@@ -468,11 +468,13 @@ class BattleRuleCoverageService {
 				status = IMPLEMENTED,
 				fixtures = listOf(
 					"attack-stat-ability-doubles-physical-attack-before-damage",
+					"major-status-attack-ability-boosts-attack-and-skips-burn-drop",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
 				),
-				note = "已覆盖物理攻击翻倍类特性在基础伤害公式前修正攻击值；该规则改变基础伤害，不进入最终伤害倍率。",
+				note = "已覆盖物理攻击翻倍类特性，以及主要异常状态下物攻 1.5 倍并跳过灼伤物理减半；这些规则改变基础伤害，不进入最终伤害倍率。",
 			),
 			item(
 				code = "ability.tagged-skill-damage-boost",

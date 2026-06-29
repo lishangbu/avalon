@@ -132,6 +132,7 @@ class LiquibaseMigrationTests(
 			"083-battle-damage-class-ability-reduction-rules.yaml",
 			"084-battle-defending-stat-ability-rules.yaml",
 			"085-battle-attacking-stat-ability-rules.yaml",
+			"086-battle-status-attack-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -558,7 +559,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 64L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 65L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -579,9 +580,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 176L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 359L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 176L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 177L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 361L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 177L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -1474,6 +1475,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 74L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "attack-stat-double",
+			),
+		)
+
+		val statusAttackAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 62
+			""".trimIndent(),
+		)
+		assertThat(statusAttackAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 62L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "major-status-attack-stat-boost-ignore-burn-drop",
 			),
 		)
 

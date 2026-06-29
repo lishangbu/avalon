@@ -1179,6 +1179,12 @@ class BattleRuntimeSnapshotService(
 				stat = BattleStat.ATTACK,
 				multiplier = 2.0,
 			)
+			"major-status-attack-stat-boost-ignore-burn-drop" -> BattleAbilityEffect.AttackingStatMultiplier(
+				stat = BattleStat.ATTACK,
+				multiplier = 1.5,
+				requiresMajorStatus = true,
+				ignoresBurnAttackReduction = true,
+			)
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
 				status = BattleMajorStatus.PARALYSIS,

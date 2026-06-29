@@ -96,7 +96,10 @@ class BattleDamageCalculator(
 			request.attacker.attack,
 			effectiveAttackingStage(request, BattleStat.ATTACK),
 		).let { attackingStatAfterAbility(request, BattleStat.ATTACK, it) }
-		return if (request.attacker.majorStatus == BattleMajorStatus.BURN) {
+		return if (
+			request.attacker.majorStatus == BattleMajorStatus.BURN &&
+			!request.attacker.ignoresBurnAttackReduction(request.environment.terrain, request.environment.weather)
+		) {
 			(stagedAttack / 2).coerceAtLeast(1)
 		} else {
 			stagedAttack
@@ -113,7 +116,7 @@ class BattleDamageCalculator(
 		val multiplier = request.attacker.abilityEffects.fold(1.0) { currentMultiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.AttackingStatMultiplier ->
-					if (effect.matches(stat, request.environment.terrain, request.environment.weather)) {
+					if (effect.matches(stat, request.attacker, request.environment.terrain, request.environment.weather)) {
 						currentMultiplier * effect.multiplier
 					} else {
 						currentMultiplier
@@ -159,12 +162,19 @@ class BattleDamageCalculator(
 
 	private fun BattleAbilityEffect.AttackingStatMultiplier.matches(
 		stat: BattleStat,
+		attacker: BattleParticipant,
 		terrain: BattleTerrain,
 		weather: BattleWeather,
 	): Boolean =
 		this.stat == stat &&
+			(!requiresMajorStatus || attacker.majorStatus != null) &&
 			(requiredTerrain == null || requiredTerrain == terrain) &&
 			(requiredWeather == null || requiredWeather == weather)
+
+	private fun BattleParticipant.ignoresBurnAttackReduction(terrain: BattleTerrain, weather: BattleWeather): Boolean =
+		abilityEffects
+			.filterIsInstance<BattleAbilityEffect.AttackingStatMultiplier>()
+			.any { it.ignoresBurnAttackReduction && it.matches(BattleStat.ATTACK, this, terrain, weather) }
 
 	/**
 	 * 读取攻击侧在普通伤害公式中使用的有效攻击/特攻阶级。

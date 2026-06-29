@@ -977,6 +977,63 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `major status attack ability boosts physical attack and skips burn attack drop`() {
+		val fixture = publicBattleRuleFixture(
+			name = "major-status-attack-ability-boosts-attack-and-skips-burn-drop",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+			),
+			inputSummary = "使用者拥有异常状态物攻强化特性，分别在灼伤、中毒和无异常状态下使用中性一般物理技能。",
+			expectedSummary = "有主要异常状态时攻击值按 1.5 倍进入基础伤害公式；灼伤不会再把物理伤害减半，无异常状态时不触发强化。",
+		)
+		val effect = BattleAbilityEffect.AttackingStatMultiplier(
+			stat = BattleStat.ATTACK,
+			multiplier = 1.5,
+			requiresMajorStatus = true,
+			ignoresBurnAttackReduction = true,
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 3,
+			abilityEffects = listOf(effect),
+		)
+		val request = BattleDamageRequest(
+			attacker = attacker.copy(majorStatus = BattleMajorStatus.BURN),
+			defender = participant("defender", speed = 80, elementId = 2),
+			skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val burned = calculator.calculate(request)
+		val poisoned = calculator.calculate(
+			request.copy(attacker = attacker.copy(majorStatus = BattleMajorStatus.POISON)),
+		)
+		val healthy = calculator.calculate(request.copy(attacker = attacker))
+		val burnedWithoutAbility = calculator.calculate(
+			request.copy(
+				attacker = attacker.copy(
+					majorStatus = BattleMajorStatus.BURN,
+					abilityEffects = emptyList(),
+				),
+			),
+		)
+
+		fixture.assertNamed("major-status-attack-ability-boosts-attack-and-skips-burn-drop")
+		assertEquals(28, burned.baseDamage)
+		assertEquals(1.0, burned.abilityMultiplier)
+		assertEquals(28, burned.amount)
+		assertEquals(28, poisoned.baseDamage)
+		assertEquals(28, poisoned.amount)
+		assertEquals(19, healthy.baseDamage)
+		assertEquals(19, healthy.amount)
+		assertEquals(10, burnedWithoutAbility.baseDamage)
+		assertEquals(10, burnedWithoutAbility.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",

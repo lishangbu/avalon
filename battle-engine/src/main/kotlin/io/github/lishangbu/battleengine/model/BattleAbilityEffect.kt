@@ -522,14 +522,19 @@ sealed interface BattleAbilityEffect {
 	 *
 	 * `stat` 当前只允许 [BattleStat.ATTACK] 和 [BattleStat.SPECIAL_ATTACK]，因为其它能力项不会作为攻击侧能力值
 	 * 进入普通伤害公式。`requiredTerrain` 和 `requiredWeather` 为空时表示无环境要求；不为空时必须与当前环境匹配。
-	 * 该效果不改变技能威力、属性一致、属性相性、命中、变化技能或间接伤害。物理攻击在应用该倍率后仍会继续
-	 * 进入灼伤物理伤害减半流程，后续若接入绕过灼伤减半的特性，应通过单独结构化效果显式表达。
+	 * `requiresMajorStatus` 表示拥有者必须正处于任意主要异常状态，适合表达异常状态下才强化攻击的稳定特性。
+	 *
+	 * 该效果不改变技能威力、属性一致、属性相性、命中、变化技能或间接伤害。物理攻击在应用该倍率后通常仍会继续
+	 * 进入灼伤物理伤害减半流程；`ignoresBurnAttackReduction` 只表示同一个结构化特性明确绕过该灼伤减半，不影响
+	 * 灼伤的回合末伤害、其它异常状态行为或状态本身。
 	 */
 	data class AttackingStatMultiplier(
 		val stat: BattleStat,
 		val multiplier: Double,
 		val requiredTerrain: BattleTerrain? = null,
 		val requiredWeather: BattleWeather? = null,
+		val requiresMajorStatus: Boolean = false,
+		val ignoresBurnAttackReduction: Boolean = false,
 	) : BattleAbilityEffect {
 		init {
 			require(stat == BattleStat.ATTACK || stat == BattleStat.SPECIAL_ATTACK) {

@@ -480,6 +480,15 @@ class BattleRuntimeSnapshotServiceTests(
 					multiplier = 2.0,
 				),
 			)
+		assertThat(service.abilityEffectsByAbilityId(62))
+			.containsExactly(
+				BattleAbilityEffect.AttackingStatMultiplier(
+					stat = BattleStat.ATTACK,
+					multiplier = 1.5,
+					requiresMajorStatus = true,
+					ignoresBurnAttackReduction = true,
+				),
+			)
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
