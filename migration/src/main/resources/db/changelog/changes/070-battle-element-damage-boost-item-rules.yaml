@@ -1,0 +1,312 @@
+databaseChangeLog:
+- changeSet:
+    id: 070-battle-element-damage-boost-item-rules
+    author: backend
+    comment: 新增指定属性伤害提升携带道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 21 }
+        - column: { name: item_id, valueNumeric: 228 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-normal }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后一般属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 210 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 22 }
+        - column: { name: item_id, valueNumeric: 218 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-fighting }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后格斗属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 220 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 23 }
+        - column: { name: item_id, valueNumeric: 221 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-flying }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后飞行属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 230 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 24 }
+        - column: { name: item_id, valueNumeric: 222 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-poison }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后毒属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 240 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 25 }
+        - column: { name: item_id, valueNumeric: 214 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-ground }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后地面属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 250 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 26 }
+        - column: { name: item_id, valueNumeric: 215 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-rock }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后岩石属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 260 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 27 }
+        - column: { name: item_id, valueNumeric: 199 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-bug }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后虫属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 270 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 28 }
+        - column: { name: item_id, valueNumeric: 224 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-ghost }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后幽灵属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 280 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 29 }
+        - column: { name: item_id, valueNumeric: 210 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-steel }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后钢属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 290 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 30 }
+        - column: { name: item_id, valueNumeric: 226 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-fire }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后火属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 300 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 31 }
+        - column: { name: item_id, valueNumeric: 220 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-water }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后水属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 310 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 32 }
+        - column: { name: item_id, valueNumeric: 216 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-grass }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后草属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 320 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 33 }
+        - column: { name: item_id, valueNumeric: 219 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-electric }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后电属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 330 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 34 }
+        - column: { name: item_id, valueNumeric: 225 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-psychic }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后超能力属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 340 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 35 }
+        - column: { name: item_id, valueNumeric: 223 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-ice }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后冰属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 350 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 36 }
+        - column: { name: item_id, valueNumeric: 227 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-dragon }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后龙属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 360 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 37 }
+        - column: { name: item_id, valueNumeric: 217 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-dark }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后恶属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 370 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 38 }
+        - column: { name: item_id, valueNumeric: 2105 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-boost-fairy }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 携带后妖精属性技能造成的伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 380 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 148 }
+        - column: { name: code, value: element-damage-boost-item-multiplies-matching-damage }
+        - column: { name: name, value: 指定属性增伤道具提升匹配属性伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证稳定属性增伤道具只在技能属性匹配时把最终伤害提高 20%。 }
+        - column: { name: input_summary, value: 使用者携带火属性伤害提升道具，使用非本系火属性物理技能攻击中性目标。 }
+        - column: { name: expected_summary, value: 普通伤害按 1.2 倍取整后从 19 提升到 22，且道具不会消费或反伤。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1480 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 149 }
+        - column: { name: code, value: element-damage-boost-item-ignores-non-matching-damage }
+        - column: { name: name, value: 指定属性增伤道具忽略不匹配属性伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证技能属性和道具声明属性不匹配时，道具保持中性倍率。 }
+        - column: { name: input_summary, value: 使用者携带水属性伤害提升道具，使用非本系火属性物理技能攻击中性目标。 }
+        - column: { name: expected_summary, value: 道具属性不匹配，因此伤害仍为 19，且道具保持携带状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1490 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 317 }
+        - column: { name: fixture_id, valueNumeric: 148 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照属性强化道具的 1.2 倍伤害倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 318 }
+        - column: { name: fixture_id, valueNumeric: 148 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item }
+        - column: { name: source_label, value: 属性强化道具公开说明 }
+        - column: { name: source_note, value: 用于验证稳定携带道具对匹配属性技能提供伤害提升。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 319 }
+        - column: { name: fixture_id, valueNumeric: 149 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照属性不匹配时不应用伤害倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 320 }
+        - column: { name: fixture_id, valueNumeric: 149 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item }
+        - column: { name: source_label, value: 属性强化道具公开说明 }
+        - column: { name: source_note, value: 用于验证属性强化道具只对对应属性技能生效。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 148 }
+        - column: { name: run_code, value: element-damage-boost-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 148 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:10:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:13:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 7 }
+        - column: { name: sort_order, valueNumeric: 1480 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 149 }
+        - column: { name: run_code, value: element-damage-boost-item-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 149 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:13:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:16:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1490 }

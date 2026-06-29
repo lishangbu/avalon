@@ -497,6 +497,33 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(lifeOrb.multiplier).isEqualTo(1.3)
 		assertThat(lifeOrb.recoilDenominator).isEqualTo(10)
 
+		mapOf(
+			199L to 7L,
+			210L to 9L,
+			214L to 5L,
+			215L to 6L,
+			216L to 12L,
+			217L to 17L,
+			218L to 2L,
+			219L to 13L,
+			220L to 11L,
+			221L to 3L,
+			222L to 4L,
+			223L to 15L,
+			224L to 8L,
+			225L to 14L,
+			226L to 10L,
+			227L to 16L,
+			228L to 1L,
+			2105L to 18L,
+		).forEach { (itemId, elementId) ->
+			val elementBoost = service.itemEffectsByItemId(itemId)
+				.filterIsInstance<BattleItemEffect.ElementDamageBoost>()
+				.single()
+			assertThat(elementBoost.elementId).isEqualTo(elementId)
+			assertThat(elementBoost.multiplier).isEqualTo(1.2)
+		}
+
 		val smallBerry = service.itemEffectsByItemId(132)
 			.filterIsInstance<BattleItemEffect.LowHpHeal>()
 			.single()

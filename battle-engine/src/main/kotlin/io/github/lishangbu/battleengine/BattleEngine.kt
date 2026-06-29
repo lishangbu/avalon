@@ -4186,15 +4186,16 @@ class BattleEngine(
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
 				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.DamageBoostWithRecoil,
-			is BattleItemEffect.HeldEndTurnHeal,
-			is BattleItemEffect.LowHpHeal,
-			is BattleItemEffect.MajorStatusCure,
-			is BattleItemEffect.MajorStatusImmunity,
+				is BattleItemEffect.ElementDamageBoost,
+				is BattleItemEffect.HeldEndTurnHeal,
+				is BattleItemEffect.LowHpHeal,
+				is BattleItemEffect.MajorStatusCure,
+				is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
 				is BattleItemEffect.SurviveFatalDamageAtFullHp,
-			is BattleItemEffect.TerrainDurationExtension,
-			is BattleItemEffect.VolatileStatusCure,
-			is BattleItemEffect.VolatileStatusImmunity,
+				is BattleItemEffect.TerrainDurationExtension,
+				is BattleItemEffect.VolatileStatusCure,
+				is BattleItemEffect.VolatileStatusImmunity,
 				is BattleItemEffect.WeatherDurationExtension,
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
 			}

@@ -116,6 +116,7 @@ class LiquibaseMigrationTests(
 			"067-battle-status-cure-item-rules.yaml",
 			"068-battle-specific-status-cure-item-rules.yaml",
 			"069-battle-volatile-status-cure-item-rules.yaml",
+			"070-battle-element-damage-boost-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -540,7 +541,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 20L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 38L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -559,9 +560,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 147L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 316L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 147L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 149L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 320L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 149L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -737,6 +738,125 @@ class LiquibaseMigrationTests(
 					"trigger_timing" to "AFTER_VOLATILE_STATUS_APPLIED",
 					"effect_policy" to "volatile-status-cure-confusion",
 					"consumable" to true,
+				),
+			)
+
+			val elementDamageBoostItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where effect_policy like 'element-damage-boost-%'
+				order by item_id
+				""".trimIndent(),
+			)
+			assertThat(elementDamageBoostItemRules).containsExactly(
+				mapOf(
+					"item_id" to 199L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-bug",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 210L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-steel",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 214L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-ground",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 215L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-rock",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 216L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-grass",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 217L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-dark",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 218L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-fighting",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 219L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-electric",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 220L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-water",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 221L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-flying",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 222L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-poison",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 223L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-ice",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 224L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-ghost",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 225L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-psychic",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 226L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-fire",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 227L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-dragon",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 228L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-normal",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 2105L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-boost-fairy",
+					"consumable" to false,
 				),
 			)
 

@@ -328,9 +328,10 @@ class BattleRuntimeSnapshotService(
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
-	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；获得主要异常状态或临时状态
-	 * 后即时解除的道具会映射为状态治愈效果；天气、场地和屏障延长类道具会映射为成功设置对应持续效果时的回合
-	 * 覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
+	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；指定属性伤害提升道具会
+	 * 映射为匹配技能属性时的稳定最终伤害倍率；获得主要异常状态或临时状态后即时解除的道具会映射为状态治愈效果；
+	 * 天气、场地和屏障延长类道具会映射为成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害
+	 * 保留 1 HP。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -340,7 +341,8 @@ class BattleRuntimeSnapshotService(
 		if (itemId <= 0) {
 			invalidValue("itemId", "itemId 必须大于 0")
 		}
-		return enabledItemPolicies(itemId).mapNotNull { it.toBattleItemEffect() }
+		val elementIds = coreElementIds()
+		return enabledItemPolicies(itemId).mapNotNull { it.toBattleItemEffect(elementIds) }
 	}
 
 	private fun formatByCode(formatCode: String): BattleFormat =
@@ -374,15 +376,20 @@ class BattleRuntimeSnapshotService(
 	/**
 	 * 读取引擎基础规则需要识别的核心属性 ID。
 	 *
-	 * 这里按稳定 code 而不是硬编码资料 ID 装配快照，保持纯引擎不依赖资料库编号。查询范围只包含当前已由
-	 * 伤害、天气、主要异常状态和属性限定特性规则使用的属性；后续新增规则需要更多属性时，在这里扩展 code 清单。
+	 * 这里按稳定 code 而不是硬编码资料 ID 装配快照，保持纯引擎不依赖资料库编号。查询范围覆盖现代主系列 18 个
+	 * 常规属性，因为伤害、天气、主要异常状态、属性限定特性和属性伤害提升道具都可能需要把资料 policy 翻译成
+	 * 引擎可执行的属性 ID。
 	 */
 	private fun coreElementIds(): Map<String, Long> =
 		jdbcTemplate.query(
 			"""
 			select code, id
 			from game_element
-			where code in ('bug', 'dark', 'electric', 'fire', 'grass', 'ground', 'ice', 'poison', 'rock', 'steel', 'water')
+			where code in (
+				'normal', 'fighting', 'flying', 'poison', 'ground', 'rock',
+				'bug', 'ghost', 'steel', 'fire', 'water', 'grass',
+				'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'
+			)
 			""".trimIndent(),
 		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
 
@@ -485,7 +492,7 @@ class BattleRuntimeSnapshotService(
 			itemId = itemId,
 			grounded = "ground-immunity" !in abilityPolicies,
 			abilityEffects = abilityPolicies.mapNotNull { it.toBattleAbilityEffect(elementIds) },
-			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect() },
+			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect(elementIds) },
 		)
 	}
 
@@ -1182,12 +1189,84 @@ class BattleRuntimeSnapshotService(
 			else -> null
 		}
 
-	private fun String.toBattleItemEffect(): BattleItemEffect? =
+	private fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleItemEffect? =
 		when (this) {
 			"leftovers-heal" -> BattleItemEffect.HeldEndTurnHeal(healDenominator = 16)
 			"life-orb-boost-and-recoil" -> BattleItemEffect.DamageBoostWithRecoil(
 				multiplier = 1.3,
 				recoilDenominator = 10,
+			)
+			"element-damage-boost-normal" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("normal"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-fighting" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("fighting"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-flying" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("flying"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-poison" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("poison"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-ground" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("ground"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-rock" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("rock"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-bug" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("bug"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-ghost" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("ghost"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-steel" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("steel"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-fire" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("fire"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-water" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("water"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-grass" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("grass"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-electric" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("electric"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-psychic" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("psychic"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-ice" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("ice"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-dragon" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("dragon"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-dark" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("dark"),
+				multiplier = 1.2,
+			)
+			"element-damage-boost-fairy" -> BattleItemEffect.ElementDamageBoost(
+				elementId = elementIds.requiredElementId("fairy"),
+				multiplier = 1.2,
 			)
 			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)

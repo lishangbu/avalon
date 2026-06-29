@@ -737,6 +737,21 @@ class BattleRuleCoverageService {
 					note = "已覆盖低体力树果一次性回复并消费、讲究类速度道具改变行动顺序并锁定首次技能、生命宝珠类伤害增幅按最大 HP 反伤、剩饭类回合末最大 HP 1/16 回复，以及天气/场地延长道具把普通环境技能或出场环境特性的持续回合改为 8。",
 				),
 				item(
+					code = "item.element-damage-boost",
+					name = "携带道具指定属性伤害提升",
+					category = "道具",
+					status = IMPLEMENTED,
+					fixtures = listOf(
+						"element-damage-boost-item-multiplies-matching-damage",
+						"element-damage-boost-item-ignores-non-matching-damage",
+					),
+					references = listOf(
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+						"https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item",
+					),
+					note = "已覆盖传统非消耗型属性强化道具：技能属性匹配时最终伤害按 1.2 倍计算，不匹配时保持中性，且不会消费道具或产生反伤。规则资料已接入现代 18 个属性的对应道具。",
+				),
+				item(
 					code = "item.major-status-cure",
 					name = "携带道具解除主要异常状态",
 					category = "道具",

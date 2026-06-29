@@ -280,12 +280,18 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方携带道具带来的伤害倍率。
 	 *
-	 * 第一批只支持造成伤害时直接提升倍率的道具。反伤本身由状态机在伤害事件之后处理，避免计算器修改战斗状态。
+	 * 这里只读取“伤害公式中的稳定倍率”。带反伤的增伤道具只在此处贡献倍率，反伤本身由状态机在伤害事件之后处理；
+	 * 指定属性增伤道具只有在技能属性匹配时才叠乘倍率，不匹配时保持中性，避免数据库 policy 名称渗入纯公式层。
 	 */
 	private fun itemDamageMultiplier(request: BattleDamageRequest): Double =
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
+				is BattleItemEffect.ElementDamageBoost -> if (request.skill.elementId == effect.elementId) {
+					multiplier * effect.multiplier
+				} else {
+					multiplier
+				}
 				is BattleItemEffect.ChargeSkipOnce -> multiplier
 				is BattleItemEffect.ChoiceSkillLock -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
