@@ -1089,6 +1089,42 @@ class BattleRuleCoverageService {
 				note = "非永久天气/场地在回合末递减，耗尽时恢复为无并产生结束事件。",
 			),
 			item(
+				code = "field.environment-boundaries",
+				name = "天气、场地和场上状态边界",
+				category = "天气/场地",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"weather-setting-skill-replaces-existing-weather-and-starts-new-duration",
+					"terrain-setting-skill-replaces-existing-terrain-and-starts-new-duration",
+					"non-matching-weather-extension-item-does-not-extend-weather-skill",
+					"non-matching-terrain-extension-item-does-not-extend-terrain-skill",
+					"missed-weather-setting-skill-does-not-change-weather",
+					"field-speed-order-duration-decrements-without-ending",
+					"field-speed-order-duration-ends-before-turn-end",
+					"side-damage-reduction-duration-decrements-without-ending",
+					"side-damage-reduction-duration-ends-silently",
+					"side-speed-modifier-duration-decrements-without-ending",
+					"side-speed-modifier-duration-ends-silently",
+					"duplicate-side-damage-reduction-does-not-refresh-duration",
+					"duplicate-side-speed-modifier-does-not-refresh-duration",
+					"required-weather-side-condition-fails-without-weather",
+					"non-matching-screen-extension-item-does-not-extend-side-damage-reduction",
+					"sandstorm-damage-resolves-before-weather-healing",
+					"weather-damage-uses-minimum-one-hp",
+					"weather-healing-clamps-to-missing-hp",
+					"grassy-terrain-healing-clamps-to-missing-hp",
+					"heal-block-suppresses-weather-and-terrain-healing",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather",
+					"https://bulbapedia.bulbagarden.net/wiki/Terrain",
+				),
+				note = "已覆盖天气和场地被后续技能覆盖、环境延长道具按目标匹配、命中失败不写入环境、戏法空间/屏障/顺风持续回合递减与结束、重复一侧状态不刷新、天气前置屏障失败、屏障延长道具类型不匹配、沙暴伤害与天气回复顺序、天气伤害最小 1 点、天气/场地回复夹取，以及回复封锁抑制环境回复。",
+			),
+			item(
 				code = "weather.sun-rain-damage",
 				name = "天气核心效果",
 				category = "天气",
@@ -1581,7 +1617,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 220
+		private const val FINAL_COVERED_RULE_COUNT = 240
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

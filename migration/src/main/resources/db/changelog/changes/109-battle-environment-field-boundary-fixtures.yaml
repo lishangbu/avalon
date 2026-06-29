@@ -1,0 +1,99 @@
+databaseChangeLog:
+- changeSet:
+    id: 109-battle-environment-field-boundary-fixtures
+    author: backend
+    comment: 新增天气、场地和场上状态边界公开对照 fixture 数据。
+    changes:
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (320, 'weather-setting-skill-replaces-existing-weather-and-starts-new-duration', '天气设置技能覆盖既有天气', 'FIELD', 'STATE_MACHINE', '验证技能成功设置天气时会覆盖既有普通天气并写入新的持续回合。', '场上已有晴天剩余 3 回合，使用者成功使用设置下雨的变化技能。', '天气被下雨覆盖，天气开始事件记录完整 5 回合；同一回合末统一递减后剩余 4 回合。', true, 3200),
+            (321, 'terrain-setting-skill-replaces-existing-terrain-and-starts-new-duration', '场地设置技能覆盖既有场地', 'FIELD', 'STATE_MACHINE', '验证技能成功设置场地时会覆盖既有普通场地并写入新的持续回合。', '场上已有电气场地剩余 3 回合，使用者成功使用设置青草场地的变化技能。', '场地被青草场地覆盖，场地开始事件记录完整 5 回合；同一回合末统一递减后剩余 4 回合。', true, 3210),
+            (322, 'non-matching-weather-extension-item-does-not-extend-weather-skill', '天气延长道具不匹配时不延长', 'ITEM', 'STATE_MACHINE', '验证天气延长道具只影响声明匹配的目标天气。', '使用者携带只延长沙暴的道具效果，却成功使用设置下雨的变化技能。', '道具目标天气不匹配，天气按普通 5 回合建立；同一回合末递减后剩余 4 回合。', true, 3220),
+            (323, 'non-matching-terrain-extension-item-does-not-extend-terrain-skill', '场地延长道具不匹配时不延长', 'ITEM', 'STATE_MACHINE', '验证场地延长道具只影响声明匹配的目标场地。', '使用者携带只延长电气场地的道具效果，却成功使用设置青草场地的变化技能。', '道具目标场地不匹配，场地按普通 5 回合建立；同一回合末递减后剩余 4 回合。', true, 3230),
+            (324, 'missed-weather-setting-skill-does-not-change-weather', '天气设置技能未命中不改写天气', 'SKILL', 'STATE_MACHINE', '验证技能未命中会在环境效果写入前短路。', '带命中判定的变化技能尝试设置下雨，但命中随机超过有效命中率。', '技能未命中后不写入天气，也不产生天气开始事件。', true, 3240),
+            (325, 'field-speed-order-duration-decrements-without-ending', '全场速度顺序持续回合递减', 'FIELD', 'STATE_MACHINE', '验证全场速度顺序效果剩余回合大于 1 时只递减不结束。', '全场速度顺序效果剩余 2 回合，结算一个没有行动的完整回合。', '回合末持续时间递减为 1，不产生全场速度顺序结束事件。', true, 3250),
+            (326, 'field-speed-order-duration-ends-before-turn-end', '全场速度顺序耗尽后在回合结束前结束', 'FIELD', 'STATE_MACHINE', '验证全场速度顺序效果剩余 1 回合时在回合末清除并记录事件。', '全场速度顺序效果剩余 1 回合，结算一个没有行动的完整回合。', '回合末效果被清除，结束事件出现在回合结束事件之前。', true, 3260),
+            (327, 'side-damage-reduction-duration-decrements-without-ending', '一侧伤害减免持续回合递减', 'FIELD', 'STATE_MACHINE', '验证一侧防守屏障剩余回合大于 1 时只递减不移除。', '目标侧已有物理伤害减免屏障剩余 2 回合，结算一个没有行动的完整回合。', '回合末屏障剩余回合递减为 1，屏障仍保留在该侧场上状态中。', true, 3270),
+            (328, 'side-damage-reduction-duration-ends-silently', '一侧伤害减免耗尽后移除', 'FIELD', 'STATE_MACHINE', '验证一侧防守屏障剩余 1 回合时在回合末移除。', '目标侧已有物理伤害减免屏障剩余 1 回合，结算一个没有行动的完整回合。', '回合末屏障从该侧场上状态中移除；当前模型不为自然移除追加额外事件。', true, 3280),
+            (329, 'side-speed-modifier-duration-decrements-without-ending', '一侧速度修正持续回合递减', 'FIELD', 'STATE_MACHINE', '验证一侧速度修正剩余回合大于 1 时只递减不移除。', '己方侧已有顺风速度修正剩余 2 回合，结算一个没有行动的完整回合。', '回合末速度修正剩余回合递减为 1，修正仍保留在该侧场上状态中。', true, 3290),
+            (330, 'side-speed-modifier-duration-ends-silently', '一侧速度修正耗尽后移除', 'FIELD', 'STATE_MACHINE', '验证一侧速度修正剩余 1 回合时在回合末移除。', '己方侧已有顺风速度修正剩余 1 回合，结算一个没有行动的完整回合。', '回合末速度修正从该侧场上状态中移除；当前模型不为自然移除追加额外事件。', true, 3300),
+            (331, 'duplicate-side-damage-reduction-does-not-refresh-duration', '重复一侧伤害减免不刷新持续回合', 'FIELD', 'STATE_MACHINE', '验证同种防守屏障已经存在时再次使用不会刷新持续时间。', '己方侧已有物理屏障剩余 3 回合，使用者再次成功使用同类物理屏障技能。', '重复屏障不会刷新或追加新状态；回合末原有屏障只按自然流程递减为 2 回合。', true, 3310),
+            (332, 'duplicate-side-speed-modifier-does-not-refresh-duration', '重复一侧速度修正不刷新持续回合', 'FIELD', 'STATE_MACHINE', '验证同种速度修正已经存在时再次使用不会刷新持续时间。', '己方侧已有顺风剩余 3 回合，使用者再次成功使用建立顺风的变化技能。', '重复速度修正不会刷新或追加新状态；回合末原有顺风只按自然流程递减为 2 回合。', true, 3320),
+            (333, 'required-weather-side-condition-fails-without-weather', '天气前置一侧状态在天气不符时失败', 'FIELD', 'STATE_MACHINE', '验证带天气前置条件的一侧状态不会在条件不满足时写入。', '技能声明只有雪天才能建立全伤害屏障，但当前天气为无天气。', '天气前置条件不满足时不写入一侧场上状态，也不产生屏障开始事件。', true, 3330),
+            (334, 'non-matching-screen-extension-item-does-not-extend-side-damage-reduction', '屏障延长道具不匹配时不延长', 'ITEM', 'STATE_MACHINE', '验证屏障延长道具只影响声明匹配的屏障类型。', '使用者携带只延长特殊屏障的道具效果，却成功建立物理屏障。', '道具目标屏障类型不匹配，物理屏障按普通 5 回合建立；同一回合末递减后剩余 4 回合。', true, 3340),
+            (335, 'sandstorm-damage-resolves-before-weather-healing', '沙暴伤害先于天气回复结算', 'WEATHER', 'STATE_MACHINE', '验证同一天气阶段中固定伤害和天气回复的事件顺序。', '沙暴下普通属性成员拥有匹配天气回复特性，当前 HP 为 80。', '回合末先承受 1/16 沙暴伤害，再按 1/16 天气回复，事件顺序保持天气伤害在天气回复之前。', true, 3350),
+            (336, 'weather-damage-uses-minimum-one-hp', '天气伤害至少 1 点', 'WEATHER', 'STATE_MACHINE', '验证天气固定比例伤害向下取整后仍保留最小 1 点。', '最大 HP 只有 10 的普通属性成员处于沙暴中。', '沙暴按最大 HP 1/16 计算时向下取整不足 1，但固定伤害至少为 1 点。', true, 3360),
+            (337, 'weather-healing-clamps-to-missing-hp', '天气回复夹取到缺失 HP', 'WEATHER', 'STATE_MACHINE', '验证天气回复不会超过成员最大 HP。', '下雨下天气回复特性成员当前 HP 为 98，最大 HP 为 100。', '天气回复理论值为 6，但实际回复被夹取到缺失的 2 点 HP。', true, 3370),
+            (338, 'grassy-terrain-healing-clamps-to-missing-hp', '青草场地回复夹取到缺失 HP', 'TERRAIN', 'STATE_MACHINE', '验证场地回复不会超过成员最大 HP。', '青草场地中接地成员当前 HP 为 98，最大 HP 为 100。', '青草场地回复理论值为 6，但实际回复被夹取到缺失的 2 点 HP。', true, 3380),
+            (339, 'heal-block-suppresses-weather-and-terrain-healing', '回复封锁抑制天气和场地回复', 'STATUS', 'STATE_MACHINE', '验证回复封锁会抑制环境阶段的天气回复和场地回复。', '一个成员在下雨中拥有天气回复特性，另一个成员在青草场地中接地；两者都处于回复封锁。', '回复封锁会分别抑制天气回复和场地回复，不产生对应回复事件，也不改变 HP。', true, 3390);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (640, 320, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照天气设置技能的环境覆盖行为。', 10),
+            (641, 320, 'https://bulbapedia.bulbagarden.net/wiki/Weather', '天气公开规则说明', '用于验证天气覆盖和持续回合。', 20),
+            (642, 321, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照场地设置技能的环境覆盖行为。', 10),
+            (643, 321, 'https://bulbapedia.bulbagarden.net/wiki/Terrain', '场地公开规则说明', '用于验证场地覆盖和持续回合。', 20),
+            (644, 322, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照天气延长道具匹配条件。', 10),
+            (645, 322, 'https://bulbapedia.bulbagarden.net/wiki/Weather', '天气公开规则说明', '用于验证普通天气持续回合。', 20),
+            (646, 323, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照场地延长道具匹配条件。', 10),
+            (647, 323, 'https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender', '场地延长公开规则说明', '用于验证场地延长道具只匹配声明场地。', 20),
+            (648, 324, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照未命中短路环境效果。', 10),
+            (649, 324, 'https://bulbapedia.bulbagarden.net/wiki/Accuracy', '命中公开规则说明', '用于验证命中失败不继续结算。', 20),
+            (650, 325, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照全场速度顺序持续时间。', 10),
+            (651, 325, 'https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)', '全场速度顺序公开规则说明', '用于验证速度顺序效果递减。', 20),
+            (652, 326, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照全场速度顺序结束时机。', 10),
+            (653, 326, 'https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)', '全场速度顺序公开规则说明', '用于验证结束事件顺序。', 20),
+            (654, 327, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照一侧屏障持续时间。', 10),
+            (655, 327, 'https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)', '一侧屏障公开规则说明', '用于验证屏障持续回合递减。', 20),
+            (656, 328, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照一侧屏障结束行为。', 10),
+            (657, 328, 'https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)', '一侧屏障公开规则说明', '用于验证屏障耗尽后移除。', 20),
+            (658, 329, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照一侧速度修正持续时间。', 10),
+            (659, 329, 'https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)', '一侧速度修正公开规则说明', '用于验证顺风持续回合递减。', 20),
+            (660, 330, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照一侧速度修正结束行为。', 10),
+            (661, 330, 'https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)', '一侧速度修正公开规则说明', '用于验证顺风耗尽后移除。', 20),
+            (662, 331, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照重复屏障不刷新。', 10),
+            (663, 331, 'https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)', '一侧屏障公开规则说明', '用于验证重复使用不刷新持续时间。', 20),
+            (664, 332, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照重复顺风不刷新。', 10),
+            (665, 332, 'https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)', '一侧速度修正公开规则说明', '用于验证重复使用不刷新持续时间。', 20),
+            (666, 333, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照带天气前置的一侧状态技能。', 10),
+            (667, 333, 'https://bulbapedia.bulbagarden.net/wiki/Aurora_Veil_(move)', '天气前置屏障公开规则说明', '用于验证天气不符时失败。', 20),
+            (668, 334, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照屏障延长道具匹配条件。', 10),
+            (669, 334, 'https://bulbapedia.bulbagarden.net/wiki/Light_Clay', '屏障延长公开规则说明', '用于验证不匹配屏障类型不延长。', 20),
+            (670, 335, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照天气阶段事件顺序。', 10),
+            (671, 335, 'https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts', '公开特性资料', '用于对照天气回复特性。', 20),
+            (672, 336, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照天气固定伤害。', 10),
+            (673, 336, 'https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition)', '沙暴公开规则说明', '用于验证沙暴固定伤害。', 20),
+            (674, 337, 'https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts', '公开特性资料', '用于对照天气回复夹取。', 10),
+            (675, 337, 'https://bulbapedia.bulbagarden.net/wiki/Rain', '下雨公开规则说明', '用于验证天气回复不超过最大 HP。', 20),
+            (676, 338, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照青草场地回复夹取。', 10),
+            (677, 338, 'https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)', '青草场地公开规则说明', '用于验证场地回复不超过最大 HP。', 20),
+            (678, 339, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照回复封锁抑制回复。', 10),
+            (679, 339, 'https://bulbapedia.bulbagarden.net/wiki/Heal_Block_(move)', '回复封锁公开规则说明', '用于验证环境回复被抑制。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (320, 'environment-field-boundary-coverage-20260629-1', 320, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3200),
+            (321, 'environment-field-boundary-coverage-20260629-2', 321, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3210),
+            (322, 'environment-field-boundary-coverage-20260629-3', 322, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3220),
+            (323, 'environment-field-boundary-coverage-20260629-4', 323, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3230),
+            (324, 'environment-field-boundary-coverage-20260629-5', 324, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3240),
+            (325, 'environment-field-boundary-coverage-20260629-6', 325, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3250),
+            (326, 'environment-field-boundary-coverage-20260629-7', 326, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3260),
+            (327, 'environment-field-boundary-coverage-20260629-8', 327, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3270),
+            (328, 'environment-field-boundary-coverage-20260629-9', 328, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3280),
+            (329, 'environment-field-boundary-coverage-20260629-10', 329, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3290),
+            (330, 'environment-field-boundary-coverage-20260629-11', 330, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3300),
+            (331, 'environment-field-boundary-coverage-20260629-12', 331, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3310),
+            (332, 'environment-field-boundary-coverage-20260629-13', 332, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3320),
+            (333, 'environment-field-boundary-coverage-20260629-14', 333, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3330),
+            (334, 'environment-field-boundary-coverage-20260629-15', 334, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3340),
+            (335, 'environment-field-boundary-coverage-20260629-16', 335, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3350),
+            (336, 'environment-field-boundary-coverage-20260629-17', 336, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3360),
+            (337, 'environment-field-boundary-coverage-20260629-18', 337, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3370),
+            (338, 'environment-field-boundary-coverage-20260629-19', 338, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3380),
+            (339, 'environment-field-boundary-coverage-20260629-20', 339, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests', '2026-06-29T22:20:00+08:00', 3390);
