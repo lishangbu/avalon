@@ -91,41 +91,7 @@ internal class BattleActionOrdering(
 			when (effect) {
 				is BattleAbilityEffect.WeatherSpeedMultiplier ->
 					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
-				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
-				is BattleAbilityEffect.ContactStatusOnAttacker,
-				is BattleAbilityEffect.CriticalHitImmunity,
-				is BattleAbilityEffect.AttackingStatMultiplier,
-				is BattleAbilityEffect.DamageClassDamageReduction,
-				is BattleAbilityEffect.DefendingStatMultiplier,
-				is BattleAbilityEffect.SameElementBonusOverride,
-				is BattleAbilityEffect.ElementSkillAbsorbHeal,
-				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
-				is BattleAbilityEffect.ElementSkillDamageBoost,
-				is BattleAbilityEffect.FullHpDamageReduction,
-				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
-				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
-				is BattleAbilityEffect.IndirectDamageImmunity,
-				is BattleAbilityEffect.LowHpElementDamageBoost,
-				is BattleAbilityEffect.MajorStatusImmunity,
-				is BattleAbilityEffect.PriorityMoveImmunityForSide,
-				is BattleAbilityEffect.PunchBasedSkillDamageBoost,
-				is BattleAbilityEffect.SkillRecoilDamageImmunity,
-				is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageReduction,
-				is BattleAbilityEffect.SoundBasedSkillImmunity,
-				is BattleAbilityEffect.StatusSkillPriorityBoost,
-				is BattleAbilityEffect.SwitchInStatStageChange,
-				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
-				is BattleAbilityEffect.SuperEffectiveDamageReduction,
-				is BattleAbilityEffect.SwitchInTerrainChange,
-				is BattleAbilityEffect.SwitchInWeatherChange,
-				is BattleAbilityEffect.TerrainSpeedMultiplier,
-				is BattleAbilityEffect.VolatileStatusImmunity,
-				is BattleAbilityEffect.WeatherDamageImmunity,
-				is BattleAbilityEffect.WeatherElementDamageBoost,
-				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
+				else -> multiplier
 			}
 		}
 
@@ -134,41 +100,7 @@ internal class BattleActionOrdering(
 			when (effect) {
 				is BattleAbilityEffect.TerrainSpeedMultiplier ->
 					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
-				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
-				is BattleAbilityEffect.ContactStatusOnAttacker,
-				is BattleAbilityEffect.CriticalHitImmunity,
-				is BattleAbilityEffect.AttackingStatMultiplier,
-				is BattleAbilityEffect.DamageClassDamageReduction,
-				is BattleAbilityEffect.DefendingStatMultiplier,
-				is BattleAbilityEffect.SameElementBonusOverride,
-				is BattleAbilityEffect.ElementSkillAbsorbHeal,
-				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
-				is BattleAbilityEffect.ElementSkillDamageBoost,
-				is BattleAbilityEffect.FullHpDamageReduction,
-				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
-				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
-				is BattleAbilityEffect.IndirectDamageImmunity,
-				is BattleAbilityEffect.LowHpElementDamageBoost,
-				is BattleAbilityEffect.MajorStatusImmunity,
-				is BattleAbilityEffect.PriorityMoveImmunityForSide,
-				is BattleAbilityEffect.PunchBasedSkillDamageBoost,
-				is BattleAbilityEffect.SkillRecoilDamageImmunity,
-				is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageReduction,
-				is BattleAbilityEffect.SoundBasedSkillImmunity,
-				is BattleAbilityEffect.StatusSkillPriorityBoost,
-				is BattleAbilityEffect.SwitchInStatStageChange,
-				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
-				is BattleAbilityEffect.SuperEffectiveDamageReduction,
-				is BattleAbilityEffect.SwitchInTerrainChange,
-				is BattleAbilityEffect.VolatileStatusImmunity,
-				is BattleAbilityEffect.WeatherDamageImmunity,
-				is BattleAbilityEffect.WeatherElementDamageBoost,
-				is BattleAbilityEffect.WeatherEndTurnHeal,
-				is BattleAbilityEffect.WeatherSpeedMultiplier,
-				is BattleAbilityEffect.SwitchInWeatherChange -> multiplier
+				else -> multiplier
 			}
 		}
 
@@ -176,24 +108,7 @@ internal class BattleActionOrdering(
 		participant.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
-				is BattleItemEffect.ChargeSkipOnce,
-				is BattleItemEffect.DamageClassPowerBoost,
-				is BattleItemEffect.DamageBoostWithRecoil,
-				is BattleItemEffect.DamageDealtHeal,
-				is BattleItemEffect.ElementDamageBoost,
-				is BattleItemEffect.ElementDamageReduction,
-				is BattleItemEffect.HeldEndTurnHeal,
-				is BattleItemEffect.LowHpHeal,
-				is BattleItemEffect.MajorStatusCure,
-				is BattleItemEffect.MajorStatusImmunity,
-				is BattleItemEffect.SideDamageReductionDurationExtension,
-				is BattleItemEffect.SuperEffectiveDamageBoost,
-				is BattleItemEffect.SurviveFatalDamageAtFullHp,
-				is BattleItemEffect.TerrainDurationExtension,
-				is BattleItemEffect.VolatileStatusCure,
-				is BattleItemEffect.VolatileStatusImmunity,
-				is BattleItemEffect.WeatherDurationExtension,
-				is BattleItemEffect.WeatherDamageImmunity -> multiplier
+				else -> multiplier
 			}
 		}
 
