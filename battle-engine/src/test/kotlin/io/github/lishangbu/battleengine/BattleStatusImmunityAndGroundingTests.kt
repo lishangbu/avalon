@@ -6,6 +6,8 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -405,7 +407,7 @@ class BattleStatusImmunityAndGroundingTests {
 			assertEquals(72, resolved.participant("flinch-user-${case.actorId}")?.currentHp)
 			assertEquals(34, resolved.participant(case.actorId)?.skillSlot(1)?.remainingPp)
 			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>())
-			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPreventedByVolatileStatus>())
+			assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.VOLATILE_STATUS })
 			val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
 			assertEquals(BattleVolatileStatus.FLINCH, blocked.status)
 			assertEquals(case.expectedReason, blocked.reason)

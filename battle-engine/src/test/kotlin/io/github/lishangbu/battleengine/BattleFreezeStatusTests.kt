@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -49,7 +51,7 @@ class BattleFreezeStatusTests {
 		assertEquals(35, resolved.participant("frozen")?.skillSlot(1)?.remainingPp)
 		assertEquals(100, resolved.participant("target")?.currentHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillUsed>())
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByFreeze>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.FREEZE }.single()
 		assertEquals("frozen", blocked.actorId)
 	}
 
@@ -90,7 +92,7 @@ class BattleFreezeStatusTests {
 		assertEquals(null, resolved.participant("frozen")?.majorStatus)
 		assertEquals(34, resolved.participant("frozen")?.skillSlot(1)?.remainingPp)
 		assertEquals(72, resolved.participant("target")?.currentHp)
-		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPreventedByFreeze>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.FREEZE })
 		assertEquals("frozen", resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single().actorId)
 		assertEquals("frozen", resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().actorId)
 	}

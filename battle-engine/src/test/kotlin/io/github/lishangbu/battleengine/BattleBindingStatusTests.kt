@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
@@ -89,7 +91,7 @@ class BattleBindingStatusTests {
 		)
 
 		fixture.assertNamed("bound-participant-cannot-switch-voluntarily")
-		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPreventedByBinding>().single()
+		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.BINDING }.single()
 		assertEquals("bound", prevented.actorId)
 		assertEquals("binder", prevented.sourceActorId)
 		assertEquals(3, prevented.turnsRemainingBefore)

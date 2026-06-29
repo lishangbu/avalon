@@ -49,49 +49,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 成员因锁招状态无法主动替换。
+	 * 成员无法执行主动替换。
 	 *
-	 * 锁招期间成员会在技能阶段继续使用被锁定的技能。该事件只表示本次替换请求被忽略，不会清除锁招状态。
+	 * 替换阻止都发生在替换阶段，不消费技能 PP，也不会推进锁招、休整、蓄力或束缚计数。`reason` 说明阻止
+	 * 来源；`skillId` 仅在锁招或蓄力等技能绑定状态下有值；`sourceActorId` 和 `turnsRemainingBefore`
+	 * 仅在束缚等需要解释来源和剩余回合的状态下有值。合并成一个事件后，replay 仍能读到完整事实，同时避免
+	 * 每新增一种替换限制都扩展一个新的事件类型。
 	 */
-	data class SwitchPreventedByLockedMove(
+	data class SwitchPrevented(
 		override val turnNumber: Int,
 		val actorId: String,
-		val skillId: Long,
-	) : BattleEvent
-
-	/**
-	 * 成员因必须休整而不能主动替换。
-	 *
-	 * 该事件是引擎防御性事件；正常调用方应在行动校验阶段阻止这类提交。若非法提交进入引擎，成员不会离场，
-	 * 休整计数也不会在替换阶段被消费。
-	 */
-	data class SwitchPreventedByRecharge(
-		override val turnNumber: Int,
-		val actorId: String,
-	) : BattleEvent
-
-	/**
-	 * 成员因正在蓄力而不能主动替换。
-	 *
-	 * 蓄力技能的下一次行动会自动释放原技能；该事件只记录非法替换请求被忽略，不会消费蓄力计数。
-	 */
-	data class SwitchPreventedByCharging(
-		override val turnNumber: Int,
-		val actorId: String,
-		val skillId: Long,
-	) : BattleEvent
-
-	/**
-	 * 成员因束缚状态无法主动替换。
-	 *
-	 * 束缚只阻止被困成员主动离场；若成员已经无法战斗，补位替换仍应允许。事件记录束缚来源，便于 replay
-	 * 解释是哪一个仍在场的成员维持了这次换人限制。
-	 */
-	data class SwitchPreventedByBinding(
-		override val turnNumber: Int,
-		val actorId: String,
-		val sourceActorId: String,
-		val turnsRemainingBefore: Int,
+		val reason: SwitchPreventionReason,
+		val skillId: Long? = null,
+		val sourceActorId: String? = null,
+		val turnsRemainingBefore: Int? = null,
 	) : BattleEvent
 
 	data class SkillUsed(
@@ -270,75 +241,21 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 行动者因睡眠无法执行本次技能行动。
+	 * 行动者无法执行本次技能行动。
 	 *
-	 * `turnsRemainingBefore` 记录本次判定前还会被阻止行动几次。事件产生后，引擎会消耗一次计数；
-	 * 若计数归零，会继续追加 `StatusCleared` 事件。
+	 * 该事件统一表达行动前阻止：睡眠、冰冻、麻痹、休整、回复封锁、挑衅、定身法、无理取闹、畏缩和混乱等
+	 * 都不会消耗本次提交技能的 PP，也不会继续进入 `SkillUsed`、命中、伤害或附加效果流程。`reason`
+	 * 给出稳定规则原因；`skillId` 只在阻止和某个技能绑定时出现；`previousSkillId` 只用于无理取闹；
+	 * `status` 只用于畏缩、混乱等临时状态；`turnsRemainingBefore` 用于可复盘地解释倒计时消费。
 	 */
-	data class SkillPreventedBySleep(
+	data class SkillPrevented(
 		override val turnNumber: Int,
 		val actorId: String,
-		val turnsRemainingBefore: Int,
-	) : BattleEvent
-
-	/**
-	 * 行动者因冰冻无法执行本次技能行动。
-	 *
-	 * 冰冻每次行动前先尝试自然解冻；只有未解冻时才产生该事件。若该事件出现，技能不会使用，
-	 * PP 不会消耗，也不会继续进入命中、伤害或附加效果流程。
-	 */
-	data class SkillPreventedByFreeze(
-		override val turnNumber: Int,
-		val actorId: String,
-	) : BattleEvent
-
-	/**
-	 * 行动者因麻痹无法执行本次技能行动。
-	 *
-	 * 麻痹不会像睡眠那样保存持续计数；每次行动前独立按现代规则判定。若该事件出现，技能不会使用，
-	 * PP 不会消耗，也不会继续进入命中、伤害或附加效果流程。
-	 */
-	data class SkillPreventedByParalysis(
-		override val turnNumber: Int,
-		val actorId: String,
-	) : BattleEvent
-
-	/**
-	 * 行动者因上一回合成功使用休整技能而无法执行本次技能行动。
-	 *
-	 * 休整不会消耗本次提交技能的 PP，也不会进入命中、伤害或附加效果流程。事件中的 `turnsRemainingBefore`
-	 * 记录本次行动前还会被休整阻止几次，方便 replay 校验计数消费。
-	 */
-	data class SkillPreventedByRecharge(
-		override val turnNumber: Int,
-		val actorId: String,
-		val turnsRemainingBefore: Int,
-	) : BattleEvent
-
-	/**
-	 * 行动者因回复封锁无法执行本次回复类技能。
-	 *
-	 * 第六世代以后，处于回复封锁的成员不能使用自我回复技能或吸取回复类技能。该事件发生在 PP 消耗和
-	 * `SkillUsed` 之前，因此被阻止的技能不会进入命中、伤害、回复或讲究类锁定流程。
-	 */
-	data class SkillPreventedByHealBlock(
-		override val turnNumber: Int,
-		val actorId: String,
-		val skillId: Long,
-		val turnsRemainingBefore: Int,
-	) : BattleEvent
-
-	/**
-	 * 行动者因挑衅无法执行本次变化技能。
-	 *
-	 * 挑衅只限制变化分类技能，不限制物理或特殊攻击技能。该事件发生在 PP 消耗和 `SkillUsed` 之前，
-	 * 因此被阻止的技能不会进入命中、保护、附加效果或讲究类锁定流程。
-	 */
-	data class SkillPreventedByTaunt(
-		override val turnNumber: Int,
-		val actorId: String,
-		val skillId: Long,
-		val turnsRemainingBefore: Int,
+		val reason: SkillPreventionReason,
+		val skillId: Long? = null,
+		val previousSkillId: Long? = null,
+		val status: BattleVolatileStatus? = null,
+		val turnsRemainingBefore: Int? = null,
 	) : BattleEvent
 
 	/**
@@ -354,45 +271,6 @@ sealed interface BattleEvent {
 		val targetActorId: String,
 		val disabledSkillId: Long,
 		val turnsRemaining: Int,
-	) : BattleEvent
-
-	/**
-	 * 行动者因定身法无法执行本次技能。
-	 *
-	 * 定身法只阻止被指定禁用的技能；同一成员的其它技能仍可以正常宣告。该事件发生在 PP 消耗和
-	 * `SkillUsed` 之前，因此被阻止的技能不会进入命中、保护、附加效果或讲究类锁定流程。
-	 */
-	data class SkillPreventedByDisable(
-		override val turnNumber: Int,
-		val actorId: String,
-		val skillId: Long,
-		val turnsRemainingBefore: Int,
-	) : BattleEvent
-
-	/**
-	 * 行动者因无理取闹无法连续使用同一个技能。
-	 *
-	 * 无理取闹读取行动者最近一次真正进入使用流程的技能；若本次提交的技能与其一致，则在 PP 消耗和
-	 * `SkillUsed` 之前失败。该事件不修改最近技能记录，因此如果后续接入挣扎替代行动，或本回合只是被阻止，
-	 * 下回合仍能按“没有再次使用原技能”继续判断。
-	 */
-	data class SkillPreventedByTorment(
-		override val turnNumber: Int,
-		val actorId: String,
-		val skillId: Long,
-		val previousSkillId: Long,
-	) : BattleEvent
-
-	/**
-	 * 行动者因临时状态无法执行本次技能行动。
-	 *
-	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生
-	 * `ConfusionDamageApplied` 事件记录自伤结果。
-	 */
-	data class SkillPreventedByVolatileStatus(
-		override val turnNumber: Int,
-		val actorId: String,
-		val status: BattleVolatileStatus,
 	) : BattleEvent
 
 	/**
@@ -459,7 +337,7 @@ sealed interface BattleEvent {
 	 * 成员已有的主要异常状态被清除。
 	 *
 	 * 该事件由状态计数归零或后续治愈规则产生，不表示目标重新获得了行动机会；
-	 * 行动是否已经被阻止仍以同一回合内更早的 `SkillPreventedBySleep` 等事件为准。
+	 * 行动是否已经被阻止仍以同一回合内更早的 [SkillPrevented] 事件为准。
 	 */
 	data class StatusCleared(
 		override val turnNumber: Int,
@@ -1024,4 +902,59 @@ sealed interface BattleEvent {
 		val winningSideId: String?,
 		val reason: String,
 	) : BattleEvent
+}
+
+/**
+ * 主动替换请求被拒绝的稳定原因。
+ *
+ * 枚举值表达规则来源，而不是 Kotlin 实现类名。这样事件流可以在保持可读性的同时承载不同替换限制的共享事实：
+ * 成员仍留在原席位、相关倒计时不在替换阶段消费，后续技能阶段仍按原状态继续推进。
+ */
+enum class SwitchPreventionReason {
+	/** 成员仍处于锁招状态，必须继续使用被锁定的技能。 */
+	LOCKED_MOVE,
+
+	/** 成员处于休整状态，不能通过非法替换跳过休整。 */
+	RECHARGE,
+
+	/** 成员正在蓄力，下一次行动会自动释放蓄力技能。 */
+	CHARGING,
+
+	/** 成员被仍在场的来源成员束缚，不能主动离场。 */
+	BINDING,
+}
+
+/**
+ * 技能行动在行动前被阻止的稳定原因。
+ *
+ * 枚举值和公开规则行为一一对应，但多个原因共用 [BattleEvent.SkillPrevented] 事件结构。调用方通过原因字段
+ * 判断展示文案和 replay 分支，通过事件上的可选字段读取对应规则需要的技能、临时状态或剩余回合事实。
+ */
+enum class SkillPreventionReason {
+	/** 睡眠阻止行动，并会消费一次睡眠阻止计数。 */
+	SLEEP,
+
+	/** 冰冻自然解冻失败，本次行动被阻止。 */
+	FREEZE,
+
+	/** 麻痹随机判定触发，本次行动被阻止。 */
+	PARALYSIS,
+
+	/** 上次成功使用的休整技能要求本次行动空过。 */
+	RECHARGE,
+
+	/** 回复封锁阻止回复类技能或吸取回复类技能。 */
+	HEAL_BLOCK,
+
+	/** 挑衅阻止变化分类技能。 */
+	TAUNT,
+
+	/** 定身法阻止被指定禁用的技能。 */
+	DISABLE,
+
+	/** 无理取闹阻止连续使用上一次成功使用的技能。 */
+	TORMENT,
+
+	/** 畏缩、混乱等临时状态阻止本次行动。 */
+	VOLATILE_STATUS,
 }

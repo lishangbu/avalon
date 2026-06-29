@@ -5,6 +5,8 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
@@ -82,7 +84,7 @@ class BattleSleepStatusTests {
 		assertEquals(35, afterSecond.participant("target")?.skillSlot(1)?.remainingPp)
 		assertEquals(72, afterThird.participant("sleep-user")?.currentHp)
 		assertEquals(34, afterThird.participant("target")?.skillSlot(1)?.remainingPp)
-		assertEquals(2, afterSecond.events.filterIsInstance<BattleEvent.SkillPreventedBySleep>().size)
+		assertEquals(2, afterSecond.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.SLEEP }.size)
 		assertEquals("target", afterSecond.events.filterIsInstance<BattleEvent.StatusCleared>().single().actorId)
 	}
 

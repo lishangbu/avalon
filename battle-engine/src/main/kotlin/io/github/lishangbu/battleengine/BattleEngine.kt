@@ -41,6 +41,8 @@ import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
 
@@ -250,18 +252,20 @@ class BattleEngine(
 			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
 			if (actor.canBattle() && actor.rechargeTurnsRemaining > 0) {
 				return@fold current.appendEvent(
-					BattleEvent.SwitchPreventedByRecharge(
+					BattleEvent.SwitchPrevented(
 						turnNumber = current.turnNumber,
 						actorId = actor.actorId,
+						reason = SwitchPreventionReason.RECHARGE,
 					),
 				)
 			}
 			if (actor.canBattle() && actor.chargingTurnsRemaining > 0) {
 				val chargingSkillId = actor.chargingSkillId ?: return@fold current
 				return@fold current.appendEvent(
-					BattleEvent.SwitchPreventedByCharging(
+					BattleEvent.SwitchPrevented(
 						turnNumber = current.turnNumber,
 						actorId = actor.actorId,
+						reason = SwitchPreventionReason.CHARGING,
 						skillId = chargingSkillId,
 					),
 				)
@@ -269,9 +273,10 @@ class BattleEngine(
 			if (actor.canBattle() && actor.lockedMoveTurnsRemaining > 0) {
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
 				return@fold current.appendEvent(
-					BattleEvent.SwitchPreventedByLockedMove(
+					BattleEvent.SwitchPrevented(
 						turnNumber = current.turnNumber,
 						actorId = actor.actorId,
+						reason = SwitchPreventionReason.LOCKED_MOVE,
 						skillId = lockedSkillId,
 					),
 				)
@@ -279,9 +284,10 @@ class BattleEngine(
 			if (actor.canBattle() && bindingSourceActive(current, actor)) {
 				val sourceActorId = actor.boundByActorId ?: return@fold current
 				return@fold current.appendEvent(
-					BattleEvent.SwitchPreventedByBinding(
+					BattleEvent.SwitchPrevented(
 						turnNumber = current.turnNumber,
 						actorId = actor.actorId,
+						reason = SwitchPreventionReason.BINDING,
 						sourceActorId = sourceActorId,
 						turnsRemainingBefore = actor.bindingTurnsRemaining,
 					),
@@ -3723,9 +3729,10 @@ class BattleEngine(
 		val blocked = state
 			.replaceParticipant(updated)
 			.appendEvent(
-				BattleEvent.SkillPreventedBySleep(
+				BattleEvent.SkillPrevented(
 					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
+					reason = SkillPreventionReason.SLEEP,
 					turnsRemainingBefore = turnsRemainingBefore,
 				),
 			)
@@ -3753,9 +3760,10 @@ class BattleEngine(
 		return state
 			.replaceParticipant(actor.consumeRechargeTurn())
 			.appendEvent(
-				BattleEvent.SkillPreventedByRecharge(
+				BattleEvent.SkillPrevented(
 					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
+					reason = SkillPreventionReason.RECHARGE,
 					turnsRemainingBefore = turnsRemainingBefore,
 				),
 			)
@@ -3773,9 +3781,10 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByHealBlock(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.HEAL_BLOCK,
 				skillId = skill.skillId,
 				turnsRemainingBefore = actor.healBlockTurnsRemaining,
 			),
@@ -3806,9 +3815,10 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByTaunt(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.TAUNT,
 				skillId = skill.skillId,
 				turnsRemainingBefore = actor.tauntTurnsRemaining,
 			),
@@ -3834,9 +3844,10 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByDisable(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.DISABLE,
 				skillId = skill.skillId,
 				turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
 			),
@@ -3854,9 +3865,10 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByTorment(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.TORMENT,
 				skillId = skill.skillId,
 				previousSkillId = requireNotNull(actor.lastSuccessfulSkillId) {
 					"torment requires previous successful skill"
@@ -3871,9 +3883,10 @@ class BattleEngine(
 	 */
 	private fun consumeFreezeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByFreeze(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.FREEZE,
 			),
 		)
 
@@ -3887,9 +3900,10 @@ class BattleEngine(
 		state
 			.replaceParticipant(actor.consumeFlinch())
 			.appendEvent(
-				BattleEvent.SkillPreventedByVolatileStatus(
+				BattleEvent.SkillPrevented(
 					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
+					reason = SkillPreventionReason.VOLATILE_STATUS,
 					status = BattleVolatileStatus.FLINCH,
 				),
 			)
@@ -3902,9 +3916,10 @@ class BattleEngine(
 	 */
 	private fun consumeParalysisBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
 		state.appendEvent(
-			BattleEvent.SkillPreventedByParalysis(
+			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.PARALYSIS,
 			),
 		)
 
@@ -3948,9 +3963,10 @@ class BattleEngine(
 		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
 		val damage = confusionSelfDamage(decremented, randomPercent)
 		val blockedState = afterDecrement.appendEvent(
-			BattleEvent.SkillPreventedByVolatileStatus(
+			BattleEvent.SkillPrevented(
 				turnNumber = context.state.turnNumber,
 				actorId = actor.actorId,
+				reason = SkillPreventionReason.VOLATILE_STATUS,
 				status = BattleVolatileStatus.CONFUSION,
 			),
 		)

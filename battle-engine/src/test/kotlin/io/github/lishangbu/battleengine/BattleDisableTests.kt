@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -88,7 +90,7 @@ class BattleDisableTests {
 		)
 
 		fixture.assertNamed("disabled-skill-cannot-be-used")
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByDisable>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.DISABLE }.single()
 		assertEquals("disabled", blocked.actorId)
 		assertEquals(1, blocked.skillId)
 		assertEquals(2, blocked.turnsRemainingBefore)

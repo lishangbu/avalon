@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -264,7 +266,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 				"https://wiki.52poke.com/wiki/破坏光线（招式）",
 			),
 			inputSummary = "仍可战斗成员处于休整状态时提交主动替换。",
-			expectedSummary = "替换被阻止并产生 SwitchPreventedByRecharge，原成员仍留在上场槽位。",
+			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=RECHARGE)，原成员仍留在上场槽位。",
 		)
 		val state = engine.start(
 			initialState(
@@ -282,7 +284,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 
 		fixture.assertNamed("recharge-prevents-voluntary-switch")
 		assertEquals(listOf("recharging"), resolved.sideOf("recharging")?.activeActorIds)
-		assertEquals("recharging", resolved.events.filterIsInstance<BattleEvent.SwitchPreventedByRecharge>().single().actorId)
+		assertEquals("recharging", resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.RECHARGE }.single().actorId)
 	}
 
 	@Test
@@ -294,7 +296,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 				"https://wiki.52poke.com/wiki/蓄力的招式",
 			),
 			inputSummary = "仍可战斗成员处于蓄力状态时提交主动替换。",
-			expectedSummary = "替换被阻止并产生 SwitchPreventedByCharging，原成员仍留在上场槽位并继续释放蓄力技能。",
+			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=CHARGING)，原成员仍留在上场槽位并继续释放蓄力技能。",
 		)
 		val state = engine.start(
 			initialState(
@@ -313,7 +315,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 			listOf(BattleAction.SwitchParticipant("charging", targetActorId = "reserve")),
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
-		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPreventedByCharging>().single()
+		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.CHARGING }.single()
 
 		fixture.assertNamed("charging-prevents-voluntary-switch")
 		assertEquals(listOf("charging"), resolved.sideOf("charging")?.activeActorIds)
@@ -331,7 +333,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 				"https://wiki.52poke.com/wiki/逆鳞（招式）",
 			),
 			inputSummary = "仍可战斗成员处于锁招状态时提交主动替换。",
-			expectedSummary = "替换被阻止并产生 SwitchPreventedByLockedMove，原成员仍留在上场槽位并继续执行锁定技能。",
+			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=LOCKED_MOVE)，原成员仍留在上场槽位并继续执行锁定技能。",
 		)
 		val state = engine.start(
 			initialState(
@@ -350,7 +352,7 @@ class BattleLifecycleSwitchPublicReferenceTests {
 			listOf(BattleAction.SwitchParticipant("locked", targetActorId = "reserve")),
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
-		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPreventedByLockedMove>().single()
+		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.LOCKED_MOVE }.single()
 
 		fixture.assertNamed("locked-move-prevents-voluntary-switch")
 		assertEquals(listOf("locked"), resolved.sideOf("locked")?.activeActorIds)

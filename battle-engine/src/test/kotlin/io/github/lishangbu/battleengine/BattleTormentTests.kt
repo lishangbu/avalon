@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -85,7 +87,7 @@ class BattleTormentTests {
 		)
 
 		fixture.assertNamed("tormented-participant-cannot-use-same-skill-twice")
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByTorment>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.TORMENT }.single()
 		assertEquals("tormented", blocked.actorId)
 		assertEquals(1, blocked.skillId)
 		assertEquals(1, blocked.previousSkillId)

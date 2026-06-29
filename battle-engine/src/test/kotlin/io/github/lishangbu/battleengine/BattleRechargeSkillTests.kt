@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -53,7 +55,7 @@ class BattleRechargeSkillTests {
 		val rechargeStarted = afterSecond.events.filterIsInstance<BattleEvent.RechargeStarted>().single()
 		assertEquals("recharge-user", rechargeStarted.actorId)
 		assertEquals(1, rechargeStarted.turnsRemainingAfterCurrent)
-		val prevented = afterSecond.events.filterIsInstance<BattleEvent.SkillPreventedByRecharge>().single()
+		val prevented = afterSecond.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.RECHARGE }.single()
 		assertEquals("recharge-user", prevented.actorId)
 		assertEquals(1, prevented.turnsRemainingBefore)
 		assertEquals(0, afterSecond.participant("recharge-user")?.rechargeTurnsRemaining)

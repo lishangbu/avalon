@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
@@ -83,7 +85,7 @@ class BattleTauntTests {
 		)
 
 		fixture.assertNamed("taunted-participant-cannot-use-status-skill")
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByTaunt>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.TAUNT }.single()
 		assertEquals("taunted", blocked.actorId)
 		assertEquals(14, blocked.skillId)
 		assertEquals(2, blocked.turnsRemainingBefore)

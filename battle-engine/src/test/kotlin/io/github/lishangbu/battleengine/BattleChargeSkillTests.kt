@@ -3,6 +3,8 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -89,7 +91,7 @@ class BattleChargeSkillTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPreventedByCharging>().single()
+		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.CHARGING }.single()
 		assertEquals("charge-user", prevented.actorId)
 		assertEquals(1, prevented.skillId)
 		assertTrue(resolved.isActive("charge-user"))

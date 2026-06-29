@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -49,7 +51,7 @@ class BattleParalysisStatusTests {
 		assertEquals(35, resolved.participant("paralyzed")?.skillSlot(1)?.remainingPp)
 		assertEquals(100, resolved.participant("target")?.currentHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillUsed>())
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByParalysis>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.PARALYSIS }.single()
 		assertEquals("paralyzed", blocked.actorId)
 	}
 
@@ -90,7 +92,7 @@ class BattleParalysisStatusTests {
 		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("paralyzed")?.majorStatus)
 		assertEquals(34, resolved.participant("paralyzed")?.skillSlot(1)?.remainingPp)
 		assertEquals(72, resolved.participant("target")?.currentHp)
-		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPreventedByParalysis>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.PARALYSIS })
 		assertEquals("paralyzed", resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().actorId)
 	}
 }

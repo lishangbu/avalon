@@ -2,6 +2,8 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -139,7 +141,7 @@ class BattleLockedMoveTests {
 		assertEquals(
 			1,
 			afterSecond.events
-				.filterIsInstance<BattleEvent.SwitchPreventedByLockedMove>()
+				.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.LOCKED_MOVE }
 				.count { it.actorId == "lock-user" && it.skillId == 1L },
 		)
 		assertEquals(

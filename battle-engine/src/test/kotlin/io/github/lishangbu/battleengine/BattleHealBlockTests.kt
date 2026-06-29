@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -82,7 +84,7 @@ class BattleHealBlockTests {
 		)
 
 		fixture.assertNamed("heal-blocked-participant-cannot-use-self-healing-status-skill")
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByHealBlock>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.HEAL_BLOCK }.single()
 		assertEquals("healer", blocked.actorId)
 		assertEquals(105, blocked.skillId)
 		assertEquals(2, blocked.turnsRemainingBefore)

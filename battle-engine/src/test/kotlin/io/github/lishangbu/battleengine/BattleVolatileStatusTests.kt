@@ -4,6 +4,8 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.SkillPreventionReason
+import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
@@ -65,7 +67,7 @@ class BattleVolatileStatusTests {
 		assertEquals(35, resolved.participant("slow")?.skillSlot(1)?.remainingPp)
 		assertEquals(false, resolved.participant("slow")?.flinched)
 		assertEquals("slow", resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().single().targetActorId)
-		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPreventedByVolatileStatus>().single()
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.VOLATILE_STATUS }.single()
 		assertEquals("slow", blocked.actorId)
 		assertEquals(BattleVolatileStatus.FLINCH, blocked.status)
 	}
@@ -114,7 +116,7 @@ class BattleVolatileStatusTests {
 
 		fixture.assertNamed("late-flinch-does-not-carry-to-next-turn")
 		assertEquals(false, afterFirst.participant("fast-target")?.flinched)
-		assertEquals(emptyList(), afterFirst.events.filterIsInstance<BattleEvent.SkillPreventedByVolatileStatus>())
+		assertEquals(emptyList(), afterFirst.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.VOLATILE_STATUS })
 		assertEquals(44, afterSecond.participant("slow-flinch-user")?.currentHp)
 		assertEquals(33, afterSecond.participant("fast-target")?.skillSlot(1)?.remainingPp)
 	}
