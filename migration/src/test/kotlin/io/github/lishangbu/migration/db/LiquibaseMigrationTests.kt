@@ -118,6 +118,7 @@ class LiquibaseMigrationTests(
 			"069-battle-volatile-status-cure-item-rules.yaml",
 			"070-battle-element-damage-boost-item-rules.yaml",
 			"071-battle-element-damage-reduction-item-rules.yaml",
+			"072-battle-element-damage-boost-item-fixture-corrections.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -859,6 +860,17 @@ class LiquibaseMigrationTests(
 					"effect_policy" to "element-damage-boost-fairy",
 					"consumable" to false,
 				),
+			)
+
+			val elementDamageBoostFixtureSummaries = queryStrings(
+				"""
+				select expected_summary
+				from battle_rule_fixture
+				where code = 'element-damage-boost-item-multiplies-matching-damage'
+				""".trimIndent(),
+			)
+			assertThat(elementDamageBoostFixtureSummaries).containsExactly(
+				"技能有效威力按 1.2 倍从 40 提升到 48，普通伤害从 19 提升到 23，且道具不会消费或反伤。",
 			)
 
 			val elementDamageReductionItemRules = queryMaps(

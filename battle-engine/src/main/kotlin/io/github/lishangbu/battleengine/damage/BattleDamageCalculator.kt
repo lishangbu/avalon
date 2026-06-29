@@ -129,14 +129,48 @@ class BattleDamageCalculator(
 	/**
 	 * 计算进入普通伤害公式的有效威力。
 	 *
-	 * 天气球、日光束类技能会在特定天气下改变威力。这里把资料层给出的倍率应用在基础威力上并向下取整；
-	 * 取整后至少为 1，避免极端自定义倍率产生无效威力。
+	 * 天气球、日光束类技能会在特定天气下改变威力；传统属性强化道具也在威力阶段提供 1.2 倍修正，而不是最终
+	 * 伤害阶段。这里把资料层给出的倍率应用在基础威力上并向下取整；取整后至少为 1，避免极端自定义倍率产生
+	 * 无效威力。
 	 */
 	private fun effectivePower(request: BattleDamageRequest): Int {
 		val basePower = requireNotNull(request.skill.power) { "damaging skill must define power" }
-		val multiplier = request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0
+		val multiplier = (request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0) *
+			attackerItemPowerMultiplier(request)
 		return floor(basePower * multiplier).toInt().coerceAtLeast(1)
 	}
+
+	/**
+	 * 计算攻击方携带道具贡献到技能有效威力阶段的倍率。
+	 *
+	 * 该阶段覆盖传统属性强化道具。它与 [attackerItemDamageMultiplier] 分离，是为了遵守现代公开公式中“威力修正”
+	 * 和“最终伤害修正”的不同取整位置。
+	 */
+	private fun attackerItemPowerMultiplier(request: BattleDamageRequest): Double =
+		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
+			when (effect) {
+				is BattleItemEffect.ElementDamageBoost -> if (request.skill.elementId == effect.elementId) {
+					multiplier * effect.multiplier
+				} else {
+					multiplier
+				}
+				is BattleItemEffect.ChargeSkipOnce,
+				is BattleItemEffect.ChoiceSkillLock,
+				is BattleItemEffect.DamageBoostWithRecoil,
+				is BattleItemEffect.ElementDamageReduction,
+				is BattleItemEffect.HeldEndTurnHeal,
+				is BattleItemEffect.LowHpHeal,
+				is BattleItemEffect.MajorStatusCure,
+				is BattleItemEffect.MajorStatusImmunity,
+				is BattleItemEffect.SideDamageReductionDurationExtension,
+				is BattleItemEffect.SurviveFatalDamageAtFullHp,
+				is BattleItemEffect.TerrainDurationExtension,
+				is BattleItemEffect.VolatileStatusCure,
+				is BattleItemEffect.VolatileStatusImmunity,
+				is BattleItemEffect.WeatherDurationExtension,
+				is BattleItemEffect.WeatherDamageImmunity -> multiplier
+			}
+		}
 
 	/**
 	 * 计算击中要害时参与攻击侧公式的能力阶级。
@@ -294,13 +328,9 @@ class BattleDamageCalculator(
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
-				is BattleItemEffect.ElementDamageBoost -> if (request.skill.elementId == effect.elementId) {
-					multiplier * effect.multiplier
-				} else {
-					multiplier
-				}
 				is BattleItemEffect.ChargeSkipOnce -> multiplier
 				is BattleItemEffect.ChoiceSkillLock -> multiplier
+				is BattleItemEffect.ElementDamageBoost -> multiplier
 				is BattleItemEffect.ElementDamageReduction -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier

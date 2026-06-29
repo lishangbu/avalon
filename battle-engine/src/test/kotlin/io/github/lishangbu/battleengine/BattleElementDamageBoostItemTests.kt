@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
  *
  * 场景类型：道具 before-damage fixture。
  * 参考来源类型：公开成熟模拟器道具资料和公开规则说明。现代规则中，传统属性强化道具只在使用者技能属性匹配
- * 时把最终伤害乘以 1.2；它们不会消费自身，不会造成反伤，也不会改变技能属性或成员属性。测试刻意避开属性一致
+ * 时把技能有效威力乘以 1.2；它们不会消费自身，不会造成反伤，也不会改变技能属性或成员属性。测试刻意避开属性一致
  * 加成，让断言只覆盖道具倍率本身。
  */
 class BattleElementDamageBoostItemTests {
@@ -27,7 +27,7 @@ class BattleElementDamageBoostItemTests {
 				"https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item",
 			),
 			inputSummary = "使用者携带火属性伤害提升 1.2 倍的非消耗道具，使用非本系火属性物理技能攻击中性目标。",
-			expectedSummary = "普通伤害从 19 提升到 floor(19 * 1.2) = 22；道具不消费，也不产生反伤事件。",
+			expectedSummary = "技能有效威力从 40 提升到 48，普通伤害从 19 提升到 23；道具不消费，也不产生反伤事件。",
 		)
 		val state = engine.start(
 			initialState(
@@ -52,8 +52,8 @@ class BattleElementDamageBoostItemTests {
 		val attacker = requireNotNull(resolved.participant("attacker"))
 
 		fixture.assertNamed("element-damage-boost-item-multiplies-matching-damage")
-		assertEquals(22, damage.amount)
-		assertEquals(78, resolved.participant("defender")?.currentHp)
+		assertEquals(23, damage.amount)
+		assertEquals(77, resolved.participant("defender")?.currentHp)
 		assertEquals(100, attacker.currentHp)
 		assertEquals(226, attacker.itemId)
 		assertEquals(1, attacker.itemEffects.size)

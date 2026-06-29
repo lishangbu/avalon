@@ -749,7 +749,7 @@ class BattleRuleCoverageService {
 						"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 						"https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item",
 					),
-					note = "已覆盖传统非消耗型属性强化道具：技能属性匹配时最终伤害按 1.2 倍计算，不匹配时保持中性，且不会消费道具或产生反伤。规则资料已接入现代 18 个属性的对应道具。",
+					note = "已覆盖传统非消耗型属性强化道具：技能属性匹配时有效威力按 1.2 倍参与普通伤害公式，不匹配时保持中性，且不会消费道具或产生反伤。规则资料已接入现代 18 个属性的对应道具。",
 				),
 				item(
 					code = "item.element-damage-reduction",
