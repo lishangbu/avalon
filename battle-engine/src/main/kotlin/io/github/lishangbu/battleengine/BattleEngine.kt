@@ -62,6 +62,7 @@ class BattleEngine(
 	private val statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
 ) {
 	private val actionOrdering = BattleActionOrdering(statStageModifiers)
+	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -108,8 +109,8 @@ class BattleEngine(
 		if (afterSwitches.result != null) {
 			return afterSwitches
 		}
-		val skillActions = skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
-		val orderedActions = orderSkillActions(afterSwitches, skillActions, random)
+		val skillActions = actionPlanner.skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
+		val orderedActions = actionPlanner.orderSkillActions(afterSwitches, skillActions, random)
 		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
 			if (current.state.result != null) current else executeUseSkill(current, plan, random)
 		}
@@ -130,93 +131,6 @@ class BattleEngine(
 			?: applyTurnLimit(afterSideConditionDurations)
 		return afterTurnLimit.result?.let { afterTurnLimit }
 			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
-	}
-
-	/**
-	 * 按有效优先度、速度和同速随机数排序行动。
-	 *
-	 * 第一阶段只支持技能行动，所以优先度先来自技能槽，再叠加特性对变化类技能的修正。速度相同的行动会消费
-	 * 随机数作为排序键；这不是最终双打同速规则的完整实现，但已经保证同一随机脚本下的 replay 稳定。
-	 */
-	private fun orderSkillActions(state: BattleState, actions: List<SkillActionInput>, random: BattleRandom): List<ActionPlan> {
-		val plans = actions.map { input ->
-			val action = input.action
-			val actor = requireNotNull(state.participant(action.actorId)) { "actor not found: ${action.actorId}" }
-			val skill = requireNotNull(actor.skillSlot(action.skillId)) { "skill not found: ${action.skillId}" }
-			if (input.source == SkillActionSource.SUBMITTED) {
-				require(!actor.choiceLockedToAnotherSkill(action.skillId)) {
-					"choice locked to skill: ${actor.choiceLockedSkillId}"
-				}
-			}
-			ActionPlan(
-				action = action,
-				actor = actor,
-				skill = skill,
-				source = input.source,
-				priorityContext = actionOrdering.skillPriorityContext(actor, skill),
-			)
-		}
-		val speedComparator = actionOrdering.speedComparator(state)
-		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
-			.thenComparator { left, right -> speedComparator.compare(left.second, right.second) }
-		return plans
-			.groupBy { it.priorityContext.effectivePriority to actionOrdering.effectiveSpeed(state, it.actor) }
-			.toSortedMap(orderComparator)
-			.values
-			.flatMap { sameOrderPlans ->
-				if (sameOrderPlans.size == 1) {
-					sameOrderPlans
-				} else {
-					sameOrderPlans.sortedByRandomTieBreak(random) { "speed tie for ${it.actor.actorId}" }
-				}
-			}
-	}
-
-	/**
-	 * 为同一排序桶内的行动预先抽取随机排序键。
-	 *
-	 * 随机数不能直接放进 `sortedBy` 的 selector 里，因为排序实现可以用自己的比较顺序和比较次数调用 selector。
-	 * 这样会让“同速随机”依赖排序算法细节，而不是依赖提交顺序和随机脚本。这里先按当前列表顺序消费一次随机数，
-	 * 再使用已经固定的键排序，保证 replay、公开 fixture 和本地测试在不同 JVM 排序实现下都保持同一结果。
-	 */
-	private fun <T> List<T>.sortedByRandomTieBreak(random: BattleRandom, reason: (T) -> String): List<T> =
-		map { item -> item to random.nextInt(1_000_000, reason(item)) }
-			.sortedBy { it.second }
-			.map { it.first }
-
-	/**
-	 * 组装技能阶段实际要执行的行动。
-	 *
-	 * 锁招和蓄力成员会强制继续使用对应技能：如果玩家提交了其它技能选择，会被这里替换；如果玩家没有提交技能
-	 * 行动，引擎也会自动生成一次强制行动。目标仍保存为首次选择的目标槽位，以复用现有目标重定向语义。
-	 */
-	private fun skillActionsForTurn(state: BattleState, submittedActions: List<BattleAction.UseSkill>): List<SkillActionInput> {
-		val lockedActions = state.sides
-			.flatMap { it.activeParticipants() }
-			.filter { it.canBattle() && it.lockedMoveTurnsRemaining > 0 }
-			.mapNotNull { actor ->
-				val skillId = actor.lockedMoveSkillId ?: return@mapNotNull null
-				val targetActorId = actor.lockedMoveTargetActorId ?: return@mapNotNull null
-				SkillActionInput(
-					action = BattleAction.UseSkill(actor.actorId, skillId = skillId, targetActorId = targetActorId),
-					source = SkillActionSource.LOCKED_CONTINUATION,
-				)
-			}
-		val chargingActions = state.sides
-			.flatMap { it.activeParticipants() }
-			.filter { it.canBattle() && it.chargingTurnsRemaining > 0 }
-			.mapNotNull { actor ->
-				val skillId = actor.chargingSkillId ?: return@mapNotNull null
-				val targetActorId = actor.chargingTargetActorId ?: return@mapNotNull null
-				SkillActionInput(
-					action = BattleAction.UseSkill(actor.actorId, skillId = skillId, targetActorId = targetActorId),
-					source = SkillActionSource.CHARGED_RELEASE,
-				)
-			}
-		val forcedActorIds = (lockedActions + chargingActions).map { it.action.actorId }.toSet()
-		return submittedActions
-			.filterNot { it.actorId in forcedActorIds }
-			.map { SkillActionInput(it, source = SkillActionSource.SUBMITTED) } + lockedActions + chargingActions
 	}
 
 	/**
@@ -5314,25 +5228,6 @@ class BattleEngine(
 		data class Failed(
 			val reason: String,
 		) : DirectDamageAttempt
-	}
-
-	private data class SkillActionInput(
-		val action: BattleAction.UseSkill,
-		val source: SkillActionSource,
-	)
-
-	private data class ActionPlan(
-		val action: BattleAction.UseSkill,
-		val actor: BattleParticipant,
-		val skill: BattleSkillSlot,
-		val source: SkillActionSource,
-		val priorityContext: SkillPriorityContext,
-	)
-
-	private enum class SkillActionSource {
-		SUBMITTED,
-		LOCKED_CONTINUATION,
-		CHARGED_RELEASE,
 	}
 
 	private data class SwitchPlan(
