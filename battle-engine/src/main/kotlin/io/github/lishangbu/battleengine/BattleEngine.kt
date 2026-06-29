@@ -1515,36 +1515,6 @@ class BattleEngine(
 	}
 
 	/**
-	 * 计算比例型 HP 变化的基础数值。
-	 *
-	 * 现代规则中的常见比例回复以整数 HP 结算；这里统一向下取整，并对正比例至少保留 1 点，避免小额伤害的
-	 * 吸取回复被截成 0。调用方负责再根据当前缺失 HP 夹取最终回复量。
-	 */
-	private fun fractionAmount(value: Int, numerator: Int, denominator: Int): Int {
-		if (value <= 0) {
-			return 0
-		}
-		return ((value.toLong() * numerator) / denominator)
-			.coerceIn(1, Int.MAX_VALUE.toLong())
-			.toInt()
-	}
-
-	/**
-	 * 计算四舍五入到最近整数的比例型 HP 变化。
-	 *
-	 * 技能反作用伤害和吸取回复的取整口径不同，因此单独保留这个函数。正比例在造成实际伤害后至少为 1 点，
-	 * 让低伤害命中仍能产生可观察的反作用伤害。
-	 */
-	private fun roundedHalfUpFractionAmount(value: Int, numerator: Int, denominator: Int): Int {
-		if (value <= 0) {
-			return 0
-		}
-		return ((value.toLong() * numerator * 2 + denominator) / (denominator * 2L))
-			.coerceIn(1, Int.MAX_VALUE.toLong())
-			.toInt()
-	}
-
-	/**
 	 * 处理技能成功后的全场环境效果。
 	 *
 	 * 环境写入放在技能命中成功之后执行，只读取 [BattleSkillEnvironmentEffect] 这类结构化效果。当前支持普通天气技能；
