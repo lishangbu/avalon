@@ -11,8 +11,8 @@ package io.github.lishangbu.battleengine.model
  * - [FixedAmount]：固定数值，例如固定造成 20 或 40 点 HP 损失。
  * - [UserLevel]：按使用者当前等级造成同等 HP 损失。
  *
- * 反击、比例扣血、让目标 HP 变为某个阈值、随机固定伤害等规则会使用后续专门模型接入，避免把不同取整、
- * 失败条件和事件顺序混在同一个字段里。
+ * 比例扣血和按双方当前 HP 推导的直接伤害使用独立模型承载；反击、随机固定伤害等规则会继续用后续专门模型
+ * 接入，避免把不同取整、失败条件和事件顺序混在同一个字段里。
  */
 sealed interface BattleFixedDamage {
 	/**

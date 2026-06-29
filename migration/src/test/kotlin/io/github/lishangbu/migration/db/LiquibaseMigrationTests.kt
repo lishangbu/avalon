@@ -136,6 +136,7 @@ class LiquibaseMigrationTests(
 			"087-battle-same-element-bonus-ability-rules.yaml",
 			"088-battle-fixed-damage-skill-rules.yaml",
 			"089-battle-proportional-damage-skill-rules.yaml",
+			"090-battle-hp-derived-damage-skill-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -574,7 +575,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 82L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 84L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -583,9 +584,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 182L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 366L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 182L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 185L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 369L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 185L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -670,6 +671,27 @@ class LiquibaseMigrationTests(
 				"skill_id" to 877L,
 				"effect_policy" to "target-current-hp-half-damage",
 				"damage_policy" to "proportional-damage",
+			),
+		)
+
+		val hpDerivedDamageSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (283, 515)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(hpDerivedDamageSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 283L,
+				"effect_policy" to "target-hp-minus-user-hp-damage",
+				"damage_policy" to "hp-derived-damage",
+			),
+			mapOf(
+				"skill_id" to 515L,
+				"effect_policy" to "user-current-hp-sacrifice-damage",
+				"damage_policy" to "hp-derived-damage",
 			),
 		)
 

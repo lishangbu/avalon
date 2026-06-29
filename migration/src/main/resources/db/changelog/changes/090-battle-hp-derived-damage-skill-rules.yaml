@@ -1,0 +1,159 @@
+databaseChangeLog:
+- changeSet:
+    id: 090-battle-hp-derived-damage-skill-rules
+    author: backend
+    comment: 新增按双方当前 HP 推导直接伤害的技能规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 83 }
+        - column: { name: skill_id, valueNumeric: 283 }
+        - column: { name: effect_policy, value: target-hp-minus-user-hp-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: hp-derived-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: true }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 命中并通过属性免疫判定后，造成目标当前 HP 与使用者当前 HP 的差值直接技能伤害；目标当前 HP 不高于使用者当前 HP 时失败。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 830 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 84 }
+        - column: { name: skill_id, valueNumeric: 515 }
+        - column: { name: effect_policy, value: user-current-hp-sacrifice-damage }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: hp-derived-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: description, value: 命中并通过属性免疫判定后，造成使用者当前 HP 等量直接技能伤害，并让使用者自身倒下。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 840 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 183 }
+        - column: { name: code, value: hp-difference-damage-skill-reduces-target-to-user-current-hp }
+        - column: { name: name, value: HP 差额伤害技能将目标降到使用者当前 HP }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证 HP 差额伤害类技能按目标当前 HP 减使用者当前 HP 计算伤害，而不是进入普通伤害公式。 }
+        - column: { name: input_summary, value: 使用者当前 HP 为 37，目标当前 HP 为 92，差额伤害技能命中。 }
+        - column: { name: expected_summary, value: 目标损失 55 HP，最终当前 HP 与使用者当前 HP 同为 37。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1830 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 184 }
+        - column: { name: code, value: hp-difference-damage-skill-fails-when-target-not-above-user }
+        - column: { name: name, value: HP 差额伤害技能在目标 HP 不高于使用者时失败 }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证 HP 差额伤害类技能在差值不为正时失败，不会退回普通伤害公式。 }
+        - column: { name: input_summary, value: 使用者当前 HP 为 70，目标当前 HP 为 60，差额伤害技能命中。 }
+        - column: { name: expected_summary, value: 目标 HP 保持 60，引擎记录技能失败事件且不产生伤害事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1840 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 185 }
+        - column: { name: code, value: user-current-hp-sacrifice-damage-skill-faints-user }
+        - column: { name: name, value: 使用者当前 HP 伤害技能命中后让使用者倒下 }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证按使用者当前 HP 造成直接伤害的技能会在命中后让使用者自身倒下。 }
+        - column: { name: input_summary, value: 使用者当前 HP 为 73，目标当前 HP 为 73，自身体力伤害技能命中。 }
+        - column: { name: expected_summary, value: 目标和使用者都损失 73 HP，双方同时倒下并产生无胜方结果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1850 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 367 }
+        - column: { name: fixture_id, valueNumeric: 183 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照 HP 差额伤害按目标当前 HP 减使用者当前 HP 计算的口径。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 368 }
+        - column: { name: fixture_id, valueNumeric: 184 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照 HP 差额伤害在目标当前 HP 不高于使用者时失败的条件。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 369 }
+        - column: { name: fixture_id, valueNumeric: 185 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照按使用者当前 HP 造成伤害并在命中后让使用者倒下的口径。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 183 }
+        - column: { name: run_code, value: hp-derived-damage-skill-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 183 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T15:40:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1830 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 184 }
+        - column: { name: run_code, value: hp-derived-damage-skill-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 184 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T15:40:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1840 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 185 }
+        - column: { name: run_code, value: hp-derived-damage-skill-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 185 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T15:40:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1850 }

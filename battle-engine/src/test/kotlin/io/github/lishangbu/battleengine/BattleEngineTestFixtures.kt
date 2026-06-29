@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
+import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -163,6 +164,7 @@ internal fun damagingSkill(
 	power: Int? = 40,
 	fixedDamage: BattleFixedDamage? = null,
 	proportionalDamage: BattleProportionalDamage? = null,
+	hpDerivedDamage: BattleHpDerivedDamage? = null,
 	accuracy: Int? = null,
 	targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	minHits: Int = 1,
@@ -205,6 +207,7 @@ internal fun damagingSkill(
 		power = power,
 		fixedDamage = fixedDamage,
 		proportionalDamage = proportionalDamage,
+		hpDerivedDamage = hpDerivedDamage,
 		accuracy = accuracy,
 		targetScope = targetScope,
 		minHits = minHits,

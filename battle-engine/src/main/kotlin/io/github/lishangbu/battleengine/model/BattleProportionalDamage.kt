@@ -8,7 +8,8 @@ package io.github.lishangbu.battleengine.model
  * 攻防能力值、天气、场地、道具或特性伤害倍率。
  *
  * 目标仍然需要先通过保护、命中、属性免疫、特性吸收和替身等前置流程；属性相性为 0 时不会造成 HP 变化。
- * 反击、最终搏命、让目标 HP 变为使用者 HP、随机固定伤害等差异较大的规则会用后续专门模型表达。
+ * 按双方当前 HP 推导的直接伤害已经由 [BattleHpDerivedDamage] 表达；反击和随机固定伤害等差异较大的规则会
+ * 用后续专门模型接入。
  */
 sealed interface BattleProportionalDamage {
 	/**

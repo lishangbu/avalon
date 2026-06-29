@@ -110,6 +110,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖按目标当前 HP 的 1/2 向下取整且至少 1 点的直接伤害；该规则不进入普通伤害公式，但仍受保护、命中、属性免疫、替身和伤害后流程影响。",
 			),
 			item(
+				code = "damage.hp-derived-damage",
+				name = "HP 派生直接伤害技能",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"hp-difference-damage-skill-reduces-target-to-user-current-hp",
+					"hp-difference-damage-skill-fails-when-target-not-above-user",
+					"user-current-hp-sacrifice-damage-skill-faints-user",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖按目标与使用者当前 HP 差值造成直接伤害、差值不为正时失败，以及按使用者当前 HP 造成伤害并让使用者倒下；这些规则不进入普通伤害公式。",
+			),
+			item(
 				code = "field.side-damage-reduction",
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
@@ -1148,7 +1163,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 84
+		private const val FINAL_COVERED_RULE_COUNT = 86
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

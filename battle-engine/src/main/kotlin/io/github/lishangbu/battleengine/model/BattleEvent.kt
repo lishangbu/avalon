@@ -83,6 +83,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能在已经使用、消耗 PP 并通过前置命中流程后，因为自身规则条件不满足而失败。
+	 *
+	 * 该事件用于表达“不能继续进入伤害或附加效果”的稳定事实，例如目标当前 HP 不高于使用者当前 HP 时，
+	 * HP 差值伤害技能不会退回普通伤害公式。`reason` 使用面向规则的稳定代码，方便 replay 和对照测试断言。
+	 */
+	data class SkillFailed(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val reason: String,
+	) : BattleEvent
+
+	/**
 	 * 成员成功建立本回合保护屏障。
 	 *
 	 * 该事件只表达“保护状态已经生效”，不表达技能命中目标或造成效果。保护屏障是回合内临时状态，
@@ -594,6 +608,19 @@ sealed interface BattleEvent {
 		val skillId: Long,
 		val amount: Int,
 		val sourceDamageAmount: Int,
+	) : BattleEvent
+
+	/**
+	 * 使用者因技能自身代价损失全部剩余 HP。
+	 *
+	 * 该事件和 [SkillRecoilDamageApplied] 分开：反作用伤害按目标实际损失 HP 推导，可能被反作用伤害免疫阻止；
+	 * 自我牺牲伤害按使用者命中时的当前 HP 推导，表示技能规则自身让使用者倒下。
+	 */
+	data class SkillSelfSacrificeDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val amount: Int,
 	) : BattleEvent
 
 	/**

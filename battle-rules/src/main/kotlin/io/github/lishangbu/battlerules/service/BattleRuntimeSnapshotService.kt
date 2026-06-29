@@ -14,6 +14,7 @@ import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
+import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -591,6 +592,7 @@ class BattleRuntimeSnapshotService(
 			power = row.power,
 			fixedDamage = row.effectPolicy.toBattleFixedDamage(),
 			proportionalDamage = row.effectPolicy.toBattleProportionalDamage(),
+			hpDerivedDamage = row.effectPolicy.toBattleHpDerivedDamage(),
 			accuracy = row.accuracy,
 			targetScope = row.targetPolicy.toBattleSkillTargetScope(),
 			minHits = row.minHits ?: 1,
@@ -1030,6 +1032,13 @@ class BattleRuntimeSnapshotService(
 				numerator = 1,
 				denominator = 2,
 			)
+			else -> null
+		}
+
+	private fun String?.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
+		when (this) {
+			"target-hp-minus-user-hp-damage" -> BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp
+			"user-current-hp-sacrifice-damage" -> BattleHpDerivedDamage.UserCurrentHpAndUserFaints
 			else -> null
 		}
 

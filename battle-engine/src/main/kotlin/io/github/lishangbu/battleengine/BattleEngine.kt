@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
+import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -627,15 +628,35 @@ class BattleEngine(
 			)
 		}
 
-		val directDamageAmount = directDamageAmount(skill, actor, target)
-		if (directDamageAmount != null) {
+		val directDamageAttempt = directDamageAttempt(skill, actor, target)
+		if (directDamageAttempt != null) {
+			if (directDamageAttempt is DirectDamageAttempt.Failed) {
+				return context.copy(
+					state = endLockedMoveAfterDisruption(
+						state = state.appendEvent(
+							BattleEvent.SkillFailed(
+								turnNumber = state.turnNumber,
+								actorId = actor.actorId,
+								targetActorId = target.actorId,
+								skillId = skill.skillId,
+								reason = directDamageAttempt.reason,
+							),
+						),
+						actorId = actor.actorId,
+						skill = skill,
+						random = random,
+					),
+				)
+			}
+			val directDamageHit = directDamageAttempt as DirectDamageAttempt.Hit
 			val damageEventStartIndex = state.events.size
 			val afterDirectDamage = resolveDirectDamageHit(
 				context = context,
 				actorId = actor.actorId,
 				targetActorId = target.actorId,
 				skill = skill,
-				damageAmount = directDamageAmount,
+				damageAmount = directDamageHit.amount,
+				faintActorAfterHit = directDamageHit.faintActorAfterHit,
 				targetMultiplier = targetMultiplier,
 				effectiveness = effectiveness,
 				random = random,
@@ -876,31 +897,53 @@ class BattleEngine(
 	/**
 	 * 计算不进入普通伤害公式的直接技能伤害。
 	 *
-	 * 固定伤害和比例伤害都在命中、保护、属性吸收和属性免疫之后结算，但它们的数值来源不同：
-	 * 固定伤害读取技能规则给出的固定数值或使用者等级；比例伤害读取目标当前 HP 并按规则比例向下取整。
+	 * 固定伤害、比例伤害和 HP 派生伤害都在命中、保护、属性吸收和属性免疫之后结算，但它们的数值来源不同：
+	 * 固定伤害读取技能规则给出的固定数值或使用者等级；比例伤害读取目标当前 HP 并按规则比例向下取整；
+	 * HP 派生伤害读取双方当前 HP，并可能附带技能自身失败或使用者倒下。
 	 * 若技能没有直接伤害模型，返回 null，调用方继续走普通伤害公式。
 	 */
-	private fun directDamageAmount(skill: BattleSkillSlot, actor: BattleParticipant, target: BattleParticipant): Int? =
+	private fun directDamageAttempt(
+		skill: BattleSkillSlot,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+	): DirectDamageAttempt? =
 		when (val fixedDamage = skill.fixedDamage) {
-			is BattleFixedDamage.FixedAmount -> fixedDamage.amount
-			BattleFixedDamage.UserLevel -> actor.level
+			is BattleFixedDamage.FixedAmount -> DirectDamageAttempt.Hit(fixedDamage.amount)
+			BattleFixedDamage.UserLevel -> DirectDamageAttempt.Hit(actor.level)
 			null -> when (val proportionalDamage = skill.proportionalDamage) {
 				is BattleProportionalDamage.TargetCurrentHpFraction ->
-					fractionAmount(
-						value = target.currentHp,
-						numerator = proportionalDamage.numerator,
-						denominator = proportionalDamage.denominator,
-					).coerceAtLeast(proportionalDamage.minimumDamage)
-				null -> null
+					DirectDamageAttempt.Hit(
+						fractionAmount(
+							value = target.currentHp,
+							numerator = proportionalDamage.numerator,
+							denominator = proportionalDamage.denominator,
+						).coerceAtLeast(proportionalDamage.minimumDamage),
+					)
+				null -> when (skill.hpDerivedDamage) {
+					BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp -> {
+						val amount = target.currentHp - actor.currentHp
+						if (amount <= 0) {
+							DirectDamageAttempt.Failed("target-hp-not-greater-than-user-hp")
+						} else {
+							DirectDamageAttempt.Hit(amount)
+						}
+					}
+					BattleHpDerivedDamage.UserCurrentHpAndUserFaints ->
+						DirectDamageAttempt.Hit(
+							amount = actor.currentHp,
+							faintActorAfterHit = true,
+						)
+					null -> null
+				}
 			}
 		}
 
 	/**
 	 * 结算一段直接伤害技能。
 	 *
-	 * 调用点已经完成行动可用性、PP、保护、命中、属性吸收和属性免疫判定；本函数只负责把固定或比例伤害写入目标
-	 * 或替身。直接伤害不会进入普通伤害公式，因此不会消费击中要害随机数或伤害浮动随机数，也不会读取威力、攻防、
-	 * 能力阶级、属性一致加成、天气、场地、道具和特性伤害倍率。
+	 * 调用点已经完成行动可用性、PP、保护、命中、属性吸收和属性免疫判定；本函数只负责把固定、比例或 HP 派生
+	 * 伤害写入目标或替身。直接伤害不会进入普通伤害公式，因此不会消费击中要害随机数或伤害浮动随机数，也不会
+	 * 读取威力、攻防、能力阶级、属性一致加成、天气、场地、道具和特性伤害倍率。
 	 *
 	 * 写入 HP 后仍复用 [finishPostDamageEffects]，让目标低体力道具、接触触发特性、使用者反伤、伤害后回复、
 	 * 倒下判定和胜负判定保持同一条事件顺序。若目标有替身且该技能不能穿透替身，则直接伤害先扣替身 HP。
@@ -911,6 +954,7 @@ class BattleEngine(
 		targetActorId: String,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
+		faintActorAfterHit: Boolean,
 		targetMultiplier: Double,
 		effectiveness: Double,
 		random: BattleRandom,
@@ -930,6 +974,7 @@ class BattleEngine(
 				target = target,
 				skill = skill,
 				damageAmount = damageAmount,
+				faintActorAfterHit = faintActorAfterHit,
 			)
 		}
 
@@ -967,6 +1012,7 @@ class BattleEngine(
 			targetActorId = damagedTarget.actorId,
 			skill = skill,
 			damageAmount = actualDamageAmount,
+			faintActorAfterHit = faintActorAfterHit,
 			targetCanFaint = true,
 			allowTargetLowHpItem = true,
 			allowContactAbilities = true,
@@ -1114,6 +1160,7 @@ class BattleEngine(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
+		faintActorAfterHit: Boolean = false,
 	): TurnContext {
 		val actualDamageAmount = damageAmount.coerceAtMost(target.substituteHp)
 		val damagedTarget = target.damageSubstitute(actualDamageAmount)
@@ -1148,6 +1195,7 @@ class BattleEngine(
 			targetActorId = damagedTarget.actorId,
 			skill = skill,
 			damageAmount = actualDamageAmount,
+			faintActorAfterHit = faintActorAfterHit,
 			targetCanFaint = false,
 			allowTargetLowHpItem = false,
 			allowContactAbilities = false,
@@ -1168,13 +1216,19 @@ class BattleEngine(
 		targetActorId: String,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
+		faintActorAfterHit: Boolean = false,
 		targetCanFaint: Boolean,
 		allowTargetLowHpItem: Boolean,
 		allowContactAbilities: Boolean,
 		random: BattleRandom?,
 	): TurnContext {
+		val afterActorSelfSacrifice = if (faintActorAfterHit) {
+			applySkillSelfSacrificeDamage(state, actorId, skill)
+		} else {
+			state
+		}
 		val afterSkillHpEffects = applyPostDamageSkillHpEffects(
-			state = state,
+			state = afterActorSelfSacrifice,
 			actorId = actorId,
 			skill = skill,
 			damageAmount = damageAmount,
@@ -1207,19 +1261,41 @@ class BattleEngine(
 			skill = skill,
 			damageAmount = damageAmount,
 		)
-		val actorAfterPostDamage = afterRecoil.participant(actorId)
-		val afterTargetFaint = if (targetCanFaint) {
-			val targetAfterPostDamage = afterRecoil.participant(targetActorId)
-			if (targetAfterPostDamage == null) afterRecoil else afterRecoil.handleFaintAndResult(targetAfterPostDamage)
-		} else {
-			afterRecoil
+		val faintCandidates = buildList {
+			if (targetCanFaint) {
+				afterRecoil.participant(targetActorId)?.let(::add)
+			}
+			afterRecoil.participant(actorId)?.let(::add)
 		}
-		if (afterTargetFaint.result != null) {
-			return context.copy(state = afterTargetFaint)
+		return context.copy(state = afterRecoil.handleFaintsAndResult(faintCandidates))
+	}
+
+	/**
+	 * 写入技能自身代价造成的使用者倒下。
+	 *
+	 * 该 helper 只服务“命中后使用者以当前 HP 作为代价倒下”的直接伤害规则。它不读取目标实际损失 HP，也不检查
+	 * 反作用伤害免疫；后续倒下事件和胜负判定仍交给 [finishPostDamageEffects] 统一处理，避免这里重复判胜。
+	 */
+	private fun applySkillSelfSacrificeDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
 		}
-		return context.copy(
-			state = actorAfterPostDamage?.let { afterTargetFaint.handleFaintAndResult(it) } ?: afterTargetFaint,
-		)
+		val amount = actor.currentHp
+		return state
+			.replaceParticipant(actor.receiveDamage(amount))
+			.appendEvent(
+				BattleEvent.SkillSelfSacrificeDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = amount,
+				),
+			)
 	}
 
 	/**
@@ -4637,20 +4713,30 @@ class BattleEngine(
 	/**
 	 * 在伤害后追加倒下事件并判断胜负。
 	 *
-	 * 第一阶段只要某一方没有可战斗成员就立即结束战斗。后续替换请求、双打多成员同时倒下和裁定规则会扩展这里。
+	 * 第一阶段只要某一方没有可战斗成员就立即结束战斗。若双方都没有剩余成员，则以无胜方结果结束；后续替换
+	 * 请求和复杂计分裁定规则会继续扩展这里。
 	 */
 	private fun BattleState.handleFaintAndResult(target: BattleParticipant): BattleState {
-		val withFaint = if (!target.canBattle()) {
-			appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
-		} else {
-			this
-		}
+		return handleFaintsAndResult(listOf(target))
+	}
+
+	private fun BattleState.handleFaintsAndResult(targets: List<BattleParticipant>): BattleState {
+		val withFaint = targets
+			.distinctBy { it.actorId }
+			.filterNot { it.canBattle() }
+			.fold(this) { current, target ->
+				current.appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
+			}
 		val defeatedSides = withFaint.sides.filterNot { it.hasRemainingParticipant() }
 		if (defeatedSides.isEmpty()) {
 			return withFaint
 		}
-		val winner = withFaint.sides.first { it !in defeatedSides }
-		val result = BattleResult(winningSideId = winner.sideId, reason = "all-opponents-fainted")
+		val remainingSides = withFaint.sides.filter { it !in defeatedSides }
+		val winningSideId = remainingSides.singleOrNull()?.sideId
+		val result = BattleResult(
+			winningSideId = winningSideId,
+			reason = if (winningSideId == null) "all-sides-fainted" else "all-opponents-fainted",
+		)
 		return withFaint
 			.copy(result = result)
 			.appendEvent(
@@ -4660,6 +4746,17 @@ class BattleEngine(
 					reason = result.reason,
 				),
 			)
+	}
+
+	private sealed interface DirectDamageAttempt {
+		data class Hit(
+			val amount: Int,
+			val faintActorAfterHit: Boolean = false,
+		) : DirectDamageAttempt
+
+		data class Failed(
+			val reason: String,
+		) : DirectDamageAttempt
 	}
 
 	private data class SkillActionInput(

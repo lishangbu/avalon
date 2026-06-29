@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
+import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -95,7 +96,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(5, 14, 15, 38, 39, 45, 49, 63, 69, 71, 76, 77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 147, 162, 163, 164, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 717, 877, 883, 895, 694),
+			listOf(5, 14, 15, 38, 39, 45, 49, 63, 69, 71, 76, 77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 147, 162, 163, 164, 184, 191, 235, 240, 261, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 515, 526, 564, 568, 570, 577, 580, 604, 717, 877, 883, 895, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -142,6 +143,10 @@ class BattleRuntimeSnapshotServiceTests(
 			.isEqualTo(BattleProportionalDamage.TargetCurrentHpFraction(numerator = 1, denominator = 2))
 		assertThat(slots.getValue(877).proportionalDamage)
 			.isEqualTo(BattleProportionalDamage.TargetCurrentHpFraction(numerator = 1, denominator = 2))
+		assertThat(slots.getValue(283).hpDerivedDamage)
+			.isEqualTo(BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp)
+		assertThat(slots.getValue(515).hpDerivedDamage)
+			.isEqualTo(BattleHpDerivedDamage.UserCurrentHpAndUserFaints)
 
 		assertThat(slots.getValue(63).rechargesAfterUse).isTrue()
 
