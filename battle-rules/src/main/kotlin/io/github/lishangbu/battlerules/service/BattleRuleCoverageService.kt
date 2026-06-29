@@ -1137,6 +1137,24 @@ class BattleRuleCoverageService {
 				),
 				note = "已覆盖造成伤害后按实际伤害 1/2 或 3/4 吸取回复、变化技能固定 1/2 自我回复、晨光/光合作用/月光类天气变量回复，以及按目标实际损失 HP 计算的技能反作用伤害。",
 			),
+			item(
+				code = "skill.forced-switch",
+				name = "技能强制替换目标",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-skill-forces-target-side-random-bench-switch",
+					"damaging-skill-applies-damage-before-forced-target-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Roar_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Whirlwind_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Circle_Throw_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Dragon_Tail_(move)",
+				),
+				note = "已覆盖变化技能命中后随机强制目标侧后备换入，以及伤害技能先造成普通伤害再强制目标侧后备换入；换入继续触发入场陷阱和出场特性流程。",
+			),
 		)
 
 	private fun item(
@@ -1163,7 +1181,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 86
+		private const val FINAL_COVERED_RULE_COUNT = 88
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

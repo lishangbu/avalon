@@ -51,6 +51,8 @@ data class BattleSkillRuleRequest(
 	var lockMoveTurnsMax: Int = 1,
 	@field:Schema(description = "锁招结束后使用者是否进入混乱状态。", example = "false")
 	var confusesUserAfterLock: Boolean = false,
+	@field:Schema(description = "成功命中后是否强制目标侧换入后备成员。", example = "false")
+	var forceTargetSwitch: Boolean = false,
 	@field:Schema(description = "技能规则说明。", nullable = true)
 	var description: String? = null,
 	@field:Schema(description = "是否启用。", example = "true")

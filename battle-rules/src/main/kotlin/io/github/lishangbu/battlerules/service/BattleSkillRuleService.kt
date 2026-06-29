@@ -11,6 +11,7 @@ import io.github.lishangbu.battlerules.entity.damagePolicy
 import io.github.lishangbu.battlerules.entity.description
 import io.github.lishangbu.battlerules.entity.effectPolicy
 import io.github.lishangbu.battlerules.entity.enabled
+import io.github.lishangbu.battlerules.entity.forceTargetSwitch
 import io.github.lishangbu.battlerules.entity.hitPolicy
 import io.github.lishangbu.battlerules.entity.id
 import io.github.lishangbu.battlerules.entity.lockMoveTurnsMax
@@ -121,6 +122,7 @@ class BattleSkillRuleService(
 				lockMoveTurnsMin = normalized.lockMoveTurnsMin
 				lockMoveTurnsMax = normalized.lockMoveTurnsMax
 				confusesUserAfterLock = normalized.confusesUserAfterLock
+				forceTargetSwitch = normalized.forceTargetSwitch
 				description = normalized.description
 				enabled = normalized.enabled
 				sortOrder = normalized.sortOrder
@@ -164,6 +166,7 @@ class BattleSkillRuleService(
 				lockMoveTurnsMin = normalized.lockMoveTurnsMin
 				lockMoveTurnsMax = normalized.lockMoveTurnsMax
 				confusesUserAfterLock = normalized.confusesUserAfterLock
+				forceTargetSwitch = normalized.forceTargetSwitch
 				description = normalized.description
 				enabled = normalized.enabled
 				sortOrder = normalized.sortOrder
@@ -278,6 +281,7 @@ class BattleSkillRuleService(
 			lockMoveTurnsMin = lockMoveTurnsMin,
 			lockMoveTurnsMax = lockMoveTurnsMax,
 			confusesUserAfterLock = confusesUserAfterLock,
+			forceTargetSwitch = forceTargetSwitch,
 			description = description,
 			enabled = enabled,
 			sortOrder = sortOrder,

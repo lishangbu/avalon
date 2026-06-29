@@ -574,7 +574,8 @@ class BattleRuntimeSnapshotService(
 				r.recharges_after_use,
 				r.lock_move_turns_min,
 				r.lock_move_turns_max,
-				r.confuses_user_after_lock
+				r.confuses_user_after_lock,
+				r.force_target_switch
 			from game_skill s
 			join game_skill_damage_class dc on dc.id = s.damage_class_id
 			left join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
@@ -616,6 +617,7 @@ class BattleRuntimeSnapshotService(
 			lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
 			lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
 			confusesUserAfterLock = row.confusesUserAfterLock ?: false,
+			forceTargetSwitch = row.forceTargetSwitch ?: false,
 			priority = row.priority,
 			remainingPp = row.pp,
 			maxPp = row.pp,
@@ -661,6 +663,7 @@ class BattleRuntimeSnapshotService(
 			lockMoveTurnsMin = nullableInt("lock_move_turns_min"),
 			lockMoveTurnsMax = nullableInt("lock_move_turns_max"),
 			confusesUserAfterLock = nullableBoolean("confuses_user_after_lock"),
+			forceTargetSwitch = nullableBoolean("force_target_switch"),
 		)
 
 	private fun weatherAccuracyOverrides(ruleId: Long?): Map<BattleWeather, Int?> {
@@ -1628,4 +1631,5 @@ private data class SkillRuntimeRow(
 	val lockMoveTurnsMin: Int?,
 	val lockMoveTurnsMax: Int?,
 	val confusesUserAfterLock: Boolean?,
+	val forceTargetSwitch: Boolean?,
 )

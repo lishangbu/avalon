@@ -47,6 +47,7 @@ interface BattleSkillRule {
 	val lockMoveTurnsMin: Int
 	val lockMoveTurnsMax: Int
 	val confusesUserAfterLock: Boolean
+	val forceTargetSwitch: Boolean
 	val description: String?
 	val enabled: Boolean
 	val sortOrder: Int

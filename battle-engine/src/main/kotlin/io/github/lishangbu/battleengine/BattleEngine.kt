@@ -2550,13 +2550,74 @@ class BattleEngine(
 				applySideEntryHazardEffect(current, actorId, targetActorId, skill, application)
 			}
 		}
-		return skill.fieldSpeedOrderApplications.fold(afterSideEntryHazards) { current, application ->
+		val afterFieldSpeedOrder = skill.fieldSpeedOrderApplications.fold(afterSideEntryHazards) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
 				current
 			} else {
 				applyFieldSpeedOrderEffect(current, actorId, skill, application)
 			}
 		}
+		return applyForcedTargetSwitchEffect(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
+	}
+
+	/**
+	 * 处理技能命中后的强制替换效果。
+	 *
+	 * 该效果发生在技能伤害和普通附加效果之后，因此巴投、龙尾这类技能会先造成伤害，再把仍可战斗的目标换下。
+	 * 变化类强制替换技能也走同一入口：命中、保护、粉末/属性/特性免疫等前置流程已经在外层处理完毕。若目标已经
+	 * 倒下、目标不在场、目标侧没有可战斗后备成员，或目标替身阻止了对手技能效果，则状态保持不变且不消费随机数。
+	 * 当存在多个合法后备成员时，随机源只消费一次并以稳定 reason 记录；单个后备成员时直接选中，避免无意义随机
+	 * 消费破坏 replay 脚本。换入后的入场陷阱和出场特性沿用主动替换的同一条规则路径。
+	 */
+	private fun applyForcedTargetSwitchEffect(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		if (!skill.forceTargetSwitch || state.result != null) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		if (!target.canBattle() || !state.isActive(target.actorId)) {
+			return state
+		}
+		if (substituteBlocksOpponentEffect(state, actorId, target.actorId, skill)) {
+			return state
+		}
+		val side = state.sideOf(target.actorId) ?: return state
+		val candidates = side.participants
+			.filter { participant -> participant.canBattle() && !side.isActive(participant.actorId) }
+		if (candidates.isEmpty()) {
+			return state
+		}
+		val next = if (candidates.size == 1) {
+			candidates.single()
+		} else {
+			candidates[random.nextInt(candidates.size, "forced switch target for ${skill.skillId}")]
+		}
+		val switched = state.switchActive(target.actorId, next.actorId)
+			.appendEvent(
+				BattleEvent.TargetForcedSwitchSelected(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					nextActorId = next.actorId,
+				),
+			)
+			.appendEvent(
+				BattleEvent.ParticipantSwitched(
+					turnNumber = state.turnNumber,
+					sideId = side.sideId,
+					previousActorId = target.actorId,
+					nextActorId = next.actorId,
+					forced = true,
+				),
+			)
+		val afterEntryHazards = applyEntryHazardsOnSwitchIn(switched, side.sideId, next.actorId)
+		return applySwitchInAbilityEffects(afterEntryHazards, next.actorId)
 	}
 
 	/**

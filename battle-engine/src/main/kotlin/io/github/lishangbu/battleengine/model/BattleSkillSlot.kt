@@ -27,6 +27,7 @@ package io.github.lishangbu.battleengine.model
  * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
+ * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
@@ -72,6 +73,7 @@ data class BattleSkillSlot(
 	val lockMoveTurnsMin: Int = 1,
 	val lockMoveTurnsMax: Int = 1,
 	val confusesUserAfterLock: Boolean = false,
+	val forceTargetSwitch: Boolean = false,
 	val priority: Int = 0,
 	val remainingPp: Int,
 	val maxPp: Int,

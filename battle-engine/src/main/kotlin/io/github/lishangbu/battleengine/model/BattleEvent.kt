@@ -34,6 +34,21 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能命中后的强制替换效果选中了一个后备成员。
+	 *
+	 * 该事件只表达来源技能和随机选中的后备成员；真正的上场席位变化仍由随后的 [ParticipantSwitched] 记录。
+	 * 两条事件分开后，replay 可以同时恢复“为什么换人”和“席位现在是谁”，也能在入场陷阱或出场特性继续触发时
+	 * 保持事件顺序清楚。
+	 */
+	data class TargetForcedSwitchSelected(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val nextActorId: String,
+	) : BattleEvent
+
+	/**
 	 * 成员因锁招状态无法主动替换。
 	 *
 	 * 锁招期间成员会在技能阶段继续使用被锁定的技能。该事件只表示本次替换请求被忽略，不会清除锁招状态。
