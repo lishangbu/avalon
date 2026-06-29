@@ -279,9 +279,9 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
-	 * 当前支持低体力指定属性增伤、天气下指定属性增伤，以及拳击类、切割类、接触类、声音类技能标签触发的
-	 * 稳定增伤；防守方声音类技能减伤和效果绝佳减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，
-	 * 避免伤害公式读取技能名、特性名或本地化文本。
+	 * 当前支持固定属性增伤、低体力指定属性增伤、天气下指定属性增伤，以及拳击类、切割类、接触类、声音类技能
+	 * 标签触发的稳定增伤；防守方声音类技能减伤和效果绝佳减伤也会合并到该倍率。触发条件都来自运行时快照中的
+	 * 结构化字段，避免伤害公式读取技能名、特性名或本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
 		attackerAbilityDamageMultiplier(request) * defenderAbilityDamageMultiplier(request)
@@ -289,6 +289,12 @@ class BattleDamageCalculator(
 	private fun attackerAbilityDamageMultiplier(request: BattleDamageRequest): Double =
 		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
+				is BattleAbilityEffect.ElementSkillDamageBoost ->
+					if (request.skill.effectiveElementId(request.environment.weather) in effect.elementIds) {
+						multiplier * effect.multiplier
+					} else {
+						multiplier
+					}
 				is BattleAbilityEffect.LowHpElementDamageBoost -> {
 					val hpAtOrBelowThreshold =
 						request.attacker.currentHp * effect.hpThresholdDenominator <=
@@ -366,6 +372,7 @@ class BattleDamageCalculator(
 					is BattleAbilityEffect.CriticalHitImmunity,
 					is BattleAbilityEffect.ElementSkillAbsorbHeal,
 					is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+					is BattleAbilityEffect.ElementSkillDamageBoost,
 					is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 					is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
 					is BattleAbilityEffect.IgnoreTargetAbilityEffects,

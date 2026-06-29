@@ -1132,6 +1132,22 @@ class BattleRuntimeSnapshotService(
 			"low-hp-bug-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
 				elementId = elementIds.requiredElementId("bug"),
 			)
+			"element-dragon-damage-boost" -> BattleAbilityEffect.ElementSkillDamageBoost(
+				elementIds = setOf(elementIds.requiredElementId("dragon")),
+				multiplier = 1.5,
+			)
+			"element-rock-damage-boost" -> BattleAbilityEffect.ElementSkillDamageBoost(
+				elementIds = setOf(elementIds.requiredElementId("rock")),
+				multiplier = 1.5,
+			)
+			"element-steel-damage-boost" -> BattleAbilityEffect.ElementSkillDamageBoost(
+				elementIds = setOf(elementIds.requiredElementId("steel")),
+				multiplier = 1.5,
+			)
+			"element-electric-damage-boost" -> BattleAbilityEffect.ElementSkillDamageBoost(
+				elementIds = setOf(elementIds.requiredElementId("electric")),
+				multiplier = 1.3,
+			)
 			"weather-sandstorm-rock-ground-steel-damage-boost" -> BattleAbilityEffect.WeatherElementDamageBoost(
 				weather = BattleWeather.SANDSTORM,
 				elementIds = setOf(

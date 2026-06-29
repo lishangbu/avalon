@@ -313,6 +313,28 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 强化一组指定属性技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“使用某个属性的物理/特殊技能时，拥有者的直接技能伤害按固定倍率提升”的稳定特性。
+	 * 引擎读取 [BattleSkillSlot.effectiveElementId]，因此天气、场地或其它规则已经改写本次有效属性后，这里会按
+	 * 改写后的属性判断；它不会回看技能的原始属性，也不会读取技能名称、本地化文本或特性名称。
+	 *
+	 * `elementIds` 由资料层解析成资料库属性 ID，可以包含一个或多个属性。该效果只属于攻击方主动造成的普通技能
+	 * 直接伤害，不影响固定伤害、间接伤害、反作用伤害、天气伤害、入场陷阱、变化技能或同伴光环类全场规则。
+	 * 如果未来接入会动态改变技能有效属性的特性，应先在技能上下文中形成最终属性，再让该效果按同一口径读取。
+	 */
+	data class ElementSkillDamageBoost(
+		val elementIds: Set<Long>,
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(elementIds.isNotEmpty()) { "elementIds must not be empty" }
+			require(elementIds.all { it > 0 }) { "elementIds must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 强化拳击类技能的伤害倍率。
 	 *
 	 * 该效果用于表达现代规则中“使用带拳击标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取

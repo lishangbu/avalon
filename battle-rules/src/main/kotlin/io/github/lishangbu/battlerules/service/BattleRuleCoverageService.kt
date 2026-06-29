@@ -365,6 +365,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖匹配属性技能命中目标后被特性吸收并阻止伤害，同时提升速度、攻击或防御能力阶级。",
 			),
 			item(
+				code = "ability.element-damage-boost",
+				name = "指定属性技能增伤特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"element-ability-boosts-matching-skill-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖固定属性技能按配置倍率提升伤害、非匹配属性不触发，以及天气改属性后按本次有效属性判断；龙、岩石、钢的 1.5 倍和电的约 1.3 倍规则资料已接入运行时快照。",
+			),
+			item(
 				code = "ability.low-hp-element-boost",
 				name = "低体力指定属性增伤特性",
 				category = "特性",

@@ -378,6 +378,92 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `element ability boosts matching effective element damage with configured multiplier`() {
+		val fixture = publicBattleRuleFixture(
+			name = "element-ability-boosts-matching-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有指定属性技能伤害提升特性，分别使用匹配属性、非匹配属性和天气改属性技能。",
+			expectedSummary = "本次有效属性匹配时按配置倍率提升最终伤害；非匹配属性不触发，1.5 倍和约 1.3 倍变体都按结构化倍率计算。",
+		)
+		val rockAttacker = participant(
+			"rock-attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(
+				BattleAbilityEffect.ElementSkillDamageBoost(
+					elementIds = setOf(6),
+					multiplier = 1.5,
+				),
+			),
+		)
+
+		val matching = calculator.calculate(
+			BattleDamageRequest(
+				attacker = rockAttacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 6, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val nonMatching = calculator.calculate(
+			BattleDamageRequest(
+				attacker = rockAttacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 11, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val weatherOverride = calculator.calculate(
+			BattleDamageRequest(
+				attacker = rockAttacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(
+					elementId = 1,
+					power = 40,
+					elementOverridesByWeather = mapOf(BattleWeather.SANDSTORM to 6),
+				),
+				rules = neutralRules(),
+				environment = BattleEnvironment(weather = BattleWeather.SANDSTORM),
+				randomPercent = 100,
+			),
+		)
+		val electric = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant(
+					"electric-attacker",
+					speed = 100,
+					elementId = 1,
+					abilityEffects = listOf(
+						BattleAbilityEffect.ElementSkillDamageBoost(
+							elementIds = setOf(13),
+							multiplier = 1.3,
+						),
+					),
+				),
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 13, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("element-ability-boosts-matching-skill-damage")
+		assertEquals(1.5, matching.abilityMultiplier)
+		assertEquals(28, matching.amount)
+		assertEquals(1.0, nonMatching.abilityMultiplier)
+		assertEquals(19, nonMatching.amount)
+		assertEquals(1.5, weatherOverride.abilityMultiplier)
+		assertEquals(28, weatherOverride.amount)
+		assertEquals(1.3, electric.abilityMultiplier)
+		assertEquals(24, electric.amount)
+	}
+
+	@Test
 	fun `punch based ability boosts only tagged skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "punch-based-ability-boosts-punch-tagged-skill-damage",
