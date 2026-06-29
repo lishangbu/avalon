@@ -1338,7 +1338,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+		if (!canReceiveHealing(actor)) {
 			return state
 		}
 		val healAmount = fractionAmount(damageAmount, numerator, denominator)
@@ -1449,7 +1449,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+		if (!canReceiveHealing(actor)) {
 			return state
 		}
 		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
@@ -1477,6 +1477,9 @@ class BattleEngine(
 	 */
 	private fun healingBlocked(participant: BattleParticipant): Boolean =
 		participant.healBlockTurnsRemaining > 0
+
+	private fun canReceiveHealing(participant: BattleParticipant): Boolean =
+		participant.canBattle() && participant.currentHp < participant.maxHp && !healingBlocked(participant)
 
 	/**
 	 * 支付使用者最大 HP 的固定比例来建立替身。
@@ -4259,38 +4262,31 @@ class BattleEngine(
 		}
 		return state.sides
 			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-					if (!latest.canBattle() || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
-						current
-					} else {
-					val healEffects = latest.abilityEffects
-						.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
-						.filter { weather in it.weathers }
-					healEffects.fold(current) { healingState, effect ->
-						val currentParticipant = healingState.participant(latest.actorId)
-						if (
-								currentParticipant == null ||
-								!currentParticipant.canBattle() ||
-								currentParticipant.currentHp == currentParticipant.maxHp ||
-								healingBlocked(currentParticipant)
-							) {
-								healingState
-							} else {
-							val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-							healingState
-								.replaceParticipant(currentParticipant.heal(healAmount))
-								.appendEvent(
-									BattleEvent.WeatherHealingApplied(
-										turnNumber = healingState.turnNumber,
-										actorId = currentParticipant.actorId,
-										weather = weather,
-										amount = healAmount,
-									),
-								)
-						}
+			.fold(state) weatherHealing@ { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@weatherHealing current
+				if (!canReceiveHealing(latest)) {
+					return@weatherHealing current
+				}
+				val healEffects = latest.abilityEffects
+					.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
+					.filter { weather in it.weathers }
+				healEffects.fold(current) effectHealing@ { healingState, effect ->
+					val currentParticipant = healingState.participant(latest.actorId) ?: return@effectHealing healingState
+					if (!canReceiveHealing(currentParticipant)) {
+						return@effectHealing healingState
 					}
+					val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
+						.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
+					healingState
+						.replaceParticipant(currentParticipant.heal(healAmount))
+						.appendEvent(
+							BattleEvent.WeatherHealingApplied(
+								turnNumber = healingState.turnNumber,
+								actorId = currentParticipant.actorId,
+								weather = weather,
+								amount = healAmount,
+							),
+						)
 				}
 			}
 	}
@@ -4307,24 +4303,23 @@ class BattleEngine(
 		}
 		return state.sides
 			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-					if (!latest.canBattle() || !latest.grounded || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
-						current
-					} else {
-					val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
-						.coerceAtMost(latest.maxHp - latest.currentHp)
-					current
-						.replaceParticipant(latest.heal(healAmount))
-						.appendEvent(
-							BattleEvent.TerrainHealingApplied(
-								turnNumber = current.turnNumber,
-								actorId = latest.actorId,
-								terrain = BattleTerrain.GRASSY,
-								amount = healAmount,
-							),
-						)
+			.fold(state) terrainHealing@ { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@terrainHealing current
+				if (!latest.grounded || !canReceiveHealing(latest)) {
+					return@terrainHealing current
 				}
+				val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
+					.coerceAtMost(latest.maxHp - latest.currentHp)
+				current
+					.replaceParticipant(latest.heal(healAmount))
+					.appendEvent(
+						BattleEvent.TerrainHealingApplied(
+							turnNumber = current.turnNumber,
+							actorId = latest.actorId,
+							terrain = BattleTerrain.GRASSY,
+							amount = healAmount,
+						),
+					)
 			}
 	}
 
@@ -4336,35 +4331,30 @@ class BattleEngine(
 	private fun applyEndTurnHealing(state: BattleState): BattleState =
 		state.sides
 			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-					if (!latest.canBattle() || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
-						current
-					} else {
-					latest.itemEffects
-						.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
-							.fold(current) { healingState, effect ->
-								val currentParticipant = healingState.participant(latest.actorId) ?: return@fold healingState
-								if (healingBlocked(currentParticipant)) {
-									return@fold healingState
-								}
-								val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-							if (healAmount <= 0) {
-								healingState
-							} else {
-								healingState
-									.replaceParticipant(currentParticipant.heal(healAmount))
-									.appendEvent(
-										BattleEvent.HealingApplied(
-											turnNumber = healingState.turnNumber,
-											actorId = currentParticipant.actorId,
-											amount = healAmount,
-										),
-									)
-							}
-						}
+			.fold(state) endTurnHealing@ { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@endTurnHealing current
+				if (!canReceiveHealing(latest)) {
+					return@endTurnHealing current
 				}
+				latest.itemEffects
+					.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
+					.fold(current) itemHealing@ { healingState, effect ->
+						val currentParticipant = healingState.participant(latest.actorId) ?: return@itemHealing healingState
+						if (!canReceiveHealing(currentParticipant)) {
+							return@itemHealing healingState
+						}
+						val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
+							.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
+						healingState
+							.replaceParticipant(currentParticipant.heal(healAmount))
+							.appendEvent(
+								BattleEvent.HealingApplied(
+									turnNumber = healingState.turnNumber,
+									actorId = currentParticipant.actorId,
+									amount = healAmount,
+								),
+							)
+					}
 			}
 
 	/**
