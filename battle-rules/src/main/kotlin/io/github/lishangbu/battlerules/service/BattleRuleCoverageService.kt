@@ -240,6 +240,26 @@ class BattleRuleCoverageService {
 				note = "主动替换先于普通技能结算，单体技能会命中同一槽位的新上场成员。",
 			),
 			item(
+				code = "target.scope-resolution",
+				name = "双打目标范围解析",
+				category = "目标选择",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"selected-target-skill-hits-only-chosen-target-in-double-battle",
+					"all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally",
+					"all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user",
+					"spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier",
+					"spread-skill-recalculates-opponents-after-voluntary-switch",
+					"all-adjacent-participants-skill-skips-fainted-ally",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖双打单体技能只命中选中目标、全体相邻对手跳过队友、全体相邻成员命中队友和对手但排除使用者、范围技能跳过倒下目标、主动替换后重新收集目标，以及范围目标数量影响目标倍率。",
+			),
+			item(
 				code = "format.max-turn-limit",
 				name = "格式回合上限裁定",
 				category = "格式裁定",
@@ -1400,7 +1420,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 144
+		private const val FINAL_COVERED_RULE_COUNT = 150
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
