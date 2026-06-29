@@ -13,7 +13,7 @@ import kotlin.test.assertFailsWith
  *
  * 场景类型：行动合法性 fixture。
  * 参考来源类型：现代回合制对战通用提交约束；本测试不替代事件级规则测试，只覆盖提交阶段就应被拦截的问题。
- * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、目标不存在、替换目标非法和战斗结束后继续提交都能
+ * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、定身法、目标不存在、替换目标非法和战斗结束后继续提交都能
  * 返回稳定 code。
  */
 class BattleActionValidatorTests {
@@ -81,6 +81,30 @@ class BattleActionValidatorTests {
 
 		assertEquals(listOf("taunted"), violations.map { it.code })
 		assertEquals(269, violations.single().resourceId)
+	}
+
+	@Test
+	fun `reports disable prevents disabled skill selection`() {
+		val disabledSkill = damagingSkill(skillId = 50, name = "定身法")
+		val otherSkill = damagingSkill(skillId = 1, name = "撞击")
+		val state = engine.start(
+			initialState(
+				first = participant("disabled", speed = 100, skill = disabledSkill).copy(
+					skillSlots = listOf(disabledSkill, otherSkill),
+					disabledSkillId = 50,
+					disabledSkillTurnsRemaining = 2,
+				),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("disabled", skillId = 50, targetActorId = "target")),
+		)
+
+		assertEquals(listOf("disabled-skill"), violations.map { it.code })
+		assertEquals(50, violations.single().resourceId)
 	}
 
 	@Test

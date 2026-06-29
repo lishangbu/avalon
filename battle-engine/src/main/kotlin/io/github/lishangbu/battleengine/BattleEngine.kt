@@ -342,7 +342,7 @@ class BattleEngine(
 			actorAfterPp.lockChoiceSkillIfNeeded(skill.skillId)
 		} else {
 			actorAfterPp
-		}
+		}.markSuccessfulSkill(skill.skillId)
 		val usedState = stateBeforeUse
 			.replaceParticipant(actorAfterActionSetup)
 			.appendEvent(
@@ -3588,6 +3588,12 @@ class BattleEngine(
 				blocked = true,
 			)
 		}
+		if (actor.disabledSkillTurnsRemaining > 0 && actor.disabledSkillId == skill.skillId) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeDisableBlockedAction(context.state, actor, skill)),
+				blocked = true,
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
@@ -3754,6 +3760,26 @@ class BattleEngine(
 	 */
 	private fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
 		skill.damageClass == BattleDamageClass.STATUS
+
+	/**
+	 * 消耗一次“定身法阻止本次被禁用技能”的行动结果。
+	 *
+	 * 定身法不会因为阻止一次行动而立即减少持续回合；它只在回合末统一递减。这里不消耗 PP、不写入
+	 * `SkillUsed`，也不触发命中、保护、附加效果或讲究类锁定流程。
+	 */
+	private fun consumeDisableBlockedAction(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByDisable(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				skillId = skill.skillId,
+				turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
+			),
+		)
 
 	/**
 	 * 记录冰冻未解冻时对本次技能行动的阻止效果。
@@ -4192,7 +4218,7 @@ class BattleEngine(
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
-	 * 固定 5 回合计数并在回合末递减。若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会
+	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数。若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会
 	 * 被刷新；状态机会追加阻止事件，便于 replay 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。
 	 * 场地、特性或道具免疫会在消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
 	 */
@@ -4228,6 +4254,20 @@ class BattleEngine(
 				),
 			)
 		}
+		val disabledSkillId = if (status == BattleVolatileStatus.DISABLE) {
+			disableTargetSkillId(recipient)
+				?: return state.appendEvent(
+					BattleEvent.VolatileStatusApplicationBlocked(
+						turnNumber = state.turnNumber,
+						actorId = actorId,
+						targetActorId = recipient.actorId,
+						status = status,
+						reason = BattleStatusBlockReason.NO_ELIGIBLE_SKILL,
+					),
+				)
+		} else {
+			null
+		}
 		val confusionTurnsRemaining = if (status == BattleVolatileStatus.CONFUSION) {
 			random.nextInt(4, randomReason) + 2
 		} else {
@@ -4235,6 +4275,7 @@ class BattleEngine(
 		}
 		val healBlockTurnsRemaining = if (status == BattleVolatileStatus.HEAL_BLOCK) HEAL_BLOCK_TURNS else 0
 		val tauntTurnsRemaining = if (status == BattleVolatileStatus.TAUNT) TAUNT_TURNS else 0
+		val disabledSkillTurnsRemaining = if (status == BattleVolatileStatus.DISABLE) DISABLE_TURNS else 0
 		val appliedState = state
 			.replaceParticipant(
 				recipient.applyVolatileStatus(
@@ -4242,6 +4283,8 @@ class BattleEngine(
 					confusionTurnsRemaining = confusionTurnsRemaining,
 					healBlockTurnsRemaining = healBlockTurnsRemaining,
 					tauntTurnsRemaining = tauntTurnsRemaining,
+					disabledSkillId = disabledSkillId,
+					disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -4252,13 +4295,38 @@ class BattleEngine(
 					status = status,
 				),
 			)
-		return applyVolatileStatusCureItem(appliedState, recipient.actorId, status)
+		val afterDisableEvent = if (disabledSkillId != null) {
+			appliedState.appendEvent(
+				BattleEvent.SkillDisabled(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					disabledSkillId = disabledSkillId,
+					turnsRemaining = DISABLE_TURNS,
+				),
+			)
+		} else {
+			appliedState
+		}
+		return applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
+	}
+
+	/**
+	 * 解析定身法可以禁用的目标技能。
+	 *
+	 * 现代规则中定身法读取目标最近一次成功使用的技能；如果目标还没有使用过技能，或者该技能已经没有 PP，
+	 * 定身法不会写入状态。这里不按名称判断具体技能，资料层只需把定身法映射为 [BattleVolatileStatus.DISABLE]。
+	 */
+	private fun disableTargetSkillId(recipient: BattleParticipant): Long? {
+		val skillId = recipient.lastSuccessfulSkillId ?: return null
+		val slot = recipient.skillSlot(skillId) ?: return null
+		return if (slot.remainingPp > 0) skillId else null
 	}
 
 	/**
 	 * 判断目标是否已经拥有同类临时状态。
 	 *
-	 * 当前只有混乱、回复封锁和挑衅有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
+	 * 当前只有混乱、回复封锁、挑衅和定身法有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
 	 * 后续行动前或回合末都会清除，所以重复附加不会改变可观察持续时间。
 	 */
 	private fun volatileStatusAlreadyPresent(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
@@ -4266,6 +4334,7 @@ class BattleEngine(
 			BattleVolatileStatus.CONFUSION -> recipient.confusionTurnsRemaining > 0
 			BattleVolatileStatus.HEAL_BLOCK -> recipient.healBlockTurnsRemaining > 0
 			BattleVolatileStatus.TAUNT -> recipient.tauntTurnsRemaining > 0
+			BattleVolatileStatus.DISABLE -> recipient.disabledSkillTurnsRemaining > 0
 			BattleVolatileStatus.FLINCH -> false
 		}
 
@@ -4622,7 +4691,7 @@ class BattleEngine(
 	/**
 	 * 推进跨回合临时状态的持续回合。
 	 *
-	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里推进回复封锁和挑衅：
+	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里推进回复封锁、挑衅和定身法：
 	 * 每个回合末减少 1，归零时追加 [BattleEvent.VolatileStatusCleared]，让 replay 能看到状态自然结束的时间点。
 	 */
 	private fun advanceEndTurnVolatileStatusDurations(state: BattleState): BattleState =
@@ -4638,12 +4707,20 @@ class BattleEngine(
 					decrement = BattleParticipant::decrementHealBlockEndTurn,
 				)
 				val latestAfterHealBlock = afterHealBlock.participant(participant.actorId) ?: return@fold afterHealBlock
-				advanceEndTurnVolatileStatusDuration(
+				val afterTaunt = advanceEndTurnVolatileStatusDuration(
 					state = afterHealBlock,
 					participant = latestAfterHealBlock,
 					status = BattleVolatileStatus.TAUNT,
 					turnsRemaining = latestAfterHealBlock.tauntTurnsRemaining,
 					decrement = BattleParticipant::decrementTauntEndTurn,
+				)
+				val latestAfterTaunt = afterTaunt.participant(participant.actorId) ?: return@fold afterTaunt
+				advanceEndTurnVolatileStatusDuration(
+					state = afterTaunt,
+					participant = latestAfterTaunt,
+					status = BattleVolatileStatus.DISABLE,
+					turnsRemaining = latestAfterTaunt.disabledSkillTurnsRemaining,
+					decrement = BattleParticipant::decrementDisableEndTurn,
 				)
 			}
 
@@ -5339,6 +5416,7 @@ class BattleEngine(
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
+		private const val DISABLE_TURNS = 4
 		private const val HEAL_BLOCK_TURNS = 5
 		private const val TAUNT_TURNS = 3
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"

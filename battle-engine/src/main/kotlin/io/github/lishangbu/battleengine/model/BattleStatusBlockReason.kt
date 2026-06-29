@@ -13,4 +13,5 @@ enum class BattleStatusBlockReason {
 	SUBSTITUTE,
 	ABILITY,
 	ITEM,
+	NO_ELIGIBLE_SKILL,
 }

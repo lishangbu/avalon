@@ -1,0 +1,91 @@
+databaseChangeLog:
+- changeSet:
+    id: 095-battle-disable-rules
+    author: backend
+    comment: 新增定身法临时状态、技能规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_status_rule
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: code, value: disable }
+        - column: { name: name, value: 定身法 }
+        - column: { name: status_kind, value: VOLATILE }
+        - column: { name: effect_policy, value: volatile-disable }
+        - column: { name: min_turns, valueNumeric: 4 }
+        - column: { name: max_turns, valueNumeric: 4 }
+        - column: { name: description, value: 临时状态，持续期间阻止成员使用被指定禁用的最近使用技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 98 }
+        - column: { name: skill_id, valueNumeric: 50 }
+        - column: { name: effect_policy, value: apply-disable }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 命中目标后禁用目标最近一次成功使用且仍有 PP 的技能；没有可禁用技能时不写入状态。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 980 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 11 }
+        - column: { name: skill_rule_id, valueNumeric: 98 }
+        - column: { name: status_rule_id, valueNumeric: 11 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 110 }
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (205, 'status-skill-disables-target-last-used-skill', '定身法禁用目标最近使用技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证定身法命中后读取目标最近一次成功使用且仍有 PP 的技能并写入禁用状态。', '目标最近一次成功使用过仍有 PP 的技能，使用者用定身法命中目标。', '目标最近使用的技能被禁用 4 回合；当前回合结束后剩余 3 回合。', true, 2050),
+            (206, 'disabled-skill-cannot-be-used', '定身法阻止被禁用技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于定身法的成员不能使用被禁用技能。', '成员处于定身法状态，并尝试使用被禁用的技能。', '被禁用技能在 PP 消耗前失败，成员不会产生技能使用事件。', true, 2060),
+            (207, 'disabled-participant-can-use-other-skill', '定身法不阻止其它技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于定身法的成员仍可使用未被禁用的其它技能。', '成员处于定身法状态，但选择了未被禁用的其它技能。', '未被禁用的技能正常消耗 PP 并造成伤害，定身法持续回合照常递减。', true, 2070),
+            (208, 'disable-clears-when-end-turn-duration-reaches-zero', '定身法持续时间归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证定身法在回合末持续时间递减到 0 时自然解除。', '成员的定身法只剩 1 回合，双方本回合没有行动。', '回合末持续时间递减到 0，成员的定身法被清除并产生临时状态解除事件。', true, 2080),
+            (209, 'disable-fails-when-target-has-no-last-used-skill', '无最近使用技能时定身法失败', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证目标没有可禁用技能时定身法不会写入状态。', '目标自上场以来还没有成功使用过技能，使用者尝试用定身法影响目标。', '定身法不会写入临时状态，并以没有可禁用技能作为稳定失败原因。', true, 2090);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (410, 205, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照定身法命中后读取目标最近技能。', 10),
+            (411, 205, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证定身法持续时间和目标技能选择。', 20),
+            (412, 206, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照被禁用技能无法使用。', 10),
+            (413, 206, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证被禁用技能在 PP 消耗前失败。', 20),
+            (414, 207, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照未被禁用技能仍可使用。', 10),
+            (415, 207, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证其它技能不受影响。', 20),
+            (416, 208, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照定身法持续时间解除。', 10),
+            (417, 208, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证定身法归零解除。', 20),
+            (418, 209, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照没有可禁用技能时失败。', 10),
+            (419, 209, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证目标没有最近使用技能时不写入状态。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (205, 'disable-coverage-20260629-1', 205, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2050),
+            (206, 'disable-coverage-20260629-2', 206, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2060),
+            (207, 'disable-coverage-20260629-3', 207, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2070),
+            (208, 'disable-coverage-20260629-4', 208, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2080),
+            (209, 'disable-coverage-20260629-5', 209, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2090);

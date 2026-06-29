@@ -15,7 +15,7 @@ import io.github.lishangbu.battleengine.model.BattleState
  *
  * 该校验器只依赖当前 [BattleState] 和本回合提交的 [BattleAction]，不访问数据库，也不读取资料表文本。
  * 它检查的是“能否把这批行动交给引擎结算”的通用条件：战斗是否已结束、同一成员是否重复提交、行动者是否
- * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招、回复封锁和挑衅是否限制选择、蓄力/休整是否禁止主动替换，
+ * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招、回复封锁、挑衅和定身法是否限制选择、蓄力/休整是否禁止主动替换，
  * 以及替换目标是否属于同一方且可以上场。
  *
  * 复杂规则仍由引擎结算阶段处理。例如命中、保护、属性免疫、精神场地阻挡、睡眠/麻痹/畏缩等会产生事件的
@@ -127,6 +127,14 @@ class BattleActionValidator {
 					actorId = actor.actorId,
 					resourceId = skill.skillId,
 					message = "成员处于挑衅状态，不能选择变化技能: ${skill.skillId}",
+				)
+			}
+			if (actor.disabledSkillTurnsRemaining > 0 && actor.disabledSkillId == skill.skillId) {
+				violations += violation(
+					code = "disabled-skill",
+					actorId = actor.actorId,
+					resourceId = skill.skillId,
+					message = "技能处于定身法状态，暂时不能选择: ${skill.skillId}",
 				)
 			}
 		}

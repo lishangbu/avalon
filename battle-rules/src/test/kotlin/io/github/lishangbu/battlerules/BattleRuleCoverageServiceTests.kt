@@ -27,9 +27,9 @@ class BattleRuleCoverageServiceTests {
 		assertEquals(plannedCount, coverage.summary.plannedCount)
 		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
 		assertEquals(312, coverage.targetSummary.targetRuleCount)
-		assertEquals(105, coverage.targetSummary.coveredRuleCount)
-		assertEquals(207, coverage.targetSummary.remainingRuleCount)
-		assertEquals(33, coverage.targetSummary.implementationPercent)
+		assertEquals(110, coverage.targetSummary.coveredRuleCount)
+		assertEquals(202, coverage.targetSummary.remainingRuleCount)
+		assertEquals(35, coverage.targetSummary.implementationPercent)
 		assertEquals(coverage.items.size, coverage.targetSummary.coverageItemCount)
 		assertTrue(coverage.targetSummary.basis.contains("可复用规则行为族"))
 		assertTrue(coverage.items.any { it.code == "status.volatile-flinch-confusion" })
@@ -92,5 +92,6 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "terrain.speed-ability" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.heal-block" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "status.taunt" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "status.disable" && it.status == "IMPLEMENTED" })
 	}
 }

@@ -329,6 +329,34 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 目标最近使用过的技能被定身法禁用。
+	 *
+	 * `disabledSkillId` 单独记录在事件上，而不是让 replay 去反查目标当时的运行态，是为了避免后续技能槽 PP
+	 * 变化、离场清理或资料名称变化影响历史事件解释。定身法本身作为临时状态仍会追加
+	 * [VolatileStatusApplied]，该事件补足“具体禁用哪个技能”的事实。
+	 */
+	data class SkillDisabled(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val disabledSkillId: Long,
+		val turnsRemaining: Int,
+	) : BattleEvent
+
+	/**
+	 * 行动者因定身法无法执行本次技能。
+	 *
+	 * 定身法只阻止被指定禁用的技能；同一成员的其它技能仍可以正常宣告。该事件发生在 PP 消耗和
+	 * `SkillUsed` 之前，因此被阻止的技能不会进入命中、保护、附加效果或讲究类锁定流程。
+	 */
+	data class SkillPreventedByDisable(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val turnsRemainingBefore: Int,
+	) : BattleEvent
+
+	/**
 	 * 行动者因临时状态无法执行本次技能行动。
 	 *
 	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生
