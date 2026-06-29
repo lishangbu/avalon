@@ -5,7 +5,6 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.SkillPreventionReason
-import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus

@@ -2,7 +2,6 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
-import io.github.lishangbu.battleengine.model.SkillPreventionReason
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStat
