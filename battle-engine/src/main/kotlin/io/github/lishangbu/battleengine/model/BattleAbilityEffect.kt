@@ -346,6 +346,43 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 强化声音类技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“使用带声音标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.soundBased]，不解析招式名称、文本描述或音效表现；
+	 * 资料层负责把公开技能资料中的 sound flag 维护为结构化标签。
+	 *
+	 * 该效果只在拥有者作为攻击方主动造成普通物理/特殊技能伤害时生效。声音类变化技能仍然可以穿透替身或被声音
+	 * 免疫阻止，但不会进入普通伤害公式；声音类伤害技能的替身穿透、目标免疫、属性克制和道具倍率仍由对应规则
+	 * 分别处理，避免把声音标签的一切副作用塞进同一个特性效果。
+	 */
+	data class SoundBasedSkillDamageBoost(
+		val multiplier: Double = 1.3,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 减少受到声音类技能造成的伤害。
+	 *
+	 * 该效果用于表达现代规则中“受到带声音标签的技能攻击时，最终伤害按固定倍率降低”的防守方特性。它只读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.soundBased]，且只影响普通物理/特殊技能的直接伤害；
+	 * 声音类变化技能是否命中、是否穿透替身、是否被免疫，仍由命中和目标特性阶段处理。
+	 *
+	 * 如果攻击方本次技能拥有“无视目标特性效果”的结构化效果，伤害请求会标记为忽略防守方特性，此时该减伤不会
+	 * 生效。这样声音减伤与属性吸收、满 HP 保留 1 HP、击中要害免疫等防守方特性共享同一绕过语义。
+	 */
+	data class SoundBasedSkillDamageReduction(
+		val multiplier: Double = 0.5,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

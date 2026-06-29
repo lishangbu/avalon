@@ -279,10 +279,14 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
-	 * 当前支持低体力指定属性增伤，以及拳击类、切割类、接触类技能标签触发的稳定增伤。触发条件都来自运行时快照中的
-	 * 结构化字段，避免伤害公式读取技能名、特性名或本地化文本。
+	 * 当前支持低体力指定属性增伤，以及拳击类、切割类、接触类、声音类技能标签触发的稳定增伤；防守方声音类
+	 * 技能减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，避免伤害公式读取技能名、特性名或
+	 * 本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
+		attackerAbilityDamageMultiplier(request) * defenderAbilityDamageMultiplier(request)
+
+	private fun attackerAbilityDamageMultiplier(request: BattleDamageRequest): Double =
 		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.LowHpElementDamageBoost -> {
@@ -301,6 +305,8 @@ class BattleDamageCalculator(
 					if (request.skill.slicingBased) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactBasedSkillDamageBoost ->
 					if (request.skill.makesContact) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.SoundBasedSkillDamageBoost ->
+					if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.CriticalHitImmunity -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
@@ -313,6 +319,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.PriorityMoveImmunityForSide -> multiplier
 				is BattleAbilityEffect.SkillRecoilDamageImmunity -> multiplier
 				is BattleAbilityEffect.SoundBasedSkillImmunity -> multiplier
+				is BattleAbilityEffect.SoundBasedSkillDamageReduction -> multiplier
 				is BattleAbilityEffect.StatusSkillPriorityBoost -> multiplier
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp -> multiplier
@@ -323,6 +330,50 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.WeatherDamageImmunity -> multiplier
 				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
+			}
+		}
+
+	/**
+	 * 计算防守方特性带来的普通伤害倍率。
+	 *
+	 * 目前只支持声音类技能伤害减免。若本次伤害请求已经标记为忽略防守方特性，所有防守方特性倍率都保持中性。
+	 */
+	private fun defenderAbilityDamageMultiplier(request: BattleDamageRequest): Double =
+		if (request.ignoreDefenderAbilityEffects) {
+			1.0
+		} else {
+			request.defender.abilityEffects.fold(1.0) { multiplier, effect ->
+				when (effect) {
+					is BattleAbilityEffect.SoundBasedSkillDamageReduction ->
+						if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
+					is BattleAbilityEffect.ContactBasedSkillDamageBoost,
+					is BattleAbilityEffect.ContactStatusOnAttacker,
+					is BattleAbilityEffect.CriticalHitImmunity,
+					is BattleAbilityEffect.ElementSkillAbsorbHeal,
+					is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+					is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
+					is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+					is BattleAbilityEffect.IgnoreTargetAbilityEffects,
+					is BattleAbilityEffect.IndirectDamageImmunity,
+					is BattleAbilityEffect.LowHpElementDamageBoost,
+					is BattleAbilityEffect.MajorStatusImmunity,
+					is BattleAbilityEffect.PriorityMoveImmunityForSide,
+					is BattleAbilityEffect.PunchBasedSkillDamageBoost,
+					is BattleAbilityEffect.SkillRecoilDamageImmunity,
+					is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
+					is BattleAbilityEffect.SoundBasedSkillDamageBoost,
+					is BattleAbilityEffect.SoundBasedSkillImmunity,
+					is BattleAbilityEffect.StatusSkillPriorityBoost,
+					is BattleAbilityEffect.SwitchInStatStageChange,
+					is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
+					is BattleAbilityEffect.SwitchInTerrainChange,
+					is BattleAbilityEffect.SwitchInWeatherChange,
+					is BattleAbilityEffect.TerrainSpeedMultiplier,
+					is BattleAbilityEffect.VolatileStatusImmunity,
+					is BattleAbilityEffect.WeatherDamageImmunity,
+					is BattleAbilityEffect.WeatherEndTurnHeal,
+					is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
+				}
 			}
 		}
 

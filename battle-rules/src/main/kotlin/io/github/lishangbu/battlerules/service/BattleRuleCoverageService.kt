@@ -387,12 +387,14 @@ class BattleRuleCoverageService {
 					"punch-based-ability-boosts-punch-tagged-skill-damage",
 					"slicing-based-ability-boosts-slicing-tagged-skill-damage",
 					"contact-based-ability-boosts-contact-skill-damage",
+					"sound-based-ability-boosts-sound-skill-damage",
+					"sound-based-defensive-ability-reduces-sound-skill-damage",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
 				),
-				note = "已覆盖拳类技能按 1.2 倍、切割类技能按 1.5 倍、接触类技能按 1.3 倍获得攻击方特性伤害倍率；公式只读取结构化技能标签，不通过技能名称或文本猜测。",
+				note = "已覆盖拳类技能按 1.2 倍、切割类技能按 1.5 倍、接触类和声音类技能按 1.3 倍获得攻击方特性伤害倍率，并覆盖声音类技能命中防守方时 0.5 倍减伤；公式只读取结构化技能标签，不通过技能名称或文本猜测。",
 			),
 			item(
 				code = "ability.indirect-damage-immunity",

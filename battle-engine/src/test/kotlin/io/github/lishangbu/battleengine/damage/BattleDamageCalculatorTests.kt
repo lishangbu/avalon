@@ -431,6 +431,100 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `sound based ability boosts only sound skill damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sound-based-ability-boosts-sound-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有声音类技能伤害提升特性，分别使用声音和非声音的一般属性 40 威力特殊技能。",
+			expectedSummary = "声音技能在最终伤害中获得 1.3 倍特性倍率，非声音技能保持原伤害。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillDamageBoost()),
+		)
+
+		val sound = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(
+					elementId = 1,
+					damageClass = BattleDamageClass.SPECIAL,
+					power = 40,
+					soundBased = true,
+				),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val nonSound = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(
+					elementId = 1,
+					damageClass = BattleDamageClass.SPECIAL,
+					power = 40,
+					soundBased = false,
+				),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("sound-based-ability-boosts-sound-skill-damage")
+		assertEquals(1.3, sound.abilityMultiplier)
+		assertEquals(37, sound.amount)
+		assertEquals(1.0, nonSound.abilityMultiplier)
+		assertEquals(28, nonSound.amount)
+	}
+
+	@Test
+	fun `sound based defensive ability reduces sound skill damage unless target ability is ignored`() {
+		val fixture = publicBattleRuleFixture(
+			name = "sound-based-defensive-ability-reduces-sound-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "目标拥有声音类技能伤害减免特性，攻击方使用声音类一般属性 40 威力特殊技能。",
+			expectedSummary = "未绕过目标特性时声音伤害按 0.5 倍降低；本次技能忽略目标特性时该减伤不生效。",
+		)
+		val defender = participant(
+			"defender",
+			speed = 80,
+			elementId = 2,
+			abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillDamageReduction()),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 1),
+			defender = defender,
+			skill = damagingSkill(
+				elementId = 1,
+				damageClass = BattleDamageClass.SPECIAL,
+				power = 40,
+				soundBased = true,
+			),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+
+		fixture.assertNamed("sound-based-defensive-ability-reduces-sound-skill-damage")
+		assertEquals(0.5, reduced.abilityMultiplier)
+		assertEquals(14, reduced.amount)
+		assertEquals(1.0, ignored.abilityMultiplier)
+		assertEquals(28, ignored.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
