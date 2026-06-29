@@ -247,6 +247,26 @@ class BattleRuleCoverageService {
 				note = "保护类技能建立本回合屏障，连续保护按 1/3、1/9 等概率递减；失败时仍消耗 PP，但不会阻挡同回合攻击。",
 			),
 			item(
+				code = "turn.action-flow-boundaries",
+				name = "行动流程边界取消",
+				category = "回合流程",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"protection-bypass-skill-damages-protected-target",
+					"protection-blocks-before-accuracy-random",
+					"protection-bypass-still-performs-accuracy-check",
+					"fainted-queued-actor-cannot-execute-later-action",
+					"action-with-no-battle-capable-selected-target-consumes-no-pp",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://wiki.52poke.com/wiki/守住（招式）",
+					"https://wiki.52poke.com/wiki/濒死",
+				),
+				note = "已覆盖不受保护影响的技能继续命中目标、保护阻挡发生在命中随机之前、保护绕过后仍执行命中判定、排队成员倒下后取消行动，以及没有可战斗目标时不产生技能使用事件也不消耗 PP。",
+			),
+			item(
 				code = "turn.accuracy-evasion-stage",
 				name = "命中和闪避阶级",
 				category = "命中",
@@ -1325,7 +1345,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 125
+		private const val FINAL_COVERED_RULE_COUNT = 130
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
