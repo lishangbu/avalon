@@ -290,6 +290,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.ChoiceSkillLock -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier
+				is BattleItemEffect.MajorStatusCure -> multiplier
 				is BattleItemEffect.MajorStatusImmunity -> multiplier
 				is BattleItemEffect.SideDamageReductionDurationExtension -> multiplier
 				is BattleItemEffect.SurviveFatalDamageAtFullHp -> multiplier

@@ -328,8 +328,9 @@ class BattleRuntimeSnapshotService(
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
-	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；天气、场地和屏障延长类
-	 * 道具会映射为成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
+	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；获得主要异常状态后即时
+	 * 解除的道具会映射为状态治愈效果；天气、场地和屏障延长类道具会映射为成功设置对应持续效果时的回合覆盖；
+	 * 满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -1191,6 +1192,16 @@ class BattleRuntimeSnapshotService(
 			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 			"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
+			"major-status-cure-all" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(
+					BattleMajorStatus.BURN,
+					BattleMajorStatus.PARALYSIS,
+					BattleMajorStatus.POISON,
+					BattleMajorStatus.BAD_POISON,
+					BattleMajorStatus.SLEEP,
+					BattleMajorStatus.FREEZE,
+				),
+			)
 			"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
 			"consumable-full-hp-fatal-damage-survival" -> BattleItemEffect.SurviveFatalDamageAtFullHp()
 			"side-condition-duration-screen" -> BattleItemEffect.SideDamageReductionDurationExtension(

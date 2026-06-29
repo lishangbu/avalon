@@ -113,6 +113,7 @@ class LiquibaseMigrationTests(
 			"064-battle-critical-hit-immunity-ability-rules.yaml",
 			"065-battle-target-ability-ignore-rules.yaml",
 			"066-battle-sound-immunity-ability-rules.yaml",
+			"067-battle-status-cure-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -537,7 +538,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 14L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -556,9 +557,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 143L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 306L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 143L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 146L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 312L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 146L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -655,16 +656,32 @@ class LiquibaseMigrationTests(
 			where item_id = 248
 			""".trimIndent(),
 		)
-		assertThat(chargeSkipItemRules).containsExactly(
-			mapOf(
-				"item_id" to 248L,
-				"trigger_timing" to "BEFORE_MOVE",
-				"effect_policy" to "charge-skip-once",
-				"consumable" to true,
-			),
-		)
+			assertThat(chargeSkipItemRules).containsExactly(
+				mapOf(
+					"item_id" to 248L,
+					"trigger_timing" to "BEFORE_MOVE",
+					"effect_policy" to "charge-skip-once",
+					"consumable" to true,
+				),
+			)
 
-		val fatalDamageSurvivalAbilityRules = queryMaps(
+			val majorStatusCureItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id = 134
+				""".trimIndent(),
+			)
+			assertThat(majorStatusCureItemRules).containsExactly(
+				mapOf(
+					"item_id" to 134L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-all",
+					"consumable" to true,
+				),
+			)
+
+			val fatalDamageSurvivalAbilityRules = queryMaps(
 			"""
 			select ability_id, trigger_timing, effect_policy
 			from battle_ability_rule

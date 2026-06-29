@@ -4,8 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 携带道具在战斗中的可执行效果。
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
- * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待，
- * 以及稳定状态免疫。
+ * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
+ * 稳定状态免疫，以及成功获得主要异常状态后的即时解除。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -16,6 +16,26 @@ sealed interface BattleItemEffect {
 	 */
 	data class MajorStatusImmunity(
 		val statuses: Set<BattleMajorStatus>,
+	) : BattleItemEffect {
+		init {
+			require(statuses.isNotEmpty()) { "statuses must not be empty" }
+		}
+	}
+
+	/**
+	 * 成员获得匹配的主要异常状态后，立刻解除该状态并可消费携带道具。
+	 *
+	 * 该效果用于表达现代主系列中“已被附加状态后立即治愈”的一次性携带道具。它不同于
+	 * [MajorStatusImmunity]：免疫会阻止状态写入，也不会消费状态私有随机数；解除道具则必须等
+	 * [BattleEvent.StatusApplied] 已经成为事实后触发，再追加 [BattleEvent.StatusCleared]，并按
+	 * [consumesItem] 决定是否清空成员的携带道具与道具效果。
+	 *
+	 * `statuses` 允许资料层表达“解除任意主要异常状态”或“只解除睡眠”等变体。效果只处理主要异常状态，
+	 * 不处理混乱、畏缩、替身、能力阶级变化或 HP 回复；这些规则应继续使用各自的结构化效果。
+	 */
+	data class MajorStatusCure(
+		val statuses: Set<BattleMajorStatus>,
+		val consumesItem: Boolean = true,
 	) : BattleItemEffect {
 		init {
 			require(statuses.isNotEmpty()) { "statuses must not be empty" }

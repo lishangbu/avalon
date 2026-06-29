@@ -1,0 +1,153 @@
+databaseChangeLog:
+- changeSet:
+    id: 067-battle-status-cure-item-rules
+    author: backend
+    comment: 新增主要异常状态解除道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 14 }
+        - column: { name: item_id, valueNumeric: 134 }
+        - column: { name: trigger_timing, value: AFTER_STATUS_APPLIED }
+        - column: { name: effect_policy, value: major-status-cure-all }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 获得任意主要异常状态后立即解除该状态，并在触发后消费携带道具。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 140 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 144 }
+        - column: { name: code, value: major-status-cure-item-clears-status-after-application }
+        - column: { name: name, value: 状态解除道具在状态写入后触发 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证目标获得主要异常状态后，携带道具会立即解除该状态并被消费。 }
+        - column: { name: input_summary, value: 目标携带可解除任意主要异常状态的一次性道具，对手使用 100% 附加灼伤的变化技能。 }
+        - column: { name: expected_summary, value: 灼伤先写入目标运行态，随后携带道具立即解除灼伤并被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1440 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 145 }
+        - column: { name: code, value: major-status-cure-item-clears-contact-ability-status }
+        - column: { name: name, value: 状态解除道具处理接触特性返还状态 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证攻击方因目标接触类特性获得主要异常状态后，攻击方自身携带道具会立即解除该状态。 }
+        - column: { name: input_summary, value: 攻击方携带主要异常状态解除道具，使用接触类技能命中拥有接触后麻痹攻击方特性的目标。 }
+        - column: { name: expected_summary, value: 攻击方先因目标特性获得麻痹，随后自身携带道具立即解除麻痹并被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1450 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 146 }
+        - column: { name: code, value: specific-status-cure-item-keeps-unmatched-status }
+        - column: { name: name, value: 指定状态解除道具不处理非匹配状态 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证只解除指定主要异常状态的道具不会消费在非匹配状态上。 }
+        - column: { name: input_summary, value: 目标携带只解除睡眠的一次性道具，对手使用 100% 附加灼伤的变化技能。 }
+        - column: { name: expected_summary, value: 灼伤不是该道具声明的解除状态，因此状态保留，道具也不被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1460 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 307 }
+        - column: { name: fixture_id, valueNumeric: 144 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照主要异常状态解除道具在状态存在后触发并消费。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 308 }
+        - column: { name: fixture_id, valueNumeric: 144 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Lum_Berry }
+        - column: { name: source_label, value: 全状态解除道具公开说明 }
+        - column: { name: source_note, value: 用于验证主要异常状态会被携带道具立即解除。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 309 }
+        - column: { name: fixture_id, valueNumeric: 145 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照接触后返还主要异常状态的特性行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 310 }
+        - column: { name: fixture_id, valueNumeric: 145 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照状态解除道具同样处理特性返还的状态。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 311 }
+        - column: { name: fixture_id, valueNumeric: 146 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Chesto_Berry }
+        - column: { name: source_label, value: 指定状态解除道具公开说明 }
+        - column: { name: source_note, value: 用于验证只解除睡眠的道具不会处理非睡眠状态。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 312 }
+        - column: { name: fixture_id, valueNumeric: 146 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Rawst_Berry }
+        - column: { name: source_label, value: 指定状态解除道具公开说明 }
+        - column: { name: source_note, value: 用于对照状态解除道具只处理自身声明的主要异常状态。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 144 }
+        - column: { name: run_code, value: status-cure-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 144 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:40:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:43:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 1440 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 145 }
+        - column: { name: run_code, value: status-cure-item-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 145 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:40:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:43:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 8 }
+        - column: { name: sort_order, valueNumeric: 1450 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 146 }
+        - column: { name: run_code, value: status-cure-item-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 146 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:40:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:43:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1460 }

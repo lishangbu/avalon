@@ -288,6 +288,16 @@ sealed interface BattleAbilityEffect {
 		}
 	}
 
+	/**
+	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
+	 *
+	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成
+	 * 本次目标结算后触发；若技能被属性免疫、保护、替身完全阻止、目标已经倒下前未发生有效接触，或技能槽没有
+	 * `makesContact` 标签，则不会进入该效果。
+	 *
+	 * `chancePercent` 为 100 时不消费额外随机数；低于 100 时使用独立的接触状态随机掷点。状态真正附加给攻击方前，
+	 * 仍会复用主要异常状态的属性、场地、特性、道具和已有状态阻止流程，因此它不会绕过攻击方自身免疫。
+	 */
 	data class ContactStatusOnAttacker(
 		val status: BattleMajorStatus,
 		val chancePercent: Int,

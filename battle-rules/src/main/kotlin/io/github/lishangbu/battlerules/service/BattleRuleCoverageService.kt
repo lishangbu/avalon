@@ -710,9 +710,9 @@ class BattleRuleCoverageService {
 				),
 				note = "已覆盖满 HP 被技能直接伤害一击打倒前由特性或一次性携带道具保留 1 HP；道具来源会在触发后被消费，非满 HP 不触发。",
 			),
-			item(
-				code = "item.held-core-effects",
-				name = "携带道具核心触发效果",
+				item(
+					code = "item.held-core-effects",
+					name = "携带道具核心触发效果",
 				category = "道具",
 				status = IMPLEMENTED,
 				fixtures = listOf(
@@ -734,11 +734,29 @@ class BattleRuleCoverageService {
 					"https://bulbapedia.bulbagarden.net/wiki/Damp_Rock",
 					"https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender",
 				),
-				note = "已覆盖低体力树果一次性回复并消费、讲究类速度道具改变行动顺序并锁定首次技能、生命宝珠类伤害增幅按最大 HP 反伤、剩饭类回合末最大 HP 1/16 回复，以及天气/场地延长道具把普通环境技能或出场环境特性的持续回合改为 8。",
-			),
-			item(
-				code = "turn.multi-hit-and-locked-move",
-				name = "多段技能和锁招混乱",
+					note = "已覆盖低体力树果一次性回复并消费、讲究类速度道具改变行动顺序并锁定首次技能、生命宝珠类伤害增幅按最大 HP 反伤、剩饭类回合末最大 HP 1/16 回复，以及天气/场地延长道具把普通环境技能或出场环境特性的持续回合改为 8。",
+				),
+				item(
+					code = "item.major-status-cure",
+					name = "携带道具解除主要异常状态",
+					category = "道具",
+					status = IMPLEMENTED,
+					fixtures = listOf(
+						"major-status-cure-item-clears-status-after-application",
+						"major-status-cure-item-clears-contact-ability-status",
+						"specific-status-cure-item-keeps-unmatched-status",
+					),
+					references = listOf(
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+						"https://bulbapedia.bulbagarden.net/wiki/Lum_Berry",
+						"https://bulbapedia.bulbagarden.net/wiki/Chesto_Berry",
+						"https://bulbapedia.bulbagarden.net/wiki/Rawst_Berry",
+					),
+					note = "已覆盖主要异常状态成功写入后由携带道具立即解除并消费；技能附加状态和接触特性返还状态共用同一 after-status 钩子，非匹配状态不会消费道具。",
+				),
+				item(
+					code = "turn.multi-hit-and-locked-move",
+					name = "多段技能和锁招混乱",
 				category = "技能流程",
 				status = IMPLEMENTED,
 				fixtures = listOf(

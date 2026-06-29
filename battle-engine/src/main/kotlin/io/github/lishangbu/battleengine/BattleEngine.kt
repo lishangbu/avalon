@@ -3167,13 +3167,47 @@ class BattleEngine(
 		} else {
 			0
 		}
-		return state
+		val appliedState = state
 			.replaceParticipant(recipient.applyMajorStatus(status, sleepTurnsRemaining))
 			.appendEvent(
 				BattleEvent.StatusApplied(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
 					targetActorId = recipient.actorId,
+					status = status,
+				),
+			)
+		return applyMajorStatusCureItem(appliedState, recipient.actorId)
+	}
+
+	/**
+	 * 处理成功获得主要异常状态后的即时治愈携带道具。
+	 *
+	 * 该阶段只在 [applyMajorStatusEffect] 已经写入状态并追加 [BattleEvent.StatusApplied] 后运行，因此它不会和属性、
+	 * 场地、特性或道具免疫混淆。若成员当前没有主要异常状态，或携带道具没有声明可解除该状态的
+	 * [BattleItemEffect.MajorStatusCure]，函数原样返回状态。
+	 *
+	 * 触发成功时先清除主要异常状态及其附属计数，再按效果声明消费携带道具，最后追加 [BattleEvent.StatusCleared]。
+	 * 事件流因此会稳定呈现“状态写入 -> 道具治愈”的顺序，便于 replay 和公开 fixture 对照具体触发时机。
+	 */
+	private fun applyMajorStatusCureItem(state: BattleState, actorId: String): BattleState {
+		val participant = state.participant(actorId) ?: return state
+		val status = participant.majorStatus ?: return state
+		val effect = participant.itemEffects
+			.filterIsInstance<BattleItemEffect.MajorStatusCure>()
+			.firstOrNull { status in it.statuses }
+			?: return state
+		val cured = if (effect.consumesItem) {
+			participant.clearMajorStatus().consumeHeldItem()
+		} else {
+			participant.clearMajorStatus()
+		}
+		return state
+			.replaceParticipant(cured)
+			.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
 					status = status,
 				),
 			)
@@ -4114,9 +4148,10 @@ class BattleEngine(
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
 				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.DamageBoostWithRecoil,
-				is BattleItemEffect.HeldEndTurnHeal,
-				is BattleItemEffect.LowHpHeal,
-				is BattleItemEffect.MajorStatusImmunity,
+			is BattleItemEffect.HeldEndTurnHeal,
+			is BattleItemEffect.LowHpHeal,
+			is BattleItemEffect.MajorStatusCure,
+			is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
 				is BattleItemEffect.SurviveFatalDamageAtFullHp,
 				is BattleItemEffect.TerrainDurationExtension,
