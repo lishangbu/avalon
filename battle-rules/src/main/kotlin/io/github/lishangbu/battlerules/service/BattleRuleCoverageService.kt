@@ -3,6 +3,7 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageItemResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageSummaryResponse
+import io.github.lishangbu.battlerules.dto.BattleRuleCoverageTargetSummaryResponse
 import org.springframework.stereotype.Service
 
 /**
@@ -38,6 +39,14 @@ class BattleRuleCoverageService {
 				plannedCount = plannedCount,
 				fixtureCount = fixtureCount,
 				implementationPercent = implementationPercent,
+			),
+			targetSummary = BattleRuleCoverageTargetSummaryResponse(
+				targetRuleCount = FINAL_TARGET_RULE_COUNT,
+				coveredRuleCount = FINAL_COVERED_RULE_COUNT,
+				remainingRuleCount = FINAL_TARGET_RULE_COUNT - FINAL_COVERED_RULE_COUNT,
+				implementationPercent = (FINAL_COVERED_RULE_COUNT * 100) / FINAL_TARGET_RULE_COUNT,
+				coverageItemCount = items.size,
+				basis = FINAL_TARGET_BASIS,
 			),
 			items = items,
 		)
@@ -1110,5 +1119,9 @@ class BattleRuleCoverageService {
 		private const val IMPLEMENTED = "IMPLEMENTED"
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
+		private const val FINAL_TARGET_RULE_COUNT = 312
+		private const val FINAL_COVERED_RULE_COUNT = 81
+		private const val FINAL_TARGET_BASIS =
+			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
 }

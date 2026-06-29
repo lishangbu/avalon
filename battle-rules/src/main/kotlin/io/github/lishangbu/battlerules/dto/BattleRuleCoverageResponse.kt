@@ -7,6 +7,7 @@ package io.github.lishangbu.battlerules.dto
  */
 data class BattleRuleCoverageResponse(
 	val summary: BattleRuleCoverageSummaryResponse,
+	val targetSummary: BattleRuleCoverageTargetSummaryResponse,
 	val items: List<BattleRuleCoverageItemResponse>,
 )
 
@@ -20,6 +21,21 @@ data class BattleRuleCoverageSummaryResponse(
 	val plannedCount: Int,
 	val fixtureCount: Int,
 	val implementationPercent: Int,
+)
+
+/**
+ * 最终战斗系统规则目标汇总。
+ *
+ * 这里按可复用规则行为统计最终目标，不直接等同于当前覆盖报表的登记项数量。覆盖报表是已上线实现清单；
+ * 目标汇总用于管理端跟踪离“现代主系列规则正确”的完整系统还剩多少行为族。
+ */
+data class BattleRuleCoverageTargetSummaryResponse(
+	val targetRuleCount: Int,
+	val coveredRuleCount: Int,
+	val remainingRuleCount: Int,
+	val implementationPercent: Int,
+	val coverageItemCount: Int,
+	val basis: String,
 )
 
 /**
