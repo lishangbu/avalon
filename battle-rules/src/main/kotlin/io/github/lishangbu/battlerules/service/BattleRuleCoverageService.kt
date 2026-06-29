@@ -435,6 +435,19 @@ class BattleRuleCoverageService {
 				note = "已覆盖防守方当前 HP 等于最大 HP 时直接技能伤害按 0.5 倍降低，并验证不满 HP 和无视目标特性时不触发；同类规则资料已接入运行时快照。",
 			),
 			item(
+				code = "ability.damage-class-damage-reduction",
+				name = "按伤害分类减免特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"special-damage-class-ability-reduces-special-skill-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖防守方受到特殊分类直接技能伤害时按 0.5 倍降低最终伤害，并验证物理分类和无视目标特性时不触发；运行时快照使用通用伤害分类集合承载该类规则。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

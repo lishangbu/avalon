@@ -466,6 +466,28 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 按技能伤害分类减少受到的直接技能伤害。
+	 *
+	 * 该效果用于表达现代规则中“防守方受到某些伤害分类的直接技能命中时，最终伤害按固定倍率降低”的稳定特性。
+	 * `damageClasses` 只允许包含 [BattleDamageClass.PHYSICAL] 或 [BattleDamageClass.SPECIAL]，因为变化类技能不会进入
+	 * 普通伤害公式，也不存在可被这里修正的直接伤害。
+	 *
+	 * 该倍率属于防守方最终伤害修正，不改变防御/特防能力值、不改变技能分类本身，也不影响固定伤害、间接伤害、
+	 * 天气伤害、入场陷阱、反作用伤害或变化技能。若本次技能忽略目标特性，伤害请求会统一跳过该效果。资料层
+	 * 应把具体特性名称转换成需要匹配的伤害分类集合，纯引擎只读取结构化分类，不解析本地化文本或特性代号。
+	 */
+	data class DamageClassDamageReduction(
+		val damageClasses: Set<BattleDamageClass>,
+		val multiplier: Double = 0.5,
+	) : BattleAbilityEffect {
+		init {
+			require(damageClasses.isNotEmpty()) { "damageClasses must not be empty" }
+			require(BattleDamageClass.STATUS !in damageClasses) { "status skills do not use standard damage formula" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

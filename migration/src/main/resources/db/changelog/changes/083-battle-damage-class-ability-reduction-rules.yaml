@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: 083-battle-damage-class-ability-reduction-rules
+    author: backend
+    comment: 新增按技能伤害分类降低受到直接技能伤害的特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 60 }
+        - column: { name: ability_id, valueNumeric: 246 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: special-damage-reduction }
+        - column: { name: trigger_order, valueNumeric: 110 }
+        - column: { name: description, value: 受到特殊分类直接技能伤害时，最终伤害降低 50%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 600 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 173 }
+        - column: { name: code, value: special-damage-class-ability-reduces-special-skill-damage }
+        - column: { name: name, value: 特殊分类减伤特性降低受到的特殊技能伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证按伤害分类减伤特性只读取技能当前伤害分类，不按具体特性名称猜测。 }
+        - column: { name: input_summary, value: 目标拥有特殊分类伤害减免特性，攻击方分别使用中性一般特殊技能和物理技能命中。 }
+        - column: { name: expected_summary, value: 特殊分类直接技能伤害按 0.5 倍降低；物理技能或本次技能无视目标特性时保持原伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1730 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 356 }
+        - column: { name: fixture_id, valueNumeric: 173 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照特殊分类技能命中时使用 0.5 倍最终伤害修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 173 }
+        - column: { name: run_code, value: damage-class-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 173 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T13:48:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1730 }

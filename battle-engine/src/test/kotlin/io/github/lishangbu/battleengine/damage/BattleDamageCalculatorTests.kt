@@ -781,6 +781,59 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `damage class defensive ability reduces matching damage class only`() {
+		val fixture = publicBattleRuleFixture(
+			name = "special-damage-class-ability-reduces-special-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "目标拥有特殊分类伤害减免特性，攻击方分别使用中性一般特殊技能和物理技能命中。",
+			expectedSummary = "特殊分类直接技能伤害按 0.5 倍降低；物理技能或本次技能无视目标特性时保持原伤害。",
+		)
+		val defender = participant(
+			"defender",
+			speed = 80,
+			elementId = 2,
+			abilityEffects = listOf(
+				BattleAbilityEffect.DamageClassDamageReduction(
+					damageClasses = setOf(BattleDamageClass.SPECIAL),
+				),
+			),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 3),
+			defender = defender,
+			skill = damagingSkill(
+				elementId = 1,
+				damageClass = BattleDamageClass.SPECIAL,
+				power = 40,
+			),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val physical = calculator.calculate(
+			request.copy(
+				skill = damagingSkill(
+					elementId = 1,
+					damageClass = BattleDamageClass.PHYSICAL,
+					power = 40,
+				),
+			),
+		)
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+
+		fixture.assertNamed("special-damage-class-ability-reduces-special-skill-damage")
+		assertEquals(0.5, reduced.abilityMultiplier)
+		assertEquals(9, reduced.amount)
+		assertEquals(1.0, physical.abilityMultiplier)
+		assertEquals(19, physical.amount)
+		assertEquals(1.0, ignored.abilityMultiplier)
+		assertEquals(19, ignored.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
