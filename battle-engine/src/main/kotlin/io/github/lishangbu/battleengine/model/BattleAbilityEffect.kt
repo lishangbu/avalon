@@ -488,6 +488,32 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 修正防守方进入普通伤害公式的防御侧能力值。
+	 *
+	 * 该效果用于表达现代规则中“拥有者承受物理或特殊直接技能伤害时，防御或特防能力值按固定倍率参与公式”的
+	 * 稳定特性。它和 [DamageClassDamageReduction] 不同：这里改变的是公式中的防御侧能力值，因此会影响基础伤害
+	 * 的整数除法与取整位置；按分类减伤则属于最终伤害倍率。
+	 *
+	 * `stat` 当前只允许 [BattleStat.DEFENSE] 和 [BattleStat.SPECIAL_DEFENSE]，因为其它能力项不会作为防御侧能力值
+	 * 进入普通伤害公式。`requiredTerrain` 为空时表示无环境要求；不为空时，只有当前全场场地匹配才触发。该效果
+	 * 不改变战斗快照中的真实能力值或能力阶级，也不影响固定伤害、间接伤害、天气伤害、入场陷阱、反作用伤害或
+	 * 变化技能。若本次技能忽略目标特性，伤害请求会统一跳过该效果。
+	 */
+	data class DefendingStatMultiplier(
+		val stat: BattleStat,
+		val multiplier: Double,
+		val requiredTerrain: BattleTerrain? = null,
+	) : BattleAbilityEffect {
+		init {
+			require(stat == BattleStat.DEFENSE || stat == BattleStat.SPECIAL_DEFENSE) {
+				"defending stat multiplier only supports defense or special defense"
+			}
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(requiredTerrain != BattleTerrain.NONE) { "requiredTerrain cannot be NONE" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

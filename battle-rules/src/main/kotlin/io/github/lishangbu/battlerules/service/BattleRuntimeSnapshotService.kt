@@ -1166,6 +1166,15 @@ class BattleRuntimeSnapshotService(
 			"special-damage-reduction" -> BattleAbilityEffect.DamageClassDamageReduction(
 				damageClasses = setOf(BattleDamageClass.SPECIAL),
 			)
+			"defense-stat-double" -> BattleAbilityEffect.DefendingStatMultiplier(
+				stat = BattleStat.DEFENSE,
+				multiplier = 2.0,
+			)
+			"grassy-terrain-defense-stat-boost" -> BattleAbilityEffect.DefendingStatMultiplier(
+				stat = BattleStat.DEFENSE,
+				multiplier = 1.5,
+				requiredTerrain = BattleTerrain.GRASSY,
+			)
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
 				status = BattleMajorStatus.PARALYSIS,

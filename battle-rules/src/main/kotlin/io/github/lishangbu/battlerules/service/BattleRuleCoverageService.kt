@@ -448,6 +448,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖防守方受到特殊分类直接技能伤害时按 0.5 倍降低最终伤害，并验证物理分类和无视目标特性时不触发；运行时快照使用通用伤害分类集合承载该类规则。",
 			),
 			item(
+				code = "ability.defending-stat-multiplier",
+				name = "防守能力值修正特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"defense-stat-ability-doubles-physical-defense-before-damage",
+					"terrain-defense-stat-ability-boosts-defense-in-grassy-terrain",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖物防翻倍和青草场地下物防 1.5 倍两类防御侧能力值修正；这些规则改变基础伤害公式中的防御值，而不是最终伤害倍率。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

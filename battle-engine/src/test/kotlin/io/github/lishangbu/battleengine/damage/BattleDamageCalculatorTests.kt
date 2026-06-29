@@ -834,6 +834,101 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `defending stat ability changes physical defense before base damage formula`() {
+		val fixture = publicBattleRuleFixture(
+			name = "defense-stat-ability-doubles-physical-defense-before-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "目标拥有物防翻倍特性，攻击方分别使用中性一般物理技能和特殊技能命中。",
+			expectedSummary = "物理技能使用翻倍后的防御值进入基础伤害公式；特殊技能或本次技能无视目标特性时保持原伤害。",
+		)
+		val defender = participant(
+			"defender",
+			speed = 80,
+			elementId = 2,
+			abilityEffects = listOf(
+				BattleAbilityEffect.DefendingStatMultiplier(
+					stat = BattleStat.DEFENSE,
+					multiplier = 2.0,
+				),
+			),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 3),
+			defender = defender,
+			skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val special = calculator.calculate(
+			request.copy(
+				skill = damagingSkill(
+					elementId = 1,
+					damageClass = BattleDamageClass.SPECIAL,
+					power = 40,
+				),
+			),
+		)
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+
+		fixture.assertNamed("defense-stat-ability-doubles-physical-defense-before-damage")
+		assertEquals(10, reduced.baseDamage)
+		assertEquals(1.0, reduced.abilityMultiplier)
+		assertEquals(10, reduced.amount)
+		assertEquals(19, special.baseDamage)
+		assertEquals(19, special.amount)
+		assertEquals(19, ignored.baseDamage)
+		assertEquals(19, ignored.amount)
+	}
+
+	@Test
+	fun `terrain defending stat ability only changes defense when terrain matches`() {
+		val fixture = publicBattleRuleFixture(
+			name = "terrain-defense-stat-ability-boosts-defense-in-grassy-terrain",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "目标拥有场地要求的物防强化特性，攻击方使用中性一般物理技能分别在青草场地和无场地命中。",
+			expectedSummary = "场地匹配时防御值按 1.5 倍进入基础伤害公式；场地不匹配或本次技能无视目标特性时保持原伤害。",
+		)
+		val defender = participant(
+			"defender",
+			speed = 80,
+			elementId = 2,
+			abilityEffects = listOf(
+				BattleAbilityEffect.DefendingStatMultiplier(
+					stat = BattleStat.DEFENSE,
+					multiplier = 1.5,
+					requiredTerrain = BattleTerrain.GRASSY,
+				),
+			),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 3),
+			defender = defender,
+			skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			rules = neutralRules(),
+			environment = BattleEnvironment(terrain = BattleTerrain.GRASSY),
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val noTerrain = calculator.calculate(request.copy(environment = BattleEnvironment()))
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+
+		fixture.assertNamed("terrain-defense-stat-ability-boosts-defense-in-grassy-terrain")
+		assertEquals(13, reduced.baseDamage)
+		assertEquals(13, reduced.amount)
+		assertEquals(19, noTerrain.baseDamage)
+		assertEquals(19, noTerrain.amount)
+		assertEquals(19, ignored.baseDamage)
+		assertEquals(19, ignored.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
