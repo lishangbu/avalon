@@ -1145,6 +1145,7 @@ class BattleRuntimeSnapshotService(
 			"contact-based-skill-damage-boost" -> BattleAbilityEffect.ContactBasedSkillDamageBoost()
 			"sound-based-skill-damage-boost" -> BattleAbilityEffect.SoundBasedSkillDamageBoost()
 			"sound-based-skill-damage-reduction" -> BattleAbilityEffect.SoundBasedSkillDamageReduction()
+			"super-effective-damage-reduction" -> BattleAbilityEffect.SuperEffectiveDamageReduction()
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
 				status = BattleMajorStatus.PARALYSIS,

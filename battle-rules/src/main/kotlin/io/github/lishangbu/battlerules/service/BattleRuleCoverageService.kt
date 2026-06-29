@@ -394,6 +394,20 @@ class BattleRuleCoverageService {
 				note = "已覆盖沙暴下岩石、地面和钢属性技能获得 1.3 倍特性伤害倍率，并验证天气不匹配、有效属性不匹配和天气改属性技能的判断口径；同一特性的沙暴伤害免疫通过天气伤害免疫结构化效果接入运行时快照。",
 			),
 			item(
+				code = "ability.super-effective-damage-reduction",
+				name = "效果绝佳伤害减免特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"super-effective-defensive-ability-reduces-super-effective-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-types.ts",
+				),
+				note = "已覆盖防守方受到效果绝佳直接技能伤害时按 0.75 倍降低最终伤害，并验证非效果绝佳和无视目标特性时不触发；同类规则资料已接入运行时快照。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

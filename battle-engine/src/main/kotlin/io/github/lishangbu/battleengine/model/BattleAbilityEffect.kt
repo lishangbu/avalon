@@ -407,6 +407,25 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 减少受到效果绝佳直接技能伤害时的最终伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“目标被属性相性判定为效果绝佳的物理/特殊技能命中时，最终伤害按固定倍率降低”的
+	 * 防守方特性。它不保存具体特性名称，也不保存属性名称；伤害公式只读取已经由 [ElementEffectivenessChart]
+	 * 计算出的本次属性克制倍率，`effectiveness > 1.0` 时视为触发。
+	 *
+	 * 该效果不会修改属性相性本身，因此事件、日志和后续规则仍然能看到原始效果绝佳倍率。它也不影响固定伤害、
+	 * 间接伤害、天气伤害、入场陷阱或变化技能。若本次技能标记为忽略目标特性，伤害请求会统一跳过防守方特性
+	 * 倍率，让它与声音类减伤、击中要害免疫等防守方规则共享同一绕过语义。
+	 */
+	data class SuperEffectiveDamageReduction(
+		val multiplier: Double = 0.75,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

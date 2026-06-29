@@ -280,8 +280,8 @@ class BattleDamageCalculator(
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
 	 * 当前支持低体力指定属性增伤、天气下指定属性增伤，以及拳击类、切割类、接触类、声音类技能标签触发的
-	 * 稳定增伤；防守方声音类技能减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，避免伤害公式
-	 * 读取技能名、特性名或本地化文本。
+	 * 稳定增伤；防守方声音类技能减伤和效果绝佳减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，
+	 * 避免伤害公式读取技能名、特性名或本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
 		attackerAbilityDamageMultiplier(request) * defenderAbilityDamageMultiplier(request)
@@ -330,6 +330,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.SoundBasedSkillImmunity -> multiplier
 				is BattleAbilityEffect.SoundBasedSkillDamageReduction -> multiplier
 				is BattleAbilityEffect.StatusSkillPriorityBoost -> multiplier
+				is BattleAbilityEffect.SuperEffectiveDamageReduction -> multiplier
 				is BattleAbilityEffect.SwitchInStatStageChange -> multiplier
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp -> multiplier
 				is BattleAbilityEffect.SwitchInTerrainChange -> multiplier
@@ -345,16 +346,21 @@ class BattleDamageCalculator(
 	/**
 	 * 计算防守方特性带来的普通伤害倍率。
 	 *
-	 * 目前只支持声音类技能伤害减免。若本次伤害请求已经标记为忽略防守方特性，所有防守方特性倍率都保持中性。
+	 * 目前支持声音类技能伤害减免，以及效果绝佳伤害减免。若本次伤害请求已经标记为忽略防守方特性，所有防守方
+	 * 特性倍率都保持中性。
 	 */
 	private fun defenderAbilityDamageMultiplier(request: BattleDamageRequest): Double =
 		if (request.ignoreDefenderAbilityEffects) {
 			1.0
 		} else {
+			val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+			val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 			request.defender.abilityEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {
 					is BattleAbilityEffect.SoundBasedSkillDamageReduction ->
 						if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
+					is BattleAbilityEffect.SuperEffectiveDamageReduction ->
+						if (effectiveness > 1.0) multiplier * effect.multiplier else multiplier
 					is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 					is BattleAbilityEffect.ContactStatusOnAttacker,
 					is BattleAbilityEffect.CriticalHitImmunity,
@@ -373,8 +379,8 @@ class BattleDamageCalculator(
 					is BattleAbilityEffect.SoundBasedSkillDamageBoost,
 					is BattleAbilityEffect.SoundBasedSkillImmunity,
 					is BattleAbilityEffect.StatusSkillPriorityBoost,
-					is BattleAbilityEffect.SwitchInStatStageChange,
 					is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
+					is BattleAbilityEffect.SwitchInStatStageChange,
 					is BattleAbilityEffect.SwitchInTerrainChange,
 					is BattleAbilityEffect.SwitchInWeatherChange,
 					is BattleAbilityEffect.TerrainSpeedMultiplier,

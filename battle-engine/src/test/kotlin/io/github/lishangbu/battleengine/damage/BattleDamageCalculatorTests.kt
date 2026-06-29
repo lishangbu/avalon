@@ -604,6 +604,55 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `super effective defensive ability reduces only super effective damage unless target ability is ignored`() {
+		val fixture = publicBattleRuleFixture(
+			name = "super-effective-defensive-ability-reduces-super-effective-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-types.ts",
+			),
+			inputSummary = "目标拥有受到效果绝佳伤害减免的结构化特性，攻击方使用对目标 2 倍克制的一般物理技能。",
+			expectedSummary = "属性克制倍率大于 1 时最终伤害按 0.75 倍降低；非效果绝佳或本次技能无视目标特性时保持原伤害。",
+		)
+		val defender = participant(
+			"defender",
+			speed = 80,
+			elementId = 2,
+			abilityEffects = listOf(BattleAbilityEffect.SuperEffectiveDamageReduction()),
+		)
+		val rules = BattleRuleSnapshot(
+			elementChart = ElementEffectivenessChart(
+				mapOf(1L to mapOf(2L to 2.0)),
+			),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 3),
+			defender = defender,
+			skill = damagingSkill(elementId = 1, power = 40),
+			rules = rules,
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+		val neutral = calculator.calculate(
+			request.copy(
+				defender = defender.copy(elementIds = setOf(3)),
+			),
+		)
+
+		fixture.assertNamed("super-effective-defensive-ability-reduces-super-effective-damage")
+		assertEquals(2.0, reduced.effectiveness)
+		assertEquals(0.75, reduced.abilityMultiplier)
+		assertEquals(28, reduced.amount)
+		assertEquals(1.0, ignored.abilityMultiplier)
+		assertEquals(38, ignored.amount)
+		assertEquals(1.0, neutral.effectiveness)
+		assertEquals(1.0, neutral.abilityMultiplier)
+		assertEquals(19, neutral.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",

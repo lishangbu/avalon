@@ -59,6 +59,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "ability.element-absorb-stat" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.low-hp-element-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.weather-element-damage-boost" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "ability.super-effective-damage-reduction" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.tagged-skill-damage-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.indirect-damage-immunity" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.skill-recoil-damage-immunity" && it.status == "IMPLEMENTED" })
