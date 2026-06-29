@@ -432,6 +432,7 @@ class BattleEngine(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
+		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
 
 		val powderBlockedElementId = powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
@@ -550,9 +551,12 @@ class BattleEngine(
 				),
 			)
 		}
-		val absorbedByAbility =
+		val absorbedByAbility = if (ignoresTargetAbilityEffects) {
+			null
+		} else {
 			elementSkillAbsorbHeal(state, actor, target, skill)
 				?: elementSkillAbsorbStatStage(state, actor, target, skill)
+		}
 		if (absorbedByAbility != null) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -665,7 +669,8 @@ class BattleEngine(
 			return context
 		}
 		val criticalHitCheck = criticalHitCheck(skill, random)
-		val criticalHit = criticalHitCheck.hit && !target.hasCriticalHitImmunity()
+		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val sideDamageReductionMultiplier = sideDamageReductionMultiplier(
 			state = state,
@@ -684,6 +689,7 @@ class BattleEngine(
 				targetMultiplier = targetMultiplier,
 				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
 				criticalHit = criticalHit,
+				ignoreDefenderAbilityEffects = ignoresTargetAbilityEffects,
 			),
 		)
 		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)) {
@@ -703,6 +709,7 @@ class BattleEngine(
 			target = target,
 			skill = skill,
 			damageAmount = damage.amount,
+			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
 		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
@@ -742,7 +749,8 @@ class BattleEngine(
 	 * 在直接伤害写入目标 HP 前，套用“满 HP 致命伤害保留 1 HP”的特性和道具规则。
 	 *
 	 * 这类规则必须发生在低体力道具、接触特性和倒下判定之前；否则一次本应保留 1 HP 的攻击会先把目标写成倒下。
-	 * 特性优先于道具，避免同一成员同时拥有两种来源时错误消耗携带道具。
+	 * 特性优先于道具，避免同一成员同时拥有两种来源时错误消耗携带道具。若本次技能声明无视目标防守特性，只跳过
+	 * 特性来源的保命，道具来源仍按普通携带道具规则结算。
 	 */
 	private fun fatalDamageSurvival(
 		state: BattleState,
@@ -750,6 +758,7 @@ class BattleEngine(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		damageAmount: Int,
+		ignoreTargetAbilityEffects: Boolean,
 	): FatalDamageSurvivalResult {
 		if (
 			damageAmount <= 0 ||
@@ -759,9 +768,13 @@ class BattleEngine(
 		) {
 			return FatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
 		}
-		val abilityEffect = target.abilityEffects
-			.filterIsInstance<BattleAbilityEffect.SurviveFatalDamageAtFullHp>()
-			.firstOrNull()
+		val abilityEffect = if (ignoreTargetAbilityEffects) {
+			null
+		} else {
+			target.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.SurviveFatalDamageAtFullHp>()
+				.firstOrNull()
+		}
 		if (abilityEffect != null) {
 			return target.toFatalDamageSurvivalResult(
 				state = state,
@@ -1547,6 +1560,9 @@ class BattleEngine(
 		if (actorSide.sideId == targetSide.sideId) {
 			return null
 		}
+		if (skillIgnoresTargetAbilityEffects(state, actor, target)) {
+			return null
+		}
 		return targetSide.activeParticipants()
 			.firstOrNull { participant ->
 				val effect = participant.abilityEffects
@@ -1985,7 +2001,8 @@ class BattleEngine(
 		random: BattleRandom,
 	): AccuracyCheck {
 		val accuracy = effectiveAccuracy(state, skill) ?: return AccuracyCheck(hit = true, roll = null)
-		val actorAccuracyStage = if (target.ignoresOpponentAccuracyStatStages()) {
+		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val actorAccuracyStage = if (!ignoresTargetAbilityEffects && target.ignoresOpponentAccuracyStatStages()) {
 			0
 		} else {
 			actor.statStage(BattleStat.ACCURACY)
@@ -2658,6 +2675,7 @@ class BattleEngine(
 			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 			is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 			is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+			is BattleAbilityEffect.IgnoreTargetAbilityEffects,
 			is BattleAbilityEffect.IndirectDamageImmunity,
 			is BattleAbilityEffect.LowHpElementDamageBoost,
 			is BattleAbilityEffect.MajorStatusImmunity,
@@ -3134,7 +3152,8 @@ class BattleEngine(
 			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) -> BattleStatusBlockReason.SUBSTITUTE
-			statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
+				statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
 		}
@@ -3225,6 +3244,44 @@ class BattleEngine(
 	 */
 	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
 		elementId != null && elementId in elementIds
+
+	/**
+	 * 判断本次技能是否应忽略目标侧防守特性。
+	 *
+	 * 该 helper 只处理一次技能结算中的“攻击方对对手目标”的关系。它不会让同侧辅助、自身目标或非技能来源
+	 * 绕过目标特性，也不会影响目标道具、属性天然免疫、场地免疫或攻击方自己的攻击侧特性。
+	 */
+	private fun skillIgnoresTargetAbilityEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+	): Boolean {
+		val actor = state.participant(actorId) ?: return false
+		val target = state.participant(targetActorId) ?: return false
+		return skillIgnoresTargetAbilityEffects(state, actor, target)
+	}
+
+	/**
+	 * 判断本次技能是否应忽略目标侧防守特性。
+	 *
+	 * 纯引擎只读取 [BattleAbilityEffect.IgnoreTargetAbilityEffects] 这个结构化效果，不判断具体资料库特性名称。
+	 * 双打中只要目标在对手侧，就会忽略目标本人以及目标侧伙伴提供的防守型特性；同侧目标始终返回 false。
+	 */
+	private fun skillIgnoresTargetAbilityEffects(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+	): Boolean {
+		if (!actor.canBattle() || !target.canBattle()) {
+			return false
+		}
+		val actorSide = state.sideOf(actor.actorId) ?: return false
+		val targetSide = state.sideOf(target.actorId) ?: return false
+		if (actorSide.sideId == targetSide.sideId) {
+			return false
+		}
+		return actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }
+	}
 
 	/**
 	 * 判断成员是否免疫非技能直接伤害。
@@ -3373,7 +3430,8 @@ class BattleEngine(
 		when {
 			volatileStatusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) -> BattleStatusBlockReason.SUBSTITUTE
-			volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
+			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
+				volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
 			else -> null
 		}
@@ -3424,6 +3482,9 @@ class BattleEngine(
 			return state
 		}
 		val target = state.participant(targetActorId) ?: return state
+		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) {
+			return state
+		}
 		return target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
 			.fold(state) { current, effect ->
@@ -3944,6 +4005,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
 				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,
@@ -3975,6 +4037,7 @@ class BattleEngine(
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
 				is BattleAbilityEffect.IndirectDamageImmunity,
 				is BattleAbilityEffect.LowHpElementDamageBoost,
 				is BattleAbilityEffect.MajorStatusImmunity,

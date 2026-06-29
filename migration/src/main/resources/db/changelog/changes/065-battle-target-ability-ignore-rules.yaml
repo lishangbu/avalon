@@ -1,0 +1,228 @@
+databaseChangeLog:
+- changeSet:
+    id: 065-battle-target-ability-ignore-rules
+    author: backend
+    comment: 补齐攻击时无视目标防守特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 40 }
+        - column: { name: ability_id, valueNumeric: 104 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: ignore-target-ability-effects }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 使用技能时无视目标侧防守特性效果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 400 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 41 }
+        - column: { name: ability_id, valueNumeric: 163 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: ignore-target-ability-effects }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 使用技能时无视目标侧防守特性效果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 410 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 42 }
+        - column: { name: ability_id, valueNumeric: 164 }
+        - column: { name: trigger_timing, value: BEFORE_HIT }
+        - column: { name: effect_policy, value: ignore-target-ability-effects }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 使用技能时无视目标侧防守特性效果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 420 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 137 }
+        - column: { name: code, value: target-ability-ignore-bypasses-element-absorb }
+        - column: { name: name, value: 无视目标特性绕过属性吸收 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证攻击方拥有无视目标特性效果时，目标的属性吸收特性不会阻止匹配属性技能。 }
+        - column: { name: input_summary, value: 攻击方使用匹配目标属性吸收特性的技能，攻击方拥有无视目标特性效果。 }
+        - column: { name: expected_summary, value: 目标特性不触发，技能进入普通伤害流程并造成直接伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1370 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 138 }
+        - column: { name: code, value: target-ability-ignore-bypasses-full-hp-survival }
+        - column: { name: name, value: 无视目标特性绕过满血保命 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证攻击方拥有无视目标特性效果时，目标满 HP 致命伤害保留特性不会触发。 }
+        - column: { name: input_summary, value: 攻击方使用足以一击倒下目标的普通伤害技能，目标满 HP 且拥有特性来源的保命效果。 }
+        - column: { name: expected_summary, value: 目标特性被跳过，HP 被扣到 0，事件流不出现特性保命事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1380 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 139 }
+        - column: { name: code, value: target-ability-ignore-bypasses-defender-stat-stage-ignore }
+        - column: { name: name, value: 无视目标特性绕过防守方无视阶级 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: FORMULA }
+        - column: { name: description, value: 验证攻击方拥有无视目标特性效果时，防守方无视伤害阶级变化特性不参与本次公式。 }
+        - column: { name: input_summary, value: 攻击方攻击阶级为 +2，防守方拥有无视对手伤害阶级变化特性，攻击方拥有无视目标特性效果。 }
+        - column: { name: expected_summary, value: 公式读取攻击方 +2 攻击阶级，防守方特性不会把攻击阶级归零。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1390 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 140 }
+        - column: { name: code, value: target-ability-ignore-bypasses-target-status-immunity }
+        - column: { name: name, value: 无视目标特性绕过状态免疫 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证攻击方拥有无视目标特性效果时，目标特性来源的主要异常状态免疫不阻止本次技能附加状态。 }
+        - column: { name: input_summary, value: 攻击方使用附加麻痹的变化技能命中目标，目标拥有特性来源的麻痹免疫。 }
+        - column: { name: expected_summary, value: 目标特性免疫被跳过，麻痹状态成功写入；属性、场地和道具免疫不在该 fixture 范围内。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1400 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 292 }
+        - column: { name: fixture_id, valueNumeric: 137 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照攻击方特性在技能修改阶段设置 ignoreAbility 的行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 293 }
+        - column: { name: fixture_id, valueNumeric: 137 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开技能命中流程 }
+        - column: { name: source_note, value: 用于对照属性吸收等 TryHit 能力在命中流程中的位置。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 294 }
+        - column: { name: fixture_id, valueNumeric: 138 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照目标特性被本次技能忽略的规则来源。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 295 }
+        - column: { name: fixture_id, valueNumeric: 138 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability) }
+        - column: { name: source_label, value: 公开规则说明 }
+        - column: { name: source_note, value: 用于对照满 HP 致命伤害保留 1 HP 的特性效果。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 296 }
+        - column: { name: fixture_id, valueNumeric: 139 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照目标特性被本次技能忽略的规则来源。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 297 }
+        - column: { name: fixture_id, valueNumeric: 139 }
+        - column: { name: source_url, value: https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts }
+        - column: { name: source_label, value: 公开伤害公式实现 }
+        - column: { name: source_note, value: 用于对照防守方无视攻击方阶级变化在公式中的位置。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 298 }
+        - column: { name: fixture_id, valueNumeric: 140 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照目标特性被本次技能忽略的规则来源。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 299 }
+        - column: { name: fixture_id, valueNumeric: 140 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
+        - column: { name: source_label, value: 公开技能命中流程 }
+        - column: { name: source_note, value: 用于对照本次技能 ignoreAbility 标记贯穿命中和效果流程。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 300 }
+        - column: { name: fixture_id, valueNumeric: 138 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Mold_Breaker_(Ability) }
+        - column: { name: source_label, value: 公开规则说明 }
+        - column: { name: source_note, value: 用于对照使用技能时忽略目标特性的公开规则描述。 }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 137 }
+        - column: { name: run_code, value: target-ability-ignore-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 137 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:00:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:04:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 240000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1370 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 138 }
+        - column: { name: run_code, value: target-ability-ignore-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 138 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:00:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:04:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 240000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1380 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 139 }
+        - column: { name: run_code, value: target-ability-ignore-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 139 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:00:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:04:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 240000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1390 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 140 }
+        - column: { name: run_code, value: target-ability-ignore-coverage-20260629-4 }
+        - column: { name: fixture_id, valueNumeric: 140 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T09:00:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T09:04:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 240000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1400 }

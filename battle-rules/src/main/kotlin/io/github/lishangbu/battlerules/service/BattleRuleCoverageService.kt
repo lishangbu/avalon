@@ -456,6 +456,23 @@ class BattleRuleCoverageService {
 				note = "已覆盖持有者作为防守方时忽略攻击方命中阶级、作为攻击方时忽略目标闪避阶级；必中和天气命中覆盖仍按原流程处理。",
 			),
 			item(
+				code = "ability.ignore-target-ability-effects",
+				name = "攻击时无视目标防守特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"target-ability-ignore-bypasses-element-absorb",
+					"target-ability-ignore-bypasses-full-hp-survival",
+					"target-ability-ignore-bypasses-defender-stat-stage-ignore",
+					"target-ability-ignore-bypasses-target-status-immunity",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				),
+				note = "已覆盖攻击方使用技能时跳过目标侧属性吸收、满 HP 保命、伤害阶级无视和主要异常状态免疫等防守特性；目标道具、属性天然免疫、场地免疫和非技能来源不受影响。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

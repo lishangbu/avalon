@@ -106,7 +106,7 @@ class BattleDamageCalculator(
 	 * 攻击方不利阶级，但保留攻击方有利阶级。
 	 */
 	private fun effectiveAttackingStage(request: BattleDamageRequest, stat: BattleStat): Int =
-		if (request.defender.ignoresOpponentDamageStatStages()) {
+		if (!request.ignoreDefenderAbilityEffects && request.defender.ignoresOpponentDamageStatStages()) {
 			0
 		} else {
 			attackingStage(request.attacker.statStage(stat), request.criticalHit)
@@ -258,6 +258,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages -> multiplier
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages -> multiplier
+				is BattleAbilityEffect.IgnoreTargetAbilityEffects -> multiplier
 				is BattleAbilityEffect.IndirectDamageImmunity -> multiplier
 				is BattleAbilityEffect.MajorStatusImmunity -> multiplier
 				is BattleAbilityEffect.PriorityMoveImmunityForSide -> multiplier
