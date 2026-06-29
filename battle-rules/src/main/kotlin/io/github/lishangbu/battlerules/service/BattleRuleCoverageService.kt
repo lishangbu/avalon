@@ -1609,6 +1609,42 @@ class BattleRuleCoverageService {
 				note = "已覆盖吸取回复缺失 HP 夹取、1 点实际伤害最小吸取回复、满 HP 跳过吸取回复、技能反作用伤害按使用者当前 HP 夹取、反作用免疫、主动回复夹取与满 HP 跳过、天气变量回复默认比例、强制替换单后备不消费随机、无后备/目标倒下/替身阻挡时短路、强制替换后接续入场陷阱，以及普通能力阶级效果和清除/复制/交换/取反操作在概率失败、能力边界或无变化时不产生误导性事件。",
 			),
 			item(
+				code = "ability-item.effect-boundaries",
+				name = "特性和道具效果边界",
+				category = "特性/道具",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"element-absorb-heal-ignores-non-matching-element",
+					"element-absorb-heal-waits-for-hit-and-skips-on-miss",
+					"element-absorb-stat-at-upper-bound-absorbs-without-stage-event",
+					"target-ability-ignore-does-not-bypass-held-damage-reduction-item",
+					"target-ability-ignore-keeps-same-side-target-ability-active",
+					"sound-immunity-does-not-block-user-own-sound-skill",
+					"sound-immunity-ignores-non-sound-skill",
+					"priority-side-immunity-ignores-same-side-priority-support",
+					"priority-side-immunity-ignores-non-priority-skill",
+					"priority-side-immunity-can-be-bypassed-by-target-ability-ignore",
+					"weather-damage-immunity-requires-matching-weather",
+					"weather-healing-ability-requires-matching-weather",
+					"weather-speed-multiplier-requires-matching-weather",
+					"terrain-speed-multiplier-requires-matching-terrain",
+					"damage-dealt-healing-item-clamps-to-missing-hp",
+					"damage-dealt-healing-item-skips-full-hp-user",
+					"low-hp-healing-item-clamps-to-missing-hp-and-consumes",
+					"low-hp-healing-item-skips-fainted-holder",
+					"held-end-turn-healing-item-clamps-to-missing-hp",
+					"non-consumable-element-damage-reduction-keeps-held-item",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather",
+					"https://bulbapedia.bulbagarden.net/wiki/Terrain",
+				),
+				note = "已覆盖属性吸收特性非匹配与未命中短路、吸收提阶上限、无视目标特性不影响同侧目标或携带道具、声音免疫与先制侧防护的敌我和标签边界、天气/场地速度和回复特性只在环境匹配时生效，以及造成伤害后回复、低体力回复、回合末回复和抗性减伤道具在满 HP、倒下、夹取和非消耗配置下的稳定行为。",
+			),
+			item(
 				code = "skill.forced-switch",
 				name = "技能强制替换目标",
 				category = "技能效果",
@@ -1652,7 +1688,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 260
+		private const val FINAL_COVERED_RULE_COUNT = 280
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
