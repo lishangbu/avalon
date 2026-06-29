@@ -1645,6 +1645,42 @@ class BattleRuleCoverageService {
 				note = "已覆盖属性吸收特性非匹配与未命中短路、吸收提阶上限、无视目标特性不影响同侧目标或携带道具、声音免疫与先制侧防护的敌我和标签边界、天气/场地速度和回复特性只在环境匹配时生效，以及造成伤害后回复、低体力回复、回合末回复和抗性减伤道具在满 HP、倒下、夹取和非消耗配置下的稳定行为。",
 			),
 			item(
+				code = "format-lifecycle.boundaries",
+				name = "格式和生命周期边界",
+				category = "格式/生命周期",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"format-rejects-blank-code",
+					"format-rejects-default-level-below-one",
+					"format-rejects-zero-max-turns",
+					"initial-state-rejects-duplicate-side-ids",
+					"initial-state-rejects-active-count-mismatch",
+					"preparation-validator-collects-direct-restrictions-on-one-participant",
+					"preparation-validator-records-duplicate-item-resource-ids",
+					"preparation-validator-ignores-duplicate-clauses-when-disabled",
+					"action-validator-reports-missing-actor",
+					"action-validator-reports-bench-actor-is-not-active",
+					"action-validator-reports-fainted-active-skill-user",
+					"action-validator-reports-target-is-not-active",
+					"action-validator-reports-fainted-active-target",
+					"action-validator-reports-switch-target-already-active",
+					"battle-ended-validation-keeps-specific-action-violations",
+					"participant-faint-event-precedes-battle-ended-event",
+					"battle-ending-turn-does-not-append-normal-turn-ended",
+					"simultaneous-last-participants-faint-produces-draw-result",
+					"switch-out-clears-disable-taunt-torment-and-heal-block",
+					"forced-switch-clears-binding-locked-choice-and-substitute-state",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts",
+					"https://wiki.52poke.com/wiki/对战",
+				),
+				note = "已覆盖格式 code、默认等级、最大回合数和初始阵营/上场席位不变量；准备阶段多重限制聚合、重复条款开关和资源 ID；行动提交阶段成员、目标、替换和战斗结束后的结构化违规；以及濒死先于胜负、终局回合不追加普通回合结束、双方同时倒下平局和离场清理临时运行态。",
+			),
+			item(
 				code = "skill.forced-switch",
 				name = "技能强制替换目标",
 				category = "技能效果",
@@ -1688,7 +1724,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 280
+		private const val FINAL_COVERED_RULE_COUNT = 300
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

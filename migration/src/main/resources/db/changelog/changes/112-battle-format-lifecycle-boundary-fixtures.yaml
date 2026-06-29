@@ -1,0 +1,99 @@
+databaseChangeLog:
+- changeSet:
+    id: 112-battle-format-lifecycle-boundary-fixtures
+    author: backend
+    comment: 新增格式和生命周期边界公开对照 fixture 数据。
+    changes:
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (380, 'format-rejects-blank-code', '格式拒绝空白标识', 'FORMAT', 'VALIDATION', '验证格式快照必须拥有稳定非空 code。', '格式快照使用空白 code 创建单打格式。', '格式入口立即拒绝空白 code，避免后续 fixture 和 replay 失去稳定格式标识。', true, 3800),
+            (381, 'format-rejects-default-level-below-one', '格式拒绝小于一的默认等级', 'FORMAT', 'VALIDATION', '验证格式默认等级必须落在现代等级范围内。', '格式声明默认等级为 0。', '格式入口拒绝不在 1 到 100 范围内的默认等级。', true, 3810),
+            (382, 'format-rejects-zero-max-turns', '格式拒绝零回合上限', 'FORMAT', 'VALIDATION', '验证格式回合上限必须为正数。', '格式声明最大回合数为 0。', '格式入口拒绝非正数最大回合，回合上限必须至少允许完整结算一回合。', true, 3820),
+            (383, 'initial-state-rejects-duplicate-side-ids', '初始状态拒绝重复阵营标识', 'FORMAT', 'VALIDATION', '验证初始战斗快照的 sideId 必须全局唯一。', '初始战斗快照包含两个 sideId 相同的阵营。', '启动入口拒绝重复 sideId，保证事件流和胜负判定可以稳定定位阵营。', true, 3830),
+            (384, 'initial-state-rejects-active-count-mismatch', '初始状态拒绝上场数量不匹配', 'FORMAT', 'VALIDATION', '验证初始上场席位数量必须匹配格式站位。', '单打格式中一方却声明两名当前上场成员。', '初始快照拒绝与格式站位数量不一致的上场席位。', true, 3840),
+            (385, 'preparation-validator-collects-direct-restrictions-on-one-participant', '准备校验聚合同一成员直接限制', 'FORMAT', 'VALIDATION', '验证准备阶段不会在第一条直接限制后短路。', '同一成员同时超过等级上限，且命中禁用成员、技能、特性和道具限制。', '准备校验一次性返回五条直接违规，不在第一条失败后短路。', true, 3850),
+            (386, 'preparation-validator-records-duplicate-item-resource-ids', '准备校验记录重复道具资源 ID', 'FORMAT', 'VALIDATION', '验证唯一道具条款的 resourceId 指向重复道具。', '同一方两名成员携带同一道具，格式启用同队携带道具唯一条款。', '准备校验给两名成员各返回 duplicate-item，并把 resourceId 稳定记录为重复道具 ID。', true, 3860),
+            (387, 'preparation-validator-ignores-duplicate-clauses-when-disabled', '准备校验忽略未启用重复条款', 'FORMAT', 'VALIDATION', '验证重复种类和重复道具必须由格式条款显式启用。', '同一方两名成员种类和携带道具都重复，但格式没有启用唯一种类或唯一道具条款。', '准备校验不返回 duplicate-creature 或 duplicate-item，重复条款必须由格式显式启用。', true, 3870),
+            (388, 'action-validator-reports-missing-actor', '行动校验报告缺失行动者', 'TURN', 'VALIDATION', '验证不存在的 actorId 会在提交阶段被结构化拦截。', '提交行动的 actorId 不存在于当前战斗快照。', '行动提交校验返回 actor-not-found，并停止继续检查该行动的技能和目标。', true, 3880),
+            (389, 'action-validator-reports-bench-actor-is-not-active', '行动校验报告后备成员未上场', 'TURN', 'VALIDATION', '验证后备成员不能直接提交技能行动。', '后备成员在未替换上场前直接提交技能行动。', '行动提交校验返回 actor-not-active，后备成员不能直接进入技能结算。', true, 3890),
+            (390, 'action-validator-reports-fainted-active-skill-user', '行动校验报告倒下成员使用技能', 'TURN', 'VALIDATION', '验证倒下当前上场成员不能提交普通技能行动。', '当前上场成员已经倒下，却提交普通技能行动。', '行动提交校验返回 actor-fainted；倒下成员只能走强制补位替换流程。', true, 3900),
+            (391, 'action-validator-reports-target-is-not-active', '行动校验报告目标未上场', 'HIT', 'VALIDATION', '验证选择阶段目标必须是当前上场成员。', '当前上场成员把单体技能指向对手后备成员。', '行动提交校验返回 target-not-active，选择阶段目标必须是当前可选的上场成员。', true, 3910),
+            (392, 'action-validator-reports-fainted-active-target', '行动校验报告目标已经倒下', 'HIT', 'VALIDATION', '验证已经倒下的上场目标不会进入命中流程。', '当前上场成员把单体技能指向已经倒下但仍占据上场席位的目标。', '行动提交校验返回 target-fainted，避免把已经倒下的目标送入技能命中流程。', true, 3920),
+            (393, 'action-validator-reports-switch-target-already-active', '行动校验报告替换目标已在场', 'TURN', 'VALIDATION', '验证主动替换不能选择同侧已经上场的成员。', '双打中仍可战斗的一号位提交替换，但替换目标是同侧已经在场的二号位。', '行动提交校验返回 switch-target-active，主动替换必须选择同侧未上场且可战斗成员。', true, 3930),
+            (394, 'battle-ended-validation-keeps-specific-action-violations', '战斗结束后保留具体提交违规', 'TURN', 'VALIDATION', '验证战斗结束后的提交仍保留可定位具体问题。', '战斗已经因最后一名对手倒下而结束，之后又提交指向该倒下目标的技能行动。', '行动提交校验先返回 battle-ended，同时保留 target-fainted 这类可定位的具体问题。', true, 3940),
+            (395, 'participant-faint-event-precedes-battle-ended-event', '濒死事件先于战斗结束事件', 'LIFECYCLE', 'STATE_MACHINE', '验证终局伤害事件流先解释濒死再解释胜负。', '最后一名对手被普通伤害技能击倒。', '事件流必须先记录目标濒死，再记录战斗结束，便于 replay 解释胜负来源。', true, 3950),
+            (396, 'battle-ending-turn-does-not-append-normal-turn-ended', '终局回合不追加普通回合结束', 'LIFECYCLE', 'STATE_MACHINE', '验证战斗结束后不会再追加普通 TurnEnded。', '技能伤害在本回合中直接击倒对手最后一名成员。', '战斗结束后不再追加普通 TurnEnded 事件，避免终局回合被误当成可继续回合。', true, 3960),
+            (397, 'simultaneous-last-participants-faint-produces-draw-result', '双方最后成员同时倒下产生平局', 'LIFECYCLE', 'STATE_MACHINE', '验证双方最后成员同时倒下时没有胜方。', '使用者以自身当前 HP 等量伤害击倒目标，同时自身也因技能效果倒下。', '双方最后成员同时倒下时，战斗结果没有胜方并记录 all-sides-fainted。', true, 3970),
+            (398, 'switch-out-clears-disable-taunt-torment-and-heal-block', '离场清除定身挑衅无理取闹回复封锁', 'LIFECYCLE', 'STATE_MACHINE', '验证成员离场清除一组行动选择临时限制。', '成员带着回复封锁、挑衅、定身法和无理取闹状态主动离场。', '离场后这些临时状态全部清除，后续再次上场不会继续继承行动选择限制。', true, 3980),
+            (399, 'forced-switch-clears-binding-locked-choice-and-substitute-state', '强制补位清除束缚锁招讲究和替身', 'LIFECYCLE', 'STATE_MACHINE', '验证强制补位离场统一清除只应保留在上场期间的运行态。', '已经倒下的当前上场成员仍带着束缚、锁招、讲究锁定、最近成功技能和替身运行态。', '强制补位离场会统一清除这些只应保留在上场期间的运行态。', true, 3990);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (760, 380, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照格式标识是规则配置的稳定入口。', 10),
+            (761, 380, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开战斗入口实现', '用于验证战斗启动依赖稳定格式标识。', 20),
+            (762, 381, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照等级规则来自格式。', 10),
+            (763, 381, 'https://wiki.52poke.com/wiki/等级', '等级公开规则说明', '用于验证现代等级范围。', 20),
+            (764, 382, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照回合上限属于格式规则。', 10),
+            (765, 382, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开战斗入口实现', '用于验证回合上限必须可结算。', 20),
+            (766, 383, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开战斗入口实现', '用于对照阵营标识参与事件流。', 10),
+            (767, 383, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/side.ts', '公开阵营实现', '用于验证 sideId 唯一性。', 20),
+            (768, 384, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照单打和双打站位数量。', 10),
+            (769, 384, 'https://wiki.52poke.com/wiki/双打对战', '双打公开规则说明', '用于验证格式站位数量约束。', 20),
+            (770, 385, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照等级、禁用资源等格式限制。', 10),
+            (771, 385, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/team-validator.ts', '公开队伍校验实现', '用于验证准备阶段聚合违规。', 20),
+            (772, 386, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照唯一道具条款。', 10),
+            (773, 386, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/team-validator.ts', '公开队伍校验实现', '用于验证重复道具资源定位。', 20),
+            (774, 387, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开格式配置', '用于对照重复条款由格式显式启用。', 10),
+            (775, 387, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/team-validator.ts', '公开队伍校验实现', '用于验证未启用条款不报违规。', 20),
+            (776, 388, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照提交行动需要存在行动者。', 10),
+            (777, 388, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开行动队列实现', '用于验证非法行动者不会进入队列。', 20),
+            (778, 389, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照后备成员不能直接行动。', 10),
+            (779, 389, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开行动队列实现', '用于验证行动者必须当前在场。', 20),
+            (780, 390, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照倒下成员不能使用技能。', 10),
+            (781, 390, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证倒下成员只能等待补位。', 20),
+            (782, 391, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照目标必须在有效场上席位。', 10),
+            (783, 391, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于验证单体技能目标选择。', 20),
+            (784, 392, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照倒下目标不会进入命中流程。', 10),
+            (785, 392, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证倒下目标不可继续承受普通技能流程。', 20),
+            (786, 393, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照替换目标必须未在场。', 10),
+            (787, 393, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开行动队列实现', '用于验证双打替换目标席位。', 20),
+            (788, 394, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开战斗入口实现', '用于对照战斗结束后不再接受有效行动。', 10),
+            (789, 394, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证结束后仍保留具体提交问题。', 20),
+            (790, 395, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照濒死事件先于胜负裁定。', 10),
+            (791, 395, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证终局事件顺序。', 20),
+            (792, 396, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开战斗入口实现', '用于对照终局回合不会继续普通回合流程。', 10),
+            (793, 396, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证 BattleEnded 后不追加 TurnEnded。', 20),
+            (794, 397, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照按自身 HP 造成伤害并倒下的技能。', 10),
+            (795, 397, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证双方最后成员同时倒下时平局。', 20),
+            (796, 398, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开成员运行态实现', '用于对照离场清理临时状态。', 10),
+            (797, 398, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开状态资料', '用于验证回复封锁、挑衅、定身法和无理取闹离场清理。', 20),
+            (798, 399, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开成员运行态实现', '用于对照离场清理锁招和替身等运行态。', 10),
+            (799, 399, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证强制补位也执行离场清理。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (380, 'format-lifecycle-boundary-coverage-20260629-1', 380, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3800),
+            (381, 'format-lifecycle-boundary-coverage-20260629-2', 381, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3810),
+            (382, 'format-lifecycle-boundary-coverage-20260629-3', 382, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3820),
+            (383, 'format-lifecycle-boundary-coverage-20260629-4', 383, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3830),
+            (384, 'format-lifecycle-boundary-coverage-20260629-5', 384, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3840),
+            (385, 'format-lifecycle-boundary-coverage-20260629-6', 385, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3850),
+            (386, 'format-lifecycle-boundary-coverage-20260629-7', 386, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3860),
+            (387, 'format-lifecycle-boundary-coverage-20260629-8', 387, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3870),
+            (388, 'format-lifecycle-boundary-coverage-20260629-9', 388, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3880),
+            (389, 'format-lifecycle-boundary-coverage-20260629-10', 389, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3890),
+            (390, 'format-lifecycle-boundary-coverage-20260629-11', 390, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3900),
+            (391, 'format-lifecycle-boundary-coverage-20260629-12', 391, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3910),
+            (392, 'format-lifecycle-boundary-coverage-20260629-13', 392, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3920),
+            (393, 'format-lifecycle-boundary-coverage-20260629-14', 393, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3930),
+            (394, 'format-lifecycle-boundary-coverage-20260629-15', 394, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3940),
+            (395, 'format-lifecycle-boundary-coverage-20260629-16', 395, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3950),
+            (396, 'format-lifecycle-boundary-coverage-20260629-17', 396, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3960),
+            (397, 'format-lifecycle-boundary-coverage-20260629-18', 397, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3970),
+            (398, 'format-lifecycle-boundary-coverage-20260629-19', 398, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3980),
+            (399, 'format-lifecycle-boundary-coverage-20260629-20', 399, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests', '2026-06-29T23:10:00+08:00', 3990);
