@@ -5497,44 +5497,6 @@ class BattleEngine(
 			else -> random.nextInt(100, reason) + 1 <= chancePercent
 		}
 
-	/**
-	 * 在伤害后追加倒下事件并判断胜负。
-	 *
-	 * 第一阶段只要某一方没有可战斗成员就立即结束战斗。若双方都没有剩余成员，则以无胜方结果结束；后续替换
-	 * 请求和复杂计分裁定规则会继续扩展这里。
-	 */
-	private fun BattleState.handleFaintAndResult(target: BattleParticipant): BattleState {
-		return handleFaintsAndResult(listOf(target))
-	}
-
-	private fun BattleState.handleFaintsAndResult(targets: List<BattleParticipant>): BattleState {
-		val withFaint = targets
-			.distinctBy { it.actorId }
-			.filterNot { it.canBattle() }
-			.fold(this) { current, target ->
-				current.appendEvent(BattleEvent.ParticipantFainted(turnNumber, target.actorId))
-			}
-		val defeatedSides = withFaint.sides.filterNot { it.hasRemainingParticipant() }
-		if (defeatedSides.isEmpty()) {
-			return withFaint
-		}
-		val remainingSides = withFaint.sides.filter { it !in defeatedSides }
-		val winningSideId = remainingSides.singleOrNull()?.sideId
-		val result = BattleResult(
-			winningSideId = winningSideId,
-			reason = if (winningSideId == null) "all-sides-fainted" else "all-opponents-fainted",
-		)
-		return withFaint
-			.copy(result = result)
-			.appendEvent(
-				BattleEvent.BattleEnded(
-					turnNumber = turnNumber,
-					winningSideId = result.winningSideId,
-					reason = result.reason,
-				),
-			)
-	}
-
 	private sealed interface DirectDamageAttempt {
 		data class Hit(
 			val amount: Int,
