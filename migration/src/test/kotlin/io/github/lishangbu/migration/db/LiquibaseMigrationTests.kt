@@ -133,6 +133,7 @@ class LiquibaseMigrationTests(
 			"084-battle-defending-stat-ability-rules.yaml",
 			"085-battle-attacking-stat-ability-rules.yaml",
 			"086-battle-status-attack-ability-rules.yaml",
+			"087-battle-same-element-bonus-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -559,7 +560,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 65L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 66L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -580,9 +581,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 177L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 361L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 177L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 178L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 362L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 178L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -1490,6 +1491,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 62L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "major-status-attack-stat-boost-ignore-burn-drop",
+			),
+		)
+
+		val sameElementBonusAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 91
+			""".trimIndent(),
+		)
+		assertThat(sameElementBonusAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 91L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "same-element-bonus-double",
 			),
 		)
 

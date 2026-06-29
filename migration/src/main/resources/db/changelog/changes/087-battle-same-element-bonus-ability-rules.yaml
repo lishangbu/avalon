@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: 087-battle-same-element-bonus-ability-rules
+    author: backend
+    comment: 新增属性一致加成覆盖类特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 66 }
+        - column: { name: ability_id, valueNumeric: 91 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: same-element-bonus-double }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 使用与自身属性一致的直接技能造成伤害时，属性一致加成倍率由默认 1.5 倍改为 2 倍。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 660 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 178 }
+        - column: { name: code, value: same-element-bonus-ability-uses-double-stab-multiplier }
+        - column: { name: name, value: 属性一致加成覆盖特性使用 2 倍倍率 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证属性一致加成覆盖特性改变的是普通伤害公式中的属性一致加成倍率，而不是最终特性伤害倍率。 }
+        - column: { name: input_summary, value: 使用者拥有属性一致加成覆盖特性，分别使用与自身属性一致和不一致的中性物理技能命中。 }
+        - column: { name: expected_summary, value: 属性一致时倍率由默认 1.5 改为 2.0；属性不一致时不获得属性一致加成，最终特性伤害倍率仍保持中性。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1780 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 362 }
+        - column: { name: fixture_id, valueNumeric: 178 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照属性一致加成覆盖特性会把默认 1.5 倍属性一致加成改为 2 倍。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 178 }
+        - column: { name: run_code, value: same-element-bonus-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 178 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T14:45:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1780 }

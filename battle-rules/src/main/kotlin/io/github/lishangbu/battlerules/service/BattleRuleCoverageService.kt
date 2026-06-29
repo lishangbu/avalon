@@ -477,6 +477,19 @@ class BattleRuleCoverageService {
 				note = "已覆盖物理攻击翻倍类特性，以及主要异常状态下物攻 1.5 倍并跳过灼伤物理减半；这些规则改变基础伤害，不进入最终伤害倍率。",
 			),
 			item(
+				code = "ability.same-element-bonus-override",
+				name = "属性一致加成覆盖特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"same-element-bonus-ability-uses-double-stab-multiplier",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖攻击方拥有属性一致加成覆盖特性时，技能当前有效属性与自身属性一致会把 STAB 倍率从默认 1.5 改为 2.0；该规则不进入泛用最终伤害倍率。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

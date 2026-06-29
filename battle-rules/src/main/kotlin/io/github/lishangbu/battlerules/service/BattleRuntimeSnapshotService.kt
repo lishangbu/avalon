@@ -1185,6 +1185,9 @@ class BattleRuntimeSnapshotService(
 				requiresMajorStatus = true,
 				ignoresBurnAttackReduction = true,
 			)
+			"same-element-bonus-double" -> BattleAbilityEffect.SameElementBonusOverride(
+				multiplier = 2.0,
+			)
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
 				status = BattleMajorStatus.PARALYSIS,

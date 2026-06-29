@@ -335,6 +335,25 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 覆盖属性一致加成的倍率。
+	 *
+	 * 该效果用于表达现代规则中“技能当前有效属性与使用者属性一致时，属性一致加成使用不同倍率”的稳定特性。
+	 * 它只改变普通伤害公式中的属性一致加成位置，不属于最终伤害倍率，也不改变技能有效属性、属性相性、天气、
+	 * 场地、道具或击中要害等其它倍率。
+	 *
+	 * 引擎读取 [BattleSkillSlot.effectiveElementId] 的结果，因此天气、场地或其它规则已经改写本次有效属性后，
+	 * 这里会按统一口径判断是否与使用者属性集合匹配。若技能没有属性一致关系，该效果保持中性；若未来接入能让
+	 * 非同属性技能强制获得属性一致加成的规则，应通过额外结构化字段表达，而不是让本效果读取技能名称或文本。
+	 */
+	data class SameElementBonusOverride(
+		val multiplier: Double,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 强化拳击类技能的伤害倍率。
 	 *
 	 * 该效果用于表达现代规则中“使用带拳击标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取

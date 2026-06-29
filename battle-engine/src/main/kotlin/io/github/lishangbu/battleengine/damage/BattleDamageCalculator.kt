@@ -60,7 +60,7 @@ class BattleDamageCalculator(
 
 		val levelFactor = (2 * request.attacker.level) / 5 + 2
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
-		val sameElementBonus = if (skillElementId in request.attacker.elementIds) 1.5 else 1.0
+		val sameElementBonus = sameElementBonus(request, skillElementId)
 		val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = weatherDamageMultiplier(request)
@@ -126,6 +126,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.DamageClassDamageReduction,
 				is BattleAbilityEffect.DefendingStatMultiplier,
+				is BattleAbilityEffect.SameElementBonusOverride,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.ElementSkillDamageBoost,
@@ -323,6 +324,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.DamageClassDamageReduction,
+				is BattleAbilityEffect.SameElementBonusOverride,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 				is BattleAbilityEffect.ElementSkillDamageBoost,
@@ -359,6 +361,24 @@ class BattleDamageCalculator(
 
 	private fun BattleAbilityEffect.DefendingStatMultiplier.matches(stat: BattleStat, terrain: BattleTerrain): Boolean =
 		this.stat == stat && (requiredTerrain == null || requiredTerrain == terrain)
+
+	/**
+	 * 计算普通伤害公式中的属性一致加成。
+	 *
+	 * 该倍率只在技能当前有效属性属于使用者属性集合时生效。默认现代倍率为 1.5；攻击方若拥有属性一致加成覆盖特性，
+	 * 则使用结构化效果给出的倍率。该阶段位于基础伤害之后、最终倍率叠乘链之前，返回值会写入结果用于 fixture
+	 * 直接断言，避免把 STAB 覆盖误混到泛用特性最终倍率。
+	 */
+	private fun sameElementBonus(request: BattleDamageRequest, skillElementId: Long): Double {
+		if (skillElementId !in request.attacker.elementIds) {
+			return 1.0
+		}
+		return request.attacker.abilityEffects
+			.filterIsInstance<BattleAbilityEffect.SameElementBonusOverride>()
+			.firstOrNull()
+			?.multiplier
+			?: DEFAULT_SAME_ELEMENT_BONUS
+	}
 
 	/**
 	 * 计算天气对火/水属性普通伤害的倍率。
@@ -465,6 +485,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.DamageClassDamageReduction -> multiplier
 				is BattleAbilityEffect.DefendingStatMultiplier -> multiplier
 				is BattleAbilityEffect.AttackingStatMultiplier -> multiplier
+				is BattleAbilityEffect.SameElementBonusOverride -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
 				is BattleAbilityEffect.FullHpDamageReduction -> multiplier
@@ -518,6 +539,7 @@ class BattleDamageCalculator(
 					is BattleAbilityEffect.CriticalHitImmunity,
 					is BattleAbilityEffect.AttackingStatMultiplier,
 					is BattleAbilityEffect.DefendingStatMultiplier,
+					is BattleAbilityEffect.SameElementBonusOverride,
 					is BattleAbilityEffect.ElementSkillAbsorbHeal,
 					is BattleAbilityEffect.ElementSkillAbsorbStatStage,
 					is BattleAbilityEffect.ElementSkillDamageBoost,
@@ -648,6 +670,7 @@ class BattleDamageCalculator(
 		abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentDamageStatStages }
 
 	private companion object {
+		private const val DEFAULT_SAME_ELEMENT_BONUS = 1.5
 		private const val GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER = 1.3
 		private const val GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER = 0.5
 		private const val WEATHER_DEFENSE_BOOST_MULTIPLIER = 1.5

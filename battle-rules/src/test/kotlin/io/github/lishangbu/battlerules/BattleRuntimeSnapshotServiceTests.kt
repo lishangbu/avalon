@@ -489,6 +489,8 @@ class BattleRuntimeSnapshotServiceTests(
 					ignoresBurnAttackReduction = true,
 				),
 			)
+		assertThat(service.abilityEffectsByAbilityId(91))
+			.containsExactly(BattleAbilityEffect.SameElementBonusOverride(multiplier = 2.0))
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

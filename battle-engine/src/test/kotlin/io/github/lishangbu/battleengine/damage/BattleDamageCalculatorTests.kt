@@ -977,6 +977,45 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `same element bonus ability overrides same element damage bonus`() {
+		val fixture = publicBattleRuleFixture(
+			name = "same-element-bonus-ability-uses-double-stab-multiplier",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "使用者拥有属性一致加成覆盖特性，分别使用与自身属性一致和不一致的中性一般物理技能。",
+			expectedSummary = "属性一致时 STAB 倍率从默认 1.5 改为 2.0；属性不一致时保持 1.0，泛用特性最终倍率仍保持中性。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(BattleAbilityEffect.SameElementBonusOverride(multiplier = 2.0)),
+		)
+		val request = BattleDamageRequest(
+			attacker = attacker,
+			defender = participant("defender", speed = 80, elementId = 2),
+			skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val boosted = calculator.calculate(request)
+		val nonMatching = calculator.calculate(
+			request.copy(
+				skill = damagingSkill(elementId = 3, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			),
+		)
+
+		fixture.assertNamed("same-element-bonus-ability-uses-double-stab-multiplier")
+		assertEquals(2.0, boosted.sameElementBonus)
+		assertEquals(1.0, boosted.abilityMultiplier)
+		assertEquals(38, boosted.amount)
+		assertEquals(1.0, nonMatching.sameElementBonus)
+		assertEquals(19, nonMatching.amount)
+	}
+
+	@Test
 	fun `major status attack ability boosts physical attack and skips burn attack drop`() {
 		val fixture = publicBattleRuleFixture(
 			name = "major-status-attack-ability-boosts-attack-and-skips-burn-drop",
