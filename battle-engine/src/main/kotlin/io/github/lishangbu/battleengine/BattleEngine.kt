@@ -59,6 +59,7 @@ class BattleEngine(
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 	private val environmentEffects = BattleEnvironmentEffects()
 	private val fieldEffects = BattleFieldEffects()
+	private val chargeMoves = BattleChargeMoves()
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -245,7 +246,7 @@ class BattleEngine(
 					state = endLockedMoveAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill, random),
 				)
 				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
-					state = endChargingAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill),
+					state = chargeMoves.endAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill),
 				)
 				SkillActionSource.SUBMITTED -> beforeMove.context
 			}
@@ -260,7 +261,7 @@ class BattleEngine(
 					state = endLockedMoveAfterDisruption(actionState, readyActor.actorId, skill, random),
 				)
 				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
-					state = endChargingAfterDisruption(actionState, readyActor.actorId, skill),
+					state = chargeMoves.endAfterDisruption(actionState, readyActor.actorId, skill),
 				)
 				SkillActionSource.SUBMITTED -> beforeMove.context
 			}
@@ -270,7 +271,7 @@ class BattleEngine(
 		}
 
 		val stateBeforeUse = if (plan.source == SkillActionSource.CHARGED_RELEASE) {
-			releaseChargedSkill(actionState, readyActor, skill, targets.first().actorId)
+			chargeMoves.releaseChargedSkill(actionState, readyActor, skill, targets.first().actorId)
 		} else {
 			actionState
 		}
@@ -298,10 +299,13 @@ class BattleEngine(
 			)
 
 		val stateAfterChargeDecision =
-			if (skill.requiresChargeBeforeUse(actionState.environment.weather) && plan.source == SkillActionSource.SUBMITTED) {
-				skipChargeWithHeldItem(usedState, readyActorBeforePp.actorId, skill)
+			if (
+				chargeMoves.requiresChargeBeforeUse(skill, actionState.environment.weather) &&
+				plan.source == SkillActionSource.SUBMITTED
+			) {
+				chargeMoves.skipWithHeldItem(usedState, readyActorBeforePp.actorId, skill)
 					?: return beforeMove.context.copy(
-						state = startSkillCharge(
+						state = chargeMoves.startCharge(
 							state = usedState,
 							actorId = readyActorBeforePp.actorId,
 							targetActorId = targets.first().actorId,
@@ -1869,122 +1873,6 @@ class BattleEngine(
 			}
 		}
 		return skill.minHits + random.nextInt(skill.maxHits - skill.minHits + 1, "multi-hit count for ${skill.skillId}")
-	}
-
-	/**
-	 * 判断技能在当前天气下是否仍需要等待蓄力回合。
-	 *
-	 * `chargesBeforeUse` 只说明技能存在蓄力流程；是否能被天气跳过由运行时快照中的
-	 * `chargeSkippedByWeathers` 精确声明，避免把晴天加速误套到所有蓄力技能上。
-	 */
-	private fun BattleSkillSlot.requiresChargeBeforeUse(weather: BattleWeather): Boolean =
-		chargesBeforeUse && weather !in chargeSkippedByWeathers
-
-	/**
-	 * 尝试用携带道具跳过本次蓄力等待。
-	 *
-	 * 该函数只服务首次提交的蓄力技能：技能已经宣告并消耗 PP，但还没有进入命中和伤害流程。若行动者携带
-	 * [BattleItemEffect.ChargeSkipOnce]，引擎会按道具效果声明消费道具、追加可复盘事件，并返回继续结算用的新状态。
-	 * 若没有可用道具，返回 null，让调用方写入常规蓄力等待状态。
-	 */
-	private fun skipChargeWithHeldItem(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-	): BattleState? {
-		val actor = state.participant(actorId) ?: return null
-		val itemId = actor.itemId ?: return null
-		val effect = actor.itemEffects.filterIsInstance<BattleItemEffect.ChargeSkipOnce>().firstOrNull() ?: return null
-		val updatedActor = if (effect.consumesItem) actor.consumeHeldItem() else actor
-		return state
-			.replaceParticipant(updatedActor)
-			.appendEvent(
-				BattleEvent.SkillChargeSkippedByItem(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					itemId = itemId,
-					consumed = effect.consumesItem,
-				),
-			)
-	}
-
-	/**
-	 * 首次使用蓄力技能时写入等待释放状态。
-	 *
-	 * 这里发生在 PP 已消耗和 `SkillUsed` 已记录之后，但早于命中、保护、属性和伤害流程；也就是说第一回合只是
-	 * 宣告并进入蓄力，真正的攻击会由下一次自动生成的技能行动释放。
-	 */
-	private fun startSkillCharge(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle()) {
-			return state
-		}
-		val charging = actor.startChargingSkill(skill.skillId, targetActorId)
-		return state
-			.replaceParticipant(charging)
-			.appendEvent(
-				BattleEvent.SkillChargeStarted(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = targetActorId,
-					skillId = skill.skillId,
-					turnsRemainingBeforeUse = charging.chargingTurnsRemaining,
-				),
-			)
-	}
-
-	/**
-	 * 释放已蓄力技能。
-	 *
-	 * 释放只清理蓄力计数并追加事件；PP、命中、保护和伤害仍由后续统一技能流程处理。
-	 */
-	private fun releaseChargedSkill(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-		targetActorId: String,
-	): BattleState {
-		if (actor.chargingTurnsRemaining <= 0) {
-			return state
-		}
-		return state
-			.replaceParticipant(actor.consumeChargingTurn())
-			.appendEvent(
-				BattleEvent.SkillChargeReleased(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = targetActorId,
-					skillId = skill.skillId,
-				),
-			)
-	}
-
-	/**
-	 * 处理蓄力释放前被行动前状态阻止的情况。
-	 *
-	 * 如果成员在第二回合因为睡眠、冰冻、麻痹、休整或临时状态无法行动，本次蓄力会结束，不会在后续回合继续
-	 * 反复尝试释放同一个技能。
-	 */
-	private fun endChargingAfterDisruption(state: BattleState, actorId: String, skill: BattleSkillSlot): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (actor.chargingTurnsRemaining <= 0) {
-			return state
-		}
-		return state
-			.replaceParticipant(actor.clearChargingSkill())
-			.appendEvent(
-				BattleEvent.SkillChargeInterrupted(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-				),
-			)
 	}
 
 	/**
