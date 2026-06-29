@@ -231,6 +231,26 @@ class BattleRuleCoverageService {
 				note = "格式声明最大回合数时，引擎在完整回合末检查上限；没有其它胜负结果时以无胜方平局结束。",
 			),
 			item(
+				code = "format.preparation-validation",
+				name = "准备阶段队伍合法性校验",
+				category = "格式裁定",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"level-cap-rejects-over-level-participant",
+					"banned-creature-rule-rejects-restricted-creature",
+					"banned-skill-rule-rejects-restricted-skill",
+					"banned-ability-rule-rejects-restricted-ability",
+					"banned-item-rule-rejects-restricted-held-item",
+					"unique-creature-clause-rejects-duplicates-only-inside-one-side",
+					"unique-item-clause-rejects-duplicate-held-items-only-inside-one-side",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
+					"https://wiki.52poke.com/wiki/规则",
+				),
+				note = "已覆盖等级上限、禁用成员种类、禁用技能、禁用特性、禁用道具、同方成员种类唯一和同方携带道具唯一；校验器返回稳定违规 code，不让非法队伍进入战斗状态机。",
+			),
+			item(
 				code = "turn.protection",
 				name = "保护和连续保护成功率",
 				category = "回合流程",
@@ -265,6 +285,23 @@ class BattleRuleCoverageService {
 					"https://wiki.52poke.com/wiki/濒死",
 				),
 				note = "已覆盖不受保护影响的技能继续命中目标、保护阻挡发生在命中随机之前、保护绕过后仍执行命中判定、排队成员倒下后取消行动，以及没有可战斗目标时不产生技能使用事件也不消耗 PP。",
+			),
+			item(
+				code = "turn.action-submission-validation",
+				name = "行动提交合法性校验",
+				category = "回合流程",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"duplicate-action-submission-reports-every-duplicated-actor-action",
+					"skill-with-no-pp-is-rejected-before-engine-resolution",
+					"choice-locked-participant-cannot-submit-a-different-skill",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+				),
+				note = "已覆盖同一成员重复提交行动、技能 PP 耗尽和讲究类技能锁定在提交阶段被结构化拦截；命中、保护、状态阻止等运行时事实仍保留给引擎事件流处理。",
 			),
 			item(
 				code = "turn.accuracy-evasion-stage",
@@ -1345,7 +1382,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 130
+		private const val FINAL_COVERED_RULE_COUNT = 140
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
