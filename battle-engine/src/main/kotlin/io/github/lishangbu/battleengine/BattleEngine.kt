@@ -3594,6 +3594,12 @@ class BattleEngine(
 				blocked = true,
 			)
 		}
+		if (actor.tormented && actor.lastSuccessfulSkillId == skill.skillId) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeTormentBlockedAction(context.state, actor, skill)),
+				blocked = true,
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
@@ -3778,6 +3784,28 @@ class BattleEngine(
 				actorId = actor.actorId,
 				skillId = skill.skillId,
 				turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
+			),
+		)
+
+	/**
+	 * 消耗一次“无理取闹阻止连续使用同一技能”的行动结果。
+	 *
+	 * 无理取闹没有回合倒计时，也不会因为阻止一次行动而解除。这里不消耗 PP、不写入 `SkillUsed`，
+	 * 也不覆盖 [BattleParticipant.lastSuccessfulSkillId]，让下一回合仍能依据“上一次真正使用的技能”判断。
+	 */
+	private fun consumeTormentBlockedAction(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByTorment(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				skillId = skill.skillId,
+				previousSkillId = requireNotNull(actor.lastSuccessfulSkillId) {
+					"torment requires previous successful skill"
+				},
 			),
 		)
 
@@ -4218,8 +4246,9 @@ class BattleEngine(
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
-	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数。若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会
-	 * 被刷新；状态机会追加阻止事件，便于 replay 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。
+	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数；无理取闹写入离场清除的布尔状态。
+	 * 若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会被刷新；状态机会追加阻止事件，
+	 * 便于 replay 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。
 	 * 场地、特性或道具免疫会在消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
 	 */
 	private fun applyVolatileStatusEffect(
@@ -4326,7 +4355,7 @@ class BattleEngine(
 	/**
 	 * 判断目标是否已经拥有同类临时状态。
 	 *
-	 * 当前只有混乱、回复封锁、挑衅和定身法有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
+	 * 当前混乱、回复封锁、挑衅、定身法和无理取闹需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
 	 * 后续行动前或回合末都会清除，所以重复附加不会改变可观察持续时间。
 	 */
 	private fun volatileStatusAlreadyPresent(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
@@ -4335,6 +4364,7 @@ class BattleEngine(
 			BattleVolatileStatus.HEAL_BLOCK -> recipient.healBlockTurnsRemaining > 0
 			BattleVolatileStatus.TAUNT -> recipient.tauntTurnsRemaining > 0
 			BattleVolatileStatus.DISABLE -> recipient.disabledSkillTurnsRemaining > 0
+			BattleVolatileStatus.TORMENT -> recipient.tormented
 			BattleVolatileStatus.FLINCH -> false
 		}
 

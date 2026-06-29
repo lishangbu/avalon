@@ -10,7 +10,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
  * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
- * 讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁、挑衅、定身法等临时状态。
+ * 讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁、挑衅、定身法、无理取闹等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 第一阶段状态不变量：
@@ -49,6 +49,7 @@ data class BattleParticipant(
 	val tauntTurnsRemaining: Int = 0,
 	val disabledSkillId: Long? = null,
 	val disabledSkillTurnsRemaining: Int = 0,
+	val tormented: Boolean = false,
 	val lastSuccessfulSkillId: Long? = null,
 	val lockedMoveSkillId: Long? = null,
 	val lockedMoveTargetActorId: String? = null,
@@ -364,7 +365,8 @@ data class BattleParticipant(
 	 *
 	 * 畏缩只持续到本回合行动前或回合末，因此不需要额外计数。混乱使用公开实现中的内部计数：
 	 * 成员行动前先递减一次，递减后为 0 则解除并照常行动，否则再进行混乱自伤判定。回复封锁、挑衅和定身法保存
-	 * 回合末递减计数，分别用于阻止回复类技能、变化类技能和被指定禁用的技能。
+	 * 回合末递减计数，分别用于阻止回复类技能、变化类技能和被指定禁用的技能。无理取闹没有回合倒计时，
+	 * 它持续到成员离场，期间阻止连续两次真正使用同一个技能。
 	 */
 	fun applyVolatileStatus(
 		status: BattleVolatileStatus,
@@ -429,6 +431,7 @@ data class BattleParticipant(
 					disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
 				)
 			}
+			BattleVolatileStatus.TORMENT -> if (tormented) this else copy(tormented = true)
 		}
 	}
 
@@ -521,6 +524,7 @@ data class BattleParticipant(
 			BattleVolatileStatus.HEAL_BLOCK -> if (healBlockTurnsRemaining > 0) copy(healBlockTurnsRemaining = 0) else this
 			BattleVolatileStatus.TAUNT -> if (tauntTurnsRemaining > 0) copy(tauntTurnsRemaining = 0) else this
 			BattleVolatileStatus.DISABLE -> clearDisable()
+			BattleVolatileStatus.TORMENT -> if (tormented) copy(tormented = false) else this
 		}
 
 	/**
@@ -641,8 +645,8 @@ data class BattleParticipant(
 	 *
 	 * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
 	 * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
-	 * 畏缩、混乱、回复封锁、挑衅和定身法属于临时状态，离场时会被清除。后续接入锁招、束缚、寄生等离场即消失的状态时，
-	 * 也应在这里统一清理。
+	 * 畏缩、混乱、回复封锁、挑衅、定身法和无理取闹属于临时状态，离场时会被清除。后续接入锁招、束缚、寄生等
+	 * 离场即消失的状态时，也应在这里统一清理。
 	 */
 	fun leaveBattlefield(): BattleParticipant =
 		copy(
@@ -659,6 +663,7 @@ data class BattleParticipant(
 			tauntTurnsRemaining = 0,
 			disabledSkillId = null,
 			disabledSkillTurnsRemaining = 0,
+			tormented = false,
 			lastSuccessfulSkillId = null,
 			lockedMoveSkillId = null,
 			lockedMoveTargetActorId = null,

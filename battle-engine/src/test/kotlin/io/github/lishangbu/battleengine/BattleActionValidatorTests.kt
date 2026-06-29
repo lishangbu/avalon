@@ -13,8 +13,8 @@ import kotlin.test.assertFailsWith
  *
  * 场景类型：行动合法性 fixture。
  * 参考来源类型：现代回合制对战通用提交约束；本测试不替代事件级规则测试，只覆盖提交阶段就应被拦截的问题。
- * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、定身法、目标不存在、替换目标非法和战斗结束后继续提交都能
- * 返回稳定 code。
+ * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、定身法、无理取闹、目标不存在、替换目标非法和战斗结束后
+ * 继续提交都能返回稳定 code。
  */
 class BattleActionValidatorTests {
 	private val engine = BattleEngine()
@@ -105,6 +105,26 @@ class BattleActionValidatorTests {
 
 		assertEquals(listOf("disabled-skill"), violations.map { it.code })
 		assertEquals(50, violations.single().resourceId)
+	}
+
+	@Test
+	fun `reports torment prevents repeated skill selection`() {
+		val repeatedSkill = damagingSkill(skillId = 259, name = "无理取闹")
+		val state = engine.start(
+			initialState(
+				first = participant("tormented", speed = 100, skill = repeatedSkill)
+					.copy(tormented = true, lastSuccessfulSkillId = 259),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("tormented", skillId = 259, targetActorId = "target")),
+		)
+
+		assertEquals(listOf("tormented-repeat"), violations.map { it.code })
+		assertEquals(259, violations.single().resourceId)
 	}
 
 	@Test

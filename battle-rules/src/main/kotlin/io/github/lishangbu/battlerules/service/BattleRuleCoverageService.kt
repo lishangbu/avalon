@@ -373,6 +373,26 @@ class BattleRuleCoverageService {
 				note = "已覆盖定身法读取目标上一次使用技能、被禁用技能在 PP 消耗前失败、其它技能继续可用、回合末递减解除，以及没有可禁用技能时失败。",
 			),
 			item(
+				code = "status.torment",
+				name = "无理取闹临时状态",
+				category = "临时状态",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-skill-applies-torment-to-target",
+					"tormented-participant-cannot-use-same-skill-twice",
+					"tormented-participant-can-use-different-skill",
+					"torment-clears-when-participant-switches-out",
+					"existing-torment-blocks-new-torment-without-refreshing-state",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://wiki.52poke.com/wiki/无理取闹（招式）",
+					"https://wiki.52poke.com/wiki/无理取闹（状态变化）",
+				),
+				note = "已覆盖无理取闹附加、连续使用同一技能在 PP 消耗前失败、改用不同技能后更新最近技能、离场清除，以及已有无理取闹不会重复附加。",
+			),
+			item(
 				code = "terrain.grassy-heal",
 				name = "青草场地核心效果",
 				category = "场地",
@@ -1266,7 +1286,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 110
+		private const val FINAL_COVERED_RULE_COUNT = 115
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

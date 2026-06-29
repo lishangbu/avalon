@@ -357,6 +357,20 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因无理取闹无法连续使用同一个技能。
+	 *
+	 * 无理取闹读取行动者最近一次真正进入使用流程的技能；若本次提交的技能与其一致，则在 PP 消耗和
+	 * `SkillUsed` 之前失败。该事件不修改最近技能记录，因此如果后续接入挣扎替代行动，或本回合只是被阻止，
+	 * 下回合仍能按“没有再次使用原技能”继续判断。
+	 */
+	data class SkillPreventedByTorment(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val previousSkillId: Long,
+	) : BattleEvent
+
+	/**
 	 * 行动者因临时状态无法执行本次技能行动。
 	 *
 	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生

@@ -96,7 +96,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-				listOf(5, 14, 15, 38, 39, 45, 49, 50, 63, 69, 71, 76, 77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 147, 162, 163, 164, 184, 191, 235, 240, 261, 269, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 515, 526, 564, 568, 570, 577, 580, 604, 717, 877, 883, 895, 694),
+				listOf(5, 14, 15, 38, 39, 45, 49, 50, 63, 69, 71, 76, 77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 147, 162, 163, 164, 184, 191, 235, 240, 259, 261, 269, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 515, 526, 564, 568, 570, 577, 580, 604, 717, 877, 883, 895, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -198,6 +198,10 @@ class BattleRuntimeSnapshotServiceTests(
 		val disable = slots.getValue(50)
 		assertThat(disable.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.DISABLE)
 		assertThat(disable.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
+
+		val torment = slots.getValue(259)
+		assertThat(torment.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.TORMENT)
+		assertThat(torment.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
 
 		val thunder = slots.getValue(87)
 		assertThat(thunder.accuracyOverridesByWeather).containsKey(BattleWeather.RAIN)

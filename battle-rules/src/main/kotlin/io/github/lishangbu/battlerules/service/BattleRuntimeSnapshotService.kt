@@ -1193,6 +1193,7 @@ class BattleRuntimeSnapshotService(
 			"heal-block" -> BattleVolatileStatus.HEAL_BLOCK
 			"taunt" -> BattleVolatileStatus.TAUNT
 			"disable" -> BattleVolatileStatus.DISABLE
+			"torment" -> BattleVolatileStatus.TORMENT
 			else -> invalidValue("statusRuleId", "不支持的临时状态: $this")
 		}
 

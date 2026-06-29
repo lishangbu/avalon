@@ -1,0 +1,89 @@
+databaseChangeLog:
+- changeSet:
+    id: 096-battle-torment-rules
+    author: backend
+    comment: 新增无理取闹临时状态、技能规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_status_rule
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: code, value: torment }
+        - column: { name: name, value: 无理取闹 }
+        - column: { name: status_kind, value: VOLATILE }
+        - column: { name: effect_policy, value: volatile-torment }
+        - column: { name: description, value: 临时状态，持续到成员离场，期间阻止成员连续两次真正使用同一个技能。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 99 }
+        - column: { name: skill_id, valueNumeric: 259 }
+        - column: { name: effect_policy, value: apply-torment }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 命中目标后附加无理取闹临时状态；目标离场时解除，已有无理取闹时不重复写入。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 990 }
+    - insert:
+        tableName: battle_skill_status_effect
+        columns:
+        - column: { name: id, valueNumeric: 12 }
+        - column: { name: skill_rule_id, valueNumeric: 99 }
+        - column: { name: status_rule_id, valueNumeric: 12 }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 120 }
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (210, 'status-skill-applies-torment-to-target', '无理取闹技能附加目标临时状态', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证无理取闹类变化技能命中后写入目标临时状态且不按回合自然递减。', '使用者用无理取闹类变化技能命中目标。', '目标获得无理取闹临时状态；回合末不会按倒计时自然递减。', true, 2100),
+            (211, 'tormented-participant-cannot-use-same-skill-twice', '无理取闹阻止连续使用同一技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于无理取闹的成员不能连续两次真正使用同一技能。', '成员处于无理取闹状态，上一回合成功使用过技能 1，本回合再次尝试技能 1。', '重复技能在 PP 消耗前失败，成员不会产生技能使用事件，最近成功技能保持不变。', true, 2110),
+            (212, 'tormented-participant-can-use-different-skill', '无理取闹允许不同技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于无理取闹的成员仍可使用不同技能，并更新最近成功技能。', '成员处于无理取闹状态，上一回合成功使用过技能 1，本回合选择技能 2。', '不同技能正常消耗 PP 并造成伤害，最近成功技能更新为技能 2。', true, 2120),
+            (213, 'torment-clears-when-participant-switches-out', '无理取闹随离场解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证无理取闹在成员离开上场席位时清除。', '处于无理取闹状态的成员主动替换离场。', '离场成员的无理取闹和最近成功技能被清除，HP、PP 和其它持久资料保持。', true, 2130),
+            (214, 'existing-torment-blocks-new-torment-without-refreshing-state', '已有无理取闹不会重复附加', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证已有无理取闹阻止重复附加且不会改变目标运行态。', '目标已经处于无理取闹，再次被无理取闹类技能命中。', '新无理取闹不会改变目标运行态，并以已有临时状态作为稳定失败原因。', true, 2140);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (420, 210, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照无理取闹技能附加临时状态。', 10),
+            (421, 210, 'https://wiki.52poke.com/wiki/无理取闹（招式）', '无理取闹公开规则说明', '用于验证无理取闹命中后附加目标且不按回合递减。', 20),
+            (422, 211, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照无理取闹阻止连续使用同一技能。', 10),
+            (423, 211, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证重复技能在 PP 消耗前失败。', 20),
+            (424, 212, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照不同技能仍可使用。', 10),
+            (425, 212, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证最近成功技能随不同技能更新。', 20),
+            (426, 213, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照无理取闹离场解除。', 10),
+            (427, 213, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证成员离场时清除临时状态。', 20),
+            (428, 214, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照已有无理取闹不重复附加。', 10),
+            (429, 214, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照已有临时状态阻止重复写入。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (210, 'torment-coverage-20260629-1', 210, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleTormentTests', '2026-06-29T19:30:00+08:00', 2100),
+            (211, 'torment-coverage-20260629-2', 211, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleTormentTests', '2026-06-29T19:30:00+08:00', 2110),
+            (212, 'torment-coverage-20260629-3', 212, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleTormentTests', '2026-06-29T19:30:00+08:00', 2120),
+            (213, 'torment-coverage-20260629-4', 213, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleTormentTests', '2026-06-29T19:30:00+08:00', 2130),
+            (214, 'torment-coverage-20260629-5', 214, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleTormentTests', '2026-06-29T19:30:00+08:00', 2140);

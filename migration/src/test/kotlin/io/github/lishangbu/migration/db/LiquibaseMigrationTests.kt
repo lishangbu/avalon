@@ -142,6 +142,7 @@ class LiquibaseMigrationTests(
 			"093-battle-heal-block-rules.yaml",
 			"094-battle-taunt-rules.yaml",
 			"095-battle-disable-rules.yaml",
+			"096-battle-torment-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -579,12 +580,12 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_format_restriction", 3L)
 		assertThat(seedCounts).containsEntry("battle_special_mechanic", 3L)
 		assertThat(seedCounts).containsEntry("battle_format_special_mechanic", 6L)
-		assertThat(seedCounts).containsEntry("battle_status_rule", 11L)
+		assertThat(seedCounts).containsEntry("battle_status_rule", 12L)
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 98L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 11L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 99L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 12L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -593,9 +594,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 209L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 419L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 209L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 214L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 429L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 214L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -612,6 +613,23 @@ class LiquibaseMigrationTests(
 		)
 		assertThat(flinchStatusKind).containsExactly("VOLATILE")
 
+		val tormentStatus = queryMaps(
+			"""
+			select code, status_kind, effect_policy, min_turns, max_turns
+			from battle_status_rule
+			where code = 'torment'
+			""".trimIndent(),
+		)
+		assertThat(tormentStatus).containsExactly(
+			mapOf(
+				"code" to "torment",
+				"status_kind" to "VOLATILE",
+				"effect_policy" to "volatile-torment",
+				"min_turns" to null,
+				"max_turns" to null,
+			),
+		)
+
 		val skillRulePolicies = queryStrings(
 			"""
 			select effect_policy
@@ -624,6 +642,21 @@ class LiquibaseMigrationTests(
 			"standard-damage-with-status",
 			"standard-damage-with-status",
 			"protect-self",
+		)
+
+		val tormentSkillRule = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id = 259
+			""".trimIndent(),
+		)
+		assertThat(tormentSkillRule).containsExactly(
+			mapOf(
+				"skill_id" to 259L,
+				"effect_policy" to "apply-torment",
+				"damage_policy" to "status-effect",
+			),
 		)
 
 		val fixedDamageSkillRules = queryMaps(
