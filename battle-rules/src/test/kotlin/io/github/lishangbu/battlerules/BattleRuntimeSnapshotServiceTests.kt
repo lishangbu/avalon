@@ -410,6 +410,10 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.SlicingBasedSkillDamageBoost>()
 			.single()
 		assertThat(slicingBoost.multiplier).isEqualTo(1.5)
+		val contactBoost = service.abilityEffectsByAbilityId(181)
+			.filterIsInstance<BattleAbilityEffect.ContactBasedSkillDamageBoost>()
+			.single()
+		assertThat(contactBoost.multiplier).isEqualTo(1.3)
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

@@ -123,6 +123,7 @@ class LiquibaseMigrationTests(
 			"074-battle-damage-dealt-healing-item-rules.yaml",
 			"075-battle-skill-weather-element-overrides.yaml",
 			"076-battle-tagged-skill-ability-rules.yaml",
+			"077-battle-contact-skill-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -549,7 +550,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 45L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 46L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -570,9 +571,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 165L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 342L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 165L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 166L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 344L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 166L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -1273,6 +1274,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 292L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "slicing-based-skill-damage-boost",
+			),
+		)
+
+		val contactSkillBoostAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 181
+			""".trimIndent(),
+		)
+		assertThat(contactSkillBoostAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 181L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "contact-based-skill-damage-boost",
 			),
 		)
 

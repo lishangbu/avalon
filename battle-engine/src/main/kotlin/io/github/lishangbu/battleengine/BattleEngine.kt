@@ -2806,6 +2806,7 @@ class BattleEngine(
 			is BattleAbilityEffect.SwitchInStatStageChange -> applySwitchInStatStageChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInTerrainChange -> applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
+			is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 			is BattleAbilityEffect.ContactStatusOnAttacker,
 			is BattleAbilityEffect.CriticalHitImmunity,
 			is BattleAbilityEffect.ElementSkillAbsorbHeal,
@@ -4324,6 +4325,7 @@ class BattleEngine(
 			when (effect) {
 				is BattleAbilityEffect.WeatherSpeedMultiplier ->
 					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,
@@ -4359,6 +4361,7 @@ class BattleEngine(
 			when (effect) {
 				is BattleAbilityEffect.TerrainSpeedMultiplier ->
 					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.CriticalHitImmunity,
 				is BattleAbilityEffect.ElementSkillAbsorbHeal,

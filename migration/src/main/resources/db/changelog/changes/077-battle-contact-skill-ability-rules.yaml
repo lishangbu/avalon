@@ -1,0 +1,59 @@
+databaseChangeLog:
+- changeSet:
+    id: 077-battle-contact-skill-ability-rules
+    author: backend
+    comment: 新增接触类技能伤害提升特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 46 }
+        - column: { name: ability_id, valueNumeric: 181 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: contact-based-skill-damage-boost }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 使用接触类技能时，技能伤害提高 30%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 460 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 166 }
+        - column: { name: code, value: contact-based-ability-boosts-contact-skill-damage }
+        - column: { name: name, value: 接触类特性强化接触技能伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证接触类技能伤害提升特性只读取接触标签，不按技能名称猜测。 }
+        - column: { name: input_summary, value: 使用者拥有接触类技能伤害提升特性，使用带接触标签的一般属性物理技能。 }
+        - column: { name: expected_summary, value: 技能在普通伤害公式中获得 1.3 倍特性倍率。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1660 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 343 }
+        - column: { name: fixture_id, valueNumeric: 166 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照接触类技能伤害提升特性读取 contact 标签并使用 5325/4096 倍率。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 344 }
+        - column: { name: fixture_id, valueNumeric: 166 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照技能 contact 标签。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 166 }
+        - column: { name: run_code, value: contact-skill-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 166 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T11:42:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1660 }

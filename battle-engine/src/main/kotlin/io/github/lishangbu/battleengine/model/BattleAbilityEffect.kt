@@ -327,6 +327,25 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 强化接触类技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“使用带接触标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.makesContact]，不根据技能动画、名称或描述判断是否接触；
+	 * 资料层负责把公开技能资料中的 contact flag 维护为结构化标签。
+	 *
+	 * 该效果只属于攻击方主动造成直接技能伤害时的公式修正，不影响接触事件本身是否发生，也不改变目标侧基于接触
+	 * 触发的特性、道具或状态流程。也就是说，某技能若被其它规则移除接触标签，接触反制和这里的伤害倍率都应同时
+	 * 不再触发；后续若接入“远隔”等动态改写接触标签的特性，应在技能结算前统一改写技能槽或本次技能上下文。
+	 */
+	data class ContactBasedSkillDamageBoost(
+		val multiplier: Double = 1.3,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

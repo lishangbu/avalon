@@ -279,7 +279,7 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
-	 * 当前支持低体力指定属性增伤，以及拳击类、切割类技能标签触发的稳定增伤。触发条件都来自运行时快照中的
+	 * 当前支持低体力指定属性增伤，以及拳击类、切割类、接触类技能标签触发的稳定增伤。触发条件都来自运行时快照中的
 	 * 结构化字段，避免伤害公式读取技能名、特性名或本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
@@ -299,6 +299,8 @@ class BattleDamageCalculator(
 					if (request.skill.punchBased) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.SlicingBasedSkillDamageBoost ->
 					if (request.skill.slicingBased) multiplier * effect.multiplier else multiplier
+				is BattleAbilityEffect.ContactBasedSkillDamageBoost ->
+					if (request.skill.makesContact) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactStatusOnAttacker -> multiplier
 				is BattleAbilityEffect.CriticalHitImmunity -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier

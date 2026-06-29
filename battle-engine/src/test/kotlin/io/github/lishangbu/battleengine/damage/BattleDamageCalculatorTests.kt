@@ -387,6 +387,50 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `contact based ability boosts only contact skill damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "contact-based-ability-boosts-contact-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有接触类技能伤害提升特性，分别使用接触和非接触的一般属性 40 威力物理技能。",
+			expectedSummary = "接触技能在最终伤害中获得 1.3 倍特性倍率，非接触技能保持原伤害。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(BattleAbilityEffect.ContactBasedSkillDamageBoost()),
+		)
+
+		val contact = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40, makesContact = true),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val nonContact = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 1, power = 40, makesContact = false),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("contact-based-ability-boosts-contact-skill-damage")
+		assertEquals(1.3, contact.abilityMultiplier)
+		assertEquals(37, contact.amount)
+		assertEquals(1.0, nonContact.abilityMultiplier)
+		assertEquals(28, nonContact.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
