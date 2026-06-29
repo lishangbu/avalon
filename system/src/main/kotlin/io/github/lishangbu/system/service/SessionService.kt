@@ -4,15 +4,20 @@ import io.github.lishangbu.system.dto.SessionMenuNodeResponse
 import io.github.lishangbu.system.dto.SessionResponse
 import io.github.lishangbu.system.dto.SessionRoleResponse
 import io.github.lishangbu.system.dto.SessionUserResponse
+import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.SecurityRole
 import io.github.lishangbu.security.entity.SecurityUser
+import io.github.lishangbu.security.entity.accessNodes
 import io.github.lishangbu.security.entity.code
 import io.github.lishangbu.security.entity.displayName
 import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.name
 import io.github.lishangbu.security.entity.parentId
+import io.github.lishangbu.security.entity.roles
 import io.github.lishangbu.security.entity.sortOrder
 import io.github.lishangbu.security.entity.type
 import io.github.lishangbu.security.entity.username
@@ -35,13 +40,18 @@ class SessionService(
 	private val sqlClient: KSqlClient,
 ) {
 	/**
-	 * 按当前认证主体读取用户信息，并用 token authority 快照过滤菜单元数据。
+	 * 按当前认证主体读取用户信息，并用“当前数据库角色权限 + token 已授权 scope”生成菜单元数据。
+	 *
+	 * reference token 中保存的是签发瞬间的权限 claim；如果后续 Liquibase 新增了菜单节点，旧 token 的 claim
+	 * 不会自动带上这些路由 code。这里仍然尊重 token 已授权的 API scope，避免超出 token 能访问的业务域；
+	 * 但具体菜单节点和前端路由权限从数据库实时读取，让管理端在新增菜单后不必强制清空所有登录态。
 	 */
 	@Transactional(readOnly = true)
 	fun currentSession(authentication: Authentication): SessionResponse {
 		val user = userByUsernameOrNotFound(authentication.name)
 		val roleCodes = authentication.roleCodes()
-		val accessNodeCodes = authentication.accessNodeCodes()
+		val grantedScopeCodes = authentication.grantedScopeCodes()
+		val accessNodeCodes = loadScopedAccessNodeCodes(user.id, grantedScopeCodes)
 		val roles = loadRoles(roleCodes)
 		val accessNodes = loadAccessNodes(accessNodeCodes)
 		return SessionResponse(
@@ -90,6 +100,28 @@ class SessionService(
 			orderBy(table.code)
 			select(table)
 		}
+	}
+
+	private fun loadScopedAccessNodeCodes(userId: Long, grantedScopeCodes: Set<String>): List<String> {
+		if (grantedScopeCodes.isEmpty()) {
+			return emptyList()
+		}
+		return sqlClient.executeQuery(SecurityUser::class) {
+			val role = table.joinList(SecurityUser::roles)
+			val accessNode = role.joinList(SecurityRole::accessNodes)
+			where(table.id eq userId)
+			where(accessNode.enabled eq true)
+			orderBy(accessNode.code)
+			select(accessNode).distinct()
+		}
+			.asSequence()
+			.map { it.code }
+			.filter { code ->
+				grantedScopeCodes.any { scope -> code == scope || code.isMenuNodeForScope(scope) }
+			}
+			.distinct()
+			.sorted()
+			.toList()
 	}
 
 	private fun buildMenus(accessNodes: List<SecurityAccessNode>): List<SessionMenuNodeResponse> {
@@ -174,8 +206,25 @@ class SessionService(
 			.distinct()
 			.sorted()
 
+	private fun Authentication.grantedScopeCodes(): Set<String> =
+		accessNodeCodes()
+			.filterTo(linkedSetOf()) { it in SESSION_SCOPE_ACCESS_NODES }
+
+	private fun String.isMenuNodeForScope(scope: String): Boolean =
+		when (scope) {
+			SECURITY_ADMIN_ACCESS_NODE -> startsWith("system")
+			BATTLE_RULES_ADMIN_ACCESS_NODE -> startsWith("battle-rules")
+			GAME_DATA_ADMIN_ACCESS_NODE -> startsWith("game-data")
+			else -> false
+		}
+
 	private companion object {
 		private const val ROLE_AUTHORITY_PREFIX = "ROLE_"
 		private val MENU_NODE_TYPES = listOf("DIRECTORY", "ROUTE", "MENU")
+		private val SESSION_SCOPE_ACCESS_NODES = setOf(
+			SECURITY_ADMIN_ACCESS_NODE,
+			BATTLE_RULES_ADMIN_ACCESS_NODE,
+			GAME_DATA_ADMIN_ACCESS_NODE,
+		)
 	}
 }
