@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules.dto
 
+import java.time.OffsetDateTime
+
 /**
  * 战斗规则覆盖报告。
  *
@@ -8,6 +10,7 @@ package io.github.lishangbu.battlerules.dto
 data class BattleRuleCoverageResponse(
 	val summary: BattleRuleCoverageSummaryResponse,
 	val targetSummary: BattleRuleCoverageTargetSummaryResponse,
+	val fixtureSummary: BattleRuleCoverageFixtureSummaryResponse,
 	val matrix: List<BattleRuleCoverageMatrixRowResponse>,
 	val checks: List<BattleRuleCoverageCheckResponse>,
 	val items: List<BattleRuleCoverageItemResponse>,
@@ -38,6 +41,20 @@ data class BattleRuleCoverageTargetSummaryResponse(
 	val implementationPercent: Int,
 	val coverageItemCount: Int,
 	val basis: String,
+)
+
+/**
+ * 公开对照 fixture 与最近运行结果汇总。
+ */
+data class BattleRuleCoverageFixtureSummaryResponse(
+	val runtimeAvailable: Boolean,
+	val fixtureReferenceCount: Int,
+	val matchedFixtureCount: Int,
+	val missingFixtureCount: Int,
+	val latestPassedCount: Int,
+	val latestFailedCount: Int,
+	val latestRunningCount: Int,
+	val withoutRunCount: Int,
 )
 
 /**
@@ -75,6 +92,21 @@ data class BattleRuleCoverageItemResponse(
 	val category: String,
 	val status: String,
 	val fixtureNames: List<String>,
+	val fixtures: List<BattleRuleCoverageFixtureResponse>,
 	val referenceUrls: List<String>,
 	val note: String,
+)
+
+/**
+ * 覆盖项绑定的公开对照 fixture 和最近一次运行结果。
+ */
+data class BattleRuleCoverageFixtureResponse(
+	val code: String,
+	val fixtureId: Long?,
+	val name: String?,
+	val enabled: Boolean?,
+	val latestRunCode: String?,
+	val latestRunStatus: String?,
+	val latestRunStartedAt: OffsetDateTime?,
+	val missing: Boolean,
 )

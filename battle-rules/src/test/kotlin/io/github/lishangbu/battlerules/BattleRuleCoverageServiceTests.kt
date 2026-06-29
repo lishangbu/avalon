@@ -32,6 +32,8 @@ class BattleRuleCoverageServiceTests {
 		assertEquals(coverage.summary.partialCount, coverage.matrix.sumOf { it.partialCount })
 		assertEquals(coverage.summary.plannedCount, coverage.matrix.sumOf { it.plannedCount })
 		assertEquals(coverage.summary.fixtureCount, coverage.matrix.sumOf { it.fixtureCount })
+		assertEquals(coverage.summary.fixtureCount, coverage.fixtureSummary.fixtureReferenceCount)
+		assertEquals(false, coverage.fixtureSummary.runtimeAvailable)
 		assertEquals(312, coverage.targetSummary.targetRuleCount)
 		assertEquals(312, coverage.targetSummary.coveredRuleCount)
 		assertEquals(0, coverage.targetSummary.remainingRuleCount)
@@ -107,6 +109,12 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "format.preparation-validation" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "turn.action-submission-validation" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "replay.deterministic-random-trace" && it.status == "IMPLEMENTED" })
+		assertTrue(
+			coverage.items.any {
+				it.code == "replay.deterministic-random-trace" &&
+					it.fixtures.any { fixture -> fixture.code == "golden-replay-pins-random-trace-event-fragment-and-final-hp" }
+			},
+		)
 		assertTrue(coverage.items.any { it.code == "target.scope-resolution" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "target.redirection-and-empty-scope" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "target.random-adjacent-opponent" && it.status == "IMPLEMENTED" })
