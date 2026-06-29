@@ -329,9 +329,9 @@ class BattleRuntimeSnapshotService(
 	 *
 	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
 	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；指定属性伤害提升道具会
-	 * 映射为匹配技能属性时的稳定最终伤害倍率；获得主要异常状态或临时状态后即时解除的道具会映射为状态治愈效果；
-	 * 天气、场地和屏障延长类道具会映射为成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害
-	 * 保留 1 HP。
+	 * 映射为匹配技能属性时的稳定最终伤害倍率；抗性树果会映射为本体受到指定属性伤害时的一次性减伤；
+	 * 获得主要异常状态或临时状态后即时解除的道具会映射为状态治愈效果；天气、场地和屏障延长类道具会映射为
+	 * 成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
 	 */
 	@Transactional(readOnly = true)
 	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
@@ -1267,6 +1267,79 @@ class BattleRuntimeSnapshotService(
 			"element-damage-boost-fairy" -> BattleItemEffect.ElementDamageBoost(
 				elementId = elementIds.requiredElementId("fairy"),
 				multiplier = 1.2,
+			)
+			"element-damage-reduction-normal" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("normal"),
+				multiplier = 0.5,
+				requiresSuperEffective = false,
+			)
+			"element-damage-reduction-fighting" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("fighting"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-flying" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("flying"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-poison" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("poison"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-ground" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("ground"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-rock" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("rock"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-bug" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("bug"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-ghost" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("ghost"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-steel" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("steel"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-fire" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("fire"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-water" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("water"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-grass" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("grass"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-electric" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("electric"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-psychic" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("psychic"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-ice" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("ice"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-dragon" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("dragon"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-dark" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("dark"),
+				multiplier = 0.5,
+			)
+			"element-damage-reduction-fairy" -> BattleItemEffect.ElementDamageReduction(
+				elementId = elementIds.requiredElementId("fairy"),
+				multiplier = 0.5,
 			)
 			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)

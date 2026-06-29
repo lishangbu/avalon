@@ -278,12 +278,19 @@ class BattleDamageCalculator(
 		}
 
 	/**
-	 * 计算攻击方携带道具带来的伤害倍率。
+	 * 计算携带道具带来的最终伤害倍率。
 	 *
-	 * 这里只读取“伤害公式中的稳定倍率”。带反伤的增伤道具只在此处贡献倍率，反伤本身由状态机在伤害事件之后处理；
-	 * 指定属性增伤道具只有在技能属性匹配时才叠乘倍率，不匹配时保持中性，避免数据库 policy 名称渗入纯公式层。
+	 * 这里只读取“伤害公式中的稳定倍率”。攻击方增伤道具和防守方抗性道具都会进入同一最终倍率链；带反伤的增伤
+	 * 道具只在此处贡献倍率，反伤本身由状态机在伤害事件之后处理。防守方一次性减伤道具是否消费，同样由状态机
+	 * 根据同一结构化效果在伤害写入前处理，计算器保持纯函数。
 	 */
 	private fun itemDamageMultiplier(request: BattleDamageRequest): Double =
+		attackerItemDamageMultiplier(request) * defenderItemDamageMultiplier(request)
+
+	/**
+	 * 计算攻击方携带道具贡献的伤害倍率。
+	 */
+	private fun attackerItemDamageMultiplier(request: BattleDamageRequest): Double =
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
@@ -294,6 +301,7 @@ class BattleDamageCalculator(
 				}
 				is BattleItemEffect.ChargeSkipOnce -> multiplier
 				is BattleItemEffect.ChoiceSkillLock -> multiplier
+				is BattleItemEffect.ElementDamageReduction -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusCure -> multiplier
@@ -305,6 +313,43 @@ class BattleDamageCalculator(
 				is BattleItemEffect.VolatileStatusImmunity -> multiplier
 				is BattleItemEffect.WeatherDurationExtension -> multiplier
 				is BattleItemEffect.WeatherDamageImmunity -> multiplier
+			}
+		}
+
+	/**
+	 * 计算防守方携带道具贡献的伤害倍率。
+	 *
+	 * 目前只支持本体受击时触发的指定属性减伤道具。替身挡住本体时，外层状态机会把
+	 * `allowDefenderItemDamageReduction` 置为 false，因此本函数即使看到防守方携带抗性道具也会保持中性。
+	 */
+	private fun defenderItemDamageMultiplier(request: BattleDamageRequest): Double =
+		if (!request.allowDefenderItemDamageReduction) {
+			1.0
+		} else {
+			val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
+			request.defender.itemEffects.fold(1.0) { multiplier, effect ->
+				when (effect) {
+					is BattleItemEffect.ElementDamageReduction -> if (effect.matches(request.skill.elementId, effectiveness)) {
+						multiplier * effect.multiplier
+					} else {
+						multiplier
+					}
+					is BattleItemEffect.ChargeSkipOnce,
+					is BattleItemEffect.ChoiceSkillLock,
+					is BattleItemEffect.DamageBoostWithRecoil,
+					is BattleItemEffect.ElementDamageBoost,
+					is BattleItemEffect.HeldEndTurnHeal,
+					is BattleItemEffect.LowHpHeal,
+					is BattleItemEffect.MajorStatusCure,
+					is BattleItemEffect.MajorStatusImmunity,
+					is BattleItemEffect.SideDamageReductionDurationExtension,
+					is BattleItemEffect.SurviveFatalDamageAtFullHp,
+					is BattleItemEffect.TerrainDurationExtension,
+					is BattleItemEffect.VolatileStatusCure,
+					is BattleItemEffect.VolatileStatusImmunity,
+					is BattleItemEffect.WeatherDurationExtension,
+					is BattleItemEffect.WeatherDamageImmunity -> multiplier
+				}
 			}
 		}
 

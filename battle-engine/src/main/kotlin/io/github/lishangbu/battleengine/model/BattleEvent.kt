@@ -615,6 +615,24 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 目标携带道具削弱了本次即将写入的技能伤害。
+	 *
+	 * 该事件发生在最终 HP 写入前，用于记录抗性树果等一次性减伤道具已经参与伤害公式。`multiplier` 是道具
+	 * 贡献到最终伤害倍率链中的数值，通常为 0.5；如果 `consumed=true`，目标快照中的携带道具已经在该事件后
+	 * 移除。事件不单独记录抵消了多少 HP，因为最终取整后的实际伤害仍由随后的 [DamageApplied] 表达。
+	 */
+	data class DamageReducedByItem(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val itemId: Long,
+		val elementId: Long,
+		val multiplier: Double,
+		val consumed: Boolean,
+	) : BattleEvent
+
+	/**
 	 * 使用者成功支付 HP 并建立替身。
 	 *
 	 * `hpCost` 是从本体扣除的 HP，也等于替身建立时的初始 HP。该事件只在替身真正写入运行态后产生；

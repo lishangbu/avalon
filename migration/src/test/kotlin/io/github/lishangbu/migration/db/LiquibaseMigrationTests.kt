@@ -117,6 +117,7 @@ class LiquibaseMigrationTests(
 			"068-battle-specific-status-cure-item-rules.yaml",
 			"069-battle-volatile-status-cure-item-rules.yaml",
 			"070-battle-element-damage-boost-item-rules.yaml",
+			"071-battle-element-damage-reduction-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -541,7 +542,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 38L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 56L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -560,9 +561,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 149L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 320L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 149L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 153L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 328L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 153L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -857,6 +858,125 @@ class LiquibaseMigrationTests(
 					"trigger_timing" to "BEFORE_DAMAGE",
 					"effect_policy" to "element-damage-boost-fairy",
 					"consumable" to false,
+				),
+			)
+
+			val elementDamageReductionItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where effect_policy like 'element-damage-reduction-%'
+				order by item_id
+				""".trimIndent(),
+			)
+			assertThat(elementDamageReductionItemRules).containsExactly(
+				mapOf(
+					"item_id" to 161L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-fire",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 162L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-water",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 163L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-electric",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 164L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-grass",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 165L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-ice",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 166L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-fighting",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 167L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-poison",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 168L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-ground",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 169L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-flying",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 170L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-psychic",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 171L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-bug",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 172L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-rock",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 173L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-ghost",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 174L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-dragon",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 175L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-dark",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 176L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-steel",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 177L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-normal",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 723L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "element-damage-reduction-fairy",
+					"consumable" to true,
 				),
 			)
 

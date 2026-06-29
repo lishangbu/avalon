@@ -1,0 +1,402 @@
+databaseChangeLog:
+- changeSet:
+    id: 071-battle-element-damage-reduction-item-rules
+    author: backend
+    comment: 新增指定属性伤害减免携带道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 39 }
+        - column: { name: item_id, valueNumeric: 177 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-normal }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到一般属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 390 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 40 }
+        - column: { name: item_id, valueNumeric: 166 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-fighting }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的格斗属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 400 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 41 }
+        - column: { name: item_id, valueNumeric: 169 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-flying }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的飞行属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 410 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 42 }
+        - column: { name: item_id, valueNumeric: 167 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-poison }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的毒属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 420 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 43 }
+        - column: { name: item_id, valueNumeric: 168 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-ground }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的地面属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 430 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 44 }
+        - column: { name: item_id, valueNumeric: 172 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-rock }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的岩石属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 440 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 45 }
+        - column: { name: item_id, valueNumeric: 171 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-bug }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的虫属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 450 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 46 }
+        - column: { name: item_id, valueNumeric: 173 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-ghost }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的幽灵属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 460 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 47 }
+        - column: { name: item_id, valueNumeric: 176 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-steel }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的钢属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 470 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 48 }
+        - column: { name: item_id, valueNumeric: 161 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-fire }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的火属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 480 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 49 }
+        - column: { name: item_id, valueNumeric: 162 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-water }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的水属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 490 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 50 }
+        - column: { name: item_id, valueNumeric: 164 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-grass }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的草属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 500 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 51 }
+        - column: { name: item_id, valueNumeric: 163 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-electric }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的电属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 510 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 52 }
+        - column: { name: item_id, valueNumeric: 170 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-psychic }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的超能力属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 520 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 53 }
+        - column: { name: item_id, valueNumeric: 165 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-ice }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的冰属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 530 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 54 }
+        - column: { name: item_id, valueNumeric: 174 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-dragon }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的龙属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 540 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 55 }
+        - column: { name: item_id, valueNumeric: 175 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-dark }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的恶属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 550 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 56 }
+        - column: { name: item_id, valueNumeric: 723 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: element-damage-reduction-fairy }
+        - column: { name: consumable, valueBoolean: true }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 受到效果绝佳的妖精属性技能伤害时消费道具，并将本次伤害减半。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 560 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 150 }
+        - column: { name: code, value: element-damage-reduction-item-halves-super-effective-damage }
+        - column: { name: name, value: 抗性树果减半效果绝佳伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证抗性树果在本体受到对应属性且效果绝佳伤害时触发并消费。 }
+        - column: { name: input_summary, value: 目标携带火属性抗性树果，受到效果绝佳的火属性物理技能命中。 }
+        - column: { name: expected_summary, value: 伤害按 0.5 倍取整，道具被消费，并记录道具减伤事件。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1500 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 151 }
+        - column: { name: code, value: element-damage-reduction-item-requires-super-effective-damage }
+        - column: { name: name, value: 抗性树果要求效果绝佳伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证对应属性但非效果绝佳的技能不会触发常规抗性树果。 }
+        - column: { name: input_summary, value: 目标携带火属性抗性树果，受到中性的火属性物理技能命中。 }
+        - column: { name: expected_summary, value: 抗性树果不触发，伤害和道具状态保持普通结果。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1510 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 152 }
+        - column: { name: code, value: element-damage-reduction-item-does-not-activate-through-substitute }
+        - column: { name: name, value: 抗性树果不因替身受击触发 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证效果绝佳伤害被替身承受时，目标携带的抗性树果不会消费。 }
+        - column: { name: input_summary, value: 目标携带火属性抗性树果且已有替身，对手使用火属性物理技能。 }
+        - column: { name: expected_summary, value: 替身承受伤害，目标本体和携带道具保持不变。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1520 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 153 }
+        - column: { name: code, value: normal-damage-reduction-item-halves-normal-damage }
+        - column: { name: name, value: 一般属性抗性树果减半一般伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证一般属性抗性树果不要求效果绝佳，受到一般属性伤害时直接触发。 }
+        - column: { name: input_summary, value: 目标携带一般属性抗性树果，受到中性一般属性物理技能命中。 }
+        - column: { name: expected_summary, value: 一般属性伤害被 0.5 倍削弱，道具被消费。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1530 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 321 }
+        - column: { name: fixture_id, valueNumeric: 150 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照抗性树果的属性匹配、效果绝佳条件、替身条件和消费行为。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 322 }
+        - column: { name: fixture_id, valueNumeric: 150 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Damage-reducing_Berry }
+        - column: { name: source_label, value: 抗性树果公开说明 }
+        - column: { name: source_note, value: 用于验证抗性树果会减半对应属性的效果绝佳伤害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 323 }
+        - column: { name: fixture_id, valueNumeric: 151 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照常规抗性树果要求效果绝佳伤害才会触发。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 324 }
+        - column: { name: fixture_id, valueNumeric: 152 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照抗性树果在替身承受伤害时不会触发。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 325 }
+        - column: { name: fixture_id, valueNumeric: 152 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎替身资料 }
+        - column: { name: source_note, value: 用于对照替身承受技能伤害时本体没有直接受击。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 326 }
+        - column: { name: fixture_id, valueNumeric: 153 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照一般属性抗性树果不要求效果绝佳。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 327 }
+        - column: { name: fixture_id, valueNumeric: 153 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Chilan_Berry }
+        - column: { name: source_label, value: 一般属性抗性树果公开说明 }
+        - column: { name: source_note, value: 用于验证灯浆果会减半一般属性伤害。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 328 }
+        - column: { name: fixture_id, valueNumeric: 151 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Damage-reducing_Berry }
+        - column: { name: source_label, value: 抗性树果公开说明 }
+        - column: { name: source_note, value: 用于验证常规抗性树果的效果绝佳条件。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 150 }
+        - column: { name: run_code, value: element-damage-reduction-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 150 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:20:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:23:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 9 }
+        - column: { name: sort_order, valueNumeric: 1500 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 151 }
+        - column: { name: run_code, value: element-damage-reduction-item-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 151 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:23:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:26:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1510 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 152 }
+        - column: { name: run_code, value: element-damage-reduction-item-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 152 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:26:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:29:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 5 }
+        - column: { name: sort_order, valueNumeric: 1520 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 153 }
+        - column: { name: run_code, value: normal-damage-reduction-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 153 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:29:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:32:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1530 }

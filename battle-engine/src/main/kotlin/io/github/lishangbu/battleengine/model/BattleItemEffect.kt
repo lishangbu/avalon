@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
- * 稳定状态免疫、稳定指定属性伤害加成，以及成功获得主要异常状态或临时状态后的即时解除。
+ * 稳定状态免疫、稳定指定属性伤害加成、受到指定属性伤害时减免，以及成功获得主要异常状态或临时状态后的即时解除。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -178,6 +178,35 @@ sealed interface BattleItemEffect {
 			require(elementId > 0) { "elementId must be positive" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
 		}
+	}
+
+	/**
+	 * 防守方携带道具对指定属性技能提供一次性伤害减免。
+	 *
+	 * 该效果用于表达现代规则中的抗性树果：大多数抗性树果只在本体受到对应属性且效果绝佳的技能伤害时触发，
+	 * 将最终伤害按 0.5 倍继续结算并消费道具。一般属性没有“效果绝佳”关系，因此一般属性抗性树果会把
+	 * [requiresSuperEffective] 设为 false，只要求技能属性匹配且没有被替身等前置规则挡在本体之外。
+	 *
+	 * 本效果只描述普通直接技能伤害的公式倍率和道具消费开关，不处理自然恩惠、采摘、紧张感、魔术空间、
+	 * 道具回收或其它完整道具生命周期。替身是否阻止触发由状态机在调用伤害计算器前显式传入，避免计算器直接
+	 * 理解站位或替身运行态。
+	 */
+	data class ElementDamageReduction(
+		val elementId: Long,
+		val multiplier: Double,
+		val requiresSuperEffective: Boolean = true,
+		val consumesItem: Boolean = true,
+	) : BattleItemEffect {
+		init {
+			require(elementId > 0) { "elementId must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+
+		/**
+		 * 判断本效果是否应该应用到当前技能属性和属性克制结果上。
+		 */
+		fun matches(skillElementId: Long, effectiveness: Double): Boolean =
+			skillElementId == elementId && (!requiresSuperEffective || effectiveness > 1.0)
 	}
 
 	/**

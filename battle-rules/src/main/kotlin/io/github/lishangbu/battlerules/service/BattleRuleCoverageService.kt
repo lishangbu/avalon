@@ -752,6 +752,25 @@ class BattleRuleCoverageService {
 					note = "已覆盖传统非消耗型属性强化道具：技能属性匹配时最终伤害按 1.2 倍计算，不匹配时保持中性，且不会消费道具或产生反伤。规则资料已接入现代 18 个属性的对应道具。",
 				),
 				item(
+					code = "item.element-damage-reduction",
+					name = "携带道具指定属性伤害减免",
+					category = "道具",
+					status = IMPLEMENTED,
+					fixtures = listOf(
+						"element-damage-reduction-item-halves-super-effective-damage",
+						"element-damage-reduction-item-requires-super-effective-damage",
+						"element-damage-reduction-item-does-not-activate-through-substitute",
+						"normal-damage-reduction-item-halves-normal-damage",
+					),
+					references = listOf(
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+						"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+						"https://bulbapedia.bulbagarden.net/wiki/Damage-reducing_Berry",
+						"https://bulbapedia.bulbagarden.net/wiki/Chilan_Berry",
+					),
+					note = "已覆盖抗性树果在本体受到对应属性且效果绝佳伤害时按 0.5 倍减伤并消费、命中替身时不触发，以及一般属性灯浆果不要求效果绝佳的例外。规则资料已接入现代 18 个属性的对应抗性树果。",
+				),
+				item(
 					code = "item.major-status-cure",
 					name = "携带道具解除主要异常状态",
 					category = "道具",

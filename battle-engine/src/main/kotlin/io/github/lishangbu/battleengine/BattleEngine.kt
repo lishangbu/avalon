@@ -699,6 +699,7 @@ class BattleEngine(
 			skill = skill,
 			criticalHit = criticalHit,
 		)
+		val substituteBlocksDamage = substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
 				attacker = actor,
@@ -711,9 +712,10 @@ class BattleEngine(
 				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
 				criticalHit = criticalHit,
 				ignoreDefenderAbilityEffects = ignoresTargetAbilityEffects,
+				allowDefenderItemDamageReduction = !substituteBlocksDamage,
 			),
 		)
-		if (substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)) {
+		if (substituteBlocksDamage) {
 			return resolveDamageAgainstSubstitute(
 				context = context,
 				state = state,
@@ -724,17 +726,26 @@ class BattleEngine(
 			)
 		}
 
-		val survival = fatalDamageSurvival(
+		val itemReduction = heldItemDamageReduction(
 			state = state,
 			actor = actor,
 			target = target,
+			skill = skill,
+			effectiveness = damage.effectiveness,
+		)
+		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
+		val targetAfterItemReduction = itemReduction?.target ?: target
+		val survival = fatalDamageSurvival(
+			state = stateAfterItemReduction,
+			actor = actor,
+			target = targetAfterItemReduction,
 			skill = skill,
 			damageAmount = damage.amount,
 			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
 		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
-		val damagedState = state
+		val damagedState = stateAfterItemReduction
 			.replaceParticipant(damagedTarget)
 			.appendEvent(
 				BattleEvent.DamageApplied(
@@ -763,6 +774,41 @@ class BattleEngine(
 			allowTargetLowHpItem = true,
 			allowContactAbilities = true,
 			random = random,
+		)
+	}
+
+	/**
+	 * 处理防守方一次性属性减伤携带道具。
+	 *
+	 * 该函数与伤害计算器使用同一个 [BattleItemEffect.ElementDamageReduction.matches] 条件，因此“是否减伤”和
+	 * “是否消费道具”不会分叉。调用点已经排除了替身挡住本体的场景；如果未来增加穿透替身、紧张感或道具禁用等
+	 * 规则，应在进入这里前把是否允许触发表达成明确的结构化状态，而不是在函数中读取技能名称或道具名称。
+	 */
+	private fun heldItemDamageReduction(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		effectiveness: Double,
+	): HeldItemDamageReduction? {
+		val itemId = target.itemId ?: return null
+		val effect = target.itemEffects
+			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()
+			.firstOrNull { it.matches(skill.elementId, effectiveness) }
+			?: return null
+		val updatedTarget = if (effect.consumesItem) target.consumeHeldItem() else target
+		return HeldItemDamageReduction(
+			target = updatedTarget,
+			event = BattleEvent.DamageReducedByItem(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skillId = skill.skillId,
+				itemId = itemId,
+				elementId = effect.elementId,
+				multiplier = effect.multiplier,
+				consumed = effect.consumesItem,
+			),
 		)
 	}
 
@@ -4187,6 +4233,7 @@ class BattleEngine(
 				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.DamageBoostWithRecoil,
 				is BattleItemEffect.ElementDamageBoost,
+				is BattleItemEffect.ElementDamageReduction,
 				is BattleItemEffect.HeldEndTurnHeal,
 				is BattleItemEffect.LowHpHeal,
 				is BattleItemEffect.MajorStatusCure,
@@ -4325,6 +4372,11 @@ class BattleEngine(
 		val target: BattleParticipant,
 		val damageAmount: Int,
 		val event: BattleEvent.FatalDamageSurvived? = null,
+	)
+
+	private data class HeldItemDamageReduction(
+		val target: BattleParticipant,
+		val event: BattleEvent.DamageReducedByItem,
 	)
 
 	private companion object {
