@@ -1192,6 +1192,21 @@ class BattleRuntimeSnapshotService(
 			"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 			"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 			"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
+			"major-status-cure-paralysis" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(BattleMajorStatus.PARALYSIS),
+			)
+			"major-status-cure-sleep" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(BattleMajorStatus.SLEEP),
+			)
+			"major-status-cure-poison" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON),
+			)
+			"major-status-cure-burn" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(BattleMajorStatus.BURN),
+			)
+			"major-status-cure-freeze" -> BattleItemEffect.MajorStatusCure(
+				statuses = setOf(BattleMajorStatus.FREEZE),
+			)
 			"major-status-cure-all" -> BattleItemEffect.MajorStatusCure(
 				statuses = setOf(
 					BattleMajorStatus.BURN,

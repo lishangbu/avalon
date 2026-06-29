@@ -114,6 +114,7 @@ class LiquibaseMigrationTests(
 			"065-battle-target-ability-ignore-rules.yaml",
 			"066-battle-sound-immunity-ability-rules.yaml",
 			"067-battle-status-cure-item-rules.yaml",
+			"068-battle-specific-status-cure-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -538,7 +539,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 14L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 19L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -677,6 +678,47 @@ class LiquibaseMigrationTests(
 					"item_id" to 134L,
 					"trigger_timing" to "AFTER_STATUS_APPLIED",
 					"effect_policy" to "major-status-cure-all",
+					"consumable" to true,
+				),
+			)
+
+			val specificMajorStatusCureItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id in (126, 127, 128, 129, 130)
+				order by item_id
+				""".trimIndent(),
+			)
+			assertThat(specificMajorStatusCureItemRules).containsExactly(
+				mapOf(
+					"item_id" to 126L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-paralysis",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 127L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-sleep",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 128L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-poison",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 129L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-burn",
+					"consumable" to true,
+				),
+				mapOf(
+					"item_id" to 130L,
+					"trigger_timing" to "AFTER_STATUS_APPLIED",
+					"effect_policy" to "major-status-cure-freeze",
 					"consumable" to true,
 				),
 			)

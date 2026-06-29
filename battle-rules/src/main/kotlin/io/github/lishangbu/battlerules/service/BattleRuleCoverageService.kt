@@ -752,7 +752,7 @@ class BattleRuleCoverageService {
 						"https://bulbapedia.bulbagarden.net/wiki/Chesto_Berry",
 						"https://bulbapedia.bulbagarden.net/wiki/Rawst_Berry",
 					),
-					note = "已覆盖主要异常状态成功写入后由携带道具立即解除并消费；技能附加状态和接触特性返还状态共用同一 after-status 钩子，非匹配状态不会消费道具。",
+					note = "已覆盖主要异常状态成功写入后由携带道具立即解除并消费；技能附加状态和接触特性返还状态共用同一 after-status 钩子，非匹配状态不会消费道具。规则资料已接入全状态解除，以及麻痹、睡眠、中毒、灼伤、冰冻的指定状态解除道具。",
 				),
 				item(
 					code = "turn.multi-hit-and-locked-move",

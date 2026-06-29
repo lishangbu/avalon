@@ -513,6 +513,17 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(choiceSpeedLock.speedMultiplier).isEqualTo(1.5)
 
+		assertThat(service.itemEffectsByItemId(126).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
+			.containsExactly(BattleMajorStatus.PARALYSIS)
+		assertThat(service.itemEffectsByItemId(127).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
+			.containsExactly(BattleMajorStatus.SLEEP)
+		assertThat(service.itemEffectsByItemId(128).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
+			.containsExactlyInAnyOrder(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON)
+		assertThat(service.itemEffectsByItemId(129).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
+			.containsExactly(BattleMajorStatus.BURN)
+		assertThat(service.itemEffectsByItemId(130).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
+			.containsExactly(BattleMajorStatus.FREEZE)
+
 		val majorStatusCure = service.itemEffectsByItemId(134)
 			.filterIsInstance<BattleItemEffect.MajorStatusCure>()
 			.single()
