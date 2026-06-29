@@ -299,6 +299,94 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `punch based ability boosts only tagged skill damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "punch-based-ability-boosts-punch-tagged-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有拳类技能伤害提升特性，分别使用带拳类标签和不带拳类标签的一般属性 80 威力物理技能。",
+			expectedSummary = "带拳类标签的技能在最终伤害中获得 1.2 倍特性倍率，不带标签的同威力技能保持原伤害。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(BattleAbilityEffect.PunchBasedSkillDamageBoost()),
+		)
+
+		val tagged = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(skillId = 5, name = "百万吨重拳", elementId = 1, power = 80, punchBased = true),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val untagged = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(skillId = 1, name = "普通拳名技能", elementId = 1, power = 80, punchBased = false),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("punch-based-ability-boosts-punch-tagged-skill-damage")
+		assertEquals(1.2, tagged.abilityMultiplier)
+		assertEquals(66, tagged.amount)
+		assertEquals(1.0, untagged.abilityMultiplier)
+		assertEquals(55, untagged.amount)
+	}
+
+	@Test
+	fun `slicing based ability boosts only tagged skill damage`() {
+		val fixture = publicBattleRuleFixture(
+			name = "slicing-based-ability-boosts-slicing-tagged-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有切割类技能伤害提升特性，分别使用带切割标签和不带切割标签的一般属性 70 威力物理技能。",
+			expectedSummary = "带切割标签的技能在最终伤害中获得 1.5 倍特性倍率，不带标签的同威力技能保持原伤害。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(BattleAbilityEffect.SlicingBasedSkillDamageBoost()),
+		)
+
+		val tagged = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(skillId = 163, name = "劈开", elementId = 1, power = 70, slicingBased = true),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val untagged = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(skillId = 1, name = "普通切名技能", elementId = 1, power = 70, slicingBased = false),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("slicing-based-ability-boosts-slicing-tagged-skill-damage")
+		assertEquals(1.5, tagged.abilityMultiplier)
+		assertEquals(72, tagged.amount)
+		assertEquals(1.0, untagged.abilityMultiplier)
+		assertEquals(48, untagged.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",

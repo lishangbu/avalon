@@ -289,6 +289,44 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 强化拳击类技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“使用带拳击标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.punchBased] 结构化标签，不解析技能名称、中文文本
+	 * 或资料库原始标记；资料导入层负责把公开技能资料里的 punch flag 归一成该布尔值。
+	 *
+	 * 该倍率属于攻击方特性带来的伤害公式修正，只影响拥有者主动使用普通物理/特殊技能造成的直接伤害。变化技能、
+	 * 不带拳击标签的技能、间接伤害、反作用伤害、天气伤害和入场陷阱都不会读取它。它与属性一致、属性克制、
+	 * 天气、场地、道具和低体力属性强化按现有最终倍率链叠乘。
+	 */
+	data class PunchBasedSkillDamageBoost(
+		val multiplier: Double = 1.2,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 强化切割类技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“使用带切割标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.slicingBased] 结构化标签，不根据技能名称判断是否为
+	 * 斩击、利刃或刀类技能；这样同一套规则可以被数据库种子、管理端维护和测试 fixture 复用。
+	 *
+	 * 该倍率只属于攻击方的直接技能伤害修正，不改变技能原始威力、不赋予接触标签，也不影响击中要害等级、
+	 * 命中率或替身交互。若某个切割技能同时被其它规则改变有效属性或有效威力，状态机仍先形成统一的技能槽和环境
+	 * 快照，再由伤害公式按统一倍率顺序叠乘。
+	 */
+	data class SlicingBasedSkillDamageBoost(
+		val multiplier: Double = 1.5,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

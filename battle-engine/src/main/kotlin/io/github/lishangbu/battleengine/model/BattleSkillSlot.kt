@@ -16,6 +16,8 @@ package io.github.lishangbu.battleengine.model
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  * `soundBased` 表示声音类技能，现代规则中这类技能可以穿过替身影响目标。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
+ * `punchBased` 表示拳击类技能，攻击方拥有对应特性时会在伤害公式中获得威力倍率。
+ * `slicingBased` 表示切割类技能，攻击方拥有对应特性时会在伤害公式中获得威力倍率。
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
@@ -52,6 +54,8 @@ data class BattleSkillSlot(
 	val thawsUserBeforeMove: Boolean = false,
 	val soundBased: Boolean = false,
 	val powderBased: Boolean = false,
+	val punchBased: Boolean = false,
+	val slicingBased: Boolean = false,
 	val weakenedByGrassyTerrain: Boolean = false,
 	val chargesBeforeUse: Boolean = false,
 	val chargeSkippedByWeathers: Set<BattleWeather> = emptySet(),

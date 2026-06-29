@@ -93,7 +93,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-			listOf(14, 38, 39, 45, 63, 71, 76, 77, 78, 79, 85, 87, 94, 95, 103, 105, 113, 115, 147, 164, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 694),
+			listOf(5, 14, 15, 38, 39, 45, 63, 71, 76, 77, 78, 79, 85, 87, 94, 95, 103, 105, 113, 115, 147, 163, 164, 184, 191, 235, 240, 261, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 526, 564, 568, 570, 577, 580, 604, 883, 895, 694),
 		)
 			.associateBy { it.skillId }
 
@@ -239,6 +239,18 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(319).soundBased).isTrue()
 		assertThat(metalSound.stat).isEqualTo(BattleStat.SPECIAL_DEFENSE)
 		assertThat(metalSound.stageDelta).isEqualTo(-2)
+
+		assertThat(slots.getValue(5).punchBased).isTrue()
+		assertThat(slots.getValue(5).slicingBased).isFalse()
+		assertThat(slots.getValue(15).slicingBased).isTrue()
+		assertThat(slots.getValue(163).slicingBased).isTrue()
+		assertThat(slots.getValue(163).criticalHitStage).isEqualTo(1)
+		assertThat(slots.getValue(400).slicingBased).isTrue()
+		assertThat(slots.getValue(400).criticalHitStage).isEqualTo(1)
+		assertThat(slots.getValue(427).slicingBased).isTrue()
+		assertThat(slots.getValue(427).makesContact).isFalse()
+		assertThat(slots.getValue(895).slicingBased).isTrue()
+		assertThat(slots.getValue(895).makesContact).isFalse()
 
 		val nobleRoarStats = slots.getValue(568)
 			.statStageEffects
@@ -390,6 +402,14 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(bugBoost.elementId).isEqualTo(7)
 		assertThat(bugBoost.multiplier).isEqualTo(1.5)
+		val punchBoost = service.abilityEffectsByAbilityId(89)
+			.filterIsInstance<BattleAbilityEffect.PunchBasedSkillDamageBoost>()
+			.single()
+		assertThat(punchBoost.multiplier).isEqualTo(1.2)
+		val slicingBoost = service.abilityEffectsByAbilityId(292)
+			.filterIsInstance<BattleAbilityEffect.SlicingBasedSkillDamageBoost>()
+			.single()
+		assertThat(slicingBoost.multiplier).isEqualTo(1.5)
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

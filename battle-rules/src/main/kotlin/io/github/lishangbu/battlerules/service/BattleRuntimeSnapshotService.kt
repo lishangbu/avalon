@@ -564,6 +564,8 @@ class BattleRuntimeSnapshotService(
 				r.thaws_user_before_move,
 				r.sound_based,
 				r.powder_based,
+				r.punch_based,
+				r.slicing_based,
 				r.weakened_by_grassy_terrain,
 				r.charges_before_use,
 				r.recharges_after_use,
@@ -596,6 +598,8 @@ class BattleRuntimeSnapshotService(
 			thawsUserBeforeMove = row.thawsUserBeforeMove ?: false,
 			soundBased = row.soundBased ?: false,
 			powderBased = row.powderBased ?: false,
+			punchBased = row.punchBased ?: false,
+			slicingBased = row.slicingBased ?: false,
 			weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
 			chargesBeforeUse = row.chargesBeforeUse ?: false,
 			chargeSkippedByWeathers = chargeSkippedByWeathers(row.ruleId),
@@ -643,6 +647,8 @@ class BattleRuntimeSnapshotService(
 			thawsUserBeforeMove = nullableBoolean("thaws_user_before_move"),
 			soundBased = nullableBoolean("sound_based"),
 			powderBased = nullableBoolean("powder_based"),
+			punchBased = nullableBoolean("punch_based"),
+			slicingBased = nullableBoolean("slicing_based"),
 			weakenedByGrassyTerrain = nullableBoolean("weakened_by_grassy_terrain"),
 			chargesBeforeUse = nullableBoolean("charges_before_use"),
 			rechargesAfterUse = nullableBoolean("recharges_after_use"),
@@ -1126,6 +1132,8 @@ class BattleRuntimeSnapshotService(
 			"low-hp-bug-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
 				elementId = elementIds.requiredElementId("bug"),
 			)
+			"punch-based-skill-damage-boost" -> BattleAbilityEffect.PunchBasedSkillDamageBoost()
+			"slicing-based-skill-damage-boost" -> BattleAbilityEffect.SlicingBasedSkillDamageBoost()
 			// 现代接触反制类特性按 30% 附加主要异常状态；当前种子里只有麻痹变体。
 			"contact-paralysis" -> BattleAbilityEffect.ContactStatusOnAttacker(
 				status = BattleMajorStatus.PARALYSIS,
@@ -1525,6 +1533,8 @@ private data class SkillRuntimeRow(
 	val thawsUserBeforeMove: Boolean?,
 	val soundBased: Boolean?,
 	val powderBased: Boolean?,
+	val punchBased: Boolean?,
+	val slicingBased: Boolean?,
 	val weakenedByGrassyTerrain: Boolean?,
 	val chargesBeforeUse: Boolean?,
 	val rechargesAfterUse: Boolean?,

@@ -122,6 +122,7 @@ class LiquibaseMigrationTests(
 			"073-battle-conditional-damage-boost-item-rules.yaml",
 			"074-battle-damage-dealt-healing-item-rules.yaml",
 			"075-battle-skill-weather-element-overrides.yaml",
+			"076-battle-tagged-skill-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -548,7 +549,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 45L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -560,7 +561,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 69L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 75L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -569,9 +570,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 163L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 338L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 163L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 165L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 342L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 165L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -600,6 +601,59 @@ class LiquibaseMigrationTests(
 			"standard-damage-with-status",
 			"standard-damage-with-status",
 			"protect-self",
+		)
+
+		val taggedSkillRules = queryMaps(
+			"""
+			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage
+			from battle_skill_rule
+			where skill_id in (5, 15, 163, 400, 427, 895)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(taggedSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 5L,
+				"makes_contact" to true,
+				"punch_based" to true,
+				"slicing_based" to false,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 15L,
+				"makes_contact" to true,
+				"punch_based" to false,
+				"slicing_based" to true,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 163L,
+				"makes_contact" to true,
+				"punch_based" to false,
+				"slicing_based" to true,
+				"critical_hit_stage" to 1,
+			),
+			mapOf(
+				"skill_id" to 400L,
+				"makes_contact" to true,
+				"punch_based" to false,
+				"slicing_based" to true,
+				"critical_hit_stage" to 1,
+			),
+			mapOf(
+				"skill_id" to 427L,
+				"makes_contact" to false,
+				"punch_based" to false,
+				"slicing_based" to true,
+				"critical_hit_stage" to 1,
+			),
+			mapOf(
+				"skill_id" to 895L,
+				"makes_contact" to false,
+				"punch_based" to false,
+				"slicing_based" to true,
+				"critical_hit_stage" to 1,
+			),
 		)
 
 		val rechargeSkillRules = queryMaps(
@@ -1198,6 +1252,27 @@ class LiquibaseMigrationTests(
 				"ability_id" to 68L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "low-hp-bug-boost",
+			),
+		)
+
+		val taggedSkillBoostAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (89, 292)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(taggedSkillBoostAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 89L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "punch-based-skill-damage-boost",
+			),
+			mapOf(
+				"ability_id" to 292L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "slicing-based-skill-damage-boost",
 			),
 		)
 

@@ -379,6 +379,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖 HP 小于等于最大 HP 1/3 时指定属性技能获得 1.5 倍伤害倍率，并验证高于阈值或技能属性不匹配时不触发；草、火、水、虫四类低体力增伤规则资料已接入运行时快照。",
 			),
 			item(
+				code = "ability.tagged-skill-damage-boost",
+				name = "特性强化指定标签技能伤害",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"punch-based-ability-boosts-punch-tagged-skill-damage",
+					"slicing-based-ability-boosts-slicing-tagged-skill-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖拳类技能按 1.2 倍、切割类技能按 1.5 倍获得攻击方特性伤害倍率；公式只读取结构化技能标签，不通过技能名称或文本猜测。",
+			),
+			item(
 				code = "ability.indirect-damage-immunity",
 				name = "特性免疫间接伤害",
 				category = "特性",
