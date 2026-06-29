@@ -514,6 +514,27 @@ class BattleEngine(
 			)
 		}
 
+		val soundBlocker = soundBasedSkillAbilityBlocker(state, actor, target, skill)
+		if (soundBlocker != null) {
+			return context.copy(
+				state = endLockedMoveAfterDisruption(
+					state = state.appendEvent(
+						BattleEvent.SkillBlockedByAbility(
+							turnNumber = state.turnNumber,
+							actorId = actor.actorId,
+							targetActorId = target.actorId,
+							skillId = skill.skillId,
+							abilityHolderActorId = soundBlocker.actorId,
+							abilityId = soundBlocker.abilityId,
+						),
+					),
+					actorId = actor.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
+		}
+
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -1570,6 +1591,29 @@ class BattleEngine(
 					.firstOrNull() ?: return@firstOrNull false
 				participant.canBattle() && (participant.actorId == target.actorId || effect.protectsAllies)
 			}
+	}
+
+	/**
+	 * 返回阻止本次声音类技能影响目标的特性拥有者。
+	 *
+	 * 声音免疫是目标自身特性，不保护伙伴；只要技能来源不是目标本人，且技能槽声明为声音类，就会在命中、伤害
+	 * 和附加效果之前阻止本次影响。若攻击方本次技能无视目标特性，则该免疫被跳过。
+	 */
+	private fun soundBasedSkillAbilityBlocker(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleParticipant? {
+		if (!skill.soundBased || actor.actorId == target.actorId) {
+			return null
+		}
+		if (skillIgnoresTargetAbilityEffects(state, actor, target)) {
+			return null
+		}
+		return target.takeIf { participant ->
+			participant.abilityEffects.any { it is BattleAbilityEffect.SoundBasedSkillImmunity }
+		}
 	}
 
 	/**
@@ -2681,6 +2725,7 @@ class BattleEngine(
 			is BattleAbilityEffect.MajorStatusImmunity,
 			is BattleAbilityEffect.PriorityMoveImmunityForSide,
 			is BattleAbilityEffect.SkillRecoilDamageImmunity,
+			is BattleAbilityEffect.SoundBasedSkillImmunity,
 			is BattleAbilityEffect.StatusSkillPriorityBoost,
 			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
@@ -4011,6 +4056,7 @@ class BattleEngine(
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
 				is BattleAbilityEffect.SkillRecoilDamageImmunity,
+				is BattleAbilityEffect.SoundBasedSkillImmunity,
 				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
@@ -4043,6 +4089,7 @@ class BattleEngine(
 				is BattleAbilityEffect.MajorStatusImmunity,
 				is BattleAbilityEffect.PriorityMoveImmunityForSide,
 				is BattleAbilityEffect.SkillRecoilDamageImmunity,
+				is BattleAbilityEffect.SoundBasedSkillImmunity,
 				is BattleAbilityEffect.StatusSkillPriorityBoost,
 				is BattleAbilityEffect.SwitchInStatStageChange,
 				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,

@@ -437,6 +437,8 @@ class BattleRuntimeSnapshotServiceTests(
 			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects)
 		assertThat(service.abilityEffectsByAbilityId(164))
 			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects)
+		assertThat(service.abilityEffectsByAbilityId(43))
+			.containsExactly(BattleAbilityEffect.SoundBasedSkillImmunity)
 
 		assertThat(service.abilityEffectsByAbilityId(214))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)

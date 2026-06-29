@@ -473,6 +473,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖攻击方使用技能时跳过目标侧属性吸收、满 HP 保命、伤害阶级无视和主要异常状态免疫等防守特性；目标道具、属性天然免疫、场地免疫和非技能来源不受影响。",
 			),
 			item(
+				code = "ability.sound-based-skill-immunity",
+				name = "特性免疫声音类技能",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"sound-immunity-ability-blocks-sound-damaging-skill",
+					"sound-immunity-ability-blocks-sound-status-skill",
+					"target-ability-ignore-bypasses-sound-immunity",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Soundproof_(Ability)",
+				),
+				note = "已覆盖目标特性在命中前阻止声音类伤害技能和声音类变化技能；攻击方无视目标特性时可以绕过该免疫。",
+			),
+			item(
 				code = "terrain.setting-skill",
 				name = "场地设置技能",
 				category = "场地",

@@ -289,6 +289,7 @@ class BattleRuntimeSnapshotService(
 	 * - 无视对手伤害公式能力阶级变化。
 	 * - 无视对手命中/闪避阶级变化。
 	 * - 使用技能时无视目标侧防守特性效果。
+	 * - 免疫其它成员使用的声音类技能。
 	 * - 阻止对手先制技能影响己方。
 	 *
 	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
@@ -1148,6 +1149,7 @@ class BattleRuntimeSnapshotService(
 			"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages
 			"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages
 			"ignore-target-ability-effects" -> BattleAbilityEffect.IgnoreTargetAbilityEffects
+			"sound-based-skill-immunity" -> BattleAbilityEffect.SoundBasedSkillImmunity
 			"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
 			"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()
 			"element-electric-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(

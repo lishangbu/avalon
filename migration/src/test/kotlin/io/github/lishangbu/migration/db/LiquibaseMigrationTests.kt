@@ -112,6 +112,7 @@ class LiquibaseMigrationTests(
 			"063-battle-skill-recoil-immunity-ability-rules.yaml",
 			"064-battle-critical-hit-immunity-ability-rules.yaml",
 			"065-battle-target-ability-ignore-rules.yaml",
+			"066-battle-sound-immunity-ability-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -535,7 +536,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 42L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -555,9 +556,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 140L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 300L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 140L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 143L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 306L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 143L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -897,6 +898,21 @@ class LiquibaseMigrationTests(
 				"ability_id" to 164L,
 				"trigger_timing" to "BEFORE_HIT",
 				"effect_policy" to "ignore-target-ability-effects",
+			),
+		)
+
+		val soundImmunityAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id = 43
+			""".trimIndent(),
+		)
+		assertThat(soundImmunityAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 43L,
+				"trigger_timing" to "BEFORE_HIT",
+				"effect_policy" to "sound-based-skill-immunity",
 			),
 		)
 
