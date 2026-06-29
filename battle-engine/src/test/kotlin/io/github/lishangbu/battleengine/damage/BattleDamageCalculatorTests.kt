@@ -299,6 +299,85 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `weather element ability boosts matching effective element damage only in matching weather`() {
+		val fixture = publicBattleRuleFixture(
+			name = "weather-element-ability-boosts-matching-element-in-sandstorm",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+			),
+			inputSummary = "使用者拥有沙暴下强化岩石、地面和钢属性技能的结构化特性，在沙暴中分别使用匹配属性、非匹配属性和天气改属性技能。",
+			expectedSummary = "沙暴存在且本次有效属性匹配时获得 1.3 倍特性倍率；天气不匹配或有效属性不匹配时不触发。",
+		)
+		val attacker = participant(
+			"weather-attacker",
+			speed = 100,
+			elementId = 1,
+			abilityEffects = listOf(
+				BattleAbilityEffect.WeatherElementDamageBoost(
+					weather = BattleWeather.SANDSTORM,
+					elementIds = setOf(5, 6, 9),
+				),
+			),
+		)
+		val sandstorm = BattleEnvironment(weather = BattleWeather.SANDSTORM)
+
+		val matching = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 6, power = 40),
+				rules = neutralRules(),
+				environment = sandstorm,
+				randomPercent = 100,
+			),
+		)
+		val noWeather = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 6, power = 40),
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val nonMatchingElement = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(elementId = 11, power = 40),
+				rules = neutralRules(),
+				environment = sandstorm,
+				randomPercent = 100,
+			),
+		)
+		val weatherOverride = calculator.calculate(
+			BattleDamageRequest(
+				attacker = attacker,
+				defender = participant("defender", speed = 80, elementId = 2),
+				skill = damagingSkill(
+					elementId = 1,
+					power = 40,
+					elementOverridesByWeather = mapOf(BattleWeather.SANDSTORM to 6),
+				),
+				rules = neutralRules(),
+				environment = sandstorm,
+				randomPercent = 100,
+			),
+		)
+
+		fixture.assertNamed("weather-element-ability-boosts-matching-element-in-sandstorm")
+		assertEquals(1.3, matching.abilityMultiplier)
+		assertEquals(24, matching.amount)
+		assertEquals(1.0, noWeather.abilityMultiplier)
+		assertEquals(19, noWeather.amount)
+		assertEquals(1.0, nonMatchingElement.abilityMultiplier)
+		assertEquals(19, nonMatchingElement.amount)
+		assertEquals(1.3, weatherOverride.abilityMultiplier)
+		assertEquals(24, weatherOverride.amount)
+	}
+
+	@Test
 	fun `punch based ability boosts only tagged skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "punch-based-ability-boosts-punch-tagged-skill-damage",

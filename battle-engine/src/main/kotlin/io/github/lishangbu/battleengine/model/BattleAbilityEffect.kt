@@ -289,6 +289,30 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 指定天气下强化一组属性技能的伤害倍率。
+	 *
+	 * 该效果用于表达现代规则中“当前天气匹配，且技能当前有效属性属于指定集合时，技能威力按固定倍率提升”的
+	 * 稳定特性。引擎读取的是 [BattleSkillSlot.effectiveElementId] 的结果，因此天气球类技能在天气下改变属性后，
+	 * 会和普通属性技能走同一套判断口径。
+	 *
+	 * `elementIds` 保存资料层解析后的属性 ID 集合，不保存属性名称或本地化文本。该效果只属于攻击方主动造成的
+	 * 普通物理/特殊技能直接伤害，不改变天气持续时间、不提供天气伤害免疫，也不影响命中、保护、替身或入场陷阱。
+	 * 如果某个特性同时拥有天气伤害免疫，资料层应额外提供 [WeatherDamageImmunity]，让回合末天气阶段单独读取。
+	 */
+	data class WeatherElementDamageBoost(
+		val weather: BattleWeather,
+		val elementIds: Set<Long>,
+		val multiplier: Double = 1.3,
+	) : BattleAbilityEffect {
+		init {
+			require(weather != BattleWeather.NONE) { "weather element damage boost requires an active weather" }
+			require(elementIds.isNotEmpty()) { "elementIds must not be empty" }
+			require(elementIds.all { it > 0 }) { "elementIds must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 强化拳击类技能的伤害倍率。
 	 *
 	 * 该效果用于表达现代规则中“使用带拳击标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取

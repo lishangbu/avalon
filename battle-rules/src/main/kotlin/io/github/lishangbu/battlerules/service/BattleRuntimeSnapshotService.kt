@@ -1132,6 +1132,14 @@ class BattleRuntimeSnapshotService(
 			"low-hp-bug-boost" -> BattleAbilityEffect.LowHpElementDamageBoost(
 				elementId = elementIds.requiredElementId("bug"),
 			)
+			"weather-sandstorm-rock-ground-steel-damage-boost" -> BattleAbilityEffect.WeatherElementDamageBoost(
+				weather = BattleWeather.SANDSTORM,
+				elementIds = setOf(
+					elementIds.requiredElementId("rock"),
+					elementIds.requiredElementId("ground"),
+					elementIds.requiredElementId("steel"),
+				),
+			)
 			"punch-based-skill-damage-boost" -> BattleAbilityEffect.PunchBasedSkillDamageBoost()
 			"slicing-based-skill-damage-boost" -> BattleAbilityEffect.SlicingBasedSkillDamageBoost()
 			"contact-based-skill-damage-boost" -> BattleAbilityEffect.ContactBasedSkillDamageBoost()
@@ -1185,6 +1193,9 @@ class BattleRuntimeSnapshotService(
 			"critical-hit-immunity" -> BattleAbilityEffect.CriticalHitImmunity
 			"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
 			"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity
+			"weather-damage-immunity-sandstorm" -> BattleAbilityEffect.WeatherDamageImmunity(
+				weathers = setOf(BattleWeather.SANDSTORM),
+			)
 			"skill-recoil-damage-immunity" -> BattleAbilityEffect.SkillRecoilDamageImmunity
 			"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages
 			"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages

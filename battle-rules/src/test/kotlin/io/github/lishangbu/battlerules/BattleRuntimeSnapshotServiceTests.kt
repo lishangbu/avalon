@@ -414,6 +414,14 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.ContactBasedSkillDamageBoost>()
 			.single()
 		assertThat(contactBoost.multiplier).isEqualTo(1.3)
+		val sandForceEffects = service.abilityEffectsByAbilityId(159)
+		val weatherElementBoost = sandForceEffects
+			.filterIsInstance<BattleAbilityEffect.WeatherElementDamageBoost>()
+			.single()
+		assertThat(weatherElementBoost.weather).isEqualTo(BattleWeather.SANDSTORM)
+		assertThat(weatherElementBoost.elementIds).containsExactlyInAnyOrder(5L, 6L, 9L)
+		assertThat(weatherElementBoost.multiplier).isEqualTo(1.3)
+		assertThat(sandForceEffects).contains(BattleAbilityEffect.WeatherDamageImmunity(setOf(BattleWeather.SANDSTORM)))
 		assertThat(service.abilityEffectsByAbilityId(244))
 			.containsExactly(
 				BattleAbilityEffect.SoundBasedSkillDamageBoost(),

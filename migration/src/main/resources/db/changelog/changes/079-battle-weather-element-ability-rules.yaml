@@ -1,0 +1,70 @@
+databaseChangeLog:
+- changeSet:
+    id: 079-battle-weather-element-ability-rules
+    author: backend
+    comment: 新增指定天气下属性技能伤害提升特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 49 }
+        - column: { name: ability_id, valueNumeric: 159 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: weather-sandstorm-rock-ground-steel-damage-boost }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 沙暴天气下使用岩石、地面或钢属性技能时，技能伤害提高 30%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 490 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 50 }
+        - column: { name: ability_id, valueNumeric: 159 }
+        - column: { name: trigger_timing, value: END_TURN_WEATHER }
+        - column: { name: effect_policy, value: weather-damage-immunity-sandstorm }
+        - column: { name: trigger_order, valueNumeric: 200 }
+        - column: { name: description, value: 免疫沙暴造成的回合末天气伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 500 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 169 }
+        - column: { name: code, value: weather-element-ability-boosts-matching-element-in-sandstorm }
+        - column: { name: name, value: 沙暴下指定属性特性强化技能伤害 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证指定天气下属性增伤特性读取本次有效技能属性，不按技能名称或原始属性猜测。 }
+        - column: { name: input_summary, value: 使用者拥有沙暴下强化岩石、地面和钢属性技能的特性，在沙暴中使用匹配属性技能、非匹配属性技能和天气改属性技能。 }
+        - column: { name: expected_summary, value: 沙暴存在且本次有效属性匹配时获得 1.3 倍特性倍率；天气不匹配或有效属性不匹配时不触发。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1690 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 349 }
+        - column: { name: fixture_id, valueNumeric: 169 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照沙暴下岩石、地面和钢属性技能伤害提升 5325/4096，以及免疫沙暴伤害。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 350 }
+        - column: { name: fixture_id, valueNumeric: 169 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照天气改属性技能按本次有效属性参与伤害结算。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 169 }
+        - column: { name: run_code, value: weather-element-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 169 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T12:20:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1690 }

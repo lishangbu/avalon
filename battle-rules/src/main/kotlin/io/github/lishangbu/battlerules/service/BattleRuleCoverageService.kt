@@ -379,6 +379,21 @@ class BattleRuleCoverageService {
 				note = "已覆盖 HP 小于等于最大 HP 1/3 时指定属性技能获得 1.5 倍伤害倍率，并验证高于阈值或技能属性不匹配时不触发；草、火、水、虫四类低体力增伤规则资料已接入运行时快照。",
 			),
 			item(
+				code = "ability.weather-element-damage-boost",
+				name = "指定天气下属性增伤特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"weather-element-ability-boosts-matching-element-in-sandstorm",
+					"ability-and-item-immunities-block-sandstorm-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖沙暴下岩石、地面和钢属性技能获得 1.3 倍特性伤害倍率，并验证天气不匹配、有效属性不匹配和天气改属性技能的判断口径；同一特性的沙暴伤害免疫通过天气伤害免疫结构化效果接入运行时快照。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

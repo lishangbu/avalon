@@ -2829,6 +2829,7 @@ class BattleEngine(
 			is BattleAbilityEffect.TerrainSpeedMultiplier,
 			is BattleAbilityEffect.VolatileStatusImmunity,
 			is BattleAbilityEffect.WeatherDamageImmunity,
+			is BattleAbilityEffect.WeatherElementDamageBoost,
 			is BattleAbilityEffect.WeatherEndTurnHeal,
 			is BattleAbilityEffect.WeatherSpeedMultiplier -> state
 		}
@@ -4353,6 +4354,7 @@ class BattleEngine(
 				is BattleAbilityEffect.TerrainSpeedMultiplier,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherElementDamageBoost,
 				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
 			}
 		}
@@ -4390,6 +4392,7 @@ class BattleEngine(
 				is BattleAbilityEffect.SwitchInWeatherChange,
 				is BattleAbilityEffect.VolatileStatusImmunity,
 				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherElementDamageBoost,
 				is BattleAbilityEffect.WeatherEndTurnHeal,
 				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 			}

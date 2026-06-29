@@ -279,9 +279,9 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
-	 * 当前支持低体力指定属性增伤，以及拳击类、切割类、接触类、声音类技能标签触发的稳定增伤；防守方声音类
-	 * 技能减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，避免伤害公式读取技能名、特性名或
-	 * 本地化文本。
+	 * 当前支持低体力指定属性增伤、天气下指定属性增伤，以及拳击类、切割类、接触类、声音类技能标签触发的
+	 * 稳定增伤；防守方声音类技能减伤也会合并到该倍率。触发条件都来自运行时快照中的结构化字段，避免伤害公式
+	 * 读取技能名、特性名或本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
 		attackerAbilityDamageMultiplier(request) * defenderAbilityDamageMultiplier(request)
@@ -299,6 +299,15 @@ class BattleDamageCalculator(
 						multiplier
 					}
 				}
+				is BattleAbilityEffect.WeatherElementDamageBoost ->
+					if (
+						request.environment.weather == effect.weather &&
+						request.skill.effectiveElementId(request.environment.weather) in effect.elementIds
+					) {
+						multiplier * effect.multiplier
+					} else {
+						multiplier
+					}
 				is BattleAbilityEffect.PunchBasedSkillDamageBoost ->
 					if (request.skill.punchBased) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.SlicingBasedSkillDamageBoost ->
@@ -371,6 +380,7 @@ class BattleDamageCalculator(
 					is BattleAbilityEffect.TerrainSpeedMultiplier,
 					is BattleAbilityEffect.VolatileStatusImmunity,
 					is BattleAbilityEffect.WeatherDamageImmunity,
+					is BattleAbilityEffect.WeatherElementDamageBoost,
 					is BattleAbilityEffect.WeatherEndTurnHeal,
 					is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
 				}
