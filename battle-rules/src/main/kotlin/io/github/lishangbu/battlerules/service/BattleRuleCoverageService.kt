@@ -260,6 +260,30 @@ class BattleRuleCoverageService {
 				note = "已覆盖双打单体技能只命中选中目标、全体相邻对手跳过队友、全体相邻成员命中队友和对手但排除使用者、范围技能跳过倒下目标、主动替换后重新收集目标，以及范围目标数量影响目标倍率。",
 			),
 			item(
+				code = "target.redirection-and-empty-scope",
+				name = "目标槽位重定向和空目标范围",
+				category = "目标选择",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"selected-target-follows-single-battle-replacement-slot",
+					"selected-target-in-double-follows-replaced-selected-slot-only",
+					"selected-target-fainted-current-slot-does-not-redirect-to-other-slot",
+					"selected-target-with-no-capable-active-member-cancels-before-pp",
+					"all-adjacent-opponents-with-no-capable-opponents-cancels-before-pp",
+					"all-adjacent-participants-with-only-user-capable-cancels-before-pp",
+					"all-adjacent-opponents-ignores-submitted-target-actor",
+					"all-adjacent-participants-ignores-selected-target-and-includes-ally",
+					"spread-target-multiplier-remains-when-one-target-protects",
+					"spread-target-order-follows-current-active-slot-order-after-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖单打和双打单体目标槽位替换后重定向、当前槽位濒死时不跨槽位改打、目标为空时不消耗 PP、范围技能忽略提交目标重新收集目标、全体相邻成员排除使用者，以及保护目标不改变多目标范围倍率。",
+			),
+			item(
 				code = "format.max-turn-limit",
 				name = "格式回合上限裁定",
 				category = "格式裁定",
@@ -1472,7 +1496,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 170
+		private const val FINAL_COVERED_RULE_COUNT = 180
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
