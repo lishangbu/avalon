@@ -441,6 +441,10 @@ class BattleRuntimeSnapshotServiceTests(
 			.containsExactly(BattleAbilityEffect.SuperEffectiveDamageReduction())
 		assertThat(service.abilityEffectsByAbilityId(232))
 			.containsExactly(BattleAbilityEffect.SuperEffectiveDamageReduction())
+		assertThat(service.abilityEffectsByAbilityId(136))
+			.containsExactly(BattleAbilityEffect.FullHpDamageReduction())
+		assertThat(service.abilityEffectsByAbilityId(231))
+			.containsExactly(BattleAbilityEffect.FullHpDamageReduction())
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

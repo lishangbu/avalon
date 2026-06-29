@@ -448,6 +448,24 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 满 HP 时减少受到的直接技能伤害。
+	 *
+	 * 该效果用于表达现代规则中“防守方当前 HP 仍为最大 HP 时，受到的物理/特殊直接技能伤害按固定倍率降低”的
+	 * 稳定特性。它只读取战斗成员快照中的 `currentHp` 和 `maxHp`，不保存具体特性名称，也不解析本地化文本。
+	 *
+	 * 该倍率属于防守方最终伤害修正，不改变防御/特防能力值、不改变属性相性，也不影响固定伤害、间接伤害、
+	 * 天气伤害、入场陷阱、反作用伤害或变化技能。多段攻击由状态机逐段更新 HP 后再次构造伤害请求；因此只有
+	 * 第一段仍满足满 HP 条件时才会触发。若本次技能忽略目标特性，伤害请求会统一跳过该效果。
+	 */
+	data class FullHpDamageReduction(
+		val multiplier: Double = 0.5,
+	) : BattleAbilityEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

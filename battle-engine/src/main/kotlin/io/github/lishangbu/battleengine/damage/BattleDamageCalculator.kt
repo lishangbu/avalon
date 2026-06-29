@@ -280,8 +280,8 @@ class BattleDamageCalculator(
 	 * 计算攻击方特性带来的伤害倍率。
 	 *
 	 * 当前支持固定属性增伤、低体力指定属性增伤、天气下指定属性增伤，以及拳击类、切割类、接触类、声音类技能
-	 * 标签触发的稳定增伤；防守方声音类技能减伤和效果绝佳减伤也会合并到该倍率。触发条件都来自运行时快照中的
-	 * 结构化字段，避免伤害公式读取技能名、特性名或本地化文本。
+	 * 标签触发的稳定增伤；防守方声音类技能减伤、效果绝佳减伤和满 HP 减伤也会合并到该倍率。触发条件都来自
+	 * 运行时快照中的结构化字段，避免伤害公式读取技能名、特性名或本地化文本。
 	 */
 	private fun abilityDamageMultiplier(request: BattleDamageRequest): Double =
 		attackerAbilityDamageMultiplier(request) * defenderAbilityDamageMultiplier(request)
@@ -326,6 +326,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.CriticalHitImmunity -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
+				is BattleAbilityEffect.FullHpDamageReduction -> multiplier
 				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages -> multiplier
 				is BattleAbilityEffect.IgnoreOpponentDamageStatStages -> multiplier
 				is BattleAbilityEffect.IgnoreTargetAbilityEffects -> multiplier
@@ -352,8 +353,8 @@ class BattleDamageCalculator(
 	/**
 	 * 计算防守方特性带来的普通伤害倍率。
 	 *
-	 * 目前支持声音类技能伤害减免，以及效果绝佳伤害减免。若本次伤害请求已经标记为忽略防守方特性，所有防守方
-	 * 特性倍率都保持中性。
+	 * 目前支持声音类技能伤害减免、效果绝佳伤害减免，以及满 HP 伤害减免。若本次伤害请求已经标记为忽略防守方
+	 * 特性，所有防守方特性倍率都保持中性。
 	 */
 	private fun defenderAbilityDamageMultiplier(request: BattleDamageRequest): Double =
 		if (request.ignoreDefenderAbilityEffects) {
@@ -367,6 +368,8 @@ class BattleDamageCalculator(
 						if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
 					is BattleAbilityEffect.SuperEffectiveDamageReduction ->
 						if (effectiveness > 1.0) multiplier * effect.multiplier else multiplier
+					is BattleAbilityEffect.FullHpDamageReduction ->
+						if (request.defender.currentHp >= request.defender.maxHp) multiplier * effect.multiplier else multiplier
 					is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 					is BattleAbilityEffect.ContactStatusOnAttacker,
 					is BattleAbilityEffect.CriticalHitImmunity,

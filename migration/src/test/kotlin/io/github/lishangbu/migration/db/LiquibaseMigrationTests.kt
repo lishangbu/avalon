@@ -128,6 +128,7 @@ class LiquibaseMigrationTests(
 			"079-battle-weather-element-ability-rules.yaml",
 			"080-battle-super-effective-ability-rules.yaml",
 			"081-battle-element-ability-boost-rules.yaml",
+			"082-battle-full-hp-ability-reduction-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -554,7 +555,7 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 57L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 59L)
 		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
@@ -575,9 +576,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 171L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 354L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 171L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 172L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 355L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 172L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -1392,6 +1393,27 @@ class LiquibaseMigrationTests(
 				"ability_id" to 232L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "super-effective-damage-reduction",
+			),
+		)
+
+		val fullHpDamageReductionAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (136, 231)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(fullHpDamageReductionAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 136L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "full-hp-damage-reduction",
+			),
+			mapOf(
+				"ability_id" to 231L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "full-hp-damage-reduction",
 			),
 		)
 

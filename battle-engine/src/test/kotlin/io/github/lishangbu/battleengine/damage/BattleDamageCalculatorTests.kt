@@ -739,6 +739,48 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `full hp defensive ability reduces direct skill damage only while defender remains full hp`() {
+		val fixture = publicBattleRuleFixture(
+			name = "full-hp-defensive-ability-reduces-direct-skill-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "目标拥有满 HP 伤害减免特性，攻击方使用中性一般物理技能分别命中满 HP 和非满 HP 目标。",
+			expectedSummary = "目标当前 HP 等于最大 HP 时最终伤害按 0.5 倍降低；目标不满 HP 或本次技能无视目标特性时保持原伤害。",
+		)
+		val fullHpDefender = participant(
+			"defender",
+			speed = 80,
+			currentHp = 100,
+			elementId = 2,
+			abilityEffects = listOf(BattleAbilityEffect.FullHpDamageReduction()),
+		)
+		val request = BattleDamageRequest(
+			attacker = participant("attacker", speed = 100, elementId = 3),
+			defender = fullHpDefender,
+			skill = damagingSkill(elementId = 1, power = 40),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val reduced = calculator.calculate(request)
+		val damaged = calculator.calculate(
+			request.copy(
+				defender = fullHpDefender.copy(currentHp = 99),
+			),
+		)
+		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
+
+		fixture.assertNamed("full-hp-defensive-ability-reduces-direct-skill-damage")
+		assertEquals(0.5, reduced.abilityMultiplier)
+		assertEquals(9, reduced.amount)
+		assertEquals(1.0, damaged.abilityMultiplier)
+		assertEquals(19, damaged.amount)
+		assertEquals(1.0, ignored.abilityMultiplier)
+		assertEquals(19, ignored.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
