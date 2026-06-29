@@ -1681,6 +1681,34 @@ class BattleRuleCoverageService {
 				note = "已覆盖格式 code、默认等级、最大回合数和初始阵营/上场席位不变量；准备阶段多重限制聚合、重复条款开关和资源 ID；行动提交阶段成员、目标、替换和战斗结束后的结构化违规；以及濒死先于胜负、终局回合不追加普通回合结束、双方同时倒下平局和离场清理临时运行态。",
 			),
 			item(
+				code = "final.rule-boundaries",
+				name = "最终规则边界收口",
+				category = "最终覆盖",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"unprotected-damaging-skill-bypasses-protection-and-still-deals-damage",
+					"selected-target-fainted-before-later-action-cancels-skill-use",
+					"all-active-stat-clear-skips-bench-participants",
+					"zero-chance-major-status-effect-consumes-no-random-and-applies-nothing",
+					"zero-chance-volatile-effect-skips-duration-random",
+					"copy-operation-changes-only-declared-stat",
+					"swap-operation-writes-both-participants-in-one-effect",
+					"invert-operation-turns-negative-stage-positive",
+					"charge-skip-item-is-consumed-before-protection-blocks-released-skill",
+					"fatal-survival-item-consumption-prevents-low-hp-heal-on-same-hit",
+					"non-consumable-major-status-cure-keeps-held-item",
+					"non-consumable-volatile-status-cure-keeps-held-item",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+				),
+				note = "已覆盖不受保护影响技能穿过保护、目标在行动前倒下取消后续技能、全场能力清除不影响后备、0% 主要/临时状态效果不消费随机、复制/交换/取反能力阶级只改写声明能力项，以及蓄力跳过、免死、主要异常治愈和临时状态治愈道具的消费边界。最终账本 312 条规则行为已全部完成公开对照。",
+			),
+			item(
 				code = "skill.forced-switch",
 				name = "技能强制替换目标",
 				category = "技能效果",
@@ -1724,7 +1752,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 300
+		private const val FINAL_COVERED_RULE_COUNT = 312
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
