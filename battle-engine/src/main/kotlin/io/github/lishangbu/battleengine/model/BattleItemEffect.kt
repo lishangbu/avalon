@@ -5,8 +5,8 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
- * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成，以及成功获得主要异常
- * 状态或临时状态后的即时解除。
+ * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成、造成伤害后回复，
+ * 以及成功获得主要异常状态或临时状态后的即时解除。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -157,6 +157,21 @@ sealed interface BattleItemEffect {
 		init {
 			require(multiplier > 0.0) { "multiplier must be positive" }
 			require(recoilDenominator > 0) { "recoilDenominator must be positive" }
+		}
+	}
+
+	/**
+	 * 携带者成功造成伤害后，按实际伤害量的一定比例回复 HP。
+	 *
+	 * 该效果用于表达贝壳之铃一类非消耗型道具。回复基数是本次技能最终造成的实际 HP 损失，而不是伤害公式的
+	 * 原始结果；因此打到替身时使用替身实际损失 HP，打到本体时使用本体实际损失 HP，目标剩余 HP 不足导致的
+	 * 溢出伤害不会被计入。效果不处理主动使用道具、回复封锁或强制换人等更复杂流程。
+	 */
+	data class DamageDealtHeal(
+		val healDenominator: Int,
+	) : BattleItemEffect {
+		init {
+			require(healDenominator > 0) { "healDenominator must be positive" }
 		}
 	}
 

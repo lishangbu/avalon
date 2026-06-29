@@ -162,6 +162,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.ChoiceSkillLock,
 				is BattleItemEffect.DamageBoostWithRecoil,
+				is BattleItemEffect.DamageDealtHeal,
 				is BattleItemEffect.ElementDamageReduction,
 				is BattleItemEffect.HeldEndTurnHeal,
 				is BattleItemEffect.LowHpHeal,
@@ -346,6 +347,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.DamageClassPowerBoost -> multiplier
 				is BattleItemEffect.ElementDamageBoost -> multiplier
 				is BattleItemEffect.ElementDamageReduction -> multiplier
+				is BattleItemEffect.DamageDealtHeal -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
 				is BattleItemEffect.LowHpHeal -> multiplier
 				is BattleItemEffect.MajorStatusCure -> multiplier
@@ -382,6 +384,7 @@ class BattleDamageCalculator(
 					is BattleItemEffect.ChoiceSkillLock,
 					is BattleItemEffect.DamageClassPowerBoost,
 					is BattleItemEffect.DamageBoostWithRecoil,
+					is BattleItemEffect.DamageDealtHeal,
 					is BattleItemEffect.ElementDamageBoost,
 					is BattleItemEffect.HeldEndTurnHeal,
 					is BattleItemEffect.LowHpHeal,

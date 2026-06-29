@@ -327,10 +327,11 @@ class BattleRuntimeSnapshotService(
 	/**
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
 	 *
-	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按伤害反伤。
-	 * 低体力树果会映射为一次性回复；讲究类速度道具会映射为速度倍率和技能选择锁定；指定属性伤害提升道具会
-	 * 映射为匹配技能属性时的稳定威力倍率；物理/特殊分类强化道具会映射为对应分类的威力倍率；抗性树果会映射为
-	 * 本体受到指定属性伤害时的一次性减伤；效果绝佳伤害提升道具会映射为最终伤害倍率；
+	 * 当前接入引擎已有模型覆盖的两类策略：回合末按最大 HP 比例回复，以及造成伤害时增伤并按最大 HP 反伤。
+	 * 低体力树果会映射为一次性回复；造成伤害后回复道具会映射为按实际伤害量的比例回复；讲究类速度道具会
+	 * 映射为速度倍率和技能选择锁定；指定属性伤害提升道具会映射为匹配技能属性时的稳定威力倍率；
+	 * 物理/特殊分类强化道具会映射为对应分类的威力倍率；抗性树果会映射为本体受到指定属性伤害时的一次性减伤；
+	 * 效果绝佳伤害提升道具会映射为最终伤害倍率；
 	 * 获得主要异常状态或临时状态后即时解除的道具会映射为状态治愈效果；天气、场地和屏障延长类道具会映射为
 	 * 成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
 	 */
@@ -1197,6 +1198,7 @@ class BattleRuntimeSnapshotService(
 				multiplier = 1.3,
 				recoilDenominator = 10,
 			)
+			"damage-dealt-heal-eighth" -> BattleItemEffect.DamageDealtHeal(healDenominator = 8)
 			"damage-class-power-boost-physical" -> BattleItemEffect.DamageClassPowerBoost(
 				damageClasses = setOf(BattleDamageClass.PHYSICAL),
 				multiplier = 1.1,

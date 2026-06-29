@@ -498,6 +498,11 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(lifeOrb.multiplier).isEqualTo(1.3)
 		assertThat(lifeOrb.recoilDenominator).isEqualTo(10)
 
+		val shellBell = service.itemEffectsByItemId(230)
+			.filterIsInstance<BattleItemEffect.DamageDealtHeal>()
+			.single()
+		assertThat(shellBell.healDenominator).isEqualTo(8)
+
 		val physicalPowerBoost = service.itemEffectsByItemId(243)
 			.filterIsInstance<BattleItemEffect.DamageClassPowerBoost>()
 			.single()

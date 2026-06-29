@@ -639,6 +639,7 @@ class BattleEngine(
 		} else {
 			state
 		}
+		val damageEventStartIndex = stateWithHitCount.events.size
 		val afterHits = (1..hitCount).fold(context.copy(state = stateWithHitCount)) { current, _ ->
 			if (current.state.result != null) {
 				current
@@ -653,14 +654,33 @@ class BattleEngine(
 				)
 			}
 		}
+		val moveDamageAmount = damageDealtByMove(
+			state = afterHits.state,
+			eventStartIndex = damageEventStartIndex,
+			actorId = actor.actorId,
+			skillId = skill.skillId,
+		)
 		if (afterHits.state.result != null) {
-			return afterHits
+			return afterHits.copy(
+				state = applyPostMoveDamageDealtHealingItem(
+					state = afterHits.state,
+					actorId = actor.actorId,
+					skill = skill,
+					damageAmount = moveDamageAmount,
+				),
+			)
 		}
 		val latestTarget = afterHits.state.participant(target.actorId) ?: target
 		val afterEffects = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
+		val afterPostMoveItemEffects = applyPostMoveDamageDealtHealingItem(
+			state = afterEffects,
+			actorId = actor.actorId,
+			skill = skill,
+			damageAmount = moveDamageAmount,
+		)
 		return afterHits.copy(
 			state = updateLockedMoveAfterSuccessfulUse(
-				state = afterEffects,
+				state = afterPostMoveItemEffects,
 				actorId = actor.actorId,
 				targetActorId = latestTarget.actorId,
 				skill = skill,
@@ -668,6 +688,31 @@ class BattleEngine(
 			),
 		)
 	}
+
+	/**
+	 * 汇总本次技能动作实际造成的 HP 损失。
+	 *
+	 * 调用方在多段命中开始前记录事件下标，本函数只扫描该下标之后由同一使用者、同一技能产生的普通伤害和替身
+	 * 伤害事件。返回值是目标本体或替身实际扣掉的 HP，不包含命中免疫的 0 伤害、接触特性、反伤、天气、异常
+	 * 状态或入场陷阱等非本次技能直接造成的伤害。该口径用于贝壳之铃类道具，避免多段技能按每段分别回复。
+	 */
+	private fun damageDealtByMove(
+		state: BattleState,
+		eventStartIndex: Int,
+		actorId: String,
+		skillId: Long,
+	): Int =
+		state.events.asSequence()
+			.drop(eventStartIndex)
+			.sumOf { event ->
+				when (event) {
+					is BattleEvent.DamageApplied ->
+						if (event.actorId == actorId && event.skillId == skillId) event.amount else 0
+					is BattleEvent.SubstituteDamageApplied ->
+						if (event.actorId == actorId && event.skillId == skillId) event.amount else 0
+					else -> 0
+				}
+			}
 
 	/**
 	 * 结算多段或单段伤害中的一段。
@@ -3670,11 +3715,10 @@ class BattleEngine(
 	}
 
 	/**
-	 * 处理造成伤害后的道具反伤。
+	 * 处理造成伤害后的携带道具效果。
 	 *
-	 * 伤害增幅本身由伤害计算器读取道具效果完成；这里按攻击方最大 HP 的固定比例扣除 HP 并产生反伤事件。
-	 * 生命宝珠类现代主系列规则不是“按造成伤害反伤”，而是“按使用者最大 HP 反伤”；这个函数故意只读取
-	 * 成员快照中的 `maxHp`，避免伤害随机浮动、属性倍率或屏障倍率改变反伤数值。
+	 * 当前 hook 覆盖生命宝珠类道具：成功造成伤害后按使用者最大 HP 固定比例反伤。贝壳之铃类道具需要读取
+	 * 整次技能的总实际伤害，因此由多段命中循环之后的 [applyPostMoveDamageDealtHealingItem] 单独处理。
 	 */
 	private fun applyPostDamageItemEffects(
 		state: BattleState,
@@ -3688,26 +3732,140 @@ class BattleEngine(
 		return state.participant(actorId)
 			?.itemEffects
 			.orEmpty()
-			.filterIsInstance<BattleItemEffect.DamageBoostWithRecoil>()
 			.fold(state) { current, effect ->
-				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
-					current
-				} else {
-					val recoil = (actor.maxHp / effect.recoilDenominator)
-						.coerceAtLeast(1)
-						.coerceAtMost(actor.currentHp)
-					current
-						.replaceParticipant(actor.receiveDamage(recoil))
-						.appendEvent(
-							BattleEvent.RecoilDamageApplied(
-								turnNumber = current.turnNumber,
-								actorId = actor.actorId,
-								amount = recoil,
-							),
-						)
+				when (effect) {
+					is BattleItemEffect.DamageBoostWithRecoil -> applyDamageBoostRecoilItem(current, actorId, effect)
+					is BattleItemEffect.ChargeSkipOnce,
+					is BattleItemEffect.ChoiceSkillLock,
+					is BattleItemEffect.DamageClassPowerBoost,
+					is BattleItemEffect.DamageDealtHeal,
+					is BattleItemEffect.ElementDamageBoost,
+					is BattleItemEffect.ElementDamageReduction,
+					is BattleItemEffect.HeldEndTurnHeal,
+					is BattleItemEffect.LowHpHeal,
+					is BattleItemEffect.MajorStatusCure,
+					is BattleItemEffect.MajorStatusImmunity,
+					is BattleItemEffect.SideDamageReductionDurationExtension,
+					is BattleItemEffect.SuperEffectiveDamageBoost,
+					is BattleItemEffect.SurviveFatalDamageAtFullHp,
+					is BattleItemEffect.TerrainDurationExtension,
+					is BattleItemEffect.VolatileStatusCure,
+					is BattleItemEffect.VolatileStatusImmunity,
+					is BattleItemEffect.WeatherDamageImmunity,
+					is BattleItemEffect.WeatherDurationExtension -> current
 				}
 			}
+	}
+
+	/**
+	 * 处理整次技能结束后的“按造成伤害回复”携带道具效果。
+	 *
+	 * 公开规则中贝壳之铃类道具按本次技能总实际伤害回复，而不是每一段命中各自回复。因此该 hook 放在多段循环
+	 * 之后，只读取 [damageDealtByMove] 汇总出的普通伤害和替身伤害总量。变化类技能、未造成实际 HP 损失的
+	 * 技能、已经倒下或满 HP 的使用者都会自然短路；道具本身不被消费，也不改变锁招、反伤或目标侧触发流程。
+	 */
+	private fun applyPostMoveDamageDealtHealingItem(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
+			return state
+		}
+		return state.participant(actorId)
+			?.itemEffects
+			.orEmpty()
+			.fold(state) { current, effect ->
+				when (effect) {
+					is BattleItemEffect.DamageDealtHeal -> applyDamageDealtHealingItem(
+						state = current,
+						actorId = actorId,
+						damageAmount = damageAmount,
+						effect = effect,
+					)
+					is BattleItemEffect.ChargeSkipOnce,
+					is BattleItemEffect.ChoiceSkillLock,
+					is BattleItemEffect.DamageBoostWithRecoil,
+					is BattleItemEffect.DamageClassPowerBoost,
+					is BattleItemEffect.ElementDamageBoost,
+					is BattleItemEffect.ElementDamageReduction,
+					is BattleItemEffect.HeldEndTurnHeal,
+					is BattleItemEffect.LowHpHeal,
+					is BattleItemEffect.MajorStatusCure,
+					is BattleItemEffect.MajorStatusImmunity,
+					is BattleItemEffect.SideDamageReductionDurationExtension,
+					is BattleItemEffect.SuperEffectiveDamageBoost,
+					is BattleItemEffect.SurviveFatalDamageAtFullHp,
+					is BattleItemEffect.TerrainDurationExtension,
+					is BattleItemEffect.VolatileStatusCure,
+					is BattleItemEffect.VolatileStatusImmunity,
+					is BattleItemEffect.WeatherDamageImmunity,
+					is BattleItemEffect.WeatherDurationExtension -> current
+				}
+			}
+	}
+
+	/**
+	 * 处理生命宝珠类道具造成的最大 HP 比例反伤。
+	 *
+	 * 生命宝珠类现代主系列规则不是“按造成伤害反伤”，而是“按使用者最大 HP 反伤”；这个函数故意只读取
+	 * 成员快照中的 `maxHp`，避免伤害随机浮动、属性倍率或屏障倍率改变反伤数值。
+	 */
+	private fun applyDamageBoostRecoilItem(
+		state: BattleState,
+		actorId: String,
+		effect: BattleItemEffect.DamageBoostWithRecoil,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
+			return state
+		}
+		val recoil = (actor.maxHp / effect.recoilDenominator)
+			.coerceAtLeast(1)
+			.coerceAtMost(actor.currentHp)
+		return state
+			.replaceParticipant(actor.receiveDamage(recoil))
+			.appendEvent(
+				BattleEvent.RecoilDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					amount = recoil,
+				),
+			)
+	}
+
+	/**
+	 * 处理按实际造成伤害量回复的携带道具。
+	 *
+	 * 回复量使用本次实际 HP 损失向下取整，最少 1 点，并夹取到使用者缺失 HP。调用方已经保证 `damageAmount > 0`，
+	 * 因此本函数只需要处理使用者倒下或已经满 HP 的情况。
+	 */
+	private fun applyDamageDealtHealingItem(
+		state: BattleState,
+		actorId: String,
+		damageAmount: Int,
+		effect: BattleItemEffect.DamageDealtHeal,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
+			return state
+		}
+		val healAmount = (damageAmount / effect.healDenominator)
+			.coerceAtLeast(1)
+			.coerceAtMost(actor.maxHp - actor.currentHp)
+		if (healAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.heal(healAmount))
+			.appendEvent(
+				BattleEvent.HealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					amount = healAmount,
+				),
+			)
 	}
 
 	/**
@@ -4233,6 +4391,7 @@ class BattleEngine(
 				is BattleItemEffect.ChargeSkipOnce,
 				is BattleItemEffect.DamageClassPowerBoost,
 				is BattleItemEffect.DamageBoostWithRecoil,
+				is BattleItemEffect.DamageDealtHeal,
 				is BattleItemEffect.ElementDamageBoost,
 				is BattleItemEffect.ElementDamageReduction,
 				is BattleItemEffect.HeldEndTurnHeal,
