@@ -1574,6 +1574,41 @@ class BattleRuleCoverageService {
 				note = "已覆盖造成伤害后按实际伤害 1/2 或 3/4 吸取回复、变化技能固定 1/2 自我回复、晨光/光合作用/月光类天气变量回复，以及按目标实际损失 HP 计算的技能反作用伤害。",
 			),
 			item(
+				code = "skill.effect-boundaries",
+				name = "技能效果边界",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"drain-healing-clamps-to-missing-hp",
+					"drain-healing-minimum-one-after-one-damage",
+					"drain-healing-skips-full-hp-user",
+					"recoil-damage-clamps-to-user-current-hp",
+					"recoil-damage-immunity-skips-skill-recoil",
+					"self-healing-clamps-to-missing-hp",
+					"self-healing-skips-full-hp-user",
+					"weather-sensitive-self-healing-uses-default-fraction-without-weather",
+					"forced-switch-single-bench-consumes-no-random",
+					"forced-switch-skips-when-target-side-has-no-bench",
+					"forced-switch-skips-target-fainted-by-damage",
+					"substitute-blocks-forced-switch-effect",
+					"forced-switch-triggers-entry-hazard-on-replacement",
+					"stat-stage-effect-chance-failure-consumes-random-without-change",
+					"stat-stage-effect-at-upper-bound-produces-no-event",
+					"stat-stage-operation-chance-failure-consumes-random-without-change",
+					"clear-operation-at-zero-produces-no-event",
+					"copy-operation-with-same-stage-produces-no-event",
+					"swap-operation-with-same-stage-produces-no-event",
+					"invert-operation-at-zero-produces-no-event",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
+				),
+				note = "已覆盖吸取回复缺失 HP 夹取、1 点实际伤害最小吸取回复、满 HP 跳过吸取回复、技能反作用伤害按使用者当前 HP 夹取、反作用免疫、主动回复夹取与满 HP 跳过、天气变量回复默认比例、强制替换单后备不消费随机、无后备/目标倒下/替身阻挡时短路、强制替换后接续入场陷阱，以及普通能力阶级效果和清除/复制/交换/取反操作在概率失败、能力边界或无变化时不产生误导性事件。",
+			),
+			item(
 				code = "skill.forced-switch",
 				name = "技能强制替换目标",
 				category = "技能效果",
@@ -1617,7 +1652,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 240
+		private const val FINAL_COVERED_RULE_COUNT = 260
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
