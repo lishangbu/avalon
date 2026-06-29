@@ -8,7 +8,6 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
-import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
@@ -20,13 +19,9 @@ import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
-import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
-import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
-import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
-import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -63,6 +58,7 @@ class BattleEngine(
 	private val actionOrdering = BattleActionOrdering(statStageModifiers)
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 	private val environmentEffects = BattleEnvironmentEffects()
+	private val fieldEffects = BattleFieldEffects()
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -2327,28 +2323,28 @@ class BattleEngine(
 			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
 				current
 			} else {
-				applySideConditionEffect(current, actorId, targetActorId, skill, application)
+				fieldEffects.applySideCondition(current, actorId, targetActorId, skill, application)
 			}
 		}
 		val afterSideSpeedModifiers = skill.sideSpeedModifierApplications.fold(afterSideDamageReductions) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "side speed condition chance for ${skill.skillId}")) {
 				current
 			} else {
-				applySideSpeedModifierEffect(current, actorId, targetActorId, skill, application)
+				fieldEffects.applySideSpeedModifier(current, actorId, targetActorId, skill, application)
 			}
 		}
 		val afterSideEntryHazards = skill.sideEntryHazardApplications.fold(afterSideSpeedModifiers) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "side entry hazard chance for ${skill.skillId}")) {
 				current
 			} else {
-				applySideEntryHazardEffect(current, actorId, targetActorId, skill, application)
+				fieldEffects.applySideEntryHazard(current, actorId, targetActorId, skill, application)
 			}
 		}
 		val afterFieldSpeedOrder = skill.fieldSpeedOrderApplications.fold(afterSideEntryHazards) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
 				current
 			} else {
-				applyFieldSpeedOrderEffect(current, actorId, skill, application)
+				fieldEffects.applyFieldSpeedOrder(current, actorId, skill, application)
 			}
 		}
 		return applyForcedTargetSwitchEffect(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
@@ -2670,180 +2666,6 @@ class BattleEngine(
 		val afterBindingSourceCleared = clearBindingsFromSource(switched, target.actorId)
 		val afterEntryHazards = applyEntryHazardsOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return applySwitchInAbilityEffects(afterEntryHazards, next.actorId)
-	}
-
-	/**
-	 * 将命中后的技能一侧场上效果写入对应战斗侧。
-	 *
-	 * 当前只接入防守方伤害减免屏障。目标侧解析在这里完成：使用者侧屏障不依赖本次目标是否仍可战斗；
-	 * 目标侧屏障则跟随实际命中的目标所属侧。若同种屏障已存在，`BattleState` 会拒绝写入，本函数也不会产生
-	 * 新事件，避免把重复使用误记录为刷新持续回合。携带者若有匹配屏障种类的持续时间延长道具，则只在首次
-	 * 成功建立屏障时改写即将写入的完整持续回合。
-	 */
-	private fun applySideConditionEffect(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		application: BattleSideConditionApplication,
-	): BattleState {
-		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
-			return state
-		}
-		val side = when (application.targetSide) {
-			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
-			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
-		} ?: return state
-		val damageReduction = extendedSideDamageReduction(state, actorId, application.damageReduction)
-		return state.addSideDamageReduction(side.sideId, damageReduction)
-			?.appendEvent(
-				BattleEvent.SideDamageReductionStarted(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					sideId = side.sideId,
-					skillId = skill.skillId,
-					kind = damageReduction.kind,
-					turnsRemaining = damageReduction.turnsRemaining,
-				),
-			)
-			?: state
-	}
-
-	/**
-	 * 计算一侧伤害减免屏障建立时最终写入的持续回合。
-	 *
-	 * 普通屏障技能会在资料中声明基础持续回合；携带者若拥有匹配屏障种类的延长道具效果，则用道具声明的最长回合
-	 * 覆盖基础值。基础持续回合为空时保持为空，避免测试 fixture 或未来永久屏障规则被普通道具强行改成有限回合。
-	 */
-	private fun extendedSideDamageReduction(
-		state: BattleState,
-		actorId: String,
-		damageReduction: BattleSideDamageReduction,
-	): BattleSideDamageReduction {
-		if (damageReduction.turnsRemaining == null) {
-			return damageReduction
-		}
-		val actor = state.participant(actorId) ?: return damageReduction
-		val turnsRemaining = actor.itemEffects
-			.filterIsInstance<BattleItemEffect.SideDamageReductionDurationExtension>()
-			.filter { damageReduction.kind in it.kinds }
-			.maxOfOrNull { it.turnsRemaining }
-			?: damageReduction.turnsRemaining
-		return damageReduction.copy(turnsRemaining = turnsRemaining)
-	}
-
-	/**
-	 * 将命中后的技能一侧速度修正写入对应战斗侧。
-	 *
-	 * 速度修正和伤害减免同属一侧场上状态，但它们影响的结算阶段完全不同：伤害减免在伤害公式阶段读取，
-	 * 速度修正在下一次行动排序时读取。因此这里单独建模、单独发事件，避免后续新增速度规则时误走伤害屏障分支。
-	 */
-	private fun applySideSpeedModifierEffect(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		application: BattleSideSpeedModifierApplication,
-	): BattleState {
-		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
-			return state
-		}
-		val side = when (application.targetSide) {
-			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
-			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
-		} ?: return state
-		return state.addSideSpeedModifier(side.sideId, application.speedModifier)
-			?.appendEvent(
-				BattleEvent.SideSpeedModifierStarted(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					sideId = side.sideId,
-					skillId = skill.skillId,
-					kind = application.speedModifier.kind,
-					multiplier = application.speedModifier.multiplier,
-					turnsRemaining = application.speedModifier.turnsRemaining,
-				),
-			)
-			?: state
-	}
-
-	/**
-	 * 将命中后的技能入场陷阱写入对应战斗侧。
-	 *
-	 * 入场陷阱属于一侧场上状态，但触发时机是后续成员换入，因此这里仅负责建立或叠层，不立即造成伤害或状态。
-	 * 目标侧解析规则与其它一侧场上效果一致：使用者侧效果直接绑定使用者所属侧，目标侧效果绑定本次实际命中的
-	 * 目标所属侧。若同类陷阱无法再叠层，状态保持不变，也不会产生层数变化事件。
-	 */
-	private fun applySideEntryHazardEffect(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		application: BattleSideEntryHazardApplication,
-	): BattleState {
-		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
-			return state
-		}
-		val side = when (application.targetSide) {
-			BattleSideConditionTarget.USER_SIDE -> state.sideOf(actorId)
-			BattleSideConditionTarget.TARGET_SIDE -> state.sideOf(targetActorId)
-		} ?: return state
-		val change = state.addSideEntryHazard(side.sideId, application.hazard) ?: return state
-		return change.state.appendEvent(
-			BattleEvent.SideEntryHazardChanged(
-				turnNumber = state.turnNumber,
-				actorId = actorId,
-				sideId = side.sideId,
-				skillId = skill.skillId,
-				kind = change.hazard.kind,
-				layers = change.hazard.layers,
-				maxLayers = change.hazard.maxLayers,
-			),
-		)
-	}
-
-	/**
-	 * 将命中后的全场速度顺序效果写入环境。
-	 *
-	 * 公开成熟实现中，戏法空间在已经存在时再次使用会解除该全场效果；未存在时建立新的持续效果。这里把这条
-	 * “重启即解除”的规则放在引擎层处理，资料层只声明技能会尝试建立哪种全场速度顺序效果。
-	 */
-	private fun applyFieldSpeedOrderEffect(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		application: BattleFieldSpeedOrderApplication,
-	): BattleState {
-		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
-			return state
-		}
-		val current = state.environment.fieldSpeedOrderEffect
-		if (current?.kind == application.speedOrderEffect.kind) {
-			return state
-				.copy(environment = state.environment.copy(fieldSpeedOrderEffect = null))
-				.appendEvent(
-					BattleEvent.FieldSpeedOrderEnded(
-						turnNumber = state.turnNumber,
-						kind = current.kind,
-						actorId = actorId,
-						skillId = skill.skillId,
-					),
-				)
-		}
-		if (current != null) {
-			return state
-		}
-		return state
-			.copy(environment = state.environment.copy(fieldSpeedOrderEffect = application.speedOrderEffect))
-			.appendEvent(
-				BattleEvent.FieldSpeedOrderStarted(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					skillId = skill.skillId,
-					kind = application.speedOrderEffect.kind,
-					turnsRemaining = application.speedOrderEffect.turnsRemaining,
-				),
-			)
 	}
 
 	/**
