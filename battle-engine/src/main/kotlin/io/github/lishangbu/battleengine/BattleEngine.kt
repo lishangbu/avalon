@@ -61,6 +61,8 @@ class BattleEngine(
 	private val damageCalculator: BattleDamageCalculator = BattleDamageCalculator(),
 	private val statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
 ) {
+	private val actionOrdering = BattleActionOrdering(statStageModifiers)
+
 	/**
 	 * 启动一场战斗并产出初始事件。
 	 *
@@ -151,14 +153,14 @@ class BattleEngine(
 				actor = actor,
 				skill = skill,
 				source = input.source,
-				priorityContext = skillPriorityContext(actor, skill),
+				priorityContext = actionOrdering.skillPriorityContext(actor, skill),
 			)
 		}
-		val speedComparator = speedComparator(state)
+		val speedComparator = actionOrdering.speedComparator(state)
 		val orderComparator = compareByDescending<Pair<Int, Int>> { it.first }
 			.thenComparator { left, right -> speedComparator.compare(left.second, right.second) }
 		return plans
-			.groupBy { it.priorityContext.effectivePriority to effectiveSpeed(state, it.actor) }
+			.groupBy { it.priorityContext.effectivePriority to actionOrdering.effectiveSpeed(state, it.actor) }
 			.toSortedMap(orderComparator)
 			.values
 			.flatMap { sameOrderPlans ->
@@ -233,8 +235,8 @@ class BattleEngine(
 				val actor = requireNotNull(state.participant(action.actorId)) { "switch actor not found: ${action.actorId}" }
 				SwitchPlan(action, actor)
 			}
-			.groupBy { effectiveSpeed(state, it.actor) }
-			.toSortedMap(speedComparator(state))
+			.groupBy { actionOrdering.effectiveSpeed(state, it.actor) }
+			.toSortedMap(actionOrdering.speedComparator(state))
 			.values
 			.flatMap { sameSpeedPlans ->
 				if (sameSpeedPlans.size == 1) {
@@ -3405,8 +3407,8 @@ class BattleEngine(
 	private fun initialSwitchInActorIds(state: BattleState): List<String> =
 		state.sides
 			.flatMap { side -> side.activeActorIds.mapNotNull { actorId -> state.participant(actorId) } }
-			.groupBy { participant -> effectiveSpeed(state, participant) }
-			.toSortedMap(speedComparator(state))
+			.groupBy { participant -> actionOrdering.effectiveSpeed(state, participant) }
+			.toSortedMap(actionOrdering.speedComparator(state))
 			.values
 			.flatMap { sameSpeedParticipants -> sameSpeedParticipants.map { it.actorId } }
 
@@ -5283,200 +5285,6 @@ class BattleEngine(
 		}
 
 	/**
-	 * 计算行动排序使用的有效速度。
-	 *
-	 * 速度先应用能力阶级，再应用麻痹减半，最后应用天气触发的特性倍率。天气速度特性放在这里而不是动作排序外部，
-	 * 是为了替换排序、技能排序和未来追击类规则共享同一套有效速度定义。
-	 */
-	private fun effectiveSpeed(state: BattleState, participant: BattleParticipant): Int {
-		val staged = statStageModifiers.modifiedBattleStat(
-			participant.speed,
-			participant.statStage(BattleStat.SPEED),
-		)
-		val afterStatus = if (participant.majorStatus == BattleMajorStatus.PARALYSIS) {
-			(staged / 2).coerceAtLeast(1)
-		} else {
-			staged
-		}
-		return floor(
-			afterStatus *
-				weatherSpeedMultiplier(state, participant) *
-				terrainSpeedMultiplier(state, participant) *
-				itemSpeedMultiplier(participant) *
-				sideSpeedModifierMultiplier(state, participant),
-		)
-			.toInt()
-			.coerceAtLeast(1)
-	}
-
-	/**
-	 * 返回当前环境下行动队列使用的速度比较器。
-	 *
-	 * 普通环境中高有效速度先行动；戏法空间存在时只反转速度比较方向，优先度、锁招续回合和同速随机仍沿用
-	 * 原有排序层次。
-	 */
-	private fun speedComparator(state: BattleState): Comparator<Int> =
-		if (state.environment.fieldSpeedOrderEffect?.kind?.reversesSpeedOrder == true) {
-			compareBy<Int> { it }
-		} else {
-			compareByDescending<Int> { it }
-		}
-
-	/**
-	 * 计算技能行动的有效优先度和随优先度提升产生的目标免疫标记。
-	 *
-	 * 变化类先制度特性会同时影响行动排序、精神场地/先制阻挡特性的判断，以及现代规则中恶属性目标对这类
-	 * 对手变化技能的免疫。把这些事实集中成上下文，可以保证同一次行动在所有判断点使用同一份结论。
-	 */
-	private fun skillPriorityContext(actor: BattleParticipant, skill: BattleSkillSlot): SkillPriorityContext {
-		if (skill.damageClass != BattleDamageClass.STATUS) {
-			return SkillPriorityContext(effectivePriority = skill.priority)
-		}
-		val effects = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.StatusSkillPriorityBoost>()
-		val priorityDelta = effects.maxOfOrNull { it.priorityDelta } ?: 0
-		return SkillPriorityContext(
-			effectivePriority = skill.priority + priorityDelta,
-			statusPriorityBoostedByAbility = priorityDelta > 0,
-			darkElementTargetsImmune = priorityDelta > 0 && effects.any { it.darkElementTargetsImmune },
-		)
-	}
-
-	/**
-	 * 计算天气触发的速度倍率。
-	 */
-	private fun weatherSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
-		participant.abilityEffects.fold(1.0) { multiplier, effect ->
-			when (effect) {
-				is BattleAbilityEffect.WeatherSpeedMultiplier ->
-					if (state.environment.weather == effect.weather) multiplier * effect.multiplier else multiplier
-				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
-				is BattleAbilityEffect.ContactStatusOnAttacker,
-				is BattleAbilityEffect.CriticalHitImmunity,
-				is BattleAbilityEffect.AttackingStatMultiplier,
-				is BattleAbilityEffect.DamageClassDamageReduction,
-				is BattleAbilityEffect.DefendingStatMultiplier,
-				is BattleAbilityEffect.SameElementBonusOverride,
-				is BattleAbilityEffect.ElementSkillAbsorbHeal,
-				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
-				is BattleAbilityEffect.ElementSkillDamageBoost,
-				is BattleAbilityEffect.FullHpDamageReduction,
-				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
-				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
-				is BattleAbilityEffect.IndirectDamageImmunity,
-				is BattleAbilityEffect.LowHpElementDamageBoost,
-				is BattleAbilityEffect.MajorStatusImmunity,
-				is BattleAbilityEffect.PriorityMoveImmunityForSide,
-				is BattleAbilityEffect.PunchBasedSkillDamageBoost,
-				is BattleAbilityEffect.SkillRecoilDamageImmunity,
-				is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageReduction,
-				is BattleAbilityEffect.SoundBasedSkillImmunity,
-				is BattleAbilityEffect.StatusSkillPriorityBoost,
-				is BattleAbilityEffect.SwitchInStatStageChange,
-				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
-				is BattleAbilityEffect.SuperEffectiveDamageReduction,
-				is BattleAbilityEffect.SwitchInTerrainChange,
-				is BattleAbilityEffect.SwitchInWeatherChange,
-				is BattleAbilityEffect.TerrainSpeedMultiplier,
-				is BattleAbilityEffect.VolatileStatusImmunity,
-				is BattleAbilityEffect.WeatherDamageImmunity,
-				is BattleAbilityEffect.WeatherElementDamageBoost,
-				is BattleAbilityEffect.WeatherEndTurnHeal -> multiplier
-			}
-		}
-
-	/**
-	 * 计算场地触发的速度倍率。
-	 */
-	private fun terrainSpeedMultiplier(state: BattleState, participant: BattleParticipant): Double =
-		participant.abilityEffects.fold(1.0) { multiplier, effect ->
-			when (effect) {
-				is BattleAbilityEffect.TerrainSpeedMultiplier ->
-					if (state.environment.terrain == effect.terrain) multiplier * effect.multiplier else multiplier
-				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
-				is BattleAbilityEffect.ContactStatusOnAttacker,
-				is BattleAbilityEffect.CriticalHitImmunity,
-				is BattleAbilityEffect.AttackingStatMultiplier,
-				is BattleAbilityEffect.DamageClassDamageReduction,
-				is BattleAbilityEffect.DefendingStatMultiplier,
-				is BattleAbilityEffect.SameElementBonusOverride,
-				is BattleAbilityEffect.ElementSkillAbsorbHeal,
-				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
-				is BattleAbilityEffect.ElementSkillDamageBoost,
-				is BattleAbilityEffect.FullHpDamageReduction,
-				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
-				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
-				is BattleAbilityEffect.IndirectDamageImmunity,
-				is BattleAbilityEffect.LowHpElementDamageBoost,
-				is BattleAbilityEffect.MajorStatusImmunity,
-				is BattleAbilityEffect.PriorityMoveImmunityForSide,
-				is BattleAbilityEffect.PunchBasedSkillDamageBoost,
-				is BattleAbilityEffect.SkillRecoilDamageImmunity,
-				is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageBoost,
-				is BattleAbilityEffect.SoundBasedSkillDamageReduction,
-				is BattleAbilityEffect.SoundBasedSkillImmunity,
-				is BattleAbilityEffect.StatusSkillPriorityBoost,
-				is BattleAbilityEffect.SwitchInStatStageChange,
-				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
-				is BattleAbilityEffect.SuperEffectiveDamageReduction,
-				is BattleAbilityEffect.SwitchInTerrainChange,
-				is BattleAbilityEffect.SwitchInWeatherChange,
-				is BattleAbilityEffect.VolatileStatusImmunity,
-				is BattleAbilityEffect.WeatherDamageImmunity,
-				is BattleAbilityEffect.WeatherElementDamageBoost,
-				is BattleAbilityEffect.WeatherEndTurnHeal,
-				is BattleAbilityEffect.WeatherSpeedMultiplier -> multiplier
-			}
-		}
-
-	/**
-	 * 计算携带道具提供的速度倍率。
-	 *
-	 * 当前只接入讲究类速度道具。其它道具效果不参与速度排序，保持乘数不变；未来若加入铁球、围巾以外的速度道具，
-	 * 也应继续通过结构化效果表达具体倍率，而不是在行动排序中判断道具 ID。
-	 */
-	private fun itemSpeedMultiplier(participant: BattleParticipant): Double =
-		participant.itemEffects.fold(1.0) { multiplier, effect ->
-			when (effect) {
-				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
-				is BattleItemEffect.ChargeSkipOnce,
-				is BattleItemEffect.DamageClassPowerBoost,
-				is BattleItemEffect.DamageBoostWithRecoil,
-				is BattleItemEffect.DamageDealtHeal,
-				is BattleItemEffect.ElementDamageBoost,
-				is BattleItemEffect.ElementDamageReduction,
-				is BattleItemEffect.HeldEndTurnHeal,
-				is BattleItemEffect.LowHpHeal,
-				is BattleItemEffect.MajorStatusCure,
-				is BattleItemEffect.MajorStatusImmunity,
-				is BattleItemEffect.SideDamageReductionDurationExtension,
-				is BattleItemEffect.SuperEffectiveDamageBoost,
-				is BattleItemEffect.SurviveFatalDamageAtFullHp,
-				is BattleItemEffect.TerrainDurationExtension,
-				is BattleItemEffect.VolatileStatusCure,
-				is BattleItemEffect.VolatileStatusImmunity,
-				is BattleItemEffect.WeatherDurationExtension,
-				is BattleItemEffect.WeatherDamageImmunity -> multiplier
-			}
-		}
-
-	/**
-	 * 计算一侧场上效果提供的速度倍率。
-	 *
-	 * 顺风等效果挂在战斗侧上，所有当前属于这一侧的成员都共享倍率。这里只读取结构化模型，不识别技能 ID、
-	 * 数据库字段或本地化文本；运行时资料到引擎模型的转换由 battle-rules 适配层负责。
-	 */
-	private fun sideSpeedModifierMultiplier(state: BattleState, participant: BattleParticipant): Double =
-		state.sideOf(participant.actorId)
-			?.speedModifiers
-			?.fold(1.0) { multiplier, modifier -> multiplier * modifier.multiplier }
-			?: 1.0
-
-	/**
 	 * 根据效果目标枚举找到实际承受效果的成员。
 	 */
 	private fun BattleState.effectRecipient(actorId: String, targetActorId: String, target: BattleEffectTarget): BattleParticipant? =
@@ -5519,12 +5327,6 @@ class BattleEngine(
 		val skill: BattleSkillSlot,
 		val source: SkillActionSource,
 		val priorityContext: SkillPriorityContext,
-	)
-
-	private data class SkillPriorityContext(
-		val effectivePriority: Int,
-		val statusPriorityBoostedByAbility: Boolean = false,
-		val darkElementTargetsImmune: Boolean = false,
 	)
 
 	private enum class SkillActionSource {
