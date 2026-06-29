@@ -771,6 +771,20 @@ class BattleRuleCoverageService {
 					note = "已覆盖抗性树果在本体受到对应属性且效果绝佳伤害时按 0.5 倍减伤并消费、命中替身时不触发，以及一般属性灯浆果不要求效果绝佳的例外。规则资料已接入现代 18 个属性的对应抗性树果。",
 				),
 				item(
+					code = "item.conditional-damage-boost",
+					name = "携带道具条件伤害提升",
+					category = "道具",
+					status = IMPLEMENTED,
+					fixtures = listOf(
+						"physical-power-boost-item-raises-matching-damage-class",
+						"physical-power-boost-item-ignores-special-damage-class",
+						"super-effective-damage-boost-item-raises-final-damage",
+						"super-effective-damage-boost-item-ignores-neutral-damage",
+					),
+					references = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
+					note = "已覆盖物理/特殊分类威力提升道具在威力阶段生效，以及效果绝佳伤害提升道具在最终伤害阶段生效；三者均不消费道具、不反伤、不锁招。",
+				),
+				item(
 					code = "item.major-status-cure",
 					name = "携带道具解除主要异常状态",
 					category = "道具",

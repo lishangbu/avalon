@@ -5,7 +5,8 @@ package io.github.lishangbu.battleengine.model
  *
  * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
- * 稳定状态免疫、稳定指定属性威力加成、受到指定属性伤害时减免，以及成功获得主要异常状态或临时状态后的即时解除。
+ * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成，以及成功获得主要异常
+ * 状态或临时状态后的即时解除。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -176,6 +177,42 @@ sealed interface BattleItemEffect {
 	) : BattleItemEffect {
 		init {
 			require(elementId > 0) { "elementId must be positive" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 携带道具对指定伤害分类技能提供稳定威力倍率。
+	 *
+	 * 该效果用于表达现代规则中“物理技能威力提高 10%”或“特殊技能威力提高 10%”的非消耗型道具。它发生在
+	 * 普通伤害公式的威力阶段，因此会先修改技能有效威力，再进入等级、攻防和取整流程；这和生命宝珠、达人带等
+	 * 最终伤害阶段倍率不同。
+	 *
+	 * `damageClasses` 通常包含物理或特殊中的一个，也允许自定义规则同时覆盖两类直接伤害；变化类技能不会进入
+	 * 普通伤害公式，因此即使资料层误配也不会产生伤害。
+	 */
+	data class DamageClassPowerBoost(
+		val damageClasses: Set<BattleDamageClass>,
+		val multiplier: Double,
+	) : BattleItemEffect {
+		init {
+			require(damageClasses.isNotEmpty()) { "damageClasses must not be empty" }
+			require(BattleDamageClass.STATUS !in damageClasses) { "status skills do not have power in standard damage formula" }
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 携带道具在技能对目标效果绝佳时提供最终伤害倍率。
+	 *
+	 * 该效果用于表达达人带一类非消耗型道具。它不改变技能威力、属性、命中或属性克制结果，只在属性克制倍率
+	 * 已经确认大于 1.0 后，把倍率叠乘到最终伤害修正链中。该效果不消费道具，也不对固定伤害、状态技能、
+	 * 入场陷阱或天气伤害生效。
+	 */
+	data class SuperEffectiveDamageBoost(
+		val multiplier: Double,
+	) : BattleItemEffect {
+		init {
 			require(multiplier > 0.0) { "multiplier must be positive" }
 		}
 	}

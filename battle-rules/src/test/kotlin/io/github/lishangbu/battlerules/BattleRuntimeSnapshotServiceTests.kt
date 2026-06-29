@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -496,6 +497,23 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(lifeOrb.multiplier).isEqualTo(1.3)
 		assertThat(lifeOrb.recoilDenominator).isEqualTo(10)
+
+		val physicalPowerBoost = service.itemEffectsByItemId(243)
+			.filterIsInstance<BattleItemEffect.DamageClassPowerBoost>()
+			.single()
+		assertThat(physicalPowerBoost.damageClasses).containsExactly(BattleDamageClass.PHYSICAL)
+		assertThat(physicalPowerBoost.multiplier).isEqualTo(1.1)
+
+		val specialPowerBoost = service.itemEffectsByItemId(244)
+			.filterIsInstance<BattleItemEffect.DamageClassPowerBoost>()
+			.single()
+		assertThat(specialPowerBoost.damageClasses).containsExactly(BattleDamageClass.SPECIAL)
+		assertThat(specialPowerBoost.multiplier).isEqualTo(1.1)
+
+		val superEffectiveBoost = service.itemEffectsByItemId(245)
+			.filterIsInstance<BattleItemEffect.SuperEffectiveDamageBoost>()
+			.single()
+		assertThat(superEffectiveBoost.multiplier).isEqualTo(1.2)
 
 		mapOf(
 			199L to 7L,

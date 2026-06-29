@@ -1,0 +1,186 @@
+databaseChangeLog:
+- changeSet:
+    id: 073-battle-conditional-damage-boost-item-rules
+    author: backend
+    comment: 新增按伤害分类或效果绝佳条件提升伤害的携带道具规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 57 }
+        - column: { name: item_id, valueNumeric: 243 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: damage-class-power-boost-physical }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 95 }
+        - column: { name: description, value: 携带后物理技能有效威力提高 10%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 570 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 58 }
+        - column: { name: item_id, valueNumeric: 244 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: damage-class-power-boost-special }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 95 }
+        - column: { name: description, value: 携带后特殊技能有效威力提高 10%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 580 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 59 }
+        - column: { name: item_id, valueNumeric: 245 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: super-effective-damage-boost }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 100 }
+        - column: { name: description, value: 技能对目标效果绝佳时，最终伤害提高 20%。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 590 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 154 }
+        - column: { name: code, value: physical-power-boost-item-raises-matching-damage-class }
+        - column: { name: name, value: 物理威力提升道具作用于物理技能 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证物理威力提升道具只在物理技能的威力阶段生效。 }
+        - column: { name: input_summary, value: 使用者携带物理威力提升道具，使用 40 威力物理技能攻击中性目标。 }
+        - column: { name: expected_summary, value: 技能有效威力从 40 提升到 44，普通伤害从 19 提升到 21。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1540 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 155 }
+        - column: { name: code, value: physical-power-boost-item-ignores-special-damage-class }
+        - column: { name: name, value: 物理威力提升道具忽略特殊技能 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证物理威力提升道具不会作用于特殊技能。 }
+        - column: { name: input_summary, value: 使用者携带物理威力提升道具，使用 40 威力特殊技能攻击中性目标。 }
+        - column: { name: expected_summary, value: 技能分类不匹配，普通伤害仍为 19。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1550 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 156 }
+        - column: { name: code, value: super-effective-damage-boost-item-raises-final-damage }
+        - column: { name: name, value: 效果绝佳伤害提升道具提升最终伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证效果绝佳伤害提升道具在最终伤害阶段生效。 }
+        - column: { name: input_summary, value: 使用者携带效果绝佳伤害提升道具，以火属性技能攻击草属性目标。 }
+        - column: { name: expected_summary, value: 普通伤害先因效果绝佳从 19 变为 38，再由道具按最终 1.2 倍修正为 45。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1560 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 157 }
+        - column: { name: code, value: super-effective-damage-boost-item-ignores-neutral-damage }
+        - column: { name: name, value: 效果绝佳伤害提升道具忽略中性伤害 }
+        - column: { name: category, value: ITEM }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证技能对目标不是效果绝佳时，效果绝佳伤害提升道具不生效。 }
+        - column: { name: input_summary, value: 使用者携带效果绝佳伤害提升道具，以火属性技能攻击中性目标。 }
+        - column: { name: expected_summary, value: 属性克制结果不是效果绝佳，普通伤害仍为 19。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1570 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 329 }
+        - column: { name: fixture_id, valueNumeric: 154 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照物理威力提升道具的威力阶段修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 330 }
+        - column: { name: fixture_id, valueNumeric: 155 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照物理威力提升道具不会作用于特殊技能。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 331 }
+        - column: { name: fixture_id, valueNumeric: 156 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照效果绝佳伤害提升道具的最终伤害阶段修正。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 332 }
+        - column: { name: fixture_id, valueNumeric: 157 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
+        - column: { name: source_label, value: 公开引擎道具资料 }
+        - column: { name: source_note, value: 用于对照效果绝佳伤害提升道具要求属性克制结果大于 1。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 154 }
+        - column: { name: run_code, value: conditional-damage-boost-item-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 154 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:35:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:38:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1540 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 155 }
+        - column: { name: run_code, value: conditional-damage-boost-item-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 155 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:38:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:41:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 2 }
+        - column: { name: sort_order, valueNumeric: 1550 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 156 }
+        - column: { name: run_code, value: conditional-damage-boost-item-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 156 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:41:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:44:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1560 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 157 }
+        - column: { name: run_code, value: conditional-damage-boost-item-coverage-20260629-4 }
+        - column: { name: fixture_id, valueNumeric: 157 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:44:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:47:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 2 }
+        - column: { name: sort_order, valueNumeric: 1570 }

@@ -143,12 +143,17 @@ class BattleDamageCalculator(
 	/**
 	 * 计算攻击方携带道具贡献到技能有效威力阶段的倍率。
 	 *
-	 * 该阶段覆盖传统属性强化道具。它与 [attackerItemDamageMultiplier] 分离，是为了遵守现代公开公式中“威力修正”
-	 * 和“最终伤害修正”的不同取整位置。
+	 * 该阶段覆盖传统属性强化道具以及按物理/特殊分类提升威力的道具。它与 [attackerItemDamageMultiplier] 分离，
+	 * 是为了遵守现代公开公式中“威力修正”和“最终伤害修正”的不同取整位置。
 	 */
 	private fun attackerItemPowerMultiplier(request: BattleDamageRequest): Double =
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
+				is BattleItemEffect.DamageClassPowerBoost -> if (request.skill.damageClass in effect.damageClasses) {
+					multiplier * effect.multiplier
+				} else {
+					multiplier
+				}
 				is BattleItemEffect.ElementDamageBoost -> if (request.skill.elementId == effect.elementId) {
 					multiplier * effect.multiplier
 				} else {
@@ -163,6 +168,7 @@ class BattleDamageCalculator(
 				is BattleItemEffect.MajorStatusCure,
 				is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
+				is BattleItemEffect.SuperEffectiveDamageBoost,
 				is BattleItemEffect.SurviveFatalDamageAtFullHp,
 				is BattleItemEffect.TerrainDurationExtension,
 				is BattleItemEffect.VolatileStatusCure,
@@ -328,8 +334,16 @@ class BattleDamageCalculator(
 		request.attacker.itemEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
+				is BattleItemEffect.SuperEffectiveDamageBoost -> if (
+					request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds) > 1.0
+				) {
+					multiplier * effect.multiplier
+				} else {
+					multiplier
+				}
 				is BattleItemEffect.ChargeSkipOnce -> multiplier
 				is BattleItemEffect.ChoiceSkillLock -> multiplier
+				is BattleItemEffect.DamageClassPowerBoost -> multiplier
 				is BattleItemEffect.ElementDamageBoost -> multiplier
 				is BattleItemEffect.ElementDamageReduction -> multiplier
 				is BattleItemEffect.HeldEndTurnHeal -> multiplier
@@ -366,6 +380,7 @@ class BattleDamageCalculator(
 					}
 					is BattleItemEffect.ChargeSkipOnce,
 					is BattleItemEffect.ChoiceSkillLock,
+					is BattleItemEffect.DamageClassPowerBoost,
 					is BattleItemEffect.DamageBoostWithRecoil,
 					is BattleItemEffect.ElementDamageBoost,
 					is BattleItemEffect.HeldEndTurnHeal,
@@ -373,6 +388,7 @@ class BattleDamageCalculator(
 					is BattleItemEffect.MajorStatusCure,
 					is BattleItemEffect.MajorStatusImmunity,
 					is BattleItemEffect.SideDamageReductionDurationExtension,
+					is BattleItemEffect.SuperEffectiveDamageBoost,
 					is BattleItemEffect.SurviveFatalDamageAtFullHp,
 					is BattleItemEffect.TerrainDurationExtension,
 					is BattleItemEffect.VolatileStatusCure,

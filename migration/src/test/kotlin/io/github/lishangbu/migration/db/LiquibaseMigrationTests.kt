@@ -119,6 +119,7 @@ class LiquibaseMigrationTests(
 			"070-battle-element-damage-boost-item-rules.yaml",
 			"071-battle-element-damage-reduction-item-rules.yaml",
 			"072-battle-element-damage-boost-item-fixture-corrections.yaml",
+			"073-battle-conditional-damage-boost-item-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -543,7 +544,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 43L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 56L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 59L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -562,9 +563,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 153L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 328L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 153L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 157L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 332L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 157L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -989,6 +990,35 @@ class LiquibaseMigrationTests(
 					"trigger_timing" to "BEFORE_DAMAGE",
 					"effect_policy" to "element-damage-reduction-fairy",
 					"consumable" to true,
+				),
+			)
+
+			val conditionalDamageBoostItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id in (243, 244, 245)
+				order by item_id
+				""".trimIndent(),
+			)
+			assertThat(conditionalDamageBoostItemRules).containsExactly(
+				mapOf(
+					"item_id" to 243L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "damage-class-power-boost-physical",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 244L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "damage-class-power-boost-special",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 245L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "super-effective-damage-boost",
+					"consumable" to false,
 				),
 			)
 

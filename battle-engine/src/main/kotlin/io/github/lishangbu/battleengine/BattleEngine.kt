@@ -4231,6 +4231,7 @@ class BattleEngine(
 			when (effect) {
 				is BattleItemEffect.ChoiceSkillLock -> multiplier * effect.speedMultiplier
 				is BattleItemEffect.ChargeSkipOnce,
+				is BattleItemEffect.DamageClassPowerBoost,
 				is BattleItemEffect.DamageBoostWithRecoil,
 				is BattleItemEffect.ElementDamageBoost,
 				is BattleItemEffect.ElementDamageReduction,
@@ -4239,6 +4240,7 @@ class BattleEngine(
 				is BattleItemEffect.MajorStatusCure,
 				is BattleItemEffect.MajorStatusImmunity,
 				is BattleItemEffect.SideDamageReductionDurationExtension,
+				is BattleItemEffect.SuperEffectiveDamageBoost,
 				is BattleItemEffect.SurviveFatalDamageAtFullHp,
 				is BattleItemEffect.TerrainDurationExtension,
 				is BattleItemEffect.VolatileStatusCure,

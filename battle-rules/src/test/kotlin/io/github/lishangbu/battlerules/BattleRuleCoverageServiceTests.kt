@@ -65,6 +65,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "ability.ignore-opponent-accuracy-stat-stages" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.ignore-target-ability-effects" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.sound-based-skill-immunity" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "item.conditional-damage-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "item.element-damage-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "item.element-damage-reduction" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "item.major-status-cure" && it.status == "IMPLEMENTED" })
