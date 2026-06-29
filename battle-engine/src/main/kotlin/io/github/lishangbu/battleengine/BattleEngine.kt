@@ -1441,17 +1441,17 @@ class BattleEngine(
 	 *
 	 * 固定回复和天气变量回复最终都汇入这里，确保满 HP 跳过、缺失 HP 夹取和事件写入规则完全一致。
 	 */
-		private fun applySelfHealMaxHpFraction(
-			state: BattleState,
-			actorId: String,
-			skill: BattleSkillSlot,
+	private fun applySelfHealMaxHpFraction(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
 		numerator: Int,
 		denominator: Int,
 	): BattleState {
-			val actor = state.participant(actorId) ?: return state
-			if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
-				return state
-			}
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+			return state
+		}
 		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
 			.coerceAtMost(actor.maxHp - actor.currentHp)
 		if (healAmount <= 0) {
@@ -1465,21 +1465,21 @@ class BattleEngine(
 					actorId = actor.actorId,
 					skillId = skill.skillId,
 					amount = healAmount,
-					),
-				)
-		}
+				),
+			)
+	}
 
-		/**
-		 * 判断成员当前是否被回复封锁阻止 HP 回复。
-		 *
-		 * 该函数只回答“能不能把 HP 往上加”，不决定某个技能是否能被宣告。主动回复技能和吸取类技能会在行动前
-		 * 被 [healBlockPreventsSkill] 阻止；这里负责兜住特性、道具、场地、天气和其它后续加入的被动回复入口。
-		 */
-		private fun healingBlocked(participant: BattleParticipant): Boolean =
-			participant.healBlockTurnsRemaining > 0
+	/**
+	 * 判断成员当前是否被回复封锁阻止 HP 回复。
+	 *
+	 * 该函数只回答“能不能把 HP 往上加”，不决定某个技能是否能被宣告。主动回复技能和吸取类技能会在行动前
+	 * 被 [healBlockPreventsSkill] 阻止；这里负责兜住特性、道具、场地、天气和其它后续加入的被动回复入口。
+	 */
+	private fun healingBlocked(participant: BattleParticipant): Boolean =
+		participant.healBlockTurnsRemaining > 0
 
-		/**
-		 * 支付使用者最大 HP 的固定比例来建立替身。
+	/**
+	 * 支付使用者最大 HP 的固定比例来建立替身。
 	 *
 	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，
 	 * 但不产生额外事件；成功时本体扣除费用、替身获得同等 HP，并用专用事件记录该运行态事实。
