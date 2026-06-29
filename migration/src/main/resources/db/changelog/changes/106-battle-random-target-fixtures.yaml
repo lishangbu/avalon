@@ -1,0 +1,27 @@
+databaseChangeLog:
+- changeSet:
+    id: 106-battle-random-target-fixtures
+    author: backend
+    comment: 新增随机相邻对手目标公开对照 fixture 数据。
+    changes:
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (280, 'random-adjacent-opponent-target-chooses-scripted-capable-opponent', '随机相邻对手按脚本选择可战斗目标', 'TARGET', 'STATE_MACHINE', '验证随机目标技能忽略提交目标，并在当前可战斗对手中消费随机数选择唯一目标。', '双打中随机相邻对手技能提交的 targetActorId 指向同侧伙伴，对手两名成员均可战斗。', '技能忽略提交目标，在两个可战斗对手中消费一次目标随机并命中脚本指定的对手。', true, 2800),
+            (281, 'random-adjacent-opponent-with-no-capable-opponent-cancels-before-pp-and-random', '随机相邻对手无候选时不消耗 PP 和随机数', 'TARGET', 'STATE_MACHINE', '验证随机目标候选为空时行动在使用前取消。', '双打中随机相邻对手技能执行时，对手两个上场成员都已经无法战斗。', '候选目标为空，行动在技能使用前取消，不消耗 PP，也不消费目标随机数。', true, 2810);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (560, 280, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照随机目标在技能执行时按当前可战斗候选选择。', 10),
+            (561, 280, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照 random-opponent 目标类型。', 20),
+            (562, 281, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照没有可用目标时取消行动。', 10),
+            (563, 281, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证无法战斗成员不会进入随机目标候选。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (280, 'random-target-coverage-20260629-1', 280, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleRandomTargetPublicReferenceTests', '2026-06-29T20:25:00+08:00', 2800),
+            (281, 'random-target-coverage-20260629-2', 281, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleRandomTargetPublicReferenceTests', '2026-06-29T20:25:00+08:00', 2810);

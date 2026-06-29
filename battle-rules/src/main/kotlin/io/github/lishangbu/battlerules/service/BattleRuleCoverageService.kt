@@ -284,6 +284,22 @@ class BattleRuleCoverageService {
 				note = "已覆盖单打和双打单体目标槽位替换后重定向、当前槽位濒死时不跨槽位改打、目标为空时不消耗 PP、范围技能忽略提交目标重新收集目标、全体相邻成员排除使用者，以及保护目标不改变多目标范围倍率。",
 			),
 			item(
+				code = "target.random-adjacent-opponent",
+				name = "随机相邻对手目标",
+				category = "目标选择",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"random-adjacent-opponent-target-chooses-scripted-capable-opponent",
+					"random-adjacent-opponent-with-no-capable-opponent-cancels-before-pp-and-random",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://wiki.52poke.com/wiki/濒死",
+				),
+				note = "已覆盖随机相邻对手技能忽略提交目标、按当前可战斗对手候选消费可复盘随机数，以及候选为空时在技能使用前取消且不消耗 PP 或随机数。",
+			),
+			item(
 				code = "format.max-turn-limit",
 				name = "格式回合上限裁定",
 				category = "格式裁定",
@@ -1496,7 +1512,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 180
+		private const val FINAL_COVERED_RULE_COUNT = 182
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

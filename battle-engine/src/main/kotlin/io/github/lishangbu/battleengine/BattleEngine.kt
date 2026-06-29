@@ -335,7 +335,7 @@ class BattleEngine(
 		val actionState = beforeMove.context.state
 		val readyActor = actionState.participant(action.actorId) ?: return beforeMove.context
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMove.context
-		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill)
+		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
 		if (targets.isEmpty()) {
 			return when (plan.source) {
 				SkillActionSource.LOCKED_CONTINUATION -> beforeMove.context.copy(
@@ -1837,12 +1837,14 @@ class BattleEngine(
 	 *
 	 * 单体技能保留“目标席位”语义：若行动选择的成员已经替换，技能会打到同一方当前可战斗的上场成员。
 	 * 范围技能会根据行动者所在方重新收集当前上场成员，不把已经倒下的成员计入目标集合。
+	 * 随机对手技能同样按执行时站位收集候选目标；候选超过一名时才消费随机数，避免无选择场景污染 replay。
 	 */
 	private fun targetsForSkill(
 		state: BattleState,
 		actorId: String,
 		selectedTargetActorId: String,
 		skill: BattleSkillSlot,
+		random: BattleRandom,
 	): List<BattleParticipant> =
 		when (skill.targetScope) {
 			BattleSkillTargetScope.SELECTED_TARGET -> listOfNotNull(state.activeTargetFor(selectedTargetActorId))
@@ -1854,7 +1856,35 @@ class BattleEngine(
 			BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS -> state.sides
 				.flatMap { it.activeParticipants() }
 				.filter { it.actorId != actorId && it.canBattle() }
+			BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT -> randomAdjacentOpponentTargets(state, actorId, skill, random)
 		}
+
+	/**
+	 * 选择一个随机相邻对手作为本次技能的唯一目标。
+	 *
+	 * 现代双打里的“随机对手”目标先按当前站位过滤掉同侧成员和已经无法战斗的对手，再在剩余候选中随机抽取。
+	 * 若只有一个候选，目标已经确定，不需要额外随机消费；若没有候选，外层会在技能使用前取消行动并保留 PP。
+	 */
+	private fun randomAdjacentOpponentTargets(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): List<BattleParticipant> {
+		val candidates = state.sides
+			.filter { it.participant(actorId) == null }
+			.flatMap { it.activeParticipants() }
+			.filter { it.canBattle() }
+		return when (candidates.size) {
+			0 -> emptyList()
+			1 -> candidates
+			else -> listOf(
+				candidates[
+					random.nextInt(candidates.size, "random adjacent opponent target for ${skill.skillId}"),
+				],
+			)
+		}
+	}
 
 	/**
 	 * 计算现代双打范围技能的目标倍率。

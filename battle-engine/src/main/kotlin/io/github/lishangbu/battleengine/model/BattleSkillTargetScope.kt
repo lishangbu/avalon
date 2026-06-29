@@ -11,11 +11,12 @@ package io.github.lishangbu.battleengine.model
 enum class BattleSkillTargetScope {
 	SELECTED_TARGET,
 	ALL_ADJACENT_OPPONENTS,
-	ALL_ADJACENT_PARTICIPANTS;
+	ALL_ADJACENT_PARTICIPANTS,
+	RANDOM_ADJACENT_OPPONENT;
 
 	/**
 	 * 当前范围是否可能在双打中同时影响多个成员。
 	 */
 	val canAffectMultipleTargets: Boolean
-		get() = this != SELECTED_TARGET
+		get() = this == ALL_ADJACENT_OPPONENTS || this == ALL_ADJACENT_PARTICIPANTS
 }

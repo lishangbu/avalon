@@ -1009,6 +1009,7 @@ class BattleRuntimeSnapshotService(
 		when (this) {
 			"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS
 			"all-adjacent-participants" -> BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS
+			"random-opponent" -> BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT
 			else -> BattleSkillTargetScope.SELECTED_TARGET
 		}
 
