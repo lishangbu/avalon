@@ -314,6 +314,26 @@ class BattleRuleCoverageService {
 				note = "畏缩只阻止本回合未行动成员；混乱使用 2..5 内部计数、33% 自伤和 40 威力物理自伤公式，已有混乱不会被再次附加刷新持续时间。",
 			),
 			item(
+				code = "status.heal-block",
+				name = "回复封锁临时状态",
+				category = "临时状态",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"status-skill-applies-heal-block-to-target",
+					"heal-blocked-participant-cannot-use-self-healing-status-skill",
+					"heal-blocked-participant-cannot-use-draining-damage-skill",
+					"heal-block-suppresses-end-turn-held-item-healing",
+					"heal-block-clears-when-end-turn-duration-reaches-zero",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://wiki.52poke.com/wiki/回复封锁（招式）",
+					"https://wiki.52poke.com/wiki/回复封锁（状态变化）",
+				),
+				note = "已覆盖回复封锁附加、主动回复技能失败、吸取回复技能失败、回合末道具回复被抑制，以及持续回合在回合末递减并自然解除。",
+			),
+			item(
 				code = "terrain.grassy-heal",
 				name = "青草场地核心效果",
 				category = "场地",
@@ -1207,7 +1227,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 95
+		private const val FINAL_COVERED_RULE_COUNT = 100
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

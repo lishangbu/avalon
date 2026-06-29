@@ -303,6 +303,19 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 行动者因回复封锁无法执行本次回复类技能。
+	 *
+	 * 第六世代以后，处于回复封锁的成员不能使用自我回复技能或吸取回复类技能。该事件发生在 PP 消耗和
+	 * `SkillUsed` 之前，因此被阻止的技能不会进入命中、伤害、回复或讲究类锁定流程。
+	 */
+	data class SkillPreventedByHealBlock(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val turnsRemainingBefore: Int,
+	) : BattleEvent
+
+	/**
 	 * 行动者因临时状态无法执行本次技能行动。
 	 *
 	 * 畏缩会在阻止行动后立即消失；混乱只有在自伤分支命中时才会阻止行动，并会继续产生
@@ -402,7 +415,8 @@ sealed interface BattleEvent {
 	/**
 	 * 成员已有的临时状态被清除。
 	 *
-	 * 第一批主要用于混乱行动前计数归零。畏缩在回合末静默消失，不额外产生解除事件。
+	 * 当前用于混乱行动前计数归零、回复封锁回合末持续时间归零，以及治愈道具解除临时状态。
+	 * 畏缩在回合末静默消失，不额外产生解除事件。
 	 */
 	data class VolatileStatusCleared(
 		override val turnNumber: Int,

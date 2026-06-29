@@ -116,8 +116,10 @@ class BattleEngine(
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
 			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
-		val afterEnvironmentDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
-			?: advanceEnvironmentDurations(afterEndTurnVolatileStatuses)
+		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
+			?: advanceEndTurnVolatileStatusDurations(afterEndTurnVolatileStatuses)
+		val afterEnvironmentDurations = afterEndTurnVolatileStatusDurations.result?.let { afterEndTurnVolatileStatusDurations }
+			?: advanceEnvironmentDurations(afterEndTurnVolatileStatusDurations)
 		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
 			?: afterEnvironmentDurations.advanceSideConditionDurations()
 		val afterTurnLimit = afterSideConditionDurations.result?.let { afterSideConditionDurations }
@@ -1391,10 +1393,10 @@ class BattleEngine(
 		numerator: Int,
 		denominator: Int,
 	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
-			return state
-		}
+			val actor = state.participant(actorId) ?: return state
+			if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+				return state
+			}
 		val healAmount = fractionAmount(damageAmount, numerator, denominator)
 			.coerceAtMost(actor.maxHp - actor.currentHp)
 		if (healAmount <= 0) {
@@ -1496,17 +1498,17 @@ class BattleEngine(
 	 *
 	 * 固定回复和天气变量回复最终都汇入这里，确保满 HP 跳过、缺失 HP 夹取和事件写入规则完全一致。
 	 */
-	private fun applySelfHealMaxHpFraction(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
+		private fun applySelfHealMaxHpFraction(
+			state: BattleState,
+			actorId: String,
+			skill: BattleSkillSlot,
 		numerator: Int,
 		denominator: Int,
 	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
-			return state
-		}
+			val actor = state.participant(actorId) ?: return state
+			if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+				return state
+			}
 		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
 			.coerceAtMost(actor.maxHp - actor.currentHp)
 		if (healAmount <= 0) {
@@ -1520,12 +1522,21 @@ class BattleEngine(
 					actorId = actor.actorId,
 					skillId = skill.skillId,
 					amount = healAmount,
-				),
-			)
-	}
+					),
+				)
+		}
 
-	/**
-	 * 支付使用者最大 HP 的固定比例来建立替身。
+		/**
+		 * 判断成员当前是否被回复封锁阻止 HP 回复。
+		 *
+		 * 该函数只回答“能不能把 HP 往上加”，不决定某个技能是否能被宣告。主动回复技能和吸取类技能会在行动前
+		 * 被 [healBlockPreventsSkill] 阻止；这里负责兜住特性、道具、场地、天气和其它后续加入的被动回复入口。
+		 */
+		private fun healingBlocked(participant: BattleParticipant): Boolean =
+			participant.healBlockTurnsRemaining > 0
+
+		/**
+		 * 支付使用者最大 HP 的固定比例来建立替身。
 	 *
 	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，
 	 * 但不产生额外事件；成功时本体扣除费用、替身获得同等 HP，并用专用事件记录该运行态事实。
@@ -1991,11 +2002,25 @@ class BattleEngine(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState? {
-		val effect = target.abilityEffects
-			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
-			?: return null
-		val rawHealAmount = (target.maxHp / effect.healDenominator).coerceAtLeast(1)
+			val effect = target.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
+				.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
+				?: return null
+			if (healingBlocked(target)) {
+				return state.appendEvent(
+					BattleEvent.SkillAbsorbedByAbility(
+						turnNumber = state.turnNumber,
+						actorId = actor.actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						abilityHolderActorId = target.actorId,
+						abilityId = target.abilityId,
+						elementId = effect.elementId,
+						healAmount = 0,
+					),
+				)
+			}
+			val rawHealAmount = (target.maxHp / effect.healDenominator).coerceAtLeast(1)
 		val healedTarget = target.heal(rawHealAmount)
 		val actualHealAmount = healedTarget.currentHp - target.currentHp
 		return state
@@ -3551,6 +3576,12 @@ class BattleEngine(
 		if (actor.confusionTurnsRemaining > 0) {
 			return resolveConfusionBeforeMove(context, actor, random)
 		}
+		if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) {
+			return BeforeMoveResult(
+				context = context.copy(state = consumeHealBlockBlockedAction(context.state, actor, skill)),
+				blocked = true,
+			)
+		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
 			return BeforeMoveResult(
 				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
@@ -3656,6 +3687,39 @@ class BattleEngine(
 				),
 			)
 	}
+
+	/**
+	 * 消耗一次“回复封锁阻止本次回复类技能”的行动结果。
+	 *
+	 * 回复封锁本身不会因为阻止一次行动而立即减少持续回合；它只在回合末统一递减。这里不消耗 PP、不写入
+	 * `SkillUsed`，也不触发讲究锁定或命中随机数，让主动回复技能和吸取回复类技能在现代规则下稳定失败。
+	 */
+	private fun consumeHealBlockBlockedAction(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.SkillPreventedByHealBlock(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				skillId = skill.skillId,
+				turnsRemainingBefore = actor.healBlockTurnsRemaining,
+			),
+		)
+
+	/**
+	 * 判断回复封锁是否禁止成员宣告该技能。
+	 *
+	 * 现代规则中，直接回复使用者的变化技能和伤害后吸取回复的攻击技能都不能在回复封锁下使用。建立替身、
+	 * 反作用伤害和其它非回复类 HP 变化不在此列；它们继续按各自规则结算。
+	 */
+	private fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
+		skill.hpEffects.any { effect ->
+			effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
+				effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
+				effect is BattleSkillHpEffect.DrainDamage
+		}
 
 	/**
 	 * 记录冰冻未解冻时对本次技能行动的阻止效果。
@@ -4093,10 +4157,10 @@ class BattleEngine(
 	/**
 	 * 附加临时状态并处理状态私有计数。
 	 *
-	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数。
-	 * 若目标已经处于混乱状态，成员快照不会变化，旧持续计数也不会被刷新；状态机会追加阻止事件，便于 replay
-	 * 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。场地、特性或道具免疫会在消费混乱持续时间
-	 * 随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
+	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
+	 * 固定 5 回合计数并在回合末递减。若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会
+	 * 被刷新；状态机会追加阻止事件，便于 replay 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。
+	 * 场地、特性或道具免疫会在消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
 	 */
 	private fun applyVolatileStatusEffect(
 		state: BattleState,
@@ -4107,7 +4171,7 @@ class BattleEngine(
 		randomReason: String,
 		skill: BattleSkillSlot? = null,
 	): BattleState {
-		if (status == BattleVolatileStatus.CONFUSION && recipient.confusionTurnsRemaining > 0) {
+		if (volatileStatusAlreadyPresent(recipient, status)) {
 			return state.appendEvent(
 				BattleEvent.VolatileStatusApplicationBlocked(
 					turnNumber = state.turnNumber,
@@ -4134,18 +4198,38 @@ class BattleEngine(
 			random.nextInt(4, randomReason) + 2
 		} else {
 			0
-			}
-			val appliedState = state
-				.replaceParticipant(recipient.applyVolatileStatus(status, confusionTurnsRemaining))
-				.appendEvent(
-					BattleEvent.VolatileStatusApplied(
-						turnNumber = state.turnNumber,
-						actorId = actorId,
-						targetActorId = recipient.actorId,
-						status = status,
-					),
-				)
-			return applyVolatileStatusCureItem(appliedState, recipient.actorId, status)
+		}
+		val healBlockTurnsRemaining = if (status == BattleVolatileStatus.HEAL_BLOCK) HEAL_BLOCK_TURNS else 0
+		val appliedState = state
+			.replaceParticipant(
+				recipient.applyVolatileStatus(
+					status = status,
+					confusionTurnsRemaining = confusionTurnsRemaining,
+					healBlockTurnsRemaining = healBlockTurnsRemaining,
+				),
+			)
+			.appendEvent(
+				BattleEvent.VolatileStatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+				),
+			)
+		return applyVolatileStatusCureItem(appliedState, recipient.actorId, status)
+	}
+
+	/**
+	 * 判断目标是否已经拥有同类临时状态。
+	 *
+	 * 当前只有混乱和回复封锁有跨回合持续计数，需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
+	 * 后续行动前或回合末都会清除，所以重复附加不会改变可观察持续时间。
+	 */
+	private fun volatileStatusAlreadyPresent(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
+		when (status) {
+			BattleVolatileStatus.CONFUSION -> recipient.confusionTurnsRemaining > 0
+			BattleVolatileStatus.HEAL_BLOCK -> recipient.healBlockTurnsRemaining > 0
+			BattleVolatileStatus.FLINCH -> false
 		}
 
 	/**
@@ -4411,10 +4495,10 @@ class BattleEngine(
 		damageAmount: Int,
 		effect: BattleItemEffect.DamageDealtHeal,
 	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.currentHp == actor.maxHp) {
-			return state
-		}
+			val actor = state.participant(actorId) ?: return state
+			if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+				return state
+			}
 		val healAmount = (damageAmount / effect.healDenominator)
 			.coerceAtLeast(1)
 			.coerceAtMost(actor.maxHp - actor.currentHp)
@@ -4440,10 +4524,10 @@ class BattleEngine(
 	 * 回复封锁、紧张感等更复杂来源；这些规则后续会以结构化字段加入，而不是让调用方传入自由文本开关。
 	 */
 	private fun applyLowHpHealingItem(state: BattleState, actorId: String): BattleState {
-		val participant = state.participant(actorId) ?: return state
-		if (!participant.canBattle() || participant.currentHp == participant.maxHp) {
-			return state
-		}
+			val participant = state.participant(actorId) ?: return state
+			if (!participant.canBattle() || participant.currentHp == participant.maxHp || healingBlocked(participant)) {
+				return state
+			}
 		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpHeal>().firstOrNull() ?: return state
 		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp)) {
 			return state
@@ -4496,6 +4580,36 @@ class BattleEngine(
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				val cleared = latest.clearEndTurnVolatileStatuses()
 				if (cleared == latest) current else current.replaceParticipant(cleared)
+			}
+
+	/**
+	 * 推进跨回合临时状态的持续回合。
+	 *
+	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里专门推进回复封锁：
+	 * 每个回合末减少 1，归零时追加 [BattleEvent.VolatileStatusCleared]，让 replay 能看到状态自然结束的时间点。
+	 */
+	private fun advanceEndTurnVolatileStatusDurations(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (latest.healBlockTurnsRemaining <= 0) {
+					current
+				} else {
+					val updated = latest.decrementHealBlockEndTurn()
+					val advanced = current.replaceParticipant(updated)
+					if (updated.healBlockTurnsRemaining == 0) {
+						advanced.appendEvent(
+							BattleEvent.VolatileStatusCleared(
+								turnNumber = current.turnNumber,
+								actorId = latest.actorId,
+								status = BattleVolatileStatus.HEAL_BLOCK,
+							),
+						)
+					} else {
+						advanced
+					}
+				}
 			}
 
 	/**
@@ -4602,21 +4716,22 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
-					current
-				} else {
+					if (!latest.canBattle() || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
+						current
+					} else {
 					val healEffects = latest.abilityEffects
 						.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
 						.filter { weather in it.weathers }
 					healEffects.fold(current) { healingState, effect ->
 						val currentParticipant = healingState.participant(latest.actorId)
 						if (
-							currentParticipant == null ||
-							!currentParticipant.canBattle() ||
-							currentParticipant.currentHp == currentParticipant.maxHp
-						) {
-							healingState
-						} else {
+								currentParticipant == null ||
+								!currentParticipant.canBattle() ||
+								currentParticipant.currentHp == currentParticipant.maxHp ||
+								healingBlocked(currentParticipant)
+							) {
+								healingState
+							} else {
 							val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
 								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
 							healingState
@@ -4649,9 +4764,9 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || !latest.grounded || latest.currentHp == latest.maxHp) {
-					current
-				} else {
+					if (!latest.canBattle() || !latest.grounded || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
+						current
+					} else {
 					val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
 						.coerceAtMost(latest.maxHp - latest.currentHp)
 					current
@@ -4678,14 +4793,17 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.currentHp == latest.maxHp) {
-					current
-				} else {
+					if (!latest.canBattle() || latest.currentHp == latest.maxHp || healingBlocked(latest)) {
+						current
+					} else {
 					latest.itemEffects
 						.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
-						.fold(current) { healingState, effect ->
-							val currentParticipant = healingState.participant(latest.actorId) ?: return@fold healingState
-							val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
+							.fold(current) { healingState, effect ->
+								val currentParticipant = healingState.participant(latest.actorId) ?: return@fold healingState
+								if (healingBlocked(currentParticipant)) {
+									return@fold healingState
+								}
+								val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
 								.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
 							if (healAmount <= 0) {
 								healingState
@@ -5155,6 +5273,7 @@ class BattleEngine(
 		private const val CONFUSION_BASE_POWER = 40
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
+		private const val HEAL_BLOCK_TURNS = 5
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
 		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25

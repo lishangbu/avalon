@@ -4,7 +4,8 @@ package io.github.lishangbu.battleengine.model
  * 技能命中后尝试附加临时状态的规则片段。
  *
  * 该对象只表达技能效果资料，不直接修改成员状态。畏缩的持续期固定到本回合结束；
- * 混乱的持续内部计数由引擎在效果成功时消费随机数生成，避免把随机逻辑藏在资料层。
+ * 混乱的持续内部计数由引擎在效果成功时消费随机数生成；回复封锁使用现代规则固定持续回合。
+ * 持续时间逻辑留在引擎侧，避免把随机和生命周期细节藏在资料层。
  */
 data class BattleVolatileStatusApplication(
 	val status: BattleVolatileStatus,

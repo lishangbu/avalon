@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleState
 
 /**
@@ -13,8 +14,8 @@ import io.github.lishangbu.battleengine.model.BattleState
  *
  * 该校验器只依赖当前 [BattleState] 和本回合提交的 [BattleAction]，不访问数据库，也不读取资料表文本。
  * 它检查的是“能否把这批行动交给引擎结算”的通用条件：战斗是否已结束、同一成员是否重复提交、行动者是否
- * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招是否限制选择、蓄力/休整是否禁止主动替换，以及替换目标
- * 是否属于同一方且可以上场。
+	 * 存在并在场、技能是否可用、PP 是否足够、讲究类锁招和回复封锁是否限制选择、蓄力/休整是否禁止主动替换，
+	 * 以及替换目标是否属于同一方且可以上场。
  *
  * 复杂规则仍由引擎结算阶段处理。例如命中、保护、属性免疫、精神场地阻挡、睡眠/麻痹/畏缩等会产生事件的
  * 运行时效果，不应在这里提前当成非法输入；否则 replay 会失去这些可观察事实。
@@ -103,15 +104,23 @@ class BattleActionValidator {
 					message = "技能 PP 已耗尽: ${skill.skillId}",
 				)
 			}
-			if (actor.choiceLockedToAnotherSkill(skill.skillId)) {
-				violations += violation(
-					code = "choice-locked",
+				if (actor.choiceLockedToAnotherSkill(skill.skillId)) {
+					violations += violation(
+						code = "choice-locked",
 					actorId = actor.actorId,
 					resourceId = actor.choiceLockedSkillId,
-					message = "成员受讲究类道具限制，只能选择技能: ${actor.choiceLockedSkillId}",
-				)
+						message = "成员受讲究类道具限制，只能选择技能: ${actor.choiceLockedSkillId}",
+					)
+				}
+				if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill.hpEffects)) {
+					violations += violation(
+						code = "heal-blocked",
+						actorId = actor.actorId,
+						resourceId = skill.skillId,
+						message = "成员处于回复封锁状态，不能选择回复类技能: ${skill.skillId}",
+					)
+				}
 			}
-		}
 
 		val target = state.participant(action.targetActorId)
 		if (target == null) {
@@ -136,10 +145,23 @@ class BattleActionValidator {
 				message = "目标成员已经无法战斗: ${target.actorId}",
 			)
 		}
-		return violations
-	}
+			return violations
+		}
 
-	private fun validateSwitch(
+		/**
+		 * 判断回复封锁是否禁止提交该技能。
+		 *
+		 * 这里只看技能自身携带的 HP 回复效果，不读取技能名称或本地化文本；资料层负责把吸取回复和自我回复技能
+		 * 转换成 [BattleSkillHpEffect]。建立替身和反作用伤害不属于回复类技能，仍允许提交。
+		 */
+		private fun healBlockPreventsSkill(hpEffects: List<BattleSkillHpEffect>): Boolean =
+			hpEffects.any { effect ->
+				effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
+					effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
+					effect is BattleSkillHpEffect.DrainDamage
+			}
+
+		private fun validateSwitch(
 		state: BattleState,
 		action: BattleAction.SwitchParticipant,
 		actor: BattleParticipant,

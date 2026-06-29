@@ -139,6 +139,7 @@ class LiquibaseMigrationTests(
 			"090-battle-hp-derived-damage-skill-rules.yaml",
 			"091-battle-forced-switch-skill-rules.yaml",
 			"092-battle-stat-stage-operation-skill-rules.yaml",
+			"093-battle-heal-block-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -576,12 +577,12 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_format_restriction", 3L)
 		assertThat(seedCounts).containsEntry("battle_special_mechanic", 3L)
 		assertThat(seedCounts).containsEntry("battle_format_special_mechanic", 6L)
-		assertThat(seedCounts).containsEntry("battle_status_rule", 8L)
+		assertThat(seedCounts).containsEntry("battle_status_rule", 9L)
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 95L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 96L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 9L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -590,9 +591,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 194L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 389L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 194L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 199L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 399L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 199L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
