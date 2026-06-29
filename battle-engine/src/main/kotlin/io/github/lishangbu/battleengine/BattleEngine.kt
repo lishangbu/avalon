@@ -2944,22 +2944,22 @@ class BattleEngine(
 			candidates[random.nextInt(candidates.size, "forced switch target for ${skill.skillId}")]
 		}
 		val switched = state.switchActive(target.actorId, next.actorId)
-			.appendEvent(
-				BattleEvent.TargetForcedSwitchSelected(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					nextActorId = next.actorId,
-				),
-			)
-			.appendEvent(
-				BattleEvent.ParticipantSwitched(
-					turnNumber = state.turnNumber,
-					sideId = side.sideId,
-					previousActorId = target.actorId,
-					nextActorId = next.actorId,
-					forced = true,
+			.appendEvents(
+				listOf(
+					BattleEvent.TargetForcedSwitchSelected(
+						turnNumber = state.turnNumber,
+						actorId = actorId,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						nextActorId = next.actorId,
+					),
+					BattleEvent.ParticipantSwitched(
+						turnNumber = state.turnNumber,
+						sideId = side.sideId,
+						previousActorId = target.actorId,
+						nextActorId = next.actorId,
+						forced = true,
+					),
 				),
 			)
 		val afterBindingSourceCleared = clearBindingsFromSource(switched, target.actorId)
@@ -3962,27 +3962,29 @@ class BattleEngine(
 		}
 		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
 		val damage = confusionSelfDamage(decremented, randomPercent)
-		val blockedState = afterDecrement.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = context.state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.VOLATILE_STATUS,
-				status = BattleVolatileStatus.CONFUSION,
-			),
+		val blockedEvent = BattleEvent.SkillPrevented(
+			turnNumber = context.state.turnNumber,
+			actorId = actor.actorId,
+			reason = SkillPreventionReason.VOLATILE_STATUS,
+			status = BattleVolatileStatus.CONFUSION,
 		)
+		val blockedState = afterDecrement.appendEvent(blockedEvent)
 		if (decremented.hasIndirectDamageImmunity()) {
 			return BeforeMoveResult(context = context.copy(state = blockedState), blocked = true)
 		}
 		val damaged = decremented.receiveDamage(damage)
-		val afterDamage = blockedState
+		val afterDamage = afterDecrement
 			.replaceParticipant(damaged)
-			.appendEvent(
-				BattleEvent.ConfusionDamageApplied(
-					turnNumber = context.state.turnNumber,
-					actorId = actor.actorId,
-					amount = damage,
-					randomPercent = randomPercent,
-					turnsRemainingBefore = turnsRemainingBefore,
+			.appendEvents(
+				listOf(
+					blockedEvent,
+					BattleEvent.ConfusionDamageApplied(
+						turnNumber = context.state.turnNumber,
+						actorId = actor.actorId,
+						amount = damage,
+						randomPercent = randomPercent,
+						turnsRemainingBefore = turnsRemainingBefore,
+					),
 				),
 			)
 		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
