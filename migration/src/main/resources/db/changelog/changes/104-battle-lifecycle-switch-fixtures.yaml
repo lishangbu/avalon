@@ -1,0 +1,59 @@
+databaseChangeLog:
+- changeSet:
+    id: 104-battle-lifecycle-switch-fixtures
+    author: backend
+    comment: 新增战斗生命周期和替换流程公开对照 fixture 数据。
+    changes:
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (260, 'battle-start-event-records-format-and-side-order', '战斗开始事件记录赛制和双方顺序', 'LIFECYCLE', 'STATE_MACHINE', '验证战斗开始事件的基础复盘事实。', '以标准单打初始状态创建战斗。', '事件流从 BattleStarted 开始，记录赛制 code 和双方 sideId 的稳定顺序。', true, 2600),
+            (261, 'last-opponent-faint-ends-battle-with-winning-side', '最后对手濒死后产生胜方结果', 'LIFECYCLE', 'STATE_MACHINE', '验证一侧无可战斗成员时立即结束战斗。', '一方最后一名可战斗成员被伤害技能击倒。', '目标濒死后立即产生 BattleEnded，胜方为仍有可战斗成员的一侧。', true, 2610),
+            (262, 'active-faint-with-reserve-does-not-end-battle', '上场成员濒死但有后备时不结束战斗', 'LIFECYCLE', 'STATE_MACHINE', '验证胜负裁定按整侧剩余可战斗成员判断。', '当前上场成员被击倒，但同一侧仍有可战斗后备成员。', '事件流记录濒死，但不产生 BattleEnded，等待后续强制补位替换。', true, 2620),
+            (263, 'voluntary-switch-replaces-active-slot-before-skill-phase', '主动替换先于技能阶段并重定向目标槽位', 'SWITCH', 'STATE_MACHINE', '验证替换阶段先于普通技能阶段。', '一方主动替换，另一方本回合攻击离场成员原本所在槽位。', '替换事件先于技能使用事件；技能命中同一槽位的新上场成员。', true, 2630),
+            (264, 'fainted-active-switch-is-marked-forced', '濒死上场成员补位替换标记为强制', 'SWITCH', 'STATE_MACHINE', '验证无法战斗成员允许强制补位替换。', '当前上场成员已经无法战斗，提交替换到同侧可战斗后备成员。', '引擎允许补位替换，并把 ParticipantSwitched 标记为 forced=true。', true, 2640),
+            (265, 'switch-out-clears-volatile-counters-and-stat-stages', '离场清理临时计数和能力阶级', 'SWITCH', 'STATE_MACHINE', '验证离场会清理能力阶级、连续保护和剧毒递增计数。', '成员带着攻击、速度能力阶级变化和连续保护计数主动离场。', '离场后能力阶级和连续保护计数清零，剧毒递增计数回到初始值。', true, 2650),
+            (266, 'switch-out-keeps-major-status-hp-and-pp', '离场保留主要异常 HP 和 PP', 'SWITCH', 'STATE_MACHINE', '验证离场不会恢复持久资源和主要异常状态。', '成员带着主要异常状态、已损失 HP 和已消耗 PP 主动离场。', '离场不会恢复主要异常状态、HP 或 PP。', true, 2660),
+            (267, 'recharge-prevents-voluntary-switch', '休整状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证休整中的成员不能主动替换。', '仍可战斗成员处于休整状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByRecharge，原成员仍留在上场槽位。', true, 2670),
+            (268, 'charging-prevents-voluntary-switch', '蓄力状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证蓄力中的成员不能主动替换。', '仍可战斗成员处于蓄力状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByCharging，原成员仍留在上场槽位并继续释放蓄力技能。', true, 2680),
+            (269, 'locked-move-prevents-voluntary-switch', '锁招状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证锁招中的成员不能主动替换。', '仍可战斗成员处于锁招状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByLockedMove，原成员仍留在上场槽位并继续执行锁定技能。', true, 2690);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (520, 260, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗对象', '用于对照战斗开始和基础事件流。', 10),
+            (521, 260, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/field.ts', '公开引擎场地对象', '用于对照双方站位和 side 顺序。', 20),
+            (522, 261, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照伤害后濒死和战斗结束。', 10),
+            (523, 261, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证最后成员濒死后的胜负事实。', 20),
+            (524, 262, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照有后备成员时不立即结束战斗。', 10),
+            (525, 262, 'https://wiki.52poke.com/wiki/替换', '替换公开规则说明', '用于验证濒死后仍可补位。', 20),
+            (526, 263, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照替换先于普通技能阶段。', 10),
+            (527, 263, 'https://wiki.52poke.com/wiki/替换', '替换公开规则说明', '用于验证目标槽位在替换后由新成员承接。', 20),
+            (528, 264, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照濒死成员补位替换。', 10),
+            (529, 264, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证强制补位替换标记。', 20),
+            (530, 265, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开引擎成员状态', '用于对照离场状态清理。', 10),
+            (531, 265, 'https://wiki.52poke.com/wiki/能力变化', '能力变化公开规则说明', '用于验证能力阶级随离场清除。', 20),
+            (532, 266, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开引擎成员状态', '用于对照离场后持久状态保留。', 10),
+            (533, 266, 'https://wiki.52poke.com/wiki/异常状态', '异常状态公开规则说明', '用于验证主要异常状态不会因离场自动解除。', 20),
+            (534, 267, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照休整类技能的后续限制。', 10),
+            (535, 267, 'https://wiki.52poke.com/wiki/破坏光线（招式）', '休整技能公开规则说明', '用于验证休整中不能主动替换。', 20),
+            (536, 268, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照蓄力类技能状态。', 10),
+            (537, 268, 'https://wiki.52poke.com/wiki/蓄力的招式', '蓄力技能公开规则说明', '用于验证蓄力中不能主动替换。', 20),
+            (538, 269, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照锁招类技能状态。', 10),
+            (539, 269, 'https://wiki.52poke.com/wiki/逆鳞（招式）', '锁招技能公开规则说明', '用于验证锁招中不能主动替换。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (260, 'lifecycle-switch-coverage-20260629-1', 260, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2600),
+            (261, 'lifecycle-switch-coverage-20260629-2', 261, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2610),
+            (262, 'lifecycle-switch-coverage-20260629-3', 262, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2620),
+            (263, 'lifecycle-switch-coverage-20260629-4', 263, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2630),
+            (264, 'lifecycle-switch-coverage-20260629-5', 264, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2640),
+            (265, 'lifecycle-switch-coverage-20260629-6', 265, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2650),
+            (266, 'lifecycle-switch-coverage-20260629-7', 266, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2660),
+            (267, 'lifecycle-switch-coverage-20260629-8', 267, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2670),
+            (268, 'lifecycle-switch-coverage-20260629-9', 268, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2680),
+            (269, 'lifecycle-switch-coverage-20260629-10', 269, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests', '2026-06-29T19:55:00+08:00', 2690);

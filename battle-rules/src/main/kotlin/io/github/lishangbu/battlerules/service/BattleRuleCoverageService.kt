@@ -368,6 +368,32 @@ class BattleRuleCoverageService {
 				note = "已覆盖正优先度、负优先度、同优先度速度比较、同速随机、同正优先度内速度比较、讲究速度道具、麻痹速度下降、一侧速度修正、全场速度顺序反转，以及变化技能优先度特性参与行动排序。",
 			),
 			item(
+				code = "lifecycle.switch-faint-result",
+				name = "战斗生命周期和替换流程",
+				category = "生命周期",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"battle-start-event-records-format-and-side-order",
+					"last-opponent-faint-ends-battle-with-winning-side",
+					"active-faint-with-reserve-does-not-end-battle",
+					"voluntary-switch-replaces-active-slot-before-skill-phase",
+					"fainted-active-switch-is-marked-forced",
+					"switch-out-clears-volatile-counters-and-stat-stages",
+					"switch-out-keeps-major-status-hp-and-pp",
+					"recharge-prevents-voluntary-switch",
+					"charging-prevents-voluntary-switch",
+					"locked-move-prevents-voluntary-switch",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖战斗开始事件、最后成员濒死后的胜负裁定、有后备成员时不结束战斗、主动替换先于技能阶段、濒死成员强制补位替换、离场清理能力阶级和临时计数、离场保留主要异常/HP/PP，以及休整、蓄力和锁招阻止主动替换。",
+			),
+			item(
 				code = "turn.accuracy-evasion-stage",
 				name = "命中和闪避阶级",
 				category = "命中",
@@ -1446,7 +1472,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 160
+		private const val FINAL_COVERED_RULE_COUNT = 170
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
