@@ -176,6 +176,6 @@ class SessionService(
 
 	private companion object {
 		private const val ROLE_AUTHORITY_PREFIX = "ROLE_"
-		private val MENU_NODE_TYPES = listOf("DIRECTORY", "ROUTE")
+		private val MENU_NODE_TYPES = listOf("DIRECTORY", "ROUTE", "MENU")
 	}
 }
