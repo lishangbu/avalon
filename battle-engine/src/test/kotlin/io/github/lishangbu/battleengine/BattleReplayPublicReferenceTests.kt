@@ -106,6 +106,49 @@ class BattleReplayPublicReferenceTests {
 	}
 
 	@Test
+	fun `golden replay pins random trace event fragment and final hp`() {
+		val fixture = publicBattleRuleFixture(
+			name = "golden-replay-pins-random-trace-event-fragment-and-final-hp",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+			),
+			inputSummary = "保存一回合普通单体伤害的提交行动、随机消费 trace、事件片段和最终 HP。",
+			expectedSummary = "后续引擎实现必须复现同一随机消费顺序、同一事件片段，并把目标 HP 固定到黄金值。",
+		)
+		val replay = recorder.record(
+			initialState = initialState(
+				first = participant("attacker", speed = 100),
+				second = participant("defender", speed = 50),
+			),
+			turns = listOf(listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender"))),
+			random = ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val goldenTurn = replay.turns.single()
+
+		fixture.assertNamed("golden-replay-pins-random-trace-event-fragment-and-final-hp")
+		assertEquals(
+			listOf(
+				BattleRandomTraceEntry(1, bound = 24, reason = "critical hit for 1", value = 1),
+				BattleRandomTraceEntry(2, bound = 16, reason = "damage random for 1", value = 15),
+			),
+			goldenTurn.randomTrace,
+		)
+		assertEquals(
+			listOf(
+				BattleEvent.TurnStarted(1),
+				BattleEvent.SkillUsed(1, "attacker", "defender", 1, "撞击"),
+				BattleEvent.DamageApplied(1, "attacker", "defender", 1, 28, 1.0, 1.0, false),
+				BattleEvent.TurnEnded(1),
+			),
+			goldenTurn.events,
+		)
+		assertEquals(72, replay.finalState.participant("defender")?.currentHp)
+		assertEquals(replay.finalState, recorder.replay(replay))
+	}
+
+	@Test
 	fun `strict replay rejects tampered random trace`() {
 		val fixture = publicBattleRuleFixture(
 			name = "strict-replay-rejects-tampered-random-trace",

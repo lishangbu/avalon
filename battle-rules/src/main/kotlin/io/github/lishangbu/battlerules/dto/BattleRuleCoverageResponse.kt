@@ -8,6 +8,8 @@ package io.github.lishangbu.battlerules.dto
 data class BattleRuleCoverageResponse(
 	val summary: BattleRuleCoverageSummaryResponse,
 	val targetSummary: BattleRuleCoverageTargetSummaryResponse,
+	val matrix: List<BattleRuleCoverageMatrixRowResponse>,
+	val checks: List<BattleRuleCoverageCheckResponse>,
 	val items: List<BattleRuleCoverageItemResponse>,
 )
 
@@ -36,6 +38,30 @@ data class BattleRuleCoverageTargetSummaryResponse(
 	val implementationPercent: Int,
 	val coverageItemCount: Int,
 	val basis: String,
+)
+
+/**
+ * 按规则分类聚合的覆盖矩阵行。
+ */
+data class BattleRuleCoverageMatrixRowResponse(
+	val category: String,
+	val totalCount: Int,
+	val implementedCount: Int,
+	val partialCount: Int,
+	val plannedCount: Int,
+	val fixtureCount: Int,
+	val referenceCount: Int,
+	val implementationPercent: Int,
+)
+
+/**
+ * 覆盖报告完整性检查结果。
+ */
+data class BattleRuleCoverageCheckResponse(
+	val code: String,
+	val name: String,
+	val status: String,
+	val message: String,
 )
 
 /**

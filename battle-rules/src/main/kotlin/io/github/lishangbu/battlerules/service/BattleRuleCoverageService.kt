@@ -1,6 +1,8 @@
 package io.github.lishangbu.battlerules.service
 
+import io.github.lishangbu.battlerules.dto.BattleRuleCoverageCheckResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageItemResponse
+import io.github.lishangbu.battlerules.dto.BattleRuleCoverageMatrixRowResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageSummaryResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageTargetSummaryResponse
@@ -48,9 +50,111 @@ class BattleRuleCoverageService {
 				coverageItemCount = items.size,
 				basis = FINAL_TARGET_BASIS,
 			),
+			matrix = coverageMatrix(items),
+			checks = coverageChecks(items),
 			items = items,
 		)
 	}
+
+	private fun coverageMatrix(items: List<BattleRuleCoverageItemResponse>): List<BattleRuleCoverageMatrixRowResponse> =
+		items.groupBy { it.category }
+			.map { (category, categoryItems) ->
+				val implementedCount = categoryItems.count { it.status == IMPLEMENTED }
+				BattleRuleCoverageMatrixRowResponse(
+					category = category,
+					totalCount = categoryItems.size,
+					implementedCount = implementedCount,
+					partialCount = categoryItems.count { it.status == PARTIAL },
+					plannedCount = categoryItems.count { it.status == PLANNED },
+					fixtureCount = categoryItems.sumOf { it.fixtureNames.size },
+					referenceCount = categoryItems.sumOf { it.referenceUrls.size },
+					implementationPercent = if (categoryItems.isEmpty()) {
+						0
+					} else {
+						(implementedCount * 100) / categoryItems.size
+					},
+				)
+			}
+
+	private fun coverageChecks(items: List<BattleRuleCoverageItemResponse>): List<BattleRuleCoverageCheckResponse> {
+		val duplicateCodes = items.groupingBy { it.code }.eachCount().filterValues { it > 1 }.keys.sorted()
+		val unknownStatuses = items.filterNot { it.status in RULE_STATUSES }.map { it.code }
+		val blankCategoryCodes = items.filter { it.category.isBlank() }.map { it.code }
+		val implementedWithoutFixtures = items.filter { it.status == IMPLEMENTED && it.fixtureNames.isEmpty() }.map { it.code }
+		val implementedWithoutReferences = items.filter { it.status == IMPLEMENTED && it.referenceUrls.isEmpty() }.map { it.code }
+		val goldenReplayCovered = items.any {
+			it.code == GOLDEN_REPLAY_COVERAGE_CODE &&
+				it.status == IMPLEMENTED &&
+				it.fixtureNames.any { fixture -> fixture.contains("replay") }
+		}
+		return listOf(
+			check(
+				code = "target-count",
+				name = "最终目标数量",
+				passed = FINAL_TARGET_RULE_COUNT == REQUIRED_TARGET_RULE_COUNT &&
+					FINAL_COVERED_RULE_COUNT == REQUIRED_TARGET_RULE_COUNT &&
+					FINAL_COVERED_RULE_COUNT <= FINAL_TARGET_RULE_COUNT,
+				success = "最终目标 $FINAL_TARGET_RULE_COUNT 条，已覆盖 $FINAL_COVERED_RULE_COUNT 条。",
+				failure = "最终目标或已覆盖数量偏离 $REQUIRED_TARGET_RULE_COUNT 条。",
+			),
+			check(
+				code = "unique-code",
+				name = "规则 code 唯一",
+				passed = duplicateCodes.isEmpty(),
+				success = "所有覆盖项 code 均唯一。",
+				failure = "存在重复 code: ${duplicateCodes.joinToString()}。",
+			),
+			check(
+				code = "known-status",
+				name = "状态值合法",
+				passed = unknownStatuses.isEmpty(),
+				success = "所有状态值均在 ${RULE_STATUSES.joinToString()} 内。",
+				failure = "存在未知状态的规则项: ${unknownStatuses.joinToString()}。",
+			),
+			check(
+				code = "category-filled",
+				name = "分类已填写",
+				passed = blankCategoryCodes.isEmpty(),
+				success = "所有规则项均已填写分类。",
+				failure = "存在未填写分类的规则项: ${blankCategoryCodes.joinToString()}。",
+			),
+			check(
+				code = "implemented-fixtures",
+				name = "已实现项有 fixture",
+				passed = implementedWithoutFixtures.isEmpty(),
+				success = "所有已实现规则项均绑定至少一个公开对照 fixture。",
+				failure = "已实现但缺少 fixture 的规则项: ${implementedWithoutFixtures.joinToString()}。",
+			),
+			check(
+				code = "implemented-references",
+				name = "已实现项有来源",
+				passed = implementedWithoutReferences.isEmpty(),
+				success = "所有已实现规则项均记录至少一个公开来源。",
+				failure = "已实现但缺少公开来源的规则项: ${implementedWithoutReferences.joinToString()}。",
+			),
+			check(
+				code = "golden-replay",
+				name = "Golden Replay 对照",
+				passed = goldenReplayCovered,
+				success = "严格 replay 已纳入覆盖报告，并绑定公开对照 fixture。",
+				failure = "严格 replay 未纳入覆盖报告或缺少公开对照 fixture。",
+			),
+		)
+	}
+
+	private fun check(
+		code: String,
+		name: String,
+		passed: Boolean,
+		success: String,
+		failure: String,
+	): BattleRuleCoverageCheckResponse =
+		BattleRuleCoverageCheckResponse(
+			code = code,
+			name = name,
+			status = if (passed) CHECK_PASSED else CHECK_FAILED,
+			message = if (passed) success else failure,
+		)
 
 	private fun coverageItems(): List<BattleRuleCoverageItemResponse> =
 		listOf(
@@ -1751,8 +1855,13 @@ class BattleRuleCoverageService {
 		private const val IMPLEMENTED = "IMPLEMENTED"
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
+		private const val CHECK_PASSED = "PASSED"
+		private const val CHECK_FAILED = "FAILED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
 		private const val FINAL_COVERED_RULE_COUNT = 312
+		private const val REQUIRED_TARGET_RULE_COUNT = 312
+		private const val GOLDEN_REPLAY_COVERAGE_CODE = "replay.deterministic-random-trace"
+		private val RULE_STATUSES = setOf(IMPLEMENTED, PARTIAL, PLANNED)
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

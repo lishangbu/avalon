@@ -26,6 +26,12 @@ class BattleRuleCoverageServiceTests {
 		assertEquals(partialCount, coverage.summary.partialCount)
 		assertEquals(plannedCount, coverage.summary.plannedCount)
 		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
+		assertEquals(coverage.items.groupBy { it.category }.size, coverage.matrix.size)
+		assertEquals(coverage.summary.totalCount, coverage.matrix.sumOf { it.totalCount })
+		assertEquals(coverage.summary.implementedCount, coverage.matrix.sumOf { it.implementedCount })
+		assertEquals(coverage.summary.partialCount, coverage.matrix.sumOf { it.partialCount })
+		assertEquals(coverage.summary.plannedCount, coverage.matrix.sumOf { it.plannedCount })
+		assertEquals(coverage.summary.fixtureCount, coverage.matrix.sumOf { it.fixtureCount })
 		assertEquals(312, coverage.targetSummary.targetRuleCount)
 		assertEquals(312, coverage.targetSummary.coveredRuleCount)
 		assertEquals(0, coverage.targetSummary.remainingRuleCount)
@@ -112,5 +118,15 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "ability-item.effect-boundaries" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "format-lifecycle.boundaries" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "final.rule-boundaries" && it.status == "IMPLEMENTED" })
+	}
+
+	@Test
+	fun `coverage completeness checks stay green`() {
+		val coverage = service.getCoverage()
+
+		assertTrue(coverage.checks.isNotEmpty())
+		assertTrue(coverage.checks.any { it.code == "target-count" && it.message.contains("312") })
+		assertTrue(coverage.checks.any { it.code == "golden-replay" })
+		assertTrue(coverage.checks.all { it.status == "PASSED" })
 	}
 }
