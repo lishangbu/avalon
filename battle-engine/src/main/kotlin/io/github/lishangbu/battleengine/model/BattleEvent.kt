@@ -81,6 +81,19 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
+	/**
+	 * 成员因束缚状态无法主动替换。
+	 *
+	 * 束缚只阻止被困成员主动离场；若成员已经无法战斗，补位替换仍应允许。事件记录束缚来源，便于 replay
+	 * 解释是哪一个仍在场的成员维持了这次换人限制。
+	 */
+	data class SwitchPreventedByBinding(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceActorId: String,
+		val turnsRemainingBefore: Int,
+	) : BattleEvent
+
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -380,6 +393,20 @@ sealed interface BattleEvent {
 		override val turnNumber: Int,
 		val actorId: String,
 		val status: BattleVolatileStatus,
+	) : BattleEvent
+
+	/**
+	 * 束缚类临时状态在回合末造成伤害。
+	 *
+	 * 现代规则中束缚伤害属于间接伤害，来源成员仍在场且目标仍可战斗时才结算。该事件单独记录来源成员和
+	 * 剩余回合，避免把它混入主要异常状态的 [ResidualDamageApplied]。
+	 */
+	data class BindingDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceActorId: String,
+		val amount: Int,
+		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
 	/**

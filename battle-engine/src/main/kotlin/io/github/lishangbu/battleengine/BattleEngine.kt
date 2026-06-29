@@ -264,6 +264,17 @@ class BattleEngine(
 					),
 				)
 			}
+			if (actor.canBattle() && bindingSourceActive(current, actor)) {
+				val sourceActorId = actor.boundByActorId ?: return@fold current
+				return@fold current.appendEvent(
+					BattleEvent.SwitchPreventedByBinding(
+						turnNumber = current.turnNumber,
+						actorId = actor.actorId,
+						sourceActorId = sourceActorId,
+						turnsRemainingBefore = actor.bindingTurnsRemaining,
+					),
+				)
+			}
 			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
 			val withSwitchEvent = switched.appendEvent(
 				BattleEvent.ParticipantSwitched(
@@ -274,8 +285,9 @@ class BattleEngine(
 					forced = !actor.canBattle(),
 				),
 			)
+			val afterBindingSourceCleared = clearBindingsFromSource(withSwitchEvent, actor.actorId)
 			val afterEntryHazards = applyEntryHazardsOnSwitchIn(
-				state = withSwitchEvent,
+				state = afterBindingSourceCleared,
 				sideId = side.sideId,
 				actorId = plan.action.targetActorId,
 			)
@@ -2902,7 +2914,8 @@ class BattleEngine(
 					forced = true,
 				),
 			)
-		val afterEntryHazards = applyEntryHazardsOnSwitchIn(switched, side.sideId, next.actorId)
+		val afterBindingSourceCleared = clearBindingsFromSource(switched, target.actorId)
+		val afterEntryHazards = applyEntryHazardsOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return applySwitchInAbilityEffects(afterEntryHazards, next.actorId)
 	}
 
@@ -4246,7 +4259,8 @@ class BattleEngine(
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
-	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数；无理取闹写入离场清除的布尔状态。
+	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数；无理取闹写入离场清除的布尔状态；
+	 * 束缚写入来源成员和 4..5 回合计数。
 	 * 若目标已经处于同类可持续临时状态，成员快照不会变化，旧持续计数也不会被刷新；状态机会追加阻止事件，
 	 * 便于 replay 明确区分“没有命中/没有触发”和“目标已有同类临时状态”。
 	 * 场地、特性或道具免疫会在消费混乱持续时间随机数前短路，保证无法附加状态时 replay 随机脚本保持稳定。
@@ -4305,6 +4319,11 @@ class BattleEngine(
 		val healBlockTurnsRemaining = if (status == BattleVolatileStatus.HEAL_BLOCK) HEAL_BLOCK_TURNS else 0
 		val tauntTurnsRemaining = if (status == BattleVolatileStatus.TAUNT) TAUNT_TURNS else 0
 		val disabledSkillTurnsRemaining = if (status == BattleVolatileStatus.DISABLE) DISABLE_TURNS else 0
+		val bindingTurnsRemaining = if (status == BattleVolatileStatus.BINDING) {
+			random.nextInt(BINDING_TURN_SPAN, "binding duration for ${skill?.skillId ?: status.name}") + BINDING_MIN_TURNS
+		} else {
+			0
+		}
 		val appliedState = state
 			.replaceParticipant(
 				recipient.applyVolatileStatus(
@@ -4314,6 +4333,8 @@ class BattleEngine(
 					tauntTurnsRemaining = tauntTurnsRemaining,
 					disabledSkillId = disabledSkillId,
 					disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
+					boundByActorId = if (status == BattleVolatileStatus.BINDING) actorId else null,
+					bindingTurnsRemaining = bindingTurnsRemaining,
 				),
 			)
 			.appendEvent(
@@ -4355,7 +4376,7 @@ class BattleEngine(
 	/**
 	 * 判断目标是否已经拥有同类临时状态。
 	 *
-	 * 当前混乱、回复封锁、挑衅、定身法和无理取闹需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
+	 * 当前混乱、回复封锁、挑衅、定身法、无理取闹和束缚需要拒绝刷新。畏缩可以被多次尝试，但运行态只保存一个布尔值，
 	 * 后续行动前或回合末都会清除，所以重复附加不会改变可观察持续时间。
 	 */
 	private fun volatileStatusAlreadyPresent(recipient: BattleParticipant, status: BattleVolatileStatus): Boolean =
@@ -4365,6 +4386,7 @@ class BattleEngine(
 			BattleVolatileStatus.TAUNT -> recipient.tauntTurnsRemaining > 0
 			BattleVolatileStatus.DISABLE -> recipient.disabledSkillTurnsRemaining > 0
 			BattleVolatileStatus.TORMENT -> recipient.tormented
+			BattleVolatileStatus.BINDING -> recipient.bindingTurnsRemaining > 0
 			BattleVolatileStatus.FLINCH -> false
 		}
 
@@ -4826,7 +4848,11 @@ class BattleEngine(
 		return if (afterResidual.result != null) {
 			afterResidual
 		} else {
-			val afterWeather = applyEndTurnWeatherEffects(afterResidual)
+			val afterBinding = applyEndTurnBindingEffects(afterResidual)
+			if (afterBinding.result != null) {
+				return afterBinding
+			}
+			val afterWeather = applyEndTurnWeatherEffects(afterBinding)
 			if (afterWeather.result != null) {
 				afterWeather
 			} else {
@@ -4873,6 +4899,94 @@ class BattleEngine(
 				}
 			}
 	}
+
+	/**
+	 * 处理束缚类临时状态的回合末伤害和持续时间。
+	 *
+	 * 束缚伤害只有在目标仍可战斗、来源成员仍在场且来源仍可战斗时结算；若来源已经离场或无法战斗，则目标的
+	 * 束缚立即解除。成功造成伤害后再递减持续回合，归零时追加 [BattleEvent.VolatileStatusCleared]。
+	 */
+	private fun applyEndTurnBindingEffects(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (latest.bindingTurnsRemaining <= 0) {
+					return@fold current
+				}
+				if (!bindingSourceActive(current, latest)) {
+					return@fold clearBindingState(current, latest)
+				}
+				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
+					return@fold current
+				}
+				val sourceActorId = requireNotNull(latest.boundByActorId) { "binding source must be present" }
+				val turnsRemainingBefore = latest.bindingTurnsRemaining
+				val damage = (latest.maxHp / BINDING_DAMAGE_DENOMINATOR).coerceAtLeast(1)
+				val damaged = latest.receiveDamage(damage).decrementBindingEndTurn()
+				val damagedState = current
+					.replaceParticipant(damaged)
+					.appendEvent(
+						BattleEvent.BindingDamageApplied(
+							turnNumber = current.turnNumber,
+							actorId = latest.actorId,
+							sourceActorId = sourceActorId,
+							amount = damage,
+							turnsRemainingBefore = turnsRemainingBefore,
+						),
+					)
+					.let { afterDamage ->
+						if (turnsRemainingBefore == 1) {
+							afterDamage.appendEvent(
+								BattleEvent.VolatileStatusCleared(
+									turnNumber = current.turnNumber,
+									actorId = latest.actorId,
+									status = BattleVolatileStatus.BINDING,
+								),
+							)
+						} else {
+							afterDamage
+						}
+					}
+				val afterLowHpItem = applyLowHpHealingItem(damagedState, damaged.actorId)
+				val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
+				afterLowHpItem.handleFaintAndResult(latestAfterItem)
+			}
+
+	/**
+	 * 判断成员当前束缚来源是否仍在场并可战斗。
+	 */
+	private fun bindingSourceActive(state: BattleState, participant: BattleParticipant): Boolean {
+		val sourceActorId = participant.boundByActorId ?: return false
+		val source = state.participant(sourceActorId) ?: return false
+		return source.canBattle() && state.isActive(sourceActorId)
+	}
+
+	/**
+	 * 清除指定来源成员维持的所有束缚。
+	 *
+	 * 当束缚来源主动或被迫离场时，所有由它维持的束缚立即结束。这里遍历完整队伍而不是只看当前上场成员，
+	 * 让未来双打或强制替换场景中同一来源同时束缚多个目标时也能保持一致。
+	 */
+	private fun clearBindingsFromSource(state: BattleState, sourceActorId: String): BattleState =
+		state.sides
+			.flatMap { it.participants }
+			.filter { it.boundByActorId == sourceActorId && it.bindingTurnsRemaining > 0 }
+			.fold(state) { current, participant -> clearBindingState(current, participant) }
+
+	/**
+	 * 清除单个成员的束缚并追加解除事件。
+	 */
+	private fun clearBindingState(state: BattleState, participant: BattleParticipant): BattleState =
+		state
+			.replaceParticipant(participant.clearBinding())
+			.appendEvent(
+				BattleEvent.VolatileStatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = participant.actorId,
+					status = BattleVolatileStatus.BINDING,
+				),
+			)
 
 	/**
 	 * 处理天气阶段的特性回复。
@@ -5447,6 +5561,9 @@ class BattleEngine(
 		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val DISABLE_TURNS = 4
+		private const val BINDING_DAMAGE_DENOMINATOR = 8
+		private const val BINDING_MIN_TURNS = 4
+		private const val BINDING_TURN_SPAN = 2
 		private const val HEAL_BLOCK_TURNS = 5
 		private const val TAUNT_TURNS = 3
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"

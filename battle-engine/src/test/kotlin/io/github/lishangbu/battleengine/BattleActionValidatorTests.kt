@@ -13,8 +13,8 @@ import kotlin.test.assertFailsWith
  *
  * 场景类型：行动合法性 fixture。
  * 参考来源类型：现代回合制对战通用提交约束；本测试不替代事件级规则测试，只覆盖提交阶段就应被拦截的问题。
- * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、定身法、无理取闹、目标不存在、替换目标非法和战斗结束后
- * 继续提交都能返回稳定 code。
+ * 验证重点：重复行动、PP 耗尽、讲究类锁定、回复封锁、挑衅、定身法、无理取闹、束缚、目标不存在、替换目标非法和
+ * 战斗结束后继续提交都能返回稳定 code。
  */
 class BattleActionValidatorTests {
 	private val engine = BattleEngine()
@@ -254,6 +254,24 @@ class BattleActionValidatorTests {
 		)
 
 		assertEquals(listOf("charging-prevents-switch"), violations.map { it.code })
+	}
+
+	@Test
+	fun `reports binding prevents voluntary switch`() {
+		val state = engine.start(
+			initialState(
+				first = participant("bound", speed = 100).copy(boundByActorId = "binder", bindingTurnsRemaining = 2),
+				firstBench = listOf(participant("reserve", speed = 80)),
+				second = participant("binder", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.SwitchParticipant("bound", targetActorId = "reserve")),
+		)
+
+		assertEquals(listOf("binding-prevents-switch"), violations.map { it.code })
 	}
 
 	@Test
