@@ -1,0 +1,99 @@
+databaseChangeLog:
+- changeSet:
+    id: 108-battle-damage-formula-boundary-fixtures
+    author: backend
+    comment: 新增普通伤害公式边界顺序公开对照 fixture 数据。
+    changes:
+    - sql:
+        splitStatements: true
+        stripComments: true
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (300, 'level-fifty-neutral-same-element-physical-damage-keeps-base-formula', '50 级本系物理伤害保留基础公式', 'DAMAGE', 'FORMULA', '验证等级、威力、攻防、基础伤害和属性一致加成的稳定顺序。', '50 级、40 威力、100 攻击对 100 防御，技能属性和使用者属性一致，随机百分比 100。', '基础伤害为 19，属性一致加成为 1.5，最终伤害为 28。', true, 3000),
+            (301, 'non-matching-element-skips-same-element-bonus', '非本系技能不获得属性一致加成', 'DAMAGE', 'FORMULA', '验证技能当前属性不属于使用者属性时跳过属性一致加成。', '使用者属性为 2，技能属性为 1，双方其它公式输入保持中性。', '属性一致加成保持 1.0，最终伤害只使用基础伤害。', true, 3010),
+            (302, 'dual-type-effectiveness-multiplies-every-defending-element', '双属性克制倍率逐项连乘', 'DAMAGE', 'FORMULA', '验证防守方多个属性的克制倍率按现代规则连乘。', '攻击属性 1 对目标属性 2 为 2 倍，对目标属性 3 也为 2 倍。', '双属性目标的属性克制按 2 * 2 连乘为 4 倍，再进入最终伤害倍率链。', true, 3020),
+            (303, 'type-immunity-keeps-final-damage-at-zero-without-minimum-damage', '属性免疫不套用最小 1 点伤害', 'DAMAGE', 'FORMULA', '验证 0 倍属性相性会把普通伤害保持为 0。', '攻击属性 1 对目标属性 2 的相性为 0。', '属性免疫把最终伤害固定为 0，不套用非零伤害的最小 1 点规则。', true, 3030),
+            (304, 'positive-non-immune-damage-is-floored-to-at-least-one', '非免疫正伤害至少造成 1 点', 'DAMAGE', 'FORMULA', '验证非 0 属性相性下最终倍率小于 1 时仍保留最小伤害。', '1 威力非本系技能以 85 随机百分比打到双抗目标，属性倍率为 0.25。', '最终倍率链虽然小于 1，但只要不是属性免疫，普通命中仍至少造成 1 点伤害。', true, 3040),
+            (305, 'damage-random-percent-is-applied-after-base-damage', '伤害随机百分比位于基础伤害之后', 'DAMAGE', 'FORMULA', '验证 85 到 100 的伤害随机参与最终倍率链而不是基础公式。', '中性非本系 40 威力技能的基础伤害为 19，伤害随机百分比为 85。', '随机百分比参与最终倍率链，19 * 0.85 向下取整为 16。', true, 3050),
+            (306, 'spread-target-modifier-participates-in-final-multiplier-chain', '范围目标倍率参与最终倍率链', 'DAMAGE', 'FORMULA', '验证状态机传入的范围目标倍率在普通伤害最终链中生效。', '本系中性技能命中多个目标，状态机传入 0.75 目标倍率。', '目标倍率在最终倍率链中与属性一致加成相乘，伤害从 28 降为 21。', true, 3060),
+            (307, 'side-damage-reduction-multiplier-participates-in-final-multiplier-chain', '一侧屏障倍率参与最终倍率链', 'DAMAGE', 'FORMULA', '验证一侧防守屏障倍率由状态机确定后在公式最终链中生效。', '本系中性技能命中处于一侧防守屏障保护下的目标，状态机传入 0.5 屏障倍率。', '屏障倍率在最终倍率链中生效，伤害从 28 降为 14。', true, 3070),
+            (308, 'critical-hit-applies-one-and-half-final-damage-multiplier', '击中要害提供 1.5 倍最终倍率', 'DAMAGE', 'FORMULA', '验证现代要害倍率在最终伤害修正链中生效。', '本系中性技能已经由状态机判定为击中要害。', '击中要害倍率按 1.5 进入最终倍率链，伤害从 28 提升到 42。', true, 3080),
+            (309, 'burn-halves-physical-attack-before-base-damage', '灼伤在基础公式前减半物理攻击', 'DAMAGE', 'FORMULA', '验证灼伤物理攻击减半发生在基础伤害计算前。', '灼伤使用者以 100 攻击使用本系物理技能。', '灼伤先把物理攻击折半，基础伤害从 19 降到 10，最终伤害为 15。', true, 3090),
+            (310, 'positive-attack-stage-increases-physical-base-damage-before-final-multipliers', '攻击阶级先改变基础伤害', 'DAMAGE', 'FORMULA', '验证攻击阶级修正进入基础伤害公式而不是最终倍率。', '使用者攻击 +2，以本系物理技能攻击中性目标。', '攻击阶级先改变公式攻击值，基础伤害提高到 37，再套用属性一致加成。', true, 3100),
+            (311, 'positive-defense-stage-reduces-physical-base-damage-before-final-multipliers', '防御阶级先改变基础伤害', 'DAMAGE', 'FORMULA', '验证防御阶级修正进入基础伤害公式而不是最终倍率。', '目标防御 +2，受到本系物理技能攻击。', '防御阶级先改变公式防御值，基础伤害降低到 10，再套用属性一致加成。', true, 3110),
+            (312, 'critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages-in-formula', '要害忽略不利攻击和有利防御阶级', 'DAMAGE', 'FORMULA', '验证击中要害的能力阶级忽略口径只影响本次公式。', '使用者攻击 -2，目标防御 +2，本次伤害已判定为击中要害。', '要害公式忽略攻击方不利阶级和防御方有利阶级，基础伤害按 0 阶级计算。', true, 3120),
+            (313, 'critical-hit-keeps-burn-physical-attack-penalty', '要害不绕过灼伤物理减半', 'DAMAGE', 'FORMULA', '验证击中要害仍保留灼伤物理攻击惩罚。', '灼伤使用者的本系物理技能已判定为击中要害。', '要害不绕过灼伤物理攻击减半，基础伤害仍为 10，然后套用要害倍率。', true, 3130),
+            (314, 'special-damage-uses-special-attack-and-special-defense-stats', '特殊伤害读取特攻和特防', 'DAMAGE', 'FORMULA', '验证特殊技能不读取物理攻击和物理防御。', '使用者攻击很低但特攻为 200，目标特防为 100，使用 40 威力特殊技能。', '特殊技能只读取特攻/特防，不读取物理攻击/防御，基础伤害按 200 特攻计算。', true, 3140),
+            (315, 'sun-boosts-fire-damage-in-final-multiplier-chain', '晴天增强火属性伤害', 'DAMAGE', 'FORMULA', '验证晴天对火属性技能的最终天气倍率。', '晴天下使用火属性本系技能。', '晴天对火属性伤害提供 1.5 倍天气倍率，最终伤害从 28 提升到 42。', true, 3150),
+            (316, 'rain-weakens-fire-damage-in-final-multiplier-chain', '雨天削弱火属性伤害', 'DAMAGE', 'FORMULA', '验证雨天对火属性技能的最终天气倍率。', '下雨时使用火属性本系技能。', '雨天对火属性伤害提供 0.5 倍天气倍率，最终伤害从 28 降到 14。', true, 3160),
+            (317, 'grassy-terrain-boosts-grounded-grass-damage-in-formula', '青草场地增强接地草属性伤害', 'DAMAGE', 'FORMULA', '验证青草场地对接地使用者草属性技能的最终场地倍率。', '青草场地中，接地使用者使用草属性本系技能。', '场地倍率为 1.3，最终伤害从 28 提升到 37。', true, 3170),
+            (318, 'grassy-terrain-weakens-tagged-ground-move-against-grounded-target', '青草场地削弱接地目标受到的震动技能', 'DAMAGE', 'FORMULA', '验证青草场地对带震动削弱标签技能的减伤倍率。', '青草场地中，带震动削弱标签的地面属性技能命中接地目标。', '场地倍率为 0.5，最终伤害从 28 降到 14。', true, 3180),
+            (319, 'power-stage-item-changes-base-damage-before-final-multipliers', '威力阶段道具先改变基础伤害', 'DAMAGE', 'FORMULA', '验证威力阶段道具在基础伤害公式前生效。', '使用者携带物理威力强化道具，40 威力本系物理技能获得 1.1 倍威力阶段倍率。', '威力先向下取整为 44，再进入基础伤害公式，基础伤害从 19 提升到 21。', true, 3190);
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (600, 300, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照现代普通伤害基础公式。', 10),
+            (601, 300, 'https://bulbapedia.bulbagarden.net/wiki/Damage', '伤害公开规则说明', '用于验证基础伤害和属性一致加成。', 20),
+            (602, 301, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照属性一致加成触发条件。', 10),
+            (603, 301, 'https://bulbapedia.bulbagarden.net/wiki/Same-type_attack_bonus', '属性一致公开规则说明', '用于验证非本系技能不获得加成。', 20),
+            (604, 302, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照多属性倍率连乘。', 10),
+            (605, 302, 'https://bulbapedia.bulbagarden.net/wiki/Type', '属性公开规则说明', '用于验证双属性克制倍率。', 20),
+            (606, 303, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照免疫为 0 伤害。', 10),
+            (607, 303, 'https://bulbapedia.bulbagarden.net/wiki/Type', '属性公开规则说明', '用于验证 0 倍相性不套用最小伤害。', 20),
+            (608, 304, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照非免疫最小 1 点伤害。', 10),
+            (609, 304, 'https://bulbapedia.bulbagarden.net/wiki/Damage', '伤害公开规则说明', '用于验证正伤害最小值。', 20),
+            (610, 305, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照伤害随机位置。', 10),
+            (611, 305, 'https://bulbapedia.bulbagarden.net/wiki/Damage', '伤害公开规则说明', '用于验证随机百分比。', 20),
+            (612, 306, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照范围目标倍率。', 10),
+            (613, 306, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围技能传入目标倍率。', 20),
+            (614, 307, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照屏障倍率位置。', 10),
+            (615, 307, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于验证屏障减伤倍率。', 20),
+            (616, 308, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照要害伤害倍率。', 10),
+            (617, 308, 'https://wiki.52poke.com/wiki/击中要害', '要害公开规则说明', '用于验证现代要害倍率。', 20),
+            (618, 309, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照灼伤物理攻击减半。', 10),
+            (619, 309, 'https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)', '灼伤公开规则说明', '用于验证灼伤物理伤害惩罚。', 20),
+            (620, 310, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照攻击阶级位置。', 10),
+            (621, 310, 'https://bulbapedia.bulbagarden.net/wiki/Stat_modifier', '能力阶级公开规则说明', '用于验证攻击阶级倍率。', 20),
+            (622, 311, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照防御阶级位置。', 10),
+            (623, 311, 'https://bulbapedia.bulbagarden.net/wiki/Stat_modifier', '能力阶级公开规则说明', '用于验证防御阶级倍率。', 20),
+            (624, 312, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照要害忽略阶级。', 10),
+            (625, 312, 'https://wiki.52poke.com/wiki/击中要害', '要害公开规则说明', '用于验证要害忽略攻击方不利和防守方有利阶级。', 20),
+            (626, 313, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照要害保留灼伤惩罚。', 10),
+            (627, 313, 'https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)', '灼伤公开规则说明', '用于验证要害不绕过灼伤。', 20),
+            (628, 314, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照物理和特殊公式分流。', 10),
+            (629, 314, 'https://bulbapedia.bulbagarden.net/wiki/Damage_category', '伤害分类公开规则说明', '用于验证特殊伤害读取特攻和特防。', 20),
+            (630, 315, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照晴天天气倍率。', 10),
+            (631, 315, 'https://bulbapedia.bulbagarden.net/wiki/Harsh_sunlight', '晴天公开规则说明', '用于验证火属性伤害增强。', 20),
+            (632, 316, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照雨天天气倍率。', 10),
+            (633, 316, 'https://bulbapedia.bulbagarden.net/wiki/Rain', '雨天公开规则说明', '用于验证火属性伤害削弱。', 20),
+            (634, 317, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照青草场地增伤倍率。', 10),
+            (635, 317, 'https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)', '青草场地公开规则说明', '用于验证草属性技能增伤。', 20),
+            (636, 318, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照青草场地削弱震动技能。', 10),
+            (637, 318, 'https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)', '青草场地公开规则说明', '用于验证接地目标受到的指定地面技能减半。', 20),
+            (638, 319, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算实现', '用于对照威力阶段道具取整位置。', 10),
+            (639, 319, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于验证伤害分类威力提升道具。', 20);
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (300, 'damage-formula-boundary-coverage-20260629-1', 300, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3000),
+            (301, 'damage-formula-boundary-coverage-20260629-2', 301, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3010),
+            (302, 'damage-formula-boundary-coverage-20260629-3', 302, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3020),
+            (303, 'damage-formula-boundary-coverage-20260629-4', 303, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3030),
+            (304, 'damage-formula-boundary-coverage-20260629-5', 304, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3040),
+            (305, 'damage-formula-boundary-coverage-20260629-6', 305, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3050),
+            (306, 'damage-formula-boundary-coverage-20260629-7', 306, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3060),
+            (307, 'damage-formula-boundary-coverage-20260629-8', 307, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3070),
+            (308, 'damage-formula-boundary-coverage-20260629-9', 308, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3080),
+            (309, 'damage-formula-boundary-coverage-20260629-10', 309, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3090),
+            (310, 'damage-formula-boundary-coverage-20260629-11', 310, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3100),
+            (311, 'damage-formula-boundary-coverage-20260629-12', 311, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3110),
+            (312, 'damage-formula-boundary-coverage-20260629-13', 312, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3120),
+            (313, 'damage-formula-boundary-coverage-20260629-14', 313, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3130),
+            (314, 'damage-formula-boundary-coverage-20260629-15', 314, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3140),
+            (315, 'damage-formula-boundary-coverage-20260629-16', 315, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3150),
+            (316, 'damage-formula-boundary-coverage-20260629-17', 316, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3160),
+            (317, 'damage-formula-boundary-coverage-20260629-18', 317, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3170),
+            (318, 'damage-formula-boundary-coverage-20260629-19', 318, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3180),
+            (319, 'damage-formula-boundary-coverage-20260629-20', 319, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests', '2026-06-29T21:05:00+08:00', 3190);

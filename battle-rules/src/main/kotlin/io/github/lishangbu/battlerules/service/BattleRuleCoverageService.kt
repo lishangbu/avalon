@@ -70,6 +70,42 @@ class BattleRuleCoverageService {
 				note = "覆盖等级、威力、攻防、随机浮动、属性一致、属性克制和现代击中要害倍率。",
 			),
 			item(
+				code = "damage.formula-boundaries",
+				name = "普通伤害公式边界顺序",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"level-fifty-neutral-same-element-physical-damage-keeps-base-formula",
+					"non-matching-element-skips-same-element-bonus",
+					"dual-type-effectiveness-multiplies-every-defending-element",
+					"type-immunity-keeps-final-damage-at-zero-without-minimum-damage",
+					"positive-non-immune-damage-is-floored-to-at-least-one",
+					"damage-random-percent-is-applied-after-base-damage",
+					"spread-target-modifier-participates-in-final-multiplier-chain",
+					"side-damage-reduction-multiplier-participates-in-final-multiplier-chain",
+					"critical-hit-applies-one-and-half-final-damage-multiplier",
+					"burn-halves-physical-attack-before-base-damage",
+					"positive-attack-stage-increases-physical-base-damage-before-final-multipliers",
+					"positive-defense-stage-reduces-physical-base-damage-before-final-multipliers",
+					"critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages-in-formula",
+					"critical-hit-keeps-burn-physical-attack-penalty",
+					"special-damage-uses-special-attack-and-special-defense-stats",
+					"sun-boosts-fire-damage-in-final-multiplier-chain",
+					"rain-weakens-fire-damage-in-final-multiplier-chain",
+					"grassy-terrain-boosts-grounded-grass-damage-in-formula",
+					"grassy-terrain-weakens-tagged-ground-move-against-grounded-target",
+					"power-stage-item-changes-base-damage-before-final-multipliers",
+				),
+				references = listOf(
+					"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Damage",
+					"https://bulbapedia.bulbagarden.net/wiki/Weather",
+					"https://bulbapedia.bulbagarden.net/wiki/Terrain",
+				),
+				note = "已覆盖普通伤害公式基础取整、属性一致命中/不命中、双属性克制连乘、属性免疫 0 伤害、非免疫最小 1 点、伤害随机、范围倍率、屏障倍率、要害倍率、灼伤、攻防阶级、要害忽略阶级但保留灼伤、特殊伤害分流、晴雨火属性修正、青草场地增伤和震动技能削弱，以及威力阶段道具先于基础伤害公式生效。",
+			),
+			item(
 				code = "damage.double-spread",
 				name = "双打范围伤害倍率",
 				category = "伤害",
@@ -1545,7 +1581,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 200
+		private const val FINAL_COVERED_RULE_COUNT = 220
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
