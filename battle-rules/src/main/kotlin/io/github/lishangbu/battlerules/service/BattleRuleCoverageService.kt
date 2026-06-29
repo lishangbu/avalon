@@ -451,6 +451,39 @@ class BattleRuleCoverageService {
 				note = "已覆盖使用者命中阶级和目标闪避阶级参与有效命中计算，以及天气命中覆盖对必中和降命中的影响。",
 			),
 			item(
+				code = "hit.defense-boundaries",
+				name = "命中、防护、替身和免疫边界",
+				category = "命中/防护",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"sure-hit-skill-skips-accuracy-random-and-proceeds-to-damage",
+					"accuracy-roll-equal-to-modified-accuracy-still-hits",
+					"accuracy-miss-skips-critical-hit-and-damage-random",
+					"positive-accuracy-stage-can-make-seventy-five-accuracy-skill-sure-hit",
+					"positive-evasion-stage-can-make-one-hundred-accuracy-skill-miss",
+					"weather-sure-hit-override-skips-accuracy-random",
+					"first-successful-protection-consumes-no-chance-random",
+					"second-consecutive-protection-success-consumes-one-third-chance-random",
+					"failed-consecutive-protection-leaves-user-unprotected-for-later-damage",
+					"protection-blocks-ally-affected-skill-in-double-battle",
+					"substitute-fails-at-exact-hp-cost-after-skill-use",
+					"substitute-fails-when-user-already-has-substitute-after-skill-use",
+					"substitute-blocks-opponent-stat-stage-drop",
+					"substitute-allows-ally-stat-stage-effect",
+					"substitute-does-not-block-user-self-healing-skill",
+					"grass-target-blocks-powder-status-skill-before-duration-random",
+					"sound-immunity-ability-blocks-sound-skill-before-damage-random",
+					"type-immunity-blocks-fixed-damage-before-direct-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖必中、命中等于阈值、未命中短路、命中/闪避阶级造成必中或未命中、天气必中、首次和连续保护、保护失败后的受击、同侧技能被保护阻挡、替身失败条件、替身阻止对手能力变化但允许同侧和自身效果、草属性粉末免疫、声音免疫特性，以及属性免疫阻止固定伤害。",
+			),
+			item(
 				code = "status.residual-major",
 				name = "灼伤、中毒和剧毒回合末伤害",
 				category = "主要状态",
@@ -1512,7 +1545,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 182
+		private const val FINAL_COVERED_RULE_COUNT = 200
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
