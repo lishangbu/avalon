@@ -19,6 +19,7 @@ package io.github.lishangbu.battleengine.model
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
+ * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -57,6 +58,7 @@ data class BattleSkillSlot(
 	val rechargesAfterUse: Boolean = false,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
+	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val lockMoveTurnsMin: Int = 1,
 	val lockMoveTurnsMax: Int = 1,
 	val confusesUserAfterLock: Boolean = false,
@@ -96,6 +98,12 @@ data class BattleSkillSlot(
 		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
 			"weather power multiplier must be positive"
 		}
+		require(elementOverridesByWeather.keys.none { it == BattleWeather.NONE }) {
+			"elementOverridesByWeather cannot target NONE"
+		}
+		require(elementOverridesByWeather.values.all { it > 0 }) {
+			"weather element override must be positive"
+		}
 		require(BattleWeather.NONE !in chargeSkippedByWeathers) {
 			"chargeSkippedByWeathers cannot target NONE"
 		}
@@ -122,4 +130,13 @@ data class BattleSkillSlot(
 		require(remainingPp > 0) { "skill has no remaining PP" }
 		return copy(remainingPp = remainingPp - 1)
 	}
+
+	/**
+	 * 返回指定天气下本次技能结算应使用的属性 ID。
+	 *
+	 * 大多数技能始终使用基础属性；天气球类技能会在非无天气下把技能属性改为天气对应属性。调用方必须统一使用
+	 * 本函数读取属性，才能让属性一致加成、属性克制、属性吸收、火属性解冻和指定属性道具在同一口径下工作。
+	 */
+	fun effectiveElementId(weather: BattleWeather): Long =
+		elementOverridesByWeather[weather] ?: elementId
 }

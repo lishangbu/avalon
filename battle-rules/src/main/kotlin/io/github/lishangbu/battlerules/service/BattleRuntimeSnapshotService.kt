@@ -602,6 +602,7 @@ class BattleRuntimeSnapshotService(
 			rechargesAfterUse = row.rechargesAfterUse ?: false,
 			accuracyOverridesByWeather = weatherAccuracyOverrides(row.ruleId),
 			powerMultipliersByWeather = weatherPowerMultipliers(row.ruleId),
+			elementOverridesByWeather = weatherElementOverrides(row.ruleId),
 			lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
 			lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
 			confusesUserAfterLock = row.confusesUserAfterLock ?: false,
@@ -680,6 +681,24 @@ class BattleRuntimeSnapshotService(
 			order by m.sort_order, m.id
 			""".trimIndent(),
 			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") },
+			ruleId,
+		).toMap()
+	}
+
+	private fun weatherElementOverrides(ruleId: Long?): Map<BattleWeather, Long> {
+		if (ruleId == null) {
+			return emptyMap()
+		}
+		return jdbcTemplate.query(
+			"""
+			select w.code as weather_code, o.target_element_id
+			from battle_skill_weather_element_override o
+			join battle_weather_rule w on w.id = o.weather_rule_id
+			join game_element e on e.id = o.target_element_id
+			where o.skill_rule_id = ? and o.enabled = true and w.enabled = true and e.enabled = true
+			order by o.sort_order, o.id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") },
 			ruleId,
 		).toMap()
 	}

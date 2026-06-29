@@ -282,6 +282,10 @@ class BattleRuntimeSnapshotServiceTests(
 		val weatherBall = slots.getValue(311)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.SUN]).isEqualTo(2.0)
 		assertThat(weatherBall.powerMultipliersByWeather[BattleWeather.RAIN]).isEqualTo(2.0)
+		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.SUN]).isEqualTo(10)
+		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.RAIN]).isEqualTo(11)
+		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.SANDSTORM]).isEqualTo(6)
+		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.SNOW]).isEqualTo(15)
 
 		val lightScreen = slots.getValue(113).sideConditionApplications.single()
 		assertThat(lightScreen.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)

@@ -1,0 +1,252 @@
+databaseChangeLog:
+- changeSet:
+    id: 075-battle-skill-weather-element-overrides
+    author: backend
+    comment: 新增技能天气属性覆盖资料表、气象球属性覆盖种子数据、管理菜单和公开对照 fixture 数据。
+    changes:
+    - createTable:
+        tableName: battle_skill_weather_element_override
+        remarks: 战斗技能天气属性覆盖表，保存技能在指定天气下改用的结算属性。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能天气属性覆盖主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_weather_element_override
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: weather_rule_id
+            type: bigint
+            remarks: 天气规则 ID，引用 battle_weather_rule，不能引用无天气。
+            constraints:
+              nullable: false
+        - column:
+            name: target_element_id
+            type: bigint
+            remarks: 目标属性 ID，引用 game_element，表示该天气下技能本次结算使用的属性。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该属性覆盖规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 属性覆盖规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_weather_element_override
+        columnNames: skill_rule_id, weather_rule_id
+        constraintName: uk_battle_skill_weather_element_override__skill_weather
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_element_override
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_element_override__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_element_override
+        baseColumnNames: weather_rule_id
+        referencedTableName: battle_weather_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_element_override__weather_rule_id
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_weather_element_override
+        baseColumnNames: target_element_id
+        referencedTableName: game_element
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_weather_element_override__target_element_id
+    - createIndex:
+        tableName: battle_skill_weather_element_override
+        indexName: idx_battle_skill_weather_element_override__weather_rule_id
+        columns:
+        - column:
+            name: weather_rule_id
+    - createIndex:
+        tableName: battle_skill_weather_element_override
+        indexName: idx_battle_skill_weather_element_override__target_element_id
+        columns:
+        - column:
+            name: target_element_id
+    - update:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: description, value: 非无天气状态下威力翻倍，并按当前天气改用火、水、岩石或冰属性结算。 }
+        where: id = 13
+    - insert:
+        tableName: battle_skill_weather_element_override
+        columns:
+        - column: { name: id, valueNumeric: 1 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 2 }
+        - column: { name: target_element_id, valueNumeric: 10 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_skill_weather_element_override
+        columns:
+        - column: { name: id, valueNumeric: 2 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 3 }
+        - column: { name: target_element_id, valueNumeric: 11 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_skill_weather_element_override
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 4 }
+        - column: { name: target_element_id, valueNumeric: 6 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_weather_element_override
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 13 }
+        - column: { name: weather_rule_id, valueNumeric: 5 }
+        - column: { name: target_element_id, valueNumeric: 15 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 851 }
+        - column: { name: code, value: battle-rules.skill-weather-element-overrides }
+        - column: { name: name, value: 技能天气属性 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-weather-element-overrides }
+        - column: { name: component_key, value: battle-rules/skill-weather-element-overrides }
+        - column: { name: icon, value: lucide:cloud-sun-rain }
+        - column: { name: sort_order, valueNumeric: 37 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 851 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 161 }
+        - column: { name: code, value: weather-element-override-participates-in-stab-weather-and-effectiveness }
+        - column: { name: name, value: 天气属性覆盖参与本系和天气伤害倍率 }
+        - column: { name: category, value: WEATHER }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证天气改变技能属性后，属性一致加成和晴雨火水倍率使用覆盖后的属性。 }
+        - column: { name: input_summary, value: 水属性使用者在雨天使用基础一般属性但雨天覆盖为水属性的 50 威力技能。 }
+        - column: { name: expected_summary, value: 技能按水属性 100 威力结算，获得水属性一致加成和雨天水伤害 1.5 倍，造成 103 点伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1610 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 162 }
+        - column: { name: code, value: weather-element-override-can-be-absorbed-by-matching-element-ability }
+        - column: { name: name, value: 天气属性覆盖可触发匹配属性吸收特性 }
+        - column: { name: category, value: WEATHER }
+        - column: { name: fixture_type, value: ABILITY_TRIGGER }
+        - column: { name: description, value: 验证天气改变技能属性后，命中前属性吸收特性读取覆盖后的属性并阻止技能继续结算。 }
+        - column: { name: input_summary, value: 目标拥有吸收水属性技能并回复的特性，攻击方在雨天使用基础一般属性但雨天覆盖为水属性的技能。 }
+        - column: { name: expected_summary, value: 技能视为水属性并被目标特性吸收，目标满 HP 时回复量为 0 且不会受到伤害。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1620 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 163 }
+        - column: { name: code, value: weather-element-override-to-fire-thaws-frozen-target }
+        - column: { name: name, value: 天气属性覆盖为火属性可解除冰冻 }
+        - column: { name: category, value: WEATHER }
+        - column: { name: fixture_type, value: STATUS_FLOW }
+        - column: { name: description, value: 验证天气改变技能属性后，火属性伤害命中仍可触发目标冰冻解除。 }
+        - column: { name: input_summary, value: 目标处于冰冻，攻击方在晴天使用基础一般属性但晴天覆盖为火属性的技能并造成伤害。 }
+        - column: { name: expected_summary, value: 技能按火属性伤害命中，目标在伤害后仍可战斗，因此冰冻状态被解除。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1630 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 336 }
+        - column: { name: fixture_id, valueNumeric: 161 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照气象球在当前天气下改用对应属性并威力翻倍。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 337 }
+        - column: { name: fixture_id, valueNumeric: 162 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照属性吸收特性会读取技能当前有效属性。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 338 }
+        - column: { name: fixture_id, valueNumeric: 163 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts }
+        - column: { name: source_label, value: 公开引擎状态资料 }
+        - column: { name: source_note, value: 用于对照火属性伤害命中后解除冰冻的状态流程。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 161 }
+        - column: { name: run_code, value: weather-element-override-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 161 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:56:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T10:59:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1610 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 162 }
+        - column: { name: run_code, value: weather-element-override-coverage-20260629-2 }
+        - column: { name: fixture_id, valueNumeric: 162 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T10:59:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T11:02:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 4 }
+        - column: { name: sort_order, valueNumeric: 1620 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 163 }
+        - column: { name: run_code, value: weather-element-override-coverage-20260629-3 }
+        - column: { name: fixture_id, valueNumeric: 163 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T11:02:00+08:00" }
+        - column: { name: finished_at, value: "2026-06-29T11:05:00+08:00" }
+        - column: { name: duration_ms, valueNumeric: 180000 }
+        - column: { name: assertion_count, valueNumeric: 3 }
+        - column: { name: sort_order, valueNumeric: 1630 }

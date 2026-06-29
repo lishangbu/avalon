@@ -3,10 +3,12 @@ package io.github.lishangbu.battlerules
 import io.github.lishangbu.battlerules.dto.BattleSkillChargeSkipWeatherRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillRuleRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherAccuracyOverrideRequest
+import io.github.lishangbu.battlerules.dto.BattleSkillWeatherElementOverrideRequest
 import io.github.lishangbu.battlerules.dto.BattleSkillWeatherPowerModifierRequest
 import io.github.lishangbu.battlerules.service.BattleSkillChargeSkipWeatherService
 import io.github.lishangbu.battlerules.service.BattleSkillRuleService
 import io.github.lishangbu.battlerules.service.BattleSkillWeatherAccuracyOverrideService
+import io.github.lishangbu.battlerules.service.BattleSkillWeatherElementOverrideService
 import io.github.lishangbu.battlerules.service.BattleSkillWeatherPowerModifierService
 import io.github.lishangbu.common.web.ApiErrorCode
 import io.github.lishangbu.common.web.ApiException
@@ -37,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration
 class BattleSkillWeatherModifierServiceTests(
 	@Autowired private val accuracyService: BattleSkillWeatherAccuracyOverrideService,
 	@Autowired private val powerService: BattleSkillWeatherPowerModifierService,
+	@Autowired private val elementService: BattleSkillWeatherElementOverrideService,
 	@Autowired private val chargeSkipService: BattleSkillChargeSkipWeatherService,
 	@Autowired private val skillRuleService: BattleSkillRuleService,
 ) {
@@ -244,6 +247,89 @@ class BattleSkillWeatherModifierServiceTests(
 		} finally {
 			skillRuleService.delete(skillRule.id)
 		}
+	}
+
+	@Test
+	fun `create update read list and delete weather element override`() {
+		val created = elementService.create(
+			BattleSkillWeatherElementOverrideRequest(
+				skillRuleId = 2,
+				weatherRuleId = 2,
+				targetElementId = 10,
+				enabled = true,
+				sortOrder = 901,
+			),
+		)
+
+		assertThat(created.skillRuleId).isEqualTo(2)
+		assertThat(created.weatherRuleId).isEqualTo(2)
+		assertThat(created.targetElementId).isEqualTo(10)
+		assertThat(elementService.get(created.id).targetElementId).isEqualTo(10)
+		assertThat(elementService.list(0, 20, skillRuleId = 2, weatherRuleId = null, targetElementId = null).rows.map { it.id })
+			.contains(created.id)
+
+		val updated = elementService.update(
+			created.id,
+			BattleSkillWeatherElementOverrideRequest(
+				skillRuleId = 2,
+				weatherRuleId = 2,
+				targetElementId = 11,
+				enabled = false,
+				sortOrder = 902,
+			),
+		)
+		assertThat(updated.targetElementId).isEqualTo(11)
+		assertThat(updated.enabled).isFalse()
+		assertThat(updated.sortOrder).isEqualTo(902)
+
+		elementService.delete(created.id)
+		val missing = assertThrows<ApiException> {
+			elementService.get(created.id)
+		}
+		assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
+	}
+
+	@Test
+	fun `rejects invalid weather element override`() {
+		val duplicate = assertThrows<ApiException> {
+			elementService.create(
+				BattleSkillWeatherElementOverrideRequest(
+					skillRuleId = 13,
+					weatherRuleId = 3,
+					targetElementId = 11,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(duplicate.status).isEqualTo(HttpStatus.CONFLICT)
+		assertThat(duplicate.field).isEqualTo("weatherRuleId")
+
+		val clearWeather = assertThrows<ApiException> {
+			elementService.create(
+				BattleSkillWeatherElementOverrideRequest(
+					skillRuleId = 2,
+					weatherRuleId = 1,
+					targetElementId = 10,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(clearWeather.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(clearWeather.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+		assertThat(clearWeather.field).isEqualTo("weatherRuleId")
+
+		val invalidElement = assertThrows<ApiException> {
+			elementService.create(
+				BattleSkillWeatherElementOverrideRequest(
+					skillRuleId = 2,
+					weatherRuleId = 3,
+					targetElementId = 999_999,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(invalidElement.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(invalidElement.field).isEqualTo("targetElementId")
 	}
 
 	@Test

@@ -603,7 +603,7 @@ class BattleEngine(
 			)
 		}
 
-		val effectiveness = state.rules.elementChart.multiplier(skill.elementId, target.elementIds)
+		val effectiveness = state.rules.elementChart.multiplier(skill.effectiveElementId(state.environment.weather), target.elementIds)
 		if (effectiveness == 0.0) {
 			return context.copy(
 				state = endLockedMoveAfterDisruption(
@@ -776,6 +776,7 @@ class BattleEngine(
 			actor = actor,
 			target = target,
 			skill = skill,
+			skillElementId = skill.effectiveElementId(state.environment.weather),
 			effectiveness = damage.effectiveness,
 		)
 		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
@@ -834,12 +835,13 @@ class BattleEngine(
 		actor: BattleParticipant,
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
+		skillElementId: Long,
 		effectiveness: Double,
 	): HeldItemDamageReduction? {
 		val itemId = target.itemId ?: return null
 		val effect = target.itemEffects
 			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()
-			.firstOrNull { it.matches(skill.elementId, effectiveness) }
+			.firstOrNull { it.matches(skillElementId, effectiveness) }
 			?: return null
 		val updatedTarget = if (effect.consumesItem) target.consumeHeldItem() else target
 		return HeldItemDamageReduction(
@@ -850,7 +852,7 @@ class BattleEngine(
 				targetActorId = target.actorId,
 				skillId = skill.skillId,
 				itemId = itemId,
-				elementId = effect.elementId,
+				elementId = skillElementId,
 				multiplier = effect.multiplier,
 				consumed = effect.consumesItem,
 			),
@@ -1548,7 +1550,7 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 	): BattleState {
 		if (
-			skill.elementId != state.rules.fireElementId ||
+			skill.effectiveElementId(state.environment.weather) != state.rules.fireElementId ||
 			damagedTarget.majorStatus != BattleMajorStatus.FREEZE ||
 			!damagedTarget.canBattle()
 		) {
@@ -1761,7 +1763,7 @@ class BattleEngine(
 	): BattleState? {
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
-			.firstOrNull { it.elementId == skill.elementId }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
 			?: return null
 		val rawHealAmount = (target.maxHp / effect.healDenominator).coerceAtLeast(1)
 		val healedTarget = target.heal(rawHealAmount)
@@ -1796,7 +1798,7 @@ class BattleEngine(
 	): BattleState? {
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
-			.firstOrNull { it.elementId == skill.elementId }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
 			?: return null
 		val absorbedState = state.appendEvent(
 			BattleEvent.SkillAbsorbedByAbility(

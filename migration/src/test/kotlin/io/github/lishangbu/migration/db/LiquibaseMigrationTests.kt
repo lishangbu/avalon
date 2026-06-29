@@ -121,6 +121,7 @@ class LiquibaseMigrationTests(
 			"072-battle-element-damage-boost-item-fixture-corrections.yaml",
 			"073-battle-conditional-damage-boost-item-rules.yaml",
 			"074-battle-damage-dealt-healing-item-rules.yaml",
+			"075-battle-skill-weather-element-overrides.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -324,6 +325,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.skill-charge-skip-weathers",
 			"battle-rules.skill-stat-stage-effects",
 			"battle-rules.skill-status-effects",
+			"battle-rules.skill-weather-element-overrides",
 			"battle-rules.status-rules",
 			"battle-rules.terrain-rules",
 			"battle-rules.test-runs",
@@ -507,6 +509,7 @@ class LiquibaseMigrationTests(
 			"battle_skill_field_effect",
 			"battle_skill_global_field_effect",
 			"battle_skill_weather_accuracy_override",
+			"battle_skill_weather_element_override",
 			"battle_skill_weather_power_modifier",
 			"battle_skill_charge_skip_weather",
 			"battle_ability_rule",
@@ -534,6 +537,7 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_field_effect', count(*) from battle_skill_field_effect
 			union all select 'battle_skill_global_field_effect', count(*) from battle_skill_global_field_effect
 			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
+			union all select 'battle_skill_weather_element_override', count(*) from battle_skill_weather_element_override
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
 			union all select 'battle_skill_charge_skip_weather', count(*) from battle_skill_charge_skip_weather
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
@@ -562,11 +566,12 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
+		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 160L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 335L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 160L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 163L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 338L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 163L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -654,6 +659,24 @@ class LiquibaseMigrationTests(
 				"skill_id" to 76L,
 				"weather_code" to "harsh-sunlight",
 			),
+		)
+
+		val weatherElementOverrides = queryMaps(
+			"""
+			select wr.code as weather_code, ge.code as element_code
+			from battle_skill_weather_element_override eo
+			join battle_skill_rule sr on sr.id = eo.skill_rule_id
+			join battle_weather_rule wr on wr.id = eo.weather_rule_id
+			join game_element ge on ge.id = eo.target_element_id
+			where sr.skill_id = 311
+			order by eo.sort_order
+			""".trimIndent(),
+		)
+		assertThat(weatherElementOverrides).containsExactly(
+			mapOf("weather_code" to "harsh-sunlight", "element_code" to "fire"),
+			mapOf("weather_code" to "rain", "element_code" to "water"),
+			mapOf("weather_code" to "sandstorm", "element_code" to "rock"),
+			mapOf("weather_code" to "snow", "element_code" to "ice"),
 		)
 
 		val chargeSkipItemRules = queryMaps(

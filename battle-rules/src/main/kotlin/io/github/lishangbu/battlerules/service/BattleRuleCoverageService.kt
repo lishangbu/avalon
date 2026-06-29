@@ -548,6 +548,9 @@ class BattleRuleCoverageService {
 					"weather-speed-ability-changes-skill-action-order",
 					"ability-and-item-immunities-block-sandstorm-damage",
 					"weather-accuracy-overrides-support-sure-hit-and-lowered-accuracy",
+					"weather-element-override-participates-in-stab-weather-and-effectiveness",
+					"weather-element-override-can-be-absorbed-by-matching-element-ability",
+					"weather-element-override-to-fire-thaws-frozen-target",
 				),
 				references = listOf(
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
@@ -556,7 +559,7 @@ class BattleRuleCoverageService {
 					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
 					"https://bulbapedia.bulbagarden.net/wiki/Weather",
 				),
-				note = "已覆盖晴雨火水伤害倍率、天气威力和命中例外、沙暴岩属性特防、雪景冰属性物防、沙暴固定伤害、天气速度特性和天气伤害免疫；天气速度特性的规则资料种子已接入运行时快照。",
+				note = "已覆盖晴雨火水伤害倍率、天气威力/属性/命中例外、沙暴岩属性特防、雪景冰属性物防、沙暴固定伤害、天气速度特性和天气伤害免疫；天气速度特性和天气属性覆盖的规则资料种子已接入运行时快照。",
 			),
 			item(
 				code = "weather.healing-ability",

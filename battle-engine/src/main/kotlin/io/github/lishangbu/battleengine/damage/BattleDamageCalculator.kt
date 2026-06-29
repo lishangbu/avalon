@@ -31,6 +31,7 @@ class BattleDamageCalculator(
 	 */
 	fun calculate(request: BattleDamageRequest): BattleDamageResult {
 		require(request.skill.damageClass != BattleDamageClass.STATUS) { "status skill does not use standard damage formula" }
+		val skillElementId = request.skill.effectiveElementId(request.environment.weather)
 		val power = effectivePower(request)
 		val attackingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
@@ -55,8 +56,8 @@ class BattleDamageCalculator(
 
 		val levelFactor = (2 * request.attacker.level) / 5 + 2
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
-		val sameElementBonus = if (request.skill.elementId in request.attacker.elementIds) 1.5 else 1.0
-		val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
+		val sameElementBonus = if (skillElementId in request.attacker.elementIds) 1.5 else 1.0
+		val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = weatherDamageMultiplier(request)
 		val terrainMultiplier = terrainDamageMultiplier(request)
@@ -154,7 +155,7 @@ class BattleDamageCalculator(
 				} else {
 					multiplier
 				}
-				is BattleItemEffect.ElementDamageBoost -> if (request.skill.elementId == effect.elementId) {
+				is BattleItemEffect.ElementDamageBoost -> if (request.skill.effectiveElementId(request.environment.weather) == effect.elementId) {
 					multiplier * effect.multiplier
 				} else {
 					multiplier
@@ -229,12 +230,12 @@ class BattleDamageCalculator(
 	 */
 	private fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
 		when (request.environment.weather) {
-			BattleWeather.SUN -> when (request.skill.elementId) {
+			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather)) {
 				request.rules.fireElementId -> 1.5
 				request.rules.waterElementId -> 0.5
 				else -> 1.0
 			}
-			BattleWeather.RAIN -> when (request.skill.elementId) {
+			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather)) {
 				request.rules.waterElementId -> 1.5
 				request.rules.fireElementId -> 0.5
 				else -> 1.0
@@ -256,7 +257,7 @@ class BattleDamageCalculator(
 				val grassBoost = if (
 					request.attacker.grounded &&
 					request.rules.grassElementId != null &&
-					request.skill.elementId == request.rules.grassElementId
+					request.skill.effectiveElementId(request.environment.weather) == request.rules.grassElementId
 				) {
 					GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER
 				} else {
@@ -287,7 +288,7 @@ class BattleDamageCalculator(
 					val hpAtOrBelowThreshold =
 						request.attacker.currentHp * effect.hpThresholdDenominator <=
 							request.attacker.maxHp * effect.hpThresholdNumerator
-					if (hpAtOrBelowThreshold && request.skill.elementId == effect.elementId) {
+					if (hpAtOrBelowThreshold && request.skill.effectiveElementId(request.environment.weather) == effect.elementId) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
@@ -336,7 +337,10 @@ class BattleDamageCalculator(
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
 				is BattleItemEffect.SuperEffectiveDamageBoost -> if (
-					request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds) > 1.0
+					request.rules.elementChart.multiplier(
+						request.skill.effectiveElementId(request.environment.weather),
+						request.defender.elementIds,
+					) > 1.0
 				) {
 					multiplier * effect.multiplier
 				} else {
@@ -372,10 +376,11 @@ class BattleDamageCalculator(
 		if (!request.allowDefenderItemDamageReduction) {
 			1.0
 		} else {
-			val effectiveness = request.rules.elementChart.multiplier(request.skill.elementId, request.defender.elementIds)
+			val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+			val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 			request.defender.itemEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {
-					is BattleItemEffect.ElementDamageReduction -> if (effect.matches(request.skill.elementId, effectiveness)) {
+					is BattleItemEffect.ElementDamageReduction -> if (effect.matches(skillElementId, effectiveness)) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
