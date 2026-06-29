@@ -456,6 +456,21 @@ data class BattleParticipant(
 	}
 
 	/**
+	 * 直接设置一个能力阶级，并夹取到现代规则允许的 -6..6。
+	 *
+	 * 清除、复制、交换和取反等技能效果需要按“结果值”写回能力阶级，而不是按 delta 叠加。0 阶级会从 Map 中移除，
+	 * 让默认值和显式 0 保持同一份运行态表示，避免后续比较出现伪差异。
+	 */
+	fun setStatStage(stat: BattleStat, stage: Int): BattleParticipant {
+		val next = stage.coerceIn(-6, 6)
+		return if (next == 0) {
+			copy(statStages = statStages - stat)
+		} else {
+			copy(statStages = statStages + (stat to next))
+		}
+	}
+
+	/**
 	 * 读取指定能力项当前阶级。
 	 */
 	fun statStage(stat: BattleStat): Int =

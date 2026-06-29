@@ -39,6 +39,9 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleStatStageOperation
+import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
+import io.github.lishangbu.battleengine.model.BattleStatStageOperationTarget
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -624,6 +627,7 @@ class BattleRuntimeSnapshotService(
 			statusApplications = statusApplications(row.ruleId),
 			volatileStatusApplications = volatileStatusApplications(row.ruleId),
 			statStageEffects = statStageEffects(row.ruleId),
+			statStageOperations = statStageOperations(row.ruleId),
 			sideConditionApplications = sideConditionApplications(row.ruleId),
 			sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
 			sideEntryHazardApplications = sideEntryHazardApplications(row.ruleId),
@@ -816,6 +820,39 @@ class BattleRuntimeSnapshotService(
 			},
 			ruleId,
 		).filterNotNull()
+	}
+
+	private fun statStageOperations(ruleId: Long?): List<BattleStatStageOperation> {
+		if (ruleId == null) {
+			return emptyList()
+		}
+		return jdbcTemplate.query(
+			"""
+			select
+				st.code as stat_code,
+				e.operation_kind,
+				e.target_scope,
+				e.source_scope,
+				e.chance_percent
+			from battle_skill_stat_stage_operation e
+			join game_stat st on st.id = e.stat_id
+			where e.skill_rule_id = ?
+				and e.enabled = true
+				and e.effect_timing = 'AFTER_HIT'
+			order by e.sort_order, e.id
+			""".trimIndent(),
+			{ rs, _ ->
+				val source = rs.getString("source_scope")?.toBattleStatStageOperationTarget()
+				BattleStatStageOperation(
+					kind = rs.getString("operation_kind").toBattleStatStageOperationKind(),
+					stat = rs.getString("stat_code").toBattleStat(),
+					target = rs.getString("target_scope").toBattleStatStageOperationTarget(),
+					source = source,
+					chancePercent = rs.getInt("chance_percent"),
+				)
+			},
+			ruleId,
+		)
 	}
 
 	private fun sideConditionApplications(ruleId: Long?): List<BattleSideConditionApplication> {
@@ -1119,6 +1156,23 @@ class BattleRuntimeSnapshotService(
 			// “当前实际目标”，避免范围技能在效果层再次展开后重复结算。
 			"ALL_OPPONENTS" -> BattleEffectTarget.TARGET
 			else -> null
+		}
+
+	private fun String.toBattleStatStageOperationKind(): BattleStatStageOperationKind =
+		when (this) {
+			"CLEAR" -> BattleStatStageOperationKind.CLEAR
+			"COPY" -> BattleStatStageOperationKind.COPY
+			"SWAP" -> BattleStatStageOperationKind.SWAP
+			"INVERT" -> BattleStatStageOperationKind.INVERT
+			else -> invalidValue("operationKind", "不支持的能力阶级操作类型: $this")
+		}
+
+	private fun String.toBattleStatStageOperationTarget(): BattleStatStageOperationTarget =
+		when (this) {
+			"USER" -> BattleStatStageOperationTarget.USER
+			"TARGET" -> BattleStatStageOperationTarget.TARGET
+			"ALL_ACTIVE" -> BattleStatStageOperationTarget.ALL_ACTIVE
+			else -> invalidValue("targetScope", "不支持的能力阶级操作目标: $this")
 		}
 
 	private fun String.toBattleMajorStatus(): BattleMajorStatus =

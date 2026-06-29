@@ -420,6 +420,68 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能效果把目标指定能力阶级清除为 0。
+	 *
+	 * 清除不是普通降低阶级：无论目标原来是正阶级还是负阶级，结果都回到 0。事件记录清除前的数值，方便 replay
+	 * 还原黑雾、清除之烟等效果的真实语义。
+	 */
+	data class StatStageCleared(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val stat: BattleStat,
+		val previousStage: Int,
+	) : BattleEvent
+
+	/**
+	 * 技能效果把一个成员的指定能力阶级复制给另一个成员。
+	 *
+	 * 该事件用于自我暗示等效果。`copiedStage` 是来源成员当时的阶级值；目标成员最终写入同一个值。
+	 */
+	data class StatStageCopied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceActorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val stat: BattleStat,
+		val copiedStage: Int,
+	) : BattleEvent
+
+	/**
+	 * 技能效果交换两个成员的指定能力阶级。
+	 *
+	 * 事件中的 `firstCurrentStage` 与 `secondCurrentStage` 是交换完成后的值。来源与目标使用当前技能语境命名：
+	 * 一般情况下 first 是操作目标，second 是操作来源。
+	 */
+	data class StatStageSwapped(
+		override val turnNumber: Int,
+		val actorId: String,
+		val firstActorId: String,
+		val secondActorId: String,
+		val skillId: Long,
+		val stat: BattleStat,
+		val firstCurrentStage: Int,
+		val secondCurrentStage: Int,
+	) : BattleEvent
+
+	/**
+	 * 技能效果把目标指定能力阶级取反。
+	 *
+	 * 该事件用于颠倒类效果。0 阶级取反后仍为 0，不会产生事件；非 0 时记录前后值。
+	 */
+	data class StatStageInverted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val stat: BattleStat,
+		val previousStage: Int,
+		val currentStage: Int,
+	) : BattleEvent
+
+	/**
 	 * 一侧成功建立了防守方标准伤害减免屏障。
 	 *
 	 * 屏障属于一侧场上状态，而不是某个成员的临时状态。`turnsRemaining` 记录建立时写入的持续回合；

@@ -28,6 +28,7 @@ package io.github.lishangbu.battleengine.model
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
+ * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
@@ -80,6 +81,7 @@ data class BattleSkillSlot(
 	val statusApplications: List<BattleStatusApplication> = emptyList(),
 	val volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	val statStageEffects: List<BattleStatStageEffect> = emptyList(),
+	val statStageOperations: List<BattleStatStageOperation> = emptyList(),
 	val sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),

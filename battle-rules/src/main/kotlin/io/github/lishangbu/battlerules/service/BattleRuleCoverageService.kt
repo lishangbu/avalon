@@ -1116,6 +1116,32 @@ class BattleRuleCoverageService {
 				note = "已覆盖命中后降低目标能力阶级、变化技能提升使用者单项或多项能力阶级、双打全体对手逐个降阶，并已接入基础自我强化和目标降阶技能规则资料。",
 			),
 			item(
+				code = "skill.stat-stage-operations",
+				name = "技能能力阶级特殊操作",
+				category = "技能效果",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"damaging-skill-clears-target-stat-stages-after-hit",
+					"status-skill-clears-every-active-participant-stat-stages",
+					"status-skill-copies-target-stat-stages-to-user",
+					"status-skill-swaps-attack-stat-stages-between-user-and-target",
+					"status-skill-swaps-defense-stat-stages-between-user-and-target",
+					"status-skill-swaps-all-stat-stages-between-user-and-target",
+					"status-skill-inverts-target-stat-stages",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://bulbapedia.bulbagarden.net/wiki/Clear_Smog_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Haze_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Psych_Up_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Power_Swap_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Guard_Swap_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Heart_Swap_(move)",
+					"https://bulbapedia.bulbagarden.net/wiki/Topsy-Turvy_(move)",
+				),
+				note = "已覆盖命中后清除目标能力阶级、全场清除当前上场成员能力阶级、复制目标阶级给使用者、交换攻击组、防御组和全部能力阶级，以及取反目标能力阶级。",
+			),
+			item(
 				code = "skill.hp-effects",
 				name = "技能 HP 回复效果",
 				category = "技能效果",
@@ -1181,7 +1207,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 88
+		private const val FINAL_COVERED_RULE_COUNT = 95
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

@@ -1,0 +1,505 @@
+databaseChangeLog:
+- changeSet:
+    id: 092-battle-stat-stage-operation-skill-rules
+    author: backend
+    comment: 新增技能能力阶级特殊操作表、规则数据与公开对照 fixture。
+    changes:
+    - createTable:
+        tableName: battle_skill_stat_stage_operation
+        remarks: 战斗技能能力阶级特殊操作表，保存清除、复制、交换和取反等不能用普通阶级加减表达的技能效果。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能能力阶级操作主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_stat_stage_operation
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: stat_id
+            type: bigint
+            remarks: 能力项 ID，引用 game_stat；每条记录只处理一个能力项。
+            constraints:
+              nullable: false
+        - column:
+            name: operation_kind
+            type: varchar(30)
+            remarks: 操作类型，CLEAR 表示清除为 0，COPY 表示从来源复制，SWAP 表示来源与目标交换，INVERT 表示取反。
+            constraints:
+              nullable: false
+        - column:
+            name: target_scope
+            type: varchar(40)
+            remarks: 操作目标范围，例如 USER、TARGET 或 ALL_ACTIVE。
+            constraints:
+              nullable: false
+        - column:
+            name: source_scope
+            type: varchar(40)
+            remarks: 操作来源范围；COPY 和 SWAP 必填，CLEAR 和 INVERT 为空。
+        - column:
+            name: effect_timing
+            type: varchar(40)
+            remarks: 操作结算时机，当前使用 AFTER_HIT 表示技能命中后结算。
+            constraints:
+              nullable: false
+        - column:
+            name: chance_percent
+            type: int
+            remarks: 操作触发概率百分比，100 表示必定触发。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该能力阶级操作。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 能力阶级操作展示排序和运行时同类效果顺序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_stat_stage_operation
+        columnNames: skill_rule_id, stat_id, operation_kind, target_scope, source_scope, effect_timing
+        constraintName: uk_battle_skill_stat_stage_operation__skill_stat_kind_scope
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_stat_stage_operation
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_stat_stage_operation__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_stat_stage_operation
+        baseColumnNames: stat_id
+        referencedTableName: game_stat
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_stat_stage_operation__stat_id
+    - createIndex:
+        tableName: battle_skill_stat_stage_operation
+        indexName: idx_battle_skill_stat_stage_operation__stat_id
+        columns:
+        - column:
+            name: stat_id
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 89 }
+        - column: { name: skill_id, valueNumeric: 499 }
+        - column: { name: effect_policy, value: standard-damage-clear-target-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: standard-damage }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 命中并造成普通特殊伤害后，将目标全部能力阶级清除为 0；被替身挡下时不清除目标阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 890 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 90 }
+        - column: { name: skill_id, valueNumeric: 114 }
+        - column: { name: effect_policy, value: clear-all-active-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功使用后，将双方当前上场且可战斗成员的全部能力阶级清除为 0。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 900 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 91 }
+        - column: { name: skill_id, valueNumeric: 244 }
+        - column: { name: effect_policy, value: copy-target-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功使用后，将目标当前全部能力阶级复制给使用者。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 910 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 92 }
+        - column: { name: skill_id, valueNumeric: 384 }
+        - column: { name: effect_policy, value: swap-attack-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功使用后，交换使用者与目标的攻击和特攻能力阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 920 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 93 }
+        - column: { name: skill_id, valueNumeric: 385 }
+        - column: { name: effect_policy, value: swap-defense-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功使用后，交换使用者与目标的防御和特防能力阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 930 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 94 }
+        - column: { name: skill_id, valueNumeric: 391 }
+        - column: { name: effect_policy, value: swap-all-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: false }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功使用后，交换使用者与目标的全部能力阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 940 }
+    - insert:
+        tableName: battle_skill_rule
+        columns:
+        - column: { name: id, valueNumeric: 95 }
+        - column: { name: skill_id, valueNumeric: 576 }
+        - column: { name: effect_policy, value: invert-target-stat-stages }
+        - column: { name: target_policy, value: selected-target }
+        - column: { name: hit_policy, value: standard-hit }
+        - column: { name: damage_policy, value: status-effect }
+        - column: { name: min_hits, valueNumeric: 1 }
+        - column: { name: max_hits, valueNumeric: 1 }
+        - column: { name: critical_hit_stage, valueNumeric: 0 }
+        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: affected_by_protect, valueBoolean: true }
+        - column: { name: protects_user, valueBoolean: false }
+        - column: { name: thaws_user_before_move, valueBoolean: false }
+        - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
+        - column: { name: sound_based, valueBoolean: false }
+        - column: { name: powder_based, valueBoolean: false }
+        - column: { name: punch_based, valueBoolean: false }
+        - column: { name: slicing_based, valueBoolean: false }
+        - column: { name: lock_move_turns_min, valueNumeric: 1 }
+        - column: { name: lock_move_turns_max, valueNumeric: 1 }
+        - column: { name: confuses_user_after_lock, valueBoolean: false }
+        - column: { name: force_target_switch, valueBoolean: false }
+        - column: { name: description, value: 成功命中后，将目标全部能力阶级取反，正阶级变负阶级，负阶级变正阶级。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 950 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 1 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 2 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 2 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 3 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 3 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 4 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 30 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 4 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 5 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 40 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 5 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 6 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 50 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 6 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 7 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 60 }
+    - insert:
+        tableName: battle_skill_stat_stage_operation
+        columns:
+        - column: { name: id, valueNumeric: 7 }
+        - column: { name: skill_rule_id, valueNumeric: 89 }
+        - column: { name: stat_id, valueNumeric: 8 }
+        - column: { name: operation_kind, value: CLEAR }
+        - column: { name: target_scope, value: TARGET }
+        - column: { name: effect_timing, value: AFTER_HIT }
+        - column: { name: chance_percent, valueNumeric: 100 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 70 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 188 }
+        - column: { name: code, value: damaging-skill-clears-target-stat-stages-after-hit }
+        - column: { name: name, value: 伤害技能命中后清除目标能力阶级 }
+        - column: { name: category, value: SKILL }
+        - column: { name: fixture_type, value: STATE_MACHINE }
+        - column: { name: description, value: 验证伤害技能成功命中并结算伤害后，会清除目标已有能力阶级。 }
+        - column: { name: input_summary, value: 目标拥有攻击提升和防御降低，清除阶级的伤害技能命中目标。 }
+        - column: { name: expected_summary, value: 目标先受到伤害，随后攻击和防御阶级都回到 0。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1880 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 376 }
+        - column: { name: fixture_id, valueNumeric: 188 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
+        - column: { name: source_label, value: 公开引擎技能资料 }
+        - column: { name: source_note, value: 用于对照命中后清除目标能力阶级的技能资料。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 377 }
+        - column: { name: fixture_id, valueNumeric: 188 }
+        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Clear_Smog_(move) }
+        - column: { name: source_label, value: 能力阶级清除技能公开说明 }
+        - column: { name: source_note, value: 用于对照伤害命中后清除目标能力阶级的规则。 }
+        - column: { name: sort_order, valueNumeric: 20 }
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_skill_stat_stage_operation
+            (id, skill_rule_id, stat_id, operation_kind, target_scope, source_scope, effect_timing, chance_percent, enabled, sort_order)
+          values
+            (8, 90, 2, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 10),
+            (9, 90, 3, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 20),
+            (10, 90, 4, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 30),
+            (11, 90, 5, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 40),
+            (12, 90, 6, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 50),
+            (13, 90, 7, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 60),
+            (14, 90, 8, 'CLEAR', 'ALL_ACTIVE', null, 'AFTER_HIT', 100, true, 70),
+            (15, 91, 2, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 10),
+            (16, 91, 3, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 20),
+            (17, 91, 4, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 30),
+            (18, 91, 5, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 40),
+            (19, 91, 6, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 50),
+            (20, 91, 7, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 60),
+            (21, 91, 8, 'COPY', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 70),
+            (22, 92, 2, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 10),
+            (23, 92, 4, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 20),
+            (24, 93, 3, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 10),
+            (25, 93, 5, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 20),
+            (26, 94, 2, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 10),
+            (27, 94, 3, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 20),
+            (28, 94, 4, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 30),
+            (29, 94, 5, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 40),
+            (30, 94, 6, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 50),
+            (31, 94, 7, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 60),
+            (32, 94, 8, 'SWAP', 'USER', 'TARGET', 'AFTER_HIT', 100, true, 70),
+            (33, 95, 2, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 10),
+            (34, 95, 3, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 20),
+            (35, 95, 4, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 30),
+            (36, 95, 5, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 40),
+            (37, 95, 6, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 50),
+            (38, 95, 7, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 60),
+            (39, 95, 8, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 70);
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_rule_fixture
+            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
+          values
+            (189, 'status-skill-clears-every-active-participant-stat-stages', '变化技能清除全部上场成员能力阶级', 'SKILL', 'STATE_MACHINE', '验证全场清除类变化技能会清除全部当前上场成员的能力阶级。', '多个当前上场成员拥有攻击或速度阶级变化，使用者发动全场清除技能。', '当前上场成员的对应能力阶级全部回到 0，事件流记录实际发生的清除。', true, 1890),
+            (190, 'status-skill-copies-target-stat-stages-to-user', '变化技能复制目标能力阶级给使用者', 'SKILL', 'STATE_MACHINE', '验证复制类变化技能会把目标当前能力阶级复制给使用者。', '使用者和目标拥有不同攻击与闪避阶级，使用者发动复制目标阶级技能。', '使用者对应阶级变为目标当前阶级，目标阶级保持不变。', true, 1900),
+            (191, 'status-skill-swaps-attack-stat-stages-between-user-and-target', '变化技能交换攻击组能力阶级', 'SKILL', 'STATE_MACHINE', '验证攻击组互换类变化技能会交换双方攻击与特攻阶级。', '使用者和目标拥有不同攻击、特攻与防御阶级。', '双方攻击与特攻阶级互换，防御阶级保持原值。', true, 1910),
+            (192, 'status-skill-swaps-defense-stat-stages-between-user-and-target', '变化技能交换防御组能力阶级', 'SKILL', 'STATE_MACHINE', '验证防御组互换类变化技能会交换双方防御与特防阶级。', '使用者和目标拥有不同防御、特防与攻击阶级。', '双方防御与特防阶级互换，攻击阶级保持原值。', true, 1920),
+            (193, 'status-skill-swaps-all-stat-stages-between-user-and-target', '变化技能交换全部能力阶级', 'SKILL', 'STATE_MACHINE', '验证全部互换类变化技能会交换双方全部能力阶级。', '使用者和目标拥有多项不同能力阶级。', '双方全部配置能力阶级互换，未变化的 0 阶级不产生事件。', true, 1930),
+            (194, 'status-skill-inverts-target-stat-stages', '变化技能取反目标能力阶级', 'SKILL', 'STATE_MACHINE', '验证取反类变化技能会把目标正负能力阶级互相翻转。', '目标拥有正负能力阶级，使用者发动取反目标阶级技能。', '目标正阶级变为负阶级，负阶级变为正阶级，0 阶级不产生事件。', true, 1940);
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_rule_fixture_source
+            (id, fixture_id, source_url, source_label, source_note, sort_order)
+          values
+            (378, 189, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照全场清除能力阶级的技能资料。', 10),
+            (379, 189, 'https://bulbapedia.bulbagarden.net/wiki/Haze_(move)', '能力阶级清除技能公开说明', '用于对照全部当前上场成员能力阶级清除规则。', 20),
+            (380, 190, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照复制目标能力阶级给使用者的技能资料。', 10),
+            (381, 190, 'https://bulbapedia.bulbagarden.net/wiki/Psych_Up_(move)', '能力阶级复制技能公开说明', '用于对照复制目标当前能力阶级的规则。', 20),
+            (382, 191, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照攻击组能力阶级互换资料。', 10),
+            (383, 191, 'https://bulbapedia.bulbagarden.net/wiki/Power_Swap_(move)', '能力阶级互换技能公开说明', '用于对照攻击与特攻阶级互换规则。', 20),
+            (384, 192, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照防御组能力阶级互换资料。', 10),
+            (385, 192, 'https://bulbapedia.bulbagarden.net/wiki/Guard_Swap_(move)', '能力阶级互换技能公开说明', '用于对照防御与特防阶级互换规则。', 20),
+            (386, 193, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照全部能力阶级互换资料。', 10),
+            (387, 193, 'https://bulbapedia.bulbagarden.net/wiki/Heart_Swap_(move)', '能力阶级互换技能公开说明', '用于对照全部能力阶级互换规则。', 20),
+            (388, 194, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照目标能力阶级取反资料。', 10),
+            (389, 194, 'https://bulbapedia.bulbagarden.net/wiki/Topsy-Turvy_(move)', '能力阶级取反技能公开说明', '用于对照正负能力阶级翻转规则。', 20);
+    - sql:
+        splitStatements: false
+        sql: |
+          insert into battle_rule_test_run
+            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
+          values
+            (188, 'stat-stage-operation-skill-coverage-20260629-1', 188, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1880),
+            (189, 'stat-stage-operation-skill-coverage-20260629-2', 189, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1890),
+            (190, 'stat-stage-operation-skill-coverage-20260629-3', 190, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1900),
+            (191, 'stat-stage-operation-skill-coverage-20260629-4', 191, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1910),
+            (192, 'stat-stage-operation-skill-coverage-20260629-5', 192, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1920),
+            (193, 'stat-stage-operation-skill-coverage-20260629-6', 193, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1930),
+            (194, 'stat-stage-operation-skill-coverage-20260629-7', 194, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1940);
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 852 }
+        - column: { name: code, value: battle-rules.skill-stat-stage-operations }
+        - column: { name: name, value: 技能能力阶级操作 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-stat-stage-operations }
+        - column: { name: component_key, value: battle-rules/skill-stat-stage-operations }
+        - column: { name: icon, value: lucide:replace }
+        - column: { name: sort_order, valueNumeric: 31 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 852 }

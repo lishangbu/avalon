@@ -24,6 +24,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -193,6 +194,7 @@ internal fun damagingSkill(
 	statusApplications: List<BattleStatusApplication> = emptyList(),
 	volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
+	statStageOperations: List<BattleStatStageOperation> = emptyList(),
 	sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
@@ -239,6 +241,7 @@ internal fun damagingSkill(
 		statusApplications = statusApplications,
 		volatileStatusApplications = volatileStatusApplications,
 		statStageEffects = statStageEffects,
+		statStageOperations = statStageOperations,
 		sideConditionApplications = sideConditionApplications,
 		sideSpeedModifierApplications = sideSpeedModifierApplications,
 		sideEntryHazardApplications = sideEntryHazardApplications,
