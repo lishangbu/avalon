@@ -1285,9 +1285,7 @@ class BattleEngine(
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
-					is BattleSkillHpEffect.CreateSubstitute,
-					is BattleSkillHpEffect.SelfHealMaxHpFraction,
-					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> current
+					else -> current
 				}
 			}
 	}
@@ -1434,8 +1432,7 @@ class BattleEngine(
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
-					is BattleSkillHpEffect.DrainDamage -> current
-					is BattleSkillHpEffect.RecoilByDamageDealt -> current
+					else -> current
 				}
 			}
 
@@ -3345,8 +3342,8 @@ class BattleEngine(
 	/**
 	 * 将单个结构化特性效果分派到出场阶段实现。
 	 *
-	 * 只有明确属于 SWITCH_IN 生命周期的效果会改变状态；其它效果返回原状态。保持这个穷尽分派可以让新增特性效果
-	 * 时编译器提示所有阶段是否需要处理，而不是让字符串 policy 悄悄穿透到纯引擎内部。
+	 * 只有明确属于 SWITCH_IN 生命周期的效果会改变状态；其它效果返回原状态，避免每新增一种非出场特性都要维护
+	 * 一条无意义分支。
 	 */
 	private fun applySwitchInAbilityEffect(
 		state: BattleState,
@@ -3357,39 +3354,7 @@ class BattleEngine(
 			is BattleAbilityEffect.SwitchInStatStageChange -> applySwitchInStatStageChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInTerrainChange -> applySwitchInTerrainChange(state, actorId, effect)
 			is BattleAbilityEffect.SwitchInWeatherChange -> applySwitchInWeatherChange(state, actorId, effect)
-			is BattleAbilityEffect.ContactBasedSkillDamageBoost,
-			is BattleAbilityEffect.ContactStatusOnAttacker,
-			is BattleAbilityEffect.CriticalHitImmunity,
-			is BattleAbilityEffect.AttackingStatMultiplier,
-			is BattleAbilityEffect.DamageClassDamageReduction,
-			is BattleAbilityEffect.DefendingStatMultiplier,
-			is BattleAbilityEffect.SameElementBonusOverride,
-			is BattleAbilityEffect.ElementSkillAbsorbHeal,
-			is BattleAbilityEffect.ElementSkillAbsorbStatStage,
-			is BattleAbilityEffect.ElementSkillDamageBoost,
-			is BattleAbilityEffect.FullHpDamageReduction,
-			is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
-			is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-			is BattleAbilityEffect.IgnoreTargetAbilityEffects,
-			is BattleAbilityEffect.IndirectDamageImmunity,
-			is BattleAbilityEffect.LowHpElementDamageBoost,
-			is BattleAbilityEffect.MajorStatusImmunity,
-			is BattleAbilityEffect.PriorityMoveImmunityForSide,
-			is BattleAbilityEffect.PunchBasedSkillDamageBoost,
-			is BattleAbilityEffect.SkillRecoilDamageImmunity,
-			is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
-			is BattleAbilityEffect.SoundBasedSkillDamageBoost,
-			is BattleAbilityEffect.SoundBasedSkillDamageReduction,
-			is BattleAbilityEffect.SoundBasedSkillImmunity,
-			is BattleAbilityEffect.StatusSkillPriorityBoost,
-			is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
-			is BattleAbilityEffect.SuperEffectiveDamageReduction,
-			is BattleAbilityEffect.TerrainSpeedMultiplier,
-			is BattleAbilityEffect.VolatileStatusImmunity,
-			is BattleAbilityEffect.WeatherDamageImmunity,
-			is BattleAbilityEffect.WeatherElementDamageBoost,
-			is BattleAbilityEffect.WeatherEndTurnHeal,
-			is BattleAbilityEffect.WeatherSpeedMultiplier -> state
+			else -> state
 		}
 
 	/**
@@ -4517,24 +4482,7 @@ class BattleEngine(
 			.fold(state) { current, effect ->
 				when (effect) {
 					is BattleItemEffect.DamageBoostWithRecoil -> applyDamageBoostRecoilItem(current, actorId, effect)
-					is BattleItemEffect.ChargeSkipOnce,
-					is BattleItemEffect.ChoiceSkillLock,
-					is BattleItemEffect.DamageClassPowerBoost,
-					is BattleItemEffect.DamageDealtHeal,
-					is BattleItemEffect.ElementDamageBoost,
-					is BattleItemEffect.ElementDamageReduction,
-					is BattleItemEffect.HeldEndTurnHeal,
-					is BattleItemEffect.LowHpHeal,
-					is BattleItemEffect.MajorStatusCure,
-					is BattleItemEffect.MajorStatusImmunity,
-					is BattleItemEffect.SideDamageReductionDurationExtension,
-					is BattleItemEffect.SuperEffectiveDamageBoost,
-					is BattleItemEffect.SurviveFatalDamageAtFullHp,
-					is BattleItemEffect.TerrainDurationExtension,
-					is BattleItemEffect.VolatileStatusCure,
-					is BattleItemEffect.VolatileStatusImmunity,
-					is BattleItemEffect.WeatherDamageImmunity,
-					is BattleItemEffect.WeatherDurationExtension -> current
+					else -> current
 				}
 			}
 	}
@@ -4566,24 +4514,7 @@ class BattleEngine(
 						damageAmount = damageAmount,
 						effect = effect,
 					)
-					is BattleItemEffect.ChargeSkipOnce,
-					is BattleItemEffect.ChoiceSkillLock,
-					is BattleItemEffect.DamageBoostWithRecoil,
-					is BattleItemEffect.DamageClassPowerBoost,
-					is BattleItemEffect.ElementDamageBoost,
-					is BattleItemEffect.ElementDamageReduction,
-					is BattleItemEffect.HeldEndTurnHeal,
-					is BattleItemEffect.LowHpHeal,
-					is BattleItemEffect.MajorStatusCure,
-					is BattleItemEffect.MajorStatusImmunity,
-					is BattleItemEffect.SideDamageReductionDurationExtension,
-					is BattleItemEffect.SuperEffectiveDamageBoost,
-					is BattleItemEffect.SurviveFatalDamageAtFullHp,
-					is BattleItemEffect.TerrainDurationExtension,
-					is BattleItemEffect.VolatileStatusCure,
-					is BattleItemEffect.VolatileStatusImmunity,
-					is BattleItemEffect.WeatherDamageImmunity,
-					is BattleItemEffect.WeatherDurationExtension -> current
+					else -> current
 				}
 			}
 	}
