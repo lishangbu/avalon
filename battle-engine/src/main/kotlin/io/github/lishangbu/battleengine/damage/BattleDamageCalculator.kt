@@ -38,7 +38,7 @@ class BattleDamageCalculator(
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.attacker.specialAttack,
 				effectiveAttackingStage(request, BattleStat.SPECIAL_ATTACK),
-			)
+			).let { attackingStatAfterAbility(request, BattleStat.SPECIAL_ATTACK, it) }
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
 		val defendingStat = when (request.skill.damageClass) {
@@ -95,13 +95,76 @@ class BattleDamageCalculator(
 		val stagedAttack = statStageModifiers.modifiedBattleStat(
 			request.attacker.attack,
 			effectiveAttackingStage(request, BattleStat.ATTACK),
-		)
+		).let { attackingStatAfterAbility(request, BattleStat.ATTACK, it) }
 		return if (request.attacker.majorStatus == BattleMajorStatus.BURN) {
 			(stagedAttack / 2).coerceAtLeast(1)
 		} else {
 			stagedAttack
 		}
 	}
+
+	/**
+	 * 计算攻击方特性对攻击侧能力值的修正。
+	 *
+	 * 该修正发生在攻击/特攻能力阶级之后、基础伤害整数除法之前。物理技能还会在该修正之后继续应用灼伤物理伤害
+	 * 减半，因此攻击翻倍类规则和普通灼伤规则能按乘法关系共同作用。环境要求不匹配的攻击侧特性保持中性。
+	 */
+	private fun attackingStatAfterAbility(request: BattleDamageRequest, stat: BattleStat, currentStat: Int): Int {
+		val multiplier = request.attacker.abilityEffects.fold(1.0) { currentMultiplier, effect ->
+			when (effect) {
+				is BattleAbilityEffect.AttackingStatMultiplier ->
+					if (effect.matches(stat, request.environment.terrain, request.environment.weather)) {
+						currentMultiplier * effect.multiplier
+					} else {
+						currentMultiplier
+					}
+				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
+				is BattleAbilityEffect.ContactStatusOnAttacker,
+				is BattleAbilityEffect.CriticalHitImmunity,
+				is BattleAbilityEffect.DamageClassDamageReduction,
+				is BattleAbilityEffect.DefendingStatMultiplier,
+				is BattleAbilityEffect.ElementSkillAbsorbHeal,
+				is BattleAbilityEffect.ElementSkillAbsorbStatStage,
+				is BattleAbilityEffect.ElementSkillDamageBoost,
+				is BattleAbilityEffect.FullHpDamageReduction,
+				is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
+				is BattleAbilityEffect.IgnoreOpponentDamageStatStages,
+				is BattleAbilityEffect.IgnoreTargetAbilityEffects,
+				is BattleAbilityEffect.IndirectDamageImmunity,
+				is BattleAbilityEffect.LowHpElementDamageBoost,
+				is BattleAbilityEffect.MajorStatusImmunity,
+				is BattleAbilityEffect.PriorityMoveImmunityForSide,
+				is BattleAbilityEffect.PunchBasedSkillDamageBoost,
+				is BattleAbilityEffect.SkillRecoilDamageImmunity,
+				is BattleAbilityEffect.SlicingBasedSkillDamageBoost,
+				is BattleAbilityEffect.SoundBasedSkillDamageBoost,
+				is BattleAbilityEffect.SoundBasedSkillDamageReduction,
+				is BattleAbilityEffect.SoundBasedSkillImmunity,
+				is BattleAbilityEffect.StatusSkillPriorityBoost,
+				is BattleAbilityEffect.SuperEffectiveDamageReduction,
+				is BattleAbilityEffect.SurviveFatalDamageAtFullHp,
+				is BattleAbilityEffect.SwitchInStatStageChange,
+				is BattleAbilityEffect.SwitchInTerrainChange,
+				is BattleAbilityEffect.SwitchInWeatherChange,
+				is BattleAbilityEffect.TerrainSpeedMultiplier,
+				is BattleAbilityEffect.VolatileStatusImmunity,
+				is BattleAbilityEffect.WeatherDamageImmunity,
+				is BattleAbilityEffect.WeatherElementDamageBoost,
+				is BattleAbilityEffect.WeatherEndTurnHeal,
+				is BattleAbilityEffect.WeatherSpeedMultiplier -> currentMultiplier
+			}
+		}
+		return floor(currentStat * multiplier).toInt().coerceAtLeast(1)
+	}
+
+	private fun BattleAbilityEffect.AttackingStatMultiplier.matches(
+		stat: BattleStat,
+		terrain: BattleTerrain,
+		weather: BattleWeather,
+	): Boolean =
+		this.stat == stat &&
+			(requiredTerrain == null || requiredTerrain == terrain) &&
+			(requiredWeather == null || requiredWeather == weather)
 
 	/**
 	 * 读取攻击侧在普通伤害公式中使用的有效攻击/特攻阶级。
@@ -245,6 +308,7 @@ class BattleDamageCalculator(
 					} else {
 						currentMultiplier
 					}
+				is BattleAbilityEffect.AttackingStatMultiplier,
 				is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 				is BattleAbilityEffect.ContactStatusOnAttacker,
 				is BattleAbilityEffect.CriticalHitImmunity,
@@ -390,6 +454,7 @@ class BattleDamageCalculator(
 				is BattleAbilityEffect.CriticalHitImmunity -> multiplier
 				is BattleAbilityEffect.DamageClassDamageReduction -> multiplier
 				is BattleAbilityEffect.DefendingStatMultiplier -> multiplier
+				is BattleAbilityEffect.AttackingStatMultiplier -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbHeal -> multiplier
 				is BattleAbilityEffect.ElementSkillAbsorbStatStage -> multiplier
 				is BattleAbilityEffect.FullHpDamageReduction -> multiplier
@@ -441,6 +506,7 @@ class BattleDamageCalculator(
 					is BattleAbilityEffect.ContactBasedSkillDamageBoost,
 					is BattleAbilityEffect.ContactStatusOnAttacker,
 					is BattleAbilityEffect.CriticalHitImmunity,
+					is BattleAbilityEffect.AttackingStatMultiplier,
 					is BattleAbilityEffect.DefendingStatMultiplier,
 					is BattleAbilityEffect.ElementSkillAbsorbHeal,
 					is BattleAbilityEffect.ElementSkillAbsorbStatStage,

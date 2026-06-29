@@ -462,6 +462,19 @@ class BattleRuleCoverageService {
 				note = "已覆盖物防翻倍和青草场地下物防 1.5 倍两类防御侧能力值修正；这些规则改变基础伤害公式中的防御值，而不是最终伤害倍率。",
 			),
 			item(
+				code = "ability.attacking-stat-multiplier",
+				name = "攻击能力值修正特性",
+				category = "特性",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"attack-stat-ability-doubles-physical-attack-before-damage",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖物理攻击翻倍类特性在基础伤害公式前修正攻击值；该规则改变基础伤害，不进入最终伤害倍率。",
+			),
+			item(
 				code = "ability.tagged-skill-damage-boost",
 				name = "特性强化指定标签技能伤害",
 				category = "特性",

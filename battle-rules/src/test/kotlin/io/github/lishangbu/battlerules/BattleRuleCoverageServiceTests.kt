@@ -64,6 +64,7 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "ability.full-hp-damage-reduction" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.damage-class-damage-reduction" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.defending-stat-multiplier" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "ability.attacking-stat-multiplier" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.tagged-skill-damage-boost" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.indirect-damage-immunity" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "ability.skill-recoil-damage-immunity" && it.status == "IMPLEMENTED" })

@@ -466,6 +466,20 @@ class BattleRuntimeSnapshotServiceTests(
 					requiredTerrain = BattleTerrain.GRASSY,
 				),
 			)
+		assertThat(service.abilityEffectsByAbilityId(37))
+			.containsExactly(
+				BattleAbilityEffect.AttackingStatMultiplier(
+					stat = BattleStat.ATTACK,
+					multiplier = 2.0,
+				),
+			)
+		assertThat(service.abilityEffectsByAbilityId(74))
+			.containsExactly(
+				BattleAbilityEffect.AttackingStatMultiplier(
+					stat = BattleStat.ATTACK,
+					multiplier = 2.0,
+				),
+			)
 
 		val contactParalysis = service.abilityEffectsByAbilityId(9)
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()

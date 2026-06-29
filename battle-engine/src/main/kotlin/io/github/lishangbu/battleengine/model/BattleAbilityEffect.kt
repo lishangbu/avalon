@@ -514,6 +514,34 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 修正攻击方进入普通伤害公式的攻击侧能力值。
+	 *
+	 * 该效果用于表达现代规则中“拥有者使用物理或特殊直接技能造成伤害时，攻击或特攻能力值按固定倍率参与公式”的
+	 * 稳定特性。它改变的是基础伤害公式中的攻击侧能力值，因此会影响基础伤害整数除法和取整位置；这与最终伤害
+	 * 倍率类特性不同，也不会写回战斗快照中的真实能力值或能力阶级。
+	 *
+	 * `stat` 当前只允许 [BattleStat.ATTACK] 和 [BattleStat.SPECIAL_ATTACK]，因为其它能力项不会作为攻击侧能力值
+	 * 进入普通伤害公式。`requiredTerrain` 和 `requiredWeather` 为空时表示无环境要求；不为空时必须与当前环境匹配。
+	 * 该效果不改变技能威力、属性一致、属性相性、命中、变化技能或间接伤害。物理攻击在应用该倍率后仍会继续
+	 * 进入灼伤物理伤害减半流程，后续若接入绕过灼伤减半的特性，应通过单独结构化效果显式表达。
+	 */
+	data class AttackingStatMultiplier(
+		val stat: BattleStat,
+		val multiplier: Double,
+		val requiredTerrain: BattleTerrain? = null,
+		val requiredWeather: BattleWeather? = null,
+	) : BattleAbilityEffect {
+		init {
+			require(stat == BattleStat.ATTACK || stat == BattleStat.SPECIAL_ATTACK) {
+				"attacking stat multiplier only supports attack or special attack"
+			}
+			require(multiplier > 0.0) { "multiplier must be positive" }
+			require(requiredTerrain != BattleTerrain.NONE) { "requiredTerrain cannot be NONE" }
+			require(requiredWeather != BattleWeather.NONE) { "requiredWeather cannot be NONE" }
+		}
+	}
+
+	/**
 	 * 受到接触类技能成功命中后，按概率把主要异常状态附加给攻击方。
 	 *
 	 * 该效果用于表达现代规则中一类防守方受接触后反制攻击方的稳定特性。它只在普通技能已经命中并至少完成

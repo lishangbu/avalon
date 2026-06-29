@@ -929,6 +929,54 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `attacking stat ability changes physical attack before base damage formula`() {
+		val fixture = publicBattleRuleFixture(
+			name = "attack-stat-ability-doubles-physical-attack-before-damage",
+			sourceUrls = listOf(
+				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+			),
+			inputSummary = "使用者拥有物理攻击翻倍特性，分别使用中性一般物理技能和特殊技能攻击无特殊修正目标。",
+			expectedSummary = "物理技能使用翻倍后的攻击值进入基础伤害公式；特殊技能保持原伤害，最终伤害倍率仍保持中性。",
+		)
+		val attacker = participant(
+			"attacker",
+			speed = 100,
+			elementId = 3,
+			abilityEffects = listOf(
+				BattleAbilityEffect.AttackingStatMultiplier(
+					stat = BattleStat.ATTACK,
+					multiplier = 2.0,
+				),
+			),
+		)
+		val request = BattleDamageRequest(
+			attacker = attacker,
+			defender = participant("defender", speed = 80, elementId = 2),
+			skill = damagingSkill(elementId = 1, damageClass = BattleDamageClass.PHYSICAL, power = 40),
+			rules = neutralRules(),
+			randomPercent = 100,
+		)
+
+		val boosted = calculator.calculate(request)
+		val special = calculator.calculate(
+			request.copy(
+				skill = damagingSkill(
+					elementId = 1,
+					damageClass = BattleDamageClass.SPECIAL,
+					power = 40,
+				),
+			),
+		)
+
+		fixture.assertNamed("attack-stat-ability-doubles-physical-attack-before-damage")
+		assertEquals(37, boosted.baseDamage)
+		assertEquals(1.0, boosted.abilityMultiplier)
+		assertEquals(37, boosted.amount)
+		assertEquals(19, special.baseDamage)
+		assertEquals(19, special.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",

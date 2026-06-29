@@ -1,0 +1,61 @@
+databaseChangeLog:
+- changeSet:
+    id: 085-battle-attacking-stat-ability-rules
+    author: backend
+    comment: 新增攻击能力值修正类特性规则与公开对照 fixture 数据。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 63 }
+        - column: { name: ability_id, valueNumeric: 37 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: attack-stat-double }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 使用直接物理技能造成伤害时，攻击能力值按 2 倍进入普通伤害公式。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 630 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 64 }
+        - column: { name: ability_id, valueNumeric: 74 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: attack-stat-double }
+        - column: { name: trigger_order, valueNumeric: 90 }
+        - column: { name: description, value: 使用直接物理技能造成伤害时，攻击能力值按 2 倍进入普通伤害公式。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 640 }
+    - insert:
+        tableName: battle_rule_fixture
+        columns:
+        - column: { name: id, valueNumeric: 176 }
+        - column: { name: code, value: attack-stat-ability-doubles-physical-attack-before-damage }
+        - column: { name: name, value: 物攻修正特性在基础伤害公式前翻倍攻击 }
+        - column: { name: category, value: ABILITY }
+        - column: { name: fixture_type, value: DAMAGE_FORMULA }
+        - column: { name: description, value: 验证攻击能力值修正特性改变的是基础伤害公式中的攻击值，而不是最终伤害倍率。 }
+        - column: { name: input_summary, value: 使用者拥有物理攻击翻倍特性，分别使用中性一般物理技能和特殊技能攻击无特殊修正目标。 }
+        - column: { name: expected_summary, value: 物理技能使用翻倍后的攻击值进入基础伤害公式；特殊技能保持原伤害，最终伤害倍率仍保持中性。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 1760 }
+    - insert:
+        tableName: battle_rule_fixture_source
+        columns:
+        - column: { name: id, valueNumeric: 359 }
+        - column: { name: fixture_id, valueNumeric: 176 }
+        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
+        - column: { name: source_label, value: 公开引擎特性资料 }
+        - column: { name: source_note, value: 用于对照物理攻击能力值按 2 倍参与普通伤害公式。 }
+        - column: { name: sort_order, valueNumeric: 10 }
+    - insert:
+        tableName: battle_rule_test_run
+        columns:
+        - column: { name: id, valueNumeric: 176 }
+        - column: { name: run_code, value: attacking-stat-ability-coverage-20260629-1 }
+        - column: { name: fixture_id, valueNumeric: 176 }
+        - column: { name: run_status, value: PASSED }
+        - column: { name: executor, value: gradle }
+        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
+        - column: { name: started_at, value: "2026-06-29T14:15:00+08:00" }
+        - column: { name: sort_order, valueNumeric: 1760 }
