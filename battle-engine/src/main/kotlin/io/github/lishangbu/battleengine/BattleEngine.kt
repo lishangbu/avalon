@@ -163,10 +163,22 @@ class BattleEngine(
 				if (sameOrderPlans.size == 1) {
 					sameOrderPlans
 				} else {
-					sameOrderPlans.sortedBy { random.nextInt(1_000_000, "speed tie for ${it.actor.actorId}") }
+					sameOrderPlans.sortedByRandomTieBreak(random) { "speed tie for ${it.actor.actorId}" }
 				}
 			}
 	}
+
+	/**
+	 * 为同一排序桶内的行动预先抽取随机排序键。
+	 *
+	 * 随机数不能直接放进 `sortedBy` 的 selector 里，因为排序实现可以用自己的比较顺序和比较次数调用 selector。
+	 * 这样会让“同速随机”依赖排序算法细节，而不是依赖提交顺序和随机脚本。这里先按当前列表顺序消费一次随机数，
+	 * 再使用已经固定的键排序，保证 replay、公开 fixture 和本地测试在不同 JVM 排序实现下都保持同一结果。
+	 */
+	private fun <T> List<T>.sortedByRandomTieBreak(random: BattleRandom, reason: (T) -> String): List<T> =
+		map { item -> item to random.nextInt(1_000_000, reason(item)) }
+			.sortedBy { it.second }
+			.map { it.first }
 
 	/**
 	 * 组装技能阶段实际要执行的行动。
@@ -226,7 +238,7 @@ class BattleEngine(
 				if (sameSpeedPlans.size == 1) {
 					sameSpeedPlans
 				} else {
-					sameSpeedPlans.sortedBy { random.nextInt(1_000_000, "switch speed tie for ${it.actor.actorId}") }
+					sameSpeedPlans.sortedByRandomTieBreak(random) { "switch speed tie for ${it.actor.actorId}" }
 				}
 			}
 		return ordered.fold(state) { current, plan ->

@@ -27,9 +27,9 @@ class BattleRuleCoverageServiceTests {
 		assertEquals(plannedCount, coverage.summary.plannedCount)
 		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
 		assertEquals(312, coverage.targetSummary.targetRuleCount)
-		assertEquals(150, coverage.targetSummary.coveredRuleCount)
-		assertEquals(162, coverage.targetSummary.remainingRuleCount)
-		assertEquals(48, coverage.targetSummary.implementationPercent)
+		assertEquals(160, coverage.targetSummary.coveredRuleCount)
+		assertEquals(152, coverage.targetSummary.remainingRuleCount)
+		assertEquals(51, coverage.targetSummary.implementationPercent)
 		assertEquals(coverage.items.size, coverage.targetSummary.coverageItemCount)
 		assertTrue(coverage.targetSummary.basis.contains("可复用规则行为族"))
 		assertTrue(coverage.items.any { it.code == "status.volatile-flinch-confusion" })
@@ -101,5 +101,6 @@ class BattleRuleCoverageServiceTests {
 		assertTrue(coverage.items.any { it.code == "turn.action-submission-validation" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "replay.deterministic-random-trace" && it.status == "IMPLEMENTED" })
 		assertTrue(coverage.items.any { it.code == "target.scope-resolution" && it.status == "IMPLEMENTED" })
+		assertTrue(coverage.items.any { it.code == "turn.action-ordering" && it.status == "IMPLEMENTED" })
 	}
 }

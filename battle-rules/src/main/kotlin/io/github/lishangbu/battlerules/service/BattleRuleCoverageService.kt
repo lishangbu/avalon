@@ -342,6 +342,32 @@ class BattleRuleCoverageService {
 				note = "已覆盖同一成员重复提交行动、技能 PP 耗尽和讲究类技能锁定在提交阶段被结构化拦截；命中、保护、状态阻止等运行时事实仍保留给引擎事件流处理。",
 			),
 			item(
+				code = "turn.action-ordering",
+				name = "行动排序优先度和速度",
+				category = "回合流程",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"positive-priority-acts-before-faster-normal-priority-skill",
+					"negative-priority-acts-after-slower-normal-priority-skill",
+					"higher-speed-acts-first-inside-same-priority-bracket",
+					"same-speed-tie-consumes-random-order-keys",
+					"same-positive-priority-bracket-still-orders-by-speed",
+					"choice-speed-item-changes-action-order",
+					"paralysis-speed-drop-changes-action-order",
+					"side-speed-modifier-changes-action-order",
+					"field-speed-order-reversal-changes-same-priority-action-order",
+					"status-priority-ability-changes-action-order-before-faster-opponent",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
+				),
+				note = "已覆盖正优先度、负优先度、同优先度速度比较、同速随机、同正优先度内速度比较、讲究速度道具、麻痹速度下降、一侧速度修正、全场速度顺序反转，以及变化技能优先度特性参与行动排序。",
+			),
+			item(
 				code = "turn.accuracy-evasion-stage",
 				name = "命中和闪避阶级",
 				category = "命中",
@@ -1420,7 +1446,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 150
+		private const val FINAL_COVERED_RULE_COUNT = 160
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
