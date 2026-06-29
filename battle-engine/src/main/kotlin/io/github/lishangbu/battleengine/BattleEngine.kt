@@ -9,6 +9,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
+import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
@@ -625,6 +626,52 @@ class BattleEngine(
 			)
 		}
 
+		if (skill.fixedDamage != null) {
+			val damageEventStartIndex = state.events.size
+			val afterFixedDamage = resolveFixedDamageHit(
+				context = context,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skill = skill,
+				targetMultiplier = targetMultiplier,
+				effectiveness = effectiveness,
+				random = random,
+			)
+			val moveDamageAmount = damageDealtByMove(
+				state = afterFixedDamage.state,
+				eventStartIndex = damageEventStartIndex,
+				actorId = actor.actorId,
+				skillId = skill.skillId,
+			)
+			if (afterFixedDamage.state.result != null) {
+				return afterFixedDamage.copy(
+					state = applyPostMoveDamageDealtHealingItem(
+						state = afterFixedDamage.state,
+						actorId = actor.actorId,
+						skill = skill,
+						damageAmount = moveDamageAmount,
+					),
+				)
+			}
+			val latestTarget = afterFixedDamage.state.participant(target.actorId) ?: target
+			val afterEffects = applySkillEffects(afterFixedDamage.state, actor.actorId, latestTarget.actorId, skill, random)
+			val afterPostMoveItemEffects = applyPostMoveDamageDealtHealingItem(
+				state = afterEffects,
+				actorId = actor.actorId,
+				skill = skill,
+				damageAmount = moveDamageAmount,
+			)
+			return afterFixedDamage.copy(
+				state = updateLockedMoveAfterSuccessfulUse(
+					state = afterPostMoveItemEffects,
+					actorId = actor.actorId,
+					targetActorId = latestTarget.actorId,
+					skill = skill,
+					random = random,
+				),
+			)
+		}
+
 		val hitCount = determineHitCount(skill, random)
 		val stateWithHitCount = if (hitCount > 1) {
 			state.appendEvent(
@@ -812,6 +859,89 @@ class BattleEngine(
 		return finishPostDamageEffects(
 			context = context,
 			state = afterFireThaw,
+			actorId = actor.actorId,
+			targetActorId = damagedTarget.actorId,
+			skill = skill,
+			damageAmount = actualDamageAmount,
+			targetCanFaint = true,
+			allowTargetLowHpItem = true,
+			allowContactAbilities = true,
+			random = random,
+		)
+	}
+
+	/**
+	 * 结算一段固定伤害技能。
+	 *
+	 * 调用点已经完成行动可用性、PP、保护、命中、属性吸收和属性免疫判定；本函数只负责把固定伤害写入目标或替身。
+	 * 固定伤害不会进入普通伤害公式，因此不会消费击中要害随机数或伤害浮动随机数，也不会读取威力、攻防、
+	 * 能力阶级、属性一致加成、天气、场地、道具和特性伤害倍率。
+	 *
+	 * 写入 HP 后仍复用 [finishPostDamageEffects]，让目标低体力道具、接触触发特性、使用者反伤、伤害后回复、
+	 * 倒下判定和胜负判定保持同一条事件顺序。若目标有替身且该技能不能穿透替身，则固定伤害先扣替身 HP。
+	 */
+	private fun resolveFixedDamageHit(
+		context: TurnContext,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		effectiveness: Double,
+		random: BattleRandom,
+	): TurnContext {
+		val state = context.state
+		val actor = state.participant(actorId) ?: return context
+		val target = state.participant(targetActorId) ?: return context
+		if (!actor.canBattle() || !target.canBattle()) {
+			return context
+		}
+		val fixedDamageAmount = when (val fixedDamage = skill.fixedDamage) {
+			is BattleFixedDamage.FixedAmount -> fixedDamage.amount
+			BattleFixedDamage.UserLevel -> actor.level
+			null -> return context
+		}
+		val substituteBlocksDamage = substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
+		if (substituteBlocksDamage) {
+			return resolveDamageAgainstSubstitute(
+				context = context,
+				state = state,
+				actor = actor,
+				target = target,
+				skill = skill,
+				damageAmount = fixedDamageAmount,
+			)
+		}
+
+		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val survival = fatalDamageSurvival(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			damageAmount = fixedDamageAmount,
+			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
+		)
+		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
+		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
+		val damagedState = state
+			.replaceParticipant(damagedTarget)
+			.appendEvent(
+				BattleEvent.DamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					amount = actualDamageAmount,
+					effectiveness = effectiveness,
+					targetMultiplier = targetMultiplier,
+				),
+			)
+			.let { current ->
+				survival.event?.let(current::appendEvent) ?: current
+			}
+		return finishPostDamageEffects(
+			context = context,
+			state = damagedState,
 			actorId = actor.actorId,
 			targetActorId = damagedTarget.actorId,
 			skill = skill,

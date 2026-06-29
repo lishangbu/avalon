@@ -12,6 +12,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
+import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -587,6 +588,7 @@ class BattleRuntimeSnapshotService(
 			elementId = row.elementId,
 			damageClass = row.damageClassCode.toBattleDamageClass(),
 			power = row.power,
+			fixedDamage = row.effectPolicy.toBattleFixedDamage(),
 			accuracy = row.accuracy,
 			targetScope = row.targetPolicy.toBattleSkillTargetScope(),
 			minHits = row.minHits ?: 1,
@@ -1010,6 +1012,14 @@ class BattleRuntimeSnapshotService(
 				),
 			)
 			else -> emptyList()
+		}
+
+	private fun String?.toBattleFixedDamage(): BattleFixedDamage? =
+		when (this) {
+			"fixed-damage-20" -> BattleFixedDamage.FixedAmount(20)
+			"fixed-damage-40" -> BattleFixedDamage.FixedAmount(40)
+			"user-level-fixed-damage" -> BattleFixedDamage.UserLevel
+			else -> null
 		}
 
 	private fun String?.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironmentEffect> =

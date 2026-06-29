@@ -82,6 +82,20 @@ class BattleRuleCoverageService {
 				note = "多个实际目标时使用 0.75 目标倍率，只剩一个可战斗目标时保持 1.0。",
 			),
 			item(
+				code = "damage.fixed-damage",
+				name = "固定伤害技能",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"fixed-damage-skills-use-fixed-amount-or-user-level",
+					"fixed-damage-skill-respects-element-immunity",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
+				),
+				note = "已覆盖固定数值伤害和按使用者等级造成固定伤害；这类技能不进入普通伤害公式、不消费要害或伤害浮动随机数，但仍受保护、命中、属性免疫、替身和伤害后流程影响。",
+			),
+			item(
 				code = "field.side-damage-reduction",
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
@@ -1120,7 +1134,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 81
+		private const val FINAL_COVERED_RULE_COUNT = 83
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

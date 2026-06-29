@@ -134,6 +134,7 @@ class LiquibaseMigrationTests(
 			"085-battle-attacking-stat-ability-rules.yaml",
 			"086-battle-status-attack-ability-rules.yaml",
 			"087-battle-same-element-bonus-ability-rules.yaml",
+			"088-battle-fixed-damage-skill-rules.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -572,7 +573,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 75L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 79L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -581,9 +582,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 178L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 362L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 178L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 180L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 364L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 180L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -612,6 +613,37 @@ class LiquibaseMigrationTests(
 			"standard-damage-with-status",
 			"standard-damage-with-status",
 			"protect-self",
+		)
+
+		val fixedDamageSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (49, 69, 82, 101)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(fixedDamageSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 49L,
+				"effect_policy" to "fixed-damage-20",
+				"damage_policy" to "fixed-damage",
+			),
+			mapOf(
+				"skill_id" to 69L,
+				"effect_policy" to "user-level-fixed-damage",
+				"damage_policy" to "fixed-damage",
+			),
+			mapOf(
+				"skill_id" to 82L,
+				"effect_policy" to "fixed-damage-40",
+				"damage_policy" to "fixed-damage",
+			),
+			mapOf(
+				"skill_id" to 101L,
+				"effect_policy" to "user-level-fixed-damage",
+				"damage_policy" to "fixed-damage",
+			),
 		)
 
 		val taggedSkillRules = queryMaps(
