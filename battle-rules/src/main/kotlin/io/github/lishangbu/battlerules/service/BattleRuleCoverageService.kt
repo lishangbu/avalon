@@ -125,6 +125,25 @@ class BattleRuleCoverageService {
 				note = "已覆盖按目标与使用者当前 HP 差值造成直接伤害、差值不为正时失败，以及按使用者当前 HP 造成伤害并让使用者倒下；这些规则不进入普通伤害公式。",
 			),
 			item(
+				code = "damage.critical-hit-flow",
+				name = "击中要害流程",
+				category = "伤害",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"stage-one-critical-hit-uses-one-eighth-chance",
+					"stage-two-critical-hit-uses-one-half-chance",
+					"stage-three-critical-hit-is-guaranteed-without-critical-random-consumption",
+					"critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages",
+					"critical-hit-ignores-side-damage-reduction",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
+					"https://wiki.52poke.com/wiki/击中要害",
+				),
+				note = "已覆盖 +1 要害等级 1/8、+2 要害等级 1/2、+3 及以上必定要害且不消费要害随机数、要害忽略攻击方不利和防守方有利能力阶级，以及要害绕过一侧伤害减免屏障。",
+			),
+			item(
 				code = "field.side-damage-reduction",
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
@@ -1306,7 +1325,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 120
+		private const val FINAL_COVERED_RULE_COUNT = 125
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}

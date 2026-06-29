@@ -144,6 +144,7 @@ class LiquibaseMigrationTests(
 			"095-battle-disable-rules.yaml",
 			"096-battle-torment-rules.yaml",
 			"097-battle-binding-rules.yaml",
+			"098-battle-critical-hit-flow-fixtures.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -595,9 +596,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 219L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 439L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 219L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture", 224L)
+		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 449L)
+		assertThat(seedCounts).containsEntry("battle_rule_test_run", 224L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
