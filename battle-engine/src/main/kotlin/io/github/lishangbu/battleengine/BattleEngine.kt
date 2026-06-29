@@ -5108,18 +5108,6 @@ class BattleEngine(
 			BattleEffectTarget.TARGET -> participant(targetActorId)
 		}
 
-	/**
-	 * 结算百分比概率。
-	 *
-	 * 100% 不消费随机数，0% 永远失败；中间概率消费 1..100 掷点。
-	 */
-	private fun chanceSucceeds(chancePercent: Int, random: BattleRandom, reason: String): Boolean =
-		when (chancePercent) {
-			100 -> true
-			0 -> false
-			else -> random.nextInt(100, reason) + 1 <= chancePercent
-		}
-
 	private sealed interface DirectDamageAttempt {
 		data class Hit(
 			val amount: Int,
