@@ -144,6 +144,24 @@ class BattleRuleCoverageService {
 				note = "已覆盖 +1 要害等级 1/8、+2 要害等级 1/2、+3 及以上必定要害且不消费要害随机数、要害忽略攻击方不利和防守方有利能力阶级，以及要害绕过一侧伤害减免屏障。",
 			),
 			item(
+				code = "replay.deterministic-random-trace",
+				name = "确定性随机与严格回放",
+				category = "随机/回放",
+				status = IMPLEMENTED,
+				fixtures = listOf(
+					"scripted-random-rejects-extra-consumption",
+					"recording-random-preserves-bound-reason-and-value-sequence",
+					"strict-replay-reproduces-event-fragment-and-final-state",
+					"strict-replay-rejects-tampered-random-trace",
+				),
+				references = listOf(
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
+					"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
+				),
+				note = "已覆盖固定随机脚本拒绝额外消费、随机 trace 保存上界/原因/值、严格 replay 复算事件片段和最终状态，以及随机 trace 被篡改时立即失败。",
+			),
+			item(
 				code = "field.side-damage-reduction",
 				name = "一侧防守屏障伤害减免",
 				category = "场上效果",
@@ -1382,7 +1400,7 @@ class BattleRuleCoverageService {
 		private const val PARTIAL = "PARTIAL"
 		private const val PLANNED = "PLANNED"
 		private const val FINAL_TARGET_RULE_COUNT = 312
-		private const val FINAL_COVERED_RULE_COUNT = 140
+		private const val FINAL_COVERED_RULE_COUNT = 144
 		private const val FINAL_TARGET_BASIS =
 			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
 	}
