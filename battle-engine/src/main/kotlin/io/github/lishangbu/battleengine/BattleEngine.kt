@@ -2862,16 +2862,12 @@ class BattleEngine(
 	private fun consumeSleepBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
 		val turnsRemainingBefore = actor.sleepTurnsRemaining
 		val updated = actor.consumeSleepBlockedTurn()
-		val blocked = state
-			.replaceParticipant(updated)
-			.appendEvent(
-				BattleEvent.SkillPrevented(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					reason = SkillPreventionReason.SLEEP,
-					turnsRemainingBefore = turnsRemainingBefore,
-				),
-			)
+		val blocked = preventSkill(
+			state = state.replaceParticipant(updated),
+			actor = actor,
+			reason = SkillPreventionReason.SLEEP,
+			turnsRemainingBefore = turnsRemainingBefore,
+		)
 		return if (updated.majorStatus == null) {
 			blocked.appendEvent(
 				BattleEvent.StatusCleared(
@@ -2893,16 +2889,12 @@ class BattleEngine(
 	 */
 	private fun consumeRechargeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
 		val turnsRemainingBefore = actor.rechargeTurnsRemaining
-		return state
-			.replaceParticipant(actor.consumeRechargeTurn())
-			.appendEvent(
-				BattleEvent.SkillPrevented(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					reason = SkillPreventionReason.RECHARGE,
-					turnsRemainingBefore = turnsRemainingBefore,
-				),
-			)
+		return preventSkill(
+			state = state.replaceParticipant(actor.consumeRechargeTurn()),
+			actor = actor,
+			reason = SkillPreventionReason.RECHARGE,
+			turnsRemainingBefore = turnsRemainingBefore,
+		)
 	}
 
 	/**
@@ -2916,14 +2908,12 @@ class BattleEngine(
 		actor: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.HEAL_BLOCK,
-				skillId = skill.skillId,
-				turnsRemainingBefore = actor.healBlockTurnsRemaining,
-			),
+		preventSkill(
+			state = state,
+			actor = actor,
+			reason = SkillPreventionReason.HEAL_BLOCK,
+			skillId = skill.skillId,
+			turnsRemainingBefore = actor.healBlockTurnsRemaining,
 		)
 
 	/**
@@ -2950,14 +2940,12 @@ class BattleEngine(
 		actor: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.TAUNT,
-				skillId = skill.skillId,
-				turnsRemainingBefore = actor.tauntTurnsRemaining,
-			),
+		preventSkill(
+			state = state,
+			actor = actor,
+			reason = SkillPreventionReason.TAUNT,
+			skillId = skill.skillId,
+			turnsRemainingBefore = actor.tauntTurnsRemaining,
 		)
 
 	/**
@@ -2979,14 +2967,12 @@ class BattleEngine(
 		actor: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.DISABLE,
-				skillId = skill.skillId,
-				turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
-			),
+		preventSkill(
+			state = state,
+			actor = actor,
+			reason = SkillPreventionReason.DISABLE,
+			skillId = skill.skillId,
+			turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
 		)
 
 	/**
@@ -3000,16 +2986,14 @@ class BattleEngine(
 		actor: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.TORMENT,
-				skillId = skill.skillId,
-				previousSkillId = requireNotNull(actor.lastSuccessfulSkillId) {
-					"torment requires previous successful skill"
-				},
-			),
+		preventSkill(
+			state = state,
+			actor = actor,
+			reason = SkillPreventionReason.TORMENT,
+			skillId = skill.skillId,
+			previousSkillId = requireNotNull(actor.lastSuccessfulSkillId) {
+				"torment requires previous successful skill"
+			},
 		)
 
 	/**
@@ -3018,13 +3002,7 @@ class BattleEngine(
 	 * 冰冻状态本身保持不变；后续行动还会再次尝试自然解冻。该函数只追加事件，不修改成员快照。
 	 */
 	private fun consumeFreezeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = SkillPreventionReason.FREEZE,
-			),
-		)
+		preventSkill(state = state, actor = actor, reason = SkillPreventionReason.FREEZE)
 
 	/**
 	 * 消耗畏缩对本次技能行动的阻止效果。
@@ -3033,16 +3011,12 @@ class BattleEngine(
 	 * 回合末清理会静默移除该标记，不产生解除事件。
 	 */
 	private fun consumeFlinchBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		state
-			.replaceParticipant(actor.consumeFlinch())
-			.appendEvent(
-				BattleEvent.SkillPrevented(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					reason = SkillPreventionReason.VOLATILE_STATUS,
-					status = BattleVolatileStatus.FLINCH,
-				),
-			)
+		preventSkill(
+			state = state.replaceParticipant(actor.consumeFlinch()),
+			actor = actor,
+			reason = SkillPreventionReason.VOLATILE_STATUS,
+			status = BattleVolatileStatus.FLINCH,
+		)
 
 	/**
 	 * 消耗麻痹对本次技能行动的阻止效果。
@@ -3051,11 +3025,32 @@ class BattleEngine(
 	 * 写入事件流，方便 replay 和公开规则 fixture 验证随机消费顺序。
 	 */
 	private fun consumeParalysisBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
+		preventSkill(state = state, actor = actor, reason = SkillPreventionReason.PARALYSIS)
+
+	/**
+	 * 追加行动前技能阻止事件。
+	 *
+	 * 多种规则都会停在同一个“未使用技能、不消耗 PP、不中断后续事件流”的事实上。这个 helper 只负责构造共享事件，
+	 * 具体规则的状态递减、状态清除和随机消费仍留在各自函数里，避免把睡眠、休整、挑衅等语义糊成一个大分支。
+	 */
+	private fun preventSkill(
+		state: BattleState,
+		actor: BattleParticipant,
+		reason: SkillPreventionReason,
+		skillId: Long? = null,
+		previousSkillId: Long? = null,
+		status: BattleVolatileStatus? = null,
+		turnsRemainingBefore: Int? = null,
+	): BattleState =
 		state.appendEvent(
 			BattleEvent.SkillPrevented(
 				turnNumber = state.turnNumber,
 				actorId = actor.actorId,
-				reason = SkillPreventionReason.PARALYSIS,
+				reason = reason,
+				skillId = skillId,
+				previousSkillId = previousSkillId,
+				status = status,
+				turnsRemainingBefore = turnsRemainingBefore,
 			),
 		)
 
