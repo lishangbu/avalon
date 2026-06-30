@@ -27,7 +27,6 @@ import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
 import io.github.lishangbu.battleengine.model.BattleStatStageOperationTarget
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
-import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
@@ -111,6 +110,18 @@ class BattleEngine(
 	 * 可能发生的疲劳混乱。
 	 */
 	private val lockedMoves = BattleLockedMoveEffects(statusEffects)
+
+	/**
+	 * 单目标技能结算前的场地、属性、特性阻止与吸收规则。
+	 *
+	 * 主流程仍负责这些阻止点的先后顺序，以及被阻止后是否需要中断锁招；该对象只封装每个阻止点自身的判断和
+	 * 吸收状态改写。
+	 */
+	private val skillBlockEffects = BattleSkillBlockEffects(
+		skillIgnoresTargetAbilityEffects = { state, actor, target ->
+			skillIgnoresTargetAbilityEffects(state, actor, target)
+		},
+	)
 
 	/**
 	 * 伤害后的接触特性与携带道具结算器。
@@ -463,7 +474,7 @@ class BattleEngine(
 		}
 		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
 
-		val powderBlockedElementId = powderBlockedElementId(state, target, skill)
+		val powderBlockedElementId = skillBlockEffects.powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
 			return context.interruptSkillWithEvent(
 				state = state,
@@ -480,7 +491,7 @@ class BattleEngine(
 			)
 		}
 
-		val darkPriorityBlockedElementId = darkPriorityBlockedElementId(state, actor, target, priorityContext)
+		val darkPriorityBlockedElementId = skillBlockEffects.darkPriorityBlockedElementId(state, actor, target, priorityContext)
 		if (darkPriorityBlockedElementId != null) {
 			return context.interruptSkillWithEvent(
 				state = state,
@@ -497,7 +508,7 @@ class BattleEngine(
 			)
 		}
 
-		if (skillBlockedByTerrain(state, actor, target, priorityContext)) {
+		if (skillBlockEffects.skillBlockedByTerrain(state, actor, target, priorityContext)) {
 			return context.interruptSkillWithEvent(
 				state = state,
 				actor = actor,
@@ -513,7 +524,7 @@ class BattleEngine(
 			)
 		}
 
-		val priorityBlocker = priorityMoveAbilityBlocker(state, actor, target, priorityContext)
+		val priorityBlocker = skillBlockEffects.priorityMoveAbilityBlocker(state, actor, target, priorityContext)
 		if (priorityBlocker != null) {
 			return context.interruptSkillWithEvent(
 				state = state,
@@ -531,7 +542,7 @@ class BattleEngine(
 			)
 		}
 
-		val soundBlocker = soundBasedSkillAbilityBlocker(state, actor, target, skill)
+		val soundBlocker = skillBlockEffects.soundBasedSkillAbilityBlocker(state, actor, target, skill)
 		if (soundBlocker != null) {
 			return context.interruptSkillWithEvent(
 				state = state,
@@ -583,8 +594,8 @@ class BattleEngine(
 		val absorbedByAbility = if (ignoresTargetAbilityEffects) {
 			null
 		} else {
-			elementSkillAbsorbHeal(state, actor, target, skill)
-				?: elementSkillAbsorbStatStage(state, actor, target, skill)
+			skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
+				?: skillBlockEffects.elementSkillAbsorbStatStage(state, actor, target, skill)
 		}
 		if (absorbedByAbility != null) {
 			return context.copy(
@@ -1697,216 +1708,6 @@ class BattleEngine(
 			MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
 		} else {
 			SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
-		}
-	}
-
-	/**
-	 * 判断技能是否被场地规则阻挡。
-	 *
-	 * 现代精神场地会保护接地成员免受对手先制技能影响。该判断按目标逐个执行：范围技能中某个目标被阻挡时，
-	 * 其它不满足条件的目标仍可继续结算。
-	 */
-	private fun skillBlockedByTerrain(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		priorityContext: SkillPriorityContext,
-	): Boolean =
-		state.environment.terrain == BattleTerrain.PSYCHIC &&
-			priorityContext.effectivePriority > 0 &&
-			target.grounded &&
-			state.sideOf(actor.actorId)?.sideId != state.sideOf(target.actorId)?.sideId
-
-	/**
-	 * 返回阻止本次先制技能影响目标侧的特性拥有者。
-	 *
-	 * 这类特性保护拥有者所在一侧的当前上场成员；同侧成员主动对自己或伙伴使用先制技能时不触发。返回具体拥有者
-	 * 是为了让事件流在双打中能区分“目标自身阻挡”和“伙伴特性保护”。
-	 */
-	private fun priorityMoveAbilityBlocker(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		priorityContext: SkillPriorityContext,
-	): BattleParticipant? {
-		if (priorityContext.effectivePriority <= 0) {
-			return null
-		}
-		val actorSide = state.sideOf(actor.actorId) ?: return null
-		val targetSide = state.sideOf(target.actorId) ?: return null
-		if (actorSide.sideId == targetSide.sideId) {
-			return null
-		}
-		if (skillIgnoresTargetAbilityEffects(state, actor, target)) {
-			return null
-		}
-		return targetSide.activeParticipants()
-			.firstOrNull { participant ->
-				val effect = participant.abilityEffects
-					.filterIsInstance<BattleAbilityEffect.PriorityMoveImmunityForSide>()
-					.firstOrNull() ?: return@firstOrNull false
-				participant.canBattle() && (participant.actorId == target.actorId || effect.protectsAllies)
-			}
-	}
-
-	/**
-	 * 返回阻止本次声音类技能影响目标的特性拥有者。
-	 *
-	 * 声音免疫是目标自身特性，不保护伙伴；只要技能来源不是目标本人，且技能槽声明为声音类，就会在命中、伤害
-	 * 和附加效果之前阻止本次影响。若攻击方本次技能无视目标特性，则该免疫被跳过。
-	 */
-	private fun soundBasedSkillAbilityBlocker(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleParticipant? {
-		if (!skill.soundBased || actor.actorId == target.actorId) {
-			return null
-		}
-		if (skillIgnoresTargetAbilityEffects(state, actor, target)) {
-			return null
-		}
-		return target.takeIf { participant ->
-			participant.abilityEffects.any { it is BattleAbilityEffect.SoundBasedSkillImmunity }
-		}
-	}
-
-	/**
-	 * 判断粉末类技能是否被目标属性免疫。
-	 *
-	 * 现代规则中，草属性成员天然免疫粉末/孢子类技能。这里返回实际触发免疫的属性 ID，便于事件流记录；
-	 * 如果规则快照缺少草属性 ID，则不猜测资料编号，也不启用该免疫。
-	 */
-	private fun powderBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
-		val grassElementId = state.rules.grassElementId ?: return null
-		return if (skill.powderBased && target.hasElement(grassElementId)) {
-			grassElementId
-		} else {
-			null
-		}
-	}
-
-	/**
-	 * 判断由特性提升优先度的对手变化技能是否被目标恶属性免疫。
-	 *
-	 * 该免疫只绑定“特性把变化技能提升为先制”这一事实；普通基础先制度的变化技能、未被特性提升的技能以及
-	 * 同侧辅助技能都不会触发。这里返回恶属性 ID，便于复用属性阻挡事件并保持事件流不依赖本地化属性名称。
-	 */
-	private fun darkPriorityBlockedElementId(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		priorityContext: SkillPriorityContext,
-	): Long? {
-		val darkElementId = state.rules.darkElementId ?: return null
-		if (!priorityContext.statusPriorityBoostedByAbility || !priorityContext.darkElementTargetsImmune) {
-			return null
-		}
-		val actorSide = state.sideOf(actor.actorId) ?: return null
-		val targetSide = state.sideOf(target.actorId) ?: return null
-		return if (actorSide.sideId != targetSide.sideId && target.hasElement(darkElementId)) {
-			darkElementId
-		} else {
-			null
-		}
-	}
-
-	/**
-	 * 应用目标特性对指定属性技能的吸收回复。
-	 *
-	 * 这类特性发生在技能通过保护和命中判定之后，但早于普通伤害、状态和能力阶级效果写入。满 HP 目标仍然会
-	 * 吸收并阻止技能继续结算，只是事件中的实际回复量为 0；这样 replay 能区分“未触发”和“触发但无需回复”。
-	 */
-	private fun elementSkillAbsorbHeal(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState? {
-			val effect = target.abilityEffects
-				.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
-				.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
-				?: return null
-			if (target.healingBlocked()) {
-				return state.appendEvent(
-					BattleEvent.SkillAbsorbedByAbility(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						abilityHolderActorId = target.actorId,
-						abilityId = target.abilityId,
-						elementId = effect.elementId,
-						healAmount = 0,
-					),
-				)
-			}
-			val rawHealAmount = (target.maxHp / effect.healDenominator).coerceAtLeast(1)
-		val healedTarget = target.heal(rawHealAmount)
-		val actualHealAmount = healedTarget.currentHp - target.currentHp
-		return state
-			.replaceParticipant(healedTarget)
-			.appendEvent(
-				BattleEvent.SkillAbsorbedByAbility(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					abilityHolderActorId = target.actorId,
-					abilityId = target.abilityId,
-					elementId = effect.elementId,
-					healAmount = actualHealAmount,
-				),
-			)
-	}
-
-	/**
-	 * 应用目标特性对指定属性技能的吸收和自身能力阶级提升。
-	 *
-	 * 技能被吸收后不会继续进入普通伤害或附加效果流程。能力阶级提升独立夹取，目标已经达到上限时只记录吸收事件；
-	 * 没有阶级变化事件表示“触发了吸收，但提阶被上限吃掉”，而不是技能继续生效。
-	 */
-	private fun elementSkillAbsorbStatStage(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState? {
-		val effect = target.abilityEffects
-			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
-			?: return null
-		val absorbedState = state.appendEvent(
-			BattleEvent.SkillAbsorbedByAbility(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				targetActorId = target.actorId,
-				skillId = skill.skillId,
-				abilityHolderActorId = target.actorId,
-				abilityId = target.abilityId,
-				elementId = effect.elementId,
-				healAmount = 0,
-			),
-		)
-		val beforeStage = target.statStage(effect.stat)
-		val updatedTarget = target.changeStatStage(effect.stat, effect.stageDelta)
-		val afterStage = updatedTarget.statStage(effect.stat)
-		return if (beforeStage == afterStage) {
-			absorbedState
-		} else {
-			absorbedState
-				.replaceParticipant(updatedTarget)
-				.appendEvent(
-					BattleEvent.StatStageChanged(
-						turnNumber = state.turnNumber,
-						actorId = target.actorId,
-						targetActorId = target.actorId,
-						stat = effect.stat,
-						delta = afterStage - beforeStage,
-						currentStage = afterStage,
-					),
-				)
 		}
 	}
 
