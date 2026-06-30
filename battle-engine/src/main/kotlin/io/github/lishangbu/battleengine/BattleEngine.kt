@@ -7,9 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
-import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleInitialState
-import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
@@ -42,6 +40,7 @@ class BattleEngine(
 	private val skillTargeting = BattleSkillTargeting()
 	private val hitResolution = BattleHitResolution(statStageModifiers)
 	private val directDamage = BattleDirectDamage()
+	private val damageDefenseEffects = BattleDamageDefenseEffects()
 	private val skillHpEffects = BattleSkillHpEffects()
 	private val statStageEffects = BattleStatStageEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
@@ -870,7 +869,7 @@ class BattleEngine(
 			)
 		}
 
-		val itemReduction = heldItemDamageReduction(
+		val itemReduction = damageDefenseEffects.heldItemDamageReduction(
 			state = state,
 			actor = actor,
 			target = target,
@@ -880,7 +879,7 @@ class BattleEngine(
 		)
 		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
 		val targetAfterItemReduction = itemReduction?.target ?: target
-		val survival = fatalDamageSurvival(
+		val survival = damageDefenseEffects.fatalDamageSurvival(
 			state = stateAfterItemReduction,
 			actor = actor,
 			target = targetAfterItemReduction,
@@ -961,7 +960,7 @@ class BattleEngine(
 		}
 
 		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
-		val survival = fatalDamageSurvival(
+		val survival = damageDefenseEffects.fatalDamageSurvival(
 			state = state,
 			actor = actor,
 			target = target,
@@ -997,132 +996,6 @@ class BattleEngine(
 			allowTargetLowHpItem = true,
 			allowContactAbilities = true,
 			random = random,
-		)
-	}
-
-	/**
-	 * 处理防守方一次性属性减伤携带道具。
-	 *
-	 * 该函数与伤害计算器使用同一个 [BattleItemEffect.ElementDamageReduction.matches] 条件，因此“是否减伤”和
-	 * “是否消费道具”不会分叉。调用点已经排除了替身挡住本体的场景；如果未来增加穿透替身、紧张感或道具禁用等
-	 * 规则，应在进入这里前把是否允许触发表达成明确的结构化状态，而不是在函数中读取技能名称或道具名称。
-	 */
-	private fun heldItemDamageReduction(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		skillElementId: Long,
-		effectiveness: Double,
-	): HeldItemDamageReduction? {
-		val itemId = target.itemId ?: return null
-		val effect = target.itemEffects
-			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()
-			.firstOrNull { it.matches(skillElementId, effectiveness) }
-			?: return null
-		val updatedTarget = if (effect.consumesItem) target.consumeHeldItem() else target
-		return HeldItemDamageReduction(
-			target = updatedTarget,
-			event = BattleEvent.DamageReducedByItem(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				targetActorId = target.actorId,
-				skillId = skill.skillId,
-				itemId = itemId,
-				elementId = skillElementId,
-				multiplier = effect.multiplier,
-				consumed = effect.consumesItem,
-			),
-		)
-	}
-
-	/**
-	 * 在直接伤害写入目标 HP 前，套用“满 HP 致命伤害保留 1 HP”的特性和道具规则。
-	 *
-	 * 这类规则必须发生在低体力道具、接触特性和倒下判定之前；否则一次本应保留 1 HP 的攻击会先把目标写成倒下。
-	 * 特性优先于道具，避免同一成员同时拥有两种来源时错误消耗携带道具。若本次技能声明无视目标防守特性，只跳过
-	 * 特性来源的保命，道具来源仍按普通携带道具规则结算。
-	 */
-	private fun fatalDamageSurvival(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		damageAmount: Int,
-		ignoreTargetAbilityEffects: Boolean,
-	): FatalDamageSurvivalResult {
-		if (
-			damageAmount <= 0 ||
-			!target.canBattle() ||
-			target.currentHp != target.maxHp ||
-			damageAmount < target.currentHp
-		) {
-			return FatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
-		}
-		val abilityEffect = if (ignoreTargetAbilityEffects) {
-			null
-		} else {
-			target.abilityEffects
-				.filterIsInstance<BattleAbilityEffect.SurviveFatalDamageAtFullHp>()
-				.firstOrNull()
-		}
-		if (abilityEffect != null) {
-			return target.toFatalDamageSurvivalResult(
-				state = state,
-				actor = actor,
-				skill = skill,
-				damageAmount = damageAmount,
-				remainingHp = abilityEffect.remainingHp,
-				source = BattleFatalDamageSurvivalSource.ABILITY,
-				sourceId = target.abilityId,
-				consumed = false,
-			)
-		}
-		val itemId = target.itemId
-		val itemEffect = target.itemEffects
-			.filterIsInstance<BattleItemEffect.SurviveFatalDamageAtFullHp>()
-			.firstOrNull()
-		if (itemId != null && itemEffect != null) {
-			val updatedTarget = if (itemEffect.consumesItem) target.consumeHeldItem() else target
-			return updatedTarget.toFatalDamageSurvivalResult(
-				state = state,
-				actor = actor,
-				skill = skill,
-				damageAmount = damageAmount,
-				remainingHp = itemEffect.remainingHp,
-				source = BattleFatalDamageSurvivalSource.ITEM,
-				sourceId = itemId,
-				consumed = itemEffect.consumesItem,
-			)
-		}
-		return FatalDamageSurvivalResult(target = target, damageAmount = damageAmount)
-	}
-
-	private fun BattleParticipant.toFatalDamageSurvivalResult(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-		damageAmount: Int,
-		remainingHp: Int,
-		source: BattleFatalDamageSurvivalSource,
-		sourceId: Long?,
-		consumed: Boolean,
-	): FatalDamageSurvivalResult {
-		val adjustedDamage = (currentHp - remainingHp).coerceAtLeast(0)
-		return FatalDamageSurvivalResult(
-			target = this,
-			damageAmount = adjustedDamage,
-			event = BattleEvent.FatalDamageSurvived(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				targetActorId = actorId,
-				skillId = skill.skillId,
-				source = source,
-				sourceId = sourceId,
-				consumed = consumed,
-				incomingDamage = damageAmount,
-				preventedDamage = damageAmount - adjustedDamage,
-			),
 		)
 	}
 
@@ -1516,14 +1389,4 @@ class BattleEngine(
 		val successfulProtectionActorIds: Set<String> = emptySet(),
 	)
 
-	private data class FatalDamageSurvivalResult(
-		val target: BattleParticipant,
-		val damageAmount: Int,
-		val event: BattleEvent.FatalDamageSurvived? = null,
-	)
-
-	private data class HeldItemDamageReduction(
-		val target: BattleParticipant,
-		val event: BattleEvent.DamageReducedByItem,
-	)
 }
