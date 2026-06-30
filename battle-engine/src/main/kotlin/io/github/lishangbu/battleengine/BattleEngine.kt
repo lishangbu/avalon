@@ -114,6 +114,11 @@ class BattleEngine(
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		},
 	)
+	private val preHitTargetGate = BattlePreHitTargetGate(
+		skillBlockEffects = skillBlockEffects,
+		targetDefenseEffects = targetDefenseEffects,
+		hitResolution = hitResolution,
+	)
 
 	/**
 	 * 伤害后的接触特性与携带道具结算器。
@@ -563,18 +568,24 @@ class BattleEngine(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
-		val preHitGate = resolvePreHitTargetGate(
-			context = context,
+		val preHitGate = preHitTargetGate.resolve(
 			state = state,
 			actor = actor,
 			target = target,
 			skill = skill,
 			priorityContext = priorityContext,
+			protectedActorIds = context.protectedActorIds,
 			random = random,
 		)
 		val ignoresTargetAbilityEffects = when (preHitGate) {
-			is PreHitTargetGateResult.Interrupted -> return preHitGate.context
-			is PreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
+			is BattlePreHitTargetGateResult.Interrupted -> return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = preHitGate.event,
+			)
+			is BattlePreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
 		}
 		val absorbedByAbility = if (ignoresTargetAbilityEffects) {
 			null
@@ -716,161 +727,6 @@ class BattleEngine(
 			random = random,
 		)
 	}
-
-	/**
-	 * 结算单目标技能“已经选中目标但还没有真正命中”之前的所有阻止点。
-	 *
-	 * 这个阶段故意保持为一个固定顺序的 gate，而不是把每个阻止点散落在主伤害流程中：
-	 * - 粉末类技能先检查目标属性阻止。
-	 * - 先制变化技能再检查恶属性和场地阻止。
-	 * - 然后检查一侧先制免疫特性、声音类技能免疫特性和保护屏障。
-	 * - 最后才消费命中随机数。
-	 *
-	 * 任一阻止点触发时，都会通过 [TurnContext.interruptSkillWithEvent] 结束锁招或蓄力释放的后续状态，保证
-	 * “被阻止”和“未命中”共享同一套中断收口。只有通过 gate 的技能才会继续进入属性吸收、状态技能或伤害分支。
-	 */
-	private fun resolvePreHitTargetGate(
-		context: TurnContext,
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		priorityContext: SkillPriorityContext,
-		random: BattleRandom,
-	): PreHitTargetGateResult {
-		val powderBlockedElementId = skillBlockEffects.powderBlockedElementId(state, target, skill)
-		if (powderBlockedElementId != null) {
-			return context.interruptByElementBlock(state, actor, target, skill, powderBlockedElementId, random)
-		}
-
-		val darkPriorityBlockedElementId = skillBlockEffects.darkPriorityBlockedElementId(state, actor, target, priorityContext)
-		if (darkPriorityBlockedElementId != null) {
-			return context.interruptByElementBlock(state, actor, target, skill, darkPriorityBlockedElementId, random)
-		}
-
-		if (skillBlockEffects.skillBlockedByTerrain(state, actor, target, priorityContext)) {
-			return PreHitTargetGateResult.Interrupted(
-				context.interruptSkillWithEvent(
-					state = state,
-					actor = actor,
-					skill = skill,
-					random = random,
-					event = BattleEvent.SkillBlockedByTerrain(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						terrain = state.environment.terrain,
-					),
-				),
-			)
-		}
-
-		val priorityBlocker = skillBlockEffects.priorityMoveAbilityBlocker(state, actor, target, priorityContext)
-		if (priorityBlocker != null) {
-			return context.interruptByAbilityBlock(state, actor, target, skill, priorityBlocker, random)
-		}
-
-		val soundBlocker = skillBlockEffects.soundBasedSkillAbilityBlocker(state, actor, target, skill)
-		if (soundBlocker != null) {
-			return context.interruptByAbilityBlock(state, actor, target, skill, soundBlocker, random)
-		}
-
-		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
-			return PreHitTargetGateResult.Interrupted(
-				context.interruptSkillWithEvent(
-					state = state,
-					actor = actor,
-					skill = skill,
-					random = random,
-					event = BattleEvent.SkillBlockedByProtection(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-					),
-				),
-			)
-		}
-
-		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
-		val accuracyCheck = hitResolution.accuracyCheck(
-			state = state,
-			actor = actor,
-			target = target,
-			skill = skill,
-			ignoresTargetAbilityEffects = ignoresTargetAbilityEffects,
-			random = random,
-		)
-		if (!accuracyCheck.hit) {
-			return PreHitTargetGateResult.Interrupted(
-				context.interruptSkillWithEvent(
-					state = state,
-					actor = actor,
-					skill = skill,
-					random = random,
-					event = BattleEvent.SkillMissed(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						accuracyRoll = accuracyCheck.roll ?: 0,
-					),
-				),
-			)
-		}
-
-		return PreHitTargetGateResult.Passed(ignoresTargetAbilityEffects)
-	}
-
-	private fun TurnContext.interruptByElementBlock(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		elementId: Long,
-		random: BattleRandom,
-	): PreHitTargetGateResult =
-		PreHitTargetGateResult.Interrupted(
-			interruptSkillWithEvent(
-				state = state,
-				actor = actor,
-				skill = skill,
-				random = random,
-				event = BattleEvent.SkillBlockedByElement(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					elementId = elementId,
-				),
-			),
-		)
-
-	private fun TurnContext.interruptByAbilityBlock(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		blocker: BattleParticipant,
-		random: BattleRandom,
-	): PreHitTargetGateResult =
-		PreHitTargetGateResult.Interrupted(
-			interruptSkillWithEvent(
-				state = state,
-				actor = actor,
-				skill = skill,
-				random = random,
-				event = BattleEvent.SkillBlockedByAbility(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					abilityHolderActorId = blocker.actorId,
-					abilityId = blocker.abilityId,
-				),
-			),
-		)
 
 	/**
 	 * 收拢一次技能成功造成伤害后的共同流程。
@@ -1159,20 +1015,5 @@ class BattleEngine(
 		val actorBeforePp: BattleParticipant,
 		val actorAfterActionSetup: BattleParticipant,
 	)
-
-	/**
-	 * 命中前目标 gate 的结算结果。
-	 *
-	 * [Interrupted] 表示技能已经被属性、场地、特性、保护或命中失败中断，返回的 [TurnContext] 已经追加事件并处理
-	 * 锁招/蓄力中断；调用方必须立即返回，不能继续做属性吸收、状态效果或伤害。
-	 *
-	 * [Passed] 表示技能通过所有命中前 gate，可以继续进入后续结算。这里顺带携带
-	 * [ignoresTargetAbilityEffects]，避免后续属性吸收和伤害公式再重复计算“本次技能是否无视目标防守特性”。
-	 */
-	private sealed interface PreHitTargetGateResult {
-		data class Interrupted(val context: TurnContext) : PreHitTargetGateResult
-
-		data class Passed(val ignoresTargetAbilityEffects: Boolean) : PreHitTargetGateResult
-	}
 
 }
