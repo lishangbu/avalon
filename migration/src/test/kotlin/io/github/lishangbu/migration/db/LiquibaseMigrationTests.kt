@@ -161,6 +161,7 @@ class LiquibaseMigrationTests(
 				"113-battle-final-rule-boundary-fixtures.yaml",
 				"114-battle-golden-replay-fixture.yaml",
 				"115-remove-battle-rule-fixtures.yaml",
+				"116-remove-battle-rule-coverage-menu.yaml",
 			)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -348,7 +349,6 @@ class LiquibaseMigrationTests(
 			"battle-rules:admin",
 			"battle-rules.ability-rules",
 			"battle-rules.battle-formats",
-			"battle-rules.coverage",
 			"battle-rules.effects",
 			"battle-rules.field-rules",
 			"battle-rules.format-clause-bindings",
@@ -373,6 +373,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.fixture-sources",
 			"battle-rules.fixtures",
 			"battle-rules.test-runs",
+			"battle-rules.coverage",
 		)
 
 		val roleCodes = queryStrings(
