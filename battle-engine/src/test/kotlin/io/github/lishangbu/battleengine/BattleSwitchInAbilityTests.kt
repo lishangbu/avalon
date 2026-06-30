@@ -25,10 +25,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in attack drop ability triggers for initial single battle active opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-attack-drop-triggers-at-battle-start",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Intimidate_(Ability)",
-			),
 			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场降攻特性，对手当前上场且可战斗。",
 			expectedSummary = "战斗开始事件之后，对手攻击能力阶级降低 1 级，并记录通用能力阶级变化事件。",
 		)
@@ -56,10 +52,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in attack drop ability targets both active opponents in double battle`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-attack-drop-targets-both-double-battle-opponents",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Intimidate_(Ability)",
-			),
 			inputSummary = "双打战斗开始时，己方一个当前上场成员拥有出场降攻特性，对方两个当前上场成员均可战斗。",
 			expectedSummary = "对方两个当前上场成员各降低攻击 1 级；己方同伴不受该出场特性影响。",
 		)
@@ -85,10 +77,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in attack drop ability triggers after voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-attack-drop-triggers-after-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "单打中己方主动替换到拥有出场降攻特性的后备成员，对手当前上场且可战斗。",
 			expectedSummary = "替换事件先记录，随后出场特性降低对手攻击 1 级。",
 		)
@@ -121,11 +109,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in weather ability starts weather at battle start`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-weather-starts-rain-at-battle-start",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Drizzle_(Ability)",
-			),
 			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置下雨天气的结构化特性。",
 			expectedSummary = "战斗开始事件之后，天气变为下雨并写入 5 回合持续时间，同时记录天气开始事件。",
 		)
@@ -153,11 +136,6 @@ class BattleSwitchInAbilityTests {
 	fun `weather extending item makes switch in weather ability last eight turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-extending-item-makes-weather-ability-last-eight-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Damp_Rock",
-			),
 			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置下雨天气特性，并携带匹配天气的延长道具。",
 			expectedSummary = "战斗开始后下雨天气按 8 回合建立，并产生记录 8 回合的天气开始事件。",
 		)
@@ -193,10 +171,6 @@ class BattleSwitchInAbilityTests {
 	fun `slower initial weather ability overwrites faster weather ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "slower-switch-in-weather-overwrites-faster-weather-at-battle-start",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Weather#Abilities_that_create_weather",
-			),
 			inputSummary = "单打战斗开始时，双方当前上场成员分别拥有出场设置天气的特性；己方速度更快，对方速度更慢。",
 			expectedSummary = "较快成员先设置下雨，较慢成员后设置大晴天，最终保留较慢成员设置的天气。",
 		)
@@ -220,10 +194,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in weather ability triggers after voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-weather-triggers-after-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "单打中己方主动替换到拥有出场设置沙暴天气特性的后备成员。",
 			expectedSummary = "替换事件先记录，随后天气变为沙暴并写入 5 回合持续时间。",
 		)
@@ -259,10 +229,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in terrain ability starts terrain at battle start`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-terrain-starts-electric-terrain-at-battle-start",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Electric_Surge_(Ability)",
-			),
 			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置电气场地的结构化特性。",
 			expectedSummary = "战斗开始事件之后，场地变为电气场地并写入 5 回合持续时间，同时记录场地开始事件。",
 		)
@@ -290,11 +256,6 @@ class BattleSwitchInAbilityTests {
 	fun `terrain extending item makes switch in terrain ability last eight turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-extending-item-makes-terrain-ability-last-eight-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender",
-			),
 			inputSummary = "单打战斗开始时，己方当前上场成员拥有出场设置精神场地特性，并携带场地延长道具。",
 			expectedSummary = "战斗开始后精神场地按 8 回合建立，并产生记录 8 回合的场地开始事件。",
 		)
@@ -335,10 +296,6 @@ class BattleSwitchInAbilityTests {
 	fun `slower initial terrain ability overwrites faster terrain ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "slower-switch-in-terrain-overwrites-faster-terrain-at-battle-start",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Terrain#Abilities_that_create_terrain",
-			),
 			inputSummary = "单打战斗开始时，双方当前上场成员分别拥有出场设置场地的特性；己方速度更快，对方速度更慢。",
 			expectedSummary = "较快成员先设置电气场地，较慢成员后设置精神场地，最终保留较慢成员设置的场地。",
 		)
@@ -362,10 +319,6 @@ class BattleSwitchInAbilityTests {
 	fun `switch in terrain ability triggers after voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-in-terrain-triggers-after-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "单打中己方主动替换到拥有出场设置薄雾场地特性的后备成员。",
 			expectedSummary = "替换事件先记录，随后场地变为薄雾场地并写入 5 回合持续时间。",
 		)

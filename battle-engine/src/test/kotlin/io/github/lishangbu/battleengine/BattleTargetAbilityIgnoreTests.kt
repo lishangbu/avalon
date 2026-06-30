@@ -27,10 +27,6 @@ class BattleTargetAbilityIgnoreTests {
 	fun `target ability ignore bypasses element absorb ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-ability-ignore-bypasses-element-absorb",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "攻击方拥有无视目标特性效果，使用匹配目标吸收特性的属性攻击。",
 			expectedSummary = "目标的属性吸收特性不触发，技能进入普通伤害结算并造成直接伤害。",
 		)
@@ -71,11 +67,6 @@ class BattleTargetAbilityIgnoreTests {
 	fun `target ability ignore bypasses full hp survival ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-ability-ignore-bypasses-full-hp-survival",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Mold_Breaker_(Ability)",
-				"https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability)",
-			),
 			inputSummary = "攻击方拥有无视目标特性效果，目标满 HP 且拥有满 HP 致命伤害保留特性。",
 			expectedSummary = "目标特性不触发，致命直接伤害把目标 HP 扣到 0，不产生保留 1 HP 事件。",
 		)
@@ -113,10 +104,6 @@ class BattleTargetAbilityIgnoreTests {
 	fun `target ability ignore bypasses defender damage stat stage ignore`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-ability-ignore-bypasses-defender-stat-stage-ignore",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
-			),
 			inputSummary = "攻击方攻击阶级为 +2 且拥有无视目标特性效果，防守方拥有无视对手伤害阶级变化特性。",
 			expectedSummary = "防守方特性不参与本次公式，物理伤害读取攻击方 +2 攻击阶级。",
 		)
@@ -152,10 +139,6 @@ class BattleTargetAbilityIgnoreTests {
 	fun `target ability ignore bypasses target major status immunity`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-ability-ignore-bypasses-target-status-immunity",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "攻击方拥有无视目标特性效果，使用附加麻痹的变化技能命中拥有麻痹免疫特性的目标。",
 			expectedSummary = "目标特性免疫被跳过，麻痹状态成功写入；属性、场地和道具免疫不在该 fixture 范围内。",
 		)

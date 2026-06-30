@@ -27,10 +27,6 @@ class BattleCriticalHitFlowTests {
 	fun `stage one critical hit uses one eighth chance`() {
 		val fixture = publicBattleRuleFixture(
 			name = "stage-one-critical-hit-uses-one-eighth-chance",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/击中要害",
-			),
 			inputSummary = "使用者使用基础要害等级 +1 的物理技能，要害随机数掷到 0。",
 			expectedSummary = "引擎以 1/8 上界消费要害随机数，本次伤害标记为击中要害并按 1.5 倍要害倍率结算。",
 		)
@@ -60,10 +56,6 @@ class BattleCriticalHitFlowTests {
 	fun `stage two critical hit uses one half chance`() {
 		val fixture = publicBattleRuleFixture(
 			name = "stage-two-critical-hit-uses-one-half-chance",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/击中要害",
-			),
 			inputSummary = "使用者使用基础要害等级 +2 的物理技能，要害随机数掷到 0。",
 			expectedSummary = "引擎以 1/2 上界消费要害随机数，本次伤害标记为击中要害并按现代要害倍率结算。",
 		)
@@ -92,10 +84,6 @@ class BattleCriticalHitFlowTests {
 	fun `stage three critical hit is guaranteed without critical random consumption`() {
 		val fixture = publicBattleRuleFixture(
 			name = "stage-three-critical-hit-is-guaranteed-without-critical-random-consumption",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/击中要害",
-			),
 			inputSummary = "使用者使用基础要害等级 +3 的物理技能。",
 			expectedSummary = "引擎把 +3 及以上视为必定要害，不消费要害随机数，只继续消费伤害浮动随机数。",
 		)
@@ -124,10 +112,6 @@ class BattleCriticalHitFlowTests {
 	fun `critical hit ignores unfavorable attack and favorable defense stages`() {
 		val fixture = publicBattleRuleFixture(
 			name = "critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages",
-			sourceUrls = listOf(
-				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
-				"https://wiki.52poke.com/wiki/击中要害",
-			),
 			inputSummary = "使用者攻击阶级为 -6，目标防御阶级为 +6，使用必定要害物理技能命中。",
 			expectedSummary = "击中要害进入伤害公式后忽略攻击方不利攻击阶级和防守方有利防御阶级，仍按中性攻防造成要害伤害。",
 		)
@@ -161,11 +145,6 @@ class BattleCriticalHitFlowTests {
 	fun `critical hit ignores side damage reduction`() {
 		val fixture = publicBattleRuleFixture(
 			name = "critical-hit-ignores-side-damage-reduction",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/反射壁（招式）",
-				"https://wiki.52poke.com/wiki/击中要害",
-			),
 			inputSummary = "目标一侧存在物理伤害减免屏障，使用者用必定要害物理技能命中目标。",
 			expectedSummary = "伤害事件标记为击中要害；普通物理伤害不应用目标一侧屏障减免，按完整要害伤害结算。",
 		)

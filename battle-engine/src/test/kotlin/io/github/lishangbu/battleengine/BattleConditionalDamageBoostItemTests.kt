@@ -24,7 +24,6 @@ class BattleConditionalDamageBoostItemTests {
 	fun `damage class power boost item raises matching physical power`() {
 		val fixture = publicBattleRuleFixture(
 			name = "physical-power-boost-item-raises-matching-damage-class",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者携带物理威力提升道具，使用非本系 40 威力物理技能攻击中性目标。",
 			expectedSummary = "技能有效威力从 40 提升到 44，普通伤害从 19 提升到 21，道具保持携带状态。",
 		)
@@ -64,7 +63,6 @@ class BattleConditionalDamageBoostItemTests {
 	fun `damage class power boost item ignores non matching damage class`() {
 		val fixture = publicBattleRuleFixture(
 			name = "physical-power-boost-item-ignores-special-damage-class",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者携带物理威力提升道具，使用非本系 40 威力特殊技能攻击中性目标。",
 			expectedSummary = "技能伤害分类不匹配，道具不提供威力修正，普通伤害仍为 19。",
 		)
@@ -103,7 +101,6 @@ class BattleConditionalDamageBoostItemTests {
 	fun `super effective damage boost item raises final super effective damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "super-effective-damage-boost-item-raises-final-damage",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者携带效果绝佳伤害提升道具，使用非本系火属性物理技能攻击草属性目标。",
 			expectedSummary = "普通伤害先因效果绝佳从 19 变为 38，再由道具按最终 1.2 倍修正为 45。",
 		)
@@ -140,7 +137,6 @@ class BattleConditionalDamageBoostItemTests {
 	fun `super effective damage boost item ignores neutral damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "super-effective-damage-boost-item-ignores-neutral-damage",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者携带效果绝佳伤害提升道具，使用非本系火属性物理技能攻击中性目标。",
 			expectedSummary = "属性克制结果不是效果绝佳，道具不提供最终伤害修正，普通伤害仍为 19。",
 		)

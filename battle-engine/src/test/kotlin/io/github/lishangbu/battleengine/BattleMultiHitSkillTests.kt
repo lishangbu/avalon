@@ -21,10 +21,6 @@ class BattleMultiHitSkillTests {
 	fun `multi hit skill consumes pp once and applies scripted hit count`() {
 		val fixture = publicBattleRuleFixture(
 			name = "multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move",
-			),
 			inputSummary = "2..5 段技能命中目标，固定段数随机数落入 3 段区间。",
 			expectedSummary = "技能只消耗 1 点 PP，产生 3 段伤害事件，每段独立消费要害和伤害浮动随机数。",
 		)
@@ -66,10 +62,6 @@ class BattleMultiHitSkillTests {
 	fun `multi hit skill stops consuming hit randoms after target faints`() {
 		val fixture = publicBattleRuleFixture(
 			name = "multi-hit-skill-stops-after-target-faints",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move",
-			),
 			inputSummary = "2..5 段技能抽到 5 段，但目标在第 2 段后倒下。",
 			expectedSummary = "事件记录抽到 5 段，但只实际结算 2 段伤害，不再消费第 3 段之后的随机数。",
 		)

@@ -25,10 +25,6 @@ class BattleElementAbsorbAbilityTests {
 	fun `element absorb ability heals and blocks matching damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-ability-heals-and-blocks-matching-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Volt_Absorb_(Ability)",
-			),
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，当前 HP 不满，对手使用匹配属性攻击。",
 			expectedSummary = "技能命中后被目标特性吸收，目标不受伤害，并按最大 HP 的 1/4 回复。",
 		)
@@ -66,10 +62,6 @@ class BattleElementAbsorbAbilityTests {
 	fun `element absorb ability at full hp blocks without overhealing`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-ability-at-full-hp-blocks-without-overhealing",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Water_Absorb_(Ability)",
-			),
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，但当前已经满 HP，对手使用匹配属性攻击。",
 			expectedSummary = "技能仍被目标特性吸收并阻止伤害，实际回复量为 0，目标 HP 不超过最大值。",
 		)
@@ -104,10 +96,6 @@ class BattleElementAbsorbAbilityTests {
 	fun `element absorb ability blocks matching status skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-ability-blocks-matching-status-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Earth_Eater_(Ability)",
-			),
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，对手使用匹配属性变化技能并试图降低目标能力阶级。",
 			expectedSummary = "变化技能命中后被目标特性吸收，不写入能力阶级变化，目标按最大 HP 的 1/4 回复。",
 		)

@@ -110,10 +110,6 @@ class BattleDamageCalculatorTests {
 	fun `burn halves physical attacking stat before damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "burn-halves-physical-attacking-stat-before-damage",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "灼伤状态的使用者以 100 攻击使用物理技能攻击无特殊防御修正目标。",
 			expectedSummary = "物理攻击数值先按灼伤减半参与普通伤害公式，最终伤害低于同条件未灼伤物理攻击。",
 		)
@@ -235,10 +231,6 @@ class BattleDamageCalculatorTests {
 	fun `low hp element ability boosts matching element damage at one third hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "low-hp-element-ability-boosts-matching-damage-at-threshold",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Swarm_(Ability)",
-			),
 			inputSummary = "使用者当前 HP 等于最大 HP 的 1/3，拥有低体力强化虫属性伤害的结构化特性，并使用虫属性技能。",
 			expectedSummary = "技能属性匹配且 HP 达到阈值时，伤害倍率按 1.5 叠乘；高于阈值或属性不匹配时不触发该倍率。",
 		)
@@ -302,10 +294,6 @@ class BattleDamageCalculatorTests {
 	fun `weather element ability boosts matching effective element damage only in matching weather`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-element-ability-boosts-matching-element-in-sandstorm",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有沙暴下强化岩石、地面和钢属性技能的结构化特性，在沙暴中分别使用匹配属性、非匹配属性和天气改属性技能。",
 			expectedSummary = "沙暴存在且本次有效属性匹配时获得 1.3 倍特性倍率；天气不匹配或有效属性不匹配时不触发。",
 		)
@@ -381,10 +369,6 @@ class BattleDamageCalculatorTests {
 	fun `element ability boosts matching effective element damage with configured multiplier`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-ability-boosts-matching-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有指定属性技能伤害提升特性，分别使用匹配属性、非匹配属性和天气改属性技能。",
 			expectedSummary = "本次有效属性匹配时按配置倍率提升最终伤害；非匹配属性不触发，1.5 倍和约 1.3 倍变体都按结构化倍率计算。",
 		)
@@ -467,10 +451,6 @@ class BattleDamageCalculatorTests {
 	fun `punch based ability boosts only tagged skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "punch-based-ability-boosts-punch-tagged-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有拳类技能伤害提升特性，分别使用带拳类标签和不带拳类标签的一般属性 80 威力物理技能。",
 			expectedSummary = "带拳类标签的技能在最终伤害中获得 1.2 倍特性倍率，不带标签的同威力技能保持原伤害。",
 		)
@@ -511,10 +491,6 @@ class BattleDamageCalculatorTests {
 	fun `slicing based ability boosts only tagged skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "slicing-based-ability-boosts-slicing-tagged-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有切割类技能伤害提升特性，分别使用带切割标签和不带切割标签的一般属性 70 威力物理技能。",
 			expectedSummary = "带切割标签的技能在最终伤害中获得 1.5 倍特性倍率，不带标签的同威力技能保持原伤害。",
 		)
@@ -555,10 +531,6 @@ class BattleDamageCalculatorTests {
 	fun `contact based ability boosts only contact skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "contact-based-ability-boosts-contact-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有接触类技能伤害提升特性，分别使用接触和非接触的一般属性 40 威力物理技能。",
 			expectedSummary = "接触技能在最终伤害中获得 1.3 倍特性倍率，非接触技能保持原伤害。",
 		)
@@ -599,10 +571,6 @@ class BattleDamageCalculatorTests {
 	fun `sound based ability boosts only sound skill damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-based-ability-boosts-sound-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者拥有声音类技能伤害提升特性，分别使用声音和非声音的一般属性 40 威力特殊技能。",
 			expectedSummary = "声音技能在最终伤害中获得 1.3 倍特性倍率，非声音技能保持原伤害。",
 		)
@@ -653,10 +621,6 @@ class BattleDamageCalculatorTests {
 	fun `sound based defensive ability reduces sound skill damage unless target ability is ignored`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-based-defensive-ability-reduces-sound-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "目标拥有声音类技能伤害减免特性，攻击方使用声音类一般属性 40 威力特殊技能。",
 			expectedSummary = "未绕过目标特性时声音伤害按 0.5 倍降低；本次技能忽略目标特性时该减伤不生效。",
 		)
@@ -693,10 +657,6 @@ class BattleDamageCalculatorTests {
 	fun `super effective defensive ability reduces only super effective damage unless target ability is ignored`() {
 		val fixture = publicBattleRuleFixture(
 			name = "super-effective-defensive-ability-reduces-super-effective-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-types.ts",
-			),
 			inputSummary = "目标拥有受到效果绝佳伤害减免的结构化特性，攻击方使用对目标 2 倍克制的一般物理技能。",
 			expectedSummary = "属性克制倍率大于 1 时最终伤害按 0.75 倍降低；非效果绝佳或本次技能无视目标特性时保持原伤害。",
 		)
@@ -742,9 +702,6 @@ class BattleDamageCalculatorTests {
 	fun `full hp defensive ability reduces direct skill damage only while defender remains full hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "full-hp-defensive-ability-reduces-direct-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标拥有满 HP 伤害减免特性，攻击方使用中性一般物理技能分别命中满 HP 和非满 HP 目标。",
 			expectedSummary = "目标当前 HP 等于最大 HP 时最终伤害按 0.5 倍降低；目标不满 HP 或本次技能无视目标特性时保持原伤害。",
 		)
@@ -784,9 +741,6 @@ class BattleDamageCalculatorTests {
 	fun `damage class defensive ability reduces matching damage class only`() {
 		val fixture = publicBattleRuleFixture(
 			name = "special-damage-class-ability-reduces-special-skill-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标拥有特殊分类伤害减免特性，攻击方分别使用中性一般特殊技能和物理技能命中。",
 			expectedSummary = "特殊分类直接技能伤害按 0.5 倍降低；物理技能或本次技能无视目标特性时保持原伤害。",
 		)
@@ -837,9 +791,6 @@ class BattleDamageCalculatorTests {
 	fun `defending stat ability changes physical defense before base damage formula`() {
 		val fixture = publicBattleRuleFixture(
 			name = "defense-stat-ability-doubles-physical-defense-before-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标拥有物防翻倍特性，攻击方分别使用中性一般物理技能和特殊技能命中。",
 			expectedSummary = "物理技能使用翻倍后的防御值进入基础伤害公式；特殊技能或本次技能无视目标特性时保持原伤害。",
 		)
@@ -888,9 +839,6 @@ class BattleDamageCalculatorTests {
 	fun `terrain defending stat ability only changes defense when terrain matches`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-defense-stat-ability-boosts-defense-in-grassy-terrain",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标拥有场地要求的物防强化特性，攻击方使用中性一般物理技能分别在青草场地和无场地命中。",
 			expectedSummary = "场地匹配时防御值按 1.5 倍进入基础伤害公式；场地不匹配或本次技能无视目标特性时保持原伤害。",
 		)
@@ -932,9 +880,6 @@ class BattleDamageCalculatorTests {
 	fun `attacking stat ability changes physical attack before base damage formula`() {
 		val fixture = publicBattleRuleFixture(
 			name = "attack-stat-ability-doubles-physical-attack-before-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "使用者拥有物理攻击翻倍特性，分别使用中性一般物理技能和特殊技能攻击无特殊修正目标。",
 			expectedSummary = "物理技能使用翻倍后的攻击值进入基础伤害公式；特殊技能保持原伤害，最终伤害倍率仍保持中性。",
 		)
@@ -980,9 +925,6 @@ class BattleDamageCalculatorTests {
 	fun `same element bonus ability overrides same element damage bonus`() {
 		val fixture = publicBattleRuleFixture(
 			name = "same-element-bonus-ability-uses-double-stab-multiplier",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "使用者拥有属性一致加成覆盖特性，分别使用与自身属性一致和不一致的中性一般物理技能。",
 			expectedSummary = "属性一致时 STAB 倍率从默认 1.5 改为 2.0；属性不一致时保持 1.0，泛用特性最终倍率仍保持中性。",
 		)
@@ -1019,10 +961,6 @@ class BattleDamageCalculatorTests {
 	fun `major status attack ability boosts physical attack and skips burn attack drop`() {
 		val fixture = publicBattleRuleFixture(
 			name = "major-status-attack-ability-boosts-attack-and-skips-burn-drop",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "使用者拥有异常状态物攻强化特性，分别在灼伤、中毒和无异常状态下使用中性一般物理技能。",
 			expectedSummary = "有主要异常状态时攻击值按 1.5 倍进入基础伤害公式；灼伤不会再把物理伤害减半，无异常状态时不触发强化。",
 		)
@@ -1076,10 +1014,6 @@ class BattleDamageCalculatorTests {
 	fun `sun boosts fire damage and weakens water damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sun-boosts-fire-and-weakens-water-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Harsh_sunlight",
-			),
 			inputSummary = "晴天环境下分别计算火属性技能和水属性技能的普通伤害。",
 			expectedSummary = "火属性伤害使用 1.5 倍天气倍率，水属性伤害使用 0.5 倍天气倍率。",
 		)
@@ -1118,10 +1052,6 @@ class BattleDamageCalculatorTests {
 	fun `rain boosts water damage and weakens fire damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "rain-boosts-water-and-weakens-fire-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rain",
-			),
 			inputSummary = "下雨环境下分别计算水属性技能和火属性技能的普通伤害。",
 			expectedSummary = "水属性伤害使用 1.5 倍天气倍率，火属性伤害使用 0.5 倍天气倍率。",
 		)
@@ -1160,10 +1090,6 @@ class BattleDamageCalculatorTests {
 	fun `weather power multiplier modifies base power before damage formula`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-power-multiplier-modifies-base-power",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Weather",
-			),
 			inputSummary = "下雨环境下，技能资料声明威力按 0.5 倍参与普通伤害公式。",
 			expectedSummary = "伤害计算器先把基础威力折半，再进入等级、攻防和倍率公式。",
 		)
@@ -1192,10 +1118,6 @@ class BattleDamageCalculatorTests {
 	fun `sandstorm boosts rock special defense before special damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sandstorm-boosts-rock-special-defense",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition)",
-			),
 			inputSummary = "沙暴环境下，普通特殊技能命中岩属性目标。",
 			expectedSummary = "目标特防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
 		)
@@ -1220,10 +1142,6 @@ class BattleDamageCalculatorTests {
 	fun `snow boosts ice physical defense before physical damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "snow-boosts-ice-physical-defense",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Snow",
-			),
 			inputSummary = "雪景环境下，普通物理技能命中冰属性目标。",
 			expectedSummary = "目标物防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
 		)
@@ -1248,10 +1166,6 @@ class BattleDamageCalculatorTests {
 	fun `grassy terrain boosts grounded grass damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-boosts-grounded-grass-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
-			),
 			inputSummary = "青草场地中，接地草属性成员使用草属性技能。",
 			expectedSummary = "伤害公式额外应用 1.3 倍场地倍率；非接地使用者不会获得该倍率。",
 		)
@@ -1290,10 +1204,6 @@ class BattleDamageCalculatorTests {
 	fun `grassy terrain weakens tagged ground shaking moves against grounded targets`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
-			),
 			inputSummary = "青草场地中，带震动削弱标签的地面物理技能分别命中接地和非接地目标。",
 			expectedSummary = "接地目标受到 0.5 倍场地倍率伤害，非接地目标不受该削弱影响。",
 		)

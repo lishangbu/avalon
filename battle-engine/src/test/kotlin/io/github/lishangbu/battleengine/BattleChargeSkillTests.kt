@@ -26,10 +26,6 @@ class BattleChargeSkillTests {
 	fun `charge skill spends first turn charging then releases without extra pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "charge-skill-releases-next-turn-without-extra-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move)",
-			),
 			inputSummary = "使用者使用需要蓄力的特殊伤害技能，下一回合未提交行动。",
 			expectedSummary = "首回合只进入蓄力并扣一次 PP；下一回合自动释放技能造成伤害，不再次扣 PP。",
 		)
@@ -102,10 +98,6 @@ class BattleChargeSkillTests {
 	fun `configured weather skips charge and resolves skill immediately`() {
 		val fixture = publicBattleRuleFixture(
 			name = "charge-skill-skips-charge-in-sun",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move)",
-			),
 			inputSummary = "使用者在晴天下使用被配置为跳过蓄力的特殊伤害技能。",
 			expectedSummary = "技能只消耗一次 PP，不产生蓄力开始事件，并在同回合造成伤害。",
 		)
@@ -142,10 +134,6 @@ class BattleChargeSkillTests {
 	fun `charge skipping item is consumed and resolves skill immediately`() {
 		val fixture = publicBattleRuleFixture(
 			name = "charge-skill-consumes-item-to-skip-charge",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Power_Herb",
-			),
 			inputSummary = "使用者携带一次性跳过蓄力道具，使用需要蓄力的特殊伤害技能。",
 			expectedSummary = "技能宣告后道具被消费，不产生蓄力开始事件，并在同回合造成伤害。",
 		)

@@ -27,12 +27,6 @@ class BattleVolatileStatusCureItemTests {
 	fun `volatile status cure item clears confusion after application and consumes item`() {
 		val fixture = publicBattleRuleFixture(
 			name = "volatile-status-cure-item-clears-confusion-after-application",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Persim_Berry",
-				"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
-			),
 			inputSummary = "目标携带解除混乱的一次性道具，对手使用 100% 附加混乱的变化技能。",
 			expectedSummary = "混乱先写入目标运行态并消费持续时间随机数，随后携带道具立即解除混乱并被消费。",
 		)

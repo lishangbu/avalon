@@ -34,10 +34,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `element immunities block matching major statuses`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-immunities-block-major-statuses",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Status_condition",
-			),
 			inputSummary = "分别尝试给火、电、毒、钢、冰属性目标附加其天然免疫的主要异常状态。",
 			expectedSummary = "目标不会获得对应状态，事件流以属性免疫作为阻止原因。",
 		)
@@ -77,10 +73,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `electric terrain does not block sleep for ungrounded target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "electric-terrain-does-not-block-sleep-for-ungrounded-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
-			),
 			inputSummary = "电气场地存在时，非接地上场目标被睡眠技能命中。",
 			expectedSummary = "目标仍会获得睡眠状态，并正常消费睡眠持续随机数。",
 		)
@@ -109,10 +101,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `misty terrain blocks major status for grounded target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "misty-terrain-blocks-major-status-for-grounded-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Misty_Terrain_(move)",
-			),
 			inputSummary = "薄雾场地存在时，接地上场目标被灼伤技能命中。",
 			expectedSummary = "目标不会获得灼伤状态，事件流以场地作为阻止原因。",
 		)
@@ -142,10 +130,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `grass target blocks powder based status skill before status random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grass-target-blocks-powder-based-status-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Powder_and_spore_moves",
-			),
 			inputSummary = "草属性目标被粉末类睡眠技能选中。",
 			expectedSummary = "技能使用并消耗 PP，但被目标草属性免疫阻挡，不消费睡眠持续随机数。",
 		)
@@ -188,10 +172,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `ability and item immunities block matching major statuses before private random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "ability-and-item-immunities-block-matching-major-statuses",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "目标分别通过特性免疫中毒、通过携带道具免疫睡眠。",
 			expectedSummary = "状态不会写入，事件流分别记录特性和道具作为阻止原因，且睡眠持续随机数不会被消费。",
 		)
@@ -247,10 +227,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `existing major status blocks new major status without private random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "existing-major-status-blocks-new-major-status",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Status_condition",
-			),
 			inputSummary = "目标已经处于麻痹状态，随后被 100% 附加睡眠的变化技能命中。",
 			expectedSummary = "目标仍保持原有麻痹状态，不获得睡眠；事件流记录 EXISTING_STATUS 阻止原因，且不消费睡眠持续随机数。",
 		)
@@ -283,11 +259,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `terrain ability and item immunities block confusion before duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-ability-and-item-immunities-block-confusion-before-duration-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "目标分别因薄雾场地、特性和携带道具免疫混乱。",
 			expectedSummary = "混乱不会写入，事件流记录对应阻止原因，且混乱持续时间随机数不会被消费。",
 		)
@@ -348,12 +319,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `ability and item immunities block flinch so target still acts`() {
 		val fixture = publicBattleRuleFixture(
 			name = "ability-and-item-immunities-block-flinch-before-action",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Inner_Focus_(Ability)",
-				"https://bulbapedia.bulbagarden.net/wiki/Covert_Cloak",
-			),
 			inputSummary = "较快成员使用 100% 附加畏缩的接触外普通技能命中目标；目标分别通过特性和携带道具免疫畏缩。",
 			expectedSummary = "畏缩不会写入目标运行态，事件流记录对应阻止原因；目标随后仍能在同回合正常行动并造成伤害。",
 		)
@@ -417,10 +382,6 @@ class BattleStatusImmunityAndGroundingTests {
 	fun `grassy terrain heals only grounded active participants`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grassy-terrain-heals-only-grounded-active-participants",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
-			),
 			inputSummary = "青草场地存在时，双方当前上场成员都损失 HP，其中一方不接地。",
 			expectedSummary = "只有接地成员在回合末获得青草场地回复。",
 		)

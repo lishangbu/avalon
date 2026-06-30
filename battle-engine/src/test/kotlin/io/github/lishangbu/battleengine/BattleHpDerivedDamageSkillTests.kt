@@ -24,9 +24,6 @@ class BattleHpDerivedDamageSkillTests {
 	fun `HP difference damage reduces target to user current hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "hp-difference-damage-skill-reduces-target-to-user-current-hp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者当前 HP 为 37，目标当前 HP 为 92，使用目标 HP 与自身 HP 差额伤害技能命中。",
 			expectedSummary = "目标损失 55 HP，最终当前 HP 与使用者当前 HP 同为 37；技能不进入普通伤害公式。",
 		)
@@ -58,9 +55,6 @@ class BattleHpDerivedDamageSkillTests {
 	fun `HP difference damage fails when target hp is not greater than user hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "hp-difference-damage-skill-fails-when-target-not-above-user",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者当前 HP 为 70，目标当前 HP 为 60，使用目标 HP 与自身 HP 差额伤害技能命中。",
 			expectedSummary = "技能因目标当前 HP 不高于使用者当前 HP 而失败，不产生伤害事件，也不会退回普通公式。",
 		)
@@ -95,9 +89,6 @@ class BattleHpDerivedDamageSkillTests {
 	fun `user current hp sacrifice damage faints user after hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "user-current-hp-sacrifice-damage-skill-faints-user",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者当前 HP 为 73，使用自身当前 HP 等量伤害技能命中 HP 为 73 的目标。",
 			expectedSummary = "目标和使用者都损失 73 HP，双方同时倒下并产生无胜方结果。",
 		)

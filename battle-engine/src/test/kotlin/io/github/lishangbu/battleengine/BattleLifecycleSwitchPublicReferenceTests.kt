@@ -27,10 +27,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `battle start event records format and side order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "battle-start-event-records-format-and-side-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/field.ts",
-			),
 			inputSummary = "以标准单打初始状态创建战斗。",
 			expectedSummary = "事件流从 BattleStarted 开始，记录赛制 code 和双方 sideId 的稳定顺序。",
 		)
@@ -49,10 +45,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `last opponent faint ends battle with winning side`() {
 		val fixture = publicBattleRuleFixture(
 			name = "last-opponent-faint-ends-battle-with-winning-side",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "一方最后一名可战斗成员被伤害技能击倒。",
 			expectedSummary = "目标濒死后立即产生 BattleEnded，胜方为仍有可战斗成员的一侧。",
 		)
@@ -84,10 +76,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `active faint with reserve does not end battle`() {
 		val fixture = publicBattleRuleFixture(
 			name = "active-faint-with-reserve-does-not-end-battle",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/替换",
-			),
 			inputSummary = "当前上场成员被击倒，但同一侧仍有可战斗后备成员。",
 			expectedSummary = "事件流记录濒死，但不产生 BattleEnded，等待后续强制补位替换。",
 		)
@@ -115,10 +103,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `voluntary switch replaces active slot before skill phase`() {
 		val fixture = publicBattleRuleFixture(
 			name = "voluntary-switch-replaces-active-slot-before-skill-phase",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://wiki.52poke.com/wiki/替换",
-			),
 			inputSummary = "一方主动替换，另一方本回合攻击离场成员原本所在槽位。",
 			expectedSummary = "替换事件先于技能使用事件；技能命中同一槽位的新上场成员。",
 		)
@@ -153,10 +137,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `fainted active switch is marked forced`() {
 		val fixture = publicBattleRuleFixture(
 			name = "fainted-active-switch-is-marked-forced",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "当前上场成员已经无法战斗，提交替换到同侧可战斗后备成员。",
 			expectedSummary = "引擎允许补位替换，并把 ParticipantSwitched 标记为 forced=true。",
 		)
@@ -186,10 +166,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `switch out clears volatile counters and stat stages`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-out-clears-volatile-counters-and-stat-stages",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts",
-				"https://wiki.52poke.com/wiki/能力变化",
-			),
 			inputSummary = "成员带着攻击、速度能力阶级变化和连续保护计数主动离场。",
 			expectedSummary = "离场后能力阶级和连续保护计数清零，剧毒递增计数回到初始值。",
 		)
@@ -225,10 +201,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `switch out keeps major status hp and pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "switch-out-keeps-major-status-hp-and-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts",
-				"https://wiki.52poke.com/wiki/异常状态",
-			),
 			inputSummary = "成员带着主要异常状态、已损失 HP 和已消耗 PP 主动离场。",
 			expectedSummary = "离场不会恢复主要异常状态、HP 或 PP。",
 		)
@@ -260,10 +232,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `recharge prevents voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "recharge-prevents-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/破坏光线（招式）",
-			),
 			inputSummary = "仍可战斗成员处于休整状态时提交主动替换。",
 			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=RECHARGE)，原成员仍留在上场槽位。",
 		)
@@ -290,10 +258,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `charging prevents voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "charging-prevents-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/蓄力的招式",
-			),
 			inputSummary = "仍可战斗成员处于蓄力状态时提交主动替换。",
 			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=CHARGING)，原成员仍留在上场槽位并继续释放蓄力技能。",
 		)
@@ -327,10 +291,6 @@ class BattleLifecycleSwitchPublicReferenceTests {
 	fun `locked move prevents voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "locked-move-prevents-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/逆鳞（招式）",
-			),
 			inputSummary = "仍可战斗成员处于锁招状态时提交主动替换。",
 			expectedSummary = "替换被阻止并产生 SwitchPrevented(reason=LOCKED_MOVE)，原成员仍留在上场槽位并继续执行锁定技能。",
 		)

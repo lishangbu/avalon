@@ -25,10 +25,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `selected target follows single battle replacement slot`() {
 		val fixture = publicBattleRuleFixture(
 			name = "selected-target-follows-single-battle-replacement-slot",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "单打中目标先主动替换，攻击方技能仍指向原目标 actorId。",
 			expectedSummary = "技能按目标槽位命中新上场成员，原离场成员不受伤害。",
 		)
@@ -59,10 +55,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `selected target in double follows replaced selected slot only`() {
 		val fixture = publicBattleRuleFixture(
 			name = "selected-target-in-double-follows-replaced-selected-slot-only",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中对方左侧目标替换，右侧目标保持在场；攻击方选择左侧槽位。",
 			expectedSummary = "单体技能只命中左侧槽位的新上场成员，不会改打右侧在场成员。",
 		)
@@ -108,10 +100,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `selected target fainted current slot does not redirect to other slot`() {
 		val fixture = publicBattleRuleFixture(
 			name = "selected-target-fainted-current-slot-does-not-redirect-to-other-slot",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "双打中选择的目标槽位当前成员已经无法战斗，另一名对手仍在场。",
 			expectedSummary = "单体技能不会重定向到另一槽位；行动在使用前取消且不消耗 PP。",
 		)
@@ -140,10 +128,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `selected target with no capable active member cancels before pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "selected-target-with-no-capable-active-member-cancels-before-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "单打中目标侧当前没有可战斗上场成员。",
 			expectedSummary = "找不到可战斗目标时行动在技能使用前取消，不消耗 PP。",
 		)
@@ -169,10 +153,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `all adjacent opponents with no capable opponents cancels before pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-opponents-with-no-capable-opponents-cancels-before-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中范围为全体相邻对手的技能执行时，对手两名上场成员都无法战斗。",
 			expectedSummary = "范围目标集合为空，行动在技能使用前取消且不消耗 PP。",
 		)
@@ -201,10 +181,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `all adjacent participants with only user capable cancels before pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-participants-with-only-user-capable-cancels-before-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中全体相邻成员范围技能执行时，除使用者外没有可战斗成员。",
 			expectedSummary = "目标集合为空，行动在技能使用前取消，不消耗 PP。",
 		)
@@ -233,10 +209,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `all adjacent opponents ignores submitted target actor`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-opponents-ignores-submitted-target-actor",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中全体相邻对手范围技能提交的 targetActorId 指向同侧伙伴。",
 			expectedSummary = "范围技能忽略提交目标 actorId，仍命中所有可战斗对手且不命中伙伴。",
 		)
@@ -268,10 +240,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `all adjacent participants ignores selected target and includes ally`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-participants-ignores-selected-target-and-includes-ally",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中全体相邻成员范围技能提交的 targetActorId 指向使用者自身。",
 			expectedSummary = "范围技能忽略提交目标 actorId，命中伙伴和两个对手，但排除使用者自身。",
 		)
@@ -303,10 +271,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `spread target multiplier remains when one target protects`() {
 		val fixture = publicBattleRuleFixture(
 			name = "spread-target-multiplier-remains-when-one-target-protects",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "双打中范围技能有两个可战斗目标，其中一个目标本回合先使用保护。",
 			expectedSummary = "保护目标不受伤害，但另一目标的伤害事件仍使用多目标范围倍率。",
 		)
@@ -341,10 +305,6 @@ class BattleTargetRedirectionPublicReferenceTests {
 	fun `spread target order follows current active slot order after switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "spread-target-order-follows-current-active-slot-order-after-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "双打中对方左侧成员先替换，随后范围技能重新收集两个对手目标。",
 			expectedSummary = "伤害事件顺序按当前 active slot 顺序记录，新上场成员位于原左侧槽位。",
 		)

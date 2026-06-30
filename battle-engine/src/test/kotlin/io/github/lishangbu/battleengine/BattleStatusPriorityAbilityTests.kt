@@ -25,10 +25,6 @@ class BattleStatusPriorityAbilityTests {
 	fun `status priority ability moves status skill before faster opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-priority-ability-moves-status-skill-before-faster-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Prankster_(Ability)",
-			),
 			inputSummary = "低速成员拥有让变化技能获得额外优先度的结构化特性，对手速度更高，双方都使用基础优先度为 0 的变化技能。",
 			expectedSummary = "拥有特性的成员先行动，事件流中的技能使用顺序先于高速对手。",
 		)
@@ -68,10 +64,6 @@ class BattleStatusPriorityAbilityTests {
 	fun `dark target blocks opponent status skill boosted by status priority ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Prankster_(Ability)",
-			),
 			inputSummary = "拥有变化技能先制度特性的成员对对手恶属性目标使用基础优先度为 0 的变化技能。",
 			expectedSummary = "技能消耗 PP 后被目标恶属性免疫，不产生能力阶级变化或其它附加效果。",
 		)
@@ -108,10 +100,6 @@ class BattleStatusPriorityAbilityTests {
 	fun `status priority ability does not make ally dark target immune`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-priority-ability-does-not-make-ally-dark-target-immune",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Prankster_(Ability)",
-			),
 			inputSummary = "双打中拥有变化技能先制度特性的成员对同侧恶属性伙伴使用变化技能。",
 			expectedSummary = "恶属性免疫只针对对手目标；同侧伙伴不会阻挡该技能，附加效果正常结算。",
 		)

@@ -24,10 +24,6 @@ class BattleElementDamageReductionItemTests {
 	fun `element damage reduction item halves super effective matching damage and consumes item`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-damage-reduction-item-halves-super-effective-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Damage-reducing_Berry",
-			),
 			inputSummary = "目标携带火属性抗性树果，受到效果绝佳的非本系火属性物理技能命中。",
 			expectedSummary = "普通伤害先因效果绝佳变为 38，再被道具按 0.5 倍削弱为 19；道具触发后被消费。",
 		)
@@ -69,10 +65,6 @@ class BattleElementDamageReductionItemTests {
 	fun `element damage reduction item ignores matching damage that is not super effective`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-damage-reduction-item-requires-super-effective-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Damage-reducing_Berry",
-			),
 			inputSummary = "目标携带火属性抗性树果，受到中性火属性物理技能命中。",
 			expectedSummary = "技能属性匹配但不是效果绝佳，抗性树果不触发，伤害保持 19，道具仍然保留。",
 		)
@@ -107,10 +99,6 @@ class BattleElementDamageReductionItemTests {
 	fun `element damage reduction item does not activate when substitute takes the hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-damage-reduction-item-does-not-activate-through-substitute",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "目标携带火属性抗性树果并已有替身，受到效果绝佳的火属性物理技能命中。",
 			expectedSummary = "技能先命中替身，本体没有直接受伤，抗性树果不触发也不消费。",
 		)
@@ -149,10 +137,6 @@ class BattleElementDamageReductionItemTests {
 	fun `normal damage reduction item halves normal damage without super effective condition`() {
 		val fixture = publicBattleRuleFixture(
 			name = "normal-damage-reduction-item-halves-normal-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Chilan_Berry",
-			),
 			inputSummary = "目标携带一般属性抗性树果，受到中性一般属性物理技能命中。",
 			expectedSummary = "一般属性抗性树果不要求效果绝佳，直接把 19 点普通伤害削弱为 9 并消费道具。",
 		)

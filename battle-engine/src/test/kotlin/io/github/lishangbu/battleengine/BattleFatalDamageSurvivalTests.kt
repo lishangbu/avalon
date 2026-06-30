@@ -24,10 +24,6 @@ class BattleFatalDamageSurvivalTests {
 	fun `full hp survival ability leaves target at one hp before faint`() {
 		val fixture = publicBattleRuleFixture(
 			name = "full-hp-survival-ability-leaves-one-hp-before-faint",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability)",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标满 HP 且拥有满 HP 致命伤害保留 1 HP 的结构化特性效果，受到足以一击倒下的普通技能伤害。",
 			expectedSummary = "目标没有倒下，最终保留 1 HP；事件流记录本次致命伤害由特性来源保住。",
 		)
@@ -65,10 +61,6 @@ class BattleFatalDamageSurvivalTests {
 	fun `consumable full hp survival item leaves target at one hp and consumes item`() {
 		val fixture = publicBattleRuleFixture(
 			name = "consumable-full-hp-survival-item-leaves-one-hp-and-consumes-item",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Focus_Sash",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "目标满 HP 且携带一次性满 HP 致命伤害保留 1 HP 道具，受到足以一击倒下的普通技能伤害。",
 			expectedSummary = "目标最终保留 1 HP，道具被消费，事件流记录本次保命来源是携带道具。",
 		)
@@ -105,10 +97,6 @@ class BattleFatalDamageSurvivalTests {
 	fun `full hp survival does not trigger after prior damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "full-hp-survival-does-not-trigger-after-prior-damage",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Sturdy_(Ability)",
-				"https://bulbapedia.bulbagarden.net/wiki/Focus_Sash",
-			),
 			inputSummary = "目标已经不是满 HP，拥有满 HP 致命伤害保留 1 HP 效果，随后受到足以倒下的普通技能伤害。",
 			expectedSummary = "保命效果不触发，目标 HP 被扣到 0，事件流不出现保留 1 HP 事件。",
 		)

@@ -25,11 +25,6 @@ class BattleSkillStatStageEffectTests {
 	fun `status skill applies multiple user stat stage changes`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-applies-multiple-user-stat-stage-changes",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Dragon_Dance_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Shell_Smash_(move)",
-			),
 			inputSummary = "使用者成功使用会提升自身多项能力阶级的变化技能。",
 			expectedSummary = "使用者自身对应能力阶级逐项改变，并为每一项实际变化产生能力阶级事件。",
 		)
@@ -80,11 +75,6 @@ class BattleSkillStatStageEffectTests {
 	fun `all opponents status skill applies stat stage change to each active opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Growl_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Noble_Roar_(move)",
-			),
 			inputSummary = "双打中使用者成功使用影响所有相邻对手的变化技能。",
 			expectedSummary = "两个当前对手分别降低对应能力阶级，己方队友不受影响，并为每个实际目标记录事件。",
 		)

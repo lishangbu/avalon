@@ -604,12 +604,6 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 	): PublicBattleRuleFixture =
 		publicBattleRuleFixture(
 			name = name,
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-			),
 			inputSummary = inputSummary,
 			expectedSummary = expectedSummary,
 		)

@@ -24,11 +24,6 @@ class BattleForcedSwitchSkillTests {
 	fun `status skill forces target side to switch to a random bench participant`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-forces-target-side-random-bench-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Roar_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Whirlwind_(move)",
-			),
 			inputSummary = "变化类强制替换技能命中目标，目标侧有两个可战斗后备成员，随机脚本选择第二个后备。",
 			expectedSummary = "目标离场并清理离场运行态，第二个后备上场；事件流先记录强制替换选择，再记录席位替换。",
 		)
@@ -74,11 +69,6 @@ class BattleForcedSwitchSkillTests {
 	fun `damaging skill applies damage before forcing target switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damaging-skill-applies-damage-before-forced-target-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Circle_Throw_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Dragon_Tail_(move)",
-			),
 			inputSummary = "物理伤害类强制替换技能命中目标，目标侧有一个可战斗后备成员。",
 			expectedSummary = "目标先承受技能伤害，随后被强制换下；只有一个合法后备时不额外消费随机数。",
 		)

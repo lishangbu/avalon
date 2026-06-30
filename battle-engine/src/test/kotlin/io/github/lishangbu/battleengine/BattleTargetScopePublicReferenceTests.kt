@@ -26,10 +26,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `selected target skill hits only chosen target in double battle`() {
 		val fixture = publicBattleRuleFixture(
 			name = "selected-target-skill-hits-only-chosen-target-in-double-battle",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中使用普通单体技能，目标选择对方左侧成员。",
 			expectedSummary = "技能只对选中目标产生一次伤害事件，同侧伙伴和另一名对手都不受影响。",
 		)
@@ -59,10 +55,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `all adjacent opponents skill hits both opponents and skips ally`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中使用目标范围为全体相邻对手的伤害技能，对方两名成员均可战斗。",
 			expectedSummary = "技能对两个对手各产生一次伤害事件，不影响使用者同侧伙伴，并使用范围伤害倍率。",
 		)
@@ -93,10 +85,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `all adjacent participants skill hits ally and opponents but excludes user`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中使用目标范围为全体相邻成员的伤害技能，使用者伙伴和两个对手都可战斗。",
 			expectedSummary = "技能命中除使用者外的三个相邻成员，使用者自身不受到该范围技能影响。",
 		)
@@ -127,10 +115,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `spread skill skips fainted opponent and keeps full target multiplier`() {
 		val fixture = publicBattleRuleFixture(
 			name = "spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/招式",
-			),
 			inputSummary = "双打中使用全体相邻对手范围技能，但其中一个对手已经无法战斗。",
 			expectedSummary = "范围目标列表只包含仍可战斗的对手，普通伤害公式使用 1.0 目标倍率。",
 		)
@@ -161,10 +145,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `spread skill recalculates opponents after voluntary switch`() {
 		val fixture = publicBattleRuleFixture(
 			name = "spread-skill-recalculates-opponents-after-voluntary-switch",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "双打中对手左侧成员先主动替换，随后另一方使用全体相邻对手范围技能。",
 			expectedSummary = "范围技能按替换后的当前站位重新收集目标，命中新上场成员和另一名仍在场对手。",
 		)
@@ -215,10 +195,6 @@ class BattleTargetScopePublicReferenceTests {
 	fun `all adjacent participants skill skips fainted ally`() {
 		val fixture = publicBattleRuleFixture(
 			name = "all-adjacent-participants-skill-skips-fainted-ally",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中使用全体相邻成员范围技能，使用者伙伴已经无法战斗，两个对手仍可战斗。",
 			expectedSummary = "范围目标列表跳过已经无法战斗的伙伴，只命中两个仍可战斗的对手。",
 		)

@@ -23,10 +23,6 @@ class BattleTerrainEffectTests {
 	fun `terrain speed ability changes skill action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-speed-ability-changes-skill-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
-			),
 			inputSummary = "电气场地环境下，低速成员拥有场地速度翻倍特性，高速成员没有场地速度特性。",
 			expectedSummary = "低速成员的有效速度翻倍后先行动，事件流中的技能使用顺序随之改变。",
 		)

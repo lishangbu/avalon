@@ -21,10 +21,6 @@ class BattlePriorityAbilityTests {
 	fun `priority blocking ability blocks opponent priority move against holder`() {
 		val fixture = publicBattleRuleFixture(
 			name = "priority-blocking-ability-blocks-opponent-priority-move-against-holder",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Queenly_Majesty_(Ability)",
-			),
 			inputSummary = "目标当前上场并拥有阻止对手先制技能影响己方的结构化特性，对手使用先制攻击指定该目标。",
 			expectedSummary = "技能消耗 PP 后被目标特性阻挡，不产生命中、伤害或附加效果。",
 		)
@@ -60,11 +56,6 @@ class BattlePriorityAbilityTests {
 	fun `priority blocking ability protects active ally from opponent priority move`() {
 		val fixture = publicBattleRuleFixture(
 			name = "priority-blocking-ability-protects-active-ally-from-opponent-priority-move",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Dazzling_(Ability)",
-				"https://bulbapedia.bulbagarden.net/wiki/Armor_Tail_(Ability)",
-			),
 			inputSummary = "双打中目标本身没有阻挡特性，但同侧另一个当前上场成员拥有先制阻挡特性，对手使用先制攻击指定目标。",
 			expectedSummary = "技能消耗 PP 后被伙伴特性阻挡，目标不受到伤害，事件记录实际特性拥有者。",
 		)
@@ -101,10 +92,6 @@ class BattlePriorityAbilityTests {
 	fun `priority blocking ability does not block ally priority move`() {
 		val fixture = publicBattleRuleFixture(
 			name = "priority-blocking-ability-does-not-block-ally-priority-move",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Queenly_Majesty_(Ability)",
-			),
 			inputSummary = "双打中同侧成员对拥有先制阻挡特性的伙伴使用先制攻击。",
 			expectedSummary = "特性只阻止对手先制技能，不阻止同侧目标；技能按普通伤害流程结算。",
 		)

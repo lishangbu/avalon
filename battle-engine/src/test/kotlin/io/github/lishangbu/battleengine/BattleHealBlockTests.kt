@@ -30,10 +30,6 @@ class BattleHealBlockTests {
 	fun `status skill applies heal block to target for five turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-applies-heal-block-to-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/回复封锁（招式）",
-			),
 			inputSummary = "使用者用回复封锁类变化技能命中目标。",
 			expectedSummary = "目标获得回复封锁临时状态；当前回合结束后剩余 4 回合。",
 		)
@@ -61,10 +57,6 @@ class BattleHealBlockTests {
 	fun `heal blocked participant cannot use self healing status skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "heal-blocked-participant-cannot-use-self-healing-status-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/自我再生（招式）",
-			),
 			inputSummary = "处于回复封锁且未满 HP 的成员尝试使用自我回复变化技能。",
 			expectedSummary = "技能在 PP 消耗前失败，成员 HP 不变，并产生回复封锁阻止事件。",
 		)
@@ -96,10 +88,6 @@ class BattleHealBlockTests {
 	fun `heal blocked participant cannot use draining damage skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "heal-blocked-participant-cannot-use-draining-damage-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/吸取（招式）",
-			),
 			inputSummary = "处于回复封锁且未满 HP 的成员尝试使用吸取回复类伤害技能。",
 			expectedSummary = "吸取类技能在 PP 消耗前失败，目标不受伤害，使用者也不会回复 HP。",
 		)
@@ -129,10 +117,6 @@ class BattleHealBlockTests {
 	fun `heal block suppresses end turn held item healing`() {
 		val fixture = publicBattleRuleFixture(
 			name = "heal-block-suppresses-end-turn-held-item-healing",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/回复封锁（状态变化）",
-			),
 			inputSummary = "处于回复封锁且未满 HP 的成员携带回合末固定回复道具。",
 			expectedSummary = "回合末不会回复 HP，也不会产生通用回复事件；回复封锁持续时间正常递减。",
 		)
@@ -161,10 +145,6 @@ class BattleHealBlockTests {
 	fun `heal block clears when end turn duration reaches zero`() {
 		val fixture = publicBattleRuleFixture(
 			name = "heal-block-clears-when-end-turn-duration-reaches-zero",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/回复封锁（状态变化）",
-			),
 			inputSummary = "成员的回复封锁只剩 1 回合，双方本回合没有行动。",
 			expectedSummary = "回合末持续时间递减到 0，成员的回复封锁被清除并产生临时状态解除事件。",
 		)

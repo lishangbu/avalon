@@ -23,10 +23,6 @@ class BattlePsychicTerrainTests {
 	fun `psychic terrain blocks priority move against grounded opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "psychic-terrain-blocks-priority-move-against-grounded-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
-			),
 			inputSummary = "精神场地存在时，使用者对接地对手使用先制攻击。",
 			expectedSummary = "技能消耗 PP 后被场地阻挡，不造成伤害。",
 		)
@@ -58,10 +54,6 @@ class BattlePsychicTerrainTests {
 	fun `psychic terrain does not block priority move against ungrounded opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "psychic-terrain-does-not-block-priority-move-against-ungrounded-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
-			),
 			inputSummary = "精神场地存在时，使用者对非接地对手使用先制攻击。",
 			expectedSummary = "场地不阻挡该目标，技能按普通伤害流程结算。",
 		)
@@ -91,10 +83,6 @@ class BattlePsychicTerrainTests {
 	fun `psychic terrain does not block priority move against ally`() {
 		val fixture = publicBattleRuleFixture(
 			name = "psychic-terrain-does-not-block-priority-move-against-ally",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Psychic_Terrain_(move)",
-			),
 			inputSummary = "双打中精神场地存在时，使用者对同侧接地成员使用先制攻击。",
 			expectedSummary = "精神场地只阻止对手的先制技能，不阻止同侧目标；技能按普通伤害流程结算。",
 		)

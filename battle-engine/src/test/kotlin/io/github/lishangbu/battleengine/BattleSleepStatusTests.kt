@@ -30,9 +30,6 @@ class BattleSleepStatusTests {
 	fun `sleep consumes deterministic duration and prevents actions without pp loss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sleep-prevents-two-actions-from-scripted-duration",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Sleep_(status_condition)",
-			),
 			inputSummary = "睡眠技能命中较慢目标，固定随机数让睡眠阻止行动次数为 2。",
 			expectedSummary = "目标本回合和下一回合各被睡眠阻止一次，期间不消耗 PP；计数归零后状态解除，之后可正常行动。",
 		)
@@ -91,9 +88,6 @@ class BattleSleepStatusTests {
 	fun `electric terrain blocks new sleep without consuming duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "electric-terrain-blocks-new-sleep",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
-			),
 			inputSummary = "电气场地存在时，上场目标被睡眠技能命中。",
 			expectedSummary = "目标不会获得睡眠状态，事件流记录场地阻止；睡眠持续回合随机数不被消费。",
 		)

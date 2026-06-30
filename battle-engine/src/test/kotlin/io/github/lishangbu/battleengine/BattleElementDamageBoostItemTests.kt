@@ -22,10 +22,6 @@ class BattleElementDamageBoostItemTests {
 	fun `element damage boost item multiplies matching element damage without recoil or consumption`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-damage-boost-item-multiplies-matching-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item",
-			),
 			inputSummary = "使用者携带火属性伤害提升 1.2 倍的非消耗道具，使用非本系火属性物理技能攻击中性目标。",
 			expectedSummary = "技能有效威力从 40 提升到 48，普通伤害从 19 提升到 23；道具不消费，也不产生反伤事件。",
 		)
@@ -64,10 +60,6 @@ class BattleElementDamageBoostItemTests {
 	fun `element damage boost item keeps neutral multiplier for non matching element`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-damage-boost-item-ignores-non-matching-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Type-enhancing_item",
-			),
 			inputSummary = "使用者携带水属性伤害提升 1.2 倍的非消耗道具，使用非本系火属性物理技能攻击中性目标。",
 			expectedSummary = "技能属性和道具声明属性不匹配，因此普通伤害仍为 19，道具保持携带状态。",
 		)

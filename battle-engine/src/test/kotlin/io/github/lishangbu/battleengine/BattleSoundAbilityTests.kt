@@ -26,10 +26,6 @@ class BattleSoundAbilityTests {
 	fun `sound immunity ability blocks sound damaging skill before damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-immunity-ability-blocks-sound-damaging-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Soundproof_(Ability)",
-			),
 			inputSummary = "目标拥有声音类技能免疫特性，对手使用声音类伤害技能。",
 			expectedSummary = "目标特性在伤害前阻止技能，目标 HP 不变，不产生普通伤害事件。",
 		)
@@ -63,10 +59,6 @@ class BattleSoundAbilityTests {
 	fun `sound immunity ability blocks sound status skill before effect`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-immunity-ability-blocks-sound-status-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sound-based_move",
-			),
 			inputSummary = "目标拥有声音类技能免疫特性，对手使用声音类变化技能并试图附加麻痹。",
 			expectedSummary = "目标特性阻止该声音类变化技能，不写入主要异常状态，也不产生状态阻止事件。",
 		)
@@ -111,10 +103,6 @@ class BattleSoundAbilityTests {
 	fun `target ability ignore bypasses sound immunity ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-ability-ignore-bypasses-sound-immunity",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "攻击方拥有无视目标特性效果，目标拥有声音类技能免疫特性，对手使用声音类伤害技能。",
 			expectedSummary = "目标声音免疫被本次技能跳过，声音类伤害正常命中并造成直接伤害。",
 		)

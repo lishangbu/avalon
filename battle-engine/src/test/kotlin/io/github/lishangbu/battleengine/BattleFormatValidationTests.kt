@@ -82,9 +82,6 @@ class BattleFormatValidationTests {
 	fun `max turn limit ends battle as draw after end turn effects`() {
 		val fixture = publicBattleRuleFixture(
 			name = "max-turn-limit-ends-battle-as-draw-after-end-turn-effects",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Battle#Turn",
-			),
 			inputSummary = "格式声明最大回合数为 1，双方在第 1 回合结束时都仍可战斗。",
 			expectedSummary = "引擎在完整回合末按回合上限产生平局结果，不再追加普通回合结束事件。",
 		)

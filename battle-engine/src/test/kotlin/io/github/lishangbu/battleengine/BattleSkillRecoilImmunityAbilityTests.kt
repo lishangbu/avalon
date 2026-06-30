@@ -24,10 +24,6 @@ class BattleSkillRecoilImmunityAbilityTests {
 	fun `skill recoil immunity blocks move recoil damage only`() {
 		val fixture = publicBattleRuleFixture(
 			name = "skill-recoil-immunity-blocks-move-recoil-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rock_Head_(Ability)",
-			),
 			inputSummary = "使用者拥有技能反作用伤害免疫特性，并使用按实际伤害 1/3 反作用的物理技能。",
 			expectedSummary = "目标正常受到直接技能伤害；使用者不会承受技能反作用伤害，也不会产生技能反作用伤害事件。",
 		)
@@ -63,11 +59,6 @@ class BattleSkillRecoilImmunityAbilityTests {
 	fun `skill recoil immunity does not block held item recoil`() {
 		val fixture = publicBattleRuleFixture(
 			name = "skill-recoil-immunity-does-not-block-held-item-recoil",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Life_Orb",
-			),
 			inputSummary = "使用者拥有技能反作用伤害免疫特性，同时携带造成伤害提升 1.3 倍并反伤最大 HP 1/10 的道具。",
 			expectedSummary = "目标受到道具倍率提升后的直接技能伤害；使用者仍承受该道具造成的固定反伤。",
 		)

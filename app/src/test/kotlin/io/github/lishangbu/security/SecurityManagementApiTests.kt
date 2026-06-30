@@ -95,23 +95,6 @@ class SecurityManagementApiTests(
 			.contains("system.rbac.access-nodes", "system.oauth.clients", "system.oauth.tokens", "system.scheduler.tasks")
 			.doesNotContain("security:admin")
 
-		insertUser("battle-menu-manager", 203)
-		val battleToken = issueToken("battle-menu-manager", "battle-rules:admin")
-		val battleResponse = mockMvc.perform(
-			get("/api/session")
-				.header("Authorization", "Bearer $battleToken"),
-		)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.roles[*].code", hasItem("battle-rules-admin")))
-			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-rules:admin")))
-			.andReturn()
-			.response
-			.contentAsString
-
-		val battleMenuCodes = JsonPath.read<List<String>>(battleResponse, "$.menus..code")
-		assertThat(battleMenuCodes)
-			.contains("battle-rules.coverage", "battle-rules.fixtures", "battle-rules.test-runs")
-			.doesNotContain("battle-rules.fixture-sources")
 	}
 
 	@Test

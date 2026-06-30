@@ -533,11 +533,6 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 	): PublicBattleRuleFixture =
 		publicBattleRuleFixture(
 			name = name,
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/对战",
-			),
 			inputSummary = inputSummary,
 			expectedSummary = expectedSummary,
 		)

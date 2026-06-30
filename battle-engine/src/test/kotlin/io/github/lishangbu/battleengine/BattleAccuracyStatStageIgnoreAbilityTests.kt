@@ -24,10 +24,6 @@ class BattleAccuracyStatStageIgnoreAbilityTests {
 	fun `defender accuracy stage ignore ability ignores attacker's lowered accuracy`() {
 		val fixture = publicBattleRuleFixture(
 			name = "defender-accuracy-stage-ignore-ability-ignores-attacker-accuracy-drop",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "使用者命中阶级为 -1，技能基础命中为 75，防守方拥有无视对手命中阶级变化特性，固定命中随机数为 75。",
 			expectedSummary = "防守方特性使使用者命中阶级按 0 处理，有效命中保持 75；随机数 75 命中并继续造成伤害。",
 		)
@@ -65,10 +61,6 @@ class BattleAccuracyStatStageIgnoreAbilityTests {
 	fun `attacker accuracy stage ignore ability ignores target evasion boost`() {
 		val fixture = publicBattleRuleFixture(
 			name = "attacker-accuracy-stage-ignore-ability-ignores-target-evasion-boost",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "目标闪避阶级为 +1，使用者拥有无视对手闪避阶级变化特性，并使用基础命中 100 的技能。",
 			expectedSummary = "目标闪避阶级按 0 处理，有效命中达到 100；引擎不消耗命中随机数，技能直接命中。",
 		)

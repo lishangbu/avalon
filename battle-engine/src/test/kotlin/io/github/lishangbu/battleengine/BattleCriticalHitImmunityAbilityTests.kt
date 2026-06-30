@@ -22,10 +22,6 @@ class BattleCriticalHitImmunityAbilityTests {
 	fun `critical hit immunity blocks guaranteed critical hit damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "critical-hit-immunity-blocks-guaranteed-critical-hit-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "使用者使用基础要害等级达到必定要害的物理技能，目标拥有击中要害免疫特性。",
 			expectedSummary = "技能仍命中并造成普通直接伤害，但伤害事件中的 criticalHit 为 false，最终伤害不乘以要害倍率。",
 		)
@@ -60,10 +56,6 @@ class BattleCriticalHitImmunityAbilityTests {
 	fun `critical hit immunity blocks successful random critical hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "critical-hit-immunity-blocks-successful-random-critical-hit",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "普通要害等级技能的要害随机数成功，目标拥有击中要害免疫特性。",
 			expectedSummary = "要害随机数仍被消费并命中成功，但目标特性让最终伤害按非要害计算。",
 		)

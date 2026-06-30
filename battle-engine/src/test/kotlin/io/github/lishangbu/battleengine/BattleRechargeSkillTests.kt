@@ -24,10 +24,6 @@ class BattleRechargeSkillTests {
 	fun `recharge skill prevents next turn action without pp loss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "recharge-skill-prevents-next-turn-action-without-pp-loss",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Hyper_Beam_(move)",
-			),
 			inputSummary = "使用者用成功后休整技能命中目标，下一回合再次提交技能行动。",
 			expectedSummary = "首次命中造成实际伤害并写入一次休整；下一次技能行动被休整阻止，不消耗 PP，也不再次造成伤害。",
 		)

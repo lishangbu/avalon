@@ -25,10 +25,6 @@ class BattleSkillHpEffectTests {
 	fun `draining damage skill heals user by half damage dealt`() {
 		val fixture = publicBattleRuleFixture(
 			name = "draining-damage-skill-heals-user-by-half-damage-dealt",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Absorb_(move)",
-			),
 			inputSummary = "使用者未满 HP，使用带有吸取回复效果的伤害技能命中目标。",
 			expectedSummary = "目标受到普通伤害后，使用者按本次实际伤害的 1/2 回复 HP。",
 		)
@@ -62,10 +58,6 @@ class BattleSkillHpEffectTests {
 	fun `draining damage skill honors configured drain fraction`() {
 		val fixture = publicBattleRuleFixture(
 			name = "draining-damage-skill-honors-configured-drain-fraction",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Draining_Kiss_(move)",
-			),
 			inputSummary = "使用者未满 HP，使用带有 3/4 吸取比例的伤害技能命中目标。",
 			expectedSummary = "目标受到普通伤害后，使用者按本次实际伤害的 3/4 回复 HP。",
 		)
@@ -98,10 +90,6 @@ class BattleSkillHpEffectTests {
 	fun `recoil damage skill damages user by rounded fraction of hp actually lost by target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "recoil-damage-skill-uses-target-hp-actually-lost",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Double-Edge_(move)",
-			),
 			inputSummary = "目标剩余 HP 低于公式伤害时，使用者使用带 1/3 反作用伤害的物理技能命中目标。",
 			expectedSummary = "目标只损失剩余 17 HP；反作用伤害按 17 的 1/3 四舍五入为 6，而不是按溢出公式伤害计算。",
 		)
@@ -136,10 +124,6 @@ class BattleSkillHpEffectTests {
 	fun `self healing status skill restores half max hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "self-healing-status-skill-restores-half-max-hp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Recover_(move)",
-			),
 			inputSummary = "使用者未满 HP，使用固定回复 1/2 最大 HP 的变化技能。",
 			expectedSummary = "技能成功后使用者回复最大 HP 的 1/2，并产生技能回复事件。",
 		)
@@ -174,11 +158,6 @@ class BattleSkillHpEffectTests {
 	fun `weather sensitive self healing skill uses current weather fraction`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-sensitive-self-healing-skill-uses-current-weather-fraction",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Synthesis_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Moonlight_(move)",
-			),
 			inputSummary = "使用者分别在晴天和下雨环境中使用天气变量自我回复技能。",
 			expectedSummary = "晴天回复最大 HP 的 2/3；下雨回复最大 HP 的 1/4。",
 		)

@@ -25,9 +25,6 @@ class BattleFixedDamageSkillTests {
 	fun `fixed damage skills use configured amount or user level without standard damage formula`() {
 		val fixture = publicBattleRuleFixture(
 			name = "fixed-damage-skills-use-fixed-amount-or-user-level",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者分别使用固定 20 点伤害技能和按自身等级造成伤害的技能命中普通目标。",
 			expectedSummary = "固定伤害直接扣除对应 HP；不消费击中要害和伤害随机数，也不进入普通伤害公式倍率链。",
 		)
@@ -75,9 +72,6 @@ class BattleFixedDamageSkillTests {
 	fun `fixed damage still respects element immunity`() {
 		val fixture = publicBattleRuleFixture(
 			name = "fixed-damage-skill-respects-element-immunity",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "固定 40 点伤害技能命中属性相性为 0 的目标。",
 			expectedSummary = "技能产生 0 伤害事件，目标 HP 不变，固定伤害数值不会绕过属性免疫。",
 		)

@@ -22,7 +22,6 @@ class BattleDamageDealtHealingItemTests {
 	fun `damage dealt healing item restores one eighth of body damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damage-dealt-healing-item-restores-eighth-actual-damage",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具，使用非本系 40 威力物理技能命中本体。",
 			expectedSummary = "技能实际造成 19 点伤害；整次技能结束后使用者回复 floor(19 / 8) = 2 点 HP，道具不消费。",
 		)
@@ -60,10 +59,6 @@ class BattleDamageDealtHealingItemTests {
 	fun `damage dealt healing item counts substitute hp loss as actual damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damage-dealt-healing-item-counts-substitute-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "使用者当前 HP 50，目标已有 25 HP 替身；使用者携带按造成伤害八分之一回复的道具攻击替身。",
 			expectedSummary = "技能对替身实际造成 19 点伤害，目标本体 HP 不变；整次技能结束后使用者回复 2 点 HP。",
 		)
@@ -105,7 +100,6 @@ class BattleDamageDealtHealingItemTests {
 	fun `damage dealt healing item uses total damage from multi hit skill once`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damage-dealt-healing-item-uses-total-multi-hit-damage",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts"),
 			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具，使用固定三段的非本系物理技能。",
 			expectedSummary = "三段技能各造成 19 点伤害，总伤害 57；整次技能结束后只触发一次回复，回复 floor(57 / 8) = 7 点 HP。",
 		)

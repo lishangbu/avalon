@@ -34,10 +34,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `positive priority acts before faster normal priority skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "positive-priority-acts-before-faster-normal-priority-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "速度较低成员使用优先度 +1 技能，速度较高成员使用普通优先度技能。",
 			expectedSummary = "优先度 +1 行动先于普通优先度行动执行，速度只在同优先度内比较。",
 		)
@@ -66,10 +62,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `negative priority acts after slower normal priority skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "negative-priority-acts-after-slower-normal-priority-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "速度较高成员使用优先度 -1 技能，速度较低成员使用普通优先度技能。",
 			expectedSummary = "普通优先度行动先执行，负优先度行动即使速度更高也会后执行。",
 		)
@@ -98,10 +90,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `higher speed acts first inside same priority bracket`() {
 		val fixture = publicBattleRuleFixture(
 			name = "higher-speed-acts-first-inside-same-priority-bracket",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://wiki.52poke.com/wiki/速度",
-			),
 			inputSummary = "双方都使用普通优先度技能，其中一方有效速度更高。",
 			expectedSummary = "同优先度内有效速度更高的成员先产生技能使用事件。",
 		)
@@ -129,10 +117,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `same speed tie consumes random order keys`() {
 		val fixture = publicBattleRuleFixture(
 			name = "same-speed-tie-consumes-random-order-keys",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://wiki.52poke.com/wiki/速度",
-			),
 			inputSummary = "双方同优先度且有效速度完全相同，固定同速随机键让第二个提交者先行动。",
 			expectedSummary = "引擎为同速双方各消费一个排序随机数，并按随机键决定技能使用事件顺序。",
 		)
@@ -172,10 +156,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `same positive priority bracket still orders by speed`() {
 		val fixture = publicBattleRuleFixture(
 			name = "same-positive-priority-bracket-still-orders-by-speed",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双方都使用优先度 +1 技能，其中一方速度更高。",
 			expectedSummary = "同为 +1 优先度时，仍按有效速度决定行动先后。",
 		)
@@ -204,10 +184,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `choice speed item changes action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "choice-speed-item-changes-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "速度 70 的成员持有讲究类速度道具，对手速度 100，双方同优先度行动。",
 			expectedSummary = "持有者有效速度按 1.5 倍变为 105，因此先于速度 100 的对手行动。",
 		)
@@ -239,10 +215,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `paralysis speed drop changes action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "paralysis-speed-drop-changes-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/麻痹（状态）",
-			),
 			inputSummary = "速度 120 的成员处于麻痹状态，对手速度 80，双方同优先度行动。",
 			expectedSummary = "麻痹成员有效速度减半为 60，因此速度 80 的对手先行动。",
 		)
@@ -270,10 +242,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `side speed modifier changes action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "side-speed-modifier-changes-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/顺风（招式）",
-			),
 			inputSummary = "速度 60 的成员所在一侧已有 2 倍速度修正，对手速度 100，双方同优先度行动。",
 			expectedSummary = "一侧速度修正让速度 60 成员按有效速度 120 参与排序，因此先于对手行动。",
 		)
@@ -314,10 +282,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `field speed order reversal changes same priority action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "field-speed-order-reversal-changes-same-priority-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/戏法空间（招式）",
-			),
 			inputSummary = "全场速度顺序处于反转状态，速度 40 与速度 100 的成员同优先度行动。",
 			expectedSummary = "同优先度内速度较低的成员先行动；优先度比较本身不被反转。",
 		)
@@ -348,10 +312,6 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `status priority ability moves status skill before faster opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-priority-ability-changes-action-order-before-faster-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "速度较低成员拥有变化技能优先度提升特性，并选择变化技能；速度较高对手使用普通攻击。",
 			expectedSummary = "变化技能获得额外优先度，先于速度更高的普通攻击执行。",
 		)

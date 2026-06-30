@@ -23,10 +23,6 @@ class BattleParalysisStatusTests {
 	fun `paralysis can fully prevent action without pp loss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "paralysis-prevents-action-without-pp-loss",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition)",
-			),
 			inputSummary = "麻痹成员本回合选择使用普通攻击，固定随机数触发 25% 行动阻止。",
 			expectedSummary = "成员不会使用技能、不消耗 PP，麻痹状态仍然保留到后续回合。",
 		)
@@ -58,10 +54,6 @@ class BattleParalysisStatusTests {
 	fun `paralysis can allow action and still consumes action check before attack randoms`() {
 		val fixture = publicBattleRuleFixture(
 			name = "paralysis-allows-action-after-failed-block-roll",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Paralysis_(status_condition)",
-			),
 			inputSummary = "麻痹成员本回合选择普通攻击，固定随机数未触发行动阻止。",
 			expectedSummary = "成员先消费麻痹判定随机数，再按普通伤害流程消耗要害和伤害浮动随机数。",
 		)

@@ -26,10 +26,6 @@ class BattleEnginePublicReferenceTests {
 	fun `ordinary same element physical damage matches public calculator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "level-50-neutral-same-element-physical-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
-				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/util.ts",
-			),
 			inputSummary = "等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%。",
 			expectedSummary = "基础伤害 19，同属性倍率 1.5，最终伤害 28。",
 		)
@@ -54,10 +50,6 @@ class BattleEnginePublicReferenceTests {
 	fun `modern critical hit damage matches public calculator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "level-50-neutral-same-element-critical-hit-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Critical_hit",
-			),
 			inputSummary = "等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%，击中要害。",
 			expectedSummary = "基础伤害 19，同属性倍率 1.5，现代击中要害倍率 1.5，最终伤害 42。",
 		)
@@ -84,10 +76,6 @@ class BattleEnginePublicReferenceTests {
 	fun `double battle spread damage modifier matches public rule fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "double-battle-spread-damage-uses-three-quarter-target-modifier",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Damage",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/dex-moves.ts",
-			),
 			inputSummary = "双打中一名行动者使用能影响对方两个上场成员的物理伤害技能，两个目标均可被命中。",
 			expectedSummary = "每个目标独立结算命中/要害/伤害随机数，并在普通伤害公式中使用 0.75 目标倍率。",
 		)
@@ -124,11 +112,6 @@ class BattleEnginePublicReferenceTests {
 	fun `side damage reduction uses public double battle screen modifier`() {
 		val fixture = publicBattleRuleFixture(
 			name = "double-battle-side-screen-uses-two-thirds-damage-modifier",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Light_Screen_(move)",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "双打中目标方有两名可战斗上场成员，并存在影响物理伤害的防守方屏障。",
 			expectedSummary = "非要害普通物理伤害按约 2/3 的防守方屏障倍率结算，不与目标范围倍率混淆。",
 		)
@@ -158,11 +141,6 @@ class BattleEnginePublicReferenceTests {
 	fun `low hp berry heals once after damage like public item fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "low-hp-berry-heals-once-after-damage",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Oran_Berry",
-				"https://bulbapedia.bulbagarden.net/wiki/Sitrus_Berry",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "持有者最大 HP 100，当前 HP 60，受到 28 点普通伤害后 HP 降到 32，达到半血触发线。",
 			expectedSummary = "一次性回复道具立即回复 10 点并被消费，成员最终 HP 为 42，后续不再保留携带道具效果。",
 		)
@@ -197,10 +175,6 @@ class BattleEnginePublicReferenceTests {
 	fun `choice speed item modifies action order like public item fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "choice-speed-item-modifies-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "速度 60 的成员持有讲究类速度道具，速度 80 的对手同优先度使用普通技能。",
 			expectedSummary = "持有者有效速度按 1.5 倍变为 90，因此先于速度 80 的对手行动。",
 		)
@@ -233,10 +207,6 @@ class BattleEnginePublicReferenceTests {
 	fun `target slot follows switched in participant like public simulator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "single-target-move-follows-replacement-slot",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "单打中一方主动替换，另一方本回合选择攻击原上场成员所在目标槽位。",
 			expectedSummary = "替换先结算，随后技能命中同一槽位的新上场成员。",
 		)
@@ -268,10 +238,6 @@ class BattleEnginePublicReferenceTests {
 	fun `protection blocks ordinary target move like public simulator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "protect-move-blocks-ordinary-target-move",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "保护类变化技能以更高优先度先行动，同回合普通单体攻击以被保护成员为目标。",
 			expectedSummary = "保护屏障建立后，受保护影响的普通攻击被阻挡，目标 HP 不变化，双方仍正常消耗 PP。",
 		)
@@ -303,10 +269,6 @@ class BattleEnginePublicReferenceTests {
 	fun `consecutive protection uses public simulator stalling chance fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "consecutive-protection-second-use-one-third-success",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动。",
 			expectedSummary = "第二次连续保护按 1/3 成功率判定；掷中成功后继续阻挡本回合普通攻击。",
 		)
@@ -341,11 +303,6 @@ class BattleEnginePublicReferenceTests {
 	fun `failed consecutive protection leaves user vulnerable like public simulator fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "consecutive-protection-second-use-can-fail-and-leave-user-unprotected",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Protect_(move)",
-			),
 			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动且 1/3 掷点失败，对手同回合攻击保护使用者。",
 			expectedSummary = "第二次保护消耗 PP 但不建立保护屏障；对手攻击不会被保护阻挡，使用者受到普通伤害并重置连续保护计数。",
 		)

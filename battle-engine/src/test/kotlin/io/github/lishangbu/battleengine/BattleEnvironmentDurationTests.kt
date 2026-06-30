@@ -23,10 +23,6 @@ class BattleEnvironmentDurationTests {
 	fun `weather duration decrements and emits end event when exhausted`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-duration-decrements-and-ends",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Weather",
-			),
 			inputSummary = "初始晴天剩余 2 回合，连续结算两个空回合。",
 			expectedSummary = "第一回合后剩余 1 回合且不产生结束事件；第二回合后天气恢复为无并产生结束事件。",
 		)
@@ -54,10 +50,6 @@ class BattleEnvironmentDurationTests {
 	fun `terrain duration emits end event when exhausted`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-duration-ends-at-turn-end",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Terrain",
-			),
 			inputSummary = "初始电气场地剩余 1 回合，结算一个空回合。",
 			expectedSummary = "回合末场地恢复为无并产生场地结束事件。",
 		)

@@ -26,10 +26,6 @@ class BattleLockedMoveTests {
 	fun `locked move overrides submitted skill follows target slot and confuses after final turn`() {
 		val fixture = publicBattleRuleFixture(
 			name = "locked-move-overrides-submitted-skill-follows-target-slot-and-confuses",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Outrage_(move)",
-			),
 			inputSummary = "锁招技能固定持续 2 回合；第 2 回合玩家提交其它技能，同时原目标主动换到同侧后备。",
 			expectedSummary = "使用者仍强制使用锁定技能命中新上场的同一目标席位，后续回合不额外扣 PP，结束后进入混乱。",
 		)
@@ -104,10 +100,6 @@ class BattleLockedMoveTests {
 	fun `locked move prevents voluntary switch and still executes forced continuation`() {
 		val fixture = publicBattleRuleFixture(
 			name = "locked-move-prevents-voluntary-switch-and-executes-continuation",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Outrage_(move)",
-			),
 			inputSummary = "锁招技能固定持续 2 回合；第 2 回合使用者提交主动替换。",
 			expectedSummary = "主动替换被拒绝并记录事件，使用者仍留在场上执行锁定技能，结束后疲劳混乱。",
 		)
@@ -156,10 +148,6 @@ class BattleLockedMoveTests {
 	fun `locked move disruption before final turn clears lock without fatigue confusion`() {
 		val fixture = publicBattleRuleFixture(
 			name = "locked-move-disruption-before-final-turn-clears-lock-without-fatigue-confusion",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://pokemondb.net/move/outrage",
-			),
 			inputSummary = "锁招技能固定持续 3 回合；第 2 回合强制续用时未命中。",
 			expectedSummary = "未命中会立即中断锁招；由于不是最终疲劳回合，使用者不会获得疲劳混乱。",
 		)

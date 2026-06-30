@@ -25,7 +25,6 @@ class BattleWeatherElementOverrideTests {
 	fun `weather element override participates in stab weather and effectiveness damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-element-override-participates-in-stab-weather-and-effectiveness",
-			sourceUrls = listOf("https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts"),
 			inputSummary = "水属性使用者在雨天使用基础一般属性 50 威力技能；该技能在雨天覆盖为水属性并威力翻倍。",
 			expectedSummary = "本次技能按水属性 100 威力结算，获得水属性一致加成和雨天水伤害 1.5 倍，最终造成 103 点伤害。",
 		)
@@ -54,10 +53,6 @@ class BattleWeatherElementOverrideTests {
 	fun `weather element override can be absorbed by matching element ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-element-override-can-be-absorbed-by-matching-element-ability",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-			),
 			inputSummary = "目标拥有吸收水属性技能并回复的特性，攻击方在雨天使用基础一般属性但雨天覆盖为水属性的技能。",
 			expectedSummary = "技能在命中前视为水属性，被目标特性吸收并阻止后续伤害；满 HP 目标不会溢出回复。",
 		)
@@ -92,10 +87,6 @@ class BattleWeatherElementOverrideTests {
 	fun `weather element override to fire thaws frozen target after damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-element-override-to-fire-thaws-frozen-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "目标处于冰冻，攻击方在晴天使用基础一般属性但晴天覆盖为火属性的技能并造成伤害。",
 			expectedSummary = "本次技能按火属性伤害命中，目标在伤害后仍可战斗，因此冰冻状态被解除。",
 		)

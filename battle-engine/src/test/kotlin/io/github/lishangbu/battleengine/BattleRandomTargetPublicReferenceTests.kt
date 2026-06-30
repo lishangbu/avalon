@@ -25,10 +25,6 @@ class BattleRandomTargetPublicReferenceTests {
 	fun `random adjacent opponent target chooses scripted capable opponent`() {
 		val fixture = publicBattleRuleFixture(
 			name = "random-adjacent-opponent-target-chooses-scripted-capable-opponent",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "双打中随机相邻对手技能提交的 targetActorId 指向同侧伙伴，对手两名成员均可战斗。",
 			expectedSummary = "技能忽略提交目标，在两个可战斗对手中消费一次目标随机并命中脚本指定的对手。",
 		)
@@ -71,10 +67,6 @@ class BattleRandomTargetPublicReferenceTests {
 	fun `random adjacent opponent with no capable opponent cancels before pp and random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "random-adjacent-opponent-with-no-capable-opponent-cancels-before-pp-and-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "双打中随机相邻对手技能执行时，对手两个上场成员都已经无法战斗。",
 			expectedSummary = "候选目标为空，行动在技能使用前取消，不消耗 PP，也不消费目标随机数。",
 		)

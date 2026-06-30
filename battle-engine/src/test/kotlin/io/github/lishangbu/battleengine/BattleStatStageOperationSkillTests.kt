@@ -27,10 +27,6 @@ class BattleStatStageOperationSkillTests {
 	fun `damaging skill clears target stat stages after hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damaging-skill-clears-target-stat-stages-after-hit",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Clear_Smog_(move)",
-			),
 			inputSummary = "目标已有正负能力阶级，使用者用命中后清除目标阶级的伤害技能攻击。",
 			expectedSummary = "技能先按普通伤害流程命中，再把目标指定能力阶级清为 0，并记录清除事件。",
 		)
@@ -71,10 +67,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill clears every active participant stat stages`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-clears-every-active-participant-stat-stages",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Haze_(move)",
-			),
 			inputSummary = "双打中多个当前上场成员拥有能力阶级变化，使用者发动全场清除能力阶级的变化技能。",
 			expectedSummary = "所有当前上场且仍可战斗成员的指定能力阶级清为 0，后备成员不受影响。",
 		)
@@ -124,10 +116,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill copies target stat stages to user`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-copies-target-stat-stages-to-user",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Psych_Up_(move)",
-			),
 			inputSummary = "使用者和目标拥有不同能力阶级，使用者发动复制目标阶级的变化技能。",
 			expectedSummary = "使用者指定能力阶级被改写为目标当前阶级，目标自身阶级保持不变。",
 		)
@@ -172,10 +160,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill swaps attack stat stages between user and target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-swaps-attack-stat-stages-between-user-and-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Power_Swap_(move)",
-			),
 			inputSummary = "使用者和目标拥有不同攻击与特攻阶级，使用者发动攻击组阶级互换技能。",
 			expectedSummary = "双方攻击与特攻阶级互换，防御类阶级不变化。",
 		)
@@ -215,10 +199,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill swaps defense stat stages between user and target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-swaps-defense-stat-stages-between-user-and-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Guard_Swap_(move)",
-			),
 			inputSummary = "使用者和目标拥有不同防御与特防阶级，使用者发动防御组阶级互换技能。",
 			expectedSummary = "双方防御与特防阶级互换，攻击类阶级不变化。",
 		)
@@ -258,10 +238,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill swaps all stat stages between user and target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-swaps-all-stat-stages-between-user-and-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Heart_Swap_(move)",
-			),
 			inputSummary = "使用者和目标拥有多项不同能力阶级，使用者发动全部能力阶级互换技能。",
 			expectedSummary = "双方所有配置的能力阶级互换，未变化的 0 阶级不产生事件。",
 		)
@@ -309,10 +285,6 @@ class BattleStatStageOperationSkillTests {
 	fun `status skill inverts target stat stages`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-inverts-target-stat-stages",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Topsy-Turvy_(move)",
-			),
 			inputSummary = "目标拥有正负能力阶级，使用者发动取反目标能力阶级的变化技能。",
 			expectedSummary = "目标指定能力阶级取相反数，0 阶级不产生事件。",
 		)

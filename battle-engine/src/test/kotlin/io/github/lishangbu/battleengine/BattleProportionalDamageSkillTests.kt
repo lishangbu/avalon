@@ -25,9 +25,6 @@ class BattleProportionalDamageSkillTests {
 	fun `proportional damage skill uses target current hp fraction`() {
 		val fixture = publicBattleRuleFixture(
 			name = "proportional-damage-skill-halves-target-current-hp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "使用者用目标当前 HP 一半伤害技能命中当前 HP 为 99 和 1 的目标。",
 			expectedSummary = "目标当前 HP 为 99 时损失 49；当前 HP 为 1 时仍造成至少 1 点实际伤害。",
 		)
@@ -65,9 +62,6 @@ class BattleProportionalDamageSkillTests {
 	fun `proportional damage still respects element immunity`() {
 		val fixture = publicBattleRuleFixture(
 			name = "proportional-damage-skill-respects-element-immunity",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "目标当前 HP 一半伤害技能命中属性相性为 0 的目标。",
 			expectedSummary = "目标 HP 保持不变，引擎只记录 0 伤害事件，比例伤害不会绕过属性免疫。",
 		)

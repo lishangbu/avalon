@@ -30,11 +30,6 @@ class BattleBindingStatusTests {
 	fun `binding skill traps target and deals end turn damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "binding-skill-traps-target-and-deals-end-turn-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/绑紧（招式）",
-			),
 			inputSummary = "使用者用束缚类技能命中目标，持续回合随机结果为 4。",
 			expectedSummary = "目标记录束缚来源并在回合末承受最大 HP 的 1/8 伤害，剩余回合递减为 3。",
 		)
@@ -68,10 +63,6 @@ class BattleBindingStatusTests {
 	fun `bound participant cannot switch voluntarily`() {
 		val fixture = publicBattleRuleFixture(
 			name = "bound-participant-cannot-switch-voluntarily",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/束缚（状态变化）",
-			),
 			inputSummary = "成员处于束缚状态且束缚来源仍在场，尝试主动替换。",
 			expectedSummary = "主动替换被阻止，成员仍留在上场席位，并在回合末继续承受束缚伤害。",
 		)
@@ -103,10 +94,6 @@ class BattleBindingStatusTests {
 	fun `bound participant takes end turn binding damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "bound-participant-takes-end-turn-binding-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/束缚（状态变化）",
-			),
 			inputSummary = "目标处于束缚状态，来源仍在场，双方本回合没有行动。",
 			expectedSummary = "目标在回合末受到最大 HP 的 1/8 伤害，束缚剩余回合减少 1。",
 		)
@@ -132,10 +119,6 @@ class BattleBindingStatusTests {
 	fun `binding clears when end turn duration reaches zero`() {
 		val fixture = publicBattleRuleFixture(
 			name = "binding-clears-when-end-turn-duration-reaches-zero",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/束缚（状态变化）",
-			),
 			inputSummary = "目标束缚只剩 1 回合，来源仍在场，双方本回合没有行动。",
 			expectedSummary = "目标在回合末承受最后一次束缚伤害，随后束缚归零并产生临时状态解除事件。",
 		)
@@ -161,10 +144,6 @@ class BattleBindingStatusTests {
 	fun `binding clears when source switches out`() {
 		val fixture = publicBattleRuleFixture(
 			name = "binding-clears-when-source-switches-out",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/束缚（状态变化）",
-			),
 			inputSummary = "束缚来源主动替换离场，目标仍处于束缚状态。",
 			expectedSummary = "目标束缚立即解除，本回合末不会再受到该束缚的间接伤害。",
 		)

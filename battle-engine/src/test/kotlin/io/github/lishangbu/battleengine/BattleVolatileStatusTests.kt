@@ -27,10 +27,6 @@ class BattleVolatileStatusTests {
 	fun `flinch prevents slower target action without pp loss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "flinch-prevents-slower-target-before-move",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Flinch",
-			),
 			inputSummary = "较快成员先造成伤害并附加畏缩，较慢目标本回合也选择使用普通攻击。",
 			expectedSummary = "目标本回合无法行动，不消耗 PP；畏缩在阻止行动后立即清除。",
 		)
@@ -75,10 +71,6 @@ class BattleVolatileStatusTests {
 	fun `flinch applied after target moved is cleared before next turn`() {
 		val fixture = publicBattleRuleFixture(
 			name = "late-flinch-does-not-carry-to-next-turn",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Flinch",
-			),
 			inputSummary = "较快目标已经行动后，较慢成员命中并附加畏缩；下一回合较快目标再次行动。",
 			expectedSummary = "第一回合晚到的畏缩不会阻止已经行动的目标，也不会保留到下一回合。",
 		)
@@ -124,11 +116,6 @@ class BattleVolatileStatusTests {
 	fun `confusion can self damage then clear before a later action`() {
 		val fixture = publicBattleRuleFixture(
 			name = "confusion-self-damage-and-later-clear",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
-			),
 			inputSummary = "较快成员用变化技能让目标混乱，固定内部计数为 3；目标随后三次尝试行动。",
 			expectedSummary = "第一次行动前自伤并跳过技能，第二次通过混乱判定并正常攻击，第三次先解除混乱再正常攻击。",
 		)
@@ -193,10 +180,6 @@ class BattleVolatileStatusTests {
 	fun `existing confusion blocks new confusion without refreshing duration`() {
 		val fixture = publicBattleRuleFixture(
 			name = "existing-confusion-blocks-new-confusion-without-refresh",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Confusion_(status_condition)",
-			),
 			inputSummary = "目标已经处于剩余 3 次行动检查的混乱状态，随后再次被 100% 附加混乱的变化技能命中。",
 			expectedSummary = "目标仍保留原有混乱持续计数，不刷新到新的随机持续时间；事件流记录 EXISTING_STATUS，且不消费混乱持续随机数。",
 		)

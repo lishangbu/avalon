@@ -286,10 +286,6 @@ class BattleEngineSingleTurnTests {
 	fun `evasion stage can make accurate skill miss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "target-evasion-stage-lowers-effective-accuracy",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "使用者使用基础命中 100 的技能，目标闪避阶级为 +1，固定命中随机数为 76。",
 			expectedSummary = "目标 +1 闪避把有效命中降为 75；随机数 76 大于有效命中，因此技能未命中且不造成伤害。",
 		)
@@ -320,10 +316,6 @@ class BattleEngineSingleTurnTests {
 	fun `accuracy stage can turn lowered accuracy skill into guaranteed hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "user-accuracy-stage-raises-effective-accuracy",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "使用者命中阶级为 +1，使用基础命中 75 的技能攻击无闪避修正目标。",
 			expectedSummary = "命中阶级 +1 把有效命中提升到 100；引擎不消耗命中随机数，技能直接命中并正常造成伤害。",
 		)
@@ -376,11 +368,6 @@ class BattleEngineSingleTurnTests {
 	fun `status skill applies burn and end turn residual damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-applies-burn-and-end-turn-residual-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Will-O-Wisp_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Burn_(status_condition)",
-			),
 			inputSummary = "使用者使用命中后必定附加灼伤的变化技能，目标没有状态免疫。",
 			expectedSummary = "目标获得灼伤主要状态；回合末按灼伤规则受到最大 HP 1/16 的固定伤害。",
 		)
@@ -418,10 +405,6 @@ class BattleEngineSingleTurnTests {
 	fun `stat stage effect changes later action damage in the same turn`() {
 		val fixture = publicBattleRuleFixture(
 			name = "stat-stage-effect-changes-later-action-damage-in-the-same-turn",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-			),
 			inputSummary = "高速成员先用变化技能降低对手攻击，随后对手在同一回合使用物理攻击。",
 			expectedSummary = "对手攻击阶级立即降低，本回合后续物理伤害按降低后的攻击阶级计算。",
 		)
@@ -660,11 +643,6 @@ class BattleEngineSingleTurnTests {
 	fun `screen extending item makes user side damage reduction last eight turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "screen-extending-item-makes-side-damage-reduction-last-eight-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Light_Clay",
-			),
 			inputSummary = "使用者携带屏障延长道具，成功使用建立己方特殊伤害减免屏障的变化技能。",
 			expectedSummary = "屏障按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。",
 		)
@@ -841,10 +819,6 @@ class BattleEngineSingleTurnTests {
 	fun `tailwind doubles user side speed for later action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "tailwind-doubles-user-side-speed-for-later-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Tailwind_(move)",
-			),
 			inputSummary = "使用者速度 40，对手速度 70；使用者一侧建立顺风后，后续行动排序按 2 倍速度参与比较。",
 			expectedSummary = "顺风建立事件记录 2 倍速度修正和 4 回合初始持续；下一回合使用者有效速度 80，先于速度 70 的对手行动。",
 		)
@@ -906,10 +880,6 @@ class BattleEngineSingleTurnTests {
 	fun `trick room reverses speed order inside the same priority bracket`() {
 		val fixture = publicBattleRuleFixture(
 			name = "trick-room-reverses-speed-order-inside-same-priority-bracket",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)",
-			),
 			inputSummary = "使用者建立戏法空间；后续同优先度行动中，速度 50 的成员和速度 100 的成员同时使用普通攻击。",
 			expectedSummary = "戏法空间建立事件记录 5 回合初始持续；下一回合同优先度行动按低速优先，速度 50 的成员先行动。",
 		)

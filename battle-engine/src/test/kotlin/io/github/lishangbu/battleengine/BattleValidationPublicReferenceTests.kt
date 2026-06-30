@@ -24,10 +24,6 @@ class BattleValidationPublicReferenceTests {
 	fun `level cap rejects over level participant`() {
 		val fixture = publicBattleRuleFixture(
 			name = "level-cap-rejects-over-level-participant",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/对战设施",
-			),
 			inputSummary = "规则快照声明等级上限 50，队伍中一名成员等级为 60。",
 			expectedSummary = "准备阶段校验返回 level-too-high，违规定位到该成员并记录其成员种类 ID。",
 		)
@@ -49,10 +45,6 @@ class BattleValidationPublicReferenceTests {
 	fun `banned creature rule rejects restricted creature`() {
 		val fixture = publicBattleRuleFixture(
 			name = "banned-creature-rule-rejects-restricted-creature",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/规则",
-			),
 			inputSummary = "规则快照禁用成员种类 150，队伍中一名成员的种类 ID 为 150。",
 			expectedSummary = "准备阶段校验返回 banned-creature，并把资源 ID 记录为被禁用的成员种类 ID。",
 		)
@@ -73,10 +65,6 @@ class BattleValidationPublicReferenceTests {
 	fun `banned skill rule rejects restricted skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "banned-skill-rule-rejects-restricted-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/招式",
-			),
 			inputSummary = "规则快照禁用技能 99，队伍成员携带技能 99。",
 			expectedSummary = "准备阶段校验返回 banned-skill，并把资源 ID 记录为被禁用技能 ID。",
 		)
@@ -97,10 +85,6 @@ class BattleValidationPublicReferenceTests {
 	fun `banned ability rule rejects restricted ability`() {
 		val fixture = publicBattleRuleFixture(
 			name = "banned-ability-rule-rejects-restricted-ability",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/特性",
-			),
 			inputSummary = "规则快照禁用特性 88，队伍成员当前特性 ID 为 88。",
 			expectedSummary = "准备阶段校验返回 banned-ability，并把资源 ID 记录为被禁用特性 ID。",
 		)
@@ -121,10 +105,6 @@ class BattleValidationPublicReferenceTests {
 	fun `banned item rule rejects restricted held item`() {
 		val fixture = publicBattleRuleFixture(
 			name = "banned-item-rule-rejects-restricted-held-item",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/道具",
-			),
 			inputSummary = "规则快照禁用道具 77，队伍成员携带道具 ID 为 77。",
 			expectedSummary = "准备阶段校验返回 banned-item，并把资源 ID 记录为被禁用道具 ID。",
 		)
@@ -145,10 +125,6 @@ class BattleValidationPublicReferenceTests {
 	fun `unique creature clause rejects duplicates only inside one side`() {
 		val fixture = publicBattleRuleFixture(
 			name = "unique-creature-clause-rejects-duplicates-only-inside-one-side",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/规则",
-			),
 			inputSummary = "规则快照要求同队成员种类唯一，一方队伍内两名成员种类相同，对手也有同种类成员。",
 			expectedSummary = "准备阶段只报告同一方内部的 duplicate-creature；不同阵营之间的相同种类不违规。",
 		)
@@ -173,10 +149,6 @@ class BattleValidationPublicReferenceTests {
 	fun `unique item clause rejects duplicate held items only inside one side`() {
 		val fixture = publicBattleRuleFixture(
 			name = "unique-item-clause-rejects-duplicate-held-items-only-inside-one-side",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts",
-				"https://wiki.52poke.com/wiki/道具",
-			),
 			inputSummary = "规则快照要求同队携带道具唯一，一方队伍内两名成员携带同一道具，对手也携带同一道具。",
 			expectedSummary = "准备阶段只报告同一方内部的 duplicate-item；不同阵营之间的相同道具不违规。",
 		)
@@ -201,10 +173,6 @@ class BattleValidationPublicReferenceTests {
 	fun `duplicate action submission reports every duplicated actor action`() {
 		val fixture = publicBattleRuleFixture(
 			name = "duplicate-action-submission-reports-every-duplicated-actor-action",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://wiki.52poke.com/wiki/对战",
-			),
 			inputSummary = "同一成员在同一回合提交两条技能行动，两条行动本身都指向有效目标。",
 			expectedSummary = "行动提交校验为这两条行动都返回 duplicate-action，调用方可以定位重复提交来源。",
 		)
@@ -227,10 +195,6 @@ class BattleValidationPublicReferenceTests {
 	fun `skill with no pp is rejected before engine resolution`() {
 		val fixture = publicBattleRuleFixture(
 			name = "skill-with-no-pp-is-rejected-before-engine-resolution",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/PP",
-			),
 			inputSummary = "当前上场成员选择剩余 PP 为 0 的技能，目标成员有效且仍可战斗。",
 			expectedSummary = "行动提交校验返回 skill-no-pp；该行动不应进入正式回合状态机。",
 		)
@@ -256,10 +220,6 @@ class BattleValidationPublicReferenceTests {
 	fun `choice locked participant cannot submit a different skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "choice-locked-participant-cannot-submit-a-different-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "成员已经被讲究类效果锁定到技能 2，本回合尝试选择技能 1。",
 			expectedSummary = "行动提交校验返回 choice-locked，并把资源 ID 记录为当前锁定的技能 ID。",
 		)

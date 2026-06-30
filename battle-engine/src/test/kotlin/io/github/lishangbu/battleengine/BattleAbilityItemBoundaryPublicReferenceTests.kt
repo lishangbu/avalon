@@ -701,13 +701,6 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 	): PublicBattleRuleFixture =
 		publicBattleRuleFixture(
 			name = name,
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Weather",
-				"https://bulbapedia.bulbagarden.net/wiki/Terrain",
-			),
 			inputSummary = inputSummary,
 			expectedSummary = expectedSummary,
 		)

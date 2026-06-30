@@ -31,11 +31,6 @@ class BattleTormentTests {
 	fun `status skill applies torment to target until switch out`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-applies-torment-to-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/无理取闹（招式）",
-			),
 			inputSummary = "使用者用无理取闹类变化技能命中目标。",
 			expectedSummary = "目标获得无理取闹临时状态；回合末不会按倒计时自然递减。",
 		)
@@ -64,10 +59,6 @@ class BattleTormentTests {
 	fun `tormented participant cannot use same skill twice in a row`() {
 		val fixture = publicBattleRuleFixture(
 			name = "tormented-participant-cannot-use-same-skill-twice",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/无理取闹（状态变化）",
-			),
 			inputSummary = "成员处于无理取闹状态，上一回合成功使用过技能 1，本回合再次尝试技能 1。",
 			expectedSummary = "重复技能在 PP 消耗前失败，成员不会产生技能使用事件，最近成功技能保持不变。",
 		)
@@ -99,10 +90,6 @@ class BattleTormentTests {
 	fun `tormented participant can use a different skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "tormented-participant-can-use-different-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/无理取闹（状态变化）",
-			),
 			inputSummary = "成员处于无理取闹状态，上一回合成功使用过技能 1，本回合选择技能 2。",
 			expectedSummary = "不同技能正常消耗 PP 并造成伤害，最近成功技能更新为技能 2。",
 		)
@@ -137,10 +124,6 @@ class BattleTormentTests {
 	fun `torment clears when participant switches out`() {
 		val fixture = publicBattleRuleFixture(
 			name = "torment-clears-when-participant-switches-out",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/无理取闹（状态变化）",
-			),
 			inputSummary = "处于无理取闹状态的成员主动替换离场。",
 			expectedSummary = "离场成员的无理取闹和最近成功技能被清除，HP、PP 和其它持久资料保持。",
 		)
@@ -169,10 +152,6 @@ class BattleTormentTests {
 	fun `existing torment blocks new torment without refreshing state`() {
 		val fixture = publicBattleRuleFixture(
 			name = "existing-torment-blocks-new-torment-without-refreshing-state",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "目标已经处于无理取闹，再次被无理取闹类技能命中。",
 			expectedSummary = "新无理取闹不会改变目标运行态，并以已有临时状态作为稳定失败原因。",
 		)

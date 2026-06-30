@@ -36,10 +36,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `sure hit skill skips accuracy random and proceeds to damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sure-hit-skill-skips-accuracy-random-and-proceeds-to-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-			),
 			inputSummary = "技能命中字段为空，表示当前规则下必中。",
 			expectedSummary = "技能不消费命中随机，直接进入要害和伤害随机流程并造成伤害。",
 		)
@@ -59,10 +55,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `accuracy roll equal to modified accuracy still hits`() {
 		val fixture = publicBattleRuleFixture(
 			name = "accuracy-roll-equal-to-modified-accuracy-still-hits",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Accuracy",
-			),
 			inputSummary = "基础命中 50 的技能掷出命中随机 50。",
 			expectedSummary = "命中判定使用小于等于阈值，掷点等于有效命中率时仍命中。",
 		)
@@ -83,10 +75,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `accuracy miss skips critical hit and damage random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "accuracy-miss-skips-critical-hit-and-damage-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Accuracy",
-			),
 			inputSummary = "基础命中 50 的技能掷出命中随机 51。",
 			expectedSummary = "技能未命中后不再消费要害或伤害随机数，也不造成伤害。",
 		)
@@ -108,10 +96,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `positive accuracy stage can make a seventy five accuracy skill sure hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "positive-accuracy-stage-can-make-seventy-five-accuracy-skill-sure-hit",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-			),
 			inputSummary = "使用者命中 +1，技能基础命中 75。",
 			expectedSummary = "修正后有效命中率达到 100，不消费命中随机并继续造成伤害。",
 		)
@@ -133,10 +117,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `positive evasion stage can make a one hundred accuracy skill miss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "positive-evasion-stage-can-make-one-hundred-accuracy-skill-miss",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Stat_modifier",
-			),
 			inputSummary = "目标闪避 +1，攻击方使用基础命中 100 的技能，命中随机掷出 76。",
 			expectedSummary = "有效命中率降为 75，掷点 76 未命中且不继续结算伤害。",
 		)
@@ -159,10 +139,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `weather sure hit override skips accuracy random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-sure-hit-override-skips-accuracy-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rain_Dance_(move)",
-			),
 			inputSummary = "当前天气把基础命中 50 的技能覆盖为必中。",
 			expectedSummary = "天气覆盖后的命中率为空，不消费命中随机并继续造成伤害。",
 		)
@@ -193,10 +169,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `first successful protection consumes no chance random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "first-successful-protection-consumes-no-chance-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "成员首次连续保护计数为 0 时使用保护类技能。",
 			expectedSummary = "首次保护必定成功，不消费保护概率随机，并把连续保护计数记为 1。",
 		)
@@ -218,10 +190,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `second consecutive protection success consumes one third chance random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "second-consecutive-protection-success-consumes-one-third-chance-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "成员已有一次连续保护成功计数，第二次使用保护类技能并掷出成功值。",
 			expectedSummary = "第二次保护消费 1/3 概率随机，掷到 0 成功并把连续保护计数推进到 2。",
 		)
@@ -242,10 +210,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `failed consecutive protection leaves user unprotected for later damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "failed-consecutive-protection-leaves-user-unprotected-for-later-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "成员第二次连续保护掷点失败，较慢对手随后攻击该成员。",
 			expectedSummary = "保护失败后不建立屏障，后续攻击不会被阻挡并正常造成伤害。",
 		)
@@ -271,10 +235,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `protection blocks ally affected skill in double battle`() {
 		val fixture = publicBattleRuleFixture(
 			name = "protection-blocks-ally-affected-skill-in-double-battle",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "双打中同侧伙伴对已经建立保护的成员使用受保护影响的技能。",
 			expectedSummary = "保护屏障不区分攻击来源，同侧伙伴的受保护影响技能也被阻挡。",
 		)
@@ -305,10 +265,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `substitute fails at exact hp cost after skill use`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-fails-at-exact-hp-cost-after-skill-use",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "使用者当前 HP 正好等于替身费用。",
 			expectedSummary = "技能已经宣告并消耗 PP，但由于 HP 不多于费用，不建立替身也不扣除 HP。",
 		)
@@ -329,10 +285,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `substitute fails when user already has substitute after skill use`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-fails-when-user-already-has-substitute-after-skill-use",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "使用者已经拥有替身时再次使用替身技能。",
 			expectedSummary = "技能已经宣告并消耗 PP，但不覆盖既有替身，也不重复扣除 HP。",
 		)
@@ -354,10 +306,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `substitute blocks opponent stat stage drop`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-blocks-opponent-stat-stage-drop",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "目标已有替身，对手使用非声音类降能力变化技能。",
 			expectedSummary = "替身阻止来自对手的能力阶级下降，目标能力阶级不变。",
 		)
@@ -382,10 +330,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `substitute allows ally stat stage effect`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-allows-ally-stat-stage-effect",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "目标已有替身，同侧伙伴对其使用能力阶级变化技能。",
 			expectedSummary = "替身只阻止对手技能，同侧伙伴的能力阶级效果正常生效。",
 		)
@@ -412,10 +356,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `substitute does not block user self healing skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-does-not-block-user-self-healing-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "使用者已有替身并对自己使用回复类变化技能。",
 			expectedSummary = "替身不阻止使用者自己的回复技能，本体 HP 回复且替身 HP 保持不变。",
 		)
@@ -436,10 +376,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `grass target blocks powder status skill before duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "grass-target-blocks-powder-status-skill-before-duration-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Powder_and_spore_moves",
-			),
 			inputSummary = "对草属性目标使用粉末类睡眠技能。",
 			expectedSummary = "草属性天然免疫粉末类技能，阻挡发生在睡眠持续时间随机之前。",
 		)
@@ -473,10 +409,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `sound immunity ability blocks sound skill before damage random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-immunity-ability-blocks-sound-skill-before-damage-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sound-based_move",
-			),
 			inputSummary = "目标拥有声音类技能免疫特性，对手使用声音类伤害技能。",
 			expectedSummary = "特性在命中后伤害前阻挡技能，不消费要害或伤害随机数。",
 		)
@@ -507,10 +439,6 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 	fun `type immunity blocks fixed damage before direct damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "type-immunity-blocks-fixed-damage-before-direct-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Type",
-			),
 			inputSummary = "固定伤害技能的属性对目标属性相性为 0。",
 			expectedSummary = "属性免疫在固定伤害前短路，目标 HP 不变，事件记录 0 伤害。",
 		)

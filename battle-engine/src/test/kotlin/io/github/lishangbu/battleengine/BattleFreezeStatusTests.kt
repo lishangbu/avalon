@@ -23,10 +23,6 @@ class BattleFreezeStatusTests {
 	fun `freeze can prevent action without pp loss`() {
 		val fixture = publicBattleRuleFixture(
 			name = "freeze-prevents-action-after-failed-thaw-roll",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
-			),
 			inputSummary = "冰冻成员本回合选择使用普通攻击，固定随机数未触发自然解冻。",
 			expectedSummary = "成员不会使用技能、不消耗 PP，冰冻状态仍然保留到后续回合。",
 		)
@@ -58,10 +54,6 @@ class BattleFreezeStatusTests {
 	fun `freeze can thaw before action and continue into normal skill flow`() {
 		val fixture = publicBattleRuleFixture(
 			name = "freeze-thaws-before-action-and-continues",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
-			),
 			inputSummary = "冰冻成员本回合选择普通攻击，固定随机数触发自然解冻。",
 			expectedSummary = "成员先解除冰冻，再使用技能并按普通伤害流程消费要害和伤害浮动随机数。",
 		)
@@ -100,10 +92,6 @@ class BattleFreezeStatusTests {
 	fun `fire damage thaws frozen target that survives the hit`() {
 		val fixture = publicBattleRuleFixture(
 			name = "fire-damage-thaws-frozen-target-that-survives",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
-			),
 			inputSummary = "冰冻目标被火属性伤害技能命中且没有倒下。",
 			expectedSummary = "目标先承受伤害，随后解除冰冻状态。",
 		)
@@ -134,10 +122,6 @@ class BattleFreezeStatusTests {
 	fun `self thawing skill can be used while frozen without thaw chance roll`() {
 		val fixture = publicBattleRuleFixture(
 			name = "self-thawing-skill-can-be-used-while-frozen",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Freeze_(status_condition)",
-			),
 			inputSummary = "冰冻成员选择带有行动前自解冻标签的伤害技能。",
 			expectedSummary = "成员不进行自然解冻概率判定，先解除自身冰冻，再正常使用技能。",
 		)

@@ -20,10 +20,6 @@ class BattleHeldItemPublicReferenceTests {
 	fun `damage boost item uses max hp recoil like public item fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "damage-boost-item-uses-max-hp-recoil-after-damage",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Life_Orb",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "使用者最大 HP 100，携带造成伤害提升 1.3 倍且反伤分母为 10 的道具，使用普通物理技能造成伤害。",
 			expectedSummary = "目标受到 1.3 倍后的伤害；使用者按最大 HP 的 1/10 失去 10 HP，而不是按造成伤害的 1/10 失去 HP。",
 		)
@@ -55,10 +51,6 @@ class BattleHeldItemPublicReferenceTests {
 	fun `end turn healing item restores one sixteenth max hp like public item fixture`() {
 		val fixture = publicBattleRuleFixture(
 			name = "end-turn-healing-item-restores-one-sixteenth-max-hp",
-			sourceUrls = listOf(
-				"https://bulbapedia.bulbagarden.net/wiki/Leftovers",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-			),
 			inputSummary = "持有者最大 HP 100，当前 HP 80，携带回合末回复分母为 16 的道具，本回合没有其它行动。",
 			expectedSummary = "完整回合末回复 floor(100 / 16) = 6 点 HP，最终 HP 为 86，并产生一次回复事件。",
 		)

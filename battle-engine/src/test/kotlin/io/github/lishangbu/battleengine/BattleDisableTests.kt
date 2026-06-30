@@ -31,11 +31,6 @@ class BattleDisableTests {
 	fun `status skill disables target last used skill for four turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-disables-target-last-used-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/定身法（招式）",
-			),
 			inputSummary = "目标最近一次成功使用过仍有 PP 的技能，使用者用定身法命中目标。",
 			expectedSummary = "目标最近使用的技能被禁用 4 回合；当前回合结束后剩余 3 回合。",
 		)
@@ -67,10 +62,6 @@ class BattleDisableTests {
 	fun `disabled skill cannot be used`() {
 		val fixture = publicBattleRuleFixture(
 			name = "disabled-skill-cannot-be-used",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/定身法（招式）",
-			),
 			inputSummary = "成员处于定身法状态，并尝试使用被禁用的技能。",
 			expectedSummary = "被禁用技能在 PP 消耗前失败，成员不会产生技能使用事件。",
 		)
@@ -102,10 +93,6 @@ class BattleDisableTests {
 	fun `disabled participant can use other skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "disabled-participant-can-use-other-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/定身法（招式）",
-			),
 			inputSummary = "成员处于定身法状态，但选择了未被禁用的其它技能。",
 			expectedSummary = "未被禁用的技能正常消耗 PP 并造成伤害，定身法持续回合照常递减。",
 		)
@@ -140,10 +127,6 @@ class BattleDisableTests {
 	fun `disable clears when end turn duration reaches zero`() {
 		val fixture = publicBattleRuleFixture(
 			name = "disable-clears-when-end-turn-duration-reaches-zero",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/定身法（招式）",
-			),
 			inputSummary = "成员的定身法只剩 1 回合，双方本回合没有行动。",
 			expectedSummary = "回合末持续时间递减到 0，成员的定身法被清除并产生临时状态解除事件。",
 		)
@@ -171,10 +154,6 @@ class BattleDisableTests {
 	fun `disable fails when target has no last used skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "disable-fails-when-target-has-no-last-used-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/定身法（招式）",
-			),
 			inputSummary = "目标自上场以来还没有成功使用过技能，使用者尝试用定身法影响目标。",
 			expectedSummary = "定身法不会写入临时状态，并以没有可禁用技能作为稳定失败原因。",
 		)

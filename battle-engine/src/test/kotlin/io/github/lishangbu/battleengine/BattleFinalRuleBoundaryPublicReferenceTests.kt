@@ -491,12 +491,6 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 	): PublicBattleRuleFixture =
 		publicBattleRuleFixture(
 			name = name,
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = inputSummary,
 			expectedSummary = expectedSummary,
 		)

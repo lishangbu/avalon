@@ -30,10 +30,6 @@ class BattleIndirectDamageImmunityTests {
 	fun `indirect damage immunity blocks residual status and sandstorm damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "indirect-damage-immunity-blocks-residual-status-and-weather-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Magic_Guard_(Ability)",
-			),
 			inputSummary = "普通属性上场成员拥有间接伤害免疫特性，并已处于灼伤状态；全场天气为沙暴。",
 			expectedSummary = "完整回合末不会产生灼伤伤害或沙暴伤害事件，成员 HP 保持 100，灼伤状态仍然保留。",
 		)
@@ -63,11 +59,6 @@ class BattleIndirectDamageImmunityTests {
 	fun `indirect damage immunity keeps direct damage boost but blocks item recoil`() {
 		val fixture = publicBattleRuleFixture(
 			name = "indirect-damage-immunity-keeps-direct-damage-boost-but-blocks-item-recoil",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Life_Orb",
-			),
 			inputSummary = "使用者拥有间接伤害免疫特性，同时携带造成伤害提升 1.3 倍并反伤最大 HP 1/10 的道具。",
 			expectedSummary = "目标仍受到道具倍率提升后的直接技能伤害；使用者不会承受该道具造成的反伤。",
 		)
@@ -100,11 +91,6 @@ class BattleIndirectDamageImmunityTests {
 	fun `indirect damage immunity blocks move recoil and entry hazard damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "indirect-damage-immunity-blocks-move-recoil-and-entry-hazard-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Stealth_Rock_(move)",
-			),
 			inputSummary = "使用者拥有间接伤害免疫特性，使用按实际伤害 1/3 反作用的技能；另一个拥有同特性的后备成员换入隐形岩侧。",
 			expectedSummary = "直接攻击正常扣减目标 HP，但不会产生技能反作用伤害；后备成员换入后不承受隐形岩入场伤害。",
 		)

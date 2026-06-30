@@ -160,5 +160,5 @@ data class BattleState(
 	 * 追加一组事件。
 	 */
 	fun appendEvents(newEvents: List<BattleEvent>): BattleState =
-		copy(events = events + newEvents)
+		if (newEvents.isEmpty()) this else copy(events = events + newEvents)
 }

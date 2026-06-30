@@ -28,10 +28,6 @@ class BattleStatusCureItemTests {
 	fun `major status cure item clears status after successful status skill and consumes item`() {
 		val fixture = publicBattleRuleFixture(
 			name = "major-status-cure-item-clears-status-after-application",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Lum_Berry",
-			),
 			inputSummary = "目标携带可解除任意主要异常状态的一次性道具，对手使用 100% 附加灼伤的变化技能。",
 			expectedSummary = "灼伤先写入目标运行态，随后携带道具立即解除灼伤并被消费。",
 		)
@@ -69,12 +65,6 @@ class BattleStatusCureItemTests {
 	fun `major status cure item also clears contact ability status on attacker`() {
 		val fixture = publicBattleRuleFixture(
 			name = "major-status-cure-item-clears-contact-ability-status",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Static_(Ability)",
-				"https://bulbapedia.bulbagarden.net/wiki/Lum_Berry",
-			),
 			inputSummary = "攻击方携带主要异常状态解除道具，使用接触类技能命中拥有接触后麻痹攻击方特性的目标。",
 			expectedSummary = "攻击方先因目标特性获得麻痹，随后自身携带道具立即解除麻痹并被消费。",
 		)
@@ -123,11 +113,6 @@ class BattleStatusCureItemTests {
 	fun `major status cure item keeps unmatched status and is not consumed`() {
 		val fixture = publicBattleRuleFixture(
 			name = "specific-status-cure-item-keeps-unmatched-status",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Chesto_Berry",
-				"https://bulbapedia.bulbagarden.net/wiki/Rawst_Berry",
-			),
 			inputSummary = "目标携带只解除睡眠的一次性道具，对手使用 100% 附加灼伤的变化技能。",
 			expectedSummary = "灼伤不是该道具声明的解除状态，因此状态保留，道具也不被消费。",
 		)

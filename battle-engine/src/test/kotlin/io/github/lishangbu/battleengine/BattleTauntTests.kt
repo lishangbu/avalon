@@ -30,11 +30,6 @@ class BattleTauntTests {
 	fun `status skill applies taunt to target for three turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-applies-taunt-to-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/挑衅（招式）",
-			),
 			inputSummary = "使用者用挑衅类变化技能命中目标。",
 			expectedSummary = "目标获得挑衅临时状态；当前回合结束后剩余 2 回合。",
 		)
@@ -62,10 +57,6 @@ class BattleTauntTests {
 	fun `taunted participant cannot use status skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "taunted-participant-cannot-use-status-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/挑衅（状态变化）",
-			),
 			inputSummary = "处于挑衅的成员尝试使用变化分类技能。",
 			expectedSummary = "变化技能在 PP 消耗前失败，成员不会产生技能使用事件。",
 		)
@@ -96,10 +87,6 @@ class BattleTauntTests {
 	fun `taunted participant can still use damaging skill`() {
 		val fixture = publicBattleRuleFixture(
 			name = "taunted-participant-can-use-damaging-skill",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/挑衅（状态变化）",
-			),
 			inputSummary = "处于挑衅的成员使用物理或特殊分类伤害技能。",
 			expectedSummary = "挑衅不阻止攻击分类技能，技能正常消耗 PP 并造成伤害。",
 		)
@@ -128,10 +115,6 @@ class BattleTauntTests {
 	fun `taunt clears when end turn duration reaches zero`() {
 		val fixture = publicBattleRuleFixture(
 			name = "taunt-clears-when-end-turn-duration-reaches-zero",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://wiki.52poke.com/wiki/挑衅（状态变化）",
-			),
 			inputSummary = "成员的挑衅只剩 1 回合，双方本回合没有行动。",
 			expectedSummary = "回合末持续时间递减到 0，成员的挑衅被清除并产生临时状态解除事件。",
 		)
@@ -155,10 +138,6 @@ class BattleTauntTests {
 	fun `existing taunt blocks new taunt without refreshing duration`() {
 		val fixture = publicBattleRuleFixture(
 			name = "existing-taunt-blocks-new-taunt-without-refreshing-duration",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-			),
 			inputSummary = "目标已经处于挑衅且剩余 2 回合，再次被挑衅类技能命中。",
 			expectedSummary = "新挑衅不会刷新旧持续时间；当前回合结束后目标剩余 1 回合挑衅。",
 		)

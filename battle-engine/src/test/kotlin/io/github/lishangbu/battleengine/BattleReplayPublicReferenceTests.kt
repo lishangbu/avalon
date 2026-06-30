@@ -26,10 +26,6 @@ class BattleReplayPublicReferenceTests {
 	fun `scripted random rejects extra consumption`() {
 		val fixture = publicBattleRuleFixture(
 			name = "scripted-random-rejects-extra-consumption",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "固定随机脚本只提供一个随机值，调用方尝试消费第二个随机值。",
 			expectedSummary = "随机源立即失败，暴露实现比 fixture 预期多消费了随机数。",
 		)
@@ -47,10 +43,6 @@ class BattleReplayPublicReferenceTests {
 	fun `recording random preserves bound reason and value sequence`() {
 		val fixture = publicBattleRuleFixture(
 			name = "recording-random-preserves-bound-reason-and-value-sequence",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "录制随机源包裹固定脚本，依次消费要害随机和伤害随机。",
 			expectedSummary = "trace 按消费顺序保存 sequence、bound、reason 和 value，供 replay 严格复算。",
 		)
@@ -73,10 +65,6 @@ class BattleReplayPublicReferenceTests {
 	fun `strict replay reproduces event fragment and final state`() {
 		val fixture = publicBattleRuleFixture(
 			name = "strict-replay-reproduces-event-fragment-and-final-state",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "录制一回合普通单体伤害行动，保存提交行动、随机 trace 和本回合新增事件。",
 			expectedSummary = "严格 replay 使用 trace 复算后得到完全相同的事件片段和最终战斗状态。",
 		)
@@ -109,11 +97,6 @@ class BattleReplayPublicReferenceTests {
 	fun `golden replay pins random trace event fragment and final hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "golden-replay-pins-random-trace-event-fragment-and-final-hp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-			),
 			inputSummary = "保存一回合普通单体伤害的提交行动、随机消费 trace、事件片段和最终 HP。",
 			expectedSummary = "后续引擎实现必须复现同一随机消费顺序、同一事件片段，并把目标 HP 固定到黄金值。",
 		)
@@ -152,10 +135,6 @@ class BattleReplayPublicReferenceTests {
 	fun `strict replay rejects tampered random trace`() {
 		val fixture = publicBattleRuleFixture(
 			name = "strict-replay-rejects-tampered-random-trace",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			),
 			inputSummary = "录制一回合普通伤害行动后，把第一条随机 trace 的 reason 改成另一个阶段。",
 			expectedSummary = "严格 replay 在消费随机数时立即失败，避免被篡改 trace 产生看似可用的复盘。",
 		)

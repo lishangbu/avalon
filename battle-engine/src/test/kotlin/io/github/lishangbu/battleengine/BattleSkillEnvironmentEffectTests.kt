@@ -25,11 +25,6 @@ class BattleSkillEnvironmentEffectTests {
 	fun `status skill starts weather for five turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-starts-weather-for-five-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rain_Dance_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Snowscape_(move)",
-			),
 			inputSummary = "使用者成功使用设置天气的变化技能，当前场上没有天气。",
 			expectedSummary = "全场天气变为目标天气，剩余回合为 5，并产生天气开始事件。",
 		)
@@ -66,11 +61,6 @@ class BattleSkillEnvironmentEffectTests {
 	fun `status skill starts terrain for five turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "status-skill-starts-terrain-for-five-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Electric_Terrain_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Grassy_Terrain_(move)",
-			),
 			inputSummary = "使用者成功使用设置场地的变化技能，当前全场没有场地。",
 			expectedSummary = "全场场地变为目标场地，剩余回合为 5，并产生场地开始事件。",
 		)
@@ -107,11 +97,6 @@ class BattleSkillEnvironmentEffectTests {
 	fun `weather extending item makes weather skill last eight turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-extending-item-makes-weather-skill-last-eight-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Damp_Rock",
-			),
 			inputSummary = "使用者携带匹配下雨天气的延长道具，成功使用设置下雨的变化技能。",
 			expectedSummary = "下雨天气按 8 回合建立；同一回合结束后剩余 7 回合，并产生记录 8 回合的天气开始事件。",
 		)
@@ -159,11 +144,6 @@ class BattleSkillEnvironmentEffectTests {
 	fun `terrain extending item makes terrain skill last eight turns`() {
 		val fixture = publicBattleRuleFixture(
 			name = "terrain-extending-item-makes-terrain-skill-last-eight-turns",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Terrain_Extender",
-			),
 			inputSummary = "使用者携带场地延长道具，成功使用设置青草场地的变化技能。",
 			expectedSummary = "青草场地按 8 回合建立；同一回合结束后剩余 7 回合，并产生记录 8 回合的场地开始事件。",
 		)

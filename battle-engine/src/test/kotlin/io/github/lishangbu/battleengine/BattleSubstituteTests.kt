@@ -31,11 +31,6 @@ class BattleSubstituteTests {
 	fun `substitute skill pays quarter max hp and absorbs later damage until broken`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-pays-quarter-max-hp-and-absorbs-damage-until-broken",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "较快成员使用替身，较慢对手同回合使用普通攻击命中该成员。",
 			expectedSummary = "使用者支付最大 HP 的 1/4 建立 25 HP 替身；对手伤害先扣替身，替身破裂，本体 HP 保持 75。",
 		)
@@ -72,10 +67,6 @@ class BattleSubstituteTests {
 	fun `substitute keeps remaining hp when absorbed damage is lower than substitute hp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-keeps-remaining-hp-after-partial-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "较快成员使用替身，较慢对手使用低威力普通攻击命中。",
 			expectedSummary = "替身承受 15 点伤害后仍剩余 10 HP，本体 HP 仍为建立替身后的 75。",
 		)
@@ -110,10 +101,6 @@ class BattleSubstituteTests {
 	fun `substitute blocks opponent major status without consuming status duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-blocks-opponent-major-status",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "目标已经拥有替身，对手使用必定造成睡眠的变化技能。",
 			expectedSummary = "睡眠被替身阻止，目标不获得主要异常状态，也不会消费睡眠持续时间随机数。",
 		)
@@ -155,10 +142,6 @@ class BattleSubstituteTests {
 	fun `substitute blocks opponent volatile status before confusion duration random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "substitute-blocks-opponent-volatile-status",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-			),
 			inputSummary = "目标已经拥有替身，对手使用必定造成混乱的变化技能。",
 			expectedSummary = "混乱被替身阻止，目标不写入混乱计数，也不会消费混乱持续时间随机数。",
 		)
@@ -200,12 +183,6 @@ class BattleSubstituteTests {
 	fun `sound damaging skill bypasses substitute and damages target body`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-damage-skill-bypasses-substitute",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Sound-based_move",
-			),
 			inputSummary = "目标已经拥有替身，对手使用声音类伤害技能。",
 			expectedSummary = "声音类伤害技能穿过替身直接伤害本体，替身 HP 保持不变。",
 		)
@@ -235,12 +212,6 @@ class BattleSubstituteTests {
 	fun `sound status skill bypasses substitute while ordinary stat stage skill is blocked`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sound-status-skill-bypasses-substitute",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Substitute_(move)",
-				"https://bulbapedia.bulbagarden.net/wiki/Metal_Sound_(move)",
-			),
 			inputSummary = "目标已经拥有替身；一个普通降能力变化技和一个声音类降能力变化技分别命中该目标。",
 			expectedSummary = "普通降能力变化技被替身阻止；声音类降能力变化技穿过替身并实际降低目标能力阶级。",
 		)

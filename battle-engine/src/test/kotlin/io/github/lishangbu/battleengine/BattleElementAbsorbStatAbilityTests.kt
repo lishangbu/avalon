@@ -22,10 +22,6 @@ class BattleElementAbsorbStatAbilityTests {
 	fun `element absorb stat ability blocks electric damage and raises speed`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-stat-ability-blocks-electric-damage-and-raises-speed",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Motor_Drive_(Ability)",
-			),
 			inputSummary = "目标拥有吸收电属性技能并提升速度的结构化特性，对手使用电属性攻击。",
 			expectedSummary = "技能命中后被目标特性吸收，目标不受伤害，速度能力阶级提升 1 级。",
 		)
@@ -70,10 +66,6 @@ class BattleElementAbsorbStatAbilityTests {
 	fun `element absorb stat ability blocks grass damage and raises attack`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-stat-ability-blocks-grass-damage-and-raises-attack",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sap_Sipper_(Ability)",
-			),
 			inputSummary = "目标拥有吸收草属性技能并提升攻击的结构化特性，对手使用草属性攻击。",
 			expectedSummary = "技能命中后被目标特性吸收，目标不受伤害，攻击能力阶级提升 1 级。",
 		)
@@ -114,10 +106,6 @@ class BattleElementAbsorbStatAbilityTests {
 	fun `element absorb stat ability blocks fire damage and raises defense by two`() {
 		val fixture = publicBattleRuleFixture(
 			name = "element-absorb-stat-ability-blocks-fire-damage-and-raises-defense-by-two",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Well-Baked_Body_(Ability)",
-			),
 			inputSummary = "目标拥有吸收火属性技能并大幅提升防御的结构化特性，对手使用火属性攻击。",
 			expectedSummary = "技能命中后被目标特性吸收，目标不受伤害，防御能力阶级提升 2 级。",
 		)

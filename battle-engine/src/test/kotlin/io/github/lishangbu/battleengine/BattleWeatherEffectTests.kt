@@ -25,10 +25,6 @@ class BattleWeatherEffectTests {
 	fun `sandstorm damages only non immune active participants at end turn`() {
 		val fixture = publicBattleRuleFixture(
 			name = "sandstorm-damages-only-non-immune-active-participants",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition)",
-			),
 			inputSummary = "沙暴环境下，普通属性和岩属性当前上场成员都保持可战斗。",
 			expectedSummary = "只有普通属性成员受到最大 HP 1/16 的沙暴伤害，岩属性成员不受影响。",
 		)
@@ -55,10 +51,6 @@ class BattleWeatherEffectTests {
 	fun `weather healing ability heals active participant at end turn`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-healing-ability-heals-active-participant-at-end-turn",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rain",
-			),
 			inputSummary = "下雨环境下，当前上场成员未满 HP，且拥有雨天回合末回复特性。",
 			expectedSummary = "天气阶段按最大 HP 1/16 回复并产生天气回复事件；非匹配天气特性不会回复。",
 		)
@@ -105,10 +97,6 @@ class BattleWeatherEffectTests {
 	fun `weather speed ability changes skill action order`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-speed-ability-changes-skill-action-order",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Rain",
-			),
 			inputSummary = "下雨环境下，低速成员拥有雨天速度翻倍特性，高速成员没有天气速度特性。",
 			expectedSummary = "低速成员的有效速度翻倍后先行动，事件流中的技能使用顺序随之改变。",
 		)
@@ -149,10 +137,6 @@ class BattleWeatherEffectTests {
 	fun `weather accuracy overrides support sure hit and lowered accuracy`() {
 		val fixture = publicBattleRuleFixture(
 			name = "weather-accuracy-overrides-support-sure-hit-and-lowered-accuracy",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Weather",
-			),
 			inputSummary = "同一类天气命中覆盖分别表达雨天下必中、晴天下固定低命中。",
 			expectedSummary = "必中覆盖不消费命中随机数；固定低命中覆盖会消费命中随机数并可导致技能未命中。",
 		)
@@ -208,11 +192,6 @@ class BattleWeatherEffectTests {
 	fun `ability and item immunities block sandstorm damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "ability-and-item-immunities-block-sandstorm-damage",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts",
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts",
-				"https://bulbapedia.bulbagarden.net/wiki/Sandstorm_(weather_condition)",
-			),
 			inputSummary = "沙暴环境下，普通属性双方当前上场成员分别拥有天气伤害免疫特性和道具。",
 			expectedSummary = "双方都不会受到沙暴回合末固定伤害，也不会产生天气伤害事件。",
 		)

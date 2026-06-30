@@ -475,11 +475,6 @@ class BattleDamageFormulaBoundaryPublicReferenceTests {
 		expectedSummary: String,
 	) = publicBattleRuleFixture(
 		name = name,
-		sourceUrls = listOf(
-			"https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts",
-			"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-			"https://bulbapedia.bulbagarden.net/wiki/Damage",
-		),
 		inputSummary = inputSummary,
 		expectedSummary = expectedSummary,
 	)

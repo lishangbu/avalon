@@ -828,9 +828,7 @@ class BattleEngine(
 					criticalHit = criticalHit,
 				),
 			)
-			.let { current ->
-				survival.event?.let(current::appendEvent) ?: current
-			}
+			.appendEvents(listOfNotNull(survival.event))
 		val afterFireThaw = clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
 		return finishPostDamageEffects(
 			context = context,
@@ -954,9 +952,7 @@ class BattleEngine(
 					targetMultiplier = targetMultiplier,
 				),
 			)
-			.let { current ->
-				survival.event?.let(current::appendEvent) ?: current
-			}
+			.appendEvents(listOfNotNull(survival.event))
 		return finishPostDamageEffects(
 			context = context,
 			state = damagedState,

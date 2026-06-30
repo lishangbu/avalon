@@ -24,10 +24,6 @@ class BattleActionFlowBoundaryTests {
 	fun `skill unaffected by protection damages protected target`() {
 		val fixture = publicBattleRuleFixture(
 			name = "protection-bypass-skill-damages-protected-target",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "目标本回合先建立保护屏障，攻击方随后使用声明为不受保护影响的物理技能。",
 			expectedSummary = "技能不会产生保护阻挡事件，会继续进入要害和伤害随机流程并对受保护目标造成伤害。",
 		)
@@ -59,10 +55,6 @@ class BattleActionFlowBoundaryTests {
 	fun `protection block happens before accuracy random`() {
 		val fixture = publicBattleRuleFixture(
 			name = "protection-blocks-before-accuracy-random",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "目标本回合先建立保护屏障，攻击方随后使用基础命中 50 且受保护影响的技能。",
 			expectedSummary = "攻击方技能消耗 PP 后被保护阻挡，不再消费命中随机数，也不会造成伤害。",
 		)
@@ -95,10 +87,6 @@ class BattleActionFlowBoundaryTests {
 	fun `protection bypass still performs accuracy check before damage`() {
 		val fixture = publicBattleRuleFixture(
 			name = "protection-bypass-still-performs-accuracy-check",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/守住（招式）",
-			),
 			inputSummary = "目标本回合先建立保护屏障，攻击方随后使用不受保护影响但基础命中 50 的技能，命中掷点失败。",
 			expectedSummary = "技能绕过保护后仍执行命中判定；未命中时不造成伤害，也不进入要害和伤害随机流程。",
 		)
@@ -131,10 +119,6 @@ class BattleActionFlowBoundaryTests {
 	fun `fainted queued actor cannot execute later action`() {
 		val fixture = publicBattleRuleFixture(
 			name = "fainted-queued-actor-cannot-execute-later-action",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "双打中高速成员先击倒一个低速目标，该目标本回合原本也提交了技能行动。",
 			expectedSummary = "低速目标倒下后，其排队行动在执行入口取消；事件流中不会出现该成员的技能使用事件。",
 		)
@@ -168,10 +152,6 @@ class BattleActionFlowBoundaryTests {
 	fun `action with no battle capable selected target consumes no pp`() {
 		val fixture = publicBattleRuleFixture(
 			name = "action-with-no-battle-capable-selected-target-consumes-no-pp",
-			sourceUrls = listOf(
-				"https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts",
-				"https://wiki.52poke.com/wiki/濒死",
-			),
 			inputSummary = "双打目标槽位当前成员已经无法战斗，行动方仍提交了指向该成员的单体技能。",
 			expectedSummary = "技能阶段找不到可战斗目标时，本次行动在使用前取消，不产生技能使用事件，也不消耗 PP。",
 		)
