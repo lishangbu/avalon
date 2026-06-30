@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component
 @Component
 class BattleInitialStateAssembler(
 	private val dataLookup: BattleRuntimeDataLookup,
+	private val effectAssembler: BattleRuntimeEffectAssembler,
 ) {
 	fun assemble(request: BattlePreparationValidationRequest): BattleInitialState {
 		val normalized = request.normalized()
@@ -100,9 +101,9 @@ class BattleInitialStateAssembler(
 			skillSlots = cache.skillSlots(skillIds),
 			abilityId = abilityId,
 			itemId = itemId,
-			grounded = "ground-immunity" !in abilityPolicies,
-			abilityEffects = abilityPolicies.mapNotNull { it.toBattleAbilityEffect(cache.elementIds) },
-			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect(cache.elementIds) },
+			grounded = effectAssembler.grounded(abilityPolicies),
+			abilityEffects = effectAssembler.abilityEffects(abilityPolicies, cache.elementIds),
+			itemEffects = effectAssembler.itemEffects(itemPolicies, cache.elementIds),
 		)
 	}
 

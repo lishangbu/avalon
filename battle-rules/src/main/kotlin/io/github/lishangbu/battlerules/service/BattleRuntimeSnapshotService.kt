@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional
 class BattleRuntimeSnapshotService(
 	private val dataLookup: BattleRuntimeDataLookup,
 	private val initialStateAssembler: BattleInitialStateAssembler,
+	private val effectAssembler: BattleRuntimeEffectAssembler,
 ) {
 	private val preparationValidator = BattlePreparationValidator()
 	private val actionValidator = BattleActionValidator()
@@ -178,16 +179,8 @@ class BattleRuntimeSnapshotService(
 	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
 	 */
 	@Transactional(readOnly = true)
-	fun abilityEffectsByAbilityId(abilityId: Long?): List<BattleAbilityEffect> {
-		if (abilityId == null) {
-			return emptyList()
-		}
-		if (abilityId <= 0) {
-			invalidValue("abilityId", "abilityId 必须大于 0")
-		}
-		val elementIds = dataLookup.coreElementIds()
-		return dataLookup.enabledAbilityPolicies(abilityId).mapNotNull { it.toBattleAbilityEffect(elementIds) }
-	}
+	fun abilityEffectsByAbilityId(abilityId: Long?): List<BattleAbilityEffect> =
+		effectAssembler.abilityEffectsByAbilityId(abilityId)
 
 	/**
 	 * 判断特性是否让成员在现代规则中不被视为接地。
@@ -196,15 +189,8 @@ class BattleRuntimeSnapshotService(
 	 * 装配时转换成成员快照上的稳定布尔值，让引擎后续所有接地判断共享同一个事实。
 	 */
 	@Transactional(readOnly = true)
-	fun groundedByAbilityId(abilityId: Long?): Boolean {
-		if (abilityId == null) {
-			return true
-		}
-		if (abilityId <= 0) {
-			invalidValue("abilityId", "abilityId 必须大于 0")
-		}
-		return "ground-immunity" !in dataLookup.enabledAbilityPolicies(abilityId)
-	}
+	fun groundedByAbilityId(abilityId: Long?): Boolean =
+		effectAssembler.groundedByAbilityId(abilityId)
 
 	/**
 	 * 按基础道具 ID 装配战斗引擎可消费的结构化携带道具效果。
@@ -218,16 +204,8 @@ class BattleRuntimeSnapshotService(
 	 * 成功设置对应持续效果时的回合覆盖；满 HP 保命道具会映射为一次性致命伤害保留 1 HP。
 	 */
 	@Transactional(readOnly = true)
-	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> {
-		if (itemId == null) {
-			return emptyList()
-		}
-		if (itemId <= 0) {
-			invalidValue("itemId", "itemId 必须大于 0")
-		}
-		val elementIds = dataLookup.coreElementIds()
-		return dataLookup.enabledItemPolicies(itemId).mapNotNull { it.toBattleItemEffect(elementIds) }
-	}
+	fun itemEffectsByItemId(itemId: Long?): List<BattleItemEffect> =
+		effectAssembler.itemEffectsByItemId(itemId)
 
 	private fun BattlePreparationValidationRequest.normalized(): BattlePreparationValidationRequest =
 		copy(
