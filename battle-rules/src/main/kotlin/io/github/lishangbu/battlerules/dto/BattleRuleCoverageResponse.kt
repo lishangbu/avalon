@@ -90,6 +90,7 @@ data class BattleRuleCoverageItemResponse(
 	val name: String,
 	val category: String,
 	val status: String,
+	val ruleCount: Int,
 	val fixtureNames: List<String>,
 	val fixtures: List<BattleRuleCoverageFixtureResponse>,
 	val note: String,

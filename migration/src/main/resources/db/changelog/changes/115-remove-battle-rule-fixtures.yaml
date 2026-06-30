@@ -1,0 +1,19 @@
+databaseChangeLog:
+- changeSet:
+    id: 115-remove-battle-rule-fixtures
+    author: backend
+    comment: 移除战斗规则对照 fixture 和测试运行结果的后台维护表与菜单。
+    changes:
+    - sql:
+        splitStatements: true
+        sql: |
+          delete from security_role_access_node
+          where access_node_id in (
+            select id
+            from security_access_node
+            where code in ('battle-rules.fixtures', 'battle-rules.test-runs')
+          );
+          delete from security_access_node
+          where code in ('battle-rules.fixtures', 'battle-rules.test-runs');
+          drop table if exists battle_rule_test_run cascade;
+          drop table if exists battle_rule_fixture cascade;

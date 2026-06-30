@@ -32,7 +32,9 @@ import java.util.concurrent.atomic.AtomicLong
 )
 @ContextConfiguration(initializers = [SecurityManagementApiPostgresTestContainer::class])
 /**
- * 验证战斗规则覆盖率接口和服务端菜单返回真实运行态数据。
+ * 验证战斗规则覆盖率接口和服务端菜单。
+ *
+ * 覆盖接口现在只暴露 312 条规则行为的代码内账本；fixture 和测试运行结果不再作为后台可维护资料。
  */
 class BattleRuleCoverageApiTests(
 	@Autowired private val userRepository: SecurityUserRepository,
@@ -62,18 +64,14 @@ class BattleRuleCoverageApiTests(
 			.response
 			.contentAsString
 
-		assertThat(JsonPath.read<Int>(coverageResponse, "$.summary.totalCount")).isEqualTo(412)
-		assertThat(JsonPath.read<Int>(coverageResponse, "$.targetSummary.coverageItemCount")).isEqualTo(412)
+		assertThat(JsonPath.read<Int>(coverageResponse, "$.summary.totalCount")).isEqualTo(312)
+		assertThat(JsonPath.read<Int>(coverageResponse, "$.summary.implementedCount")).isEqualTo(312)
+		assertThat(JsonPath.read<Int>(coverageResponse, "$.targetSummary.coverageItemCount")).isEqualTo(12)
 		assertThat(JsonPath.read<Boolean>(coverageResponse, "$.fixtureSummary.runtimeAvailable")).isTrue()
 		assertThat(JsonPath.read<Int>(coverageResponse, "$.fixtureSummary.withoutRunCount")).isZero()
 		assertThat(JsonPath.read<List<String>>(coverageResponse, "$.items[*].code"))
-			.contains(GOLDEN_REPLAY_FIXTURE_CODE)
-		assertThat(
-			JsonPath.read<List<String>>(
-				coverageResponse,
-				"$.items[?(@.code == '$GOLDEN_REPLAY_FIXTURE_CODE')].fixtures[0].latestRunStatus",
-			),
-		).containsExactly("PASSED")
+			.contains("random-replay-public-reference")
+		assertThat(JsonPath.read<List<Int>>(coverageResponse, "$.items[*].ruleCount").sum()).isEqualTo(312)
 
 		val sessionResponse = mockMvc.perform(
 			get("/api/session")
@@ -85,8 +83,8 @@ class BattleRuleCoverageApiTests(
 			.contentAsString
 
 		assertThat(JsonPath.read<List<String>>(sessionResponse, "$.menus..code"))
-			.contains("battle-rules.coverage", "battle-rules.fixtures", "battle-rules.test-runs")
-			.doesNotContain("battle-rules.fixture-sources")
+			.contains("battle-rules.coverage")
+			.doesNotContain("battle-rules.fixtures", "battle-rules.test-runs", "battle-rules.fixture-sources")
 	}
 
 	private fun issueBattleRulesToken(username: String): String {
@@ -122,7 +120,6 @@ class BattleRuleCoverageApiTests(
 
 	private companion object {
 		private const val BATTLE_RULES_ADMIN_ROLE_ID = 203L
-		private const val GOLDEN_REPLAY_FIXTURE_CODE = "golden-replay-pins-random-trace-event-fragment-and-final-hp"
 		private val nextUserId = AtomicLong(52001)
 	}
 }

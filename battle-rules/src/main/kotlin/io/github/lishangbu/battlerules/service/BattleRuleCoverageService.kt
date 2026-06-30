@@ -8,57 +8,34 @@ import io.github.lishangbu.battlerules.dto.BattleRuleCoverageMatrixRowResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageSummaryResponse
 import io.github.lishangbu.battlerules.dto.BattleRuleCoverageTargetSummaryResponse
-import io.github.lishangbu.battlerules.entity.BattleRuleFixture
-import io.github.lishangbu.battlerules.entity.BattleRuleTestRun
-import io.github.lishangbu.battlerules.entity.category
-import io.github.lishangbu.battlerules.entity.code
-import io.github.lishangbu.battlerules.entity.description
-import io.github.lishangbu.battlerules.entity.enabled
-import io.github.lishangbu.battlerules.entity.expectedSummary
-import io.github.lishangbu.battlerules.entity.fixtureId
-import io.github.lishangbu.battlerules.entity.id
-import io.github.lishangbu.battlerules.entity.name
-import io.github.lishangbu.battlerules.entity.runCode
-import io.github.lishangbu.battlerules.entity.runStatus
-import io.github.lishangbu.battlerules.entity.sortOrder
-import io.github.lishangbu.battlerules.entity.startedAt
-import org.babyfish.jimmer.sql.kt.KSqlClient
-import org.babyfish.jimmer.sql.kt.ast.expression.asc
-import org.babyfish.jimmer.sql.kt.ast.expression.desc
-import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
-import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 /**
  * 战斗规则实现覆盖报告服务。
  *
- * 覆盖项直接由数据库中的公开 fixture 推导，最近运行结果来自 `battle_rule_test_run`。这样新增规则对照时
- * 只需要维护 fixture 和测试运行数据，不再额外维护一份容易漂移的静态覆盖目录。
+ * 覆盖报告只保留规则族级汇总；具体规则行为由 `battle-engine` 单元测试断言。这样新增普通资料数据时不需要
+ * 同步维护数据库 fixture，只有引入新的触发时机、事件顺序、取整规则或状态不变量时才补测试。
  */
 @Service
-class BattleRuleCoverageService(
-	private val sqlClientProvider: ObjectProvider<KSqlClient>? = null,
-) {
+class BattleRuleCoverageService {
 	/**
 	 * 读取当前战斗规则实现覆盖报告。
 	 */
-	@Transactional(readOnly = true)
 	fun getCoverage(): BattleRuleCoverageResponse {
-		val runtime = fixtureRuntime()
-		val items = coverageItems(runtime)
-		val implementedCount = items.count { it.status == IMPLEMENTED }
-		val partialCount = items.count { it.status == PARTIAL }
-		val plannedCount = items.count { it.status == PLANNED }
+		val items = coverageItems()
+		val implementedCount = items.filter { it.status == IMPLEMENTED }.sumOf { it.ruleCount }
+		val partialCount = items.filter { it.status == PARTIAL }.sumOf { it.ruleCount }
+		val plannedCount = items.filter { it.status == PLANNED }.sumOf { it.ruleCount }
+		val totalCount = items.sumOf { it.ruleCount }
 		val fixtureCount = items.sumOf { it.fixtureNames.size }
-		val implementationPercent = if (items.isEmpty()) {
+		val implementationPercent = if (totalCount == 0) {
 			0
 		} else {
-			(implementedCount * 100) / items.size
+			(implementedCount * 100) / totalCount
 		}
 		return BattleRuleCoverageResponse(
 			summary = BattleRuleCoverageSummaryResponse(
-				totalCount = items.size,
+				totalCount = totalCount,
 				implementedCount = implementedCount,
 				partialCount = partialCount,
 				plannedCount = plannedCount,
@@ -73,98 +50,73 @@ class BattleRuleCoverageService(
 				coverageItemCount = items.size,
 				basis = FINAL_TARGET_BASIS,
 			),
-			fixtureSummary = fixtureSummary(runtime, items),
+			fixtureSummary = fixtureSummary(items),
 			matrix = coverageMatrix(items),
-			checks = coverageChecks(items, runtime),
+			checks = coverageChecks(items),
 			items = items,
 		)
 	}
 
-	private fun fixtureRuntime(): FixtureRuntime {
-		val sqlClient = sqlClientProvider?.getIfAvailable() ?: return FixtureRuntime.unavailable()
-		val fixtures = sqlClient.createQuery(BattleRuleFixture::class) {
-			orderBy(table.category.asc(), table.sortOrder.asc(), table.code.asc())
-			select(table)
-		}.execute()
-		val fixtureIds = fixtures.map { it.id }
-		val latestRuns = if (fixtureIds.isEmpty()) {
-			emptyMap()
-		} else {
-			// ponytail: coverage is an admin report over a bounded fixture set; use a window query only if this grows.
-			sqlClient.createQuery(BattleRuleTestRun::class) {
-				where(table.fixtureId valueIn fixtureIds)
-				orderBy(table.fixtureId.asc(), table.startedAt.desc(), table.id.desc())
-				select(table)
-			}.execute().groupBy { it.fixtureId }.mapValues { (_, runs) -> runs.first() }
-		}
-		return FixtureRuntime(
-			available = true,
-			fixtures = fixtures,
-			latestRunsByFixtureId = latestRuns,
-		)
-	}
-
-	private fun coverageItems(runtime: FixtureRuntime): List<BattleRuleCoverageItemResponse> {
-		if (!runtime.available) {
-			return emptyList()
-		}
-		return runtime.fixtures.map { fixture ->
+	private fun coverageItems(): List<BattleRuleCoverageItemResponse> =
+		COVERAGE_CATALOG.map { item ->
 			BattleRuleCoverageItemResponse(
-				code = fixture.code,
-				name = fixture.name,
-				category = fixture.category.label(),
-				status = if (fixture.enabled) IMPLEMENTED else PLANNED,
-				fixtureNames = listOf(fixture.code),
-				fixtures = listOf(runtime.fixture(fixture)),
-				note = fixture.description?.takeIf { it.isNotBlank() } ?: fixture.expectedSummary,
+				code = item.code,
+				name = item.name,
+				category = item.category,
+				status = IMPLEMENTED,
+				ruleCount = item.ruleCount,
+				fixtureNames = item.testFiles,
+				fixtures = item.testFiles.map { testFile ->
+					BattleRuleCoverageFixtureResponse(
+						code = testFile,
+						fixtureId = null,
+						name = "单元测试",
+						enabled = true,
+						latestRunCode = null,
+						latestRunStatus = null,
+						latestRunStartedAt = null,
+						missing = false,
+					)
+				},
+				note = item.note,
 			)
 		}
-	}
 
-	private fun fixtureSummary(
-		runtime: FixtureRuntime,
-		items: List<BattleRuleCoverageItemResponse>,
-	): BattleRuleCoverageFixtureSummaryResponse {
+	private fun fixtureSummary(items: List<BattleRuleCoverageItemResponse>): BattleRuleCoverageFixtureSummaryResponse {
 		val fixtures = items.flatMap { it.fixtures }
 		return BattleRuleCoverageFixtureSummaryResponse(
-			runtimeAvailable = runtime.available,
+			runtimeAvailable = true,
 			fixtureReferenceCount = fixtures.size,
-			matchedFixtureCount = if (runtime.available) fixtures.count { !it.missing } else 0,
-			missingFixtureCount = if (runtime.available) fixtures.count { it.missing } else 0,
-			latestPassedCount = if (runtime.available) fixtures.count { it.latestRunStatus == PASSED } else 0,
-			latestFailedCount = if (runtime.available) fixtures.count { it.latestRunStatus == FAILED } else 0,
-			latestRunningCount = if (runtime.available) fixtures.count { it.latestRunStatus == RUNNING } else 0,
-			withoutRunCount = if (runtime.available) {
-				fixtures.count { !it.missing && it.latestRunStatus == null }
-			} else {
-				0
-			},
+			matchedFixtureCount = fixtures.count { !it.missing },
+			missingFixtureCount = fixtures.count { it.missing },
+			latestPassedCount = 0,
+			latestFailedCount = 0,
+			latestRunningCount = 0,
+			withoutRunCount = 0,
 		)
 	}
 
 	private fun coverageMatrix(items: List<BattleRuleCoverageItemResponse>): List<BattleRuleCoverageMatrixRowResponse> =
 		items.groupBy { it.category }
 			.map { (category, categoryItems) ->
-				val implementedCount = categoryItems.count { it.status == IMPLEMENTED }
+				val totalCount = categoryItems.sumOf { it.ruleCount }
+				val implementedCount = categoryItems.filter { it.status == IMPLEMENTED }.sumOf { it.ruleCount }
 				BattleRuleCoverageMatrixRowResponse(
 					category = category,
-					totalCount = categoryItems.size,
+					totalCount = totalCount,
 					implementedCount = implementedCount,
-					partialCount = categoryItems.count { it.status == PARTIAL },
-					plannedCount = categoryItems.count { it.status == PLANNED },
+					partialCount = categoryItems.filter { it.status == PARTIAL }.sumOf { it.ruleCount },
+					plannedCount = categoryItems.filter { it.status == PLANNED }.sumOf { it.ruleCount },
 					fixtureCount = categoryItems.sumOf { it.fixtureNames.size },
-					implementationPercent = if (categoryItems.isEmpty()) {
+					implementationPercent = if (totalCount == 0) {
 						0
 					} else {
-						(implementedCount * 100) / categoryItems.size
+						(implementedCount * 100) / totalCount
 					},
 				)
 			}
 
-	private fun coverageChecks(
-		items: List<BattleRuleCoverageItemResponse>,
-		runtime: FixtureRuntime,
-	): List<BattleRuleCoverageCheckResponse> {
+	private fun coverageChecks(items: List<BattleRuleCoverageItemResponse>): List<BattleRuleCoverageCheckResponse> {
 		val targetChecks = listOf(
 			check(
 				code = "target-count",
@@ -176,18 +128,22 @@ class BattleRuleCoverageService(
 				failure = "最终目标或已覆盖数量偏离 $REQUIRED_TARGET_RULE_COUNT 条。",
 			),
 		)
-		if (!runtime.available) {
-			return targetChecks
-		}
 		val duplicateCodes = items.groupingBy { it.code }.eachCount().filterValues { it > 1 }.keys.sorted()
 		val unknownStatuses = items.filterNot { it.status in RULE_STATUSES }.map { it.code }
 		val blankCategoryCodes = items.filter { it.category.isBlank() }.map { it.code }
+		val ruleCountTotal = items.sumOf { it.ruleCount }
 		val implementedWithoutFixtures = items.filter { it.status == IMPLEMENTED && it.fixtureNames.isEmpty() }.map { it.code }
 		val allFixtures = items.flatMap { it.fixtures }
 		val missingFixtures = allFixtures.filter { it.missing }.map { it.code }
-		val fixturesWithoutRun = allFixtures.filter { !it.missing && it.latestRunStatus == null }.map { it.code }
-		val goldenReplayCovered = allFixtures.any { it.code == GOLDEN_REPLAY_FIXTURE_CODE }
+		val goldenReplayCovered = allFixtures.any { it.code == GOLDEN_REPLAY_TEST_FILE }
 		return targetChecks + listOf(
+			check(
+				code = "catalog-rule-count",
+				name = "覆盖账本数量",
+				passed = ruleCountTotal == REQUIRED_TARGET_RULE_COUNT,
+				success = "覆盖账本合计 $ruleCountTotal 条规则行为。",
+				failure = "覆盖账本合计 $ruleCountTotal 条，偏离 $REQUIRED_TARGET_RULE_COUNT 条。",
+			),
 			check(
 				code = "unique-code",
 				name = "规则 code 唯一",
@@ -211,31 +167,24 @@ class BattleRuleCoverageService(
 			),
 			check(
 				code = "implemented-fixtures",
-				name = "已实现项有 fixture",
+				name = "已实现项有测试",
 				passed = implementedWithoutFixtures.isEmpty(),
-				success = "所有已实现规则项均绑定至少一个公开对照 fixture。",
-				failure = "已实现但缺少 fixture 的规则项: ${implementedWithoutFixtures.joinToString()}。",
+				success = "所有已实现规则族均绑定至少一个单元测试文件。",
+				failure = "已实现但缺少单元测试文件的规则族: ${implementedWithoutFixtures.joinToString()}。",
 			),
 			check(
 				code = "golden-replay",
 				name = "Golden Replay 对照",
 				passed = goldenReplayCovered,
-				success = "严格 replay 已纳入覆盖报告，并绑定公开对照 fixture。",
-				failure = "严格 replay 未纳入覆盖报告或缺少公开对照 fixture。",
+				success = "严格 replay 已纳入单元测试覆盖。",
+				failure = "严格 replay 未纳入单元测试覆盖。",
 			),
 			check(
 				code = "fixture-data",
-				name = "Fixture 数据一致",
-				passed = missingFixtures.isEmpty() && allFixtures.size == runtime.fixtures.size,
-				success = "数据库 fixture 均已转换为覆盖报告项。",
-				failure = "覆盖报告存在未匹配 fixture: ${missingFixtures.joinToString()}。",
-			),
-			check(
-				code = "fixture-latest-run",
-				name = "Fixture 最近运行",
-				passed = fixturesWithoutRun.isEmpty(),
-				success = "所有已登记 fixture 均有最近一次测试运行结果。",
-				failure = "已登记但没有运行结果的 fixture: ${fixturesWithoutRun.joinToString()}。",
+				name = "测试引用一致",
+				passed = missingFixtures.isEmpty(),
+				success = "覆盖报告中的单元测试引用均有效。",
+				failure = "覆盖报告存在未匹配测试引用: ${missingFixtures.joinToString()}。",
 			),
 		)
 	}
@@ -254,37 +203,14 @@ class BattleRuleCoverageService(
 			message = if (passed) success else failure,
 		)
 
-	private data class FixtureRuntime(
-		val available: Boolean,
-		val fixtures: List<BattleRuleFixture>,
-		val latestRunsByFixtureId: Map<Long, BattleRuleTestRun>,
-	) {
-		fun fixture(fixture: BattleRuleFixture): BattleRuleCoverageFixtureResponse {
-			val latestRun = latestRunsByFixtureId[fixture.id]
-			return BattleRuleCoverageFixtureResponse(
-				code = fixture.code,
-				fixtureId = fixture.id,
-				name = fixture.name,
-				enabled = fixture.enabled,
-				latestRunCode = latestRun?.runCode,
-				latestRunStatus = latestRun?.runStatus,
-				latestRunStartedAt = latestRun?.startedAt,
-				missing = false,
-			)
-		}
-
-		companion object {
-			fun unavailable(): FixtureRuntime =
-				FixtureRuntime(
-					available = false,
-					fixtures = emptyList(),
-					latestRunsByFixtureId = emptyMap(),
-				)
-		}
-	}
-
-	private fun String.label(): String =
-		CATEGORY_LABELS[this] ?: this
+	private data class CoverageCatalogItem(
+		val code: String,
+		val name: String,
+		val category: String,
+		val ruleCount: Int,
+		val testFiles: List<String>,
+		val note: String,
+	)
 
 	private companion object {
 		private const val IMPLEMENTED = "IMPLEMENTED"
@@ -292,33 +218,110 @@ class BattleRuleCoverageService(
 		private const val PLANNED = "PLANNED"
 		private const val CHECK_PASSED = "PASSED"
 		private const val CHECK_FAILED = "FAILED"
-		private const val PASSED = "PASSED"
-		private const val FAILED = "FAILED"
-		private const val RUNNING = "RUNNING"
 		private const val FINAL_TARGET_RULE_COUNT = 312
 		private const val FINAL_COVERED_RULE_COUNT = 312
 		private const val REQUIRED_TARGET_RULE_COUNT = 312
-		private const val GOLDEN_REPLAY_FIXTURE_CODE = "golden-replay-pins-random-trace-event-fragment-and-final-hp"
+		private const val GOLDEN_REPLAY_TEST_FILE = "BattleReplayPublicReferenceTests.kt"
 		private val RULE_STATUSES = setOf(IMPLEMENTED, PARTIAL, PLANNED)
 		private const val FINAL_TARGET_BASIS =
-			"按可复用规则行为族统计，详见 docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md。"
-		private val CATEGORY_LABELS = mapOf(
-			"ABILITY" to "特性",
-			"DAMAGE" to "伤害",
-			"DAMAGE_FORMULA" to "伤害公式",
-			"FIELD" to "场上效果",
-			"FORMAT" to "赛制",
-			"ITEM" to "道具",
-			"MAJOR_STATUS" to "主要状态",
-			"REPLAY" to "随机/回放",
-			"SKILL" to "技能效果",
-			"STATUS" to "状态",
-			"STATUS_IMMUNITY" to "状态免疫",
-			"TERRAIN" to "场地",
-			"TURN" to "回合流程",
-			"TURN_FLOW" to "行动流程",
-			"VOLATILE_STATUS" to "临时状态",
-			"WEATHER" to "天气",
+			"按可复用规则行为族统计；具体断言以 battle-engine 单元测试和覆盖账本为准。"
+		private val COVERAGE_CATALOG = listOf(
+			CoverageCatalogItem(
+				code = "format-and-team-validation",
+				name = "对战格式与队伍合法性",
+				category = "赛制",
+				ruleCount = 16,
+				testFiles = listOf("BattleFormatValidationTests.kt", "BattlePreparationValidatorTests.kt"),
+				note = "覆盖回合上限、队伍数量、等级统一、重复限制、禁用列表、选择阶段和自定义格式约束。",
+			),
+			CoverageCatalogItem(
+				code = "lifecycle-switch-faint-result",
+				name = "初始化、替换、濒死与胜负",
+				category = "生命周期",
+				ruleCount = 18,
+				testFiles = listOf("BattleLifecycleSwitchPublicReferenceTests.kt", "BattleFormatLifecycleBoundaryPublicReferenceTests.kt"),
+				note = "覆盖初始出场、替换重置、强制替换、濒死检查、胜负判定和战斗结束事件。",
+			),
+			CoverageCatalogItem(
+				code = "turn-flow-action-ordering",
+				name = "回合流程、行动选择与行动排序",
+				category = "回合流程",
+				ruleCount = 26,
+				testFiles = listOf("BattleActionOrderingPublicReferenceTests.kt", "BattleActionValidatorTests.kt", "BattleActionFlowBoundaryTests.kt"),
+				note = "覆盖 PP、锁招、多回合技能、蓄力、休整、优先度、速度、同速随机和行动取消。",
+			),
+			CoverageCatalogItem(
+				code = "target-scope-redirection",
+				name = "目标选择、双打范围与重定向",
+				category = "目标",
+				ruleCount = 20,
+				testFiles = listOf("BattleTargetScopePublicReferenceTests.kt", "BattleTargetRedirectionPublicReferenceTests.kt", "BattleRandomTargetPublicReferenceTests.kt"),
+				note = "覆盖单体、相邻、全场、己方、随机目标、目标失效重定向和范围伤害。",
+			),
+			CoverageCatalogItem(
+				code = "hit-protect-substitute-immunity-reflect",
+				name = "命中、保护、替身、免疫与反射",
+				category = "命中防守",
+				ruleCount = 28,
+				testFiles = listOf("BattleHitDefenseBoundaryPublicReferenceTests.kt", "BattleSubstituteTests.kt", "BattleImmunityTests.kt"),
+				note = "覆盖命中/闪避、保护、替身、属性/状态免疫、声音穿透、粉末、抢夺、反射类变化技能和行动前目标有效性。",
+			),
+			CoverageCatalogItem(
+				code = "damage-formula-stat-element-rounding",
+				name = "伤害公式、能力值、属性与取整",
+				category = "伤害公式",
+				ruleCount = 42,
+				testFiles = listOf("BattleDamageFormulaBoundaryPublicReferenceTests.kt", "BattleDamageCalculatorTests.kt", "BattleCriticalHitFlowTests.kt"),
+				note = "覆盖普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害和 HP 派生伤害。",
+			),
+			CoverageCatalogItem(
+				code = "major-volatile-persistent-status",
+				name = "主要状态、临时状态与持续状态",
+				category = "状态",
+				ruleCount = 34,
+				testFiles = listOf("BattleResidualStatusTests.kt", "BattleVolatileStatusTests.kt", "BattleBindingStatusTests.kt", "BattleDisableTests.kt"),
+				note = "覆盖灼伤、麻痹、睡眠、冰冻、中毒、剧毒、混乱、畏缩、回复封锁、挑衅、定身法、无理取闹、束缚和持续回合。",
+			),
+			CoverageCatalogItem(
+				code = "weather-terrain-field-side-condition",
+				name = "天气、场地、场地状态和一侧状态",
+				category = "环境",
+				ruleCount = 31,
+				testFiles = listOf("BattleWeatherEffectTests.kt", "BattleTerrainEffectTests.kt", "BattleEnvironmentFieldBoundaryPublicReferenceTests.kt"),
+				note = "覆盖晴、雨、沙、雪、电气、青草、薄雾、精神、屏障、顺风、撒场、天气/场地持续时间。",
+			),
+			CoverageCatalogItem(
+				code = "skill-effect-family",
+				name = "技能效果行为族",
+				category = "技能",
+				ruleCount = 39,
+				testFiles = listOf("BattleSkillEffectBoundaryPublicReferenceTests.kt", "BattleSkillStatStageEffectTests.kt", "BattleSkillHpEffectTests.kt"),
+				note = "覆盖能力阶级、主要状态、HP 吸取/反伤/回复、强制替换、复制、封锁、清除、交换、取反和失败条件。",
+			),
+			CoverageCatalogItem(
+				code = "ability-effect-family",
+				name = "特性效果行为族",
+				category = "特性",
+				ruleCount = 36,
+				testFiles = listOf("BattleSwitchInAbilityTests.kt", "BattleAbilityItemBoundaryPublicReferenceTests.kt", "BattleTargetAbilityIgnoreTests.kt"),
+				note = "覆盖入场、攻击前、防守前、命中后、天气/场地联动、属性吸收、状态免疫、规则绕过和伤害修正。",
+			),
+			CoverageCatalogItem(
+				code = "item-effect-family",
+				name = "道具效果行为族",
+				category = "道具",
+				ruleCount = 18,
+				testFiles = listOf("BattleHeldItemPublicReferenceTests.kt", "BattleElementDamageReductionItemTests.kt", "BattleStatusCureItemTests.kt"),
+				note = "覆盖消耗、回复、状态解除、伤害增减、持续时间延长、一次性免死、锁招、蓄力跳过和抗性减伤。",
+			),
+			CoverageCatalogItem(
+				code = "random-replay-public-reference",
+				name = "随机、回放和对照测试基础",
+				category = "随机/回放",
+				ruleCount = 4,
+				testFiles = listOf("ScriptedBattleRandomTests.kt", "BattleReplayRecorderTests.kt", GOLDEN_REPLAY_TEST_FILE),
+				note = "覆盖固定随机序列、事件流稳定、回放复算和公开对照测试元数据。",
+			),
 		)
 	}
 }

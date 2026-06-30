@@ -1,53 +1,43 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battlerules.service.BattleRuleCoverageService
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 /**
- * 验证战斗规则覆盖报告的汇总一致性。
+ * 验证战斗规则覆盖报告只依赖代码内覆盖账本。
  *
- * 没有数据库运行时时，覆盖报告只暴露最终目标账本，避免重新维护一份静态 fixture 目录。
+ * 这组测试刻意不启动数据库：fixture 管理表已经移除，规则正确性由 `battle-engine`
+ * 的行为单元测试负责；这里仅保证管理端看到的 312 条规则行为统计不会悄悄漂移。
  */
 class BattleRuleCoverageServiceTests {
 	private val service = BattleRuleCoverageService()
 
 	@Test
-	fun `coverage summary matches item statuses`() {
-		val coverage = service.getCoverage()
-		val implementedCount = coverage.items.count { it.status == "IMPLEMENTED" }
-		val partialCount = coverage.items.count { it.status == "PARTIAL" }
-		val plannedCount = coverage.items.count { it.status == "PLANNED" }
-
-		assertTrue(coverage.items.isEmpty())
-		assertEquals(coverage.items.size, coverage.summary.totalCount)
-		assertEquals(implementedCount, coverage.summary.implementedCount)
-		assertEquals(partialCount, coverage.summary.partialCount)
-		assertEquals(plannedCount, coverage.summary.plannedCount)
-		assertEquals(coverage.items.sumOf { it.fixtureNames.size }, coverage.summary.fixtureCount)
-		assertEquals(coverage.items.groupBy { it.category }.size, coverage.matrix.size)
-		assertEquals(coverage.summary.totalCount, coverage.matrix.sumOf { it.totalCount })
-		assertEquals(coverage.summary.implementedCount, coverage.matrix.sumOf { it.implementedCount })
-		assertEquals(coverage.summary.partialCount, coverage.matrix.sumOf { it.partialCount })
-		assertEquals(coverage.summary.plannedCount, coverage.matrix.sumOf { it.plannedCount })
-		assertEquals(coverage.summary.fixtureCount, coverage.matrix.sumOf { it.fixtureCount })
-		assertEquals(coverage.summary.fixtureCount, coverage.fixtureSummary.fixtureReferenceCount)
-		assertEquals(false, coverage.fixtureSummary.runtimeAvailable)
-		assertEquals(312, coverage.targetSummary.targetRuleCount)
-		assertEquals(312, coverage.targetSummary.coveredRuleCount)
-		assertEquals(0, coverage.targetSummary.remainingRuleCount)
-		assertEquals(100, coverage.targetSummary.implementationPercent)
-		assertEquals(coverage.items.size, coverage.targetSummary.coverageItemCount)
-		assertTrue(coverage.targetSummary.basis.contains("可复用规则行为族"))
-	}
-
-	@Test
-	fun `coverage completeness checks stay green`() {
+	fun `coverage report summarizes all modern battle rule behavior groups`() {
 		val coverage = service.getCoverage()
 
-		assertTrue(coverage.checks.isNotEmpty())
-		assertTrue(coverage.checks.any { it.code == "target-count" && it.message.contains("312") })
-		assertTrue(coverage.checks.all { it.status == "PASSED" })
+		assertThat(coverage.summary.totalCount).isEqualTo(312)
+		assertThat(coverage.summary.implementedCount).isEqualTo(312)
+		assertThat(coverage.summary.plannedCount).isZero()
+		assertThat(coverage.targetSummary.targetRuleCount).isEqualTo(312)
+		assertThat(coverage.targetSummary.coveredRuleCount).isEqualTo(312)
+		assertThat(coverage.targetSummary.coverageItemCount).isEqualTo(12)
+		assertThat(coverage.items).hasSize(12)
+		assertThat(coverage.items).allSatisfy { item ->
+			assertThat(item.ruleCount).isPositive()
+			assertThat(item.fixtureNames).isNotEmpty()
+			assertThat(item.fixtures).hasSameSizeAs(item.fixtureNames)
+			assertThat(item.note).isNotBlank()
+		}
+		assertThat(coverage.items.map { it.code }).contains(
+			"format-and-team-validation",
+			"damage-formula-stat-element-rounding",
+			"random-replay-public-reference",
+		)
+		assertThat(coverage.matrix.sumOf { it.totalCount }).isEqualTo(312)
+		assertThat(coverage.checks).allSatisfy {
+			assertThat(it.status).isEqualTo("PASSED")
+		}
 	}
 }

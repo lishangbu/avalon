@@ -160,6 +160,7 @@ class LiquibaseMigrationTests(
 				"112-battle-format-lifecycle-boundary-fixtures.yaml",
 				"113-battle-final-rule-boundary-fixtures.yaml",
 				"114-battle-golden-replay-fixture.yaml",
+				"115-remove-battle-rule-fixtures.yaml",
 			)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
@@ -355,7 +356,6 @@ class LiquibaseMigrationTests(
 			"battle-rules.format-restrictions",
 			"battle-rules.format-special-mechanics",
 			"battle-rules.formats",
-			"battle-rules.fixtures",
 			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
 			"battle-rules.skill-rules",
@@ -366,11 +366,14 @@ class LiquibaseMigrationTests(
 			"battle-rules.skill-weather-element-overrides",
 			"battle-rules.status-rules",
 			"battle-rules.terrain-rules",
-			"battle-rules.test-runs",
 			"battle-rules.weather-rules",
 		)
 		assertThat(accessNodeCodes).containsAll(battleRulesAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes)
-		assertThat(accessNodeCodes).doesNotContain("battle-rules.fixture-sources")
+		assertThat(accessNodeCodes).doesNotContain(
+			"battle-rules.fixture-sources",
+			"battle-rules.fixtures",
+			"battle-rules.test-runs",
+		)
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",
@@ -554,9 +557,8 @@ class LiquibaseMigrationTests(
 			"battle_skill_charge_skip_weather",
 			"battle_ability_rule",
 			"battle_item_rule",
-			"battle_rule_fixture",
-			"battle_rule_test_run",
 		)
+		assertThat(tableNames).doesNotContain("battle_rule_fixture", "battle_rule_test_run")
 
 		val seedCounts = queryMaps(
 			"""
@@ -582,8 +584,6 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_charge_skip_weather', count(*) from battle_skill_charge_skip_weather
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
-			union all select 'battle_rule_fixture', count(*) from battle_rule_fixture
-			union all select 'battle_rule_test_run', count(*) from battle_rule_test_run
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
@@ -609,8 +609,6 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture", 412L)
-		assertThat(seedCounts).containsEntry("battle_rule_test_run", 412L)
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
@@ -1119,17 +1117,6 @@ class LiquibaseMigrationTests(
 					"effect_policy" to "element-damage-boost-fairy",
 					"consumable" to false,
 				),
-			)
-
-			val elementDamageBoostFixtureSummaries = queryStrings(
-				"""
-				select expected_summary
-				from battle_rule_fixture
-				where code = 'element-damage-boost-item-multiplies-matching-damage'
-				""".trimIndent(),
-			)
-			assertThat(elementDamageBoostFixtureSummaries).containsExactly(
-				"技能有效威力按 1.2 倍从 40 提升到 48，普通伤害从 19 提升到 23，且道具不会消费或反伤。",
 			)
 
 			val elementDamageReductionItemRules = queryMaps(
