@@ -165,46 +165,23 @@ class BattleEngine(
 			val side = current.sideOf(actor.actorId) ?: return@fold current
 			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
 			if (actor.canBattle() && actor.rechargeTurnsRemaining > 0) {
-				return@fold current.appendEvent(
-					BattleEvent.SwitchPrevented(
-						turnNumber = current.turnNumber,
-						actorId = actor.actorId,
-						reason = SwitchPreventionReason.RECHARGE,
-					),
-				)
+				return@fold current.preventSwitch(actor, SwitchPreventionReason.RECHARGE)
 			}
 			if (actor.canBattle() && actor.chargingTurnsRemaining > 0) {
 				val chargingSkillId = actor.chargingSkillId ?: return@fold current
-				return@fold current.appendEvent(
-					BattleEvent.SwitchPrevented(
-						turnNumber = current.turnNumber,
-						actorId = actor.actorId,
-						reason = SwitchPreventionReason.CHARGING,
-						skillId = chargingSkillId,
-					),
-				)
+				return@fold current.preventSwitch(actor, SwitchPreventionReason.CHARGING, skillId = chargingSkillId)
 			}
 			if (actor.canBattle() && actor.lockedMoveTurnsRemaining > 0) {
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
-				return@fold current.appendEvent(
-					BattleEvent.SwitchPrevented(
-						turnNumber = current.turnNumber,
-						actorId = actor.actorId,
-						reason = SwitchPreventionReason.LOCKED_MOVE,
-						skillId = lockedSkillId,
-					),
-				)
+				return@fold current.preventSwitch(actor, SwitchPreventionReason.LOCKED_MOVE, skillId = lockedSkillId)
 			}
 			if (actor.canBattle() && bindingSourceActive(current, actor)) {
 				val sourceActorId = actor.boundByActorId ?: return@fold current
-				return@fold current.appendEvent(
-					BattleEvent.SwitchPrevented(
-						turnNumber = current.turnNumber,
-						actorId = actor.actorId,
-						reason = SwitchPreventionReason.BINDING,
-						sourceActorId = sourceActorId,
-						turnsRemainingBefore = actor.bindingTurnsRemaining,
-					),
+				return@fold current.preventSwitch(
+					actor = actor,
+					reason = SwitchPreventionReason.BINDING,
+					sourceActorId = sourceActorId,
+					turnsRemainingBefore = actor.bindingTurnsRemaining,
 				)
 			}
 			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
@@ -226,6 +203,24 @@ class BattleEngine(
 			switchInAbilityEffects.apply(afterEntryHazards, plan.action.targetActorId)
 		}
 	}
+
+	private fun BattleState.preventSwitch(
+		actor: BattleParticipant,
+		reason: SwitchPreventionReason,
+		skillId: Long? = null,
+		sourceActorId: String? = null,
+		turnsRemainingBefore: Int? = null,
+	): BattleState =
+		appendEvent(
+			BattleEvent.SwitchPrevented(
+				turnNumber = turnNumber,
+				actorId = actor.actorId,
+				reason = reason,
+				skillId = skillId,
+				sourceActorId = sourceActorId,
+				turnsRemainingBefore = turnsRemainingBefore,
+			),
+		)
 
 	/**
 	 * 执行一次使用技能行动。
