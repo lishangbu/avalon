@@ -206,9 +206,21 @@ class BattleEngine(
 		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
 			if (current.state.result != null) current else executeUseSkill(current, plan, random)
 		}
+		return finishTurnAfterActions(resolvedContext, nextTurnNumber)
+	}
+
+	/**
+	 * 结算所有行动之后的回合末流水线。
+	 *
+	 * 主回合入口已经完成替换、技能排序和逐个行动执行；这里只处理“行动都结束后必定按固定顺序发生”的阶段：
+	 * 连续保护链重置、回合末伤害/回复、一次性临时状态清理、持续状态回合推进、天气/场地回合推进、一侧场上效果回合推进、
+	 * 回合上限判定和最终 `TurnEnded` 事件。每一步都先检查战斗是否已经结束，原因是现代规则中回合末天气、异常状态、
+	 * 束缚伤害或回合上限都可能直接产生胜负结果；一旦结束，后续阶段不应继续写事件。
+	 */
+	private fun finishTurnAfterActions(context: TurnContext, nextTurnNumber: Int): BattleState {
 		val resolved = endTurnVolatileStatuses.resetProtectionChains(
-			state = resolvedContext.state,
-			successfulProtectionActorIds = resolvedContext.successfulProtectionActorIds,
+			state = context.state,
+			successfulProtectionActorIds = context.successfulProtectionActorIds,
 		)
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: endTurnEffects.apply(resolved)
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
@@ -689,33 +701,13 @@ class BattleEngine(
 				actorId = actor.actorId,
 				skillId = skill.skillId,
 			)
-			if (afterDirectDamage.state.result != null) {
-				return afterDirectDamage.copy(
-					state = postDamageEffects.applyPostMoveDamageDealtHealingItem(
-						state = afterDirectDamage.state,
-						actorId = actor.actorId,
-						skill = skill,
-						damageAmount = moveDamageAmount,
-					),
-				)
-			}
-			val latestTarget = afterDirectDamage.state.participant(target.actorId) ?: target
-			val afterEffects =
-				skillAdditionalEffects.apply(afterDirectDamage.state, actor.actorId, latestTarget.actorId, skill, random)
-			val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
-				state = afterEffects,
-				actorId = actor.actorId,
+			return finishSuccessfulDamageMove(
+				context = afterDirectDamage,
+				actor = actor,
+				target = target,
 				skill = skill,
 				damageAmount = moveDamageAmount,
-			)
-			return afterDirectDamage.copy(
-				state = lockedMoves.updateAfterSuccessfulUse(
-					state = afterPostMoveItemEffects,
-					actorId = actor.actorId,
-					targetActorId = latestTarget.actorId,
-					skill = skill,
-					random = random,
-				),
+				random = random,
 			)
 		}
 
@@ -754,25 +746,56 @@ class BattleEngine(
 			actorId = actor.actorId,
 			skillId = skill.skillId,
 		)
-		if (afterHits.state.result != null) {
-			return afterHits.copy(
+		return finishSuccessfulDamageMove(
+			context = afterHits,
+			actor = actor,
+			target = target,
+			skill = skill,
+			damageAmount = moveDamageAmount,
+			random = random,
+		)
+	}
+
+	/**
+	 * 收拢一次技能成功造成伤害后的共同流程。
+	 *
+	 * 普通公式伤害和固定/比例/HP 派生直接伤害在写入 HP 之前差异很大：前者要消费要害和伤害浮动随机数，
+	 * 后者完全跳过普通伤害公式。但只要已经产生实际伤害，两条路径后续顺序一致：
+	 * - 如果写入伤害时已经判定胜负，只允许造成伤害后回复类道具读取本次实际伤害，不再追加命中后技能效果或锁招推进。
+	 * - 如果战斗还在继续，以最新目标快照结算命中后附加效果，避免目标在前序伤害流程中被保命、解除状态或替换引用后
+	 *   仍使用旧对象。
+	 * - 再让攻击方造成伤害后回复道具读取完整实际伤害。
+	 * - 最后推进锁招/连续招式状态，保证锁招目标记录看到的是附加效果后的最新目标。
+	 *
+	 * 把这段顺序集中在这里，避免后续新增直接伤害变体时复制出一份事件顺序略有偏差的实现。
+	 */
+	private fun finishSuccessfulDamageMove(
+		context: TurnContext,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		random: BattleRandom,
+	): TurnContext {
+		if (context.state.result != null) {
+			return context.copy(
 				state = postDamageEffects.applyPostMoveDamageDealtHealingItem(
-					state = afterHits.state,
+					state = context.state,
 					actorId = actor.actorId,
 					skill = skill,
-					damageAmount = moveDamageAmount,
+					damageAmount = damageAmount,
 				),
 			)
 		}
-		val latestTarget = afterHits.state.participant(target.actorId) ?: target
-		val afterEffects = skillAdditionalEffects.apply(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
+		val latestTarget = context.state.participant(target.actorId) ?: target
+		val afterEffects = skillAdditionalEffects.apply(context.state, actor.actorId, latestTarget.actorId, skill, random)
 		val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 			state = afterEffects,
 			actorId = actor.actorId,
 			skill = skill,
-			damageAmount = moveDamageAmount,
+			damageAmount = damageAmount,
 		)
-		return afterHits.copy(
+		return context.copy(
 			state = lockedMoves.updateAfterSuccessfulUse(
 				state = afterPostMoveItemEffects,
 				actorId = actor.actorId,
