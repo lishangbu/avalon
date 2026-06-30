@@ -3,7 +3,6 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
-import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
@@ -41,10 +40,11 @@ class BattleEngine(
 	private val hitResolution = BattleHitResolution(statStageModifiers)
 	private val directDamage = BattleDirectDamage()
 	private val damageDefenseEffects = BattleDamageDefenseEffects()
+	private val targetDefenseEffects = BattleTargetDefenseEffects()
 	private val skillHpEffects = BattleSkillHpEffects()
 	private val statStageEffects = BattleStatStageEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
-			substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
 		},
 	)
 	private val environmentEffects = BattleEnvironmentEffects()
@@ -85,16 +85,15 @@ class BattleEngine(
 	/**
 	 * 状态附加与状态免疫结算器。
 	 *
-	 * 主要异常和临时状态的写入、阻止原因、状态治愈道具都放在这里；主引擎继续保留替身阻挡和无视目标特性的
-	 * 共享判断，因为这些判断同时服务伤害、固定伤害、接触特性和状态附加。这样状态规则只保留一份，跨阶段共享
-	 * 的判定也只保留一份。
+	 * 主要异常和临时状态的写入、阻止原因、状态治愈道具都放在这里；替身阻挡和无视目标特性的共享判断由目标
+	 * 防守 resolver 提供，状态规则本身只关心“能不能写入这个状态”。
 	 */
 	private val statusEffects = BattleStatusEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
-			substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
 		},
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
-			skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
 	)
 	/**
@@ -113,7 +112,7 @@ class BattleEngine(
 	 */
 	private val skillBlockEffects = BattleSkillBlockEffects(
 		skillIgnoresTargetAbilityEffects = { state, actor, target ->
-			skillIgnoresTargetAbilityEffects(state, actor, target)
+			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		},
 	)
 
@@ -126,7 +125,7 @@ class BattleEngine(
 	private val postDamageEffects = BattlePostDamageEffects(
 		statusEffects = statusEffects,
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
-			skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
 	)
 
@@ -466,7 +465,7 @@ class BattleEngine(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
-		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 
 		val powderBlockedElementId = skillBlockEffects.powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
@@ -833,7 +832,7 @@ class BattleEngine(
 			return context
 		}
 		val criticalHitCheck = criticalHitCheck(skill, random)
-		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
 		val sideDamageReductionMultiplier = hitResolution.sideDamageReductionMultiplier(
@@ -842,7 +841,8 @@ class BattleEngine(
 			skill = skill,
 			criticalHit = criticalHit,
 		)
-		val substituteBlocksDamage = substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
+		val substituteBlocksDamage =
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
 		val damage = damageCalculator.calculate(
 			BattleDamageRequest(
 				attacker = actor,
@@ -946,7 +946,8 @@ class BattleEngine(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
-		val substituteBlocksDamage = substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
+		val substituteBlocksDamage =
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
 		if (substituteBlocksDamage) {
 			return resolveDamageAgainstSubstitute(
 				context = context,
@@ -959,7 +960,7 @@ class BattleEngine(
 			)
 		}
 
-		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
+		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val survival = damageDefenseEffects.fatalDamageSurvival(
 			state = state,
 			actor = actor,
@@ -1181,7 +1182,7 @@ class BattleEngine(
 				current
 			} else {
 				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
-				if (substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
+				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
 					return@fold current
 				}
 				val beforeStage = recipient.statStage(effect.stat)
@@ -1261,7 +1262,7 @@ class BattleEngine(
 		if (!target.canBattle() || !state.isActive(target.actorId)) {
 			return state
 		}
-		if (substituteBlocksOpponentEffect(state, actorId, target.actorId, skill)) {
+		if (targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, target.actorId, skill)) {
 			return state
 		}
 		val side = state.sideOf(target.actorId) ?: return state
@@ -1297,68 +1298,6 @@ class BattleEngine(
 		val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(switched, target.actorId)
 		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return switchInAbilityEffects.apply(afterEntryHazards, next.actorId)
-	}
-
-	/**
-	 * 判断目标替身是否会阻止来自对手的技能伤害或状态效果。
-	 *
-	 * 替身只保护当前有替身的成员免受对手非声音类技能影响；使用者对自己施加的效果、同侧辅助效果、声音类技能
-	 * 以及目标没有替身时都不会被这里阻止。接棒传递等例外后续会以明确技能标签或状态规则扩展。
-	 */
-	private fun substituteBlocksOpponentEffect(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-	): Boolean {
-		if (skill.soundBased) {
-			return false
-		}
-		val target = state.participant(targetActorId) ?: return false
-		if (!target.hasSubstitute()) {
-			return false
-		}
-		val actorSide = state.sideOf(actorId)?.sideId ?: return false
-		val targetSide = state.sideOf(targetActorId)?.sideId ?: return false
-		return actorSide != targetSide
-	}
-
-	/**
-	 * 判断本次技能是否应忽略目标侧防守特性。
-	 *
-	 * 该 helper 只处理一次技能结算中的“攻击方对对手目标”的关系。它不会让同侧辅助、自身目标或非技能来源
-	 * 绕过目标特性，也不会影响目标道具、属性天然免疫、场地免疫或攻击方自己的攻击侧特性。
-	 */
-	private fun skillIgnoresTargetAbilityEffects(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-	): Boolean {
-		val actor = state.participant(actorId) ?: return false
-		val target = state.participant(targetActorId) ?: return false
-		return skillIgnoresTargetAbilityEffects(state, actor, target)
-	}
-
-	/**
-	 * 判断本次技能是否应忽略目标侧防守特性。
-	 *
-	 * 纯引擎只读取 [BattleAbilityEffect.IgnoreTargetAbilityEffects] 这个结构化效果，不判断具体资料库特性名称。
-	 * 双打中只要目标在对手侧，就会忽略目标本人以及目标侧伙伴提供的防守型特性；同侧目标始终返回 false。
-	 */
-	private fun skillIgnoresTargetAbilityEffects(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-	): Boolean {
-		if (!actor.canBattle() || !target.canBattle()) {
-			return false
-		}
-		val actorSide = state.sideOf(actor.actorId) ?: return false
-		val targetSide = state.sideOf(target.actorId) ?: return false
-		if (actorSide.sideId == targetSide.sideId) {
-			return false
-		}
-		return actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }
 	}
 
 	/**
