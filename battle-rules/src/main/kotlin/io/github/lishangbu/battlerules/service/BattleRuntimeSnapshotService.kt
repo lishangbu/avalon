@@ -10,17 +10,12 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
-import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
-import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
-import io.github.lishangbu.battleengine.model.MAX_BATTLE_SKILL_SLOTS
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationResponse
 import io.github.lishangbu.battlerules.dto.BattleActionViolationResponse
-import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
-import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationViolationResponse
@@ -46,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class BattleRuntimeSnapshotService(
 	private val dataLookup: BattleRuntimeDataLookup,
+	private val initialStateAssembler: BattleInitialStateAssembler,
 ) {
 	private val preparationValidator = BattlePreparationValidator()
 	private val actionValidator = BattleActionValidator()
@@ -111,17 +107,8 @@ class BattleRuntimeSnapshotService(
 	 * 装配”的规则漂移。
 	 */
 	@Transactional(readOnly = true)
-	fun assembleInitialState(request: BattlePreparationValidationRequest): BattleInitialState {
-		val normalized = request.normalized()
-		val elementIds = dataLookup.coreElementIds()
-		val runtime = getByFormatCode(normalized.formatCode, elementIds)
-		val cache = BattleRuntimeAssemblyCache(elementIds)
-		return BattleInitialState(
-			format = runtime.format,
-			rules = runtime.rules,
-			sides = normalized.sides.map { it.toBattleSide(cache) },
-		)
-	}
+	fun assembleInitialState(request: BattlePreparationValidationRequest): BattleInitialState =
+		initialStateAssembler.assemble(request)
 
 	/**
 	 * 按基础技能 ID 装配战斗引擎可消费的技能槽。
@@ -252,118 +239,6 @@ class BattleRuntimeSnapshotService(
 			sides = sides.takeIf { it.isNotEmpty() } ?: invalidValue("sides", "sides 不能为空"),
 			actions = actions.takeIf { it.isNotEmpty() } ?: invalidValue("actions", "actions 不能为空"),
 		)
-
-	private fun BattlePreparationSideRequest.toBattleSide(cache: BattleRuntimeAssemblyCache): BattleSide {
-		val normalizedSideId = sideId.requiredText("sideId", maxLength = 80)
-		if (activeActorIds.isEmpty()) {
-			invalidValue("activeActorIds", "activeActorIds 不能为空")
-		}
-		if (participants.isEmpty()) {
-			invalidValue("participants", "participants 不能为空")
-		}
-		return BattleSide(
-			sideId = normalizedSideId,
-			activeActorIds = activeActorIds.map { it.requiredText("activeActorIds", maxLength = 80) },
-			participants = participants.map { it.toBattleParticipant(cache) },
-		)
-	}
-
-	private fun BattlePreparationParticipantRequest.toBattleParticipant(cache: BattleRuntimeAssemblyCache): BattleParticipant {
-		val normalizedActorId = actorId.requiredText("actorId", maxLength = 80)
-		if (creatureId <= 0) {
-			invalidValue("creatureId", "creatureId 必须大于 0")
-		}
-		if (level !in 1..100) {
-			invalidValue("level", "level 必须在 1 到 100 之间")
-		}
-		if (skillIds.isEmpty()) {
-			invalidValue("skillIds", "skillIds 不能为空")
-		}
-		if (skillIds.size > MAX_BATTLE_SKILL_SLOTS) {
-			invalidValue("skillIds", "skillIds 最多只能包含 $MAX_BATTLE_SKILL_SLOTS 个技能")
-		}
-		if (skillIds.toSet().size != skillIds.size) {
-			invalidValue("skillIds", "skillIds 不能包含重复技能")
-		}
-		abilityId?.takeIf { it <= 0 }?.let {
-			invalidValue("abilityId", "abilityId 必须大于 0")
-		}
-		itemId?.takeIf { it <= 0 }?.let {
-			invalidValue("itemId", "itemId 必须大于 0")
-		}
-		val abilityPolicies = cache.abilityPolicies(abilityId)
-		val itemPolicies = cache.itemPolicies(itemId)
-		val profile = cache.creatureProfile(creatureId, level)
-		return BattleParticipant(
-			actorId = normalizedActorId,
-			creatureId = creatureId,
-			level = level,
-			maxHp = profile.maxHp,
-			currentHp = profile.maxHp,
-			attack = profile.attack,
-			defense = profile.defense,
-			specialAttack = profile.specialAttack,
-			specialDefense = profile.specialDefense,
-			speed = profile.speed,
-			elementIds = profile.elementIds,
-			skillSlots = cache.skillSlots(skillIds),
-			abilityId = abilityId,
-			itemId = itemId,
-			grounded = "ground-immunity" !in abilityPolicies,
-			abilityEffects = abilityPolicies.mapNotNull { it.toBattleAbilityEffect(cache.elementIds) },
-			itemEffects = itemPolicies.mapNotNull { it.toBattleItemEffect(cache.elementIds) },
-		)
-	}
-
-	/**
-	 * 单次运行时快照装配缓存。
-	 *
-	 * 同一场准备校验或真实开战请求里，多个成员经常会携带相同技能，或者复用相同特性、道具和基础成员资料。
-	 * 这些资料在一次事务内不会因为本方法自身发生改变，因此可以按 ID 缓存在本次装配对象里，避免一个成员一个成员
-	 * 反复查询同一批静态资料。缓存不挂到 Spring bean 字段，也不会跨请求复用；管理端改完资料后，下一次请求仍会
-	 * 重新从数据库读取最新内容。
-	 */
-	private inner class BattleRuntimeAssemblyCache(
-		val elementIds: Map<String, Long>,
-	) {
-		private val creatureProfiles = mutableMapOf<Pair<Long, Int>, BattleCreatureRuntimeProfile>()
-		private val skillSlots = mutableMapOf<Long, BattleSkillSlot>()
-		private val abilityPolicies = mutableMapOf<Long, List<String>>()
-		private val itemPolicies = mutableMapOf<Long, List<String>>()
-
-		fun creatureProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile =
-			creatureProfiles.getOrPut(creatureId to level) {
-				dataLookup.creatureRuntimeProfile(creatureId, level)
-			}
-
-		fun skillSlots(skillIds: List<Long>): List<BattleSkillSlot> {
-			if (skillIds.isEmpty()) {
-				invalidValue("skillIds", "skillIds 不能为空")
-			}
-			return skillIds.map { skillId ->
-				if (skillId <= 0) {
-					invalidValue("skillIds", "skillIds 只能包含正数 ID")
-				}
-				skillSlots.getOrPut(skillId) {
-					dataLookup.skillSlotBySkillId(skillId)
-				}
-			}
-		}
-
-		fun abilityPolicies(abilityId: Long?): List<String> =
-			abilityId?.let { id ->
-				abilityPolicies.getOrPut(id) {
-					dataLookup.enabledAbilityPolicies(id)
-				}
-			}.orEmpty()
-
-		fun itemPolicies(itemId: Long?): List<String> =
-			itemId?.let { id ->
-				itemPolicies.getOrPut(id) {
-					dataLookup.enabledItemPolicies(id)
-				}
-			}.orEmpty()
-	}
 
 	private fun BattleActionRequest.toBattleAction(): BattleAction {
 		val normalizedType = type.requiredText("type", maxLength = 40).uppercase()

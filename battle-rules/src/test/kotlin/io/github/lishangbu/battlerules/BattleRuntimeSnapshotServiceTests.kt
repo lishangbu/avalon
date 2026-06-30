@@ -1031,6 +1031,46 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(resolved.participant("b-1")?.currentHp).isLessThan(targetHpBeforeTurn)
 	}
 
+	/**
+	 * 验证数据库属性克制表不只是被装进快照，也确实驱动 battle-engine 的真实伤害事件。
+	 *
+	 * 这里不重复实现伤害公式，只断言事件中的 `effectiveness` 和是否扣血：
+	 * - 水属性技能打火属性目标应为 2 倍。
+	 * - 一般属性技能打幽灵属性目标应为 0 倍且不扣 HP。
+	 * - 草属性技能打岩石/地面双属性目标应为 4 倍。
+	 *
+	 * 如果以后 `game_element_damage_relation` 的读取方向写反，或运行时快照退回全中性表，这个测试会直接失败。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database element chart during real damage calculation`() {
+		val waterAgainstFire = assembledDamageEvent(
+			skillId = 55,
+			attackerCreatureId = 7,
+			targetCreatureId = 4,
+			randomValues = listOf(1, 15),
+		)
+		assertThat(waterAgainstFire.effectiveness).isEqualTo(2.0)
+		assertThat(waterAgainstFire.amount).isGreaterThan(0)
+
+		val normalAgainstGhost = assembledDamageEvent(
+			skillId = 33,
+			attackerCreatureId = 1,
+			targetCreatureId = 92,
+			randomValues = emptyList(),
+		)
+		assertThat(normalAgainstGhost.effectiveness).isEqualTo(0.0)
+		assertThat(normalAgainstGhost.amount).isEqualTo(0)
+
+		val grassAgainstRockGround = assembledDamageEvent(
+			skillId = 22,
+			attackerCreatureId = 1,
+			targetCreatureId = 74,
+			randomValues = listOf(1, 15),
+		)
+		assertThat(grassAgainstRockGround.effectiveness).isEqualTo(4.0)
+		assertThat(grassAgainstRockGround.amount).isGreaterThan(0)
+	}
+
 	@Test
 	fun `action validation rejects unsupported action type`() {
 		val exception = assertThrows<ApiException> {
@@ -1049,6 +1089,44 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(exception.field).isEqualTo("type")
 		assertThat(exception.message).isEqualTo("type 只支持 USE_SKILL 或 SWITCH_PARTICIPANT")
+	}
+
+	private fun assembledDamageEvent(
+		skillId: Long,
+		attackerCreatureId: Long,
+		targetCreatureId: Long,
+		randomValues: List<Int>,
+	): BattleEvent.DamageApplied {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "official-double",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1", "a-2"),
+						participants = listOf(
+							participant("a-1", creatureId = attackerCreatureId, level = 50, skillIds = listOf(skillId)),
+							participant("a-2", creatureId = 2, level = 50, skillIds = listOf(1)),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1", "b-2"),
+						participants = listOf(
+							participant("b-1", creatureId = targetCreatureId, level = 50, skillIds = listOf(1)),
+							participant("b-2", creatureId = 3, level = 50, skillIds = listOf(1)),
+						),
+					),
+				),
+			),
+		)
+		val engine = BattleEngine()
+		val resolved = engine.resolveTurn(
+			engine.start(initialState),
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = skillId, targetActorId = "b-1")),
+			ScriptedBattleRandom(randomValues),
+		)
+		return resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 	}
 
 	private fun BattleRuntimeSnapshotService.switchInWeatherByAbilityId(abilityId: Long): BattleWeather =
@@ -1135,14 +1213,16 @@ class BattleRuntimeSnapshotServiceTests(
 		actorId: String,
 		creatureId: Long,
 		level: Int,
-		itemId: Long,
+		itemId: Long? = null,
+		skillIds: List<Long> = listOf(1, 2, 3, 4),
+		abilityId: Long? = 1,
 	): BattlePreparationParticipantRequest =
 		BattlePreparationParticipantRequest(
 			actorId = actorId,
 			creatureId = creatureId,
 			level = level,
-			skillIds = listOf(1, 2, 3, 4),
-			abilityId = 1,
+			skillIds = skillIds,
+			abilityId = abilityId,
 			itemId = itemId,
 		)
 }
