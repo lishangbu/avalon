@@ -20,8 +20,6 @@ import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
-import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
-import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -35,7 +33,6 @@ import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
-import io.github.lishangbu.battleengine.model.SkillPreventionReason
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
@@ -50,6 +47,11 @@ import kotlin.math.floor
  *
  * 当前不负责的边界包括：主动使用道具、状态持续效果细分、复杂技能脚本和完整官方竞技裁定。
  * 这些能力会通过后续规则处理器接入，但仍共享这里的事件流和确定性随机源。
+ *
+ * 本类继续采用“显式阶段状态机”，而不是完整事件驱动调度器。原因是战斗规则最敏感的是阶段顺序：替换必须先于
+ * 技能行动，行动前状态必须先于 PP 消耗和命中判定，伤害后道具、倒下检查、回合末伤害、天气/场地持续时间也都
+ * 有严格先后。这里的 [BattleEvent] 是已经发生的事实记录，用于 replay、测试断言和调试；它不是用来再次分发
+ * 规则 hook 的事件总线。拆出的 resolver 只能封装某个阶段内部的细节，不能重新决定跨阶段顺序。
  */
 class BattleEngine(
 	private val damageCalculator: BattleDamageCalculator = BattleDamageCalculator(),
@@ -60,7 +62,42 @@ class BattleEngine(
 	private val environmentEffects = BattleEnvironmentEffects()
 	private val fieldEffects = BattleFieldEffects()
 	private val chargeMoves = BattleChargeMoves()
+	/**
+	 * 行动前状态阻止 resolver。
+	 *
+	 * 该阶段只会推进 [BattleState]，不会修改 `TurnContext` 中的保护集合或其它回合内编排字段。因此它从主类抽出
+	 * 后，执行技能流程只需要把返回的状态重新放回当前上下文。混乱自伤后可能触发低体力回复道具，所以这里把主
+	 * 状态机的低体力道具处理函数作为回调传入，避免出现“普通伤害一套道具顺序，混乱自伤另一套道具顺序”。
+	 */
+	private val beforeMoveEffects = BattleBeforeMoveEffects(
+		statStageModifiers = statStageModifiers,
+		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+	)
+
 	private val switchInAbilityEffects = BattleSwitchInAbilityEffects(actionOrdering, environmentEffects)
+	/**
+	 * 回合末临时状态推进器。
+	 *
+	 * 主状态机仍负责决定回合末阶段顺序：先结算伤害/回复，再清理不会跨回合保留的状态，再推进持续时间，
+	 * 然后推进天气、场地、一侧状态和回合上限。这个对象只处理成员运行态上那些纯机械的临时状态字段，避免
+	 * [BattleEngine.resolveTurn] 被大量 `flatMap activeParticipants + decrement` 细节淹没。
+	 */
+	private val endTurnVolatileStatuses = BattleEndTurnVolatileStatuses()
+
+	/**
+	 * 入场陷阱结算从主状态机拆出，但仍复用主状态机里的主要异常阻止判断和低体力道具回复判断。
+	 *
+	 * 这样做的边界比较刻意：入场陷阱本身是一个独立阶段，适合从 4000 多行的主类里移走；但“毒菱是否被属性、
+	 * 场地、特性或道具阻止”和“入场伤害后是否触发低体力回复道具”并不是入场陷阱专属规则。如果在新 resolver
+	 * 里复制这些判断，后续修正状态免疫或道具回复顺序时就会出现两套实现。这里用闭包把共享判断接进 resolver，
+	 * 保持行为只有一份，同时让换入阶段的主流程更短。
+	 */
+	private val entryHazardEffects = BattleEntryHazardEffects(
+		majorStatusBlockReason = { state, actorId, recipient, status ->
+			blockedMajorStatusReason(state, actorId, recipient, status)
+		},
+		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+	)
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -112,15 +149,15 @@ class BattleEngine(
 		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
 			if (current.state.result != null) current else executeUseSkill(current, plan, random)
 		}
-		val resolved = resetProtectionChains(
+		val resolved = endTurnVolatileStatuses.resetProtectionChains(
 			state = resolvedContext.state,
 			successfulProtectionActorIds = resolvedContext.successfulProtectionActorIds,
 		)
 		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
-			?: clearEndTurnVolatileStatuses(afterEndTurnEffects)
+			?: endTurnVolatileStatuses.clearEndTurnOnlyStatuses(afterEndTurnEffects)
 		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
-			?: advanceEndTurnVolatileStatusDurations(afterEndTurnVolatileStatuses)
+			?: endTurnVolatileStatuses.advanceEndTurnDurations(afterEndTurnVolatileStatuses)
 		val afterEnvironmentDurations = afterEndTurnVolatileStatusDurations.result?.let { afterEndTurnVolatileStatusDurations }
 			?: environmentEffects.advanceDurations(afterEndTurnVolatileStatusDurations)
 		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
@@ -195,7 +232,7 @@ class BattleEngine(
 				),
 			)
 			val afterBindingSourceCleared = clearBindingsFromSource(withSwitchEvent, actor.actorId)
-			val afterEntryHazards = applyEntryHazardsOnSwitchIn(
+			val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(
 				state = afterBindingSourceCleared,
 				sideId = side.sideId,
 				actorId = plan.action.targetActorId,
@@ -235,31 +272,32 @@ class BattleEngine(
 		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
 			return context
 		}
-		val beforeMove = resolveBeforeMoveEffects(context, actor, plan.skill, random)
+		val beforeMove = beforeMoveEffects.resolve(state, actor, plan.skill, random)
+		val beforeMoveContext = context.copy(state = beforeMove.state)
 		if (beforeMove.blocked) {
 			return when (plan.source) {
-				SkillActionSource.LOCKED_CONTINUATION -> beforeMove.context.copy(
-					state = endLockedMoveAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill, random),
+				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
+					state = endLockedMoveAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill, random),
 				)
-				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
-					state = chargeMoves.endAfterDisruption(beforeMove.context.state, actor.actorId, plan.skill),
+				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
+					state = chargeMoves.endAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill),
 				)
-				SkillActionSource.SUBMITTED -> beforeMove.context
+				SkillActionSource.SUBMITTED -> beforeMoveContext
 			}
 		}
-		val actionState = beforeMove.context.state
-		val readyActor = actionState.participant(action.actorId) ?: return beforeMove.context
-		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMove.context
+		val actionState = beforeMoveContext.state
+		val readyActor = actionState.participant(action.actorId) ?: return beforeMoveContext
+		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMoveContext
 		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
 		if (targets.isEmpty()) {
 			return when (plan.source) {
-				SkillActionSource.LOCKED_CONTINUATION -> beforeMove.context.copy(
+				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
 					state = endLockedMoveAfterDisruption(actionState, readyActor.actorId, skill, random),
 				)
-				SkillActionSource.CHARGED_RELEASE -> beforeMove.context.copy(
+				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
 					state = chargeMoves.endAfterDisruption(actionState, readyActor.actorId, skill),
 				)
-				SkillActionSource.SUBMITTED -> beforeMove.context
+				SkillActionSource.SUBMITTED -> beforeMoveContext
 			}
 		}
 		if (plan.source == SkillActionSource.SUBMITTED) {
@@ -271,7 +309,7 @@ class BattleEngine(
 		} else {
 			actionState
 		}
-		val readyActorBeforePp = stateBeforeUse.participant(action.actorId) ?: return beforeMove.context
+		val readyActorBeforePp = stateBeforeUse.participant(action.actorId) ?: return beforeMoveContext
 		val actorAfterPp = if (plan.source == SkillActionSource.SUBMITTED) {
 			readyActorBeforePp.replaceSkillSlot(skill.consumePp())
 		} else {
@@ -300,7 +338,7 @@ class BattleEngine(
 				plan.source == SkillActionSource.SUBMITTED
 			) {
 				chargeMoves.skipWithHeldItem(usedState, readyActorBeforePp.actorId, skill)
-					?: return beforeMove.context.copy(
+					?: return beforeMoveContext.copy(
 						state = chargeMoves.startCharge(
 							state = usedState,
 							actorId = readyActorBeforePp.actorId,
@@ -314,7 +352,7 @@ class BattleEngine(
 
 		if (skill.protectsUser) {
 			if (!protectionSucceeds(readyActor, skill, random)) {
-				return beforeMove.context.copy(
+				return beforeMoveContext.copy(
 					state = stateAfterChargeDecision
 						.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
 						.appendEvent(
@@ -327,7 +365,7 @@ class BattleEngine(
 				)
 			}
 			val protectedActor = actorAfterActionSetup.markProtectionSuccess()
-			return beforeMove.context.copy(
+			return beforeMoveContext.copy(
 				state = stateAfterChargeDecision
 					.replaceParticipant(protectedActor)
 					.appendEvent(
@@ -337,13 +375,13 @@ class BattleEngine(
 							skillId = skill.skillId,
 						),
 					),
-				protectedActorIds = beforeMove.context.protectedActorIds + readyActor.actorId,
-				successfulProtectionActorIds = beforeMove.context.successfulProtectionActorIds + readyActor.actorId,
+				protectedActorIds = beforeMoveContext.protectedActorIds + readyActor.actorId,
+				successfulProtectionActorIds = beforeMoveContext.successfulProtectionActorIds + readyActor.actorId,
 			)
 		}
 
 		val targetMultiplier = targetDamageMultiplier(skill, targets)
-		return targets.fold(beforeMove.context.copy(state = stateAfterChargeDecision)) { current, target ->
+		return targets.fold(beforeMoveContext.copy(state = stateAfterChargeDecision)) { current, target ->
 			if (current.state.result != null) {
 				current
 			} else {
@@ -1319,7 +1357,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!canReceiveHealing(actor)) {
+		if (!actor.canReceiveHealing()) {
 			return state
 		}
 		val healAmount = fractionAmount(damageAmount, numerator, denominator)
@@ -1430,7 +1468,7 @@ class BattleEngine(
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!canReceiveHealing(actor)) {
+		if (!actor.canReceiveHealing()) {
 			return state
 		}
 		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
@@ -1456,12 +1494,6 @@ class BattleEngine(
 	 * 该函数只回答“能不能把 HP 往上加”，不决定某个技能是否能被宣告。主动回复技能和吸取类技能会在行动前
 	 * 被 [healBlockPreventsSkill] 阻止；这里负责兜住特性、道具、场地、天气和其它后续加入的被动回复入口。
 	 */
-	private fun healingBlocked(participant: BattleParticipant): Boolean =
-		participant.healBlockTurnsRemaining > 0
-
-	private fun canReceiveHealing(participant: BattleParticipant): Boolean =
-		participant.canBattle() && participant.currentHp < participant.maxHp && !healingBlocked(participant)
-
 	/**
 	 * 支付使用者最大 HP 的固定比例来建立替身。
 	 *
@@ -1755,7 +1787,7 @@ class BattleEngine(
 				.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
 				.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
 				?: return null
-			if (healingBlocked(target)) {
+			if (target.healingBlocked()) {
 				return state.appendEvent(
 					BattleEvent.SkillAbsorbedByAbility(
 						turnNumber = state.turnNumber,
@@ -1841,7 +1873,7 @@ class BattleEngine(
 	 * 决定锁招技能本次会持续的总回合数。
 	 *
 	 * 公开成熟实现会在首次成功使用时决定 2 或 3 回合等持续时间，并把当前回合计入总数。固定持续时间不消费
-	 * 随机数，避免普通单回合技能或测试 fixture 因无意义随机消费破坏 replay 脚本。
+	 * 随机数，避免普通单回合技能或测试用例因无意义随机消费破坏 replay 脚本。
 	 */
 	private fun determineLockMoveTotalTurns(skill: BattleSkillSlot, random: BattleRandom): Int {
 		if (skill.lockMoveTurnsMin == skill.lockMoveTurnsMax) {
@@ -2467,657 +2499,8 @@ class BattleEngine(
 				),
 			)
 		val afterBindingSourceCleared = clearBindingsFromSource(switched, target.actorId)
-		val afterEntryHazards = applyEntryHazardsOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
+		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return switchInAbilityEffects.apply(afterEntryHazards, next.actorId)
-	}
-
-	/**
-	 * 结算成员换入后所在侧已有的入场陷阱。
-	 *
-	 * 调用点位于 `ParticipantSwitched` 事件之后，因此事件流会稳定表达“先进入场地，再承受入场效果”。同一侧存在
-	 * 多种入场陷阱时按状态列表顺序结算；每个陷阱都会重新读取当前成员快照，若成员已经倒下或战斗已经结束，
-	 * 后续陷阱不再继续触发。该策略避免已经无法战斗的成员继续获得异常状态或能力阶级变化。
-	 */
-	private fun applyEntryHazardsOnSwitchIn(
-		state: BattleState,
-		sideId: String,
-		actorId: String,
-	): BattleState {
-		val hazards = state.sides.firstOrNull { it.sideId == sideId }?.entryHazards.orEmpty()
-		return hazards.fold(state) { current, hazard ->
-			if (current.result != null) {
-				current
-			} else {
-				val participant = current.participant(actorId) ?: return@fold current
-				if (!participant.canBattle()) {
-					current
-				} else {
-					applyEntryHazardOnSwitchIn(current, sideId, participant, hazard)
-				}
-			}
-		}
-	}
-
-	/**
-	 * 结算单个入场陷阱对换入成员的影响。
-	 *
-	 * 每种陷阱的公开现代规则差异较大，因此这里保持显式分支，而不是把行为藏进字符串策略或反射脚本。资料层只负责
-	 * 把技能和场上规则映射成 [BattleSideEntryHazardKind]；真正会改变 HP、异常状态或能力阶级的语义由引擎持有。
-	 */
-	private fun applyEntryHazardOnSwitchIn(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-	): BattleState =
-		when (hazard.kind) {
-			BattleSideEntryHazardKind.STEALTH_ROCK -> applyStealthRockEntryDamage(state, sideId, participant, hazard)
-			BattleSideEntryHazardKind.SPIKES -> applySpikesEntryDamage(state, sideId, participant, hazard)
-			BattleSideEntryHazardKind.TOXIC_SPIKES -> applyToxicSpikesEntryEffect(state, sideId, participant, hazard)
-			BattleSideEntryHazardKind.STICKY_WEB -> applyStickyWebEntryEffect(state, sideId, participant, hazard)
-		}
-
-	/**
-	 * 结算隐形岩类入场伤害。
-	 *
-	 * 现代规则按岩属性攻击换入成员的属性克制倍率计算 `最大 HP * 倍率 / 8`，向下取整且正倍率至少造成 1 点伤害。
-	 * 如果规则快照没有提供岩属性 ID，本场战斗无法可靠计算克制关系，函数会保持状态不变，而不是硬编码资料编号。
-	 */
-	private fun applyStealthRockEntryDamage(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-	): BattleState {
-		val rockElementId = state.rules.rockElementId ?: return state
-		val effectiveness = state.rules.elementChart.multiplier(rockElementId, participant.elementIds)
-		val damage = entryHazardFractionDamage(participant.maxHp, effectiveness / STEALTH_ROCK_DAMAGE_DENOMINATOR)
-		return applyEntryHazardDamage(
-			state = state,
-			sideId = sideId,
-			participant = participant,
-			hazard = hazard,
-			amount = damage,
-			effectiveness = effectiveness,
-		)
-	}
-
-	/**
-	 * 结算撒菱类入场伤害。
-	 *
-	 * 撒菱只影响接地成员。现代规则层数伤害为一层最大 HP 的 1/8，二层 1/6，三层 1/4；层数超过上限在模型层
-	 * 已经被拒绝，因此这里仍使用 `when` 让伤害分母和公开规则直接对应。
-	 */
-	private fun applySpikesEntryDamage(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-	): BattleState {
-		if (!participant.grounded) {
-			return state
-		}
-		val denominator = when (hazard.layers) {
-			1 -> SPIKES_ONE_LAYER_DAMAGE_DENOMINATOR
-			2 -> SPIKES_TWO_LAYER_DAMAGE_DENOMINATOR
-			else -> SPIKES_THREE_LAYER_DAMAGE_DENOMINATOR
-		}
-		return applyEntryHazardDamage(
-			state = state,
-			sideId = sideId,
-			participant = participant,
-			hazard = hazard,
-			amount = (participant.maxHp / denominator).coerceAtLeast(1),
-			effectiveness = 1.0,
-		)
-	}
-
-	/**
-	 * 结算毒菱类入场效果。
-	 *
-	 * 毒菱只影响接地成员。接地毒属性成员换入时会吸收并移除该侧毒菱；其它接地成员在一层时获得普通中毒、
-	 * 两层时获得剧毒。毒/钢属性免疫、薄雾场地、特性和道具免疫复用主要异常状态的统一阻止逻辑，确保毒菱和
-	 * 普通技能附加中毒不会出现两套相互矛盾的免疫判断。
-	 */
-	private fun applyToxicSpikesEntryEffect(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-	): BattleState {
-		if (!participant.grounded) {
-			return state
-		}
-		if (participant.hasElement(state.rules.poisonElementId)) {
-			return state.removeSideEntryHazard(sideId, BattleSideEntryHazardKind.TOXIC_SPIKES)
-				?.appendEvent(
-					BattleEvent.SideEntryHazardRemoved(
-						turnNumber = state.turnNumber,
-						actorId = participant.actorId,
-						sideId = sideId,
-						kind = BattleSideEntryHazardKind.TOXIC_SPIKES,
-					),
-				)
-				?: state
-		}
-		if (participant.majorStatus != null) {
-			return state
-		}
-		val status = if (hazard.layers >= 2) BattleMajorStatus.BAD_POISON else BattleMajorStatus.POISON
-		val blockedReason = blockedMajorStatusReason(state, participant.actorId, participant, status)
-		if (blockedReason != null) {
-			return state.appendEvent(
-				BattleEvent.EntryHazardStatusApplicationBlocked(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					sideId = sideId,
-					kind = hazard.kind,
-					status = status,
-					reason = blockedReason,
-				),
-			)
-		}
-		return state
-			.replaceParticipant(participant.applyMajorStatus(status))
-			.appendEvent(
-				BattleEvent.EntryHazardStatusApplied(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					sideId = sideId,
-					kind = hazard.kind,
-					status = status,
-				),
-			)
-	}
-
-	/**
-	 * 结算黏黏网类入场效果。
-	 *
-	 * 黏黏网只影响接地成员，并在换入时降低速度能力阶级 1 级。能力阶级已经达到 -6 时不会产生状态变化或事件；
-	 * 这让 replay 可以把事件直接视为“能力阶级确实发生变化”的事实。
-	 */
-	private fun applyStickyWebEntryEffect(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-	): BattleState {
-		if (!participant.grounded) {
-			return state
-		}
-		val beforeStage = participant.statStage(BattleStat.SPEED)
-		val updated = participant.changeStatStage(BattleStat.SPEED, -1)
-		val afterStage = updated.statStage(BattleStat.SPEED)
-		if (beforeStage == afterStage) {
-			return state
-		}
-		return state
-			.replaceParticipant(updated)
-			.appendEvent(
-				BattleEvent.EntryHazardStatStageChanged(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					sideId = sideId,
-					kind = hazard.kind,
-					stat = BattleStat.SPEED,
-					delta = afterStage - beforeStage,
-					currentStage = afterStage,
-				),
-			)
-	}
-
-	/**
-	 * 写入入场陷阱伤害并接续道具、倒下和胜负判定。
-	 *
-	 * 入场伤害不是普通技能伤害，但仍会触发低体力回复类道具，并可能导致成员倒下和战斗结束。因此这里复用
-	 * 已有的低体力道具与倒下处理函数，只把可观察事件换成入场陷阱专用事件。
-	 */
-	private fun applyEntryHazardDamage(
-		state: BattleState,
-		sideId: String,
-		participant: BattleParticipant,
-		hazard: BattleSideEntryHazard,
-		amount: Int,
-		effectiveness: Double,
-	): BattleState {
-		if (amount <= 0 || participant.hasIndirectDamageImmunity()) {
-			return state
-		}
-		val damaged = participant.receiveDamage(amount)
-		val afterDamage = state
-			.replaceParticipant(damaged)
-			.appendEvent(
-				BattleEvent.EntryHazardDamageApplied(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					sideId = sideId,
-					kind = hazard.kind,
-					amount = amount,
-					layers = hazard.layers,
-					effectiveness = effectiveness,
-				),
-			)
-		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
-		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
-		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
-	}
-
-	/**
-	 * 计算最大 HP 比例型入场伤害。
-	 *
-	 * 公开规则中的比例伤害通常向下取整；当倍率为正但向下取整得到 0 时，仍至少造成 1 点伤害。倍率为 0 或负数
-	 * 表示没有实际伤害，调用方会跳过伤害事件。
-	 */
-	private fun entryHazardFractionDamage(maxHp: Int, fraction: Double): Int =
-		if (fraction <= 0.0) {
-			0
-		} else {
-			floor(maxHp * fraction).toInt().coerceAtLeast(1)
-		}
-
-	/**
-	 * 处理行动前可能阻止技能的状态。
-	 *
-	 * 顺序参考公开成熟实现中的行动前钩子优先级：睡眠和冰冻最早，畏缩随后处理，混乱早于麻痹处理。
-	 * 睡眠和畏缩必定阻止本次技能行动且不消耗 PP；冰冻先尝试自然解冻，未解冻才阻止行动；混乱会先递减
-	 * 内部计数，若计数归零则解除并继续行动，否则按现代 33% 自伤概率判定。只有自伤分支会阻止本次技能行动；
-	 * 麻痹最后按 25% 概率阻止行动。
-	 */
-	private fun resolveBeforeMoveEffects(
-		context: TurnContext,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BeforeMoveResult {
-		if (actor.rechargeTurnsRemaining > 0) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeRechargeBlockedAction(context.state, actor)),
-				blocked = true,
-			)
-		}
-		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeSleepBlockedAction(context.state, actor)),
-				blocked = true,
-			)
-		}
-		if (actor.majorStatus == BattleMajorStatus.FREEZE) {
-			return resolveFreezeBeforeMove(context, actor, skill, random)
-		}
-		if (actor.flinched) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeFlinchBlockedAction(context.state, actor)),
-				blocked = true,
-			)
-		}
-		if (actor.confusionTurnsRemaining > 0) {
-			return resolveConfusionBeforeMove(context, actor, random)
-		}
-		if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeHealBlockBlockedAction(context.state, actor, skill)),
-				blocked = true,
-			)
-		}
-		if (actor.tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeTauntBlockedAction(context.state, actor, skill)),
-				blocked = true,
-			)
-		}
-		if (actor.disabledSkillTurnsRemaining > 0 && actor.disabledSkillId == skill.skillId) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeDisableBlockedAction(context.state, actor, skill)),
-				blocked = true,
-			)
-		}
-		if (actor.tormented && actor.lastSuccessfulSkillId == skill.skillId) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeTormentBlockedAction(context.state, actor, skill)),
-				blocked = true,
-			)
-		}
-		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
-			return BeforeMoveResult(
-				context = context.copy(state = consumeParalysisBlockedAction(context.state, actor)),
-				blocked = true,
-			)
-		}
-		return BeforeMoveResult(context = context, blocked = false)
-	}
-
-	/**
-	 * 处理冰冻的行动前自然解冻和行动阻止。
-	 *
-	 * 现代规则中，被冰冻成员每次准备行动时都有 20% 概率自然解冻；解冻后继续执行原技能，不额外消耗 PP。
-	 * 若本次没有解冻，则技能不会使用、PP 不会消耗。当前技能槽尚未建模“使用后解除自身冰冻”的标记，
-	 * 因此火属性攻击或特定技能自解冻会在技能规则字段具备后接入。
-	 */
-	private fun resolveFreezeBeforeMove(
-		context: TurnContext,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BeforeMoveResult {
-		if (skill.thawsUserBeforeMove) {
-			return BeforeMoveResult(
-				context = context.copy(state = clearFrozenActorBeforeMove(context.state, actor)),
-				blocked = false,
-			)
-		}
-		if (chanceSucceeds(FREEZE_THAW_CHANCE_PERCENT, random, "freeze thaw chance for ${actor.actorId}")) {
-			return BeforeMoveResult(
-				context = context.copy(state = clearFrozenActorBeforeMove(context.state, actor)),
-				blocked = false,
-			)
-		}
-		return BeforeMoveResult(
-			context = context.copy(state = consumeFreezeBlockedAction(context.state, actor)),
-			blocked = true,
-		)
-	}
-
-	/**
-	 * 清除行动者自身冰冻状态。
-	 *
-	 * 该函数同时服务自然解冻和带有自解冻标签的技能。调用方负责决定是否需要先消费自然解冻随机数。
-	 */
-	private fun clearFrozenActorBeforeMove(state: BattleState, actor: BattleParticipant): BattleState =
-		state
-			.replaceParticipant(actor.clearMajorStatus())
-			.appendEvent(
-				BattleEvent.StatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					status = BattleMajorStatus.FREEZE,
-				),
-			)
-
-	/**
-	 * 消耗睡眠对本次技能行动的阻止效果。
-	 *
-	 * 睡眠不消耗 PP、不产生技能使用事件，也不会继续进入命中或伤害流程。`BattleParticipant` 保存的是还会
-	 * 被阻止行动几次，因此每次阻止后递减；递减到 0 时立即清除睡眠，并记录状态解除事件，供 replay 对齐。
-	 */
-	private fun consumeSleepBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
-		val turnsRemainingBefore = actor.sleepTurnsRemaining
-		val updated = actor.consumeSleepBlockedTurn()
-		val blocked = preventSkill(
-			state = state.replaceParticipant(updated),
-			actor = actor,
-			reason = SkillPreventionReason.SLEEP,
-			turnsRemainingBefore = turnsRemainingBefore,
-		)
-		return if (updated.majorStatus == null) {
-			blocked.appendEvent(
-				BattleEvent.StatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					status = BattleMajorStatus.SLEEP,
-				),
-			)
-		} else {
-			blocked
-		}
-	}
-
-	/**
-	 * 消耗休整对本次技能行动的阻止效果。
-	 *
-	 * 休整是由上一次成功技能写入的强制空过状态。它不消耗本次提交技能的 PP，也不会触发讲究锁定、命中、
-	 * 伤害或其它行动前随机判定。阻止发生后递减计数，第一批休整技能只需要一次阻止，因此通常会直接清零。
-	 */
-	private fun consumeRechargeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState {
-		val turnsRemainingBefore = actor.rechargeTurnsRemaining
-		return preventSkill(
-			state = state.replaceParticipant(actor.consumeRechargeTurn()),
-			actor = actor,
-			reason = SkillPreventionReason.RECHARGE,
-			turnsRemainingBefore = turnsRemainingBefore,
-		)
-	}
-
-	/**
-	 * 消耗一次“回复封锁阻止本次回复类技能”的行动结果。
-	 *
-	 * 回复封锁本身不会因为阻止一次行动而立即减少持续回合；它只在回合末统一递减。这里不消耗 PP、不写入
-	 * `SkillUsed`，也不触发讲究锁定或命中随机数，让主动回复技能和吸取回复类技能在现代规则下稳定失败。
-	 */
-	private fun consumeHealBlockBlockedAction(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState =
-		preventSkill(
-			state = state,
-			actor = actor,
-			reason = SkillPreventionReason.HEAL_BLOCK,
-			skillId = skill.skillId,
-			turnsRemainingBefore = actor.healBlockTurnsRemaining,
-		)
-
-	/**
-	 * 判断回复封锁是否禁止成员宣告该技能。
-	 *
-	 * 现代规则中，直接回复使用者的变化技能和伤害后吸取回复的攻击技能都不能在回复封锁下使用。建立替身、
-	 * 反作用伤害和其它非回复类 HP 变化不在此列；它们继续按各自规则结算。
-	 */
-	private fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
-		skill.hpEffects.any { effect ->
-			effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
-				effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
-				effect is BattleSkillHpEffect.DrainDamage
-		}
-
-	/**
-	 * 消耗一次“挑衅阻止本次变化技能”的行动结果。
-	 *
-	 * 挑衅不会因为成功阻止一次行动而提前减少持续回合；它只在完整回合末统一递减。这里不消耗 PP、不写入
-	 * `SkillUsed`，也不触发命中、保护、附加效果或讲究类锁定流程，确保被挑衅成员的变化技能稳定停在行动前。
-	 */
-	private fun consumeTauntBlockedAction(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState =
-		preventSkill(
-			state = state,
-			actor = actor,
-			reason = SkillPreventionReason.TAUNT,
-			skillId = skill.skillId,
-			turnsRemainingBefore = actor.tauntTurnsRemaining,
-		)
-
-	/**
-	 * 判断挑衅是否禁止成员宣告该技能。
-	 *
-	 * 现代规则中挑衅只阻止变化分类技能；物理和特殊分类技能即使没有造成伤害，仍不由挑衅在这里拦截。
-	 */
-	private fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
-		skill.damageClass == BattleDamageClass.STATUS
-
-	/**
-	 * 消耗一次“定身法阻止本次被禁用技能”的行动结果。
-	 *
-	 * 定身法不会因为阻止一次行动而立即减少持续回合；它只在回合末统一递减。这里不消耗 PP、不写入
-	 * `SkillUsed`，也不触发命中、保护、附加效果或讲究类锁定流程。
-	 */
-	private fun consumeDisableBlockedAction(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState =
-		preventSkill(
-			state = state,
-			actor = actor,
-			reason = SkillPreventionReason.DISABLE,
-			skillId = skill.skillId,
-			turnsRemainingBefore = actor.disabledSkillTurnsRemaining,
-		)
-
-	/**
-	 * 消耗一次“无理取闹阻止连续使用同一技能”的行动结果。
-	 *
-	 * 无理取闹没有回合倒计时，也不会因为阻止一次行动而解除。这里不消耗 PP、不写入 `SkillUsed`，
-	 * 也不覆盖 [BattleParticipant.lastSuccessfulSkillId]，让下一回合仍能依据“上一次真正使用的技能”判断。
-	 */
-	private fun consumeTormentBlockedAction(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-	): BattleState =
-		preventSkill(
-			state = state,
-			actor = actor,
-			reason = SkillPreventionReason.TORMENT,
-			skillId = skill.skillId,
-			previousSkillId = requireNotNull(actor.lastSuccessfulSkillId) {
-				"torment requires previous successful skill"
-			},
-		)
-
-	/**
-	 * 记录冰冻未解冻时对本次技能行动的阻止效果。
-	 *
-	 * 冰冻状态本身保持不变；后续行动还会再次尝试自然解冻。该函数只追加事件，不修改成员快照。
-	 */
-	private fun consumeFreezeBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		preventSkill(state = state, actor = actor, reason = SkillPreventionReason.FREEZE)
-
-	/**
-	 * 消耗畏缩对本次技能行动的阻止效果。
-	 *
-	 * 畏缩是回合内临时状态，只会阻止一次行动。阻止发生后立即清掉成员上的标记；如果成员本回合没有尝试行动，
-	 * 回合末清理会静默移除该标记，不产生解除事件。
-	 */
-	private fun consumeFlinchBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		preventSkill(
-			state = state.replaceParticipant(actor.consumeFlinch()),
-			actor = actor,
-			reason = SkillPreventionReason.VOLATILE_STATUS,
-			status = BattleVolatileStatus.FLINCH,
-		)
-
-	/**
-	 * 消耗麻痹对本次技能行动的阻止效果。
-	 *
-	 * 麻痹本身不会因为阻止一次行动而解除，也不消耗技能 PP。这里不修改成员快照，只把“本次行动被麻痹挡下”
-	 * 写入事件流，方便 replay 和公开规则 fixture 验证随机消费顺序。
-	 */
-	private fun consumeParalysisBlockedAction(state: BattleState, actor: BattleParticipant): BattleState =
-		preventSkill(state = state, actor = actor, reason = SkillPreventionReason.PARALYSIS)
-
-	/**
-	 * 追加行动前技能阻止事件。
-	 *
-	 * 多种规则都会停在同一个“未使用技能、不消耗 PP、不中断后续事件流”的事实上。这个 helper 只负责构造共享事件，
-	 * 具体规则的状态递减、状态清除和随机消费仍留在各自函数里，避免把睡眠、休整、挑衅等语义糊成一个大分支。
-	 */
-	private fun preventSkill(
-		state: BattleState,
-		actor: BattleParticipant,
-		reason: SkillPreventionReason,
-		skillId: Long? = null,
-		previousSkillId: Long? = null,
-		status: BattleVolatileStatus? = null,
-		turnsRemainingBefore: Int? = null,
-	): BattleState =
-		state.appendEvent(
-			BattleEvent.SkillPrevented(
-				turnNumber = state.turnNumber,
-				actorId = actor.actorId,
-				reason = reason,
-				skillId = skillId,
-				previousSkillId = previousSkillId,
-				status = status,
-				turnsRemainingBefore = turnsRemainingBefore,
-			),
-		)
-
-	/**
-	 * 判断麻痹是否阻止本次行动。
-	 *
-	 * 现代主系列规则为每次行动前 25% 概率无法行动。该判定发生在睡眠、畏缩和混乱之后；因此如果前置状态
-	 * 已经阻止了本次行动，就不会额外消费麻痹随机数。
-	 */
-	private fun paralysisBlocksMove(actor: BattleParticipant, random: BattleRandom): Boolean =
-		chanceSucceeds(PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT, random, "paralysis chance for ${actor.actorId}")
-
-	/**
-	 * 处理混乱的行动前计数、解除、自伤和行动阻止。
-	 *
-	 * 混乱保存的是公开实现中的内部计数，而不是“还会自伤判定几次”。行动前先递减；
-	 * 递减到 0 表示成员恢复清醒并继续执行原技能，不消费混乱概率随机数。递减后仍大于 0 时，
-	 * 消费 1 次 33/100 自伤判定；若自伤，再消费 1 次 85..100 伤害浮动并跳过原技能行动。
-	 */
-	private fun resolveConfusionBeforeMove(context: TurnContext, actor: BattleParticipant, random: BattleRandom): BeforeMoveResult {
-		val turnsRemainingBefore = actor.confusionTurnsRemaining
-		val decremented = actor.decrementConfusionBeforeMove()
-		val afterDecrement = context.state.replaceParticipant(decremented)
-		if (decremented.confusionTurnsRemaining == 0) {
-			return BeforeMoveResult(
-				context = context.copy(
-					state = afterDecrement.appendEvent(
-						BattleEvent.VolatileStatusCleared(
-							turnNumber = context.state.turnNumber,
-							actorId = actor.actorId,
-							status = BattleVolatileStatus.CONFUSION,
-						),
-					),
-				),
-				blocked = false,
-			)
-		}
-		if (!chanceSucceeds(CONFUSION_SELF_DAMAGE_CHANCE_PERCENT, random, "confusion self-hit chance for ${actor.actorId}")) {
-			return BeforeMoveResult(context = context.copy(state = afterDecrement), blocked = false)
-		}
-		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
-		val damage = confusionSelfDamage(decremented, randomPercent)
-		val blockedEvent = BattleEvent.SkillPrevented(
-			turnNumber = context.state.turnNumber,
-			actorId = actor.actorId,
-			reason = SkillPreventionReason.VOLATILE_STATUS,
-			status = BattleVolatileStatus.CONFUSION,
-		)
-		val blockedState = afterDecrement.appendEvent(blockedEvent)
-		if (decremented.hasIndirectDamageImmunity()) {
-			return BeforeMoveResult(context = context.copy(state = blockedState), blocked = true)
-		}
-		val damaged = decremented.receiveDamage(damage)
-		val afterDamage = afterDecrement
-			.replaceParticipant(damaged)
-			.appendEvents(
-				listOf(
-					blockedEvent,
-					BattleEvent.ConfusionDamageApplied(
-						turnNumber = context.state.turnNumber,
-						actorId = actor.actorId,
-						amount = damage,
-						randomPercent = randomPercent,
-						turnsRemainingBefore = turnsRemainingBefore,
-					),
-				),
-			)
-		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
-		val latest = afterLowHpItem.participant(damaged.actorId) ?: damaged
-		val afterFaint = afterLowHpItem.handleFaintAndResult(latest)
-		return BeforeMoveResult(context = context.copy(state = afterFaint), blocked = true)
-	}
-
-	/**
-	 * 计算混乱自伤。
-	 *
-	 * 公开成熟实现把混乱自伤当作特殊的 40 威力物理伤害：使用攻击和防御能力阶级，带 85..100 随机浮动，
-	 * 但不套用属性一致、属性克制、要害、道具和多数特性修正。这里独立实现公式，避免伪造一个普通技能后
-	 * 意外吃到普通伤害管线中的额外 modifier。
-	 */
-	private fun confusionSelfDamage(actor: BattleParticipant, randomPercent: Int): Int {
-		val attack = statStageModifiers.modifiedBattleStat(actor.attack, actor.statStage(BattleStat.ATTACK))
-		val defense = statStageModifiers.modifiedBattleStat(actor.defense, actor.statStage(BattleStat.DEFENSE))
-		require(defense > 0) { "confusion defending stat must be positive" }
-		val levelFactor = (2 * actor.level) / 5 + 2
-		val baseDamage = (((levelFactor * CONFUSION_BASE_POWER * attack) / defense) / 50) + 2
-		return floor(baseDamage * (randomPercent / 100.0)).toInt().coerceAtLeast(1)
 	}
 
 	/**
@@ -3179,7 +2562,7 @@ class BattleEngine(
 	 * [BattleItemEffect.MajorStatusCure]，函数原样返回状态。
 	 *
 	 * 触发成功时先清除主要异常状态及其附属计数，再按效果声明消费携带道具，最后追加 [BattleEvent.StatusCleared]。
-	 * 事件流因此会稳定呈现“状态写入 -> 道具治愈”的顺序，便于 replay 和公开 fixture 对照具体触发时机。
+	 * 事件流因此会稳定呈现“状态写入 -> 道具治愈”的顺序，便于 replay 和公开对照测试定位具体触发时机。
 	 */
 	private fun applyMajorStatusCureItem(state: BattleState, actorId: String): BattleState {
 		val participant = state.participant(actorId) ?: return state
@@ -3207,7 +2590,7 @@ class BattleEngine(
 	/**
 	 * 判断主要异常状态是否会在附加前被稳定免疫规则阻止。
 	 *
-	 * 顺序选择先属性、后场地：如果目标自身属性已经免疫该状态，就不再把阻止原因归给场地，便于 fixture
+	 * 顺序选择先属性、后场地：如果目标自身属性已经免疫该状态，就不再把阻止原因归给场地，便于测试用例
 	 * 明确定位是个体免疫还是全场效果。特性和道具作为资料驱动的稳定免疫排在场地之后，避免它们遮蔽
 	 * 场地这类全场公开状态。
 	 */
@@ -3310,12 +2693,6 @@ class BattleEngine(
 		}
 
 	/**
-	 * 判断成员是否具有指定属性。
-	 */
-	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
-		elementId != null && elementId in elementIds
-
-	/**
 	 * 判断本次技能是否应忽略目标侧防守特性。
 	 *
 	 * 该 helper 只处理一次技能结算中的“攻击方对对手目标”的关系。它不会让同侧辅助、自身目标或非技能来源
@@ -3352,79 +2729,6 @@ class BattleEngine(
 		}
 		return actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }
 	}
-
-	/**
-	 * 判断成员是否免疫非技能直接伤害。
-	 *
-	 * 该入口只读取结构化特性效果，不判断具体特性名称。调用方负责保证传入的伤害来源确实不是普通技能直接命中；
-	 * 因此普通 [BattleEvent.DamageApplied] 不会经过这里，而异常状态回合末伤害、天气伤害、入场陷阱、混乱自伤、
-	 * 技能反作用伤害和携带道具反伤等都会在写入 HP 前调用它。
-	 */
-	private fun BattleParticipant.hasIndirectDamageImmunity(): Boolean =
-		abilityEffects.any { it is BattleAbilityEffect.IndirectDamageImmunity }
-
-	/**
-	 * 判断成员是否免疫技能自身带来的反作用伤害。
-	 *
-	 * 该效果只服务 [BattleEvent.SkillRecoilDamageApplied] 写入前的窄范围判断；携带道具反伤仍由道具流程处理，
-	 * 不会因为这里返回 true 而被跳过。
-	 */
-	private fun BattleParticipant.hasSkillRecoilDamageImmunity(): Boolean =
-		abilityEffects.any { it is BattleAbilityEffect.SkillRecoilDamageImmunity }
-
-	/**
-	 * 判断成员是否免疫被技能击中要害。
-	 *
-	 * 调用方在普通要害概率已经结算后读取该效果，把本次伤害请求降回非要害；这样随机轨迹和必定要害技能的
-	 * 前置事实都不会被抹掉，只是最终伤害不再按要害倍率和要害绕过屏障规则处理。
-	 */
-	private fun BattleParticipant.hasCriticalHitImmunity(): Boolean =
-		abilityEffects.any { it is BattleAbilityEffect.CriticalHitImmunity }
-
-	/**
-	 * 判断成员是否在命中判定中忽略对手的命中或闪避阶级变化。
-	 *
-	 * 攻击方拥有该效果时，命中流程不读取目标闪避阶级；防守方拥有该效果时，命中流程不读取攻击方命中阶级。
-	 * 这里不判断具体特性名称，让资料层可以用同一个结构化效果挂接同类现代规则。
-	 */
-	private fun BattleParticipant.ignoresOpponentAccuracyStatStages(): Boolean =
-		abilityEffects.any { it is BattleAbilityEffect.IgnoreOpponentAccuracyStatStages }
-
-	/**
-	 * 判断成员是否免疫指定天气的回合末伤害。
-	 *
-	 * 沙暴天然不会伤害岩、地面、钢属性成员；特性和道具提供的天气伤害免疫作为更通用的结构化效果处理，
-	 * 便于表达防尘类道具或防天气伤害特性。
-	 */
-	private fun BattleParticipant.immuneToWeatherDamage(state: BattleState, weather: BattleWeather): Boolean =
-		hasIndirectDamageImmunity() ||
-			weatherDamageBlockedByAbility(weather) ||
-			weatherDamageBlockedByItem(weather) ||
-			when (weather) {
-				BattleWeather.SANDSTORM -> hasElement(state.rules.rockElementId) ||
-					hasElement(state.rules.groundElementId) ||
-					hasElement(state.rules.steelElementId)
-				BattleWeather.NONE,
-				BattleWeather.SUN,
-				BattleWeather.RAIN,
-				BattleWeather.SNOW -> false
-			}
-
-	/**
-	 * 判断成员特性是否免疫指定天气伤害。
-	 */
-	private fun BattleParticipant.weatherDamageBlockedByAbility(weather: BattleWeather): Boolean =
-		abilityEffects.any { effect ->
-			effect is BattleAbilityEffect.WeatherDamageImmunity && weather in effect.weathers
-		}
-
-	/**
-	 * 判断成员携带道具是否免疫指定天气伤害。
-	 */
-	private fun BattleParticipant.weatherDamageBlockedByItem(weather: BattleWeather): Boolean =
-		itemEffects.any { effect ->
-			effect is BattleItemEffect.WeatherDamageImmunity && weather in effect.weathers
-		}
 
 	/**
 	 * 附加临时状态并处理状态私有计数。
@@ -3791,7 +3095,7 @@ class BattleEngine(
 		effect: BattleItemEffect.DamageDealtHeal,
 	): BattleState {
 			val actor = state.participant(actorId) ?: return state
-			if (!actor.canBattle() || actor.currentHp == actor.maxHp || healingBlocked(actor)) {
+			if (!actor.canBattle() || actor.currentHp == actor.maxHp || actor.healingBlocked()) {
 				return state
 			}
 		val healAmount = (damageAmount / effect.healDenominator)
@@ -3819,10 +3123,10 @@ class BattleEngine(
 	 * 回复封锁、紧张感等更复杂来源；这些规则后续会以结构化字段加入，而不是让调用方传入自由文本开关。
 	 */
 	private fun applyLowHpHealingItem(state: BattleState, actorId: String): BattleState {
-			val participant = state.participant(actorId) ?: return state
-			if (!participant.canBattle() || participant.currentHp == participant.maxHp || healingBlocked(participant)) {
-				return state
-			}
+		val participant = state.participant(actorId) ?: return state
+		if (!participant.canBattle() || participant.currentHp == participant.maxHp || participant.healingBlocked()) {
+			return state
+		}
 		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpHeal>().firstOrNull() ?: return state
 		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp)) {
 			return state
@@ -3842,106 +3146,6 @@ class BattleEngine(
 					amount = healAmount,
 				),
 			)
-	}
-
-	/**
-	 * 清理本回合没有成功保护的成员连续保护计数。
-	 *
-	 * 保护递减概率只看连续成功的保护类行动。成员使用其它技能、替换、无法行动或没有提交行动时，都应在回合末
-	 * 失去连续计数；只有 `successfulProtectionActorIds` 中的成员把计数保留到下一回合。
-	 */
-	private fun resetProtectionChains(state: BattleState, successfulProtectionActorIds: Set<String>): BattleState =
-		state.sides
-			.flatMap { it.participants }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (latest.actorId in successfulProtectionActorIds || latest.protectionChain == 0) {
-					current
-				} else {
-					current.replaceParticipant(latest.resetProtectionChain())
-				}
-			}
-
-	/**
-	 * 清理回合结束时不会跨回合保留的临时状态。
-	 *
-	 * 目前只有畏缩需要该阶段兜底：如果目标已经行动后才被附加畏缩，它不会阻止任何行动，也不应该进入下一回合。
-	 * 混乱有自己的持续计数和解除事件，因此不会在这里清理。
-	 */
-	private fun clearEndTurnVolatileStatuses(state: BattleState): BattleState =
-		state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				val cleared = latest.clearEndTurnVolatileStatuses()
-				if (cleared == latest) current else current.replaceParticipant(cleared)
-			}
-
-	/**
-	 * 推进跨回合临时状态的持续回合。
-	 *
-	 * 畏缩在前一个清理步骤已经静默消失；混乱按行动前计数，不在回合末递减。当前这里推进回复封锁、挑衅和定身法：
-	 * 每个回合末减少 1，归零时追加 [BattleEvent.VolatileStatusCleared]，让 replay 能看到状态自然结束的时间点。
-	 */
-	private fun advanceEndTurnVolatileStatusDurations(state: BattleState): BattleState =
-		state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				val afterHealBlock = advanceEndTurnVolatileStatusDuration(
-					state = current,
-					participant = latest,
-					status = BattleVolatileStatus.HEAL_BLOCK,
-					turnsRemaining = latest.healBlockTurnsRemaining,
-					decrement = BattleParticipant::decrementHealBlockEndTurn,
-				)
-				val latestAfterHealBlock = afterHealBlock.participant(participant.actorId) ?: return@fold afterHealBlock
-				val afterTaunt = advanceEndTurnVolatileStatusDuration(
-					state = afterHealBlock,
-					participant = latestAfterHealBlock,
-					status = BattleVolatileStatus.TAUNT,
-					turnsRemaining = latestAfterHealBlock.tauntTurnsRemaining,
-					decrement = BattleParticipant::decrementTauntEndTurn,
-				)
-				val latestAfterTaunt = afterTaunt.participant(participant.actorId) ?: return@fold afterTaunt
-				advanceEndTurnVolatileStatusDuration(
-					state = afterTaunt,
-					participant = latestAfterTaunt,
-					status = BattleVolatileStatus.DISABLE,
-					turnsRemaining = latestAfterTaunt.disabledSkillTurnsRemaining,
-					decrement = BattleParticipant::decrementDisableEndTurn,
-				)
-			}
-
-	/**
-	 * 推进一个按回合末递减的临时状态计数。
-	 *
-	 * 该 helper 只处理“计数大于 0 时递减，归零时追加解除事件”的共同行为；具体状态字段仍由
-	 * [BattleParticipant] 的专用方法维护，避免用字符串或反射读写运行态。
-	 */
-	private fun advanceEndTurnVolatileStatusDuration(
-		state: BattleState,
-		participant: BattleParticipant,
-		status: BattleVolatileStatus,
-		turnsRemaining: Int,
-		decrement: BattleParticipant.() -> BattleParticipant,
-	): BattleState {
-		if (turnsRemaining <= 0) {
-			return state
-		}
-		val updated = participant.decrement()
-		val advanced = state.replaceParticipant(updated)
-		return if (turnsRemaining == 1) {
-			advanced.appendEvent(
-				BattleEvent.VolatileStatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					status = status,
-				),
-			)
-		} else {
-			advanced
-		}
 	}
 
 	private fun BattleState.applyEndTurnDamageResult(
@@ -4135,7 +3339,7 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) weatherHealing@ { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@weatherHealing current
-				if (!canReceiveHealing(latest)) {
+				if (!latest.canReceiveHealing()) {
 					return@weatherHealing current
 				}
 				val healEffects = latest.abilityEffects
@@ -4143,7 +3347,7 @@ class BattleEngine(
 					.filter { weather in it.weathers }
 				healEffects.fold(current) effectHealing@ { healingState, effect ->
 					val currentParticipant = healingState.participant(latest.actorId) ?: return@effectHealing healingState
-					if (!canReceiveHealing(currentParticipant)) {
+					if (!currentParticipant.canReceiveHealing()) {
 						return@effectHealing healingState
 					}
 					val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
@@ -4176,7 +3380,7 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) terrainHealing@ { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@terrainHealing current
-				if (!latest.grounded || !canReceiveHealing(latest)) {
+				if (!latest.grounded || !latest.canReceiveHealing()) {
 					return@terrainHealing current
 				}
 				val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
@@ -4204,14 +3408,14 @@ class BattleEngine(
 			.flatMap { it.activeParticipants() }
 			.fold(state) endTurnHealing@ { current, participant ->
 				val latest = current.participant(participant.actorId) ?: return@endTurnHealing current
-				if (!canReceiveHealing(latest)) {
+				if (!latest.canReceiveHealing()) {
 					return@endTurnHealing current
 				}
 				latest.itemEffects
 					.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
 					.fold(current) itemHealing@ { healingState, effect ->
 						val currentParticipant = healingState.participant(latest.actorId) ?: return@itemHealing healingState
-						if (!canReceiveHealing(currentParticipant)) {
+						if (!currentParticipant.canReceiveHealing()) {
 							return@itemHealing healingState
 						}
 						val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
@@ -4288,11 +3492,6 @@ class BattleEngine(
 		val actor: BattleParticipant,
 	)
 
-	private data class BeforeMoveResult(
-		val context: TurnContext,
-		val blocked: Boolean,
-	)
-
 	/**
 	 * 单个回合技能阶段的临时上下文。
 	 *
@@ -4324,9 +3523,6 @@ class BattleEngine(
 	)
 
 	private companion object {
-		private const val CONFUSION_BASE_POWER = 40
-		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
-		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val DISABLE_TURNS = 4
 		private const val BINDING_DAMAGE_DENOMINATOR = 8
 		private const val BINDING_MIN_TURNS = 4
@@ -4335,12 +3531,7 @@ class BattleEngine(
 		private const val TAUNT_TURNS = 3
 		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
 		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
-		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
-		private const val SPIKES_ONE_LAYER_DAMAGE_DENOMINATOR = 8
-		private const val SPIKES_TWO_LAYER_DAMAGE_DENOMINATOR = 6
-		private const val SPIKES_THREE_LAYER_DAMAGE_DENOMINATOR = 4
-		private const val STEALTH_ROCK_DAMAGE_DENOMINATOR = 8.0
 		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}
 }

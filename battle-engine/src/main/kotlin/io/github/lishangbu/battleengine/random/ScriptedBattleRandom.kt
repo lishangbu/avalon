@@ -4,7 +4,7 @@ package io.github.lishangbu.battleengine.random
  * 由测试脚本驱动的确定性随机源。
  *
  * `values` 中的每个数字按顺序被消费，且必须落在当前请求的 `[0, bound)` 范围内。
- * 如果脚本耗尽或数值越界，随机源会立即失败，帮助 fixture 暴露“实现多消费或少消费了随机数”的问题。
+ * 如果脚本耗尽或数值越界，随机源会立即失败，帮助测试用例暴露“实现多消费或少消费了随机数”的问题。
  */
 class ScriptedBattleRandom(
 	private val values: List<Int>,

@@ -9,7 +9,7 @@ package io.github.lishangbu.battleengine.model
  * 间接伤害免疫、技能反作用伤害免疫、击中要害免疫、无视对手伤害公式能力阶级变化、无视对手命中/闪避阶级
  * 变化、攻击时无视目标特性效果、免疫声音类技能，以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
- * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照 fixture，再扩展这里或拆分专门处理器。
+ * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照测试，再扩展这里或拆分专门处理器。
  */
 sealed interface BattleAbilityEffect {
 	/**
@@ -161,7 +161,7 @@ sealed interface BattleAbilityEffect {
 	 *
 	 * 它只影响状态机中的命中随机判定，不改变双方快照里的真实阶级，也不影响必中技能、天气命中覆盖、保护、
 	 * 属性免疫或普通伤害公式。伤害公式中的攻击/防御/特攻/特防阶级由 [IgnoreOpponentDamageStatStages]
-	 * 独立处理，便于 fixture 精确定位失败发生在哪个结算阶段。
+	 * 独立处理，便于测试用例精确定位失败发生在哪个结算阶段。
 	 */
 	object IgnoreOpponentAccuracyStatStages : BattleAbilityEffect
 
@@ -377,7 +377,7 @@ sealed interface BattleAbilityEffect {
 	 *
 	 * 该效果用于表达现代规则中“使用带切割标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
 	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.slicingBased] 结构化标签，不根据技能名称判断是否为
-	 * 斩击、利刃或刀类技能；这样同一套规则可以被数据库种子、管理端维护和测试 fixture 复用。
+	 * 斩击、利刃或刀类技能；这样同一套规则可以被数据库种子、管理端维护和测试用例复用。
 	 *
 	 * 该倍率只属于攻击方的直接技能伤害修正，不改变技能原始威力、不赋予接触标签，也不影响击中要害等级、
 	 * 命中率或替身交互。若某个切割技能同时被其它规则改变有效属性或有效威力，状态机仍先形成统一的技能槽和环境
@@ -604,7 +604,7 @@ sealed interface BattleAbilityEffect {
 	 * 成员出场时设置全场天气。
 	 *
 	 * 该结构用于表达现代规则中“进入场地后改变天气”的稳定特性。引擎只保存目标天气和持续回合，不保存具体
-	 * 特性名称、技能名或本地化文本。`turnsRemaining` 为 null 时表示永久天气或测试 fixture 不要求递减；
+	 * 特性名称、技能名或本地化文本。`turnsRemaining` 为 null 时表示永久天气或测试用例不要求递减；
 	 * 现代主系列普通天气特性通常传入 5，让回合末持续时间系统统一递减和结束。
 	 */
 	data class SwitchInWeatherChange(

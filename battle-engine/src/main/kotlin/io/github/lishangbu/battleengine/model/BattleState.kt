@@ -152,13 +152,37 @@ data class BattleState(
 
 	/**
 	 * 追加事件。
+	 *
+	 * [BattleState] 是不可变快照，所以追加事件必须返回一个新实例，不能原地修改 [events]。这里不用
+	 * `events + event`，而是用 `buildList(events.size + 1)` 预分配目标容量：语义仍然是复制旧事件再追加一个
+	 * 新事实，但可以减少 Kotlin 在长 replay 事件流下反复扩容或创建中间集合的开销。
+	 *
+	 * 这个优化只改变集合构造方式，不改变事件顺序、事件对象、状态复制边界，也不把事件流改成可变结构。调用方
+	 * 仍然可以把返回的新状态视为完整的、可比较的战斗事实快照。
 	 */
 	fun appendEvent(event: BattleEvent): BattleState =
-		copy(events = events + event)
+		copy(
+			events = buildList(events.size + 1) {
+				addAll(events)
+				add(event)
+			},
+		)
 
 	/**
 	 * 追加一组事件。
+	 *
+	 * 空列表直接返回当前状态，避免无意义复制。非空时同样预分配 `旧事件数量 + 新事件数量` 的容量，并按传入顺序
+	 * 追加。战斗 replay 依赖事件顺序完全稳定，因此这里不会排序、去重、合并事件，也不会因为事件类型相同而压缩。
 	 */
 	fun appendEvents(newEvents: List<BattleEvent>): BattleState =
-		if (newEvents.isEmpty()) this else copy(events = events + newEvents)
+		if (newEvents.isEmpty()) {
+			this
+		} else {
+			copy(
+				events = buildList(events.size + newEvents.size) {
+					addAll(events)
+					addAll(newEvents)
+				},
+			)
+		}
 }

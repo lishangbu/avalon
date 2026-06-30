@@ -20,7 +20,7 @@ internal class BattleEnvironmentEffects {
 	/**
 	 * 推进天气、场地和全场速度顺序效果的持续回合。
 	 *
-	 * 剩余回合为空表示该环境来自永久规则或 fixture 不关心持续时间，不会被这里修改。剩余回合为 1 时，本回合末
+	 * 剩余回合为空表示该环境来自永久规则或测试用例不关心持续时间，不会被这里修改。剩余回合为 1 时，本回合末
 	 * 结束环境并产生结束事件；大于 1 时只递减计数，不产生额外事件，避免 replay 事件流过于嘈杂。
 	 */
 	fun advanceDurations(state: BattleState): BattleState {
@@ -213,7 +213,7 @@ internal class BattleEnvironmentEffects {
 	 * 计算指定来源成员建立天气时最终写入的持续回合。
 	 *
 	 * 技能环境效果和出场天气特性都从这里读取持续回合延长道具。基础持续回合为空表示永久天气或调用方不希望
-	 * 引擎管理持续时间，此时道具不会把它改成有限回合，避免改变强天气或 fixture 语义。
+	 * 引擎管理持续时间，此时道具不会把它改成有限回合，避免改变强天气或测试用例语义。
 	 */
 	private fun extendedWeatherTurnsRemaining(
 		state: BattleState,

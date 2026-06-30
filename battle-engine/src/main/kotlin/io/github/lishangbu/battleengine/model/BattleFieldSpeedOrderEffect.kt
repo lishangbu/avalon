@@ -8,7 +8,7 @@ package io.github.lishangbu.battleengine.model
  * 有效速度的比较方向。也就是说，优先度仍然先结算，只有优先度相同的行动才会在该效果下低速先动。
  *
  * `turnsRemaining` 的生命周期与天气、场地、一侧屏障保持一致：效果建立的回合已经完成本次行动排序，回合末
- * 会统一递减一次；为空表示测试 fixture 或外部调用方暂不要求引擎管理持续回合。
+ * 会统一递减一次；为空表示测试用例或外部调用方暂不要求引擎管理持续回合。
  */
 data class BattleFieldSpeedOrderEffect(
 	val kind: BattleFieldSpeedOrderKind,

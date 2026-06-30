@@ -459,7 +459,7 @@ sealed interface BattleEvent {
 	 * 一侧成功建立了防守方标准伤害减免屏障。
 	 *
 	 * 屏障属于一侧场上状态，而不是某个成员的临时状态。`turnsRemaining` 记录建立时写入的持续回合；
-	 * 如果为 null，表示外部 fixture 或调用方暂不要求引擎递减该屏障。
+	 * 如果为 null，表示外部测试用例或调用方暂不要求引擎递减该屏障。
 	 */
 	data class SideDamageReductionStarted(
 		override val turnNumber: Int,
@@ -474,7 +474,7 @@ sealed interface BattleEvent {
 	 * 一侧成功建立了速度结算修正。
 	 *
 	 * 速度修正属于一侧场上状态，而不是某个成员的临时状态。`multiplier` 记录行动排序时应用的倍率；
-	 * `turnsRemaining` 记录建立时写入的持续回合，如果为 null，表示外部 fixture 或调用方暂不要求引擎递减该效果。
+	 * `turnsRemaining` 记录建立时写入的持续回合，如果为 null，表示外部测试用例或调用方暂不要求引擎递减该效果。
 	 */
 	data class SideSpeedModifierStarted(
 		override val turnNumber: Int,
@@ -617,7 +617,7 @@ sealed interface BattleEvent {
 	 * 混乱自伤已经结算到行动者身上。
 	 *
 	 * 自伤使用公开实现中的 40 威力物理公式，不套用属性一致、属性克制、要害、道具和多数特性修正；
-	 * `randomPercent` 记录 85..100 的伤害浮动，便于 fixture 精确校验随机消费顺序。
+	 * `randomPercent` 记录 85..100 的伤害浮动，便于测试用例精确校验随机消费顺序。
 	 */
 	data class ConfusionDamageApplied(
 		override val turnNumber: Int,

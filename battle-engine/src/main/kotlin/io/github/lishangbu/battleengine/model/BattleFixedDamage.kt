@@ -32,7 +32,7 @@ sealed interface BattleFixedDamage {
 	/**
 	 * 按使用者等级造成固定伤害。
 	 *
-	 * 状态机会在命中结算时读取使用者运行态等级，因此等级统一赛制、临时构造的 fixture 或自定义格式都能自然
+	 * 状态机会在命中结算时读取使用者运行态等级，因此等级统一赛制、临时构造的测试用例或自定义格式都能自然
 	 * 影响该数值。该规则不读取目标等级，也不读取技能威力。
 	 */
 	object UserLevel : BattleFixedDamage

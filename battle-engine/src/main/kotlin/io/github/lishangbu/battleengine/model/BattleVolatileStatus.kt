@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 临时状态不同于主要异常状态：它们可以和主要异常状态共存，通常在成员离场时清除，并且多数只影响
  * 行动前流程。第一批接入畏缩、混乱、回复封锁、挑衅、定身法、无理取闹和束缚；锁招、寄生、替身等会在各自规则
- * fixture 通过后继续扩展。
+ * 测试用例通过后继续扩展。
  */
 enum class BattleVolatileStatus {
 	FLINCH,

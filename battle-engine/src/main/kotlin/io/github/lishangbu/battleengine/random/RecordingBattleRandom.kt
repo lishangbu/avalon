@@ -7,7 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleRandomTraceEntry
  *
  * 生产环境、模拟器或测试仍然可以选择自己的随机源；该类只包在外层，把每次 `nextInt` 的上界、原因和返回值
  * 记录为 [BattleRandomTraceEntry]。它不会改变随机源行为，也不会提前窥探后续值，因此可以安全用于真实
- * 对局运行记录和公开 fixture 复盘。
+ * 对局运行记录和公开对照测试复盘。
  *
  * 记录粒度是“一个回合一个实例”。调用方应在每次回合结算前创建新的 recorder，这样 trace 的 `sequence`
  * 能从 1 开始，报告和错误定位都会更清晰。若需要跨回合保存完整记录，应把每回合 trace 放入

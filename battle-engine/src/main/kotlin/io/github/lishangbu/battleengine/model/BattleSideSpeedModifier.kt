@@ -25,7 +25,7 @@ data class BattleSideSpeedModifier(
 	/**
 	 * 推进一个完整回合后的剩余状态。
 	 *
-	 * 空持续回合表示 fixture 或外部调用方暂不要求引擎管理生命周期；剩余 1 回合的状态会在本次回合末移除。
+	 * 空持续回合表示测试用例或外部调用方暂不要求引擎管理生命周期；剩余 1 回合的状态会在本次回合末移除。
 	 */
 	fun advanceTurn(): BattleSideSpeedModifier? =
 		when (turnsRemaining) {

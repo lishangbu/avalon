@@ -13,7 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleState
  *
  * 输入是当前 [BattleState] 和本阶段可能倒下的成员快照；输出是追加了 [BattleEvent.ParticipantFainted]
  * 与可选 [BattleEvent.BattleEnded] 的新状态。事件顺序保持“倒下事件先于战斗结束事件”，用于 replay 和公开
- * fixture 对齐终局。第一阶段胜负不变量很朴素：任意一方没有剩余可战斗成员时立即结束；若双方同时没有剩余
+ * 测试用例对齐终局。第一阶段胜负不变量很朴素：任意一方没有剩余可战斗成员时立即结束；若双方同时没有剩余
  * 成员，则 [BattleResult.winningSideId] 为 `null`。
  */
 internal fun BattleState.handleFaintAndResult(target: BattleParticipant): BattleState =

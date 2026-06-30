@@ -5,7 +5,7 @@ package io.github.lishangbu.battleengine.model
  *
  * 该模型只表达“防守方一侧当前存在何种伤害减免”，不绑定具体技能名称或资料表 code。现代主系列里，
  * 物理屏障只影响物理伤害，特殊屏障只影响特殊伤害，全伤害屏障同时覆盖两类；三者在一次伤害中不叠加。
- * 持续回合由状态机在回合末推进，空值表示测试 fixture 或外部系统暂不关心持续时间。
+ * 持续回合由状态机在回合末推进，空值表示测试用例或外部系统暂不关心持续时间。
  */
 data class BattleSideDamageReduction(
 	val kind: BattleSideDamageReductionKind,
