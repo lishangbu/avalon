@@ -62,12 +62,13 @@ class BattleEngine(
 	 * 行动前状态阻止 resolver。
 	 *
 	 * 该阶段只会推进 [BattleState]，不会修改 `TurnContext` 中的保护集合或其它回合内编排字段。因此它从主类抽出
-	 * 后，执行技能流程只需要把返回的状态重新放回当前上下文。混乱自伤后可能触发低体力回复道具，所以这里把主
-	 * 状态机的低体力道具处理函数作为回调传入，避免出现“普通伤害一套道具顺序，混乱自伤另一套道具顺序”。
+	 * 后，执行技能流程只需要把返回的状态重新放回当前上下文。混乱自伤后可能触发低体力回复道具，所以这里把
+	 * 统一伤害后结算器里的低体力道具处理函数作为回调传入，避免出现“普通伤害一套道具顺序，混乱自伤另一套
+	 * 道具顺序”。
 	 */
 	private val beforeMoveEffects = BattleBeforeMoveEffects(
 		statStageModifiers = statStageModifiers,
-		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
 	)
 
 	private val switchInAbilityEffects = BattleSwitchInAbilityEffects(actionOrdering, environmentEffects)
@@ -83,11 +84,11 @@ class BattleEngine(
 	 * 回合末环境与持续伤害结算器。
 	 *
 	 * 主类只保留“回合末阶段发生在技能阶段之后、持续时间推进之前”这个编排事实；具体异常伤害、束缚伤害、
-	 * 天气伤害、天气/场地/道具回复和回合上限收口都委托给该对象。低体力回复道具仍回调主类中的实现，保证所有
-	 * 伤害入口共享同一套道具消费与回复封锁判断。
+	 * 天气伤害、天气/场地/道具回复和回合上限收口都委托给该对象。低体力回复道具仍回调统一伤害后结算器，
+	 * 保证所有伤害入口共享同一套道具消费与回复封锁判断。
 	 */
 	private val endTurnEffects = BattleEndTurnEffects(
-		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
 	)
 	/**
 	 * 状态附加与状态免疫结算器。
@@ -100,6 +101,18 @@ class BattleEngine(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
 			substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
 		},
+		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
+			skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+		},
+	)
+	/**
+	 * 伤害后的接触特性与携带道具结算器。
+	 *
+	 * 该对象不计算伤害，只处理 HP 变化之后的附加效果。低体力回复道具也从这里提供给行动前、入场陷阱和回合末
+	 * resolver，保证所有伤害入口共享同一套触发线、回复封锁和道具消费规则。
+	 */
+	private val postDamageEffects = BattlePostDamageEffects(
+		statusEffects = statusEffects,
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
@@ -117,7 +130,7 @@ class BattleEngine(
 		majorStatusBlockReason = { state, actorId, recipient, status ->
 			statusEffects.blockedMajorStatusReason(state, actorId, recipient, status)
 		},
-		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
 	)
 
 	/**
@@ -648,7 +661,7 @@ class BattleEngine(
 			)
 			if (afterDirectDamage.state.result != null) {
 				return afterDirectDamage.copy(
-					state = applyPostMoveDamageDealtHealingItem(
+					state = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 						state = afterDirectDamage.state,
 						actorId = actor.actorId,
 						skill = skill,
@@ -658,7 +671,7 @@ class BattleEngine(
 			}
 			val latestTarget = afterDirectDamage.state.participant(target.actorId) ?: target
 			val afterEffects = applySkillEffects(afterDirectDamage.state, actor.actorId, latestTarget.actorId, skill, random)
-			val afterPostMoveItemEffects = applyPostMoveDamageDealtHealingItem(
+			val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 				state = afterEffects,
 				actorId = actor.actorId,
 				skill = skill,
@@ -712,7 +725,7 @@ class BattleEngine(
 		)
 		if (afterHits.state.result != null) {
 			return afterHits.copy(
-				state = applyPostMoveDamageDealtHealingItem(
+				state = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 					state = afterHits.state,
 					actorId = actor.actorId,
 					skill = skill,
@@ -722,7 +735,7 @@ class BattleEngine(
 		}
 		val latestTarget = afterHits.state.participant(target.actorId) ?: target
 		val afterEffects = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
-		val afterPostMoveItemEffects = applyPostMoveDamageDealtHealingItem(
+		val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 			state = afterEffects,
 			actorId = actor.actorId,
 			skill = skill,
@@ -1231,12 +1244,12 @@ class BattleEngine(
 			damageAmount = damageAmount,
 		)
 		val afterTargetLowHpItem = if (allowTargetLowHpItem) {
-			applyLowHpHealingItem(afterSkillRecharge, targetActorId)
+			postDamageEffects.applyLowHpHealingItem(afterSkillRecharge, targetActorId)
 		} else {
 			afterSkillRecharge
 		}
 		val afterContactAbilities = if (allowContactAbilities && random != null) {
-			applyContactAbilityEffects(
+			postDamageEffects.applyContactAbilityEffects(
 				state = afterTargetLowHpItem,
 				actorId = actorId,
 				targetActorId = targetActorId,
@@ -1246,7 +1259,7 @@ class BattleEngine(
 		} else {
 			afterTargetLowHpItem
 		}
-		val afterRecoil = applyPostDamageItemEffects(
+		val afterRecoil = postDamageEffects.applyPostDamageItemEffects(
 			state = afterContactAbilities,
 			actorId = actorId,
 			skill = skill,
@@ -2584,200 +2597,6 @@ class BattleEngine(
 			return false
 		}
 		return actor.abilityEffects.any { it is BattleAbilityEffect.IgnoreTargetAbilityEffects }
-	}
-
-	/**
-	 * 处理目标方“受到接触技能后影响攻击方”的特性效果。
-	 *
-	 * 第一批只实现概率附加主要异常状态。该 hook 在伤害事件之后、反伤和倒下判定之前执行，
-	 * 可以覆盖接触后攻击方被麻痹等常见场景。
-	 */
-	private fun applyContactAbilityEffects(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState {
-		if (!skill.makesContact) {
-			return state
-		}
-		val target = state.participant(targetActorId) ?: return state
-		if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) {
-			return state
-		}
-		return target.abilityEffects
-			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
-			.fold(state) { current, effect ->
-				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle() || actor.majorStatus != null) {
-					current
-				} else if (!chanceSucceeds(effect.chancePercent, random, "contact status for $targetActorId")) {
-					current
-				} else {
-					statusEffects.applyMajorStatus(
-						state = current,
-						actorId = targetActorId,
-						recipient = actor,
-						status = effect.status,
-						random = random,
-						randomReason = "contact sleep duration for $targetActorId",
-					)
-				}
-			}
-	}
-
-	/**
-	 * 处理造成伤害后的携带道具效果。
-	 *
-	 * 当前 hook 覆盖生命宝珠类道具：成功造成伤害后按使用者最大 HP 固定比例反伤。贝壳之铃类道具需要读取
-	 * 整次技能的总实际伤害，因此由多段命中循环之后的 [applyPostMoveDamageDealtHealingItem] 单独处理。
-	 */
-	private fun applyPostDamageItemEffects(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		damageAmount: Int,
-	): BattleState {
-		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
-			return state
-		}
-		return state.participant(actorId)
-			?.itemEffects
-			.orEmpty()
-			.fold(state) { current, effect ->
-				when (effect) {
-					is BattleItemEffect.DamageBoostWithRecoil -> applyDamageBoostRecoilItem(current, actorId, effect)
-					else -> current
-				}
-			}
-	}
-
-	/**
-	 * 处理整次技能结束后的“按造成伤害回复”携带道具效果。
-	 *
-	 * 公开规则中贝壳之铃类道具按本次技能总实际伤害回复，而不是每一段命中各自回复。因此该 hook 放在多段循环
-	 * 之后，只读取 [damageDealtByMove] 汇总出的普通伤害和替身伤害总量。变化类技能、未造成实际 HP 损失的
-	 * 技能、已经倒下或满 HP 的使用者都会自然短路；道具本身不被消费，也不改变锁招、反伤或目标侧触发流程。
-	 */
-	private fun applyPostMoveDamageDealtHealingItem(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		damageAmount: Int,
-	): BattleState {
-		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
-			return state
-		}
-		return state.participant(actorId)
-			?.itemEffects
-			.orEmpty()
-			.fold(state) { current, effect ->
-				when (effect) {
-					is BattleItemEffect.DamageDealtHeal -> applyDamageDealtHealingItem(
-						state = current,
-						actorId = actorId,
-						damageAmount = damageAmount,
-						effect = effect,
-					)
-					else -> current
-				}
-			}
-	}
-
-	/**
-	 * 处理生命宝珠类道具造成的最大 HP 比例反伤。
-	 *
-	 * 生命宝珠类现代主系列规则不是“按造成伤害反伤”，而是“按使用者最大 HP 反伤”；这个函数故意只读取
-	 * 成员快照中的 `maxHp`，避免伤害随机浮动、属性倍率或屏障倍率改变反伤数值。
-	 */
-	private fun applyDamageBoostRecoilItem(
-		state: BattleState,
-		actorId: String,
-		effect: BattleItemEffect.DamageBoostWithRecoil,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
-			return state
-		}
-		val recoil = (actor.maxHp / effect.recoilDenominator)
-			.coerceAtLeast(1)
-			.coerceAtMost(actor.currentHp)
-		return state
-			.replaceParticipant(actor.receiveDamage(recoil))
-			.appendEvent(
-				BattleEvent.RecoilDamageApplied(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					amount = recoil,
-				),
-			)
-	}
-
-	/**
-	 * 处理按实际造成伤害量回复的携带道具。
-	 *
-	 * 回复量使用本次实际 HP 损失向下取整，最少 1 点，并夹取到使用者缺失 HP。调用方已经保证 `damageAmount > 0`，
-	 * 因此本函数只需要处理使用者倒下或已经满 HP 的情况。
-	 */
-	private fun applyDamageDealtHealingItem(
-		state: BattleState,
-		actorId: String,
-		damageAmount: Int,
-		effect: BattleItemEffect.DamageDealtHeal,
-	): BattleState {
-			val actor = state.participant(actorId) ?: return state
-			if (!actor.canBattle() || actor.currentHp == actor.maxHp || actor.healingBlocked()) {
-				return state
-			}
-		val healAmount = (damageAmount / effect.healDenominator)
-			.coerceAtLeast(1)
-			.coerceAtMost(actor.maxHp - actor.currentHp)
-		if (healAmount <= 0) {
-			return state
-		}
-		return state
-			.replaceParticipant(actor.heal(healAmount))
-			.appendEvent(
-				BattleEvent.HealingApplied(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					amount = healAmount,
-				),
-			)
-	}
-
-	/**
-	 * 处理低体力一次性回复类携带道具。
-	 *
-	 * 现代主系列中，这类道具在持有者受到伤害后，如果 HP 降到触发线及以下且仍未倒下，会立刻回复并被消费。
-	 * 这里把触发点集中成一个小函数，供普通伤害、混乱自伤、异常状态伤害和天气伤害复用。函数不会处理主动使用道具、
-	 * 回复封锁、紧张感等更复杂来源；这些规则后续会以结构化字段加入，而不是让调用方传入自由文本开关。
-	 */
-	private fun applyLowHpHealingItem(state: BattleState, actorId: String): BattleState {
-		val participant = state.participant(actorId) ?: return state
-		if (!participant.canBattle() || participant.currentHp == participant.maxHp || participant.healingBlocked()) {
-			return state
-		}
-		val effect = participant.itemEffects.filterIsInstance<BattleItemEffect.LowHpHeal>().firstOrNull() ?: return state
-		if (!effect.shouldTrigger(participant.currentHp, participant.maxHp)) {
-			return state
-		}
-		val healAmount = effect.healAmount(participant.maxHp)
-			.coerceAtMost(participant.maxHp - participant.currentHp)
-		if (healAmount <= 0) {
-			return state
-		}
-		val healed = participant.heal(healAmount).consumeHeldItem()
-		return state
-			.replaceParticipant(healed)
-			.appendEvent(
-				BattleEvent.HealingApplied(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					amount = healAmount,
-				),
-			)
 	}
 
 	/**

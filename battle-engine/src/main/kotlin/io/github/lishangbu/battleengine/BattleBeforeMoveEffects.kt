@@ -31,7 +31,7 @@ import kotlin.math.floor
  *
  * 本类不处理锁招/蓄力被打断后的清理，因为那取决于行动来源 [SkillActionSource]，仍由 [BattleEngine] 在收到
  * [BattleBeforeMoveResult.blocked] 后收口。它也不直接实现低体力回复道具，而是通过 [lowHpItemHealing] 回调复用
- * 主状态机的统一道具触发逻辑，保证混乱自伤后的道具事件顺序和其它伤害来源一致。
+ * 统一的伤害后道具触发逻辑，保证混乱自伤后的道具事件顺序和其它伤害来源一致。
  */
 internal class BattleBeforeMoveEffects(
 	private val statStageModifiers: BattleStatStageModifiers,
