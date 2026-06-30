@@ -28,7 +28,6 @@ import io.github.lishangbu.battleengine.model.BattleStatStageOperationTarget
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleTerrain
-import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
@@ -105,6 +104,14 @@ class BattleEngine(
 			skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
 	)
+	/**
+	 * 锁招类技能的持续回合和结束结算器。
+	 *
+	 * 主状态机仍决定“成功后推进锁招”或“失败后中断锁招”的调用时机；该对象只维护锁招字段、锁招事件和结束后
+	 * 可能发生的疲劳混乱。
+	 */
+	private val lockedMoves = BattleLockedMoveEffects(statusEffects)
+
 	/**
 	 * 伤害后的接触特性与携带道具结算器。
 	 *
@@ -311,7 +318,7 @@ class BattleEngine(
 		if (beforeMove.blocked) {
 			return when (plan.source) {
 				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
-					state = endLockedMoveAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill, random),
+					state = lockedMoves.endAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill, random),
 				)
 				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
 					state = chargeMoves.endAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill),
@@ -326,7 +333,7 @@ class BattleEngine(
 		if (targets.isEmpty()) {
 			return when (plan.source) {
 				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
-					state = endLockedMoveAfterDisruption(actionState, readyActor.actorId, skill, random),
+					state = lockedMoves.endAfterDisruption(actionState, readyActor.actorId, skill, random),
 				)
 				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
 					state = chargeMoves.endAfterDisruption(actionState, readyActor.actorId, skill),
@@ -581,7 +588,7 @@ class BattleEngine(
 		}
 		if (absorbedByAbility != null) {
 			return context.copy(
-				state = endLockedMoveAfterDisruption(
+				state = lockedMoves.endAfterDisruption(
 					state = absorbedByAbility,
 					actorId = actor.actorId,
 					skill = skill,
@@ -594,7 +601,7 @@ class BattleEngine(
 			val afterHpEffects = applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
 			val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
 			return context.copy(
-				state = updateLockedMoveAfterSuccessfulUse(
+				state = lockedMoves.updateAfterSuccessfulUse(
 					state = afterEnvironmentEffects,
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
@@ -678,7 +685,7 @@ class BattleEngine(
 				damageAmount = moveDamageAmount,
 			)
 			return afterDirectDamage.copy(
-				state = updateLockedMoveAfterSuccessfulUse(
+				state = lockedMoves.updateAfterSuccessfulUse(
 					state = afterPostMoveItemEffects,
 					actorId = actor.actorId,
 					targetActorId = latestTarget.actorId,
@@ -742,7 +749,7 @@ class BattleEngine(
 			damageAmount = moveDamageAmount,
 		)
 		return afterHits.copy(
-			state = updateLockedMoveAfterSuccessfulUse(
+			state = lockedMoves.updateAfterSuccessfulUse(
 				state = afterPostMoveItemEffects,
 				actorId = actor.actorId,
 				targetActorId = latestTarget.actorId,
@@ -760,7 +767,7 @@ class BattleEngine(
 		event: BattleEvent,
 	): TurnContext =
 		copy(
-			state = endLockedMoveAfterDisruption(
+			state = lockedMoves.endAfterDisruption(
 				state = state.appendEvent(event),
 				actorId = actor.actorId,
 				skill = skill,
@@ -1900,159 +1907,6 @@ class BattleEngine(
 						currentStage = afterStage,
 					),
 				)
-		}
-	}
-
-	/**
-	 * 决定锁招技能本次会持续的总回合数。
-	 *
-	 * 公开成熟实现会在首次成功使用时决定 2 或 3 回合等持续时间，并把当前回合计入总数。固定持续时间不消费
-	 * 随机数，避免普通单回合技能或测试用例因无意义随机消费破坏 replay 脚本。
-	 */
-	private fun determineLockMoveTotalTurns(skill: BattleSkillSlot, random: BattleRandom): Int {
-		if (skill.lockMoveTurnsMin == skill.lockMoveTurnsMax) {
-			return skill.lockMoveTurnsMin
-		}
-		return skill.lockMoveTurnsMin +
-			random.nextInt(skill.lockMoveTurnsMax - skill.lockMoveTurnsMin + 1, "locked move duration for ${skill.skillId}")
-	}
-
-	/**
-	 * 在技能成功执行后推进锁招状态。
-	 *
-	 * 首次成功使用锁招技能时，成员进入“未来回合必须继续使用同一技能”的状态；后续锁定回合成功执行时，
-	 * 只递减未来剩余次数，不再次扣 PP。剩余次数耗尽后，如果技能声明会疲劳混乱，则立即给使用者附加混乱。
-	 */
-	private fun updateLockedMoveAfterSuccessfulUse(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle()) {
-			return if (actor.lockedMoveTurnsRemaining > 0) state.replaceParticipant(actor.clearLockedMove()) else state
-		}
-		if (actor.lockedMoveTurnsRemaining > 0) {
-			return advanceLockedMoveAfterSuccessfulUse(state, actor, skill, random)
-		}
-		if (skill.lockMoveTurnsMax <= 1) {
-			return state
-		}
-		val totalTurns = determineLockMoveTotalTurns(skill, random)
-		val turnsRemainingAfterCurrent = totalTurns - 1
-		if (turnsRemainingAfterCurrent <= 0) {
-			return state
-		}
-		return state
-			.replaceParticipant(
-				actor.startLockedMove(
-					skillId = skill.skillId,
-					targetActorId = targetActorId,
-					turnsRemainingAfterCurrent = turnsRemainingAfterCurrent,
-					confusesOnEnd = skill.confusesUserAfterLock,
-				),
-			)
-			.appendEvent(
-				BattleEvent.LockedMoveStarted(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = targetActorId,
-					skillId = skill.skillId,
-					totalTurns = totalTurns,
-					turnsRemainingAfterCurrent = turnsRemainingAfterCurrent,
-				),
-			)
-	}
-
-	/**
-	 * 消耗一次已经存在的锁招强制行动。
-	 *
-	 * 锁招的剩余次数只表示未来还会被强制行动几次，因此每次后续成功发动后递减。若递减后仍大于 0，只记录
-	 * `LockedMoveAdvanced`；若正好结束，则清除锁招并按技能配置处理疲劳混乱。
-	 */
-	private fun advanceLockedMoveAfterSuccessfulUse(
-		state: BattleState,
-		actor: BattleParticipant,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState {
-		val updated = actor.consumeLockedMoveTurn()
-		val afterConsume = state.replaceParticipant(updated)
-		return if (actor.lockedMoveTurnsRemaining > 1) {
-			afterConsume.appendEvent(
-				BattleEvent.LockedMoveAdvanced(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					turnsRemainingAfterCurrent = updated.lockedMoveTurnsRemaining,
-				),
-			)
-		} else {
-			val shouldConfuse = actor.lockedMoveConfusesOnEnd && updated.canBattle()
-			val ended = afterConsume.appendEvent(
-				BattleEvent.LockedMoveEnded(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					confusesUser = shouldConfuse,
-				),
-			)
-			if (shouldConfuse) {
-				statusEffects.applyVolatileStatus(
-					state = ended,
-					actorId = actor.actorId,
-					recipient = updated,
-					status = BattleVolatileStatus.CONFUSION,
-					random = random,
-					randomReason = "locked move confusion duration for ${skill.skillId}",
-				)
-			} else {
-				ended
-			}
-		}
-	}
-
-	/**
-	 * 处理中断锁招的失败分支。
-	 *
-	 * 现代规则中，锁招后续回合如果被行动前状态阻止、找不到目标、未命中、被保护/场地/属性免疫挡下，
-	 * 会退出锁招。若中断正好发生在本应结束并疲劳的最后一次强制行动上，仍按公开说明附加疲劳混乱。
-	 */
-	private fun endLockedMoveAfterDisruption(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (actor.lockedMoveTurnsRemaining <= 0) {
-			return state
-		}
-		val shouldConfuse = actor.lockedMoveConfusesOnEnd && actor.lockedMoveTurnsRemaining == 1 && actor.canBattle()
-		val cleared = actor.clearLockedMove()
-		val ended = state
-			.replaceParticipant(cleared)
-			.appendEvent(
-				BattleEvent.LockedMoveEnded(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					confusesUser = shouldConfuse,
-				),
-			)
-		return if (shouldConfuse) {
-			statusEffects.applyVolatileStatus(
-				state = ended,
-				actorId = actor.actorId,
-				recipient = cleared,
-				status = BattleVolatileStatus.CONFUSION,
-				random = random,
-				randomReason = "locked move confusion duration for ${skill.skillId}",
-			)
-		} else {
-			ended
 		}
 	}
 
