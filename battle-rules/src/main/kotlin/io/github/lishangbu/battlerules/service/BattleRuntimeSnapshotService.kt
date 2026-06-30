@@ -25,10 +25,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * 战斗运行时规则快照装配服务。
+ * 战斗运行时入口服务。
  *
- * 该服务是 battle-rules 管理资料和 battle-engine 纯领域模型之间的适配层。它只读取已经启用的赛制条款
- * 和限制记录，并把它们转换成引擎可直接消费的结构化快照；不执行队伍校验，也不启动战斗。
+ * 该服务是 battle-rules 管理资料和 battle-engine 纯领域模型之间的应用层门面。它负责事务边界、准备阶段校验、
+ * 行动校验和对外暴露的运行时调试装配入口；真正的队伍 DTO 到 [BattleInitialState] 转换委托给
+ * [BattleInitialStateAssembler]，底层 SQL/Jimmer 读取委托给 [BattleRuntimeDataLookup]。
  *
  * 当前解释的资料约定：
  * - `LEVEL/MAX` 的 `operandNumber` 转换为成员等级上限。
@@ -36,7 +37,8 @@ import org.springframework.transaction.annotation.Transactional
  * - `species-unique` 条款转换为队伍内种类唯一。
  * - `item-unique` 条款转换为队伍内道具唯一。
  *
- * 未识别的条款或限制会被忽略，便于资料先行维护；真正需要引擎执行的新规则应在这里显式补充映射。
+ * 未识别的条款或限制会被忽略，便于资料先行维护；真正需要引擎执行的新规则应在读取器或策略映射器中显式补充，
+ * 不应让纯引擎回头解析数据库 policy 字符串。
  */
 @Service
 class BattleRuntimeSnapshotService(
