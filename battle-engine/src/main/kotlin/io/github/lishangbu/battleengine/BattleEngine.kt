@@ -4,7 +4,6 @@ import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
-import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleParticipant
@@ -148,6 +147,13 @@ class BattleEngine(
 		endTurnEffects = endTurnEffects,
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
+	)
+	private val skillAdditionalEffects = BattleSkillAdditionalEffects(
+		statusEffects = statusEffects,
+		statStageEffects = statStageEffects,
+		fieldEffects = fieldEffects,
+		targetDefenseEffects = targetDefenseEffects,
+		forcedSwitchEffects = forcedSwitchEffects,
 	)
 
 	/**
@@ -614,7 +620,7 @@ class BattleEngine(
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			val afterEffects = applySkillEffects(state, actor.actorId, target.actorId, skill, random)
+			val afterEffects = skillAdditionalEffects.apply(state, actor.actorId, target.actorId, skill, random)
 			val afterHpEffects = skillHpEffects.applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
 			val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
 			return context.copy(
@@ -694,7 +700,8 @@ class BattleEngine(
 				)
 			}
 			val latestTarget = afterDirectDamage.state.participant(target.actorId) ?: target
-			val afterEffects = applySkillEffects(afterDirectDamage.state, actor.actorId, latestTarget.actorId, skill, random)
+			val afterEffects =
+				skillAdditionalEffects.apply(afterDirectDamage.state, actor.actorId, latestTarget.actorId, skill, random)
 			val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 				state = afterEffects,
 				actorId = actor.actorId,
@@ -758,7 +765,7 @@ class BattleEngine(
 			)
 		}
 		val latestTarget = afterHits.state.participant(target.actorId) ?: target
-		val afterEffects = applySkillEffects(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
+		val afterEffects = skillAdditionalEffects.apply(afterHits.state, actor.actorId, latestTarget.actorId, skill, random)
 		val afterPostMoveItemEffects = postDamageEffects.applyPostMoveDamageDealtHealingItem(
 			state = afterEffects,
 			actorId = actor.actorId,
@@ -1129,130 +1136,6 @@ class BattleEngine(
 		}
 		return context.copy(state = afterRecoil.handleFaintsAndResult(faintCandidates))
 	}
-
-	/**
-	 * 应用技能命中后的结构化附加效果。
-	 *
-	 * 效果按技能槽中的顺序结算；概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
-	 * 阶级变化被上下限夹住，或同类一侧场上屏障已经存在，则保持状态不变并跳过对应事件。
-	 */
-	private fun applySkillEffects(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState {
-		val afterStatuses = skill.statusApplications.fold(state) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "status chance for ${skill.skillId}")) {
-				current
-			} else {
-				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
-				if (!recipient.canBattle()) {
-					current
-				} else {
-					statusEffects.applyMajorStatus(
-						state = current,
-						actorId = actorId,
-						recipient = recipient,
-						status = application.status,
-						random = random,
-						randomReason = "sleep duration for ${skill.skillId}",
-						skill = skill,
-					)
-				}
-			}
-		}
-		val afterVolatileStatuses = skill.volatileStatusApplications.fold(afterStatuses) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "volatile status chance for ${skill.skillId}")) {
-				current
-			} else {
-				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
-				if (!recipient.canBattle()) {
-					current
-				} else {
-					statusEffects.applyVolatileStatus(
-						state = current,
-						actorId = actorId,
-						recipient = recipient,
-						status = application.status,
-						random = random,
-						randomReason = "confusion duration for ${skill.skillId}",
-						skill = skill,
-					)
-				}
-			}
-		}
-		val afterStatStageEffects = skill.statStageEffects.fold(afterVolatileStatuses) { current, effect ->
-			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
-				current
-			} else {
-				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
-				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
-					return@fold current
-				}
-				val beforeStage = recipient.statStage(effect.stat)
-				val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
-				val afterStage = updated.statStage(effect.stat)
-				if (beforeStage == afterStage) {
-					current
-				} else {
-					current
-						.replaceParticipant(updated)
-						.appendEvent(
-							BattleEvent.StatStageChanged(
-								turnNumber = current.turnNumber,
-								actorId = actorId,
-								targetActorId = recipient.actorId,
-								stat = effect.stat,
-								delta = afterStage - beforeStage,
-								currentStage = afterStage,
-							),
-						)
-				}
-			}
-		}
-		val afterStatStageOperations =
-			statStageEffects.applyOperations(afterStatStageEffects, actorId, targetActorId, skill, random)
-		val afterSideDamageReductions = skill.sideConditionApplications.fold(afterStatStageOperations) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
-				current
-			} else {
-				fieldEffects.applySideCondition(current, actorId, targetActorId, skill, application)
-			}
-		}
-		val afterSideSpeedModifiers = skill.sideSpeedModifierApplications.fold(afterSideDamageReductions) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "side speed condition chance for ${skill.skillId}")) {
-				current
-			} else {
-				fieldEffects.applySideSpeedModifier(current, actorId, targetActorId, skill, application)
-			}
-		}
-		val afterSideEntryHazards = skill.sideEntryHazardApplications.fold(afterSideSpeedModifiers) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "side entry hazard chance for ${skill.skillId}")) {
-				current
-			} else {
-				fieldEffects.applySideEntryHazard(current, actorId, targetActorId, skill, application)
-			}
-		}
-		val afterFieldSpeedOrder = skill.fieldSpeedOrderApplications.fold(afterSideEntryHazards) { current, application ->
-			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
-				current
-			} else {
-				fieldEffects.applyFieldSpeedOrder(current, actorId, skill, application)
-			}
-		}
-		return forcedSwitchEffects.apply(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
-	}
-
-	/**
-	 * 根据效果目标枚举找到实际承受效果的成员。
-	 */
-	private fun BattleState.effectRecipient(actorId: String, targetActorId: String, target: BattleEffectTarget): BattleParticipant? =
-		when (target) {
-			BattleEffectTarget.USER -> participant(actorId)
-			BattleEffectTarget.TARGET -> participant(targetActorId)
-		}
 
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,

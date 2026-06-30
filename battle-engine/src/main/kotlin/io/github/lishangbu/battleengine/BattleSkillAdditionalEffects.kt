@@ -1,0 +1,240 @@
+package io.github.lishangbu.battleengine
+
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
+
+/**
+ * 技能成功后的结构化附加效果流水线。
+ *
+ * 本类只在技能已经通过目标、保护、命中、免疫、吸收和伤害结算之后运行。它按照资料中的固定顺序应用主要异常、
+ * 临时状态、普通能力阶级变化、复杂能力阶级操作、一侧/场地效果、入场陷阱和强制换人。它不负责 PP、命中、
+ * 普通伤害、直接伤害、接触特性、低体力道具或锁招推进；这些阶段仍由 [BattleEngine] 决定。这样附加效果顺序
+ * 有一处可读实现，主状态机也不会继续膨胀成效果脚本。
+ */
+internal class BattleSkillAdditionalEffects(
+	private val statusEffects: BattleStatusEffects,
+	private val statStageEffects: BattleStatStageEffects,
+	private val fieldEffects: BattleFieldEffects,
+	private val targetDefenseEffects: BattleTargetDefenseEffects,
+	private val forcedSwitchEffects: BattleForcedSwitchEffects,
+) {
+	/**
+	 * 应用技能命中后的全部结构化附加效果。
+	 *
+	 * 每个效果族内部按技能槽列表顺序结算，概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
+	 * 阶级变化被上下限夹住、对手替身挡住效果，或同类一侧/场地状态已经存在，则保持状态不变并跳过对应事件。
+	 * 强制换人放在最后，确保伤害与普通附加效果先完成，再触发换下目标和后续入场阶段。
+	 */
+	fun apply(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState {
+		val afterStatuses = applyMajorStatusApplications(state, actorId, targetActorId, skill, random)
+		val afterVolatileStatuses = applyVolatileStatusApplications(afterStatuses, actorId, targetActorId, skill, random)
+		val afterStatStageEffects = applyStatStageEffects(afterVolatileStatuses, actorId, targetActorId, skill, random)
+		val afterStatStageOperations = statStageEffects.applyOperations(afterStatStageEffects, actorId, targetActorId, skill, random)
+		val afterSideDamageReductions = applySideConditions(afterStatStageOperations, actorId, targetActorId, skill, random)
+		val afterSideSpeedModifiers = applySideSpeedModifiers(afterSideDamageReductions, actorId, targetActorId, skill, random)
+		val afterSideEntryHazards = applySideEntryHazards(afterSideSpeedModifiers, actorId, targetActorId, skill, random)
+		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
+		return forcedSwitchEffects.apply(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
+	}
+
+	/**
+	 * 应用技能声明的主要异常状态附加。
+	 *
+	 * 真正的状态免疫、睡眠回合随机数、状态治愈道具等规则由 [BattleStatusEffects] 负责；这里仅按技能资料解析
+	 * 接收者、概率和效果顺序。
+	 */
+	private fun applyMajorStatusApplications(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.statusApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "status chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
+				if (!recipient.canBattle()) {
+					current
+				} else {
+					statusEffects.applyMajorStatus(
+						state = current,
+						actorId = actorId,
+						recipient = recipient,
+						status = application.status,
+						random = random,
+						randomReason = "sleep duration for ${skill.skillId}",
+						skill = skill,
+					)
+				}
+			}
+		}
+
+	/**
+	 * 应用技能声明的临时状态附加。
+	 *
+	 * 混乱持续时间等需要随机数的状态细节仍由 [BattleStatusEffects] 统一处理；这里保持和主要异常相同的接收者解析
+	 * 与概率消费口径。
+	 */
+	private fun applyVolatileStatusApplications(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.volatileStatusApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "volatile status chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, application.target) ?: return@fold current
+				if (!recipient.canBattle()) {
+					current
+				} else {
+					statusEffects.applyVolatileStatus(
+						state = current,
+						actorId = actorId,
+						recipient = recipient,
+						status = application.status,
+						random = random,
+						randomReason = "confusion duration for ${skill.skillId}",
+						skill = skill,
+					)
+				}
+			}
+		}
+
+	/**
+	 * 应用普通能力阶级增减。
+	 *
+	 * 普通阶级变化只做 delta 叠加，并让 [BattleParticipant.changeStatStage] 负责 -6..6 边界夹取。若边界夹取后没有
+	 * 实际变化，则不写事件。对手替身会阻止指向目标的非声音类技能效果。
+	 */
+	private fun applyStatStageEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.statStageEffects.fold(state) { current, effect ->
+			if (!chanceSucceeds(effect.chancePercent, random, "stat stage chance for ${skill.skillId}")) {
+				current
+			} else {
+				val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
+				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
+					return@fold current
+				}
+				val beforeStage = recipient.statStage(effect.stat)
+				val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
+				val afterStage = updated.statStage(effect.stat)
+				if (beforeStage == afterStage) {
+					current
+				} else {
+					current
+						.replaceParticipant(updated)
+						.appendEvent(
+							BattleEvent.StatStageChanged(
+								turnNumber = current.turnNumber,
+								actorId = actorId,
+								targetActorId = recipient.actorId,
+								stat = effect.stat,
+								delta = afterStage - beforeStage,
+								currentStage = afterStage,
+							),
+						)
+				}
+			}
+		}
+
+	/**
+	 * 应用防守方一侧的屏障/条件效果。
+	 */
+	private fun applySideConditions(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.sideConditionApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
+				current
+			} else {
+				fieldEffects.applySideCondition(current, actorId, targetActorId, skill, application)
+			}
+		}
+
+	/**
+	 * 应用一侧速度修正场地效果。
+	 */
+	private fun applySideSpeedModifiers(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.sideSpeedModifierApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side speed condition chance for ${skill.skillId}")) {
+				current
+			} else {
+				fieldEffects.applySideSpeedModifier(current, actorId, targetActorId, skill, application)
+			}
+		}
+
+	/**
+	 * 应用一侧入场陷阱效果。
+	 */
+	private fun applySideEntryHazards(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.sideEntryHazardApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side entry hazard chance for ${skill.skillId}")) {
+				current
+			} else {
+				fieldEffects.applySideEntryHazard(current, actorId, targetActorId, skill, application)
+			}
+		}
+
+	/**
+	 * 应用全场速度顺序效果。
+	 */
+	private fun applyFieldSpeedOrder(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.fieldSpeedOrderApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "field speed order chance for ${skill.skillId}")) {
+				current
+			} else {
+				fieldEffects.applyFieldSpeedOrder(current, actorId, skill, application)
+			}
+		}
+
+	/**
+	 * 根据效果目标枚举找到实际承受效果的成员。
+	 */
+	private fun BattleState.effectRecipient(actorId: String, targetActorId: String, target: BattleEffectTarget): BattleParticipant? =
+		when (target) {
+			BattleEffectTarget.USER -> participant(actorId)
+			BattleEffectTarget.TARGET -> participant(targetActorId)
+		}
+}
