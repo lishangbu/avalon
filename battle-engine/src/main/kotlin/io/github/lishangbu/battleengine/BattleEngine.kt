@@ -20,7 +20,6 @@ import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
-import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
@@ -53,6 +52,7 @@ class BattleEngine(
 ) {
 	private val actionOrdering = BattleActionOrdering(statStageModifiers)
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
+	private val skillTargeting = BattleSkillTargeting()
 	private val environmentEffects = BattleEnvironmentEffects()
 	private val fieldEffects = BattleFieldEffects()
 	private val chargeMoves = BattleChargeMoves()
@@ -340,7 +340,7 @@ class BattleEngine(
 		val actionState = beforeMoveContext.state
 		val readyActor = actionState.participant(action.actorId) ?: return beforeMoveContext
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMoveContext
-		val targets = targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
+		val targets = skillTargeting.targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
 		if (targets.isEmpty()) {
 			return when (plan.source) {
 				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
@@ -432,7 +432,7 @@ class BattleEngine(
 			)
 		}
 
-		val targetMultiplier = targetDamageMultiplier(skill, targets)
+		val targetMultiplier = skillTargeting.targetDamageMultiplier(skill, targets)
 		return targets.fold(beforeMoveContext.copy(state = stateAfterChargeDecision)) { current, target ->
 			if (current.state.result != null) {
 				current
@@ -1610,73 +1610,6 @@ class BattleEngine(
 				),
 			)
 	}
-
-	/**
-	 * 根据技能目标范围计算本次行动会尝试影响的实际目标。
-	 *
-	 * 单体技能保留“目标席位”语义：若行动选择的成员已经替换，技能会打到同一方当前可战斗的上场成员。
-	 * 范围技能会根据行动者所在方重新收集当前上场成员，不把已经倒下的成员计入目标集合。
-	 * 随机对手技能同样按执行时站位收集候选目标；候选超过一名时才消费随机数，避免无选择场景污染 replay。
-	 */
-	private fun targetsForSkill(
-		state: BattleState,
-		actorId: String,
-		selectedTargetActorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): List<BattleParticipant> =
-		when (skill.targetScope) {
-			BattleSkillTargetScope.SELECTED_TARGET -> listOfNotNull(state.activeTargetFor(selectedTargetActorId))
-				.filter { it.canBattle() }
-			BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS -> state.sides
-				.filter { it.participant(actorId) == null }
-				.flatMap { it.activeParticipants() }
-				.filter { it.canBattle() }
-			BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS -> state.sides
-				.flatMap { it.activeParticipants() }
-				.filter { it.actorId != actorId && it.canBattle() }
-			BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT -> randomAdjacentOpponentTargets(state, actorId, skill, random)
-		}
-
-	/**
-	 * 选择一个随机相邻对手作为本次技能的唯一目标。
-	 *
-	 * 现代双打里的“随机对手”目标先按当前站位过滤掉同侧成员和已经无法战斗的对手，再在剩余候选中随机抽取。
-	 * 若只有一个候选，目标已经确定，不需要额外随机消费；若没有候选，外层会在技能使用前取消行动并保留 PP。
-	 */
-	private fun randomAdjacentOpponentTargets(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): List<BattleParticipant> {
-		val candidates = state.sides
-			.filter { it.participant(actorId) == null }
-			.flatMap { it.activeParticipants() }
-			.filter { it.canBattle() }
-		return when (candidates.size) {
-			0 -> emptyList()
-			1 -> candidates
-			else -> listOf(
-				candidates[
-					random.nextInt(candidates.size, "random adjacent opponent target for ${skill.skillId}"),
-				],
-			)
-		}
-	}
-
-	/**
-	 * 计算现代双打范围技能的目标倍率。
-	 *
-	 * 公开规则中，能同时命中多个目标的伤害技能在实际存在多个目标时使用 0.75 倍目标修正。
-	 * 若范围内只剩一个可战斗目标，则不套用该修正。
-	 */
-	private fun targetDamageMultiplier(skill: BattleSkillSlot, targets: List<BattleParticipant>): Double =
-		if (skill.targetScope.canAffectMultipleTargets && targets.size > 1) {
-			0.75
-		} else {
-			1.0
-		}
 
 	/**
 	 * 计算防守方一侧伤害减免倍率。
