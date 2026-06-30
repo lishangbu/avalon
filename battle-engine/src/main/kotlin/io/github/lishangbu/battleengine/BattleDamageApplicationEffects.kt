@@ -1,0 +1,215 @@
+package io.github.lishangbu.battleengine
+
+import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
+
+/**
+ * 技能伤害写入与伤害后处理。
+ *
+ * [BattleEngine] 负责决定“什么时候进入普通伤害、直接伤害或替身伤害”；一旦确定要写 HP，本组件负责把伤害写入
+ * [BattleState] 并串起所有共享后续流程。这样主状态机不再混杂 HP 写入细节，同时普通公式伤害、固定/比例直接伤害
+ * 和替身伤害仍走同一套事件顺序：
+ * - 目标本体伤害先处理满 HP 保命，再追加 [BattleEvent.DamageApplied] 和保命事件。
+ * - 替身伤害只修改替身 HP，并追加 [BattleEvent.SubstituteDamageApplied] / [BattleEvent.SubstituteBroken]。
+ * - 两条路径最后都回到 [finishPostDamageEffects]，统一处理吸取、反伤、休整、低体力道具、接触特性、倒下和胜负。
+ *
+ * 本组件不判断命中、保护、属性免疫、伤害公式或目标选择；那些仍属于主流程和各自 resolver 的阶段职责。
+ */
+internal class BattleDamageApplicationEffects(
+	private val damageDefenseEffects: BattleDamageDefenseEffects,
+	private val skillHpEffects: BattleSkillHpEffects,
+	private val postDamageEffects: BattlePostDamageEffects,
+) {
+	/**
+	 * 向目标本体写入一次技能伤害，并追加标准伤害事件。
+	 *
+	 * 普通公式伤害和固定/比例/HP 派生直接伤害在“伤害数值怎么来”上不同，但一旦决定要扣目标本体 HP，后续必须共享
+	 * 同一套顺序：
+	 * - 先让满 HP 保命类特性/道具把原始伤害夹成实际可写入伤害。
+	 * - 再写入目标 HP，计算真实扣血量，避免过量伤害污染吸血、贝壳之铃等按实际伤害读取的规则。
+	 * - 然后追加 [BattleEvent.DamageApplied]，最后追加保命事件，让 replay 能看到“伤害事实”和“为什么没有倒下”。
+	 *
+	 * 替身伤害故意不走这里。替身不触发目标低体力道具、接触特性或目标倒下判定，并且事件类型不同；把替身塞进这个
+	 * helper 反而会让调用方用布尔参数区分两套语义。
+	 */
+	fun applyDamageToTarget(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		effectiveness: Double,
+		targetMultiplier: Double,
+		criticalHit: Boolean = false,
+		ignoreTargetAbilityEffects: Boolean,
+	): BattleTargetDamageApplication {
+		val survival = damageDefenseEffects.fatalDamageSurvival(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			damageAmount = damageAmount,
+			ignoreTargetAbilityEffects = ignoreTargetAbilityEffects,
+		)
+		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
+		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
+		val damagedState = state
+			.replaceParticipant(damagedTarget)
+			.appendEvent(
+				BattleEvent.DamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					amount = actualDamageAmount,
+					effectiveness = effectiveness,
+					targetMultiplier = targetMultiplier,
+					criticalHit = criticalHit,
+				),
+			)
+			.appendEvents(listOfNotNull(survival.event))
+		return BattleTargetDamageApplication(
+			state = damagedState,
+			damagedTarget = damagedTarget,
+			actualDamageAmount = actualDamageAmount,
+		)
+	}
+
+	/**
+	 * 让目标替身吸收本段伤害。
+	 *
+	 * 替身受击时目标本体 HP 不变，也不会触发目标低体力道具、接触反制特性或目标倒下判定。造成的替身 HP 损失
+	 * 仍作为本次实际伤害传给吸取回复、休整和攻击方道具反伤等“成功造成伤害后”的来源规则，符合公开实现中
+	 * 吸取类技能可以从替身伤害中回复的行为。
+	 */
+	fun resolveDamageAgainstSubstitute(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		faintActorAfterHit: Boolean = false,
+	): BattleState {
+		val actualDamageAmount = damageAmount.coerceAtMost(target.substituteHp)
+		val damagedTarget = target.damageSubstitute(actualDamageAmount)
+		val damagedState = state
+			.replaceParticipant(damagedTarget)
+			.appendEvent(
+				BattleEvent.SubstituteDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					amount = actualDamageAmount,
+					substituteHpRemaining = damagedTarget.substituteHp,
+				),
+			)
+			.let { current ->
+				if (target.substituteHp > 0 && damagedTarget.substituteHp == 0) {
+					current.appendEvent(
+						BattleEvent.SubstituteBroken(
+							turnNumber = state.turnNumber,
+							actorId = target.actorId,
+						),
+					)
+				} else {
+					current
+				}
+			}
+		return finishPostDamageEffects(
+			state = damagedState,
+			actorId = actor.actorId,
+			targetActorId = damagedTarget.actorId,
+			skill = skill,
+			damageAmount = actualDamageAmount,
+			faintActorAfterHit = faintActorAfterHit,
+			targetCanFaint = false,
+			allowTargetLowHpItem = false,
+			allowContactAbilities = false,
+			random = null,
+		)
+	}
+
+	/**
+	 * 收拢普通伤害和替身伤害共享的“造成实际伤害后”流程。
+	 *
+	 * 目标本体受伤时启用低体力道具、接触特性和倒下判定；替身受伤时关闭这些目标侧 hook，但仍保留攻击方技能
+	 * HP 后效、休整和道具反伤，避免两条伤害路径出现重复实现。该函数只返回推进后的状态，不接收回合临时上下文，
+	 * 因为它不会修改保护集合或连续保护计数等回合内编排字段。
+	 */
+	fun finishPostDamageEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		faintActorAfterHit: Boolean = false,
+		targetCanFaint: Boolean,
+		allowTargetLowHpItem: Boolean,
+		allowContactAbilities: Boolean,
+		random: BattleRandom?,
+	): BattleState {
+		val afterActorSelfSacrifice = if (faintActorAfterHit) {
+			skillHpEffects.applySelfSacrificeDamage(state, actorId, skill)
+		} else {
+			state
+		}
+		val afterSkillHpEffects = skillHpEffects.applyPostDamageSkillHpEffects(
+			state = afterActorSelfSacrifice,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val afterSkillRecharge = skillHpEffects.applyRechargeAfterDamage(
+			state = afterSkillHpEffects,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val afterTargetLowHpItem = if (allowTargetLowHpItem) {
+			postDamageEffects.applyLowHpHealingItem(afterSkillRecharge, targetActorId)
+		} else {
+			afterSkillRecharge
+		}
+		val afterContactAbilities = if (allowContactAbilities && random != null) {
+			postDamageEffects.applyContactAbilityEffects(
+				state = afterTargetLowHpItem,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				skill = skill,
+				random = random,
+			)
+		} else {
+			afterTargetLowHpItem
+		}
+		val afterRecoil = postDamageEffects.applyPostDamageItemEffects(
+			state = afterContactAbilities,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val faintCandidates = buildList {
+			if (targetCanFaint) {
+				afterRecoil.participant(targetActorId)?.let(::add)
+			}
+			afterRecoil.participant(actorId)?.let(::add)
+		}
+		return afterRecoil.handleFaintsAndResult(faintCandidates)
+	}
+}
+
+/**
+ * 目标本体伤害写入结果。
+ *
+ * `state` 是已经写入 HP、追加伤害事件和保命事件后的状态；`damagedTarget` 是这份状态中的最新目标快照；
+ * `actualDamageAmount` 是真实扣掉的 HP。调用方必须使用这个实际伤害量继续结算吸取、反伤、伤害后回复和倒下判定，
+ * 不能回头使用公式给出的原始伤害值。
+ */
+internal data class BattleTargetDamageApplication(
+	val state: BattleState,
+	val damagedTarget: BattleParticipant,
+	val actualDamageAmount: Int,
+)
