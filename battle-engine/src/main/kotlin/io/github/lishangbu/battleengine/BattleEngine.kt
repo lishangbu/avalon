@@ -344,30 +344,14 @@ class BattleEngine(
 		val beforeMove = beforeMoveEffects.resolve(state, actor, plan.skill, random)
 		val beforeMoveContext = context.copy(state = beforeMove.state)
 		if (beforeMove.blocked) {
-			return when (plan.source) {
-				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
-					state = lockedMoves.endAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill, random),
-				)
-				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
-					state = chargeMoves.endAfterDisruption(beforeMoveContext.state, actor.actorId, plan.skill),
-				)
-				SkillActionSource.SUBMITTED -> beforeMoveContext
-			}
+			return beforeMoveContext.finishDisruptedPlannedSkill(plan.source, actor.actorId, plan.skill, random)
 		}
 		val actionState = beforeMoveContext.state
 		val readyActor = actionState.participant(action.actorId) ?: return beforeMoveContext
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMoveContext
 		val targets = skillTargeting.targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
 		if (targets.isEmpty()) {
-			return when (plan.source) {
-				SkillActionSource.LOCKED_CONTINUATION -> beforeMoveContext.copy(
-					state = lockedMoves.endAfterDisruption(actionState, readyActor.actorId, skill, random),
-				)
-				SkillActionSource.CHARGED_RELEASE -> beforeMoveContext.copy(
-					state = chargeMoves.endAfterDisruption(actionState, readyActor.actorId, skill),
-				)
-				SkillActionSource.SUBMITTED -> beforeMoveContext
-			}
+			return beforeMoveContext.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random)
 		}
 		if (plan.source == SkillActionSource.SUBMITTED) {
 			require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
@@ -420,32 +404,13 @@ class BattleEngine(
 			}
 
 		if (skill.protectsUser) {
-			if (!protectionSucceeds(readyActor, skill, random)) {
-				return beforeMoveContext.copy(
-					state = stateAfterChargeDecision
-						.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
-						.appendEvent(
-							BattleEvent.ProtectionFailed(
-								turnNumber = actionState.turnNumber,
-								actorId = readyActor.actorId,
-								skillId = skill.skillId,
-							),
-						),
-				)
-			}
-			val protectedActor = actorAfterActionSetup.markProtectionSuccess()
-			return beforeMoveContext.copy(
-				state = stateAfterChargeDecision
-					.replaceParticipant(protectedActor)
-					.appendEvent(
-						BattleEvent.ProtectionStarted(
-							turnNumber = actionState.turnNumber,
-							actorId = readyActor.actorId,
-							skillId = skill.skillId,
-						),
-					),
-				protectedActorIds = beforeMoveContext.protectedActorIds + readyActor.actorId,
-				successfulProtectionActorIds = beforeMoveContext.successfulProtectionActorIds + readyActor.actorId,
+			return resolveProtectionSkillUse(
+				context = beforeMoveContext,
+				stateAfterChargeDecision = stateAfterChargeDecision,
+				actorBeforeProtection = readyActor,
+				actorAfterActionSetup = actorAfterActionSetup,
+				skill = skill,
+				random = random,
 			)
 		}
 
@@ -465,6 +430,76 @@ class BattleEngine(
 				)
 			}
 		}
+	}
+
+	/**
+	 * 收口“计划中的技能没有真正进入命中/伤害流程”时的来源清理。
+	 *
+	 * 主流程有多个提前返回点：行动前状态阻止、目标不存在、后续命中前 gate 失败等。对普通提交行动来说，提前返回
+	 * 只需要保留已经追加的阻止事件；但锁招延续和蓄力释放都在成员身上持有跨回合状态，若被打断必须清理对应字段，
+	 * 并追加可 replay 的结束/中断事件。这里把同一份分支集中起来，避免某个提前返回点忘记清理锁招或蓄力状态。
+	 */
+	private fun TurnContext.finishDisruptedPlannedSkill(
+		source: SkillActionSource,
+		actorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): TurnContext =
+		when (source) {
+			SkillActionSource.LOCKED_CONTINUATION -> copy(
+				state = lockedMoves.endAfterDisruption(state, actorId, skill, random),
+			)
+			SkillActionSource.CHARGED_RELEASE -> copy(
+				state = chargeMoves.endAfterDisruption(state, actorId, skill),
+			)
+			SkillActionSource.SUBMITTED -> this
+		}
+
+	/**
+	 * 结算保护类技能自身的成功或失败。
+	 *
+	 * 技能使用事件、PP 消耗、讲究锁定和蓄力跳过判断都已经在调用方完成；本函数只处理“这个保护屏障是否建立”：
+	 * - 失败时清零连续保护链，并追加 [BattleEvent.ProtectionFailed]。
+	 * - 成功时推进连续保护链，追加 [BattleEvent.ProtectionStarted]，同时写入当前回合临时保护集合。
+	 *
+	 * 保护集合仍保存在 [TurnContext]，不进入 [BattleState]，因为它只对当前回合后续技能有效；回合末会用
+	 * `successfulProtectionActorIds` 决定哪些成员保留连续保护计数，没成功保护的成员会被统一重置。
+	 */
+	private fun resolveProtectionSkillUse(
+		context: TurnContext,
+		stateAfterChargeDecision: BattleState,
+		actorBeforeProtection: BattleParticipant,
+		actorAfterActionSetup: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): TurnContext {
+		if (!protectionSucceeds(actorBeforeProtection, skill, random)) {
+			return context.copy(
+				state = stateAfterChargeDecision
+					.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
+					.appendEvent(
+						BattleEvent.ProtectionFailed(
+							turnNumber = stateAfterChargeDecision.turnNumber,
+							actorId = actorBeforeProtection.actorId,
+							skillId = skill.skillId,
+						),
+					),
+			)
+		}
+		val protectedActor = actorAfterActionSetup.markProtectionSuccess()
+		return context.copy(
+			state = stateAfterChargeDecision
+				.replaceParticipant(protectedActor)
+				.appendEvent(
+					BattleEvent.ProtectionStarted(
+						turnNumber = stateAfterChargeDecision.turnNumber,
+						actorId = actorBeforeProtection.actorId,
+						skillId = skill.skillId,
+					),
+				),
+			protectedActorIds = context.protectedActorIds + actorBeforeProtection.actorId,
+			successfulProtectionActorIds = context.successfulProtectionActorIds + actorBeforeProtection.actorId,
+		)
 	}
 
 	/**
