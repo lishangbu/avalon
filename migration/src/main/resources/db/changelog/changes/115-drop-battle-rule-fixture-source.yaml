@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 115-drop-battle-rule-fixture-source
+    author: backend
+    comment: 移除战斗规则 Fixture 来源运行时维护表和菜单，公开来源保留在测试 fixture 附近。
+    changes:
+    - delete:
+        tableName: security_role_access_node
+        where: access_node_id = 849
+    - delete:
+        tableName: security_access_node
+        where: code = 'battle-rules.fixture-sources'
+    - dropTable:
+        tableName: battle_rule_fixture_source
+        cascadeConstraints: true

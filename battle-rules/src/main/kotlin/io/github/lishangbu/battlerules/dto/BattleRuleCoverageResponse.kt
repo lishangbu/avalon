@@ -67,7 +67,6 @@ data class BattleRuleCoverageMatrixRowResponse(
 	val partialCount: Int,
 	val plannedCount: Int,
 	val fixtureCount: Int,
-	val referenceCount: Int,
 	val implementationPercent: Int,
 )
 
@@ -84,7 +83,7 @@ data class BattleRuleCoverageCheckResponse(
 /**
  * 单个规则点的覆盖情况。
  *
- * `status` 使用稳定英文枚举值，前端负责翻译展示；`referenceUrls` 保存公开规则或成熟实现来源。
+ * `status` 使用稳定英文枚举值，前端负责翻译展示；公开来源保留在对应测试 fixture 附近。
  */
 data class BattleRuleCoverageItemResponse(
 	val code: String,
@@ -93,7 +92,6 @@ data class BattleRuleCoverageItemResponse(
 	val status: String,
 	val fixtureNames: List<String>,
 	val fixtures: List<BattleRuleCoverageFixtureResponse>,
-	val referenceUrls: List<String>,
 	val note: String,
 )
 

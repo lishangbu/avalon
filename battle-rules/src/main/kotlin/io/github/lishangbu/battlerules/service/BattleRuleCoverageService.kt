@@ -142,7 +142,6 @@ class BattleRuleCoverageService(
 					partialCount = categoryItems.count { it.status == PARTIAL },
 					plannedCount = categoryItems.count { it.status == PLANNED },
 					fixtureCount = categoryItems.sumOf { it.fixtureNames.size },
-					referenceCount = categoryItems.sumOf { it.referenceUrls.size },
 					implementationPercent = if (categoryItems.isEmpty()) {
 						0
 					} else {
@@ -159,7 +158,6 @@ class BattleRuleCoverageService(
 		val unknownStatuses = items.filterNot { it.status in RULE_STATUSES }.map { it.code }
 		val blankCategoryCodes = items.filter { it.category.isBlank() }.map { it.code }
 		val implementedWithoutFixtures = items.filter { it.status == IMPLEMENTED && it.fixtureNames.isEmpty() }.map { it.code }
-		val implementedWithoutReferences = items.filter { it.status == IMPLEMENTED && it.referenceUrls.isEmpty() }.map { it.code }
 		val allFixtures = items.flatMap { it.fixtures }
 		val missingFixtures = allFixtures.filter { it.missing }.map { it.code }
 		val fixturesWithoutRun = allFixtures.filter { !it.missing && it.latestRunStatus == null }.map { it.code }
@@ -205,13 +203,6 @@ class BattleRuleCoverageService(
 				passed = implementedWithoutFixtures.isEmpty(),
 				success = "所有已实现规则项均绑定至少一个公开对照 fixture。",
 				failure = "已实现但缺少 fixture 的规则项: ${implementedWithoutFixtures.joinToString()}。",
-			),
-			check(
-				code = "implemented-references",
-				name = "已实现项有来源",
-				passed = implementedWithoutReferences.isEmpty(),
-				success = "所有已实现规则项均记录至少一个公开来源。",
-				failure = "已实现但缺少公开来源的规则项: ${implementedWithoutReferences.joinToString()}。",
 			),
 			check(
 				code = "golden-replay",

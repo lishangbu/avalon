@@ -34,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional
 /**
  * 战斗规则公开对照 Fixture 维护服务。
  *
- * 主表只维护可检索的场景元数据，不试图执行测试，也不保存运行结果。公开来源和运行记录分别由独立服务维护，
- * 让管理端可以独立编辑来源、查看多次运行历史，并保持每张表的职责单一。
+ * 主表只维护可检索的场景元数据，不试图执行测试，也不保存运行结果。公开来源保留在测试 fixture 附近，
+ * 管理端只负责维护用例元数据和查看运行历史。
  */
 @Service
 class BattleRuleFixtureService(

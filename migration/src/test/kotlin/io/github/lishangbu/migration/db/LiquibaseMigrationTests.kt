@@ -157,11 +157,12 @@ class LiquibaseMigrationTests(
 			"108-battle-damage-formula-boundary-fixtures.yaml",
 			"109-battle-environment-field-boundary-fixtures.yaml",
 			"110-battle-skill-effect-boundary-fixtures.yaml",
-			"111-battle-ability-item-boundary-fixtures.yaml",
-			"112-battle-format-lifecycle-boundary-fixtures.yaml",
-			"113-battle-final-rule-boundary-fixtures.yaml",
-			"114-battle-golden-replay-fixture.yaml",
-		)
+				"111-battle-ability-item-boundary-fixtures.yaml",
+				"112-battle-format-lifecycle-boundary-fixtures.yaml",
+				"113-battle-final-rule-boundary-fixtures.yaml",
+				"114-battle-golden-replay-fixture.yaml",
+				"115-drop-battle-rule-fixture-source.yaml",
+			)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}
 
@@ -357,7 +358,6 @@ class LiquibaseMigrationTests(
 			"battle-rules.format-special-mechanics",
 			"battle-rules.formats",
 			"battle-rules.fixtures",
-			"battle-rules.fixture-sources",
 			"battle-rules.item-rules",
 			"battle-rules.special-mechanics",
 			"battle-rules.skill-rules",
@@ -556,7 +556,6 @@ class LiquibaseMigrationTests(
 			"battle_ability_rule",
 			"battle_item_rule",
 			"battle_rule_fixture",
-			"battle_rule_fixture_source",
 			"battle_rule_test_run",
 		)
 
@@ -585,7 +584,6 @@ class LiquibaseMigrationTests(
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
 			union all select 'battle_rule_fixture', count(*) from battle_rule_fixture
-			union all select 'battle_rule_fixture_source', count(*) from battle_rule_fixture_source
 			union all select 'battle_rule_test_run', count(*) from battle_rule_test_run
 			order by table_name
 			""".trimIndent(),
@@ -613,7 +611,6 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
 		assertThat(seedCounts).containsEntry("battle_rule_fixture", 412L)
-		assertThat(seedCounts).containsEntry("battle_rule_fixture_source", 826L)
 		assertThat(seedCounts).containsEntry("battle_rule_test_run", 412L)
 
 		val formatNames = queryStrings(

@@ -10,8 +10,8 @@ import org.babyfish.jimmer.sql.Table
 /**
  * 战斗规则公开对照 Fixture。
  *
- * Fixture 主表只保存场景元数据、输入摘要和期望摘要；具体公开来源拆到 `battle_rule_fixture_source`，
- * 运行结果拆到 `battle_rule_test_run`，避免把来源和多次运行记录压进一个反范式字段。
+ * Fixture 主表只保存场景元数据、输入摘要和期望摘要；运行结果拆到 `battle_rule_test_run`，
+ * 避免把多次运行记录压进一个反范式字段。
  */
 @Entity
 @Table(name = "battle_rule_fixture")

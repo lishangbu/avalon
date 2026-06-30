@@ -1,12 +1,9 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battlerules.dto.BattleRuleFixtureRequest
-import io.github.lishangbu.battlerules.dto.BattleRuleFixtureSourceRequest
 import io.github.lishangbu.battlerules.dto.BattleRuleTestRunRequest
 import io.github.lishangbu.battlerules.service.BattleRuleFixtureService
-import io.github.lishangbu.battlerules.service.BattleRuleFixtureSourceService
 import io.github.lishangbu.battlerules.service.BattleRuleTestRunService
-import io.github.lishangbu.common.web.ApiErrorCode
 import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -31,11 +28,10 @@ import java.time.OffsetDateTime
 )
 @ContextConfiguration(initializers = [BattleRulesPostgresTestContainer::class])
 /**
- * 验证公开对照 Fixture、公开来源和测试运行结果三张表各自独立维护。
+ * 验证公开对照 Fixture 和测试运行结果独立维护。
  */
 class BattleRuleFixtureServiceTests(
 	@Autowired private val fixtureService: BattleRuleFixtureService,
-	@Autowired private val sourceService: BattleRuleFixtureSourceService,
 	@Autowired private val testRunService: BattleRuleTestRunService,
 ) {
 	@Test
@@ -57,17 +53,6 @@ class BattleRuleFixtureServiceTests(
 		assertThat(fixture.fixtureType).isEqualTo("FORMULA")
 		assertThat(fixtureService.list(0, 20, query = "service", category = "status", enabled = true).rows.map { it.id })
 			.contains(fixture.id)
-
-		val source = sourceService.create(
-			BattleRuleFixtureSourceRequest(
-				fixtureId = fixture.id,
-				sourceUrl = "https://example.com/battle-rule-fixture",
-				sourceLabel = "公开来源",
-				sourceNote = "验证来源维护。",
-				sortOrder = 902,
-			),
-		)
-		assertThat(sourceService.list(0, 20, fixtureId = fixture.id).rows.map { it.id }).contains(source.id)
 
 		val run = testRunService.create(
 			BattleRuleTestRunRequest(
@@ -105,28 +90,10 @@ class BattleRuleFixtureServiceTests(
 		assertThat(updated.enabled).isFalse()
 
 		testRunService.delete(run.id)
-		sourceService.delete(source.id)
 		fixtureService.delete(fixture.id)
 		val missing = assertThrows<ApiException> {
 			fixtureService.get(fixture.id)
 		}
 		assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
-	}
-
-	@Test
-	fun `fixture source requires https url`() {
-		val exception = assertThrows<ApiException> {
-			sourceService.create(
-				BattleRuleFixtureSourceRequest(
-					fixtureId = 1,
-					sourceUrl = "http://example.com/not-secure",
-					sortOrder = 1,
-				),
-			)
-		}
-
-		assertThat(exception.status).isEqualTo(HttpStatus.BAD_REQUEST)
-		assertThat(exception.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
-		assertThat(exception.field).isEqualTo("sourceUrl")
 	}
 }
