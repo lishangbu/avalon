@@ -372,6 +372,7 @@ class LiquibaseMigrationTests(
 			"battle-rules.weather-rules",
 		)
 		assertThat(accessNodeCodes).containsAll(battleRulesAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes)
+		assertThat(accessNodeCodes).doesNotContain("battle-rules.fixture-sources")
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",

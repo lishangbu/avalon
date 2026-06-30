@@ -29,21 +29,22 @@ class BattleRuleCoverageRuntimeServiceTests(
 	@Test
 	fun `coverage report includes persisted fixture runtime status`() {
 		val coverage = service.getCoverage()
-		val replayItem = coverage.items.single { it.code == "replay.deterministic-random-trace" }
-		val goldenFixture = replayItem.fixtures.single {
-			it.code == "golden-replay-pins-random-trace-event-fragment-and-final-hp"
-		}
+		val goldenItem = coverage.items.single { it.code == "golden-replay-pins-random-trace-event-fragment-and-final-hp" }
+		val goldenFixture = goldenItem.fixtures.single()
 
 		assertThat(coverage.fixtureSummary.runtimeAvailable).isTrue()
+		assertThat(coverage.summary.totalCount).isEqualTo(412)
+		assertThat(coverage.summary.fixtureCount).isEqualTo(412)
+		assertThat(coverage.targetSummary.coverageItemCount).isEqualTo(412)
 		assertThat(coverage.fixtureSummary.missingFixtureCount).isZero()
 		assertThat(coverage.fixtureSummary.withoutRunCount).isZero()
+		assertThat(goldenItem.name).isEqualTo("黄金回放固定随机事件和最终体力")
+		assertThat(goldenItem.category).isEqualTo("随机/回放")
 		assertThat(goldenFixture.fixtureId).isEqualTo(412)
 		assertThat(goldenFixture.name).isEqualTo("黄金回放固定随机事件和最终体力")
 		assertThat(goldenFixture.latestRunCode).isEqualTo("golden-replay-coverage-20260630-1")
 		assertThat(goldenFixture.latestRunStatus).isEqualTo("PASSED")
-		assertThat(coverage.checks).anySatisfy {
-			assertThat(it.code).isEqualTo("fixture-data")
-			assertThat(it.status).isEqualTo("PASSED")
-		}
+		assertThat(coverage.checks.filter { it.code in setOf("golden-replay", "fixture-data", "fixture-latest-run") })
+			.allSatisfy { assertThat(it.status).isEqualTo("PASSED") }
 	}
 }
