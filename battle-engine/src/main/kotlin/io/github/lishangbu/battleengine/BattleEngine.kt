@@ -357,58 +357,39 @@ class BattleEngine(
 			require(skill.remainingPp > 0) { "skill has no remaining PP: ${skill.skillId}" }
 		}
 
-		val stateBeforeUse = if (plan.source == SkillActionSource.CHARGED_RELEASE) {
-			chargeMoves.releaseChargedSkill(actionState, readyActor, skill, targets.first().actorId)
-		} else {
-			actionState
-		}
-		val readyActorBeforePp = stateBeforeUse.participant(action.actorId) ?: return beforeMoveContext
-		val actorAfterPp = if (plan.source == SkillActionSource.SUBMITTED) {
-			readyActorBeforePp.replaceSkillSlot(skill.consumePp())
-		} else {
-			readyActorBeforePp
-		}
-		val actorAfterActionSetup = if (plan.source == SkillActionSource.SUBMITTED) {
-			actorAfterPp.lockChoiceSkillIfNeeded(skill.skillId)
-		} else {
-			actorAfterPp
-		}.markSuccessfulSkill(skill.skillId)
-		val usedState = stateBeforeUse
-			.replaceParticipant(actorAfterActionSetup)
-			.appendEvent(
-				BattleEvent.SkillUsed(
-					turnNumber = stateBeforeUse.turnNumber,
-					actorId = readyActorBeforePp.actorId,
-					targetActorId = targets.first().actorId,
-					skillId = skill.skillId,
-					skillName = skill.name,
-				),
-			)
+		val declaration = declareSkillUse(
+			action = action,
+			source = plan.source,
+			actionState = actionState,
+			readyActor = readyActor,
+			skill = skill,
+			firstTarget = targets.first(),
+		) ?: return beforeMoveContext
 
 		val stateAfterChargeDecision =
 			if (
 				chargeMoves.requiresChargeBeforeUse(skill, actionState.environment.weather) &&
 				plan.source == SkillActionSource.SUBMITTED
 			) {
-				chargeMoves.skipWithHeldItem(usedState, readyActorBeforePp.actorId, skill)
+				chargeMoves.skipWithHeldItem(declaration.usedState, declaration.actorBeforePp.actorId, skill)
 					?: return beforeMoveContext.copy(
 						state = chargeMoves.startCharge(
-							state = usedState,
-							actorId = readyActorBeforePp.actorId,
+							state = declaration.usedState,
+							actorId = declaration.actorBeforePp.actorId,
 							targetActorId = targets.first().actorId,
 							skill = skill,
 						),
-					)
-			} else {
-				usedState
-			}
+			)
+		} else {
+			declaration.usedState
+		}
 
 		if (skill.protectsUser) {
 			return resolveProtectionSkillUse(
 				context = beforeMoveContext,
 				stateAfterChargeDecision = stateAfterChargeDecision,
 				actorBeforeProtection = readyActor,
-				actorAfterActionSetup = actorAfterActionSetup,
+				actorAfterActionSetup = declaration.actorAfterActionSetup,
 				skill = skill,
 				random = random,
 			)
@@ -430,6 +411,59 @@ class BattleEngine(
 				)
 			}
 		}
+	}
+
+	/**
+	 * 宣告一次技能使用，并写入宣告阶段产生的持久变化。
+	 *
+	 * 这个阶段发生在行动前状态通过、目标集合确定之后，命中/保护/属性阻止之前。它统一处理四件顺序敏感的事情：
+	 * - 蓄力释放行动先清理成员身上的蓄力状态，并追加释放事件。
+	 * - 普通提交行动消耗 PP；锁招延续和蓄力释放不再次消耗 PP。
+	 * - 普通提交行动在这里写入讲究类道具的技能锁定，确保即使后续被保护或属性免疫阻止，锁定也已经成为事实。
+	 * - 最后追加 [BattleEvent.SkillUsed]，让 replay 看到“技能已宣告使用”，后续才是蓄力开始、保护、命中和伤害。
+	 *
+	 * 返回 null 只表示蓄力释放后成员快照异常缺失；调用方会保留宣告前上下文并停止本次行动。正常资料路径下不应发生。
+	 */
+	private fun declareSkillUse(
+		action: BattleAction.UseSkill,
+		source: SkillActionSource,
+		actionState: BattleState,
+		readyActor: BattleParticipant,
+		skill: BattleSkillSlot,
+		firstTarget: BattleParticipant,
+	): SkillUseDeclaration? {
+		val stateBeforeUse = if (source == SkillActionSource.CHARGED_RELEASE) {
+			chargeMoves.releaseChargedSkill(actionState, readyActor, skill, firstTarget.actorId)
+		} else {
+			actionState
+		}
+		val actorBeforePp = stateBeforeUse.participant(action.actorId) ?: return null
+		val actorAfterPp = if (source == SkillActionSource.SUBMITTED) {
+			actorBeforePp.replaceSkillSlot(skill.consumePp())
+		} else {
+			actorBeforePp
+		}
+		val actorAfterActionSetup = if (source == SkillActionSource.SUBMITTED) {
+			actorAfterPp.lockChoiceSkillIfNeeded(skill.skillId)
+		} else {
+			actorAfterPp
+		}.markSuccessfulSkill(skill.skillId)
+		val usedState = stateBeforeUse
+			.replaceParticipant(actorAfterActionSetup)
+			.appendEvent(
+				BattleEvent.SkillUsed(
+					turnNumber = stateBeforeUse.turnNumber,
+					actorId = actorBeforePp.actorId,
+					targetActorId = firstTarget.actorId,
+					skillId = skill.skillId,
+					skillName = skill.name,
+				),
+			)
+		return SkillUseDeclaration(
+			usedState = usedState,
+			actorBeforePp = actorBeforePp,
+			actorAfterActionSetup = actorAfterActionSetup,
+		)
 	}
 
 	/**
@@ -1284,6 +1318,19 @@ class BattleEngine(
 		val state: BattleState,
 		val protectedActorIds: Set<String> = emptySet(),
 		val successfulProtectionActorIds: Set<String> = emptySet(),
+	)
+
+	/**
+	 * 技能宣告阶段的结果。
+	 *
+	 * [usedState] 已经写入蓄力释放、PP 消耗、讲究锁定、最近成功技能和 `SkillUsed` 事件；调用方会继续判断是否需要
+	 * 开始蓄力、是否建立保护，以及如何逐目标结算。[actorBeforePp] 保留消耗 PP 前的成员快照，用于蓄力跳过道具
+	 * 和蓄力开始事件维持原有顺序；[actorAfterActionSetup] 则是保护成功/失败需要继续写回的成员快照。
+	 */
+	private data class SkillUseDeclaration(
+		val usedState: BattleState,
+		val actorBeforePp: BattleParticipant,
+		val actorAfterActionSetup: BattleParticipant,
 	)
 
 	/**
