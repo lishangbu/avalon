@@ -918,17 +918,18 @@ class BattleEngine(
 			)
 			.appendEvents(listOfNotNull(survival.event))
 		val afterFireThaw = skillHpEffects.clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
-		return finishPostDamageEffects(
-			context = context,
-			state = afterFireThaw,
-			actorId = actor.actorId,
-			targetActorId = damagedTarget.actorId,
-			skill = skill,
-			damageAmount = actualDamageAmount,
-			targetCanFaint = true,
-			allowTargetLowHpItem = true,
-			allowContactAbilities = true,
-			random = random,
+		return context.copy(
+			state = finishPostDamageEffects(
+				state = afterFireThaw,
+				actorId = actor.actorId,
+				targetActorId = damagedTarget.actorId,
+				skill = skill,
+				damageAmount = actualDamageAmount,
+				targetCanFaint = true,
+				allowTargetLowHpItem = true,
+				allowContactAbilities = true,
+				random = random,
+			),
 		)
 	}
 
@@ -998,18 +999,19 @@ class BattleEngine(
 				),
 			)
 			.appendEvents(listOfNotNull(survival.event))
-		return finishPostDamageEffects(
-			context = context,
-			state = damagedState,
-			actorId = actor.actorId,
-			targetActorId = damagedTarget.actorId,
-			skill = skill,
-			damageAmount = actualDamageAmount,
-			faintActorAfterHit = faintActorAfterHit,
-			targetCanFaint = true,
-			allowTargetLowHpItem = true,
-			allowContactAbilities = true,
-			random = random,
+		return context.copy(
+			state = finishPostDamageEffects(
+				state = damagedState,
+				actorId = actor.actorId,
+				targetActorId = damagedTarget.actorId,
+				skill = skill,
+				damageAmount = actualDamageAmount,
+				faintActorAfterHit = faintActorAfterHit,
+				targetCanFaint = true,
+				allowTargetLowHpItem = true,
+				allowContactAbilities = true,
+				random = random,
+			),
 		)
 	}
 
@@ -1055,18 +1057,19 @@ class BattleEngine(
 					current
 				}
 			}
-		return finishPostDamageEffects(
-			context = context,
-			state = damagedState,
-			actorId = actor.actorId,
-			targetActorId = damagedTarget.actorId,
-			skill = skill,
-			damageAmount = actualDamageAmount,
-			faintActorAfterHit = faintActorAfterHit,
-			targetCanFaint = false,
-			allowTargetLowHpItem = false,
-			allowContactAbilities = false,
-			random = null,
+		return context.copy(
+			state = finishPostDamageEffects(
+				state = damagedState,
+				actorId = actor.actorId,
+				targetActorId = damagedTarget.actorId,
+				skill = skill,
+				damageAmount = actualDamageAmount,
+				faintActorAfterHit = faintActorAfterHit,
+				targetCanFaint = false,
+				allowTargetLowHpItem = false,
+				allowContactAbilities = false,
+				random = null,
+			),
 		)
 	}
 
@@ -1074,10 +1077,10 @@ class BattleEngine(
 	 * 收拢普通伤害和替身伤害共享的“造成实际伤害后”流程。
 	 *
 	 * 目标本体受伤时启用低体力道具、接触特性和倒下判定；替身受伤时关闭这些目标侧 hook，但仍保留攻击方技能
-	 * HP 后效、休整和道具反伤，避免两条伤害路径出现重复实现。
+	 * HP 后效、休整和道具反伤，避免两条伤害路径出现重复实现。该函数只返回推进后的状态，不接收 [TurnContext]，
+	 * 因为它不会修改保护集合或连续保护计数等回合内编排字段。
 	 */
 	private fun finishPostDamageEffects(
-		context: TurnContext,
 		state: BattleState,
 		actorId: String,
 		targetActorId: String,
@@ -1088,7 +1091,7 @@ class BattleEngine(
 		allowTargetLowHpItem: Boolean,
 		allowContactAbilities: Boolean,
 		random: BattleRandom?,
-	): TurnContext {
+	): BattleState {
 		val afterActorSelfSacrifice = if (faintActorAfterHit) {
 			skillHpEffects.applySelfSacrificeDamage(state, actorId, skill)
 		} else {
@@ -1134,7 +1137,7 @@ class BattleEngine(
 			}
 			afterRecoil.participant(actorId)?.let(::add)
 		}
-		return context.copy(state = afterRecoil.handleFaintsAndResult(faintCandidates))
+		return afterRecoil.handleFaintsAndResult(faintCandidates)
 	}
 
 	private data class SwitchPlan(
