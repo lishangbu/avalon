@@ -27,8 +27,14 @@ class BattleRuleCoverageLedgerTests {
 			assertTrue(group.ruleCount > 0, "${group.code} should cover at least one rule")
 			assertTrue(group.description.isNotBlank(), "${group.code} should document coverage purpose")
 			assertTrue(group.testClassNames.isNotEmpty(), "${group.code} should reference behavior tests")
+			assertTrue(group.minimumNamedScenarioCount > 0, "${group.code} should keep named public scenarios")
+			val namedScenarioCount = group.namedScenarioCount()
+			assertTrue(
+				namedScenarioCount >= group.minimumNamedScenarioCount,
+				"${group.code} 应至少保留 ${group.minimumNamedScenarioCount} 个命名公开规则场景，当前只有 $namedScenarioCount 个",
+			)
 			group.testClassNames.forEach { testClassName ->
-				val sourcePath = Path.of("src/test/kotlin/${testClassName.replace('.', '/')}.kt")
+				val sourcePath = sourcePathForTestClass(testClassName)
 				assertTrue(Files.exists(sourcePath), "$sourcePath should exist")
 				val testClass = Class.forName(testClassName)
 				assertTrue(
@@ -86,6 +92,19 @@ class BattleRuleCoverageLedgerTests {
 			Files.readString(sourcePath).split(needle).size - 1
 		}
 
+	private fun CoverageGroup.namedScenarioCount(): Int =
+		testClassNames.sumOf { testClassName ->
+			val sourcePath = sourcePathForTestClass(testClassName)
+			if (Files.exists(sourcePath)) {
+				Files.readString(sourcePath).split(".assertNamed(").size - 1
+			} else {
+				0
+			}
+		}
+
+	private fun sourcePathForTestClass(testClassName: String): Path =
+		Path.of("src/test/kotlin/${testClassName.replace('.', '/')}.kt")
+
 	private fun kotlinTestSources(): List<Path> {
 		val paths = Files.walk(Path.of("src/test/kotlin"))
 		return try {
@@ -100,6 +119,7 @@ class BattleRuleCoverageLedgerTests {
 	private data class CoverageGroup(
 		val code: String,
 		val ruleCount: Int,
+		val minimumNamedScenarioCount: Int,
 		val description: String,
 		val testClassNames: List<String>,
 	)
@@ -109,6 +129,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "format-and-team-validation",
 				ruleCount = 16,
+				minimumNamedScenarioCount = 1,
 				description = "回合上限、队伍数量、等级统一、重复限制、禁用列表、选择阶段和自定义格式约束。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleFormatValidationTests",
@@ -118,6 +139,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "lifecycle-switch-faint-result",
 				ruleCount = 18,
+				minimumNamedScenarioCount = 30,
 				description = "初始出场、替换重置、强制替换、濒死检查、胜负判定和战斗结束事件。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests",
@@ -127,6 +149,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "turn-flow-action-ordering",
 				ruleCount = 26,
+				minimumNamedScenarioCount = 15,
 				description = "PP、锁招、多回合技能、蓄力、休整、优先度、速度、同速随机和行动取消。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleActionOrderingPublicReferenceTests",
@@ -137,6 +160,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "target-scope-redirection",
 				ruleCount = 20,
+				minimumNamedScenarioCount = 18,
 				description = "单体、相邻、全场、己方、随机目标、目标失效重定向和范围伤害。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleTargetScopePublicReferenceTests",
@@ -147,6 +171,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "hit-protect-substitute-immunity-reflect",
 				ruleCount = 28,
+				minimumNamedScenarioCount = 25,
 				description = "命中/闪避、保护、替身、属性/状态免疫、声音穿透、粉末、抢夺、反射类变化技能和行动前目标有效性。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleHitDefenseBoundaryPublicReferenceTests",
@@ -157,6 +182,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "damage-formula-stat-element-rounding",
 				ruleCount = 42,
+				minimumNamedScenarioCount = 49,
 				description = "普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害和 HP 派生伤害。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests",
@@ -167,6 +193,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "major-volatile-persistent-status",
 				ruleCount = 34,
+				minimumNamedScenarioCount = 14,
 				description = "灼伤、麻痹、睡眠、冰冻、中毒、剧毒、混乱、畏缩、回复封锁、挑衅、定身法、无理取闹、束缚和持续回合。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleResidualStatusTests",
@@ -178,6 +205,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "weather-terrain-field-side-condition",
 				ruleCount = 31,
+				minimumNamedScenarioCount = 26,
 				description = "晴、雨、沙、雪、电气、青草、薄雾、精神、屏障、顺风、撒场、天气/场地持续时间。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleWeatherEffectTests",
@@ -188,6 +216,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "skill-effect-family",
 				ruleCount = 39,
+				minimumNamedScenarioCount = 27,
 				description = "能力阶级、主要状态、HP 吸取/反伤/回复、强制替换、复制、封锁、清除、交换、取反和失败条件。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleSkillEffectBoundaryPublicReferenceTests",
@@ -198,6 +227,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "ability-effect-family",
 				ruleCount = 36,
+				minimumNamedScenarioCount = 35,
 				description = "入场、攻击前、防守前、命中后、天气/场地联动、属性吸收、状态免疫、规则绕过和伤害修正。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleSwitchInAbilityTests",
@@ -208,6 +238,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "item-effect-family",
 				ruleCount = 18,
+				minimumNamedScenarioCount = 10,
 				description = "消耗、回复、状态解除、伤害增减、持续时间延长、一次性免死、锁招、蓄力跳过和抗性减伤。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleHeldItemPublicReferenceTests",
@@ -218,6 +249,7 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroup(
 				code = "random-replay-public-reference",
 				ruleCount = 4,
+				minimumNamedScenarioCount = 5,
 				description = "固定随机序列、事件流稳定、回放复算和公开对照测试元数据。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.random.ScriptedBattleRandomTests",
