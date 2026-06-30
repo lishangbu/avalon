@@ -3944,6 +3944,17 @@ class BattleEngine(
 		}
 	}
 
+	private fun BattleState.applyEndTurnDamageResult(
+		damaged: BattleParticipant,
+		event: BattleEvent,
+		afterEvent: (BattleState) -> BattleState = { it },
+	): BattleState {
+		val afterDamage = afterEvent(replaceParticipant(damaged).appendEvent(event))
+		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
+		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
+		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
+	}
+
 	/**
 	 * 结算回合末主要异常状态伤害。
 	 *
@@ -3965,21 +3976,15 @@ class BattleEngine(
 					} else {
 						damaged
 					}
-					current
-						.replaceParticipant(afterStatusCounter)
-						.appendEvent(
-							BattleEvent.ResidualDamageApplied(
-								turnNumber = current.turnNumber,
-								actorId = latest.actorId,
-								status = requireNotNull(latest.majorStatus),
-								amount = residualDamage,
-							),
-						)
-						.let { afterDamage ->
-							val afterLowHpItem = applyLowHpHealingItem(afterDamage, afterStatusCounter.actorId)
-							val latestAfterItem = afterLowHpItem.participant(afterStatusCounter.actorId) ?: afterStatusCounter
-							afterLowHpItem.handleFaintAndResult(latestAfterItem)
-						}
+					current.applyEndTurnDamageResult(
+						damaged = afterStatusCounter,
+						event = BattleEvent.ResidualDamageApplied(
+							turnNumber = current.turnNumber,
+							actorId = latest.actorId,
+							status = requireNotNull(latest.majorStatus),
+							amount = residualDamage,
+						),
+					)
 				}
 			}
 		return if (afterResidual.result != null) {
@@ -4018,21 +4023,15 @@ class BattleEngine(
 				} else {
 					val damage = (latest.maxHp / WEATHER_DAMAGE_DENOMINATOR).coerceAtLeast(1)
 					val damaged = latest.receiveDamage(damage)
-					current
-						.replaceParticipant(damaged)
-						.appendEvent(
-							BattleEvent.WeatherDamageApplied(
-								turnNumber = current.turnNumber,
-								actorId = latest.actorId,
-								weather = BattleWeather.SANDSTORM,
-								amount = damage,
-							),
-						)
-						.let { afterDamage ->
-							val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
-							val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
-							afterLowHpItem.handleFaintAndResult(latestAfterItem)
-						}
+					current.applyEndTurnDamageResult(
+						damaged = damaged,
+						event = BattleEvent.WeatherDamageApplied(
+							turnNumber = current.turnNumber,
+							actorId = latest.actorId,
+							weather = BattleWeather.SANDSTORM,
+							amount = damage,
+						),
+					)
 				}
 			}
 	}
@@ -4061,18 +4060,16 @@ class BattleEngine(
 				val turnsRemainingBefore = latest.bindingTurnsRemaining
 				val damage = (latest.maxHp / BINDING_DAMAGE_DENOMINATOR).coerceAtLeast(1)
 				val damaged = latest.receiveDamage(damage).decrementBindingEndTurn()
-				val damagedState = current
-					.replaceParticipant(damaged)
-					.appendEvent(
-						BattleEvent.BindingDamageApplied(
-							turnNumber = current.turnNumber,
-							actorId = latest.actorId,
-							sourceActorId = sourceActorId,
-							amount = damage,
-							turnsRemainingBefore = turnsRemainingBefore,
-						),
-					)
-					.let { afterDamage ->
+				current.applyEndTurnDamageResult(
+					damaged = damaged,
+					event = BattleEvent.BindingDamageApplied(
+						turnNumber = current.turnNumber,
+						actorId = latest.actorId,
+						sourceActorId = sourceActorId,
+						amount = damage,
+						turnsRemainingBefore = turnsRemainingBefore,
+					),
+					afterEvent = { afterDamage ->
 						if (turnsRemainingBefore == 1) {
 							afterDamage.appendEvent(
 								BattleEvent.VolatileStatusCleared(
@@ -4084,10 +4081,8 @@ class BattleEngine(
 						} else {
 							afterDamage
 						}
-					}
-				val afterLowHpItem = applyLowHpHealingItem(damagedState, damaged.actorId)
-				val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
-				afterLowHpItem.handleFaintAndResult(latestAfterItem)
+					},
+				)
 			}
 
 	/**
