@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 092-battle-stat-stage-operation-skill-rules
     author: backend
-    comment: 新增技能能力阶级特殊操作表、规则数据与公开对照 fixture。
+    comment: 新增技能能力阶级特殊操作表和规则数据。
     changes:
     - createTable:
         tableName: battle_skill_stat_stage_operation
@@ -372,19 +372,6 @@ databaseChangeLog:
         - column: { name: chance_percent, valueNumeric: 100 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 70 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 188 }
-        - column: { name: code, value: damaging-skill-clears-target-stat-stages-after-hit }
-        - column: { name: name, value: 伤害技能命中后清除目标能力阶级 }
-        - column: { name: category, value: SKILL }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证伤害技能成功命中并结算伤害后，会清除目标已有能力阶级。 }
-        - column: { name: input_summary, value: 目标拥有攻击提升和防御降低，清除阶级的伤害技能命中目标。 }
-        - column: { name: expected_summary, value: 目标先受到伤害，随后攻击和防御阶级都回到 0。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1880 }
     - sql:
         splitStatements: false
         sql: |
@@ -423,31 +410,6 @@ databaseChangeLog:
             (37, 95, 6, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 50),
             (38, 95, 7, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 60),
             (39, 95, 8, 'INVERT', 'TARGET', null, 'AFTER_HIT', 100, true, 70);
-    - sql:
-        splitStatements: false
-        sql: |
-          insert into battle_rule_fixture
-            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
-          values
-            (189, 'status-skill-clears-every-active-participant-stat-stages', '变化技能清除全部上场成员能力阶级', 'SKILL', 'STATE_MACHINE', '验证全场清除类变化技能会清除全部当前上场成员的能力阶级。', '多个当前上场成员拥有攻击或速度阶级变化，使用者发动全场清除技能。', '当前上场成员的对应能力阶级全部回到 0，事件流记录实际发生的清除。', true, 1890),
-            (190, 'status-skill-copies-target-stat-stages-to-user', '变化技能复制目标能力阶级给使用者', 'SKILL', 'STATE_MACHINE', '验证复制类变化技能会把目标当前能力阶级复制给使用者。', '使用者和目标拥有不同攻击与闪避阶级，使用者发动复制目标阶级技能。', '使用者对应阶级变为目标当前阶级，目标阶级保持不变。', true, 1900),
-            (191, 'status-skill-swaps-attack-stat-stages-between-user-and-target', '变化技能交换攻击组能力阶级', 'SKILL', 'STATE_MACHINE', '验证攻击组互换类变化技能会交换双方攻击与特攻阶级。', '使用者和目标拥有不同攻击、特攻与防御阶级。', '双方攻击与特攻阶级互换，防御阶级保持原值。', true, 1910),
-            (192, 'status-skill-swaps-defense-stat-stages-between-user-and-target', '变化技能交换防御组能力阶级', 'SKILL', 'STATE_MACHINE', '验证防御组互换类变化技能会交换双方防御与特防阶级。', '使用者和目标拥有不同防御、特防与攻击阶级。', '双方防御与特防阶级互换，攻击阶级保持原值。', true, 1920),
-            (193, 'status-skill-swaps-all-stat-stages-between-user-and-target', '变化技能交换全部能力阶级', 'SKILL', 'STATE_MACHINE', '验证全部互换类变化技能会交换双方全部能力阶级。', '使用者和目标拥有多项不同能力阶级。', '双方全部配置能力阶级互换，未变化的 0 阶级不产生事件。', true, 1930),
-            (194, 'status-skill-inverts-target-stat-stages', '变化技能取反目标能力阶级', 'SKILL', 'STATE_MACHINE', '验证取反类变化技能会把目标正负能力阶级互相翻转。', '目标拥有正负能力阶级，使用者发动取反目标阶级技能。', '目标正阶级变为负阶级，负阶级变为正阶级，0 阶级不产生事件。', true, 1940);
-    - sql:
-        splitStatements: false
-        sql: |
-          insert into battle_rule_test_run
-            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
-          values
-            (188, 'stat-stage-operation-skill-coverage-20260629-1', 188, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1880),
-            (189, 'stat-stage-operation-skill-coverage-20260629-2', 189, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1890),
-            (190, 'stat-stage-operation-skill-coverage-20260629-3', 190, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1900),
-            (191, 'stat-stage-operation-skill-coverage-20260629-4', 191, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1910),
-            (192, 'stat-stage-operation-skill-coverage-20260629-5', 192, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1920),
-            (193, 'stat-stage-operation-skill-coverage-20260629-6', 193, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1930),
-            (194, 'stat-stage-operation-skill-coverage-20260629-7', 194, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests', '2026-06-29T17:10:00+08:00', 1940);
     - insert:
         tableName: security_access_node
         columns:

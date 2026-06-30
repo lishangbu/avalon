@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 076-battle-tagged-skill-ability-rules
     author: backend
-    comment: 新增拳类和切割类技能标签特性规则、代表性技能标签种子和公开对照 fixture 数据。
+    comment: 新增拳类和切割类技能标签特性规则和代表性技能标签种子数据。
     changes:
     - insert:
         tableName: battle_ability_rule
@@ -120,51 +120,3 @@ databaseChangeLog:
         - column: { name: description, value: 水波刀属于切割类非接触技能，并带有较高击中要害等级。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 750 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 164 }
-        - column: { name: code, value: punch-based-ability-boosts-punch-tagged-skill-damage }
-        - column: { name: name, value: 拳类特性强化拳类技能伤害 }
-        - column: { name: category, value: ABILITY }
-        - column: { name: fixture_type, value: DAMAGE_FORMULA }
-        - column: { name: description, value: 验证拳类技能伤害提升特性只读取拳类标签，不按技能名称猜测。 }
-        - column: { name: input_summary, value: 使用者拥有拳类技能伤害提升特性，使用带拳类标签的一般属性物理技能。 }
-        - column: { name: expected_summary, value: 技能在普通伤害公式中获得 1.2 倍特性倍率。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1640 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 165 }
-        - column: { name: code, value: slicing-based-ability-boosts-slicing-tagged-skill-damage }
-        - column: { name: name, value: 切割类特性强化切割类技能伤害 }
-        - column: { name: category, value: ABILITY }
-        - column: { name: fixture_type, value: DAMAGE_FORMULA }
-        - column: { name: description, value: 验证切割类技能伤害提升特性只读取切割标签，不按技能名称猜测。 }
-        - column: { name: input_summary, value: 使用者拥有切割类技能伤害提升特性，使用带切割标签的一般属性物理技能。 }
-        - column: { name: expected_summary, value: 技能在普通伤害公式中获得 1.5 倍特性倍率。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1650 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 164 }
-        - column: { name: run_code, value: tagged-skill-ability-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 164 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T11:20:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1640 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 165 }
-        - column: { name: run_code, value: tagged-skill-ability-coverage-20260629-2 }
-        - column: { name: fixture_id, valueNumeric: 165 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T11:20:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1650 }

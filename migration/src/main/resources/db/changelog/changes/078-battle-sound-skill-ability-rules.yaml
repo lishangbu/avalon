@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 078-battle-sound-skill-ability-rules
     author: backend
-    comment: 新增声音类技能伤害提升和声音类技能受击减伤特性规则与公开对照 fixture 数据。
+    comment: 新增声音类技能伤害提升和声音类技能受击减伤特性规则。
     changes:
     - insert:
         tableName: battle_ability_rule
@@ -26,51 +26,3 @@ databaseChangeLog:
         - column: { name: description, value: 受到声音类技能伤害时，最终伤害降低 50%。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 480 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 167 }
-        - column: { name: code, value: sound-based-ability-boosts-sound-skill-damage }
-        - column: { name: name, value: 声音类特性强化声音技能伤害 }
-        - column: { name: category, value: ABILITY }
-        - column: { name: fixture_type, value: DAMAGE_FORMULA }
-        - column: { name: description, value: 验证声音类技能伤害提升特性只读取声音标签，不按技能名称猜测。 }
-        - column: { name: input_summary, value: 使用者拥有声音类技能伤害提升特性，使用带声音标签的一般属性特殊技能。 }
-        - column: { name: expected_summary, value: 技能在普通伤害公式中获得 1.3 倍特性倍率。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1670 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 168 }
-        - column: { name: code, value: sound-based-defensive-ability-reduces-sound-skill-damage }
-        - column: { name: name, value: 声音类特性降低受到的声音技能伤害 }
-        - column: { name: category, value: ABILITY }
-        - column: { name: fixture_type, value: DAMAGE_FORMULA }
-        - column: { name: description, value: 验证声音类技能受击减伤特性只读取声音标签，并能被无视目标特性规则绕过。 }
-        - column: { name: input_summary, value: 目标拥有声音类技能受击减伤特性，攻击方使用带声音标签的一般属性特殊技能。 }
-        - column: { name: expected_summary, value: 未绕过目标特性时最终伤害按 0.5 倍降低；绕过目标特性时保持原伤害。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1680 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 167 }
-        - column: { name: run_code, value: sound-skill-ability-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 167 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T11:55:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1670 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 168 }
-        - column: { name: run_code, value: sound-skill-ability-coverage-20260629-2 }
-        - column: { name: fixture_id, valueNumeric: 168 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T11:55:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1680 }

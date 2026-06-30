@@ -1,8 +1,11 @@
 package io.github.lishangbu.battlerules
 
+import io.github.lishangbu.battleengine.BattleEngine
+import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
@@ -21,6 +24,7 @@ import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
@@ -896,6 +900,43 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.violations.map { it.code }).containsExactly("skill-not-found", "switch-target-opponent")
 		assertThat(response.violations.first().resourceId).isEqualTo(999)
 		assertThat(response.violations[1].targetActorId).isEqualTo("b-2")
+	}
+
+	/**
+	 * 验证 battle-rules 装配出的运行时快照可以直接驱动 battle-engine 完成最小一回合。
+	 *
+	 * 这个测试刻意不手写 [io.github.lishangbu.battleengine.model.BattleRuleSnapshot]、技能槽、能力值或属性 ID：
+	 * 这些事实全部来自 Liquibase 种子数据和 [BattleRuntimeSnapshotService.assembleInitialState]。如果后续资料表
+	 * 字段、策略映射或默认技能装配发生偏移，这里会在引擎真正结算时失败，而不是只在 CRUD 层展示出一份看似完整
+	 * 的 JSON。固定随机脚本只覆盖本次普通技能需要的要害和伤害浮动随机数，避免测试依赖不可重复随机。
+	 */
+	@Test
+	fun `assembled runtime snapshot can drive battle engine minimum damage turn`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "official-double",
+				sides = validDoubleSides(),
+			),
+		)
+		val targetHpBeforeTurn = initialState.sides
+			.flatMap { it.participants }
+			.single { it.actorId == "b-1" }
+			.currentHp
+
+		val engine = BattleEngine()
+		val resolved = engine.resolveTurn(
+			engine.start(initialState),
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 1, targetActorId = "b-1")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		assertThat(initialState.format.code).isEqualTo("official-double")
+		assertThat(damage.actorId).isEqualTo("a-1")
+		assertThat(damage.targetActorId).isEqualTo("b-1")
+		assertThat(damage.skillId).isEqualTo(1)
+		assertThat(damage.amount).isGreaterThan(0)
+		assertThat(resolved.participant("b-1")?.currentHp).isLessThan(targetHpBeforeTurn)
 	}
 
 	@Test

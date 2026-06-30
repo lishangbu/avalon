@@ -1,37 +1,26 @@
 databaseChangeLog:
 - changeSet:
-    id: 046-battle-skill-recharge-rules
+    id: 045-battle-skill-recoil-rules
     author: backend
-    comment: 新增成功后休整技能规则字段。
+    comment: 新增技能反作用伤害规则数据。
     changes:
-    - addColumn:
-        tableName: battle_skill_rule
-        columns:
-        - column:
-            name: recharges_after_use
-            type: boolean
-            defaultValueBoolean: false
-            remarks: 成功造成实际伤害后，使用者下一次技能行动前是否必须休整。
-            constraints:
-              nullable: false
     - insert:
         tableName: battle_skill_rule
         columns:
-        - column: { name: id, valueNumeric: 68 }
-        - column: { name: skill_id, valueNumeric: 63 }
-        - column: { name: effect_policy, value: standard-damage }
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: skill_id, valueNumeric: 38 }
+        - column: { name: effect_policy, value: recoil-third-damage }
         - column: { name: target_policy, value: selected-target }
         - column: { name: hit_policy, value: standard-hit }
         - column: { name: damage_policy, value: standard-damage }
         - column: { name: min_hits, valueNumeric: 1 }
         - column: { name: max_hits, valueNumeric: 1 }
         - column: { name: critical_hit_stage, valueNumeric: 0 }
-        - column: { name: makes_contact, valueBoolean: false }
+        - column: { name: makes_contact, valueBoolean: true }
         - column: { name: affected_by_protect, valueBoolean: true }
         - column: { name: protects_user, valueBoolean: false }
         - column: { name: thaws_user_before_move, valueBoolean: false }
         - column: { name: weakened_by_grassy_terrain, valueBoolean: false }
-        - column: { name: recharges_after_use, valueBoolean: true }
         - column: { name: sound_based, valueBoolean: false }
         - column: { name: powder_based, valueBoolean: false }
         - column: { name: punch_based, valueBoolean: false }
@@ -39,6 +28,6 @@ databaseChangeLog:
         - column: { name: lock_move_turns_min, valueNumeric: 1 }
         - column: { name: lock_move_turns_max, valueNumeric: 1 }
         - column: { name: confuses_user_after_lock, valueBoolean: false }
-        - column: { name: description, value: 成功造成实际伤害后，使用者下一次技能行动前必须休整。 }
+        - column: { name: description, value: 接触造成常规伤害后，使用者承受目标实际损失 HP 的 1/3 反作用伤害。 }
         - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 680 }
+        - column: { name: sort_order, valueNumeric: 670 }

@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 095-battle-disable-rules
     author: backend
-    comment: 新增定身法临时状态、技能规则与公开对照 fixture 数据。
+    comment: 新增定身法临时状态、技能规则。
     changes:
     - insert:
         tableName: battle_status_rule
@@ -56,23 +56,3 @@ databaseChangeLog:
         - column: { name: chance_percent, valueNumeric: 100 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 110 }
-    - sql:
-        splitStatements: true
-        stripComments: true
-        sql: |
-          insert into battle_rule_fixture
-            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
-          values
-            (205, 'status-skill-disables-target-last-used-skill', '定身法禁用目标最近使用技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证定身法命中后读取目标最近一次成功使用且仍有 PP 的技能并写入禁用状态。', '目标最近一次成功使用过仍有 PP 的技能，使用者用定身法命中目标。', '目标最近使用的技能被禁用 4 回合；当前回合结束后剩余 3 回合。', true, 2050),
-            (206, 'disabled-skill-cannot-be-used', '定身法阻止被禁用技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于定身法的成员不能使用被禁用技能。', '成员处于定身法状态，并尝试使用被禁用的技能。', '被禁用技能在 PP 消耗前失败，成员不会产生技能使用事件。', true, 2060),
-            (207, 'disabled-participant-can-use-other-skill', '定身法不阻止其它技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于定身法的成员仍可使用未被禁用的其它技能。', '成员处于定身法状态，但选择了未被禁用的其它技能。', '未被禁用的技能正常消耗 PP 并造成伤害，定身法持续回合照常递减。', true, 2070),
-            (208, 'disable-clears-when-end-turn-duration-reaches-zero', '定身法持续时间归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证定身法在回合末持续时间递减到 0 时自然解除。', '成员的定身法只剩 1 回合，双方本回合没有行动。', '回合末持续时间递减到 0，成员的定身法被清除并产生临时状态解除事件。', true, 2080),
-            (209, 'disable-fails-when-target-has-no-last-used-skill', '无最近使用技能时定身法失败', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证目标没有可禁用技能时定身法不会写入状态。', '目标自上场以来还没有成功使用过技能，使用者尝试用定身法影响目标。', '定身法不会写入临时状态，并以没有可禁用技能作为稳定失败原因。', true, 2090);
-          insert into battle_rule_test_run
-            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
-          values
-            (205, 'disable-coverage-20260629-1', 205, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2050),
-            (206, 'disable-coverage-20260629-2', 206, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2060),
-            (207, 'disable-coverage-20260629-3', 207, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2070),
-            (208, 'disable-coverage-20260629-4', 208, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2080),
-            (209, 'disable-coverage-20260629-5', 209, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleDisableTests', '2026-06-29T19:00:00+08:00', 2090);

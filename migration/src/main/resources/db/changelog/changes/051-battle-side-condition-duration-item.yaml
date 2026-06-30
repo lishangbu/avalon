@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 051-battle-side-condition-duration-item
     author: backend
-    comment: 新增一侧防守屏障持续时间延长道具规则与公开对照 fixture 数据。
+    comment: 新增一侧防守屏障持续时间延长道具规则。
     changes:
     - insert:
         tableName: battle_item_rule
@@ -16,30 +16,3 @@ databaseChangeLog:
         - column: { name: description, value: 携带者成功建立一侧防守屏障时，将普通持续回合延长为 8 回合。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 120 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 102 }
-        - column: { name: code, value: screen-extending-item-makes-side-damage-reduction-last-eight-turns }
-        - column: { name: name, value: 屏障延长道具让防守屏障持续八回合 }
-        - column: { name: category, value: ITEM }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证携带者成功使用建立一侧防守屏障的技能时，屏障延长道具会把普通五回合屏障改为八回合。 }
-        - column: { name: input_summary, value: 使用者携带屏障延长道具，成功使用建立己方特殊伤害减免屏障的变化技能。 }
-        - column: { name: expected_summary, value: 屏障按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1020 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 102 }
-        - column: { name: run_code, value: side-condition-duration-item-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 102 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T03:58:00+08:00" }
-        - column: { name: finished_at, value: "2026-06-29T04:01:00+08:00" }
-        - column: { name: duration_ms, valueNumeric: 180000 }
-        - column: { name: assertion_count, valueNumeric: 6 }
-        - column: { name: sort_order, valueNumeric: 1020 }

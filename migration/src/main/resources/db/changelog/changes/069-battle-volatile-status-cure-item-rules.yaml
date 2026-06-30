@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 069-battle-volatile-status-cure-item-rules
     author: backend
-    comment: 新增临时状态解除道具规则与公开对照 fixture 数据。
+    comment: 新增临时状态解除道具规则。
     changes:
     - insert:
         tableName: battle_item_rule
@@ -16,30 +16,3 @@ databaseChangeLog:
         - column: { name: description, value: 获得混乱状态后立即解除该状态，并在触发后消费携带道具。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 200 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 147 }
-        - column: { name: code, value: volatile-status-cure-item-clears-confusion-after-application }
-        - column: { name: name, value: 临时状态解除道具在混乱写入后触发 }
-        - column: { name: category, value: ITEM }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证目标获得混乱状态后，携带道具会立即解除混乱并被消费。 }
-        - column: { name: input_summary, value: 目标携带解除混乱的一次性道具，对手使用 100% 附加混乱的变化技能。 }
-        - column: { name: expected_summary, value: 混乱先写入目标运行态并消费持续时间随机数，随后携带道具立即解除混乱并被消费。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1470 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 147 }
-        - column: { name: run_code, value: volatile-status-cure-item-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 147 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T10:00:00+08:00" }
-        - column: { name: finished_at, value: "2026-06-29T10:03:00+08:00" }
-        - column: { name: duration_ms, valueNumeric: 180000 }
-        - column: { name: assertion_count, valueNumeric: 8 }
-        - column: { name: sort_order, valueNumeric: 1470 }

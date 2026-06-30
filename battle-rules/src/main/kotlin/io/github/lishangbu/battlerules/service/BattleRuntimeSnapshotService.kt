@@ -156,14 +156,7 @@ class BattleRuntimeSnapshotService(
 	 */
 	@Transactional(readOnly = true)
 	fun validatePreparation(request: BattlePreparationValidationRequest): BattlePreparationValidationResponse {
-		val normalized = request.normalized()
-		val runtime = getByFormatCode(normalized.formatCode)
-		val elementIds = coreElementIds()
-		val initialState = BattleInitialState(
-			format = runtime.format,
-			rules = runtime.rules,
-			sides = normalized.sides.map { it.toBattleSide(elementIds) },
-		)
+		val initialState = assembleInitialState(request)
 		val violations = preparationValidator.validate(initialState)
 		return BattlePreparationValidationResponse(
 			valid = violations.isEmpty(),
@@ -180,18 +173,38 @@ class BattleRuntimeSnapshotService(
 	@Transactional(readOnly = true)
 	fun validateActions(request: BattleActionValidationRequest): BattleActionValidationResponse {
 		val normalized = request.normalized()
-		val runtime = getByFormatCode(normalized.formatCode)
-		val elementIds = coreElementIds()
-		val initialState = BattleInitialState(
-			format = runtime.format,
-			rules = runtime.rules,
-			sides = normalized.sides.map { it.toBattleSide(elementIds) },
+		val initialState = assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = normalized.formatCode,
+				sides = normalized.sides,
+			),
 		)
 		val state = battleEngine.start(initialState)
 		val violations = actionValidator.validate(state, normalized.actions.map { it.toBattleAction() })
 		return BattleActionValidationResponse(
 			valid = violations.isEmpty(),
 			violations = violations.map { it.toResponse() },
+		)
+	}
+
+	/**
+	 * 把管理端维护的规则资料和一份轻量队伍请求装配为 battle-engine 的启动快照。
+	 *
+	 * 这个方法是应用层到纯引擎的真正边界：调用方只提供赛制 code、成员 ID、等级、技能、特性和道具 ID，
+	 * 服务会从三范式资料表读取基础属性、能力值、技能执行字段、特性效果和道具效果，并把它们冻结成
+	 * [BattleInitialState]。返回值不包含 Jimmer 实体，也不保留数据库连接；拿到后可以直接交给 [BattleEngine]
+	 * 启动和结算。准备校验、行动校验和后续真实开战入口都应复用这里，避免出现“校验用一套装配、战斗用另一套
+	 * 装配”的规则漂移。
+	 */
+	@Transactional(readOnly = true)
+	fun assembleInitialState(request: BattlePreparationValidationRequest): BattleInitialState {
+		val normalized = request.normalized()
+		val runtime = getByFormatCode(normalized.formatCode)
+		val elementIds = coreElementIds()
+		return BattleInitialState(
+			format = runtime.format,
+			rules = runtime.rules,
+			sides = normalized.sides.map { it.toBattleSide(elementIds) },
 		)
 	}
 

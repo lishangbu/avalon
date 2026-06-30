@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 059-battle-low-hp-element-ability-rules
     author: backend
-    comment: 补齐低体力指定属性增伤特性规则与公开对照 fixture 数据。
+    comment: 补齐低体力指定属性增伤特性规则。
     changes:
     - insert:
         tableName: battle_ability_rule
@@ -15,30 +15,3 @@ databaseChangeLog:
         - column: { name: description, value: 体力降低时强化虫属性伤害。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 330 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 124 }
-        - column: { name: code, value: low-hp-element-ability-boosts-matching-damage-at-threshold }
-        - column: { name: name, value: 低体力指定属性增伤特性在阈值内触发 }
-        - column: { name: category, value: ABILITY }
-        - column: { name: fixture_type, value: FORMULA }
-        - column: { name: description, value: 验证 HP 小于等于最大 HP 1/3 且技能属性匹配时，低体力指定属性增伤特性按 1.5 倍提升伤害。 }
-        - column: { name: input_summary, value: 使用者当前 HP 等于最大 HP 的 1/3，拥有低体力强化虫属性伤害的结构化特性，并使用虫属性技能。 }
-        - column: { name: expected_summary, value: 技能属性匹配且 HP 达到阈值时，伤害倍率按 1.5 叠乘；高于阈值或属性不匹配时不触发该倍率。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1240 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 124 }
-        - column: { name: run_code, value: low-hp-element-ability-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 124 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T06:30:00+08:00" }
-        - column: { name: finished_at, value: "2026-06-29T06:33:00+08:00" }
-        - column: { name: duration_ms, valueNumeric: 180000 }
-        - column: { name: assertion_count, valueNumeric: 6 }
-        - column: { name: sort_order, valueNumeric: 1240 }

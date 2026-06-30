@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 097-battle-binding-rules
     author: backend
-    comment: 新增束缚临时状态、技能规则与公开对照 fixture 数据。
+    comment: 新增束缚临时状态、技能规则。
     changes:
     - insert:
         tableName: battle_status_rule
@@ -56,23 +56,3 @@ databaseChangeLog:
         - column: { name: chance_percent, valueNumeric: 100 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 130 }
-    - sql:
-        splitStatements: true
-        stripComments: true
-        sql: |
-          insert into battle_rule_fixture
-            (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
-          values
-            (215, 'binding-skill-traps-target-and-deals-end-turn-damage', '束缚技能附加目标并造成回合末伤害', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚类技能命中后写入来源和持续回合，并在同回合末造成固定比例间接伤害。', '使用者用束缚类技能命中目标，持续回合随机结果为 4。', '目标记录束缚来源并在回合末承受最大 HP 的 1/8 伤害，剩余回合递减为 3。', true, 2150),
-            (216, 'bound-participant-cannot-switch-voluntarily', '束缚阻止目标主动替换', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证来源仍在场时，处于束缚的成员不能主动替换。', '成员处于束缚状态且束缚来源仍在场，尝试主动替换。', '主动替换被阻止，成员仍留在上场席位，并在回合末继续承受束缚伤害。', true, 2160),
-            (217, 'bound-participant-takes-end-turn-binding-damage', '束缚回合末伤害', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚状态在每个回合末造成最大 HP 的 1/8 间接伤害。', '目标处于束缚状态，来源仍在场，双方本回合没有行动。', '目标在回合末受到最大 HP 的 1/8 伤害，束缚剩余回合减少 1。', true, 2170),
-            (218, 'binding-clears-when-end-turn-duration-reaches-zero', '束缚持续回合归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚最后一回合造成伤害后自然解除并清理来源成员。', '目标束缚只剩 1 回合，来源仍在场，双方本回合没有行动。', '目标在回合末承受最后一次束缚伤害，随后束缚归零并产生临时状态解除事件。', true, 2180),
-            (219, 'binding-clears-when-source-switches-out', '束缚来源离场解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚来源离开上场席位时，目标束缚立即结束且不再造成回合末伤害。', '束缚来源主动替换离场，目标仍处于束缚状态。', '目标束缚立即解除，本回合末不会再受到该束缚的间接伤害。', true, 2190);
-          insert into battle_rule_test_run
-            (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
-          values
-            (215, 'binding-coverage-20260629-1', 215, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleBindingStatusTests', '2026-06-29T20:00:00+08:00', 2150),
-            (216, 'binding-coverage-20260629-2', 216, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleBindingStatusTests', '2026-06-29T20:00:00+08:00', 2160),
-            (217, 'binding-coverage-20260629-3', 217, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleBindingStatusTests', '2026-06-29T20:00:00+08:00', 2170),
-            (218, 'binding-coverage-20260629-4', 218, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleBindingStatusTests', '2026-06-29T20:00:00+08:00', 2180),
-            (219, 'binding-coverage-20260629-5', 219, 'PASSED', 'gradle', './gradlew :battle-engine:test --tests io.github.lishangbu.battleengine.BattleBindingStatusTests', '2026-06-29T20:00:00+08:00', 2190);

@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 089-battle-proportional-damage-skill-rules
     author: backend
-    comment: 新增按目标当前 HP 比例造成伤害的技能规则与公开对照 fixture 数据。
+    comment: 新增按目标当前 HP 比例造成伤害的技能规则。
     changes:
     - insert:
         tableName: battle_skill_rule
@@ -85,51 +85,3 @@ databaseChangeLog:
         - column: { name: description, value: 命中并通过属性免疫判定后，造成目标当前 HP 的 1/2 直接技能伤害，向下取整且至少 1 点。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 820 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 181 }
-        - column: { name: code, value: proportional-damage-skill-halves-target-current-hp }
-        - column: { name: name, value: 比例伤害技能按目标当前 HP 一半扣血 }
-        - column: { name: category, value: SKILL }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证比例伤害类技能按目标当前 HP 计算伤害，而不是进入普通伤害公式。 }
-        - column: { name: input_summary, value: 使用者用目标当前 HP 一半伤害技能命中当前 HP 为 99 和 1 的目标。 }
-        - column: { name: expected_summary, value: 当前 HP 为 99 时损失 49；当前 HP 为 1 时仍造成至少 1 点实际伤害。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1810 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 182 }
-        - column: { name: code, value: proportional-damage-skill-respects-element-immunity }
-        - column: { name: name, value: 比例伤害技能仍受属性免疫阻止 }
-        - column: { name: category, value: SKILL }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证比例伤害类技能通过普通属性免疫判定后才会造成 HP 损失。 }
-        - column: { name: input_summary, value: 目标当前 HP 一半伤害技能命中属性相性为 0 的目标。 }
-        - column: { name: expected_summary, value: 目标 HP 保持不变，引擎只记录 0 伤害事件，不会绕过属性免疫。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 1820 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 181 }
-        - column: { name: run_code, value: proportional-damage-skill-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 181 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T15:15:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1810 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 182 }
-        - column: { name: run_code, value: proportional-damage-skill-coverage-20260629-2 }
-        - column: { name: fixture_id, valueNumeric: 182 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T15:15:00+08:00" }
-        - column: { name: sort_order, valueNumeric: 1820 }

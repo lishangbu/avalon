@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 047-battle-skill-charge-rules
     author: backend
-    comment: 新增蓄力后发动技能规则字段和公开对照 fixture 数据。
+    comment: 新增蓄力后发动技能规则字段。
     changes:
     - addColumn:
         tableName: battle_skill_rule
@@ -20,30 +20,3 @@ databaseChangeLog:
         - column: { name: charges_before_use, valueBoolean: true }
         - column: { name: description, value: 首次使用先蓄力，下一次行动释放；部分非晴朗天气下威力减半。 }
         where: skill_id = 76
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 95 }
-        - column: { name: code, value: charge-skill-releases-next-turn-without-extra-pp }
-        - column: { name: name, value: 蓄力技能下一回合释放且不重复扣 PP }
-        - column: { name: category, value: SKILL }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证蓄力类技能首次使用只进入蓄力并消耗一次 PP，下一次技能行动自动释放并进入普通伤害流程。 }
-        - column: { name: input_summary, value: 使用者使用需要蓄力的特殊伤害技能，下一回合未提交行动。 }
-        - column: { name: expected_summary, value: 首回合只进入蓄力并扣一次 PP；下一回合自动释放技能造成伤害，不再次扣 PP。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 950 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 95 }
-        - column: { name: run_code, value: charge-skill-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 95 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T02:45:00+08:00" }
-        - column: { name: finished_at, value: "2026-06-29T02:48:00+08:00" }
-        - column: { name: duration_ms, valueNumeric: 180000 }
-        - column: { name: assertion_count, valueNumeric: 9 }
-        - column: { name: sort_order, valueNumeric: 950 }

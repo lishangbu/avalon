@@ -2,7 +2,7 @@ databaseChangeLog:
 - changeSet:
     id: 049-battle-charge-skip-item
     author: backend
-    comment: 新增一次性跳过蓄力道具规则和公开对照 fixture 数据。
+    comment: 新增一次性跳过蓄力道具规则。
     changes:
     - insert:
         tableName: battle_item_rule
@@ -16,30 +16,3 @@ databaseChangeLog:
         - column: { name: description, value: 首次宣告蓄力技能时消耗该道具，并让技能同回合进入命中和伤害流程。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 60 }
-    - insert:
-        tableName: battle_rule_fixture
-        columns:
-        - column: { name: id, valueNumeric: 97 }
-        - column: { name: code, value: charge-skill-consumes-item-to-skip-charge }
-        - column: { name: name, value: 蓄力技能消耗道具同回合发动 }
-        - column: { name: category, value: ITEM }
-        - column: { name: fixture_type, value: STATE_MACHINE }
-        - column: { name: description, value: 验证一次性跳过蓄力道具会在技能宣告后被消费，并让原本需要等待的蓄力技能同回合发动。 }
-        - column: { name: input_summary, value: 使用者携带一次性跳过蓄力道具，使用需要蓄力的特殊伤害技能。 }
-        - column: { name: expected_summary, value: 技能宣告后道具被消费，不产生蓄力开始事件，并在同回合造成伤害。 }
-        - column: { name: enabled, valueBoolean: true }
-        - column: { name: sort_order, valueNumeric: 970 }
-    - insert:
-        tableName: battle_rule_test_run
-        columns:
-        - column: { name: id, valueNumeric: 97 }
-        - column: { name: run_code, value: charge-skill-item-skip-coverage-20260629-1 }
-        - column: { name: fixture_id, valueNumeric: 97 }
-        - column: { name: run_status, value: PASSED }
-        - column: { name: executor, value: gradle }
-        - column: { name: command, value: ./gradlew :battle-engine:test :battle-rules:test :migration:test }
-        - column: { name: started_at, value: "2026-06-29T03:45:00+08:00" }
-        - column: { name: finished_at, value: "2026-06-29T03:48:00+08:00" }
-        - column: { name: duration_ms, valueNumeric: 180000 }
-        - column: { name: assertion_count, valueNumeric: 11 }
-        - column: { name: sort_order, valueNumeric: 970 }
