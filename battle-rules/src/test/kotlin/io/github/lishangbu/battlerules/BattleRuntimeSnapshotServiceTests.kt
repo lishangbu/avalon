@@ -1129,6 +1129,137 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证出场环境特性不是只被装配成列表，而是在引擎启动阶段真实写入天气和场地。
+	 *
+	 * 本用例同时放置一个天气特性和一个场地特性，原因是二者都在 `start` 的出场钩子触发，但写入不同的环境槽。
+	 * 如果后续资料读取只保留其中一种，或者特性 ID 到结构化效果的映射发生漂移，事件流会直接缺少对应的
+	 * [BattleEvent.WeatherStarted] 或 [BattleEvent.TerrainStarted]。这里不手写特性效果，全部通过数据库中的
+	 * ability policy 装配，固定的是现代规则默认 5 回合持续时间。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database switch in weather and terrain abilities`() {
+		val initialState = assembledState(
+			firstSideFirst = participant("a-1", creatureId = 7, level = 50, skillIds = listOf(1), abilityId = 2),
+			secondSideFirst = participant("b-1", creatureId = 4, level = 50, skillIds = listOf(1), abilityId = 226),
+		)
+		val started = BattleEngine().start(initialState)
+		val weather = started.events.filterIsInstance<BattleEvent.WeatherStarted>().single()
+		val terrain = started.events.filterIsInstance<BattleEvent.TerrainStarted>().single()
+
+		assertThat(weather.actorId).isEqualTo("a-1")
+		assertThat(weather.weather).isEqualTo(BattleWeather.RAIN)
+		assertThat(weather.turnsRemaining).isEqualTo(5)
+		assertThat(terrain.actorId).isEqualTo("b-1")
+		assertThat(terrain.terrain).isEqualTo(BattleTerrain.ELECTRIC)
+		assertThat(terrain.turnsRemaining).isEqualTo(5)
+	}
+
+	/**
+	 * 验证数据库中的属性吸收特性会在命中前门禁阶段中断技能。
+	 *
+	 * 技能 85 的电属性、特性 10 的电属性吸收回复都来自资料表；测试只把二者放在同一击里。期望结果是技能已经
+	 * 被使用，但不会进入普通伤害事件，也不会继续触发技能自带的后续状态概率。因为目标满 HP，所以回复量可以是
+	 * 0；关键事实是 [BattleEvent.SkillAbsorbedByAbility] 记录了实际拦截该技能的特性和属性。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database element absorb ability in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 25, level = 50, skillIds = listOf(85)),
+			secondSideFirst = participant("b-1", creatureId = 7, level = 50, skillIds = listOf(1), abilityId = 10),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 85, targetActorId = "b-1"),
+		)
+		val absorbed = resolved.events.filterIsInstance<BattleEvent.SkillAbsorbedByAbility>().single()
+
+		assertThat(absorbed.actorId).isEqualTo("a-1")
+		assertThat(absorbed.targetActorId).isEqualTo("b-1")
+		assertThat(absorbed.abilityHolderActorId).isEqualTo("b-1")
+		assertThat(absorbed.abilityId).isEqualTo(10)
+		assertThat(absorbed.elementId).isEqualTo(13)
+		assertThat(resolved.events.filterIsInstance<BattleEvent.DamageApplied>()).isEmpty()
+	}
+
+	/**
+	 * 验证数据库中的主要异常治愈道具会在状态已经写入后立刻清除并消费。
+	 *
+	 * 技能 261 是资料中的灼伤变化技能，道具 129 是只解除灼伤的一次性携带道具。现代规则要求这类道具不拦截状态
+	 * 赋予本身，而是在 [BattleEvent.StatusApplied] 后追加 [BattleEvent.StatusCleared]；这个顺序对 replay 和
+	 * 规则调试很重要，因此测试显式比较两个事件在同一事件流中的先后位置。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database major status cure item in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 4, level = 50, skillIds = listOf(261)),
+			secondSideFirst = participant("b-1", creatureId = 7, level = 50, itemId = 129, skillIds = listOf(1)),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 261, targetActorId = "b-1"),
+			randomValues = listOf(0),
+		)
+		val applied = resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single()
+		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
+
+		assertThat(applied.targetActorId).isEqualTo("b-1")
+		assertThat(applied.status).isEqualTo(BattleMajorStatus.BURN)
+		assertThat(cleared.actorId).isEqualTo("b-1")
+		assertThat(cleared.status).isEqualTo(BattleMajorStatus.BURN)
+		assertThat(resolved.events.indexOf(applied)).isLessThan(resolved.events.indexOf(cleared))
+		assertThat(resolved.participant("b-1")?.majorStatus).isNull()
+		assertThat(resolved.participant("b-1")?.itemId).isNull()
+		assertThat(resolved.participant("b-1")?.itemEffects).isEmpty()
+	}
+
+	/**
+	 * 验证基础技能优先度和阻止先制技能的特性能跨资料模块组合生效。
+	 *
+	 * 技能 98 没有额外 battle rule 时仍从 `game_skill.priority` 获得先制优先度；特性 214 则来自 battle ability
+	 * policy。测试把这两份资料装成真实成员后结算一回合，确保先制技能在命中、伤害、附加效果前被特性拥有者阻挡。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database priority immunity ability in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 25, level = 50, skillIds = listOf(98)),
+			secondSideFirst = participant("b-1", creatureId = 4, level = 50, skillIds = listOf(1), abilityId = 214),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 98, targetActorId = "b-1"),
+		)
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().single()
+
+		assertThat(blocked.actorId).isEqualTo("a-1")
+		assertThat(blocked.targetActorId).isEqualTo("b-1")
+		assertThat(blocked.abilityHolderActorId).isEqualTo("b-1")
+		assertThat(blocked.abilityId).isEqualTo(214)
+		assertThat(resolved.events.filterIsInstance<BattleEvent.DamageApplied>()).isEmpty()
+	}
+
+	/**
+	 * 验证抗性减伤道具从数据库装配后能进入真实伤害公式链。
+	 *
+	 * 目标携带道具 161，资料声明它在本体受到火属性且效果绝佳的技能伤害时消费并乘以 0.5；技能 52 和目标双属性
+	 * 都来自 game data。测试不复刻完整伤害公式，只确认减伤事件出现、道具被消费、随后仍有实际伤害事件，覆盖
+	 * “资料装配 -> 伤害前道具 hook -> HP 写入”的跨模块链路。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database element damage reduction item in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 4, level = 50, skillIds = listOf(52)),
+			secondSideFirst = participant("b-1", creatureId = 1, level = 50, itemId = 161, skillIds = listOf(1)),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 52, targetActorId = "b-1"),
+			randomValues = listOf(1, 15, 99),
+		)
+		val reduced = resolved.events.filterIsInstance<BattleEvent.DamageReducedByItem>().single()
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		assertThat(reduced.actorId).isEqualTo("a-1")
+		assertThat(reduced.targetActorId).isEqualTo("b-1")
+		assertThat(reduced.skillId).isEqualTo(52)
+		assertThat(reduced.itemId).isEqualTo(161)
+		assertThat(reduced.elementId).isEqualTo(10)
+		assertThat(reduced.multiplier).isEqualTo(0.5)
+		assertThat(reduced.consumed).isTrue()
+		assertThat(damage.targetActorId).isEqualTo("b-1")
+		assertThat(damage.effectiveness).isGreaterThan(1.0)
+		assertThat(resolved.participant("b-1")?.itemId).isNull()
+		assertThat(resolved.participant("b-1")?.itemEffects).isEmpty()
+	}
+
+	/**
 	 * 验证数据库属性克制表不只是被装进快照，也确实驱动 battle-engine 的真实伤害事件。
 	 *
 	 * 这里不重复实现伤害公式，只断言事件中的 `effectiveness` 和是否扣血：
@@ -1219,6 +1350,24 @@ class BattleRuntimeSnapshotServiceTests(
 				ScriptedBattleRandom(listOf(0, 1, 15)),
 			)
 		}
+
+	private fun resolvedAssembledTurn(
+		firstSideFirst: BattlePreparationParticipantRequest,
+		secondSideFirst: BattlePreparationParticipantRequest,
+		action: BattleAction.UseSkill,
+		randomValues: List<Int> = emptyList(),
+	) = BattleEngine().let { engine ->
+		engine.resolveTurn(
+			engine.start(
+				assembledState(
+					firstSideFirst = firstSideFirst,
+					secondSideFirst = secondSideFirst,
+				),
+			),
+			listOf(action),
+			ScriptedBattleRandom(randomValues),
+		)
+	}
 
 	/**
 	 * 为跨模块运行时测试装配一场固定双方结构的双打快照。
