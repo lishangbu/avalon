@@ -84,6 +84,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(snapshot.rules.rockElementId).isEqualTo(6)
 		assertThat(snapshot.rules.steelElementId).isEqualTo(9)
 		assertThat(snapshot.rules.waterElementId).isEqualTo(11)
+		assertThat(snapshot.rules.elementChart.multiplier(10, setOf(12))).isEqualTo(2.0)
+		assertThat(snapshot.rules.elementChart.multiplier(11, setOf(10))).isEqualTo(2.0)
+		assertThat(snapshot.rules.elementChart.multiplier(1, setOf(8))).isEqualTo(0.0)
+		assertThat(snapshot.rules.elementChart.multiplier(12, setOf(11, 5))).isEqualTo(4.0)
 	}
 
 	@Test
@@ -415,6 +419,33 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(electricTerrain.turnsRemaining).isEqualTo(5)
 	}
 
+	/**
+	 * 技能运行时装配的输入错误要在适配层被直接定位。
+	 *
+	 * 空列表和非正数 ID 属于请求形状错误；不存在的正数 ID 则说明资料库没有对应基础技能。三类问题都不应该落到
+	 * battle-engine 里再表现为“技能槽缺失”，否则准备校验和真实开战会得到不同错误口径。
+	 */
+	@Test
+	fun `skill slot assembly rejects invalid and missing skill data`() {
+		val emptySkillIds = assertThrows<ApiException> {
+			service.skillSlotsBySkillIds(emptyList())
+		}
+		assertThat(emptySkillIds.field).isEqualTo("skillIds")
+		assertThat(emptySkillIds.message).isEqualTo("skillIds 不能为空")
+
+		val nonPositiveSkillId = assertThrows<ApiException> {
+			service.skillSlotsBySkillIds(listOf(0))
+		}
+		assertThat(nonPositiveSkillId.field).isEqualTo("skillIds")
+		assertThat(nonPositiveSkillId.message).isEqualTo("skillIds 只能包含正数 ID")
+
+		val missingSkill = assertThrows<ApiException> {
+			service.skillSlotsBySkillIds(listOf(999_999))
+		}
+		assertThat(missingSkill.field).isEqualTo("skillIds")
+		assertThat(missingSkill.message).isEqualTo("技能不存在: 999999")
+	}
+
 	@Test
 	fun `creature runtime profile uses game data stats and elements`() {
 		val profile = service.creatureRuntimeProfile(creatureId = 1, level = 50)
@@ -426,6 +457,34 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(profile.specialDefense).isEqualTo(85)
 		assertThat(profile.speed).isEqualTo(65)
 		assertThat(profile.elementIds).containsExactlyInAnyOrder(12L, 4L)
+	}
+
+	/**
+	 * 成员运行时画像必须保证属性和基础能力完整。
+	 *
+	 * 资料缺属性或缺基础能力时，引擎无法安全计算伤害、接地、属性免疫和速度排序；因此读取器需要在装配阶段抛出
+	 * 结构化异常，而不是用 0 或 1 这类占位值继续往下跑。
+	 */
+	@Test
+	fun `creature runtime profile rejects invalid level and missing creature data`() {
+		val invalidCreatureId = assertThrows<ApiException> {
+			service.creatureRuntimeProfile(creatureId = 0, level = 50)
+		}
+		assertThat(invalidCreatureId.field).isEqualTo("creatureId")
+		assertThat(invalidCreatureId.message).isEqualTo("creatureId 必须大于 0")
+
+		val invalidLevel = assertThrows<ApiException> {
+			service.creatureRuntimeProfile(creatureId = 1, level = 101)
+		}
+		assertThat(invalidLevel.field).isEqualTo("level")
+		assertThat(invalidLevel.message).isEqualTo("level 必须在 1 到 100 之间")
+
+		val missingCreature = assertThrows<ApiException> {
+			service.creatureRuntimeProfile(creatureId = 999_999, level = 50)
+		}
+		assertThat(missingCreature.status).isEqualTo(HttpStatus.NOT_FOUND)
+		assertThat(missingCreature.field).isEqualTo("creatureId")
+		assertThat(missingCreature.message).isEqualTo("成员属性资料不存在: 999999")
 	}
 
 	@Test
@@ -809,6 +868,39 @@ class BattleRuntimeSnapshotServiceTests(
 				BattleTerrain.PSYCHIC,
 			)
 		assertThat(terrainDuration.turnsRemaining).isEqualTo(8)
+	}
+
+	/**
+	 * 特性/道具规则可以暂时没有运行时 hook，但非法 ID 不能被静默接受。
+	 *
+	 * 空策略列表表示“资料存在性由资料维护侧保证，但当前没有引擎需要执行的效果”；非正数 ID 则是请求错误，应立即
+	 * 拒绝。这个差异能避免后续新增普通资料时被迫同步新增空规则行。
+	 */
+	@Test
+	fun `ability and item effect assembly separates empty policies from invalid identifiers`() {
+		assertThat(service.abilityEffectsByAbilityId(null)).isEmpty()
+		assertThat(service.itemEffectsByItemId(null)).isEmpty()
+		assertThat(service.groundedByAbilityId(null)).isTrue()
+		assertThat(service.abilityEffectsByAbilityId(999_999)).isEmpty()
+		assertThat(service.itemEffectsByItemId(999_999)).isEmpty()
+
+		val invalidAbility = assertThrows<ApiException> {
+			service.abilityEffectsByAbilityId(0)
+		}
+		assertThat(invalidAbility.field).isEqualTo("abilityId")
+		assertThat(invalidAbility.message).isEqualTo("abilityId 必须大于 0")
+
+		val invalidGroundingAbility = assertThrows<ApiException> {
+			service.groundedByAbilityId(-1)
+		}
+		assertThat(invalidGroundingAbility.field).isEqualTo("abilityId")
+		assertThat(invalidGroundingAbility.message).isEqualTo("abilityId 必须大于 0")
+
+		val invalidItem = assertThrows<ApiException> {
+			service.itemEffectsByItemId(0)
+		}
+		assertThat(invalidItem.field).isEqualTo("itemId")
+		assertThat(invalidItem.message).isEqualTo("itemId 必须大于 0")
 	}
 
 	@Test
