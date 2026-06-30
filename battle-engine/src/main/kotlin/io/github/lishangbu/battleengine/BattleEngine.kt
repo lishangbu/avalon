@@ -16,7 +16,6 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
-import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
@@ -32,7 +31,6 @@ import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
-import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 import kotlin.math.floor
@@ -83,6 +81,16 @@ class BattleEngine(
 	 * [BattleEngine.resolveTurn] 被大量 `flatMap activeParticipants + decrement` 细节淹没。
 	 */
 	private val endTurnVolatileStatuses = BattleEndTurnVolatileStatuses()
+	/**
+	 * 回合末环境与持续伤害结算器。
+	 *
+	 * 主类只保留“回合末阶段发生在技能阶段之后、持续时间推进之前”这个编排事实；具体异常伤害、束缚伤害、
+	 * 天气伤害、天气/场地/道具回复和回合上限收口都委托给该对象。低体力回复道具仍回调主类中的实现，保证所有
+	 * 伤害入口共享同一套道具消费与回复封锁判断。
+	 */
+	private val endTurnEffects = BattleEndTurnEffects(
+		lowHpItemHealing = { state, actorId -> applyLowHpHealingItem(state, actorId) },
+	)
 
 	/**
 	 * 入场陷阱结算从主状态机拆出，但仍复用主状态机里的主要异常阻止判断和低体力道具回复判断。
@@ -153,7 +161,7 @@ class BattleEngine(
 			state = resolvedContext.state,
 			successfulProtectionActorIds = resolvedContext.successfulProtectionActorIds,
 		)
-		val afterEndTurnEffects = resolved.result?.let { resolved } ?: applyEndTurnEffects(resolved)
+		val afterEndTurnEffects = resolved.result?.let { resolved } ?: endTurnEffects.apply(resolved)
 		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
 			?: endTurnVolatileStatuses.clearEndTurnOnlyStatuses(afterEndTurnEffects)
 		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
@@ -163,7 +171,7 @@ class BattleEngine(
 		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
 			?: afterEnvironmentDurations.advanceSideConditionDurations()
 		val afterTurnLimit = afterSideConditionDurations.result?.let { afterSideConditionDurations }
-			?: applyTurnLimit(afterSideConditionDurations)
+			?: endTurnEffects.applyTurnLimit(afterSideConditionDurations)
 		return afterTurnLimit.result?.let { afterTurnLimit }
 			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
@@ -212,7 +220,7 @@ class BattleEngine(
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
 				return@fold current.preventSwitch(actor, SwitchPreventionReason.LOCKED_MOVE, skillId = lockedSkillId)
 			}
-			if (actor.canBattle() && bindingSourceActive(current, actor)) {
+			if (actor.canBattle() && endTurnEffects.isBindingSourceActive(current, actor)) {
 				val sourceActorId = actor.boundByActorId ?: return@fold current
 				return@fold current.preventSwitch(
 					actor = actor,
@@ -231,7 +239,7 @@ class BattleEngine(
 					forced = !actor.canBattle(),
 				),
 			)
-			val afterBindingSourceCleared = clearBindingsFromSource(withSwitchEvent, actor.actorId)
+			val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(withSwitchEvent, actor.actorId)
 			val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(
 				state = afterBindingSourceCleared,
 				sideId = side.sideId,
@@ -2498,7 +2506,7 @@ class BattleEngine(
 					),
 				),
 			)
-		val afterBindingSourceCleared = clearBindingsFromSource(switched, target.actorId)
+		val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(switched, target.actorId)
 		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return switchInAbilityEffects.apply(afterEntryHazards, next.actorId)
 	}
@@ -3148,325 +3156,6 @@ class BattleEngine(
 			)
 	}
 
-	private fun BattleState.applyEndTurnDamageResult(
-		damaged: BattleParticipant,
-		event: BattleEvent,
-		afterEvent: (BattleState) -> BattleState = { it },
-	): BattleState {
-		val afterDamage = afterEvent(replaceParticipant(damaged).appendEvent(event))
-		val afterLowHpItem = applyLowHpHealingItem(afterDamage, damaged.actorId)
-		val latestAfterItem = afterLowHpItem.participant(damaged.actorId) ?: damaged
-		return afterLowHpItem.handleFaintAndResult(latestAfterItem)
-	}
-
-	/**
-	 * 结算回合末主要异常状态伤害。
-	 *
-	 * 当前实现覆盖灼伤、中毒和剧毒扣血。剧毒按成员运行态中的递增计数计算，并在成员存活时推进计数；
-	 * 后续接入替身、魔法防守、治愈类效果时，会在这里之前追加状态伤害 modifier。
-	 */
-	private fun applyEndTurnEffects(state: BattleState): BattleState {
-		val afterResidual = state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
-					current
-				} else {
-					val residualDamage = residualDamage(latest) ?: return@fold current
-					val damaged = latest.receiveDamage(residualDamage)
-					val afterStatusCounter = if (damaged.canBattle()) {
-						damaged.advanceBadPoisonCounter()
-					} else {
-						damaged
-					}
-					current.applyEndTurnDamageResult(
-						damaged = afterStatusCounter,
-						event = BattleEvent.ResidualDamageApplied(
-							turnNumber = current.turnNumber,
-							actorId = latest.actorId,
-							status = requireNotNull(latest.majorStatus),
-							amount = residualDamage,
-						),
-					)
-				}
-			}
-		return if (afterResidual.result != null) {
-			afterResidual
-		} else {
-			val afterBinding = applyEndTurnBindingEffects(afterResidual)
-			if (afterBinding.result != null) {
-				return afterBinding
-			}
-			val afterWeather = applyEndTurnWeatherEffects(afterBinding)
-			if (afterWeather.result != null) {
-				afterWeather
-			} else {
-				val afterWeatherHealing = applyEndTurnWeatherHealing(afterWeather)
-				applyEndTurnHealing(applyEndTurnTerrainEffects(afterWeatherHealing))
-			}
-		}
-	}
-
-	/**
-	 * 处理回合末天气伤害。
-	 *
-	 * 当前只覆盖现代沙暴固定伤害：当前上场、仍可战斗，且不是岩/地面/钢属性的成员会受到最大 HP 的 1/16 伤害。
-	 * 特性、道具、潜水/挖洞等免疫来源尚未进入成员运行态，后续会在这里扩展结构化判断。
-	 */
-	private fun applyEndTurnWeatherEffects(state: BattleState): BattleState {
-		if (state.environment.weather != BattleWeather.SANDSTORM) {
-			return state
-		}
-		return state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (!latest.canBattle() || latest.immuneToWeatherDamage(current, BattleWeather.SANDSTORM)) {
-					current
-				} else {
-					val damage = (latest.maxHp / WEATHER_DAMAGE_DENOMINATOR).coerceAtLeast(1)
-					val damaged = latest.receiveDamage(damage)
-					current.applyEndTurnDamageResult(
-						damaged = damaged,
-						event = BattleEvent.WeatherDamageApplied(
-							turnNumber = current.turnNumber,
-							actorId = latest.actorId,
-							weather = BattleWeather.SANDSTORM,
-							amount = damage,
-						),
-					)
-				}
-			}
-	}
-
-	/**
-	 * 处理束缚类临时状态的回合末伤害和持续时间。
-	 *
-	 * 束缚伤害只有在目标仍可战斗、来源成员仍在场且来源仍可战斗时结算；若来源已经离场或无法战斗，则目标的
-	 * 束缚立即解除。成功造成伤害后再递减持续回合，归零时追加 [BattleEvent.VolatileStatusCleared]。
-	 */
-	private fun applyEndTurnBindingEffects(state: BattleState): BattleState =
-		state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@fold current
-				if (latest.bindingTurnsRemaining <= 0) {
-					return@fold current
-				}
-				if (!bindingSourceActive(current, latest)) {
-					return@fold clearBindingState(current, latest)
-				}
-				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
-					return@fold current
-				}
-				val sourceActorId = requireNotNull(latest.boundByActorId) { "binding source must be present" }
-				val turnsRemainingBefore = latest.bindingTurnsRemaining
-				val damage = (latest.maxHp / BINDING_DAMAGE_DENOMINATOR).coerceAtLeast(1)
-				val damaged = latest.receiveDamage(damage).decrementBindingEndTurn()
-				current.applyEndTurnDamageResult(
-					damaged = damaged,
-					event = BattleEvent.BindingDamageApplied(
-						turnNumber = current.turnNumber,
-						actorId = latest.actorId,
-						sourceActorId = sourceActorId,
-						amount = damage,
-						turnsRemainingBefore = turnsRemainingBefore,
-					),
-					afterEvent = { afterDamage ->
-						if (turnsRemainingBefore == 1) {
-							afterDamage.appendEvent(
-								BattleEvent.VolatileStatusCleared(
-									turnNumber = current.turnNumber,
-									actorId = latest.actorId,
-									status = BattleVolatileStatus.BINDING,
-								),
-							)
-						} else {
-							afterDamage
-						}
-					},
-				)
-			}
-
-	/**
-	 * 判断成员当前束缚来源是否仍在场并可战斗。
-	 */
-	private fun bindingSourceActive(state: BattleState, participant: BattleParticipant): Boolean {
-		val sourceActorId = participant.boundByActorId ?: return false
-		val source = state.participant(sourceActorId) ?: return false
-		return source.canBattle() && state.isActive(sourceActorId)
-	}
-
-	/**
-	 * 清除指定来源成员维持的所有束缚。
-	 *
-	 * 当束缚来源主动或被迫离场时，所有由它维持的束缚立即结束。这里遍历完整队伍而不是只看当前上场成员，
-	 * 让未来双打或强制替换场景中同一来源同时束缚多个目标时也能保持一致。
-	 */
-	private fun clearBindingsFromSource(state: BattleState, sourceActorId: String): BattleState =
-		state.sides
-			.flatMap { it.participants }
-			.filter { it.boundByActorId == sourceActorId && it.bindingTurnsRemaining > 0 }
-			.fold(state) { current, participant -> clearBindingState(current, participant) }
-
-	/**
-	 * 清除单个成员的束缚并追加解除事件。
-	 */
-	private fun clearBindingState(state: BattleState, participant: BattleParticipant): BattleState =
-		state
-			.replaceParticipant(participant.clearBinding())
-			.appendEvent(
-				BattleEvent.VolatileStatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					status = BattleVolatileStatus.BINDING,
-				),
-			)
-
-	/**
-	 * 处理天气阶段的特性回复。
-	 *
-	 * 现代规则中，部分特性会在指定天气存在时于回合末按最大 HP 固定比例回复。这里放在天气伤害之后、
-	 * 场地回复之前，保持事件流阶段清晰：天气先造成或免除伤害，再处理同属天气阶段的回复，最后进入场地和道具。
-	 */
-	private fun applyEndTurnWeatherHealing(state: BattleState): BattleState {
-		val weather = state.environment.weather
-		if (weather == BattleWeather.NONE) {
-			return state
-		}
-		return state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) weatherHealing@ { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@weatherHealing current
-				if (!latest.canReceiveHealing()) {
-					return@weatherHealing current
-				}
-				val healEffects = latest.abilityEffects
-					.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
-					.filter { weather in it.weathers }
-				healEffects.fold(current) effectHealing@ { healingState, effect ->
-					val currentParticipant = healingState.participant(latest.actorId) ?: return@effectHealing healingState
-					if (!currentParticipant.canReceiveHealing()) {
-						return@effectHealing healingState
-					}
-					val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-						.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-					healingState
-						.replaceParticipant(currentParticipant.heal(healAmount))
-						.appendEvent(
-							BattleEvent.WeatherHealingApplied(
-								turnNumber = healingState.turnNumber,
-								actorId = currentParticipant.actorId,
-								weather = weather,
-								amount = healAmount,
-							),
-						)
-				}
-			}
-	}
-
-	/**
-	 * 处理回合末场地回复。
-	 *
-	 * 第一批只实现青草场地的固定比例回复，并只作用于当前上场、仍可战斗且接地的成员。
-	 * 飞行、漂浮、携带道具免疫地面场地等来源应在进入引擎前折算为成员的 `grounded=false`。
-	 */
-	private fun applyEndTurnTerrainEffects(state: BattleState): BattleState {
-		if (state.environment.terrain != BattleTerrain.GRASSY) {
-			return state
-		}
-		return state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) terrainHealing@ { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@terrainHealing current
-				if (!latest.grounded || !latest.canReceiveHealing()) {
-					return@terrainHealing current
-				}
-				val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
-					.coerceAtMost(latest.maxHp - latest.currentHp)
-				current
-					.replaceParticipant(latest.heal(healAmount))
-					.appendEvent(
-						BattleEvent.TerrainHealingApplied(
-							turnNumber = current.turnNumber,
-							actorId = latest.actorId,
-							terrain = BattleTerrain.GRASSY,
-							amount = healAmount,
-						),
-					)
-			}
-	}
-
-	/**
-	 * 处理回合末携带道具回复。
-	 *
-	 * 第一批只实现当前上场成员的固定最大 HP 比例回复，不处理道具消耗、回复封锁或复杂场地顺序。
-	 */
-	private fun applyEndTurnHealing(state: BattleState): BattleState =
-		state.sides
-			.flatMap { it.activeParticipants() }
-			.fold(state) endTurnHealing@ { current, participant ->
-				val latest = current.participant(participant.actorId) ?: return@endTurnHealing current
-				if (!latest.canReceiveHealing()) {
-					return@endTurnHealing current
-				}
-				latest.itemEffects
-					.filterIsInstance<BattleItemEffect.HeldEndTurnHeal>()
-					.fold(current) itemHealing@ { healingState, effect ->
-						val currentParticipant = healingState.participant(latest.actorId) ?: return@itemHealing healingState
-						if (!currentParticipant.canReceiveHealing()) {
-							return@itemHealing healingState
-						}
-						val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-							.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-						healingState
-							.replaceParticipant(currentParticipant.heal(healAmount))
-							.appendEvent(
-								BattleEvent.HealingApplied(
-									turnNumber = healingState.turnNumber,
-									actorId = currentParticipant.actorId,
-									amount = healAmount,
-								),
-							)
-					}
-			}
-
-	/**
-	 * 应用格式级回合上限裁定。
-	 *
-	 * 回合上限只在完整回合末检查，因此最后一回合的主要异常伤害、天气/场地副作用和持续时间推进都会先结算。
-	 * 当前格式快照没有声明点数裁定规则时，到达上限按平局结束，`winningSideId=null` 明确表示没有胜方。
-	 */
-	private fun applyTurnLimit(state: BattleState): BattleState {
-		val maxTurns = state.format.maxTurns ?: return state
-		if (state.turnNumber < maxTurns) {
-			return state
-		}
-		val result = BattleResult(winningSideId = null, reason = MAX_TURNS_REACHED_REASON)
-		return state
-			.copy(result = result)
-			.appendEvent(
-				BattleEvent.BattleEnded(
-					turnNumber = state.turnNumber,
-					winningSideId = result.winningSideId,
-					reason = result.reason,
-				),
-			)
-	}
-
-	/**
-	 * 计算主要异常状态在回合末造成的固定伤害。
-	 */
-	private fun residualDamage(participant: BattleParticipant): Int? =
-		when (participant.majorStatus) {
-			BattleMajorStatus.BURN -> (participant.maxHp / 16).coerceAtLeast(1)
-			BattleMajorStatus.POISON,
-			BattleMajorStatus.BAD_POISON -> (participant.maxHp * participant.badPoisonCounter.coerceAtLeast(1) / 16)
-				.coerceAtLeast(1)
-			else -> null
-		}
-
 	/**
 	 * 根据效果目标枚举找到实际承受效果的成员。
 	 */
@@ -3524,14 +3213,11 @@ class BattleEngine(
 
 	private companion object {
 		private const val DISABLE_TURNS = 4
-		private const val BINDING_DAMAGE_DENOMINATOR = 8
 		private const val BINDING_MIN_TURNS = 4
 		private const val BINDING_TURN_SPAN = 2
 		private const val HEAL_BLOCK_TURNS = 5
 		private const val TAUNT_TURNS = 3
-		private const val MAX_TURNS_REACHED_REASON = "max-turns-reached"
 		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
 		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
-		private const val WEATHER_DAMAGE_DENOMINATOR = 16
 	}
 }
