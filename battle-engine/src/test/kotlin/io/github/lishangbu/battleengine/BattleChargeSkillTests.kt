@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 /**
  * 验证蓄力后发动类技能的基础结算。
  *
- * 场景类型：技能执行流程 fixture。
+ * 场景类型：技能执行流程 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代蓄力类技能首次使用时消耗 PP 并进入等待状态，后续行动
  * 自动释放原技能；释放阶段不会再次消耗 PP，也不会重新选择技能。
  * 验证重点：首回合只产生蓄力事件不造成伤害，第二回合自动释放并进入普通命中和伤害流程，主动替换请求会被阻止。
@@ -24,7 +24,7 @@ class BattleChargeSkillTests {
 
 	@Test
 	fun `charge skill spends first turn charging then releases without extra pp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "charge-skill-releases-next-turn-without-extra-pp",
 			inputSummary = "使用者使用需要蓄力的特殊伤害技能，下一回合未提交行动。",
 			expectedSummary = "首回合只进入蓄力并扣一次 PP；下一回合自动释放技能造成伤害，不再次扣 PP。",
@@ -45,7 +45,7 @@ class BattleChargeSkillTests {
 		)
 		val afterSecond = engine.resolveTurn(afterFirst, emptyList(), ScriptedBattleRandom(listOf(1, 15)))
 
-		fixture.assertNamed("charge-skill-releases-next-turn-without-extra-pp")
+		scenario.assertNamed("charge-skill-releases-next-turn-without-extra-pp")
 		val chargeStarted = afterSecond.events.filterIsInstance<BattleEvent.SkillChargeStarted>().single()
 		assertEquals("charge-user", chargeStarted.actorId)
 		assertEquals(1, chargeStarted.turnsRemainingBeforeUse)
@@ -96,7 +96,7 @@ class BattleChargeSkillTests {
 
 	@Test
 	fun `configured weather skips charge and resolves skill immediately`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "charge-skill-skips-charge-in-sun",
 			inputSummary = "使用者在晴天下使用被配置为跳过蓄力的特殊伤害技能。",
 			expectedSummary = "技能只消耗一次 PP，不产生蓄力开始事件，并在同回合造成伤害。",
@@ -121,7 +121,7 @@ class BattleChargeSkillTests {
 			random,
 		)
 
-		fixture.assertNamed("charge-skill-skips-charge-in-sun")
+		scenario.assertNamed("charge-skill-skips-charge-in-sun")
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillChargeStarted>())
 		assertEquals(0, resolved.participant("charge-user")?.chargingTurnsRemaining)
 		assertEquals(34, resolved.participant("charge-user")?.skillSlot(1)?.remainingPp)
@@ -132,7 +132,7 @@ class BattleChargeSkillTests {
 
 	@Test
 	fun `charge skipping item is consumed and resolves skill immediately`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "charge-skill-consumes-item-to-skip-charge",
 			inputSummary = "使用者携带一次性跳过蓄力道具，使用需要蓄力的特殊伤害技能。",
 			expectedSummary = "技能宣告后道具被消费，不产生蓄力开始事件，并在同回合造成伤害。",
@@ -157,7 +157,7 @@ class BattleChargeSkillTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("charge-skill-consumes-item-to-skip-charge")
+		scenario.assertNamed("charge-skill-consumes-item-to-skip-charge")
 		val skipped = resolved.events.filterIsInstance<BattleEvent.SkillChargeSkippedByItem>().single()
 		assertEquals("charge-user", skipped.actorId)
 		assertEquals(1, skipped.skillId)

@@ -13,7 +13,7 @@ import kotlin.test.assertFailsWith
 /**
  * 验证战斗格式快照和初始状态的不变量。
  *
- * 场景类型：格式级 fixture。
+ * 场景类型：格式级 场景。
  * 参考来源类型：现代主系列常见单打/双打站位规则；本测试不覆盖具体条款限制，只保证引擎入口不会接受
  * 与格式声明矛盾的队伍和上场席位。
  * 验证重点：单打/双打上场数量、整场成员 ID 唯一性和队伍规模限制都在战斗开始前失败。
@@ -80,7 +80,7 @@ class BattleFormatValidationTests {
 
 	@Test
 	fun `max turn limit ends battle as draw after end turn effects`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "max-turn-limit-ends-battle-as-draw-after-end-turn-effects",
 			inputSummary = "格式声明最大回合数为 1，双方在第 1 回合结束时都仍可战斗。",
 			expectedSummary = "引擎在完整回合末按回合上限产生平局结果，不再追加普通回合结束事件。",
@@ -91,7 +91,7 @@ class BattleFormatValidationTests {
 
 		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
 
-		fixture.assertNamed("max-turn-limit-ends-battle-as-draw-after-end-turn-effects")
+		scenario.assertNamed("max-turn-limit-ends-battle-as-draw-after-end-turn-effects")
 		assertEquals(null, resolved.result?.winningSideId)
 		assertEquals("max-turns-reached", resolved.result?.reason)
 		val ended = resolved.events.filterIsInstance<BattleEvent.BattleEnded>().single()

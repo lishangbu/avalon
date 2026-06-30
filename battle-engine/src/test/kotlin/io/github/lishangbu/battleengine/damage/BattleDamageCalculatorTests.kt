@@ -13,14 +13,14 @@ import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.neutralRules
 import io.github.lishangbu.battleengine.participant
-import io.github.lishangbu.battleengine.publicBattleRuleFixture
+import io.github.lishangbu.battleengine.publicBattleRuleScenario
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
  * 验证第一版普通伤害公式。
  *
- * 场景类型：公式级 fixture。
+ * 场景类型：公式级 场景。
  * 参考来源类型：公开主系列普通伤害公式的通用结构；本测试覆盖可独立确认的等级、威力、攻防、随机、
  * 属性一致加成、属性克制、击中要害、天气、状态、道具和特性。
  * 验证重点：基础伤害中间值稳定、随机百分比可控、0 倍免疫不产生最小 1 点伤害。
@@ -108,7 +108,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `burn halves physical attacking stat before damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "burn-halves-physical-attacking-stat-before-damage",
 			inputSummary = "灼伤状态的使用者以 100 攻击使用物理技能攻击无特殊防御修正目标。",
 			expectedSummary = "物理攻击数值先按灼伤减半参与普通伤害公式，最终伤害低于同条件未灼伤物理攻击。",
@@ -123,7 +123,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("burn-halves-physical-attacking-stat-before-damage")
+		scenario.assertNamed("burn-halves-physical-attacking-stat-before-damage")
 		assertEquals(10, result.baseDamage)
 		assertEquals(15, result.amount)
 	}
@@ -229,7 +229,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `low hp element ability boosts matching element damage at one third hp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "low-hp-element-ability-boosts-matching-damage-at-threshold",
 			inputSummary = "使用者当前 HP 等于最大 HP 的 1/3，拥有低体力强化虫属性伤害的结构化特性，并使用虫属性技能。",
 			expectedSummary = "技能属性匹配且 HP 达到阈值时，伤害倍率按 1.5 叠乘；高于阈值或属性不匹配时不触发该倍率。",
@@ -281,7 +281,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("low-hp-element-ability-boosts-matching-damage-at-threshold")
+		scenario.assertNamed("low-hp-element-ability-boosts-matching-damage-at-threshold")
 		assertEquals(1.5, boosted.abilityMultiplier)
 		assertEquals(42, boosted.amount)
 		assertEquals(1.0, aboveThreshold.abilityMultiplier)
@@ -292,7 +292,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `weather element ability boosts matching effective element damage only in matching weather`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-element-ability-boosts-matching-element-in-sandstorm",
 			inputSummary = "使用者拥有沙暴下强化岩石、地面和钢属性技能的结构化特性，在沙暴中分别使用匹配属性、非匹配属性和天气改属性技能。",
 			expectedSummary = "沙暴存在且本次有效属性匹配时获得 1.3 倍特性倍率；天气不匹配或有效属性不匹配时不触发。",
@@ -354,7 +354,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("weather-element-ability-boosts-matching-element-in-sandstorm")
+		scenario.assertNamed("weather-element-ability-boosts-matching-element-in-sandstorm")
 		assertEquals(1.3, matching.abilityMultiplier)
 		assertEquals(24, matching.amount)
 		assertEquals(1.0, noWeather.abilityMultiplier)
@@ -367,7 +367,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `element ability boosts matching effective element damage with configured multiplier`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "element-ability-boosts-matching-skill-damage",
 			inputSummary = "使用者拥有指定属性技能伤害提升特性，分别使用匹配属性、非匹配属性和天气改属性技能。",
 			expectedSummary = "本次有效属性匹配时按配置倍率提升最终伤害；非匹配属性不触发，1.5 倍和约 1.3 倍变体都按结构化倍率计算。",
@@ -436,7 +436,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("element-ability-boosts-matching-skill-damage")
+		scenario.assertNamed("element-ability-boosts-matching-skill-damage")
 		assertEquals(1.5, matching.abilityMultiplier)
 		assertEquals(28, matching.amount)
 		assertEquals(1.0, nonMatching.abilityMultiplier)
@@ -449,7 +449,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `punch based ability boosts only tagged skill damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "punch-based-ability-boosts-punch-tagged-skill-damage",
 			inputSummary = "使用者拥有拳类技能伤害提升特性，分别使用带拳类标签和不带拳类标签的一般属性 80 威力物理技能。",
 			expectedSummary = "带拳类标签的技能在最终伤害中获得 1.2 倍特性倍率，不带标签的同威力技能保持原伤害。",
@@ -480,7 +480,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("punch-based-ability-boosts-punch-tagged-skill-damage")
+		scenario.assertNamed("punch-based-ability-boosts-punch-tagged-skill-damage")
 		assertEquals(1.2, tagged.abilityMultiplier)
 		assertEquals(66, tagged.amount)
 		assertEquals(1.0, untagged.abilityMultiplier)
@@ -489,7 +489,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `slicing based ability boosts only tagged skill damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "slicing-based-ability-boosts-slicing-tagged-skill-damage",
 			inputSummary = "使用者拥有切割类技能伤害提升特性，分别使用带切割标签和不带切割标签的一般属性 70 威力物理技能。",
 			expectedSummary = "带切割标签的技能在最终伤害中获得 1.5 倍特性倍率，不带标签的同威力技能保持原伤害。",
@@ -520,7 +520,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("slicing-based-ability-boosts-slicing-tagged-skill-damage")
+		scenario.assertNamed("slicing-based-ability-boosts-slicing-tagged-skill-damage")
 		assertEquals(1.5, tagged.abilityMultiplier)
 		assertEquals(72, tagged.amount)
 		assertEquals(1.0, untagged.abilityMultiplier)
@@ -529,7 +529,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `contact based ability boosts only contact skill damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "contact-based-ability-boosts-contact-skill-damage",
 			inputSummary = "使用者拥有接触类技能伤害提升特性，分别使用接触和非接触的一般属性 40 威力物理技能。",
 			expectedSummary = "接触技能在最终伤害中获得 1.3 倍特性倍率，非接触技能保持原伤害。",
@@ -560,7 +560,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("contact-based-ability-boosts-contact-skill-damage")
+		scenario.assertNamed("contact-based-ability-boosts-contact-skill-damage")
 		assertEquals(1.3, contact.abilityMultiplier)
 		assertEquals(37, contact.amount)
 		assertEquals(1.0, nonContact.abilityMultiplier)
@@ -569,7 +569,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `sound based ability boosts only sound skill damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sound-based-ability-boosts-sound-skill-damage",
 			inputSummary = "使用者拥有声音类技能伤害提升特性，分别使用声音和非声音的一般属性 40 威力特殊技能。",
 			expectedSummary = "声音技能在最终伤害中获得 1.3 倍特性倍率，非声音技能保持原伤害。",
@@ -610,7 +610,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("sound-based-ability-boosts-sound-skill-damage")
+		scenario.assertNamed("sound-based-ability-boosts-sound-skill-damage")
 		assertEquals(1.3, sound.abilityMultiplier)
 		assertEquals(37, sound.amount)
 		assertEquals(1.0, nonSound.abilityMultiplier)
@@ -619,7 +619,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `sound based defensive ability reduces sound skill damage unless target ability is ignored`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sound-based-defensive-ability-reduces-sound-skill-damage",
 			inputSummary = "目标拥有声音类技能伤害减免特性，攻击方使用声音类一般属性 40 威力特殊技能。",
 			expectedSummary = "未绕过目标特性时声音伤害按 0.5 倍降低；本次技能忽略目标特性时该减伤不生效。",
@@ -646,7 +646,7 @@ class BattleDamageCalculatorTests {
 		val reduced = calculator.calculate(request)
 		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
 
-		fixture.assertNamed("sound-based-defensive-ability-reduces-sound-skill-damage")
+		scenario.assertNamed("sound-based-defensive-ability-reduces-sound-skill-damage")
 		assertEquals(0.5, reduced.abilityMultiplier)
 		assertEquals(14, reduced.amount)
 		assertEquals(1.0, ignored.abilityMultiplier)
@@ -655,7 +655,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `super effective defensive ability reduces only super effective damage unless target ability is ignored`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "super-effective-defensive-ability-reduces-super-effective-damage",
 			inputSummary = "目标拥有受到效果绝佳伤害减免的结构化特性，攻击方使用对目标 2 倍克制的一般物理技能。",
 			expectedSummary = "属性克制倍率大于 1 时最终伤害按 0.75 倍降低；非效果绝佳或本次技能无视目标特性时保持原伤害。",
@@ -687,7 +687,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("super-effective-defensive-ability-reduces-super-effective-damage")
+		scenario.assertNamed("super-effective-defensive-ability-reduces-super-effective-damage")
 		assertEquals(2.0, reduced.effectiveness)
 		assertEquals(0.75, reduced.abilityMultiplier)
 		assertEquals(28, reduced.amount)
@@ -700,7 +700,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `full hp defensive ability reduces direct skill damage only while defender remains full hp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "full-hp-defensive-ability-reduces-direct-skill-damage",
 			inputSummary = "目标拥有满 HP 伤害减免特性，攻击方使用中性一般物理技能分别命中满 HP 和非满 HP 目标。",
 			expectedSummary = "目标当前 HP 等于最大 HP 时最终伤害按 0.5 倍降低；目标不满 HP 或本次技能无视目标特性时保持原伤害。",
@@ -728,7 +728,7 @@ class BattleDamageCalculatorTests {
 		)
 		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
 
-		fixture.assertNamed("full-hp-defensive-ability-reduces-direct-skill-damage")
+		scenario.assertNamed("full-hp-defensive-ability-reduces-direct-skill-damage")
 		assertEquals(0.5, reduced.abilityMultiplier)
 		assertEquals(9, reduced.amount)
 		assertEquals(1.0, damaged.abilityMultiplier)
@@ -739,7 +739,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `damage class defensive ability reduces matching damage class only`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "special-damage-class-ability-reduces-special-skill-damage",
 			inputSummary = "目标拥有特殊分类伤害减免特性，攻击方分别使用中性一般特殊技能和物理技能命中。",
 			expectedSummary = "特殊分类直接技能伤害按 0.5 倍降低；物理技能或本次技能无视目标特性时保持原伤害。",
@@ -778,7 +778,7 @@ class BattleDamageCalculatorTests {
 		)
 		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
 
-		fixture.assertNamed("special-damage-class-ability-reduces-special-skill-damage")
+		scenario.assertNamed("special-damage-class-ability-reduces-special-skill-damage")
 		assertEquals(0.5, reduced.abilityMultiplier)
 		assertEquals(9, reduced.amount)
 		assertEquals(1.0, physical.abilityMultiplier)
@@ -789,7 +789,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `defending stat ability changes physical defense before base damage formula`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "defense-stat-ability-doubles-physical-defense-before-damage",
 			inputSummary = "目标拥有物防翻倍特性，攻击方分别使用中性一般物理技能和特殊技能命中。",
 			expectedSummary = "物理技能使用翻倍后的防御值进入基础伤害公式；特殊技能或本次技能无视目标特性时保持原伤害。",
@@ -825,7 +825,7 @@ class BattleDamageCalculatorTests {
 		)
 		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
 
-		fixture.assertNamed("defense-stat-ability-doubles-physical-defense-before-damage")
+		scenario.assertNamed("defense-stat-ability-doubles-physical-defense-before-damage")
 		assertEquals(10, reduced.baseDamage)
 		assertEquals(1.0, reduced.abilityMultiplier)
 		assertEquals(10, reduced.amount)
@@ -837,7 +837,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `terrain defending stat ability only changes defense when terrain matches`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "terrain-defense-stat-ability-boosts-defense-in-grassy-terrain",
 			inputSummary = "目标拥有场地要求的物防强化特性，攻击方使用中性一般物理技能分别在青草场地和无场地命中。",
 			expectedSummary = "场地匹配时防御值按 1.5 倍进入基础伤害公式；场地不匹配或本次技能无视目标特性时保持原伤害。",
@@ -867,7 +867,7 @@ class BattleDamageCalculatorTests {
 		val noTerrain = calculator.calculate(request.copy(environment = BattleEnvironment()))
 		val ignored = calculator.calculate(request.copy(ignoreDefenderAbilityEffects = true))
 
-		fixture.assertNamed("terrain-defense-stat-ability-boosts-defense-in-grassy-terrain")
+		scenario.assertNamed("terrain-defense-stat-ability-boosts-defense-in-grassy-terrain")
 		assertEquals(13, reduced.baseDamage)
 		assertEquals(13, reduced.amount)
 		assertEquals(19, noTerrain.baseDamage)
@@ -878,7 +878,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `attacking stat ability changes physical attack before base damage formula`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "attack-stat-ability-doubles-physical-attack-before-damage",
 			inputSummary = "使用者拥有物理攻击翻倍特性，分别使用中性一般物理技能和特殊技能攻击无特殊修正目标。",
 			expectedSummary = "物理技能使用翻倍后的攻击值进入基础伤害公式；特殊技能保持原伤害，最终伤害倍率仍保持中性。",
@@ -913,7 +913,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("attack-stat-ability-doubles-physical-attack-before-damage")
+		scenario.assertNamed("attack-stat-ability-doubles-physical-attack-before-damage")
 		assertEquals(37, boosted.baseDamage)
 		assertEquals(1.0, boosted.abilityMultiplier)
 		assertEquals(37, boosted.amount)
@@ -923,7 +923,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `same element bonus ability overrides same element damage bonus`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "same-element-bonus-ability-uses-double-stab-multiplier",
 			inputSummary = "使用者拥有属性一致加成覆盖特性，分别使用与自身属性一致和不一致的中性一般物理技能。",
 			expectedSummary = "属性一致时 STAB 倍率从默认 1.5 改为 2.0；属性不一致时保持 1.0，泛用特性最终倍率仍保持中性。",
@@ -949,7 +949,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("same-element-bonus-ability-uses-double-stab-multiplier")
+		scenario.assertNamed("same-element-bonus-ability-uses-double-stab-multiplier")
 		assertEquals(2.0, boosted.sameElementBonus)
 		assertEquals(1.0, boosted.abilityMultiplier)
 		assertEquals(38, boosted.amount)
@@ -959,7 +959,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `major status attack ability boosts physical attack and skips burn attack drop`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "major-status-attack-ability-boosts-attack-and-skips-burn-drop",
 			inputSummary = "使用者拥有异常状态物攻强化特性，分别在灼伤、中毒和无异常状态下使用中性一般物理技能。",
 			expectedSummary = "有主要异常状态时攻击值按 1.5 倍进入基础伤害公式；灼伤不会再把物理伤害减半，无异常状态时不触发强化。",
@@ -998,7 +998,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("major-status-attack-ability-boosts-attack-and-skips-burn-drop")
+		scenario.assertNamed("major-status-attack-ability-boosts-attack-and-skips-burn-drop")
 		assertEquals(28, burned.baseDamage)
 		assertEquals(1.0, burned.abilityMultiplier)
 		assertEquals(28, burned.amount)
@@ -1012,7 +1012,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `sun boosts fire damage and weakens water damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sun-boosts-fire-and-weakens-water-damage",
 			inputSummary = "晴天环境下分别计算火属性技能和水属性技能的普通伤害。",
 			expectedSummary = "火属性伤害使用 1.5 倍天气倍率，水属性伤害使用 0.5 倍天气倍率。",
@@ -1041,7 +1041,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("sun-boosts-fire-and-weakens-water-damage")
+		scenario.assertNamed("sun-boosts-fire-and-weakens-water-damage")
 		assertEquals(1.5, fireResult.weatherMultiplier)
 		assertEquals(42, fireResult.amount)
 		assertEquals(0.5, waterResult.weatherMultiplier)
@@ -1050,7 +1050,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `rain boosts water damage and weakens fire damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "rain-boosts-water-and-weakens-fire-damage",
 			inputSummary = "下雨环境下分别计算水属性技能和火属性技能的普通伤害。",
 			expectedSummary = "水属性伤害使用 1.5 倍天气倍率，火属性伤害使用 0.5 倍天气倍率。",
@@ -1079,7 +1079,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("rain-boosts-water-and-weakens-fire-damage")
+		scenario.assertNamed("rain-boosts-water-and-weakens-fire-damage")
 		assertEquals(1.5, waterResult.weatherMultiplier)
 		assertEquals(42, waterResult.amount)
 		assertEquals(0.5, fireResult.weatherMultiplier)
@@ -1088,7 +1088,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `weather power multiplier modifies base power before damage formula`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-power-multiplier-modifies-base-power",
 			inputSummary = "下雨环境下，技能资料声明威力按 0.5 倍参与普通伤害公式。",
 			expectedSummary = "伤害计算器先把基础威力折半，再进入等级、攻防和倍率公式。",
@@ -1109,14 +1109,14 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("weather-power-multiplier-modifies-base-power")
+		scenario.assertNamed("weather-power-multiplier-modifies-base-power")
 		assertEquals(28, result.baseDamage)
 		assertEquals(28, result.amount)
 	}
 
 	@Test
 	fun `sandstorm boosts rock special defense before special damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sandstorm-boosts-rock-special-defense",
 			inputSummary = "沙暴环境下，普通特殊技能命中岩属性目标。",
 			expectedSummary = "目标特防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
@@ -1133,14 +1133,14 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("sandstorm-boosts-rock-special-defense")
+		scenario.assertNamed("sandstorm-boosts-rock-special-defense")
 		assertEquals(13, result.baseDamage)
 		assertEquals(13, result.amount)
 	}
 
 	@Test
 	fun `snow boosts ice physical defense before physical damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "snow-boosts-ice-physical-defense",
 			inputSummary = "雪景环境下，普通物理技能命中冰属性目标。",
 			expectedSummary = "目标物防按 1.5 倍参与伤害公式，最终伤害低于普通天气。",
@@ -1157,14 +1157,14 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("snow-boosts-ice-physical-defense")
+		scenario.assertNamed("snow-boosts-ice-physical-defense")
 		assertEquals(13, result.baseDamage)
 		assertEquals(13, result.amount)
 	}
 
 	@Test
 	fun `grassy terrain boosts grounded grass damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "grassy-terrain-boosts-grounded-grass-damage",
 			inputSummary = "青草场地中，接地草属性成员使用草属性技能。",
 			expectedSummary = "伤害公式额外应用 1.3 倍场地倍率；非接地使用者不会获得该倍率。",
@@ -1193,7 +1193,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("grassy-terrain-boosts-grounded-grass-damage")
+		scenario.assertNamed("grassy-terrain-boosts-grounded-grass-damage")
 		assertEquals(1.3, groundedResult.terrainMultiplier)
 		assertEquals(37, groundedResult.amount)
 		assertEquals(1.0, ungroundedResult.terrainMultiplier)
@@ -1202,7 +1202,7 @@ class BattleDamageCalculatorTests {
 
 	@Test
 	fun `grassy terrain weakens tagged ground shaking moves against grounded targets`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets",
 			inputSummary = "青草场地中，带震动削弱标签的地面物理技能分别命中接地和非接地目标。",
 			expectedSummary = "接地目标受到 0.5 倍场地倍率伤害，非接地目标不受该削弱影响。",
@@ -1235,7 +1235,7 @@ class BattleDamageCalculatorTests {
 			),
 		)
 
-		fixture.assertNamed("grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets")
+		scenario.assertNamed("grassy-terrain-weakens-tagged-ground-shaking-moves-against-grounded-targets")
 		assertEquals(0.5, groundedResult.terrainMultiplier)
 		assertEquals(23, groundedResult.amount)
 		assertEquals(1.0, ungroundedResult.terrainMultiplier)

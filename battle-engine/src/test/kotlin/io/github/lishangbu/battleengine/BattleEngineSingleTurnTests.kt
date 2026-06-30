@@ -34,7 +34,7 @@ import kotlin.test.assertNull
 /**
  * 验证单打第一版状态机。
  *
- * 场景类型：状态机级 fixture。
+ * 场景类型：状态机级 场景。
  * 参考来源类型：公开主系列回合流程的通用阶段拆解；本测试固定随机序列，只验证行动排序、技能使用、
  * 伤害事件、倒下事件和终局事件，不覆盖尚未实现的状态、天气、特性、道具或替换。
  * 验证重点：同一初始状态、行动序列和随机脚本得到稳定事件流。
@@ -284,7 +284,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `evasion stage can make accurate skill miss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "target-evasion-stage-lowers-effective-accuracy",
 			inputSummary = "使用者使用基础命中 100 的技能，目标闪避阶级为 +1，固定命中随机数为 76。",
 			expectedSummary = "目标 +1 闪避把有效命中降为 75；随机数 76 大于有效命中，因此技能未命中且不造成伤害。",
@@ -306,7 +306,7 @@ class BattleEngineSingleTurnTests {
 			random,
 		)
 
-		fixture.assertNamed("target-evasion-stage-lowers-effective-accuracy")
+		scenario.assertNamed("target-evasion-stage-lowers-effective-accuracy")
 		assertEquals(100, resolved.participant("defender")?.currentHp)
 		assertEquals(76, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
 		assertEquals(listOf("accuracy for 1"), random.consumedReasons())
@@ -314,7 +314,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `accuracy stage can turn lowered accuracy skill into guaranteed hit`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "user-accuracy-stage-raises-effective-accuracy",
 			inputSummary = "使用者命中阶级为 +1，使用基础命中 75 的技能攻击无闪避修正目标。",
 			expectedSummary = "命中阶级 +1 把有效命中提升到 100；引擎不消耗命中随机数，技能直接命中并正常造成伤害。",
@@ -336,7 +336,7 @@ class BattleEngineSingleTurnTests {
 			random,
 		)
 
-		fixture.assertNamed("user-accuracy-stage-raises-effective-accuracy")
+		scenario.assertNamed("user-accuracy-stage-raises-effective-accuracy")
 		assertEquals(72, resolved.participant("defender")?.currentHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillMissed>())
 		assertEquals(listOf("critical hit for 1", "damage random for 1"), random.consumedReasons())
@@ -366,7 +366,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `status skill applies burn and end turn residual damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-applies-burn-and-end-turn-residual-damage",
 			inputSummary = "使用者使用命中后必定附加灼伤的变化技能，目标没有状态免疫。",
 			expectedSummary = "目标获得灼伤主要状态；回合末按灼伤规则受到最大 HP 1/16 的固定伤害。",
@@ -394,7 +394,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-applies-burn-and-end-turn-residual-damage")
+		scenario.assertNamed("status-skill-applies-burn-and-end-turn-residual-damage")
 		assertEquals(BattleMajorStatus.BURN, resolved.participant("defender")?.majorStatus)
 		assertEquals(94, resolved.participant("defender")?.currentHp)
 		assertIs<BattleEvent.StatusApplied>(resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single())
@@ -403,7 +403,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `stat stage effect changes later action damage in the same turn`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stat-stage-effect-changes-later-action-damage-in-the-same-turn",
 			inputSummary = "高速成员先用变化技能降低对手攻击，随后对手在同一回合使用物理攻击。",
 			expectedSummary = "对手攻击阶级立即降低，本回合后续物理伤害按降低后的攻击阶级计算。",
@@ -435,7 +435,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("stat-stage-effect-changes-later-action-damage-in-the-same-turn")
+		scenario.assertNamed("stat-stage-effect-changes-later-action-damage-in-the-same-turn")
 		assertEquals(-1, resolved.participant("damager")?.statStage(BattleStat.ATTACK))
 		assertEquals(81, resolved.participant("stage-user")?.currentHp)
 		assertIs<BattleEvent.StatStageChanged>(resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single())
@@ -641,7 +641,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `screen extending item makes user side damage reduction last eight turns`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "screen-extending-item-makes-side-damage-reduction-last-eight-turns",
 			inputSummary = "使用者携带屏障延长道具，成功使用建立己方特殊伤害减免屏障的变化技能。",
 			expectedSummary = "屏障按 8 回合建立；当前回合结束后剩余 7 回合，事件记录完整持续 8 回合。",
@@ -689,7 +689,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("screen-extending-item-makes-side-damage-reduction-last-eight-turns")
+		scenario.assertNamed("screen-extending-item-makes-side-damage-reduction-last-eight-turns")
 		val started = resolved.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>().single()
 		assertEquals("side-a", started.sideId)
 		assertEquals(BattleSideDamageReductionKind.SPECIAL, started.kind)
@@ -817,7 +817,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `tailwind doubles user side speed for later action order`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "tailwind-doubles-user-side-speed-for-later-action-order",
 			inputSummary = "使用者速度 40，对手速度 70；使用者一侧建立顺风后，后续行动排序按 2 倍速度参与比较。",
 			expectedSummary = "顺风建立事件记录 2 倍速度修正和 4 回合初始持续；下一回合使用者有效速度 80，先于速度 70 的对手行动。",
@@ -852,7 +852,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 		val started = afterTailwind.events.filterIsInstance<BattleEvent.SideSpeedModifierStarted>().single()
-		fixture.assertNamed("tailwind-doubles-user-side-speed-for-later-action-order")
+		scenario.assertNamed("tailwind-doubles-user-side-speed-for-later-action-order")
 		assertEquals("side-a", started.sideId)
 		assertEquals(BattleSideSpeedModifierKind.TAILWIND, started.kind)
 		assertEquals(2.0, started.multiplier)
@@ -878,7 +878,7 @@ class BattleEngineSingleTurnTests {
 
 	@Test
 	fun `trick room reverses speed order inside the same priority bracket`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "trick-room-reverses-speed-order-inside-same-priority-bracket",
 			inputSummary = "使用者建立戏法空间；后续同优先度行动中，速度 50 的成员和速度 100 的成员同时使用普通攻击。",
 			expectedSummary = "戏法空间建立事件记录 5 回合初始持续；下一回合同优先度行动按低速优先，速度 50 的成员先行动。",
@@ -913,7 +913,7 @@ class BattleEngineSingleTurnTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 		val started = afterTrickRoom.events.filterIsInstance<BattleEvent.FieldSpeedOrderStarted>().single()
-		fixture.assertNamed("trick-room-reverses-speed-order-inside-same-priority-bracket")
+		scenario.assertNamed("trick-room-reverses-speed-order-inside-same-priority-bracket")
 		assertEquals(BattleFieldSpeedOrderKind.TRICK_ROOM, started.kind)
 		assertEquals(5, started.turnsRemaining)
 		assertEquals(4, afterTrickRoom.environment.fieldSpeedOrderEffect?.turnsRemaining)

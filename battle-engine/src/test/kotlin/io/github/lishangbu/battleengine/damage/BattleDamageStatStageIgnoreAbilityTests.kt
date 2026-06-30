@@ -6,14 +6,14 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.neutralRules
 import io.github.lishangbu.battleengine.participant
-import io.github.lishangbu.battleengine.publicBattleRuleFixture
+import io.github.lishangbu.battleengine.publicBattleRuleScenario
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
  * 无视对手伤害公式能力阶级变化特性的公开对照测试。
  *
- * 场景类型：伤害公式 fixture。
+ * 场景类型：伤害公式 场景。
  * 参考来源类型：成熟公开对战引擎特性实现和公开伤害公式实现。
  * 验证重点：持有效果的一方作为防守方时，普通伤害公式忽略攻击方攻击或特攻阶级；持有效果的一方作为攻击方时，
  * 普通伤害公式忽略目标防御或特防阶级。该效果不修改双方战斗快照中的真实阶级，只影响当前这次伤害计算。
@@ -23,7 +23,7 @@ class BattleDamageStatStageIgnoreAbilityTests {
 
 	@Test
 	fun `defender stat stage ignore ability ignores attacker's physical attack boosts`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "defender-stat-stage-ignore-ability-ignores-attacker-attack-boost",
 			inputSummary = "攻击方攻击阶级为 +2，防守方拥有无视对手伤害公式能力阶级变化特性。",
 			expectedSummary = "物理伤害按攻击方原始攻击数值计算，不读取 +2 攻击阶级。",
@@ -46,14 +46,14 @@ class BattleDamageStatStageIgnoreAbilityTests {
 			),
 		)
 
-		fixture.assertNamed("defender-stat-stage-ignore-ability-ignores-attacker-attack-boost")
+		scenario.assertNamed("defender-stat-stage-ignore-ability-ignores-attacker-attack-boost")
 		assertEquals(19, result.baseDamage)
 		assertEquals(28, result.amount)
 	}
 
 	@Test
 	fun `attacker stat stage ignore ability ignores defender's physical defense boosts`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "attacker-stat-stage-ignore-ability-ignores-defender-defense-boost",
 			inputSummary = "防守方防御阶级为 +2，攻击方拥有无视对手伤害公式能力阶级变化特性。",
 			expectedSummary = "物理伤害按防守方原始防御数值计算，不读取 +2 防御阶级。",
@@ -76,14 +76,14 @@ class BattleDamageStatStageIgnoreAbilityTests {
 			),
 		)
 
-		fixture.assertNamed("attacker-stat-stage-ignore-ability-ignores-defender-defense-boost")
+		scenario.assertNamed("attacker-stat-stage-ignore-ability-ignores-defender-defense-boost")
 		assertEquals(19, result.baseDamage)
 		assertEquals(28, result.amount)
 	}
 
 	@Test
 	fun `stat stage ignore ability applies to special attack and special defense stages`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stat-stage-ignore-ability-applies-to-special-damage-stages",
 			inputSummary = "特殊攻击方特攻阶级为 +2，特殊防守方特防阶级为 +2；双方分别拥有无视对手伤害公式能力阶级变化特性。",
 			expectedSummary = "特殊伤害分别在防守方持有和攻击方持有两种情况下按原始特攻或特防数值计算。",
@@ -122,7 +122,7 @@ class BattleDamageStatStageIgnoreAbilityTests {
 			),
 		)
 
-		fixture.assertNamed("stat-stage-ignore-ability-applies-to-special-damage-stages")
+		scenario.assertNamed("stat-stage-ignore-ability-applies-to-special-damage-stages")
 		assertEquals(19, defenderIgnoresSpecialAttack.baseDamage)
 		assertEquals(28, defenderIgnoresSpecialAttack.amount)
 		assertEquals(19, attackerIgnoresSpecialDefense.baseDamage)

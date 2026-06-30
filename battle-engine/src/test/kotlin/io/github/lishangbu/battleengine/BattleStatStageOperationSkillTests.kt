@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 /**
  * 验证技能命中后的能力阶级特殊操作。
  *
- * 场景类型：技能能力阶级操作 fixture。
+ * 场景类型：技能能力阶级操作 场景。
  * 参考来源类型：公开成熟模拟器技能资料和公开规则说明；测试只保存行为输入、事件和状态断言，不复制外部实现代码。
  * 验证重点：清除、复制、交换和取反都按当前战斗运行态结算，并使用专门事件表达特殊规则语义。
  */
@@ -25,7 +25,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `damaging skill clears target stat stages after hit`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damaging-skill-clears-target-stat-stages-after-hit",
 			inputSummary = "目标已有正负能力阶级，使用者用命中后清除目标阶级的伤害技能攻击。",
 			expectedSummary = "技能先按普通伤害流程命中，再把目标指定能力阶级清为 0，并记录清除事件。",
@@ -53,7 +53,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("damaging-skill-clears-target-stat-stages-after-hit")
+		scenario.assertNamed("damaging-skill-clears-target-stat-stages-after-hit")
 		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.ATTACK))
 		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.DEFENSE))
 		assertEquals(2, resolved.events.filterIsInstance<BattleEvent.StatStageCleared>().size)
@@ -65,7 +65,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill clears every active participant stat stages`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-clears-every-active-participant-stat-stages",
 			inputSummary = "双打中多个当前上场成员拥有能力阶级变化，使用者发动全场清除能力阶级的变化技能。",
 			expectedSummary = "所有当前上场且仍可战斗成员的指定能力阶级清为 0，后备成员不受影响。",
@@ -104,7 +104,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-clears-every-active-participant-stat-stages")
+		scenario.assertNamed("status-skill-clears-every-active-participant-stat-stages")
 		listOf("user", "ally", "opponent-a").forEach { actorId ->
 			assertEquals(0, resolved.participant(actorId)?.statStage(BattleStat.ATTACK))
 			assertEquals(0, resolved.participant(actorId)?.statStage(BattleStat.SPEED))
@@ -114,7 +114,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill copies target stat stages to user`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-copies-target-stat-stages-to-user",
 			inputSummary = "使用者和目标拥有不同能力阶级，使用者发动复制目标阶级的变化技能。",
 			expectedSummary = "使用者指定能力阶级被改写为目标当前阶级，目标自身阶级保持不变。",
@@ -148,7 +148,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-copies-target-stat-stages-to-user")
+		scenario.assertNamed("status-skill-copies-target-stat-stages-to-user")
 		assertEquals(4, resolved.participant("user")?.statStage(BattleStat.ATTACK))
 		assertEquals(-2, resolved.participant("user")?.statStage(BattleStat.EVASION))
 		assertEquals(4, resolved.participant("target")?.statStage(BattleStat.ATTACK))
@@ -158,7 +158,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill swaps attack stat stages between user and target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-swaps-attack-stat-stages-between-user-and-target",
 			inputSummary = "使用者和目标拥有不同攻击与特攻阶级，使用者发动攻击组阶级互换技能。",
 			expectedSummary = "双方攻击与特攻阶级互换，防御类阶级不变化。",
@@ -185,7 +185,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-swaps-attack-stat-stages-between-user-and-target")
+		scenario.assertNamed("status-skill-swaps-attack-stat-stages-between-user-and-target")
 		assertEquals(-3, resolved.participant("user")?.statStage(BattleStat.ATTACK))
 		assertEquals(4, resolved.participant("user")?.statStage(BattleStat.SPECIAL_ATTACK))
 		assertEquals(2, resolved.participant("target")?.statStage(BattleStat.ATTACK))
@@ -197,7 +197,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill swaps defense stat stages between user and target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-swaps-defense-stat-stages-between-user-and-target",
 			inputSummary = "使用者和目标拥有不同防御与特防阶级，使用者发动防御组阶级互换技能。",
 			expectedSummary = "双方防御与特防阶级互换，攻击类阶级不变化。",
@@ -224,7 +224,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-swaps-defense-stat-stages-between-user-and-target")
+		scenario.assertNamed("status-skill-swaps-defense-stat-stages-between-user-and-target")
 		assertEquals(-3, resolved.participant("user")?.statStage(BattleStat.DEFENSE))
 		assertEquals(4, resolved.participant("user")?.statStage(BattleStat.SPECIAL_DEFENSE))
 		assertEquals(2, resolved.participant("target")?.statStage(BattleStat.DEFENSE))
@@ -236,7 +236,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill swaps all stat stages between user and target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-swaps-all-stat-stages-between-user-and-target",
 			inputSummary = "使用者和目标拥有多项不同能力阶级，使用者发动全部能力阶级互换技能。",
 			expectedSummary = "双方所有配置的能力阶级互换，未变化的 0 阶级不产生事件。",
@@ -271,7 +271,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-swaps-all-stat-stages-between-user-and-target")
+		scenario.assertNamed("status-skill-swaps-all-stat-stages-between-user-and-target")
 		assertEquals(-3, resolved.participant("user")?.statStage(BattleStat.ATTACK))
 		assertEquals(4, resolved.participant("user")?.statStage(BattleStat.SPECIAL_ATTACK))
 		assertEquals(-2, resolved.participant("user")?.statStage(BattleStat.SPEED))
@@ -283,7 +283,7 @@ class BattleStatStageOperationSkillTests {
 
 	@Test
 	fun `status skill inverts target stat stages`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-inverts-target-stat-stages",
 			inputSummary = "目标拥有正负能力阶级，使用者发动取反目标能力阶级的变化技能。",
 			expectedSummary = "目标指定能力阶级取相反数，0 阶级不产生事件。",
@@ -315,7 +315,7 @@ class BattleStatStageOperationSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-inverts-target-stat-stages")
+		scenario.assertNamed("status-skill-inverts-target-stat-stages")
 		assertEquals(-2, resolved.participant("target")?.statStage(BattleStat.ATTACK))
 		assertEquals(3, resolved.participant("target")?.statStage(BattleStat.DEFENSE))
 		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.SPEED))

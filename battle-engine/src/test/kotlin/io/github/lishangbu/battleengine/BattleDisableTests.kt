@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 /**
  * 验证定身法这一临时状态的现代主系列规则。
  *
- * 场景类型：技能临时状态与行动选择限制 fixture。
+ * 场景类型：技能临时状态与行动选择限制 场景。
  * 参考来源类型：公开成熟模拟器中的技能资料和状态条件说明，以及中文公开规则资料。现代规则中，定身法会读取
  * 目标最近一次成功使用的技能，并在固定持续回合内禁止目标再次使用该技能；其它技能不受影响。如果目标没有
  * 可被禁用的最近使用技能，定身法不会写入状态。
@@ -29,7 +29,7 @@ class BattleDisableTests {
 
 	@Test
 	fun `status skill disables target last used skill for four turns`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-disables-target-last-used-skill",
 			inputSummary = "目标最近一次成功使用过仍有 PP 的技能，使用者用定身法命中目标。",
 			expectedSummary = "目标最近使用的技能被禁用 4 回合；当前回合结束后剩余 3 回合。",
@@ -47,7 +47,7 @@ class BattleDisableTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-disables-target-last-used-skill")
+		scenario.assertNamed("status-skill-disables-target-last-used-skill")
 		val applied = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().single()
 		assertEquals(BattleVolatileStatus.DISABLE, applied.status)
 		val disabled = resolved.events.filterIsInstance<BattleEvent.SkillDisabled>().single()
@@ -60,7 +60,7 @@ class BattleDisableTests {
 
 	@Test
 	fun `disabled skill cannot be used`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "disabled-skill-cannot-be-used",
 			inputSummary = "成员处于定身法状态，并尝试使用被禁用的技能。",
 			expectedSummary = "被禁用技能在 PP 消耗前失败，成员不会产生技能使用事件。",
@@ -79,7 +79,7 @@ class BattleDisableTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("disabled-skill-cannot-be-used")
+		scenario.assertNamed("disabled-skill-cannot-be-used")
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.DISABLE }.single()
 		assertEquals("disabled", blocked.actorId)
 		assertEquals(1, blocked.skillId)
@@ -91,7 +91,7 @@ class BattleDisableTests {
 
 	@Test
 	fun `disabled participant can use other skill`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "disabled-participant-can-use-other-skill",
 			inputSummary = "成员处于定身法状态，但选择了未被禁用的其它技能。",
 			expectedSummary = "未被禁用的技能正常消耗 PP 并造成伤害，定身法持续回合照常递减。",
@@ -115,7 +115,7 @@ class BattleDisableTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("disabled-participant-can-use-other-skill")
+		scenario.assertNamed("disabled-participant-can-use-other-skill")
 		assertEquals(80, resolved.participant("target")?.currentHp)
 		assertEquals(34, resolved.participant("attacker")?.skillSlot(2)?.remainingPp)
 		assertEquals(1, resolved.participant("attacker")?.disabledSkillId)
@@ -125,7 +125,7 @@ class BattleDisableTests {
 
 	@Test
 	fun `disable clears when end turn duration reaches zero`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "disable-clears-when-end-turn-duration-reaches-zero",
 			inputSummary = "成员的定身法只剩 1 回合，双方本回合没有行动。",
 			expectedSummary = "回合末持续时间递减到 0，成员的定身法被清除并产生临时状态解除事件。",
@@ -142,7 +142,7 @@ class BattleDisableTests {
 
 		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
 
-		fixture.assertNamed("disable-clears-when-end-turn-duration-reaches-zero")
+		scenario.assertNamed("disable-clears-when-end-turn-duration-reaches-zero")
 		assertEquals(null, resolved.participant("disabled")?.disabledSkillId)
 		assertEquals(0, resolved.participant("disabled")?.disabledSkillTurnsRemaining)
 		val cleared = resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().single()
@@ -152,7 +152,7 @@ class BattleDisableTests {
 
 	@Test
 	fun `disable fails when target has no last used skill`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "disable-fails-when-target-has-no-last-used-skill",
 			inputSummary = "目标自上场以来还没有成功使用过技能，使用者尝试用定身法影响目标。",
 			expectedSummary = "定身法不会写入临时状态，并以没有可禁用技能作为稳定失败原因。",
@@ -170,7 +170,7 @@ class BattleDisableTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("disable-fails-when-target-has-no-last-used-skill")
+		scenario.assertNamed("disable-fails-when-target-has-no-last-used-skill")
 		val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
 		assertEquals(BattleVolatileStatus.DISABLE, blocked.status)
 		assertEquals(BattleStatusBlockReason.NO_ELIGIBLE_SKILL, blocked.reason)

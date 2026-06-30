@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 /**
  * 验证锁招类技能的基础结算。
  *
- * 场景类型：技能执行流程 fixture。
+ * 场景类型：技能执行流程 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代锁招类技能首次成功使用后会自动持续若干回合，
  * 期间不能自由换招或主动换下；持续结束后，具备疲劳标记的技能会让使用者进入混乱。
  * 验证重点：后续强制行动不重复扣 PP，玩家提交的其它技能会被锁定技能覆盖，目标按原目标席位重定向，
@@ -24,7 +24,7 @@ class BattleLockedMoveTests {
 
 	@Test
 	fun `locked move overrides submitted skill follows target slot and confuses after final turn`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "locked-move-overrides-submitted-skill-follows-target-slot-and-confuses",
 			inputSummary = "锁招技能固定持续 2 回合；第 2 回合玩家提交其它技能，同时原目标主动换到同侧后备。",
 			expectedSummary = "使用者仍强制使用锁定技能命中新上场的同一目标席位，后续回合不额外扣 PP，结束后进入混乱。",
@@ -56,7 +56,7 @@ class BattleLockedMoveTests {
 			randomSecond,
 		)
 
-		fixture.assertNamed("locked-move-overrides-submitted-skill-follows-target-slot-and-confuses")
+		scenario.assertNamed("locked-move-overrides-submitted-skill-follows-target-slot-and-confuses")
 		assertEquals(34, afterSecond.participant("lock-user")?.skillSlot(1)?.remainingPp)
 		assertEquals(20, afterSecond.participant("lock-user")?.skillSlot(2)?.remainingPp)
 		assertEquals(0, afterSecond.participant("lock-user")?.lockedMoveTurnsRemaining)
@@ -98,7 +98,7 @@ class BattleLockedMoveTests {
 
 	@Test
 	fun `locked move prevents voluntary switch and still executes forced continuation`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "locked-move-prevents-voluntary-switch-and-executes-continuation",
 			inputSummary = "锁招技能固定持续 2 回合；第 2 回合使用者提交主动替换。",
 			expectedSummary = "主动替换被拒绝并记录事件，使用者仍留在场上执行锁定技能，结束后疲劳混乱。",
@@ -123,7 +123,7 @@ class BattleLockedMoveTests {
 			ScriptedBattleRandom(listOf(1, 15, 0)),
 		)
 
-		fixture.assertNamed("locked-move-prevents-voluntary-switch-and-executes-continuation")
+		scenario.assertNamed("locked-move-prevents-voluntary-switch-and-executes-continuation")
 		assertTrue(afterSecond.isActive("lock-user"))
 		assertFalse(afterSecond.isActive("lock-reserve"))
 		assertEquals(44, afterSecond.participant("target")?.currentHp)
@@ -146,7 +146,7 @@ class BattleLockedMoveTests {
 
 	@Test
 	fun `locked move disruption before final turn clears lock without fatigue confusion`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "locked-move-disruption-before-final-turn-clears-lock-without-fatigue-confusion",
 			inputSummary = "锁招技能固定持续 3 回合；第 2 回合强制续用时未命中。",
 			expectedSummary = "未命中会立即中断锁招；由于不是最终疲劳回合，使用者不会获得疲劳混乱。",
@@ -173,7 +173,7 @@ class BattleLockedMoveTests {
 		val randomSecond = ScriptedBattleRandom(listOf(99))
 		val afterSecond = engine.resolveTurn(afterFirst, emptyList(), randomSecond)
 
-		fixture.assertNamed("locked-move-disruption-before-final-turn-clears-lock-without-fatigue-confusion")
+		scenario.assertNamed("locked-move-disruption-before-final-turn-clears-lock-without-fatigue-confusion")
 		assertEquals(0, afterSecond.participant("lock-user")?.lockedMoveTurnsRemaining)
 		assertEquals(0, afterSecond.participant("lock-user")?.confusionTurnsRemaining)
 		assertEquals(72, afterSecond.participant("target")?.currentHp)

@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 /**
  * 验证现代冰冻状态的行动前自然解冻规则。
  *
- * 场景类型：行动前钩子级公开规则 fixture。
+ * 场景类型：行动前钩子级公开规则 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。冰冻成员行动前先进行 20% 自然解冻判定；
  * 解冻则继续执行原技能，未解冻则本次无法行动且不消耗 PP。
  * 验证重点：自然解冻事件先于技能使用出现，未解冻分支不会清除状态，也不会进入普通技能流程。
@@ -21,7 +21,7 @@ class BattleFreezeStatusTests {
 
 	@Test
 	fun `freeze can prevent action without pp loss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "freeze-prevents-action-after-failed-thaw-roll",
 			inputSummary = "冰冻成员本回合选择使用普通攻击，固定随机数未触发自然解冻。",
 			expectedSummary = "成员不会使用技能、不消耗 PP，冰冻状态仍然保留到后续回合。",
@@ -40,7 +40,7 @@ class BattleFreezeStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("freeze-prevents-action-after-failed-thaw-roll")
+		scenario.assertNamed("freeze-prevents-action-after-failed-thaw-roll")
 		assertEquals(listOf("freeze thaw chance for frozen"), random.consumedReasons())
 		assertEquals(BattleMajorStatus.FREEZE, resolved.participant("frozen")?.majorStatus)
 		assertEquals(35, resolved.participant("frozen")?.skillSlot(1)?.remainingPp)
@@ -52,7 +52,7 @@ class BattleFreezeStatusTests {
 
 	@Test
 	fun `freeze can thaw before action and continue into normal skill flow`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "freeze-thaws-before-action-and-continues",
 			inputSummary = "冰冻成员本回合选择普通攻击，固定随机数触发自然解冻。",
 			expectedSummary = "成员先解除冰冻，再使用技能并按普通伤害流程消费要害和伤害浮动随机数。",
@@ -71,7 +71,7 @@ class BattleFreezeStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("freeze-thaws-before-action-and-continues")
+		scenario.assertNamed("freeze-thaws-before-action-and-continues")
 		assertEquals(
 			listOf(
 				"freeze thaw chance for frozen",
@@ -90,7 +90,7 @@ class BattleFreezeStatusTests {
 
 	@Test
 	fun `fire damage thaws frozen target that survives the hit`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "fire-damage-thaws-frozen-target-that-survives",
 			inputSummary = "冰冻目标被火属性伤害技能命中且没有倒下。",
 			expectedSummary = "目标先承受伤害，随后解除冰冻状态。",
@@ -109,7 +109,7 @@ class BattleFreezeStatusTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("fire-damage-thaws-frozen-target-that-survives")
+		scenario.assertNamed("fire-damage-thaws-frozen-target-that-survives")
 		assertEquals(72, resolved.participant("frozen-target")?.currentHp)
 		assertEquals(null, resolved.participant("frozen-target")?.majorStatus)
 		assertEquals(28, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
@@ -120,7 +120,7 @@ class BattleFreezeStatusTests {
 
 	@Test
 	fun `self thawing skill can be used while frozen without thaw chance roll`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "self-thawing-skill-can-be-used-while-frozen",
 			inputSummary = "冰冻成员选择带有行动前自解冻标签的伤害技能。",
 			expectedSummary = "成员不进行自然解冻概率判定，先解除自身冰冻，再正常使用技能。",
@@ -140,7 +140,7 @@ class BattleFreezeStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("self-thawing-skill-can-be-used-while-frozen")
+		scenario.assertNamed("self-thawing-skill-can-be-used-while-frozen")
 		assertEquals(
 			listOf(
 				"critical hit for 1",

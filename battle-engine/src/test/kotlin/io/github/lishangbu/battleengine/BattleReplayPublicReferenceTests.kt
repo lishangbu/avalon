@@ -12,7 +12,7 @@ import kotlin.test.assertFailsWith
 /**
  * 验证随机、事件流和 replay 复算基础。
  *
- * 场景类型：确定性随机源、随机 trace、事件片段和严格 replay fixture。
+ * 场景类型：确定性随机源、随机 trace、事件片段和严格 replay 场景。
  * 参考来源类型：公开成熟对战引擎的战斗流和行动队列实现。现代规则实现会大量依赖随机数，例如同速排序、
  * 命中、击中要害、伤害浮动、状态持续回合和附加效果概率；如果随机消费顺序不稳定，即使最终 HP 偶然相同，
  * replay 和公开对照测试也会失去可信度。
@@ -24,16 +24,16 @@ class BattleReplayPublicReferenceTests {
 
 	@Test
 	fun `scripted random rejects extra consumption`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "scripted-random-rejects-extra-consumption",
 			inputSummary = "固定随机脚本只提供一个随机值，调用方尝试消费第二个随机值。",
-			expectedSummary = "随机源立即失败，暴露实现比 fixture 预期多消费了随机数。",
+			expectedSummary = "随机源立即失败，暴露实现比 scenario 预期多消费了随机数。",
 		)
 		val random = ScriptedBattleRandom(listOf(0))
 
 		random.nextInt(2, "first scripted roll")
 
-		fixture.assertNamed("scripted-random-rejects-extra-consumption")
+		scenario.assertNamed("scripted-random-rejects-extra-consumption")
 		assertFailsWith<IllegalStateException> {
 			random.nextInt(2, "unexpected extra roll")
 		}
@@ -41,7 +41,7 @@ class BattleReplayPublicReferenceTests {
 
 	@Test
 	fun `recording random preserves bound reason and value sequence`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "recording-random-preserves-bound-reason-and-value-sequence",
 			inputSummary = "录制随机源包裹固定脚本，依次消费要害随机和伤害随机。",
 			expectedSummary = "trace 按消费顺序保存 sequence、bound、reason 和 value，供 replay 严格复算。",
@@ -51,7 +51,7 @@ class BattleReplayPublicReferenceTests {
 		random.nextInt(24, "critical hit for 1")
 		random.nextInt(16, "damage random for 1")
 
-		fixture.assertNamed("recording-random-preserves-bound-reason-and-value-sequence")
+		scenario.assertNamed("recording-random-preserves-bound-reason-and-value-sequence")
 		assertEquals(
 			listOf(
 				BattleRandomTraceEntry(1, bound = 24, reason = "critical hit for 1", value = 1),
@@ -63,7 +63,7 @@ class BattleReplayPublicReferenceTests {
 
 	@Test
 	fun `strict replay reproduces event fragment and final state`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "strict-replay-reproduces-event-fragment-and-final-state",
 			inputSummary = "录制一回合普通单体伤害行动，保存提交行动、随机 trace 和本回合新增事件。",
 			expectedSummary = "严格 replay 使用 trace 复算后得到完全相同的事件片段和最终战斗状态。",
@@ -80,7 +80,7 @@ class BattleReplayPublicReferenceTests {
 
 		val replayed = recorder.replay(replay)
 
-		fixture.assertNamed("strict-replay-reproduces-event-fragment-and-final-state")
+		scenario.assertNamed("strict-replay-reproduces-event-fragment-and-final-state")
 		assertEquals(replay.finalState, replayed)
 		assertEquals(
 			listOf(
@@ -95,7 +95,7 @@ class BattleReplayPublicReferenceTests {
 
 	@Test
 	fun `golden replay pins random trace event fragment and final hp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "golden-replay-pins-random-trace-event-fragment-and-final-hp",
 			inputSummary = "保存一回合普通单体伤害的提交行动、随机消费 trace、事件片段和最终 HP。",
 			expectedSummary = "后续引擎实现必须复现同一随机消费顺序、同一事件片段，并把目标 HP 固定到黄金值。",
@@ -110,7 +110,7 @@ class BattleReplayPublicReferenceTests {
 		)
 		val goldenTurn = replay.turns.single()
 
-		fixture.assertNamed("golden-replay-pins-random-trace-event-fragment-and-final-hp")
+		scenario.assertNamed("golden-replay-pins-random-trace-event-fragment-and-final-hp")
 		assertEquals(
 			listOf(
 				BattleRandomTraceEntry(1, bound = 24, reason = "critical hit for 1", value = 1),
@@ -133,7 +133,7 @@ class BattleReplayPublicReferenceTests {
 
 	@Test
 	fun `strict replay rejects tampered random trace`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "strict-replay-rejects-tampered-random-trace",
 			inputSummary = "录制一回合普通伤害行动后，把第一条随机 trace 的 reason 改成另一个阶段。",
 			expectedSummary = "严格 replay 在消费随机数时立即失败，避免被篡改 trace 产生看似可用的复盘。",
@@ -157,7 +157,7 @@ class BattleReplayPublicReferenceTests {
 			),
 		)
 
-		fixture.assertNamed("strict-replay-rejects-tampered-random-trace")
+		scenario.assertNamed("strict-replay-rejects-tampered-random-trace")
 		assertFailsWith<IllegalStateException> {
 			recorder.replay(tamperedReplay)
 		}

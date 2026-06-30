@@ -21,7 +21,7 @@ import kotlin.test.assertEquals
 /**
  * 验证替身核心状态机。
  *
- * 场景类型：技能流程和短期防护状态 fixture。
+ * 场景类型：技能流程和短期防护状态 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。替身通过支付使用者最大 HP 的 1/4 建立；对手普通伤害先扣
  * 替身 HP，不改变本体 HP；替身存在时会阻止对手技能带来的主要异常状态、混乱和畏缩等临时状态。
  * 验证重点：替身事件不混用本体伤害事件，破裂后清空替身 HP，状态阻止不会消费状态私有随机数。
@@ -31,7 +31,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `substitute skill pays quarter max hp and absorbs later damage until broken`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-pays-quarter-max-hp-and-absorbs-damage-until-broken",
 			inputSummary = "较快成员使用替身，较慢对手同回合使用普通攻击命中该成员。",
 			expectedSummary = "使用者支付最大 HP 的 1/4 建立 25 HP 替身；对手伤害先扣替身，替身破裂，本体 HP 保持 75。",
@@ -52,7 +52,7 @@ class BattleSubstituteTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("substitute-pays-quarter-max-hp-and-absorbs-damage-until-broken")
+		scenario.assertNamed("substitute-pays-quarter-max-hp-and-absorbs-damage-until-broken")
 		assertEquals(75, resolved.participant("substitute-user")?.currentHp)
 		assertEquals(0, resolved.participant("substitute-user")?.substituteHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
@@ -67,7 +67,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `substitute keeps remaining hp when absorbed damage is lower than substitute hp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-keeps-remaining-hp-after-partial-damage",
 			inputSummary = "较快成员使用替身，较慢对手使用低威力普通攻击命中。",
 			expectedSummary = "替身承受 15 点伤害后仍剩余 10 HP，本体 HP 仍为建立替身后的 75。",
@@ -89,7 +89,7 @@ class BattleSubstituteTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("substitute-keeps-remaining-hp-after-partial-damage")
+		scenario.assertNamed("substitute-keeps-remaining-hp-after-partial-damage")
 		assertEquals(75, resolved.participant("substitute-user")?.currentHp)
 		assertEquals(10, resolved.participant("substitute-user")?.substituteHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
@@ -108,7 +108,7 @@ class BattleSubstituteTests {
 	 */
 	@Test
 	fun `substitute absorbing lethal direct damage does not trigger body fatal survival`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-absorbing-lethal-direct-damage-does-not-trigger-body-survival",
 			inputSummary = "目标满 HP、拥有满 HP 保命特性并已有 25 HP 替身；对手使用 200 点固定直接伤害技能。",
 			expectedSummary = "固定伤害只打破 25 HP 替身，本体 HP 保持 100；不出现本体伤害事件，也不触发保命事件。",
@@ -139,7 +139,7 @@ class BattleSubstituteTests {
 		val target = requireNotNull(resolved.participant("protected-target"))
 		val substituteDamage = resolved.events.filterIsInstance<BattleEvent.SubstituteDamageApplied>().single()
 
-		fixture.assertNamed("substitute-absorbing-lethal-direct-damage-does-not-trigger-body-survival")
+		scenario.assertNamed("substitute-absorbing-lethal-direct-damage-does-not-trigger-body-survival")
 		assertEquals(100, target.currentHp)
 		assertEquals(0, target.substituteHp)
 		assertEquals(25, substituteDamage.amount)
@@ -151,7 +151,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `substitute blocks opponent major status without consuming status duration random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-blocks-opponent-major-status",
 			inputSummary = "目标已经拥有替身，对手使用必定造成睡眠的变化技能。",
 			expectedSummary = "睡眠被替身阻止，目标不获得主要异常状态，也不会消费睡眠持续时间随机数。",
@@ -180,7 +180,7 @@ class BattleSubstituteTests {
 			random,
 		)
 
-		fixture.assertNamed("substitute-blocks-opponent-major-status")
+		scenario.assertNamed("substitute-blocks-opponent-major-status")
 		assertEquals(emptyList(), random.consumedReasons())
 		assertEquals(null, resolved.participant("protected-target")?.majorStatus)
 		assertEquals(25, resolved.participant("protected-target")?.substituteHp)
@@ -192,7 +192,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `substitute blocks opponent volatile status before confusion duration random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-blocks-opponent-volatile-status",
 			inputSummary = "目标已经拥有替身，对手使用必定造成混乱的变化技能。",
 			expectedSummary = "混乱被替身阻止，目标不写入混乱计数，也不会消费混乱持续时间随机数。",
@@ -221,7 +221,7 @@ class BattleSubstituteTests {
 			random,
 		)
 
-		fixture.assertNamed("substitute-blocks-opponent-volatile-status")
+		scenario.assertNamed("substitute-blocks-opponent-volatile-status")
 		assertEquals(emptyList(), random.consumedReasons())
 		assertEquals(0, resolved.participant("protected-target")?.confusionTurnsRemaining)
 		assertEquals(25, resolved.participant("protected-target")?.substituteHp)
@@ -233,7 +233,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `sound damaging skill bypasses substitute and damages target body`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sound-damage-skill-bypasses-substitute",
 			inputSummary = "目标已经拥有替身，对手使用声音类伤害技能。",
 			expectedSummary = "声音类伤害技能穿过替身直接伤害本体，替身 HP 保持不变。",
@@ -252,7 +252,7 @@ class BattleSubstituteTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("sound-damage-skill-bypasses-substitute")
+		scenario.assertNamed("sound-damage-skill-bypasses-substitute")
 		assertEquals(47, resolved.participant("protected-target")?.currentHp)
 		assertEquals(25, resolved.participant("protected-target")?.substituteHp)
 		assertEquals(28, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
@@ -262,7 +262,7 @@ class BattleSubstituteTests {
 
 	@Test
 	fun `sound status skill bypasses substitute while ordinary stat stage skill is blocked`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sound-status-skill-bypasses-substitute",
 			inputSummary = "目标已经拥有替身；一个普通降能力变化技和一个声音类降能力变化技分别命中该目标。",
 			expectedSummary = "普通降能力变化技被替身阻止；声音类降能力变化技穿过替身并实际降低目标能力阶级。",
@@ -291,7 +291,7 @@ class BattleSubstituteTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("sound-status-skill-bypasses-substitute")
+		scenario.assertNamed("sound-status-skill-bypasses-substitute")
 		assertEquals(0, ordinaryBlocked.participant("protected-target")?.statStage(BattleStat.SPECIAL_DEFENSE))
 		assertEquals(25, ordinaryBlocked.participant("protected-target")?.substituteHp)
 		assertEquals(emptyList(), ordinaryBlocked.events.filterIsInstance<BattleEvent.StatStageChanged>())

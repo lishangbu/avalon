@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 /**
  * 击中要害免疫特性的公开对照测试。
  *
- * 场景类型：特性规则 fixture。
+ * 场景类型：特性规则 场景。
  * 参考来源类型：成熟公开对战引擎特性实现和公开伤害流程实现。
  * 验证重点：目标拥有该特性时，普通随机要害和必定要害技能都会在最终伤害请求中降回非要害；
  * 既不会应用 1.5 倍要害倍率，也不会触发要害绕过屏障等后续要害语义。
@@ -20,7 +20,7 @@ class BattleCriticalHitImmunityAbilityTests {
 
 	@Test
 	fun `critical hit immunity blocks guaranteed critical hit damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "critical-hit-immunity-blocks-guaranteed-critical-hit-damage",
 			inputSummary = "使用者使用基础要害等级达到必定要害的物理技能，目标拥有击中要害免疫特性。",
 			expectedSummary = "技能仍命中并造成普通直接伤害，但伤害事件中的 criticalHit 为 false，最终伤害不乘以要害倍率。",
@@ -45,7 +45,7 @@ class BattleCriticalHitImmunityAbilityTests {
 		)
 
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
-		fixture.assertNamed("critical-hit-immunity-blocks-guaranteed-critical-hit-damage")
+		scenario.assertNamed("critical-hit-immunity-blocks-guaranteed-critical-hit-damage")
 		assertEquals(false, damage.criticalHit)
 		assertEquals(28, damage.amount)
 		assertEquals(72, resolved.participant("protected-defender")?.currentHp)
@@ -54,7 +54,7 @@ class BattleCriticalHitImmunityAbilityTests {
 
 	@Test
 	fun `critical hit immunity blocks successful random critical hit`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "critical-hit-immunity-blocks-successful-random-critical-hit",
 			inputSummary = "普通要害等级技能的要害随机数成功，目标拥有击中要害免疫特性。",
 			expectedSummary = "要害随机数仍被消费并命中成功，但目标特性让最终伤害按非要害计算。",
@@ -78,7 +78,7 @@ class BattleCriticalHitImmunityAbilityTests {
 		)
 
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
-		fixture.assertNamed("critical-hit-immunity-blocks-successful-random-critical-hit")
+		scenario.assertNamed("critical-hit-immunity-blocks-successful-random-critical-hit")
 		assertEquals(false, damage.criticalHit)
 		assertEquals(28, damage.amount)
 		assertEquals(72, resolved.participant("protected-defender")?.currentHp)

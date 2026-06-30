@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 /**
  * 验证特性提升变化类技能优先度，以及随该优先度提升产生的恶属性目标免疫。
  *
- * 场景类型：行动顺序和目标前置条件 fixture。
+ * 场景类型：行动顺序和目标前置条件 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代规则中，这类特性让变化技能获得额外优先度；
  * 如果变化技能因为该特性获得先制并指向对手恶属性目标，目标不会受到该技能影响。同侧辅助目标不触发该免疫。
  */
@@ -23,7 +23,7 @@ class BattleStatusPriorityAbilityTests {
 
 	@Test
 	fun `status priority ability moves status skill before faster opponent`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-priority-ability-moves-status-skill-before-faster-opponent",
 			inputSummary = "低速成员拥有让变化技能获得额外优先度的结构化特性，对手速度更高，双方都使用基础优先度为 0 的变化技能。",
 			expectedSummary = "拥有特性的成员先行动，事件流中的技能使用顺序先于高速对手。",
@@ -52,7 +52,7 @@ class BattleStatusPriorityAbilityTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-priority-ability-moves-status-skill-before-faster-opponent")
+		scenario.assertNamed("status-priority-ability-moves-status-skill-before-faster-opponent")
 		assertEquals(
 			listOf("status-priority-user", "faster-opponent"),
 			resolved.events.filterIsInstance<BattleEvent.SkillUsed>().map { it.actorId },
@@ -62,7 +62,7 @@ class BattleStatusPriorityAbilityTests {
 
 	@Test
 	fun `dark target blocks opponent status skill boosted by status priority ability`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability",
 			inputSummary = "拥有变化技能先制度特性的成员对对手恶属性目标使用基础优先度为 0 的变化技能。",
 			expectedSummary = "技能消耗 PP 后被目标恶属性免疫，不产生能力阶级变化或其它附加效果。",
@@ -88,7 +88,7 @@ class BattleStatusPriorityAbilityTests {
 		)
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByElement>().single()
 
-		fixture.assertNamed("dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability")
+		scenario.assertNamed("dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability")
 		assertEquals(34, resolved.participant("status-priority-user")?.skillSlot(1)?.remainingPp)
 		assertEquals(17, blocked.elementId)
 		assertEquals("dark-target", blocked.targetActorId)
@@ -98,7 +98,7 @@ class BattleStatusPriorityAbilityTests {
 
 	@Test
 	fun `status priority ability does not make ally dark target immune`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-priority-ability-does-not-make-ally-dark-target-immune",
 			inputSummary = "双打中拥有变化技能先制度特性的成员对同侧恶属性伙伴使用变化技能。",
 			expectedSummary = "恶属性免疫只针对对手目标；同侧伙伴不会阻挡该技能，附加效果正常结算。",
@@ -125,7 +125,7 @@ class BattleStatusPriorityAbilityTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-priority-ability-does-not-make-ally-dark-target-immune")
+		scenario.assertNamed("status-priority-ability-does-not-make-ally-dark-target-immune")
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByElement>())
 		assertEquals(-1, resolved.participant("dark-ally")?.statStage(BattleStat.ATTACK))
 		assertEquals(listOf("dark-ally"), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().map { it.targetActorId })

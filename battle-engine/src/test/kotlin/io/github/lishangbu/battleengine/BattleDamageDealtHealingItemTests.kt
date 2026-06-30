@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 /**
  * 验证按本次技能实际伤害量回复 HP 的非消耗携带道具。
  *
- * 场景类型：道具造成伤害后 fixture。
+ * 场景类型：道具造成伤害后 场景。
  * 参考来源类型：公开成熟模拟器道具资料。贝壳之铃类道具在一次技能动作结束后读取本次技能造成的总实际 HP
  * 损失，回复 `floor(totalDamage / 8)` 且最少 1 点；多段技能使用总伤害，而不是每段伤害分别触发回复。打到
  * 替身时，本体没有受伤，但替身实际损失的 HP 仍计入本次造成伤害。
@@ -22,7 +22,7 @@ class BattleDamageDealtHealingItemTests {
 
 	@Test
 	fun `damage dealt healing item restores one eighth of body damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damage-dealt-healing-item-restores-eighth-actual-damage",
 			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具，使用非本系 40 威力物理技能命中本体。",
 			expectedSummary = "技能实际造成 19 点伤害；整次技能结束后使用者回复 floor(19 / 8) = 2 点 HP，道具不消费。",
@@ -49,7 +49,7 @@ class BattleDamageDealtHealingItemTests {
 		val healing = resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single()
 		val attacker = requireNotNull(resolved.participant("attacker"))
 
-		fixture.assertNamed("damage-dealt-healing-item-restores-eighth-actual-damage")
+		scenario.assertNamed("damage-dealt-healing-item-restores-eighth-actual-damage")
 		assertEquals(19, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
 		assertEquals(81, resolved.participant("defender")?.currentHp)
 		assertEquals(52, attacker.currentHp)
@@ -59,7 +59,7 @@ class BattleDamageDealtHealingItemTests {
 
 	@Test
 	fun `damage dealt healing item counts substitute hp loss as actual damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damage-dealt-healing-item-counts-substitute-damage",
 			inputSummary = "使用者当前 HP 50，目标已有 25 HP 替身；使用者携带按造成伤害八分之一回复的道具攻击替身。",
 			expectedSummary = "技能对替身实际造成 19 点伤害，目标本体 HP 不变；整次技能结束后使用者回复 2 点 HP。",
@@ -88,7 +88,7 @@ class BattleDamageDealtHealingItemTests {
 		val attacker = requireNotNull(resolved.participant("attacker"))
 		val defender = requireNotNull(resolved.participant("defender"))
 
-		fixture.assertNamed("damage-dealt-healing-item-counts-substitute-damage")
+		scenario.assertNamed("damage-dealt-healing-item-counts-substitute-damage")
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
 		assertEquals(19, substituteDamage.amount)
 		assertEquals(6, defender.substituteHp)
@@ -107,7 +107,7 @@ class BattleDamageDealtHealingItemTests {
 	 */
 	@Test
 	fun `damage dealt healing item uses actual damage after fatal survival`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damage-dealt-healing-item-uses-actual-damage-after-fatal-survival",
 			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具；目标满 HP 且有保命特性，受到 200 点固定伤害。",
 			expectedSummary = "保命特性把实际伤害改为 99 点并让目标保留 1 HP；回复道具按 99 点实际伤害回复 12 点 HP。",
@@ -146,7 +146,7 @@ class BattleDamageDealtHealingItemTests {
 		val healing = resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single()
 		val survived = resolved.events.filterIsInstance<BattleEvent.FatalDamageSurvived>().single()
 
-		fixture.assertNamed("damage-dealt-healing-item-uses-actual-damage-after-fatal-survival")
+		scenario.assertNamed("damage-dealt-healing-item-uses-actual-damage-after-fatal-survival")
 		assertEquals(99, damage.amount)
 		assertEquals(200, survived.incomingDamage)
 		assertEquals(101, survived.preventedDamage)
@@ -157,7 +157,7 @@ class BattleDamageDealtHealingItemTests {
 
 	@Test
 	fun `damage dealt healing item uses total damage from multi hit skill once`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damage-dealt-healing-item-uses-total-multi-hit-damage",
 			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具，使用固定三段的非本系物理技能。",
 			expectedSummary = "三段技能各造成 19 点伤害，总伤害 57；整次技能结束后只触发一次回复，回复 floor(57 / 8) = 7 点 HP。",
@@ -185,7 +185,7 @@ class BattleDamageDealtHealingItemTests {
 		val healing = resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single()
 		val damageAmounts = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.amount }
 
-		fixture.assertNamed("damage-dealt-healing-item-uses-total-multi-hit-damage")
+		scenario.assertNamed("damage-dealt-healing-item-uses-total-multi-hit-damage")
 		assertEquals(listOf(19, 19, 19), damageAmounts)
 		assertEquals(43, resolved.participant("defender")?.currentHp)
 		assertEquals(57, resolved.participant("attacker")?.currentHp)

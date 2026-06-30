@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 /**
  * 验证固定伤害类技能不会进入普通伤害公式。
  *
- * 场景类型：状态机级 fixture。
+ * 场景类型：状态机级 场景。
  * 参考来源类型：公开对战引擎技能资料中的 `damage` 字段；本测试只保存输入、行动和期望事件，不复制外部实现。
  * 固定随机序列意图：固定伤害不消费击中要害或伤害浮动随机数，因此使用空随机脚本即可完成成功命中场景。
  * 验证重点：固定数值和按使用者等级两种伤害口径直接写入 HP，属性免疫仍阻止固定伤害造成 HP 变化。
@@ -23,7 +23,7 @@ class BattleFixedDamageSkillTests {
 
 	@Test
 	fun `fixed damage skills use configured amount or user level without standard damage formula`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "fixed-damage-skills-use-fixed-amount-or-user-level",
 			inputSummary = "使用者分别使用固定 20 点伤害技能和按自身等级造成伤害的技能命中普通目标。",
 			expectedSummary = "固定伤害直接扣除对应 HP；不消费击中要害和伤害随机数，也不进入普通伤害公式倍率链。",
@@ -61,7 +61,7 @@ class BattleFixedDamageSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("fixed-damage-skills-use-fixed-amount-or-user-level")
+		scenario.assertNamed("fixed-damage-skills-use-fixed-amount-or-user-level")
 		assertEquals(80, fixedAmount.participant("target")?.currentHp)
 		assertEquals(20, fixedAmount.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
 		assertEquals(50, levelDamage.participant("target")?.currentHp)
@@ -70,7 +70,7 @@ class BattleFixedDamageSkillTests {
 
 	@Test
 	fun `fixed damage still respects element immunity`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "fixed-damage-skill-respects-element-immunity",
 			inputSummary = "固定 40 点伤害技能命中属性相性为 0 的目标。",
 			expectedSummary = "技能产生 0 伤害事件，目标 HP 不变，固定伤害数值不会绕过属性免疫。",
@@ -103,7 +103,7 @@ class BattleFixedDamageSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("fixed-damage-skill-respects-element-immunity")
+		scenario.assertNamed("fixed-damage-skill-respects-element-immunity")
 		assertEquals(100, resolved.participant("immune-target")?.currentHp)
 		assertEquals(0, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
 	}

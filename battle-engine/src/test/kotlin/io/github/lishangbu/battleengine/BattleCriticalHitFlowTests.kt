@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 /**
  * 验证现代主系列击中要害流程。
  *
- * 场景类型：命中后伤害流程、随机轨迹和防守方屏障交互 fixture。
+ * 场景类型：命中后伤害流程、随机轨迹和防守方屏障交互 场景。
  * 参考来源类型：公开成熟对战引擎的行动结算实现、公开伤害计算器实现，以及中文公开规则资料。现代规则中，
  * 技能侧要害等级会映射到固定概率表：普通为 1/24，+1 为 1/8，+2 为 1/2，+3 及以上必定要害；
  * 必定要害不再消费要害随机数。击中要害后，伤害公式会忽略攻击方不利攻击/特攻阶级和防守方有利防御/特防阶级，
@@ -25,7 +25,7 @@ class BattleCriticalHitFlowTests {
 
 	@Test
 	fun `stage one critical hit uses one eighth chance`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stage-one-critical-hit-uses-one-eighth-chance",
 			inputSummary = "使用者使用基础要害等级 +1 的物理技能，要害随机数掷到 0。",
 			expectedSummary = "引擎以 1/8 上界消费要害随机数，本次伤害标记为击中要害并按 1.5 倍要害倍率结算。",
@@ -44,7 +44,7 @@ class BattleCriticalHitFlowTests {
 			random,
 		)
 
-		fixture.assertNamed("stage-one-critical-hit-uses-one-eighth-chance")
+		scenario.assertNamed("stage-one-critical-hit-uses-one-eighth-chance")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(true, damage.criticalHit)
 		assertEquals(42, damage.amount)
@@ -54,7 +54,7 @@ class BattleCriticalHitFlowTests {
 
 	@Test
 	fun `stage two critical hit uses one half chance`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stage-two-critical-hit-uses-one-half-chance",
 			inputSummary = "使用者使用基础要害等级 +2 的物理技能，要害随机数掷到 0。",
 			expectedSummary = "引擎以 1/2 上界消费要害随机数，本次伤害标记为击中要害并按现代要害倍率结算。",
@@ -73,7 +73,7 @@ class BattleCriticalHitFlowTests {
 			random,
 		)
 
-		fixture.assertNamed("stage-two-critical-hit-uses-one-half-chance")
+		scenario.assertNamed("stage-two-critical-hit-uses-one-half-chance")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(true, damage.criticalHit)
 		assertEquals(42, damage.amount)
@@ -82,7 +82,7 @@ class BattleCriticalHitFlowTests {
 
 	@Test
 	fun `stage three critical hit is guaranteed without critical random consumption`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stage-three-critical-hit-is-guaranteed-without-critical-random-consumption",
 			inputSummary = "使用者使用基础要害等级 +3 的物理技能。",
 			expectedSummary = "引擎把 +3 及以上视为必定要害，不消费要害随机数，只继续消费伤害浮动随机数。",
@@ -101,7 +101,7 @@ class BattleCriticalHitFlowTests {
 			random,
 		)
 
-		fixture.assertNamed("stage-three-critical-hit-is-guaranteed-without-critical-random-consumption")
+		scenario.assertNamed("stage-three-critical-hit-is-guaranteed-without-critical-random-consumption")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(true, damage.criticalHit)
 		assertEquals(42, damage.amount)
@@ -110,7 +110,7 @@ class BattleCriticalHitFlowTests {
 
 	@Test
 	fun `critical hit ignores unfavorable attack and favorable defense stages`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages",
 			inputSummary = "使用者攻击阶级为 -6，目标防御阶级为 +6，使用必定要害物理技能命中。",
 			expectedSummary = "击中要害进入伤害公式后忽略攻击方不利攻击阶级和防守方有利防御阶级，仍按中性攻防造成要害伤害。",
@@ -133,7 +133,7 @@ class BattleCriticalHitFlowTests {
 			random,
 		)
 
-		fixture.assertNamed("critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages")
+		scenario.assertNamed("critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(true, damage.criticalHit)
 		assertEquals(42, damage.amount)
@@ -143,7 +143,7 @@ class BattleCriticalHitFlowTests {
 
 	@Test
 	fun `critical hit ignores side damage reduction`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "critical-hit-ignores-side-damage-reduction",
 			inputSummary = "目标一侧存在物理伤害减免屏障，使用者用必定要害物理技能命中目标。",
 			expectedSummary = "伤害事件标记为击中要害；普通物理伤害不应用目标一侧屏障减免，按完整要害伤害结算。",
@@ -165,7 +165,7 @@ class BattleCriticalHitFlowTests {
 			random,
 		)
 
-		fixture.assertNamed("critical-hit-ignores-side-damage-reduction")
+		scenario.assertNamed("critical-hit-ignores-side-damage-reduction")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(true, damage.criticalHit)
 		assertEquals(42, damage.amount)

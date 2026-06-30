@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 /**
  * 验证成功后休整类技能的基础结算。
  *
- * 场景类型：技能执行流程 fixture。
+ * 场景类型：技能执行流程 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代休整类技能成功造成实际伤害后，会让使用者下一次技能行动
  * 前强制休整一次；未造成实际伤害时不会进入休整。
  * 验证重点：休整只在扣除目标 HP 后写入，下一次技能行动会被阻止但不扣 PP，也不会执行命中、伤害或附加效果。
@@ -22,7 +22,7 @@ class BattleRechargeSkillTests {
 
 	@Test
 	fun `recharge skill prevents next turn action without pp loss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "recharge-skill-prevents-next-turn-action-without-pp-loss",
 			inputSummary = "使用者用成功后休整技能命中目标，下一回合再次提交技能行动。",
 			expectedSummary = "首次命中造成实际伤害并写入一次休整；下一次技能行动被休整阻止，不消耗 PP，也不再次造成伤害。",
@@ -46,7 +46,7 @@ class BattleRechargeSkillTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("recharge-skill-prevents-next-turn-action-without-pp-loss")
+		scenario.assertNamed("recharge-skill-prevents-next-turn-action-without-pp-loss")
 		val rechargeStarted = afterSecond.events.filterIsInstance<BattleEvent.RechargeStarted>().single()
 		assertEquals("recharge-user", rechargeStarted.actorId)
 		assertEquals(1, rechargeStarted.turnsRemainingAfterCurrent)

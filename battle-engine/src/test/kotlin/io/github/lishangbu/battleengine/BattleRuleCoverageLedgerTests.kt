@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 /**
  * 战斗引擎规则覆盖账本。
  *
- * 数据库 fixture 管理已移除，规则正确性的事实源回到单元测试本身。本测试不执行战斗逻辑；
+ * 数据库场景管理已移除，规则正确性的事实源回到单元测试本身。本测试不执行战斗逻辑；
  * 它固定 V1 的 312 条现代主系列规则行为拆分，并确保每个规则族至少绑定一组真实存在的行为测试类。
  *
  * 新增普通资料时不需要修改本账本；只有新增触发时机、事件顺序、取整位置、随机消费或状态不变量时，
@@ -37,6 +37,38 @@ class BattleRuleCoverageLedgerTests {
 				)
 			}
 		}
+	}
+
+	@Test
+	fun `公开规则场景不再使用历史夹具命名`() {
+		val staleNames = listOf(
+			"PublicBattleRule" + "Fi" + "xture",
+			"publicBattleRule" + "Fi" + "xture",
+			"damage" + "Fi" + "xture",
+		)
+		val staleHits = mutableListOf<String>()
+		val paths = Files.walk(Path.of("src/test/kotlin"))
+
+		try {
+			paths
+				.filter { sourcePath -> Files.isRegularFile(sourcePath) && sourcePath.toString().endsWith(".kt") }
+				.forEach { sourcePath ->
+					val source = Files.readString(sourcePath)
+
+					staleNames.forEach { staleName ->
+						if (source.contains(staleName)) {
+							staleHits += "$sourcePath contains $staleName"
+						}
+					}
+				}
+		} finally {
+			paths.close()
+		}
+
+		assertTrue(
+			staleHits.isEmpty(),
+			"公开规则测试已经从共享夹具命名改成场景命名，不应再出现历史名称：\n${staleHits.joinToString("\n")}",
+		)
 	}
 
 	private data class CoverageGroup(

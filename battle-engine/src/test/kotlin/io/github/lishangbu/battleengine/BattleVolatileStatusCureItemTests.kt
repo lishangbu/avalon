@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 /**
  * 验证临时状态解除携带道具的现代规则。
  *
- * 场景类型：道具 after-volatile-status fixture。
+ * 场景类型：道具 after-volatile-status 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。解除混乱的携带道具不会阻止混乱写入；混乱持续时间先按状态
  * 规则消费随机数并写入运行态，然后道具立即清除混乱并消费自身。这样 replay 能保留完整的“附加状态 -> 道具治愈”
  * 事实顺序。
@@ -25,7 +25,7 @@ class BattleVolatileStatusCureItemTests {
 
 	@Test
 	fun `volatile status cure item clears confusion after application and consumes item`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "volatile-status-cure-item-clears-confusion-after-application",
 			inputSummary = "目标携带解除混乱的一次性道具，对手使用 100% 附加混乱的变化技能。",
 			expectedSummary = "混乱先写入目标运行态并消费持续时间随机数，随后携带道具立即解除混乱并被消费。",
@@ -54,7 +54,7 @@ class BattleVolatileStatusCureItemTests {
 		val applied = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().single()
 		val cleared = resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().single()
 
-		fixture.assertNamed("volatile-status-cure-item-clears-confusion-after-application")
+		scenario.assertNamed("volatile-status-cure-item-clears-confusion-after-application")
 		assertEquals(0, holder.confusionTurnsRemaining)
 		assertEquals(null, holder.itemId)
 		assertEquals(emptyList(), holder.itemEffects)

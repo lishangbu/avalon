@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 /**
  * 技能反作用伤害免疫特性的公开对照测试。
  *
- * 场景类型：特性规则 fixture。
+ * 场景类型：特性规则 场景。
  * 参考来源类型：成熟公开对战引擎特性实现和公开规则说明。
  * 验证重点：该特性只阻止技能自身的反作用伤害，不阻止携带道具在造成伤害后产生的固定反伤。
  */
@@ -22,7 +22,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 
 	@Test
 	fun `skill recoil immunity blocks move recoil damage only`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "skill-recoil-immunity-blocks-move-recoil-damage",
 			inputSummary = "使用者拥有技能反作用伤害免疫特性，并使用按实际伤害 1/3 反作用的物理技能。",
 			expectedSummary = "目标正常受到直接技能伤害；使用者不会承受技能反作用伤害，也不会产生技能反作用伤害事件。",
@@ -49,7 +49,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("skill-recoil-immunity-blocks-move-recoil-damage")
+		scenario.assertNamed("skill-recoil-immunity-blocks-move-recoil-damage")
 		assertEquals(72, resolved.participant("defender")?.currentHp)
 		assertEquals(100, resolved.participant("attacker")?.currentHp)
 		assertTrue(resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>().none())
@@ -57,7 +57,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 
 	@Test
 	fun `skill recoil immunity does not block held item recoil`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "skill-recoil-immunity-does-not-block-held-item-recoil",
 			inputSummary = "使用者拥有技能反作用伤害免疫特性，同时携带造成伤害提升 1.3 倍并反伤最大 HP 1/10 的道具。",
 			expectedSummary = "目标受到道具倍率提升后的直接技能伤害；使用者仍承受该道具造成的固定反伤。",
@@ -80,7 +80,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("skill-recoil-immunity-does-not-block-held-item-recoil")
+		scenario.assertNamed("skill-recoil-immunity-does-not-block-held-item-recoil")
 		assertEquals(63, resolved.participant("defender")?.currentHp)
 		assertEquals(90, resolved.participant("attacker")?.currentHp)
 		assertEquals(10, resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().single().amount)

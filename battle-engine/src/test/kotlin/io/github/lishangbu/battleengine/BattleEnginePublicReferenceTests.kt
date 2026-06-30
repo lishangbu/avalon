@@ -13,18 +13,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * 公开对照 fixture 测试入口。
+ * 公开对照 场景 测试入口。
  *
  * 这些测试不是为了覆盖所有本地分支，而是把已经实现的规则钉到公开成熟实现或公开规则用例上。
- * 每个 fixture 都记录来源 URL、输入摘要和期望结果。后续接入天气、场地、保护、击中要害、双打范围技能
+ * 每个 场景 都记录来源 URL、输入摘要和期望结果。后续接入天气、场地、保护、击中要害、双打范围技能
  * 等规则时，优先在这里补一条对照，再回到状态机单元测试补边界。
  */
 class BattleEnginePublicReferenceTests {
 	private val engine = BattleEngine()
 
 	@Test
-	fun `ordinary same element physical damage matches public calculator fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `ordinary same element physical damage matches public calculator scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "level-50-neutral-same-element-physical-damage",
 			inputSummary = "等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%。",
 			expectedSummary = "基础伤害 19，同属性倍率 1.5，最终伤害 28。",
@@ -40,15 +40,15 @@ class BattleEnginePublicReferenceTests {
 			),
 		)
 
-		fixture.assertNamed("level-50-neutral-same-element-physical-damage")
+		scenario.assertNamed("level-50-neutral-same-element-physical-damage")
 		assertEquals(19, result.baseDamage)
 		assertEquals(1.5, result.sameElementBonus)
 		assertEquals(28, result.amount)
 	}
 
 	@Test
-	fun `modern critical hit damage matches public calculator fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `modern critical hit damage matches public calculator scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "level-50-neutral-same-element-critical-hit-damage",
 			inputSummary = "等级 50，威力 40，攻击/防御 100，同属性，属性克制 1x，随机浮动 100%，击中要害。",
 			expectedSummary = "基础伤害 19，同属性倍率 1.5，现代击中要害倍率 1.5，最终伤害 42。",
@@ -65,7 +65,7 @@ class BattleEnginePublicReferenceTests {
 			),
 		)
 
-		fixture.assertNamed("level-50-neutral-same-element-critical-hit-damage")
+		scenario.assertNamed("level-50-neutral-same-element-critical-hit-damage")
 		assertEquals(19, result.baseDamage)
 		assertEquals(1.5, result.sameElementBonus)
 		assertEquals(1.5, result.criticalHitMultiplier)
@@ -73,8 +73,8 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
-	fun `double battle spread damage modifier matches public rule fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `double battle spread damage modifier matches public rule scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "double-battle-spread-damage-uses-three-quarter-target-modifier",
 			inputSummary = "双打中一名行动者使用能影响对方两个上场成员的物理伤害技能，两个目标均可被命中。",
 			expectedSummary = "每个目标独立结算命中/要害/伤害随机数，并在普通伤害公式中使用 0.75 目标倍率。",
@@ -99,7 +99,7 @@ class BattleEnginePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("double-battle-spread-damage-uses-three-quarter-target-modifier")
+		scenario.assertNamed("double-battle-spread-damage-uses-three-quarter-target-modifier")
 		assertEquals(listOf("opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(listOf(21, 21), damageEvents.map { it.amount })
 		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })
@@ -110,7 +110,7 @@ class BattleEnginePublicReferenceTests {
 
 	@Test
 	fun `side damage reduction uses public double battle screen modifier`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "double-battle-side-screen-uses-two-thirds-damage-modifier",
 			inputSummary = "双打中目标方有两名可战斗上场成员，并存在影响物理伤害的防守方屏障。",
 			expectedSummary = "非要害普通物理伤害按约 2/3 的防守方屏障倍率结算，不与目标范围倍率混淆。",
@@ -133,13 +133,13 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("double-battle-side-screen-uses-two-thirds-damage-modifier")
+		scenario.assertNamed("double-battle-side-screen-uses-two-thirds-damage-modifier")
 		assertEquals(81, resolved.participant("defender-left")?.currentHp)
 	}
 
 	@Test
-	fun `low hp berry heals once after damage like public item fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `low hp berry heals once after damage like public item scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "low-hp-berry-heals-once-after-damage",
 			inputSummary = "持有者最大 HP 100，当前 HP 60，受到 28 点普通伤害后 HP 降到 32，达到半血触发线。",
 			expectedSummary = "一次性回复道具立即回复 10 点并被消费，成员最终 HP 为 42，后续不再保留携带道具效果。",
@@ -164,7 +164,7 @@ class BattleEnginePublicReferenceTests {
 		)
 		val holder = requireNotNull(resolved.participant("holder"))
 
-		fixture.assertNamed("low-hp-berry-heals-once-after-damage")
+		scenario.assertNamed("low-hp-berry-heals-once-after-damage")
 		assertEquals(42, holder.currentHp)
 		assertEquals(null, holder.itemId)
 		assertEquals(emptyList(), holder.itemEffects)
@@ -172,8 +172,8 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
-	fun `choice speed item modifies action order like public item fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `choice speed item modifies action order like public item scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "choice-speed-item-modifies-action-order",
 			inputSummary = "速度 60 的成员持有讲究类速度道具，速度 80 的对手同优先度使用普通技能。",
 			expectedSummary = "持有者有效速度按 1.5 倍变为 90，因此先于速度 80 的对手行动。",
@@ -199,13 +199,13 @@ class BattleEnginePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("choice-speed-item-modifies-action-order")
+		scenario.assertNamed("choice-speed-item-modifies-action-order")
 		assertEquals(listOf("choice-user", "opponent"), damageEvents.map { it.actorId })
 	}
 
 	@Test
-	fun `target slot follows switched in participant like public simulator fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `target slot follows switched in participant like public simulator scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "single-target-move-follows-replacement-slot",
 			inputSummary = "单打中一方主动替换，另一方本回合选择攻击原上场成员所在目标槽位。",
 			expectedSummary = "替换先结算，随后技能命中同一槽位的新上场成员。",
@@ -227,7 +227,7 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("single-target-move-follows-replacement-slot")
+		scenario.assertNamed("single-target-move-follows-replacement-slot")
 		assertEquals(listOf("reserve"), resolved.sideOf("reserve")?.activeActorIds)
 		assertEquals(100, resolved.participant("starter")?.currentHp)
 		assertEquals(72, resolved.participant("reserve")?.currentHp)
@@ -235,8 +235,8 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
-	fun `protection blocks ordinary target move like public simulator fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `protection blocks ordinary target move like public simulator scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "protect-move-blocks-ordinary-target-move",
 			inputSummary = "保护类变化技能以更高优先度先行动，同回合普通单体攻击以被保护成员为目标。",
 			expectedSummary = "保护屏障建立后，受保护影响的普通攻击被阻挡，目标 HP 不变化，双方仍正常消耗 PP。",
@@ -257,7 +257,7 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("protect-move-blocks-ordinary-target-move")
+		scenario.assertNamed("protect-move-blocks-ordinary-target-move")
 		assertEquals(100, resolved.participant("protector")?.currentHp)
 		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
 		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
@@ -266,8 +266,8 @@ class BattleEnginePublicReferenceTests {
 	}
 
 	@Test
-	fun `consecutive protection uses public simulator stalling chance fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `consecutive protection uses public simulator stalling chance scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "consecutive-protection-second-use-one-third-success",
 			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动。",
 			expectedSummary = "第二次连续保护按 1/3 成功率判定；掷中成功后继续阻挡本回合普通攻击。",
@@ -293,15 +293,15 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(0)),
 		)
 
-		fixture.assertNamed("consecutive-protection-second-use-one-third-success")
+		scenario.assertNamed("consecutive-protection-second-use-one-third-success")
 		assertEquals(2, resolved.participant("protector")?.protectionChain)
 		assertEquals(100, resolved.participant("protector")?.currentHp)
 		assertEquals("protector", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().targetActorId)
 	}
 
 	@Test
-	fun `failed consecutive protection leaves user vulnerable like public simulator fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `failed consecutive protection leaves user vulnerable like public simulator scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "consecutive-protection-second-use-can-fail-and-leave-user-unprotected",
 			inputSummary = "保护类行动第一回合成功后，下一回合再次使用保护类行动且 1/3 掷点失败，对手同回合攻击保护使用者。",
 			expectedSummary = "第二次保护消耗 PP 但不建立保护屏障；对手攻击不会被保护阻挡，使用者受到普通伤害并重置连续保护计数。",
@@ -327,7 +327,7 @@ class BattleEnginePublicReferenceTests {
 			ScriptedBattleRandom(listOf(1, 1, 15)),
 		)
 
-		fixture.assertNamed("consecutive-protection-second-use-can-fail-and-leave-user-unprotected")
+		scenario.assertNamed("consecutive-protection-second-use-can-fail-and-leave-user-unprotected")
 		assertEquals(0, resolved.participant("protector")?.protectionChain)
 		assertEquals(72, resolved.participant("protector")?.currentHp)
 		assertEquals(8, resolved.participant("protector")?.skillSlot(2)?.remainingPp)

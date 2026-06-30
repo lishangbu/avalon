@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 /**
  * 验证束缚类临时状态的现代主系列规则。
  *
- * 场景类型：技能临时状态、主动替换限制与回合末间接伤害 fixture。
+ * 场景类型：技能临时状态、主动替换限制与回合末间接伤害 场景。
  * 参考来源类型：公开成熟模拟器中的技能资料和状态条件说明，以及中文公开规则资料。现代规则中，束缚类技能命中后
  * 会让目标在 4..5 回合内不能主动替换，并在每个回合末承受最大 HP 的 1/8 间接伤害；束缚来源离场或无法战斗时，
  * 目标身上的束缚立即结束。
@@ -28,7 +28,7 @@ class BattleBindingStatusTests {
 
 	@Test
 	fun `binding skill traps target and deals end turn damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "binding-skill-traps-target-and-deals-end-turn-damage",
 			inputSummary = "使用者用束缚类技能命中目标，持续回合随机结果为 4。",
 			expectedSummary = "目标记录束缚来源并在回合末承受最大 HP 的 1/8 伤害，剩余回合递减为 3。",
@@ -47,7 +47,7 @@ class BattleBindingStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("binding-skill-traps-target-and-deals-end-turn-damage")
+		scenario.assertNamed("binding-skill-traps-target-and-deals-end-turn-damage")
 		assertEquals(listOf("binding duration for 20"), random.consumedReasons())
 		val applied = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().single()
 		assertEquals(BattleVolatileStatus.BINDING, applied.status)
@@ -61,7 +61,7 @@ class BattleBindingStatusTests {
 
 	@Test
 	fun `bound participant cannot switch voluntarily`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "bound-participant-cannot-switch-voluntarily",
 			inputSummary = "成员处于束缚状态且束缚来源仍在场，尝试主动替换。",
 			expectedSummary = "主动替换被阻止，成员仍留在上场席位，并在回合末继续承受束缚伤害。",
@@ -80,7 +80,7 @@ class BattleBindingStatusTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("bound-participant-cannot-switch-voluntarily")
+		scenario.assertNamed("bound-participant-cannot-switch-voluntarily")
 		val prevented = resolved.events.filterIsInstance<BattleEvent.SwitchPrevented>().filter { it.reason == SwitchPreventionReason.BINDING }.single()
 		assertEquals("bound", prevented.actorId)
 		assertEquals("binder", prevented.sourceActorId)
@@ -92,7 +92,7 @@ class BattleBindingStatusTests {
 
 	@Test
 	fun `bound participant takes end turn binding damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "bound-participant-takes-end-turn-binding-damage",
 			inputSummary = "目标处于束缚状态，来源仍在场，双方本回合没有行动。",
 			expectedSummary = "目标在回合末受到最大 HP 的 1/8 伤害，束缚剩余回合减少 1。",
@@ -106,7 +106,7 @@ class BattleBindingStatusTests {
 
 		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
 
-		fixture.assertNamed("bound-participant-takes-end-turn-binding-damage")
+		scenario.assertNamed("bound-participant-takes-end-turn-binding-damage")
 		val bindingDamage = resolved.events.filterIsInstance<BattleEvent.BindingDamageApplied>().single()
 		assertEquals("target", bindingDamage.actorId)
 		assertEquals("binder", bindingDamage.sourceActorId)
@@ -117,7 +117,7 @@ class BattleBindingStatusTests {
 
 	@Test
 	fun `binding clears when end turn duration reaches zero`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "binding-clears-when-end-turn-duration-reaches-zero",
 			inputSummary = "目标束缚只剩 1 回合，来源仍在场，双方本回合没有行动。",
 			expectedSummary = "目标在回合末承受最后一次束缚伤害，随后束缚归零并产生临时状态解除事件。",
@@ -131,7 +131,7 @@ class BattleBindingStatusTests {
 
 		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
 
-		fixture.assertNamed("binding-clears-when-end-turn-duration-reaches-zero")
+		scenario.assertNamed("binding-clears-when-end-turn-duration-reaches-zero")
 		assertEquals(null, resolved.participant("target")?.boundByActorId)
 		assertEquals(0, resolved.participant("target")?.bindingTurnsRemaining)
 		val cleared = resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().single()
@@ -142,7 +142,7 @@ class BattleBindingStatusTests {
 
 	@Test
 	fun `binding clears when source switches out`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "binding-clears-when-source-switches-out",
 			inputSummary = "束缚来源主动替换离场，目标仍处于束缚状态。",
 			expectedSummary = "目标束缚立即解除，本回合末不会再受到该束缚的间接伤害。",
@@ -161,7 +161,7 @@ class BattleBindingStatusTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("binding-clears-when-source-switches-out")
+		scenario.assertNamed("binding-clears-when-source-switches-out")
 		assertTrue(resolved.isActive("reserve"))
 		assertEquals(null, resolved.participant("target")?.boundByActorId)
 		assertEquals(0, resolved.participant("target")?.bindingTurnsRemaining)

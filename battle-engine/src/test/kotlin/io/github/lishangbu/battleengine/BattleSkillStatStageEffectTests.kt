@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 /**
  * 验证技能成功后造成能力阶级变化的效果。
  *
- * 场景类型：技能能力阶级效果 fixture。
+ * 场景类型：技能能力阶级效果 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代规则中，变化技能成功后可以提升或降低使用者自身多项能力阶级。
  * 验证重点：同一个技能槽可以携带多条结构化阶级变化，并按事件流记录每一项实际变化。
  */
@@ -23,7 +23,7 @@ class BattleSkillStatStageEffectTests {
 
 	@Test
 	fun `status skill applies multiple user stat stage changes`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-applies-multiple-user-stat-stage-changes",
 			inputSummary = "使用者成功使用会提升自身多项能力阶级的变化技能。",
 			expectedSummary = "使用者自身对应能力阶级逐项改变，并为每一项实际变化产生能力阶级事件。",
@@ -61,7 +61,7 @@ class BattleSkillStatStageEffectTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-applies-multiple-user-stat-stage-changes")
+		scenario.assertNamed("status-skill-applies-multiple-user-stat-stage-changes")
 		val user = resolved.participant("stage-user")
 		assertEquals(1, user?.statStage(BattleStat.ATTACK))
 		assertEquals(1, user?.statStage(BattleStat.SPEED))
@@ -73,7 +73,7 @@ class BattleSkillStatStageEffectTests {
 
 	@Test
 	fun `all opponents status skill applies stat stage change to each active opponent`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent",
 			inputSummary = "双打中使用者成功使用影响所有相邻对手的变化技能。",
 			expectedSummary = "两个当前对手分别降低对应能力阶级，己方队友不受影响，并为每个实际目标记录事件。",
@@ -107,7 +107,7 @@ class BattleSkillStatStageEffectTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent")
+		scenario.assertNamed("all-opponents-status-skill-applies-stat-stage-change-to-each-active-opponent")
 		assertEquals(0, resolved.participant("ally")?.statStage(BattleStat.ATTACK))
 		assertEquals(-1, resolved.participant("opponent-a")?.statStage(BattleStat.ATTACK))
 		assertEquals(-1, resolved.participant("opponent-b")?.statStage(BattleStat.ATTACK))

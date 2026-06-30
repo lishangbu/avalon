@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 /**
  * 验证畏缩和混乱等临时状态。
  *
- * 场景类型：行动前钩子级公开规则 fixture。
+ * 场景类型：行动前钩子级公开规则 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。畏缩只阻止尚未行动成员的本回合行动；
  * 混乱使用 2..5 的内部计数，行动前递减，未解除时按 33% 概率造成 40 威力物理自伤。
  * 验证重点：临时状态不消耗被阻止行动的 PP，回合末畏缩不跨回合，混乱自伤会消费独立伤害随机数。
@@ -25,7 +25,7 @@ class BattleVolatileStatusTests {
 
 	@Test
 	fun `flinch prevents slower target action without pp loss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "flinch-prevents-slower-target-before-move",
 			inputSummary = "较快成员先造成伤害并附加畏缩，较慢目标本回合也选择使用普通攻击。",
 			expectedSummary = "目标本回合无法行动，不消耗 PP；畏缩在阻止行动后立即清除。",
@@ -56,7 +56,7 @@ class BattleVolatileStatusTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("flinch-prevents-slower-target-before-move")
+		scenario.assertNamed("flinch-prevents-slower-target-before-move")
 		assertEquals(72, resolved.participant("slow")?.currentHp)
 		assertEquals(100, resolved.participant("fast")?.currentHp)
 		assertEquals(35, resolved.participant("slow")?.skillSlot(1)?.remainingPp)
@@ -69,7 +69,7 @@ class BattleVolatileStatusTests {
 
 	@Test
 	fun `flinch applied after target moved is cleared before next turn`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "late-flinch-does-not-carry-to-next-turn",
 			inputSummary = "较快目标已经行动后，较慢成员命中并附加畏缩；下一回合较快目标再次行动。",
 			expectedSummary = "第一回合晚到的畏缩不会阻止已经行动的目标，也不会保留到下一回合。",
@@ -105,7 +105,7 @@ class BattleVolatileStatusTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("late-flinch-does-not-carry-to-next-turn")
+		scenario.assertNamed("late-flinch-does-not-carry-to-next-turn")
 		assertEquals(false, afterFirst.participant("fast-target")?.flinched)
 		assertEquals(emptyList(), afterFirst.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.VOLATILE_STATUS })
 		assertEquals(44, afterSecond.participant("slow-flinch-user")?.currentHp)
@@ -114,7 +114,7 @@ class BattleVolatileStatusTests {
 
 	@Test
 	fun `confusion can self damage then clear before a later action`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "confusion-self-damage-and-later-clear",
 			inputSummary = "较快成员用变化技能让目标混乱，固定内部计数为 3；目标随后三次尝试行动。",
 			expectedSummary = "第一次行动前自伤并跳过技能，第二次通过混乱判定并正常攻击，第三次先解除混乱再正常攻击。",
@@ -155,7 +155,7 @@ class BattleVolatileStatusTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("confusion-self-damage-and-later-clear")
+		scenario.assertNamed("confusion-self-damage-and-later-clear")
 		assertEquals(2, afterFirst.participant("target")?.confusionTurnsRemaining)
 		assertEquals(81, afterFirst.participant("target")?.currentHp)
 		assertEquals(35, afterFirst.participant("target")?.skillSlot(1)?.remainingPp)
@@ -178,7 +178,7 @@ class BattleVolatileStatusTests {
 
 	@Test
 	fun `existing confusion blocks new confusion without refreshing duration`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "existing-confusion-blocks-new-confusion-without-refresh",
 			inputSummary = "目标已经处于剩余 3 次行动检查的混乱状态，随后再次被 100% 附加混乱的变化技能命中。",
 			expectedSummary = "目标仍保留原有混乱持续计数，不刷新到新的随机持续时间；事件流记录 EXISTING_STATUS，且不消费混乱持续随机数。",
@@ -208,7 +208,7 @@ class BattleVolatileStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("existing-confusion-blocks-new-confusion-without-refresh")
+		scenario.assertNamed("existing-confusion-blocks-new-confusion-without-refresh")
 		assertEquals(emptyList(), random.consumedReasons())
 		assertEquals(3, resolved.participant("already-confused-target")?.confusionTurnsRemaining)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>())

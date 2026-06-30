@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 /**
  * 验证技能成功命中后的强制替换效果。
  *
- * 场景类型：技能效果 fixture。
+ * 场景类型：技能效果 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代规则中，部分变化技能会在命中后直接强制目标侧后备上场，
  * 部分伤害技能会先造成伤害，再触发同样的强制替换流程。
  * 验证重点：强制替换发生在命中、保护、替身和伤害流程之后；合法后备多于 1 个时消费随机数决定上场成员；
@@ -22,7 +22,7 @@ class BattleForcedSwitchSkillTests {
 
 	@Test
 	fun `status skill forces target side to switch to a random bench participant`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-forces-target-side-random-bench-switch",
 			inputSummary = "变化类强制替换技能命中目标，目标侧有两个可战斗后备成员，随机脚本选择第二个后备。",
 			expectedSummary = "目标离场并清理离场运行态，第二个后备上场；事件流先记录强制替换选择，再记录席位替换。",
@@ -53,7 +53,7 @@ class BattleForcedSwitchSkillTests {
 			random,
 		)
 
-		fixture.assertNamed("status-skill-forces-target-side-random-bench-switch")
+		scenario.assertNamed("status-skill-forces-target-side-random-bench-switch")
 		assertEquals(listOf("reserve-b"), resolved.sides.single { it.sideId == "side-b" }.activeActorIds)
 		assertEquals(listOf("forced switch target for 46"), random.consumedReasons())
 		val forcedSwitch = resolved.events.filterIsInstance<BattleEvent.TargetForcedSwitchSelected>().single()
@@ -67,7 +67,7 @@ class BattleForcedSwitchSkillTests {
 
 	@Test
 	fun `damaging skill applies damage before forcing target switch`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "damaging-skill-applies-damage-before-forced-target-switch",
 			inputSummary = "物理伤害类强制替换技能命中目标，目标侧有一个可战斗后备成员。",
 			expectedSummary = "目标先承受技能伤害，随后被强制换下；只有一个合法后备时不额外消费随机数。",
@@ -95,7 +95,7 @@ class BattleForcedSwitchSkillTests {
 			random,
 		)
 
-		fixture.assertNamed("damaging-skill-applies-damage-before-forced-target-switch")
+		scenario.assertNamed("damaging-skill-applies-damage-before-forced-target-switch")
 		assertEquals(listOf("reserve"), resolved.sides.single { it.sideId == "side-b" }.activeActorIds)
 		assertEquals(listOf("critical hit for 525", "damage random for 525"), random.consumedReasons())
 		assertTrue((resolved.participant("target")?.currentHp ?: 100) < 100)

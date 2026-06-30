@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 /**
  * 验证无理取闹这一临时状态的现代主系列规则。
  *
- * 场景类型：技能临时状态与行动选择限制 fixture。
+ * 场景类型：技能临时状态与行动选择限制 场景。
  * 参考来源类型：公开成熟模拟器中的技能资料和状态条件说明，以及中文公开规则资料。现代规则中，无理取闹会让
  * 目标无法连续两次真正使用同一个技能；目标改用其它技能后，最近成功技能会更新，下一次限制也随之移动。
  * 该状态没有固定回合倒计时，离开上场席位时结束，已有无理取闹不会被重复附加刷新。
@@ -29,7 +29,7 @@ class BattleTormentTests {
 
 	@Test
 	fun `status skill applies torment to target until switch out`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "status-skill-applies-torment-to-target",
 			inputSummary = "使用者用无理取闹类变化技能命中目标。",
 			expectedSummary = "目标获得无理取闹临时状态；回合末不会按倒计时自然递减。",
@@ -47,7 +47,7 @@ class BattleTormentTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("status-skill-applies-torment-to-target")
+		scenario.assertNamed("status-skill-applies-torment-to-target")
 		val applied = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().single()
 		assertEquals(BattleVolatileStatus.TORMENT, applied.status)
 		assertEquals("target", applied.targetActorId)
@@ -57,7 +57,7 @@ class BattleTormentTests {
 
 	@Test
 	fun `tormented participant cannot use same skill twice in a row`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "tormented-participant-cannot-use-same-skill-twice",
 			inputSummary = "成员处于无理取闹状态，上一回合成功使用过技能 1，本回合再次尝试技能 1。",
 			expectedSummary = "重复技能在 PP 消耗前失败，成员不会产生技能使用事件，最近成功技能保持不变。",
@@ -76,7 +76,7 @@ class BattleTormentTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("tormented-participant-cannot-use-same-skill-twice")
+		scenario.assertNamed("tormented-participant-cannot-use-same-skill-twice")
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.TORMENT }.single()
 		assertEquals("tormented", blocked.actorId)
 		assertEquals(1, blocked.skillId)
@@ -88,7 +88,7 @@ class BattleTormentTests {
 
 	@Test
 	fun `tormented participant can use a different skill`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "tormented-participant-can-use-different-skill",
 			inputSummary = "成员处于无理取闹状态，上一回合成功使用过技能 1，本回合选择技能 2。",
 			expectedSummary = "不同技能正常消耗 PP 并造成伤害，最近成功技能更新为技能 2。",
@@ -112,7 +112,7 @@ class BattleTormentTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("tormented-participant-can-use-different-skill")
+		scenario.assertNamed("tormented-participant-can-use-different-skill")
 		assertEquals(80, resolved.participant("target")?.currentHp)
 		assertEquals(34, resolved.participant("attacker")?.skillSlot(2)?.remainingPp)
 		assertEquals(true, resolved.participant("attacker")?.tormented)
@@ -122,7 +122,7 @@ class BattleTormentTests {
 
 	@Test
 	fun `torment clears when participant switches out`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "torment-clears-when-participant-switches-out",
 			inputSummary = "处于无理取闹状态的成员主动替换离场。",
 			expectedSummary = "离场成员的无理取闹和最近成功技能被清除，HP、PP 和其它持久资料保持。",
@@ -141,7 +141,7 @@ class BattleTormentTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("torment-clears-when-participant-switches-out")
+		scenario.assertNamed("torment-clears-when-participant-switches-out")
 		val switchedOut = resolved.participant("starter")
 		assertEquals(false, switchedOut?.tormented)
 		assertEquals(null, switchedOut?.lastSuccessfulSkillId)
@@ -150,7 +150,7 @@ class BattleTormentTests {
 
 	@Test
 	fun `existing torment blocks new torment without refreshing state`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "existing-torment-blocks-new-torment-without-refreshing-state",
 			inputSummary = "目标已经处于无理取闹，再次被无理取闹类技能命中。",
 			expectedSummary = "新无理取闹不会改变目标运行态，并以已有临时状态作为稳定失败原因。",
@@ -168,7 +168,7 @@ class BattleTormentTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("existing-torment-blocks-new-torment-without-refreshing-state")
+		scenario.assertNamed("existing-torment-blocks-new-torment-without-refreshing-state")
 		val blocked = resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplicationBlocked>().single()
 		assertEquals(BattleVolatileStatus.TORMENT, blocked.status)
 		assertEquals(BattleStatusBlockReason.EXISTING_STATUS, blocked.reason)

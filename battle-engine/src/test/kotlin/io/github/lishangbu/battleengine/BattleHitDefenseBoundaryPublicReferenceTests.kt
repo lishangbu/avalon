@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 /**
  * 验证现代主系列命中、防护、替身和免疫边界。
  *
- * 场景类型：命中随机消费、保护屏障、替身失败/阻挡/例外、属性和标签免疫 fixture。
+ * 场景类型：命中随机消费、保护屏障、替身失败/阻挡/例外、属性和标签免疫 场景。
  * 参考来源类型：公开成熟对战引擎的行动结算实现、公开技能资料，以及公开命中、保护、替身和属性免疫说明。
  * 这些规则都发生在“技能已经排队”和“实际造成伤害或附加效果”之间，顺序稍有偏差就会让 PP、随机轨迹、
  * replay 和后续追加效果全部偏移。
@@ -34,7 +34,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `sure hit skill skips accuracy random and proceeds to damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sure-hit-skill-skips-accuracy-random-and-proceeds-to-damage",
 			inputSummary = "技能命中字段为空，表示当前规则下必中。",
 			expectedSummary = "技能不消费命中随机，直接进入要害和伤害随机流程并造成伤害。",
@@ -46,14 +46,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("sure-hit-skill-skips-accuracy-random-and-proceeds-to-damage")
+		scenario.assertNamed("sure-hit-skill-skips-accuracy-random-and-proceeds-to-damage")
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(listOf("critical hit for 1", "damage random for 1"), random.consumedReasons())
 	}
 
 	@Test
 	fun `accuracy roll equal to modified accuracy still hits`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "accuracy-roll-equal-to-modified-accuracy-still-hits",
 			inputSummary = "基础命中 50 的技能掷出命中随机 50。",
 			expectedSummary = "命中判定使用小于等于阈值，掷点等于有效命中率时仍命中。",
@@ -66,14 +66,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("accuracy-roll-equal-to-modified-accuracy-still-hits")
+		scenario.assertNamed("accuracy-roll-equal-to-modified-accuracy-still-hits")
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(listOf("accuracy for 11", "critical hit for 11", "damage random for 11"), random.consumedReasons())
 	}
 
 	@Test
 	fun `accuracy miss skips critical hit and damage random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "accuracy-miss-skips-critical-hit-and-damage-random",
 			inputSummary = "基础命中 50 的技能掷出命中随机 51。",
 			expectedSummary = "技能未命中后不再消费要害或伤害随机数，也不造成伤害。",
@@ -86,7 +86,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("accuracy-miss-skips-critical-hit-and-damage-random")
+		scenario.assertNamed("accuracy-miss-skips-critical-hit-and-damage-random")
 		assertEquals(100, resolved.participant("target")?.currentHp)
 		assertEquals(51, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
 		assertEquals(listOf("accuracy for 12"), random.consumedReasons())
@@ -94,7 +94,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `positive accuracy stage can make a seventy five accuracy skill sure hit`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "positive-accuracy-stage-can-make-seventy-five-accuracy-skill-sure-hit",
 			inputSummary = "使用者命中 +1，技能基础命中 75。",
 			expectedSummary = "修正后有效命中率达到 100，不消费命中随机并继续造成伤害。",
@@ -108,14 +108,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("positive-accuracy-stage-can-make-seventy-five-accuracy-skill-sure-hit")
+		scenario.assertNamed("positive-accuracy-stage-can-make-seventy-five-accuracy-skill-sure-hit")
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(listOf("critical hit for 13", "damage random for 13"), random.consumedReasons())
 	}
 
 	@Test
 	fun `positive evasion stage can make a one hundred accuracy skill miss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "positive-evasion-stage-can-make-one-hundred-accuracy-skill-miss",
 			inputSummary = "目标闪避 +1，攻击方使用基础命中 100 的技能，命中随机掷出 76。",
 			expectedSummary = "有效命中率降为 75，掷点 76 未命中且不继续结算伤害。",
@@ -129,7 +129,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("positive-evasion-stage-can-make-one-hundred-accuracy-skill-miss")
+		scenario.assertNamed("positive-evasion-stage-can-make-one-hundred-accuracy-skill-miss")
 		assertEquals(100, resolved.participant("target")?.currentHp)
 		assertEquals(76, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
 		assertEquals(listOf("accuracy for 14"), random.consumedReasons())
@@ -137,7 +137,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `weather sure hit override skips accuracy random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-sure-hit-override-skips-accuracy-random",
 			inputSummary = "当前天气把基础命中 50 的技能覆盖为必中。",
 			expectedSummary = "天气覆盖后的命中率为空，不消费命中随机并继续造成伤害。",
@@ -160,14 +160,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("weather-sure-hit-override-skips-accuracy-random")
+		scenario.assertNamed("weather-sure-hit-override-skips-accuracy-random")
 		assertEquals(72, resolved.participant("target")?.currentHp)
 		assertEquals(listOf("critical hit for 15", "damage random for 15"), random.consumedReasons())
 	}
 
 	@Test
 	fun `first successful protection consumes no chance random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "first-successful-protection-consumes-no-chance-random",
 			inputSummary = "成员首次连续保护计数为 0 时使用保护类技能。",
 			expectedSummary = "首次保护必定成功，不消费保护概率随机，并把连续保护计数记为 1。",
@@ -179,7 +179,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("first-successful-protection-consumes-no-chance-random")
+		scenario.assertNamed("first-successful-protection-consumes-no-chance-random")
 		assertEquals(1, resolved.participant("protector")?.protectionChain)
 		assertEquals(9, resolved.participant("protector")?.skillSlot(2)?.remainingPp)
 		assertEquals(emptyList(), random.consumedReasons())
@@ -188,7 +188,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `second consecutive protection success consumes one third chance random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "second-consecutive-protection-success-consumes-one-third-chance-random",
 			inputSummary = "成员已有一次连续保护成功计数，第二次使用保护类技能并掷出成功值。",
 			expectedSummary = "第二次保护消费 1/3 概率随机，掷到 0 成功并把连续保护计数推进到 2。",
@@ -201,14 +201,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("second-consecutive-protection-success-consumes-one-third-chance-random")
+		scenario.assertNamed("second-consecutive-protection-success-consumes-one-third-chance-random")
 		assertEquals(2, resolved.participant("protector")?.protectionChain)
 		assertEquals(listOf("protection chance for 2"), random.consumedReasons())
 	}
 
 	@Test
 	fun `failed consecutive protection leaves user unprotected for later damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "failed-consecutive-protection-leaves-user-unprotected-for-later-damage",
 			inputSummary = "成员第二次连续保护掷点失败，较慢对手随后攻击该成员。",
 			expectedSummary = "保护失败后不建立屏障，后续攻击不会被阻挡并正常造成伤害。",
@@ -224,7 +224,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("failed-consecutive-protection-leaves-user-unprotected-for-later-damage")
+		scenario.assertNamed("failed-consecutive-protection-leaves-user-unprotected-for-later-damage")
 		assertEquals(72, resolved.participant("protector")?.currentHp)
 		assertEquals(0, resolved.participant("protector")?.protectionChain)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>())
@@ -233,7 +233,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `protection blocks ally affected skill in double battle`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "protection-blocks-ally-affected-skill-in-double-battle",
 			inputSummary = "双打中同侧伙伴对已经建立保护的成员使用受保护影响的技能。",
 			expectedSummary = "保护屏障不区分攻击来源，同侧伙伴的受保护影响技能也被阻挡。",
@@ -254,7 +254,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("protection-blocks-ally-affected-skill-in-double-battle")
+		scenario.assertNamed("protection-blocks-ally-affected-skill-in-double-battle")
 		assertEquals(100, resolved.participant("protector")?.currentHp)
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single()
 		assertEquals("ally", blocked.actorId)
@@ -263,7 +263,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `substitute fails at exact hp cost after skill use`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-fails-at-exact-hp-cost-after-skill-use",
 			inputSummary = "使用者当前 HP 正好等于替身费用。",
 			expectedSummary = "技能已经宣告并消耗 PP，但由于 HP 不多于费用，不建立替身也不扣除 HP。",
@@ -274,7 +274,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("substitute-fails-at-exact-hp-cost-after-skill-use")
+		scenario.assertNamed("substitute-fails-at-exact-hp-cost-after-skill-use")
 		assertEquals(25, resolved.participant("user")?.currentHp)
 		assertEquals(0, resolved.participant("user")?.substituteHp)
 		assertEquals(9, resolved.participant("user")?.skillSlot(164)?.remainingPp)
@@ -283,7 +283,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `substitute fails when user already has substitute after skill use`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-fails-when-user-already-has-substitute-after-skill-use",
 			inputSummary = "使用者已经拥有替身时再次使用替身技能。",
 			expectedSummary = "技能已经宣告并消耗 PP，但不覆盖既有替身，也不重复扣除 HP。",
@@ -295,7 +295,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("substitute-fails-when-user-already-has-substitute-after-skill-use")
+		scenario.assertNamed("substitute-fails-when-user-already-has-substitute-after-skill-use")
 		assertEquals(75, resolved.participant("user")?.currentHp)
 		assertEquals(25, resolved.participant("user")?.substituteHp)
 		assertEquals(9, resolved.participant("user")?.skillSlot(164)?.remainingPp)
@@ -304,7 +304,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `substitute blocks opponent stat stage drop`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-blocks-opponent-stat-stage-drop",
 			inputSummary = "目标已有替身，对手使用非声音类降能力变化技能。",
 			expectedSummary = "替身阻止来自对手的能力阶级下降，目标能力阶级不变。",
@@ -321,14 +321,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("substitute-blocks-opponent-stat-stage-drop")
+		scenario.assertNamed("substitute-blocks-opponent-stat-stage-drop")
 		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.SPECIAL_DEFENSE))
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>())
 	}
 
 	@Test
 	fun `substitute allows ally stat stage effect`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-allows-ally-stat-stage-effect",
 			inputSummary = "目标已有替身，同侧伙伴对其使用能力阶级变化技能。",
 			expectedSummary = "替身只阻止对手技能，同侧伙伴的能力阶级效果正常生效。",
@@ -347,14 +347,14 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("substitute-allows-ally-stat-stage-effect")
+		scenario.assertNamed("substitute-allows-ally-stat-stage-effect")
 		assertEquals(-2, resolved.participant("ally-target")?.statStage(BattleStat.SPECIAL_DEFENSE))
 		assertEquals("ally-target", resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single().targetActorId)
 	}
 
 	@Test
 	fun `substitute does not block user self healing skill`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-does-not-block-user-self-healing-skill",
 			inputSummary = "使用者已有替身并对自己使用回复类变化技能。",
 			expectedSummary = "替身不阻止使用者自己的回复技能，本体 HP 回复且替身 HP 保持不变。",
@@ -366,7 +366,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("substitute-does-not-block-user-self-healing-skill")
+		scenario.assertNamed("substitute-does-not-block-user-self-healing-skill")
 		assertEquals(100, resolved.participant("healer")?.currentHp)
 		assertEquals(25, resolved.participant("healer")?.substituteHp)
 		assertEquals(50, resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
@@ -374,7 +374,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `grass target blocks powder status skill before duration random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "grass-target-blocks-powder-status-skill-before-duration-random",
 			inputSummary = "对草属性目标使用粉末类睡眠技能。",
 			expectedSummary = "草属性天然免疫粉末类技能，阻挡发生在睡眠持续时间随机之前。",
@@ -399,7 +399,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("grass-target-blocks-powder-status-skill-before-duration-random")
+		scenario.assertNamed("grass-target-blocks-powder-status-skill-before-duration-random")
 		assertEquals(null, resolved.participant("grass-target")?.majorStatus)
 		assertEquals("grass-target", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByElement>().single().targetActorId)
 		assertEquals(emptyList(), random.consumedReasons())
@@ -407,7 +407,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `sound immunity ability blocks sound skill before damage random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sound-immunity-ability-blocks-sound-skill-before-damage-random",
 			inputSummary = "目标拥有声音类技能免疫特性，对手使用声音类伤害技能。",
 			expectedSummary = "特性在命中后伤害前阻挡技能，不消费要害或伤害随机数。",
@@ -429,7 +429,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("sound-immunity-ability-blocks-sound-skill-before-damage-random")
+		scenario.assertNamed("sound-immunity-ability-blocks-sound-skill-before-damage-random")
 		assertEquals(100, resolved.participant("soundproof-target")?.currentHp)
 		assertEquals("soundproof-target", resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().single().targetActorId)
 		assertEquals(emptyList(), random.consumedReasons())
@@ -437,7 +437,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 
 	@Test
 	fun `type immunity blocks fixed damage before direct damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "type-immunity-blocks-fixed-damage-before-direct-damage",
 			inputSummary = "固定伤害技能的属性对目标属性相性为 0。",
 			expectedSummary = "属性免疫在固定伤害前短路，目标 HP 不变，事件记录 0 伤害。",
@@ -460,7 +460,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("type-immunity-blocks-fixed-damage-before-direct-damage")
+		scenario.assertNamed("type-immunity-blocks-fixed-damage-before-direct-damage")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(0, damage.amount)
 		assertEquals(0.0, damage.effectiveness)

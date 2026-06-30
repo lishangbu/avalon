@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 /**
  * 验证当前上场特性对对手先制技能的阻挡。
  *
- * 场景类型：目标前置条件 fixture。
+ * 场景类型：目标前置条件 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。这类特性保护拥有者所在一侧，阻止对手先制技能影响自身或
  * 同侧伙伴；技能使用本身仍消耗 PP，但不会继续进入命中、伤害或附加效果流程。同侧成员使用先制技能不受阻挡。
  */
@@ -19,7 +19,7 @@ class BattlePriorityAbilityTests {
 
 	@Test
 	fun `priority blocking ability blocks opponent priority move against holder`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "priority-blocking-ability-blocks-opponent-priority-move-against-holder",
 			inputSummary = "目标当前上场并拥有阻止对手先制技能影响己方的结构化特性，对手使用先制攻击指定该目标。",
 			expectedSummary = "技能消耗 PP 后被目标特性阻挡，不产生命中、伤害或附加效果。",
@@ -44,7 +44,7 @@ class BattlePriorityAbilityTests {
 		)
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().single()
 
-		fixture.assertNamed("priority-blocking-ability-blocks-opponent-priority-move-against-holder")
+		scenario.assertNamed("priority-blocking-ability-blocks-opponent-priority-move-against-holder")
 		assertEquals(34, resolved.participant("priority-user")?.skillSlot(1)?.remainingPp)
 		assertEquals(100, resolved.participant("ability-holder")?.currentHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
@@ -54,7 +54,7 @@ class BattlePriorityAbilityTests {
 
 	@Test
 	fun `priority blocking ability protects active ally from opponent priority move`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "priority-blocking-ability-protects-active-ally-from-opponent-priority-move",
 			inputSummary = "双打中目标本身没有阻挡特性，但同侧另一个当前上场成员拥有先制阻挡特性，对手使用先制攻击指定目标。",
 			expectedSummary = "技能消耗 PP 后被伙伴特性阻挡，目标不受到伤害，事件记录实际特性拥有者。",
@@ -81,7 +81,7 @@ class BattlePriorityAbilityTests {
 		)
 		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().single()
 
-		fixture.assertNamed("priority-blocking-ability-protects-active-ally-from-opponent-priority-move")
+		scenario.assertNamed("priority-blocking-ability-protects-active-ally-from-opponent-priority-move")
 		assertEquals(100, resolved.participant("protected-ally")?.currentHp)
 		assertEquals("ability-holder", blocked.abilityHolderActorId)
 		assertEquals(219, blocked.abilityId)
@@ -90,7 +90,7 @@ class BattlePriorityAbilityTests {
 
 	@Test
 	fun `priority blocking ability does not block ally priority move`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "priority-blocking-ability-does-not-block-ally-priority-move",
 			inputSummary = "双打中同侧成员对拥有先制阻挡特性的伙伴使用先制攻击。",
 			expectedSummary = "特性只阻止对手先制技能，不阻止同侧目标；技能按普通伤害流程结算。",
@@ -116,7 +116,7 @@ class BattlePriorityAbilityTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("priority-blocking-ability-does-not-block-ally-priority-move")
+		scenario.assertNamed("priority-blocking-ability-does-not-block-ally-priority-move")
 		assertEquals(72, resolved.participant("ability-holder")?.currentHp)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>())
 		assertEquals("ability-holder", resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().targetActorId)

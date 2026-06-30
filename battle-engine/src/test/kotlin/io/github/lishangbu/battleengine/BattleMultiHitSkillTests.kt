@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 /**
  * 验证多段命中技能的基础结算。
  *
- * 场景类型：技能执行流程 fixture。
+ * 场景类型：技能执行流程 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代 2..5 段技能在命中后决定实际段数；
  * 命中判定和 PP 消耗只发生一次，每一段独立结算要害、伤害浮动和倒下中断。
  * 验证重点：段数随机分布可复盘，目标提前倒下时不会继续消费后续段的随机数。
@@ -19,7 +19,7 @@ class BattleMultiHitSkillTests {
 
 	@Test
 	fun `multi hit skill consumes pp once and applies scripted hit count`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count",
 			inputSummary = "2..5 段技能命中目标，固定段数随机数落入 3 段区间。",
 			expectedSummary = "技能只消耗 1 点 PP，产生 3 段伤害事件，每段独立消费要害和伤害浮动随机数。",
@@ -39,7 +39,7 @@ class BattleMultiHitSkillTests {
 			random,
 		)
 
-		fixture.assertNamed("multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count")
+		scenario.assertNamed("multi-hit-skill-consumes-pp-once-and-applies-scripted-hit-count")
 		assertEquals(34, resolved.participant("multi-user")?.skillSlot(1)?.remainingPp)
 		assertEquals(16, resolved.participant("target")?.currentHp)
 		assertEquals(3, resolved.events.filterIsInstance<BattleEvent.MultiHitCountDetermined>().single().hitCount)
@@ -60,7 +60,7 @@ class BattleMultiHitSkillTests {
 
 	@Test
 	fun `multi hit skill stops consuming hit randoms after target faints`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "multi-hit-skill-stops-after-target-faints",
 			inputSummary = "2..5 段技能抽到 5 段，但目标在第 2 段后倒下。",
 			expectedSummary = "事件记录抽到 5 段，但只实际结算 2 段伤害，不再消费第 3 段之后的随机数。",
@@ -80,7 +80,7 @@ class BattleMultiHitSkillTests {
 			random,
 		)
 
-		fixture.assertNamed("multi-hit-skill-stops-after-target-faints")
+		scenario.assertNamed("multi-hit-skill-stops-after-target-faints")
 		assertEquals(5, resolved.events.filterIsInstance<BattleEvent.MultiHitCountDetermined>().single().hitCount)
 		assertEquals(listOf(28, 12), resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.amount })
 		assertEquals(0, resolved.participant("target")?.currentHp)

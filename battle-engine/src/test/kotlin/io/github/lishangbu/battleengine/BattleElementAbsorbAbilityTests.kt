@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 /**
  * 验证目标特性吸收指定属性技能并转换为回复。
  *
- * 场景类型：目标前置条件 fixture。
+ * 场景类型：目标前置条件 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代规则中，部分特性会让目标在被指定属性技能命中后不再
  * 承受该技能的普通效果，并按最大 HP 的固定比例回复；目标满 HP 时仍会触发免疫，但实际回复量为 0。
  */
@@ -23,7 +23,7 @@ class BattleElementAbsorbAbilityTests {
 
 	@Test
 	fun `element absorb ability heals and blocks matching damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "element-absorb-ability-heals-and-blocks-matching-damage",
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，当前 HP 不满，对手使用匹配属性攻击。",
 			expectedSummary = "技能命中后被目标特性吸收，目标不受伤害，并按最大 HP 的 1/4 回复。",
@@ -49,7 +49,7 @@ class BattleElementAbsorbAbilityTests {
 		)
 		val absorbed = resolved.events.filterIsInstance<BattleEvent.SkillAbsorbedByAbility>().single()
 
-		fixture.assertNamed("element-absorb-ability-heals-and-blocks-matching-damage")
+		scenario.assertNamed("element-absorb-ability-heals-and-blocks-matching-damage")
 		assertEquals(34, resolved.participant("attacker")?.skillSlot(1)?.remainingPp)
 		assertEquals(75, resolved.participant("absorber")?.currentHp)
 		assertEquals(25, absorbed.healAmount)
@@ -60,7 +60,7 @@ class BattleElementAbsorbAbilityTests {
 
 	@Test
 	fun `element absorb ability at full hp blocks without overhealing`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "element-absorb-ability-at-full-hp-blocks-without-overhealing",
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，但当前已经满 HP，对手使用匹配属性攻击。",
 			expectedSummary = "技能仍被目标特性吸收并阻止伤害，实际回复量为 0，目标 HP 不超过最大值。",
@@ -85,7 +85,7 @@ class BattleElementAbsorbAbilityTests {
 		)
 		val absorbed = resolved.events.filterIsInstance<BattleEvent.SkillAbsorbedByAbility>().single()
 
-		fixture.assertNamed("element-absorb-ability-at-full-hp-blocks-without-overhealing")
+		scenario.assertNamed("element-absorb-ability-at-full-hp-blocks-without-overhealing")
 		assertEquals(100, resolved.participant("absorber")?.currentHp)
 		assertEquals(0, absorbed.healAmount)
 		assertEquals(11, absorbed.elementId)
@@ -94,7 +94,7 @@ class BattleElementAbsorbAbilityTests {
 
 	@Test
 	fun `element absorb ability blocks matching status skill`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "element-absorb-ability-blocks-matching-status-skill",
 			inputSummary = "目标拥有吸收指定属性技能并回复的结构化特性，对手使用匹配属性变化技能并试图降低目标能力阶级。",
 			expectedSummary = "变化技能命中后被目标特性吸收，不写入能力阶级变化，目标按最大 HP 的 1/4 回复。",
@@ -133,7 +133,7 @@ class BattleElementAbsorbAbilityTests {
 		)
 		val absorbed = resolved.events.filterIsInstance<BattleEvent.SkillAbsorbedByAbility>().single()
 
-		fixture.assertNamed("element-absorb-ability-blocks-matching-status-skill")
+		scenario.assertNamed("element-absorb-ability-blocks-matching-status-skill")
 		assertEquals(95, resolved.participant("absorber")?.currentHp)
 		assertEquals(25, absorbed.healAmount)
 		assertEquals(5, absorbed.elementId)

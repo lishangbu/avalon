@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 /**
  * 入场陷阱规则测试。
  *
- * 这组测试专门覆盖现代主系列中放置在一侧、等待成员换入触发的场上状态。每条公开对照 fixture 都引用成熟公开
+ * 这组测试专门覆盖现代主系列中放置在一侧、等待成员换入触发的场上状态。每条公开对照 场景 都引用成熟公开
  * 实现或公开规则说明，避免把复杂规则只靠本地推导闭门实现。测试文件独立于普通单回合测试，是为了让后续继续
  * 增加入场道具、清除陷阱、魔法反射等规则时，能在同一功能边界内维护。
  */
@@ -28,7 +28,7 @@ class BattleEntryHazardTests {
 
 	@Test
 	fun `entry hazard skill establishes target side and stacks to public maximum`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "spikes-establishes-target-side-and-stacks-to-three-layers",
 			inputSummary = "一名成员连续三次成功使用一侧入场陷阱技能，目标为对手当前上场成员所在侧。",
 			expectedSummary = "目标侧陷阱层数依次变为 1、2、3；达到公开规则最大三层后再次使用不继续增加层数。",
@@ -52,7 +52,7 @@ class BattleEntryHazardTests {
 		val afterFour = engine.resolveTurn(afterThree, action, ScriptedBattleRandom(emptyList()))
 		val hazard = afterFour.sides.single { it.sideId == "side-b" }.entryHazards.single()
 
-		fixture.assertNamed("spikes-establishes-target-side-and-stacks-to-three-layers")
+		scenario.assertNamed("spikes-establishes-target-side-and-stacks-to-three-layers")
 		assertEquals(BattleSideEntryHazardKind.SPIKES, hazard.kind)
 		assertEquals(3, hazard.layers)
 		assertEquals(3, hazard.maxLayers)
@@ -67,7 +67,7 @@ class BattleEntryHazardTests {
 
 	@Test
 	fun `stealth rock entry damage uses rock effectiveness after switch in`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "stealth-rock-damage-uses-rock-effectiveness-after-switch",
 			inputSummary = "目标侧已有隐形岩类入场陷阱，火属性后备成员主动换入，规则快照声明岩属性打火属性为 2 倍。",
 			expectedSummary = "换入事件先发生，随后按最大 HP * 2 / 8 扣除 25 点伤害，并记录入场陷阱专用伤害事件。",
@@ -96,7 +96,7 @@ class BattleEntryHazardTests {
 		val switchIndex = resolved.events.indexOfFirst { it is BattleEvent.ParticipantSwitched }
 		val hazardIndex = resolved.events.indexOfFirst { it is BattleEvent.EntryHazardDamageApplied }
 
-		fixture.assertNamed("stealth-rock-damage-uses-rock-effectiveness-after-switch")
+		scenario.assertNamed("stealth-rock-damage-uses-rock-effectiveness-after-switch")
 		assertTrue(switchIndex in 0 until hazardIndex)
 		assertEquals(BattleSideEntryHazardKind.STEALTH_ROCK, hazardEvent.kind)
 		assertEquals(25, hazardEvent.amount)
@@ -106,7 +106,7 @@ class BattleEntryHazardTests {
 
 	@Test
 	fun `spikes damages only grounded switch in participants by layer count`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "spikes-third-layer-damages-grounded-switch-in-only",
 			inputSummary = "目标侧已有三层撒菱类入场陷阱；一个接地成员换入，另一个非接地成员在独立场景换入。",
 			expectedSummary = "接地成员受到最大 HP 1/4 的入场伤害，非接地成员不触发撒菱伤害事件。",
@@ -120,7 +120,7 @@ class BattleEntryHazardTests {
 			reserveGrounded = false,
 		)
 
-		fixture.assertNamed("spikes-third-layer-damages-grounded-switch-in-only")
+		scenario.assertNamed("spikes-third-layer-damages-grounded-switch-in-only")
 		assertEquals(25, grounded.events.filterIsInstance<BattleEvent.EntryHazardDamageApplied>().single().amount)
 		assertEquals(75, grounded.participant("reserve")?.currentHp)
 		assertEquals(emptyList(), airborne.events.filterIsInstance<BattleEvent.EntryHazardDamageApplied>())
@@ -129,7 +129,7 @@ class BattleEntryHazardTests {
 
 	@Test
 	fun `toxic spikes poisons grounded switch in and poison element absorbs hazard`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "toxic-spikes-two-layers-badly-poisons-and-poison-element-absorbs",
 			inputSummary = "目标侧已有两层毒菱类入场陷阱；普通接地成员换入，另一个接地毒属性成员在独立场景换入。",
 			expectedSummary = "普通接地成员获得剧毒；接地毒属性成员不获得异常状态，并移除该侧毒菱。",
@@ -145,7 +145,7 @@ class BattleEntryHazardTests {
 			reserveGrounded = true,
 		)
 
-		fixture.assertNamed("toxic-spikes-two-layers-badly-poisons-and-poison-element-absorbs")
+		scenario.assertNamed("toxic-spikes-two-layers-badly-poisons-and-poison-element-absorbs")
 		assertEquals(BattleMajorStatus.BAD_POISON, poisoned.participant("reserve")?.majorStatus)
 		assertEquals(2, poisoned.participant("reserve")?.badPoisonCounter)
 		assertEquals(
@@ -162,7 +162,7 @@ class BattleEntryHazardTests {
 
 	@Test
 	fun `sticky web lowers speed stage only for grounded switch in participants`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "sticky-web-lowers-grounded-switch-in-speed-stage",
 			inputSummary = "目标侧已有黏黏网类入场陷阱；一个接地成员换入，另一个非接地成员在独立场景换入。",
 			expectedSummary = "接地成员速度能力阶级降低 1 级，非接地成员不触发能力阶级变化事件。",
@@ -176,7 +176,7 @@ class BattleEntryHazardTests {
 			reserveGrounded = false,
 		)
 
-		fixture.assertNamed("sticky-web-lowers-grounded-switch-in-speed-stage")
+		scenario.assertNamed("sticky-web-lowers-grounded-switch-in-speed-stage")
 		assertEquals(-1, grounded.participant("reserve")?.statStage(BattleStat.SPEED))
 		assertEquals(
 			-1,

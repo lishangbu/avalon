@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 /**
  * 验证技能在指定天气下覆盖本次结算属性的现代规则。
  *
- * 场景类型：天气影响技能属性 fixture。
+ * 场景类型：天气影响技能属性 场景。
  * 参考来源类型：公开成熟模拟器技能资料。气象球在晴天、雨天、沙暴和雪天分别变为火、水、岩石和冰属性，
  * 并在非无天气下把基础威力翻倍。属性变化不是展示文案，它会影响属性一致加成、天气火水伤害倍率、属性克制、
  * 属性吸收特性、抗性道具、低体力属性增伤和火属性伤害解冻等后续判断。
@@ -23,7 +23,7 @@ class BattleWeatherElementOverrideTests {
 
 	@Test
 	fun `weather element override participates in stab weather and effectiveness damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-element-override-participates-in-stab-weather-and-effectiveness",
 			inputSummary = "水属性使用者在雨天使用基础一般属性 50 威力技能；该技能在雨天覆盖为水属性并威力翻倍。",
 			expectedSummary = "本次技能按水属性 100 威力结算，获得水属性一致加成和雨天水伤害 1.5 倍，最终造成 103 点伤害。",
@@ -44,14 +44,14 @@ class BattleWeatherElementOverrideTests {
 		)
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 
-		fixture.assertNamed("weather-element-override-participates-in-stab-weather-and-effectiveness")
+		scenario.assertNamed("weather-element-override-participates-in-stab-weather-and-effectiveness")
 		assertEquals(103, damage.amount)
 		assertEquals(97, resolved.participant("defender")?.currentHp)
 	}
 
 	@Test
 	fun `weather element override can be absorbed by matching element ability`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-element-override-can-be-absorbed-by-matching-element-ability",
 			inputSummary = "目标拥有吸收水属性技能并回复的特性，攻击方在雨天使用基础一般属性但雨天覆盖为水属性的技能。",
 			expectedSummary = "技能在命中前视为水属性，被目标特性吸收并阻止后续伤害；满 HP 目标不会溢出回复。",
@@ -76,7 +76,7 @@ class BattleWeatherElementOverrideTests {
 		)
 		val absorbed = resolved.events.filterIsInstance<BattleEvent.SkillAbsorbedByAbility>().single()
 
-		fixture.assertNamed("weather-element-override-can-be-absorbed-by-matching-element-ability")
+		scenario.assertNamed("weather-element-override-can-be-absorbed-by-matching-element-ability")
 		assertEquals(11, absorbed.elementId)
 		assertEquals(0, absorbed.healAmount)
 		assertEquals(100, resolved.participant("absorber")?.currentHp)
@@ -85,7 +85,7 @@ class BattleWeatherElementOverrideTests {
 
 	@Test
 	fun `weather element override to fire thaws frozen target after damage`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-element-override-to-fire-thaws-frozen-target",
 			inputSummary = "目标处于冰冻，攻击方在晴天使用基础一般属性但晴天覆盖为火属性的技能并造成伤害。",
 			expectedSummary = "本次技能按火属性伤害命中，目标在伤害后仍可战斗，因此冰冻状态被解除。",
@@ -106,7 +106,7 @@ class BattleWeatherElementOverrideTests {
 		)
 		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
 
-		fixture.assertNamed("weather-element-override-to-fire-thaws-frozen-target")
+		scenario.assertNamed("weather-element-override-to-fire-thaws-frozen-target")
 		assertEquals(BattleMajorStatus.FREEZE, cleared.status)
 		assertEquals(null, resolved.participant("frozen-target")?.majorStatus)
 		assertEquals(69, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)

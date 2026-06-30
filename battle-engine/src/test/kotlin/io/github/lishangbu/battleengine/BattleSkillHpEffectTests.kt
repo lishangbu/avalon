@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 /**
  * 验证技能自身带来的 HP 回复效果。
  *
- * 场景类型：技能 HP 效果 fixture。
+ * 场景类型：技能 HP 效果 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。吸取类技能按本次造成的实际伤害回复使用者；自我回复类变化
  * 技能按使用者最大 HP 的固定比例回复；反作用伤害按目标实际损失 HP 计算。
  * 验证重点：回复和反作用来源以专用技能事件表达，并且最终数值会按当前缺失 HP 或剩余 HP 夹取。
@@ -23,7 +23,7 @@ class BattleSkillHpEffectTests {
 
 	@Test
 	fun `draining damage skill heals user by half damage dealt`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "draining-damage-skill-heals-user-by-half-damage-dealt",
 			inputSummary = "使用者未满 HP，使用带有吸取回复效果的伤害技能命中目标。",
 			expectedSummary = "目标受到普通伤害后，使用者按本次实际伤害的 1/2 回复 HP。",
@@ -45,7 +45,7 @@ class BattleSkillHpEffectTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("draining-damage-skill-heals-user-by-half-damage-dealt")
+		scenario.assertNamed("draining-damage-skill-heals-user-by-half-damage-dealt")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount
 		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
 		assertEquals(damage / 2, healing.amount)
@@ -56,7 +56,7 @@ class BattleSkillHpEffectTests {
 
 	@Test
 	fun `draining damage skill honors configured drain fraction`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "draining-damage-skill-honors-configured-drain-fraction",
 			inputSummary = "使用者未满 HP，使用带有 3/4 吸取比例的伤害技能命中目标。",
 			expectedSummary = "目标受到普通伤害后，使用者按本次实际伤害的 3/4 回复 HP。",
@@ -78,7 +78,7 @@ class BattleSkillHpEffectTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("draining-damage-skill-honors-configured-drain-fraction")
+		scenario.assertNamed("draining-damage-skill-honors-configured-drain-fraction")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount
 		val expectedHealing = (damage * 3) / 4
 		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
@@ -88,7 +88,7 @@ class BattleSkillHpEffectTests {
 
 	@Test
 	fun `recoil damage skill damages user by rounded fraction of hp actually lost by target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "recoil-damage-skill-uses-target-hp-actually-lost",
 			inputSummary = "目标剩余 HP 低于公式伤害时，使用者使用带 1/3 反作用伤害的物理技能命中目标。",
 			expectedSummary = "目标只损失剩余 17 HP；反作用伤害按 17 的 1/3 四舍五入为 6，而不是按溢出公式伤害计算。",
@@ -110,7 +110,7 @@ class BattleSkillHpEffectTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("recoil-damage-skill-uses-target-hp-actually-lost")
+		scenario.assertNamed("recoil-damage-skill-uses-target-hp-actually-lost")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		val recoil = resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>().single()
 		assertEquals(17, damage.amount)
@@ -122,7 +122,7 @@ class BattleSkillHpEffectTests {
 
 	@Test
 	fun `self healing status skill restores half max hp`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "self-healing-status-skill-restores-half-max-hp",
 			inputSummary = "使用者未满 HP，使用固定回复 1/2 最大 HP 的变化技能。",
 			expectedSummary = "技能成功后使用者回复最大 HP 的 1/2，并产生技能回复事件。",
@@ -146,7 +146,7 @@ class BattleSkillHpEffectTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("self-healing-status-skill-restores-half-max-hp")
+		scenario.assertNamed("self-healing-status-skill-restores-half-max-hp")
 		assertEquals(90, resolved.participant("heal-user")?.currentHp)
 		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
 		assertEquals("heal-user", healing.actorId)
@@ -156,7 +156,7 @@ class BattleSkillHpEffectTests {
 
 	@Test
 	fun `weather sensitive self healing skill uses current weather fraction`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-sensitive-self-healing-skill-uses-current-weather-fraction",
 			inputSummary = "使用者分别在晴天和下雨环境中使用天气变量自我回复技能。",
 			expectedSummary = "晴天回复最大 HP 的 2/3；下雨回复最大 HP 的 1/4。",
@@ -203,7 +203,7 @@ class BattleSkillHpEffectTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("weather-sensitive-self-healing-skill-uses-current-weather-fraction")
+		scenario.assertNamed("weather-sensitive-self-healing-skill-uses-current-weather-fraction")
 		assertEquals(86, sunResolved.participant("sun-healer")?.currentHp)
 		assertEquals(66, sunResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
 		assertEquals(45, rainResolved.participant("rain-healer")?.currentHp)

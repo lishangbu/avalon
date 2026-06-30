@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 /**
  * 验证现代双打目标范围解析。
  *
- * 场景类型：目标选择、范围目标重新收集和倒下目标排除 fixture。
+ * 场景类型：目标选择、范围目标重新收集和倒下目标排除 场景。
  * 参考来源类型：公开成熟对战引擎的行动结算与技能目标资料。现代双打里，玩家提交的是技能和目标槽位，
  * 但技能真正执行时需要按当前站位重新计算实际目标：单体技能只影响选中槽位，范围技能会收集当前可战斗的
  * 相邻成员，主动替换先于普通攻击结算，已经倒下的成员不会继续作为范围目标参与命中和伤害。
@@ -24,7 +24,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `selected target skill hits only chosen target in double battle`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "selected-target-skill-hits-only-chosen-target-in-double-battle",
 			inputSummary = "双打中使用普通单体技能，目标选择对方左侧成员。",
 			expectedSummary = "技能只对选中目标产生一次伤害事件，同侧伙伴和另一名对手都不受影响。",
@@ -44,7 +44,7 @@ class BattleTargetScopePublicReferenceTests {
 			ScriptedBattleRandom(listOf(1, 15)),
 		)
 
-		fixture.assertNamed("selected-target-skill-hits-only-chosen-target-in-double-battle")
+		scenario.assertNamed("selected-target-skill-hits-only-chosen-target-in-double-battle")
 		assertEquals(listOf("target-left"), resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.targetActorId })
 		assertEquals(72, resolved.participant("target-left")?.currentHp)
 		assertEquals(100, resolved.participant("target-right")?.currentHp)
@@ -53,7 +53,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `all adjacent opponents skill hits both opponents and skips ally`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally",
 			inputSummary = "双打中使用目标范围为全体相邻对手的伤害技能，对方两名成员均可战斗。",
 			expectedSummary = "技能对两个对手各产生一次伤害事件，不影响使用者同侧伙伴，并使用范围伤害倍率。",
@@ -75,7 +75,7 @@ class BattleTargetScopePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally")
+		scenario.assertNamed("all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally")
 		assertEquals(listOf("opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })
 		assertEquals(100, resolved.participant("ally")?.currentHp)
@@ -83,7 +83,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `all adjacent participants skill hits ally and opponents but excludes user`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user",
 			inputSummary = "双打中使用目标范围为全体相邻成员的伤害技能，使用者伙伴和两个对手都可战斗。",
 			expectedSummary = "技能命中除使用者外的三个相邻成员，使用者自身不受到该范围技能影响。",
@@ -105,7 +105,7 @@ class BattleTargetScopePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user")
+		scenario.assertNamed("all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user")
 		assertEquals(listOf("ally", "opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(100, resolved.participant("area-user")?.currentHp)
 		assertEquals(79, resolved.participant("ally")?.currentHp)
@@ -113,7 +113,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `spread skill skips fainted opponent and keeps full target multiplier`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier",
 			inputSummary = "双打中使用全体相邻对手范围技能，但其中一个对手已经无法战斗。",
 			expectedSummary = "范围目标列表只包含仍可战斗的对手，普通伤害公式使用 1.0 目标倍率。",
@@ -135,7 +135,7 @@ class BattleTargetScopePublicReferenceTests {
 		)
 		val damageEvent = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 
-		fixture.assertNamed("spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier")
+		scenario.assertNamed("spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier")
 		assertEquals("opponent-left", damageEvent.targetActorId)
 		assertEquals(1.0, damageEvent.targetMultiplier)
 		assertEquals(28, damageEvent.amount)
@@ -143,7 +143,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `spread skill recalculates opponents after voluntary switch`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "spread-skill-recalculates-opponents-after-voluntary-switch",
 			inputSummary = "双打中对手左侧成员先主动替换，随后另一方使用全体相邻对手范围技能。",
 			expectedSummary = "范围技能按替换后的当前站位重新收集目标，命中新上场成员和另一名仍在场对手。",
@@ -185,7 +185,7 @@ class BattleTargetScopePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("spread-skill-recalculates-opponents-after-voluntary-switch")
+		scenario.assertNamed("spread-skill-recalculates-opponents-after-voluntary-switch")
 		assertEquals(listOf("reserve", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(100, resolved.participant("opponent-left")?.currentHp)
 		assertEquals(79, resolved.participant("reserve")?.currentHp)
@@ -193,7 +193,7 @@ class BattleTargetScopePublicReferenceTests {
 
 	@Test
 	fun `all adjacent participants skill skips fainted ally`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "all-adjacent-participants-skill-skips-fainted-ally",
 			inputSummary = "双打中使用全体相邻成员范围技能，使用者伙伴已经无法战斗，两个对手仍可战斗。",
 			expectedSummary = "范围目标列表跳过已经无法战斗的伙伴，只命中两个仍可战斗的对手。",
@@ -215,7 +215,7 @@ class BattleTargetScopePublicReferenceTests {
 		)
 		val damageEvents = resolved.events.filterIsInstance<BattleEvent.DamageApplied>()
 
-		fixture.assertNamed("all-adjacent-participants-skill-skips-fainted-ally")
+		scenario.assertNamed("all-adjacent-participants-skill-skips-fainted-ally")
 		assertEquals(listOf("opponent-left", "opponent-right"), damageEvents.map { it.targetActorId })
 		assertEquals(0, resolved.participant("fainted-ally")?.currentHp)
 		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })

@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 /**
  * 验证主要异常状态免疫和接地判定。
  *
- * 场景类型：状态附加前置条件 fixture。
+ * 场景类型：状态附加前置条件 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。现代规则中，部分属性天然免疫对应主要异常状态；
  * 电气场地、薄雾场地和青草场地只影响当前上场且接地的成员。
  * 验证重点：被免疫的状态不会消耗状态私有随机数，非接地成员不会被场地错误影响。
@@ -32,7 +32,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `element immunities block matching major statuses`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "element-immunities-block-major-statuses",
 			inputSummary = "分别尝试给火、电、毒、钢、冰属性目标附加其天然免疫的主要异常状态。",
 			expectedSummary = "目标不会获得对应状态，事件流以属性免疫作为阻止原因。",
@@ -45,7 +45,7 @@ class BattleStatusImmunityAndGroundingTests {
 			StatusImmunityCase("ice-target", BattleMajorStatus.FREEZE, ICE_ELEMENT_ID),
 		)
 
-		fixture.assertNamed("element-immunities-block-major-statuses")
+		scenario.assertNamed("element-immunities-block-major-statuses")
 		cases.forEach { case ->
 			val statusSkill = statusSkill(case.status)
 			val state = engine.start(
@@ -71,7 +71,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `electric terrain does not block sleep for ungrounded target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "electric-terrain-does-not-block-sleep-for-ungrounded-target",
 			inputSummary = "电气场地存在时，非接地上场目标被睡眠技能命中。",
 			expectedSummary = "目标仍会获得睡眠状态，并正常消费睡眠持续随机数。",
@@ -91,7 +91,7 @@ class BattleStatusImmunityAndGroundingTests {
 			random,
 		)
 
-		fixture.assertNamed("electric-terrain-does-not-block-sleep-for-ungrounded-target")
+		scenario.assertNamed("electric-terrain-does-not-block-sleep-for-ungrounded-target")
 		assertEquals(listOf("sleep duration for 1"), random.consumedReasons())
 		assertEquals(BattleMajorStatus.SLEEP, resolved.participant("ungrounded-target")?.majorStatus)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplicationBlocked>())
@@ -99,7 +99,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `misty terrain blocks major status for grounded target`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "misty-terrain-blocks-major-status-for-grounded-target",
 			inputSummary = "薄雾场地存在时，接地上场目标被灼伤技能命中。",
 			expectedSummary = "目标不会获得灼伤状态，事件流以场地作为阻止原因。",
@@ -118,7 +118,7 @@ class BattleStatusImmunityAndGroundingTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("misty-terrain-blocks-major-status-for-grounded-target")
+		scenario.assertNamed("misty-terrain-blocks-major-status-for-grounded-target")
 		assertEquals(null, resolved.participant("grounded-target")?.majorStatus)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplied>())
 		val blocked = resolved.events.filterIsInstance<BattleEvent.StatusApplicationBlocked>().single()
@@ -128,7 +128,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `grass target blocks powder based status skill before status random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "grass-target-blocks-powder-based-status-skill",
 			inputSummary = "草属性目标被粉末类睡眠技能选中。",
 			expectedSummary = "技能使用并消耗 PP，但被目标草属性免疫阻挡，不消费睡眠持续随机数。",
@@ -158,7 +158,7 @@ class BattleStatusImmunityAndGroundingTests {
 			random,
 		)
 
-		fixture.assertNamed("grass-target-blocks-powder-based-status-skill")
+		scenario.assertNamed("grass-target-blocks-powder-based-status-skill")
 		assertEquals(emptyList(), random.consumedReasons())
 		assertEquals(34, resolved.participant("powder-user")?.skillSlot(1)?.remainingPp)
 		assertEquals(null, resolved.participant("grass-target")?.majorStatus)
@@ -170,7 +170,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `ability and item immunities block matching major statuses before private random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "ability-and-item-immunities-block-matching-major-statuses",
 			inputSummary = "目标分别通过特性免疫中毒、通过携带道具免疫睡眠。",
 			expectedSummary = "状态不会写入，事件流分别记录特性和道具作为阻止原因，且睡眠持续随机数不会被消费。",
@@ -198,7 +198,7 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 		)
 
-		fixture.assertNamed("ability-and-item-immunities-block-matching-major-statuses")
+		scenario.assertNamed("ability-and-item-immunities-block-matching-major-statuses")
 		cases.forEach { case ->
 			val random = ScriptedBattleRandom(emptyList())
 			val state = engine.start(
@@ -225,7 +225,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `existing major status blocks new major status without private random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "existing-major-status-blocks-new-major-status",
 			inputSummary = "目标已经处于麻痹状态，随后被 100% 附加睡眠的变化技能命中。",
 			expectedSummary = "目标仍保持原有麻痹状态，不获得睡眠；事件流记录 EXISTING_STATUS 阻止原因，且不消费睡眠持续随机数。",
@@ -245,7 +245,7 @@ class BattleStatusImmunityAndGroundingTests {
 			random,
 		)
 
-		fixture.assertNamed("existing-major-status-blocks-new-major-status")
+		scenario.assertNamed("existing-major-status-blocks-new-major-status")
 		assertEquals(emptyList(), random.consumedReasons())
 		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("already-statused-target")?.majorStatus)
 		assertEquals(0, resolved.participant("already-statused-target")?.sleepTurnsRemaining)
@@ -257,7 +257,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `terrain ability and item immunities block confusion before duration random`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "terrain-ability-and-item-immunities-block-confusion-before-duration-random",
 			inputSummary = "目标分别因薄雾场地、特性和携带道具免疫混乱。",
 			expectedSummary = "混乱不会写入，事件流记录对应阻止原因，且混乱持续时间随机数不会被消费。",
@@ -289,7 +289,7 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 		)
 
-		fixture.assertNamed("terrain-ability-and-item-immunities-block-confusion-before-duration-random")
+		scenario.assertNamed("terrain-ability-and-item-immunities-block-confusion-before-duration-random")
 		cases.forEach { case ->
 			val random = ScriptedBattleRandom(emptyList())
 			val state = engine.start(
@@ -317,7 +317,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `ability and item immunities block flinch so target still acts`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "ability-and-item-immunities-block-flinch-before-action",
 			inputSummary = "较快成员使用 100% 附加畏缩的接触外普通技能命中目标；目标分别通过特性和携带道具免疫畏缩。",
 			expectedSummary = "畏缩不会写入目标运行态，事件流记录对应阻止原因；目标随后仍能在同回合正常行动并造成伤害。",
@@ -343,7 +343,7 @@ class BattleStatusImmunityAndGroundingTests {
 			),
 		)
 
-		fixture.assertNamed("ability-and-item-immunities-block-flinch-before-action")
+		scenario.assertNamed("ability-and-item-immunities-block-flinch-before-action")
 		cases.forEach { case ->
 			val random = ScriptedBattleRandom(listOf(1, 15, 1, 15))
 			val state = engine.start(
@@ -380,7 +380,7 @@ class BattleStatusImmunityAndGroundingTests {
 
 	@Test
 	fun `grassy terrain heals only grounded active participants`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "grassy-terrain-heals-only-grounded-active-participants",
 			inputSummary = "青草场地存在时，双方当前上场成员都损失 HP，其中一方不接地。",
 			expectedSummary = "只有接地成员在回合末获得青草场地回复。",
@@ -399,7 +399,7 @@ class BattleStatusImmunityAndGroundingTests {
 			ScriptedBattleRandom(emptyList()),
 		)
 
-		fixture.assertNamed("grassy-terrain-heals-only-grounded-active-participants")
+		scenario.assertNamed("grassy-terrain-heals-only-grounded-active-participants")
 		assertEquals(86, resolved.participant("grounded")?.currentHp)
 		assertEquals(80, resolved.participant("ungrounded")?.currentHp)
 		assertEquals(listOf("grounded"), resolved.events.filterIsInstance<BattleEvent.TerrainHealingApplied>().map { it.actorId })

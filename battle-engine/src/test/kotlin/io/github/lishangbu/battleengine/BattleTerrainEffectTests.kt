@@ -21,7 +21,7 @@ class BattleTerrainEffectTests {
 
 	@Test
 	fun `terrain speed ability changes skill action order`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "terrain-speed-ability-changes-skill-action-order",
 			inputSummary = "电气场地环境下，低速成员拥有场地速度翻倍特性，高速成员没有场地速度特性。",
 			expectedSummary = "低速成员的有效速度翻倍后先行动，事件流中的技能使用顺序随之改变。",
@@ -52,7 +52,7 @@ class BattleTerrainEffectTests {
 			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
 		)
 
-		fixture.assertNamed("terrain-speed-ability-changes-skill-action-order")
+		scenario.assertNamed("terrain-speed-ability-changes-skill-action-order")
 		assertEquals(
 			listOf("terrain-boosted", "naturally-fast"),
 			resolved.events.filterIsInstance<BattleEvent.SkillUsed>().map { it.actorId },

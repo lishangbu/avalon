@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * 接触类特性公开对照 fixture。
+ * 接触类特性公开对照 场景。
  *
  * 现代主系列中，一部分防守方特性会在攻击方使用接触技能命中后，以固定概率把主要异常状态返还给攻击方。
  * 这组测试只验证状态机层的公共生命周期：必须在普通伤害成功后触发，100% 概率不消费额外随机数，非 100%
@@ -21,8 +21,8 @@ class BattleContactAbilityPublicReferenceTests {
 	private val engine = BattleEngine()
 
 	@Test
-	fun `contact status ability applies paralysis after successful contact like public fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `contact status ability applies paralysis after successful contact like public scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "contact-status-ability-applies-paralysis-after-contact",
 			inputSummary = "攻击方使用接触类物理技能命中目标；目标携带接触后 100% 麻痹攻击方的结构化特性效果。",
 			expectedSummary = "目标先受到普通伤害；随后攻击方获得麻痹状态。100% 概率不会额外消费接触特性的随机数。",
@@ -55,7 +55,7 @@ class BattleContactAbilityPublicReferenceTests {
 		)
 		val statusEvent = resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single()
 
-		fixture.assertNamed("contact-status-ability-applies-paralysis-after-contact")
+		scenario.assertNamed("contact-status-ability-applies-paralysis-after-contact")
 		assertEquals(72, resolved.participant("defender")?.currentHp)
 		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("attacker")?.majorStatus)
 		assertEquals("defender", statusEvent.actorId)
@@ -64,8 +64,8 @@ class BattleContactAbilityPublicReferenceTests {
 	}
 
 	@Test
-	fun `contact status ability skips status when chance roll fails like public fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `contact status ability skips status when chance roll fails like public scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "contact-status-ability-misses-when-chance-roll-fails",
 			inputSummary = "攻击方使用接触类技能命中目标；目标携带接触后 30% 灼伤攻击方的结构化特性效果，脚本掷点为 81。",
 			expectedSummary = "目标正常受到伤害；接触特性的概率掷点失败，攻击方不会获得灼伤状态。",
@@ -97,7 +97,7 @@ class BattleContactAbilityPublicReferenceTests {
 			random,
 		)
 
-		fixture.assertNamed("contact-status-ability-misses-when-chance-roll-fails")
+		scenario.assertNamed("contact-status-ability-misses-when-chance-roll-fails")
 		assertEquals(72, resolved.participant("defender")?.currentHp)
 		assertEquals(null, resolved.participant("attacker")?.majorStatus)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusApplied>())
@@ -108,8 +108,8 @@ class BattleContactAbilityPublicReferenceTests {
 	}
 
 	@Test
-	fun `contact status ability respects attacker immunity like public fixture`() {
-		val fixture = publicBattleRuleFixture(
+	fun `contact status ability respects attacker immunity like public scenario`() {
+		val scenario = publicBattleRuleScenario(
 			name = "contact-status-ability-respects-attacker-immunity",
 			inputSummary = "攻击方使用接触类技能命中目标；目标接触后 100% 麻痹攻击方，但攻击方自身有麻痹免疫特性。",
 			expectedSummary = "目标受到普通伤害；麻痹附加流程被攻击方特性免疫阻止，事件流记录 ABILITY 阻止原因。",
@@ -145,7 +145,7 @@ class BattleContactAbilityPublicReferenceTests {
 		)
 		val blocked = resolved.events.filterIsInstance<BattleEvent.StatusApplicationBlocked>().single()
 
-		fixture.assertNamed("contact-status-ability-respects-attacker-immunity")
+		scenario.assertNamed("contact-status-ability-respects-attacker-immunity")
 		assertEquals(72, resolved.participant("defender")?.currentHp)
 		assertEquals(null, resolved.participant("attacker")?.majorStatus)
 		assertEquals("defender", blocked.actorId)

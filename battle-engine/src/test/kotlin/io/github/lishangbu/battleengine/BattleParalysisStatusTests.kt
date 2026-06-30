@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 /**
  * 验证现代麻痹状态的行动前阻止规则。
  *
- * 场景类型：行动前钩子级公开规则 fixture。
+ * 场景类型：行动前钩子级公开规则 场景。
  * 参考来源类型：公开成熟模拟器实现和公开规则说明。麻痹会把有效速度减半，并在每次行动前以 25%
  * 概率阻止技能；阻止时不消耗 PP，也不会产生技能使用事件。
  * 验证重点：麻痹随机数只在成员真正进入麻痹判定时消费，且不会因为一次阻止而清除主要异常状态。
@@ -21,7 +21,7 @@ class BattleParalysisStatusTests {
 
 	@Test
 	fun `paralysis can fully prevent action without pp loss`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "paralysis-prevents-action-without-pp-loss",
 			inputSummary = "麻痹成员本回合选择使用普通攻击，固定随机数触发 25% 行动阻止。",
 			expectedSummary = "成员不会使用技能、不消耗 PP，麻痹状态仍然保留到后续回合。",
@@ -40,7 +40,7 @@ class BattleParalysisStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("paralysis-prevents-action-without-pp-loss")
+		scenario.assertNamed("paralysis-prevents-action-without-pp-loss")
 		assertEquals(listOf("paralysis chance for paralyzed"), random.consumedReasons())
 		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("paralyzed")?.majorStatus)
 		assertEquals(35, resolved.participant("paralyzed")?.skillSlot(1)?.remainingPp)
@@ -52,7 +52,7 @@ class BattleParalysisStatusTests {
 
 	@Test
 	fun `paralysis can allow action and still consumes action check before attack randoms`() {
-		val fixture = publicBattleRuleFixture(
+		val scenario = publicBattleRuleScenario(
 			name = "paralysis-allows-action-after-failed-block-roll",
 			inputSummary = "麻痹成员本回合选择普通攻击，固定随机数未触发行动阻止。",
 			expectedSummary = "成员先消费麻痹判定随机数，再按普通伤害流程消耗要害和伤害浮动随机数。",
@@ -71,7 +71,7 @@ class BattleParalysisStatusTests {
 			random,
 		)
 
-		fixture.assertNamed("paralysis-allows-action-after-failed-block-roll")
+		scenario.assertNamed("paralysis-allows-action-after-failed-block-roll")
 		assertEquals(
 			listOf(
 				"paralysis chance for paralyzed",
