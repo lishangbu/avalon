@@ -40,6 +40,17 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `公开规则命名场景数量覆盖规则账本`() {
+		val expectedRuleCount = coverageGroups.sumOf { it.ruleCount }
+		val namedScenarioCount = countOccurrencesInKotlinTestSources(".assertNamed(")
+
+		assertTrue(
+			namedScenarioCount >= expectedRuleCount,
+			"公开规则场景应至少覆盖账本中的 $expectedRuleCount 条规则，当前只有 $namedScenarioCount 个命名场景",
+		)
+	}
+
+	@Test
 	fun `公开规则场景不再使用历史夹具命名`() {
 		val staleNames = listOf(
 			"PublicBattleRule" + "Fi" + "xture",
@@ -47,28 +58,43 @@ class BattleRuleCoverageLedgerTests {
 			"damage" + "Fi" + "xture",
 		)
 		val staleHits = mutableListOf<String>()
-		val paths = Files.walk(Path.of("src/test/kotlin"))
+		kotlinTestSources().forEach { sourcePath ->
+			val source = Files.readString(sourcePath)
 
-		try {
-			paths
-				.filter { sourcePath -> Files.isRegularFile(sourcePath) && sourcePath.toString().endsWith(".kt") }
-				.forEach { sourcePath ->
-					val source = Files.readString(sourcePath)
-
-					staleNames.forEach { staleName ->
-						if (source.contains(staleName)) {
-							staleHits += "$sourcePath contains $staleName"
-						}
-					}
+			staleNames.forEach { staleName ->
+				if (source.contains(staleName)) {
+					staleHits += "$sourcePath contains $staleName"
 				}
-		} finally {
-			paths.close()
+			}
 		}
 
 		assertTrue(
 			staleHits.isEmpty(),
 			"公开规则测试已经从共享夹具命名改成场景命名，不应再出现历史名称：\n${staleHits.joinToString("\n")}",
 		)
+	}
+
+	/**
+	 * 统计测试源码中某段字面量出现的次数。
+	 *
+	 * 312 条规则不强制拆成 312 个一对一测试，因为一个真实战斗场景经常同时验证行动顺序、随机消费、事件顺序和
+	 * 状态不变量。这里改用命名公开规则场景数量兜底：每个场景仍必须有具体断言，并通过 `assertNamed` 留下稳定
+	 * 场景标识；数量不少于规则数即可防止账本数字脱离可运行测试。
+	 */
+	private fun countOccurrencesInKotlinTestSources(needle: String): Int =
+		kotlinTestSources().sumOf { sourcePath ->
+			Files.readString(sourcePath).split(needle).size - 1
+		}
+
+	private fun kotlinTestSources(): List<Path> {
+		val paths = Files.walk(Path.of("src/test/kotlin"))
+		return try {
+			paths
+				.filter { sourcePath -> Files.isRegularFile(sourcePath) && sourcePath.toString().endsWith(".kt") }
+				.toList()
+		} finally {
+			paths.close()
+		}
 	}
 
 	private data class CoverageGroup(
