@@ -61,6 +61,59 @@ class BattleElementDamageReductionItemTests {
 		assertEquals(true, reduced.consumed)
 	}
 
+	/**
+	 * 固定“抗性减伤先于伤害后回复”的结算顺序。
+	 *
+	 * 目标侧的抗性道具会在 HP 写入之前把普通伤害从 38 修正到 19；攻击方的按伤害回复道具则在整次技能结束后
+	 * 读取实际造成伤害。这个用例把两个道具放在同一击里，避免后续重构把攻击方回复错误地接到减伤前的原始伤害，
+	 * 也避免目标道具消费事件和攻击方回复事件因为状态快照覆盖而互相丢失。
+	 */
+	@Test
+	fun `damage dealt healing item reads damage after element reduction item`() {
+		val fixture = publicBattleRuleFixture(
+			name = "damage-dealt-healing-item-reads-damage-after-element-reduction",
+			inputSummary = "攻击方当前 HP 50 且携带按造成伤害回复道具；目标携带火属性抗性树果，受到效果绝佳火属性技能命中。",
+			expectedSummary = "火属性伤害先从 38 点减半为 19 点；攻击方随后按 19 点实际伤害回复 2 点，目标道具被消费。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					currentHp = 50,
+					elementId = 2,
+					skill = damagingSkill(elementId = 10),
+					itemId = 230,
+					itemEffects = listOf(BattleItemEffect.DamageDealtHeal(healDenominator = 8)),
+				),
+				second = participant(
+					"holder",
+					speed = 50,
+					elementId = 12,
+					itemId = 161,
+					itemEffects = listOf(BattleItemEffect.ElementDamageReduction(elementId = 10, multiplier = 0.5)),
+				),
+				rules = fireSuperEffectiveAgainstGrassRules(),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "holder")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+		val healing = resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single()
+
+		fixture.assertNamed("damage-dealt-healing-item-reads-damage-after-element-reduction")
+		assertEquals(19, damage.amount)
+		assertEquals(81, resolved.participant("holder")?.currentHp)
+		assertNull(resolved.participant("holder")?.itemId)
+		assertEquals(52, resolved.participant("attacker")?.currentHp)
+		assertEquals(2, healing.amount)
+		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.DamageReducedByItem>().size)
+	}
+
 	@Test
 	fun `element damage reduction item ignores matching damage that is not super effective`() {
 		val fixture = publicBattleRuleFixture(

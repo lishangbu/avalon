@@ -32,6 +32,27 @@
 | 随机、回放和对照测试基础 | 4 | 4 | 0 | 固定随机序列、事件流稳定、回放复算和对照测试结果归档。 |
 | **合计** | **312** | **312** | **0** | 当前“已覆盖”按行为账本粗映射；覆盖报表实际登记项为 `91/91`。 |
 
+## 规则族到测试文件矩阵
+
+这张矩阵是 `battle-engine/src/test/kotlin/io/github/lishangbu/battleengine/BattleRuleCoverageLedgerTests.kt`
+的人工可读版本。测试类仍然是事实源；文档只负责帮助开发时快速定位“某个规则族应该看哪批测试”。新增规则时，
+先判断它是否只是资料条目扩展；如果不是，必须把对应行为测试补到下表所属规则族，必要时再调整规则族计数。
+
+| 规则族 code | 规则数 | 主要测试文件 |
+| --- | ---: | --- |
+| `format-and-team-validation` | 16 | `BattleFormatValidationTests`、`BattlePreparationValidatorTests` |
+| `lifecycle-switch-faint-result` | 18 | `BattleLifecycleSwitchPublicReferenceTests`、`BattleFormatLifecycleBoundaryPublicReferenceTests` |
+| `turn-flow-action-ordering` | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests` |
+| `target-scope-redirection` | 20 | `BattleTargetScopePublicReferenceTests`、`BattleTargetRedirectionPublicReferenceTests`、`BattleRandomTargetPublicReferenceTests` |
+| `hit-protect-substitute-immunity-reflect` | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests` |
+| `damage-formula-stat-element-rounding` | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`BattleCriticalHitFlowTests` |
+| `major-volatile-persistent-status` | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests` |
+| `weather-terrain-field-side-condition` | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests` |
+| `skill-effect-family` | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests` |
+| `ability-effect-family` | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests` |
+| `item-effect-family` | 18 | `BattleHeldItemPublicReferenceTests`、`BattleElementDamageReductionItemTests`、`BattleStatusCureItemTests` |
+| `random-replay-public-reference` | 4 | `random/ScriptedBattleRandomTests`、`BattleReplayRecorderTests`、`BattleReplayPublicReferenceTests` |
+
 ## 当前报表口径
 
 当前 `BattleRuleCoverageService` 的报表是第一阶段的上线清单，不是最终系统清单：

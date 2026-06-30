@@ -1,7 +1,9 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -94,6 +96,63 @@ class BattleDamageDealtHealingItemTests {
 		assertEquals(52, attacker.currentHp)
 		assertEquals(230, attacker.itemId)
 		assertEquals(2, healing.amount)
+	}
+
+	/**
+	 * 固定“造成伤害回复”与“满 HP 致命伤害保留 1 HP”的结算边界。
+	 *
+	 * 这个用例故意使用 200 点固定直接伤害，让入参伤害大于目标最大 HP；保命特性会把真正写入 HP 的伤害收敛成
+	 * 99 点。回复道具必须读取 HP 已经实际损失的 99，而不是读取原始 200，否则会把公开规则中的“按造成的实际
+	 * 伤害回复”错误实现成“按技能声明伤害回复”。该边界同时保护直接伤害入口和普通伤害入口共享的伤害后 hook。
+	 */
+	@Test
+	fun `damage dealt healing item uses actual damage after fatal survival`() {
+		val fixture = publicBattleRuleFixture(
+			name = "damage-dealt-healing-item-uses-actual-damage-after-fatal-survival",
+			inputSummary = "使用者当前 HP 50，携带按造成伤害八分之一回复的道具；目标满 HP 且有保命特性，受到 200 点固定伤害。",
+			expectedSummary = "保命特性把实际伤害改为 99 点并让目标保留 1 HP；回复道具按 99 点实际伤害回复 12 点 HP。",
+		)
+		val fatalSkill = damagingSkill(
+			skillId = 9011,
+			name = "保命回复测试",
+			power = null,
+			fixedDamage = BattleFixedDamage.FixedAmount(200),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					currentHp = 50,
+					skill = fatalSkill,
+					itemId = 230,
+					itemEffects = listOf(BattleItemEffect.DamageDealtHeal(healDenominator = 8)),
+				),
+				second = participant(
+					"survivor",
+					speed = 50,
+					abilityId = 5,
+					abilityEffects = listOf(BattleAbilityEffect.SurviveFatalDamageAtFullHp()),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 9011, targetActorId = "survivor")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+		val healing = resolved.events.filterIsInstance<BattleEvent.HealingApplied>().single()
+		val survived = resolved.events.filterIsInstance<BattleEvent.FatalDamageSurvived>().single()
+
+		fixture.assertNamed("damage-dealt-healing-item-uses-actual-damage-after-fatal-survival")
+		assertEquals(99, damage.amount)
+		assertEquals(200, survived.incomingDamage)
+		assertEquals(101, survived.preventedDamage)
+		assertEquals(1, resolved.participant("survivor")?.currentHp)
+		assertEquals(62, resolved.participant("attacker")?.currentHp)
+		assertEquals(12, healing.amount)
 	}
 
 	@Test

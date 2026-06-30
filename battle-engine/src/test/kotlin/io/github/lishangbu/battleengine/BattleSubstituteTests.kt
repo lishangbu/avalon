@@ -1,9 +1,11 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -95,6 +97,56 @@ class BattleSubstituteTests {
 		val substituteDamage = resolved.events.filterIsInstance<BattleEvent.SubstituteDamageApplied>().single()
 		assertEquals(15, substituteDamage.amount)
 		assertEquals(10, substituteDamage.substituteHpRemaining)
+	}
+
+	/**
+	 * 固定“替身挡住伤害时不进入本体保命窗口”的边界。
+	 *
+	 * 满 HP 保命特性只应该在本体即将被技能伤害写入到 0 HP 时触发。若目标存在替身且本次技能不能穿透替身，
+	 * 即使直接伤害数值远大于目标最大 HP，也只能扣替身 HP；本体没有发生 HP 写入，所以不能追加保命事件，
+	 * 也不能把替身之外的溢出伤害继续传给本体。
+	 */
+	@Test
+	fun `substitute absorbing lethal direct damage does not trigger body fatal survival`() {
+		val fixture = publicBattleRuleFixture(
+			name = "substitute-absorbing-lethal-direct-damage-does-not-trigger-body-survival",
+			inputSummary = "目标满 HP、拥有满 HP 保命特性并已有 25 HP 替身；对手使用 200 点固定直接伤害技能。",
+			expectedSummary = "固定伤害只打破 25 HP 替身，本体 HP 保持 100；不出现本体伤害事件，也不触发保命事件。",
+		)
+		val fatalSkill = damagingSkill(
+			skillId = 9012,
+			name = "替身保命边界测试",
+			power = null,
+			fixedDamage = BattleFixedDamage.FixedAmount(200),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("attacker", speed = 100, skill = fatalSkill),
+				second = participant(
+					"protected-target",
+					speed = 50,
+					abilityId = 5,
+					abilityEffects = listOf(BattleAbilityEffect.SurviveFatalDamageAtFullHp()),
+				).copy(substituteHp = 25),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 9012, targetActorId = "protected-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val target = requireNotNull(resolved.participant("protected-target"))
+		val substituteDamage = resolved.events.filterIsInstance<BattleEvent.SubstituteDamageApplied>().single()
+
+		fixture.assertNamed("substitute-absorbing-lethal-direct-damage-does-not-trigger-body-survival")
+		assertEquals(100, target.currentHp)
+		assertEquals(0, target.substituteHp)
+		assertEquals(25, substituteDamage.amount)
+		assertEquals(0, substituteDamage.substituteHpRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.FatalDamageSurvived>())
+		assertEquals("protected-target", resolved.events.filterIsInstance<BattleEvent.SubstituteBroken>().single().actorId)
 	}
 
 	@Test

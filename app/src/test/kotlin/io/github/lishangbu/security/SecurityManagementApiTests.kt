@@ -97,6 +97,72 @@ class SecurityManagementApiTests(
 
 	}
 
+	/**
+	 * 验证战斗规则业务域的菜单树由数据库角色权限实时生成。
+	 *
+	 * 战斗规则页面是在多个迁移批次里逐步扩展的；如果只依赖 token 签发时的细粒度访问节点 claim，已经登录的管理端
+	 * 会拿不到后续新增页面。`SessionService` 的设计是只用 token scope 限定业务域，再从当前数据库角色重新读取该
+	 * 业务域下的菜单节点。本测试把所有现有战斗规则管理页列成白名单，确保 `/api/session` 返回值足够前端直接渲染
+	 * 菜单，不需要前端 fallback 菜单或硬编码补洞。
+	 */
+	@Test
+	fun `battle rules admin session includes every battle rules management menu`() {
+		insertUser("battle-menu-manager", 203)
+		val token = issueToken("battle-menu-manager", "battle-rules:admin")
+
+		val response = mockMvc.perform(
+			get("/api/session")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.roles[*].code", hasItem("battle-rules-admin")))
+			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-rules:admin")))
+			.andExpect(jsonPath("$.menus[0].code").value("battle-rules"))
+			.andExpect(jsonPath("$.menus[0].name").value("战斗规则"))
+			.andReturn()
+			.response
+			.contentAsString
+
+		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
+		val componentKeys = JsonPath.read<List<String>>(response, "$.menus..componentKey")
+			.filterNotNull()
+		assertThat(menuCodes).contains(
+			"battle-rules.battle-formats",
+			"battle-rules.format-clauses",
+			"battle-rules.format-clause-bindings",
+			"battle-rules.format-restrictions",
+			"battle-rules.preparation-validation",
+			"battle-rules.action-validation",
+			"battle-rules.special-mechanics",
+			"battle-rules.format-special-mechanics",
+			"battle-rules.status-rules",
+			"battle-rules.weather-rules",
+			"battle-rules.terrain-rules",
+			"battle-rules.field-rules",
+			"battle-rules.skill-rules",
+			"battle-rules.skill-status-effects",
+			"battle-rules.skill-stat-stage-effects",
+			"battle-rules.skill-stat-stage-operations",
+			"battle-rules.skill-field-effects",
+			"battle-rules.skill-global-field-effects",
+			"battle-rules.skill-weather-accuracy-overrides",
+			"battle-rules.skill-weather-power-modifiers",
+			"battle-rules.skill-weather-element-overrides",
+			"battle-rules.skill-charge-skip-weathers",
+			"battle-rules.ability-rules",
+			"battle-rules.item-rules",
+		)
+		assertThat(componentKeys).contains(
+			"battle-rules/battle-formats",
+			"battle-rules/action-validation",
+			"battle-rules/skill-field-effects",
+			"battle-rules/skill-global-field-effects",
+			"battle-rules/skill-weather-accuracy-overrides",
+			"battle-rules/skill-weather-power-modifiers",
+			"battle-rules/skill-charge-skip-weathers",
+		)
+	}
+
 	@Test
 	fun `security admin can manage scheduled tasks and inspect executions`() {
 		insertUser("scheduler-manager", 201)
