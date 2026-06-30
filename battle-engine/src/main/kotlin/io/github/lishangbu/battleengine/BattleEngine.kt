@@ -13,11 +13,8 @@ import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
-import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
-import io.github.lishangbu.battleengine.model.BattleSide
-import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
@@ -28,7 +25,6 @@ import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
-import kotlin.math.floor
 
 /**
  * 现代回合制战斗引擎的第一阶段核心状态机。
@@ -53,6 +49,7 @@ class BattleEngine(
 	private val actionOrdering = BattleActionOrdering(statStageModifiers)
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 	private val skillTargeting = BattleSkillTargeting()
+	private val hitResolution = BattleHitResolution(statStageModifiers)
 	private val environmentEffects = BattleEnvironmentEffects()
 	private val fieldEffects = BattleFieldEffects()
 	private val chargeMoves = BattleChargeMoves()
@@ -575,7 +572,14 @@ class BattleEngine(
 			)
 		}
 
-		val accuracyCheck = accuracyCheck(state, actor, target, skill, random)
+		val accuracyCheck = hitResolution.accuracyCheck(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			ignoresTargetAbilityEffects = ignoresTargetAbilityEffects,
+			random = random,
+		)
 		if (!accuracyCheck.hit) {
 			return context.interruptSkillWithEvent(
 				state = state,
@@ -835,7 +839,7 @@ class BattleEngine(
 		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
 		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
-		val sideDamageReductionMultiplier = sideDamageReductionMultiplier(
+		val sideDamageReductionMultiplier = hitResolution.sideDamageReductionMultiplier(
 			state = state,
 			target = target,
 			skill = skill,
@@ -1612,88 +1616,6 @@ class BattleEngine(
 	}
 
 	/**
-	 * 计算防守方一侧伤害减免倍率。
-	 *
-	 * 现代主系列中，防守方屏障只对普通物理/特殊伤害生效，击中要害会忽略屏障。单打或目标侧只剩一名可战斗上场
-	 * 成员时使用 0.5；双打目标侧存在多名可战斗上场成员时使用约 2/3。若同一侧同时有多个可覆盖屏障，本次伤害
-	 * 只套用一次倍率，不叠加。
-	 */
-	private fun sideDamageReductionMultiplier(
-		state: BattleState,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		criticalHit: Boolean,
-	): Double {
-		if (criticalHit || skill.damageClass == BattleDamageClass.STATUS) {
-			return 1.0
-		}
-		val targetSide = state.sideOf(target.actorId) ?: return 1.0
-		val reduction = targetSide.damageReductions.firstOrNull { it.appliesTo(skill.damageClass) } ?: return 1.0
-		return reduction.damageReductionMultiplier(state, targetSide)
-	}
-
-	private fun BattleSideDamageReduction.damageReductionMultiplier(
-		state: BattleState,
-		targetSide: BattleSide,
-	): Double {
-		val targetSideActiveCount = targetSide.activeParticipants().count { it.canBattle() }
-		return if (state.format.mode == BattleMode.DOUBLE && targetSideActiveCount > 1) {
-			MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
-		} else {
-			SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER
-		}
-	}
-
-	/**
-	 * 处理命中判定。
-	 *
-	 * 空命中表示必中；技能可按当前天气覆盖命中率，例如雨天必中或晴天降为固定命中。否则先应用攻击方命中阶级
-	 * 和目标闪避阶级，再消费一个 1 到 100 的随机掷点。若修正后命中率已经达到或超过 100，则直接命中且不消费随机数。
-	 */
-	private fun accuracyCheck(
-		state: BattleState,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): AccuracyCheck {
-		val accuracy = effectiveAccuracy(state, skill) ?: return AccuracyCheck(hit = true, roll = null)
-		val ignoresTargetAbilityEffects = skillIgnoresTargetAbilityEffects(state, actor, target)
-		val actorAccuracyStage = if (!ignoresTargetAbilityEffects && target.ignoresOpponentAccuracyStatStages()) {
-			0
-		} else {
-			actor.statStage(BattleStat.ACCURACY)
-		}
-		val targetEvasionStage = if (actor.ignoresOpponentAccuracyStatStages()) {
-			0
-		} else {
-			target.statStage(BattleStat.EVASION)
-		}
-		val modifiedAccuracy = floor(
-			accuracy *
-				statStageModifiers.accuracyMultiplier(actorAccuracyStage) /
-				statStageModifiers.accuracyMultiplier(targetEvasionStage),
-		).toInt().coerceAtLeast(1)
-		if (modifiedAccuracy >= 100) {
-			return AccuracyCheck(hit = true, roll = null)
-		}
-		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
-		return AccuracyCheck(hit = roll <= modifiedAccuracy, roll = roll)
-	}
-
-	/**
-	 * 读取当前天气下的技能命中率。
-	 *
-	 * 资料层可以显式声明某天气下覆盖为固定命中率，或覆盖为 null 表示必中；没有覆盖时使用技能基础命中率。
-	 */
-	private fun effectiveAccuracy(state: BattleState, skill: BattleSkillSlot): Int? =
-		if (skill.accuracyOverridesByWeather.containsKey(state.environment.weather)) {
-			skill.accuracyOverridesByWeather[state.environment.weather]
-		} else {
-			skill.accuracy
-		}
-
-	/**
 	 * 应用技能命中后的结构化附加效果。
 	 *
 	 * 效果按技能槽中的顺序结算；概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
@@ -2226,11 +2148,6 @@ class BattleEngine(
 		val successfulProtectionActorIds: Set<String> = emptySet(),
 	)
 
-	private data class AccuracyCheck(
-		val hit: Boolean,
-		val roll: Int?,
-	)
-
 	private data class FatalDamageSurvivalResult(
 		val target: BattleParticipant,
 		val damageAmount: Int,
@@ -2241,9 +2158,4 @@ class BattleEngine(
 		val target: BattleParticipant,
 		val event: BattleEvent.DamageReducedByItem,
 	)
-
-	private companion object {
-		private const val MULTI_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 2.0 / 3.0
-		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
-	}
 }
