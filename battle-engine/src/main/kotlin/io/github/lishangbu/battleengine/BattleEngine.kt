@@ -386,139 +386,118 @@ class BattleEngine(
 
 		val powderBlockedElementId = powderBlockedElementId(state, target, skill)
 		if (powderBlockedElementId != null) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByElement(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							elementId = powderBlockedElementId,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByElement(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					elementId = powderBlockedElementId,
 				),
 			)
 		}
 
 		val darkPriorityBlockedElementId = darkPriorityBlockedElementId(state, actor, target, priorityContext)
 		if (darkPriorityBlockedElementId != null) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByElement(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							elementId = darkPriorityBlockedElementId,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByElement(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					elementId = darkPriorityBlockedElementId,
 				),
 			)
 		}
 
 		if (skillBlockedByTerrain(state, actor, target, priorityContext)) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByTerrain(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							terrain = state.environment.terrain,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByTerrain(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					terrain = state.environment.terrain,
 				),
 			)
 		}
 
 		val priorityBlocker = priorityMoveAbilityBlocker(state, actor, target, priorityContext)
 		if (priorityBlocker != null) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByAbility(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							abilityHolderActorId = priorityBlocker.actorId,
-							abilityId = priorityBlocker.abilityId,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByAbility(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					abilityHolderActorId = priorityBlocker.actorId,
+					abilityId = priorityBlocker.abilityId,
 				),
 			)
 		}
 
 		val soundBlocker = soundBasedSkillAbilityBlocker(state, actor, target, skill)
 		if (soundBlocker != null) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByAbility(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							abilityHolderActorId = soundBlocker.actorId,
-							abilityId = soundBlocker.abilityId,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByAbility(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					abilityHolderActorId = soundBlocker.actorId,
+					abilityId = soundBlocker.abilityId,
 				),
 			)
 		}
 
 		if (target.actorId in context.protectedActorIds && skill.affectedByProtect) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillBlockedByProtection(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillBlockedByProtection(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
 				),
 			)
 		}
 
 		val accuracyCheck = accuracyCheck(state, actor, target, skill, random)
 		if (!accuracyCheck.hit) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.SkillMissed(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							accuracyRoll = accuracyCheck.roll ?: 0,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillMissed(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					accuracyRoll = accuracyCheck.roll ?: 0,
 				),
 			)
 		}
@@ -555,22 +534,19 @@ class BattleEngine(
 
 		val effectiveness = state.rules.elementChart.multiplier(skill.effectiveElementId(state.environment.weather), target.elementIds)
 		if (effectiveness == 0.0) {
-			return context.copy(
-				state = endLockedMoveAfterDisruption(
-					state = state.appendEvent(
-						BattleEvent.DamageApplied(
-							turnNumber = state.turnNumber,
-							actorId = actor.actorId,
-							targetActorId = target.actorId,
-							skillId = skill.skillId,
-							amount = 0,
-							effectiveness = 0.0,
-							targetMultiplier = targetMultiplier,
-						),
-					),
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.DamageApplied(
+					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
-					skill = skill,
-					random = random,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					amount = 0,
+					effectiveness = 0.0,
+					targetMultiplier = targetMultiplier,
 				),
 			)
 		}
@@ -578,20 +554,17 @@ class BattleEngine(
 		val directDamageAttempt = directDamageAttempt(skill, actor, target)
 		if (directDamageAttempt != null) {
 			if (directDamageAttempt is DirectDamageAttempt.Failed) {
-				return context.copy(
-					state = endLockedMoveAfterDisruption(
-						state = state.appendEvent(
-							BattleEvent.SkillFailed(
-								turnNumber = state.turnNumber,
-								actorId = actor.actorId,
-								targetActorId = target.actorId,
-								skillId = skill.skillId,
-								reason = directDamageAttempt.reason,
-							),
-						),
+				return context.interruptSkillWithEvent(
+					state = state,
+					actor = actor,
+					skill = skill,
+					random = random,
+					event = BattleEvent.SkillFailed(
+						turnNumber = state.turnNumber,
 						actorId = actor.actorId,
-						skill = skill,
-						random = random,
+						targetActorId = target.actorId,
+						skillId = skill.skillId,
+						reason = directDamageAttempt.reason,
 					),
 				)
 			}
@@ -706,6 +679,22 @@ class BattleEngine(
 			),
 		)
 	}
+
+	private fun TurnContext.interruptSkillWithEvent(
+		state: BattleState,
+		actor: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+		event: BattleEvent,
+	): TurnContext =
+		copy(
+			state = endLockedMoveAfterDisruption(
+				state = state.appendEvent(event),
+				actorId = actor.actorId,
+				skill = skill,
+				random = random,
+			),
+		)
 
 	/**
 	 * 汇总本次技能动作实际造成的 HP 损失。
