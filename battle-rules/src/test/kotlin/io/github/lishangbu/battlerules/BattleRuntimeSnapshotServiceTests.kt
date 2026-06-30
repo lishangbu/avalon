@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
+import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleItemEffect
@@ -1032,6 +1033,102 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证固定伤害技能规则不是只停留在技能槽断言，而是可以经数据库装配后进入真实伤害事件。
+	 *
+	 * 技能 49 的固定 20 点伤害来自 Liquibase 中的技能战斗规则资料。测试不手写 [BattleFixedDamage]，只通过
+	 * [BattleRuntimeSnapshotService.assembleInitialState] 读取资料后交给引擎结算；如果以后资料表或映射丢失了
+	 * 固定伤害字段，这里会看到普通伤害公式产出的数值而失败。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database fixed damage rule in engine turn`() {
+		val damage = assembledDamageEvent(
+			skillId = 49,
+			attackerCreatureId = 1,
+			targetCreatureId = 4,
+			randomValues = listOf(0),
+		)
+
+		assertThat(damage.amount).isEqualTo(20)
+		assertThat(damage.effectiveness).isEqualTo(1.0)
+		assertThat(damage.criticalHit).isFalse()
+	}
+
+	/**
+	 * 验证数据库中的替身技能规则可以完整驱动“建立替身 -> 后续伤害打到替身”流程。
+	 *
+	 * 第一回合只让资料中的技能 164 建立替身；第二回合由对手使用资料中的普通伤害技能打向该成员。断言重点不是
+	 * 复制伤害公式，而是确认后续伤害进入 [BattleEvent.SubstituteDamageApplied]，目标本体 HP 保持在替身支付后的
+	 * 数值，且不会同时产生打到本体的 [BattleEvent.DamageApplied]。
+	 */
+	@Test
+	fun `assembled runtime snapshot drives database substitute skill and substitute damage`() {
+		val initialState = service.assembleInitialState(
+			preparationRequest(
+				participant("a-1", creatureId = 1, level = 50, skillIds = listOf(164)),
+			),
+		)
+		val engine = BattleEngine()
+		val afterSubstitute = engine.resolveTurn(
+			engine.start(initialState),
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 164, targetActorId = "a-1")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val substituteStarted = afterSubstitute.events.filterIsInstance<BattleEvent.SubstituteStarted>().single()
+		val hpAfterSubstitute = afterSubstitute.participant("a-1")?.currentHp
+		val substituteHpBeforeHit = afterSubstitute.participant("a-1")?.substituteHp ?: 0
+
+		val afterHit = engine.resolveTurn(
+			afterSubstitute,
+			listOf(BattleAction.UseSkill(actorId = "b-1", skillId = 1, targetActorId = "a-1")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val secondTurnEvents = afterHit.events.drop(afterSubstitute.events.size)
+		val substituteDamage = secondTurnEvents.filterIsInstance<BattleEvent.SubstituteDamageApplied>().single()
+
+		assertThat(substituteStarted.skillId).isEqualTo(164)
+		assertThat(substituteStarted.hpCost).isGreaterThan(0)
+		assertThat(substituteStarted.substituteHp).isEqualTo(substituteHpBeforeHit)
+		assertThat(afterHit.participant("a-1")?.currentHp).isEqualTo(hpAfterSubstitute)
+		assertThat(substituteDamage.targetActorId).isEqualTo("a-1")
+		assertThat(substituteDamage.amount).isGreaterThan(0)
+		assertThat(substituteDamage.substituteHpRemaining).isLessThan(substituteHpBeforeHit)
+		assertThat(secondTurnEvents.filterIsInstance<BattleEvent.DamageApplied>().map { it.targetActorId })
+			.doesNotContain("a-1")
+	}
+
+	/**
+	 * 验证满 HP 保命特性和一次性保命道具都能从数据库 policy 装配成引擎效果。
+	 *
+	 * 这里用同一个高伤害技能分别命中两种目标：一个目标带特性 5，一个目标携带道具 252。测试关注事件来源、是否
+	 * 消耗和最终 HP，而不手写 [BattleAbilityEffect.SurviveFatalDamageAtFullHp] 或
+	 * [BattleItemEffect.SurviveFatalDamageAtFullHp]，确保真实资料链路没有退回旧 fixture。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database full hp survival effects in engine turn`() {
+		val abilitySurvival = resolvedFatalSurvivalTurn(
+			target = participant("b-1", creatureId = 4, level = 1, skillIds = listOf(1), abilityId = 5),
+		)
+		val abilityEvent = abilitySurvival.events.filterIsInstance<BattleEvent.FatalDamageSurvived>().single()
+
+		assertThat(abilitySurvival.participant("b-1")?.currentHp).isEqualTo(1)
+		assertThat(abilityEvent.source).isEqualTo(BattleFatalDamageSurvivalSource.ABILITY)
+		assertThat(abilityEvent.sourceId).isEqualTo(5)
+		assertThat(abilityEvent.consumed).isFalse()
+
+		val itemSurvival = resolvedFatalSurvivalTurn(
+			target = participant("b-1", creatureId = 4, level = 1, skillIds = listOf(1), abilityId = 1, itemId = 252),
+		)
+		val itemEvent = itemSurvival.events.filterIsInstance<BattleEvent.FatalDamageSurvived>().single()
+
+		assertThat(itemSurvival.participant("b-1")?.currentHp).isEqualTo(1)
+		assertThat(itemSurvival.participant("b-1")?.itemId).isNull()
+		assertThat(itemSurvival.participant("b-1")?.itemEffects).isEmpty()
+		assertThat(itemEvent.source).isEqualTo(BattleFatalDamageSurvivalSource.ITEM)
+		assertThat(itemEvent.sourceId).isEqualTo(252)
+		assertThat(itemEvent.consumed).isTrue()
+	}
+
+	/**
 	 * 验证数据库属性克制表不只是被装进快照，也确实驱动 battle-engine 的真实伤害事件。
 	 *
 	 * 这里不重复实现伤害公式，只断言事件中的 `effectiveness` 和是否扣血：
@@ -1097,28 +1194,9 @@ class BattleRuntimeSnapshotServiceTests(
 		targetCreatureId: Long,
 		randomValues: List<Int>,
 	): BattleEvent.DamageApplied {
-		val initialState = service.assembleInitialState(
-			BattlePreparationValidationRequest(
-				formatCode = "official-double",
-				sides = listOf(
-					BattlePreparationSideRequest(
-						sideId = "side-a",
-						activeActorIds = listOf("a-1", "a-2"),
-						participants = listOf(
-							participant("a-1", creatureId = attackerCreatureId, level = 50, skillIds = listOf(skillId)),
-							participant("a-2", creatureId = 2, level = 50, skillIds = listOf(1)),
-						),
-					),
-					BattlePreparationSideRequest(
-						sideId = "side-b",
-						activeActorIds = listOf("b-1", "b-2"),
-						participants = listOf(
-							participant("b-1", creatureId = targetCreatureId, level = 50, skillIds = listOf(1)),
-							participant("b-2", creatureId = 3, level = 50, skillIds = listOf(1)),
-						),
-					),
-				),
-			),
+		val initialState = assembledState(
+			firstSideFirst = participant("a-1", creatureId = attackerCreatureId, level = 50, skillIds = listOf(skillId)),
+			secondSideFirst = participant("b-1", creatureId = targetCreatureId, level = 50, skillIds = listOf(1)),
 		)
 		val engine = BattleEngine()
 		val resolved = engine.resolveTurn(
@@ -1128,6 +1206,52 @@ class BattleRuntimeSnapshotServiceTests(
 		)
 		return resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 	}
+
+	private fun resolvedFatalSurvivalTurn(target: BattlePreparationParticipantRequest) =
+		BattleEngine().let { engine ->
+			val initialState = assembledState(
+				firstSideFirst = participant("a-1", creatureId = 150, level = 100, skillIds = listOf(63)),
+				secondSideFirst = target,
+			)
+			engine.resolveTurn(
+				engine.start(initialState),
+				listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 63, targetActorId = "b-1")),
+				ScriptedBattleRandom(listOf(0, 1, 15)),
+			)
+		}
+
+	/**
+	 * 为跨模块运行时测试装配一场固定双方结构的双打快照。
+	 *
+	 * 每个测试只替换双方首发一号位，二号位保留合法占位成员，目的是走真实 `official-double` 赛制和
+	 * [BattleRuntimeSnapshotService.assembleInitialState]，同时避免在每个测试里重复维护四个 active 成员。
+	 */
+	private fun assembledState(
+		firstSideFirst: BattlePreparationParticipantRequest,
+		secondSideFirst: BattlePreparationParticipantRequest,
+	) = service.assembleInitialState(
+		BattlePreparationValidationRequest(
+			formatCode = "official-double",
+			sides = listOf(
+				BattlePreparationSideRequest(
+					sideId = "side-a",
+					activeActorIds = listOf("a-1", "a-2"),
+					participants = listOf(
+						firstSideFirst,
+						participant("a-2", creatureId = 2, level = 50, skillIds = listOf(1)),
+					),
+				),
+				BattlePreparationSideRequest(
+					sideId = "side-b",
+					activeActorIds = listOf("b-1", "b-2"),
+					participants = listOf(
+						secondSideFirst,
+						participant("b-2", creatureId = 3, level = 50, skillIds = listOf(1)),
+					),
+				),
+			),
+		),
+	)
 
 	private fun BattleRuntimeSnapshotService.switchInWeatherByAbilityId(abilityId: Long): BattleWeather =
 		abilityEffectsByAbilityId(abilityId)
