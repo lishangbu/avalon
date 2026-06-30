@@ -40,24 +40,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1690 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 349 }
-        - column: { name: fixture_id, valueNumeric: 169 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照沙暴下岩石、地面和钢属性技能伤害提升 5325/4096，以及免疫沙暴伤害。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 350 }
-        - column: { name: fixture_id, valueNumeric: 169 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照天气改属性技能按本次有效属性参与伤害结算。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 169 }

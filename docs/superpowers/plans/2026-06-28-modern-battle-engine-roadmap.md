@@ -382,8 +382,6 @@
 
 - `name`
 - `description`
-- `source_type`
-- `source_note`
 - `initial_state`
 - `format_code`
 - `rule_snapshot_code`

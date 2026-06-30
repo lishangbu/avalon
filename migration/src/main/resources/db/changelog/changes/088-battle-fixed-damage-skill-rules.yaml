@@ -139,24 +139,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1800 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 363 }
-        - column: { name: fixture_id, valueNumeric: 179 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照固定数值 damage 和按等级 damage 的资料口径。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 364 }
-        - column: { name: fixture_id, valueNumeric: 180 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照固定伤害类技能仍使用普通属性命中和免疫流程。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 179 }

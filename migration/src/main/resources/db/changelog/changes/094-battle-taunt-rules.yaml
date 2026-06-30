@@ -68,19 +68,6 @@ databaseChangeLog:
             (202, 'taunted-participant-can-use-damaging-skill', '挑衅不阻止攻击技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于挑衅的成员仍可使用物理或特殊分类技能。', '处于挑衅的成员使用物理或特殊分类伤害技能。', '挑衅不阻止攻击分类技能，技能正常消耗 PP 并造成伤害。', true, 2020),
             (203, 'taunt-clears-when-end-turn-duration-reaches-zero', '挑衅持续时间归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证挑衅在回合末持续时间递减到 0 时自然解除。', '成员的挑衅只剩 1 回合，双方本回合没有行动。', '回合末持续时间递减到 0，成员的挑衅被清除并产生临时状态解除事件。', true, 2030),
             (204, 'existing-taunt-blocks-new-taunt-without-refreshing-duration', '已有挑衅不会被再次附加刷新', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证已有挑衅阻止重复附加且不会刷新剩余持续回合。', '目标已经处于挑衅且剩余 2 回合，再次被挑衅类技能命中。', '新挑衅不会刷新旧持续时间；当前回合结束后目标剩余 1 回合挑衅。', true, 2040);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (400, 200, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照挑衅技能附加临时状态。', 10),
-            (401, 200, 'https://wiki.52poke.com/wiki/挑衅（招式）', '挑衅公开规则说明', '用于验证挑衅持续时间和命中后附加目标。', 20),
-            (402, 201, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照挑衅阻止变化技能。', 10),
-            (403, 201, 'https://wiki.52poke.com/wiki/挑衅（状态变化）', '挑衅状态公开说明', '用于验证变化技能在挑衅下无法使用。', 20),
-            (404, 202, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照挑衅不阻止攻击分类技能。', 10),
-            (405, 202, 'https://wiki.52poke.com/wiki/挑衅（状态变化）', '挑衅状态公开说明', '用于验证物理和特殊分类技能仍可使用。', 20),
-            (406, 203, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照挑衅持续时间解除。', 10),
-            (407, 203, 'https://wiki.52poke.com/wiki/挑衅（状态变化）', '挑衅状态公开说明', '用于验证挑衅归零解除。', 20),
-            (408, 204, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照已有挑衅不刷新。', 10),
-            (409, 204, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照已有挑衅阻止重复附加。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

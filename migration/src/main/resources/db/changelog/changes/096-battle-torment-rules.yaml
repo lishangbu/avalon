@@ -66,19 +66,6 @@ databaseChangeLog:
             (212, 'tormented-participant-can-use-different-skill', '无理取闹允许不同技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于无理取闹的成员仍可使用不同技能，并更新最近成功技能。', '成员处于无理取闹状态，上一回合成功使用过技能 1，本回合选择技能 2。', '不同技能正常消耗 PP 并造成伤害，最近成功技能更新为技能 2。', true, 2120),
             (213, 'torment-clears-when-participant-switches-out', '无理取闹随离场解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证无理取闹在成员离开上场席位时清除。', '处于无理取闹状态的成员主动替换离场。', '离场成员的无理取闹和最近成功技能被清除，HP、PP 和其它持久资料保持。', true, 2130),
             (214, 'existing-torment-blocks-new-torment-without-refreshing-state', '已有无理取闹不会重复附加', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证已有无理取闹阻止重复附加且不会改变目标运行态。', '目标已经处于无理取闹，再次被无理取闹类技能命中。', '新无理取闹不会改变目标运行态，并以已有临时状态作为稳定失败原因。', true, 2140);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (420, 210, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照无理取闹技能附加临时状态。', 10),
-            (421, 210, 'https://wiki.52poke.com/wiki/无理取闹（招式）', '无理取闹公开规则说明', '用于验证无理取闹命中后附加目标且不按回合递减。', 20),
-            (422, 211, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照无理取闹阻止连续使用同一技能。', 10),
-            (423, 211, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证重复技能在 PP 消耗前失败。', 20),
-            (424, 212, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照不同技能仍可使用。', 10),
-            (425, 212, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证最近成功技能随不同技能更新。', 20),
-            (426, 213, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照无理取闹离场解除。', 10),
-            (427, 213, 'https://wiki.52poke.com/wiki/无理取闹（状态变化）', '无理取闹状态公开说明', '用于验证成员离场时清除临时状态。', 20),
-            (428, 214, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照已有无理取闹不重复附加。', 10),
-            (429, 214, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照已有临时状态阻止重复写入。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

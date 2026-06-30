@@ -12,12 +12,6 @@ databaseChangeLog:
             (id, code, name, category, fixture_type, description, input_summary, expected_summary, enabled, sort_order)
           values
             (412, 'golden-replay-pins-random-trace-event-fragment-and-final-hp', '黄金回放固定随机事件和最终体力', 'REPLAY', 'STATE_MACHINE', '验证黄金回放同时固定随机 trace、事件片段和最终体力。', '保存一回合普通单体伤害的提交行动、随机消费 trace、事件片段和最终 HP。', '后续引擎实现必须复现同一随机消费顺序、同一事件片段，并把目标 HP 固定到黄金值。', true, 4120);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (824, 412, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗流', '用于对照 replay 需要稳定保存可复算战斗事实。', 10),
-            (825, 412, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照随机消费、事件片段和伤害事实。', 20),
-            (826, 412, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开行动队列实现', '用于对照 replay 复算时行动顺序必须稳定。', 30);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

@@ -15,17 +15,6 @@ databaseChangeLog:
             (241, 'recording-random-preserves-bound-reason-and-value-sequence', '随机 trace 保留上界原因和值', 'REPLAY', 'STATE_MACHINE', '验证录制随机源完整保存每一次随机消费的结构化事实。', '录制随机源包裹固定脚本，依次消费要害随机和伤害随机。', 'trace 按消费顺序保存 sequence、bound、reason 和 value，供 replay 严格复算。', true, 2410),
             (242, 'strict-replay-reproduces-event-fragment-and-final-state', '严格回放复算事件片段和最终状态', 'REPLAY', 'STATE_MACHINE', '验证 replay 使用随机 trace 复算时必须得到同一事件流和最终状态。', '录制一回合普通单体伤害行动，保存提交行动、随机 trace 和本回合新增事件。', '严格 replay 使用 trace 复算后得到完全相同的事件片段和最终战斗状态。', true, 2420),
             (243, 'strict-replay-rejects-tampered-random-trace', '严格回放拒绝被篡改随机 trace', 'REPLAY', 'STATE_MACHINE', '验证 replay 在随机 trace 被篡改或消费顺序偏移时立即失败。', '录制一回合普通伤害行动后，把第一条随机 trace 的 reason 改成另一个阶段。', '严格 replay 在消费随机数时立即失败，避免被篡改 trace 产生看似可用的复盘。', true, 2430);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (480, 240, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗流', '用于对照随机消费必须可复盘。', 10),
-            (481, 240, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照行动阶段的随机消费顺序。', 20),
-            (482, 241, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗流', '用于对照 battle log 和随机事实需要稳定记录。', 10),
-            (483, 241, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照要害和伤害随机消费。', 20),
-            (484, 242, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗流', '用于对照战斗事件可由同一输入复现。', 10),
-            (485, 242, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照行动队列参与 replay 复算。', 20),
-            (486, 243, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗流', '用于对照 replay 不能接受不一致的随机事实。', 10),
-            (487, 243, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照随机消费原因必须和结算阶段一致。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

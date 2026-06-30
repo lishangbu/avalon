@@ -68,19 +68,6 @@ databaseChangeLog:
             (217, 'bound-participant-takes-end-turn-binding-damage', '束缚回合末伤害', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚状态在每个回合末造成最大 HP 的 1/8 间接伤害。', '目标处于束缚状态，来源仍在场，双方本回合没有行动。', '目标在回合末受到最大 HP 的 1/8 伤害，束缚剩余回合减少 1。', true, 2170),
             (218, 'binding-clears-when-end-turn-duration-reaches-zero', '束缚持续回合归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚最后一回合造成伤害后自然解除并清理来源成员。', '目标束缚只剩 1 回合，来源仍在场，双方本回合没有行动。', '目标在回合末承受最后一次束缚伤害，随后束缚归零并产生临时状态解除事件。', true, 2180),
             (219, 'binding-clears-when-source-switches-out', '束缚来源离场解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证束缚来源离开上场席位时，目标束缚立即结束且不再造成回合末伤害。', '束缚来源主动替换离场，目标仍处于束缚状态。', '目标束缚立即解除，本回合末不会再受到该束缚的间接伤害。', true, 2190);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (430, 215, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照束缚类技能命中后附加部分束缚状态。', 10),
-            (431, 215, 'https://wiki.52poke.com/wiki/绑紧（招式）', '绑紧公开规则说明', '用于验证束缚类技能命中、持续回合和回合末伤害。', 20),
-            (432, 216, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照束缚阻止主动替换。', 10),
-            (433, 216, 'https://wiki.52poke.com/wiki/束缚（状态变化）', '束缚状态公开说明', '用于验证来源仍在场时目标不能主动离场。', 20),
-            (434, 217, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照束缚回合末间接伤害。', 10),
-            (435, 217, 'https://wiki.52poke.com/wiki/束缚（状态变化）', '束缚状态公开说明', '用于验证最大 HP 1/8 的回合末伤害。', 20),
-            (436, 218, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照束缚持续回合归零解除。', 10),
-            (437, 218, 'https://wiki.52poke.com/wiki/束缚（状态变化）', '束缚状态公开说明', '用于验证最后一回合伤害后解除。', 20),
-            (438, 219, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照束缚来源离场时解除目标状态。', 10),
-            (439, 219, 'https://wiki.52poke.com/wiki/束缚（状态变化）', '束缚状态公开说明', '用于验证来源离场后不再造成回合末伤害。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

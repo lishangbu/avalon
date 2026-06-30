@@ -56,24 +56,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 940 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 198 }
-        - column: { name: fixture_id, valueNumeric: 94 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照休整类技能成功后写入下一次行动阻止状态。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 199 }
-        - column: { name: fixture_id, valueNumeric: 94 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Hyper_Beam_(move) }
-        - column: { name: source_label, value: 休整技能公开说明 }
-        - column: { name: source_note, value: 用于验证成功后下一回合必须休整的公开规则描述。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 94 }

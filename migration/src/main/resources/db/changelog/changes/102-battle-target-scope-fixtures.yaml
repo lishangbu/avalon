@@ -17,21 +17,6 @@ databaseChangeLog:
             (247, 'spread-skill-skips-fainted-opponent-and-keeps-full-target-multiplier', '范围技能跳过倒下对手并保持完整倍率', 'TARGET', 'STATE_MACHINE', '验证范围目标列表不包含已经无法战斗的成员，且只剩一个目标时不使用范围伤害倍率。', '双打中使用全体相邻对手范围技能，但其中一个对手已经无法战斗。', '范围目标列表只包含仍可战斗的对手，普通伤害公式使用 1.0 目标倍率。', true, 2470),
             (248, 'spread-skill-recalculates-opponents-after-voluntary-switch', '范围技能在主动替换后重新收集目标', 'TARGET', 'STATE_MACHINE', '验证主动替换先于普通攻击结算，范围技能按替换后的当前站位收集目标。', '双打中对手左侧成员先主动替换，随后另一方使用全体相邻对手范围技能。', '范围技能按替换后的当前站位重新收集目标，命中新上场成员和另一名仍在场对手。', true, 2480),
             (249, 'all-adjacent-participants-skill-skips-fainted-ally', '全体相邻成员技能跳过倒下队友', 'TARGET', 'STATE_MACHINE', '验证全体相邻成员范围同样会跳过同侧已经无法战斗的伙伴。', '双打中使用全体相邻成员范围技能，使用者伙伴已经无法战斗，两个对手仍可战斗。', '范围目标列表跳过已经无法战斗的伙伴，只命中两个仍可战斗的对手。', true, 2490);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (488, 244, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照单体技能只影响选中目标。', 10),
-            (489, 244, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照技能目标范围资料。', 20),
-            (490, 245, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照全体相邻对手范围。', 10),
-            (491, 245, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照对手范围技能资料。', 20),
-            (492, 246, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照全体相邻成员范围。', 10),
-            (493, 246, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全场邻近成员技能资料。', 20),
-            (494, 247, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围目标跳过倒下成员。', 10),
-            (495, 247, 'https://wiki.52poke.com/wiki/招式', '技能公开资料', '用于验证无法战斗成员不会继续作为技能目标。', 20),
-            (496, 248, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围目标执行时重新收集。', 10),
-            (497, 248, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照主动替换先于普通技能。', 20),
-            (498, 249, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照同侧倒下伙伴被范围目标跳过。', 10),
-            (499, 249, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全体相邻成员范围资料。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

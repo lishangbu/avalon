@@ -68,19 +68,6 @@ databaseChangeLog:
             (207, 'disabled-participant-can-use-other-skill', '定身法不阻止其它技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于定身法的成员仍可使用未被禁用的其它技能。', '成员处于定身法状态，但选择了未被禁用的其它技能。', '未被禁用的技能正常消耗 PP 并造成伤害，定身法持续回合照常递减。', true, 2070),
             (208, 'disable-clears-when-end-turn-duration-reaches-zero', '定身法持续时间归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证定身法在回合末持续时间递减到 0 时自然解除。', '成员的定身法只剩 1 回合，双方本回合没有行动。', '回合末持续时间递减到 0，成员的定身法被清除并产生临时状态解除事件。', true, 2080),
             (209, 'disable-fails-when-target-has-no-last-used-skill', '无最近使用技能时定身法失败', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证目标没有可禁用技能时定身法不会写入状态。', '目标自上场以来还没有成功使用过技能，使用者尝试用定身法影响目标。', '定身法不会写入临时状态，并以没有可禁用技能作为稳定失败原因。', true, 2090);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (410, 205, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照定身法命中后读取目标最近技能。', 10),
-            (411, 205, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证定身法持续时间和目标技能选择。', 20),
-            (412, 206, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照被禁用技能无法使用。', 10),
-            (413, 206, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证被禁用技能在 PP 消耗前失败。', 20),
-            (414, 207, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照未被禁用技能仍可使用。', 10),
-            (415, 207, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证其它技能不受影响。', 20),
-            (416, 208, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照定身法持续时间解除。', 10),
-            (417, 208, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证定身法归零解除。', 20),
-            (418, 209, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照没有可禁用技能时失败。', 10),
-            (419, 209, 'https://wiki.52poke.com/wiki/定身法（招式）', '定身法公开规则说明', '用于验证目标没有最近使用技能时不写入状态。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

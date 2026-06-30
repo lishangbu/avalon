@@ -29,24 +29,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1240 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 264 }
-        - column: { name: fixture_id, valueNumeric: 124 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照低体力时指定属性技能获得 1.5 倍伤害倍率的行为。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 265 }
-        - column: { name: fixture_id, valueNumeric: 124 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Swarm_(Ability) }
-        - column: { name: source_label, value: 低体力虫属性增伤特性公开说明 }
-        - column: { name: source_note, value: 用于验证 HP 低于阈值且使用虫属性技能时的现代规则行为。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 124 }

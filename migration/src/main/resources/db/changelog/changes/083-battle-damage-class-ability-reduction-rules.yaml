@@ -29,15 +29,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1730 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 356 }
-        - column: { name: fixture_id, valueNumeric: 173 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照特殊分类技能命中时使用 0.5 倍最终伤害修正。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 173 }

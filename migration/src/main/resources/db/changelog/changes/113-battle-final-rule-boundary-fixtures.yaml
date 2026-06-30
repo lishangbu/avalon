@@ -23,33 +23,6 @@ databaseChangeLog:
             (409, 'fatal-survival-item-consumption-prevents-low-hp-heal-on-same-hit', '免死道具消费阻止同击低体力回复', 'ITEM', 'STATE_MACHINE', '验证同一个携带道具触发免死后不会继续触发低体力回复效果。', '目标满 HP 携带同一道具上的免死效果和低体力回复效果，受到足以击倒的直接伤害。', '免死效果先触发并消费携带道具，目标保留 1 HP；同一道具的低体力回复不会在同一击继续触发。', true, 4090),
             (410, 'non-consumable-major-status-cure-keeps-held-item', '非消耗主要异常治愈保留道具', 'ITEM', 'STATE_MACHINE', '验证主要异常状态治愈效果可以声明为不消费携带道具。', '目标获得灼伤后触发配置为不消费的主要异常状态治愈道具效果。', '灼伤先成为事实再被清除；由于效果声明不消费，目标仍保留携带道具。', true, 4100),
             (411, 'non-consumable-volatile-status-cure-keeps-held-item', '非消耗临时状态治愈保留道具', 'ITEM', 'STATE_MACHINE', '验证临时状态治愈效果可以声明为不消费携带道具。', '目标获得混乱后触发配置为不消费的临时状态治愈道具效果。', '混乱先消费持续时间随机并写入运行态，再被治愈效果清除；目标仍保留携带道具。', true, 4110);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (800, 400, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照部分技能声明不受保护影响。', 10),
-            (801, 400, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证保护阻挡读取技能保护交互标记。', 20),
-            (802, 401, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于对照目标在行动前失效时取消技能。', 10),
-            (803, 401, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开行动队列实现', '用于验证后续行动按执行时目标状态重新判断。', 20),
-            (804, 402, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全场能力阶级清除类技能。', 10),
-            (805, 402, 'https://bulbapedia.bulbagarden.net/wiki/Stat_modifier', '能力阶级公开规则说明', '用于验证后备成员不属于当前场上清除范围。', 20),
-            (806, 403, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照附加主要异常状态的概率效果。', 10),
-            (807, 403, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证 0% 概率不消费随机。', 20),
-            (808, 404, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开状态资料', '用于对照混乱持续时间在成功附加后才确定。', 10),
-            (809, 404, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证 0% 临时状态效果不会进入持续时间随机。', 20),
-            (810, 405, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照复制能力阶级类技能。', 10),
-            (811, 405, 'https://bulbapedia.bulbagarden.net/wiki/Psych_Up_(move)', '复制能力阶级公开规则说明', '用于验证复制只处理声明能力项。', 20),
-            (812, 406, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照交换能力阶级类技能。', 10),
-            (813, 406, 'https://bulbapedia.bulbagarden.net/wiki/Power_Swap_(move)', '交换能力阶级公开规则说明', '用于验证双方阶级同时交换。', 20),
-            (814, 407, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照取反能力阶级类技能。', 10),
-            (815, 407, 'https://bulbapedia.bulbagarden.net/wiki/Topsy-Turvy_(move)', '取反能力阶级公开规则说明', '用于验证负阶级取反为正阶级。', 20),
-            (816, 408, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照一次性跳过蓄力的携带道具。', 10),
-            (817, 408, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证道具触发先于保护阻挡。', 20),
-            (818, 409, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照满 HP 免死类一次性道具。', 10),
-            (819, 409, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开行动结算实现', '用于验证同道具消费后不再触发其它效果。', 20),
-            (820, 410, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照主要异常状态治愈道具。', 10),
-            (821, 410, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开状态资料', '用于验证治愈发生在状态写入之后。', 20),
-            (822, 411, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照临时状态治愈道具。', 10),
-            (823, 411, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开状态资料', '用于验证混乱持续时间先写入再被治愈清除。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

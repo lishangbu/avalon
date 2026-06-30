@@ -385,24 +385,6 @@ databaseChangeLog:
         - column: { name: expected_summary, value: 目标先受到伤害，随后攻击和防御阶级都回到 0。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1880 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 376 }
-        - column: { name: fixture_id, valueNumeric: 188 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照命中后清除目标能力阶级的技能资料。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 377 }
-        - column: { name: fixture_id, valueNumeric: 188 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Clear_Smog_(move) }
-        - column: { name: source_label, value: 能力阶级清除技能公开说明 }
-        - column: { name: source_note, value: 用于对照伤害命中后清除目标能力阶级的规则。 }
-        - column: { name: sort_order, valueNumeric: 20 }
     - sql:
         splitStatements: false
         sql: |
@@ -453,24 +435,6 @@ databaseChangeLog:
             (192, 'status-skill-swaps-defense-stat-stages-between-user-and-target', '变化技能交换防御组能力阶级', 'SKILL', 'STATE_MACHINE', '验证防御组互换类变化技能会交换双方防御与特防阶级。', '使用者和目标拥有不同防御、特防与攻击阶级。', '双方防御与特防阶级互换，攻击阶级保持原值。', true, 1920),
             (193, 'status-skill-swaps-all-stat-stages-between-user-and-target', '变化技能交换全部能力阶级', 'SKILL', 'STATE_MACHINE', '验证全部互换类变化技能会交换双方全部能力阶级。', '使用者和目标拥有多项不同能力阶级。', '双方全部配置能力阶级互换，未变化的 0 阶级不产生事件。', true, 1930),
             (194, 'status-skill-inverts-target-stat-stages', '变化技能取反目标能力阶级', 'SKILL', 'STATE_MACHINE', '验证取反类变化技能会把目标正负能力阶级互相翻转。', '目标拥有正负能力阶级，使用者发动取反目标阶级技能。', '目标正阶级变为负阶级，负阶级变为正阶级，0 阶级不产生事件。', true, 1940);
-    - sql:
-        splitStatements: false
-        sql: |
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (378, 189, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照全场清除能力阶级的技能资料。', 10),
-            (379, 189, 'https://bulbapedia.bulbagarden.net/wiki/Haze_(move)', '能力阶级清除技能公开说明', '用于对照全部当前上场成员能力阶级清除规则。', 20),
-            (380, 190, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照复制目标能力阶级给使用者的技能资料。', 10),
-            (381, 190, 'https://bulbapedia.bulbagarden.net/wiki/Psych_Up_(move)', '能力阶级复制技能公开说明', '用于对照复制目标当前能力阶级的规则。', 20),
-            (382, 191, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照攻击组能力阶级互换资料。', 10),
-            (383, 191, 'https://bulbapedia.bulbagarden.net/wiki/Power_Swap_(move)', '能力阶级互换技能公开说明', '用于对照攻击与特攻阶级互换规则。', 20),
-            (384, 192, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照防御组能力阶级互换资料。', 10),
-            (385, 192, 'https://bulbapedia.bulbagarden.net/wiki/Guard_Swap_(move)', '能力阶级互换技能公开说明', '用于对照防御与特防阶级互换规则。', 20),
-            (386, 193, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照全部能力阶级互换资料。', 10),
-            (387, 193, 'https://bulbapedia.bulbagarden.net/wiki/Heart_Swap_(move)', '能力阶级互换技能公开说明', '用于对照全部能力阶级互换规则。', 20),
-            (388, 194, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照目标能力阶级取反资料。', 10),
-            (389, 194, 'https://bulbapedia.bulbagarden.net/wiki/Topsy-Turvy_(move)', '能力阶级取反技能公开说明', '用于对照正负能力阶级翻转规则。', 20);
     - sql:
         splitStatements: false
         sql: |

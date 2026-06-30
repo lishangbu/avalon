@@ -68,19 +68,6 @@ databaseChangeLog:
             (197, 'heal-blocked-participant-cannot-use-draining-damage-skill', '回复封锁阻止吸取回复技能', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于回复封锁的成员不能使用吸取回复类伤害技能。', '处于回复封锁且未满 HP 的成员尝试使用吸取回复类伤害技能。', '吸取类技能在 PP 消耗前失败，目标不受伤害，使用者也不会回复 HP。', true, 1970),
             (198, 'heal-block-suppresses-end-turn-held-item-healing', '回复封锁阻止回合末道具回复', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证处于回复封锁的成员不能通过回合末携带道具回复 HP。', '处于回复封锁且未满 HP 的成员携带回合末固定回复道具。', '回合末不会回复 HP，也不会产生通用回复事件；回复封锁持续时间正常递减。', true, 1980),
             (199, 'heal-block-clears-when-end-turn-duration-reaches-zero', '回复封锁持续时间归零解除', 'VOLATILE_STATUS', 'STATE_MACHINE', '验证回复封锁在回合末持续时间递减到 0 时自然解除。', '成员的回复封锁只剩 1 回合，双方本回合没有行动。', '回合末持续时间递减到 0，成员的回复封锁被清除并产生临时状态解除事件。', true, 1990);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (390, 195, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照回复封锁技能附加临时状态。', 10),
-            (391, 195, 'https://wiki.52poke.com/wiki/回复封锁（招式）', '回复封锁公开规则说明', '用于验证回复封锁持续时间和命中后附加目标。', 20),
-            (392, 196, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照回复封锁阻止回复类技能。', 10),
-            (393, 196, 'https://wiki.52poke.com/wiki/自我再生（招式）', '自我回复公开规则说明', '用于验证自我回复技能在回复封锁下无法使用。', 20),
-            (394, 197, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开引擎技能资料', '用于对照吸取类技能在回复封锁下失败。', 10),
-            (395, 197, 'https://wiki.52poke.com/wiki/吸取（招式）', '吸取技能公开规则说明', '用于验证吸取回复类技能被回复封锁阻止。', 20),
-            (396, 198, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照回复封锁阻止 HP 回复。', 10),
-            (397, 198, 'https://wiki.52poke.com/wiki/回复封锁（状态变化）', '回复封锁状态公开说明', '用于验证回合末回复来源被阻止。', 20),
-            (398, 199, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开引擎状态条件', '用于对照回复封锁持续时间解除。', 10),
-            (399, 199, 'https://wiki.52poke.com/wiki/回复封锁（状态变化）', '回复封锁状态公开说明', '用于验证回复封锁归零解除。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

@@ -21,29 +21,6 @@ databaseChangeLog:
             (257, 'side-speed-modifier-changes-action-order', '一侧速度修正改变行动顺序', 'TURN', 'STATE_MACHINE', '验证一侧场上速度倍率参与行动排序但不改写成员面板速度。', '速度 60 的成员所在一侧已有 2 倍速度修正，对手速度 100，双方同优先度行动。', '一侧速度修正让速度 60 成员按有效速度 120 参与排序，因此先于对手行动。', true, 2570),
             (258, 'field-speed-order-reversal-changes-same-priority-action-order', '全场速度反转改变同优先度顺序', 'TURN', 'STATE_MACHINE', '验证全场速度顺序效果只反转同优先度内的速度比较。', '全场速度顺序处于反转状态，速度 40 与速度 100 的成员同优先度行动。', '同优先度内速度较低的成员先行动；优先度比较本身不被反转。', true, 2580),
             (259, 'status-priority-ability-changes-action-order-before-faster-opponent', '变化技能优先度特性改变行动顺序', 'TURN', 'STATE_MACHINE', '验证特性为变化技能增加优先度后参与统一行动排序。', '速度较低成员拥有变化技能优先度提升特性，并选择变化技能；速度较高对手使用普通攻击。', '变化技能获得额外优先度，先于速度更高的普通攻击执行。', true, 2590);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (500, 250, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照优先度先于速度比较。', 10),
-            (501, 250, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照技能优先度字段。', 20),
-            (502, 251, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照负优先度排序。', 10),
-            (503, 251, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照后制技能优先度。', 20),
-            (504, 252, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照同优先度速度排序。', 10),
-            (505, 252, 'https://wiki.52poke.com/wiki/速度', '速度公开规则说明', '用于验证速度决定同优先度行动顺序。', 20),
-            (506, 253, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照同速随机排序。', 10),
-            (507, 253, 'https://wiki.52poke.com/wiki/速度', '速度公开规则说明', '用于验证同速需要随机决定顺序。', 20),
-            (508, 254, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照相同正优先度内继续比较速度。', 10),
-            (509, 254, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照先制技能优先度。', 20),
-            (510, 255, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照讲究类速度倍率道具。', 10),
-            (511, 255, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照道具速度倍率参与排序。', 20),
-            (512, 256, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开状态资料', '用于对照麻痹速度下降。', 10),
-            (513, 256, 'https://wiki.52poke.com/wiki/麻痹（状态）', '麻痹公开规则说明', '用于验证麻痹影响速度。', 20),
-            (514, 257, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开场上状态资料', '用于对照一侧速度修正。', 10),
-            (515, 257, 'https://wiki.52poke.com/wiki/顺风（招式）', '顺风公开规则说明', '用于验证顺风类一侧速度倍率。', 20),
-            (516, 258, 'https://github.com/smogon/pokemon-showdown/blob/master/data/conditions.ts', '公开全场状态资料', '用于对照全场速度顺序反转。', 10),
-            (517, 258, 'https://wiki.52poke.com/wiki/戏法空间（招式）', '戏法空间公开规则说明', '用于验证速度顺序反转只影响同优先度。', 20),
-            (518, 259, 'https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts', '公开特性资料', '用于对照变化技能优先度提升。', 10),
-            (519, 259, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照特性修正后的优先度参与统一排序。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

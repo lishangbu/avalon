@@ -74,7 +74,6 @@ class LiquibaseMigrationTests(
 			"025-battle-skill-target-stat-stage-effects.yaml",
 			"026-battle-skill-major-status-effects.yaml",
 			"027-battle-rule-fixtures.yaml",
-			"028-battle-rule-fixture-source-menu.yaml",
 			"029-battle-rule-item-fixtures.yaml",
 			"030-battle-rule-contact-ability-fixtures.yaml",
 			"031-battle-rule-flinch-immunity-fixtures.yaml",
@@ -161,7 +160,6 @@ class LiquibaseMigrationTests(
 				"112-battle-format-lifecycle-boundary-fixtures.yaml",
 				"113-battle-final-rule-boundary-fixtures.yaml",
 				"114-battle-golden-replay-fixture.yaml",
-				"115-drop-battle-rule-fixture-source.yaml",
 			)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 	}

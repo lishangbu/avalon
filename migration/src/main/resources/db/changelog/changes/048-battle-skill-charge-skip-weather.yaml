@@ -105,24 +105,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 960 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 202 }
-        - column: { name: fixture_id, valueNumeric: 96 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照晴天会让部分蓄力技能跳过等待回合。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 203 }
-        - column: { name: fixture_id, valueNumeric: 96 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Solar_Beam_(move) }
-        - column: { name: source_label, value: 蓄力技能公开说明 }
-        - column: { name: source_note, value: 用于验证晴天下无需蓄力、部分其它天气下威力下降的公开规则描述。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 96 }

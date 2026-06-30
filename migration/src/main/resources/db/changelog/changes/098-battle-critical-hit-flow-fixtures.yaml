@@ -16,19 +16,6 @@ databaseChangeLog:
             (222, 'stage-three-critical-hit-is-guaranteed-without-critical-random-consumption', '要害等级 +3 必定要害且不消费要害随机数', 'DAMAGE', 'STATE_MACHINE', '验证基础要害等级 +3 及以上视为必定要害，随机轨迹中不再消费要害判定。', '使用者使用基础要害等级 +3 的物理技能。', '引擎把 +3 及以上视为必定要害，不消费要害随机数，只继续消费伤害浮动随机数。', true, 2220),
             (223, 'critical-hit-ignores-unfavorable-attack-and-favorable-defense-stages', '击中要害忽略不利攻击与有利防御阶级', 'DAMAGE', 'STATE_MACHINE', '验证击中要害进入普通伤害公式时，会忽略攻击方不利攻击阶级和防守方有利防御阶级。', '使用者攻击阶级为 -6，目标防御阶级为 +6，使用必定要害物理技能命中。', '击中要害进入伤害公式后忽略攻击方不利攻击阶级和防守方有利防御阶级，仍按中性攻防造成要害伤害。', true, 2230),
             (224, 'critical-hit-ignores-side-damage-reduction', '击中要害绕过一侧伤害减免', 'DAMAGE', 'STATE_MACHINE', '验证击中要害的普通物理或特殊伤害不会受到反射壁、光墙等一侧屏障减免。', '目标一侧存在物理伤害减免屏障，使用者用必定要害物理技能命中目标。', '伤害事件标记为击中要害；普通物理伤害不应用目标一侧屏障减免，按完整要害伤害结算。', true, 2240);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (440, 220, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照 +1 要害等级的随机判定流程。', 10),
-            (441, 220, 'https://wiki.52poke.com/wiki/击中要害', '击中要害公开规则说明', '用于验证现代要害概率表中 +1 等级为 1/8。', 20),
-            (442, 221, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照 +2 要害等级的随机判定流程。', 10),
-            (443, 221, 'https://wiki.52poke.com/wiki/击中要害', '击中要害公开规则说明', '用于验证现代要害概率表中 +2 等级为 1/2。', 20),
-            (444, 222, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照 +3 及以上必定要害且不消费随机数。', 10),
-            (445, 222, 'https://wiki.52poke.com/wiki/击中要害', '击中要害公开规则说明', '用于验证现代要害概率表中 +3 及以上必定要害。', 20),
-            (446, 223, 'https://github.com/smogon/damage-calc/blob/master/calc/src/mechanics/gen789.ts', '公开伤害计算器', '用于对照要害伤害公式忽略部分能力阶级。', 10),
-            (447, 223, 'https://wiki.52poke.com/wiki/击中要害', '击中要害公开规则说明', '用于验证击中要害忽略攻击方不利和防守方有利能力阶级。', 20),
-            (448, 224, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照要害绕过一侧伤害减免屏障。', 10),
-            (449, 224, 'https://wiki.52poke.com/wiki/反射壁（招式）', '反射壁公开规则说明', '用于验证击中要害不会受到反射壁类屏障减免。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

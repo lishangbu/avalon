@@ -53,24 +53,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1750 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 357 }
-        - column: { name: fixture_id, valueNumeric: 174 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照承受物理技能伤害时防御能力值按 2 倍参与公式。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 358 }
-        - column: { name: fixture_id, valueNumeric: 175 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照青草场地下防御能力值按 1.5 倍参与公式。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 174 }

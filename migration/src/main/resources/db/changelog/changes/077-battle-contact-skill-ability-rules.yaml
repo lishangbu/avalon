@@ -29,24 +29,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1660 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 343 }
-        - column: { name: fixture_id, valueNumeric: 166 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照接触类技能伤害提升特性读取 contact 标签并使用 5325/4096 倍率。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 344 }
-        - column: { name: fixture_id, valueNumeric: 166 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照技能 contact 标签。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 166 }

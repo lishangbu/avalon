@@ -29,24 +29,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 1770 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 360 }
-        - column: { name: fixture_id, valueNumeric: 177 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/abilities.ts }
-        - column: { name: source_label, value: 公开引擎特性资料 }
-        - column: { name: source_note, value: 用于对照主要异常状态存在时攻击能力值按 1.5 倍参与普通伤害公式。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 361 }
-        - column: { name: fixture_id, valueNumeric: 177 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts }
-        - column: { name: source_label, value: 公开引擎伤害流程 }
-        - column: { name: source_note, value: 用于对照灼伤物理伤害减半时会排除该类异常状态攻击强化特性。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 177 }

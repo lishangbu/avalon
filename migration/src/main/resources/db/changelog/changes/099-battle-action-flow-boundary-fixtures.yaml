@@ -16,19 +16,6 @@ databaseChangeLog:
             (227, 'protection-bypass-still-performs-accuracy-check', '保护绕过后仍执行命中判定', 'TURN', 'STATE_MACHINE', '验证不受保护影响的技能只是跳过保护屏障，后续仍按普通命中流程结算。', '目标本回合先建立保护屏障，攻击方随后使用不受保护影响但基础命中 50 的技能，命中掷点失败。', '技能绕过保护后仍执行命中判定；未命中时不造成伤害，也不进入要害和伤害随机流程。', true, 2270),
             (228, 'fainted-queued-actor-cannot-execute-later-action', '排队成员倒下后不能继续行动', 'TURN', 'STATE_MACHINE', '验证已经排队的成员如果在自己的行动前倒下，本回合不会继续使用技能。', '双打中高速成员先击倒一个低速目标，该目标本回合原本也提交了技能行动。', '低速目标倒下后，其排队行动在执行入口取消；事件流中不会出现该成员的技能使用事件。', true, 2280),
             (229, 'action-with-no-battle-capable-selected-target-consumes-no-pp', '没有可战斗目标时不消耗 PP', 'TURN', 'STATE_MACHINE', '验证单体技能在使用前找不到可战斗目标时直接取消，不产生技能使用事件。', '双打目标槽位当前成员已经无法战斗，行动方仍提交了指向该成员的单体技能。', '技能阶段找不到可战斗目标时，本次行动在使用前取消，不产生技能使用事件，也不消耗 PP。', true, 2290);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (450, 225, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照部分技能声明绕过保护的资料字段。', 10),
-            (451, 225, 'https://wiki.52poke.com/wiki/守住（招式）', '保护公开规则说明', '用于验证保护并非阻挡所有技能。', 20),
-            (452, 226, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照保护阻挡位于命中判定之前。', 10),
-            (453, 226, 'https://wiki.52poke.com/wiki/守住（招式）', '保护公开规则说明', '用于验证普通技能被保护阻挡。', 20),
-            (454, 227, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照保护绕过后的命中流程。', 10),
-            (455, 227, 'https://wiki.52poke.com/wiki/守住（招式）', '保护公开规则说明', '用于验证保护绕过只影响保护屏障本身。', 20),
-            (456, 228, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照排队行动在执行时再次检查行动者状态。', 10),
-            (457, 228, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证濒死成员不能继续行动。', 20),
-            (458, 229, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照没有有效目标时的技能使用前取消。', 10),
-            (459, 229, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证已经无法战斗的目标不能被普通单体技能继续影响。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

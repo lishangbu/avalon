@@ -30,24 +30,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 970 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 204 }
-        - column: { name: fixture_id, valueNumeric: 97 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts }
-        - column: { name: source_label, value: 公开引擎道具资料 }
-        - column: { name: source_note, value: 用于对照一次性跳过蓄力道具的触发时机和消费行为。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 205 }
-        - column: { name: fixture_id, valueNumeric: 97 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Power_Herb }
-        - column: { name: source_label, value: 跳过蓄力道具公开说明 }
-        - column: { name: source_note, value: 用于验证该类道具会被消耗并让蓄力技能立刻发动。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 97 }

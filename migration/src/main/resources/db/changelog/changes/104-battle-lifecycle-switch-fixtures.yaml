@@ -21,29 +21,6 @@ databaseChangeLog:
             (267, 'recharge-prevents-voluntary-switch', '休整状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证休整中的成员不能主动替换。', '仍可战斗成员处于休整状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByRecharge，原成员仍留在上场槽位。', true, 2670),
             (268, 'charging-prevents-voluntary-switch', '蓄力状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证蓄力中的成员不能主动替换。', '仍可战斗成员处于蓄力状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByCharging，原成员仍留在上场槽位并继续释放蓄力技能。', true, 2680),
             (269, 'locked-move-prevents-voluntary-switch', '锁招状态阻止主动替换', 'SWITCH', 'STATE_MACHINE', '验证锁招中的成员不能主动替换。', '仍可战斗成员处于锁招状态时提交主动替换。', '替换被阻止并产生 SwitchPreventedByLockedMove，原成员仍留在上场槽位并继续执行锁定技能。', true, 2690);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (520, 260, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle.ts', '公开引擎战斗对象', '用于对照战斗开始和基础事件流。', 10),
-            (521, 260, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/field.ts', '公开引擎场地对象', '用于对照双方站位和 side 顺序。', 20),
-            (522, 261, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照伤害后濒死和战斗结束。', 10),
-            (523, 261, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证最后成员濒死后的胜负事实。', 20),
-            (524, 262, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照有后备成员时不立即结束战斗。', 10),
-            (525, 262, 'https://wiki.52poke.com/wiki/替换', '替换公开规则说明', '用于验证濒死后仍可补位。', 20),
-            (526, 263, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照替换先于普通技能阶段。', 10),
-            (527, 263, 'https://wiki.52poke.com/wiki/替换', '替换公开规则说明', '用于验证目标槽位在替换后由新成员承接。', 20),
-            (528, 264, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动结算', '用于对照濒死成员补位替换。', 10),
-            (529, 264, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证强制补位替换标记。', 20),
-            (530, 265, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开引擎成员状态', '用于对照离场状态清理。', 10),
-            (531, 265, 'https://wiki.52poke.com/wiki/能力变化', '能力变化公开规则说明', '用于验证能力阶级随离场清除。', 20),
-            (532, 266, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/pokemon.ts', '公开引擎成员状态', '用于对照离场后持久状态保留。', 10),
-            (533, 266, 'https://wiki.52poke.com/wiki/异常状态', '异常状态公开规则说明', '用于验证主要异常状态不会因离场自动解除。', 20),
-            (534, 267, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照休整类技能的后续限制。', 10),
-            (535, 267, 'https://wiki.52poke.com/wiki/破坏光线（招式）', '休整技能公开规则说明', '用于验证休整中不能主动替换。', 20),
-            (536, 268, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照蓄力类技能状态。', 10),
-            (537, 268, 'https://wiki.52poke.com/wiki/蓄力的招式', '蓄力技能公开规则说明', '用于验证蓄力中不能主动替换。', 20),
-            (538, 269, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照锁招类技能状态。', 10),
-            (539, 269, 'https://wiki.52poke.com/wiki/逆鳞（招式）', '锁招技能公开规则说明', '用于验证锁招中不能主动替换。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

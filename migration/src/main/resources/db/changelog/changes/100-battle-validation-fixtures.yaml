@@ -21,29 +21,6 @@ databaseChangeLog:
             (237, 'duplicate-action-submission-reports-every-duplicated-actor-action', '重复行动提交逐条报告', 'TURN', 'VALIDATION', '验证同一成员同回合重复提交行动时，校验器为每条重复行动返回稳定 code。', '同一成员在同一回合提交两条技能行动，两条行动本身都指向有效目标。', '行动提交校验为这两条行动都返回 duplicate-action，调用方可以定位重复提交来源。', true, 2370),
             (238, 'skill-with-no-pp-is-rejected-before-engine-resolution', 'PP 耗尽技能在结算前被拒绝', 'TURN', 'VALIDATION', '验证技能 PP 耗尽属于提交阶段非法选择，不进入正式战斗状态机。', '当前上场成员选择剩余 PP 为 0 的技能，目标成员有效且仍可战斗。', '行动提交校验返回 skill-no-pp；该行动不应进入正式回合状态机。', true, 2380),
             (239, 'choice-locked-participant-cannot-submit-a-different-skill', '讲究锁定成员不能提交不同技能', 'TURN', 'VALIDATION', '验证讲究类技能锁定会在提交阶段阻止选择其它技能。', '成员已经被讲究类效果锁定到技能 2，本回合尝试选择技能 1。', '行动提交校验返回 choice-locked，并把资源 ID 记录为当前锁定的技能 ID。', true, 2390);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (460, 230, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照格式规则中的等级限制。', 10),
-            (461, 230, 'https://wiki.52poke.com/wiki/对战设施', '对战设施公开规则说明', '用于对照常见等级统一或等级限制条款。', 20),
-            (462, 231, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照格式规则中的成员禁用列表。', 10),
-            (463, 231, 'https://wiki.52poke.com/wiki/规则', '公开规则说明', '用于对照规则可限制可用成员。', 20),
-            (464, 232, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照格式规则中的技能禁用列表。', 10),
-            (465, 232, 'https://wiki.52poke.com/wiki/招式', '技能公开资料', '用于对照技能作为可被规则限制的队伍资源。', 20),
-            (466, 233, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照格式规则中的特性禁用列表。', 10),
-            (467, 233, 'https://wiki.52poke.com/wiki/特性', '特性公开资料', '用于对照特性作为可被规则限制的队伍资源。', 20),
-            (468, 234, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照格式规则中的道具禁用列表。', 10),
-            (469, 234, 'https://wiki.52poke.com/wiki/道具', '道具公开资料', '用于对照携带道具作为可被规则限制的队伍资源。', 20),
-            (470, 235, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照同队成员种类唯一条款。', 10),
-            (471, 235, 'https://wiki.52poke.com/wiki/规则', '公开规则说明', '用于对照重复限制只约束同一方队伍。', 20),
-            (472, 236, 'https://github.com/smogon/pokemon-showdown/blob/master/config/formats.ts', '公开规则集配置', '用于对照同队携带道具唯一条款。', 10),
-            (473, 236, 'https://wiki.52poke.com/wiki/道具', '道具公开资料', '用于对照携带道具唯一限制。', 20),
-            (474, 237, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照同一成员同回合只能有一个行动选择。', 10),
-            (475, 237, 'https://wiki.52poke.com/wiki/对战', '对战公开规则说明', '用于对照回合行动选择阶段。', 20),
-            (476, 238, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照 PP 耗尽技能不能作为合法行动提交。', 10),
-            (477, 238, 'https://wiki.52poke.com/wiki/PP', 'PP 公开规则说明', '用于验证技能 PP 是可用性约束。', 20),
-            (478, 239, 'https://github.com/smogon/pokemon-showdown/blob/master/data/items.ts', '公开道具资料', '用于对照讲究类道具锁定技能选择。', 10),
-            (479, 239, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照讲究类锁定在行动选择阶段被检查。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

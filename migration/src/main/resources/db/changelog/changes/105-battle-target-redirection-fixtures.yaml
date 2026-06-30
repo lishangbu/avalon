@@ -21,29 +21,6 @@ databaseChangeLog:
             (277, 'all-adjacent-participants-ignores-selected-target-and-includes-ally', '全体相邻成员忽略提交目标并包含队友', 'TARGET', 'STATE_MACHINE', '验证全体相邻成员范围会重新收集队友和对手，但始终排除使用者。', '双打中全体相邻成员范围技能提交的 targetActorId 指向使用者自身。', '技能命中伙伴和两个对手，但不命中使用者自身。', true, 2770),
             (278, 'spread-target-multiplier-remains-when-one-target-protects', '范围倍率不因单个目标保护而改变', 'TARGET', 'STATE_MACHINE', '验证范围目标数量在目标保护阻挡前已经确定，保护不会把剩余目标改成单体倍率。', '双打中全体相邻对手范围技能有两个可战斗目标，其中一个目标先使用保护。', '保护目标不受伤害，另一目标的伤害事件仍使用多目标范围倍率。', true, 2780),
             (279, 'spread-target-order-follows-current-active-slot-order-after-switch', '范围目标顺序跟随替换后的当前槽位', 'TARGET', 'STATE_MACHINE', '验证主动替换后范围技能按当前 active slot 顺序记录伤害事件。', '双打中对手左侧成员先主动替换，随后范围技能重新收集两个对手目标。', '伤害事件顺序按当前上场槽位顺序记录，新上场成员位于原左侧槽位。', true, 2790);
-          insert into battle_rule_fixture_source
-            (id, fixture_id, source_url, source_label, source_note, sort_order)
-          values
-            (540, 270, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照单体目标执行时按当前槽位取目标。', 10),
-            (541, 270, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照主动替换先于普通技能。', 20),
-            (542, 271, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照双打选中槽位的目标解析。', 10),
-            (543, 271, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照单体目标范围资料。', 20),
-            (544, 272, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照选中槽位失效时取消行动。', 10),
-            (545, 272, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证无法战斗成员不能继续作为有效目标。', 20),
-            (546, 273, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照无目标时不消耗 PP。', 10),
-            (547, 273, 'https://wiki.52poke.com/wiki/濒死', '濒死公开规则说明', '用于验证目标侧当前成员无法战斗的状态。', 20),
-            (548, 274, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围目标为空时取消行动。', 10),
-            (549, 274, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全体相邻对手目标范围。', 20),
-            (550, 275, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照全体相邻成员目标为空时取消行动。', 10),
-            (551, 275, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全体相邻成员目标范围。', 20),
-            (552, 276, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围技能忽略提交的单体目标。', 10),
-            (553, 276, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全体相邻对手范围。', 20),
-            (554, 277, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照全体相邻成员重新收集目标。', 10),
-            (555, 277, 'https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts', '公开技能资料', '用于对照全体相邻成员范围。', 20),
-            (556, 278, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照保护阻挡发生在目标集合和范围倍率确定之后。', 10),
-            (557, 278, 'https://wiki.52poke.com/wiki/守住（招式）', '保护公开规则说明', '用于验证保护阻挡伤害但不改变其他目标的范围倍率。', 20),
-            (558, 279, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-actions.ts', '公开引擎行动流程', '用于对照范围目标按当前上场槽位顺序结算。', 10),
-            (559, 279, 'https://github.com/smogon/pokemon-showdown/blob/master/sim/battle-queue.ts', '公开引擎行动队列', '用于对照主动替换先于范围技能重新收集目标。', 20);
           insert into battle_rule_test_run
             (id, run_code, fixture_id, run_status, executor, command, started_at, sort_order)
           values

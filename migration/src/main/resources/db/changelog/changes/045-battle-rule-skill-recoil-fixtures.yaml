@@ -45,24 +45,6 @@ databaseChangeLog:
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 930 }
     - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 196 }
-        - column: { name: fixture_id, valueNumeric: 93 }
-        - column: { name: source_url, value: https://github.com/smogon/pokemon-showdown/blob/master/data/moves.ts }
-        - column: { name: source_label, value: 公开引擎技能资料 }
-        - column: { name: source_note, value: 用于对照技能反作用伤害比例和取整口径。 }
-        - column: { name: sort_order, valueNumeric: 10 }
-    - insert:
-        tableName: battle_rule_fixture_source
-        columns:
-        - column: { name: id, valueNumeric: 197 }
-        - column: { name: fixture_id, valueNumeric: 93 }
-        - column: { name: source_url, value: https://bulbapedia.bulbagarden.net/wiki/Double-Edge_(move) }
-        - column: { name: source_label, value: 反作用伤害公开说明 }
-        - column: { name: source_note, value: 用于验证普通反作用伤害按造成伤害的一定比例回扣使用者。 }
-        - column: { name: sort_order, valueNumeric: 20 }
-    - insert:
         tableName: battle_rule_test_run
         columns:
         - column: { name: id, valueNumeric: 93 }
