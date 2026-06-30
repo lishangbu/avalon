@@ -8,12 +8,9 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
-import io.github.lishangbu.battleengine.model.BattleFixedDamage
-import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
-import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
@@ -44,6 +41,7 @@ class BattleEngine(
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 	private val skillTargeting = BattleSkillTargeting()
 	private val hitResolution = BattleHitResolution(statStageModifiers)
+	private val directDamage = BattleDirectDamage()
 	private val skillHpEffects = BattleSkillHpEffects()
 	private val statStageEffects = BattleStatStageEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
@@ -645,9 +643,9 @@ class BattleEngine(
 			)
 		}
 
-		val directDamageAttempt = directDamageAttempt(skill, actor, target)
+		val directDamageAttempt = directDamage.attempt(skill, actor, target)
 		if (directDamageAttempt != null) {
-			if (directDamageAttempt is DirectDamageAttempt.Failed) {
+			if (directDamageAttempt is BattleDirectDamageAttempt.Failed) {
 				return context.interruptSkillWithEvent(
 					state = state,
 					actor = actor,
@@ -662,7 +660,7 @@ class BattleEngine(
 					),
 				)
 			}
-			val directDamageHit = directDamageAttempt as DirectDamageAttempt.Hit
+			val directDamageHit = directDamageAttempt as BattleDirectDamageAttempt.Hit
 			val damageEventStartIndex = state.events.size
 			val afterDirectDamage = resolveDirectDamageHit(
 				context = context,
@@ -921,50 +919,6 @@ class BattleEngine(
 			random = random,
 		)
 	}
-
-	/**
-	 * 计算不进入普通伤害公式的直接技能伤害。
-	 *
-	 * 固定伤害、比例伤害和 HP 派生伤害都在命中、保护、属性吸收和属性免疫之后结算，但它们的数值来源不同：
-	 * 固定伤害读取技能规则给出的固定数值或使用者等级；比例伤害读取目标当前 HP 并按规则比例向下取整；
-	 * HP 派生伤害读取双方当前 HP，并可能附带技能自身失败或使用者倒下。
-	 * 若技能没有直接伤害模型，返回 null，调用方继续走普通伤害公式。
-	 */
-	private fun directDamageAttempt(
-		skill: BattleSkillSlot,
-		actor: BattleParticipant,
-		target: BattleParticipant,
-	): DirectDamageAttempt? =
-		when (val fixedDamage = skill.fixedDamage) {
-			is BattleFixedDamage.FixedAmount -> DirectDamageAttempt.Hit(fixedDamage.amount)
-			BattleFixedDamage.UserLevel -> DirectDamageAttempt.Hit(actor.level)
-			null -> when (val proportionalDamage = skill.proportionalDamage) {
-				is BattleProportionalDamage.TargetCurrentHpFraction ->
-					DirectDamageAttempt.Hit(
-						fractionAmount(
-							value = target.currentHp,
-							numerator = proportionalDamage.numerator,
-							denominator = proportionalDamage.denominator,
-						).coerceAtLeast(proportionalDamage.minimumDamage),
-					)
-				null -> when (skill.hpDerivedDamage) {
-					BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp -> {
-						val amount = target.currentHp - actor.currentHp
-						if (amount <= 0) {
-							DirectDamageAttempt.Failed("target-hp-not-greater-than-user-hp")
-						} else {
-							DirectDamageAttempt.Hit(amount)
-						}
-					}
-					BattleHpDerivedDamage.UserCurrentHpAndUserFaints ->
-						DirectDamageAttempt.Hit(
-							amount = actor.currentHp,
-							faintActorAfterHit = true,
-						)
-					null -> null
-				}
-			}
-		}
 
 	/**
 	 * 结算一段直接伤害技能。
@@ -1542,17 +1496,6 @@ class BattleEngine(
 			BattleEffectTarget.USER -> participant(actorId)
 			BattleEffectTarget.TARGET -> participant(targetActorId)
 		}
-
-	private sealed interface DirectDamageAttempt {
-		data class Hit(
-			val amount: Int,
-			val faintActorAfterHit: Boolean = false,
-		) : DirectDamageAttempt
-
-		data class Failed(
-			val reason: String,
-		) : DirectDamageAttempt
-	}
 
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,
