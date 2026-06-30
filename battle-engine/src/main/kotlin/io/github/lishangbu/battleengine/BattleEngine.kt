@@ -957,39 +957,25 @@ class BattleEngine(
 		)
 		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
 		val targetAfterItemReduction = itemReduction?.target ?: target
-		val survival = damageDefenseEffects.fatalDamageSurvival(
+		val targetDamage = applyDamageToTarget(
 			state = stateAfterItemReduction,
 			actor = actor,
 			target = targetAfterItemReduction,
 			skill = skill,
 			damageAmount = damage.amount,
+			effectiveness = damage.effectiveness,
+			targetMultiplier = damage.targetMultiplier,
+			criticalHit = criticalHit,
 			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
 		)
-		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
-		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
-		val damagedState = stateAfterItemReduction
-			.replaceParticipant(damagedTarget)
-			.appendEvent(
-				BattleEvent.DamageApplied(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					amount = actualDamageAmount,
-					effectiveness = damage.effectiveness,
-					targetMultiplier = damage.targetMultiplier,
-					criticalHit = criticalHit,
-				),
-			)
-			.appendEvents(listOfNotNull(survival.event))
-		val afterFireThaw = skillHpEffects.clearFreezeAfterFireDamage(damagedState, damagedTarget, skill)
+		val afterFireThaw = skillHpEffects.clearFreezeAfterFireDamage(targetDamage.state, targetDamage.damagedTarget, skill)
 		return context.copy(
 			state = finishPostDamageEffects(
 				state = afterFireThaw,
 				actorId = actor.actorId,
-				targetActorId = damagedTarget.actorId,
+				targetActorId = targetDamage.damagedTarget.actorId,
 				skill = skill,
-				damageAmount = actualDamageAmount,
+				damageAmount = targetDamage.actualDamageAmount,
 				targetCanFaint = true,
 				allowTargetLowHpItem = true,
 				allowContactAbilities = true,
@@ -1040,13 +1026,62 @@ class BattleEngine(
 		}
 
 		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
+		val targetDamage = applyDamageToTarget(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			damageAmount = damageAmount,
+			effectiveness = effectiveness,
+			targetMultiplier = targetMultiplier,
+			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
+		)
+		return context.copy(
+			state = finishPostDamageEffects(
+				state = targetDamage.state,
+				actorId = actor.actorId,
+				targetActorId = targetDamage.damagedTarget.actorId,
+				skill = skill,
+				damageAmount = targetDamage.actualDamageAmount,
+				faintActorAfterHit = faintActorAfterHit,
+				targetCanFaint = true,
+				allowTargetLowHpItem = true,
+				allowContactAbilities = true,
+				random = random,
+			),
+		)
+	}
+
+	/**
+	 * 向目标本体写入一次技能伤害，并追加标准伤害事件。
+	 *
+	 * 普通公式伤害和固定/比例/HP 派生直接伤害在“伤害数值怎么来”上不同，但一旦决定要扣目标本体 HP，后续必须共享
+	 * 同一套顺序：
+	 * - 先让满 HP 保命类特性/道具把原始伤害夹成实际可写入伤害。
+	 * - 再写入目标 HP，计算真实扣血量，避免过量伤害污染吸血、贝壳之铃等按实际伤害读取的规则。
+	 * - 然后追加 [BattleEvent.DamageApplied]，最后追加保命事件，让 replay 能看到“伤害事实”和“为什么没有倒下”。
+	 *
+	 * 替身伤害故意不走这里。替身不触发目标低体力道具、接触特性或目标倒下判定，并且事件类型不同；把替身塞进这个
+	 * helper 反而会让调用方用布尔参数区分两套语义。
+	 */
+	private fun applyDamageToTarget(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+		effectiveness: Double,
+		targetMultiplier: Double,
+		criticalHit: Boolean = false,
+		ignoreTargetAbilityEffects: Boolean,
+	): TargetDamageApplication {
 		val survival = damageDefenseEffects.fatalDamageSurvival(
 			state = state,
 			actor = actor,
 			target = target,
 			skill = skill,
 			damageAmount = damageAmount,
-			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
+			ignoreTargetAbilityEffects = ignoreTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
 		val actualDamageAmount = survival.target.currentHp - damagedTarget.currentHp
@@ -1061,22 +1096,14 @@ class BattleEngine(
 					amount = actualDamageAmount,
 					effectiveness = effectiveness,
 					targetMultiplier = targetMultiplier,
+					criticalHit = criticalHit,
 				),
 			)
 			.appendEvents(listOfNotNull(survival.event))
-		return context.copy(
-			state = finishPostDamageEffects(
-				state = damagedState,
-				actorId = actor.actorId,
-				targetActorId = damagedTarget.actorId,
-				skill = skill,
-				damageAmount = actualDamageAmount,
-				faintActorAfterHit = faintActorAfterHit,
-				targetCanFaint = true,
-				allowTargetLowHpItem = true,
-				allowContactAbilities = true,
-				random = random,
-			),
+		return TargetDamageApplication(
+			state = damagedState,
+			damagedTarget = damagedTarget,
+			actualDamageAmount = actualDamageAmount,
 		)
 	}
 
@@ -1222,6 +1249,19 @@ class BattleEngine(
 		val state: BattleState,
 		val protectedActorIds: Set<String> = emptySet(),
 		val successfulProtectionActorIds: Set<String> = emptySet(),
+	)
+
+	/**
+	 * 目标本体伤害写入结果。
+	 *
+	 * `state` 是已经写入 HP、追加伤害事件和保命事件后的状态；`damagedTarget` 是这份状态中的最新目标快照；
+	 * `actualDamageAmount` 是真实扣掉的 HP。调用方必须使用这个实际伤害量继续结算吸取、反伤、伤害后回复和倒下判定，
+	 * 不能回头使用公式给出的原始伤害值。
+	 */
+	private data class TargetDamageApplication(
+		val state: BattleState,
+		val damagedTarget: BattleParticipant,
+		val actualDamageAmount: Int,
 	)
 
 	/**
