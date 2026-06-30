@@ -15,10 +15,6 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
-import io.github.lishangbu.battleengine.model.BattleStat
-import io.github.lishangbu.battleengine.model.BattleStatStageOperation
-import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
-import io.github.lishangbu.battleengine.model.BattleStatStageOperationTarget
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.SwitchPreventionReason
@@ -49,6 +45,11 @@ class BattleEngine(
 	private val skillTargeting = BattleSkillTargeting()
 	private val hitResolution = BattleHitResolution(statStageModifiers)
 	private val skillHpEffects = BattleSkillHpEffects()
+	private val statStageEffects = BattleStatStageEffects(
+		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
+			substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
+		},
+	)
 	private val environmentEffects = BattleEnvironmentEffects()
 	private val fieldEffects = BattleFieldEffects()
 	private val chargeMoves = BattleChargeMoves()
@@ -1377,7 +1378,8 @@ class BattleEngine(
 				}
 			}
 		}
-		val afterStatStageOperations = applyStatStageOperations(afterStatStageEffects, actorId, targetActorId, skill, random)
+		val afterStatStageOperations =
+			statStageEffects.applyOperations(afterStatStageEffects, actorId, targetActorId, skill, random)
 		val afterSideDamageReductions = skill.sideConditionApplications.fold(afterStatStageOperations) { current, application ->
 			if (!chanceSucceeds(application.chancePercent, random, "side condition chance for ${skill.skillId}")) {
 				current
@@ -1408,263 +1410,6 @@ class BattleEngine(
 		}
 		return applyForcedTargetSwitchEffect(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
 	}
-
-	/**
-	 * 应用技能命中后的能力阶级特殊操作。
-	 *
-	 * 普通阶级加减只需要在当前数值上叠加 delta；这里处理的是读取当前阶级后再写回结果的效果，例如清除之烟、
-	 * 黑雾、自我暗示、力量互换、防守互换和颠倒。每条操作只处理一个能力项，资料层可为同一技能配置多条记录来
-	 * 表达“所有能力项”或“攻击/防御组”。概率判定与普通附加效果一致，只在规则声明小于 100% 时消费随机数。
-	 */
-	private fun applyStatStageOperations(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		random: BattleRandom,
-	): BattleState =
-		skill.statStageOperations.fold(state) { current, operation ->
-			if (!chanceSucceeds(operation.chancePercent, random, "stat stage operation chance for ${skill.skillId}")) {
-				current
-			} else {
-				applyStatStageOperation(current, actorId, targetActorId, skill, operation)
-			}
-		}
-
-	/**
-	 * 分派单条能力阶级操作。
-	 *
-	 * 清除和取反可能作用于一个或多个目标；复制和交换必须有明确的单个来源与目标。若目标已经倒下、目标不存在，
-	 * 或对手的替身阻挡了该技能效果，则该条操作保持状态不变且不产生事件。
-	 */
-	private fun applyStatStageOperation(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		operation: BattleStatStageOperation,
-	): BattleState =
-		when (operation.kind) {
-			BattleStatStageOperationKind.CLEAR -> applyStatStageClearOperation(state, actorId, targetActorId, skill, operation)
-			BattleStatStageOperationKind.COPY -> applyStatStageCopyOperation(state, actorId, targetActorId, skill, operation)
-			BattleStatStageOperationKind.SWAP -> applyStatStageSwapOperation(state, actorId, targetActorId, skill, operation)
-			BattleStatStageOperationKind.INVERT -> applyStatStageInvertOperation(state, actorId, targetActorId, skill, operation)
-		}
-
-	/**
-	 * 将目标范围内成员的指定能力阶级清除为 0。
-	 *
-	 * 普通目标清除会尊重对手替身；全场清除表示黑雾类场地事实，遍历所有仍在场且可战斗的当前上场成员，不被
-	 * 单个成员的替身拦截。只有实际非 0 阶级被清除时才记录事件，避免 replay 被无变化的 0->0 填满。
-	 */
-	private fun applyStatStageClearOperation(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		operation: BattleStatStageOperation,
-	): BattleState =
-		statStageOperationParticipants(state, actorId, targetActorId, operation.target).fold(state) { current, participant ->
-			val latest = current.participant(participant.actorId) ?: return@fold current
-			if (!latest.canBattle()) {
-				return@fold current
-			}
-			if (
-				operation.target != BattleStatStageOperationTarget.ALL_ACTIVE &&
-				substituteBlocksOpponentEffect(current, actorId, latest.actorId, skill)
-			) {
-				return@fold current
-			}
-			val previous = latest.statStage(operation.stat)
-			if (previous == 0) {
-				current
-			} else {
-				current
-					.replaceParticipant(latest.setStatStage(operation.stat, 0))
-					.appendEvent(
-						BattleEvent.StatStageCleared(
-							turnNumber = current.turnNumber,
-							actorId = actorId,
-							targetActorId = latest.actorId,
-							skillId = skill.skillId,
-							stat = operation.stat,
-							previousStage = previous,
-						),
-					)
-			}
-		}
-
-	/**
-	 * 将来源成员的指定能力阶级复制到目标成员。
-	 *
-	 * 自我暗示类技能复制的是当前运行态阶级，不读取基础能力值。来源和目标必须都是单个成员；目标已有相同阶级时
-	 * 不产生事件。复制动作不改变来源，因此多条能力项操作按顺序执行时彼此独立。
-	 */
-	private fun applyStatStageCopyOperation(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		operation: BattleStatStageOperation,
-	): BattleState {
-		val sourceTarget = operation.source ?: return state
-		val source = statStageOperationParticipant(state, actorId, targetActorId, sourceTarget) ?: return state
-		val target = statStageOperationParticipant(state, actorId, targetActorId, operation.target) ?: return state
-		if (!source.canBattle() || !target.canBattle()) {
-			return state
-		}
-		if (statStageOperationBlockedBySubstitute(state, actorId, target.actorId, skill, operation.target)) {
-			return state
-		}
-		if (statStageOperationBlockedBySubstitute(state, actorId, source.actorId, skill, sourceTarget)) {
-			return state
-		}
-		val copied = source.statStage(operation.stat)
-		val previous = target.statStage(operation.stat)
-		if (previous == copied) {
-			return state
-		}
-		return state
-			.replaceParticipant(target.setStatStage(operation.stat, copied))
-			.appendEvent(
-				BattleEvent.StatStageCopied(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					sourceActorId = source.actorId,
-					targetActorId = target.actorId,
-					skillId = skill.skillId,
-					stat = operation.stat,
-					copiedStage = copied,
-				),
-			)
-	}
-
-	/**
-	 * 交换两个成员指定能力阶级的当前值。
-	 *
-	 * 力量互换、防守互换和心灵互换都可以拆成多条本操作：每条只交换一个能力项。若双方该项阶级相同，则状态和
-	 * 事件保持不变；否则两个成员会在同一个状态转换中写回，避免只更新一方时被后续读取到半成品状态。
-	 */
-	private fun applyStatStageSwapOperation(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		operation: BattleStatStageOperation,
-	): BattleState {
-		val sourceTarget = operation.source ?: return state
-		val first = statStageOperationParticipant(state, actorId, targetActorId, operation.target) ?: return state
-		val second = statStageOperationParticipant(state, actorId, targetActorId, sourceTarget) ?: return state
-		if (!first.canBattle() || !second.canBattle() || first.actorId == second.actorId) {
-			return state
-		}
-		if (statStageOperationBlockedBySubstitute(state, actorId, first.actorId, skill, operation.target)) {
-			return state
-		}
-		if (statStageOperationBlockedBySubstitute(state, actorId, second.actorId, skill, sourceTarget)) {
-			return state
-		}
-		val firstStage = first.statStage(operation.stat)
-		val secondStage = second.statStage(operation.stat)
-		if (firstStage == secondStage) {
-			return state
-		}
-		return state
-			.replaceParticipant(first.setStatStage(operation.stat, secondStage))
-			.replaceParticipant(second.setStatStage(operation.stat, firstStage))
-			.appendEvent(
-				BattleEvent.StatStageSwapped(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					firstActorId = first.actorId,
-					secondActorId = second.actorId,
-					skillId = skill.skillId,
-					stat = operation.stat,
-					firstCurrentStage = secondStage,
-					secondCurrentStage = firstStage,
-				),
-			)
-	}
-
-	/**
-	 * 将目标范围内成员的指定能力阶级取反。
-	 *
-	 * 颠倒类效果使用当前阶级的相反数并保持在 -6..6 范围内。因为现有运行态已经保证阶级边界，本函数只需要写回
-	 * `-previous`。0 阶级取反后没有可观察变化，因此不会产生事件。
-	 */
-	private fun applyStatStageInvertOperation(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		operation: BattleStatStageOperation,
-	): BattleState =
-		statStageOperationParticipants(state, actorId, targetActorId, operation.target).fold(state) { current, participant ->
-			val latest = current.participant(participant.actorId) ?: return@fold current
-			if (!latest.canBattle()) {
-				return@fold current
-			}
-			if (statStageOperationBlockedBySubstitute(current, actorId, latest.actorId, skill, operation.target)) {
-				return@fold current
-			}
-			val previous = latest.statStage(operation.stat)
-			if (previous == 0) {
-				current
-			} else {
-				val next = -previous
-				current
-					.replaceParticipant(latest.setStatStage(operation.stat, next))
-					.appendEvent(
-						BattleEvent.StatStageInverted(
-							turnNumber = current.turnNumber,
-							actorId = actorId,
-							targetActorId = latest.actorId,
-							skillId = skill.skillId,
-							stat = operation.stat,
-							previousStage = previous,
-							currentStage = next,
-						),
-					)
-			}
-		}
-
-	/**
-	 * 根据能力阶级操作目标解析当前参与成员集合。
-	 *
-	 * 返回值只包含当前可被运行态找到的成员；调用方再根据具体规则判断是否仍可战斗或是否被替身阻挡。这样复制、
-	 * 交换和全场清除可以共享同一套目标解析口径。
-	 */
-	private fun statStageOperationParticipants(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		target: BattleStatStageOperationTarget,
-	): List<BattleParticipant> =
-		when (target) {
-			BattleStatStageOperationTarget.USER -> listOfNotNull(state.participant(actorId))
-			BattleStatStageOperationTarget.TARGET -> listOfNotNull(state.participant(targetActorId))
-			BattleStatStageOperationTarget.ALL_ACTIVE -> state.sides.flatMap { side ->
-				side.activeParticipants().filter { it.canBattle() }
-			}
-		}
-
-	private fun statStageOperationParticipant(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		target: BattleStatStageOperationTarget,
-	): BattleParticipant? =
-		statStageOperationParticipants(state, actorId, targetActorId, target).singleOrNull()
-
-	private fun statStageOperationBlockedBySubstitute(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		skill: BattleSkillSlot,
-		target: BattleStatStageOperationTarget,
-	): Boolean =
-		target == BattleStatStageOperationTarget.TARGET &&
-			substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
 
 	/**
 	 * 处理技能命中后的强制替换效果。
