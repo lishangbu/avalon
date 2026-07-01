@@ -174,6 +174,13 @@ internal class BattleEngineComponents(
 		targetDefenseEffects = targetDefenseEffects,
 		forcedSwitchEffects = forcedSwitchEffects,
 	)
+	private val skillDamageResolution = BattleSkillDamageResolution(
+		directDamage = directDamage,
+		damageHitResolution = damageHitResolution,
+		skillAdditionalEffects = skillAdditionalEffects,
+		lockedMoves = lockedMoves,
+		postDamageEffects = postDamageEffects,
+	)
 	private val skillTargetResolution = BattleSkillTargetResolution(
 		preHitTargetGate = preHitTargetGate,
 		skillBlockEffects = skillBlockEffects,
@@ -181,9 +188,7 @@ internal class BattleEngineComponents(
 		skillAdditionalEffects = skillAdditionalEffects,
 		skillHpEffects = skillHpEffects,
 		environmentEffects = environmentEffects,
-		directDamage = directDamage,
-		damageHitResolution = damageHitResolution,
-		postDamageEffects = postDamageEffects,
+		skillDamageResolution = skillDamageResolution,
 	)
 	private val skillUseResolution = BattleSkillUseResolution(
 		beforeMoveEffects = beforeMoveEffects,
