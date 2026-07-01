@@ -32,6 +32,12 @@ import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.service.BattleRuntimeSnapshotService
+import io.github.lishangbu.battlerules.service.isBattleAbilityRuntimePolicySupported
+import io.github.lishangbu.battlerules.service.isBattleItemRuntimePolicySupported
+import io.github.lishangbu.battlerules.service.isBattleSkillRuntimeDamagePolicySupported
+import io.github.lishangbu.battlerules.service.isBattleSkillRuntimeEffectPolicySupported
+import io.github.lishangbu.battlerules.service.isBattleSkillRuntimeHitPolicySupported
+import io.github.lishangbu.battlerules.service.isBattleSkillRuntimeTargetPolicySupported
 import io.github.lishangbu.common.web.ApiErrorCode
 import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
@@ -911,23 +917,56 @@ class BattleRuntimeSnapshotServiceTests(
 	 *
 	 * 这个测试不逐条断言具体效果数值，原因是具体数值已经由技能、特性、道具的专项测试覆盖；这里锁定的是另一类
 	 * 更容易被遗漏的资料完整性问题：Liquibase 新增了启用中的规则行，但运行时读取器或 policy mapper 没有跟上。
-	 * 测试直接从三范式规则表读取启用中的基础资料 ID，再走正式的 [BattleRuntimeSnapshotService] 装配入口：
+	 * 测试直接从三范式规则表读取启用中的 policy 和基础资料 ID，再走正式的 [BattleRuntimeSnapshotService] 装配入口：
+	 * - 技能 `effect_policy` 必须要么映射成强类型效果，要么被子表/布尔字段承载为结构型规则。
+	 * - 技能 `target_policy`、`hit_policy`、`damage_policy` 必须落在运行时显式支持集合内，不能依赖默认兜底。
 	 * - 技能规则必须能装配成 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
 	 * - 特性规则必须能装配结构化效果或接地事实，`ground-immunity` 这种非效果型 policy 也会通过接地装配暴露。
 	 * - 道具规则必须能装配成结构化携带道具效果。
 	 *
 	 * 这样做比在测试里复制 mapper 字典更稳：真实入口如果因为字段名、外键、禁用状态、policy 拼写或基础资料缺失而
-	 * 失败，这里会直接报错；而不是只证明测试里那份手写字典还记得某个字符串。
+	 * 失败，这里会直接报错；而 mapper 自己公开的内部支持判定则保证 `mapNotNull` 不会把启用中的策略静默吞掉。
 	 */
 	@Test
 	fun `enabled battle rule rows can be assembled by runtime adapters`() {
+		val elementIds = elementIdsByCode()
 		val skillIds = enabledIds("battle_skill_rule", "skill_id")
 		val abilityIds = enabledIds("battle_ability_rule", "ability_id")
 		val itemIds = enabledIds("battle_item_rule", "item_id")
+		val unsupportedSkillEffectPolicies = enabledPolicies("battle_skill_rule", "effect_policy")
+			.filterNot { it.isBattleSkillRuntimeEffectPolicySupported() }
+		val unsupportedSkillTargetPolicies = enabledPolicies("battle_skill_rule", "target_policy")
+			.filterNot { it.isBattleSkillRuntimeTargetPolicySupported() }
+		val unsupportedSkillHitPolicies = enabledPolicies("battle_skill_rule", "hit_policy")
+			.filterNot { it.isBattleSkillRuntimeHitPolicySupported() }
+		val unsupportedSkillDamagePolicies = enabledPolicies("battle_skill_rule", "damage_policy")
+			.filterNot { it.isBattleSkillRuntimeDamagePolicySupported() }
+		val unsupportedAbilityPolicies = enabledPolicies("battle_ability_rule", "effect_policy")
+			.filterNot { it.isBattleAbilityRuntimePolicySupported(elementIds) }
+		val unsupportedItemPolicies = enabledPolicies("battle_item_rule", "effect_policy")
+			.filterNot { it.isBattleItemRuntimePolicySupported(elementIds) }
 
 		assertThat(skillIds).isNotEmpty
 		assertThat(abilityIds).isNotEmpty
 		assertThat(itemIds).isNotEmpty
+		assertThat(unsupportedSkillEffectPolicies)
+			.describedAs("启用中的技能 effect_policy 必须被运行时装配层承载")
+			.isEmpty()
+		assertThat(unsupportedSkillTargetPolicies)
+			.describedAs("启用中的技能 target_policy 必须显式可识别，不能依赖默认单体目标兜底")
+			.isEmpty()
+		assertThat(unsupportedSkillHitPolicies)
+			.describedAs("启用中的技能 hit_policy 必须显式可识别")
+			.isEmpty()
+		assertThat(unsupportedSkillDamagePolicies)
+			.describedAs("启用中的技能 damage_policy 必须显式可识别")
+			.isEmpty()
+		assertThat(unsupportedAbilityPolicies)
+			.describedAs("启用中的特性 effect_policy 必须被运行时装配层承载")
+			.isEmpty()
+		assertThat(unsupportedItemPolicies)
+			.describedAs("启用中的道具 effect_policy 必须被运行时装配层承载")
+			.isEmpty()
 		assertThat(service.skillSlotsBySkillIds(skillIds).map { it.skillId }).containsExactlyElementsOf(skillIds)
 		abilityIds.forEach { abilityId ->
 			service.abilityEffectsByAbilityId(abilityId)
@@ -1478,6 +1517,27 @@ class BattleRuntimeSnapshotServiceTests(
 			""".trimIndent(),
 			{ rs, _ -> rs.getLong(idColumn) },
 		)
+
+	private fun enabledPolicies(tableName: String, policyColumn: String): List<String> =
+		jdbcTemplate.query(
+			"""
+			select distinct $policyColumn
+			from $tableName
+			where enabled = true
+			order by $policyColumn
+			""".trimIndent(),
+			{ rs, _ -> rs.getString(policyColumn) },
+		)
+
+	private fun elementIdsByCode(): Map<String, Long> =
+		jdbcTemplate.query(
+			"""
+			select code, id
+			from game_element
+			order by code
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("code") to rs.getLong("id") },
+		).toMap()
 
 	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =
 		BattlePreparationValidationRequest(
