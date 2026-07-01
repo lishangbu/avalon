@@ -16,23 +16,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.ContextConfiguration
 
-@SpringBootTest(
-	classes = [BattleRulesTestApplication::class],
-	properties = [
-		"spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.yaml",
-		"jimmer.language=kotlin",
-		"jimmer.dialect=org.babyfish.jimmer.sql.dialect.PostgresDialect",
-		"cosid.machine.enabled=true",
-		"cosid.machine.distributor.manual.machine-id=4",
-		"cosid.snowflake.enabled=true",
-		"cosid.snowflake.zone-id=UTC",
-	],
-)
-@ContextConfiguration(initializers = [BattleRulesPostgresTestContainer::class])
+@BattleRulesIntegrationTest
 /**
  * 验证技能天气命中覆盖和威力倍率子资源的独立维护能力。
  */
