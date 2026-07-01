@@ -16,21 +16,21 @@
 
 ## 总量拆分
 
-| 分组 | 目标规则数 | 当前已覆盖 | 剩余 | 说明 |
-| --- | ---: | ---: | ---: | --- |
-| 对战格式与队伍合法性 | 16 | 16 | 0 | 回合上限、队伍数量、等级统一、重复限制、禁用列表、选择阶段和自定义格式约束。 |
-| 初始化、替换、濒死与胜负 | 18 | 18 | 0 | 初始出场、替换重置、强制替换、濒死检查、胜负判定、战斗结束事件。 |
-| 回合流程、行动选择与行动排序 | 26 | 26 | 0 | PP、锁招、多回合技能、充能、反动不能行动、优先度、速度、同速随机和行动取消。 |
-| 目标选择、双打范围与重定向 | 20 | 20 | 0 | 单体、相邻、全场、己方、随机目标、目标失效重定向和范围伤害。 |
-| 命中、保护、替身、免疫与反射 | 28 | 28 | 0 | 命中/闪避、保护、替身、属性/状态免疫、声音穿透、粉末、抢夺、反射类变化技能和行动前目标有效性边界。 |
-| 伤害公式、能力值、属性与取整 | 42 | 42 | 0 | 普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害和 HP 派生直接伤害。 |
-| 主要状态、临时状态与持续状态 | 34 | 34 | 0 | 灼伤、麻痹、睡眠、冰冻、中毒、剧毒、混乱、畏缩、回复封锁、挑衅、定身法、无理取闹、束缚、诅咒、着迷和持续回合。 |
-| 天气、场地、场地状态和一侧状态 | 31 | 31 | 0 | 晴、雨、沙、雪、电气、青草、薄雾、精神、屏障、顺风、撒场、天气/场地持续时间。 |
-| 技能效果行为族 | 39 | 39 | 0 | 能力阶级、主要状态、HP 吸取/反伤/回复、强制替换、复制、封锁、清除、交换、取反和失败条件。 |
-| 特性效果行为族 | 36 | 36 | 0 | 入场、攻击前、防守前、命中后、天气/场地联动、属性吸收、状态免疫、规则绕过和伤害修正。 |
-| 道具效果行为族 | 18 | 18 | 0 | 消耗、回复、状态解除、伤害增减、持续时间延长、一次性免死、锁招、蓄力跳过和抗性减伤。 |
-| 随机、回放和对照测试基础 | 4 | 4 | 0 | 固定随机序列、事件流稳定、回放复算和对照测试结果归档。 |
-| **合计** | **312** | **312** | **0** | 当前“已覆盖”按行为账本粗映射；覆盖报表实际登记项为 `91/91`。 |
+| 分组 | 规则编号区间 | 目标规则数 | 当前已覆盖 | 剩余 | 说明 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 对战格式与队伍合法性 | 1-16 | 16 | 16 | 0 | 回合上限、队伍数量、等级统一、重复限制、禁用列表、选择阶段和自定义格式约束。 |
+| 初始化、替换、濒死与胜负 | 17-34 | 18 | 18 | 0 | 初始出场、替换重置、强制替换、濒死检查、胜负判定、战斗结束事件。 |
+| 回合流程、行动选择与行动排序 | 35-60 | 26 | 26 | 0 | PP、锁招、多回合技能、充能、反动不能行动、优先度、速度、同速随机和行动取消。 |
+| 目标选择、双打范围与重定向 | 61-80 | 20 | 20 | 0 | 单体、相邻、全场、己方、随机目标、目标失效重定向和范围伤害。 |
+| 命中、保护、替身、免疫与反射 | 81-108 | 28 | 28 | 0 | 命中/闪避、保护、替身、属性/状态免疫、声音穿透、粉末、抢夺、反射类变化技能和行动前目标有效性边界。 |
+| 伤害公式、能力值、属性与取整 | 109-150 | 42 | 42 | 0 | 普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害和 HP 派生直接伤害。 |
+| 主要状态、临时状态与持续状态 | 151-184 | 34 | 34 | 0 | 灼伤、麻痹、睡眠、冰冻、中毒、剧毒、混乱、畏缩、回复封锁、挑衅、定身法、无理取闹、束缚、诅咒、着迷和持续回合。 |
+| 天气、场地、场地状态和一侧状态 | 185-215 | 31 | 31 | 0 | 晴、雨、沙、雪、电气、青草、薄雾、精神、屏障、顺风、撒场、天气/场地持续时间。 |
+| 技能效果行为族 | 216-254 | 39 | 39 | 0 | 能力阶级、主要状态、HP 吸取/反伤/回复、强制替换、复制、封锁、清除、交换、取反和失败条件。 |
+| 特性效果行为族 | 255-290 | 36 | 36 | 0 | 入场、攻击前、防守前、命中后、天气/场地联动、属性吸收、状态免疫、规则绕过和伤害修正。 |
+| 道具效果行为族 | 291-308 | 18 | 18 | 0 | 消耗、回复、状态解除、伤害增减、持续时间延长、一次性免死、锁招、蓄力跳过和抗性减伤。 |
+| 随机、回放和对照测试基础 | 309-312 | 4 | 4 | 0 | 固定随机序列、事件流稳定、回放复算和对照测试结果归档。 |
+| **合计** | **1-312** | **312** | **312** | **0** | 当前“已覆盖”按行为账本粗映射；覆盖报表实际登记项为 `91/91`。 |
 
 ## 规则族到测试文件矩阵
 
@@ -38,20 +38,20 @@
 的人工可读版本。测试类仍然是事实源；文档只负责帮助开发时快速定位“某个规则族应该看哪批测试”。新增规则时，
 先判断它是否只是资料条目扩展；如果不是，必须把对应行为测试补到下表所属规则族，必要时再调整规则族计数。
 
-| 规则族 code | 规则数 | 主要测试文件 |
-| --- | ---: | --- |
-| `format-and-team-validation` | 16 | `BattleFormatValidationTests`、`BattlePreparationValidatorTests` |
-| `lifecycle-switch-faint-result` | 18 | `BattleLifecycleSwitchPublicReferenceTests`、`BattleFormatLifecycleBoundaryPublicReferenceTests` |
-| `turn-flow-action-ordering` | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests` |
-| `target-scope-redirection` | 20 | `BattleTargetScopePublicReferenceTests`、`BattleTargetRedirectionPublicReferenceTests`、`BattleRandomTargetPublicReferenceTests` |
-| `hit-protect-substitute-immunity-reflect` | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests` |
-| `damage-formula-stat-element-rounding` | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`BattleCriticalHitFlowTests` |
-| `major-volatile-persistent-status` | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests` |
-| `weather-terrain-field-side-condition` | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests` |
-| `skill-effect-family` | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests` |
-| `ability-effect-family` | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests` |
-| `item-effect-family` | 18 | `BattleHeldItemPublicReferenceTests`、`BattleElementDamageReductionItemTests`、`BattleStatusCureItemTests` |
-| `random-replay-public-reference` | 4 | `random/ScriptedBattleRandomTests`、`BattleReplayRecorderTests`、`BattleReplayPublicReferenceTests` |
+| 规则族 code | 规则编号区间 | 规则数 | 主要测试文件 |
+| --- | ---: | ---: | --- |
+| `format-and-team-validation` | 1-16 | 16 | `BattleFormatValidationTests`、`BattlePreparationValidatorTests` |
+| `lifecycle-switch-faint-result` | 17-34 | 18 | `BattleLifecycleSwitchPublicReferenceTests`、`BattleFormatLifecycleBoundaryPublicReferenceTests` |
+| `turn-flow-action-ordering` | 35-60 | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests` |
+| `target-scope-redirection` | 61-80 | 20 | `BattleTargetScopePublicReferenceTests`、`BattleTargetRedirectionPublicReferenceTests`、`BattleRandomTargetPublicReferenceTests` |
+| `hit-protect-substitute-immunity-reflect` | 81-108 | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests` |
+| `damage-formula-stat-element-rounding` | 109-150 | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`BattleCriticalHitFlowTests` |
+| `major-volatile-persistent-status` | 151-184 | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests` |
+| `weather-terrain-field-side-condition` | 185-215 | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests` |
+| `skill-effect-family` | 216-254 | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests` |
+| `ability-effect-family` | 255-290 | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests` |
+| `item-effect-family` | 291-308 | 18 | `BattleHeldItemPublicReferenceTests`、`BattleElementDamageReductionItemTests`、`BattleStatusCureItemTests` |
+| `random-replay-public-reference` | 309-312 | 4 | `random/ScriptedBattleRandomTests`、`BattleReplayRecorderTests`、`BattleReplayPublicReferenceTests` |
 
 ## 当前报表口径
 

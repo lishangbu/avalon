@@ -62,6 +62,51 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `规则族编号区间必须连续覆盖三百一十二条规则`() {
+		val ranges = coverageGroupRuleRanges()
+		val coveredRuleNumbers = ranges.flatMap { it.ruleNumbers.toList() }
+
+		assertEquals(
+			coverageGroups.map { it.code },
+			ranges.map { it.groupCode },
+			"规则编号区间必须保持与规则族声明顺序一致，这样新增规则时不会出现文档顺序和测试顺序漂移",
+		)
+		assertEquals(
+			(1..312).toList(),
+			coveredRuleNumbers,
+			"312 条规则必须被规则族区间连续覆盖，不能出现空洞、重叠或总数看似正确但中间跳号",
+		)
+		coverageGroups.zip(ranges).forEach { (group, range) ->
+			assertEquals(
+				group.ruleCount,
+				range.ruleNumbers.count(),
+				"${group.code} 的规则编号区间长度必须等于该规则族声明的规则数量",
+			)
+		}
+	}
+
+	@Test
+	fun `公开规则命名场景必须可追踪到规则族编号区间`() {
+		val rangesByGroupCode = coverageGroupRuleRanges().associateBy { it.groupCode }
+		val records = namedScenarioRecordsForCoverageGroups()
+		val recordsWithoutRange = records.filter { record ->
+			record.groupCode == null ||
+				record.ruleNumberRange == null ||
+				rangesByGroupCode[record.groupCode]?.ruleNumbers != record.ruleNumberRange
+		}
+
+		assertTrue(
+			recordsWithoutRange.isEmpty(),
+			"公开规则场景必须能追踪到所属规则族的编号区间，避免只有场景名却不知道它兜底的是哪一段规则：\n${
+				recordsWithoutRange
+					.map { "${it.groupCode ?: "<missing>"} -> ${it.testClassName} -> ${it.name}" }
+					.distinct()
+					.joinToString("\n")
+			}",
+		)
+	}
+
+	@Test
 	fun `公开规则命名场景必须使用唯一名称`() {
 		val scenarioNames = namedScenarioRecordsForCoverageGroups().map { it.name }
 		val duplicatedNames = scenarioNames
@@ -146,11 +191,14 @@ class BattleRuleCoverageLedgerTests {
 	 */
 	private fun namedScenarioRecordsForCoverageGroups(): List<NamedScenarioRecord> =
 		coverageGroups.flatMap { group ->
+			val ruleNumberRange = coverageGroupRuleRanges()
+				.single { it.groupCode == group.code }
+				.ruleNumbers
 			group.testClassNames.flatMap { testClassName ->
 				val sourcePath = sourcePathForTestClass(testClassName)
 				if (Files.exists(sourcePath)) {
 					namedScenarioNamesInSource(sourcePath).map { scenarioName ->
-						NamedScenarioRecord(group.code, testClassName, scenarioName)
+						NamedScenarioRecord(group.code, ruleNumberRange, testClassName, scenarioName)
 					}
 				} else {
 					emptyList()
@@ -171,9 +219,31 @@ class BattleRuleCoverageLedgerTests {
 			.flatMap { sourcePath ->
 				val testClassName = testClassNameForSourcePath(sourcePath)
 				namedScenarioNamesInSource(sourcePath).map { scenarioName ->
-					NamedScenarioRecord(groupCode = null, testClassName = testClassName, name = scenarioName)
+					NamedScenarioRecord(
+						groupCode = null,
+						ruleNumberRange = null,
+						testClassName = testClassName,
+						name = scenarioName,
+					)
 				}
 			}
+
+	/**
+	 * 由规则族顺序推导稳定规则编号区间。
+	 *
+	 * 账本没有把 312 条规则逐条写成硬编码编号，原因是这些规则的事实源是行为测试，规则族才是长期维护边界。
+	 * 但完全只有总数也不够：总数可能正确，两个规则族之间却发生重叠或空洞。这里用声明顺序和 `ruleCount`
+	 * 生成连续区间，例如第一个规则族覆盖 `1..16`，第二个从 `17` 接上。这样既不引入重复维护的大表，又能让
+	 * 每个命名公开场景稳定追踪到“它属于哪一段 312 规则账本”。
+	 */
+	private fun coverageGroupRuleRanges(): List<CoverageGroupRuleRange> {
+		var nextRuleNumber = 1
+		return coverageGroups.map { group ->
+			val ruleNumbers = nextRuleNumber until nextRuleNumber + group.ruleCount
+			nextRuleNumber += group.ruleCount
+			CoverageGroupRuleRange(group.code, ruleNumbers)
+		}
+	}
 
 	private fun namedScenarioNamesInSource(sourcePath: Path): List<String> {
 		val scenarioNamePattern = Regex("""\.assertNamed\(\s*"([^"]+)"""")
@@ -210,8 +280,14 @@ class BattleRuleCoverageLedgerTests {
 		val testClassNames: List<String>,
 	)
 
+	private data class CoverageGroupRuleRange(
+		val groupCode: String,
+		val ruleNumbers: IntRange,
+	)
+
 	private data class NamedScenarioRecord(
 		val groupCode: String?,
+		val ruleNumberRange: IntRange?,
 		val testClassName: String,
 		val name: String,
 	)
