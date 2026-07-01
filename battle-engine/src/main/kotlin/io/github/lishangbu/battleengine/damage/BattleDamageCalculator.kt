@@ -3,11 +3,8 @@ package io.github.lishangbu.battleengine.damage
 import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
-import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
-import io.github.lishangbu.battleengine.model.BattleTerrain
-import io.github.lishangbu.battleengine.model.BattleWeather
 import kotlin.math.floor
 
 /**
@@ -24,6 +21,7 @@ class BattleDamageCalculator(
 	private val statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
 ) {
 	private val abilityModifiers = BattleDamageAbilityModifiers()
+	private val environmentModifiers = BattleDamageEnvironmentModifiers()
 	private val itemModifiers = BattleDamageItemModifiers()
 
 	/**
@@ -48,13 +46,13 @@ class BattleDamageCalculator(
 				request.defender.defense,
 				effectiveDefendingStage(request, BattleStat.DEFENSE),
 			)
-				.let { physicalDefenseAfterWeather(request, it) }
+				.let { environmentModifiers.physicalDefenseAfterWeather(request, it) }
 				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.DEFENSE, it) }
 			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
 				request.defender.specialDefense,
 				effectiveDefendingStage(request, BattleStat.SPECIAL_DEFENSE),
 			)
-				.let { specialDefenseAfterWeather(request, it) }
+				.let { environmentModifiers.specialDefenseAfterWeather(request, it) }
 				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.SPECIAL_DEFENSE, it) }
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
@@ -65,8 +63,8 @@ class BattleDamageCalculator(
 		val sameElementBonus = abilityModifiers.sameElementBonus(request, skillElementId)
 		val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
-		val weatherMultiplier = weatherDamageMultiplier(request)
-		val terrainMultiplier = terrainDamageMultiplier(request)
+		val weatherMultiplier = environmentModifiers.weatherDamageMultiplier(request)
+		val terrainMultiplier = environmentModifiers.terrainDamageMultiplier(request)
 		val abilityMultiplier = abilityModifiers.damageMultiplier(request)
 		val itemMultiplier = itemModifiers.damageMultiplier(request)
 		val combined = baseDamage * request.targetMultiplier * (request.randomPercent / 100.0) * sameElementBonus *
@@ -166,92 +164,4 @@ class BattleDamageCalculator(
 	private fun defendingStage(stage: Int, criticalHit: Boolean): Int =
 		if (criticalHit && stage > 0) 0 else stage
 
-	/**
-	 * 计算天气对防御侧物防的修正。
-	 *
-	 * 现代雪景会让冰属性成员的物防按 1.5 倍参与普通伤害公式。该修正在能力阶级之后应用；
-	 * 如果规则快照缺少冰属性 ID，则不应用该修正，避免引擎猜测资料库编号。
-	 */
-	private fun physicalDefenseAfterWeather(request: BattleDamageRequest, stagedDefense: Int): Int =
-		if (request.environment.weather == BattleWeather.SNOW && request.defender.hasElement(request.rules.iceElementId)) {
-			floor(stagedDefense * WEATHER_DEFENSE_BOOST_MULTIPLIER).toInt().coerceAtLeast(1)
-		} else {
-			stagedDefense
-		}
-
-	/**
-	 * 计算天气对防御侧特防的修正。
-	 *
-	 * 现代沙暴会让岩属性成员的特防按 1.5 倍参与普通伤害公式。该修正在能力阶级之后应用；
-	 * 如果规则快照缺少岩属性 ID，则不应用该修正。
-	 */
-	private fun specialDefenseAfterWeather(request: BattleDamageRequest, stagedSpecialDefense: Int): Int =
-		if (request.environment.weather == BattleWeather.SANDSTORM && request.defender.hasElement(request.rules.rockElementId)) {
-			floor(stagedSpecialDefense * WEATHER_DEFENSE_BOOST_MULTIPLIER).toInt().coerceAtLeast(1)
-		} else {
-			stagedSpecialDefense
-		}
-
-	/**
-	 * 计算天气对火/水属性普通伤害的倍率。
-	 *
-	 * 元素 ID 来自规则快照，避免引擎硬编码资料库编号。若快照缺少对应元素 ID，天气不会修改伤害。
-	 * 第一批实现晴天和下雨对火/水伤害的互相增强/削弱；天气对防御侧能力的修正在独立函数中处理。
-	 */
-	private fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
-		when (request.environment.weather) {
-			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather)) {
-				request.rules.fireElementId -> 1.5
-				request.rules.waterElementId -> 0.5
-				else -> 1.0
-			}
-			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather)) {
-				request.rules.waterElementId -> 1.5
-				request.rules.fireElementId -> 0.5
-				else -> 1.0
-			}
-			BattleWeather.NONE,
-			BattleWeather.SANDSTORM,
-			BattleWeather.SNOW -> 1.0
-		}
-
-	/**
-	 * 计算场地对普通伤害的倍率。
-	 *
-	 * 现代青草场地有两个伤害侧效果：接地成员使用草属性技能时伤害按 1.3 倍计算；地震、重踏、震级等带有
-	 * 明确震动标签的技能命中接地目标时伤害减半。其它场地的状态免疫、先制阻挡和回合末回复不属于伤害公式。
-	 */
-	private fun terrainDamageMultiplier(request: BattleDamageRequest): Double =
-		when (request.environment.terrain) {
-			BattleTerrain.GRASSY -> {
-				val grassBoost = if (
-					request.attacker.grounded &&
-					request.rules.grassElementId != null &&
-					request.skill.effectiveElementId(request.environment.weather) == request.rules.grassElementId
-				) {
-					GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER
-				} else {
-					1.0
-				}
-				val groundMoveReduction = if (request.defender.grounded && request.skill.weakenedByGrassyTerrain) {
-					GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER
-				} else {
-					1.0
-				}
-				grassBoost * groundMoveReduction
-			}
-			BattleTerrain.NONE,
-			BattleTerrain.ELECTRIC,
-			BattleTerrain.MISTY,
-			BattleTerrain.PSYCHIC -> 1.0
-		}
-
-	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
-		elementId != null && elementId in elementIds
-
-	private companion object {
-		private const val GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER = 1.3
-		private const val GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER = 0.5
-		private const val WEATHER_DEFENSE_BOOST_MULTIPLIER = 1.5
-	}
 }
