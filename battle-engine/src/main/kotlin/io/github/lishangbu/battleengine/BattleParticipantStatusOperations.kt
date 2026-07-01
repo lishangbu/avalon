@@ -4,7 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 
-/**
+/*
  * `BattleParticipant` 的主要异常状态与临时状态运行态操作。
  *
  * 这一组函数只表达状态本身如何写入、递减或清除；它不负责状态是否免疫、是否被替身阻挡、随机持续时间如何产生，
