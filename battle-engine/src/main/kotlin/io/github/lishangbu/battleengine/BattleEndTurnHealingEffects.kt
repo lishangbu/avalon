@@ -69,9 +69,9 @@ internal class BattleEndTurnHealingEffects {
 	/**
 	 * 处理回合末场地回复。
 	 *
-	 * 第一批只实现青草场地的固定比例回复，并只作用于当前上场、仍可战斗、未满血、未被回复封锁且接地的成员。
-	 * 飞行、漂浮、携带道具免疫地面场地等来源应在进入引擎前折算为成员的 `grounded=false`；本阶段只读取已经
-	 * 冻结的运行态，不再尝试根据资料名称推断接地状态。
+	 * 当前只有青草场地会在回合末提供固定比例回复，并且只作用于当前上场、仍可战斗、未满血、未被回复封锁且接地
+	 * 的成员。飞行、漂浮、携带道具免疫地面场地等来源应在进入引擎前折算为成员的 `grounded=false`；本阶段只
+	 * 读取已经冻结的运行态，不再尝试根据资料名称推断接地状态。
 	 */
 	fun applyTerrainHealing(state: BattleState): BattleState {
 		if (state.environment.terrain != BattleTerrain.GRASSY) {

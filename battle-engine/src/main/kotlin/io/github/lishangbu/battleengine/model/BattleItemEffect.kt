@@ -3,7 +3,7 @@ package io.github.lishangbu.battleengine.model
 /**
  * 携带道具在战斗中的可执行效果。
  *
- * 第一批覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
+ * 当前覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
  * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成、造成伤害后回复，
  * 以及成功获得主要异常状态或临时状态后的即时解除。
@@ -64,8 +64,8 @@ sealed interface BattleItemEffect {
 	 * [VolatileStatusImmunity] 的区别和主要异常状态一致：免疫发生在状态写入前，而治愈发生在
 	 * [BattleEvent.VolatileStatusApplied] 之后，随后追加 [BattleEvent.VolatileStatusCleared]。
 	 *
-	 * 当前引擎第一批临时状态包含畏缩和混乱。资料层通常会把该效果挂到解除混乱的道具上；如果未来扩展其它临时
-	 * 状态，只需要把对应枚举加入 `statuses`，无需在状态机里判断具体道具名称。
+	 * 资料层通常会把该效果挂到解除混乱的道具上；如果某个道具能解除其它临时状态，只需要把对应枚举加入
+	 * `statuses`，无需在状态机里判断具体道具名称。
 	 */
 	data class VolatileStatusCure(
 		val statuses: Set<BattleVolatileStatus>,

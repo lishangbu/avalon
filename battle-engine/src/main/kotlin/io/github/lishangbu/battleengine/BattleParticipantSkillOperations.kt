@@ -19,8 +19,9 @@ fun BattleParticipant.replaceSkillSlot(slot: BattleSkillSlot): BattleParticipant
 /**
  * 消费当前携带道具。
  *
- * 第一批道具生命周期只需要表达“一次性触发后不再拥有该道具效果”。道具 ID 和所有道具效果一起清空，
- * 因为成员快照只允许一个携带道具；后续如果要支持道具被替换、回收或禁用而不移除，会增加更细的状态字段。
+ * 当前成员快照只允许一个携带道具，因此一次性触发后会同时清空道具 ID、道具效果和讲究类技能锁定。
+ * 这表示“成员已经不再持有该道具”，不同于暂时禁用、回收或替换道具；那些生命周期需要额外字段时应单独建模，
+ * 不应让已消费道具继续残留可执行效果。
  */
 fun BattleParticipant.consumeHeldItem(): BattleParticipant =
 	copy(itemId = null, itemEffects = emptyList(), choiceLockedSkillId = null)

@@ -46,7 +46,8 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 计算天气对火/水属性普通伤害的倍率。
 	 *
 	 * 元素 ID 来自规则快照，避免引擎硬编码资料库编号。若快照缺少对应元素 ID，天气不会修改伤害。
-	 * 第一批实现晴天和下雨对火/水伤害的互相增强/削弱；天气对防御侧能力的修正在独立函数中处理。
+	 * 晴天和下雨对火/水伤害的互相增强/削弱发生在最终倍率阶段；雪景和沙暴对防御侧能力的修正在上面的
+	 * 能力值函数中处理，因为它们会改变基础伤害整数公式的输入，不能与最终倍率混在一起。
 	 */
 	fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
 		when (request.environment.weather) {
