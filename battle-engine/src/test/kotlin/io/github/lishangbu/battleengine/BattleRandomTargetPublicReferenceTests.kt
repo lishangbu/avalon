@@ -92,4 +92,37 @@ class BattleRandomTargetPublicReferenceTests {
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillUsed>())
 		assertTrue(random.isFullyConsumed())
 	}
+
+	@Test
+	fun `random adjacent opponent with single capable opponent skips target random`() {
+		val scenario = publicBattleRuleScenario(
+			name = "random-adjacent-opponent-with-single-capable-opponent-skips-target-random",
+			inputSummary = "双打中随机相邻对手技能执行时，只有一名对手仍可战斗，另一名对手已经无法战斗。",
+			expectedSummary = "唯一候选目标会被直接选中，不消费目标随机数；随机轨迹只记录后续命中后的伤害相关随机。",
+		)
+		val randomSkill = damagingSkill(targetScope = BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("random-user", speed = 100, skill = randomSkill),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("only-target", speed = 80),
+				secondB = participant("fainted-right", speed = 70, currentHp = 0),
+			),
+		)
+		val random = RecordingBattleRandom(ScriptedBattleRandom(listOf(1, 15)))
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("random-user", skillId = 1, targetActorId = "ally")),
+			random,
+		)
+
+		scenario.assertNamed("random-adjacent-opponent-with-single-capable-opponent-skips-target-random")
+		assertEquals(listOf("only-target"), resolved.events.filterIsInstance<BattleEvent.SkillUsed>().map { it.targetActorId })
+		assertEquals(72, resolved.participant("only-target")?.currentHp)
+		assertEquals(
+			listOf("critical hit for 1", "damage random for 1"),
+			random.trace().map { it.reason },
+		)
+	}
 }

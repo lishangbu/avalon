@@ -22,6 +22,11 @@ class BattleActionValidatorTests {
 
 	@Test
 	fun `valid skill action has no violations`() {
+		val scenario = publicBattleRuleScenario(
+			name = "valid-skill-action-submission-passes-before-turn-resolution",
+			inputSummary = "当前上场成员选择自己拥有且仍有 PP 的技能，并指向当前可战斗的对手。",
+			expectedSummary = "行动提交阶段返回空违规列表，合法技能行动可以进入正式回合结算。",
+		)
 		val state = engine.start(initialState())
 
 		val violations = validator.validate(
@@ -29,6 +34,7 @@ class BattleActionValidatorTests {
 			listOf(BattleAction.UseSkill("side-a-active", skillId = 1, targetActorId = "side-b-active")),
 		)
 
+		scenario.assertNamed("valid-skill-action-submission-passes-before-turn-resolution")
 		assertEquals(emptyList(), violations)
 	}
 

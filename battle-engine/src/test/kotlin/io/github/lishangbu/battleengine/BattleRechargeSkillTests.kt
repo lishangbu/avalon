@@ -62,6 +62,11 @@ class BattleRechargeSkillTests {
 
 	@Test
 	fun `recharge skill does not start recharge when target is immune`() {
+		val scenario = publicBattleRuleScenario(
+			name = "recharge-skill-does-not-start-when-target-is-immune",
+			inputSummary = "成功后休整技能命中检查通过，但属性相性让目标完全免疫本次伤害。",
+			expectedSummary = "本次行动只产生 0 伤害事件，不写入下一回合休整状态，也不消费普通伤害随机数。",
+		)
 		val skill = damagingSkill(name = "休整免疫测试", elementId = 1, rechargesAfterUse = true)
 		val state = engine.start(
 			initialState(
@@ -80,6 +85,7 @@ class BattleRechargeSkillTests {
 			random,
 		)
 
+		scenario.assertNamed("recharge-skill-does-not-start-when-target-is-immune")
 		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
 		assertEquals(0, damage.amount)
 		assertEquals(0.0, damage.effectiveness)

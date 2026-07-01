@@ -82,6 +82,34 @@ class BattleTargetScopePublicReferenceTests {
 	}
 
 	@Test
+	fun `all adjacent opponents skill uses single target multiplier in single battle`() {
+		val scenario = publicBattleRuleScenario(
+			name = "all-adjacent-opponents-skill-uses-single-target-multiplier-in-single-battle",
+			inputSummary = "单打中使用目标范围为全体相邻对手的伤害技能，目标侧只有一个当前可战斗成员。",
+			expectedSummary = "范围解析只得到一个实际目标，普通伤害公式使用 1.0 目标倍率而不是多目标倍率。",
+		)
+		val spreadSkill = damagingSkill(targetScope = BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
+		val state = engine.start(
+			initialState(
+				first = participant("spread-user", speed = 100, skill = spreadSkill),
+				second = participant("only-target", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("spread-user", skillId = 1, targetActorId = "only-target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damageEvent = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		scenario.assertNamed("all-adjacent-opponents-skill-uses-single-target-multiplier-in-single-battle")
+		assertEquals("only-target", damageEvent.targetActorId)
+		assertEquals(1.0, damageEvent.targetMultiplier)
+		assertEquals(72, resolved.participant("only-target")?.currentHp)
+	}
+
+	@Test
 	fun `all adjacent participants skill hits ally and opponents but excludes user`() {
 		val scenario = publicBattleRuleScenario(
 			name = "all-adjacent-participants-skill-hits-ally-and-opponents-but-excludes-user",

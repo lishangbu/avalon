@@ -18,8 +18,15 @@ class BattlePreparationValidatorTests {
 
 	@Test
 	fun `valid initial state has no preparation violations`() {
+		val scenario = publicBattleRuleScenario(
+			name = "valid-initial-state-has-no-preparation-violations",
+			inputSummary = "默认初始状态未触发等级上限、禁用资源、同队重复种类或同队重复道具条款。",
+			expectedSummary = "准备阶段校验返回空违规列表，合法队伍可以继续进入战斗开始流程。",
+		)
+
 		val violations = validator.validate(initialState())
 
+		scenario.assertNamed("valid-initial-state-has-no-preparation-violations")
 		assertEquals(emptyList(), violations)
 	}
 

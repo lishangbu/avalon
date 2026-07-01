@@ -137,16 +137,15 @@ class BattleRuleCoverageLedgerTests {
 		}
 		coverageGroupRuleRanges().forEach { range ->
 			val groupMappings = mappings.filter { it.groupCode == range.groupCode }
-			val groupRecords = recordsByGroupCode.getValue(range.groupCode)
 			assertEquals(
 				range.ruleNumbers.toList(),
 				groupMappings.map { it.ruleNumber },
 				"${range.groupCode} 的映射编号必须等于该规则族声明的连续区间",
 			)
 			assertEquals(
-				minOf(range.ruleNumbers.count(), groupRecords.size),
+				range.ruleNumbers.count(),
 				groupMappings.map { it.scenario.name }.distinct().size,
-				"${range.groupCode} 应尽量使用族内已有的不同公开场景；只有一个场景确实覆盖多条相邻规则时才复用锚点",
+				"${range.groupCode} 的每条规则编号都必须绑定一个族内唯一公开场景，避免多个编号复用同一个锚点后掩盖缺口",
 			)
 		}
 	}
@@ -276,25 +275,27 @@ class BattleRuleCoverageLedgerTests {
 	/**
 	 * 为 1..312 的每个规则编号生成一个具体场景锚点。
 	 *
-	 * 这里没有维护 312 行手写表。原因是当前规则账本按“行为族”维护，而不少公开场景本身会同时证明多个相邻行为，
-	 * 例如同一次回合可以同时证明事件顺序、HP 取整和状态持续时间。因此映射的职责是“编号 -> 可定位测试锚点”，
-	 * 而不是强行制造 312 个彼此独立的测试方法。生成策略保持确定性：
+	 * 这里没有维护 312 行手写表。原因是当前规则账本按“行为族”维护，规则编号的长期维护边界也是行为族；
+	 * 但每个编号仍必须落到一个可定位的 `assertNamed` 场景，不能只用总数或复用场景证明覆盖已经足够。
+	 * 生成策略保持确定性：
 	 * - 先按规则族声明顺序取得编号区间。
 	 * - 每个编号只使用同一规则族内的 `assertNamed` 场景，不跨族借用。
-	 * - 当某个规则族的场景数少于规则数时，按源码顺序循环复用场景，表示一个公开场景锚定多个相邻行为。
-	 *
-	 * 后续如果把低密度规则族补成一条规则一个场景，本函数无需改动；对应规则族的重复锚点会自然消失。
+	 * - 每个规则编号按源码中的场景顺序绑定一个唯一锚点；如果某个规则族场景数少于规则数，本函数会直接失败，
+	 *   迫使新增真实行为断言，而不是让多个编号共享同一个场景名。
 	 */
 	private fun ruleScenarioMappings(): List<RuleScenarioMapping> {
 		val recordsByGroupCode = namedScenarioRecordsForCoverageGroups().groupBy { requireNotNull(it.groupCode) }
 		return coverageGroupRuleRanges().flatMap { range ->
 			val groupRecords = recordsByGroupCode.getValue(range.groupCode)
+			require(groupRecords.size >= range.ruleNumbers.count()) {
+				"${range.groupCode} 只有 ${groupRecords.size} 个命名公开规则场景，少于 ${range.ruleNumbers.count()} 条规则编号"
+			}
 			range.ruleNumbers.mapIndexed { index, ruleNumber ->
 				RuleScenarioMapping(
 					ruleNumber = ruleNumber,
 					groupCode = range.groupCode,
 					ruleNumberRange = range.ruleNumbers,
-					scenario = groupRecords[index % groupRecords.size],
+					scenario = groupRecords[index],
 				)
 			}
 		}

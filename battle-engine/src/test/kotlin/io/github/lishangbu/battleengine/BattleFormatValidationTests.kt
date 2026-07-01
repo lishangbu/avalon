@@ -23,8 +23,14 @@ class BattleFormatValidationTests {
 
 	@Test
 	fun `double format accepts two active participants per side`() {
+		val scenario = publicBattleRuleScenario(
+			name = "double-format-accepts-two-active-participants-per-side",
+			inputSummary = "格式声明为双打，双方各有两个当前上场席位和两个当前上场成员。",
+			expectedSummary = "初始状态保留双打模式，并且两侧当前上场成员数量都等于格式声明的双打席位数。",
+		)
 		val state = doubleInitialState()
 
+		scenario.assertNamed("double-format-accepts-two-active-participants-per-side")
 		assertEquals(BattleMode.DOUBLE, state.format.mode)
 		assertEquals(2, state.sides.single { it.sideId == "side-a" }.activeActorIds.size)
 		assertEquals(2, state.sides.single { it.sideId == "side-b" }.activeActorIds.size)
@@ -32,6 +38,13 @@ class BattleFormatValidationTests {
 
 	@Test
 	fun `format active participant count must match battle mode`() {
+		val scenario = publicBattleRuleScenario(
+			name = "format-active-participant-count-must-match-battle-mode",
+			inputSummary = "格式声明为双打模式，但 activeParticipantsPerSide 被错误配置为 1。",
+			expectedSummary = "格式快照在构造时立即拒绝与模式不一致的上场席位数量。",
+		)
+
+		scenario.assertNamed("format-active-participant-count-must-match-battle-mode")
 		assertFailsWith<IllegalArgumentException> {
 			BattleFormatSnapshot(
 				code = "bad-double",
@@ -43,8 +56,14 @@ class BattleFormatValidationTests {
 
 	@Test
 	fun `initial state rejects duplicated actor ids across sides`() {
+		val scenario = publicBattleRuleScenario(
+			name = "initial-state-rejects-duplicated-actor-ids-across-sides",
+			inputSummary = "双方队伍中都出现同一个 actorId，且该 actorId 都被声明为当前上场成员。",
+			expectedSummary = "初始状态在战斗开始前拒绝全局重复 actorId，避免后续事件无法唯一定位成员。",
+		)
 		val duplicated = participant("duplicated", speed = 100)
 
+		scenario.assertNamed("initial-state-rejects-duplicated-actor-ids-across-sides")
 		assertFailsWith<IllegalArgumentException> {
 			BattleInitialState(
 				format = singleFormat(),
@@ -59,6 +78,13 @@ class BattleFormatValidationTests {
 
 	@Test
 	fun `initial state rejects teams larger than format team size`() {
+		val scenario = publicBattleRuleScenario(
+			name = "initial-state-rejects-teams-larger-than-format-team-size",
+			inputSummary = "格式声明单方队伍规模上限为 1，但其中一侧提交了当前上场成员和一个后备成员。",
+			expectedSummary = "初始状态在构造阶段拒绝超过格式队伍规模上限的一侧队伍。",
+		)
+
+		scenario.assertNamed("initial-state-rejects-teams-larger-than-format-team-size")
 		assertFailsWith<IllegalArgumentException> {
 			BattleInitialState(
 				format = singleFormat(teamSize = 1),

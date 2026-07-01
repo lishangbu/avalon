@@ -161,6 +161,11 @@ class BattleSkillHpEffectTests {
 			inputSummary = "使用者分别在晴天和下雨环境中使用天气变量自我回复技能。",
 			expectedSummary = "晴天回复最大 HP 的 2/3；下雨回复最大 HP 的 1/4。",
 		)
+		val rainScenario = publicBattleRuleScenario(
+			name = "weather-sensitive-self-healing-skill-uses-rain-penalty-fraction",
+			inputSummary = "使用者在下雨环境中使用同一个天气变量自我回复技能。",
+			expectedSummary = "下雨环境命中低回复比例，技能只回复最大 HP 的 1/4。",
+		)
 		val skill = damagingSkill(
 			name = "天气回复测试",
 			damageClass = BattleDamageClass.STATUS,
@@ -204,6 +209,7 @@ class BattleSkillHpEffectTests {
 		)
 
 		scenario.assertNamed("weather-sensitive-self-healing-skill-uses-current-weather-fraction")
+		rainScenario.assertNamed("weather-sensitive-self-healing-skill-uses-rain-penalty-fraction")
 		assertEquals(86, sunResolved.participant("sun-healer")?.currentHp)
 		assertEquals(66, sunResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
 		assertEquals(45, rainResolved.participant("rain-healer")?.currentHp)
