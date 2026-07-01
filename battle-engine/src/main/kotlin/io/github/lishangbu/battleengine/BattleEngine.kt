@@ -1,7 +1,6 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
-import io.github.lishangbu.battleengine.damage.BattleDamageRequest
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
@@ -136,6 +135,14 @@ class BattleEngine(
 		damageDefenseEffects = damageDefenseEffects,
 		skillHpEffects = skillHpEffects,
 		postDamageEffects = postDamageEffects,
+	)
+	private val damageHitResolution = BattleDamageHitResolution(
+		damageCalculator = damageCalculator,
+		hitResolution = hitResolution,
+		targetDefenseEffects = targetDefenseEffects,
+		damageDefenseEffects = damageDefenseEffects,
+		skillHpEffects = skillHpEffects,
+		damageApplicationEffects = damageApplicationEffects,
 	)
 
 	/**
@@ -832,88 +839,17 @@ class BattleEngine(
 		skill: BattleSkillSlot,
 		targetMultiplier: Double,
 		random: BattleRandom,
-	): TurnContext {
-		val state = context.state
-		val actor = state.participant(actorId) ?: return context
-		val target = state.participant(targetActorId) ?: return context
-		if (!actor.canBattle() || !target.canBattle()) {
-			return context
-		}
-		val criticalHitCheck = criticalHitCheck(skill, random)
-		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
-		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
-		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")
-		val sideDamageReductionMultiplier = hitResolution.sideDamageReductionMultiplier(
-			state = state,
-			target = target,
-			skill = skill,
-			criticalHit = criticalHit,
-		)
-		val substituteBlocksDamage =
-			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
-		val damage = damageCalculator.calculate(
-			BattleDamageRequest(
-				attacker = actor,
-				defender = target,
+	): TurnContext =
+		context.copy(
+			state = damageHitResolution.resolveFormulaHit(
+				state = context.state,
+				actorId = actorId,
+				targetActorId = targetActorId,
 				skill = skill,
-				rules = state.rules,
-				environment = state.environment,
-				randomPercent = randomPercent,
 				targetMultiplier = targetMultiplier,
-				sideDamageReductionMultiplier = sideDamageReductionMultiplier,
-				criticalHit = criticalHit,
-				ignoreDefenderAbilityEffects = ignoresTargetAbilityEffects,
-				allowDefenderItemDamageReduction = !substituteBlocksDamage,
-			),
-		)
-		if (substituteBlocksDamage) {
-			return context.copy(
-				state = damageApplicationEffects.resolveDamageAgainstSubstitute(
-					state = state,
-					actor = actor,
-					target = target,
-					skill = skill,
-					damageAmount = damage.amount,
-				),
-			)
-		}
-
-		val itemReduction = damageDefenseEffects.heldItemDamageReduction(
-			state = state,
-			actor = actor,
-			target = target,
-			skill = skill,
-			skillElementId = skill.effectiveElementId(state.environment.weather),
-			effectiveness = damage.effectiveness,
-		)
-		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
-		val targetAfterItemReduction = itemReduction?.target ?: target
-		val targetDamage = damageApplicationEffects.applyDamageToTarget(
-			state = stateAfterItemReduction,
-			actor = actor,
-			target = targetAfterItemReduction,
-			skill = skill,
-			damageAmount = damage.amount,
-			effectiveness = damage.effectiveness,
-			targetMultiplier = damage.targetMultiplier,
-			criticalHit = criticalHit,
-			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
-		)
-		val afterFireThaw = skillHpEffects.clearFreezeAfterFireDamage(targetDamage.state, targetDamage.damagedTarget, skill)
-		return context.copy(
-			state = damageApplicationEffects.finishPostDamageEffects(
-				state = afterFireThaw,
-				actorId = actor.actorId,
-				targetActorId = targetDamage.damagedTarget.actorId,
-				skill = skill,
-				damageAmount = targetDamage.actualDamageAmount,
-				targetCanFaint = true,
-				allowTargetLowHpItem = true,
-				allowContactAbilities = true,
 				random = random,
 			),
 		)
-	}
 
 	/**
 	 * 结算一段直接伤害技能。
@@ -935,54 +871,20 @@ class BattleEngine(
 		targetMultiplier: Double,
 		effectiveness: Double,
 		random: BattleRandom,
-	): TurnContext {
-		val state = context.state
-		val actor = state.participant(actorId) ?: return context
-		val target = state.participant(targetActorId) ?: return context
-		if (!actor.canBattle() || !target.canBattle()) {
-			return context
-		}
-		val substituteBlocksDamage =
-			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
-		if (substituteBlocksDamage) {
-			return context.copy(
-				state = damageApplicationEffects.resolveDamageAgainstSubstitute(
-					state = state,
-					actor = actor,
-					target = target,
-					skill = skill,
-					damageAmount = damageAmount,
-					faintActorAfterHit = faintActorAfterHit,
-				),
-			)
-		}
-
-		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
-		val targetDamage = damageApplicationEffects.applyDamageToTarget(
-			state = state,
-			actor = actor,
-			target = target,
-			skill = skill,
-			damageAmount = damageAmount,
-			effectiveness = effectiveness,
-			targetMultiplier = targetMultiplier,
-			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
-		)
-		return context.copy(
-			state = damageApplicationEffects.finishPostDamageEffects(
-				state = targetDamage.state,
-				actorId = actor.actorId,
-				targetActorId = targetDamage.damagedTarget.actorId,
+	): TurnContext =
+		context.copy(
+			state = damageHitResolution.resolveDirectHit(
+				state = context.state,
+				actorId = actorId,
+				targetActorId = targetActorId,
 				skill = skill,
-				damageAmount = targetDamage.actualDamageAmount,
+				damageAmount = damageAmount,
 				faintActorAfterHit = faintActorAfterHit,
-				targetCanFaint = true,
-				allowTargetLowHpItem = true,
-				allowContactAbilities = true,
+				targetMultiplier = targetMultiplier,
+				effectiveness = effectiveness,
 				random = random,
 			),
 		)
-	}
 
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,
