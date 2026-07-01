@@ -3,6 +3,7 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
+import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
@@ -46,6 +47,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 		if (ruleId == null) {
 			return BattleSkillRuleEffectRuntimeSnapshot.EMPTY
 		}
+		val sideFieldEffects = sideFieldEffectRows(ruleId)
 		return BattleSkillRuleEffectRuntimeSnapshot(
 			chargeSkippedByWeathers = chargeSkippedByWeathers(ruleId),
 			accuracyOverridesByWeather = weatherAccuracyOverrides(ruleId),
@@ -55,9 +57,9 @@ class BattleSkillRuleEffectRuntimeLookup(
 			volatileStatusApplications = volatileStatusApplications(ruleId),
 			statStageEffects = statStageEffects(ruleId),
 			statStageOperations = statStageOperations(ruleId),
-			sideConditionApplications = sideConditionApplications(ruleId),
-			sideSpeedModifierApplications = sideSpeedModifierApplications(ruleId),
-			sideEntryHazardApplications = sideEntryHazardApplications(ruleId),
+			sideConditionApplications = sideConditionApplications(sideFieldEffects),
+			sideSpeedModifierApplications = sideSpeedModifierApplications(sideFieldEffects),
+			sideEntryHazardApplications = sideEntryHazardApplications(sideFieldEffects),
 			fieldSpeedOrderApplications = fieldSpeedOrderApplications(ruleId),
 		)
 	}
@@ -215,79 +217,20 @@ class BattleSkillRuleEffectRuntimeLookup(
 			ruleId,
 		)
 
-	private fun sideConditionApplications(ruleId: Long): List<BattleSideConditionApplication> =
+	/**
+	 * 一次读取一侧场地效果，再按 effect_policy 映射成屏障、速度修正或入场陷阱。
+	 *
+	 * `battle_skill_field_effect` 同时承载三类运行时效果；它们的过滤条件、排序条件和天气前置条件完全一致，差异只在
+	 * `battle_field_rule.effect_policy` 最终能映射成哪种引擎模型。保留三段几乎相同的 SQL 会让新增字段时出现三处
+	 * 同步点，也会让每个技能规则多做两次无意义查询。因此这里先冻结成行对象，再用三个窄映射函数拆回
+	 * `BattleSkillSlot` 需要的列表。
+	 */
+	private fun sideFieldEffectRows(ruleId: Long): List<SideFieldEffectRuntimeRow> =
 		jdbcTemplate.query(
 			"""
 			select
 				fr.effect_policy as field_effect_policy,
 				fr.min_turns,
-				e.target_side,
-				e.chance_percent,
-				w.code as required_weather_code
-			from battle_skill_field_effect e
-			join battle_field_rule fr on fr.id = e.field_rule_id
-			left join battle_weather_rule w on w.id = e.required_weather_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and fr.enabled = true
-				and fr.effect_scope = 'SIDE'
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			{ rs, _ ->
-				val reductionKind = rs.getString("field_effect_policy").toBattleSideDamageReductionKind() ?: return@query null
-				BattleSideConditionApplication(
-					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-					damageReduction = BattleSideDamageReduction(
-						kind = reductionKind,
-						turnsRemaining = rs.nullableInt("min_turns"),
-					),
-					chancePercent = rs.getInt("chance_percent"),
-					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-				)
-			},
-			ruleId,
-		).filterNotNull()
-
-	private fun sideSpeedModifierApplications(ruleId: Long): List<BattleSideSpeedModifierApplication> =
-		jdbcTemplate.query(
-			"""
-			select
-				fr.effect_policy as field_effect_policy,
-				fr.min_turns,
-				e.target_side,
-				e.chance_percent,
-				w.code as required_weather_code
-			from battle_skill_field_effect e
-			join battle_field_rule fr on fr.id = e.field_rule_id
-			left join battle_weather_rule w on w.id = e.required_weather_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and fr.enabled = true
-				and fr.effect_scope = 'SIDE'
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			{ rs, _ ->
-				val modifierKind = rs.getString("field_effect_policy").toBattleSideSpeedModifierKind() ?: return@query null
-				BattleSideSpeedModifierApplication(
-					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-					speedModifier = BattleSideSpeedModifier(
-						kind = modifierKind,
-						turnsRemaining = rs.nullableInt("min_turns"),
-					),
-					chancePercent = rs.getInt("chance_percent"),
-					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-				)
-			},
-			ruleId,
-		).filterNotNull()
-
-	private fun sideEntryHazardApplications(ruleId: Long): List<BattleSideEntryHazardApplication> =
-		jdbcTemplate.query(
-			"""
-			select
-				fr.effect_policy as field_effect_policy,
 				fr.max_layers,
 				e.target_side,
 				e.chance_percent,
@@ -303,19 +246,59 @@ class BattleSkillRuleEffectRuntimeLookup(
 			order by e.sort_order, e.id
 			""".trimIndent(),
 			{ rs, _ ->
-				val hazardKind = rs.getString("field_effect_policy").toBattleSideEntryHazardKind() ?: return@query null
-				BattleSideEntryHazardApplication(
+				SideFieldEffectRuntimeRow(
+					effectPolicy = rs.getString("field_effect_policy"),
+					minTurns = rs.nullableInt("min_turns"),
+					maxLayers = rs.nullableInt("max_layers"),
 					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-					hazard = BattleSideEntryHazard(
-						kind = hazardKind,
-						maxLayers = rs.nullableInt("max_layers") ?: hazardKind.defaultMaxLayers,
-					),
 					chancePercent = rs.getInt("chance_percent"),
 					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
 				)
 			},
 			ruleId,
-		).filterNotNull()
+		)
+
+	private fun sideConditionApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideConditionApplication> =
+		rows.mapNotNull { row ->
+			val reductionKind = row.effectPolicy.toBattleSideDamageReductionKind() ?: return@mapNotNull null
+			BattleSideConditionApplication(
+				targetSide = row.targetSide,
+				damageReduction = BattleSideDamageReduction(
+					kind = reductionKind,
+					turnsRemaining = row.minTurns,
+				),
+				chancePercent = row.chancePercent,
+				requiredWeather = row.requiredWeather,
+			)
+		}
+
+	private fun sideSpeedModifierApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideSpeedModifierApplication> =
+		rows.mapNotNull { row ->
+			val modifierKind = row.effectPolicy.toBattleSideSpeedModifierKind() ?: return@mapNotNull null
+			BattleSideSpeedModifierApplication(
+				targetSide = row.targetSide,
+				speedModifier = BattleSideSpeedModifier(
+					kind = modifierKind,
+					turnsRemaining = row.minTurns,
+				),
+				chancePercent = row.chancePercent,
+				requiredWeather = row.requiredWeather,
+			)
+		}
+
+	private fun sideEntryHazardApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideEntryHazardApplication> =
+		rows.mapNotNull { row ->
+			val hazardKind = row.effectPolicy.toBattleSideEntryHazardKind() ?: return@mapNotNull null
+			BattleSideEntryHazardApplication(
+				targetSide = row.targetSide,
+				hazard = BattleSideEntryHazard(
+					kind = hazardKind,
+					maxLayers = row.maxLayers ?: hazardKind.defaultMaxLayers,
+				),
+				chancePercent = row.chancePercent,
+				requiredWeather = row.requiredWeather,
+			)
+		}
 
 	private fun fieldSpeedOrderApplications(ruleId: Long): List<BattleFieldSpeedOrderApplication> =
 		jdbcTemplate.query(
@@ -354,6 +337,22 @@ class BattleSkillRuleEffectRuntimeLookup(
 		return if (wasNull()) null else value
 	}
 }
+
+/**
+ * `battle_skill_field_effect` 和 `battle_field_rule` 合并后的最小运行时行。
+ *
+ * 这不是对数据库表的通用复刻，只保留一侧场地效果映射三种引擎模型时都会用到的列。`effectPolicy` 决定该行最终
+ * 被屏障、速度修正或入场陷阱列表消费；`minTurns` 只对持续回合类效果有意义，`maxLayers` 只对入场陷阱有意义。
+ * 把这些字段先冻结成强类型行，可以避免三段 SQL 各自解析天气、作用侧和概率时出现细小分歧。
+ */
+private data class SideFieldEffectRuntimeRow(
+	val effectPolicy: String,
+	val minTurns: Int?,
+	val maxLayers: Int?,
+	val targetSide: BattleSideConditionTarget,
+	val chancePercent: Int,
+	val requiredWeather: BattleWeather?,
+)
 
 /**
  * 一条技能规则所有多行效果的运行时快照。
