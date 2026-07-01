@@ -17,17 +17,16 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  * 该类仍保持纯状态转换：输入不可变 [BattleState]，输出新状态，不读取数据库、不依赖随机源，也不解析名称文本。
  */
 internal class BattleEnvironmentEffects {
+	private val durationEffects = BattleEnvironmentDurationEffects()
+
 	/**
 	 * 推进天气、场地和全场速度顺序效果的持续回合。
 	 *
 	 * 剩余回合为空表示该环境来自永久规则或测试用例不关心持续时间，不会被这里修改。剩余回合为 1 时，本回合末
 	 * 结束环境并产生结束事件；大于 1 时只递减计数，不产生额外事件，避免 replay 事件流过于嘈杂。
 	 */
-	fun advanceDurations(state: BattleState): BattleState {
-		val afterWeather = advanceWeatherDuration(state)
-		val afterTerrain = advanceTerrainDuration(afterWeather)
-		return advanceFieldSpeedOrderDuration(afterTerrain)
-	}
+	fun advanceDurations(state: BattleState): BattleState =
+		durationEffects.advance(state)
 
 	/**
 	 * 处理技能成功后的全场环境效果。
@@ -255,69 +254,4 @@ internal class BattleEnvironmentEffects {
 			?: baseTurnsRemaining
 	}
 
-	/**
-	 * 推进天气持续回合并在耗尽时恢复无天气。
-	 */
-	private fun advanceWeatherDuration(state: BattleState): BattleState {
-		val turnsRemaining = state.environment.weatherTurnsRemaining ?: return state
-		if (state.environment.weather == BattleWeather.NONE) {
-			return state.copy(environment = state.environment.copy(weatherTurnsRemaining = null))
-		}
-		return if (turnsRemaining <= 1) {
-			state
-				.copy(environment = state.environment.copy(weather = BattleWeather.NONE, weatherTurnsRemaining = null))
-				.appendEvent(
-					BattleEvent.WeatherEnded(
-						turnNumber = state.turnNumber,
-						weather = state.environment.weather,
-					),
-				)
-		} else {
-			state.copy(environment = state.environment.copy(weatherTurnsRemaining = turnsRemaining - 1))
-		}
-	}
-
-	/**
-	 * 推进场地持续回合并在耗尽时恢复无场地。
-	 */
-	private fun advanceTerrainDuration(state: BattleState): BattleState {
-		val turnsRemaining = state.environment.terrainTurnsRemaining ?: return state
-		if (state.environment.terrain == BattleTerrain.NONE) {
-			return state.copy(environment = state.environment.copy(terrainTurnsRemaining = null))
-		}
-		return if (turnsRemaining <= 1) {
-			state
-				.copy(environment = state.environment.copy(terrain = BattleTerrain.NONE, terrainTurnsRemaining = null))
-				.appendEvent(
-					BattleEvent.TerrainEnded(
-						turnNumber = state.turnNumber,
-						terrain = state.environment.terrain,
-					),
-				)
-		} else {
-			state.copy(environment = state.environment.copy(terrainTurnsRemaining = turnsRemaining - 1))
-		}
-	}
-
-	/**
-	 * 推进全场速度顺序效果持续回合。
-	 *
-	 * 戏法空间等全场速度顺序效果在回合末按天气/场地同样的生命周期递减，耗尽时恢复普通速度排序并记录事件。
-	 */
-	private fun advanceFieldSpeedOrderDuration(state: BattleState): BattleState {
-		val effect = state.environment.fieldSpeedOrderEffect ?: return state
-		val nextEffect = effect.advanceTurn()
-		return if (nextEffect == null) {
-			state
-				.copy(environment = state.environment.copy(fieldSpeedOrderEffect = null))
-				.appendEvent(
-					BattleEvent.FieldSpeedOrderEnded(
-						turnNumber = state.turnNumber,
-						kind = effect.kind,
-					),
-				)
-		} else {
-			state.copy(environment = state.environment.copy(fieldSpeedOrderEffect = nextEffect))
-		}
-	}
 }
