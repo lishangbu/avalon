@@ -137,6 +137,29 @@ internal class BattleEndTurnEffects(
 	}
 
 	/**
+	 * 写入一次回合末回复结果。
+	 *
+	 * 天气、场地和携带道具回复虽然来自不同规则来源，但它们共享同一个底层状态迁移：按已经计算好的回复量修改
+	 * 成员 HP，然后追加对应来源的可见事件。这里不处理回复封锁、成员是否满血或是否仍可战斗，因为这些前置条件
+	 * 必须留在具体阶段中，才能让每个阶段的规则说明和事件类型保持清楚。
+	 */
+	private fun BattleState.applyEndTurnHealingResult(
+		participant: BattleParticipant,
+		healAmount: Int,
+		event: BattleEvent,
+	): BattleState =
+		replaceParticipant(participant.heal(healAmount)).appendEvent(event)
+
+	/**
+	 * 计算回合末固定最大 HP 比例回复量。
+	 *
+	 * 所有回合末固定比例回复都遵循同一条边界：至少回复 1 点，但不能超过成员当前缺失 HP。调用方必须先确认成员
+	 * 可以回复；如果在满 HP 时调用，本函数会得到 0 上限，从而暴露错误的调用顺序，而不是偷偷制造一次 0 回复事件。
+	 */
+	private fun BattleParticipant.endTurnHealAmount(denominator: Int): Int =
+		(maxHp / denominator).coerceAtLeast(1).coerceAtMost(maxHp - currentHp)
+
+	/**
 	 * 结算回合末主要异常状态伤害。
 	 *
 	 * 当前覆盖灼伤、中毒和剧毒扣血。剧毒伤害读取成员运行态中的递增计数，并且只有成员在扣血后仍可战斗时才推进
@@ -297,18 +320,17 @@ internal class BattleEndTurnEffects(
 					if (!currentParticipant.canReceiveHealing()) {
 						return@effectHealing healingState
 					}
-					val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-						.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-					healingState
-						.replaceParticipant(currentParticipant.heal(healAmount))
-						.appendEvent(
-							BattleEvent.WeatherHealingApplied(
-								turnNumber = healingState.turnNumber,
-								actorId = currentParticipant.actorId,
-								weather = weather,
-								amount = healAmount,
-							),
-						)
+					val healAmount = currentParticipant.endTurnHealAmount(effect.healDenominator)
+					healingState.applyEndTurnHealingResult(
+						participant = currentParticipant,
+						healAmount = healAmount,
+						event = BattleEvent.WeatherHealingApplied(
+							turnNumber = healingState.turnNumber,
+							actorId = currentParticipant.actorId,
+							weather = weather,
+							amount = healAmount,
+						),
+					)
 				}
 			}
 	}
@@ -331,18 +353,17 @@ internal class BattleEndTurnEffects(
 				if (!latest.grounded || !latest.canReceiveHealing()) {
 					return@terrainHealing current
 				}
-				val healAmount = (latest.maxHp / current.rules.grassyTerrainHealDenominator).coerceAtLeast(1)
-					.coerceAtMost(latest.maxHp - latest.currentHp)
-				current
-					.replaceParticipant(latest.heal(healAmount))
-					.appendEvent(
-						BattleEvent.TerrainHealingApplied(
-							turnNumber = current.turnNumber,
-							actorId = latest.actorId,
-							terrain = BattleTerrain.GRASSY,
-							amount = healAmount,
-						),
-					)
+				val healAmount = latest.endTurnHealAmount(current.rules.grassyTerrainHealDenominator)
+				current.applyEndTurnHealingResult(
+					participant = latest,
+					healAmount = healAmount,
+					event = BattleEvent.TerrainHealingApplied(
+						turnNumber = current.turnNumber,
+						actorId = latest.actorId,
+						terrain = BattleTerrain.GRASSY,
+						amount = healAmount,
+					),
+				)
 			}
 	}
 
@@ -368,17 +389,16 @@ internal class BattleEndTurnEffects(
 						if (!currentParticipant.canReceiveHealing()) {
 							return@itemHealing healingState
 						}
-						val healAmount = (currentParticipant.maxHp / effect.healDenominator).coerceAtLeast(1)
-							.coerceAtMost(currentParticipant.maxHp - currentParticipant.currentHp)
-						healingState
-							.replaceParticipant(currentParticipant.heal(healAmount))
-							.appendEvent(
-								BattleEvent.HealingApplied(
-									turnNumber = healingState.turnNumber,
-									actorId = currentParticipant.actorId,
-									amount = healAmount,
-								),
-							)
+						val healAmount = currentParticipant.endTurnHealAmount(effect.healDenominator)
+						healingState.applyEndTurnHealingResult(
+							participant = currentParticipant,
+							healAmount = healAmount,
+							event = BattleEvent.HealingApplied(
+								turnNumber = healingState.turnNumber,
+								actorId = currentParticipant.actorId,
+								amount = healAmount,
+							),
+						)
 					}
 			}
 
