@@ -43,11 +43,7 @@ internal class BattleDamageHitResolution(
 		targetMultiplier: Double,
 		random: BattleRandom,
 	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		val target = state.participant(targetActorId) ?: return state
-		if (!actor.canBattle() || !target.canBattle()) {
-			return state
-		}
+		val (actor, target) = activeDamageParticipants(state, actorId, targetActorId) ?: return state
 		val criticalHitCheck = criticalHitCheck(skill, random)
 		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
@@ -138,11 +134,7 @@ internal class BattleDamageHitResolution(
 		effectiveness: Double,
 		random: BattleRandom,
 	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		val target = state.participant(targetActorId) ?: return state
-		if (!actor.canBattle() || !target.canBattle()) {
-			return state
-		}
+		val (actor, target) = activeDamageParticipants(state, actorId, targetActorId) ?: return state
 		val substituteBlocksDamage =
 			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
 		if (substituteBlocksDamage) {
@@ -179,5 +171,24 @@ internal class BattleDamageHitResolution(
 			allowContactAbilities = true,
 			random = random,
 		)
+	}
+
+	/**
+	 * 读取本段伤害仍然有效的行动者和目标。
+	 *
+	 * 普通公式伤害和直接伤害在数值来源上不同，但都不应该让已经离场、缺失或无法战斗的成员继续进入替身、要害、
+	 * 道具和 HP 写入阶段。集中这一步可以保证两条伤害路径的入口短路口径一致；调用方仍负责决定是否消费随机数
+	 * 和是否追加事件，因此本函数只返回快照，不修改状态。
+	 */
+	private fun activeDamageParticipants(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+	): Pair<BattleParticipant, BattleParticipant>? {
+		val actor = state.participant(actorId) ?: return null
+		val target = state.participant(targetActorId) ?: return null
+		return (actor to target).takeIf { (currentActor, currentTarget) ->
+			currentActor.canBattle() && currentTarget.canBattle()
+		}
 	}
 }
