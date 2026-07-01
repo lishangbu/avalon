@@ -192,6 +192,14 @@ class BattleEngine(
 		skillTargeting = skillTargeting,
 		resolveTarget = skillTargetResolution::resolve,
 	)
+	private val turnResolution = BattleTurnResolution(
+		switchResolution = switchResolution,
+		actionPlanner = actionPlanner,
+		skillUseResolution = skillUseResolution,
+		endTurnVolatileStatuses = endTurnVolatileStatuses,
+		endTurnEffects = endTurnEffects,
+		environmentEffects = environmentEffects,
+	)
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -225,53 +233,7 @@ class BattleEngine(
 	 * @param random 所有命中、击中要害、伤害浮动和同速排序都从这里消费随机数。
 	 * @return 结算后的新状态。若战斗结束，事件流最后会包含 `BattleEnded`；否则包含 `TurnEnded`。
 	 */
-	fun resolveTurn(state: BattleState, actions: List<BattleAction>, random: BattleRandom): BattleState {
-		require(state.result == null) { "battle already ended" }
-		require(actions.map { it.actorId }.toSet().size == actions.size) {
-			"each actor can submit at most one action per turn"
-		}
-		val nextTurnNumber = state.turnNumber + 1
-		val started = state
-			.copy(turnNumber = nextTurnNumber)
-			.appendEvent(BattleEvent.TurnStarted(nextTurnNumber))
-		val afterSwitches = switchResolution.resolve(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random)
-		if (afterSwitches.result != null) {
-			return afterSwitches
-		}
-		val skillActions = actionPlanner.skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
-		val orderedActions = actionPlanner.orderSkillActions(afterSwitches, skillActions, random)
-		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
-			if (current.state.result != null) current else skillUseResolution.resolve(current, plan, random)
-		}
-		return finishTurnAfterActions(resolvedContext, nextTurnNumber)
-	}
-
-	/**
-	 * 结算所有行动之后的回合末流水线。
-	 *
-	 * 主回合入口已经完成替换、技能排序和逐个行动执行；这里只处理“行动都结束后必定按固定顺序发生”的阶段：
-	 * 连续保护链重置、回合末伤害/回复、一次性临时状态清理、持续状态回合推进、天气/场地回合推进、一侧场上效果回合推进、
-	 * 回合上限判定和最终 `TurnEnded` 事件。每一步都先检查战斗是否已经结束，原因是现代规则中回合末天气、异常状态、
-	 * 束缚伤害或回合上限都可能直接产生胜负结果；一旦结束，后续阶段不应继续写事件。
-	 */
-	private fun finishTurnAfterActions(context: TurnContext, nextTurnNumber: Int): BattleState {
-		val resolved = endTurnVolatileStatuses.resetProtectionChains(
-			state = context.state,
-			successfulProtectionActorIds = context.successfulProtectionActorIds,
-		)
-		val afterEndTurnEffects = resolved.result?.let { resolved } ?: endTurnEffects.apply(resolved)
-		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
-			?: endTurnVolatileStatuses.clearEndTurnOnlyStatuses(afterEndTurnEffects)
-		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
-			?: endTurnVolatileStatuses.advanceEndTurnDurations(afterEndTurnVolatileStatuses)
-		val afterEnvironmentDurations = afterEndTurnVolatileStatusDurations.result?.let { afterEndTurnVolatileStatusDurations }
-			?: environmentEffects.advanceDurations(afterEndTurnVolatileStatusDurations)
-		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
-			?: afterEnvironmentDurations.advanceSideConditionDurations()
-		val afterTurnLimit = afterSideConditionDurations.result?.let { afterSideConditionDurations }
-			?: endTurnEffects.applyTurnLimit(afterSideConditionDurations)
-		return afterTurnLimit.result?.let { afterTurnLimit }
-			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
-	}
+	fun resolveTurn(state: BattleState, actions: List<BattleAction>, random: BattleRandom): BattleState =
+		turnResolution.resolve(state, actions, random)
 
 }
