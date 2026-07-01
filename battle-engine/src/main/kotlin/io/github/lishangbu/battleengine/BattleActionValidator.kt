@@ -203,9 +203,7 @@ class BattleActionValidator {
 				message = "成员正在蓄力，不能主动替换: ${actor.chargingSkillId}",
 			)
 		}
-		if (actor.bindingTurnsRemaining > 0 && actor.boundByActorId?.let { sourceActorId ->
-				state.isActive(sourceActorId) && state.participant(sourceActorId)?.canBattle() == true
-			} == true) {
+		if (actor.bindingTurnsRemaining > 0 && bindingSourceActive(state, actor)) {
 			violations += violation(
 				code = "binding-prevents-switch",
 				actorId = actor.actorId,

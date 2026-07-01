@@ -6,6 +6,18 @@ import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 
 /**
+ * 判断成员当前束缚来源是否仍在场并可战斗。
+ *
+ * 该谓词同时服务提交前校验、主动替换限制和回合末束缚伤害。它只读取当前快照，不追加事件；调用方决定如果
+ * 束缚仍有效时应该返回提交错误、阻止替换，还是继续造成束缚伤害。
+ */
+internal fun bindingSourceActive(state: BattleState, participant: BattleParticipant): Boolean {
+	val sourceActorId = participant.boundByActorId ?: return false
+	val source = state.participant(sourceActorId) ?: return false
+	return source.canBattle() && state.isActive(sourceActorId)
+}
+
+/**
  * 束缚类临时状态的持续伤害、换人限制和来源离场清理。
  *
  * 束缚和普通“回合末递减状态”不同：它有来源成员、会在回合末造成间接伤害、会阻止目标主动替换，并且会在来源
@@ -25,9 +37,7 @@ internal class BattleBindingEffects(
 	 * 已经失效”这类状态矛盾。函数只读取快照，不追加事件。
 	 */
 	fun isBindingSourceActive(state: BattleState, participant: BattleParticipant): Boolean {
-		val sourceActorId = participant.boundByActorId ?: return false
-		val source = state.participant(sourceActorId) ?: return false
-		return source.canBattle() && state.isActive(sourceActorId)
+		return bindingSourceActive(state, participant)
 	}
 
 	/**
