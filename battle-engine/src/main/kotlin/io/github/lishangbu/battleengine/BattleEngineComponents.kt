@@ -75,14 +75,24 @@ internal class BattleEngineComponents(
 	private val endTurnVolatileStatuses = BattleEndTurnVolatileStatuses()
 
 	/**
+	 * 回合末扣血后的统一收口器。
+	 *
+	 * 异常状态、束缚和天气造成的回合末扣血都要复用同一套低体力道具、倒下和胜负判定顺序。
+	 */
+	private val endTurnDamageResultEffects = BattleEndTurnDamageResultEffects(
+		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+	)
+	private val bindingEffects = BattleBindingEffects(endTurnDamageResultEffects)
+
+	/**
 	 * 回合末环境与持续伤害结算器。
 	 *
 	 * 主状态机只保留“回合末阶段发生在技能阶段之后、持续时间推进之前”这个编排事实；具体异常伤害、束缚伤害、
-	 * 天气伤害、天气/场地/道具回复和回合上限收口都委托给该对象。低体力回复道具仍回调统一伤害后结算器，
-	 * 保证所有伤害入口共享同一套道具消费与回复封锁判断。
+	 * 天气伤害、天气/场地/道具回复和回合上限收口都委托给该对象。低体力回复道具仍经由统一扣血收口器复用。
 	 */
 	private val endTurnEffects = BattleEndTurnEffects(
-		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+		damageResultEffects = endTurnDamageResultEffects,
+		bindingEffects = bindingEffects,
 	)
 
 	/**
@@ -182,13 +192,13 @@ internal class BattleEngineComponents(
 	)
 	private val switchResolution = BattleSwitchResolution(
 		actionOrdering = actionOrdering,
-		endTurnEffects = endTurnEffects,
+		bindingEffects = bindingEffects,
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
 	)
 	private val forcedSwitchEffects = BattleForcedSwitchEffects(
 		targetDefenseEffects = targetDefenseEffects,
-		endTurnEffects = endTurnEffects,
+		bindingEffects = bindingEffects,
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
 	)

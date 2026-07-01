@@ -24,7 +24,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattleSwitchResolution(
 	private val actionOrdering: BattleActionOrdering,
-	private val endTurnEffects: BattleEndTurnEffects,
+	private val bindingEffects: BattleBindingEffects,
 	private val entryHazardEffects: BattleEntryHazardEffects,
 	private val switchInAbilityEffects: BattleSwitchInAbilityEffects,
 ) {
@@ -73,7 +73,7 @@ internal class BattleSwitchResolution(
 				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
 				return@fold current.preventSwitch(actor, SwitchPreventionReason.LOCKED_MOVE, skillId = lockedSkillId)
 			}
-			if (actor.canBattle() && endTurnEffects.isBindingSourceActive(current, actor)) {
+			if (actor.canBattle() && bindingEffects.isBindingSourceActive(current, actor)) {
 				val sourceActorId = actor.boundByActorId ?: return@fold current
 				return@fold current.preventSwitch(
 					actor = actor,
@@ -92,7 +92,7 @@ internal class BattleSwitchResolution(
 					forced = !actor.canBattle(),
 				),
 			)
-			val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(withSwitchEvent, actor.actorId)
+			val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(withSwitchEvent, actor.actorId)
 			val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(
 				state = afterBindingSourceCleared,
 				sideId = side.sideId,

@@ -15,7 +15,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattleForcedSwitchEffects(
 	private val targetDefenseEffects: BattleTargetDefenseEffects,
-	private val endTurnEffects: BattleEndTurnEffects,
+	private val bindingEffects: BattleBindingEffects,
 	private val entryHazardEffects: BattleEntryHazardEffects,
 	private val switchInAbilityEffects: BattleSwitchInAbilityEffects,
 ) {
@@ -73,7 +73,7 @@ internal class BattleForcedSwitchEffects(
 					),
 				),
 			)
-		val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(switched, target.actorId)
+		val afterBindingSourceCleared = bindingEffects.clearBindingsFromSource(switched, target.actorId)
 		val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(afterBindingSourceCleared, side.sideId, next.actorId)
 		return switchInAbilityEffects.apply(afterEntryHazards, next.actorId)
 	}
