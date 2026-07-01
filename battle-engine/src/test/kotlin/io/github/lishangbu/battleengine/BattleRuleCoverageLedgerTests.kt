@@ -21,7 +21,12 @@ class BattleRuleCoverageLedgerTests {
 		assertEquals(312, coverageGroups.sumOf { it.ruleCount })
 		assertEquals(12, coverageGroups.size)
 		assertEquals(coverageGroups.size, coverageGroups.map { it.code }.toSet().size)
-		assertEquals(35, coverageGroups.flatMap { it.testClassNames }.distinct().size)
+		val registeredTestClassNames = coverageGroups.flatMap { it.testClassNames }
+		assertEquals(
+			registeredTestClassNames.size,
+			registeredTestClassNames.distinct().size,
+			"每个行为测试类只能登记到一个规则族，避免同一组公开场景被多个规则族重复认领",
+		)
 
 		coverageGroups.forEach { group ->
 			assertTrue(group.ruleCount > 0, "${group.code} should cover at least one rule")
@@ -48,7 +53,7 @@ class BattleRuleCoverageLedgerTests {
 	@Test
 	fun `公开规则命名场景数量覆盖规则账本`() {
 		val expectedRuleCount = coverageGroups.sumOf { it.ruleCount }
-		val namedScenarioCount = countOccurrencesInKotlinTestSources(".assertNamed(")
+		val namedScenarioCount = namedScenarioRecordsForCoverageGroups().size
 
 		assertTrue(
 			namedScenarioCount >= expectedRuleCount,
@@ -58,7 +63,7 @@ class BattleRuleCoverageLedgerTests {
 
 	@Test
 	fun `公开规则命名场景必须使用唯一名称`() {
-		val scenarioNames = namedScenarioNames()
+		val scenarioNames = namedScenarioRecordsForCoverageGroups().map { it.name }
 		val duplicatedNames = scenarioNames
 			.groupingBy { it }
 			.eachCount()
@@ -72,6 +77,28 @@ class BattleRuleCoverageLedgerTests {
 		assertTrue(
 			duplicatedNames.isEmpty(),
 			"公开规则场景名必须唯一，否则场景数量可能被重复名称虚增：\n${duplicatedNames.joinToString("\n")}",
+		)
+	}
+
+	@Test
+	fun `公开规则命名场景必须登记到唯一规则族`() {
+		val registeredTestClassNames = coverageGroups.flatMap { it.testClassNames }.toSet()
+		val unregisteredRecords = allNamedScenarioRecords()
+			.filterNot { it.testClassName in registeredTestClassNames }
+
+		assertTrue(
+			unregisteredRecords.isEmpty(),
+			"包含公开规则场景的测试类必须登记到一个规则族，避免规则账本只统计总数却不知道由哪一族兜底：\n${
+				unregisteredRecords
+					.map { "${it.testClassName} -> ${it.name}" }
+					.distinct()
+					.joinToString("\n")
+			}",
+		)
+		assertEquals(
+			allNamedScenarioRecords().map { it.name }.toSet(),
+			namedScenarioRecordsForCoverageGroups().map { it.name }.toSet(),
+			"规则族登记后的命名场景集合必须等于测试源码里的命名场景集合",
 		)
 	}
 
@@ -99,23 +126,11 @@ class BattleRuleCoverageLedgerTests {
 		)
 	}
 
-	/**
-	 * 统计测试源码中某段字面量出现的次数。
-	 *
-	 * 312 条规则不强制拆成 312 个一对一测试，因为一个真实战斗场景经常同时验证行动顺序、随机消费、事件顺序和
-	 * 状态不变量。这里改用命名公开规则场景数量兜底：每个场景仍必须有具体断言，并通过 `assertNamed` 留下稳定
-	 * 场景标识；数量不少于规则数即可防止账本数字脱离可运行测试。
-	 */
-	private fun countOccurrencesInKotlinTestSources(needle: String): Int =
-		kotlinTestSources().sumOf { sourcePath ->
-			Files.readString(sourcePath).split(needle).size - 1
-		}
-
 	private fun CoverageGroup.namedScenarioCount(): Int =
 		testClassNames.sumOf { testClassName ->
 			val sourcePath = sourcePathForTestClass(testClassName)
 			if (Files.exists(sourcePath)) {
-				Files.readString(sourcePath).split(".assertNamed(").size - 1
+				namedScenarioNamesInSource(sourcePath).size
 			} else {
 				0
 			}
@@ -129,15 +144,52 @@ class BattleRuleCoverageLedgerTests {
 	 * JUnit 运行时只能看到方法，无法看到每个 `assertNamed` 调用；而场景名本身就是我们留给规则账本的最小稳定
 	 * 标识。新增本校验后，312 条规则覆盖不能再靠重复场景名“凑数”，每个公开规则断言都必须有可追踪的唯一名称。
 	 */
-	private fun namedScenarioNames(): List<String> {
-		val scenarioNamePattern = Regex("""\.assertNamed\(\s*"([^"]+)"""")
-		return kotlinTestSources().flatMap { sourcePath ->
-			scenarioNamePattern.findAll(Files.readString(sourcePath)).map { it.groupValues[1] }.toList()
+	private fun namedScenarioRecordsForCoverageGroups(): List<NamedScenarioRecord> =
+		coverageGroups.flatMap { group ->
+			group.testClassNames.flatMap { testClassName ->
+				val sourcePath = sourcePathForTestClass(testClassName)
+				if (Files.exists(sourcePath)) {
+					namedScenarioNamesInSource(sourcePath).map { scenarioName ->
+						NamedScenarioRecord(group.code, testClassName, scenarioName)
+					}
+				} else {
+					emptyList()
+				}
+			}
 		}
+
+	/**
+	 * 扫描测试源码里的所有命名公开规则场景。
+	 *
+	 * 这里会排除本账本测试类本身，因为账本源码中为了描述 `assertNamed` 机制会出现相同字面量，但那些不是战斗行为
+	 * 场景。其它测试类只要出现真正的 `.assertNamed("场景名")`，就必须被某个规则族登记；否则新增规则时很容易让
+	 * 全局数量增加，却没有人知道它应该归属于行动顺序、伤害公式、状态、道具还是其它规则族。
+	 */
+	private fun allNamedScenarioRecords(): List<NamedScenarioRecord> =
+		kotlinTestSources()
+			.filterNot { it.fileName.toString() == "${BattleRuleCoverageLedgerTests::class.simpleName}.kt" }
+			.flatMap { sourcePath ->
+				val testClassName = testClassNameForSourcePath(sourcePath)
+				namedScenarioNamesInSource(sourcePath).map { scenarioName ->
+					NamedScenarioRecord(groupCode = null, testClassName = testClassName, name = scenarioName)
+				}
+			}
+
+	private fun namedScenarioNamesInSource(sourcePath: Path): List<String> {
+		val scenarioNamePattern = Regex("""\.assertNamed\(\s*"([^"]+)"""")
+		return scenarioNamePattern.findAll(Files.readString(sourcePath)).map { it.groupValues[1] }.toList()
 	}
 
 	private fun sourcePathForTestClass(testClassName: String): Path =
 		Path.of("src/test/kotlin/${testClassName.replace('.', '/')}.kt")
+
+	private fun testClassNameForSourcePath(sourcePath: Path): String =
+		Path.of("src/test/kotlin")
+			.relativize(sourcePath)
+			.toString()
+			.removeSuffix(".kt")
+			.replace('/', '.')
+			.replace('\\', '.')
 
 	private fun kotlinTestSources(): List<Path> {
 		val paths = Files.walk(Path.of("src/test/kotlin"))
@@ -158,6 +210,12 @@ class BattleRuleCoverageLedgerTests {
 		val testClassNames: List<String>,
 	)
 
+	private data class NamedScenarioRecord(
+		val groupCode: String?,
+		val testClassName: String,
+		val name: String,
+	)
+
 	private companion object {
 		private val coverageGroups = listOf(
 			CoverageGroup(
@@ -168,6 +226,7 @@ class BattleRuleCoverageLedgerTests {
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleFormatValidationTests",
 					"io.github.lishangbu.battleengine.BattlePreparationValidatorTests",
+					"io.github.lishangbu.battleengine.BattleValidationPublicReferenceTests",
 				),
 			),
 			CoverageGroup(
@@ -178,6 +237,10 @@ class BattleRuleCoverageLedgerTests {
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleLifecycleSwitchPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleFormatLifecycleBoundaryPublicReferenceTests",
+					"io.github.lishangbu.battleengine.BattleEnginePublicReferenceTests",
+					"io.github.lishangbu.battleengine.BattleEngineSingleTurnTests",
+					"io.github.lishangbu.battleengine.BattleEntryHazardTests",
+					"io.github.lishangbu.battleengine.BattleFinalRuleBoundaryPublicReferenceTests",
 				),
 			),
 			CoverageGroup(
@@ -189,6 +252,10 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleActionOrderingPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleActionValidatorTests",
 					"io.github.lishangbu.battleengine.BattleActionFlowBoundaryTests",
+					"io.github.lishangbu.battleengine.BattleChargeSkillTests",
+					"io.github.lishangbu.battleengine.BattleLockedMoveTests",
+					"io.github.lishangbu.battleengine.BattleMultiHitSkillTests",
+					"io.github.lishangbu.battleengine.BattleRechargeSkillTests",
 				),
 			),
 			CoverageGroup(
@@ -211,6 +278,10 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleHitDefenseBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleSubstituteTests",
 					"io.github.lishangbu.battleengine.BattleImmunityTests",
+					"io.github.lishangbu.battleengine.BattleAccuracyStatStageIgnoreAbilityTests",
+					"io.github.lishangbu.battleengine.BattlePsychicTerrainTests",
+					"io.github.lishangbu.battleengine.BattleSoundAbilityTests",
+					"io.github.lishangbu.battleengine.BattleStatusImmunityAndGroundingTests",
 				),
 			),
 			CoverageGroup(
@@ -221,7 +292,12 @@ class BattleRuleCoverageLedgerTests {
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.damage.BattleDamageCalculatorTests",
+					"io.github.lishangbu.battleengine.damage.BattleDamageStatStageIgnoreAbilityTests",
 					"io.github.lishangbu.battleengine.BattleCriticalHitFlowTests",
+					"io.github.lishangbu.battleengine.BattleCriticalHitImmunityAbilityTests",
+					"io.github.lishangbu.battleengine.BattleFixedDamageSkillTests",
+					"io.github.lishangbu.battleengine.BattleHpDerivedDamageSkillTests",
+					"io.github.lishangbu.battleengine.BattleProportionalDamageSkillTests",
 				),
 			),
 			CoverageGroup(
@@ -234,6 +310,12 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleVolatileStatusTests",
 					"io.github.lishangbu.battleengine.BattleBindingStatusTests",
 					"io.github.lishangbu.battleengine.BattleDisableTests",
+					"io.github.lishangbu.battleengine.BattleFreezeStatusTests",
+					"io.github.lishangbu.battleengine.BattleHealBlockTests",
+					"io.github.lishangbu.battleengine.BattleParalysisStatusTests",
+					"io.github.lishangbu.battleengine.BattleSleepStatusTests",
+					"io.github.lishangbu.battleengine.BattleTauntTests",
+					"io.github.lishangbu.battleengine.BattleTormentTests",
 				),
 			),
 			CoverageGroup(
@@ -245,6 +327,9 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleWeatherEffectTests",
 					"io.github.lishangbu.battleengine.BattleTerrainEffectTests",
 					"io.github.lishangbu.battleengine.BattleEnvironmentFieldBoundaryPublicReferenceTests",
+					"io.github.lishangbu.battleengine.BattleEnvironmentDurationTests",
+					"io.github.lishangbu.battleengine.BattleSkillEnvironmentEffectTests",
+					"io.github.lishangbu.battleengine.BattleWeatherElementOverrideTests",
 				),
 			),
 			CoverageGroup(
@@ -256,6 +341,9 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleSkillEffectBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleSkillStatStageEffectTests",
 					"io.github.lishangbu.battleengine.BattleSkillHpEffectTests",
+					"io.github.lishangbu.battleengine.BattleForcedSwitchSkillTests",
+					"io.github.lishangbu.battleengine.BattleSkillRecoilImmunityAbilityTests",
+					"io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests",
 				),
 			),
 			CoverageGroup(
@@ -267,6 +355,12 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleSwitchInAbilityTests",
 					"io.github.lishangbu.battleengine.BattleAbilityItemBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleTargetAbilityIgnoreTests",
+					"io.github.lishangbu.battleengine.BattleContactAbilityPublicReferenceTests",
+					"io.github.lishangbu.battleengine.BattleElementAbsorbAbilityTests",
+					"io.github.lishangbu.battleengine.BattleElementAbsorbStatAbilityTests",
+					"io.github.lishangbu.battleengine.BattleIndirectDamageImmunityTests",
+					"io.github.lishangbu.battleengine.BattlePriorityAbilityTests",
+					"io.github.lishangbu.battleengine.BattleStatusPriorityAbilityTests",
 				),
 			),
 			CoverageGroup(
@@ -276,8 +370,13 @@ class BattleRuleCoverageLedgerTests {
 				description = "消耗、回复、状态解除、伤害增减、持续时间延长、一次性免死、锁招、蓄力跳过和抗性减伤。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.BattleHeldItemPublicReferenceTests",
+					"io.github.lishangbu.battleengine.BattleConditionalDamageBoostItemTests",
+					"io.github.lishangbu.battleengine.BattleDamageDealtHealingItemTests",
+					"io.github.lishangbu.battleengine.BattleElementDamageBoostItemTests",
 					"io.github.lishangbu.battleengine.BattleElementDamageReductionItemTests",
+					"io.github.lishangbu.battleengine.BattleFatalDamageSurvivalTests",
 					"io.github.lishangbu.battleengine.BattleStatusCureItemTests",
+					"io.github.lishangbu.battleengine.BattleVolatileStatusCureItemTests",
 				),
 			),
 			CoverageGroup(
