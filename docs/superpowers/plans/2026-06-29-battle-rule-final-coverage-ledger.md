@@ -39,23 +39,33 @@
 先判断它是否只是资料条目扩展；如果不是，必须把对应行为测试补到下表所属规则族，必要时再调整规则族计数。
 
 账本测试会根据下表顺序自动生成 `1..312` 的规则编号到 `assertNamed` 公开场景锚点映射。映射只使用同一规则族内
-的测试场景；当一个公开场景同时证明多个相邻行为时，多个编号可以共享同一个锚点。这样既能从任意规则编号定位
-到具体测试类和场景名，也不用维护一张容易过期的 312 行手写表。
+的测试场景；当前口径要求每个规则编号绑定族内唯一场景名，避免多个编号复用同一个锚点后掩盖缺口。这样既能从
+任意规则编号定位到具体测试类和场景名，也不用维护一张容易过期的 312 行手写表。
 
 | 规则族 code | 规则编号区间 | 规则数 | 主要测试文件 |
 | --- | ---: | ---: | --- |
-| `format-and-team-validation` | 1-16 | 16 | `BattleFormatValidationTests`、`BattlePreparationValidatorTests` |
-| `lifecycle-switch-faint-result` | 17-34 | 18 | `BattleLifecycleSwitchPublicReferenceTests`、`BattleFormatLifecycleBoundaryPublicReferenceTests` |
-| `turn-flow-action-ordering` | 35-60 | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests` |
+| `format-and-team-validation` | 1-16 | 16 | `BattleFormatValidationTests`、`BattlePreparationValidatorTests`、`BattleValidationPublicReferenceTests` |
+| `lifecycle-switch-faint-result` | 17-34 | 18 | `BattleLifecycleSwitchPublicReferenceTests`、`BattleFormatLifecycleBoundaryPublicReferenceTests`、`BattleEnginePublicReferenceTests`、`BattleEngineSingleTurnTests`、`BattleEntryHazardTests`、`BattleFinalRuleBoundaryPublicReferenceTests` |
+| `turn-flow-action-ordering` | 35-60 | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests`、`BattleChargeSkillTests`、`BattleLockedMoveTests`、`BattleMultiHitSkillTests`、`BattleRechargeSkillTests` |
 | `target-scope-redirection` | 61-80 | 20 | `BattleTargetScopePublicReferenceTests`、`BattleTargetRedirectionPublicReferenceTests`、`BattleRandomTargetPublicReferenceTests` |
-| `hit-protect-substitute-immunity-reflect` | 81-108 | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests` |
-| `damage-formula-stat-element-rounding` | 109-150 | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`BattleCriticalHitFlowTests` |
-| `major-volatile-persistent-status` | 151-184 | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests` |
-| `weather-terrain-field-side-condition` | 185-215 | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests` |
-| `skill-effect-family` | 216-254 | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests` |
-| `ability-effect-family` | 255-290 | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests` |
-| `item-effect-family` | 291-308 | 18 | `BattleHeldItemPublicReferenceTests`、`BattleElementDamageReductionItemTests`、`BattleStatusCureItemTests` |
+| `hit-protect-substitute-immunity-reflect` | 81-108 | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests`、`BattleAccuracyStatStageIgnoreAbilityTests`、`BattlePsychicTerrainTests`、`BattleSoundAbilityTests`、`BattleStatusImmunityAndGroundingTests` |
+| `damage-formula-stat-element-rounding` | 109-150 | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`damage/BattleDamageStatStageIgnoreAbilityTests`、`BattleCriticalHitFlowTests`、`BattleCriticalHitImmunityAbilityTests`、`BattleFixedDamageSkillTests`、`BattleHpDerivedDamageSkillTests`、`BattleProportionalDamageSkillTests` |
+| `major-volatile-persistent-status` | 151-184 | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests`、`BattleFreezeStatusTests`、`BattleHealBlockTests`、`BattleParalysisStatusTests`、`BattleSleepStatusTests`、`BattleTauntTests`、`BattleTormentTests` |
+| `weather-terrain-field-side-condition` | 185-215 | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests`、`BattleEnvironmentDurationTests`、`BattleSkillEnvironmentEffectTests`、`BattleWeatherElementOverrideTests` |
+| `skill-effect-family` | 216-254 | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests`、`BattleForcedSwitchSkillTests`、`BattleSkillRecoilImmunityAbilityTests`、`BattleStatStageOperationSkillTests` |
+| `ability-effect-family` | 255-290 | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests`、`BattleContactAbilityPublicReferenceTests`、`BattleElementAbsorbAbilityTests`、`BattleElementAbsorbStatAbilityTests`、`BattleIndirectDamageImmunityTests`、`BattlePriorityAbilityTests`、`BattleStatusPriorityAbilityTests` |
+| `item-effect-family` | 291-308 | 18 | `BattleHeldItemPublicReferenceTests`、`BattleConditionalDamageBoostItemTests`、`BattleDamageDealtHealingItemTests`、`BattleElementDamageBoostItemTests`、`BattleElementDamageReductionItemTests`、`BattleFatalDamageSurvivalTests`、`BattleStatusCureItemTests`、`BattleVolatileStatusCureItemTests` |
 | `random-replay-public-reference` | 309-312 | 4 | `random/ScriptedBattleRandomTests`、`BattleReplayRecorderTests`、`BattleReplayPublicReferenceTests` |
+
+## 底层状态迁移补充测试
+
+规则族矩阵只登记带 `assertNamed` 的公开规则场景；本轮新增的成员运行态操作测试属于更底层的防回归测试，不直接
+增加 312 条规则行为数量。它们覆盖的是规则场景会反复依赖的不可变快照迁移边界：
+
+- `BattleParticipantHealthOperationsTests`：HP 扣减/回复夹取、可战斗判断、替身建立和替身 HP 扣减。
+- `BattleParticipantSkillOperationsTests`：技能槽替换、讲究类锁定、携带道具消费、蓄力/休整/锁招计数清理。
+- `BattleParticipantStatusOperationsTests`：主要异常状态计数、睡眠阻止递减、临时状态不刷新和绑定字段清理。
+- `BattleParticipantStatOperationsTests`：能力阶级夹取、0 阶级不落库式保存、连续保护/剧毒计数和离场清理边界。
 
 ## 当前报表口径
 
