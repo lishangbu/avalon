@@ -4,7 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 
-/**
+/*
  * `BattleParticipant` 的技能选择、PP、蓄力、休整、锁招和携带道具运行态操作。
  *
  * 这些函数维护“成员下一次技能行动会被怎样约束”的状态，例如讲究类道具锁定、蓄力目标、休整计数和连续锁招。
@@ -69,11 +69,7 @@ fun BattleParticipant.startRecharge(turnsRemainingAfterCurrent: Int = 1): Battle
  * 消耗一次技能休整阻止行动。
  */
 fun BattleParticipant.consumeRechargeTurn(): BattleParticipant =
-	when {
-		rechargeTurnsRemaining > 1 -> copy(rechargeTurnsRemaining = rechargeTurnsRemaining - 1)
-		rechargeTurnsRemaining == 1 -> copy(rechargeTurnsRemaining = 0)
-		else -> this
-	}
+	if (rechargeTurnsRemaining > 0) copy(rechargeTurnsRemaining = rechargeTurnsRemaining - 1) else this
 
 /**
  * 标记成员进入技能蓄力状态。
