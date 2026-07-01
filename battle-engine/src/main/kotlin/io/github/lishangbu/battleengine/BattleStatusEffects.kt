@@ -36,6 +36,8 @@ internal class BattleStatusEffects(
 	private val substituteBlocksOpponentEffect: (BattleState, String, String, BattleSkillSlot) -> Boolean,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
+	private val statusCureEffects = BattleStatusCureEffects()
+
 	/**
 	 * 附加主要异常状态并处理现代属性免疫、接地场地免疫、替身、特性/道具免疫和状态私有计数。
 	 *
@@ -81,7 +83,7 @@ internal class BattleStatusEffects(
 					status = status,
 				),
 			)
-		return applyMajorStatusCureItem(appliedState, recipient.actorId)
+		return statusCureEffects.applyMajorStatusCureItem(appliedState, recipient.actorId)
 	}
 
 	/**
@@ -230,7 +232,7 @@ internal class BattleStatusEffects(
 		} else {
 			appliedState
 		}
-		return applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
+		return statusCureEffects.applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
 	}
 
 	/**
@@ -255,36 +257,6 @@ internal class BattleStatusEffects(
 				reason = reason,
 			),
 		)
-
-	/**
-	 * 处理成功获得主要异常状态后的即时治愈携带道具。
-	 *
-	 * 该阶段只在 [applyMajorStatus] 已经写入状态并追加 [BattleEvent.StatusApplied] 后运行，因此它不会和属性、
-	 * 场地、替身、特性或道具免疫混淆。触发成功时先清除主要异常状态及其附属计数，再按效果声明消费携带道具，
-	 * 最后追加 [BattleEvent.StatusCleared]。事件流因此稳定呈现“状态写入 -> 道具治愈”的顺序。
-	 */
-	private fun applyMajorStatusCureItem(state: BattleState, actorId: String): BattleState {
-		val participant = state.participant(actorId) ?: return state
-		val status = participant.majorStatus ?: return state
-		val effect = participant.itemEffects
-			.filterIsInstance<BattleItemEffect.MajorStatusCure>()
-			.firstOrNull { status in it.statuses }
-			?: return state
-		val cured = if (effect.consumesItem) {
-			participant.clearMajorStatus().consumeHeldItem()
-		} else {
-			participant.clearMajorStatus()
-		}
-		return state
-			.replaceParticipant(cured)
-			.appendEvent(
-				BattleEvent.StatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					status = status,
-				),
-			)
-	}
 
 	/**
 	 * 判断目标属性是否天然免疫指定主要异常状态。
@@ -378,40 +350,6 @@ internal class BattleStatusEffects(
 			BattleVolatileStatus.BINDING -> recipient.bindingTurnsRemaining > 0
 			BattleVolatileStatus.FLINCH -> false
 		}
-
-	/**
-	 * 处理成功获得临时状态后的即时治愈携带道具。
-	 *
-	 * 该阶段只在 [applyVolatileStatus] 已经写入临时状态并追加 [BattleEvent.VolatileStatusApplied] 后运行，因此不会
-	 * 遮蔽薄雾场地、替身、特性免疫、道具免疫或已有混乱的前置阻止语义。触发成功时，函数先清除目标临时状态，
-	 * 再按 [BattleItemEffect.VolatileStatusCure.consumesItem] 决定是否消费携带道具，最后追加
-	 * [BattleEvent.VolatileStatusCleared]。
-	 */
-	private fun applyVolatileStatusCureItem(
-		state: BattleState,
-		actorId: String,
-		status: BattleVolatileStatus,
-	): BattleState {
-		val participant = state.participant(actorId) ?: return state
-		val effect = participant.itemEffects
-			.filterIsInstance<BattleItemEffect.VolatileStatusCure>()
-			.firstOrNull { status in it.statuses }
-			?: return state
-		val cured = if (effect.consumesItem) {
-			participant.clearVolatileStatus(status).consumeHeldItem()
-		} else {
-			participant.clearVolatileStatus(status)
-		}
-		return state
-			.replaceParticipant(cured)
-			.appendEvent(
-				BattleEvent.VolatileStatusCleared(
-					turnNumber = state.turnNumber,
-					actorId = participant.actorId,
-					status = status,
-				),
-			)
-	}
 
 	/**
 	 * 判断临时状态是否会在附加前被稳定免疫规则阻止。
