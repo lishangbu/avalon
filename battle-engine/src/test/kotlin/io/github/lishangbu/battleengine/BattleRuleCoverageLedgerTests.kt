@@ -57,6 +57,25 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `公开规则命名场景必须使用唯一名称`() {
+		val scenarioNames = namedScenarioNames()
+		val duplicatedNames = scenarioNames
+			.groupingBy { it }
+			.eachCount()
+			.filterValues { it > 1 }
+			.keys
+
+		assertTrue(
+			scenarioNames.size >= coverageGroups.sumOf { it.ruleCount },
+			"公开规则场景名数量必须覆盖 312 条规则账本，当前只有 ${scenarioNames.size} 个唯一性候选",
+		)
+		assertTrue(
+			duplicatedNames.isEmpty(),
+			"公开规则场景名必须唯一，否则场景数量可能被重复名称虚增：\n${duplicatedNames.joinToString("\n")}",
+		)
+	}
+
+	@Test
 	fun `公开规则场景不再使用历史夹具命名`() {
 		val staleNames = listOf(
 			"PublicBattleRule" + "Fi" + "xture",
@@ -101,6 +120,21 @@ class BattleRuleCoverageLedgerTests {
 				0
 			}
 		}
+
+	/**
+	 * 提取公开规则场景的稳定名称。
+	 *
+	 * 账本用 `assertNamed` 而不是测试方法名来登记公开规则场景，是因为同一个 JUnit 方法经常需要在同一套初始战斗
+	 * 快照下验证多个相邻规则，例如事件顺序、HP 取整和状态不变量。这里用源码级扫描读取第一个字符串参数，原因是
+	 * JUnit 运行时只能看到方法，无法看到每个 `assertNamed` 调用；而场景名本身就是我们留给规则账本的最小稳定
+	 * 标识。新增本校验后，312 条规则覆盖不能再靠重复场景名“凑数”，每个公开规则断言都必须有可追踪的唯一名称。
+	 */
+	private fun namedScenarioNames(): List<String> {
+		val scenarioNamePattern = Regex("""\.assertNamed\(\s*"([^"]+)"""")
+		return kotlinTestSources().flatMap { sourcePath ->
+			scenarioNamePattern.findAll(Files.readString(sourcePath)).map { it.groupValues[1] }.toList()
+		}
+	}
 
 	private fun sourcePathForTestClass(testClassName: String): Path =
 		Path.of("src/test/kotlin/${testClassName.replace('.', '/')}.kt")
