@@ -23,101 +23,109 @@ class BattleSkillRuntimeLookup(
 	private val jdbcTemplate: JdbcTemplate,
 	private val ruleEffectLookup: BattleSkillRuleEffectRuntimeLookup,
 ) {
-fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
-	val row = jdbcTemplate.query(
-		"""
-		select
-			s.id as skill_id,
-			s.name as skill_name,
-			s.element_id,
-			dc.code as damage_class_code,
-			s.power,
-			s.accuracy,
-			s.pp,
-			s.priority,
-			r.id as rule_id,
-			r.effect_policy,
-			r.target_policy,
-			r.hit_policy,
-			r.damage_policy,
-			r.min_hits,
-			r.max_hits,
-			r.critical_hit_stage,
-			r.makes_contact,
-			r.affected_by_protect,
-			r.protects_user,
-			r.thaws_user_before_move,
-			r.sound_based,
-			r.powder_based,
-			r.punch_based,
-			r.slicing_based,
-			r.weakened_by_grassy_terrain,
-			r.charges_before_use,
-			r.recharges_after_use,
-			r.lock_move_turns_min,
-			r.lock_move_turns_max,
-			r.confuses_user_after_lock,
-			r.force_target_switch
-		from game_skill s
-		join game_skill_damage_class dc on dc.id = s.damage_class_id
-		left join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
-		where s.id = ?
-		""".trimIndent(),
-		{ rs, _ -> rs.toSkillRuntimeRow() },
-		skillId,
-	).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
+	fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
+		val row = jdbcTemplate.query(
+			"""
+			select
+				s.id as skill_id,
+				s.name as skill_name,
+				s.element_id,
+				dc.code as damage_class_code,
+				s.power,
+				s.accuracy,
+				s.pp,
+				s.priority,
+				r.id as rule_id,
+				r.effect_policy,
+				r.target_policy,
+				r.hit_policy,
+				r.damage_policy,
+				r.min_hits,
+				r.max_hits,
+				r.critical_hit_stage,
+				r.makes_contact,
+				r.affected_by_protect,
+				r.protects_user,
+				r.thaws_user_before_move,
+				r.sound_based,
+				r.powder_based,
+				r.punch_based,
+				r.slicing_based,
+				r.weakened_by_grassy_terrain,
+				r.charges_before_use,
+				r.recharges_after_use,
+				r.lock_move_turns_min,
+				r.lock_move_turns_max,
+				r.confuses_user_after_lock,
+				r.force_target_switch
+			from game_skill s
+			join game_skill_damage_class dc on dc.id = s.damage_class_id
+			left join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
+			where s.id = ?
+			""".trimIndent(),
+			{ rs, _ -> rs.toSkillRuntimeRow() },
+			skillId,
+		).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
 
-	row.requireSupportedRulePolicies()
-	val ruleEffects = ruleEffectLookup.ruleEffects(row.ruleId)
-	return BattleSkillSlot(
-		skillId = row.skillId,
-		name = row.name,
-		elementId = row.elementId,
-		damageClass = row.damageClassCode.toBattleDamageClass(),
-		power = row.power,
-		fixedDamage = row.effectPolicy.toBattleFixedDamage(),
-		proportionalDamage = row.effectPolicy.toBattleProportionalDamage(),
-		hpDerivedDamage = row.effectPolicy.toBattleHpDerivedDamage(),
-		accuracy = row.accuracy,
-		targetScope = row.targetPolicy.toBattleSkillTargetScope(),
-		minHits = row.minHits ?: 1,
-		maxHits = row.maxHits ?: 1,
-		makesContact = row.makesContact ?: false,
-		criticalHitStage = row.criticalHitStage ?: 0,
-		affectedByProtect = row.affectedByProtect ?: true,
-		protectsUser = row.protectsUser ?: false,
-		thawsUserBeforeMove = row.thawsUserBeforeMove ?: false,
-		soundBased = row.soundBased ?: false,
-		powderBased = row.powderBased ?: false,
-		punchBased = row.punchBased ?: false,
-		slicingBased = row.slicingBased ?: false,
-		weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
-		chargesBeforeUse = row.chargesBeforeUse ?: false,
-		chargeSkippedByWeathers = ruleEffects.chargeSkippedByWeathers,
-		rechargesAfterUse = row.rechargesAfterUse ?: false,
-		accuracyOverridesByWeather = ruleEffects.accuracyOverridesByWeather,
-		powerMultipliersByWeather = ruleEffects.powerMultipliersByWeather,
-		elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
-		lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
-		lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
-		confusesUserAfterLock = row.confusesUserAfterLock ?: false,
-		forceTargetSwitch = row.forceTargetSwitch ?: false,
-		priority = row.priority,
-		remainingPp = row.pp,
-		maxPp = row.pp,
-		statusApplications = ruleEffects.statusApplications,
-		volatileStatusApplications = ruleEffects.volatileStatusApplications,
-		statStageEffects = ruleEffects.statStageEffects,
-		statStageOperations = ruleEffects.statStageOperations,
-		sideConditionApplications = ruleEffects.sideConditionApplications,
-		sideSpeedModifierApplications = ruleEffects.sideSpeedModifierApplications,
-		sideEntryHazardApplications = ruleEffects.sideEntryHazardApplications,
-		fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
-		hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
-		environmentEffects = row.effectPolicy.toBattleSkillEnvironmentEffects(),
-	)
+		row.requireSupportedRulePolicies()
+		val ruleEffects = ruleEffectLookup.ruleEffects(row.ruleId)
+		return BattleSkillSlot(
+			skillId = row.skillId,
+			name = row.name,
+			elementId = row.elementId,
+			damageClass = row.damageClassCode.toBattleDamageClass(),
+			power = row.power,
+			fixedDamage = row.effectPolicy.toBattleFixedDamage(),
+			proportionalDamage = row.effectPolicy.toBattleProportionalDamage(),
+			hpDerivedDamage = row.effectPolicy.toBattleHpDerivedDamage(),
+			accuracy = row.accuracy,
+			targetScope = row.targetPolicy.toBattleSkillTargetScope(),
+			minHits = row.minHits ?: 1,
+			maxHits = row.maxHits ?: 1,
+			makesContact = row.makesContact ?: false,
+			criticalHitStage = row.criticalHitStage ?: 0,
+			affectedByProtect = row.affectedByProtect ?: true,
+			protectsUser = row.protectsUser ?: false,
+			thawsUserBeforeMove = row.thawsUserBeforeMove ?: false,
+			soundBased = row.soundBased ?: false,
+			powderBased = row.powderBased ?: false,
+			punchBased = row.punchBased ?: false,
+			slicingBased = row.slicingBased ?: false,
+			weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
+			chargesBeforeUse = row.chargesBeforeUse ?: false,
+			chargeSkippedByWeathers = ruleEffects.chargeSkippedByWeathers,
+			rechargesAfterUse = row.rechargesAfterUse ?: false,
+			accuracyOverridesByWeather = ruleEffects.accuracyOverridesByWeather,
+			powerMultipliersByWeather = ruleEffects.powerMultipliersByWeather,
+			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
+			lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
+			lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
+			confusesUserAfterLock = row.confusesUserAfterLock ?: false,
+			forceTargetSwitch = row.forceTargetSwitch ?: false,
+			priority = row.priority,
+			remainingPp = row.pp,
+			maxPp = row.pp,
+			statusApplications = ruleEffects.statusApplications,
+			volatileStatusApplications = ruleEffects.volatileStatusApplications,
+			statStageEffects = ruleEffects.statStageEffects,
+			statStageOperations = ruleEffects.statStageOperations,
+			sideConditionApplications = ruleEffects.sideConditionApplications,
+			sideSpeedModifierApplications = ruleEffects.sideSpeedModifierApplications,
+			sideEntryHazardApplications = ruleEffects.sideEntryHazardApplications,
+			fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
+			hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
+			environmentEffects = row.effectPolicy.toBattleSkillEnvironmentEffects(),
+		)
+	}
 }
 
+/**
+ * 将 `game_skill` 与 `battle_skill_rule` 的联查结果压成一个文件私有中间行模型。
+ *
+ * 这里故意只做数据库类型到 Kotlin 类型的转换，以及“0 或空值不应该进入引擎模型”的边界收敛；真正的 policy
+ * 合法性校验和 [BattleSkillSlot] 装配仍留在读取入口里。这样 SQL 列名变化、运行时规则变化和引擎模型变化不会
+ * 被混在同一个长表达式中，后续补资料字段时也更容易定位责任。
+ */
 private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
 	SkillRuntimeRow(
 		skillId = getLong("skill_id"),
@@ -200,7 +208,6 @@ private fun ResultSet.nullableLong(column: String): Long? {
 private fun ResultSet.nullableBoolean(column: String): Boolean? {
 	val value = getBoolean(column)
 	return if (wasNull()) null else value
-}
 }
 
 private data class SkillRuntimeRow(
