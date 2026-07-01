@@ -70,18 +70,30 @@ internal class BattleTurnResolution(
 			state = context.state,
 			successfulProtectionActorIds = context.successfulProtectionActorIds,
 		)
-		val afterEndTurnEffects = resolved.result?.let { resolved } ?: endTurnEffects.apply(resolved)
-		val afterEndTurnVolatileStatuses = afterEndTurnEffects.result?.let { afterEndTurnEffects }
-			?: endTurnVolatileStatuses.clearEndTurnOnlyStatuses(afterEndTurnEffects)
-		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.result?.let { afterEndTurnVolatileStatuses }
-			?: endTurnVolatileStatuses.advanceEndTurnDurations(afterEndTurnVolatileStatuses)
-		val afterEnvironmentDurations = afterEndTurnVolatileStatusDurations.result?.let { afterEndTurnVolatileStatusDurations }
-			?: environmentEffects.advanceDurations(afterEndTurnVolatileStatusDurations)
-		val afterSideConditionDurations = afterEnvironmentDurations.result?.let { afterEnvironmentDurations }
-			?: afterEnvironmentDurations.advanceSideConditionDurations()
-		val afterTurnLimit = afterSideConditionDurations.result?.let { afterSideConditionDurations }
-			?: endTurnEffects.applyTurnLimit(afterSideConditionDurations)
-		return afterTurnLimit.result?.let { afterTurnLimit }
-			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
+		val afterEndTurnEffects = resolved.thenIfBattleContinues(endTurnEffects::apply)
+		val afterEndTurnVolatileStatuses = afterEndTurnEffects.thenIfBattleContinues(
+			endTurnVolatileStatuses::clearEndTurnOnlyStatuses,
+		)
+		val afterEndTurnVolatileStatusDurations = afterEndTurnVolatileStatuses.thenIfBattleContinues(
+			endTurnVolatileStatuses::advanceEndTurnDurations,
+		)
+		val afterEnvironmentDurations = afterEndTurnVolatileStatusDurations.thenIfBattleContinues(
+			environmentEffects::advanceDurations,
+		)
+		val afterSideConditionDurations = afterEnvironmentDurations.thenIfBattleContinues(
+			BattleState::advanceSideConditionDurations,
+		)
+		val afterTurnLimit = afterSideConditionDurations.thenIfBattleContinues(endTurnEffects::applyTurnLimit)
+		return afterTurnLimit.thenIfBattleContinues { it.appendEvent(BattleEvent.TurnEnded(nextTurnNumber)) }
 	}
+
+	/**
+	 * 回合末流水线的短路 helper。
+	 *
+	 * 回合末每个阶段都可能产生胜负结果，例如异常伤害、天气伤害或回合上限。结果一旦出现，后续阶段不能继续追加
+	 * 事件，否则 replay 会看到“战斗已经结束之后又清状态/推进天气”的伪事实。这个 helper 只表达同一个短路规则，
+	 * 不改变阶段顺序，也不把阶段注册成可变列表；调用点仍然显式列出每一步现代规则顺序。
+	 */
+	private fun BattleState.thenIfBattleContinues(next: (BattleState) -> BattleState): BattleState =
+		if (result == null) next(this) else this
 }
