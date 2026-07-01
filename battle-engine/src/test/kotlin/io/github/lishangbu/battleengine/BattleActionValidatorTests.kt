@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,6 +37,34 @@ class BattleActionValidatorTests {
 
 		scenario.assertNamed("valid-skill-action-submission-passes-before-turn-resolution")
 		assertEquals(emptyList(), violations)
+	}
+
+	@Test
+	fun `non selected target scopes ignore submitted target during validation`() {
+		val selfTargetSkill = damagingSkill(skillId = 2, targetScope = BattleSkillTargetScope.SELF)
+		val spreadTargetSkill = damagingSkill(skillId = 3, targetScope = BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"target-scope-user",
+					speed = 100,
+					skill = selfTargetSkill,
+				).copy(skillSlots = listOf(selfTargetSkill, spreadTargetSkill)),
+				second = participant("opponent", speed = 50),
+			),
+		)
+
+		val selfTargetViolations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("target-scope-user", skillId = 2, targetActorId = "missing-placeholder")),
+		)
+		val spreadTargetViolations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("target-scope-user", skillId = 3, targetActorId = "missing-placeholder")),
+		)
+
+		assertEquals(emptyList(), selfTargetViolations)
+		assertEquals(emptyList(), spreadTargetViolations)
 	}
 
 	@Test

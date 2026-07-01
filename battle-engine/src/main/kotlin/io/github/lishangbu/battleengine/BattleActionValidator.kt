@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleState
 
 /**
@@ -145,30 +146,50 @@ class BattleActionValidator {
 			}
 		}
 
+		if (skill == null || skill.targetScope == BattleSkillTargetScope.SELECTED_TARGET) {
+			violations += validateSelectedTarget(state, action, actor)
+		}
+		return violations
+	}
+
+	/**
+	 * 校验真正依赖玩家提交目标席位的单体技能目标。
+	 *
+	 * 自身、范围和随机对手目标不会读取 `targetActorId` 决定实际目标；它们会在技能执行时根据当前站位重新收集
+	 * 使用者、全部相邻目标或随机候选。因此提交阶段只校验 [BattleSkillTargetScope.SELECTED_TARGET]，避免管理端
+	 * 因为请求里带了占位目标而错误拒绝本来合法的自身或范围技能。
+	 */
+	private fun validateSelectedTarget(
+		state: BattleState,
+		action: BattleAction.UseSkill,
+		actor: BattleParticipant,
+	): List<BattleActionViolation> {
 		val target = state.participant(action.targetActorId)
 		if (target == null) {
-			violations += violation(
+			return listOf(violation(
 				code = "target-not-found",
 				actorId = actor.actorId,
 				targetActorId = action.targetActorId,
 				message = "目标成员不存在: ${action.targetActorId}",
-			)
-		} else if (!state.isActive(target.actorId)) {
-			violations += violation(
+			))
+		}
+		if (!state.isActive(target.actorId)) {
+			return listOf(violation(
 				code = "target-not-active",
 				actorId = actor.actorId,
 				targetActorId = target.actorId,
 				message = "目标成员当前不在场: ${target.actorId}",
-			)
-		} else if (!target.canBattle()) {
-			violations += violation(
+			))
+		}
+		if (!target.canBattle()) {
+			return listOf(violation(
 				code = "target-fainted",
 				actorId = actor.actorId,
 				targetActorId = target.actorId,
 				message = "目标成员已经无法战斗: ${target.actorId}",
-			)
+			))
 		}
-		return violations
+		return emptyList()
 	}
 
 	private fun validateSwitch(
