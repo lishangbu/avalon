@@ -75,12 +75,7 @@ internal class BattleSkillTargetResolution(
 			)
 			is BattlePreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
 		}
-		val absorbedByAbility = if (ignoresTargetAbilityEffects) {
-			null
-		} else {
-			skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
-				?: skillBlockEffects.elementSkillAbsorbStatStage(state, actor, target, skill)
-		}
+		val absorbedByAbility = absorbElementSkillByAbility(state, actor, target, skill, ignoresTargetAbilityEffects)
 		if (absorbedByAbility != null) {
 			return context.copy(
 				state = lockedMoves.endAfterDisruption(
@@ -92,20 +87,76 @@ internal class BattleSkillTargetResolution(
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			val afterEffects = skillAdditionalEffects.apply(state, actor.actorId, target.actorId, skill, random)
-			val afterHpEffects = skillHpEffects.applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
-			val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
-			return context.copy(
-				state = lockedMoves.updateAfterSuccessfulUse(
-					state = afterEnvironmentEffects,
-					actorId = actor.actorId,
-					targetActorId = target.actorId,
-					skill = skill,
-					random = random,
-				),
-			)
+			return resolveStatusSkill(context, state, actor, target, skill, random)
+		}
+		return resolveDamageSkill(context, state, actor, target, skill, targetMultiplier, random)
+	}
+
+	/**
+	 * 处理被目标特性吸收的元素技能。
+	 *
+	 * 命中前 gate 会先判断技能是否无视目标特性；一旦无视，吸收类特性必须整段跳过。普通吸收回复和吸收后能力阶级
+	 * 提升都属于“技能已经被目标吃掉”的同一类中断，因此这里只返回吸收后的状态，由外层统一中断锁招或蓄力释放。
+	 */
+	private fun absorbElementSkillByAbility(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		ignoresTargetAbilityEffects: Boolean,
+	): BattleState? =
+		if (ignoresTargetAbilityEffects) {
+			null
+		} else {
+			skillBlockEffects.elementSkillAbsorbHeal(state, actor, target, skill)
+				?: skillBlockEffects.elementSkillAbsorbStatStage(state, actor, target, skill)
 		}
 
+	/**
+	 * 结算变化类技能对单个目标的成功命中。
+	 *
+	 * 变化技能不会进入属性无效、直接伤害和普通伤害公式；命中后只按固定顺序应用附加效果、使用者 HP 效果、
+	 * 环境效果，再推进锁招状态。这个顺序与伤害技能的成功收尾分开，是因为变化技能没有“本次造成伤害”供
+	 * 造成伤害后回复道具读取。
+	 */
+	private fun resolveStatusSkill(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): TurnContext {
+		val afterEffects = skillAdditionalEffects.apply(state, actor.actorId, target.actorId, skill, random)
+		val afterHpEffects = skillHpEffects.applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
+		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
+		return context.copy(
+			state = lockedMoves.updateAfterSuccessfulUse(
+				state = afterEnvironmentEffects,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skill = skill,
+				random = random,
+			),
+		)
+	}
+
+	/**
+	 * 结算伤害类技能对单个目标的成功命中入口。
+	 *
+	 * 这里先做属性无效，因为固定伤害、比例伤害和普通公式伤害都需要遵守“目标属性完全无效时造成 0 伤害”的
+	 * 现代规则口径。属性有效后再分流直接伤害和普通公式伤害，两条路径最后都会回到
+	 * [finishSuccessfulDamageMove]，保证命中后附加效果、造成伤害后回复道具和锁招推进只维护一份顺序。
+	 */
+	private fun resolveDamageSkill(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		random: BattleRandom,
+	): TurnContext {
 		val effectiveness = state.rules.elementChart.multiplier(skill.effectiveElementId(state.environment.weather), target.elementIds)
 		if (effectiveness == 0.0) {
 			return context.interruptSkillWithEvent(
@@ -126,51 +177,101 @@ internal class BattleSkillTargetResolution(
 		}
 
 		val directDamageAttempt = directDamage.attempt(skill, actor, target)
-		if (directDamageAttempt != null) {
-			if (directDamageAttempt is BattleDirectDamageAttempt.Failed) {
-				return context.interruptSkillWithEvent(
-					state = state,
-					actor = actor,
-					skill = skill,
-					random = random,
-					event = BattleEvent.SkillFailed(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						targetActorId = target.actorId,
-						skillId = skill.skillId,
-						reason = directDamageAttempt.reason,
-					),
-				)
-			}
-			val directDamageHit = directDamageAttempt as BattleDirectDamageAttempt.Hit
-			val damageEventStartIndex = state.events.size
-			val afterDirectDamage = resolveDirectDamageHit(
+		return if (directDamageAttempt == null) {
+			resolveFormulaDamage(context, state, actor, target, skill, targetMultiplier, random)
+		} else {
+			resolveDirectDamageAttempt(
 				context = context,
-				actorId = actor.actorId,
-				targetActorId = target.actorId,
-				skill = skill,
-				damageAmount = directDamageHit.amount,
-				faintActorAfterHit = directDamageHit.faintActorAfterHit,
-				targetMultiplier = targetMultiplier,
-				effectiveness = effectiveness,
-				random = random,
-			)
-			val moveDamageAmount = damageDealtByMove(
-				state = afterDirectDamage.state,
-				eventStartIndex = damageEventStartIndex,
-				actorId = actor.actorId,
-				skillId = skill.skillId,
-			)
-			return finishSuccessfulDamageMove(
-				context = afterDirectDamage,
+				state = state,
 				actor = actor,
 				target = target,
 				skill = skill,
-				damageAmount = moveDamageAmount,
+				targetMultiplier = targetMultiplier,
+				effectiveness = effectiveness,
+				attempt = directDamageAttempt,
 				random = random,
 			)
 		}
+	}
 
+	/**
+	 * 结算固定、比例或 HP 派生直接伤害技能。
+	 *
+	 * 直接伤害不会进入普通公式，但失败分支和成功分支仍必须从同一个目标结算入口返回：失败时中断锁招，成功时
+	 * 先写入 HP，再统计本次技能实际造成的伤害，最后复用伤害技能成功收尾。这样直接伤害技能不会绕过替身、
+	 * 低体力道具、接触触发、反伤、倒下判定或胜负判定。
+	 */
+	private fun resolveDirectDamageAttempt(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		effectiveness: Double,
+		attempt: BattleDirectDamageAttempt,
+		random: BattleRandom,
+	): TurnContext =
+		when (attempt) {
+			is BattleDirectDamageAttempt.Failed -> context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = attempt.reason,
+				),
+			)
+			is BattleDirectDamageAttempt.Hit -> {
+				val damageEventStartIndex = state.events.size
+				val afterDirectDamage = resolveDirectDamageHit(
+					context = context,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skill = skill,
+					damageAmount = attempt.amount,
+					faintActorAfterHit = attempt.faintActorAfterHit,
+					targetMultiplier = targetMultiplier,
+					effectiveness = effectiveness,
+					random = random,
+				)
+				val moveDamageAmount = damageDealtByMove(
+					state = afterDirectDamage.state,
+					eventStartIndex = damageEventStartIndex,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+				)
+				finishSuccessfulDamageMove(
+					context = afterDirectDamage,
+					actor = actor,
+					target = target,
+					skill = skill,
+					damageAmount = moveDamageAmount,
+					random = random,
+				)
+			}
+		}
+
+	/**
+	 * 结算普通公式伤害技能。
+	 *
+	 * 多段命中在单目标内部循环；每一段都独立消费要害与伤害浮动随机数，并在目标或使用者倒下、战斗结束时停止。
+	 * 开始循环前记录事件下标，是为了最终按“本次技能动作”汇总伤害，避免贝壳之铃类造成伤害后回复道具在多段
+	 * 技能里按每段分别读取伤害。
+	 */
+	private fun resolveFormulaDamage(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		targetMultiplier: Double,
+		random: BattleRandom,
+	): TurnContext {
 		val hitCount = determineHitCount(skill, random)
 		val stateWithHitCount = if (hitCount > 1) {
 			state.appendEvent(
