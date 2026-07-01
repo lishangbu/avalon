@@ -22,12 +22,12 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  * 这些效果容易被误拆成“普通伤害一套、混乱自伤一套、回合末伤害一套、入场陷阱一套”。集中在这里后，各阶段
  * 仍然可以通过明确的方法选择自己需要的 hook，而真正的道具消费、回复封锁、间接伤害免疫和事件顺序只有一份。
  *
- * @property statusEffects 接触特性附加主要异常状态时复用的状态结算器。
+ * @property majorStatusEffects 接触特性附加主要异常状态时复用的主要异常状态结算器。
  * @property skillIgnoresTargetAbilityEffects 判断本次技能是否无视目标侧防守特性；它同时服务伤害和接触特性，
  * 因此从主引擎以回调形式传入，避免本类复制目标侧判定。
  */
 internal class BattlePostDamageEffects(
-	private val statusEffects: BattleStatusEffects,
+	private val majorStatusEffects: BattleMajorStatusEffects,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
 	/**
@@ -60,7 +60,7 @@ internal class BattlePostDamageEffects(
 				} else if (!chanceSucceeds(effect.chancePercent, random, "contact status for $targetActorId")) {
 					current
 				} else {
-					statusEffects.applyMajorStatus(
+					majorStatusEffects.applyMajorStatus(
 						state = current,
 						actorId = targetActorId,
 						recipient = actor,

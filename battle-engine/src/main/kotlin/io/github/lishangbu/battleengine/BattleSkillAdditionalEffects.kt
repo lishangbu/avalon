@@ -16,7 +16,8 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  * 有一处可读实现，主状态机也不会继续膨胀成效果脚本。
  */
 internal class BattleSkillAdditionalEffects(
-	private val statusEffects: BattleStatusEffects,
+	private val majorStatusEffects: BattleMajorStatusEffects,
+	private val volatileStatusEffects: BattleVolatileStatusEffects,
 	private val statStageEffects: BattleStatStageEffects,
 	private val fieldEffects: BattleFieldEffects,
 	private val targetDefenseEffects: BattleTargetDefenseEffects,
@@ -50,7 +51,7 @@ internal class BattleSkillAdditionalEffects(
 	/**
 	 * 应用技能声明的主要异常状态附加。
 	 *
-	 * 真正的状态免疫、睡眠回合随机数、状态治愈道具等规则由 [BattleStatusEffects] 负责；这里仅按技能资料解析
+	 * 真正的状态免疫、睡眠回合随机数、状态治愈道具等规则由 [BattleMajorStatusEffects] 负责；这里仅按技能资料解析
 	 * 接收者、概率和效果顺序。
 	 */
 	private fun applyMajorStatusApplications(
@@ -68,7 +69,7 @@ internal class BattleSkillAdditionalEffects(
 				if (!recipient.canBattle()) {
 					current
 				} else {
-					statusEffects.applyMajorStatus(
+					majorStatusEffects.applyMajorStatus(
 						state = current,
 						actorId = actorId,
 						recipient = recipient,
@@ -84,7 +85,7 @@ internal class BattleSkillAdditionalEffects(
 	/**
 	 * 应用技能声明的临时状态附加。
 	 *
-	 * 混乱持续时间等需要随机数的状态细节仍由 [BattleStatusEffects] 统一处理；这里保持和主要异常相同的接收者解析
+	 * 混乱持续时间等需要随机数的状态细节仍由 [BattleVolatileStatusEffects] 统一处理；这里保持和主要异常相同的接收者解析
 	 * 与概率消费口径。
 	 */
 	private fun applyVolatileStatusApplications(
@@ -102,7 +103,7 @@ internal class BattleSkillAdditionalEffects(
 				if (!recipient.canBattle()) {
 					current
 				} else {
-					statusEffects.applyVolatileStatus(
+					volatileStatusEffects.applyVolatileStatus(
 						state = current,
 						actorId = actorId,
 						recipient = recipient,

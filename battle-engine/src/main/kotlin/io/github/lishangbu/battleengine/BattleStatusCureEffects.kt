@@ -11,7 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleVolatileStatus
  * 这个类刻意只做一件事：状态已经被写入运行态并产生可观察事件后，检查目标当前有效携带道具是否声明了对应的
  * 治愈效果；如果命中效果，就清除刚写入的状态、按效果配置决定是否消费道具，并追加清除事件。它不参与“状态
  * 能否写入”的任何判定，所以属性免疫、场地免疫、替身、特性免疫、道具免疫和已有状态阻止仍由
- * [BattleStatusEffects] 在随机数消费前完成。
+ * [BattleMajorStatusEffects] 或 [BattleVolatileStatusEffects] 在随机数消费前完成。
  *
  * 这种拆法比给每一种异常状态挂独立处理器更小：治愈道具的可观察规则完全相同，差异只在主要异常状态和临时
  * 状态对应的运行态字段、道具效果类型和事件类型不同。把两条路径放在同一个 helper 里，可以稳定保留

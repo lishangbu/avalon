@@ -19,11 +19,11 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  * 疲劳混乱。它不选择行动、不扣 PP、不解析目标，也不决定技能是否命中。这样主流程仍能清楚表达“什么情况下
  * 调用锁招结束”，而锁招自身的字段维护不会继续挤在主引擎里。
  *
- * @property statusEffects 锁招结束后的疲劳混乱复用统一状态结算器，确保已有混乱、薄雾场地、特性/道具免疫和
+ * @property volatileStatusEffects 锁招结束后的疲劳混乱复用统一临时状态结算器，确保已有混乱、薄雾场地、特性/道具免疫和
  * 状态治愈道具仍按普通临时状态写入规则处理。
  */
 internal class BattleLockedMoveEffects(
-	private val statusEffects: BattleStatusEffects,
+	private val volatileStatusEffects: BattleVolatileStatusEffects,
 ) {
 	/**
 	 * 在技能成功执行后推进锁招状态。
@@ -181,7 +181,7 @@ internal class BattleLockedMoveEffects(
 	/**
 	 * 给锁招结束后的使用者附加疲劳混乱。
 	 *
-	 * 这里不直接写入混乱字段，而是走 [BattleStatusEffects.applyVolatileStatus]。这样如果使用者已经混乱、被薄雾
+	 * 这里不直接写入混乱字段，而是走 [BattleVolatileStatusEffects.applyVolatileStatus]。这样如果使用者已经混乱、被薄雾
 	 * 场地保护、拥有临时状态免疫或携带可治愈混乱的道具，事件顺序和普通技能附加混乱保持一致。
 	 */
 	private fun applyFatigueConfusion(
@@ -191,7 +191,7 @@ internal class BattleLockedMoveEffects(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): BattleState =
-		statusEffects.applyVolatileStatus(
+		volatileStatusEffects.applyVolatileStatus(
 			state = state,
 			actorId = actorId,
 			recipient = recipient,

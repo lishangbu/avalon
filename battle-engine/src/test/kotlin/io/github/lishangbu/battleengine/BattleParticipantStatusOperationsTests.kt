@@ -11,8 +11,9 @@ import kotlin.test.assertTrue
 /**
  * 验证 `BattleParticipant` 的主要异常状态和临时状态底层迁移。
  *
- * 状态是否能写入由 `BattleStatusEffects` 负责判断；这里假设调用方已经完成免疫、替身、特性、道具和随机持续时间
- * 判定，只验证成员快照如何保存已生效状态、如何递减持续回合，以及归零时是否同步清理状态绑定字段。
+ * 状态是否能写入由 `BattleMajorStatusEffects` 和 `BattleVolatileStatusEffects` 负责判断；这里假设调用方已经完成
+ * 免疫、替身、特性、道具和随机持续时间判定，只验证成员快照如何保存已生效状态、如何递减持续回合，以及归零
+ * 时是否同步清理状态绑定字段。
  */
 class BattleParticipantStatusOperationsTests {
 	@Test

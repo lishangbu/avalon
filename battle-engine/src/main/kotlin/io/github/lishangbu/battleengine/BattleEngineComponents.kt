@@ -85,12 +85,27 @@ internal class BattleEngineComponents(
 	)
 
 	/**
-	 * 状态附加与状态免疫结算器。
+	 * 主要异常状态附加与免疫结算器。
 	 *
-	 * 主要异常和临时状态的写入、阻止原因、状态治愈道具都放在这里；替身阻挡和无视目标特性的共享判断由目标
-	 * 防守 resolver 提供，状态规则本身只关心“能不能写入这个状态”。
+	 * 接触特性、技能附加状态和入场陷阱都会复用这套主要异常状态阻止顺序，确保属性、场地、替身、特性和道具
+	 * 免疫不会在不同入口出现两份近似实现。
 	 */
-	private val statusEffects = BattleStatusEffects(
+	private val majorStatusEffects = BattleMajorStatusEffects(
+		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
+		},
+		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
+			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+		},
+	)
+
+	/**
+	 * 临时状态附加与免疫结算器。
+	 *
+	 * 技能附加混乱、畏缩、挑衅等临时状态，以及锁招结束后的疲劳混乱都走这里，避免把主要异常槽位和临时状态
+	 * 持续字段混在一个巨型 resolver 中。
+	 */
+	private val volatileStatusEffects = BattleVolatileStatusEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
 			targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
 		},
@@ -105,7 +120,7 @@ internal class BattleEngineComponents(
 	 * 主状态机仍决定“成功后推进锁招”或“失败后中断锁招”的调用时机；该对象只维护锁招字段、锁招事件和结束后
 	 * 可能发生的疲劳混乱。
 	 */
-	private val lockedMoves = BattleLockedMoveEffects(statusEffects)
+	private val lockedMoves = BattleLockedMoveEffects(volatileStatusEffects)
 
 	/**
 	 * 单目标技能结算前的场地、属性、特性阻止与吸收规则。
@@ -131,7 +146,7 @@ internal class BattleEngineComponents(
 	 * resolver，保证所有伤害入口共享同一套触发线、回复封锁和道具消费规则。
 	 */
 	private val postDamageEffects = BattlePostDamageEffects(
-		statusEffects = statusEffects,
+		majorStatusEffects = majorStatusEffects,
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
 		},
@@ -160,7 +175,7 @@ internal class BattleEngineComponents(
 	 */
 	private val entryHazardEffects = BattleEntryHazardEffects(
 		majorStatusBlockReason = { state, actorId, recipient, status ->
-			statusEffects.blockedMajorStatusReason(state, actorId, recipient, status)
+			majorStatusEffects.blockedMajorStatusReason(state, actorId, recipient, status)
 		},
 		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
 	)
@@ -177,7 +192,8 @@ internal class BattleEngineComponents(
 		switchInAbilityEffects = switchInAbilityEffects,
 	)
 	private val skillAdditionalEffects = BattleSkillAdditionalEffects(
-		statusEffects = statusEffects,
+		majorStatusEffects = majorStatusEffects,
+		volatileStatusEffects = volatileStatusEffects,
 		statStageEffects = statStageEffects,
 		fieldEffects = fieldEffects,
 		targetDefenseEffects = targetDefenseEffects,

@@ -3,9 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
-import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
-import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
@@ -14,126 +12,23 @@ import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
- * 主要异常状态与临时状态的附加结算器。
+ * 临时状态的附加与免疫结算器。
  *
- * 这个类只处理“状态能否写入目标运行态、写入后是否立刻被道具治愈、以及相关事件如何追加”。它不负责命中率、
- * 技能目标选择、概率触发、伤害、倒下或回合末持续时间推进；这些阶段仍由主状态机或其它 resolver 明确调用。
+ * 本类只处理畏缩、混乱、回复封锁、挑衅、定身法、无理取闹和束缚等不占用主要异常槽位的状态。它负责已有状态
+ * 拒绝刷新、混乱和束缚持续时间随机数、定身法可禁用技能解析、临时状态写入事件，以及写入后立即触发的治愈
+ * 道具。主要异常状态的属性和场地免疫由 [BattleMajorStatusEffects] 单独维护。
  *
- * 抽出本类的目的很窄：让 [BattleEngine] 不再同时承担当回合技能编排、伤害、状态免疫和道具治愈四类职责。
- * 状态规则本身仍然是直接函数调用，不做事件总线，也不做“按状态枚举动态分发处理器”。原因是状态附加最重要的
- * 不是可插拔，而是阻止顺序和随机数消费顺序稳定：
- * - 已有状态、属性免疫、场地免疫、替身、特性免疫、道具免疫都必须发生在睡眠/混乱持续时间随机数之前。
- * - 成功写入状态后，道具治愈事件必须紧跟状态写入事件。
- * - 定身法只有找到仍有 PP 的最近成功技能时才写入状态，否则产生明确阻止原因。
- *
- * 替身阻挡和“攻击方是否无视目标特性”仍通过回调从主引擎传入。它们不是状态专属规则：普通伤害、固定伤害、
- * 接触特性和状态附加都会读取同样的判断。把共享判断留在主引擎，可以避免本类和伤害流程各自维护一份近似逻辑。
+ * 所有阻止判断都发生在混乱/束缚持续时间随机数消费前。这样薄雾场地、替身、特性免疫、道具免疫或已有状态阻止
+ * 时，不会让 replay 随机脚本因为一次失败的临时状态附加而向前偏移。
  *
  * @property substituteBlocksOpponentEffect 判断目标替身是否会阻止对手技能效果。
  * @property skillIgnoresTargetAbilityEffects 判断本次技能是否无视目标侧防守特性。
  */
-internal class BattleStatusEffects(
+internal class BattleVolatileStatusEffects(
 	private val substituteBlocksOpponentEffect: (BattleState, String, String, BattleSkillSlot) -> Boolean,
 	private val skillIgnoresTargetAbilityEffects: (BattleState, String, String) -> Boolean,
 ) {
 	private val statusCureEffects = BattleStatusCureEffects()
-
-	/**
-	 * 附加主要异常状态并处理现代属性免疫、接地场地免疫、替身、特性/道具免疫和状态私有计数。
-	 *
-	 * 该函数假定调用方已经完成技能命中、概率触发和目标是否仍可战斗的前置判断。函数内部只维护状态写入阶段的
-	 * 不变量：已有主要异常状态会拒绝刷新；睡眠成功时消费一个 `[0, 3)` 随机数并转成 1..3 次行动前检查；其它
-	 * 主要异常状态不消费持续时间随机数。任何阻止原因都会在随机数消费前短路，保证 replay 随机脚本稳定。
-	 */
-	fun applyMajorStatus(
-		state: BattleState,
-		actorId: String,
-		recipient: BattleParticipant,
-		status: BattleMajorStatus,
-		random: BattleRandom,
-		randomReason: String,
-		skill: BattleSkillSlot? = null,
-	): BattleState {
-		val blockedReason = if (recipient.majorStatus != null) {
-			BattleStatusBlockReason.EXISTING_STATUS
-		} else {
-			blockedMajorStatusReason(state, actorId, recipient, status, skill)
-		}
-		if (blockedReason != null) {
-			return appendMajorStatusBlockedEvent(
-				state = state,
-				actorId = actorId,
-				targetActorId = recipient.actorId,
-				status = status,
-				reason = blockedReason,
-			)
-		}
-		val sleepTurnsRemaining = if (status == BattleMajorStatus.SLEEP) {
-			random.nextInt(3, randomReason) + 1
-		} else {
-			0
-		}
-		val appliedState = state
-			.replaceParticipant(recipient.applyMajorStatus(status, sleepTurnsRemaining))
-			.appendEvent(
-				BattleEvent.StatusApplied(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = recipient.actorId,
-					status = status,
-				),
-			)
-		return statusCureEffects.applyMajorStatusCureItem(appliedState, recipient.actorId)
-	}
-
-	/**
-	 * 判断主要异常状态是否会在附加前被稳定免疫规则阻止。
-	 *
-	 * 该方法公开给入场陷阱 resolver 使用，因为毒菱类入场效果和技能附加状态共享同一套属性、场地、特性、
-	 * 道具免疫判断。顺序保持为属性、场地、替身、特性、道具：如果目标属性已经天然免疫，就不再把原因归给
-	 * 场地或道具；如果技能传入且被替身阻挡，也不会继续读取特性/道具。这种顺序让测试断言能定位真正先命中的
-	 * 规则来源，而不是被后续同样成立的免疫遮蔽。
-	 */
-	fun blockedMajorStatusReason(
-		state: BattleState,
-		actorId: String,
-		recipient: BattleParticipant,
-		status: BattleMajorStatus,
-		skill: BattleSkillSlot? = null,
-	): BattleStatusBlockReason? =
-		when {
-			statusBlockedByElement(state.rules, recipient, status) -> BattleStatusBlockReason.ELEMENT
-			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
-			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) ->
-				BattleStatusBlockReason.SUBSTITUTE
-			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
-				statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
-			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
-			else -> null
-		}
-
-	/**
-	 * 追加主要异常状态附加失败事件。
-	 *
-	 * 主要异常和临时状态的阻止事件字段非常接近，但事件类型不同。把事件构造集中到一个小函数里，可以让
-	 * [applyMajorStatus] 的主流程只保留“先判定阻止原因，再决定是否写入状态”的规则结构。
-	 */
-	private fun appendMajorStatusBlockedEvent(
-		state: BattleState,
-		actorId: String,
-		targetActorId: String,
-		status: BattleMajorStatus,
-		reason: BattleStatusBlockReason,
-	): BattleState =
-		state.appendEvent(
-			BattleEvent.StatusApplicationBlocked(
-				turnNumber = state.turnNumber,
-				actorId = actorId,
-				targetActorId = targetActorId,
-				status = status,
-				reason = reason,
-			),
-		)
 
 	/**
 	 * 附加临时状态并处理状态私有计数。
@@ -141,9 +36,6 @@ internal class BattleStatusEffects(
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
 	 * 固定 5 回合计数并在回合末递减；挑衅和定身法写入固定 3/4 回合计数；无理取闹写入离场清除的布尔状态；
 	 * 束缚写入来源成员和 4..5 回合计数。
-	 *
-	 * 已有可持续临时状态不会刷新旧持续回合，会产生 [BattleStatusBlockReason.EXISTING_STATUS]。场地、替身、
-	 * 特性或道具免疫会在混乱/束缚持续时间随机数消费前短路，避免“没有成功写入状态”的分支污染随机脚本。
 	 */
 	fun applyVolatileStatus(
 		state: BattleState,
@@ -257,70 +149,6 @@ internal class BattleStatusEffects(
 				reason = reason,
 			),
 		)
-
-	/**
-	 * 判断目标属性是否天然免疫指定主要异常状态。
-	 *
-	 * 当前覆盖现代主系列最稳定的类型免疫：火属性免疫灼伤，电属性免疫麻痹，毒/钢属性免疫中毒和剧毒，冰属性
-	 * 免疫冰冻。睡眠没有通用属性免疫，因此返回 false。属性 ID 来自 [BattleRuleSnapshot]，避免在引擎里硬编码
-	 * 资料库编号。
-	 */
-	private fun statusBlockedByElement(
-		rules: BattleRuleSnapshot,
-		recipient: BattleParticipant,
-		status: BattleMajorStatus,
-	): Boolean =
-		when (status) {
-			BattleMajorStatus.BURN -> recipient.hasElement(rules.fireElementId)
-			BattleMajorStatus.PARALYSIS -> recipient.hasElement(rules.electricElementId)
-			BattleMajorStatus.POISON,
-			BattleMajorStatus.BAD_POISON -> recipient.hasElement(rules.poisonElementId) || recipient.hasElement(rules.steelElementId)
-			BattleMajorStatus.FREEZE -> recipient.hasElement(rules.iceElementId)
-			BattleMajorStatus.SLEEP -> false
-		}
-
-	/**
-	 * 判断当前场地是否阻止目标获得主要异常状态。
-	 *
-	 * 现代场地免疫只影响当前上场且接地的成员。电气场地阻止睡眠；薄雾场地阻止所有主要异常状态。成员是否接地
-	 * 已经显式进入运行态，因此飞行、漂浮、携带道具等来源应在进入引擎前折算到 [BattleParticipant.grounded]。
-	 */
-	private fun statusBlockedByTerrain(
-		state: BattleState,
-		recipient: BattleParticipant,
-		status: BattleMajorStatus,
-	): Boolean {
-		if (!state.isActive(recipient.actorId) || !recipient.grounded) {
-			return false
-		}
-		return when (state.environment.terrain) {
-			BattleTerrain.ELECTRIC -> status == BattleMajorStatus.SLEEP
-			BattleTerrain.MISTY -> true
-			else -> false
-		}
-	}
-
-	/**
-	 * 判断目标特性是否稳定免疫指定主要异常状态。
-	 *
-	 * 调用方已经判断本次技能是否无视目标特性；这里只读取目标当前有效的结构化特性效果，避免把攻击方上下文混入
-	 * 纯谓词中。
-	 */
-	private fun statusBlockedByAbility(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
-		recipient.abilityEffects.any { effect ->
-			effect is BattleAbilityEffect.MajorStatusImmunity && status in effect.statuses
-		}
-
-	/**
-	 * 判断目标携带道具是否稳定免疫指定主要异常状态。
-	 *
-	 * 道具是否会被消耗、失效或被其它规则临时压制不在这里处理；本函数只读取成员快照中已经生效的
-	 * [BattleItemEffect.MajorStatusImmunity]。
-	 */
-	private fun statusBlockedByItem(recipient: BattleParticipant, status: BattleMajorStatus): Boolean =
-		recipient.itemEffects.any { effect ->
-			effect is BattleItemEffect.MajorStatusImmunity && status in effect.statuses
-		}
 
 	/**
 	 * 解析定身法可以禁用的目标技能。
