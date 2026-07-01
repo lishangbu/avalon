@@ -44,22 +44,18 @@ internal class BattleSkillUseResolution(
 	 * 技能使用事件和 PP 消耗只发生一次，随后每个实际目标独立结算命中、要害、伤害和附加效果。
 	 */
 	fun resolve(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
-		val state = context.state
 		val action = plan.action
-		val actor = state.participant(action.actorId) ?: return context
-		if (!state.isActive(actor.actorId) || !actor.canBattle()) {
-			return context
+		val actor = activeActor(context.state, action.actorId) ?: return context
+		val beforeMoveOutcome = resolveBeforeMove(context, plan, actor, random)
+		if (beforeMoveOutcome.blocked) {
+			return beforeMoveOutcome.context
 		}
-		val beforeMove = beforeMoveEffects.resolve(state, actor, plan.skill, random)
-		val beforeMoveContext = context.copy(state = beforeMove.state)
-		if (beforeMove.blocked) {
-			return beforeMoveContext.finishDisruptedPlannedSkill(plan.source, actor.actorId, plan.skill, random)
-		}
+		val beforeMoveContext = beforeMoveOutcome.context
 		val actionState = beforeMoveContext.state
 		val readyActor = actionState.participant(action.actorId) ?: return beforeMoveContext
 		val skill = readyActor.skillSlot(action.skillId) ?: return beforeMoveContext
-		val targets = skillTargeting.targetsForSkill(actionState, readyActor.actorId, action.targetActorId, skill, random)
-		if (targets.isEmpty()) {
+		val targets = resolveTargetsForReadySkill(actionState, action, readyActor, skill, random)
+		if (targets == null) {
 			return beforeMoveContext.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random)
 		}
 		if (plan.source == SkillActionSource.SUBMITTED) {
@@ -105,22 +101,101 @@ internal class BattleSkillUseResolution(
 		}
 
 		val targetMultiplier = skillTargeting.targetDamageMultiplier(skill, targets)
-		return targets.fold(beforeMoveContext.copy(state = stateAfterChargeDecision)) { current, target ->
+		return resolveTargets(
+			context = beforeMoveContext.copy(state = stateAfterChargeDecision),
+			actorId = readyActor.actorId,
+			skill = skill,
+			priorityContext = plan.priorityContext,
+			targets = targets,
+			targetMultiplier = targetMultiplier,
+			random = random,
+		)
+	}
+
+	/**
+	 * 读取本次行动仍然有效的行动者快照。
+	 *
+	 * 技能行动可能来自玩家提交、锁招延续或蓄力释放；无论来源如何，只要行动者已经不在当前上场席位或已经倒下，
+	 * 本次计划都必须静默跳过。把这个入口条件独立出来，可以让 [resolve] 主流程只保留“有效行动者继续进入行动前
+	 * 状态检查”的阶段语义。
+	 */
+	private fun activeActor(state: BattleState, actorId: String): BattleParticipant? {
+		val actor = state.participant(actorId) ?: return null
+		return actor.takeIf { state.isActive(it.actorId) && it.canBattle() }
+	}
+
+	/**
+	 * 结算行动前状态，并在技能被阻止时完成来源相关清理。
+	 *
+	 * 睡眠、畏缩、麻痹、混乱等状态都发生在 PP 消耗和技能使用事件之前；如果它们阻止了本次行动，普通提交行动
+	 * 只保留阻止事件，锁招延续和蓄力释放还需要清理成员身上的跨回合运行态。返回值用 [BeforeMoveOutcome]
+	 * 明确区分“状态已经更新但行动继续”和“行动已被完全阻止”。
+	 */
+	private fun resolveBeforeMove(
+		context: TurnContext,
+		plan: ActionPlan,
+		actor: BattleParticipant,
+		random: BattleRandom,
+	): BeforeMoveOutcome {
+		val beforeMove = beforeMoveEffects.resolve(context.state, actor, plan.skill, random)
+		val beforeMoveContext = context.copy(state = beforeMove.state)
+		return if (beforeMove.blocked) {
+			BeforeMoveOutcome(
+				context = beforeMoveContext.finishDisruptedPlannedSkill(plan.source, actor.actorId, plan.skill, random),
+				blocked = true,
+			)
+		} else {
+			BeforeMoveOutcome(context = beforeMoveContext, blocked = false)
+		}
+	}
+
+	/**
+	 * 按当前站位解析本次技能实际目标。
+	 *
+	 * 目标解析放在行动前状态通过之后，是因为睡眠、麻痹、混乱自伤等会在 PP 消耗和目标重定向前阻止行动。若此时
+	 * 已经没有任何有效目标，调用方会按行动来源中断锁招或蓄力释放；这里返回 null 来表达“目标阶段已经失败”。
+	 */
+	private fun resolveTargetsForReadySkill(
+		state: BattleState,
+		action: BattleAction.UseSkill,
+		readyActor: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): List<BattleParticipant>? {
+		val targets = skillTargeting.targetsForSkill(state, readyActor.actorId, action.targetActorId, skill, random)
+		return targets.ifEmpty { null }
+	}
+
+	/**
+	 * 逐个目标执行已经宣告成功的技能。
+	 *
+	 * 技能使用事件、PP、讲究锁定、蓄力和保护都已经在调用方完成。本函数只保留逐目标结算循环本身，并在任意目标
+	 * 导致战斗结束时停止后续目标处理，保证范围技能不会在结果已经出现后继续追加命中、伤害或附加效果事件。
+	 */
+	private fun resolveTargets(
+		context: TurnContext,
+		actorId: String,
+		skill: BattleSkillSlot,
+		priorityContext: SkillPriorityContext,
+		targets: List<BattleParticipant>,
+		targetMultiplier: Double,
+		random: BattleRandom,
+	): TurnContext =
+		targets.fold(context) { current, target ->
 			if (current.state.result != null) {
 				current
 			} else {
 				resolveTarget(
 					current,
-					readyActor.actorId,
+					actorId,
 					target.actorId,
 					skill,
-					plan.priorityContext,
+					priorityContext,
 					targetMultiplier,
 					random,
 				)
 			}
 		}
-	}
 
 	/**
 	 * 宣告一次技能使用，并写入宣告阶段产生的持久变化。
@@ -256,6 +331,17 @@ internal class BattleSkillUseResolution(
 		val usedState: BattleState,
 		val actorBeforePp: BattleParticipant,
 		val actorAfterActionSetup: BattleParticipant,
+	)
+
+	/**
+	 * 行动前状态阶段的结果。
+	 *
+	 * [context] 总是包含行动前状态阶段已经产生的最新事件和成员运行态；[blocked] 只表达本次技能是否已经被状态
+	 * 完全阻止。调用方据此决定是否继续进入目标解析和 PP 消耗阶段。
+	 */
+	private data class BeforeMoveOutcome(
+		val context: TurnContext,
+		val blocked: Boolean,
 	)
 }
 
