@@ -2,8 +2,10 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 /**
  * 验证运行时 policy mapper 的纯字符串映射边界。
@@ -21,10 +23,19 @@ class BattleRuntimePolicyMapperTests {
 	)
 
 	@Test
-	fun `skill target mapper keeps default target separate from enabled policy support`() {
-		assertThat("unknown-target".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
+	fun `skill target mapper keeps nullable default and rejects unknown policy`() {
+		assertThat(null.toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
+		assertThat("selected-target".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
+		assertThat("self".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELF)
 		assertThat("unknown-target".isBattleSkillRuntimeTargetPolicySupported()).isFalse()
 		assertThat("all-opponents".isBattleSkillRuntimeTargetPolicySupported()).isTrue()
+
+		val exception = assertThrows<ApiException> {
+			"unknown-target".toBattleSkillTargetScope()
+		}
+
+		assertThat(exception.field).isEqualTo("targetPolicy")
+		assertThat(exception.message).isEqualTo("不支持的技能目标策略: unknown-target")
 	}
 
 	@Test

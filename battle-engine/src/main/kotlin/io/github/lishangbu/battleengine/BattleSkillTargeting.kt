@@ -30,6 +30,8 @@ internal class BattleSkillTargeting {
 		random: BattleRandom,
 	): List<BattleParticipant> =
 		when (skill.targetScope) {
+			BattleSkillTargetScope.SELF -> listOfNotNull(state.participant(actorId))
+				.filter { state.isActive(it.actorId) && it.canBattle() }
 			BattleSkillTargetScope.SELECTED_TARGET -> listOfNotNull(state.activeTargetFor(selectedTargetActorId))
 				.filter { it.canBattle() }
 			BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS -> state.sides

@@ -8,6 +8,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.common.web.invalidValue
 
 /**
  * 技能运行时 policy 映射器。
@@ -18,10 +19,13 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  */
 internal fun String?.toBattleSkillTargetScope(): BattleSkillTargetScope =
 	when (this) {
+		null -> BattleSkillTargetScope.SELECTED_TARGET
+		"selected-target" -> BattleSkillTargetScope.SELECTED_TARGET
+		"self" -> BattleSkillTargetScope.SELF
 		"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS
 		"all-adjacent-participants" -> BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS
 		"random-opponent" -> BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT
-		else -> BattleSkillTargetScope.SELECTED_TARGET
+		else -> invalidValue("targetPolicy", "不支持的技能目标策略: $this")
 	}
 
 internal fun String?.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
@@ -179,8 +183,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。
  *
- * [toBattleSkillTargetScope] 对未知值会退回“选中目标”，是为了让空规则行保留普通单体技能的默认行为；但启用中的
- * 数据行不能依赖这种兜底，否则一个拼错的范围技能会被静默降级为单体技能。
+ * [toBattleSkillTargetScope] 只允许空规则行走“普通单体目标”默认值；启用中的数据行必须显式落在本集合中，
+ * 否则运行时会抛出字段非法错误，避免一个拼错的范围技能被静默降级为单体技能。
  */
 internal fun String.isBattleSkillRuntimeTargetPolicySupported(): Boolean =
 	this in battleSkillTargetPolicies

@@ -9,6 +9,7 @@ package io.github.lishangbu.battleengine.model
  * 普通伤害公式仍会使用范围目标倍率。
  */
 enum class BattleSkillTargetScope {
+	SELF,
 	SELECTED_TARGET,
 	ALL_ADJACENT_OPPONENTS,
 	ALL_ADJACENT_PARTICIPANTS,
