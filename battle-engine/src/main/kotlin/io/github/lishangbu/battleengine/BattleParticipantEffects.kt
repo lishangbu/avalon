@@ -6,7 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleWeather
 
-/**
+/*
  * 成员运行态的稳定谓词。
  *
  * 这个文件只放“读取当前快照并返回 true/false”的规则判断，不修改 [BattleParticipant]，也不追加

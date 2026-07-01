@@ -4,7 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStat
 
-/**
+/*
  * `BattleParticipant` 的能力阶级、连续保护、剧毒计数与离场清理操作。
  *
  * 这些状态都属于成员在场期间的战斗修正。它们与 HP、技能 PP、主要异常状态分开，是为了让离场、能力变化和回合末

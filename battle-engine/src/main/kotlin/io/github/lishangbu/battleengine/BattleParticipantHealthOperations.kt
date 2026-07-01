@@ -2,7 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleParticipant
 
-/**
+/*
  * `BattleParticipant` 的 HP 与替身运行态操作。
  *
  * 这一组函数只负责成员是否仍可战斗、HP 增减，以及替身 HP 的建立和扣减。它们不直接追加战斗事件，
