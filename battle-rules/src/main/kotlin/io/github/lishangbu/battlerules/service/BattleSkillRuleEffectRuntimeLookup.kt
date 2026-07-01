@@ -2,6 +2,7 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
 import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
@@ -47,14 +48,15 @@ class BattleSkillRuleEffectRuntimeLookup(
 		if (ruleId == null) {
 			return BattleSkillRuleEffectRuntimeSnapshot.EMPTY
 		}
+		val statusEffects = statusEffectRows(ruleId)
 		val sideFieldEffects = sideFieldEffectRows(ruleId)
 		return BattleSkillRuleEffectRuntimeSnapshot(
 			chargeSkippedByWeathers = chargeSkippedByWeathers(ruleId),
 			accuracyOverridesByWeather = weatherAccuracyOverrides(ruleId),
 			powerMultipliersByWeather = weatherPowerMultipliers(ruleId),
 			elementOverridesByWeather = weatherElementOverrides(ruleId),
-			statusApplications = statusApplications(ruleId),
-			volatileStatusApplications = volatileStatusApplications(ruleId),
+			statusApplications = statusApplications(statusEffects),
+			volatileStatusApplications = volatileStatusApplications(statusEffects),
 			statStageEffects = statStageEffects(ruleId),
 			statStageOperations = statStageOperations(ruleId),
 			sideConditionApplications = sideConditionApplications(sideFieldEffects),
@@ -117,23 +119,30 @@ class BattleSkillRuleEffectRuntimeLookup(
 			ruleId,
 		).toSet()
 
-	private fun statusApplications(ruleId: Long): List<BattleStatusApplication> =
+	/**
+	 * 一次读取技能附加状态效果，再按状态族拆成主要异常和临时状态。
+	 *
+	 * 数据库中主要异常和临时状态共用 `battle_skill_status_effect`，真正区分来自 `battle_status_rule.status_kind`。
+	 * 先把共用行读成 [StatusEffectRuntimeRow]，可以保证目标作用域、概率和排序只解析一次；后续如果状态效果新增
+	 * 持续回合或触发时机字段，也只需要在这一个查询里补列。
+	 */
+	private fun statusEffectRows(ruleId: Long): List<StatusEffectRuntimeRow> =
 		jdbcTemplate.query(
 			"""
-			select sr.code as status_code, e.target_scope, e.chance_percent
+			select sr.code as status_code, sr.status_kind, e.target_scope, e.chance_percent
 			from battle_skill_status_effect e
 			join battle_status_rule sr on sr.id = e.status_rule_id
 			where e.skill_rule_id = ?
 				and e.enabled = true
 				and sr.enabled = true
-				and sr.status_kind = 'MAJOR'
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
 			{ rs, _ ->
 				val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
-				BattleStatusApplication(
-					status = rs.getString("status_code").toBattleMajorStatus(),
+				StatusEffectRuntimeRow(
+					statusCode = rs.getString("status_code"),
+					statusKind = rs.getString("status_kind"),
 					target = target,
 					chancePercent = rs.getInt("chance_percent"),
 				)
@@ -141,29 +150,25 @@ class BattleSkillRuleEffectRuntimeLookup(
 			ruleId,
 		).filterNotNull()
 
-	private fun volatileStatusApplications(ruleId: Long): List<BattleVolatileStatusApplication> =
-		jdbcTemplate.query(
-			"""
-			select sr.code as status_code, e.target_scope, e.chance_percent
-			from battle_skill_status_effect e
-			join battle_status_rule sr on sr.id = e.status_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and sr.enabled = true
-				and sr.status_kind = 'VOLATILE'
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			{ rs, _ ->
-				val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
-				BattleVolatileStatusApplication(
-					status = rs.getString("status_code").toBattleVolatileStatus(),
-					target = target,
-					chancePercent = rs.getInt("chance_percent"),
+	private fun statusApplications(rows: List<StatusEffectRuntimeRow>): List<BattleStatusApplication> =
+		rows.filter { it.statusKind == "MAJOR" }
+			.map { row ->
+				BattleStatusApplication(
+					status = row.statusCode.toBattleMajorStatus(),
+					target = row.target,
+					chancePercent = row.chancePercent,
 				)
-			},
-			ruleId,
-		).filterNotNull()
+			}
+
+	private fun volatileStatusApplications(rows: List<StatusEffectRuntimeRow>): List<BattleVolatileStatusApplication> =
+		rows.filter { it.statusKind == "VOLATILE" }
+			.map { row ->
+				BattleVolatileStatusApplication(
+					status = row.statusCode.toBattleVolatileStatus(),
+					target = row.target,
+					chancePercent = row.chancePercent,
+				)
+			}
 
 	private fun statStageEffects(ruleId: Long): List<BattleStatStageEffect> =
 		jdbcTemplate.query(
@@ -337,6 +342,19 @@ class BattleSkillRuleEffectRuntimeLookup(
 		return if (wasNull()) null else value
 	}
 }
+
+/**
+ * `battle_skill_status_effect` 和 `battle_status_rule` 合并后的最小运行时行。
+ *
+ * 同一张技能状态效果表既能表达主要异常，也能表达混乱、畏缩、回复封锁等临时状态；`statusKind` 是拆分两类引擎
+ * 模型的唯一依据。这里先保存已经转换过的 [target]，避免两个列表各自重新解释 `target_scope` 时出现不一致。
+ */
+private data class StatusEffectRuntimeRow(
+	val statusCode: String,
+	val statusKind: String,
+	val target: BattleEffectTarget,
+	val chancePercent: Int,
+)
 
 /**
  * `battle_skill_field_effect` 和 `battle_field_rule` 合并后的最小运行时行。
