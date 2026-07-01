@@ -107,6 +107,51 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `每条规则编号必须绑定具体公开规则场景锚点`() {
+		val mappings = ruleScenarioMappings()
+		val rangesByGroupCode = coverageGroupRuleRanges().associateBy { it.groupCode }
+		val recordsByGroupCode = namedScenarioRecordsForCoverageGroups().groupBy { it.groupCode }
+
+		assertEquals(
+			(1..312).toList(),
+			mappings.map { it.ruleNumber },
+			"规则编号到公开场景的映射必须覆盖 1..312 的每一个编号，不能只证明总数为 312",
+		)
+		mappings.forEach { mapping ->
+			assertEquals(
+				rangesByGroupCode.getValue(mapping.groupCode).ruleNumbers,
+				mapping.ruleNumberRange,
+				"${mapping.groupCode} 的编号 ${mapping.ruleNumber} 必须保留所属规则族区间",
+			)
+			assertTrue(
+				mapping.ruleNumber in mapping.ruleNumberRange,
+				"${mapping.groupCode} 的编号 ${mapping.ruleNumber} 必须落在自己的规则族区间内",
+			)
+			assertEquals(
+				mapping.groupCode,
+				mapping.scenario.groupCode,
+				"规则编号 ${mapping.ruleNumber} 的场景锚点必须来自同一个规则族，避免跨族借场景稀释覆盖含义",
+			)
+			assertTrue(mapping.scenario.testClassName.isNotBlank(), "规则编号 ${mapping.ruleNumber} 必须能定位测试类")
+			assertTrue(mapping.scenario.name.isNotBlank(), "规则编号 ${mapping.ruleNumber} 必须能定位 assertNamed 场景名")
+		}
+		coverageGroupRuleRanges().forEach { range ->
+			val groupMappings = mappings.filter { it.groupCode == range.groupCode }
+			val groupRecords = recordsByGroupCode.getValue(range.groupCode)
+			assertEquals(
+				range.ruleNumbers.toList(),
+				groupMappings.map { it.ruleNumber },
+				"${range.groupCode} 的映射编号必须等于该规则族声明的连续区间",
+			)
+			assertEquals(
+				minOf(range.ruleNumbers.count(), groupRecords.size),
+				groupMappings.map { it.scenario.name }.distinct().size,
+				"${range.groupCode} 应尽量使用族内已有的不同公开场景；只有一个场景确实覆盖多条相邻规则时才复用锚点",
+			)
+		}
+	}
+
+	@Test
 	fun `公开规则命名场景必须使用唯一名称`() {
 		val scenarioNames = namedScenarioRecordsForCoverageGroups().map { it.name }
 		val duplicatedNames = scenarioNames
@@ -225,8 +270,35 @@ class BattleRuleCoverageLedgerTests {
 						testClassName = testClassName,
 						name = scenarioName,
 					)
-				}
+		}
+	}
+
+	/**
+	 * 为 1..312 的每个规则编号生成一个具体场景锚点。
+	 *
+	 * 这里没有维护 312 行手写表。原因是当前规则账本按“行为族”维护，而不少公开场景本身会同时证明多个相邻行为，
+	 * 例如同一次回合可以同时证明事件顺序、HP 取整和状态持续时间。因此映射的职责是“编号 -> 可定位测试锚点”，
+	 * 而不是强行制造 312 个彼此独立的测试方法。生成策略保持确定性：
+	 * - 先按规则族声明顺序取得编号区间。
+	 * - 每个编号只使用同一规则族内的 `assertNamed` 场景，不跨族借用。
+	 * - 当某个规则族的场景数少于规则数时，按源码顺序循环复用场景，表示一个公开场景锚定多个相邻行为。
+	 *
+	 * 后续如果把低密度规则族补成一条规则一个场景，本函数无需改动；对应规则族的重复锚点会自然消失。
+	 */
+	private fun ruleScenarioMappings(): List<RuleScenarioMapping> {
+		val recordsByGroupCode = namedScenarioRecordsForCoverageGroups().groupBy { requireNotNull(it.groupCode) }
+		return coverageGroupRuleRanges().flatMap { range ->
+			val groupRecords = recordsByGroupCode.getValue(range.groupCode)
+			range.ruleNumbers.mapIndexed { index, ruleNumber ->
+				RuleScenarioMapping(
+					ruleNumber = ruleNumber,
+					groupCode = range.groupCode,
+					ruleNumberRange = range.ruleNumbers,
+					scenario = groupRecords[index % groupRecords.size],
+				)
 			}
+		}
+	}
 
 	/**
 	 * 由规则族顺序推导稳定规则编号区间。
@@ -283,6 +355,13 @@ class BattleRuleCoverageLedgerTests {
 	private data class CoverageGroupRuleRange(
 		val groupCode: String,
 		val ruleNumbers: IntRange,
+	)
+
+	private data class RuleScenarioMapping(
+		val ruleNumber: Int,
+		val groupCode: String,
+		val ruleNumberRange: IntRange,
+		val scenario: NamedScenarioRecord,
 	)
 
 	private data class NamedScenarioRecord(
