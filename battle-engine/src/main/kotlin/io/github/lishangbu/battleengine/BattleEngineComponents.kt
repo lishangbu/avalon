@@ -190,11 +190,14 @@ internal class BattleEngineComponents(
 		environmentEffects = environmentEffects,
 		skillDamageResolution = skillDamageResolution,
 	)
-	private val skillUseResolution = BattleSkillUseResolution(
+	private val skillUseSetupResolution = BattleSkillUseSetupResolution(
 		beforeMoveEffects = beforeMoveEffects,
 		chargeMoves = chargeMoves,
 		lockedMoves = lockedMoves,
 		skillTargeting = skillTargeting,
+	)
+	private val skillUseResolution = BattleSkillUseResolution(
+		useSetupResolution = skillUseSetupResolution,
 		resolveTarget = skillTargetResolution::resolve,
 	)
 
