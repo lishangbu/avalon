@@ -58,14 +58,12 @@ internal class BattleStatusEffects(
 			blockedMajorStatusReason(state, actorId, recipient, status, skill)
 		}
 		if (blockedReason != null) {
-			return state.appendEvent(
-				BattleEvent.StatusApplicationBlocked(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = recipient.actorId,
-					status = status,
-					reason = blockedReason,
-				),
+			return appendMajorStatusBlockedEvent(
+				state = state,
+				actorId = actorId,
+				targetActorId = recipient.actorId,
+				status = status,
+				reason = blockedReason,
 			)
 		}
 		val sleepTurnsRemaining = if (status == BattleMajorStatus.SLEEP) {
@@ -113,6 +111,29 @@ internal class BattleStatusEffects(
 		}
 
 	/**
+	 * 追加主要异常状态附加失败事件。
+	 *
+	 * 主要异常和临时状态的阻止事件字段非常接近，但事件类型不同。把事件构造集中到一个小函数里，可以让
+	 * [applyMajorStatus] 的主流程只保留“先判定阻止原因，再决定是否写入状态”的规则结构。
+	 */
+	private fun appendMajorStatusBlockedEvent(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		status: BattleMajorStatus,
+		reason: BattleStatusBlockReason,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.StatusApplicationBlocked(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				status = status,
+				reason = reason,
+			),
+		)
+
+	/**
 	 * 附加临时状态并处理状态私有计数。
 	 *
 	 * 畏缩只标记本回合行动前阻止；混乱成功时消费一个 `[0, 4)` 随机数并转成 2..5 的内部计数；回复封锁写入
@@ -132,38 +153,32 @@ internal class BattleStatusEffects(
 		skill: BattleSkillSlot? = null,
 	): BattleState {
 		if (volatileStatusAlreadyPresent(recipient, status)) {
-			return state.appendEvent(
-				BattleEvent.VolatileStatusApplicationBlocked(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = recipient.actorId,
-					status = status,
-					reason = BattleStatusBlockReason.EXISTING_STATUS,
-				),
+			return appendVolatileStatusBlockedEvent(
+				state = state,
+				actorId = actorId,
+				targetActorId = recipient.actorId,
+				status = status,
+				reason = BattleStatusBlockReason.EXISTING_STATUS,
 			)
 		}
 		val blockedReason = blockedVolatileStatusReason(state, actorId, recipient, status, skill)
 		if (blockedReason != null) {
-			return state.appendEvent(
-				BattleEvent.VolatileStatusApplicationBlocked(
-					turnNumber = state.turnNumber,
-					actorId = actorId,
-					targetActorId = recipient.actorId,
-					status = status,
-					reason = blockedReason,
-				),
+			return appendVolatileStatusBlockedEvent(
+				state = state,
+				actorId = actorId,
+				targetActorId = recipient.actorId,
+				status = status,
+				reason = blockedReason,
 			)
 		}
 		val disabledSkillId = if (status == BattleVolatileStatus.DISABLE) {
 			disableTargetSkillId(recipient)
-				?: return state.appendEvent(
-					BattleEvent.VolatileStatusApplicationBlocked(
-						turnNumber = state.turnNumber,
-						actorId = actorId,
-						targetActorId = recipient.actorId,
-						status = status,
-						reason = BattleStatusBlockReason.NO_ELIGIBLE_SKILL,
-					),
+				?: return appendVolatileStatusBlockedEvent(
+					state = state,
+					actorId = actorId,
+					targetActorId = recipient.actorId,
+					status = status,
+					reason = BattleStatusBlockReason.NO_ELIGIBLE_SKILL,
 				)
 		} else {
 			null
@@ -217,6 +232,29 @@ internal class BattleStatusEffects(
 		}
 		return applyVolatileStatusCureItem(afterDisableEvent, recipient.actorId, status)
 	}
+
+	/**
+	 * 追加临时状态附加失败事件。
+	 *
+	 * 已有状态、场地、替身、特性、道具和“没有可禁用技能”都会停在同一种可观察事实：临时状态没有写入目标。
+	 * 集中构造事件可以避免每个前置短路分支各自手写一份事件字段，后续新增阻止原因时也更不容易漏字段。
+	 */
+	private fun appendVolatileStatusBlockedEvent(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		status: BattleVolatileStatus,
+		reason: BattleStatusBlockReason,
+	): BattleState =
+		state.appendEvent(
+			BattleEvent.VolatileStatusApplicationBlocked(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				status = status,
+				reason = reason,
+			),
+		)
 
 	/**
 	 * 处理成功获得主要异常状态后的即时治愈携带道具。

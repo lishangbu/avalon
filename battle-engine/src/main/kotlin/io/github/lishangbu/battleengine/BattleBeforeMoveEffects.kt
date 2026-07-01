@@ -53,60 +53,36 @@ internal class BattleBeforeMoveEffects(
 		random: BattleRandom,
 	): BattleBeforeMoveResult {
 		if (actor.rechargeTurnsRemaining > 0) {
-			return BattleBeforeMoveResult(
-				state = consumeRechargeBlockedAction(state, actor),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeRechargeBlockedAction(state, actor))
 		}
 		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
-			return BattleBeforeMoveResult(
-				state = consumeSleepBlockedAction(state, actor),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeSleepBlockedAction(state, actor))
 		}
 		if (actor.majorStatus == BattleMajorStatus.FREEZE) {
 			return resolveFreezeBeforeMove(state, actor, skill, random)
 		}
 		if (actor.flinched) {
-			return BattleBeforeMoveResult(
-				state = consumeFlinchBlockedAction(state, actor),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeFlinchBlockedAction(state, actor))
 		}
 		if (actor.confusionTurnsRemaining > 0) {
 			return resolveConfusionBeforeMove(state, actor, random)
 		}
 		if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) {
-			return BattleBeforeMoveResult(
-				state = consumeHealBlockBlockedAction(state, actor, skill),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeHealBlockBlockedAction(state, actor, skill))
 		}
 		if (actor.tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) {
-			return BattleBeforeMoveResult(
-				state = consumeTauntBlockedAction(state, actor, skill),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeTauntBlockedAction(state, actor, skill))
 		}
 		if (actor.disabledSkillTurnsRemaining > 0 && actor.disabledSkillId == skill.skillId) {
-			return BattleBeforeMoveResult(
-				state = consumeDisableBlockedAction(state, actor, skill),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeDisableBlockedAction(state, actor, skill))
 		}
 		if (actor.tormented && actor.lastSuccessfulSkillId == skill.skillId) {
-			return BattleBeforeMoveResult(
-				state = consumeTormentBlockedAction(state, actor, skill),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeTormentBlockedAction(state, actor, skill))
 		}
 		if (actor.majorStatus == BattleMajorStatus.PARALYSIS && paralysisBlocksMove(actor, random)) {
-			return BattleBeforeMoveResult(
-				state = consumeParalysisBlockedAction(state, actor),
-				blocked = true,
-			)
+			return BattleBeforeMoveResult.blocked(consumeParalysisBlockedAction(state, actor))
 		}
-		return BattleBeforeMoveResult(state = state, blocked = false)
+		return BattleBeforeMoveResult.continues(state)
 	}
 
 	/**
@@ -122,21 +98,12 @@ internal class BattleBeforeMoveEffects(
 		random: BattleRandom,
 	): BattleBeforeMoveResult {
 		if (skill.thawsUserBeforeMove) {
-			return BattleBeforeMoveResult(
-				state = clearFrozenActorBeforeMove(state, actor),
-				blocked = false,
-			)
+			return BattleBeforeMoveResult.continues(clearFrozenActorBeforeMove(state, actor))
 		}
 		if (chanceSucceeds(FREEZE_THAW_CHANCE_PERCENT, random, "freeze thaw chance for ${actor.actorId}")) {
-			return BattleBeforeMoveResult(
-				state = clearFrozenActorBeforeMove(state, actor),
-				blocked = false,
-			)
+			return BattleBeforeMoveResult.continues(clearFrozenActorBeforeMove(state, actor))
 		}
-		return BattleBeforeMoveResult(
-			state = consumeFreezeBlockedAction(state, actor),
-			blocked = true,
-		)
+		return BattleBeforeMoveResult.blocked(consumeFreezeBlockedAction(state, actor))
 	}
 
 	/**
@@ -384,19 +351,18 @@ internal class BattleBeforeMoveEffects(
 		val decremented = actor.decrementConfusionBeforeMove()
 		val afterDecrement = state.replaceParticipant(decremented)
 		if (decremented.confusionTurnsRemaining == 0) {
-			return BattleBeforeMoveResult(
-				state = afterDecrement.appendEvent(
+			return BattleBeforeMoveResult.continues(
+				afterDecrement.appendEvent(
 					BattleEvent.VolatileStatusCleared(
 						turnNumber = state.turnNumber,
 						actorId = actor.actorId,
 						status = BattleVolatileStatus.CONFUSION,
 					),
 				),
-				blocked = false,
 			)
 		}
 		if (!chanceSucceeds(CONFUSION_SELF_DAMAGE_CHANCE_PERCENT, random, "confusion self-hit chance for ${actor.actorId}")) {
-			return BattleBeforeMoveResult(state = afterDecrement, blocked = false)
+			return BattleBeforeMoveResult.continues(afterDecrement)
 		}
 		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
 		val damage = confusionSelfDamage(decremented, randomPercent)
@@ -408,27 +374,24 @@ internal class BattleBeforeMoveEffects(
 		)
 		val blockedState = afterDecrement.appendEvent(blockedEvent)
 		if (decremented.hasIndirectDamageImmunity()) {
-			return BattleBeforeMoveResult(state = blockedState, blocked = true)
+			return BattleBeforeMoveResult.blocked(blockedState)
 		}
 		val damaged = decremented.receiveDamage(damage)
-		val afterDamage = afterDecrement
+		val afterDamage = blockedState
 			.replaceParticipant(damaged)
-			.appendEvents(
-				listOf(
-					blockedEvent,
-					BattleEvent.ConfusionDamageApplied(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						amount = damage,
-						randomPercent = randomPercent,
-						turnsRemainingBefore = turnsRemainingBefore,
-					),
+			.appendEvent(
+				BattleEvent.ConfusionDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					amount = damage,
+					randomPercent = randomPercent,
+					turnsRemainingBefore = turnsRemainingBefore,
 				),
 			)
 		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId)
 		val latest = afterLowHpItem.participant(damaged.actorId) ?: damaged
 		val afterFaint = afterLowHpItem.handleFaintAndResult(latest)
-		return BattleBeforeMoveResult(state = afterFaint, blocked = true)
+		return BattleBeforeMoveResult.blocked(afterFaint)
 	}
 
 	/**
@@ -464,4 +427,24 @@ internal class BattleBeforeMoveEffects(
 internal data class BattleBeforeMoveResult(
 	val state: BattleState,
 	val blocked: Boolean,
-)
+) {
+	internal companion object {
+		/**
+		 * 构造“行动前阶段已经完全阻止本次技能”的结果。
+		 *
+		 * 使用命名工厂而不是裸 `blocked = true`，是为了让 resolver 主流程读起来像规则说明：每个分支只表达
+		 * “该状态阻止了行动”，具体状态递减、事件追加和随机消费仍保留在对应私有函数中。
+		 */
+		fun blocked(state: BattleState): BattleBeforeMoveResult =
+			BattleBeforeMoveResult(state = state, blocked = true)
+
+		/**
+		 * 构造“行动前阶段已经处理完成，但本次技能仍继续执行”的结果。
+		 *
+		 * 冰冻解除和混乱自然结束都会修改状态并继续行动；这个工厂避免它们和完全无状态变化的继续分支在调用处
+		 * 混成相同的裸布尔值。
+		 */
+		fun continues(state: BattleState): BattleBeforeMoveResult =
+			BattleBeforeMoveResult(state = state, blocked = false)
+	}
+}
