@@ -27,7 +27,7 @@ internal class BattleSkillTargetResolution(
 	private val skillBlockEffects: BattleSkillBlockEffects,
 	private val lockedMoves: BattleLockedMoveEffects,
 	private val skillAdditionalEffects: BattleSkillAdditionalEffects,
-	private val skillHpEffects: BattleSkillHpEffects,
+	private val statusSkillHpEffects: BattleStatusSkillHpEffects,
 	private val environmentEffects: BattleEnvironmentEffects,
 	private val skillDamageResolution: BattleSkillDamageResolution,
 ) {
@@ -125,7 +125,7 @@ internal class BattleSkillTargetResolution(
 		random: BattleRandom,
 	): TurnContext {
 		val afterEffects = skillAdditionalEffects.apply(state, actor.actorId, target.actorId, skill, random)
-		val afterHpEffects = skillHpEffects.applyStatusSkillHpEffects(afterEffects, actor.actorId, skill)
+		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, actor.actorId, skill)
 		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
 		return context.copy(
 			state = lockedMoves.updateAfterSuccessfulUse(

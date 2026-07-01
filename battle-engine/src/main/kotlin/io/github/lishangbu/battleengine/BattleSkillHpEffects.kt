@@ -11,10 +11,12 @@ import io.github.lishangbu.battleengine.model.BattleState
  * 技能自身造成的 HP 与关联状态效果。
  *
  * 本类处理的都是“技能已经被判定为成功命中或成功使用之后”的附加结果：自爆式代价、造成伤害后的吸取/反作用、
- * 造成伤害后的休整、变化技能的自我回复/替身，以及火属性伤害命中后的解冻。它不做命中、保护、属性免疫、
- * 接触特性、低体力道具或倒下胜负结算；这些阶段必须继续由 [BattleEngine] 编排，原因是它们和技能 HP 效果之间
- * 有严格的现代规则顺序。把这些 helper 放在同一个类里，是因为它们都只读取 [BattleSkillSlot.hpEffects] 或技能
- * 元数据并写回成员 HP/状态，不需要独立的事件总线或规则注册表。
+ * 造成伤害后的休整，以及火属性伤害命中后的解冻。变化技能成功后的自我回复和替身由
+ * [BattleStatusSkillHpEffects] 处理，因为那条路径不读取本次伤害量，也不进入伤害后倒下/低体力道具顺序。
+ *
+ * 本类不做命中、保护、属性免疫、接触特性、低体力道具或倒下胜负结算；这些阶段必须继续由 [BattleEngine]
+ * 编排，原因是它们和技能 HP 效果之间有严格的现代规则顺序。这里保留的 helper 都和“实际造成伤害之后”或
+ * “伤害技能命中后”直接相关，不需要独立的事件总线或规则注册表。
  */
 internal class BattleSkillHpEffects {
 	/**
@@ -120,49 +122,6 @@ internal class BattleSkillHpEffects {
 	}
 
 	/**
-	 * 处理变化技能成功后的 HP 回复效果。
-	 *
-	 * 自我回复类技能不依赖目标 HP，也不进入普通伤害公式；只要技能经过目标、保护、命中等前置判定并成功，就按
-	 * 使用者最大 HP 的固定比例回复。满 HP、回复封锁或无法战斗时保持状态不变且不产生事件，后续若需要“技能失败”
-	 * 事件，应在技能宣告/失败阶段单独建模，而不是把失败语义塞进 HP 写入 helper。
-	 */
-	fun applyStatusSkillHpEffects(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-	): BattleState =
-		skill.hpEffects
-			.fold(state) { current, effect ->
-				when (effect) {
-					is BattleSkillHpEffect.SelfHealMaxHpFraction -> applySelfHealMaxHpFraction(
-						state = current,
-						actorId = actorId,
-						skill = skill,
-						numerator = effect.numerator,
-						denominator = effect.denominator,
-					)
-					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> {
-						val fraction = effect.weatherFractions[current.environment.weather] ?: effect.defaultFraction
-						applySelfHealMaxHpFraction(
-							state = current,
-							actorId = actorId,
-							skill = skill,
-							numerator = fraction.numerator,
-							denominator = fraction.denominator,
-						)
-					}
-					is BattleSkillHpEffect.CreateSubstitute -> applyCreateSubstitute(
-						state = current,
-						actorId = actorId,
-						skill = skill,
-						numerator = effect.numerator,
-						denominator = effect.denominator,
-					)
-					else -> current
-				}
-			}
-
-	/**
 	 * 处理火属性伤害命中后解除目标冰冻。
 	 *
 	 * 现代规则中，冰冻目标被火属性伤害技能命中会解冻。这里要求目标在该段伤害后仍可战斗，避免对已经倒下的
@@ -263,72 +222,4 @@ internal class BattleSkillHpEffects {
 			)
 	}
 
-	/**
-	 * 按最大 HP 比例回复使用者。
-	 *
-	 * 固定回复和天气变量回复最终都汇入这里，确保满 HP 跳过、缺失 HP 夹取、回复封锁和事件写入规则完全一致。
-	 */
-	private fun applySelfHealMaxHpFraction(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		numerator: Int,
-		denominator: Int,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canReceiveHealing()) {
-			return state
-		}
-		val healAmount = fractionAmount(actor.maxHp, numerator, denominator)
-			.coerceAtMost(actor.maxHp - actor.currentHp)
-		if (healAmount <= 0) {
-			return state
-		}
-		return state
-			.replaceParticipant(actor.heal(healAmount))
-			.appendEvent(
-				BattleEvent.SkillHealingApplied(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					amount = healAmount,
-				),
-			)
-	}
-
-	/**
-	 * 支付使用者最大 HP 的固定比例来建立替身。
-	 *
-	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，
-	 * 但不产生额外事件；成功时本体扣除费用、替身获得同等 HP，并用专用事件记录该运行态事实。
-	 */
-	private fun applyCreateSubstitute(
-		state: BattleState,
-		actorId: String,
-		skill: BattleSkillSlot,
-		numerator: Int,
-		denominator: Int,
-	): BattleState {
-		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.hasSubstitute()) {
-			return state
-		}
-		val hpCost = fractionAmount(actor.maxHp, numerator, denominator)
-			.coerceAtMost(actor.maxHp - 1)
-		if (actor.currentHp <= hpCost) {
-			return state
-		}
-		val substituted = actor.startSubstitute(hpCost)
-		return state
-			.replaceParticipant(substituted)
-			.appendEvent(
-				BattleEvent.SubstituteStarted(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					skillId = skill.skillId,
-					hpCost = hpCost,
-					substituteHp = substituted.substituteHp,
-				),
-			)
-	}
 }
