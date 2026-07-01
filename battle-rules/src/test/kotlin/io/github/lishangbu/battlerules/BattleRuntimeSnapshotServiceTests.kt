@@ -40,6 +40,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ContextConfiguration
 
 @SpringBootTest(
@@ -60,6 +61,7 @@ import org.springframework.test.context.ContextConfiguration
  */
 class BattleRuntimeSnapshotServiceTests(
 	@Autowired private val service: BattleRuntimeSnapshotService,
+	@Autowired private val jdbcTemplate: JdbcTemplate,
 ) {
 	@Test
 	fun `official double format assembles engine runtime snapshot`() {
@@ -904,6 +906,40 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(invalidItem.message).isEqualTo("itemId 必须大于 0")
 	}
 
+	/**
+	 * 验证数据库中已经启用的战斗规则资料都能被运行时适配层装配。
+	 *
+	 * 这个测试不逐条断言具体效果数值，原因是具体数值已经由技能、特性、道具的专项测试覆盖；这里锁定的是另一类
+	 * 更容易被遗漏的资料完整性问题：Liquibase 新增了启用中的规则行，但运行时读取器或 policy mapper 没有跟上。
+	 * 测试直接从三范式规则表读取启用中的基础资料 ID，再走正式的 [BattleRuntimeSnapshotService] 装配入口：
+	 * - 技能规则必须能装配成 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
+	 * - 特性规则必须能装配结构化效果或接地事实，`ground-immunity` 这种非效果型 policy 也会通过接地装配暴露。
+	 * - 道具规则必须能装配成结构化携带道具效果。
+	 *
+	 * 这样做比在测试里复制 mapper 字典更稳：真实入口如果因为字段名、外键、禁用状态、policy 拼写或基础资料缺失而
+	 * 失败，这里会直接报错；而不是只证明测试里那份手写字典还记得某个字符串。
+	 */
+	@Test
+	fun `enabled battle rule rows can be assembled by runtime adapters`() {
+		val skillIds = enabledIds("battle_skill_rule", "skill_id")
+		val abilityIds = enabledIds("battle_ability_rule", "ability_id")
+		val itemIds = enabledIds("battle_item_rule", "item_id")
+
+		assertThat(skillIds).isNotEmpty
+		assertThat(abilityIds).isNotEmpty
+		assertThat(itemIds).isNotEmpty
+		assertThat(service.skillSlotsBySkillIds(skillIds).map { it.skillId }).containsExactlyElementsOf(skillIds)
+		abilityIds.forEach { abilityId ->
+			service.abilityEffectsByAbilityId(abilityId)
+			service.groundedByAbilityId(abilityId)
+		}
+		itemIds.forEach { itemId ->
+			assertThat(service.itemEffectsByItemId(itemId))
+				.describedAs("道具规则必须装配为运行时效果: itemId=$itemId")
+				.isNotEmpty
+		}
+	}
+
 	@Test
 	fun `preparation validation uses assembled official double rules`() {
 		val response = service.validatePreparation(
@@ -1431,6 +1467,17 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.WeatherEndTurnHeal>()
 			.single()
 			.let { it.weathers to it.healDenominator }
+
+	private fun enabledIds(tableName: String, idColumn: String): List<Long> =
+		jdbcTemplate.query(
+			"""
+			select distinct $idColumn
+			from $tableName
+			where enabled = true
+			order by $idColumn
+			""".trimIndent(),
+			{ rs, _ -> rs.getLong(idColumn) },
+		)
 
 	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =
 		BattlePreparationValidationRequest(
