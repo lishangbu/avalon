@@ -37,15 +37,24 @@ internal class BattleEngineComponents(
 	private val chargeMoves = BattleChargeMoves()
 
 	/**
+	 * 混乱行动前结算器。
+	 *
+	 * 混乱自伤是行动前阶段唯一会走伤害、低体力道具和倒下检查的分支。单独装配它，可以让行动前状态阻止器只负
+	 * 责规则顺序，同时继续复用统一伤害后道具入口。
+	 */
+	private val confusionEffects = BattleConfusionEffects(
+		statStageModifiers = statStageModifiers,
+		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+	)
+
+	/**
 	 * 行动前状态阻止 resolver。
 	 *
 	 * 该阶段只会推进战斗状态，不会修改 `TurnContext` 中的保护集合或其它回合内编排字段。因此执行技能流程只需要
-	 * 把返回的状态重新放回当前上下文。混乱自伤后可能触发低体力回复道具，所以这里把统一伤害后结算器里的
-	 * 低体力道具处理函数作为回调传入，避免出现“普通伤害一套道具顺序，混乱自伤另一套道具顺序”。
+	 * 把返回的状态重新放回当前上下文。需要特殊伤害入口的混乱已委托给 [confusionEffects]。
 	 */
 	private val beforeMoveEffects = BattleBeforeMoveEffects(
-		statStageModifiers = statStageModifiers,
-		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+		confusionEffects = confusionEffects,
 	)
 
 	/**

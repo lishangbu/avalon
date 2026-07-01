@@ -6,13 +6,10 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
-import io.github.lishangbu.battleengine.model.BattleStat
-import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.SkillPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
-import kotlin.math.floor
 
 /**
  * 行动前状态阻止阶段 resolver。
@@ -30,12 +27,11 @@ import kotlin.math.floor
  * - 麻痹最后按概率阻止行动，只有前面状态没有阻止时才消费麻痹随机数。
  *
  * 本类不处理锁招/蓄力被打断后的清理，因为那取决于行动来源 [SkillActionSource]，仍由 [BattleEngine] 在收到
- * [BattleBeforeMoveResult.blocked] 后收口。它也不直接实现低体力回复道具，而是通过 [lowHpItemHealing] 回调复用
- * 统一的伤害后道具触发逻辑，保证混乱自伤后的道具事件顺序和其它伤害来源一致。
+ * [BattleBeforeMoveResult.blocked] 后收口。混乱自伤是行动前阶段里唯一会造成伤害、触发低体力道具并检查倒下的
+ * 分支，因此委托给 [confusionEffects]，让本类保持为清晰的行动前阻止顺序表。
  */
 internal class BattleBeforeMoveEffects(
-	private val statStageModifiers: BattleStatStageModifiers,
-	private val lowHpItemHealing: (state: BattleState, actorId: String) -> BattleState,
+	private val confusionEffects: BattleConfusionEffects,
 ) {
 	/**
 	 * 处理行动前可能阻止技能的状态。
@@ -65,7 +61,7 @@ internal class BattleBeforeMoveEffects(
 			return BattleBeforeMoveResult.blocked(consumeFlinchBlockedAction(state, actor))
 		}
 		if (actor.confusionTurnsRemaining > 0) {
-			return resolveConfusionBeforeMove(state, actor, random)
+			return confusionEffects.resolveBeforeMove(state, actor, random)
 		}
 		if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) {
 			return BattleBeforeMoveResult.blocked(consumeHealBlockBlockedAction(state, actor, skill))
@@ -335,84 +331,7 @@ internal class BattleBeforeMoveEffects(
 	private fun paralysisBlocksMove(actor: BattleParticipant, random: BattleRandom): Boolean =
 		chanceSucceeds(PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT, random, "paralysis chance for ${actor.actorId}")
 
-	/**
-	 * 处理混乱的行动前计数、解除、自伤和行动阻止。
-	 *
-	 * 混乱保存的是内部计数，而不是“还会自伤判定几次”。行动前先递减；递减到 0 表示成员恢复清醒并继续执行原
-	 * 技能，不消费混乱概率随机数。递减后仍大于 0 时，消费 1 次 33/100 自伤判定；若自伤，再消费 1 次
-	 * 85..100 伤害浮动并跳过原技能行动。
-	 */
-	private fun resolveConfusionBeforeMove(
-		state: BattleState,
-		actor: BattleParticipant,
-		random: BattleRandom,
-	): BattleBeforeMoveResult {
-		val turnsRemainingBefore = actor.confusionTurnsRemaining
-		val decremented = actor.decrementConfusionBeforeMove()
-		val afterDecrement = state.replaceParticipant(decremented)
-		if (decremented.confusionTurnsRemaining == 0) {
-			return BattleBeforeMoveResult.continues(
-				afterDecrement.appendEvent(
-					BattleEvent.VolatileStatusCleared(
-						turnNumber = state.turnNumber,
-						actorId = actor.actorId,
-						status = BattleVolatileStatus.CONFUSION,
-					),
-				),
-			)
-		}
-		if (!chanceSucceeds(CONFUSION_SELF_DAMAGE_CHANCE_PERCENT, random, "confusion self-hit chance for ${actor.actorId}")) {
-			return BattleBeforeMoveResult.continues(afterDecrement)
-		}
-		val randomPercent = 85 + random.nextInt(16, "confusion damage random for ${actor.actorId}")
-		val damage = confusionSelfDamage(decremented, randomPercent)
-		val blockedEvent = BattleEvent.SkillPrevented(
-			turnNumber = state.turnNumber,
-			actorId = actor.actorId,
-			reason = SkillPreventionReason.VOLATILE_STATUS,
-			status = BattleVolatileStatus.CONFUSION,
-		)
-		val blockedState = afterDecrement.appendEvent(blockedEvent)
-		if (decremented.hasIndirectDamageImmunity()) {
-			return BattleBeforeMoveResult.blocked(blockedState)
-		}
-		val damaged = decremented.receiveDamage(damage)
-		val afterDamage = blockedState
-			.replaceParticipant(damaged)
-			.appendEvent(
-				BattleEvent.ConfusionDamageApplied(
-					turnNumber = state.turnNumber,
-					actorId = actor.actorId,
-					amount = damage,
-					randomPercent = randomPercent,
-					turnsRemainingBefore = turnsRemainingBefore,
-				),
-			)
-		val afterLowHpItem = lowHpItemHealing(afterDamage, damaged.actorId)
-		val latest = afterLowHpItem.participant(damaged.actorId) ?: damaged
-		val afterFaint = afterLowHpItem.handleFaintAndResult(latest)
-		return BattleBeforeMoveResult.blocked(afterFaint)
-	}
-
-	/**
-	 * 计算混乱自伤。
-	 *
-	 * 混乱自伤按特殊的 40 威力物理伤害处理：使用攻击和防御能力阶级，带 85..100 随机浮动，但不套用属性一致、
-	 * 属性克制、要害、道具和多数特性修正。这里独立实现公式，避免伪造普通技能后意外吃到普通伤害管线中的额外
-	 * modifier。
-	 */
-	private fun confusionSelfDamage(actor: BattleParticipant, randomPercent: Int): Int {
-		val attack = statStageModifiers.modifiedBattleStat(actor.attack, actor.statStage(BattleStat.ATTACK))
-		val defense = statStageModifiers.modifiedBattleStat(actor.defense, actor.statStage(BattleStat.DEFENSE))
-		require(defense > 0) { "confusion defending stat must be positive" }
-		val levelFactor = (2 * actor.level) / 5 + 2
-		val baseDamage = (((levelFactor * CONFUSION_BASE_POWER * attack) / defense) / 50) + 2
-		return floor(baseDamage * (randomPercent / 100.0)).toInt().coerceAtLeast(1)
-	}
-
 	private companion object {
-		private const val CONFUSION_BASE_POWER = 40
-		private const val CONFUSION_SELF_DAMAGE_CHANCE_PERCENT = 33
 		private const val FREEZE_THAW_CHANCE_PERCENT = 20
 		private const val PARALYSIS_FULLY_PARALYZED_CHANCE_PERCENT = 25
 	}
