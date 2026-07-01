@@ -139,7 +139,7 @@ internal class BattleEntryHazardEffects(
 			sideId = sideId,
 			participant = participant,
 			hazard = hazard,
-			amount = (participant.maxHp / denominator).coerceAtLeast(1),
+			amount = fractionAmount(participant.maxHp, numerator = 1, denominator = denominator),
 			effectiveness = 1.0,
 		)
 	}
