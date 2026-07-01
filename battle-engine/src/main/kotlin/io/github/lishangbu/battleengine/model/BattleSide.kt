@@ -1,5 +1,8 @@
 package io.github.lishangbu.battleengine.model
 
+import io.github.lishangbu.battleengine.canBattle
+import io.github.lishangbu.battleengine.leaveBattlefield
+
 /**
  * 战斗中的一方。
  *

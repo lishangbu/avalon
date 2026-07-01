@@ -1,5 +1,6 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleItemEffect

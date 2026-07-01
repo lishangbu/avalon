@@ -1,5 +1,7 @@
 package io.github.lishangbu.battleengine.model
 
+import io.github.lishangbu.battleengine.canBattle
+
 /**
  * 战斗运行态。
  *
