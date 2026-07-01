@@ -182,11 +182,7 @@ fun BattleParticipant.decrementConfusionBeforeMove(): BattleParticipant =
  * 递减到 0 时调用方会追加临时状态解除事件。
  */
 fun BattleParticipant.decrementHealBlockEndTurn(): BattleParticipant =
-	when {
-		healBlockTurnsRemaining > 1 -> copy(healBlockTurnsRemaining = healBlockTurnsRemaining - 1)
-		healBlockTurnsRemaining == 1 -> copy(healBlockTurnsRemaining = 0)
-		else -> this
-	}
+	if (healBlockTurnsRemaining > 0) copy(healBlockTurnsRemaining = healBlockTurnsRemaining - 1) else this
 
 /**
  * 回合末推进挑衅剩余回合。
@@ -195,11 +191,7 @@ fun BattleParticipant.decrementHealBlockEndTurn(): BattleParticipant =
  * 临时状态解除事件，方便 replay 明确看到挑衅自然结束。
  */
 fun BattleParticipant.decrementTauntEndTurn(): BattleParticipant =
-	when {
-		tauntTurnsRemaining > 1 -> copy(tauntTurnsRemaining = tauntTurnsRemaining - 1)
-		tauntTurnsRemaining == 1 -> copy(tauntTurnsRemaining = 0)
-		else -> this
-	}
+	if (tauntTurnsRemaining > 0) copy(tauntTurnsRemaining = tauntTurnsRemaining - 1) else this
 
 /**
  * 回合末推进定身法剩余回合。
