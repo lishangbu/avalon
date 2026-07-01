@@ -1,10 +1,8 @@
 package io.github.lishangbu.battleengine
 
-import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
-import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
@@ -183,19 +181,6 @@ internal class BattleBeforeMoveEffects(
 		)
 
 	/**
-	 * 判断回复封锁是否禁止成员宣告该技能。
-	 *
-	 * 现代规则中，直接回复使用者的变化技能、天气相关自我回复，以及伤害后吸取回复的攻击技能都不能在回复封锁
-	 * 下使用。建立替身、反作用伤害和其它非回复类 HP 变化不在此列；它们继续交给技能命中后的各自阶段结算。
-	 */
-	private fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
-		skill.hpEffects.any { effect ->
-			effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
-				effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
-				effect is BattleSkillHpEffect.DrainDamage
-		}
-
-	/**
 	 * 消耗一次“挑衅阻止本次变化技能”的行动结果。
 	 *
 	 * 挑衅不会因为成功阻止一次行动而提前减少持续回合；它只在完整回合末统一递减。这里不消耗 PP、不追加技能使用
@@ -213,15 +198,6 @@ internal class BattleBeforeMoveEffects(
 			skillId = skill.skillId,
 			turnsRemainingBefore = actor.tauntTurnsRemaining,
 		)
-
-	/**
-	 * 判断挑衅是否禁止成员宣告该技能。
-	 *
-	 * 挑衅只阻止变化分类技能。物理和特殊分类技能即使没有造成伤害，仍不由挑衅在这里拦截；它们如果失败，应由
-	 * 命中、保护、免疫、目标合法性或技能自身规则在后续阶段产生对应事件。
-	 */
-	private fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
-		skill.damageClass == BattleDamageClass.STATUS
 
 	/**
 	 * 消耗一次“定身法阻止本次被禁用技能”的行动结果。

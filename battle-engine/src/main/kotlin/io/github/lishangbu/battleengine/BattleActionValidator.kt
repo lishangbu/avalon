@@ -1,9 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
-import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleParticipant
-import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleState
 
 /**
@@ -113,7 +111,7 @@ class BattleActionValidator {
 					message = "成员受讲究类道具限制，只能选择技能: ${actor.choiceLockedSkillId}",
 				)
 			}
-			if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill.hpEffects)) {
+			if (actor.healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) {
 				violations += violation(
 					code = "heal-blocked",
 					actorId = actor.actorId,
@@ -121,7 +119,7 @@ class BattleActionValidator {
 					message = "成员处于回复封锁状态，不能选择回复类技能: ${skill.skillId}",
 				)
 			}
-			if (actor.tauntTurnsRemaining > 0 && tauntPreventsSkill(skill.damageClass)) {
+			if (actor.tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) {
 				violations += violation(
 					code = "taunted",
 					actorId = actor.actorId,
@@ -172,27 +170,6 @@ class BattleActionValidator {
 		}
 		return violations
 	}
-
-	/**
-	 * 判断回复封锁是否禁止提交该技能。
-	 *
-	 * 这里只看技能自身携带的 HP 回复效果，不读取技能名称或本地化文本；资料层负责把吸取回复和自我回复技能
-	 * 转换成 [BattleSkillHpEffect]。建立替身和反作用伤害不属于回复类技能，仍允许提交。
-	 */
-	private fun healBlockPreventsSkill(hpEffects: List<BattleSkillHpEffect>): Boolean =
-		hpEffects.any { effect ->
-			effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
-				effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
-				effect is BattleSkillHpEffect.DrainDamage
-		}
-
-	/**
-	 * 判断挑衅是否禁止提交该技能。
-	 *
-	 * 挑衅只限制变化分类技能；攻击分类技能即便最终没有造成伤害，也应交给引擎继续结算。
-	 */
-	private fun tauntPreventsSkill(damageClass: BattleDamageClass): Boolean =
-		damageClass == BattleDamageClass.STATUS
 
 	private fun validateSwitch(
 		state: BattleState,
