@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.damage.BattleDamageCalculator
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
+import io.github.lishangbu.battleengine.model.BattleState
 
 /**
  * 战斗引擎内部 resolver 装配表。
@@ -45,7 +46,7 @@ internal class BattleEngineComponents(
 	 */
 	private val confusionEffects = BattleConfusionEffects(
 		statStageModifiers = statStageModifiers,
-		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = ::applyLowHpItemHealing,
 	)
 
 	/**
@@ -80,7 +81,7 @@ internal class BattleEngineComponents(
 	 * 异常状态、束缚和天气造成的回合末扣血都要复用同一套低体力道具、倒下和胜负判定顺序。
 	 */
 	private val endTurnDamageResultEffects = BattleEndTurnDamageResultEffects(
-		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = ::applyLowHpItemHealing,
 	)
 	private val bindingEffects = BattleBindingEffects(endTurnDamageResultEffects)
 
@@ -188,7 +189,7 @@ internal class BattleEngineComponents(
 		majorStatusBlockReason = { state, actorId, recipient, status ->
 			majorStatusEffects.blockedMajorStatusReason(state, actorId, recipient, status)
 		},
-		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
+		lowHpItemHealing = ::applyLowHpItemHealing,
 	)
 	private val switchResolution = BattleSwitchResolution(
 		actionOrdering = actionOrdering,
@@ -255,4 +256,15 @@ internal class BattleEngineComponents(
 		endTurnEffects = endTurnEffects,
 		environmentEffects = environmentEffects,
 	)
+
+	/**
+	 * 统一所有非技能伤害入口的低体力回复道具触发线。
+	 *
+	 * 混乱自伤、入场陷阱和回合末扣血发生在不同阶段，但它们造成 HP 变化后都应该复用
+	 * [BattlePostDamageEffects.applyLowHpHealingItem]：同一处负责判断回复封锁、道具效果、道具消费和事件顺序。
+	 * 把回调集中为一个私有函数后，后续如果低体力回复道具的触发条件或事件顺序需要调整，只会改
+	 * [BattlePostDamageEffects] 以及这一条连接线，不需要在组件装配表里追三份等价 lambda。
+	 */
+	private fun applyLowHpItemHealing(state: BattleState, actorId: String): BattleState =
+		postDamageEffects.applyLowHpHealingItem(state, actorId)
 }
