@@ -9,7 +9,6 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
-import io.github.lishangbu.battleengine.model.SwitchPreventionReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -159,6 +158,12 @@ class BattleEngine(
 		},
 		lowHpItemHealing = { state, actorId -> postDamageEffects.applyLowHpHealingItem(state, actorId) },
 	)
+	private val switchResolution = BattleSwitchResolution(
+		actionOrdering = actionOrdering,
+		endTurnEffects = endTurnEffects,
+		entryHazardEffects = entryHazardEffects,
+		switchInAbilityEffects = switchInAbilityEffects,
+	)
 	private val forcedSwitchEffects = BattleForcedSwitchEffects(
 		targetDefenseEffects = targetDefenseEffects,
 		endTurnEffects = endTurnEffects,
@@ -214,7 +219,7 @@ class BattleEngine(
 		val started = state
 			.copy(turnNumber = nextTurnNumber)
 			.appendEvent(BattleEvent.TurnStarted(nextTurnNumber))
-		val afterSwitches = resolveSwitches(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random)
+		val afterSwitches = switchResolution.resolve(started, actions.filterIsInstance<BattleAction.SwitchParticipant>(), random)
 		if (afterSwitches.result != null) {
 			return afterSwitches
 		}
@@ -253,97 +258,6 @@ class BattleEngine(
 		return afterTurnLimit.result?.let { afterTurnLimit }
 			?: afterTurnLimit.appendEvent(BattleEvent.TurnEnded(nextTurnNumber))
 	}
-
-	/**
-	 * 结算本回合所有替换行动。
-	 *
-	 * 替换阶段先于技能阶段。第一版按离场成员的有效速度排序，速度相同时消费随机数打破平手；这让未来接入
-	 * 入场特性时能得到可复盘的确定顺序。若离场成员已经倒下，事件标记为 `forced=true`。
-	 */
-	private fun resolveSwitches(
-		state: BattleState,
-		actions: List<BattleAction.SwitchParticipant>,
-		random: BattleRandom,
-	): BattleState {
-		val ordered = actions
-			.map { action ->
-				val actor = requireNotNull(state.participant(action.actorId)) { "switch actor not found: ${action.actorId}" }
-				SwitchPlan(action, actor)
-			}
-			.groupBy { actionOrdering.effectiveSpeed(state, it.actor) }
-			.toSortedMap(actionOrdering.speedComparator(state))
-			.values
-			.flatMap { sameSpeedPlans ->
-				if (sameSpeedPlans.size == 1) {
-					sameSpeedPlans
-				} else {
-					sameSpeedPlans.sortedByRandomTieBreak(random) { "switch speed tie for ${it.actor.actorId}" }
-				}
-			}
-		return ordered.fold(state) { current, plan ->
-			if (current.result != null) {
-				return@fold current
-			}
-			val actor = current.participant(plan.action.actorId) ?: return@fold current
-			val side = current.sideOf(actor.actorId) ?: return@fold current
-			require(side.isActive(actor.actorId)) { "switch actor must be active: ${actor.actorId}" }
-			if (actor.canBattle() && actor.rechargeTurnsRemaining > 0) {
-				return@fold current.preventSwitch(actor, SwitchPreventionReason.RECHARGE)
-			}
-			if (actor.canBattle() && actor.chargingTurnsRemaining > 0) {
-				val chargingSkillId = actor.chargingSkillId ?: return@fold current
-				return@fold current.preventSwitch(actor, SwitchPreventionReason.CHARGING, skillId = chargingSkillId)
-			}
-			if (actor.canBattle() && actor.lockedMoveTurnsRemaining > 0) {
-				val lockedSkillId = actor.lockedMoveSkillId ?: return@fold current
-				return@fold current.preventSwitch(actor, SwitchPreventionReason.LOCKED_MOVE, skillId = lockedSkillId)
-			}
-			if (actor.canBattle() && endTurnEffects.isBindingSourceActive(current, actor)) {
-				val sourceActorId = actor.boundByActorId ?: return@fold current
-				return@fold current.preventSwitch(
-					actor = actor,
-					reason = SwitchPreventionReason.BINDING,
-					sourceActorId = sourceActorId,
-					turnsRemainingBefore = actor.bindingTurnsRemaining,
-				)
-			}
-			val switched = current.switchActive(actor.actorId, plan.action.targetActorId)
-			val withSwitchEvent = switched.appendEvent(
-				BattleEvent.ParticipantSwitched(
-					turnNumber = current.turnNumber,
-					sideId = side.sideId,
-					previousActorId = actor.actorId,
-					nextActorId = plan.action.targetActorId,
-					forced = !actor.canBattle(),
-				),
-			)
-			val afterBindingSourceCleared = endTurnEffects.clearBindingsFromSource(withSwitchEvent, actor.actorId)
-			val afterEntryHazards = entryHazardEffects.applyOnSwitchIn(
-				state = afterBindingSourceCleared,
-				sideId = side.sideId,
-				actorId = plan.action.targetActorId,
-			)
-			switchInAbilityEffects.apply(afterEntryHazards, plan.action.targetActorId)
-		}
-	}
-
-	private fun BattleState.preventSwitch(
-		actor: BattleParticipant,
-		reason: SwitchPreventionReason,
-		skillId: Long? = null,
-		sourceActorId: String? = null,
-		turnsRemainingBefore: Int? = null,
-	): BattleState =
-		appendEvent(
-			BattleEvent.SwitchPrevented(
-				turnNumber = turnNumber,
-				actorId = actor.actorId,
-				reason = reason,
-				skillId = skillId,
-				sourceActorId = sourceActorId,
-				turnsRemainingBefore = turnsRemainingBefore,
-			),
-		)
 
 	/**
 	 * 执行一次使用技能行动。
@@ -885,11 +799,6 @@ class BattleEngine(
 				random = random,
 			),
 		)
-
-	private data class SwitchPlan(
-		val action: BattleAction.SwitchParticipant,
-		val actor: BattleParticipant,
-	)
 
 	/**
 	 * 单个回合技能阶段的临时上下文。
