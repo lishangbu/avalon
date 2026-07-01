@@ -52,6 +52,35 @@ class BattleTargetScopePublicReferenceTests {
 	}
 
 	@Test
+	fun `self target skill ignores submitted target and affects user only`() {
+		val scenario = publicBattleRuleScenario(
+			name = "self-target-skill-ignores-submitted-target-and-affects-user-only",
+			inputSummary = "单打中使用目标范围为自身的技能，但行动请求仍携带了一个对手目标。",
+			expectedSummary = "目标范围以技能规则为准，执行时重新解析为使用者自身，不会伤害请求里提交的对手。",
+		)
+		val selfTargetSkill = damagingSkill(targetScope = BattleSkillTargetScope.SELF)
+		val state = engine.start(
+			initialState(
+				first = participant("self-user", speed = 100, skill = selfTargetSkill),
+				second = participant("submitted-target", speed = 80),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("self-user", skillId = 1, targetActorId = "submitted-target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damageEvent = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		scenario.assertNamed("self-target-skill-ignores-submitted-target-and-affects-user-only")
+		assertEquals("self-user", damageEvent.targetActorId)
+		assertEquals(1.0, damageEvent.targetMultiplier)
+		assertEquals(72, resolved.participant("self-user")?.currentHp)
+		assertEquals(100, resolved.participant("submitted-target")?.currentHp)
+	}
+
+	@Test
 	fun `all adjacent opponents skill hits both opponents and skips ally`() {
 		val scenario = publicBattleRuleScenario(
 			name = "all-adjacent-opponents-skill-hits-both-opponents-and-skips-ally",
