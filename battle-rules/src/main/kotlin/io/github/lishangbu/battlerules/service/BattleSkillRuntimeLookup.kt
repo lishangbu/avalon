@@ -1,19 +1,6 @@
 package io.github.lishangbu.battlerules.service
 
-import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderApplication
-import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
-import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
-import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
-import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
-import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
-import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
-import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
-import io.github.lishangbu.battleengine.model.BattleStatStageEffect
-import io.github.lishangbu.battleengine.model.BattleStatStageOperation
-import io.github.lishangbu.battleengine.model.BattleStatusApplication
-import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
-import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.common.web.invalidValue
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
@@ -22,9 +9,11 @@ import java.sql.ResultSet
 /**
  * 技能运行时资料读取器。
  *
- * 本类只负责把 `game_skill`、`battle_skill_rule` 及其技能子表读取成 [BattleSkillSlot]。它不读取赛制、不读取成员
- * 能力值，也不解释特性/道具 policy；这些职责分别交给其它运行时读取器。这样技能规则新增字段时，只需要修改本类
- * 和对应快照测试，避免一个大资料读取器因为不同资料族的变化反复膨胀。
+ * 本类负责把 `game_skill` 与 `battle_skill_rule` 主行装配成 [BattleSkillSlot]：主技能行提供名称、属性、PP、
+ * 威力、命中率和优先度；规则主行提供目标、命中、伤害和效果 policy，以及多段、蓄力、休整、接触等单列标记。
+ * 天气修正、状态附加、能力阶级变化和场地效果这类一条规则下的多行明细，已经下沉到
+ * [BattleSkillRuleEffectRuntimeLookup]。这样主行 policy 校验和子表 SQL 不再互相挤在一个类里，新增资料时更容易
+ * 看清楚应该改“主规则装配”还是“规则明细装配”。
  *
  * 这里仍然返回 battle-engine 的强类型模型，而不是数据库行。原因是 SQL/JDBC 是 battle-rules 适配层细节，纯引擎
  * 不应知道规则资料拆成了哪些三范式表；它只消费已经冻结好的技能槽快照。
@@ -32,6 +21,7 @@ import java.sql.ResultSet
 @Component
 class BattleSkillRuntimeLookup(
 	private val jdbcTemplate: JdbcTemplate,
+	private val ruleEffectLookup: BattleSkillRuleEffectRuntimeLookup,
 ) {
 fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 	val row = jdbcTemplate.query(
@@ -78,6 +68,7 @@ fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 	).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
 
 	row.requireSupportedRulePolicies()
+	val ruleEffects = ruleEffectLookup.ruleEffects(row.ruleId)
 	return BattleSkillSlot(
 		skillId = row.skillId,
 		name = row.name,
@@ -102,11 +93,11 @@ fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 		slicingBased = row.slicingBased ?: false,
 		weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
 		chargesBeforeUse = row.chargesBeforeUse ?: false,
-		chargeSkippedByWeathers = chargeSkippedByWeathers(row.ruleId),
+		chargeSkippedByWeathers = ruleEffects.chargeSkippedByWeathers,
 		rechargesAfterUse = row.rechargesAfterUse ?: false,
-		accuracyOverridesByWeather = weatherAccuracyOverrides(row.ruleId),
-		powerMultipliersByWeather = weatherPowerMultipliers(row.ruleId),
-		elementOverridesByWeather = weatherElementOverrides(row.ruleId),
+		accuracyOverridesByWeather = ruleEffects.accuracyOverridesByWeather,
+		powerMultipliersByWeather = ruleEffects.powerMultipliersByWeather,
+		elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
 		lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
 		lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
 		confusesUserAfterLock = row.confusesUserAfterLock ?: false,
@@ -114,14 +105,14 @@ fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 		priority = row.priority,
 		remainingPp = row.pp,
 		maxPp = row.pp,
-		statusApplications = statusApplications(row.ruleId),
-		volatileStatusApplications = volatileStatusApplications(row.ruleId),
-		statStageEffects = statStageEffects(row.ruleId),
-		statStageOperations = statStageOperations(row.ruleId),
-		sideConditionApplications = sideConditionApplications(row.ruleId),
-		sideSpeedModifierApplications = sideSpeedModifierApplications(row.ruleId),
-		sideEntryHazardApplications = sideEntryHazardApplications(row.ruleId),
-		fieldSpeedOrderApplications = fieldSpeedOrderApplications(row.ruleId),
+		statusApplications = ruleEffects.statusApplications,
+		volatileStatusApplications = ruleEffects.volatileStatusApplications,
+		statStageEffects = ruleEffects.statStageEffects,
+		statStageOperations = ruleEffects.statStageOperations,
+		sideConditionApplications = ruleEffects.sideConditionApplications,
+		sideSpeedModifierApplications = ruleEffects.sideSpeedModifierApplications,
+		sideEntryHazardApplications = ruleEffects.sideEntryHazardApplications,
+		fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
 		hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
 		environmentEffects = row.effectPolicy.toBattleSkillEnvironmentEffects(),
 	)
@@ -194,341 +185,6 @@ private fun SkillRuntimeRow.requireSupportedRulePolicies() {
 	if (!normalizedDamagePolicy.isBattleSkillRuntimeDamagePolicySupported()) {
 		invalidValue("damagePolicy", "不支持的技能伤害策略: $normalizedDamagePolicy")
 	}
-}
-
-private fun weatherAccuracyOverrides(ruleId: Long?): Map<BattleWeather, Int?> {
-	if (ruleId == null) {
-		return emptyMap()
-	}
-	return jdbcTemplate.query(
-		"""
-		select w.code as weather_code, o.accuracy_percent
-		from battle_skill_weather_accuracy_override o
-		join battle_weather_rule w on w.id = o.weather_rule_id
-		where o.skill_rule_id = ? and o.enabled = true and w.enabled = true
-		order by o.sort_order, o.id
-		""".trimIndent(),
-		{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.nullableInt("accuracy_percent") },
-		ruleId,
-	).toMap()
-}
-
-private fun weatherPowerMultipliers(ruleId: Long?): Map<BattleWeather, Double> {
-	if (ruleId == null) {
-		return emptyMap()
-	}
-	return jdbcTemplate.query(
-		"""
-		select w.code as weather_code, m.power_multiplier
-		from battle_skill_weather_power_modifier m
-		join battle_weather_rule w on w.id = m.weather_rule_id
-		where m.skill_rule_id = ? and m.enabled = true and w.enabled = true
-		order by m.sort_order, m.id
-		""".trimIndent(),
-		{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") },
-		ruleId,
-	).toMap()
-}
-
-private fun weatherElementOverrides(ruleId: Long?): Map<BattleWeather, Long> {
-	if (ruleId == null) {
-		return emptyMap()
-	}
-	return jdbcTemplate.query(
-		"""
-		select w.code as weather_code, o.target_element_id
-		from battle_skill_weather_element_override o
-		join battle_weather_rule w on w.id = o.weather_rule_id
-		join game_element e on e.id = o.target_element_id
-		where o.skill_rule_id = ? and o.enabled = true and w.enabled = true and e.enabled = true
-		order by o.sort_order, o.id
-		""".trimIndent(),
-		{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") },
-		ruleId,
-	).toMap()
-}
-
-private fun chargeSkippedByWeathers(ruleId: Long?): Set<BattleWeather> {
-	if (ruleId == null) {
-		return emptySet()
-	}
-	return jdbcTemplate.query(
-		"""
-		select w.code as weather_code
-		from battle_skill_charge_skip_weather s
-		join battle_weather_rule w on w.id = s.weather_rule_id
-		where s.skill_rule_id = ? and s.enabled = true and w.enabled = true
-		order by s.sort_order, s.id
-		""".trimIndent(),
-		{ rs, _ -> rs.getString("weather_code").toBattleWeather() },
-		ruleId,
-	).toSet()
-}
-
-private fun statusApplications(ruleId: Long?): List<BattleStatusApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select sr.code as status_code, e.target_scope, e.chance_percent
-		from battle_skill_status_effect e
-		join battle_status_rule sr on sr.id = e.status_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and sr.enabled = true
-			and sr.status_kind = 'MAJOR'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
-			BattleStatusApplication(
-				status = rs.getString("status_code").toBattleMajorStatus(),
-				target = target,
-				chancePercent = rs.getInt("chance_percent"),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun volatileStatusApplications(ruleId: Long?): List<BattleVolatileStatusApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select sr.code as status_code, e.target_scope, e.chance_percent
-		from battle_skill_status_effect e
-		join battle_status_rule sr on sr.id = e.status_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and sr.enabled = true
-			and sr.status_kind = 'VOLATILE'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
-			BattleVolatileStatusApplication(
-				status = rs.getString("status_code").toBattleVolatileStatus(),
-				target = target,
-				chancePercent = rs.getInt("chance_percent"),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun statStageEffects(ruleId: Long?): List<BattleStatStageEffect> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select st.code as stat_code, e.target_scope, e.stage_delta, e.chance_percent
-		from battle_skill_stat_stage_effect e
-		join game_stat st on st.id = e.stat_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
-			BattleStatStageEffect(
-				stat = rs.getString("stat_code").toBattleStat(),
-				target = target,
-				stageDelta = rs.getInt("stage_delta"),
-				chancePercent = rs.getInt("chance_percent"),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun statStageOperations(ruleId: Long?): List<BattleStatStageOperation> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select
-			st.code as stat_code,
-			e.operation_kind,
-			e.target_scope,
-			e.source_scope,
-			e.chance_percent
-		from battle_skill_stat_stage_operation e
-		join game_stat st on st.id = e.stat_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val source = rs.getString("source_scope")?.toBattleStatStageOperationTarget()
-			BattleStatStageOperation(
-				kind = rs.getString("operation_kind").toBattleStatStageOperationKind(),
-				stat = rs.getString("stat_code").toBattleStat(),
-				target = rs.getString("target_scope").toBattleStatStageOperationTarget(),
-				source = source,
-				chancePercent = rs.getInt("chance_percent"),
-			)
-		},
-		ruleId,
-	)
-}
-
-private fun sideConditionApplications(ruleId: Long?): List<BattleSideConditionApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select
-			fr.effect_policy as field_effect_policy,
-			fr.min_turns,
-			e.target_side,
-			e.chance_percent,
-			w.code as required_weather_code
-		from battle_skill_field_effect e
-		join battle_field_rule fr on fr.id = e.field_rule_id
-		left join battle_weather_rule w on w.id = e.required_weather_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and fr.enabled = true
-			and fr.effect_scope = 'SIDE'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val reductionKind = rs.getString("field_effect_policy").toBattleSideDamageReductionKind() ?: return@query null
-			BattleSideConditionApplication(
-				targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-				damageReduction = BattleSideDamageReduction(
-					kind = reductionKind,
-					turnsRemaining = rs.nullableInt("min_turns"),
-				),
-				chancePercent = rs.getInt("chance_percent"),
-				requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun sideSpeedModifierApplications(ruleId: Long?): List<BattleSideSpeedModifierApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select
-			fr.effect_policy as field_effect_policy,
-			fr.min_turns,
-			e.target_side,
-			e.chance_percent,
-			w.code as required_weather_code
-		from battle_skill_field_effect e
-		join battle_field_rule fr on fr.id = e.field_rule_id
-		left join battle_weather_rule w on w.id = e.required_weather_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and fr.enabled = true
-			and fr.effect_scope = 'SIDE'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val modifierKind = rs.getString("field_effect_policy").toBattleSideSpeedModifierKind() ?: return@query null
-			BattleSideSpeedModifierApplication(
-				targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-				speedModifier = BattleSideSpeedModifier(
-					kind = modifierKind,
-					turnsRemaining = rs.nullableInt("min_turns"),
-				),
-				chancePercent = rs.getInt("chance_percent"),
-				requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun sideEntryHazardApplications(ruleId: Long?): List<BattleSideEntryHazardApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select
-			fr.effect_policy as field_effect_policy,
-			fr.max_layers,
-			e.target_side,
-			e.chance_percent,
-			w.code as required_weather_code
-		from battle_skill_field_effect e
-		join battle_field_rule fr on fr.id = e.field_rule_id
-		left join battle_weather_rule w on w.id = e.required_weather_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and fr.enabled = true
-			and fr.effect_scope = 'SIDE'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val hazardKind = rs.getString("field_effect_policy").toBattleSideEntryHazardKind() ?: return@query null
-			BattleSideEntryHazardApplication(
-				targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-				hazard = BattleSideEntryHazard(
-					kind = hazardKind,
-					maxLayers = rs.nullableInt("max_layers") ?: hazardKind.defaultMaxLayers,
-				),
-				chancePercent = rs.getInt("chance_percent"),
-				requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-			)
-		},
-		ruleId,
-	).filterNotNull()
-}
-
-private fun fieldSpeedOrderApplications(ruleId: Long?): List<BattleFieldSpeedOrderApplication> {
-	if (ruleId == null) {
-		return emptyList()
-	}
-	return jdbcTemplate.query(
-		"""
-		select
-			fr.effect_policy as field_effect_policy,
-			fr.min_turns,
-			e.chance_percent,
-			w.code as required_weather_code
-		from battle_skill_global_field_effect e
-		join battle_field_rule fr on fr.id = e.field_rule_id
-		left join battle_weather_rule w on w.id = e.required_weather_rule_id
-		where e.skill_rule_id = ?
-			and e.enabled = true
-			and fr.enabled = true
-			and fr.effect_scope = 'FIELD'
-			and e.effect_timing = 'AFTER_HIT'
-		order by e.sort_order, e.id
-		""".trimIndent(),
-		{ rs, _ ->
-			val speedOrderKind = rs.getString("field_effect_policy").toBattleFieldSpeedOrderKind() ?: return@query null
-			BattleFieldSpeedOrderApplication(
-				speedOrderEffect = BattleFieldSpeedOrderEffect(
-					kind = speedOrderKind,
-					turnsRemaining = rs.nullableInt("min_turns"),
-				),
-				chancePercent = rs.getInt("chance_percent"),
-				requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-			)
-		},
-		ruleId,
-	).filterNotNull()
 }
 
 private fun ResultSet.nullableInt(column: String): Int? {
