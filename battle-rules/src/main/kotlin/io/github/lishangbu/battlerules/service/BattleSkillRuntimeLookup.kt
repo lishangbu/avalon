@@ -48,6 +48,8 @@ fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 			r.id as rule_id,
 			r.effect_policy,
 			r.target_policy,
+			r.hit_policy,
+			r.damage_policy,
 			r.min_hits,
 			r.max_hits,
 			r.critical_hit_stage,
@@ -75,6 +77,7 @@ fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
 		skillId,
 	).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
 
+	row.requireSupportedRulePolicies()
 	return BattleSkillSlot(
 		skillId = row.skillId,
 		name = row.name,
@@ -137,6 +140,8 @@ private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
 		ruleId = nullableLong("rule_id"),
 		effectPolicy = getString("effect_policy"),
 		targetPolicy = getString("target_policy"),
+		hitPolicy = getString("hit_policy"),
+		damagePolicy = getString("damage_policy"),
 		minHits = nullableInt("min_hits"),
 		maxHits = nullableInt("max_hits"),
 		criticalHitStage = nullableInt("critical_hit_stage"),
@@ -156,6 +161,40 @@ private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
 		confusesUserAfterLock = nullableBoolean("confuses_user_after_lock"),
 		forceTargetSwitch = nullableBoolean("force_target_switch"),
 	)
+
+/**
+ * 校验启用中的技能规则 policy 是否都已经被运行时显式支持。
+ *
+ * `game_skill` 可以没有对应的 `battle_skill_rule`，这种普通技能继续使用 battle-engine 的默认单体、普通命中、
+ * 普通伤害模型；但一旦存在启用规则行，四个 policy 字段就不再允许依赖默认值。这样可以防止 Liquibase 或后台
+ * 维护写入一个拼错的 `effect_policy`、`target_policy`、`hit_policy` 或 `damage_policy` 后，运行时仍然悄悄把
+ * 它装配成“无附加效果/默认目标”的技能。
+ */
+private fun SkillRuntimeRow.requireSupportedRulePolicies() {
+	if (ruleId == null) {
+		return
+	}
+	val normalizedEffectPolicy = effectPolicy
+		?: invalidValue("effectPolicy", "启用的技能规则缺少 effect_policy: skillId=$skillId")
+	val normalizedTargetPolicy = targetPolicy
+		?: invalidValue("targetPolicy", "启用的技能规则缺少 target_policy: skillId=$skillId")
+	val normalizedHitPolicy = hitPolicy
+		?: invalidValue("hitPolicy", "启用的技能规则缺少 hit_policy: skillId=$skillId")
+	val normalizedDamagePolicy = damagePolicy
+		?: invalidValue("damagePolicy", "启用的技能规则缺少 damage_policy: skillId=$skillId")
+	if (!normalizedEffectPolicy.isBattleSkillRuntimeEffectPolicySupported()) {
+		invalidValue("effectPolicy", "不支持的技能主效果策略: $normalizedEffectPolicy")
+	}
+	if (!normalizedTargetPolicy.isBattleSkillRuntimeTargetPolicySupported()) {
+		invalidValue("targetPolicy", "不支持的技能目标策略: $normalizedTargetPolicy")
+	}
+	if (!normalizedHitPolicy.isBattleSkillRuntimeHitPolicySupported()) {
+		invalidValue("hitPolicy", "不支持的技能命中策略: $normalizedHitPolicy")
+	}
+	if (!normalizedDamagePolicy.isBattleSkillRuntimeDamagePolicySupported()) {
+		invalidValue("damagePolicy", "不支持的技能伤害策略: $normalizedDamagePolicy")
+	}
+}
 
 private fun weatherAccuracyOverrides(ruleId: Long?): Map<BattleWeather, Int?> {
 	if (ruleId == null) {
@@ -520,6 +559,8 @@ private data class SkillRuntimeRow(
 	val ruleId: Long?,
 	val effectPolicy: String?,
 	val targetPolicy: String?,
+	val hitPolicy: String?,
+	val damagePolicy: String?,
 	val minHits: Int?,
 	val maxHits: Int?,
 	val criticalHitStage: Int?,

@@ -912,6 +912,39 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(invalidItem.message).isEqualTo("itemId 必须大于 0")
 	}
 
+	@Test
+	fun `runtime assembly rejects enabled unknown policies instead of dropping them`() {
+		withTemporaryAbilityPolicy("unknown-ability-policy") {
+			val abilityEffect = assertThrows<ApiException> {
+				service.abilityEffectsByAbilityId(65)
+			}
+			assertThat(abilityEffect.field).isEqualTo("effectPolicy")
+			assertThat(abilityEffect.message).isEqualTo("不支持的特性战斗效果策略: unknown-ability-policy")
+
+			val grounding = assertThrows<ApiException> {
+				service.groundedByAbilityId(65)
+			}
+			assertThat(grounding.field).isEqualTo("effectPolicy")
+			assertThat(grounding.message).isEqualTo("不支持的特性战斗效果策略: unknown-ability-policy")
+		}
+
+		withTemporaryItemPolicy("unknown-item-policy") {
+			val itemEffect = assertThrows<ApiException> {
+				service.itemEffectsByItemId(211)
+			}
+			assertThat(itemEffect.field).isEqualTo("effectPolicy")
+			assertThat(itemEffect.message).isEqualTo("不支持的道具战斗效果策略: unknown-item-policy")
+		}
+
+		withTemporarySkillPolicy("unknown-skill-policy") { skillId ->
+			val skillRule = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(skillRule.field).isEqualTo("effectPolicy")
+			assertThat(skillRule.message).isEqualTo("不支持的技能主效果策略: unknown-skill-policy")
+		}
+	}
+
 	/**
 	 * 验证数据库中已经启用的战斗规则资料都能被运行时适配层装配。
 	 *
@@ -1539,6 +1572,108 @@ class BattleRuntimeSnapshotServiceTests(
 			{ rs, _ -> rs.getString("code") to rs.getLong("id") },
 		).toMap()
 
+	private fun withTemporaryAbilityPolicy(effectPolicy: String, block: () -> Unit) {
+		jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
+		jdbcTemplate.update(
+			"""
+			insert into battle_ability_rule (
+				id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order
+			) values (?, 65, 'BEFORE_DAMAGE', ?, 999, '未知特性策略测试', true, 999999)
+			""".trimIndent(),
+			TEMP_ABILITY_RULE_ID,
+			effectPolicy,
+		)
+		try {
+			block()
+		} finally {
+			jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
+		}
+	}
+
+	private fun withTemporaryItemPolicy(effectPolicy: String, block: () -> Unit) {
+		jdbcTemplate.update("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
+		jdbcTemplate.update(
+			"""
+			insert into battle_item_rule (
+				id, item_id, trigger_timing, effect_policy, consumable, trigger_order, description, enabled, sort_order
+			) values (?, 211, 'HELD_END_TURN', ?, false, 999, '未知道具策略测试', true, 999999)
+			""".trimIndent(),
+			TEMP_ITEM_RULE_ID,
+			effectPolicy,
+		)
+		try {
+			block()
+		} finally {
+			jdbcTemplate.update("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
+		}
+	}
+
+	private fun withTemporarySkillPolicy(effectPolicy: String, block: (Long) -> Unit) {
+		val skillId = skillIdWithoutBattleRule()
+		jdbcTemplate.update("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
+		jdbcTemplate.update(
+			"""
+			insert into battle_skill_rule (
+				id,
+				skill_id,
+				effect_policy,
+				target_policy,
+				hit_policy,
+				damage_policy,
+				makes_contact,
+				affected_by_protect,
+				sound_based,
+				powder_based,
+				punch_based,
+				slicing_based,
+				description,
+				enabled,
+				sort_order
+			) values (
+				?,
+				?,
+				?,
+				'selected-target',
+				'standard-hit',
+				'standard-damage',
+				false,
+				true,
+				false,
+				false,
+				false,
+				false,
+				'未知技能策略测试',
+				true,
+				999999
+			)
+			""".trimIndent(),
+			TEMP_SKILL_RULE_ID,
+			skillId,
+			effectPolicy,
+		)
+		try {
+			block(skillId)
+		} finally {
+			jdbcTemplate.update("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
+		}
+	}
+
+	private fun skillIdWithoutBattleRule(): Long =
+		jdbcTemplate.queryForObject(
+			"""
+			select s.id
+			from game_skill s
+			where not exists (
+				select 1
+				from battle_skill_rule r
+				where r.skill_id = s.id
+			)
+			order by s.id
+			limit 1
+			""".trimIndent(),
+			Long::class.java,
+		) ?: error("测试资料必须至少保留一个未配置 battle_skill_rule 的技能")
+
 	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =
 		BattlePreparationValidationRequest(
 			formatCode = "official-double",
@@ -1605,4 +1740,10 @@ class BattleRuntimeSnapshotServiceTests(
 			abilityId = abilityId,
 			itemId = itemId,
 		)
+
+	private companion object {
+		private const val TEMP_ABILITY_RULE_ID = 9_900_001L
+		private const val TEMP_ITEM_RULE_ID = 9_900_002L
+		private const val TEMP_SKILL_RULE_ID = 9_900_003L
+	}
 }

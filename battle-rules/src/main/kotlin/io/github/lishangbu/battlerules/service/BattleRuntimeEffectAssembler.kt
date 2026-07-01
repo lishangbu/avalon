@@ -48,7 +48,12 @@ class BattleRuntimeEffectAssembler(
 			return true
 		}
 		requirePositive(abilityId, field = "abilityId")
-		return grounded(dataLookup.enabledAbilityPolicies(abilityId))
+		val abilityPolicies = dataLookup.enabledAbilityPolicies(abilityId)
+		abilityEffects(
+			abilityPolicies = abilityPolicies,
+			elementIds = dataLookup.coreElementIds(),
+		)
+		return grounded(abilityPolicies)
 	}
 
 	/**
@@ -78,24 +83,36 @@ class BattleRuntimeEffectAssembler(
 	/**
 	 * 将已缓存的特性 policy 转换成结构化效果。
 	 *
-	 * 未被当前引擎模型承载的 policy 会被 [toBattleAbilityEffect] 明确丢弃，含义是“资料已维护但引擎尚未接入”。
+	 * 未知 policy 直接按资料错误拒绝，而不是被 `mapNotNull` 静默吞掉。`ground-immunity` 是唯一允许返回 null 的
+	 * 特性策略，因为它会由 [grounded] 写入成员接地事实，不作为 [BattleAbilityEffect] 暴露给引擎。
 	 */
 	fun abilityEffects(
 		abilityPolicies: List<String>,
 		elementIds: Map<String, Long>,
 	): List<BattleAbilityEffect> =
-		abilityPolicies.mapNotNull { it.toBattleAbilityEffect(elementIds) }
+		abilityPolicies.mapNotNull { policy ->
+			val effect = policy.toBattleAbilityEffect(elementIds)
+			when {
+				effect != null -> effect
+				policy == "ground-immunity" -> null
+				else -> invalidValue("effectPolicy", "不支持的特性战斗效果策略: $policy")
+			}
+		}
 
 	/**
 	 * 将已缓存的道具 policy 转换成结构化效果。
 	 *
-	 * 与特性一样，这里只输出 battle-engine 有稳定模型的效果，避免引擎运行时解析资料库字符串。
+	 * 道具没有类似接地事实的旁路字段，因此所有启用中的道具 policy 都必须映射成 [BattleItemEffect]。如果这里
+	 * 返回空值，战斗引擎就完全不会执行该资料行，所以未知策略必须立即失败。
 	 */
 	fun itemEffects(
 		itemPolicies: List<String>,
 		elementIds: Map<String, Long>,
 	): List<BattleItemEffect> =
-		itemPolicies.mapNotNull { it.toBattleItemEffect(elementIds) }
+		itemPolicies.map { policy ->
+			policy.toBattleItemEffect(elementIds)
+				?: invalidValue("effectPolicy", "不支持的道具战斗效果策略: $policy")
+		}
 
 	private fun requirePositive(id: Long, field: String) {
 		if (id <= 0) {
