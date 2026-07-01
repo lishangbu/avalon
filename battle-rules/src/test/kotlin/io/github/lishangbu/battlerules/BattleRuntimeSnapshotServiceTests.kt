@@ -1089,6 +1089,37 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.violations[1].targetActorId).isEqualTo("b-2")
 	}
 
+	@Test
+	fun `action validation accepts placeholder target for self target skill`() {
+		val sides = preparationRequest(
+			participant(
+				actorId = "a-1",
+				creatureId = 1,
+				level = 50,
+				itemId = 10,
+				skillIds = listOf(182, 1, 2, 3),
+			),
+		).sides
+
+		val response = service.validateActions(
+			BattleActionValidationRequest(
+				formatCode = "official-double",
+				sides = sides,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 182,
+						targetActorId = "missing-placeholder",
+					),
+				),
+			),
+		)
+
+		assertThat(response.valid).isTrue()
+		assertThat(response.violations).isEmpty()
+	}
+
 	/**
 	 * 验证 battle-rules 装配出的运行时快照可以直接驱动 battle-engine 完成最小一回合。
 	 *
