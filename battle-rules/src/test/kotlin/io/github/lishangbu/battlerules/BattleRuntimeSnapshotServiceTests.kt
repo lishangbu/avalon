@@ -1209,7 +1209,7 @@ class BattleRuntimeSnapshotServiceTests(
 	 *
 	 * 这里用同一个高伤害技能分别命中两种目标：一个目标带特性 5，一个目标携带道具 252。测试关注事件来源、是否
 	 * 消耗和最终 HP，而不手写 [BattleAbilityEffect.SurviveFatalDamageAtFullHp] 或
-	 * [BattleItemEffect.SurviveFatalDamageAtFullHp]，确保真实资料链路没有退回旧 fixture。
+	 * [BattleItemEffect.SurviveFatalDamageAtFullHp]，确保真实资料链路没有退回旧共享场景。
 	 */
 	@Test
 	fun `assembled runtime snapshot applies database full hp survival effects in engine turn`() {
