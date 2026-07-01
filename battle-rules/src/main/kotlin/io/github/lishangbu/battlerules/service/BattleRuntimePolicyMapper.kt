@@ -524,151 +524,6 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			multiplier = 1.1,
 		)
 		"super-effective-damage-boost" -> BattleItemEffect.SuperEffectiveDamageBoost(multiplier = 1.2)
-		"element-damage-boost-normal" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("normal"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-fighting" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("fighting"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-flying" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("flying"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-poison" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("poison"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-ground" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("ground"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-rock" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("rock"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-bug" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("bug"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-ghost" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("ghost"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-steel" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("steel"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-fire" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("fire"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-water" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("water"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-grass" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("grass"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-electric" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("electric"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-psychic" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("psychic"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-ice" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("ice"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-dragon" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("dragon"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-dark" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("dark"),
-			multiplier = 1.2,
-		)
-		"element-damage-boost-fairy" -> BattleItemEffect.ElementDamageBoost(
-			elementId = elementIds.requiredElementId("fairy"),
-			multiplier = 1.2,
-		)
-		"element-damage-reduction-normal" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("normal"),
-			multiplier = 0.5,
-			requiresSuperEffective = false,
-		)
-		"element-damage-reduction-fighting" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("fighting"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-flying" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("flying"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-poison" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("poison"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-ground" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("ground"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-rock" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("rock"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-bug" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("bug"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-ghost" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("ghost"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-steel" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("steel"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-fire" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("fire"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-water" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("water"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-grass" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("grass"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-electric" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("electric"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-psychic" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("psychic"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-ice" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("ice"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-dragon" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("dragon"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-dark" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("dark"),
-			multiplier = 0.5,
-		)
-		"element-damage-reduction-fairy" -> BattleItemEffect.ElementDamageReduction(
-			elementId = elementIds.requiredElementId("fairy"),
-			multiplier = 0.5,
-		)
 		"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 		"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 		"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
@@ -735,8 +590,53 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			),
 			turnsRemaining = 8,
 		)
-		else -> null
+		else -> toElementDamageBoostItemEffect(elementIds)
+			?: toElementDamageReductionItemEffect(elementIds)
 	}
+
+private const val ELEMENT_DAMAGE_BOOST_ITEM_POLICY_PREFIX = "element-damage-boost-"
+private const val ELEMENT_DAMAGE_REDUCTION_ITEM_POLICY_PREFIX = "element-damage-reduction-"
+
+/**
+ * 将“某属性技能威力增强道具”统一映射成运行时效果。
+ *
+ * 这类 policy 的结构是 `element-damage-boost-{elementCode}`，所有属性都使用相同的 1.2 倍倍率。把属性 code
+ * 留在 policy 尾部，比为 18 个属性各写一段 `when` 分支更接近资料本身，也避免后续新增属性资料或修正属性 code
+ * 时需要同步修改一长串重复 Kotlin 分支。
+ */
+private fun String.toElementDamageBoostItemEffect(elementIds: Map<String, Long>): BattleItemEffect.ElementDamageBoost? {
+	val elementCode = removePrefix(ELEMENT_DAMAGE_BOOST_ITEM_POLICY_PREFIX)
+	if (elementCode == this) {
+		return null
+	}
+	val elementId = elementIds[elementCode] ?: return null
+	return BattleItemEffect.ElementDamageBoost(
+		elementId = elementId,
+		multiplier = 1.2,
+	)
+}
+
+/**
+ * 将“某属性减伤道具”统一映射成运行时效果。
+ *
+ * 减伤类 policy 的结构是 `element-damage-reduction-{elementCode}`，默认表示对应属性效果绝佳时把伤害减半。
+ * 一般属性没有效果绝佳关系，因此 `normal` 是唯一需要关闭 [BattleItemEffect.ElementDamageReduction.requiresSuperEffective]
+ * 的例外；这个例外保留在同一个 helper 里，避免散落成 18 个几乎相同的分支。
+ */
+private fun String.toElementDamageReductionItemEffect(
+	elementIds: Map<String, Long>,
+): BattleItemEffect.ElementDamageReduction? {
+	val elementCode = removePrefix(ELEMENT_DAMAGE_REDUCTION_ITEM_POLICY_PREFIX)
+	if (elementCode == this) {
+		return null
+	}
+	val elementId = elementIds[elementCode] ?: return null
+	return BattleItemEffect.ElementDamageReduction(
+		elementId = elementId,
+		multiplier = 0.5,
+		requiresSuperEffective = elementCode != "normal",
+	)
+}
 
 /**
  * 判断道具 `effect_policy` 是否已被运行时效果模型承载。
