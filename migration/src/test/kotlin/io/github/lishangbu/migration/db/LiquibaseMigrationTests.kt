@@ -489,7 +489,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 79L)
-		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 234L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
@@ -656,6 +656,54 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 464L,
 				"status_code" to "sleep",
+				"chance_percent" to 100,
+			),
+		)
+
+		val derivedStatStageEffects = queryMaps(
+			"""
+			select sr.skill_id, st.code as stat_code, se.target_scope, se.stage_delta, se.chance_percent
+			from battle_skill_stat_stage_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join game_stat st on st.id = se.stat_id
+			where sr.skill_id in (28, 74, 81, 189)
+			order by sr.skill_id, st.code
+			""".trimIndent(),
+		)
+		assertThat(derivedStatStageEffects).containsExactly(
+			mapOf(
+				"skill_id" to 28L,
+				"stat_code" to "accuracy",
+				"target_scope" to "TARGET",
+				"stage_delta" to -1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 74L,
+				"stat_code" to "attack",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 74L,
+				"stat_code" to "special-attack",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 81L,
+				"stat_code" to "speed",
+				"target_scope" to "ALL_OPPONENTS",
+				"stage_delta" to -2,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 189L,
+				"stat_code" to "accuracy",
+				"target_scope" to "TARGET",
+				"stage_delta" to -1,
 				"chance_percent" to 100,
 			),
 		)

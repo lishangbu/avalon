@@ -7641,3 +7641,54 @@ databaseChangeLog:
                 and e.target_scope = 'TARGET'
                 and e.effect_timing = 'AFTER_HIT'
             )
+- changeSet:
+    id: 102-battle-derived-basic-skill-stat-stage-effects
+    author: backend
+    comment: 使用技能结构化能力变化字段为自动生成规则补充能力阶级效果。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 只生成当前引擎能准确表达的作用对象：使用者、当前实际目标、全部对手。
+          -- 同伴、己方全体和全场草属性等条件型加成需要额外目标/筛选模型，不能用 TARGET 硬套。
+          insert into battle_skill_stat_stage_effect (
+            id,
+            skill_rule_id,
+            stat_id,
+            target_scope,
+            stage_delta,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            300000 + sc.id,
+            r.id,
+            sc.stat_id,
+            case
+              when t.code = 'user' then 'USER'
+              when t.code = 'all-opponents' then 'ALL_OPPONENTS'
+              else 'TARGET'
+            end,
+            sc.change_value,
+            'AFTER_HIT',
+            case when coalesce(d.stat_chance, 0) > 0 then d.stat_chance else 100 end,
+            true,
+            5000 + row_number() over (order by s.id, sc.stat_id)
+          from game_skill_stat_change sc
+          join game_skill s on s.id = sc.skill_id
+          join game_skill_detail d on d.skill_id = s.id
+          join game_skill_target t on t.id = d.target_id
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
+          where s.enabled = true
+            and r.id >= 100000
+            and t.code in ('user', 'selected-pokemon', 'all-opponents', 'all-other-pokemon', 'random-opponent')
+            and not exists (
+              select 1
+              from battle_skill_stat_stage_effect e
+              where e.skill_rule_id = r.id
+                and e.stat_id = sc.stat_id
+                and e.effect_timing = 'AFTER_HIT'
+            )

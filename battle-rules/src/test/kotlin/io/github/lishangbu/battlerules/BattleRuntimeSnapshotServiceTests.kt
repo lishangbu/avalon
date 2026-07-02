@@ -100,11 +100,11 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				2, 3, 5, 7, 14, 15, 20, 36, 37, 38, 39, 45, 47, 49, 50, 57, 63, 69, 71, 74, 76,
-				77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 138, 147, 162, 163,
-				164, 184, 191, 235, 240, 259, 261, 269, 283, 311, 319, 344, 347, 349, 366, 390,
-				400, 427, 433, 435, 446, 456, 457, 464, 504, 515, 526, 564, 568, 570, 577, 580,
-				604, 694, 717, 733, 877, 883, 895,
+				2, 3, 5, 7, 14, 15, 20, 28, 36, 37, 38, 39, 45, 47, 49, 50, 57, 63, 69, 71, 74,
+				76, 77, 78, 79, 81, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 138, 147,
+				162, 163, 164, 184, 189, 191, 235, 240, 259, 261, 269, 283, 311, 319, 344, 347,
+				349, 366, 390, 400, 427, 433, 435, 446, 456, 457, 464, 504, 515, 526, 564, 568,
+				570, 577, 580, 604, 694, 717, 733, 877, 883, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -129,6 +129,31 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(464).targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
 		assertThat(slots.getValue(464).statusApplications.single().status).isEqualTo(BattleMajorStatus.SLEEP)
 		assertThat(slots.getValue(464).statusApplications.single().chancePercent).isEqualTo(100)
+		assertThat(slots.getValue(28).statStageEffects.single().stat).isEqualTo(BattleStat.ACCURACY)
+		assertThat(slots.getValue(28).statStageEffects.single().target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(slots.getValue(28).statStageEffects.single().stageDelta).isEqualTo(-1)
+		assertThat(slots.getValue(28).statStageEffects.single().chancePercent).isEqualTo(100)
+		assertThat(slots.getValue(74).statStageEffects)
+			.anySatisfy {
+				assertThat(it.target).isEqualTo(BattleEffectTarget.USER)
+				assertThat(it.stat).isEqualTo(BattleStat.ATTACK)
+				assertThat(it.stageDelta).isEqualTo(1)
+				assertThat(it.chancePercent).isEqualTo(100)
+			}
+		assertThat(slots.getValue(74).statStageEffects)
+			.anySatisfy {
+				assertThat(it.target).isEqualTo(BattleEffectTarget.USER)
+				assertThat(it.stat).isEqualTo(BattleStat.SPECIAL_ATTACK)
+				assertThat(it.stageDelta).isEqualTo(1)
+				assertThat(it.chancePercent).isEqualTo(100)
+			}
+		assertThat(slots.getValue(81).targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
+		assertThat(slots.getValue(81).statStageEffects.single().stat).isEqualTo(BattleStat.SPEED)
+		assertThat(slots.getValue(81).statStageEffects.single().target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(slots.getValue(81).statStageEffects.single().stageDelta).isEqualTo(-2)
+		assertThat(slots.getValue(81).statStageEffects.single().chancePercent).isEqualTo(100)
+		assertThat(slots.getValue(189).statStageEffects.single().stat).isEqualTo(BattleStat.ACCURACY)
+		assertThat(slots.getValue(189).statStageEffects.single().chancePercent).isEqualTo(100)
 
 		val growl = slots.getValue(45)
 		assertThat(growl.targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
