@@ -27,7 +27,7 @@ internal fun String.toBattleSkillTargetScope(): BattleSkillTargetScope =
 		else -> invalidValue("targetPolicy", "不支持的技能目标策略: $this")
 	}
 
-internal fun String?.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
+internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 	when (this) {
 		"drain-half-damage" -> listOf(
 			BattleSkillHpEffect.DrainDamage(
@@ -91,7 +91,7 @@ internal fun String?.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 		else -> emptyList()
 	}
 
-internal fun String?.toBattleFixedDamage(): BattleFixedDamage? =
+internal fun String.toBattleFixedDamage(): BattleFixedDamage? =
 	when (this) {
 		"fixed-damage-20" -> BattleFixedDamage.FixedAmount(20)
 		"fixed-damage-40" -> BattleFixedDamage.FixedAmount(40)
@@ -99,7 +99,7 @@ internal fun String?.toBattleFixedDamage(): BattleFixedDamage? =
 		else -> null
 	}
 
-internal fun String?.toBattleProportionalDamage(): BattleProportionalDamage? =
+internal fun String.toBattleProportionalDamage(): BattleProportionalDamage? =
 	when (this) {
 		"target-current-hp-half-damage" -> BattleProportionalDamage.TargetCurrentHpFraction(
 			numerator = 1,
@@ -108,14 +108,14 @@ internal fun String?.toBattleProportionalDamage(): BattleProportionalDamage? =
 		else -> null
 	}
 
-internal fun String?.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
+internal fun String.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
 	when (this) {
 		"target-hp-minus-user-hp-damage" -> BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp
 		"user-current-hp-sacrifice-damage" -> BattleHpDerivedDamage.UserCurrentHpAndUserFaints
 		else -> null
 	}
 
-internal fun String?.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironmentEffect> =
+internal fun String.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironmentEffect> =
 	when (this) {
 		"set-terrain-electric" -> listOf(BattleSkillEnvironmentEffect.SetTerrain(BattleTerrain.ELECTRIC))
 		"set-terrain-grassy" -> listOf(BattleSkillEnvironmentEffect.SetTerrain(BattleTerrain.GRASSY))
