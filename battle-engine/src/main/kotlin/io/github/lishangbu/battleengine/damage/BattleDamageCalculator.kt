@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine.damage
 import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import kotlin.math.floor
@@ -101,6 +102,7 @@ class BattleDamageCalculator(
 		).let { abilityModifiers.attackingStatAfterAbility(request, BattleStat.ATTACK, it) }
 		return if (
 			request.attacker.majorStatus == BattleMajorStatus.BURN &&
+			!request.skill.ignoresUserBurnAttackReduction &&
 			!abilityModifiers.ignoresBurnAttackReduction(request.attacker, request.environment.terrain, request.environment.weather)
 		) {
 			(stagedAttack / 2).coerceAtLeast(1)
@@ -147,9 +149,30 @@ class BattleDamageCalculator(
 	private fun effectivePower(request: BattleDamageRequest): Int {
 		val basePower = requireNotNull(request.skill.power) { "damaging skill must define power" }
 		val multiplier = (request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0) *
+			conditionalPowerMultiplier(request) *
 			itemModifiers.powerMultiplier(request)
 		return floor(basePower * multiplier).toInt().coerceAtLeast(1)
 	}
+
+	/**
+	 * 计算技能自身声明的条件威力倍率。
+	 *
+	 * 这些倍率发生在普通伤害公式的“威力”阶段，而不是最终伤害倍率阶段。多个条件若未来同时存在会相乘；当前资料
+	 * 只使用单一条件，但 fold 形式能让组合规则保持可预测，不需要为每个组合新增一个特殊 policy。
+	 */
+	private fun conditionalPowerMultiplier(request: BattleDamageRequest): Double =
+		request.skill.conditionalPowerMultipliers.fold(1.0) { multiplier, rule ->
+			multiplier * if (rule.appliesTo(request)) rule.multiplier else 1.0
+		}
+
+	private fun BattleSkillPowerMultiplier.appliesTo(request: BattleDamageRequest): Boolean =
+		when (this) {
+			is BattleSkillPowerMultiplier.UserMajorStatus -> request.attacker.majorStatus in statuses
+			is BattleSkillPowerMultiplier.TargetMajorStatus -> request.defender.majorStatus in statuses
+			is BattleSkillPowerMultiplier.TargetCurrentHpAtMostFraction ->
+				request.defender.currentHp.toLong() * denominator <= request.defender.maxHp.toLong() * numerator
+			is BattleSkillPowerMultiplier.UserHasNoHeldItem -> request.attacker.itemId == null
+		}
 
 	/**
 	 * 计算击中要害时参与攻击侧公式的能力阶级。

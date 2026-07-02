@@ -7989,3 +7989,39 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'purify'
+- changeSet:
+    id: 112-battle-derived-basic-skill-conditional-power
+    author: backend
+    comment: 为基础条件威力技能补充公式前威力倍率规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 这批技能只改变进入普通伤害公式前的有效威力，不改变命中、属性、目标范围或命中后状态。
+          -- 硬撑额外要求灼伤时不再应用物理攻击减半，引擎通过同一 policy 的显式字段处理该例外。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'facade' then 'power-double-if-user-burn-poison-paralysis'
+              when 'brine' then 'power-double-if-target-half-hp-or-less'
+              when 'venoshock' then 'power-double-if-target-poisoned'
+              when 'hex' then 'power-double-if-target-major-status'
+              when 'acrobatics' then 'power-double-if-user-has-no-held-item'
+              else r.effect_policy
+            end,
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'facade' then '使用者处于灼伤、麻痹、中毒或剧毒时，技能威力翻倍；灼伤时不再降低物理攻击值。'
+              when 'brine' then '目标当前 HP 不高于最大 HP 的一半时，技能威力翻倍。'
+              when 'venoshock' then '目标处于中毒或剧毒时，技能威力翻倍。'
+              when 'hex' then '目标处于任意主要异常状态时，技能威力翻倍。'
+              when 'acrobatics' then '使用者当前没有有效携带道具时，技能威力翻倍。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('facade', 'brine', 'venoshock', 'hex', 'acrobatics')

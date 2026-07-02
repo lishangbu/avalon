@@ -2,10 +2,12 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -170,6 +172,47 @@ internal fun String.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironme
 		else -> emptyList()
 	}
 
+internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultiplier> =
+	when (this) {
+		"power-double-if-user-burn-poison-paralysis" -> listOf(
+			BattleSkillPowerMultiplier.UserMajorStatus(
+				statuses = setOf(
+					BattleMajorStatus.BURN,
+					BattleMajorStatus.PARALYSIS,
+					BattleMajorStatus.POISON,
+					BattleMajorStatus.BAD_POISON,
+				),
+				multiplier = 2.0,
+			),
+		)
+		"power-double-if-target-half-hp-or-less" -> listOf(
+			BattleSkillPowerMultiplier.TargetCurrentHpAtMostFraction(
+				numerator = 1,
+				denominator = 2,
+				multiplier = 2.0,
+			),
+		)
+		"power-double-if-target-poisoned" -> listOf(
+			BattleSkillPowerMultiplier.TargetMajorStatus(
+				statuses = setOf(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON),
+				multiplier = 2.0,
+			),
+		)
+		"power-double-if-target-major-status" -> listOf(
+			BattleSkillPowerMultiplier.TargetMajorStatus(
+				statuses = BattleMajorStatus.entries.toSet(),
+				multiplier = 2.0,
+			),
+		)
+		"power-double-if-user-has-no-held-item" -> listOf(
+			BattleSkillPowerMultiplier.UserHasNoHeldItem(multiplier = 2.0),
+		)
+		else -> emptyList()
+	}
+
+internal fun String.ignoresUserBurnAttackReduction(): Boolean =
+	this == "power-double-if-user-burn-poison-paralysis"
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -241,7 +284,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleProportionalDamage() != null ||
 	toBattleHpDerivedDamage() != null ||
 	toBattleOneHitKnockOut() != null ||
-	toBattleSkillEnvironmentEffects().isNotEmpty()
+	toBattleSkillEnvironmentEffects().isNotEmpty() ||
+	toBattleSkillPowerMultipliers().isNotEmpty()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

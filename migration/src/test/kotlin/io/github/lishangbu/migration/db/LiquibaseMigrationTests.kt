@@ -1121,6 +1121,42 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val conditionalPowerSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (263, 362, 474, 506, 512)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(conditionalPowerSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 263L,
+				"effect_policy" to "power-double-if-user-burn-poison-paralysis",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 362L,
+				"effect_policy" to "power-double-if-target-half-hp-or-less",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 474L,
+				"effect_policy" to "power-double-if-target-poisoned",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 506L,
+				"effect_policy" to "power-double-if-target-major-status",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 512L,
+				"effect_policy" to "power-double-if-user-has-no-held-item",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

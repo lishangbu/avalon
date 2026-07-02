@@ -22,6 +22,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
+import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -190,7 +191,9 @@ internal fun damagingSkill(
 	rechargesAfterUse: Boolean = false,
 	accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
+	conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
+	ignoresUserBurnAttackReduction: Boolean = false,
 	lockMoveTurnsMin: Int = 1,
 	lockMoveTurnsMax: Int = 1,
 	confusesUserAfterLock: Boolean = false,
@@ -236,7 +239,9 @@ internal fun damagingSkill(
 		rechargesAfterUse = rechargesAfterUse,
 		accuracyOverridesByWeather = accuracyOverridesByWeather,
 		powerMultipliersByWeather = powerMultipliersByWeather,
+		conditionalPowerMultipliers = conditionalPowerMultipliers,
 		elementOverridesByWeather = elementOverridesByWeather,
+		ignoresUserBurnAttackReduction = ignoresUserBurnAttackReduction,
 		lockMoveTurnsMin = lockMoveTurnsMin,
 		lockMoveTurnsMax = lockMoveTurnsMax,
 		confusesUserAfterLock = confusesUserAfterLock,

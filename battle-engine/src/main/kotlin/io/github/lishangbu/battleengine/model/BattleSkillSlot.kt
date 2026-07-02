@@ -25,7 +25,9 @@ package io.github.lishangbu.battleengine.model
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
+ * `conditionalPowerMultipliers` 表示按使用者状态、目标状态、目标 HP 或使用者道具状态触发的公式前威力倍率。
  * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
+ * `ignoresUserBurnAttackReduction` 表示该物理技能在使用者灼伤时仍使用正常攻击值，例如硬撑。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
@@ -72,7 +74,9 @@ data class BattleSkillSlot(
 	val rechargesAfterUse: Boolean = false,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
+	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
+	val ignoresUserBurnAttackReduction: Boolean = false,
 	val lockMoveTurnsMin: Int = 1,
 	val lockMoveTurnsMax: Int = 1,
 	val confusesUserAfterLock: Boolean = false,
@@ -128,6 +132,9 @@ data class BattleSkillSlot(
 		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
 			"weather power multiplier must be positive"
 		}
+		require(conditionalPowerMultipliers.isEmpty() || (damageClass != BattleDamageClass.STATUS && power != null)) {
+			"conditional power multipliers require a damaging skill with base power"
+		}
 		require(elementOverridesByWeather.keys.none { it == BattleWeather.NONE }) {
 			"elementOverridesByWeather cannot target NONE"
 		}
@@ -147,6 +154,9 @@ data class BattleSkillSlot(
 		}
 		require(criticalHitStage >= 0) { "criticalHitStage must not be negative" }
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }
+		require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {
+			"burn attack reduction bypass requires a physical skill"
+		}
 		require(remainingPp in 0..maxPp) { "remainingPp must be between 0 and maxPp" }
 		require(maxPp >= 0) { "maxPp must not be negative" }
 	}

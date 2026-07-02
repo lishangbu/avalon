@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
@@ -1240,5 +1241,207 @@ class BattleDamageCalculatorTests {
 		assertEquals(23, groundedResult.amount)
 		assertEquals(1.0, ungroundedResult.terrainMultiplier)
 		assertEquals(46, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `facade doubles power for configured user statuses and ignores burn attack drop`() {
+		val scenario = publicBattleRuleScenario(
+			name = "facade-doubles-power-and-ignores-burn-attack-drop",
+			inputSummary = "使用者处于灼伤，使用声明为灼伤/麻痹/中毒时威力翻倍且忽略灼伤攻击下降的物理技能。",
+			expectedSummary = "技能以 140 威力进入基础伤害公式，并且不会因为灼伤把物理攻击减半。",
+		)
+		val skill = damagingSkill(
+			power = 70,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.UserMajorStatus(
+					statuses = setOf(
+						BattleMajorStatus.BURN,
+						BattleMajorStatus.PARALYSIS,
+						BattleMajorStatus.POISON,
+						BattleMajorStatus.BAD_POISON,
+					),
+					multiplier = 2.0,
+				),
+			),
+			ignoresUserBurnAttackReduction = true,
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("burned-attacker", speed = 100).copy(majorStatus = BattleMajorStatus.BURN),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("facade-doubles-power-and-ignores-burn-attack-drop")
+		assertEquals(63, result.baseDamage)
+	}
+
+	@Test
+	fun `brine doubles power when target current hp is half or less`() {
+		val scenario = publicBattleRuleScenario(
+			name = "brine-doubles-power-when-target-current-hp-is-half-or-less",
+			inputSummary = "同一技能分别命中当前 HP 为 50/100 和 51/100 的目标。",
+			expectedSummary = "目标 HP 不高于一半时以双倍威力进入公式，高于一半时保持原威力。",
+		)
+		val skill = damagingSkill(
+			power = 65,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.TargetCurrentHpAtMostFraction(
+					numerator = 1,
+					denominator = 2,
+					multiplier = 2.0,
+				),
+			),
+		)
+
+		val halfHp = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("half-hp-target", speed = 80, currentHp = 50),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val aboveHalfHp = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("above-half-hp-target", speed = 80, currentHp = 51),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("brine-doubles-power-when-target-current-hp-is-half-or-less")
+		assertEquals(59, halfHp.baseDamage)
+		assertEquals(30, aboveHalfHp.baseDamage)
+	}
+
+	@Test
+	fun `venoshock doubles power only against poisoned target`() {
+		val scenario = publicBattleRuleScenario(
+			name = "venoshock-doubles-power-only-against-poisoned-target",
+			inputSummary = "同一技能分别命中剧毒目标和灼伤目标。",
+			expectedSummary = "目标中毒或剧毒时以双倍威力进入公式；其它主要异常不会触发该倍率。",
+		)
+		val skill = damagingSkill(
+			power = 65,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.TargetMajorStatus(
+					statuses = setOf(BattleMajorStatus.POISON, BattleMajorStatus.BAD_POISON),
+					multiplier = 2.0,
+				),
+			),
+		)
+
+		val poisoned = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("poisoned-target", speed = 80).copy(majorStatus = BattleMajorStatus.BAD_POISON),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val burned = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("burned-target", speed = 80).copy(majorStatus = BattleMajorStatus.BURN),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("venoshock-doubles-power-only-against-poisoned-target")
+		assertEquals(59, poisoned.baseDamage)
+		assertEquals(30, burned.baseDamage)
+	}
+
+	@Test
+	fun `hex doubles power against any target major status`() {
+		val scenario = publicBattleRuleScenario(
+			name = "hex-doubles-power-against-any-target-major-status",
+			inputSummary = "同一技能分别命中睡眠目标和无主要异常目标。",
+			expectedSummary = "目标有任意主要异常时以双倍威力进入公式；目标无主要异常时保持原威力。",
+		)
+		val skill = damagingSkill(
+			power = 65,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.TargetMajorStatus(
+					statuses = BattleMajorStatus.entries.toSet(),
+					multiplier = 2.0,
+				),
+			),
+		)
+
+		val asleep = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("asleep-target", speed = 80).copy(
+					majorStatus = BattleMajorStatus.SLEEP,
+					sleepTurnsRemaining = 2,
+				),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val healthy = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("healthy-target", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("hex-doubles-power-against-any-target-major-status")
+		assertEquals(59, asleep.baseDamage)
+		assertEquals(30, healthy.baseDamage)
+	}
+
+	@Test
+	fun `acrobatics doubles power when user has no held item`() {
+		val scenario = publicBattleRuleScenario(
+			name = "acrobatics-doubles-power-when-user-has-no-held-item",
+			inputSummary = "同一技能分别由没有携带道具和仍携带道具的使用者发动。",
+			expectedSummary = "使用者当前没有有效携带道具时以双倍威力进入公式；仍携带道具时保持原威力。",
+		)
+		val skill = damagingSkill(
+			power = 55,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.UserHasNoHeldItem(multiplier = 2.0),
+			),
+		)
+
+		val noItem = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("no-item-attacker", speed = 100, itemId = null),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+		val withItem = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("item-attacker", speed = 100, itemId = 1),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("acrobatics-doubles-power-when-user-has-no-held-item")
+		assertEquals(50, noItem.baseDamage)
+		assertEquals(26, withItem.baseDamage)
 	}
 }
