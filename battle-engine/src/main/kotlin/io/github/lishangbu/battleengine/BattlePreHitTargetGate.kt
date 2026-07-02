@@ -28,8 +28,9 @@ internal class BattlePreHitTargetGate(
 	 * 按现代规则顺序结算命中前阻止点。
 	 *
 	 * 顺序不能随意调整：粉末属性免疫、一击必杀专用属性免疫、恶属性先制免疫、一击必杀等级失败和特殊能力阶级
-	 * 失败都发生在命中判定前；精神场地、目标侧先制免疫特性、声音免疫和保护屏障也都早于命中随机数。只有全部
-	 * 通过之后才消费命中随机数，并把本次是否无视目标特性传给后续吸收、状态和伤害阶段复用。
+	 * 失败都发生在命中判定前；需要移除自身属性的技能若使用者已经没有对应属性，也会在这里失败，避免错误消费
+	 * 命中随机数。精神场地、目标侧先制免疫特性、声音免疫和保护屏障也都早于命中随机数。只有全部通过之后才消费
+	 * 命中随机数，并把本次是否无视目标特性传给后续吸收、状态和伤害阶段复用。
 	 */
 	fun resolve(
 		state: BattleState,
@@ -153,6 +154,18 @@ internal class BattlePreHitTargetGate(
 					targetActorId = target.actorId,
 					skillId = skill.skillId,
 					reason = "target-has-no-major-status",
+				),
+			)
+		}
+
+		if (skill.removesUserElementAfterDamage && skill.elementId !in actor.elementIds) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "user-lacks-removable-element",
 				),
 			)
 		}

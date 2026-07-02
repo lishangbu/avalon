@@ -122,6 +122,7 @@ class BattleSkillRuntimeLookup(
 			fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
 			hpEffects = effectPolicy.toBattleSkillHpEffects(),
 			postDamageStatusCures = effectPolicy.toBattleSkillPostDamageStatusCures(),
+			removesUserElementAfterDamage = effectPolicy.removesUserElementAfterDamage(),
 			environmentEffects = effectPolicy.toBattleSkillEnvironmentEffects(),
 		)
 	}

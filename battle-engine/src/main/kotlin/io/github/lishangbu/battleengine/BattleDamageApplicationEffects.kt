@@ -157,8 +157,14 @@ internal class BattleDamageApplicationEffects(
 		} else {
 			state
 		}
-		val afterSkillHpEffects = skillHpEffects.applyPostDamageSkillHpEffects(
+		val afterUserElementRemoval = applyUserElementRemovalAfterDamage(
 			state = afterActorSelfSacrifice,
+			actorId = actorId,
+			skill = skill,
+			damageAmount = damageAmount,
+		)
+		val afterSkillHpEffects = skillHpEffects.applyPostDamageSkillHpEffects(
+			state = afterUserElementRemoval,
 			actorId = actorId,
 			skill = skill,
 			damageAmount = damageAmount,
@@ -198,6 +204,41 @@ internal class BattleDamageApplicationEffects(
 			afterRecoil.participant(actorId)?.let(::add)
 		}
 		return afterRecoil.handleFaintsAndResult(faintCandidates)
+	}
+
+	/**
+	 * 处理技能成功造成伤害后移除使用者自身属性。
+	 *
+	 * 这个效果绑定在“本次技能动作已经造成实际伤害”之后，而不是目标本体 HP 是否下降之后：替身承受伤害同样说明
+	 * 技能成功命中并造成了伤害，因此也会触发属性移除。移除的是技能基础属性 [BattleSkillSlot.elementId]，
+	 * 不读取天气球等临时属性覆盖；燃尽和电光双击这类规则描述的都是使用者失去自己当前的火/电属性，而不是失去
+	 * 本次伤害公式临时使用的属性。
+	 */
+	private fun applyUserElementRemovalAfterDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (!skill.removesUserElementAfterDamage || damageAmount <= 0) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (skill.elementId !in actor.elementIds) {
+			return state
+		}
+		val updatedActor = actor.copy(elementIds = actor.elementIds - skill.elementId)
+		return state
+			.replaceParticipant(updatedActor)
+			.appendEvent(
+				BattleEvent.ParticipantElementsChanged(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					previousElementIds = actor.elementIds,
+					newElementIds = updatedActor.elementIds,
+				),
+			)
 	}
 }
 

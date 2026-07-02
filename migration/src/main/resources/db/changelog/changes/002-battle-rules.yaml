@@ -8089,3 +8089,28 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('stored-power', 'power-trip', 'punishment')
+- changeSet:
+    id: 115-battle-derived-basic-skill-user-element-removal
+    author: backend
+    comment: 为成功造成伤害后移除使用者自身属性的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 燃尽和电光双击要求使用者当前拥有技能基础属性；成功造成伤害后移除使用者对应属性。
+          update battle_skill_rule r
+          set
+            effect_policy = 'remove-user-element-after-damage',
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'burn-up' then '使用者没有火属性时失败；成功造成伤害后，使用者失去火属性。'
+              when 'double-shock' then '使用者没有电属性时失败；成功造成伤害后，使用者失去电属性。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('burn-up', 'double-shock')

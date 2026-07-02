@@ -41,6 +41,7 @@ package io.github.lishangbu.battleengine.model
  * `chargeSkippedByWeathers` 表示指定天气下该蓄力等待可以省略，技能会在宣告回合直接进入命中和伤害流程。
  * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
  * `postDamageStatusCures` 表示技能造成实际伤害后治愈目标指定主要异常的效果。
+ * `removesUserElementAfterDamage` 表示技能成功造成伤害后移除使用者当前与技能基础属性相同的属性。
  * `rechargesAfterUse` 表示技能成功造成实际伤害后，使用者下一次技能行动前必须休整一次。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
  *
@@ -97,6 +98,7 @@ data class BattleSkillSlot(
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	val hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	val postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
+	val removesUserElementAfterDamage: Boolean = false,
 	val environmentEffects: List<BattleSkillEnvironmentEffect> = emptyList(),
 ) {
 	init {
@@ -141,6 +143,9 @@ data class BattleSkillSlot(
 		}
 		require(dynamicPower == null || damageClass != BattleDamageClass.STATUS) {
 			"dynamic power requires a damaging skill"
+		}
+		require(!removesUserElementAfterDamage || damageClass != BattleDamageClass.STATUS) {
+			"user element removal requires a damaging skill"
 		}
 		require(elementOverridesByWeather.keys.none { it == BattleWeather.NONE }) {
 			"elementOverridesByWeather cannot target NONE"

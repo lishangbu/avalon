@@ -193,6 +193,21 @@ sealed interface BattleEvent {
 		val healAmount: Int,
 	) : BattleEvent
 
+	/**
+	 * 成员当前属性集合发生变化。
+	 *
+	 * 该事件用于表达燃尽、电光双击等技能成功造成伤害后移除使用者自身属性的事实。事件只记录属性 ID 集合的前后
+	 * 快照和来源技能 ID，不记录本地化属性名；外部展示层可以按规则快照自行翻译。允许 `newElementIds` 为空，
+	 * 因为现代规则中成员可以在这类效果后暂时变成无属性。
+	 */
+	data class ParticipantElementsChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val previousElementIds: Set<Long>,
+		val newElementIds: Set<Long>,
+	) : BattleEvent
+
 	// 技能宣告、锁招和行动前阻止事件：描述一次行动为什么能继续或为什么提前停止。
 	/**
 	 * 多段技能本次使用的实际命中段数已经确定。

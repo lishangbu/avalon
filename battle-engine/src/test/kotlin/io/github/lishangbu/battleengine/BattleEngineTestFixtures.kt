@@ -212,6 +212,7 @@ internal fun damagingSkill(
 	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
+	removesUserElementAfterDamage: Boolean = false,
 	environmentEffects: List<BattleSkillEnvironmentEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
@@ -264,6 +265,7 @@ internal fun damagingSkill(
 		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
 		hpEffects = hpEffects,
 		postDamageStatusCures = postDamageStatusCures,
+		removesUserElementAfterDamage = removesUserElementAfterDamage,
 		environmentEffects = environmentEffects,
 	)
 

@@ -1209,6 +1209,27 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val userElementRemovalSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (682, 892)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(userElementRemovalSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 682L,
+				"effect_policy" to "remove-user-element-after-damage",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 892L,
+				"effect_policy" to "remove-user-element-after-damage",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

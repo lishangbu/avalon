@@ -258,6 +258,9 @@ internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
+internal fun String.removesUserElementAfterDamage(): Boolean =
+	this == "remove-user-element-after-damage"
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -332,7 +335,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillEnvironmentEffects().isNotEmpty() ||
 	toBattleSkillPowerMultipliers().isNotEmpty() ||
 	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
-	toBattleSkillDynamicPower() != null
+	toBattleSkillDynamicPower() != null ||
+	removesUserElementAfterDamage()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。
