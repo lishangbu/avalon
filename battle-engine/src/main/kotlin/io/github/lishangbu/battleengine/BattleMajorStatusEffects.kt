@@ -144,11 +144,11 @@ internal class BattleMajorStatusEffects(
 		status: BattleMajorStatus,
 	): Boolean =
 		when (status) {
-			BattleMajorStatus.BURN -> recipient.hasElement(rules.fireElementId)
-			BattleMajorStatus.PARALYSIS -> recipient.hasElement(rules.electricElementId)
+			BattleMajorStatus.BURN -> recipient.hasElement(rules.elementId("fire"))
+			BattleMajorStatus.PARALYSIS -> recipient.hasElement(rules.elementId("electric"))
 			BattleMajorStatus.POISON,
-			BattleMajorStatus.BAD_POISON -> recipient.hasElement(rules.poisonElementId) || recipient.hasElement(rules.steelElementId)
-			BattleMajorStatus.FREEZE -> recipient.hasElement(rules.iceElementId)
+			BattleMajorStatus.BAD_POISON -> recipient.hasElement(rules.elementId("poison")) || recipient.hasElement(rules.elementId("steel"))
+			BattleMajorStatus.FREEZE -> recipient.hasElement(rules.elementId("ice"))
 			BattleMajorStatus.SLEEP -> false
 		}
 

@@ -1017,7 +1017,7 @@ class BattleDamageCalculatorTests {
 			inputSummary = "晴天环境下分别计算火属性技能和水属性技能的普通伤害。",
 			expectedSummary = "火属性伤害使用 1.5 倍天气倍率，水属性伤害使用 0.5 倍天气倍率。",
 		)
-		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
+			val rules = neutralRules()
 		val sun = BattleEnvironment(weather = BattleWeather.SUN)
 
 		val fireResult = calculator.calculate(
@@ -1055,7 +1055,7 @@ class BattleDamageCalculatorTests {
 			inputSummary = "下雨环境下分别计算水属性技能和火属性技能的普通伤害。",
 			expectedSummary = "水属性伤害使用 1.5 倍天气倍率，火属性伤害使用 0.5 倍天气倍率。",
 		)
-		val rules = neutralRules().copy(fireElementId = 10, waterElementId = 11)
+			val rules = neutralRules()
 		val rain = BattleEnvironment(weather = BattleWeather.RAIN)
 
 		val waterResult = calculator.calculate(
@@ -1169,7 +1169,7 @@ class BattleDamageCalculatorTests {
 			inputSummary = "青草场地中，接地草属性成员使用草属性技能。",
 			expectedSummary = "伤害公式额外应用 1.3 倍场地倍率；非接地使用者不会获得该倍率。",
 		)
-		val rules = neutralRules().copy(grassElementId = 12)
+			val rules = neutralRules()
 		val grassy = BattleEnvironment(terrain = BattleTerrain.GRASSY)
 
 		val groundedResult = calculator.calculate(

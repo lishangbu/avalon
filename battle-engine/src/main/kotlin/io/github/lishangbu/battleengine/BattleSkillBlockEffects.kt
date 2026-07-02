@@ -103,7 +103,7 @@ internal class BattleSkillBlockEffects(
 	 * 快照缺少草属性 ID，则不猜测资料编号，也不启用该免疫。
 	 */
 	fun powderBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
-		val grassElementId = state.rules.grassElementId ?: return null
+		val grassElementId = state.rules.elementId("grass") ?: return null
 		return if (skill.powderBased && target.hasElement(grassElementId)) {
 			grassElementId
 		} else {
@@ -123,7 +123,7 @@ internal class BattleSkillBlockEffects(
 		target: BattleParticipant,
 		priorityContext: SkillPriorityContext,
 	): Long? {
-		val darkElementId = state.rules.darkElementId ?: return null
+		val darkElementId = state.rules.elementId("dark") ?: return null
 		if (!priorityContext.statusPriorityBoostedByAbility || !priorityContext.darkElementTargetsImmune) {
 			return null
 		}

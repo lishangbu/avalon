@@ -49,16 +49,18 @@ internal fun doubleFormat(teamSize: Int? = null): BattleFormatSnapshot =
 internal fun neutralRules(): BattleRuleSnapshot =
 	BattleRuleSnapshot(
 		elementChart = ElementEffectivenessChart.neutral(),
-		darkElementId = 17,
-		electricElementId = 13,
-		fireElementId = 10,
-		grassElementId = 12,
-		groundElementId = 5,
-		iceElementId = 15,
-		poisonElementId = 4,
-		rockElementId = 6,
-		steelElementId = 9,
-		waterElementId = 11,
+		elementIds = mapOf(
+			"dark" to 17,
+			"electric" to 13,
+			"fire" to 10,
+			"grass" to 12,
+			"ground" to 5,
+			"ice" to 15,
+			"poison" to 4,
+			"rock" to 6,
+			"steel" to 9,
+			"water" to 11,
+		),
 	)
 
 internal fun initialState(

@@ -134,7 +134,7 @@ internal class BattleSkillHpEffects {
 		skill: BattleSkillSlot,
 	): BattleState {
 		if (
-			skill.effectiveElementId(state.environment.weather) != state.rules.fireElementId ||
+			skill.effectiveElementId(state.environment.weather) != state.rules.elementId("fire") ||
 			damagedTarget.majorStatus != BattleMajorStatus.FREEZE ||
 			!damagedTarget.canBattle()
 		) {

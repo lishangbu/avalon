@@ -101,7 +101,7 @@ internal class BattleEntryHazardEffects(
 		participant: BattleParticipant,
 		hazard: BattleSideEntryHazard,
 	): BattleState {
-		val rockElementId = state.rules.rockElementId ?: return state
+		val rockElementId = state.rules.elementId("rock") ?: return state
 		val effectiveness = state.rules.elementChart.multiplier(rockElementId, participant.elementIds)
 		val damage = fractionDamage(participant.maxHp, effectiveness / STEALTH_ROCK_DAMAGE_DENOMINATOR)
 		return applyDamage(
@@ -162,7 +162,7 @@ internal class BattleEntryHazardEffects(
 		if (!participant.grounded) {
 			return state
 		}
-		if (participant.hasElement(state.rules.poisonElementId)) {
+		if (participant.hasElement(state.rules.elementId("poison"))) {
 			return state.removeSideEntryHazard(sideId, BattleSideEntryHazardKind.TOXIC_SPIKES)
 				?.appendEvent(
 					BattleEvent.SideEntryHazardRemoved(

@@ -6,22 +6,13 @@ package io.github.lishangbu.battleengine.model
  * 规则快照是 `battle-rules` 管理资料和纯引擎之间的边界对象。引擎不关心这些数据来自数据库、
  * 测试用例还是未来的缓存层，只要求快照在一次战斗生命周期内保持不可变。
  *
- * 第一阶段快照包含属性克制表、天气/状态规则需要识别的元素 ID，以及准备阶段可执行的队伍限制。
- * 元素 ID 和禁用资料 ID 都由上层从资料库组装后传入，引擎本身不硬编码具体资料编号。
- * 后续状态、特性和道具 hook 会继续挂到这里，但仍会保持结构化字段，不引入自由脚本或 raw JSON。
+ * 快照包含属性克制表、天气/状态规则需要识别的属性 ID，以及准备阶段可执行的队伍限制。
+ * 属性 ID 按 `game_element.code` 冻结在 [elementIds] 中，避免每新增一种需要识别的属性就继续扩展一批
+ * `xxxElementId` 字段；禁用资料 ID 仍由上层从资料库组装后传入，引擎本身不硬编码具体资料编号。
  */
 data class BattleRuleSnapshot(
 	val elementChart: ElementEffectivenessChart = ElementEffectivenessChart.neutral(),
-	val darkElementId: Long? = null,
-	val electricElementId: Long? = null,
-	val fireElementId: Long? = null,
-	val grassElementId: Long? = null,
-	val groundElementId: Long? = null,
-	val iceElementId: Long? = null,
-	val poisonElementId: Long? = null,
-	val rockElementId: Long? = null,
-	val steelElementId: Long? = null,
-	val waterElementId: Long? = null,
+	val elementIds: Map<String, Long> = emptyMap(),
 	val grassyTerrainHealDenominator: Int = 16,
 	val maxParticipantLevel: Int? = null,
 	val bannedCreatureIds: Set<Long> = emptySet(),
@@ -32,16 +23,8 @@ data class BattleRuleSnapshot(
 	val uniqueItemRequired: Boolean = false,
 ) {
 	init {
-		require(darkElementId == null || darkElementId > 0) { "darkElementId must be positive when present" }
-		require(electricElementId == null || electricElementId > 0) { "electricElementId must be positive when present" }
-		require(fireElementId == null || fireElementId > 0) { "fireElementId must be positive when present" }
-		require(grassElementId == null || grassElementId > 0) { "grassElementId must be positive when present" }
-		require(groundElementId == null || groundElementId > 0) { "groundElementId must be positive when present" }
-		require(iceElementId == null || iceElementId > 0) { "iceElementId must be positive when present" }
-		require(poisonElementId == null || poisonElementId > 0) { "poisonElementId must be positive when present" }
-		require(rockElementId == null || rockElementId > 0) { "rockElementId must be positive when present" }
-		require(steelElementId == null || steelElementId > 0) { "steelElementId must be positive when present" }
-		require(waterElementId == null || waterElementId > 0) { "waterElementId must be positive when present" }
+		require(elementIds.keys.all { it.isNotBlank() }) { "elementIds must contain only non-blank codes" }
+		require(elementIds.values.all { it > 0 }) { "elementIds must contain only positive ids" }
 		require(grassyTerrainHealDenominator > 0) { "grassyTerrainHealDenominator must be positive" }
 		require(maxParticipantLevel == null || maxParticipantLevel in 1..100) {
 			"maxParticipantLevel must be between 1 and 100 when present"
@@ -51,4 +34,11 @@ data class BattleRuleSnapshot(
 		require(bannedAbilityIds.all { it > 0 }) { "bannedAbilityIds must contain only positive ids" }
 		require(bannedItemIds.all { it > 0 }) { "bannedItemIds must contain only positive ids" }
 	}
+
+	/**
+	 * 按资料侧稳定 code 读取属性 ID。
+	 *
+	 * 返回 `null` 表示当前规则快照没有携带该属性；调用方必须把缺失视为对应规则不可触发，而不是猜测资料 ID。
+	 */
+	fun elementId(code: String): Long? = elementIds[code]
 }

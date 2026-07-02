@@ -23,7 +23,7 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 如果规则快照缺少冰属性 ID，则不应用该修正，避免引擎猜测资料库编号。
 	 */
 	fun physicalDefenseAfterWeather(request: BattleDamageRequest, stagedDefense: Int): Int =
-		if (request.environment.weather == BattleWeather.SNOW && request.defender.hasElement(request.rules.iceElementId)) {
+		if (request.environment.weather == BattleWeather.SNOW && request.defender.hasElement(request.rules.elementId("ice"))) {
 			floor(stagedDefense * WEATHER_DEFENSE_BOOST_MULTIPLIER).toInt().coerceAtLeast(1)
 		} else {
 			stagedDefense
@@ -36,7 +36,7 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 如果规则快照缺少岩属性 ID，则不应用该修正。
 	 */
 	fun specialDefenseAfterWeather(request: BattleDamageRequest, stagedSpecialDefense: Int): Int =
-		if (request.environment.weather == BattleWeather.SANDSTORM && request.defender.hasElement(request.rules.rockElementId)) {
+		if (request.environment.weather == BattleWeather.SANDSTORM && request.defender.hasElement(request.rules.elementId("rock"))) {
 			floor(stagedSpecialDefense * WEATHER_DEFENSE_BOOST_MULTIPLIER).toInt().coerceAtLeast(1)
 		} else {
 			stagedSpecialDefense
@@ -52,13 +52,13 @@ internal class BattleDamageEnvironmentModifiers {
 	fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
 		when (request.environment.weather) {
 			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather)) {
-				request.rules.fireElementId -> 1.5
-				request.rules.waterElementId -> 0.5
+				request.rules.elementId("fire") -> 1.5
+				request.rules.elementId("water") -> 0.5
 				else -> 1.0
 			}
 			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather)) {
-				request.rules.waterElementId -> 1.5
-				request.rules.fireElementId -> 0.5
+				request.rules.elementId("water") -> 1.5
+				request.rules.elementId("fire") -> 0.5
 				else -> 1.0
 			}
 			BattleWeather.NONE,
@@ -77,8 +77,8 @@ internal class BattleDamageEnvironmentModifiers {
 			BattleTerrain.GRASSY -> {
 				val grassBoost = if (
 					request.attacker.grounded &&
-					request.rules.grassElementId != null &&
-					request.skill.effectiveElementId(request.environment.weather) == request.rules.grassElementId
+					request.rules.elementId("grass") != null &&
+					request.skill.effectiveElementId(request.environment.weather) == request.rules.elementId("grass")
 				) {
 					GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER
 				} else {

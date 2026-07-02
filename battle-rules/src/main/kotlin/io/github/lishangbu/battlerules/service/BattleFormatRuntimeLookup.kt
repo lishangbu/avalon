@@ -54,16 +54,7 @@ class BattleFormatRuntimeLookup(
 			format = format.toEngineFormatSnapshot(),
 			rules = BattleRuleSnapshot(
 				elementChart = elementChart,
-				darkElementId = elementIds.requiredElementId("dark"),
-				electricElementId = elementIds.requiredElementId("electric"),
-				fireElementId = elementIds.requiredElementId("fire"),
-				grassElementId = elementIds.requiredElementId("grass"),
-				groundElementId = elementIds.requiredElementId("ground"),
-				iceElementId = elementIds.requiredElementId("ice"),
-				poisonElementId = elementIds.requiredElementId("poison"),
-				rockElementId = elementIds.requiredElementId("rock"),
-				steelElementId = elementIds.requiredElementId("steel"),
-				waterElementId = elementIds.requiredElementId("water"),
+				elementIds = elementIds.requiredBattleRuleElementIds(),
 				maxParticipantLevel = restrictions
 					.filter { it.restrictionType == "LEVEL" && it.restrictionOperator == "MAX" }
 					.mapNotNull { it.operandNumber }
@@ -130,4 +121,24 @@ class BattleFormatRuntimeLookup(
 				}
 			}
 			.toSet()
-}
+
+	/**
+	 * 冻结引擎规则会直接按 code 读取的核心属性 ID。
+	 *
+	 * [BattleCoreRuntimeLookup.coreElementIds] 会读取现代主系列全部常规属性；这里仍显式列出当前引擎规则真正使用的
+	 * code，是为了让资料缺失在赛制快照装配时立即失败，而不是等到天气、异常状态或入场陷阱结算时才悄悄失效。
+	 */
+	private fun Map<String, Long>.requiredBattleRuleElementIds(): Map<String, Long> =
+		listOf(
+			"dark",
+			"electric",
+			"fire",
+			"grass",
+			"ground",
+			"ice",
+			"poison",
+			"rock",
+			"steel",
+			"water",
+		).associateWith { code -> requiredElementId(code) }
+	}

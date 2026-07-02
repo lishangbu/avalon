@@ -106,9 +106,9 @@ internal fun BattleParticipant.immuneToWeatherDamage(state: BattleState, weather
 		weatherDamageBlockedByAbility(weather) ||
 		weatherDamageBlockedByItem(weather) ||
 		when (weather) {
-			BattleWeather.SANDSTORM -> hasElement(state.rules.rockElementId) ||
-				hasElement(state.rules.groundElementId) ||
-				hasElement(state.rules.steelElementId)
+			BattleWeather.SANDSTORM -> hasElement(state.rules.elementId("rock")) ||
+				hasElement(state.rules.elementId("ground")) ||
+				hasElement(state.rules.elementId("steel"))
 			else -> false
 		}
 
