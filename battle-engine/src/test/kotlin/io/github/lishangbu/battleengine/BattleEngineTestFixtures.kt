@@ -27,6 +27,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
@@ -138,6 +139,7 @@ internal fun participant(
 	level: Int = 50,
 	elementId: Long = 1,
 	weight: Int = 1000,
+	weightReduction: Int = 0,
 	skill: BattleSkillSlot = damagingSkill(),
 	abilityId: Long? = null,
 	itemId: Long? = null,
@@ -157,6 +159,7 @@ internal fun participant(
 		specialDefense = 100,
 		speed = speed,
 		weight = weight,
+		weightReduction = weightReduction,
 		elementIds = setOf(elementId),
 		skillSlots = listOf(skill),
 		abilityId = abilityId,
@@ -215,6 +218,7 @@ internal fun damagingSkill(
 	hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
 	removesUserElementAfterDamage: Boolean = false,
+	weightEffects: List<BattleSkillWeightEffect> = emptyList(),
 	environmentEffects: List<BattleSkillEnvironmentEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
@@ -268,6 +272,7 @@ internal fun damagingSkill(
 		hpEffects = hpEffects,
 		postDamageStatusCures = postDamageStatusCures,
 		removesUserElementAfterDamage = removesUserElementAfterDamage,
+		weightEffects = weightEffects,
 		environmentEffects = environmentEffects,
 	)
 

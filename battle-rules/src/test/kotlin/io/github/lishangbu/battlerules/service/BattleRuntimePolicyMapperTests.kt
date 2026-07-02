@@ -1,8 +1,11 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -74,5 +77,18 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.WeightMultiplier(numerator = 1, denominator = 2))
 		assertThat("weight-half".toBattleItemEffect(elementIds))
 			.isEqualTo(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2))
+	}
+
+	@Test
+	fun `skill temporary weight reduction policy requires successful speed change`() {
+		assertThat("self-weight-reduction-100kg-after-speed-change".toBattleSkillWeightEffects()).containsExactly(
+			BattleSkillWeightEffect(
+				target = BattleEffectTarget.USER,
+				reduction = 1000,
+				minimumWeight = 1,
+				requiredChangedStat = BattleStat.SPEED,
+			),
+		)
+		assertThat("self-weight-reduction-100kg-after-speed-change".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
 }

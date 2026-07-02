@@ -504,6 +504,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleForcedSwitchSkillTests",
 					"io.github.lishangbu.battleengine.BattleSkillRecoilImmunityAbilityTests",
 					"io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests",
+					"io.github.lishangbu.battleengine.BattleSkillWeightEffectTests",
 				),
 			),
 			CoverageGroup(

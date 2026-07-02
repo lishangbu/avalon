@@ -123,6 +123,7 @@ class BattleSkillRuntimeLookup(
 			hpEffects = effectPolicy.toBattleSkillHpEffects(),
 			postDamageStatusCures = effectPolicy.toBattleSkillPostDamageStatusCures(),
 			removesUserElementAfterDamage = effectPolicy.removesUserElementAfterDamage(),
+			weightEffects = effectPolicy.toBattleSkillWeightEffects(),
 			environmentEffects = effectPolicy.toBattleSkillEnvironmentEffects(),
 		)
 	}

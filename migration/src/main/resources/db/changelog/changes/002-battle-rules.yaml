@@ -8216,3 +8216,25 @@ databaseChangeLog:
         - column: { name: description, value: 体重相关动态威力读取当前体重时，携带者体重按 1/2 计算；该道具不会因参与体重计算而消耗。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 610 }
+- changeSet:
+    id: 119-battle-derived-basic-skill-weight-reduction
+    author: backend
+    comment: 为速度成功提升后降低自身当前体重的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 身体轻量化的现代规则是在速度阶级成功变化后，将自身当前体重减少 100kg，最低保留 0.1kg。
+          update battle_skill_rule r
+          set
+            effect_policy = 'self-weight-reduction-100kg-after-speed-change',
+            target_policy = 'self',
+            damage_policy = 'no-damage',
+            description = '速度阶级成功提升后，自身当前体重减少 100kg；最低有效体重保留 0.1kg，离场后清除该临时减重。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'autotomize'

@@ -122,12 +122,11 @@ internal data class BattleEffectiveWeight(
 /**
  * 计算成员在当前快照中的有效体重。
  *
- * 基础体重先来自 [BattleParticipant.weight]，再按特性和道具声明的分数倍率连续相乘。多个倍率叠乘是现代规则中
- * 最直接、最可复盘的表达方式；如果未来接入“技能临时降低体重”这类有状态规则，应先把临时倍率或固定修正保存
- * 到成员快照，再在这里统一合成，避免伤害公式知道具体来源。
+ * 现代体重顺序是：基础体重先扣除技能造成的临时减轻量，并夹到最低资料刻度 1；之后应用特性倍率；最后应用携带
+ * 道具倍率。多个倍率叠乘时仍保留分数精度，最终再保证有效体重不低于 0.1kg 对应的资料刻度 1。
  */
 internal fun BattleParticipant.effectiveWeight(): BattleEffectiveWeight {
-	var numerator = weight.toLong()
+	var numerator = (weight - weightReduction).coerceAtLeast(1).toLong()
 	var denominator = 1L
 	abilityEffects.forEach { effect ->
 		if (effect is BattleAbilityEffect.WeightMultiplier) {
@@ -140,6 +139,9 @@ internal fun BattleParticipant.effectiveWeight(): BattleEffectiveWeight {
 			numerator *= effect.numerator.toLong()
 			denominator *= effect.denominator.toLong()
 		}
+	}
+	if (numerator < denominator) {
+		return BattleEffectiveWeight(numerator = 1, denominator = 1)
 	}
 	return BattleEffectiveWeight(numerator, denominator)
 }

@@ -42,6 +42,7 @@ package io.github.lishangbu.battleengine.model
  * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
  * `postDamageStatusCures` 表示技能造成实际伤害后治愈目标指定主要异常的效果。
  * `removesUserElementAfterDamage` 表示技能成功造成伤害后移除使用者当前与技能基础属性相同的属性。
+ * `weightEffects` 表示技能成功后对成员当前体重产生的临时修正，例如速度成功提升后降低自身有效体重。
  * `rechargesAfterUse` 表示技能成功造成实际伤害后，使用者下一次技能行动前必须休整一次。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
  *
@@ -99,6 +100,7 @@ data class BattleSkillSlot(
 	val hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	val postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
 	val removesUserElementAfterDamage: Boolean = false,
+	val weightEffects: List<BattleSkillWeightEffect> = emptyList(),
 	val environmentEffects: List<BattleSkillEnvironmentEffect> = emptyList(),
 ) {
 	init {

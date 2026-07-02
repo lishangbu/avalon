@@ -1282,6 +1282,22 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val weightReductionSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, damage_policy
+			from battle_skill_rule
+			where skill_id = 475
+			""".trimIndent(),
+		)
+		assertThat(weightReductionSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 475L,
+				"effect_policy" to "self-weight-reduction-100kg-after-speed-change",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

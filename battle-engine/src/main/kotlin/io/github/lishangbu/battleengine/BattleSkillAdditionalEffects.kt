@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
 
@@ -40,7 +41,14 @@ internal class BattleSkillAdditionalEffects(
 		val afterStatuses = applyMajorStatusApplications(state, actorId, targetActorId, skill, random)
 		val afterVolatileStatuses = applyVolatileStatusApplications(afterStatuses, actorId, targetActorId, skill, random)
 		val afterStatStageEffects = applyStatStageEffects(afterVolatileStatuses, actorId, targetActorId, skill, random)
-		val afterStatStageOperations = statStageEffects.applyOperations(afterStatStageEffects, actorId, targetActorId, skill, random)
+		val afterWeightEffects = applyWeightEffects(
+			state = afterStatStageEffects,
+			beforeStatStageEffects = afterVolatileStatuses,
+			actorId = actorId,
+			targetActorId = targetActorId,
+			skill = skill,
+		)
+		val afterStatStageOperations = statStageEffects.applyOperations(afterWeightEffects, actorId, targetActorId, skill, random)
 		val afterSideDamageReductions = applySideConditions(afterStatStageOperations, actorId, targetActorId, skill, random)
 		val afterSideSpeedModifiers = applySideSpeedModifiers(afterSideDamageReductions, actorId, targetActorId, skill, random)
 		val afterSideEntryHazards = applySideEntryHazards(afterSideSpeedModifiers, actorId, targetActorId, skill, random)
@@ -158,6 +166,48 @@ internal class BattleSkillAdditionalEffects(
 				}
 			}
 		}
+
+	/**
+	 * 应用技能声明的临时体重减轻效果。
+	 *
+	 * 这类效果依赖同一次技能的能力阶级是否真的发生变化，因此调用方会传入能力阶级效果执行前后的状态。若指定
+	 * [BattleSkillWeightEffect.requiredChangedStat] 没有变化，或成员已经处于最低有效体重，函数保持状态不变且不写事件。
+	 */
+	private fun applyWeightEffects(
+		state: BattleState,
+		beforeStatStageEffects: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState =
+		skill.weightEffects.fold(state) { current, effect ->
+			val recipient = current.effectRecipient(actorId, targetActorId, effect.target) ?: return@fold current
+			val beforeRecipient = beforeStatStageEffects.participant(recipient.actorId) ?: return@fold current
+			if (!effect.requiredStatChanged(beforeRecipient, recipient)) {
+				return@fold current
+			}
+			val maxReduction = (recipient.weight - effect.minimumWeight).coerceAtLeast(0)
+			val nextReduction = (recipient.weightReduction + effect.reduction).coerceAtMost(maxReduction)
+			if (nextReduction == recipient.weightReduction) {
+				current
+			} else {
+				current
+					.replaceParticipant(recipient.copy(weightReduction = nextReduction))
+					.appendEvent(
+						BattleEvent.WeightReductionChanged(
+							turnNumber = current.turnNumber,
+							actorId = actorId,
+							targetActorId = recipient.actorId,
+							skillId = skill.skillId,
+							previousReduction = recipient.weightReduction,
+							currentReduction = nextReduction,
+						),
+					)
+			}
+		}
+
+	private fun BattleSkillWeightEffect.requiredStatChanged(before: BattleParticipant, after: BattleParticipant): Boolean =
+		requiredChangedStat == null || before.statStage(requiredChangedStat) != after.statStage(requiredChangedStat)
 
 	/**
 	 * 应用防守方一侧的屏障/条件效果。

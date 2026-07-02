@@ -12,6 +12,8 @@ import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.common.web.invalidValue
@@ -172,6 +174,25 @@ internal fun String.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironme
 		"set-weather-sandstorm" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SANDSTORM))
 		"set-weather-snow" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SNOW))
 		"set-weather-sun" -> listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.SUN))
+		else -> emptyList()
+	}
+
+/**
+ * 将数据库中的技能运行态策略转换为临时体重变化效果。
+ *
+ * 这类规则不会改变资料表中的基础体重，只在单场战斗内累加运行态减重，并由引擎在离场时清除。当前只保留
+ * “速度阶级实际提升后自身减重 100kg”这一条已经可由通用状态阶级事件验证的现代规则。
+ */
+internal fun String.toBattleSkillWeightEffects(): List<BattleSkillWeightEffect> =
+	when (this) {
+		"self-weight-reduction-100kg-after-speed-change" -> listOf(
+			BattleSkillWeightEffect(
+				target = BattleEffectTarget.USER,
+				reduction = 1000,
+				minimumWeight = 1,
+				requiredChangedStat = BattleStat.SPEED,
+			),
+		)
 		else -> emptyList()
 	}
 
@@ -369,6 +390,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillPowerMultipliers().isNotEmpty() ||
 	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
 	toBattleSkillDynamicPower() != null ||
+	toBattleSkillWeightEffects().isNotEmpty() ||
 	removesUserElementAfterDamage()
 
 /**

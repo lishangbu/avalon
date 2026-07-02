@@ -412,6 +412,21 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能效果让成员本场在场期间的有效体重进一步降低。
+	 *
+	 * 事件记录的是累计减轻量，而不是最终有效体重；最终有效体重还会按特性和携带道具倍率继续计算。这样 replay
+	 * 可以恢复“技能造成了多少临时减重”，同时不会把后续特性/道具生效顺序固化到事件里。
+	 */
+	data class WeightReductionChanged(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val previousReduction: Int,
+		val currentReduction: Int,
+	) : BattleEvent
+
+	/**
 	 * 技能效果把目标指定能力阶级清除为 0。
 	 *
 	 * 清除不是普通降低阶级：无论目标原来是正阶级还是负阶级，结果都回到 0。事件记录清除前的数值，方便 replay
