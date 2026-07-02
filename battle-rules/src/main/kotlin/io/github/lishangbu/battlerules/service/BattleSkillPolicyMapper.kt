@@ -2,6 +2,7 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
+import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
@@ -13,9 +14,10 @@ import io.github.lishangbu.common.web.invalidValue
 /**
  * 技能运行时 policy 映射器。
  *
- * 本文件只处理 `battle_skill_rule` 主行上的 policy 字段：目标范围、固定/比例/HP 派生伤害、HP 后效、天气场地后效，
- * 以及启用技能规则的显式支持集合。技能子表里的状态、能力阶级和场地明细由 [BattleSkillRuleEffectRuntimeLookup]
- * 读取；这里不读取数据库，也不关心服务层事务，只把稳定字符串翻译成 battle-engine 的强类型模型。
+ * 本文件只处理 `battle_skill_rule` 主行上的 policy 字段：目标范围、固定/比例/HP 派生/一击必杀伤害、HP 后效、
+ * 天气场地后效，以及启用技能规则的显式支持集合。技能子表里的状态、能力阶级和场地明细由
+ * [BattleSkillRuleEffectRuntimeLookup] 读取；这里不读取数据库，也不关心服务层事务，只把稳定字符串翻译成
+ * battle-engine 的强类型模型。
  */
 internal fun String.toBattleSkillTargetScope(): BattleSkillTargetScope =
 	when (this) {
@@ -115,6 +117,17 @@ internal fun String.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
 		else -> null
 	}
 
+internal fun String.toBattleOneHitKnockOut(): BattleOneHitKnockOut? =
+	when (this) {
+		"one-hit-knockout-damage" -> BattleOneHitKnockOut()
+		"same-element-sensitive-one-hit-knockout-damage" -> BattleOneHitKnockOut(
+			baseAccuracyPercent = 20,
+			sameElementUserBaseAccuracyPercent = 30,
+			blocksSameElementTarget = true,
+		)
+		else -> null
+	}
+
 internal fun String.toBattleSkillEnvironmentEffects(): List<BattleSkillEnvironmentEffect> =
 	when (this) {
 		"set-terrain-electric" -> listOf(BattleSkillEnvironmentEffect.SetTerrain(BattleTerrain.ELECTRIC))
@@ -176,6 +189,7 @@ private val battleSkillDamagePolicies = setOf(
 	"fixed-damage",
 	"proportional-damage",
 	"hp-derived-damage",
+	"one-hit-knockout-damage",
 	"status-effect",
 )
 
@@ -194,10 +208,11 @@ private val battleSkillDamagePolicies = setOf(
 internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	this in battleSkillStructuralEffectPolicies ||
 		toBattleSkillHpEffects().isNotEmpty() ||
-		toBattleFixedDamage() != null ||
-		toBattleProportionalDamage() != null ||
-		toBattleHpDerivedDamage() != null ||
-		toBattleSkillEnvironmentEffects().isNotEmpty()
+	toBattleFixedDamage() != null ||
+	toBattleProportionalDamage() != null ||
+	toBattleHpDerivedDamage() != null ||
+	toBattleOneHitKnockOut() != null ||
+	toBattleSkillEnvironmentEffects().isNotEmpty()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

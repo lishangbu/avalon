@@ -19,18 +19,22 @@ internal class BattleDirectDamage {
 	 * 计算本次直接伤害尝试。
 	 *
 	 * 固定伤害读取技能规则给出的固定值或使用者等级；比例伤害读取目标当前 HP 并按资料声明的分数向下取整；
-	 * HP 派生伤害读取双方当前 HP，并可能声明技能失败或使用者在命中后倒下。返回 null 表示该技能没有直接伤害模型，
-	 * 调用方应继续走普通伤害公式。
+	 * HP 派生伤害读取双方当前 HP，并可能声明技能失败或使用者在命中后倒下；一击必杀在命中后读取目标当前 HP
+	 * 作为本次直接伤害。返回 null 表示该技能没有直接伤害模型，调用方应继续走普通伤害公式。
 	 */
 	fun attempt(
 		skill: BattleSkillSlot,
 		actor: BattleParticipant,
 		target: BattleParticipant,
 	): BattleDirectDamageAttempt? =
-		when (val fixedDamage = skill.fixedDamage) {
-			is BattleFixedDamage.FixedAmount -> BattleDirectDamageAttempt.Hit(fixedDamage.amount)
-			BattleFixedDamage.UserLevel -> BattleDirectDamageAttempt.Hit(actor.level)
-			null -> proportionalOrHpDerivedDamage(skill, actor, target)
+		if (skill.oneHitKnockOut != null) {
+			BattleDirectDamageAttempt.Hit(target.currentHp)
+		} else {
+			when (val fixedDamage = skill.fixedDamage) {
+				is BattleFixedDamage.FixedAmount -> BattleDirectDamageAttempt.Hit(fixedDamage.amount)
+				BattleFixedDamage.UserLevel -> BattleDirectDamageAttempt.Hit(actor.level)
+				null -> proportionalOrHpDerivedDamage(skill, actor, target)
+			}
 		}
 
 	/**

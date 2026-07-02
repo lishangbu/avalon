@@ -1000,6 +1000,37 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val oneHitKnockOutSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (12, 32, 90, 329)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(oneHitKnockOutSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 12L,
+				"effect_policy" to "one-hit-knockout-damage",
+				"damage_policy" to "one-hit-knockout-damage",
+			),
+			mapOf(
+				"skill_id" to 32L,
+				"effect_policy" to "one-hit-knockout-damage",
+				"damage_policy" to "one-hit-knockout-damage",
+			),
+			mapOf(
+				"skill_id" to 90L,
+				"effect_policy" to "one-hit-knockout-damage",
+				"damage_policy" to "one-hit-knockout-damage",
+			),
+			mapOf(
+				"skill_id" to 329L,
+				"effect_policy" to "same-element-sensitive-one-hit-knockout-damage",
+				"damage_policy" to "one-hit-knockout-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

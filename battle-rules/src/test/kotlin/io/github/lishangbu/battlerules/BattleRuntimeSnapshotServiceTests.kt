@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
@@ -100,10 +101,10 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				2, 3, 5, 7, 14, 15, 20, 23, 28, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
-				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 92, 94, 95, 101, 103, 105, 113,
+				2, 3, 5, 7, 12, 14, 15, 20, 23, 28, 32, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
+				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 269,
-				283, 305, 311, 319, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457,
+				283, 305, 311, 319, 329, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457,
 				464, 504, 515, 526, 564, 568, 570, 577, 580, 604, 611, 694, 717, 733, 819, 877,
 				883, 895,
 			),
@@ -255,6 +256,17 @@ class BattleRuntimeSnapshotServiceTests(
 			.isEqualTo(BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp)
 		assertThat(slots.getValue(515).hpDerivedDamage)
 			.isEqualTo(BattleHpDerivedDamage.UserCurrentHpAndUserFaints)
+		assertThat(slots.getValue(12).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
+		assertThat(slots.getValue(32).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
+		assertThat(slots.getValue(90).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
+		assertThat(slots.getValue(329).oneHitKnockOut)
+			.isEqualTo(
+				BattleOneHitKnockOut(
+					baseAccuracyPercent = 20,
+					sameElementUserBaseAccuracyPercent = 30,
+					blocksSameElementTarget = true,
+				),
+			)
 
 		assertThat(slots.getValue(63).rechargesAfterUse).isTrue()
 
@@ -1376,6 +1388,36 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(damage.amount).isEqualTo(20)
 		assertThat(damage.effectiveness).isEqualTo(1.0)
 		assertThat(damage.criticalHit).isFalse()
+	}
+
+	/**
+	 * 验证数据库中的一击必杀规则不只是能装进技能槽，还能在真实状态机中使用专用命中率并造成目标当前 HP 伤害。
+	 *
+	 * 技能 12 的 effect_policy 来自 Liquibase 推导；测试不手写 [BattleOneHitKnockOut]。随机数 30 命中 50 级对
+	 * 50 级的 30% 基础命中率，命中后伤害应等于装配出来的目标当前 HP，而不是普通公式或固定数值。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database one hit knock out rule in engine turn`() {
+		val initialState = assembledState(
+			firstSideFirst = participant("a-1", creatureId = 1, level = 50, skillIds = listOf(12)),
+			secondSideFirst = participant("b-1", creatureId = 4, level = 50, skillIds = listOf(1)),
+		)
+		val random = ScriptedBattleRandom(listOf(29))
+		val engine = BattleEngine()
+		val started = engine.start(initialState)
+		val targetCurrentHp = started.participant("b-1")?.currentHp
+
+		val resolved = engine.resolveTurn(
+			started,
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 12, targetActorId = "b-1")),
+			random,
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		assertThat(resolved.participant("b-1")?.currentHp).isEqualTo(0)
+		assertThat(damage.amount).isEqualTo(targetCurrentHp)
+		assertThat(damage.effectiveness).isEqualTo(1.0)
+		assertThat(random.consumedReasons()).containsExactly("accuracy for 12")
 	}
 
 	/**

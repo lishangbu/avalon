@@ -26,8 +26,10 @@ internal class BattleHitResolution(
 	/**
 	 * 处理技能对单个目标的命中判定。
 	 *
-	 * `accuracy == null` 表示技能在当前天气下必中，直接返回命中并且不消费随机数。若技能会忽略目标特性，
-	 * 则目标身上“忽略对手命中阶级变化”的效果也不能影响本次命中；攻击方自身“忽略对手闪避阶级变化”的效果
+	 * 一击必杀类技能使用独立公式：基础命中率加上使用者与目标的等级差，并且不读取命中/闪避阶级；目标等级
+	 * 高于使用者的失败条件已经由命中前 gate 写成 [io.github.lishangbu.battleengine.model.BattleEvent.SkillFailed]。
+	 * 普通技能中，`accuracy == null` 表示技能在当前天气下必中，直接返回命中并且不消费随机数。若技能会忽略目标
+	 * 特性，则目标身上“忽略对手命中阶级变化”的效果也不能影响本次命中；攻击方自身“忽略对手闪避阶级变化”的效果
 	 * 不属于目标特性，所以仍按攻击方当前状态判断。修正命中率达到 100 或更高时同样直接命中，避免没有必要的
 	 * 随机消费，从而保持 replay 随机脚本稳定。
 	 */
@@ -39,6 +41,10 @@ internal class BattleHitResolution(
 		ignoresTargetAbilityEffects: Boolean,
 		random: BattleRandom,
 	): BattleAccuracyCheck {
+		val oneHitKnockOutAccuracy = oneHitKnockOutAccuracy(state, actor, target, skill)
+		if (oneHitKnockOutAccuracy != null) {
+			return rollAccuracy(skill, oneHitKnockOutAccuracy, random)
+		}
 		val accuracy = effectiveAccuracy(state, skill) ?: return BattleAccuracyCheck(hit = true, roll = null)
 		val actorAccuracyStage = if (!ignoresTargetAbilityEffects && target.ignoresOpponentAccuracyStatStages()) {
 			0
@@ -55,11 +61,7 @@ internal class BattleHitResolution(
 				statStageModifiers.accuracyMultiplier(actorAccuracyStage) /
 				statStageModifiers.accuracyMultiplier(targetEvasionStage),
 		).toInt().coerceAtLeast(1)
-		if (modifiedAccuracy >= 100) {
-			return BattleAccuracyCheck(hit = true, roll = null)
-		}
-		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
-		return BattleAccuracyCheck(hit = roll <= modifiedAccuracy, roll = roll)
+		return rollAccuracy(skill, modifiedAccuracy, random)
 	}
 
 	/**
@@ -98,6 +100,42 @@ internal class BattleHitResolution(
 		} else {
 			skill.accuracy
 		}
+
+	/**
+	 * 计算一击必杀类技能的专用命中率。
+	 *
+	 * 现代规则不使用 `BattleSkillSlot.accuracy`，也不应用命中/闪避阶级、重力、命中道具或类似修正；这些技能只读取
+	 * 资料模型中的基础命中率，并加上等级差。目标等级高于使用者时应在命中前 gate 失败，因此这里仍用
+	 * `coerceAtLeast(1)` 保护直接调用入口，避免异常资料把命中率降成无意义的 0 或负数。
+	 */
+	private fun oneHitKnockOutAccuracy(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): Int? {
+		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
+		val skillElementId = skill.effectiveElementId(state.environment.weather)
+		val baseAccuracy = oneHitKnockOut.baseAccuracyFor(
+			skillElementId = skillElementId,
+			actorElementIds = actor.elementIds,
+		)
+		return (baseAccuracy + actor.level - target.level).coerceAtLeast(1)
+	}
+
+	/**
+	 * 按给定最终命中率执行随机判定。
+	 *
+	 * 普通技能和一击必杀技能都需要“100 或更高不消费随机数”的稳定 replay 口径，因此共用这段收口。随机原因仍沿用
+	 * `accuracy for <skillId>`，避免 replay 断言因为内部公式分支暴露出新的命名差异。
+	 */
+	private fun rollAccuracy(skill: BattleSkillSlot, accuracy: Int, random: BattleRandom): BattleAccuracyCheck {
+		if (accuracy >= 100) {
+			return BattleAccuracyCheck(hit = true, roll = null)
+		}
+		val roll = random.nextInt(100, "accuracy for ${skill.skillId}") + 1
+		return BattleAccuracyCheck(hit = roll <= accuracy, roll = roll)
+	}
 
 	/**
 	 * 根据战斗模式和防守方当前可战斗上场人数，计算一侧屏障倍率。

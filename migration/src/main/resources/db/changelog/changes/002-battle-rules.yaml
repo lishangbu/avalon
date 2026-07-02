@@ -7853,3 +7853,34 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('thrash', 'petal-dance', 'outrage')
+- changeSet:
+    id: 107-battle-derived-basic-skill-one-hit-knockout
+    author: backend
+    comment: 使用结构化技能分类为自动生成规则补充一击必杀直接伤害。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 一击必杀类技能不进入普通伤害公式：目标等级高于使用者时失败，命中率使用专用等级差公式，
+          -- 命中后造成目标当前 HP 等量直接伤害。现代规则中存在一个同属性敏感例外：非同属性使用者基础命中率
+          -- 降为 20%，同属性目标天然无效；这里用独立 policy 表达该例外，避免纯引擎硬编码具体技能 ID。
+          update battle_skill_rule r
+          set
+            effect_policy = case
+              when s.code = 'sheer-cold' then 'same-element-sensitive-one-hit-knockout-damage'
+              else 'one-hit-knockout-damage'
+            end,
+            damage_policy = 'one-hit-knockout-damage',
+            description = case
+              when s.code = 'sheer-cold' then '一击必杀直接伤害；命中率使用等级差公式，非同属性使用者基础命中率为 20%，同属性目标无效。'
+              else '一击必杀直接伤害；命中率使用等级差公式，目标等级高于使用者时失败。'
+            end
+          from game_skill s
+          join game_skill_detail d on d.skill_id = s.id
+          join game_skill_category c on c.id = d.category_id
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and c.code = 'ohko'

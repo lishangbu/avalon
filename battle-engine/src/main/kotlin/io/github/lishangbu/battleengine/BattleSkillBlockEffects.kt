@@ -11,9 +11,9 @@ import io.github.lishangbu.battleengine.model.BattleTerrain
  * 单目标技能结算前的阻止与吸收规则。
  *
  * 本类只处理“技能已经宣告使用、已经选中某个实际目标，但尚未进入普通命中/伤害/附加效果之前”的防守侧规则。
- * 这些规则包括粉末类技能的属性免疫、由特性提升优先度的变化技能被恶属性免疫、精神场地阻止先制技能、目标侧
- * 特性阻止先制/声音技能，以及指定属性技能被目标特性吸收。它不处理保护、普通命中率、属性克制无效或伤害公式；
- * 那些阶段仍留在 [BattleEngine.resolveSkillAgainstTarget] 的显式顺序里。
+ * 这些规则包括粉末类技能的属性免疫、一击必杀类技能的专用属性免疫、由特性提升优先度的变化技能被恶属性免疫、
+ * 精神场地阻止先制技能、目标侧特性阻止先制/声音技能，以及指定属性技能被目标特性吸收。它不处理保护、普通
+ * 命中率、属性克制无效或伤害公式；那些阶段仍留在 [BattleEngine.resolveSkillAgainstTarget] 的显式顺序里。
  *
  * 将这些规则集中起来有两个目的：
  * - 让主引擎的单目标流程更短，只负责按现代规则顺序调用各个阻止点。
@@ -106,6 +106,24 @@ internal class BattleSkillBlockEffects(
 		val grassElementId = state.rules.elementId("grass") ?: return null
 		return if (skill.powderBased && target.hasElement(grassElementId)) {
 			grassElementId
+		} else {
+			null
+		}
+	}
+
+	/**
+	 * 判断一击必杀技能是否被目标当前属性天然免疫。
+	 *
+	 * 大多数一击必杀技能只依赖普通属性相性无效，例如普通属性技能打不到幽灵属性、地面属性技能打不到飞行属性；
+	 * 那些仍由后续属性相性阶段统一处理。这里专门承载现代规则里的额外“同属性目标无效”例外：资料模型只声明
+	 * [io.github.lishangbu.battleengine.model.BattleOneHitKnockOut.blocksSameElementTarget]，纯引擎用本次实际技能属性
+	 * 与目标属性集合判断，不需要知道具体技能名称或资料库 ID。
+	 */
+	fun oneHitKnockOutBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
+		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
+		val skillElementId = skill.effectiveElementId(state.environment.weather)
+		return if (oneHitKnockOut.blocksSameElementTarget && target.hasElement(skillElementId)) {
+			skillElementId
 		} else {
 			null
 		}

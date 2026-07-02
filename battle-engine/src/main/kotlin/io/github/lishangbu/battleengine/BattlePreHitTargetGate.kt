@@ -25,9 +25,9 @@ internal class BattlePreHitTargetGate(
 	/**
 	 * 按现代规则顺序结算命中前阻止点。
 	 *
-	 * 顺序不能随意调整：粉末属性免疫和恶属性先制免疫发生在命中判定前；精神场地、目标侧先制免疫特性、声音免疫
-	 * 和保护屏障也都早于命中随机数。只有全部通过之后才消费命中随机数，并把本次是否无视目标特性传给后续吸收、
-	 * 状态和伤害阶段复用。
+	 * 顺序不能随意调整：粉末属性免疫、一击必杀专用属性免疫、恶属性先制免疫和一击必杀等级失败都发生在命中
+	 * 判定前；精神场地、目标侧先制免疫特性、声音免疫和保护屏障也都早于命中随机数。只有全部通过之后才消费命中
+	 * 随机数，并把本次是否无视目标特性传给后续吸收、状态和伤害阶段复用。
 	 */
 	fun resolve(
 		state: BattleState,
@@ -47,6 +47,19 @@ internal class BattlePreHitTargetGate(
 					targetActorId = target.actorId,
 					skillId = skill.skillId,
 					elementId = powderBlockedElementId,
+				),
+			)
+		}
+
+		val oneHitKnockOutBlockedElementId = skillBlockEffects.oneHitKnockOutBlockedElementId(state, target, skill)
+		if (oneHitKnockOutBlockedElementId != null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillBlockedByElement(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					elementId = oneHitKnockOutBlockedElementId,
 				),
 			)
 		}
@@ -102,6 +115,18 @@ internal class BattlePreHitTargetGate(
 					actorId = actor.actorId,
 					targetActorId = target.actorId,
 					skillId = skill.skillId,
+				),
+			)
+		}
+
+		if (skill.oneHitKnockOut != null && target.level > actor.level) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "target-level-greater-than-user-level",
 				),
 			)
 		}

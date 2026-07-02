@@ -1,0 +1,177 @@
+package io.github.lishangbu.battleengine
+
+import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
+import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+/**
+ * 验证一击必杀类直接伤害技能。
+ *
+ * 场景类型：状态机级 场景。
+ * 参考来源类型：公开成熟对战引擎和公开规则说明中的一击必杀技能规则；本测试只固化输入、随机脚本和可观察事件，
+ * 不复制外部实现代码。
+ * 固定随机序列意图：一击必杀有自己的命中率公式，会消费一次命中随机数；命中后不消费击中要害或伤害浮动随机数。
+ * 验证重点：目标等级高于使用者时失败且不耗随机数；命中率使用基础值加等级差并忽略命中/闪避阶级；命中后造成
+ * 等于目标当前 HP 的直接伤害；同属性敏感例外可以降低基础命中率并阻止同属性目标。
+ */
+class BattleOneHitKnockOutSkillTests {
+	private val engine = BattleEngine()
+
+	@Test
+	fun `one hit knock out deals target current hp after special accuracy hit`() {
+		val scenario = publicBattleRuleScenario(
+			name = "one-hit-knockout-damage-deals-target-current-hp-after-special-accuracy-hit",
+			inputSummary = "使用者与目标同为 50 级，一击必杀技能以 30% 专用命中率命中当前 HP 为 83 的目标。",
+			expectedSummary = "技能不进入普通伤害公式，命中后直接造成 83 点伤害并让目标倒下。",
+		)
+		val random = ScriptedBattleRandom(listOf(29))
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = oneHitKnockOutSkill()),
+					second = participant("target", speed = 80, level = 50, currentHp = 83),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 12, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("one-hit-knockout-damage-deals-target-current-hp-after-special-accuracy-hit")
+		assertEquals(0, resolved.participant("target")?.currentHp)
+		assertEquals(83, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+		assertEquals(listOf("accuracy for 12"), random.consumedReasons())
+	}
+
+	@Test
+	fun `one hit knock out fails against higher level target before accuracy roll`() {
+		val scenario = publicBattleRuleScenario(
+			name = "one-hit-knockout-damage-fails-against-higher-level-target-before-accuracy-roll",
+			inputSummary = "50 级使用者对 51 级目标使用一击必杀技能。",
+			expectedSummary = "技能因目标等级更高而失败，不产生命中随机数，也不会退回普通伤害公式。",
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = oneHitKnockOutSkill()),
+					second = participant("target", speed = 80, level = 51),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 12, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("one-hit-knockout-damage-fails-against-higher-level-target-before-accuracy-roll")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals("target-level-greater-than-user-level", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), random.consumedReasons())
+	}
+
+	@Test
+	fun `one hit knock out accuracy ignores accuracy and evasion stages`() {
+		val scenario = publicBattleRuleScenario(
+			name = "one-hit-knockout-damage-accuracy-ignores-accuracy-and-evasion-stages",
+			inputSummary = "60 级使用者命中阶级为 -6，50 级目标闪避阶级为 +6；一击必杀技能命中随机数落在 40% 内。",
+			expectedSummary = "专用命中率按 30% 加等级差得到 40%，不读取双方命中和闪避阶级，技能仍然命中并造成直接伤害。",
+		)
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 60, skill = oneHitKnockOutSkill())
+						.copy(statStages = mapOf(BattleStat.ACCURACY to -6)),
+					second = participant("target", speed = 80, level = 50)
+						.copy(statStages = mapOf(BattleStat.EVASION to 6)),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 12, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(39)),
+		)
+
+		scenario.assertNamed("one-hit-knockout-damage-accuracy-ignores-accuracy-and-evasion-stages")
+		assertEquals(0, resolved.participant("target")?.currentHp)
+		assertEquals(100, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+	}
+
+	@Test
+	fun `same element sensitive one hit knock out uses lower base accuracy for off element user`() {
+		val scenario = publicBattleRuleScenario(
+			name = "same-element-sensitive-one-hit-knockout-damage-uses-lower-base-accuracy-for-off-element-user",
+			inputSummary = "非同属性使用者使用同属性敏感一击必杀技能，双方等级相同，命中随机数为 25。",
+			expectedSummary = "该技能使用 20% 基础命中率；随机数 25 会未命中，证明没有错误套用 30% 基础命中率。",
+		)
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, elementId = 1, skill = sensitiveOneHitKnockOutSkill()),
+					second = participant("target", speed = 80, level = 50, elementId = 2),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 329, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(24)),
+		)
+
+		scenario.assertNamed("same-element-sensitive-one-hit-knockout-damage-uses-lower-base-accuracy-for-off-element-user")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals(25, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+	}
+
+	@Test
+	fun `same element sensitive one hit knock out is blocked by same element target before accuracy roll`() {
+		val scenario = publicBattleRuleScenario(
+			name = "same-element-sensitive-one-hit-knockout-damage-blocks-same-element-target-before-accuracy-roll",
+			inputSummary = "同属性敏感一击必杀技能打向拥有技能同属性的目标。",
+			expectedSummary = "目标在命中判定前触发属性天然无效，不消费命中随机数，也不会造成直接伤害。",
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, elementId = 15, skill = sensitiveOneHitKnockOutSkill()),
+					second = participant("target", speed = 80, level = 50, elementId = 15),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 329, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("same-element-sensitive-one-hit-knockout-damage-blocks-same-element-target-before-accuracy-roll")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals(15, resolved.events.filterIsInstance<BattleEvent.SkillBlockedByElement>().single().elementId)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), random.consumedReasons())
+	}
+
+	private fun oneHitKnockOutSkill(): BattleSkillSlot =
+		damagingSkill(
+			skillId = 12,
+			name = "一击必杀测试",
+			damageClass = BattleDamageClass.PHYSICAL,
+			power = null,
+			accuracy = 30,
+			oneHitKnockOut = BattleOneHitKnockOut(),
+		)
+
+	private fun sensitiveOneHitKnockOutSkill(): BattleSkillSlot =
+		damagingSkill(
+			skillId = 329,
+			name = "同属性敏感一击必杀测试",
+			elementId = 15,
+			damageClass = BattleDamageClass.SPECIAL,
+			power = null,
+			accuracy = 30,
+			oneHitKnockOut = BattleOneHitKnockOut(
+				baseAccuracyPercent = 20,
+				sameElementUserBaseAccuracyPercent = 30,
+				blocksSameElementTarget = true,
+			),
+		)
+
+}

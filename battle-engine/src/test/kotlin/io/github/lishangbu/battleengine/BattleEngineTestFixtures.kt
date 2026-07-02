@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleMode
+import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
@@ -131,6 +132,7 @@ internal fun participant(
 	actorId: String,
 	speed: Int,
 	currentHp: Int = 100,
+	level: Int = 50,
 	elementId: Long = 1,
 	skill: BattleSkillSlot = damagingSkill(),
 	abilityId: Long? = null,
@@ -142,7 +144,7 @@ internal fun participant(
 	BattleParticipant(
 		actorId = actorId,
 		creatureId = 1,
-		level = 50,
+		level = level,
 		maxHp = 100,
 		currentHp = currentHp,
 		attack = 100,
@@ -168,6 +170,7 @@ internal fun damagingSkill(
 	fixedDamage: BattleFixedDamage? = null,
 	proportionalDamage: BattleProportionalDamage? = null,
 	hpDerivedDamage: BattleHpDerivedDamage? = null,
+	oneHitKnockOut: BattleOneHitKnockOut? = null,
 	accuracy: Int? = null,
 	targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
 	minHits: Int = 1,
@@ -213,6 +216,7 @@ internal fun damagingSkill(
 		fixedDamage = fixedDamage,
 		proportionalDamage = proportionalDamage,
 		hpDerivedDamage = hpDerivedDamage,
+		oneHitKnockOut = oneHitKnockOut,
 		accuracy = accuracy,
 		targetScope = targetScope,
 		minHits = minHits,

@@ -81,6 +81,7 @@ class BattleSkillRuntimeLookup(
 			fixedDamage = effectPolicy.toBattleFixedDamage(),
 			proportionalDamage = effectPolicy.toBattleProportionalDamage(),
 			hpDerivedDamage = effectPolicy.toBattleHpDerivedDamage(),
+			oneHitKnockOut = effectPolicy.toBattleOneHitKnockOut(),
 			accuracy = row.accuracy,
 			targetScope = targetPolicy.toBattleSkillTargetScope(),
 			minHits = row.requiredInt(row.minHits, "min_hits"),
