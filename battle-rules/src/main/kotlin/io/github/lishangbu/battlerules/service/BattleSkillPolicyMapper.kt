@@ -84,6 +84,14 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				),
 			),
 		)
+		"sandstorm-self-heal-max-hp" -> listOf(
+			BattleSkillHpEffect.SelfHealMaxHpByWeather(
+				defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+				weatherFractions = mapOf(
+					BattleWeather.SANDSTORM to BattleSkillHpEffect.HpFraction(2, 3),
+				),
+			),
+		)
 		"target-heal-half-max-hp" -> listOf(
 			BattleSkillHpEffect.TargetHealMaxHpFraction(
 				numerator = 1,

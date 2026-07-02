@@ -251,6 +251,45 @@ class BattleSkillHpEffectTests {
 	}
 
 	@Test
+	fun `sandstorm sensitive self healing skill uses boost fraction`() {
+		val scenario = publicBattleRuleScenario(
+			name = "sandstorm-sensitive-self-healing-skill-uses-boost-fraction",
+			inputSummary = "使用者在沙暴中使用默认回复 1/2、沙暴回复 2/3 最大 HP 的变化技能。",
+			expectedSummary = "技能按当前沙暴天气选择 2/3 最大 HP 回复比例，回复事件记录 66 点回复。",
+		)
+		val skill = damagingSkill(
+			name = "沙暴回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(
+				BattleSkillHpEffect.SelfHealMaxHpByWeather(
+					defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+					weatherFractions = mapOf(BattleWeather.SANDSTORM to BattleSkillHpEffect.HpFraction(2, 3)),
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("sand-healer", speed = 100, currentHp = 20, elementId = 6, skill = skill),
+				second = participant("observer", speed = 50, elementId = 6),
+				environment = BattleEnvironment(weather = BattleWeather.SANDSTORM),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sand-healer", skillId = 1, targetActorId = "sand-healer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("sandstorm-sensitive-self-healing-skill-uses-boost-fraction")
+		assertEquals(86, resolved.participant("sand-healer")?.currentHp)
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals("sand-healer", healing.actorId)
+		assertEquals(66, healing.amount)
+	}
+
+	@Test
 	fun `terrain sensitive target healing uses grassy terrain fraction`() {
 		val scenario = publicBattleRuleScenario(
 			name = "terrain-sensitive-target-healing-uses-grassy-terrain-fraction",

@@ -1054,6 +1054,22 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val sandstormHealingSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, damage_policy
+			from battle_skill_rule
+			where skill_id = 659
+			""".trimIndent(),
+		)
+		assertThat(sandstormHealingSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 659L,
+				"effect_policy" to "sandstorm-self-heal-max-hp",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

@@ -7919,3 +7919,26 @@ databaseChangeLog:
             and c.code = 'heal'
             and t.code = 'selected-pokemon'
             and d.healing = 50
+- changeSet:
+    id: 109-battle-derived-basic-skill-sandstorm-healing
+    author: backend
+    comment: 为沙暴增强自我回复技能补充天气变量回复规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 集沙在普通天气下回复使用者最大 HP 的一半，沙暴下回复三分之二。它已经先被基础 healing=50
+          -- 规则推导为普通自我回复；这里只覆盖 effect_policy，保留目标和无伤害策略。
+          update battle_skill_rule r
+          set
+            effect_policy = 'sandstorm-self-heal-max-hp',
+            target_policy = 'self',
+            damage_policy = 'no-damage',
+            description = '天气变量自我回复技能；默认回复最大 HP 的一半，沙暴下回复三分之二。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'shore-up'
