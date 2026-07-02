@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.jdbc.core.JdbcTemplate
 
 @BattleRulesIntegrationTest
 /**
@@ -28,6 +29,7 @@ class BattleSkillWeatherModifierServiceTests(
 	@Autowired private val elementService: BattleSkillWeatherElementOverrideService,
 	@Autowired private val chargeSkipService: BattleSkillChargeSkipWeatherService,
 	@Autowired private val skillRuleService: BattleSkillRuleService,
+	@Autowired private val jdbcTemplate: JdbcTemplate,
 ) {
 	@Test
 	fun `create update read list and delete weather accuracy override`() {
@@ -195,8 +197,8 @@ class BattleSkillWeatherModifierServiceTests(
 
 	@Test
 	fun `create update read list and delete charge skip weather`() {
-		val skillRule = skillRuleService.create(chargeSkillRuleRequest())
-		try {
+		withTemporarySkill { skillId ->
+			val skillRule = skillRuleService.create(chargeSkillRuleRequest(skillId))
 			val created = chargeSkipService.create(
 				BattleSkillChargeSkipWeatherRequest(
 					skillRuleId = skillRule.id,
@@ -230,7 +232,7 @@ class BattleSkillWeatherModifierServiceTests(
 				chargeSkipService.get(created.id)
 			}
 			assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
-		} finally {
+
 			skillRuleService.delete(skillRule.id)
 		}
 	}
@@ -358,9 +360,9 @@ class BattleSkillWeatherModifierServiceTests(
 		assertThat(nonChargeSkill.field).isEqualTo("skillRuleId")
 	}
 
-	private fun chargeSkillRuleRequest(): BattleSkillRuleRequest =
+	private fun chargeSkillRuleRequest(skillId: Long): BattleSkillRuleRequest =
 		BattleSkillRuleRequest(
-			skillId = 10,
+			skillId = skillId,
 			effectPolicy = "test-charge-skip",
 			targetPolicy = "selected-target",
 			hitPolicy = "standard-hit",
@@ -375,4 +377,52 @@ class BattleSkillWeatherModifierServiceTests(
 			enabled = true,
 			sortOrder = 903,
 		)
+
+	private fun withTemporarySkill(block: (Long) -> Unit) {
+		deleteTemporarySkill()
+		jdbcTemplate.update(
+			"""
+			insert into game_skill (
+				id,
+				code,
+				name,
+				element_id,
+				damage_class_id,
+				accuracy,
+				power,
+				pp,
+				priority,
+				effect_chance,
+				enabled
+			) values (
+				?,
+				'skill-weather-modifier-test',
+				'技能天气修正测试',
+				1,
+				2,
+				100,
+				40,
+				5,
+				0,
+				null,
+				true
+			)
+			""".trimIndent(),
+			TEMP_SKILL_ID,
+		)
+		try {
+			block(TEMP_SKILL_ID)
+		} finally {
+			deleteTemporarySkill()
+		}
+	}
+
+	private fun deleteTemporarySkill() {
+		jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+		jdbcTemplate.update("delete from game_skill where id = ?", TEMP_SKILL_ID)
+	}
+
+	private companion object {
+		private const val TEMP_SKILL_ID = 9_920_001L
+	}
 }

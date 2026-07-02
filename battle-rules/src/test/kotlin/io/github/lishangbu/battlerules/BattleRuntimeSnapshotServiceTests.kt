@@ -417,8 +417,9 @@ class BattleRuntimeSnapshotServiceTests(
 	/**
 	 * 技能运行时装配的输入错误要在适配层被直接定位。
 	 *
-	 * 空列表和非正数 ID 属于请求形状错误；不存在的正数 ID 则说明资料库没有对应基础技能。三类问题都不应该落到
-	 * battle-engine 里再表现为“技能槽缺失”，否则准备校验和真实开战会得到不同错误口径。
+	 * 空列表和非正数 ID 属于请求形状错误；不存在的正数 ID 说明资料库没有对应基础技能；基础技能存在但没有
+	 * 战斗规则则说明 Liquibase 种子或后台维护漏配。四类问题都不应该落到 battle-engine 里再表现为“技能槽缺失”，
+	 * 否则准备校验和真实开战会得到不同错误口径。
 	 */
 	@Test
 	fun `skill slot assembly rejects invalid and missing skill data`() {
@@ -439,6 +440,14 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 		assertThat(missingSkill.field).isEqualTo("skillIds")
 		assertThat(missingSkill.message).isEqualTo("技能不存在: 999999")
+
+		withTemporarySkillWithoutRule { skillId ->
+			val missingRule = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(missingRule.field).isEqualTo("skillIds")
+			assertThat(missingRule.message).isEqualTo("技能缺少战斗规则: $skillId")
+		}
 	}
 
 	@Test
@@ -1626,8 +1635,8 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun withTemporarySkillPolicy(effectPolicy: String, block: (Long) -> Unit) {
-		val skillId = skillIdWithoutBattleRule()
-		jdbcTemplate.update("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
+		insertTemporarySkill()
+		jdbcTemplate.update("delete from battle_skill_rule where id = ? or skill_id = ?", TEMP_SKILL_RULE_ID, TEMP_SKILL_ID)
 		jdbcTemplate.update(
 			"""
 			insert into battle_skill_rule (
@@ -1665,31 +1674,64 @@ class BattleRuntimeSnapshotServiceTests(
 			)
 			""".trimIndent(),
 			TEMP_SKILL_RULE_ID,
-			skillId,
+			TEMP_SKILL_ID,
 			effectPolicy,
 		)
 		try {
-			block(skillId)
+			block(TEMP_SKILL_ID)
 		} finally {
 			jdbcTemplate.update("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
+			deleteTemporarySkill()
 		}
 	}
 
-	private fun skillIdWithoutBattleRule(): Long =
-		jdbcTemplate.queryForObject(
+	private fun withTemporarySkillWithoutRule(block: (Long) -> Unit) {
+		insertTemporarySkill()
+		try {
+			block(TEMP_SKILL_ID)
+		} finally {
+			deleteTemporarySkill()
+		}
+	}
+
+	private fun insertTemporarySkill() {
+		jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+		deleteTemporarySkill()
+		jdbcTemplate.update(
 			"""
-			select s.id
-			from game_skill s
-			where not exists (
-				select 1
-				from battle_skill_rule r
-				where r.skill_id = s.id
+			insert into game_skill (
+				id,
+				code,
+				name,
+				element_id,
+				damage_class_id,
+				accuracy,
+				power,
+				pp,
+				priority,
+				effect_chance,
+				enabled
+			) values (
+				?,
+				'runtime-unknown-policy-test',
+				'运行时未知策略测试',
+				1,
+				3,
+				100,
+				40,
+				5,
+				0,
+				null,
+				true
 			)
-			order by s.id
-			limit 1
 			""".trimIndent(),
-			Long::class.java,
-		) ?: error("测试资料必须至少保留一个未配置 battle_skill_rule 的技能")
+			TEMP_SKILL_ID,
+		)
+	}
+
+	private fun deleteTemporarySkill() {
+		jdbcTemplate.update("delete from game_skill where id = ?", TEMP_SKILL_ID)
+	}
 
 	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =
 		BattlePreparationValidationRequest(
@@ -1762,5 +1804,6 @@ class BattleRuntimeSnapshotServiceTests(
 		private const val TEMP_ABILITY_RULE_ID = 9_900_001L
 		private const val TEMP_ITEM_RULE_ID = 9_900_002L
 		private const val TEMP_SKILL_RULE_ID = 9_900_003L
+		private const val TEMP_SKILL_ID = 9_900_004L
 	}
 }

@@ -7435,3 +7435,80 @@ databaseChangeLog:
         - column: { name: chance_percent, valueNumeric: 100 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 130 }
+- changeSet:
+    id: 098-battle-basic-skill-rules
+    author: backend
+    comment: 为所有启用技能补齐基础战斗规则，运行时不再需要无规则技能兜底。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: true
+        sql: |
+          insert into battle_skill_rule (
+            id,
+            skill_id,
+            effect_policy,
+            target_policy,
+            hit_policy,
+            damage_policy,
+            min_hits,
+            max_hits,
+            critical_hit_stage,
+            makes_contact,
+            affected_by_protect,
+            protects_user,
+            thaws_user_before_move,
+            weakened_by_grassy_terrain,
+            recharges_after_use,
+            charges_before_use,
+            sound_based,
+            powder_based,
+            punch_based,
+            slicing_based,
+            lock_move_turns_min,
+            lock_move_turns_max,
+            confuses_user_after_lock,
+            force_target_switch,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            100000 + s.id,
+            s.id,
+            case when dc.code = 'status' then 'status-effect' else 'standard-damage' end,
+            'selected-target',
+            case when s.accuracy is null then 'always-hit' else 'standard-hit' end,
+            case when dc.code = 'status' or s.power is null then 'no-damage' else 'standard-damage' end,
+            1,
+            1,
+            0,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            1,
+            1,
+            false,
+            false,
+            case when dc.code = 'status'
+              then '基础变化技能规则；尚未维护专项效果时，只保留目标、命中、PP 和规则完整性。'
+              else '基础伤害技能规则；尚未维护专项效果时，按基础威力和命中进入普通伤害流程。'
+            end,
+            true,
+            2000 + row_number() over (order by s.id)
+          from game_skill s
+          join game_skill_damage_class dc on dc.id = s.damage_class_id
+          where s.enabled = true
+            and not exists (
+              select 1
+              from battle_skill_rule r
+              where r.skill_id = s.id
+            )

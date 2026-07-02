@@ -67,41 +67,44 @@ class BattleSkillRuntimeLookup(
 			skillId,
 		).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
 
+		val ruleId = row.requireRuleId()
 		row.requireSupportedRulePolicies()
-		val ruleEffects = ruleEffectLookup.ruleEffects(row.ruleId)
+		val effectPolicy = row.requiredText(row.effectPolicy, "effect_policy")
+		val targetPolicy = row.requiredText(row.targetPolicy, "target_policy")
+		val ruleEffects = ruleEffectLookup.ruleEffects(ruleId)
 		return BattleSkillSlot(
 			skillId = row.skillId,
 			name = row.name,
 			elementId = row.elementId,
 			damageClass = row.damageClassCode.toBattleDamageClass(),
 			power = row.power,
-			fixedDamage = row.effectPolicy.toBattleFixedDamage(),
-			proportionalDamage = row.effectPolicy.toBattleProportionalDamage(),
-			hpDerivedDamage = row.effectPolicy.toBattleHpDerivedDamage(),
+			fixedDamage = effectPolicy.toBattleFixedDamage(),
+			proportionalDamage = effectPolicy.toBattleProportionalDamage(),
+			hpDerivedDamage = effectPolicy.toBattleHpDerivedDamage(),
 			accuracy = row.accuracy,
-			targetScope = row.targetPolicy.toBattleSkillTargetScope(),
-			minHits = row.minHits ?: 1,
-			maxHits = row.maxHits ?: 1,
-			makesContact = row.makesContact ?: false,
-			criticalHitStage = row.criticalHitStage ?: 0,
-			affectedByProtect = row.affectedByProtect ?: true,
-			protectsUser = row.protectsUser ?: false,
-			thawsUserBeforeMove = row.thawsUserBeforeMove ?: false,
-			soundBased = row.soundBased ?: false,
-			powderBased = row.powderBased ?: false,
-			punchBased = row.punchBased ?: false,
-			slicingBased = row.slicingBased ?: false,
-			weakenedByGrassyTerrain = row.weakenedByGrassyTerrain ?: false,
-			chargesBeforeUse = row.chargesBeforeUse ?: false,
+			targetScope = targetPolicy.toBattleSkillTargetScope(),
+			minHits = row.requiredInt(row.minHits, "min_hits"),
+			maxHits = row.requiredInt(row.maxHits, "max_hits"),
+			makesContact = row.requiredBoolean(row.makesContact, "makes_contact"),
+			criticalHitStage = row.requiredInt(row.criticalHitStage, "critical_hit_stage"),
+			affectedByProtect = row.requiredBoolean(row.affectedByProtect, "affected_by_protect"),
+			protectsUser = row.requiredBoolean(row.protectsUser, "protects_user"),
+			thawsUserBeforeMove = row.requiredBoolean(row.thawsUserBeforeMove, "thaws_user_before_move"),
+			soundBased = row.requiredBoolean(row.soundBased, "sound_based"),
+			powderBased = row.requiredBoolean(row.powderBased, "powder_based"),
+			punchBased = row.requiredBoolean(row.punchBased, "punch_based"),
+			slicingBased = row.requiredBoolean(row.slicingBased, "slicing_based"),
+			weakenedByGrassyTerrain = row.requiredBoolean(row.weakenedByGrassyTerrain, "weakened_by_grassy_terrain"),
+			chargesBeforeUse = row.requiredBoolean(row.chargesBeforeUse, "charges_before_use"),
 			chargeSkippedByWeathers = ruleEffects.chargeSkippedByWeathers,
-			rechargesAfterUse = row.rechargesAfterUse ?: false,
+			rechargesAfterUse = row.requiredBoolean(row.rechargesAfterUse, "recharges_after_use"),
 			accuracyOverridesByWeather = ruleEffects.accuracyOverridesByWeather,
 			powerMultipliersByWeather = ruleEffects.powerMultipliersByWeather,
 			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
-			lockMoveTurnsMin = row.lockMoveTurnsMin ?: 1,
-			lockMoveTurnsMax = row.lockMoveTurnsMax ?: 1,
-			confusesUserAfterLock = row.confusesUserAfterLock ?: false,
-			forceTargetSwitch = row.forceTargetSwitch ?: false,
+			lockMoveTurnsMin = row.requiredInt(row.lockMoveTurnsMin, "lock_move_turns_min"),
+			lockMoveTurnsMax = row.requiredInt(row.lockMoveTurnsMax, "lock_move_turns_max"),
+			confusesUserAfterLock = row.requiredBoolean(row.confusesUserAfterLock, "confuses_user_after_lock"),
+			forceTargetSwitch = row.requiredBoolean(row.forceTargetSwitch, "force_target_switch"),
 			priority = row.priority,
 			remainingPp = row.pp,
 			maxPp = row.pp,
@@ -113,8 +116,8 @@ class BattleSkillRuntimeLookup(
 			sideSpeedModifierApplications = ruleEffects.sideSpeedModifierApplications,
 			sideEntryHazardApplications = ruleEffects.sideEntryHazardApplications,
 			fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
-			hpEffects = row.effectPolicy.toBattleSkillHpEffects(),
-			environmentEffects = row.effectPolicy.toBattleSkillEnvironmentEffects(),
+			hpEffects = effectPolicy.toBattleSkillHpEffects(),
+			environmentEffects = effectPolicy.toBattleSkillEnvironmentEffects(),
 		)
 	}
 }
@@ -164,23 +167,15 @@ private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
 /**
  * 校验启用中的技能规则 policy 是否都已经被运行时显式支持。
  *
- * `game_skill` 可以没有对应的 `battle_skill_rule`，这种普通技能继续使用 battle-engine 的默认单体、普通命中、
- * 普通伤害模型；但一旦存在启用规则行，四个 policy 字段就不再允许依赖默认值。这样可以防止 Liquibase 或后台
- * 维护写入一个拼错的 `effect_policy`、`target_policy`、`hit_policy` 或 `damage_policy` 后，运行时仍然悄悄把
- * 它装配成“无附加效果/默认目标”的技能。
+ * 所有启用技能都必须有对应的 `battle_skill_rule`，因此四个 policy 字段不再允许依赖默认值。这样可以防止
+ * Liquibase 或后台维护写入一个拼错的 `effect_policy`、`target_policy`、`hit_policy` 或 `damage_policy` 后，
+ * 运行时仍然悄悄把它装配成“无附加效果/默认目标”的技能。
  */
 private fun SkillRuntimeRow.requireSupportedRulePolicies() {
-	if (ruleId == null) {
-		return
-	}
-	val normalizedEffectPolicy = effectPolicy
-		?: invalidValue("effectPolicy", "启用的技能规则缺少 effect_policy: skillId=$skillId")
-	val normalizedTargetPolicy = targetPolicy
-		?: invalidValue("targetPolicy", "启用的技能规则缺少 target_policy: skillId=$skillId")
-	val normalizedHitPolicy = hitPolicy
-		?: invalidValue("hitPolicy", "启用的技能规则缺少 hit_policy: skillId=$skillId")
-	val normalizedDamagePolicy = damagePolicy
-		?: invalidValue("damagePolicy", "启用的技能规则缺少 damage_policy: skillId=$skillId")
+	val normalizedEffectPolicy = requiredText(effectPolicy, "effect_policy")
+	val normalizedTargetPolicy = requiredText(targetPolicy, "target_policy")
+	val normalizedHitPolicy = requiredText(hitPolicy, "hit_policy")
+	val normalizedDamagePolicy = requiredText(damagePolicy, "damage_policy")
 	if (!normalizedEffectPolicy.isBattleSkillRuntimeEffectPolicySupported()) {
 		invalidValue("effectPolicy", "不支持的技能主效果策略: $normalizedEffectPolicy")
 	}
@@ -194,6 +189,18 @@ private fun SkillRuntimeRow.requireSupportedRulePolicies() {
 		invalidValue("damagePolicy", "不支持的技能伤害策略: $normalizedDamagePolicy")
 	}
 }
+
+private fun SkillRuntimeRow.requireRuleId(): Long =
+	ruleId ?: invalidValue("skillIds", "技能缺少战斗规则: $skillId")
+
+private fun SkillRuntimeRow.requiredText(value: String?, column: String): String =
+	value ?: invalidValue("skillIds", "技能战斗规则缺少 $column: skillId=$skillId")
+
+private fun SkillRuntimeRow.requiredInt(value: Int?, column: String): Int =
+	value ?: invalidValue("skillIds", "技能战斗规则缺少 $column: skillId=$skillId")
+
+private fun SkillRuntimeRow.requiredBoolean(value: Boolean?, column: String): Boolean =
+	value ?: invalidValue("skillIds", "技能战斗规则缺少 $column: skillId=$skillId")
 
 private fun ResultSet.nullableInt(column: String): Int? {
 	val value = getInt(column)

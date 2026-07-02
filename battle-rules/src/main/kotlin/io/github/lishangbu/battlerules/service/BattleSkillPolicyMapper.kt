@@ -120,6 +120,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"multi-hit-damage",
 	"protect-self",
 	"stat-stage-change",
+	"status-effect",
 	"status-application",
 	"side-condition",
 	"side-entry-hazard",
@@ -166,8 +167,9 @@ private val battleSkillDamagePolicies = setOf(
  *
  * 技能 policy 有两种形态：
  * - 直接映射型，例如固定伤害、吸取、天气/场地设置，会在本 mapper 中转换成 battle-engine 的强类型效果。
- * - 结构型，例如能力阶级、强制换人、挑衅/定身法/无理取闹等，实际参数保存在技能子表或布尔字段中，
- *   [BattleSkillRuntimeLookup] 会把这些字段一起装配进 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
+ * - 结构型，例如基础变化技能、能力阶级、强制换人、挑衅/定身法/无理取闹等，实际参数保存在主行、技能子表
+ *   或布尔字段中，[BattleSkillRuntimeLookup] 会把这些字段一起装配进
+ *   [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
  *
  * 这个函数专门服务于运行时完整性测试：Liquibase 里只要启用了新的技能 policy，就必须落在上述两类之一，避免
  * 新资料因为拼写或 mapper 漏补而被装配流程悄悄忽略。

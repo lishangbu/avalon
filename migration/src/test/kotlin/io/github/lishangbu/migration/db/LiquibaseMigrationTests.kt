@@ -487,7 +487,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 100L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 13L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
@@ -497,6 +497,24 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
+
+		val enabledSkillsWithoutRules = queryMaps(
+			"""
+			select s.id, s.code
+			from game_skill s
+			where s.enabled = true
+				and not exists (
+					select 1
+					from battle_skill_rule r
+					where r.skill_id = s.id
+						and r.enabled = true
+				)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(enabledSkillsWithoutRules)
+			.describedAs("所有启用技能都必须有启用中的基础战斗规则，运行时不再保留无规则 fallback")
+			.isEmpty()
 
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",

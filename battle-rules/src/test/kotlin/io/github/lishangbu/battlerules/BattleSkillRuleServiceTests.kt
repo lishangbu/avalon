@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.jdbc.core.JdbcTemplate
 
 @BattleRulesIntegrationTest
 /**
@@ -16,84 +17,88 @@ import org.springframework.http.HttpStatus
  */
 class BattleSkillRuleServiceTests(
 	@Autowired private val service: BattleSkillRuleService,
+	@Autowired private val jdbcTemplate: JdbcTemplate,
 ) {
 	@Test
 	fun `create update read list and delete skill rule`() {
-		val created = service.create(
-			BattleSkillRuleRequest(
-				skillId = 10,
-				effectPolicy = "test-standard-damage",
-				targetPolicy = "selected-target",
-				hitPolicy = "standard-hit",
-				damagePolicy = "standard-damage",
-				minHits = 2,
-				maxHits = 5,
-				criticalHitStage = 1,
-				makesContact = true,
-				affectedByProtect = true,
-				weakenedByGrassyTerrain = true,
-				rechargesAfterUse = true,
-				lockMoveTurnsMin = 2,
-				lockMoveTurnsMax = 3,
-				confusesUserAfterLock = true,
-				description = "测试技能规则。",
-				enabled = true,
-				sortOrder = 901,
-			),
-		)
+		withTemporarySkill { skillId ->
+			val created = service.create(
+				BattleSkillRuleRequest(
+					skillId = skillId,
+					effectPolicy = "test-standard-damage",
+					targetPolicy = "selected-target",
+					hitPolicy = "standard-hit",
+					damagePolicy = "standard-damage",
+					minHits = 2,
+					maxHits = 5,
+					criticalHitStage = 1,
+					makesContact = true,
+					affectedByProtect = true,
+					weakenedByGrassyTerrain = true,
+					rechargesAfterUse = true,
+					lockMoveTurnsMin = 2,
+					lockMoveTurnsMax = 3,
+					confusesUserAfterLock = true,
+					description = "测试技能规则。",
+					enabled = true,
+					sortOrder = 901,
+				),
+			)
 
-		assertThat(created.skillId).isEqualTo(10)
-		assertThat(created.minHits).isEqualTo(2)
-		assertThat(created.maxHits).isEqualTo(5)
-		assertThat(created.criticalHitStage).isEqualTo(1)
-		assertThat(created.weakenedByGrassyTerrain).isTrue()
-		assertThat(created.rechargesAfterUse).isTrue()
-		assertThat(created.lockMoveTurnsMin).isEqualTo(2)
-		assertThat(created.lockMoveTurnsMax).isEqualTo(3)
-		assertThat(created.confusesUserAfterLock).isTrue()
-		assertThat(service.get(created.id).effectPolicy).isEqualTo("test-standard-damage")
-		assertThat(service.list(0, 20, skillId = 10, query = "standard").rows.map { it.id }).contains(created.id)
+			assertThat(created.skillId).isEqualTo(skillId)
+			assertThat(created.minHits).isEqualTo(2)
+			assertThat(created.maxHits).isEqualTo(5)
+			assertThat(created.criticalHitStage).isEqualTo(1)
+			assertThat(created.weakenedByGrassyTerrain).isTrue()
+			assertThat(created.rechargesAfterUse).isTrue()
+			assertThat(created.lockMoveTurnsMin).isEqualTo(2)
+			assertThat(created.lockMoveTurnsMax).isEqualTo(3)
+			assertThat(created.confusesUserAfterLock).isTrue()
+			assertThat(service.get(created.id).effectPolicy).isEqualTo("test-standard-damage")
+			assertThat(service.list(0, 20, skillId = skillId, query = "standard").rows.map { it.id })
+				.contains(created.id)
 
-		val updated = service.update(
-			created.id,
-			BattleSkillRuleRequest(
-				skillId = 10,
-				effectPolicy = "test-standard-damage",
-				targetPolicy = "selected-target",
-				hitPolicy = "standard-hit",
-				damagePolicy = "standard-damage",
-				minHits = 1,
-				maxHits = 1,
-				criticalHitStage = 2,
-				makesContact = false,
-				affectedByProtect = false,
-				thawsUserBeforeMove = true,
-				chargesBeforeUse = true,
-				rechargesAfterUse = false,
-				soundBased = true,
-				lockMoveTurnsMin = 1,
-				lockMoveTurnsMax = 1,
-				confusesUserAfterLock = false,
-				description = null,
-				enabled = false,
-				sortOrder = 902,
-			),
-		)
-		assertThat(updated.makesContact).isFalse()
-		assertThat(updated.affectedByProtect).isFalse()
-		assertThat(updated.soundBased).isTrue()
-		assertThat(updated.criticalHitStage).isEqualTo(2)
-		assertThat(updated.thawsUserBeforeMove).isTrue()
-		assertThat(updated.chargesBeforeUse).isTrue()
-		assertThat(updated.rechargesAfterUse).isFalse()
-		assertThat(updated.confusesUserAfterLock).isFalse()
-		assertThat(updated.description).isNull()
+			val updated = service.update(
+				created.id,
+				BattleSkillRuleRequest(
+					skillId = skillId,
+					effectPolicy = "test-standard-damage",
+					targetPolicy = "selected-target",
+					hitPolicy = "standard-hit",
+					damagePolicy = "standard-damage",
+					minHits = 1,
+					maxHits = 1,
+					criticalHitStage = 2,
+					makesContact = false,
+					affectedByProtect = false,
+					thawsUserBeforeMove = true,
+					chargesBeforeUse = true,
+					rechargesAfterUse = false,
+					soundBased = true,
+					lockMoveTurnsMin = 1,
+					lockMoveTurnsMax = 1,
+					confusesUserAfterLock = false,
+					description = null,
+					enabled = false,
+					sortOrder = 902,
+				),
+			)
+			assertThat(updated.makesContact).isFalse()
+			assertThat(updated.affectedByProtect).isFalse()
+			assertThat(updated.soundBased).isTrue()
+			assertThat(updated.criticalHitStage).isEqualTo(2)
+			assertThat(updated.thawsUserBeforeMove).isTrue()
+			assertThat(updated.chargesBeforeUse).isTrue()
+			assertThat(updated.rechargesAfterUse).isFalse()
+			assertThat(updated.confusesUserAfterLock).isFalse()
+			assertThat(updated.description).isNull()
 
-		service.delete(created.id)
-		val missing = assertThrows<ApiException> {
-			service.get(created.id)
+			service.delete(created.id)
+			val missing = assertThrows<ApiException> {
+				service.get(created.id)
+			}
+			assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
 		}
-		assertThat(missing.status).isEqualTo(HttpStatus.NOT_FOUND)
 	}
 
 	@Test
@@ -235,5 +240,54 @@ class BattleSkillRuleServiceTests(
 		}
 		assertThat(statusCharge.status).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(statusCharge.field).isEqualTo("chargesBeforeUse")
+	}
+
+	private fun withTemporarySkill(block: (Long) -> Unit) {
+		deleteTemporarySkill()
+		jdbcTemplate.update(
+			"""
+			insert into game_skill (
+				id,
+				code,
+				name,
+				element_id,
+				damage_class_id,
+				accuracy,
+				power,
+				pp,
+				priority,
+				effect_chance,
+				enabled
+			) values (
+				?,
+				'skill-rule-service-test',
+				'技能规则服务测试',
+				1,
+				2,
+				100,
+				40,
+				5,
+				0,
+				null,
+				true
+			)
+			""".trimIndent(),
+			TEMP_SKILL_ID,
+		)
+		try {
+			block(TEMP_SKILL_ID)
+		} finally {
+			jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+			deleteTemporarySkill()
+		}
+	}
+
+	private fun deleteTemporarySkill() {
+		jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+		jdbcTemplate.update("delete from game_skill where id = ?", TEMP_SKILL_ID)
+	}
+
+	private companion object {
+		private const val TEMP_SKILL_ID = 9_910_001L
 	}
 }
