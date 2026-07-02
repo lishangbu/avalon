@@ -34,7 +34,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `unprotected damaging skill bypasses protection and still deals damage`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "unprotected-damaging-skill-bypasses-protection-and-still-deals-damage",
 			inputSummary = "目标本回合先成功建立保护屏障，较慢对手随后使用声明不受保护影响的伤害技能。",
 			expectedSummary = "保护屏障不会阻挡该技能；技能继续消费要害和伤害随机，并对目标本体造成伤害。",
@@ -63,7 +63,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `selected target fainted before later action cancels skill use`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "selected-target-fainted-before-later-action-cancels-skill-use",
 			inputSummary = "双打中较快伙伴先击倒一名对手，较慢伙伴原本也把单体技能指向同一上场目标。",
 			expectedSummary = "较慢伙伴行动时目标已经无法战斗，技能不宣告、不消耗 PP，也不产生命中或伤害事件。",
@@ -99,7 +99,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `all active stat clear skips bench participants`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "all-active-stat-clear-skips-bench-participants",
 			inputSummary = "全场清除能力阶级效果发动时，双方上场成员和一名后备成员都拥有攻击阶级变化。",
 			expectedSummary = "技能只清除当前上场且仍可战斗成员的攻击阶级，后备成员的阶级快照保持不变。",
@@ -135,7 +135,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `zero chance major status effect consumes no random and applies nothing`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "zero-chance-major-status-effect-consumes-no-random-and-applies-nothing",
 			inputSummary = "技能命中后声明 0% 附加灼伤。",
 			expectedSummary = "0% 效果稳定失败且不消费概率随机；目标不会获得主要异常状态。",
@@ -173,7 +173,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `zero chance volatile effect skips duration random`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "zero-chance-volatile-effect-skips-duration-random",
 			inputSummary = "技能命中后声明 0% 附加混乱，混乱成功时本应消费持续时间随机。",
 			expectedSummary = "0% 临时状态效果不消费概率随机，也不会继续消费混乱持续时间随机。",
@@ -211,7 +211,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `copy operation changes only declared stat`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "copy-operation-changes-only-declared-stat",
 			inputSummary = "使用者复制目标速度阶级；双方其它能力阶级也已有变化。",
 			expectedSummary = "复制操作只写入声明的速度阶级，不读取或覆盖攻击等其它能力阶级。",
@@ -246,7 +246,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `swap operation writes both participants in one effect`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "swap-operation-writes-both-participants-in-one-effect",
 			inputSummary = "使用者与目标交换攻击阶级，交换前使用者为 +2，目标为 -3。",
 			expectedSummary = "同一次交换效果同时写回双方阶级；使用者变为 -3，目标变为 +2。",
@@ -282,7 +282,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `invert operation turns negative stage positive`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "invert-operation-turns-negative-stage-positive",
 			inputSummary = "目标防御阶级为 -4，使用者命中后执行取反能力阶级操作。",
 			expectedSummary = "取反操作按当前阶级写回相反数，目标防御从 -4 变为 +4。",
@@ -314,7 +314,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `charge skip item is consumed before protection blocks released skill`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "charge-skip-item-is-consumed-before-protection-blocks-released-skill",
 			inputSummary = "携带一次性蓄力跳过道具的成员使用蓄力技能，同回合目标先成功保护。",
 			expectedSummary = "道具在技能宣告后立即消费并让技能同回合释放；随后释放出的技能仍会被保护阻挡。",
@@ -349,7 +349,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `fatal survival item consumption prevents low hp heal on same hit`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "fatal-survival-item-consumption-prevents-low-hp-heal-on-same-hit",
 			inputSummary = "目标满 HP 携带同一道具上的免死效果和低体力回复效果，受到足以击倒的直接伤害。",
 			expectedSummary = "免死效果先触发并消费携带道具，目标保留 1 HP；同一道具的低体力回复不会在同一击继续触发。",
@@ -388,7 +388,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `non consumable major status cure keeps held item`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "non-consumable-major-status-cure-keeps-held-item",
 			inputSummary = "目标获得灼伤后触发配置为不消费的主要异常状态治愈道具效果。",
 			expectedSummary = "灼伤先成为事实再被清除；由于效果声明不消费，目标仍保留携带道具。",
@@ -436,7 +436,7 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `non consumable volatile status cure keeps held item`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "non-consumable-volatile-status-cure-keeps-held-item",
 			inputSummary = "目标获得混乱后触发配置为不消费的临时状态治愈道具效果。",
 			expectedSummary = "混乱先消费持续时间随机并写入运行态，再被治愈效果清除；目标仍保留携带道具。",
@@ -483,17 +483,6 @@ class BattleFinalRuleBoundaryPublicReferenceTests {
 		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.VolatileStatusApplied>().size)
 		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().size)
 	}
-
-	private fun scenario(
-		name: String,
-		inputSummary: String,
-		expectedSummary: String,
-	): PublicBattleRuleScenario =
-		publicBattleRuleScenario(
-			name = name,
-			inputSummary = inputSummary,
-			expectedSummary = expectedSummary,
-		)
 
 	private fun statOperationSkill(
 		skillId: Long,

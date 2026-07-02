@@ -30,7 +30,9 @@ internal data class PublicBattleRuleScenario(
 /**
  * 创建公开规则对照场景。
  *
- * 这个函数保留为普通构造入口，而不是做成通用测试执行器，避免把每条规则独有的断言流程藏进抽象里。
+ * 这个函数保留为普通构造入口，而不是做成通用测试执行器，避免把每条规则独有的断言流程藏进抽象里。测试类应当
+ * 直接调用本函数，而不是再包一层局部 `scenario(...)`：局部包装不会增加领域语义，只会让账本源码扫描和后续
+ * 规则场景迁移多出一个没有价值的跳转点。
  */
 internal fun publicBattleRuleScenario(
 	name: String,

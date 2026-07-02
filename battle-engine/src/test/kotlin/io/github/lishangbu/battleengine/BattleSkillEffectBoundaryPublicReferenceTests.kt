@@ -36,7 +36,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `drain healing clamps to missing hp`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "drain-healing-clamps-to-missing-hp",
 			inputSummary = "使用者只缺失 5 HP，吸取类伤害技能造成 28 点实际伤害。",
 			expectedSummary = "理论吸取回复为 14，但实际技能回复事件夹取为缺失的 5 HP。",
@@ -62,7 +62,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `drain healing minimum one after one damage`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "drain-healing-minimum-one-after-one-damage",
 			inputSummary = "吸取类伤害技能只让目标实际损失 1 HP。",
 			expectedSummary = "1/2 吸取比例向下取整会低于 1，但正伤害吸取回复仍至少产生 1 点回复。",
@@ -88,7 +88,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `drain healing skips full hp user`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "drain-healing-skips-full-hp-user",
 			inputSummary = "满 HP 使用者用吸取类伤害技能命中目标。",
 			expectedSummary = "技能仍造成伤害，但使用者没有缺失 HP，因此不产生技能回复事件。",
@@ -114,7 +114,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `recoil damage clamps to user current hp`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "recoil-damage-clamps-to-user-current-hp",
 			inputSummary = "使用者只剩 5 HP，带 1/3 反作用伤害的技能造成 28 点实际伤害。",
 			expectedSummary = "理论反作用伤害四舍五入为 9，但实际扣减被夹取到使用者剩余 5 HP。",
@@ -142,7 +142,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `recoil damage immunity skips skill recoil`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "recoil-damage-immunity-skips-skill-recoil",
 			inputSummary = "使用者拥有技能反作用伤害免疫效果，并用带 1/3 反作用伤害的技能命中目标。",
 			expectedSummary = "目标正常受到伤害，使用者不会承受技能反作用伤害，也不产生反作用事件。",
@@ -175,7 +175,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `self healing clamps to missing hp`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "self-healing-clamps-to-missing-hp",
 			inputSummary = "使用者只缺失 20 HP，使用回复最大 HP 1/2 的变化技能。",
 			expectedSummary = "理论回复为 50，但实际技能回复事件夹取为缺失的 20 HP。",
@@ -201,7 +201,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `self healing skips full hp user`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "self-healing-skips-full-hp-user",
 			inputSummary = "满 HP 使用者使用回复最大 HP 1/2 的变化技能。",
 			expectedSummary = "技能成功使用但 HP 没有变化，因此不产生技能回复事件。",
@@ -227,7 +227,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `weather sensitive self healing uses default fraction without weather`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "weather-sensitive-self-healing-uses-default-fraction-without-weather",
 			inputSummary = "无天气下使用天气变量回复技能，默认比例为最大 HP 的 1/2。",
 			expectedSummary = "当前天气没有命中任何特殊比例，因此使用默认 1/2 回复。",
@@ -254,7 +254,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `forced switch single bench consumes no random`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "forced-switch-single-bench-consumes-no-random",
 			inputSummary = "强制替换变化技能命中目标，目标侧只有一个可战斗后备成员。",
 			expectedSummary = "唯一后备成员直接换入，不消费强制替换随机数。",
@@ -282,7 +282,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `forced switch skips when target side has no bench`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "forced-switch-skips-when-target-side-has-no-bench",
 			inputSummary = "强制替换变化技能命中目标，但目标侧没有任何可战斗后备成员。",
 			expectedSummary = "强制替换效果保持状态不变，不消费随机数，也不产生强制替换选择事件。",
@@ -310,7 +310,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `forced switch skips target fainted by damage`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "forced-switch-skips-target-fainted-by-damage",
 			inputSummary = "伤害类强制替换技能命中只剩 1 HP 的目标，目标侧仍有可战斗后备成员。",
 			expectedSummary = "目标已经因伤害倒下，强制替换效果短路，不再选择后备成员。",
@@ -337,7 +337,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `substitute blocks forced switch effect`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "substitute-blocks-forced-switch-effect",
 			inputSummary = "目标拥有替身，强制替换变化技能成功使用并指向该目标。",
 			expectedSummary = "对手技能效果被替身阻挡，目标侧上场席位保持不变，不消费强制替换随机数。",
@@ -366,7 +366,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `forced switch triggers entry hazard on replacement`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "forced-switch-triggers-entry-hazard-on-replacement",
 			inputSummary = "目标侧已有一层入场伤害陷阱，强制替换变化技能让唯一后备成员换入。",
 			expectedSummary = "强制替换事件后继续复用普通换入流程，新上场成员立刻承受入场陷阱伤害。",
@@ -399,7 +399,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `stat stage effect chance failure consumes random without change`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "stat-stage-effect-chance-failure-consumes-random-without-change",
 			inputSummary = "技能声明 50% 概率降低目标攻击阶级，但概率随机掷出失败值。",
 			expectedSummary = "概率随机被消费，目标能力阶级保持不变，不产生能力阶级变化事件。",
@@ -427,7 +427,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `stat stage effect at upper bound produces no event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "stat-stage-effect-at-upper-bound-produces-no-event",
 			inputSummary = "使用者攻击阶级已经为 +6，又使用提升自身攻击 1 级的变化技能。",
 			expectedSummary = "能力阶级被边界夹取后没有实际变化，因此不产生能力阶级变化事件。",
@@ -455,7 +455,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `stat stage operation chance failure consumes random without change`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "stat-stage-operation-chance-failure-consumes-random-without-change",
 			inputSummary = "技能声明 50% 概率清除目标攻击阶级，但概率随机掷出失败值。",
 			expectedSummary = "概率随机被消费，目标能力阶级保持原值，不产生清除事件。",
@@ -486,7 +486,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `clear operation at zero produces no event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "clear-operation-at-zero-produces-no-event",
 			inputSummary = "目标攻击阶级已经为 0，技能成功执行清除目标攻击阶级的特殊操作。",
 			expectedSummary = "清除操作没有改变状态，因此不产生能力阶级清除事件。",
@@ -512,7 +512,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `copy operation with same stage produces no event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "copy-operation-with-same-stage-produces-no-event",
 			inputSummary = "使用者和目标攻击阶级都为 +2，使用者成功执行复制目标攻击阶级的特殊操作。",
 			expectedSummary = "复制结果与使用者当前阶级一致，状态不变，也不产生复制事件。",
@@ -542,7 +542,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `swap operation with same stage produces no event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "swap-operation-with-same-stage-produces-no-event",
 			inputSummary = "使用者和目标攻击阶级都为 +2，使用者成功执行交换双方攻击阶级的特殊操作。",
 			expectedSummary = "交换前后双方阶级一致，状态不变，也不产生交换事件。",
@@ -573,7 +573,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 
 	@Test
 	fun `invert operation at zero produces no event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "invert-operation-at-zero-produces-no-event",
 			inputSummary = "目标攻击阶级为 0，使用者成功执行取反目标攻击阶级的特殊操作。",
 			expectedSummary = "0 阶级取反后仍为 0，状态不变，也不产生取反事件。",
@@ -596,17 +596,6 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.ATTACK))
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageInverted>())
 	}
-
-	private fun scenario(
-		name: String,
-		inputSummary: String,
-		expectedSummary: String,
-	): PublicBattleRuleScenario =
-		publicBattleRuleScenario(
-			name = name,
-			inputSummary = inputSummary,
-			expectedSummary = expectedSummary,
-		)
 
 	private fun drainingSkill(): BattleSkillSlot =
 		damagingSkill(

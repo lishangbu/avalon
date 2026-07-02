@@ -34,7 +34,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `format rejects blank code`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "format-rejects-blank-code",
 			inputSummary = "格式快照使用空白 code 创建单打格式。",
 			expectedSummary = "格式入口立即拒绝空白 code，避免后续 scenario 和 replay 失去稳定格式标识。",
@@ -50,7 +50,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `format rejects default level below one`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "format-rejects-default-level-below-one",
 			inputSummary = "格式声明默认等级为 0。",
 			expectedSummary = "格式入口拒绝不在 1..100 范围内的默认等级。",
@@ -71,7 +71,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `format rejects zero max turns`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "format-rejects-zero-max-turns",
 			inputSummary = "格式声明最大回合数为 0。",
 			expectedSummary = "格式入口拒绝非正数最大回合，回合上限必须至少允许完整结算一回合。",
@@ -92,7 +92,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `initial state rejects duplicate side ids`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "initial-state-rejects-duplicate-side-ids",
 			inputSummary = "初始战斗快照包含两个 sideId 相同的阵营。",
 			expectedSummary = "启动入口拒绝重复 sideId，保证事件流和胜负判定可以稳定定位阵营。",
@@ -115,7 +115,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `initial state rejects active count mismatch`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "initial-state-rejects-active-count-mismatch",
 			inputSummary = "单打格式中一方却声明两名当前上场成员。",
 			expectedSummary = "初始快照拒绝与格式站位数量不一致的上场席位。",
@@ -142,7 +142,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `preparation validator collects direct restrictions on one participant`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "preparation-validator-collects-direct-restrictions-on-one-participant",
 			inputSummary = "同一成员同时超过等级上限，且命中禁用成员、技能、特性和道具限制。",
 			expectedSummary = "准备校验一次性返回五条直接违规，不在第一条失败后短路。",
@@ -173,7 +173,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `preparation validator records duplicate item resource ids`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "preparation-validator-records-duplicate-item-resource-ids",
 			inputSummary = "同一方两名成员携带同一道具，格式启用同队携带道具唯一条款。",
 			expectedSummary = "准备校验给两名成员各返回 duplicate-item，并把 resourceId 稳定记录为重复道具 ID。",
@@ -194,7 +194,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `preparation validator ignores duplicate clauses when disabled`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "preparation-validator-ignores-duplicate-clauses-when-disabled",
 			inputSummary = "同一方两名成员种类和携带道具都重复，但格式没有启用唯一种类或唯一道具条款。",
 			expectedSummary = "准备校验不返回 duplicate-creature 或 duplicate-item，重复条款必须由格式显式启用。",
@@ -214,7 +214,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports missing actor`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-missing-actor",
 			inputSummary = "提交行动的 actorId 不存在于当前战斗快照。",
 			expectedSummary = "行动提交校验返回 actor-not-found，并停止继续检查该行动的技能和目标。",
@@ -233,7 +233,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports bench actor is not active`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-bench-actor-is-not-active",
 			inputSummary = "后备成员在未替换上场前直接提交技能行动。",
 			expectedSummary = "行动提交校验返回 actor-not-active，后备成员不能直接进入技能结算。",
@@ -254,7 +254,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports fainted active skill user`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-fainted-active-skill-user",
 			inputSummary = "当前上场成员已经倒下，却提交普通技能行动。",
 			expectedSummary = "行动提交校验返回 actor-fainted；倒下成员只能走强制补位替换流程。",
@@ -274,7 +274,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports target is not active`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-target-is-not-active",
 			inputSummary = "当前上场成员把单体技能指向对手后备成员。",
 			expectedSummary = "行动提交校验返回 target-not-active，选择阶段目标必须是当前可选的上场成员。",
@@ -295,7 +295,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports fainted active target`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-fainted-active-target",
 			inputSummary = "当前上场成员把单体技能指向已经倒下但仍占据上场席位的目标。",
 			expectedSummary = "行动提交校验返回 target-fainted，避免把已经倒下的目标送入技能命中流程。",
@@ -316,7 +316,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `action validator reports switch target already active`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "action-validator-reports-switch-target-already-active",
 			inputSummary = "双打中仍可战斗的一号位提交替换，但替换目标是同侧已经在场的二号位。",
 			expectedSummary = "行动提交校验返回 switch-target-active，主动替换必须选择同侧未上场且可战斗成员。",
@@ -334,7 +334,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `battle ended validation keeps specific action violations`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "battle-ended-validation-keeps-specific-action-violations",
 			inputSummary = "战斗已经因最后一名对手倒下而结束，之后又提交指向该倒下目标的技能行动。",
 			expectedSummary = "行动提交校验先返回 battle-ended，同时保留 target-fainted 这类可定位的具体问题。",
@@ -362,7 +362,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `participant faint event precedes battle ended event`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "participant-faint-event-precedes-battle-ended-event",
 			inputSummary = "最后一名对手被普通伤害技能击倒。",
 			expectedSummary = "事件流必须先记录目标濒死，再记录战斗结束，便于 replay 解释胜负来源。",
@@ -389,7 +389,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `battle ending turn does not append normal turn ended`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "battle-ending-turn-does-not-append-normal-turn-ended",
 			inputSummary = "技能伤害在本回合中直接击倒对手最后一名成员。",
 			expectedSummary = "战斗结束后不再追加普通 TurnEnded 事件，避免终局回合被误当成可继续回合。",
@@ -414,7 +414,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `simultaneous last participants faint produces draw result`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "simultaneous-last-participants-faint-produces-draw-result",
 			inputSummary = "使用者以自身当前 HP 等量伤害击倒目标，同时自身也因技能效果倒下。",
 			expectedSummary = "双方最后成员同时倒下时，战斗结果没有胜方并记录 all-sides-fainted。",
@@ -448,7 +448,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `switch out clears disable taunt torment and heal block`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "switch-out-clears-disable-taunt-torment-and-heal-block",
 			inputSummary = "成员带着回复封锁、挑衅、定身法和无理取闹状态主动离场。",
 			expectedSummary = "离场后这些临时状态全部清除，后续再次上场不会继续继承行动选择限制。",
@@ -485,7 +485,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 
 	@Test
 	fun `forced switch clears binding locked choice and substitute state`() {
-		val scenario = scenario(
+		val scenario = publicBattleRuleScenario(
 			name = "forced-switch-clears-binding-locked-choice-and-substitute-state",
 			inputSummary = "已经倒下的当前上场成员仍带着束缚、锁招、讲究锁定、最近成功技能和替身运行态。",
 			expectedSummary = "强制补位离场会统一清除这些只应保留在上场期间的运行态。",
@@ -525,15 +525,4 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 		assertNull(switchedOut?.choiceLockedSkillId)
 		assertEquals(0, switchedOut?.substituteHp)
 	}
-
-	private fun scenario(
-		name: String,
-		inputSummary: String,
-		expectedSummary: String,
-	): PublicBattleRuleScenario =
-		publicBattleRuleScenario(
-			name = name,
-			inputSummary = inputSummary,
-			expectedSummary = expectedSummary,
-		)
 }
