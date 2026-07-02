@@ -2239,12 +2239,6 @@ databaseChangeLog:
         columns:
         - column:
             name: ability_id
-    - update:
-        tableName: oauth2_client
-        columns:
-        - column:
-            name: scopes
-            value: game-data:admin security:admin
     - loadData:
         tableName: game_element
         file: db/changelog/data/game-data/game_element.csv
