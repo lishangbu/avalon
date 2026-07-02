@@ -22,6 +22,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
+import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
@@ -208,6 +209,7 @@ internal fun damagingSkill(
 	sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	hpEffects: List<BattleSkillHpEffect> = emptyList(),
+	postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
 	environmentEffects: List<BattleSkillEnvironmentEffect> = emptyList(),
 ): BattleSkillSlot =
 	BattleSkillSlot(
@@ -258,6 +260,7 @@ internal fun damagingSkill(
 		sideEntryHazardApplications = sideEntryHazardApplications,
 		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
 		hpEffects = hpEffects,
+		postDamageStatusCures = postDamageStatusCures,
 		environmentEffects = environmentEffects,
 	)
 

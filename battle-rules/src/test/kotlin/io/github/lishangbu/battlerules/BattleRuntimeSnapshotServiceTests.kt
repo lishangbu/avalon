@@ -104,9 +104,9 @@ class BattleRuntimeSnapshotServiceTests(
 			listOf(
 				2, 3, 5, 7, 12, 14, 15, 20, 23, 28, 32, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
 				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 263, 269,
-				283, 305, 311, 319, 329, 344, 347, 349, 362, 366, 390, 400, 427, 433, 435, 446, 456, 457,
-				464, 474, 504, 505, 506, 512, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 666, 668, 685, 694, 717, 733, 819, 877,
+				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 263, 265, 269,
+				283, 305, 311, 319, 329, 344, 347, 349, 358, 362, 366, 390, 400, 427, 433, 435, 446, 456, 457,
+				464, 474, 504, 505, 506, 512, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 685, 694, 717, 733, 819, 877,
 				883, 895,
 			),
 		)
@@ -297,6 +297,29 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleSkillPowerMultiplier.UserHasNoHeldItem>()
 			.single()
 		assertThat(acrobaticsPower.multiplier).isEqualTo(2.0)
+
+		val smellingSalts = slots.getValue(265)
+		val smellingSaltsPower = smellingSalts.conditionalPowerMultipliers
+			.filterIsInstance<BattleSkillPowerMultiplier.TargetMajorStatus>()
+			.single()
+		assertThat(smellingSaltsPower.statuses).containsExactlyInAnyOrder(BattleMajorStatus.PARALYSIS)
+		assertThat(smellingSaltsPower.multiplier).isEqualTo(2.0)
+		assertThat(smellingSalts.postDamageStatusCures.single().statuses)
+			.containsExactlyInAnyOrder(BattleMajorStatus.PARALYSIS)
+
+		val wakeUpSlap = slots.getValue(358)
+		val wakeUpSlapPower = wakeUpSlap.conditionalPowerMultipliers
+			.filterIsInstance<BattleSkillPowerMultiplier.TargetMajorStatus>()
+			.single()
+		assertThat(wakeUpSlapPower.statuses).containsExactlyInAnyOrder(BattleMajorStatus.SLEEP)
+		assertThat(wakeUpSlapPower.multiplier).isEqualTo(2.0)
+		assertThat(wakeUpSlap.postDamageStatusCures.single().statuses)
+			.containsExactlyInAnyOrder(BattleMajorStatus.SLEEP)
+
+		val sparklingAria = slots.getValue(664)
+		assertThat(sparklingAria.conditionalPowerMultipliers).isEmpty()
+		assertThat(sparklingAria.postDamageStatusCures.single().statuses)
+			.containsExactlyInAnyOrder(BattleMajorStatus.BURN)
 
 		assertThat(slots.getValue(49).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(20))
 		assertThat(slots.getValue(82).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(40))

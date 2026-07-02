@@ -103,8 +103,14 @@ internal class BattleDamageHitResolution(
 			ignoreTargetAbilityEffects = ignoresTargetAbilityEffects,
 		)
 		val afterFireThaw = skillHpEffects.clearFreezeAfterFireDamage(targetDamage.state, targetDamage.damagedTarget, skill)
-		return damageApplicationEffects.finishPostDamageEffects(
+		val afterStatusCure = skillHpEffects.clearTargetMajorStatusesAfterDamage(
 			state = afterFireThaw,
+			damagedTarget = targetDamage.damagedTarget,
+			skill = skill,
+			actualDamageAmount = targetDamage.actualDamageAmount,
+		)
+		return damageApplicationEffects.finishPostDamageEffects(
+			state = afterStatusCure,
 			actorId = actor.actorId,
 			targetActorId = targetDamage.damagedTarget.actorId,
 			skill = skill,

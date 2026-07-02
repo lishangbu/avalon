@@ -1157,6 +1157,32 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val postDamageStatusCureSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (265, 358, 664)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(postDamageStatusCureSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 265L,
+				"effect_policy" to "power-double-if-target-paralysis-cure-target-paralysis-after-damage",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 358L,
+				"effect_policy" to "power-double-if-target-sleep-cure-target-sleep-after-damage",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 664L,
+				"effect_policy" to "cure-target-burn-after-damage",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -198,6 +199,18 @@ internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultip
 				multiplier = 2.0,
 			),
 		)
+		"power-double-if-target-paralysis-cure-target-paralysis-after-damage" -> listOf(
+			BattleSkillPowerMultiplier.TargetMajorStatus(
+				statuses = setOf(BattleMajorStatus.PARALYSIS),
+				multiplier = 2.0,
+			),
+		)
+		"power-double-if-target-sleep-cure-target-sleep-after-damage" -> listOf(
+			BattleSkillPowerMultiplier.TargetMajorStatus(
+				statuses = setOf(BattleMajorStatus.SLEEP),
+				multiplier = 2.0,
+			),
+		)
 		"power-double-if-target-major-status" -> listOf(
 			BattleSkillPowerMultiplier.TargetMajorStatus(
 				statuses = BattleMajorStatus.entries.toSet(),
@@ -206,6 +219,20 @@ internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultip
 		)
 		"power-double-if-user-has-no-held-item" -> listOf(
 			BattleSkillPowerMultiplier.UserHasNoHeldItem(multiplier = 2.0),
+		)
+		else -> emptyList()
+	}
+
+internal fun String.toBattleSkillPostDamageStatusCures(): List<BattleSkillPostDamageStatusCure> =
+	when (this) {
+		"power-double-if-target-paralysis-cure-target-paralysis-after-damage" -> listOf(
+			BattleSkillPostDamageStatusCure(statuses = setOf(BattleMajorStatus.PARALYSIS)),
+		)
+		"power-double-if-target-sleep-cure-target-sleep-after-damage" -> listOf(
+			BattleSkillPostDamageStatusCure(statuses = setOf(BattleMajorStatus.SLEEP)),
+		)
+		"cure-target-burn-after-damage" -> listOf(
+			BattleSkillPostDamageStatusCure(statuses = setOf(BattleMajorStatus.BURN)),
 		)
 		else -> emptyList()
 	}
@@ -285,7 +312,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleHpDerivedDamage() != null ||
 	toBattleOneHitKnockOut() != null ||
 	toBattleSkillEnvironmentEffects().isNotEmpty() ||
-	toBattleSkillPowerMultipliers().isNotEmpty()
+	toBattleSkillPowerMultipliers().isNotEmpty() ||
+	toBattleSkillPostDamageStatusCures().isNotEmpty()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

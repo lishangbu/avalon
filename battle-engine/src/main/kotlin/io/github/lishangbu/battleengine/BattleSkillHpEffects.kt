@@ -152,6 +152,41 @@ internal class BattleSkillHpEffects {
 	}
 
 	/**
+	 * 处理技能造成实际伤害后治愈目标主要异常。
+	 *
+	 * 该效果发生在伤害事件已经写入之后、低体力道具和接触反制之前。它要求本体实际损失 HP，避免替身吃下伤害、
+	 * 属性无效或 0 伤害时错误解除目标状态；目标倒下后也不追加状态解除事件。每个技能当前只会声明一组可清除状态，
+	 * 但实现按列表折叠，方便未来有组合规则时仍保持确定顺序。
+	 */
+	fun clearTargetMajorStatusesAfterDamage(
+		state: BattleState,
+		damagedTarget: BattleParticipant,
+		skill: BattleSkillSlot,
+		actualDamageAmount: Int,
+	): BattleState {
+		if (actualDamageAmount <= 0 || !damagedTarget.canBattle()) {
+			return state
+		}
+		return skill.postDamageStatusCures.fold(state) { current, cure ->
+			val latestTarget = current.participant(damagedTarget.actorId) ?: return@fold current
+			val status = latestTarget.majorStatus ?: return@fold current
+			if (status !in cure.statuses) {
+				current
+			} else {
+				current
+					.replaceParticipant(latestTarget.clearMajorStatus())
+					.appendEvent(
+						BattleEvent.StatusCleared(
+							turnNumber = current.turnNumber,
+							actorId = latestTarget.actorId,
+							status = status,
+						),
+					)
+			}
+		}
+	}
+
+	/**
 	 * 按本次实际伤害回复使用者。
 	 *
 	 * 吸取回复使用向下取整的比例口径，并在最后按当前缺失 HP 夹取；它不负责处理污泥浆、回复封锁、吸取强化等

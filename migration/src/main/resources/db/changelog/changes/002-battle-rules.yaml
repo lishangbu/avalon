@@ -8025,3 +8025,35 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('facade', 'brine', 'venoshock', 'hex', 'acrobatics')
+- changeSet:
+    id: 113-battle-derived-basic-skill-post-damage-status-cure
+    author: backend
+    comment: 为伤害后治愈目标主要异常的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 清醒和唤醒巴掌在目标处于对应异常时先以双倍威力计算伤害，随后治愈目标异常；
+          -- 泡影的咏叹调只在目标因该技能实际受伤后治愈灼伤，不改变威力。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'smelling-salts' then 'power-double-if-target-paralysis-cure-target-paralysis-after-damage'
+              when 'wake-up-slap' then 'power-double-if-target-sleep-cure-target-sleep-after-damage'
+              when 'sparkling-aria' then 'cure-target-burn-after-damage'
+              else r.effect_policy
+            end,
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'smelling-salts' then '目标处于麻痹时技能威力翻倍；若造成实际伤害，随后治愈目标麻痹。'
+              when 'wake-up-slap' then '目标处于睡眠时技能威力翻倍；若造成实际伤害，随后唤醒目标。'
+              when 'sparkling-aria' then '若目标因该技能受到实际伤害且处于灼伤，随后治愈目标灼伤。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('smelling-salts', 'wake-up-slap', 'sparkling-aria')
