@@ -7,10 +7,8 @@ import io.github.lishangbu.battleengine.BattlePreparationValidator
 import io.github.lishangbu.battleengine.BattlePreparationViolation
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
-import io.github.lishangbu.battleengine.model.BattleFormatSnapshot
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
-import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
@@ -256,23 +254,3 @@ class BattleRuntimeSnapshotService(
 			message = message,
 		)
 }
-
-/**
- * battle-rules 装配出的引擎运行时快照。
- *
- * `format` 描述站位、队伍规模和等级拉平；`rules` 描述准备阶段限制和战斗内基础规则。
- */
-data class BattleRuntimeSnapshot(
-	val format: BattleFormatSnapshot,
-	val rules: BattleRuleSnapshot,
-)
-
-data class BattleCreatureRuntimeProfile(
-	val maxHp: Int,
-	val attack: Int,
-	val defense: Int,
-	val specialAttack: Int,
-	val specialDefense: Int,
-	val speed: Int,
-	val elementIds: Set<Long>,
-)
