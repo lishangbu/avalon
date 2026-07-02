@@ -7831,3 +7831,25 @@ databaseChangeLog:
                 and e.target_scope = 'TARGET'
                 and e.effect_timing = 'AFTER_HIT'
             )
+- changeSet:
+    id: 106-battle-derived-basic-skill-rampage-locks
+    author: backend
+    comment: 为暴走类自动生成技能规则补充锁招回合和结束混乱。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 大闹一番、花瓣舞、逆鳞共用现代主系列的暴走锁招规则：首次使用计入总回合，持续 2-3 回合，结束后混乱。
+          -- 滚动和冰球虽然也会锁招，但还需要威力递增模型；在该模型接入前不把它们混入这一批，避免产生半截规则。
+          update battle_skill_rule r
+          set
+            lock_move_turns_min = 2,
+            lock_move_turns_max = 3,
+            confuses_user_after_lock = true
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('thrash', 'petal-dance', 'outrage')

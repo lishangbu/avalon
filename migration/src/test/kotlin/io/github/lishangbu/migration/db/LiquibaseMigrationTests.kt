@@ -622,6 +622,38 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val derivedRampageSkillRules = queryMaps(
+			"""
+			select skill_id, target_policy, lock_move_turns_min, lock_move_turns_max, confuses_user_after_lock
+			from battle_skill_rule
+			where skill_id in (37, 80, 200)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedRampageSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 37L,
+				"target_policy" to "random-opponent",
+				"lock_move_turns_min" to 2,
+				"lock_move_turns_max" to 3,
+				"confuses_user_after_lock" to true,
+			),
+			mapOf(
+				"skill_id" to 80L,
+				"target_policy" to "random-opponent",
+				"lock_move_turns_min" to 2,
+				"lock_move_turns_max" to 3,
+				"confuses_user_after_lock" to true,
+			),
+			mapOf(
+				"skill_id" to 200L,
+				"target_policy" to "random-opponent",
+				"lock_move_turns_min" to 2,
+				"lock_move_turns_max" to 3,
+				"confuses_user_after_lock" to true,
+			),
+		)
+
 		val derivedStatusEffects = queryMaps(
 			"""
 			select sr.skill_id, br.code as status_code, se.chance_percent
