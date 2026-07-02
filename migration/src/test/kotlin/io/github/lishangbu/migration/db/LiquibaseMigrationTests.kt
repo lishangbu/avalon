@@ -488,7 +488,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 94L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 124L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 234L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -685,6 +685,34 @@ class LiquibaseMigrationTests(
 				"skill_id" to 305L,
 				"status_code" to "bad-poison",
 				"chance_percent" to 50,
+			),
+		)
+
+		val derivedFlinchEffects = queryMaps(
+			"""
+			select sr.skill_id, br.code as status_code, se.chance_percent
+			from battle_skill_status_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join battle_status_rule br on br.id = se.status_rule_id
+			where sr.skill_id in (23, 157, 252)
+			order by sr.skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedFlinchEffects).containsExactly(
+			mapOf(
+				"skill_id" to 23L,
+				"status_code" to "flinch",
+				"chance_percent" to 30,
+			),
+			mapOf(
+				"skill_id" to 157L,
+				"status_code" to "flinch",
+				"chance_percent" to 30,
+			),
+			mapOf(
+				"skill_id" to 252L,
+				"status_code" to "flinch",
+				"chance_percent" to 100,
 			),
 		)
 

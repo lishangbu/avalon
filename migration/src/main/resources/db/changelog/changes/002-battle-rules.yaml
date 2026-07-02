@@ -7642,6 +7642,50 @@ databaseChangeLog:
                 and e.effect_timing = 'AFTER_HIT'
             )
 - changeSet:
+    id: 104-battle-derived-basic-skill-flinch-effects
+    author: backend
+    comment: 使用结构化畏缩概率为自动生成规则补充畏缩临时状态。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- flinch_chance 是源资料中已经拆出的百分比字段，运行时将其作为命中后附加到当前目标的临时状态。
+          insert into battle_skill_status_effect (
+            id,
+            skill_rule_id,
+            status_rule_id,
+            target_scope,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            220000 + s.id,
+            r.id,
+            sr.id,
+            'TARGET',
+            'AFTER_HIT',
+            d.flinch_chance,
+            true,
+            7000 + row_number() over (order by s.id)
+          from game_skill s
+          join game_skill_detail d on d.skill_id = s.id
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
+          join battle_status_rule sr on sr.code = 'flinch' and sr.enabled = true
+          where s.enabled = true
+            and r.id >= 100000
+            and coalesce(d.flinch_chance, 0) > 0
+            and not exists (
+              select 1
+              from battle_skill_status_effect e
+              where e.skill_rule_id = r.id
+                and e.status_rule_id = sr.id
+                and e.target_scope = 'TARGET'
+                and e.effect_timing = 'AFTER_HIT'
+            )
+- changeSet:
     id: 102-battle-derived-basic-skill-stat-stage-effects
     author: backend
     comment: 使用技能结构化能力变化字段为自动生成规则补充能力阶级效果。
