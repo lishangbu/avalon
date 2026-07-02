@@ -175,6 +175,29 @@ class BattleDamageCalculator(
 				val rawPower = rule.basePower + rule.powerPerPositiveStage * positiveStageSum
 				rule.maxPower?.let { rawPower.coerceAtMost(it) } ?: rawPower
 			}
+			is BattleSkillDynamicPower.UserSpeedRatioThresholds -> {
+				val attackerSpeed = requireNotNull(request.attackerEffectiveSpeed) {
+					"attackerEffectiveSpeed is required for speed ratio power"
+				}
+				val defenderSpeed = requireNotNull(request.defenderEffectiveSpeed) {
+					"defenderEffectiveSpeed is required for speed ratio power"
+				}
+				rule.thresholds
+					.firstOrNull { threshold -> attackerSpeed.toLong() >= defenderSpeed.toLong() * threshold.minimumRatio }
+					?.power
+					?: rule.fallbackPower
+			}
+			is BattleSkillDynamicPower.TargetToUserSpeedRatio -> {
+				val attackerSpeed = requireNotNull(request.attackerEffectiveSpeed) {
+					"attackerEffectiveSpeed is required for target-to-user speed ratio power"
+				}
+				val defenderSpeed = requireNotNull(request.defenderEffectiveSpeed) {
+					"defenderEffectiveSpeed is required for target-to-user speed ratio power"
+				}
+				(((rule.multiplier.toLong() * defenderSpeed) / attackerSpeed) + rule.additivePower)
+					.coerceAtMost(rule.maxPower.toLong())
+					.toInt()
+			}
 		}
 
 	/**

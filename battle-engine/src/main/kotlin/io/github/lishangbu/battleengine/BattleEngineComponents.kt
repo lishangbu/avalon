@@ -170,6 +170,7 @@ internal class BattleEngineComponents(
 	)
 	private val damageHitResolution = BattleDamageHitResolution(
 		damageCalculator = damageCalculator,
+		actionOrdering = actionOrdering,
 		hitResolution = hitResolution,
 		targetDefenseEffects = targetDefenseEffects,
 		damageDefenseEffects = damageDefenseEffects,

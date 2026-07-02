@@ -8114,3 +8114,33 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('burn-up', 'double-shock')
+- changeSet:
+    id: 116-battle-derived-basic-skill-speed-ratio-power
+    author: backend
+    comment: 为按双方有效速度差动态计算威力的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 电球按使用者有效速度相对目标有效速度的比例选择威力；
+          -- 陀螺球按目标有效速度相对使用者有效速度计算威力，并保留 150 威力上限。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'electro-ball' then 'power-by-user-target-speed-ratio'
+              when 'gyro-ball' then 'power-by-target-user-speed-ratio-max-150'
+              else r.effect_policy
+            end,
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'electro-ball' then '按使用者有效速度与目标有效速度的比例决定威力：4 倍及以上为 150，3 倍及以上为 120，2 倍及以上为 80，1 倍及以上为 60，否则为 40。'
+              when 'gyro-ball' then '威力为 floor(25 * 目标有效速度 / 使用者有效速度) + 1，最高 150。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('electro-ball', 'gyro-ball')

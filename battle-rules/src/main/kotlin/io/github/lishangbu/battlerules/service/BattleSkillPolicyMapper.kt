@@ -252,6 +252,20 @@ internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
 			powerPerPositiveStage = 20,
 			maxPower = 200,
 		)
+		"power-by-user-target-speed-ratio" -> BattleSkillDynamicPower.UserSpeedRatioThresholds(
+			thresholds = listOf(
+				BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 4, power = 150),
+				BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 3, power = 120),
+				BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 2, power = 80),
+				BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 1, power = 60),
+			),
+			fallbackPower = 40,
+		)
+		"power-by-target-user-speed-ratio-max-150" -> BattleSkillDynamicPower.TargetToUserSpeedRatio(
+			multiplier = 25,
+			additivePower = 1,
+			maxPower = 150,
+		)
 		else -> null
 	}
 

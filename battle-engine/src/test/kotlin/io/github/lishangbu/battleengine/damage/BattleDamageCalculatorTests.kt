@@ -1558,4 +1558,76 @@ class BattleDamageCalculatorTests {
 		scenario.assertNamed("punishment-style-skill-derives-capped-power-from-target-positive-stat-stages")
 		assertEquals(90, result.baseDamage)
 	}
+
+	@Test
+	fun `electro ball style skill selects power from user target effective speed ratio`() {
+		val scenario = publicBattleRuleScenario(
+			name = "electro-ball-style-skill-selects-power-from-user-target-effective-speed-ratio",
+			inputSummary = "同一技能分别在使用者有效速度为目标 4 倍、2.5 倍和低于目标速度时计算伤害。",
+			expectedSummary = "速度比例按阈值选择 150、80 和 40 基础威力，恰好或超过阈值时命中对应档位。",
+		)
+		val skill = damagingSkill(
+			damageClass = BattleDamageClass.SPECIAL,
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.UserSpeedRatioThresholds(
+				thresholds = listOf(
+					BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 4, power = 150),
+					BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 3, power = 120),
+					BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 2, power = 80),
+					BattleSkillDynamicPower.SpeedPowerThreshold(minimumRatio = 1, power = 60),
+				),
+				fallbackPower = 40,
+			),
+		)
+
+		fun calculate(attackerSpeed: Int, defenderSpeed: Int) = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+				attackerEffectiveSpeed = attackerSpeed,
+				defenderEffectiveSpeed = defenderSpeed,
+			),
+		)
+
+		scenario.assertNamed("electro-ball-style-skill-selects-power-from-user-target-effective-speed-ratio")
+		assertEquals(68, calculate(attackerSpeed = 400, defenderSpeed = 100).baseDamage)
+		assertEquals(37, calculate(attackerSpeed = 250, defenderSpeed = 100).baseDamage)
+		assertEquals(19, calculate(attackerSpeed = 90, defenderSpeed = 100).baseDamage)
+	}
+
+	@Test
+	fun `gyro ball style skill derives capped power from target user effective speed ratio`() {
+		val scenario = publicBattleRuleScenario(
+			name = "gyro-ball-style-skill-derives-capped-power-from-target-user-effective-speed-ratio",
+			inputSummary = "同一技能分别在目标有效速度远高于使用者、以及双方有效速度相等时计算伤害。",
+			expectedSummary = "远高于使用者时公式结果被封顶为 150；速度相等时按 floor(25 * 1) + 1 得到 26 威力。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.TargetToUserSpeedRatio(
+				multiplier = 25,
+				additivePower = 1,
+				maxPower = 150,
+			),
+		)
+
+		fun calculate(attackerSpeed: Int, defenderSpeed: Int) = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+				attackerEffectiveSpeed = attackerSpeed,
+				defenderEffectiveSpeed = defenderSpeed,
+			),
+		)
+
+		scenario.assertNamed("gyro-ball-style-skill-derives-capped-power-from-target-user-effective-speed-ratio")
+		assertEquals(68, calculate(attackerSpeed = 50, defenderSpeed = 300).baseDamage)
+		assertEquals(13, calculate(attackerSpeed = 100, defenderSpeed = 100).baseDamage)
+	}
 }

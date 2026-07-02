@@ -1230,6 +1230,27 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val speedRatioPowerSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (360, 486)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(speedRatioPowerSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 360L,
+				"effect_policy" to "power-by-target-user-speed-ratio-max-150",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 486L,
+				"effect_policy" to "power-by-user-target-speed-ratio",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

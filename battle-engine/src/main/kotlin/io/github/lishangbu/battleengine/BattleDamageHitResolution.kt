@@ -22,6 +22,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattleDamageHitResolution(
 	private val damageCalculator: BattleDamageCalculator,
+	private val actionOrdering: BattleActionOrdering,
 	private val hitResolution: BattleHitResolution,
 	private val targetDefenseEffects: BattleTargetDefenseEffects,
 	private val damageDefenseEffects: BattleDamageDefenseEffects,
@@ -69,6 +70,8 @@ internal class BattleDamageHitResolution(
 				criticalHit = criticalHit,
 				ignoreDefenderAbilityEffects = ignoresTargetAbilityEffects,
 				allowDefenderItemDamageReduction = !substituteBlocksDamage,
+				attackerEffectiveSpeed = actionOrdering.effectiveSpeed(state, actor),
+				defenderEffectiveSpeed = actionOrdering.effectiveSpeed(state, target),
 			),
 		)
 		if (substituteBlocksDamage) {

@@ -15,6 +15,8 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * 目标作为防守方提供的公式特性，不参与判断具体特性名称或目标阵营。
  * `allowDefenderItemDamageReduction` 由状态机在替身等前置防护判定后传入；如果本体不会直接承受该次技能伤害，
  * 防守方一次性减伤道具不参与公式，也不会被消费。
+ * `attackerEffectiveSpeed` 和 `defenderEffectiveSpeed` 只服务于电球、陀螺球这类按有效速度差推导基础威力的技能；
+ * 由外层状态机使用行动排序同一套速度公式计算后传入，避免伤害计算器重新实现天气、场地、道具和顺风等速度规则。
  */
 data class BattleDamageRequest(
 	val attacker: BattleParticipant,
@@ -28,10 +30,18 @@ data class BattleDamageRequest(
 	val criticalHit: Boolean = false,
 	val ignoreDefenderAbilityEffects: Boolean = false,
 	val allowDefenderItemDamageReduction: Boolean = true,
+	val attackerEffectiveSpeed: Int? = null,
+	val defenderEffectiveSpeed: Int? = null,
 ) {
 	init {
 		require(randomPercent in 85..100) { "randomPercent must be between 85 and 100" }
 		require(targetMultiplier > 0.0) { "targetMultiplier must be positive" }
 		require(sideDamageReductionMultiplier > 0.0) { "sideDamageReductionMultiplier must be positive" }
+		require(attackerEffectiveSpeed == null || attackerEffectiveSpeed > 0) {
+			"attackerEffectiveSpeed must be positive when present"
+		}
+		require(defenderEffectiveSpeed == null || defenderEffectiveSpeed > 0) {
+			"defenderEffectiveSpeed must be positive when present"
+		}
 	}
 }
