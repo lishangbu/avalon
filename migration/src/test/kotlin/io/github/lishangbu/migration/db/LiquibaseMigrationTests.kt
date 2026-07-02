@@ -1183,6 +1183,32 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val dynamicPowerSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (386, 500, 681)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(dynamicPowerSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 386L,
+				"effect_policy" to "power-by-target-positive-stat-stage-sum-max-200",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 500L,
+				"effect_policy" to "power-by-user-positive-stat-stage-sum",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 681L,
+				"effect_policy" to "power-by-user-positive-stat-stage-sum",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

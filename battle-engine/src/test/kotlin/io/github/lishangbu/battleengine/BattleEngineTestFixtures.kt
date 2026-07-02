@@ -20,6 +20,7 @@ import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
+import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
@@ -193,6 +194,7 @@ internal fun damagingSkill(
 	accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
 	conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
+	dynamicPower: BattleSkillDynamicPower? = null,
 	elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	ignoresUserBurnAttackReduction: Boolean = false,
 	lockMoveTurnsMin: Int = 1,
@@ -242,6 +244,7 @@ internal fun damagingSkill(
 		accuracyOverridesByWeather = accuracyOverridesByWeather,
 		powerMultipliersByWeather = powerMultipliersByWeather,
 		conditionalPowerMultipliers = conditionalPowerMultipliers,
+		dynamicPower = dynamicPower,
 		elementOverridesByWeather = elementOverridesByWeather,
 		ignoresUserBurnAttackReduction = ignoresUserBurnAttackReduction,
 		lockMoveTurnsMin = lockMoveTurnsMin,

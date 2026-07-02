@@ -26,6 +26,7 @@ package io.github.lishangbu.battleengine.model
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
  * `conditionalPowerMultipliers` 表示按使用者状态、目标状态、目标 HP 或使用者道具状态触发的公式前威力倍率。
+ * `dynamicPower` 表示本次伤害公式使用的基础威力需要从战斗快照推导，例如读取能力阶级总和。
  * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
  * `ignoresUserBurnAttackReduction` 表示该物理技能在使用者灼伤时仍使用正常攻击值，例如硬撑。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
@@ -76,6 +77,7 @@ data class BattleSkillSlot(
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
 	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
+	val dynamicPower: BattleSkillDynamicPower? = null,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val ignoresUserBurnAttackReduction: Boolean = false,
 	val lockMoveTurnsMin: Int = 1,
@@ -136,6 +138,9 @@ data class BattleSkillSlot(
 		}
 		require(conditionalPowerMultipliers.isEmpty() || (damageClass != BattleDamageClass.STATUS && power != null)) {
 			"conditional power multipliers require a damaging skill with base power"
+		}
+		require(dynamicPower == null || damageClass != BattleDamageClass.STATUS) {
+			"dynamic power requires a damaging skill"
 		}
 		require(elementOverridesByWeather.keys.none { it == BattleWeather.NONE }) {
 			"elementOverridesByWeather cannot target NONE"

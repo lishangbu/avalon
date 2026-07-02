@@ -1,10 +1,12 @@
 package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
+import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillPostDamageStatusCure
@@ -237,6 +239,22 @@ internal fun String.toBattleSkillPostDamageStatusCures(): List<BattleSkillPostDa
 		else -> emptyList()
 	}
 
+internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
+	when (this) {
+		"power-by-user-positive-stat-stage-sum" -> BattleSkillDynamicPower.PositiveStatStageSum(
+			source = BattleEffectTarget.USER,
+			basePower = 20,
+			powerPerPositiveStage = 20,
+		)
+		"power-by-target-positive-stat-stage-sum-max-200" -> BattleSkillDynamicPower.PositiveStatStageSum(
+			source = BattleEffectTarget.TARGET,
+			basePower = 60,
+			powerPerPositiveStage = 20,
+			maxPower = 200,
+		)
+		else -> null
+	}
+
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
@@ -313,7 +331,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleOneHitKnockOut() != null ||
 	toBattleSkillEnvironmentEffects().isNotEmpty() ||
 	toBattleSkillPowerMultipliers().isNotEmpty() ||
-	toBattleSkillPostDamageStatusCures().isNotEmpty()
+	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
+	toBattleSkillDynamicPower() != null
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

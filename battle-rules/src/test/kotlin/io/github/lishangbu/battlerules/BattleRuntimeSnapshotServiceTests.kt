@@ -19,6 +19,7 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
@@ -105,8 +106,8 @@ class BattleRuntimeSnapshotServiceTests(
 				2, 3, 5, 7, 12, 14, 15, 20, 23, 28, 32, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
 				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 263, 265, 269,
-				283, 305, 311, 319, 329, 344, 347, 349, 358, 362, 366, 390, 400, 427, 433, 435, 446, 456, 457,
-				464, 474, 504, 505, 506, 512, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 685, 694, 717, 733, 819, 877,
+				283, 305, 311, 319, 329, 344, 347, 349, 358, 362, 366, 386, 390, 400, 427, 433, 435, 446, 456, 457,
+				464, 474, 500, 504, 505, 506, 512, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 685, 694, 717, 733, 819, 877,
 				883, 895,
 			),
 		)
@@ -320,6 +321,26 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(sparklingAria.conditionalPowerMultipliers).isEmpty()
 		assertThat(sparklingAria.postDamageStatusCures.single().statuses)
 			.containsExactlyInAnyOrder(BattleMajorStatus.BURN)
+
+		val storedPowerDynamicPower = slots.getValue(500).dynamicPower
+		assertThat(storedPowerDynamicPower)
+			.isEqualTo(
+				BattleSkillDynamicPower.PositiveStatStageSum(
+					source = BattleEffectTarget.USER,
+					basePower = 20,
+					powerPerPositiveStage = 20,
+				),
+			)
+		assertThat(slots.getValue(681).dynamicPower).isEqualTo(storedPowerDynamicPower)
+		assertThat(slots.getValue(386).dynamicPower)
+			.isEqualTo(
+				BattleSkillDynamicPower.PositiveStatStageSum(
+					source = BattleEffectTarget.TARGET,
+					basePower = 60,
+					powerPerPositiveStage = 20,
+					maxPower = 200,
+				),
+			)
 
 		assertThat(slots.getValue(49).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(20))
 		assertThat(slots.getValue(82).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(40))

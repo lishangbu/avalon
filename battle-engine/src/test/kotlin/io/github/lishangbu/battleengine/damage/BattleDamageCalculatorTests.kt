@@ -7,6 +7,8 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -1443,5 +1445,117 @@ class BattleDamageCalculatorTests {
 		scenario.assertNamed("acrobatics-doubles-power-when-user-has-no-held-item")
 		assertEquals(50, noItem.baseDamage)
 		assertEquals(26, withItem.baseDamage)
+	}
+
+	@Test
+	fun `stored power style skill derives power from user positive stat stages`() {
+		val scenario = publicBattleRuleScenario(
+			name = "stored-power-style-skill-derives-power-from-user-positive-stat-stages",
+			inputSummary = "使用者拥有攻击 +2、防御 +3、闪避 +1 和速度 -2，使用按自身正向能力阶级增加威力的特殊技能。",
+			expectedSummary = "只累计 6 级正向能力阶级，技能以 140 基础威力进入普通伤害公式。",
+		)
+		val skill = damagingSkill(
+			damageClass = BattleDamageClass.SPECIAL,
+			power = 20,
+			dynamicPower = BattleSkillDynamicPower.PositiveStatStageSum(
+				source = BattleEffectTarget.USER,
+				basePower = 20,
+				powerPerPositiveStage = 20,
+			),
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("boosted-attacker", speed = 100).copy(
+					statStages = mapOf(
+						BattleStat.ATTACK to 2,
+						BattleStat.DEFENSE to 3,
+						BattleStat.EVASION to 1,
+						BattleStat.SPEED to -2,
+					),
+				),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("stored-power-style-skill-derives-power-from-user-positive-stat-stages")
+		assertEquals(63, result.baseDamage)
+	}
+
+	@Test
+	fun `stored power style skill keeps base power without positive stat stages`() {
+		val scenario = publicBattleRuleScenario(
+			name = "stored-power-style-skill-keeps-base-power-without-positive-stat-stages",
+			inputSummary = "使用者没有正向能力阶级，只有攻击 -2 和速度 0，使用按自身正向能力阶级增加威力的特殊技能。",
+			expectedSummary = "负向和 0 阶级都不累计，技能保持 20 基础威力进入普通伤害公式。",
+		)
+		val skill = damagingSkill(
+			damageClass = BattleDamageClass.SPECIAL,
+			power = 20,
+			dynamicPower = BattleSkillDynamicPower.PositiveStatStageSum(
+				source = BattleEffectTarget.USER,
+				basePower = 20,
+				powerPerPositiveStage = 20,
+			),
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("unboosted-attacker", speed = 100).copy(
+					statStages = mapOf(
+						BattleStat.ATTACK to -2,
+						BattleStat.SPEED to 0,
+					),
+				),
+				defender = participant("defender", speed = 80),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("stored-power-style-skill-keeps-base-power-without-positive-stat-stages")
+		assertEquals(10, result.baseDamage)
+	}
+
+	@Test
+	fun `punishment style skill derives capped power from target positive stat stages`() {
+		val scenario = publicBattleRuleScenario(
+			name = "punishment-style-skill-derives-capped-power-from-target-positive-stat-stages",
+			inputSummary = "目标拥有攻击 +4、特攻 +3、命中 +2 和速度 -1，受到按目标正向能力阶级增加威力且最高 200 的技能。",
+			expectedSummary = "目标 9 级正向能力阶级会推导出 240 威力，但技能在进入公式前被封顶为 200。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.PositiveStatStageSum(
+				source = BattleEffectTarget.TARGET,
+				basePower = 60,
+				powerPerPositiveStage = 20,
+				maxPower = 200,
+			),
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("boosted-target", speed = 80).copy(
+					statStages = mapOf(
+						BattleStat.ATTACK to 4,
+						BattleStat.SPECIAL_ATTACK to 3,
+						BattleStat.ACCURACY to 2,
+						BattleStat.SPEED to -1,
+					),
+				),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("punishment-style-skill-derives-capped-power-from-target-positive-stat-stages")
+		assertEquals(90, result.baseDamage)
 	}
 }

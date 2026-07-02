@@ -102,6 +102,7 @@ class BattleSkillRuntimeLookup(
 			accuracyOverridesByWeather = ruleEffects.accuracyOverridesByWeather,
 			powerMultipliersByWeather = ruleEffects.powerMultipliersByWeather,
 			conditionalPowerMultipliers = effectPolicy.toBattleSkillPowerMultipliers(),
+			dynamicPower = effectPolicy.toBattleSkillDynamicPower(),
 			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
 			ignoresUserBurnAttackReduction = effectPolicy.ignoresUserBurnAttackReduction(),
 			lockMoveTurnsMin = row.requiredInt(row.lockMoveTurnsMin, "lock_move_turns_min"),

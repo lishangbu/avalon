@@ -8057,3 +8057,35 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('smelling-salts', 'wake-up-slap', 'sparkling-aria')
+- changeSet:
+    id: 114-battle-derived-basic-skill-dynamic-power
+    author: backend
+    comment: 为按能力阶级动态计算威力的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 辅助力量和嚣张按使用者所有正向能力阶级总和增加威力；
+          -- 惩罚按目标所有正向能力阶级总和增加威力，并按现代公开规则保留 200 威力上限。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'stored-power' then 'power-by-user-positive-stat-stage-sum'
+              when 'power-trip' then 'power-by-user-positive-stat-stage-sum'
+              when 'punishment' then 'power-by-target-positive-stat-stage-sum-max-200'
+              else r.effect_policy
+            end,
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'stored-power' then '技能基础威力为 20，每累计 1 级使用者正向能力阶级，威力增加 20。'
+              when 'power-trip' then '技能基础威力为 20，每累计 1 级使用者正向能力阶级，威力增加 20。'
+              when 'punishment' then '技能基础威力为 60，每累计 1 级目标正向能力阶级，威力增加 20，最高 200。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('stored-power', 'power-trip', 'punishment')

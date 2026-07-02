@@ -2,7 +2,9 @@ package io.github.lishangbu.battleengine.damage
 
 import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
@@ -142,17 +144,38 @@ class BattleDamageCalculator(
 	/**
 	 * 计算进入普通伤害公式的有效威力。
 	 *
-	 * 天气球、日光束类技能会在特定天气下改变威力；传统属性强化道具也在威力阶段提供 1.2 倍修正，而不是最终
-	 * 伤害阶段。这里把资料层给出的倍率应用在基础威力上并向下取整；取整后至少为 1，避免极端自定义倍率产生
-	 * 无效威力。
+	 * 动态威力技能会先从当前战斗快照推导本次基础威力；普通技能则读取技能表里的固定威力。随后天气球、日光束类
+	 * 技能的天气倍率、条件威力倍率和传统属性强化道具倍率继续在“威力”阶段相乘，而不是放到最终伤害倍率阶段。
+	 * 这里对倍率结果向下取整；取整后至少为 1，避免极端自定义倍率产生无效威力。
 	 */
 	private fun effectivePower(request: BattleDamageRequest): Int {
-		val basePower = requireNotNull(request.skill.power) { "damaging skill must define power" }
+		val basePower = dynamicPower(request) ?: requireNotNull(request.skill.power) { "damaging skill must define power" }
 		val multiplier = (request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0) *
 			conditionalPowerMultiplier(request) *
 			itemModifiers.powerMultiplier(request)
 		return floor(basePower * multiplier).toInt().coerceAtLeast(1)
 	}
+
+	/**
+	 * 根据当前战斗快照计算动态基础威力。
+	 *
+	 * 这个分支只返回“基础威力”，不直接计算伤害，也不消费随机数或追加事件。它读取的是快照中的真实能力阶级，
+	 * 不受击中要害对攻防阶级的忽略规则影响；原因是辅助力量、嚣张、惩罚这类技能的公开规则描述的是技能威力
+	 * 如何随能力提升变化，而不是普通伤害公式里的有效攻防值如何变化。
+	 */
+	private fun dynamicPower(request: BattleDamageRequest): Int? =
+		when (val rule = request.skill.dynamicPower) {
+			null -> null
+			is BattleSkillDynamicPower.PositiveStatStageSum -> {
+				val source = when (rule.source) {
+					BattleEffectTarget.USER -> request.attacker
+					BattleEffectTarget.TARGET -> request.defender
+				}
+				val positiveStageSum = BattleStat.entries.sumOf { source.statStage(it).coerceAtLeast(0) }
+				val rawPower = rule.basePower + rule.powerPerPositiveStage * positiveStageSum
+				rule.maxPower?.let { rawPower.coerceAtMost(it) } ?: rawPower
+			}
+		}
 
 	/**
 	 * 计算技能自身声明的条件威力倍率。
