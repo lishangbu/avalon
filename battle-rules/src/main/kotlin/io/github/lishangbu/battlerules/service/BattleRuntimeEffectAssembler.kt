@@ -49,10 +49,7 @@ class BattleRuntimeEffectAssembler(
 		}
 		requirePositive(abilityId, field = "abilityId")
 		val abilityPolicies = dataLookup.enabledAbilityPolicies(abilityId)
-		abilityEffects(
-			abilityPolicies = abilityPolicies,
-			elementIds = dataLookup.coreElementIds(),
-		)
+		validateAbilityPolicies(abilityPolicies, dataLookup.coreElementIds())
 		return grounded(abilityPolicies)
 	}
 
@@ -98,6 +95,25 @@ class BattleRuntimeEffectAssembler(
 				else -> invalidValue("effectPolicy", "不支持的特性战斗效果策略: $policy")
 			}
 		}
+
+	/**
+	 * 只校验特性 policy 是否能被当前运行时承载。
+	 *
+	 * 接地查询只需要 `ground-immunity` 这个旁路事实；如果为了复用 [abilityEffects] 而构造完整效果列表，
+	 * 会为天气、属性吸收、伤害修正等策略创建一批随后立即丢弃的对象。这里保留同样的未知策略失败语义，
+	 * 但把校验成本限制在“是否支持”的判断上。
+	 */
+	private fun validateAbilityPolicies(
+		abilityPolicies: List<String>,
+		elementIds: Map<String, Long>,
+	) {
+		val unsupported = abilityPolicies.firstOrNull { policy ->
+			!policy.isBattleAbilityRuntimePolicySupported(elementIds)
+		}
+		if (unsupported != null) {
+			invalidValue("effectPolicy", "不支持的特性战斗效果策略: $unsupported")
+		}
+	}
 
 	/**
 	 * 将已缓存的道具 policy 转换成结构化效果。

@@ -9,6 +9,7 @@ package io.github.lishangbu.battleengine.model
 sealed interface BattleEvent {
 	val turnNumber: Int
 
+	// 生命周期与换人事件：描述战斗、回合和上场席位如何变化。
 	data class BattleStarted(
 		override val turnNumber: Int,
 		val formatCode: String,
@@ -192,6 +193,7 @@ sealed interface BattleEvent {
 		val healAmount: Int,
 	) : BattleEvent
 
+	// 技能宣告、锁招和行动前阻止事件：描述一次行动为什么能继续或为什么提前停止。
 	/**
 	 * 多段技能本次使用的实际命中段数已经确定。
 	 *
@@ -287,6 +289,7 @@ sealed interface BattleEvent {
 		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
+	// 伤害、状态和能力阶级事件：描述成员身上的可观察战斗事实变化。
 	/**
 	 * 一次伤害已经结算到目标身上。
 	 *
@@ -470,6 +473,7 @@ sealed interface BattleEvent {
 		val turnsRemaining: Int?,
 	) : BattleEvent
 
+	// 一侧场地、入场陷阱和全场顺序事件：描述不直接挂在单个成员身上的持续规则。
 	/**
 	 * 一侧成功建立了速度结算修正。
 	 *
@@ -613,6 +617,7 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	// 回复、代价和伤害后事件：描述 HP 写入后的补充事实。
 	/**
 	 * 混乱自伤已经结算到行动者身上。
 	 *
@@ -810,6 +815,7 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
+	// 天气、场地和战斗收尾事件：描述全局环境变化以及回合/战斗结束。
 	data class TerrainHealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,

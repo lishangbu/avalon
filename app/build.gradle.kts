@@ -13,6 +13,7 @@ dependencies {
 	implementation(project(":system"))
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.web)
+	implementation(libs.spring.boot.starter.validation)
 	implementation(libs.jackson.module.kotlin)
 	implementation(libs.jimmer.spring.boot.starter)
 	implementation(libs.kotlin.reflect)
