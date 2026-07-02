@@ -1172,7 +1172,7 @@ class BattleDamageCalculatorTests {
 			inputSummary = "青草场地中，接地草属性成员使用草属性技能。",
 			expectedSummary = "伤害公式额外应用 1.3 倍场地倍率；非接地使用者不会获得该倍率。",
 		)
-			val rules = neutralRules()
+		val rules = neutralRules()
 		val grassy = BattleEnvironment(terrain = BattleTerrain.GRASSY)
 
 		val groundedResult = calculator.calculate(
@@ -1199,6 +1199,117 @@ class BattleDamageCalculatorTests {
 		scenario.assertNamed("grassy-terrain-boosts-grounded-grass-damage")
 		assertEquals(1.3, groundedResult.terrainMultiplier)
 		assertEquals(37, groundedResult.amount)
+		assertEquals(1.0, ungroundedResult.terrainMultiplier)
+		assertEquals(28, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `electric terrain boosts grounded electric damage`() {
+		val scenario = publicBattleRuleScenario(
+			name = "electric-terrain-boosts-grounded-electric-damage",
+			inputSummary = "电气场地中，接地和非接地使用者分别使用电属性技能。",
+			expectedSummary = "接地使用者获得 1.3 倍场地伤害倍率；非接地使用者不获得电气场地伤害加成。",
+		)
+		val electricTerrain = BattleEnvironment(terrain = BattleTerrain.ELECTRIC)
+
+		val groundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("grounded-electric", speed = 100, elementId = 13),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 13, power = 40),
+				rules = neutralRules(),
+				environment = electricTerrain,
+				randomPercent = 100,
+			),
+		)
+		val ungroundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-electric", speed = 100, elementId = 13, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 13, power = 40),
+				rules = neutralRules(),
+				environment = electricTerrain,
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("electric-terrain-boosts-grounded-electric-damage")
+		assertEquals(1.3, groundedResult.terrainMultiplier)
+		assertEquals(37, groundedResult.amount)
+		assertEquals(1.0, ungroundedResult.terrainMultiplier)
+		assertEquals(28, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `psychic terrain boosts grounded psychic damage`() {
+		val scenario = publicBattleRuleScenario(
+			name = "psychic-terrain-boosts-grounded-psychic-damage",
+			inputSummary = "精神场地中，接地和非接地使用者分别使用超能力属性技能。",
+			expectedSummary = "接地使用者获得 1.3 倍场地伤害倍率；非接地使用者不获得精神场地伤害加成。",
+		)
+		val psychicTerrain = BattleEnvironment(terrain = BattleTerrain.PSYCHIC)
+
+		val groundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("grounded-psychic", speed = 100, elementId = 14),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 14, power = 40),
+				rules = neutralRules(),
+				environment = psychicTerrain,
+				randomPercent = 100,
+			),
+		)
+		val ungroundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-psychic", speed = 100, elementId = 14, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 14, power = 40),
+				rules = neutralRules(),
+				environment = psychicTerrain,
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("psychic-terrain-boosts-grounded-psychic-damage")
+		assertEquals(1.3, groundedResult.terrainMultiplier)
+		assertEquals(37, groundedResult.amount)
+		assertEquals(1.0, ungroundedResult.terrainMultiplier)
+		assertEquals(28, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `misty terrain weakens dragon damage against grounded targets`() {
+		val scenario = publicBattleRuleScenario(
+			name = "misty-terrain-weakens-dragon-damage-against-grounded-targets",
+			inputSummary = "薄雾场地中，龙属性技能分别命中接地和非接地目标。",
+			expectedSummary = "接地目标承受 0.5 倍场地伤害倍率；非接地目标不受薄雾场地龙属性削弱影响。",
+		)
+		val mistyTerrain = BattleEnvironment(terrain = BattleTerrain.MISTY)
+
+		val groundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("dragon-user", speed = 100, elementId = 16),
+				defender = participant("grounded-defender", speed = 80, elementId = 1),
+				skill = damagingSkill(elementId = 16, power = 40),
+				rules = neutralRules(),
+				environment = mistyTerrain,
+				randomPercent = 100,
+			),
+		)
+		val ungroundedResult = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("dragon-user", speed = 100, elementId = 16),
+				defender = participant("ungrounded-defender", speed = 80, elementId = 1, grounded = false),
+				skill = damagingSkill(elementId = 16, power = 40),
+				rules = neutralRules(),
+				environment = mistyTerrain,
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("misty-terrain-weakens-dragon-damage-against-grounded-targets")
+		assertEquals(0.5, groundedResult.terrainMultiplier)
+		assertEquals(14, groundedResult.amount)
 		assertEquals(1.0, ungroundedResult.terrainMultiplier)
 		assertEquals(28, ungroundedResult.amount)
 	}
@@ -1243,6 +1354,47 @@ class BattleDamageCalculatorTests {
 		assertEquals(23, groundedResult.amount)
 		assertEquals(1.0, ungroundedResult.terrainMultiplier)
 		assertEquals(46, ungroundedResult.amount)
+	}
+
+	@Test
+	fun `terrain target grounded power multiplier stacks with terrain damage boost`() {
+		val scenario = publicBattleRuleScenario(
+			name = "terrain-target-grounded-power-multiplier-stacks-with-terrain-damage-boost",
+			inputSummary = "电气场地中，电属性使用者对接地和非接地目标使用目标处于电气场地时威力翻倍的技能。",
+			expectedSummary = "接地目标触发技能威力翻倍；电属性使用者接地时仍额外获得电气场地 1.3 倍伤害加成。",
+		)
+		val skill = damagingSkill(
+			elementId = 13,
+			damageClass = BattleDamageClass.SPECIAL,
+			power = 70,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.TargetGroundedTerrain(
+					terrain = BattleTerrain.ELECTRIC,
+					multiplier = 2.0,
+				),
+			),
+		)
+		val electricTerrain = BattleEnvironment(terrain = BattleTerrain.ELECTRIC)
+
+		fun calculate(targetGrounded: Boolean) = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("electric-user", speed = 100, elementId = 13),
+				defender = participant("defender", speed = 80, elementId = 1, grounded = targetGrounded),
+				skill = skill,
+				rules = neutralRules(),
+				environment = electricTerrain,
+				randomPercent = 100,
+			),
+		)
+
+		val groundedTarget = calculate(targetGrounded = true)
+		val ungroundedTarget = calculate(targetGrounded = false)
+
+		scenario.assertNamed("terrain-target-grounded-power-multiplier-stacks-with-terrain-damage-boost")
+		assertEquals(63, groundedTarget.baseDamage)
+		assertEquals(122, groundedTarget.amount)
+		assertEquals(32, ungroundedTarget.baseDamage)
+		assertEquals(62, ungroundedTarget.amount)
 	}
 
 	@Test

@@ -3,9 +3,11 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -90,5 +92,16 @@ class BattleRuntimePolicyMapperTests {
 			),
 		)
 		assertThat("self-weight-reduction-100kg-after-speed-change".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
+	fun `skill target grounded terrain power policy keeps terrain condition explicit`() {
+		assertThat("power-double-if-target-grounded-electric-terrain".toBattleSkillPowerMultipliers()).containsExactly(
+			BattleSkillPowerMultiplier.TargetGroundedTerrain(
+				terrain = BattleTerrain.ELECTRIC,
+				multiplier = 2.0,
+			),
+		)
+		assertThat("power-double-if-target-grounded-electric-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
 }

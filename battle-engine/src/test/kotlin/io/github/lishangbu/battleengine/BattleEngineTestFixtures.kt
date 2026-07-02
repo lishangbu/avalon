@@ -62,9 +62,11 @@ internal fun neutralRules(): BattleRuleSnapshot =
 			"ground" to 5,
 			"ice" to 15,
 			"poison" to 4,
+			"psychic" to 14,
 			"rock" to 6,
 			"steel" to 9,
 			"water" to 11,
+			"dragon" to 16,
 		),
 	)
 

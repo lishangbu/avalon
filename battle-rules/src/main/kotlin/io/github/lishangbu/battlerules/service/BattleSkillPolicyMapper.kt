@@ -243,6 +243,12 @@ internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultip
 		"power-double-if-user-has-no-held-item" -> listOf(
 			BattleSkillPowerMultiplier.UserHasNoHeldItem(multiplier = 2.0),
 		)
+		"power-double-if-target-grounded-electric-terrain" -> listOf(
+			BattleSkillPowerMultiplier.TargetGroundedTerrain(
+				terrain = BattleTerrain.ELECTRIC,
+				multiplier = 2.0,
+			),
+		)
 		else -> emptyList()
 	}
 

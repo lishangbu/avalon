@@ -8238,3 +8238,25 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'autotomize'
+- changeSet:
+    id: 120-battle-derived-basic-skill-terrain-power
+    author: backend
+    comment: 为目标受场地影响时改变威力的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 电力上升的现代规则读取目标是否处于电气场地：目标接地且当前为电气场地时，技能基础威力翻倍。
+          -- 该翻倍发生在威力阶段；使用者若也接地，后续仍会继续获得电气场地对电属性技能的普通伤害加成。
+          update battle_skill_rule r
+          set
+            effect_policy = 'power-double-if-target-grounded-electric-terrain',
+            damage_policy = 'standard-damage',
+            description = '目标接地且当前为电气场地时，技能威力翻倍；使用者接地时仍继续叠加电气场地电属性伤害加成。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'rising-voltage'

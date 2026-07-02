@@ -12,6 +12,7 @@ package io.github.lishangbu.battleengine.model
  * - 目标处于指定主要异常时翻倍。
  * - 目标当前 HP 不高于指定比例时翻倍。
  * - 使用者当前没有有效携带道具时翻倍。
+ * - 指定场地存在且目标接地时应用倍率。
  *
  * 滚动、辅助力量、惩罚等会按连续回合或能力阶级累计改变威力的技能，需要额外读取更复杂的运行态，后续会用新的
  * 明确模型接入，不塞进这里的固定倍率条件。
@@ -78,6 +79,22 @@ sealed interface BattleSkillPowerMultiplier {
 		override val multiplier: Double,
 	) : BattleSkillPowerMultiplier {
 		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 指定场地存在且目标接地时应用倍率。
+	 *
+	 * 该模型服务于“目标处于某场地时威力翻倍”的技能规则。它读取目标是否接地，而不是使用者是否接地；使用者是否
+	 * 获得场地本身的同属性伤害加成由普通场地伤害倍率独立处理，二者在现代规则下可以同时叠加。
+	 */
+	data class TargetGroundedTerrain(
+		val terrain: BattleTerrain,
+		override val multiplier: Double,
+	) : BattleSkillPowerMultiplier {
+		init {
+			require(terrain != BattleTerrain.NONE) { "terrain multiplier requires an active terrain" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
 		}
 	}

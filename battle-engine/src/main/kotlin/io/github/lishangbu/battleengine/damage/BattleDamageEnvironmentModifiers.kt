@@ -69,18 +69,19 @@ internal class BattleDamageEnvironmentModifiers {
 	/**
 	 * 计算场地对普通伤害的倍率。
 	 *
-	 * 现代青草场地有两个伤害侧效果：接地成员使用草属性技能时伤害按 1.3 倍计算；地震、重踏、震级等带有
-	 * 明确震动标签的技能命中接地目标时伤害减半。其它场地的状态免疫、先制阻挡和回合末回复不属于伤害公式。
+	 * 现代场地的伤害侧效果按“攻击方是否接地”和“目标是否接地”分开判断：青草、电气、精神场地会增强接地使用者
+	 * 发出的对应属性技能；薄雾场地会削弱命中接地目标的龙属性技能；青草场地还会削弱明确带震动标签的地面技能。
+	 * 场地带来的状态免疫、先制阻挡和回合末回复不属于伤害公式。
 	 */
-	fun terrainDamageMultiplier(request: BattleDamageRequest): Double =
-		when (request.environment.terrain) {
+	fun terrainDamageMultiplier(request: BattleDamageRequest): Double {
+		val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+		return when (request.environment.terrain) {
 			BattleTerrain.GRASSY -> {
 				val grassBoost = if (
 					request.attacker.grounded &&
-					request.rules.elementId("grass") != null &&
-					request.skill.effectiveElementId(request.environment.weather) == request.rules.elementId("grass")
+					skillElementId == request.rules.elementId("grass")
 				) {
-					GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER
+					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
@@ -91,18 +92,35 @@ internal class BattleDamageEnvironmentModifiers {
 				}
 				grassBoost * groundMoveReduction
 			}
-			BattleTerrain.NONE,
-			BattleTerrain.ELECTRIC,
-			BattleTerrain.MISTY,
-			BattleTerrain.PSYCHIC -> 1.0
+			BattleTerrain.ELECTRIC ->
+				if (request.attacker.grounded && skillElementId == request.rules.elementId("electric")) {
+					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
+				} else {
+					1.0
+				}
+			BattleTerrain.PSYCHIC ->
+				if (request.attacker.grounded && skillElementId == request.rules.elementId("psychic")) {
+					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
+				} else {
+					1.0
+				}
+			BattleTerrain.MISTY ->
+				if (request.defender.grounded && skillElementId == request.rules.elementId("dragon")) {
+					MISTY_TERRAIN_DRAGON_DAMAGE_MULTIPLIER
+				} else {
+					1.0
+				}
+			BattleTerrain.NONE -> 1.0
 		}
+	}
 
 	private fun BattleParticipant.hasElement(elementId: Long?): Boolean =
 		elementId != null && elementId in elementIds
 
 	private companion object {
-		private const val GRASSY_TERRAIN_GRASS_DAMAGE_MULTIPLIER = 1.3
+		private const val TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER = 1.3
 		private const val GRASSY_TERRAIN_GROUND_MOVE_MULTIPLIER = 0.5
+		private const val MISTY_TERRAIN_DRAGON_DAMAGE_MULTIPLIER = 0.5
 		private const val WEATHER_DEFENSE_BOOST_MULTIPLIER = 1.5
 	}
 }
