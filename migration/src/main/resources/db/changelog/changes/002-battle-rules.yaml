@@ -7554,3 +7554,44 @@ databaseChangeLog:
           where r.skill_id = d.skill_id
             and r.id >= 100000
             and r.enabled = true
+- changeSet:
+    id: 100-battle-derived-basic-skill-hp-effects
+    author: backend
+    comment: 使用技能结构化 HP 字段修正自动生成的吸取、反伤和自我回复规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- `drain` 是资料层已经结构化的“按本次伤害吸取/反伤百分比”，可以直接映射成 HP 后效。
+          -- `healing` 只自动接入明确以使用者为目标的 1/2 最大 HP 回复；队伍治疗、目标治疗和扣自身 HP 的技能
+          -- 需要额外目标与失败条件建模，仍由后续专项规则维护。
+          update battle_skill_rule r
+          set
+            effect_policy = case
+              when d.drain = 50 then 'drain-half-damage'
+              when d.drain = 75 then 'drain-three-quarter-damage'
+              when d.drain = 100 then 'drain-full-damage'
+              when d.drain = -25 then 'recoil-quarter-damage'
+              when d.drain = -33 then 'recoil-third-damage'
+              when d.drain = -50 then 'recoil-half-damage'
+              when d.healing = 50 and t.code = 'user' then 'self-heal-half-max-hp'
+              else r.effect_policy
+            end,
+            target_policy = case
+              when d.healing = 50 and t.code = 'user' then 'self'
+              else r.target_policy
+            end,
+            damage_policy = case
+              when d.healing = 50 and t.code = 'user' then 'no-damage'
+              else r.damage_policy
+            end
+          from game_skill_detail d
+          join game_skill_target t on t.id = d.target_id
+          where r.skill_id = d.skill_id
+            and r.id >= 100000
+            and r.enabled = true
+            and (
+              d.drain in (-50, -33, -25, 50, 75, 100)
+              or (d.healing = 50 and t.code = 'user')
+            )

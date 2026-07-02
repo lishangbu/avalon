@@ -41,10 +41,28 @@ internal fun String?.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				denominator = 4,
 			),
 		)
+		"drain-full-damage" -> listOf(
+			BattleSkillHpEffect.DrainDamage(
+				numerator = 1,
+				denominator = 1,
+			),
+		)
+		"recoil-quarter-damage" -> listOf(
+			BattleSkillHpEffect.RecoilByDamageDealt(
+				numerator = 1,
+				denominator = 4,
+			),
+		)
 		"recoil-third-damage" -> listOf(
 			BattleSkillHpEffect.RecoilByDamageDealt(
 				numerator = 1,
 				denominator = 3,
+			),
+		)
+		"recoil-half-damage" -> listOf(
+			BattleSkillHpEffect.RecoilByDamageDealt(
+				numerator = 1,
+				denominator = 2,
 			),
 		)
 		"self-heal-half-max-hp" -> listOf(

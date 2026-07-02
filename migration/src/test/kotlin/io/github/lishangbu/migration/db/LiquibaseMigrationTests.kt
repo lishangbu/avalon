@@ -575,6 +575,53 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val derivedHpSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (36, 138, 344, 456, 457, 733)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedHpSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 36L,
+				"effect_policy" to "recoil-quarter-damage",
+				"target_policy" to "selected-target",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 138L,
+				"effect_policy" to "drain-half-damage",
+				"target_policy" to "selected-target",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 344L,
+				"effect_policy" to "recoil-third-damage",
+				"target_policy" to "selected-target",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 456L,
+				"effect_policy" to "self-heal-half-max-hp",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+			mapOf(
+				"skill_id" to 457L,
+				"effect_policy" to "recoil-half-damage",
+				"target_policy" to "selected-target",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 733L,
+				"effect_policy" to "drain-full-damage",
+				"target_policy" to "selected-target",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
 		)

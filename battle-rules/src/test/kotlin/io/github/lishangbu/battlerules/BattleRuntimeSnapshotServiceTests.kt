@@ -100,10 +100,11 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				2, 3, 5, 14, 15, 20, 37, 38, 39, 45, 49, 50, 57, 63, 69, 71, 74, 76, 77, 78, 79, 82,
-				85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 147, 162, 163, 164, 184, 191, 235,
-				240, 259, 261, 269, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504,
-				515, 526, 564, 568, 570, 577, 580, 604, 694, 717, 877, 883, 895,
+				2, 3, 5, 14, 15, 20, 36, 37, 38, 39, 45, 49, 50, 57, 63, 69, 71, 74, 76, 77, 78,
+				79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 138, 147, 162, 163, 164,
+				184, 191, 235, 240, 259, 261, 269, 283, 311, 319, 344, 347, 349, 366, 390, 400,
+				427, 433, 446, 456, 457, 504, 515, 526, 564, 568, 570, 577, 580, 604, 694, 717,
+				733, 877, 883, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -149,6 +150,34 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(recoil.numerator).isEqualTo(1)
 		assertThat(recoil.denominator).isEqualTo(3)
+
+		val quarterRecoil = slots.getValue(36)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.RecoilByDamageDealt>()
+			.single()
+		assertThat(quarterRecoil.numerator).isEqualTo(1)
+		assertThat(quarterRecoil.denominator).isEqualTo(4)
+
+		val halfRecoil = slots.getValue(457)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.RecoilByDamageDealt>()
+			.single()
+		assertThat(halfRecoil.numerator).isEqualTo(1)
+		assertThat(halfRecoil.denominator).isEqualTo(2)
+
+		val fullDrain = slots.getValue(733)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
+			.single()
+		assertThat(fullDrain.numerator).isEqualTo(1)
+		assertThat(fullDrain.denominator).isEqualTo(1)
+
+		val derivedSelfHeal = slots.getValue(456)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpFraction>()
+			.single()
+		assertThat(derivedSelfHeal.numerator).isEqualTo(1)
+		assertThat(derivedSelfHeal.denominator).isEqualTo(2)
 
 		assertThat(slots.getValue(49).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(20))
 		assertThat(slots.getValue(82).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(40))
