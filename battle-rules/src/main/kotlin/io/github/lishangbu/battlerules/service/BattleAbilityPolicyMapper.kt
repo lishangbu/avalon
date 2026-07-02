@@ -121,6 +121,14 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			terrain = BattleTerrain.ELECTRIC,
 			multiplier = 2.0,
 		)
+		"weight-double" -> BattleAbilityEffect.WeightMultiplier(
+			numerator = 2,
+			denominator = 1,
+		)
+		"weight-half" -> BattleAbilityEffect.WeightMultiplier(
+			numerator = 1,
+			denominator = 2,
+		)
 		"weather-heal-rain" -> BattleAbilityEffect.WeatherEndTurnHeal(
 			weathers = setOf(BattleWeather.RAIN),
 			healDenominator = 16,

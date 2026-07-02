@@ -6,7 +6,7 @@ package io.github.lishangbu.battleengine.model
  * 当前覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
  * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成、造成伤害后回复，
- * 以及成功获得主要异常状态或临时状态后的即时解除。
+ * 成功获得主要异常状态或临时状态后的即时解除，以及体重相关规则读取时的当前体重修正。
  * 更复杂的道具生命周期会继续扩展为新的结构化效果，而不是在引擎中解析自由文本。
  */
 sealed interface BattleItemEffect {
@@ -352,6 +352,26 @@ sealed interface BattleItemEffect {
 	) : BattleItemEffect {
 		init {
 			require(speedMultiplier > 0.0) { "speedMultiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 修正携带者在体重相关规则中被读取到的当前体重。
+	 *
+	 * 该效果用于表达非消耗型携带道具让成员体重按固定比例变化的规则。它不改变资料表中的基础体重，也不把道具
+	 * 名称暴露给公式层；公式层只读取结构化分数倍率。使用分数而不是浮点数，是为了让 20.1kg 减半后仍作为
+	 * 10.05kg 参与阈值比较，而不是被提前截断成 10.0kg。
+	 *
+	 * 道具是否被拍落、禁用、交换或消费由成员快照上的 [BattleParticipant.itemEffects] 决定；只要该效果仍在
+	 * 快照里，就代表当前回合它可以影响体重动态威力。
+	 */
+	data class WeightMultiplier(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleItemEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
 		}
 	}
 }

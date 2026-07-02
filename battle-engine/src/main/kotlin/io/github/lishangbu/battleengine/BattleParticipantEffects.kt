@@ -91,6 +91,60 @@ internal fun BattleParticipant.canReceiveHealing(): Boolean =
 	canBattle() && currentHp < maxHp && !healingBlocked()
 
 /**
+ * 成员当前用于体重相关规则的有效体重。
+ *
+ * 资料表中的体重使用整数刻度保存，常见为十分之一千克；体重减半后可能出现 0.5 个刻度。这里用分数保留精度，
+ * 让低踢、打草结的阈值比较和重磅冲撞、高温重压的比例比较都能用交叉相乘完成，不需要把体重转成 Double，
+ * 也不需要在公式层决定四舍五入策略。
+ */
+internal data class BattleEffectiveWeight(
+	val numerator: Long,
+	val denominator: Long,
+) {
+	init {
+		require(numerator > 0) { "numerator must be positive" }
+		require(denominator > 0) { "denominator must be positive" }
+	}
+
+	/**
+	 * 判断当前有效体重是否小于等于给定资料刻度阈值。
+	 */
+	fun atMost(weight: Int): Boolean =
+		numerator <= weight.toLong() * denominator
+
+	/**
+	 * 判断当前有效体重是否至少达到另一成员有效体重的指定整数倍。
+	 */
+	fun atLeastMultipleOf(other: BattleEffectiveWeight, ratio: Int): Boolean =
+		numerator * other.denominator >= other.numerator * denominator * ratio.toLong()
+}
+
+/**
+ * 计算成员在当前快照中的有效体重。
+ *
+ * 基础体重先来自 [BattleParticipant.weight]，再按特性和道具声明的分数倍率连续相乘。多个倍率叠乘是现代规则中
+ * 最直接、最可复盘的表达方式；如果未来接入“技能临时降低体重”这类有状态规则，应先把临时倍率或固定修正保存
+ * 到成员快照，再在这里统一合成，避免伤害公式知道具体来源。
+ */
+internal fun BattleParticipant.effectiveWeight(): BattleEffectiveWeight {
+	var numerator = weight.toLong()
+	var denominator = 1L
+	abilityEffects.forEach { effect ->
+		if (effect is BattleAbilityEffect.WeightMultiplier) {
+			numerator *= effect.numerator.toLong()
+			denominator *= effect.denominator.toLong()
+		}
+	}
+	itemEffects.forEach { effect ->
+		if (effect is BattleItemEffect.WeightMultiplier) {
+			numerator *= effect.numerator.toLong()
+			denominator *= effect.denominator.toLong()
+		}
+	}
+	return BattleEffectiveWeight(numerator, denominator)
+}
+
+/**
  * 判断指定天气是否会对成员造成回合末天气伤害。
  *
  * 该函数只处理“天气伤害是否被阻止”，不计算伤害数值，也不追加天气伤害事件。它合并了三类稳定阻止来源：

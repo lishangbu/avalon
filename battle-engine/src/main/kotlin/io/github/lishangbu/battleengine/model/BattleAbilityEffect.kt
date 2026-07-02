@@ -7,7 +7,7 @@ package io.github.lishangbu.battleengine.model
  * 低体力时强化指定属性伤害、满 HP 承受致命伤害时保留 1 HP、吸收指定属性技能并回复或提阶、阻止对手先制技能影响己方、
  * 天气下速度修正、天气伤害免疫、天气下回合末回复、受到接触类技能后有概率给攻击方附加主要异常状态，稳定状态免疫、环境下速度修正，
  * 间接伤害免疫、技能反作用伤害免疫、击中要害免疫、无视对手伤害公式能力阶级变化、无视对手命中/闪避阶级
- * 变化、攻击时无视目标特性效果、免疫声音类技能，以及成员出场时的能力阶级变化、天气设置和场地设置。
+ * 变化、攻击时无视目标特性效果、免疫声音类技能、体重修正，以及成员出场时的能力阶级变化、天气设置和场地设置。
  *
  * 后续每新增一种复杂特性，都应该先明确触发阶段、输入状态、不变量和对照测试，再扩展这里或拆分专门处理器。
  */
@@ -69,6 +69,26 @@ sealed interface BattleAbilityEffect {
 		init {
 			require(terrain != BattleTerrain.NONE) { "terrain speed multiplier requires an active terrain" }
 			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
+	 * 修正成员在体重相关规则中被读取到的当前体重。
+	 *
+	 * 该效果用于表达现代规则中“拥有者体重按固定比例变重或变轻”的稳定特性，例如体重翻倍或减半。它不直接修改
+	 * [BattleParticipant.weight]，因为基础资料体重仍然需要保持可复盘；伤害公式在结算低踢、打草结、重磅冲撞、
+	 * 高温重压这类动态威力时会读取所有体重倍率并形成有效体重。
+	 *
+	 * 使用分子/分母而不是 Double，是为了保留 69 这类一位小数资料在减半后的 34.5 精度，避免整数除法把阈值边界
+	 * 算错。该效果只描述稳定倍率，不处理技能造成的临时体重变化；临时变化需要有自己的状态字段和持续时间规则。
+	 */
+	data class WeightMultiplier(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
 		}
 	}
 

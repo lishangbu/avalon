@@ -1,5 +1,6 @@
 package io.github.lishangbu.battlerules.service
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.common.web.ApiException
@@ -63,5 +64,15 @@ class BattleRuntimePolicyMapperTests {
 		assertThat("ground-immunity".toBattleAbilityEffect(elementIds)).isNull()
 		assertThat("ground-immunity".isBattleAbilityRuntimePolicySupported(elementIds)).isTrue()
 		assertThat("missing-policy".isBattleAbilityRuntimePolicySupported(elementIds)).isFalse()
+	}
+
+	@Test
+	fun `weight multiplier policies keep rational scale`() {
+		assertThat("weight-double".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1))
+		assertThat("weight-half".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.WeightMultiplier(numerator = 1, denominator = 2))
+		assertThat("weight-half".toBattleItemEffect(elementIds))
+			.isEqualTo(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2))
 	}
 }

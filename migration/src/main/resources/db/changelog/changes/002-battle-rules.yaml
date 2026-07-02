@@ -8177,3 +8177,42 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('low-kick', 'grass-knot', 'heavy-slam', 'heat-crash')
+- changeSet:
+    id: 118-battle-weight-multiplier-rules
+    author: backend
+    comment: 新增体重动态威力会读取的特性和携带道具体重倍率规则。
+    changes:
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 67 }
+        - column: { name: ability_id, valueNumeric: 134 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: weight-double }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 体重相关动态威力读取当前体重时，拥有者体重按 2 倍计算。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 670 }
+    - insert:
+        tableName: battle_ability_rule
+        columns:
+        - column: { name: id, valueNumeric: 68 }
+        - column: { name: ability_id, valueNumeric: 135 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: weight-half }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 体重相关动态威力读取当前体重时，拥有者体重按 1/2 计算，并保留半个资料刻度的边界精度。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 680 }
+    - insert:
+        tableName: battle_item_rule
+        columns:
+        - column: { name: id, valueNumeric: 61 }
+        - column: { name: item_id, valueNumeric: 582 }
+        - column: { name: trigger_timing, value: BEFORE_DAMAGE }
+        - column: { name: effect_policy, value: weight-half }
+        - column: { name: consumable, valueBoolean: false }
+        - column: { name: trigger_order, valueNumeric: 80 }
+        - column: { name: description, value: 体重相关动态威力读取当前体重时，携带者体重按 1/2 计算；该道具不会因参与体重计算而消耗。 }
+        - column: { name: enabled, valueBoolean: true }
+        - column: { name: sort_order, valueNumeric: 610 }

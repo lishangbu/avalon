@@ -35,6 +35,10 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 		"small-berry-heal" -> BattleItemEffect.LowHpHeal(fixedHealAmount = 10)
 		"medium-berry-heal" -> BattleItemEffect.LowHpHeal(healDenominator = 4)
 		"choice-speed-lock" -> BattleItemEffect.ChoiceSkillLock(speedMultiplier = 1.5)
+		"weight-half" -> BattleItemEffect.WeightMultiplier(
+			numerator = 1,
+			denominator = 2,
+		)
 		"major-status-cure-paralysis" -> BattleItemEffect.MajorStatusCure(
 			statuses = setOf(BattleMajorStatus.PARALYSIS),
 		)

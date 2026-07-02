@@ -927,6 +927,11 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(service.terrainSpeedByAbilityId(207)).isEqualTo(BattleTerrain.ELECTRIC to 2.0)
 
+		assertThat(service.abilityEffectsByAbilityId(134))
+			.containsExactly(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1))
+		assertThat(service.abilityEffectsByAbilityId(135))
+			.containsExactly(BattleAbilityEffect.WeightMultiplier(numerator = 1, denominator = 2))
+
 		assertThat(service.weatherHealByAbilityId(44)).isEqualTo(setOf(BattleWeather.RAIN) to 16)
 		assertThat(service.weatherHealByAbilityId(115)).isEqualTo(setOf(BattleWeather.SNOW) to 16)
 
@@ -1104,6 +1109,8 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleItemEffect.ChoiceSkillLock>()
 			.single()
 		assertThat(choiceSpeedLock.speedMultiplier).isEqualTo(1.5)
+		assertThat(service.itemEffectsByItemId(582))
+			.containsExactly(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2))
 
 		assertThat(service.itemEffectsByItemId(126).filterIsInstance<BattleItemEffect.MajorStatusCure>().single().statuses)
 			.containsExactly(BattleMajorStatus.PARALYSIS)

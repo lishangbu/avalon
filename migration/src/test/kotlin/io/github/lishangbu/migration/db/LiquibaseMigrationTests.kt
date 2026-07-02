@@ -475,8 +475,8 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 66L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 60L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 68L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 61L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -2279,6 +2279,27 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val weightMultiplierAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (134, 135)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(weightMultiplierAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 134L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "weight-double",
+			),
+			mapOf(
+				"ability_id" to 135L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "weight-half",
+			),
+		)
+
 		val fatalDamageSurvivalItemRules = queryMaps(
 			"""
 			select item_id, trigger_timing, effect_policy, consumable
@@ -2292,6 +2313,22 @@ class LiquibaseMigrationTests(
 				"trigger_timing" to "BEFORE_FAINT",
 				"effect_policy" to "consumable-full-hp-fatal-damage-survival",
 				"consumable" to true,
+			),
+		)
+
+		val weightMultiplierItemRules = queryMaps(
+			"""
+			select item_id, trigger_timing, effect_policy, consumable
+			from battle_item_rule
+			where item_id = 582
+			""".trimIndent(),
+		)
+		assertThat(weightMultiplierItemRules).containsExactly(
+			mapOf(
+				"item_id" to 582L,
+				"trigger_timing" to "BEFORE_DAMAGE",
+				"effect_policy" to "weight-half",
+				"consumable" to false,
 			),
 		)
 

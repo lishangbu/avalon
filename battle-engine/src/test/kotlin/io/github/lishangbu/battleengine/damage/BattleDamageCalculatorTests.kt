@@ -1702,4 +1702,73 @@ class BattleDamageCalculatorTests {
 		assertEquals(54, calculate(userWeight = 500, targetWeight = 100).baseDamage)
 		assertEquals(19, calculate(userWeight = 150, targetWeight = 100).baseDamage)
 	}
+
+	@Test
+	fun `target weight dynamic power keeps fractional weight multiplier precision`() {
+		val scenario = publicBattleRuleScenario(
+			name = "target-weight-dynamic-power-keeps-fractional-weight-multiplier-precision",
+			inputSummary = "目标基础体重为 20.1kg，携带体重减半效果后承受按目标体重决定威力的技能。",
+			expectedSummary = "有效体重为 10.05kg，仍高于 10kg 档位，因此选择 40 基础威力而不是被截断到 20。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.TargetWeightThresholds(
+				thresholds = listOf(
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 100, power = 20),
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 250, power = 40),
+				),
+				fallbackPower = 60,
+			),
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("defender", speed = 80, weight = 201).copy(
+					itemEffects = listOf(BattleItemEffect.WeightMultiplier(numerator = 1, denominator = 2)),
+				),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("target-weight-dynamic-power-keeps-fractional-weight-multiplier-precision")
+		assertEquals(19, result.baseDamage)
+	}
+
+	@Test
+	fun `user target weight ratio dynamic power uses effective weight multipliers`() {
+		val scenario = publicBattleRuleScenario(
+			name = "user-target-weight-ratio-dynamic-power-uses-effective-weight-multipliers",
+			inputSummary = "使用者基础体重只有目标 2 倍，但拥有体重翻倍效果后使用按体重比例决定威力的技能。",
+			expectedSummary = "有效体重比例变为 4 倍，因此选择 100 基础威力，而不是基础体重下的 60。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.UserTargetWeightRatioThresholds(
+				thresholds = listOf(
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 5, power = 120),
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 4, power = 100),
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 2, power = 60),
+				),
+				fallbackPower = 40,
+			),
+		)
+
+		val result = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, weight = 200).copy(
+					abilityEffects = listOf(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1)),
+				),
+				defender = participant("defender", speed = 80, weight = 100),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("user-target-weight-ratio-dynamic-power-uses-effective-weight-multipliers")
+		assertEquals(46, result.baseDamage)
+	}
 }

@@ -1,5 +1,6 @@
 package io.github.lishangbu.battleengine.damage
 
+import io.github.lishangbu.battleengine.effectiveWeight
 import io.github.lishangbu.battleengine.statStage
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
@@ -198,18 +199,23 @@ class BattleDamageCalculator(
 					.coerceAtMost(rule.maxPower.toLong())
 					.toInt()
 			}
-			is BattleSkillDynamicPower.TargetWeightThresholds ->
+			is BattleSkillDynamicPower.TargetWeightThresholds -> {
+				val defenderWeight = request.defender.effectiveWeight()
 				rule.thresholds
-					.firstOrNull { threshold -> request.defender.weight <= threshold.maxWeightInclusive }
+					.firstOrNull { threshold -> defenderWeight.atMost(threshold.maxWeightInclusive) }
 					?.power
 					?: rule.fallbackPower
-			is BattleSkillDynamicPower.UserTargetWeightRatioThresholds ->
+			}
+			is BattleSkillDynamicPower.UserTargetWeightRatioThresholds -> {
+				val attackerWeight = request.attacker.effectiveWeight()
+				val defenderWeight = request.defender.effectiveWeight()
 				rule.thresholds
 					.firstOrNull { threshold ->
-						request.attacker.weight.toLong() >= request.defender.weight.toLong() * threshold.minimumUserToTargetRatio
+						attackerWeight.atLeastMultipleOf(defenderWeight, threshold.minimumUserToTargetRatio)
 					}
 					?.power
 					?: rule.fallbackPower
+			}
 		}
 
 	/**
