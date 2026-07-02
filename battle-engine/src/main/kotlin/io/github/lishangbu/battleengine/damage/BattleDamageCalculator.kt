@@ -36,7 +36,7 @@ class BattleDamageCalculator(
 	 */
 	fun calculate(request: BattleDamageRequest): BattleDamageResult {
 		require(request.skill.damageClass != BattleDamageClass.STATUS) { "status skill does not use standard damage formula" }
-		val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+		val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 		val power = effectivePower(request)
 		val attackingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
@@ -151,7 +151,13 @@ class BattleDamageCalculator(
 	 */
 	private fun effectivePower(request: BattleDamageRequest): Int {
 		val basePower = dynamicPower(request) ?: requireNotNull(request.skill.power) { "damaging skill must define power" }
+		val groundedTerrainMultiplier = if (request.attacker.grounded) {
+			request.skill.groundedPowerMultipliersByTerrain[request.environment.terrain] ?: 1.0
+		} else {
+			1.0
+		}
 		val multiplier = (request.skill.powerMultipliersByWeather[request.environment.weather] ?: 1.0) *
+			groundedTerrainMultiplier *
 			conditionalPowerMultiplier(request) *
 			itemModifiers.powerMultiplier(request)
 		return floor(basePower * multiplier).toInt().coerceAtLeast(1)

@@ -1443,6 +1443,60 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `terrain element override and grounded power multiplier are applied in separate formula stages`() {
+		val scenario = publicBattleRuleScenario(
+			name = "terrain-pulse-like-skill-keeps-type-change-and-grounded-power-separate",
+			inputSummary = "超能力属性接地使用者在精神场地中使用随场地改变属性、且接地时威力翻倍的特殊技能。",
+			expectedSummary = "技能先改为超能力属性，再因使用者接地把威力翻倍，最后继续获得属性一致和精神场地伤害加成。",
+		)
+		val skill = damagingSkill(
+			elementId = 1,
+			damageClass = BattleDamageClass.SPECIAL,
+			power = 50,
+			groundedPowerMultipliersByTerrain = mapOf(BattleTerrain.PSYCHIC to 2.0),
+			elementOverridesByTerrain = mapOf(BattleTerrain.PSYCHIC to 14),
+		)
+
+		val groundedPsychicTerrain = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("grounded-user", speed = 100, elementId = 14, grounded = true),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = skill,
+				rules = neutralRules(),
+				environment = BattleEnvironment(terrain = BattleTerrain.PSYCHIC),
+				randomPercent = 100,
+			),
+		)
+		val ungroundedPsychicTerrain = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-user", speed = 100, elementId = 14, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = skill,
+				rules = neutralRules(),
+				environment = BattleEnvironment(terrain = BattleTerrain.PSYCHIC),
+				randomPercent = 100,
+			),
+		)
+		val noTerrain = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("grounded-user", speed = 100, elementId = 14, grounded = true),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("terrain-pulse-like-skill-keeps-type-change-and-grounded-power-separate")
+		assertEquals(46, groundedPsychicTerrain.baseDamage)
+		assertEquals(89, groundedPsychicTerrain.amount)
+		assertEquals(24, ungroundedPsychicTerrain.baseDamage)
+		assertEquals(36, ungroundedPsychicTerrain.amount)
+		assertEquals(24, noTerrain.baseDamage)
+		assertEquals(24, noTerrain.amount)
+	}
+
+	@Test
 	fun `facade doubles power for configured user statuses and ignores burn attack drop`() {
 		val scenario = publicBattleRuleScenario(
 			name = "facade-doubles-power-and-ignores-burn-attack-drop",

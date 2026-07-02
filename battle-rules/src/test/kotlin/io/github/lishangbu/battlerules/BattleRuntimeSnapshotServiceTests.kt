@@ -109,7 +109,7 @@ class BattleRuntimeSnapshotServiceTests(
 				67, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 263, 265, 269,
 				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
-				464, 474, 475, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 819, 875, 877,
+				464, 474, 475, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
 			),
 		)
@@ -679,6 +679,24 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.RAIN]).isEqualTo(11)
 		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.SANDSTORM]).isEqualTo(6)
 		assertThat(weatherBall.elementOverridesByWeather[BattleWeather.SNOW]).isEqualTo(15)
+
+		val terrainPulse = slots.getValue(805)
+		assertThat(terrainPulse.groundedPowerMultipliersByTerrain).containsExactlyEntriesOf(
+			mapOf(
+				BattleTerrain.ELECTRIC to 2.0,
+				BattleTerrain.GRASSY to 2.0,
+				BattleTerrain.MISTY to 2.0,
+				BattleTerrain.PSYCHIC to 2.0,
+			),
+		)
+		assertThat(terrainPulse.elementOverridesByTerrain).containsExactlyEntriesOf(
+			mapOf(
+				BattleTerrain.ELECTRIC to 13,
+				BattleTerrain.GRASSY to 12,
+				BattleTerrain.MISTY to 18,
+				BattleTerrain.PSYCHIC to 14,
+			),
+		)
 
 		val lightScreen = slots.getValue(113).sideConditionApplications.single()
 		assertThat(lightScreen.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)

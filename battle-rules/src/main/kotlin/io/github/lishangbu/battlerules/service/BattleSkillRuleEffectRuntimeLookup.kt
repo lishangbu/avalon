@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
 import org.springframework.jdbc.core.JdbcTemplate
@@ -47,7 +48,9 @@ class BattleSkillRuleEffectRuntimeLookup(
 			chargeSkippedByWeathers = chargeSkippedByWeathers(ruleId),
 			accuracyOverridesByWeather = weatherAccuracyOverrides(ruleId),
 			powerMultipliersByWeather = weatherPowerMultipliers(ruleId),
+			groundedPowerMultipliersByTerrain = groundedTerrainPowerMultipliers(ruleId),
 			elementOverridesByWeather = weatherElementOverrides(ruleId),
+			elementOverridesByTerrain = terrainElementOverrides(ruleId),
 			statusApplications = statusApplications(statusEffects),
 			volatileStatusApplications = volatileStatusApplications(statusEffects),
 			statStageEffects = statStageEffects(ruleId),
@@ -96,6 +99,33 @@ class BattleSkillRuleEffectRuntimeLookup(
 			order by o.sort_order, o.id
 			""".trimIndent(),
 			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") },
+			ruleId,
+		).toMap()
+
+	private fun groundedTerrainPowerMultipliers(ruleId: Long): Map<BattleTerrain, Double> =
+		jdbcTemplate.query(
+			"""
+			select t.code as terrain_code, m.power_multiplier
+			from battle_skill_terrain_power_modifier m
+			join battle_terrain_rule t on t.id = m.terrain_rule_id
+			where m.skill_rule_id = ? and m.enabled = true and t.enabled = true
+			order by m.sort_order, m.id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("terrain_code").toBattleTerrain() to rs.getDouble("power_multiplier") },
+			ruleId,
+		).toMap()
+
+	private fun terrainElementOverrides(ruleId: Long): Map<BattleTerrain, Long> =
+		jdbcTemplate.query(
+			"""
+			select t.code as terrain_code, o.target_element_id
+			from battle_skill_terrain_element_override o
+			join battle_terrain_rule t on t.id = o.terrain_rule_id
+			join game_element e on e.id = o.target_element_id
+			where o.skill_rule_id = ? and o.enabled = true and t.enabled = true and e.enabled = true
+			order by o.sort_order, o.id
+			""".trimIndent(),
+			{ rs, _ -> rs.getString("terrain_code").toBattleTerrain() to rs.getLong("target_element_id") },
 			ruleId,
 		).toMap()
 
@@ -375,7 +405,9 @@ data class BattleSkillRuleEffectRuntimeSnapshot(
 	val chargeSkippedByWeathers: Set<BattleWeather>,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?>,
 	val powerMultipliersByWeather: Map<BattleWeather, Double>,
+	val groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double>,
 	val elementOverridesByWeather: Map<BattleWeather, Long>,
+	val elementOverridesByTerrain: Map<BattleTerrain, Long>,
 	val statusApplications: List<BattleStatusApplication>,
 	val volatileStatusApplications: List<BattleVolatileStatusApplication>,
 	val statStageEffects: List<BattleStatStageEffect>,

@@ -115,7 +115,7 @@ internal class BattleHitResolution(
 		skill: BattleSkillSlot,
 	): Int? {
 		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
-		val skillElementId = skill.effectiveElementId(state.environment.weather)
+		val skillElementId = skill.effectiveElementId(state.environment.weather, state.environment.terrain)
 		val baseAccuracy = oneHitKnockOut.baseAccuracyFor(
 			skillElementId = skillElementId,
 			actorElementIds = actor.elementIds,

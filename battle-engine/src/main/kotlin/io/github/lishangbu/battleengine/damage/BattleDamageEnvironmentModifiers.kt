@@ -51,12 +51,12 @@ internal class BattleDamageEnvironmentModifiers {
 	 */
 	fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
 		when (request.environment.weather) {
-			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather)) {
+			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)) {
 				request.rules.elementId("fire") -> 1.5
 				request.rules.elementId("water") -> 0.5
 				else -> 1.0
 			}
-			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather)) {
+			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)) {
 				request.rules.elementId("water") -> 1.5
 				request.rules.elementId("fire") -> 0.5
 				else -> 1.0
@@ -74,7 +74,7 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 场地带来的状态免疫、先制阻挡和回合末回复不属于伤害公式。
 	 */
 	fun terrainDamageMultiplier(request: BattleDamageRequest): Double {
-		val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+		val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 		return when (request.environment.terrain) {
 			BattleTerrain.GRASSY -> {
 				val grassBoost = if (

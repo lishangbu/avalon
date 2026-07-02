@@ -121,7 +121,7 @@ internal class BattleSkillBlockEffects(
 	 */
 	fun oneHitKnockOutBlockedElementId(state: BattleState, target: BattleParticipant, skill: BattleSkillSlot): Long? {
 		val oneHitKnockOut = skill.oneHitKnockOut ?: return null
-		val skillElementId = skill.effectiveElementId(state.environment.weather)
+		val skillElementId = skill.effectiveElementId(state.environment.weather, state.environment.terrain)
 		return if (oneHitKnockOut.blocksSameElementTarget && target.hasElement(skillElementId)) {
 			skillElementId
 		} else {
@@ -169,7 +169,7 @@ internal class BattleSkillBlockEffects(
 	): BattleState? {
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }
 			?: return null
 		if (target.healingBlocked()) {
 			return state.appendEvent(
@@ -218,7 +218,7 @@ internal class BattleSkillBlockEffects(
 	): BattleState? {
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
-			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather) }
+			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }
 			?: return null
 		val absorbedState = state.appendEvent(
 			BattleEvent.SkillAbsorbedByAbility(

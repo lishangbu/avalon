@@ -40,7 +40,10 @@ internal class BattleSkillDamageResolution(
 		targetMultiplier: Double,
 		random: BattleRandom,
 	): TurnContext {
-		val effectiveness = state.rules.elementChart.multiplier(skill.effectiveElementId(state.environment.weather), target.elementIds)
+		val effectiveness = state.rules.elementChart.multiplier(
+			skill.effectiveElementId(state.environment.weather, state.environment.terrain),
+			target.elementIds,
+		)
 		if (effectiveness == 0.0) {
 			return moveFinishResolution.interruptSkillWithEvent(
 				context = context,

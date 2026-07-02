@@ -11,6 +11,7 @@ import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
 import io.github.lishangbu.battleengine.model.BattleStatStageOperationTarget
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.common.web.invalidValue
@@ -44,6 +45,15 @@ internal fun String.toBattleWeather(): BattleWeather =
 		"sandstorm" -> BattleWeather.SANDSTORM
 		"snow" -> BattleWeather.SNOW
 		else -> invalidValue("weatherRuleId", "不支持的天气规则: $this")
+	}
+
+internal fun String.toBattleTerrain(): BattleTerrain =
+	when (this) {
+		"electric-terrain" -> BattleTerrain.ELECTRIC
+		"grassy-terrain" -> BattleTerrain.GRASSY
+		"misty-terrain" -> BattleTerrain.MISTY
+		"psychic-terrain" -> BattleTerrain.PSYCHIC
+		else -> invalidValue("terrainRuleId", "不支持的场地规则: $this")
 	}
 
 internal fun String.toBattleSideConditionTarget(): BattleSideConditionTarget =

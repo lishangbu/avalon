@@ -8302,3 +8302,267 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'psyblade'
+- changeSet:
+    id: 123-battle-skill-terrain-modifiers
+    author: backend
+    comment: 新增技能场地威力倍率和场地属性覆盖资料表，并接入场地脉冲规则数据。
+    changes:
+    - createTable:
+        tableName: battle_skill_terrain_power_modifier
+        remarks: 战斗技能场地威力倍率表，保存技能在指定场地下、使用者接地时参与普通伤害公式前的威力倍率。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能场地威力倍率主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_terrain_power_modifier
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: terrain_rule_id
+            type: bigint
+            remarks: 场地规则 ID，引用 battle_terrain_rule，表示倍率触发所需的当前场地。
+            constraints:
+              nullable: false
+        - column:
+            name: power_multiplier
+            type: double precision
+            remarks: 威力倍率，必须大于 0，例如 2 表示接地使用者在该场地下技能威力翻倍。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该场地威力倍率规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 场地威力倍率规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_terrain_power_modifier
+        columnNames: skill_rule_id, terrain_rule_id
+        constraintName: uk_battle_skill_terrain_power_modifier__skill_terrain
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_terrain_power_modifier
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_terrain_power_modifier__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_terrain_power_modifier
+        baseColumnNames: terrain_rule_id
+        referencedTableName: battle_terrain_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_terrain_power_modifier__terrain_rule_id
+    - createIndex:
+        tableName: battle_skill_terrain_power_modifier
+        indexName: idx_battle_skill_terrain_power_modifier__terrain_rule_id
+        columns:
+        - column:
+            name: terrain_rule_id
+    - createTable:
+        tableName: battle_skill_terrain_element_override
+        remarks: 战斗技能场地属性覆盖表，保存技能在指定场地下改用的结算属性。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 技能场地属性覆盖主键。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_skill_terrain_element_override
+              nullable: false
+        - column:
+            name: skill_rule_id
+            type: bigint
+            remarks: 技能规则 ID，引用 battle_skill_rule。
+            constraints:
+              nullable: false
+        - column:
+            name: terrain_rule_id
+            type: bigint
+            remarks: 场地规则 ID，引用 battle_terrain_rule，表示属性覆盖触发所需的当前场地。
+            constraints:
+              nullable: false
+        - column:
+            name: target_element_id
+            type: bigint
+            remarks: 目标属性 ID，引用 game_element，表示该场地下技能本次结算使用的属性。
+            constraints:
+              nullable: false
+        - column:
+            name: enabled
+            type: boolean
+            defaultValueBoolean: true
+            remarks: 是否启用该场地属性覆盖规则。
+            constraints:
+              nullable: false
+        - column:
+            name: sort_order
+            type: int
+            remarks: 场地属性覆盖规则展示排序。
+            constraints:
+              nullable: false
+    - addUniqueConstraint:
+        tableName: battle_skill_terrain_element_override
+        columnNames: skill_rule_id, terrain_rule_id
+        constraintName: uk_battle_skill_terrain_element_override__skill_terrain
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_terrain_element_override
+        baseColumnNames: skill_rule_id
+        referencedTableName: battle_skill_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_terrain_element_override__skill_rule_id
+        onDelete: CASCADE
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_terrain_element_override
+        baseColumnNames: terrain_rule_id
+        referencedTableName: battle_terrain_rule
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_terrain_element_override__terrain_rule_id
+    - addForeignKeyConstraint:
+        baseTableName: battle_skill_terrain_element_override
+        baseColumnNames: target_element_id
+        referencedTableName: game_element
+        referencedColumnNames: id
+        constraintName: fk_battle_skill_terrain_element_override__target_element_id
+    - createIndex:
+        tableName: battle_skill_terrain_element_override
+        indexName: idx_battle_skill_terrain_element_override__terrain_rule_id
+        columns:
+        - column:
+            name: terrain_rule_id
+    - createIndex:
+        tableName: battle_skill_terrain_element_override
+        indexName: idx_battle_skill_terrain_element_override__target_element_id
+        columns:
+        - column:
+            name: target_element_id
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 场地脉冲的属性会随当前场地变化；威力翻倍则额外要求使用者接地。
+          -- 两类事实分别落在场地属性覆盖表和场地威力倍率表，避免把属性与威力塞进同一策略字段。
+          update battle_skill_rule r
+          set
+            damage_policy = 'standard-damage',
+            description = '当前存在现代场地时，技能结算属性改为场地对应属性；使用者接地时，技能威力翻倍，并继续叠加场地对应属性伤害加成。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'terrain-pulse'
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 场地脉冲在使用者接地且当前存在现代场地时，威力在公式威力阶段翻倍。
+          insert into battle_skill_terrain_power_modifier (
+            id,
+            skill_rule_id,
+            terrain_rule_id,
+            power_multiplier,
+            enabled,
+            sort_order
+          )
+          select
+            v.id,
+            r.id,
+            t.id,
+            2.0,
+            true,
+            v.sort_order
+          from (
+            values
+              (1, 'electric-terrain', 10),
+              (2, 'grassy-terrain', 20),
+              (3, 'misty-terrain', 30),
+              (4, 'psychic-terrain', 40)
+          ) as v(id, terrain_code, sort_order)
+          join battle_terrain_rule t on t.code = v.terrain_code and t.enabled = true
+          join game_skill s on s.code = 'terrain-pulse' and s.enabled = true
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true and r.id >= 100000
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 场地脉冲的结算属性按当前场地覆盖；该覆盖不要求使用者接地。
+          insert into battle_skill_terrain_element_override (
+            id,
+            skill_rule_id,
+            terrain_rule_id,
+            target_element_id,
+            enabled,
+            sort_order
+          )
+          select
+            v.id,
+            r.id,
+            t.id,
+            e.id,
+            true,
+            v.sort_order
+          from (
+            values
+              (1, 'electric-terrain', 'electric', 10),
+              (2, 'grassy-terrain', 'grass', 20),
+              (3, 'misty-terrain', 'fairy', 30),
+              (4, 'psychic-terrain', 'psychic', 40)
+          ) as v(id, terrain_code, element_code, sort_order)
+          join battle_terrain_rule t on t.code = v.terrain_code and t.enabled = true
+          join game_element e on e.code = v.element_code and e.enabled = true
+          join game_skill s on s.code = 'terrain-pulse' and s.enabled = true
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true and r.id >= 100000
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 853 }
+        - column: { name: code, value: battle-rules.skill-terrain-power-modifiers }
+        - column: { name: name, value: 技能场地威力 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-terrain-power-modifiers }
+        - column: { name: component_key, value: battle-rules/skill-terrain-power-modifiers }
+        - column: { name: icon, value: lucide:map }
+        - column: { name: sort_order, valueNumeric: 38 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_access_node
+        columns:
+        - column: { name: id, valueNumeric: 854 }
+        - column: { name: code, value: battle-rules.skill-terrain-element-overrides }
+        - column: { name: name, value: 技能场地属性 }
+        - column: { name: type, value: MENU }
+        - column: { name: parent_id, valueNumeric: 830 }
+        - column: { name: path, value: /battle-rules/skill-terrain-element-overrides }
+        - column: { name: component_key, value: battle-rules/skill-terrain-element-overrides }
+        - column: { name: icon, value: lucide:palette }
+        - column: { name: sort_order, valueNumeric: 39 }
+        - column: { name: visible, valueBoolean: true }
+        - column: { name: enabled, valueBoolean: true }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 853 }
+    - insert:
+        tableName: security_role_access_node
+        columns:
+        - column: { name: role_id, valueNumeric: 203 }
+        - column: { name: access_node_id, valueNumeric: 854 }

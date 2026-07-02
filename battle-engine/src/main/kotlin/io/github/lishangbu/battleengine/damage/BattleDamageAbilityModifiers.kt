@@ -116,7 +116,7 @@ internal class BattleDamageAbilityModifiers {
 		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.ElementSkillDamageBoost ->
-					if (request.skill.effectiveElementId(request.environment.weather) in effect.elementIds) {
+					if (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain) in effect.elementIds) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
@@ -125,7 +125,10 @@ internal class BattleDamageAbilityModifiers {
 					val hpAtOrBelowThreshold =
 						request.attacker.currentHp * effect.hpThresholdDenominator <=
 							request.attacker.maxHp * effect.hpThresholdNumerator
-					if (hpAtOrBelowThreshold && request.skill.effectiveElementId(request.environment.weather) == effect.elementId) {
+					if (
+						hpAtOrBelowThreshold &&
+						request.skill.effectiveElementId(request.environment.weather, request.environment.terrain) == effect.elementId
+					) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
@@ -134,7 +137,7 @@ internal class BattleDamageAbilityModifiers {
 				is BattleAbilityEffect.WeatherElementDamageBoost ->
 					if (
 						request.environment.weather == effect.weather &&
-						request.skill.effectiveElementId(request.environment.weather) in effect.elementIds
+						request.skill.effectiveElementId(request.environment.weather, request.environment.terrain) in effect.elementIds
 					) {
 						multiplier * effect.multiplier
 					} else {
@@ -162,7 +165,7 @@ internal class BattleDamageAbilityModifiers {
 		if (request.ignoreDefenderAbilityEffects) {
 			1.0
 		} else {
-			val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+			val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 			val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 			request.defender.abilityEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {

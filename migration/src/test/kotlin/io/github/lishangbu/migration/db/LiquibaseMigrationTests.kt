@@ -255,6 +255,8 @@ class LiquibaseMigrationTests(
 			"battle-rules.skill-stat-stage-effects",
 			"battle-rules.skill-stat-stage-operations",
 			"battle-rules.skill-status-effects",
+			"battle-rules.skill-terrain-element-overrides",
+			"battle-rules.skill-terrain-power-modifiers",
 			"battle-rules.skill-weather-accuracy-overrides",
 			"battle-rules.skill-weather-element-overrides",
 			"battle-rules.skill-weather-power-modifiers",
@@ -443,6 +445,8 @@ class LiquibaseMigrationTests(
 			"battle_skill_weather_accuracy_override",
 			"battle_skill_weather_element_override",
 			"battle_skill_weather_power_modifier",
+			"battle_skill_terrain_element_override",
+			"battle_skill_terrain_power_modifier",
 			"battle_skill_charge_skip_weather",
 			"battle_ability_rule",
 			"battle_item_rule",
@@ -469,6 +473,8 @@ class LiquibaseMigrationTests(
 			union all select 'battle_skill_weather_accuracy_override', count(*) from battle_skill_weather_accuracy_override
 			union all select 'battle_skill_weather_element_override', count(*) from battle_skill_weather_element_override
 			union all select 'battle_skill_weather_power_modifier', count(*) from battle_skill_weather_power_modifier
+			union all select 'battle_skill_terrain_element_override', count(*) from battle_skill_terrain_element_override
+			union all select 'battle_skill_terrain_power_modifier', count(*) from battle_skill_terrain_power_modifier
 			union all select 'battle_skill_charge_skip_weather', count(*) from battle_skill_charge_skip_weather
 			union all select 'battle_ability_rule', count(*) from battle_ability_rule
 			union all select 'battle_item_rule', count(*) from battle_item_rule
@@ -496,6 +502,8 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_power_modifier", 7L)
+		assertThat(seedCounts).containsEntry("battle_skill_terrain_element_override", 4L)
+		assertThat(seedCounts).containsEntry("battle_skill_terrain_power_modifier", 4L)
 		assertThat(seedCounts).containsEntry("battle_skill_charge_skip_weather", 1L)
 
 		val enabledSkillsWithoutRules = queryMaps(
@@ -1451,6 +1459,41 @@ class LiquibaseMigrationTests(
 			mapOf("weather_code" to "rain", "element_code" to "water"),
 			mapOf("weather_code" to "sandstorm", "element_code" to "rock"),
 			mapOf("weather_code" to "snow", "element_code" to "ice"),
+		)
+
+		val terrainPowerModifiers = queryMaps(
+			"""
+			select tr.code as terrain_code, pm.power_multiplier
+			from battle_skill_terrain_power_modifier pm
+			join battle_skill_rule sr on sr.id = pm.skill_rule_id
+			join battle_terrain_rule tr on tr.id = pm.terrain_rule_id
+			where sr.skill_id = 805
+			order by pm.sort_order
+			""".trimIndent(),
+		)
+		assertThat(terrainPowerModifiers).containsExactly(
+			mapOf("terrain_code" to "electric-terrain", "power_multiplier" to 2.0),
+			mapOf("terrain_code" to "grassy-terrain", "power_multiplier" to 2.0),
+			mapOf("terrain_code" to "misty-terrain", "power_multiplier" to 2.0),
+			mapOf("terrain_code" to "psychic-terrain", "power_multiplier" to 2.0),
+		)
+
+		val terrainElementOverrides = queryMaps(
+			"""
+			select tr.code as terrain_code, ge.code as element_code
+			from battle_skill_terrain_element_override eo
+			join battle_skill_rule sr on sr.id = eo.skill_rule_id
+			join battle_terrain_rule tr on tr.id = eo.terrain_rule_id
+			join game_element ge on ge.id = eo.target_element_id
+			where sr.skill_id = 805
+			order by eo.sort_order
+			""".trimIndent(),
+		)
+		assertThat(terrainElementOverrides).containsExactly(
+			mapOf("terrain_code" to "electric-terrain", "element_code" to "electric"),
+			mapOf("terrain_code" to "grassy-terrain", "element_code" to "grass"),
+			mapOf("terrain_code" to "misty-terrain", "element_code" to "fairy"),
+			mapOf("terrain_code" to "psychic-terrain", "element_code" to "psychic"),
 		)
 
 		val chargeSkipItemRules = queryMaps(

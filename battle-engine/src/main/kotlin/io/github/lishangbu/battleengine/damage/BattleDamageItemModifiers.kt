@@ -27,11 +27,12 @@ internal class BattleDamageItemModifiers {
 				} else {
 					multiplier
 				}
-				is BattleItemEffect.ElementDamageBoost -> if (request.skill.effectiveElementId(request.environment.weather) == effect.elementId) {
-					multiplier * effect.multiplier
-				} else {
-					multiplier
-				}
+				is BattleItemEffect.ElementDamageBoost ->
+					if (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain) == effect.elementId) {
+						multiplier * effect.multiplier
+					} else {
+						multiplier
+					}
 				else -> multiplier
 			}
 		}
@@ -55,7 +56,7 @@ internal class BattleDamageItemModifiers {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
 				is BattleItemEffect.SuperEffectiveDamageBoost -> if (
 					request.rules.elementChart.multiplier(
-						request.skill.effectiveElementId(request.environment.weather),
+						request.skill.effectiveElementId(request.environment.weather, request.environment.terrain),
 						request.defender.elementIds,
 					) > 1.0
 				) {
@@ -77,7 +78,7 @@ internal class BattleDamageItemModifiers {
 		if (!request.allowDefenderItemDamageReduction) {
 			1.0
 		} else {
-			val skillElementId = request.skill.effectiveElementId(request.environment.weather)
+			val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 			val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
 			request.defender.itemEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {

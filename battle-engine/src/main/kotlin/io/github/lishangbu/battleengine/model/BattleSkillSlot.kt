@@ -25,9 +25,12 @@ package io.github.lishangbu.battleengine.model
  * `weakenedByGrassyTerrain` 表示该技能属于会被青草场地削弱的地面震动类技能。
  * `accuracyOverridesByWeather` 表示指定天气下的命中覆盖值，值为 null 表示该天气下必中；
  * `powerMultipliersByWeather` 表示指定天气下参与普通伤害公式前的威力倍率。
+ * `groundedPowerMultipliersByTerrain` 表示使用者接地且指定场地存在时，参与普通伤害公式前的威力倍率；
+ * 这个字段刻意把“接地”写进名称，因为现代场地规则通常只影响接触地面的成员，和只要求场地存在的技能规则不同。
  * `conditionalPowerMultipliers` 表示按使用者状态、目标状态、目标 HP 或使用者道具状态触发的公式前威力倍率。
  * `dynamicPower` 表示本次伤害公式使用的基础威力需要从战斗快照推导，例如读取能力阶级总和。
  * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
+ * `elementOverridesByTerrain` 表示指定场地下技能本次结算使用的属性覆盖，例如场地脉冲在电气场地变为电属性。
  * `ignoresUserBurnAttackReduction` 表示该物理技能在使用者灼伤时仍使用正常攻击值，例如硬撑。
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
@@ -79,9 +82,11 @@ data class BattleSkillSlot(
 	val rechargesAfterUse: Boolean = false,
 	val accuracyOverridesByWeather: Map<BattleWeather, Int?> = emptyMap(),
 	val powerMultipliersByWeather: Map<BattleWeather, Double> = emptyMap(),
+	val groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double> = emptyMap(),
 	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	val dynamicPower: BattleSkillDynamicPower? = null,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
+	val elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
 	val ignoresUserBurnAttackReduction: Boolean = false,
 	val lockMoveTurnsMin: Int = 1,
 	val lockMoveTurnsMax: Int = 1,
@@ -142,6 +147,12 @@ data class BattleSkillSlot(
 		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
 			"weather power multiplier must be positive"
 		}
+		require(groundedPowerMultipliersByTerrain.keys.none { it == BattleTerrain.NONE }) {
+			"groundedPowerMultipliersByTerrain cannot target NONE"
+		}
+		require(groundedPowerMultipliersByTerrain.values.all { it > 0.0 }) {
+			"grounded terrain power multiplier must be positive"
+		}
 		require(groundedTerrainPriorityBoosts.keys.none { it == BattleTerrain.NONE }) {
 			"grounded terrain priority boosts cannot target NONE"
 		}
@@ -162,6 +173,12 @@ data class BattleSkillSlot(
 		}
 		require(elementOverridesByWeather.values.all { it > 0 }) {
 			"weather element override must be positive"
+		}
+		require(elementOverridesByTerrain.keys.none { it == BattleTerrain.NONE }) {
+			"elementOverridesByTerrain cannot target NONE"
+		}
+		require(elementOverridesByTerrain.values.all { it > 0 }) {
+			"terrain element override must be positive"
 		}
 		require(BattleWeather.NONE !in chargeSkippedByWeathers) {
 			"chargeSkippedByWeathers cannot target NONE"
@@ -194,11 +211,14 @@ data class BattleSkillSlot(
 	}
 
 	/**
-	 * 返回指定天气下本次技能结算应使用的属性 ID。
+	 * 返回指定天气和场地下本次技能结算应使用的属性 ID。
 	 *
-	 * 大多数技能始终使用基础属性；天气球类技能会在非无天气下把技能属性改为天气对应属性。调用方必须统一使用
-	 * 本函数读取属性，才能让属性一致加成、属性克制、属性吸收、火属性解冻和指定属性道具在同一口径下工作。
+	 * 大多数技能始终使用基础属性；天气球类技能会在非无天气下把技能属性改为天气对应属性，场地脉冲类技能会在
+	 * 有效场地下把技能属性改为场地对应属性。调用方必须统一使用本函数读取属性，才能让属性一致加成、属性克制、
+	 * 属性吸收、火属性解冻和指定属性道具在同一口径下工作。
+	 *
+	 * 场地覆盖优先于天气覆盖只是为了让显式配置保持确定性；正式资料中不会给同一个技能同时配置两种覆盖来源。
 	 */
-	fun effectiveElementId(weather: BattleWeather): Long =
-		elementOverridesByWeather[weather] ?: elementId
+	fun effectiveElementId(weather: BattleWeather, terrain: BattleTerrain): Long =
+		elementOverridesByTerrain[terrain] ?: elementOverridesByWeather[weather] ?: elementId
 }

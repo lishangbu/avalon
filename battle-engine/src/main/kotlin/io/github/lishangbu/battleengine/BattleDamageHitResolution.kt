@@ -89,7 +89,7 @@ internal class BattleDamageHitResolution(
 			actor = actor,
 			target = target,
 			skill = skill,
-			skillElementId = skill.effectiveElementId(state.environment.weather),
+			skillElementId = skill.effectiveElementId(state.environment.weather, state.environment.terrain),
 			effectiveness = damage.effectiveness,
 		)
 		val stateAfterItemReduction = itemReduction?.let { state.replaceParticipant(it.target).appendEvent(it.event) } ?: state
