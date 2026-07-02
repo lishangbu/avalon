@@ -202,8 +202,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。
  *
- * [toBattleSkillTargetScope] 只允许空规则行走“普通单体目标”默认值；启用中的数据行必须显式落在本集合中，
- * 否则运行时会抛出字段非法错误，避免一个拼错的范围技能被静默降级为单体技能。
+ * 启用中的数据行必须显式落在本集合中；缺失或拼错的目标策略会在运行时装配时直接失败，避免范围技能被静默降级
+ * 为单体技能。
  */
 internal fun String.isBattleSkillRuntimeTargetPolicySupported(): Boolean =
 	this in battleSkillTargetPolicies

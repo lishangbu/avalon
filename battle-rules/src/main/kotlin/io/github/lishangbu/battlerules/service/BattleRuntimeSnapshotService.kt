@@ -119,9 +119,8 @@ class BattleRuntimeSnapshotService(
 	 * - 战斗规则来自 `battle_skill_rule` 及其子表：多段命中、保护交互、天气命中覆盖、天气威力倍率、
 	 *   状态附加、能力阶级变化、技能 HP 效果和全场环境效果。
 	 *
-	 * 如果某个基础技能暂时没有显式技能规则，仍会使用引擎默认行为构建技能槽。这个默认只发生在运行时适配层，
-	 * 不是通用 CRUD 或原始 JSON fallback；它确保准备校验和早期战斗用例可以消费完整基础资料，同时让需要特殊规则的
-	 * 技能逐步由独立规则表覆盖。
+	 * 每个启用基础技能都必须有一条启用中的 `battle_skill_rule`。缺规则会被视为资料错误立即拒绝，
+	 * 避免运行时把未建模技能静默降级成普通单体攻击。
 	 */
 	@Transactional(readOnly = true)
 	fun skillSlotsBySkillIds(skillIds: List<Long>): List<BattleSkillSlot> {
