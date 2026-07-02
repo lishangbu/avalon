@@ -36,7 +36,6 @@ class BattleDamageCalculator(
 	 */
 	fun calculate(request: BattleDamageRequest): BattleDamageResult {
 		require(request.skill.damageClass != BattleDamageClass.STATUS) { "status skill does not use standard damage formula" }
-		val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 		val power = effectivePower(request)
 		val attackingStat = when (request.skill.damageClass) {
 			BattleDamageClass.PHYSICAL -> physicalAttackAfterBurn(request)
@@ -65,8 +64,8 @@ class BattleDamageCalculator(
 
 		val levelFactor = (2 * request.attacker.level) / 5 + 2
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
-		val sameElementBonus = abilityModifiers.sameElementBonus(request, skillElementId)
-		val effectiveness = request.rules.elementChart.multiplier(skillElementId, request.defender.elementIds)
+		val sameElementBonus = abilityModifiers.sameElementBonus(request, request.skillElementId)
+		val effectiveness = request.rules.elementChart.multiplier(request.skillElementId, request.defender.elementIds)
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = environmentModifiers.weatherDamageMultiplier(request)
 		val terrainMultiplier = environmentModifiers.terrainDamageMultiplier(request)

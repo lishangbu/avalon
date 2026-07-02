@@ -17,6 +17,8 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * 防守方一次性减伤道具不参与公式，也不会被消费。
  * `attackerEffectiveSpeed` 和 `defenderEffectiveSpeed` 只服务于电球、陀螺球这类按有效速度差推导基础威力的技能；
  * 由外层状态机使用行动排序同一套速度公式计算后传入，避免伤害计算器重新实现天气、场地、道具和顺风等速度规则。
+ * [skillElementId] 在请求创建时冻结本次技能的有效属性，包含天气球、场地脉冲等天气/场地属性覆盖；伤害公式、
+ * 特性倍率、道具倍率和属性克制都读取同一个值，避免同一次伤害结算中多个调用点各自重新解释环境覆盖。
  */
 data class BattleDamageRequest(
 	val attacker: BattleParticipant,
@@ -44,4 +46,13 @@ data class BattleDamageRequest(
 			"defenderEffectiveSpeed must be positive when present"
 		}
 	}
+
+	/**
+	 * 本次普通伤害公式使用的技能有效属性。
+	 *
+	 * 这是一个派生快照，不参与数据类构造、相等性或复制参数；调用方只需要继续传入技能和当前环境。把它放在请求
+	 * 对象中，是为了保证一次公式计算内的属性一致加成、属性克制、天气/场地倍率、特性与道具倍率都共享同一个
+	 * 天气/场地覆盖结果，后续新增属性覆盖来源时也只需要维护 [BattleSkillSlot.effectiveElementId]。
+	 */
+	val skillElementId: Long = skill.effectiveElementId(environment.weather, environment.terrain)
 }

@@ -51,12 +51,12 @@ internal class BattleDamageEnvironmentModifiers {
 	 */
 	fun weatherDamageMultiplier(request: BattleDamageRequest): Double =
 		when (request.environment.weather) {
-			BattleWeather.SUN -> when (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)) {
+			BattleWeather.SUN -> when (request.skillElementId) {
 				request.rules.elementId("fire") -> 1.5
 				request.rules.elementId("water") -> 0.5
 				else -> 1.0
 			}
-			BattleWeather.RAIN -> when (request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)) {
+			BattleWeather.RAIN -> when (request.skillElementId) {
 				request.rules.elementId("water") -> 1.5
 				request.rules.elementId("fire") -> 0.5
 				else -> 1.0
@@ -74,12 +74,11 @@ internal class BattleDamageEnvironmentModifiers {
 	 * 场地带来的状态免疫、先制阻挡和回合末回复不属于伤害公式。
 	 */
 	fun terrainDamageMultiplier(request: BattleDamageRequest): Double {
-		val skillElementId = request.skill.effectiveElementId(request.environment.weather, request.environment.terrain)
 		return when (request.environment.terrain) {
 			BattleTerrain.GRASSY -> {
 				val grassBoost = if (
 					request.attacker.grounded &&
-					skillElementId == request.rules.elementId("grass")
+					request.skillElementId == request.rules.elementId("grass")
 				) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
@@ -93,19 +92,19 @@ internal class BattleDamageEnvironmentModifiers {
 				grassBoost * groundMoveReduction
 			}
 			BattleTerrain.ELECTRIC ->
-				if (request.attacker.grounded && skillElementId == request.rules.elementId("electric")) {
+				if (request.attacker.grounded && request.skillElementId == request.rules.elementId("electric")) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
 			BattleTerrain.PSYCHIC ->
-				if (request.attacker.grounded && skillElementId == request.rules.elementId("psychic")) {
+				if (request.attacker.grounded && request.skillElementId == request.rules.elementId("psychic")) {
 					TERRAIN_SAME_ELEMENT_DAMAGE_MULTIPLIER
 				} else {
 					1.0
 				}
 			BattleTerrain.MISTY ->
-				if (request.defender.grounded && skillElementId == request.rules.elementId("dragon")) {
+				if (request.defender.grounded && request.skillElementId == request.rules.elementId("dragon")) {
 					MISTY_TERRAIN_DRAGON_DAMAGE_MULTIPLIER
 				} else {
 					1.0
