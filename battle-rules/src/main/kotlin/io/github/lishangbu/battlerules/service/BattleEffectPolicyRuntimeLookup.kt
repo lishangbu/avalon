@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component
  * [BattleRuntimePolicyMapper] 里的扩展函数再把这些稳定 code 翻译成 battle-engine 的强类型效果。
  * 这样 SQL 读取和策略解释不会互相夹杂：新增资料列时改读取器，新增引擎效果时改 mapper。
  *
- * 当前没有在这里做存在性校验。原因是特性/道具可能暂时没有接入引擎的显式规则，空列表表示“没有运行时 hook”，
- * 不等价于基础资料不存在；基础资料的存在性应由队伍维护或资料 CRUD 自身保证。
+ * 本类不校验基础特性/道具 ID 是否存在：正数 ID 查不到启用规则时返回空列表，表示当前没有结构化运行时效果。
+ * 但只要查到了启用 policy，后续 assembler 会逐条校验是否被引擎支持，未知 policy 不会被静默吞掉。
  */
 @Component
 class BattleEffectPolicyRuntimeLookup(
