@@ -99,9 +99,23 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
-				listOf(5, 14, 15, 20, 38, 39, 45, 49, 50, 63, 69, 71, 76, 77, 78, 79, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 147, 162, 163, 164, 184, 191, 235, 240, 259, 261, 269, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504, 515, 526, 564, 568, 570, 577, 580, 604, 717, 877, 883, 895, 694),
+			listOf(
+				2, 3, 5, 14, 15, 20, 37, 38, 39, 45, 49, 50, 57, 63, 69, 71, 74, 76, 77, 78, 79, 82,
+				85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 147, 162, 163, 164, 184, 191, 235,
+				240, 259, 261, 269, 283, 311, 319, 347, 349, 366, 390, 400, 427, 433, 446, 504,
+				515, 526, 564, 568, 570, 577, 580, 604, 694, 717, 877, 883, 895,
+			),
 		)
 			.associateBy { it.skillId }
+
+		assertThat(slots.getValue(2).criticalHitStage).isEqualTo(1)
+		val doubleSlap = slots.getValue(3)
+		assertThat(doubleSlap.minHits).isEqualTo(2)
+		assertThat(doubleSlap.maxHits).isEqualTo(5)
+		assertThat(slots.getValue(37).targetScope).isEqualTo(BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT)
+		assertThat(slots.getValue(57).targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS)
+		assertThat(slots.getValue(74).targetScope).isEqualTo(BattleSkillTargetScope.SELF)
+		assertThat(slots.getValue(129).targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)
 
 		val growl = slots.getValue(45)
 		assertThat(growl.targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS)

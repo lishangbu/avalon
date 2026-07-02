@@ -17,9 +17,8 @@ import io.github.lishangbu.common.web.invalidValue
  * 以及启用技能规则的显式支持集合。技能子表里的状态、能力阶级和场地明细由 [BattleSkillRuleEffectRuntimeLookup]
  * 读取；这里不读取数据库，也不关心服务层事务，只把稳定字符串翻译成 battle-engine 的强类型模型。
  */
-internal fun String?.toBattleSkillTargetScope(): BattleSkillTargetScope =
+internal fun String.toBattleSkillTargetScope(): BattleSkillTargetScope =
 	when (this) {
-		null -> BattleSkillTargetScope.SELECTED_TARGET
 		"selected-target" -> BattleSkillTargetScope.SELECTED_TARGET
 		"self" -> BattleSkillTargetScope.SELF
 		"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS

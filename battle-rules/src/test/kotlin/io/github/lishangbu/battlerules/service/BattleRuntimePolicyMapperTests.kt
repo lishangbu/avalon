@@ -11,8 +11,8 @@ import org.junit.jupiter.api.assertThrows
  * 验证运行时 policy mapper 的纯字符串映射边界。
  *
  * 集成测试已经会从 Liquibase 种子数据读取启用 policy，并走正式快照装配入口；本测试只覆盖不需要数据库的 mapper
- * 细节，尤其是前缀解析和“默认可映射但启用规则不允许兜底”的差异。这样拆分 mapper 文件或新增同构 policy 时，
- * 可以用最小测试快速发现字符串解析被改坏。
+ * 细节，尤其是前缀解析和“启用规则必须显式声明目标”的约束。这样拆分 mapper 文件或新增同构 policy 时，可以用
+ * 最小测试快速发现字符串解析被改坏。
  */
 class BattleRuntimePolicyMapperTests {
 	private val elementIds = mapOf(
@@ -23,8 +23,7 @@ class BattleRuntimePolicyMapperTests {
 	)
 
 	@Test
-	fun `skill target mapper keeps nullable default and rejects unknown policy`() {
-		assertThat(null.toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
+	fun `skill target mapper requires explicit policy and rejects unknown policy`() {
 		assertThat("selected-target".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
 		assertThat("self".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELF)
 		assertThat("unknown-target".isBattleSkillRuntimeTargetPolicySupported()).isFalse()

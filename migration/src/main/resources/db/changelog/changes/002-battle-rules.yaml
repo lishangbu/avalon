@@ -7512,3 +7512,45 @@ databaseChangeLog:
               from battle_skill_rule r
               where r.skill_id = s.id
             )
+- changeSet:
+    id: 099-battle-derived-basic-skill-rule-fields
+    author: backend
+    comment: 使用技能结构化详情修正自动生成的基础战斗规则字段。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 只同步三范式资料里已经结构化的字段：目标、连续命中和暴击等级。
+          -- 技能自然语言效果仍由专项规则维护，避免把翻译文本解析成不可审计的战斗行为。
+          update battle_skill_rule r
+          set
+            target_policy = case t.code
+              when 'user' then 'self'
+              when 'all-opponents' then 'all-opponents'
+              when 'opponents-field' then 'all-opponents'
+              when 'all-other-pokemon' then 'all-adjacent-participants'
+              when 'random-opponent' then 'random-opponent'
+              else r.target_policy
+            end,
+            min_hits = coalesce(nullif(d.min_hits, 0), r.min_hits),
+            max_hits = greatest(
+              coalesce(nullif(d.max_hits, 0), r.max_hits),
+              coalesce(nullif(d.min_hits, 0), r.min_hits)
+            ),
+            hit_policy = case
+              when greatest(
+                coalesce(nullif(d.max_hits, 0), r.max_hits),
+                coalesce(nullif(d.min_hits, 0), r.min_hits)
+              ) > 1 then 'multi-hit'
+              else r.hit_policy
+            end,
+            critical_hit_stage = case
+              when coalesce(d.crit_rate, 0) > 0 then d.crit_rate
+              else r.critical_hit_stage
+            end
+          from game_skill_detail d
+          join game_skill_target t on t.id = d.target_id
+          where r.skill_id = d.skill_id
+            and r.id >= 100000
+            and r.enabled = true

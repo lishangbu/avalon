@@ -516,6 +516,65 @@ class LiquibaseMigrationTests(
 			.describedAs("所有启用技能都必须有启用中的基础战斗规则，运行时不再保留无规则 fallback")
 			.isEmpty()
 
+		val derivedBasicSkillRules = queryMaps(
+			"""
+			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage
+			from battle_skill_rule
+			where skill_id in (2, 3, 37, 57, 74, 129)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedBasicSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 2L,
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"critical_hit_stage" to 1,
+			),
+			mapOf(
+				"skill_id" to 3L,
+				"target_policy" to "selected-target",
+				"hit_policy" to "multi-hit",
+				"min_hits" to 2,
+				"max_hits" to 5,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 37L,
+				"target_policy" to "random-opponent",
+				"hit_policy" to "standard-hit",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 57L,
+				"target_policy" to "all-adjacent-participants",
+				"hit_policy" to "standard-hit",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 74L,
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"critical_hit_stage" to 0,
+			),
+			mapOf(
+				"skill_id" to 129L,
+				"target_policy" to "all-opponents",
+				"hit_policy" to "always-hit",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"critical_hit_stage" to 0,
+			),
+		)
+
 		val formatNames = queryStrings(
 			"select name from battle_format order by id",
 		)
