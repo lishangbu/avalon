@@ -252,6 +252,18 @@ internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultip
 		else -> emptyList()
 	}
 
+/**
+ * 将技能自身的场地条件先制度策略转换为运行态优先度加成。
+ *
+ * 当前只表达“使用者接地且青草场地存在时优先度 +1”的现代规则。这里返回 Map 而不是新建规则对象，是因为行动排序
+ * 只需要按当前场地查一个整数加成；接地判断属于排序阶段对行动者运行态的读取，不需要持久化额外字段。
+ */
+internal fun String.toBattleSkillGroundedTerrainPriorityBoosts(): Map<BattleTerrain, Int> =
+	when (this) {
+		"priority-plus-one-if-user-grounded-grassy-terrain" -> mapOf(BattleTerrain.GRASSY to 1)
+		else -> emptyMap()
+	}
+
 internal fun String.toBattleSkillPostDamageStatusCures(): List<BattleSkillPostDamageStatusCure> =
 	when (this) {
 		"power-double-if-target-paralysis-cure-target-paralysis-after-damage" -> listOf(
@@ -397,6 +409,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
 	toBattleSkillDynamicPower() != null ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
+	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage()
 
 /**

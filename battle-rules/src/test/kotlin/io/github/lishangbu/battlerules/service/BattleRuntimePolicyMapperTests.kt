@@ -104,4 +104,11 @@ class BattleRuntimePolicyMapperTests {
 		)
 		assertThat("power-double-if-target-grounded-electric-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
+
+	@Test
+	fun `skill grounded terrain priority policy maps to priority boost`() {
+		assertThat("priority-plus-one-if-user-grounded-grassy-terrain".toBattleSkillGroundedTerrainPriorityBoosts())
+			.containsExactlyEntriesOf(mapOf(BattleTerrain.GRASSY to 1))
+		assertThat("priority-plus-one-if-user-grounded-grassy-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
 }

@@ -83,7 +83,7 @@ internal class BattleTurnActionPlanner(
 				actor = actor,
 				skill = skill,
 				source = input.source,
-				priorityContext = actionOrdering.skillPriorityContext(actor, skill),
+				priorityContext = actionOrdering.skillPriorityContext(state, actor, skill),
 			)
 		}
 		val speedComparator = actionOrdering.speedComparator(state)

@@ -32,6 +32,7 @@ package io.github.lishangbu.battleengine.model
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
+ * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
@@ -87,6 +88,7 @@ data class BattleSkillSlot(
 	val confusesUserAfterLock: Boolean = false,
 	val forceTargetSwitch: Boolean = false,
 	val priority: Int = 0,
+	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,
 	val maxPp: Int,
 	val statusApplications: List<BattleStatusApplication> = emptyList(),
@@ -139,6 +141,12 @@ data class BattleSkillSlot(
 		}
 		require(powerMultipliersByWeather.values.all { it > 0.0 }) {
 			"weather power multiplier must be positive"
+		}
+		require(groundedTerrainPriorityBoosts.keys.none { it == BattleTerrain.NONE }) {
+			"grounded terrain priority boosts cannot target NONE"
+		}
+		require(groundedTerrainPriorityBoosts.values.all { it > 0 }) {
+			"grounded terrain priority boosts must be positive"
 		}
 		require(conditionalPowerMultipliers.isEmpty() || (damageClass != BattleDamageClass.STATUS && power != null)) {
 			"conditional power multipliers require a damaging skill with base power"

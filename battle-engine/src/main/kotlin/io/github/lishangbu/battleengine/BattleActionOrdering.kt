@@ -70,17 +70,24 @@ internal class BattleActionOrdering(
 	/**
 	 * 计算技能行动的有效优先度和随优先度提升产生的目标免疫标记。
 	 *
-	 * 变化类先制度特性会同时影响行动排序、精神场地/先制阻挡特性的判断，以及现代规则中恶属性目标对这类
-	 * 对手变化技能的免疫。把这些事实集中成上下文，可以保证同一次行动在所有判断点使用同一份结论。
+	 * 技能自身可以声明“使用者接地且指定场地存在时”获得优先度提升；变化类先制度特性也会同时影响行动排序、
+	 * 精神场地/先制阻挡特性的判断，以及现代规则中恶属性目标对这类对手变化技能的免疫。把这些事实集中成上下文，
+	 * 可以保证同一次行动在所有判断点使用同一份结论。
 	 */
-	internal fun skillPriorityContext(actor: BattleParticipant, skill: BattleSkillSlot): SkillPriorityContext {
+	internal fun skillPriorityContext(state: BattleState, actor: BattleParticipant, skill: BattleSkillSlot): SkillPriorityContext {
+		val terrainPriorityDelta = if (actor.grounded) {
+			skill.groundedTerrainPriorityBoosts[state.environment.terrain] ?: 0
+		} else {
+			0
+		}
+		val basePriority = skill.priority + terrainPriorityDelta
 		if (skill.damageClass != BattleDamageClass.STATUS) {
-			return SkillPriorityContext(effectivePriority = skill.priority)
+			return SkillPriorityContext(effectivePriority = basePriority)
 		}
 		val effects = actor.abilityEffects.filterIsInstance<BattleAbilityEffect.StatusSkillPriorityBoost>()
 		val priorityDelta = effects.maxOfOrNull { it.priorityDelta } ?: 0
 		return SkillPriorityContext(
-			effectivePriority = skill.priority + priorityDelta,
+			effectivePriority = basePriority + priorityDelta,
 			statusPriorityBoostedByAbility = priorityDelta > 0,
 			darkElementTargetsImmune = priorityDelta > 0 && effects.any { it.darkElementTargetsImmune },
 		)

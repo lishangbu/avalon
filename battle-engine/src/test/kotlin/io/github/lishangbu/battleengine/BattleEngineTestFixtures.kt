@@ -31,6 +31,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
@@ -209,6 +210,7 @@ internal fun damagingSkill(
 	confusesUserAfterLock: Boolean = false,
 	forceTargetSwitch: Boolean = false,
 	priority: Int = 0,
+	groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	statusApplications: List<BattleStatusApplication> = emptyList(),
 	volatileStatusApplications: List<BattleVolatileStatusApplication> = emptyList(),
 	statStageEffects: List<BattleStatStageEffect> = emptyList(),
@@ -261,6 +263,7 @@ internal fun damagingSkill(
 		confusesUserAfterLock = confusesUserAfterLock,
 		forceTargetSwitch = forceTargetSwitch,
 		priority = priority,
+		groundedTerrainPriorityBoosts = groundedTerrainPriorityBoosts,
 		remainingPp = 35,
 		maxPp = 35,
 		statusApplications = statusApplications,

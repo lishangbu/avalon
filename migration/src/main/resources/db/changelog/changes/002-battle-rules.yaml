@@ -8260,3 +8260,24 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'rising-voltage'
+- changeSet:
+    id: 121-battle-derived-basic-skill-terrain-priority
+    author: backend
+    comment: 为接地且处于指定场地时提升先制度的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 青草滑梯在青草场地中要求“使用者接地”才获得 +1 优先度；非接地使用者仍按基础优先度行动。
+          update battle_skill_rule r
+          set
+            effect_policy = 'priority-plus-one-if-user-grounded-grassy-terrain',
+            damage_policy = 'standard-damage',
+            description = '使用者接地且当前为青草场地时，技能行动优先度 +1；非接地使用者保持基础优先度。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'grassy-glide'

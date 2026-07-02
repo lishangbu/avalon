@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -178,6 +179,74 @@ class BattleActionOrderingPublicReferenceTests {
 
 		scenario.assertNamed("same-positive-priority-bracket-still-orders-by-speed")
 		assertEquals(listOf("fast-priority", "slow-priority"), usedActorIds(resolved.events))
+	}
+
+	@Test
+	fun `grounded terrain priority boost moves slower skill before faster opponent`() {
+		val scenario = publicBattleRuleScenario(
+			name = "grounded-terrain-priority-boost-moves-slower-skill-before-faster-opponent",
+			inputSummary = "青草场地中，速度较低且接地的成员使用声明为青草场地接地先制度 +1 的攻击技能。",
+			expectedSummary = "技能获得 +1 优先度，先于速度更高的普通优先度技能执行。",
+		)
+		val grassyPrioritySkill = damagingSkill(
+			skillId = 803,
+			name = "青草滑梯",
+			elementId = 12,
+			groundedTerrainPriorityBoosts = mapOf(BattleTerrain.GRASSY to 1),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("grassy-priority-user", speed = 40, skill = grassyPrioritySkill),
+				second = participant("faster-opponent", speed = 100),
+				environment = BattleEnvironment(terrain = BattleTerrain.GRASSY),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("grassy-priority-user", skillId = 803, targetActorId = "faster-opponent"),
+				BattleAction.UseSkill("faster-opponent", skillId = 1, targetActorId = "grassy-priority-user"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+
+		scenario.assertNamed("grounded-terrain-priority-boost-moves-slower-skill-before-faster-opponent")
+		assertEquals(listOf("grassy-priority-user", "faster-opponent"), usedActorIds(resolved.events))
+	}
+
+	@Test
+	fun `grounded terrain priority boost does not apply to ungrounded user`() {
+		val scenario = publicBattleRuleScenario(
+			name = "grounded-terrain-priority-boost-does-not-apply-to-ungrounded-user",
+			inputSummary = "青草场地中，速度较低但非接地的成员使用同一个场地先制度技能。",
+			expectedSummary = "使用者没有受到场地影响，技能保持普通优先度，速度更高的对手先行动。",
+		)
+		val grassyPrioritySkill = damagingSkill(
+			skillId = 803,
+			name = "青草滑梯",
+			elementId = 12,
+			groundedTerrainPriorityBoosts = mapOf(BattleTerrain.GRASSY to 1),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("ungrounded-user", speed = 40, skill = grassyPrioritySkill, grounded = false),
+				second = participant("faster-opponent", speed = 100),
+				environment = BattleEnvironment(terrain = BattleTerrain.GRASSY),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(
+				BattleAction.UseSkill("ungrounded-user", skillId = 803, targetActorId = "faster-opponent"),
+				BattleAction.UseSkill("faster-opponent", skillId = 1, targetActorId = "ungrounded-user"),
+			),
+			ScriptedBattleRandom(listOf(1, 15, 1, 15)),
+		)
+
+		scenario.assertNamed("grounded-terrain-priority-boost-does-not-apply-to-ungrounded-user")
+		assertEquals(listOf("faster-opponent", "ungrounded-user"), usedActorIds(resolved.events))
 	}
 
 	@Test

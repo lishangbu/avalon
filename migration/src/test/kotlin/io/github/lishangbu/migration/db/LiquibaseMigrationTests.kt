@@ -1162,6 +1162,21 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val terrainPrioritySkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id = 803
+			""".trimIndent(),
+		)
+		assertThat(terrainPrioritySkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 803L,
+				"effect_policy" to "priority-plus-one-if-user-grounded-grassy-terrain",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val postDamageStatusCureSkillRules = queryMaps(
 			"""
 			select skill_id, effect_policy, damage_policy
