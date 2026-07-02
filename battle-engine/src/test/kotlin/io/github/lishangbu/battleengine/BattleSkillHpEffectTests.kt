@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -434,6 +435,100 @@ class BattleSkillHpEffectTests {
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>())
 	}
 
+	@Test
+	fun `purify cures target major status before healing user`() {
+		val scenario = publicBattleRuleScenario(
+			name = "purify-cures-target-major-status-before-healing-user",
+			inputSummary = "使用者未满 HP，目标处于灼伤，使用治愈目标主要异常后自我回复的变化技能。",
+			expectedSummary = "技能先清除目标灼伤并记录状态解除事件，然后回复使用者最大 HP 的一半。",
+		)
+		val skill = purifyLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("purify-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50).copy(majorStatus = BattleMajorStatus.BURN),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("purify-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("purify-cures-target-major-status-before-healing-user")
+		assertEquals(null, resolved.participant("target")?.majorStatus)
+		assertEquals(70, resolved.participant("purify-user")?.currentHp)
+		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals("target", cleared.actorId)
+		assertEquals(BattleMajorStatus.BURN, cleared.status)
+		assertEquals("purify-user", healing.actorId)
+		assertEquals(50, healing.amount)
+		assertTrue(
+			resolved.events.indexOf(cleared) < resolved.events.indexOf(healing),
+			"治愈目标主要异常必须先于使用者回复，确保 replay 顺序和规则描述一致",
+		)
+	}
+
+	@Test
+	fun `purify fails when target has no major status`() {
+		val scenario = publicBattleRuleScenario(
+			name = "purify-fails-when-target-has-no-major-status",
+			inputSummary = "目标没有主要异常，使用者尝试使用治愈目标异常后自我回复的变化技能。",
+			expectedSummary = "技能以目标没有主要异常的稳定原因失败，不清状态也不回复 HP。",
+		)
+		val skill = purifyLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("purify-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("purify-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("purify-fails-when-target-has-no-major-status")
+		assertEquals(20, resolved.participant("purify-user")?.currentHp)
+		assertEquals("target-has-no-major-status", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusCleared>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+	}
+
+	@Test
+	fun `purify still cures target major status when user hp is full`() {
+		val scenario = publicBattleRuleScenario(
+			name = "purify-still-cures-target-major-status-when-user-hp-is-full",
+			inputSummary = "使用者 HP 已满，目标处于麻痹，使用治愈目标主要异常后自我回复的变化技能。",
+			expectedSummary = "技能仍然清除目标麻痹；因为使用者没有缺失 HP，所以不会产生技能回复事件。",
+		)
+		val skill = purifyLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("purify-user", speed = 100, currentHp = 100, skill = skill),
+				second = participant("target", speed = 50).copy(majorStatus = BattleMajorStatus.PARALYSIS),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("purify-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("purify-still-cures-target-major-status-when-user-hp-is-full")
+		assertEquals(null, resolved.participant("target")?.majorStatus)
+		assertEquals(100, resolved.participant("purify-user")?.currentHp)
+		val cleared = resolved.events.filterIsInstance<BattleEvent.StatusCleared>().single()
+		assertEquals("target", cleared.actorId)
+		assertEquals(BattleMajorStatus.PARALYSIS, cleared.status)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+	}
+
 	private fun strengthSapLikeSkill() =
 		damagingSkill(
 			name = "吸取力量测试",
@@ -447,6 +542,19 @@ class BattleSkillHpEffectTests {
 					target = BattleEffectTarget.TARGET,
 					stageDelta = -1,
 					chancePercent = 100,
+				),
+			),
+		)
+
+	private fun purifyLikeSkill() =
+		damagingSkill(
+			name = "净化测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(
+				BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure(
+					numerator = 1,
+					denominator = 2,
 				),
 			),
 		)

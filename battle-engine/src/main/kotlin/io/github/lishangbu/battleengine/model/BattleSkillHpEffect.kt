@@ -12,6 +12,7 @@ package io.github.lishangbu.battleengine.model
  * - 变化技能成功后，实际目标按目标最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前场地选择目标最大 HP 回复比例。
  * - 变化技能成功后，按目标当前攻击实数回复使用者。
+ * - 变化技能成功后，先治愈目标主要异常，再按使用者最大 HP 的一定比例回复使用者。
  * - 变化技能成功后，支付最大 HP 的一定比例建立替身。
  *
  * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
@@ -148,6 +149,24 @@ sealed interface BattleSkillHpEffect {
 	 * 其它阻止能力下降的情况不应阻止这里的回复，因此该效果必须先于普通能力阶级附加效果结算。
 	 */
 	data object SelfHealByTargetCurrentAttack : BattleSkillHpEffect
+
+	/**
+	 * 技能成功后先治愈目标主要异常，再按使用者最大 HP 比例回复使用者。
+	 *
+	 * 该效果用于表达“目标必须已经有主要异常状态，技能成功后清除该异常并回复使用者”的组合规则。它不是普通的
+	 * 状态附加，也不是目标治疗：状态变化落在目标身上，HP 回复落在使用者身上，且目标没有主要异常时整招失败。
+	 * 因此将它作为一个明确效果保存，调用方可以稳定保持“清除目标异常事件 -> 使用者回复事件”的 replay 顺序。
+	 */
+	data class SelfHealAfterTargetMajorStatusCure(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleSkillHpEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
 
 	/**
 	 * 技能成功后支付最大 HP 的固定比例建立替身。

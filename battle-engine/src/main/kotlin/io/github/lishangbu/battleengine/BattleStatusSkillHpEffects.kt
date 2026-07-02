@@ -104,6 +104,14 @@ internal class BattleStatusSkillHpEffects {
 						denominator = effect.denominator,
 					)
 					BattleSkillHpEffect.SelfHealByTargetCurrentAttack -> current
+					is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure -> applyTargetMajorStatusCureThenSelfHeal(
+						state = current,
+						actorId = actorId,
+						targetActorId = targetActorId,
+						skill = skill,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
 					else -> current
 				}
 			}
@@ -198,6 +206,41 @@ internal class BattleStatusSkillHpEffects {
 					amount = healAmount,
 				),
 			)
+	}
+
+	/**
+	 * 清除目标主要异常后按使用者最大 HP 比例回复使用者。
+	 *
+	 * 目标没有主要异常时，技能应在命中前 gate 失败，因此这里遇到空状态只保持状态不变，避免 HP 阶段自己承担失败
+	 * 语义。清除异常必须先于回复事件写入 replay；如果使用者满 HP、倒下或被回复封锁，目标异常仍然已经被治愈，
+	 * 只是不会产生回复事件。
+	 */
+	private fun applyTargetMajorStatusCureThenSelfHeal(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val target = state.participant(targetActorId) ?: return state
+		val status = target.majorStatus ?: return state
+		val afterCure = state
+			.replaceParticipant(target.clearMajorStatus())
+			.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = target.actorId,
+					status = status,
+				),
+			)
+		return applyHealMaxHpFraction(
+			state = afterCure,
+			healedActorId = actorId,
+			skill = skill,
+			numerator = numerator,
+			denominator = denominator,
+		)
 	}
 
 	/**

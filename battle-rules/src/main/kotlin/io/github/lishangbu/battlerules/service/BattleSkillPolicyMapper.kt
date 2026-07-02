@@ -99,6 +99,12 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 			),
 		)
 		"self-heal-by-target-current-attack" -> listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack)
+		"target-major-status-cure-self-heal-half-max-hp" -> listOf(
+			BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure(
+				numerator = 1,
+				denominator = 2,
+			),
+		)
 		"terrain-target-heal-max-hp" -> listOf(
 			BattleSkillHpEffect.TargetHealMaxHpByTerrain(
 				defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),

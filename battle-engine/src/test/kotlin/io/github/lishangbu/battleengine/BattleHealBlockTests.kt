@@ -6,6 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.SkillPreventionReason
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
@@ -114,6 +115,38 @@ class BattleHealBlockTests {
 	}
 
 	@Test
+	fun `heal blocked participant cannot use target status cure self healing skill`() {
+		val scenario = publicBattleRuleScenario(
+			name = "heal-blocked-participant-cannot-use-target-status-cure-self-healing-skill",
+			inputSummary = "处于回复封锁且未满 HP 的成员，尝试使用会治愈目标主要异常并回复自己的变化技能。",
+			expectedSummary = "技能在 PP 消耗前被回复封锁阻止；目标异常不被清除，使用者也不会回复 HP。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("purify-user", speed = 100, currentHp = 30, skill = purifyLikeSkill())
+					.copy(healBlockTurnsRemaining = 2),
+				second = participant("target", speed = 50).copy(majorStatus = BattleMajorStatus.BURN),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("purify-user", skillId = 685, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("heal-blocked-participant-cannot-use-target-status-cure-self-healing-skill")
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillPrevented>().filter { it.reason == SkillPreventionReason.HEAL_BLOCK }.single()
+		assertEquals("purify-user", blocked.actorId)
+		assertEquals(685, blocked.skillId)
+		assertEquals(BattleMajorStatus.BURN, resolved.participant("target")?.majorStatus)
+		assertEquals(30, resolved.participant("purify-user")?.currentHp)
+		assertEquals(35, resolved.participant("purify-user")?.skillSlot(685)?.remainingPp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatusCleared>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+	}
+
+	@Test
 	fun `heal block suppresses end turn held item healing`() {
 		val scenario = publicBattleRuleScenario(
 			name = "heal-block-suppresses-end-turn-held-item-healing",
@@ -193,5 +226,19 @@ class BattleHealBlockTests {
 			skillId = 71,
 			name = "吸取",
 			hpEffects = listOf(BattleSkillHpEffect.DrainDamage(numerator = 1, denominator = 2)),
+		)
+
+	private fun purifyLikeSkill() =
+		damagingSkill(
+			skillId = 685,
+			name = "净化测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(
+				BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure(
+					numerator = 1,
+					denominator = 2,
+				),
+			),
 		)
 }

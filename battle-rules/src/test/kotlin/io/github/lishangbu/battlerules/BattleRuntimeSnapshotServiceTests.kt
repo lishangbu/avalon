@@ -105,7 +105,7 @@ class BattleRuntimeSnapshotServiceTests(
 				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 269,
 				283, 305, 311, 319, 329, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457,
-				464, 504, 505, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 666, 668, 694, 717, 733, 819, 877,
+				464, 504, 505, 515, 526, 564, 568, 570, 577, 580, 604, 611, 659, 666, 668, 685, 694, 717, 733, 819, 877,
 				883, 895,
 			),
 		)
@@ -250,6 +250,14 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(strengthSapStatStage.stat).isEqualTo(BattleStat.ATTACK)
 		assertThat(strengthSapStatStage.stageDelta).isEqualTo(-1)
 		assertThat(strengthSapStatStage.chancePercent).isEqualTo(100)
+
+		val purify = slots.getValue(685)
+		assertThat(purify.damageClass).isEqualTo(BattleDamageClass.STATUS)
+		val purifyHpEffect = purify.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure>()
+			.single()
+		assertThat(purifyHpEffect.numerator).isEqualTo(1)
+		assertThat(purifyHpEffect.denominator).isEqualTo(2)
 
 		assertThat(slots.getValue(49).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(20))
 		assertThat(slots.getValue(82).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(40))

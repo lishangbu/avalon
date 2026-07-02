@@ -7966,3 +7966,26 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'strength-sap'
+- changeSet:
+    id: 111-battle-derived-basic-skill-purify
+    author: backend
+    comment: 为净化补充治愈目标主要异常后回复使用者的特殊规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 净化不是普通 healing=50 技能：它要求目标已有主要异常，成功后先清除目标主要异常，
+          -- 再回复使用者最大 HP 的一半。目标没有主要异常时整招失败，因此必须使用独立 policy。
+          update battle_skill_rule r
+          set
+            effect_policy = 'target-major-status-cure-self-heal-half-max-hp',
+            target_policy = 'selected-target',
+            damage_policy = 'no-damage',
+            description = '目标有主要异常时，先治愈目标主要异常，再回复使用者最大 HP 的一半；目标无主要异常时失败。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'purify'

@@ -11,14 +11,15 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * replay 中追加真实的阻止事件。两边必须对“回复封锁是否限制该技能”和“挑衅是否限制该技能”保持同一口径。
  *
  * 这里只根据结构化技能槽判断，不读取技能名称、本地化文本或数据库资料。资料导入层负责把吸取回复、自我回复、
- * 天气/场地变量回复、目标回复、按目标攻击实数回复等规则映射为 [BattleSkillHpEffect]，引擎只消费已经冻结的
- * 运行态。
+ * 天气/场地变量回复、目标回复、按目标攻击实数回复、治愈目标异常后回复等规则映射为 [BattleSkillHpEffect]，
+ * 引擎只消费已经冻结的运行态。
  */
 internal fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
 	skill.hpEffects.any { effect ->
 		effect is BattleSkillHpEffect.SelfHealMaxHpFraction ||
 			effect is BattleSkillHpEffect.SelfHealMaxHpByWeather ||
 			effect is BattleSkillHpEffect.SelfHealByTargetCurrentAttack ||
+			effect is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure ||
 			effect is BattleSkillHpEffect.TargetHealMaxHpFraction ||
 			effect is BattleSkillHpEffect.TargetHealMaxHpByTerrain ||
 			effect is BattleSkillHpEffect.DrainDamage

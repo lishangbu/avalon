@@ -145,6 +145,18 @@ internal class BattlePreHitTargetGate(
 			)
 		}
 
+		if (skill.healsAfterTargetMajorStatusCure() && target.majorStatus == null) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "target-has-no-major-status",
+				),
+			)
+		}
+
 		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val accuracyCheck = hitResolution.accuracyCheck(
 			state = state,
@@ -194,6 +206,15 @@ internal class BattlePreHitTargetGate(
  */
 private fun BattleSkillSlot.healsByTargetCurrentAttack(): Boolean =
 	hpEffects.any { it is BattleSkillHpEffect.SelfHealByTargetCurrentAttack }
+
+/**
+ * 判断技能是否拥有“先治愈目标主要异常再回复使用者”的特殊 HP 效果。
+ *
+ * 这类技能的失败条件取决于目标当前是否真的有主要异常状态。把判断留在命中前 gate 中，可以保证失败时不会误清状态、
+ * 不会误回复，也不会让后续 HP helper 需要同时表示成功和失败两种阶段语义。
+ */
+private fun BattleSkillSlot.healsAfterTargetMajorStatusCure(): Boolean =
+	hpEffects.any { it is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure }
 
 /**
  * 命中前 gate 的结算结果。
