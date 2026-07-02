@@ -29,10 +29,6 @@ import java.sql.ResultSet
  * 这里不读取技能名称、PP、威力、目标 policy，也不校验 policy 是否被支持；这些仍然属于 [BattleSkillRuntimeLookup]
  * 的主行装配职责。这样分开后，新增一个子表效果只会改动本类和对应快照测试；新增一个主行布尔字段或 policy 校验也
  * 不会让子表 SQL 跟着一起膨胀。
- *
- * `ruleId == null` 表示资料库中没有启用的 `battle_skill_rule` 行。这类普通技能应该继续使用 battle-engine 的默认
- * 技能槽行为，因此本类会返回全空快照，而不是抛错或查询每张子表。这个约定让“没有规则行”和“有规则行但子表为空”
- * 在运行时表现一致，也避免普通技能为所有可选效果付出额外 SQL 成本。
  */
 @Component
 class BattleSkillRuleEffectRuntimeLookup(
@@ -44,10 +40,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 * 返回值按 battle-engine 的强类型模型组织，而不是暴露数据库行。这样上层装配 [BattleSkillRuntimeLookup] 只需要把
 	 * 快照字段复制进 `BattleSkillSlot`，不会关心某个效果来自天气表、状态表、能力阶级表还是场地表。
 	 */
-	fun ruleEffects(ruleId: Long?): BattleSkillRuleEffectRuntimeSnapshot {
-		if (ruleId == null) {
-			return BattleSkillRuleEffectRuntimeSnapshot.EMPTY
-		}
+	fun ruleEffects(ruleId: Long): BattleSkillRuleEffectRuntimeSnapshot {
 		val statusEffects = statusEffectRows(ruleId)
 		val sideFieldEffects = sideFieldEffectRows(ruleId)
 		return BattleSkillRuleEffectRuntimeSnapshot(
@@ -391,21 +384,4 @@ data class BattleSkillRuleEffectRuntimeSnapshot(
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication>,
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication>,
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication>,
-) {
-	companion object {
-		val EMPTY = BattleSkillRuleEffectRuntimeSnapshot(
-			chargeSkippedByWeathers = emptySet(),
-			accuracyOverridesByWeather = emptyMap(),
-			powerMultipliersByWeather = emptyMap(),
-			elementOverridesByWeather = emptyMap(),
-			statusApplications = emptyList(),
-			volatileStatusApplications = emptyList(),
-			statStageEffects = emptyList(),
-			statStageOperations = emptyList(),
-			sideConditionApplications = emptyList(),
-			sideSpeedModifierApplications = emptyList(),
-			sideEntryHazardApplications = emptyList(),
-			fieldSpeedOrderApplications = emptyList(),
-		)
-	}
-}
+)
