@@ -64,4 +64,47 @@ class BattleParticipantStatusOperationsTests {
 		assertTrue(tormented.tormented)
 		assertFalse(tormented.clearVolatileStatus(BattleVolatileStatus.TORMENT).tormented)
 	}
+
+	@Test
+	fun `clear volatile status resets only the selected runtime fields`() {
+		val actor = participant("volatile-clear-target", speed = 100).copy(
+			flinched = true,
+			confusionTurnsRemaining = 3,
+			healBlockTurnsRemaining = 4,
+			tauntTurnsRemaining = 2,
+			disabledSkillId = 1,
+			disabledSkillTurnsRemaining = 5,
+			tormented = true,
+			boundByActorId = "binder",
+			bindingTurnsRemaining = 4,
+		)
+
+		/*
+		 * `clearVolatileStatus` 是治愈道具、离场清理和来源离场解除都会复用的底层入口。这里逐个状态验证，
+		 * 是为了避免后续新增临时状态时误把“清单个状态”改成“清所有临时状态”，尤其是定身法和束缚这类带
+		 * 绑定字段的状态，必须在清理计数的同时同步清掉技能 ID 或来源成员 ID。
+		 */
+		val flinchCleared = actor.clearVolatileStatus(BattleVolatileStatus.FLINCH)
+		val confusionCleared = actor.clearVolatileStatus(BattleVolatileStatus.CONFUSION)
+		val healBlockCleared = actor.clearVolatileStatus(BattleVolatileStatus.HEAL_BLOCK)
+		val tauntCleared = actor.clearVolatileStatus(BattleVolatileStatus.TAUNT)
+		val disableCleared = actor.clearVolatileStatus(BattleVolatileStatus.DISABLE)
+		val tormentCleared = actor.clearVolatileStatus(BattleVolatileStatus.TORMENT)
+		val bindingCleared = actor.clearVolatileStatus(BattleVolatileStatus.BINDING)
+
+		assertFalse(flinchCleared.flinched)
+		assertEquals(3, flinchCleared.confusionTurnsRemaining)
+		assertEquals(0, confusionCleared.confusionTurnsRemaining)
+		assertEquals(4, confusionCleared.healBlockTurnsRemaining)
+		assertEquals(0, healBlockCleared.healBlockTurnsRemaining)
+		assertEquals(2, healBlockCleared.tauntTurnsRemaining)
+		assertEquals(0, tauntCleared.tauntTurnsRemaining)
+		assertEquals(1, tauntCleared.disabledSkillId)
+		assertNull(disableCleared.disabledSkillId)
+		assertEquals(0, disableCleared.disabledSkillTurnsRemaining)
+		assertFalse(tormentCleared.tormented)
+		assertEquals("binder", tormentCleared.boundByActorId)
+		assertNull(bindingCleared.boundByActorId)
+		assertEquals(0, bindingCleared.bindingTurnsRemaining)
+	}
 }
