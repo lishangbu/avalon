@@ -100,11 +100,11 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				2, 3, 5, 7, 14, 15, 20, 28, 36, 37, 38, 39, 45, 47, 49, 50, 57, 63, 69, 71, 74,
-				76, 77, 78, 79, 81, 82, 85, 87, 94, 95, 101, 103, 105, 113, 115, 129, 138, 147,
-				162, 163, 164, 184, 189, 191, 235, 240, 259, 261, 269, 283, 311, 319, 344, 347,
-				349, 366, 390, 400, 427, 433, 435, 446, 456, 457, 464, 504, 515, 526, 564, 568,
-				570, 577, 580, 604, 694, 717, 733, 877, 883, 895,
+				2, 3, 5, 7, 14, 15, 20, 28, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69, 71,
+				74, 76, 77, 78, 79, 81, 82, 85, 87, 92, 94, 95, 101, 103, 105, 113, 115, 129,
+				138, 147, 162, 163, 164, 184, 189, 191, 235, 240, 259, 261, 269, 283, 305, 311,
+				319, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457, 464, 504, 515,
+				526, 564, 568, 570, 577, 580, 604, 694, 717, 733, 877, 883, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -121,6 +121,12 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(7).statusApplications.single().chancePercent).isEqualTo(10)
 		assertThat(slots.getValue(47).statusApplications.single().status).isEqualTo(BattleMajorStatus.SLEEP)
 		assertThat(slots.getValue(47).statusApplications.single().chancePercent).isEqualTo(100)
+		assertThat(slots.getValue(40).statusApplications.single().status).isEqualTo(BattleMajorStatus.POISON)
+		assertThat(slots.getValue(40).statusApplications.single().chancePercent).isEqualTo(30)
+		assertThat(slots.getValue(92).statusApplications.single().status).isEqualTo(BattleMajorStatus.BAD_POISON)
+		assertThat(slots.getValue(92).statusApplications.single().chancePercent).isEqualTo(100)
+		assertThat(slots.getValue(305).statusApplications.single().status).isEqualTo(BattleMajorStatus.BAD_POISON)
+		assertThat(slots.getValue(305).statusApplications.single().chancePercent).isEqualTo(50)
 		assertThat(slots.getValue(344).statusApplications.single().status).isEqualTo(BattleMajorStatus.PARALYSIS)
 		assertThat(slots.getValue(344).statusApplications.single().chancePercent).isEqualTo(10)
 		assertThat(slots.getValue(435).targetScope).isEqualTo(BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS)
