@@ -1287,6 +1287,77 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证数据库中的暴走锁招字段会进入真实引擎状态机。
+	 *
+	 * 技能 37 的锁定回合与结束混乱来自 `battle_skill_rule`，测试不手写 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
+	 * 第一回合脚本把总持续回合固定为 2；第二回合即使提交普通技能，引擎也必须继续使用 37，并且结束锁招后附加疲劳混乱。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database rampage lock in engine turn`() {
+		val initialState = assembledState(
+			firstSideFirst = participant("a-1", creatureId = 1, level = 50, skillIds = listOf(37, 1)),
+			secondSideFirst = participant("b-1", creatureId = 150, level = 50, skillIds = listOf(1)),
+		)
+		val engine = BattleEngine()
+		val firstRandom = ScriptedBattleRandom(listOf(0, 1, 15, 0))
+		val afterFirst = engine.resolveTurn(
+			engine.start(initialState),
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 37, targetActorId = "b-1")),
+			firstRandom,
+		)
+		val ppAfterFirstUse = afterFirst.participant("a-1")
+			?.skillSlots
+			?.single { it.skillId == 37L }
+			?.remainingPp
+		val secondRandom = ScriptedBattleRandom(listOf(0, 1, 15, 0))
+		val afterSecond = engine.resolveTurn(
+			afterFirst,
+			listOf(BattleAction.UseSkill(actorId = "a-1", skillId = 1, targetActorId = "b-1")),
+			secondRandom,
+		)
+
+		assertThat(firstRandom.consumedReasons()).containsExactly(
+			"random adjacent opponent target for 37",
+			"critical hit for 37",
+			"damage random for 37",
+			"locked move duration for 37",
+		)
+		assertThat(secondRandom.consumedReasons()).containsExactly(
+			"random adjacent opponent target for 37",
+			"critical hit for 37",
+			"damage random for 37",
+			"locked move confusion duration for 37",
+		)
+		assertThat(afterFirst.participant("a-1")?.lockedMoveTurnsRemaining).isEqualTo(1)
+		assertThat(afterSecond.participant("a-1")?.lockedMoveTurnsRemaining).isZero()
+		assertThat(afterSecond.participant("a-1")?.confusionTurnsRemaining).isGreaterThan(0)
+		assertThat(
+			afterSecond.participant("a-1")
+				?.skillSlots
+				?.single { it.skillId == 37L }
+				?.remainingPp,
+		).isEqualTo(ppAfterFirstUse)
+		assertThat(
+			afterSecond.events
+				.filterIsInstance<BattleEvent.SkillUsed>()
+				.filter { it.actorId == "a-1" }
+				.map { it.skillId },
+		).containsExactly(37L, 37L)
+		assertThat(
+			afterSecond.events
+				.filterIsInstance<BattleEvent.LockedMoveEnded>()
+				.single { it.actorId == "a-1" }
+				.confusesUser,
+		).isTrue()
+		assertThat(
+			afterSecond.events
+				.filterIsInstance<BattleEvent.VolatileStatusApplied>()
+				.single { it.targetActorId == "a-1" }
+				.status,
+		).isEqualTo(BattleVolatileStatus.CONFUSION)
+	}
+
+	/**
 	 * 验证固定伤害技能规则不是只停留在技能槽断言，而是可以经数据库装配后进入真实伤害事件。
 	 *
 	 * 技能 49 的固定 20 点伤害来自 Liquibase 中的技能战斗规则资料。测试不手写 [BattleFixedDamage]，只通过
