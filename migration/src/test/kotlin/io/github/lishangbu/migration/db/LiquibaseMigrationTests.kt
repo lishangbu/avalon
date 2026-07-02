@@ -1125,7 +1125,7 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (263, 362, 474, 506, 512, 804)
+			where skill_id in (263, 362, 474, 506, 512, 804, 875)
 			order by skill_id
 			""".trimIndent(),
 		)
@@ -1158,6 +1158,11 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 804L,
 				"effect_policy" to "power-double-if-target-grounded-electric-terrain",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 875L,
+				"effect_policy" to "power-one-and-half-if-electric-terrain",
 				"damage_policy" to "standard-damage",
 			),
 		)

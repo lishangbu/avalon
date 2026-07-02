@@ -109,7 +109,7 @@ class BattleRuntimeSnapshotServiceTests(
 				67, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 263, 265, 269,
 				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
-				464, 474, 475, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 819, 877,
+				464, 474, 475, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 819, 875, 877,
 				883, 892, 895,
 			),
 		)
@@ -306,6 +306,12 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(risingVoltagePower.terrain).isEqualTo(BattleTerrain.ELECTRIC)
 		assertThat(risingVoltagePower.multiplier).isEqualTo(2.0)
+
+		val psybladePower = slots.getValue(875).conditionalPowerMultipliers
+			.filterIsInstance<BattleSkillPowerMultiplier.ActiveTerrain>()
+			.single()
+		assertThat(psybladePower.terrain).isEqualTo(BattleTerrain.ELECTRIC)
+		assertThat(psybladePower.multiplier).isEqualTo(1.5)
 
 		assertThat(slots.getValue(803).groundedTerrainPriorityBoosts).containsExactlyEntriesOf(
 			mapOf(BattleTerrain.GRASSY to 1),

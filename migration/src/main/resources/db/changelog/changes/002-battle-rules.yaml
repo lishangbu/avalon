@@ -8281,3 +8281,24 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'grassy-glide'
+- changeSet:
+    id: 122-battle-derived-basic-skill-electric-terrain-power
+    author: backend
+    comment: 为电气场地存在时提升威力的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 精神剑只要求当前为电气场地即可获得 1.5 倍威力；公开规则明确不要求使用者接地。
+          update battle_skill_rule r
+          set
+            effect_policy = 'power-one-and-half-if-electric-terrain',
+            damage_policy = 'standard-damage',
+            description = '当前为电气场地时，技能威力按 1.5 倍计算；该威力加成不要求使用者接地。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'psyblade'

@@ -1398,6 +1398,51 @@ class BattleDamageCalculatorTests {
 	}
 
 	@Test
+	fun `active terrain power multiplier does not require grounded user`() {
+		val scenario = publicBattleRuleScenario(
+			name = "active-terrain-power-multiplier-does-not-require-grounded-user",
+			inputSummary = "电气场地中，非接地使用者使用只要求电气场地存在就提升威力的超能力物理技能。",
+			expectedSummary = "技能在威力阶段按 1.5 倍计算，但非接地使用者不会额外获得同属性场地伤害加成。",
+		)
+		val skill = damagingSkill(
+			elementId = 14,
+			power = 80,
+			conditionalPowerMultipliers = listOf(
+				BattleSkillPowerMultiplier.ActiveTerrain(
+					terrain = BattleTerrain.ELECTRIC,
+					multiplier = 1.5,
+				),
+			),
+		)
+
+		val electricTerrain = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-user", speed = 100, elementId = 14, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = skill,
+				rules = neutralRules(),
+				environment = BattleEnvironment(terrain = BattleTerrain.ELECTRIC),
+				randomPercent = 100,
+			),
+		)
+		val noTerrain = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("ungrounded-user", speed = 100, elementId = 14, grounded = false),
+				defender = participant("defender", speed = 80, elementId = 1),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("active-terrain-power-multiplier-does-not-require-grounded-user")
+		assertEquals(54, electricTerrain.baseDamage)
+		assertEquals(81, electricTerrain.amount)
+		assertEquals(37, noTerrain.baseDamage)
+		assertEquals(55, noTerrain.amount)
+	}
+
+	@Test
 	fun `facade doubles power for configured user statuses and ignores burn attack drop`() {
 		val scenario = publicBattleRuleScenario(
 			name = "facade-doubles-power-and-ignores-burn-attack-drop",

@@ -96,12 +96,19 @@ class BattleRuntimePolicyMapperTests {
 
 	@Test
 	fun `skill target grounded terrain power policy keeps terrain condition explicit`() {
+		assertThat("power-one-and-half-if-electric-terrain".toBattleSkillPowerMultipliers()).containsExactly(
+			BattleSkillPowerMultiplier.ActiveTerrain(
+				terrain = BattleTerrain.ELECTRIC,
+				multiplier = 1.5,
+			),
+		)
 		assertThat("power-double-if-target-grounded-electric-terrain".toBattleSkillPowerMultipliers()).containsExactly(
 			BattleSkillPowerMultiplier.TargetGroundedTerrain(
 				terrain = BattleTerrain.ELECTRIC,
 				multiplier = 2.0,
 			),
 		)
+		assertThat("power-one-and-half-if-electric-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 		assertThat("power-double-if-target-grounded-electric-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
 

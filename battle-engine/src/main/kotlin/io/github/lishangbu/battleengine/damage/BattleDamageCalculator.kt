@@ -236,6 +236,7 @@ class BattleDamageCalculator(
 			is BattleSkillPowerMultiplier.TargetCurrentHpAtMostFraction ->
 				request.defender.currentHp.toLong() * denominator <= request.defender.maxHp.toLong() * numerator
 			is BattleSkillPowerMultiplier.UserHasNoHeldItem -> request.attacker.itemId == null
+			is BattleSkillPowerMultiplier.ActiveTerrain -> request.environment.terrain == terrain
 			is BattleSkillPowerMultiplier.TargetGroundedTerrain ->
 				request.environment.terrain == terrain && request.defender.grounded
 		}
