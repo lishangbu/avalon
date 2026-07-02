@@ -7785,3 +7785,49 @@ databaseChangeLog:
                 and e.target_scope = 'TARGET'
                 and e.effect_timing = 'AFTER_HIT'
             )
+- changeSet:
+    id: 105-battle-derived-basic-skill-binding-effects
+    author: backend
+    comment: 使用结构化 trap 字段为自动生成规则补充束缚临时状态。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- trap 是资料层明确标出的束缚类异常；持续回合、结束结算和禁止替换由 binding 状态规则与运行时负责。
+          -- 这里只把自动生成的普通攻击规则补上“命中后附加束缚”的最小效果，避免重复维护每个同类技能。
+          insert into battle_skill_status_effect (
+            id,
+            skill_rule_id,
+            status_rule_id,
+            target_scope,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            230000 + s.id,
+            r.id,
+            sr.id,
+            'TARGET',
+            'AFTER_HIT',
+            case when coalesce(d.ailment_chance, 0) > 0 then d.ailment_chance else 100 end,
+            true,
+            8000 + row_number() over (order by s.id)
+          from game_skill s
+          join game_skill_detail d on d.skill_id = s.id
+          join game_skill_ailment a on a.id = d.ailment_id
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
+          join battle_status_rule sr on sr.code = 'binding' and sr.enabled = true
+          where s.enabled = true
+            and r.id >= 100000
+            and a.code = 'trap'
+            and not exists (
+              select 1
+              from battle_skill_status_effect e
+              where e.skill_rule_id = r.id
+                and e.status_rule_id = sr.id
+                and e.target_scope = 'TARGET'
+                and e.effect_timing = 'AFTER_HIT'
+            )

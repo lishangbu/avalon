@@ -101,10 +101,11 @@ class BattleRuntimeSnapshotServiceTests(
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
 				2, 3, 5, 7, 14, 15, 20, 23, 28, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
-				71, 74, 76, 77, 78, 79, 81, 82, 85, 87, 92, 94, 95, 101, 103, 105, 113, 115,
+				71, 74, 76, 77, 78, 79, 81, 82, 83, 85, 87, 92, 94, 95, 101, 103, 105, 113, 115,
 				129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 235, 240, 252, 259, 261, 269,
 				283, 305, 311, 319, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457,
-				464, 504, 515, 526, 564, 568, 570, 577, 580, 604, 694, 717, 733, 877, 883, 895,
+				464, 504, 515, 526, 564, 568, 570, 577, 580, 604, 611, 694, 717, 733, 819, 877,
+				883, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -302,6 +303,21 @@ class BattleRuntimeSnapshotServiceTests(
 		val bind = slots.getValue(20)
 		assertThat(bind.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.BINDING)
 		assertThat(bind.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
+
+		val fireSpin = slots.getValue(83)
+		assertThat(fireSpin.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.BINDING)
+		assertThat(fireSpin.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(fireSpin.volatileStatusApplications.single().chancePercent).isEqualTo(100)
+
+		val infestation = slots.getValue(611)
+		assertThat(infestation.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.BINDING)
+		assertThat(infestation.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(infestation.volatileStatusApplications.single().chancePercent).isEqualTo(100)
+
+		val thunderCage = slots.getValue(819)
+		assertThat(thunderCage.volatileStatusApplications.single().status).isEqualTo(BattleVolatileStatus.BINDING)
+		assertThat(thunderCage.volatileStatusApplications.single().target).isEqualTo(BattleEffectTarget.TARGET)
+		assertThat(thunderCage.volatileStatusApplications.single().chancePercent).isEqualTo(100)
 
 		val thunder = slots.getValue(87)
 		assertThat(thunder.accuracyOverridesByWeather).containsKey(BattleWeather.RAIN)
