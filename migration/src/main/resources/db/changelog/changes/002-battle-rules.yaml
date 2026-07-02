@@ -8144,3 +8144,36 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code in ('electro-ball', 'gyro-ball')
+- changeSet:
+    id: 117-battle-derived-basic-skill-weight-power
+    author: backend
+    comment: 为按体重或体重差动态计算威力的技能补充规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 踢倒和打草结按目标体重选择威力；重磅冲撞和高温重压按使用者相对目标的体重比例选择威力。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'low-kick' then 'power-by-target-weight-threshold'
+              when 'grass-knot' then 'power-by-target-weight-threshold'
+              when 'heavy-slam' then 'power-by-user-target-weight-ratio'
+              when 'heat-crash' then 'power-by-user-target-weight-ratio'
+              else r.effect_policy
+            end,
+            damage_policy = 'standard-damage',
+            description = case s.code
+              when 'low-kick' then '按目标当前体重决定威力：10kg 及以下为 20，25kg 及以下为 40，50kg 及以下为 60，100kg 及以下为 80，200kg 及以下为 100，否则为 120。'
+              when 'grass-knot' then '按目标当前体重决定威力：10kg 及以下为 20，25kg 及以下为 40，50kg 及以下为 60，100kg 及以下为 80，200kg 及以下为 100，否则为 120。'
+              when 'heavy-slam' then '按使用者当前体重相对目标当前体重决定威力：5 倍及以上为 120，4 倍及以上为 100，3 倍及以上为 80，2 倍及以上为 60，否则为 40。'
+              when 'heat-crash' then '按使用者当前体重相对目标当前体重决定威力：5 倍及以上为 120，4 倍及以上为 100，3 倍及以上为 80，2 倍及以上为 60，否则为 40。'
+              else r.description
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code in ('low-kick', 'grass-knot', 'heavy-slam', 'heat-crash')

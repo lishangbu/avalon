@@ -198,6 +198,18 @@ class BattleDamageCalculator(
 					.coerceAtMost(rule.maxPower.toLong())
 					.toInt()
 			}
+			is BattleSkillDynamicPower.TargetWeightThresholds ->
+				rule.thresholds
+					.firstOrNull { threshold -> request.defender.weight <= threshold.maxWeightInclusive }
+					?.power
+					?: rule.fallbackPower
+			is BattleSkillDynamicPower.UserTargetWeightRatioThresholds ->
+				rule.thresholds
+					.firstOrNull { threshold ->
+						request.attacker.weight.toLong() >= request.defender.weight.toLong() * threshold.minimumUserToTargetRatio
+					}
+					?.power
+					?: rule.fallbackPower
 		}
 
 	/**

@@ -9,7 +9,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
+ * 体重、是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
  * 讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、束缚等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
@@ -17,6 +17,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * - `currentHp` 必须位于 `0..maxHp`。
  * - 可行动成员必须拥有 1 到 4 个技能槽，且同一成员内技能不能重复。
  * - 攻击、防御、特攻、特防、速度必须为正数，避免公式除零或负速度排序。
+ * - 体重必须为正数，并且沿用资料表的整数刻度；体重相关动态威力会直接读取该值，不在公式层再做单位换算。
  */
 data class BattleParticipant(
 	val actorId: String,
@@ -29,6 +30,7 @@ data class BattleParticipant(
 	val specialAttack: Int,
 	val specialDefense: Int,
 	val speed: Int,
+	val weight: Int,
 	val elementIds: Set<Long>,
 	val skillSlots: List<BattleSkillSlot>,
 	val abilityId: Long? = null,
@@ -73,6 +75,7 @@ data class BattleParticipant(
 		require(specialAttack > 0) { "specialAttack must be positive" }
 		require(specialDefense > 0) { "specialDefense must be positive" }
 		require(speed > 0) { "speed must be positive" }
+		require(weight > 0) { "weight must be positive" }
 		require(elementIds.all { it > 0 }) { "elementIds must contain only positive ids" }
 		require(skillSlots.isNotEmpty()) { "skillSlots must not be empty" }
 		require(skillSlots.size <= MAX_BATTLE_SKILL_SLOTS) {

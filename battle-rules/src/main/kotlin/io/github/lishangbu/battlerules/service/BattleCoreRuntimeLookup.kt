@@ -102,6 +102,19 @@ class BattleCoreRuntimeLookup(
 		if (elementIds.isEmpty()) {
 			notFound("creatureId", "成员属性资料不存在: $creatureId")
 		}
+		// 体重必须在进入引擎前固定到快照中；后续低踢、打草结、重磅冲撞、高温重压类规则都只读该快照值。
+		val creatureWeight = jdbcTemplate.query(
+			"""
+			select weight
+			from game_creature
+			where id = ? and enabled = true
+			""".trimIndent(),
+			{ rs, _ -> rs.getInt("weight") },
+			creatureId,
+		).singleOrNull() ?: notFound("creatureId", "成员体重资料不存在: $creatureId")
+		if (creatureWeight <= 0) {
+			notFound("creatureId", "成员体重资料无效: $creatureId")
+		}
 		val baseStats = jdbcTemplate.query(
 			"""
 			select s.code, cs.base_value
@@ -122,6 +135,7 @@ class BattleCoreRuntimeLookup(
 			specialAttack = baseStats.requiredBaseStat("special-attack").toRuntimeBattleStat(level),
 			specialDefense = baseStats.requiredBaseStat("special-defense").toRuntimeBattleStat(level),
 			speed = baseStats.requiredBaseStat("speed").toRuntimeBattleStat(level),
+			weight = creatureWeight,
 			elementIds = elementIds.toSet(),
 		)
 	}

@@ -97,6 +97,7 @@ class BattleInitialStateAssembler(
 			specialAttack = profile.specialAttack,
 			specialDefense = profile.specialDefense,
 			speed = profile.speed,
+			weight = profile.weight,
 			elementIds = profile.elementIds,
 			skillSlots = cache.skillSlots(skillIds),
 			abilityId = abilityId,

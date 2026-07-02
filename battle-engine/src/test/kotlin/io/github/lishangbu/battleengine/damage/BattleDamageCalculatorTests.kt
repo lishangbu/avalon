@@ -1630,4 +1630,76 @@ class BattleDamageCalculatorTests {
 		assertEquals(68, calculate(attackerSpeed = 50, defenderSpeed = 300).baseDamage)
 		assertEquals(13, calculate(attackerSpeed = 100, defenderSpeed = 100).baseDamage)
 	}
+
+	@Test
+	fun `target weight style skill selects power from target weight thresholds`() {
+		val scenario = publicBattleRuleScenario(
+			name = "target-weight-style-skill-selects-power-from-target-weight-thresholds",
+			inputSummary = "同一技能分别命中体重为 10kg、25.1kg 和 200.1kg 的目标。",
+			expectedSummary = "目标体重按阈值选择 20、60 和 120 基础威力。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.TargetWeightThresholds(
+				thresholds = listOf(
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 100, power = 20),
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 250, power = 40),
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 500, power = 60),
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 1000, power = 80),
+					BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 2000, power = 100),
+				),
+				fallbackPower = 120,
+			),
+		)
+
+		fun calculate(targetWeight: Int) = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100),
+				defender = participant("defender", speed = 80, weight = targetWeight),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("target-weight-style-skill-selects-power-from-target-weight-thresholds")
+		assertEquals(10, calculate(targetWeight = 100).baseDamage)
+		assertEquals(28, calculate(targetWeight = 251).baseDamage)
+		assertEquals(54, calculate(targetWeight = 2001).baseDamage)
+	}
+
+	@Test
+	fun `user target weight ratio style skill selects power from weight ratio thresholds`() {
+		val scenario = publicBattleRuleScenario(
+			name = "user-target-weight-ratio-style-skill-selects-power-from-weight-ratio-thresholds",
+			inputSummary = "同一技能分别由体重为目标 5 倍和 1.5 倍的使用者发动。",
+			expectedSummary = "体重达到 5 倍时选择 120 基础威力；低于 2 倍时回落到 40 基础威力。",
+		)
+		val skill = damagingSkill(
+			power = null,
+			dynamicPower = BattleSkillDynamicPower.UserTargetWeightRatioThresholds(
+				thresholds = listOf(
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 5, power = 120),
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 4, power = 100),
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 3, power = 80),
+					BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 2, power = 60),
+				),
+				fallbackPower = 40,
+			),
+		)
+
+		fun calculate(userWeight: Int, targetWeight: Int) = calculator.calculate(
+			BattleDamageRequest(
+				attacker = participant("attacker", speed = 100, weight = userWeight),
+				defender = participant("defender", speed = 80, weight = targetWeight),
+				skill = skill,
+				rules = neutralRules(),
+				randomPercent = 100,
+			),
+		)
+
+		scenario.assertNamed("user-target-weight-ratio-style-skill-selects-power-from-weight-ratio-thresholds")
+		assertEquals(54, calculate(userWeight = 500, targetWeight = 100).baseDamage)
+		assertEquals(19, calculate(userWeight = 150, targetWeight = 100).baseDamage)
+	}
 }

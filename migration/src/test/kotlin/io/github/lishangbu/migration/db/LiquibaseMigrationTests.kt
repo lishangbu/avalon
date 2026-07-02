@@ -1251,6 +1251,37 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val weightPowerSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (67, 447, 484, 535)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(weightPowerSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 67L,
+				"effect_policy" to "power-by-target-weight-threshold",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 447L,
+				"effect_policy" to "power-by-target-weight-threshold",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 484L,
+				"effect_policy" to "power-by-user-target-weight-ratio",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 535L,
+				"effect_policy" to "power-by-user-target-weight-ratio",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

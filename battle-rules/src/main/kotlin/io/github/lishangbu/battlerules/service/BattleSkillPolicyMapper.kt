@@ -266,6 +266,25 @@ internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
 			additivePower = 1,
 			maxPower = 150,
 		)
+		"power-by-target-weight-threshold" -> BattleSkillDynamicPower.TargetWeightThresholds(
+			thresholds = listOf(
+				BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 100, power = 20),
+				BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 250, power = 40),
+				BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 500, power = 60),
+				BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 1000, power = 80),
+				BattleSkillDynamicPower.WeightPowerThreshold(maxWeightInclusive = 2000, power = 100),
+			),
+			fallbackPower = 120,
+		)
+		"power-by-user-target-weight-ratio" -> BattleSkillDynamicPower.UserTargetWeightRatioThresholds(
+			thresholds = listOf(
+				BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 5, power = 120),
+				BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 4, power = 100),
+				BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 3, power = 80),
+				BattleSkillDynamicPower.WeightRatioPowerThreshold(minimumUserToTargetRatio = 2, power = 60),
+			),
+			fallbackPower = 40,
+		)
 		else -> null
 	}
 
