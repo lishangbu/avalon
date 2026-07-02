@@ -488,7 +488,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 13L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 79L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 23L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
@@ -619,6 +619,44 @@ class LiquibaseMigrationTests(
 				"effect_policy" to "drain-full-damage",
 				"target_policy" to "selected-target",
 				"damage_policy" to "standard-damage",
+			),
+		)
+
+		val derivedStatusEffects = queryMaps(
+			"""
+			select sr.skill_id, br.code as status_code, se.chance_percent
+			from battle_skill_status_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join battle_status_rule br on br.id = se.status_rule_id
+			where sr.skill_id in (7, 47, 344, 435, 464)
+			order by sr.skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedStatusEffects).containsExactly(
+			mapOf(
+				"skill_id" to 7L,
+				"status_code" to "burn",
+				"chance_percent" to 10,
+			),
+			mapOf(
+				"skill_id" to 47L,
+				"status_code" to "sleep",
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 344L,
+				"status_code" to "paralysis",
+				"chance_percent" to 10,
+			),
+			mapOf(
+				"skill_id" to 435L,
+				"status_code" to "paralysis",
+				"chance_percent" to 30,
+			),
+			mapOf(
+				"skill_id" to 464L,
+				"status_code" to "sleep",
+				"chance_percent" to 100,
 			),
 		)
 

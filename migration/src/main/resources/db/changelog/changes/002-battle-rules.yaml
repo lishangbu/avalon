@@ -7595,3 +7595,49 @@ databaseChangeLog:
               d.drain in (-50, -33, -25, 50, 75, 100)
               or (d.healing = 50 and t.code = 'user')
             )
+- changeSet:
+    id: 101-battle-derived-basic-skill-status-effects
+    author: backend
+    comment: 使用技能结构化异常字段为自动生成规则补充简单状态附加效果。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 只接入资料字段与运行时状态一一对应的简单异常。
+          -- poison 在源资料中无法区分普通中毒和剧毒；束缚、挑衅、寄生等还需要持续回合或失败条件，因此继续由专项规则维护。
+          insert into battle_skill_status_effect (
+            id,
+            skill_rule_id,
+            status_rule_id,
+            target_scope,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            200000 + s.id,
+            r.id,
+            sr.id,
+            'TARGET',
+            'AFTER_HIT',
+            case when coalesce(d.ailment_chance, 0) > 0 then d.ailment_chance else 100 end,
+            true,
+            4000 + row_number() over (order by s.id)
+          from game_skill s
+          join game_skill_detail d on d.skill_id = s.id
+          join game_skill_ailment a on a.id = d.ailment_id
+          join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
+          join battle_status_rule sr on sr.code = a.code and sr.enabled = true
+          where s.enabled = true
+            and r.id >= 100000
+            and a.code in ('burn', 'paralysis', 'sleep', 'freeze', 'confusion')
+            and not exists (
+              select 1
+              from battle_skill_status_effect e
+              where e.skill_rule_id = r.id
+                and e.status_rule_id = sr.id
+                and e.target_scope = 'TARGET'
+                and e.effect_timing = 'AFTER_HIT'
+            )
