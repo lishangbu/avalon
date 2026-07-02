@@ -7884,3 +7884,38 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and c.code = 'ohko'
+- changeSet:
+    id: 108-battle-derived-basic-skill-target-healing
+    author: backend
+    comment: 使用结构化治疗字段为自动生成规则补充目标最大 HP 回复效果。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- healing=50 且 category=heal、target=selected-pokemon 表示“回复实际目标最大 HP 的一半”。
+          -- 这里刻意不按 healing 字段全量推导：净化等 unique 技能会先治愈目标异常、再回复使用者 HP，目标和失败
+          -- 条件都不同，不能混进普通目标治疗。花疗在青草场地回复 2/3，因此使用独立 policy 表达场地变量比例。
+          update battle_skill_rule r
+          set
+            effect_policy = case
+              when s.code = 'floral-healing' then 'terrain-target-heal-max-hp'
+              else 'target-heal-half-max-hp'
+            end,
+            target_policy = 'selected-target',
+            damage_policy = 'no-damage',
+            description = case
+              when s.code = 'floral-healing' then '目标治疗技能；默认回复目标最大 HP 的一半，青草场地回复三分之二。'
+              else '目标治疗技能；回复目标最大 HP 的一半。'
+            end
+          from game_skill s
+          join game_skill_detail d on d.skill_id = s.id
+          join game_skill_category c on c.id = d.category_id
+          join game_skill_target t on t.id = d.target_id
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and c.code = 'heal'
+            and t.code = 'selected-pokemon'
+            and d.healing = 50

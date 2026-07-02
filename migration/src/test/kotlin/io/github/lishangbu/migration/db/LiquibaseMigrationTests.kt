@@ -1031,6 +1031,29 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val targetHealingSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (505, 666)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(targetHealingSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 505L,
+				"effect_policy" to "target-heal-half-max-hp",
+				"target_policy" to "selected-target",
+				"damage_policy" to "no-damage",
+			),
+			mapOf(
+				"skill_id" to 666L,
+				"effect_policy" to "terrain-target-heal-max-hp",
+				"target_policy" to "selected-target",
+				"damage_policy" to "no-damage",
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

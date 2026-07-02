@@ -105,7 +105,7 @@ class BattleRuntimeSnapshotServiceTests(
 				71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 184, 189, 191, 200, 235, 240, 252, 259, 261, 269,
 				283, 305, 311, 319, 329, 344, 347, 349, 366, 390, 400, 427, 433, 435, 446, 456, 457,
-				464, 504, 515, 526, 564, 568, 570, 577, 580, 604, 611, 694, 717, 733, 819, 877,
+				464, 504, 505, 515, 526, 564, 568, 570, 577, 580, 604, 611, 666, 694, 717, 733, 819, 877,
 				883, 895,
 			),
 		)
@@ -452,6 +452,22 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.SUN).denominator).isEqualTo(3)
 		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).numerator).isEqualTo(1)
 		assertThat(weatherHealing.weatherFractions.getValue(BattleWeather.RAIN).denominator).isEqualTo(4)
+
+		val targetHealing = slots.getValue(505)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.TargetHealMaxHpFraction>()
+			.single()
+		assertThat(targetHealing.numerator).isEqualTo(1)
+		assertThat(targetHealing.denominator).isEqualTo(2)
+
+		val terrainTargetHealing = slots.getValue(666)
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.TargetHealMaxHpByTerrain>()
+			.single()
+		assertThat(terrainTargetHealing.defaultFraction.numerator).isEqualTo(1)
+		assertThat(terrainTargetHealing.defaultFraction.denominator).isEqualTo(2)
+		assertThat(terrainTargetHealing.terrainFractions.getValue(BattleTerrain.GRASSY).numerator).isEqualTo(2)
+		assertThat(terrainTargetHealing.terrainFractions.getValue(BattleTerrain.GRASSY).denominator).isEqualTo(3)
 
 		val rainDance = slots.getValue(240)
 			.environmentEffects

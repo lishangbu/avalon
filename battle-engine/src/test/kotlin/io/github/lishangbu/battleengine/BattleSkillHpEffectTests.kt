@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -214,5 +215,77 @@ class BattleSkillHpEffectTests {
 		assertEquals(66, sunResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
 		assertEquals(45, rainResolved.participant("rain-healer")?.currentHp)
 		assertEquals(25, rainResolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single().amount)
+	}
+
+	@Test
+	fun `target healing status skill restores target half max hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "target-healing-status-skill-restores-target-half-max-hp",
+			inputSummary = "使用者对当前 HP 为 35 的目标使用回复目标 1/2 最大 HP 的变化技能。",
+			expectedSummary = "技能成功后目标回复 50 HP，回复事件记录被回复的目标，而不是技能使用者。",
+		)
+		val skill = damagingSkill(
+			name = "目标回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(BattleSkillHpEffect.TargetHealMaxHpFraction(numerator = 1, denominator = 2)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("healer", speed = 100, skill = skill),
+				second = participant("target", speed = 50, currentHp = 35),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("healer", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("target-healing-status-skill-restores-target-half-max-hp")
+		assertEquals(85, resolved.participant("target")?.currentHp)
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals("target", healing.actorId)
+		assertEquals(50, healing.amount)
+	}
+
+	@Test
+	fun `terrain sensitive target healing uses grassy terrain fraction`() {
+		val scenario = publicBattleRuleScenario(
+			name = "terrain-sensitive-target-healing-uses-grassy-terrain-fraction",
+			inputSummary = "使用者在青草场地对当前 HP 为 20 的目标使用场地变量目标治疗技能。",
+			expectedSummary = "青草场地使命中目标先按最大 HP 的 2/3 回复；回合结束时青草场地自身再执行一次 1/16 回复。",
+		)
+		val skill = damagingSkill(
+			name = "场地目标回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(
+				BattleSkillHpEffect.TargetHealMaxHpByTerrain(
+					defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+					terrainFractions = mapOf(BattleTerrain.GRASSY to BattleSkillHpEffect.HpFraction(2, 3)),
+				),
+			),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("healer", speed = 100, skill = skill),
+				second = participant("target", speed = 50, currentHp = 20),
+				environment = BattleEnvironment(terrain = BattleTerrain.GRASSY),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("healer", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("terrain-sensitive-target-healing-uses-grassy-terrain-fraction")
+		assertEquals(92, resolved.participant("target")?.currentHp)
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals("target", healing.actorId)
+		assertEquals(66, healing.amount)
 	}
 }

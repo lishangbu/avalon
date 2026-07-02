@@ -9,6 +9,8 @@ package io.github.lishangbu.battleengine.model
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例承受反作用伤害。
  * - 变化技能成功后，使用者按自身最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
+ * - 变化技能成功后，实际目标按目标最大 HP 的一定比例回复。
+ * - 变化技能成功后，按当前场地选择目标最大 HP 回复比例。
  * - 变化技能成功后，支付最大 HP 的一定比例建立替身。
  *
  * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
@@ -98,6 +100,41 @@ sealed interface BattleSkillHpEffect {
 		init {
 			require(weatherFractions.isNotEmpty()) { "weatherFractions must not be empty" }
 			require(BattleWeather.NONE !in weatherFractions.keys) { "weather-specific healing cannot target NONE" }
+		}
+	}
+
+	/**
+	 * 技能成功后按实际目标最大 HP 比例回复目标。
+	 *
+	 * 该效果用于表达治愈波动这类“选择一个目标并回复目标 HP”的稳定规则。回复对象不是技能使用者，而是经过目标
+	 * 选择、重定向、保护、命中和免疫 gate 后的实际目标；这样双打重定向或未来新增目标改写规则时，HP 写入仍然
+	 * 落在真正被技能影响的成员身上。
+	 */
+	data class TargetHealMaxHpFraction(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleSkillHpEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
+
+	/**
+	 * 技能成功后按当前场地选择目标最大 HP 回复比例。
+	 *
+	 * 该效果用于表达“普通场地下回复目标 1/2，特定场地下回复更高比例”的目标治疗。它与
+	 * [SelfHealMaxHpByWeather] 分开建模，是因为回复对象、环境维度和未来失败条件都不同；复用一个“通用回复”
+	 * 字段反而会让调用方必须靠 targetScope 猜测写入对象。
+	 */
+	data class TargetHealMaxHpByTerrain(
+		val defaultFraction: HpFraction,
+		val terrainFractions: Map<BattleTerrain, HpFraction>,
+	) : BattleSkillHpEffect {
+		init {
+			require(terrainFractions.isNotEmpty()) { "terrainFractions must not be empty" }
+			require(BattleTerrain.NONE !in terrainFractions.keys) { "terrain-specific healing cannot target NONE" }
 		}
 	}
 

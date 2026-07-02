@@ -84,6 +84,20 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				),
 			),
 		)
+		"target-heal-half-max-hp" -> listOf(
+			BattleSkillHpEffect.TargetHealMaxHpFraction(
+				numerator = 1,
+				denominator = 2,
+			),
+		)
+		"terrain-target-heal-max-hp" -> listOf(
+			BattleSkillHpEffect.TargetHealMaxHpByTerrain(
+				defaultFraction = BattleSkillHpEffect.HpFraction(1, 2),
+				terrainFractions = mapOf(
+					BattleTerrain.GRASSY to BattleSkillHpEffect.HpFraction(2, 3),
+				),
+			),
+		)
 		"create-substitute-quarter-max-hp" -> listOf(
 			BattleSkillHpEffect.CreateSubstitute(
 				numerator = 1,

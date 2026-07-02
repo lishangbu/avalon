@@ -112,7 +112,7 @@ internal class BattleSkillTargetResolution(
 	/**
 	 * 结算变化类技能对单个目标的成功命中。
 	 *
-	 * 变化技能不会进入属性无效、直接伤害和普通伤害公式；命中后只按固定顺序应用附加效果、使用者 HP 效果、
+	 * 变化技能不会进入属性无效、直接伤害和普通伤害公式；命中后只按固定顺序应用附加效果、HP 效果、
 	 * 环境效果，再推进锁招状态。这个顺序与伤害技能的成功收尾分开，是因为变化技能没有“本次造成伤害”供
 	 * 造成伤害后回复道具读取。
 	 */
@@ -125,7 +125,7 @@ internal class BattleSkillTargetResolution(
 		random: BattleRandom,
 	): TurnContext {
 		val afterEffects = skillAdditionalEffects.apply(state, actor.actorId, target.actorId, skill, random)
-		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, actor.actorId, skill)
+		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, actor.actorId, target.actorId, skill)
 		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
 		return context.copy(
 			state = lockedMoves.updateAfterSuccessfulUse(
