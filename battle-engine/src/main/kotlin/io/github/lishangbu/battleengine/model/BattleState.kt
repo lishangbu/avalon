@@ -141,7 +141,7 @@ data class BattleState(
 	/**
 	 * 解析目标槽位当前成员。
 	 *
-	 * 若 `targetActorId` 已经不在场，返回其所属方当前可战斗的第一个上场成员。单打第一版用该行为表达
+	 * 若 `targetActorId` 已经不在场，返回其所属方当前可战斗的第一个上场成员。引擎用该行为表达
 	 * “攻击目标槽位而非固定成员”的换人后目标重定向。
 	 */
 	fun activeTargetFor(targetActorId: String): BattleParticipant? {

@@ -16,7 +16,7 @@ sealed interface BattleAction {
 	/**
 	 * 使用一格技能攻击或影响目标。
 	 *
-	 * `targetActorId` 表达玩家选择的目标槽位当前成员。若该目标在本回合先发生替换，单打第一版会把技能
+	 * `targetActorId` 表达玩家选择的目标槽位当前成员。若该目标在本回合先发生替换，引擎会把技能
 	 * 结算到同一方新的上场成员身上，以保持“目标槽位”语义。
 	 */
 	data class UseSkill(

@@ -50,8 +50,8 @@ package io.github.lishangbu.battleengine.model
  * `rechargesAfterUse` 表示技能成功造成实际伤害后，使用者下一次技能行动前必须休整一次。
  * `environmentEffects` 表示技能成功后直接改写全场环境的效果，例如设置天气。
  *
- * 第一阶段普通伤害公式只处理带威力的物理/特殊技能；特殊技能效果会继续通过显式规则对象扩展。
- * 当前显式支持主要异常状态、临时状态、能力阶级变化、HP 变化和一侧场上效果，避免用弱类型脚本描述核心规则。
+ * 普通伤害公式只处理带威力的物理/特殊技能；其它技能效果通过显式规则对象进入对应 resolver。
+ * 当前显式支持主要异常状态、临时状态、能力阶级变化、HP 变化、环境变化和场上效果，避免用弱类型脚本描述核心规则。
  */
 data class BattleSkillSlot(
 	val skillId: Long,

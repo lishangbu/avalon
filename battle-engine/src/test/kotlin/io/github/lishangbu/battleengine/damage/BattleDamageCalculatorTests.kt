@@ -21,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * 验证第一版普通伤害公式。
+ * 验证现代普通伤害公式。
  *
  * 场景类型：公式级 场景。
  * 参考来源类型：公开主系列普通伤害公式的通用结构；本测试覆盖可独立确认的等级、威力、攻防、随机、

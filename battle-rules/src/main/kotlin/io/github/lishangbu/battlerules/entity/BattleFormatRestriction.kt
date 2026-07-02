@@ -10,8 +10,8 @@ import org.babyfish.jimmer.sql.Table
 /**
  * 赛制上的可执行限制。
  *
- * 限制描述等级上限、队伍人数、禁用资料 code 等赛制约束。第一版用结构化操作数表达规则，
- * 不保存原始 JSON；战斗引擎后续会把 `restrictionType` 和 `restrictionOperator` 映射到明确校验器。
+ * 限制描述等级上限、队伍人数、禁用资料 code 等赛制约束。这里用结构化操作数表达规则，不保存原始 JSON；
+ * 运行时校验会把 `restrictionType` 和 `restrictionOperator` 映射到明确校验器。
  */
 @Entity
 @Table(name = "battle_format_restriction")
