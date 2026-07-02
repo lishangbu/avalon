@@ -2,7 +2,9 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
 
@@ -25,9 +27,9 @@ internal class BattlePreHitTargetGate(
 	/**
 	 * 按现代规则顺序结算命中前阻止点。
 	 *
-	 * 顺序不能随意调整：粉末属性免疫、一击必杀专用属性免疫、恶属性先制免疫和一击必杀等级失败都发生在命中
-	 * 判定前；精神场地、目标侧先制免疫特性、声音免疫和保护屏障也都早于命中随机数。只有全部通过之后才消费命中
-	 * 随机数，并把本次是否无视目标特性传给后续吸收、状态和伤害阶段复用。
+	 * 顺序不能随意调整：粉末属性免疫、一击必杀专用属性免疫、恶属性先制免疫、一击必杀等级失败和特殊能力阶级
+	 * 失败都发生在命中判定前；精神场地、目标侧先制免疫特性、声音免疫和保护屏障也都早于命中随机数。只有全部
+	 * 通过之后才消费命中随机数，并把本次是否无视目标特性传给后续吸收、状态和伤害阶段复用。
 	 */
 	fun resolve(
 		state: BattleState,
@@ -131,6 +133,18 @@ internal class BattlePreHitTargetGate(
 			)
 		}
 
+		if (skill.healsByTargetCurrentAttack() && target.statStage(BattleStat.ATTACK) <= -6) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "target-attack-stage-minimum",
+				),
+			)
+		}
+
 		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val accuracyCheck = hitResolution.accuracyCheck(
 			state = state,
@@ -171,6 +185,15 @@ internal class BattlePreHitTargetGate(
 			abilityId = blocker.abilityId,
 		)
 }
+
+/**
+ * 判断技能是否拥有“按目标当前攻击实数回复使用者”的特殊 HP 效果。
+ *
+ * 该谓词放在 gate 文件旁边，是因为当前唯一需要命中前失败条件的 HP 效果就是这一类：目标攻击阶级已到 -6 时，
+ * 技能不能继续进入回复或附加效果阶段。保持为私有扩展可以避免把具体 HP 效果判断散落到调用点。
+ */
+private fun BattleSkillSlot.healsByTargetCurrentAttack(): Boolean =
+	hpEffects.any { it is BattleSkillHpEffect.SelfHealByTargetCurrentAttack }
 
 /**
  * 命中前 gate 的结算结果。

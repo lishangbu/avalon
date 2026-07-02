@@ -7942,3 +7942,27 @@ databaseChangeLog:
             and r.enabled = true
             and s.enabled = true
             and s.code = 'shore-up'
+- changeSet:
+    id: 110-battle-derived-basic-skill-strength-sap
+    author: backend
+    comment: 为吸取力量补充按目标当前攻击回复并降低目标攻击的特殊规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 吸取力量的回复量读取目标本次降攻前的当前攻击实数；目标攻击阶级已经 -6 时技能失败。
+          -- game_skill_stat_change 已经在通用能力阶级派生中插入“目标攻击 -1”，这里只覆盖主规则 policy，
+          -- 避免同一条降攻效果被重复维护。
+          update battle_skill_rule r
+          set
+            effect_policy = 'self-heal-by-target-current-attack',
+            target_policy = 'selected-target',
+            damage_policy = 'no-damage',
+            description = '按目标当前攻击实数回复使用者；随后降低目标攻击 1 级，目标攻击阶级已为 -6 时失败。'
+          from game_skill s
+          where r.skill_id = s.id
+            and r.id >= 100000
+            and r.enabled = true
+            and s.enabled = true
+            and s.code = 'strength-sap'

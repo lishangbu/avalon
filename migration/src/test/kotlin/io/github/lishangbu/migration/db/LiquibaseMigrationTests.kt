@@ -1070,6 +1070,41 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val strengthSapSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, damage_policy
+			from battle_skill_rule
+			where skill_id = 668
+			""".trimIndent(),
+		)
+		assertThat(strengthSapSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 668L,
+				"effect_policy" to "self-heal-by-target-current-attack",
+				"target_policy" to "selected-target",
+				"damage_policy" to "no-damage",
+			),
+		)
+
+		val strengthSapStatStageEffects = queryMaps(
+			"""
+			select sr.skill_id, st.code as stat_code, se.target_scope, se.stage_delta, se.chance_percent
+			from battle_skill_stat_stage_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join game_stat st on st.id = se.stat_id
+			where sr.skill_id = 668
+			""".trimIndent(),
+		)
+		assertThat(strengthSapStatStageEffects).containsExactly(
+			mapOf(
+				"skill_id" to 668L,
+				"stat_code" to "attack",
+				"target_scope" to "TARGET",
+				"stage_delta" to -1,
+				"chance_percent" to 100,
+			),
+		)
+
 		val taggedSkillRules = queryMaps(
 			"""
 			select skill_id, makes_contact, punch_based, slicing_based, critical_hit_stage

@@ -3,6 +3,8 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
 
 /**
@@ -17,12 +19,39 @@ import io.github.lishangbu.battleengine.model.BattleState
  * 明确建模，而不是让 HP 写入 helper 同时承担失败语义。
  */
 internal class BattleStatusSkillHpEffects {
+	private val statStageModifiers = BattleStatStageModifiers()
+
+	/**
+	 * 处理必须早于普通附加效果的 HP 规则。
+	 *
+	 * 大多数变化技能 HP 效果都可以在状态、能力阶级和场地等附加效果之后统一执行；但“按目标当前攻击实数回复”
+	 * 的规则必须先读取目标这次被降低攻击之前的数值。把这类效果放进一个窄入口，而不是重排所有 HP 效果，
+	 * 可以保留既有自我回复、目标治疗、替身和环境设置顺序，同时让这个特殊规则的先后关系在调用点一眼可见。
+	 */
+	fun applyBeforeAdditionalEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState =
+		skill.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.SelfHealByTargetCurrentAttack>()
+			.fold(state) { current, _ ->
+				applySelfHealByTargetCurrentAttack(
+					state = current,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skill = skill,
+				)
+			}
+
 	/**
 	 * 处理变化技能成功后的 HP 回复和替身效果。
 	 *
-	 * 效果按技能槽中的 [BattleSkillSlot.hpEffects] 顺序执行。自我回复、天气变量回复、目标回复和场地变量目标
-	 * 回复最终汇入同一个最大 HP 比例 helper；替身单独处理 HP 支付和替身 HP 写入。其它 HP 效果属于伤害技能后效，
-	 * 在这里直接跳过。
+	 * 效果按技能槽中的 [BattleSkillSlot.hpEffects] 顺序执行。自我回复、天气变量回复、目标回复、场地变量目标
+	 * 回复和攻击实数回复最终汇入对应的 HP helper；替身单独处理 HP 支付和替身 HP 写入。已经在
+	 * [applyBeforeAdditionalEffects] 处理过的特殊前置 HP 效果会在这里跳过，避免同一技能重复回复。其它 HP
+	 * 效果属于伤害技能后效，在这里直接跳过。
 	 */
 	fun apply(
 		state: BattleState,
@@ -74,6 +103,7 @@ internal class BattleStatusSkillHpEffects {
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
+					BattleSkillHpEffect.SelfHealByTargetCurrentAttack -> current
 					else -> current
 				}
 			}
@@ -97,6 +127,64 @@ internal class BattleStatusSkillHpEffects {
 		}
 		val healAmount = fractionAmount(healedActor.maxHp, numerator, denominator)
 			.coerceAtMost(healedActor.maxHp - healedActor.currentHp)
+		if (healAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(healedActor.heal(healAmount))
+			.appendEvent(
+				BattleEvent.SkillHealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = healedActor.actorId,
+					skillId = skill.skillId,
+					amount = healAmount,
+				),
+			)
+	}
+
+	/**
+	 * 按目标当前攻击实数回复使用者。
+	 *
+	 * 目标攻击实数使用 [BattleStatStageModifiers.modifiedBattleStat] 计算，和普通能力阶级倍率保持同一套取整曲线。
+	 * 该值在普通附加效果执行前读取，因此不会包含同一技能稍后造成的攻击下降。回复仍然遵守使用者自身的回复封锁、
+	 * 倒下和满 HP 判断；如果使用者无法回复，目标后续降攻仍会按普通附加效果继续处理。
+	 */
+	private fun applySelfHealByTargetCurrentAttack(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val target = state.participant(targetActorId) ?: return state
+		val targetCurrentAttack = statStageModifiers.modifiedBattleStat(
+			base = target.attack,
+			stage = target.statStage(BattleStat.ATTACK),
+		)
+		return applyFlatHealing(
+			state = state,
+			healedActorId = actorId,
+			skill = skill,
+			amount = targetCurrentAttack,
+		)
+	}
+
+	/**
+	 * 按固定数值回复指定成员。
+	 *
+	 * 这个 helper 只服务于“回复量来自另一个战斗实数”的技能，不参与最大 HP 比例取整。它和比例回复使用同一套
+	 * 可回复判断、缺失 HP 夹取和事件写入口，避免攻击实数回复在满 HP、回复封锁或倒下时表现出另一套规则。
+	 */
+	private fun applyFlatHealing(
+		state: BattleState,
+		healedActorId: String,
+		skill: BattleSkillSlot,
+		amount: Int,
+	): BattleState {
+		val healedActor = state.participant(healedActorId) ?: return state
+		if (!healedActor.canReceiveHealing()) {
+			return state
+		}
+		val healAmount = amount.coerceAtMost(healedActor.maxHp - healedActor.currentHp)
 		if (healAmount <= 0) {
 			return state
 		}

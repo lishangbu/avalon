@@ -11,6 +11,7 @@ package io.github.lishangbu.battleengine.model
  * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
  * - 变化技能成功后，实际目标按目标最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前场地选择目标最大 HP 回复比例。
+ * - 变化技能成功后，按目标当前攻击实数回复使用者。
  * - 变化技能成功后，支付最大 HP 的一定比例建立替身。
  *
  * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
@@ -137,6 +138,16 @@ sealed interface BattleSkillHpEffect {
 			require(BattleTerrain.NONE !in terrainFractions.keys) { "terrain-specific healing cannot target NONE" }
 		}
 	}
+
+	/**
+	 * 技能成功后按目标当前攻击实数回复使用者。
+	 *
+	 * 该效果用于表达“先读取目标当前攻击能力，再回复使用者，最后才尝试降低目标攻击”的特殊变化技能规则。
+	 * “当前攻击实数”只包含目标基础攻击和能力阶级倍率，不包含这次技能随后造成的降攻，也不包含灼伤、道具、
+	 * 特性等只在普通伤害公式中使用的攻击倍率。目标攻击已经处于 -6 阶时，技能会在命中前 gate 失败；
+	 * 其它阻止能力下降的情况不应阻止这里的回复，因此该效果必须先于普通能力阶级附加效果结算。
+	 */
+	data object SelfHealByTargetCurrentAttack : BattleSkillHpEffect
 
 	/**
 	 * 技能成功后支付最大 HP 的固定比例建立替身。

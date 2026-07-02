@@ -2,14 +2,18 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * 验证技能自身带来的 HP 回复效果。
@@ -327,4 +331,123 @@ class BattleSkillHpEffectTests {
 		assertEquals("target", healing.actorId)
 		assertEquals(66, healing.amount)
 	}
+
+	@Test
+	fun `strength sap heals by target current attack before lowering attack`() {
+		val scenario = publicBattleRuleScenario(
+			name = "strength-sap-heals-by-target-current-attack-before-lowering-attack",
+			inputSummary = "使用者对攻击基础值 80、攻击阶级 -1 的目标使用按目标当前攻击回复的变化技能。",
+			expectedSummary = "技能先按目标降攻前的当前攻击实数 53 回复使用者，然后才把目标攻击从 -1 降到 -2。",
+		)
+		val skill = strengthSapLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("sap-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50).copy(
+					attack = 80,
+					statStages = mapOf(BattleStat.ATTACK to -1),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sap-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(1)),
+		)
+
+		scenario.assertNamed("strength-sap-heals-by-target-current-attack-before-lowering-attack")
+		assertEquals(73, resolved.participant("sap-user")?.currentHp)
+		assertEquals(-2, resolved.participant("target")?.statStage(BattleStat.ATTACK))
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		val statChange = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single()
+		assertEquals(53, healing.amount)
+		assertEquals(-1, statChange.delta)
+		assertEquals(-2, statChange.currentStage)
+		assertTrue(
+			resolved.events.indexOf(healing) < resolved.events.indexOf(statChange),
+			"按目标攻击回复必须先于本技能造成的攻击阶级下降，避免读取到降攻后的数值",
+		)
+	}
+
+	@Test
+	fun `strength sap fails when target attack stage is already minimum`() {
+		val scenario = publicBattleRuleScenario(
+			name = "strength-sap-fails-when-target-attack-stage-is-already-minimum",
+			inputSummary = "使用者对攻击阶级已经 -6 的目标使用按目标当前攻击回复的变化技能。",
+			expectedSummary = "技能在命中前以稳定失败原因结束，不回复 HP，也不追加能力阶级变化事件。",
+		)
+		val skill = strengthSapLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("sap-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50).copy(
+					statStages = mapOf(BattleStat.ATTACK to -6),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sap-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("strength-sap-fails-when-target-attack-stage-is-already-minimum")
+		assertEquals(20, resolved.participant("sap-user")?.currentHp)
+		assertEquals(-6, resolved.participant("target")?.statStage(BattleStat.ATTACK))
+		assertEquals("target-attack-stage-minimum", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>())
+	}
+
+	@Test
+	fun `strength sap healing succeeds even when substitute blocks attack drop`() {
+		val scenario = publicBattleRuleScenario(
+			name = "strength-sap-healing-succeeds-even-when-substitute-blocks-attack-drop",
+			inputSummary = "目标带有替身，使用者对其使用按目标当前攻击回复并尝试降攻的变化技能。",
+			expectedSummary = "替身阻止来自对手的攻击阶级下降，但不阻止已经按目标当前攻击实数结算的回复。",
+		)
+		val skill = strengthSapLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("sap-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50).copy(
+					attack = 60,
+					statStages = mapOf(BattleStat.ATTACK to -1),
+					substituteHp = 25,
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("sap-user", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(1)),
+		)
+
+		scenario.assertNamed("strength-sap-healing-succeeds-even-when-substitute-blocks-attack-drop")
+		assertEquals(60, resolved.participant("sap-user")?.currentHp)
+		assertEquals(-1, resolved.participant("target")?.statStage(BattleStat.ATTACK))
+		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
+		assertEquals(40, healing.amount)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>())
+	}
+
+	private fun strengthSapLikeSkill() =
+		damagingSkill(
+			name = "吸取力量测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			accuracy = 100,
+			hpEffects = listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack),
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.ATTACK,
+					target = BattleEffectTarget.TARGET,
+					stageDelta = -1,
+					chancePercent = 100,
+				),
+			),
+		)
 }
