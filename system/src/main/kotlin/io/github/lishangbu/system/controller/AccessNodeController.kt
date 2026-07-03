@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/system/rbac/access-nodes")
 @Tag(
 	name = "RBAC 访问节点",
-	description = "查询系统内置的菜单、路由、动作和 API 权限节点。访问节点是角色授权和管理端菜单渲染的共同来源。",
+	description = "查询系统内置的菜单目录、路由页面和 API 权限节点。访问节点是角色授权和管理端菜单渲染的共同来源。",
 )
 class AccessNodeController(
 	private val service: AccessNodeService,
 ) {
 	/**
-	 * 列出菜单、路由、动作和 API 访问节点。
+	 * 列出菜单目录、路由页面和 API 访问节点。
 	 */
 	@GetMapping
 	@Operation(
@@ -72,11 +72,11 @@ class AccessNodeController(
 		],
 	)
 	fun listAccessNodes(
-		@Parameter(description = "模糊搜索关键字，匹配访问节点 code、名称、路径或组件标识。")
+		@Parameter(description = "模糊搜索关键字，匹配访问节点 code、名称或路径。")
 		@RequestParam(required = false) q: String?,
 		@Parameter(description = "按权限 code 前缀过滤，常用于按模块或权限域缩小结果，例如 security 或 system.rbac。", example = "system.rbac")
 		@RequestParam(required = false) codePrefix: String?,
-		@Parameter(description = "访问节点类型。MENU 表示菜单分组，ROUTE 表示前端路由，ACTION 表示页面动作，API 表示后端接口权限。", example = "ROUTE")
+		@Parameter(description = "访问节点类型。DIRECTORY 表示菜单目录，MENU/ROUTE 表示前端页面，API 表示后端接口权限。", example = "ROUTE")
 		@RequestParam(required = false) type: String?,
 		@Parameter(description = "是否只返回管理端可见节点。API 权限通常不可见，但仍可绑定角色。", example = "true")
 		@RequestParam(required = false) visible: Boolean?,

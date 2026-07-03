@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 /**
  * 系统访问节点管理响应。
  */
-@Schema(description = "系统访问节点响应。访问节点是菜单、路由、动作和 API 权限的统一描述。")
+@Schema(description = "系统访问节点响应。访问节点是菜单目录、路由页面和 API 权限的统一描述。")
 data class AccessNodeResponse(
 	@field:Schema(description = "访问节点主键 ID。", example = "301")
 	val id: Long,
@@ -13,7 +13,7 @@ data class AccessNodeResponse(
 	val code: String,
 	@field:Schema(description = "访问节点展示名称。", example = "用户管理")
 	val name: String,
-	@field:Schema(description = "节点类型：MENU、ROUTE、ACTION 或 API。", example = "ROUTE")
+	@field:Schema(description = "节点类型：DIRECTORY、MENU、ROUTE 或 API。", example = "ROUTE")
 	val type: String,
 	@field:Schema(description = "父访问节点 ID。根节点为空。", example = "300", nullable = true)
 	val parentId: Long?,
