@@ -35,10 +35,18 @@ description: "Use when implementing, extending, reviewing, or deciding the next 
 ## 模块定位
 
 - `app`：启动和装配。
+- `common-web`：共享 Web 边界。
 - `common-persistence`：Jimmer 与 CosId 共享持久化基础设施。
+- `s3-core`：S3 操作抽象和 AWS SDK v2 适配。
+- `s3-spring-boot-autoconfigure`：S3 Spring Boot 自动配置。
+- `s3-spring-boot-starter`：S3 starter 对外依赖入口。
 - `migration`：Liquibase 迁移和迁移验证。
 - `security`：授权服务器、资源服务器、认证主体和 RBAC 运行时。
 - `system`：用户、角色、权限、OAuth client 和 JWK 等系统管理 API。
+- `scheduler`：Quartz 定时任务注册、调度、执行记录和持久化。
+- `game-data`：游戏资料管理领域。
+- `battle-engine`：战斗引擎核心规则和公开规则用例测试。
+- `battle-rules`：战斗规则维护 API 和运行时规则快照。
 
 ## 完成前检查
 

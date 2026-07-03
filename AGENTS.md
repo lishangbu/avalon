@@ -40,6 +40,9 @@
 app
 common-web
 common-persistence
+s3-core
+s3-spring-boot-autoconfigure
+s3-spring-boot-starter
 migration
 security
 system
@@ -54,6 +57,9 @@ battle-rules
 - `app`：Spring Boot 启动、运行时装配、全局配置。
 - `common-web`：分页请求、错误响应和全局异常处理等共享 Web 边界。
 - `common-persistence`：Jimmer 与 CosId 的共享持久化基础设施。
+- `s3-core`：S3 操作抽象、对象键、命令对象和 AWS SDK v2 适配。
+- `s3-spring-boot-autoconfigure`：S3 Spring Boot 自动配置。
+- `s3-spring-boot-starter`：S3 starter 对外依赖入口。
 - `migration`：Liquibase 迁移和迁移验证。
 - `security`：授权服务器、资源服务器、认证主体和 RBAC 运行时。
 - `system`：用户、角色、权限、OAuth client 和 JWK 等系统管理 API。
@@ -110,6 +116,8 @@ battle-rules
 ./gradlew :app:test
 ./gradlew :common-web:test
 ./gradlew :common-persistence:test
+./gradlew :s3-core:test
+./gradlew :s3-spring-boot-autoconfigure:test
 ./gradlew :game-data:test
 ./gradlew :battle-engine:test
 ./gradlew :battle-rules:test
