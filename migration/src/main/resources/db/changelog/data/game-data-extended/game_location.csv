@@ -185,7 +185,7 @@ id,code,name,region_id,enabled
 192,acuity-cavern,敏锐洞穴,4,true
 193,jubilife-tv,银禧电视台,4,true
 194,poketch-co,宝可奇公司,4,true
-195,gts,地点,4,true
+195,gts,全球贸易中心,4,true
 196,trainers-school,培训师学校,4,true
 197,mining-museum,矿业博物馆,4,true
 198,sinnoh-flower-shop,花店,4,true
@@ -234,7 +234,7 @@ id,code,name,region_id,enabled
 243,safari-zone-gate,狩猎地带大门,2,true
 244,cliff-cave,悬崖洞,2,true
 245,frontier-access,边境访问,2,true
-246,bellchime-trail,小径地点,2,true
+246,bellchime-trail,铃音小道,2,true
 247,sinjoh-ruins,新城遗址,2,true
 248,embedded-tower,嵌入式塔式,2,true
 249,pokewalker,神奇行者,2,true
@@ -382,7 +382,7 @@ id,code,name,region_id,enabled
 392,black-city,黑城,5,true
 393,white-forest,白森林,5,true
 394,unity-tower,团结塔,5,true
-395,wellspring-cave,洞窟地点,5,true
+395,wellspring-cave,泉源洞穴,5,true
 396,mistralton-cave,米斯特拉尔顿洞穴,5,true
 397,rumination-field,沉思场,5,true
 398,celestial-tower,仙塔,5,true
@@ -804,7 +804,7 @@ id,code,name,region_id,enabled
 820,pokemon-league,生物联盟,10,true
 821,artazon,阿塔松,10,true
 822,levincia,莱文西亚,10,true
-823,zapapico,地点,10,true
+823,zapapico,穴扎镇,10,true
 824,cascarrafa,卡斯卡拉法,10,true
 825,porto-marinada,玛丽纳达港,10,true
 826,medali,梅达利,10,true
@@ -830,7 +830,7 @@ id,code,name,region_id,enabled
 846,navi-squads-base,导航小队的基地,10,true
 847,paldea-west-province-area-one,西部省（一区）,10,true
 848,paldea-west-province-area-two,西部省（二区）,10,true
-849,paldea-west-province-area-three,西区域地点,10,true
+849,paldea-west-province-area-three,西第3区,10,true
 850,asado-desert,阿萨多沙漠,10,true
 851,west-paldean-sea,西帕尔迪安海,10,true
 852,segin-squads-base,塞金小队基地,10,true
@@ -847,7 +847,7 @@ id,code,name,region_id,enabled
 863,north-paldean-sea,北帕丁海,10,true
 864,ruchbah-squads-base,鲁奇巴小队基地,10,true
 865,caph-squads-base,卡夫小队的基地,10,true
-866,area-zero,区域地点,10,true
+866,area-zero,第零区,10,true
 867,zero-lab,零实验室,10,true
 868,galar-route-1,道路1,8,true
 869,galar-route-2,道路2,8,true
@@ -929,7 +929,7 @@ id,code,name,region_id,enabled
 945,turffield,特菲尔德,8,true
 946,warm-up-tunnel,热身隧道,8,true
 947,watchtower-ruins,了望塔遗址,8,true
-948,wedgehurst,地点,8,true
+948,wedgehurst,木杆镇,8,true
 949,west-lake-axewell,西湖阿克斯韦尔,8,true
 950,workout-sea,锻炼海,8,true
 951,wyndon,温登,8,true
@@ -938,7 +938,7 @@ id,code,name,region_id,enabled
 954,arenas-approach,竞技场的方法,9,true
 955,aspiration-hill,愿望山,9,true
 956,avalanche-slopes,雪崩斜坡,9,true
-957,avaluggs-legacy,地点,9,true
+957,avaluggs-legacy,冰岩块,9,true
 958,bathers-lagoon,沐浴者泻湖,9,true
 959,bolderoll-ravine,波德罗尔峡谷,9,true
 960,bolderoll-slope,波德罗尔斜坡,9,true
@@ -1039,7 +1039,7 @@ id,code,name,region_id,enabled
 1055,mossdeep-space-center,莫斯迪普航天中心,3,true
 1056,roaming-kalos,卡洛斯（漫游）,6,true
 1057,uva-academy,乌沃学院,10,true
-1058,apple-hills,地点,10,true
+1058,apple-hills,苹果之丘,10,true
 1059,chilling-waterhead,冷却水头,10,true
 1060,crystal-pool,水晶池,10,true
 1061,dreaded-den,可怕的巢穴,10,true

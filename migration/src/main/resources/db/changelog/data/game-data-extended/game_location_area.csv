@@ -507,7 +507,7 @@ id,code,name,location_id,game_index,enabled
 623,unova-route-1-area,1号路,356,77,true
 624,unova-route-2-area,2号公路,357,78,true
 625,unova-route-3-area,3号公路,358,79,true
-626,wellspring-cave-area,洞窟区域,395,80,true
+626,wellspring-cave-area,泉源洞穴区域,395,80,true
 627,unova-route-4-area,4号公路,359,82,true
 628,unova-route-5-area,5号公路,360,83,true
 629,unova-route-6-area,6号路,361,84,true
@@ -821,7 +821,7 @@ id,code,name,location_id,game_index,enabled
 939,turffield-area,特菲尔德,945,0,true
 940,warm-up-tunnel-area,warm提升tunnelarea,946,0,true
 941,watchtower-ruins-area,了望塔遗址区,947,0,true
-942,wedgehurst-area,韦格赫斯特,948,0,true
+942,wedgehurst-area,木杆镇,948,0,true
 943,west-lake-axewell-area,西湖阿克斯韦尔地区,949,0,true
 944,workout-sea-area,锻炼海域,950,0,true
 945,wyndon-area,温登地区,951,0,true
@@ -830,7 +830,7 @@ id,code,name,location_id,game_index,enabled
 948,arenas-approach-area,竞技场进场区,954,0,true
 949,aspiration-hill-area,愿望山地区,955,0,true
 950,avalanche-slopes-area,雪崩斜坡区,956,0,true
-951,avaluggs-legacy-area,avaluggs遗留区域,957,0,true
+951,avaluggs-legacy-area,冰岩块区域,957,0,true
 952,bathers-lagoon-area,沐浴者泻湖区,958,0,true
 953,bolderoll-ravine-area,博尔德罗尔峡谷地区,959,0,true
 954,bolderoll-slope-area,博尔德罗尔斜坡区,960,0,true
