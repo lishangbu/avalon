@@ -337,7 +337,6 @@ class LiquibaseMigrationTests(
 			"type",
 			"parent_id",
 			"path",
-			"component_key",
 			"icon",
 			"sort_order",
 			"visible",

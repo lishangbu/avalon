@@ -1,6 +1,6 @@
-id,code,name,type,parent_id,path,component_key,icon,sort_order,visible,enabled,api_method,api_pattern
-837,battle-rules.skill-rules,技能规则,MENU,830,/battle-rules/skill-rules,battle-rules/skill-rules,lucide:sparkles,10,true,true,,
-838,battle-rules.skill-status-effects,技能状态效果,MENU,830,/battle-rules/skill-status-effects,battle-rules/skill-status-effects,lucide:activity,20,true,true,,
-839,battle-rules.skill-stat-stage-effects,技能能力阶级效果,MENU,830,/battle-rules/skill-stat-stage-effects,battle-rules/skill-stat-stage-effects,lucide:chart-no-axes-column,30,true,true,,
-840,battle-rules.ability-rules,特性规则,MENU,830,/battle-rules/ability-rules,battle-rules/ability-rules,lucide:badge-check,40,true,true,,
-841,battle-rules.item-rules,道具规则,MENU,830,/battle-rules/item-rules,battle-rules/item-rules,lucide:package,50,true,true,,
+id,code,name,type,parent_id,path,icon,sort_order,visible,enabled,api_method,api_pattern
+837,battle-rules.skill-rules,技能规则,MENU,830,/battle-rules/skill-rules,lucide:sparkles,10,true,true,,
+838,battle-rules.skill-status-effects,技能状态效果,MENU,830,/battle-rules/skill-status-effects,lucide:activity,20,true,true,,
+839,battle-rules.skill-stat-stage-effects,技能能力阶级效果,MENU,830,/battle-rules/skill-stat-stage-effects,lucide:chart-no-axes-column,30,true,true,,
+840,battle-rules.ability-rules,特性规则,MENU,830,/battle-rules/ability-rules,lucide:badge-check,40,true,true,,
+841,battle-rules.item-rules,道具规则,MENU,830,/battle-rules/item-rules,lucide:package,50,true,true,,

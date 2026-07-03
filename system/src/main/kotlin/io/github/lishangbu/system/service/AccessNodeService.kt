@@ -5,7 +5,6 @@ import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.apiMethod
 import io.github.lishangbu.security.entity.apiPattern
 import io.github.lishangbu.security.entity.code
-import io.github.lishangbu.security.entity.componentKey
 import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.icon
 import io.github.lishangbu.security.entity.id
@@ -107,7 +106,6 @@ class AccessNodeService(
 			type = type,
 			parentId = parentId,
 			path = path,
-			componentKey = componentKey,
 			icon = icon,
 			sortOrder = sortOrder,
 			visible = visible,

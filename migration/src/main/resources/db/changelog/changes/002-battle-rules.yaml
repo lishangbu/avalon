@@ -827,7 +827,6 @@ databaseChangeLog:
         - column: { name: type, type: STRING }
         - column: { name: parent_id, type: NUMERIC }
         - column: { name: path, type: STRING }
-        - column: { name: component_key, type: STRING }
         - column: { name: icon, type: STRING }
         - column: { name: sort_order, type: NUMERIC }
         - column: { name: visible, type: BOOLEAN }
@@ -1467,7 +1466,6 @@ databaseChangeLog:
         - column: { name: type, type: STRING }
         - column: { name: parent_id, type: NUMERIC }
         - column: { name: path, type: STRING }
-        - column: { name: component_key, type: STRING }
         - column: { name: icon, type: STRING }
         - column: { name: sort_order, type: NUMERIC }
         - column: { name: visible, type: BOOLEAN }
@@ -1881,7 +1879,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-accuracy-overrides }
-        - column: { name: component_key, value: battle-rules/skill-weather-accuracy-overrides }
         - column: { name: icon, value: lucide:cloud-sun }
         - column: { name: sort_order, valueNumeric: 35 }
         - column: { name: visible, valueBoolean: true }
@@ -1895,7 +1892,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-power-modifiers }
-        - column: { name: component_key, value: battle-rules/skill-weather-power-modifiers }
         - column: { name: icon, value: lucide:cloud-lightning }
         - column: { name: sort_order, valueNumeric: 36 }
         - column: { name: visible, valueBoolean: true }
@@ -2150,7 +2146,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-field-effects }
-        - column: { name: component_key, value: battle-rules/skill-field-effects }
         - column: { name: icon, value: lucide:shield-plus }
         - column: { name: sort_order, valueNumeric: 34 }
         - column: { name: visible, valueBoolean: true }
@@ -2356,7 +2351,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-global-field-effects }
-        - column: { name: component_key, value: battle-rules/skill-global-field-effects }
         - column: { name: icon, value: lucide:rotate-3d }
         - column: { name: sort_order, valueNumeric: 35 }
         - column: { name: visible, valueBoolean: true }
@@ -4433,7 +4427,6 @@ databaseChangeLog:
         - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 820 }
         - column: { name: path, value: /battle-rules/action-validation }
-        - column: { name: component_key, value: battle-rules/action-validation }
         - column: { name: icon, value: lucide:list-checks }
         - column: { name: sort_order, valueNumeric: 60 }
         - column: { name: visible, valueBoolean: true }
@@ -4595,7 +4588,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-charge-skip-weathers }
-        - column: { name: component_key, value: battle-rules/skill-charge-skip-weathers }
         - column: { name: icon, value: lucide:sun }
         - column: { name: sort_order, valueNumeric: 37 }
         - column: { name: visible, valueBoolean: true }
@@ -5785,7 +5777,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-element-overrides }
-        - column: { name: component_key, value: battle-rules/skill-weather-element-overrides }
         - column: { name: icon, value: lucide:cloud-sun-rain }
         - column: { name: sort_order, valueNumeric: 37 }
         - column: { name: visible, valueBoolean: true }
@@ -7132,7 +7123,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-stat-stage-operations }
-        - column: { name: component_key, value: battle-rules/skill-stat-stage-operations }
         - column: { name: icon, value: lucide:replace }
         - column: { name: sort_order, valueNumeric: 31 }
         - column: { name: visible, valueBoolean: true }
@@ -8537,7 +8527,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-terrain-power-modifiers }
-        - column: { name: component_key, value: battle-rules/skill-terrain-power-modifiers }
         - column: { name: icon, value: lucide:map }
         - column: { name: sort_order, valueNumeric: 38 }
         - column: { name: visible, valueBoolean: true }
@@ -8551,7 +8540,6 @@ databaseChangeLog:
         - column: { name: type, value: MENU }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-terrain-element-overrides }
-        - column: { name: component_key, value: battle-rules/skill-terrain-element-overrides }
         - column: { name: icon, value: lucide:palette }
         - column: { name: sort_order, valueNumeric: 39 }
         - column: { name: visible, valueBoolean: true }

@@ -84,7 +84,7 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.menus[0].children[0].code").value("system.rbac"))
 			.andExpect(jsonPath("$.menus[0].children[0].icon").value("lucide:shield-check"))
 			.andExpect(jsonPath("$.menus[0].children[0].children[0].code").value("system.rbac.users"))
-			.andExpect(jsonPath("$.menus[0].children[0].children[0].componentKey").value("system/rbac/users"))
+			.andExpect(jsonPath("$.menus[0].children[0].children[0].path").value("/system/rbac/users"))
 			.andExpect(jsonPath("$.menus[0].children[0].children[0].icon").value("lucide:users"))
 			.andReturn()
 			.response
@@ -124,7 +124,7 @@ class SecurityManagementApiTests(
 			.contentAsString
 
 		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
-		val componentKeys = JsonPath.read<List<String>>(response, "$.menus..componentKey")
+		val menuPaths = JsonPath.read<List<String>>(response, "$.menus..path")
 			.filterNotNull()
 		assertThat(menuCodes).contains(
 			"battle-rules.battle-formats",
@@ -152,14 +152,14 @@ class SecurityManagementApiTests(
 			"battle-rules.ability-rules",
 			"battle-rules.item-rules",
 		)
-		assertThat(componentKeys).contains(
-			"battle-rules/battle-formats",
-			"battle-rules/action-validation",
-			"battle-rules/skill-field-effects",
-			"battle-rules/skill-global-field-effects",
-			"battle-rules/skill-weather-accuracy-overrides",
-			"battle-rules/skill-weather-power-modifiers",
-			"battle-rules/skill-charge-skip-weathers",
+		assertThat(menuPaths).contains(
+			"/battle-rules/battle-formats",
+			"/battle-rules/action-validation",
+			"/battle-rules/skill-field-effects",
+			"/battle-rules/skill-global-field-effects",
+			"/battle-rules/skill-weather-accuracy-overrides",
+			"/battle-rules/skill-weather-power-modifiers",
+			"/battle-rules/skill-charge-skip-weathers",
 		)
 	}
 
@@ -448,7 +448,6 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.code").value("system.rbac.users"))
 			.andExpect(jsonPath("$.type").value("ROUTE"))
 			.andExpect(jsonPath("$.path").value("/system/rbac/users"))
-			.andExpect(jsonPath("$.componentKey").value("system/rbac/users"))
 			.andExpect(jsonPath("$.visible").value(true))
 
 		mockMvc.perform(

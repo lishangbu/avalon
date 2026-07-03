@@ -30,8 +30,6 @@ interface SecurityAccessNode {
 
 	val path: String?
 
-	val componentKey: String?
-
 	val icon: String?
 
 	val sortOrder: Int

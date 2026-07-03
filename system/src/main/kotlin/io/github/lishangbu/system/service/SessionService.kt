@@ -182,7 +182,6 @@ class SessionService(
 			name = name,
 			type = type,
 			path = path,
-			componentKey = componentKey,
 			icon = icon,
 			sortOrder = sortOrder,
 			children = children,

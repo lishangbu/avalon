@@ -153,10 +153,6 @@ databaseChangeLog:
             type: varchar(255)
             remarks: 前端路由路径。
         - column:
-            name: component_key
-            type: varchar(255)
-            remarks: 前端组件标识。
-        - column:
             name: icon
             type: varchar(120)
             remarks: 前端图标标识。
@@ -320,9 +316,6 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: path
-            type: STRING
-        - column:
-            name: component_key
             type: STRING
         - column:
             name: icon

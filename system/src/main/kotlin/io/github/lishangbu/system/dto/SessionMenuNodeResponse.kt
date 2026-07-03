@@ -15,8 +15,6 @@ data class SessionMenuNodeResponse(
 	val type: String,
 	@field:Schema(description = "前端路由路径。", example = "/system/rbac/users", nullable = true)
 	val path: String?,
-	@field:Schema(description = "前端组件标识。", example = "system/rbac/users", nullable = true)
-	val componentKey: String?,
 	@field:Schema(description = "前端图标标识。", example = "lucide:users", nullable = true)
 	val icon: String?,
 	@field:Schema(description = "同级排序值，数值越小越靠前。", example = "10")
