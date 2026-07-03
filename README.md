@@ -100,7 +100,6 @@ COSID_MACHINE_ID=0
 | 当前会话 | `/api/session` |
 | 用户管理 | `/api/system/rbac/users` |
 | 角色管理 | `/api/system/rbac/roles` |
-| 权限查询 | `/api/system/rbac/permissions` |
 | 访问节点查询 | `/api/system/rbac/access-nodes` |
 | OAuth client 管理 | `/api/system/oauth/clients` |
 | OAuth token 管理 | `/api/system/oauth/tokens` |
