@@ -2578,6 +2578,27 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game location seed data does not keep generated placeholder names`() {
+		// 这条测试只拦截确定无业务含义的机器翻译占位词；普通译名质量继续按资料源逐批校正。
+		val placeholderLocations = queryMaps(
+			"""
+			select 'game_location' as table_name, id, code, name
+			from game_location
+			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
+				or name like '%遗留区域%'
+			union all
+			select 'game_location_area' as table_name, id, code, name
+			from game_location_area
+			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
+				or name like '%遗留区域%'
+			order by table_name, id
+			""".trimIndent(),
+		)
+
+		assertThat(placeholderLocations).isEmpty()
+	}
+
+	@Test
 	fun `liquibase remarks every application table and column`() {
 		val tablesWithoutRemarks = queryStrings(
 			"""
