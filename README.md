@@ -97,12 +97,17 @@ COSID_MACHINE_ID=0
 
 | 分组 | 路径 |
 | --- | --- |
+| 当前会话 | `/api/session` |
 | 用户管理 | `/api/system/rbac/users` |
 | 角色管理 | `/api/system/rbac/roles` |
 | 权限查询 | `/api/system/rbac/permissions` |
+| 访问节点查询 | `/api/system/rbac/access-nodes` |
 | OAuth client 管理 | `/api/system/oauth/clients` |
+| OAuth token 管理 | `/api/system/oauth/tokens` |
 | JWK 管理 | `/api/system/oauth/jwks` |
 | 定时任务管理 | `/api/system/scheduler/tasks` |
+| 游戏资料管理 | `/api/game-data/**` |
+| 战斗规则管理 | `/api/battle-rules/**` |
 
 OAuth2 Token 端点由 Spring Authorization Server 提供，使用当前后端的安全配置和持久化客户端数据。
 
