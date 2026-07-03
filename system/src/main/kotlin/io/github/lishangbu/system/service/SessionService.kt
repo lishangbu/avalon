@@ -219,7 +219,7 @@ class SessionService(
 
 	private companion object {
 		private const val ROLE_AUTHORITY_PREFIX = "ROLE_"
-		private val MENU_NODE_TYPES = listOf("DIRECTORY", "ROUTE", "MENU")
+		private val MENU_NODE_TYPES = listOf("DIRECTORY", "ROUTE")
 		private val SESSION_SCOPE_ACCESS_NODES = setOf(
 			SECURITY_ADMIN_ACCESS_NODE,
 			BATTLE_RULES_ADMIN_ACCESS_NODE,

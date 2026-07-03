@@ -11,7 +11,7 @@ data class SessionMenuNodeResponse(
 	val code: String,
 	@field:Schema(description = "菜单或路由展示名称。", example = "用户管理")
 	val name: String,
-	@field:Schema(description = "节点类型，通常为 DIRECTORY、MENU 或 ROUTE。", example = "ROUTE")
+	@field:Schema(description = "节点类型，通常为 DIRECTORY 或 ROUTE。", example = "ROUTE")
 	val type: String,
 	@field:Schema(description = "前端路由路径。", example = "/system/rbac/users", nullable = true)
 	val path: String?,

@@ -1876,7 +1876,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 843 }
         - column: { name: code, value: battle-rules.skill-weather-accuracy-overrides }
         - column: { name: name, value: 技能天气命中 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-accuracy-overrides }
         - column: { name: icon, value: lucide:cloud-sun }
@@ -1889,7 +1889,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 844 }
         - column: { name: code, value: battle-rules.skill-weather-power-modifiers }
         - column: { name: name, value: 技能天气威力 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-power-modifiers }
         - column: { name: icon, value: lucide:cloud-lightning }
@@ -2143,7 +2143,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 845 }
         - column: { name: code, value: battle-rules.skill-field-effects }
         - column: { name: name, value: 技能场上效果 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-field-effects }
         - column: { name: icon, value: lucide:shield-plus }
@@ -2348,7 +2348,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 846 }
         - column: { name: code, value: battle-rules.skill-global-field-effects }
         - column: { name: name, value: 技能全场效果 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-global-field-effects }
         - column: { name: icon, value: lucide:rotate-3d }
@@ -4585,7 +4585,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 850 }
         - column: { name: code, value: battle-rules.skill-charge-skip-weathers }
         - column: { name: name, value: 技能蓄力天气 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-charge-skip-weathers }
         - column: { name: icon, value: lucide:sun }
@@ -5774,7 +5774,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 851 }
         - column: { name: code, value: battle-rules.skill-weather-element-overrides }
         - column: { name: name, value: 技能天气属性 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-weather-element-overrides }
         - column: { name: icon, value: lucide:cloud-sun-rain }
@@ -7120,7 +7120,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 852 }
         - column: { name: code, value: battle-rules.skill-stat-stage-operations }
         - column: { name: name, value: 技能能力阶级操作 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-stat-stage-operations }
         - column: { name: icon, value: lucide:replace }
@@ -8524,7 +8524,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 853 }
         - column: { name: code, value: battle-rules.skill-terrain-power-modifiers }
         - column: { name: name, value: 技能场地威力 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-terrain-power-modifiers }
         - column: { name: icon, value: lucide:map }
@@ -8537,7 +8537,7 @@ databaseChangeLog:
         - column: { name: id, valueNumeric: 854 }
         - column: { name: code, value: battle-rules.skill-terrain-element-overrides }
         - column: { name: name, value: 技能场地属性 }
-        - column: { name: type, value: MENU }
+        - column: { name: type, value: ROUTE }
         - column: { name: parent_id, valueNumeric: 830 }
         - column: { name: path, value: /battle-rules/skill-terrain-element-overrides }
         - column: { name: icon, value: lucide:palette }

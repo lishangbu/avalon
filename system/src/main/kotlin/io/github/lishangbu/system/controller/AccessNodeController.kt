@@ -76,7 +76,7 @@ class AccessNodeController(
 		@RequestParam(required = false) q: String?,
 		@Parameter(description = "按权限 code 前缀过滤，常用于按模块或权限域缩小结果，例如 security 或 system.rbac。", example = "system.rbac")
 		@RequestParam(required = false) codePrefix: String?,
-		@Parameter(description = "访问节点类型。DIRECTORY 表示菜单目录，MENU/ROUTE 表示前端页面，API 表示后端接口权限。", example = "ROUTE")
+		@Parameter(description = "访问节点类型。DIRECTORY 表示菜单目录，ROUTE 表示前端页面，API 表示后端接口权限。", example = "ROUTE")
 		@RequestParam(required = false) type: String?,
 		@Parameter(description = "是否只返回管理端可见节点。API 权限通常不可见，但仍可绑定角色。", example = "true")
 		@RequestParam(required = false) visible: Boolean?,

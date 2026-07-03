@@ -13,7 +13,7 @@ data class AccessNodeResponse(
 	val code: String,
 	@field:Schema(description = "访问节点展示名称。", example = "用户管理")
 	val name: String,
-	@field:Schema(description = "节点类型：DIRECTORY、MENU、ROUTE 或 API。", example = "ROUTE")
+	@field:Schema(description = "节点类型：DIRECTORY、ROUTE 或 API。", example = "ROUTE")
 	val type: String,
 	@field:Schema(description = "父访问节点 ID。根节点为空。", example = "300", nullable = true)
 	val parentId: Long?,
