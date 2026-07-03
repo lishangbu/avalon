@@ -91,10 +91,13 @@ class SecurityManagementApiTests(
 			.contentAsString
 
 		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
+		val menuTypes = JsonPath.read<List<String>>(response, "$.menus..type")
 		assertThat(menuCodes)
 			.contains("system.rbac.access-nodes", "system.oauth.clients", "system.oauth.tokens", "system.scheduler.tasks")
 			.doesNotContain("security:admin")
-
+		assertThat(menuTypes)
+			.contains("DIRECTORY", "ROUTE")
+			.doesNotContain("MENU")
 	}
 
 	/**
@@ -124,6 +127,7 @@ class SecurityManagementApiTests(
 			.contentAsString
 
 		val menuCodes = JsonPath.read<List<String>>(response, "$.menus..code")
+		val menuTypes = JsonPath.read<List<String>>(response, "$.menus..type")
 		val menuPaths = JsonPath.read<List<String>>(response, "$.menus..path")
 			.filterNotNull()
 		assertThat(menuCodes).contains(
@@ -161,6 +165,9 @@ class SecurityManagementApiTests(
 			"/battle-rules/skill-weather-power-modifiers",
 			"/battle-rules/skill-charge-skip-weathers",
 		)
+		assertThat(menuTypes)
+			.contains("DIRECTORY", "ROUTE")
+			.doesNotContain("MENU")
 	}
 
 	@Test
@@ -480,6 +487,15 @@ class SecurityManagementApiTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.rows[*].code", hasItem("system.rbac.users")))
 			.andExpect(jsonPath("$.rows[*].type", hasItem("ROUTE")))
+
+		mockMvc.perform(
+			get("/api/system/rbac/access-nodes")
+				.header("Authorization", "Bearer $token")
+				.param("type", "MENU"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.totalRowCount").value(0))
+			.andExpect(jsonPath("$.rows.length()").value(0))
 
 		val createdRoleResponse = mockMvc.perform(
 			post("/api/system/rbac/roles")
