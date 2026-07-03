@@ -32,6 +32,26 @@
 | 随机、回放和对照测试基础 | 309-312 | 4 | 4 | 0 | 固定随机序列、事件流稳定、回放复算和对照场景账本归档。 |
 | **合计** | **1-312** | **312** | **312** | **0** | 当前“已覆盖”以行为测试账本为事实源。 |
 
+## 当前覆盖清单结论
+
+| 规则族 code | 单测覆盖状态 | 缺口 | 可合并评估 |
+| --- | --- | ---: | --- |
+| `format-and-team-validation` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；这是战斗开始前的输入合法性边界。 |
+| `lifecycle-switch-faint-result` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；它维护替换、濒死和胜负事件顺序。 |
+| `turn-flow-action-ordering` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；行动顺序和随机消耗是独立高风险边界。 |
+| `target-scope-redirection` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；目标选择必须独立于命中和伤害公式。 |
+| `hit-protect-substitute-immunity-reflect` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；这是命中前目标门禁规则族。 |
+| `damage-formula-stat-element-rounding` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；取整、属性和能力值修正需要集中维护。 |
+| `major-volatile-persistent-status` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；状态持续回合和行动阻止共享同一族内不变量。 |
+| `weather-terrain-field-side-condition` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；天气、场地和一侧状态共享环境生命周期边界。 |
+| `skill-effect-family` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；技能效果是资料扩展最频繁的运行时入口。 |
+| `ability-effect-family` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；特性触发时机跨入场、命中前后和回合末。 |
+| `item-effect-family` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；道具消费、一次性和非消耗效果需要独立检查。 |
+| `random-replay-public-reference` | 已绑定行为测试和公开场景锚点 | 0 | 不合并；它是其它规则族的可复现测试基础。 |
+
+当前没有建议继续合并的规则族。12 个规则族已经是比 312 条逐条维护更小的账本边界；如果后续证明两个规则族共享
+同一个触发阶段、事件顺序和状态不变量，再同时修改 `BattleRuleCoverageLedgerTests` 与本文件。
+
 ## 规则族到测试文件矩阵
 
 这张矩阵是 `battle-engine/src/test/kotlin/io/github/lishangbu/battleengine/BattleRuleCoverageLedgerTests.kt`
@@ -49,10 +69,10 @@
 | `turn-flow-action-ordering` | 35-60 | 26 | `BattleActionOrderingPublicReferenceTests`、`BattleActionValidatorTests`、`BattleActionFlowBoundaryTests`、`BattleChargeSkillTests`、`BattleLockedMoveTests`、`BattleMultiHitSkillTests`、`BattleRechargeSkillTests` |
 | `target-scope-redirection` | 61-80 | 20 | `BattleTargetScopePublicReferenceTests`、`BattleTargetRedirectionPublicReferenceTests`、`BattleRandomTargetPublicReferenceTests` |
 | `hit-protect-substitute-immunity-reflect` | 81-108 | 28 | `BattleHitDefenseBoundaryPublicReferenceTests`、`BattleSubstituteTests`、`BattleImmunityTests`、`BattleAccuracyStatStageIgnoreAbilityTests`、`BattlePsychicTerrainTests`、`BattleSoundAbilityTests`、`BattleStatusImmunityAndGroundingTests` |
-| `damage-formula-stat-element-rounding` | 109-150 | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`damage/BattleDamageStatStageIgnoreAbilityTests`、`BattleCriticalHitFlowTests`、`BattleCriticalHitImmunityAbilityTests`、`BattleFixedDamageSkillTests`、`BattleHpDerivedDamageSkillTests`、`BattleProportionalDamageSkillTests` |
+| `damage-formula-stat-element-rounding` | 109-150 | 42 | `damage/BattleDamageFormulaBoundaryPublicReferenceTests`、`damage/BattleDamageCalculatorTests`、`damage/BattleDamageStatStageIgnoreAbilityTests`、`BattleCriticalHitFlowTests`、`BattleCriticalHitImmunityAbilityTests`、`BattleFixedDamageSkillTests`、`BattleHpDerivedDamageSkillTests`、`BattleOneHitKnockOutSkillTests`、`BattleProportionalDamageSkillTests`、`BattleSpeedRatioPowerSkillTests` |
 | `major-volatile-persistent-status` | 151-184 | 34 | `BattleResidualStatusTests`、`BattleVolatileStatusTests`、`BattleBindingStatusTests`、`BattleDisableTests`、`BattleFreezeStatusTests`、`BattleHealBlockTests`、`BattleParalysisStatusTests`、`BattleSleepStatusTests`、`BattleTauntTests`、`BattleTormentTests` |
 | `weather-terrain-field-side-condition` | 185-215 | 31 | `BattleWeatherEffectTests`、`BattleTerrainEffectTests`、`BattleEnvironmentFieldBoundaryPublicReferenceTests`、`BattleEnvironmentDurationTests`、`BattleSkillEnvironmentEffectTests`、`BattleWeatherElementOverrideTests` |
-| `skill-effect-family` | 216-254 | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests`、`BattleForcedSwitchSkillTests`、`BattleSkillRecoilImmunityAbilityTests`、`BattleStatStageOperationSkillTests` |
+| `skill-effect-family` | 216-254 | 39 | `BattleSkillEffectBoundaryPublicReferenceTests`、`BattleSkillStatStageEffectTests`、`BattleSkillHpEffectTests`、`BattlePostDamageStatusCureSkillTests`、`BattleUserElementRemovalSkillTests`、`BattleForcedSwitchSkillTests`、`BattleSkillRecoilImmunityAbilityTests`、`BattleStatStageOperationSkillTests`、`BattleSkillWeightEffectTests` |
 | `ability-effect-family` | 255-290 | 36 | `BattleSwitchInAbilityTests`、`BattleAbilityItemBoundaryPublicReferenceTests`、`BattleTargetAbilityIgnoreTests`、`BattleContactAbilityPublicReferenceTests`、`BattleElementAbsorbAbilityTests`、`BattleElementAbsorbStatAbilityTests`、`BattleIndirectDamageImmunityTests`、`BattlePriorityAbilityTests`、`BattleStatusPriorityAbilityTests` |
 | `item-effect-family` | 291-308 | 18 | `BattleHeldItemPublicReferenceTests`、`BattleConditionalDamageBoostItemTests`、`BattleDamageDealtHealingItemTests`、`BattleElementDamageBoostItemTests`、`BattleElementDamageReductionItemTests`、`BattleFatalDamageSurvivalTests`、`BattleStatusCureItemTests`、`BattleVolatileStatusCureItemTests` |
 | `random-replay-public-reference` | 309-312 | 4 | `random/ScriptedBattleRandomTests`、`BattleReplayRecorderTests`、`BattleReplayPublicReferenceTests` |

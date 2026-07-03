@@ -2,11 +2,18 @@ package io.github.lishangbu.security
 
 import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.BackendApplication
+import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.active
+import io.github.lishangbu.security.entity.code
+import io.github.lishangbu.security.entity.enabled
+import io.github.lishangbu.security.entity.icon
 import io.github.lishangbu.security.entity.keyId
+import io.github.lishangbu.security.entity.path
 import io.github.lishangbu.security.entity.roles
+import io.github.lishangbu.security.entity.type
+import io.github.lishangbu.security.entity.visible
 import io.github.lishangbu.security.repository.SecurityUserRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -168,6 +175,57 @@ class SecurityManagementApiTests(
 		assertThat(menuTypes)
 			.contains("DIRECTORY", "ROUTE")
 			.doesNotContain("MENU")
+	}
+
+	/**
+	 * 验证 `/api/session` 的菜单树和访问节点数据源保持同一个契约。
+	 *
+	 * 前端已经不保留 fallback 菜单；新增、删除或改名菜单时，后端必须一次性提供 code、name、type、path 和 icon。
+	 * 这里用三类管理员角色拿到完整菜单，再和数据库里启用且可见的 DIRECTORY/ROUTE 节点对齐，避免只在前端发现
+	 * “菜单缺页、图标为空、ROUTE 还叫 MENU”这类回归。
+	 */
+	@Test
+	fun `full admin session menu tree matches visible access node route contract`() {
+		insertUser("full-menu-manager", 201, 202, 203)
+		val token = issueToken(
+			username = "full-menu-manager",
+			scope = "security:admin game-data:admin battle-rules:admin",
+		)
+
+		val response = mockMvc.perform(
+			get("/api/session")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andReturn()
+			.response
+			.contentAsString
+		val routeMenuNodes = menuNodeSnapshots(response, "ROUTE")
+		val directoryMenuNodes = menuNodeSnapshots(response, "DIRECTORY")
+		val expectedRouteNodes = visibleAccessNodes("ROUTE")
+		val expectedDirectoryNodes = visibleAccessNodes("DIRECTORY")
+
+		assertThat(routeMenuNodes.map { it.code })
+			.containsExactlyInAnyOrderElementsOf(expectedRouteNodes.map { it.code })
+		assertThat(routeMenuNodes.mapNotNull { it.path })
+			.containsExactlyInAnyOrderElementsOf(expectedRouteNodes.mapNotNull { it.path })
+		assertThat(directoryMenuNodes.map { it.code })
+			.containsExactlyInAnyOrderElementsOf(expectedDirectoryNodes.map { it.code })
+		assertThat(routeMenuNodes)
+			.allSatisfy { node ->
+				assertThat(node.name).isNotBlank()
+				assertThat(node.path).startsWith("/")
+				assertThat(node.icon).startsWith("lucide:")
+			}
+		assertThat(directoryMenuNodes)
+			.allSatisfy { node ->
+				assertThat(node.name).isNotBlank()
+				assertThat(node.icon).startsWith("lucide:")
+			}
+		assertThat(routeMenuNodes + directoryMenuNodes)
+			.hasSize(expectedRouteNodes.size + expectedDirectoryNodes.size)
+		assertThat((routeMenuNodes + directoryMenuNodes).map { it.type })
+			.containsOnly("DIRECTORY", "ROUTE")
 	}
 
 	@Test
@@ -1024,7 +1082,7 @@ class SecurityManagementApiTests(
 		return JsonPath.read(response, "$.access_token")
 	}
 
-	private fun insertUser(username: String, roleId: Long) {
+	private fun insertUser(username: String, vararg roleIds: Long) {
 		val userId = nextUserId.getAndIncrement()
 		userRepository.save(
 			SecurityUser {
@@ -1036,8 +1094,39 @@ class SecurityManagementApiTests(
 				accountNonLocked = true
 			},
 		)
-		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)
+		roleIds.forEach { roleId ->
+			sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, roleId)
+		}
 	}
+
+	private fun visibleAccessNodes(nodeType: String): List<SecurityAccessNode> =
+		sqlClient.executeQuery(SecurityAccessNode::class) {
+			where(table.enabled eq true)
+			where(table.visible eq true)
+			where(table.type eq nodeType)
+			orderBy(table.code)
+			select(table)
+		}
+
+	private fun menuNodeSnapshots(response: String, nodeType: String): List<MenuNodeSnapshot> =
+		JsonPath.read<List<Map<String, Any?>>>(response, "$..[?(@.type == '$nodeType')]")
+			.map { node ->
+				MenuNodeSnapshot(
+					code = node.getValue("code") as String,
+					name = node.getValue("name") as String,
+					type = node.getValue("type") as String,
+					path = node["path"] as String?,
+					icon = node["icon"] as String?,
+				)
+			}
+
+	private data class MenuNodeSnapshot(
+		val code: String,
+		val name: String,
+		val type: String,
+		val path: String?,
+		val icon: String?,
+	)
 
 	private companion object {
 		private val nextUserId = AtomicLong(40001)
