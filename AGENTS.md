@@ -38,19 +38,29 @@
 
 ```text
 app
+common-web
 common-persistence
 migration
 security
 system
+scheduler
+game-data
+battle-engine
+battle-rules
 ```
 
 模块职责：
 
 - `app`：Spring Boot 启动、运行时装配、全局配置。
+- `common-web`：分页请求、错误响应和全局异常处理等共享 Web 边界。
 - `common-persistence`：Jimmer 与 CosId 的共享持久化基础设施。
 - `migration`：Liquibase 迁移和迁移验证。
 - `security`：授权服务器、资源服务器、认证主体和 RBAC 运行时。
 - `system`：用户、角色、权限、OAuth client 和 JWK 等系统管理 API。
+- `scheduler`：Quartz 定时任务注册、调度、执行记录和持久化。
+- `game-data`：游戏资料管理领域。
+- `battle-engine`：战斗引擎核心规则和公开规则用例测试。
+- `battle-rules`：战斗规则维护 API 和运行时规则快照。
 
 ## 依赖约束
 
@@ -98,8 +108,13 @@ system
 
 ```bash
 ./gradlew :app:test
+./gradlew :common-web:test
 ./gradlew :common-persistence:test
+./gradlew :game-data:test
+./gradlew :battle-engine:test
+./gradlew :battle-rules:test
 ./gradlew :migration:test
+./gradlew :scheduler:test
 ./gradlew :security:test
 ./gradlew :system:test
 ```
