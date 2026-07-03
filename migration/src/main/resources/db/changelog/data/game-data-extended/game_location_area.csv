@@ -671,7 +671,7 @@ id,code,name,location_id,game_index,enabled
 787,lavaridge-town-area,拉瓦里奇镇,569,0,true
 788,eterna-city-west-gate,绮年华城（西门）,2,0,true
 789,hearthome-city-west-gate,心家城（西门）,169,0,true
-790,violet-city-poke-mart,紫罗兰城(Poke Mart),153,0,true
+790,violet-city-poke-mart,紫罗兰城友好商店,153,0,true
 791,violet-city-pokemon-center,紫罗兰城（生物中心）,153,0,true
 792,nacrene-city-west-gate,纳克林城（西门）,349,0,true
 793,bell-tower-roof,钟楼（屋顶）,139,0,true
@@ -1088,12 +1088,12 @@ id,code,name,location_id,game_index,enabled
 1206,shoal-cave-b3f,shoal洞窟b3f,445,0,true
 1207,hoenn-route-104-north-oras,丰缘route104northoras,452,0,true
 1208,hoenn-route-104-south-oras,丰缘route104southoras,452,0,true
-1209,hoenn-pokemart-area,丰缘pokemartarea,1088,0,true
-1210,hoenn-pokecenter-area,丰缘pokecenterarea,1089,0,true
-1211,kanto-pokemart-area,关都pokemartarea,1090,0,true
-1212,kanto-pokecenter-area,关都pokecenterarea,1091,0,true
-1213,sinnoh-pokemart-area,神奥pokemartarea,1092,0,true
-1214,johto-pokemart-area,城都pokemartarea,1093,0,true
+1209,hoenn-pokemart-area,丰缘友好商店区域,1088,0,true
+1210,hoenn-pokecenter-area,丰缘生物中心区域,1089,0,true
+1211,kanto-pokemart-area,关都友好商店区域,1090,0,true
+1212,kanto-pokecenter-area,关都生物中心区域,1091,0,true
+1213,sinnoh-pokemart-area,神奥友好商店区域,1092,0,true
+1214,johto-pokemart-area,城都友好商店区域,1093,0,true
 1215,mirage-spot-island-west-of-dewford-town,幻影岛（杜福德镇以西）,577,0,true
 1216,mirage-spot-island-west-of-route-104,海市蜃楼岛（104号国道以西）,577,0,true
 1217,mirage-spot-island-route-114,海市蜃楼岛（114号公路）,577,0,true

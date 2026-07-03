@@ -2586,11 +2586,17 @@ class LiquibaseMigrationTests(
 			from game_location
 			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
 				or name like '%遗留区域%'
+				or lower(name) like '%pokemart%'
+				or lower(name) like '%pokecenter%'
+				or lower(name) like '%poke mart%'
 			union all
 			select 'game_location_area' as table_name, id, code, name
 			from game_location_area
 			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
 				or name like '%遗留区域%'
+				or lower(name) like '%pokemart%'
+				or lower(name) like '%pokecenter%'
+				or lower(name) like '%poke mart%'
 			order by table_name, id
 			""".trimIndent(),
 		)
