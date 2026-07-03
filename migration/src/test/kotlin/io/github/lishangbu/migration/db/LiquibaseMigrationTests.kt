@@ -2589,6 +2589,7 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%pokemart%'
 				or lower(name) like '%pokecenter%'
 				or lower(name) like '%poke mart%'
+				or name like '%阿罗拉route%'
 			union all
 			select 'game_location_area' as table_name, id, code, name
 			from game_location_area
@@ -2597,6 +2598,7 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%pokemart%'
 				or lower(name) like '%pokecenter%'
 				or lower(name) like '%poke mart%'
+				or name like '%阿罗拉route%'
 			order by table_name, id
 			""".trimIndent(),
 		)
