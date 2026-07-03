@@ -47,7 +47,8 @@ import java.util.concurrent.atomic.AtomicLong
 )
 @ContextConfiguration(initializers = [SecurityManagementApiPostgresTestContainer::class])
 /**
- * 绔埌绔獙璇佸畨鍏ㄧ鐞?API 鐨勯壌鏉冦€丱Auth client 绠＄悊銆丣WK 杞崲鍜?RBAC 鍐欏叆銆? */
+ * 端到端验证安全管理 API 的鉴权、OAuth client 管理、JWK 轮换和 RBAC 写入。
+ */
 class SecurityManagementApiTests(
 	@Autowired private val userRepository: SecurityUserRepository,
 	@Autowired private val sqlClient: KSqlClient,

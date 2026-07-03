@@ -1,5 +1,14 @@
 package io.github.lishangbu
 
+import com.jayway.jsonpath.JsonPath
+import io.github.lishangbu.security.entity.SecurityAccessNode
+import io.github.lishangbu.security.entity.enabled
+import io.github.lishangbu.security.entity.path
+import io.github.lishangbu.security.entity.type
+import io.github.lishangbu.security.entity.visible
+import org.assertj.core.api.Assertions.assertThat
+import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +34,7 @@ import org.springframework.web.context.WebApplicationContext
 @ContextConfiguration(initializers = [io.github.lishangbu.security.SecurityManagementApiPostgresTestContainer::class])
 class OpenApiDocumentationTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
+	@Autowired private val sqlClient: KSqlClient,
 ) {
 	private val mockMvc: MockMvc by lazy {
 		MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
@@ -80,6 +90,26 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/battle-rules/item-rules'].get.summary").value("分页查询道具规则"))
 	}
 
+	/**
+	 * 验证后端菜单 ROUTE 节点和 OpenAPI 集合路径保持同步。
+	 *
+	 * 管理端菜单从 `/api/session` 读取，前端 OpenAPI 类型从 `/v3/api-docs/admin` 生成；两者任意一边漏同步，
+	 * 都会造成“菜单能进入但请求类型缺失”或“接口已存在但没有维护页面”。这里直接用数据库里的可见 ROUTE
+	 * 节点作为页面事实来源，让新增资料表或战斗规则表时测试自动覆盖对应集合接口。
+	 */
+	@Test
+	fun `openapi collection paths match visible management route menus`() {
+		val adminPaths = openApiPaths("/v3/api-docs/admin")
+		val battleRulePaths = openApiPaths("/v3/api-docs/battle-rules")
+
+		assertThat(collectionPaths(adminPaths, "/api/game-data/"))
+			.containsExactlyInAnyOrderElementsOf(visibleGameDataApiPaths())
+		assertThat(collectionPaths(battleRulePaths, "/api/battle-rules/"))
+			.containsExactlyInAnyOrderElementsOf(visibleBattleRuleApiPaths())
+		assertThat(adminPaths)
+			.containsAll(visibleSystemApiPaths())
+	}
+
 	@Test
 	fun `swagger ui token request uses backend password grant type`() {
 		mockMvc.perform(get("/swagger-ui/swagger-initializer.js"))
@@ -87,4 +117,63 @@ class OpenApiDocumentationTests(
 			.andExpect(content().string(containsString("requestInterceptor")))
 			.andExpect(content().string(containsString("urn:security:params:oauth:grant-type:password")))
 	}
+
+	private fun openApiPaths(documentPath: String): Set<String> {
+		val response = mockMvc.perform(get(documentPath))
+			.andExpect(status().isOk)
+			.andReturn()
+			.response
+			.contentAsString
+		val paths = JsonPath.read<Map<String, Any?>>(response, "$.paths")
+		return paths.keys
+	}
+
+	private fun collectionPaths(paths: Set<String>, prefix: String): Set<String> =
+		paths
+			.filter { path -> path.startsWith(prefix) && !path.contains("{") }
+			.toSet()
+
+	private fun visibleGameDataApiPaths(): Set<String> =
+		visibleRoutePaths("/game-data/")
+			.map { path -> path.replaceFirst("/game-data", "/api/game-data") }
+			.toSet()
+
+	private fun visibleBattleRuleApiPaths(): Set<String> =
+		visibleRoutePaths("/battle-rules/")
+			.map(::battleRuleApiPath)
+			.toSet()
+
+	private fun visibleSystemApiPaths(): Set<String> =
+		visibleRoutePaths("/system/")
+			.mapNotNull(::systemApiPath)
+			.toSet()
+
+	private fun visibleRoutePaths(prefix: String): List<String> =
+		sqlClient.executeQuery(SecurityAccessNode::class) {
+			where(table.enabled eq true)
+			where(table.visible eq true)
+			where(table.type eq "ROUTE")
+			select(table)
+		}
+			.mapNotNull { node -> node.path }
+			.filter { path -> path.startsWith(prefix) }
+
+	private fun battleRuleApiPath(routePath: String): String =
+		when (routePath) {
+			"/battle-rules/action-validation" -> "/api/battle-rules/runtime/action-validation"
+			"/battle-rules/preparation-validation" -> "/api/battle-rules/runtime/preparation-validation"
+			else -> routePath.replaceFirst("/battle-rules", "/api/battle-rules")
+		}
+
+	private fun systemApiPath(routePath: String): String? =
+		when (routePath) {
+			"/system/oauth/clients" -> "/api/system/oauth/clients"
+			"/system/oauth/jwks" -> "/api/system/oauth/jwks"
+			"/system/oauth/tokens" -> "/api/system/oauth/tokens"
+			"/system/rbac/access-nodes" -> "/api/system/rbac/access-nodes"
+			"/system/rbac/roles" -> "/api/system/rbac/roles"
+			"/system/rbac/users" -> "/api/system/rbac/users"
+			"/system/scheduler/tasks" -> "/api/system/scheduler/tasks"
+			else -> null
+		}
 }

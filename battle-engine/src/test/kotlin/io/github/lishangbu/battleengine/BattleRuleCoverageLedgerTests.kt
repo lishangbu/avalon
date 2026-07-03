@@ -62,6 +62,24 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `规则覆盖文档矩阵必须同步代码账本`() {
+		val expectedRows = coverageGroups.zip(coverageGroupRuleRanges()).map { (group, range) ->
+			DocumentedCoverageGroup(
+				groupCode = group.code,
+				ruleNumberRange = "${range.ruleNumbers.first}-${range.ruleNumbers.last}",
+				ruleCount = group.ruleCount,
+				testFileNames = group.testClassNames.map { testClassName -> testClassName.substringAfterLast('.') },
+			)
+		}
+
+		assertEquals(
+			expectedRows,
+			documentedCoverageMatrix(),
+			"覆盖文档里的规则族矩阵必须和 BattleRuleCoverageLedgerTests 的 coverageGroups 保持一致",
+		)
+	}
+
+	@Test
 	fun `规则族编号区间必须连续覆盖三百一十二条规则`() {
 		val ranges = coverageGroupRuleRanges()
 		val coveredRuleNumbers = ranges.flatMap { it.ruleNumbers.toList() }
@@ -323,6 +341,31 @@ class BattleRuleCoverageLedgerTests {
 		return scenarioNamePattern.findAll(Files.readString(sourcePath)).map { it.groupValues[1] }.toList()
 	}
 
+	/**
+	 * 读取人工维护的规则族矩阵。
+	 *
+	 * 文档不是事实源，但它是开发时定位规则族的入口；这里用很窄的 Markdown 表格解析，只识别
+	 * “规则族 code / 规则编号区间 / 规则数 / 主要测试文件”这张表，避免再维护一份额外数据结构。
+	 */
+	private fun documentedCoverageMatrix(): List<DocumentedCoverageGroup> {
+		val matrixRowPattern = Regex("""^\| `([^`]+)` \| ([0-9]+-[0-9]+) \| ([0-9]+) \| (.+) \|$""")
+		val testFilePattern = Regex("""`([^`]+)`""")
+		val documentPath = Path.of("../docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md")
+
+		return Files.readAllLines(documentPath).mapNotNull { line ->
+			matrixRowPattern.matchEntire(line)?.let { match ->
+				DocumentedCoverageGroup(
+					groupCode = match.groupValues[1],
+					ruleNumberRange = match.groupValues[2],
+					ruleCount = match.groupValues[3].toInt(),
+					testFileNames = testFilePattern.findAll(match.groupValues[4])
+						.map { fileMatch -> fileMatch.groupValues[1].substringAfterLast('/') }
+						.toList(),
+				)
+			}
+		}
+	}
+
 	private fun sourcePathForTestClass(testClassName: String): Path =
 		Path.of("src/test/kotlin/${testClassName.replace('.', '/')}.kt")
 
@@ -370,6 +413,13 @@ class BattleRuleCoverageLedgerTests {
 		val ruleNumberRange: IntRange?,
 		val testClassName: String,
 		val name: String,
+	)
+
+	private data class DocumentedCoverageGroup(
+		val groupCode: String,
+		val ruleNumberRange: String,
+		val ruleCount: Int,
+		val testFileNames: List<String>,
 	)
 
 	private companion object {
