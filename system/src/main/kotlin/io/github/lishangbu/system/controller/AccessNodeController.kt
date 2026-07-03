@@ -72,7 +72,7 @@ class AccessNodeController(
 		],
 	)
 	fun listAccessNodes(
-		@Parameter(description = "模糊搜索关键字，匹配访问节点 code、名称或路径。")
+		@Parameter(description = "模糊搜索关键字，匹配访问节点 code 或名称。")
 		@RequestParam(required = false) q: String?,
 		@Parameter(description = "按权限 code 前缀过滤，常用于按模块或权限域缩小结果，例如 security 或 system.rbac。", example = "system.rbac")
 		@RequestParam(required = false) codePrefix: String?,
