@@ -2715,12 +2715,12 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase silvally form names use localized type terms`() {
+	fun `liquibase type changing form names use localized type terms`() {
 		val machineFormNames = queryMaps(
 			"""
 			select code, name, form_name
 			from game_creature_form
-			where code like 'silvally-%'
+			where (code like 'arceus-%' or code like 'silvally-%')
 				and (
 					form_name in ('普通的', '斗争', '中毒', '漏洞', '鬼', '电的', '精神', '黑暗的', '仙女')
 					or name like '%（斗争）%'

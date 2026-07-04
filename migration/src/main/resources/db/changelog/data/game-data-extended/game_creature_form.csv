@@ -491,7 +491,7 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 490,manaphy,玛纳霏,490,,655,1,false,true,false,true
 491,darkrai,达克莱伊,491,,656,1,false,true,false,true
 492,shaymin-land,谢米,492,土地,658,1,false,true,false,true
-493,arceus-normal,阿尔宙斯,493,普通的,660,1,false,true,false,true
+493,arceus-normal,阿尔宙斯,493,一般,660,1,false,true,false,true
 494,victini,比克提尼,494,,679,1,false,true,false,true
 495,snivy,藤藤蛇,495,,680,1,false,true,false,true
 496,servine,青藤蛇,496,,681,1,false,true,false,true
@@ -1064,19 +1064,19 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 10038,cherrim-sunshine,樱花儿（阳光）,421,阳光,598,2,true,false,false,true
 10039,shellos-east,无壳海兔（东方）,422,东方,600,2,false,false,false,true
 10040,gastrodon-east,海兔兽（东方）,423,东方,602,2,false,false,false,true
-10041,arceus-bug,阿尔宙斯（漏洞）,493,漏洞,666,7,false,false,false,true
-10042,arceus-dark,阿尔宙斯（黑暗的）,493,黑暗的,676,17,false,false,false,true
+10041,arceus-bug,阿尔宙斯（虫）,493,虫,666,7,false,false,false,true
+10042,arceus-dark,阿尔宙斯（恶）,493,恶,676,17,false,false,false,true
 10043,arceus-dragon,阿尔宙斯（龙）,493,龙,675,16,false,false,false,true
-10044,arceus-electric,阿尔宙斯（电的）,493,电的,672,13,false,false,false,true
-10045,arceus-fighting,阿尔宙斯（斗争）,493,斗争,661,2,false,false,false,true
+10044,arceus-electric,阿尔宙斯（电）,493,电,672,13,false,false,false,true
+10045,arceus-fighting,阿尔宙斯（格斗）,493,格斗,661,2,false,false,false,true
 10046,arceus-fire,阿尔宙斯（火）,493,火,669,10,false,false,false,true
 10047,arceus-flying,阿尔宙斯（飞行）,493,飞行,662,3,false,false,false,true
-10048,arceus-ghost,阿尔宙斯（鬼）,493,鬼,667,8,false,false,false,true
+10048,arceus-ghost,阿尔宙斯（幽灵）,493,幽灵,667,8,false,false,false,true
 10049,arceus-grass,阿尔宙斯（草）,493,草,671,12,false,false,false,true
 10050,arceus-ground,阿尔宙斯（地面）,493,地面,664,5,false,false,false,true
 10051,arceus-ice,阿尔宙斯（冰）,493,冰,674,15,false,false,false,true
-10052,arceus-poison,阿尔宙斯（中毒）,493,中毒,663,4,false,false,false,true
-10053,arceus-psychic,阿尔宙斯（精神）,493,精神,673,14,false,false,false,true
+10052,arceus-poison,阿尔宙斯（毒）,493,毒,663,4,false,false,false,true
+10053,arceus-psychic,阿尔宙斯（超能力）,493,超能力,673,14,false,false,false,true
 10054,arceus-rock,阿尔宙斯（岩石）,493,岩石,665,6,false,false,false,true
 10055,arceus-steel,阿尔宙斯（钢）,493,钢,668,9,false,false,false,true
 10056,arceus-water,阿尔宙斯（水）,493,水,670,11,false,false,false,true
@@ -1108,7 +1108,7 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 10082,kyurem-black,酋雷姆（形态 2）,10022,黑色的,857,3,false,true,false,true
 10083,kyurem-white,酋雷姆（形态 3）,10023,白色的,856,2,false,true,false,true
 10084,keldeo-resolute,凯路迪欧（形态 2）,10024,坚决,859,2,false,true,false,true
-10085,arceus-fairy,阿尔宙斯（仙女）,493,仙女,677,18,false,false,false,true
+10085,arceus-fairy,阿尔宙斯（妖精）,493,妖精,677,18,false,false,false,true
 10086,vivillon-icy-snow,彩粉蝶（冰雪）,666,冰雪,926,1,false,false,false,true
 10087,vivillon-polar,彩粉蝶（极性）,666,极性,927,2,false,false,false,true
 10088,vivillon-tundra,彩粉蝶（苔原）,666,苔原,928,3,false,false,false,true
