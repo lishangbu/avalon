@@ -7,9 +7,16 @@ import io.github.lishangbu.battleengine.BattlePreparationValidator
 import io.github.lishangbu.battleengine.BattlePreparationViolation
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleRandomTraceEntry
+import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.random.BattleRandom
+import io.github.lishangbu.battleengine.random.RecordingBattleRandom
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattleActionValidationResponse
@@ -17,10 +24,14 @@ import io.github.lishangbu.battlerules.dto.BattleActionViolationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationViolationResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.requiredText
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.SplittableRandom
+import kotlin.reflect.full.memberProperties
 
 /**
  * 战斗运行时入口服务。
@@ -95,6 +106,45 @@ class BattleRuntimeSnapshotService(
 		return BattleActionValidationResponse(
 			valid = violations.isEmpty(),
 			violations = violations.map { it.toResponse() },
+		)
+	}
+
+	/**
+	 * 在内存中启动并结算一回合沙盒战斗。
+	 *
+	 * 沙盒复用准备阶段装配、行动校验和正式 [BattleEngine]，所以它展示的是当前资料与规则真实能跑出的结果。
+	 * 这里不引入对局 ID 或持久化状态：第一版每次请求都是一场一次性战斗，足够用于管理端验证资料、技能和规则
+	 * 是否能形成可解释的一回合事件流。未来需要连续多回合时，再把 [BattleState] 的序列化边界单独设计出来。
+	 */
+	@Transactional(readOnly = true)
+	fun resolveSandboxTurn(request: BattleSandboxTurnRequest): BattleSandboxTurnResponse {
+		val normalized = BattleActionValidationRequest(
+			formatCode = request.formatCode,
+			sides = request.sides,
+			actions = request.actions,
+		).normalized()
+		val initialState = assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = normalized.formatCode,
+				sides = normalized.sides,
+			),
+		)
+		val started = battleEngine.start(initialState)
+		val actions = normalized.actions.map { it.toBattleAction() }
+		val violations = actionValidator.validate(started, actions)
+		if (violations.isNotEmpty()) {
+			return started.toSandboxResponse(
+				resolved = false,
+				violations = violations.map { it.toResponse() },
+				randomTrace = emptyList(),
+			)
+		}
+		val random = RecordingBattleRandom(SeededBattleRandom(request.randomSeed))
+		val resolved = battleEngine.resolveTurn(started, actions, random)
+		return resolved.toSandboxResponse(
+			resolved = true,
+			violations = emptyList(),
+			randomTrace = random.trace(),
 		)
 	}
 
@@ -252,4 +302,109 @@ class BattleRuntimeSnapshotService(
 			resourceId = resourceId,
 			message = message,
 		)
+
+	private fun BattleState.toSandboxResponse(
+		resolved: Boolean,
+		violations: List<BattleActionViolationResponse>,
+		randomTrace: List<BattleRandomTraceEntry>,
+	): BattleSandboxTurnResponse =
+		BattleSandboxTurnResponse(
+			resolved = resolved,
+			turnNumber = turnNumber,
+			result = result?.let {
+				BattleSandboxTurnResponse.Result(
+					winningSideId = it.winningSideId,
+					reason = it.reason,
+				)
+			},
+			sides = sides.map { it.toSandboxSide() },
+			events = events.map { it.toSandboxEvent() },
+			violations = violations,
+			randomTrace = randomTrace.map { it.toSandboxRandomTrace() },
+		)
+
+	private fun BattleSide.toSandboxSide(): BattleSandboxTurnResponse.Side =
+		BattleSandboxTurnResponse.Side(
+			sideId = sideId,
+			activeActorIds = activeActorIds,
+			participants = participants.map { it.toSandboxParticipant(activeActorIds) },
+		)
+
+	private fun BattleParticipant.toSandboxParticipant(activeActorIds: List<String>): BattleSandboxTurnResponse.Participant =
+		BattleSandboxTurnResponse.Participant(
+			actorId = actorId,
+			creatureId = creatureId,
+			active = actorId in activeActorIds,
+			level = level,
+			currentHp = currentHp,
+			maxHp = maxHp,
+			majorStatus = majorStatus?.name,
+			statStages = statStages.mapKeys { it.key.name },
+			skillSlots = skillSlots.map {
+				BattleSandboxTurnResponse.SkillSlot(
+					skillId = it.skillId,
+					name = it.name,
+					remainingPp = it.remainingPp,
+					maxPp = it.maxPp,
+				)
+			},
+		)
+
+	private fun BattleEvent.toSandboxEvent(): BattleSandboxTurnResponse.Event {
+		val type = this::class.simpleName ?: "BattleEvent"
+		return BattleSandboxTurnResponse.Event(
+			type = type,
+			turnNumber = turnNumber,
+			message = toSandboxEventMessage(type),
+			payload = eventPayload(),
+		)
+	}
+
+	private fun BattleEvent.toSandboxEventMessage(type: String): String =
+		when (this) {
+			is BattleEvent.BattleStarted -> "战斗开始，赛制为 $formatCode。"
+			is BattleEvent.TurnStarted -> "第 $turnNumber 回合开始。"
+			is BattleEvent.SkillUsed -> "$actorId 使用了 $skillName。"
+			is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
+			is BattleEvent.HealingApplied -> "$actorId 回复 $amount 点 HP。"
+			is BattleEvent.ParticipantFainted -> "$actorId 倒下。"
+			is BattleEvent.ParticipantSwitched -> "$sideId 将 $previousActorId 替换为 $nextActorId。"
+			is BattleEvent.TurnEnded -> "第 $turnNumber 回合结束。"
+			is BattleEvent.BattleEnded -> winningSideId?.let { "$it 获胜，原因：$reason。" } ?: "战斗结束，原因：$reason。"
+			else -> type
+		}
+
+	private fun BattleEvent.eventPayload(): Map<String, Any?> =
+		this::class.memberProperties
+			.filterNot { it.name == "turnNumber" }
+			.associate { property -> property.name to property.getter.call(this).toSandboxPayloadValue() }
+
+	private fun Any?.toSandboxPayloadValue(): Any? =
+		when (this) {
+			null, is String, is Number, is Boolean -> this
+			is Enum<*> -> name
+			is Iterable<*> -> map { it.toSandboxPayloadValue() }
+			is Map<*, *> -> entries.associate { (key, value) -> key.toString() to value.toSandboxPayloadValue() }
+			else -> toString()
+		}
+
+	private fun BattleRandomTraceEntry.toSandboxRandomTrace(): BattleSandboxTurnResponse.RandomTrace =
+		BattleSandboxTurnResponse.RandomTrace(
+			sequence = sequence,
+			bound = bound,
+			reason = reason,
+			value = value,
+		)
+
+	/**
+	 * 沙盒专用随机源。
+	 *
+	 * 使用 JDK `SplittableRandom` 可以让同一个请求在不同机器上稳定复现，又避免调用方必须预先知道本回合会消费
+	 * 多少个随机数。真正的公开规则对照测试仍使用严格 trace 随机源，沙盒只承担交互式调试。
+	 */
+	private class SeededBattleRandom(seed: Long) : BattleRandom {
+		private val random = SplittableRandom(seed)
+
+		override fun nextInt(bound: Int, reason: String): Int = random.nextInt(bound)
+	}
 }

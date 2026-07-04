@@ -49,6 +49,7 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.tokenUrl").value("/oauth2/token"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['security:admin']").value("系统管理 API 访问权限"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-rules:admin']").value("战斗规则管理 API 访问权限"))
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].get.summary").value("查询用户列表"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].post.summary").value("创建用户"))
 			.andExpect(jsonPath("$.paths['/api/system/oauth/clients/{clientId}/secret'].put.summary").value("重置 OAuth client secret"))
@@ -64,6 +65,8 @@ class OpenApiDocumentationTests(
 		mockMvc.perform(get("/v3/api-docs/admin"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['game-data:admin']").value("游戏资料管理 API 访问权限"))
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
+			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒单回合"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].get.summary").value("分页查询精灵资料"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].post.summary").value("新增精灵资料"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/GameCreatureRequest"))
@@ -90,6 +93,16 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/battle-rules/item-rules'].get.summary").value("分页查询道具规则"))
 	}
 
+	@Test
+	fun `battle sandbox openapi group exposes sandbox execution contract and scope`() {
+		mockMvc.perform(get("/v3/api-docs/battle-sandbox"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
+			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒单回合"))
+			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/BattleSandboxTurnRequest"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.description").value("战斗沙盒单回合结算响应。"))
+	}
+
 	/**
 	 * 验证后端菜单 ROUTE 节点和 OpenAPI 集合路径保持同步。
 	 *
@@ -104,6 +117,8 @@ class OpenApiDocumentationTests(
 
 		assertThat(collectionPaths(adminPaths, "/api/game-data/"))
 			.containsExactlyInAnyOrderElementsOf(visibleGameDataApiPaths())
+		assertThat(collectionPaths(adminPaths, "/api/battle-sandbox/"))
+			.containsExactly("/api/battle-sandbox/turn")
 		assertThat(collectionPaths(battleRulePaths, "/api/battle-rules/"))
 			.containsExactlyInAnyOrderElementsOf(visibleBattleRuleApiPaths())
 		assertThat(adminPaths)

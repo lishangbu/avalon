@@ -178,6 +178,25 @@ class SecurityManagementApiTests(
 			.doesNotContain("MENU")
 	}
 
+	@Test
+	fun `battle sandbox runner session includes sandbox menu from database`() {
+		insertUser("battle-sandbox-menu-runner", 204)
+		val token = issueToken("battle-sandbox-menu-runner", "battle-sandbox:run")
+
+		mockMvc.perform(
+			get("/api/session")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.roles[*].code", hasItem("battle-sandbox-runner")))
+			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sandbox:run")))
+			.andExpect(jsonPath("$.menus[0].code").value("battle-sandbox"))
+			.andExpect(jsonPath("$.menus[0].name").value("战斗沙盒"))
+			.andExpect(jsonPath("$.menus[0].type").value("ROUTE"))
+			.andExpect(jsonPath("$.menus[0].path").value("/battle-sandbox"))
+			.andExpect(jsonPath("$.menus[0].icon").value("lucide:flask-conical"))
+	}
+
 	/**
 	 * 验证 `/api/session` 的菜单树和访问节点数据源保持同一个契约。
 	 *
@@ -187,10 +206,10 @@ class SecurityManagementApiTests(
 	 */
 	@Test
 	fun `full admin session menu tree matches visible access node route contract`() {
-		insertUser("full-menu-manager", 201, 202, 203)
+		insertUser("full-menu-manager", 201, 202, 203, 204)
 		val token = issueToken(
 			username = "full-menu-manager",
-			scope = "security:admin game-data:admin battle-rules:admin",
+			scope = "security:admin game-data:admin battle-rules:admin battle-sandbox:run",
 		)
 
 		val response = mockMvc.perform(

@@ -36,6 +36,7 @@ import io.github.lishangbu.battlerules.dto.BattleActionValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationParticipantRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationSideRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
 import io.github.lishangbu.battlerules.service.BattleRuntimeSnapshotService
 import io.github.lishangbu.battlerules.service.isBattleAbilityRuntimePolicySupported
 import io.github.lishangbu.battlerules.service.isBattleItemRuntimePolicySupported
@@ -1497,6 +1498,35 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(response.valid).isTrue()
 		assertThat(response.violations).isEmpty()
+	}
+
+	@Test
+	fun `sandbox turn resolves assembled runtime state and returns inspectable event stream`() {
+		val response = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = validDoubleSides(),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val target = response.sides
+			.flatMap { it.participants }
+			.single { it.actorId == "b-1" }
+
+		assertThat(response.resolved).isTrue()
+		assertThat(response.violations).isEmpty()
+		assertThat(response.events.map { it.type }).contains("BattleStarted", "TurnStarted", "SkillUsed", "DamageApplied")
+		assertThat(response.events.single { it.type == "DamageApplied" }.message).contains("b-1", "伤害")
+		assertThat(response.randomTrace).isNotEmpty
+		assertThat(target.currentHp).isLessThan(target.maxHp)
 	}
 
 	/**

@@ -264,12 +264,18 @@ class LiquibaseMigrationTests(
 			"battle-rules.terrain-rules",
 			"battle-rules.weather-rules",
 		)
-		assertThat(accessNodeCodes).containsAll(battleRulesAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes)
+		val battleSandboxAccessNodeCodes = listOf(
+			"battle-sandbox",
+			"battle-sandbox:run",
+		)
+		assertThat(accessNodeCodes).containsAll(
+			battleRulesAccessNodeCodes + battleSandboxAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes,
+		)
 
 		val roleCodes = queryStrings(
 			"select code from security_role order by code",
 		)
-		assertThat(roleCodes).containsExactly("battle-rules-admin", "game-data-admin", "system-admin")
+		assertThat(roleCodes).containsExactly("battle-rules-admin", "battle-sandbox-runner", "game-data-admin", "system-admin")
 
 		val systemAdminAccessNodeCodes = queryStrings(
 			"""
@@ -308,6 +314,18 @@ class LiquibaseMigrationTests(
 		)
 		val allBattleRulesAccessNodeCodes = accessNodeCodes.filter { it.startsWith("battle-rules") }
 		assertThat(battleRulesAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(allBattleRulesAccessNodeCodes)
+
+		val battleSandboxRunnerAccessNodeCodes = queryStrings(
+			"""
+			select n.code
+			from security_access_node n
+			join security_role_access_node ran on ran.access_node_id = n.id
+			join security_role r on r.id = ran.role_id
+			where r.code = 'battle-sandbox-runner'
+			order by n.code
+			""".trimIndent(),
+		)
+		assertThat(battleSandboxRunnerAccessNodeCodes).containsExactlyInAnyOrderElementsOf(battleSandboxAccessNodeCodes)
 
 		val rbacIdTypes = queryMaps(
 			"""
@@ -425,7 +443,7 @@ class LiquibaseMigrationTests(
 		val clientScopes = queryStrings(
 			"select scopes from oauth2_client order by client_id",
 		)
-		assertThat(clientScopes).containsOnly("battle-rules:admin game-data:admin security:admin")
+		assertThat(clientScopes).containsOnly("battle-rules:admin battle-sandbox:run game-data:admin security:admin")
 	}
 
 	@Test
@@ -4234,7 +4252,7 @@ class LiquibaseMigrationTests(
 			order by r.code
 			""".trimIndent(),
 		)
-		assertThat(roleCodes).containsExactly("battle-rules-admin", "game-data-admin", "system-admin")
+		assertThat(roleCodes).containsExactly("battle-rules-admin", "battle-sandbox-runner", "game-data-admin", "system-admin")
 	}
 
 	private fun queryStrings(sql: String): List<String> =

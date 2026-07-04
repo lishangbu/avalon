@@ -141,6 +141,73 @@ class SecurityApiAccessTests(
 	}
 
 	@Test
+	fun `jwt token with battle sandbox runner can execute sandbox api only`() {
+		insertUser("battle-sandbox-api-runner", roleId = 204L)
+		val token = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "battle-sandbox-api-runner",
+			scope = "battle-sandbox:run",
+		)
+
+		mockMvc.perform(
+			post("/api/battle-sandbox/turn")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""
+					{
+					  "formatCode": "standard-single",
+					  "randomSeed": 0,
+					  "sides": [
+					    {
+					      "sideId": "side-a",
+					      "activeActorIds": ["a-1"],
+					      "participants": [
+					        {
+					          "actorId": "a-1",
+					          "creatureId": 1,
+					          "level": 50,
+					          "skillIds": [1]
+					        }
+					      ]
+					    },
+					    {
+					      "sideId": "side-b",
+					      "activeActorIds": ["b-1"],
+					      "participants": [
+					        {
+					          "actorId": "b-1",
+					          "creatureId": 4,
+					          "level": 50,
+					          "skillIds": [1]
+					        }
+					      ]
+					    }
+					  ],
+					  "actions": [
+					    {
+					      "type": "USE_SKILL",
+					      "actorId": "a-1",
+					      "skillId": 1,
+					      "targetActorId": "b-1"
+					    }
+					  ]
+					}
+					""".trimIndent(),
+				),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.resolved").value(true))
+			.andExpect(jsonPath("$.events[?(@.type == 'DamageApplied')].message").isNotEmpty())
+
+		mockMvc.perform(
+			get("/api/battle-rules/battle-formats")
+				.header("Authorization", "Bearer $token"),
+		).andExpect(status().isForbidden)
+	}
+
+	@Test
 	fun `game data api supports exact field filters`() {
 		insertUser("game-data-filter-admin", roleId = 202L)
 		val token = issueToken(
