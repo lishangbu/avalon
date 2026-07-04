@@ -2685,6 +2685,10 @@ class LiquibaseMigrationTests(
 				or lower(short_effect) like '%silvally%'
 				or effect like '%多重攻击%'
 				or short_effect like '%多重攻击%'
+				or effect like '%卖家垃圾%'
+				or short_effect like '%卖家垃圾%'
+				or effect like '%斗争虫%'
+				or short_effect like '%斗争虫%'
 			order by item_id
 			""".trimIndent(),
 		)
