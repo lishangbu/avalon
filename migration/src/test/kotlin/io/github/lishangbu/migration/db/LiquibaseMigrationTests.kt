@@ -2578,6 +2578,45 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game catalog seed data does not keep generated display text`() {
+		// 图鉴目录名称和说明会直接出现在资料维护页；这里只守住本批已经人工校正过的英文词和机翻词。
+		// 内部 code 仍然保留资料源英文标识，所以断言只检查 name 和 description 两个展示字段。
+		val generatedCatalogTexts = queryMaps(
+			"""
+			select id, code, name, description
+			from game_catalog
+			where lower(concat_ws(' ', name, description)) like any (array[
+				'%dex%',
+				'%gold%',
+				'%silver%',
+				'%crystal%',
+				'%johto%',
+				'%hoenn%',
+				'%platinum%',
+				'%diamond%',
+				'%pearl%',
+				'%unova%',
+				'%conquest%',
+				'%gallery%',
+				'%omega ruby%',
+				'%alpha sapphire%',
+				'%ruby%',
+				'%sapphire%',
+				'%emerald%',
+				'%updated%',
+				'%lumiose%'
+			])
+				or name like '%更新了%'
+				or description like '%指数%'
+				or description like '%索引%'
+			order by id
+			""".trimIndent(),
+		)
+
+		assertThat(generatedCatalogTexts).isEmpty()
+	}
+
+	@Test
 	fun `liquibase game location seed data does not keep generated placeholder names`() {
 		// 这条测试只拦截确定无业务含义的机器翻译占位词；普通译名质量继续按资料源逐批校正。
 		val placeholderLocations = queryMaps(
