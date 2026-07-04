@@ -3134,6 +3134,26 @@ class LiquibaseMigrationTests(
 				or effect like '%因移动而受到伤害%'
 				or short_effect like '%因移动而受到伤害%'
 				or flavor_text like '%因移动而受到伤害%'
+				or lower(concat_ws(' ', effect, short_effect, flavor_text)) like any (array[
+					'%hp%',
+					'%bug%',
+					'%teravolt%',
+					'%turboblaze%',
+					'%solid rock%',
+					'%switcheroo%',
+					'%trick%',
+					'%cherrim%',
+					'%zen mode%',
+					'%darmanitan%',
+					'%mold breaker%',
+					'%wishiwashi%',
+					'%schooling form%',
+					'%zygarde%',
+					'%sleep talk%',
+					'%sp。%',
+					'%sp.%',
+					'%dondozo%'
+				])
 				or effect = '效果'
 				or short_effect = '效果'
 			order by ability_id
