@@ -2697,11 +2697,28 @@ class LiquibaseMigrationTests(
 				or short_effect = '未知。目前未使用。'
 				or effect like '%定期伤害%'
 				or short_effect like '%定期伤害%'
+				or effect like '%Ingrain%'
+				or short_effect like '%Ingrain%'
 			order by item_id
 			""".trimIndent(),
 		)
 
 		assertThat(placeholderItemEffects).isEmpty()
+	}
+
+	@Test
+	fun `liquibase game item effects do not leave display text blank`() {
+		// 道具说明同样会出现在管理端表格和详情里；缺少来源文本时使用中文兜底，不能把空字符串交给前端。
+		val blankItemEffects = queryMaps(
+			"""
+			select item_id, effect, short_effect, flavor_text
+			from game_item_detail
+			where effect = '' or short_effect = ''
+			order by item_id
+			""".trimIndent(),
+		)
+
+		assertThat(blankItemEffects).isEmpty()
 	}
 
 	@Test
