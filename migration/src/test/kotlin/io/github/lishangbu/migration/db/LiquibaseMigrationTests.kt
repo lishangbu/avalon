@@ -3328,6 +3328,122 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game extended details do not keep corrected machine terms`() {
+		// 本测试覆盖特性、道具、技能三类最长说明文本。这些字段直接进入管理端表格和详情页，
+		// 旧导入源里容易把属性、命中率、回复、训练家和持有物语境翻成机翻词；这里使用定向词表，
+		// 只锁定已经人工修正过的短语，避免误伤“视觉项目”“游乐项目”这类本身合理的中文表达。
+		val correctedMachineTerms = queryMaps(
+			"""
+			with display_texts(table_name, row_id, column_name, display_text) as (
+				select 'game_ability_detail', ability_id::text, 'effect', effect
+				from game_ability_detail
+				union all
+				select 'game_ability_detail', ability_id::text, 'short_effect', short_effect
+				from game_ability_detail
+				union all
+				select 'game_ability_detail', ability_id::text, 'flavor_text', flavor_text
+				from game_ability_detail
+				union all
+				select 'game_item_detail', item_id::text, 'effect', effect
+				from game_item_detail
+				union all
+				select 'game_item_detail', item_id::text, 'short_effect', short_effect
+				from game_item_detail
+				union all
+				select 'game_item_detail', item_id::text, 'flavor_text', flavor_text
+				from game_item_detail
+				union all
+				select 'game_skill_detail', skill_id::text, 'effect', effect
+				from game_skill_detail
+				union all
+				select 'game_skill_detail', skill_id::text, 'short_effect', short_effect
+				from game_skill_detail
+				union all
+				select 'game_skill_detail', skill_id::text, 'flavor_text', flavor_text
+				from game_skill_detail
+			),
+			blocked_text_patterns(pattern) as (
+				values
+					('%主世界%'),
+					('%电力%'),
+					('%电动%'),
+					('%治疗最大生命值%'),
+					('%治愈最大生命值%'),
+					('%治疗使用者%'),
+					('%治愈使用者%'),
+					('%水技能%'),
+					('%火技能%'),
+					('%心灵技能%'),
+					('%黑暗技能%'),
+					('%黑暗系%'),
+					('%黑暗套索%'),
+					('%黑暗脉冲%'),
+					('%黑暗光环%'),
+					('%黑暗气息%'),
+					('%正常伤害%'),
+					('%正常技能%'),
+					('%损伤公式%'),
+					('%地面攻击%'),
+					('%无人守卫%'),
+					('%无守卫%'),
+					('%拥有预测功能%'),
+					('%准确度%'),
+					('%准确性%'),
+					('%该项目可以重新使用%'),
+					('%从支架上移除该物品%'),
+					('%尚未技能%'),
+					('%立即开枪%'),
+					('%选择项目%'),
+					('%恢复其项目%'),
+					('%交换项目%'),
+					('%功率取决于项目%'),
+					('%该项目忽略%'),
+					('%培训师%'),
+					('%健身房%'),
+					('%通灵能力%'),
+					('%错误滑动%'),
+					('%摇滚粉碎%'),
+					('%电系技能%'),
+					('%火系技能%'),
+					('%水系技能%'),
+					('%草系技能%'),
+					('%冰系技能%'),
+					('%钢系技能%'),
+					('%幽灵系技能%'),
+					('%电系伤害%'),
+					('%火系伤害%'),
+					('%水系伤害%'),
+					('%草系伤害%'),
+					('%冰系伤害%'),
+					('%钢系伤害%'),
+					('%幽灵系伤害%'),
+					('%草系攻击%'),
+					('%飞行型%'),
+					('%幽灵型%'),
+					('%格斗型%'),
+					('%普通型%'),
+					('%对战型%'),
+					('%草系生物%'),
+					('%水系生物%'),
+					('%钢系生物%'),
+					('%钢铁对手%'),
+					('%钢铁以外%')
+			)
+			select table_name, row_id, column_name, display_text
+			from display_texts
+			where exists (
+				select 1
+				from blocked_text_patterns blocked
+				where display_text like blocked.pattern
+			)
+			order by table_name, row_id, column_name
+			""".trimIndent(),
+		)
+
+		assertThat(correctedMachineTerms).isEmpty()
+	}
+
+	@Test
 	fun `liquibase game skill effects do not keep generated terms`() {
 		// 技能说明直接支撑管理端展示和战斗规则校验，短效果里的“下层”等机翻残留会比长说明更容易被用户看到。
 		val machineSkillEffects = queryMaps(
