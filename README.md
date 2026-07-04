@@ -72,14 +72,14 @@ Windows PowerShell 可使用：
 
 - 后端服务：http://localhost:8080
 - API 基础路径：http://localhost:8080/api
-- 默认允许的管理端来源：http://localhost:5173
+- 默认允许的管理端来源：http://localhost:5173、http://127.0.0.1:5173、http://localhost:5174、http://127.0.0.1:5174
 
 ### 前后端联调
 
 1. 启动 PostgreSQL，并创建 `avalon` 数据库。
 2. 启动本仓库后端服务。
 3. 启动 [avalon-admin-ui](https://github.com/lishangbu/avalon-admin-ui) 管理端。
-4. 确认前端访问来源为 `http://localhost:5173`，后端默认 CORS 配置已允许该来源。
+4. 确认前端访问来源为 `http://localhost:5173` 或本地备用端口，后端默认 CORS 配置已允许这些本地来源。
 
 如需覆盖安全发行方地址，可设置环境变量：
 

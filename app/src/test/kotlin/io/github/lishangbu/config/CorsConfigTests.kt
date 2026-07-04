@@ -18,6 +18,7 @@ import java.net.http.HttpResponse
 	properties = [
 		"spring.autoconfigure.exclude=org.springframework.boot.quartz.autoconfigure.QuartzAutoConfiguration,io.github.lishangbu.scheduler.SchedulerAutoConfiguration",
 		"backend.cors.allowed-origins[0]=http://localhost:5173",
+		"backend.cors.allowed-origins[1]=http://127.0.0.1:5174",
 		"spring.liquibase.enabled=false",
 		"backend.security.enabled=false",
 	],
@@ -27,10 +28,19 @@ class CorsConfigTests(
 ) {
 	@Test
 	fun `admin ui origin can preflight security api path`() {
+		assertSecurityApiPreflightAllowed("http://localhost:5173")
+	}
+
+	@Test
+	fun `fallback local admin ui origin can preflight security api path`() {
+		assertSecurityApiPreflightAllowed("http://127.0.0.1:5174")
+	}
+
+	private fun assertSecurityApiPreflightAllowed(origin: String) {
 		val request = HttpRequest.newBuilder()
 			.uri(URI.create("http://localhost:$port/api/system/rbac/access-nodes"))
 			.method("OPTIONS", HttpRequest.BodyPublishers.noBody())
-			.header(HttpHeaders.ORIGIN, "http://localhost:5173")
+			.header(HttpHeaders.ORIGIN, origin)
 			.header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET")
 			.build()
 
@@ -38,6 +48,6 @@ class CorsConfigTests(
 
 		assertThat(response.statusCode()).isEqualTo(200)
 		assertThat(response.headers().firstValue(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
-			.hasValue("http://localhost:5173")
+			.hasValue(origin)
 	}
 }
