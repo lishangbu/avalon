@@ -2667,17 +2667,14 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase game story item effects do not keep generated placeholder text`() {
-		// 919-978 覆盖剧情关键道具、陨石和Ｚ结晶；后续清理更多道具时继续扩大这个断言范围。
+	fun `liquibase game item effects do not keep generated placeholder text`() {
+		// 这些字段面向管理端展示，任何 XXX 占位都会直接暴露给用户；全表断言可以防止后续导入重新带回生成模板。
 		val placeholderItemEffects = queryMaps(
 			"""
 			select item_id, effect, short_effect
 			from game_item_detail
-			where item_id between 919 and 978
-				and (
-					lower(effect) like '%xxx%'
-					or lower(short_effect) like '%xxx%'
-				)
+			where lower(effect) like '%xxx%'
+				or lower(short_effect) like '%xxx%'
 			order by item_id
 			""".trimIndent(),
 		)
