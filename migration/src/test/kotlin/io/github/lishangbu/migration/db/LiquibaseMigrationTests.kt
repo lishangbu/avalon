@@ -2691,6 +2691,10 @@ class LiquibaseMigrationTests(
 				or short_effect like '%斗争虫%'
 				or effect = '效果'
 				or short_effect = '效果'
+				or effect = '未知。'
+				or short_effect = '未知。'
+				or effect = '未知。目前未使用。'
+				or short_effect = '未知。目前未使用。'
 			order by item_id
 			""".trimIndent(),
 		)
