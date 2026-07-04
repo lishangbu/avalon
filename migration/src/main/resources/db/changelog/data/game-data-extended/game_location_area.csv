@@ -967,13 +967,13 @@ id,code,name,location_id,game_index,enabled
 1085,hauoli-city-shopping-district,好丽城商圈,1042,0,true
 1086,hauoli-city-beachfront,好利城海滨,1042,0,true
 1087,heahea-beach-area,希希海滩地区,1047,0,true
-1088,heahea-city-surf-association,heaheacity冲浪association,741,0,true
+1088,heahea-city-surf-association,慷待市冲浪协会,741,0,true
 1089,iki-town-area,益城镇地区,719,0,true
 1090,kalae-bay-area,卡莱湾地区,714,0,true
 1091,konikoni-city-area,科尼科尼城区,742,0,true
 1092,lake-of-the-moone-area,穆恩湖地区,774,0,true
 1093,lake-of-the-sunne-area,苏尼湖地区,773,0,true
-1094,lush-jungle-east-cave,lushjungleeast洞窟,750,0,true
+1094,lush-jungle-east-cave,树荫丛林东部洞窟,750,0,true
 1095,lush-jungle-north,北部茂密的丛林,750,0,true
 1096,lush-jungle-south,南边茂密的丛林,750,0,true
 1097,lush-jungle-west,西部茂密的丛林,750,0,true
@@ -988,7 +988,7 @@ id,code,name,location_id,game_index,enabled
 1106,mount-hokulani-east,霍库拉尼山东,770,0,true
 1107,mount-hokulani-west,霍库拉尼山西,770,0,true
 1108,mount-lanakila-base,拉纳基拉山基地,775,0,true
-1109,mount-lanakila-cave,mountlanakila洞窟,775,0,true
+1109,mount-lanakila-cave,拉纳基拉山洞窟,775,0,true
 1110,mount-lanakila-outside,拉纳基拉山外面,775,0,true
 1111,paniola-ranch-area,帕尼奥拉牧场地区,745,0,true
 1112,paniola-town-area,帕尼奥拉镇地区,740,0,true
@@ -1022,11 +1022,11 @@ id,code,name,location_id,game_index,enabled
 1140,ultra-space-ultra-crater,超空间 超陨石坑,797,0,true
 1141,ultra-space-ultra-deep-sea,超空间超深海,797,0,true
 1142,ultra-space-ultra-desert,超空间 超沙漠,797,0,true
-1143,ultra-space-ultra-forest,ultraspaceultra森林,797,0,true
+1143,ultra-space-ultra-forest,究极森林,797,0,true
 1144,ultra-space-ultra-jungle,超空间 超丛林,797,0,true
 1145,ultra-space-ultra-plant,超空间 超植物,797,0,true
 1146,ultra-space-ultra-ruin,超空间 超毁灭,797,0,true
-1147,ultra-space-wilds-cave,ultraspacewilds洞窟,1051,0,true
+1147,ultra-space-wilds-cave,超太空荒野洞窟,1051,0,true
 1148,ultra-space-wilds-cliff,超太空荒野悬崖,1051,0,true
 1149,ultra-space-wilds-crag,超太空荒野峭壁,1051,0,true
 1150,ultra-space-wilds-waterfall,超太空荒野瀑布,1051,0,true
@@ -1037,8 +1037,8 @@ id,code,name,location_id,game_index,enabled
 1155,verdant-cavern-totems-den,翠绿的洞穴图腾巢穴,1043,0,true
 1156,wela-volcano-park-area,韦拉火山公园区,746,0,true
 1157,wela-volcano-park-totems-den,韦拉火山公园图腾巢穴,746,0,true
-1158,poke-pelago-poni-island-reached,到达 Poke pelago 波尼岛,1052,0,true
-1159,poke-pelago-ulaula-island-reached,到达 Poke pelago ulaula 岛,1052,0,true
+1158,poke-pelago-poni-island-reached,到达神奇佩拉戈波尼岛,1052,0,true
+1159,poke-pelago-ulaula-island-reached,到达神奇佩拉戈乌拉乌拉岛,1052,0,true
 1160,poke-pelago-elite-four-defeated,戳佩拉戈精英四败,1052,0,true
 1161,team-rockets-castle-area,火箭队城堡区,1053,0,true
 1162,ultra-megalopolis-area,超级都市圈,1050,0,true
