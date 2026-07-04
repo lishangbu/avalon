@@ -2717,6 +2717,18 @@ class LiquibaseMigrationTests(
 				or effect like '%正值或负值%'
 				or short_effect like '%正值或负值%'
 				or flavor_text like '%正值或负值%'
+				or effect like '%物理移动%'
+				or short_effect like '%物理移动%'
+				or flavor_text like '%物理移动%'
+				or effect like '%火力移动%'
+				or short_effect like '%火力移动%'
+				or flavor_text like '%火力移动%'
+				or effect like '%水移动%'
+				or short_effect like '%水移动%'
+				or flavor_text like '%水移动%'
+				or effect like '%因移动而受到伤害%'
+				or short_effect like '%因移动而受到伤害%'
+				or flavor_text like '%因移动而受到伤害%'
 			order by ability_id
 			""".trimIndent(),
 		)
