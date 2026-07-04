@@ -2760,6 +2760,12 @@ class LiquibaseMigrationTests(
 				or short_effect = '下层'
 				or effect = '效果'
 				or short_effect = '效果'
+				or effect like '%定期伤害%'
+				or short_effect like '%定期伤害%'
+				or flavor_text like '%定期伤害%'
+				or effect like '%英格莱恩%'
+				or short_effect like '%英格莱恩%'
+				or flavor_text like '%英格莱恩%'
 			order by skill_id
 			""".trimIndent(),
 		)
