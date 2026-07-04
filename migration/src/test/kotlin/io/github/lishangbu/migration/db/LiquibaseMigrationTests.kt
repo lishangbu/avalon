@@ -2917,7 +2917,12 @@ class LiquibaseMigrationTests(
 					('%baile%'),
 					('%pom-pom%'),
 					('%pa''u%'),
-					('%sensu%')
+					('%sensu%'),
+					('%patrat%'),
+					('%tornadus%'),
+					('%thundurus%'),
+					('%landorus%'),
+					('%兽人形态%')
 			)
 			select item_id, column_name, display_text
 			from item_texts
