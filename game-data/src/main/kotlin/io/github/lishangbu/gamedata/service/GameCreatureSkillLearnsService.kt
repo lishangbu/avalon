@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameCreatureSkillLearnsRepository
 import org.springframework.stereotype.Service
 
 /**
- * 生物技能学习 Service。
+ * 精灵技能学习 Service。
  */
 @Service
 class GameCreatureSkillLearnsService(

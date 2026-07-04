@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 生物索引写入请求。
+ * 精灵索引写入请求。
  */
-@Schema(name = "GameCreatureGameIndicesRequest", description = "生物索引写入请求。")
+@Schema(name = "GameCreatureGameIndicesRequest", description = "精灵索引写入请求。")
 data class GameCreatureGameIndicesRequest(
 	@param:JsonProperty("creature_id")
 	@get:JsonProperty("creature_id")
-	@field:Schema(description = "生物 ID")
+	@field:Schema(description = "精灵 ID")
 	val creatureId: Long? = null,
 	@param:JsonProperty("game_index")
 	@get:JsonProperty("game_index")

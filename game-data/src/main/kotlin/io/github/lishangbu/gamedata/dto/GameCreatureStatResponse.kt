@@ -6,14 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 生物数值绑定响应。
+ * 精灵数值绑定响应。
  */
-@Schema(name = "GameCreatureStatResponse", description = "生物数值绑定响应。")
+@Schema(name = "GameCreatureStatResponse", description = "精灵数值绑定响应。")
 data class GameCreatureStatResponse(
 	@field:Schema(description = "记录主键。", example = "1")
 	val id: Long,
 	@get:JsonProperty("creature_id")
-	@field:Schema(description = "生物 ID")
+	@field:Schema(description = "精灵 ID")
 	val creatureId: Long?,
 	@get:JsonProperty("stat_id")
 	@field:Schema(description = "数值项 ID")

@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 区域生物遭遇管理接口。
+ * 区域精灵遭遇管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/location-area-encounters")
-@Tag(name = "游戏资料 - 区域生物遭遇")
+@Tag(name = "游戏资料 - 区域精灵遭遇")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameLocationAreaEncountersController(
 	private val service: GameLocationAreaEncountersService,
 ) {
-	@Operation(summary = "分页查询区域生物遭遇")
+	@Operation(summary = "分页查询区域精灵遭遇")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameLocationAreaEncountersController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameLocationAreaEncountersResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条区域生物遭遇")
+	@Operation(summary = "读取单条区域精灵遭遇")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameLocationAreaEncountersResponse::class))]),
@@ -64,7 +64,7 @@ class GameLocationAreaEncountersController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameLocationAreaEncountersResponse = service.get(id)
 
-	@Operation(summary = "新增区域生物遭遇")
+	@Operation(summary = "新增区域精灵遭遇")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameLocationAreaEncountersResponse::class))]),
@@ -77,7 +77,7 @@ class GameLocationAreaEncountersController(
 	@PostMapping
 	fun create(@RequestBody request: GameLocationAreaEncountersRequest): GameLocationAreaEncountersResponse = service.create(request)
 
-	@Operation(summary = "修改区域生物遭遇")
+	@Operation(summary = "修改区域精灵遭遇")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameLocationAreaEncountersResponse::class))]),
@@ -91,7 +91,7 @@ class GameLocationAreaEncountersController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameLocationAreaEncountersRequest): GameLocationAreaEncountersResponse = service.update(id, request)
 
-	@Operation(summary = "删除区域生物遭遇")
+	@Operation(summary = "删除区域精灵遭遇")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

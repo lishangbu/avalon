@@ -3,7 +3,7 @@ id,code,name,region_id,enabled
 2,eterna-city,绮年华城,4,true
 3,pastoria-city,帕斯托里亚市,4,true
 4,sunyshore-city,阳光海岸城,4,true
-5,sinnoh-pokemon-league,生物联盟,4,true
+5,sinnoh-pokemon-league,精灵联盟,4,true
 6,oreburgh-mine,奥勒堡矿,4,true
 7,valley-windworks,山谷风厂,4,true
 8,eterna-forest,永恒森林,4,true
@@ -152,8 +152,8 @@ id,code,name,region_id,enabled
 157,kanto-route-23,23号公路,1,true
 158,kanto-power-plant,关东发电厂,1,true
 159,kanto-victory-road-2,胜利路,1,true
-160,pokemon-tower,生物塔,1,true
-161,pokemon-mansion,生物馆,1,true
+160,pokemon-tower,精灵塔,1,true
+161,pokemon-mansion,精灵馆,1,true
 162,kanto-safari-zone,关都狩猎地带,1,true
 163,sandgem-town,桑德宝石镇,4,true
 164,floaroma-town,花城,4,true
@@ -193,7 +193,7 @@ id,code,name,region_id,enabled
 200,contest-hall,比赛厅,4,true
 201,poffin-house,波芬之家,4,true
 202,sinnoh-foreign-building,外国大厦,4,true
-203,pokemon-day-care,生物日托中心,4,true
+203,pokemon-day-care,精灵日托中心,4,true
 204,veilstone-store,面纱商店,4,true
 205,sinnoh-game-corner,游戏角,4,true
 206,canalave-library,卡纳拉夫图书馆,4,true
@@ -253,21 +253,21 @@ id,code,name,region_id,enabled
 263,cynthia,辛西娅,,true
 264,mystery-zone,神秘地带,,true
 265,lovely-place,可爱的地方,,true
-266,pokemon-ranger,生物游骑兵,,true
+266,pokemon-ranger,精灵游骑兵,,true
 267,faraway-place,遥远的地方,,true
-268,pokemon-movie,生物电影,,true
-269,pokemon-movie-06,生物电影06,,true
-270,pokemon-movie-07,生物电影07,,true
-271,pokemon-movie-08,生物电影08,,true
-272,pokemon-movie-09,生物电影09,,true
-273,pokemon-movie-10,精灵生物剧场版 10,,true
-274,pokemon-movie-11,精灵生物剧场版11,,true
-275,pokemon-movie-12,精灵生物剧场版 12,,true
-276,pokemon-movie-13,精灵生物剧场版 13,,true
-277,pokemon-movie-14,精灵生物剧场版 14,,true
-278,pokemon-movie-15,精灵生物剧场版 15,,true
-279,pokemon-movie-16,精灵生物剧场版 16,,true
-280,pokemon-cartoon,生物卡通,,true
+268,pokemon-movie,精灵电影,,true
+269,pokemon-movie-06,精灵电影06,,true
+270,pokemon-movie-07,精灵电影07,,true
+271,pokemon-movie-08,精灵电影08,,true
+272,pokemon-movie-09,精灵电影09,,true
+273,pokemon-movie-10,精灵精灵剧场版 10,,true
+274,pokemon-movie-11,精灵精灵剧场版11,,true
+275,pokemon-movie-12,精灵精灵剧场版 12,,true
+276,pokemon-movie-13,精灵精灵剧场版 13,,true
+277,pokemon-movie-14,精灵精灵剧场版 14,,true
+278,pokemon-movie-15,精灵精灵剧场版 15,,true
+279,pokemon-movie-16,精灵精灵剧场版 16,,true
+280,pokemon-cartoon,精灵卡通,,true
 281,space-world,太空世界,,true
 282,space-world-06,太空世界06,,true
 283,space-world-07,太空世界07,,true
@@ -280,31 +280,31 @@ id,code,name,region_id,enabled
 290,space-world-14,太空世界14,,true
 291,space-world-15,太空世界15,,true
 292,space-world-16,太空世界16,,true
-293,pokemon-festa,生物节,,true
-294,pokemon-festa-06,生物节 06,,true
-295,pokemon-festa-07,生物节 07,,true
-296,pokemon-festa-08,生物节 08,,true
-297,pokemon-festa-09,生物节 09,,true
-298,pokemon-festa-10,精灵生物嘉年华 10,,true
-299,pokemon-festa-11,精灵生物节 11,,true
-300,pokemon-festa-12,精灵生物嘉年华 12,,true
-301,pokemon-festa-13,精灵生物节 13,,true
-302,pokemon-festa-14,精灵生物节 14,,true
-303,pokemon-festa-15,精灵生物节 15,,true
-304,pokemon-festa-16,精灵生物节 16,,true
+293,pokemon-festa,精灵节,,true
+294,pokemon-festa-06,精灵节 06,,true
+295,pokemon-festa-07,精灵节 07,,true
+296,pokemon-festa-08,精灵节 08,,true
+297,pokemon-festa-09,精灵节 09,,true
+298,pokemon-festa-10,精灵精灵嘉年华 10,,true
+299,pokemon-festa-11,精灵精灵节 11,,true
+300,pokemon-festa-12,精灵精灵嘉年华 12,,true
+301,pokemon-festa-13,精灵精灵节 13,,true
+302,pokemon-festa-14,精灵精灵节 14,,true
+303,pokemon-festa-15,精灵精灵节 15,,true
+304,pokemon-festa-16,精灵精灵节 16,,true
 305,pokepark,神奇乐园,,true
-306,pokepark-06,生物公园 06,,true
-307,pokepark-07,生物公园 07,,true
-308,pokepark-08,生物公园 08,,true
-309,pokepark-09,生物乐园 09,,true
-310,pokepark-10,生物乐园 10,,true
-311,pokepark-11,生物乐园 11,,true
-312,pokepark-12,生物乐园 12,,true
-313,pokepark-13,生物乐园 13,,true
-314,pokepark-14,生物乐园 14,,true
-315,pokepark-15,生物乐园 15,,true
-316,pokepark-16,生物乐园 16,,true
-317,pokemon-center,生物中心,,true
+306,pokepark-06,精灵公园 06,,true
+307,pokepark-07,精灵公园 07,,true
+308,pokepark-08,精灵公园 08,,true
+309,pokepark-09,精灵乐园 09,,true
+310,pokepark-10,精灵乐园 10,,true
+311,pokepark-11,精灵乐园 11,,true
+312,pokepark-12,精灵乐园 12,,true
+313,pokepark-13,精灵乐园 13,,true
+314,pokepark-14,精灵乐园 14,,true
+315,pokepark-15,精灵乐园 15,,true
+316,pokepark-16,精灵乐园 16,,true
+317,pokemon-center,精灵中心,,true
 318,pc-tokyo,电脑东京,,true
 319,pc-osaka,大阪电脑,,true
 320,pc-fukuoka,福冈中心,,true
@@ -312,24 +312,24 @@ id,code,name,region_id,enabled
 322,pc-sapporo,札幌电脑,,true
 323,pc-yokohama,横滨中心,,true
 324,nintendo-world,任天堂世界,,true
-325,pokemon-event,生物活动,,true
-326,pokemon-event-06,生物活动06,,true
-327,pokemon-event-07,生物活动07,,true
-328,pokemon-event-08,生物活动08,,true
-329,pokemon-event-09,生物活动09,,true
-330,pokemon-event-10,生物活动 10,,true
-331,pokemon-event-11,生物活动11,,true
-332,pokemon-event-12,生物活动12,,true
-333,pokemon-event-13,生物活动13,,true
-334,pokemon-event-14,生物活动 14,,true
-335,pokemon-event-15,生物活动 15,,true
-336,pokemon-event-16,生物活动 16,,true
+325,pokemon-event,精灵活动,,true
+326,pokemon-event-06,精灵活动06,,true
+327,pokemon-event-07,精灵活动07,,true
+328,pokemon-event-08,精灵活动08,,true
+329,pokemon-event-09,精灵活动09,,true
+330,pokemon-event-10,精灵活动 10,,true
+331,pokemon-event-11,精灵活动11,,true
+332,pokemon-event-12,精灵活动12,,true
+333,pokemon-event-13,精灵活动13,,true
+334,pokemon-event-14,精灵活动 14,,true
+335,pokemon-event-15,精灵活动 15,,true
+336,pokemon-event-16,精灵活动 16,,true
 337,wi-fi-event,无线网络活动,,true
 338,wi-fi-gift,无线网络礼物,,true
-339,pokemon-fan-club,生物粉丝俱乐部,,true
+339,pokemon-fan-club,精灵粉丝俱乐部,,true
 340,event-site,活动现场,,true
 341,concert-event,音乐会活动,,true
-342,mr-pokemon,生物先生,,true
+342,mr-pokemon,精灵先生,,true
 343,primo,普里莫,,true
 344,unova-mystery-zone,神秘地带,5,true
 345,unova-faraway-place,遥远的地方,5,true
@@ -373,7 +373,7 @@ id,code,name,region_id,enabled
 383,lacunosa-town,拉库诺萨镇,5,true
 384,undella-town,安德拉镇,5,true
 385,anville-town,安维尔镇,5,true
-386,unova-pokemon-league,生物联盟,5,true
+386,unova-pokemon-league,精灵联盟,5,true
 387,ns-castle,N的城堡,5,true
 388,royal-unova,皇家合众,5,true
 389,gear-station,齿轮站,5,true
@@ -389,7 +389,7 @@ id,code,name,region_id,enabled
 399,moor-of-icirrus,伊西洛斯的摩尔,5,true
 400,unova-shopping-mall,购物中心,5,true
 401,challengers-cave,挑战者洞穴,5,true
-402,poke-transfer-lab,生物转移实验室,5,true
+402,poke-transfer-lab,精灵转移实验室,5,true
 403,giant-chasm,巨大的鸿沟,5,true
 404,liberty-garden,自由花园,5,true
 405,p2-laboratory,P2实验室,5,true
@@ -633,13 +633,13 @@ id,code,name,region_id,enabled
 649,snowbelle-city,雪贝城,6,true
 650,kalos-route-20,20号公路,6,true
 651,winding-woods,蜿蜒的树林,6,true
-652,pokemon-village,生物村,6,true
+652,pokemon-village,精灵村,6,true
 653,kalos-route-21,21号公路,6,true
 654,derniere-way,德尔尼埃尔路,6,true
 655,kalos-route-22,22号公路,6,true
 656,detourner-way,绕行之路,6,true
 657,kalos-victory-road,胜利路,6,true
-658,kalos-pokemon-league,生物联盟,6,true
+658,kalos-pokemon-league,精灵联盟,6,true
 659,kiloude-city,基卢德市,6,true
 660,battle-maison,对战之家,6,true
 661,azure-bay,蔚蓝湾,6,true
@@ -667,12 +667,12 @@ id,code,name,region_id,enabled
 683,ironworks-chamber,炼铁厂商会,6,true
 684,dragonmark-chamber,龙纹密室,6,true
 685,radiant-chamber,辐射室,6,true
-686,pokemon-league-gate,生物联盟之门,6,true
+686,pokemon-league-gate,精灵联盟之门,6,true
 687,lumiose-station,卢米奥塞站,6,true
 688,kiloude-station,基卢德站,6,true
 689,ambrette-aquarium,安布雷特水族馆,6,true
 690,unknown-dungeon,未知地牢,6,true
-691,hoenn-pokemon-league,生物联盟,3,true
+691,hoenn-pokemon-league,精灵联盟,3,true
 692,team-aqua-hideout,水族队藏身处,3,true
 693,sea-mauville,海淡紫色,3,true
 694,team-magma-hideout,岩浆队藏身处,3,true
@@ -760,7 +760,7 @@ id,code,name,region_id,enabled
 776,shady-house,可疑宅邸,7,true
 777,thrifty-megamart--abandoned-site,超值超市,7,true
 778,hokulani-observatory,辉克拉尼天文台,7,true
-779,alola-pokemon-league,生物联盟,7,true
+779,alola-pokemon-league,精灵联盟,7,true
 780,poni-meadow,波尼花园,7,true
 781,poni-wilds,波尼原野,7,true
 782,ancient-poni-path,波尼古道,7,true
@@ -801,7 +801,7 @@ id,code,name,region_id,enabled
 817,mesagoza,梅萨戈萨,10,true
 818,cortondo,科尔通多,10,true
 819,alfornada,阿尔福纳达,10,true
-820,pokemon-league,生物联盟,10,true
+820,pokemon-league,精灵联盟,10,true
 821,artazon,阿塔松,10,true
 822,levincia,莱文西亚,10,true
 823,zapapico,穴扎镇,10,true
@@ -1057,29 +1057,29 @@ id,code,name,region_id,enabled
 1073,revelers-road,狂欢者之路,10,true
 1074,timeless-woods,永恒的森林,10,true
 1075,wistful-fields,向往的田野,10,true
-1076,canyon-biome,峡谷生物群落,10,true
+1076,canyon-biome,峡谷精灵群落,10,true
 1077,canyon-plaza,峡谷广场,10,true
 1078,central-plaza,中环广场,10,true
 1079,chargestone-cavern,充能石洞穴,10,true
-1080,coastal-biome,沿海生物群系,10,true
+1080,coastal-biome,沿海精灵群系,10,true
 1081,coastal-plaza,海岸广场,10,true
 1082,league-club-room,联赛俱乐部房,10,true
-1083,polar-biome,极地生物群系,10,true
+1083,polar-biome,极地精灵群系,10,true
 1084,polar-plaza,极地广场,10,true
-1085,savanna-biome,稀树草原生物群系,10,true
+1085,savanna-biome,稀树草原精灵群系,10,true
 1086,savanna-plaza,萨凡纳广场,10,true
 1087,torchlit-labyrinth,火炬迷宫,10,true
 1088,hoenn-pokemart,丰缘友好商店,3,true
-1089,hoenn-pokecenter,丰缘生物中心,3,true
+1089,hoenn-pokecenter,丰缘精灵中心,3,true
 1090,kanto-pokemart,关都友好商店,1,true
-1091,kanto-pokecenter,关都生物中心,1,true
+1091,kanto-pokecenter,关都精灵中心,1,true
 1092,sinnoh-pokemart,神奥友好商店,4,true
 1093,johto-pokemart,城都友好商店,2,true
 1094,mirage-island,海市蜃楼岛,3,true
 1095,outskirt-stand,外围摊位,11,true
 1096,phenac-city,菲纳克城,11,true
 1097,snagem-hideout,斯纳吉姆藏身处,11,true
-1098,shadow-pokemon-lab,暗影生物实验室,11,true
+1098,shadow-pokemon-lab,暗影精灵实验室,11,true
 1099,pyrite-town,黄铁矿镇,11,true
 1100,pyrite-bldg,黄铁矿大厦,11,true
 1101,pyrite-cave,黄铁矿洞,11,true
@@ -1087,7 +1087,7 @@ id,code,name,region_id,enabled
 1103,agate-village,玛瑙村,11,true
 1104,the-under,下层,11,true
 1105,mt-battle,山战,11,true
-1106,pokemon-hq-lab,生物总部实验室,11,true
+1106,pokemon-hq-lab,精灵总部实验室,11,true
 1107,gateon-port,加顿港,11,true
 1108,cipher-lab,密码实验室,11,true
 1109,pokespot,斑点点,11,true

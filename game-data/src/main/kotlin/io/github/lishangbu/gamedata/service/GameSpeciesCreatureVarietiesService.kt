@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameSpeciesCreatureVarietiesRepos
 import org.springframework.stereotype.Service
 
 /**
- * 种类生物变种 Service。
+ * 种类精灵变种 Service。
  */
 @Service
 class GameSpeciesCreatureVarietiesService(

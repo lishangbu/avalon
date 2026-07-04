@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 生物形态属性写入请求。
+ * 精灵形态属性写入请求。
  */
-@Schema(name = "GameCreatureFormElementsRequest", description = "生物形态属性写入请求。")
+@Schema(name = "GameCreatureFormElementsRequest", description = "精灵形态属性写入请求。")
 data class GameCreatureFormElementsRequest(
 	@param:JsonProperty("form_id")
 	@get:JsonProperty("form_id")

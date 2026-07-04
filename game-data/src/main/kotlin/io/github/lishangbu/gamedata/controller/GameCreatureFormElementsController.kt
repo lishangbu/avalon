@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 生物形态属性管理接口。
+ * 精灵形态属性管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/creature-form-elements")
-@Tag(name = "游戏资料 - 生物形态属性")
+@Tag(name = "游戏资料 - 精灵形态属性")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameCreatureFormElementsController(
 	private val service: GameCreatureFormElementsService,
 ) {
-	@Operation(summary = "分页查询生物形态属性")
+	@Operation(summary = "分页查询精灵形态属性")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameCreatureFormElementsController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameCreatureFormElementsResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条生物形态属性")
+	@Operation(summary = "读取单条精灵形态属性")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureFormElementsResponse::class))]),
@@ -64,7 +64,7 @@ class GameCreatureFormElementsController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameCreatureFormElementsResponse = service.get(id)
 
-	@Operation(summary = "新增生物形态属性")
+	@Operation(summary = "新增精灵形态属性")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureFormElementsResponse::class))]),
@@ -77,7 +77,7 @@ class GameCreatureFormElementsController(
 	@PostMapping
 	fun create(@RequestBody request: GameCreatureFormElementsRequest): GameCreatureFormElementsResponse = service.create(request)
 
-	@Operation(summary = "修改生物形态属性")
+	@Operation(summary = "修改精灵形态属性")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureFormElementsResponse::class))]),
@@ -91,7 +91,7 @@ class GameCreatureFormElementsController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameCreatureFormElementsRequest): GameCreatureFormElementsResponse = service.update(id, request)
 
-	@Operation(summary = "删除生物形态属性")
+	@Operation(summary = "删除精灵形态属性")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

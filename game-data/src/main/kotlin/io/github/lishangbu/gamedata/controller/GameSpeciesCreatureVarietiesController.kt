@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 种类生物变种管理接口。
+ * 种类精灵变种管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/species-creature-varieties")
-@Tag(name = "游戏资料 - 种类生物变种")
+@Tag(name = "游戏资料 - 种类精灵变种")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameSpeciesCreatureVarietiesController(
 	private val service: GameSpeciesCreatureVarietiesService,
 ) {
-	@Operation(summary = "分页查询种类生物变种")
+	@Operation(summary = "分页查询种类精灵变种")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameSpeciesCreatureVarietiesController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameSpeciesCreatureVarietiesResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条种类生物变种")
+	@Operation(summary = "读取单条种类精灵变种")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameSpeciesCreatureVarietiesResponse::class))]),
@@ -64,7 +64,7 @@ class GameSpeciesCreatureVarietiesController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameSpeciesCreatureVarietiesResponse = service.get(id)
 
-	@Operation(summary = "新增种类生物变种")
+	@Operation(summary = "新增种类精灵变种")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameSpeciesCreatureVarietiesResponse::class))]),
@@ -77,7 +77,7 @@ class GameSpeciesCreatureVarietiesController(
 	@PostMapping
 	fun create(@RequestBody request: GameSpeciesCreatureVarietiesRequest): GameSpeciesCreatureVarietiesResponse = service.create(request)
 
-	@Operation(summary = "修改种类生物变种")
+	@Operation(summary = "修改种类精灵变种")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameSpeciesCreatureVarietiesResponse::class))]),
@@ -91,7 +91,7 @@ class GameSpeciesCreatureVarietiesController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameSpeciesCreatureVarietiesRequest): GameSpeciesCreatureVarietiesResponse = service.update(id, request)
 
-	@Operation(summary = "删除种类生物变种")
+	@Operation(summary = "删除种类精灵变种")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

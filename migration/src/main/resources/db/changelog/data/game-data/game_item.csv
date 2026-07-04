@@ -542,7 +542,7 @@ id,code,name,category_id,cost,fling_power,enabled
 541,rm-6-key,第 6 房钥匙,22,0,,true
 542,devon-scope,得文侦测镜,21,0,,true
 543,oaks-parcel,大木包裹,22,0,,true
-544,poke-flute,生物之笛,22,0,,true
+544,poke-flute,精灵之笛,22,0,,true
 545,bike-voucher,自行车兑换券,22,0,,true
 546,gold-teeth,金假牙,22,0,,true
 547,lift-key,电梯钥匙,22,0,,true
@@ -954,7 +954,7 @@ id,code,name,category_id,cost,fling_power,enabled
 1004,roto-boost,加油碰碰,23,0,,true
 1005,roto-catch,捕捉碰碰,23,0,,true
 1006,autograph,马志士的签名,23,0,,true
-1007,pokemon-box,生物盒,23,0,,true
+1007,pokemon-box,精灵盒,23,0,,true
 1008,medicine-pocket,回复口袋,23,0,,true
 1009,candy-jar,糖果罐,23,0,,true
 1010,power-up-pocket,强化口袋,23,0,,true
@@ -1086,7 +1086,7 @@ id,code,name,category_id,cost,fling_power,enabled
 1136,meltan-candy,美录坦的糖果,47,20,,true
 1137,magmar-candy,鸭嘴火兽的糖果,47,20,,true
 1138,endorsement,推荐函,22,0,,true
-1139,pokemon-box-link,生物盒,21,0,,true
+1139,pokemon-box-link,精灵盒,21,0,,true
 1140,wishing-star,许愿星,22,0,,true
 1141,dynamax-band,极巨腕带,22,0,,true
 1142,fishing-rod--galar,钓竿,21,0,,true

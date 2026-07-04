@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 区域生物遭遇写入请求。
+ * 区域精灵遭遇写入请求。
  */
-@Schema(name = "GameLocationAreaEncountersRequest", description = "区域生物遭遇写入请求。")
+@Schema(name = "GameLocationAreaEncountersRequest", description = "区域精灵遭遇写入请求。")
 data class GameLocationAreaEncountersRequest(
 	@param:JsonProperty("area_id")
 	@get:JsonProperty("area_id")
@@ -14,7 +14,7 @@ data class GameLocationAreaEncountersRequest(
 	val areaId: Long? = null,
 	@param:JsonProperty("creature_id")
 	@get:JsonProperty("creature_id")
-	@field:Schema(description = "生物 ID")
+	@field:Schema(description = "精灵 ID")
 	val creatureId: Long? = null,
 	@param:JsonProperty("method_id")
 	@get:JsonProperty("method_id")

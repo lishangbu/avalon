@@ -11,10 +11,10 @@ id,code,name,enabled
 10,other,各种各样的,true
 11,item,物品,true
 12,weekday,工作日,true
-13,first-party-pokemon,第一方生物,true
+13,first-party-pokemon,第一方精灵,true
 14,special-encounter,特别的邂逅,true
-15,trade,通过交换获得特定生物,true
-16,coins,在奖品角或游戏角用金币兑换生物,true
+15,trade,通过交换获得特定精灵,true
+16,coins,在奖品角或游戏角用金币兑换精灵,true
 17,friend-safari-slot,朋友狩猎区栏位分配,true
 18,great-marsh-daily-slot,大沼泽每日栏位,true
 19,honey-tree-group,蜜树分组,true

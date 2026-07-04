@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 生物数值绑定管理接口。
+ * 精灵数值绑定管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/creature-stats")
-@Tag(name = "游戏资料 - 生物数值绑定")
+@Tag(name = "游戏资料 - 精灵数值绑定")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameCreatureStatController(
 	private val service: GameCreatureStatService,
 ) {
-	@Operation(summary = "分页查询生物数值绑定")
+	@Operation(summary = "分页查询精灵数值绑定")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameCreatureStatController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameCreatureStatResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条生物数值绑定")
+	@Operation(summary = "读取单条精灵数值绑定")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureStatResponse::class))]),
@@ -64,7 +64,7 @@ class GameCreatureStatController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameCreatureStatResponse = service.get(id)
 
-	@Operation(summary = "新增生物数值绑定")
+	@Operation(summary = "新增精灵数值绑定")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureStatResponse::class))]),
@@ -77,7 +77,7 @@ class GameCreatureStatController(
 	@PostMapping
 	fun create(@RequestBody request: GameCreatureStatRequest): GameCreatureStatResponse = service.create(request)
 
-	@Operation(summary = "修改生物数值绑定")
+	@Operation(summary = "修改精灵数值绑定")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureStatResponse::class))]),
@@ -91,7 +91,7 @@ class GameCreatureStatController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameCreatureStatRequest): GameCreatureStatResponse = service.update(id, request)
 
-	@Operation(summary = "删除生物数值绑定")
+	@Operation(summary = "删除精灵数值绑定")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

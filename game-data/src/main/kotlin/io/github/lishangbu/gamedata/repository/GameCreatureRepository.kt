@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 private val GAME_CREATURE_TABLE = GameDataTableSpec(
 	tableName = "game_creature",
-	label = "生物资料",
+	label = "精灵资料",
 	columns = listOf(
 		GameDataColumnSpec(name = "code", type = GameDataColumnType.STRING, required = true, maxLength = 80),
 		GameDataColumnSpec(name = "name", type = GameDataColumnType.STRING, required = true, maxLength = 120),
@@ -23,7 +23,7 @@ private val GAME_CREATURE_TABLE = GameDataTableSpec(
 )
 
 /**
- * 生物资料持久化访问。
+ * 精灵资料持久化访问。
  */
 @Repository
 class GameCreatureRepository(

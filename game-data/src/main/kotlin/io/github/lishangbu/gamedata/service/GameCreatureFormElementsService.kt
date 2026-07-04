@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameCreatureFormElementsRepositor
 import org.springframework.stereotype.Service
 
 /**
- * 生物形态属性 Service。
+ * 精灵形态属性 Service。
  */
 @Service
 class GameCreatureFormElementsService(

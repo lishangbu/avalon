@@ -30,7 +30,7 @@ Avalon 是面向后台管理场景的 Kotlin Spring Boot 后端服务，提供 R
 | `security` | Spring Authorization Server、资源服务器、RBAC 运行时、OAuth2 client 与 JWK 持久化。 |
 | `system` | 系统管理 API，覆盖用户、角色、权限、OAuth client、JWK 和定时任务管理。 |
 | `scheduler` | 基于 Quartz 的可管理定时任务能力，包含任务注册、调度、执行记录和持久化。 |
-| `game-data` | 游戏资料管理领域，维护生物、技能、道具、属性、地区等基础资料。 |
+| `game-data` | 游戏资料管理领域，维护精灵、技能、道具、属性、地区等基础资料。 |
 | `battle-engine` | 战斗引擎核心，覆盖现代主系列规则、事件流程和公开规则用例测试。 |
 | `battle-rules` | 战斗规则维护 API 和运行时规则快照，供管理端和战斗引擎读取。 |
 | `s3-core` | S3 操作抽象、对象键、命令对象和 AWS SDK v2 适配。 |

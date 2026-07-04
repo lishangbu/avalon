@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 private val GAME_LOCATION_AREA_ENCOUNTERS_TABLE = GameDataTableSpec(
 	tableName = "game_location_area_encounter",
-	label = "区域生物遭遇",
+	label = "区域精灵遭遇",
 	columns = listOf(
 		GameDataColumnSpec(name = "area_id", type = GameDataColumnType.LONG, required = true),
 		GameDataColumnSpec(name = "creature_id", type = GameDataColumnType.LONG, required = true),
@@ -21,7 +21,7 @@ private val GAME_LOCATION_AREA_ENCOUNTERS_TABLE = GameDataTableSpec(
 )
 
 /**
- * 区域生物遭遇持久化访问。
+ * 区域精灵遭遇持久化访问。
  */
 @Repository
 class GameLocationAreaEncountersRepository(

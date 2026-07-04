@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameLocationAreaEncountersReposit
 import org.springframework.stereotype.Service
 
 /**
- * 区域生物遭遇 Service。
+ * 区域精灵遭遇 Service。
  */
 @Service
 class GameLocationAreaEncountersService(

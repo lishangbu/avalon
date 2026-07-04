@@ -38,19 +38,19 @@ id,code,name,sort_order,enabled
 37,sos-from-bubbling-spot,从冒泡的地方求救,37,true
 38,overworld,行走在天地间,38,true
 39,overworld-water,在主世界中冲浪,39,true
-40,overworld-flying,天空中飞行的生物,40,true
+40,overworld-flying,天空中飞行的精灵,40,true
 41,overworld-special,通过诱饵或捕获组合在草丛中罕见产卵,41,true
 42,overworld-flying-special,通过诱饵或捕捉组合在天空中罕见生成,42,true
 43,overworld-water-special,使用诱饵或捕获组合在水中罕见产卵,43,true
-44,horde,在草丛、花丛或洞穴中遭遇 5 只生物,44,true
+44,horde,在草丛、花丛或洞穴中遭遇 5 只精灵,44,true
 45,colosseum-bonus-disc-us,从美版竞技场特典光盘获得基拉祈,45,true
 46,colosseum-bonus-disc-jpn,从日版竞技场特典光盘获得时拉比或皮卡丘,46,true
-47,pokemon-channel-pal,从欧版生物频道接收基拉祈,47,true
-48,pokemon-ranger,从《精灵生物游侠》获得玛纳菲,48,true
-49,pokemon-battle-revolution,从《精灵生物对战革命》中获得皮卡丘、电弹或岩浆,49,true
-50,new-york-pokecenter-wish-eggs,从纽约市的生物中心收到一个鸡蛋，其中包含特殊技能“愿望”。,50,true
-51,snag,在竞技场或 XD：暗黑旋风中从训练师那里夺取暗影生物。,51,true
-52,snag-rematch,在竞技场或 XD：暗黑旋风中，首次夺取失败后再次从训练师那里夺取暗影生物。,52,true
-53,pokespot,在《生物 XD：暗黑旋风》的三个生物出没点之一找到野生生物。,53,true
-54,hidden-grotto,在隐藏的洞穴中寻找生物,54,true
-55,honey-tree,在蜂蜜树上涂抹蜂蜜，等待生物出现。,54,true
+47,pokemon-channel-pal,从欧版精灵频道接收基拉祈,47,true
+48,pokemon-ranger,从《精灵精灵游侠》获得玛纳菲,48,true
+49,pokemon-battle-revolution,从《精灵精灵对战革命》中获得皮卡丘、电弹或岩浆,49,true
+50,new-york-pokecenter-wish-eggs,从纽约市的精灵中心收到一个鸡蛋，其中包含特殊技能“愿望”。,50,true
+51,snag,在竞技场或 XD：暗黑旋风中从训练师那里夺取暗影精灵。,51,true
+52,snag-rematch,在竞技场或 XD：暗黑旋风中，首次夺取失败后再次从训练师那里夺取暗影精灵。,52,true
+53,pokespot,在《精灵 XD：暗黑旋风》的三个精灵出没点之一找到野生精灵。,53,true
+54,hidden-grotto,在隐藏的洞穴中寻找精灵,54,true
+55,honey-tree,在蜂蜜树上涂抹蜂蜜，等待精灵出现。,54,true

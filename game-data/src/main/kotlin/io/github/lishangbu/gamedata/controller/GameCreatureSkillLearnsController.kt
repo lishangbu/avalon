@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 生物技能学习管理接口。
+ * 精灵技能学习管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/creature-skill-learns")
-@Tag(name = "游戏资料 - 生物技能学习")
+@Tag(name = "游戏资料 - 精灵技能学习")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameCreatureSkillLearnsController(
 	private val service: GameCreatureSkillLearnsService,
 ) {
-	@Operation(summary = "分页查询生物技能学习")
+	@Operation(summary = "分页查询精灵技能学习")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameCreatureSkillLearnsController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameCreatureSkillLearnsResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条生物技能学习")
+	@Operation(summary = "读取单条精灵技能学习")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureSkillLearnsResponse::class))]),
@@ -64,7 +64,7 @@ class GameCreatureSkillLearnsController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameCreatureSkillLearnsResponse = service.get(id)
 
-	@Operation(summary = "新增生物技能学习")
+	@Operation(summary = "新增精灵技能学习")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureSkillLearnsResponse::class))]),
@@ -77,7 +77,7 @@ class GameCreatureSkillLearnsController(
 	@PostMapping
 	fun create(@RequestBody request: GameCreatureSkillLearnsRequest): GameCreatureSkillLearnsResponse = service.create(request)
 
-	@Operation(summary = "修改生物技能学习")
+	@Operation(summary = "修改精灵技能学习")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureSkillLearnsResponse::class))]),
@@ -91,7 +91,7 @@ class GameCreatureSkillLearnsController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameCreatureSkillLearnsRequest): GameCreatureSkillLearnsResponse = service.update(id, request)
 
-	@Operation(summary = "删除生物技能学习")
+	@Operation(summary = "删除精灵技能学习")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

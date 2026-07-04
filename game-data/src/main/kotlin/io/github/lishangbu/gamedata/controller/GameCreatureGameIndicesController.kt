@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * 生物索引管理接口。
+ * 精灵索引管理接口。
  */
 @RestController
 @RequestMapping("/api/game-data/creature-game-indices")
-@Tag(name = "游戏资料 - 生物索引")
+@Tag(name = "游戏资料 - 精灵索引")
 @SecurityRequirement(name = GAME_DATA_API_BEARER_AUTH)
 class GameCreatureGameIndicesController(
 	private val service: GameCreatureGameIndicesService,
 ) {
-	@Operation(summary = "分页查询生物索引")
+	@Operation(summary = "分页查询精灵索引")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
@@ -52,7 +52,7 @@ class GameCreatureGameIndicesController(
 		request: HttpServletRequest,
 	): GameDataPageResponse<GameCreatureGameIndicesResponse> = service.list(page, size, q, request.toGameDataFilters())
 
-	@Operation(summary = "读取单条生物索引")
+	@Operation(summary = "读取单条精灵索引")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "读取成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureGameIndicesResponse::class))]),
@@ -64,7 +64,7 @@ class GameCreatureGameIndicesController(
 	@GetMapping("/{id}")
 	fun get(@PathVariable id: Long): GameCreatureGameIndicesResponse = service.get(id)
 
-	@Operation(summary = "新增生物索引")
+	@Operation(summary = "新增精灵索引")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "新增成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureGameIndicesResponse::class))]),
@@ -77,7 +77,7 @@ class GameCreatureGameIndicesController(
 	@PostMapping
 	fun create(@RequestBody request: GameCreatureGameIndicesRequest): GameCreatureGameIndicesResponse = service.create(request)
 
-	@Operation(summary = "修改生物索引")
+	@Operation(summary = "修改精灵索引")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "200", description = "修改成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameCreatureGameIndicesResponse::class))]),
@@ -91,7 +91,7 @@ class GameCreatureGameIndicesController(
 	@PutMapping("/{id}")
 	fun update(@PathVariable id: Long, @RequestBody request: GameCreatureGameIndicesRequest): GameCreatureGameIndicesResponse = service.update(id, request)
 
-	@Operation(summary = "删除生物索引")
+	@Operation(summary = "删除精灵索引")
 	@ApiResponses(
 		value = [
 			ApiResponse(responseCode = "204", description = "删除成功"),

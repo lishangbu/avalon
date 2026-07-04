@@ -24,7 +24,7 @@ import org.springframework.web.context.WebApplicationContext
 )
 @ContextConfiguration(initializers = [GameDataApiPostgresTestContainer::class])
 /**
- * 验证生物资料接口对数据库约束的错误响应。
+ * 验证精灵资料接口对数据库约束的错误响应。
  */
 class GameCreatureConstraintApiTests(
 	@Autowired userRepository: SecurityUserRepository,
@@ -39,7 +39,7 @@ class GameCreatureConstraintApiTests(
 			post("/api/game-data/creatures")
 				.header("Authorization", "Bearer $token")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(creatureJson(code = code, name = "重复测试生物")),
+				.content(creatureJson(code = code, name = "重复测试精灵")),
 		)
 			.andExpect(status().isOk)
 			.andReturn()
@@ -51,7 +51,7 @@ class GameCreatureConstraintApiTests(
 			post("/api/game-data/creatures")
 				.header("Authorization", "Bearer $token")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(creatureJson(code = code, name = "重复测试生物二号")),
+				.content(creatureJson(code = code, name = "重复测试精灵二号")),
 		)
 			.andExpect(status().isConflict)
 			.andExpect(jsonPath("$.code").value("resource.conflict"))
@@ -71,7 +71,7 @@ class GameCreatureConstraintApiTests(
 			post("/api/game-data/creatures")
 				.header("Authorization", "Bearer $token")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(creatureJson(code = code, name = "无效种类生物", speciesId = 999999999)),
+				.content(creatureJson(code = code, name = "无效种类精灵", speciesId = 999999999)),
 		)
 			.andExpect(status().isConflict)
 			.andExpect(jsonPath("$.code").value("resource.conflict"))

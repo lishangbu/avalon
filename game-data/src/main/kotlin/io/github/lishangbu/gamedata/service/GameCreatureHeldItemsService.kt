@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameCreatureHeldItemsRepository
 import org.springframework.stereotype.Service
 
 /**
- * 生物持有道具 Service。
+ * 精灵持有道具 Service。
  */
 @Service
 class GameCreatureHeldItemsService(

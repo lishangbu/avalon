@@ -4,8 +4,8 @@ id,code,name,condition_id,enabled
 3,time-morning,在早晨,2,true
 4,time-day,白天,2,true
 5,time-night,晚上,2,true
-6,radar-on,使用 生物雷达,3,true
-7,radar-off,不使用 生物雷达,3,true
+6,radar-on,使用 精灵雷达,3,true
+7,radar-off,不使用 精灵雷达,3,true
 8,slot2-none,插槽 2 中没有游戏,4,true
 9,slot2-ruby,红宝石位于插槽 2,4,true
 10,slot2-sapphire,蓝宝石位于插槽 2,4,true
@@ -30,14 +30,14 @@ id,code,name,condition_id,enabled
 29,story-progress-awakened-beasts,唤醒灼伤之塔的传奇野兽,9,true
 30,story-progress-beat-galactic-coronet,在皇冠山击败银河队后访问了维里蒂湖,9,true
 31,story-progress-oak-eterna-city,与百代市的大木博士交谈,9,true
-32,story-progress-vermilion-copycat,带着模仿猫的玩偶参观了生物粉丝俱乐部,9,true
+32,story-progress-vermilion-copycat,带着模仿猫的玩偶参观了精灵粉丝俱乐部,9,true
 33,story-progress-met-tornadus-thundurus,在过场动画中遇见龙卷风或雷霆,9,true
 34,story-progress-beat-elite-four-round-two,第二次击败精英 4,9,true
 35,story-progress-hall-of-fame,进入名人堂,9,true
 36,story-progress-none,没有任何,9,true
 37,story-progress-national-dex,获得国家图鉴,9,true
 38,other-none,没有任何,10,true
-39,other-snorlax-11-beat-league,在 11 号公路击败卡比兽后，击败生物联盟,10,true
+39,other-snorlax-11-beat-league,在 11 号公路击败卡比兽后，击败精灵联盟,10,true
 40,other-virtual-console,在虚拟控制台版本上玩,10,true
 41,story-progress-cure-eldritch-nightmares,治愈埃尔德里奇之子的噩梦,9,true
 42,other-talk-to-cynthias-grandmother,与辛西娅的祖母交谈,10,true
@@ -64,13 +64,13 @@ id,code,name,condition_id,enabled
 63,weekday-thursday,周四,12,true
 64,weekday-friday,星期五,12,true
 65,weekday-saturday,周六,12,true
-66,first-party-pokemon-high-friendship,玩家队伍中的第一只生物有很高的友谊值,13,true
+66,first-party-pokemon-high-friendship,玩家队伍中的第一只精灵有很高的友谊值,13,true
 67,story-progress-defeat-mars,首次击败火星,9,true
 68,item-odd-keystone,包里有奇怪的梯形石,11,true
 69,other-talked-to-32-people-underground,已与至少 32 名地下人士交谈,10,true
 70,story-progress-returned-machine-part,将学习机零件返回发电厂,9,true
 71,other-event-arceus-in-party,队伍中有活动赠送的阿尔宙斯,10,true
-72,special-encounter-couldnt-capture-before,这种特殊的生物在之前的遭遇中无法被捕获（要么晕倒，要么逃离对战）,14,true
+72,special-encounter-couldnt-capture-before,这种特殊的精灵在之前的遭遇中无法被捕获（要么晕倒，要么逃离对战）,14,true
 73,item-ice-key,包里有冰钥匙,11,true
 74,item-iron-key,包里有铁钥匙,11,true
 75,story-progress-juniper-cave-of-being,在存在之洞与杜松教授交谈,9,true
@@ -94,7 +94,7 @@ id,code,name,condition_id,enabled
 93,other-nicknamed-cold-item-regice-regirock-registeel3,捕获游戏中的三个雷吉斯后，昵称雷吉斯持有冷系物品，队伍中还有雷吉洛克和雷吉斯钢,10,true
 94,other-dialga-or-palkia-in-party,队伍中有帝牙卢卡或帕路奇犽,10,true
 95,other-castform-in-party,让 漂浮泡泡 参加队伍,10,true
-96,other-level-100-pokemon-in-party,队伍中有 100 级生物,10,true
+96,other-level-100-pokemon-in-party,队伍中有 100 级精灵,10,true
 97,other-tornadus-thundurus-in-party,让龙卷风和雷霆都加入队伍,10,true
 98,other-reshiram-zekrom-in-party,让莱希拉姆和捷克罗姆加入队伍,10,true
 99,other-captured-all-ultra-beasts,捕获所有究极异兽,10,true
@@ -111,8 +111,8 @@ id,code,name,condition_id,enabled
 110,trade-trapinch,通过交换获得大颚蚁,15,true
 111,trade-surskit,通过交换获得溜溜糖球,15,true
 112,trade-wooper,给伍珀交易,15,true
-113,story-progress-catch-all-shadow-pokemon,捕获全部 82 只暗影生物后，镜子 B 会带着暗影龙出现在盖特村,9,true
-114,other-complete-mt-battle,完成山对战即可获得特别奖品生物,9,true
+113,story-progress-catch-all-shadow-pokemon,捕获全部 82 只暗影精灵后，镜子 B 会带着暗影龙出现在盖特村,9,true
+114,other-complete-mt-battle,完成山对战即可获得特别奖品精灵,9,true
 115,coins-180,您的硬币盒中至少有 180 枚硬币,16,true
 116,coins-500,您的硬币盒中至少有 500 枚硬币,16,true
 117,coins-1200,您的硬币盒中至少有 1200 枚硬币,16,true
@@ -200,7 +200,7 @@ id,code,name,condition_id,enabled
 199,trade-ditto,通过交换获得百变怪,15,true
 200,trade-excadrill,通过交换获得龙头地鼠,15,true
 201,trade-hippowdon,在交易中给予希波顿,15,true
-202,backlot-not-mentioned,豪宅主人没有提到任何生物,21,true
-203,backlot-mentioned,豪宅主人提到在花园里看到了这只生物,21,true
+202,backlot-not-mentioned,豪宅主人没有提到任何精灵,21,true
+203,backlot-mentioned,豪宅主人提到在花园里看到了这只精灵,21,true
 204,bug-catching-contest-no,不是在捉虫大赛期间,22,true
 205,bug-catching-contest-yes,捉虫大赛期间,22,true

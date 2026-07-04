@@ -8,7 +8,7 @@ import io.github.lishangbu.gamedata.repository.GameCreatureStatRepository
 import org.springframework.stereotype.Service
 
 /**
- * 生物数值绑定 Service。
+ * 精灵数值绑定 Service。
  */
 @Service
 class GameCreatureStatService(

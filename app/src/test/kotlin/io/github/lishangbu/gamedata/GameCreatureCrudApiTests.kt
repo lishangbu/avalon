@@ -25,7 +25,7 @@ import org.springframework.web.context.WebApplicationContext
 )
 @ContextConfiguration(initializers = [GameDataApiPostgresTestContainer::class])
 /**
- * 验证生物资料接口的标准 CRUD 流程。
+ * 验证精灵资料接口的标准 CRUD 流程。
  */
 class GameCreatureCrudApiTests(
 	@Autowired userRepository: SecurityUserRepository,
@@ -41,11 +41,11 @@ class GameCreatureCrudApiTests(
 			post("/api/game-data/creatures")
 				.header("Authorization", "Bearer $token")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(creatureJson(code = code, name = "测试生物", height = 12, weight = 34)),
+				.content(creatureJson(code = code, name = "测试精灵", height = 12, weight = 34)),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.code").value(code))
-			.andExpect(jsonPath("$.name").value("测试生物"))
+			.andExpect(jsonPath("$.name").value("测试精灵"))
 			.andExpect(jsonPath("$.species_id").value(1))
 			.andReturn()
 			.response
@@ -56,11 +56,11 @@ class GameCreatureCrudApiTests(
 			put("/api/game-data/creatures/$creatureId")
 				.header("Authorization", "Bearer $token")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(creatureJson(code = code, name = "测试生物改", height = 16, weight = 40)),
+				.content(creatureJson(code = code, name = "测试精灵改", height = 16, weight = 40)),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.id").value(creatureId))
-			.andExpect(jsonPath("$.name").value("测试生物改"))
+			.andExpect(jsonPath("$.name").value("测试精灵改"))
 			.andExpect(jsonPath("$.height").value(16))
 
 		mockMvc.perform(

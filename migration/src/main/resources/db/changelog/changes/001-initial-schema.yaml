@@ -1611,7 +1611,7 @@ databaseChangeLog:
         constraintName: uk_game_egg_group__code
     - createTable:
         tableName: game_ability
-        remarks: 特性资料表，保存可被生物引用的被动能力定义。
+        remarks: 特性资料表，保存可被精灵引用的被动能力定义。
         columns:
         - column:
             name: id
@@ -1808,7 +1808,7 @@ databaseChangeLog:
             name: category_id
     - createTable:
         tableName: game_species
-        remarks: 种类资料表，保存生物种类层面的生态和基础配置。
+        remarks: 种类资料表，保存精灵种类层面的生态和基础配置。
         columns:
         - column:
             name: id
@@ -1929,13 +1929,13 @@ databaseChangeLog:
             name: habitat_id
     - createTable:
         tableName: game_creature
-        remarks: 生物资料表，保存生物个体条目的基础尺寸和经验数值。
+        remarks: 精灵资料表，保存精灵个体条目的基础尺寸和经验数值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物主键。
+            remarks: 精灵主键。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature
@@ -1943,13 +1943,13 @@ databaseChangeLog:
         - column:
             name: code
             type: varchar(80)
-            remarks: 生物稳定编码。
+            remarks: 精灵稳定编码。
             constraints:
               nullable: false
         - column:
             name: name
             type: varchar(120)
-            remarks: 生物简体中文显示名称。
+            remarks: 精灵简体中文显示名称。
             constraints:
               nullable: false
         - column:
@@ -1971,7 +1971,7 @@ databaseChangeLog:
         - column:
             name: sort_order
             type: int
-            remarks: 生物展示排序值。
+            remarks: 精灵展示排序值。
         - column:
             name: default_form
             type: boolean
@@ -1983,7 +1983,7 @@ databaseChangeLog:
             name: enabled
             type: boolean
             defaultValueBoolean: true
-            remarks: 是否启用该生物条目。
+            remarks: 是否启用该精灵条目。
             constraints:
               nullable: false
     - addUniqueConstraint:
@@ -2058,13 +2058,13 @@ databaseChangeLog:
             name: egg_group_id
     - createTable:
         tableName: game_creature_element
-        remarks: 生物与属性绑定表，维护一个生物条目的属性槽位。
+        remarks: 精灵与属性绑定表，维护一个精灵条目的属性槽位。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物属性绑定主键。
+            remarks: 精灵属性绑定主键。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_element
@@ -2072,7 +2072,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -2112,13 +2112,13 @@ databaseChangeLog:
             name: element_id
     - createTable:
         tableName: game_creature_stat
-        remarks: 生物数值绑定表，维护生物各项基础数值和努力值。
+        remarks: 精灵数值绑定表，维护精灵各项基础数值和努力值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物数值绑定主键。
+            remarks: 精灵数值绑定主键。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_stat
@@ -2126,7 +2126,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -2173,13 +2173,13 @@ databaseChangeLog:
             name: stat_id
     - createTable:
         tableName: game_creature_ability
-        remarks: 生物与特性绑定表，维护生物可拥有的特性槽位。
+        remarks: 精灵与特性绑定表，维护精灵可拥有的特性槽位。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物特性绑定主键。
+            remarks: 精灵特性绑定主键。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_ability
@@ -2187,7 +2187,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -4214,13 +4214,13 @@ databaseChangeLog:
         constraintName: uk_game_location_area_method_rate__area_id_method_id
     - createTable:
         tableName: game_location_area_encounter
-        remarks: 地点区域中的当前生物遭遇明细。
+        remarks: 地点区域中的当前精灵遭遇明细。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 区域生物遭遇主键，内置数据保留资料源稳定 ID。
+            remarks: 区域精灵遭遇主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_location_area_encounter
@@ -4234,7 +4234,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -4264,12 +4264,12 @@ databaseChangeLog:
         - column:
             name: max_chance
             type: int
-            remarks: 该生物在该版本最大概率。
+            remarks: 该精灵在该版本最大概率。
             constraints:
               nullable: false
     - createTable:
         tableName: game_location_area_encounter_condition_value
-        remarks: 区域生物遭遇与条件值的绑定。
+        remarks: 区域精灵遭遇与条件值的绑定。
         columns:
         - column:
             name: id
@@ -4283,7 +4283,7 @@ databaseChangeLog:
         - column:
             name: encounter_id
             type: bigint
-            remarks: 区域生物遭遇 ID，引用 game_location_area_encounter。
+            remarks: 区域精灵遭遇 ID，引用 game_location_area_encounter。
             constraints:
               nullable: false
         - column:
@@ -4718,13 +4718,13 @@ databaseChangeLog:
         constraintName: uk_game_catalog_entry__catalog_id_species_id
     - createTable:
         tableName: game_creature_form
-        remarks: 生物形态资料表。
+        remarks: 精灵形态资料表。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物形态主键，内置数据保留资料源稳定 ID。
+            remarks: 精灵形态主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_form
@@ -4744,7 +4744,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
         - column:
             name: form_name
             type: varchar(120)
@@ -4788,13 +4788,13 @@ databaseChangeLog:
         constraintName: uk_game_creature_form__code
     - createTable:
         tableName: game_creature_form_element
-        remarks: 生物形态的属性槽位。
+        remarks: 精灵形态的属性槽位。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物形态属性主键，内置数据保留资料源稳定 ID。
+            remarks: 精灵形态属性主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_form_element
@@ -5058,13 +5058,13 @@ databaseChangeLog:
         constraintName: uk_game_species_catalog_number__species_id_catalog_id
     - createTable:
         tableName: game_species_creature_variety
-        remarks: 种类与生物条目的变种关系。
+        remarks: 种类与精灵条目的变种关系。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 种类生物变种主键，内置数据保留资料源稳定 ID。
+            remarks: 种类精灵变种主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_species_creature_variety
@@ -5078,7 +5078,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -5093,13 +5093,13 @@ databaseChangeLog:
         constraintName: uk_game_species_creature_variety__species_id_creature_id
     - createTable:
         tableName: game_creature_skill_learn
-        remarks: 生物当前可学习技能和学习方式明细。
+        remarks: 精灵当前可学习技能和学习方式明细。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物技能学习主键，内置数据保留资料源稳定 ID。
+            remarks: 精灵技能学习主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_skill_learn
@@ -5107,7 +5107,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -5134,13 +5134,13 @@ databaseChangeLog:
         constraintName: uk_game_creature_skill_learn__creature_skill_method_level
     - createTable:
         tableName: game_creature_held_item
-        remarks: 生物当前可能持有的道具明细。
+        remarks: 精灵当前可能持有的道具明细。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物持有道具主键，内置数据保留资料源稳定 ID。
+            remarks: 精灵持有道具主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_held_item
@@ -5148,7 +5148,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:
@@ -5163,13 +5163,13 @@ databaseChangeLog:
             remarks: 稀有度。
     - createTable:
         tableName: game_creature_game_index
-        remarks: 生物当前索引值。
+        remarks: 精灵当前索引值。
         columns:
         - column:
             name: id
             type: bigint
             autoIncrement: true
-            remarks: 生物索引主键，内置数据保留资料源稳定 ID。
+            remarks: 精灵索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_creature_game_index
@@ -5177,7 +5177,7 @@ databaseChangeLog:
         - column:
             name: creature_id
             type: bigint
-            remarks: 生物 ID，引用 game_creature。
+            remarks: 精灵 ID，引用 game_creature。
             constraints:
               nullable: false
         - column:

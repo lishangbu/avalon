@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 private val GAME_CREATURE_SKILL_LEARNS_TABLE = GameDataTableSpec(
 	tableName = "game_creature_skill_learn",
-	label = "生物技能学习",
+	label = "精灵技能学习",
 	columns = listOf(
 		GameDataColumnSpec(name = "creature_id", type = GameDataColumnType.LONG, required = true),
 		GameDataColumnSpec(name = "skill_id", type = GameDataColumnType.LONG, required = true),
@@ -18,7 +18,7 @@ private val GAME_CREATURE_SKILL_LEARNS_TABLE = GameDataTableSpec(
 )
 
 /**
- * 生物技能学习持久化访问。
+ * 精灵技能学习持久化访问。
  */
 @Repository
 class GameCreatureSkillLearnsRepository(
