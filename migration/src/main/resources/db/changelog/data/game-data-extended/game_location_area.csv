@@ -757,7 +757,7 @@ id,code,name,location_id,game_index,enabled
 875,east-lake-axewell-area,东湖阿克斯韦尔地区,892,0,true
 876,fields-of-honor-main,荣誉领域 主要,893,0,true
 877,fields-of-honor-beach,荣誉田野海滩,893,0,true
-878,forest-of-focus-area,森林offocusarea,894,0,true
+878,forest-of-focus-area,焦点森林,894,0,true
 879,freezington-area,弗利宁顿地区,895,0,true
 880,frigid-sea-area,寒冷海域,896,0,true
 881,frostpoint-field-area,霜点场面积,897,0,true
@@ -776,9 +776,9 @@ id,code,name,location_id,game_index,enabled
 894,honeycalm-island-area,蜜平静岛地区,907,0,true
 895,honeycalm-sea-area,蜂蜜般平静的海域,908,0,true
 896,hulbury-area,赫尔伯里,909,0,true
-897,galar-iceberg-ruins-area,伽勒尔icebergruinsarea,910,0,true
+897,galar-iceberg-ruins-area,冰山遗迹,910,0,true
 898,insular-sea-area,岛屿海域,911,0,true
-899,galar-iron-ruins-area,伽勒尔ironruinsarea,912,0,true
+899,galar-iron-ruins-area,钢铁废墟,912,0,true
 900,lake-of-outrage-area,愤怒区湖,913,0,true
 901,lakeside-cave-area,湖畔洞区域,914,0,true
 902,loop-lagoon-main,主环礁湖,915,0,true
@@ -794,7 +794,7 @@ id,code,name,location_id,game_index,enabled
 912,postwick-area,波斯特威克地区,924,0,true
 913,potbottom-desert-area,盆底沙漠地区,925,0,true
 914,roaring-sea-caves-area,咆哮海洞区,926,0,true
-915,galar-rock-peak-ruins-area,伽勒尔rockpeakruinsarea,927,0,true
+915,galar-rock-peak-ruins-area,岩峰遗址,927,0,true
 916,rolling-fields-main,滚动场主要,928,0,true
 917,rolling-fields-2,连绵起伏的田野 2,928,0,true
 918,slippery-slope-area,滑坡区,929,0,true
@@ -819,7 +819,7 @@ id,code,name,location_id,game_index,enabled
 937,training-lowlands-beach,训练低地海滩,943,0,true
 938,tunnel-to-the-top-area,通往顶部区域的隧道,944,0,true
 939,turffield-area,特菲尔德,945,0,true
-940,warm-up-tunnel-area,warm提升tunnelarea,946,0,true
+940,warm-up-tunnel-area,热身隧道,946,0,true
 941,watchtower-ruins-area,了望塔遗址区,947,0,true
 942,wedgehurst-area,木杆镇,948,0,true
 943,west-lake-axewell-area,西湖阿克斯韦尔地区,949,0,true
