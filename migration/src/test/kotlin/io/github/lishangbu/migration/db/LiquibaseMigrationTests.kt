@@ -2746,6 +2746,21 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game evolution triggers use skill terminology`() {
+		// 进化触发器是管理端筛选项，“move” 在这里表示技能条件，不是位置移动。
+		val generatedTriggerNames = queryMaps(
+			"""
+			select id, code, name
+			from game_evolution_trigger
+			where name like '%移动%'
+			order by id
+			""".trimIndent(),
+		)
+
+		assertThat(generatedTriggerNames).isEmpty()
+	}
+
+	@Test
 	fun `liquibase type changing form names use localized type terms`() {
 		val machineFormNames = queryMaps(
 			"""

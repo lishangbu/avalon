@@ -9,9 +9,9 @@ id,code,name,enabled
 8,three-critical-hits,一场对战中命中三次要害,true
 9,take-damage,受到伤害后前往某个地方,true
 10,other,其他,true
-11,agile-style-move,以敏捷的方式使用移动,true
-12,strong-style-move,以强烈的风格使用移动,true
+11,agile-style-move,以敏捷风格使用技能,true
+12,strong-style-move,以刚猛风格使用技能,true
 13,recoil-damage,承受反冲伤害,true
-14,use-move,使用移动,true
+14,use-move,使用技能,true
 15,three-defeated-bisharp,击败三名拥有领袖纹章的双锋,true
 16,gimmighoul-coins,收集 999 枚吉米霍金币,true
