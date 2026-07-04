@@ -2872,7 +2872,14 @@ class LiquibaseMigrationTests(
 					('%feebas%'),
 					('%milotic%'),
 					('%archen%'),
-					('%entree%')
+					('%entree%'),
+					('%entralink%'),
+					('%教练战%'),
+					('%狂野的对战%'),
+					('%狂野的战斗%'),
+					('%不会发生任何事情并且球会丢失%'),
+					('%红杏%'),
+					('%由杏子制成%')
 			)
 			select item_id, column_name, display_text
 			from item_texts
