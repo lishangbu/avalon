@@ -114,6 +114,13 @@ class SecurityApiAccessTests(
 			get("/api/system/rbac/access-nodes")
 				.header("Authorization", "Bearer $token"),
 		).andExpect(status().isForbidden)
+
+		mockMvc.perform(
+			post("/api/battle-sandbox/turn")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{}"),
+		).andExpect(status().isForbidden)
 	}
 
 	@Test
@@ -191,6 +198,12 @@ class SecurityApiAccessTests(
 					      "actorId": "a-1",
 					      "skillId": 1,
 					      "targetActorId": "b-1"
+					    },
+					    {
+					      "type": "USE_SKILL",
+					      "actorId": "b-1",
+					      "skillId": 1,
+					      "targetActorId": "a-1"
 					    }
 					  ]
 					}
@@ -199,7 +212,14 @@ class SecurityApiAccessTests(
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.resolved").value(true))
+			.andExpect(jsonPath("$.turnNumber").value(1))
+			.andExpect(jsonPath("$.sides[0].sideId").value("side-a"))
+			.andExpect(jsonPath("$.sides[0].participants[0].actorId").value("a-1"))
+			.andExpect(jsonPath("$.sides[1].sideId").value("side-b"))
+			.andExpect(jsonPath("$.sides[1].participants[0].actorId").value("b-1"))
 			.andExpect(jsonPath("$.events[?(@.type == 'DamageApplied')].message").isNotEmpty())
+			.andExpect(jsonPath("$.randomTrace").isNotEmpty())
+			.andExpect(jsonPath("$.violations").isEmpty())
 
 		mockMvc.perform(
 			get("/api/battle-rules/battle-formats")
