@@ -2801,6 +2801,22 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game skill effects use flavor text fallback when available`() {
+		// 部分较新的技能暂时只有官方风味文本；这种情况下先回填到效果字段，避免管理端表格出现空白说明。
+		val missingSkillEffects = queryMaps(
+			"""
+			select skill_id, effect, short_effect, flavor_text
+			from game_skill_detail
+			where flavor_text <> ''
+				and (effect = '' or short_effect = '')
+			order by skill_id
+			""".trimIndent(),
+		)
+
+		assertThat(missingSkillEffects).isEmpty()
+	}
+
+	@Test
 	fun `liquibase game evolution triggers use skill terminology`() {
 		// 进化触发器是管理端筛选项，“move” 在这里表示技能条件，不是位置移动。
 		val generatedTriggerNames = queryMaps(
