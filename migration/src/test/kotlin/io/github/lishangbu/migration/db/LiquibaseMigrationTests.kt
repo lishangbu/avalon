@@ -360,6 +360,20 @@ class LiquibaseMigrationTests(
 			"lucide:clock",
 		)
 
+		// 访问节点 name 会直接显示在侧边栏、权限树和角色授权页；code/type/path 仍然保留英文协议名。
+		// 因此这里只检查展示名称，防止种子数据把 API、OAuth、JWK 这类技术缩写重新暴露给菜单。
+		val generatedAccessNodeNames = queryMaps(
+			"""
+			select id, code, name
+			from security_access_node
+			where name like '%API%'
+				or name like '%OAuth%'
+				or name like '%JWK%'
+			order by id
+			""".trimIndent(),
+		)
+		assertThat(generatedAccessNodeNames).isEmpty()
+
 		val jwkIdType = queryStrings(
 			"""
 			select data_type
@@ -2717,8 +2731,8 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase game encounter condition seed data does not keep generated display names`() {
-		// 遭遇条件和值既会出现在资料维护页，也会作为地点遭遇表格的筛选项；这里拦截本批已经确认过的英文残留和机翻词。
+	fun `liquibase game encounter seed data does not keep generated display names`() {
+		// 遭遇条件、取值和方式既会出现在资料维护页，也会作为地点遭遇表格的筛选项；这里拦截本批已经确认过的英文残留和机翻词。
 		// 断言只覆盖明确无业务展示价值的文本，不用宽泛英文正则，避免把还没有逐条校正的历史资料误判成同一个问题。
 		val generatedEncounterNames = queryMaps(
 			"""
@@ -2728,9 +2742,19 @@ class LiquibaseMigrationTests(
 				union all
 				select 'game_encounter_condition_value' as table_name, id, code, name
 				from game_encounter_condition_value
+				union all
+				select 'game_encounter_method' as table_name, id, code, name
+				from game_encounter_method
 			),
 			blocked_name_patterns(pattern) as (
 				values
+					('%sudowoodo%'),
+					('%wailmer%'),
+					('%feebas%'),
+					('%npc%'),
+					('% pal %'),
+					('%colosseum%'),
+					('%gale of darkness%'),
 					('%friend safari%'),
 					('%backlot%'),
 					('%leafgreen%'),
@@ -3053,6 +3077,13 @@ class LiquibaseMigrationTests(
 					('%volt switch%'),
 					('%work up%'),
 					('%tm64%'),
+					('%wi-fi%'),
+					('% hp%'),
+					('%hp %'),
+					('% pp%'),
+					('%pp %'),
+					('%tm%'),
+					('%hm%'),
 					('%gen iii%'),
 					('%trick%'),
 					('%switcheroo%'),
@@ -3316,6 +3347,53 @@ class LiquibaseMigrationTests(
 				or effect like '%警棍通行证%'
 				or short_effect like '%警棍通行证%'
 				or flavor_text like '%警棍通行证%'
+				or lower(concat_ws(' ', effect, short_effect, flavor_text)) like any (array[
+					'%protect%',
+					'%detect%',
+					'%chatter%',
+					'%metronome%',
+					'%mimic%',
+					'%sketch%',
+					'%struggle%',
+					'%stomp%',
+					'%steamroller%',
+					'%bulk up%',
+					'%counter%',
+					'%endeavour%',
+					'%metal burst%',
+					'%mirror coat%',
+					'%magnet rise%',
+					'%covet%',
+					'%knock off%',
+					'%switcheroo%',
+					'%thief%',
+					'%trick%',
+					'%psych up%',
+					'%jaboca%',
+					'%rowap%',
+					'%techno blast%',
+					'%judgment%',
+					'%judgement%',
+					'%meloetta%',
+					'%aria%',
+					'%pirouette%',
+					'%rapid spin%',
+					'%sticky web%',
+					'%chatot%',
+					'%terastallized%',
+					'%tera属性%',
+					'%iv%',
+					'%stab%',
+					'%stockpile%',
+					'%gateway%',
+					'%sunny park%',
+					'%tri attack%',
+					'%sp。%',
+					'%sp.%',
+					'%inflicts a burn%',
+					'% hp%',
+					'% pp%'
+				])
 			order by skill_id
 			""".trimIndent(),
 		)

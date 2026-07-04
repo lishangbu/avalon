@@ -1,5 +1,5 @@
 id,code,name,type,parent_id,path,icon,sort_order,visible,enabled,api_method,api_pattern
-801,battle-rules:admin,战斗规则 API,API,,,,2100,false,true,*,/api/battle-rules/**
+801,battle-rules:admin,战斗规则接口,API,,,,2100,false,true,*,/api/battle-rules/**
 810,battle-rules,战斗规则,DIRECTORY,,/battle-rules,lucide:swords,30,true,true,,
 820,battle-rules.formats,赛制配置,DIRECTORY,810,/battle-rules/formats,lucide:list-tree,10,true,true,,
 821,battle-rules.battle-formats,战斗赛制,ROUTE,820,/battle-rules/battle-formats,lucide:layout-list,10,true,true,,
