@@ -2711,11 +2711,37 @@ class LiquibaseMigrationTests(
 				or effect like '%心灵攻击%'
 				or short_effect like '%心灵攻击%'
 				or flavor_text like '%心灵攻击%'
+				or effect like '%加号或减号%'
+				or short_effect like '%加号或减号%'
+				or flavor_text like '%加号或减号%'
+				or effect like '%正值或负值%'
+				or short_effect like '%正值或负值%'
+				or flavor_text like '%正值或负值%'
 			order by ability_id
 			""".trimIndent(),
 		)
 
 		assertThat(machineAbilityEffects).isEmpty()
+	}
+
+	@Test
+	fun `liquibase game skill effects do not keep plus minus generated terms`() {
+		// 正电和负电是战斗特性的正式领域词，直译成“正值或负值”会让管理端和规则测试都难以读懂。
+		val machineSkillEffects = queryMaps(
+			"""
+			select skill_id, effect, short_effect, flavor_text
+			from game_skill_detail
+			where effect like '%正值或负值%'
+				or short_effect like '%正值或负值%'
+				or flavor_text like '%正值或负值%'
+				or effect like '%加号或减号%'
+				or short_effect like '%加号或减号%'
+				or flavor_text like '%加号或减号%'
+			order by skill_id
+			""".trimIndent(),
+		)
+
+		assertThat(machineSkillEffects).isEmpty()
 	}
 
 	@Test
