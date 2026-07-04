@@ -2922,7 +2922,32 @@ class LiquibaseMigrationTests(
 					('%tornadus%'),
 					('%thundurus%'),
 					('%landorus%'),
-					('%兽人形态%')
+					('%兽人形态%'),
+					('%focus punch%'),
+					('%dynamicpunch%'),
+					('%mega punch%'),
+					('%psyshock%'),
+					('%bulk up%'),
+					('%bullet seed%'),
+					('%psych up%'),
+					('%take down%'),
+					('%bubblebeam%'),
+					('%giga drain%'),
+					('%solarbeam%'),
+					('%smack down%'),
+					('%swift%'),
+					('%thunderpunch%'),
+					('%softboiled%'),
+					('%psywave%'),
+					('%snatch%'),
+					('%fling%'),
+					('%sky drop%'),
+					('%giga impact%'),
+					('%stone edge%'),
+					('%volt switch%'),
+					('%work up%'),
+					('%tm64%'),
+					('%gen iii%')
 			)
 			select item_id, column_name, display_text
 			from item_texts
