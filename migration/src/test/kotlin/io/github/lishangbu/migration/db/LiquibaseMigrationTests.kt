@@ -2725,8 +2725,8 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase game skill effects do not keep plus minus generated terms`() {
-		// 正电和负电是战斗特性的正式领域词，直译成“正值或负值”会让管理端和规则测试都难以读懂。
+	fun `liquibase game skill effects do not keep generated terms`() {
+		// 技能说明直接支撑管理端展示和战斗规则校验，短效果里的“下层”等机翻残留会比长说明更容易被用户看到。
 		val machineSkillEffects = queryMaps(
 			"""
 			select skill_id, effect, short_effect, flavor_text
@@ -2737,6 +2737,7 @@ class LiquibaseMigrationTests(
 				or effect like '%加号或减号%'
 				or short_effect like '%加号或减号%'
 				or flavor_text like '%加号或减号%'
+				or short_effect = '下层'
 			order by skill_id
 			""".trimIndent(),
 		)
