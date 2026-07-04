@@ -2582,117 +2582,83 @@ class LiquibaseMigrationTests(
 		// 这条测试只拦截确定无业务含义的机器翻译占位词；普通译名质量继续按资料源逐批校正。
 		val placeholderLocations = queryMaps(
 			"""
-			select 'game_location' as table_name, id, code, name
-			from game_location
-			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
-				or name like '%遗留区域%'
-				or lower(name) like '%pokemart%'
-				or lower(name) like '%pokecenter%'
-				or lower(name) like '%poke mart%'
-				or name like '%阿罗拉route%'
-				or name like '%伽勒尔route%'
-				or name like '翡翠%'
-				or lower(name) like '%hisui%'
-				or lower(name) like '%templeof%'
-				or lower(name) like '%tombolo%area%'
-				or lower(name) like '%heatharea%'
-				or lower(name) like '%settlementarea%'
-				or lower(name) like '%bogarea%'
-				or lower(name) like '%洞窟area%'
-				or lower(name) like '%森林area%'
-				or lower(name) like '%lowtide%'
-				or lower(name) like '%b1f%'
-				or lower(name) like '%b2f%'
-				or lower(name) like '%b3f%'
-				or lower(name) like '%route104%'
-				or lower(name) like '%offocusarea%'
-				or lower(name) like '%icebergruinsarea%'
-				or lower(name) like '%ironruinsarea%'
-				or lower(name) like '%rockpeakruinsarea%'
-				or lower(name) like '%tunnelarea%'
-				or lower(name) like '%heaheacity%'
-				or lower(name) like '%lushjungle%'
-				or lower(name) like '%mountlanakila%'
-				or lower(name) like '%ultraspace%'
-				or lower(name) like '%poke pelago%'
-				or lower(name) like '%jubilife%'
-				or lower(name) like '%floaroma%'
-				or lower(name) like '%solaceon%'
-				or lower(name) like '%virbank%'
-				or lower(name) like '%pinwheel%'
-				or lower(name) like '%ruminationfield%'
-				or lower(name) like '%unova%'
-				or lower(name) like '%breeder%'
-				or name like '%（met）%'
-				or lower(name) like '%poké%'
-				or lower(name) like '%kindle%'
-				or lower(name) like '%mount ember%'
-				or lower(name) like '%cianwood%'
-				or lower(name) like '%game freak%'
-				or lower(name) like '%verdanturf%'
-				or lower(name) like '%lilycove%'
-				or lower(name) like '%rayquaza%'
-				or lower(name) like '%heatran%'
-				or lower(name) like '%pacifidlog%'
-				or lower(name) like '%mirage cave%'
-				or lower(name) like '%gateon%'
-				or lower(name) like '%citadark%'
-			union all
-			select 'game_location_area' as table_name, id, code, name
-			from game_location_area
-			where name in ('地点', '小径地点', '洞窟地点', '区域地点', '洞窟区域')
-				or name like '%遗留区域%'
-				or lower(name) like '%pokemart%'
-				or lower(name) like '%pokecenter%'
-				or lower(name) like '%poke mart%'
-				or name like '%阿罗拉route%'
-				or name like '%伽勒尔route%'
-				or name like '翡翠%'
-				or lower(name) like '%hisui%'
-				or lower(name) like '%templeof%'
-				or lower(name) like '%tombolo%area%'
-				or lower(name) like '%heatharea%'
-				or lower(name) like '%settlementarea%'
-				or lower(name) like '%bogarea%'
-				or lower(name) like '%洞窟area%'
-				or lower(name) like '%森林area%'
-				or lower(name) like '%lowtide%'
-				or lower(name) like '%b1f%'
-				or lower(name) like '%b2f%'
-				or lower(name) like '%b3f%'
-				or lower(name) like '%route104%'
-				or lower(name) like '%offocusarea%'
-				or lower(name) like '%icebergruinsarea%'
-				or lower(name) like '%ironruinsarea%'
-				or lower(name) like '%rockpeakruinsarea%'
-				or lower(name) like '%tunnelarea%'
-				or lower(name) like '%heaheacity%'
-				or lower(name) like '%lushjungle%'
-				or lower(name) like '%mountlanakila%'
-				or lower(name) like '%ultraspace%'
-				or lower(name) like '%poke pelago%'
-				or lower(name) like '%jubilife%'
-				or lower(name) like '%floaroma%'
-				or lower(name) like '%solaceon%'
-				or lower(name) like '%virbank%'
-				or lower(name) like '%pinwheel%'
-				or lower(name) like '%ruminationfield%'
-				or lower(name) like '%unova%'
-				or lower(name) like '%breeder%'
-				or name like '%（met）%'
-				or lower(name) like '%poké%'
-				or lower(name) like '%kindle%'
-				or lower(name) like '%mount ember%'
-				or lower(name) like '%cianwood%'
-				or lower(name) like '%game freak%'
-				or lower(name) like '%verdanturf%'
-				or lower(name) like '%lilycove%'
-				or lower(name) like '%rayquaza%'
-				or lower(name) like '%heatran%'
-				or lower(name) like '%pacifidlog%'
-				or lower(name) like '%mirage cave%'
-				or lower(name) like '%gateon%'
-				or lower(name) like '%citadark%'
+			with seeded_location_names as (
+				select 'game_location' as table_name, id, code, name
+				from game_location
+				union all
+				select 'game_location_area' as table_name, id, code, name
+				from game_location_area
+			),
+			blocked_exact_names(name) as (
+				values ('地点'), ('小径地点'), ('洞窟地点'), ('区域地点'), ('洞窟区域')
+			),
+			blocked_name_patterns(pattern) as (
+				values
+					('%遗留区域%'),
+					('%pokemart%'),
+					('%pokecenter%'),
+					('%poke mart%'),
+					('%阿罗拉route%'),
+					('%伽勒尔route%'),
+					('翡翠%'),
+					('%hisui%'),
+					('%templeof%'),
+					('%tombolo%area%'),
+					('%heatharea%'),
+					('%settlementarea%'),
+					('%bogarea%'),
+					('%洞窟area%'),
+					('%森林area%'),
+					('%lowtide%'),
+					('%b1f%'),
+					('%b2f%'),
+					('%b3f%'),
+					('%route104%'),
+					('%offocusarea%'),
+					('%icebergruinsarea%'),
+					('%ironruinsarea%'),
+					('%rockpeakruinsarea%'),
+					('%tunnelarea%'),
+					('%heaheacity%'),
+					('%lushjungle%'),
+					('%mountlanakila%'),
+					('%ultraspace%'),
+					('%poke pelago%'),
+					('%jubilife%'),
+					('%floaroma%'),
+					('%solaceon%'),
+					('%virbank%'),
+					('%pinwheel%'),
+					('%ruminationfield%'),
+					('%unova%'),
+					('%breeder%'),
+					('%（met）%'),
+					('%poké%'),
+					('%kindle%'),
+					('%mount ember%'),
+					('%cianwood%'),
+					('%game freak%'),
+					('%verdanturf%'),
+					('%lilycove%'),
+					('%rayquaza%'),
+					('%heatran%'),
+					('%pacifidlog%'),
+					('%mirage cave%'),
+					('%gateon%'),
+					('%citadark%')
+			)
+			select table_name, id, code, name
+			from seeded_location_names seeded
+			where exists (
+					select 1
+					from blocked_exact_names blocked
+					where seeded.name = blocked.name
+				)
+				or exists (
+					select 1
+					from blocked_name_patterns blocked
+					where lower(seeded.name) like blocked.pattern
+				)
 			order by table_name, id
 			""".trimIndent(),
 		)
