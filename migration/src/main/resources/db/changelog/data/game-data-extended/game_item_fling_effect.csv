@@ -1,6 +1,6 @@
 id,code,name,effect,enabled
 1,badly-poison,剧毒,使目标剧毒。,true
-2,burn,灼伤,效果,true
+2,burn,灼伤,使目标灼伤。,true
 3,berry-effect,树果效果,立即激活目标身上的浆果效果。,true
 4,herb-effect,药草效果,立即激活草药对目标的效果。,true
 5,paralyze,麻痹,使目标麻痹。,true

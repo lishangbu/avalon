@@ -2695,11 +2695,28 @@ class LiquibaseMigrationTests(
 				or short_effect = '未知。'
 				or effect = '未知。目前未使用。'
 				or short_effect = '未知。目前未使用。'
+				or effect like '%定期伤害%'
+				or short_effect like '%定期伤害%'
 			order by item_id
 			""".trimIndent(),
 		)
 
 		assertThat(placeholderItemEffects).isEmpty()
+	}
+
+	@Test
+	fun `liquibase game item fling effects do not keep generated placeholders`() {
+		// 投掷效果是小型枚举表，effect 字段必须能直接解释命中后的附加效果。
+		val placeholderFlingEffects = queryMaps(
+			"""
+			select id, code, name, effect
+			from game_item_fling_effect
+			where effect = '效果'
+			order by id
+			""".trimIndent(),
+		)
+
+		assertThat(placeholderFlingEffects).isEmpty()
 	}
 
 	@Test
@@ -2757,7 +2774,7 @@ class LiquibaseMigrationTests(
 				or effect like '%加号或减号%'
 				or short_effect like '%加号或减号%'
 				or flavor_text like '%加号或减号%'
-				or short_effect = '下层'
+				or short_effect like '%下层%'
 				or effect = '效果'
 				or short_effect = '效果'
 				or effect like '%定期伤害%'
