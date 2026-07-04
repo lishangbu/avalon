@@ -299,7 +299,7 @@ id,code,name,location_id,game_index,enabled
 342,pokemon-mansion-2f,精灵生物馆（2层）,161,0,true
 343,pokemon-mansion-3f,精灵生物馆（3层）,161,0,true
 344,pokemon-mansion-b1f,精灵生物馆（地下1层）,161,0,true
-345,kanto-safari-zone-middle,野生动物园区（中）,162,0,true
+345,kanto-safari-zone-middle,狩猎地带（中央区）,162,0,true
 346,kanto-safari-zone-area-1-east,狩猎地带（1区，东部）,162,0,true
 347,kanto-safari-zone-area-2-north,狩猎地带（2区，北）,162,0,true
 348,kanto-safari-zone-area-3-west,狩猎地带（3区西侧）,162,0,true
@@ -384,13 +384,13 @@ id,code,name,location_id,game_index,enabled
 427,hoenn-route-133-area,133路,481,87,true
 428,hoenn-route-134-area,134号路,482,88,true
 429,hoenn-safari-zone-nwmach-bike-area,狩猎地带（西北/马赫自行车区）,483,89,true
-430,hoenn-safari-zone-neacro-bike-area,野生动物园区（NE/杂技自行车区）,483,90,true
-431,hoenn-safari-zone-sw,野生动物园区 (SW),483,91,true
-432,hoenn-safari-zone-se,野生动物园区 (SE),483,92,true
+430,hoenn-safari-zone-neacro-bike-area,狩猎地带（东北/杂技自行车区）,483,90,true
+431,hoenn-safari-zone-sw,狩猎地带（西南区）,483,91,true
+432,hoenn-safari-zone-se,狩猎地带（东南区）,483,92,true
 433,dewford-town-area,杜福德镇,484,93,true
 434,pacifidlog-town-area,和平日志镇,485,94,true
-435,hoenn-safari-zone-expansion-south,野生动物园区（向南扩展）,483,97,true
-436,hoenn-safari-zone-expansion-north,野生动物园区（向北扩展）,483,98,true
+435,hoenn-safari-zone-expansion-south,狩猎地带（南部扩展区）,483,97,true
+436,hoenn-safari-zone-expansion-north,狩猎地带（北部扩展区）,483,98,true
 437,magma-hideout-area,岩浆藏身处,486,99,true
 438,mirage-tower-area,海市蜃楼塔,487,107,true
 439,desert-underpass-area,沙漠地下通道,488,111,true
@@ -448,14 +448,14 @@ id,code,name,location_id,game_index,enabled
 561,one-island-area,一岛,526,120,true
 562,four-island-area,四岛,527,121,true
 563,five-island-area,五岛,528,122,true
-564,kanto-altering-cave-a,改变洞穴 (A),529,123,true
-565,kanto-altering-cave-b,改变洞窟 (B),529,124,true
-566,kanto-altering-cave-c,改变洞穴 (C),529,125,true
-567,kanto-altering-cave-d,改变洞穴 (D),529,126,true
-568,kanto-altering-cave-e,改变洞穴 (E),529,127,true
-569,kanto-altering-cave-f,改变洞穴 (F),529,128,true
-570,kanto-altering-cave-g,改变洞穴 (G),529,129,true
-571,kanto-altering-cave-h,改变洞穴 (H),529,130,true
+564,kanto-altering-cave-a,改变洞穴（一区）,529,123,true
+565,kanto-altering-cave-b,改变洞穴（二区）,529,124,true
+566,kanto-altering-cave-c,改变洞穴（三区）,529,125,true
+567,kanto-altering-cave-d,改变洞穴（四区）,529,126,true
+568,kanto-altering-cave-e,改变洞穴（五区）,529,127,true
+569,kanto-altering-cave-f,改变洞穴（六区）,529,128,true
+570,kanto-altering-cave-g,改变洞穴（七区）,529,129,true
+571,kanto-altering-cave-h,改变洞穴（八区）,529,130,true
 572,kanto-altering-cave-i,改变洞穴（一）,529,131,true
 576,striaton-city-area,斯特里亚顿市,348,0,true
 577,driftveil-city-area,漂流城,352,1,true
@@ -466,10 +466,10 @@ id,code,name,location_id,game_index,enabled
 582,pinwheel-forest-inside,风车森林（内部）,375,6,true
 583,desert-resort-entrance,沙漠度假村（入口）,376,7,true
 584,desert-resort-area,沙漠度假村,376,8,true
-585,relic-castle-a,遗迹城堡 (A),377,9,true
-586,relic-castle-b,遗迹城堡（B）,377,11,true
-587,relic-castle-c,遗迹城堡 (C),377,15,true
-588,relic-castle-d,遗迹城堡 (D),377,30,true
+585,relic-castle-a,遗迹城堡（一区）,377,9,true
+586,relic-castle-b,遗迹城堡（二区）,377,11,true
+587,relic-castle-c,遗迹城堡（三区）,377,15,true
+588,relic-castle-d,遗迹城堡（四区）,377,30,true
 589,cold-storage-area,冷库,378,40,true
 590,chargestone-cave-1f,充能石洞 (1层),379,41,true
 591,chargestone-cave-b1f,充石洞 (地下1层),379,42,true
@@ -575,7 +575,7 @@ id,code,name,location_id,game_index,enabled
 691,strange-house-b1f,奇怪的房子（地下1层）,547,65,true
 692,relic-passage-castelia-sewers-entrance,遗迹隧道（卡斯特利亚下水道入口）,550,81,true
 693,relic-passage-relic-castle-entrance,遗迹隧道（遗迹城堡入口）,550,82,true
-694,relic-passage-pwt-entrance,遗迹隧道（PWT 入口）,550,83,true
+694,relic-passage-pwt-entrance,遗迹隧道（世界锦标赛入口）,550,83,true
 695,clay-tunnel-area,粘土隧道,551,84,true
 696,underground-ruins-area,地下遗迹,562,87,true
 697,rocky-mountain-room-area,落基山房,563,90,true
@@ -694,16 +694,16 @@ id,code,name,location_id,game_index,enabled
 811,island-cave-area,岛洞,581,0,true
 812,ancient-tomb-area,古墓,583,0,true
 813,johto-safari-zone-zone-peak,狩猎地带高峰,814,0,true
-814,johto-safari-zone-zone-desert,野生动物园区 沙漠,814,0,true
-815,johto-safari-zone-zone-plains,野生动物园区平原,814,0,true
-816,johto-safari-zone-zone-meadow,野生动物园区草甸,814,0,true
+814,johto-safari-zone-zone-desert,狩猎地带（沙漠区）,814,0,true
+815,johto-safari-zone-zone-plains,狩猎地带（平原区）,814,0,true
+816,johto-safari-zone-zone-meadow,狩猎地带（草甸区）,814,0,true
 817,johto-safari-zone-zone-forest,狩猎地带森林,814,0,true
-818,johto-safari-zone-zone-swamp,野生动物园区沼泽,814,0,true
-819,johto-safari-zone-zone-marshland,野生动物园区沼泽地,814,0,true
-820,johto-safari-zone-zone-mountain,野生动物园区山,814,0,true
-821,johto-safari-zone-zone-rocky-beach,落基海滩野生动物园区,814,0,true
-822,johto-safari-zone-zone-wasteland,野生动物园区荒地,814,0,true
-823,johto-safari-zone-zone-savannah,萨凡纳野生动物园区,814,0,true
+818,johto-safari-zone-zone-swamp,狩猎地带（沼泽区）,814,0,true
+819,johto-safari-zone-zone-marshland,狩猎地带（湿地区）,814,0,true
+820,johto-safari-zone-zone-mountain,狩猎地带（山地区）,814,0,true
+821,johto-safari-zone-zone-rocky-beach,狩猎地带（岩石海滩区）,814,0,true
+822,johto-safari-zone-zone-wasteland,狩猎地带（荒地区）,814,0,true
+823,johto-safari-zone-zone-savannah,狩猎地带（稀树草原区）,814,0,true
 824,johto-safari-zone-zone-wetland,狩猎地带湿地,814,0,true
 825,mt-ember-summit,余烬山山顶,500,0,true
 826,embedded-tower-kyogre-room,嵌入塔（盖欧卡的房间）,248,0,true
@@ -1152,7 +1152,7 @@ id,code,name,location_id,game_index,enabled
 1270,pokespot-cave,洞穴宝点,1109,0,true
 1271,onbs-2f,区域2,1110,0,true
 1272,onbs-3f,区域3,1110,0,true
-1273,onbs-roof,ONBS 屋顶,1110,0,true
+1273,onbs-roof,欧雷广播电视台屋顶,1110,0,true
 1274,onbs-4f,区域4,1110,0,true
 1275,phenac-city-prestige-precept-center,菲纳克市威望戒律中心,1096,0,true
 1276,cipher-key-lair-outside,密码钥匙巢穴（外部）,1111,0,true

@@ -11,7 +11,7 @@ id,code,name,condition_id,enabled
 10,slot2-sapphire,蓝宝石位于插槽 2,4,true
 11,slot2-emerald,绿宝石位于插槽 2,4,true
 12,slot2-firered,火红位于插槽 2,4,true
-13,slot2-leafgreen,LeafGreen 位于插槽 2,4,true
+13,slot2-leafgreen,叶绿位于插槽 2,4,true
 14,radio-off,无线电关闭,5,true
 15,radio-hoenn,丰缘广播电台,5,true
 16,radio-sinnoh,神奥广播电台,5,true
@@ -20,7 +20,7 @@ id,code,name,condition_id,enabled
 19,season-autumn,秋季期间,6,true
 20,season-winter,冬季期间,6,true
 21,starter-bulbasaur,妙蛙种子作为首发,7,true
-22,starter-squirtle,杰尼龟作为开胃菜,7,true
+22,starter-squirtle,杰尼龟作为首发,7,true
 23,starter-charmander,小火龙作为首发,7,true
 24,starter-chespin,切斯平首发,7,true
 25,starter-fennekin,芬内金作为首发,7,true
@@ -29,7 +29,7 @@ id,code,name,condition_id,enabled
 28,tv-option-red,在电视新闻报道中选择“红色”,8,true
 29,story-progress-awakened-beasts,唤醒灼伤之塔的传奇野兽,9,true
 30,story-progress-beat-galactic-coronet,在皇冠山击败银河队后访问了维里蒂湖,9,true
-31,story-progress-oak-eterna-city,与 Eterna City 的 Oak 教授交谈,9,true
+31,story-progress-oak-eterna-city,与百代市的大木博士交谈,9,true
 32,story-progress-vermilion-copycat,带着模仿猫的玩偶参观了生物粉丝俱乐部,9,true
 33,story-progress-met-tornadus-thundurus,在过场动画中遇见龙卷风或雷霆,9,true
 34,story-progress-beat-elite-four-round-two,第二次击败精英 4,9,true
@@ -37,7 +37,7 @@ id,code,name,condition_id,enabled
 36,story-progress-none,没有任何,9,true
 37,story-progress-national-dex,获得国家图鉴,9,true
 38,other-none,没有任何,10,true
-39,other-snorlax-11-beat-league,在 11 号公路击败卡纳拉克斯后，击败生物联盟,10,true
+39,other-snorlax-11-beat-league,在 11 号公路击败卡比兽后，击败生物联盟,10,true
 40,other-virtual-console,在虚拟控制台版本上玩,10,true
 41,story-progress-cure-eldritch-nightmares,治愈埃尔德里奇之子的噩梦,9,true
 42,other-talk-to-cynthias-grandmother,与辛西娅的祖母交谈,10,true
@@ -52,11 +52,11 @@ id,code,name,condition_id,enabled
 51,story-progress-defeat-jupiter,击败木星,9,true
 52,story-progress-beat-team-galactic-iron-island,在铁岛击败银河队,9,true
 53,other-correct-password,输入正确的密码,10,true
-54,story-progress-zephyr-badge,获得Zephyr徽章,9,true
+54,story-progress-zephyr-badge,获得飞翼徽章,9,true
 55,story-progress-beat-red,击败红色,9,true
-56,other-received-kanto-starter,收到关东开胃菜,10,true
+56,other-received-kanto-starter,获得关都初始伙伴,10,true
 57,story-progress-receive-tm-from-claire,收到克莱尔寄来的 TM59,9,true
-58,other-regirock-regice-registeel-in-party,让Regirock、Regice 和Registeel 加入队伍,10,true
+58,other-regirock-regice-registeel-in-party,队伍中有雷吉洛克、雷吉艾斯和雷吉斯奇鲁,10,true
 59,weekday-sunday,星期日,12,true
 60,weekday-monday,周一,12,true
 61,weekday-tuesday,周二,12,true
@@ -69,7 +69,7 @@ id,code,name,condition_id,enabled
 68,item-odd-keystone,包里有奇怪的梯形石,11,true
 69,other-talked-to-32-people-underground,已与至少 32 名地下人士交谈,10,true
 70,story-progress-returned-machine-part,将学习机零件返回发电厂,9,true
-71,other-event-arceus-in-party,在聚会中举办活动阿尔宙斯,10,true
+71,other-event-arceus-in-party,队伍中有活动赠送的阿尔宙斯,10,true
 72,special-encounter-couldnt-capture-before,这种特殊的生物在之前的遭遇中无法被捕获（要么晕倒，要么逃离对战）,14,true
 73,item-ice-key,包里有冰钥匙,11,true
 74,item-iron-key,包里有铁钥匙,11,true
@@ -90,7 +90,7 @@ id,code,name,condition_id,enabled
 89,item-tidal-bell,包里有潮汐钟,11,true
 90,item-clear-bell,名称,11,true
 91,story-progress-defeated-groudon-or-kyogre,击败或俘获固拉多或盖欧卡,9,true
-92,other-uxie-mesprit-azelf-in-party,让 Uxie、Mesprit 和 Azelf 加入队伍,10,true
+92,other-uxie-mesprit-azelf-in-party,队伍中有由克希、艾姆利多和亚克诺姆,10,true
 93,other-nicknamed-cold-item-regice-regirock-registeel3,捕获游戏中的三个雷吉斯后，昵称雷吉斯持有冷系物品，队伍中还有雷吉洛克和雷吉斯钢,10,true
 94,other-dialga-or-palkia-in-party,队伍中有帝牙卢卡或帕路奇犽,10,true
 95,other-castform-in-party,让 漂浮泡泡 参加队伍,10,true
@@ -104,14 +104,14 @@ id,code,name,condition_id,enabled
 103,other-groudon-kyogre-in-party,让固拉多和盖欧卡加入队伍,10,true
 104,other-dialga-palkia-in-party,让帝牙卢卡和帕路奇犽参加队伍,10,true
 105,other-scan-qr-code,扫描特定二维码,10,true
-106,other-caught-articuno,其他捕获的Articuno,10,true
-107,other-caught-zapdos,其他捕获的 zapdos,10,true
-108,other-caught-moltres,其他捕获的蜕皮动物,10,true
-109,trade-togepi-or-togetic,在交易中给予 Togepi 或 Togetic,15,true
-110,trade-trapinch,在交易中给予陷阱,15,true
-111,trade-surskit,在交易中给予 Surskit,15,true
+106,other-caught-articuno,已捕获急冻鸟,10,true
+107,other-caught-zapdos,已捕获闪电鸟,10,true
+108,other-caught-moltres,已捕获火焰鸟,10,true
+109,trade-togepi-or-togetic,通过交换获得波克比或波克基古,15,true
+110,trade-trapinch,通过交换获得大颚蚁,15,true
+111,trade-surskit,通过交换获得溜溜糖球,15,true
 112,trade-wooper,给伍珀交易,15,true
-113,story-progress-catch-all-shadow-pokemon,捕获全部 82 只暗影生物，镜子 B 将与暗影龙一起出现在 Gateon 中,9,true
+113,story-progress-catch-all-shadow-pokemon,捕获全部 82 只暗影生物后，镜子 B 会带着暗影龙出现在盖特村,9,true
 114,other-complete-mt-battle,完成山对战即可获得特别奖品生物,9,true
 115,coins-180,您的硬币盒中至少有 180 枚硬币,16,true
 116,coins-500,您的硬币盒中至少有 500 枚硬币,16,true
@@ -144,39 +144,39 @@ id,code,name,condition_id,enabled
 143,coins-5400,您的硬币盒中至少有 5400 个硬币,16,true
 144,coins-8300,您的硬币盒中至少有 8300 个硬币,16,true
 145,trade-abra,在交易中给予阿布拉,15,true
-146,trade-nidoran-m,在交易中给予 Nidoran-M,15,true
+146,trade-nidoran-m,通过交换获得尼多朗,15,true
 147,trade-nidorino,在交易中给予尼多里诺,15,true
-148,trade-slowbro,在交易中给予 Slowbro,15,true
-149,trade-poliwhirl,在交易中给予 Poliwhirl,15,true
-150,trade-spearow,在交易中给予 Spearow,15,true
+148,trade-slowbro,通过交换获得呆壳兽,15,true
+149,trade-poliwhirl,通过交换获得蚊香君,15,true
+150,trade-spearow,通过交换获得烈雀,15,true
 151,trade-raichu,在交易中给予雷丘,15,true
-152,trade-venonat,在交易中给予 Venonat,15,true
-153,trade-ponyta,在交易中给予 Ponyta,15,true
-154,trade-clefairy,在交易中给予 Clefairy,15,true
-155,trade-cubone,在交易中给予 Cubon,15,true
-156,trade-lickitung,在交易中给予 Lickitung,15,true
-157,trade-tangela,在交易中给予 Tangela,15,true
+152,trade-venonat,通过交换获得毛球,15,true
+153,trade-ponyta,通过交换获得小火马,15,true
+154,trade-clefairy,通过交换获得皮皮,15,true
+155,trade-cubone,通过交换获得卡拉卡拉,15,true
+156,trade-lickitung,通过交换获得大舌头,15,true
+157,trade-tangela,通过交换获得蔓藤怪,15,true
 158,trade-golduck,在交易中给予戈达克,15,true
-159,trade-growlithe,在交易中给予成长,15,true
-160,trade-kangaskhan,在交易中给予坎加斯坎,15,true
-161,trade-bellsprout,在交易中给予铃芽菜,15,true
-162,trade-drowzee,在交易中给予 Drowzee,15,true
-163,trade-krabby,在交易中给予蟹蟹,15,true
-164,trade-dragonair,在交易中给予港龙航空,15,true
-165,trade-chansey,在交易中给予钱西,15,true
-166,trade-gloom,给交易带来悲观情绪,15,true
-167,trade-haunter,名称,15,true
-168,trade-dugtrio,在交易中给予 Dugtrio,15,true
-169,trade-slakoth,在交易中给予斯拉科斯,15,true
+159,trade-growlithe,通过交换获得卡蒂狗,15,true
+160,trade-kangaskhan,通过交换获得袋兽,15,true
+161,trade-bellsprout,通过交换获得喇叭芽,15,true
+162,trade-drowzee,通过交换获得催眠貘,15,true
+163,trade-krabby,通过交换获得大钳蟹,15,true
+164,trade-dragonair,通过交换获得哈克龙,15,true
+165,trade-chansey,通过交换获得吉利蛋,15,true
+166,trade-gloom,通过交换获得臭臭花,15,true
+167,trade-haunter,通过交换获得鬼斯通,15,true
+168,trade-dugtrio,通过交换获得三地鼠,15,true
+169,trade-slakoth,通过交换获得懒人獭,15,true
 170,trade-pikachu,在交易中给予皮卡丘,15,true
-171,trade-bellossom,在交易中给予贝洛索姆,15,true
-172,trade-ralts,在交易中给予拉特,15,true
-173,trade-volbeat,在交易中给予 Volbeat,15,true
-174,trade-bagon,在交易中给予巴贡,15,true
-175,trade-skitty,在交易中给予斯基蒂,15,true
-176,friend-safari-slot-1,随机分配给 Friend Safari Slot 1,17,true
-177,friend-safari-slot-2,随机分配给 Friend Safari Slot 2,17,true
-178,friend-safari-slot-3,随机分配给 Friend Safari Slot 3,17,true
+171,trade-bellossom,通过交换获得美丽花,15,true
+172,trade-ralts,通过交换获得拉鲁拉丝,15,true
+173,trade-volbeat,通过交换获得电萤虫,15,true
+174,trade-bagon,通过交换获得宝贝龙,15,true
+175,trade-skitty,通过交换获得向尾喵,15,true
+176,friend-safari-slot-1,随机分配给朋友狩猎区第 1 栏,17,true
+177,friend-safari-slot-2,随机分配给朋友狩猎区第 2 栏,17,true
+178,friend-safari-slot-3,随机分配给朋友狩猎区第 3 栏,17,true
 179,item-skull-fossil,包里有头骨化石,11,true
 180,item-armor-fossil,包里有铠甲化石,11,true
 181,great-marsh-daily-slot-none,大沼泽每日机会：无,18,true
@@ -187,20 +187,20 @@ id,code,name,condition_id,enabled
 186,story-progress-before-national-dex,全国图鉴之前,9,true
 187,great-marsh-daily-slot-4-of-32,大沼泽每日几率：32 分之 4,18,true
 188,great-marsh-daily-slot-15-of-32,大沼泽每日几率：32 中 15,18,true
-189,honey-tree-group-a,蜜树 A 组（普通树上 70% / Munchlax 树上 20%）,19,true
-190,honey-tree-group-b,蜜树 B 组（普通树为 20% / Munchlax 树为 70%）,19,true
-191,honey-tree-group-c,C 组蜜树（普通树为 0% / Munchlax 树为 1%）,19,true
+189,honey-tree-group-a,蜜树甲组（普通树 70% / 小卡比兽树 20%）,19,true
+190,honey-tree-group-b,蜜树乙组（普通树 20% / 小卡比兽树 70%）,19,true
+191,honey-tree-group-c,蜜树丙组（普通树 0% / 小卡比兽树 1%）,19,true
 192,headbutt-tree-common,头撞树（普通）,20,true
 193,headbutt-tree-rare,头撞树（稀有）,20,true
 194,headbutt-tree-secret,头撞树（秘密）,20,true
-195,trade-cottonee,在交易中给予 Cottonee,15,true
-196,trade-petilil,在交易中给予 Petilil,15,true
-197,trade-emolga,在交易中给予 Emolga,15,true
-198,trade-mantine,在交易中给予 Mantine,15,true
-199,trade-ditto,在交易中同样如此,15,true
-200,trade-excadrill,在交易中给予 Excadrill,15,true
+195,trade-cottonee,通过交换获得木棉球,15,true
+196,trade-petilil,通过交换获得百合根娃娃,15,true
+197,trade-emolga,通过交换获得电飞鼠,15,true
+198,trade-mantine,通过交换获得巨翅飞鱼,15,true
+199,trade-ditto,通过交换获得百变怪,15,true
+200,trade-excadrill,通过交换获得龙头地鼠,15,true
 201,trade-hippowdon,在交易中给予希波顿,15,true
-202,backlot-not-mentioned,Mr. Backlot 没有提到任何 生物,21,true
-203,backlot-mentioned,巴克洛特先生提到在花园里看到了这只生物,21,true
+202,backlot-not-mentioned,豪宅主人没有提到任何生物,21,true
+203,backlot-mentioned,豪宅主人提到在花园里看到了这只生物,21,true
 204,bug-catching-contest-no,不是在捉虫大赛期间,22,true
 205,bug-catching-contest-yes,捉虫大赛期间,22,true

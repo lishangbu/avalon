@@ -13,11 +13,11 @@ id,code,name,enabled
 12,weekday,工作日,true
 13,first-party-pokemon,第一方生物,true
 14,special-encounter,特别的邂逅,true
-15,trade,将特定的 生物 交易给 NPC,true
+15,trade,通过交换获得特定生物,true
 16,coins,在奖品角或游戏角用金币兑换生物,true
-17,friend-safari-slot,Friend Safari 老虎机分配,true
-18,great-marsh-daily-slot,大沼泽每日老虎机,true
-19,honey-tree-group,名称,true
+17,friend-safari-slot,朋友狩猎区栏位分配,true
+18,great-marsh-daily-slot,大沼泽每日栏位,true
+19,honey-tree-group,蜜树分组,true
 20,headbutt-tree,头撞树型,true
-21,backlot,听听 Backlot 先生的声音,true
+21,backlot,豪宅主人提及情况,true
 22,bug-catching-contest,捉虫大赛,true

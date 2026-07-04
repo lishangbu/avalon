@@ -2645,7 +2645,10 @@ class LiquibaseMigrationTests(
 					('%pacifidlog%'),
 					('%mirage cave%'),
 					('%gateon%'),
-					('%citadark%')
+					('%citadark%'),
+					('%野生动物园区%'),
+					('%（pwt%'),
+					('%onbs%')
 			)
 			select table_name, id, code, name
 			from seeded_location_names seeded
@@ -2667,43 +2670,149 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game encounter condition seed data does not keep generated display names`() {
+		// 遭遇条件和值既会出现在资料维护页，也会作为地点遭遇表格的筛选项；这里拦截本批已经确认过的英文残留和机翻词。
+		// 断言只覆盖明确无业务展示价值的文本，不用宽泛英文正则，避免把还没有逐条校正的历史资料误判成同一个问题。
+		val generatedEncounterNames = queryMaps(
+			"""
+			with encounter_names as (
+				select 'game_encounter_condition' as table_name, id, code, name
+				from game_encounter_condition
+				union all
+				select 'game_encounter_condition_value' as table_name, id, code, name
+				from game_encounter_condition_value
+			),
+			blocked_name_patterns(pattern) as (
+				values
+					('%friend safari%'),
+					('%backlot%'),
+					('%leafgreen%'),
+					('%zephyr%'),
+					('%dragonair%'),
+					('%drowzee%'),
+					('%dugtrio%'),
+					('%volbeat%'),
+					('%munchlax%'),
+					('%uxie%'),
+					('%mesprit%'),
+					('%azelf%'),
+					('%articuno%'),
+					('%zapdos%'),
+					('%moltres%'),
+					('%regirock%'),
+					('%regice%'),
+					('%registeel%'),
+					('%starter%'),
+					('%老虎机%'),
+					('%开胃菜%'),
+					('%港龙航空%'),
+					('%卡纳拉克斯%')
+			)
+			select table_name, id, code, name
+			from encounter_names seeded
+			where exists (
+				select 1
+				from blocked_name_patterns blocked
+				where lower(seeded.name) like blocked.pattern
+			)
+			order by table_name, id
+			""".trimIndent(),
+		)
+
+		assertThat(generatedEncounterNames).isEmpty()
+	}
+
+	@Test
 	fun `liquibase game item effects do not keep generated placeholder text`() {
 		// 这些字段面向管理端展示，模板占位和机翻术语都会直接暴露给用户；全表断言可以防止后续导入重新带回生成文本。
 		val placeholderItemEffects = queryMaps(
 			"""
-			select item_id, effect, short_effect
-			from game_item_detail
-			where lower(effect) like '%xxx%'
-				or lower(short_effect) like '%xxx%'
-				or effect like '%举行：%'
-				or short_effect like '%举行：%'
-				or effect like '%希尔瓦利%'
-				or short_effect like '%希尔瓦利%'
-				or effect like '%席尔瓦利%'
-				or short_effect like '%席尔瓦利%'
-				or lower(effect) like '%silvally%'
-				or lower(short_effect) like '%silvally%'
-				or effect like '%多重攻击%'
-				or short_effect like '%多重攻击%'
-				or effect like '%卖家垃圾%'
-				or short_effect like '%卖家垃圾%'
-				or effect like '%斗争虫%'
-				or short_effect like '%斗争虫%'
-				or effect = '效果'
-				or short_effect = '效果'
-				or effect = '未知。'
-				or short_effect = '未知。'
-				or effect = '未知。目前未使用。'
-				or short_effect = '未知。目前未使用。'
-				or effect like '%定期伤害%'
-				or short_effect like '%定期伤害%'
-				or effect like '%Ingrain%'
-				or short_effect like '%Ingrain%'
-			order by item_id
+			with item_texts as (
+				select item_id, 'effect' as column_name, effect as display_text
+				from game_item_detail
+				union all
+				select item_id, 'short_effect' as column_name, short_effect as display_text
+				from game_item_detail
+				union all
+				select item_id, 'flavor_text' as column_name, flavor_text as display_text
+				from game_item_detail
+			),
+			blocked_text_patterns(pattern) as (
+				values
+					('%xxx%'),
+					('%silvally%'),
+					('%ingrain%'),
+					('%vermilion%'),
+					('%sevii%'),
+					('%navel rock%'),
+					('%celio%'),
+					('%network machine%'),
+					('%rainbow pass%'),
+					('%cottonee%'),
+					('%whimsicott%'),
+					('%clefairy%'),
+					('%vaporeon%'),
+					('%cubone%')
+			)
+			select item_id, column_name, display_text
+			from item_texts
+			where lower(display_text) in ('效果', '未知。', '未知。目前未使用。')
+				or lower(display_text) like any (array[
+					'%举行：%',
+					'%希尔瓦利%',
+					'%席尔瓦利%',
+					'%多重攻击%',
+					'%卖家垃圾%',
+					'%斗争虫%',
+					'%定期伤害%'
+				])
+				or exists (
+					select 1
+					from blocked_text_patterns blocked
+					where lower(display_text) like blocked.pattern
+				)
+			order by item_id, column_name
 			""".trimIndent(),
 		)
 
 		assertThat(placeholderItemEffects).isEmpty()
+	}
+
+	@Test
+	fun `liquibase game species details do not keep corrected english display text`() {
+		// 物种分类和说明是资料详情页的正文内容；本测试记录已经人工校正过的英文名残留，避免后续重新导入时覆盖回旧文本。
+		// 这里依旧采用定向词表，因为历史物种说明中仍有其他待校正文本，先把已处理的数据钉住，比一次性写宽泛规则更可维护。
+		val correctedSpeciesDetails = queryMaps(
+			"""
+			with species_texts as (
+				select species_id, 'genus' as column_name, genus as display_text
+				from game_species_detail
+				union all
+				select species_id, 'flavor_text' as column_name, flavor_text as display_text
+				from game_species_detail
+			),
+			blocked_text_patterns(pattern) as (
+				values
+					('%meditite%'),
+					('%plusle%'),
+					('%minun%'),
+					('%volbeat%'),
+					('%illumise%'),
+					('%wugtrio%'),
+					('%dugtrio%')
+			)
+			select species_id, column_name, display_text
+			from species_texts seeded
+			where exists (
+				select 1
+				from blocked_text_patterns blocked
+				where lower(seeded.display_text) like blocked.pattern
+			)
+			order by species_id, column_name
+			""".trimIndent(),
+		)
+
+		assertThat(correctedSpeciesDetails).isEmpty()
 	}
 
 	@Test

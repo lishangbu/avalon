@@ -154,7 +154,7 @@ id,code,name,region_id,enabled
 159,kanto-victory-road-2,胜利路,1,true
 160,pokemon-tower,生物塔,1,true
 161,pokemon-mansion,生物馆,1,true
-162,kanto-safari-zone,野生动物园区,1,true
+162,kanto-safari-zone,关都狩猎地带,1,true
 163,sandgem-town,桑德宝石镇,4,true
 164,floaroma-town,花城,4,true
 165,solaceon-town,索拉森镇,4,true
@@ -470,7 +470,7 @@ id,code,name,region_id,enabled
 480,hoenn-route-132,132号公路,3,true
 481,hoenn-route-133,133号公路,3,true
 482,hoenn-route-134,134号公路,3,true
-483,hoenn-safari-zone,野生动物园区,3,true
+483,hoenn-safari-zone,丰缘狩猎地带,3,true
 484,dewford-town,杜福德镇,3,true
 485,pacifidlog-town,和平日志镇,3,true
 486,magma-hideout,岩浆藏身处,3,true
@@ -795,7 +795,7 @@ id,code,name,region_id,enabled
 811,navel-rock,肚脐岩,1,true
 812,faraway-island,遥远的岛屿,3,true
 813,hoenn-battle-frontier,丰缘战场边境,3,true
-814,johto-safari-zone,城都野生动物园区,2,true
+814,johto-safari-zone,城都狩猎地带,2,true
 815,cabo-poco,波科角,10,true
 816,los-platos,柏拉图斯,10,true
 817,mesagoza,梅萨戈萨,10,true
