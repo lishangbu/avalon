@@ -3,14 +3,14 @@ id,code,name,formula,description,enabled
 2,medium,中速,x^3,中速,true
 3,fast,快速,\frac{4x^3}{5},快速,true
 4,medium-slow,中慢,\frac{6x^3}{5} - 15x^2 + 100x - 140,中慢,true
-5,slow-then-very-fast,slowthen极fast,"\begin{cases}
+5,slow-then-very-fast,先慢后极快,"\begin{cases}
 \frac{ x^3 \left( 100 - x \right) }{50},    & \text{if } x \leq 50  \\
 \frac{ x^3 \left( 150 - x \right) }{100},   & \text{if } 50 < x \leq 68  \\
 \frac{ x^3 \left( 1274 + (x \bmod 3)^2 - 9 (x \bmod 3) - 20 \left\lfloor \frac{x}{3} \right\rfloor \right) }{1000}, & \text{if } 68 < x \leq 98  \\
 \frac{ x^3 \left( 160 - x \right) }{100},   & \text{if } x > 98  \\
-\end{cases}",不稳定的,true
-6,fast-then-very-slow,fastthen极slow,"\begin{cases}
+\end{cases}",先慢后极快,true
+6,fast-then-very-slow,先快后极慢,"\begin{cases}
 \frac{ x^3 \left( 24 + \left\lfloor \frac{x+1}{3} \right\rfloor \right) }{50},  & \text{if } x \leq 15  \\
 \frac{ x^3 \left( 14 + x \right) }{50},     & \text{if } 15 < x \leq 35  \\
 \frac{ x^3 \left( 32 + \left\lfloor \frac{x}{2} \right\rfloor \right ) }{50},   & \text{if } x > 35  \\
-\end{cases}",波动的,true
+\end{cases}",先快后极慢,true

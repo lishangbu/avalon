@@ -946,7 +946,7 @@ id,code,name,location_id,game_index,enabled
 1064,alola-route-16-west,阿罗拉16号道路西部,761,0,true
 1065,alola-route-17-northeast,阿罗拉17号道路东北部,762,0,true
 1066,alola-route-17-west,阿罗拉17号道路西部,762,0,true
-1067,aether-paradise-2f,以太天堂2f,796,0,true
+1067,aether-paradise-2f,以太天堂2楼,796,0,true
 1068,akala-outskirts-area,阿卡拉郊区,752,0,true
 1069,altar-of-the-moone-area,穆恩地区的祭坛,791,0,true
 1070,altar-of-the-sunne-area,苏尼区的祭坛,790,0,true
@@ -1049,7 +1049,7 @@ id,code,name,location_id,game_index,enabled
 1167,liberty-garden-lighthouse-basement,灯塔地下室,404,0,true
 1168,pinwheel-forest-rumination-field,风车森林沉思场,375,0,true
 1169,roaming-unova-area,漫游合众国,1054,0,true
-1170,ns-castle-throne-room,NS城堡王座室,387,0,true
+1170,ns-castle-throne-room,N的城堡王座室,387,0,true
 1171,dragonspiral-tower-7f,龙螺旋塔7层,381,0,true
 1172,reversal-mountain-b1f,逆转山地下1层,546,0,true
 1173,twist-mountain-b4f,山,380,0,true
@@ -1114,7 +1114,7 @@ id,code,name,location_id,game_index,enabled
 1232,outskirt-stand-outside,外围看台（外部）,1095,0,true
 1233,phenac-city-mayors-house,菲纳克市（市长官邸）,1096,0,true
 1234,snagem-hideout-1f,斯纳吉姆藏身处 1层,1097,0,true
-1235,shadow-pokemon-lab-bf2,影子生物实验室地下2层,1098,0,true
+1235,shadow-pokemon-lab-bf2,暗影生物实验室地下2层,1098,0,true
 1236,phenac-city-west-exit,菲纳克城（西口）,1096,0,true
 1237,phenac-city-east-exit,菲纳克城（东口）,1096,0,true
 1238,phenac-city-south-exit,菲纳克城（南口）,1096,0,true
@@ -1130,7 +1130,7 @@ id,code,name,location_id,game_index,enabled
 1248,realgam-tower-area,瑞金大厦,1102,0,true
 1249,phenac-city-stadium,菲纳克城体育场,1096,0,true
 1250,pyrite-town-dukings-house,黄铁矿镇（杜金之家）,1099,0,true
-1251,shadow-pokemon-lab-bf1,影子生物实验室地下1层,1098,0,true
+1251,shadow-pokemon-lab-bf1,暗影生物实验室地下1层,1098,0,true
 1252,agate-village-relic-forest,玛瑙村（遗迹林）,1103,0,true
 1253,the-under-colosseum,斗兽场下,1104,0,true
 1254,mt-battle-10f,对战山10层,1105,0,true

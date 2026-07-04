@@ -1443,8 +1443,8 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 10417,basculegion-female,幽尾玄鱼（形态 2）,10248,女性,1347,2,false,true,false,true
 10418,enamorus-therian,眷恋云（形态 2）,10249,兽族,1348,2,false,true,false,true
 10419,tauros-paldea-combat-breed,肯泰罗（形态 2）,10250,帕尔迪亚战斗品种,1349,2,false,true,false,true
-10420,tauros-paldea-blaze-breed,肯泰罗（形态 3）,10251,Paldea Blaze品种,1350,3,false,true,false,true
-10421,tauros-paldea-aqua-breed,肯泰罗（形态 4）,10252,Paldea Aqua 品种,1351,4,false,true,false,true
+10420,tauros-paldea-blaze-breed,肯泰罗（形态 3）,10251,帕底亚火炽种,1350,3,false,true,false,true
+10421,tauros-paldea-aqua-breed,肯泰罗（形态 4）,10252,帕底亚水澜种,1351,4,false,true,false,true
 10422,wooper-paldea,乌波（形态 2）,10253,帕底亚,1352,2,false,true,false,true
 10423,oinkologne-female,飘香豚（形态 2）,10254,女性,1353,2,false,true,false,true
 10424,dudunsparce-three-segment,土龙节节（形态 2）,10255,三段式,1354,2,false,true,false,true

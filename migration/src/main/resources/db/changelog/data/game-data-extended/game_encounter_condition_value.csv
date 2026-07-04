@@ -55,7 +55,7 @@ id,code,name,condition_id,enabled
 54,story-progress-zephyr-badge,获得飞翼徽章,9,true
 55,story-progress-beat-red,击败红色,9,true
 56,other-received-kanto-starter,获得关都初始伙伴,10,true
-57,story-progress-receive-tm-from-claire,收到克莱尔寄来的 TM59,9,true
+57,story-progress-receive-tm-from-claire,收到克莱尔寄来的招式学习器59,9,true
 58,other-regirock-regice-registeel-in-party,队伍中有雷吉洛克、雷吉艾斯和雷吉斯奇鲁,10,true
 59,weekday-sunday,星期日,12,true
 60,weekday-monday,周一,12,true

@@ -214,7 +214,7 @@ id,code,name,region_id,enabled
 221,sinnoh-villa,别墅,4,true
 222,battleground,战场,4,true
 223,rotoms-room,罗托姆的房间,4,true
-224,tg-eterna-bldg,T.G.绮年华大厦,4,true
+224,tg-eterna-bldg,银河队百代大厦,4,true
 225,iron-ruins,钢铁废墟,4,true
 226,iceberg-ruins,冰山遗迹,4,true
 227,rock-peak-ruins,岩峰遗址,4,true
@@ -230,7 +230,7 @@ id,code,name,region_id,enabled
 238,goldenrod-tunnel,一枝黄隧道,2,true
 239,mt-silver-cave,银山洞,2,true
 241,pokeathlon-dome,神奇三项圆顶,2,true
-242,ss-aqua,S.S.阿夸,2,true
+242,ss-aqua,阿夸号,2,true
 243,safari-zone-gate,狩猎地带大门,2,true
 244,cliff-cave,悬崖洞,2,true
 245,frontier-access,边境访问,2,true
@@ -307,10 +307,10 @@ id,code,name,region_id,enabled
 317,pokemon-center,生物中心,,true
 318,pc-tokyo,电脑东京,,true
 319,pc-osaka,大阪电脑,,true
-320,pc-fukuoka,PC福冈,,true
-321,pc-nagoya,PC名古屋,,true
+320,pc-fukuoka,福冈中心,,true
+321,pc-nagoya,名古屋中心,,true
 322,pc-sapporo,札幌电脑,,true
-323,pc-yokohama,PC横滨,,true
+323,pc-yokohama,横滨中心,,true
 324,nintendo-world,任天堂世界,,true
 325,pokemon-event,生物活动,,true
 326,pokemon-event-06,生物活动06,,true
@@ -1079,7 +1079,7 @@ id,code,name,region_id,enabled
 1095,outskirt-stand,外围摊位,11,true
 1096,phenac-city,菲纳克城,11,true
 1097,snagem-hideout,斯纳吉姆藏身处,11,true
-1098,shadow-pokemon-lab,影子生物实验室,11,true
+1098,shadow-pokemon-lab,暗影生物实验室,11,true
 1099,pyrite-town,黄铁矿镇,11,true
 1100,pyrite-bldg,黄铁矿大厦,11,true
 1101,pyrite-cave,黄铁矿洞,11,true

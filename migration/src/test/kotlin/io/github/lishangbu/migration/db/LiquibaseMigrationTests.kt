@@ -2636,6 +2636,13 @@ class LiquibaseMigrationTests(
 					('%遗留区域%'),
 					('%pokemart%'),
 					('%pokecenter%'),
+					('%t.g.%'),
+					('%s.s.%'),
+					('%pc福%'),
+					('%pc名%'),
+					('%pc横%'),
+					('%ns城堡%'),
+					('%影子生物%'),
 					('%poke mart%'),
 					('%阿罗拉route%'),
 					('%伽勒尔route%'),
@@ -2652,6 +2659,7 @@ class LiquibaseMigrationTests(
 					('%b1f%'),
 					('%b2f%'),
 					('%b3f%'),
+					('%2f%'),
 					('%route104%'),
 					('%offocusarea%'),
 					('%icebergruinsarea%'),
@@ -2742,6 +2750,7 @@ class LiquibaseMigrationTests(
 					('%regice%'),
 					('%registeel%'),
 					('%starter%'),
+					('%tm59%'),
 					('%老虎机%'),
 					('%开胃菜%'),
 					('%港龙航空%'),
@@ -2759,6 +2768,64 @@ class LiquibaseMigrationTests(
 		)
 
 		assertThat(generatedEncounterNames).isEmpty()
+	}
+
+	@Test
+	fun `liquibase game metadata seed data does not keep generated display text`() {
+		// 这些资料表都用于维护页的小型字典或形态展示；断言只检查 name、form_name、description 等展示列。
+		// 公式和 code 允许保留资料源英文/LaTeX 标识，因此这里显式排除非展示字段，避免把内部稳定编码当成文案问题。
+		val generatedMetadataTexts = queryMaps(
+			"""
+			with metadata_texts as (
+				select 'game_creature_form' as table_name, id, code, concat_ws(' ', name, form_name) as display_text
+				from game_creature_form
+				union all
+				select 'game_growth_rate' as table_name, id, code, concat_ws(' ', name, description) as display_text
+				from game_growth_rate
+				union all
+				select 'game_skill_category' as table_name, id, code, concat_ws(' ', name, description) as display_text
+				from game_skill_category
+				union all
+				select 'game_skill_learn_method' as table_name, id, code, concat_ws(' ', name, description) as display_text
+				from game_skill_learn_method
+				union all
+				select 'game_skill_target' as table_name, id, code, concat_ws(' ', name, description) as display_text
+				from game_skill_target
+			),
+			blocked_text_patterns(pattern) as (
+				values
+					('%paldea blaze%'),
+					('%paldea aqua%'),
+					('%slowthen%'),
+					('%fastthen%'),
+					('%无损坏%'),
+					('%具体举措%'),
+					('%对立的生物%'),
+					('%整个领域%'),
+					('%prime cup%'),
+					('%master ball%'),
+					('%volt 钓具%'),
+					('%pichu%'),
+					('%tm %'),
+					('% hm%'),
+					('%影子生物%'),
+					('%zygarde cube%'),
+					('%zygarde core%'),
+					('%基加德%'),
+					('%火车%')
+			)
+			select table_name, id, code, display_text
+			from metadata_texts seeded
+			where exists (
+				select 1
+				from blocked_text_patterns blocked
+				where lower(seeded.display_text) like blocked.pattern
+			)
+			order by table_name, id
+			""".trimIndent(),
+		)
+
+		assertThat(generatedMetadataTexts).isEmpty()
 	}
 
 	@Test
