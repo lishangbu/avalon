@@ -103,9 +103,9 @@ id,code,name,location_id,game_index,enabled
 141,sinnoh-route-201-area,201路,31,141,true
 142,sinnoh-route-202-area,202路,32,142,true
 143,sinnoh-route-203-area,203路,33,143,true
-144,sinnoh-route-204-south-towards-jubilife-city,204号公路（向南，往Jubilife City方向）,34,144,true
-145,sinnoh-route-204-north-towards-floaroma-town,204号公路（向北，前往Floaroma镇）,34,145,true
-146,sinnoh-route-205-south-towards-floaroma-town,205 号公路（向南，前往 Floaroma 镇）,35,146,true
+144,sinnoh-route-204-south-towards-jubilife-city,204号公路（向南，往银禧城方向）,34,144,true
+145,sinnoh-route-204-north-towards-floaroma-town,204号公路（向北，前往花城）,34,145,true
+146,sinnoh-route-205-south-towards-floaroma-town,205号公路（向南，前往花城）,35,146,true
 147,sinnoh-route-205-east-towards-eterna-city,205号公路（向东，往绮年华城方向）,35,147,true
 148,sinnoh-route-206-area,206路,36,148,true
 149,sinnoh-route-207-area,207路,37,149,true
@@ -116,7 +116,7 @@ id,code,name,location_id,game_index,enabled
 154,lost-tower-3f,失落塔 (3层),40,154,true
 155,lost-tower-4f,失落之塔（4层）,40,155,true
 156,lost-tower-5f,失落塔 (5层),40,156,true
-157,sinnoh-route-210-south-towards-solaceon-town,210号公路（向南，向Solaceon镇方向）,41,157,true
+157,sinnoh-route-210-south-towards-solaceon-town,210号公路（向南，向索拉森镇方向）,41,157,true
 158,sinnoh-route-210-west-towards-celestic-town,210路（西，往仙境镇方向）,41,158,true
 159,sinnoh-route-211-west-towards-eterna-city,211号公路（向西，往绮年华城方向）,42,159,true
 160,sinnoh-route-211-east-towards-celestic-town,211路（东，往仙境镇方向）,42,160,true
