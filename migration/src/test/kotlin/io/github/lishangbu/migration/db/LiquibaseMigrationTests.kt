@@ -2618,6 +2618,11 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%jubilife%'
 				or lower(name) like '%floaroma%'
 				or lower(name) like '%solaceon%'
+				or lower(name) like '%virbank%'
+				or lower(name) like '%pinwheel%'
+				or lower(name) like '%ruminationfield%'
+				or lower(name) like '%unova%'
+				or lower(name) like '%breeder%'
 			union all
 			select 'game_location_area' as table_name, id, code, name
 			from game_location_area
@@ -2655,6 +2660,11 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%jubilife%'
 				or lower(name) like '%floaroma%'
 				or lower(name) like '%solaceon%'
+				or lower(name) like '%virbank%'
+				or lower(name) like '%pinwheel%'
+				or lower(name) like '%ruminationfield%'
+				or lower(name) like '%unova%'
+				or lower(name) like '%breeder%'
 			order by table_name, id
 			""".trimIndent(),
 		)

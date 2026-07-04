@@ -556,8 +556,8 @@ id,code,name,location_id,game_index,enabled
 672,castelia-sewers-unknown-area-38,卡斯特利亚下水道（未知区域38）,543,38,true
 673,floccesy-ranch-outer,絮状牧场（外）,544,44,true
 674,floccesy-ranch-inner,絮状牧场（内）,544,45,true
-675,virbank-complex-outer,Virbank 综合大楼（外）,545,46,true
-676,virbank-complex-inner,Virbank 综合大楼（内部）,545,47,true
+675,virbank-complex-outer,维尔班克综合体（外部）,545,46,true
+676,virbank-complex-inner,维尔班克综合体（内部）,545,47,true
 677,reversal-mountain-unknown-area-48,逆转山（未知区48）,546,48,true
 678,reversal-mountain-unknown-area-49,逆转山（未知区49）,546,49,true
 679,reversal-mountain-unknown-area-50,反转山（未知区域50）,546,50,true
@@ -1047,7 +1047,7 @@ id,code,name,location_id,game_index,enabled
 1165,team-aqua-hideout-area,水上团队藏身处,692,0,true
 1166,team-magma-hideout-area,团队岩浆藏身处,694,0,true
 1167,liberty-garden-lighthouse-basement,灯塔地下室,404,0,true
-1168,pinwheel-forest-rumination-field,pinwheel森林ruminationfield,375,0,true
+1168,pinwheel-forest-rumination-field,风车森林沉思场,375,0,true
 1169,roaming-unova-area,漫游合众国,1054,0,true
 1170,ns-castle-throne-room,NS城堡王座室,387,0,true
 1171,dragonspiral-tower-7f,龙螺旋塔7层,381,0,true
@@ -1221,14 +1221,14 @@ id,code,name,location_id,game_index,enabled
 1339,friend-safari-fairy,朋友狩猎（仙女）,680,0,true
 1340,unova-route-2-hidden-grotto,2号线（隐秘石窟）,357,15,true
 1341,unova-route-3-hidden-grotto-dark-grass,合众国道 3 号（隐藏石窟 – 暗草）,358,16,true
-1342,unova-route-3-hidden-grotto-pond,Unova 3 号道路（隐藏石窟 - 池塘）,358,16,true
+1342,unova-route-3-hidden-grotto-pond,合众3号道路（隐藏石窟 - 池塘）,358,16,true
 1343,unova-route-5-hidden-grotto,合众 5 号公路（隐藏石窟）,360,93,true
-1344,unova-route-6-hidden-grotto-near-pokemon-breeder,合众国道 6 号（隐藏石窟 – 靠近 生物 Breeder）,361,94,true
-1345,unova-route-6-hidden-grotto-mistralton-cave,Unova 6 号公路（隐藏石窟 – 米斯特拉尔顿洞穴）,361,94,true
+1344,unova-route-6-hidden-grotto-near-pokemon-breeder,合众6号道路（隐藏石窟 - 培育家附近）,361,94,true
+1345,unova-route-6-hidden-grotto-mistralton-cave,合众6号道路（隐藏石窟 - 米斯特拉尔顿洞穴）,361,94,true
 1346,unova-route-7-hidden-grotto,合众 7 号公路（隐藏石窟）,362,95,true
 1347,unova-route-9-hidden-grotto,合众 9 号公路（隐藏石窟）,364,97,true
-1348,unova-route-13-hidden-grotto-giant-chasm,Unova 13 号公路（隐藏石窟 – 巨大峡谷）,368,100,true
-1349,unova-route-13-hidden-grotto-stairs,Unova 13 号公路（隐藏石窟 - 楼梯）,368,100,true
+1348,unova-route-13-hidden-grotto-giant-chasm,合众13号道路（隐藏石窟 - 巨大峡谷）,368,100,true
+1349,unova-route-13-hidden-grotto-stairs,合众13号道路（隐藏石窟 - 楼梯）,368,100,true
 1350,unova-route-18-hidden-grotto,合众 18 号公路（隐藏石窟）,373,31,true
 1351,unova-route-22-hidden-grotto,合众 22 号公路（隐藏石窟）,541,127,true
 1352,unova-route-23-hidden-grotto,合众 23 号公路（隐藏石窟）,542,128,true
