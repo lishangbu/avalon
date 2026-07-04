@@ -2766,6 +2766,7 @@ class LiquibaseMigrationTests(
 				or effect like '%英格莱恩%'
 				or short_effect like '%英格莱恩%'
 				or flavor_text like '%英格莱恩%'
+				or short_effect ~ '^[0-9]+$'
 			order by skill_id
 			""".trimIndent(),
 		)
