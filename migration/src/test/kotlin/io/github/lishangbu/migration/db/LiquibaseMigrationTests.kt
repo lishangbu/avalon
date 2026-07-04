@@ -2886,7 +2886,9 @@ class LiquibaseMigrationTests(
 					('%wailmer%'),
 					('%duskull%'),
 					('%bellossom%'),
-					('%sla击倒th%')
+					('%sla击倒th%'),
+					('%wonder 启动器%'),
+					('%通过 神奇发射器%')
 			)
 			select item_id, column_name, display_text
 			from item_texts
