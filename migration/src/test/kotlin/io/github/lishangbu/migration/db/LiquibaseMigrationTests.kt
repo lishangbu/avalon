@@ -2779,6 +2779,21 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game ability effects do not leave display text blank`() {
+		// 扩展能力编号也会进入管理端；没有来源说明时使用中文兜底，避免详情页出现空白字段。
+		val blankAbilityEffects = queryMaps(
+			"""
+			select ability_id, effect, short_effect, flavor_text
+			from game_ability_detail
+			where effect = '' or short_effect = '' or flavor_text = ''
+			order by ability_id
+			""".trimIndent(),
+		)
+
+		assertThat(blankAbilityEffects).isEmpty()
+	}
+
+	@Test
 	fun `liquibase game skill effects do not keep generated terms`() {
 		// 技能说明直接支撑管理端展示和战斗规则校验，短效果里的“下层”等机翻残留会比长说明更容易被用户看到。
 		val machineSkillEffects = queryMaps(
