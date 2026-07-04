@@ -2668,13 +2668,23 @@ class LiquibaseMigrationTests(
 
 	@Test
 	fun `liquibase game item effects do not keep generated placeholder text`() {
-		// 这些字段面向管理端展示，任何 XXX 占位都会直接暴露给用户；全表断言可以防止后续导入重新带回生成模板。
+		// 这些字段面向管理端展示，模板占位和机翻术语都会直接暴露给用户；全表断言可以防止后续导入重新带回生成文本。
 		val placeholderItemEffects = queryMaps(
 			"""
 			select item_id, effect, short_effect
 			from game_item_detail
 			where lower(effect) like '%xxx%'
 				or lower(short_effect) like '%xxx%'
+				or effect like '%举行：%'
+				or short_effect like '%举行：%'
+				or effect like '%希尔瓦利%'
+				or short_effect like '%希尔瓦利%'
+				or effect like '%席尔瓦利%'
+				or short_effect like '%席尔瓦利%'
+				or lower(effect) like '%silvally%'
+				or lower(short_effect) like '%silvally%'
+				or effect like '%多重攻击%'
+				or short_effect like '%多重攻击%'
 			order by item_id
 			""".trimIndent(),
 		)
