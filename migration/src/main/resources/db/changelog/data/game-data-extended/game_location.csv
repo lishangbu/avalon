@@ -67,7 +67,7 @@ id,code,name,region_id,enabled
 67,celadon-city,青瓷城,1,true
 68,cerulean-city,华蓝城,1,true
 69,cherrygrove-city,切里格罗夫市,2,true
-70,cianwood-city,西安伍德城,2,true
+70,cianwood-city,湛蓝市,2,true
 71,cinnabar-island,朱砂岛,1,true
 72,dark-cave,黑暗洞穴,2,true
 73,digletts-cave,迪格利特洞穴,1,true
@@ -242,7 +242,7 @@ id,code,name,region_id,enabled
 252,radio-tower,无线电塔,2,true
 253,day-care-couple,日托夫妇,,true
 254,link-trade-arrive,链接贸易（到达）,,true
-255,link-trade-met,链接贸易（met）,,true
+255,link-trade-met,链接交换（相遇）,,true
 256,kanto,关都,,true
 257,johto,城都,,true
 258,hoenn,丰缘,,true
@@ -389,7 +389,7 @@ id,code,name,region_id,enabled
 399,moor-of-icirrus,伊西洛斯的摩尔,5,true
 400,unova-shopping-mall,购物中心,5,true
 401,challengers-cave,挑战者洞穴,5,true
-402,poke-transfer-lab,Poké 转移实验室,5,true
+402,poke-transfer-lab,生物转移实验室,5,true
 403,giant-chasm,巨大的鸿沟,5,true
 404,liberty-garden,自由花园,5,true
 405,p2-laboratory,P2实验室,5,true
@@ -491,7 +491,7 @@ id,code,name,region_id,enabled
 502,icefall-cave,冰瀑布洞,1,true
 503,pattern-bush,图案布什,1,true
 504,lost-cave,失落的洞穴,1,true
-505,kindle-road,Kindle 路,1,true
+505,kindle-road,余烬山道,1,true
 506,treasure-beach,宝藏海滩,1,true
 507,cape-brink,布林克角,1,true
 508,bond-bridge,邦德桥,1,true

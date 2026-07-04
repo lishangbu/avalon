@@ -2623,6 +2623,20 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%ruminationfield%'
 				or lower(name) like '%unova%'
 				or lower(name) like '%breeder%'
+				or name like '%（met）%'
+				or lower(name) like '%poké%'
+				or lower(name) like '%kindle%'
+				or lower(name) like '%mount ember%'
+				or lower(name) like '%cianwood%'
+				or lower(name) like '%game freak%'
+				or lower(name) like '%verdanturf%'
+				or lower(name) like '%lilycove%'
+				or lower(name) like '%rayquaza%'
+				or lower(name) like '%heatran%'
+				or lower(name) like '%pacifidlog%'
+				or lower(name) like '%mirage cave%'
+				or lower(name) like '%gateon%'
+				or lower(name) like '%citadark%'
 			union all
 			select 'game_location_area' as table_name, id, code, name
 			from game_location_area
@@ -2665,6 +2679,20 @@ class LiquibaseMigrationTests(
 				or lower(name) like '%ruminationfield%'
 				or lower(name) like '%unova%'
 				or lower(name) like '%breeder%'
+				or name like '%（met）%'
+				or lower(name) like '%poké%'
+				or lower(name) like '%kindle%'
+				or lower(name) like '%mount ember%'
+				or lower(name) like '%cianwood%'
+				or lower(name) like '%game freak%'
+				or lower(name) like '%verdanturf%'
+				or lower(name) like '%lilycove%'
+				or lower(name) like '%rayquaza%'
+				or lower(name) like '%heatran%'
+				or lower(name) like '%pacifidlog%'
+				or lower(name) like '%mirage cave%'
+				or lower(name) like '%gateon%'
+				or lower(name) like '%citadark%'
 			order by table_name, id
 			""".trimIndent(),
 		)

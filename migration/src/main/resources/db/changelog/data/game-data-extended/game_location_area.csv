@@ -407,7 +407,7 @@ id,code,name,location_id,game_index,enabled
 488,mt-ember-area,余烬山,500,40,true
 489,mt-ember-cave,余烬山（洞穴）,500,41,true
 490,mt-ember-inside,余烬山（内部）,500,42,true
-491,mt-ember-1f-cave-behind-team-rocket,Mount Ember（1层，火箭队后面的洞穴）,500,44,true
+491,mt-ember-1f-cave-behind-team-rocket,余烬山（1层，火箭队后方洞穴）,500,44,true
 492,mt-ember-b1f,余烬山 (地下1层),500,45,true
 493,mt-ember-b2f,余烬山 (地下2层),500,46,true
 494,mt-ember-b3f,余烬山 (地下3层),500,47,true
@@ -428,7 +428,7 @@ id,code,name,location_id,game_index,enabled
 509,lost-cave-room-9,失落的洞穴（9号房间）,504,64,true
 510,lost-cave-room-10,失落的洞穴（10号房间）,504,65,true
 511,lost-cave-item-rooms,失落的洞穴（物品室）,504,66,true
-512,kindle-road-area,Kindle 路,505,70,true
+512,kindle-road-area,余烬山道,505,70,true
 513,treasure-beach-area,宝藏海滩,506,71,true
 514,cape-brink-area,布林克角,507,72,true
 515,bond-bridge-area,邦德桥,508,73,true
@@ -648,24 +648,24 @@ id,code,name,location_id,game_index,enabled
 764,saffron-city-silph-co-7f,西尔夫公司7层,234,0,true
 765,goldenrod-city-north-gate,一金城（北门）,229,0,true
 766,goldenrod-city-bills-house,满金城（比尔的家）,229,0,true
-767,cianwood-city-manias-house,Cianwood City（马尼亚的房子）,70,0,true
+767,cianwood-city-manias-house,湛蓝市（马尼亚的房子）,70,0,true
 768,hoenn-route-119-weather-institute,气象研究所（119路）,467,0,true
 769,mossdeep-city-stevens-house,莫斯迪普城（史蒂文的房子）,432,0,true
 770,littleroot-town-area,利特尔鲁特镇,567,0,true
 771,hearthome-city-area,心家城,169,0,true
 772,veilstone-city-area,面纱城,170,0,true
-773,cianwood-city-kirks-house,锡安伍德城（柯克的房子）,70,0,true
+773,cianwood-city-kirks-house,湛蓝市（柯克的房子）,70,0,true
 774,nuvema-town-area,努韦马镇,346,0,true
-775,castelia-city-game-freak-hq-1f,Game Freak HQ 1层 (卡斯特利亚市),350,0,true
+775,castelia-city-game-freak-hq-1f,游戏开发总部1层（卡斯特利亚市）,350,0,true
 776,unova-route-6-weather-institute,气象研究所（6号路）,361,0,true
 777,floccesy-town-area,絮镇,536,0,true
 778,aquacorde-town-area,阿奎科德镇,590,0,true
 779,lumiose-city-area,卢米奥塞城,599,0,true
 780,tower-of-mastery-area,精通之塔,625,0,true
 781,slateport-city-contest-hall,比赛大厅（斯莱特波特城）,430,0,true
-782,verdanturf-town-contest-hall,比赛大厅（Verdanturf 镇）,571,0,true
+782,verdanturf-town-contest-hall,比赛大厅（翠绿草皮镇）,571,0,true
 783,fallarbor-town-contest-hall,比赛大厅（法拉伯镇）,570,0,true
-784,lilycove-city-contest-hall,竞赛厅（Lilycove City）,431,0,true
+784,lilycove-city-contest-hall,竞赛厅（莉利科夫城）,431,0,true
 785,southern-island-area,南岛,578,0,true
 786,battle-resort-area,对战度假村,695,0,true
 787,lavaridge-town-area,拉瓦里奇镇,569,0,true
@@ -708,7 +708,7 @@ id,code,name,location_id,game_index,enabled
 825,mt-ember-summit,余烬山山顶,500,0,true
 826,embedded-tower-kyogre-room,嵌入塔（盖欧卡的房间）,248,0,true
 827,embedded-tower-groundon-room,嵌入塔（固拉多的房间）,248,0,true
-828,embedded-tower-rayquaza-room,嵌入式塔（Rayquaza 的房间）,248,0,true
+828,embedded-tower-rayquaza-room,嵌入式塔（烈空坐的房间）,248,0,true
 829,lake-acuity-cavern,敏锐湖洞穴,28,0,true
 830,lake-valor-cavern,勇敢湖洞穴,27,0,true
 831,spear-pillar-area,矛柱,172,0,true
@@ -716,8 +716,8 @@ id,code,name,location_id,game_index,enabled
 833,cinnabar-island-cinnabar-lab,朱砂实验室（朱砂岛）,71,0,true
 834,rustboro-city-area,鲁斯特伯勒市,573,0,true
 835,saffron-city-silph-co,西尔夫公司,234,0,true
-836,cianwood-city-pokemon-center,生物中心（Cianwood City）,70,0,true
-837,stark-mountain-heatran-chamber,斯塔克山（Heatran 室）,16,0,true
+836,cianwood-city-pokemon-center,生物中心（湛蓝市）,70,0,true
+837,stark-mountain-heatran-chamber,斯塔克山（席多蓝恩房间）,16,0,true
 838,newmoon-island-area,新月岛,183,0,true
 839,flower-paradise-area,花之乐园,179,0,true
 840,sinnoh-hall-of-origin-1-area,起源大厅,188,0,true
@@ -1100,7 +1100,7 @@ id,code,name,location_id,game_index,enabled
 1218,mirage-spot-island-route-124,海市蜃楼岛（124号公路）,577,0,true
 1219,mirage-spot-island-route-132,海市蜃楼岛（132号公路）,577,0,true
 1220,mirage-spot-island-south-of-route-134,海市蜃楼岛（134号国道以南）,577,0,true
-1221,mirage-spot-island-south-of-pacifidlog,幻影岛（Pacofidlog 以南）,577,0,true
+1221,mirage-spot-island-south-of-pacifidlog,幻影岛（和平日志镇以南）,577,0,true
 1222,mirage-spot-island-east-of-shoal-cave,海市蜃楼岛（浅滩洞东）,577,0,true
 1223,mirage-island-area,幻影岛,1094,0,true
 1224,mirage-spot-forest-north-of-lilycove,幻影森林（莉莉科夫北部）,697,0,true
@@ -1144,8 +1144,8 @@ id,code,name,location_id,game_index,enabled
 1262,phenac-city-card-e-room,菲那克城（卡E房）,1096,0,true
 1263,pokemon-hq-lab-area,生物总部实验室,1106,0,true
 1264,pokemon-hq-lab-outside,生物总部实验室（外部）,1106,0,true
-1265,gateon-port-across-bridge,Gateon港口（桥对面）,1107,0,true
-1266,gateon-port-lighthouse-top,Gateon港口（灯塔顶部）,1107,0,true
+1265,gateon-port-across-bridge,加顿港（桥对面）,1107,0,true
+1266,gateon-port-lighthouse-top,加顿港（灯塔顶部）,1107,0,true
 1267,cipher-lab-outside,密码实验室（外部）,1108,0,true
 1268,cipher-lab-bf2,密码实验室地下2层,1108,0,true
 1269,cipher-lab-bf1,密码实验室地下1层,1108,0,true
@@ -1168,7 +1168,7 @@ id,code,name,location_id,game_index,enabled
 1286,citadark-isle-2f,城堡暗岛2层,1112,0,true
 1287,citadark-isle-3f,城堡暗岛 3层,1112,0,true
 1288,citadark-isle-6f,城堡暗岛 6层,1112,0,true
-1289,citadark-isle-dome-exterior,Citadark 岛圆顶外观,1112,0,true
+1289,citadark-isle-dome-exterior,城暗岛圆顶外部,1112,0,true
 1290,citadark-isle-dome-bf1,岛,1112,0,true
 1291,citadark-isle-dome-1f,岛,1112,0,true
 1292,citadark-isle-dome-2f,岛,1112,0,true
@@ -1186,12 +1186,12 @@ id,code,name,location_id,game_index,enabled
 1304,goldenrod-city-department-store-5f,满金城百货5层,229,0,true
 1305,mirage-spot-cave-south-of-pacifidlog,海市蜃楼洞（太平洋日志以南）,698,0,true
 1306,mirage-spot-cave-north-of-route-132,海市蜃楼（132号公路以北）,698,0,true
-1307,mirage-spot-cave-north-of-fallarbor,Mirage Cave（法拉伯以北）,698,0,true
-1308,mirage-spot-cave-north-of-fortree,Mirage Cave（福特里以北）,698,0,true
+1307,mirage-spot-cave-north-of-fallarbor,幻影洞（法拉伯镇以北）,698,0,true
+1308,mirage-spot-cave-north-of-fortree,幻影洞（福特里城以北）,698,0,true
 1309,mirage-spot-cave-south-east-of-route-129,洞窟南东道路129区域,698,0,true
 1310,mirage-spot-cave-south-of-route-107,海市蜃楼（107号公路以南）,698,0,true
 1311,mirage-spot-cave-north-of-route-124,海市蜃楼（124号公路以北）,698,0,true
-1312,mirage-spot-cave-west-of-rustburo,Mirage Cave（拉斯特伯勒以西）,698,0,true
+1312,mirage-spot-cave-west-of-rustburo,幻影洞（鲁斯特伯勒市以西）,698,0,true
 1313,mirage-spot-mountain-east-of-mossdeep,幻影山（莫斯迪普以东）,699,0,true
 1314,mirage-spot-mountain-north-of-mossdeep,幻影山（莫斯迪普以北）,699,0,true
 1315,mirage-spot-mountain-south-east-of-route-129,幻影山（129号公路东南）,699,0,true
