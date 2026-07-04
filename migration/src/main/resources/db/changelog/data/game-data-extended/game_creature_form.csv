@@ -771,7 +771,7 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 770,palossand,噬沙堡爷,770,,1109,1,false,true,false,true
 771,pyukumuku,拳海参,771,,1110,1,false,true,false,true
 772,type-null,属性：空,772,,1111,1,false,true,false,true
-773,silvally-normal,银伴战兽,773,普通的,1112,1,false,true,false,true
+773,silvally-normal,银伴战兽,773,一般,1112,1,false,true,false,true
 774,minior-red-meteor,小陨星,774,红色流星,1130,1,false,true,false,true
 775,komala,树枕尾熊,775,,1144,1,false,true,false,true
 776,turtonator,爆焰龟兽,776,,1145,1,false,true,false,true
@@ -1255,23 +1255,23 @@ id,code,name,creature_id,form_name,sort_order,form_order,battle_only,default_for
 10229,wishiwashi-school,弱丁鱼（形态 2）,10127,学校,1081,2,true,true,false,true
 10230,lurantis-totem,兰螳花（形态 2）,10128,图腾,1091,2,false,true,false,true
 10231,salazzle-totem,焰后蜥（形态 2）,10129,图腾,1096,2,false,true,false,true
-10232,silvally-fighting,银伴战兽（斗争）,773,斗争,1113,2,false,false,false,true
+10232,silvally-fighting,银伴战兽（格斗）,773,格斗,1113,2,false,false,false,true
 10233,silvally-flying,银伴战兽（飞行）,773,飞行,1114,3,false,false,false,true
-10234,silvally-poison,银伴战兽（中毒）,773,中毒,1115,4,false,false,false,true
+10234,silvally-poison,银伴战兽（毒）,773,毒,1115,4,false,false,false,true
 10235,silvally-ground,银伴战兽（地面）,773,地面,1116,5,false,false,false,true
 10236,silvally-rock,银伴战兽（岩石）,773,岩石,1117,6,false,false,false,true
-10237,silvally-bug,银伴战兽（漏洞）,773,漏洞,1118,7,false,false,false,true
-10238,silvally-ghost,银伴战兽（鬼）,773,鬼,1119,8,false,false,false,true
+10237,silvally-bug,银伴战兽（虫）,773,虫,1118,7,false,false,false,true
+10238,silvally-ghost,银伴战兽（幽灵）,773,幽灵,1119,8,false,false,false,true
 10239,silvally-steel,银伴战兽（钢）,773,钢,1120,9,false,false,false,true
 10240,silvally-fire,银伴战兽（火）,773,火,1121,10,false,false,false,true
 10241,silvally-water,银伴战兽（水）,773,水,1122,11,false,false,false,true
 10242,silvally-grass,银伴战兽（草）,773,草,1123,12,false,false,false,true
-10243,silvally-electric,银伴战兽（电的）,773,电的,1124,13,false,false,false,true
-10244,silvally-psychic,银伴战兽（精神）,773,精神,1125,14,false,false,false,true
+10243,silvally-electric,银伴战兽（电）,773,电,1124,13,false,false,false,true
+10244,silvally-psychic,银伴战兽（超能力）,773,超能力,1125,14,false,false,false,true
 10245,silvally-ice,银伴战兽（冰）,773,冰,1126,15,false,false,false,true
 10246,silvally-dragon,银伴战兽（龙）,773,龙,1127,16,false,false,false,true
-10247,silvally-dark,银伴战兽（黑暗的）,773,黑暗的,1128,17,false,false,false,true
-10248,silvally-fairy,银伴战兽（仙女）,773,仙女,1129,18,false,false,false,true
+10247,silvally-dark,银伴战兽（恶）,773,恶,1128,17,false,false,false,true
+10248,silvally-fairy,银伴战兽（妖精）,773,妖精,1129,18,false,false,false,true
 10249,minior-orange-meteor,小陨星（形态 2）,10130,橙色流星,1131,2,true,true,false,true
 10250,minior-yellow-meteor,小陨星（形态 3）,10131,黄色流星,1132,3,true,true,false,true
 10251,minior-green-meteor,小陨星（形态 4）,10132,绿色流星,1133,4,true,true,false,true

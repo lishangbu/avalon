@@ -2693,6 +2693,53 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase game ability effects do not keep generated machine terms`() {
+		val machineAbilityEffects = queryMaps(
+			"""
+			select ability_id, effect, short_effect, flavor_text
+			from game_ability_detail
+			where effect like '%希尔瓦利%'
+				or short_effect like '%希尔瓦利%'
+				or flavor_text like '%希尔瓦利%'
+				or effect like '%多重攻击%'
+				or short_effect like '%多重攻击%'
+				or flavor_text like '%多重攻击%'
+				or effect like '%心灵攻击%'
+				or short_effect like '%心灵攻击%'
+				or flavor_text like '%心灵攻击%'
+			order by ability_id
+			""".trimIndent(),
+		)
+
+		assertThat(machineAbilityEffects).isEmpty()
+	}
+
+	@Test
+	fun `liquibase silvally form names use localized type terms`() {
+		val machineFormNames = queryMaps(
+			"""
+			select code, name, form_name
+			from game_creature_form
+			where code like 'silvally-%'
+				and (
+					form_name in ('普通的', '斗争', '中毒', '漏洞', '鬼', '电的', '精神', '黑暗的', '仙女')
+					or name like '%（斗争）%'
+					or name like '%（中毒）%'
+					or name like '%（漏洞）%'
+					or name like '%（鬼）%'
+					or name like '%（电的）%'
+					or name like '%（精神）%'
+					or name like '%（黑暗的）%'
+					or name like '%（仙女）%'
+				)
+			order by code
+			""".trimIndent(),
+		)
+
+		assertThat(machineFormNames).isEmpty()
+	}
+
+	@Test
 	fun `liquibase remarks every application table and column`() {
 		val tablesWithoutRemarks = queryStrings(
 			"""
