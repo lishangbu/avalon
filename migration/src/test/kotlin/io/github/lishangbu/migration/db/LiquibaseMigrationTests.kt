@@ -2879,7 +2879,14 @@ class LiquibaseMigrationTests(
 					('%狂野的战斗%'),
 					('%不会发生任何事情并且球会丢失%'),
 					('%红杏%'),
-					('%由杏子制成%')
+					('%由杏子制成%'),
+					('%zigzagoon%'),
+					('%wingull%'),
+					('%magnemite%'),
+					('%wailmer%'),
+					('%duskull%'),
+					('%bellossom%'),
+					('%sla击倒th%')
 			)
 			select item_id, column_name, display_text
 			from item_texts
