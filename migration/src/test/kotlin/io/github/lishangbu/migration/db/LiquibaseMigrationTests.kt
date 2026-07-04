@@ -2689,6 +2689,8 @@ class LiquibaseMigrationTests(
 				or short_effect like '%卖家垃圾%'
 				or effect like '%斗争虫%'
 				or short_effect like '%斗争虫%'
+				or effect = '效果'
+				or short_effect = '效果'
 			order by item_id
 			""".trimIndent(),
 		)
@@ -2729,6 +2731,8 @@ class LiquibaseMigrationTests(
 				or effect like '%因移动而受到伤害%'
 				or short_effect like '%因移动而受到伤害%'
 				or flavor_text like '%因移动而受到伤害%'
+				or effect = '效果'
+				or short_effect = '效果'
 			order by ability_id
 			""".trimIndent(),
 		)
@@ -2750,6 +2754,8 @@ class LiquibaseMigrationTests(
 				or short_effect like '%加号或减号%'
 				or flavor_text like '%加号或减号%'
 				or short_effect = '下层'
+				or effect = '效果'
+				or short_effect = '效果'
 			order by skill_id
 			""".trimIndent(),
 		)
