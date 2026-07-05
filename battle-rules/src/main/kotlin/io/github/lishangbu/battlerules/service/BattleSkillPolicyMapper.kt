@@ -2,10 +2,12 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleFixedDamage
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
+import io.github.lishangbu.battleengine.model.BattleReceivedDamage
 import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
@@ -150,6 +152,26 @@ internal fun String.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
 	when (this) {
 		"target-hp-minus-user-hp-damage" -> BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp
 		"user-current-hp-sacrifice-damage" -> BattleHpDerivedDamage.UserCurrentHpAndUserFaints
+		else -> null
+	}
+
+internal fun String.toBattleReceivedDamage(): BattleReceivedDamage? =
+	when (this) {
+		"received-physical-damage-double" -> BattleReceivedDamage(
+			acceptedDamageClasses = setOf(BattleDamageClass.PHYSICAL),
+			numerator = 2,
+			denominator = 1,
+		)
+		"received-special-damage-double" -> BattleReceivedDamage(
+			acceptedDamageClasses = setOf(BattleDamageClass.SPECIAL),
+			numerator = 2,
+			denominator = 1,
+		)
+		"received-damage-one-and-half" -> BattleReceivedDamage(
+			acceptedDamageClasses = setOf(BattleDamageClass.PHYSICAL, BattleDamageClass.SPECIAL),
+			numerator = 3,
+			denominator = 2,
+		)
 		else -> null
 	}
 
@@ -391,6 +413,7 @@ private val battleSkillDamagePolicies = setOf(
 	"fixed-damage",
 	"proportional-damage",
 	"hp-derived-damage",
+	"received-damage",
 	"one-hit-knockout-damage",
 	"status-effect",
 )
@@ -413,6 +436,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleFixedDamage() != null ||
 	toBattleProportionalDamage() != null ||
 	toBattleHpDerivedDamage() != null ||
+	toBattleReceivedDamage() != null ||
 	toBattleOneHitKnockOut() != null ||
 	toBattleSkillEnvironmentEffects().isNotEmpty() ||
 	toBattleSkillPowerMultipliers().isNotEmpty() ||

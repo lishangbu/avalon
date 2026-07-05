@@ -13,6 +13,7 @@ import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
+import io.github.lishangbu.battleengine.model.BattleReceivedDamage
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
@@ -181,6 +182,7 @@ internal fun damagingSkill(
 	fixedDamage: BattleFixedDamage? = null,
 	proportionalDamage: BattleProportionalDamage? = null,
 	hpDerivedDamage: BattleHpDerivedDamage? = null,
+	receivedDamage: BattleReceivedDamage? = null,
 	oneHitKnockOut: BattleOneHitKnockOut? = null,
 	accuracy: Int? = null,
 	targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
@@ -238,6 +240,7 @@ internal fun damagingSkill(
 		fixedDamage = fixedDamage,
 		proportionalDamage = proportionalDamage,
 		hpDerivedDamage = hpDerivedDamage,
+		receivedDamage = receivedDamage,
 		oneHitKnockOut = oneHitKnockOut,
 		accuracy = accuracy,
 		targetScope = targetScope,

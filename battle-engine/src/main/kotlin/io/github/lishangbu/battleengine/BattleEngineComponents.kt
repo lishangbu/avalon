@@ -24,7 +24,8 @@ internal class BattleEngineComponents(
 	private val actionPlanner = BattleTurnActionPlanner(actionOrdering)
 	private val skillTargeting = BattleSkillTargeting()
 	private val hitResolution = BattleHitResolution(statStageModifiers)
-	private val directDamage = BattleDirectDamage()
+	private val receivedDamageMemory = BattleReceivedDamageMemory()
+	private val directDamage = BattleDirectDamage(receivedDamageMemory)
 	private val damageDefenseEffects = BattleDamageDefenseEffects()
 	private val targetDefenseEffects = BattleTargetDefenseEffects()
 	private val skillHpEffects = BattleSkillHpEffects()
@@ -221,15 +222,16 @@ internal class BattleEngineComponents(
 		directDamage = directDamage,
 		damageHitResolution = damageHitResolution,
 		moveFinishResolution = damageMoveFinishResolution,
-		)
-		private val skillTargetResolution = BattleSkillTargetResolution(
-			preHitTargetGate = preHitTargetGate,
-			targetDefenseEffects = targetDefenseEffects,
-			skillBlockEffects = skillBlockEffects,
-			lockedMoves = lockedMoves,
+	)
+	private val skillTargetResolution = BattleSkillTargetResolution(
+		preHitTargetGate = preHitTargetGate,
+		targetDefenseEffects = targetDefenseEffects,
+		skillBlockEffects = skillBlockEffects,
+		lockedMoves = lockedMoves,
 		skillAdditionalEffects = skillAdditionalEffects,
 		statusSkillHpEffects = statusSkillHpEffects,
 		environmentEffects = environmentEffects,
+		receivedDamageMemory = receivedDamageMemory,
 		skillDamageResolution = skillDamageResolution,
 	)
 	private val skillUseSetupResolution = BattleSkillUseSetupResolution(

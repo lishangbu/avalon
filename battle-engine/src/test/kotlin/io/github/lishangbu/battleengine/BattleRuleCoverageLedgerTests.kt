@@ -495,7 +495,7 @@ class BattleRuleCoverageLedgerTests {
 				code = "damage-formula-stat-element-rounding",
 				ruleCount = 42,
 				minimumNamedScenarioCount = 49,
-				description = "普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害、HP 派生伤害和一击必杀直接伤害。",
+				description = "普通伤害、击中要害、属性一致加成、克制、天气/场地修正、攻防能力值修正、固定伤害、比例伤害、HP 派生伤害、已受伤害反打和一击必杀直接伤害。",
 				testClassNames = listOf(
 					"io.github.lishangbu.battleengine.damage.BattleDamageFormulaBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.damage.BattleDamageCalculatorTests",
@@ -507,6 +507,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleHpDerivedDamageSkillTests",
 					"io.github.lishangbu.battleengine.BattleOneHitKnockOutSkillTests",
 					"io.github.lishangbu.battleengine.BattleProportionalDamageSkillTests",
+					"io.github.lishangbu.battleengine.BattleReceivedDamageSkillTests",
 					"io.github.lishangbu.battleengine.BattleSpeedRatioPowerSkillTests",
 				),
 			),

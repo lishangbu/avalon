@@ -40,7 +40,7 @@ internal class BattleSkillDamageResolution(
 		targetMultiplier: Double,
 		random: BattleRandom,
 	): TurnContext {
-		val effectiveness = if (skill.typelessDamage) {
+		val rawEffectiveness = if (skill.typelessDamage) {
 			1.0
 		} else {
 			state.rules.elementChart.multiplier(
@@ -48,7 +48,7 @@ internal class BattleSkillDamageResolution(
 				target.elementIds,
 			)
 		}
-		if (effectiveness == 0.0) {
+		if (rawEffectiveness == 0.0) {
 			return moveFinishResolution.interruptSkillWithEvent(
 				context = context,
 				state = state,
@@ -66,8 +66,13 @@ internal class BattleSkillDamageResolution(
 				),
 			)
 		}
+		val effectiveness = if (skill.receivedDamage?.ignoreNonImmuneElementEffectiveness == true) {
+			1.0
+		} else {
+			rawEffectiveness
+		}
 
-		val directDamageAttempt = directDamage.attempt(skill, actor, target)
+		val directDamageAttempt = directDamage.attempt(state, skill, actor, target)
 		return if (directDamageAttempt == null) {
 			resolveFormulaDamage(context, state, actor, target, skill, targetMultiplier, random)
 		} else {

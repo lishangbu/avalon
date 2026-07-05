@@ -11,6 +11,7 @@ package io.github.lishangbu.battleengine.model
  * `fixedDamage` 表示命中后使用固定伤害口径，不进入普通物理/特殊伤害公式，也不消费要害或伤害随机数。
  * `proportionalDamage` 表示命中后按目标当前 HP 比例扣血，也不进入普通伤害公式。
  * `hpDerivedDamage` 表示命中后按战斗双方当前 HP 推导直接伤害或自我倒下代价。
+ * `receivedDamage` 表示命中后读取使用者本回合承受的最后一段合格直接伤害，再按配置倍数返还给伤害来源。
  * `oneHitKnockOut` 表示命中后直接造成目标当前 HP 等量伤害，并使用一击必杀专用等级与命中率规则。
  * `targetScope` 表示技能在站位中的目标范围，供双打范围技能计算实际目标和 0.75 伤害修正。
  * `minHits`/`maxHits` 表示一次技能使用中的连续命中段数；单段技能二者都为 1，多段技能会在命中后决定段数。
@@ -66,6 +67,7 @@ data class BattleSkillSlot(
 	val fixedDamage: BattleFixedDamage? = null,
 	val proportionalDamage: BattleProportionalDamage? = null,
 	val hpDerivedDamage: BattleHpDerivedDamage? = null,
+	val receivedDamage: BattleReceivedDamage? = null,
 	val oneHitKnockOut: BattleOneHitKnockOut? = null,
 	val accuracy: Int?,
 	val targetScope: BattleSkillTargetScope = BattleSkillTargetScope.SELECTED_TARGET,
@@ -128,10 +130,14 @@ data class BattleSkillSlot(
 		require(hpDerivedDamage == null || damageClass != BattleDamageClass.STATUS) {
 			"HP-derived damage requires a damaging skill"
 		}
+		require(receivedDamage == null || damageClass != BattleDamageClass.STATUS) {
+			"received damage rule requires a damaging skill"
+		}
 		require(oneHitKnockOut == null || damageClass != BattleDamageClass.STATUS) {
 			"one-hit knock out damage requires a damaging skill"
 		}
-		val directDamageRuleCount = listOf(fixedDamage, proportionalDamage, hpDerivedDamage, oneHitKnockOut).count { it != null }
+		val directDamageRuleCount =
+			listOf(fixedDamage, proportionalDamage, hpDerivedDamage, receivedDamage, oneHitKnockOut).count { it != null }
 		require(directDamageRuleCount <= 1) {
 			"direct damage rules cannot be used together"
 		}

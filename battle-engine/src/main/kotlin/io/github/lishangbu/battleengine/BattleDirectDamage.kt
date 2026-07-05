@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleHpDerivedDamage
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleState
 
 /**
  * 不进入普通伤害公式的直接伤害数值解析器。
@@ -14,20 +15,28 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * 不写事件，也不处理替身、保命、低体力道具或倒下。这样直接伤害的资料解释和后续 HP 写入阶段保持解耦：资料模型
  * 变更时改这里，现代战斗阶段顺序变更时仍由 [BattleEngine] 编排。
  */
-internal class BattleDirectDamage {
+internal class BattleDirectDamage(
+	private val receivedDamageMemory: BattleReceivedDamageMemory,
+) {
 	/**
 	 * 计算本次直接伤害尝试。
 	 *
 	 * 固定伤害读取技能规则给出的固定值或使用者等级；比例伤害读取目标当前 HP 并按资料声明的分数向下取整；
-	 * HP 派生伤害读取双方当前 HP，并可能声明技能失败或使用者在命中后倒下；一击必杀在命中后读取目标当前 HP
-	 * 作为本次直接伤害。返回 null 表示该技能没有直接伤害模型，调用方应继续走普通伤害公式。
+	 * HP 派生伤害读取双方当前 HP，并可能声明技能失败或使用者在命中后倒下；已受伤害反打读取本回合事件流中
+	 * 最后一段合格 HP 伤害；一击必杀在命中后读取目标当前 HP 作为本次直接伤害。返回 null 表示该技能没有直接
+	 * 伤害模型，调用方应继续走普通伤害公式。
 	 */
 	fun attempt(
+		state: BattleState,
 		skill: BattleSkillSlot,
 		actor: BattleParticipant,
 		target: BattleParticipant,
 	): BattleDirectDamageAttempt? =
-		if (skill.oneHitKnockOut != null) {
+		if (skill.receivedDamage != null) {
+			receivedDamageMemory.latestReceivedDamage(state, actor.actorId, skill, target.actorId)
+				?.let { BattleDirectDamageAttempt.Hit(it.amount) }
+				?: BattleDirectDamageAttempt.Failed("received-damage-memory-unavailable")
+		} else if (skill.oneHitKnockOut != null) {
 			BattleDirectDamageAttempt.Hit(target.currentHp)
 		} else {
 			when (val fixedDamage = skill.fixedDamage) {

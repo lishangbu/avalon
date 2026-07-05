@@ -30,6 +30,7 @@ internal class BattleSkillTargetResolution(
 	private val skillAdditionalEffects: BattleSkillAdditionalEffects,
 	private val statusSkillHpEffects: BattleStatusSkillHpEffects,
 	private val environmentEffects: BattleEnvironmentEffects,
+	private val receivedDamageMemory: BattleReceivedDamageMemory,
 	private val skillDamageResolution: BattleSkillDamageResolution,
 ) {
 	/**
@@ -50,7 +51,12 @@ internal class BattleSkillTargetResolution(
 	): TurnContext {
 		val state = context.state
 		val actor = state.participant(actorId) ?: return context
-		val target = state.participant(targetActorId) ?: return context
+		val target = when (
+			val targetResolution = resolveTargetBeforePreHit(context, state, actor, targetActorId, skill, random)
+		) {
+			is BattleSkillTargetLookupResult.Resolved -> targetResolution.target
+			is BattleSkillTargetLookupResult.Stopped -> return targetResolution.context
+		}
 		if (!actor.canBattle() || !target.canBattle()) {
 			return context
 		}
@@ -229,6 +235,48 @@ internal class BattleSkillTargetResolution(
 		)
 	}
 
+	/**
+	 * 为已受伤害反打技能确定真实目标。
+	 *
+	 * 普通单体技能已经由 [BattleSkillTargeting] 按“目标席位”语义解析出目标，本函数只在技能声明了
+	 * [io.github.lishangbu.battleengine.model.BattleReceivedDamage] 时介入。现代反打类技能真正命中的不是玩家提交
+	 * 的目标，而是本回合最后一次对使用者造成合格直接伤害的对手；因此目标必须在保护、属性吸收、属性免疫和
+	 * 伤害写入之前就完成重定向。若找不到合格受伤记录，技能在已经宣告并消耗 PP 后失败，并中断锁招或蓄力释放。
+	 */
+	private fun resolveTargetBeforePreHit(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleSkillTargetLookupResult {
+		if (skill.receivedDamage == null) {
+			return state.participant(targetActorId)
+				?.let(BattleSkillTargetLookupResult::Resolved)
+				?: BattleSkillTargetLookupResult.Stopped(context)
+		}
+		val remembered = receivedDamageMemory.latestReceivedDamage(state, actor.actorId, skill)
+		if (remembered != null) {
+			return BattleSkillTargetLookupResult.Resolved(remembered.source)
+		}
+		return BattleSkillTargetLookupResult.Stopped(
+			context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "received-damage-memory-unavailable",
+				),
+			),
+		)
+	}
+
 	private fun TurnContext.interruptSkillWithEvent(
 		state: BattleState,
 		actor: BattleParticipant,
@@ -244,4 +292,15 @@ internal class BattleSkillTargetResolution(
 					random = random,
 				),
 			)
+}
+
+/**
+ * 单目标结算开始前的目标解析结果。
+ *
+ * 普通目标缺失时保持既有“跳过该目标”的行为；已受伤害反打技能找不到合格伤害记忆时需要追加技能失败事件并返回
+ * 新上下文。用显式结果类型比返回 nullable 目标更清楚，能避免后续维护时不小心吞掉失败事件。
+ */
+private sealed interface BattleSkillTargetLookupResult {
+	data class Resolved(val target: BattleParticipant) : BattleSkillTargetLookupResult
+	data class Stopped(val context: TurnContext) : BattleSkillTargetLookupResult
 }

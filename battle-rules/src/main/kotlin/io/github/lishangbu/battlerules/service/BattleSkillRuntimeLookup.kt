@@ -90,6 +90,7 @@ class BattleSkillRuntimeLookup(
 			fixedDamage = effectPolicy.toBattleFixedDamage(),
 			proportionalDamage = effectPolicy.toBattleProportionalDamage(),
 			hpDerivedDamage = effectPolicy.toBattleHpDerivedDamage(),
+			receivedDamage = effectPolicy.toBattleReceivedDamage(),
 			oneHitKnockOut = effectPolicy.toBattleOneHitKnockOut(),
 			accuracy = row.accuracy,
 			targetScope = targetPolicy.toBattleSkillTargetScope(),
@@ -218,8 +219,8 @@ private fun SkillRuntimeRow.requireSupportedRulePolicies() {
  * 避免 [BattleSkillSlot] 或伤害公式在更深层抛出 `IllegalArgumentException`，导致调用方只看到 500。
  *
  * 这层只做运行态必须知道的最小一致性检查：段数、要害等级、锁招回合、变化类技能互斥、蓄力/休整互斥。没有基础
- * 威力的伤害类技能不在这里拒绝，因为反击类技能的资料就是“伤害分类存在但威力为空”；纯引擎会把尚未建模的
- * 伤害记忆规则转成稳定失败事件，避免适配层把可装配资料和当前战斗行为混在一起判断。
+ * 威力的伤害类技能不在这里拒绝，因为反打类技能的资料就是“伤害分类存在但威力为空”；纯引擎会优先读取显式
+ * 受伤害记忆模型，只有资料仍缺少模型时才转成稳定失败事件，避免适配层把可装配资料和当前战斗行为混在一起判断。
  */
 private fun SkillRuntimeRow.requireSupportedRuleValues() {
 	val damageClass = damageClassCode.toBattleDamageClass()

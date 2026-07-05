@@ -17,6 +17,7 @@ import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleOneHitKnockOut
 import io.github.lishangbu.battleengine.model.BattleProportionalDamage
+import io.github.lishangbu.battleengine.model.BattleReceivedDamage
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
@@ -236,9 +237,9 @@ class BattleRuntimeSnapshotServiceTests(
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
 				2, 3, 5, 7, 12, 14, 15, 20, 23, 28, 32, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
-				67, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 252, 259, 261, 263, 265, 269,
-				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
+				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
+				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 243, 252, 259, 261, 263, 265, 269,
+				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 368, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
 				464, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
 			),
@@ -575,6 +576,30 @@ class BattleRuntimeSnapshotServiceTests(
 			.isEqualTo(BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp)
 		assertThat(slots.getValue(515).hpDerivedDamage)
 			.isEqualTo(BattleHpDerivedDamage.UserCurrentHpAndUserFaints)
+		assertThat(slots.getValue(68).receivedDamage)
+			.isEqualTo(
+				BattleReceivedDamage(
+					acceptedDamageClasses = setOf(BattleDamageClass.PHYSICAL),
+					numerator = 2,
+					denominator = 1,
+				),
+			)
+		assertThat(slots.getValue(243).receivedDamage)
+			.isEqualTo(
+				BattleReceivedDamage(
+					acceptedDamageClasses = setOf(BattleDamageClass.SPECIAL),
+					numerator = 2,
+					denominator = 1,
+				),
+			)
+		assertThat(slots.getValue(368).receivedDamage)
+			.isEqualTo(
+				BattleReceivedDamage(
+					acceptedDamageClasses = setOf(BattleDamageClass.PHYSICAL, BattleDamageClass.SPECIAL),
+					numerator = 3,
+					denominator = 2,
+				),
+			)
 		assertThat(slots.getValue(12).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
 		assertThat(slots.getValue(32).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
 		assertThat(slots.getValue(90).oneHitKnockOut).isEqualTo(BattleOneHitKnockOut())
