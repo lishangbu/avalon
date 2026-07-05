@@ -10174,6 +10174,83 @@ databaseChangeLog:
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
 - changeSet:
+    id: 002-battle-rules-enable-sticky-barb-effects
+    author: backend
+    comment: 启用附着针的回合末自伤和接触转移规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 附着针由两个独立效果组成：当前持有者在完整回合末按自身最大 HP 的 1/8 受到间接伤害；
+          -- 无携带道具的攻击方使用接触类技能命中持有者本体后，会接过这件道具，并在同一回合末成为新的自伤对象。
+          update game_item
+          set enabled = true
+          where code = 'sticky-barb';
+
+          with new_item_rules(item_code, trigger_timing, effect_policy, consumable, trigger_order, description, sort_order) as (
+            values
+              (
+                'sticky-barb',
+                'AFTER_DAMAGE',
+                'contact-transfer-to-attacker',
+                false,
+                70,
+                '持有者被无携带道具的攻击方以接触类技能成功命中本体后，将当前携带道具转移给攻击方；击中替身、非接触或攻击方已有道具时不触发。',
+                650
+              ),
+              (
+                'sticky-barb',
+                'HELD_END_TURN',
+                'held-end-turn-damage-eighth',
+                false,
+                130,
+                '完整回合末仍持有该道具的当前上场成员，按自身最大 HP 的 1/8 受到间接伤害；间接伤害免疫会阻止该伤害。',
+                655
+              )
+          ),
+          numbered_item_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + row_number() over (order by sort_order) as id,
+              i.id as item_id,
+              nr.trigger_timing,
+              nr.effect_policy,
+              nr.consumable,
+              nr.trigger_order,
+              nr.description,
+              nr.sort_order
+            from new_item_rules nr
+            join game_item i on i.code = nr.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_item_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+- changeSet:
     id: 002-battle-rules-enable-contact-damage-effects
     author: backend
     comment: 启用接触反伤特性和接触反伤道具规则。

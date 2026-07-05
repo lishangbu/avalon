@@ -22,6 +22,7 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			multiplier = 1.3,
 			recoilDenominator = 10,
 		)
+		"held-end-turn-damage-eighth" -> BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)
 		"damage-dealt-heal-eighth" -> BattleItemEffect.DamageDealtHeal(healDenominator = 8)
 		"damage-class-power-boost-physical" -> BattleItemEffect.DamageClassPowerBoost(
 			damageClasses = setOf(BattleDamageClass.PHYSICAL),
@@ -68,6 +69,7 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			statuses = setOf(BattleVolatileStatus.CONFUSION),
 		)
 		"contact-damage-to-attacker-sixth" -> BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6)
+		"contact-transfer-to-attacker" -> BattleItemEffect.ContactTransferToAttacker
 		"punch-based-skill-power-boost" -> BattleItemEffect.PunchBasedSkillPowerBoost()
 		"punch-based-contact-suppression" -> BattleItemEffect.PunchBasedContactSuppression
 		"contact-side-effect-immunity" -> BattleItemEffect.ContactSideEffectImmunity

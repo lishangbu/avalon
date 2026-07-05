@@ -513,7 +513,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 71L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 65L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 67L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -2700,6 +2700,29 @@ class LiquibaseMigrationTests(
 					"item_id" to 583L,
 					"trigger_timing" to "AFTER_DAMAGE",
 					"effect_policy" to "contact-damage-to-attacker-sixth",
+					"consumable" to false,
+				),
+			)
+
+			val contactTransferItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id = 265
+				order by trigger_order, sort_order
+				""".trimIndent(),
+			)
+			assertThat(contactTransferItemRules).containsExactly(
+				mapOf(
+					"item_id" to 265L,
+					"trigger_timing" to "AFTER_DAMAGE",
+					"effect_policy" to "contact-transfer-to-attacker",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 265L,
+					"trigger_timing" to "HELD_END_TURN",
+					"effect_policy" to "held-end-turn-damage-eighth",
 					"consumable" to false,
 				),
 			)

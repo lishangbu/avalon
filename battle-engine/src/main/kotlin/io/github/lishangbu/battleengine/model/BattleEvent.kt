@@ -824,6 +824,34 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 携带道具在回合末对持有者造成了 HP 损失。
+	 *
+	 * 该事件和 [ResidualDamageApplied] 分开：异常状态伤害需要记录具体状态，而附着针这类道具伤害需要记录道具
+	 * 身份。两者都属于间接伤害，但 replay、沙盒和公开对照测试必须能区分“因为中毒扣血”和“因为携带道具扣血”，
+	 * 否则生产排障时只能从最终 HP 反推来源。
+	 */
+	data class HeldItemDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val itemId: Long,
+		val amount: Int,
+	) : BattleEvent
+
+	/**
+	 * 持有者的携带道具因为接触规则转移给了另一名成员。
+	 *
+	 * 现代公开实现不会为附着针换手播放额外对战消息，但引擎事件仍记录这一事实：最终快照只告诉我们“谁现在持有
+	 * 道具”，事件才能解释“为什么这件道具在本回合换了人”。事件只记录道具 ID，不复制道具效果列表；效果列表属于
+	 * 状态快照，转移时已经写入新持有者。
+	 */
+	data class HeldItemTransferred(
+		override val turnNumber: Int,
+		val fromActorId: String,
+		val toActorId: String,
+		val itemId: Long,
+	) : BattleEvent
+
 	// 回复、代价和伤害后事件：描述 HP 写入后的补充事实。
 	/**
 	 * 混乱自伤已经结算到行动者身上。

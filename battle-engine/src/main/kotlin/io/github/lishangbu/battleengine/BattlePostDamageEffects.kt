@@ -119,6 +119,51 @@ internal class BattlePostDamageEffects(
 	}
 
 	/**
+	 * 处理目标方“被无道具攻击方接触后转移当前携带道具”的道具效果。
+	 *
+	 * 该 hook 当前用于附着针。它和接触反伤共享同一组触发边界：必须对目标本体造成了实际伤害、技能本次形成有效
+	 * 接触、攻击方没有接触副作用免疫、目标仍存在且目标当前确实持有道具。攻击方必须没有携带道具，避免凭空覆盖
+	 * 讲究锁、抗性树果等已有生命周期。转移时复制目标当前的 `itemId` 和 `itemEffects`，再清空目标道具；这比把
+	 * 道具 ID 写进效果对象更稳，因为被转移的一定是运行态里还真实存在的那件道具。
+	 */
+	fun applyContactItemTransferEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (!skill.makesEffectiveContact(actor) || actor.hasContactSideEffectImmunity() || actor.itemId != null) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		val itemId = target.itemId ?: return state
+		if (target.itemEffects.none { it is BattleItemEffect.ContactTransferToAttacker }) {
+			return state
+		}
+		val transferredActor = actor.copy(
+			itemId = itemId,
+			itemEffects = target.itemEffects,
+			choiceLockedSkillId = null,
+		)
+		return state
+			.replaceParticipant(target.consumeHeldItem())
+			.replaceParticipant(transferredActor)
+			.appendEvent(
+				BattleEvent.HeldItemTransferred(
+					turnNumber = state.turnNumber,
+					fromActorId = target.actorId,
+					toActorId = actor.actorId,
+					itemId = itemId,
+				),
+			)
+	}
+
+	/**
 	 * 处理造成单次伤害后的携带道具效果。
 	 *
 	 * 当前 hook 覆盖生命宝珠类道具：成功造成伤害后按使用者最大 HP 固定比例反伤。贝壳之铃类道具需要读取整次

@@ -201,8 +201,8 @@ internal class BattleDamageApplicationEffects(
 		} else {
 			afterTargetLowHpItem
 		}
-		val afterContactDamage = if (allowContactAbilities) {
-			postDamageEffects.applyContactDamageEffects(
+		val afterContactItemTransfer = if (allowContactAbilities) {
+			postDamageEffects.applyContactItemTransferEffects(
 				state = afterContactAbilities,
 				actorId = actorId,
 				targetActorId = targetActorId,
@@ -211,6 +211,17 @@ internal class BattleDamageApplicationEffects(
 			)
 		} else {
 			afterContactAbilities
+		}
+		val afterContactDamage = if (allowContactAbilities) {
+			postDamageEffects.applyContactDamageEffects(
+				state = afterContactItemTransfer,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				skill = skill,
+				damageAmount = damageAmount,
+			)
+		} else {
+			afterContactItemTransfer
 		}
 		val afterRecoil = postDamageEffects.applyPostDamageItemEffects(
 			state = afterContactDamage,

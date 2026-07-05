@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleResult
@@ -19,6 +20,7 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  * 5. 天气相关回复。
  * 6. 场地相关回复。
  * 7. 携带道具的回合末回复。
+ * 8. 携带道具的回合末伤害。
  *
  * 这里不实现通用事件总线，也不把每个效果做成可注册插件。回合末规则的难点不是“能不能动态发现处理器”，而是
  * 现代规则中阶段顺序非常敏感：例如低体力回复道具必须发生在扣血之后、倒下判断之前；青草场地回复不应该跑到
@@ -62,7 +64,8 @@ internal class BattleEndTurnEffects(
 		}
 		val afterWeatherHealing = healingEffects.applyWeatherHealing(afterWeather)
 		val afterTerrainHealing = healingEffects.applyTerrainHealing(afterWeatherHealing)
-		return healingEffects.applyHeldItemHealing(afterTerrainHealing)
+		val afterHeldItemHealing = healingEffects.applyHeldItemHealing(afterTerrainHealing)
+		return applyHeldItemDamage(afterHeldItemHealing)
 	}
 
 	/**
@@ -157,6 +160,46 @@ internal class BattleEndTurnEffects(
 				}
 			}
 	}
+
+	/**
+	 * 处理携带道具在回合末造成的间接伤害。
+	 *
+	 * 该阶段当前用于附着针：它在常规回合末回复之后结算，因此转移到攻击方的附着针会在同一个回合末伤害新的
+	 * 持有者。每次效果结算前都重新读取成员快照，避免前一个效果或低体力回复道具已经改变 HP、清空道具或结束战斗。
+	 * 如果成员拥有间接伤害免疫，就不会追加 0 伤害事件；如果扣血导致倒下，统一回合末扣血收口器会负责低体力道具、
+	 * 倒下事件和胜负结果。
+	 */
+	private fun applyHeldItemDamage(state: BattleState): BattleState =
+		state.sides
+			.flatMap { it.activeParticipants() }
+			.fold(state) heldItemDamage@ { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@heldItemDamage current
+				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
+					return@heldItemDamage current
+				}
+				latest.itemEffects
+					.filterIsInstance<BattleItemEffect.HeldEndTurnDamage>()
+					.fold(current) itemDamage@ { damageState, effect ->
+						val currentParticipant = damageState.participant(latest.actorId) ?: return@itemDamage damageState
+						val itemId = currentParticipant.itemId ?: return@itemDamage damageState
+						if (!currentParticipant.canBattle() || currentParticipant.hasIndirectDamageImmunity()) {
+							return@itemDamage damageState
+						}
+						val damage = (currentParticipant.maxHp / effect.damageDenominator)
+							.coerceAtLeast(1)
+							.coerceAtMost(currentParticipant.currentHp)
+						damageResultEffects.apply(
+							state = damageState,
+							damaged = currentParticipant.receiveDamage(damage),
+							event = BattleEvent.HeldItemDamageApplied(
+								turnNumber = damageState.turnNumber,
+								actorId = currentParticipant.actorId,
+								itemId = itemId,
+								amount = damage,
+							),
+						)
+					}
+			}
 
 	/**
 	 * 计算主要异常状态在回合末造成的固定伤害。

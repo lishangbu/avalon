@@ -1613,6 +1613,11 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleItemEffect.SuperEffectiveDamageBoost>()
 			.single()
 		assertThat(superEffectiveBoost.multiplier).isEqualTo(1.2)
+		assertThat(service.itemEffectsByItemId(265))
+			.containsExactly(
+				BattleItemEffect.ContactTransferToAttacker,
+				BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
+			)
 		assertThat(service.itemEffectsByItemId(583))
 			.containsExactly(BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6))
 		assertThat(service.itemEffectsByItemId(897))

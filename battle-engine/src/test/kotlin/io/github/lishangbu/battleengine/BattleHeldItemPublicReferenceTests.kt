@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -180,5 +181,154 @@ class BattleHeldItemPublicReferenceTests {
 		scenario.assertNamed("end-turn-healing-item-restores-one-sixteenth-max-hp")
 		assertEquals(86, resolved.participant("holder")?.currentHp)
 		assertEquals(6, healing.amount)
+	}
+
+	@Test
+	fun `end turn damage item hurts holder by one eighth max hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "end-turn-damage-item-hurts-holder-by-one-eighth-max-hp",
+			inputSummary = "持有者最大 HP 100，当前 HP 100，携带会在回合末造成最大 HP 1/8 间接伤害的道具，本回合没有其它行动。",
+			expectedSummary = "完整回合末持有者受到 floor(100 / 8) = 12 点道具伤害，最终 HP 为 88。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"holder",
+					speed = 100,
+					itemId = 265,
+					itemEffects = listOf(BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+		val itemDamage = resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>().single()
+
+		scenario.assertNamed("end-turn-damage-item-hurts-holder-by-one-eighth-max-hp")
+		assertEquals(88, resolved.participant("holder")?.currentHp)
+		assertEquals(265, itemDamage.itemId)
+		assertEquals(12, itemDamage.amount)
+	}
+
+	@Test
+	fun `end turn damage item is blocked by indirect damage immunity`() {
+		val scenario = publicBattleRuleScenario(
+			name = "end-turn-damage-item-blocked-by-indirect-damage-immunity",
+			inputSummary = "持有者最大 HP 100，携带回合末自伤道具，同时拥有免疫间接伤害的结构化特性效果。",
+			expectedSummary = "回合末道具自伤被间接伤害免疫阻止，HP 不变，也不会追加道具伤害事件。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"holder",
+					speed = 100,
+					abilityEffects = listOf(BattleAbilityEffect.IndirectDamageImmunity),
+					itemId = 265,
+					itemEffects = listOf(BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)),
+				),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+
+		scenario.assertNamed("end-turn-damage-item-blocked-by-indirect-damage-immunity")
+		assertEquals(100, resolved.participant("holder")?.currentHp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>())
+	}
+
+	@Test
+	fun `contact transfer item moves to empty handed attacker and hurts new holder at end turn`() {
+		val stickyBarbEffects = listOf(
+			BattleItemEffect.ContactTransferToAttacker,
+			BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
+		)
+		val scenario = publicBattleRuleScenario(
+			name = "contact-transfer-item-moves-to-empty-handed-attacker-and-hurts-new-holder",
+			inputSummary = "目标携带接触转移且回合末自伤的道具；无道具攻击方用接触类物理技能命中目标本体。",
+			expectedSummary = "伤害后道具从目标转移到攻击方；同一回合末新的持有者攻击方受到 floor(100 / 8) = 12 点道具伤害。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(makesContact = true),
+				),
+				second = participant(
+					"defender",
+					speed = 50,
+					itemId = 265,
+					itemEffects = stickyBarbEffects,
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val transfer = resolved.events.filterIsInstance<BattleEvent.HeldItemTransferred>().single()
+		val itemDamage = resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>().single()
+		val attacker = requireNotNull(resolved.participant("attacker"))
+		val defender = requireNotNull(resolved.participant("defender"))
+
+		scenario.assertNamed("contact-transfer-item-moves-to-empty-handed-attacker-and-hurts-new-holder")
+		assertEquals(265, transfer.itemId)
+		assertEquals("defender", transfer.fromActorId)
+		assertEquals("attacker", transfer.toActorId)
+		assertEquals(265, attacker.itemId)
+		assertEquals(stickyBarbEffects, attacker.itemEffects)
+		assertEquals(null, defender.itemId)
+		assertEquals(emptyList(), defender.itemEffects)
+		assertEquals(88, attacker.currentHp)
+		assertEquals("attacker", itemDamage.actorId)
+		assertEquals(12, itemDamage.amount)
+	}
+
+	@Test
+	fun `contact transfer item stays on defender when attacker already has item`() {
+		val stickyBarbEffects = listOf(
+			BattleItemEffect.ContactTransferToAttacker,
+			BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
+		)
+		val scenario = publicBattleRuleScenario(
+			name = "contact-transfer-item-stays-on-defender-when-attacker-already-has-item",
+			inputSummary = "目标携带接触转移且回合末自伤的道具；攻击方已经持有其它道具并使用接触类物理技能命中目标。",
+			expectedSummary = "攻击方已有携带道具，接触转移不发生；回合末仍由原持有者目标承受 1/8 最大 HP 的道具伤害。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					itemId = 999,
+					skill = damagingSkill(makesContact = true),
+				),
+				second = participant(
+					"defender",
+					speed = 50,
+					itemId = 265,
+					itemEffects = stickyBarbEffects,
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val itemDamage = resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>().single()
+
+		scenario.assertNamed("contact-transfer-item-stays-on-defender-when-attacker-already-has-item")
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.HeldItemTransferred>())
+		assertEquals(999, resolved.participant("attacker")?.itemId)
+		assertEquals(265, resolved.participant("defender")?.itemId)
+		assertEquals("defender", itemDamage.actorId)
+		assertEquals(60, resolved.participant("defender")?.currentHp)
+		assertEquals(12, itemDamage.amount)
 	}
 }

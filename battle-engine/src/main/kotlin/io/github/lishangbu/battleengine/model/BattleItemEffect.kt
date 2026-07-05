@@ -3,7 +3,7 @@ package io.github.lishangbu.battleengine.model
 /**
  * 携带道具在战斗中的可执行效果。
  *
- * 当前覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复、天气伤害免疫、
+ * 当前覆盖几类常见 hook：造成伤害时提升倍率并按最大 HP 比例反伤、回合末按最大 HP 比例回复或扣血、天气伤害免疫、
  * 环境和一侧屏障持续回合延长、低体力一次性回复、满 HP 致命伤害保留 1 HP、蓄力技能一次性跳过等待、
  * 稳定状态免疫、稳定指定属性/分类威力加成、受到指定属性伤害时减免、效果绝佳伤害加成、造成伤害后回复，
  * 成功获得主要异常状态或临时状态后的即时解除，以及体重相关规则读取时的当前体重修正。
@@ -295,6 +295,22 @@ sealed interface BattleItemEffect {
 	}
 
 	/**
+	 * 当前上场成员在完整回合末按自身最大 HP 固定比例受到间接伤害。
+	 *
+	 * 该效果用于表达附着针这类非消耗型道具的回合末自伤部分。它和 [DamageBoostWithRecoil]、[ContactDamageToAttacker]
+	 * 的触发边界刻意分开：这里不要求本回合造成伤害，也不要求发生接触，只要成员在回合末仍然持有该道具且可以战斗，
+	 * 就按 `damageDenominator` 计算 `floor(maxHp / denominator)`，最少 1 点。伤害属于间接伤害，因此会被间接伤害
+	 * 免疫阻止；倒下、低体力道具和胜负收口仍由回合末伤害统一流程处理。
+	 */
+	data class HeldEndTurnDamage(
+		val damageDenominator: Int,
+	) : BattleItemEffect {
+		init {
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+		}
+	}
+
+	/**
 	 * HP 降到指定比例及以下时触发的一次性回复。
 	 *
 	 * 该结构覆盖现代主系列里常见的低体力树果：触发线通常是最大 HP 的 1/2；回复量可以是固定值
@@ -416,6 +432,15 @@ sealed interface BattleItemEffect {
 			require(damageDenominator > 0) { "damageDenominator must be positive" }
 		}
 	}
+
+	/**
+	 * 持有者被无携带道具的攻击方接触命中后，将当前携带道具转移给攻击方。
+	 *
+	 * 该效果用于表达附着针的接触转移部分。它不保存具体 `itemId` 或效果列表，因为被转移的就是持有者当前快照上的
+	 * 携带道具；这样数据库只需要声明“这个道具有接触转移规则”，真正转移时仍以运行态为准，避免道具被其它规则
+	 * 替换、消费或禁用后还从静态配置里凭空复制旧效果。转移只改变双方携带道具状态，不额外造成伤害，也不消费随机数。
+	 */
+	object ContactTransferToAttacker : BattleItemEffect
 
 	/**
 	 * 修正携带者在体重相关规则中被读取到的当前体重。
