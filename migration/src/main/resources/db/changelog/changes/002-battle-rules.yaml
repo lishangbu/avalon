@@ -8756,7 +8756,11 @@ databaseChangeLog:
             enabled = true
           from game_skill s
           where r.skill_id = s.id
-            and s.code in ('belly-drum', 'pain-split')
+            and s.code in ('belly-drum', 'pain-split');
+
+          update game_skill
+          set enabled = true
+          where code in ('belly-drum', 'pain-split');
 - changeSet:
     id: 002-battle-rules-disable-latest-unusable-skills
     author: backend
