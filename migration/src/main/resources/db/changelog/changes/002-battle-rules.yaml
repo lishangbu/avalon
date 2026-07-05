@@ -8737,3 +8737,46 @@ databaseChangeLog:
           where s.id = r.skill_id
             and s.code in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
             and r.enabled = true;
+- changeSet:
+    id: 002-battle-rules-disable-unmodeled-damaging-no-damage-skills
+    author: backend
+    comment: 禁用伤害分类却仍被占位为无伤害的未建模技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 物理/特殊技能如果在现代入口中启用，却因为基础威力为空被派生为 no-damage，会造成“看起来能攻击、实际不掉血”的生产事故。
+          -- 这类技能通常依赖 HP 档位、随机分支、队伍成员、蓄力层数或携带物等专项规则；在专项规则落地前必须先退出运行态。
+          with unmodeled_damaging_skills as (
+            select s.id as skill_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            where s.enabled = true
+              and r.enabled = true
+              and dc.code in ('physical', 'special')
+              and r.effect_policy = 'standard-damage'
+              and r.damage_policy = 'no-damage'
+          )
+          update game_skill s
+          set enabled = false
+          from unmodeled_damaging_skills u
+          where s.id = u.skill_id;
+
+          with unmodeled_damaging_skills as (
+            select r.id as rule_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            where r.enabled = true
+              and dc.code in ('physical', 'special')
+              and r.effect_policy = 'standard-damage'
+              and r.damage_policy = 'no-damage'
+          )
+          update battle_skill_rule r
+          set
+            enabled = false,
+            description = '该伤害类技能仍缺少专项威力或直接伤害规则；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
+          from unmodeled_damaging_skills u
+          where r.id = u.rule_id;

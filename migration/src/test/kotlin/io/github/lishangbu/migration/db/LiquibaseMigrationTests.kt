@@ -635,6 +635,23 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val enabledDamagingNoDamageSkillRules = queryMaps(
+			"""
+			select s.id, s.code, s.name, dc.code as damage_class, r.effect_policy, r.damage_policy
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			join game_skill_damage_class dc on dc.id = s.damage_class_id
+			where s.enabled = true
+				and r.enabled = true
+				and dc.code in ('physical', 'special')
+				and r.damage_policy = 'no-damage'
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(enabledDamagingNoDamageSkillRules)
+			.describedAs("物理/特殊技能启用时必须有真实伤害、直接伤害或专项失败规则，不能静默装配成无伤害")
+			.isEmpty()
+
 		val derivedBasicSkillRules = queryMaps(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage
