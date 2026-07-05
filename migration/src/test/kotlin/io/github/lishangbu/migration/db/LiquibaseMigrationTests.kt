@@ -652,6 +652,44 @@ class LiquibaseMigrationTests(
 			.describedAs("物理/特殊技能启用时必须有真实伤害、直接伤害或专项失败规则，不能静默装配成无伤害")
 			.isEmpty()
 
+		val enabledUnmodeledBasicDamageSkillRules = queryMaps(
+			"""
+			select s.id, s.code, s.name, d.short_effect
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			join game_skill_damage_class dc on dc.id = s.damage_class_id
+			join game_skill_detail d on d.skill_id = s.id
+			where s.enabled = true
+				and r.enabled = true
+				and dc.code in ('physical', 'special')
+				and r.effect_policy = 'standard-damage'
+				and r.damage_policy = 'standard-damage'
+				and r.description like '基础伤害技能规则%'
+				and r.target_policy = 'selected-target'
+				and r.hit_policy = 'standard-hit'
+				and r.min_hits = 1
+				and r.max_hits = 1
+				and r.critical_hit_stage = 0
+				and r.charges_before_use = false
+				and r.recharges_after_use = false
+				and r.lock_move_turns_min = 1
+				and r.lock_move_turns_max = 1
+				and r.confuses_user_after_lock = false
+				and r.force_target_switch = false
+				and coalesce(d.short_effect, '') not like '%没有额外效果%'
+				and coalesce(d.short_effect, '') not like '%造成常规伤害%'
+				and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(enabledUnmodeledBasicDamageSkillRules)
+			.describedAs("启用中的白板普通伤害规则只能承载明确无额外效果的技能，不能吞掉资料文案中的特殊效果")
+			.isEmpty()
+
 		val derivedBasicSkillRules = queryMaps(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage

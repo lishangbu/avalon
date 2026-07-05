@@ -8780,3 +8780,87 @@ databaseChangeLog:
             description = '该伤害类技能仍缺少专项威力或直接伤害规则；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
           from unmodeled_damaging_skills u
           where r.id = u.rule_id;
+- changeSet:
+    id: 002-battle-rules-disable-unmodeled-basic-damage-placeholder-skills
+    author: backend
+    comment: 禁用文案含特殊效果但仍只有普通伤害占位的技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 基础普通伤害规则可以承载“造成普通伤害且无额外效果”的技能，也可以和主行结构字段一起承载多段、必中、
+          -- 高要害、蓄力、休整、锁招等已经模型化的通用行为。除此之外，如果资料文案仍显示有特殊效果，而规则行没有
+          -- 任何子表效果或主行结构字段承载，就必须先从现代运行态禁用，避免真实战斗把特殊技能当白板伤害结算。
+          with unmodeled_basic_damage_skills as (
+            select s.id as skill_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            join game_skill_detail d on d.skill_id = s.id
+            where s.enabled = true
+              and r.enabled = true
+              and dc.code in ('physical', 'special')
+              and r.effect_policy = 'standard-damage'
+              and r.damage_policy = 'standard-damage'
+              and r.description like '基础伤害技能规则%'
+              and r.target_policy = 'selected-target'
+              and r.hit_policy = 'standard-hit'
+              and r.min_hits = 1
+              and r.max_hits = 1
+              and r.critical_hit_stage = 0
+              and r.charges_before_use = false
+              and r.recharges_after_use = false
+              and r.lock_move_turns_min = 1
+              and r.lock_move_turns_max = 1
+              and r.confuses_user_after_lock = false
+              and r.force_target_switch = false
+              and coalesce(d.short_effect, '') not like '%没有额外效果%'
+              and coalesce(d.short_effect, '') not like '%造成常规伤害%'
+              and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+          )
+          update game_skill s
+          set enabled = false
+          from unmodeled_basic_damage_skills u
+          where s.id = u.skill_id;
+
+          with unmodeled_basic_damage_skills as (
+            select r.id as rule_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            join game_skill_detail d on d.skill_id = s.id
+            where r.enabled = true
+              and dc.code in ('physical', 'special')
+              and r.effect_policy = 'standard-damage'
+              and r.damage_policy = 'standard-damage'
+              and r.description like '基础伤害技能规则%'
+              and r.target_policy = 'selected-target'
+              and r.hit_policy = 'standard-hit'
+              and r.min_hits = 1
+              and r.max_hits = 1
+              and r.critical_hit_stage = 0
+              and r.charges_before_use = false
+              and r.recharges_after_use = false
+              and r.lock_move_turns_min = 1
+              and r.lock_move_turns_max = 1
+              and r.confuses_user_after_lock = false
+              and r.force_target_switch = false
+              and coalesce(d.short_effect, '') not like '%没有额外效果%'
+              and coalesce(d.short_effect, '') not like '%造成常规伤害%'
+              and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+          )
+          update battle_skill_rule r
+          set
+            enabled = false,
+            description = '该伤害类技能文案包含未结构化的特殊效果；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
+          from unmodeled_basic_damage_skills u
+          where r.id = u.rule_id;
