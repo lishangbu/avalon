@@ -80,6 +80,9 @@ internal class BattleLeechSeedEffects(
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
+				if (current.result != null) {
+					return@fold current
+				}
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				if (!latest.canBattle() || !latest.isLeechSeeded()) {
 					return@fold current

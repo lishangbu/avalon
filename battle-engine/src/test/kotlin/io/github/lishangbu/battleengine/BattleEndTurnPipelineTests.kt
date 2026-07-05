@@ -106,4 +106,72 @@ class BattleEndTurnPipelineTests {
 		assertTrue(resolved.events.filterIsInstance<BattleEvent.TerrainHealingApplied>().isEmpty())
 		assertTrue(resolved.events.filterIsInstance<BattleEvent.HealingApplied>().isEmpty())
 	}
+
+	@Test
+	fun `residual damage phase stops remaining participants after battle ends`() {
+		val state = engine.start(
+			initialState(
+				first = participant("fainting-target", speed = 100, currentHp = 5).copy(
+					majorStatus = BattleMajorStatus.BURN,
+				),
+				second = participant("later-target", speed = 50).copy(
+					majorStatus = BattleMajorStatus.BURN,
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+		val residualEvents = resolved.events.filterIsInstance<BattleEvent.ResidualDamageApplied>()
+
+		assertEquals("side-b", resolved.result?.winningSideId)
+		assertEquals(listOf("fainting-target"), residualEvents.map { it.actorId })
+		assertEquals(100, resolved.participant("later-target")?.currentHp)
+	}
+
+	@Test
+	fun `weather damage phase stops remaining participants after battle ends`() {
+		val state = engine.start(
+			initialState(
+				first = participant("fainting-target", speed = 100, currentHp = 5),
+				second = participant("later-target", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.SANDSTORM),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+		val weatherEvents = resolved.events.filterIsInstance<BattleEvent.WeatherDamageApplied>()
+
+		assertEquals("side-b", resolved.result?.winningSideId)
+		assertEquals(listOf("fainting-target"), weatherEvents.map { it.actorId })
+		assertEquals(100, resolved.participant("later-target")?.currentHp)
+	}
+
+	@Test
+	fun `held item damage phase stops remaining participants after battle ends`() {
+		val endTurnDamage = BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"fainting-target",
+					speed = 100,
+					currentHp = 5,
+					itemId = 265,
+					itemEffects = listOf(endTurnDamage),
+				),
+				second = participant(
+					"later-target",
+					speed = 50,
+					itemId = 265,
+					itemEffects = listOf(endTurnDamage),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(state, emptyList(), ScriptedBattleRandom(emptyList()))
+		val itemDamageEvents = resolved.events.filterIsInstance<BattleEvent.HeldItemDamageApplied>()
+
+		assertEquals("side-b", resolved.result?.winningSideId)
+		assertEquals(listOf("fainting-target"), itemDamageEvents.map { it.actorId })
+		assertEquals(100, resolved.participant("later-target")?.currentHp)
+	}
 }

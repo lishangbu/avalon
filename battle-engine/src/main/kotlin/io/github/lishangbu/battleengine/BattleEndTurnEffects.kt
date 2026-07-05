@@ -103,6 +103,9 @@ internal class BattleEndTurnEffects(
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
+				if (current.result != null) {
+					return@fold current
+				}
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
 					current
@@ -141,6 +144,9 @@ internal class BattleEndTurnEffects(
 		return state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) { current, participant ->
+				if (current.result != null) {
+					return@fold current
+				}
 				val latest = current.participant(participant.actorId) ?: return@fold current
 				if (!latest.canBattle() || latest.immuneToWeatherDamage(current, BattleWeather.SANDSTORM)) {
 					current
@@ -173,6 +179,9 @@ internal class BattleEndTurnEffects(
 		state.sides
 			.flatMap { it.activeParticipants() }
 			.fold(state) heldItemDamage@ { current, participant ->
+				if (current.result != null) {
+					return@heldItemDamage current
+				}
 				val latest = current.participant(participant.actorId) ?: return@heldItemDamage current
 				if (!latest.canBattle() || latest.hasIndirectDamageImmunity()) {
 					return@heldItemDamage current
