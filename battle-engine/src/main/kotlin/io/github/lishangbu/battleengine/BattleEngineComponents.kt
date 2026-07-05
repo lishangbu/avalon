@@ -214,6 +214,7 @@ internal class BattleEngineComponents(
 		entryHazardEffects = entryHazardEffects,
 		switchInAbilityEffects = switchInAbilityEffects,
 	)
+	private val userSideCleanupEffects = BattleUserSideCleanupEffects()
 	private val skillAdditionalEffects = BattleSkillAdditionalEffects(
 		majorStatusEffects = majorStatusEffects,
 		volatileStatusEffects = volatileStatusEffects,
@@ -221,6 +222,7 @@ internal class BattleEngineComponents(
 		fieldEffects = fieldEffects,
 		targetDefenseEffects = targetDefenseEffects,
 		leechSeedEffects = leechSeedEffects,
+		userSideCleanupEffects = userSideCleanupEffects,
 		forcedSwitchEffects = forcedSwitchEffects,
 	)
 	private val damageMoveFinishResolution = BattleDamageMoveFinishResolution(

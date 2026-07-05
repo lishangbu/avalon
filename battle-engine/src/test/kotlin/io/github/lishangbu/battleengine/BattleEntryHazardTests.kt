@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
@@ -190,6 +191,113 @@ class BattleEntryHazardTests {
 		assertEquals(emptyList(), airborne.events.filterIsInstance<BattleEvent.EntryHazardStatStageChanged>())
 	}
 
+	@Test
+	fun `spin cleanup clears user binding leech seed and own side entry hazards after hit`() {
+		val scenario = publicBattleRuleScenario(
+			name = "spin-cleanup-clears-user-binding-leech-seed-and-own-side-entry-hazards",
+			inputSummary = "使用者身上已有束缚和寄生种子，使用者一侧已有四类入场陷阱；清场类伤害技能成功命中目标。",
+			expectedSummary = "技能造成伤害后解除使用者束缚和寄生种子，并移除使用者一侧全部入场陷阱；目标侧陷阱不受影响。",
+		)
+		val cleanupSkill = damagingSkill(
+			skillId = 229,
+			name = "高速旋转",
+			power = 50,
+			clearsUserSideHazardsAndTraps = true,
+		)
+		val user = participant("spinner", speed = 100, skill = cleanupSkill).copy(
+			boundByActorId = "immune-target",
+			bindingTurnsRemaining = 3,
+			leechSeedSourceSideId = "side-b",
+			leechSeedSourceActiveIndex = 0,
+		)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = user,
+					second = participant("target", speed = 80),
+					firstSideEntryHazards = allEntryHazards(),
+					secondSideEntryHazards = listOf(BattleSideEntryHazard(BattleSideEntryHazardKind.SPIKES)),
+				),
+			),
+			listOf(BattleAction.UseSkill("spinner", skillId = 229, targetActorId = "target")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val cleanedUser = requireNotNull(resolved.participant("spinner"))
+		val bindingCleared = resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>().single()
+		val removedHazards = resolved.events.filterIsInstance<BattleEvent.SideEntryHazardRemoved>()
+
+		scenario.assertNamed("spin-cleanup-clears-user-binding-leech-seed-and-own-side-entry-hazards")
+		assertEquals(0, cleanedUser.bindingTurnsRemaining)
+		assertEquals(null, cleanedUser.boundByActorId)
+		assertEquals(null, cleanedUser.leechSeedSourceSideId)
+		assertEquals(null, cleanedUser.leechSeedSourceActiveIndex)
+		assertEquals(BattleVolatileStatus.BINDING, bindingCleared.status)
+		assertEquals("spinner", resolved.events.filterIsInstance<BattleEvent.LeechSeedCleared>().single().actorId)
+		assertEquals(emptyList(), resolved.sides.single { it.sideId == "side-a" }.entryHazards)
+		assertEquals(listOf(BattleSideEntryHazard(BattleSideEntryHazardKind.SPIKES)), resolved.sides.single { it.sideId == "side-b" }.entryHazards)
+		assertEquals(
+			listOf(
+				BattleSideEntryHazardKind.STEALTH_ROCK,
+				BattleSideEntryHazardKind.SPIKES,
+				BattleSideEntryHazardKind.TOXIC_SPIKES,
+				BattleSideEntryHazardKind.STICKY_WEB,
+			),
+			removedHazards.map { it.kind },
+		)
+		assertTrue(removedHazards.all { it.actorId == "spinner" && it.sideId == "side-a" && it.skillId == 229L })
+	}
+
+	@Test
+	fun `spin cleanup does not clear traps when target element is immune`() {
+		val scenario = publicBattleRuleScenario(
+			name = "spin-cleanup-does-not-clear-when-target-is-immune",
+			inputSummary = "使用者一侧已有入场陷阱，清场类伤害技能打向属性免疫目标。",
+			expectedSummary = "技能只产生 0 伤害免疫事件并中断成功后效果，不产生清场或寄生解除事件；束缚只按回合末规则自然递减。",
+		)
+		val cleanupSkill = damagingSkill(
+			skillId = 229,
+			name = "高速旋转",
+			elementId = 1,
+			power = 50,
+			clearsUserSideHazardsAndTraps = true,
+		)
+		val rules = neutralRules().copy(
+			elementChart = ElementEffectivenessChart(mapOf(1L to mapOf(8L to 0.0))),
+		)
+		val user = participant("spinner", speed = 100, skill = cleanupSkill).copy(
+			boundByActorId = "immune-target",
+			bindingTurnsRemaining = 3,
+			leechSeedSourceSideId = "side-b",
+			leechSeedSourceActiveIndex = 0,
+		)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = user,
+					second = participant("immune-target", speed = 80, elementId = 8),
+					rules = rules,
+					firstSideEntryHazards = allEntryHazards(),
+				),
+			),
+			listOf(BattleAction.UseSkill("spinner", skillId = 229, targetActorId = "immune-target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val unchangedUser = requireNotNull(resolved.participant("spinner"))
+
+		scenario.assertNamed("spin-cleanup-does-not-clear-when-target-is-immune")
+		assertEquals(0, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+		assertEquals(2, unchangedUser.bindingTurnsRemaining)
+		assertEquals("immune-target", unchangedUser.boundByActorId)
+		assertEquals("side-b", unchangedUser.leechSeedSourceSideId)
+		assertEquals(0, unchangedUser.leechSeedSourceActiveIndex)
+		assertEquals(allEntryHazards(), resolved.sides.single { it.sideId == "side-a" }.entryHazards)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SideEntryHazardRemoved>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.LeechSeedCleared>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>())
+	}
+
 	private fun switchIntoHazard(
 		hazard: BattleSideEntryHazard,
 		reserveElementId: Long = 1,
@@ -213,6 +321,14 @@ class BattleEntryHazardTests {
 			),
 			listOf(BattleAction.SwitchParticipant("front", targetActorId = "reserve")),
 			ScriptedBattleRandom(emptyList()),
+		)
+
+	private fun allEntryHazards(): List<BattleSideEntryHazard> =
+		listOf(
+			BattleSideEntryHazard(BattleSideEntryHazardKind.STEALTH_ROCK),
+			BattleSideEntryHazard(BattleSideEntryHazardKind.SPIKES, layers = 3),
+			BattleSideEntryHazard(BattleSideEntryHazardKind.TOXIC_SPIKES, layers = 2),
+			BattleSideEntryHazard(BattleSideEntryHazardKind.STICKY_WEB),
 		)
 
 	private fun entryHazardSkill(

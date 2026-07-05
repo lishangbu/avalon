@@ -425,6 +425,16 @@ internal fun String.targetLastSkillPpReduction(): Int =
 internal fun String.plantsLeechSeed(): Boolean =
 	this == "apply-leech-seed"
 
+/**
+ * 判断技能是否在成功连接后清理使用者侧持续限制。
+ *
+ * 高速旋转、晶光转转的清理目标是“使用者自身和使用者一侧”，不是命中目标；也不需要参数化层数、状态种类或概率。
+ * 因此把它保留为主规则 policy 的布尔语义，比新增一张只服务两条技能的子表更短，也能让运行时完整性测试直接
+ * 发现资料是否错误退回了普通白板伤害策略。
+ */
+internal fun String.clearsUserSideHazardsAndTraps(): Boolean =
+	this == "clear-user-side-hazards-and-traps"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -466,6 +476,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"apply-disable",
 	"apply-torment",
 	"apply-leech-seed",
+	"clear-user-side-hazards-and-traps",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -540,6 +551,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	removesUserElementAfterDamage() ||
 	targetLastSkillPpReduction() > 0 ||
 	plantsLeechSeed() ||
+	clearsUserSideHazardsAndTraps() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

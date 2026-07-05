@@ -175,6 +175,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill spin cleanup policy maps user side hazard and trap cleanup flag`() {
+		assertThat("clear-user-side-hazards-and-traps".clearsUserSideHazardsAndTraps()).isTrue()
+		assertThat("clear-user-side-hazards-and-traps".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `skill self critical hit boost policy maps focus energy bonus`() {
 		assertThat("self-critical-hit-stage-plus-two".criticalHitStageBoost()).isEqualTo(2)
 		assertThat("self-critical-hit-stage-plus-two".isBattleSkillRuntimeEffectPolicySupported()).isTrue()

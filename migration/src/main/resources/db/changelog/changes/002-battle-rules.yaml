@@ -9714,3 +9714,75 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code = 'endure';
+- changeSet:
+    id: 002-battle-rules-enable-spin-cleanup-effects
+    author: backend
+    comment: 启用高速旋转和晶光转转的己方清场规则，并补充晶光转转中毒效果。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 高速旋转和晶光转转都是伤害成功连接后才清理使用者侧持续限制的规则：
+          -- 解除使用者身上的束缚和寄生种子，并移除使用者一侧所有入场陷阱。该效果不是普通附加状态，
+          -- 因此由主技能规则 effect_policy 映射为运行时布尔语义；晶光转转的中毒仍保存在状态效果子表。
+          with enabled_skills(code) as (
+            values
+              ('rapid-spin'),
+              ('mortal-spin')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'clear-user-side-hazards-and-traps',
+            target_policy = case when s.code = 'mortal-spin' then 'all-opponents' else 'selected-target' end,
+            damage_policy = 'standard-damage',
+            description = '伤害清场技能规则；成功连接后解除使用者身上的束缚和寄生种子，并移除使用者一侧全部入场陷阱。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('rapid-spin', 'mortal-spin');
+
+          update battle_skill_stat_stage_effect e
+          set
+            target_scope = 'USER',
+            chance_percent = 100,
+            enabled = true
+          from battle_skill_rule r
+          join game_skill s on s.id = r.skill_id
+          join game_stat st on st.code = 'speed'
+          where e.skill_rule_id = r.id
+            and e.stat_id = st.id
+            and s.code = 'rapid-spin';
+
+          insert into battle_skill_status_effect (
+            id,
+            skill_rule_id,
+            status_rule_id,
+            target_scope,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            coalesce((select max(id) from battle_skill_status_effect), 0) + 1,
+            r.id,
+            sr.id,
+            'TARGET',
+            'AFTER_HIT',
+            100,
+            true,
+            10
+          from game_skill s
+          join battle_skill_rule r on r.skill_id = s.id
+          join battle_status_rule sr on sr.code = 'poison'
+          where s.code = 'mortal-spin'
+          on conflict (skill_rule_id, status_rule_id, target_scope, effect_timing) do update set
+            chance_percent = excluded.chance_percent,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

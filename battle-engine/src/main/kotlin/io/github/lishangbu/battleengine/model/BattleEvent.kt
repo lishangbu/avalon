@@ -388,6 +388,18 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 成员身上的寄生种子状态被技能清除。
+	 *
+	 * 寄生种子不是普通 [BattleVolatileStatus] 枚举，因为它绑定的是来源站位而不是单纯持续回合；因此清除事件也
+	 * 独立建模。高速旋转、晶光转转这类规则只清除使用者自身身上的寄生种子，不影响其它成员。
+	 */
+	data class LeechSeedCleared(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	// 伤害、状态和能力阶级事件：描述成员身上的可观察战斗事实变化。
 	/**
 	 * 一次伤害已经结算到目标身上。
@@ -667,16 +679,17 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 一侧入场陷阱已经被换入成员吸收并移除。
+	 * 一侧入场陷阱已经被成员吸收或技能清除。
 	 *
-	 * 当前用于毒菱被接地毒属性成员换入吸收。事件保留吸收者 `actorId`，便于 replay 区分自然持续结束和由成员
-	 * 入场触发的移除。
+	 * 毒菱被接地毒属性成员换入吸收时 `skillId` 为空；高速旋转、晶光转转这类技能清除使用者一侧全部陷阱时，
+	 * `skillId` 记录来源技能。事件保留触发成员 `actorId`，便于 replay 区分自然持续结束、入场吸收和技能清场。
 	 */
 	data class SideEntryHazardRemoved(
 		override val turnNumber: Int,
 		val actorId: String,
 		val sideId: String,
 		val kind: BattleSideEntryHazardKind,
+		val skillId: Long? = null,
 	) : BattleEvent
 
 	/**

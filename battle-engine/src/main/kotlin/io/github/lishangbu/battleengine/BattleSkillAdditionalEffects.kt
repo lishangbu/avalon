@@ -14,7 +14,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  * 技能成功后的结构化附加效果流水线。
  *
  * 本类只在技能已经通过目标、保护、命中、免疫、吸收和伤害结算之后运行。它按照资料中的固定顺序应用主要异常、
- * 临时状态、普通能力阶级变化、复杂能力阶级操作、一侧/场地效果、入场陷阱和强制换人。它不负责 PP、命中、
+ * 临时状态、普通能力阶级变化、复杂能力阶级操作、一侧/场地效果、入场陷阱、使用者侧清理和强制换人。它不负责 PP、命中、
  * 普通伤害、直接伤害、接触特性、低体力道具或锁招推进；这些阶段仍由 [BattleEngine] 决定。这样附加效果顺序
  * 有一处可读实现，主状态机也不会继续膨胀成效果脚本。
  */
@@ -25,6 +25,7 @@ internal class BattleSkillAdditionalEffects(
 	private val fieldEffects: BattleFieldEffects,
 	private val targetDefenseEffects: BattleTargetDefenseEffects,
 	private val leechSeedEffects: BattleLeechSeedEffects,
+	private val userSideCleanupEffects: BattleUserSideCleanupEffects,
 	private val forcedSwitchEffects: BattleForcedSwitchEffects,
 ) {
 	/**
@@ -32,7 +33,8 @@ internal class BattleSkillAdditionalEffects(
 	 *
 	 * 每个效果族内部按技能槽列表顺序结算，概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
 	 * 阶级变化被上下限夹住、对手替身挡住效果，或同类一侧/场地状态已经存在，则保持状态不变并跳过对应事件。
-	 * 强制换人放在最后，确保伤害与普通附加效果先完成，再触发换下目标和后续入场阶段。
+	 * 使用者侧清理放在寄生种子写入之后、强制换人之前，确保高速旋转类技能先完成命中后状态事实，再清理自身束缚、
+	 * 寄生和己方入场陷阱；强制换人放在最后，确保伤害与普通附加效果先完成，再触发换下目标和后续入场阶段。
 	 */
 	fun apply(
 		state: BattleState,
@@ -60,7 +62,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
 		val afterLeechSeed = leechSeedEffects.apply(afterAccuracyLock, actorId, targetActorId, skill)
-		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterLeechSeed, actorId, skill)
+		val afterUserSideCleanup = userSideCleanupEffects.apply(afterLeechSeed, actorId, skill)
+		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterUserSideCleanup, actorId, skill)
 		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterUserMajorStatusCure, actorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)
 		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(

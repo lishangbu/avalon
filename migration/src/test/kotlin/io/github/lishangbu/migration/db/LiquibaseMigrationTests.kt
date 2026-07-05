@@ -525,7 +525,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 133L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 134L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 247L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
@@ -911,7 +911,7 @@ class LiquibaseMigrationTests(
 			from battle_skill_status_effect se
 			join battle_skill_rule sr on sr.id = se.skill_rule_id
 			join battle_status_rule br on br.id = se.status_rule_id
-			where sr.skill_id in (40, 92, 305)
+			where sr.skill_id in (40, 92, 305, 866)
 			order by sr.skill_id
 			""".trimIndent(),
 		)
@@ -930,6 +930,11 @@ class LiquibaseMigrationTests(
 				"skill_id" to 305L,
 				"status_code" to "bad-poison",
 				"chance_percent" to 50,
+			),
+			mapOf(
+				"skill_id" to 866L,
+				"status_code" to "poison",
+				"chance_percent" to 100,
 			),
 		)
 
@@ -2032,6 +2037,39 @@ class LiquibaseMigrationTests(
 				"hit_policy" to "standard-hit",
 				"damage_policy" to "no-damage",
 				"affected_by_protect" to true,
+			),
+		)
+
+		val spinCleanupSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('rapid-spin', 'mortal-spin')
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(spinCleanupSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 229L,
+				"code" to "rapid-spin",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "clear-user-side-hazards-and-traps",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 866L,
+				"code" to "mortal-spin",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "clear-user-side-hazards-and-traps",
+				"target_policy" to "all-opponents",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
 			),
 		)
 

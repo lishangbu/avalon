@@ -150,6 +150,19 @@ data class BattleSide(
 	}
 
 	/**
+	 * 从这一侧移除全部入场陷阱。
+	 *
+	 * 高速旋转、晶光转转这类“命中后清场”规则会一次清除使用者一侧所有陷阱和层数。模型层只表达状态变化本身，
+	 * 不判断技能是否命中、是否造成伤害或是否应该产生日志；这些仍由技能效果 resolver 在更高层根据阶段顺序决定。
+	 */
+	fun clearEntryHazards(): BattleSide? =
+		if (entryHazards.isEmpty()) {
+			null
+		} else {
+			copy(entryHazards = emptyList())
+		}
+
+	/**
 	 * 从这一侧移除指定种类的伤害减免屏障。
 	 *
 	 * 击破屏障类技能会一次性清除目标侧物理屏障、特殊屏障和全伤害屏障。这里接收集合而不是单个 kind，是为了让

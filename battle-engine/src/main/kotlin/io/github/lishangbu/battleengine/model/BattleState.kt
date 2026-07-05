@@ -160,6 +160,30 @@ data class BattleState(
 	}
 
 	/**
+	 * 从指定一侧批量移除全部入场陷阱，并返回移除前真实存在的陷阱。
+	 *
+	 * 清场技能需要一次移除隐形岩、撒菱、毒菱和黏黏网，同时保留移除前的顺序用于事件流。这里返回完整
+	 * [BattleSideEntryHazard]，而不是只返回 kind，是为了让测试和未来 replay 能确认“多层撒菱也被整组清掉”，
+	 * 但事件层仍可以按需要只展示种类。
+	 */
+	fun clearSideEntryHazards(sideId: String): BattleSideEntryHazardRemoval? {
+		var removedHazards = emptyList<BattleSideEntryHazard>()
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else if (side.entryHazards.isEmpty()) {
+				side
+			} else {
+				removedHazards = side.entryHazards
+				requireNotNull(side.clearEntryHazards())
+			}
+		}
+		return removedHazards
+			.takeIf { it.isNotEmpty() }
+			?.let { BattleSideEntryHazardRemoval(copy(sides = nextSides), it) }
+	}
+
+	/**
 	 * 从指定一侧批量移除伤害减免屏障，并返回被移除的屏障种类。
 	 *
 	 * 屏障击破技能需要在伤害计算前删除目标侧屏障，否则本次伤害会被刚刚被打碎的屏障错误减半。领域状态层只负责
@@ -289,4 +313,15 @@ data class BattleState(
 data class BattleSideDamageReductionRemoval(
 	val state: BattleState,
 	val removedKinds: List<BattleSideDamageReductionKind>,
+)
+
+/**
+ * 一侧入场陷阱被批量清除后的状态变更。
+ *
+ * `removedHazards` 是移除前该侧实际存在的陷阱快照，保留原始顺序和层数。清场技能会用它追加稳定事件；调用方不必
+ * 重新读取已经清空的 side，也不会误报本来不存在的陷阱。
+ */
+data class BattleSideEntryHazardRemoval(
+	val state: BattleState,
+	val removedHazards: List<BattleSideEntryHazard>,
 )

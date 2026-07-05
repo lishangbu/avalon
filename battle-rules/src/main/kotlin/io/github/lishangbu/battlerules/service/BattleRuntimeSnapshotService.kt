@@ -801,6 +801,7 @@ class BattleRuntimeSnapshotService(
 				"BindingDamageApplied" -> "束缚伤害"
 				"LeechSeedPlanted" -> "寄生种子"
 				"LeechSeedDamageApplied" -> "寄生伤害"
+				"LeechSeedCleared" -> "寄生解除"
 				"DamageApplied" -> "造成伤害"
 				"StatusApplied" -> "状态施加"
 				"StatusApplicationBlocked" -> "状态阻挡"
