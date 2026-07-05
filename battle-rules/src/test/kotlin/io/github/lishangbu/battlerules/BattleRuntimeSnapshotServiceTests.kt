@@ -1484,6 +1484,22 @@ class BattleRuntimeSnapshotServiceTests(
 			assertThat(globalFieldEffect.field).isEqualTo("effectPolicy")
 			assertThat(globalFieldEffect.message).isEqualTo("不支持的全场速度顺序效果策略: unknown-global-field-policy")
 		}
+
+		withTemporaryStatusEffectTargetScope("UNKNOWN_TARGET_SCOPE") { skillId ->
+			val statusTarget = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(statusTarget.field).isEqualTo("targetScope")
+			assertThat(statusTarget.message).isEqualTo("不支持的状态效果目标作用域: UNKNOWN_TARGET_SCOPE")
+		}
+
+		withTemporaryStatStageEffectTargetScope("UNKNOWN_TARGET_SCOPE") { skillId ->
+			val statTarget = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(statTarget.field).isEqualTo("targetScope")
+			assertThat(statTarget.message).isEqualTo("不支持的能力阶级效果目标作用域: UNKNOWN_TARGET_SCOPE")
+		}
 	}
 
 	/**
@@ -2817,6 +2833,53 @@ class BattleRuntimeSnapshotServiceTests(
 		jdbcTemplate.update("delete from battle_field_rule where id = ?", TEMP_FIELD_RULE_ID)
 	}
 
+	private fun withTemporaryStatusEffectTargetScope(targetScope: String, block: (Long) -> Unit) {
+		withTemporarySkillPolicy("status-effect") { skillId ->
+			deleteTemporarySkillChildEffects()
+			jdbcTemplate.update(
+				"""
+				insert into battle_skill_status_effect (
+					id, skill_rule_id, status_rule_id, target_scope, effect_timing, chance_percent, enabled, sort_order
+				) values (?, ?, 1, ?, 'AFTER_HIT', 100, true, 999999)
+				""".trimIndent(),
+				TEMP_SKILL_STATUS_EFFECT_ID,
+				TEMP_SKILL_RULE_ID,
+				targetScope,
+			)
+			try {
+				block(skillId)
+			} finally {
+				deleteTemporarySkillChildEffects()
+			}
+		}
+	}
+
+	private fun withTemporaryStatStageEffectTargetScope(targetScope: String, block: (Long) -> Unit) {
+		withTemporarySkillPolicy("stat-stage-change") { skillId ->
+			deleteTemporarySkillChildEffects()
+			jdbcTemplate.update(
+				"""
+				insert into battle_skill_stat_stage_effect (
+					id, skill_rule_id, stat_id, target_scope, effect_timing, stage_delta, chance_percent, enabled, sort_order
+				) values (?, ?, 2, ?, 'AFTER_HIT', 1, 100, true, 999999)
+				""".trimIndent(),
+				TEMP_SKILL_STAT_STAGE_EFFECT_ID,
+				TEMP_SKILL_RULE_ID,
+				targetScope,
+			)
+			try {
+				block(skillId)
+			} finally {
+				deleteTemporarySkillChildEffects()
+			}
+		}
+	}
+
+	private fun deleteTemporarySkillChildEffects() {
+		jdbcTemplate.update("delete from battle_skill_status_effect where id = ?", TEMP_SKILL_STATUS_EFFECT_ID)
+		jdbcTemplate.update("delete from battle_skill_stat_stage_effect where id = ?", TEMP_SKILL_STAT_STAGE_EFFECT_ID)
+	}
+
 	private fun withTemporarySkillWithoutRule(block: (Long) -> Unit) {
 		insertTemporarySkill()
 		try {
@@ -3012,5 +3075,7 @@ class BattleRuntimeSnapshotServiceTests(
 		private const val TEMP_FIELD_RULE_ID = 9_900_005L
 		private const val TEMP_SKILL_FIELD_EFFECT_ID = 9_900_006L
 		private const val TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID = 9_900_007L
+		private const val TEMP_SKILL_STATUS_EFFECT_ID = 9_900_008L
+		private const val TEMP_SKILL_STAT_STAGE_EFFECT_ID = 9_900_009L
 	}
 }

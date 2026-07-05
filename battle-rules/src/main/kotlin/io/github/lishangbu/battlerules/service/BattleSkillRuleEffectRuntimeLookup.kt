@@ -149,7 +149,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 *
 	 * 数据库中主要异常和临时状态共用 `battle_skill_status_effect`，真正区分来自 `battle_status_rule.status_kind`。
 	 * 先把共用行读成 [StatusEffectRuntimeRow]，可以保证目标作用域、概率和排序只解析一次；后续如果状态效果新增
-	 * 持续回合或触发时机字段，也只需要在这一个查询里补列。
+	 * 持续回合或触发时机字段，也只需要在这一个查询里补列。目标作用域必须显式可识别，不能返回 null 后被
+	 * `filterNotNull` 吞掉；状态附加行一旦被静默丢弃，实战里会表现成技能命中但异常状态永远不会触发。
 	 */
 	private fun statusEffectRows(ruleId: Long): List<StatusEffectRuntimeRow> =
 		jdbcTemplate.query(
@@ -164,16 +165,15 @@ class BattleSkillRuleEffectRuntimeLookup(
 			order by e.sort_order, e.id
 			""".trimIndent(),
 			{ rs, _ ->
-				val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
 				StatusEffectRuntimeRow(
 					statusCode = rs.getString("status_code"),
 					statusKind = rs.getString("status_kind"),
-					target = target,
+					target = rs.battleEffectTarget("target_scope", "状态效果"),
 					chancePercent = rs.getInt("chance_percent"),
 				)
 			},
 			ruleId,
-		).filterNotNull()
+		)
 
 	private fun statusApplications(rows: List<StatusEffectRuntimeRow>): List<BattleStatusApplication> =
 		rows.filter { it.statusKind == "MAJOR" }
@@ -207,16 +207,15 @@ class BattleSkillRuleEffectRuntimeLookup(
 			order by e.sort_order, e.id
 			""".trimIndent(),
 			{ rs, _ ->
-				val target = rs.getString("target_scope").toBattleEffectTarget() ?: return@query null
 				BattleStatStageEffect(
 					stat = rs.getString("stat_code").toBattleStat(),
-					target = target,
+					target = rs.battleEffectTarget("target_scope", "能力阶级效果"),
 					stageDelta = rs.getInt("stage_delta"),
 					chancePercent = rs.getInt("chance_percent"),
 				)
 			},
 			ruleId,
-		).filterNotNull()
+		)
 
 	private fun statStageOperations(ruleId: Long): List<BattleStatStageOperation> =
 		jdbcTemplate.query(
@@ -382,6 +381,19 @@ class BattleSkillRuleEffectRuntimeLookup(
 			},
 			ruleId,
 		)
+
+	/**
+	 * 解析技能效果子表中的目标作用域。
+	 *
+	 * `BattleEffectTarget` 只允许“使用者”和“当前实际目标”两种运行时语义；范围技能已经在引擎命中阶段逐目标展开，
+	 * 因此资料中的 ALL_OPPONENTS 会在 mapper 中压成 TARGET。除这几种已知值以外，任何目标作用域都代表资料
+	 * 或后台写入错误，必须立即失败。这里不让调用方拿到 null，是为了防止查询结果被 `filterNotNull` 继续静默丢弃。
+	 */
+	private fun ResultSet.battleEffectTarget(column: String, context: String): BattleEffectTarget {
+		val targetScope = getString(column)
+		return targetScope.toBattleEffectTarget()
+			?: invalidValue("targetScope", "不支持的${context}目标作用域: $targetScope")
+	}
 
 	private fun ResultSet.nullableInt(column: String): Int? {
 		val value = getInt(column)
