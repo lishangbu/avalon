@@ -690,6 +690,20 @@ class LiquibaseMigrationTests(
 			.describedAs("启用中的白板普通伤害规则只能承载明确无额外效果的技能，不能吞掉资料文案中的特殊效果")
 			.isEmpty()
 
+		val enabledRulesWithUnmaintainedDescriptions = queryMaps(
+			"""
+			select s.id, s.code, s.name, r.description
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where r.enabled = true
+				and r.description like '%尚未维护%'
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(enabledRulesWithUnmaintainedDescriptions)
+			.describedAs("已经进入现代战斗运行态的规则说明必须描述可执行行为，不能继续显示导入期占位文案")
+			.isEmpty()
+
 		val derivedBasicSkillRules = queryMaps(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage

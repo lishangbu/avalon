@@ -8864,3 +8864,31 @@ databaseChangeLog:
             description = '该伤害类技能文案包含未结构化的特殊效果；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
           from unmodeled_basic_damage_skills u
           where r.id = u.rule_id;
+- changeSet:
+    id: 002-battle-rules-clean-enabled-placeholder-descriptions
+    author: backend
+    comment: 清理启用规则中仍显示未维护的自动占位说明。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 前面的禁用变更已经把无法安全结算的占位规则移出运行态。剩余仍启用的基础规则要么是明确无额外效果，
+          -- 要么已经通过主行字段或子表承载了可执行行为；继续保留“尚未维护专项效果”会误导管理端和排障人员。
+          update battle_skill_rule r
+          set description = '基础变化技能规则；按已结构化的目标、命中、PP、状态、能力阶级、场地或全场效果字段进入运行态。'
+          from game_skill s
+          join game_skill_damage_class dc on dc.id = s.damage_class_id
+          where s.id = r.skill_id
+            and r.enabled = true
+            and dc.code = 'status'
+            and r.description like '基础变化技能规则%尚未维护专项效果%';
+
+          update battle_skill_rule r
+          set description = '基础伤害技能规则；按已结构化的目标、命中、威力、属性、接触、命中次数和附加效果字段进入普通伤害流程。'
+          from game_skill s
+          join game_skill_damage_class dc on dc.id = s.damage_class_id
+          where s.id = r.skill_id
+            and r.enabled = true
+            and dc.code in ('physical', 'special')
+            and r.description like '基础伤害技能规则%尚未维护专项效果%';
