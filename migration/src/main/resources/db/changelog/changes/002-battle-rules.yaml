@@ -10106,6 +10106,15 @@ databaseChangeLog:
             values
               (
                 'punching-glove',
+                'BEFORE_DAMAGE',
+                'punch-based-skill-power-boost',
+                false,
+                80,
+                '携带者使用拳击类技能时，技能有效威力提高 10%；该倍率发生在普通伤害公式的威力阶段，并且不会消耗道具。',
+                615
+              ),
+              (
+                'punching-glove',
                 'BEFORE_HIT',
                 'punch-based-contact-suppression',
                 false,

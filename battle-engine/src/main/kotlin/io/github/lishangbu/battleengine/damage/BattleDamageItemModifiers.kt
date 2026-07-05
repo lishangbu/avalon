@@ -27,6 +27,8 @@ internal class BattleDamageItemModifiers {
 				} else {
 					multiplier
 				}
+				is BattleItemEffect.PunchBasedSkillPowerBoost ->
+					if (request.skill.punchBased) multiplier * effect.multiplier else multiplier
 				is BattleItemEffect.ElementDamageBoost ->
 					if (!request.skill.typelessDamage && request.skillElementId == effect.elementId) {
 						multiplier * effect.multiplier

@@ -513,7 +513,7 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("battle_ability_rule", 69L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 63L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 64L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -2661,6 +2661,29 @@ class LiquibaseMigrationTests(
 					"item_id" to 245L,
 					"trigger_timing" to "BEFORE_DAMAGE",
 					"effect_policy" to "super-effective-damage-boost",
+					"consumable" to false,
+				),
+			)
+
+			val punchBasedItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id = 1700
+				order by trigger_timing, effect_policy
+				""".trimIndent(),
+			)
+			assertThat(punchBasedItemRules).containsExactly(
+				mapOf(
+					"item_id" to 1700L,
+					"trigger_timing" to "BEFORE_DAMAGE",
+					"effect_policy" to "punch-based-skill-power-boost",
+					"consumable" to false,
+				),
+				mapOf(
+					"item_id" to 1700L,
+					"trigger_timing" to "BEFORE_HIT",
+					"effect_policy" to "punch-based-contact-suppression",
 					"consumable" to false,
 				),
 			)

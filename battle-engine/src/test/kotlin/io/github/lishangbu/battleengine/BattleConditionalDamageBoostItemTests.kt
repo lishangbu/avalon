@@ -21,6 +21,77 @@ class BattleConditionalDamageBoostItemTests {
 	private val engine = BattleEngine()
 
 	@Test
+	fun `punch based power boost item raises matching punch skill power`() {
+		val scenario = publicBattleRuleScenario(
+			name = "punch-based-power-boost-item-raises-matching-punch-skill",
+			inputSummary = "使用者携带拳击类威力提升道具，使用非本系 40 威力拳击类物理技能攻击中性目标。",
+			expectedSummary = "技能有效威力从 40 提升到 floor(40 * 1.1) = 44，普通伤害从 19 提升到 21；同一道具的非接触效果不影响威力提升。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					elementId = 2,
+					skill = damagingSkill(makesContact = true, punchBased = true),
+					itemId = 1700,
+					itemEffects = listOf(
+						BattleItemEffect.PunchBasedSkillPowerBoost(multiplier = 1.1),
+						BattleItemEffect.PunchBasedContactSuppression,
+					),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+		val attacker = requireNotNull(resolved.participant("attacker"))
+
+		scenario.assertNamed("punch-based-power-boost-item-raises-matching-punch-skill")
+		assertEquals(21, damage.amount)
+		assertEquals(79, resolved.participant("defender")?.currentHp)
+		assertEquals(1700, attacker.itemId)
+	}
+
+	@Test
+	fun `punch based power boost item ignores non punch skill`() {
+		val scenario = publicBattleRuleScenario(
+			name = "punch-based-power-boost-item-ignores-non-punch-skill",
+			inputSummary = "使用者携带拳击类威力提升道具，使用非本系 40 威力且不带拳击标签的物理技能攻击中性目标。",
+			expectedSummary = "技能没有拳击类标签，道具不提供威力修正，普通伤害仍为 19。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					elementId = 2,
+					skill = damagingSkill(makesContact = true, punchBased = false),
+					itemId = 1700,
+					itemEffects = listOf(BattleItemEffect.PunchBasedSkillPowerBoost(multiplier = 1.1)),
+				),
+				second = participant("defender", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			ScriptedBattleRandom(listOf(1, 15)),
+		)
+		val damage = resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single()
+
+		scenario.assertNamed("punch-based-power-boost-item-ignores-non-punch-skill")
+		assertEquals(19, damage.amount)
+		assertEquals(81, resolved.participant("defender")?.currentHp)
+	}
+
+	@Test
 	fun `damage class power boost item raises matching physical power`() {
 		val scenario = publicBattleRuleScenario(
 			name = "physical-power-boost-item-raises-matching-damage-class",

@@ -102,10 +102,13 @@ class BattleRuntimePolicyMapperTests {
 			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass)
 		assertThat("contact-skill-protection-bypass".isBattleAbilityRuntimePolicySupported(elementIds)).isTrue()
 
+		assertThat("punch-based-skill-power-boost".toBattleItemEffect(elementIds))
+			.isEqualTo(BattleItemEffect.PunchBasedSkillPowerBoost())
 		assertThat("punch-based-contact-suppression".toBattleItemEffect(elementIds))
 			.isEqualTo(BattleItemEffect.PunchBasedContactSuppression)
 		assertThat("contact-side-effect-immunity".toBattleItemEffect(elementIds))
 			.isEqualTo(BattleItemEffect.ContactSideEffectImmunity)
+		assertThat("punch-based-skill-power-boost".isBattleItemRuntimePolicySupported(elementIds)).isTrue()
 		assertThat("punch-based-contact-suppression".isBattleItemRuntimePolicySupported(elementIds)).isTrue()
 		assertThat("contact-side-effect-immunity".isBattleItemRuntimePolicySupported(elementIds)).isTrue()
 	}

@@ -1612,7 +1612,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.itemEffectsByItemId(897))
 			.containsExactly(BattleItemEffect.ContactSideEffectImmunity)
 		assertThat(service.itemEffectsByItemId(1700))
-			.containsExactly(BattleItemEffect.PunchBasedContactSuppression)
+			.containsExactly(
+				BattleItemEffect.PunchBasedSkillPowerBoost(),
+				BattleItemEffect.PunchBasedContactSuppression,
+			)
 
 		mapOf(
 			199L to 7L,

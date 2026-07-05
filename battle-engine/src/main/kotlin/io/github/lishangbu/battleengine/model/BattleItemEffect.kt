@@ -218,6 +218,25 @@ sealed interface BattleItemEffect {
 	}
 
 	/**
+	 * 携带道具对拳击类技能提供稳定威力倍率。
+	 *
+	 * 该效果用于表达现代规则中拳击手套的伤害部分：携带者使用带 [BattleSkillSlot.punchBased] 标签的技能时，
+	 * 技能有效威力提升 10%。它和 [PunchBasedContactSuppression] 刻意拆开，因为同一个道具有两个独立后果：
+	 * 一个影响伤害公式的威力阶段，另一个影响“本次是否接触”的事件事实。把二者拆成两个结构化效果，可以让
+	 * 伤害计算器、保护 gate、接触副作用和未来的道具禁用/拍落流程分别读取自己真正需要的事实。
+	 *
+	 * 该倍率只参与普通直接伤害公式，不会影响固定伤害、比例伤害、天气/陷阱等间接伤害，也不会消费道具。它按
+	 * 威力阶段处理，因此会先和属性强化、分类强化、天气/场地威力修正一起得到有效威力，再进入基础伤害取整。
+	 */
+	data class PunchBasedSkillPowerBoost(
+		val multiplier: Double = 1.1,
+	) : BattleItemEffect {
+		init {
+			require(multiplier > 0.0) { "multiplier must be positive" }
+		}
+	}
+
+	/**
 	 * 携带道具在技能对目标效果绝佳时提供最终伤害倍率。
 	 *
 	 * 该效果用于表达达人带一类非消耗型道具。它不改变技能威力、属性、命中或属性克制结果，只在属性克制倍率

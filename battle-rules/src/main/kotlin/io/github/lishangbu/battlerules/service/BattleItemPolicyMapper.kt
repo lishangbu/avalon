@@ -67,6 +67,7 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 		"volatile-status-cure-confusion" -> BattleItemEffect.VolatileStatusCure(
 			statuses = setOf(BattleVolatileStatus.CONFUSION),
 		)
+		"punch-based-skill-power-boost" -> BattleItemEffect.PunchBasedSkillPowerBoost()
 		"punch-based-contact-suppression" -> BattleItemEffect.PunchBasedContactSuppression
 		"contact-side-effect-immunity" -> BattleItemEffect.ContactSideEffectImmunity
 		"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
