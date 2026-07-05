@@ -6,6 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.makesEffectiveContact
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -35,7 +36,7 @@ internal class BattlePostDamageEffects(
 	 *
 	 * 当前覆盖概率附加主要异常状态。该 hook 应在伤害事件之后、攻击方反伤和倒下判定之前执行，这样可以表达“攻击
 	 * 方命中并接触目标后被麻痹/灼伤/中毒”等常见场景。函数会先检查技能是否接触、目标是否仍存在、攻击方是否
-	 * 无视目标特性；概率失败时只消费随机数，不追加任何事件。
+	 * 免疫接触副作用、攻击方是否无视目标特性；概率失败时只消费随机数，不追加任何事件。
 	 */
 	fun applyContactAbilityEffects(
 		state: BattleState,
@@ -44,7 +45,8 @@ internal class BattlePostDamageEffects(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): BattleState {
-		if (!skill.makesContact) {
+		val actor = state.participant(actorId) ?: return state
+		if (!skill.makesEffectiveContact(actor) || actor.hasContactSideEffectImmunity()) {
 			return state
 		}
 		val target = state.participant(targetActorId) ?: return state
@@ -54,8 +56,8 @@ internal class BattlePostDamageEffects(
 		return target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ContactStatusOnAttacker>()
 			.fold(state) { current, effect ->
-				val actor = current.participant(actorId) ?: return@fold current
-				if (!actor.canBattle() || actor.majorStatus != null) {
+				val latestActor = current.participant(actorId) ?: return@fold current
+				if (!latestActor.canBattle() || latestActor.majorStatus != null) {
 					current
 				} else if (!chanceSucceeds(effect.chancePercent, random, "contact status for $targetActorId")) {
 					current
@@ -63,7 +65,7 @@ internal class BattlePostDamageEffects(
 					majorStatusEffects.applyMajorStatus(
 						state = current,
 						actorId = targetActorId,
-						recipient = actor,
+						recipient = latestActor,
 						status = effect.status,
 						random = random,
 						randomReason = "contact sleep duration for $targetActorId",
@@ -229,3 +231,13 @@ internal class BattlePostDamageEffects(
 			)
 	}
 }
+
+/**
+ * 判断攻击方是否免疫“因为主动接触目标而承受”的副作用。
+ *
+ * 这里不改变 [BattleSkillSlot.makesEffectiveContact] 的结果，因为部位护具这类道具不会让技能失去接触事实；它只让
+ * 攻击方免受目标侧接触反制。将判断作为本文件私有扩展，可以把副作用免疫限定在接触后 hook 内，避免误扩散到保护
+ * 绕过、接触类伤害倍率或其它仍应看到真实接触事实的规则。
+ */
+private fun io.github.lishangbu.battleengine.model.BattleParticipant.hasContactSideEffectImmunity(): Boolean =
+	itemEffects.any { it is BattleItemEffect.ContactSideEffectImmunity }

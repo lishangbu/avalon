@@ -512,8 +512,8 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 68L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 61L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 69L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 63L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)

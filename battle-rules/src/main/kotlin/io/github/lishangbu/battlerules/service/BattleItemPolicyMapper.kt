@@ -67,6 +67,8 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 		"volatile-status-cure-confusion" -> BattleItemEffect.VolatileStatusCure(
 			statuses = setOf(BattleVolatileStatus.CONFUSION),
 		)
+		"punch-based-contact-suppression" -> BattleItemEffect.PunchBasedContactSuppression
+		"contact-side-effect-immunity" -> BattleItemEffect.ContactSideEffectImmunity
 		"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
 		"consumable-full-hp-fatal-damage-survival" -> BattleItemEffect.SurviveFatalDamageAtFullHp()
 		"side-condition-duration-screen" -> BattleItemEffect.SideDamageReductionDurationExtension(

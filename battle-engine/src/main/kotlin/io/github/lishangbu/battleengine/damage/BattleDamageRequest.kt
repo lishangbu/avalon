@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.makesEffectiveContact
 
 /**
  * 一次普通伤害计算输入。
@@ -20,6 +21,8 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * [skillElementId] 在请求创建时冻结本次技能的有效属性，包含天气球、场地脉冲等天气/场地属性覆盖；非无属性
  * 伤害的公式、特性倍率、道具倍率和属性克制都读取同一个值，避免同一次伤害结算中多个调用点各自重新解释环境覆盖。
  * [typeEffectiveness] 则把“无属性伤害固定中性倍率”这条例外也冻结在请求上，避免公式、特性和道具各自重复判断。
+ * [skillMakesContact] 冻结本次技能是否仍构成接触；拳击手套这类动态道具会在这里统一改写，避免接触类伤害倍率和
+ * 命中后接触反制各自用不同口径判断同一次技能。
  */
 data class BattleDamageRequest(
 	val attacker: BattleParticipant,
@@ -65,4 +68,13 @@ data class BattleDamageRequest(
 	 */
 	val typeEffectiveness: Double =
 		if (skill.typelessDamage) 1.0 else rules.elementChart.multiplier(skillElementId, defender.elementIds)
+
+	/**
+	 * 本次普通伤害公式使用的动态接触事实。
+	 *
+	 * 该值不是技能资料的简单拷贝：它会读取攻击方当前道具效果，例如拳击手套让拳击类技能本次不再接触。公式层只
+	 * 使用冻结值，不应再次直接读取 [BattleSkillSlot.makesContact]，否则会让接触类能力倍率与状态机后续接触副作用
+	 * 判断出现分歧。
+	 */
+	val skillMakesContact: Boolean = skill.makesEffectiveContact(attacker)
 }

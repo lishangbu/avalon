@@ -487,6 +487,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleEndurePublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleHitDefenseBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleProtectionBreakingSkillTests",
+					"io.github.lishangbu.battleengine.BattleContactProtectionBypassAbilityTests",
 					"io.github.lishangbu.battleengine.BattleSubstituteTests",
 					"io.github.lishangbu.battleengine.BattleSideGuardSkillTests",
 					"io.github.lishangbu.battleengine.BattleImmunityTests",

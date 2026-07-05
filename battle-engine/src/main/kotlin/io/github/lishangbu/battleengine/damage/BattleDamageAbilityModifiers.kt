@@ -150,7 +150,7 @@ internal class BattleDamageAbilityModifiers {
 				is BattleAbilityEffect.SlicingBasedSkillDamageBoost ->
 					if (request.skill.slicingBased) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.ContactBasedSkillDamageBoost ->
-					if (request.skill.makesContact) multiplier * effect.multiplier else multiplier
+					if (request.skillMakesContact) multiplier * effect.multiplier else multiplier
 				is BattleAbilityEffect.SoundBasedSkillDamageBoost ->
 					if (request.skill.soundBased) multiplier * effect.multiplier else multiplier
 				else -> multiplier

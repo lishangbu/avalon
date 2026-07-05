@@ -200,6 +200,19 @@ sealed interface BattleAbilityEffect {
 	object IgnoreTargetAbilityEffects : BattleAbilityEffect
 
 	/**
+	 * 接触类技能无视目标保护类阻挡。
+	 *
+	 * 该效果用于表达现代规则中“拥有者使用会接触对手的技能时，可以绕过对手的防住类屏障”。它只改变命中前保护
+	 * gate 的阻挡判断，不把技能改成 [BattleSkillSlot.affectedByProtect] 为 false：技能仍然保留自己的资料标签，
+	 * 也仍然会被拳击手套这类动态非接触规则影响。
+	 *
+	 * 与佯攻类 [BattleSkillSlot.breaksProtection] 不同，本效果不会移除目标已经建立的个人保护，也不会移除广域防守
+	 * 或快速防守这类本回合临时侧防护。目标的连续保护计数、同回合后续对其它技能的阻挡能力都应继续保留。它也不
+	 * 绕过极巨防壁等未来可能加入的更高优先级防护；那类防护应在保护 gate 中用独立模型表达。
+	 */
+	object ContactSkillProtectionBypass : BattleAbilityEffect
+
+	/**
 	 * 免疫其它成员使用的声音类技能。
 	 *
 	 * 该效果用于表达现代规则中“拥有者不会受到声音类技能影响”的稳定特性。它只读取技能槽上的
@@ -415,13 +428,14 @@ sealed interface BattleAbilityEffect {
 	/**
 	 * 强化接触类技能的伤害倍率。
 	 *
-	 * 该效果用于表达现代规则中“使用带接触标签的技能时，技能威力按固定倍率提升”的稳定特性。引擎只读取
-	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.makesContact]，不根据技能动画、名称或描述判断是否接触；
-	 * 资料层负责把公开技能资料中的 contact flag 维护为结构化标签。
+	 * 该效果用于表达现代规则中“使用本次仍然构成接触的技能时，技能威力按固定倍率提升”的稳定特性。引擎先读取
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.makesContact] 作为资料层静态标签，再通过
+	 * [io.github.lishangbu.battleengine.model.makesEffectiveContact] 合并拳击手套这类动态非接触来源，最终只按本次
+	 * 冻结后的接触事实结算倍率。
 	 *
 	 * 该效果只属于攻击方主动造成直接技能伤害时的公式修正，不影响接触事件本身是否发生，也不改变目标侧基于接触
-	 * 触发的特性、道具或状态流程。也就是说，某技能若被其它规则移除接触标签，接触反制和这里的伤害倍率都应同时
-	 * 不再触发；后续若接入“远隔”等动态改写接触标签的特性，应在技能结算前统一改写技能槽或本次技能上下文。
+	 * 触发的特性、道具或状态流程。也就是说，某技能若被其它规则动态改为非接触，接触反制和这里的伤害倍率都应
+	 * 同时不再触发；后续若接入“远隔”等动态接触来源，也应继续复用同一个本次接触事实入口。
 	 */
 	data class ContactBasedSkillDamageBoost(
 		val multiplier: Double = 1.3,

@@ -1,11 +1,13 @@
 package io.github.lishangbu.battleengine
 
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.makesEffectiveContact
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -113,7 +115,8 @@ internal class BattlePreHitTargetGate(
 			)
 		}
 
-		if (target.actorId in protectedActorIds && skill.affectedByProtect) {
+		val bypassesProtectionByContactAbility = skill.bypassesProtectionByContactAbility(state, actor, target)
+		if (target.actorId in protectedActorIds && skill.affectedByProtect && !bypassesProtectionByContactAbility) {
 			return BattlePreHitTargetGateResult.Interrupted(
 				BattleEvent.SkillBlockedByProtection(
 					turnNumber = state.turnNumber,
@@ -130,6 +133,7 @@ internal class BattlePreHitTargetGate(
 			target = target,
 			skill = skill,
 			priorityContext = priorityContext,
+			bypassesProtectionByContactAbility = bypassesProtectionByContactAbility,
 			multiTargetProtectedSideIds = multiTargetProtectedSideIds,
 			priorityProtectedSideIds = priorityProtectedSideIds,
 		)
@@ -253,10 +257,11 @@ internal class BattlePreHitTargetGate(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 		priorityContext: SkillPriorityContext,
+		bypassesProtectionByContactAbility: Boolean,
 		multiTargetProtectedSideIds: Set<String>,
 		priorityProtectedSideIds: Set<String>,
 	): BattleEvent.SkillBlockedByProtection? {
-		if (!skill.affectedByProtect) {
+		if (!skill.affectedByProtect || bypassesProtectionByContactAbility) {
 			return null
 		}
 		val actorSide = state.sideOf(actor.actorId) ?: return null
@@ -278,6 +283,26 @@ internal class BattlePreHitTargetGate(
 			skillId = skill.skillId,
 		)
 	}
+}
+
+/**
+ * 判断攻击方特性能否让本次技能绕过保护类阻挡。
+ *
+ * 该判断故意留在命中前 gate 附近，而不是写入 [BattleSkillSlot]，因为它需要同时读取使用者当前道具、双方阵营和
+ * 使用者特性：拳击手套会让拳击类技能在本次发动时不再接触，同侧目标不应被“对手保护绕过”影响，而特性本身只
+ * 是使用者快照上的运行时效果。函数只返回 gate 是否跳过阻挡；它不移除保护、不重置连续保护链，也不让后续技能
+ * 继承这次绕过事实。
+ */
+private fun BattleSkillSlot.bypassesProtectionByContactAbility(
+	state: BattleState,
+	actor: BattleParticipant,
+	target: BattleParticipant,
+): Boolean {
+	val actorSide = state.sideOf(actor.actorId)?.sideId ?: return false
+	val targetSide = state.sideOf(target.actorId)?.sideId ?: return false
+	return actorSide != targetSide &&
+		makesEffectiveContact(actor) &&
+		actor.abilityEffects.any { it is BattleAbilityEffect.ContactSkillProtectionBypass }
 }
 
 /**

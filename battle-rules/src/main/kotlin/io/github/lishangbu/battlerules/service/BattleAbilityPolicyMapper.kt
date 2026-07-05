@@ -147,6 +147,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 		"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages
 		"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages
 		"ignore-target-ability-effects" -> BattleAbilityEffect.IgnoreTargetAbilityEffects
+		"contact-skill-protection-bypass" -> BattleAbilityEffect.ContactSkillProtectionBypass
 		"sound-based-skill-immunity" -> BattleAbilityEffect.SoundBasedSkillImmunity
 		"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
 		"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()

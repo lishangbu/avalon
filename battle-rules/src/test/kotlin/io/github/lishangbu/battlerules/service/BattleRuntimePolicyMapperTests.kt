@@ -97,6 +97,20 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `contact protection bypass and contact item policies map to runtime effects`() {
+		assertThat("contact-skill-protection-bypass".toBattleAbilityEffect(elementIds))
+			.isEqualTo(BattleAbilityEffect.ContactSkillProtectionBypass)
+		assertThat("contact-skill-protection-bypass".isBattleAbilityRuntimePolicySupported(elementIds)).isTrue()
+
+		assertThat("punch-based-contact-suppression".toBattleItemEffect(elementIds))
+			.isEqualTo(BattleItemEffect.PunchBasedContactSuppression)
+		assertThat("contact-side-effect-immunity".toBattleItemEffect(elementIds))
+			.isEqualTo(BattleItemEffect.ContactSideEffectImmunity)
+		assertThat("punch-based-contact-suppression".isBattleItemRuntimePolicySupported(elementIds)).isTrue()
+		assertThat("contact-side-effect-immunity".isBattleItemRuntimePolicySupported(elementIds)).isTrue()
+	}
+
+	@Test
 	fun `weight multiplier policies keep rational scale`() {
 		assertThat("weight-double".toBattleAbilityEffect(elementIds))
 			.isEqualTo(BattleAbilityEffect.WeightMultiplier(numerator = 2, denominator = 1))

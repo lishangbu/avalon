@@ -10033,3 +10033,134 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code = 'feint';
+- changeSet:
+    id: 002-battle-rules-enable-contact-protection-bypass
+    author: backend
+    comment: 启用接触技能绕过保护和接触道具边界规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 无形拳式规则只让本次仍构成接触的对手向技能绕过守住、快速防守等保护 gate；
+          -- 它不会像佯攻一样破除保护。拳击手套让拳击类技能本次不再接触，因此会阻止该绕过；
+          -- 部位护具只阻止接触副作用，不移除接触事实，所以不会阻止绕过保护。
+          update game_ability
+          set enabled = true
+          where code = 'unseen-fist';
+
+          update game_item
+          set enabled = true
+          where code in ('punching-glove', 'protective-pads');
+
+          with new_ability_rules(ability_code, trigger_timing, effect_policy, trigger_order, description, sort_order) as (
+            values
+              (
+                'unseen-fist',
+                'BEFORE_HIT',
+                'contact-skill-protection-bypass',
+                90,
+                '使用本次仍构成接触的对手向技能时，无视目标个人保护和目标侧本回合临时保护；不会破除保护，也不会重置目标连续保护计数。',
+                690
+              )
+          ),
+          numbered_ability_rules as (
+            select
+              coalesce((select max(id) from battle_ability_rule), 0) + row_number() over (order by sort_order) as id,
+              a.id as ability_id,
+              nr.trigger_timing,
+              nr.effect_policy,
+              nr.trigger_order,
+              nr.description,
+              nr.sort_order
+            from new_ability_rules nr
+            join game_ability a on a.code = nr.ability_code
+          )
+          insert into battle_ability_rule (
+            id,
+            ability_id,
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            ability_id,
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_ability_rules
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          with new_item_rules(item_code, trigger_timing, effect_policy, consumable, trigger_order, description, sort_order) as (
+            values
+              (
+                'punching-glove',
+                'BEFORE_HIT',
+                'punch-based-contact-suppression',
+                false,
+                90,
+                '携带者使用拳击类技能时，本次技能不再视为接触；该道具不会因改变接触事实而消耗。',
+                620
+              ),
+              (
+                'protective-pads',
+                'AFTER_DAMAGE',
+                'contact-side-effect-immunity',
+                false,
+                80,
+                '携带者主动接触目标后，免疫因接触目标而承受的反制副作用；该道具不移除接触事实，也不会因此消耗。',
+                630
+              )
+          ),
+          numbered_item_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + row_number() over (order by sort_order) as id,
+              i.id as item_id,
+              nr.trigger_timing,
+              nr.effect_policy,
+              nr.consumable,
+              nr.trigger_order,
+              nr.description,
+              nr.sort_order
+            from new_item_rules nr
+            join game_item i on i.code = nr.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_item_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

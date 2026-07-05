@@ -1400,6 +1400,8 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleAbilityEffect.ContactBasedSkillDamageBoost>()
 			.single()
 		assertThat(contactBoost.multiplier).isEqualTo(1.3)
+		assertThat(service.abilityEffectsByAbilityId(260))
+			.containsExactly(BattleAbilityEffect.ContactSkillProtectionBypass)
 		val sandForceEffects = service.abilityEffectsByAbilityId(159)
 		val weatherElementBoost = sandForceEffects
 			.filterIsInstance<BattleAbilityEffect.WeatherElementDamageBoost>()
@@ -1607,6 +1609,10 @@ class BattleRuntimeSnapshotServiceTests(
 			.filterIsInstance<BattleItemEffect.SuperEffectiveDamageBoost>()
 			.single()
 		assertThat(superEffectiveBoost.multiplier).isEqualTo(1.2)
+		assertThat(service.itemEffectsByItemId(897))
+			.containsExactly(BattleItemEffect.ContactSideEffectImmunity)
+		assertThat(service.itemEffectsByItemId(1700))
+			.containsExactly(BattleItemEffect.PunchBasedContactSuppression)
 
 		mapOf(
 			199L to 7L,
