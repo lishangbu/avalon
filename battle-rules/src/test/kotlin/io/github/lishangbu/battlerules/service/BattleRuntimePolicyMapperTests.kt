@@ -163,6 +163,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill protection breaking policy maps hit after protection removal flag`() {
+		assertThat("break-target-protection-damage".breaksProtection()).isTrue()
+		assertThat("break-target-protection-damage".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `skill target last skill pp reduction policy maps reduction amount`() {
 		assertThat("target-last-skill-pp-reduction-four".targetLastSkillPpReduction()).isEqualTo(4)
 		assertThat("target-last-skill-pp-reduction-four".isBattleSkillRuntimeEffectPolicySupported()).isTrue()

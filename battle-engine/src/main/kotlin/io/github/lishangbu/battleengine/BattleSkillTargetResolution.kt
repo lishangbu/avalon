@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
@@ -82,19 +83,32 @@ internal class BattleSkillTargetResolution(
 			is BattlePreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
 		}
 		val accuracyLockSetupFailure = accuracyLockSetupFailureEvent(state, actor, target, skill)
+		val contextAfterProtectionBreak = context.breakProtectionAfterSuccessfulHit(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+		)
+		val stateAfterProtectionBreak = contextAfterProtectionBreak.state
+		val actorAfterProtectionBreak = stateAfterProtectionBreak.participant(actor.actorId) ?: actor
+		val targetAfterProtectionBreak = stateAfterProtectionBreak.participant(target.actorId) ?: target
 		if (accuracyLockSetupFailure != null) {
-			return context.interruptSkillWithEvent(
-				state = state,
-				actor = actor,
+			return contextAfterProtectionBreak.interruptSkillWithEvent(
+				state = stateAfterProtectionBreak,
+				actor = actorAfterProtectionBreak,
 				skill = skill,
 				random = random,
 				event = accuracyLockSetupFailure,
 			)
 		}
-		val stateAfterAccuracyLockConsumption = consumeAccuracyLockAfterHitCheck(state, actor, target)
-		val actorAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(actor.actorId) ?: actor
-		val targetAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(target.actorId) ?: target
-		val contextAfterAccuracyLock = context.copy(state = stateAfterAccuracyLockConsumption)
+		val stateAfterAccuracyLockConsumption = consumeAccuracyLockAfterHitCheck(
+			stateAfterProtectionBreak,
+			actorAfterProtectionBreak,
+			targetAfterProtectionBreak,
+		)
+		val actorAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(actor.actorId) ?: actorAfterProtectionBreak
+		val targetAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(target.actorId) ?: targetAfterProtectionBreak
+		val contextAfterAccuracyLock = contextAfterProtectionBreak.copy(state = stateAfterAccuracyLockConsumption)
 		val absorbedByAbility = absorbElementSkillByAbility(
 			stateAfterAccuracyLockConsumption,
 			actorAfterAccuracyLock,
@@ -181,6 +195,64 @@ internal class BattleSkillTargetResolution(
 		} else {
 			state
 		}
+
+	/**
+	 * 命中后破除目标当前保护类屏障。
+	 *
+	 * 公开规则中的佯攻会在命中后移除目标个人保护屏障，也会移除目标所在侧的广域防守/快速防守等本回合临时侧防护。
+	 * 这里操作的是 [TurnContext]，不是 [BattleState] 的跨回合一侧防护列表：广域/快速防守在本引擎中只存在于
+	 * 当前回合命中 gate 上下文中，不能被清场类多回合状态逻辑误处理。若没有实际可破除内容，本函数保持上下文
+	 * 原样，不写空事件。
+	 */
+	private fun TurnContext.breakProtectionAfterSuccessfulHit(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): TurnContext {
+		if (!skill.breaksProtection) {
+			return this
+		}
+		val targetSideId = state.sideOf(target.actorId)?.sideId ?: return this
+		val brokeActorProtection = target.actorId in protectedActorIds
+		val brokenSideProtectionKinds = buildList {
+			if (targetSideId in multiTargetProtectedSideIds) {
+				add(BattleSideProtectionKind.MULTI_TARGET_SKILL)
+			}
+			if (targetSideId in priorityProtectedSideIds) {
+				add(BattleSideProtectionKind.PRIORITY_SKILL)
+			}
+		}
+		if (!brokeActorProtection && brokenSideProtectionKinds.isEmpty()) {
+			return this
+		}
+		val stateAfterProtectionBreak = if (brokeActorProtection) {
+			state.replaceParticipant(target.resetProtectionChain())
+		} else {
+			state
+		}
+		return copy(
+			state = stateAfterProtectionBreak.appendEvent(
+				BattleEvent.ProtectionBroken(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					sideId = targetSideId,
+					skillId = skill.skillId,
+					brokeActorProtection = brokeActorProtection,
+					brokenSideProtectionKinds = brokenSideProtectionKinds,
+				),
+			),
+			protectedActorIds = protectedActorIds - target.actorId,
+			multiTargetProtectedSideIds = multiTargetProtectedSideIds - targetSideId,
+			priorityProtectedSideIds = priorityProtectedSideIds - targetSideId,
+			successfulProtectionActorIds = if (brokeActorProtection) {
+				successfulProtectionActorIds - target.actorId
+			} else {
+				successfulProtectionActorIds
+			},
+		)
+	}
 
 	/**
 	 * 处理被目标特性吸收的元素技能。

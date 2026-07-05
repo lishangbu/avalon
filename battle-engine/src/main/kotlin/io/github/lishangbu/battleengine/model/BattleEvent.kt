@@ -646,6 +646,23 @@ sealed interface BattleEvent {
 		val removedKinds: List<BattleSideProtectionKind>,
 	) : BattleEvent
 
+	/**
+	 * 目标当前的保护类屏障被技能破除。
+	 *
+	 * 佯攻这类技能和普通“穿透保护”不同：它不只是本次技能无视保护，还会删除目标个人保护屏障和目标侧本回合
+	 * 临时侧防护，让同回合后续技能不再被同一层保护拦下。`brokeActorProtection` 表示是否破除了目标自身的
+	 * 守住/看穿类屏障；`brokenSideProtectionKinds` 记录实际移除的广域防守/快速防守等一侧临时防护。
+	 */
+	data class ProtectionBroken(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val brokeActorProtection: Boolean,
+		val brokenSideProtectionKinds: List<BattleSideProtectionKind>,
+	) : BattleEvent
+
 	// 一侧场地、入场陷阱和全场顺序事件：描述不直接挂在单个成员身上的持续规则。
 	/**
 	 * 一侧成功建立了速度结算修正。

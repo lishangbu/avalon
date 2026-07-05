@@ -240,7 +240,7 @@ class BattleRuntimeSnapshotServiceTests(
 				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 54, 57, 63, 69,
 					67, 68, 71, 73, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 					115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 170, 175, 179, 180, 182, 184, 187, 189, 191, 197, 199, 200, 203, 206, 215, 219, 220, 229, 235, 240, 243, 252, 259, 261, 263, 269,
-					280, 283, 305, 307, 308, 311, 319, 329, 336, 338, 344, 347, 349, 360, 362, 366, 368, 389, 390, 400, 416, 427, 432, 433, 435, 439, 446, 447, 457, 459,
+					280, 283, 305, 307, 308, 311, 319, 329, 336, 338, 344, 347, 349, 360, 362, 364, 366, 368, 389, 390, 400, 416, 427, 432, 433, 435, 439, 446, 447, 457, 459,
 				464, 469, 473, 474, 475, 480, 484, 486, 500, 501, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 660, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 866, 875, 877,
 				791, 816, 837, 842, 849, 850, 882, 883, 892, 895, 918,
 			),
@@ -989,6 +989,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(203).targetScope).isEqualTo(BattleSkillTargetScope.SELF)
 		assertThat(slots.getValue(203).protectsUser).isFalse()
 		assertThat(slots.getValue(203).enduresFatalDamage).isTrue()
+		assertThat(slots.getValue(364).targetScope).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
+		assertThat(slots.getValue(364).priority).isEqualTo(2)
+		assertThat(slots.getValue(364).affectedByProtect).isFalse()
+		assertThat(slots.getValue(364).breaksProtection).isTrue()
 		assertThat(slots.getValue(469).targetScope).isEqualTo(BattleSkillTargetScope.SELF)
 		assertThat(slots.getValue(469).priority).isEqualTo(3)
 		assertThat(slots.getValue(469).affectedByProtect).isFalse()

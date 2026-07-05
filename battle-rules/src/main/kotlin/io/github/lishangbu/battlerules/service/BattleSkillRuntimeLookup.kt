@@ -121,6 +121,7 @@ class BattleSkillRuntimeLookup(
 			defendingStatOverride = effectPolicy.toBattleSkillDefendingStatOverride(),
 			leavesTargetAtOneHp = effectPolicy.leavesTargetAtOneHp(),
 			breaksTargetSideDamageReductions = effectPolicy.breaksTargetSideDamageReductions(),
+			breaksProtection = effectPolicy.breaksProtection(),
 			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
 			elementOverridesByTerrain = ruleEffects.elementOverridesByTerrain,
 			ignoresUserBurnAttackReduction = effectPolicy.ignoresUserBurnAttackReduction(),

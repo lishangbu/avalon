@@ -751,6 +751,7 @@ class BattleRuntimeSnapshotService(
 			is BattleEvent.SkillFailed -> "$actorId 的技能 $skillId 失败：${reason.toSkillFailedReasonText()}。"
 			is BattleEvent.SkillPpReduced -> "$targetActorId 的技能 $reducedSkillId 减少 $amount 点 PP。"
 			is BattleEvent.SideProtectionStarted -> "$sideId 建立了${kind.toSideProtectionKindText()}。"
+			is BattleEvent.ProtectionBroken -> "$actorId 破除了 $targetActorId 的${toBrokenProtectionText()}。"
 			is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
 			is BattleEvent.HpAveragedBySkill -> "$actorId 与 $targetActorId 的 HP 被平均为 $averageHp。"
 			is BattleEvent.HealingApplied -> "$actorId 回复 $amount 点 HP。"
@@ -790,6 +791,14 @@ class BattleRuntimeSnapshotService(
 			BattleSideProtectionKind.PRIORITY_SKILL -> "先制度技能防护"
 		}
 
+	private fun BattleEvent.ProtectionBroken.toBrokenProtectionText(): String =
+		buildList {
+			if (brokeActorProtection) {
+				add("个人保护")
+			}
+			addAll(brokenSideProtectionKinds.map { it.toSideProtectionKindText() })
+		}.joinToString(separator = "、")
+
 	private fun String.toSandboxEventTypeText(): String =
 		when (this) {
 			"BattleStarted" -> "战斗开始"
@@ -801,6 +810,7 @@ class BattleRuntimeSnapshotService(
 			"SkillFailed" -> "技能失败"
 			"ProtectionStarted" -> "保护开始"
 			"ProtectionFailed" -> "保护失败"
+			"ProtectionBroken" -> "保护破除"
 			"FatalDamageEndureStarted" -> "挺住开始"
 			"SkillBlockedByProtection" -> "保护阻挡"
 			"SkillBlockedByTerrain" -> "场地阻挡"

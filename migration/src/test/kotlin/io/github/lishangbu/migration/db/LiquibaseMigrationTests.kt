@@ -3376,6 +3376,34 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val protectionBreakingRules = queryMaps(
+			"""
+			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,
+			       r.min_hits, r.max_hits, r.makes_contact, r.affected_by_protect,
+			       r.protects_user, r.endures_fatal_damage, r.enabled, s.enabled as skill_enabled
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code = 'feint'
+			""".trimIndent(),
+		)
+		assertThat(protectionBreakingRules).containsExactly(
+			mapOf(
+				"code" to "feint",
+				"effect_policy" to "break-target-protection-damage",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"makes_contact" to false,
+				"affected_by_protect" to false,
+				"protects_user" to false,
+				"endures_fatal_damage" to false,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+		)
+
 		val directStatusHpSkillRules = queryMaps(
 			"""
 			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,

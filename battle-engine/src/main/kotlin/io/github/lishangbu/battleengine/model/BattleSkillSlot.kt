@@ -68,6 +68,8 @@ package io.github.lishangbu.battleengine.model
  * 替身。该效果不要求场上实际存在陷阱或替身；因此它只负责状态清理，不能让没有可清目标的场景变成技能失败。
  * `clearsTargetSideBarriersAndFieldHazards` 表示变化技能成功后清除目标侧伤害屏障与非伤害型防护、双方入场陷阱，
  * 并清除当前场地。它不移除替身；替身穿透由 [bypassesSubstitute] 单独表达，方便其它非清场技能复用。
+ * `breaksProtection` 表示技能命中后会破除目标当前个人保护屏障，并移除目标所在侧本回合临时侧防护。佯攻使用
+ * 该字段：它本身不被保护阻挡，命中后还会让同回合后续技能不再被这次保护/广域防守/快速防守拦下。
  * `usableOnlyFirstSkillActionSinceEntering` 表示技能只有在使用者本次上场后的第一次技能行动才能成功。该字段
  * 不按技能 ID 硬编码，而是承载公开规则中 Fake Out / First Impression 共享的时机 gate；失败仍发生在技能宣告
  * 和 PP 消耗之后，命中、保护、伤害和附加效果之前。
@@ -158,6 +160,7 @@ data class BattleSkillSlot(
 	val clearsUserSideHazardsAndTraps: Boolean = false,
 	val clearsFieldHazardsAndSubstitutes: Boolean = false,
 	val clearsTargetSideBarriersAndFieldHazards: Boolean = false,
+	val breaksProtection: Boolean = false,
 	val usableOnlyFirstSkillActionSinceEntering: Boolean = false,
 	val requiresTargetPendingDamagingSkill: Boolean = false,
 	val requiresTargetPendingPriorityDamagingSkill: Boolean = false,
@@ -261,6 +264,9 @@ data class BattleSkillSlot(
 		require(!breaksTargetSideDamageReductions || damageClass != BattleDamageClass.STATUS) {
 			"screen breaking requires a damaging skill"
 		}
+		require(!breaksProtection || damageClass != BattleDamageClass.STATUS) {
+			"protection breaking requires a damaging skill"
+		}
 		require(!typelessDamage || damageClass != BattleDamageClass.STATUS) {
 			"typeless damage requires a damaging skill"
 		}
@@ -326,18 +332,18 @@ data class BattleSkillSlot(
 		require(!enduresFatalDamage || damageClass == BattleDamageClass.STATUS) {
 			"fatal damage endure requires a status skill"
 		}
-			require(!(protectsUser && enduresFatalDamage)) {
-				"protect barrier and fatal damage endure must be configured as separate skill effects"
-			}
-			require(
-				!(protectsUserSideFromMultiTargetSkills || protectsUserSideFromPrioritySkills) ||
-					damageClass == BattleDamageClass.STATUS,
-			) {
-				"user side temporary protection requires a status skill"
-			}
-			require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {
-				"burn attack reduction bypass requires a physical skill"
-			}
+		require(!(protectsUser && enduresFatalDamage)) {
+			"protect barrier and fatal damage endure must be configured as separate skill effects"
+		}
+		require(
+			!(protectsUserSideFromMultiTargetSkills || protectsUserSideFromPrioritySkills) ||
+				damageClass == BattleDamageClass.STATUS,
+		) {
+			"user side temporary protection requires a status skill"
+		}
+		require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {
+			"burn attack reduction bypass requires a physical skill"
+		}
 		require(remainingPp in 0..maxPp) { "remainingPp must be between 0 and maxPp" }
 		require(maxPp >= 0) { "maxPp must not be negative" }
 	}

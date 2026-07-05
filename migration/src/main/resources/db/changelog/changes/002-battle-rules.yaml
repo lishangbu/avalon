@@ -10001,3 +10001,35 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code in ('wide-guard', 'quick-guard');
+- changeSet:
+    id: 002-battle-rules-enable-feint-protection-breaking
+    author: backend
+    comment: 启用佯攻的命中后破除保护规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 佯攻是带伤害的破保护技能：自身不会被保护阻挡，命中后会移除目标个人保护和目标侧本回合临时侧防护，
+          -- 随后继续按普通物理伤害流程结算。本规则只启用现代主系列仍存在的 Feint，不处理已弃用招式。
+          update game_skill s
+          set enabled = true
+          where s.code = 'feint';
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'break-target-protection-damage',
+            target_policy = 'selected-target',
+            hit_policy = 'standard-hit',
+            damage_policy = 'standard-damage',
+            min_hits = 1,
+            max_hits = 1,
+            makes_contact = false,
+            affected_by_protect = false,
+            protects_user = false,
+            endures_fatal_damage = false,
+            description = '破保护伤害技能规则；技能自身不被保护阻挡，命中后破除目标个人保护和目标侧本回合临时侧防护，再按普通伤害流程结算。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'feint';

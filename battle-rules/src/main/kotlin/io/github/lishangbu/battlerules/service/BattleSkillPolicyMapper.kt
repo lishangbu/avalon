@@ -407,6 +407,15 @@ internal fun String.leavesTargetAtOneHp(): Boolean =
 internal fun String.breaksTargetSideDamageReductions(): Boolean =
 	this == "break-target-side-damage-reductions"
 
+/**
+ * 判断技能是否会在命中后破除目标当前保护类屏障。
+ *
+ * 佯攻仍按普通伤害流程结算；它的特殊点是命中后删除目标个人保护和目标侧本回合临时防护，让同回合后续技能不再被
+ * 这些保护拦截。该布尔只表达“破保护时机”，不负责伤害、命中或目标范围，避免把佯攻写成技能 ID 特例。
+ */
+internal fun String.breaksProtection(): Boolean =
+	this == "break-target-protection-damage"
+
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
@@ -553,6 +562,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"clear-user-side-hazards-and-traps",
 	"clear-field-hazards-and-substitutes",
 	"clear-target-side-barriers-and-field-hazards",
+	"break-target-protection-damage",
 	"first-skill-action-only-damage",
 	"target-pending-damaging-skill-damage",
 	"target-pending-priority-damaging-skill-damage",
@@ -627,6 +637,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillDefendingStatOverride() != null ||
 	leavesTargetAtOneHp() ||
 	breaksTargetSideDamageReductions() ||
+	breaksProtection() ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage() ||
