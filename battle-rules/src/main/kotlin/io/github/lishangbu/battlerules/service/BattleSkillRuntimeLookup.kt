@@ -142,6 +142,7 @@ class BattleSkillRuntimeLookup(
 			sideEntryHazardApplications = ruleEffects.sideEntryHazardApplications,
 			sideProtectionApplications = ruleEffects.sideProtectionApplications,
 			curesUserSideMajorStatuses = effectPolicy.curesUserSideMajorStatuses(),
+			curesUserSideActiveMajorStatuses = effectPolicy.curesUserSideActiveMajorStatuses(),
 			fieldSpeedOrderApplications = ruleEffects.fieldSpeedOrderApplications,
 			hpEffects = effectPolicy.toBattleSkillHpEffects(),
 			restoresUserBySleeping = effectPolicy.restoresUserBySleeping(),

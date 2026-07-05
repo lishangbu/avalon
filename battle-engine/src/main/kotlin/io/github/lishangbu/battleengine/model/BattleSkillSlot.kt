@@ -64,6 +64,8 @@ package io.github.lishangbu.battleengine.model
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
  * `curesUserSideMajorStatuses` 表示技能成功后清除使用者所在侧全部成员的主要异常状态；治愈铃声使用该字段。
  * 它只处理主要异常槽位，不清除混乱、寄生、束缚等临时状态。
+ * `curesUserSideActiveMajorStatuses` 表示技能成功后只清除使用者同侧当前上场成员的主要异常状态；丛林治疗和
+ * 新月祈祷使用该字段。它刻意不复用整队清除字段，避免把“当前在场的自己和同伴”错误扩展到后备成员。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
  * `chargesBeforeUse` 表示技能首次使用时先进入蓄力，下一次技能行动才真正释放效果；
  * `chargeSkippedByWeathers` 表示指定天气下该蓄力等待可以省略，技能会在宣告回合直接进入命中和伤害流程。
@@ -140,6 +142,7 @@ data class BattleSkillSlot(
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	val sideProtectionApplications: List<BattleSideProtectionApplication> = emptyList(),
 	val curesUserSideMajorStatuses: Boolean = false,
+	val curesUserSideActiveMajorStatuses: Boolean = false,
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	val hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	val restoresUserBySleeping: Boolean = false,
@@ -266,6 +269,9 @@ data class BattleSkillSlot(
 		}
 		require(!curesUserSideMajorStatuses || damageClass == BattleDamageClass.STATUS) {
 			"user side status cure requires a status skill"
+		}
+		require(!curesUserSideActiveMajorStatuses || damageClass == BattleDamageClass.STATUS) {
+			"user side active status cure requires a status skill"
 		}
 		require(!restoresUserBySleeping || damageClass == BattleDamageClass.STATUS) {
 			"rest healing requires a status skill"

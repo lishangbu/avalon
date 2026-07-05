@@ -8762,6 +8762,60 @@ databaseChangeLog:
           set enabled = true
           where code in ('belly-drum', 'pain-split');
 - changeSet:
+    id: 002-battle-rules-user-side-active-quarter-heal-skill-rules
+    author: backend
+    comment: 将同侧当前上场成员回复与回复净化技能修正为可执行结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 生命水滴、丛林治疗和新月祈祷都只作用于使用者同侧“当前上场”的成员，不能复用治愈铃声的整队异常清除。
+          -- 这里直接把目标范围、命中、伤害和效果策略落成运行时可识别的稳定 code，使新建环境不需要再依赖后续补丁。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'life-dew' then 'target-heal-quarter-max-hp'
+              when 'jungle-healing' then 'target-heal-quarter-max-hp-user-side-active-major-status-cure'
+              when 'lunar-blessing' then 'target-heal-quarter-max-hp-user-side-active-major-status-cure'
+              else r.effect_policy
+            end,
+            target_policy = 'user-side-active',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = false,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = case s.code
+              when 'life-dew' then '回复使用者同侧当前上场成员最大 HP 的 1/4。'
+              when 'jungle-healing' then '回复使用者同侧当前上场成员最大 HP 的 1/4，并清除这些上场成员的主要异常状态。'
+              when 'lunar-blessing' then '回复使用者同侧当前上场成员最大 HP 的 1/4，并清除这些上场成员的主要异常状态。'
+              else r.description
+            end,
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('life-dew', 'jungle-healing', 'lunar-blessing');
+
+          update game_skill
+          set enabled = true
+          where code in ('life-dew', 'jungle-healing', 'lunar-blessing');
+- changeSet:
     id: 002-battle-rules-disable-latest-unusable-skills
     author: backend
     comment: 将最新版资料明确标记为无法使用的技能从现代战斗规则入口中禁用。

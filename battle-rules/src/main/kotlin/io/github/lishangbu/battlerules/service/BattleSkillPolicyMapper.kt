@@ -108,6 +108,13 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				denominator = 2,
 			),
 		)
+		"target-heal-quarter-max-hp",
+		"target-heal-quarter-max-hp-user-side-active-major-status-cure" -> listOf(
+			BattleSkillHpEffect.TargetHealMaxHpFraction(
+				numerator = 1,
+				denominator = 4,
+			),
+		)
 		"self-heal-by-target-current-attack" -> listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack)
 		"target-major-status-cure-self-heal-half-max-hp" -> listOf(
 			BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure(
@@ -427,6 +434,9 @@ internal fun String.restoresUserBySleeping(): Boolean =
 internal fun String.curesUserSideMajorStatuses(): Boolean =
 	this == "user-side-major-status-cure"
 
+internal fun String.curesUserSideActiveMajorStatuses(): Boolean =
+	this == "target-heal-quarter-max-hp-user-side-active-major-status-cure"
+
 internal fun String.enduresFatalDamage(): Boolean =
 	this == "endure-fatal-damage"
 
@@ -523,7 +533,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	targetLastSkillPpReduction() > 0 ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
-	curesUserSideMajorStatuses()
+	curesUserSideMajorStatuses() ||
+	curesUserSideActiveMajorStatuses()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

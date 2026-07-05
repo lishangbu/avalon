@@ -5,6 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -121,6 +122,101 @@ class BattleRestAndTeamStatusCureTests {
 		)
 	}
 
+	@Test
+	fun `life dew heals user side active participants by quarter max hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "life-dew-heals-user-side-active-participants-by-quarter-max-hp",
+			inputSummary = "双打中使用者和同侧上场同伴都受伤，使用者成功使用生命水滴。",
+			expectedSummary = "只有使用者同侧当前上场成员各按最大 HP 的 1/4 回复，对手一侧不受影响。",
+		)
+		val user = participant("dew-user", speed = 100, currentHp = 40, skill = lifeDewSkill())
+		val ally = participant("dew-ally", speed = 90, currentHp = 70)
+		val opponentA = participant("opponent-a", speed = 80, currentHp = 50)
+		val opponentB = participant("opponent-b", speed = 70, currentHp = 60)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				doubleInitialState(
+					firstA = user,
+					firstB = ally,
+					secondA = opponentA,
+					secondB = opponentB,
+				),
+			),
+			listOf(BattleAction.UseSkill("dew-user", skillId = 791, targetActorId = "dew-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("life-dew-heals-user-side-active-participants-by-quarter-max-hp")
+		assertEquals(65, resolved.participant("dew-user")?.currentHp)
+		assertEquals(95, resolved.participant("dew-ally")?.currentHp)
+		assertEquals(50, resolved.participant("opponent-a")?.currentHp)
+		assertEquals(60, resolved.participant("opponent-b")?.currentHp)
+		assertEquals(
+			listOf("dew-user" to 25, "dew-ally" to 25),
+			resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().map { it.actorId to it.amount },
+		)
+	}
+
+	@Test
+	fun `active side healing cure affects active allies but leaves bench and opponents unchanged`() {
+		val scenario = publicBattleRuleScenario(
+			name = "active-side-healing-cure-affects-active-allies-but-leaves-bench-and-opponents-unchanged",
+			inputSummary = "使用者一侧当前上场成员、后备成员和对手都带有主要异常，使用者成功使用同侧上场回复净化技能。",
+			expectedSummary = "只有使用者同侧当前上场成员回复并清除主要异常，后备成员和对手仍保留原主要异常。",
+		)
+		val user = participant("blessing-user", speed = 100, currentHp = 40, skill = lunarBlessingSkill())
+			.copy(majorStatus = BattleMajorStatus.BURN)
+		val ally = participant("blessing-ally", speed = 90, currentHp = 80)
+			.copy(majorStatus = BattleMajorStatus.POISON)
+		val benched = participant("benched-ally", speed = 60, currentHp = 50)
+			.copy(majorStatus = BattleMajorStatus.PARALYSIS)
+		val opponentA = participant("opponent-a", speed = 80, currentHp = 70)
+			.copy(majorStatus = BattleMajorStatus.BURN)
+		val opponentB = participant("opponent-b", speed = 70, currentHp = 70)
+			.copy(majorStatus = BattleMajorStatus.FREEZE)
+		val initial = doubleInitialState(
+			firstA = user,
+			firstB = ally,
+			secondA = opponentA,
+			secondB = opponentB,
+		)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initial.copy(
+					sides = initial.sides.map { side ->
+						if (side.sideId == "side-a") {
+							side.copy(participants = side.participants + benched)
+						} else {
+							side
+						}
+					},
+				),
+			),
+			listOf(BattleAction.UseSkill("blessing-user", skillId = 849, targetActorId = "blessing-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("active-side-healing-cure-affects-active-allies-but-leaves-bench-and-opponents-unchanged")
+		assertEquals(65, resolved.participant("blessing-user")?.currentHp)
+		assertEquals(100, resolved.participant("blessing-ally")?.currentHp)
+		assertEquals(50, resolved.participant("benched-ally")?.currentHp)
+		assertEquals(null, resolved.participant("blessing-user")?.majorStatus)
+		assertEquals(null, resolved.participant("blessing-ally")?.majorStatus)
+		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("benched-ally")?.majorStatus)
+		assertEquals(BattleMajorStatus.BURN, resolved.participant("opponent-a")?.majorStatus)
+		assertEquals(BattleMajorStatus.FREEZE, resolved.participant("opponent-b")?.majorStatus)
+		assertEquals(
+			listOf("blessing-user", "blessing-ally"),
+			resolved.events.filterIsInstance<BattleEvent.StatusCleared>().map { it.actorId },
+		)
+		assertEquals(
+			listOf("blessing-user" to 25, "blessing-ally" to 20),
+			resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().map { it.actorId to it.amount },
+		)
+	}
+
 	private fun restSkill() =
 		damagingSkill(
 			skillId = 156,
@@ -142,5 +238,28 @@ class BattleRestAndTeamStatusCureTests {
 			affectedByProtect = false,
 			soundBased = true,
 			curesUserSideMajorStatuses = true,
+		)
+
+	private fun lifeDewSkill() =
+		damagingSkill(
+			skillId = 791,
+			name = "生命水滴",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.USER_SIDE_ACTIVE,
+			affectedByProtect = false,
+			hpEffects = listOf(BattleSkillHpEffect.TargetHealMaxHpFraction(1, 4)),
+		)
+
+	private fun lunarBlessingSkill() =
+		damagingSkill(
+			skillId = 849,
+			name = "新月祈祷",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.USER_SIDE_ACTIVE,
+			affectedByProtect = false,
+			curesUserSideActiveMajorStatuses = true,
+			hpEffects = listOf(BattleSkillHpEffect.TargetHealMaxHpFraction(1, 4)),
 		)
 }

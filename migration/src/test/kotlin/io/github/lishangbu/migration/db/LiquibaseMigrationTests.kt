@@ -1267,6 +1267,49 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val userSideActiveQuarterHealingSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.affected_by_protect
+			from game_skill s
+			join battle_skill_rule r on r.skill_id = s.id
+			where s.id in (791, 816, 849)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(userSideActiveQuarterHealingSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 791L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "target-heal-quarter-max-hp",
+				"target_policy" to "user-side-active",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+			mapOf(
+				"skill_id" to 816L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "target-heal-quarter-max-hp-user-side-active-major-status-cure",
+				"target_policy" to "user-side-active",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+			mapOf(
+				"skill_id" to 849L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "target-heal-quarter-max-hp-user-side-active-major-status-cure",
+				"target_policy" to "user-side-active",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+		)
+
 		val sandstormHealingSkillRules = queryMaps(
 			"""
 			select skill_id, effect_policy, target_policy, damage_policy

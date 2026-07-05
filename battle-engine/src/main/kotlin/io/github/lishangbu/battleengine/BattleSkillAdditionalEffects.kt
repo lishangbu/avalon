@@ -58,7 +58,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterSideEntryHazards = applySideEntryHazards(afterSideProtections, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
-		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterAccuracyLock, actorId, skill)
+		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterAccuracyLock, actorId, skill)
+		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)
 		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(
 			afterUserSideMajorStatusCures,
 			actorId,
@@ -458,6 +459,37 @@ internal class BattleSkillAdditionalEffects(
 		val side = state.sideOf(actorId) ?: return state
 		return side.participants.fold(state) { current, sideParticipant ->
 			val participant = current.participant(sideParticipant.actorId) ?: return@fold current
+			val status = participant.majorStatus ?: return@fold current
+			current
+				.replaceParticipant(participant.clearMajorStatus())
+				.appendEvent(
+					BattleEvent.StatusCleared(
+						turnNumber = current.turnNumber,
+						actorId = participant.actorId,
+						status = status,
+					),
+				)
+		}
+	}
+
+	/**
+	 * 清除使用者同侧当前上场成员的主要异常状态。
+	 *
+	 * 生命水滴只负责回复 HP；丛林治疗和新月祈祷则同时回复 HP 并治愈“当前在场”的使用者与同伴。这个范围和
+	 * 治愈铃声不同，不能遍历整队成员，否则后备成员会被错误治愈。这里读取同侧 `activeActorIds`，并在每个目标
+	 * 命中结算中幂等执行：第一次会清除所有上场成员，后续目标再次经过本函数时已经没有主要异常，不会重复事件。
+	 */
+	private fun applyUserSideActiveMajorStatusCures(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.curesUserSideActiveMajorStatuses) {
+			return state
+		}
+		val side = state.sideOf(actorId) ?: return state
+		return side.activeActorIds.fold(state) { current, activeActorId ->
+			val participant = current.participant(activeActorId) ?: return@fold current
 			val status = participant.majorStatus ?: return@fold current
 			current
 				.replaceParticipant(participant.clearMajorStatus())

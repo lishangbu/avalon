@@ -242,7 +242,7 @@ class BattleRuntimeSnapshotServiceTests(
 					115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 170, 175, 179, 180, 182, 184, 187, 189, 191, 197, 199, 200, 203, 206, 215, 219, 220, 235, 240, 243, 252, 259, 261, 263, 269,
 					280, 283, 305, 307, 308, 311, 319, 329, 336, 338, 344, 347, 349, 360, 362, 366, 368, 390, 400, 416, 427, 433, 435, 439, 446, 447, 457, 459,
 				464, 473, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
-				883, 892, 895,
+				791, 816, 849, 883, 892, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -792,6 +792,30 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(targetHealing.numerator).isEqualTo(1)
 		assertThat(targetHealing.denominator).isEqualTo(2)
+
+		val lifeDew = slots.getValue(791)
+		val lifeDewHealing = lifeDew
+			.hpEffects
+			.filterIsInstance<BattleSkillHpEffect.TargetHealMaxHpFraction>()
+			.single()
+		assertThat(lifeDew.targetScope).isEqualTo(BattleSkillTargetScope.USER_SIDE_ACTIVE)
+		assertThat(lifeDew.affectedByProtect).isFalse()
+		assertThat(lifeDew.curesUserSideActiveMajorStatuses).isFalse()
+		assertThat(lifeDewHealing.numerator).isEqualTo(1)
+		assertThat(lifeDewHealing.denominator).isEqualTo(4)
+
+		listOf(816L, 849L).forEach { skillId ->
+			val healingCure = slots.getValue(skillId)
+			val healing = healingCure
+				.hpEffects
+				.filterIsInstance<BattleSkillHpEffect.TargetHealMaxHpFraction>()
+				.single()
+			assertThat(healingCure.targetScope).isEqualTo(BattleSkillTargetScope.USER_SIDE_ACTIVE)
+			assertThat(healingCure.affectedByProtect).isFalse()
+			assertThat(healingCure.curesUserSideActiveMajorStatuses).isTrue()
+			assertThat(healing.numerator).isEqualTo(1)
+			assertThat(healing.denominator).isEqualTo(4)
+		}
 
 		val terrainTargetHealing = slots.getValue(666)
 			.hpEffects

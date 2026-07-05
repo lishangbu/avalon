@@ -180,6 +180,10 @@ class BattleRuntimePolicyMapperTests {
 		assertThat("self-rest-full-heal".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 		assertThat("user-side-major-status-cure".curesUserSideMajorStatuses()).isTrue()
 		assertThat("user-side-major-status-cure".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("target-heal-quarter-max-hp-user-side-active-major-status-cure".curesUserSideActiveMajorStatuses())
+			.isTrue()
+		assertThat("target-heal-quarter-max-hp-user-side-active-major-status-cure".isBattleSkillRuntimeEffectPolicySupported())
+			.isTrue()
 	}
 
 	@Test
@@ -194,8 +198,13 @@ class BattleRuntimePolicyMapperTests {
 			.containsExactly(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)
 		assertThat("average-user-target-current-hp".toBattleSkillHpEffects())
 			.containsExactly(BattleSkillHpEffect.AverageUserAndTargetCurrentHp)
+		assertThat("target-heal-quarter-max-hp".toBattleSkillHpEffects())
+			.containsExactly(BattleSkillHpEffect.TargetHealMaxHpFraction(1, 4))
+		assertThat("target-heal-quarter-max-hp-user-side-active-major-status-cure".toBattleSkillHpEffects())
+			.containsExactly(BattleSkillHpEffect.TargetHealMaxHpFraction(1, 4))
 		assertThat("maximize-user-attack-half-max-hp-cost".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 		assertThat("average-user-target-current-hp".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("target-heal-quarter-max-hp".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
 
 	@Test
