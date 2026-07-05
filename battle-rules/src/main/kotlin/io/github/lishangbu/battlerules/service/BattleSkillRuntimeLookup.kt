@@ -1,10 +1,17 @@
 package io.github.lishangbu.battlerules.service
 
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.common.web.invalidValue
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
+
+/**
+ * 资料源会用 6 表达“必定击中要害”的技能侧等级；battle-engine 在实际概率表中会把 3 及以上统一封顶为必定要害。
+ * 运行态校验保留 0..6，是为了既拒绝明显坏数据，又不把可审计资料值提前改写成另一个数字。
+ */
+private const val MAX_CRITICAL_HIT_STAGE = 6
 
 /**
  * 技能运行时资料读取器。
@@ -69,14 +76,16 @@ class BattleSkillRuntimeLookup(
 
 		val ruleId = row.requireRuleId()
 		row.requireSupportedRulePolicies()
+		row.requireSupportedRuleValues()
 		val effectPolicy = row.requiredText(row.effectPolicy, "effect_policy")
 		val targetPolicy = row.requiredText(row.targetPolicy, "target_policy")
+		val damageClass = row.damageClassCode.toBattleDamageClass()
 		val ruleEffects = ruleEffectLookup.ruleEffects(ruleId)
 		return BattleSkillSlot(
 			skillId = row.skillId,
 			name = row.name,
 			elementId = row.elementId,
-			damageClass = row.damageClassCode.toBattleDamageClass(),
+			damageClass = damageClass,
 			power = row.power,
 			fixedDamage = effectPolicy.toBattleFixedDamage(),
 			proportionalDamage = effectPolicy.toBattleProportionalDamage(),
@@ -198,6 +207,66 @@ private fun SkillRuntimeRow.requireSupportedRulePolicies() {
 	}
 	if (!normalizedDamagePolicy.isBattleSkillRuntimeDamagePolicySupported()) {
 		invalidValue("damagePolicy", "不支持的技能伤害策略: $normalizedDamagePolicy")
+	}
+}
+
+/**
+ * 校验启用技能规则的数值字段是否能安全进入纯引擎模型。
+ *
+ * 后台维护服务会在写入时校验这些约束，但运行态不能假设生产数据库永远只由该服务写入：Liquibase、批量修数、
+ * 临时 SQL 或导入脚本都可能绕过应用层。这里把边界再收紧一次，统一抛出带字段名的 [io.github.lishangbu.common.web.ApiException]，
+ * 避免 [BattleSkillSlot] 或伤害公式在更深层抛出 `IllegalArgumentException`，导致调用方只看到 500。
+ *
+ * 这层只做运行态必须知道的最小一致性检查：段数、要害等级、锁招回合、变化类技能互斥、蓄力/休整互斥。没有基础
+ * 威力的伤害类技能不在这里拒绝，因为反击类技能的资料就是“伤害分类存在但威力为空”；纯引擎会把尚未建模的
+ * 伤害记忆规则转成稳定失败事件，避免适配层把可装配资料和当前战斗行为混在一起判断。
+ */
+private fun SkillRuntimeRow.requireSupportedRuleValues() {
+	val damageClass = damageClassCode.toBattleDamageClass()
+	val minHitsValue = requiredInt(minHits, "min_hits")
+	val maxHitsValue = requiredInt(maxHits, "max_hits")
+	val criticalHitStageValue = requiredInt(criticalHitStage, "critical_hit_stage")
+	val lockMoveTurnsMinValue = requiredInt(lockMoveTurnsMin, "lock_move_turns_min")
+	val lockMoveTurnsMaxValue = requiredInt(lockMoveTurnsMax, "lock_move_turns_max")
+	val protectsUserValue = requiredBoolean(protectsUser, "protects_user")
+	val chargesBeforeUseValue = requiredBoolean(chargesBeforeUse, "charges_before_use")
+	val rechargesAfterUseValue = requiredBoolean(rechargesAfterUse, "recharges_after_use")
+	val confusesUserAfterLockValue = requiredBoolean(confusesUserAfterLock, "confuses_user_after_lock")
+
+	requireRange(minHitsValue, "minHits", 1, 10)
+	requireRange(maxHitsValue, "maxHits", 1, 10)
+	if (maxHitsValue < minHitsValue) {
+		invalidValue("maxHits", "maxHits 不能小于 minHits: skillId=$skillId")
+	}
+	requireRange(criticalHitStageValue, "criticalHitStage", 0, MAX_CRITICAL_HIT_STAGE)
+	requireRange(lockMoveTurnsMinValue, "lockMoveTurnsMin", 1, 10)
+	requireRange(lockMoveTurnsMaxValue, "lockMoveTurnsMax", 1, 10)
+	if (lockMoveTurnsMaxValue < lockMoveTurnsMinValue) {
+		invalidValue("lockMoveTurnsMax", "lockMoveTurnsMax 不能小于 lockMoveTurnsMin: skillId=$skillId")
+	}
+	if (damageClass == BattleDamageClass.STATUS && (minHitsValue != 1 || maxHitsValue != 1)) {
+		invalidValue("maxHits", "变化类技能不能配置多段命中: skillId=$skillId")
+	}
+	if (protectsUserValue && damageClass != BattleDamageClass.STATUS) {
+		invalidValue("protectsUser", "只有变化类技能才能配置保护自身: skillId=$skillId")
+	}
+	if (chargesBeforeUseValue && damageClass == BattleDamageClass.STATUS) {
+		invalidValue("chargesBeforeUse", "变化类技能不能配置蓄力后发动: skillId=$skillId")
+	}
+	if (rechargesAfterUseValue && damageClass == BattleDamageClass.STATUS) {
+		invalidValue("rechargesAfterUse", "变化类技能不能配置成功后休整: skillId=$skillId")
+	}
+	if (chargesBeforeUseValue && rechargesAfterUseValue) {
+		invalidValue("rechargesAfterUse", "蓄力技能不能同时配置成功后休整: skillId=$skillId")
+	}
+	if (confusesUserAfterLockValue && lockMoveTurnsMaxValue <= 1) {
+		invalidValue("confusesUserAfterLock", "锁招结束混乱需要配置超过 1 回合的锁招: skillId=$skillId")
+	}
+}
+
+private fun SkillRuntimeRow.requireRange(value: Int, field: String, min: Int, max: Int) {
+	if (value !in min..max) {
+		invalidValue(field, "$field 必须在 $min 到 $max 之间: skillId=$skillId")
 	}
 }
 

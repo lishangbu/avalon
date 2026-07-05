@@ -48,6 +48,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
+ * 资料源把必定击中要害类技能记录为 6，纯引擎在概率计算时会将 3 及以上封顶为必定要害。
+ * 后台维护允许保留这个资料值，避免编辑现有规则时被迫把可追溯的导入值改写成 3 或 4。
+ */
+private const val MAX_CRITICAL_HIT_STAGE = 6
+
+/**
  * 战斗技能规则维护服务。
  *
  * 这个服务是技能进入战斗引擎前的规则入口。基础资料中的技能只告诉我们名称、属性、威力、命中等静态事实，
@@ -249,7 +255,7 @@ class BattleSkillRuleService(
 			damagePolicy = requiredPolicyCode(damagePolicy, "damagePolicy"),
 			minHits = requiredIntRange(minHits, "minHits", 1, 10),
 			maxHits = requiredIntRange(maxHits, "maxHits", 1, 10),
-			criticalHitStage = requiredIntRange(criticalHitStage, "criticalHitStage", 0, 4),
+			criticalHitStage = requiredIntRange(criticalHitStage, "criticalHitStage", 0, MAX_CRITICAL_HIT_STAGE),
 			lockMoveTurnsMin = requiredIntRange(lockMoveTurnsMin, "lockMoveTurnsMin", 1, 10),
 			lockMoveTurnsMax = requiredIntRange(lockMoveTurnsMax, "lockMoveTurnsMax", 1, 10),
 			description = optionalText(description, "description", 800),

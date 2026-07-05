@@ -164,6 +164,9 @@ internal class BattleSkillDamageResolution(
 		targetMultiplier: Double,
 		random: BattleRandom,
 	): TurnContext {
+		if (skill.power == null && skill.dynamicPower == null) {
+			return interruptFormulaDamageWithoutPower(context, state, actor, target, skill, random)
+		}
 		val hitCount = determineHitCount(skill, random)
 		val stateWithHitCount = if (hitCount > 1) {
 			state.appendEvent(
@@ -208,6 +211,37 @@ internal class BattleSkillDamageResolution(
 			random = random,
 		)
 	}
+
+	/**
+	 * 阻止缺少公式威力来源的伤害类技能继续进入普通伤害计算器。
+	 *
+	 * 资料中存在一类“伤害分类不是变化类、但基础威力为空”的现代技能，例如读取本回合上一段受伤记录的反击类技能。
+	 * 这些技能不能被当成 0 威力、默认威力或普通无伤害技能处理；在伤害记忆模型完整接入前，最安全的生产行为是
+	 * 在已经宣告技能并消耗 PP 后追加稳定失败事件，并按中断规则清理锁招/蓄力释放。这样真实对局不会因为
+	 * `requireNotNull(power)` 抛出 500，也不会悄悄制造错误伤害。
+	 */
+	private fun interruptFormulaDamageWithoutPower(
+		context: TurnContext,
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): TurnContext =
+		moveFinishResolution.interruptSkillWithEvent(
+			context = context,
+			state = state,
+			actor = actor,
+			skill = skill,
+			random = random,
+			event = BattleEvent.SkillFailed(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skillId = skill.skillId,
+				reason = "damage-power-unavailable",
+			),
+		)
 
 	/**
 	 * 结算多段或单段伤害中的一段。

@@ -503,6 +503,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleCriticalHitFlowTests",
 					"io.github.lishangbu.battleengine.BattleCriticalHitImmunityAbilityTests",
 					"io.github.lishangbu.battleengine.BattleFixedDamageSkillTests",
+					"io.github.lishangbu.battleengine.BattleFormulaDamageSafetyTests",
 					"io.github.lishangbu.battleengine.BattleHpDerivedDamageSkillTests",
 					"io.github.lishangbu.battleengine.BattleOneHitKnockOutSkillTests",
 					"io.github.lishangbu.battleengine.BattleProportionalDamageSkillTests",

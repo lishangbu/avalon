@@ -239,7 +239,7 @@ class BattleRuntimeSnapshotServiceTests(
 				67, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 252, 259, 261, 263, 265, 269,
 				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
-				464, 474, 475, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 805, 819, 875, 877,
+				464, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
 			),
 		)
@@ -735,6 +735,7 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(163).criticalHitStage).isEqualTo(1)
 		assertThat(slots.getValue(400).slicingBased).isTrue()
 		assertThat(slots.getValue(400).criticalHitStage).isEqualTo(1)
+		assertThat(slots.getValue(480).criticalHitStage).isEqualTo(6)
 		assertThat(slots.getValue(427).slicingBased).isTrue()
 		assertThat(slots.getValue(427).makesContact).isFalse()
 		assertThat(slots.getValue(895).slicingBased).isTrue()
@@ -941,6 +942,78 @@ class BattleRuntimeSnapshotServiceTests(
 			}
 			assertThat(missingRule.field).isEqualTo("skillIds")
 			assertThat(missingRule.message).isEqualTo("技能缺少战斗规则: $skillId")
+		}
+	}
+
+	/**
+	 * 技能规则的数值完整性必须在 battle-rules 适配层被结构化拒绝。
+	 *
+	 * 这些场景模拟生产库被 Liquibase、批量脚本或临时 SQL 绕过管理端校验后写入坏数据。运行态读取器如果只依赖
+	 * battle-engine 模型构造器，调用方会看到普通非法参数异常甚至伤害结算时的 500；这里要求它在装配技能槽时
+	 * 直接指出坏字段和技能 ID，方便排查并阻止半坏规则进入真实对局。
+	 */
+	@Test
+	fun `skill slot assembly rejects runtime invalid skill rule values before engine construction`() {
+		withTemporarySkillPolicy("standard-damage") { skillId ->
+			jdbcTemplate.update("update battle_skill_rule set min_hits = ? where id = ?", 0, TEMP_SKILL_RULE_ID)
+
+			val error = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(error.field).isEqualTo("minHits")
+			assertThat(error.message).isEqualTo("minHits 必须在 1 到 10 之间: skillId=$skillId")
+		}
+
+		withTemporarySkillPolicy("standard-damage") { skillId ->
+			jdbcTemplate.update(
+				"update battle_skill_rule set min_hits = ?, max_hits = ? where id = ?",
+				3,
+				2,
+				TEMP_SKILL_RULE_ID,
+			)
+
+			val error = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(error.field).isEqualTo("maxHits")
+			assertThat(error.message).isEqualTo("maxHits 不能小于 minHits: skillId=$skillId")
+		}
+
+		withTemporarySkillPolicy("standard-damage") { skillId ->
+			jdbcTemplate.update(
+				"update battle_skill_rule set critical_hit_stage = ? where id = ?",
+				7,
+				TEMP_SKILL_RULE_ID,
+			)
+
+			val error = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(error.field).isEqualTo("criticalHitStage")
+			assertThat(error.message).isEqualTo("criticalHitStage 必须在 0 到 6 之间: skillId=$skillId")
+		}
+
+		withTemporarySkillPolicy("standard-damage") { skillId ->
+			jdbcTemplate.update(
+				"""
+				update game_skill
+				set damage_class_id = (select id from game_skill_damage_class where code = 'status')
+				where id = ?
+				""".trimIndent(),
+				skillId,
+			)
+			jdbcTemplate.update(
+				"update battle_skill_rule set min_hits = ?, max_hits = ? where id = ?",
+				2,
+				5,
+				TEMP_SKILL_RULE_ID,
+			)
+
+			val error = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(error.field).isEqualTo("maxHits")
+			assertThat(error.message).isEqualTo("变化类技能不能配置多段命中: skillId=$skillId")
 		}
 	}
 
