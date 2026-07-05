@@ -60,6 +60,42 @@ class BattleContactAbilityPublicReferenceTests {
 	}
 
 	@Test
+	fun `contact damage ability and item stack after the same contact hit`() {
+		val scenario = publicBattleRuleScenario(
+			name = "contact-damage-ability-and-item-stack-after-same-contact-hit",
+			inputSummary = "攻击方最大 HP 100，使用接触类物理技能命中目标；目标同时拥有 1/8 接触反伤特性和 1/6 接触反伤道具。",
+			expectedSummary = "目标先受到普通伤害；随后攻击方先受到 12 点特性反伤，再受到 16 点道具反伤，两个效果不会互相覆盖。",
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(makesContact = true),
+				),
+				second = participant(
+					"defender",
+					speed = 80,
+					abilityEffects = listOf(BattleAbilityEffect.ContactDamageToAttacker(damageDenominator = 8)),
+					itemEffects = listOf(BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		scenario.assertNamed("contact-damage-ability-and-item-stack-after-same-contact-hit")
+		assertEquals(72, resolved.participant("defender")?.currentHp)
+		assertEquals(72, resolved.participant("attacker")?.currentHp)
+		assertEquals(listOf(12, 16), resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().map { it.amount })
+	}
+
+	@Test
 	fun `contact damage ability is blocked by attacker contact side effect immunity`() {
 		val scenario = publicBattleRuleScenario(
 			name = "contact-damage-ability-blocked-by-contact-side-effect-immunity",
