@@ -367,6 +367,16 @@ internal fun String.toBattleSkillDefendingStatOverride(): BattleStat? =
 		else -> null
 	}
 
+/**
+ * 判断技能是否会把目标本体伤害限制在至少保留 1 HP。
+ *
+ * 这里使用 effect policy 承载，是因为这类技能的普通伤害公式、命中、属性和接触流程都不特殊；唯一差异发生在
+ * HP 写入边界。保持为布尔语义可以让运行态明确表达“不能打倒目标”，同时避免引入一套只服务两个技能的复杂公式
+ * policy。
+ */
+internal fun String.leavesTargetAtOneHp(): Boolean =
+	this == "leave-target-at-one-hp"
+
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
@@ -455,6 +465,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
 	toBattleSkillDynamicPower() != null ||
 	toBattleSkillDefendingStatOverride() != null ||
+	leavesTargetAtOneHp() ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage()

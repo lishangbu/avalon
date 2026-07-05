@@ -9039,3 +9039,38 @@ databaseChangeLog:
           from game_skill s
           join target_defense_skills tds on tds.code = s.code
           where r.skill_id = s.id;
+- changeSet:
+    id: 002-battle-rules-enable-non-fainting-damage-skills
+    author: backend
+    comment: 启用保留目标一血的普通伤害技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 点到为止和手下留情使用普通物理伤害公式；唯一差异是目标本体 HP 写入时不能低于 1。
+          -- 替身不受该限制，因此运行态只把效果表达为 leave-target-at-one-hp，由伤害写入阶段处理目标本体。
+          with non_fainting_skills(code) as (
+            values
+              ('false-swipe'),
+              ('hold-back')
+          )
+          update game_skill s
+          set enabled = true
+          from non_fainting_skills nfs
+          where s.code = nfs.code;
+
+          with non_fainting_skills(code) as (
+            values
+              ('false-swipe'),
+              ('hold-back')
+          )
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'leave-target-at-one-hp',
+            damage_policy = 'standard-damage',
+            description = '普通伤害技能规则；命中造成普通伤害，但目标本体 HP 写入时最低保留 1 点。'
+          from game_skill s
+          join non_fainting_skills nfs on nfs.code = s.code
+          where r.skill_id = s.id;

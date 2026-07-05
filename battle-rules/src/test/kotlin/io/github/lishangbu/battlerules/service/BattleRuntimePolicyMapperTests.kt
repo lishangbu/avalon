@@ -144,4 +144,10 @@ class BattleRuntimePolicyMapperTests {
 		assertThat("special-damage-target-defense".toBattleSkillDefendingStatOverride()).isEqualTo(BattleStat.DEFENSE)
 		assertThat("special-damage-target-defense".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
+
+	@Test
+	fun `skill non fainting damage policy maps target one hp floor`() {
+		assertThat("leave-target-at-one-hp".leavesTargetAtOneHp()).isTrue()
+		assertThat("leave-target-at-one-hp".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
 }

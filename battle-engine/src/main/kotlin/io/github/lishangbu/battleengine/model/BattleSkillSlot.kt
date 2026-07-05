@@ -33,6 +33,10 @@ package io.github.lishangbu.battleengine.model
  * `defendingStatOverride` 表示普通伤害公式防守侧使用的能力项覆盖。绝大多数物理技能读取防御、特殊技能读取特防；
  * 精神冲击这类特殊技能例外地仍读取目标防御。这里选择只覆盖防守能力项，而不是新增一个完整“公式配置对象”，
  * 是因为现代资料里这组规则只改变防守项选择，攻击项、威力、属性一致加成、属性克制、天气、道具和要害流程都不变。
+ * `leavesTargetAtOneHp` 表示该技能造成目标本体伤害时不能把目标 HP 降到 0。它不是满 HP 保命效果，也不是伤害公式
+ * 修正：公式仍照常算出原始伤害，真正写入目标本体 HP 前再夹到“当前 HP - 1”。这样点到为止这类技能不会触发满
+ * HP 保命特性/道具，也不会让吸取、反伤和造成伤害后回复读取错误的过量伤害。替身承受伤害时不读取这个字段，
+ * 因为替身可以被这类技能打破。
  * `typelessDamage` 表示该技能虽然仍有一个资料层基础属性 ID，但本次普通伤害按“无属性伤害”处理：不获得属性一致
  * 加成、不读取属性克制倍率，也不触发指定属性吸收、指定属性增伤或指定属性减伤道具。现代挣扎就是这种规则形态；
  * 把它做成显式布尔值，是为了避免用一个不存在的属性编号伪装无属性，导致未来道具或特性误把它当成普通属性技能。
@@ -95,6 +99,7 @@ data class BattleSkillSlot(
 	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	val dynamicPower: BattleSkillDynamicPower? = null,
 	val defendingStatOverride: BattleStat? = null,
+	val leavesTargetAtOneHp: Boolean = false,
 	val typelessDamage: Boolean = false,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
@@ -190,6 +195,9 @@ data class BattleSkillSlot(
 		}
 		require(defendingStatOverride == null || damageClass != BattleDamageClass.STATUS) {
 			"defending stat override requires a damaging skill"
+		}
+		require(!leavesTargetAtOneHp || damageClass != BattleDamageClass.STATUS) {
+			"target one hp floor requires a damaging skill"
 		}
 		require(!typelessDamage || damageClass != BattleDamageClass.STATUS) {
 			"typeless damage requires a damaging skill"

@@ -46,12 +46,13 @@ internal class BattleDamageApplicationEffects(
 		criticalHit: Boolean = false,
 		ignoreTargetAbilityEffects: Boolean,
 	): BattleTargetDamageApplication {
+		val skillLimitedDamageAmount = damageAmountAfterSkillTargetFloor(target, skill, damageAmount)
 		val survival = damageDefenseEffects.fatalDamageSurvival(
 			state = state,
 			actor = actor,
 			target = target,
 			skill = skill,
-			damageAmount = damageAmount,
+			damageAmount = skillLimitedDamageAmount,
 			ignoreTargetAbilityEffects = ignoreTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
@@ -175,7 +176,7 @@ internal class BattleDamageApplicationEffects(
 			skill = skill,
 			damageAmount = damageAmount,
 		)
-		val afterTargetLowHpItem = if (allowTargetLowHpItem) {
+		val afterTargetLowHpItem = if (allowTargetLowHpItem && damageAmount > 0) {
 			postDamageEffects.applyLowHpHealingItem(afterSkillRecharge, targetActorId)
 		} else {
 			afterSkillRecharge
@@ -204,6 +205,25 @@ internal class BattleDamageApplicationEffects(
 			afterRecoil.participant(actorId)?.let(::add)
 		}
 		return afterRecoil.handleFaintsAndResult(faintCandidates)
+	}
+
+	/**
+	 * 在写入目标本体 HP 前应用“最多保留 1 HP”的技能限制。
+	 *
+	 * 这个限制必须放在满 HP 保命特性/道具之前：点到为止这类技能本身不会造成致命伤害，所以不应该触发“原本会被
+	 * 一击打倒才保留 1 HP”的特性或携带道具事件。返回值只影响目标本体伤害写入；替身伤害入口不会调用本函数，
+	 * 因为替身没有“保留 1 HP”的现代规则。目标已经只有 1 HP 时，实际写入伤害会被夹到 0，后续低体力道具和
+	 * 反伤 hook 也会因为没有实际伤害而短路。
+	 */
+	private fun damageAmountAfterSkillTargetFloor(
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): Int {
+		if (!skill.leavesTargetAtOneHp) {
+			return damageAmount
+		}
+		return damageAmount.coerceAtMost((target.currentHp - 1).coerceAtLeast(0))
 	}
 
 	/**
