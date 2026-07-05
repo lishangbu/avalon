@@ -1447,6 +1447,49 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(duplicateSkill.message).isEqualTo("skillIds 不能包含重复技能")
 	}
 
+	/**
+	 * 验证准备阶段装配器会在进入 battle-engine 模型前拒绝畸形队伍骨架。
+	 *
+	 * `BattleInitialState` 自身有完整 `require` 不变量，但这些异常只适合纯领域层和测试使用；生产 API 入口必须把
+	 * 请求层面的错误翻译成稳定 `ApiException`。这里集中覆盖最容易从管理端手填 JSON 里出现的三类问题：
+	 * 少传一侧队伍、不同队伍复用同一个 actorId、双打赛制下只声明一个上场成员。
+	 */
+	@Test
+	fun `preparation validation rejects malformed team skeleton before engine model`() {
+		val missingSide = assertThrows<ApiException> {
+			service.validatePreparation(
+				BattlePreparationValidationRequest(
+					formatCode = "official-double",
+					sides = validDoubleSides().take(1),
+				),
+			)
+		}
+		assertThat(missingSide.field).isEqualTo("sides")
+		assertThat(missingSide.message).isEqualTo("sides 必须包含两侧队伍")
+
+		val duplicateActor = assertThrows<ApiException> {
+			service.validatePreparation(
+				BattlePreparationValidationRequest(
+					formatCode = "official-double",
+					sides = duplicateActorDoubleSides(),
+				),
+			)
+		}
+		assertThat(duplicateActor.field).isEqualTo("actorId")
+		assertThat(duplicateActor.message).isEqualTo("actorId 不能跨队伍重复")
+
+		val activeCountDrift = assertThrows<ApiException> {
+			service.validatePreparation(
+				BattlePreparationValidationRequest(
+					formatCode = "official-double",
+					sides = activeCountDriftDoubleSides(),
+				),
+			)
+		}
+		assertThat(activeCountDrift.field).isEqualTo("activeActorIds")
+		assertThat(activeCountDrift.message).isEqualTo("activeActorIds 数量必须符合赛制")
+	}
+
 	@Test
 	fun `action validation uses assembled runtime snapshot`() {
 		val response = service.validateActions(
@@ -2591,6 +2634,33 @@ class BattleRuntimeSnapshotServiceTests(
 						}
 					},
 				)
+			} else {
+				side
+			}
+		}
+
+	private fun duplicateActorDoubleSides(): List<BattlePreparationSideRequest> =
+		validDoubleSides().map { side ->
+			if (side.sideId == "side-b") {
+				side.copy(
+					activeActorIds = listOf("a-1", "b-2"),
+					participants = side.participants.map { participant ->
+						if (participant.actorId == "b-1") {
+							participant.copy(actorId = "a-1")
+						} else {
+							participant
+						}
+					},
+				)
+			} else {
+				side
+			}
+		}
+
+	private fun activeCountDriftDoubleSides(): List<BattlePreparationSideRequest> =
+		validDoubleSides().map { side ->
+			if (side.sideId == "side-a") {
+				side.copy(activeActorIds = listOf("a-1"))
 			} else {
 				side
 			}
