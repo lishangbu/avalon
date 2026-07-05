@@ -67,6 +67,8 @@ internal class BattleSkillTargetResolution(
 			skill = skill,
 			priorityContext = priorityContext,
 			protectedActorIds = context.protectedActorIds,
+			multiTargetProtectedSideIds = context.multiTargetProtectedSideIds,
+			priorityProtectedSideIds = context.priorityProtectedSideIds,
 			random = random,
 		)
 		val ignoresTargetAbilityEffects = when (preHitGate) {

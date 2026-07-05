@@ -9956,3 +9956,48 @@ databaseChangeLog:
             chance_percent = excluded.chance_percent,
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
+- changeSet:
+    id: 002-battle-rules-enable-user-side-guard-skills
+    author: backend
+    comment: 启用广域防守和快速防守的一侧临时防护规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 广域防守和快速防守都属于现代规则中的本回合一侧临时防护：
+          -- 前者阻挡对手范围技能，后者阻挡对手正优先度技能。两者只在行动队列还有后续技能行动时建立，
+          -- 成功后进入连续保护递减，但不会写入 battle_side_* 这类跨回合状态表。
+          with enabled_skills(code) as (
+            values
+              ('wide-guard'),
+              ('quick-guard')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = case
+              when s.code = 'wide-guard' then 'user-side-multi-target-skill-protection'
+              else 'user-side-priority-skill-protection'
+            end,
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            makes_contact = false,
+            affected_by_protect = false,
+            protects_user = false,
+            endures_fatal_damage = false,
+            description = case
+              when s.code = 'wide-guard' then '一侧范围技能防护规则；成功后本回合保护使用者一侧当前上场成员免受对手范围技能影响，并进入连续保护递减。'
+              else '一侧先制度技能防护规则；成功后本回合保护使用者一侧当前上场成员免受对手正优先度技能影响，并进入连续保护递减。'
+            end
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('wide-guard', 'quick-guard');

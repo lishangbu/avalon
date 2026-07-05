@@ -220,6 +220,14 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill user side guard policies map explicit protection flags`() {
+		assertThat("user-side-multi-target-skill-protection".protectsUserSideFromMultiTargetSkills()).isTrue()
+		assertThat("user-side-priority-skill-protection".protectsUserSideFromPrioritySkills()).isTrue()
+		assertThat("user-side-multi-target-skill-protection".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("user-side-priority-skill-protection".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `skill direct status hp policies map explicit hp effects`() {
 		assertThat("maximize-user-attack-half-max-hp-cost".toBattleSkillHpEffects())
 			.containsExactly(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)

@@ -491,6 +491,24 @@ internal fun String.requiresTargetPendingDamagingSkill(): Boolean =
 internal fun String.requiresTargetPendingPriorityDamagingSkill(): Boolean =
 	this == "target-pending-priority-damaging-skill-damage"
 
+/**
+ * 判断技能是否在本回合保护使用者一侧免受范围技能影响。
+ *
+ * 广域防守的公开规则是“本回合的一侧临时防护”，不是白雾/神秘守护那种跨回合 side protection。运行时只需要一个
+ * 布尔标签，让 battle-engine 在命中前 gate 根据目标范围和保护穿透标记决定是否阻挡。
+ */
+internal fun String.protectsUserSideFromMultiTargetSkills(): Boolean =
+	this == "user-side-multi-target-skill-protection"
+
+/**
+ * 判断技能是否在本回合保护使用者一侧免受正优先度技能影响。
+ *
+ * 快速防守读取的是行动排序阶段的有效优先度，而不是单纯技能资料上的基础优先度；因此资料层只声明防护类别，
+ * 具体优先度判断留给 battle-engine 使用 `SkillPriorityContext`。
+ */
+internal fun String.protectsUserSideFromPrioritySkills(): Boolean =
+	this == "user-side-priority-skill-protection"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -538,6 +556,8 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"first-skill-action-only-damage",
 	"target-pending-damaging-skill-damage",
 	"target-pending-priority-damaging-skill-damage",
+	"user-side-multi-target-skill-protection",
+	"user-side-priority-skill-protection",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -618,6 +638,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	usableOnlyFirstSkillActionSinceEntering() ||
 	requiresTargetPendingDamagingSkill() ||
 	requiresTargetPendingPriorityDamagingSkill() ||
+	protectsUserSideFromMultiTargetSkills() ||
+	protectsUserSideFromPrioritySkills() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

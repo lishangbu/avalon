@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
@@ -102,10 +103,12 @@ internal class BattleSkillUseResolution(
 	 * 技能使用事件、PP 消耗、讲究锁定和蓄力跳过判断都已经在调用方完成；本函数只处理“这个保护屏障是否建立”：
 	 * - 失败时清零连续保护链，并追加 [BattleEvent.ProtectionFailed]。
 	 * - 守住/看穿成功时推进连续保护链，追加 [BattleEvent.ProtectionStarted]，同时写入当前回合临时保护集合。
+	 * - 广域/快速防守成功时推进同一条连续保护链，追加 [BattleEvent.SideProtectionStarted]，同时写入当前回合临时侧保护集合。
 	 * - 挺住成功时推进同一条连续保护链，追加 [BattleEvent.FatalDamageEndureStarted]，并把来源技能写入成员快照。
 	 *
 	 * 守住屏障仍保存在 [TurnContext]，不进入 [BattleState]，因为它只对当前回合后续命中门禁有效。挺住姿态要由
 	 * 伤害写入层读取，所以写入 [BattleParticipant.fatalDamageEndureSkillId]；回合末会被临时状态清理器统一移除。
+	 * 广域/快速防守按公开规则只持续当前回合，也不写入 [BattleState] 的多回合一侧防护列表。
 	 * `successfulProtectionActorIds` 仍表示本回合成功使用保护类同族行动的成员，回合结束后用它保留连续成功计数。
 	 */
 	private fun resolveProtectionFamilySkillUse(
@@ -116,6 +119,18 @@ internal class BattleSkillUseResolution(
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): TurnContext {
+		val sideProtectionPendingActionFailure = sideProtectionPendingActionFailure(
+			context = context.copy(state = stateAfterChargeDecision),
+			actorId = actorBeforeProtectionFamilyAction.actorId,
+			skill = skill,
+		)
+		if (sideProtectionPendingActionFailure != null) {
+			return context.copy(
+				state = stateAfterChargeDecision
+					.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
+					.appendEvent(sideProtectionPendingActionFailure),
+			)
+		}
 		if (!protectionSucceeds(actorBeforeProtectionFamilyAction, skill, random)) {
 			return context.copy(
 				state = stateAfterChargeDecision
@@ -144,6 +159,31 @@ internal class BattleSkillUseResolution(
 					),
 				)
 			}
+			val actorSideId = stateAfterChargeDecision.sideOf(actorBeforeProtectionFamilyAction.actorId)?.sideId
+			if (skill.protectsUserSideFromMultiTargetSkills && actorSideId != null) {
+				add(
+					BattleEvent.SideProtectionStarted(
+						turnNumber = stateAfterChargeDecision.turnNumber,
+						actorId = actorBeforeProtectionFamilyAction.actorId,
+						sideId = actorSideId,
+						skillId = skill.skillId,
+						kind = BattleSideProtectionKind.MULTI_TARGET_SKILL,
+						turnsRemaining = null,
+					),
+				)
+			}
+			if (skill.protectsUserSideFromPrioritySkills && actorSideId != null) {
+				add(
+					BattleEvent.SideProtectionStarted(
+						turnNumber = stateAfterChargeDecision.turnNumber,
+						actorId = actorBeforeProtectionFamilyAction.actorId,
+						sideId = actorSideId,
+						skillId = skill.skillId,
+						kind = BattleSideProtectionKind.PRIORITY_SKILL,
+						turnsRemaining = null,
+					),
+				)
+			}
 			if (skill.enduresFatalDamage) {
 				add(
 					BattleEvent.FatalDamageEndureStarted(
@@ -163,21 +203,79 @@ internal class BattleSkillUseResolution(
 			} else {
 				context.protectedActorIds
 			},
+			multiTargetProtectedSideIds = protectedSideIdsAfterSuccess(
+				existingSideIds = context.multiTargetProtectedSideIds,
+				state = stateAfterChargeDecision,
+				actorId = actorBeforeProtectionFamilyAction.actorId,
+				enabled = skill.protectsUserSideFromMultiTargetSkills,
+			),
+			priorityProtectedSideIds = protectedSideIdsAfterSuccess(
+				existingSideIds = context.priorityProtectedSideIds,
+				state = stateAfterChargeDecision,
+				actorId = actorBeforeProtectionFamilyAction.actorId,
+				enabled = skill.protectsUserSideFromPrioritySkills,
+			),
 			successfulProtectionActorIds = context.successfulProtectionActorIds + actorBeforeProtectionFamilyAction.actorId,
 		)
 	}
-
 }
 
 private fun BattleSkillSlot.isProtectionFamilySkill(): Boolean =
-	protectsUser || enduresFatalDamage
+	protectsUser || enduresFatalDamage || protectsUserSideFromMultiTargetSkills || protectsUserSideFromPrioritySkills
+
+/**
+ * 判断本回合一侧临时防护是否因为后续没有任何技能行动而失败。
+ *
+ * 公开引擎中广域防守和快速防守会先检查行动队列里是否还存在将要行动的成员；如果本回合已经没有后续技能行动，
+ * 技能虽然已经宣告并消耗 PP，但不会建立一侧防护，也不会推进连续保护成功计数。这里把该判断限制在一侧临时防护
+ * 技能上，守住/看穿/挺住仍按自身规则允许在没有后续行动时成功。
+ */
+private fun sideProtectionPendingActionFailure(
+	context: TurnContext,
+	actorId: String,
+	skill: BattleSkillSlot,
+): BattleEvent.SkillFailed? {
+	if (!skill.protectsUserSideFromMultiTargetSkills && !skill.protectsUserSideFromPrioritySkills) {
+		return null
+	}
+	if (context.hasPendingSkillActionAfter(actorId)) {
+		return null
+	}
+	return BattleEvent.SkillFailed(
+		turnNumber = context.state.turnNumber,
+		actorId = actorId,
+		targetActorId = actorId,
+		skillId = skill.skillId,
+		reason = "no-pending-skill-action-after-side-protection",
+	)
+}
+
+/**
+ * 返回一侧临时防护成功后的 sideId 集合。
+ *
+ * 广域防守和快速防守只需要记录“哪一侧在当前回合已经建立对应防护”。这里不写入 [BattleState]，也不创建
+ * [io.github.lishangbu.battleengine.model.BattleSideProtection]，因为该状态不会跨过本回合技能阶段。
+ */
+private fun protectedSideIdsAfterSuccess(
+	existingSideIds: Set<String>,
+	state: BattleState,
+	actorId: String,
+	enabled: Boolean,
+): Set<String> {
+	if (!enabled) {
+		return existingSideIds
+	}
+	val sideId = state.sideOf(actorId)?.sideId ?: return existingSideIds
+	return existingSideIds + sideId
+}
 
 /**
  * 单个回合技能阶段的临时上下文。
  *
  * `state` 是不断推进的不可变战斗状态；`plannedSkillActions` 是行动排序阶段冻结的本回合技能计划；
  * `resolvedSkillActorIds` 保存本回合技能阶段已经处理过的行动者；`protectedActorIds` 保存本回合已经成功建立守住屏障的成员；
- * `successfulProtectionActorIds` 保存回合结束后应保留连续保护类行动计数的成员，包括守住、看穿和挺住。
+ * `multiTargetProtectedSideIds` 和 `priorityProtectedSideIds` 保存只在本回合有效的一侧临时防护；
+ * `successfulProtectionActorIds` 保存回合结束后应保留连续保护类行动计数的成员，包括守住、看穿、挺住、广域防守和快速防守。
  * 这类回合内临时标记不进入 `BattleState`，避免被误认为跨回合持久状态，也方便后续扩展击掌奇袭、
  * 守住连续成功率、先制阻挡等同样只在当前回合有效的规则。
  */
@@ -186,6 +284,8 @@ internal data class TurnContext(
 	val plannedSkillActions: List<ActionPlan> = emptyList(),
 	val resolvedSkillActorIds: Set<String> = emptySet(),
 	val protectedActorIds: Set<String> = emptySet(),
+	val multiTargetProtectedSideIds: Set<String> = emptySet(),
+	val priorityProtectedSideIds: Set<String> = emptySet(),
 	val successfulProtectionActorIds: Set<String> = emptySet(),
 ) {
 	/**
@@ -206,6 +306,20 @@ internal data class TurnContext(
 	fun pendingSkillAction(actorId: String): ActionPlan? =
 		plannedSkillActions.firstOrNull { plan ->
 			plan.action.actorId == actorId &&
+				plan.action.actorId !in resolvedSkillActorIds &&
+				state.isActive(plan.action.actorId) &&
+				state.participant(plan.action.actorId)?.canBattle() == true
+		}
+
+	/**
+	 * 判断当前行动之后是否仍存在其它可执行技能计划。
+	 *
+	 * 广域防守/快速防守只有在队列中还有后续行动时才会建立一侧临时防护。本函数复用排序阶段冻结的计划和已执行集合，
+	 * 不根据速度或事件流重新推导“还有谁会行动”，避免同速随机、锁招续行动和蓄力释放在不同入口下出现两套口径。
+	 */
+	fun hasPendingSkillActionAfter(actorId: String): Boolean =
+		plannedSkillActions.any { plan ->
+			plan.action.actorId != actorId &&
 				plan.action.actorId !in resolvedSkillActorIds &&
 				state.isActive(plan.action.actorId) &&
 				state.participant(plan.action.actorId)?.canBattle() == true

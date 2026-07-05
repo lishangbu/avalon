@@ -39,6 +39,8 @@ internal class BattlePreHitTargetGate(
 		skill: BattleSkillSlot,
 		priorityContext: SkillPriorityContext,
 		protectedActorIds: Set<String>,
+		multiTargetProtectedSideIds: Set<String>,
+		priorityProtectedSideIds: Set<String>,
 		random: BattleRandom,
 	): BattlePreHitTargetGateResult {
 		val powderBlockedElementId = skillBlockEffects.powderBlockedElementId(state, target, skill)
@@ -120,6 +122,19 @@ internal class BattlePreHitTargetGate(
 					skillId = skill.skillId,
 				),
 			)
+		}
+
+		val sideProtectionBlock = sideProtectionBlockEvent(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+			priorityContext = priorityContext,
+			multiTargetProtectedSideIds = multiTargetProtectedSideIds,
+			priorityProtectedSideIds = priorityProtectedSideIds,
+		)
+		if (sideProtectionBlock != null) {
+			return BattlePreHitTargetGateResult.Interrupted(sideProtectionBlock)
 		}
 
 		if (skill.oneHitKnockOut != null && target.level > actor.level) {
@@ -224,6 +239,45 @@ internal class BattlePreHitTargetGate(
 			abilityHolderActorId = blocker.actorId,
 			abilityId = blocker.abilityId,
 		)
+
+	/**
+	 * 判断目标所在侧的本回合临时防护是否阻挡本次技能。
+	 *
+	 * 广域防守和快速防守与守住同属命中前保护 gate：技能已经宣告并消耗 PP，但被阻挡后不再消费命中随机数，
+	 * 也不会进入属性、伤害或附加效果阶段。二者只阻挡来自对手侧且会受保护影响的技能；同侧辅助动作和明确穿透
+	 * 保护的技能继续按普通流程结算。
+	 */
+	private fun sideProtectionBlockEvent(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		priorityContext: SkillPriorityContext,
+		multiTargetProtectedSideIds: Set<String>,
+		priorityProtectedSideIds: Set<String>,
+	): BattleEvent.SkillBlockedByProtection? {
+		if (!skill.affectedByProtect) {
+			return null
+		}
+		val actorSide = state.sideOf(actor.actorId) ?: return null
+		val targetSide = state.sideOf(target.actorId) ?: return null
+		if (actorSide.sideId == targetSide.sideId) {
+			return null
+		}
+		val blockedByMultiTargetGuard =
+			targetSide.sideId in multiTargetProtectedSideIds && skill.targetScope.canAffectMultipleTargets
+		val blockedByPriorityGuard =
+			targetSide.sideId in priorityProtectedSideIds && priorityContext.effectivePriority > 0
+		if (!blockedByMultiTargetGuard && !blockedByPriorityGuard) {
+			return null
+		}
+		return BattleEvent.SkillBlockedByProtection(
+			turnNumber = state.turnNumber,
+			actorId = actor.actorId,
+			targetActorId = target.actorId,
+			skillId = skill.skillId,
+		)
+	}
 }
 
 /**

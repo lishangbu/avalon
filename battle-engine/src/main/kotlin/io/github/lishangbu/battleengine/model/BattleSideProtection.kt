@@ -3,13 +3,16 @@ package io.github.lishangbu.battleengine.model
 /**
  * 一侧场上防护效果。
  *
- * 这类效果和光墙/反射壁一样挂在战斗侧，而不是挂在单个成员身上；但它不参与伤害倍率计算，所以不能复用
- * [BattleSideDamageReduction]。当前覆盖现代规则中两个最稳定的一侧防护：
+ * 这类效果和光墙/反射壁一样表达一侧防护，而不是表达单个成员身上的状态；但它不参与伤害倍率计算，所以不能复用
+ * [BattleSideDamageReduction]。当前覆盖现代规则中两类稳定防护：
  * - 白雾防止己方成员被其它成员降低能力阶级。
  * - 神秘守护防止己方成员被其它成员附加主要异常状态或混乱。
+ * - 广域防守/快速防守这类只持续当前回合的临时一侧防护。
  *
  * `turnsRemaining` 采用和其它一侧持续效果一致的回合末递减语义。为空表示测试或外部调用方暂不要求引擎管理
- * 生命周期；正式资料中的白雾和神秘守护都会写入 5 回合。
+ * 生命周期；正式资料中的白雾和神秘守护都会写入 5 回合。只持续当前回合的防护不会写入 [BattleState]，
+ * 但复用 [BattleSideProtectionKind] 和 [io.github.lishangbu.battleengine.model.BattleEvent.SideProtectionStarted]
+ * 记录 replay 事件，让沙盒日志仍能用同一套中文文案描述“一侧防护开始”。
  */
 data class BattleSideProtection(
 	val kind: BattleSideProtectionKind,
@@ -42,4 +45,6 @@ data class BattleSideProtection(
 enum class BattleSideProtectionKind {
 	STAT_STAGE_REDUCTION,
 	STATUS_CONDITION,
+	MULTI_TARGET_SKILL,
+	PRIORITY_SKILL,
 }

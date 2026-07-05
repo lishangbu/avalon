@@ -3332,6 +3332,50 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val userSideGuardRules = queryMaps(
+			"""
+			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,
+			       r.min_hits, r.max_hits, r.makes_contact, r.affected_by_protect,
+			       r.protects_user, r.endures_fatal_damage, r.enabled, s.enabled as skill_enabled
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('quick-guard', 'wide-guard')
+			order by s.code
+			""".trimIndent(),
+		)
+		assertThat(userSideGuardRules).containsExactly(
+			mapOf(
+				"code" to "quick-guard",
+				"effect_policy" to "user-side-priority-skill-protection",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"makes_contact" to false,
+				"affected_by_protect" to false,
+				"protects_user" to false,
+				"endures_fatal_damage" to false,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+			mapOf(
+				"code" to "wide-guard",
+				"effect_policy" to "user-side-multi-target-skill-protection",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"min_hits" to 1,
+				"max_hits" to 1,
+				"makes_contact" to false,
+				"affected_by_protect" to false,
+				"protects_user" to false,
+				"endures_fatal_damage" to false,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+		)
+
 		val directStatusHpSkillRules = queryMaps(
 			"""
 			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,

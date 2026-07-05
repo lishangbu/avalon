@@ -176,11 +176,12 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
-	/**
-	 * 技能被目标本回合的保护屏障阻挡。
-	 *
-	 * 行动者已经使用技能并消耗 PP 后才会产生该事件；被阻挡后不再进行命中判定、伤害计算或附加效果结算。
-	 */
+		/**
+		 * 技能被目标本回合的保护屏障阻挡。
+		 *
+		 * 这里的保护屏障包含成员自身的守住类保护，也包含目标所在侧本回合的临时一侧防护。行动者已经使用技能并消耗
+		 * PP 后才会产生该事件；被阻挡后不再进行命中判定、伤害计算或附加效果结算。
+		 */
 	data class SkillBlockedByProtection(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -662,12 +663,13 @@ sealed interface BattleEvent {
 		val turnsRemaining: Int?,
 	) : BattleEvent
 
-	/**
-	 * 一侧成功建立了非伤害型防护效果。
-	 *
-	 * 白雾和神秘守护都属于这种状态：它们不改变伤害或速度，而是在后续能力下降、主要异常或混乱附加入口提供
-	 * 阻止条件。单独记录事件可以让 replay 区分“建立了光墙”与“建立了白雾/神秘守护”。
-	 */
+		/**
+		 * 一侧成功建立了非伤害型防护效果。
+		 *
+		 * 白雾、神秘守护、广域防守和快速防守都属于这种事件语义：它们不改变伤害或速度，而是在后续能力下降、
+		 * 状态附加、范围技能或先制度技能入口提供阻止条件。`turnsRemaining = null` 表示该防护只存在于当前回合
+		 * 临时上下文中，不写入跨回合状态。单独记录事件可以让 replay 区分“建立了光墙”与“建立了一侧防护”。
+		 */
 	data class SideProtectionStarted(
 		override val turnNumber: Int,
 		val actorId: String,
