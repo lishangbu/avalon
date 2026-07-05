@@ -57,13 +57,16 @@ import kotlin.reflect.full.memberProperties
  * [BattleInitialStateAssembler]，底层 SQL/Jimmer 读取委托给 [BattleRuntimeDataLookup]。
  *
  * 当前解释的资料约定：
- * - `LEVEL/MAX` 的 `operandNumber` 转换为成员等级上限。
+ * - `level-flattened` 条款配合 `defaultLevel` 把参战成员等级和能力值冻结到赛制默认等级。
+ * - `LEVEL/MAX` 的 `operandNumber` 转换为成员等级上限，并和等级拉平默认等级做自洽校验。
+ * - `TEAM/SELECT_COUNT` 优先转换为运行态参战人数；没有出战人数限制时才退回 `TEAM/LIMIT_COUNT` 或赛制登记人数。
  * - `CREATURE/SKILL/ABILITY/ITEM` + `BAN` 转换为对应禁用 ID 集合。
  * - `species-unique` 条款转换为队伍内种类唯一。
  * - `item-unique` 条款转换为队伍内道具唯一。
+ * - `team-preview` 属于开战前选队流程，运行态只消费已经选好的参战成员。
  *
- * 未识别的条款或限制会被忽略，便于资料先行维护；真正需要引擎执行的新规则应在读取器或策略映射器中显式补充，
- * 不应让纯引擎回头解析数据库 policy 字符串。
+ * 启用中的未知条款或限制会被运行态读取器拒绝，避免后台显示“规则已启用”但战斗引擎没有执行。真正需要引擎执行
+ * 的新规则应在读取器或策略映射器中显式补充，不应让纯引擎回头解析数据库 policy 字符串。
  */
 @Service
 class BattleRuntimeSnapshotService(
@@ -270,7 +273,7 @@ class BattleRuntimeSnapshotService(
 	 * - 阻止对手先制技能影响己方。
 	 *
 	 * `ground-immunity` 会影响成员是否接地，由 `groundedByAbilityId` 单独装配；它不是伤害或状态 hook，
-	 * 因此不塞进 `BattleAbilityEffect` 列表。暂未有引擎结构的策略保持不输出效果，避免用字符串在纯引擎里硬解析。
+	 * 因此不塞进 `BattleAbilityEffect` 列表。其它启用中的未知策略会被装配器直接拒绝，避免资料拼写错误被静默吞掉。
 	 */
 	@Transactional(readOnly = true)
 	fun abilityEffectsByAbilityId(abilityId: Long?): List<BattleAbilityEffect> =
