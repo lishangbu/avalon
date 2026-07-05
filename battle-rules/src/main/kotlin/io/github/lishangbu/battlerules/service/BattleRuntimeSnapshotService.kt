@@ -235,13 +235,13 @@ class BattleRuntimeSnapshotService(
 	/**
 	 * 按基础成员资料和等级装配战斗引擎需要的能力值与属性集合。
 	 *
-	 * 当前请求 DTO 尚未携带个体值、努力值和性格，因此这里采用现代对战常用的中性默认：
+	 * 该公开调试入口只接收成员资料 ID 和等级，因此继续采用现代对战常用的中性默认：
 	 * - 个体值使用 31。
 	 * - 努力值使用 0。
 	 * - 性格修正使用 1.0。
 	 *
-	 * 这样得到的数值仍然来自三范式资料表和标准能力公式，不再使用占位 1。后续 DTO 增加个体/努力/性格后，
-	 * 只需要扩展该装配函数的输入，不需要改纯引擎模型。
+	 * 准备校验、行动校验和沙盒入口会通过 [BattlePreparationValidationRequest] 携带完整能力配置；本方法保留默认
+	 * 画像，便于管理端或测试快速确认资料表中的基础能力是否能按标准公式折算。
 	 */
 	@Transactional(readOnly = true)
 	fun creatureRuntimeProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile =

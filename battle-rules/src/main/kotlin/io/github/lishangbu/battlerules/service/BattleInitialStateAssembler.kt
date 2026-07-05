@@ -141,9 +141,15 @@ class BattleInitialStateAssembler(
 		itemId?.takeIf { it <= 0 }?.let {
 			invalidValue("itemId", "itemId 必须大于 0")
 		}
+		val statConfig = BattleParticipantStatConfig.from(
+			individualValues = individualValues,
+			effortValues = effortValues,
+			natureIncreasedStat = natureIncreasedStat,
+			natureDecreasedStat = natureDecreasedStat,
+		)
 		val abilityPolicies = cache.abilityPolicies(abilityId)
 		val itemPolicies = cache.itemPolicies(itemId)
-		val profile = cache.creatureProfile(creatureId, level)
+		val profile = cache.creatureProfile(creatureId, level, statConfig)
 		return BattleParticipant(
 			actorId = normalizedActorId,
 			creatureId = creatureId,
@@ -169,14 +175,24 @@ class BattleInitialStateAssembler(
 	private inner class BattleRuntimeAssemblyCache(
 		val elementIds: Map<String, Long>,
 	) {
-		private val creatureProfiles = mutableMapOf<Pair<Long, Int>, BattleCreatureRuntimeProfile>()
+		private val creatureProfiles = mutableMapOf<BattleCreatureRuntimeProfileCacheKey, BattleCreatureRuntimeProfile>()
 		private val skillSlots = mutableMapOf<Long, BattleSkillSlot>()
 		private val abilityPolicies = mutableMapOf<Long, List<String>>()
 		private val itemPolicies = mutableMapOf<Long, List<String>>()
 
-		fun creatureProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile =
-			creatureProfiles.getOrPut(creatureId to level) {
-				dataLookup.creatureRuntimeProfile(creatureId, level)
+		fun creatureProfile(
+			creatureId: Long,
+			level: Int,
+			statConfig: BattleParticipantStatConfig,
+		): BattleCreatureRuntimeProfile =
+			creatureProfiles.getOrPut(
+				BattleCreatureRuntimeProfileCacheKey(
+					creatureId = creatureId,
+					level = level,
+					statConfig = statConfig,
+				),
+			) {
+				dataLookup.creatureRuntimeProfile(creatureId, level, statConfig)
 			}
 
 		fun skillSlots(skillIds: List<Long>): List<BattleSkillSlot> {
@@ -207,4 +223,10 @@ class BattleInitialStateAssembler(
 				}
 			}.orEmpty()
 	}
+
+	private data class BattleCreatureRuntimeProfileCacheKey(
+		val creatureId: Long,
+		val level: Int,
+		val statConfig: BattleParticipantStatConfig,
+	)
 }

@@ -855,6 +855,67 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证参与方显式能力配置会进入初始状态装配，并且不会被同种类、同等级成员的画像缓存串用。
+	 *
+	 * 生产对战里最常见的真实差异并不是资料表中的基础能力，而是玩家配置的个体值、努力值和性格。同一个成员资料 ID
+	 * 在同一场战斗中可能出现两次，但两者速度、攻击等最终能力完全不同；因此单请求缓存必须把能力配置纳入 key。
+	 * 这里让双方都使用同一个资料 ID 和等级，但给出相反的性格与努力值，确保装配结果分别按现代能力公式计算。
+	 */
+	@Test
+	fun `initial state assembly applies participant stat config without cache collision`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1"),
+						participants = listOf(
+							participant(
+								actorId = "a-1",
+								creatureId = 1,
+								level = 50,
+								skillIds = listOf(1),
+								individualValues = mapOf("speed" to 0),
+								natureIncreasedStat = "attack",
+								natureDecreasedStat = "speed",
+							),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1"),
+						participants = listOf(
+							participant(
+								actorId = "b-1",
+								creatureId = 1,
+								level = 50,
+								skillIds = listOf(1),
+								effortValues = mapOf("speed" to 252),
+								natureIncreasedStat = "speed",
+								natureDecreasedStat = "attack",
+							),
+						),
+					),
+				),
+			),
+		)
+
+		val participants = initialState.sides
+			.flatMap { it.participants }
+			.associateBy { it.actorId }
+		val slowPhysical = participants.getValue("a-1")
+		val fastSpecial = participants.getValue("b-1")
+
+		assertThat(slowPhysical.maxHp).isEqualTo(120)
+		assertThat(slowPhysical.attack).isEqualTo(75)
+		assertThat(slowPhysical.speed).isEqualTo(45)
+		assertThat(fastSpecial.maxHp).isEqualTo(120)
+		assertThat(fastSpecial.attack).isEqualTo(62)
+		assertThat(fastSpecial.speed).isEqualTo(106)
+	}
+
+	/**
 	 * 成员运行时画像必须保证属性和基础能力完整。
 	 *
 	 * 资料缺属性或缺基础能力时，引擎无法安全计算伤害、接地、属性免疫和速度排序；因此读取器需要在装配阶段抛出
@@ -880,6 +941,77 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(missingCreature.status).isEqualTo(HttpStatus.NOT_FOUND)
 		assertThat(missingCreature.field).isEqualTo("creatureId")
 		assertThat(missingCreature.message).isEqualTo("成员属性资料不存在: 999999")
+	}
+
+	/**
+	 * 验证个体值、努力值和性格在应用层边界就被拒绝。
+	 *
+	 * 这些字段会直接进入速度排序、伤害计算和 HP 上限；如果让非法值进入 battle-engine，后续表现会像规则错误而不是
+	 * 输入错误，排查成本很高。测试覆盖单项范围、努力值总和、性格成对填写和性格不能影响 HP 四类最容易手填出错的
+	 * 场景，确保所有入口复用同一套结构化 `ApiException`。
+	 */
+	@Test
+	fun `preparation validation rejects invalid participant stat config before engine assembly`() {
+		val invalidIndividualValue = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant(
+						actorId = "a-1",
+						creatureId = 1,
+						level = 50,
+						individualValues = mapOf("speed" to 32),
+					),
+				),
+			)
+		}
+		assertThat(invalidIndividualValue.field).isEqualTo("individualValues")
+		assertThat(invalidIndividualValue.message).isEqualTo("individualValues.speed 必须在 0 到 31 之间")
+
+		val invalidEffortTotal = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant(
+						actorId = "a-1",
+						creatureId = 1,
+						level = 50,
+						effortValues = mapOf("attack" to 252, "defense" to 252, "speed" to 7),
+					),
+				),
+			)
+		}
+		assertThat(invalidEffortTotal.field).isEqualTo("effortValues")
+		assertThat(invalidEffortTotal.message).isEqualTo("effortValues 总和不能超过 510")
+
+		val incompleteNature = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant(
+						actorId = "a-1",
+						creatureId = 1,
+						level = 50,
+						natureIncreasedStat = "speed",
+					),
+				),
+			)
+		}
+		assertThat(incompleteNature.field).isEqualTo("natureIncreasedStat")
+		assertThat(incompleteNature.message).isEqualTo("natureIncreasedStat 和 natureDecreasedStat 必须同时填写或同时留空")
+
+		val hpNature = assertThrows<ApiException> {
+			service.validatePreparation(
+				preparationRequest(
+					participant(
+						actorId = "a-1",
+						creatureId = 1,
+						level = 50,
+						natureIncreasedStat = "hp",
+						natureDecreasedStat = "speed",
+					),
+				),
+			)
+		}
+		assertThat(hpNature.field).isEqualTo("natureIncreasedStat")
+		assertThat(hpNature.message).isEqualTo("natureIncreasedStat 只支持 attack、defense、special-attack、special-defense、speed")
 	}
 
 	@Test
@@ -2775,6 +2907,10 @@ class BattleRuntimeSnapshotServiceTests(
 		itemId: Long? = null,
 		skillIds: List<Long> = listOf(1, 2, 3, 4),
 		abilityId: Long? = 1,
+		individualValues: Map<String, Int> = emptyMap(),
+		effortValues: Map<String, Int> = emptyMap(),
+		natureIncreasedStat: String? = null,
+		natureDecreasedStat: String? = null,
 	): BattlePreparationParticipantRequest =
 		BattlePreparationParticipantRequest(
 			actorId = actorId,
@@ -2783,6 +2919,10 @@ class BattleRuntimeSnapshotServiceTests(
 			skillIds = skillIds,
 			abilityId = abilityId,
 			itemId = itemId,
+			individualValues = individualValues,
+			effortValues = effortValues,
+			natureIncreasedStat = natureIncreasedStat,
+			natureDecreasedStat = natureDecreasedStat,
 		)
 
 	private companion object {

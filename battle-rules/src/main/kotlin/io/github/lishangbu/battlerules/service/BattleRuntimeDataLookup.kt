@@ -32,8 +32,12 @@ class BattleRuntimeDataLookup(
 	fun coreElementIds(): Map<String, Long> =
 		coreLookup.coreElementIds()
 
-	fun creatureRuntimeProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile =
-		coreLookup.creatureRuntimeProfile(creatureId, level)
+	fun creatureRuntimeProfile(
+		creatureId: Long,
+		level: Int,
+		statConfig: BattleParticipantStatConfig = BattleParticipantStatConfig.DEFAULT,
+	): BattleCreatureRuntimeProfile =
+		coreLookup.creatureRuntimeProfile(creatureId, level, statConfig)
 
 	fun skillSlotBySkillId(skillId: Long): BattleSkillSlot =
 		skillLookup.skillSlotBySkillId(skillId)

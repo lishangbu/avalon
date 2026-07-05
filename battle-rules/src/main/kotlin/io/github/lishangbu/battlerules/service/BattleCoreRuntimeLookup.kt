@@ -6,9 +6,6 @@ import io.github.lishangbu.common.web.notFound
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 
-private const val DEFAULT_INDIVIDUAL_VALUE = 31
-private const val DEFAULT_EFFORT_VALUE = 0
-
 /**
  * 战斗核心资料运行时读取器。
  *
@@ -16,8 +13,9 @@ private const val DEFAULT_EFFORT_VALUE = 0
  * 特性、道具规则。这样能力值公式或资料字段扩展时，不会牵动技能规则 SQL；反过来新增技能子表也不会污染成员画像
  * 的读取逻辑。
  *
- * 当前运行时 DTO 尚未携带个体值、努力值和性格，因此这里采用固定个体值 31、努力值 0、性格修正 1.0 的中性
- * 公式。这个假设放在读取器内部，是为了确保纯引擎只看到最终快照，不需要知道数据库或请求 DTO 暂时缺了哪些字段。
+ * 成员最终能力值由基础能力、等级和 [BattleParticipantStatConfig] 共同计算。该读取器仍然只返回最终画像，
+ * 不把个体值、努力值或性格概念泄漏给 battle-engine；这样纯引擎在回合结算时只处理确定事实，不需要反向理解
+ * 请求 DTO 或资料库字段。
  */
 @Component
 class BattleCoreRuntimeLookup(
@@ -82,7 +80,11 @@ class BattleCoreRuntimeLookup(
 	 * 返回值可以直接放入 [io.github.lishangbu.battleengine.model.BattleParticipant]。如果成员缺属性或缺基础能力，
 	 * 这里直接抛出结构化 API 异常，避免引擎拿到半成品画像后在更深处出现难定位的计算错误。
 	 */
-	fun creatureRuntimeProfile(creatureId: Long, level: Int): BattleCreatureRuntimeProfile {
+	fun creatureRuntimeProfile(
+		creatureId: Long,
+		level: Int,
+		statConfig: BattleParticipantStatConfig = BattleParticipantStatConfig.DEFAULT,
+	): BattleCreatureRuntimeProfile {
 		if (creatureId <= 0) {
 			invalidValue("creatureId", "creatureId 必须大于 0")
 		}
@@ -129,12 +131,14 @@ class BattleCoreRuntimeLookup(
 			notFound("creatureId", "成员能力资料不存在: $creatureId")
 		}
 		return BattleCreatureRuntimeProfile(
-			maxHp = baseStats.requiredBaseStat("hp").toRuntimeHp(level),
-			attack = baseStats.requiredBaseStat("attack").toRuntimeBattleStat(level),
-			defense = baseStats.requiredBaseStat("defense").toRuntimeBattleStat(level),
-			specialAttack = baseStats.requiredBaseStat("special-attack").toRuntimeBattleStat(level),
-			specialDefense = baseStats.requiredBaseStat("special-defense").toRuntimeBattleStat(level),
-			speed = baseStats.requiredBaseStat("speed").toRuntimeBattleStat(level),
+			maxHp = baseStats.requiredBaseStat("hp").toRuntimeHp(level, statConfig, "hp"),
+			attack = baseStats.requiredBaseStat("attack").toRuntimeBattleStat(level, statConfig, "attack"),
+			defense = baseStats.requiredBaseStat("defense").toRuntimeBattleStat(level, statConfig, "defense"),
+			specialAttack = baseStats.requiredBaseStat("special-attack")
+				.toRuntimeBattleStat(level, statConfig, "special-attack"),
+			specialDefense = baseStats.requiredBaseStat("special-defense")
+				.toRuntimeBattleStat(level, statConfig, "special-defense"),
+			speed = baseStats.requiredBaseStat("speed").toRuntimeBattleStat(level, statConfig, "speed"),
 			weight = creatureWeight,
 			elementIds = elementIds.toSet(),
 		)
@@ -143,11 +147,23 @@ class BattleCoreRuntimeLookup(
 	private fun Map<String, Int>.requiredBaseStat(code: String): Int =
 		this[code] ?: notFound("creatureId", "成员基础能力缺失: $code")
 
-	private fun Int.toRuntimeHp(level: Int): Int =
-		(((2 * this + DEFAULT_INDIVIDUAL_VALUE + DEFAULT_EFFORT_VALUE / 4) * level) / 100) + level + 10
+	private fun Int.toRuntimeHp(
+		level: Int,
+		statConfig: BattleParticipantStatConfig,
+		statCode: String,
+	): Int =
+		(((2 * this + statConfig.individualValue(statCode) + statConfig.effortValue(statCode) / 4) * level) / 100) +
+			level + 10
 
-	private fun Int.toRuntimeBattleStat(level: Int): Int =
-		(((2 * this + DEFAULT_INDIVIDUAL_VALUE + DEFAULT_EFFORT_VALUE / 4) * level) / 100) + 5
+	private fun Int.toRuntimeBattleStat(
+		level: Int,
+		statConfig: BattleParticipantStatConfig,
+		statCode: String,
+	): Int {
+		val neutralValue =
+			(((2 * this + statConfig.individualValue(statCode) + statConfig.effortValue(statCode) / 4) * level) / 100) + 5
+		return statConfig.applyNature(statCode, neutralValue)
+	}
 
 	private fun String.toElementDamageMultiplier(): Double =
 		when (this) {
