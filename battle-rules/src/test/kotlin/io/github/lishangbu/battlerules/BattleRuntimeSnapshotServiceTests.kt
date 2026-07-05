@@ -1731,8 +1731,9 @@ class BattleRuntimeSnapshotServiceTests(
 	 * 验证准备阶段装配器会在进入 battle-engine 模型前拒绝畸形队伍骨架。
 	 *
 	 * `BattleInitialState` 自身有完整 `require` 不变量，但这些异常只适合纯领域层和测试使用；生产 API 入口必须把
-	 * 请求层面的错误翻译成稳定 `ApiException`。这里集中覆盖最容易从管理端手填 JSON 里出现的三类问题：
-	 * 少传一侧队伍、不同队伍复用同一个 actorId、双打赛制下只声明一个上场成员。
+	 * 请求层面的错误翻译成稳定 `ApiException`。这里集中覆盖最容易从管理端手填 JSON 里出现的四类问题：
+	 * 少传一侧队伍、不同队伍复用同一个 actorId、双打赛制下只声明一个上场成员、以及把登记名单当成本场参战队伍
+	 * 全量传入。
 	 */
 	@Test
 	fun `preparation validation rejects malformed team skeleton before engine model`() {
@@ -1768,6 +1769,17 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 		assertThat(activeCountDrift.field).isEqualTo("activeActorIds")
 		assertThat(activeCountDrift.message).isEqualTo("activeActorIds 数量必须符合赛制")
+
+		val selectedTeamSizeExceeded = assertThrows<ApiException> {
+			service.validatePreparation(
+				BattlePreparationValidationRequest(
+					formatCode = "official-double",
+					sides = oversizedOfficialDoubleSides(),
+				),
+			)
+		}
+		assertThat(selectedTeamSizeExceeded.field).isEqualTo("participants")
+		assertThat(selectedTeamSizeExceeded.message).isEqualTo("participants 数量不能超过赛制队伍人数")
 	}
 
 	@Test
@@ -3160,6 +3172,31 @@ class BattleRuntimeSnapshotServiceTests(
 				participants = listOf(
 					participant("b-1", creatureId = 3, level = 50, itemId = 12),
 					participant("b-2", creatureId = 4, level = 50, itemId = 13),
+				),
+			),
+		)
+
+	private fun oversizedOfficialDoubleSides(): List<BattlePreparationSideRequest> =
+		listOf(
+			BattlePreparationSideRequest(
+				sideId = "side-a",
+				activeActorIds = listOf("a-1", "a-2"),
+				participants = listOf(
+					participant("a-1", creatureId = 1, level = 50, itemId = 10),
+					participant("a-2", creatureId = 2, level = 50, itemId = 11),
+					participant("a-3", creatureId = 3, level = 50, itemId = 12),
+					participant("a-4", creatureId = 4, level = 50, itemId = 13),
+					participant("a-5", creatureId = 5, level = 50, itemId = 14),
+				),
+			),
+			BattlePreparationSideRequest(
+				sideId = "side-b",
+				activeActorIds = listOf("b-1", "b-2"),
+				participants = listOf(
+					participant("b-1", creatureId = 6, level = 50, itemId = 15),
+					participant("b-2", creatureId = 7, level = 50, itemId = 16),
+					participant("b-3", creatureId = 8, level = 50, itemId = 17),
+					participant("b-4", creatureId = 9, level = 50, itemId = 18),
 				),
 			),
 		)
