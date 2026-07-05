@@ -574,6 +574,67 @@ class LiquibaseMigrationTests(
 			.containsEntry("enabled_skill_count", 0L)
 			.containsEntry("enabled_rule_count", 0L)
 
+		val enabledUnmodeledStatusSkillRules = queryMaps(
+			"""
+			select s.id, s.code, s.name
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			join game_skill_damage_class dc on dc.id = s.damage_class_id
+			where s.enabled = true
+				and r.enabled = true
+				and dc.code = 'status'
+				and r.effect_policy = 'status-effect'
+				and r.damage_policy = 'no-damage'
+				and r.description like '基础变化技能规则%'
+				and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+				and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+				and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(enabledUnmodeledStatusSkillRules)
+			.describedAs("启用中的变化类技能不能停留在无效果占位规则，否则真实战斗会静默空放")
+			.isEmpty()
+
+		val explicitNoBattleEffectSkillDescriptions = queryMaps(
+			"""
+			select s.code, r.description, s.enabled as skill_enabled, r.enabled as rule_enabled
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+			order by s.code
+			""".trimIndent(),
+		)
+		assertThat(explicitNoBattleEffectSkillDescriptions).containsExactly(
+			mapOf(
+				"code" to "celebrate",
+				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+			),
+			mapOf(
+				"code" to "happy-hour",
+				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+			),
+			mapOf(
+				"code" to "hold-hands",
+				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+			),
+			mapOf(
+				"code" to "splash",
+				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+			),
+		)
+
 		val derivedBasicSkillRules = queryMaps(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage

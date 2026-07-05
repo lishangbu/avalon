@@ -8672,3 +8672,68 @@ databaseChangeLog:
               coalesce(d.flavor_text, '') like '%无法使用这个技能%'
               or coalesce(d.effect, '') like '%无法使用这个技能%'
             );
+- changeSet:
+    id: 002-battle-rules-disable-unmodeled-status-placeholder-skills
+    author: backend
+    comment: 禁用仍停留在自动占位且没有任何运行态效果的变化类技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 自动派生的基础变化技能如果没有任何状态、能力阶级、场地或全场效果明细，运行时就只会产生 SkillUsed，
+          -- 这比直接拒绝更危险：前端和对战准备会以为技能已支持，真实结算却静默空放。
+          -- 现代生产入口只保留明确没有战斗结算效果的少数技能，其余仍保留目录和规则行以便后续逐个补实现。
+          with unmodeled_status_skills as (
+            select s.id as skill_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            where s.enabled = true
+              and r.enabled = true
+              and dc.code = 'status'
+              and r.effect_policy = 'status-effect'
+              and r.damage_policy = 'no-damage'
+              and r.description like '基础变化技能规则%'
+              and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+              and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+            )
+          update game_skill s
+          set enabled = false
+          from unmodeled_status_skills u
+          where s.id = u.skill_id;
+
+          with unmodeled_status_skills as (
+            select r.id as rule_id
+            from battle_skill_rule r
+            join game_skill s on s.id = r.skill_id
+            join game_skill_damage_class dc on dc.id = s.damage_class_id
+            where r.enabled = true
+              and dc.code = 'status'
+              and r.effect_policy = 'status-effect'
+              and r.damage_policy = 'no-damage'
+              and r.description like '基础变化技能规则%'
+              and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+              and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+              and not exists (select 1 from battle_skill_global_field_effect e where e.skill_rule_id = r.id and e.enabled = true)
+            )
+          update battle_skill_rule r
+          set
+            enabled = false,
+            description = '该变化类技能仍缺少可执行运行态效果；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
+          from unmodeled_status_skills u
+          where r.id = u.rule_id;
+
+          update battle_skill_rule r
+          set description = '现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。'
+          from game_skill s
+          where s.id = r.skill_id
+            and s.code in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+            and r.enabled = true;
