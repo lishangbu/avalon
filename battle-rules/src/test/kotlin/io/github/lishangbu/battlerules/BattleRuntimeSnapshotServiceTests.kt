@@ -1533,6 +1533,10 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(target.currentHp).isLessThan(target.maxHp)
 		assertThat(response.state.turnNumber).isEqualTo(1)
 		assertThat(response.state.events).hasSize(response.events.size)
+		assertThat(response.state.turns).hasSize(1)
+		assertThat(response.state.turns.single().actions.map { it.actorId }).containsExactly("a-1")
+		assertThat(response.state.turns.single().randomTrace).containsExactlyElementsOf(response.randomTrace)
+		assertThat(response.state.turns.single().events.map { it.turnNumber }.toSet()).containsExactly(1)
 	}
 
 	@Test
@@ -1581,6 +1585,9 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(second.events.map { it.turnNumber }).contains(0, 1, 2)
 		assertThat(second.state.turnNumber).isEqualTo(2)
 		assertThat(second.state.events).hasSize(second.events.size)
+		assertThat(second.state.turns.map { it.turnNumber }).containsExactly(1, 2)
+		assertThat(second.state.turns.flatMap { it.actions }.map { it.actorId }).containsExactly("a-1", "a-1")
+		assertThat(second.state.turns.last().events.map { it.turnNumber }.toSet()).containsExactly(2)
 	}
 
 	@Test
@@ -1620,9 +1627,62 @@ class BattleRuntimeSnapshotServiceTests(
 		val second = service.resolveSandboxTurn(secondRequest)
 
 		assertThat(secondRequest.state?.sides?.map { it.sideId }).containsExactly("side-a", "side-b")
+		assertThat(secondRequest.state?.turns?.map { it.turnNumber }).containsExactly(1)
+		assertThat(secondRequest.state?.turns?.single()?.randomTrace?.map { it.sequence })
+			.containsExactlyElementsOf((1..first.randomTrace.size).toList())
 		assertThat(second.resolved).isTrue()
 		assertThat(second.turnNumber).isEqualTo(2)
 		assertThat(second.state.events).hasSize(second.events.size)
+		assertThat(second.state.turns.map { it.turnNumber }).containsExactly(1, 2)
+	}
+
+	/**
+	 * 验证沙盒续算会在恢复状态前拒绝被破坏的回合记录。
+	 *
+	 * 管理端沙盒不是正式对局存档，状态仍由前端原样带回；因此后端必须在恢复引擎状态前做最基本的自洽检查。
+	 * 这里把第一回合记录删掉但保留 `turnNumber=1`，模拟浏览器或调试工具误改 JSON 的情况。期望返回字段校验
+	 * 错误，而不是让状态机以“已过一回合但没有回放片段”的材料继续运行。
+	 */
+	@Test
+	fun `sandbox state snapshot rejects missing settled turn record`() {
+		val first = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "standard-single",
+				sides = validSingleSides(),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val tamperedState = first.state.copy(turns = emptyList())
+
+		val error = assertThrows<ApiException> {
+			service.resolveSandboxTurn(
+				BattleSandboxTurnRequest(
+					formatCode = "standard-single",
+					sides = validSingleSides(),
+					randomSeed = 1,
+					state = tamperedState,
+					actions = listOf(
+						BattleActionRequest(
+							type = "USE_SKILL",
+							actorId = "a-1",
+							skillId = 1,
+							targetActorId = "b-1",
+						),
+					),
+				),
+			)
+		}
+
+		assertThat(error.field).isEqualTo("state")
+		assertThat(error.message).isEqualTo("state 回合记录必须从 1 连续到当前回合")
 	}
 
 	/**

@@ -21,7 +21,21 @@ data class BattleSandboxStateSnapshot(
 	var sides: List<Side> = emptyList(),
 	@field:Schema(description = "累计事件流。")
 	var events: List<BattleSandboxTurnResponse.Event> = emptyList(),
+	@field:Schema(description = "已经成功结算的回合记录，用于导出和复查沙盒复盘材料。")
+	var turns: List<TurnRecord> = emptyList(),
 ) {
+	@Schema(name = "BattleSandboxStateTurnRecord", description = "已结算回合的复盘片段。")
+	data class TurnRecord(
+		@field:Schema(description = "已结算回合序号。", example = "1")
+		var turnNumber: Int = 0,
+		@field:Schema(description = "该回合提交并通过校验的行动。")
+		var actions: List<BattleActionRequest> = emptyList(),
+		@field:Schema(description = "该回合随机消费记录。")
+		var randomTrace: List<BattleSandboxTurnResponse.RandomTrace> = emptyList(),
+		@field:Schema(description = "该回合新增事件片段，不包含战斗启动事件和历史回合事件。")
+		var events: List<BattleSandboxTurnResponse.Event> = emptyList(),
+	)
+
 	@Schema(name = "BattleSandboxStateEnvironment", description = "全场环境运行态。")
 	data class Environment(
 		@field:Schema(description = "天气枚举名。", example = "RAIN")

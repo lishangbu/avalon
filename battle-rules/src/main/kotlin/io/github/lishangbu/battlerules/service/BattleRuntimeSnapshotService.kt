@@ -152,6 +152,7 @@ class BattleRuntimeSnapshotService(
 		}
 		val actions = normalized.actions.map { it.toBattleAction() }
 		val previousEvents = request.state?.events ?: emptyList()
+		val previousTurns = request.state?.turns ?: emptyList()
 		val violations = actionValidator.validate(current, actions)
 		if (violations.isNotEmpty()) {
 			return current.toSandboxResponse(
@@ -159,6 +160,7 @@ class BattleRuntimeSnapshotService(
 				violations = violations.map { it.toResponse() },
 				randomTrace = emptyList(),
 				previousEvents = previousEvents,
+				previousTurns = previousTurns,
 			)
 		}
 		val random = RecordingBattleRandom(SeededBattleRandom(request.randomSeed))
@@ -168,6 +170,8 @@ class BattleRuntimeSnapshotService(
 			violations = emptyList(),
 			randomTrace = random.trace(),
 			previousEvents = previousEvents,
+			previousTurns = previousTurns,
+			submittedActions = normalized.actions,
 		)
 	}
 
@@ -338,6 +342,7 @@ class BattleRuntimeSnapshotService(
 		snapshot: BattleSandboxStateSnapshot,
 	): BattleState =
 		try {
+			snapshot.validateSandboxSnapshot()
 			val baseline = battleEngine.start(initialState)
 			BattleState(
 				format = baseline.format,
@@ -351,6 +356,53 @@ class BattleRuntimeSnapshotService(
 		} catch (_: IllegalArgumentException) {
 			invalidValue("state", "state 不是合法沙盒快照，请重置后重新开始")
 		}
+
+	/**
+	 * 校验管理端带回的沙盒快照是否自洽。
+	 *
+	 * 沙盒状态仍然是客户端携带的诊断材料，不是正式对局存档。因此这里不做签名验真，也不把它升级成安全边界；
+	 * 但恢复运行态前必须先拦住明显破损或被手动改坏的快照，例如回合号跳跃、回合记录缺失、事件片段和累计事件
+	 * 数量对不上、随机 trace 序号不连续等。这样错误会以字段校验失败返回给管理端，而不是进入引擎后变成更难
+	 * 定位的状态机异常。
+	 */
+	private fun BattleSandboxStateSnapshot.validateSandboxSnapshot() {
+		if (turnNumber < 0) {
+			invalidValue("state", "state 回合号不能为负数")
+		}
+		val expectedTurnNumbers = (1..turnNumber).toList()
+		if (turns.map { it.turnNumber } != expectedTurnNumbers) {
+			invalidValue("state", "state 回合记录必须从 1 连续到当前回合")
+		}
+		if (events.any { it.turnNumber !in 0..turnNumber }) {
+			invalidValue("state", "state 事件回合号超出当前回合范围")
+		}
+		turns.forEach { turn ->
+			turn.validateSandboxTurnRecord()
+			val accumulatedEventCount = events.count { it.turnNumber == turn.turnNumber }
+			if (accumulatedEventCount != turn.events.size) {
+				invalidValue("state", "state 回合事件片段与累计事件流不一致")
+			}
+		}
+	}
+
+	private fun BattleSandboxStateSnapshot.TurnRecord.validateSandboxTurnRecord() {
+		if (turnNumber <= 0) {
+			invalidValue("state", "state 回合记录序号必须大于 0")
+		}
+		if (actions.isEmpty()) {
+			invalidValue("state", "state 回合记录必须包含已提交行动")
+		}
+		if (actions.map { it.actorId }.toSet().size != actions.size) {
+			invalidValue("state", "state 同一回合不能包含重复行动成员")
+		}
+		actions.forEach { it.toBattleAction() }
+		if (randomTrace.map { it.sequence } != (1..randomTrace.size).toList()) {
+			invalidValue("state", "state 随机轨迹序号必须从 1 连续递增")
+		}
+		if (events.any { it.turnNumber != turnNumber }) {
+			invalidValue("state", "state 回合记录只能包含自身回合事件")
+		}
+	}
 
 	private fun BattleSandboxStateSnapshot.requiredSide(sideId: String): BattleSandboxStateSnapshot.Side =
 		sides.firstOrNull { it.sideId == sideId }
@@ -450,8 +502,22 @@ class BattleRuntimeSnapshotService(
 		violations: List<BattleActionViolationResponse>,
 		randomTrace: List<BattleRandomTraceEntry>,
 		previousEvents: List<BattleSandboxTurnResponse.Event>,
+		previousTurns: List<BattleSandboxStateSnapshot.TurnRecord>,
+		submittedActions: List<BattleActionRequest>? = null,
 	): BattleSandboxTurnResponse {
-		val responseEvents = previousEvents + events.map { it.toSandboxEvent() }
+		val currentEvents = events.map { it.toSandboxEvent() }
+		val responseEvents = previousEvents + currentEvents
+		val responseRandomTrace = randomTrace.map { it.toSandboxRandomTrace() }
+		val responseTurns = if (resolved && submittedActions != null) {
+			previousTurns + BattleSandboxStateSnapshot.TurnRecord(
+				turnNumber = turnNumber,
+				actions = submittedActions,
+				randomTrace = responseRandomTrace,
+				events = currentEvents.filter { it.turnNumber == turnNumber },
+			)
+		} else {
+			previousTurns
+		}
 		return BattleSandboxTurnResponse(
 			resolved = resolved,
 			turnNumber = turnNumber,
@@ -464,13 +530,14 @@ class BattleRuntimeSnapshotService(
 			sides = sides.map { it.toSandboxSide() },
 			events = responseEvents,
 			violations = violations,
-			randomTrace = randomTrace.map { it.toSandboxRandomTrace() },
-			state = toSandboxState(responseEvents),
+			randomTrace = responseRandomTrace,
+			state = toSandboxState(responseEvents, responseTurns),
 		)
 	}
 
 	private fun BattleState.toSandboxState(
 		responseEvents: List<BattleSandboxTurnResponse.Event>,
+		responseTurns: List<BattleSandboxStateSnapshot.TurnRecord>,
 	): BattleSandboxStateSnapshot =
 		BattleSandboxStateSnapshot(
 			turnNumber = turnNumber,
@@ -483,6 +550,7 @@ class BattleRuntimeSnapshotService(
 			environment = environment.toSandboxEnvironment(),
 			sides = sides.map { it.toSandboxStateSide() },
 			events = responseEvents,
+			turns = responseTurns,
 		)
 
 	private fun BattleEnvironment.toSandboxEnvironment(): BattleSandboxStateSnapshot.Environment =

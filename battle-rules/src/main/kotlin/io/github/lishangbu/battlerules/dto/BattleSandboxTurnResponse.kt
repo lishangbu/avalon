@@ -95,12 +95,12 @@ data class BattleSandboxTurnResponse(
 	@Schema(name = "BattleSandboxTurnRandomTrace", description = "随机消费记录。")
 	data class RandomTrace(
 		@field:Schema(description = "本回合内消费顺序。", example = "1")
-		val sequence: Int = 0,
+		var sequence: Int = 0,
 		@field:Schema(description = "随机上界，合法值范围为 [0, bound)。", example = "100")
-		val bound: Int = 0,
+		var bound: Int = 0,
 		@field:Schema(description = "消费原因。", example = "accuracy")
-		val reason: String = "",
+		var reason: String = "",
 		@field:Schema(description = "实际随机值。", example = "42")
-		val value: Int = 0,
+		var value: Int = 0,
 	)
 }
