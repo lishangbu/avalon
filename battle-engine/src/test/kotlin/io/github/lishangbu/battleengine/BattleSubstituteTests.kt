@@ -99,6 +99,64 @@ class BattleSubstituteTests {
 		assertEquals(10, substituteDamage.substituteHpRemaining)
 	}
 
+	@Test
+	fun `substitute fails when user hp is not greater than substitute cost`() {
+		val scenario = publicBattleRuleScenario(
+			name = "substitute-fails-when-user-hp-is-not-greater-than-cost",
+			inputSummary = "使用者当前 HP 等于建立替身所需的 1/4 最大 HP，并尝试使用替身。",
+			expectedSummary = "替身技能已经宣告并消耗 PP，但因 HP 不足失败；本体 HP 不变，也不建立替身。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("substitute-user", speed = 100, currentHp = 25, skill = substituteSkill()),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("substitute-user", skillId = 164, targetActorId = "substitute-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("substitute-fails-when-user-hp-is-not-greater-than-cost")
+		assertEquals(25, resolved.participant("substitute-user")?.currentHp)
+		assertEquals(0, resolved.participant("substitute-user")?.substituteHp)
+		assertEquals(9, resolved.participant("substitute-user")?.skillSlot(164)?.remainingPp)
+		assertEquals(164, resolved.events.filterIsInstance<BattleEvent.SkillUsed>().single().skillId)
+		assertEquals("insufficient-hp-for-substitute", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteStarted>())
+	}
+
+	@Test
+	fun `substitute fails when user already has substitute`() {
+		val scenario = publicBattleRuleScenario(
+			name = "substitute-fails-when-user-already-has-substitute",
+			inputSummary = "使用者已经拥有 25 HP 替身，又尝试再次使用替身。",
+			expectedSummary = "替身技能已经宣告并消耗 PP，但因已有替身失败；既有替身和本体 HP 都保持不变。",
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("substitute-user", speed = 100, currentHp = 75, skill = substituteSkill())
+					.copy(substituteHp = 25),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("substitute-user", skillId = 164, targetActorId = "substitute-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("substitute-fails-when-user-already-has-substitute")
+		assertEquals(75, resolved.participant("substitute-user")?.currentHp)
+		assertEquals(25, resolved.participant("substitute-user")?.substituteHp)
+		assertEquals(9, resolved.participant("substitute-user")?.skillSlot(164)?.remainingPp)
+		assertEquals("substitute-already-active", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteStarted>())
+	}
+
 	/**
 	 * 固定“替身挡住伤害时不进入本体保命窗口”的边界。
 	 *

@@ -14,9 +14,9 @@ import io.github.lishangbu.battleengine.model.BattleState
  * 回复和建立替身不应该塞进伤害后 HP 效果类里，否则读代码时会误以为这些效果也参与吸取/反作用/低体力道具/
  * 倒下判定那条顺序。
  *
- * 本类只在变化技能已经通过目标、保护、命中等前置判定并成功后运行。满 HP、回复封锁、无法战斗、已存在替身或
- * HP 不足以支付替身费用时保持状态不变且不产生事件；如果未来要表达“技能失败”事件，应在技能宣告或失败阶段
- * 明确建模，而不是让 HP 写入 helper 同时承担失败语义。
+ * 本类只在变化技能已经通过目标、保护、命中等前置判定并成功后运行。满 HP、回复封锁或无法战斗时保持状态不变；
+ * 替身比较特殊：已有替身或 HP 不足会让技能本身失败，因此会追加 [BattleEvent.SkillFailed]，方便 replay 和
+ * 对照测试看到“技能已宣告并消耗 PP，但没有建立替身”的事实。
  */
 internal class BattleStatusSkillHpEffects {
 	private val statStageModifiers = BattleStatStageModifiers()
@@ -246,8 +246,9 @@ internal class BattleStatusSkillHpEffects {
 	/**
 	 * 支付使用者最大 HP 的固定比例来建立替身。
 	 *
-	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，但不
-	 * 产生额外事件；成功时本体扣除费用、替身获得同等 HP，并用专用事件记录该运行态事实。
+	 * 现代替身要求使用者当前 HP 必须严格大于费用，且不能已经拥有替身。失败时技能已经完成使用和 PP 消耗，因此
+	 * 这里追加稳定的 [BattleEvent.SkillFailed] 原因，而不是静默保持状态；成功时本体扣除费用、替身获得同等 HP，
+	 * 并用专用事件记录该运行态事实。
 	 */
 	private fun applyCreateSubstitute(
 		state: BattleState,
@@ -257,13 +258,32 @@ internal class BattleStatusSkillHpEffects {
 		denominator: Int,
 	): BattleState {
 		val actor = state.participant(actorId) ?: return state
-		if (!actor.canBattle() || actor.hasSubstitute()) {
+		if (!actor.canBattle()) {
 			return state
+		}
+		if (actor.hasSubstitute()) {
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = actor.actorId,
+					skillId = skill.skillId,
+					reason = "substitute-already-active",
+				),
+			)
 		}
 		val hpCost = fractionAmount(actor.maxHp, numerator, denominator)
 			.coerceAtMost(actor.maxHp - 1)
 		if (actor.currentHp <= hpCost) {
-			return state
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = actor.actorId,
+					skillId = skill.skillId,
+					reason = "insufficient-hp-for-substitute",
+				),
+			)
 		}
 		val substituted = actor.startSubstitute(hpCost)
 		return state
