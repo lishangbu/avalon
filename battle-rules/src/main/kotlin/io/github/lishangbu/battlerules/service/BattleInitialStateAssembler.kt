@@ -34,7 +34,7 @@ class BattleInitialStateAssembler(
 		val elementIds = dataLookup.coreElementIds()
 		val runtime = dataLookup.runtimeSnapshotByFormatCode(normalized.formatCode, elementIds)
 		val cache = BattleRuntimeAssemblyCache(elementIds)
-		val sides = normalized.sides.map { it.toBattleSide(cache) }
+		val sides = normalized.sides.map { it.toBattleSide(cache, runtime.format) }
 		validateInitialStateShape(runtime.format, sides)
 		return BattleInitialState(
 			format = runtime.format,
@@ -62,7 +62,10 @@ class BattleInitialStateAssembler(
 		}
 	}
 
-	private fun BattlePreparationSideRequest.toBattleSide(cache: BattleRuntimeAssemblyCache): BattleSide {
+	private fun BattlePreparationSideRequest.toBattleSide(
+		cache: BattleRuntimeAssemblyCache,
+		format: BattleFormatSnapshot,
+	): BattleSide {
 		val normalizedSideId = sideId.requiredText("sideId", maxLength = 80)
 		if (activeActorIds.isEmpty()) {
 			invalidValue("activeActorIds", "activeActorIds 不能为空")
@@ -74,7 +77,7 @@ class BattleInitialStateAssembler(
 		if (normalizedActiveActorIds.toSet().size != normalizedActiveActorIds.size) {
 			invalidValue("activeActorIds", "activeActorIds 不能包含重复成员")
 		}
-		val battleParticipants = participants.map { it.toBattleParticipant(cache) }
+		val battleParticipants = participants.map { it.toBattleParticipant(cache, format) }
 		val participantActorIds = battleParticipants.map { it.actorId }
 		if (participantActorIds.toSet().size != participantActorIds.size) {
 			invalidValue("actorId", "同一队伍内 actorId 不能重复")
@@ -120,7 +123,10 @@ class BattleInitialStateAssembler(
 		}
 	}
 
-	private fun BattlePreparationParticipantRequest.toBattleParticipant(cache: BattleRuntimeAssemblyCache): BattleParticipant {
+	private fun BattlePreparationParticipantRequest.toBattleParticipant(
+		cache: BattleRuntimeAssemblyCache,
+		format: BattleFormatSnapshot,
+	): BattleParticipant {
 		val normalizedActorId = actorId.requiredText("actorId", maxLength = 80)
 		if (creatureId <= 0) {
 			invalidValue("creatureId", "creatureId 必须大于 0")
@@ -151,11 +157,17 @@ class BattleInitialStateAssembler(
 		)
 		val abilityPolicies = cache.abilityPolicies(abilityId)
 		val itemPolicies = cache.itemPolicies(itemId)
-		val profile = cache.creatureProfile(creatureId, level, statConfig)
+		/**
+		 * `defaultLevel` 是运行态赛制快照中的等级拉平结果。官方双打这类赛制允许请求携带原始登记等级，但进入
+		 * battle-engine 前必须把等级和由等级推导出的能力值一起冻结到拉平等级；否则准备校验会把“应当按 50 级
+		 * 结算”的成员误判成超出等级上限，伤害公式也会继续读取错误等级。
+		 */
+		val battleLevel = format.defaultLevel ?: level
+		val profile = cache.creatureProfile(creatureId, battleLevel, statConfig)
 		return BattleParticipant(
 			actorId = normalizedActorId,
 			creatureId = creatureId,
-			level = level,
+			level = battleLevel,
 			maxHp = profile.maxHp,
 			currentHp = profile.maxHp,
 			attack = profile.attack,

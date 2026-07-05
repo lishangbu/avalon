@@ -939,6 +939,24 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(profile.elementIds).containsExactlyInAnyOrder(12L, 4L)
 	}
 
+	@Test
+	fun `initial state assembly flattens official double participant levels`() {
+		val initialState = service.assembleInitialState(
+			BattlePreparationValidationRequest(
+				formatCode = "official-double",
+				sides = levelDriftOfficialDoubleSides(),
+			),
+		)
+		val expectedProfile = service.creatureRuntimeProfile(creatureId = 1, level = 50)
+		val flattened = initialState.sides
+			.flatMap { it.participants }
+			.first { it.actorId == "a-1" }
+
+		assertThat(flattened.level).isEqualTo(50)
+		assertThat(flattened.maxHp).isEqualTo(expectedProfile.maxHp)
+		assertThat(flattened.attack).isEqualTo(expectedProfile.attack)
+	}
+
 	/**
 	 * 验证参与方显式能力配置会进入初始状态装配，并且不会被同种类、同等级成员的画像缓存串用。
 	 *
@@ -1690,7 +1708,6 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(response.valid).isFalse()
 		assertThat(response.violations.map { it.code }).containsExactlyInAnyOrder(
-			"level-too-high",
 			"duplicate-creature",
 			"duplicate-creature",
 			"duplicate-item",
@@ -1820,7 +1837,7 @@ class BattleRuntimeSnapshotServiceTests(
 			service.validateActions(
 				BattleActionValidationRequest(
 					formatCode = "official-double",
-					sides = invalidLevelDoubleSides(),
+					sides = duplicateRuleDoubleSides(),
 					actions = listOf(
 						BattleActionRequest(
 							type = "USE_SKILL",
@@ -1835,7 +1852,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(error.field).isEqualTo("sides")
 		assertThat(error.message).contains("准备阶段队伍不合法")
-		assertThat(error.message).contains("成员等级 60 超过上限 50")
+		assertThat(error.message).contains("同一队伍内成员种类不能重复")
 	}
 
 	@Test
@@ -1872,7 +1889,7 @@ class BattleRuntimeSnapshotServiceTests(
 	/**
 	 * 验证沙盒首回合也复用同一层准备阶段保护。
 	 *
-	 * 沙盒是管理端最容易直接手填请求的入口，非法等级、禁用资料或重复条款都应以业务校验错误返回。
+	 * 沙盒是管理端最容易直接手填请求的入口，禁用资料、重复种类或重复道具都应以业务校验错误返回。
 	 * 这条测试防止未来只修 `validateActions`、却让 `/api/battle-sandbox/turn` 再次把准备阶段错误冒泡成 500。
 	 */
 	@Test
@@ -1881,7 +1898,7 @@ class BattleRuntimeSnapshotServiceTests(
 			service.resolveSandboxTurn(
 				BattleSandboxTurnRequest(
 					formatCode = "official-double",
-					sides = invalidLevelDoubleSides(),
+					sides = duplicateRuleDoubleSides(),
 					randomSeed = 0,
 					actions = listOf(
 						BattleActionRequest(
@@ -1897,7 +1914,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(error.field).isEqualTo("sides")
 		assertThat(error.message).contains("准备阶段队伍不合法")
-		assertThat(error.message).contains("成员等级 60 超过上限 50")
+		assertThat(error.message).contains("同一队伍内成员种类不能重复")
 	}
 
 	@Test
@@ -1939,22 +1956,20 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `sandbox turn renders skill failure reason in chinese`() {
 		val response = service.resolveSandboxTurn(
 			BattleSandboxTurnRequest(
-				formatCode = "official-double",
+				formatCode = "standard-single",
 				sides = listOf(
 					BattlePreparationSideRequest(
 						sideId = "side-a",
-						activeActorIds = listOf("a-1", "a-2"),
+						activeActorIds = listOf("a-1"),
 						participants = listOf(
 							participant("a-1", creatureId = 1, level = 49, skillIds = listOf(12)),
-							participant("a-2", creatureId = 2, level = 50),
 						),
 					),
 					BattlePreparationSideRequest(
 						sideId = "side-b",
-						activeActorIds = listOf("b-1", "b-2"),
+						activeActorIds = listOf("b-1"),
 						participants = listOf(
 							participant("b-1", creatureId = 3, level = 50),
-							participant("b-2", creatureId = 4, level = 50),
 						),
 					),
 				),
@@ -3221,13 +3236,30 @@ class BattleRuntimeSnapshotServiceTests(
 			),
 		)
 
-	private fun invalidLevelDoubleSides(): List<BattlePreparationSideRequest> =
+	private fun levelDriftOfficialDoubleSides(): List<BattlePreparationSideRequest> =
 		validDoubleSides().map { side ->
 			if (side.sideId == "side-a") {
 				side.copy(
 					participants = side.participants.map { participant ->
 						if (participant.actorId == "a-1") {
 							participant.copy(level = 60)
+						} else {
+							participant
+						}
+					},
+				)
+			} else {
+				side
+			}
+		}
+
+	private fun duplicateRuleDoubleSides(): List<BattlePreparationSideRequest> =
+		validDoubleSides().map { side ->
+			if (side.sideId == "side-a") {
+				side.copy(
+					participants = side.participants.map { participant ->
+						if (participant.actorId == "a-2") {
+							participant.copy(creatureId = 1, itemId = 10)
 						} else {
 							participant
 						}
