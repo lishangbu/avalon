@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 
 @BattleRulesIntegrationTest
 /**
@@ -63,7 +63,7 @@ import org.springframework.jdbc.core.JdbcTemplate
  */
 class BattleRuntimeSnapshotServiceTests(
 	@Autowired private val service: BattleRuntimeSnapshotService,
-	@Autowired private val jdbcTemplate: JdbcTemplate,
+	@Autowired private val sqlClient: KSqlClient,
 ) {
 	private val objectMapper: ObjectMapper = JsonMapper.builder().findAndAddModules().build()
 
@@ -110,7 +110,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 	@Test
 	fun `runtime snapshot rejects unsupported format battle mode as api error`() {
-		jdbcTemplate.update("update battle_format set battle_mode = ? where code = ?", "TRIPLE", "official-double")
+		sqlClient.executeTestSql("update battle_format set battle_mode = ? where code = ?", "TRIPLE", "official-double")
 		try {
 			val exception = assertThrows<ApiException> {
 				service.getByFormatCode("official-double")
@@ -125,7 +125,7 @@ class BattleRuntimeSnapshotServiceTests(
 			 * 本测试故意破坏共享集成测试数据库中的赛制资料来模拟生产误配置；必须在 finally 中恢复，
 			 * 否则后续运行时装配测试会在读取 `official-double` 时命中同一条坏数据。
 			 */
-			jdbcTemplate.update("update battle_format set battle_mode = ? where code = ?", "DOUBLE", "official-double")
+			sqlClient.executeTestSql("update battle_format set battle_mode = ? where code = ?", "DOUBLE", "official-double")
 		}
 	}
 
@@ -1114,7 +1114,7 @@ class BattleRuntimeSnapshotServiceTests(
 	@Test
 	fun `skill slot assembly rejects runtime invalid skill rule values before engine construction`() {
 		withTemporarySkillPolicy("standard-damage") { skillId ->
-			jdbcTemplate.update("update battle_skill_rule set min_hits = ? where id = ?", 0, TEMP_SKILL_RULE_ID)
+			sqlClient.executeTestSql("update battle_skill_rule set min_hits = ? where id = ?", 0, TEMP_SKILL_RULE_ID)
 
 			val error = assertThrows<ApiException> {
 				service.skillSlotsBySkillIds(listOf(skillId))
@@ -1124,7 +1124,7 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 
 		withTemporarySkillPolicy("standard-damage") { skillId ->
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"update battle_skill_rule set min_hits = ?, max_hits = ? where id = ?",
 				3,
 				2,
@@ -1139,7 +1139,7 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 
 		withTemporarySkillPolicy("standard-damage") { skillId ->
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"update battle_skill_rule set critical_hit_stage = ? where id = ?",
 				7,
 				TEMP_SKILL_RULE_ID,
@@ -1153,7 +1153,7 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 
 		withTemporarySkillPolicy("standard-damage") { skillId ->
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				update game_skill
 				set damage_class_id = (select id from game_skill_damage_class where code = 'status')
@@ -1161,7 +1161,7 @@ class BattleRuntimeSnapshotServiceTests(
 				""".trimIndent(),
 				skillId,
 			)
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"update battle_skill_rule set min_hits = ?, max_hits = ? where id = ?",
 				2,
 				5,
@@ -3043,36 +3043,33 @@ class BattleRuntimeSnapshotServiceTests(
 			.let { it.weathers to it.healDenominator }
 
 	private fun enabledIds(tableName: String, idColumn: String): List<Long> =
-		jdbcTemplate.query(
+		sqlClient.queryTestSql(
 			"""
 			select distinct $idColumn
 			from $tableName
 			where enabled = true
 			order by $idColumn
 			""".trimIndent(),
-			{ rs, _ -> rs.getLong(idColumn) },
-		)
+		) { resultSet -> resultSet.getLong(idColumn) }
 
 	private fun enabledPolicies(tableName: String, policyColumn: String): List<String> =
-		jdbcTemplate.query(
+		sqlClient.queryTestSql(
 			"""
 			select distinct $policyColumn
 			from $tableName
 			where enabled = true
 			order by $policyColumn
 			""".trimIndent(),
-			{ rs, _ -> rs.getString(policyColumn) },
-		)
+		) { resultSet -> resultSet.getString(policyColumn) }
 
 	private fun elementIdsByCode(): Map<String, Long> =
-		jdbcTemplate.query(
+		sqlClient.queryTestSql(
 			"""
 			select code, id
 			from game_element
 			order by code
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("code") to rs.getLong("id") },
-		).toMap()
+		) { resultSet -> resultSet.getString("code") to resultSet.getLong("id") }.toMap()
 
 	private fun withTemporaryFormatRestriction(
 		code: String,
@@ -3082,8 +3079,8 @@ class BattleRuntimeSnapshotServiceTests(
 		operandNumber: Int?,
 		block: () -> Unit,
 	) {
-		jdbcTemplate.update("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_format_restriction (
 				id, format_id, code, name, restriction_type, restriction_operator, operand_text, operand_number, description, enabled, sort_order
@@ -3099,23 +3096,23 @@ class BattleRuntimeSnapshotServiceTests(
 		try {
 			block()
 		} finally {
-			jdbcTemplate.update("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
+			sqlClient.executeTestSql("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
 		}
 	}
 
 	private fun withTemporaryOfficialDoubleDefaultLevel(defaultLevel: Int?, block: () -> Unit) {
-		jdbcTemplate.update("update battle_format set default_level = ? where code = ?", defaultLevel, "official-double")
+		sqlClient.executeTestSql("update battle_format set default_level = ? where code = ?", defaultLevel, "official-double")
 		try {
 			block()
 		} finally {
-			jdbcTemplate.update("update battle_format set default_level = ? where code = ?", 50, "official-double")
+			sqlClient.executeTestSql("update battle_format set default_level = ? where code = ?", 50, "official-double")
 		}
 	}
 
 	private fun withTemporaryFormatClause(code: String, block: () -> Unit) {
-		jdbcTemplate.update("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
-		jdbcTemplate.update("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
+		sqlClient.executeTestSql("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_format_clause (
 				id, code, name, clause_type, description, enabled, sort_order
@@ -3124,7 +3121,7 @@ class BattleRuntimeSnapshotServiceTests(
 			TEMP_FORMAT_CLAUSE_ID,
 			code,
 		)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_format_clause_binding (
 				id, format_id, clause_id, required, sort_order
@@ -3136,14 +3133,14 @@ class BattleRuntimeSnapshotServiceTests(
 		try {
 			block()
 		} finally {
-			jdbcTemplate.update("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
-			jdbcTemplate.update("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
+			sqlClient.executeTestSql("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
+			sqlClient.executeTestSql("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
 		}
 	}
 
 	private fun withTemporaryAbilityPolicy(effectPolicy: String, block: () -> Unit) {
-		jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_ability_rule (
 				id, ability_id, trigger_timing, effect_policy, trigger_order, description, enabled, sort_order
@@ -3155,13 +3152,13 @@ class BattleRuntimeSnapshotServiceTests(
 		try {
 			block()
 		} finally {
-			jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
+			sqlClient.executeTestSql("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
 		}
 	}
 
 	private fun withTemporaryItemPolicy(effectPolicy: String, block: () -> Unit) {
-		jdbcTemplate.update("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_item_rule (
 				id, item_id, trigger_timing, effect_policy, consumable, trigger_order, description, enabled, sort_order
@@ -3173,14 +3170,14 @@ class BattleRuntimeSnapshotServiceTests(
 		try {
 			block()
 		} finally {
-			jdbcTemplate.update("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
+			sqlClient.executeTestSql("delete from battle_item_rule where id = ?", TEMP_ITEM_RULE_ID)
 		}
 	}
 
 	private fun withTemporarySkillPolicy(effectPolicy: String, block: (Long) -> Unit) {
 		insertTemporarySkill()
-		jdbcTemplate.update("delete from battle_skill_rule where id = ? or skill_id = ?", TEMP_SKILL_RULE_ID, TEMP_SKILL_ID)
-		jdbcTemplate.update(
+		sqlClient.executeTestSql("delete from battle_skill_rule where id = ? or skill_id = ?", TEMP_SKILL_RULE_ID, TEMP_SKILL_ID)
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_skill_rule (
 				id,
@@ -3223,7 +3220,7 @@ class BattleRuntimeSnapshotServiceTests(
 		try {
 			block(TEMP_SKILL_ID)
 		} finally {
-			jdbcTemplate.update("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
+			sqlClient.executeTestSql("delete from battle_skill_rule where id = ?", TEMP_SKILL_RULE_ID)
 			deleteTemporarySkill()
 		}
 	}
@@ -3232,7 +3229,7 @@ class BattleRuntimeSnapshotServiceTests(
 		withTemporarySkillPolicy("side-condition") { skillId ->
 			deleteTemporaryFieldEffects()
 			insertTemporaryFieldRule(effectPolicy = effectPolicy, effectScope = "SIDE")
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_skill_field_effect (
 					id, skill_rule_id, field_rule_id, target_side, effect_timing, chance_percent, enabled, sort_order
@@ -3254,7 +3251,7 @@ class BattleRuntimeSnapshotServiceTests(
 		withTemporarySkillPolicy("field-condition") { skillId ->
 			deleteTemporaryFieldEffects()
 			insertTemporaryFieldRule(effectPolicy = effectPolicy, effectScope = "FIELD")
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_skill_global_field_effect (
 					id, skill_rule_id, field_rule_id, effect_timing, chance_percent, enabled, sort_order
@@ -3273,7 +3270,7 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun insertTemporaryFieldRule(effectPolicy: String, effectScope: String) {
-		jdbcTemplate.update(
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_field_rule (
 				id, code, name, effect_scope, effect_policy, min_turns, max_turns, max_layers, description, enabled, sort_order
@@ -3286,15 +3283,15 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun deleteTemporaryFieldEffects() {
-		jdbcTemplate.update("delete from battle_skill_field_effect where id = ?", TEMP_SKILL_FIELD_EFFECT_ID)
-		jdbcTemplate.update("delete from battle_skill_global_field_effect where id = ?", TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID)
-		jdbcTemplate.update("delete from battle_field_rule where id = ?", TEMP_FIELD_RULE_ID)
+		sqlClient.executeTestSql("delete from battle_skill_field_effect where id = ?", TEMP_SKILL_FIELD_EFFECT_ID)
+		sqlClient.executeTestSql("delete from battle_skill_global_field_effect where id = ?", TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID)
+		sqlClient.executeTestSql("delete from battle_field_rule where id = ?", TEMP_FIELD_RULE_ID)
 	}
 
 	private fun withTemporaryStatusEffectTargetScope(targetScope: String, block: (Long) -> Unit) {
 		withTemporarySkillPolicy("status-effect") { skillId ->
 			deleteTemporarySkillChildEffects()
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_skill_status_effect (
 					id, skill_rule_id, status_rule_id, target_scope, effect_timing, chance_percent, enabled, sort_order
@@ -3315,7 +3312,7 @@ class BattleRuntimeSnapshotServiceTests(
 	private fun withTemporaryStatusKind(statusKind: String, block: (Long) -> Unit) {
 		withTemporarySkillPolicy("status-effect") { skillId ->
 			deleteTemporaryStatusRule()
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_status_rule (
 					id, code, name, status_kind, effect_policy, min_turns, max_turns, description, enabled, sort_order
@@ -3324,7 +3321,7 @@ class BattleRuntimeSnapshotServiceTests(
 				TEMP_STATUS_RULE_ID,
 				statusKind,
 			)
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_skill_status_effect (
 					id, skill_rule_id, status_rule_id, target_scope, effect_timing, chance_percent, enabled, sort_order
@@ -3345,7 +3342,7 @@ class BattleRuntimeSnapshotServiceTests(
 	private fun withTemporaryStatStageEffectTargetScope(targetScope: String, block: (Long) -> Unit) {
 		withTemporarySkillPolicy("stat-stage-change") { skillId ->
 			deleteTemporarySkillChildEffects()
-			jdbcTemplate.update(
+			sqlClient.executeTestSql(
 				"""
 				insert into battle_skill_stat_stage_effect (
 					id, skill_rule_id, stat_id, target_scope, effect_timing, stage_delta, chance_percent, enabled, sort_order
@@ -3364,13 +3361,13 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun deleteTemporarySkillChildEffects() {
-		jdbcTemplate.update("delete from battle_skill_status_effect where id = ?", TEMP_SKILL_STATUS_EFFECT_ID)
-		jdbcTemplate.update("delete from battle_skill_stat_stage_effect where id = ?", TEMP_SKILL_STAT_STAGE_EFFECT_ID)
+		sqlClient.executeTestSql("delete from battle_skill_status_effect where id = ?", TEMP_SKILL_STATUS_EFFECT_ID)
+		sqlClient.executeTestSql("delete from battle_skill_stat_stage_effect where id = ?", TEMP_SKILL_STAT_STAGE_EFFECT_ID)
 	}
 
 	private fun deleteTemporaryStatusRule() {
 		deleteTemporarySkillChildEffects()
-		jdbcTemplate.update("delete from battle_status_rule where id = ?", TEMP_STATUS_RULE_ID)
+		sqlClient.executeTestSql("delete from battle_status_rule where id = ?", TEMP_STATUS_RULE_ID)
 	}
 
 	private fun withTemporarySkillWithoutRule(block: (Long) -> Unit) {
@@ -3383,9 +3380,9 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun insertTemporarySkill() {
-		jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+		sqlClient.executeTestSql("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
 		deleteTemporarySkill()
-		jdbcTemplate.update(
+		sqlClient.executeTestSql(
 			"""
 			insert into game_skill (
 				id,
@@ -3418,7 +3415,7 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	private fun deleteTemporarySkill() {
-		jdbcTemplate.update("delete from game_skill where id = ?", TEMP_SKILL_ID)
+		sqlClient.executeTestSql("delete from game_skill where id = ?", TEMP_SKILL_ID)
 	}
 
 	private fun preparationRequest(firstParticipant: BattlePreparationParticipantRequest): BattlePreparationValidationRequest =

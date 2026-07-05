@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 
 @BattleRulesIntegrationTest
 /**
@@ -23,7 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 class BattleSkillTerrainModifierServiceTests(
 	@Autowired private val powerService: BattleSkillTerrainPowerModifierService,
 	@Autowired private val elementService: BattleSkillTerrainElementOverrideService,
-	@Autowired private val jdbcTemplate: JdbcTemplate,
+	@Autowired private val sqlClient: KSqlClient,
 ) {
 	@Test
 	fun `create update read list and delete terrain power modifier`() {
@@ -198,7 +198,7 @@ class BattleSkillTerrainModifierServiceTests(
 	}
 
 	private fun terrainPulseRuleId(): Long =
-		jdbcTemplate.queryForObject(
+		sqlClient.querySingleTestSql(
 			"""
 			select r.id
 			from battle_skill_rule r
@@ -206,12 +206,11 @@ class BattleSkillTerrainModifierServiceTests(
 			where s.code = 'terrain-pulse'
 				and r.enabled = true
 			""".trimIndent(),
-			Long::class.java,
-		) ?: error("场地脉冲规则不存在")
+		) { resultSet -> resultSet.getLong("id") }
 
 	private fun withUnsupportedTerrainRule(block: (Long) -> Unit) {
 		deleteUnsupportedTerrainRule()
-		jdbcTemplate.update(
+		sqlClient.executeTestSql(
 			"""
 			insert into battle_terrain_rule (
 				id,
@@ -243,7 +242,7 @@ class BattleSkillTerrainModifierServiceTests(
 	}
 
 	private fun deleteUnsupportedTerrainRule() {
-		jdbcTemplate.update("delete from battle_terrain_rule where id = ?", UNSUPPORTED_TERRAIN_RULE_ID)
+		sqlClient.executeTestSql("delete from battle_terrain_rule where id = ?", UNSUPPORTED_TERRAIN_RULE_ID)
 	}
 
 	private companion object {

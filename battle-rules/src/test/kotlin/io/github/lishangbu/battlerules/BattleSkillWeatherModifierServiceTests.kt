@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 
 @BattleRulesIntegrationTest
 /**
@@ -29,7 +29,7 @@ class BattleSkillWeatherModifierServiceTests(
 	@Autowired private val elementService: BattleSkillWeatherElementOverrideService,
 	@Autowired private val chargeSkipService: BattleSkillChargeSkipWeatherService,
 	@Autowired private val skillRuleService: BattleSkillRuleService,
-	@Autowired private val jdbcTemplate: JdbcTemplate,
+	@Autowired private val sqlClient: KSqlClient,
 ) {
 	@Test
 	fun `create update read list and delete weather accuracy override`() {
@@ -380,7 +380,7 @@ class BattleSkillWeatherModifierServiceTests(
 
 	private fun withTemporarySkill(block: (Long) -> Unit) {
 		deleteTemporarySkill()
-		jdbcTemplate.update(
+		sqlClient.executeTestSql(
 			"""
 			insert into game_skill (
 				id,
@@ -418,8 +418,8 @@ class BattleSkillWeatherModifierServiceTests(
 	}
 
 	private fun deleteTemporarySkill() {
-		jdbcTemplate.update("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
-		jdbcTemplate.update("delete from game_skill where id = ?", TEMP_SKILL_ID)
+		sqlClient.executeTestSql("delete from battle_skill_rule where skill_id = ?", TEMP_SKILL_ID)
+		sqlClient.executeTestSql("delete from game_skill where id = ?", TEMP_SKILL_ID)
 	}
 
 	private companion object {
