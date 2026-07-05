@@ -24,6 +24,7 @@ class BattleSwitchStateTests {
 			majorStatus = BattleMajorStatus.BAD_POISON,
 			statStages = mapOf(BattleStat.ATTACK to 2, BattleStat.SPEED to -1),
 			protectionChain = 1,
+			fatalDamageEndureSkillId = 203,
 			badPoisonCounter = 4,
 		)
 		val state = engine.start(
@@ -45,6 +46,7 @@ class BattleSwitchStateTests {
 		assertEquals(0, switchedOut?.statStage(BattleStat.ATTACK))
 		assertEquals(0, switchedOut?.statStage(BattleStat.SPEED))
 		assertEquals(0, switchedOut?.protectionChain)
+		assertEquals(null, switchedOut?.fatalDamageEndureSkillId)
 		assertEquals(1, switchedOut?.badPoisonCounter)
 		assertEquals(35, switchedOut?.skillSlot(1)?.remainingPp)
 	}

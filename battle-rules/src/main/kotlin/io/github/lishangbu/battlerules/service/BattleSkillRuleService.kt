@@ -11,6 +11,7 @@ import io.github.lishangbu.battlerules.entity.damagePolicy
 import io.github.lishangbu.battlerules.entity.description
 import io.github.lishangbu.battlerules.entity.effectPolicy
 import io.github.lishangbu.battlerules.entity.enabled
+import io.github.lishangbu.battlerules.entity.enduresFatalDamage
 import io.github.lishangbu.battlerules.entity.forceTargetSwitch
 import io.github.lishangbu.battlerules.entity.hitPolicy
 import io.github.lishangbu.battlerules.entity.id
@@ -117,6 +118,7 @@ class BattleSkillRuleService(
 				makesContact = normalized.makesContact
 				affectedByProtect = normalized.affectedByProtect
 				protectsUser = normalized.protectsUser
+				enduresFatalDamage = normalized.enduresFatalDamage
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
 				chargesBeforeUse = normalized.chargesBeforeUse
@@ -161,6 +163,7 @@ class BattleSkillRuleService(
 				makesContact = normalized.makesContact
 				affectedByProtect = normalized.affectedByProtect
 				protectsUser = normalized.protectsUser
+				enduresFatalDamage = normalized.enduresFatalDamage
 				thawsUserBeforeMove = normalized.thawsUserBeforeMove
 				weakenedByGrassyTerrain = normalized.weakenedByGrassyTerrain
 				chargesBeforeUse = normalized.chargesBeforeUse
@@ -217,6 +220,12 @@ class BattleSkillRuleService(
 		}
 		if (request.protectsUser && damageClassCode != "status") {
 			invalidValue("protectsUser", "只有变化类技能才能配置保护自身")
+		}
+		if (request.enduresFatalDamage && damageClassCode != "status") {
+			invalidValue("enduresFatalDamage", "只有变化类技能才能配置挺住类保留 HP")
+		}
+		if (request.protectsUser && request.enduresFatalDamage) {
+			invalidValue("enduresFatalDamage", "保护屏障和挺住保留 HP 必须拆成不同技能效果")
 		}
 		if (request.chargesBeforeUse && damageClassCode == "status") {
 			invalidValue("chargesBeforeUse", "变化类技能不能配置蓄力后发动")
@@ -276,6 +285,7 @@ class BattleSkillRuleService(
 			makesContact = makesContact,
 			affectedByProtect = affectedByProtect,
 			protectsUser = protectsUser,
+			enduresFatalDamage = enduresFatalDamage,
 			thawsUserBeforeMove = thawsUserBeforeMove,
 			weakenedByGrassyTerrain = weakenedByGrassyTerrain,
 			chargesBeforeUse = chargesBeforeUse,

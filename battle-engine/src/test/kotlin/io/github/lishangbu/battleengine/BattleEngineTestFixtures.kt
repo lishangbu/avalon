@@ -206,6 +206,7 @@ internal fun damagingSkill(
 	criticalHitStageBoost: Int = 0,
 	affectedByProtect: Boolean = true,
 	protectsUser: Boolean = false,
+	enduresFatalDamage: Boolean = false,
 	thawsUserBeforeMove: Boolean = false,
 	soundBased: Boolean = false,
 	powderBased: Boolean = false,
@@ -271,6 +272,7 @@ internal fun damagingSkill(
 		criticalHitStageBoost = criticalHitStageBoost,
 		affectedByProtect = affectedByProtect,
 		protectsUser = protectsUser,
+		enduresFatalDamage = enduresFatalDamage,
 		thawsUserBeforeMove = thawsUserBeforeMove,
 		soundBased = soundBased,
 		powderBased = powderBased,
@@ -330,5 +332,20 @@ internal fun protectionSkill(
 		power = null,
 		affectedByProtect = false,
 		protectsUser = true,
+		priority = 4,
+	).copy(remainingPp = 10, maxPp = 10)
+
+internal fun endureSkill(
+	skillId: Long = 203,
+	name: String = "挺住",
+): BattleSkillSlot =
+	damagingSkill(
+		skillId = skillId,
+		name = name,
+		damageClass = BattleDamageClass.STATUS,
+		power = null,
+		targetScope = BattleSkillTargetScope.SELF,
+		affectedByProtect = false,
+		enduresFatalDamage = true,
 		priority = 4,
 	).copy(remainingPp = 10, maxPp = 10)

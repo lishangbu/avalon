@@ -482,6 +482,7 @@ class BattleRuleCoverageLedgerTests {
 				minimumNamedScenarioCount = 25,
 				description = "命中/闪避、保护、替身、属性/状态免疫、声音穿透、粉末、抢夺、反射类变化技能和行动前目标有效性。",
 				testClassNames = listOf(
+					"io.github.lishangbu.battleengine.BattleEndurePublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleHitDefenseBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleSubstituteTests",
 					"io.github.lishangbu.battleengine.BattleImmunityTests",

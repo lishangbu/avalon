@@ -418,6 +418,9 @@ internal fun String.restoresUserBySleeping(): Boolean =
 internal fun String.curesUserSideMajorStatuses(): Boolean =
 	this == "user-side-major-status-cure"
 
+internal fun String.enduresFatalDamage(): Boolean =
+	this == "endure-fatal-damage"
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -447,6 +450,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"self-critical-hit-stage-plus-two",
 	"self-rest-full-heal",
 	"user-side-major-status-cure",
+	"endure-fatal-damage",
 )
 
 private val battleSkillTargetPolicies = setOf(

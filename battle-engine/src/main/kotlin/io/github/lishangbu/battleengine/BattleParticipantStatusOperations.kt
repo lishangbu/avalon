@@ -257,4 +257,7 @@ fun BattleParticipant.clearVolatileStatus(status: BattleVolatileStatus): BattleP
  * 清理回合结束时不会跨回合保留的临时状态。
  */
 fun BattleParticipant.clearEndTurnVolatileStatuses(): BattleParticipant =
-	if (flinched) copy(flinched = false) else this
+	copy(
+		flinched = false,
+		fatalDamageEndureSkillId = null,
+	)

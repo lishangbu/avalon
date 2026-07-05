@@ -490,6 +490,7 @@ class BattleRuntimeSnapshotService(
 			skillSlots = skillSlots.map { slot -> slot.restoreSandboxSkillSlot(snapshot.skillSlots) },
 			weightReduction = snapshot.weightReduction,
 			protectionChain = snapshot.protectionChain,
+			fatalDamageEndureSkillId = snapshot.fatalDamageEndureSkillId,
 			badPoisonCounter = snapshot.badPoisonCounter,
 			sleepTurnsRemaining = snapshot.sleepTurnsRemaining,
 			chargingSkillId = snapshot.chargingSkillId,
@@ -671,6 +672,7 @@ class BattleRuntimeSnapshotService(
 			},
 			weightReduction = weightReduction,
 			protectionChain = protectionChain,
+			fatalDamageEndureSkillId = fatalDamageEndureSkillId,
 			badPoisonCounter = badPoisonCounter,
 			sleepTurnsRemaining = sleepTurnsRemaining,
 			chargingSkillId = chargingSkillId,
@@ -772,6 +774,7 @@ class BattleRuntimeSnapshotService(
 				"SkillFailed" -> "技能失败"
 				"ProtectionStarted" -> "保护开始"
 				"ProtectionFailed" -> "保护失败"
+				"FatalDamageEndureStarted" -> "挺住开始"
 				"SkillBlockedByProtection" -> "保护阻挡"
 				"SkillBlockedByTerrain" -> "场地阻挡"
 				"SkillBlockedByAbility" -> "特性阻挡"

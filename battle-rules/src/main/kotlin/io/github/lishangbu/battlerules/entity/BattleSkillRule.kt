@@ -36,6 +36,7 @@ interface BattleSkillRule {
 	val makesContact: Boolean
 	val affectedByProtect: Boolean
 	val protectsUser: Boolean
+	val enduresFatalDamage: Boolean
 	val thawsUserBeforeMove: Boolean
 	val weakenedByGrassyTerrain: Boolean
 	val chargesBeforeUse: Boolean

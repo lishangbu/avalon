@@ -147,6 +147,19 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 成员成功进入本回合致命技能伤害保留 1 HP 的姿态。
+	 *
+	 * 挺住类行动和守住共用连续保护成功率，但成功后的战斗含义不同：它不会阻挡命中，也不会阻止异常、能力变化或
+	 * 间接回合末伤害；只有技能伤害即将把使用者 HP 扣到 0 时，伤害写入层才会把本次伤害夹到至少剩余 1 HP。
+	 * 因此 replay 需要独立事件来表达“姿态建立”，实际保命仍由后续 [FatalDamageSurvived] 记录。
+	 */
+	data class FatalDamageEndureStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
+	/**
 	 * 技能被目标本回合的保护屏障阻挡。
 	 *
 	 * 行动者已经使用技能并消耗 PP 后才会产生该事件；被阻挡后不再进行命中判定、伤害计算或附加效果结算。
@@ -782,10 +795,11 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 目标从满 HP 承受致命直接伤害时，通过特性或携带道具保留了 HP。
+	 * 目标承受致命技能伤害时，通过特性、携带道具或当回合技能状态保留了 HP。
 	 *
-	 * `incomingDamage` 是普通伤害公式产出的原始伤害，`preventedDamage` 是为了让目标保留 HP 而抵消的部分。
-	 * 目标最终损失的 HP 仍由同一次 [DamageApplied] 事件记录；本事件只说明为什么没有倒下。
+	 * 特性和道具来源要求目标在伤害前为满 HP；挺住类技能来源只要求本回合姿态仍然存在。`incomingDamage` 是普通
+	 * 伤害公式或固定伤害规则产出的原始伤害，`preventedDamage` 是为了让目标保留 HP 而抵消的部分。目标最终损失
+	 * 的 HP 仍由同一次 [DamageApplied] 事件记录；本事件只说明为什么没有倒下。
 	 */
 	data class FatalDamageSurvived(
 		override val turnNumber: Int,

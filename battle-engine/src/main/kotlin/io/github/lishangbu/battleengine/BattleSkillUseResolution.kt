@@ -42,11 +42,11 @@ internal class BattleSkillUseResolution(
 	fun resolve(context: TurnContext, plan: ActionPlan, random: BattleRandom): TurnContext {
 		return when (val setup = useSetupResolution.resolve(context, plan, random)) {
 			is SkillUseSetupResult.Stopped -> setup.context
-			is SkillUseSetupResult.Ready -> if (setup.skill.protectsUser) {
-				resolveProtectionSkillUse(
+			is SkillUseSetupResult.Ready -> if (setup.skill.isProtectionFamilySkill()) {
+				resolveProtectionFamilySkillUse(
 					context = setup.beforeMoveContext,
 					stateAfterChargeDecision = setup.stateAfterChargeDecision,
-					actorBeforeProtection = setup.readyActor,
+					actorBeforeProtectionFamilyAction = setup.readyActor,
 					actorAfterActionSetup = setup.actorAfterActionSetup,
 					skill = setup.skill,
 					random = random,
@@ -97,59 +97,86 @@ internal class BattleSkillUseResolution(
 		}
 
 	/**
-	 * 结算保护类技能自身的成功或失败。
+	 * 结算保护类同族技能自身的成功或失败。
 	 *
 	 * 技能使用事件、PP 消耗、讲究锁定和蓄力跳过判断都已经在调用方完成；本函数只处理“这个保护屏障是否建立”：
 	 * - 失败时清零连续保护链，并追加 [BattleEvent.ProtectionFailed]。
-	 * - 成功时推进连续保护链，追加 [BattleEvent.ProtectionStarted]，同时写入当前回合临时保护集合。
+	 * - 守住/看穿成功时推进连续保护链，追加 [BattleEvent.ProtectionStarted]，同时写入当前回合临时保护集合。
+	 * - 挺住成功时推进同一条连续保护链，追加 [BattleEvent.FatalDamageEndureStarted]，并把来源技能写入成员快照。
 	 *
-	 * 保护集合仍保存在 [TurnContext]，不进入 [BattleState]，因为它只对当前回合后续技能有效；回合末会用
-	 * `successfulProtectionActorIds` 决定哪些成员保留连续保护计数，没成功保护的成员会被统一重置。
+	 * 守住屏障仍保存在 [TurnContext]，不进入 [BattleState]，因为它只对当前回合后续命中门禁有效。挺住姿态要由
+	 * 伤害写入层读取，所以写入 [BattleParticipant.fatalDamageEndureSkillId]；回合末会被临时状态清理器统一移除。
+	 * `successfulProtectionActorIds` 仍表示本回合成功使用保护类同族行动的成员，回合结束后用它保留连续成功计数。
 	 */
-	private fun resolveProtectionSkillUse(
+	private fun resolveProtectionFamilySkillUse(
 		context: TurnContext,
 		stateAfterChargeDecision: BattleState,
-		actorBeforeProtection: BattleParticipant,
+		actorBeforeProtectionFamilyAction: BattleParticipant,
 		actorAfterActionSetup: BattleParticipant,
 		skill: BattleSkillSlot,
 		random: BattleRandom,
 	): TurnContext {
-		if (!protectionSucceeds(actorBeforeProtection, skill, random)) {
+		if (!protectionSucceeds(actorBeforeProtectionFamilyAction, skill, random)) {
 			return context.copy(
 				state = stateAfterChargeDecision
 					.replaceParticipant(actorAfterActionSetup.resetProtectionChain())
 					.appendEvent(
 						BattleEvent.ProtectionFailed(
 							turnNumber = stateAfterChargeDecision.turnNumber,
-							actorId = actorBeforeProtection.actorId,
+							actorId = actorBeforeProtectionFamilyAction.actorId,
 							skillId = skill.skillId,
 						),
 					),
 			)
 		}
-		val protectedActor = actorAfterActionSetup.markProtectionSuccess()
-		return context.copy(
-			state = stateAfterChargeDecision
-				.replaceParticipant(protectedActor)
-				.appendEvent(
+		val actorAfterProtectionFamilySuccess = actorAfterActionSetup
+			.markProtectionSuccess()
+			.let { actor ->
+				if (skill.enduresFatalDamage) actor.markFatalDamageEndure(skill.skillId) else actor
+			}
+		val successEvents = buildList {
+			if (skill.protectsUser) {
+				add(
 					BattleEvent.ProtectionStarted(
 						turnNumber = stateAfterChargeDecision.turnNumber,
-						actorId = actorBeforeProtection.actorId,
+						actorId = actorBeforeProtectionFamilyAction.actorId,
 						skillId = skill.skillId,
 					),
-				),
-			protectedActorIds = context.protectedActorIds + actorBeforeProtection.actorId,
-			successfulProtectionActorIds = context.successfulProtectionActorIds + actorBeforeProtection.actorId,
+				)
+			}
+			if (skill.enduresFatalDamage) {
+				add(
+					BattleEvent.FatalDamageEndureStarted(
+						turnNumber = stateAfterChargeDecision.turnNumber,
+						actorId = actorBeforeProtectionFamilyAction.actorId,
+						skillId = skill.skillId,
+					),
+				)
+			}
+		}
+		return context.copy(
+			state = stateAfterChargeDecision
+				.replaceParticipant(actorAfterProtectionFamilySuccess)
+				.appendEvents(successEvents),
+			protectedActorIds = if (skill.protectsUser) {
+				context.protectedActorIds + actorBeforeProtectionFamilyAction.actorId
+			} else {
+				context.protectedActorIds
+			},
+			successfulProtectionActorIds = context.successfulProtectionActorIds + actorBeforeProtectionFamilyAction.actorId,
 		)
 	}
 
 }
 
+private fun BattleSkillSlot.isProtectionFamilySkill(): Boolean =
+	protectsUser || enduresFatalDamage
+
 /**
  * 单个回合技能阶段的临时上下文。
  *
- * `state` 是不断推进的不可变战斗状态；`protectedActorIds` 保存本回合已经成功建立保护屏障的成员；
- * `successfulProtectionActorIds` 保存回合结束后应保留连续保护计数的成员。
+ * `state` 是不断推进的不可变战斗状态；`protectedActorIds` 保存本回合已经成功建立守住屏障的成员；
+ * `successfulProtectionActorIds` 保存回合结束后应保留连续保护类行动计数的成员，包括守住、看穿和挺住。
  * 这类回合内临时标记不进入 `BattleState`，避免被误认为跨回合持久状态，也方便后续扩展击掌奇袭、
  * 守住连续成功率、先制阻挡等同样只在当前回合有效的规则。
  */

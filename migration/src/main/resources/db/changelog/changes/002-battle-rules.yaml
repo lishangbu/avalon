@@ -9338,3 +9338,63 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code = 'aromatherapy';
+- changeSet:
+    id: 002-battle-rules-enable-detect-endure-skills
+    author: backend
+    comment: 启用看穿和挺住规则，并补充挺住致命技能伤害保留 1 HP 标记。
+    changes:
+    - addColumn:
+        tableName: battle_skill_rule
+        columns:
+        - column:
+            name: endures_fatal_damage
+            type: boolean
+            defaultValueBoolean: false
+            remarks: 技能是否在本回合让使用者承受致命技能伤害时至少保留 1 HP。
+            constraints:
+              nullable: false
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 看穿与守住在现代规则下共享保护屏障和连续成功率；只需要把资料行配置成同一类保护行动。
+          -- 挺住也共享连续保护成功率，但成功后不阻挡命中，只在本回合技能伤害会导致倒下时把使用者保留到 1 HP。
+          with enabled_skills(code) as (
+            values
+              ('detect'),
+              ('endure')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'protect-self',
+            target_policy = 'self',
+            hit_policy = 'protect-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = false,
+            protects_user = true,
+            endures_fatal_damage = false,
+            description = '保护类变化技能规则；本回合保护自己免受多数技能影响，并与守住、挺住共享连续成功率。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'detect';
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'endure-fatal-damage',
+            target_policy = 'self',
+            hit_policy = 'protect-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = false,
+            protects_user = false,
+            endures_fatal_damage = true,
+            description = '保护类变化技能规则；本回合不阻挡技能命中，但承受致命技能伤害时至少保留 1 HP，并共享连续成功率。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'endure';

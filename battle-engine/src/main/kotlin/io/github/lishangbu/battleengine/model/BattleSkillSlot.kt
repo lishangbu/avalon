@@ -18,8 +18,9 @@ package io.github.lishangbu.battleengine.model
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
  * `criticalHitStageBoost` 表示变化技能命中成功后给使用者写入的在场期间要害等级加成；聚气使用 +2，加成会和
  * 后续技能自身 [criticalHitStage] 相加。它保存在成员运行态上，离场时清除。
- * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
- * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
+ * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`enduresFatalDamage` 表示该技能在本回合让使用者
+ * 承受致命技能伤害时至少保留 1 HP；`affectedByProtect` 表示该技能命中目标时会被目标的保护屏障阻挡。
+ * 三者拆开建模，是为了把守住、挺住、佯攻、范围技能和穿透保护的特殊技能保持为明确的规则标签。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  * `soundBased` 表示声音类技能，现代规则中这类技能可以穿过替身影响目标。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
@@ -94,6 +95,7 @@ data class BattleSkillSlot(
 	val criticalHitStageBoost: Int = 0,
 	val affectedByProtect: Boolean = true,
 	val protectsUser: Boolean = false,
+	val enduresFatalDamage: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
 	val soundBased: Boolean = false,
 	val powderBased: Boolean = false,
@@ -260,6 +262,12 @@ data class BattleSkillSlot(
 			"rest healing requires a status skill"
 		}
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }
+		require(!enduresFatalDamage || damageClass == BattleDamageClass.STATUS) {
+			"fatal damage endure requires a status skill"
+		}
+		require(!(protectsUser && enduresFatalDamage)) {
+			"protect barrier and fatal damage endure must be configured as separate skill effects"
+		}
 		require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {
 			"burn attack reduction bypass requires a physical skill"
 		}

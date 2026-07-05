@@ -5,7 +5,7 @@ import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleStat
 
 /*
- * `BattleParticipant` 的能力阶级、连续保护、剧毒计数与离场清理操作。
+ * `BattleParticipant` 的能力阶级、保护类连续计数、挺住状态、剧毒计数与离场清理操作。
  *
  * 这些状态都属于成员在场期间的战斗修正。它们与 HP、技能 PP、主要异常状态分开，是为了让离场、能力变化和回合末
  * 持续效果可以独立维护，同时保持所有调用点仍通过 `participant.xxx()` 读取同一套领域语言。
@@ -43,10 +43,31 @@ fun BattleParticipant.statStage(stat: BattleStat): Int =
 /**
  * 标记本成员本回合成功使用保护类行动。
  *
- * `protectionChain` 表示连续成功保护次数，用于下一次保护类行动计算递减成功率。
+ * `protectionChain` 表示连续成功保护类行动次数，用于下一次守住、看穿、挺住等同族行动计算递减成功率。
  */
 fun BattleParticipant.markProtectionSuccess(): BattleParticipant =
 	copy(protectionChain = protectionChain + 1)
+
+/**
+ * 标记本成员本回合成功进入挺住姿态。
+ *
+ * 挺住和守住共享连续保护成功率，所以调用方必须先通过 [markProtectionSuccess] 推进连续计数，再写入本字段。
+ * 这里保存来源技能 ID，而不是只存布尔值，是为了在真正挡住致命伤害时能把 [io.github.lishangbu.battleengine.model.BattleEvent.FatalDamageSurvived]
+ * 的 `sourceId` 指向建立姿态的技能，便于 replay 和对照测试解释事件来源。
+ */
+fun BattleParticipant.markFatalDamageEndure(skillId: Long): BattleParticipant {
+	require(skillId > 0) { "skillId must be positive" }
+	return copy(fatalDamageEndureSkillId = skillId)
+}
+
+/**
+ * 清除本回合挺住姿态。
+ *
+ * 挺住只保护建立姿态的当回合技能伤害；回合末、离场或后续手动清理都必须调用本函数，避免下一回合仍然保留
+ * 致命伤害夹取能力。
+ */
+fun BattleParticipant.clearFatalDamageEndure(): BattleParticipant =
+	if (fatalDamageEndureSkillId == null) this else copy(fatalDamageEndureSkillId = null)
 
 /**
  * 清空连续保护计数。
@@ -82,6 +103,7 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		weightReduction = 0,
 		criticalHitStageBonus = 0,
 		protectionChain = 0,
+		fatalDamageEndureSkillId = null,
 		badPoisonCounter = if (majorStatus == BattleMajorStatus.BAD_POISON) 1 else 0,
 		chargingSkillId = null,
 		chargingTargetActorId = null,

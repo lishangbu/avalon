@@ -94,6 +94,8 @@ data class BattleSandboxStateSnapshot(
 		var weightReduction: Int = 0,
 		@field:Schema(description = "连续保护计数。", example = "0")
 		var protectionChain: Int = 0,
+		@field:Schema(description = "本回合挺住来源技能 ID；没有挺住姿态时为空。", nullable = true)
+		var fatalDamageEndureSkillId: Long? = null,
 		@field:Schema(description = "剧毒计数。", example = "0")
 		var badPoisonCounter: Int = 0,
 		@field:Schema(description = "睡眠剩余阻止行动次数。", example = "0")

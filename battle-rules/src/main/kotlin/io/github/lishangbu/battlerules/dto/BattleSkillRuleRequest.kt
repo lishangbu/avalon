@@ -29,6 +29,8 @@ data class BattleSkillRuleRequest(
 	var affectedByProtect: Boolean = true,
 	@field:Schema(description = "是否在本回合为使用者建立保护屏障。", example = "false")
 	var protectsUser: Boolean = false,
+	@field:Schema(description = "是否在本回合让使用者承受致命技能伤害时至少保留 1 HP。", example = "false")
+	var enduresFatalDamage: Boolean = false,
 	@field:Schema(description = "是否允许冰冻中的使用者发动并在行动前解除自身冰冻。", example = "false")
 	var thawsUserBeforeMove: Boolean = false,
 	@field:Schema(description = "是否属于会被青草场地削弱的地面震动类技能。", example = "false")

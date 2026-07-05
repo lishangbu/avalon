@@ -9,8 +9,9 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 体重、临时体重减轻量、是否接地、连续保护计数、剧毒计数、睡眠剩余阻止行动次数、技能蓄力计数、技能休整计数、技能锁招运行态、
- * 命中锁定目标、讲究类道具锁定技能、替身剩余 HP，以及畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、束缚等临时状态。
+ * 体重、临时体重减轻量、是否接地、连续保护计数、本回合挺住来源技能、剧毒计数、睡眠剩余阻止行动次数、
+ * 技能蓄力计数、技能休整计数、技能锁招运行态、命中锁定目标、讲究类道具锁定技能、替身剩余 HP，以及畏缩、
+ * 混乱、回复封锁、挑衅、定身法、无理取闹、束缚等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 成员快照状态不变量：
@@ -42,6 +43,7 @@ data class BattleParticipant(
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,
+	val fatalDamageEndureSkillId: Long? = null,
 	val badPoisonCounter: Int = 0,
 	val sleepTurnsRemaining: Int = 0,
 	val chargingSkillId: Long? = null,
@@ -93,6 +95,9 @@ data class BattleParticipant(
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(criticalHitStageBonus >= 0) { "criticalHitStageBonus must not be negative" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
+		require(fatalDamageEndureSkillId == null || fatalDamageEndureSkillId > 0) {
+			"fatalDamageEndureSkillId must be positive when present"
+		}
 		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
 		require(sleepTurnsRemaining >= 0) { "sleepTurnsRemaining must not be negative" }
 		require(chargingSkillId == null || chargingSkillId > 0) { "chargingSkillId must be positive when present" }

@@ -193,6 +193,39 @@ class BattleSkillRuleServiceTests(
 		assertThat(nonStatusProtect.status).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(nonStatusProtect.field).isEqualTo("protectsUser")
 
+		val nonStatusEndure = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 11,
+					effectPolicy = "test-invalid-endure",
+					targetPolicy = "selected-target",
+					hitPolicy = "standard-hit",
+					damagePolicy = "standard-damage",
+					enduresFatalDamage = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(nonStatusEndure.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(nonStatusEndure.field).isEqualTo("enduresFatalDamage")
+
+		val mixedProtectionEffects = assertThrows<ApiException> {
+			service.create(
+				BattleSkillRuleRequest(
+					skillId = 14,
+					effectPolicy = "test-invalid-protect-endure",
+					targetPolicy = "self",
+					hitPolicy = "protect-hit",
+					damagePolicy = "no-damage",
+					protectsUser = true,
+					enduresFatalDamage = true,
+					sortOrder = 10,
+				),
+			)
+		}
+		assertThat(mixedProtectionEffects.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(mixedProtectionEffects.field).isEqualTo("enduresFatalDamage")
+
 		val lockConfusion = assertThrows<ApiException> {
 			service.create(
 				BattleSkillRuleRequest(

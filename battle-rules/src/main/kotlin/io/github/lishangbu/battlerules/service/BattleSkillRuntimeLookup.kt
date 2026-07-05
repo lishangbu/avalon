@@ -53,6 +53,7 @@ class BattleSkillRuntimeLookup(
 				r.makes_contact,
 				r.affected_by_protect,
 				r.protects_user,
+				r.endures_fatal_damage,
 				r.thaws_user_before_move,
 				r.sound_based,
 				r.powder_based,
@@ -101,6 +102,7 @@ class BattleSkillRuntimeLookup(
 			criticalHitStageBoost = effectPolicy.criticalHitStageBoost(),
 			affectedByProtect = row.requiredBoolean(row.affectedByProtect, "affected_by_protect"),
 			protectsUser = row.requiredBoolean(row.protectsUser, "protects_user"),
+			enduresFatalDamage = row.requiredBoolean(row.enduresFatalDamage, "endures_fatal_damage"),
 			thawsUserBeforeMove = row.requiredBoolean(row.thawsUserBeforeMove, "thaws_user_before_move"),
 			soundBased = row.requiredBoolean(row.soundBased, "sound_based"),
 			powderBased = row.requiredBoolean(row.powderBased, "powder_based"),
@@ -178,6 +180,7 @@ private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
 		makesContact = nullableBoolean("makes_contact"),
 		affectedByProtect = nullableBoolean("affected_by_protect"),
 		protectsUser = nullableBoolean("protects_user"),
+		enduresFatalDamage = nullableBoolean("endures_fatal_damage"),
 		thawsUserBeforeMove = nullableBoolean("thaws_user_before_move"),
 		soundBased = nullableBoolean("sound_based"),
 		powderBased = nullableBoolean("powder_based"),
@@ -237,6 +240,7 @@ private fun SkillRuntimeRow.requireSupportedRuleValues() {
 	val lockMoveTurnsMinValue = requiredInt(lockMoveTurnsMin, "lock_move_turns_min")
 	val lockMoveTurnsMaxValue = requiredInt(lockMoveTurnsMax, "lock_move_turns_max")
 	val protectsUserValue = requiredBoolean(protectsUser, "protects_user")
+	val enduresFatalDamageValue = requiredBoolean(enduresFatalDamage, "endures_fatal_damage")
 	val chargesBeforeUseValue = requiredBoolean(chargesBeforeUse, "charges_before_use")
 	val rechargesAfterUseValue = requiredBoolean(rechargesAfterUse, "recharges_after_use")
 	val confusesUserAfterLockValue = requiredBoolean(confusesUserAfterLock, "confuses_user_after_lock")
@@ -257,6 +261,12 @@ private fun SkillRuntimeRow.requireSupportedRuleValues() {
 	}
 	if (protectsUserValue && damageClass != BattleDamageClass.STATUS) {
 		invalidValue("protectsUser", "只有变化类技能才能配置保护自身: skillId=$skillId")
+	}
+	if (enduresFatalDamageValue && damageClass != BattleDamageClass.STATUS) {
+		invalidValue("enduresFatalDamage", "只有变化类技能才能配置挺住类保留 HP: skillId=$skillId")
+	}
+	if (protectsUserValue && enduresFatalDamageValue) {
+		invalidValue("enduresFatalDamage", "保护屏障和挺住保留 HP 必须拆成不同技能效果: skillId=$skillId")
 	}
 	if (chargesBeforeUseValue && damageClass == BattleDamageClass.STATUS) {
 		invalidValue("chargesBeforeUse", "变化类技能不能配置蓄力后发动: skillId=$skillId")
@@ -325,6 +335,7 @@ private data class SkillRuntimeRow(
 	val makesContact: Boolean?,
 	val affectedByProtect: Boolean?,
 	val protectsUser: Boolean?,
+	val enduresFatalDamage: Boolean?,
 	val thawsUserBeforeMove: Boolean?,
 	val soundBased: Boolean?,
 	val powderBased: Boolean?,

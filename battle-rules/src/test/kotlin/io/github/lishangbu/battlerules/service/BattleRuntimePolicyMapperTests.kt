@@ -174,6 +174,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill endure policy maps fatal damage survival flag`() {
+		assertThat("endure-fatal-damage".enduresFatalDamage()).isTrue()
+		assertThat("endure-fatal-damage".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `side protection field policies map to protection kinds`() {
 		assertThat("side-stat-stage-reduction-protection".toBattleSideProtectionKind())
 			.isEqualTo(BattleSideProtectionKind.STAT_STAGE_REDUCTION)

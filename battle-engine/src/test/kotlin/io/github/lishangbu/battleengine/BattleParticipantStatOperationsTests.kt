@@ -41,6 +41,7 @@ class BattleParticipantStatOperationsTests {
 			majorStatus = BattleMajorStatus.BAD_POISON,
 			statStages = mapOf(BattleStat.ATTACK to 2),
 			protectionChain = 2,
+			fatalDamageEndureSkillId = 203,
 			badPoisonCounter = 5,
 			rechargeTurnsRemaining = 1,
 			flinched = true,
@@ -69,6 +70,7 @@ class BattleParticipantStatOperationsTests {
 		assertEquals(20, left.itemId)
 		assertEquals(0, left.statStage(BattleStat.ATTACK))
 		assertEquals(0, left.protectionChain)
+		assertNull(left.fatalDamageEndureSkillId)
 		assertEquals(0, left.rechargeTurnsRemaining)
 		assertFalse(left.flinched)
 		assertEquals(0, left.confusionTurnsRemaining)

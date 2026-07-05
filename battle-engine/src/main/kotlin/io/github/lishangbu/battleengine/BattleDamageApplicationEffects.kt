@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFatalDamageSurvivalSource
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
@@ -47,12 +48,19 @@ internal class BattleDamageApplicationEffects(
 		ignoreTargetAbilityEffects: Boolean,
 	): BattleTargetDamageApplication {
 		val skillLimitedDamageAmount = damageAmountAfterSkillTargetFloor(target, skill, damageAmount)
-		val survival = damageDefenseEffects.fatalDamageSurvival(
+		val endure = fatalDamageEndure(
 			state = state,
 			actor = actor,
 			target = target,
 			skill = skill,
 			damageAmount = skillLimitedDamageAmount,
+		)
+		val survival = damageDefenseEffects.fatalDamageSurvival(
+			state = state,
+			actor = actor,
+			target = endure.target,
+			skill = skill,
+			damageAmount = endure.damageAmount,
 			ignoreTargetAbilityEffects = ignoreTargetAbilityEffects,
 		)
 		val damagedTarget = survival.target.receiveDamage(survival.damageAmount)
@@ -72,6 +80,7 @@ internal class BattleDamageApplicationEffects(
 				),
 			)
 			.appendEvents(listOfNotNull(survival.event))
+			.appendEvents(listOfNotNull(endure.event))
 		return BattleTargetDamageApplication(
 			state = damagedState,
 			damagedTarget = damagedTarget,
@@ -227,6 +236,43 @@ internal class BattleDamageApplicationEffects(
 	}
 
 	/**
+	 * 在写入目标本体 HP 前应用挺住姿态。
+	 *
+	 * 挺住只影响当前回合的技能伤害，所以它挂在普通技能伤害写入入口，而不是通用 `receiveDamage` 或回合末伤害里。
+	 * 判断顺序放在满 HP 特性/道具保命之前：一旦挺住已经把致命伤害夹到剩余 1 HP，后续满 HP 保命来源就不应该再
+	 * 被触发或消耗。目标已经只有 1 HP 时，实际伤害会被夹到 0，但仍追加保命事件，用于表达本次攻击确实被挺住
+	 * 姿态拦下；吸取、反伤和低体力道具随后会因为实际伤害为 0 而自然短路。
+	 */
+	private fun fatalDamageEndure(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleFatalDamageEndureResult {
+		val endureSkillId = target.fatalDamageEndureSkillId
+		if (endureSkillId == null || damageAmount <= 0 || !target.canBattle() || damageAmount < target.currentHp) {
+			return BattleFatalDamageEndureResult(target = target, damageAmount = damageAmount)
+		}
+		val adjustedDamage = (target.currentHp - 1).coerceAtLeast(0)
+		return BattleFatalDamageEndureResult(
+			target = target,
+			damageAmount = adjustedDamage,
+			event = BattleEvent.FatalDamageSurvived(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				skillId = skill.skillId,
+				source = BattleFatalDamageSurvivalSource.SKILL,
+				sourceId = endureSkillId,
+				consumed = false,
+				incomingDamage = damageAmount,
+				preventedDamage = damageAmount - adjustedDamage,
+			),
+		)
+	}
+
+	/**
 	 * 处理技能成功造成伤害后移除使用者自身属性。
 	 *
 	 * 这个效果绑定在“本次技能动作已经造成实际伤害”之后，而不是目标本体 HP 是否下降之后：替身承受伤害同样说明
@@ -273,4 +319,17 @@ internal data class BattleTargetDamageApplication(
 	val state: BattleState,
 	val damagedTarget: BattleParticipant,
 	val actualDamageAmount: Int,
+)
+
+/**
+ * 挺住姿态处理后的伤害中间结果。
+ *
+ * [target] 当前不会被修改，但保留字段是为了和满 HP 保命结果保持一致；如果后续现代规则出现“挺住触发后清理某个
+ * 一次性状态”的情况，调用方无需再改返回形状。[damageAmount] 是实际要写入 HP 的伤害，[event] 只在挺住真正
+ * 抵消致命技能伤害时存在。
+ */
+private data class BattleFatalDamageEndureResult(
+	val target: BattleParticipant,
+	val damageAmount: Int,
+	val event: BattleEvent.FatalDamageSurvived? = null,
 )
