@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,6 +17,48 @@ import kotlin.test.assertEquals
  */
 class BattleMultiHitSkillTests {
 	private val engine = BattleEngine()
+
+	@Test
+	fun `multi hit skill stops after attacker faints from contact damage item`() {
+		val scenario = publicBattleRuleScenario(
+			name = "multi-hit-skill-stops-after-attacker-faints-from-contact-damage-item",
+			inputSummary = "固定 3 段接触类技能命中目标；攻击方当前 HP 10，目标携带按攻击方最大 HP 1/6 反伤的接触道具。",
+			expectedSummary = "第 1 段命中后攻击方因接触反伤倒下；后 2 段不再结算，也不再消费要害或伤害随机数。",
+		)
+		val skill = damagingSkill(name = "多段反伤测试", minHits = 3, maxHits = 3, makesContact = true)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant("multi-user", speed = 100, currentHp = 10, skill = skill),
+				second = participant(
+					"target",
+					speed = 50,
+					itemEffects = listOf(BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("multi-user", skillId = 1, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("multi-hit-skill-stops-after-attacker-faints-from-contact-damage-item")
+		assertEquals(3, resolved.events.filterIsInstance<BattleEvent.MultiHitCountDetermined>().single().hitCount)
+		assertEquals(listOf(28), resolved.events.filterIsInstance<BattleEvent.DamageApplied>().map { it.amount })
+		assertEquals(listOf(10), resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().map { it.amount })
+		assertEquals(0, resolved.participant("multi-user")?.currentHp)
+		assertEquals(72, resolved.participant("target")?.currentHp)
+		assertEquals("side-b", resolved.result?.winningSideId)
+		assertEquals(
+			listOf(
+				"critical hit for 1",
+				"damage random for 1",
+			),
+			random.consumedReasons(),
+		)
+	}
 
 	@Test
 	fun `multi hit skill consumes pp once and applies scripted hit count`() {
