@@ -57,10 +57,7 @@ class BattleFormatRuntimeLookup(
 			rules = BattleRuleSnapshot(
 				elementChart = elementChart,
 				elementIds = elementIds.requiredBattleRuleElementIds(),
-				maxParticipantLevel = restrictions
-					.filter { it.restrictionType == "LEVEL" && it.restrictionOperator == "MAX" }
-					.mapNotNull { it.operandNumber }
-					.minOrNull(),
+				maxParticipantLevel = restrictions.minimumPositiveOperand("LEVEL", "MAX"),
 				bannedCreatureIds = restrictions.bannedIds("CREATURE"),
 				bannedSkillIds = restrictions.bannedIds("SKILL"),
 				bannedAbilityIds = restrictions.bannedIds("ABILITY"),
@@ -120,20 +117,64 @@ class BattleFormatRuntimeLookup(
 		BattleMode.entries.firstOrNull { it.name == battleMode.uppercase(Locale.ROOT) }
 			?: invalidValue("battleMode", "不支持的战斗模式: $battleMode")
 
+	/**
+	 * 读取数值型赛制限制的最小正数操作数。
+	 *
+	 * 赛制限制是后台可维护资料，`LEVEL/MAX` 这类限制如果没有 `operandNumber`，运行时继续忽略会让“等级上限缺失”
+	 * 伪装成“没有等级上限”。这里对匹配到的限制逐条校验正数，再按现代官方规则取最严格的最小值。没有匹配限制
+	 * 时仍返回 null，表示该赛制确实没有配置这类规则。
+	 */
+	private fun List<BattleFormatRestriction>.minimumPositiveOperand(type: String, operator: String): Int? =
+		filter { it.restrictionType == type && it.restrictionOperator == operator }
+			.map { it.positiveOperandNumber("赛制限制 ${it.code}") }
+			.minOrNull()
+
 	private fun List<BattleFormatRestriction>.bannedIds(type: String): Set<Long> =
 		filter { it.restrictionType == type && it.restrictionOperator == "BAN" }
 			.flatMap { restriction ->
 				buildList {
-					restriction.operandNumber?.takeIf { it > 0 }?.let { add(it.toLong()) }
+					restriction.operandNumber?.let {
+						add(restriction.positiveOperandNumber("禁用限制 ${restriction.code}").toLong())
+					}
 					restriction.operandText
 						?.split(',', ';', ' ', '\n', '	')
 						.orEmpty()
-						.mapNotNull { it.trim().toLongOrNull() }
-						.filter { it > 0 }
+						.map { it.trim() }
+						.filter { it.isNotEmpty() }
+						.map { restriction.positiveOperandTextId(it) }
 						.forEach(::add)
 				}
 			}
 			.toSet()
+
+	/**
+	 * 校验并读取数值操作数。
+	 *
+	 * 禁用清单和等级上限都只接受正整数 ID/数值；0、负数或空值通常意味着 CSV/后台表单误填。如果这里继续跳过，
+	 * 队伍准备校验会把本应禁止的资料放行，问题会延迟到真实对战或赛事裁定阶段才暴露。
+	 */
+	private fun BattleFormatRestriction.positiveOperandNumber(context: String): Int {
+		val value = operandNumber ?: invalidValue("operandNumber", "$context 必须配置正数操作数")
+		if (value <= 0) {
+			invalidValue("operandNumber", "$context 操作数必须大于 0: $value")
+		}
+		return value
+	}
+
+	/**
+	 * 校验并读取文本禁用清单中的单个 ID。
+	 *
+	 * `operandText` 允许用逗号、分号、空白或换行维护多个 ID；拆分后的每个 token 都必须能解析为正整数。遇到坏
+	 * token 立刻失败，可以把错误定位到具体限制 code 和具体文本片段，而不是在运行时悄悄少禁一条资料。
+	 */
+	private fun BattleFormatRestriction.positiveOperandTextId(token: String): Long {
+		val value = token.toLongOrNull()
+			?: invalidValue("operandText", "禁用限制 $code 包含非数字操作数: $token")
+		if (value <= 0) {
+			invalidValue("operandText", "禁用限制 $code 操作数必须大于 0: $token")
+		}
+		return value
+	}
 
 	/**
 	 * 冻结引擎规则会直接按 code 读取的核心属性 ID。

@@ -128,6 +128,51 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `runtime snapshot rejects malformed format restriction operands`() {
+		withTemporaryFormatRestriction(
+			code = "runtime-invalid-level-cap",
+			restrictionType = "LEVEL",
+			restrictionOperator = "MAX",
+			operandText = null,
+			operandNumber = null,
+		) {
+			val missingLevelCap = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(missingLevelCap.field).isEqualTo("operandNumber")
+			assertThat(missingLevelCap.message).isEqualTo("赛制限制 runtime-invalid-level-cap 必须配置正数操作数")
+		}
+
+		withTemporaryFormatRestriction(
+			code = "runtime-invalid-ban-text",
+			restrictionType = "SKILL",
+			restrictionOperator = "BAN",
+			operandText = "1, bad-token",
+			operandNumber = null,
+		) {
+			val invalidBanText = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(invalidBanText.field).isEqualTo("operandText")
+			assertThat(invalidBanText.message).isEqualTo("禁用限制 runtime-invalid-ban-text 包含非数字操作数: bad-token")
+		}
+
+		withTemporaryFormatRestriction(
+			code = "runtime-non-positive-ban-text",
+			restrictionType = "ITEM",
+			restrictionOperator = "BAN",
+			operandText = "0",
+			operandNumber = null,
+		) {
+			val nonPositiveBanText = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(nonPositiveBanText.field).isEqualTo("operandText")
+			assertThat(nonPositiveBanText.message).isEqualTo("禁用限制 runtime-non-positive-ban-text 操作数必须大于 0: 0")
+		}
+	}
+
+	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
@@ -2691,6 +2736,35 @@ class BattleRuntimeSnapshotServiceTests(
 			{ rs, _ -> rs.getString("code") to rs.getLong("id") },
 		).toMap()
 
+	private fun withTemporaryFormatRestriction(
+		code: String,
+		restrictionType: String,
+		restrictionOperator: String,
+		operandText: String?,
+		operandNumber: Int?,
+		block: () -> Unit,
+	) {
+		jdbcTemplate.update("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
+		jdbcTemplate.update(
+			"""
+			insert into battle_format_restriction (
+				id, format_id, code, name, restriction_type, restriction_operator, operand_text, operand_number, description, enabled, sort_order
+			) values (?, 3, ?, '运行时限制操作数测试', ?, ?, ?, ?, '运行时限制操作数测试', true, 999999)
+			""".trimIndent(),
+			TEMP_FORMAT_RESTRICTION_ID,
+			code,
+			restrictionType,
+			restrictionOperator,
+			operandText,
+			operandNumber,
+		)
+		try {
+			block()
+		} finally {
+			jdbcTemplate.update("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
+		}
+	}
+
 	private fun withTemporaryAbilityPolicy(effectPolicy: String, block: () -> Unit) {
 		jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
 		jdbcTemplate.update(
@@ -3111,6 +3185,7 @@ class BattleRuntimeSnapshotServiceTests(
 		)
 
 	private companion object {
+		private const val TEMP_FORMAT_RESTRICTION_ID = 9_900_000L
 		private const val TEMP_ABILITY_RULE_ID = 9_900_001L
 		private const val TEMP_ITEM_RULE_ID = 9_900_002L
 		private const val TEMP_SKILL_RULE_ID = 9_900_003L
