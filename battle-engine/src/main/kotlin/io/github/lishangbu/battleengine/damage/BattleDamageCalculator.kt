@@ -64,8 +64,12 @@ class BattleDamageCalculator(
 
 		val levelFactor = (2 * request.attacker.level) / 5 + 2
 		val baseDamage = (((levelFactor * power * attackingStat) / defendingStat) / 50) + 2
-		val sameElementBonus = abilityModifiers.sameElementBonus(request, request.skillElementId)
-		val effectiveness = request.rules.elementChart.multiplier(request.skillElementId, request.defender.elementIds)
+		val sameElementBonus = if (request.skill.typelessDamage) {
+			1.0
+		} else {
+			abilityModifiers.sameElementBonus(request, request.skillElementId)
+		}
+		val effectiveness = request.typeEffectiveness
 		val criticalHitMultiplier = if (request.criticalHit) 1.5 else 1.0
 		val weatherMultiplier = environmentModifiers.weatherDamageMultiplier(request)
 		val terrainMultiplier = environmentModifiers.terrainDamageMultiplier(request)

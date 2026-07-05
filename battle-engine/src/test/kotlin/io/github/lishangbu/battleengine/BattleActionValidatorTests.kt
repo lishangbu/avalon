@@ -76,10 +76,11 @@ class BattleActionValidatorTests {
 			power = null,
 			hpEffects = listOf(BattleSkillHpEffect.SelfHealMaxHpFraction(numerator = 1, denominator = 2)),
 		)
+		val attackSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
 				first = participant("healer", speed = 100, currentHp = 30, skill = healingSkill)
-					.copy(healBlockTurnsRemaining = 2),
+					.copy(skillSlots = listOf(healingSkill, attackSkill), healBlockTurnsRemaining = 2),
 				second = participant("target", speed = 50),
 			),
 		)
@@ -101,10 +102,11 @@ class BattleActionValidatorTests {
 			damageClass = BattleDamageClass.STATUS,
 			power = null,
 		)
+		val attackSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
 				first = participant("taunted", speed = 100, skill = statusSkill)
-					.copy(tauntTurnsRemaining = 2),
+					.copy(skillSlots = listOf(statusSkill, attackSkill), tauntTurnsRemaining = 2),
 				second = participant("target", speed = 50),
 			),
 		)
@@ -145,10 +147,11 @@ class BattleActionValidatorTests {
 	@Test
 	fun `reports torment prevents repeated skill selection`() {
 		val repeatedSkill = damagingSkill(skillId = 259, name = "无理取闹")
+		val attackSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
 				first = participant("tormented", speed = 100, skill = repeatedSkill)
-					.copy(tormented = true, lastSuccessfulSkillId = 259),
+					.copy(skillSlots = listOf(repeatedSkill, attackSkill), tormented = true, lastSuccessfulSkillId = 259),
 				second = participant("target", speed = 50),
 			),
 		)
@@ -165,9 +168,13 @@ class BattleActionValidatorTests {
 	@Test
 	fun `reports duplicate skill pp choice lock and target violations`() {
 		val emptySkill = damagingSkill(skillId = 1).copy(remainingPp = 0, maxPp = 35)
+		val selectableChoiceSkill = damagingSkill(skillId = 2, name = "可选锁定技能")
 		val state = engine.start(
 			initialState(
-				first = participant("locked", speed = 100, skill = emptySkill).copy(choiceLockedSkillId = 2),
+				first = participant("locked", speed = 100, skill = emptySkill).copy(
+					skillSlots = listOf(emptySkill, selectableChoiceSkill),
+					choiceLockedSkillId = 2,
+				),
 				second = participant("target", speed = 50),
 			),
 		)
@@ -191,6 +198,30 @@ class BattleActionValidatorTests {
 			),
 			violations.map { it.code },
 		)
+	}
+
+	@Test
+	fun `allows skill submission when all carried skills must become struggle`() {
+		val scenario = publicBattleRuleScenario(
+			name = "action-validator-all-skills-unselectable-allows-struggle-fallback",
+			inputSummary = "上场成员所有技能 PP 都已经耗尽，接口仍提交一个技能行动并带有占位目标。",
+			expectedSummary = "提交阶段不返回技能 PP 或目标错误；正式回合会把该行动改为内置挣扎。",
+		)
+		val exhaustedSkill = damagingSkill(skillId = 1).copy(remainingPp = 0, maxPp = 35)
+		val state = engine.start(
+			initialState(
+				first = participant("empty-pp", speed = 100, skill = exhaustedSkill),
+				second = participant("target", speed = 50),
+			),
+		)
+
+		val violations = validator.validate(
+			state,
+			listOf(BattleAction.UseSkill("empty-pp", skillId = 1, targetActorId = "missing-placeholder")),
+		)
+
+		scenario.assertNamed("action-validator-all-skills-unselectable-allows-struggle-fallback")
+		assertEquals(emptyList(), violations)
 	}
 
 	@Test

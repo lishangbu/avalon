@@ -32,6 +32,9 @@ internal class BattleDamageDefenseEffects {
 		skillElementId: Long,
 		effectiveness: Double,
 	): BattleHeldItemDamageReduction? {
+		if (skill.typelessDamage) {
+			return null
+		}
 		val itemId = target.itemId ?: return null
 		val effect = target.itemEffects
 			.filterIsInstance<BattleItemEffect.ElementDamageReduction>()

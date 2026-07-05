@@ -116,7 +116,7 @@ internal class BattleDamageAbilityModifiers {
 		request.attacker.abilityEffects.fold(1.0) { multiplier, effect ->
 			when (effect) {
 				is BattleAbilityEffect.ElementSkillDamageBoost ->
-					if (request.skillElementId in effect.elementIds) {
+					if (!request.skill.typelessDamage && request.skillElementId in effect.elementIds) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
@@ -127,6 +127,7 @@ internal class BattleDamageAbilityModifiers {
 							request.attacker.maxHp * effect.hpThresholdNumerator
 					if (
 						hpAtOrBelowThreshold &&
+						!request.skill.typelessDamage &&
 						request.skillElementId == effect.elementId
 					) {
 						multiplier * effect.multiplier
@@ -137,6 +138,7 @@ internal class BattleDamageAbilityModifiers {
 				is BattleAbilityEffect.WeatherElementDamageBoost ->
 					if (
 						request.environment.weather == effect.weather &&
+						!request.skill.typelessDamage &&
 						request.skillElementId in effect.elementIds
 					) {
 						multiplier * effect.multiplier
@@ -165,7 +167,7 @@ internal class BattleDamageAbilityModifiers {
 		if (request.ignoreDefenderAbilityEffects) {
 			1.0
 		} else {
-			val effectiveness = request.rules.elementChart.multiplier(request.skillElementId, request.defender.elementIds)
+			val effectiveness = request.typeEffectiveness
 			request.defender.abilityEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {
 					is BattleAbilityEffect.SoundBasedSkillDamageReduction ->

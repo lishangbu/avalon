@@ -167,6 +167,9 @@ internal class BattleSkillBlockEffects(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState? {
+		if (skill.typelessDamage) {
+			return null
+		}
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbHeal>()
 			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }
@@ -216,6 +219,9 @@ internal class BattleSkillBlockEffects(
 		target: BattleParticipant,
 		skill: BattleSkillSlot,
 	): BattleState? {
+		if (skill.typelessDamage) {
+			return null
+		}
 		val effect = target.abilityEffects
 			.filterIsInstance<BattleAbilityEffect.ElementSkillAbsorbStatStage>()
 			.firstOrNull { it.elementId == skill.effectiveElementId(state.environment.weather, state.environment.terrain) }

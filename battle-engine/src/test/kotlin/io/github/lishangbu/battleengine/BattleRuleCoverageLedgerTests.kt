@@ -462,6 +462,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleLockedMoveTests",
 					"io.github.lishangbu.battleengine.BattleMultiHitSkillTests",
 					"io.github.lishangbu.battleengine.BattleRechargeSkillTests",
+					"io.github.lishangbu.battleengine.BattleStruggleTests",
 				),
 			),
 			CoverageGroup(

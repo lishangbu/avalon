@@ -61,10 +61,12 @@ class BattleHealBlockTests {
 			inputSummary = "处于回复封锁且未满 HP 的成员尝试使用自我回复变化技能。",
 			expectedSummary = "技能在 PP 消耗前失败，成员 HP 不变，并产生回复封锁阻止事件。",
 		)
+		val blockedSkill = recoverSkill()
+		val otherSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
-				first = participant("healer", speed = 100, currentHp = 30, skill = recoverSkill())
-					.copy(healBlockTurnsRemaining = 2),
+				first = participant("healer", speed = 100, currentHp = 30, skill = blockedSkill)
+					.copy(skillSlots = listOf(blockedSkill, otherSkill), healBlockTurnsRemaining = 2),
 				second = participant("observer", speed = 50),
 			),
 		)
@@ -92,10 +94,12 @@ class BattleHealBlockTests {
 			inputSummary = "处于回复封锁且未满 HP 的成员尝试使用吸取回复类伤害技能。",
 			expectedSummary = "吸取类技能在 PP 消耗前失败，目标不受伤害，使用者也不会回复 HP。",
 		)
+		val blockedSkill = drainSkill()
+		val otherSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
-				first = participant("drain-user", speed = 100, currentHp = 20, skill = drainSkill())
-					.copy(healBlockTurnsRemaining = 2),
+				first = participant("drain-user", speed = 100, currentHp = 20, skill = blockedSkill)
+					.copy(skillSlots = listOf(blockedSkill, otherSkill), healBlockTurnsRemaining = 2),
 				second = participant("target", speed = 50),
 			),
 		)
@@ -121,10 +125,12 @@ class BattleHealBlockTests {
 			inputSummary = "处于回复封锁且未满 HP 的成员，尝试使用会治愈目标主要异常并回复自己的变化技能。",
 			expectedSummary = "技能在 PP 消耗前被回复封锁阻止；目标异常不被清除，使用者也不会回复 HP。",
 		)
+		val blockedSkill = purifyLikeSkill()
+		val otherSkill = damagingSkill(skillId = 1, name = "可选攻击")
 		val state = engine.start(
 			initialState(
-				first = participant("purify-user", speed = 100, currentHp = 30, skill = purifyLikeSkill())
-					.copy(healBlockTurnsRemaining = 2),
+				first = participant("purify-user", speed = 100, currentHp = 30, skill = blockedSkill)
+					.copy(skillSlots = listOf(blockedSkill, otherSkill), healBlockTurnsRemaining = 2),
 				second = participant("target", speed = 50).copy(majorStatus = BattleMajorStatus.BURN),
 			),
 		)

@@ -29,6 +29,9 @@ package io.github.lishangbu.battleengine.model
  * 这个字段刻意把“接地”写进名称，因为现代场地规则通常只影响接触地面的成员，和只要求场地存在的技能规则不同。
  * `conditionalPowerMultipliers` 表示按使用者状态、目标状态、目标 HP 或使用者道具状态触发的公式前威力倍率。
  * `dynamicPower` 表示本次伤害公式使用的基础威力需要从战斗快照推导，例如读取能力阶级总和。
+ * `typelessDamage` 表示该技能虽然仍有一个资料层基础属性 ID，但本次普通伤害按“无属性伤害”处理：不获得属性一致
+ * 加成、不读取属性克制倍率，也不触发指定属性吸收、指定属性增伤或指定属性减伤道具。现代挣扎就是这种规则形态；
+ * 把它做成显式布尔值，是为了避免用一个不存在的属性编号伪装无属性，导致未来道具或特性误把它当成普通属性技能。
  * `elementOverridesByWeather` 表示指定天气下技能本次结算使用的属性覆盖，例如气象球在晴天变为火属性。
  * `elementOverridesByTerrain` 表示指定场地下技能本次结算使用的属性覆盖，例如场地脉冲在电气场地变为电属性。
  * `ignoresUserBurnAttackReduction` 表示该物理技能在使用者灼伤时仍使用正常攻击值，例如硬撑。
@@ -86,6 +89,7 @@ data class BattleSkillSlot(
 	val groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double> = emptyMap(),
 	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	val dynamicPower: BattleSkillDynamicPower? = null,
+	val typelessDamage: Boolean = false,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
 	val ignoresUserBurnAttackReduction: Boolean = false,
@@ -166,6 +170,9 @@ data class BattleSkillSlot(
 		}
 		require(dynamicPower == null || damageClass != BattleDamageClass.STATUS) {
 			"dynamic power requires a damaging skill"
+		}
+		require(!typelessDamage || damageClass != BattleDamageClass.STATUS) {
+			"typeless damage requires a damaging skill"
 		}
 		require(!removesUserElementAfterDamage || damageClass != BattleDamageClass.STATUS) {
 			"user element removal requires a damaging skill"

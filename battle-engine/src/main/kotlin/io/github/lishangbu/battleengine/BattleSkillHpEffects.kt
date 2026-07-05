@@ -50,10 +50,10 @@ internal class BattleSkillHpEffects {
 	/**
 	 * 处理造成伤害后的技能 HP 效果。
 	 *
-	 * 当前支持两类直接绑定在技能上的 HP 后效：按本次实际伤害吸取回复使用者，以及按本次实际伤害让使用者承受
-	 * 反作用伤害。调用方负责保证该函数位于伤害事件之后、目标低体力道具和接触类反制之前；这样事件流能直接表达
-	 * “本段真实扣掉了多少 HP，随后技能自身基于该数值造成了什么”。如果本段没有造成实际伤害，或使用者已经无法
-	 * 战斗，则不产生技能 HP 后效事件。
+	 * 当前支持三类直接绑定在伤害技能上的 HP 后效：按本次实际伤害吸取回复使用者、按本次实际伤害让使用者承受
+	 * 反作用伤害，以及按使用者最大 HP 让使用者承受固定比例代价。调用方负责保证该函数位于伤害事件之后、目标
+	 * 低体力道具和接触类反制之前；这样事件流能直接表达“本段真实扣掉了多少 HP，随后技能自身基于哪个数值产生
+	 * HP 变化”。如果本段没有造成实际伤害，或使用者已经无法战斗，则不产生技能 HP 后效事件。
 	 */
 	fun applyPostDamageSkillHpEffects(
 		state: BattleState,
@@ -80,6 +80,13 @@ internal class BattleSkillHpEffects {
 						actorId = actorId,
 						skill = skill,
 						damageAmount = damageAmount,
+						numerator = effect.numerator,
+						denominator = effect.denominator,
+					)
+					is BattleSkillHpEffect.RecoilByUserMaxHp -> applySkillMaxHpCostDamage(
+						state = current,
+						actorId = actorId,
+						skill = skill,
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
@@ -253,6 +260,44 @@ internal class BattleSkillHpEffects {
 					skillId = skill.skillId,
 					amount = recoilAmount,
 					sourceDamageAmount = damageAmount,
+				),
+			)
+	}
+
+	/**
+	 * 按使用者最大 HP 让使用者承受技能自身代价伤害。
+	 *
+	 * 现代挣扎的自损并不是普通“按目标实际伤害反作用”的规则：目标只要确实受到了伤害，使用者就按自己的最大 HP
+	 * 计算固定比例自损；反作用伤害免疫和泛用间接伤害免疫都不阻止该代价。这里仍复用
+	 * [BattleEvent.SkillRecoilDamageApplied]，并把 `sourceDamageAmount` 写成使用者最大 HP，表示本次自损的计算基数。
+	 * 这样 replay 和对照测试无需新增事件类型也能确认它没有错误读取目标实际损失 HP。
+	 */
+	private fun applySkillMaxHpCostDamage(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+		numerator: Int,
+		denominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
+		}
+		val recoilAmount = roundedHalfUpFractionAmount(actor.maxHp, numerator, denominator)
+			.coerceAtLeast(1)
+			.coerceAtMost(actor.currentHp)
+		if (recoilAmount <= 0) {
+			return state
+		}
+		return state
+			.replaceParticipant(actor.receiveDamage(recoilAmount))
+			.appendEvent(
+				BattleEvent.SkillRecoilDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = recoilAmount,
+					sourceDamageAmount = actor.maxHp,
 				),
 			)
 	}

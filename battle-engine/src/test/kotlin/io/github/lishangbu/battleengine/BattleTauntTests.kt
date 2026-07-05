@@ -60,10 +60,12 @@ class BattleTauntTests {
 			inputSummary = "处于挑衅的成员尝试使用变化分类技能。",
 			expectedSummary = "变化技能在 PP 消耗前失败，成员不会产生技能使用事件。",
 		)
+		val blockedSkill = statusSkill()
+		val otherSkill = fixedDamageSkill()
 		val state = engine.start(
 			initialState(
-				first = participant("taunted", speed = 100, skill = statusSkill())
-					.copy(tauntTurnsRemaining = 2),
+				first = participant("taunted", speed = 100, skill = blockedSkill)
+					.copy(skillSlots = listOf(blockedSkill, otherSkill), tauntTurnsRemaining = 2),
 				second = participant("observer", speed = 50),
 			),
 		)

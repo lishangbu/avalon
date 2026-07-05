@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 
@@ -33,3 +34,27 @@ internal fun healBlockPreventsSkill(skill: BattleSkillSlot): Boolean =
  */
 internal fun tauntPreventsSkill(skill: BattleSkillSlot): Boolean =
 	skill.damageClass == BattleDamageClass.STATUS
+
+/**
+ * 判断成员当前是否没有任何可由玩家正常提交的技能。
+ *
+ * 现代规则中，所有技能都因为 PP、讲究锁定、回复封锁、挑衅、定身法或无理取闹等选择限制而不可选时，成员不会
+ * 因为接口提交了某个原技能而直接报错；正式回合会自动改用内置的“挣扎”行动。把这个谓词放在共享选择限制文件中，
+ * 可以让提交校验和行动规划使用完全一致的口径，避免管理端认为可提交、引擎却仍尝试消费原技能 PP。
+ */
+internal fun BattleParticipant.mustUseStruggle(): Boolean =
+	skillSlots.none { skill -> canSubmitSkill(skill) }
+
+/**
+ * 判断单个技能槽当前是否能作为普通提交技能使用。
+ *
+ * 这里只覆盖已经建模为“选择阶段限制”的条件；睡眠、麻痹、混乱、保护、命中、属性免疫等会产生回放事件的运行时
+ * 条件仍留在回合结算阶段处理，不参与“是否强制挣扎”的选择集合。
+ */
+private fun BattleParticipant.canSubmitSkill(skill: BattleSkillSlot): Boolean =
+	skill.remainingPp > 0 &&
+		!choiceLockedToAnotherSkill(skill.skillId) &&
+		!(healBlockTurnsRemaining > 0 && healBlockPreventsSkill(skill)) &&
+		!(tauntTurnsRemaining > 0 && tauntPreventsSkill(skill)) &&
+		!(disabledSkillTurnsRemaining > 0 && disabledSkillId == skill.skillId) &&
+		!(tormented && lastSuccessfulSkillId == skill.skillId)

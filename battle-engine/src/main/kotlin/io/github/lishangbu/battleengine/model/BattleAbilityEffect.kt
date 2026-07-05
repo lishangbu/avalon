@@ -141,8 +141,9 @@ sealed interface BattleAbilityEffect {
 	 * 比例自损”的反作用伤害，不阻止携带道具反伤、混乱自伤、入场陷阱、异常状态、天气或其它间接伤害。
 	 * 因此它比 [IndirectDamageImmunity] 范围更窄：拥有者仍会正常受到伤害增幅道具造成的最大 HP 固定反伤。
 	 *
-	 * 公开现代规则中挣扎等特殊技能的自损不被这类特性阻止；当前引擎尚未建模挣扎的专用伤害来源，所以该例外
-	 * 会在加入对应技能来源时通过更细的 HP effect 或来源标记接入，而不是在这里判断技能名称。
+	 * 公开现代规则中挣扎等特殊技能的自损不被这类特性阻止；引擎通过
+	 * [BattleSkillHpEffect.RecoilByUserMaxHp] 表达这类“按使用者最大 HP 支付代价”的来源，因此这里不需要判断技能
+	 * 名称，也不会把该代价误当作普通反作用伤害阻止。
 	 */
 	object SkillRecoilDamageImmunity : BattleAbilityEffect
 

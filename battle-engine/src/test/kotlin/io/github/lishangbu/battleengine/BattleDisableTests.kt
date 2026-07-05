@@ -65,10 +65,16 @@ class BattleDisableTests {
 			inputSummary = "成员处于定身法状态，并尝试使用被禁用的技能。",
 			expectedSummary = "被禁用技能在 PP 消耗前失败，成员不会产生技能使用事件。",
 		)
+		val disabledSkill = fixedDamageSkill(1)
+		val otherSkill = fixedDamageSkill(2)
 		val state = engine.start(
 			initialState(
-				first = participant("disabled", speed = 100, skill = fixedDamageSkill(1))
-					.copy(disabledSkillId = 1, disabledSkillTurnsRemaining = 2),
+				first = participant("disabled", speed = 100, skill = disabledSkill)
+					.copy(
+						skillSlots = listOf(disabledSkill, otherSkill),
+						disabledSkillId = 1,
+						disabledSkillTurnsRemaining = 2,
+					),
 				second = participant("target", speed = 50),
 			),
 		)

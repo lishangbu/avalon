@@ -28,7 +28,7 @@ internal class BattleDamageItemModifiers {
 					multiplier
 				}
 				is BattleItemEffect.ElementDamageBoost ->
-					if (request.skillElementId == effect.elementId) {
+					if (!request.skill.typelessDamage && request.skillElementId == effect.elementId) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier
@@ -55,10 +55,7 @@ internal class BattleDamageItemModifiers {
 			when (effect) {
 				is BattleItemEffect.DamageBoostWithRecoil -> multiplier * effect.multiplier
 				is BattleItemEffect.SuperEffectiveDamageBoost -> if (
-					request.rules.elementChart.multiplier(
-						request.skillElementId,
-						request.defender.elementIds,
-					) > 1.0
+					request.typeEffectiveness > 1.0
 				) {
 					multiplier * effect.multiplier
 				} else {
@@ -78,10 +75,13 @@ internal class BattleDamageItemModifiers {
 		if (!request.allowDefenderItemDamageReduction) {
 			1.0
 		} else {
-			val effectiveness = request.rules.elementChart.multiplier(request.skillElementId, request.defender.elementIds)
+			val effectiveness = request.typeEffectiveness
 			request.defender.itemEffects.fold(1.0) { multiplier, effect ->
 				when (effect) {
-					is BattleItemEffect.ElementDamageReduction -> if (effect.matches(request.skillElementId, effectiveness)) {
+					is BattleItemEffect.ElementDamageReduction -> if (
+						!request.skill.typelessDamage &&
+						effect.matches(request.skillElementId, effectiveness)
+					) {
 						multiplier * effect.multiplier
 					} else {
 						multiplier

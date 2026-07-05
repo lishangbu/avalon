@@ -62,10 +62,12 @@ class BattleTormentTests {
 			inputSummary = "成员处于无理取闹状态，上一回合成功使用过技能 1，本回合再次尝试技能 1。",
 			expectedSummary = "重复技能在 PP 消耗前失败，成员不会产生技能使用事件，最近成功技能保持不变。",
 		)
+		val repeatedSkill = fixedDamageSkill(1)
+		val otherSkill = fixedDamageSkill(2)
 		val state = engine.start(
 			initialState(
-				first = participant("tormented", speed = 100, skill = fixedDamageSkill(1))
-					.copy(tormented = true, lastSuccessfulSkillId = 1),
+				first = participant("tormented", speed = 100, skill = repeatedSkill)
+					.copy(skillSlots = listOf(repeatedSkill, otherSkill), tormented = true, lastSuccessfulSkillId = 1),
 				second = participant("target", speed = 50),
 			),
 		)

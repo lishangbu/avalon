@@ -227,9 +227,11 @@ class BattleValidationPublicReferenceTests {
 			expectedSummary = "行动提交校验返回 skill-no-pp；该行动不应进入正式回合状态机。",
 		)
 		val emptySkill = damagingSkill(skillId = 1).copy(remainingPp = 0, maxPp = 35)
+		val availableSkill = damagingSkill(skillId = 2, name = "可选攻击")
 		val state = engine.start(
 			initialState(
-				first = participant("empty-pp", speed = 100, skill = emptySkill),
+				first = participant("empty-pp", speed = 100, skill = emptySkill)
+					.copy(skillSlots = listOf(emptySkill, availableSkill)),
 				second = participant("target", speed = 80),
 			),
 		)

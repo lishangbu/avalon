@@ -7,6 +7,7 @@ package io.github.lishangbu.battleengine.model
  * 当前覆盖现代主系列中最稳定、最常见的 HP 效果：
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例回复。
  * - 造成普通伤害后，使用者按本次实际伤害的一定比例承受反作用伤害。
+ * - 造成普通伤害后，使用者按自身最大 HP 的一定比例承受技能代价伤害。
  * - 变化技能成功后，使用者按自身最大 HP 的一定比例回复。
  * - 变化技能成功后，按当前天气选择最大 HP 回复比例。
  * - 变化技能成功后，实际目标按目标最大 HP 的一定比例回复。
@@ -62,6 +63,25 @@ sealed interface BattleSkillHpEffect {
 	 * 因此该效果和回复类效果分开建模，避免复用向下取整的回复计算。
 	 */
 	data class RecoilByDamageDealt(
+		val numerator: Int,
+		val denominator: Int,
+	) : BattleSkillHpEffect {
+		init {
+			require(numerator > 0) { "numerator must be positive" }
+			require(denominator > 0) { "denominator must be positive" }
+			require(numerator <= denominator) { "numerator must not exceed denominator" }
+		}
+	}
+
+	/**
+	 * 造成伤害后按使用者最大 HP 的比例伤害使用者。
+	 *
+	 * 该效果用于表达现代挣扎这类“技能成功造成伤害后，使用者固定损失自身最大 HP 一部分”的特殊代价。它和
+	 * [RecoilByDamageDealt] 分开，是因为两个规则的来源完全不同：普通反作用伤害以目标实际损失 HP 为基数，并且
+	 * 可被反作用伤害免疫特性阻止；本效果以使用者最大 HP 为基数，属于技能代价，不读取目标损失量，也不受反作用
+	 * 免疫特性阻止。数值同样采用四舍五入到最近整数、最少 1 点的现代口径。
+	 */
+	data class RecoilByUserMaxHp(
 		val numerator: Int,
 		val denominator: Int,
 	) : BattleSkillHpEffect {

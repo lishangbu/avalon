@@ -17,8 +17,9 @@ import io.github.lishangbu.battleengine.model.BattleSkillSlot
  * 防守方一次性减伤道具不参与公式，也不会被消费。
  * `attackerEffectiveSpeed` 和 `defenderEffectiveSpeed` 只服务于电球、陀螺球这类按有效速度差推导基础威力的技能；
  * 由外层状态机使用行动排序同一套速度公式计算后传入，避免伤害计算器重新实现天气、场地、道具和顺风等速度规则。
- * [skillElementId] 在请求创建时冻结本次技能的有效属性，包含天气球、场地脉冲等天气/场地属性覆盖；伤害公式、
- * 特性倍率、道具倍率和属性克制都读取同一个值，避免同一次伤害结算中多个调用点各自重新解释环境覆盖。
+ * [skillElementId] 在请求创建时冻结本次技能的有效属性，包含天气球、场地脉冲等天气/场地属性覆盖；非无属性
+ * 伤害的公式、特性倍率、道具倍率和属性克制都读取同一个值，避免同一次伤害结算中多个调用点各自重新解释环境覆盖。
+ * [typeEffectiveness] 则把“无属性伤害固定中性倍率”这条例外也冻结在请求上，避免公式、特性和道具各自重复判断。
  */
 data class BattleDamageRequest(
 	val attacker: BattleParticipant,
@@ -55,4 +56,13 @@ data class BattleDamageRequest(
 	 * 天气/场地覆盖结果，后续新增属性覆盖来源时也只需要维护 [BattleSkillSlot.effectiveElementId]。
 	 */
 	val skillElementId: Long = skill.effectiveElementId(environment.weather, environment.terrain)
+
+	/**
+	 * 本次普通伤害公式使用的属性克制倍率。
+	 *
+	 * 普通技能从规则快照读取属性相性；无属性伤害固定视为 1.0。把该值作为请求派生属性，可以让伤害公式、防守方
+	 * 效果绝佳减伤、攻击方效果绝佳增伤等读取同一口径，避免某个分支忘记现代挣扎这类无属性技能不参与属性相性。
+	 */
+	val typeEffectiveness: Double =
+		if (skill.typelessDamage) 1.0 else rules.elementChart.multiplier(skillElementId, defender.elementIds)
 }

@@ -697,9 +697,9 @@ sealed interface BattleEvent {
 	/**
 	 * 技能自身反作用让使用者承受了 HP 伤害。
 	 *
-	 * 该事件专门表示带反作用伤害的普通攻击这类“技能本身带来的自损”，与携带道具产生的
-	 * [RecoilDamageApplied] 分开。`sourceDamageAmount` 记录目标本次实际损失的 HP，便于 replay 和对照测试
-	 * 确认反作用基数没有使用溢出公式伤害。
+	 * 该事件专门表示“技能本身带来的自损”，与携带道具产生的 [RecoilDamageApplied] 分开。普通反作用伤害会把
+	 * `sourceDamageAmount` 记录为目标本次实际损失的 HP，便于 replay 和对照测试确认反作用基数没有使用溢出公式
+	 * 伤害；现代挣扎这类按使用者最大 HP 计算的技能代价，则把该字段记录为使用者最大 HP，表示本次自损的计算基数。
 	 */
 	data class SkillRecoilDamageApplied(
 		override val turnNumber: Int,

@@ -41,7 +41,7 @@ internal class BattleSkillUseSetupResolution(
 		val beforeMoveContext = beforeMoveOutcome.context
 		val actionState = beforeMoveContext.state
 		val readyActor = actionState.participant(action.actorId) ?: return SkillUseSetupResult.Stopped(beforeMoveContext)
-		val skill = readyActor.skillSlot(action.skillId) ?: return SkillUseSetupResult.Stopped(beforeMoveContext)
+		val skill = plan.skill
 		val targets = resolveTargetsForReadySkill(actionState, action, readyActor, skill, random)
 			?: return SkillUseSetupResult.Stopped(
 				beforeMoveContext.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
@@ -233,7 +233,9 @@ internal class BattleSkillUseSetupResolution(
 			SkillActionSource.CHARGED_RELEASE -> copy(
 				state = chargeMoves.endAfterDisruption(state, actorId, skill),
 			)
-			SkillActionSource.SUBMITTED -> this
+			SkillActionSource.SUBMITTED,
+			SkillActionSource.STRUGGLE_FALLBACK,
+			-> this
 		}
 
 	/**
