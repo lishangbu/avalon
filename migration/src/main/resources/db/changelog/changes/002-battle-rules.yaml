@@ -8640,3 +8640,35 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code in ('counter', 'mirror-coat', 'metal-burst')
+- changeSet:
+    id: 002-battle-rules-disable-latest-unusable-skills
+    author: backend
+    comment: 将最新版资料明确标记为无法使用的技能从现代战斗规则入口中禁用。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- game_skill_detail 保存的是当前导入资料对技能可用性的最终中文描述。
+          -- 一旦最新版说明写明“无法使用这个技能”，该技能就不应继续作为现代主系列规则的可选动作进入队伍准备或战斗运行态。
+          -- 这里保留 game_skill 与 battle_skill_rule 的行，便于管理端审计历史资料和规则推导结果；只关闭 enabled，
+          -- 避免接口层、运行态装配层或后续批量派生逻辑把这些旧动作重新当作生产可用技能。
+          update battle_skill_rule r
+          set
+            enabled = false,
+            description = '最新版资料明确标记为无法使用；保留规则行仅用于资料审计，现代战斗运行态不可选择。'
+          from game_skill_detail d
+          where d.skill_id = r.skill_id
+            and (
+              coalesce(d.flavor_text, '') like '%无法使用这个技能%'
+              or coalesce(d.effect, '') like '%无法使用这个技能%'
+            );
+
+          update game_skill s
+          set enabled = false
+          from game_skill_detail d
+          where d.skill_id = s.id
+            and (
+              coalesce(d.flavor_text, '') like '%无法使用这个技能%'
+              or coalesce(d.effect, '') like '%无法使用这个技能%'
+            );

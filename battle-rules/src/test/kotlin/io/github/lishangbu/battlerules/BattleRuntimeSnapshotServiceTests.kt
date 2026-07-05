@@ -236,20 +236,19 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				2, 3, 5, 7, 12, 14, 15, 20, 23, 28, 32, 36, 37, 38, 39, 40, 45, 47, 49, 50, 57, 63, 69,
-				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 82, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 243, 252, 259, 261, 263, 265, 269,
-				283, 305, 311, 319, 329, 344, 347, 349, 358, 360, 362, 366, 368, 386, 390, 400, 427, 433, 435, 446, 447, 456, 457,
-				464, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 733, 803, 804, 805, 819, 875, 877,
+				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 57, 63, 69,
+				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
+				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 243, 252, 259, 261, 263, 269,
+				283, 305, 311, 319, 329, 344, 347, 349, 360, 362, 366, 368, 390, 400, 427, 433, 435, 446, 447, 457,
+				464, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 717, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
 			),
 		)
 			.associateBy { it.skillId }
 
-		assertThat(slots.getValue(2).criticalHitStage).isEqualTo(1)
-		val doubleSlap = slots.getValue(3)
-		assertThat(doubleSlap.minHits).isEqualTo(2)
-		assertThat(doubleSlap.maxHits).isEqualTo(5)
+		val furyAttack = slots.getValue(31)
+		assertThat(furyAttack.minHits).isEqualTo(2)
+		assertThat(furyAttack.maxHits).isEqualTo(5)
 		assertThat(slots.getValue(37).targetScope).isEqualTo(BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT)
 		assertThat(slots.getValue(37).lockMoveTurnsMin).isEqualTo(2)
 		assertThat(slots.getValue(37).lockMoveTurnsMax).isEqualTo(3)
@@ -365,20 +364,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(halfRecoil.numerator).isEqualTo(1)
 		assertThat(halfRecoil.denominator).isEqualTo(2)
 
-		val fullDrain = slots.getValue(733)
-			.hpEffects
-			.filterIsInstance<BattleSkillHpEffect.DrainDamage>()
-			.single()
-		assertThat(fullDrain.numerator).isEqualTo(1)
-		assertThat(fullDrain.denominator).isEqualTo(1)
-
-		val derivedSelfHeal = slots.getValue(456)
-			.hpEffects
-			.filterIsInstance<BattleSkillHpEffect.SelfHealMaxHpFraction>()
-			.single()
-		assertThat(derivedSelfHeal.numerator).isEqualTo(1)
-		assertThat(derivedSelfHeal.denominator).isEqualTo(2)
-
 		val strengthSap = slots.getValue(668)
 		assertThat(strengthSap.damageClass).isEqualTo(BattleDamageClass.STATUS)
 		assertThat(strengthSap.hpEffects).containsExactly(BattleSkillHpEffect.SelfHealByTargetCurrentAttack)
@@ -471,24 +456,6 @@ class BattleRuntimeSnapshotServiceTests(
 			),
 		)
 
-		val smellingSalts = slots.getValue(265)
-		val smellingSaltsPower = smellingSalts.conditionalPowerMultipliers
-			.filterIsInstance<BattleSkillPowerMultiplier.TargetMajorStatus>()
-			.single()
-		assertThat(smellingSaltsPower.statuses).containsExactlyInAnyOrder(BattleMajorStatus.PARALYSIS)
-		assertThat(smellingSaltsPower.multiplier).isEqualTo(2.0)
-		assertThat(smellingSalts.postDamageStatusCures.single().statuses)
-			.containsExactlyInAnyOrder(BattleMajorStatus.PARALYSIS)
-
-		val wakeUpSlap = slots.getValue(358)
-		val wakeUpSlapPower = wakeUpSlap.conditionalPowerMultipliers
-			.filterIsInstance<BattleSkillPowerMultiplier.TargetMajorStatus>()
-			.single()
-		assertThat(wakeUpSlapPower.statuses).containsExactlyInAnyOrder(BattleMajorStatus.SLEEP)
-		assertThat(wakeUpSlapPower.multiplier).isEqualTo(2.0)
-		assertThat(wakeUpSlap.postDamageStatusCures.single().statuses)
-			.containsExactlyInAnyOrder(BattleMajorStatus.SLEEP)
-
 		val sparklingAria = slots.getValue(664)
 		assertThat(sparklingAria.conditionalPowerMultipliers).isEmpty()
 		assertThat(sparklingAria.postDamageStatusCures.single().statuses)
@@ -504,16 +471,6 @@ class BattleRuntimeSnapshotServiceTests(
 				),
 			)
 		assertThat(slots.getValue(681).dynamicPower).isEqualTo(storedPowerDynamicPower)
-		assertThat(slots.getValue(386).dynamicPower)
-			.isEqualTo(
-				BattleSkillDynamicPower.PositiveStatStageSum(
-					source = BattleEffectTarget.TARGET,
-					basePower = 60,
-					powerPerPositiveStage = 20,
-					maxPower = 200,
-				),
-			)
-
 		assertThat(slots.getValue(486).dynamicPower)
 			.isEqualTo(
 				BattleSkillDynamicPower.UserSpeedRatioThresholds(
@@ -562,8 +519,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(682).removesUserElementAfterDamage).isTrue()
 		assertThat(slots.getValue(892).removesUserElementAfterDamage).isTrue()
 
-		assertThat(slots.getValue(49).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(20))
-		assertThat(slots.getValue(82).fixedDamage).isEqualTo(BattleFixedDamage.FixedAmount(40))
 		assertThat(slots.getValue(69).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel)
 		assertThat(slots.getValue(101).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel)
 		assertThat(slots.getValue(162).proportionalDamage)
@@ -1840,7 +1795,7 @@ class BattleRuntimeSnapshotServiceTests(
 			service.validatePreparation(
 				preparationRequest(
 					participant("a-1", creatureId = 1, level = 50, itemId = 10).copy(
-						skillIds = listOf(1, 2, 3, 4, 5),
+						skillIds = listOf(1, 5, 7, 10, 11),
 					),
 				),
 			)
@@ -1980,7 +1935,7 @@ class BattleRuntimeSnapshotServiceTests(
 				creatureId = 1,
 				level = 50,
 				itemId = 10,
-				skillIds = listOf(182, 1, 2, 3),
+				skillIds = listOf(182, 1, 5, 7),
 			),
 		).sides
 
@@ -2461,20 +2416,20 @@ class BattleRuntimeSnapshotServiceTests(
 	/**
 	 * 验证固定伤害技能规则不是只停留在技能槽断言，而是可以经数据库装配后进入真实伤害事件。
 	 *
-	 * 技能 49 的固定 20 点伤害来自 Liquibase 中的技能战斗规则资料。测试不手写 [BattleFixedDamage]，只通过
+	 * 技能 69 的“造成使用者等级等量伤害”来自 Liquibase 中的技能战斗规则资料。测试不手写 [BattleFixedDamage]，只通过
 	 * [BattleRuntimeSnapshotService.assembleInitialState] 读取资料后交给引擎结算；如果以后资料表或映射丢失了
 	 * 固定伤害字段，这里会看到普通伤害公式产出的数值而失败。
 	 */
 	@Test
 	fun `assembled runtime snapshot applies database fixed damage rule in engine turn`() {
 		val damage = assembledDamageEvent(
-			skillId = 49,
+			skillId = 69,
 			attackerCreatureId = 1,
 			targetCreatureId = 4,
 			randomValues = listOf(0),
 		)
 
-		assertThat(damage.amount).isEqualTo(20)
+		assertThat(damage.amount).isEqualTo(50)
 		assertThat(damage.effectiveness).isEqualTo(1.0)
 		assertThat(damage.criticalHit).isFalse()
 	}
@@ -3428,7 +3383,7 @@ class BattleRuntimeSnapshotServiceTests(
 		creatureId: Long,
 		level: Int,
 		itemId: Long? = null,
-		skillIds: List<Long> = listOf(1, 2, 3, 4),
+		skillIds: List<Long> = listOf(1, 5, 7, 10),
 		abilityId: Long? = 1,
 		individualValues: Map<String, Int> = emptyMap(),
 		effortValues: Map<String, Int> = emptyMap(),

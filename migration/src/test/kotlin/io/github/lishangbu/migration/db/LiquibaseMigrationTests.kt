@@ -555,6 +555,25 @@ class LiquibaseMigrationTests(
 			.describedAs("所有启用技能都必须有启用中的基础战斗规则，运行时不再保留无规则 fallback")
 			.isEmpty()
 
+		val latestUnusableSkillState = queryMaps(
+			"""
+			select
+				count(*) as unusable_skill_count,
+				count(*) filter (where s.enabled = true) as enabled_skill_count,
+				count(*) filter (where r.enabled = true) as enabled_rule_count
+			from game_skill s
+			join game_skill_detail d on d.skill_id = s.id
+			left join battle_skill_rule r on r.skill_id = s.id
+			where coalesce(d.flavor_text, '') like '%无法使用这个技能%'
+				or coalesce(d.effect, '') like '%无法使用这个技能%'
+			""".trimIndent(),
+		).single()
+		assertThat(latestUnusableSkillState)
+			.describedAs("最新版资料明确写明无法使用的技能必须保留目录资料但退出现代战斗运行态")
+			.containsEntry("unusable_skill_count", 145L)
+			.containsEntry("enabled_skill_count", 0L)
+			.containsEntry("enabled_rule_count", 0L)
+
 		val derivedBasicSkillRules = queryMaps(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage
