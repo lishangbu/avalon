@@ -64,3 +64,12 @@ fun BattleParticipant.damageSubstitute(amount: Int): BattleParticipant {
 		copy(substituteHp = (substituteHp - amount).coerceAtLeast(0))
 	}
 }
+
+/**
+ * 直接移除成员当前替身。
+ *
+ * 大扫除类清场规则不是“对替身造成伤害”，而是把场上的替身状态整体清掉；因此它不能复用 [damageSubstitute]，
+ * 否则 replay 会误读成某个目标替身承受了一次伤害。没有替身时保持原快照，调用方据此决定是否追加清除事件。
+ */
+fun BattleParticipant.clearSubstitute(): BattleParticipant =
+	if (hasSubstitute()) copy(substituteHp = 0) else this

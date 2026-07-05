@@ -958,6 +958,18 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 成员的替身被全场清理技能直接移除。
+	 *
+	 * 这类移除不是伤害，也不是替身 HP 被打空；单独事件可以让 replay 和对照测试区分“替身被攻击打破”和
+	 * “全场整理效果清除了替身”两种现代规则路径。`actorId` 指拥有替身的成员，`skillId` 指触发清理的技能。
+	 */
+	data class SubstituteCleared(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
+	/**
 	 * 技能成功造成实际伤害后，使用者进入休整状态。
 	 *
 	 * `turnsRemainingAfterCurrent` 表示未来还会阻止几次技能行动。该事件不表示当前回合的行动被阻止，而是为

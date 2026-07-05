@@ -62,6 +62,8 @@ package io.github.lishangbu.battleengine.model
  * `clearsUserSideHazardsAndTraps` 表示技能成功连接后会清理使用者身上的束缚/寄生种子，并清除使用者一侧全部
  * 入场陷阱。它和 `sideEntryHazardApplications` 分开，是因为后者是“向目标侧放置陷阱”，而这里是“从己方侧
  * 移除既有陷阱和自身限制”，两者的作用侧和事件语义完全相反。
+ * `clearsFieldHazardsAndSubstitutes` 表示变化技能成功后清除双方一侧的全部入场陷阱，并直接移除当前场上所有
+ * 替身。该效果不要求场上实际存在陷阱或替身；因此它只负责状态清理，不能让没有可清目标的场景变成技能失败。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -138,6 +140,7 @@ data class BattleSkillSlot(
 	val targetLastSkillPpReduction: Int = 0,
 	val plantsLeechSeed: Boolean = false,
 	val clearsUserSideHazardsAndTraps: Boolean = false,
+	val clearsFieldHazardsAndSubstitutes: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,

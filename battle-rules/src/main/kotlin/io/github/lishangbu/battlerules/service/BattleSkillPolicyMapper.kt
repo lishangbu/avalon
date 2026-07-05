@@ -435,6 +435,15 @@ internal fun String.plantsLeechSeed(): Boolean =
 internal fun String.clearsUserSideHazardsAndTraps(): Boolean =
 	this == "clear-user-side-hazards-and-traps"
 
+/**
+ * 判断技能是否成功后清理全场入口陷阱与替身。
+ *
+ * 大扫除的规则没有概率、层数或目标侧参数：它总是清理双方入口陷阱和当前场上的替身，并且没有可清状态时仍然
+ * 允许自身强化继续生效。用单一 policy 承载这条复合语义，比把入口陷阱和替身拆成两张参数表更贴近当前资料规模。
+ */
+internal fun String.clearsFieldHazardsAndSubstitutes(): Boolean =
+	this == "clear-field-hazards-and-substitutes"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -477,6 +486,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"apply-torment",
 	"apply-leech-seed",
 	"clear-user-side-hazards-and-traps",
+	"clear-field-hazards-and-substitutes",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -552,6 +562,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	targetLastSkillPpReduction() > 0 ||
 	plantsLeechSeed() ||
 	clearsUserSideHazardsAndTraps() ||
+	clearsFieldHazardsAndSubstitutes() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
@@ -9,7 +10,9 @@ import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -298,6 +301,93 @@ class BattleEntryHazardTests {
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.VolatileStatusCleared>())
 	}
 
+	@Test
+	fun `tidy up clears both side entry hazards and active substitutes after stat boosts`() {
+		val scenario = publicBattleRuleScenario(
+			name = "tidy-up-clears-both-side-entry-hazards-and-active-substitutes",
+			inputSummary = "双方一侧都有入场陷阱，双方当前上场成员都有替身；使用者成功使用全场清理类变化技能。",
+			expectedSummary = "使用者攻击和速度先各提升 1 级，随后双方入场陷阱和当前上场替身全部被清除。",
+		)
+		val tidyUp = tidyUpSkill()
+		val cleaner = participant("cleaner", speed = 100, skill = tidyUp).copy(substituteHp = 25)
+		val target = participant("target", speed = 80).copy(substituteHp = 30)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = cleaner,
+					second = target,
+					firstSideEntryHazards = allEntryHazards(),
+					secondSideEntryHazards = listOf(
+						BattleSideEntryHazard(BattleSideEntryHazardKind.STEALTH_ROCK),
+						BattleSideEntryHazard(BattleSideEntryHazardKind.STICKY_WEB),
+					),
+				),
+			),
+			listOf(BattleAction.UseSkill("cleaner", skillId = 882, targetActorId = "cleaner")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val cleanerAfter = requireNotNull(resolved.participant("cleaner"))
+		val targetAfter = requireNotNull(resolved.participant("target"))
+		val removedHazards = resolved.events.filterIsInstance<BattleEvent.SideEntryHazardRemoved>()
+		val clearedSubstitutes = resolved.events.filterIsInstance<BattleEvent.SubstituteCleared>()
+		val firstStatChangeIndex = resolved.events.indexOfFirst { it is BattleEvent.StatStageChanged }
+		val firstHazardRemovalIndex = resolved.events.indexOfFirst { it is BattleEvent.SideEntryHazardRemoved }
+		val firstSubstituteRemovalIndex = resolved.events.indexOfFirst { it is BattleEvent.SubstituteCleared }
+
+		scenario.assertNamed("tidy-up-clears-both-side-entry-hazards-and-active-substitutes")
+		assertEquals(1, cleanerAfter.statStage(BattleStat.ATTACK))
+		assertEquals(1, cleanerAfter.statStage(BattleStat.SPEED))
+		assertEquals(0, cleanerAfter.substituteHp)
+		assertEquals(0, targetAfter.substituteHp)
+		assertEquals(emptyList(), resolved.sides.single { it.sideId == "side-a" }.entryHazards)
+		assertEquals(emptyList(), resolved.sides.single { it.sideId == "side-b" }.entryHazards)
+		assertEquals(
+			listOf(
+				"side-a" to BattleSideEntryHazardKind.STEALTH_ROCK,
+				"side-a" to BattleSideEntryHazardKind.SPIKES,
+				"side-a" to BattleSideEntryHazardKind.TOXIC_SPIKES,
+				"side-a" to BattleSideEntryHazardKind.STICKY_WEB,
+				"side-b" to BattleSideEntryHazardKind.STEALTH_ROCK,
+				"side-b" to BattleSideEntryHazardKind.STICKY_WEB,
+			),
+			removedHazards.map { it.sideId to it.kind },
+		)
+		assertEquals(listOf("cleaner", "target"), clearedSubstitutes.map { it.actorId })
+		assertTrue(removedHazards.all { it.actorId == "cleaner" && it.skillId == 882L })
+		assertTrue(clearedSubstitutes.all { it.skillId == 882L })
+		assertTrue(firstStatChangeIndex in 0 until firstHazardRemovalIndex)
+		assertTrue(firstHazardRemovalIndex in 0 until firstSubstituteRemovalIndex)
+	}
+
+	@Test
+	fun `tidy up still boosts user when no hazards or substitutes exist`() {
+		val scenario = publicBattleRuleScenario(
+			name = "tidy-up-still-boosts-user-without-cleanup-targets",
+			inputSummary = "场上没有入场陷阱，也没有任何当前上场替身；使用者成功使用全场清理类变化技能。",
+			expectedSummary = "技能不会因为没有可清理状态而失败，使用者攻击和速度仍各提升 1 级。",
+		)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("cleaner", speed = 100, skill = tidyUpSkill()),
+					second = participant("target", speed = 80),
+				),
+			),
+			listOf(BattleAction.UseSkill("cleaner", skillId = 882, targetActorId = "cleaner")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val cleanerAfter = requireNotNull(resolved.participant("cleaner"))
+
+		scenario.assertNamed("tidy-up-still-boosts-user-without-cleanup-targets")
+		assertEquals(1, cleanerAfter.statStage(BattleStat.ATTACK))
+		assertEquals(1, cleanerAfter.statStage(BattleStat.SPEED))
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SideEntryHazardRemoved>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteCleared>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillFailed>())
+	}
+
 	private fun switchIntoHazard(
 		hazard: BattleSideEntryHazard,
 		reserveElementId: Long = 1,
@@ -347,6 +437,32 @@ class BattleEntryHazardTests {
 				BattleSideEntryHazardApplication(
 					targetSide = BattleSideConditionTarget.TARGET_SIDE,
 					hazard = BattleSideEntryHazard(kind),
+				),
+			),
+		)
+
+	private fun tidyUpSkill(): BattleSkillSlot =
+		damagingSkill(
+			skillId = 882,
+			name = "大扫除",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			accuracy = null,
+			targetScope = BattleSkillTargetScope.SELF,
+			affectedByProtect = false,
+			clearsFieldHazardsAndSubstitutes = true,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					target = BattleEffectTarget.USER,
+					stat = BattleStat.ATTACK,
+					stageDelta = 1,
+					chancePercent = 100,
+				),
+				BattleStatStageEffect(
+					target = BattleEffectTarget.USER,
+					stat = BattleStat.SPEED,
+					stageDelta = 1,
+					chancePercent = 100,
 				),
 			),
 		)

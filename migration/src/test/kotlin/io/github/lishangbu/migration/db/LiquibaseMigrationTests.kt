@@ -2073,6 +2073,29 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val fieldCleanupSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.affected_by_protect
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code = 'tidy-up'
+			""".trimIndent(),
+		)
+		assertThat(fieldCleanupSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 882L,
+				"code" to "tidy-up",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "clear-field-hazards-and-substitutes",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use

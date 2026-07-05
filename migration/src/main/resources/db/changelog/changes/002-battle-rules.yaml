@@ -9786,3 +9786,31 @@ databaseChangeLog:
             chance_percent = excluded.chance_percent,
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
+- changeSet:
+    id: 002-battle-rules-enable-tidy-up-field-cleanup
+    author: backend
+    comment: 启用大扫除的全场陷阱与替身清理规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 大扫除是变化技能：即使场上没有入口陷阱或替身，使用者攻击和速度提升仍然成功。
+          -- 因此主行 effect_policy 只表达“成功后清理全场陷阱与当前替身”，能力提升继续由
+          -- battle_skill_stat_stage_effect 子表维护，避免把清场和强化塞进同一个弱类型说明文本。
+          update game_skill s
+          set enabled = true
+          where s.code = 'tidy-up';
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'clear-field-hazards-and-substitutes',
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = false,
+            description = '全场清理变化技能规则；成功后清除双方一侧全部入场陷阱和当前场上的替身，并保留使用者攻击、速度提升。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'tidy-up';

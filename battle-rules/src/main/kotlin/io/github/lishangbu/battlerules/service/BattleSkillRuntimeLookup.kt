@@ -131,6 +131,7 @@ class BattleSkillRuntimeLookup(
 			targetLastSkillPpReduction = effectPolicy.targetLastSkillPpReduction(),
 			plantsLeechSeed = effectPolicy.plantsLeechSeed(),
 			clearsUserSideHazardsAndTraps = effectPolicy.clearsUserSideHazardsAndTraps(),
+			clearsFieldHazardsAndSubstitutes = effectPolicy.clearsFieldHazardsAndSubstitutes(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

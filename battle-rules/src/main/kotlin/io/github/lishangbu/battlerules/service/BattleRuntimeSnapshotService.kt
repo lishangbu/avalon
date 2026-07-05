@@ -839,6 +839,7 @@ class BattleRuntimeSnapshotService(
 				"SubstituteStarted" -> "替身开始"
 				"SubstituteDamageApplied" -> "替身受伤"
 				"SubstituteBroken" -> "替身破坏"
+				"SubstituteCleared" -> "替身清除"
 				"RechargeStarted" -> "休整开始"
 				"SkillChargeStarted" -> "蓄力开始"
 				"SkillChargeSkippedByItem" -> "道具跳过蓄力"
