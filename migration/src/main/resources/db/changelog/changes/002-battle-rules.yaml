@@ -8892,3 +8892,65 @@ databaseChangeLog:
             and r.enabled = true
             and dc.code in ('physical', 'special')
             and r.description like '基础伤害技能规则%尚未维护专项效果%';
+- changeSet:
+    id: 002-game-data-normalize-creature-display-term
+    author: backend
+    comment: 统一资料展示术语为精灵。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 早期导入数据已经在已有环境落库，单纯修正 CSV 不能修复这些库中的展示文案。
+          -- 这里只更新面向管理端和接口返回的中文文本列，不触碰 code、权限标识、外键或运行态规则字段。
+          -- 第一层先把已经半修正的“精灵 + 旧术语”压成“精灵”，避免后续通用替换产生重复词。
+          do $$
+          declare
+            term_column record;
+          begin
+            for term_column in
+              select *
+              from (
+                values
+                  ('game_ability_detail', 'effect'),
+                  ('game_ability_detail', 'flavor_text'),
+                  ('game_ability_detail', 'short_effect'),
+                  ('game_advanced_contest_effect', 'flavor_text'),
+                  ('game_catalog', 'description'),
+                  ('game_contest_effect', 'effect'),
+                  ('game_contest_effect', 'flavor_text'),
+                  ('game_encounter_condition', 'name'),
+                  ('game_encounter_condition_value', 'name'),
+                  ('game_encounter_method', 'name'),
+                  ('game_item', 'name'),
+                  ('game_item_attribute', 'description'),
+                  ('game_item_detail', 'effect'),
+                  ('game_item_detail', 'flavor_text'),
+                  ('game_item_detail', 'short_effect'),
+                  ('game_location', 'name'),
+                  ('game_location_area', 'name'),
+                  ('game_skill_detail', 'effect'),
+                  ('game_skill_detail', 'flavor_text'),
+                  ('game_skill_detail', 'short_effect'),
+                  ('game_skill_learn_method', 'description'),
+                  ('game_skill_target', 'description'),
+                  ('game_skill_target', 'name'),
+                  ('game_species_detail', 'flavor_text'),
+                  ('game_species_detail', 'genus'),
+                  ('security_access_node', 'name')
+              ) as columns_to_normalize(table_name, column_name)
+            loop
+              execute format(
+                'update %I set %I = replace(replace(%I, %L, %L), %L, %L) where %I like %L',
+                term_column.table_name,
+                term_column.column_name,
+                term_column.column_name,
+                '精灵' || '生' || '物',
+                '精灵',
+                '生' || '物',
+                '精灵',
+                term_column.column_name,
+                '%' || '生' || '物' || '%'
+              );
+            end loop;
+          end $$;

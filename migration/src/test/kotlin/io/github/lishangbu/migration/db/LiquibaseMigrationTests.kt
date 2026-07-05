@@ -2784,6 +2784,75 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase display data uses normalized creature terminology`() {
+		// 这些列都会直接出现在管理端或接口返回中；全表断言可以防止后续导入重新带回旧展示术语。
+		val legacyTermTexts = queryMaps(
+			"""
+			with display_texts(table_name, row_id, display_text) as (
+				select 'game_ability_detail', id, concat_ws(' ', effect, flavor_text, short_effect)
+				from game_ability_detail
+				union all
+				select 'game_advanced_contest_effect', id, flavor_text
+				from game_advanced_contest_effect
+				union all
+				select 'game_catalog', id, description
+				from game_catalog
+				union all
+				select 'game_contest_effect', id, concat_ws(' ', effect, flavor_text)
+				from game_contest_effect
+				union all
+				select 'game_encounter_condition', id, name
+				from game_encounter_condition
+				union all
+				select 'game_encounter_condition_value', id, name
+				from game_encounter_condition_value
+				union all
+				select 'game_encounter_method', id, name
+				from game_encounter_method
+				union all
+				select 'game_item', id, name
+				from game_item
+				union all
+				select 'game_item_attribute', id, description
+				from game_item_attribute
+				union all
+				select 'game_item_detail', id, concat_ws(' ', effect, flavor_text, short_effect)
+				from game_item_detail
+				union all
+				select 'game_location', id, name
+				from game_location
+				union all
+				select 'game_location_area', id, name
+				from game_location_area
+				union all
+				select 'game_skill_detail', id, concat_ws(' ', effect, flavor_text, short_effect)
+				from game_skill_detail
+				union all
+				select 'game_skill_learn_method', id, description
+				from game_skill_learn_method
+				union all
+				select 'game_skill_target', id, concat_ws(' ', name, description)
+				from game_skill_target
+				union all
+				select 'game_species_detail', id, concat_ws(' ', genus, flavor_text)
+				from game_species_detail
+				union all
+				select 'security_access_node', id, name
+				from security_access_node
+			)
+			select table_name, row_id, display_text
+			from display_texts
+			where display_text like '%' || '生' || '物' || '%'
+			order by table_name, row_id
+			""".trimIndent(),
+		)
+
+		assertThat(legacyTermTexts)
+			.describedAs("展示给前端的资料文本必须统一使用“精灵”术语")
+			.isEmpty()
+	}
+
+	@Test
 	fun `liquibase game catalog seed data does not keep generated display text`() {
 		// 图鉴目录名称和说明会直接出现在资料维护页；这里只守住本批已经人工校正过的英文词和机翻词。
 		// 内部 code 仍然保留资料源英文标识，所以断言只检查 name 和 description 两个展示字段。
