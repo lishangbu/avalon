@@ -57,6 +57,8 @@ package io.github.lishangbu.battleengine.model
  * `locksAccuracyOnTarget` 表示变化技能命中后让使用者到下回合结束前锁定该目标，下一次对该目标的命中判定必中。
  * `targetLastSkillPpReduction` 表示技能成功后扣减目标最近一次成功使用技能的剩余 PP，例如怨恨固定扣 4 点；
  * 若目标没有可扣减的最近技能或该技能 PP 已为 0，会写入技能失败事件而不修改状态。
+ * `plantsLeechSeed` 表示技能成功命中后会在目标身上写入寄生种子；该效果按使用者所在站位保存来源，而不是保存
+ * 使用者 actorId，以支持原使用者换下后同位置成员继续获得回复的现代双打规则。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -131,6 +133,7 @@ data class BattleSkillSlot(
 	val forceTargetSwitch: Boolean = false,
 	val locksAccuracyOnTarget: Boolean = false,
 	val targetLastSkillPpReduction: Int = 0,
+	val plantsLeechSeed: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,

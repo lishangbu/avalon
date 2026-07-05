@@ -506,6 +506,8 @@ class BattleRuntimeSnapshotService(
 			tormented = snapshot.tormented,
 			boundByActorId = snapshot.boundByActorId,
 			bindingTurnsRemaining = snapshot.bindingTurnsRemaining,
+			leechSeedSourceSideId = snapshot.leechSeedSourceSideId,
+			leechSeedSourceActiveIndex = snapshot.leechSeedSourceActiveIndex,
 			lastSuccessfulSkillId = snapshot.lastSuccessfulSkillId,
 			accuracyLockTargetActorId = snapshot.accuracyLockTargetActorId,
 			accuracyLockTurnsRemaining = snapshot.accuracyLockTurnsRemaining,
@@ -688,6 +690,8 @@ class BattleRuntimeSnapshotService(
 			tormented = tormented,
 			boundByActorId = boundByActorId,
 			bindingTurnsRemaining = bindingTurnsRemaining,
+			leechSeedSourceSideId = leechSeedSourceSideId,
+			leechSeedSourceActiveIndex = leechSeedSourceActiveIndex,
 			lastSuccessfulSkillId = lastSuccessfulSkillId,
 			accuracyLockTargetActorId = accuracyLockTargetActorId,
 			accuracyLockTurnsRemaining = accuracyLockTurnsRemaining,
@@ -795,6 +799,8 @@ class BattleRuntimeSnapshotService(
 				"SkillPrevented" -> "技能受阻"
 				"SkillDisabled" -> "定身"
 				"BindingDamageApplied" -> "束缚伤害"
+				"LeechSeedPlanted" -> "寄生种子"
+				"LeechSeedDamageApplied" -> "寄生伤害"
 				"DamageApplied" -> "造成伤害"
 				"StatusApplied" -> "状态施加"
 				"StatusApplicationBlocked" -> "状态阻挡"
@@ -822,6 +828,7 @@ class BattleRuntimeSnapshotService(
 				"RecoilDamageApplied" -> "反作用伤害"
 				"ConfusionDamageApplied" -> "混乱伤害"
 				"HealingApplied" -> "体力回复"
+				"LeechSeedHealingApplied" -> "寄生回复"
 				"SkillHealingApplied" -> "技能回复"
 				"SkillRecoilDamageApplied" -> "技能反作用伤害"
 				"SkillSelfSacrificeDamageApplied" -> "自损伤害"

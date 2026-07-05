@@ -84,6 +84,10 @@ internal class BattleEngineComponents(
 		lowHpItemHealing = ::applyLowHpItemHealing,
 	)
 	private val bindingEffects = BattleBindingEffects(endTurnDamageResultEffects)
+	private val leechSeedEffects = BattleLeechSeedEffects(
+		targetDefenseEffects = targetDefenseEffects,
+		damageResultEffects = endTurnDamageResultEffects,
+	)
 
 	/**
 	 * 回合末环境与持续伤害结算器。
@@ -94,6 +98,7 @@ internal class BattleEngineComponents(
 	private val endTurnEffects = BattleEndTurnEffects(
 		damageResultEffects = endTurnDamageResultEffects,
 		bindingEffects = bindingEffects,
+		leechSeedEffects = leechSeedEffects,
 	)
 
 	/**
@@ -215,6 +220,7 @@ internal class BattleEngineComponents(
 		statStageEffects = statStageEffects,
 		fieldEffects = fieldEffects,
 		targetDefenseEffects = targetDefenseEffects,
+		leechSeedEffects = leechSeedEffects,
 		forcedSwitchEffects = forcedSwitchEffects,
 	)
 	private val damageMoveFinishResolution = BattleDamageMoveFinishResolution(

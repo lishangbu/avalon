@@ -126,6 +126,10 @@ data class BattleSandboxStateSnapshot(
 		var boundByActorId: String? = null,
 		@field:Schema(description = "束缚剩余回合。", example = "0")
 		var bindingTurnsRemaining: Int = 0,
+		@field:Schema(description = "寄生种子来源侧 ID；未被寄生时为空。", nullable = true)
+		var leechSeedSourceSideId: String? = null,
+		@field:Schema(description = "寄生种子来源侧上场席位索引；未被寄生时为空。", nullable = true)
+		var leechSeedSourceActiveIndex: Int? = null,
 		@field:Schema(description = "上一次成功使用的技能 ID；没有时为空。", nullable = true)
 		var lastSuccessfulSkillId: Long? = null,
 		@field:Schema(description = "命中锁定目标 actorId；未锁定时为空。", nullable = true)

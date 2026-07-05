@@ -422,6 +422,9 @@ internal fun String.targetLastSkillPpReduction(): Int =
 		else -> 0
 	}
 
+internal fun String.plantsLeechSeed(): Boolean =
+	this == "apply-leech-seed"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -462,6 +465,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"apply-taunt",
 	"apply-disable",
 	"apply-torment",
+	"apply-leech-seed",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -535,6 +539,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage() ||
 	targetLastSkillPpReduction() > 0 ||
+	plantsLeechSeed() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

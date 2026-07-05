@@ -169,6 +169,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill leech seed policy maps persistent target drain flag`() {
+		assertThat("apply-leech-seed".plantsLeechSeed()).isTrue()
+		assertThat("apply-leech-seed".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `skill self critical hit boost policy maps focus energy bonus`() {
 		assertThat("self-critical-hit-stage-plus-two".criticalHitStageBoost()).isEqualTo(2)
 		assertThat("self-critical-hit-stage-plus-two".isBattleSkillRuntimeEffectPolicySupported()).isTrue()

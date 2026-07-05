@@ -14,10 +14,11 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  * 内部那些严格按固定顺序执行的规则细节。当前顺序是：
  * 1. 主要异常状态造成的持续伤害，例如灼伤、中毒、剧毒。
  * 2. 束缚类临时状态造成的持续伤害和束缚自然解除。
- * 3. 天气造成的持续伤害。
- * 4. 天气相关回复。
- * 5. 场地相关回复。
- * 6. 携带道具的回合末回复。
+ * 3. 寄生种子造成的持续伤害和来源站位回复。
+ * 4. 天气造成的持续伤害。
+ * 5. 天气相关回复。
+ * 6. 场地相关回复。
+ * 7. 携带道具的回合末回复。
  *
  * 这里不实现通用事件总线，也不把每个效果做成可注册插件。回合末规则的难点不是“能不能动态发现处理器”，而是
  * 现代规则中阶段顺序非常敏感：例如低体力回复道具必须发生在扣血之后、倒下判断之前；青草场地回复不应该跑到
@@ -26,10 +27,12 @@ import io.github.lishangbu.battleengine.model.BattleWeather
  *
  * @property damageResultEffects 回合末扣血后的低体力道具、倒下和胜负收口。
  * @property bindingEffects 束缚类临时状态的回合末伤害与来源离场清理规则。
+ * @property leechSeedEffects 寄生种子的回合末伤害与来源站位回复规则。
  */
 internal class BattleEndTurnEffects(
 	private val damageResultEffects: BattleEndTurnDamageResultEffects,
 	private val bindingEffects: BattleBindingEffects,
+	private val leechSeedEffects: BattleLeechSeedEffects,
 ) {
 	private val healingEffects = BattleEndTurnHealingEffects()
 
@@ -49,7 +52,11 @@ internal class BattleEndTurnEffects(
 		if (afterBinding.result != null) {
 			return afterBinding
 		}
-		val afterWeather = applyWeatherDamage(afterBinding)
+		val afterLeechSeed = leechSeedEffects.applyEndTurnDrain(afterBinding)
+		if (afterLeechSeed.result != null) {
+			return afterLeechSeed
+		}
+		val afterWeather = applyWeatherDamage(afterLeechSeed)
 		if (afterWeather.result != null) {
 			return afterWeather
 		}

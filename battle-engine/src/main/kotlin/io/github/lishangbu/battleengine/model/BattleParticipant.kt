@@ -11,7 +11,7 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
  * 体重、临时体重减轻量、是否接地、连续保护计数、本回合挺住来源技能、剧毒计数、睡眠剩余阻止行动次数、
  * 技能蓄力计数、技能休整计数、技能锁招运行态、命中锁定目标、讲究类道具锁定技能、替身剩余 HP，以及畏缩、
- * 混乱、回复封锁、挑衅、定身法、无理取闹、束缚等临时状态。
+ * 混乱、回复封锁、挑衅、定身法、无理取闹、束缚、寄生种子等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
  *
  * 成员快照状态不变量：
@@ -59,6 +59,8 @@ data class BattleParticipant(
 	val tormented: Boolean = false,
 	val boundByActorId: String? = null,
 	val bindingTurnsRemaining: Int = 0,
+	val leechSeedSourceSideId: String? = null,
+	val leechSeedSourceActiveIndex: Int? = null,
 	val lastSuccessfulSkillId: Long? = null,
 	val accuracyLockTargetActorId: String? = null,
 	val accuracyLockTurnsRemaining: Int = 0,
@@ -154,6 +156,15 @@ data class BattleParticipant(
 		}
 		require(bindingTurnsRemaining > 0 || boundByActorId == null) {
 			"boundByActorId must be cleared when binding has no remaining turns"
+		}
+		require(leechSeedSourceSideId == null || leechSeedSourceSideId.isNotBlank()) {
+			"leechSeedSourceSideId must not be blank when present"
+		}
+		require(leechSeedSourceActiveIndex == null || leechSeedSourceActiveIndex >= 0) {
+			"leechSeedSourceActiveIndex must not be negative when present"
+		}
+		require((leechSeedSourceSideId == null) == (leechSeedSourceActiveIndex == null)) {
+			"leech seed source side and active index must be present together"
 		}
 		require(lockedMoveSkillId == null || lockedMoveSkillId > 0) { "lockedMoveSkillId must be positive when present" }
 		require(lockedMoveTargetActorId == null || lockedMoveTargetActorId.isNotBlank()) {

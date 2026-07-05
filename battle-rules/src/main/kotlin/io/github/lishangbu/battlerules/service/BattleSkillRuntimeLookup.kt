@@ -129,6 +129,7 @@ class BattleSkillRuntimeLookup(
 			forceTargetSwitch = row.requiredBoolean(row.forceTargetSwitch, "force_target_switch"),
 			locksAccuracyOnTarget = effectPolicy.locksAccuracyOnTarget(),
 			targetLastSkillPpReduction = effectPolicy.targetLastSkillPpReduction(),
+			plantsLeechSeed = effectPolicy.plantsLeechSeed(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

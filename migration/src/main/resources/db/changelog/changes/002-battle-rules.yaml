@@ -8912,6 +8912,51 @@ databaseChangeLog:
               and existing.stage_delta = e.stage_delta
           );
 - changeSet:
+    id: 002-battle-rules-modern-leech-seed-skill-rule
+    author: backend
+    comment: 将寄生种子修正为按来源站位持续抽取和回复的现代结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 寄生种子不是普通主要异常，也不是带固定持续回合的临时状态；它保存目标身上的来源站位，并在回合末抽取
+          -- 目标最大 HP 的 1/8 回复给原使用者所在席位。这里用独立 effect_policy 承载，避免继续停留在基础变化技能
+          -- 占位规则里被误判为“命中但没有任何运行态效果”。
+          update battle_skill_rule r
+          set
+            effect_policy = 'apply-leech-seed',
+            target_policy = 'selected-target',
+            hit_policy = 'standard-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = true,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = '目标被种下寄生种子；回合末损失最大 HP 的 1/8，并回复到使用者当时所在的一侧上场席位。',
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'leech-seed';
+
+          update game_skill
+          set enabled = true
+          where code = 'leech-seed';
+- changeSet:
     id: 002-battle-rules-disable-latest-unusable-skills
     author: backend
     comment: 将最新版资料明确标记为无法使用的技能从现代战斗规则入口中禁用。

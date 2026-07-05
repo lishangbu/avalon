@@ -24,6 +24,7 @@ internal class BattleSkillAdditionalEffects(
 	private val statStageEffects: BattleStatStageEffects,
 	private val fieldEffects: BattleFieldEffects,
 	private val targetDefenseEffects: BattleTargetDefenseEffects,
+	private val leechSeedEffects: BattleLeechSeedEffects,
 	private val forcedSwitchEffects: BattleForcedSwitchEffects,
 ) {
 	/**
@@ -58,7 +59,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterSideEntryHazards = applySideEntryHazards(afterSideProtections, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
-		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterAccuracyLock, actorId, skill)
+		val afterLeechSeed = leechSeedEffects.apply(afterAccuracyLock, actorId, targetActorId, skill)
+		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterLeechSeed, actorId, skill)
 		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterUserMajorStatusCure, actorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)
 		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(

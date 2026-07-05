@@ -525,6 +525,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleDisableTests",
 					"io.github.lishangbu.battleengine.BattleFreezeStatusTests",
 					"io.github.lishangbu.battleengine.BattleHealBlockTests",
+					"io.github.lishangbu.battleengine.BattleLeechSeedTests",
 					"io.github.lishangbu.battleengine.BattleParalysisStatusTests",
 					"io.github.lishangbu.battleengine.BattleSleepStatusTests",
 					"io.github.lishangbu.battleengine.BattleTauntTests",

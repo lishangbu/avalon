@@ -94,8 +94,8 @@ fun BattleParticipant.advanceBadPoisonCounter(): BattleParticipant =
  *
  * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
  * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
- * 聚气带来的要害等级加成、畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、束缚、命中锁定和技能造成的临时
- * 体重减轻属于在场状态，离场时会被清除。后续接入锁招、寄生等离场即消失的状态时，也应在这里统一清理。
+ * 聚气带来的要害等级加成、畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、束缚、寄生种子、命中锁定和技能
+ * 造成的临时体重减轻属于在场状态，离场时会被清除。后续接入其它离场即消失的状态时，也应在这里统一清理。
  */
 fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 	copy(
@@ -118,6 +118,8 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		tormented = false,
 		boundByActorId = null,
 		bindingTurnsRemaining = 0,
+		leechSeedSourceSideId = null,
+		leechSeedSourceActiveIndex = null,
 		lastSuccessfulSkillId = null,
 		accuracyLockTargetActorId = null,
 		accuracyLockTurnsRemaining = 0,

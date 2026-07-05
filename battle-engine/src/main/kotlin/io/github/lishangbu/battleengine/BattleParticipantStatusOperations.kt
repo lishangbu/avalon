@@ -158,6 +158,52 @@ fun BattleParticipant.applyVolatileStatus(
 }
 
 /**
+ * 判断成员是否已经处于寄生种子状态。
+ *
+ * 寄生种子没有固定持续回合，也不会占用主要异常槽位；它只保存“回复应该流向哪一侧的哪个上场席位”。
+ * 这里用两个来源字段是否存在来判断状态，而不引入新的通用临时状态枚举，避免把无持续回合、按位置回复的规则
+ * 塞进普通混乱/束缚计数模型。
+ */
+fun BattleParticipant.isLeechSeeded(): Boolean =
+	leechSeedSourceSideId != null && leechSeedSourceActiveIndex != null
+
+/**
+ * 写入寄生种子的来源站位。
+ *
+ * `sourceSideId` 和 `sourceActiveIndex` 指向技能成功时使用者所在的一侧和上场席位，而不是使用者 actorId。
+ * 现代双打规则中，原使用者离场后，同一站位的新上场成员会继续接收寄生种子回复；保存站位可以避免来源成员
+ * 换下后效果错误中断，也避免同侧另一个站位抢到回复。
+ */
+fun BattleParticipant.applyLeechSeed(sourceSideId: String, sourceActiveIndex: Int): BattleParticipant {
+	require(sourceSideId.isNotBlank()) { "sourceSideId must not be blank" }
+	require(sourceActiveIndex >= 0) { "sourceActiveIndex must not be negative" }
+	return if (isLeechSeeded()) {
+		this
+	} else {
+		copy(
+			leechSeedSourceSideId = sourceSideId,
+			leechSeedSourceActiveIndex = sourceActiveIndex,
+		)
+	}
+}
+
+/**
+ * 清除寄生种子运行态。
+ *
+ * 目标离开上场席位时会解除寄生种子；高速旋转、剧毒旋转等后续技能也应复用本函数。函数只修改成员快照，
+ * 是否追加“解除”事件由具体结算阶段决定，避免状态对象反向依赖 replay 事件模型。
+ */
+fun BattleParticipant.clearLeechSeed(): BattleParticipant =
+	if (!isLeechSeeded()) {
+		this
+	} else {
+		copy(
+			leechSeedSourceSideId = null,
+			leechSeedSourceActiveIndex = null,
+		)
+	}
+
+/**
  * 消耗一次畏缩阻止行动。
  *
  * 畏缩阻止本次行动后立即消失；如果成员本回合没有行动，回合末也会被静默清理。

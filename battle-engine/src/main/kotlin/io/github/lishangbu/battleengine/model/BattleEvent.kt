@@ -360,6 +360,34 @@ sealed interface BattleEvent {
 		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
+	/**
+	 * 目标被成功种下寄生种子。
+	 *
+	 * 事件同时记录使用者当时所在侧和上场席位索引，因为后续回合末回复并不绑定原使用者 actorId，而是绑定这个
+	 * 站位。这样 replay 可以解释原使用者换下后，为什么同一站位的新上场成员仍然获得回复。
+	 */
+	data class LeechSeedPlanted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val sourceSideId: String,
+		val sourceActiveIndex: Int,
+	) : BattleEvent
+
+	/**
+	 * 寄生种子在回合末对目标造成间接伤害。
+	 *
+	 * 该伤害属于目标身上的持续状态，按目标最大 HP 的 1/8 取整且至少 1 点；它与主要异常、束缚、天气伤害分开
+	 * 记录，避免 replay 端把不同来源的固定比例扣血混在同一种事件里。
+	 */
+	data class LeechSeedDamageApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceSideId: String,
+		val sourceActiveIndex: Int,
+		val amount: Int,
+	) : BattleEvent
+
 	// 伤害、状态和能力阶级事件：描述成员身上的可观察战斗事实变化。
 	/**
 	 * 一次伤害已经结算到目标身上。
@@ -767,6 +795,19 @@ sealed interface BattleEvent {
 	data class HealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,
+		val amount: Int,
+	) : BattleEvent
+
+	/**
+	 * 寄生种子在回合末为来源站位上的成员回复 HP。
+	 *
+	 * `sourceTargetActorId` 是被寄生种子扣血的目标，`actorId` 是当前真正获得回复的成员。二者分开后，双打换人后
+	 * 的 replay 不需要反查站位历史，也能看出这次回复来自哪个目标身上的寄生种子。
+	 */
+	data class LeechSeedHealingApplied(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sourceTargetActorId: String,
 		val amount: Int,
 	) : BattleEvent
 
