@@ -45,6 +45,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	fun ruleEffects(ruleId: Long): BattleSkillRuleEffectRuntimeSnapshot {
 		val statusEffects = statusEffectRows(ruleId)
 		val sideFieldEffects = sideFieldEffectRows(ruleId)
+		validateStatusEffectKinds(statusEffects)
 		validateSideFieldEffectPolicies(sideFieldEffects)
 		return BattleSkillRuleEffectRuntimeSnapshot(
 			chargeSkippedByWeathers = chargeSkippedByWeathers(ruleId),
@@ -194,6 +195,20 @@ class BattleSkillRuleEffectRuntimeLookup(
 					chancePercent = row.chancePercent,
 				)
 			}
+
+	/**
+	 * 校验状态效果族是否能被当前运行时拆分。
+	 *
+	 * 状态附加子表先读取成 [StatusEffectRuntimeRow]，再按 `statusKind` 拆成主要异常和临时状态两份列表。如果这里不先
+	 * 校验，未知状态族会同时避开两个 `filter`，最终表现成启用的状态规则完全没有进入技能槽。生产环境中这比直接
+	 * 报错更危险，因为技能表面上仍能装配成功，只有实战时才发现状态不会触发。
+	 */
+	private fun validateStatusEffectKinds(rows: List<StatusEffectRuntimeRow>) {
+		val unsupported = rows.firstOrNull { row -> row.statusKind != "MAJOR" && row.statusKind != "VOLATILE" }
+		if (unsupported != null) {
+			invalidValue("statusKind", "不支持的状态效果类型: ${unsupported.statusKind}")
+		}
+	}
 
 	private fun statStageEffects(ruleId: Long): List<BattleStatStageEffect> =
 		jdbcTemplate.query(
