@@ -525,7 +525,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 134L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 135L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 247L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
@@ -2153,6 +2153,61 @@ class LiquibaseMigrationTests(
 				"damage_policy" to "standard-damage",
 				"makes_contact" to true,
 				"affected_by_protect" to true,
+			),
+		)
+
+		val pendingTargetActionSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.makes_contact, r.affected_by_protect
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('sucker-punch', 'upper-hand')
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(pendingTargetActionSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 389L,
+				"code" to "sucker-punch",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "target-pending-damaging-skill-damage",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+				"makes_contact" to true,
+				"affected_by_protect" to true,
+			),
+			mapOf(
+				"skill_id" to 918L,
+				"code" to "upper-hand",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "target-pending-priority-damaging-skill-damage",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+				"makes_contact" to true,
+				"affected_by_protect" to true,
+			),
+		)
+
+		val upperHandFlinchEffects = queryMaps(
+			"""
+			select sr.skill_id, br.code as status_code, se.chance_percent
+			from battle_skill_status_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join battle_status_rule br on br.id = se.status_rule_id
+			where sr.skill_id = 918
+			order by se.sort_order
+			""".trimIndent(),
+		)
+		assertThat(upperHandFlinchEffects).containsExactly(
+			mapOf(
+				"skill_id" to 918L,
+				"status_code" to "flinch",
+				"chance_percent" to 100,
 			),
 		)
 

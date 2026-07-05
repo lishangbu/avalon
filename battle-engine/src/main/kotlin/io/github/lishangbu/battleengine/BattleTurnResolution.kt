@@ -52,8 +52,12 @@ internal class BattleTurnResolution(
 		}
 		val skillActions = actionPlanner.skillActionsForTurn(afterSwitches, actions.filterIsInstance<BattleAction.UseSkill>())
 		val orderedActions = actionPlanner.orderSkillActions(afterSwitches, skillActions, random)
-		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches)) { current, plan ->
-			if (current.state.result != null) current else skillUseResolution.resolve(current, plan, random)
+		val resolvedContext = orderedActions.fold(TurnContext(afterSwitches, plannedSkillActions = orderedActions)) { current, plan ->
+			if (current.state.result != null) {
+				current
+			} else {
+				skillUseResolution.resolve(current, plan, random).markSkillActionResolved(plan.action.actorId)
+			}
 		}
 		return finishTurnAfterActions(resolvedContext, nextTurnNumber)
 	}

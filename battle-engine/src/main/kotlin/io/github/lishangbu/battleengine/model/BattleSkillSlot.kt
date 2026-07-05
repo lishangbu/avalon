@@ -71,6 +71,10 @@ package io.github.lishangbu.battleengine.model
  * `usableOnlyFirstSkillActionSinceEntering` 表示技能只有在使用者本次上场后的第一次技能行动才能成功。该字段
  * 不按技能 ID 硬编码，而是承载公开规则中 Fake Out / First Impression 共享的时机 gate；失败仍发生在技能宣告
  * 和 PP 消耗之后，命中、保护、伤害和附加效果之前。
+ * `requiresTargetPendingDamagingSkill` 表示技能只有在目标本回合仍未行动且正准备使用伤害技能时才能继续。突袭这类
+ * 先读目标意图的技能会在宣告和 PP 消耗之后读取回合行动计划；目标切换、已经行动、休整或准备变化技能都会失败。
+ * `requiresTargetPendingPriorityDamagingSkill` 表示技能只有在目标本回合仍未行动且正准备使用先制度伤害技能时才能继续。
+ * 快手还击用它拦截对手先制度攻击；目标准备变化技能或普通优先度攻击时都会在命中前失败。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -151,6 +155,8 @@ data class BattleSkillSlot(
 	val clearsFieldHazardsAndSubstitutes: Boolean = false,
 	val clearsTargetSideBarriersAndFieldHazards: Boolean = false,
 	val usableOnlyFirstSkillActionSinceEntering: Boolean = false,
+	val requiresTargetPendingDamagingSkill: Boolean = false,
+	val requiresTargetPendingPriorityDamagingSkill: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,

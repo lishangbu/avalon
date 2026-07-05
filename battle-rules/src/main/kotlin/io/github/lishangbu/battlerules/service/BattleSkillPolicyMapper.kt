@@ -473,6 +473,24 @@ internal fun String.clearsTargetSideBarriersAndFieldHazards(): Boolean =
 internal fun String.usableOnlyFirstSkillActionSinceEntering(): Boolean =
 	this == "first-skill-action-only-damage"
 
+/**
+ * 判断技能是否要求目标仍在准备伤害技能。
+ *
+ * 突袭的失败条件依赖目标本回合队列，而不是目标当前状态：目标已经行动、选择替换、准备变化技能或处于休整，
+ * 都会让技能在宣告和 PP 消耗后失败。运行时只需要一个布尔语义，具体队列判断由 battle-engine 完成。
+ */
+internal fun String.requiresTargetPendingDamagingSkill(): Boolean =
+	this == "target-pending-damaging-skill-damage"
+
+/**
+ * 判断技能是否要求目标仍在准备先制度伤害技能。
+ *
+ * 快手还击比突袭更窄：目标必须正准备一个有效优先度大于 0 的伤害技能。把它拆成独立 policy，是为了避免用
+ * “突袭条件 + 额外优先度”这种隐式组合污染后台维护语义。
+ */
+internal fun String.requiresTargetPendingPriorityDamagingSkill(): Boolean =
+	this == "target-pending-priority-damaging-skill-damage"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -518,6 +536,8 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"clear-field-hazards-and-substitutes",
 	"clear-target-side-barriers-and-field-hazards",
 	"first-skill-action-only-damage",
+	"target-pending-damaging-skill-damage",
+	"target-pending-priority-damaging-skill-damage",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -596,6 +616,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	clearsFieldHazardsAndSubstitutes() ||
 	clearsTargetSideBarriersAndFieldHazards() ||
 	usableOnlyFirstSkillActionSinceEntering() ||
+	requiresTargetPendingDamagingSkill() ||
+	requiresTargetPendingPriorityDamagingSkill() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

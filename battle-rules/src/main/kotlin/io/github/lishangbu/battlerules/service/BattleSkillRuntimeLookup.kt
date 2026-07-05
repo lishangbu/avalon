@@ -135,6 +135,8 @@ class BattleSkillRuntimeLookup(
 			clearsFieldHazardsAndSubstitutes = effectPolicy.clearsFieldHazardsAndSubstitutes(),
 			clearsTargetSideBarriersAndFieldHazards = effectPolicy.clearsTargetSideBarriersAndFieldHazards(),
 			usableOnlyFirstSkillActionSinceEntering = effectPolicy.usableOnlyFirstSkillActionSinceEntering(),
+			requiresTargetPendingDamagingSkill = effectPolicy.requiresTargetPendingDamagingSkill(),
+			requiresTargetPendingPriorityDamagingSkill = effectPolicy.requiresTargetPendingPriorityDamagingSkill(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

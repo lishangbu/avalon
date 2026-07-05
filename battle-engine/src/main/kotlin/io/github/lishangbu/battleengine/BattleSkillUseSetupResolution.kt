@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
@@ -91,6 +92,19 @@ internal class BattleSkillUseSetupResolution(
 					.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
 			)
 		}
+		val pendingTargetActionFailure = pendingTargetActionFailure(
+			context = beforeMoveContext.copy(state = stateAfterChargeDecision),
+			actorId = readyActor.actorId,
+			targetActorId = targets.first().actorId,
+			skill = skill,
+		)
+		if (pendingTargetActionFailure != null) {
+			return SkillUseSetupResult.Stopped(
+				beforeMoveContext
+					.copy(state = stateAfterChargeDecision.appendEvent(pendingTargetActionFailure))
+					.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
+			)
+		}
 		return SkillUseSetupResult.Ready(
 			beforeMoveContext = beforeMoveContext,
 			stateAfterChargeDecision = stateAfterChargeDecision,
@@ -129,6 +143,45 @@ internal class BattleSkillUseSetupResolution(
 			targetActorId = targetActorId,
 			skillId = skill.skillId,
 			reason = "not-first-skill-action-since-entering",
+		)
+	}
+
+	/**
+	 * 判断技能是否因目标本回合没有准备合格行动而失败。
+	 *
+	 * 突袭读取的是目标队列中“尚未执行的伤害技能”；快手还击读取的是“尚未执行的先制度伤害技能”。这里使用
+	 * [TurnContext.plannedSkillActions] 和 [TurnContext.resolvedSkillActorIds]，避免根据当前 HP、速度或事件流
+	 * 反推目标意图。失败时技能已经宣告并消耗 PP，但不会继续进入保护、命中或伤害流程。
+	 */
+	private fun pendingTargetActionFailure(
+		context: TurnContext,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleEvent.SkillFailed? {
+		if (!skill.requiresTargetPendingDamagingSkill && !skill.requiresTargetPendingPriorityDamagingSkill) {
+			return null
+		}
+		val state = context.state
+		val pendingAction = context.pendingSkillAction(targetActorId)
+		val reason = when {
+			pendingAction == null -> "target-has-no-pending-skill-action"
+			skill.requiresTargetPendingDamagingSkill && pendingAction.skill.damageClass == BattleDamageClass.STATUS ->
+				"target-not-pending-damaging-skill"
+			skill.requiresTargetPendingDamagingSkill && state.participant(targetActorId)?.rechargeTurnsRemaining?.let { it > 0 } == true ->
+				"target-not-pending-damaging-skill"
+			skill.requiresTargetPendingPriorityDamagingSkill && pendingAction.skill.damageClass == BattleDamageClass.STATUS ->
+				"target-not-pending-priority-damaging-skill"
+			skill.requiresTargetPendingPriorityDamagingSkill && pendingAction.priorityContext.effectivePriority <= 0 ->
+				"target-not-pending-priority-damaging-skill"
+			else -> null
+		} ?: return null
+		return BattleEvent.SkillFailed(
+			turnNumber = state.turnNumber,
+			actorId = actorId,
+			targetActorId = targetActorId,
+			skillId = skill.skillId,
+			reason = reason,
 		)
 	}
 

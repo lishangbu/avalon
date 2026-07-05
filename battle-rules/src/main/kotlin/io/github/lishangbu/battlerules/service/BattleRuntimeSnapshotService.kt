@@ -774,6 +774,9 @@ class BattleRuntimeSnapshotService(
 				"attack-stage-already-maximum" -> "攻击能力阶级已经最高"
 				"insufficient-hp-for-max-attack-cost" -> "剩余 HP 不足以支付技能代价"
 				"not-first-skill-action-since-entering" -> "不是本次上场后的第一次技能行动"
+				"target-has-no-pending-skill-action" -> "目标没有待执行的技能行动"
+				"target-not-pending-damaging-skill" -> "目标没有准备伤害技能"
+				"target-not-pending-priority-damaging-skill" -> "目标没有准备先制度伤害技能"
 				else -> this
 			}
 
