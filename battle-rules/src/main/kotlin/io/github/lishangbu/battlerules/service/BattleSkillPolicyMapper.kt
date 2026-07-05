@@ -412,6 +412,12 @@ internal fun String.criticalHitStageBoost(): Int =
 		else -> 0
 	}
 
+internal fun String.restoresUserBySleeping(): Boolean =
+	this == "self-rest-full-heal"
+
+internal fun String.curesUserSideMajorStatuses(): Boolean =
+	this == "user-side-major-status-cure"
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -439,6 +445,8 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"invert-target-stat-stages",
 	"accuracy-lock-on-target",
 	"self-critical-hit-stage-plus-two",
+	"self-rest-full-heal",
+	"user-side-major-status-cure",
 )
 
 private val battleSkillTargetPolicies = setOf(
@@ -497,7 +505,9 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage() ||
-	criticalHitStageBoost() > 0
+	criticalHitStageBoost() > 0 ||
+	restoresUserBySleeping() ||
+	curesUserSideMajorStatuses()
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

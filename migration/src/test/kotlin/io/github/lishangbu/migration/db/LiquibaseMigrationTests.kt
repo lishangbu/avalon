@@ -1826,6 +1826,51 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val restHealBellSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.target_policy, r.damage_policy, r.affected_by_protect, r.sound_based
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('rest', 'heal-bell', 'aromatherapy')
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(restHealBellSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 156L,
+				"code" to "rest",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "self-rest-full-heal",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+				"sound_based" to false,
+			),
+			mapOf(
+				"skill_id" to 215L,
+				"code" to "heal-bell",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "user-side-major-status-cure",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+				"sound_based" to true,
+			),
+			mapOf(
+				"skill_id" to 312L,
+				"code" to "aromatherapy",
+				"skill_enabled" to false,
+				"rule_enabled" to false,
+				"effect_policy" to "status-effect",
+				"target_policy" to "selected-target",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to true,
+				"sound_based" to false,
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use

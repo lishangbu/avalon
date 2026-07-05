@@ -562,6 +562,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleStatStageOperationSkillTests",
 					"io.github.lishangbu.battleengine.BattleSkillWeightEffectTests",
 					"io.github.lishangbu.battleengine.BattleNonFaintingDamageSkillTests",
+					"io.github.lishangbu.battleengine.BattleRestAndTeamStatusCureTests",
 				),
 			),
 			CoverageGroup(

@@ -9279,3 +9279,62 @@ databaseChangeLog:
             required_weather_rule_id = excluded.required_weather_rule_id,
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
+- changeSet:
+    id: 002-battle-rules-enable-rest-heal-bell-skills
+    author: backend
+    comment: 启用睡觉和治愈铃声规则，并标记最新版不可用的芳香治疗。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 睡觉是固定睡眠 + 满 HP 回复的组合规则，不能按普通随机睡眠或普通自我回复拆开。
+          -- 治愈铃声清除使用者整侧主要异常状态；混乱等临时状态不属于现代主要异常槽位。
+          with enabled_skills(code) as (
+            values
+              ('rest'),
+              ('heal-bell')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'self-rest-full-heal',
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = false,
+            description = '自我回复变化技能规则；HP 不满且可以入睡时，清除原主要异常，进入固定 2 次行动阻止的睡眠并回满 HP。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'rest';
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'user-side-major-status-cure',
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = false,
+            sound_based = true,
+            description = '队伍治疗变化技能规则；清除使用者所属侧全部成员的主要异常状态，不清除混乱等临时状态。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'heal-bell';
+
+          update game_skill
+          set enabled = false
+          where code = 'aromatherapy';
+
+          update battle_skill_rule r
+          set
+            enabled = false,
+            description = '最新版资料明确标记为无法使用，保留规则行仅用于资料审计。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'aromatherapy';

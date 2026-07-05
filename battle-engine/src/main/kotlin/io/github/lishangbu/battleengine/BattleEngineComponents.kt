@@ -29,7 +29,6 @@ internal class BattleEngineComponents(
 	private val damageDefenseEffects = BattleDamageDefenseEffects()
 	private val targetDefenseEffects = BattleTargetDefenseEffects()
 	private val skillHpEffects = BattleSkillHpEffects()
-	private val statusSkillHpEffects = BattleStatusSkillHpEffects()
 	private val statStageEffects = BattleStatStageEffects(
 		substituteBlocksOpponentEffect = { state, actorId, targetActorId, skill ->
 			targetDefenseEffects.substituteBlocksOpponentEffect(state, actorId, targetActorId, skill)
@@ -109,6 +108,11 @@ internal class BattleEngineComponents(
 		},
 		skillIgnoresTargetAbilityEffects = { state, actorId, targetActorId ->
 			targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)
+		},
+	)
+	private val statusSkillHpEffects = BattleStatusSkillHpEffects(
+		majorStatusBlockReason = { state, actorId, recipient, status, skill ->
+			majorStatusEffects.blockedMajorStatusReason(state, actorId, recipient, status, skill)
 		},
 	)
 

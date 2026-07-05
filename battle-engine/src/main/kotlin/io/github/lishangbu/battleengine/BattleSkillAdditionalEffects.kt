@@ -58,7 +58,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterSideEntryHazards = applySideEntryHazards(afterSideProtections, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
-		return forcedSwitchEffects.apply(afterAccuracyLock, actorId, targetActorId, skill, random)
+		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterAccuracyLock, actorId, skill)
+		return forcedSwitchEffects.apply(afterUserSideMajorStatusCures, actorId, targetActorId, skill, random)
 	}
 
 	/**
@@ -368,6 +369,38 @@ internal class BattleSkillAdditionalEffects(
 				fieldEffects.applySideProtection(current, actorId, targetActorId, skill, application)
 			}
 		}
+
+	/**
+	 * 清除使用者所属侧全部成员的主要异常状态。
+	 *
+	 * 治愈铃声这类技能的目标是“使用者队伍”，不是当前选中的单个目标；因此它必须读取 [BattleState.sideOf] 中的
+	 * 完整成员列表，包含后备成员。现代主要异常槽位不包含混乱、束缚、寄生等临时状态，所以这里只调用
+	 * [BattleParticipant.clearMajorStatus]，并为每个真实发生清除的成员追加独立 [BattleEvent.StatusCleared]。
+	 * 没有成员带主要异常时技能仍然成功，只是不产生清除事件。
+	 */
+	private fun applyUserSideMajorStatusCures(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.curesUserSideMajorStatuses) {
+			return state
+		}
+		val side = state.sideOf(actorId) ?: return state
+		return side.participants.fold(state) { current, sideParticipant ->
+			val participant = current.participant(sideParticipant.actorId) ?: return@fold current
+			val status = participant.majorStatus ?: return@fold current
+			current
+				.replaceParticipant(participant.clearMajorStatus())
+				.appendEvent(
+					BattleEvent.StatusCleared(
+						turnNumber = current.turnNumber,
+						actorId = participant.actorId,
+						status = status,
+					),
+				)
+		}
+	}
 
 	/**
 	 * 应用一侧入场陷阱效果。

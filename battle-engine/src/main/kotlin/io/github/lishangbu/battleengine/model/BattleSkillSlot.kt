@@ -57,10 +57,14 @@ package io.github.lishangbu.battleengine.model
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
  * `sideSpeedModifierApplications` 表示技能命中后建立的一侧速度结算效果，例如顺风。
  * `sideEntryHazardApplications` 表示技能命中后建立在一侧、等待后续成员换入时触发的入场陷阱效果。
+ * `curesUserSideMajorStatuses` 表示技能成功后清除使用者所在侧全部成员的主要异常状态；治愈铃声使用该字段。
+ * 它只处理主要异常槽位，不清除混乱、寄生、束缚等临时状态。
  * `fieldSpeedOrderApplications` 表示技能命中后建立的全场速度顺序效果，例如戏法空间。
  * `chargesBeforeUse` 表示技能首次使用时先进入蓄力，下一次技能行动才真正释放效果；
  * `chargeSkippedByWeathers` 表示指定天气下该蓄力等待可以省略，技能会在宣告回合直接进入命中和伤害流程。
  * `hpEffects` 表示技能成功后直接改变 HP 的效果，例如吸取回复、反作用伤害或自我回复。
+ * `restoresUserBySleeping` 表示技能成功后让使用者进入固定 2 次行动阻止的睡眠并回满 HP；睡觉使用该字段。
+ * 这条规则会覆盖已有主要异常，但仍会被满 HP、回复封锁、睡眠免疫、场地免疫和已有睡眠阻止。
  * `postDamageStatusCures` 表示技能造成实际伤害后治愈目标指定主要异常的效果。
  * `removesUserElementAfterDamage` 表示技能成功造成伤害后移除使用者当前与技能基础属性相同的属性。
  * `weightEffects` 表示技能成功后对成员当前体重产生的临时修正，例如速度成功提升后降低自身有效体重。
@@ -128,8 +132,10 @@ data class BattleSkillSlot(
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
 	val sideProtectionApplications: List<BattleSideProtectionApplication> = emptyList(),
+	val curesUserSideMajorStatuses: Boolean = false,
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	val hpEffects: List<BattleSkillHpEffect> = emptyList(),
+	val restoresUserBySleeping: Boolean = false,
 	val postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
 	val removesUserElementAfterDamage: Boolean = false,
 	val weightEffects: List<BattleSkillWeightEffect> = emptyList(),
@@ -246,6 +252,12 @@ data class BattleSkillSlot(
 		require(criticalHitStageBoost >= 0) { "criticalHitStageBoost must not be negative" }
 		require(criticalHitStageBoost == 0 || damageClass == BattleDamageClass.STATUS) {
 			"critical hit stage boost requires a status skill"
+		}
+		require(!curesUserSideMajorStatuses || damageClass == BattleDamageClass.STATUS) {
+			"user side status cure requires a status skill"
+		}
+		require(!restoresUserBySleeping || damageClass == BattleDamageClass.STATUS) {
+			"rest healing requires a status skill"
 		}
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }
 		require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {

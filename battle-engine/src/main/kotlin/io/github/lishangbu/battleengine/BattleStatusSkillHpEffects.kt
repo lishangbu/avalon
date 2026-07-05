@@ -1,11 +1,14 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
+import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageModifiers
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 
 /**
  * 变化技能成功后的 HP 效果结算器。
@@ -18,7 +21,15 @@ import io.github.lishangbu.battleengine.model.BattleState
  * 替身比较特殊：已有替身或 HP 不足会让技能本身失败，因此会追加 [BattleEvent.SkillFailed]，方便 replay 和
  * 对照测试看到“技能已宣告并消耗 PP，但没有建立替身”的事实。
  */
-internal class BattleStatusSkillHpEffects {
+internal class BattleStatusSkillHpEffects(
+	private val majorStatusBlockReason: (
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		status: BattleMajorStatus,
+		skill: BattleSkillSlot?,
+	) -> BattleStatusBlockReason?,
+) {
 	private val statStageModifiers = BattleStatStageModifiers()
 
 	/**
@@ -60,7 +71,7 @@ internal class BattleStatusSkillHpEffects {
 		skill: BattleSkillSlot,
 	): BattleState =
 		skill.hpEffects
-			.fold(state) { current, effect ->
+			.fold(applyRestFullHeal(state, actorId, skill)) { current, effect ->
 				when (effect) {
 					is BattleSkillHpEffect.SelfHealMaxHpFraction -> applyHealMaxHpFraction(
 						state = current,
@@ -123,6 +134,108 @@ internal class BattleStatusSkillHpEffects {
 					else -> current
 				}
 			}
+
+	/**
+	 * 处理睡觉的“固定睡眠 + 回满 HP + 清除原主要异常”组合效果。
+	 *
+	 * 睡觉不能复用普通主要异常附加：普通睡眠会拒绝已有主要异常，而睡觉必须在成功入睡后覆盖灼伤、中毒等旧状态。
+	 * 它也不能复用普通自我回复：满 HP、回复封锁、睡眠免疫、场地免疫和已有睡眠都会让整招失败，不能只跳过回复。
+	 * 因此这里以一个小的显式分支维护规则顺序：先检查 HP/回复封锁/已有睡眠，再复用主要异常阻止入口判断能否入睡，
+	 * 成功后按“清除旧状态 -> 写入睡眠 -> 回满 HP”的事件顺序记录 replay。
+	 */
+	private fun applyRestFullHeal(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.restoresUserBySleeping) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
+		}
+		if (actor.currentHp == actor.maxHp) {
+			return state.appendSkillFailed(actorId, actorId, skill, "rest-full-hp")
+		}
+		if (actor.majorStatus == BattleMajorStatus.SLEEP) {
+			return state.appendSkillFailed(actorId, actorId, skill, "rest-already-asleep")
+		}
+		if (actor.healingBlocked()) {
+			return state.appendSkillFailed(actorId, actorId, skill, "healing-blocked")
+		}
+		val blockedReason = majorStatusBlockReason(state, actorId, actor, BattleMajorStatus.SLEEP, skill)
+		if (blockedReason != null) {
+			return state.appendEvent(
+				BattleEvent.StatusApplicationBlocked(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = actor.actorId,
+					status = BattleMajorStatus.SLEEP,
+					reason = blockedReason,
+				),
+			)
+		}
+
+		val previousStatus = actor.majorStatus
+		val healAmount = actor.maxHp - actor.currentHp
+		val rested = actor
+			.clearMajorStatus()
+			.applyMajorStatus(BattleMajorStatus.SLEEP, sleepTurnsRemaining = REST_SLEEP_BLOCKED_ACTIONS)
+			.heal(healAmount)
+		val afterState = state.replaceParticipant(rested)
+		val afterPreviousStatusCleared = if (previousStatus == null) {
+			afterState
+		} else {
+			afterState.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					status = previousStatus,
+				),
+			)
+		}
+		return afterPreviousStatusCleared
+			.appendEvent(
+				BattleEvent.StatusApplied(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = actor.actorId,
+					status = BattleMajorStatus.SLEEP,
+				),
+			)
+			.appendEvent(
+				BattleEvent.SkillHealingApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = healAmount,
+				),
+			)
+	}
+
+	private fun BattleState.appendSkillFailed(
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		reason: String,
+	): BattleState =
+		appendEvent(
+			BattleEvent.SkillFailed(
+				turnNumber = turnNumber,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				skillId = skill.skillId,
+				reason = reason,
+			),
+		)
+
+	private companion object {
+		/**
+		 * 睡觉在现代主系列中固定让使用者之后两次行动被睡眠阻止。
+		 */
+		private const val REST_SLEEP_BLOCKED_ACTIONS = 2
+	}
 
 	/**
 	 * 按最大 HP 比例回复指定成员。

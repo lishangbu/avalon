@@ -166,6 +166,14 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill rest and team status cure policies map explicit flags`() {
+		assertThat("self-rest-full-heal".restoresUserBySleeping()).isTrue()
+		assertThat("self-rest-full-heal".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("user-side-major-status-cure".curesUserSideMajorStatuses()).isTrue()
+		assertThat("user-side-major-status-cure".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `side protection field policies map to protection kinds`() {
 		assertThat("side-stat-stage-reduction-protection".toBattleSideProtectionKind())
 			.isEqualTo(BattleSideProtectionKind.STAT_STAGE_REDUCTION)

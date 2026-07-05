@@ -239,7 +239,7 @@ class BattleRuntimeSnapshotServiceTests(
 			listOf(
 				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 54, 57, 63, 69,
 				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-				115, 116, 129, 138, 147, 157, 162, 163, 164, 170, 175, 179, 184, 189, 191, 199, 200, 206, 219, 235, 240, 243, 252, 259, 261, 263, 269,
+				115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 170, 175, 179, 184, 189, 191, 199, 200, 206, 215, 219, 235, 240, 243, 252, 259, 261, 263, 269,
 				280, 283, 305, 307, 308, 311, 319, 329, 338, 344, 347, 349, 360, 362, 366, 368, 390, 400, 416, 427, 433, 435, 439, 446, 447, 457, 459,
 				464, 473, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
@@ -882,6 +882,9 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(trickRoom.speedOrderEffect.turnsRemaining).isEqualTo(5)
 
 		assertThat(slots.getValue(116).criticalHitStageBoost).isEqualTo(2)
+		assertThat(slots.getValue(156).restoresUserBySleeping).isTrue()
+		assertThat(slots.getValue(215).curesUserSideMajorStatuses).isTrue()
+		assertThat(slots.getValue(215).soundBased).isTrue()
 
 		val spikes = slots.getValue(191).sideEntryHazardApplications.single()
 		assertThat(spikes.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)
