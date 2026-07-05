@@ -10173,3 +10173,132 @@ databaseChangeLog:
             description = excluded.description,
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
+- changeSet:
+    id: 002-battle-rules-enable-contact-damage-effects
+    author: backend
+    comment: 启用接触反伤特性和接触反伤道具规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 接触反伤属于攻击方主动接触目标后的副作用：粗糙皮肤/铁刺按攻击方最大 HP 的 1/8 扣血；
+          -- 凸凸头盔按攻击方最大 HP 的 1/6 扣血。附着针还包含回合末自伤和道具转移，等生命周期完整建模后再启用。
+          update game_ability
+          set enabled = true
+          where code in ('rough-skin', 'iron-barbs');
+
+          update game_item
+          set enabled = true
+          where code = 'rocky-helmet';
+
+          with new_ability_rules(ability_code, trigger_timing, effect_policy, trigger_order, description, sort_order) as (
+            values
+              (
+                'rough-skin',
+                'AFTER_DAMAGE',
+                'contact-damage-to-attacker-eighth',
+                80,
+                '受到接触类技能成功命中后，攻击方按自身最大 HP 的 1/8 受到间接伤害；击中替身、非接触或攻击方免疫接触副作用时不触发。',
+                700
+              ),
+              (
+                'iron-barbs',
+                'AFTER_DAMAGE',
+                'contact-damage-to-attacker-eighth',
+                80,
+                '受到接触类技能成功命中后，攻击方按自身最大 HP 的 1/8 受到间接伤害；规则口径与粗糙皮肤一致。',
+                710
+              )
+          ),
+          numbered_ability_rules as (
+            select
+              coalesce((select max(id) from battle_ability_rule), 0) + row_number() over (order by sort_order) as id,
+              a.id as ability_id,
+              nr.trigger_timing,
+              nr.effect_policy,
+              nr.trigger_order,
+              nr.description,
+              nr.sort_order
+            from new_ability_rules nr
+            join game_ability a on a.code = nr.ability_code
+          )
+          insert into battle_ability_rule (
+            id,
+            ability_id,
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            ability_id,
+            trigger_timing,
+            effect_policy,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_ability_rules
+          on conflict (ability_id, trigger_timing, effect_policy) do update set
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;
+
+          with new_item_rules(item_code, trigger_timing, effect_policy, consumable, trigger_order, description, sort_order) as (
+            values
+              (
+                'rocky-helmet',
+                'AFTER_DAMAGE',
+                'contact-damage-to-attacker-sixth',
+                false,
+                80,
+                '持有者被接触类技能成功命中后，攻击方按自身最大 HP 的 1/6 受到间接伤害；该道具不会因此消耗。',
+                640
+              )
+          ),
+          numbered_item_rules as (
+            select
+              coalesce((select max(id) from battle_item_rule), 0) + row_number() over (order by sort_order) as id,
+              i.id as item_id,
+              nr.trigger_timing,
+              nr.effect_policy,
+              nr.consumable,
+              nr.trigger_order,
+              nr.description,
+              nr.sort_order
+            from new_item_rules nr
+            join game_item i on i.code = nr.item_code
+          )
+          insert into battle_item_rule (
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            enabled,
+            sort_order
+          )
+          select
+            id,
+            item_id,
+            trigger_timing,
+            effect_policy,
+            consumable,
+            trigger_order,
+            description,
+            true,
+            sort_order
+          from numbered_item_rules
+          on conflict (item_id, trigger_timing, effect_policy) do update set
+            consumable = excluded.consumable,
+            trigger_order = excluded.trigger_order,
+            description = excluded.description,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

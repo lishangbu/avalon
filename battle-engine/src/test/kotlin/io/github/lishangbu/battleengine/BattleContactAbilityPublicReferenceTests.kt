@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -19,6 +20,116 @@ import kotlin.test.assertEquals
  */
 class BattleContactAbilityPublicReferenceTests {
 	private val engine = BattleEngine()
+
+	@Test
+	fun `contact damage ability damages attacker after successful contact like public scenario`() {
+		val scenario = publicBattleRuleScenario(
+			name = "contact-damage-ability-damages-attacker-after-contact",
+			inputSummary = "攻击方最大 HP 100，使用接触类物理技能命中目标；目标拥有接触后按攻击方最大 HP 1/8 反伤的结构化特性效果。",
+			expectedSummary = "目标先受到普通伤害；随后攻击方受到 floor(100 / 8) = 12 点反伤。反伤不读取目标受到的 28 点伤害。",
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(makesContact = true),
+				),
+				second = participant(
+					"defender",
+					speed = 80,
+					abilityEffects = listOf(BattleAbilityEffect.ContactDamageToAttacker(damageDenominator = 8)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+		val recoil = resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>().single()
+
+		scenario.assertNamed("contact-damage-ability-damages-attacker-after-contact")
+		assertEquals(72, resolved.participant("defender")?.currentHp)
+		assertEquals(88, resolved.participant("attacker")?.currentHp)
+		assertEquals("attacker", recoil.actorId)
+		assertEquals(12, recoil.amount)
+		assertEquals(listOf("critical hit for 1", "damage random for 1"), random.consumedReasons())
+	}
+
+	@Test
+	fun `contact damage ability is blocked by attacker contact side effect immunity`() {
+		val scenario = publicBattleRuleScenario(
+			name = "contact-damage-ability-blocked-by-contact-side-effect-immunity",
+			inputSummary = "攻击方使用接触类物理技能命中目标，目标拥有接触反伤特性；攻击方携带免疫接触副作用的结构化道具效果。",
+			expectedSummary = "目标正常受到伤害；攻击方不会受到接触反伤，也不会追加反伤事件。",
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(makesContact = true),
+					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity),
+				),
+				second = participant(
+					"defender",
+					speed = 80,
+					abilityEffects = listOf(BattleAbilityEffect.ContactDamageToAttacker(damageDenominator = 8)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		scenario.assertNamed("contact-damage-ability-blocked-by-contact-side-effect-immunity")
+		assertEquals(72, resolved.participant("defender")?.currentHp)
+		assertEquals(100, resolved.participant("attacker")?.currentHp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>())
+	}
+
+	@Test
+	fun `contact damage ability is ignored by target ability ignore effect`() {
+		val scenario = publicBattleRuleScenario(
+			name = "contact-damage-ability-ignored-by-target-ability-ignore-effect",
+			inputSummary = "攻击方使用接触类物理技能命中目标，目标拥有接触反伤特性；攻击方拥有本次技能忽略目标特性的结构化效果。",
+			expectedSummary = "目标正常受到伤害；目标特性在本次技能中失效，因此攻击方不会受到接触反伤。",
+		)
+		val random = ScriptedBattleRandom(listOf(1, 15))
+		val state = engine.start(
+			initialState(
+				first = participant(
+					"attacker",
+					speed = 100,
+					skill = damagingSkill(makesContact = true),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+				),
+				second = participant(
+					"defender",
+					speed = 80,
+					abilityEffects = listOf(BattleAbilityEffect.ContactDamageToAttacker(damageDenominator = 8)),
+				),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("attacker", skillId = 1, targetActorId = "defender")),
+			random,
+		)
+
+		scenario.assertNamed("contact-damage-ability-ignored-by-target-ability-ignore-effect")
+		assertEquals(72, resolved.participant("defender")?.currentHp)
+		assertEquals(100, resolved.participant("attacker")?.currentHp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.RecoilDamageApplied>())
+	}
 
 	@Test
 	fun `contact status ability applies paralysis after successful contact like public scenario`() {

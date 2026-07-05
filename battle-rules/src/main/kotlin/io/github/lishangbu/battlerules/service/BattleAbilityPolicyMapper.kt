@@ -89,6 +89,7 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			status = BattleMajorStatus.PARALYSIS,
 			chancePercent = 30,
 		)
+		"contact-damage-to-attacker-eighth" -> BattleAbilityEffect.ContactDamageToAttacker(damageDenominator = 8)
 		"switch-in-opponents-attack-down" -> BattleAbilityEffect.SwitchInStatStageChange(
 			stat = BattleStat.ATTACK,
 			stageDelta = -1,

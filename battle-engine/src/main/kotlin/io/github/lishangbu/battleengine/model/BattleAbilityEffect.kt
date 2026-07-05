@@ -620,6 +620,25 @@ sealed interface BattleAbilityEffect {
 	}
 
 	/**
+	 * 受到接触类技能成功命中后，让攻击方按其自身最大 HP 比例受到伤害。
+	 *
+	 * 该效果用于表达粗糙皮肤、铁刺这类接触反伤特性。它只在目标本体被接触技能实际命中并完成伤害写入后触发；
+	 * 击中替身、技能没有有效接触、攻击方携带免疫接触副作用的道具、攻击方免疫间接伤害，或本次技能忽略目标特性
+	 * 时都不会造成反伤。伤害基数始终是攻击方自身最大 HP，而不是目标受到的伤害量，因此不会被随机浮动、
+	 * 属性克制、屏障、目标剩余 HP 或多段命中的溢出伤害影响。
+	 *
+	 * `damageDenominator` 表示最大 HP 分母；例如 8 表示 `floor(maxHp / 8)`，最少 1 点，并夹取到攻击方当前 HP。
+	 * 多个同类反伤效果会按资料顺序逐条结算；如果攻击方在前一个效果后已经倒下，后续效果不会再追加伤害事件。
+	 */
+	data class ContactDamageToAttacker(
+		val damageDenominator: Int,
+	) : BattleAbilityEffect {
+		init {
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+		}
+	}
+
+	/**
 	 * 成员出场时修改当前对手上场成员的能力阶级。
 	 *
 	 * 该结构用于表达现代规则中“出场时令对手能力下降”的稳定特性。它不保存具体特性名称，也不保存本地化文本；

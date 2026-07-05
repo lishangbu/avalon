@@ -399,6 +399,25 @@ sealed interface BattleItemEffect {
 	object ContactSideEffectImmunity : BattleItemEffect
 
 	/**
+	 * 持有者被接触类技能成功命中后，让攻击方按其自身最大 HP 比例受到伤害。
+	 *
+	 * 该效果用于表达凸凸头盔这类纯接触反伤道具。它和 [ContactSideEffectImmunity] 使用同一套“接触副作用”边界：
+	 * 如果攻击方的本次技能没有形成有效接触，或攻击方携带了免疫接触副作用的道具，就不会触发；但它不会改变技能
+	 * 本身的接触事实，也不会影响接触类保护绕过、接触类威力倍率等正向规则。
+	 *
+	 * `damageDenominator` 表示攻击方最大 HP 的分母。道具反伤属于间接伤害，会被攻击方的间接伤害免疫阻止；
+	 * 它不消费持有者道具，也不读取目标受到的实际伤害量。附着针这类还包含回合末自伤和道具转移的复杂道具，
+	 * 应在完整生命周期建模后再额外启用，避免只实现其中一半规则。
+	 */
+	data class ContactDamageToAttacker(
+		val damageDenominator: Int,
+	) : BattleItemEffect {
+		init {
+			require(damageDenominator > 0) { "damageDenominator must be positive" }
+		}
+	}
+
+	/**
 	 * 修正携带者在体重相关规则中被读取到的当前体重。
 	 *
 	 * 该效果用于表达非消耗型携带道具让成员体重按固定比例变化的规则。它不改变资料表中的基础体重，也不把道具

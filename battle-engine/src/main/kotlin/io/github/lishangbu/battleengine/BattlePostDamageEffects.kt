@@ -16,6 +16,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  * 免死，也不追加倒下事件；这些仍由主伤害流程和 [BattleState.handleFaintsAndResult] 负责。这里集中处理的是
  * 多个伤害入口都会复用的后续效果：
  * - 目标受到接触技能后，按目标特性概率给攻击方附加主要异常状态。
+ * - 目标受到接触技能后，按目标特性或道具让攻击方承受最大 HP 比例反伤。
  * - 目标受到伤害后，触发低体力一次性回复道具。
  * - 使用者造成伤害后，触发生命宝珠类固定反伤。
  * - 整次技能造成伤害后，触发按实际伤害量回复的携带道具。
@@ -71,6 +72,49 @@ internal class BattlePostDamageEffects(
 						randomReason = "contact sleep duration for $targetActorId",
 					)
 				}
+			}
+	}
+
+	/**
+	 * 处理目标方“受到接触技能后让攻击方损失 HP”的特性和道具效果。
+	 *
+	 * 该 hook 和 [applyContactAbilityEffects] 使用相同的触发边界：只有目标本体被有效接触后才会运行；攻击方的
+	 * 接触副作用免疫会阻止整条链；攻击方的间接伤害免疫会阻止实际扣血。特性反伤还会受到“本次技能忽略目标特性”
+	 * 的影响，道具反伤则不受该能力影响。反伤数值始终按攻击方最大 HP 计算，不读取目标本次实际损失 HP。
+	 */
+	fun applyContactDamageEffects(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		damageAmount: Int,
+	): BattleState {
+		if (damageAmount <= 0 || skill.damageClass == BattleDamageClass.STATUS) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (
+			!skill.makesEffectiveContact(actor) ||
+			actor.hasContactSideEffectImmunity() ||
+			actor.hasIndirectDamageImmunity()
+		) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		val afterAbilityDamage = if (skillIgnoresTargetAbilityEffects(state, actorId, targetActorId)) {
+			state
+		} else {
+			target.abilityEffects
+				.filterIsInstance<BattleAbilityEffect.ContactDamageToAttacker>()
+				.fold(state) { current, effect ->
+					applyContactDamageToAttacker(current, actorId, effect.damageDenominator)
+				}
+		}
+		val latestTarget = afterAbilityDamage.participant(targetActorId) ?: return afterAbilityDamage
+		return latestTarget.itemEffects
+			.filterIsInstance<BattleItemEffect.ContactDamageToAttacker>()
+			.fold(afterAbilityDamage) { current, effect ->
+				applyContactDamageToAttacker(current, actorId, effect.damageDenominator)
 			}
 	}
 
@@ -193,6 +237,36 @@ internal class BattlePostDamageEffects(
 					turnNumber = state.turnNumber,
 					actorId = actor.actorId,
 					amount = recoil,
+				),
+			)
+	}
+
+	/**
+	 * 执行一次接触反伤扣血。
+	 *
+	 * 该函数只接收分母，不接收来源名称。原因是引擎层不关心来源是粗糙皮肤、铁刺还是凸凸头盔；规则差异已经在
+	 * 上层通过“特性是否被忽略”和“道具是否存在”表达。事件继续复用 [BattleEvent.RecoilDamageApplied]，表示
+	 * 攻击方因本次主动攻击后的副作用损失 HP，避免为了同一类 HP 写入新增并行事件结构。
+	 */
+	private fun applyContactDamageToAttacker(
+		state: BattleState,
+		actorId: String,
+		damageDenominator: Int,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle() || actor.hasIndirectDamageImmunity()) {
+			return state
+		}
+		val damage = (actor.maxHp / damageDenominator)
+			.coerceAtLeast(1)
+			.coerceAtMost(actor.currentHp)
+		return state
+			.replaceParticipant(actor.receiveDamage(damage))
+			.appendEvent(
+				BattleEvent.RecoilDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					amount = damage,
 				),
 			)
 	}

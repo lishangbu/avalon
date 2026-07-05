@@ -512,8 +512,8 @@ class LiquibaseMigrationTests(
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
-		assertThat(seedCounts).containsEntry("battle_ability_rule", 69L)
-		assertThat(seedCounts).containsEntry("battle_item_rule", 64L)
+		assertThat(seedCounts).containsEntry("battle_ability_rule", 71L)
+		assertThat(seedCounts).containsEntry("battle_item_rule", 65L)
 		assertThat(seedCounts).containsEntry("battle_format", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause", 4L)
 		assertThat(seedCounts).containsEntry("battle_format_clause_binding", 4L)
@@ -2688,6 +2688,22 @@ class LiquibaseMigrationTests(
 				),
 			)
 
+			val contactDamageItemRules = queryMaps(
+				"""
+				select item_id, trigger_timing, effect_policy, consumable
+				from battle_item_rule
+				where item_id = 583
+				""".trimIndent(),
+			)
+			assertThat(contactDamageItemRules).containsExactly(
+				mapOf(
+					"item_id" to 583L,
+					"trigger_timing" to "AFTER_DAMAGE",
+					"effect_policy" to "contact-damage-to-attacker-sixth",
+					"consumable" to false,
+				),
+			)
+
 			val damageDealtHealingItemRules = queryMaps(
 				"""
 				select item_id, trigger_timing, effect_policy, consumable
@@ -2907,6 +2923,27 @@ class LiquibaseMigrationTests(
 				"ability_id" to 181L,
 				"trigger_timing" to "BEFORE_DAMAGE",
 				"effect_policy" to "contact-based-skill-damage-boost",
+			),
+		)
+
+		val contactDamageAbilityRules = queryMaps(
+			"""
+			select ability_id, trigger_timing, effect_policy
+			from battle_ability_rule
+			where ability_id in (24, 160)
+			order by ability_id
+			""".trimIndent(),
+		)
+		assertThat(contactDamageAbilityRules).containsExactly(
+			mapOf(
+				"ability_id" to 24L,
+				"trigger_timing" to "AFTER_DAMAGE",
+				"effect_policy" to "contact-damage-to-attacker-eighth",
+			),
+			mapOf(
+				"ability_id" to 160L,
+				"trigger_timing" to "AFTER_DAMAGE",
+				"effect_policy" to "contact-damage-to-attacker-eighth",
 			),
 		)
 
