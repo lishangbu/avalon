@@ -1707,6 +1707,45 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `sandbox turn renders fallback event type in chinese`() {
+		val response = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1", "a-2"),
+						participants = listOf(
+							participant("a-1", creatureId = 1, level = 50, skillIds = listOf(164)),
+							participant("a-2", creatureId = 2, level = 50),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1", "b-2"),
+						participants = listOf(
+							participant("b-1", creatureId = 3, level = 50),
+							participant("b-2", creatureId = 4, level = 50),
+						),
+					),
+				),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 164,
+						targetActorId = "a-1",
+					),
+				),
+			),
+		)
+
+		assertThat(response.resolved).isTrue()
+		assertThat(response.events.single { it.type == "SubstituteStarted" }.message).isEqualTo("替身开始")
+	}
+
+	@Test
 	fun `sandbox turn can continue from previous response state snapshot`() {
 		val first = service.resolveSandboxTurn(
 			BattleSandboxTurnRequest(
