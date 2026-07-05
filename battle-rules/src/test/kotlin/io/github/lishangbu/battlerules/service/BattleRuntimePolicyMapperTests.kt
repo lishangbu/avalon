@@ -8,10 +8,12 @@ import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.common.web.ApiErrorCode
 import io.github.lishangbu.common.web.ApiException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.springframework.http.HttpStatus
 
 /**
  * 验证运行时 policy mapper 的纯字符串映射边界。
@@ -27,6 +29,18 @@ class BattleRuntimePolicyMapperTests {
 		"water" to 11L,
 		"grass" to 12L,
 	)
+
+	@Test
+	fun `required element id reports api validation instead of internal error`() {
+		val exception = assertThrows<ApiException> {
+			emptyMap<String, Long>().requiredElementId("fire")
+		}
+
+		assertThat(exception.status).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(exception.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+		assertThat(exception.field).isEqualTo("elementCode")
+		assertThat(exception.message).isEqualTo("核心属性资料缺失: fire")
+	}
 
 	@Test
 	fun `skill target mapper requires explicit policy and rejects unknown policy`() {

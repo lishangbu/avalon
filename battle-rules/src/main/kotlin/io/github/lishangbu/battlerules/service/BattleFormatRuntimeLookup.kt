@@ -22,11 +22,13 @@ import io.github.lishangbu.battlerules.entity.playerCount
 import io.github.lishangbu.battlerules.entity.restrictionOperator
 import io.github.lishangbu.battlerules.entity.restrictionType
 import io.github.lishangbu.battlerules.entity.teamSize
+import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.notFound
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
 import org.springframework.stereotype.Component
+import java.util.Locale
 
 /**
  * 战斗赛制运行时读取器。
@@ -100,12 +102,23 @@ class BattleFormatRuntimeLookup(
 	private fun BattleFormat.toEngineFormatSnapshot(): BattleFormatSnapshot =
 		BattleFormatSnapshot(
 			code = code,
-			mode = BattleMode.valueOf(battleMode),
+			mode = toEngineBattleMode(),
 			activeParticipantsPerSide = activeParticipantCount,
 			playerCount = playerCount,
 			teamSize = teamSize,
 			defaultLevel = defaultLevel,
 		)
+
+	/**
+	 * 把资料表中的文本模式转换为引擎枚举。
+	 *
+	 * `battle_format.battle_mode` 是管理员可维护的资料字段，不是编译期常量；生产环境里一旦被误改，直接调用
+	 * `BattleMode.valueOf` 会把错误资料泄漏成普通运行时异常。这里在读取快照时先转成稳定的 API 字段错误，
+	 * 让管理端可以明确看到是哪条赛制资料需要修正。
+	 */
+	private fun BattleFormat.toEngineBattleMode(): BattleMode =
+		BattleMode.entries.firstOrNull { it.name == battleMode.uppercase(Locale.ROOT) }
+			?: invalidValue("battleMode", "不支持的战斗模式: $battleMode")
 
 	private fun List<BattleFormatRestriction>.bannedIds(type: String): Set<Long> =
 		filter { it.restrictionType == type && it.restrictionOperator == "BAN" }

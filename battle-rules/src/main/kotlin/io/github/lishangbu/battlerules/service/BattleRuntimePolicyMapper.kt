@@ -28,7 +28,7 @@ import io.github.lishangbu.common.web.invalidValue
  * 的需求。新增规则时在这里补一条确定映射，并用对应引擎测试证明它被结算即可。
  */
 internal fun Map<String, Long>.requiredElementId(code: String): Long =
-	this[code] ?: error("核心属性资料缺失: $code")
+	this[code] ?: invalidValue("elementCode", "核心属性资料缺失: $code")
 
 internal fun String.toBattleDamageClass(): BattleDamageClass =
 	when (this) {

@@ -107,6 +107,27 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `runtime snapshot rejects unsupported format battle mode as api error`() {
+		jdbcTemplate.update("update battle_format set battle_mode = ? where code = ?", "TRIPLE", "official-double")
+		try {
+			val exception = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+
+			assertThat(exception.status).isEqualTo(HttpStatus.BAD_REQUEST)
+			assertThat(exception.code).isEqualTo(ApiErrorCode.VALIDATION_INVALID)
+			assertThat(exception.field).isEqualTo("battleMode")
+			assertThat(exception.message).isEqualTo("不支持的战斗模式: TRIPLE")
+		} finally {
+			/**
+			 * 本测试故意破坏共享集成测试数据库中的赛制资料来模拟生产误配置；必须在 finally 中恢复，
+			 * 否则后续运行时装配测试会在读取 `official-double` 时命中同一条坏数据。
+			 */
+			jdbcTemplate.update("update battle_format set battle_mode = ? where code = ?", "DOUBLE", "official-double")
+		}
+	}
+
+	@Test
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
