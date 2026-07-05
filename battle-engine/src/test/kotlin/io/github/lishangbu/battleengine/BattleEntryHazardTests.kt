@@ -63,6 +63,10 @@ class BattleEntryHazardTests {
 				.filter { it.kind == BattleSideEntryHazardKind.SPIKES }
 				.map { it.layers },
 		)
+		assertEquals(
+			"entry-hazard-already-maxed",
+			afterFour.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
 	}
 
 	@Test

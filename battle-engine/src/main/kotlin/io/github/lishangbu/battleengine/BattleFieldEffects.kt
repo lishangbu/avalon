@@ -87,8 +87,8 @@ internal class BattleFieldEffects {
 	/**
 	 * 将命中后的技能入场陷阱写入对应战斗侧。
 	 *
-	 * 入场陷阱只在后续成员换入时触发，因此这里仅负责建立或叠层。若同类陷阱无法再叠层，状态保持不变，也不会
-	 * 产生层数变化事件，避免 replay 把无变化的再次使用误读成状态刷新。
+	 * 入场陷阱只在后续成员换入时触发，因此这里仅负责建立或叠层。若同类陷阱无法再叠层，状态保持不变，不产生
+	 * 层数变化事件，并追加稳定失败事件；这样 replay 既不会误读成状态刷新，也不会丢掉“技能已使用但失败”的事实。
 	 */
 	fun applySideEntryHazard(
 		state: BattleState,
@@ -101,7 +101,16 @@ internal class BattleFieldEffects {
 			return state
 		}
 		val side = sideFor(state, actorId, targetActorId, application.targetSide) ?: return state
-		val change = state.addSideEntryHazard(side.sideId, application.hazard) ?: return state
+		val change = state.addSideEntryHazard(side.sideId, application.hazard)
+			?: return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "entry-hazard-already-maxed",
+				),
+			)
 		return change.state.appendEvent(
 			BattleEvent.SideEntryHazardChanged(
 				turnNumber = state.turnNumber,
