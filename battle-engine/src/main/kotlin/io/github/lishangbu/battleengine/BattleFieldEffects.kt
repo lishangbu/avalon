@@ -23,8 +23,9 @@ internal class BattleFieldEffects {
 	 * 将命中后的技能一侧防守屏障写入对应战斗侧。
 	 *
 	 * 目标侧解析在这里完成：使用者侧屏障不依赖本次目标是否仍可战斗；目标侧屏障跟随实际命中的目标所属侧。
-	 * 若同种屏障已存在，状态保持不变且不产生新事件；携带者若有匹配屏障种类的持续时间延长道具，则只在首次
-	 * 成功建立屏障时改写即将写入的完整持续回合。
+	 * 若同种屏障已存在，状态保持不变且不产生开始事件，但要追加稳定的技能失败事件。这里刻意把“没有刷新”
+	 * 和“没有命中/没有使用”区分开：回放端仍能看到技能确实被使用过，裁判或排障日志也能解释为什么状态没有变化。
+	 * 携带者若有匹配屏障种类的持续时间延长道具，则只在首次成功建立屏障时改写即将写入的完整持续回合。
 	 */
 	fun applySideCondition(
 		state: BattleState,
@@ -38,25 +39,34 @@ internal class BattleFieldEffects {
 		}
 		val side = sideFor(state, actorId, targetActorId, application.targetSide) ?: return state
 		val damageReduction = extendedSideDamageReduction(state, actorId, application.damageReduction)
-		return state.addSideDamageReduction(side.sideId, damageReduction)
-			?.appendEvent(
-				BattleEvent.SideDamageReductionStarted(
+		val changed = state.addSideDamageReduction(side.sideId, damageReduction)
+			?: return state.appendEvent(
+				BattleEvent.SkillFailed(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
-					sideId = side.sideId,
+					targetActorId = targetActorId,
 					skillId = skill.skillId,
-					kind = damageReduction.kind,
-					turnsRemaining = damageReduction.turnsRemaining,
+					reason = "side-damage-reduction-already-active",
 				),
 			)
-			?: state
+		return changed.appendEvent(
+			BattleEvent.SideDamageReductionStarted(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				sideId = side.sideId,
+				skillId = skill.skillId,
+				kind = damageReduction.kind,
+				turnsRemaining = damageReduction.turnsRemaining,
+			),
+		)
 	}
 
 	/**
 	 * 将命中后的技能一侧速度修正写入对应战斗侧。
 	 *
 	 * 速度修正影响下一次行动排序，不影响当前已经确定的行动顺序；因此这里只写入状态和事件，不重新规划当前回合。
-	 * 与防守屏障一样，同种速度修正已存在时由 [BattleState] 拒绝重复写入。
+	 * 与防守屏障一样，同种速度修正已存在时由 [BattleState] 拒绝重复写入；本类再把这种拒绝翻译成技能失败事件，
+	 * 避免生产回放里只看到 PP 消耗和回合推进，却缺少“为什么没有刷新顺风”的事实。
 	 */
 	fun applySideSpeedModifier(
 		state: BattleState,
@@ -69,19 +79,27 @@ internal class BattleFieldEffects {
 			return state
 		}
 		val side = sideFor(state, actorId, targetActorId, application.targetSide) ?: return state
-		return state.addSideSpeedModifier(side.sideId, application.speedModifier)
-			?.appendEvent(
-				BattleEvent.SideSpeedModifierStarted(
+		val changed = state.addSideSpeedModifier(side.sideId, application.speedModifier)
+			?: return state.appendEvent(
+				BattleEvent.SkillFailed(
 					turnNumber = state.turnNumber,
 					actorId = actorId,
-					sideId = side.sideId,
+					targetActorId = targetActorId,
 					skillId = skill.skillId,
-					kind = application.speedModifier.kind,
-					multiplier = application.speedModifier.multiplier,
-					turnsRemaining = application.speedModifier.turnsRemaining,
+					reason = "side-speed-modifier-already-active",
 				),
 			)
-			?: state
+		return changed.appendEvent(
+			BattleEvent.SideSpeedModifierStarted(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				sideId = side.sideId,
+				skillId = skill.skillId,
+				kind = application.speedModifier.kind,
+				multiplier = application.speedModifier.multiplier,
+				turnsRemaining = application.speedModifier.turnsRemaining,
+			),
+		)
 	}
 
 	/**

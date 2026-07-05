@@ -336,8 +336,8 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 	fun `duplicate side damage reduction does not refresh duration`() {
 		val scenario = publicBattleRuleScenario(
 			name = "duplicate-side-damage-reduction-does-not-refresh-duration",
-			inputSummary = "己方侧已有物理屏障剩余 3 回合，使用者再次成功使用同类物理屏障技能。",
-			expectedSummary = "重复屏障不会刷新或追加新状态；回合末原有屏障只按自然流程递减为 2 回合。",
+			inputSummary = "己方侧已有物理屏障剩余 3 回合，使用者再次使用同类物理屏障技能。",
+			expectedSummary = "重复屏障不会刷新或追加新状态；事件流记录屏障已存在的技能失败原因，回合末原有屏障只按自然流程递减为 2 回合。",
 		)
 		val screenSkill = sideDamageReductionSkill(BattleSideDamageReductionKind.PHYSICAL, turnsRemaining = 5)
 		val state = engine.start(
@@ -358,6 +358,10 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 
 		scenario.assertNamed("duplicate-side-damage-reduction-does-not-refresh-duration")
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>())
+		assertEquals(
+			"side-damage-reduction-already-active",
+			resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
 		assertEquals(2, resolved.sideOf("support")?.damageReductions?.single()?.turnsRemaining)
 	}
 
@@ -365,8 +369,8 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 	fun `duplicate side speed modifier does not refresh duration`() {
 		val scenario = publicBattleRuleScenario(
 			name = "duplicate-side-speed-modifier-does-not-refresh-duration",
-			inputSummary = "己方侧已有顺风剩余 3 回合，使用者再次成功使用建立顺风的变化技能。",
-			expectedSummary = "重复速度修正不会刷新或追加新状态；回合末原有顺风只按自然流程递减为 2 回合。",
+			inputSummary = "己方侧已有顺风剩余 3 回合，使用者再次使用建立顺风的变化技能。",
+			expectedSummary = "重复速度修正不会刷新或追加新状态；事件流记录速度修正已存在的技能失败原因，回合末原有顺风只按自然流程递减为 2 回合。",
 		)
 		val tailwindSkill = sideSpeedModifierSkill(BattleSideSpeedModifier(BattleSideSpeedModifierKind.TAILWIND, turnsRemaining = 4))
 		val started = engine.start(
@@ -389,6 +393,10 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 
 		scenario.assertNamed("duplicate-side-speed-modifier-does-not-refresh-duration")
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SideSpeedModifierStarted>())
+		assertEquals(
+			"side-speed-modifier-already-active",
+			resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
 		assertEquals(2, resolved.sideOf("support")?.speedModifiers?.single()?.turnsRemaining)
 	}
 
