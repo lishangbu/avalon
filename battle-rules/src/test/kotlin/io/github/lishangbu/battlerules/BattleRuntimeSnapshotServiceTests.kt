@@ -1473,6 +1473,36 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.violations[1].targetActorId).isEqualTo("b-2")
 	}
 
+	/**
+	 * 验证行动校验入口不会把准备阶段违规交给核心引擎启动。
+	 *
+	 * `BattleEngine.start` 会用 `require` 保护非法初始状态；这是纯引擎内部正确的 fail-fast 行为。
+	 * 但 HTTP/API 应用层必须把同一类问题转换成稳定字段错误，否则生产接口会把用户提交的非法队伍误报成 500。
+	 */
+	@Test
+	fun `action validation rejects preparation violations before engine start`() {
+		val error = assertThrows<ApiException> {
+			service.validateActions(
+				BattleActionValidationRequest(
+					formatCode = "official-double",
+					sides = invalidLevelDoubleSides(),
+					actions = listOf(
+						BattleActionRequest(
+							type = "USE_SKILL",
+							actorId = "a-1",
+							skillId = 1,
+							targetActorId = "b-1",
+						),
+					),
+				),
+			)
+		}
+
+		assertThat(error.field).isEqualTo("sides")
+		assertThat(error.message).contains("准备阶段队伍不合法")
+		assertThat(error.message).contains("成员等级 60 超过上限 50")
+	}
+
 	@Test
 	fun `action validation accepts placeholder target for self target skill`() {
 		val sides = preparationRequest(
@@ -1502,6 +1532,37 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(response.valid).isTrue()
 		assertThat(response.violations).isEmpty()
+	}
+
+	/**
+	 * 验证沙盒首回合也复用同一层准备阶段保护。
+	 *
+	 * 沙盒是管理端最容易直接手填请求的入口，非法等级、禁用资料或重复条款都应以业务校验错误返回。
+	 * 这条测试防止未来只修 `validateActions`、却让 `/api/battle-sandbox/turn` 再次把准备阶段错误冒泡成 500。
+	 */
+	@Test
+	fun `sandbox turn rejects preparation violations before engine start`() {
+		val error = assertThrows<ApiException> {
+			service.resolveSandboxTurn(
+				BattleSandboxTurnRequest(
+					formatCode = "official-double",
+					sides = invalidLevelDoubleSides(),
+					randomSeed = 0,
+					actions = listOf(
+						BattleActionRequest(
+							type = "USE_SKILL",
+							actorId = "a-1",
+							skillId = 1,
+							targetActorId = "b-1",
+						),
+					),
+				),
+			)
+		}
+
+		assertThat(error.field).isEqualTo("sides")
+		assertThat(error.message).contains("准备阶段队伍不合法")
+		assertThat(error.message).contains("成员等级 60 超过上限 50")
 	}
 
 	@Test
@@ -2517,6 +2578,23 @@ class BattleRuntimeSnapshotServiceTests(
 				),
 			),
 		)
+
+	private fun invalidLevelDoubleSides(): List<BattlePreparationSideRequest> =
+		validDoubleSides().map { side ->
+			if (side.sideId == "side-a") {
+				side.copy(
+					participants = side.participants.map { participant ->
+						if (participant.actorId == "a-1") {
+							participant.copy(level = 60)
+						} else {
+							participant
+						}
+					},
+				)
+			} else {
+				side
+			}
+		}
 
 	private fun participant(
 		actorId: String,

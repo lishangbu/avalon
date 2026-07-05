@@ -117,6 +117,7 @@ class BattleRuntimeSnapshotService(
 				sides = normalized.sides,
 			),
 		)
+		requireRuntimePreparation(initialState)
 		val state = battleEngine.start(initialState)
 		val violations = actionValidator.validate(state, normalized.actions.map { it.toBattleAction() })
 		return BattleActionValidationResponse(
@@ -146,6 +147,7 @@ class BattleRuntimeSnapshotService(
 				sides = normalized.sides,
 			),
 		)
+		requireRuntimePreparation(initialState)
 		val current = request.state?.let { restoreSandboxState(initialState, it) } ?: battleEngine.start(initialState)
 		if (current.result != null) {
 			invalidValue("state", "战斗已经结束，请重置后重新开始")
@@ -187,6 +189,24 @@ class BattleRuntimeSnapshotService(
 	@Transactional(readOnly = true)
 	fun assembleInitialState(request: BattlePreparationValidationRequest): BattleInitialState =
 		initialStateAssembler.assemble(request)
+
+	/**
+	 * 在应用层进入 battle-engine 前执行准备阶段保护。
+	 *
+	 * [BattleEngine.start] 自身已经会 fail-fast 拒绝非法初始状态，这是纯引擎的最后一道不变量保护；但接口层不能让
+	 * Kotlin `require` 抛出的 [IllegalArgumentException] 泄漏成通用 500。这里复用结构化准备校验结果，在行动校验
+	 * 和沙盒结算两个“会启动引擎”的入口提前转换为稳定的 `ApiException`，让前端拿到明确的 `sides` 字段错误。
+	 * 完整的逐项违规列表仍由 `validatePreparation` 返回；这里的职责只是保证运行时入口不会以非法队伍开局。
+	 */
+	private fun requireRuntimePreparation(initialState: BattleInitialState) {
+		val violations = preparationValidator.validate(initialState)
+		if (violations.isNotEmpty()) {
+			invalidValue(
+				"sides",
+				"准备阶段队伍不合法：${violations.joinToString(separator = "；") { it.message }}",
+			)
+		}
+	}
 
 	/**
 	 * 按基础技能 ID 装配战斗引擎可消费的技能槽。
