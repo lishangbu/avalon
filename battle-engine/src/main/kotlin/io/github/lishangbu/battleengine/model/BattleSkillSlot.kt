@@ -37,6 +37,9 @@ package io.github.lishangbu.battleengine.model
  * 修正：公式仍照常算出原始伤害，真正写入目标本体 HP 前再夹到“当前 HP - 1”。这样点到为止这类技能不会触发满
  * HP 保命特性/道具，也不会让吸取、反伤和造成伤害后回复读取错误的过量伤害。替身承受伤害时不读取这个字段，
  * 因为替身可以被这类技能打破。
+ * `breaksTargetSideDamageReductions` 表示该技能命中且目标没有属性免疫时，会在普通伤害计算前清除目标所在一侧
+ * 的物理/特殊/全伤害屏障。把它放在技能槽而不是屏障模型中，是因为屏障本身只描述防守状态，真正决定“本次攻击
+ * 会不会打碎屏障”的是技能资料。该字段只控制屏障移除时机，不改变命中、保护、属性免疫、伤害公式或附加效果。
  * `typelessDamage` 表示该技能虽然仍有一个资料层基础属性 ID，但本次普通伤害按“无属性伤害”处理：不获得属性一致
  * 加成、不读取属性克制倍率，也不触发指定属性吸收、指定属性增伤或指定属性减伤道具。现代挣扎就是这种规则形态；
  * 把它做成显式布尔值，是为了避免用一个不存在的属性编号伪装无属性，导致未来道具或特性误把它当成普通属性技能。
@@ -100,6 +103,7 @@ data class BattleSkillSlot(
 	val dynamicPower: BattleSkillDynamicPower? = null,
 	val defendingStatOverride: BattleStat? = null,
 	val leavesTargetAtOneHp: Boolean = false,
+	val breaksTargetSideDamageReductions: Boolean = false,
 	val typelessDamage: Boolean = false,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
@@ -198,6 +202,9 @@ data class BattleSkillSlot(
 		}
 		require(!leavesTargetAtOneHp || damageClass != BattleDamageClass.STATUS) {
 			"target one hp floor requires a damaging skill"
+		}
+		require(!breaksTargetSideDamageReductions || damageClass != BattleDamageClass.STATUS) {
+			"screen breaking requires a damaging skill"
 		}
 		require(!typelessDamage || damageClass != BattleDamageClass.STATUS) {
 			"typeless damage requires a damaging skill"

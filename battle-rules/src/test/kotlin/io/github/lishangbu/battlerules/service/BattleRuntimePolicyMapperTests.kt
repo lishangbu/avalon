@@ -150,4 +150,10 @@ class BattleRuntimePolicyMapperTests {
 		assertThat("leave-target-at-one-hp".leavesTargetAtOneHp()).isTrue()
 		assertThat("leave-target-at-one-hp".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
+
+	@Test
+	fun `skill screen breaking policy maps pre damage side condition removal`() {
+		assertThat("break-target-side-damage-reductions".breaksTargetSideDamageReductions()).isTrue()
+		assertThat("break-target-side-damage-reductions".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
 }

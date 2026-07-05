@@ -9074,3 +9074,38 @@ databaseChangeLog:
           from game_skill s
           join non_fainting_skills nfs on nfs.code = s.code
           where r.skill_id = s.id;
+- changeSet:
+    id: 002-battle-rules-enable-screen-breaking-damage-skills
+    author: backend
+    comment: 启用伤害计算前击破目标侧屏障的普通伤害技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 这批技能在命中且目标没有属性免疫后，先清除目标侧物理/特殊/全伤害屏障，再进入普通伤害公式。
+          -- 这样本次伤害不会被刚刚清除的屏障减半；未命中、被保护或属性免疫时仍不会清除屏障。
+          with screen_breaking_skills(code) as (
+            values
+              ('brick-break'),
+              ('psychic-fangs')
+          )
+          update game_skill s
+          set enabled = true
+          from screen_breaking_skills sbs
+          where s.code = sbs.code;
+
+          with screen_breaking_skills(code) as (
+            values
+              ('brick-break'),
+              ('psychic-fangs')
+          )
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'break-target-side-damage-reductions',
+            damage_policy = 'standard-damage',
+            description = '普通伤害技能规则；命中且目标没有属性免疫时，先清除目标侧屏障，再进入普通伤害公式。'
+          from game_skill s
+          join screen_breaking_skills sbs on sbs.code = s.code
+          where r.skill_id = s.id;

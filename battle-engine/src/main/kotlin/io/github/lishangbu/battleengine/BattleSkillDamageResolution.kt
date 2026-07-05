@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
@@ -71,14 +72,20 @@ internal class BattleSkillDamageResolution(
 		} else {
 			rawEffectiveness
 		}
+		val stateAfterScreenBreak = breakTargetSideDamageReductionsBeforeDamage(
+			state = state,
+			actor = actor,
+			target = target,
+			skill = skill,
+		)
 
-		val directDamageAttempt = directDamage.attempt(state, skill, actor, target)
+		val directDamageAttempt = directDamage.attempt(stateAfterScreenBreak, skill, actor, target)
 		return if (directDamageAttempt == null) {
-			resolveFormulaDamage(context, state, actor, target, skill, targetMultiplier, random)
+			resolveFormulaDamage(context, stateAfterScreenBreak, actor, target, skill, targetMultiplier, random)
 		} else {
 			resolveDirectDamageAttempt(
 				context = context,
-				state = state,
+				state = stateAfterScreenBreak,
 				actor = actor,
 				target = target,
 				skill = skill,
@@ -88,6 +95,39 @@ internal class BattleSkillDamageResolution(
 				random = random,
 			)
 		}
+	}
+
+	/**
+	 * 在伤害计算前清除目标侧的物理/特殊/全伤害屏障。
+	 *
+	 * 现代屏障击破技能的关键点是“命中且没有属性免疫后、伤害公式前”生效：如果先计算伤害，本次攻击会被一个已经
+	 * 被打碎的屏障错误减半；如果放在属性免疫前，又会错误清除本不该被击中的目标侧屏障。调用方已经完成保护、
+	 * 命中和属性免疫判定，因此这里只负责按技能标记删除目标所在一侧的屏障，并追加一条稳定 replay 事件。
+	 */
+	private fun breakTargetSideDamageReductionsBeforeDamage(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.breaksTargetSideDamageReductions) {
+			return state
+		}
+		val targetSide = state.sideOf(target.actorId) ?: return state
+		val removal = state.removeSideDamageReductions(
+			sideId = targetSide.sideId,
+			kinds = BattleSideDamageReductionKind.entries.toSet(),
+		) ?: return state
+		return removal.state.appendEvent(
+			BattleEvent.SideDamageReductionsRemoved(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = target.actorId,
+				sideId = targetSide.sideId,
+				skillId = skill.skillId,
+				removedKinds = removal.removedKinds,
+			),
+		)
 	}
 
 	/**

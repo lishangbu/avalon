@@ -377,6 +377,15 @@ internal fun String.toBattleSkillDefendingStatOverride(): BattleStat? =
 internal fun String.leavesTargetAtOneHp(): Boolean =
 	this == "leave-target-at-one-hp"
 
+/**
+ * 判断技能是否会在伤害计算前清除目标侧屏障。
+ *
+ * 劈瓦、精神之牙这类技能仍是普通伤害技能；屏障清除不是命中后附加效果，而是在本次伤害公式读取目标侧屏障倍率
+ * 之前发生。因此这里提供一个独立布尔位，让运行态把“伤害前清屏障”的时机交给单目标伤害结算器处理。
+ */
+internal fun String.breaksTargetSideDamageReductions(): Boolean =
+	this == "break-target-side-damage-reductions"
+
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
@@ -466,6 +475,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillDynamicPower() != null ||
 	toBattleSkillDefendingStatOverride() != null ||
 	leavesTargetAtOneHp() ||
+	breaksTargetSideDamageReductions() ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage()

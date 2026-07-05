@@ -127,6 +127,21 @@ data class BattleSide(
 	}
 
 	/**
+	 * 从这一侧移除指定种类的伤害减免屏障。
+	 *
+	 * 击破屏障类技能会一次性清除目标侧物理屏障、特殊屏障和全伤害屏障。这里接收集合而不是单个 kind，是为了让
+	 * 调用方在同一个不可变复制中完成批量删除，并能从返回值判断本次技能是否真的改变了目标侧场地状态。若目标侧
+	 * 没有任何匹配屏障，返回 null，调用方也不应产生“屏障被清除”的 replay 事件。
+	 */
+	fun removeDamageReductions(kinds: Set<BattleSideDamageReductionKind>): BattleSide? {
+		val remaining = damageReductions.filterNot { it.kind in kinds }
+		if (remaining.size == damageReductions.size) {
+			return null
+		}
+		return copy(damageReductions = remaining)
+	}
+
+	/**
 	 * 推进这一侧的回合型场上状态。
 	 *
 	 * 当前包含伤害减免屏障和速度修正。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。

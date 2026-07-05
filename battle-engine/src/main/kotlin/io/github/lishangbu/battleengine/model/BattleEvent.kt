@@ -516,6 +516,22 @@ sealed interface BattleEvent {
 		val turnsRemaining: Int?,
 	) : BattleEvent
 
+	/**
+	 * 一侧已有的防守方伤害减免屏障被技能清除。
+	 *
+	 * 该事件用于击破屏障类伤害技能。事件发生在命中、保护和属性免疫判定之后，普通伤害公式之前；因此同一次技能
+	 * 后续的伤害事件不再读取这些被清除的屏障倍率。`removedKinds` 只记录目标侧当时实际存在并被删除的屏障种类，
+	 * 不把不存在的屏障写入 replay。
+	 */
+	data class SideDamageReductionsRemoved(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val removedKinds: List<BattleSideDamageReductionKind>,
+	) : BattleEvent
+
 	// 一侧场地、入场陷阱和全场顺序事件：描述不直接挂在单个成员身上的持续规则。
 	/**
 	 * 一侧成功建立了速度结算修正。

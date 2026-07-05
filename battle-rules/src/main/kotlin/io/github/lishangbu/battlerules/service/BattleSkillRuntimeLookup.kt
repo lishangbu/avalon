@@ -116,6 +116,7 @@ class BattleSkillRuntimeLookup(
 			dynamicPower = effectPolicy.toBattleSkillDynamicPower(),
 			defendingStatOverride = effectPolicy.toBattleSkillDefendingStatOverride(),
 			leavesTargetAtOneHp = effectPolicy.leavesTargetAtOneHp(),
+			breaksTargetSideDamageReductions = effectPolicy.breaksTargetSideDamageReductions(),
 			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
 			elementOverridesByTerrain = ruleEffects.elementOverridesByTerrain,
 			ignoresUserBurnAttackReduction = effectPolicy.ignoresUserBurnAttackReduction(),

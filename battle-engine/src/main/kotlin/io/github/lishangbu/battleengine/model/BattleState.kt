@@ -136,6 +136,38 @@ data class BattleState(
 	}
 
 	/**
+	 * 从指定一侧批量移除伤害减免屏障，并返回被移除的屏障种类。
+	 *
+	 * 屏障击破技能需要在伤害计算前删除目标侧屏障，否则本次伤害会被刚刚被打碎的屏障错误减半。领域状态层只负责
+	 * “这侧有哪些 kind 被删除”这一事实，不判断技能是否命中、目标是否免疫或是否被保护；那些仍由技能结算流程在
+	 * 调用本函数前完成。返回 null 表示目标侧不存在或没有任何匹配屏障，调用方不应追加移除事件。
+	 */
+	fun removeSideDamageReductions(
+		sideId: String,
+		kinds: Set<BattleSideDamageReductionKind>,
+	): BattleSideDamageReductionRemoval? {
+		var removedKinds = emptyList<BattleSideDamageReductionKind>()
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				val currentRemovedKinds = side.damageReductions
+					.filter { it.kind in kinds }
+					.map { it.kind }
+				if (currentRemovedKinds.isEmpty()) {
+					side
+				} else {
+					removedKinds = currentRemovedKinds
+					requireNotNull(side.removeDamageReductions(kinds))
+				}
+			}
+		}
+		return removedKinds
+			.takeIf { it.isNotEmpty() }
+			?.let { BattleSideDamageReductionRemoval(copy(sides = nextSides), it) }
+	}
+
+	/**
 	 * 替换当前上场成员。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =
@@ -223,3 +255,14 @@ data class BattleState(
 			)
 		}
 }
+
+/**
+ * 一侧伤害减免屏障被批量移除后的状态变更。
+ *
+ * `removedKinds` 保留移除前在目标侧实际存在的屏障种类顺序，事件层可以直接使用它生成稳定 replay。它不是调用方
+ * 请求删除的 kind 集合；这样当目标侧只存在物理屏障时，不会误报特殊屏障或全伤害屏障也被删除。
+ */
+data class BattleSideDamageReductionRemoval(
+	val state: BattleState,
+	val removedKinds: List<BattleSideDamageReductionKind>,
+)
