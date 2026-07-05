@@ -2096,6 +2096,29 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val targetSideCleanupSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.affected_by_protect
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code = 'defog'
+			""".trimIndent(),
+		)
+		assertThat(targetSideCleanupSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 432L,
+				"code" to "defog",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "clear-target-side-barriers-and-field-hazards",
+				"target_policy" to "selected-target",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to true,
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use

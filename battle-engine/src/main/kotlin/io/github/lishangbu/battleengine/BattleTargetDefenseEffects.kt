@@ -17,9 +17,9 @@ internal class BattleTargetDefenseEffects {
 	/**
 	 * 判断目标替身是否会阻止来自对手的技能伤害或状态效果。
 	 *
-	 * 替身只保护当前有替身的成员免受对手非声音类技能影响；使用者对自己施加的效果、同侧辅助效果、声音类技能
-	 * 以及目标没有替身时都不会被这里阻止。接棒传递等例外后续会以明确技能标签或状态规则扩展，而不是让调用方
-	 * 通过技能名称做临时判断。
+	 * 替身只保护当前有替身的成员免受对手非声音类、非穿透替身技能影响；使用者对自己施加的效果、同侧辅助效果、
+	 * 声音类技能、显式穿透替身的技能，以及目标没有替身时都不会被这里阻止。接棒传递等例外后续会以明确技能标签
+	 * 或状态规则扩展，而不是让调用方通过技能名称做临时判断。
 	 */
 	fun substituteBlocksOpponentEffect(
 		state: BattleState,
@@ -27,7 +27,7 @@ internal class BattleTargetDefenseEffects {
 		targetActorId: String,
 		skill: BattleSkillSlot,
 	): Boolean {
-		if (skill.soundBased) {
+		if (skill.soundBased || skill.bypassesSubstitute) {
 			return false
 		}
 		val target = state.participant(targetActorId) ?: return false

@@ -25,6 +25,8 @@ package io.github.lishangbu.battleengine.model
  * 三者拆开建模，是为了把守住、挺住、佯攻、范围技能和穿透保护的特殊技能保持为明确的规则标签。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
  * `soundBased` 表示声音类技能，现代规则中这类技能可以穿过替身影响目标。
+ * `bypassesSubstitute` 表示技能可以穿过目标替身影响目标。声音类技能天然走 [soundBased]，本字段用于清除浓雾
+ * 这类非声音但明确不被替身拦下的变化技能，避免用技能名称分支污染通用替身判断。
  * `powderBased` 表示粉末/孢子类技能，草属性目标会天然免疫这类技能。
  * `punchBased` 表示拳击类技能，攻击方拥有对应特性时会在伤害公式中获得威力倍率。
  * `slicingBased` 表示切割类技能，攻击方拥有对应特性时会在伤害公式中获得威力倍率。
@@ -64,6 +66,8 @@ package io.github.lishangbu.battleengine.model
  * 移除既有陷阱和自身限制”，两者的作用侧和事件语义完全相反。
  * `clearsFieldHazardsAndSubstitutes` 表示变化技能成功后清除双方一侧的全部入场陷阱，并直接移除当前场上所有
  * 替身。该效果不要求场上实际存在陷阱或替身；因此它只负责状态清理，不能让没有可清目标的场景变成技能失败。
+ * `clearsTargetSideBarriersAndFieldHazards` 表示变化技能成功后清除目标侧伤害屏障与非伤害型防护、双方入场陷阱，
+ * 并清除当前场地。它不移除替身；替身穿透由 [bypassesSubstitute] 单独表达，方便其它非清场技能复用。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -113,6 +117,7 @@ data class BattleSkillSlot(
 	val enduresFatalDamage: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
 	val soundBased: Boolean = false,
+	val bypassesSubstitute: Boolean = false,
 	val powderBased: Boolean = false,
 	val punchBased: Boolean = false,
 	val slicingBased: Boolean = false,
@@ -141,6 +146,7 @@ data class BattleSkillSlot(
 	val plantsLeechSeed: Boolean = false,
 	val clearsUserSideHazardsAndTraps: Boolean = false,
 	val clearsFieldHazardsAndSubstitutes: Boolean = false,
+	val clearsTargetSideBarriersAndFieldHazards: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,

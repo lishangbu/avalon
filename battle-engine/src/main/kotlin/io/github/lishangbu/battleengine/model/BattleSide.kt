@@ -178,6 +178,20 @@ data class BattleSide(
 	}
 
 	/**
+	 * 从这一侧移除指定种类的非伤害型防护。
+	 *
+	 * 清除浓雾类技能会移除目标侧白雾和神秘守护；它们不参与伤害倍率，因此不能复用伤害减免屏障的删除函数。
+	 * 返回 null 表示这一侧没有匹配防护，调用方也不应产生“防护被清除”的 replay 事件。
+	 */
+	fun removeProtections(kinds: Set<BattleSideProtectionKind>): BattleSide? {
+		val remaining = protections.filterNot { it.kind in kinds }
+		if (remaining.size == protections.size) {
+			return null
+		}
+		return copy(protections = remaining)
+	}
+
+	/**
 	 * 推进这一侧的回合型场上状态。
 	 *
 	 * 当前包含伤害减免屏障和速度修正。持续回合为空的状态保持不变；剩余 1 回合的状态在完整回合末移除。

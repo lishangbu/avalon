@@ -3,16 +3,22 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
+import io.github.lishangbu.battleengine.model.BattleSideProtection
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
+import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatus
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -388,6 +394,96 @@ class BattleEntryHazardTests {
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillFailed>())
 	}
 
+	@Test
+	fun `defog clears target side barriers both side entry hazards and terrain while bypassing substitute`() {
+		val scenario = publicBattleRuleScenario(
+			name = "defog-clears-target-side-barriers-both-side-hazards-and-terrain",
+			inputSummary = "目标带替身，目标侧存在三类伤害屏障和神秘守护，双方存在入场陷阱，当前为电气场地；使用者成功使用清除浓雾类技能。",
+			expectedSummary = "技能穿过替身降低目标闪避，清除目标侧屏障和神秘守护，移除双方入场陷阱并清除当前场地，但不移除替身。",
+		)
+		val target = participant("target", speed = 80).copy(substituteHp = 30)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("clearer", speed = 100, skill = defogSkill()),
+					second = target,
+					environment = BattleEnvironment(terrain = BattleTerrain.ELECTRIC, terrainTurnsRemaining = 5),
+					firstSideEntryHazards = listOf(BattleSideEntryHazard(BattleSideEntryHazardKind.SPIKES)),
+					secondSideEntryHazards = allEntryHazards(),
+					secondSideDamageReductions = allDamageReductions(),
+					secondSideProtections = listOf(BattleSideProtection(BattleSideProtectionKind.STATUS_CONDITION, turnsRemaining = 5)),
+				),
+			),
+			listOf(BattleAction.UseSkill("clearer", skillId = 432, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val targetAfter = requireNotNull(resolved.participant("target"))
+		val removedScreens = resolved.events.filterIsInstance<BattleEvent.SideDamageReductionsRemoved>().single()
+		val removedProtections = resolved.events.filterIsInstance<BattleEvent.SideProtectionsRemoved>().single()
+		val removedHazards = resolved.events.filterIsInstance<BattleEvent.SideEntryHazardRemoved>()
+		val terrainEnded = resolved.events.filterIsInstance<BattleEvent.TerrainEnded>().single()
+
+		scenario.assertNamed("defog-clears-target-side-barriers-both-side-hazards-and-terrain")
+		assertEquals(-1, targetAfter.statStage(BattleStat.EVASION))
+		assertEquals(30, targetAfter.substituteHp)
+		assertEquals(emptyList(), resolved.sideOf("target")?.damageReductions)
+		assertEquals(emptyList(), resolved.sideOf("target")?.protections)
+		assertEquals(
+			listOf(
+				BattleSideDamageReductionKind.PHYSICAL,
+				BattleSideDamageReductionKind.SPECIAL,
+				BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE,
+			),
+			removedScreens.removedKinds,
+		)
+		assertEquals(listOf(BattleSideProtectionKind.STATUS_CONDITION), removedProtections.removedKinds)
+		assertEquals(
+			listOf(
+				"side-a" to BattleSideEntryHazardKind.SPIKES,
+				"side-b" to BattleSideEntryHazardKind.STEALTH_ROCK,
+				"side-b" to BattleSideEntryHazardKind.SPIKES,
+				"side-b" to BattleSideEntryHazardKind.TOXIC_SPIKES,
+				"side-b" to BattleSideEntryHazardKind.STICKY_WEB,
+			),
+			removedHazards.map { it.sideId to it.kind },
+		)
+		assertEquals(BattleTerrain.NONE, resolved.environment.terrain)
+		assertEquals(BattleTerrain.ELECTRIC, terrainEnded.terrain)
+		assertEquals("clearer", terrainEnded.actorId)
+		assertEquals(432L, terrainEnded.skillId)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SubstituteCleared>())
+	}
+
+	@Test
+	fun `defog removes mist even when mist blocks the evasion drop`() {
+		val scenario = publicBattleRuleScenario(
+			name = "defog-removes-mist-even-when-mist-blocks-evasion-drop",
+			inputSummary = "目标侧存在白雾类能力下降防护；使用者成功使用清除浓雾类技能。",
+			expectedSummary = "目标闪避下降被白雾阻止，但白雾自身随后被清除，事件流同时记录能力下降被防护阻止和防护移除。",
+		)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("clearer", speed = 100, skill = defogSkill()),
+					second = participant("target", speed = 80),
+					secondSideProtections = listOf(BattleSideProtection(BattleSideProtectionKind.STAT_STAGE_REDUCTION, turnsRemaining = 5)),
+				),
+			),
+			listOf(BattleAction.UseSkill("clearer", skillId = 432, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val blocked = resolved.events.filterIsInstance<BattleEvent.StatStageChangeBlocked>().single()
+		val removedProtection = resolved.events.filterIsInstance<BattleEvent.SideProtectionsRemoved>().single()
+
+		scenario.assertNamed("defog-removes-mist-even-when-mist-blocks-evasion-drop")
+		assertEquals(0, resolved.participant("target")?.statStage(BattleStat.EVASION))
+		assertEquals(BattleStat.EVASION, blocked.stat)
+		assertEquals(listOf(BattleSideProtectionKind.STAT_STAGE_REDUCTION), removedProtection.removedKinds)
+		assertEquals(emptyList(), resolved.sideOf("target")?.protections)
+	}
+
 	private fun switchIntoHazard(
 		hazard: BattleSideEntryHazard,
 		reserveElementId: Long = 1,
@@ -421,6 +517,13 @@ class BattleEntryHazardTests {
 			BattleSideEntryHazard(BattleSideEntryHazardKind.STICKY_WEB),
 		)
 
+	private fun allDamageReductions(): List<BattleSideDamageReduction> =
+		listOf(
+			BattleSideDamageReduction(BattleSideDamageReductionKind.PHYSICAL, turnsRemaining = 5),
+			BattleSideDamageReduction(BattleSideDamageReductionKind.SPECIAL, turnsRemaining = 5),
+			BattleSideDamageReduction(BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE, turnsRemaining = 5),
+		)
+
 	private fun entryHazardSkill(
 		skillId: Long,
 		name: String,
@@ -437,6 +540,26 @@ class BattleEntryHazardTests {
 				BattleSideEntryHazardApplication(
 					targetSide = BattleSideConditionTarget.TARGET_SIDE,
 					hazard = BattleSideEntryHazard(kind),
+				),
+			),
+		)
+
+	private fun defogSkill(): BattleSkillSlot =
+		damagingSkill(
+			skillId = 432,
+			name = "清除浓雾",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			accuracy = null,
+			affectedByProtect = true,
+			bypassesSubstitute = true,
+			clearsTargetSideBarriersAndFieldHazards = true,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					target = BattleEffectTarget.TARGET,
+					stat = BattleStat.EVASION,
+					stageDelta = -1,
+					chancePercent = 100,
 				),
 			),
 		)

@@ -444,6 +444,25 @@ internal fun String.clearsUserSideHazardsAndTraps(): Boolean =
 internal fun String.clearsFieldHazardsAndSubstitutes(): Boolean =
 	this == "clear-field-hazards-and-substitutes"
 
+/**
+ * 判断技能是否穿过目标替身。
+ *
+ * 声音类技能已经由技能资料布尔列表达；这里仅覆盖清除浓雾这类非声音变化技能。保持独立函数可以让
+ * [BattleSkillRuntimeLookup] 明确把“穿透替身”和“清理屏障/陷阱/场地”装配成两个运行时字段，避免未来有只穿透
+ * 替身但不清场的技能时被迫复用错误 policy。
+ */
+internal fun String.bypassesSubstitute(): Boolean =
+	this == "clear-target-side-barriers-and-field-hazards"
+
+/**
+ * 判断技能是否清理目标侧屏障、防护、双方入口陷阱和当前场地。
+ *
+ * 清除浓雾的规则同时影响多个 side/environment 状态，但参数固定，不需要新增子表。能力阶级下降仍由通用
+ * `battle_skill_stat_stage_effect` 维护，替身穿透由 [bypassesSubstitute] 维护。
+ */
+internal fun String.clearsTargetSideBarriersAndFieldHazards(): Boolean =
+	this == "clear-target-side-barriers-and-field-hazards"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -487,6 +506,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"apply-leech-seed",
 	"clear-user-side-hazards-and-traps",
 	"clear-field-hazards-and-substitutes",
+	"clear-target-side-barriers-and-field-hazards",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -563,6 +583,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	plantsLeechSeed() ||
 	clearsUserSideHazardsAndTraps() ||
 	clearsFieldHazardsAndSubstitutes() ||
+	clearsTargetSideBarriersAndFieldHazards() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

@@ -34,8 +34,9 @@ internal class BattleSkillAdditionalEffects(
 	 *
 	 * 每个效果族内部按技能槽列表顺序结算，概率小于 100 的效果会消费随机数。若目标已经倒下、已有主要异常状态、
 	 * 阶级变化被上下限夹住、对手替身挡住效果，或同类一侧/场地状态已经存在，则保持状态不变并跳过对应事件。
-	 * 使用者侧清理和全场清理放在寄生种子写入之后、强制换人之前，确保高速旋转/大扫除类技能先完成命中后状态事实，
-	 * 再清理自身限制、场地陷阱或替身；强制换人放在最后，确保伤害与普通附加效果先完成，再触发换下目标和后续入场阶段。
+	 * 使用者侧清理和全场清理放在寄生种子写入之后、强制换人之前，确保高速旋转/大扫除/清除浓雾类技能先完成命中
+	 * 后状态事实，再清理自身限制、场地陷阱、屏障或替身；强制换人放在最后，确保伤害与普通附加效果先完成，再触发
+	 * 换下目标和后续入场阶段。
 	 */
 	fun apply(
 		state: BattleState,
@@ -64,7 +65,7 @@ internal class BattleSkillAdditionalEffects(
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
 		val afterLeechSeed = leechSeedEffects.apply(afterAccuracyLock, actorId, targetActorId, skill)
 		val afterUserSideCleanup = userSideCleanupEffects.apply(afterLeechSeed, actorId, skill)
-		val afterFieldCleanup = fieldCleanupEffects.apply(afterUserSideCleanup, actorId, skill)
+		val afterFieldCleanup = fieldCleanupEffects.apply(afterUserSideCleanup, actorId, targetActorId, skill)
 		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterFieldCleanup, actorId, skill)
 		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterUserMajorStatusCure, actorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)

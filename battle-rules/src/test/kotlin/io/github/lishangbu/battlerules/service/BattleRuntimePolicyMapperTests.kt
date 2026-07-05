@@ -187,6 +187,13 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill target side field cleanup policy maps barriers hazards and substitute bypass flags`() {
+		assertThat("clear-target-side-barriers-and-field-hazards".bypassesSubstitute()).isTrue()
+		assertThat("clear-target-side-barriers-and-field-hazards".clearsTargetSideBarriersAndFieldHazards()).isTrue()
+		assertThat("clear-target-side-barriers-and-field-hazards".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `skill self critical hit boost policy maps focus energy bonus`() {
 		assertThat("self-critical-hit-stage-plus-two".criticalHitStageBoost()).isEqualTo(2)
 		assertThat("self-critical-hit-stage-plus-two".isBattleSkillRuntimeEffectPolicySupported()).isTrue()

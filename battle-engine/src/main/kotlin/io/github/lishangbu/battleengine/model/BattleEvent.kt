@@ -617,9 +617,9 @@ sealed interface BattleEvent {
 	/**
 	 * 一侧已有的防守方伤害减免屏障被技能清除。
 	 *
-	 * 该事件用于击破屏障类伤害技能。事件发生在命中、保护和属性免疫判定之后，普通伤害公式之前；因此同一次技能
-	 * 后续的伤害事件不再读取这些被清除的屏障倍率。`removedKinds` 只记录目标侧当时实际存在并被删除的屏障种类，
-	 * 不把不存在的屏障写入 replay。
+	 * 该事件用于击破屏障类伤害技能，以及清除浓雾类变化技能。击破屏障类伤害技能会在普通伤害公式之前产生本事件，
+	 * 让同一次技能不再读取这些被清除的屏障倍率；变化技能则在成功后的清场阶段产生本事件。`removedKinds` 只记录
+	 * 目标侧当时实际存在并被删除的屏障种类，不把不存在的屏障写入 replay。
 	 */
 	data class SideDamageReductionsRemoved(
 		override val turnNumber: Int,
@@ -628,6 +628,21 @@ sealed interface BattleEvent {
 		val sideId: String,
 		val skillId: Long,
 		val removedKinds: List<BattleSideDamageReductionKind>,
+	) : BattleEvent
+
+	/**
+	 * 一侧已有的非伤害型防护被技能清除。
+	 *
+	 * 白雾和神秘守护不改变伤害倍率，但会阻止能力下降或异常附加；清除浓雾类技能需要把这些目标侧状态从运行态
+	 * 删除。单独事件可以让 replay 区分“光墙/反射壁被清除”和“白雾/神秘守护被清除”。
+	 */
+	data class SideProtectionsRemoved(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val removedKinds: List<BattleSideProtectionKind>,
 	) : BattleEvent
 
 	// 一侧场地、入场陷阱和全场顺序事件：描述不直接挂在单个成员身上的持续规则。
@@ -1102,13 +1117,16 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
-	 * 当前场地因持续回合耗尽而结束。
+	 * 当前场地因持续回合耗尽或清场技能而结束。
 	 *
-	 * 事件只表示环境事实变化，不暗含场地回复、状态免疫或优先度封锁等副作用。
+	 * 事件只表示环境事实变化，不暗含场地回复、状态免疫或优先度封锁等副作用。`actorId` 和 `skillId` 为空时表示
+	 * 自然持续时间耗尽；有值时表示来源技能主动清除了场地。
 	 */
 	data class TerrainEnded(
 		override val turnNumber: Int,
 		val terrain: BattleTerrain,
+		val actorId: String? = null,
+		val skillId: Long? = null,
 	) : BattleEvent
 
 	data class ParticipantFainted(

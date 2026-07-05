@@ -216,6 +216,38 @@ data class BattleState(
 	}
 
 	/**
+	 * 从指定一侧批量移除非伤害型防护，并返回被移除的防护种类。
+	 *
+	 * 白雾、神秘守护这类状态和光墙/反射壁同样挂在 side 上，但读取入口不同：前者阻止异常或能力下降，后者参与
+	 * 伤害公式。清除浓雾类技能需要同时清掉两类 side 状态，因此这里提供与 [removeSideDamageReductions] 对称的
+	 * 删除入口，避免调用方直接复制 [BattleSide] 内部列表。
+	 */
+	fun removeSideProtections(
+		sideId: String,
+		kinds: Set<BattleSideProtectionKind>,
+	): BattleSideProtectionRemoval? {
+		var removedKinds = emptyList<BattleSideProtectionKind>()
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				val currentRemovedKinds = side.protections
+					.filter { it.kind in kinds }
+					.map { it.kind }
+				if (currentRemovedKinds.isEmpty()) {
+					side
+				} else {
+					removedKinds = currentRemovedKinds
+					requireNotNull(side.removeProtections(kinds))
+				}
+			}
+		}
+		return removedKinds
+			.takeIf { it.isNotEmpty() }
+			?.let { BattleSideProtectionRemoval(copy(sides = nextSides), it) }
+	}
+
+	/**
 	 * 替换当前上场成员。
 	 */
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =
@@ -313,6 +345,17 @@ data class BattleState(
 data class BattleSideDamageReductionRemoval(
 	val state: BattleState,
 	val removedKinds: List<BattleSideDamageReductionKind>,
+)
+
+/**
+ * 一侧非伤害型防护被批量移除后的状态变更。
+ *
+ * `removedKinds` 保留移除前在目标侧实际存在的防护种类顺序。它只记录真实删除的状态，不把调用方请求删除但本来
+ * 不存在的防护写入事件，避免 replay 误报场上发生过不存在的清理。
+ */
+data class BattleSideProtectionRemoval(
+	val state: BattleState,
+	val removedKinds: List<BattleSideProtectionKind>,
 )
 
 /**

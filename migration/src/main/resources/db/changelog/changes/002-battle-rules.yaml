@@ -9814,3 +9814,43 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code = 'tidy-up';
+- changeSet:
+    id: 002-battle-rules-enable-defog-field-cleanup
+    author: backend
+    comment: 启用清除浓雾的目标侧屏障和全场陷阱清理规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 清除浓雾会降低目标闪避，并在成功后清理目标侧屏障/防护、双方入口陷阱和当前场地；
+          -- 它不会移除替身，但可以穿过替身影响目标。闪避下降继续由能力阶级效果子表维护，
+          -- 主行 policy 只承载固定的清场语义和替身穿透标记。
+          update game_skill s
+          set enabled = true
+          where s.code = 'defog';
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'clear-target-side-barriers-and-field-hazards',
+            target_policy = 'selected-target',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            affected_by_protect = true,
+            description = '目标侧清场变化技能规则；成功后降低目标闪避，清除目标侧屏障与防护、双方入场陷阱和当前场地，并穿过替身影响目标。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'defog';
+
+          update battle_skill_stat_stage_effect e
+          set
+            target_scope = 'TARGET',
+            chance_percent = 100,
+            enabled = true
+          from battle_skill_rule r
+          join game_skill s on s.id = r.skill_id
+          join game_stat st on st.code = 'evasion'
+          where e.skill_rule_id = r.id
+            and e.stat_id = st.id
+            and s.code = 'defog';
