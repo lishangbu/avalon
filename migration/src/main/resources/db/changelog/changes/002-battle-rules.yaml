@@ -8652,6 +8652,51 @@ databaseChangeLog:
           where r.skill_id = s.id
             and s.code in ('counter', 'mirror-coat', 'metal-burst')
 - changeSet:
+    id: 002-battle-rules-target-last-skill-pp-reduction
+    author: backend
+    comment: 将扣减目标最近技能 PP 的变化技能修正为可执行结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 怨恨读取目标最近一次成功使用的技能，并把该技能剩余 PP 至多扣减 4 点；目标没有最近技能或该技能
+          -- 剩余 PP 为 0 时失败。该规则只需要 battle_skill_rule 主行上的 effect_policy，不新增独立表，避免
+          -- 为单一固定数值效果引入可维护但暂时没有变化空间的配置表。
+          update battle_skill_rule r
+          set
+            effect_policy = 'target-last-skill-pp-reduction-four',
+            target_policy = 'selected-target',
+            hit_policy = 'standard-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = true,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = '命中后使目标最近一次成功使用的技能剩余 PP 最多减少 4；目标没有可扣减 PP 的最近技能时失败。',
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'spite';
+
+          update game_skill
+          set enabled = true
+          where code = 'spite';
+- changeSet:
     id: 002-battle-rules-direct-status-hp-skill-rules
     author: backend
     comment: 将直接改写 HP 的变化技能从默认占位规则修正为可执行结构化规则。

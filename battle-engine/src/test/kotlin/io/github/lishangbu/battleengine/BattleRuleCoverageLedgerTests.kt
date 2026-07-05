@@ -556,6 +556,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleSkillEffectBoundaryPublicReferenceTests",
 					"io.github.lishangbu.battleengine.BattleSkillStatStageEffectTests",
 					"io.github.lishangbu.battleengine.BattleSkillHpEffectTests",
+					"io.github.lishangbu.battleengine.BattleSkillPpReductionTests",
 					"io.github.lishangbu.battleengine.BattlePostDamageStatusCureSkillTests",
 					"io.github.lishangbu.battleengine.BattleUserElementRemovalSkillTests",
 					"io.github.lishangbu.battleengine.BattleForcedSwitchSkillTests",

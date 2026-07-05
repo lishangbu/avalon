@@ -55,6 +55,8 @@ package io.github.lishangbu.battleengine.model
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
  * `locksAccuracyOnTarget` 表示变化技能命中后让使用者到下回合结束前锁定该目标，下一次对该目标的命中判定必中。
+ * `targetLastSkillPpReduction` 表示技能成功后扣减目标最近一次成功使用技能的剩余 PP，例如怨恨固定扣 4 点；
+ * 若目标没有可扣减的最近技能或该技能 PP 已为 0，会写入技能失败事件而不修改状态。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -124,6 +126,7 @@ data class BattleSkillSlot(
 	val confusesUserAfterLock: Boolean = false,
 	val forceTargetSwitch: Boolean = false,
 	val locksAccuracyOnTarget: Boolean = false,
+	val targetLastSkillPpReduction: Int = 0,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,
@@ -252,6 +255,10 @@ data class BattleSkillSlot(
 		require(!locksAccuracyOnTarget || damageClass == BattleDamageClass.STATUS) {
 			"accuracy lock effect requires a status skill"
 		}
+		require(targetLastSkillPpReduction >= 0) { "targetLastSkillPpReduction must not be negative" }
+		require(targetLastSkillPpReduction == 0 || damageClass == BattleDamageClass.STATUS) {
+			"target last skill PP reduction requires a status skill"
+		}
 		require(criticalHitStage >= 0) { "criticalHitStage must not be negative" }
 		require(criticalHitStageBoost >= 0) { "criticalHitStageBoost must not be negative" }
 		require(criticalHitStageBoost == 0 || damageClass == BattleDamageClass.STATUS) {
@@ -293,6 +300,17 @@ data class BattleSkillSlot(
 	fun consumePp(): BattleSkillSlot {
 		require(remainingPp > 0) { "skill has no remaining PP" }
 		return copy(remainingPp = remainingPp - 1)
+	}
+
+	/**
+	 * 返回扣减指定 PP 后的技能槽。
+	 *
+	 * 怨恨这类效果扣的是目标“最近成功使用技能”的剩余 PP，而不是当前正在宣告的技能 PP。扣减量大于剩余 PP 时
+	 * 会夹到 0，调用方负责在剩余 PP 已经为 0 时把技能判为失败，避免事件里出现扣减 0 点的伪成功。
+	 */
+	fun reducePp(amount: Int): BattleSkillSlot {
+		require(amount > 0) { "PP reduction amount must be positive" }
+		return copy(remainingPp = (remainingPp - amount).coerceAtLeast(0))
 	}
 
 	/**

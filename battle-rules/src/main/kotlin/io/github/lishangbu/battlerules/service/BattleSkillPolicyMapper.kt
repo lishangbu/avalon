@@ -409,6 +409,12 @@ internal fun String.removesUserElementAfterDamage(): Boolean =
 internal fun String.locksAccuracyOnTarget(): Boolean =
 	this == "accuracy-lock-on-target"
 
+internal fun String.targetLastSkillPpReduction(): Int =
+	when (this) {
+		"target-last-skill-pp-reduction-four" -> 4
+		else -> 0
+	}
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -450,6 +456,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"swap-all-stat-stages",
 	"invert-target-stat-stages",
 	"accuracy-lock-on-target",
+	"target-last-skill-pp-reduction-four",
 	"self-critical-hit-stage-plus-two",
 	"self-rest-full-heal",
 	"user-side-major-status-cure",
@@ -513,6 +520,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage() ||
+	targetLastSkillPpReduction() > 0 ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserSideMajorStatuses()

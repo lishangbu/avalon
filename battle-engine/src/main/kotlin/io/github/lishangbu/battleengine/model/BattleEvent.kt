@@ -123,6 +123,23 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能成功扣减了目标某个技能槽的剩余 PP。
+	 *
+	 * 怨恨读取目标最近一次成功使用的技能，并把那个技能槽的 PP 至多扣到 0。事件同时记录来源技能和被扣减技能，
+	 * 避免 replay 只能从最终技能槽反推状态变化；`amount` 是实际扣减值，不是规则声明的最大扣减值。
+	 */
+	data class SkillPpReduced(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val reducedSkillId: Long,
+		val amount: Int,
+		val previousRemainingPp: Int,
+		val currentRemainingPp: Int,
+	) : BattleEvent
+
+	/**
 	 * 成员成功建立本回合保护屏障。
 	 *
 	 * 该事件只表达“保护状态已经生效”，不表达技能命中目标或造成效果。保护屏障是回合内临时状态，

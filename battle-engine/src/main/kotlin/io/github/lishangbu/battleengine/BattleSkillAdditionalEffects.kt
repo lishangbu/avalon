@@ -59,7 +59,13 @@ internal class BattleSkillAdditionalEffects(
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterAccuracyLock, actorId, skill)
-		return forcedSwitchEffects.apply(afterUserSideMajorStatusCures, actorId, targetActorId, skill, random)
+		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(
+			afterUserSideMajorStatusCures,
+			actorId,
+			targetActorId,
+			skill,
+		)
+		return forcedSwitchEffects.apply(afterTargetLastSkillPpReduction, actorId, targetActorId, skill, random)
 	}
 
 	/**
@@ -129,6 +135,69 @@ internal class BattleSkillAdditionalEffects(
 				}
 			}
 		}
+
+	/**
+	 * 扣减目标最近一次成功使用技能的剩余 PP。
+	 *
+	 * 怨恨的现代规则读取目标最近一次真正使用过的技能，并固定尝试扣 4 PP；如果目标从未成功使用技能、技能槽已经
+	 * 不存在，或该技能当前 PP 已经为 0，则本次技能失败。替身不会阻止怨恨，因此这里刻意不调用
+	 * [BattleTargetDefenseEffects.substituteBlocksOpponentEffect]；保护、命中和特性/属性等命中前 gate 已在外层完成。
+	 */
+	private fun applyTargetLastSkillPpReduction(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (skill.targetLastSkillPpReduction == 0) {
+			return state
+		}
+		val target = state.participant(targetActorId) ?: return state
+		val targetLastSkillId = target.lastSuccessfulSkillId
+			?: return state.appendTargetLastSkillPpReductionFailed(actorId, targetActorId, skill)
+		val targetLastSkillSlot = target.skillSlot(targetLastSkillId)
+			?: return state.appendTargetLastSkillPpReductionFailed(actorId, targetActorId, skill)
+		if (targetLastSkillSlot.remainingPp <= 0) {
+			return state.appendTargetLastSkillPpReductionFailed(actorId, targetActorId, skill)
+		}
+		val updatedSlot = targetLastSkillSlot.reducePp(skill.targetLastSkillPpReduction)
+		val actualReduction = targetLastSkillSlot.remainingPp - updatedSlot.remainingPp
+		return state
+			.replaceParticipant(target.replaceSkillSlot(updatedSlot))
+			.appendEvent(
+				BattleEvent.SkillPpReduced(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reducedSkillId = targetLastSkillId,
+					amount = actualReduction,
+					previousRemainingPp = targetLastSkillSlot.remainingPp,
+					currentRemainingPp = updatedSlot.remainingPp,
+				),
+			)
+	}
+
+	/**
+	 * 记录“目标没有可扣减 PP 的最近技能”失败。
+	 *
+	 * 失败原因合并“没有最近技能、技能槽不存在、PP 已为 0”三种内部情况，是因为公开战斗日志只需要表达怨恨没有
+	 * 找到可扣减的目标技能；拆得过细会把内部运行态泄漏给前端和 replay。
+	 */
+	private fun BattleState.appendTargetLastSkillPpReductionFailed(
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState =
+		appendEvent(
+			BattleEvent.SkillFailed(
+				turnNumber = turnNumber,
+				actorId = actorId,
+				targetActorId = targetActorId,
+				skillId = skill.skillId,
+				reason = "target-has-no-last-skill-with-pp",
+			),
+		)
 
 	/**
 	 * 应用普通能力阶级增减。

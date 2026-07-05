@@ -742,6 +742,7 @@ class BattleRuntimeSnapshotService(
 				is BattleEvent.TurnStarted -> "第 $turnNumber 回合开始。"
 				is BattleEvent.SkillUsed -> "$actorId 使用了 $skillName。"
 				is BattleEvent.SkillFailed -> "$actorId 的技能 $skillId 失败：${reason.toSkillFailedReasonText()}。"
+				is BattleEvent.SkillPpReduced -> "$targetActorId 的技能 $reducedSkillId 减少 $amount 点 PP。"
 				is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
 				is BattleEvent.HpAveragedBySkill ->
 					"$actorId 与 $targetActorId 的 HP 被平均为 $averageHp。"
@@ -763,6 +764,7 @@ class BattleRuntimeSnapshotService(
 				"target-hp-not-greater-than-user-hp" -> "目标当前 HP 不高于使用者"
 				"target-behind-substitute" -> "目标正受到替身保护"
 				"accuracy-lock-already-active" -> "使用者已经锁定当前目标"
+				"target-has-no-last-skill-with-pp" -> "目标没有可扣减 PP 的最近技能"
 				"attack-stage-already-maximum" -> "攻击能力阶级已经最高"
 				"insufficient-hp-for-max-attack-cost" -> "剩余 HP 不足以支付技能代价"
 				else -> this
@@ -774,6 +776,7 @@ class BattleRuntimeSnapshotService(
 				"TurnStarted" -> "回合开始"
 				"SkillUsed" -> "使用技能"
 				"AccuracyLockStarted" -> "命中锁定"
+				"SkillPpReduced" -> "技能 PP 扣减"
 				"SkillMissed" -> "技能未命中"
 				"SkillFailed" -> "技能失败"
 				"ProtectionStarted" -> "保护开始"

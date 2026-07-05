@@ -128,6 +128,7 @@ class BattleSkillRuntimeLookup(
 			confusesUserAfterLock = row.requiredBoolean(row.confusesUserAfterLock, "confuses_user_after_lock"),
 			forceTargetSwitch = row.requiredBoolean(row.forceTargetSwitch, "force_target_switch"),
 			locksAccuracyOnTarget = effectPolicy.locksAccuracyOnTarget(),
+			targetLastSkillPpReduction = effectPolicy.targetLastSkillPpReduction(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

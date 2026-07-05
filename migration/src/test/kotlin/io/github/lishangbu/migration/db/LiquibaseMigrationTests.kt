@@ -2968,6 +2968,28 @@ class LiquibaseMigrationTests(
 				"max_hits" to 5,
 				"protects_user" to false,
 			),
+			)
+
+		val targetLastSkillPpReductionRules = queryMaps(
+			"""
+			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,
+			       r.affected_by_protect, r.enabled, s.enabled as skill_enabled
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code = 'spite'
+			""".trimIndent(),
+		)
+		assertThat(targetLastSkillPpReductionRules).containsExactly(
+			mapOf(
+				"code" to "spite",
+				"effect_policy" to "target-last-skill-pp-reduction-four",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to true,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
 		)
 
 		val directStatusHpSkillRules = queryMaps(
