@@ -105,6 +105,29 @@ class BattleFormatValidationTests {
 	}
 
 	@Test
+	fun `battle state rejects active participant count drift after start`() {
+		val scenario = publicBattleRuleScenario(
+			name = "battle-state-rejects-active-participant-count-drift-after-start",
+			inputSummary = "双打战斗已经启动后，外部恢复逻辑尝试把其中一侧当前上场成员从两个改成一个。",
+			expectedSummary = "运行态快照在构造时立即拒绝该畸形站位，避免后续行动顺序、范围目标和入场规则在错误席位下执行。",
+		)
+		val state = engine.start(doubleInitialState())
+
+		scenario.assertNamed("battle-state-rejects-active-participant-count-drift-after-start")
+		assertFailsWith<IllegalArgumentException> {
+			state.copy(
+				sides = state.sides.map { side ->
+					if (side.sideId == "side-a") {
+						side.copy(activeActorIds = listOf(side.activeActorIds.first()))
+					} else {
+						side
+					}
+				},
+			)
+		}
+	}
+
+	@Test
 	fun `max turn limit ends battle as draw after end turn effects`() {
 		val scenario = publicBattleRuleScenario(
 			name = "max-turn-limit-ends-battle-as-draw-after-end-turn-effects",

@@ -7,6 +7,10 @@ import io.github.lishangbu.battleengine.canBattle
  *
  * 状态是不可变数据结构：每次回合结算都会返回新的 `BattleState`，并追加事件流。
  * 这让测试可以直接比较中间状态，也让未来的 replay 能够从初始状态、行动序列和随机序列稳定复现。
+ *
+ * `BattleInitialState` 会在启动前校验双方、成员 ID 和上场席位；这里重复保留同一组队伍骨架不变量，是为了保护
+ * 启动后的状态复制、沙盒恢复和 replay 复算。运行态允许 HP、PP、异常状态和场地效果变化，但不允许在一场战斗
+ * 中途改变双方数量、制造全局重复 actorId，或让单打/双打的当前上场数量与赛制定义脱节。
  */
 data class BattleState(
 	val format: BattleFormatSnapshot,
@@ -19,6 +23,13 @@ data class BattleState(
 ) {
 	init {
 		require(turnNumber >= 0) { "turnNumber must not be negative" }
+		require(sides.size == 2) { "exactly two sides are required" }
+		require(sides.map { it.sideId }.toSet().size == sides.size) { "side ids must be unique" }
+		val actorIds = sides.flatMap { side -> side.participants.map { it.actorId } }
+		require(actorIds.toSet().size == actorIds.size) { "actor ids must be unique across all sides" }
+		require(sides.all { it.activeActorIds.size == format.activeParticipantsPerSide }) {
+			"active participant count must match format"
+		}
 	}
 
 	/**
