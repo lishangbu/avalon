@@ -1779,7 +1779,7 @@ class BattleRuntimeSnapshotServiceTests(
 			)
 		}
 		assertThat(selectedTeamSizeExceeded.field).isEqualTo("participants")
-		assertThat(selectedTeamSizeExceeded.message).isEqualTo("participants 数量不能超过赛制队伍人数")
+		assertThat(selectedTeamSizeExceeded.message).isEqualTo("participants 数量不能超过赛制出战人数")
 	}
 
 	@Test

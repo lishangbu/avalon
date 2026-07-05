@@ -115,7 +115,7 @@ class BattleInitialStateAssembler(
 		}
 		format.teamSize?.let { teamSize ->
 			if (sides.any { it.participants.size > teamSize }) {
-				invalidValue("participants", "participants 数量不能超过赛制队伍人数")
+				invalidValue("participants", "participants 数量不能超过赛制出战人数")
 			}
 		}
 	}
