@@ -355,6 +355,18 @@ internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
 		else -> null
 	}
 
+/**
+ * 将“伤害分类”和“防守侧公式能力项”不一致的技能策略转换为显式能力项。
+ *
+ * 精神冲击、精神击破和神秘之剑仍使用特殊攻击侧数值、特殊技能分类、特殊技能相关道具和属性流程；
+ * 它们只把目标侧防守能力从特防切换为防御。因此这里返回 [BattleStat.DEFENSE]，让伤害公式只覆盖防守项选择。
+ */
+internal fun String.toBattleSkillDefendingStatOverride(): BattleStat? =
+	when (this) {
+		"special-damage-target-defense" -> BattleStat.DEFENSE
+		else -> null
+	}
+
 internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 	this == "power-double-if-user-burn-poison-paralysis"
 
@@ -442,6 +454,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	toBattleSkillPowerMultipliers().isNotEmpty() ||
 	toBattleSkillPostDamageStatusCures().isNotEmpty() ||
 	toBattleSkillDynamicPower() != null ||
+	toBattleSkillDefendingStatOverride() != null ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
 	removesUserElementAfterDamage()

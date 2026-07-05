@@ -240,7 +240,7 @@ class BattleRuntimeSnapshotServiceTests(
 				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
 				115, 129, 138, 147, 157, 162, 163, 164, 170, 184, 189, 191, 199, 200, 235, 240, 243, 252, 259, 261, 263, 269,
 				283, 305, 307, 308, 311, 319, 329, 338, 344, 347, 349, 360, 362, 366, 368, 390, 400, 416, 427, 433, 435, 439, 446, 447, 457, 459,
-				464, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
+				464, 473, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 611, 659, 664, 666, 668, 681, 682, 685, 694, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
 			),
 		)
@@ -571,6 +571,11 @@ class BattleRuntimeSnapshotServiceTests(
 			assertThat(slots.getValue(skillId).rechargesAfterUse)
 				.describedAs("成功后休整技能必须装配 rechargesAfterUse: skillId=$skillId")
 				.isTrue()
+		}
+		listOf(473L, 540L, 548L).forEach { skillId ->
+			assertThat(slots.getValue(skillId).defendingStatOverride)
+				.describedAs("特殊伤害按目标防御技能必须装配防守能力覆盖: skillId=$skillId")
+				.isEqualTo(BattleStat.DEFENSE)
 		}
 
 		val solarBeam = slots.getValue(76)

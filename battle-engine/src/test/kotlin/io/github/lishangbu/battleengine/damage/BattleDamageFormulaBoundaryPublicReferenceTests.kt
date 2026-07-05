@@ -356,6 +356,31 @@ class BattleDamageFormulaBoundaryPublicReferenceTests {
 	}
 
 	@Test
+	fun `special damage can override defender formula stat to defense`() {
+		val scenario = damageScenario(
+			name = "special-damage-can-use-target-defense-in-formula",
+			inputSummary = "使用者特攻为 200，目标防御为 300、特防为 100，使用声明按目标防御计算的特殊技能。",
+			expectedSummary = "技能仍按特殊分类读取使用者特攻，但防守侧改读目标防御，基础伤害从普通特殊技能的 37 降为 13。",
+		)
+
+		val result = calculate(
+			attacker = participant("attacker", speed = 100, elementId = 1).copy(attack = 20, specialAttack = 200),
+			defender = participant("defender", speed = 80, elementId = 2).copy(defense = 300, specialDefense = 100),
+			skill = damagingSkill(
+				elementId = 1,
+				damageClass = BattleDamageClass.SPECIAL,
+				power = 40,
+				defendingStatOverride = BattleStat.DEFENSE,
+			),
+			randomPercent = 100,
+		)
+
+		scenario.assertNamed("special-damage-can-use-target-defense-in-formula")
+		assertEquals(13, result.baseDamage)
+		assertEquals(19, result.amount)
+	}
+
+	@Test
 	fun `sun boosts fire damage in final multiplier chain`() {
 		val scenario = damageScenario(
 			name = "sun-boosts-fire-damage-in-final-multiplier-chain",

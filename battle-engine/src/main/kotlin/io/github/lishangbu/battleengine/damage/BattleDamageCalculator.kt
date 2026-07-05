@@ -45,21 +45,7 @@ class BattleDamageCalculator(
 			).let { abilityModifiers.attackingStatAfterAbility(request, BattleStat.SPECIAL_ATTACK, it) }
 			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
 		}
-		val defendingStat = when (request.skill.damageClass) {
-			BattleDamageClass.PHYSICAL -> statStageModifiers.modifiedBattleStat(
-				request.defender.defense,
-				effectiveDefendingStage(request, BattleStat.DEFENSE),
-			)
-				.let { environmentModifiers.physicalDefenseAfterWeather(request, it) }
-				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.DEFENSE, it) }
-			BattleDamageClass.SPECIAL -> statStageModifiers.modifiedBattleStat(
-				request.defender.specialDefense,
-				effectiveDefendingStage(request, BattleStat.SPECIAL_DEFENSE),
-			)
-				.let { environmentModifiers.specialDefenseAfterWeather(request, it) }
-				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.SPECIAL_DEFENSE, it) }
-			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
-		}
+		val defendingStat = defendingStat(request)
 		require(defendingStat > 0) { "defending stat must be positive" }
 
 		val levelFactor = (2 * request.attacker.level) / 5 + 2
@@ -114,6 +100,37 @@ class BattleDamageCalculator(
 			(stagedAttack / 2).coerceAtLeast(1)
 		} else {
 			stagedAttack
+		}
+	}
+
+	/**
+	 * 计算防守侧在普通伤害公式中使用的能力值。
+	 *
+	 * 默认情况下，物理技能读取防御，特殊技能读取特防；少数现代技能虽然属于特殊分类，却按目标防御计算伤害。
+	 * [io.github.lishangbu.battleengine.model.BattleSkillSlot.defendingStatOverride] 只改变这一个选择点，后续仍复用同一套
+	 * 能力阶级、天气防御修正、特性防御修正、击中要害忽略防守方有利阶级和最终倍率流程。这样可以避免为三四个
+	 * 技能复制一条几乎相同的伤害公式分支。
+	 */
+	private fun defendingStat(request: BattleDamageRequest): Int {
+		val formulaStat = request.skill.defendingStatOverride ?: when (request.skill.damageClass) {
+			BattleDamageClass.PHYSICAL -> BattleStat.DEFENSE
+			BattleDamageClass.SPECIAL -> BattleStat.SPECIAL_DEFENSE
+			BattleDamageClass.STATUS -> error("status skill does not use standard damage formula")
+		}
+		return when (formulaStat) {
+			BattleStat.DEFENSE -> statStageModifiers.modifiedBattleStat(
+				request.defender.defense,
+				effectiveDefendingStage(request, BattleStat.DEFENSE),
+			)
+				.let { environmentModifiers.physicalDefenseAfterWeather(request, it) }
+				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.DEFENSE, it) }
+			BattleStat.SPECIAL_DEFENSE -> statStageModifiers.modifiedBattleStat(
+				request.defender.specialDefense,
+				effectiveDefendingStage(request, BattleStat.SPECIAL_DEFENSE),
+			)
+				.let { environmentModifiers.specialDefenseAfterWeather(request, it) }
+				.let { abilityModifiers.defendingStatAfterAbility(request, BattleStat.SPECIAL_DEFENSE, it) }
+			else -> error("unsupported defending stat override: $formulaStat")
 		}
 	}
 

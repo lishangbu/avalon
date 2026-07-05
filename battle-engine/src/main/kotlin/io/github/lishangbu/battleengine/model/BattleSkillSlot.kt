@@ -30,6 +30,9 @@ package io.github.lishangbu.battleengine.model
  * 这个字段刻意把“接地”写进名称，因为现代场地规则通常只影响接触地面的成员，和只要求场地存在的技能规则不同。
  * `conditionalPowerMultipliers` 表示按使用者状态、目标状态、目标 HP 或使用者道具状态触发的公式前威力倍率。
  * `dynamicPower` 表示本次伤害公式使用的基础威力需要从战斗快照推导，例如读取能力阶级总和。
+ * `defendingStatOverride` 表示普通伤害公式防守侧使用的能力项覆盖。绝大多数物理技能读取防御、特殊技能读取特防；
+ * 精神冲击这类特殊技能例外地仍读取目标防御。这里选择只覆盖防守能力项，而不是新增一个完整“公式配置对象”，
+ * 是因为现代资料里这组规则只改变防守项选择，攻击项、威力、属性一致加成、属性克制、天气、道具和要害流程都不变。
  * `typelessDamage` 表示该技能虽然仍有一个资料层基础属性 ID，但本次普通伤害按“无属性伤害”处理：不获得属性一致
  * 加成、不读取属性克制倍率，也不触发指定属性吸收、指定属性增伤或指定属性减伤道具。现代挣扎就是这种规则形态；
  * 把它做成显式布尔值，是为了避免用一个不存在的属性编号伪装无属性，导致未来道具或特性误把它当成普通属性技能。
@@ -91,6 +94,7 @@ data class BattleSkillSlot(
 	val groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double> = emptyMap(),
 	val conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	val dynamicPower: BattleSkillDynamicPower? = null,
+	val defendingStatOverride: BattleStat? = null,
 	val typelessDamage: Boolean = false,
 	val elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	val elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
@@ -176,6 +180,16 @@ data class BattleSkillSlot(
 		}
 		require(dynamicPower == null || damageClass != BattleDamageClass.STATUS) {
 			"dynamic power requires a damaging skill"
+		}
+		require(
+			defendingStatOverride == null ||
+				defendingStatOverride == BattleStat.DEFENSE ||
+				defendingStatOverride == BattleStat.SPECIAL_DEFENSE,
+		) {
+			"defending stat override must target defense or special defense"
+		}
+		require(defendingStatOverride == null || damageClass != BattleDamageClass.STATUS) {
+			"defending stat override requires a damaging skill"
 		}
 		require(!typelessDamage || damageClass != BattleDamageClass.STATUS) {
 			"typeless damage requires a damaging skill"

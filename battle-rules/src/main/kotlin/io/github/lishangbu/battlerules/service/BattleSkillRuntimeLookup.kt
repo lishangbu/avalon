@@ -114,6 +114,7 @@ class BattleSkillRuntimeLookup(
 			groundedPowerMultipliersByTerrain = ruleEffects.groundedPowerMultipliersByTerrain,
 			conditionalPowerMultipliers = effectPolicy.toBattleSkillPowerMultipliers(),
 			dynamicPower = effectPolicy.toBattleSkillDynamicPower(),
+			defendingStatOverride = effectPolicy.toBattleSkillDefendingStatOverride(),
 			elementOverridesByWeather = ruleEffects.elementOverridesByWeather,
 			elementOverridesByTerrain = ruleEffects.elementOverridesByTerrain,
 			ignoresUserBurnAttackReduction = effectPolicy.ignoresUserBurnAttackReduction(),

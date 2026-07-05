@@ -138,4 +138,10 @@ class BattleRuntimePolicyMapperTests {
 			.containsExactlyEntriesOf(mapOf(BattleTerrain.GRASSY to 1))
 		assertThat("priority-plus-one-if-user-grounded-grassy-terrain".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
+
+	@Test
+	fun `skill special damage target defense policy maps defender stat override`() {
+		assertThat("special-damage-target-defense".toBattleSkillDefendingStatOverride()).isEqualTo(BattleStat.DEFENSE)
+		assertThat("special-damage-target-defense".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
 }

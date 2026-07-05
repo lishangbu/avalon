@@ -1616,6 +1616,39 @@ class LiquibaseMigrationTests(
 			mapOf("skill_id" to 795L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
 		)
 
+		val specialDamageTargetDefenseRules = queryMaps(
+			"""
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.damage_policy
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.id in (473, 540, 548)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(specialDamageTargetDefenseRules).containsExactly(
+			mapOf(
+				"skill_id" to 473L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "special-damage-target-defense",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 540L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "special-damage-target-defense",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 548L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "special-damage-target-defense",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use

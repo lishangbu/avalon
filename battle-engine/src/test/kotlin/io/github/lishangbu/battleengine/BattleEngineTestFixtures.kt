@@ -29,6 +29,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatStageOperation
 import io.github.lishangbu.battleengine.model.BattleStatusApplication
@@ -206,6 +207,7 @@ internal fun damagingSkill(
 	groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double> = emptyMap(),
 	conditionalPowerMultipliers: List<BattleSkillPowerMultiplier> = emptyList(),
 	dynamicPower: BattleSkillDynamicPower? = null,
+	defendingStatOverride: BattleStat? = null,
 	typelessDamage: Boolean = false,
 	elementOverridesByWeather: Map<BattleWeather, Long> = emptyMap(),
 	elementOverridesByTerrain: Map<BattleTerrain, Long> = emptyMap(),
@@ -264,6 +266,7 @@ internal fun damagingSkill(
 		groundedPowerMultipliersByTerrain = groundedPowerMultipliersByTerrain,
 		conditionalPowerMultipliers = conditionalPowerMultipliers,
 		dynamicPower = dynamicPower,
+		defendingStatOverride = defendingStatOverride,
 		typelessDamage = typelessDamage,
 		elementOverridesByWeather = elementOverridesByWeather,
 		elementOverridesByTerrain = elementOverridesByTerrain,

@@ -9002,3 +9002,40 @@ databaseChangeLog:
           from game_skill s
           join recharge_skills rs on rs.code = s.code
           where r.skill_id = s.id;
+- changeSet:
+    id: 002-battle-rules-enable-special-damage-target-defense-skills
+    author: backend
+    comment: 启用按目标防御计算的特殊伤害技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 精神冲击、精神击破和神秘之剑仍是特殊分类技能：攻击侧读取特攻，属性、道具、特性和要害流程也按特殊技能走。
+          -- 它们唯一的公式差异是防守侧读取目标防御；运行态用 special-damage-target-defense policy 显式传给伤害公式。
+          with target_defense_skills(code) as (
+            values
+              ('psyshock'),
+              ('psystrike'),
+              ('secret-sword')
+          )
+          update game_skill s
+          set enabled = true
+          from target_defense_skills tds
+          where s.code = tds.code;
+
+          with target_defense_skills(code) as (
+            values
+              ('psyshock'),
+              ('psystrike'),
+              ('secret-sword')
+          )
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'special-damage-target-defense',
+            damage_policy = 'standard-damage',
+            description = '特殊伤害技能规则；攻击侧读取使用者特攻，防守侧读取目标防御后进入普通伤害公式。'
+          from game_skill s
+          join target_defense_skills tds on tds.code = s.code
+          where r.skill_id = s.id;
