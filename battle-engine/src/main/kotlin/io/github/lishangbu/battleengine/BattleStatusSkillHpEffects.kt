@@ -64,36 +64,44 @@ internal class BattleStatusSkillHpEffects {
 				when (effect) {
 					is BattleSkillHpEffect.SelfHealMaxHpFraction -> applyHealMaxHpFraction(
 						state = current,
+						sourceActorId = actorId,
 						healedActorId = actorId,
 						skill = skill,
 						numerator = effect.numerator,
 						denominator = effect.denominator,
+						failureReasonOnNoHealing = "no-hp-restored",
 					)
 					is BattleSkillHpEffect.SelfHealMaxHpByWeather -> {
 						val fraction = effect.weatherFractions[current.environment.weather] ?: effect.defaultFraction
 						applyHealMaxHpFraction(
 							state = current,
+							sourceActorId = actorId,
 							healedActorId = actorId,
 							skill = skill,
 							numerator = fraction.numerator,
 							denominator = fraction.denominator,
+							failureReasonOnNoHealing = "no-hp-restored",
 						)
 					}
 					is BattleSkillHpEffect.TargetHealMaxHpFraction -> applyHealMaxHpFraction(
 						state = current,
+						sourceActorId = actorId,
 						healedActorId = targetActorId,
 						skill = skill,
 						numerator = effect.numerator,
 						denominator = effect.denominator,
+						failureReasonOnNoHealing = "no-hp-restored",
 					)
 					is BattleSkillHpEffect.TargetHealMaxHpByTerrain -> {
 						val fraction = effect.terrainFractions[current.environment.terrain] ?: effect.defaultFraction
 						applyHealMaxHpFraction(
 							state = current,
+							sourceActorId = actorId,
 							healedActorId = targetActorId,
 							skill = skill,
 							numerator = fraction.numerator,
 							denominator = fraction.denominator,
+							failureReasonOnNoHealing = "no-hp-restored",
 						)
 					}
 					is BattleSkillHpEffect.CreateSubstitute -> applyCreateSubstitute(
@@ -120,23 +128,26 @@ internal class BattleStatusSkillHpEffects {
 	 * 按最大 HP 比例回复指定成员。
 	 *
 	 * 自我回复、天气变量回复、目标回复和场地变量目标回复最终都汇入这里，确保满 HP 跳过、缺失 HP 夹取、回复封锁
-	 * 和事件写入规则完全一致。这里不消费随机数，也不判断技能是否应该失败；调用方已经确认变化技能成功。
+	 * 和事件写入规则完全一致。普通回复技能在没有任何 HP 可写入时需要追加失败事件；复合技能如果已经完成其它主要
+	 * 效果，例如先治愈目标异常，则可以把 [failureReasonOnNoHealing] 留空，表示“没有回复事件但技能仍然成功”。
 	 */
 	private fun applyHealMaxHpFraction(
 		state: BattleState,
+		sourceActorId: String,
 		healedActorId: String,
 		skill: BattleSkillSlot,
 		numerator: Int,
 		denominator: Int,
+		failureReasonOnNoHealing: String? = null,
 	): BattleState {
 		val healedActor = state.participant(healedActorId) ?: return state
 		if (!healedActor.canReceiveHealing()) {
-			return state
+			return state.appendNoHealingFailure(sourceActorId, healedActorId, skill, failureReasonOnNoHealing)
 		}
 		val healAmount = fractionAmount(healedActor.maxHp, numerator, denominator)
 			.coerceAtMost(healedActor.maxHp - healedActor.currentHp)
 		if (healAmount <= 0) {
-			return state
+			return state.appendNoHealingFailure(sourceActorId, healedActorId, skill, failureReasonOnNoHealing)
 		}
 		return state
 			.replaceParticipant(healedActor.heal(healAmount))
@@ -236,6 +247,7 @@ internal class BattleStatusSkillHpEffects {
 			)
 		return applyHealMaxHpFraction(
 			state = afterCure,
+			sourceActorId = actorId,
 			healedActorId = actorId,
 			skill = skill,
 			numerator = numerator,
@@ -298,4 +310,31 @@ internal class BattleStatusSkillHpEffects {
 				),
 			)
 	}
+
+	/**
+	 * 在普通回复技能没有任何 HP 写入时追加失败事件。
+	 *
+	 * 回复类变化技能在满 HP、回复封锁或其它不可回复条件下会表现为技能失败；但复合技能可能已经完成治愈异常等
+	 * 主要效果，此时“没有回复量”不应该覆盖先前成功事实。调用方用可空原因显式选择是否写失败事件，避免 helper
+	 * 通过技能名称猜测语义。
+	 */
+	private fun BattleState.appendNoHealingFailure(
+		sourceActorId: String,
+		healedActorId: String,
+		skill: BattleSkillSlot,
+		reason: String?,
+	): BattleState =
+		if (reason == null) {
+			this
+		} else {
+			appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = turnNumber,
+					actorId = sourceActorId,
+					targetActorId = healedActorId,
+					skillId = skill.skillId,
+					reason = reason,
+				),
+			)
+		}
 }

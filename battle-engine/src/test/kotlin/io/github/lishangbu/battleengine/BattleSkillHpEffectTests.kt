@@ -161,6 +161,39 @@ class BattleSkillHpEffectTests {
 	}
 
 	@Test
+	fun `self healing status skill fails when user has no missing hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "self-healing-status-skill-fails-when-user-has-no-missing-hp",
+			inputSummary = "使用者 HP 已满，仍尝试使用固定回复 1/2 最大 HP 的变化技能。",
+			expectedSummary = "技能已经宣告并消耗 PP，但没有任何 HP 可回复，因此记录稳定失败原因且不产生回复事件。",
+		)
+		val skill = damagingSkill(
+			name = "自我回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(BattleSkillHpEffect.SelfHealMaxHpFraction(numerator = 1, denominator = 2)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("heal-user", speed = 100, currentHp = 100, skill = skill),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("heal-user", skillId = 1, targetActorId = "heal-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("self-healing-status-skill-fails-when-user-has-no-missing-hp")
+		assertEquals(100, resolved.participant("heal-user")?.currentHp)
+		assertEquals(34, resolved.participant("heal-user")?.skillSlot(1)?.remainingPp)
+		assertEquals("no-hp-restored", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+	}
+
+	@Test
 	fun `weather sensitive self healing skill uses current weather fraction`() {
 		val scenario = publicBattleRuleScenario(
 			name = "weather-sensitive-self-healing-skill-uses-current-weather-fraction",
@@ -253,6 +286,42 @@ class BattleSkillHpEffectTests {
 		val healing = resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>().single()
 		assertEquals("target", healing.actorId)
 		assertEquals(50, healing.amount)
+	}
+
+	@Test
+	fun `target healing status skill fails when target has no missing hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "target-healing-status-skill-fails-when-target-has-no-missing-hp",
+			inputSummary = "使用者对 HP 已满的目标使用回复目标 1/2 最大 HP 的变化技能。",
+			expectedSummary = "技能已经宣告并消耗 PP，但目标没有任何 HP 可回复，因此记录稳定失败原因且不产生回复事件。",
+		)
+		val skill = damagingSkill(
+			name = "目标回复测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			hpEffects = listOf(BattleSkillHpEffect.TargetHealMaxHpFraction(numerator = 1, denominator = 2)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("healer", speed = 100, skill = skill),
+				second = participant("target", speed = 50, currentHp = 100),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("healer", skillId = 1, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("target-healing-status-skill-fails-when-target-has-no-missing-hp")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals(34, resolved.participant("healer")?.skillSlot(1)?.remainingPp)
+		val failed = resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single()
+		assertEquals("healer", failed.actorId)
+		assertEquals("target", failed.targetActorId)
+		assertEquals("no-hp-restored", failed.reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
 	}
 
 	@Test
