@@ -734,19 +734,32 @@ class BattleRuntimeSnapshotService(
 	private fun BattleEvent.toSandboxEventMessage(type: String): String =
 		when (this) {
 			is BattleEvent.BattleStarted -> "战斗开始，赛制为 $formatCode。"
-			is BattleEvent.TurnStarted -> "第 $turnNumber 回合开始。"
-			is BattleEvent.SkillUsed -> "$actorId 使用了 $skillName。"
-			is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
+				is BattleEvent.TurnStarted -> "第 $turnNumber 回合开始。"
+				is BattleEvent.SkillUsed -> "$actorId 使用了 $skillName。"
+				is BattleEvent.SkillFailed -> "$actorId 的技能 $skillId 失败：${reason.toSkillFailedReasonText()}。"
+				is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
 			is BattleEvent.HealingApplied -> "$actorId 回复 $amount 点 HP。"
 			is BattleEvent.ParticipantFainted -> "$actorId 倒下。"
 			is BattleEvent.ParticipantSwitched -> "$sideId 将 $previousActorId 替换为 $nextActorId。"
 			is BattleEvent.AccuracyLockStarted -> "$actorId 锁定了 $targetActorId。"
 			is BattleEvent.TurnEnded -> "第 $turnNumber 回合结束。"
 			is BattleEvent.BattleEnded -> winningSideId?.let { "$it 获胜，原因：$reason。" } ?: "战斗结束，原因：$reason。"
-			else -> type
-		}
+				else -> type
+			}
 
-	private fun BattleEvent.eventPayload(): Map<String, Any?> =
+		private fun String.toSkillFailedReasonText(): String =
+			when (this) {
+				"target-level-greater-than-user-level" -> "目标等级高于使用者"
+				"target-attack-stage-minimum" -> "目标攻击能力阶级已经最低"
+				"target-has-no-major-status" -> "目标没有可处理的主要异常状态"
+				"user-lacks-removable-element" -> "使用者没有可移除的属性"
+				"target-hp-not-greater-than-user-hp" -> "目标当前 HP 不高于使用者"
+				"target-behind-substitute" -> "目标正受到替身保护"
+				"accuracy-lock-already-active" -> "使用者已经锁定当前目标"
+				else -> this
+			}
+
+		private fun BattleEvent.eventPayload(): Map<String, Any?> =
 		this::class.memberProperties
 			.filterNot { it.name == "turnNumber" }
 			.associate { property -> property.name to property.getter.call(this).toSandboxPayloadValue() }

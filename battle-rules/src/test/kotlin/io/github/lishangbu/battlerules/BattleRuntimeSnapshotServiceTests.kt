@@ -1667,6 +1667,46 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `sandbox turn renders skill failure reason in chinese`() {
+		val response = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1", "a-2"),
+						participants = listOf(
+							participant("a-1", creatureId = 1, level = 49, skillIds = listOf(12)),
+							participant("a-2", creatureId = 2, level = 50),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1", "b-2"),
+						participants = listOf(
+							participant("b-1", creatureId = 3, level = 50),
+							participant("b-2", creatureId = 4, level = 50),
+						),
+					),
+				),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 12,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+
+		assertThat(response.resolved).isTrue()
+		assertThat(response.events.single { it.type == "SkillFailed" }.message)
+			.isEqualTo("a-1 的技能 12 失败：目标等级高于使用者。")
+	}
+
+	@Test
 	fun `sandbox turn can continue from previous response state snapshot`() {
 		val first = service.resolveSandboxTurn(
 			BattleSandboxTurnRequest(

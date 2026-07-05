@@ -147,8 +147,8 @@ data class BattleState(
 	 * 清除所有指向指定目标的命中锁定。
 	 *
 	 * Lock-On / Mind Reader 的效果绑定到“当时被锁定的成员”，不是绑定到站位槽。目标主动替换或被强制换下后，
-	 * 后续换入成员不应继承旧目标的必中效果。这里在 [switchActive] 统一清理所有来源，顺便满足双打中“同一目标
-	 * 只能被一个来源锁定，新的锁定会覆盖旧来源”的实现需求。
+	 * 后续换入成员不应继承旧目标的必中效果。现代规则允许多个使用者同时锁定同一目标，因此这里的“所有来源”
+	 * 只用于目标离场时批量终止这些来源各自持有的运行态。
 	 */
 	fun clearAccuracyLocksTargeting(targetActorId: String): BattleState =
 		sides

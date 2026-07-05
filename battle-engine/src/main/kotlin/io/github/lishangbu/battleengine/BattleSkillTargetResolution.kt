@@ -24,6 +24,7 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  */
 internal class BattleSkillTargetResolution(
 	private val preHitTargetGate: BattlePreHitTargetGate,
+	private val targetDefenseEffects: BattleTargetDefenseEffects,
 	private val skillBlockEffects: BattleSkillBlockEffects,
 	private val lockedMoves: BattleLockedMoveEffects,
 	private val skillAdditionalEffects: BattleSkillAdditionalEffects,
@@ -72,6 +73,16 @@ internal class BattleSkillTargetResolution(
 			)
 			is BattlePreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
 		}
+		val accuracyLockSetupFailure = accuracyLockSetupFailureEvent(state, actor, target, skill)
+		if (accuracyLockSetupFailure != null) {
+			return context.interruptSkillWithEvent(
+				state = state,
+				actor = actor,
+				skill = skill,
+				random = random,
+				event = accuracyLockSetupFailure,
+			)
+		}
 		val stateAfterAccuracyLockConsumption = consumeAccuracyLockAfterHitCheck(state, actor, target)
 		val actorAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(actor.actorId) ?: actor
 		val targetAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(target.actorId) ?: target
@@ -111,6 +122,37 @@ internal class BattleSkillTargetResolution(
 			skill,
 			targetMultiplier,
 			random,
+		)
+	}
+
+	/**
+	 * 判定命中锁定类技能自身是否失败。
+	 *
+	 * 这个判断必须发生在消费既有命中锁定之前。现代规则中，若使用者已经锁定当前目标，再次使用 Lock-On /
+	 * Mind Reader 会失败，而不是先把旧锁定当作“下一次命中判定”消费掉再重新写入。目标替身也会让锁定类技能
+	 * 直接失败；由于失败发生在命中锁定消费前，旧锁定会继续保留到本回合末，再按正常生命周期过期。
+	 */
+	private fun accuracyLockSetupFailureEvent(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+		skill: BattleSkillSlot,
+	): BattleEvent.SkillFailed? {
+		if (!skill.locksAccuracyOnTarget) {
+			return null
+		}
+		val reason = when {
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill) ->
+				"target-behind-substitute"
+			actor.hasAccuracyLockOn(target.actorId) -> "accuracy-lock-already-active"
+			else -> null
+		} ?: return null
+		return BattleEvent.SkillFailed(
+			turnNumber = state.turnNumber,
+			actorId = actor.actorId,
+			targetActorId = target.actorId,
+			skillId = skill.skillId,
+			reason = reason,
 		)
 	}
 

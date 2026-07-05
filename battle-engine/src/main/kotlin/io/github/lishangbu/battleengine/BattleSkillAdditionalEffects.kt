@@ -214,8 +214,9 @@ internal class BattleSkillAdditionalEffects(
 	 * 应用命中锁定效果。
 	 *
 	 * Lock-On / Mind Reader 类技能自身是一次普通命中后的变化效果：它不造成伤害，也不改变目标；真正被修改的是
-	 * 使用者的“下回合前对这个目标必中”运行态。现代规则还要求同一个目标只能保留一个来源的锁定，所以写入前会
-	 * 先清除所有指向该目标的旧锁定，再把最新来源写回使用者。
+	 * 使用者的“下回合前对这个目标必中”运行态。现代主系列规则允许多个使用者同时锁定同一个目标，因此这里只写入
+	 * 当前使用者的运行态，不清理其它来源。替身阻挡和“同一使用者重复锁定当前目标”的失败条件已经在单目标结算器中
+	 * 于旧锁定被消费前处理；到达本函数时表示锁定效果确实可以建立。
 	 */
 	private fun applyAccuracyLock(
 		state: BattleState,
@@ -231,10 +232,8 @@ internal class BattleSkillAdditionalEffects(
 		if (!actor.canBattle() || !target.canBattle()) {
 			return state
 		}
-		val withoutPreviousLocks = state.clearAccuracyLocksTargeting(target.actorId)
-		val latestActor = withoutPreviousLocks.participant(actor.actorId) ?: return withoutPreviousLocks
-		return withoutPreviousLocks
-			.replaceParticipant(latestActor.lockAccuracyOnTarget(target.actorId))
+		return state
+			.replaceParticipant(actor.lockAccuracyOnTarget(target.actorId))
 			.appendEvent(
 				BattleEvent.AccuracyLockStarted(
 					turnNumber = state.turnNumber,

@@ -186,6 +186,132 @@ class BattleOneHitKnockOutSkillTests {
 	}
 
 	@Test
+	fun `multiple users can lock accuracy on the same target`() {
+		val scenario = publicBattleRuleScenario(
+			name = "multiple-users-can-lock-accuracy-on-the-same-target",
+			inputSummary = "双打中两个使用者同回合分别对同一个目标使用命中锁定类变化技能。",
+			expectedSummary = "现代规则允许多个使用者同时锁定同一目标；第二个锁定不会覆盖第一个使用者的锁定状态。",
+		)
+		val resolved = engine.resolveTurn(
+			engine.start(
+				doubleInitialState(
+					firstA = participant("user-a", speed = 100, skill = accuracyLockSkill()),
+					firstB = participant("user-b", speed = 90, skill = accuracyLockSkill()),
+					secondA = participant("target", speed = 80),
+					secondB = participant("observer", speed = 70),
+				),
+			),
+			listOf(
+				BattleAction.UseSkill("user-a", skillId = 170, targetActorId = "target"),
+				BattleAction.UseSkill("user-b", skillId = 170, targetActorId = "target"),
+			),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("multiple-users-can-lock-accuracy-on-the-same-target")
+		assertEquals("target", resolved.participant("user-a")?.accuracyLockTargetActorId)
+		assertEquals("target", resolved.participant("user-b")?.accuracyLockTargetActorId)
+		assertEquals(1, resolved.participant("user-a")?.accuracyLockTurnsRemaining)
+		assertEquals(1, resolved.participant("user-b")?.accuracyLockTurnsRemaining)
+		assertEquals(2, resolved.events.filterIsInstance<BattleEvent.AccuracyLockStarted>().size)
+	}
+
+	@Test
+	fun `accuracy lock fails when already active on current target`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-fails-when-already-active-on-current-target",
+			inputSummary = "使用者已经锁定当前目标后，下一回合没有先消费锁定，而是再次对同一目标使用命中锁定类变化技能。",
+			expectedSummary = "重复锁定当前目标会失败，不产生新的锁定事件，也不会刷新旧锁定的剩余时间；旧锁定按回合末正常过期。",
+		)
+		val afterFirstLock = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill()),
+					second = participant("target", speed = 80, level = 50),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val resolved = engine.resolveTurn(
+			afterFirstLock,
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("accuracy-lock-fails-when-already-active-on-current-target")
+		assertEquals(null, resolved.participant("user")?.accuracyLockTargetActorId)
+		assertEquals(0, resolved.participant("user")?.accuracyLockTurnsRemaining)
+		assertEquals(1, resolved.events.filterIsInstance<BattleEvent.AccuracyLockStarted>().size)
+		assertEquals(
+			"accuracy-lock-already-active",
+			resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
+	}
+
+	@Test
+	fun `accuracy lock fails against target behind substitute`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-fails-against-target-behind-substitute",
+			inputSummary = "目标已经拥有替身，使用者对该目标使用命中锁定类变化技能。",
+			expectedSummary = "替身阻挡命中锁定效果；使用者不会获得必中运行态，也不会产生锁定开始事件。",
+		)
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill()),
+					second = participant("target", speed = 80, level = 50).copy(substituteHp = 25),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("accuracy-lock-fails-against-target-behind-substitute")
+		assertEquals(null, resolved.participant("user")?.accuracyLockTargetActorId)
+		assertEquals(0, resolved.participant("user")?.accuracyLockTurnsRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.AccuracyLockStarted>())
+		assertEquals("target-behind-substitute", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+	}
+
+	@Test
+	fun `accuracy lock ends when locked target switches out`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-ends-when-locked-target-switches-out",
+			inputSummary = "使用者锁定目标后，下一回合目标先替换下场；使用者仍对原目标槽位使用一击必杀技能。",
+			expectedSummary = "锁定绑定的是离场前那个成员而不是站位槽；新上场成员不继承必中效果，技能必须重新消费命中随机数。",
+		)
+		val afterLock = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill())
+						.copy(skillSlots = listOf(accuracyLockSkill(), oneHitKnockOutSkill())),
+					second = participant("target", speed = 80, level = 50),
+					secondBench = listOf(participant("reserve", speed = 70, level = 50)),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val random = ScriptedBattleRandom(listOf(99))
+		val resolved = engine.resolveTurn(
+			afterLock,
+			listOf(
+				BattleAction.SwitchParticipant("target", targetActorId = "reserve"),
+				BattleAction.UseSkill("user", skillId = 12, targetActorId = "target"),
+			),
+			random,
+		)
+
+		scenario.assertNamed("accuracy-lock-ends-when-locked-target-switches-out")
+		assertEquals(null, resolved.participant("user")?.accuracyLockTargetActorId)
+		assertEquals(0, resolved.participant("user")?.accuracyLockTurnsRemaining)
+		assertEquals(100, resolved.participant("reserve")?.currentHp)
+		assertEquals(100, resolved.events.filterIsInstance<BattleEvent.SkillMissed>().single().accuracyRoll)
+		assertEquals(listOf("accuracy for 12"), random.consumedReasons())
+	}
+
+	@Test
 	fun `accuracy lock does not bypass protection before one hit knock out`() {
 		val scenario = publicBattleRuleScenario(
 			name = "accuracy-lock-does-not-bypass-protection-before-one-hit-knockout",
