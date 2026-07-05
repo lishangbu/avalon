@@ -16,6 +16,7 @@ data class BattleSide(
 	val damageReductions: List<BattleSideDamageReduction> = emptyList(),
 	val speedModifiers: List<BattleSideSpeedModifier> = emptyList(),
 	val entryHazards: List<BattleSideEntryHazard> = emptyList(),
+	val protections: List<BattleSideProtection> = emptyList(),
 ) {
 	init {
 		require(sideId.isNotBlank()) { "sideId must not be blank" }
@@ -34,6 +35,9 @@ data class BattleSide(
 		}
 		require(entryHazards.map { it.kind }.toSet().size == entryHazards.size) {
 			"entry hazards must not contain duplicate kinds"
+		}
+		require(protections.map { it.kind }.toSet().size == protections.size) {
+			"side protections must not contain duplicate kinds"
 		}
 	}
 
@@ -94,6 +98,25 @@ data class BattleSide(
 	}
 
 	/**
+	 * 在这一侧新增一个防护效果。
+	 *
+	 * 防护效果不刷新同种已存在状态：白雾或神秘守护已经生效时再次使用会被上层记录为技能失败，而不是悄悄重置
+	 * 持续回合。这里仍只表达“能否写入状态”这一件事，不决定失败文案。
+	 */
+	fun addProtection(protection: BattleSideProtection): BattleSide? {
+		if (protections.any { it.kind == protection.kind }) {
+			return null
+		}
+		return copy(protections = protections + protection)
+	}
+
+	/**
+	 * 判断这一侧是否拥有指定防护。
+	 */
+	fun hasProtection(kind: BattleSideProtectionKind): Boolean =
+		protections.any { it.kind == kind }
+
+	/**
 	 * 在这一侧新增或叠加入场陷阱。
 	 *
 	 * 不存在同种陷阱时写入第一层；存在同种陷阱时只在该陷阱允许叠层且尚未达到最大层数时递增层数。返回 null
@@ -151,6 +174,7 @@ data class BattleSide(
 		copy(
 			damageReductions = damageReductions.mapNotNull { it.advanceTurn() },
 			speedModifiers = speedModifiers.mapNotNull { it.advanceTurn() },
+			protections = protections.mapNotNull { it.advanceTurn() },
 		)
 
 	/**

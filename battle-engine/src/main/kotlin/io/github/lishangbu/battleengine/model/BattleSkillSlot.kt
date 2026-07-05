@@ -16,6 +16,8 @@ package io.github.lishangbu.battleengine.model
  * `targetScope` 表示技能在站位中的目标范围，供双打范围技能计算实际目标和 0.75 伤害修正。
  * `minHits`/`maxHits` 表示一次技能使用中的连续命中段数；单段技能二者都为 1，多段技能会在命中后决定段数。
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
+ * `criticalHitStageBoost` 表示变化技能命中成功后给使用者写入的在场期间要害等级加成；聚气使用 +2，加成会和
+ * 后续技能自身 [criticalHitStage] 相加。它保存在成员运行态上，离场时清除。
  * `protectsUser` 表示该技能在本回合为使用者建立保护屏障；`affectedByProtect` 表示该技能命中目标时会被
  * 目标的保护屏障阻挡。两者拆开建模，是为了后续支持佯攻、Z 类强化效果、范围技能和穿透保护的特殊技能。
  * `thawsUserBeforeMove` 表示该技能允许冰冻中的使用者发动，并在行动前解除自身冰冻。
@@ -85,6 +87,7 @@ data class BattleSkillSlot(
 	val maxHits: Int = 1,
 	val makesContact: Boolean = false,
 	val criticalHitStage: Int = 0,
+	val criticalHitStageBoost: Int = 0,
 	val affectedByProtect: Boolean = true,
 	val protectsUser: Boolean = false,
 	val thawsUserBeforeMove: Boolean = false,
@@ -124,6 +127,7 @@ data class BattleSkillSlot(
 	val sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
+	val sideProtectionApplications: List<BattleSideProtectionApplication> = emptyList(),
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	val hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	val postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
@@ -239,6 +243,10 @@ data class BattleSkillSlot(
 			"accuracy lock effect requires a status skill"
 		}
 		require(criticalHitStage >= 0) { "criticalHitStage must not be negative" }
+		require(criticalHitStageBoost >= 0) { "criticalHitStageBoost must not be negative" }
+		require(criticalHitStageBoost == 0 || damageClass == BattleDamageClass.STATUS) {
+			"critical hit stage boost requires a status skill"
+		}
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }
 		require(!ignoresUserBurnAttackReduction || damageClass == BattleDamageClass.PHYSICAL) {
 			"burn attack reduction bypass requires a physical skill"

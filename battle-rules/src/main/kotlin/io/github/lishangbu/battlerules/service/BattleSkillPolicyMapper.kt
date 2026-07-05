@@ -406,6 +406,12 @@ internal fun String.removesUserElementAfterDamage(): Boolean =
 internal fun String.locksAccuracyOnTarget(): Boolean =
 	this == "accuracy-lock-on-target"
 
+internal fun String.criticalHitStageBoost(): Int =
+	when (this) {
+		"self-critical-hit-stage-plus-two" -> 2
+		else -> 0
+	}
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -432,6 +438,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"swap-all-stat-stages",
 	"invert-target-stat-stages",
 	"accuracy-lock-on-target",
+	"self-critical-hit-stage-plus-two",
 )
 
 private val battleSkillTargetPolicies = setOf(
@@ -489,7 +496,8 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	breaksTargetSideDamageReductions() ||
 	toBattleSkillWeightEffects().isNotEmpty() ||
 	toBattleSkillGroundedTerrainPriorityBoosts().isNotEmpty() ||
-	removesUserElementAfterDamage()
+	removesUserElementAfterDamage() ||
+	criticalHitStageBoost() > 0
 
 /**
  * 判断技能目标 policy 是否属于运行时装配层的显式目标集合。

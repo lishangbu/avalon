@@ -87,6 +87,19 @@ sealed interface BattleEvent {
 		val skillId: Long,
 	) : BattleEvent
 
+	/**
+	 * 成员建立了在场期间的要害等级加成。
+	 *
+	 * 聚气类效果不修改具体技能槽，而是写入成员运行态；后续任何普通伤害技能都会把该加成与技能自身要害等级相加。
+	 * 该状态随成员离场清除，因此事件只记录开始事实，不记录固定持续回合。
+	 */
+	data class CriticalHitStageBoostStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val skillId: Long,
+		val stageBonus: Int,
+	) : BattleEvent
+
 	data class SkillMissed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -425,6 +438,21 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 能力阶级变化被一侧防护阻止。
+	 *
+	 * 该事件目前用于白雾类效果。技能已经命中并尝试降低目标能力阶级，但目标所在侧的场上防护让运行态保持不变。
+	 * 记录 `attemptedDelta` 可以让 replay 区分原本要降低的能力项和幅度，而不是只看到一次没有状态变化的技能使用。
+	 */
+	data class StatStageChangeBlocked(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val stat: BattleStat,
+		val attemptedDelta: Int,
+		val reason: BattleStatusBlockReason,
+	) : BattleEvent
+
+	/**
 	 * 技能效果让成员本场在场期间的有效体重进一步降低。
 	 *
 	 * 事件记录的是累计减轻量，而不是最终有效体重；最终有效体重还会按特性和携带道具倍率继续计算。这样 replay
@@ -546,6 +574,21 @@ sealed interface BattleEvent {
 		val skillId: Long,
 		val kind: BattleSideSpeedModifierKind,
 		val multiplier: Double,
+		val turnsRemaining: Int?,
+	) : BattleEvent
+
+	/**
+	 * 一侧成功建立了非伤害型防护效果。
+	 *
+	 * 白雾和神秘守护都属于这种状态：它们不改变伤害或速度，而是在后续能力下降、主要异常或混乱附加入口提供
+	 * 阻止条件。单独记录事件可以让 replay 区分“建立了光墙”与“建立了白雾/神秘守护”。
+	 */
+	data class SideProtectionStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val sideId: String,
+		val skillId: Long,
+		val kind: BattleSideProtectionKind,
 		val turnsRemaining: Int?,
 	) : BattleEvent
 

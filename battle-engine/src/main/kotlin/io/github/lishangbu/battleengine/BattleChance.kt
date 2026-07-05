@@ -45,8 +45,24 @@ internal fun determineHitCount(skill: BattleSkillSlot, random: BattleRandom): In
  * 现代规则下，普通等级概率为 1/24，+1 为 1/8，+2 为 1/2，+3 及以上视为必定击中要害。必定要害不消费随机数；
  * 其它等级消费 `[0, denominator)`，掷到 0 表示成功。
  */
-internal fun criticalHitCheck(skill: BattleSkillSlot, random: BattleRandom): CriticalHitCheck {
-	val denominator = when (skill.criticalHitStage.coerceAtMost(3)) {
+internal fun criticalHitCheck(skill: BattleSkillSlot, random: BattleRandom): CriticalHitCheck =
+	criticalHitCheck(stage = skill.criticalHitStage, skillId = skill.skillId, random = random)
+
+/**
+ * 结算指定成员使用某技能时的击中要害概率。
+ *
+ * 技能自身的高要害等级和成员在场期间的要害等级加成在进入现代概率表前相加。聚气这类状态只修改成员的
+ * [BattleParticipant.criticalHitStageBonus]，不会回写技能槽；这样同一个技能槽可以被不同成员在不同运行态下共享。
+ */
+internal fun criticalHitCheck(actor: BattleParticipant, skill: BattleSkillSlot, random: BattleRandom): CriticalHitCheck =
+	criticalHitCheck(
+		stage = skill.criticalHitStage + actor.criticalHitStageBonus,
+		skillId = skill.skillId,
+		random = random,
+	)
+
+private fun criticalHitCheck(stage: Int, skillId: Long, random: BattleRandom): CriticalHitCheck {
+	val denominator = when (stage.coerceAtMost(3)) {
 		0 -> 24
 		1 -> 8
 		2 -> 2
@@ -55,7 +71,7 @@ internal fun criticalHitCheck(skill: BattleSkillSlot, random: BattleRandom): Cri
 	if (denominator == 1) {
 		return CriticalHitCheck(hit = true, roll = null)
 	}
-	val roll = random.nextInt(denominator, "critical hit for ${skill.skillId}")
+	val roll = random.nextInt(denominator, "critical hit for $skillId")
 	return CriticalHitCheck(hit = roll == 0, roll = roll)
 }
 

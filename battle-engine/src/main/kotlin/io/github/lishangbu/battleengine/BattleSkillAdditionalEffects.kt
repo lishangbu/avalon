@@ -3,9 +3,11 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.random.BattleRandom
 
 /**
@@ -48,10 +50,12 @@ internal class BattleSkillAdditionalEffects(
 			targetActorId = targetActorId,
 			skill = skill,
 		)
-		val afterStatStageOperations = statStageEffects.applyOperations(afterWeightEffects, actorId, targetActorId, skill, random)
+		val afterCriticalHitBoost = applyCriticalHitStageBoost(afterWeightEffects, actorId, skill)
+		val afterStatStageOperations = statStageEffects.applyOperations(afterCriticalHitBoost, actorId, targetActorId, skill, random)
 		val afterSideDamageReductions = applySideConditions(afterStatStageOperations, actorId, targetActorId, skill, random)
 		val afterSideSpeedModifiers = applySideSpeedModifiers(afterSideDamageReductions, actorId, targetActorId, skill, random)
-		val afterSideEntryHazards = applySideEntryHazards(afterSideSpeedModifiers, actorId, targetActorId, skill, random)
+		val afterSideProtections = applySideProtections(afterSideSpeedModifiers, actorId, targetActorId, skill, random)
+		val afterSideEntryHazards = applySideEntryHazards(afterSideProtections, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
 		return forcedSwitchEffects.apply(afterAccuracyLock, actorId, targetActorId, skill, random)
@@ -146,6 +150,18 @@ internal class BattleSkillAdditionalEffects(
 				if (targetDefenseEffects.substituteBlocksOpponentEffect(current, actorId, recipient.actorId, skill)) {
 					return@fold current
 				}
+				if (statStageDropBlockedBySideProtection(current, actorId, recipient, effect.stageDelta)) {
+					return@fold current.appendEvent(
+						BattleEvent.StatStageChangeBlocked(
+							turnNumber = current.turnNumber,
+							actorId = actorId,
+							targetActorId = recipient.actorId,
+							stat = effect.stat,
+							attemptedDelta = effect.stageDelta,
+							reason = BattleStatusBlockReason.SIDE_PROTECTION,
+						),
+					)
+				}
 				val beforeStage = recipient.statStage(effect.stat)
 				val updated = recipient.changeStatStage(effect.stat, effect.stageDelta)
 				val afterStage = updated.statStage(effect.stat)
@@ -167,6 +183,22 @@ internal class BattleSkillAdditionalEffects(
 				}
 			}
 		}
+
+	/**
+	 * 判断白雾类一侧防护是否阻止本次普通能力阶级下降。
+	 *
+	 * 只拦截负数 delta，因为白雾不阻止能力提升，也不阻止使用者自己降低自己的能力。这里使用“来源不是目标本人”
+	 * 判断是否属于外部施加的能力下降，让双打中同伴误降能力也会被防护挡住，同时保留自我代价类技能的规则空间。
+	 */
+	private fun statStageDropBlockedBySideProtection(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		stageDelta: Int,
+	): Boolean =
+		stageDelta < 0 &&
+			actorId != recipient.actorId &&
+			state.sideHasProtection(recipient.actorId, BattleSideProtectionKind.STAT_STAGE_REDUCTION)
 
 	/**
 	 * 应用技能声明的临时体重减轻效果。
@@ -209,6 +241,45 @@ internal class BattleSkillAdditionalEffects(
 
 	private fun BattleSkillWeightEffect.requiredStatChanged(before: BattleParticipant, after: BattleParticipant): Boolean =
 		requiredChangedStat == null || before.statStage(requiredChangedStat) != after.statStage(requiredChangedStat)
+
+	/**
+	 * 应用聚气类要害等级加成。
+	 *
+	 * 聚气是一个在场期间的成员状态：成功后让后续技能的要害等级在技能自身基础上额外 +2，离场清除。若成员已经有
+	 * 不低于本技能声明的加成，现代规则表现为技能失败而不是刷新或叠加；这里记录稳定失败原因，避免 replay 只看到
+	 * PP 被消耗却不知道为什么没有新的状态变化。
+	 */
+	private fun applyCriticalHitStageBoost(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (skill.criticalHitStageBoost == 0) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		if (actor.criticalHitStageBonus >= skill.criticalHitStageBoost) {
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = actorId,
+					skillId = skill.skillId,
+					reason = "critical-hit-stage-boost-already-active",
+				),
+			)
+		}
+		return state
+			.replaceParticipant(actor.copy(criticalHitStageBonus = skill.criticalHitStageBoost))
+			.appendEvent(
+				BattleEvent.CriticalHitStageBoostStarted(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					skillId = skill.skillId,
+					stageBonus = skill.criticalHitStageBoost,
+				),
+			)
+	}
 
 	/**
 	 * 应用命中锁定效果。
@@ -277,6 +348,24 @@ internal class BattleSkillAdditionalEffects(
 				current
 			} else {
 				fieldEffects.applySideSpeedModifier(current, actorId, targetActorId, skill, application)
+			}
+		}
+
+	/**
+	 * 应用一侧防护效果。
+	 */
+	private fun applySideProtections(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		random: BattleRandom,
+	): BattleState =
+		skill.sideProtectionApplications.fold(state) { current, application ->
+			if (!chanceSucceeds(application.chancePercent, random, "side protection chance for ${skill.skillId}")) {
+				current
+			} else {
+				fieldEffects.applySideProtection(current, actorId, targetActorId, skill, application)
 			}
 		}
 

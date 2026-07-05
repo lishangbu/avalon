@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.common.web.ApiErrorCode
@@ -156,6 +157,21 @@ class BattleRuntimePolicyMapperTests {
 	fun `skill screen breaking policy maps pre damage side condition removal`() {
 		assertThat("break-target-side-damage-reductions".breaksTargetSideDamageReductions()).isTrue()
 		assertThat("break-target-side-damage-reductions".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
+	fun `skill self critical hit boost policy maps focus energy bonus`() {
+		assertThat("self-critical-hit-stage-plus-two".criticalHitStageBoost()).isEqualTo(2)
+		assertThat("self-critical-hit-stage-plus-two".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
+	fun `side protection field policies map to protection kinds`() {
+		assertThat("side-stat-stage-reduction-protection".toBattleSideProtectionKind())
+			.isEqualTo(BattleSideProtectionKind.STAT_STAGE_REDUCTION)
+		assertThat("side-status-condition-protection".toBattleSideProtectionKind())
+			.isEqualTo(BattleSideProtectionKind.STATUS_CONDITION)
+		assertThat("side-unknown-protection".toBattleSideProtectionKind()).isNull()
 	}
 
 	@Test

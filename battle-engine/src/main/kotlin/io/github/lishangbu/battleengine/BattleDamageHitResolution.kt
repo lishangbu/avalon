@@ -45,7 +45,7 @@ internal class BattleDamageHitResolution(
 		random: BattleRandom,
 	): BattleState {
 		val (actor, target) = activeDamageParticipants(state, actorId, targetActorId) ?: return state
-		val criticalHitCheck = criticalHitCheck(skill, random)
+		val criticalHitCheck = criticalHitCheck(actor, skill, random)
 		val ignoresTargetAbilityEffects = targetDefenseEffects.skillIgnoresTargetAbilityEffects(state, actor, target)
 		val criticalHit = criticalHitCheck.hit && (ignoresTargetAbilityEffects || !target.hasCriticalHitImmunity())
 		val randomPercent = 85 + random.nextInt(16, "damage random for ${skill.skillId}")

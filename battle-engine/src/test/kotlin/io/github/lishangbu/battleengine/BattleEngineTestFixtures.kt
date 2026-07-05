@@ -20,6 +20,8 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
+import io.github.lishangbu.battleengine.model.BattleSideProtection
+import io.github.lishangbu.battleengine.model.BattleSideProtectionApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
@@ -84,6 +86,8 @@ internal fun initialState(
 	secondSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
 	firstSideEntryHazards: List<BattleSideEntryHazard> = emptyList(),
 	secondSideEntryHazards: List<BattleSideEntryHazard> = emptyList(),
+	firstSideProtections: List<BattleSideProtection> = emptyList(),
+	secondSideProtections: List<BattleSideProtection> = emptyList(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = singleFormat(),
@@ -96,6 +100,7 @@ internal fun initialState(
 				participants = listOf(first) + firstBench,
 				damageReductions = firstSideDamageReductions,
 				entryHazards = firstSideEntryHazards,
+				protections = firstSideProtections,
 			),
 			BattleSide(
 				sideId = "side-b",
@@ -103,6 +108,7 @@ internal fun initialState(
 				participants = listOf(second) + secondBench,
 				damageReductions = secondSideDamageReductions,
 				entryHazards = secondSideEntryHazards,
+				protections = secondSideProtections,
 			),
 		),
 	)
@@ -116,6 +122,8 @@ internal fun doubleInitialState(
 	environment: BattleEnvironment = BattleEnvironment(),
 	firstSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
 	secondSideDamageReductions: List<BattleSideDamageReduction> = emptyList(),
+	firstSideProtections: List<BattleSideProtection> = emptyList(),
+	secondSideProtections: List<BattleSideProtection> = emptyList(),
 ): BattleInitialState =
 	BattleInitialState(
 		format = doubleFormat(),
@@ -127,12 +135,14 @@ internal fun doubleInitialState(
 				activeActorIds = listOf(firstA.actorId, firstB.actorId),
 				participants = listOf(firstA, firstB),
 				damageReductions = firstSideDamageReductions,
+				protections = firstSideProtections,
 			),
 			BattleSide(
 				sideId = "side-b",
 				activeActorIds = listOf(secondA.actorId, secondB.actorId),
 				participants = listOf(secondA, secondB),
 				damageReductions = secondSideDamageReductions,
+				protections = secondSideProtections,
 			),
 		),
 	)
@@ -149,6 +159,7 @@ internal fun participant(
 	abilityId: Long? = null,
 	itemId: Long? = null,
 	grounded: Boolean = true,
+	criticalHitStageBonus: Int = 0,
 	abilityEffects: List<BattleAbilityEffect> = emptyList(),
 	itemEffects: List<BattleItemEffect> = emptyList(),
 ): BattleParticipant =
@@ -170,6 +181,7 @@ internal fun participant(
 		abilityId = abilityId,
 		itemId = itemId,
 		grounded = grounded,
+		criticalHitStageBonus = criticalHitStageBonus,
 		abilityEffects = abilityEffects,
 		itemEffects = itemEffects,
 	)
@@ -191,6 +203,7 @@ internal fun damagingSkill(
 	maxHits: Int = 1,
 	makesContact: Boolean = false,
 	criticalHitStage: Int = 0,
+	criticalHitStageBoost: Int = 0,
 	affectedByProtect: Boolean = true,
 	protectsUser: Boolean = false,
 	thawsUserBeforeMove: Boolean = false,
@@ -228,6 +241,7 @@ internal fun damagingSkill(
 	sideConditionApplications: List<BattleSideConditionApplication> = emptyList(),
 	sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication> = emptyList(),
 	sideEntryHazardApplications: List<BattleSideEntryHazardApplication> = emptyList(),
+	sideProtectionApplications: List<BattleSideProtectionApplication> = emptyList(),
 	fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication> = emptyList(),
 	hpEffects: List<BattleSkillHpEffect> = emptyList(),
 	postDamageStatusCures: List<BattleSkillPostDamageStatusCure> = emptyList(),
@@ -252,6 +266,7 @@ internal fun damagingSkill(
 		maxHits = maxHits,
 		makesContact = makesContact,
 		criticalHitStage = criticalHitStage,
+		criticalHitStageBoost = criticalHitStageBoost,
 		affectedByProtect = affectedByProtect,
 		protectsUser = protectsUser,
 		thawsUserBeforeMove = thawsUserBeforeMove,
@@ -291,6 +306,7 @@ internal fun damagingSkill(
 		sideConditionApplications = sideConditionApplications,
 		sideSpeedModifierApplications = sideSpeedModifierApplications,
 		sideEntryHazardApplications = sideEntryHazardApplications,
+		sideProtectionApplications = sideProtectionApplications,
 		fieldSpeedOrderApplications = fieldSpeedOrderApplications,
 		hpEffects = hpEffects,
 		postDamageStatusCures = postDamageStatusCures,

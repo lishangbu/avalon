@@ -523,12 +523,12 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_status_rule", 13L)
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
-		assertThat(seedCounts).containsEntry("battle_field_rule", 9L)
+		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 133L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 234L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
-		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 8L)
+		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_accuracy_override", 5L)
 		assertThat(seedCounts).containsEntry("battle_skill_weather_element_override", 4L)
@@ -1724,6 +1724,105 @@ class LiquibaseMigrationTests(
 				"rule_enabled" to true,
 				"effect_policy" to "power-by-user-current-hp-ratio",
 				"damage_policy" to "standard-damage",
+			),
+		)
+
+		val sideProtectionFieldRules = queryMaps(
+			"""
+			select id, code, name, effect_scope, effect_policy, min_turns, max_turns, enabled
+			from battle_field_rule
+			where id in (10, 11)
+			order by id
+			""".trimIndent(),
+		)
+		assertThat(sideProtectionFieldRules).containsExactly(
+			mapOf(
+				"id" to 10L,
+				"code" to "mist",
+				"name" to "白雾",
+				"effect_scope" to "SIDE",
+				"effect_policy" to "side-stat-stage-reduction-protection",
+				"min_turns" to 5,
+				"max_turns" to 5,
+				"enabled" to true,
+			),
+			mapOf(
+				"id" to 11L,
+				"code" to "safeguard",
+				"name" to "神秘守护",
+				"effect_scope" to "SIDE",
+				"effect_policy" to "side-status-condition-protection",
+				"min_turns" to 5,
+				"max_turns" to 5,
+				"enabled" to true,
+			),
+		)
+
+		val focusMistSafeguardSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.target_policy, r.damage_policy
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.id in (54, 116, 219)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(focusMistSafeguardSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 54L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "side-condition",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+			mapOf(
+				"skill_id" to 116L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "self-critical-hit-stage-plus-two",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+			mapOf(
+				"skill_id" to 219L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "side-condition",
+				"target_policy" to "self",
+				"damage_policy" to "no-damage",
+			),
+		)
+
+		val sideProtectionSkillFieldEffects = queryMaps(
+			"""
+			select e.id, s.id as skill_id, fr.id as field_rule_id, e.target_side, e.chance_percent, e.effect_timing, e.enabled
+			from battle_skill_field_effect e
+			join battle_skill_rule r on r.id = e.skill_rule_id
+			join game_skill s on s.id = r.skill_id
+			join battle_field_rule fr on fr.id = e.field_rule_id
+			where e.id in (9, 10)
+			order by e.id
+			""".trimIndent(),
+		)
+		assertThat(sideProtectionSkillFieldEffects).containsExactly(
+			mapOf(
+				"id" to 9L,
+				"skill_id" to 54L,
+				"field_rule_id" to 10L,
+				"target_side" to "USER_SIDE",
+				"chance_percent" to 100,
+				"effect_timing" to "AFTER_HIT",
+				"enabled" to true,
+			),
+			mapOf(
+				"id" to 10L,
+				"skill_id" to 219L,
+				"field_rule_id" to 11L,
+				"target_side" to "USER_SIDE",
+				"chance_percent" to 100,
+				"effect_timing" to "AFTER_HIT",
+				"enabled" to true,
 			),
 		)
 

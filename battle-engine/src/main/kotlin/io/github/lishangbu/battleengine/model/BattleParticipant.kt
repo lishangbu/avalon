@@ -40,6 +40,7 @@ data class BattleParticipant(
 	val grounded: Boolean = true,
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
+	val criticalHitStageBonus: Int = 0,
 	val protectionChain: Int = 0,
 	val badPoisonCounter: Int = 0,
 	val sleepTurnsRemaining: Int = 0,
@@ -90,6 +91,7 @@ data class BattleParticipant(
 		require(abilityId == null || abilityId > 0) { "abilityId must be positive when present" }
 		require(itemId == null || itemId > 0) { "itemId must be positive when present" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
+		require(criticalHitStageBonus >= 0) { "criticalHitStageBonus must not be negative" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }
 		require(badPoisonCounter >= 0) { "badPoisonCounter must not be negative" }
 		require(sleepTurnsRemaining >= 0) { "sleepTurnsRemaining must not be negative" }

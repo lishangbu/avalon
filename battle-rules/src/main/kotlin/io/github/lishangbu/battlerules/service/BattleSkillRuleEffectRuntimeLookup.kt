@@ -8,6 +8,8 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
+import io.github.lishangbu.battleengine.model.BattleSideProtection
+import io.github.lishangbu.battleengine.model.BattleSideProtectionApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
@@ -61,6 +63,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 			sideConditionApplications = sideConditionApplications(sideFieldEffects),
 			sideSpeedModifierApplications = sideSpeedModifierApplications(sideFieldEffects),
 			sideEntryHazardApplications = sideEntryHazardApplications(sideFieldEffects),
+			sideProtectionApplications = sideProtectionApplications(sideFieldEffects),
 			fieldSpeedOrderApplications = fieldSpeedOrderApplications(ruleId),
 		)
 	}
@@ -344,6 +347,20 @@ class BattleSkillRuleEffectRuntimeLookup(
 			)
 		}
 
+	private fun sideProtectionApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideProtectionApplication> =
+		rows.mapNotNull { row ->
+			val protectionKind = row.effectPolicy.toBattleSideProtectionKind() ?: return@mapNotNull null
+			BattleSideProtectionApplication(
+				targetSide = row.targetSide,
+				protection = BattleSideProtection(
+					kind = protectionKind,
+					turnsRemaining = row.minTurns,
+				),
+				chancePercent = row.chancePercent,
+				requiredWeather = row.requiredWeather,
+			)
+		}
+
 	/**
 	 * 校验一侧场地效果 policy 至少能被某一种一侧效果模型承载。
 	 *
@@ -356,7 +373,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 		val unsupported = rows.firstOrNull { row ->
 			row.effectPolicy.toBattleSideDamageReductionKind() == null &&
 				row.effectPolicy.toBattleSideSpeedModifierKind() == null &&
-				row.effectPolicy.toBattleSideEntryHazardKind() == null
+				row.effectPolicy.toBattleSideEntryHazardKind() == null &&
+				row.effectPolicy.toBattleSideProtectionKind() == null
 		}
 		if (unsupported != null) {
 			invalidValue("effectPolicy", "不支持的一侧场地效果策略: ${unsupported.effectPolicy}")
@@ -465,5 +483,6 @@ data class BattleSkillRuleEffectRuntimeSnapshot(
 	val sideConditionApplications: List<BattleSideConditionApplication>,
 	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication>,
 	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication>,
+	val sideProtectionApplications: List<BattleSideProtectionApplication>,
 	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication>,
 )

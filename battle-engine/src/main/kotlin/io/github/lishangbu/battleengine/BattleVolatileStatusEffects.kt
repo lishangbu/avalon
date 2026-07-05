@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleParticipant
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
@@ -196,6 +197,7 @@ internal class BattleVolatileStatusEffects(
 			volatileStatusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) ->
 				BattleStatusBlockReason.SUBSTITUTE
+			volatileStatusBlockedBySideProtection(state, actorId, recipient, status) -> BattleStatusBlockReason.SIDE_PROTECTION
 			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
 				volatileStatusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			volatileStatusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
@@ -216,6 +218,22 @@ internal class BattleVolatileStatusEffects(
 			recipient.grounded &&
 			state.environment.terrain == BattleTerrain.MISTY &&
 			status == BattleVolatileStatus.CONFUSION
+
+	/**
+	 * 判断目标所属侧的神秘守护类防护是否阻止本次临时状态。
+	 *
+	 * 现代神秘守护主要和混乱一起处理；畏缩、挑衅、回复封锁、定身法、无理取闹和束缚不是它负责的状态族。
+	 * 和主要异常一样，自身给自身写入的状态不被拦截，避免防护状态干扰自我代价类规则。
+	 */
+	private fun volatileStatusBlockedBySideProtection(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+		status: BattleVolatileStatus,
+	): Boolean =
+		actorId != recipient.actorId &&
+			status == BattleVolatileStatus.CONFUSION &&
+			state.sideHasProtection(recipient.actorId, BattleSideProtectionKind.STATUS_CONDITION)
 
 	/**
 	 * 判断目标特性是否稳定免疫指定临时状态。

@@ -6,6 +6,7 @@ import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRuleSnapshot
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
@@ -102,6 +103,7 @@ internal class BattleMajorStatusEffects(
 			statusBlockedByTerrain(state, recipient, status) -> BattleStatusBlockReason.TERRAIN
 			skill != null && substituteBlocksOpponentEffect(state, actorId, recipient.actorId, skill) ->
 				BattleStatusBlockReason.SUBSTITUTE
+			statusBlockedBySideProtection(state, actorId, recipient) -> BattleStatusBlockReason.SIDE_PROTECTION
 			!skillIgnoresTargetAbilityEffects(state, actorId, recipient.actorId) &&
 				statusBlockedByAbility(recipient, status) -> BattleStatusBlockReason.ABILITY
 			statusBlockedByItem(recipient, status) -> BattleStatusBlockReason.ITEM
@@ -172,6 +174,21 @@ internal class BattleMajorStatusEffects(
 			else -> false
 		}
 	}
+
+	/**
+	 * 判断目标所属侧的神秘守护类防护是否阻止本次主要异常状态。
+	 *
+	 * 一侧防护只阻止“其它成员”附加的状态，不阻止成员自身技能把状态写给自己；这样后续睡觉、自我异常代价等规则
+	 * 不会被己方神秘守护误拦。该判断放在替身之后、特性/道具之前，是为了让已经被替身明确挡下的对手技能仍报告
+	 * 替身原因，而不是被同样存在的一侧防护遮蔽。
+	 */
+	private fun statusBlockedBySideProtection(
+		state: BattleState,
+		actorId: String,
+		recipient: BattleParticipant,
+	): Boolean =
+		actorId != recipient.actorId &&
+			state.sideHasProtection(recipient.actorId, BattleSideProtectionKind.STATUS_CONDITION)
 
 	/**
 	 * 判断目标特性是否稳定免疫指定主要异常状态。

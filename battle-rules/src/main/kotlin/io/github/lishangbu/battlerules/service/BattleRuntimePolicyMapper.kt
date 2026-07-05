@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageOperationKind
@@ -74,6 +75,13 @@ internal fun String.toBattleSideDamageReductionKind(): BattleSideDamageReduction
 internal fun String.toBattleSideSpeedModifierKind(): BattleSideSpeedModifierKind? =
 	when (this) {
 		"side-tailwind" -> BattleSideSpeedModifierKind.TAILWIND
+		else -> null
+	}
+
+internal fun String.toBattleSideProtectionKind(): BattleSideProtectionKind? =
+	when (this) {
+		"side-stat-stage-reduction-protection" -> BattleSideProtectionKind.STAT_STAGE_REDUCTION
+		"side-status-condition-protection" -> BattleSideProtectionKind.STATUS_CONDITION
 		else -> null
 	}
 

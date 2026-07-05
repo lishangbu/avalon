@@ -21,6 +21,7 @@ import io.github.lishangbu.battleengine.model.BattleReceivedDamage
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
+import io.github.lishangbu.battleengine.model.BattleSideProtectionKind
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
@@ -236,9 +237,9 @@ class BattleRuntimeSnapshotServiceTests(
 	fun `skill slot assembly includes explicit battle rule effects`() {
 		val slots = service.skillSlotsBySkillIds(
 			listOf(
-				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 57, 63, 69,
+				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 54, 57, 63, 69,
 				67, 68, 71, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-				115, 129, 138, 147, 157, 162, 163, 164, 170, 175, 179, 184, 189, 191, 199, 200, 206, 235, 240, 243, 252, 259, 261, 263, 269,
+				115, 116, 129, 138, 147, 157, 162, 163, 164, 170, 175, 179, 184, 189, 191, 199, 200, 206, 219, 235, 240, 243, 252, 259, 261, 263, 269,
 				280, 283, 305, 307, 308, 311, 319, 329, 338, 344, 347, 349, 360, 362, 366, 368, 390, 400, 416, 427, 433, 435, 439, 446, 447, 457, 459,
 				464, 473, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
 				883, 892, 895,
@@ -860,6 +861,16 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(auroraVeil.damageReduction.turnsRemaining).isEqualTo(5)
 		assertThat(auroraVeil.requiredWeather).isEqualTo(BattleWeather.SNOW)
 
+		val mist = slots.getValue(54).sideProtectionApplications.single()
+		assertThat(mist.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(mist.protection.kind).isEqualTo(BattleSideProtectionKind.STAT_STAGE_REDUCTION)
+		assertThat(mist.protection.turnsRemaining).isEqualTo(5)
+
+		val safeguard = slots.getValue(219).sideProtectionApplications.single()
+		assertThat(safeguard.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
+		assertThat(safeguard.protection.kind).isEqualTo(BattleSideProtectionKind.STATUS_CONDITION)
+		assertThat(safeguard.protection.turnsRemaining).isEqualTo(5)
+
 		val tailwind = slots.getValue(366).sideSpeedModifierApplications.single()
 		assertThat(tailwind.targetSide).isEqualTo(BattleSideConditionTarget.USER_SIDE)
 		assertThat(tailwind.speedModifier.kind).isEqualTo(BattleSideSpeedModifierKind.TAILWIND)
@@ -869,6 +880,8 @@ class BattleRuntimeSnapshotServiceTests(
 		val trickRoom = slots.getValue(433).fieldSpeedOrderApplications.single()
 		assertThat(trickRoom.speedOrderEffect.kind).isEqualTo(BattleFieldSpeedOrderKind.TRICK_ROOM)
 		assertThat(trickRoom.speedOrderEffect.turnsRemaining).isEqualTo(5)
+
+		assertThat(slots.getValue(116).criticalHitStageBoost).isEqualTo(2)
 
 		val spikes = slots.getValue(191).sideEntryHazardApplications.single()
 		assertThat(spikes.targetSide).isEqualTo(BattleSideConditionTarget.TARGET_SIDE)

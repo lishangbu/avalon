@@ -9144,3 +9144,138 @@ databaseChangeLog:
           from game_skill s
           join user_hp_power_skills uhps on uhps.code = s.code
           where r.skill_id = s.id;
+- changeSet:
+    id: 002-battle-rules-enable-focus-mist-safeguard-skills
+    author: backend
+    comment: 启用聚气、白雾和神秘守护规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 白雾和神秘守护是一侧持续防护效果，复用 battle_field_rule 与 battle_skill_field_effect，不新增表结构。
+          -- 聚气是成员在场期间的要害等级加成，随离场清除，因此直接用 battle_skill_rule.effect_policy 表达。
+          insert into battle_field_rule (
+            id,
+            code,
+            name,
+            effect_scope,
+            effect_policy,
+            min_turns,
+            max_turns,
+            max_layers,
+            enabled,
+            sort_order,
+            description
+          ) values
+            (
+              10,
+              'mist',
+              '白雾',
+              'SIDE',
+              'side-stat-stage-reduction-protection',
+              5,
+              5,
+              null,
+              true,
+              10,
+              '防止己方成员被其它成员降低能力阶级。'
+            ),
+            (
+              11,
+              'safeguard',
+              '神秘守护',
+              'SIDE',
+              'side-status-condition-protection',
+              5,
+              5,
+              null,
+              true,
+              11,
+              '防止己方成员被其它成员附加主要异常状态或混乱。'
+            )
+          on conflict (id) do update set
+            code = excluded.code,
+            name = excluded.name,
+            effect_scope = excluded.effect_scope,
+            effect_policy = excluded.effect_policy,
+            min_turns = excluded.min_turns,
+            max_turns = excluded.max_turns,
+            max_layers = excluded.max_layers,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order,
+            description = excluded.description;
+
+          with enabled_skills(code) as (
+            values
+              ('mist'),
+              ('focus-energy'),
+              ('safeguard')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'side-condition',
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            description = '一侧防护变化技能规则；命中后在使用者侧建立 5 回合防护效果。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('mist', 'safeguard');
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'self-critical-hit-stage-plus-two',
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            description = '自我强化变化技能规则；命中后使用者在场期间要害等级 +2，离场时清除。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code = 'focus-energy';
+
+          insert into battle_skill_field_effect (
+            id,
+            skill_rule_id,
+            field_rule_id,
+            target_side,
+            chance_percent,
+            effect_timing,
+            required_weather_rule_id,
+            enabled,
+            sort_order
+          )
+          select
+            effect_seed.id,
+            r.id,
+            fr.id,
+            'USER_SIDE',
+            100,
+            'AFTER_HIT',
+            null,
+            true,
+            effect_seed.sort_order
+          from (
+            values
+              (9, 'mist', 'mist', 9),
+              (10, 'safeguard', 'safeguard', 10)
+          ) as effect_seed(id, skill_code, field_code, sort_order)
+          join game_skill s on s.code = effect_seed.skill_code
+          join battle_skill_rule r on r.skill_id = s.id
+          join battle_field_rule fr on fr.code = effect_seed.field_code
+          on conflict (id) do update set
+            skill_rule_id = excluded.skill_rule_id,
+            field_rule_id = excluded.field_rule_id,
+            target_side = excluded.target_side,
+            chance_percent = excluded.chance_percent,
+            effect_timing = excluded.effect_timing,
+            required_weather_rule_id = excluded.required_weather_rule_id,
+            enabled = excluded.enabled,
+            sort_order = excluded.sort_order;

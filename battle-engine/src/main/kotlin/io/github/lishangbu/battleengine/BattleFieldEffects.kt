@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleSideConditionApplication
 import io.github.lishangbu.battleengine.model.BattleSideConditionTarget
 import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
 import io.github.lishangbu.battleengine.model.BattleSideEntryHazardApplication
+import io.github.lishangbu.battleengine.model.BattleSideProtectionApplication
 import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierApplication
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.model.BattleState
@@ -108,6 +109,45 @@ internal class BattleFieldEffects {
 				kind = application.speedModifier.kind,
 				multiplier = application.speedModifier.multiplier,
 				turnsRemaining = application.speedModifier.turnsRemaining,
+			),
+		)
+	}
+
+	/**
+	 * 将命中后的技能一侧防护写入对应战斗侧。
+	 *
+	 * 防护效果的生命周期和其它一侧持续状态一致；同种防护已经存在时，技能不会刷新持续回合。这里把这种拒绝写成
+	 * 稳定失败事件，方便生产日志解释“技能被使用但场上状态没有变化”的情况。
+	 */
+	fun applySideProtection(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+		application: BattleSideProtectionApplication,
+	): BattleState {
+		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
+			return state
+		}
+		val side = sideFor(state, actorId, targetActorId, application.targetSide) ?: return state
+		val changed = state.addSideProtection(side.sideId, application.protection)
+			?: return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "side-protection-already-active",
+				),
+			)
+		return changed.appendEvent(
+			BattleEvent.SideProtectionStarted(
+				turnNumber = state.turnNumber,
+				actorId = actorId,
+				sideId = side.sideId,
+				skillId = skill.skillId,
+				kind = application.protection.kind,
+				turnsRemaining = application.protection.turnsRemaining,
 			),
 		)
 	}

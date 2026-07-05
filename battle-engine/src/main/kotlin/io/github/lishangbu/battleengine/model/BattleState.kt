@@ -95,6 +95,30 @@ data class BattleState(
 	}
 
 	/**
+	 * 在指定一侧新增防护效果。
+	 *
+	 * 返回 null 表示目标侧不存在，或该侧已经有同种防护。状态对象只表达不可变数据是否发生变化；“同种防护已经
+	 * 存在时技能为何失败”由技能效果 resolver 追加事件，保持模型层不依赖具体技能文案。
+	 */
+	fun addSideProtection(sideId: String, protection: BattleSideProtection): BattleState? {
+		var changed = false
+		val nextSides = sides.map { side ->
+			if (side.sideId != sideId) {
+				side
+			} else {
+				side.addProtection(protection)?.also { changed = true } ?: side
+			}
+		}
+		return if (changed) copy(sides = nextSides) else null
+	}
+
+	/**
+	 * 判断指定成员所属侧是否存在某个一侧防护。
+	 */
+	fun sideHasProtection(actorId: String, kind: BattleSideProtectionKind): Boolean =
+		sideOf(actorId)?.hasProtection(kind) == true
+
+	/**
 	 * 在指定一侧新增或叠加入场陷阱。
 	 *
 	 * 返回 null 表示目标侧不存在、同种不可叠层陷阱已存在，或可叠层陷阱已经达到最大层数。调用方据此决定是否

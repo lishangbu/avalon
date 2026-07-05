@@ -543,6 +543,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleSkillEnvironmentEffectTests",
 					"io.github.lishangbu.battleengine.BattleWeatherElementOverrideTests",
 					"io.github.lishangbu.battleengine.BattleScreenBreakingSkillTests",
+					"io.github.lishangbu.battleengine.BattleFocusEnergyAndSideProtectionTests",
 				),
 			),
 			CoverageGroup(
