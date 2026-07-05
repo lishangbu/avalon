@@ -21,7 +21,7 @@ private val GAME_CREATURE_HELD_ITEMS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameCreatureHeldItemsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

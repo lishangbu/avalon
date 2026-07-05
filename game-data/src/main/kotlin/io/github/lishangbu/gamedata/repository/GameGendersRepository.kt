@@ -22,7 +22,7 @@ private val GAME_GENDERS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameGendersRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -22,7 +22,7 @@ private val GAME_TRANSFER_AREA_SPECIES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameTransferAreaSpeciesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -44,7 +44,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.babyfish.jimmer.sql.kt.ast.expression.ne
 import org.babyfish.jimmer.sql.kt.ast.expression.or
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -67,7 +66,6 @@ private const val MAX_CRITICAL_HIT_STAGE = 6
 class BattleSkillRuleService(
 	private val repository: BattleSkillRuleRepository,
 	private val sqlClient: KSqlClient,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 分页查询技能规则。
@@ -198,17 +196,17 @@ class BattleSkillRuleService(
 		repository.findNullable(id) ?: notFound("id", "技能规则不存在: $id")
 
 	private fun validateSkillReference(skillId: Long): String {
-		requireExistingGameDataReference(jdbcTemplate, "game_skill", skillId, "skillId", "技能")
-		return jdbcTemplate.queryForObject(
+		requireExistingGameDataReference(sqlClient, "game_skill", skillId, "skillId", "技能")
+		return sqlClient.querySql(
 			"""
 			select c.code
 			from game_skill s
 			join game_skill_damage_class c on c.id = s.damage_class_id
 			where s.id = ?
 			""".trimIndent(),
-			String::class.java,
 			skillId,
-		) ?: invalidValue("skillId", "技能缺少伤害分类: $skillId")
+		) { rs -> rs.getString("code") }.singleOrNull()
+			?: invalidValue("skillId", "技能缺少伤害分类: $skillId")
 	}
 
 	private fun validateSkillRuntimeConstraints(request: BattleSkillRuleRequest, damageClassCode: String) {

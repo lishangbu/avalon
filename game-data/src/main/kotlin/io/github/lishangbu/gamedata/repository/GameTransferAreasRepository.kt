@@ -21,7 +21,7 @@ private val GAME_TRANSFER_AREAS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameTransferAreasRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

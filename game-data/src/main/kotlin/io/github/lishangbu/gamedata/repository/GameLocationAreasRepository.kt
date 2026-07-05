@@ -23,7 +23,7 @@ private val GAME_LOCATION_AREAS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameLocationAreasRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

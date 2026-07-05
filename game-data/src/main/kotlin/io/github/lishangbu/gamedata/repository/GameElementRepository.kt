@@ -22,7 +22,7 @@ private val GAME_ELEMENT_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameElementRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

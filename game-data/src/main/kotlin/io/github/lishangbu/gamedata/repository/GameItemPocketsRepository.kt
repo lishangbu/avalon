@@ -22,7 +22,7 @@ private val GAME_ITEM_POCKETS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameItemPocketsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

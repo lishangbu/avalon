@@ -22,7 +22,7 @@ private val GAME_ITEM_FLING_EFFECTS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameItemFlingEffectsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

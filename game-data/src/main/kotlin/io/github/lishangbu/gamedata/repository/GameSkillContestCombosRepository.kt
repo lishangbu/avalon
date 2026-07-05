@@ -22,7 +22,7 @@ private val GAME_SKILL_CONTEST_COMBOS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillContestCombosRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

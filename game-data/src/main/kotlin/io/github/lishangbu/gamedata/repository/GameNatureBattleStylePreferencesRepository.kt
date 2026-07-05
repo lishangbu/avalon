@@ -22,7 +22,7 @@ private val GAME_NATURE_BATTLE_STYLE_PREFERENCES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameNatureBattleStylePreferencesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

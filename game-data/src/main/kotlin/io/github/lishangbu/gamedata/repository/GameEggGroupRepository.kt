@@ -22,7 +22,7 @@ private val GAME_EGG_GROUP_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEggGroupRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

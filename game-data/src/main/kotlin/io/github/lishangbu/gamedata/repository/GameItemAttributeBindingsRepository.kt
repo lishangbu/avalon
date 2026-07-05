@@ -20,7 +20,7 @@ private val GAME_ITEM_ATTRIBUTE_BINDINGS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameItemAttributeBindingsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -5,7 +5,7 @@ plugins {
 dependencies {
 	implementation(project(":common-web"))
 	implementation(libs.spring.boot.starter)
-	implementation(libs.spring.boot.starter.jdbc)
+	implementation(libs.jimmer.spring.boot.starter)
 	implementation(libs.spring.boot.starter.web)
 	implementation(libs.springdoc.openapi.starter.webmvc.api)
 	testImplementation(project(":migration"))

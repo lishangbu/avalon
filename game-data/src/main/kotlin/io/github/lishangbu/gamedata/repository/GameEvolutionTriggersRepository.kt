@@ -21,7 +21,7 @@ private val GAME_EVOLUTION_TRIGGERS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEvolutionTriggersRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

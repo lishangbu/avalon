@@ -3,7 +3,7 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.invalidReference
 import io.github.lishangbu.common.web.requiredText
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 
 /**
  * 战斗规则管理服务共用的输入清洗函数。
@@ -63,17 +63,16 @@ internal fun optionalIntRange(value: Int?, fieldName: String, min: Int, max: Int
 }
 
 internal fun requireExistingGameDataReference(
-	jdbcTemplate: JdbcTemplate,
+	sqlClient: KSqlClient,
 	tableName: String,
 	id: Long,
 	fieldName: String,
 	displayName: String,
 ) {
-	val exists = jdbcTemplate.queryForObject(
+	val exists = sqlClient.querySql(
 		"select exists(select 1 from $tableName where id = ?)",
-		Boolean::class.java,
 		id,
-	) == true
+	) { rs -> rs.getBoolean(1) }.singleOrNull() == true
 	if (!exists) {
 		invalidReference(fieldName, "$displayName 不存在: $id")
 	}

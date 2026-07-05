@@ -1,6 +1,6 @@
 package io.github.lishangbu.battlerules.service
 
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Component
 
 /**
@@ -15,29 +15,27 @@ import org.springframework.stereotype.Component
  */
 @Component
 class BattleEffectPolicyRuntimeLookup(
-	private val jdbcTemplate: JdbcTemplate,
+	private val sqlClient: KSqlClient,
 ) {
 	fun enabledAbilityPolicies(abilityId: Long): List<String> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select effect_policy
 			from battle_ability_rule
 			where ability_id = ? and enabled = true
 			order by trigger_order, sort_order, id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("effect_policy") },
 			abilityId,
-		)
+		) { rs -> rs.getString("effect_policy") }
 
 	fun enabledItemPolicies(itemId: Long): List<String> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select effect_policy
 			from battle_item_rule
 			where item_id = ? and enabled = true
 			order by trigger_order, sort_order, id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("effect_policy") },
 			itemId,
-		)
+		) { rs -> rs.getString("effect_policy") }
 }

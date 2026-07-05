@@ -23,7 +23,6 @@ import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.babyfish.jimmer.sql.kt.ast.expression.ne
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -40,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional
 class BattleItemRuleService(
 	private val repository: BattleItemRuleRepository,
 	private val sqlClient: KSqlClient,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 分页查询道具规则。
@@ -124,7 +122,7 @@ class BattleItemRuleService(
 		repository.findNullable(id) ?: notFound("id", "道具规则不存在: $id")
 
 	private fun validateItemReference(itemId: Long) {
-		requireExistingGameDataReference(jdbcTemplate, "game_item", itemId, "itemId", "道具")
+		requireExistingGameDataReference(sqlClient, "game_item", itemId, "itemId", "道具")
 	}
 
 	private fun ensureRuleAvailable(request: BattleItemRuleRequest, selfId: Long?) {

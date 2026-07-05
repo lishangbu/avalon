@@ -22,7 +22,6 @@ import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ne
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -42,7 +41,6 @@ class BattleSkillWeatherElementOverrideService(
 	private val skillRuleRepository: BattleSkillRuleRepository,
 	private val weatherRuleRepository: BattleWeatherRuleRepository,
 	private val sqlClient: KSqlClient,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 按技能规则、天气规则或目标属性分页查询属性覆盖。
@@ -133,11 +131,10 @@ class BattleSkillWeatherElementOverrideService(
 		if (weatherRule.code == "clear") {
 			invalidValue("weatherRuleId", "天气属性覆盖不能引用无天气")
 		}
-		val elementExists = jdbcTemplate.queryForObject(
+		val elementExists = sqlClient.querySql(
 			"select exists(select 1 from game_element where id = ? and enabled = true)",
-			Boolean::class.java,
 			targetElementId,
-		) == true
+		) { rs -> rs.getBoolean(1) }.singleOrNull() == true
 		if (!elementExists) {
 			invalidReference("targetElementId", "目标属性不存在: $targetElementId")
 		}

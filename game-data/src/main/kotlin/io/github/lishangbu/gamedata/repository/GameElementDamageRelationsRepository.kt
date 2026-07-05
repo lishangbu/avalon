@@ -21,7 +21,7 @@ private val GAME_ELEMENT_DAMAGE_RELATIONS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameElementDamageRelationsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -24,7 +24,6 @@ import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ne
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -42,7 +41,6 @@ class BattleSkillStatStageEffectService(
 	private val repository: BattleSkillStatStageEffectRepository,
 	private val skillRuleRepository: BattleSkillRuleRepository,
 	private val sqlClient: KSqlClient,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 按技能规则或能力项分页查询阶级效果。
@@ -127,7 +125,7 @@ class BattleSkillStatStageEffectService(
 		if (skillRuleRepository.findNullable(skillRuleId) == null) {
 			invalidReference("skillRuleId", "技能规则不存在: $skillRuleId")
 		}
-		requireExistingGameDataReference(jdbcTemplate, "game_stat", statId, "statId", "能力项")
+		requireExistingGameDataReference(sqlClient, "game_stat", statId, "statId", "能力项")
 	}
 
 	private fun ensureEffectAvailable(request: BattleSkillStatStageEffectRequest, selfId: Long?) {

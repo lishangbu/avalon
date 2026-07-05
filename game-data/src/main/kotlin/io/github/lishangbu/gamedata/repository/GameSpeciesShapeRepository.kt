@@ -22,7 +22,7 @@ private val GAME_SPECIES_SHAPE_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSpeciesShapeRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

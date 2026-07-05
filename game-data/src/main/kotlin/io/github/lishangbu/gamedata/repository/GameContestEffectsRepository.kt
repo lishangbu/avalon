@@ -22,7 +22,7 @@ private val GAME_CONTEST_EFFECTS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameContestEffectsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

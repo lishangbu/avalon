@@ -21,7 +21,7 @@ private val GAME_GENDER_SPECIES_RATES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameGenderSpeciesRatesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

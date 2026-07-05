@@ -18,7 +18,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.desc
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -36,7 +35,6 @@ class OAuthJwkService(
 	private val jwkRepository: OAuth2JwkRepository,
 	private val sqlClient: KSqlClient,
 	private val jwkKeyFactory: OAuth2JwkKeyFactory,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 查询 JWK 元数据，响应不包含私钥 JSON。
@@ -93,7 +91,10 @@ class OAuthJwkService(
 	 * “停用旧 key”和“插入新 active key”之间互相撞到唯一 active 约束。
 	 */
 	private fun acquireRotationLock() {
-		jdbcTemplate.execute("select pg_advisory_xact_lock($JWK_ROTATION_LOCK_NAMESPACE, $JWK_ROTATION_LOCK_RESOURCE)")
+		sqlClient.javaClient.connectionManager.execute { connection ->
+			connection.prepareStatement("select pg_advisory_xact_lock($JWK_ROTATION_LOCK_NAMESPACE, $JWK_ROTATION_LOCK_RESOURCE)")
+				.use { statement -> statement.execute() }
+		}
 	}
 
 	/**

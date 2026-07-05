@@ -20,7 +20,7 @@ private val GAME_LOCATION_AREA_ENCOUNTER_CONDITION_VALUES_TABLE = GameDataTableS
  */
 @Repository
 class GameLocationAreaEncounterConditionValuesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

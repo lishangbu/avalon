@@ -22,7 +22,7 @@ private val GAME_BERRY_FIRMNESSES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameBerryFirmnessesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

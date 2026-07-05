@@ -19,7 +19,7 @@ import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.common.web.invalidValue
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
 
@@ -36,7 +36,7 @@ import java.sql.ResultSet
  */
 @Component
 class BattleSkillRuleEffectRuntimeLookup(
-	private val jdbcTemplate: JdbcTemplate,
+	private val sqlClient: KSqlClient,
 ) {
 	/**
 	 * 读取某条技能规则挂载的全部多行效果。
@@ -69,7 +69,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	}
 
 	private fun weatherAccuracyOverrides(ruleId: Long): Map<BattleWeather, Int?> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select w.code as weather_code, o.accuracy_percent
 			from battle_skill_weather_accuracy_override o
@@ -77,12 +77,11 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where o.skill_rule_id = ? and o.enabled = true and w.enabled = true
 			order by o.sort_order, o.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.nullableInt("accuracy_percent") },
 			ruleId,
-		).toMap()
+		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.nullableInt("accuracy_percent") }.toMap()
 
 	private fun weatherPowerMultipliers(ruleId: Long): Map<BattleWeather, Double> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select w.code as weather_code, m.power_multiplier
 			from battle_skill_weather_power_modifier m
@@ -90,12 +89,11 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where m.skill_rule_id = ? and m.enabled = true and w.enabled = true
 			order by m.sort_order, m.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") },
 			ruleId,
-		).toMap()
+		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") }.toMap()
 
 	private fun weatherElementOverrides(ruleId: Long): Map<BattleWeather, Long> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select w.code as weather_code, o.target_element_id
 			from battle_skill_weather_element_override o
@@ -104,12 +102,11 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where o.skill_rule_id = ? and o.enabled = true and w.enabled = true and e.enabled = true
 			order by o.sort_order, o.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") },
 			ruleId,
-		).toMap()
+		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") }.toMap()
 
 	private fun groundedTerrainPowerMultipliers(ruleId: Long): Map<BattleTerrain, Double> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select t.code as terrain_code, m.power_multiplier
 			from battle_skill_terrain_power_modifier m
@@ -117,12 +114,11 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where m.skill_rule_id = ? and m.enabled = true and t.enabled = true
 			order by m.sort_order, m.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("terrain_code").toBattleTerrain() to rs.getDouble("power_multiplier") },
 			ruleId,
-		).toMap()
+		) { rs -> rs.getString("terrain_code").toBattleTerrain() to rs.getDouble("power_multiplier") }.toMap()
 
 	private fun terrainElementOverrides(ruleId: Long): Map<BattleTerrain, Long> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select t.code as terrain_code, o.target_element_id
 			from battle_skill_terrain_element_override o
@@ -131,12 +127,11 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where o.skill_rule_id = ? and o.enabled = true and t.enabled = true and e.enabled = true
 			order by o.sort_order, o.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("terrain_code").toBattleTerrain() to rs.getLong("target_element_id") },
 			ruleId,
-		).toMap()
+		) { rs -> rs.getString("terrain_code").toBattleTerrain() to rs.getLong("target_element_id") }.toMap()
 
 	private fun chargeSkippedByWeathers(ruleId: Long): Set<BattleWeather> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select w.code as weather_code
 			from battle_skill_charge_skip_weather s
@@ -144,9 +139,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 			where s.skill_rule_id = ? and s.enabled = true and w.enabled = true
 			order by s.sort_order, s.id
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("weather_code").toBattleWeather() },
 			ruleId,
-		).toSet()
+		) { rs -> rs.getString("weather_code").toBattleWeather() }.toSet()
 
 	/**
 	 * 一次读取技能附加状态效果，再按状态族拆成主要异常和临时状态。
@@ -157,7 +151,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 * `filterNotNull` 吞掉；状态附加行一旦被静默丢弃，实战里会表现成技能命中但异常状态永远不会触发。
 	 */
 	private fun statusEffectRows(ruleId: Long): List<StatusEffectRuntimeRow> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select sr.code as status_code, sr.status_kind, e.target_scope, e.chance_percent
 			from battle_skill_status_effect e
@@ -168,16 +162,15 @@ class BattleSkillRuleEffectRuntimeLookup(
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
-			{ rs, _ ->
-				StatusEffectRuntimeRow(
-					statusCode = rs.getString("status_code"),
-					statusKind = rs.getString("status_kind"),
-					target = rs.battleEffectTarget("target_scope", "状态效果"),
-					chancePercent = rs.getInt("chance_percent"),
-				)
-			},
 			ruleId,
-		)
+		) { rs ->
+			StatusEffectRuntimeRow(
+				statusCode = rs.getString("status_code"),
+				statusKind = rs.getString("status_kind"),
+				target = rs.battleEffectTarget("target_scope", "状态效果"),
+				chancePercent = rs.getInt("chance_percent"),
+			)
+		}
 
 	private fun statusApplications(rows: List<StatusEffectRuntimeRow>): List<BattleStatusApplication> =
 		rows.filter { it.statusKind == "MAJOR" }
@@ -214,7 +207,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	}
 
 	private fun statStageEffects(ruleId: Long): List<BattleStatStageEffect> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select st.code as stat_code, e.target_scope, e.stage_delta, e.chance_percent
 			from battle_skill_stat_stage_effect e
@@ -224,19 +217,18 @@ class BattleSkillRuleEffectRuntimeLookup(
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
-			{ rs, _ ->
+			ruleId,
+		) { rs ->
 				BattleStatStageEffect(
 					stat = rs.getString("stat_code").toBattleStat(),
 					target = rs.battleEffectTarget("target_scope", "能力阶级效果"),
 					stageDelta = rs.getInt("stage_delta"),
 					chancePercent = rs.getInt("chance_percent"),
 				)
-			},
-			ruleId,
-		)
+		}
 
 	private fun statStageOperations(ruleId: Long): List<BattleStatStageOperation> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select
 				st.code as stat_code,
@@ -251,7 +243,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
-			{ rs, _ ->
+			ruleId,
+		) { rs ->
 				val source = rs.getString("source_scope")?.toBattleStatStageOperationTarget()
 				BattleStatStageOperation(
 					kind = rs.getString("operation_kind").toBattleStatStageOperationKind(),
@@ -260,9 +253,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 					source = source,
 					chancePercent = rs.getInt("chance_percent"),
 				)
-			},
-			ruleId,
-		)
+		}
 
 	/**
 	 * 一次读取一侧场地效果，再按 effect_policy 映射成屏障、速度修正或入场陷阱。
@@ -273,7 +264,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 * `BattleSkillSlot` 需要的列表。
 	 */
 	private fun sideFieldEffectRows(ruleId: Long): List<SideFieldEffectRuntimeRow> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select
 				fr.effect_policy as field_effect_policy,
@@ -292,7 +283,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
-			{ rs, _ ->
+			ruleId,
+		) { rs ->
 				SideFieldEffectRuntimeRow(
 					effectPolicy = rs.getString("field_effect_policy"),
 					minTurns = rs.nullableInt("min_turns"),
@@ -301,9 +293,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 					chancePercent = rs.getInt("chance_percent"),
 					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
 				)
-			},
-			ruleId,
-		)
+		}
 
 	private fun sideConditionApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideConditionApplication> =
 		rows.mapNotNull { row ->
@@ -382,7 +372,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	}
 
 	private fun fieldSpeedOrderApplications(ruleId: Long): List<BattleFieldSpeedOrderApplication> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select
 				fr.effect_policy as field_effect_policy,
@@ -399,7 +389,8 @@ class BattleSkillRuleEffectRuntimeLookup(
 				and e.effect_timing = 'AFTER_HIT'
 			order by e.sort_order, e.id
 			""".trimIndent(),
-			{ rs, _ ->
+			ruleId,
+		) { rs ->
 				val effectPolicy = rs.getString("field_effect_policy")
 				val speedOrderKind = effectPolicy.toBattleFieldSpeedOrderKind()
 					?: invalidValue("effectPolicy", "不支持的全场速度顺序效果策略: $effectPolicy")
@@ -411,9 +402,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 					chancePercent = rs.getInt("chance_percent"),
 					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
 				)
-			},
-			ruleId,
-		)
+		}
 
 	/**
 	 * 解析技能效果子表中的目标作用域。

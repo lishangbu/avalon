@@ -21,7 +21,7 @@ private val GAME_SKILL_STAT_CHANGES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillStatChangesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

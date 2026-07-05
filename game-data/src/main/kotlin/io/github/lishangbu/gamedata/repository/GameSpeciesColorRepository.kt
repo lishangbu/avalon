@@ -22,7 +22,7 @@ private val GAME_SPECIES_COLOR_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSpeciesColorRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

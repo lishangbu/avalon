@@ -22,7 +22,7 @@ private val GAME_HABITAT_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameHabitatRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

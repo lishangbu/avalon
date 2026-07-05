@@ -19,7 +19,7 @@ private val GAME_EVOLUTION_CHAINS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEvolutionChainsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

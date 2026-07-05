@@ -20,7 +20,7 @@ private val GAME_GENDER_EVOLUTION_REQUIREMENTS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameGenderEvolutionRequirementsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

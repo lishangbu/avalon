@@ -20,7 +20,7 @@ private val GAME_MACHINES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameMachinesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -3,7 +3,7 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.common.web.invalidValue
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
 
@@ -27,11 +27,11 @@ private const val MAX_CRITICAL_HIT_STAGE = 6
  */
 @Component
 class BattleSkillRuntimeLookup(
-	private val jdbcTemplate: JdbcTemplate,
+	private val sqlClient: KSqlClient,
 	private val ruleEffectLookup: BattleSkillRuleEffectRuntimeLookup,
 ) {
 	fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
-		val row = jdbcTemplate.query(
+		val row = sqlClient.querySql(
 			"""
 			select
 				s.id as skill_id,
@@ -71,9 +71,8 @@ class BattleSkillRuntimeLookup(
 			left join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
 			where s.id = ?
 			""".trimIndent(),
-			{ rs, _ -> rs.toSkillRuntimeRow() },
 			skillId,
-		).singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
+		) { rs -> rs.toSkillRuntimeRow() }.singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
 
 		val ruleId = row.requireRuleId()
 		row.requireSupportedRulePolicies()

@@ -30,7 +30,7 @@ private val GAME_BERRIES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameBerriesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

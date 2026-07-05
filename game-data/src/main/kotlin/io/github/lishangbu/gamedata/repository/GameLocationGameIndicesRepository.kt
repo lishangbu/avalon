@@ -20,7 +20,7 @@ private val GAME_LOCATION_GAME_INDICES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameLocationGameIndicesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

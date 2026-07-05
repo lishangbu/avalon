@@ -25,7 +25,7 @@ private val GAME_LOCATION_AREA_ENCOUNTERS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameLocationAreaEncountersRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -21,7 +21,7 @@ private val GAME_NATURE_EVENT_STAT_CHANGES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameNatureEventStatChangesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

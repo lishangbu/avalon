@@ -20,7 +20,7 @@ private val GAME_ADVANCED_CONTEST_EFFECT_SKILLS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameAdvancedContestEffectSkillsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

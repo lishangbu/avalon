@@ -21,7 +21,7 @@ private val GAME_CREATURE_ELEMENT_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameCreatureElementRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

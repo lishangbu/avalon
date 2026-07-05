@@ -24,7 +24,7 @@ private val GAME_CHARACTERISTICS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameCharacteristicsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

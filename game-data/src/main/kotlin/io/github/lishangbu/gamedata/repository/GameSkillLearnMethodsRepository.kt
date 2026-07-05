@@ -22,7 +22,7 @@ private val GAME_SKILL_LEARN_METHODS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillLearnMethodsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

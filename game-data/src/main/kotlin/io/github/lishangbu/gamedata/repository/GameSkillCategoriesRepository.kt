@@ -22,7 +22,7 @@ private val GAME_SKILL_CATEGORIES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillCategoriesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

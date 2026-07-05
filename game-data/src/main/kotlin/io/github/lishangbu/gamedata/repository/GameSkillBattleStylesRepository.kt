@@ -22,7 +22,7 @@ private val GAME_SKILL_BATTLE_STYLES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillBattleStylesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

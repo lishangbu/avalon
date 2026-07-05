@@ -21,7 +21,7 @@ private val GAME_BERRY_FLAVOR_POTENCIES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameBerryFlavorPotenciesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

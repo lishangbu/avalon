@@ -22,7 +22,7 @@ private val GAME_ENCOUNTER_CONDITION_VALUES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEncounterConditionValuesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

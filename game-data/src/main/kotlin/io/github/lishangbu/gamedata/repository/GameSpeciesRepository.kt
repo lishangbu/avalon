@@ -31,7 +31,7 @@ private val GAME_SPECIES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSpeciesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

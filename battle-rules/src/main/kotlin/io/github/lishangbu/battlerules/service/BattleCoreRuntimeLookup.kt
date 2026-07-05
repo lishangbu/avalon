@@ -3,7 +3,7 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.notFound
-import org.springframework.jdbc.core.JdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Component
 
 /**
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class BattleCoreRuntimeLookup(
-	private val jdbcTemplate: JdbcTemplate,
+	private val sqlClient: KSqlClient,
 ) {
 	/**
 	 * 读取引擎基础规则需要识别的核心属性 ID。
@@ -29,7 +29,7 @@ class BattleCoreRuntimeLookup(
 	 * 引擎可执行的属性 ID。
 	 */
 	fun coreElementIds(): Map<String, Long> =
-		jdbcTemplate.query(
+		sqlClient.querySql(
 			"""
 			select code, id
 			from game_element
@@ -39,7 +39,7 @@ class BattleCoreRuntimeLookup(
 				'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'
 			)
 			""".trimIndent(),
-		) { rs, _ -> rs.getString("code") to rs.getLong("id") }.toMap()
+		) { rs -> rs.getString("code") to rs.getLong("id") }.toMap()
 
 	/**
 	 * 读取当前资料库中的属性克制表。
@@ -49,7 +49,7 @@ class BattleCoreRuntimeLookup(
 	 * 未出现的组合由 [ElementEffectivenessChart] 按中性倍率 1.0 处理。
 	 */
 	fun elementChart(): ElementEffectivenessChart {
-		val multiplierBySource = jdbcTemplate.query(
+		val multiplierBySource = sqlClient.querySql(
 			"""
 			select r.source_element_id, r.target_element_id, r.relation_type
 			from game_element_damage_relation r
@@ -60,7 +60,7 @@ class BattleCoreRuntimeLookup(
 				and r.relation_type in ('double_damage_to', 'half_damage_to', 'no_damage_to')
 			order by r.source_element_id, r.target_element_id, r.id
 			""".trimIndent(),
-		) { rs, _ ->
+		) { rs ->
 			ElementDamageRelation(
 				sourceElementId = rs.getLong("source_element_id"),
 				targetElementId = rs.getLong("target_element_id"),
@@ -91,42 +91,39 @@ class BattleCoreRuntimeLookup(
 		if (level !in 1..100) {
 			invalidValue("level", "level 必须在 1 到 100 之间")
 		}
-		val elementIds = jdbcTemplate.query(
+		val elementIds = sqlClient.querySql(
 			"""
 			select element_id
 			from game_creature_element
 			where creature_id = ?
 			order by slot_order, id
 			""".trimIndent(),
-			{ rs, _ -> rs.getLong("element_id") },
 			creatureId,
-		)
+		) { rs -> rs.getLong("element_id") }
 		if (elementIds.isEmpty()) {
 			notFound("creatureId", "成员属性资料不存在: $creatureId")
 		}
 		// 体重必须在进入引擎前固定到快照中；后续低踢、打草结、重磅冲撞、高温重压类规则都只读该快照值。
-		val creatureWeight = jdbcTemplate.query(
+		val creatureWeight = sqlClient.querySql(
 			"""
 			select weight
 			from game_creature
 			where id = ? and enabled = true
 			""".trimIndent(),
-			{ rs, _ -> rs.getInt("weight") },
 			creatureId,
-		).singleOrNull() ?: notFound("creatureId", "成员体重资料不存在: $creatureId")
+		) { rs -> rs.getInt("weight") }.singleOrNull() ?: notFound("creatureId", "成员体重资料不存在: $creatureId")
 		if (creatureWeight <= 0) {
 			notFound("creatureId", "成员体重资料无效: $creatureId")
 		}
-		val baseStats = jdbcTemplate.query(
+		val baseStats = sqlClient.querySql(
 			"""
 			select s.code, cs.base_value
 			from game_creature_stat cs
 			join game_stat s on s.id = cs.stat_id
 			where cs.creature_id = ?
 			""".trimIndent(),
-			{ rs, _ -> rs.getString("code") to rs.getInt("base_value") },
 			creatureId,
-		).toMap()
+		) { rs -> rs.getString("code") to rs.getInt("base_value") }.toMap()
 		if (baseStats.isEmpty()) {
 			notFound("creatureId", "成员能力资料不存在: $creatureId")
 		}

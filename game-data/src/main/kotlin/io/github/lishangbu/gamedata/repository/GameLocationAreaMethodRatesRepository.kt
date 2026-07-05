@@ -21,7 +21,7 @@ private val GAME_LOCATION_AREA_METHOD_RATES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameLocationAreaMethodRatesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

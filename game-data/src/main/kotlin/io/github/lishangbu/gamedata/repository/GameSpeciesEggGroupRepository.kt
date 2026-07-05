@@ -21,7 +21,7 @@ private val GAME_SPECIES_EGG_GROUP_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSpeciesEggGroupRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

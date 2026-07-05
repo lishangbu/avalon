@@ -28,7 +28,7 @@ private val GAME_SKILL_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

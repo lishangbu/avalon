@@ -23,7 +23,7 @@ private val GAME_GROWTH_RATES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameGrowthRatesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

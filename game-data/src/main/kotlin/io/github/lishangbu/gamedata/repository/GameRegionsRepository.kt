@@ -21,7 +21,7 @@ private val GAME_REGIONS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameRegionsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -23,7 +23,7 @@ private val GAME_SKILL_DAMAGE_CLASS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSkillDamageClassRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

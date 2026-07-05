@@ -22,7 +22,7 @@ private val GAME_BERRY_FLAVORS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameBerryFlavorsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

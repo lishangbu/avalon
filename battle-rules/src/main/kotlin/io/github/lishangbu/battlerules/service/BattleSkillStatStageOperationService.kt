@@ -21,7 +21,6 @@ import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -39,7 +38,6 @@ class BattleSkillStatStageOperationService(
 	private val repository: BattleSkillStatStageOperationRepository,
 	private val skillRuleRepository: BattleSkillRuleRepository,
 	private val sqlClient: KSqlClient,
-	private val jdbcTemplate: JdbcTemplate,
 ) {
 	/**
 	 * 按技能规则、能力项或操作类型分页查询能力阶级操作。
@@ -134,11 +132,11 @@ class BattleSkillStatStageOperationService(
 		if (skillRuleRepository.findNullable(skillRuleId) == null) {
 			invalidReference("skillRuleId", "技能规则不存在: $skillRuleId")
 		}
-		requireExistingGameDataReference(jdbcTemplate, "game_stat", statId, "statId", "能力项")
+		requireExistingGameDataReference(sqlClient, "game_stat", statId, "statId", "能力项")
 	}
 
 	private fun ensureOperationAvailable(request: BattleSkillStatStageOperationRequest, selfId: Long?) {
-		val exists = jdbcTemplate.queryForObject(
+		val exists = sqlClient.querySql(
 			"""
 			select exists(
 				select 1
@@ -152,7 +150,6 @@ class BattleSkillStatStageOperationService(
 					and (? is null or id <> ?)
 			)
 			""".trimIndent(),
-			Boolean::class.java,
 			request.skillRuleId,
 			request.statId,
 			request.operationKind,
@@ -161,7 +158,7 @@ class BattleSkillStatStageOperationService(
 			request.effectTiming,
 			selfId,
 			selfId,
-		) == true
+		) { rs -> rs.getBoolean(1) }.singleOrNull() == true
 		if (exists) {
 			conflict("statId", "该技能规则已经配置相同能力阶级操作")
 		}
@@ -229,4 +226,3 @@ class BattleSkillStatStageOperationService(
 		val EFFECT_TIMINGS = setOf("AFTER_HIT")
 	}
 }
-

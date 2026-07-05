@@ -21,7 +21,7 @@ private val GAME_SPECIES_CATALOG_NUMBERS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameSpeciesCatalogNumbersRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

@@ -22,7 +22,7 @@ private val GAME_EVENT_STATS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEventStatsRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

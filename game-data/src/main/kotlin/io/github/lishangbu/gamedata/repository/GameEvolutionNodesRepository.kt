@@ -23,7 +23,7 @@ private val GAME_EVOLUTION_NODES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEvolutionNodesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,

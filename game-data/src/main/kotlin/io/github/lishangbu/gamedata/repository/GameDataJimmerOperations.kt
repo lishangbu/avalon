@@ -8,22 +8,29 @@ import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.model.GameDataPage
 import io.github.lishangbu.gamedata.model.GameDataRecordRequest
 import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.SQLException
 
 private val codePattern = Regex("^[a-z0-9][a-z0-9-]{0,79}$")
 
 /**
- * 游戏资料通用 JDBC CRUD 操作。
+ * 游戏资料通用 Jimmer CRUD 操作。
  *
- * ponytail: 每张表保留独立 Controller/Service，SQL 只保留一份白名单实现，避免复制十几套相同分页和校验逻辑。
+ * 资料管理已经拆成每张表独立 Controller/Service/Repository；这些仓储仍共享同一份白名单列规格，避免每张
+ * 资料表复制分页、筛选、写入校验和主键读取逻辑。由于 `game-data` 的资料表数量较多且字段集合各不相同，
+ * 这里暂时不为每张资料表手写 Jimmer 实体，而是通过 Jimmer 的 `ConnectionManager` 进入当前 Spring 事务，
+ * 让连接生命周期、事务绑定和异常翻译继续由 Jimmer/Spring 管理，同时彻底去掉生产持久层对 Spring JDBC 模板
+ * 的依赖。所有表名和字段名仍来自 [GameDataTableSpec] 的白名单校验，外部请求不能拼接任意 SQL 标识符。
  */
 @Component
-class GameDataJdbcOperations(
-	private val jdbcTemplate: NamedParameterJdbcTemplate,
+class GameDataJimmerOperations(
+	private val sqlClient: KSqlClient,
 ) {
 	@Transactional(readOnly = true)
 	fun list(
@@ -35,19 +42,15 @@ class GameDataJdbcOperations(
 	): GameDataPage<GameDataRecordResponse> {
 		validatePage(page, size)
 		val filter = searchFilter(query)
-		val params = MapSqlParameterSource()
-		val whereSql = buildWhereSql(table, filter.pattern, filters, params)
-		val totalRowCount = jdbcTemplate.queryForObject(
-			"select count(*) from ${table.tableName}$whereSql",
-			params,
-			Long::class.java,
-		) ?: 0L
-		params.addValue("limit", size)
-		params.addValue("offset", page * size)
-		val rows = jdbcTemplate.query(
-			"select ${selectColumns(table)} from ${table.tableName}$whereSql order by id asc limit :limit offset :offset",
-			params,
-		) { resultSet, _ -> resultSet.toRecord(table) }
+		val whereSql = buildWhereSql(table, filter.pattern, filters)
+		val totalRowCount = queryOne(
+			sql = "select count(*) from ${table.tableName}${whereSql.text}",
+			parameters = whereSql.parameters,
+		) { resultSet -> resultSet.getLong(1) } ?: 0L
+		val rows = query(
+			sql = "select ${selectColumns(table)} from ${table.tableName}${whereSql.text} order by id asc limit ? offset ?",
+			parameters = whereSql.parameters + listOf(size, page * size),
+		) { resultSet -> resultSet.toRecord(table) }
 		return GameDataPage(
 			rows = rows,
 			totalRowCount = totalRowCount,
@@ -68,12 +71,10 @@ class GameDataJdbcOperations(
 			invalidValue("fields", "fields 至少需要提供一个字段")
 		}
 		val columns = values.keys.toList()
-		val params = MapSqlParameterSource(values)
-		val id = jdbcTemplate.queryForObject(
-			"insert into ${table.tableName} (${columns.joinToString()}) values (${columns.joinToString { ":$it" }}) returning id",
-			params,
-			Long::class.java,
-		) ?: invalidValue("id", "${table.label}创建后未返回主键")
+		val id = queryOne(
+			sql = "insert into ${table.tableName} (${columns.joinToString()}) values (${columns.joinToString { "?" }}) returning id",
+			parameters = values.values.toList(),
+		) { resultSet -> resultSet.getLong(1) } ?: invalidValue("id", "${table.label}创建后未返回主键")
 		return get(table, id)
 	}
 
@@ -84,19 +85,18 @@ class GameDataJdbcOperations(
 		if (values.isEmpty()) {
 			invalidValue("fields", "fields 至少需要提供一个字段")
 		}
-		val params = MapSqlParameterSource(values).addValue("id", id)
-		jdbcTemplate.update(
-			"update ${table.tableName} set ${values.keys.joinToString { "$it = :$it" }} where id = :id",
-			params,
+		executeUpdate(
+			sql = "update ${table.tableName} set ${values.keys.joinToString { "$it = ?" }} where id = ?",
+			parameters = values.values.toList() + id,
 		)
 		return get(table, id)
 	}
 
 	@Transactional
 	fun delete(table: GameDataTableSpec, id: Long) {
-		val affectedRows = jdbcTemplate.update(
-			"delete from ${table.tableName} where id = :id",
-			MapSqlParameterSource("id", id),
+		val affectedRows = executeUpdate(
+			sql = "delete from ${table.tableName} where id = ?",
+			parameters = listOf(id),
 		)
 		if (affectedRows == 0) {
 			notFound("id", "${table.label}不存在: $id")
@@ -104,46 +104,45 @@ class GameDataJdbcOperations(
 	}
 
 	private fun find(table: GameDataTableSpec, id: Long): GameDataRecordResponse? =
-		jdbcTemplate.query(
-			"select ${selectColumns(table)} from ${table.tableName} where id = :id",
-			MapSqlParameterSource("id", id),
-		) { resultSet, _ -> resultSet.toRecord(table) }.firstOrNull()
+		query(
+			sql = "select ${selectColumns(table)} from ${table.tableName} where id = ?",
+			parameters = listOf(id),
+		) { resultSet -> resultSet.toRecord(table) }.firstOrNull()
 
 	private fun buildWhereSql(
 		table: GameDataTableSpec,
 		pattern: String?,
 		filters: Map<String, String>,
-		params: MapSqlParameterSource,
-	): String {
+	): SqlFragment {
+		val parameters = mutableListOf<Any?>()
 		val conditions = buildList {
 			if (pattern != null && table.searchColumns.isNotEmpty()) {
-				params.addValue("q", pattern)
 				add(
 					table.searchColumns.joinToString(prefix = "(", postfix = ")", separator = " or ") { column ->
-						"lower(cast($column as text)) like :q"
+						parameters += pattern
+						"lower(cast($column as text)) like ?"
 					},
 				)
 			}
-			addAll(buildExactFilterSql(table, filters, params))
+			addAll(buildExactFilterSql(table, filters, parameters))
 		}
 		if (conditions.isEmpty()) {
-			return ""
+			return SqlFragment("", emptyList())
 		}
-		return conditions.joinToString(prefix = " where ", separator = " and ")
+		return SqlFragment(conditions.joinToString(prefix = " where ", separator = " and "), parameters)
 	}
 
 	private fun buildExactFilterSql(
 		table: GameDataTableSpec,
 		filters: Map<String, String>,
-		params: MapSqlParameterSource,
+		parameters: MutableList<Any?>,
 	): List<String> {
 		val columnsByName = table.columns.associateBy(GameDataColumnSpec::name)
 		return filters.entries.mapNotNull { (fieldName, rawValue) ->
 			val column = columnsByName[fieldName] ?: invalidValue(fieldName, "筛选字段不存在: $fieldName")
 			val value = normalizeFilterColumnValue(column, rawValue) ?: return@mapNotNull null
-			val parameterName = "filter_$fieldName"
-			params.addValue(parameterName, value)
-			"${column.name} = :$parameterName"
+			parameters += value
+			"${column.name} = ?"
 		}
 	}
 
@@ -259,4 +258,69 @@ class GameDataJdbcOperations(
 		}
 		return ((totalRowCount + size - 1) / size).toInt()
 	}
+
+	/**
+	 * 通过 Jimmer 当前连接执行一段白名单 SQL。
+	 *
+	 * 这里故意只接受位置参数，不提供字符串拼接参数入口；调用方只能把已经由 [GameDataTableSpec] 校验过的
+	 * 标识符放进 SQL 文本，所有用户输入都必须进入 [parameters]，从而保留原先命名参数模板的安全边界。
+	 */
+	private fun <T> query(sql: String, parameters: List<Any?> = emptyList(), mapper: (ResultSet) -> T): List<T> =
+		translateSqlException {
+			withConnection { connection ->
+				connection.prepareStatement(sql).use { statement ->
+					statement.bind(parameters)
+					statement.executeQuery().use { resultSet ->
+						buildList {
+							while (resultSet.next()) {
+								add(mapper(resultSet))
+							}
+						}
+					}
+				}
+			}
+		}
+
+	private fun <T> queryOne(sql: String, parameters: List<Any?> = emptyList(), mapper: (ResultSet) -> T): T? =
+		query(sql, parameters, mapper).singleOrNull()
+
+	private fun executeUpdate(sql: String, parameters: List<Any?> = emptyList()): Int =
+		translateSqlException {
+			withConnection { connection ->
+				connection.prepareStatement(sql).use { statement ->
+					statement.bind(parameters)
+					statement.executeUpdate()
+				}
+			}
+		}
+
+	private fun <T> withConnection(block: (Connection) -> T): T =
+		sqlClient.javaClient.connectionManager.execute { connection -> block(connection) }
+
+	/**
+	 * Jimmer 的 `ConnectionManager` 只负责把当前事务连接交给我们，手写 SQL 不再经过 Spring JDBC 模板，
+	 * 所以数据库约束错误不会自动翻译成 [DataIntegrityViolationException]。PostgreSQL 把唯一键、外键、
+	 * 非空和检查约束都归在 SQLSTATE `23` 这一类；只翻译这一类，可以保留 API 原有的 409 冲突语义，
+	 * 又不会把 SQL 语法错误、连接错误等真正的服务端问题误报成业务冲突。
+	 */
+	private fun <T> translateSqlException(block: () -> T): T =
+		try {
+			block()
+		} catch (exception: SQLException) {
+			if (exception.sqlState?.startsWith("23") == true) {
+				throw DataIntegrityViolationException("游戏资料数据库约束校验失败", exception)
+			}
+			throw exception
+		}
+
+	private fun PreparedStatement.bind(parameters: List<Any?>) {
+		parameters.forEachIndexed { index, value ->
+			setObject(index + 1, value)
+		}
+	}
+
+	private data class SqlFragment(
+		val text: String,
+		val parameters: List<Any?>,
+	)
 }

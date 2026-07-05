@@ -22,7 +22,7 @@ private val GAME_CONTEST_TYPES_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameContestTypesRepository(
-	private val operations: GameDataJdbcOperations,
+	private val operations: GameDataJimmerOperations,
 ) {
 	fun list(
 		page: Int,
