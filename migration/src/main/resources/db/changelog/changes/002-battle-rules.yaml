@@ -8954,3 +8954,51 @@ databaseChangeLog:
               );
             end loop;
           end $$;
+- changeSet:
+    id: 002-battle-rules-enable-recharge-damage-skills
+    author: backend
+    comment: 启用已经可由休整字段承载的成功后休整伤害技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 这些技能的共同规则是：成功造成实际伤害后，使用者下一次技能行动会被休整阻止。
+          -- battle-engine 已经通过 recharges_after_use 字段支持该通用机制；旧导入只缺少字段标记，所以不需要新增 policy。
+          with recharge_skills(code) as (
+            values
+              ('blast-burn'),
+              ('hydro-cannon'),
+              ('frenzy-plant'),
+              ('giga-impact'),
+              ('rock-wrecker'),
+              ('roar-of-time'),
+              ('prismatic-laser'),
+              ('meteor-assault'),
+              ('eternabeam')
+          )
+          update game_skill s
+          set enabled = true
+          from recharge_skills rs
+          where s.code = rs.code;
+
+          with recharge_skills(code) as (
+            values
+              ('blast-burn'),
+              ('hydro-cannon'),
+              ('frenzy-plant'),
+              ('giga-impact'),
+              ('rock-wrecker'),
+              ('roar-of-time'),
+              ('prismatic-laser'),
+              ('meteor-assault'),
+              ('eternabeam')
+          )
+          update battle_skill_rule r
+          set
+            enabled = true,
+            recharges_after_use = true,
+            description = '基础伤害技能规则；命中造成普通伤害，成功造成实际伤害后使用者下一次行动进入休整。'
+          from game_skill s
+          join recharge_skills rs on rs.code = s.code
+          where r.skill_id = s.id;

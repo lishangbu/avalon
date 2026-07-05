@@ -1591,16 +1591,29 @@ class LiquibaseMigrationTests(
 
 		val rechargeSkillRules = queryMaps(
 			"""
-			select skill_id, recharges_after_use
-			from battle_skill_rule
-			where skill_id = 63
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.recharges_after_use
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.id in (63, 307, 308, 338, 416, 439, 459, 711, 794, 795)
+			order by s.id
 			""".trimIndent(),
 		)
 		assertThat(rechargeSkillRules).containsExactly(
 			mapOf(
 				"skill_id" to 63L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
 				"recharges_after_use" to true,
 			),
+			mapOf("skill_id" to 307L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 308L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 338L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 416L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 439L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 459L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 711L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 794L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
+			mapOf("skill_id" to 795L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
 		)
 
 		val chargeSkillRules = queryMaps(
