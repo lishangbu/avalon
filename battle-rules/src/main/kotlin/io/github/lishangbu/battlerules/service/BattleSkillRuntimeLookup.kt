@@ -134,6 +134,7 @@ class BattleSkillRuntimeLookup(
 			clearsUserSideHazardsAndTraps = effectPolicy.clearsUserSideHazardsAndTraps(),
 			clearsFieldHazardsAndSubstitutes = effectPolicy.clearsFieldHazardsAndSubstitutes(),
 			clearsTargetSideBarriersAndFieldHazards = effectPolicy.clearsTargetSideBarriersAndFieldHazards(),
+			usableOnlyFirstSkillActionSinceEntering = effectPolicy.usableOnlyFirstSkillActionSinceEntering(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

@@ -9854,3 +9854,37 @@ databaseChangeLog:
           where e.skill_rule_id = r.id
             and e.stat_id = st.id
             and s.code = 'defog';
+- changeSet:
+    id: 002-battle-rules-enable-first-action-skill-rules
+    author: backend
+    comment: 启用首行动限定伤害技能规则，并修正接触标记。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- Fake Out 和 First Impression 共享同一个公开规则：只有本次上场后的第一次技能行动才会成功。
+          -- 失败发生在技能宣告和 PP 消耗之后、命中与伤害之前；两者也都是接触类物理技能，会触发接触相关规则。
+          with enabled_skills(code) as (
+            values
+              ('fake-out'),
+              ('first-impression')
+          )
+          update game_skill s
+          set enabled = true
+          from enabled_skills es
+          where s.code = es.code;
+
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'first-skill-action-only-damage',
+            target_policy = 'selected-target',
+            hit_policy = 'standard-hit',
+            damage_policy = 'standard-damage',
+            makes_contact = true,
+            affected_by_protect = true,
+            description = '首行动限定伤害技能规则；只有使用者本次上场后的第一次技能行动会成功，失败时已宣告并消耗 PP，但不会进入命中和伤害流程。'
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('fake-out', 'first-impression');

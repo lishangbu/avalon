@@ -1,6 +1,7 @@
 package io.github.lishangbu.battleengine.model
 
 import io.github.lishangbu.battleengine.canBattle
+import io.github.lishangbu.battleengine.enterBattlefield
 import io.github.lishangbu.battleengine.leaveBattlefield
 
 /**
@@ -219,7 +220,11 @@ data class BattleSide(
 		return copy(
 			activeActorIds = activeActorIds.map { current -> if (current == previousActorId) nextActorId else current },
 			participants = participants.map { current ->
-				if (current.actorId == previous.actorId) previous.leaveBattlefield() else current
+				when (current.actorId) {
+					previous.actorId -> previous.leaveBattlefield()
+					next.actorId -> next.enterBattlefield()
+					else -> current
+				}
 			},
 		)
 	}

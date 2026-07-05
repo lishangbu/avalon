@@ -94,13 +94,15 @@ fun BattleParticipant.advanceBadPoisonCounter(): BattleParticipant =
  *
  * 现代规则下，替换会清除能力阶级和连续保护计数，但不会清除 HP、PP、主要异常状态、特性或携带道具。
  * 剧毒状态会保留，但剧毒递增计数回到 1；睡眠状态和剩余阻止行动次数在现代规则下随成员保留。
- * 聚气带来的要害等级加成、畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、束缚、寄生种子、命中锁定和技能
- * 造成的临时体重减轻属于在场状态，离场时会被清除。后续接入其它离场即消失的状态时，也应在这里统一清理。
+ * 本次上场后的技能行动尝试次数、聚气带来的要害等级加成、畏缩、混乱、回复封锁、挑衅、定身法、无理取闹、
+ * 束缚、寄生种子、命中锁定和技能造成的临时体重减轻属于在场状态，离场时会被清除。后续接入其它离场即消失的
+ * 状态时，也应在这里统一清理。
  */
 fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 	copy(
 		statStages = emptyMap(),
 		weightReduction = 0,
+		activeSkillActionCount = 0,
 		criticalHitStageBonus = 0,
 		protectionChain = 0,
 		fatalDamageEndureSkillId = null,
@@ -130,3 +132,13 @@ fun BattleParticipant.leaveBattlefield(): BattleParticipant =
 		choiceLockedSkillId = null,
 		substituteHp = 0,
 	)
+
+/**
+ * 处理成员进入上场席位时应重置的运行态。
+ *
+ * 当前主要用于 Fake Out / First Impression 这类“本次上场后的第一次技能行动才成功”的规则。后备成员理论上
+ * 已经在离场时清过计数，但沙盒恢复或测试夹具可能构造出带旧计数的后备成员；换入入口再清一次，可以保证
+ * “每次重新上场都重新获得一次首行动资格”这条规则不依赖调用方先整理后备快照。
+ */
+fun BattleParticipant.enterBattlefield(): BattleParticipant =
+	if (activeSkillActionCount == 0) this else copy(activeSkillActionCount = 0)

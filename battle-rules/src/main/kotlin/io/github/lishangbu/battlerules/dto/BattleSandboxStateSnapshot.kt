@@ -90,6 +90,8 @@ data class BattleSandboxStateSnapshot(
 		var statStages: Map<String, Int> = emptyMap(),
 		@field:Schema(description = "技能槽 PP 运行态。")
 		var skillSlots: List<SkillSlot> = emptyList(),
+		@field:Schema(description = "本次上场后的技能行动尝试次数。", example = "0")
+		var activeSkillActionCount: Int = 0,
 		@field:Schema(description = "临时体重减轻量。", example = "0")
 		var weightReduction: Int = 0,
 		@field:Schema(description = "连续保护计数。", example = "0")

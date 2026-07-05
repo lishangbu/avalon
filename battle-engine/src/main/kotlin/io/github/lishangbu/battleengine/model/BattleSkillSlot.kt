@@ -68,6 +68,9 @@ package io.github.lishangbu.battleengine.model
  * 替身。该效果不要求场上实际存在陷阱或替身；因此它只负责状态清理，不能让没有可清目标的场景变成技能失败。
  * `clearsTargetSideBarriersAndFieldHazards` 表示变化技能成功后清除目标侧伤害屏障与非伤害型防护、双方入场陷阱，
  * 并清除当前场地。它不移除替身；替身穿透由 [bypassesSubstitute] 单独表达，方便其它非清场技能复用。
+ * `usableOnlyFirstSkillActionSinceEntering` 表示技能只有在使用者本次上场后的第一次技能行动才能成功。该字段
+ * 不按技能 ID 硬编码，而是承载公开规则中 Fake Out / First Impression 共享的时机 gate；失败仍发生在技能宣告
+ * 和 PP 消耗之后，命中、保护、伤害和附加效果之前。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -147,6 +150,7 @@ data class BattleSkillSlot(
 	val clearsUserSideHazardsAndTraps: Boolean = false,
 	val clearsFieldHazardsAndSubstitutes: Boolean = false,
 	val clearsTargetSideBarriersAndFieldHazards: Boolean = false,
+	val usableOnlyFirstSkillActionSinceEntering: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,

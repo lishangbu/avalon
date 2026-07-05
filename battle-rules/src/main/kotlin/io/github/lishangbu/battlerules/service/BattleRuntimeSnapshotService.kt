@@ -488,6 +488,7 @@ class BattleRuntimeSnapshotService(
 			majorStatus = snapshot.majorStatus?.toEnumValue<BattleMajorStatus>("state.majorStatus"),
 			statStages = snapshot.statStages.mapKeys { (stat, _) -> stat.toEnumValue<BattleStat>("state.statStages") },
 			skillSlots = skillSlots.map { slot -> slot.restoreSandboxSkillSlot(snapshot.skillSlots) },
+			activeSkillActionCount = snapshot.activeSkillActionCount,
 			weightReduction = snapshot.weightReduction,
 			protectionChain = snapshot.protectionChain,
 			fatalDamageEndureSkillId = snapshot.fatalDamageEndureSkillId,
@@ -672,6 +673,7 @@ class BattleRuntimeSnapshotService(
 					remainingPp = it.remainingPp,
 				)
 			},
+			activeSkillActionCount = activeSkillActionCount,
 			weightReduction = weightReduction,
 			protectionChain = protectionChain,
 			fatalDamageEndureSkillId = fatalDamageEndureSkillId,
@@ -771,6 +773,7 @@ class BattleRuntimeSnapshotService(
 				"target-has-no-last-skill-with-pp" -> "目标没有可扣减 PP 的最近技能"
 				"attack-stage-already-maximum" -> "攻击能力阶级已经最高"
 				"insufficient-hp-for-max-attack-cost" -> "剩余 HP 不足以支付技能代价"
+				"not-first-skill-action-since-entering" -> "不是本次上场后的第一次技能行动"
 				else -> this
 			}
 

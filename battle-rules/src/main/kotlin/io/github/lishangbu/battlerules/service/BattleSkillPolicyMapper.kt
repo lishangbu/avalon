@@ -463,6 +463,16 @@ internal fun String.bypassesSubstitute(): Boolean =
 internal fun String.clearsTargetSideBarriersAndFieldHazards(): Boolean =
 	this == "clear-target-side-barriers-and-field-hazards"
 
+/**
+ * 判断技能是否只能在本次上场后的第一次技能行动成功。
+ *
+ * Fake Out / First Impression 的公开规则共用同一个时机 gate：成员主动换入的那一回合不算技能行动，但只要已经轮到
+ * 一次技能行动尝试，即使被睡眠、畏缩、麻痹或混乱挡下，后续也不再满足条件。这里用一个 policy 承载规则族，
+ * 避免运行时按技能 ID 写分支，也避免未来后台维护同族技能时漏掉引擎字段。
+ */
+internal fun String.usableOnlyFirstSkillActionSinceEntering(): Boolean =
+	this == "first-skill-action-only-damage"
+
 internal fun String.criticalHitStageBoost(): Int =
 	when (this) {
 		"self-critical-hit-stage-plus-two" -> 2
@@ -507,6 +517,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"clear-user-side-hazards-and-traps",
 	"clear-field-hazards-and-substitutes",
 	"clear-target-side-barriers-and-field-hazards",
+	"first-skill-action-only-damage",
 	"clear-all-active-stat-stages",
 	"copy-target-stat-stages",
 	"swap-attack-stat-stages",
@@ -584,6 +595,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	clearsUserSideHazardsAndTraps() ||
 	clearsFieldHazardsAndSubstitutes() ||
 	clearsTargetSideBarriersAndFieldHazards() ||
+	usableOnlyFirstSkillActionSinceEntering() ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
 	curesUserMajorStatus() ||

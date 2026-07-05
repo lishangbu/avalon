@@ -34,7 +34,12 @@ internal class BattleSkillUseSetupResolution(
 	fun resolve(context: TurnContext, plan: ActionPlan, random: BattleRandom): SkillUseSetupResult {
 		val action = plan.action
 		val actor = activeActor(context.state, action.actorId) ?: return SkillUseSetupResult.Stopped(context)
-		val beforeMoveOutcome = resolveBeforeMove(context, plan, actor, random)
+		val actionAttemptContext = context.copy(
+			state = context.state.replaceParticipant(actor.recordSkillActionAttempt()),
+		)
+		val actorAfterActionAttempt = actionAttemptContext.state.participant(action.actorId)
+			?: return SkillUseSetupResult.Stopped(actionAttemptContext)
+		val beforeMoveOutcome = resolveBeforeMove(actionAttemptContext, plan, actorAfterActionAttempt, random)
 		if (beforeMoveOutcome.blocked) {
 			return SkillUseSetupResult.Stopped(beforeMoveOutcome.context)
 		}
@@ -73,6 +78,19 @@ internal class BattleSkillUseSetupResolution(
 				),
 			),
 		)
+		val firstSkillActionFailure = firstSkillActionFailure(
+			state = stateAfterChargeDecision,
+			actorId = readyActor.actorId,
+			targetActorId = targets.first().actorId,
+			skill = skill,
+		)
+		if (firstSkillActionFailure != null) {
+			return SkillUseSetupResult.Stopped(
+				beforeMoveContext
+					.copy(state = stateAfterChargeDecision.appendEvent(firstSkillActionFailure))
+					.finishDisruptedPlannedSkill(plan.source, readyActor.actorId, skill, random),
+			)
+		}
 		return SkillUseSetupResult.Ready(
 			beforeMoveContext = beforeMoveContext,
 			stateAfterChargeDecision = stateAfterChargeDecision,
@@ -81,6 +99,36 @@ internal class BattleSkillUseSetupResolution(
 			skill = skill,
 			targets = targets,
 			targetMultiplier = skillTargeting.targetDamageMultiplier(skill, targets),
+		)
+	}
+
+	/**
+	 * 判断技能是否因错过本次上场后的第一次行动而失败。
+	 *
+	 * Fake Out / First Impression 的公开规则不是“第一回合数字”，而是“本次上场后的第一次技能行动”：主动替换那回合
+	 * 不会消耗资格，但睡眠、畏缩、麻痹、混乱等已经轮到行动的阻止会消耗资格。因此 [recordSkillActionAttempt]
+	 * 在行动前状态之前递增，本 gate 在技能宣告和 PP 消耗之后读取递增后的计数；计数大于 1 时，技能已经被宣告但
+	 * 不再进入保护、命中、伤害和附加效果。
+	 */
+	private fun firstSkillActionFailure(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleEvent.SkillFailed? {
+		if (!skill.usableOnlyFirstSkillActionSinceEntering) {
+			return null
+		}
+		val actor = state.participant(actorId) ?: return null
+		if (actor.isFirstSkillActionSinceEntering()) {
+			return null
+		}
+		return BattleEvent.SkillFailed(
+			turnNumber = state.turnNumber,
+			actorId = actor.actorId,
+			targetActorId = targetActorId,
+			skillId = skill.skillId,
+			reason = "not-first-skill-action-since-entering",
 		)
 	}
 

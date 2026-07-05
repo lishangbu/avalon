@@ -9,7 +9,8 @@ const val MAX_BATTLE_SKILL_SLOTS = 4
  * 一名参与战斗的成员快照。
  *
  * 成员保存战斗结算需要的当前运行态：HP、等级、五项战斗能力、属性集合、技能槽、特性/道具身份、
- * 体重、临时体重减轻量、是否接地、连续保护计数、本回合挺住来源技能、剧毒计数、睡眠剩余阻止行动次数、
+ * 体重、临时体重减轻量、是否接地、本次上场后技能行动尝试次数、连续保护计数、本回合挺住来源技能、
+ * 剧毒计数、睡眠剩余阻止行动次数、
  * 技能蓄力计数、技能休整计数、技能锁招运行态、命中锁定目标、讲究类道具锁定技能、替身剩余 HP，以及畏缩、
  * 混乱、回复封锁、挑衅、定身法、无理取闹、束缚、寄生种子等临时状态。
  * 它不直接包含种类、训练者、背包或数据库实体；这些资料应在进入引擎前转换成稳定数值。
@@ -39,6 +40,7 @@ data class BattleParticipant(
 	val abilityId: Long? = null,
 	val itemId: Long? = null,
 	val grounded: Boolean = true,
+	val activeSkillActionCount: Int = 0,
 	val majorStatus: BattleMajorStatus? = null,
 	val statStages: Map<BattleStat, Int> = emptyMap(),
 	val criticalHitStageBonus: Int = 0,
@@ -94,6 +96,7 @@ data class BattleParticipant(
 		require(skillSlots.map { it.skillId }.toSet().size == skillSlots.size) { "skillSlots must not contain duplicate skill ids" }
 		require(abilityId == null || abilityId > 0) { "abilityId must be positive when present" }
 		require(itemId == null || itemId > 0) { "itemId must be positive when present" }
+		require(activeSkillActionCount >= 0) { "activeSkillActionCount must not be negative" }
 		require(statStages.values.all { it in -6..6 }) { "stat stage values must be between -6 and 6" }
 		require(criticalHitStageBonus >= 0) { "criticalHitStageBonus must not be negative" }
 		require(protectionChain >= 0) { "protectionChain must not be negative" }

@@ -17,6 +17,25 @@ fun BattleParticipant.replaceSkillSlot(slot: BattleSkillSlot): BattleParticipant
 	copy(skillSlots = skillSlots.map { current -> if (current.skillId == slot.skillId) slot else current })
 
 /**
+ * 记录本次上场后的技能行动尝试。
+ *
+ * 这里的“尝试”发生在睡眠、畏缩、麻痹、混乱等行动前状态判定之前：只要成员已经轮到一次技能行动，它就不再处于
+ * Fake Out / First Impression 所要求的“刚上场后的第一次行动”之外。主动替换不走技能行动流程，因此不会调用本函数；
+ * 换出再换入会通过 [io.github.lishangbu.battleengine.enterBattlefield] 重新把计数归零。
+ */
+fun BattleParticipant.recordSkillActionAttempt(): BattleParticipant =
+	copy(activeSkillActionCount = activeSkillActionCount + 1)
+
+/**
+ * 判断本次技能行动是否仍是成员换入后的第一次技能行动。
+ *
+ * 公开成熟引擎用 `activeMoveActions` 判定这类技能能否成功；本引擎对应保存为 [BattleParticipant.activeSkillActionCount]。
+ * 因为 [recordSkillActionAttempt] 会先递增再进入技能宣告和失败 gate，所以成功条件正好是计数等于 1。
+ */
+fun BattleParticipant.isFirstSkillActionSinceEntering(): Boolean =
+	activeSkillActionCount == 1
+
+/**
  * 消费当前携带道具。
  *
  * 当前成员快照只允许一个携带道具，因此一次性触发后会同时清空道具 ID、道具效果和讲究类技能锁定。

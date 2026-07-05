@@ -2119,6 +2119,43 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val firstActionOnlySkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.makes_contact, r.affected_by_protect
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('fake-out', 'first-impression')
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(firstActionOnlySkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 252L,
+				"code" to "fake-out",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "first-skill-action-only-damage",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+				"makes_contact" to true,
+				"affected_by_protect" to true,
+			),
+			mapOf(
+				"skill_id" to 660L,
+				"code" to "first-impression",
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "first-skill-action-only-damage",
+				"target_policy" to "selected-target",
+				"hit_policy" to "standard-hit",
+				"damage_policy" to "standard-damage",
+				"makes_contact" to true,
+				"affected_by_protect" to true,
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use
