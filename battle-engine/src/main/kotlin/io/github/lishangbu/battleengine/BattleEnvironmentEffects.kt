@@ -12,9 +12,11 @@ import io.github.lishangbu.battleengine.model.BattleWeather
 /**
  * 负责把“建立天气/场地”这类全场环境效果写入战斗状态。
  *
- * 环境效果同时来自技能和出场特性，两条入口共享相同的去重语义、事件类型和持续回合延长规则。将这部分从
- * [BattleEngine] 主流程拆出后，状态机只需要决定何时触发环境写入，而不用重复维护天气、场地和延长道具的细节。
- * 该类仍保持纯状态转换：输入不可变 [BattleState]，输出新状态，不读取数据库、不依赖随机源，也不解析名称文本。
+ * 环境效果同时来自技能和出场特性，两条入口共享持续回合延长规则，但不会强行共享失败语义：现代主系列规则中，
+ * 技能尝试建立已经存在的同种天气/场地时会失败，不应刷新剩余回合；出场特性仍作为入场触发处理，由通用写入函数
+ * 表达“真实变化才产生开始事件”。将这部分从 [BattleEngine] 主流程拆出后，状态机只需要决定何时触发环境写入，
+ * 而不用重复维护天气、场地和延长道具的细节。该类仍保持纯状态转换：输入不可变 [BattleState]，输出新状态，
+ * 不读取数据库、不依赖随机源，也不解析名称文本。
  */
 internal class BattleEnvironmentEffects {
 	private val durationEffects = BattleEnvironmentDurationEffects()
@@ -37,6 +39,7 @@ internal class BattleEnvironmentEffects {
 	fun applySkillEffects(
 		state: BattleState,
 		actorId: String,
+		targetActorId: String,
 		skill: BattleSkillSlot,
 	): BattleState =
 		skill.environmentEffects.fold(state) { current, effect ->
@@ -44,11 +47,15 @@ internal class BattleEnvironmentEffects {
 				is BattleSkillEnvironmentEffect.SetWeather -> applySkillWeatherChange(
 					state = current,
 					actorId = actorId,
+					targetActorId = targetActorId,
+					skill = skill,
 					effect = effect,
 				)
 				is BattleSkillEnvironmentEffect.SetTerrain -> applySkillTerrainChange(
 					state = current,
 					actorId = actorId,
+					targetActorId = targetActorId,
+					skill = skill,
 					effect = effect,
 				)
 			}
@@ -103,46 +110,78 @@ internal class BattleEnvironmentEffects {
 	/**
 	 * 将技能天气效果写入战斗环境。
 	 *
-	 * 该函数与出场天气特性保持相同事件类型和去重语义；区别只在触发来源来自技能槽而不是成员特性。
+	 * 技能设置同一种已存在天气时，公开规则表现为技能失败，而不是延长或刷新天气。这里在读取延长道具前先判断
+	 * 当前天气，确保“重复失败”不会被道具持续回合改写成一次看似有效的环境覆盖。
 	 */
 	private fun applySkillWeatherChange(
 		state: BattleState,
 		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
 		effect: BattleSkillEnvironmentEffect.SetWeather,
-	): BattleState =
-		applyWeatherChange(
+	): BattleState {
+		if (state.environment.weather == effect.weather) {
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "weather-already-active",
+				),
+			)
+		}
+		val turnsRemaining = extendedWeatherTurnsRemaining(
 			state = state,
 			actorId = actorId,
 			weather = effect.weather,
-			turnsRemaining = extendedWeatherTurnsRemaining(
-				state = state,
-				actorId = actorId,
-				weather = effect.weather,
-				baseTurnsRemaining = effect.turnsRemaining,
-			),
+			baseTurnsRemaining = effect.turnsRemaining,
 		)
+		return applyWeatherChange(
+			state = state,
+			actorId = actorId,
+			weather = effect.weather,
+			turnsRemaining = turnsRemaining,
+		)
+	}
 
 	/**
 	 * 将技能场地效果写入战斗环境。
 	 *
-	 * 该函数与出场场地特性保持相同事件类型和去重语义；区别只在触发来源来自技能槽而不是成员特性。
+	 * 技能设置同一种已存在场地时必须失败，不能刷新持续回合。这个判断放在延长道具计算之前，避免携带延长道具的
+	 * 使用者把重复场地技能错误地转换成一次有效的 8 回合场地重置。
 	 */
 	private fun applySkillTerrainChange(
 		state: BattleState,
 		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
 		effect: BattleSkillEnvironmentEffect.SetTerrain,
-	): BattleState =
-		applyTerrainChange(
+	): BattleState {
+		if (state.environment.terrain == effect.terrain) {
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "terrain-already-active",
+				),
+			)
+		}
+		val turnsRemaining = extendedTerrainTurnsRemaining(
 			state = state,
 			actorId = actorId,
 			terrain = effect.terrain,
-			turnsRemaining = extendedTerrainTurnsRemaining(
-				state = state,
-				actorId = actorId,
-				terrain = effect.terrain,
-				baseTurnsRemaining = effect.turnsRemaining,
-			),
+			baseTurnsRemaining = effect.turnsRemaining,
 		)
+		return applyTerrainChange(
+			state = state,
+			actorId = actorId,
+			terrain = effect.terrain,
+			turnsRemaining = turnsRemaining,
+		)
+	}
 
 	/**
 	 * 写入天气并追加统一的天气开始事件。

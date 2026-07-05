@@ -217,7 +217,7 @@ internal class BattleSkillTargetResolution(
 		)
 		val afterEffects = skillAdditionalEffects.apply(afterPreHpEffects, actor.actorId, target.actorId, skill, random)
 		val afterHpEffects = statusSkillHpEffects.apply(afterEffects, actor.actorId, target.actorId, skill)
-		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, skill)
+		val afterEnvironmentEffects = environmentEffects.applySkillEffects(afterHpEffects, actor.actorId, target.actorId, skill)
 		return context.copy(
 			state = lockedMoves.updateAfterSuccessfulUse(
 				state = afterEnvironmentEffects,

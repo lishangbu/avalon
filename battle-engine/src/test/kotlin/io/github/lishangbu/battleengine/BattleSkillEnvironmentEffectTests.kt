@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillEnvironmentEffect
@@ -58,6 +59,45 @@ class BattleSkillEnvironmentEffectTests {
 	}
 
 	@Test
+	fun `weather skill fails when same weather is already active`() {
+		val scenario = publicBattleRuleScenario(
+			name = "weather-skill-fails-when-same-weather-already-active",
+			inputSummary = "使用者尝试使用设置下雨天气的变化技能，但场上已经处于下雨天气且还剩 3 回合。",
+			expectedSummary = "技能按规则失败，不刷新天气持续回合，不产生新的天气开始事件；回合结束后原天气剩余 2 回合。",
+		)
+		val skill = damagingSkill(
+			name = "重复天气测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			affectedByProtect = false,
+			environmentEffects = listOf(BattleSkillEnvironmentEffect.SetWeather(BattleWeather.RAIN, turnsRemaining = 5)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("weather-user", speed = 100, skill = skill),
+				second = participant("observer", speed = 50),
+				environment = BattleEnvironment(weather = BattleWeather.RAIN, weatherTurnsRemaining = 3),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("weather-user", skillId = 1, targetActorId = "weather-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("weather-skill-fails-when-same-weather-already-active")
+		assertEquals(BattleWeather.RAIN, resolved.environment.weather)
+		assertEquals(2, resolved.environment.weatherTurnsRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.WeatherStarted>())
+		val event = resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single()
+		assertEquals("weather-user", event.actorId)
+		assertEquals("weather-user", event.targetActorId)
+		assertEquals(1, event.skillId)
+		assertEquals("weather-already-active", event.reason)
+	}
+
+	@Test
 	fun `status skill starts terrain for five turns`() {
 		val scenario = publicBattleRuleScenario(
 			name = "status-skill-starts-terrain-for-five-turns",
@@ -91,6 +131,45 @@ class BattleSkillEnvironmentEffectTests {
 		assertEquals("terrain-user", event.actorId)
 		assertEquals(BattleTerrain.ELECTRIC, event.terrain)
 		assertEquals(5, event.turnsRemaining)
+	}
+
+	@Test
+	fun `terrain skill fails when same terrain is already active`() {
+		val scenario = publicBattleRuleScenario(
+			name = "terrain-skill-fails-when-same-terrain-already-active",
+			inputSummary = "使用者尝试使用设置电气场地的变化技能，但场上已经处于电气场地且还剩 3 回合。",
+			expectedSummary = "技能按规则失败，不刷新场地持续回合，不产生新的场地开始事件；回合结束后原场地剩余 2 回合。",
+		)
+		val skill = damagingSkill(
+			name = "重复场地测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			affectedByProtect = false,
+			environmentEffects = listOf(BattleSkillEnvironmentEffect.SetTerrain(BattleTerrain.ELECTRIC, turnsRemaining = 5)),
+		)
+		val state = engine.start(
+			initialState(
+				first = participant("terrain-user", speed = 100, skill = skill),
+				second = participant("observer", speed = 50),
+				environment = BattleEnvironment(terrain = BattleTerrain.ELECTRIC, terrainTurnsRemaining = 3),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("terrain-user", skillId = 1, targetActorId = "terrain-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("terrain-skill-fails-when-same-terrain-already-active")
+		assertEquals(BattleTerrain.ELECTRIC, resolved.environment.terrain)
+		assertEquals(2, resolved.environment.terrainTurnsRemaining)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.TerrainStarted>())
+		val event = resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single()
+		assertEquals("terrain-user", event.actorId)
+		assertEquals("terrain-user", event.targetActorId)
+		assertEquals(1, event.skillId)
+		assertEquals("terrain-already-active", event.reason)
 	}
 
 	@Test
