@@ -66,7 +66,7 @@ class OpenApiDocumentationTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['game-data:admin']").value("游戏资料管理 API 访问权限"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
-			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒单回合"))
+			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒回合"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].get.summary").value("分页查询精灵资料"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].post.summary").value("新增精灵资料"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/GameCreatureRequest"))
@@ -98,9 +98,13 @@ class OpenApiDocumentationTests(
 		mockMvc.perform(get("/v3/api-docs/battle-sandbox"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
-			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒单回合"))
+			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒回合"))
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/BattleSandboxTurnRequest"))
-			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.description").value("战斗沙盒单回合结算响应。"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.description").value("战斗沙盒回合结算响应。"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.properties.sides.items['\$ref']").value("#/components/schemas/BattleSandboxTurnSide"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxStateSnapshot.properties.sides.items['\$ref']").value("#/components/schemas/BattleSandboxStateSide"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnSide.properties.participants.items['\$ref']").value("#/components/schemas/BattleSandboxTurnParticipant"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxStateSide.properties.participants.items['\$ref']").value("#/components/schemas/BattleSandboxStateParticipant"))
 	}
 
 	/**

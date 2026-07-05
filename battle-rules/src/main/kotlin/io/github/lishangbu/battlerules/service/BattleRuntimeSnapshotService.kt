@@ -7,14 +7,28 @@ import io.github.lishangbu.battleengine.BattlePreparationValidator
 import io.github.lishangbu.battleengine.BattlePreparationViolation
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderEffect
+import io.github.lishangbu.battleengine.model.BattleFieldSpeedOrderKind
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleItemEffect
+import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleRandomTraceEntry
+import io.github.lishangbu.battleengine.model.BattleResult
 import io.github.lishangbu.battleengine.model.BattleSide
+import io.github.lishangbu.battleengine.model.BattleSideDamageReduction
+import io.github.lishangbu.battleengine.model.BattleSideDamageReductionKind
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazard
+import io.github.lishangbu.battleengine.model.BattleSideEntryHazardKind
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifier
+import io.github.lishangbu.battleengine.model.BattleSideSpeedModifierKind
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battleengine.model.BattleTerrain
+import io.github.lishangbu.battleengine.model.BattleWeather
 import io.github.lishangbu.battleengine.random.BattleRandom
 import io.github.lishangbu.battleengine.random.RecordingBattleRandom
 import io.github.lishangbu.battlerules.dto.BattleActionRequest
@@ -24,12 +38,14 @@ import io.github.lishangbu.battlerules.dto.BattleActionViolationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationViolationResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxStateSnapshot
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.requiredText
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.Locale
 import java.util.SplittableRandom
 import kotlin.reflect.full.memberProperties
 
@@ -110,11 +126,12 @@ class BattleRuntimeSnapshotService(
 	}
 
 	/**
-	 * 在内存中启动并结算一回合沙盒战斗。
+	 * 在内存中结算一回合沙盒战斗。
 	 *
 	 * 沙盒复用准备阶段装配、行动校验和正式 [BattleEngine]，所以它展示的是当前资料与规则真实能跑出的结果。
-	 * 这里不引入对局 ID 或持久化状态：第一版每次请求都是一场一次性战斗，足够用于管理端验证资料、技能和规则
-	 * 是否能形成可解释的一回合事件流。未来需要连续多回合时，再把 [BattleState] 的序列化边界单独设计出来。
+	 * 连续回合不创建服务端对局：响应中的 [BattleSandboxStateSnapshot] 是完整的跨回合运行态，调用方下一次原样
+	 * 带回即可。规则、技能定义和基础能力值每次仍从资料表重新装配，再叠加快照中的 HP、PP、异常、天气、场地
+	 * 等运行态，避免前端持有过期规则对象。
 	 */
 	@Transactional(readOnly = true)
 	fun resolveSandboxTurn(request: BattleSandboxTurnRequest): BattleSandboxTurnResponse {
@@ -129,22 +146,28 @@ class BattleRuntimeSnapshotService(
 				sides = normalized.sides,
 			),
 		)
-		val started = battleEngine.start(initialState)
+		val current = request.state?.let { restoreSandboxState(initialState, it) } ?: battleEngine.start(initialState)
+		if (current.result != null) {
+			invalidValue("state", "战斗已经结束，请重置后重新开始")
+		}
 		val actions = normalized.actions.map { it.toBattleAction() }
-		val violations = actionValidator.validate(started, actions)
+		val previousEvents = request.state?.events ?: emptyList()
+		val violations = actionValidator.validate(current, actions)
 		if (violations.isNotEmpty()) {
-			return started.toSandboxResponse(
+			return current.toSandboxResponse(
 				resolved = false,
 				violations = violations.map { it.toResponse() },
 				randomTrace = emptyList(),
+				previousEvents = previousEvents,
 			)
 		}
 		val random = RecordingBattleRandom(SeededBattleRandom(request.randomSeed))
-		val resolved = battleEngine.resolveTurn(started, actions, random)
+		val resolved = battleEngine.resolveTurn(current, actions, random)
 		return resolved.toSandboxResponse(
 			resolved = true,
 			violations = emptyList(),
 			randomTrace = random.trace(),
+			previousEvents = previousEvents,
 		)
 	}
 
@@ -268,7 +291,7 @@ class BattleRuntimeSnapshotService(
 		)
 
 	private fun BattleActionRequest.toBattleAction(): BattleAction {
-		val normalizedType = type.requiredText("type", maxLength = 40).uppercase()
+		val normalizedType = type.requiredText("type", maxLength = 40).uppercase(Locale.ROOT)
 		val normalizedActorId = actorId.requiredText("actorId", maxLength = 80)
 		val normalizedTargetActorId = targetActorId.requiredText("targetActorId", maxLength = 80)
 		return when (normalizedType) {
@@ -303,12 +326,133 @@ class BattleRuntimeSnapshotService(
 			message = message,
 		)
 
+	/**
+	 * 从沙盒快照恢复 battle-engine 可继续结算的状态。
+	 *
+	 * 恢复时先用当前资料表重新启动一份基线状态，再用快照覆盖跨回合运行态。这样做比把完整 [BattleState] JSON
+	 * 直接交给前端更小，也更适合生产调试：资料或规则修正后，下一回合会立刻使用后端最新装配逻辑；同时 HP、PP、
+	 * 异常、天气、场地、屏障和锁招等战斗事实仍然保持连续。
+	 */
+	private fun restoreSandboxState(
+		initialState: BattleInitialState,
+		snapshot: BattleSandboxStateSnapshot,
+	): BattleState =
+		try {
+			val baseline = battleEngine.start(initialState)
+			BattleState(
+				format = baseline.format,
+				rules = baseline.rules,
+				environment = snapshot.environment.toBattleEnvironment(),
+				sides = baseline.sides.map { side -> side.restoreSandboxSide(snapshot.requiredSide(side.sideId)) },
+				turnNumber = snapshot.turnNumber,
+				events = emptyList(),
+				result = snapshot.result?.let { BattleResult(it.winningSideId, it.reason) },
+			)
+		} catch (_: IllegalArgumentException) {
+			invalidValue("state", "state 不是合法沙盒快照，请重置后重新开始")
+		}
+
+	private fun BattleSandboxStateSnapshot.requiredSide(sideId: String): BattleSandboxStateSnapshot.Side =
+		sides.firstOrNull { it.sideId == sideId }
+			?: invalidValue("state", "state 与当前队伍不匹配，请重置后重新开始")
+
+	private fun BattleSandboxStateSnapshot.Side.requiredParticipant(actorId: String): BattleSandboxStateSnapshot.Participant =
+		participants.firstOrNull { it.actorId == actorId }
+			?: invalidValue("state", "state 与当前成员不匹配，请重置后重新开始")
+
+	private fun BattleSide.restoreSandboxSide(snapshot: BattleSandboxStateSnapshot.Side): BattleSide =
+		copy(
+			activeActorIds = snapshot.activeActorIds,
+			participants = participants.map { participant -> participant.restoreSandboxParticipant(snapshot.requiredParticipant(participant.actorId)) },
+			damageReductions = snapshot.damageReductions.map { it.toBattleSideDamageReduction() },
+			speedModifiers = snapshot.speedModifiers.map { it.toBattleSideSpeedModifier() },
+			entryHazards = snapshot.entryHazards.map { it.toBattleSideEntryHazard() },
+		)
+
+	private fun BattleParticipant.restoreSandboxParticipant(snapshot: BattleSandboxStateSnapshot.Participant): BattleParticipant =
+		copy(
+			currentHp = snapshot.currentHp,
+			elementIds = snapshot.elementIds.takeIf { it.isNotEmpty() }?.toSet() ?: elementIds,
+			grounded = snapshot.grounded,
+			majorStatus = snapshot.majorStatus?.toEnumValue<BattleMajorStatus>("state.majorStatus"),
+			statStages = snapshot.statStages.mapKeys { (stat, _) -> stat.toEnumValue<BattleStat>("state.statStages") },
+			skillSlots = skillSlots.map { slot -> slot.restoreSandboxSkillSlot(snapshot.skillSlots) },
+			weightReduction = snapshot.weightReduction,
+			protectionChain = snapshot.protectionChain,
+			badPoisonCounter = snapshot.badPoisonCounter,
+			sleepTurnsRemaining = snapshot.sleepTurnsRemaining,
+			chargingSkillId = snapshot.chargingSkillId,
+			chargingTargetActorId = snapshot.chargingTargetActorId,
+			chargingTurnsRemaining = snapshot.chargingTurnsRemaining,
+			rechargeTurnsRemaining = snapshot.rechargeTurnsRemaining,
+			flinched = snapshot.flinched,
+			confusionTurnsRemaining = snapshot.confusionTurnsRemaining,
+			healBlockTurnsRemaining = snapshot.healBlockTurnsRemaining,
+			tauntTurnsRemaining = snapshot.tauntTurnsRemaining,
+			disabledSkillId = snapshot.disabledSkillId,
+			disabledSkillTurnsRemaining = snapshot.disabledSkillTurnsRemaining,
+			tormented = snapshot.tormented,
+			boundByActorId = snapshot.boundByActorId,
+			bindingTurnsRemaining = snapshot.bindingTurnsRemaining,
+			lastSuccessfulSkillId = snapshot.lastSuccessfulSkillId,
+			lockedMoveSkillId = snapshot.lockedMoveSkillId,
+			lockedMoveTargetActorId = snapshot.lockedMoveTargetActorId,
+			lockedMoveTurnsRemaining = snapshot.lockedMoveTurnsRemaining,
+			lockedMoveConfusesOnEnd = snapshot.lockedMoveConfusesOnEnd,
+			choiceLockedSkillId = snapshot.choiceLockedSkillId,
+			substituteHp = snapshot.substituteHp,
+		)
+
+	private fun BattleSkillSlot.restoreSandboxSkillSlot(
+		snapshots: List<BattleSandboxStateSnapshot.SkillSlot>,
+	): BattleSkillSlot {
+		val snapshot = snapshots.firstOrNull { it.skillId == skillId }
+			?: invalidValue("state", "state 与当前技能槽不匹配，请重置后重新开始")
+		return copy(remainingPp = snapshot.remainingPp)
+	}
+
+	private fun BattleSandboxStateSnapshot.Environment.toBattleEnvironment(): BattleEnvironment =
+		BattleEnvironment(
+			weather = weather.toEnumValue("state.weather"),
+			weatherTurnsRemaining = weatherTurnsRemaining,
+			terrain = terrain.toEnumValue("state.terrain"),
+			terrainTurnsRemaining = terrainTurnsRemaining,
+			fieldSpeedOrderEffect = fieldSpeedOrderEffect?.let {
+				BattleFieldSpeedOrderEffect(
+					kind = it.kind.toEnumValue<BattleFieldSpeedOrderKind>("state.fieldSpeedOrderEffect.kind"),
+					turnsRemaining = it.turnsRemaining,
+				)
+			},
+		)
+
+	private fun BattleSandboxStateSnapshot.DamageReduction.toBattleSideDamageReduction(): BattleSideDamageReduction =
+		BattleSideDamageReduction(
+			kind = kind.toEnumValue("state.damageReductions.kind"),
+			turnsRemaining = turnsRemaining,
+		)
+
+	private fun BattleSandboxStateSnapshot.SpeedModifier.toBattleSideSpeedModifier(): BattleSideSpeedModifier =
+		BattleSideSpeedModifier(
+			kind = kind.toEnumValue<BattleSideSpeedModifierKind>("state.speedModifiers.kind"),
+			multiplier = multiplier,
+			turnsRemaining = turnsRemaining,
+		)
+
+	private fun BattleSandboxStateSnapshot.EntryHazard.toBattleSideEntryHazard(): BattleSideEntryHazard =
+		BattleSideEntryHazard(
+			kind = kind.toEnumValue<BattleSideEntryHazardKind>("state.entryHazards.kind"),
+			layers = layers,
+			maxLayers = maxLayers,
+		)
+
 	private fun BattleState.toSandboxResponse(
 		resolved: Boolean,
 		violations: List<BattleActionViolationResponse>,
 		randomTrace: List<BattleRandomTraceEntry>,
-	): BattleSandboxTurnResponse =
-		BattleSandboxTurnResponse(
+		previousEvents: List<BattleSandboxTurnResponse.Event>,
+	): BattleSandboxTurnResponse {
+		val responseEvents = previousEvents + events.map { it.toSandboxEvent() }
+		return BattleSandboxTurnResponse(
 			resolved = resolved,
 			turnNumber = turnNumber,
 			result = result?.let {
@@ -318,9 +462,108 @@ class BattleRuntimeSnapshotService(
 				)
 			},
 			sides = sides.map { it.toSandboxSide() },
-			events = events.map { it.toSandboxEvent() },
+			events = responseEvents,
 			violations = violations,
 			randomTrace = randomTrace.map { it.toSandboxRandomTrace() },
+			state = toSandboxState(responseEvents),
+		)
+	}
+
+	private fun BattleState.toSandboxState(
+		responseEvents: List<BattleSandboxTurnResponse.Event>,
+	): BattleSandboxStateSnapshot =
+		BattleSandboxStateSnapshot(
+			turnNumber = turnNumber,
+			result = result?.let {
+				BattleSandboxTurnResponse.Result(
+					winningSideId = it.winningSideId,
+					reason = it.reason,
+				)
+			},
+			environment = environment.toSandboxEnvironment(),
+			sides = sides.map { it.toSandboxStateSide() },
+			events = responseEvents,
+		)
+
+	private fun BattleEnvironment.toSandboxEnvironment(): BattleSandboxStateSnapshot.Environment =
+		BattleSandboxStateSnapshot.Environment(
+			weather = weather.name,
+			weatherTurnsRemaining = weatherTurnsRemaining,
+			terrain = terrain.name,
+			terrainTurnsRemaining = terrainTurnsRemaining,
+			fieldSpeedOrderEffect = fieldSpeedOrderEffect?.let {
+				BattleSandboxStateSnapshot.FieldSpeedOrderEffect(
+					kind = it.kind.name,
+					turnsRemaining = it.turnsRemaining,
+				)
+			},
+		)
+
+	private fun BattleSide.toSandboxStateSide(): BattleSandboxStateSnapshot.Side =
+		BattleSandboxStateSnapshot.Side(
+			sideId = sideId,
+			activeActorIds = activeActorIds,
+			participants = participants.map { it.toSandboxStateParticipant() },
+			damageReductions = damageReductions.map {
+				BattleSandboxStateSnapshot.DamageReduction(
+					kind = it.kind.name,
+					turnsRemaining = it.turnsRemaining,
+				)
+			},
+			speedModifiers = speedModifiers.map {
+				BattleSandboxStateSnapshot.SpeedModifier(
+					kind = it.kind.name,
+					multiplier = it.multiplier,
+					turnsRemaining = it.turnsRemaining,
+				)
+			},
+			entryHazards = entryHazards.map {
+				BattleSandboxStateSnapshot.EntryHazard(
+					kind = it.kind.name,
+					layers = it.layers,
+					maxLayers = it.maxLayers,
+				)
+			},
+		)
+
+	private fun BattleParticipant.toSandboxStateParticipant(): BattleSandboxStateSnapshot.Participant =
+		BattleSandboxStateSnapshot.Participant(
+			actorId = actorId,
+			currentHp = currentHp,
+			elementIds = elementIds.toList(),
+			grounded = grounded,
+			majorStatus = majorStatus?.name,
+			statStages = statStages.mapKeys { it.key.name },
+			skillSlots = skillSlots.map {
+				BattleSandboxStateSnapshot.SkillSlot(
+					skillId = it.skillId,
+					remainingPp = it.remainingPp,
+				)
+			},
+			weightReduction = weightReduction,
+			protectionChain = protectionChain,
+			badPoisonCounter = badPoisonCounter,
+			sleepTurnsRemaining = sleepTurnsRemaining,
+			chargingSkillId = chargingSkillId,
+			chargingTargetActorId = chargingTargetActorId,
+			chargingTurnsRemaining = chargingTurnsRemaining,
+			rechargeTurnsRemaining = rechargeTurnsRemaining,
+			flinched = flinched,
+			confusionTurnsRemaining = confusionTurnsRemaining,
+			healBlockTurnsRemaining = healBlockTurnsRemaining,
+			tauntTurnsRemaining = tauntTurnsRemaining,
+			disabledSkillId = disabledSkillId,
+			disabledSkillTurnsRemaining = disabledSkillTurnsRemaining,
+			tormented = tormented,
+			boundByActorId = boundByActorId,
+			bindingTurnsRemaining = bindingTurnsRemaining,
+			lastSuccessfulSkillId = lastSuccessfulSkillId,
+			lockedMoveSkillId = lockedMoveSkillId,
+			lockedMoveTargetActorId = lockedMoveTargetActorId,
+			lockedMoveTurnsRemaining = lockedMoveTurnsRemaining,
+			lockedMoveConfusesOnEnd = lockedMoveConfusesOnEnd,
+			choiceLockedSkillId = choiceLockedSkillId,
+			substituteHp = substituteHp,
 		)
 
 	private fun BattleSide.toSandboxSide(): BattleSandboxTurnResponse.Side =
@@ -387,6 +630,10 @@ class BattleRuntimeSnapshotService(
 			is Map<*, *> -> entries.associate { (key, value) -> key.toString() to value.toSandboxPayloadValue() }
 			else -> toString()
 		}
+
+	private inline fun <reified T : Enum<T>> String.toEnumValue(fieldName: String): T =
+		enumValues<T>().firstOrNull { it.name == uppercase(Locale.ROOT) }
+			?: invalidValue(fieldName, "$fieldName 不是合法值")
 
 	private fun BattleRandomTraceEntry.toSandboxRandomTrace(): BattleSandboxTurnResponse.RandomTrace =
 		BattleSandboxTurnResponse.RandomTrace(

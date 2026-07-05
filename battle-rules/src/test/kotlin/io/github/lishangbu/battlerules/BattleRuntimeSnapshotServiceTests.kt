@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import io.github.lishangbu.battleengine.BattleEngine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
@@ -61,6 +63,8 @@ class BattleRuntimeSnapshotServiceTests(
 	@Autowired private val service: BattleRuntimeSnapshotService,
 	@Autowired private val jdbcTemplate: JdbcTemplate,
 ) {
+	private val objectMapper: ObjectMapper = JsonMapper.builder().findAndAddModules().build()
+
 	@Test
 	fun `official double format assembles engine runtime snapshot`() {
 		val snapshot = service.getByFormatCode("official-double")
@@ -1527,6 +1531,98 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.events.single { it.type == "DamageApplied" }.message).contains("b-1", "伤害")
 		assertThat(response.randomTrace).isNotEmpty
 		assertThat(target.currentHp).isLessThan(target.maxHp)
+		assertThat(response.state.turnNumber).isEqualTo(1)
+		assertThat(response.state.events).hasSize(response.events.size)
+	}
+
+	@Test
+	fun `sandbox turn can continue from previous response state snapshot`() {
+		val first = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = validDoubleSides(),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val second = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = validDoubleSides(),
+				randomSeed = 1,
+				state = first.state,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val firstTarget = first.sides.flatMap { it.participants }.single { it.actorId == "b-1" }
+		val secondTarget = second.sides.flatMap { it.participants }.single { it.actorId == "b-1" }
+		val firstAttackerSlot = first.sides.flatMap { it.participants }.single { it.actorId == "a-1" }.skillSlots.single { it.skillId == 1L }
+		val secondAttackerSlot = second.sides.flatMap { it.participants }.single { it.actorId == "a-1" }.skillSlots.single { it.skillId == 1L }
+
+		assertThat(second.resolved).isTrue()
+		assertThat(second.turnNumber).isEqualTo(2)
+		assertThat(secondTarget.currentHp).isLessThan(firstTarget.currentHp)
+		assertThat(secondAttackerSlot.remainingPp).isEqualTo(firstAttackerSlot.remainingPp - 1)
+		assertThat(second.events.count { it.type == "BattleStarted" }).isEqualTo(1)
+		assertThat(second.events.map { it.turnNumber }).contains(0, 1, 2)
+		assertThat(second.state.turnNumber).isEqualTo(2)
+		assertThat(second.state.events).hasSize(second.events.size)
+	}
+
+	@Test
+	fun `sandbox state snapshot can continue after json round trip`() {
+		val first = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "standard-single",
+				sides = validSingleSides(),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val secondRequestJson = objectMapper.writeValueAsString(
+			BattleSandboxTurnRequest(
+				formatCode = "standard-single",
+				sides = validSingleSides(),
+				randomSeed = 1,
+				state = first.state,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val secondRequest = objectMapper.readValue(secondRequestJson, BattleSandboxTurnRequest::class.java)
+		val second = service.resolveSandboxTurn(secondRequest)
+
+		assertThat(secondRequest.state?.sides?.map { it.sideId }).containsExactly("side-a", "side-b")
+		assertThat(second.resolved).isTrue()
+		assertThat(second.turnNumber).isEqualTo(2)
+		assertThat(second.state.events).hasSize(second.events.size)
 	}
 
 	/**
@@ -2277,6 +2373,26 @@ class BattleRuntimeSnapshotServiceTests(
 			BattlePreparationSideRequest(
 				sideId = "side-b",
 				activeActorIds = listOf("b-1", "b-2"),
+				participants = listOf(
+					participant("b-1", creatureId = 3, level = 50, itemId = 12),
+					participant("b-2", creatureId = 4, level = 50, itemId = 13),
+				),
+			),
+		)
+
+	private fun validSingleSides(): List<BattlePreparationSideRequest> =
+		listOf(
+			BattlePreparationSideRequest(
+				sideId = "side-a",
+				activeActorIds = listOf("a-1"),
+				participants = listOf(
+					participant("a-1", creatureId = 1, level = 50, itemId = 10),
+					participant("a-2", creatureId = 2, level = 50, itemId = 11),
+				),
+			),
+			BattlePreparationSideRequest(
+				sideId = "side-b",
+				activeActorIds = listOf("b-1"),
 				participants = listOf(
 					participant("b-1", creatureId = 3, level = 50, itemId = 12),
 					participant("b-2", creatureId = 4, level = 50, itemId = 13),

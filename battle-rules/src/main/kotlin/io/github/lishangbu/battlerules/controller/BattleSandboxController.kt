@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * 战斗沙盒 API。
  *
- * 沙盒只提供“输入完整队伍和行动，立即在内存中结算一个回合”的调试入口。它刻意不保存对局、不分配房间，
- * 避免第一版把运行时验证和未来真人对战状态管理绑死在一起。
+ * 沙盒提供“输入完整队伍、行动和可选状态快照，立即在内存中结算一个回合”的调试入口。它刻意不保存对局、
+ * 不分配房间，避免把运行时验证和未来真人对战状态管理绑死在一起；连续回合由客户端带回响应快照完成。
  */
 @RestController
 @RequestMapping("/api/battle-sandbox")
@@ -26,7 +26,7 @@ class BattleSandboxController(
 	private val service: BattleRuntimeSnapshotService,
 ) {
 	@PostMapping("/turn")
-	@Operation(summary = "结算沙盒单回合")
+	@Operation(summary = "结算沙盒回合")
 	fun resolveTurn(@RequestBody request: BattleSandboxTurnRequest): BattleSandboxTurnResponse =
 		service.resolveSandboxTurn(request)
 }
