@@ -1686,6 +1686,64 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证沙盒续算会拒绝和当前赛制站位不一致的 state。
+	 *
+	 * 沙盒 state 由管理端原样带回，不能被当成可信存档。这里用双打首回合响应作为合法基线，再把 side-a 的
+	 * `activeActorIds` 手动缩成一个成员，模拟浏览器调试工具或错误前端把双打运行态改成了单打形状。服务端必须
+	 * 在恢复 [io.github.lishangbu.battleengine.model.BattleState] 前拒绝它，否则后续范围技能、同速排序、
+	 * 入场特性和行动提交校验都会在“赛制是双打、实际只有一个上场席位”的矛盾状态下运行。
+	 */
+	@Test
+	fun `sandbox state snapshot rejects active participant count drift`() {
+		val first = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "official-double",
+				sides = validDoubleSides(),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 1,
+						targetActorId = "b-1",
+					),
+				),
+			),
+		)
+		val tamperedState = first.state.copy(
+			sides = first.state.sides.map { side ->
+				if (side.sideId == "side-a") {
+					side.copy(activeActorIds = listOf("a-1"))
+				} else {
+					side
+				}
+			},
+		)
+
+		val error = assertThrows<ApiException> {
+			service.resolveSandboxTurn(
+				BattleSandboxTurnRequest(
+					formatCode = "official-double",
+					sides = validDoubleSides(),
+					randomSeed = 1,
+					state = tamperedState,
+					actions = listOf(
+						BattleActionRequest(
+							type = "USE_SKILL",
+							actorId = "a-1",
+							skillId = 1,
+							targetActorId = "b-1",
+						),
+					),
+				),
+			)
+		}
+
+		assertThat(error.field).isEqualTo("state")
+		assertThat(error.message).isEqualTo("state 上场成员数量必须符合赛制")
+	}
+
+	/**
 	 * 验证 battle-rules 装配出的运行时快照可以直接驱动 battle-engine 完成最小一回合。
 	 *
 	 * 这个测试刻意不手写 [io.github.lishangbu.battleengine.model.BattleRuleSnapshot]、技能槽、能力值或属性 ID：

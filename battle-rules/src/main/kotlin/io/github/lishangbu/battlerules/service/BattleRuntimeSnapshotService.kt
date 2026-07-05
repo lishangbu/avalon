@@ -342,8 +342,8 @@ class BattleRuntimeSnapshotService(
 		snapshot: BattleSandboxStateSnapshot,
 	): BattleState =
 		try {
-			snapshot.validateSandboxSnapshot()
 			val baseline = battleEngine.start(initialState)
+			snapshot.validateSandboxSnapshot(baseline)
 			BattleState(
 				format = baseline.format,
 				rules = baseline.rules,
@@ -365,10 +365,11 @@ class BattleRuntimeSnapshotService(
 	 * 数量对不上、随机 trace 序号不连续等。这样错误会以字段校验失败返回给管理端，而不是进入引擎后变成更难
 	 * 定位的状态机异常。
 	 */
-	private fun BattleSandboxStateSnapshot.validateSandboxSnapshot() {
+	private fun BattleSandboxStateSnapshot.validateSandboxSnapshot(baseline: BattleState) {
 		if (turnNumber < 0) {
 			invalidValue("state", "state 回合号不能为负数")
 		}
+		validateSandboxRosterShape(baseline)
 		val expectedTurnNumbers = (1..turnNumber).toList()
 		if (turns.map { it.turnNumber } != expectedTurnNumbers) {
 			invalidValue("state", "state 回合记录必须从 1 连续到当前回合")
@@ -381,6 +382,41 @@ class BattleRuntimeSnapshotService(
 			val accumulatedEventCount = events.count { it.turnNumber == turn.turnNumber }
 			if (accumulatedEventCount != turn.events.size) {
 				invalidValue("state", "state 回合事件片段与累计事件流不一致")
+			}
+		}
+	}
+
+	/**
+	 * 校验沙盒快照中的队伍骨架仍然等于当前请求重新装配出的基线队伍。
+	 *
+	 * 沙盒续算允许前端带回 HP、PP、异常、天气、场地等“会随战斗变化的运行态”，但不允许前端把单打改成双打、
+	 * 把某一侧悄悄塞入额外成员，或把当前上场数量改成不符合赛制的形状。真正的队伍与规则事实仍由本次请求的
+	 * `formatCode` 和 `sides` 从数据库重新装配；这里把快照中的 sideId、actorId 集合和 activeActorIds 数量
+	 * 锁回基线，避免畸形 JSON 绕过 [io.github.lishangbu.battleengine.model.BattleInitialState] 的启动校验后
+	 * 直接进入 [BattleState]。
+	 */
+	private fun BattleSandboxStateSnapshot.validateSandboxRosterShape(baseline: BattleState) {
+		if (sides.map { it.sideId }.toSet() != baseline.sides.map { it.sideId }.toSet()) {
+			invalidValue("state", "state 双方队伍必须与当前请求一致")
+		}
+		baseline.sides.forEach { baselineSide ->
+			val snapshotSide = requiredSide(baselineSide.sideId)
+			val snapshotActorIds = snapshotSide.participants.map { it.actorId }
+			val baselineActorIds = baselineSide.participants.map { it.actorId }
+			if (snapshotActorIds.toSet() != baselineActorIds.toSet()) {
+				invalidValue("state", "state 成员集合必须与当前请求一致")
+			}
+			if (snapshotActorIds.toSet().size != snapshotActorIds.size) {
+				invalidValue("state", "state 同一侧不能包含重复成员")
+			}
+			if (snapshotSide.activeActorIds.size != baseline.format.activeParticipantsPerSide) {
+				invalidValue("state", "state 上场成员数量必须符合赛制")
+			}
+			if (snapshotSide.activeActorIds.toSet().size != snapshotSide.activeActorIds.size) {
+				invalidValue("state", "state 上场成员不能重复")
+			}
+			if (snapshotSide.activeActorIds.any { it !in baselineActorIds }) {
+				invalidValue("state", "state 上场成员必须属于当前队伍")
 			}
 		}
 	}
