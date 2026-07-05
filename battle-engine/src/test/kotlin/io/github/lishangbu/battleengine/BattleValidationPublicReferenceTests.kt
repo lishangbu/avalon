@@ -3,6 +3,7 @@ package io.github.lishangbu.battleengine
 import io.github.lishangbu.battleengine.model.BattleAction
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 /**
  * 验证准备阶段和行动提交阶段的公开规则边界。
@@ -119,6 +120,33 @@ class BattleValidationPublicReferenceTests {
 		scenario.assertNamed("banned-item-rule-rejects-restricted-held-item")
 		assertEquals(listOf("banned-item"), violations.map { it.code })
 		assertEquals(77, violations.single().resourceId)
+	}
+
+	/**
+	 * 验证核心引擎入口不会绕过准备阶段校验。
+	 *
+	 * 上层接口会调用 [BattlePreparationValidator.validate] 以便返回结构化 code；但生产环境未来可能出现新的
+	 * 命令行模拟器、后台对战任务或测试工具直接调用 [BattleEngine.start]。这个用例确保核心入口本身仍会在
+	 * 产生 `BattleStarted` 事件前拒绝禁用资源，让非法队伍不能以“调用方忘记先校验”为理由进入状态机。
+	 */
+	@Test
+	fun `engine start rejects preparation violations before battle begins`() {
+		val scenario = publicBattleRuleScenario(
+			name = "engine-start-rejects-preparation-violations-before-battle-begins",
+			inputSummary = "规则快照禁用技能 99，但调用方直接把携带该技能的队伍传给 BattleEngine.start。",
+			expectedSummary = "核心入口在产生启动事件前抛出准备阶段错误，避免非法队伍绕过接口层进入战斗状态机。",
+		)
+		val state = initialState(
+			first = participant("restricted-skill", speed = 100, skill = damagingSkill(skillId = 99)),
+			second = participant("opponent", speed = 80),
+			rules = neutralRules().copy(bannedSkillIds = setOf(99)),
+		)
+
+		scenario.assertNamed("engine-start-rejects-preparation-violations-before-battle-begins")
+		val failure = assertFailsWith<IllegalArgumentException> {
+			engine.start(state)
+		}
+		assertEquals(true, failure.message.orEmpty().contains("技能已被当前规则禁用"))
 	}
 
 	@Test

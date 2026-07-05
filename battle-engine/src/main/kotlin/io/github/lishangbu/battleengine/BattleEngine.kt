@@ -18,6 +18,8 @@ import io.github.lishangbu.battleengine.random.BattleRandom
  *
  * 引擎边界仍刻意保持清晰：主动使用道具、完整赛事裁定和外部资料装配不放进纯状态机。调用方需要先把数据库
  * 资料冻结成 [BattleInitialState]，再把玩家行动和确定性随机源传入这里，避免核心规则依赖持久层或接口 DTO。
+ * [start] 会强制执行准备阶段校验，避免禁用资源、等级上限或唯一条款只在上层接口中生效；行动提交校验仍由
+ * 上层在调用前执行，因为部分“不可主动替换”等规则需要进入状态机产出可复盘事件，而不是被核心入口提前吞掉。
  *
  * 本类继续采用“显式阶段状态机”，而不是完整事件驱动调度器。原因是战斗规则最敏感的是阶段顺序：替换必须先于
  * 技能行动，行动前状态必须先于 PP 消耗和命中判定，伤害后道具、倒下检查、回合末伤害、天气/场地持续时间也都
@@ -29,6 +31,7 @@ class BattleEngine(
 	statStageModifiers: BattleStatStageModifiers = BattleStatStageModifiers(),
 ) {
 	private val components = BattleEngineComponents(damageCalculator, statStageModifiers)
+	private val preparationValidator = BattlePreparationValidator()
 
 	/**
 	 * 启动一场战斗并产出初始事件。
@@ -37,6 +40,7 @@ class BattleEngine(
 	 * @return turnNumber 为 0 的战斗状态，事件流包含 `BattleStarted`。
 	 */
 	fun start(initialState: BattleInitialState): BattleState {
+		preparationValidator.requireValid(initialState)
 		val started = BattleState(
 			format = initialState.format,
 			rules = initialState.rules,

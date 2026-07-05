@@ -2190,7 +2190,7 @@ class BattleRuntimeSnapshotServiceTests(
 	private fun resolvedFatalSurvivalTurn(target: BattlePreparationParticipantRequest) =
 		BattleEngine().let { engine ->
 			val initialState = assembledState(
-				firstSideFirst = participant("a-1", creatureId = 150, level = 100, skillIds = listOf(63)),
+				firstSideFirst = participant("a-1", creatureId = 150, level = 50, skillIds = listOf(63)),
 				secondSideFirst = target,
 			)
 			engine.resolveTurn(
