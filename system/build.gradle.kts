@@ -7,7 +7,6 @@ dependencies {
 	implementation(project(":scheduler"))
 	implementation(project(":security"))
 	implementation(libs.spring.boot.starter)
-	implementation(libs.spring.boot.starter.jdbc)
 	implementation(libs.spring.boot.starter.security)
 	implementation(libs.spring.boot.starter.security.oauth2.authorization.server)
 	implementation(libs.spring.boot.starter.web)
