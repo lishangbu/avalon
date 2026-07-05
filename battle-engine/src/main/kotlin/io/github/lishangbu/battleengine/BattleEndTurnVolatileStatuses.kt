@@ -86,14 +86,30 @@ internal class BattleEndTurnVolatileStatuses {
 					decrement = BattleParticipant::decrementTauntEndTurn,
 				)
 				val latestAfterTaunt = afterTaunt.participant(participant.actorId) ?: return@fold afterTaunt
-				advanceOneDuration(
+				val afterDisable = advanceOneDuration(
 					state = afterTaunt,
 					participant = latestAfterTaunt,
 					status = BattleVolatileStatus.DISABLE,
 					turnsRemaining = latestAfterTaunt.disabledSkillTurnsRemaining,
 					decrement = BattleParticipant::decrementDisableEndTurn,
 				)
+				val latestAfterDisable = afterDisable.participant(participant.actorId) ?: return@fold afterDisable
+				advanceAccuracyLockDuration(afterDisable, latestAfterDisable)
 			}
+
+	/**
+	 * 推进命中锁定的持续时间。
+	 *
+	 * 命中锁定不是 [BattleVolatileStatus] 枚举的一员，因为它不由通用临时状态附加表维护，也没有解除文案；但它和
+	 * 回复封锁、挑衅、定身法一样按完整回合末递减。效果建立时保存 2 个回合末单位，当前回合末递减为 1，下一回合
+	 * 结束时清除，从而表达“到下回合结束前有效”。
+	 */
+	private fun advanceAccuracyLockDuration(state: BattleState, participant: BattleParticipant): BattleState {
+		if (participant.accuracyLockTurnsRemaining <= 0) {
+			return state
+		}
+		return state.replaceParticipant(participant.decrementAccuracyLockEndTurn())
+	}
 
 	/**
 	 * 推进一个“回合末递减、归零可见”的临时状态计数。

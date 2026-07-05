@@ -41,6 +41,9 @@ internal class BattleHitResolution(
 		ignoresTargetAbilityEffects: Boolean,
 		random: BattleRandom,
 	): BattleAccuracyCheck {
+		if (actor.hasAccuracyLockOn(target.actorId)) {
+			return BattleAccuracyCheck(hit = true, roll = null)
+		}
 		val oneHitKnockOutAccuracy = oneHitKnockOutAccuracy(state, actor, target, skill)
 		if (oneHitKnockOutAccuracy != null) {
 			return rollAccuracy(skill, oneHitKnockOutAccuracy, random)

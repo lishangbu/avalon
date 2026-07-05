@@ -111,6 +111,7 @@ class BattleSkillRuntimeLookup(
 			lockMoveTurnsMax = row.requiredInt(row.lockMoveTurnsMax, "lock_move_turns_max"),
 			confusesUserAfterLock = row.requiredBoolean(row.confusesUserAfterLock, "confuses_user_after_lock"),
 			forceTargetSwitch = row.requiredBoolean(row.forceTargetSwitch, "force_target_switch"),
+			locksAccuracyOnTarget = effectPolicy.locksAccuracyOnTarget(),
 			priority = row.priority,
 			groundedTerrainPriorityBoosts = effectPolicy.toBattleSkillGroundedTerrainPriorityBoosts(),
 			remainingPp = row.pp,

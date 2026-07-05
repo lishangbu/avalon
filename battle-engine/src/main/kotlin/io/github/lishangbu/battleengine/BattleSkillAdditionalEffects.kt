@@ -53,7 +53,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterSideSpeedModifiers = applySideSpeedModifiers(afterSideDamageReductions, actorId, targetActorId, skill, random)
 		val afterSideEntryHazards = applySideEntryHazards(afterSideSpeedModifiers, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
-		return forcedSwitchEffects.apply(afterFieldSpeedOrder, actorId, targetActorId, skill, random)
+		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
+		return forcedSwitchEffects.apply(afterAccuracyLock, actorId, targetActorId, skill, random)
 	}
 
 	/**
@@ -208,6 +209,41 @@ internal class BattleSkillAdditionalEffects(
 
 	private fun BattleSkillWeightEffect.requiredStatChanged(before: BattleParticipant, after: BattleParticipant): Boolean =
 		requiredChangedStat == null || before.statStage(requiredChangedStat) != after.statStage(requiredChangedStat)
+
+	/**
+	 * 应用命中锁定效果。
+	 *
+	 * Lock-On / Mind Reader 类技能自身是一次普通命中后的变化效果：它不造成伤害，也不改变目标；真正被修改的是
+	 * 使用者的“下回合前对这个目标必中”运行态。现代规则还要求同一个目标只能保留一个来源的锁定，所以写入前会
+	 * 先清除所有指向该目标的旧锁定，再把最新来源写回使用者。
+	 */
+	private fun applyAccuracyLock(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.locksAccuracyOnTarget) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!actor.canBattle() || !target.canBattle()) {
+			return state
+		}
+		val withoutPreviousLocks = state.clearAccuracyLocksTargeting(target.actorId)
+		val latestActor = withoutPreviousLocks.participant(actor.actorId) ?: return withoutPreviousLocks
+		return withoutPreviousLocks
+			.replaceParticipant(latestActor.lockAccuracyOnTarget(target.actorId))
+			.appendEvent(
+				BattleEvent.AccuracyLockStarted(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+				),
+			)
+	}
 
 	/**
 	 * 应用防守方一侧的屏障/条件效果。

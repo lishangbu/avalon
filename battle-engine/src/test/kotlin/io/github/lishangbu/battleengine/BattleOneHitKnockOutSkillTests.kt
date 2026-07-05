@@ -149,6 +149,119 @@ class BattleOneHitKnockOutSkillTests {
 		assertEquals(emptyList(), random.consumedReasons())
 	}
 
+	@Test
+	fun `accuracy lock makes next one hit knock out skip accuracy roll`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-makes-next-one-hit-knockout-skip-accuracy-roll",
+			inputSummary = "使用者先用命中锁定类变化技能命中 50 级目标，下一回合再对同一目标使用一击必杀技能。",
+			expectedSummary = "命中锁定跨过当前回合末保留到下一回合；一击必杀仍通过等级条件，但跳过 30% 命中随机数并直接造成目标当前 HP 伤害。",
+		)
+		val initial = engine.start(
+			initialState(
+				first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill())
+					.copy(skillSlots = listOf(accuracyLockSkill(), oneHitKnockOutSkill())),
+				second = participant("target", speed = 80, level = 50, currentHp = 83),
+			),
+		)
+		val afterLock = engine.resolveTurn(
+			initial,
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val resolved = engine.resolveTurn(
+			afterLock,
+			listOf(BattleAction.UseSkill("user", skillId = 12, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("accuracy-lock-makes-next-one-hit-knockout-skip-accuracy-roll")
+		assertEquals("target", afterLock.participant("user")?.accuracyLockTargetActorId)
+		assertEquals(1, afterLock.participant("user")?.accuracyLockTurnsRemaining)
+		assertEquals(0, resolved.participant("target")?.currentHp)
+		assertEquals(null, resolved.participant("user")?.accuracyLockTargetActorId)
+		assertEquals(0, resolved.participant("user")?.accuracyLockTurnsRemaining)
+		assertEquals(83, resolved.events.filterIsInstance<BattleEvent.DamageApplied>().single().amount)
+		assertEquals(emptyList(), random.consumedReasons())
+	}
+
+	@Test
+	fun `accuracy lock does not bypass protection before one hit knock out`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-does-not-bypass-protection-before-one-hit-knockout",
+			inputSummary = "使用者锁定目标后，下一回合目标先建立保护屏障，使用者再对该目标使用一击必杀技能。",
+			expectedSummary = "保护属于命中前 gate，仍然早于锁定命中判定阻挡技能；目标不受伤害，也不消费一击必杀命中随机数。",
+		)
+		val afterLock = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill())
+						.copy(skillSlots = listOf(accuracyLockSkill(), oneHitKnockOutSkill())),
+					second = participant("target", speed = 80, level = 50, skill = protectionSkill()),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val resolved = engine.resolveTurn(
+			afterLock,
+			listOf(
+				BattleAction.UseSkill("target", skillId = 2, targetActorId = "target"),
+				BattleAction.UseSkill("user", skillId = 12, targetActorId = "target"),
+			),
+			random,
+		)
+
+		scenario.assertNamed("accuracy-lock-does-not-bypass-protection-before-one-hit-knockout")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals(12, resolved.events.filterIsInstance<BattleEvent.SkillBlockedByProtection>().single().skillId)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), random.consumedReasons())
+	}
+
+	@Test
+	fun `accuracy lock does not bypass one hit knock out higher level failure`() {
+		val scenario = publicBattleRuleScenario(
+			name = "accuracy-lock-does-not-bypass-one-hit-knockout-higher-level-failure",
+			inputSummary = "使用者锁定目标后，下一回合对等级更高的同一目标使用一击必杀技能。",
+			expectedSummary = "目标等级更高是技能失败条件，不是命中率问题；锁定效果不会绕过该失败，也不会消费命中随机数。",
+		)
+		val afterLock = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = participant("user", speed = 100, level = 50, skill = accuracyLockSkill())
+						.copy(skillSlots = listOf(accuracyLockSkill(), oneHitKnockOutSkill())),
+					second = participant("target", speed = 80, level = 51),
+				),
+			),
+			listOf(BattleAction.UseSkill("user", skillId = 170, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val random = ScriptedBattleRandom(emptyList())
+		val resolved = engine.resolveTurn(
+			afterLock,
+			listOf(BattleAction.UseSkill("user", skillId = 12, targetActorId = "target")),
+			random,
+		)
+
+		scenario.assertNamed("accuracy-lock-does-not-bypass-one-hit-knockout-higher-level-failure")
+		assertEquals(100, resolved.participant("target")?.currentHp)
+		assertEquals("target-level-greater-than-user-level", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), random.consumedReasons())
+	}
+
+	private fun accuracyLockSkill(): BattleSkillSlot =
+		damagingSkill(
+			skillId = 170,
+			name = "命中锁定测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			accuracy = null,
+			locksAccuracyOnTarget = true,
+		)
+
 	private fun oneHitKnockOutSkill(): BattleSkillSlot =
 		damagingSkill(
 			skillId = 12,

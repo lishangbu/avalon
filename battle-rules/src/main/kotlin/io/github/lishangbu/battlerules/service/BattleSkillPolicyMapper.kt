@@ -339,6 +339,9 @@ internal fun String.ignoresUserBurnAttackReduction(): Boolean =
 internal fun String.removesUserElementAfterDamage(): Boolean =
 	this == "remove-user-element-after-damage"
 
+internal fun String.locksAccuracyOnTarget(): Boolean =
+	this == "accuracy-lock-on-target"
+
 private val battleSkillStructuralEffectPolicies = setOf(
 	"standard-damage",
 	"standard-damage-with-status",
@@ -364,6 +367,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"swap-defense-stat-stages",
 	"swap-all-stat-stages",
 	"invert-target-stat-stages",
+	"accuracy-lock-on-target",
 )
 
 private val battleSkillTargetPolicies = setOf(
@@ -405,7 +409,7 @@ private val battleSkillDamagePolicies = setOf(
  */
 internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	this in battleSkillStructuralEffectPolicies ||
-		toBattleSkillHpEffects().isNotEmpty() ||
+	toBattleSkillHpEffects().isNotEmpty() ||
 	toBattleFixedDamage() != null ||
 	toBattleProportionalDamage() != null ||
 	toBattleHpDerivedDamage() != null ||

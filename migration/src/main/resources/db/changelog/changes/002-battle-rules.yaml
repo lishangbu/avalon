@@ -8554,3 +8554,41 @@ databaseChangeLog:
         columns:
         - column: { name: role_id, valueNumeric: 203 }
         - column: { name: access_node_id, valueNumeric: 854 }
+- changeSet:
+    id: 002-battle-rules-accuracy-lock-skill-rules
+    author: backend
+    comment: 将命中锁定类技能从默认变化技能规则修正为可被引擎结算的结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: true
+        sql: |
+          update battle_skill_rule r
+          set
+            effect_policy = 'accuracy-lock-on-target',
+            target_policy = 'selected-target',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = true,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = '命中后让使用者到下回合结束前锁定目标；下一次对该目标的命中判定必中，但不绕过保护、属性免疫或一击必杀等级失败。',
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('mind-reader', 'lock-on')

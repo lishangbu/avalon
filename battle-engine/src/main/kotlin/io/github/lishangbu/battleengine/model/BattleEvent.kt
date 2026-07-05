@@ -74,6 +74,19 @@ sealed interface BattleEvent {
 		val skillName: String,
 	) : BattleEvent
 
+	/**
+	 * 成员对指定目标建立了命中锁定。
+	 *
+	 * 该事件表达的是“使用者下回合结束前对这个目标的下一次命中判定会跳过命中骰”。它不表示目标被束缚或站位被锁定；
+	 * 目标换下后效果会消失，保护、属性免疫和一击必杀等级失败等命中前 gate 也仍然优先于该效果。
+	 */
+	data class AccuracyLockStarted(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+	) : BattleEvent
+
 	data class SkillMissed(
 		override val turnNumber: Int,
 		val actorId: String,

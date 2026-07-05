@@ -131,6 +131,51 @@ fun BattleParticipant.markSuccessfulSkill(skillId: Long): BattleParticipant {
 }
 
 /**
+ * 记录使用者对一个目标建立命中锁定。
+ *
+ * Lock-On / Mind Reader 这类现代规则不是永久标记：效果在命中的当前回合建立，经过当前回合末后仍保留到下一回合，
+ * 并在下一回合结束时清除。因此这里默认写入 2 个回合末递减单位；回合末流水线会把它推进为 1，再在下一次回合末
+ * 清掉。目标或使用者离场会更早清理该状态。
+ */
+fun BattleParticipant.lockAccuracyOnTarget(
+	targetActorId: String,
+	turnsRemaining: Int = 2,
+): BattleParticipant {
+	require(targetActorId.isNotBlank()) { "targetActorId must not be blank" }
+	require(turnsRemaining > 0) { "turnsRemaining must be positive" }
+	return copy(
+		accuracyLockTargetActorId = targetActorId,
+		accuracyLockTurnsRemaining = turnsRemaining,
+	)
+}
+
+/**
+ * 判断本成员当前是否锁定了指定目标的命中判定。
+ */
+fun BattleParticipant.hasAccuracyLockOn(targetActorId: String): Boolean =
+	accuracyLockTargetActorId == targetActorId && accuracyLockTurnsRemaining > 0
+
+/**
+ * 回合末推进命中锁定持续时间。
+ */
+fun BattleParticipant.decrementAccuracyLockEndTurn(): BattleParticipant =
+	when {
+		accuracyLockTurnsRemaining > 1 -> copy(accuracyLockTurnsRemaining = accuracyLockTurnsRemaining - 1)
+		accuracyLockTurnsRemaining == 1 -> clearAccuracyLock()
+		else -> this
+	}
+
+/**
+ * 清除命中锁定运行态。
+ */
+fun BattleParticipant.clearAccuracyLock(): BattleParticipant =
+	if (accuracyLockTargetActorId == null && accuracyLockTurnsRemaining == 0) {
+		this
+	} else {
+		copy(accuracyLockTargetActorId = null, accuracyLockTurnsRemaining = 0)
+	}
+
+/**
  * 开始锁定连续使用某个技能。
  *
  * `turnsRemainingAfterCurrent` 只记录未来还会被强制行动几次；首次使用的当前回合不保存在计数中。

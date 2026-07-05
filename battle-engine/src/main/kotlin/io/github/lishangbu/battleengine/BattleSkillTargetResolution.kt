@@ -72,22 +72,65 @@ internal class BattleSkillTargetResolution(
 			)
 			is BattlePreHitTargetGateResult.Passed -> preHitGate.ignoresTargetAbilityEffects
 		}
-		val absorbedByAbility = absorbElementSkillByAbility(state, actor, target, skill, ignoresTargetAbilityEffects)
+		val stateAfterAccuracyLockConsumption = consumeAccuracyLockAfterHitCheck(state, actor, target)
+		val actorAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(actor.actorId) ?: actor
+		val targetAfterAccuracyLock = stateAfterAccuracyLockConsumption.participant(target.actorId) ?: target
+		val contextAfterAccuracyLock = context.copy(state = stateAfterAccuracyLockConsumption)
+		val absorbedByAbility = absorbElementSkillByAbility(
+			stateAfterAccuracyLockConsumption,
+			actorAfterAccuracyLock,
+			targetAfterAccuracyLock,
+			skill,
+			ignoresTargetAbilityEffects,
+		)
 		if (absorbedByAbility != null) {
-			return context.copy(
+			return contextAfterAccuracyLock.copy(
 				state = lockedMoves.endAfterDisruption(
 					state = absorbedByAbility,
-					actorId = actor.actorId,
+					actorId = actorAfterAccuracyLock.actorId,
 					skill = skill,
 					random = random,
 				),
 			)
 		}
 		if (skill.damageClass == BattleDamageClass.STATUS) {
-			return resolveStatusSkill(context, state, actor, target, skill, random)
+			return resolveStatusSkill(
+				contextAfterAccuracyLock,
+				stateAfterAccuracyLockConsumption,
+				actorAfterAccuracyLock,
+				targetAfterAccuracyLock,
+				skill,
+				random,
+			)
 		}
-		return skillDamageResolution.resolve(context, state, actor, target, skill, targetMultiplier, random)
+		return skillDamageResolution.resolve(
+			contextAfterAccuracyLock,
+			stateAfterAccuracyLockConsumption,
+			actorAfterAccuracyLock,
+			targetAfterAccuracyLock,
+			skill,
+			targetMultiplier,
+			random,
+		)
 	}
+
+	/**
+	 * 命中判定通过后消费命中锁定。
+	 *
+	 * 锁定类效果保证“下一次对该目标的命中判定”通过；一旦 gate 已经使用这个事实，状态就应立即清除。不能只依赖
+	 * 回合末过期，因为一击必杀等直接结束战斗的技能不会再进入完整回合末流水线，若不在这里消费，胜负快照会残留
+	 * 已经用掉的锁定目标。
+	 */
+	private fun consumeAccuracyLockAfterHitCheck(
+		state: BattleState,
+		actor: BattleParticipant,
+		target: BattleParticipant,
+	): BattleState =
+		if (actor.hasAccuracyLockOn(target.actorId)) {
+			state.replaceParticipant(actor.clearAccuracyLock())
+		} else {
+			state
+		}
 
 	/**
 	 * 处理被目标特性吸收的元素技能。

@@ -58,6 +58,12 @@ class BattleRuntimePolicyMapperTests {
 	}
 
 	@Test
+	fun `skill accuracy lock policy is supported by runtime mapper`() {
+		assertThat("accuracy-lock-on-target".locksAccuracyOnTarget()).isTrue()
+		assertThat("accuracy-lock-on-target".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
 	fun `item element boost policy is parsed from element suffix`() {
 		val effect = "element-damage-boost-fire".toBattleItemEffect(elementIds)
 

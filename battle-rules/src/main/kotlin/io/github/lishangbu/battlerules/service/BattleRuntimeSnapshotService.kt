@@ -503,6 +503,8 @@ class BattleRuntimeSnapshotService(
 			boundByActorId = snapshot.boundByActorId,
 			bindingTurnsRemaining = snapshot.bindingTurnsRemaining,
 			lastSuccessfulSkillId = snapshot.lastSuccessfulSkillId,
+			accuracyLockTargetActorId = snapshot.accuracyLockTargetActorId,
+			accuracyLockTurnsRemaining = snapshot.accuracyLockTurnsRemaining,
 			lockedMoveSkillId = snapshot.lockedMoveSkillId,
 			lockedMoveTargetActorId = snapshot.lockedMoveTargetActorId,
 			lockedMoveTurnsRemaining = snapshot.lockedMoveTurnsRemaining,
@@ -682,6 +684,8 @@ class BattleRuntimeSnapshotService(
 			boundByActorId = boundByActorId,
 			bindingTurnsRemaining = bindingTurnsRemaining,
 			lastSuccessfulSkillId = lastSuccessfulSkillId,
+			accuracyLockTargetActorId = accuracyLockTargetActorId,
+			accuracyLockTurnsRemaining = accuracyLockTurnsRemaining,
 			lockedMoveSkillId = lockedMoveSkillId,
 			lockedMoveTargetActorId = lockedMoveTargetActorId,
 			lockedMoveTurnsRemaining = lockedMoveTurnsRemaining,
@@ -736,6 +740,7 @@ class BattleRuntimeSnapshotService(
 			is BattleEvent.HealingApplied -> "$actorId 回复 $amount 点 HP。"
 			is BattleEvent.ParticipantFainted -> "$actorId 倒下。"
 			is BattleEvent.ParticipantSwitched -> "$sideId 将 $previousActorId 替换为 $nextActorId。"
+			is BattleEvent.AccuracyLockStarted -> "$actorId 锁定了 $targetActorId。"
 			is BattleEvent.TurnEnded -> "第 $turnNumber 回合结束。"
 			is BattleEvent.BattleEnded -> winningSideId?.let { "$it 获胜，原因：$reason。" } ?: "战斗结束，原因：$reason。"
 			else -> type

@@ -141,7 +141,31 @@ data class BattleState(
 	fun switchActive(previousActorId: String, nextActorId: String): BattleState =
 		copy(sides = sides.map { side ->
 			if (side.participant(previousActorId) == null) side else side.switchActive(previousActorId, nextActorId)
-		})
+		}).clearAccuracyLocksTargeting(previousActorId)
+
+	/**
+	 * 清除所有指向指定目标的命中锁定。
+	 *
+	 * Lock-On / Mind Reader 的效果绑定到“当时被锁定的成员”，不是绑定到站位槽。目标主动替换或被强制换下后，
+	 * 后续换入成员不应继承旧目标的必中效果。这里在 [switchActive] 统一清理所有来源，顺便满足双打中“同一目标
+	 * 只能被一个来源锁定，新的锁定会覆盖旧来源”的实现需求。
+	 */
+	fun clearAccuracyLocksTargeting(targetActorId: String): BattleState =
+		sides
+			.flatMap { it.participants }
+			.fold(this) { current, participant ->
+				val latest = current.participant(participant.actorId) ?: return@fold current
+				if (latest.accuracyLockTargetActorId == targetActorId) {
+					current.replaceParticipant(
+						latest.copy(
+							accuracyLockTargetActorId = null,
+							accuracyLockTurnsRemaining = 0,
+						),
+					)
+				} else {
+					current
+				}
+			}
 
 	/**
 	 * 推进所有一侧场上状态的持续回合。

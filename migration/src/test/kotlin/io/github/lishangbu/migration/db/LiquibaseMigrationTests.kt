@@ -614,6 +614,31 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val derivedAccuracyLockSkillRules = queryMaps(
+			"""
+			select skill_id, effect_policy, target_policy, hit_policy, damage_policy
+			from battle_skill_rule
+			where skill_id in (170, 199)
+			order by skill_id
+			""".trimIndent(),
+		)
+		assertThat(derivedAccuracyLockSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 170L,
+				"effect_policy" to "accuracy-lock-on-target",
+				"target_policy" to "selected-target",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+			),
+			mapOf(
+				"skill_id" to 199L,
+				"effect_policy" to "accuracy-lock-on-target",
+				"target_policy" to "selected-target",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+			),
+		)
+
 		val derivedHpSkillRules = queryMaps(
 			"""
 			select skill_id, effect_policy, target_policy, damage_policy

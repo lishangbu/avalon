@@ -35,6 +35,7 @@ package io.github.lishangbu.battleengine.model
  * `lockMoveTurnsMin`/`lockMoveTurnsMax` 表示使用后会锁定连续使用的总回合数，包含当前首次使用回合；
  * `confusesUserAfterLock` 表示锁定结束后使用者会进入混乱。
  * `forceTargetSwitch` 表示技能成功命中并完成伤害/附加效果后，会强制目标所属方随机换入一个可战斗后备成员。
+ * `locksAccuracyOnTarget` 表示变化技能命中后让使用者到下回合结束前锁定该目标，下一次对该目标的命中判定必中。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
@@ -92,6 +93,7 @@ data class BattleSkillSlot(
 	val lockMoveTurnsMax: Int = 1,
 	val confusesUserAfterLock: Boolean = false,
 	val forceTargetSwitch: Boolean = false,
+	val locksAccuracyOnTarget: Boolean = false,
 	val priority: Int = 0,
 	val groundedTerrainPriorityBoosts: Map<BattleTerrain, Int> = emptyMap(),
 	val remainingPp: Int,
@@ -190,6 +192,9 @@ data class BattleSkillSlot(
 		require(lockMoveTurnsMax >= lockMoveTurnsMin) { "lockMoveTurnsMax must be greater than or equal to lockMoveTurnsMin" }
 		require(!confusesUserAfterLock || lockMoveTurnsMax > 1) {
 			"confusesUserAfterLock requires a locking move"
+		}
+		require(!locksAccuracyOnTarget || damageClass == BattleDamageClass.STATUS) {
+			"accuracy lock effect requires a status skill"
 		}
 		require(criticalHitStage >= 0) { "criticalHitStage must not be negative" }
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }

@@ -126,6 +126,10 @@ data class BattleSandboxStateSnapshot(
 		var bindingTurnsRemaining: Int = 0,
 		@field:Schema(description = "上一次成功使用的技能 ID；没有时为空。", nullable = true)
 		var lastSuccessfulSkillId: Long? = null,
+		@field:Schema(description = "命中锁定目标 actorId；未锁定时为空。", nullable = true)
+		var accuracyLockTargetActorId: String? = null,
+		@field:Schema(description = "命中锁定剩余回合末递减次数。", example = "0")
+		var accuracyLockTurnsRemaining: Int = 0,
 		@field:Schema(description = "锁招技能 ID；未锁招时为空。", nullable = true)
 		var lockedMoveSkillId: Long? = null,
 		@field:Schema(description = "锁招目标 actorId；未锁招时为空。", nullable = true)
