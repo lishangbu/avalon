@@ -1,10 +1,15 @@
 package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battleengine.model.BattleAbilityEffect
+import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -78,6 +83,80 @@ class BattleTargetScopePublicReferenceTests {
 		assertEquals(1.0, damageEvent.targetMultiplier)
 		assertEquals(72, resolved.participant("self-user")?.currentHp)
 		assertEquals(100, resolved.participant("submitted-target")?.currentHp)
+	}
+
+	@Test
+	fun `user side active status skill affects user and active allies`() {
+		val scenario = publicBattleRuleScenario(
+			name = "user-side-active-status-skill-affects-user-and-active-allies",
+			inputSummary = "双打中使用目标范围为使用者与同侧上场成员的加攻变化技能，行动请求仍携带对手目标。",
+			expectedSummary = "技能按己方当前上场成员重新解析目标，只提升使用者和同侧同伴的攻击阶级，不影响对手。",
+		)
+		val howlLikeSkill = userSideAttackBoostSkill(soundBased = false)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant("howl-user", speed = 100, skill = howlLikeSkill),
+				firstB = participant("ally", speed = 90),
+				secondA = participant("opponent-left", speed = 80),
+				secondB = participant("opponent-right", speed = 70),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("howl-user", skillId = 336, targetActorId = "opponent-left")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val statEvents = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>()
+
+		scenario.assertNamed("user-side-active-status-skill-affects-user-and-active-allies")
+		assertEquals(listOf("howl-user", "ally"), statEvents.map { it.targetActorId })
+		assertEquals(1, resolved.participant("howl-user")?.statStage(BattleStat.ATTACK))
+		assertEquals(1, resolved.participant("ally")?.statStage(BattleStat.ATTACK))
+		assertEquals(0, resolved.participant("opponent-left")?.statStage(BattleStat.ATTACK))
+		assertEquals(0, resolved.participant("opponent-right")?.statStage(BattleStat.ATTACK))
+	}
+
+	@Test
+	fun `sound based user side active skill is blocked only for sound immune ally`() {
+		val scenario = publicBattleRuleScenario(
+			name = "sound-based-user-side-active-skill-is-blocked-only-for-sound-immune-ally",
+			inputSummary = "双打中使用声音类己方范围加攻技能；使用者和同伴都有声音免疫特性。",
+			expectedSummary = "声音免疫不阻止使用者自己的技能，但会阻止同伴受到其它成员的声音类技能影响。",
+		)
+		val howlLikeSkill = userSideAttackBoostSkill(soundBased = true)
+		val state = engine.start(
+			doubleInitialState(
+				firstA = participant(
+					"howl-user",
+					speed = 100,
+					skill = howlLikeSkill,
+					abilityId = 1,
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+				),
+				firstB = participant(
+					"soundproof-ally",
+					speed = 90,
+					abilityId = 2,
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+				),
+				secondA = participant("opponent-left", speed = 80),
+				secondB = participant("opponent-right", speed = 70),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("howl-user", skillId = 336, targetActorId = "opponent-left")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val blocked = resolved.events.filterIsInstance<BattleEvent.SkillBlockedByAbility>().single()
+
+		scenario.assertNamed("sound-based-user-side-active-skill-is-blocked-only-for-sound-immune-ally")
+		assertEquals(1, resolved.participant("howl-user")?.statStage(BattleStat.ATTACK))
+		assertEquals(0, resolved.participant("soundproof-ally")?.statStage(BattleStat.ATTACK))
+		assertEquals("soundproof-ally", blocked.targetActorId)
+		assertEquals(2, blocked.abilityId)
 	}
 
 	@Test
@@ -277,4 +356,23 @@ class BattleTargetScopePublicReferenceTests {
 		assertEquals(0, resolved.participant("fainted-ally")?.currentHp)
 		assertEquals(listOf(0.75, 0.75), damageEvents.map { it.targetMultiplier })
 	}
+
+	private fun userSideAttackBoostSkill(soundBased: Boolean) =
+		damagingSkill(
+			skillId = 336,
+			name = "长嚎测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.USER_SIDE_ACTIVE,
+			affectedByProtect = false,
+			soundBased = soundBased,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.ATTACK,
+					target = BattleEffectTarget.TARGET,
+					stageDelta = 1,
+					chancePercent = 100,
+				),
+			),
+		)
 }

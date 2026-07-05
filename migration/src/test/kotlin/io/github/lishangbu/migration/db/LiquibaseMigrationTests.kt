@@ -526,7 +526,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 133L)
-		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 234L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 241L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
@@ -1861,14 +1861,14 @@ class LiquibaseMigrationTests(
 			mapOf(
 				"skill_id" to 312L,
 				"code" to "aromatherapy",
-				"skill_enabled" to false,
-				"rule_enabled" to false,
-				"effect_policy" to "status-effect",
-				"target_policy" to "selected-target",
-				"damage_policy" to "no-damage",
-				"affected_by_protect" to true,
-				"sound_based" to false,
-			),
+					"skill_enabled" to false,
+					"rule_enabled" to false,
+					"effect_policy" to "status-effect",
+					"target_policy" to "user-side-active",
+					"damage_policy" to "no-damage",
+					"affected_by_protect" to false,
+					"sound_based" to false,
+				),
 		)
 
 		val chargeSkillRules = queryMaps(
@@ -2967,6 +2967,71 @@ class LiquibaseMigrationTests(
 				"min_hits" to 2,
 				"max_hits" to 5,
 				"protects_user" to false,
+			),
+		)
+
+		val directStatusHpSkillRules = queryMaps(
+			"""
+			select s.code, r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy,
+			       r.affected_by_protect, r.sound_based, r.enabled, s.enabled as skill_enabled
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.code in ('belly-drum', 'pain-split', 'howl')
+			order by s.code
+			""".trimIndent(),
+		)
+		assertThat(directStatusHpSkillRules).containsExactly(
+			mapOf(
+				"code" to "belly-drum",
+				"effect_policy" to "maximize-user-attack-half-max-hp-cost",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+				"sound_based" to false,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+			mapOf(
+				"code" to "howl",
+				"effect_policy" to "status-effect",
+				"target_policy" to "user-side-active",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+				"sound_based" to true,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+			mapOf(
+				"code" to "pain-split",
+				"effect_policy" to "average-user-target-current-hp",
+				"target_policy" to "selected-target",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to true,
+				"sound_based" to false,
+				"enabled" to true,
+				"skill_enabled" to true,
+			),
+		)
+
+		val howlStatStageEffect = queryMaps(
+			"""
+			select st.code as stat_code, se.target_scope, se.stage_delta, se.chance_percent
+			from battle_skill_stat_stage_effect se
+			join battle_skill_rule r on r.id = se.skill_rule_id
+			join game_skill s on s.id = r.skill_id
+			join game_stat st on st.id = se.stat_id
+			where s.code = 'howl'
+			""".trimIndent(),
+		)
+		assertThat(howlStatStageEffect).containsExactly(
+			mapOf(
+				"stat_code" to "attack",
+				"target_scope" to "TARGET",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
 			),
 		)
 	}

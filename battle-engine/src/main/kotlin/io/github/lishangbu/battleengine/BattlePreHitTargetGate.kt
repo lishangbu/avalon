@@ -158,6 +158,21 @@ internal class BattlePreHitTargetGate(
 			)
 		}
 
+		if (
+			skill.averagesUserAndTargetCurrentHp() &&
+			targetDefenseEffects.substituteBlocksOpponentEffect(state, actor.actorId, target.actorId, skill)
+		) {
+			return BattlePreHitTargetGateResult.Interrupted(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					reason = "target-behind-substitute",
+				),
+			)
+		}
+
 		if (skill.removesUserElementAfterDamage && skill.elementId !in actor.elementIds) {
 			return BattlePreHitTargetGateResult.Interrupted(
 				BattleEvent.SkillFailed(
@@ -228,6 +243,15 @@ private fun BattleSkillSlot.healsByTargetCurrentAttack(): Boolean =
  */
 private fun BattleSkillSlot.healsAfterTargetMajorStatusCure(): Boolean =
 	hpEffects.any { it is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure }
+
+/**
+ * 判断技能是否拥有“双方 HP 按当前平均值直接重分配”的特殊 HP 效果。
+ *
+ * 这类技能对目标替身有明确失败条件，而且失败应发生在 HP 写入前。把判断放在命中前 gate，而不是 HP helper 内，
+ * 可以保持所有“目标无法被本次技能影响”的事件都由同一阶段产生。
+ */
+private fun BattleSkillSlot.averagesUserAndTargetCurrentHp(): Boolean =
+	hpEffects.any { it is BattleSkillHpEffect.AverageUserAndTargetCurrentHp }
 
 /**
  * 命中前 gate 的结算结果。

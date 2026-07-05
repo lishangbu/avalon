@@ -32,6 +32,7 @@ internal fun String.toBattleSkillTargetScope(): BattleSkillTargetScope =
 	when (this) {
 		"selected-target" -> BattleSkillTargetScope.SELECTED_TARGET
 		"self" -> BattleSkillTargetScope.SELF
+		"user-side-active" -> BattleSkillTargetScope.USER_SIDE_ACTIVE
 		"all-opponents" -> BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS
 		"all-adjacent-participants" -> BattleSkillTargetScope.ALL_ADJACENT_PARTICIPANTS
 		"random-opponent" -> BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT
@@ -128,6 +129,8 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				denominator = 4,
 			),
 		)
+		"maximize-user-attack-half-max-hp-cost" -> listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)
+		"average-user-target-current-hp" -> listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp)
 		else -> emptyList()
 	}
 
@@ -456,6 +459,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 private val battleSkillTargetPolicies = setOf(
 	"selected-target",
 	"self",
+	"user-side-active",
 	"all-opponents",
 	"all-adjacent-participants",
 	"random-opponent",

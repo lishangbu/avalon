@@ -14,6 +14,8 @@ package io.github.lishangbu.battleengine.model
  * `receivedDamage` 表示命中后读取使用者本回合承受的最后一段合格直接伤害，再按配置倍数返还给伤害来源。
  * `oneHitKnockOut` 表示命中后直接造成目标当前 HP 等量伤害，并使用一击必杀专用等级与命中率规则。
  * `targetScope` 表示技能在站位中的目标范围，供双打范围技能计算实际目标和 0.75 伤害修正。
+ * `USER_SIDE_ACTIVE` 这类己方范围会在使用者所在侧当前上场成员中解析目标，并把使用者排在第一位，便于技能宣告
+ * 事件保持稳定。
  * `minHits`/`maxHits` 表示一次技能使用中的连续命中段数；单段技能二者都为 1，多段技能会在命中后决定段数。
  * `criticalHitStage` 表示进入现代击中要害概率表前的技能侧基础等级，0 为普通技能，3 及以上视为必定要害。
  * `criticalHitStageBoost` 表示变化技能命中成功后给使用者写入的在场期间要害等级加成；聚气使用 +2，加成会和
@@ -260,6 +262,14 @@ data class BattleSkillSlot(
 		}
 		require(!restoresUserBySleeping || damageClass == BattleDamageClass.STATUS) {
 			"rest healing requires a status skill"
+		}
+		require(
+			hpEffects.none {
+				it is BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost ||
+					it is BattleSkillHpEffect.AverageUserAndTargetCurrentHp
+			} || damageClass == BattleDamageClass.STATUS,
+		) {
+			"direct status HP effects require a status skill"
 		}
 		require(!protectsUser || damageClass == BattleDamageClass.STATUS) { "protect skill must be a status skill" }
 		require(!enduresFatalDamage || damageClass == BattleDamageClass.STATUS) {

@@ -122,6 +122,17 @@ internal class BattleStatusSkillHpEffects(
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
+					BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost -> applyMaximizeUserAttackWithHalfMaxHpCost(
+						state = current,
+						actorId = actorId,
+						skill = skill,
+					)
+					BattleSkillHpEffect.AverageUserAndTargetCurrentHp -> applyAverageUserAndTargetCurrentHp(
+						state = current,
+						actorId = actorId,
+						targetActorId = targetActorId,
+						skill = skill,
+					)
 					BattleSkillHpEffect.SelfHealByTargetCurrentAttack -> current
 					is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure -> applyTargetMajorStatusCureThenSelfHeal(
 						state = current,
@@ -235,6 +246,11 @@ internal class BattleStatusSkillHpEffects(
 		 * 睡觉在现代主系列中固定让使用者之后两次行动被睡眠阻止。
 		 */
 		private const val REST_SLEEP_BLOCKED_ACTIONS = 2
+
+		/**
+		 * 现代能力阶级的最大值。
+		 */
+		private const val MAX_STAT_STAGE = 6
 	}
 
 	/**
@@ -425,6 +441,97 @@ internal class BattleStatusSkillHpEffects(
 	}
 
 	/**
+	 * 支付半数最大 HP 并把使用者攻击阶级直接设为 +6。
+	 *
+	 * 该规则不能复用普通能力阶级附加效果：普通效果按 delta 变化，而腹鼓类技能的公开规则是“直接最大化攻击”。
+	 * 因此这里先在写入前检查两个完整失败条件：攻击已经达到 +6 时失败，当前 HP 扣除 `maxHp / 2` 后会倒下时失败。
+	 * 成功时事件顺序固定为 HP 代价事件在前、能力阶级变化事件在后；这样 replay 可以解释“支付代价换取最大化攻击”
+	 * 的因果关系，也避免其它伤害后流程误把该 HP 代价当成普通伤害。
+	 */
+	private fun applyMaximizeUserAttackWithHalfMaxHpCost(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		if (!actor.canBattle()) {
+			return state
+		}
+		val previousStage = actor.statStage(BattleStat.ATTACK)
+		if (previousStage >= MAX_STAT_STAGE) {
+			return state.appendSkillFailed(actorId, actorId, skill, "attack-stage-already-maximum")
+		}
+		val hpCost = actor.maxHp / 2
+		if (actor.currentHp <= hpCost) {
+			return state.appendSkillFailed(actorId, actorId, skill, "insufficient-hp-for-max-attack-cost")
+		}
+		val updated = actor.receiveDamage(hpCost).setStatStage(BattleStat.ATTACK, MAX_STAT_STAGE)
+		val afterCost = state.replaceParticipant(updated)
+		val afterCostEvent = if (hpCost == 0) {
+			afterCost
+		} else {
+			afterCost.appendEvent(
+				BattleEvent.SkillRecoilDamageApplied(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					skillId = skill.skillId,
+					amount = hpCost,
+					sourceDamageAmount = actor.maxHp,
+				),
+			)
+		}
+		return afterCostEvent.appendEvent(
+			BattleEvent.StatStageChanged(
+				turnNumber = state.turnNumber,
+				actorId = actor.actorId,
+				targetActorId = actor.actorId,
+				stat = BattleStat.ATTACK,
+				delta = MAX_STAT_STAGE - previousStage,
+				currentStage = MAX_STAT_STAGE,
+			),
+		)
+	}
+
+	/**
+	 * 把使用者和目标 HP 设置为双方当前 HP 的平均值。
+	 *
+	 * 分担痛楚类规则不是普通伤害或回复：公开规则说明它忽略命中/闪避修正，且该 HP 变化不计为“造成伤害”。因此这里
+	 * 直接写入双方当前 HP，并用 [BattleEvent.HpAveragedBySkill] 记录前后值；不会调用普通伤害、普通治疗、回复封锁
+	 * 或伤害后特性流程。目标替身会在命中前 gate 中让技能失败，到达这里时表示目标本体可以被直接重分配 HP。
+	 */
+	private fun applyAverageUserAndTargetCurrentHp(
+		state: BattleState,
+		actorId: String,
+		targetActorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		val actor = state.participant(actorId) ?: return state
+		val target = state.participant(targetActorId) ?: return state
+		if (!actor.canBattle() || !target.canBattle()) {
+			return state
+		}
+		val averageHp = (actor.currentHp + target.currentHp) / 2
+		val actorCurrentHp = averageHp.coerceAtMost(actor.maxHp)
+		val targetCurrentHp = averageHp.coerceAtMost(target.maxHp)
+		return state
+			.replaceParticipant(actor.copy(currentHp = actorCurrentHp))
+			.replaceParticipant(target.copy(currentHp = targetCurrentHp))
+			.appendEvent(
+				BattleEvent.HpAveragedBySkill(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					targetActorId = target.actorId,
+					skillId = skill.skillId,
+					averageHp = averageHp,
+					actorPreviousHp = actor.currentHp,
+					actorCurrentHp = actorCurrentHp,
+					targetPreviousHp = target.currentHp,
+					targetCurrentHp = targetCurrentHp,
+				),
+			)
+	}
+
+	/**
 	 * 在普通回复技能没有任何 HP 写入时追加失败事件。
 	 *
 	 * 回复类变化技能在满 HP、回复封锁或其它不可回复条件下会表现为技能失败；但复合技能可能已经完成治愈异常等
@@ -450,4 +557,5 @@ internal class BattleStatusSkillHpEffects(
 				),
 			)
 		}
+
 }

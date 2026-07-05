@@ -743,6 +743,8 @@ class BattleRuntimeSnapshotService(
 				is BattleEvent.SkillUsed -> "$actorId 使用了 $skillName。"
 				is BattleEvent.SkillFailed -> "$actorId 的技能 $skillId 失败：${reason.toSkillFailedReasonText()}。"
 				is BattleEvent.DamageApplied -> "$targetActorId 受到 $amount 点伤害。"
+				is BattleEvent.HpAveragedBySkill ->
+					"$actorId 与 $targetActorId 的 HP 被平均为 $averageHp。"
 			is BattleEvent.HealingApplied -> "$actorId 回复 $amount 点 HP。"
 			is BattleEvent.ParticipantFainted -> "$actorId 倒下。"
 			is BattleEvent.ParticipantSwitched -> "$sideId 将 $previousActorId 替换为 $nextActorId。"
@@ -761,6 +763,8 @@ class BattleRuntimeSnapshotService(
 				"target-hp-not-greater-than-user-hp" -> "目标当前 HP 不高于使用者"
 				"target-behind-substitute" -> "目标正受到替身保护"
 				"accuracy-lock-already-active" -> "使用者已经锁定当前目标"
+				"attack-stage-already-maximum" -> "攻击能力阶级已经最高"
+				"insufficient-hp-for-max-attack-cost" -> "剩余 HP 不足以支付技能代价"
 				else -> this
 			}
 
@@ -818,6 +822,7 @@ class BattleRuntimeSnapshotService(
 				"SkillHealingApplied" -> "技能回复"
 				"SkillRecoilDamageApplied" -> "技能反作用伤害"
 				"SkillSelfSacrificeDamageApplied" -> "自损伤害"
+				"HpAveragedBySkill" -> "体力平均"
 				"FatalDamageSurvived" -> "濒死保留"
 				"DamageReducedByItem" -> "道具减伤"
 				"SubstituteStarted" -> "替身开始"

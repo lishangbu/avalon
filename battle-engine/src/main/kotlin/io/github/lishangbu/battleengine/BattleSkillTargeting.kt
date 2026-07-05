@@ -34,6 +34,7 @@ internal class BattleSkillTargeting {
 				.filter { state.isActive(it.actorId) && it.canBattle() }
 			BattleSkillTargetScope.SELECTED_TARGET -> listOfNotNull(state.activeTargetFor(selectedTargetActorId))
 				.filter { it.canBattle() }
+			BattleSkillTargetScope.USER_SIDE_ACTIVE -> userSideActiveTargets(state, actorId)
 			BattleSkillTargetScope.ALL_ADJACENT_OPPONENTS -> state.sides
 				.filter { it.participant(actorId) == null }
 				.flatMap { it.activeParticipants() }
@@ -81,11 +82,28 @@ internal class BattleSkillTargeting {
 				candidates[
 					random.nextInt(candidates.size, "random adjacent opponent target for ${skill.skillId}"),
 				],
-			)
+				)
+			}
 		}
-	}
 
-	private companion object {
+		/**
+	 * 收集使用者所在侧当前可战斗的上场成员。
+	 *
+	 * 嚎叫、指导等现代双打辅助技能会影响“使用者与同伴”，但宣告事件仍应优先指向使用者自身；如果简单返回一侧
+	 * active 列表，使用者位于右侧站位时 `SkillUsed.targetActorId` 会变成左侧同伴，replay 读起来像是对同伴单体
+	 * 使用。这里把使用者放在第一位，再追加同侧其它可战斗上场成员，既保留范围逐目标结算，也保持事件语义稳定。
+	 */
+	private fun userSideActiveTargets(state: BattleState, actorId: String): List<BattleParticipant> {
+		val side = state.sideOf(actorId) ?: return emptyList()
+		val actor = state.participant(actorId)
+			?.takeIf { state.isActive(it.actorId) && it.canBattle() }
+			?: return emptyList()
+			val allies = side.activeParticipants()
+				.filter { it.actorId != actorId && it.canBattle() }
+			return listOf(actor) + allies
+		}
+
+		private companion object {
 		/**
 		 * 范围技能实际命中多个目标时的现代伤害倍率。
 		 */

@@ -7,6 +7,7 @@ import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
+import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleStat
 import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleTerrain
@@ -598,6 +599,161 @@ class BattleSkillHpEffectTests {
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
 	}
 
+	@Test
+	fun `belly drum style skill pays half max hp and maximizes attack`() {
+		val scenario = publicBattleRuleScenario(
+			name = "belly-drum-style-skill-pays-half-max-hp-and-maximizes-attack",
+			inputSummary = "使用者当前 HP 为 60、攻击阶级为 -2，使用支付半数最大 HP 并最大化攻击的变化技能。",
+			expectedSummary = "技能扣除 50 HP，把使用者攻击阶级直接设为 +6，并记录 HP 代价早于能力变化事件。",
+		)
+		val skill = bellyDrumLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("drummer", speed = 100, currentHp = 60, skill = skill)
+					.copy(statStages = mapOf(BattleStat.ATTACK to -2)),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("drummer", skillId = 187, targetActorId = "drummer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val hpCost = resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>().single()
+		val statChange = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single()
+
+		scenario.assertNamed("belly-drum-style-skill-pays-half-max-hp-and-maximizes-attack")
+		assertEquals(10, resolved.participant("drummer")?.currentHp)
+		assertEquals(6, resolved.participant("drummer")?.statStage(BattleStat.ATTACK))
+		assertEquals(50, hpCost.amount)
+		assertEquals(100, hpCost.sourceDamageAmount)
+		assertEquals(8, statChange.delta)
+		assertTrue(
+			resolved.events.indexOf(hpCost) < resolved.events.indexOf(statChange),
+			"腹鼓类技能必须先记录 HP 代价，再记录攻击阶级最大化，避免 replay 把代价解释成普通后效",
+		)
+	}
+
+	@Test
+	fun `belly drum style skill fails before hp cost when hp is insufficient`() {
+		val scenario = publicBattleRuleScenario(
+			name = "belly-drum-style-skill-fails-before-hp-cost-when-hp-is-insufficient",
+			inputSummary = "使用者当前 HP 等于最大 HP 的一半，尝试使用支付半数最大 HP 的攻击最大化技能。",
+			expectedSummary = "扣除费用后会倒下，因此技能失败，不扣 HP，也不改变攻击阶级。",
+		)
+		val skill = bellyDrumLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("drummer", speed = 100, currentHp = 50, skill = skill),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("drummer", skillId = 187, targetActorId = "drummer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("belly-drum-style-skill-fails-before-hp-cost-when-hp-is-insufficient")
+		assertEquals(50, resolved.participant("drummer")?.currentHp)
+		assertEquals(0, resolved.participant("drummer")?.statStage(BattleStat.ATTACK))
+		assertEquals("insufficient-hp-for-max-attack-cost", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.StatStageChanged>())
+	}
+
+	@Test
+	fun `belly drum style skill fails before hp cost when attack is already maximum`() {
+		val scenario = publicBattleRuleScenario(
+			name = "belly-drum-style-skill-fails-before-hp-cost-when-attack-is-already-maximum",
+			inputSummary = "使用者攻击阶级已经 +6，仍尝试使用攻击最大化技能。",
+			expectedSummary = "技能在支付 HP 前失败，使用者 HP 和攻击阶级都保持原样。",
+		)
+		val skill = bellyDrumLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("drummer", speed = 100, currentHp = 100, skill = skill)
+					.copy(statStages = mapOf(BattleStat.ATTACK to 6)),
+				second = participant("observer", speed = 50),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("drummer", skillId = 187, targetActorId = "drummer")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("belly-drum-style-skill-fails-before-hp-cost-when-attack-is-already-maximum")
+		assertEquals(100, resolved.participant("drummer")?.currentHp)
+		assertEquals(6, resolved.participant("drummer")?.statStage(BattleStat.ATTACK))
+		assertEquals("attack-stage-already-maximum", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillRecoilDamageApplied>())
+	}
+
+	@Test
+	fun `pain split style skill averages user and target current hp`() {
+		val scenario = publicBattleRuleScenario(
+			name = "pain-split-style-skill-averages-user-and-target-current-hp",
+			inputSummary = "使用者当前 HP 为 20，目标当前 HP 为 90，使用直接平均双方当前 HP 的变化技能。",
+			expectedSummary = "双方 HP 都被设为向下取整的平均值 55，并记录专用 HP 平均事件而不是普通伤害或回复。",
+		)
+		val skill = painSplitLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("split-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50, currentHp = 90),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("split-user", skillId = 220, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+		val averaged = resolved.events.filterIsInstance<BattleEvent.HpAveragedBySkill>().single()
+
+		scenario.assertNamed("pain-split-style-skill-averages-user-and-target-current-hp")
+		assertEquals(55, resolved.participant("split-user")?.currentHp)
+		assertEquals(55, resolved.participant("target")?.currentHp)
+		assertEquals(55, averaged.averageHp)
+		assertEquals(20, averaged.actorPreviousHp)
+		assertEquals(90, averaged.targetPreviousHp)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.DamageApplied>())
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SkillHealingApplied>())
+	}
+
+	@Test
+	fun `pain split style skill fails against target substitute`() {
+		val scenario = publicBattleRuleScenario(
+			name = "pain-split-style-skill-fails-against-target-substitute",
+			inputSummary = "目标已经拥有替身，使用者尝试使用直接平均双方当前 HP 的变化技能。",
+			expectedSummary = "目标替身让技能在 HP 写入前失败，双方 HP 与替身 HP 都保持不变。",
+		)
+		val skill = painSplitLikeSkill()
+		val state = engine.start(
+			initialState(
+				first = participant("split-user", speed = 100, currentHp = 20, skill = skill),
+				second = participant("target", speed = 50, currentHp = 90).copy(substituteHp = 25),
+			),
+		)
+
+		val resolved = engine.resolveTurn(
+			state,
+			listOf(BattleAction.UseSkill("split-user", skillId = 220, targetActorId = "target")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("pain-split-style-skill-fails-against-target-substitute")
+		assertEquals(20, resolved.participant("split-user")?.currentHp)
+		assertEquals(90, resolved.participant("target")?.currentHp)
+		assertEquals(25, resolved.participant("target")?.substituteHp)
+		assertEquals("target-behind-substitute", resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason)
+		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.HpAveragedBySkill>())
+	}
+
 	private fun strengthSapLikeSkill() =
 		damagingSkill(
 			name = "吸取力量测试",
@@ -613,6 +769,27 @@ class BattleSkillHpEffectTests {
 					chancePercent = 100,
 				),
 			),
+		)
+
+	private fun bellyDrumLikeSkill() =
+		damagingSkill(
+			skillId = 187,
+			name = "腹鼓测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.SELF,
+			affectedByProtect = false,
+			hpEffects = listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost),
+		)
+
+	private fun painSplitLikeSkill() =
+		damagingSkill(
+			skillId = 220,
+			name = "分担痛楚测试",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			accuracy = null,
+			hpEffects = listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp),
 		)
 
 	private fun purifyLikeSkill() =

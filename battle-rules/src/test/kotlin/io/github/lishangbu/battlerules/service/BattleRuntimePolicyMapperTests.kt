@@ -4,6 +4,7 @@ import io.github.lishangbu.battleengine.model.BattleAbilityEffect
 import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleItemEffect
 import io.github.lishangbu.battleengine.model.BattleSkillDynamicPower
+import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillPowerMultiplier
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleSkillWeightEffect
@@ -48,8 +49,10 @@ class BattleRuntimePolicyMapperTests {
 	fun `skill target mapper requires explicit policy and rejects unknown policy`() {
 		assertThat("selected-target".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELECTED_TARGET)
 		assertThat("self".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.SELF)
+		assertThat("user-side-active".toBattleSkillTargetScope()).isEqualTo(BattleSkillTargetScope.USER_SIDE_ACTIVE)
 		assertThat("unknown-target".isBattleSkillRuntimeTargetPolicySupported()).isFalse()
 		assertThat("all-opponents".isBattleSkillRuntimeTargetPolicySupported()).isTrue()
+		assertThat("user-side-active".isBattleSkillRuntimeTargetPolicySupported()).isTrue()
 
 		val exception = assertThrows<ApiException> {
 			"unknown-target".toBattleSkillTargetScope()
@@ -177,6 +180,16 @@ class BattleRuntimePolicyMapperTests {
 	fun `skill endure policy maps fatal damage survival flag`() {
 		assertThat("endure-fatal-damage".enduresFatalDamage()).isTrue()
 		assertThat("endure-fatal-damage".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+	}
+
+	@Test
+	fun `skill direct status hp policies map explicit hp effects`() {
+		assertThat("maximize-user-attack-half-max-hp-cost".toBattleSkillHpEffects())
+			.containsExactly(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)
+		assertThat("average-user-target-current-hp".toBattleSkillHpEffects())
+			.containsExactly(BattleSkillHpEffect.AverageUserAndTargetCurrentHp)
+		assertThat("maximize-user-attack-half-max-hp-cost".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("average-user-target-current-hp".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 	}
 
 	@Test

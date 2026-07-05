@@ -15,6 +15,8 @@ package io.github.lishangbu.battleengine.model
  * - 变化技能成功后，按目标当前攻击实数回复使用者。
  * - 变化技能成功后，先治愈目标主要异常，再按使用者最大 HP 的一定比例回复使用者。
  * - 变化技能成功后，支付最大 HP 的一定比例建立替身。
+ * - 变化技能成功后，支付使用者最大 HP 的一半并把攻击阶级直接设为最大值。
+ * - 变化技能成功后，把使用者和目标当前 HP 直接改为双方当前 HP 的平均值。
  *
  * 吸取回复强化、污泥浆反转、回复封锁、许愿等带有额外状态或更复杂延迟行为的规则，会以新的明确效果继续扩展，
  * 而不是把条件藏进自由文本。
@@ -205,4 +207,22 @@ sealed interface BattleSkillHpEffect {
 			require(numerator <= denominator) { "numerator must not exceed denominator" }
 		}
 	}
+
+	/**
+	 * 技能成功后支付一半最大 HP 并把攻击阶级设为 +6。
+	 *
+	 * 该效果用于表达腹鼓类规则。它不是普通“能力阶级 +N”：无论使用者当前攻击阶级是 -6、0 还是 +5，成功后都直接
+	 * 写为 +6；若使用者攻击已经 +6，或扣除 `maxHp / 2` 后会倒下，技能在 HP 写入前失败。把它放在 HP 效果族中，
+	 * 是因为 HP 支付和能力最大化是同一条不可拆的技能成功条件，不能让资料层分别维护一个扣血效果和一个普通加攻
+	 * 效果后再靠顺序碰巧组合。
+	 */
+	data object MaximizeUserAttackWithHalfMaxHpCost : BattleSkillHpEffect
+
+	/**
+	 * 技能成功后把使用者和目标 HP 设置为双方当前 HP 平均值。
+	 *
+	 * 该效果用于表达分担痛楚类规则。它直接改写当前 HP，不触发普通伤害、吸取、反作用伤害或回复封锁语义；事件
+	 * 会记录双方写入前后的 HP，便于 replay 明确这是“HP 重分配”而不是一次伤害或治疗。
+	 */
+	data object AverageUserAndTargetCurrentHp : BattleSkillHpEffect
 }

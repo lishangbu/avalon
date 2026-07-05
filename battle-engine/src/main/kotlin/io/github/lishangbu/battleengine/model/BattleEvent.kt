@@ -795,6 +795,24 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	/**
+	 * 技能把使用者和目标当前 HP 重新分配为平均值。
+	 *
+	 * 该事件用于分担痛楚类规则。它不表示普通伤害，也不表示普通回复；因此不会被伤害后特性、反作用伤害、吸取回复
+	 * 或回复封锁解释。记录双方前后 HP 可以让 replay 在不重新读取技能文本的情况下复原“双方 HP 被直接设定”的事实。
+	 */
+	data class HpAveragedBySkill(
+		override val turnNumber: Int,
+		val actorId: String,
+		val targetActorId: String,
+		val skillId: Long,
+		val averageHp: Int,
+		val actorPreviousHp: Int,
+		val actorCurrentHp: Int,
+		val targetPreviousHp: Int,
+		val targetCurrentHp: Int,
+	) : BattleEvent
+
+	/**
 	 * 目标承受致命技能伤害时，通过特性、携带道具或当回合技能状态保留了 HP。
 	 *
 	 * 特性和道具来源要求目标在伤害前为满 HP；挺住类技能来源只要求本回合姿态仍然存在。`incomingDamage` 是普通

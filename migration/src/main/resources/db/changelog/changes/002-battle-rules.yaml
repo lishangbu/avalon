@@ -7517,6 +7517,7 @@ databaseChangeLog:
           set
             target_policy = case t.code
               when 'user' then 'self'
+              when 'user-and-allies' then 'user-side-active'
               when 'all-opponents' then 'all-opponents'
               when 'opponents-field' then 'all-opponents'
               when 'all-other-pokemon' then 'all-adjacent-participants'
@@ -7538,8 +7539,17 @@ databaseChangeLog:
             critical_hit_stage = case
               when coalesce(d.crit_rate, 0) > 0 then d.crit_rate
               else r.critical_hit_stage
+            end,
+            affected_by_protect = case
+              when t.code = 'user-and-allies' then false
+              else r.affected_by_protect
+            end,
+            sound_based = case
+              when s.code = 'howl' then true
+              else r.sound_based
             end
           from game_skill_detail d
+          join game_skill s on s.id = d.skill_id
           join game_skill_target t on t.id = d.target_id
           where r.skill_id = d.skill_id
             and r.id >= 100000
@@ -7684,8 +7694,8 @@ databaseChangeLog:
         splitStatements: false
         stripComments: false
         sql: |
-          -- 只生成当前引擎能准确表达的作用对象：使用者、当前实际目标、全部对手。
-          -- 同伴、己方全体和全场草属性等条件型加成需要额外目标/筛选模型，不能用 TARGET 硬套。
+          -- 只生成当前引擎能准确表达的作用对象：使用者、当前实际目标、全部对手，以及使用者所在侧当前上场成员。
+          -- 单个同伴、可选使用者或同伴、全场草属性等条件型加成需要额外目标/筛选模型，不能用 TARGET 硬套。
           insert into battle_skill_stat_stage_effect (
             id,
             skill_rule_id,
@@ -7704,6 +7714,7 @@ databaseChangeLog:
             case
               when t.code = 'user' then 'USER'
               when t.code = 'all-opponents' then 'ALL_OPPONENTS'
+              when t.code = 'user-and-allies' then 'TARGET'
               else 'TARGET'
             end,
             sc.change_value,
@@ -7718,7 +7729,7 @@ databaseChangeLog:
           join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
           where s.enabled = true
             and r.id >= 100000
-            and t.code in ('user', 'selected-pokemon', 'all-opponents', 'all-other-pokemon', 'random-opponent')
+            and t.code in ('user', 'selected-pokemon', 'all-opponents', 'all-other-pokemon', 'random-opponent', 'user-and-allies')
             and not exists (
               select 1
               from battle_skill_stat_stage_effect e
@@ -8640,6 +8651,67 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code in ('counter', 'mirror-coat', 'metal-burst')
+- changeSet:
+    id: 002-battle-rules-direct-status-hp-skill-rules
+    author: backend
+    comment: 将直接改写 HP 的变化技能从默认占位规则修正为可执行结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 腹鼓和分担痛楚都不是普通治疗：前者支付半数最大 HP 后直接把攻击阶级设为 +6，后者把双方当前 HP
+          -- 直接改为平均值且不触发普通伤害/回复语义。这里用 effect_policy 显式标记，避免后续“未建模变化技能”
+          -- 清理把它们禁用，也避免战斗引擎通过技能名称硬编码特殊规则。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'belly-drum' then 'maximize-user-attack-half-max-hp-cost'
+              when 'pain-split' then 'average-user-target-current-hp'
+              else r.effect_policy
+            end,
+            target_policy = case s.code
+              when 'belly-drum' then 'self'
+              when 'pain-split' then 'selected-target'
+              else r.target_policy
+            end,
+            hit_policy = case s.code
+              when 'belly-drum' then 'always-hit'
+              when 'pain-split' then 'always-hit'
+              else r.hit_policy
+            end,
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = case s.code
+              when 'belly-drum' then false
+              when 'pain-split' then true
+              else r.affected_by_protect
+            end,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = case s.code
+              when 'belly-drum' then '支付使用者最大 HP 的一半并把攻击阶级直接设为 +6；攻击已满或支付后会倒下时失败。'
+              when 'pain-split' then '把使用者和目标当前 HP 设为双方当前 HP 的平均值；不计为普通伤害或回复，目标有替身时失败。'
+              else r.description
+            end,
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('belly-drum', 'pain-split')
 - changeSet:
     id: 002-battle-rules-disable-latest-unusable-skills
     author: backend
