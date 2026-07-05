@@ -8816,6 +8816,102 @@ databaseChangeLog:
           set enabled = true
           where code in ('life-dew', 'jungle-healing', 'lunar-blessing');
 - changeSet:
+    id: 002-battle-rules-modern-self-stat-and-cure-skill-rules
+    author: backend
+    comment: 将现代自我强化和自我净化技能修正为可执行结构化规则。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 胜利之舞、闭关和勇气填充都是现代主系列中可以直接用现有能力阶级管道表达的变化技能。
+          -- 勇气填充额外清除使用者自身主要异常，因此使用独立 effect_policy，避免误复用整队或同侧上场净化语义。
+          update battle_skill_rule r
+          set
+            effect_policy = case s.code
+              when 'take-heart' then 'self-major-status-cure'
+              else 'stat-stage-change'
+            end,
+            target_policy = 'self',
+            hit_policy = 'always-hit',
+            damage_policy = 'no-damage',
+            min_hits = 1,
+            max_hits = 1,
+            critical_hit_stage = 0,
+            makes_contact = false,
+            affected_by_protect = false,
+            protects_user = false,
+            thaws_user_before_move = false,
+            weakened_by_grassy_terrain = false,
+            recharges_after_use = false,
+            charges_before_use = false,
+            sound_based = false,
+            powder_based = false,
+            punch_based = false,
+            slicing_based = false,
+            lock_move_turns_min = 1,
+            lock_move_turns_max = 1,
+            confuses_user_after_lock = false,
+            force_target_switch = false,
+            description = case s.code
+              when 'victory-dance' then '技能成功后提升使用者攻击 1 级、防御 1 级、速度 1 级。'
+              when 'shelter' then '技能成功后提升使用者防御 2 级。'
+              when 'take-heart' then '技能成功后清除使用者自身主要异常，并提升使用者特攻 1 级、特防 1 级。'
+              else r.description
+            end,
+            enabled = true
+          from game_skill s
+          where r.skill_id = s.id
+            and s.code in ('victory-dance', 'shelter', 'take-heart');
+
+          update game_skill
+          set enabled = true
+          where code in ('victory-dance', 'shelter', 'take-heart');
+
+          with stage_effects(skill_code, stat_code, stage_delta, sort_offset) as (
+            values
+              ('victory-dance', 'attack', 1, 1),
+              ('victory-dance', 'defense', 1, 2),
+              ('victory-dance', 'speed', 1, 3),
+              ('shelter', 'defense', 2, 4),
+              ('take-heart', 'special-attack', 1, 5),
+              ('take-heart', 'special-defense', 1, 6)
+          )
+          insert into battle_skill_stat_stage_effect (
+            id,
+            skill_rule_id,
+            stat_id,
+            target_scope,
+            stage_delta,
+            effect_timing,
+            chance_percent,
+            enabled,
+            sort_order
+          )
+          select
+            400000 + row_number() over (order by s.id, st.id),
+            r.id,
+            st.id,
+            'USER',
+            e.stage_delta,
+            'AFTER_HIT',
+            100,
+            true,
+            9000 + e.sort_offset
+          from stage_effects e
+          join game_skill s on s.code = e.skill_code
+          join battle_skill_rule r on r.skill_id = s.id
+          join game_stat st on st.code = e.stat_code
+          where not exists (
+            select 1
+            from battle_skill_stat_stage_effect existing
+            where existing.skill_rule_id = r.id
+              and existing.stat_id = st.id
+              and existing.target_scope = 'USER'
+              and existing.effect_timing = 'AFTER_HIT'
+              and existing.stage_delta = e.stage_delta
+          );
+- changeSet:
     id: 002-battle-rules-disable-latest-unusable-skills
     author: backend
     comment: 将最新版资料明确标记为无法使用的技能从现代战斗规则入口中禁用。

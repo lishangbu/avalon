@@ -434,6 +434,9 @@ internal fun String.restoresUserBySleeping(): Boolean =
 internal fun String.curesUserSideMajorStatuses(): Boolean =
 	this == "user-side-major-status-cure"
 
+internal fun String.curesUserMajorStatus(): Boolean =
+	this == "self-major-status-cure"
+
 internal fun String.curesUserSideActiveMajorStatuses(): Boolean =
 	this == "target-heal-quarter-max-hp-user-side-active-major-status-cure"
 
@@ -469,6 +472,7 @@ private val battleSkillStructuralEffectPolicies = setOf(
 	"target-last-skill-pp-reduction-four",
 	"self-critical-hit-stage-plus-two",
 	"self-rest-full-heal",
+	"self-major-status-cure",
 	"user-side-major-status-cure",
 	"endure-fatal-damage",
 )
@@ -533,6 +537,7 @@ internal fun String.isBattleSkillRuntimeEffectPolicySupported(): Boolean =
 	targetLastSkillPpReduction() > 0 ||
 	criticalHitStageBoost() > 0 ||
 	restoresUserBySleeping() ||
+	curesUserMajorStatus() ||
 	curesUserSideMajorStatuses() ||
 	curesUserSideActiveMajorStatuses()
 

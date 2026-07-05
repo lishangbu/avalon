@@ -178,6 +178,8 @@ class BattleRuntimePolicyMapperTests {
 	fun `skill rest and team status cure policies map explicit flags`() {
 		assertThat("self-rest-full-heal".restoresUserBySleeping()).isTrue()
 		assertThat("self-rest-full-heal".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
+		assertThat("self-major-status-cure".curesUserMajorStatus()).isTrue()
+		assertThat("self-major-status-cure".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 		assertThat("user-side-major-status-cure".curesUserSideMajorStatuses()).isTrue()
 		assertThat("user-side-major-status-cure".isBattleSkillRuntimeEffectPolicySupported()).isTrue()
 		assertThat("target-heal-quarter-max-hp-user-side-active-major-status-cure".curesUserSideActiveMajorStatuses())

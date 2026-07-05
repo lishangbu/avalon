@@ -242,7 +242,7 @@ class BattleRuntimeSnapshotServiceTests(
 					115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 170, 175, 179, 180, 182, 184, 187, 189, 191, 197, 199, 200, 203, 206, 215, 219, 220, 235, 240, 243, 252, 259, 261, 263, 269,
 					280, 283, 305, 307, 308, 311, 319, 329, 336, 338, 344, 347, 349, 360, 362, 366, 368, 390, 400, 416, 427, 433, 435, 439, 446, 447, 457, 459,
 				464, 473, 474, 475, 480, 484, 486, 500, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 875, 877,
-				791, 816, 849, 883, 892, 895,
+				791, 816, 837, 842, 849, 850, 883, 892, 895,
 			),
 		)
 			.associateBy { it.skillId }
@@ -720,6 +720,28 @@ class BattleRuntimeSnapshotServiceTests(
 			.associate { it.stat to it.stageDelta }
 		assertThat(workUpStats).containsEntry(BattleStat.ATTACK, 1)
 		assertThat(workUpStats).containsEntry(BattleStat.SPECIAL_ATTACK, 1)
+
+		val victoryDanceStats = slots.getValue(837)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(victoryDanceStats).containsEntry(BattleStat.ATTACK, 1)
+		assertThat(victoryDanceStats).containsEntry(BattleStat.DEFENSE, 1)
+		assertThat(victoryDanceStats).containsEntry(BattleStat.SPEED, 1)
+
+		val shelterStats = slots.getValue(842)
+			.statStageEffects
+			.single()
+		assertThat(shelterStats.target).isEqualTo(BattleEffectTarget.USER)
+		assertThat(shelterStats.stat).isEqualTo(BattleStat.DEFENSE)
+		assertThat(shelterStats.stageDelta).isEqualTo(2)
+
+		val takeHeartStats = slots.getValue(850)
+			.statStageEffects
+			.associate { it.stat to it.stageDelta }
+		assertThat(slots.getValue(850).targetScope).isEqualTo(BattleSkillTargetScope.SELF)
+		assertThat(slots.getValue(850).curesUserMajorStatus).isTrue()
+		assertThat(takeHeartStats).containsEntry(BattleStat.SPECIAL_ATTACK, 1)
+		assertThat(takeHeartStats).containsEntry(BattleStat.SPECIAL_DEFENSE, 1)
 
 		val screech = slots.getValue(103)
 			.statStageEffects

@@ -526,7 +526,7 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
 		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
 		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 133L)
-		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 241L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 247L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
@@ -1038,6 +1038,104 @@ class LiquibaseMigrationTests(
 				"stat_code" to "accuracy",
 				"target_scope" to "TARGET",
 				"stage_delta" to -1,
+				"chance_percent" to 100,
+			),
+		)
+
+		val modernSelfStatSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled,
+			       r.effect_policy, r.target_policy, r.hit_policy, r.damage_policy, r.affected_by_protect
+			from game_skill s
+			join battle_skill_rule r on r.skill_id = s.id
+			where s.id in (837, 842, 850)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(modernSelfStatSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 837L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "stat-stage-change",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+			mapOf(
+				"skill_id" to 842L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "stat-stage-change",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+			mapOf(
+				"skill_id" to 850L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "self-major-status-cure",
+				"target_policy" to "self",
+				"hit_policy" to "always-hit",
+				"damage_policy" to "no-damage",
+				"affected_by_protect" to false,
+			),
+		)
+
+		val modernSelfStatEffects = queryMaps(
+			"""
+			select sr.skill_id, st.code as stat_code, se.target_scope, se.stage_delta, se.chance_percent
+			from battle_skill_stat_stage_effect se
+			join battle_skill_rule sr on sr.id = se.skill_rule_id
+			join game_stat st on st.id = se.stat_id
+			where sr.skill_id in (837, 842, 850)
+			order by sr.skill_id, se.sort_order
+			""".trimIndent(),
+		)
+		assertThat(modernSelfStatEffects).containsExactly(
+			mapOf(
+				"skill_id" to 837L,
+				"stat_code" to "attack",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 837L,
+				"stat_code" to "defense",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 837L,
+				"stat_code" to "speed",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 842L,
+				"stat_code" to "defense",
+				"target_scope" to "USER",
+				"stage_delta" to 2,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 850L,
+				"stat_code" to "special-attack",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
+				"chance_percent" to 100,
+			),
+			mapOf(
+				"skill_id" to 850L,
+				"stat_code" to "special-defense",
+				"target_scope" to "USER",
+				"stage_delta" to 1,
 				"chance_percent" to 100,
 			),
 		)

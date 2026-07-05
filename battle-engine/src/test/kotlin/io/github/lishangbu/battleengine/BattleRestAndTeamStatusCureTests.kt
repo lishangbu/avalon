@@ -2,11 +2,14 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleEffectTarget
 import io.github.lishangbu.battleengine.model.BattleEnvironment
 import io.github.lishangbu.battleengine.model.BattleEvent
 import io.github.lishangbu.battleengine.model.BattleMajorStatus
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
+import io.github.lishangbu.battleengine.model.BattleStat
+import io.github.lishangbu.battleengine.model.BattleStatStageEffect
 import io.github.lishangbu.battleengine.model.BattleStatusBlockReason
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -217,6 +220,44 @@ class BattleRestAndTeamStatusCureTests {
 		)
 	}
 
+	@Test
+	fun `take heart cures only user major status and boosts special stats`() {
+		val scenario = publicBattleRuleScenario(
+			name = "take-heart-cures-only-user-major-status-and-boosts-special-stats",
+			inputSummary = "使用者、同侧同伴和对手都带有主要异常，使用者成功使用勇气填充。",
+			expectedSummary = "只有使用者自身主要异常被清除，使用者特攻和特防各提升 1 级，其它成员状态不变。",
+		)
+		val user = participant("heart-user", speed = 100, skill = takeHeartSkill())
+			.copy(majorStatus = BattleMajorStatus.BURN)
+		val ally = participant("heart-ally", speed = 90)
+			.copy(majorStatus = BattleMajorStatus.POISON)
+		val opponent = participant("heart-opponent", speed = 80)
+			.copy(majorStatus = BattleMajorStatus.PARALYSIS)
+
+		val resolved = engine.resolveTurn(
+			engine.start(
+				initialState(
+					first = user,
+					firstBench = listOf(ally),
+					second = opponent,
+				),
+			),
+			listOf(BattleAction.UseSkill("heart-user", skillId = 850, targetActorId = "heart-user")),
+			ScriptedBattleRandom(emptyList()),
+		)
+
+		scenario.assertNamed("take-heart-cures-only-user-major-status-and-boosts-special-stats")
+		assertEquals(null, resolved.participant("heart-user")?.majorStatus)
+		assertEquals(BattleMajorStatus.POISON, resolved.participant("heart-ally")?.majorStatus)
+		assertEquals(BattleMajorStatus.PARALYSIS, resolved.participant("heart-opponent")?.majorStatus)
+		assertEquals(1, resolved.participant("heart-user")?.statStage(BattleStat.SPECIAL_ATTACK))
+		assertEquals(1, resolved.participant("heart-user")?.statStage(BattleStat.SPECIAL_DEFENSE))
+		assertEquals(
+			listOf("heart-user"),
+			resolved.events.filterIsInstance<BattleEvent.StatusCleared>().map { it.actorId },
+		)
+	}
+
 	private fun restSkill() =
 		damagingSkill(
 			skillId = 156,
@@ -261,5 +302,30 @@ class BattleRestAndTeamStatusCureTests {
 			affectedByProtect = false,
 			curesUserSideActiveMajorStatuses = true,
 			hpEffects = listOf(BattleSkillHpEffect.TargetHealMaxHpFraction(1, 4)),
+		)
+
+	private fun takeHeartSkill() =
+		damagingSkill(
+			skillId = 850,
+			name = "勇气填充",
+			damageClass = BattleDamageClass.STATUS,
+			power = null,
+			targetScope = BattleSkillTargetScope.SELF,
+			affectedByProtect = false,
+			curesUserMajorStatus = true,
+			statStageEffects = listOf(
+				BattleStatStageEffect(
+					stat = BattleStat.SPECIAL_ATTACK,
+					target = BattleEffectTarget.USER,
+					stageDelta = 1,
+					chancePercent = 100,
+				),
+				BattleStatStageEffect(
+					stat = BattleStat.SPECIAL_DEFENSE,
+					target = BattleEffectTarget.USER,
+					stageDelta = 1,
+					chancePercent = 100,
+				),
+			),
 		)
 }

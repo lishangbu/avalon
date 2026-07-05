@@ -58,7 +58,8 @@ internal class BattleSkillAdditionalEffects(
 		val afterSideEntryHazards = applySideEntryHazards(afterSideProtections, actorId, targetActorId, skill, random)
 		val afterFieldSpeedOrder = applyFieldSpeedOrder(afterSideEntryHazards, actorId, skill, random)
 		val afterAccuracyLock = applyAccuracyLock(afterFieldSpeedOrder, actorId, targetActorId, skill)
-		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterAccuracyLock, actorId, skill)
+		val afterUserMajorStatusCure = applyUserMajorStatusCure(afterAccuracyLock, actorId, skill)
+		val afterUserSideActiveMajorStatusCures = applyUserSideActiveMajorStatusCures(afterUserMajorStatusCure, actorId, skill)
 		val afterUserSideMajorStatusCures = applyUserSideMajorStatusCures(afterUserSideActiveMajorStatusCures, actorId, skill)
 		val afterTargetLastSkillPpReduction = applyTargetLastSkillPpReduction(
 			afterUserSideMajorStatusCures,
@@ -470,6 +471,34 @@ internal class BattleSkillAdditionalEffects(
 					),
 				)
 		}
+	}
+
+	/**
+	 * 清除使用者自身的主要异常状态。
+	 *
+	 * 勇气填充这类技能只治疗使用者自己，不能复用治愈铃声的整队净化，也不能复用丛林治疗/新月祈祷的同侧上场净化。
+	 * 这里直接读取 [actorId] 对应成员，只有实际存在主要异常时才改写状态并追加 [BattleEvent.StatusCleared]；
+	 * 没有异常时技能仍可继续完成后续能力阶级变化，符合“净化 + 强化”复合技能的现代规则语义。
+	 */
+	private fun applyUserMajorStatusCure(
+		state: BattleState,
+		actorId: String,
+		skill: BattleSkillSlot,
+	): BattleState {
+		if (!skill.curesUserMajorStatus) {
+			return state
+		}
+		val actor = state.participant(actorId) ?: return state
+		val status = actor.majorStatus ?: return state
+		return state
+			.replaceParticipant(actor.clearMajorStatus())
+			.appendEvent(
+				BattleEvent.StatusCleared(
+					turnNumber = state.turnNumber,
+					actorId = actor.actorId,
+					status = status,
+				),
+			)
 	}
 
 	/**
