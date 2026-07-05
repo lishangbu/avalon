@@ -405,7 +405,7 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 		val scenario = publicBattleRuleScenario(
 			name = "required-weather-side-condition-fails-without-weather",
 			inputSummary = "技能声明只有雪天才能建立全伤害屏障，但当前天气为无天气。",
-			expectedSummary = "天气前置条件不满足时不写入一侧场上状态，也不产生屏障开始事件。",
+			expectedSummary = "天气前置条件不满足时不写入一侧场上状态，也不产生屏障开始事件；事件流记录天气条件不满足的失败原因。",
 		)
 		val snowScreenSkill = sideDamageReductionSkill(
 			kind = BattleSideDamageReductionKind.ALL_STANDARD_DAMAGE,
@@ -428,6 +428,10 @@ class BattleEnvironmentFieldBoundaryPublicReferenceTests {
 		scenario.assertNamed("required-weather-side-condition-fails-without-weather")
 		assertEquals(emptyList(), resolved.sideOf("support")?.damageReductions)
 		assertEquals(emptyList(), resolved.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>())
+		assertEquals(
+			"side-condition-required-weather-unmet",
+			resolved.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
 	}
 
 	@Test

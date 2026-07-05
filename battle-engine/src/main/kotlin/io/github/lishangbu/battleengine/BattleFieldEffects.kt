@@ -23,6 +23,8 @@ internal class BattleFieldEffects {
 	 * 将命中后的技能一侧防守屏障写入对应战斗侧。
 	 *
 	 * 目标侧解析在这里完成：使用者侧屏障不依赖本次目标是否仍可战斗；目标侧屏障跟随实际命中的目标所属侧。
+	 * 若技能资料声明了天气前置条件但当前天气不匹配，技能本身已经完成使用和 PP 阶段，此时应记录失败事件，而不是
+	 * 静默跳过。这个分支主要覆盖极光类屏障：它不是“附加效果没触发”，而是公开规则中的明确失败条件。
 	 * 若同种屏障已存在，状态保持不变且不产生开始事件，但要追加稳定的技能失败事件。这里刻意把“没有刷新”
 	 * 和“没有命中/没有使用”区分开：回放端仍能看到技能确实被使用过，裁判或排障日志也能解释为什么状态没有变化。
 	 * 携带者若有匹配屏障种类的持续时间延长道具，则只在首次成功建立屏障时改写即将写入的完整持续回合。
@@ -35,7 +37,15 @@ internal class BattleFieldEffects {
 		application: BattleSideConditionApplication,
 	): BattleState {
 		if (application.requiredWeather != null && state.environment.weather != application.requiredWeather) {
-			return state
+			return state.appendEvent(
+				BattleEvent.SkillFailed(
+					turnNumber = state.turnNumber,
+					actorId = actorId,
+					targetActorId = targetActorId,
+					skillId = skill.skillId,
+					reason = "side-condition-required-weather-unmet",
+				),
+			)
 		}
 		val side = sideFor(state, actorId, targetActorId, application.targetSide) ?: return state
 		val damageReduction = extendedSideDamageReduction(state, actorId, application.damageReduction)

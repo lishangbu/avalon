@@ -731,6 +731,10 @@ class BattleEngineSingleTurnTests {
 		)
 		assertEquals(emptyList(), withoutWeather.sideOf("support")?.damageReductions)
 		assertEquals(emptyList(), withoutWeather.events.filterIsInstance<BattleEvent.SideDamageReductionStarted>())
+		assertEquals(
+			"side-condition-required-weather-unmet",
+			withoutWeather.events.filterIsInstance<BattleEvent.SkillFailed>().single().reason,
+		)
 
 		val snowState = engine.start(
 			initialState(
