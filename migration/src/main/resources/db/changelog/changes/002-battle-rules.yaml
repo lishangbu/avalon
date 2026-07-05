@@ -9109,3 +9109,38 @@ databaseChangeLog:
           from game_skill s
           join screen_breaking_skills sbs on sbs.code = s.code
           where r.skill_id = s.id;
+- changeSet:
+    id: 002-battle-rules-enable-user-hp-dynamic-power-skills
+    author: backend
+    comment: 启用按使用者当前体力分档的动态威力技能。
+    changes:
+    - sql:
+        splitStatements: false
+        stripComments: false
+        sql: |
+          -- 抓狂和起死回生没有固定基础威力；运行态按 floor(48 * 当前 HP / 最大 HP) 分档选择 20/40/80/100/150/200 威力。
+          -- 它们进入普通物理伤害公式，命中、属性一致加成、属性克制、天气、道具和要害仍走标准伤害流程。
+          with user_hp_power_skills(code) as (
+            values
+              ('flail'),
+              ('reversal')
+          )
+          update game_skill s
+          set enabled = true
+          from user_hp_power_skills uhps
+          where s.code = uhps.code;
+
+          with user_hp_power_skills(code) as (
+            values
+              ('flail'),
+              ('reversal')
+          )
+          update battle_skill_rule r
+          set
+            enabled = true,
+            effect_policy = 'power-by-user-current-hp-ratio',
+            damage_policy = 'standard-damage',
+            description = '动态威力伤害技能规则；按使用者当前 HP 与最大 HP 的 48 倍整数分档决定基础威力后进入普通伤害公式。'
+          from game_skill s
+          join user_hp_power_skills uhps on uhps.code = s.code
+          where r.skill_id = s.id;

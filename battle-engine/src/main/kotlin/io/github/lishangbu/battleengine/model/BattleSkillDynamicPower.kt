@@ -6,7 +6,8 @@ package io.github.lishangbu.battleengine.model
  * 这类规则和 [BattleSkillPowerMultiplier] 分开建模：倍率类规则会拿技能表中的固定 `power` 继续相乘，
  * 而动态威力类规则会先根据当前战斗快照重新计算“本次公式使用的基础威力”。例如辅助力量、嚣张会读取使用者
  * 正向能力阶级总和；惩罚会读取目标正向能力阶级总和，并且拥有现代公开规则中常见的上限；电球、陀螺球会读取
- * 行动排序阶段同一口径下的有效速度；踢倒、打草结、重磅冲撞、高温重压会读取参与者当前体重。
+ * 行动排序阶段同一口径下的有效速度；踢倒、打草结、重磅冲撞、高温重压会读取参与者当前体重；抓狂、起死回生
+ * 会读取使用者当前 HP 和最大 HP 的整数比例分档。
  *
  * 模型不保存具体技能名称，只保存公式参数和读取哪一方。这样运行时可以用同一条分支覆盖同类技能，也不会把
  * 资料层的英文 code 泄漏进伤害计算器。`source` 只允许 [BattleEffectTarget.USER] 或 [BattleEffectTarget.TARGET]，
@@ -115,6 +116,32 @@ sealed interface BattleSkillDynamicPower {
 		}
 	}
 
+	/**
+	 * 按使用者当前 HP / 最大 HP 的整数分档选择基础威力。
+	 *
+	 * 抓狂、起死回生类现代规则使用 `floor(scale * currentHp / maxHp)` 得到离散档位；HP 越低威力越高。这里把
+	 * `scale` 保存为参数而不是在伤害计算器里写死，是为了让测试能直接固定“48 倍缩放后向下取整”这个公开公式。
+	 * `thresholds` 必须按 [HpPowerThreshold.maxScaledHpInclusive] 从小到大排列，计算时取第一档命中的威力；所有
+	 * 档位都没命中时使用 [fallbackPower]，对应高 HP 区间的最低威力。
+	 */
+	data class UserHpFractionThresholds(
+		val scale: Int,
+		val thresholds: List<HpPowerThreshold>,
+		val fallbackPower: Int,
+	) : BattleSkillDynamicPower {
+		init {
+			require(scale > 0) { "scale must be positive" }
+			require(thresholds.isNotEmpty()) { "thresholds must not be empty" }
+			require(
+				thresholds.map { it.maxScaledHpInclusive } ==
+					thresholds.map { it.maxScaledHpInclusive }.sorted(),
+			) {
+				"thresholds must be sorted by maxScaledHpInclusive ascending"
+			}
+			require(fallbackPower > 0) { "fallbackPower must be positive" }
+		}
+	}
+
 	data class SpeedPowerThreshold(
 		val minimumRatio: Int,
 		val power: Int,
@@ -154,6 +181,22 @@ sealed interface BattleSkillDynamicPower {
 	) {
 		init {
 			require(minimumUserToTargetRatio > 0) { "minimumUserToTargetRatio must be positive" }
+			require(power > 0) { "power must be positive" }
+		}
+	}
+
+	/**
+	 * 使用者 HP 分档动态威力的一档阈值。
+	 *
+	 * [maxScaledHpInclusive] 是 `floor(scale * currentHp / maxHp)` 的最大命中值，而不是百分比。使用整数阈值可以
+	 * 精确表达 4.17%、10.42% 这类边界，不会因为浮点百分比在边界 HP 上发生一档偏移。
+	 */
+	data class HpPowerThreshold(
+		val maxScaledHpInclusive: Int,
+		val power: Int,
+	) {
+		init {
+			require(maxScaledHpInclusive >= 0) { "maxScaledHpInclusive must not be negative" }
 			require(power > 0) { "power must be positive" }
 		}
 	}

@@ -242,6 +242,13 @@ class BattleDamageCalculator(
 					?.power
 					?: rule.fallbackPower
 			}
+			is BattleSkillDynamicPower.UserHpFractionThresholds -> {
+				val scaledHp = (rule.scale.toLong() * request.attacker.currentHp) / request.attacker.maxHp
+				rule.thresholds
+					.firstOrNull { threshold -> scaledHp <= threshold.maxScaledHpInclusive }
+					?.power
+					?: rule.fallbackPower
+			}
 		}
 
 	/**

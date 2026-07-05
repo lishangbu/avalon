@@ -509,6 +509,7 @@ class BattleRuleCoverageLedgerTests {
 					"io.github.lishangbu.battleengine.BattleProportionalDamageSkillTests",
 					"io.github.lishangbu.battleengine.BattleReceivedDamageSkillTests",
 					"io.github.lishangbu.battleengine.BattleSpeedRatioPowerSkillTests",
+					"io.github.lishangbu.battleengine.BattleUserHpDynamicPowerSkillTests",
 				),
 			),
 			CoverageGroup(

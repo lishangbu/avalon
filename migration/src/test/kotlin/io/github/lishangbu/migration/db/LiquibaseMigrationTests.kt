@@ -1701,6 +1701,32 @@ class LiquibaseMigrationTests(
 			),
 		)
 
+		val userHpDynamicPowerSkillRules = queryMaps(
+			"""
+			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.damage_policy
+			from battle_skill_rule r
+			join game_skill s on s.id = r.skill_id
+			where s.id in (175, 179)
+			order by s.id
+			""".trimIndent(),
+		)
+		assertThat(userHpDynamicPowerSkillRules).containsExactly(
+			mapOf(
+				"skill_id" to 175L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "power-by-user-current-hp-ratio",
+				"damage_policy" to "standard-damage",
+			),
+			mapOf(
+				"skill_id" to 179L,
+				"skill_enabled" to true,
+				"rule_enabled" to true,
+				"effect_policy" to "power-by-user-current-hp-ratio",
+				"damage_policy" to "standard-damage",
+			),
+		)
+
 		val chargeSkillRules = queryMaps(
 			"""
 			select skill_id, charges_before_use

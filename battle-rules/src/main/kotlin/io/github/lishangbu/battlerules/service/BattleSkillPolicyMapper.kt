@@ -352,6 +352,17 @@ internal fun String.toBattleSkillDynamicPower(): BattleSkillDynamicPower? =
 			),
 			fallbackPower = 40,
 		)
+		"power-by-user-current-hp-ratio" -> BattleSkillDynamicPower.UserHpFractionThresholds(
+			scale = 48,
+			thresholds = listOf(
+				BattleSkillDynamicPower.HpPowerThreshold(maxScaledHpInclusive = 1, power = 200),
+				BattleSkillDynamicPower.HpPowerThreshold(maxScaledHpInclusive = 4, power = 150),
+				BattleSkillDynamicPower.HpPowerThreshold(maxScaledHpInclusive = 9, power = 100),
+				BattleSkillDynamicPower.HpPowerThreshold(maxScaledHpInclusive = 16, power = 80),
+				BattleSkillDynamicPower.HpPowerThreshold(maxScaledHpInclusive = 32, power = 40),
+			),
+			fallbackPower = 20,
+		)
 		else -> null
 	}
 
