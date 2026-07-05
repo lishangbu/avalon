@@ -160,6 +160,8 @@ class SecurityManagementApiTests(
 			"battle-rules.skill-weather-accuracy-overrides",
 			"battle-rules.skill-weather-power-modifiers",
 			"battle-rules.skill-weather-element-overrides",
+			"battle-rules.skill-terrain-power-modifiers",
+			"battle-rules.skill-terrain-element-overrides",
 			"battle-rules.skill-charge-skip-weathers",
 			"battle-rules.ability-rules",
 			"battle-rules.item-rules",
@@ -171,6 +173,8 @@ class SecurityManagementApiTests(
 			"/battle-rules/skill-global-field-effects",
 			"/battle-rules/skill-weather-accuracy-overrides",
 			"/battle-rules/skill-weather-power-modifiers",
+			"/battle-rules/skill-terrain-power-modifiers",
+			"/battle-rules/skill-terrain-element-overrides",
 			"/battle-rules/skill-charge-skip-weathers",
 		)
 		assertThat(menuTypes)
