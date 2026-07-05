@@ -1468,6 +1468,22 @@ class BattleRuntimeSnapshotServiceTests(
 			assertThat(skillRule.field).isEqualTo("effectPolicy")
 			assertThat(skillRule.message).isEqualTo("不支持的技能主效果策略: unknown-skill-policy")
 		}
+
+		withTemporarySideFieldEffectPolicy("unknown-side-field-policy") { skillId ->
+			val fieldEffect = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(fieldEffect.field).isEqualTo("effectPolicy")
+			assertThat(fieldEffect.message).isEqualTo("不支持的一侧场地效果策略: unknown-side-field-policy")
+		}
+
+		withTemporaryGlobalFieldEffectPolicy("unknown-global-field-policy") { skillId ->
+			val globalFieldEffect = assertThrows<ApiException> {
+				service.skillSlotsBySkillIds(listOf(skillId))
+			}
+			assertThat(globalFieldEffect.field).isEqualTo("effectPolicy")
+			assertThat(globalFieldEffect.message).isEqualTo("不支持的全场速度顺序效果策略: unknown-global-field-policy")
+		}
 	}
 
 	/**
@@ -2738,6 +2754,69 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 	}
 
+	private fun withTemporarySideFieldEffectPolicy(effectPolicy: String, block: (Long) -> Unit) {
+		withTemporarySkillPolicy("side-condition") { skillId ->
+			deleteTemporaryFieldEffects()
+			insertTemporaryFieldRule(effectPolicy = effectPolicy, effectScope = "SIDE")
+			jdbcTemplate.update(
+				"""
+				insert into battle_skill_field_effect (
+					id, skill_rule_id, field_rule_id, target_side, effect_timing, chance_percent, enabled, sort_order
+				) values (?, ?, ?, 'USER_SIDE', 'AFTER_HIT', 100, true, 999999)
+				""".trimIndent(),
+				TEMP_SKILL_FIELD_EFFECT_ID,
+				TEMP_SKILL_RULE_ID,
+				TEMP_FIELD_RULE_ID,
+			)
+			try {
+				block(skillId)
+			} finally {
+				deleteTemporaryFieldEffects()
+			}
+		}
+	}
+
+	private fun withTemporaryGlobalFieldEffectPolicy(effectPolicy: String, block: (Long) -> Unit) {
+		withTemporarySkillPolicy("field-condition") { skillId ->
+			deleteTemporaryFieldEffects()
+			insertTemporaryFieldRule(effectPolicy = effectPolicy, effectScope = "FIELD")
+			jdbcTemplate.update(
+				"""
+				insert into battle_skill_global_field_effect (
+					id, skill_rule_id, field_rule_id, effect_timing, chance_percent, enabled, sort_order
+				) values (?, ?, ?, 'AFTER_HIT', 100, true, 999999)
+				""".trimIndent(),
+				TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID,
+				TEMP_SKILL_RULE_ID,
+				TEMP_FIELD_RULE_ID,
+			)
+			try {
+				block(skillId)
+			} finally {
+				deleteTemporaryFieldEffects()
+			}
+		}
+	}
+
+	private fun insertTemporaryFieldRule(effectPolicy: String, effectScope: String) {
+		jdbcTemplate.update(
+			"""
+			insert into battle_field_rule (
+				id, code, name, effect_scope, effect_policy, min_turns, max_turns, max_layers, description, enabled, sort_order
+			) values (?, 'runtime-unknown-field-policy-test', '运行时未知场地策略测试', ?, ?, 5, 5, null, '未知场地策略测试', true, 999999)
+			""".trimIndent(),
+			TEMP_FIELD_RULE_ID,
+			effectScope,
+			effectPolicy,
+		)
+	}
+
+	private fun deleteTemporaryFieldEffects() {
+		jdbcTemplate.update("delete from battle_skill_field_effect where id = ?", TEMP_SKILL_FIELD_EFFECT_ID)
+		jdbcTemplate.update("delete from battle_skill_global_field_effect where id = ?", TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID)
+		jdbcTemplate.update("delete from battle_field_rule where id = ?", TEMP_FIELD_RULE_ID)
+	}
+
 	private fun withTemporarySkillWithoutRule(block: (Long) -> Unit) {
 		insertTemporarySkill()
 		try {
@@ -2930,5 +3009,8 @@ class BattleRuntimeSnapshotServiceTests(
 		private const val TEMP_ITEM_RULE_ID = 9_900_002L
 		private const val TEMP_SKILL_RULE_ID = 9_900_003L
 		private const val TEMP_SKILL_ID = 9_900_004L
+		private const val TEMP_FIELD_RULE_ID = 9_900_005L
+		private const val TEMP_SKILL_FIELD_EFFECT_ID = 9_900_006L
+		private const val TEMP_SKILL_GLOBAL_FIELD_EFFECT_ID = 9_900_007L
 	}
 }

@@ -16,6 +16,7 @@ import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.common.web.invalidValue
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -44,6 +45,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 	fun ruleEffects(ruleId: Long): BattleSkillRuleEffectRuntimeSnapshot {
 		val statusEffects = statusEffectRows(ruleId)
 		val sideFieldEffects = sideFieldEffectRows(ruleId)
+		validateSideFieldEffectPolicies(sideFieldEffects)
 		return BattleSkillRuleEffectRuntimeSnapshot(
 			chargeSkippedByWeathers = chargeSkippedByWeathers(ruleId),
 			accuracyOverridesByWeather = weatherAccuracyOverrides(ruleId),
@@ -328,6 +330,25 @@ class BattleSkillRuleEffectRuntimeLookup(
 			)
 		}
 
+	/**
+	 * 校验一侧场地效果 policy 至少能被某一种一侧效果模型承载。
+	 *
+	 * 同一批 `battle_skill_field_effect` 行会被拆成屏障、速度修正和入场陷阱三个列表，所以单个列表里的 `mapNotNull`
+	 * 不能把未命中的 policy 直接视为错误：顺风行对于屏障列表本来就应该返回 null。这里在拆分前先做一次总分类，
+	 * 只有当一个 policy 既不是屏障、也不是速度修正、也不是入场陷阱时才失败。这样保留三类列表的简单实现，
+	 * 同时避免启用中的资料因为拼写错误或 mapper 漏补，被生产运行时静默装配成“技能没有任何一侧场地效果”。
+	 */
+	private fun validateSideFieldEffectPolicies(rows: List<SideFieldEffectRuntimeRow>) {
+		val unsupported = rows.firstOrNull { row ->
+			row.effectPolicy.toBattleSideDamageReductionKind() == null &&
+				row.effectPolicy.toBattleSideSpeedModifierKind() == null &&
+				row.effectPolicy.toBattleSideEntryHazardKind() == null
+		}
+		if (unsupported != null) {
+			invalidValue("effectPolicy", "不支持的一侧场地效果策略: ${unsupported.effectPolicy}")
+		}
+	}
+
 	private fun fieldSpeedOrderApplications(ruleId: Long): List<BattleFieldSpeedOrderApplication> =
 		jdbcTemplate.query(
 			"""
@@ -347,7 +368,9 @@ class BattleSkillRuleEffectRuntimeLookup(
 			order by e.sort_order, e.id
 			""".trimIndent(),
 			{ rs, _ ->
-				val speedOrderKind = rs.getString("field_effect_policy").toBattleFieldSpeedOrderKind() ?: return@query null
+				val effectPolicy = rs.getString("field_effect_policy")
+				val speedOrderKind = effectPolicy.toBattleFieldSpeedOrderKind()
+					?: invalidValue("effectPolicy", "不支持的全场速度顺序效果策略: $effectPolicy")
 				BattleFieldSpeedOrderApplication(
 					speedOrderEffect = BattleFieldSpeedOrderEffect(
 						kind = speedOrderKind,
@@ -358,7 +381,7 @@ class BattleSkillRuleEffectRuntimeLookup(
 				)
 			},
 			ruleId,
-		).filterNotNull()
+		)
 
 	private fun ResultSet.nullableInt(column: String): Int? {
 		val value = getInt(column)
