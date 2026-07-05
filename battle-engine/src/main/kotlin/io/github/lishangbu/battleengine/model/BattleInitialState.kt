@@ -7,7 +7,8 @@ package io.github.lishangbu.battleengine.model
  * 引擎不会在启动时查询数据库或远程服务。
  *
  * 引擎当前以两方对战为边界，每方当前上场成员数量必须等于格式要求，所有成员 ID 必须在整场战斗内唯一。
- * 若格式限制了队伍登记成员数量，初始快照也会在这里拒绝超额队伍。
+ * 若格式限制了参战队伍成员数量，初始快照也会在这里拒绝超额队伍。队伍预览、登记名单和选队流程属于应用层；
+ * 进入本模型时，双方 `participants` 应已经是本场战斗真正可替换上场的成员集合。
  */
 data class BattleInitialState(
 	val format: BattleFormatSnapshot,

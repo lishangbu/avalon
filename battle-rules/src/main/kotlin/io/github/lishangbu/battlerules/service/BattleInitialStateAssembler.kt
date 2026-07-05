@@ -96,9 +96,11 @@ class BattleInitialStateAssembler(
 	 * - 队伍侧编号不能重复。
 	 * - actorId 不能跨队伍重复。
 	 * - 每侧上场成员数量必须等于赛制要求。
-	 * - 若赛制限定队伍人数，登记成员不能超过上限。
+	 * - 若赛制限定参战队伍人数，本场战斗成员不能超过上限。
 	 *
 	 * 领域模型仍然保留自己的 `require`，作为单元测试或未来非 HTTP 调用路径的最后防线；这里负责生产 API 体验。
+	 * 这里的 `teamSize` 来自运行态赛制快照，已经由 [BattleFormatRuntimeLookup] 从 `TEAM/SELECT_COUNT` 优先解析；
+	 * 因此官方双打这类“登记 6 名、选择 4 名参战”的赛制会在这里按 4 名限制，而不是把登记名单全部带入战斗。
 	 */
 	private fun validateInitialStateShape(format: BattleFormatSnapshot, sides: List<BattleSide>) {
 		if (sides.map { it.sideId }.toSet().size != sides.size) {

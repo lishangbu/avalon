@@ -72,7 +72,7 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(snapshot.format.code).isEqualTo("official-double")
 		assertThat(snapshot.format.mode).isEqualTo(BattleMode.DOUBLE)
 		assertThat(snapshot.format.activeParticipantsPerSide).isEqualTo(2)
-		assertThat(snapshot.format.teamSize).isEqualTo(6)
+		assertThat(snapshot.format.teamSize).isEqualTo(4)
 		assertThat(snapshot.format.defaultLevel).isEqualTo(50)
 		assertThat(snapshot.rules.maxParticipantLevel).isEqualTo(50)
 		assertThat(snapshot.rules.uniqueCreatureRequired).isTrue()
@@ -169,6 +169,46 @@ class BattleRuntimeSnapshotServiceTests(
 			}
 			assertThat(nonPositiveBanText.field).isEqualTo("operandText")
 			assertThat(nonPositiveBanText.message).isEqualTo("禁用限制 runtime-non-positive-ban-text 操作数必须大于 0: 0")
+		}
+
+		withTemporaryFormatRestriction(
+			code = "runtime-conflicting-select-count",
+			restrictionType = "TEAM",
+			restrictionOperator = "SELECT_COUNT",
+			operandText = null,
+			operandNumber = 5,
+		) {
+			val conflictingSelectCount = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(conflictingSelectCount.field).isEqualTo("operandNumber")
+			assertThat(conflictingSelectCount.message).isEqualTo("队伍出战人数不能配置多个不同操作数: 4, 5")
+		}
+	}
+
+	@Test
+	fun `runtime snapshot rejects unsupported enabled format rules`() {
+		withTemporaryFormatClause("runtime-unknown-format-clause") {
+			val unknownClause = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(unknownClause.field).isEqualTo("clauseCode")
+			assertThat(unknownClause.message).isEqualTo("不支持的赛制条款: runtime-unknown-format-clause")
+		}
+
+		withTemporaryFormatRestriction(
+			code = "runtime-unknown-format-restriction",
+			restrictionType = "TEAM",
+			restrictionOperator = "UNKNOWN",
+			operandText = null,
+			operandNumber = 1,
+		) {
+			val unknownRestriction = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(unknownRestriction.field).isEqualTo("restrictionOperator")
+			assertThat(unknownRestriction.message)
+				.isEqualTo("不支持的赛制限制: runtime-unknown-format-restriction (TEAM/UNKNOWN)")
 		}
 	}
 
@@ -2765,6 +2805,35 @@ class BattleRuntimeSnapshotServiceTests(
 		}
 	}
 
+	private fun withTemporaryFormatClause(code: String, block: () -> Unit) {
+		jdbcTemplate.update("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
+		jdbcTemplate.update("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
+		jdbcTemplate.update(
+			"""
+			insert into battle_format_clause (
+				id, code, name, clause_type, description, enabled, sort_order
+			) values (?, ?, '运行时未知条款测试', 'TEAM', '运行时未知条款测试', true, 999999)
+			""".trimIndent(),
+			TEMP_FORMAT_CLAUSE_ID,
+			code,
+		)
+		jdbcTemplate.update(
+			"""
+			insert into battle_format_clause_binding (
+				id, format_id, clause_id, required, sort_order
+			) values (?, 3, ?, true, 999999)
+			""".trimIndent(),
+			TEMP_FORMAT_CLAUSE_BINDING_ID,
+			TEMP_FORMAT_CLAUSE_ID,
+		)
+		try {
+			block()
+		} finally {
+			jdbcTemplate.update("delete from battle_format_clause_binding where id = ?", TEMP_FORMAT_CLAUSE_BINDING_ID)
+			jdbcTemplate.update("delete from battle_format_clause where id = ?", TEMP_FORMAT_CLAUSE_ID)
+		}
+	}
+
 	private fun withTemporaryAbilityPolicy(effectPolicy: String, block: () -> Unit) {
 		jdbcTemplate.update("delete from battle_ability_rule where id = ?", TEMP_ABILITY_RULE_ID)
 		jdbcTemplate.update(
@@ -3196,5 +3265,7 @@ class BattleRuntimeSnapshotServiceTests(
 		private const val TEMP_SKILL_STATUS_EFFECT_ID = 9_900_008L
 		private const val TEMP_SKILL_STAT_STAGE_EFFECT_ID = 9_900_009L
 		private const val TEMP_STATUS_RULE_ID = 9_900_010L
+		private const val TEMP_FORMAT_CLAUSE_ID = 9_900_011L
+		private const val TEMP_FORMAT_CLAUSE_BINDING_ID = 9_900_012L
 	}
 }

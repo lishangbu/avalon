@@ -52,8 +52,11 @@ class BattleFormatRuntimeLookup(
 		val format = formatByCode(formatCode)
 		val restrictions = enabledRestrictions(format.id)
 		val clauseCodes = enabledClauseCodes(format.id)
+		clauseCodes.validateSupportedFormatClauses()
+		restrictions.validateSupportedFormatRestrictions()
+		val battleTeamSize = restrictions.battleTeamSize(format)
 		return BattleRuntimeSnapshot(
-			format = format.toEngineFormatSnapshot(),
+			format = format.toEngineFormatSnapshot(battleTeamSize),
 			rules = BattleRuleSnapshot(
 				elementChart = elementChart,
 				elementIds = elementIds.requiredBattleRuleElementIds(),
@@ -96,13 +99,13 @@ class BattleFormatRuntimeLookup(
 		}.toSet()
 	}
 
-	private fun BattleFormat.toEngineFormatSnapshot(): BattleFormatSnapshot =
+	private fun BattleFormat.toEngineFormatSnapshot(battleTeamSize: Int): BattleFormatSnapshot =
 		BattleFormatSnapshot(
 			code = code,
 			mode = toEngineBattleMode(),
 			activeParticipantsPerSide = activeParticipantCount,
 			playerCount = playerCount,
-			teamSize = teamSize,
+			teamSize = battleTeamSize,
 			defaultLevel = defaultLevel,
 		)
 
@@ -128,6 +131,55 @@ class BattleFormatRuntimeLookup(
 		filter { it.restrictionType == type && it.restrictionOperator == operator }
 			.map { it.positiveOperandNumber("赛制限制 ${it.code}") }
 			.minOrNull()
+
+	/**
+	 * 解析进入 battle-engine 的实际参战队伍人数。
+	 *
+	 * `battle_format.team_size` 表示赛制登记人数，例如官方双打通常登记 6 名；`TEAM/SELECT_COUNT` 才表示队伍预览后
+	 * 真正带入一场战斗的成员数量，例如从 6 名中选择 4 名。纯引擎只关心“这场战斗最多能换上多少成员”，所以运行态
+	 * 快照优先使用 `SELECT_COUNT`，没有配置时才退回登记人数。这里同时校验 `TEAM/LIMIT_COUNT` 必须和赛制主表一致，
+	 * 避免后台把同一事实维护出两套互相冲突的数值。
+	 */
+	private fun List<BattleFormatRestriction>.battleTeamSize(format: BattleFormat): Int {
+		val registrationLimit = singlePositiveOperand("TEAM", "LIMIT_COUNT", "队伍登记人数")
+		if (registrationLimit != null && registrationLimit != format.teamSize) {
+			invalidValue("operandNumber", "队伍登记人数限制必须等于赛制队伍人数: $registrationLimit != ${format.teamSize}")
+		}
+		val selectedTeamSize = singlePositiveOperand("TEAM", "SELECT_COUNT", "队伍出战人数")
+		if (selectedTeamSize != null) {
+			if (selectedTeamSize > format.teamSize) {
+				invalidValue("operandNumber", "队伍出战人数不能超过登记人数: $selectedTeamSize > ${format.teamSize}")
+			}
+			if (selectedTeamSize < format.activeParticipantCount) {
+				invalidValue(
+					"operandNumber",
+					"队伍出战人数不能少于当前上场人数: $selectedTeamSize < ${format.activeParticipantCount}",
+				)
+			}
+		}
+		return selectedTeamSize ?: registrationLimit ?: format.teamSize
+	}
+
+	/**
+	 * 读取只能出现一个语义值的正数操作数。
+	 *
+	 * 等级上限和禁用清单可以自然合并；队伍登记人数、出战人数这类赛制骨架值却不能同时维护出两个不同数字。生产
+	 * 运行态如果取最小值或最后一条，后台会以为多条限制都生效，实际引擎只执行其中一个值。因此这里允许重复相同
+	 * 数值，但拒绝同一语义下的冲突配置。
+	 */
+	private fun List<BattleFormatRestriction>.singlePositiveOperand(
+		type: String,
+		operator: String,
+		label: String,
+	): Int? {
+		val values = filter { it.restrictionType == type && it.restrictionOperator == operator }
+			.map { it.positiveOperandNumber("${label}限制 ${it.code}") }
+			.distinct()
+		if (values.size > 1) {
+			invalidValue("operandNumber", "${label}不能配置多个不同操作数: ${values.joinToString()}")
+		}
+		return values.singleOrNull()
+	}
 
 	private fun List<BattleFormatRestriction>.bannedIds(type: String): Set<Long> =
 		filter { it.restrictionType == type && it.restrictionOperator == "BAN" }
@@ -177,6 +229,39 @@ class BattleFormatRuntimeLookup(
 	}
 
 	/**
+	 * 校验启用中的赛制条款已经被运行时明确承载。
+	 *
+	 * 有些条款不会直接变成 [BattleRuleSnapshot] 字段：`level-flattened` 由赛制默认等级和等级限制共同表达，
+	 * `team-preview` 属于开战前选队流程。但它们仍必须列在白名单里，表示运行态读取器知道该条款的归属。未来新增
+	 * 条款如果没同步接入这里，就不能被静默当成“已生效规则”。
+	 */
+	private fun Set<String>.validateSupportedFormatClauses() {
+		val unsupported = firstOrNull { it !in SUPPORTED_FORMAT_CLAUSE_CODES }
+		if (unsupported != null) {
+			invalidValue("clauseCode", "不支持的赛制条款: $unsupported")
+		}
+	}
+
+	/**
+	 * 校验启用中的赛制限制已经能转换为引擎规则或赛制快照字段。
+	 *
+	 * 限制表是管理端可维护资料，不能让未知 `restrictionType/restrictionOperator` 静默跳过；否则生产环境会出现
+	 * “后台启用了限制，但战斗引擎没有执行”的隐性错配。这里把当前已承载的组合集中列出，新增限制时必须同步补
+	 * 运行态映射或明确说明它由哪一个赛制字段承载。
+	 */
+	private fun List<BattleFormatRestriction>.validateSupportedFormatRestrictions() {
+		val unsupported = firstOrNull { restriction ->
+			restriction.restrictionType to restriction.restrictionOperator !in SUPPORTED_FORMAT_RESTRICTIONS
+		}
+		if (unsupported != null) {
+			invalidValue(
+				"restrictionOperator",
+				"不支持的赛制限制: ${unsupported.code} (${unsupported.restrictionType}/${unsupported.restrictionOperator})",
+			)
+		}
+	}
+
+	/**
 	 * 冻结引擎规则会直接按 code 读取的核心属性 ID。
 	 *
 	 * [BattleCoreRuntimeLookup.coreElementIds] 会读取现代主系列全部常规属性；这里仍显式列出当前引擎规则真正使用的
@@ -195,4 +280,22 @@ class BattleFormatRuntimeLookup(
 			"steel",
 			"water",
 		).associateWith { code -> requiredElementId(code) }
+
+	private companion object {
+		private val SUPPORTED_FORMAT_CLAUSE_CODES = setOf(
+			"species-unique",
+			"item-unique",
+			"level-flattened",
+			"team-preview",
+		)
+		private val SUPPORTED_FORMAT_RESTRICTIONS = setOf(
+			"LEVEL" to "MAX",
+			"TEAM" to "LIMIT_COUNT",
+			"TEAM" to "SELECT_COUNT",
+			"CREATURE" to "BAN",
+			"SKILL" to "BAN",
+			"ABILITY" to "BAN",
+			"ITEM" to "BAN",
+		)
 	}
+}
