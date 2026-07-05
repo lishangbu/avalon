@@ -10260,7 +10260,7 @@ databaseChangeLog:
         stripComments: false
         sql: |
           -- 接触反伤属于攻击方主动接触目标后的副作用：粗糙皮肤/铁刺按攻击方最大 HP 的 1/8 扣血；
-          -- 凸凸头盔按攻击方最大 HP 的 1/6 扣血。附着针还包含回合末自伤和道具转移，等生命周期完整建模后再启用。
+          -- 凸凸头盔按攻击方最大 HP 的 1/6 扣血。附着针不是纯反伤道具，它的转移和回合末自伤由后续独立规则承载。
           update game_ability
           set enabled = true
           where code in ('rough-skin', 'iron-barbs');

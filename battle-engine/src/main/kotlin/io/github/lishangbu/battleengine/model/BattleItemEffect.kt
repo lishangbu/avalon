@@ -422,8 +422,8 @@ sealed interface BattleItemEffect {
 	 * 本身的接触事实，也不会影响接触类保护绕过、接触类威力倍率等正向规则。
 	 *
 	 * `damageDenominator` 表示攻击方最大 HP 的分母。道具反伤属于间接伤害，会被攻击方的间接伤害免疫阻止；
-	 * 它不消费持有者道具，也不读取目标受到的实际伤害量。附着针这类还包含回合末自伤和道具转移的复杂道具，
-	 * 应在完整生命周期建模后再额外启用，避免只实现其中一半规则。
+	 * 它不消费持有者道具，也不读取目标受到的实际伤害量。复合型道具不要塞进这个效果里：例如附着针会用
+	 * [ContactTransferToAttacker] 和 [HeldEndTurnDamage] 分别表达转移与回合末自伤，避免一个效果对象承担多段生命周期。
 	 */
 	data class ContactDamageToAttacker(
 		val damageDenominator: Int,
