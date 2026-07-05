@@ -128,6 +128,25 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	@Test
+	fun `runtime snapshot rejects malformed level flattening format`() {
+		withTemporaryOfficialDoubleDefaultLevel(null) {
+			val missingDefaultLevel = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(missingDefaultLevel.field).isEqualTo("defaultLevel")
+			assertThat(missingDefaultLevel.message).isEqualTo("等级拉平条款必须配置默认等级")
+		}
+
+		withTemporaryOfficialDoubleDefaultLevel(60) {
+			val defaultLevelAboveCap = assertThrows<ApiException> {
+				service.getByFormatCode("official-double")
+			}
+			assertThat(defaultLevelAboveCap.field).isEqualTo("defaultLevel")
+			assertThat(defaultLevelAboveCap.message).isEqualTo("默认等级不能高于等级上限: 60 > 50")
+		}
+	}
+
+	@Test
 	fun `runtime snapshot rejects malformed format restriction operands`() {
 		withTemporaryFormatRestriction(
 			code = "runtime-invalid-level-cap",
@@ -2829,6 +2848,15 @@ class BattleRuntimeSnapshotServiceTests(
 			block()
 		} finally {
 			jdbcTemplate.update("delete from battle_format_restriction where id = ?", TEMP_FORMAT_RESTRICTION_ID)
+		}
+	}
+
+	private fun withTemporaryOfficialDoubleDefaultLevel(defaultLevel: Int?, block: () -> Unit) {
+		jdbcTemplate.update("update battle_format set default_level = ? where code = ?", defaultLevel, "official-double")
+		try {
+			block()
+		} finally {
+			jdbcTemplate.update("update battle_format set default_level = ? where code = ?", 50, "official-double")
 		}
 	}
 

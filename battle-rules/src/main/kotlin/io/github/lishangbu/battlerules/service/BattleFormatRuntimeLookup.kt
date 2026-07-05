@@ -55,12 +55,14 @@ class BattleFormatRuntimeLookup(
 		clauseCodes.validateSupportedFormatClauses()
 		restrictions.validateSupportedFormatRestrictions()
 		val battleTeamSize = restrictions.battleTeamSize(format)
+		val maxParticipantLevel = restrictions.minimumPositiveOperand("LEVEL", "MAX")
+		format.validateLevelFlattening(clauseCodes, maxParticipantLevel)
 		return BattleRuntimeSnapshot(
 			format = format.toEngineFormatSnapshot(battleTeamSize),
 			rules = BattleRuleSnapshot(
 				elementChart = elementChart,
 				elementIds = elementIds.requiredBattleRuleElementIds(),
-				maxParticipantLevel = restrictions.minimumPositiveOperand("LEVEL", "MAX"),
+				maxParticipantLevel = maxParticipantLevel,
 				bannedCreatureIds = restrictions.bannedIds("CREATURE"),
 				bannedSkillIds = restrictions.bannedIds("SKILL"),
 				bannedAbilityIds = restrictions.bannedIds("ABILITY"),
@@ -119,6 +121,24 @@ class BattleFormatRuntimeLookup(
 	private fun BattleFormat.toEngineBattleMode(): BattleMode =
 		BattleMode.entries.firstOrNull { it.name == battleMode.uppercase(Locale.ROOT) }
 			?: invalidValue("battleMode", "不支持的战斗模式: $battleMode")
+
+	/**
+	 * 校验等级拉平条款和赛制等级字段彼此自洽。
+	 *
+	 * `level-flattened` 表示请求中的登记等级不是最终战斗等级，成员进入引擎前会被 [BattleInitialStateAssembler]
+	 * 按 `defaultLevel` 重新计算能力值。如果条款启用但默认等级为空，装配器只能退回原始等级，等于后台显示已启用
+	 * 等级拉平但实战完全没执行。若默认等级高于 `LEVEL/MAX`，拉平后的成员又会在准备校验阶段被自己的赛制拒绝。
+	 * 这两类都是赛制资料错误，应在运行时快照读取阶段直接失败。
+	 */
+	private fun BattleFormat.validateLevelFlattening(clauseCodes: Set<String>, maxParticipantLevel: Int?) {
+		val configuredDefaultLevel = defaultLevel
+		if ("level-flattened" in clauseCodes && configuredDefaultLevel == null) {
+			invalidValue("defaultLevel", "等级拉平条款必须配置默认等级")
+		}
+		if (configuredDefaultLevel != null && maxParticipantLevel != null && configuredDefaultLevel > maxParticipantLevel) {
+			invalidValue("defaultLevel", "默认等级不能高于等级上限: $configuredDefaultLevel > $maxParticipantLevel")
+		}
+	}
 
 	/**
 	 * 读取数值型赛制限制的最小正数操作数。
