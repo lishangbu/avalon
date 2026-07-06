@@ -102,6 +102,14 @@ private fun protectionChanceDenominator(chain: Int): Int {
 	return denominator
 }
 
+/**
+ * 一次击中要害判定的可回放结果。
+ *
+ * [hit] 是后续伤害公式唯一需要读取的结论；[roll] 只在本次判定真实消费随机数时记录原始掷点。必定击中要害的
+ * 场景不会消费随机数，因此 [roll] 为 `null`，这样 replay 可以区分“规则直接成立”和“随机掷点成功”这两类
+ * 完全不同的事实。该类型刻意不记录概率分母，分母由 [criticalHitCheck] 根据现代规则表和当前要害等级即时推导，
+ * 避免多个字段表达同一份规则事实后出现漂移。
+ */
 internal data class CriticalHitCheck(
 	val hit: Boolean,
 	val roll: Int?,

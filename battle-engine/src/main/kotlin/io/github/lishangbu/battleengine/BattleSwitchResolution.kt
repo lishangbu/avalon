@@ -126,6 +126,13 @@ internal class BattleSwitchResolution(
 			),
 		)
 
+	/**
+	 * 主动替换阶段排序前保留下来的行动快照。
+	 *
+	 * [action] 是玩家提交或倒下补位产生的替换意图，[actor] 是进入排序时读取到的离场成员状态。排序必须使用替换前
+	 * 成员的有效速度；等真正执行时仍会从最新 [BattleState] 重新读取成员，避免前一个替换、倒下或战斗结束后继续
+	 * 使用过期对象。这个小类型只在本类内部存在，目的是把“用于排序的快照”和“执行时的最新状态读取”区分清楚。
+	 */
 	private data class SwitchPlan(
 		val action: BattleAction.SwitchParticipant,
 		val actor: BattleParticipant,

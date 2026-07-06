@@ -78,7 +78,7 @@ class BattleEngineArchitectureTests {
 	@Test
 	fun `battle engine declarations keep production grade kdoc`() {
 		val declarationPattern =
-			Regex("^(class|data class|object|interface|enum class|sealed interface|sealed class)\\s+\\w+")
+			Regex("^(?:(?:public|internal|private|protected)\\s+)?(?:(?:data|sealed)\\s+)?(?:class|object|interface|enum class)\\s+\\w+")
 		val mainSourceRoot = existingPath("src/main/kotlin", "battle-engine/src/main/kotlin")
 
 		// 战斗引擎的事件、规则模型和阶段结果会被 replay、沙盒、对照测试和未来线上排障共同读取。
