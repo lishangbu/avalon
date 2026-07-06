@@ -23,6 +23,8 @@ class BackendArchitectureTests {
 			"JdbcTemplate",
 			"NamedParameterJdbcTemplate",
 			"org.springframework.jdbc.core",
+			"libs.spring.boot.starter.jdbc",
+			"spring-boot-starter-jdbc",
 			"implementation(libs.spring.boot.starter.jdbc)",
 			"GameDataJimmerOperations",
 			"GameDataTableService",
