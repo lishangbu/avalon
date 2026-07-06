@@ -142,6 +142,13 @@ sealed interface BattleSkillDynamicPower {
 		}
 	}
 
+	/**
+	 * 有效速度比例动态威力的一档阈值。
+	 *
+	 * [minimumRatio] 表示“分子速度至少是分母速度的多少倍”才返回 [power]。该值只保存整数倍，实际比较由伤害
+	 * 计算器使用交叉相乘完成，因此恰好达到 2 倍、3 倍或 4 倍的边界不会因为浮点精度漂移。多个阈值由
+	 * [UserSpeedRatioThresholds] 负责按从高到低排序，公式实现找到第一档命中值即可。
+	 */
 	data class SpeedPowerThreshold(
 		val minimumRatio: Int,
 		val power: Int,

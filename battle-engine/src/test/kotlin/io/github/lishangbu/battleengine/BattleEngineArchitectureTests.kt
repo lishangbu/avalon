@@ -75,6 +75,35 @@ class BattleEngineArchitectureTests {
 		)
 	}
 
+	@Test
+	fun `battle engine declarations keep production grade kdoc`() {
+		val declarationPattern =
+			Regex("^(class|data class|object|interface|enum class|sealed interface|sealed class)\\s+\\w+")
+		val mainSourceRoot = existingPath("src/main/kotlin", "battle-engine/src/main/kotlin")
+
+		// 战斗引擎的事件、规则模型和阶段结果会被 replay、沙盒、对照测试和未来线上排障共同读取。
+		// 这里不要求每个私有函数都写文档，但所有声明成类型的语义边界必须有 KDoc，说明它表达的规则事实、
+		// 产生阶段和不应承担的职责，避免新增类型时只靠类名猜现代对战规则含义。
+		val missingKdoc = sourceFiles(mainSourceRoot)
+			.filter { it.toString().endsWith(".kt") }
+			.flatMap { file ->
+				val lines = Files.readAllLines(file)
+				lines.mapIndexedNotNull { index, line ->
+					val declaration = line.trim()
+					if (!declarationPattern.containsMatchIn(declaration) || hasKdocBeforeDeclaration(lines, index)) {
+						null
+					} else {
+						"${mainSourceRoot.relativize(file)}:${index + 1} missing KDoc for $declaration"
+					}
+				}
+			}
+
+		assertTrue(
+			missingKdoc.isEmpty(),
+			"战斗引擎类型声明必须保留生产级 KDoc：\n${missingKdoc.joinToString("\n")}",
+		)
+	}
+
 	private fun existingPath(vararg candidates: String): Path =
 		candidates
 			.map(Path::of)
@@ -95,5 +124,22 @@ class BattleEngineArchitectureTests {
 		} finally {
 			paths.close()
 		}
+	}
+
+	private fun hasKdocBeforeDeclaration(lines: List<String>, declarationLineIndex: Int): Boolean {
+		var index = declarationLineIndex - 1
+		while (index >= 0 && (lines[index].isBlank() || lines[index].trimStart().startsWith("@"))) {
+			index -= 1
+		}
+		if (index < 0 || !lines[index].trim().endsWith("*/")) {
+			return false
+		}
+		while (index >= 0) {
+			if (lines[index].trim().startsWith("/**")) {
+				return true
+			}
+			index -= 1
+		}
+		return false
 	}
 }

@@ -10,12 +10,25 @@ sealed interface BattleEvent {
 	val turnNumber: Int
 
 	// 生命周期与换人事件：描述战斗、回合和上场席位如何变化。
+	/**
+	 * 战斗已经从冻结初始快照进入运行态。
+	 *
+	 * 该事件只在 [io.github.lishangbu.battleengine.BattleEngine.start] 产出一次，记录赛制 code 和双方 id，便于
+	 * replay 在不反查数据库的情况下确认初始上下文。它不表示任何出场特性、天气、场地或入场陷阱已经结算；这些
+	 * 启动后的副作用会按实际顺序继续追加独立事件。
+	 */
 	data class BattleStarted(
 		override val turnNumber: Int,
 		val formatCode: String,
 		val sideIds: List<String>,
 	) : BattleEvent
 
+	/**
+	 * 一个新的战斗回合开始结算。
+	 *
+	 * 事件在行动排序、替换、行动前状态和技能处理之前写入，作为 replay 中每回合事件片段的锚点。它不承载天气、
+	 * 场地或持续时间递减语义；那些回合末效果必须在对应阶段独立产生事件，避免仅凭回合号推断副作用。
+	 */
 	data class TurnStarted(
 		override val turnNumber: Int,
 	) : BattleEvent
@@ -66,6 +79,13 @@ sealed interface BattleEvent {
 		val turnsRemainingBefore: Int? = null,
 	) : BattleEvent
 
+	/**
+	 * 成员已经宣布并进入一次技能使用流程。
+	 *
+	 * 该事件发生在 PP 消耗和命中前 gate 之前，用来表达“行动者本回合确实尝试使用了这个技能”。它不保证技能
+	 * 最终命中、造成伤害或产生附加效果；后续可能紧跟未命中、属性免疫、保护、失败、状态阻挡或伤害事件。
+	 * [targetActorId] 是本次使用流程的主目标或被规则解析后的代表目标，范围技能仍会在逐目标阶段拆出多个结果。
+	 */
 	data class SkillUsed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -100,6 +120,13 @@ sealed interface BattleEvent {
 		val stageBonus: Int,
 	) : BattleEvent
 
+	/**
+	 * 技能在命中判定阶段未命中指定目标。
+	 *
+	 * [accuracyRoll] 是本次消费的 1..100 命中随机值，保存在事件里是为了让 replay 和公开规则对照测试可以校验
+	 * 随机消费顺序。该事件只覆盖命中率/闪避率/天气修正后的未命中；属性免疫、保护、精神场地阻挡或一击必杀
+	 * 等级失败会使用其它更具体事件，不应被归并为 miss。
+	 */
 	data class SkillMissed(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -499,6 +526,13 @@ sealed interface BattleEvent {
 		val status: BattleVolatileStatus,
 	) : BattleEvent
 
+	/**
+	 * 成员某项能力阶级已经实际改变。
+	 *
+	 * [delta] 是本次变化量，可能经过能力下限、上限、清除强化或交换类规则修正；[currentStage] 是写入后的最终
+	 * 阶级。事件只在运行态真的发生变化时出现，白雾、防尘护目镜等阻挡或能力已经到达边界但规则要求记录失败的
+	 * 场景，应使用独立阻挡事件或不产生该事件，避免 replay 把“尝试改变”和“已经改变”混在一起。
+	 */
 	data class StatStageChanged(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -811,6 +845,12 @@ sealed interface BattleEvent {
 		val skillId: Long? = null,
 	) : BattleEvent
 
+	/**
+	 * 主要异常状态在回合末造成了间接伤害。
+	 *
+	 * 当前用于中毒、剧毒和灼伤等持续性状态。事件记录 [status]，而不是只记录伤害量，因为同样的 HP 损失可能来自
+	 * 天气、道具、寄生种子或反作用力；生产排障和公开用例需要知道伤害来源才能判断阶段顺序是否正确。
+	 */
 	data class ResidualDamageApplied(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -818,6 +858,12 @@ sealed interface BattleEvent {
 		val amount: Int,
 	) : BattleEvent
 
+	/**
+	 * 技能反作用力对使用者造成了 HP 损失。
+	 *
+	 * 该事件表示伤害后代价已经由本次技能触发并写入使用者 HP。它和混乱自伤、道具伤害、天气伤害分开，是为了在
+	 * replay 中保留“由技能命中后的反作用力造成”的事实；实际扣血量可能已经按使用者剩余 HP 截断。
+	 */
 	data class RecoilDamageApplied(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -867,6 +913,12 @@ sealed interface BattleEvent {
 		val turnsRemainingBefore: Int,
 	) : BattleEvent
 
+	/**
+	 * 通用回复效果已经为成员恢复 HP。
+	 *
+	 * 该事件用于不需要额外来源字段的回复，例如自我回复类技能或伤害吸收类技能最终写入的 HP。天气特性、寄生种子、
+	 * 场地和道具回复有独立事件，以便生产日志能区分来源；[amount] 是实际恢复量，已经按最大 HP 截断。
+	 */
 	data class HealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -1095,6 +1147,12 @@ sealed interface BattleEvent {
 	) : BattleEvent
 
 	// 天气、场地和战斗收尾事件：描述全局环境变化以及回合/战斗结束。
+	/**
+	 * 场地在回合末为成员恢复 HP。
+	 *
+	 * 当前用于青草场地等按最大 HP 比例回复的场地效果。事件记录具体 [terrain]，因为同样的回复数值也可能来自技能、
+	 * 道具或天气特性；把来源写进事件能让 replay 校验“场地回复发生在回合末环境阶段”，而不是只从最终 HP 推断。
+	 */
 	data class TerrainHealingApplied(
 		override val turnNumber: Int,
 		val actorId: String,
@@ -1176,15 +1234,34 @@ sealed interface BattleEvent {
 		val skillId: Long? = null,
 	) : BattleEvent
 
+	/**
+	 * 成员已经因为 HP 归零或规则指定效果无法继续战斗。
+	 *
+	 * 该事件是倒下事实的统一出口，不携带伤害来源；来源应由更早的伤害、反作用力、天气、状态或直接倒下事件表达。
+	 * 分开记录可以让同一次伤害同时产生“受到了多少伤害”和“因此倒下”两条事实，便于胜负判定和强制替换阶段按
+	 * 事件顺序复盘。
+	 */
 	data class ParticipantFainted(
 		override val turnNumber: Int,
 		val actorId: String,
 	) : BattleEvent
 
+	/**
+	 * 当前回合所有行动、持续效果和倒下/胜负检查已经处理完毕。
+	 *
+	 * 该事件只在战斗仍未结束时追加，表示下一次调用可以提交下一回合行动。它不表示一定发生了天气或场地递减；
+	 * 若回合末环境效果存在，对应事件必须已经出现在 [TurnEnded] 之前。
+	 */
 	data class TurnEnded(
 		override val turnNumber: Int,
 	) : BattleEvent
 
+	/**
+	 * 战斗已经结束并给出胜负结论。
+	 *
+	 * [winningSideId] 为空表示平局或无胜者结束；非空时指向获胜方。[reason] 是稳定机器可读原因，例如一方全员
+	 * 无法战斗。事件一旦出现，核心引擎不会再接受后续回合行动；replay 也会以它作为最终状态边界。
+	 */
 	data class BattleEnded(
 		override val turnNumber: Int,
 		val winningSideId: String?,
