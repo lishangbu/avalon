@@ -185,7 +185,7 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `grounded terrain priority boost moves slower skill before faster opponent`() {
 		val scenario = publicBattleRuleScenario(
 			name = "grounded-terrain-priority-boost-moves-slower-skill-before-faster-opponent",
-			inputSummary = "青草场地中，速度较低且接地的成员使用声明为青草场地接地先制度 +1 的攻击技能。",
+			inputSummary = "青草场地中，速度较低且接地的成员使用声明为青草场地接地先制 +1 的攻击技能。",
 			expectedSummary = "技能获得 +1 优先度，先于速度更高的普通优先度技能执行。",
 		)
 		val grassyPrioritySkill = damagingSkill(
@@ -219,7 +219,7 @@ class BattleActionOrderingPublicReferenceTests {
 	fun `grounded terrain priority boost does not apply to ungrounded user`() {
 		val scenario = publicBattleRuleScenario(
 			name = "grounded-terrain-priority-boost-does-not-apply-to-ungrounded-user",
-			inputSummary = "青草场地中，速度较低但非接地的成员使用同一个场地先制度技能。",
+			inputSummary = "青草场地中，速度较低但非接地的成员使用同一个场地先制技能。",
 			expectedSummary = "使用者没有受到场地影响，技能保持普通优先度，速度更高的对手先行动。",
 		)
 		val grassyPrioritySkill = damagingSkill(

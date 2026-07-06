@@ -63,9 +63,9 @@ class BattleProtectionBreakingSkillTests {
 		val scenario = publicBattleRuleScenario(
 			name = "feint-breaks-priority-side-guard-before-later-priority-attack",
 			inputSummary = "双打中目标侧先建立快速防守；对手随后用佯攻命中该侧成员，另一个对手再使用正优先度攻击。",
-			expectedSummary = "佯攻移除目标侧本回合先制度防护；后续正优先度攻击不再被快速防守阻挡并正常造成伤害。",
+			expectedSummary = "佯攻移除目标侧本回合先制防护；后续正优先度攻击不再被快速防守阻挡并正常造成伤害。",
 		)
-		val priorityAttack = damagingSkill(skillId = 3, name = "先制度测试", priority = 1)
+		val priorityAttack = damagingSkill(skillId = 3, name = "先制测试", priority = 1)
 		val state = engine.start(
 			doubleInitialState(
 				firstA = participant("guard-user", speed = 100, skill = prioritySideGuardSkill()),

@@ -95,10 +95,10 @@ class BattleSideGuardSkillTests {
 	fun `priority side guard blocks opponent positive priority skill`() {
 		val scenario = publicBattleRuleScenario(
 			name = "priority-side-guard-blocks-opponent-positive-priority-skill",
-			inputSummary = "双打中使用者先建立一侧先制度防护，对手随后使用正优先度伤害技能。",
-			expectedSummary = "先制度防护在命中前阻挡目标，不消费命中或伤害随机数，也不产生伤害事件。",
+			inputSummary = "双打中使用者先建立一侧先制防护，对手随后使用正优先度伤害技能。",
+			expectedSummary = "先制防护在命中前阻挡目标，不消费命中或伤害随机数，也不产生伤害事件。",
 		)
-		val prioritySkill = damagingSkill(skillId = 3, name = "先制度测试", priority = 1)
+		val prioritySkill = damagingSkill(skillId = 3, name = "先制测试", priority = 1)
 		val state = engine.start(
 			doubleInitialState(
 				firstA = participant("guard-user", speed = 100, skill = prioritySideGuardSkill()),
@@ -128,8 +128,8 @@ class BattleSideGuardSkillTests {
 	fun `priority side guard ignores ordinary priority skill`() {
 		val scenario = publicBattleRuleScenario(
 			name = "priority-side-guard-ignores-ordinary-priority-skill",
-			inputSummary = "双打中使用者建立一侧先制度防护，对手随后使用普通优先度伤害技能。",
-			expectedSummary = "先制度防护不会阻挡普通优先度技能；目标照常受到伤害。",
+			inputSummary = "双打中使用者建立一侧先制防护，对手随后使用普通优先度伤害技能。",
+			expectedSummary = "先制防护不会阻挡普通优先度技能；目标照常受到伤害。",
 		)
 		val state = engine.start(
 			doubleInitialState(
@@ -189,11 +189,11 @@ class BattleSideGuardSkillTests {
 	fun `consecutive side guard can fail by shared protection chain`() {
 		val scenario = publicBattleRuleScenario(
 			name = "consecutive-side-guard-can-fail-by-shared-protection-chain",
-			inputSummary = "使用者上一回合已经成功建立一侧先制度防护，本回合再次连续使用同族防护。",
-			expectedSummary = "第二次使用进入连续保护递减；随机失败后不会建立侧防护，对手先制度技能照常造成伤害。",
+			inputSummary = "使用者上一回合已经成功建立一侧先制防护，本回合再次连续使用同族防护。",
+			expectedSummary = "第二次使用进入连续保护递减；随机失败后不会建立侧防护，对手先制技能照常造成伤害。",
 		)
 		val ordinarySkill = damagingSkill()
-		val prioritySkill = damagingSkill(skillId = 3, name = "先制度测试", priority = 1)
+		val prioritySkill = damagingSkill(skillId = 3, name = "先制测试", priority = 1)
 		val state = engine.start(
 			doubleInitialState(
 				firstA = participant("guard-user", speed = 100, skill = prioritySideGuardSkill()),

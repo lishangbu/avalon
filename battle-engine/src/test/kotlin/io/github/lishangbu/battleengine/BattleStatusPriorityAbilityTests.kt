@@ -64,7 +64,7 @@ class BattleStatusPriorityAbilityTests {
 	fun `dark target blocks opponent status skill boosted by status priority ability`() {
 		val scenario = publicBattleRuleScenario(
 			name = "dark-target-blocks-opponent-status-skill-boosted-by-status-priority-ability",
-			inputSummary = "拥有变化技能先制度特性的成员对对手恶属性目标使用基础优先度为 0 的变化技能。",
+			inputSummary = "拥有变化技能先制特性的成员对对手恶属性目标使用基础优先度为 0 的变化技能。",
 			expectedSummary = "技能消耗 PP 后被目标恶属性免疫，不产生能力阶级变化或其它附加效果。",
 		)
 		val priorityStatusSkill = targetAttackStageSkill(name = "恶属性免疫测试")
@@ -100,7 +100,7 @@ class BattleStatusPriorityAbilityTests {
 	fun `status priority ability does not make ally dark target immune`() {
 		val scenario = publicBattleRuleScenario(
 			name = "status-priority-ability-does-not-make-ally-dark-target-immune",
-			inputSummary = "双打中拥有变化技能先制度特性的成员对同侧恶属性伙伴使用变化技能。",
+			inputSummary = "双打中拥有变化技能先制特性的成员对同侧恶属性伙伴使用变化技能。",
 			expectedSummary = "恶属性免疫只针对对手目标；同侧伙伴不会阻挡该技能，附加效果正常结算。",
 		)
 		val priorityStatusSkill = targetAttackStageSkill(name = "同侧辅助测试")

@@ -291,7 +291,7 @@ internal fun String.toBattleSkillPowerMultipliers(): List<BattleSkillPowerMultip
 	}
 
 /**
- * 将技能自身的场地条件先制度策略转换为运行态优先度加成。
+ * 将技能自身的场地条件先制策略转换为运行态优先度加成。
  *
  * 当前只表达“使用者接地且青草场地存在时优先度 +1”的现代规则。这里返回 Map 而不是新建规则对象，是因为行动排序
  * 只需要按当前场地查一个整数加成；接地判断属于排序阶段对行动者运行态的读取，不需要持久化额外字段。
@@ -492,7 +492,7 @@ internal fun String.requiresTargetPendingDamagingSkill(): Boolean =
 	this == "target-pending-damaging-skill-damage"
 
 /**
- * 判断技能是否要求目标仍在准备先制度伤害技能。
+ * 判断技能是否要求目标仍在准备先制伤害技能。
  *
  * 快手还击比突袭更窄：目标必须正准备一个有效优先度大于 0 的伤害技能。把它拆成独立 policy，是为了避免用
  * “突袭条件 + 额外优先度”这种隐式组合污染后台维护语义。

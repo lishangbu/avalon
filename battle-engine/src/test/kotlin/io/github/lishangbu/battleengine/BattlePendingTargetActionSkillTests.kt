@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
  *
  * 场景类型：技能使用前 gate 级公开规则场景。
  * 参考来源类型：公开成熟模拟器实现。突袭读取目标是否仍在队列中准备伤害技能；快手还击读取目标是否仍在队列中
- * 准备先制度伤害技能，并在命中后 100% 附加畏缩。两类技能都不是根据目标最终是否真的行动来回溯结算，而是在
+ * 准备先制伤害技能，并在命中后 100% 附加畏缩。两类技能都不是根据目标最终是否真的行动来回溯结算，而是在
  * 使用者宣告技能、消耗 PP 之后立即读取当前行动计划。
  * 验证重点：目标切换、已经行动、准备变化技能或准备普通优先度攻击时，条件技能在命中前失败；条件满足时才进入
  * 普通命中、伤害和附加效果。
@@ -29,7 +29,7 @@ class BattlePendingTargetActionSkillTests {
 	fun `pending damaging target skill allows sucker punch style attack`() {
 		val scenario = publicBattleRuleScenario(
 			name = "pending-damaging-target-skill-allows-sucker-punch-style-attack",
-			inputSummary = "使用者以先制度条件攻击命中仍未行动且准备伤害技能的目标。",
+			inputSummary = "使用者以先制条件攻击命中仍未行动且准备伤害技能的目标。",
 			expectedSummary = "条件攻击成功造成伤害；目标若仍可行动，随后照常执行自己的伤害技能。",
 		)
 		val state = engine.start(
@@ -95,7 +95,7 @@ class BattlePendingTargetActionSkillTests {
 			inputSummary = "目标使用更高优先度伤害技能先行动，随后使用者才尝试依赖目标待行动的攻击。",
 			expectedSummary = "目标已经不再处于待行动队列，条件攻击宣告并消耗 PP 后失败。",
 		)
-		val fasterPriorityDamage = damagingSkill(skillId = 3, name = "先制度测试", priority = 2)
+		val fasterPriorityDamage = damagingSkill(skillId = 3, name = "先制测试", priority = 2)
 		val state = engine.start(
 			initialState(
 				first = participant("ambusher", speed = 80, skill = suckerPunchSkill()),
@@ -125,7 +125,7 @@ class BattlePendingTargetActionSkillTests {
 	fun `pending priority damaging target skill allows upper hand style attack and flinch`() {
 		val scenario = publicBattleRuleScenario(
 			name = "pending-priority-damaging-target-skill-allows-upper-hand-style-attack",
-			inputSummary = "目标准备先制度伤害技能，使用者用更高优先度条件攻击拦截。",
+			inputSummary = "目标准备先制伤害技能，使用者用更高优先度条件攻击拦截。",
 			expectedSummary = "快手还击式技能成功造成伤害并附加畏缩，目标随后被畏缩阻止行动且不消耗 PP。",
 		)
 		val priorityDamage = damagingSkill(skillId = 4, name = "电光一闪测试", priority = 1)

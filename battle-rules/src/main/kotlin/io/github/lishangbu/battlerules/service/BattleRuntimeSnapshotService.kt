@@ -784,7 +784,7 @@ class BattleRuntimeSnapshotService(
 			"no-pending-skill-action-after-side-protection" -> "本回合没有后续技能行动"
 			"target-has-no-pending-skill-action" -> "目标没有待执行的技能行动"
 			"target-not-pending-damaging-skill" -> "目标没有准备伤害技能"
-			"target-not-pending-priority-damaging-skill" -> "目标没有准备先制度伤害技能"
+			"target-not-pending-priority-damaging-skill" -> "目标没有准备先制伤害技能"
 			else -> this
 		}
 
@@ -793,7 +793,7 @@ class BattleRuntimeSnapshotService(
 			BattleSideProtectionKind.STAT_STAGE_REDUCTION -> "能力下降防护"
 			BattleSideProtectionKind.STATUS_CONDITION -> "状态防护"
 			BattleSideProtectionKind.MULTI_TARGET_SKILL -> "范围技能防护"
-			BattleSideProtectionKind.PRIORITY_SKILL -> "先制度技能防护"
+			BattleSideProtectionKind.PRIORITY_SKILL -> "先制技能防护"
 		}
 
 	private fun BattleEvent.ProtectionBroken.toBrokenProtectionText(): String =

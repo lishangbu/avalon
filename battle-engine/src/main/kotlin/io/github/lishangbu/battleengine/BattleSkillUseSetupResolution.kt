@@ -149,7 +149,7 @@ internal class BattleSkillUseSetupResolution(
 	/**
 	 * 判断技能是否因目标本回合没有准备合格行动而失败。
 	 *
-	 * 突袭读取的是目标队列中“尚未执行的伤害技能”；快手还击读取的是“尚未执行的先制度伤害技能”。这里使用
+	 * 突袭读取的是目标队列中“尚未执行的伤害技能”；快手还击读取的是“尚未执行的先制伤害技能”。这里使用
 	 * [TurnContext.plannedSkillActions] 和 [TurnContext.resolvedSkillActorIds]，避免根据当前 HP、速度或事件流
 	 * 反推目标意图。失败时技能已经宣告并消耗 PP，但不会继续进入保护、命中或伤害流程。
 	 */

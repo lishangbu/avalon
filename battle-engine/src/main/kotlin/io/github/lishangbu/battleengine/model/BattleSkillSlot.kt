@@ -75,12 +75,12 @@ package io.github.lishangbu.battleengine.model
  * 和 PP 消耗之后，命中、保护、伤害和附加效果之前。
  * `requiresTargetPendingDamagingSkill` 表示技能只有在目标本回合仍未行动且正准备使用伤害技能时才能继续。突袭这类
  * 先读目标意图的技能会在宣告和 PP 消耗之后读取回合行动计划；目标切换、已经行动、休整或准备变化技能都会失败。
- * `requiresTargetPendingPriorityDamagingSkill` 表示技能只有在目标本回合仍未行动且正准备使用先制度伤害技能时才能继续。
- * 快手还击用它拦截对手先制度攻击；目标准备变化技能或普通优先度攻击时都会在命中前失败。
+ * `requiresTargetPendingPriorityDamagingSkill` 表示技能只有在目标本回合仍未行动且正准备使用先制伤害技能时才能继续。
+ * 快手还击用它拦截对手先制攻击；目标准备变化技能或普通优先度攻击时都会在命中前失败。
  * `protectsUserSideFromMultiTargetSkills` 表示技能成功后在本回合保护使用者一侧当前上场成员免受对手范围技能影响。
  * 该保护不写入跨回合 [BattleState]，只保存在回合上下文中；这样广域防守类技能不会误变成白雾/神秘守护那种多回合状态。
  * `protectsUserSideFromPrioritySkills` 表示技能成功后在本回合保护使用者一侧当前上场成员免受对手正优先度技能影响。
- * 判定读取行动排序阶段计算出的有效优先度，因此资料、特性或场地带来的先制度提升会走同一条保护 gate。
+ * 判定读取行动排序阶段计算出的有效优先度，因此资料、特性或场地带来的先制提升会走同一条保护 gate。
  * `groundedTerrainPriorityBoosts` 表示使用者接地且指定场地存在时，技能行动优先度获得的额外提升。
  * `statStageOperations` 表示技能命中后执行的能力阶级清除、复制、交换或取反等结构化操作。
  * `sideConditionApplications` 表示技能命中后建立的一侧防守屏障效果，例如物理屏障或特殊屏障。
