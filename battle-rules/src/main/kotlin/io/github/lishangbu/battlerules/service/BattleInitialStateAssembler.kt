@@ -238,6 +238,12 @@ class BattleInitialStateAssembler(
 			}.orEmpty()
 	}
 
+	/**
+	 * 初始状态装配期间复用精灵运行时资料的缓存键。
+	 *
+	 * 同一只资料精灵在不同等级、个体值、努力值或性格配置下会得到不同能力值，因此缓存键必须包含 [level] 和
+	 * [statConfig]，不能只按资料 ID 命中。该键只在单次请求的装配缓存中使用，不跨请求保存，避免规则资料更新后读取旧值。
+	 */
 	private data class BattleCreatureRuntimeProfileCacheKey(
 		val creatureId: Long,
 		val level: Int,

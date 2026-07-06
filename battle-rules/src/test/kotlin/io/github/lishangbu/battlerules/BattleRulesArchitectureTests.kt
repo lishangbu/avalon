@@ -145,6 +145,31 @@ class BattleRulesArchitectureTests {
 			.doesNotContain("implementation(libs.spring.boot.starter.jdbc)")
 	}
 
+	@Test
+	fun `battle rules declarations keep production grade kdoc`() {
+		val declarationPattern =
+			Regex("^(?:(?:public|internal|private|protected)\\s+)?(?:(?:data|sealed)\\s+)?(?:class|object|interface|enum class)\\s+\\w+")
+		val missingKdoc = kotlinFiles(mainSourceRoot).flatMap { file ->
+			val lines = Files.readAllLines(file)
+			lines.mapIndexedNotNull { index, line ->
+				val declaration = line.trim()
+				if (!declarationPattern.containsMatchIn(declaration) || hasKdocBeforeDeclaration(lines, index)) {
+					null
+				} else {
+					"${mainSourceRoot.relativize(file)}:${index + 1} missing KDoc for $declaration"
+				}
+			}
+		}
+
+		assertThat(missingKdoc)
+			.withFailMessage(
+				"战斗规则接口、DTO、运行时装配模型和内部查询行都必须保留生产级 KDoc，说明字段边界、续算职责和不可承担的职责：\n${
+					missingKdoc.joinToString("\n")
+				}",
+			)
+			.isEmpty()
+	}
+
 	private fun sourceFiles(directoryName: String, suffix: String): List<Path> =
 		Files.list(mainSourceRoot.resolve("io/github/lishangbu/battlerules/$directoryName")).use { paths ->
 			paths
@@ -168,4 +193,21 @@ class BattleRulesArchitectureTests {
 				.sorted()
 				.toList()
 		}
+
+	private fun hasKdocBeforeDeclaration(lines: List<String>, declarationLineIndex: Int): Boolean {
+		var index = declarationLineIndex - 1
+		while (index >= 0 && (lines[index].isBlank() || lines[index].trimStart().startsWith("@"))) {
+			index -= 1
+		}
+		if (index < 0 || !lines[index].trim().endsWith("*/")) {
+			return false
+		}
+		while (index >= 0) {
+			if (lines[index].trim().startsWith("/**")) {
+				return true
+			}
+			index -= 1
+		}
+		return false
+	}
 }

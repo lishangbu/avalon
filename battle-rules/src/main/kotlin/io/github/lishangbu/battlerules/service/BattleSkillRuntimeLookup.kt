@@ -328,6 +328,14 @@ private fun ResultSet.nullableBoolean(column: String): Boolean? {
 	return if (wasNull()) null else value
 }
 
+/**
+ * 技能运行时 SQL 查询返回的一行原始资料。
+ *
+ * 该类型停留在 Jimmer connection 的固定 SQL 查询边界，用于把技能基础资料、目标策略、命中策略、伤害策略和附加效果
+ * policy code 先收拢到一个强类型行对象，再由 mapper 转成 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
+ * 它不会暴露给 Controller，也不会被缓存为生产规则事实源；这样数据库字段缺失能在装配阶段尽早报错，而纯引擎仍只处理
+ * 已经结构化、经过校验的技能快照。
+ */
 private data class SkillRuntimeRow(
 	val skillId: Long,
 	val name: String,

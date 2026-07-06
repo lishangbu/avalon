@@ -170,6 +170,12 @@ class BattleCoreRuntimeLookup(
 			else -> invalidValue("relationType", "不支持的属性克制关系: $this")
 		}
 
+	/**
+	 * 从资料库读取到的一条属性克制关系。
+	 *
+	 * 运行时快照装配会把多条关系折叠成 [io.github.lishangbu.battleengine.model.ElementEffectivenessChart]，引擎只读取
+	 * 最终克制倍率表。这个内部行模型只存在于查询层，用来避免把数据库里的 `relation_type` 文本继续传入纯引擎。
+	 */
 	private data class ElementDamageRelation(
 		val sourceElementId: Long,
 		val targetElementId: Long,

@@ -28,6 +28,12 @@ data class BattleSandboxTurnResponse(
 	@field:Schema(description = "可直接带入下一次请求的连续回合状态快照。")
 	val state: BattleSandboxStateSnapshot,
 ) {
+	/**
+	 * 战斗结束后的结果摘要。
+	 *
+	 * 沙盒响应只需要告诉前端胜利方和结束原因；完整的倒下、替换失败或回合结束事件仍保留在事件流中。这样列表区可以快速
+	 * 展示结果，而排障时又能回到结构化事件查看具体触发顺序。
+	 */
 	@Schema(name = "BattleSandboxTurnResult", description = "战斗结果摘要。")
 	data class Result(
 		@field:Schema(description = "获胜方 ID；平局或无胜方时为空。", nullable = true, example = "side-a")
@@ -36,6 +42,12 @@ data class BattleSandboxTurnResponse(
 		var reason: String = "",
 	)
 
+	/**
+	 * 回合响应中用于页面摘要的一方状态。
+	 *
+	 * 与连续 [BattleSandboxStateSnapshot.Side] 不同，这里只面向本次响应展示：当前上场成员和成员摘要足够驱动管理页表格。
+	 * 下一回合续算必须使用 [BattleSandboxTurnResponse.state]，不能从这个摘要反推完整运行态。
+	 */
 	@Schema(name = "BattleSandboxTurnSide", description = "一方运行态摘要。")
 	data class Side(
 		@field:Schema(description = "队伍侧 ID。", example = "side-a")
@@ -46,6 +58,12 @@ data class BattleSandboxTurnResponse(
 		val participants: List<Participant> = emptyList(),
 	)
 
+	/**
+	 * 回合响应中用于页面展示的成员摘要。
+	 *
+	 * 该 DTO 刻意只展示 HP、主要异常、能力阶级和 PP 等常用排障字段；锁招、蓄力、替身、陷阱等完整续算状态位于
+	 * [BattleSandboxStateSnapshot.Participant]。这样管理页可以保持紧凑，同时不会让摘要字段承担续算职责。
+	 */
 	@Schema(name = "BattleSandboxTurnParticipant", description = "成员运行态摘要。")
 	data class Participant(
 		@field:Schema(description = "战斗内成员 ID。", example = "side-a-1")
@@ -68,6 +86,12 @@ data class BattleSandboxTurnResponse(
 		val skillSlots: List<SkillSlot> = emptyList(),
 	)
 
+	/**
+	 * 回合响应中的技能槽展示摘要。
+	 *
+	 * 名称只用于管理页直接可读，PP 用于观察本回合是否正确消耗；技能效果、命中率、威力和目标规则不随响应返回，
+	 * 因为那些属于规则快照和行为测试覆盖范围。
+	 */
 	@Schema(name = "BattleSandboxTurnSkillSlot", description = "技能槽运行态。")
 	data class SkillSlot(
 		@field:Schema(description = "技能资料 ID。", example = "33")
@@ -80,6 +104,12 @@ data class BattleSandboxTurnResponse(
 		val maxPp: Int = 0,
 	)
 
+	/**
+	 * 回合响应中的结构化事件展示项。
+	 *
+	 * [type] 保留引擎事件类型，方便测试和排障精确定位；[typeLabel] 与 [message] 提供中文展示；[payload] 保存该事件
+	 * 的原始结构化字段，供前端详情抽屉或日志导出使用。事件只描述已经发生的事实，不应被下一回合请求当作规则输入。
+	 */
 	@Schema(name = "BattleSandboxTurnEvent", description = "战斗事件日志。")
 	data class Event(
 		@field:Schema(description = "事件类型。", example = "SkillUsed")
@@ -94,6 +124,12 @@ data class BattleSandboxTurnResponse(
 		var payload: Map<String, Any?> = emptyMap(),
 	)
 
+	/**
+	 * 本回合随机数消费记录。
+	 *
+	 * 每条记录保留消费顺序、上界、原因和实际值，用于复盘命中、同速、段数、异常追加等随机分支。它不参与下一回合规则计算，
+	 * 只帮助确认同一输入和同一随机脚本能够得到完全可重复的事件流。
+	 */
 	@Schema(name = "BattleSandboxTurnRandomTrace", description = "随机消费记录。")
 	data class RandomTrace(
 		@field:Schema(description = "本回合内消费顺序。", example = "1")
