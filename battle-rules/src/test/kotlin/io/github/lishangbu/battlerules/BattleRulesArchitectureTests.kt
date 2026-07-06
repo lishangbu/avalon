@@ -86,6 +86,27 @@ class BattleRulesArchitectureTests {
 	}
 
 	@Test
+	fun `battle rule resource layers stay aligned`() {
+		// 这里固定的是可维护规则资源的三层配套关系：页面 CRUD 入口对应一个 Controller，
+		// Controller 只调用自己的 Service，Service 只通过自己的 Jimmer Repository 访问对应规则表。
+		// 运行时快照和沙盒是执行接口，不属于规则资料维护资源，所以不会参与三层数量对齐。
+		val controllerNames = sourceFiles("controller", "Controller.kt")
+			.map { it.name.removeSuffix("Controller.kt") }
+			.filterNot { it in setOf("BattleRuntimeSnapshot", "BattleSandbox") }
+			.sorted()
+		val serviceNames = sourceFiles("service", "Service.kt")
+			.map { it.name.removeSuffix("Service.kt") }
+			.filterNot { it == "BattleRuntimeSnapshot" }
+			.sorted()
+		val repositoryNames = sourceFiles("repository", "Repository.kt")
+			.map { it.name.removeSuffix("Repository.kt") }
+			.sorted()
+
+		assertThat(controllerNames).containsExactlyElementsOf(repositoryNames)
+		assertThat(serviceNames).containsExactlyElementsOf(repositoryNames)
+	}
+
+	@Test
 	fun `battle rules build keeps jimmer persistence without direct jdbc starter`() {
 		val buildFile = projectRoot.resolve("build.gradle.kts").readText()
 
