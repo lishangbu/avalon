@@ -106,6 +106,30 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase seed text keeps simplified chinese terminology clean`() {
+		val changelogRoot = Path.of(javaClass.getResource("/db/changelog")!!.toURI())
+		val forbiddenTerms = listOf("精灵精灵", "生物", "宝可梦", "神奇宝贝")
+
+		// 这里扫描的是给页面、权限树和资料表展示用的中文文本；code 列里的英文资料源命名仍允许保留，
+		// 因为它们是稳定外部标识，不直接承担中文展示语义。
+		val hits = Files.walk(changelogRoot).use { paths ->
+			paths
+				.filter { Files.isRegularFile(it) }
+				.filter { path -> path.fileName.toString().let { it.endsWith(".csv") || it.endsWith(".yaml") } }
+				.flatMap { path ->
+					val text = Files.readString(path)
+					forbiddenTerms
+						.filter(text::contains)
+						.map { term -> "${changelogRoot.relativize(path)} contains $term" }
+						.stream()
+				}
+				.toList()
+		}
+
+		assertThat(hits).isEmpty()
+	}
+
+	@Test
 	fun `liquibase does not keep catalog and battle tables`() {
 		val tableNames = queryStrings(
 			"""

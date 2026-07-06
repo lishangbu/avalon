@@ -260,13 +260,13 @@ id,code,name,region_id,enabled
 270,pokemon-movie-07,精灵电影07,,true
 271,pokemon-movie-08,精灵电影08,,true
 272,pokemon-movie-09,精灵电影09,,true
-273,pokemon-movie-10,精灵精灵剧场版 10,,true
-274,pokemon-movie-11,精灵精灵剧场版11,,true
-275,pokemon-movie-12,精灵精灵剧场版 12,,true
-276,pokemon-movie-13,精灵精灵剧场版 13,,true
-277,pokemon-movie-14,精灵精灵剧场版 14,,true
-278,pokemon-movie-15,精灵精灵剧场版 15,,true
-279,pokemon-movie-16,精灵精灵剧场版 16,,true
+273,pokemon-movie-10,精灵剧场版 10,,true
+274,pokemon-movie-11,精灵剧场版11,,true
+275,pokemon-movie-12,精灵剧场版 12,,true
+276,pokemon-movie-13,精灵剧场版 13,,true
+277,pokemon-movie-14,精灵剧场版 14,,true
+278,pokemon-movie-15,精灵剧场版 15,,true
+279,pokemon-movie-16,精灵剧场版 16,,true
 280,pokemon-cartoon,精灵卡通,,true
 281,space-world,太空世界,,true
 282,space-world-06,太空世界06,,true
@@ -285,13 +285,13 @@ id,code,name,region_id,enabled
 295,pokemon-festa-07,精灵节 07,,true
 296,pokemon-festa-08,精灵节 08,,true
 297,pokemon-festa-09,精灵节 09,,true
-298,pokemon-festa-10,精灵精灵嘉年华 10,,true
-299,pokemon-festa-11,精灵精灵节 11,,true
-300,pokemon-festa-12,精灵精灵嘉年华 12,,true
-301,pokemon-festa-13,精灵精灵节 13,,true
-302,pokemon-festa-14,精灵精灵节 14,,true
-303,pokemon-festa-15,精灵精灵节 15,,true
-304,pokemon-festa-16,精灵精灵节 16,,true
+298,pokemon-festa-10,精灵嘉年华 10,,true
+299,pokemon-festa-11,精灵节 11,,true
+300,pokemon-festa-12,精灵嘉年华 12,,true
+301,pokemon-festa-13,精灵节 13,,true
+302,pokemon-festa-14,精灵节 14,,true
+303,pokemon-festa-15,精灵节 15,,true
+304,pokemon-festa-16,精灵节 16,,true
 305,pokepark,神奇乐园,,true
 306,pokepark-06,精灵公园 06,,true
 307,pokepark-07,精灵公园 07,,true

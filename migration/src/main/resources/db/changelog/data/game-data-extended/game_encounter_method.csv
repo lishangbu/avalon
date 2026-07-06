@@ -46,8 +46,8 @@ id,code,name,sort_order,enabled
 45,colosseum-bonus-disc-us,从美版竞技场特典光盘获得基拉祈,45,true
 46,colosseum-bonus-disc-jpn,从日版竞技场特典光盘获得时拉比或皮卡丘,46,true
 47,pokemon-channel-pal,从欧版精灵频道接收基拉祈,47,true
-48,pokemon-ranger,从《精灵精灵游侠》获得玛纳菲,48,true
-49,pokemon-battle-revolution,从《精灵精灵对战革命》中获得皮卡丘、电弹或岩浆,49,true
+48,pokemon-ranger,从《精灵游侠》获得玛纳菲,48,true
+49,pokemon-battle-revolution,从《精灵对战革命》中获得皮卡丘、电弹或岩浆,49,true
 50,new-york-pokecenter-wish-eggs,从纽约市的精灵中心收到一个鸡蛋，其中包含特殊技能“愿望”。,50,true
 51,snag,在竞技场或 XD：暗黑旋风中从训练师那里夺取暗影精灵。,51,true
 52,snag-rematch,在竞技场或 XD：暗黑旋风中，首次夺取失败后再次从训练师那里夺取暗影精灵。,52,true
