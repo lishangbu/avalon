@@ -131,13 +131,7 @@ class BattleSkillTerrainElementOverrideService(
 		if (terrainRule.code !in SUPPORTED_TERRAIN_CODES) {
 			invalidValue("terrainRuleId", "场地属性覆盖只支持现代主系列四种场地: ${terrainRule.code}")
 		}
-		val elementExists = sqlClient.querySql(
-			"select exists(select 1 from game_element where id = ? and enabled = true)",
-			targetElementId,
-		) { rs -> rs.getBoolean(1) }.singleOrNull() == true
-		if (!elementExists) {
-			invalidReference("targetElementId", "目标属性不存在: $targetElementId")
-		}
+		requireExistingGameDataReference(sqlClient, "game_element", targetElementId, "targetElementId", "目标属性", enabledOnly = true)
 	}
 
 	private fun ensureOverrideAvailable(request: BattleSkillTerrainElementOverrideRequest, selfId: Long?) {

@@ -131,13 +131,7 @@ class BattleSkillWeatherElementOverrideService(
 		if (weatherRule.code == "clear") {
 			invalidValue("weatherRuleId", "天气属性覆盖不能引用无天气")
 		}
-		val elementExists = sqlClient.querySql(
-			"select exists(select 1 from game_element where id = ? and enabled = true)",
-			targetElementId,
-		) { rs -> rs.getBoolean(1) }.singleOrNull() == true
-		if (!elementExists) {
-			invalidReference("targetElementId", "目标属性不存在: $targetElementId")
-		}
+		requireExistingGameDataReference(sqlClient, "game_element", targetElementId, "targetElementId", "目标属性", enabledOnly = true)
 	}
 
 	private fun ensureOverrideAvailable(request: BattleSkillWeatherElementOverrideRequest, selfId: Long?) {

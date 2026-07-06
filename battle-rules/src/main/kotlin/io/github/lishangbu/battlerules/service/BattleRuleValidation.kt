@@ -68,9 +68,16 @@ internal fun requireExistingGameDataReference(
 	id: Long,
 	fieldName: String,
 	displayName: String,
+	enabledOnly: Boolean = false,
 ) {
+	/**
+	 * `tableName` 只允许由服务层传入固定表名，不接收请求参数；这里保留原生 SQL 是因为 game-data 资料表当前
+	 * 以独立维护表暴露，没有为每张资料表都生成 Jimmer Entity。`enabledOnly` 用于战斗运行时只能引用启用资料
+	 * 的场景，例如天气/场地导致的技能属性覆盖不应指向已停用属性。
+	 */
+	val enabledPredicate = if (enabledOnly) " and enabled = true" else ""
 	val exists = sqlClient.querySql(
-		"select exists(select 1 from $tableName where id = ?)",
+		"select exists(select 1 from $tableName where id = ?$enabledPredicate)",
 		id,
 	) { rs -> rs.getBoolean(1) }.singleOrNull() == true
 	if (!exists) {
