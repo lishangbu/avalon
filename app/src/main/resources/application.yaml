@@ -37,6 +37,13 @@ cosid:
 server:
   port: 8080
 
+management:
+  endpoints:
+    web:
+      exposure:
+        # 生产部署和本地联调只需要健康探活；其它 actuator 端点不在默认 HTTP 面上暴露。
+        include: health
+
 backend:
   cors:
     allowed-origins:
