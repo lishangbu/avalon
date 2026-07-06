@@ -2212,6 +2212,8 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.resolved).isTrue()
 		assertThat(response.violations).isEmpty()
 		assertThat(response.events.map { it.type }).contains("BattleStarted", "TurnStarted", "SkillUsed", "DamageApplied")
+		assertThat(response.events.single { it.type == "SkillUsed" }.typeLabel).isEqualTo("使用技能")
+		assertThat(response.events.single { it.type == "DamageApplied" }.typeLabel).isEqualTo("造成伤害")
 		assertThat(response.events.single { it.type == "DamageApplied" }.message).contains("b-1", "伤害")
 		assertThat(response.randomTrace).isNotEmpty
 		assertThat(target.currentHp).isLessThan(target.maxHp)

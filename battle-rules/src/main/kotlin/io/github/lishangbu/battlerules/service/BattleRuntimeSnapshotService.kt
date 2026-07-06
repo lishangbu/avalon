@@ -735,8 +735,11 @@ class BattleRuntimeSnapshotService(
 
 	private fun BattleEvent.toSandboxEvent(): BattleSandboxTurnResponse.Event {
 		val type = this::class.simpleName ?: "BattleEvent"
+		// type 是战斗回放、调试和自动化测试依赖的稳定事件编码；typeLabel 是管理页直接展示的中文短名。
+		// 两者都从后端事件事实生成，前端就不需要再维护一份容易漂移的事件文案字典。
 		return BattleSandboxTurnResponse.Event(
 			type = type,
+			typeLabel = type.toSandboxEventTypeText(),
 			turnNumber = turnNumber,
 			message = toSandboxEventMessage(type),
 			payload = eventPayload(),

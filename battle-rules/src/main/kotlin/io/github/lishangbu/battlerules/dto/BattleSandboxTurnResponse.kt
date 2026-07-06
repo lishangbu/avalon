@@ -84,6 +84,8 @@ data class BattleSandboxTurnResponse(
 	data class Event(
 		@field:Schema(description = "事件类型。", example = "SkillUsed")
 		var type: String = "",
+		@field:Schema(description = "事件类型的简短中文名称，用于管理页表格、筛选和日志摘要直接展示。", example = "使用技能")
+		var typeLabel: String = "",
 		@field:Schema(description = "事件发生回合。", example = "1")
 		var turnNumber: Int = 0,
 		@field:Schema(description = "简短中文说明。")
