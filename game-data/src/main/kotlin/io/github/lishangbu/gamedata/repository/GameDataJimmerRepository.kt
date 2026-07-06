@@ -10,8 +10,6 @@ import io.github.lishangbu.gamedata.model.GameDataRecordRequest
 import io.github.lishangbu.gamedata.model.GameDataRecordResponse
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -20,21 +18,17 @@ import java.sql.SQLException
 private val codePattern = Regex("^[a-z0-9][a-z0-9-]{0,79}$")
 
 /**
- * 游戏资料通用 Jimmer CRUD 操作。
+ * 具体游戏资料仓储的 Jimmer SQL 基类。
  *
- * 资料管理已经拆成每张表独立 Controller/Service/Repository；这些仓储仍共享同一份白名单列规格，避免每张
- * 资料表复制分页、筛选、写入校验和主键读取逻辑。由于 `game-data` 的资料表数量较多且字段集合各不相同，
- * 这里暂时不为每张资料表手写 Jimmer 实体，而是通过 Jimmer 的 `ConnectionManager` 进入当前 Spring 事务，
- * 让连接生命周期、事务绑定和异常翻译继续由 Jimmer/Spring 管理，同时彻底去掉生产持久层对 Spring JDBC 模板
- * 的依赖。所有表名和字段名仍来自 [GameDataTableSpec] 的白名单校验，外部请求不能拼接任意 SQL 标识符。
+ * 每张资料表仍由自己的 Repository 暴露业务入口和事务注解；本基类只封装 Jimmer 连接、白名单 SQL 拼装、
+ * 字段归一化和数据库约束异常翻译，避免把这些安全边界复制到几十个仓储里。表名和字段名全部来自具体仓储传入
+ * 的 [GameDataTableSpec]，外部请求不能拼接任意 SQL 标识符。
  */
-@Component
-class GameDataJimmerOperations(
+abstract class GameDataJimmerRepository(
 	private val sqlClient: KSqlClient,
+	private val table: GameDataTableSpec,
 ) {
-	@Transactional(readOnly = true)
-	fun list(
-		table: GameDataTableSpec,
+	protected fun listRecords(
 		page: Int,
 		size: Int,
 		query: String?,
@@ -60,12 +54,10 @@ class GameDataJimmerOperations(
 		)
 	}
 
-	@Transactional(readOnly = true)
-	fun get(table: GameDataTableSpec, id: Long): GameDataRecordResponse =
+	protected fun getRecord(id: Long): GameDataRecordResponse =
 		find(table, id) ?: notFound("id", "${table.label}不存在: $id")
 
-	@Transactional
-	fun create(table: GameDataTableSpec, request: GameDataRecordRequest): GameDataRecordResponse {
+	protected fun createRecord(request: GameDataRecordRequest): GameDataRecordResponse {
 		val values = normalizeWriteValues(table, request.fields, requireAll = true)
 		if (values.isEmpty()) {
 			invalidValue("fields", "fields 至少需要提供一个字段")
@@ -75,12 +67,11 @@ class GameDataJimmerOperations(
 			sql = "insert into ${table.tableName} (${columns.joinToString()}) values (${columns.joinToString { "?" }}) returning id",
 			parameters = values.values.toList(),
 		) { resultSet -> resultSet.getLong(1) } ?: invalidValue("id", "${table.label}创建后未返回主键")
-		return get(table, id)
+		return getRecord(id)
 	}
 
-	@Transactional
-	fun update(table: GameDataTableSpec, id: Long, request: GameDataRecordRequest): GameDataRecordResponse {
-		get(table, id)
+	protected fun updateRecord(id: Long, request: GameDataRecordRequest): GameDataRecordResponse {
+		getRecord(id)
 		val values = normalizeWriteValues(table, request.fields, requireAll = false)
 		if (values.isEmpty()) {
 			invalidValue("fields", "fields 至少需要提供一个字段")
@@ -89,11 +80,10 @@ class GameDataJimmerOperations(
 			sql = "update ${table.tableName} set ${values.keys.joinToString { "$it = ?" }} where id = ?",
 			parameters = values.values.toList() + id,
 		)
-		return get(table, id)
+		return getRecord(id)
 	}
 
-	@Transactional
-	fun delete(table: GameDataTableSpec, id: Long) {
+	protected fun deleteRecord(id: Long) {
 		val affectedRows = executeUpdate(
 			sql = "delete from ${table.tableName} where id = ?",
 			parameters = listOf(id),

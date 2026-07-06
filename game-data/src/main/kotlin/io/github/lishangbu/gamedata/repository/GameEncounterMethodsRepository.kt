@@ -3,7 +3,9 @@ package io.github.lishangbu.gamedata.repository
 import io.github.lishangbu.gamedata.model.GameDataPage
 import io.github.lishangbu.gamedata.model.GameDataRecordRequest
 import io.github.lishangbu.gamedata.model.GameDataRecordResponse
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 
 private val GAME_ENCOUNTER_METHODS_TABLE = GameDataTableSpec(
 	tableName = "game_encounter_method",
@@ -22,26 +24,31 @@ private val GAME_ENCOUNTER_METHODS_TABLE = GameDataTableSpec(
  */
 @Repository
 class GameEncounterMethodsRepository(
-	private val operations: GameDataJimmerOperations,
-) {
+	sqlClient: KSqlClient,
+) : GameDataJimmerRepository(sqlClient, GAME_ENCOUNTER_METHODS_TABLE) {
+	@Transactional(readOnly = true)
 	fun list(
 		page: Int,
 		size: Int,
 		query: String?,
 		filters: Map<String, String> = emptyMap(),
 	): GameDataPage<GameDataRecordResponse> =
-		operations.list(GAME_ENCOUNTER_METHODS_TABLE, page, size, query, filters)
+		listRecords(page, size, query, filters)
 
+	@Transactional(readOnly = true)
 	fun get(id: Long): GameDataRecordResponse =
-		operations.get(GAME_ENCOUNTER_METHODS_TABLE, id)
+		getRecord(id)
 
+	@Transactional
 	fun create(request: GameDataRecordRequest): GameDataRecordResponse =
-		operations.create(GAME_ENCOUNTER_METHODS_TABLE, request)
+		createRecord(request)
 
+	@Transactional
 	fun update(id: Long, request: GameDataRecordRequest): GameDataRecordResponse =
-		operations.update(GAME_ENCOUNTER_METHODS_TABLE, id, request)
+		updateRecord(id, request)
 
+	@Transactional
 	fun delete(id: Long) {
-		operations.delete(GAME_ENCOUNTER_METHODS_TABLE, id)
+		deleteRecord(id)
 	}
 }
