@@ -107,6 +107,36 @@ class BattleRulesArchitectureTests {
 	}
 
 	@Test
+	fun `sandbox event type labels cover every battle event`() {
+		val eventFile = existingPath(
+			"../battle-engine/src/main/kotlin/io/github/lishangbu/battleengine/model/BattleEvent.kt",
+			"battle-engine/src/main/kotlin/io/github/lishangbu/battleengine/model/BattleEvent.kt",
+		)
+		val snapshotServiceFile = mainSourceRoot.resolve(
+			"io/github/lishangbu/battlerules/service/BattleRuntimeSnapshotService.kt",
+		)
+		val eventTypePattern = Regex("^\\s+data class\\s+(\\w+)\\(")
+		val labelPattern = Regex("\"(\\w+)\"\\s*->\\s*\"([^\"]+)\"")
+
+		// 沙盒事件响应已经把 `typeLabel` 作为前端表格的权威中文名。新增 BattleEvent 时如果这里只靠
+		// `else -> this` 退回事件类名，管理页会重新出现英文事件编码；如果映射里残留已删除事件，也说明
+		// 前端可读文案和引擎事件模型已经漂移。本测试用源码级扫描固定这两个边界，避免为每个事件构造实例。
+		val eventTypes = eventFile.readText()
+			.lineSequence()
+			.mapNotNull { line -> eventTypePattern.find(line)?.groupValues?.get(1) }
+			.sorted()
+			.toList()
+		val labelTypes = labelPattern
+			.findAll(snapshotServiceFile.readText())
+			.associate { match -> match.groupValues[1] to match.groupValues[2] }
+		val missingLabels = eventTypes.filter { labelTypes[it].isNullOrBlank() || labelTypes[it] == it }
+		val obsoleteLabels = labelTypes.keys.minus(eventTypes.toSet()).sorted()
+
+		assertThat(missingLabels).isEmpty()
+		assertThat(obsoleteLabels).isEmpty()
+	}
+
+	@Test
 	fun `battle rules build keeps jimmer persistence without direct jdbc starter`() {
 		val buildFile = projectRoot.resolve("build.gradle.kts").readText()
 
