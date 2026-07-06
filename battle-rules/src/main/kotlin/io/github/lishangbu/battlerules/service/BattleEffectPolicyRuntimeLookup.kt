@@ -1,6 +1,16 @@
 package io.github.lishangbu.battlerules.service
 
+import io.github.lishangbu.battlerules.entity.BattleAbilityRule
+import io.github.lishangbu.battlerules.entity.BattleItemRule
+import io.github.lishangbu.battlerules.entity.abilityId
+import io.github.lishangbu.battlerules.entity.effectPolicy
+import io.github.lishangbu.battlerules.entity.enabled
+import io.github.lishangbu.battlerules.entity.id
+import io.github.lishangbu.battlerules.entity.itemId
+import io.github.lishangbu.battlerules.entity.sortOrder
+import io.github.lishangbu.battlerules.entity.triggerOrder
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Component
 
 /**
@@ -18,24 +28,18 @@ class BattleEffectPolicyRuntimeLookup(
 	private val sqlClient: KSqlClient,
 ) {
 	fun enabledAbilityPolicies(abilityId: Long): List<String> =
-		sqlClient.querySql(
-			"""
-			select effect_policy
-			from battle_ability_rule
-			where ability_id = ? and enabled = true
-			order by trigger_order, sort_order, id
-			""".trimIndent(),
-			abilityId,
-		) { rs -> rs.getString("effect_policy") }
+		sqlClient.createQuery(BattleAbilityRule::class) {
+			where(table.abilityId eq abilityId)
+			where(table.enabled eq true)
+			orderBy(table.triggerOrder, table.sortOrder, table.id)
+			select(table.effectPolicy)
+		}.execute()
 
 	fun enabledItemPolicies(itemId: Long): List<String> =
-		sqlClient.querySql(
-			"""
-			select effect_policy
-			from battle_item_rule
-			where item_id = ? and enabled = true
-			order by trigger_order, sort_order, id
-			""".trimIndent(),
-			itemId,
-		) { rs -> rs.getString("effect_policy") }
+		sqlClient.createQuery(BattleItemRule::class) {
+			where(table.itemId eq itemId)
+			where(table.enabled eq true)
+			orderBy(table.triggerOrder, table.sortOrder, table.id)
+			select(table.effectPolicy)
+		}.execute()
 }

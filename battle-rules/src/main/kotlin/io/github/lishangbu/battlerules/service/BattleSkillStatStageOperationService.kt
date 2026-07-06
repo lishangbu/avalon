@@ -8,6 +8,7 @@ import io.github.lishangbu.battlerules.entity.id
 import io.github.lishangbu.battlerules.entity.operationKind
 import io.github.lishangbu.battlerules.entity.skillRuleId
 import io.github.lishangbu.battlerules.entity.sortOrder
+import io.github.lishangbu.battlerules.entity.sourceScope
 import io.github.lishangbu.battlerules.entity.statId
 import io.github.lishangbu.battlerules.entity.targetScope
 import io.github.lishangbu.battlerules.repository.BattleSkillRuleRepository
@@ -21,6 +22,7 @@ import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.babyfish.jimmer.sql.kt.ast.expression.ne
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -136,29 +138,16 @@ class BattleSkillStatStageOperationService(
 	}
 
 	private fun ensureOperationAvailable(request: BattleSkillStatStageOperationRequest, selfId: Long?) {
-		val exists = sqlClient.querySql(
-			"""
-			select exists(
-				select 1
-				from battle_skill_stat_stage_operation
-				where skill_rule_id = ?
-					and stat_id = ?
-					and operation_kind = ?
-					and target_scope = ?
-					and coalesce(source_scope, '') = coalesce(?, '')
-					and effect_timing = ?
-					and (? is null or id <> ?)
-			)
-			""".trimIndent(),
-			request.skillRuleId,
-			request.statId,
-			request.operationKind,
-			request.targetScope,
-			request.sourceScope,
-			request.effectTiming,
-			selfId,
-			selfId,
-		) { rs -> rs.getBoolean(1) }.singleOrNull() == true
+		val exists = sqlClient.createQuery(BattleSkillStatStageOperation::class) {
+			where(table.skillRuleId eq request.skillRuleId)
+			where(table.statId eq request.statId)
+			where(table.operationKind eq request.operationKind)
+			where(table.targetScope eq request.targetScope)
+			where(table.sourceScope eq request.sourceScope)
+			where(table.effectTiming eq request.effectTiming)
+			selfId?.let { where(table.id ne it) }
+			select(table.id)
+		}.exists()
 		if (exists) {
 			conflict("statId", "该技能规则已经配置相同能力阶级操作")
 		}
