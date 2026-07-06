@@ -48,6 +48,33 @@ class BattleEngineArchitectureTests {
 		)
 	}
 
+	@Test
+	fun `battle engine production code stays deterministic and independent from tests`() {
+		val forbiddenTokens = listOf(
+			"kotlin.random.Random",
+			"Random.Default",
+			"System.currentTimeMillis",
+			"Instant.now",
+			"LocalDateTime.now",
+			"PublicBattleRuleScenario",
+			"publicBattleRuleScenario",
+		)
+		val mainSourceRoot = existingPath("src/main/kotlin", "battle-engine/src/main/kotlin")
+		val hits = sourceFiles(mainSourceRoot).flatMap { file ->
+			val text = Files.readString(file)
+			forbiddenTokens
+				.filter(text::contains)
+				.map { token -> "${mainSourceRoot.relativize(file)} contains $token" }
+		}
+
+		assertTrue(
+			hits.isEmpty(),
+			"战斗引擎生产代码必须保持可回放、可测试：随机数只能通过 BattleRandom 注入，时间和公开场景元数据只能留在测试层。\n${
+				hits.joinToString("\n")
+			}",
+		)
+	}
+
 	private fun existingPath(vararg candidates: String): Path =
 		candidates
 			.map(Path::of)
