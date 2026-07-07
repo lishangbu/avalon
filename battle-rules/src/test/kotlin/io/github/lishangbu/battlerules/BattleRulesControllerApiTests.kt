@@ -181,6 +181,31 @@ class BattleRulesControllerApiTests(
 			.andExpect(jsonPath("$.field").value("sides"))
 	}
 
+	@Test
+	fun `sandbox api resolves real rule data and returns stable boundary errors`() {
+		mockMvc.perform(
+			post("/api/battle-sandbox/turn")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sandboxTurnJson()),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.resolved").value(true))
+			.andExpect(jsonPath("$.turnNumber").value(1))
+			.andExpect(jsonPath("$.state.turnNumber").value(1))
+			.andExpect(jsonPath("$.events[?(@.type == 'BattleStarted')]").exists())
+			.andExpect(jsonPath("$.events[?(@.type == 'DamageApplied')]").exists())
+			.andExpect(jsonPath("$.randomTrace").isNotEmpty)
+
+		mockMvc.perform(
+			post("/api/battle-sandbox/turn")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"formatCode":"official-double","sides":[],"actions":[]}"""),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+			.andExpect(jsonPath("$.field").value("sides"))
+	}
+
 	private fun createFormat(code: String, name: String): Long {
 		val response = mockMvc.perform(
 			post("/api/battle-rules/battle-formats")
@@ -268,6 +293,64 @@ class BattleRulesControllerApiTests(
 		  "allowCustomRules": true,
 		  "enabled": true,
 		  "sortOrder": 999
+		}
+		""".trimIndent()
+
+	private fun sandboxTurnJson(): String =
+		"""
+		{
+		  "formatCode": "official-double",
+		  "randomSeed": 0,
+		  "sides": [
+		    {
+		      "sideId": "side-a",
+		      "activeActorIds": ["a-1", "a-2"],
+		      "participants": [
+		        {
+		          "actorId": "a-1",
+		          "creatureId": 1,
+		          "level": 50,
+		          "skillIds": [1],
+		          "itemId": 10
+		        },
+		        {
+		          "actorId": "a-2",
+		          "creatureId": 2,
+		          "level": 50,
+		          "skillIds": [1],
+		          "itemId": 11
+		        }
+		      ]
+		    },
+		    {
+		      "sideId": "side-b",
+		      "activeActorIds": ["b-1", "b-2"],
+		      "participants": [
+		        {
+		          "actorId": "b-1",
+		          "creatureId": 3,
+		          "level": 50,
+		          "skillIds": [1],
+		          "itemId": 12
+		        },
+		        {
+		          "actorId": "b-2",
+		          "creatureId": 4,
+		          "level": 50,
+		          "skillIds": [1],
+		          "itemId": 13
+		        }
+		      ]
+		    }
+		  ],
+		  "actions": [
+		    {
+		      "type": "USE_SKILL",
+		      "actorId": "a-1",
+		      "skillId": 1,
+		      "targetActorId": "b-1"
+		    }
+		  ]
 		}
 		""".trimIndent()
 
