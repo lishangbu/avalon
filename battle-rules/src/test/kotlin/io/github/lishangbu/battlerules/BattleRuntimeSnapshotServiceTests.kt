@@ -2225,6 +2225,55 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.state.turns.single().events.map { it.turnNumber }.toSet()).containsExactly(1)
 	}
 
+	/**
+	 * 验证沙盒接口不是用手写 fixture 绕过资料装配，而是把数据库中的技能规则一路送进真实引擎状态。
+	 *
+	 * 技能 580 的“设置青草场地”和 5 回合持续时间来自 Liquibase 初始化的规则资料；这里不在测试中手动构造
+	 * [BattleSkillEnvironmentEffect.SetTerrain]。这样做能覆盖生产链路中最容易漂移的三段：资料表字段 ->
+	 * runtime policy mapper -> [BattleEngine] 环境状态。断言同时看事件流和响应快照，因为前者服务复盘展示，
+	 * 后者服务下一回合续算；任意一边漏写都会让管理端沙盒看起来能执行、但实际无法稳定复盘或连续运行。
+	 * 响应快照中的剩余回合断言为 4，是因为沙盒返回的是“本回合已经完整结算并执行回合末递减之后”的状态；
+	 * 连续回合应消费的是递减后的下一状态，事件文案只作为展示文本，不在这里绑定具体措辞。
+	 */
+	@Test
+	fun `sandbox turn applies database terrain skill rule to engine state`() {
+		val response = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1"),
+						participants = listOf(
+							participant("a-1", creatureId = 1, level = 50, skillIds = listOf(580), abilityId = null),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1"),
+						participants = listOf(
+							participant("b-1", creatureId = 3, level = 50, abilityId = null),
+						),
+					),
+				),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 580,
+						targetActorId = "a-1",
+					),
+				),
+			),
+		)
+
+		assertThat(response.resolved).isTrue()
+		assertThat(response.events.map { it.type }).contains("SkillUsed", "TerrainStarted")
+		assertThat(response.state.environment.terrain).isEqualTo(BattleTerrain.GRASSY.name)
+		assertThat(response.state.environment.terrainTurnsRemaining).isEqualTo(4)
+	}
+
 	@Test
 	fun `sandbox turn renders skill failure reason in chinese`() {
 		val response = service.resolveSandboxTurn(
