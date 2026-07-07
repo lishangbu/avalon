@@ -2274,6 +2274,52 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.state.environment.terrainTurnsRemaining).isEqualTo(4)
 	}
 
+	/**
+	 * 验证天气类技能规则也从数据库资料进入沙盒引擎状态。
+	 *
+	 * 技能 240 的“下雨”效果和 5 回合持续时间来自规则资料；测试只提交一次沙盒行动，不手写
+	 * [BattleSkillEnvironmentEffect.SetWeather]。与场地测试一起，它们覆盖了全场环境里两条最常被前端复盘依赖的
+	 * 状态槽。响应快照断言 4 回合同样是因为沙盒返回的是本回合末递减后的连续运行态。
+	 */
+	@Test
+	fun `sandbox turn applies database weather skill rule to engine state`() {
+		val response = service.resolveSandboxTurn(
+			BattleSandboxTurnRequest(
+				formatCode = "standard-single",
+				sides = listOf(
+					BattlePreparationSideRequest(
+						sideId = "side-a",
+						activeActorIds = listOf("a-1"),
+						participants = listOf(
+							participant("a-1", creatureId = 1, level = 50, skillIds = listOf(240), abilityId = null),
+						),
+					),
+					BattlePreparationSideRequest(
+						sideId = "side-b",
+						activeActorIds = listOf("b-1"),
+						participants = listOf(
+							participant("b-1", creatureId = 3, level = 50, abilityId = null),
+						),
+					),
+				),
+				randomSeed = 0,
+				actions = listOf(
+					BattleActionRequest(
+						type = "USE_SKILL",
+						actorId = "a-1",
+						skillId = 240,
+						targetActorId = "a-1",
+					),
+				),
+			),
+		)
+
+		assertThat(response.resolved).isTrue()
+		assertThat(response.events.map { it.type }).contains("SkillUsed", "WeatherStarted")
+		assertThat(response.state.environment.weather).isEqualTo(BattleWeather.RAIN.name)
+		assertThat(response.state.environment.weatherTurnsRemaining).isEqualTo(4)
+	}
+
 	@Test
 	fun `sandbox turn renders skill failure reason in chinese`() {
 		val response = service.resolveSandboxTurn(

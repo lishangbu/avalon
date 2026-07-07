@@ -80,6 +80,22 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `规则覆盖账本可以生成机器可读报告`() {
+		val ranges = coverageGroupRuleRanges().associateBy { it.groupCode }
+		val reportPath = Path.of("build/reports/battle-rule-coverage.json")
+		val report = buildCoverageReportJson(ranges)
+
+		Files.createDirectories(reportPath.parent)
+		Files.writeString(reportPath, report)
+
+		assertTrue(Files.exists(reportPath), "规则覆盖报告必须写入 build/reports，方便 CI 和本地排查直接读取")
+		assertTrue(report.contains(""""totalRuleCount": 312"""))
+		assertTrue(report.contains(""""coverageGroupCount": 12"""))
+		assertTrue(report.contains(""""format-and-team-validation""""))
+		assertTrue(report.contains(""""random-replay-public-reference""""))
+	}
+
+	@Test
 	fun `规则族编号区间必须连续覆盖三百一十二条规则`() {
 		val ranges = coverageGroupRuleRanges()
 		val coveredRuleNumbers = ranges.flatMap { it.ruleNumbers.toList() }
@@ -335,6 +351,42 @@ class BattleRuleCoverageLedgerTests {
 			CoverageGroupRuleRange(group.code, ruleNumbers)
 		}
 	}
+
+	/**
+	 * 生成给 CI、脚本和人工排查读取的覆盖报告。
+	 *
+	 * 报告只汇总规则族、编号区间、规则数量和测试类，不复制 312 条场景明细。逐条映射仍由本测试类的断言负责，
+	 * 这样能避免再维护一份巨大 JSON 事实源；需要定位缺口时，开发者先看报告找到规则族，再回到对应测试类。
+	 */
+	private fun buildCoverageReportJson(rangesByGroupCode: Map<String, CoverageGroupRuleRange>): String =
+		buildString {
+			appendLine("{")
+			appendLine("""  "totalRuleCount": ${coverageGroups.sumOf { it.ruleCount }},""")
+			appendLine("""  "coverageGroupCount": ${coverageGroups.size},""")
+			appendLine("""  "groups": [""")
+			coverageGroups.forEachIndexed { index, group ->
+				val range = rangesByGroupCode.getValue(group.code)
+				appendLine("    {")
+				appendLine("""      "code": "${jsonEscape(group.code)}",""")
+				appendLine("""      "ruleNumberRange": "${range.ruleNumbers.first}-${range.ruleNumbers.last}",""")
+				appendLine("""      "ruleCount": ${group.ruleCount},""")
+				appendLine("""      "minimumNamedScenarioCount": ${group.minimumNamedScenarioCount},""")
+				appendLine("""      "description": "${jsonEscape(group.description)}",""")
+				appendLine(
+					"""      "testClassNames": [${
+						group.testClassNames.joinToString(", ") { testClassName -> """"${jsonEscape(testClassName)}"""" }
+					}]""",
+				)
+				appendLine(if (index == coverageGroups.lastIndex) "    }" else "    },")
+			}
+			appendLine("  ]")
+			appendLine("}")
+		}
+
+	private fun jsonEscape(value: String): String =
+		value
+			.replace("\\", "\\\\")
+			.replace("\"", "\\\"")
 
 	private fun namedScenarioNamesInSource(sourcePath: Path): List<String> {
 		val scenarioNamePattern = Regex("""\.assertNamed\(\s*"([^"]+)"""")
