@@ -2886,6 +2886,53 @@ class BattleRuntimeSnapshotServiceTests(
 	}
 
 	/**
+	 * 验证数据库中的主要异常状态效果会真正写入引擎成员状态。
+	 *
+	 * 技能 261 的灼伤效果来自 `battle_skill_status_effect`，不是测试手写技能。这里刻意不给目标配置解除异常的
+	 * 携带道具，确保资料装配出来的 [BattleEvent.StatusApplied] 既出现在事件流里，也最终留在成员运行态上。
+	 * 这条测试和下面“道具立刻治愈”的测试配对：前者证明状态资料能落地，后者证明道具资料能在落地后消费并清除。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database major status skill in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 4, level = 50, skillIds = listOf(261)),
+			secondSideFirst = participant("b-1", creatureId = 7, level = 50, skillIds = listOf(1)),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 261, targetActorId = "b-1"),
+			randomValues = listOf(0),
+		)
+		val applied = resolved.events.filterIsInstance<BattleEvent.StatusApplied>().single()
+
+		assertThat(applied.actorId).isEqualTo("a-1")
+		assertThat(applied.targetActorId).isEqualTo("b-1")
+		assertThat(applied.status).isEqualTo(BattleMajorStatus.BURN)
+		assertThat(resolved.participant("b-1")?.majorStatus).isEqualTo(BattleMajorStatus.BURN)
+	}
+
+	/**
+	 * 验证数据库中的能力阶级效果会映射成引擎事件和最终状态。
+	 *
+	 * 技能 14 的攻击提升配置来自 `battle_skill_stat_stage_effect`，测试不直接构造 [BattleStatStageEffect]。这样可以
+	 * 同时兜住三段链路：Liquibase 初始数据、运行时 mapper、引擎追加 [BattleEvent.StatStageChanged] 后写回成员
+	 * `statStages`。如果以后资料编码或 mapper 字段名漂移，这条测试会在真实结算层失败。
+	 */
+	@Test
+	fun `assembled runtime snapshot applies database stat stage skill in engine turn`() {
+		val resolved = resolvedAssembledTurn(
+			firstSideFirst = participant("a-1", creatureId = 4, level = 50, skillIds = listOf(14)),
+			secondSideFirst = participant("b-1", creatureId = 7, level = 50, skillIds = listOf(1)),
+			action = BattleAction.UseSkill(actorId = "a-1", skillId = 14, targetActorId = "a-1"),
+		)
+		val changed = resolved.events.filterIsInstance<BattleEvent.StatStageChanged>().single()
+
+		assertThat(changed.actorId).isEqualTo("a-1")
+		assertThat(changed.targetActorId).isEqualTo("a-1")
+		assertThat(changed.stat).isEqualTo(BattleStat.ATTACK)
+		assertThat(changed.delta).isEqualTo(2)
+		assertThat(changed.currentStage).isEqualTo(2)
+		assertThat(resolved.participant("a-1")?.statStages?.get(BattleStat.ATTACK)).isEqualTo(2)
+	}
+
+	/**
 	 * 验证数据库中的主要异常治愈道具会在状态已经写入后立刻清除并消费。
 	 *
 	 * 技能 261 是资料中的灼伤变化技能，道具 129 是只解除灼伤的一次性携带道具。现代规则要求这类道具不拦截状态

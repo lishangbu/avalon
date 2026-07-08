@@ -96,6 +96,22 @@ class BattleRuleCoverageLedgerTests {
 	}
 
 	@Test
+	fun `规则覆盖报告说明文档必须同步机器可读输出契约`() {
+		val documentPath = Path.of("../docs/superpowers/plans/2026-07-08-battle-rule-coverage-report.md")
+		val document = Files.readString(documentPath)
+
+		assertTrue(
+			document.contains("battle-engine/build/reports/battle-rule-coverage.json"),
+			"覆盖报告文档必须写明 CI 和本地都能读取的机器报告路径",
+		)
+		assertTrue(document.contains("totalRuleCount") && document.contains("312"))
+		assertTrue(document.contains("coverageGroupCount") && document.contains("12"))
+		assertTrue(document.contains("groups[].code"))
+		assertTrue(document.contains("groups[].ruleNumberRange"))
+		assertTrue(document.contains("groups[].testClassNames"))
+	}
+
+	@Test
 	fun `规则族编号区间必须连续覆盖三百一十二条规则`() {
 		val ranges = coverageGroupRuleRanges()
 		val coveredRuleNumbers = ranges.flatMap { it.ruleNumbers.toList() }
