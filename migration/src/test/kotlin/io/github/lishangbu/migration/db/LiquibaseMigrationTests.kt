@@ -505,6 +505,7 @@ class LiquibaseMigrationTests(
 			"battle_skill_charge_skip_weather",
 			"battle_ability_rule",
 			"battle_item_rule",
+			"battle_sandbox_replay",
 		)
 
 		val seedCounts = queryMaps(

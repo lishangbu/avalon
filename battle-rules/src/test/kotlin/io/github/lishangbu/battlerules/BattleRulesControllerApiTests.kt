@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules
 
 import com.jayway.jsonpath.JsonPath
+import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -206,6 +207,57 @@ class BattleRulesControllerApiTests(
 			.andExpect(jsonPath("$.field").value("sides"))
 	}
 
+	@Test
+	fun `sandbox replay api persists lists reads and deletes saved responses`() {
+		val turnResponse = mockMvc.perform(
+			post("/api/battle-sandbox/turn")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sandboxTurnJson()),
+		)
+			.andExpect(status().isOk)
+			.andReturn()
+			.response
+			.contentAsString
+
+		val replayResponse = mockMvc.perform(
+			post("/api/battle-sandbox/replays")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""
+					{
+					  "title": "接口测试复盘",
+					  "formatCode": "official-double",
+					  "responseJson": "${turnResponse.jsonStringLiteral()}"
+					}
+					""".trimIndent(),
+				),
+		)
+			.andExpect(status().isCreated)
+			.andExpect(jsonPath("$.title").value("接口测试复盘"))
+			.andExpect(jsonPath("$.formatCode").value("official-double"))
+			.andExpect(jsonPath("$.responseJson").value(containsString("\"turnNumber\":1")))
+			.andReturn()
+			.response
+			.contentAsString
+		val replayId = idAt(replayResponse, "$.id")
+
+		mockMvc.perform(get("/api/battle-sandbox/replays").param("q", "接口测试复盘"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].id").value(replayId))
+			.andExpect(jsonPath("$.rows[0].title").value("接口测试复盘"))
+			.andExpect(jsonPath("$.rows[0].response").doesNotExist())
+
+		mockMvc.perform(get("/api/battle-sandbox/replays/$replayId"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.id").value(replayId))
+			.andExpect(jsonPath("$.responseJson").value(containsString("\"state\"")))
+
+		mockMvc.perform(delete("/api/battle-sandbox/replays/$replayId"))
+			.andExpect(status().isNoContent)
+		mockMvc.perform(get("/api/battle-sandbox/replays/$replayId"))
+			.andExpect(status().isNotFound)
+	}
+
 	private fun createFormat(code: String, name: String): Long {
 		val response = mockMvc.perform(
 			post("/api/battle-rules/battle-formats")
@@ -356,6 +408,12 @@ class BattleRulesControllerApiTests(
 
 	private fun idAt(json: String, path: String): Long =
 		JsonPath.read<Number>(json, path).toLong()
+
+	private fun String.jsonStringLiteral(): String =
+		replace("\\", "\\\\")
+			.replace("\"", "\\\"")
+			.replace("\n", "\\n")
+			.replace("\r", "\\r")
 
 	private fun nextCode(prefix: String): String =
 		"$prefix-${nextCodeSuffix.getAndIncrement()}"

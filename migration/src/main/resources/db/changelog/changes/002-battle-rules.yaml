@@ -10174,6 +10174,78 @@ databaseChangeLog:
             enabled = excluded.enabled,
             sort_order = excluded.sort_order;
 - changeSet:
+    id: 002-battle-sandbox-replay
+    author: backend
+    changes:
+    - createTable:
+        tableName: battle_sandbox_replay
+        remarks: 战斗沙盒复盘记录表，保存管理端沙盒响应快照，用于生产排障、回放查看和继续结算。
+        columns:
+        - column:
+            name: id
+            type: bigint
+            remarks: 复盘记录主键，由 Jimmer 主键生成器生成。
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_battle_sandbox_replay
+              nullable: false
+        - column:
+            name: title
+            type: varchar(120)
+            remarks: 复盘标题，由保存人填写，用于列表检索和快速区分排障场景。
+            constraints:
+              nullable: false
+        - column:
+            name: format_code
+            type: varchar(80)
+            remarks: 保存复盘时使用的赛制稳定 code，继续结算时仍由沙盒请求显式携带。
+            constraints:
+              nullable: false
+        - column:
+            name: turn_number
+            type: int
+            remarks: 保存时响应中的最新回合序号。
+            constraints:
+              nullable: false
+        - column:
+            name: resolved
+            type: boolean
+            remarks: 保存时该回合是否已经完成结算，false 表示该复盘保留的是行动校验失败现场。
+            constraints:
+              nullable: false
+        - column:
+            name: result_summary
+            type: varchar(160)
+            remarks: 战斗结束时的结果摘要；未结束或无胜方时为空。
+        - column:
+            name: response_json
+            type: text
+            remarks: 完整沙盒响应 JSON 文本，可直接导回管理端沙盒页面继续查看或续算；该字段保存的是系统自身响应快照，不作为规则资料源。
+            constraints:
+              nullable: false
+        - column:
+            name: saved_at
+            type: timestamp with time zone
+            remarks: 复盘保存时间，用于列表倒序展示和排障定位。
+            constraints:
+              nullable: false
+    - createIndex:
+        tableName: battle_sandbox_replay
+        indexName: idx_battle_sandbox_replay__saved_at
+        columns:
+        - column:
+            name: saved_at
+            descending: true
+        - column:
+            name: id
+            descending: true
+    - createIndex:
+        tableName: battle_sandbox_replay
+        indexName: idx_battle_sandbox_replay__format_code
+        columns:
+        - column:
+            name: format_code
+- changeSet:
     id: 002-battle-rules-enable-sticky-barb-effects
     author: backend
     comment: 启用附着针的回合末自伤和接触转移规则。
