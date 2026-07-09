@@ -250,21 +250,22 @@ class BattleRulesControllerApiTests(
 		assertEquals("接口测试复盘", JsonPath.read(replayResponse, "$.title"))
 		assertEquals("official-double", JsonPath.read(replayResponse, "$.formatCode"))
 		assertTrue(JsonPath.read<String>(replayResponse, "$.responseJson").contains("\"turnNumber\":1"))
-		val replayId = idAt(replayResponse, "$.id")
+		val replayIdText = JsonPath.read<String>(replayResponse, "$.id")
+		val replayId = replayIdText.toLong()
 
 		mockMvc.perform(get("/api/battle-sandbox/replays").param("q", "接口测试复盘"))
 			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.rows[0].id").value(replayId))
+			.andExpect(jsonPath("$.rows[0].id").value(replayIdText))
 			.andExpect(jsonPath("$.rows[0].title").value("接口测试复盘"))
 			.andExpect(jsonPath("$.rows[0].response").doesNotExist())
 
-		mockMvc.perform(get("/api/battle-sandbox/replays/$replayId"))
+		mockMvc.perform(get("/api/battle-sandbox/replays/$replayIdText"))
 			.andExpect(status().isOk)
-			.andExpect(jsonPath("$.id").value(replayId))
+			.andExpect(jsonPath("$.id").value(replayIdText))
 			.andExpect(jsonPath("$.requestJson").value(containsString("\"formatCode\"")))
 			.andExpect(jsonPath("$.responseJson").value(containsString("\"state\"")))
 
-		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayIdText/validation"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.valid").value(true))
 			.andExpect(jsonPath("$.eventCount").isNumber)
@@ -279,7 +280,7 @@ class BattleRulesControllerApiTests(
 			browserResponseJson.replace("\"resolved\":true", "\"resolved\":false"),
 			replayId,
 		)
-		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayIdText/validation"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.valid").value(false))
 			.andExpect(jsonPath("$.deterministicReplayChecked").value(true))
@@ -292,14 +293,14 @@ class BattleRulesControllerApiTests(
 			"""{"turnNumber":1}""",
 			replayId,
 		)
-		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayIdText/validation"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.valid").value(false))
 			.andExpect(jsonPath("$.violations[0]").value("复盘响应缺少 resolved"))
 
-		mockMvc.perform(delete("/api/battle-sandbox/replays/$replayId"))
+		mockMvc.perform(delete("/api/battle-sandbox/replays/$replayIdText"))
 			.andExpect(status().isNoContent)
-		mockMvc.perform(get("/api/battle-sandbox/replays/$replayId"))
+		mockMvc.perform(get("/api/battle-sandbox/replays/$replayIdText"))
 			.andExpect(status().isNotFound)
 	}
 

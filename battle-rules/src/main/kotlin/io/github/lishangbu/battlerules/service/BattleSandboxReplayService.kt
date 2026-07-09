@@ -75,7 +75,7 @@ class BattleSandboxReplayService(
 		val replay = replayByIdOrNotFound(id)
 		val validation = validateReplaySnapshot(replay.responseJson, replay.requestJson)
 		return BattleSandboxReplayValidationResponse(
-			id = replay.id,
+			id = replay.id.toString(),
 			title = replay.title,
 			formatCode = replay.formatCode,
 			turnNumber = replay.turnNumber,
@@ -402,7 +402,7 @@ class BattleSandboxReplayService(
 
 	private fun BattleSandboxReplay.toSummaryResponse(): BattleSandboxReplaySummaryResponse =
 		BattleSandboxReplaySummaryResponse(
-			id = id,
+			id = id.toString(),
 			title = title,
 			formatCode = formatCode,
 			turnNumber = turnNumber,
@@ -413,7 +413,7 @@ class BattleSandboxReplayService(
 
 	private fun BattleSandboxReplay.toDetailResponse(): BattleSandboxReplayResponse =
 		BattleSandboxReplayResponse(
-			id = id,
+			id = id.toString(),
 			title = title,
 			formatCode = formatCode,
 			turnNumber = turnNumber,

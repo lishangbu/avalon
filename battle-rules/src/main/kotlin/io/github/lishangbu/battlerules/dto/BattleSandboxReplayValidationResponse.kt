@@ -11,8 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema
  */
 @Schema(description = "战斗沙盒复盘校验响应。")
 data class BattleSandboxReplayValidationResponse(
-	@field:Schema(description = "复盘记录 ID。", example = "1")
-	val id: Long,
+	@field:Schema(description = "复盘记录 ID。以字符串返回，避免浏览器丢失 64 位主键精度。", example = "865732440461672401")
+	val id: String,
 	@field:Schema(description = "复盘标题。")
 	val title: String,
 	@field:Schema(description = "赛制稳定 code。", example = "standard-single")

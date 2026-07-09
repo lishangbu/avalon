@@ -8,8 +8,8 @@ import java.time.Instant
  */
 @Schema(description = "战斗沙盒复盘详情响应。")
 data class BattleSandboxReplayResponse(
-	@field:Schema(description = "复盘记录 ID。", example = "1")
-	val id: Long,
+	@field:Schema(description = "复盘记录 ID。以字符串返回，避免浏览器丢失 64 位主键精度。", example = "865732440461672401")
+	val id: String,
 	@field:Schema(description = "复盘标题。")
 	val title: String,
 	@field:Schema(description = "赛制稳定 code。", example = "standard-single")
@@ -33,8 +33,8 @@ data class BattleSandboxReplayResponse(
  */
 @Schema(description = "战斗沙盒复盘列表响应。")
 data class BattleSandboxReplaySummaryResponse(
-	@field:Schema(description = "复盘记录 ID。", example = "1")
-	val id: Long,
+	@field:Schema(description = "复盘记录 ID。以字符串返回，避免浏览器丢失 64 位主键精度。", example = "865732440461672401")
+	val id: String,
 	@field:Schema(description = "复盘标题。")
 	val title: String,
 	@field:Schema(description = "赛制稳定 code。", example = "standard-single")
