@@ -78,6 +78,7 @@ class BattleRuntimeSnapshotService(
 	private val preparationValidator = BattlePreparationValidator()
 	private val actionValidator = BattleActionValidator()
 	private val battleEngine = BattleEngine()
+	private val ruleHitMapper = BattleSandboxRuleHitMapper()
 
 	/**
 	 * 按赛制 code 装配运行时快照。
@@ -574,7 +575,7 @@ class BattleRuntimeSnapshotService(
 		val currentEvents = events.map { it.toSandboxEvent() }
 		val responseEvents = previousEvents + currentEvents
 		val responseRandomTrace = randomTrace.map { it.toSandboxRandomTrace() }
-		val ruleHits = ruleHitSummaries(currentEvents, violations, randomTrace)
+		val ruleHits = ruleHitMapper.summaries(currentEvents, violations, randomTrace)
 		val responseTurns = if (resolved && submittedActions != null) {
 			previousTurns + BattleSandboxStateSnapshot.TurnRecord(
 				turnNumber = turnNumber,
@@ -602,202 +603,6 @@ class BattleRuntimeSnapshotService(
 			state = toSandboxState(responseEvents, responseTurns),
 		)
 	}
-
-	/**
-	 * 聚合本次沙盒结算新增的规则命中。
-	 *
-	 * 连续回合响应会把历史事件拼回 `events` 便于复盘，但命中摘要只统计本次新产生的事件、违规和随机 trace。
-	 * 这样管理页看到的触发次数始终对应刚提交的行动，不会因为第二回合携带第一回合快照而重复计数。
-	 */
-	private fun ruleHitSummaries(
-		currentEvents: List<BattleSandboxTurnResponse.Event>,
-		violations: List<BattleActionViolationResponse>,
-		randomTrace: List<BattleRandomTraceEntry>,
-	): List<BattleSandboxTurnResponse.RuleHitSummary> {
-		val eventHits = currentEvents.mapNotNull { event ->
-			val familyCode = event.type.toRuleHitFamilyCode() ?: return@mapNotNull null
-			RuleHitKey(
-				familyCode = familyCode,
-				itemCode = event.type,
-				itemName = event.typeLabel.ifBlank { event.type },
-			)
-		}
-		val violationHits = violations.map { violation ->
-			RuleHitKey(
-				familyCode = "turn-flow-action-ordering",
-				itemCode = violation.code,
-				itemName = violation.message.ifBlank { violation.code },
-			)
-		}
-		val randomHits = randomTrace.map { trace ->
-			RuleHitKey(
-				familyCode = "random-replay-public-reference",
-				itemCode = trace.reason.toRandomRuleHitCode(),
-				itemName = trace.reason.toRandomRuleHitName(),
-			)
-		}
-		return (eventHits + violationHits + randomHits)
-			.groupingBy { it }
-			.eachCount()
-			.map { (key, triggerCount) ->
-				BattleSandboxTurnResponse.RuleHitSummary(
-					familyCode = key.familyCode,
-					familyName = key.familyCode.toRuleHitFamilyName(),
-					itemCode = key.itemCode,
-					itemName = key.itemName,
-					triggerCount = triggerCount,
-				)
-			}
-			.sortedWith(compareBy({ it.familyCode }, { it.itemCode }))
-	}
-
-	private fun String.toRuleHitFamilyCode(): String? =
-		when (this) {
-			"BattleStarted",
-			"TurnStarted",
-			"ParticipantSwitched",
-			"TargetForcedSwitchSelected",
-			"SwitchPrevented",
-			"ParticipantFainted",
-			"TurnEnded",
-			"BattleEnded" -> "lifecycle-switch-faint-result"
-			"SkillUsed",
-			"SkillPpReduced",
-			"MultiHitCountDetermined",
-			"LockedMoveStarted",
-			"LockedMoveAdvanced",
-			"LockedMoveEnded",
-			"SkillPrevented",
-			"RechargeStarted",
-			"SkillChargeStarted",
-			"SkillChargeReleased",
-			"SkillChargeInterrupted" -> "turn-flow-action-ordering"
-			"SkillMissed",
-			"AccuracyLockStarted",
-			"ProtectionStarted",
-			"ProtectionFailed",
-			"ProtectionBroken",
-			"FatalDamageEndureStarted",
-			"SkillBlockedByProtection",
-			"SkillBlockedByTerrain",
-			"SkillBlockedByElement",
-			"SubstituteStarted",
-			"SubstituteDamageApplied",
-			"SubstituteBroken",
-			"SubstituteCleared",
-			"FatalDamageSurvived" -> "hit-protect-substitute-immunity-reflect"
-			"DamageApplied",
-			"CriticalHitStageBoostStarted",
-			"ParticipantElementsChanged",
-			"RecoilDamageApplied",
-			"ConfusionDamageApplied" -> "damage-formula-stat-element-rounding"
-			"StatusApplied",
-			"StatusApplicationBlocked",
-			"StatusCleared",
-			"VolatileStatusApplied",
-			"VolatileStatusApplicationBlocked",
-			"VolatileStatusCleared",
-			"BindingDamageApplied",
-			"LeechSeedPlanted",
-			"LeechSeedDamageApplied",
-			"LeechSeedCleared",
-			"ResidualDamageApplied" -> "major-volatile-persistent-status"
-			"SideDamageReductionStarted",
-			"SideDamageReductionsRemoved",
-			"SideProtectionStarted",
-			"SideProtectionsRemoved",
-			"SideSpeedModifierStarted",
-			"SideEntryHazardChanged",
-			"SideEntryHazardRemoved",
-			"EntryHazardDamageApplied",
-			"EntryHazardStatusApplied",
-			"EntryHazardStatusApplicationBlocked",
-			"EntryHazardStatStageChanged",
-			"FieldSpeedOrderStarted",
-			"FieldSpeedOrderEnded",
-			"TerrainHealingApplied",
-			"WeatherDamageApplied",
-			"WeatherHealingApplied",
-			"WeatherStarted",
-			"WeatherEnded",
-			"TerrainStarted",
-			"TerrainEnded" -> "weather-terrain-field-side-condition"
-			"SkillFailed",
-			"SkillDisabled",
-			"StatStageChanged",
-			"StatStageChangeBlocked",
-			"WeightReductionChanged",
-			"StatStageCleared",
-			"StatStageCopied",
-			"StatStageSwapped",
-			"StatStageInverted",
-			"HealingApplied",
-			"LeechSeedHealingApplied",
-			"SkillHealingApplied",
-			"SkillRecoilDamageApplied",
-			"SkillSelfSacrificeDamageApplied",
-			"HpAveragedBySkill" -> "skill-effect-family"
-			"SkillBlockedByAbility",
-			"SkillAbsorbedByAbility" -> "ability-effect-family"
-			"HeldItemDamageApplied",
-			"HeldItemTransferred",
-			"DamageReducedByItem",
-			"SkillChargeSkippedByItem" -> "item-effect-family"
-			else -> null
-		}
-
-	private fun String.toRuleHitFamilyName(): String =
-		when (this) {
-			"format-and-team-validation" -> "赛制与队伍校验"
-			"lifecycle-switch-faint-result" -> "生命周期、替换与胜负"
-			"turn-flow-action-ordering" -> "回合流程与行动顺序"
-			"target-scope-redirection" -> "目标范围与重定向"
-			"hit-protect-substitute-immunity-reflect" -> "命中、防护、替身与免疫"
-			"damage-formula-stat-element-rounding" -> "伤害公式、能力与属性"
-			"major-volatile-persistent-status" -> "主要、临时与持续状态"
-			"weather-terrain-field-side-condition" -> "天气、场地与一侧条件"
-			"skill-effect-family" -> "技能效果族"
-			"ability-effect-family" -> "特性效果族"
-			"item-effect-family" -> "道具效果族"
-			"random-replay-public-reference" -> "随机、回放与对照"
-			else -> this
-		}
-
-	private fun String.toRandomRuleHitCode(): String =
-		when {
-			startsWith("accuracy for ") -> "random-accuracy"
-			startsWith("damage random for ") -> "random-damage"
-			startsWith("critical hit for ") -> "random-critical-hit"
-			startsWith("protection chance for ") -> "random-protection"
-			startsWith("multi-hit count for ") -> "random-multi-hit"
-			startsWith("locked move duration for ") -> "random-locked-move-duration"
-			startsWith("random adjacent opponent target for ") -> "random-target"
-			startsWith("forced switch target for ") -> "random-forced-switch-target"
-			startsWith("confusion damage random for ") -> "random-confusion-damage"
-			startsWith("binding duration for ") -> "random-binding-duration"
-			else -> this
-		}
-
-	private fun String.toRandomRuleHitName(): String =
-		when {
-			startsWith("accuracy for ") -> "命中随机"
-			startsWith("damage random for ") -> "伤害随机"
-			startsWith("critical hit for ") -> "要害随机"
-			startsWith("protection chance for ") -> "连续保护随机"
-			startsWith("multi-hit count for ") -> "连击次数随机"
-			startsWith("locked move duration for ") -> "锁招持续回合随机"
-			startsWith("random adjacent opponent target for ") -> "随机目标选择"
-			startsWith("forced switch target for ") -> "强制替换目标随机"
-			startsWith("confusion damage random for ") -> "混乱自伤随机"
-			startsWith("binding duration for ") -> "束缚持续回合随机"
-			else -> "随机分支"
-		}
-
-	private data class RuleHitKey(
-		val familyCode: String,
-		val itemCode: String,
-		val itemName: String,
-	)
 
 	private fun BattleState.toSandboxState(
 		responseEvents: List<BattleSandboxTurnResponse.Event>,

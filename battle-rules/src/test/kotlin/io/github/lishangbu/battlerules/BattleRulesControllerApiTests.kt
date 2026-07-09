@@ -1,6 +1,7 @@
 package io.github.lishangbu.battlerules
 
 import com.jayway.jsonpath.JsonPath
+import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class BattleRulesControllerApiTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
+	@Autowired private val sqlClient: KSqlClient,
 ) {
 	private lateinit var mockMvc: MockMvc
 
@@ -253,6 +255,24 @@ class BattleRulesControllerApiTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.id").value(replayId))
 			.andExpect(jsonPath("$.responseJson").value(containsString("\"state\"")))
+
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.valid").value(true))
+			.andExpect(jsonPath("$.eventCount").isNumber)
+			.andExpect(jsonPath("$.turnCount").value(1))
+			.andExpect(jsonPath("$.ruleHitFamilyCodes").isNotEmpty)
+			.andExpect(jsonPath("$.violations").isEmpty)
+
+		sqlClient.executeTestSql(
+			"update battle_sandbox_replay set response_json = ? where id = ?",
+			"""{"turnNumber":1}""",
+			replayId,
+		)
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.valid").value(false))
+			.andExpect(jsonPath("$.violations[0]").value("复盘响应缺少 resolved"))
 
 		mockMvc.perform(delete("/api/battle-sandbox/replays/$replayId"))
 			.andExpect(status().isNoContent)

@@ -5,6 +5,7 @@ import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplaySummaryResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxReplayValidationResponse
 import io.github.lishangbu.battlerules.openapi.BATTLE_SANDBOX_API_BEARER_AUTH
 import io.github.lishangbu.battlerules.service.BattleSandboxReplayService
 import io.github.lishangbu.battlerules.service.BattleRuntimeSnapshotService
@@ -55,6 +56,11 @@ class BattleSandboxController(
 	@Operation(summary = "读取沙盒复盘")
 	fun getReplay(@PathVariable id: Long): BattleSandboxReplayResponse =
 		replayService.get(id)
+
+	@PostMapping("/replays/{id}/validation")
+	@Operation(summary = "校验沙盒复盘")
+	fun validateReplay(@PathVariable id: Long): BattleSandboxReplayValidationResponse =
+		replayService.validate(id)
 
 	@PostMapping("/replays")
 	@ResponseStatus(HttpStatus.CREATED)

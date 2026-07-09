@@ -94,6 +94,7 @@ class BattleRuleCoverageLedgerTests {
 		assertTrue(report.contains(""""sandboxRuleHitField": "ruleHits""""))
 		assertTrue(report.contains(""""sandboxRuleHitFamilyField": "familyCode""""))
 		assertTrue(report.contains(""""sandboxRuleHitItemField": "itemCode""""))
+		assertTrue(report.contains(""""sandboxRuleHitFamilyCodes""""))
 		assertTrue(report.contains(""""format-and-team-validation""""))
 		assertTrue(report.contains(""""random-replay-public-reference""""))
 	}
@@ -112,6 +113,7 @@ class BattleRuleCoverageLedgerTests {
 		assertTrue(document.contains("sandboxRuleHitField") && document.contains("ruleHits"))
 		assertTrue(document.contains("sandboxRuleHitFamilyField") && document.contains("familyCode"))
 		assertTrue(document.contains("sandboxRuleHitItemField") && document.contains("itemCode"))
+		assertTrue(document.contains("sandboxRuleHitFamilyCodes"))
 		assertTrue(document.contains("groups[].code"))
 		assertTrue(document.contains("groups[].ruleNumberRange"))
 		assertTrue(document.contains("groups[].testClassNames"))
@@ -388,6 +390,11 @@ class BattleRuleCoverageLedgerTests {
 			appendLine("""  "sandboxRuleHitField": "ruleHits",""")
 			appendLine("""  "sandboxRuleHitFamilyField": "familyCode",""")
 			appendLine("""  "sandboxRuleHitItemField": "itemCode",""")
+			appendLine(
+				"""  "sandboxRuleHitFamilyCodes": [${
+					coverageGroups.joinToString(", ") { group -> """"${jsonEscape(group.code)}"""" }
+				}],""",
+			)
 			appendLine("""  "groups": [""")
 			coverageGroups.forEachIndexed { index, group ->
 				val range = rangesByGroupCode.getValue(group.code)

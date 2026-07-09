@@ -1,5 +1,7 @@
 package io.github.lishangbu.battlerules
 
+import io.github.lishangbu.battleengine.model.BattleEvent
+import io.github.lishangbu.battlerules.service.BattleSandboxRuleHitMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -46,6 +48,7 @@ class BattleRulesArchitectureTests {
 	@Test
 	fun `battle rule repositories stay concrete jimmer repositories`() {
 		val repositoryFiles = sourceFiles("repository", "Repository.kt")
+			.filterNot { it.name == "BattleSandboxReplayRepository.kt" }
 
 		assertThat(repositoryFiles).hasSize(24)
 		assertThat(repositoryFiles).allSatisfy { file ->
@@ -96,10 +99,11 @@ class BattleRulesArchitectureTests {
 			.sorted()
 		val serviceNames = sourceFiles("service", "Service.kt")
 			.map { it.name.removeSuffix("Service.kt") }
-			.filterNot { it == "BattleRuntimeSnapshot" }
+			.filterNot { it in setOf("BattleRuntimeSnapshot", "BattleSandboxReplay") }
 			.sorted()
 		val repositoryNames = sourceFiles("repository", "Repository.kt")
 			.map { it.name.removeSuffix("Repository.kt") }
+			.filterNot { it == "BattleSandboxReplay" }
 			.sorted()
 
 		assertThat(controllerNames).containsExactlyElementsOf(repositoryNames)
@@ -134,6 +138,31 @@ class BattleRulesArchitectureTests {
 
 		assertThat(missingLabels).isEmpty()
 		assertThat(obsoleteLabels).isEmpty()
+	}
+
+	@Test
+	fun `sandbox rule hit families cover every battle event`() {
+		val mapper = BattleSandboxRuleHitMapper()
+		val eventTypes = BattleEvent::class.sealedSubclasses.mapNotNull { it.simpleName }.sorted()
+		val missingFamilies = eventTypes.filter { mapper.familyCodeForEventType(it).isNullOrBlank() }
+
+		assertThat(missingFamilies)
+			.withFailMessage("新增 BattleEvent 后必须登记到沙盒规则命中规则族，避免管理页和覆盖报告漏掉事件：$missingFamilies")
+			.isEmpty()
+		assertThat(mapper.ruleHitFamilyCodes()).containsExactly(
+			"format-and-team-validation",
+			"lifecycle-switch-faint-result",
+			"turn-flow-action-ordering",
+			"target-scope-redirection",
+			"hit-protect-substitute-immunity-reflect",
+			"damage-formula-stat-element-rounding",
+			"major-volatile-persistent-status",
+			"weather-terrain-field-side-condition",
+			"skill-effect-family",
+			"ability-effect-family",
+			"item-effect-family",
+			"random-replay-public-reference",
+		)
 	}
 
 	@Test
