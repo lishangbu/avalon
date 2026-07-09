@@ -258,6 +258,26 @@ class BattleRulesControllerApiTests(
 			.andExpect(status().isNotFound)
 	}
 
+	@Test
+	fun `sandbox replay api rejects invalid saved responses`() {
+		mockMvc.perform(
+			post("/api/battle-sandbox/replays")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""
+					{
+					  "title": "坏复盘",
+					  "formatCode": "official-double",
+					  "responseJson": "{\"turnNumber\":1}"
+					}
+					""".trimIndent(),
+				),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+			.andExpect(jsonPath("$.field").value("responseJson"))
+	}
+
 	private fun createFormat(code: String, name: String): Long {
 		val response = mockMvc.perform(
 			post("/api/battle-rules/battle-formats")
