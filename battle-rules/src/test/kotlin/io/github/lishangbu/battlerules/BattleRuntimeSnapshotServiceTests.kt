@@ -2215,6 +2215,25 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(response.events.single { it.type == "SkillUsed" }.typeLabel).isEqualTo("使用技能")
 		assertThat(response.events.single { it.type == "DamageApplied" }.typeLabel).isEqualTo("造成伤害")
 		assertThat(response.events.single { it.type == "DamageApplied" }.message).contains("b-1", "伤害")
+		assertThat(response.ruleHits)
+			.anySatisfy {
+				assertThat(it.familyCode).isEqualTo("turn-flow-action-ordering")
+				assertThat(it.familyName).isEqualTo("回合流程与行动顺序")
+				assertThat(it.itemCode).isEqualTo("SkillUsed")
+				assertThat(it.itemName).isEqualTo("使用技能")
+				assertThat(it.triggerCount).isEqualTo(1)
+			}
+			.anySatisfy {
+				assertThat(it.familyCode).isEqualTo("damage-formula-stat-element-rounding")
+				assertThat(it.itemCode).isEqualTo("DamageApplied")
+				assertThat(it.itemName).isEqualTo("造成伤害")
+				assertThat(it.triggerCount).isGreaterThanOrEqualTo(1)
+			}
+			.anySatisfy {
+				assertThat(it.familyCode).isEqualTo("random-replay-public-reference")
+				assertThat(it.familyName).isEqualTo("随机、回放与对照")
+				assertThat(it.triggerCount).isGreaterThanOrEqualTo(1)
+			}
 		assertThat(response.randomTrace).isNotEmpty
 		assertThat(target.currentHp).isLessThan(target.maxHp)
 		assertThat(response.state.turnNumber).isEqualTo(1)
@@ -2441,6 +2460,8 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(secondAttackerSlot.remainingPp).isEqualTo(firstAttackerSlot.remainingPp - 1)
 		assertThat(second.events.count { it.type == "BattleStarted" }).isEqualTo(1)
 		assertThat(second.events.map { it.turnNumber }).contains(0, 1, 2)
+		assertThat(second.ruleHits.map { it.itemCode }).doesNotContain("BattleStarted")
+		assertThat(second.ruleHits.map { it.itemCode }).contains("SkillUsed", "DamageApplied")
 		assertThat(second.state.turnNumber).isEqualTo(2)
 		assertThat(second.state.events).hasSize(second.events.size)
 		assertThat(second.state.turns.map { it.turnNumber }).containsExactly(1, 2)

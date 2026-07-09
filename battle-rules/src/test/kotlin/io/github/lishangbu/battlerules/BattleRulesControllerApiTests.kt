@@ -195,6 +195,8 @@ class BattleRulesControllerApiTests(
 			.andExpect(jsonPath("$.state.turnNumber").value(1))
 			.andExpect(jsonPath("$.events[?(@.type == 'BattleStarted')]").exists())
 			.andExpect(jsonPath("$.events[?(@.type == 'DamageApplied')]").exists())
+			.andExpect(jsonPath("$.ruleHits[?(@.familyCode == 'turn-flow-action-ordering' && @.itemCode == 'SkillUsed')]").exists())
+			.andExpect(jsonPath("$.ruleHits[?(@.familyCode == 'damage-formula-stat-element-rounding' && @.itemCode == 'DamageApplied')]").exists())
 			.andExpect(jsonPath("$.randomTrace").isNotEmpty)
 
 		mockMvc.perform(

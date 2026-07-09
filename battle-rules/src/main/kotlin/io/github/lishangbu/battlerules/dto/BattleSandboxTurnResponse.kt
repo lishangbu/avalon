@@ -23,6 +23,8 @@ data class BattleSandboxTurnResponse(
 	val events: List<Event>,
 	@field:Schema(description = "行动校验违规项；仅在 resolved=false 时非空。")
 	val violations: List<BattleActionViolationResponse>,
+	@field:Schema(description = "本次回合结算命中的规则摘要。")
+	val ruleHits: List<RuleHitSummary>,
 	@field:Schema(description = "本回合随机消费 trace。")
 	val randomTrace: List<RandomTrace>,
 	@field:Schema(description = "可直接带入下一次请求的连续回合状态快照。")
@@ -122,6 +124,26 @@ data class BattleSandboxTurnResponse(
 		var message: String = "",
 		@field:Schema(description = "事件结构化字段。")
 		var payload: Map<String, Any?> = emptyMap(),
+	)
+
+	/**
+	 * 本次沙盒响应命中的规则摘要。
+	 *
+	 * 规则族对应 312 条规则覆盖账本中的 12 个稳定分组；规则项来自本回合新增事件、行动违规或随机 trace。
+	 * 它只服务管理页排障和覆盖报告串联，不参与下一回合状态恢复，也不替代事件流里的完整结构化事实。
+	 */
+	@Schema(name = "BattleSandboxRuleHitSummary", description = "沙盒规则命中摘要。")
+	data class RuleHitSummary(
+		@field:Schema(description = "规则族编码。", example = "damage-formula-stat-element-rounding")
+		val familyCode: String = "",
+		@field:Schema(description = "规则族中文名称。", example = "伤害公式、能力与属性")
+		val familyName: String = "",
+		@field:Schema(description = "规则项编码。", example = "DamageApplied")
+		val itemCode: String = "",
+		@field:Schema(description = "规则项中文名称。", example = "造成伤害")
+		val itemName: String = "",
+		@field:Schema(description = "本次响应中的触发次数。", example = "1")
+		val triggerCount: Int = 0,
 	)
 
 	/**

@@ -8,6 +8,9 @@
 
 - `totalRuleCount` 必须为 `312`，表示现代主系列规则边界内的全部行为编号。
 - `coverageGroupCount` 必须为 `12`，表示规则族总数。
+- `sandboxRuleHitField` 必须为 `ruleHits`，表示沙盒响应中承载规则命中的字段。
+- `sandboxRuleHitFamilyField` 必须为 `familyCode`，表示沙盒命中摘要里对应规则族 code 的字段。
+- `sandboxRuleHitItemField` 必须为 `itemCode`，表示沙盒命中摘要里对应规则项 code 的字段。
 - `groups[].code` 是规则族稳定编码。
 - `groups[].ruleNumberRange` 是该规则族覆盖的连续规则编号区间。
 - `groups[].ruleCount` 是该规则族规则数量，必须等于编号区间长度。
