@@ -1,7 +1,7 @@
 package io.github.lishangbu.battlerules.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayResponse
@@ -245,14 +245,13 @@ class BattleSandboxReplayService(
 			return ReplayDeterminism(checked = true, matched = false)
 		}
 		val replayedJson = objectMapper.readTree(objectMapper.writeValueAsString(replayedResponse))
-		if (savedResponse == replayedJson) {
+		val mismatch = firstJsonDifference(savedResponse, replayedJson)
+		if (mismatch == null) {
 			return ReplayDeterminism(checked = true, matched = true)
 		}
-		val difference = firstJsonDifference(savedResponse, replayedJson)?.let { "：$it" }.orEmpty()
+		val difference = "：$mismatch"
 		violations += "确定性重放结果与保存响应不一致$difference"
-		if (difference.isNotEmpty()) {
-			warnings += "首个差异${difference}"
-		}
+		warnings += "首个差异$difference"
 		return ReplayDeterminism(checked = true, matched = false)
 	}
 
@@ -370,7 +369,12 @@ class BattleSandboxReplayService(
 			return "$path 类型不同：保存=${left.nodeType}，重放=${right.nodeType}"
 		}
 		if (left.isValueNode) {
-			return if (left == right) null else "$path 值不同：保存=${left.shortJsonValue()}，重放=${right.shortJsonValue()}"
+			// 浏览器 JSON.stringify 会把 1.0 写回 1；确定性校验只关心 JSON 数值语义，不关心客户端序列化格式。
+			return if (left == right || left.numberEquals(right)) {
+				null
+			} else {
+				"$path 值不同：保存=${left.shortJsonValue()}，重放=${right.shortJsonValue()}"
+			}
 		}
 		if (left.isArray) {
 			if (left.size() != right.size()) {
@@ -392,6 +396,9 @@ class BattleSandboxReplayService(
 
 	private fun JsonNode.shortJsonValue(): String =
 		toString().let { value -> if (value.length <= 80) value else "${value.take(77)}..." }
+
+	private fun JsonNode.numberEquals(other: JsonNode): Boolean =
+		isNumber && other.isNumber && decimalValue().compareTo(other.decimalValue()) == 0
 
 	private fun BattleSandboxReplay.toSummaryResponse(): BattleSandboxReplaySummaryResponse =
 		BattleSandboxReplaySummaryResponse(

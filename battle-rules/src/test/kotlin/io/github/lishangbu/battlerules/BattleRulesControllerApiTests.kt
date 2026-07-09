@@ -225,6 +225,8 @@ class BattleRulesControllerApiTests(
 			.andReturn()
 			.response
 			.contentAsString
+		val browserResponseJson = turnResponse.replace("\"effectiveness\":1.0", "\"effectiveness\":1")
+		assertTrue(browserResponseJson != turnResponse, "测试夹具需要覆盖浏览器 JSON.stringify 的 1.0 到 1 归一化。")
 
 		val replayCreateResult = mockMvc.perform(
 			post("/api/battle-sandbox/replays")
@@ -235,7 +237,7 @@ class BattleRulesControllerApiTests(
 					  "title": "接口测试复盘",
 					  "formatCode": "official-double",
 					  "requestJson": "${turnRequest.jsonStringLiteral()}",
-					  "responseJson": "${turnResponse.jsonStringLiteral()}"
+					  "responseJson": "${browserResponseJson.jsonStringLiteral()}"
 					}
 					""".trimIndent(),
 				),
@@ -274,7 +276,7 @@ class BattleRulesControllerApiTests(
 
 		sqlClient.executeTestSql(
 			"update battle_sandbox_replay set response_json = ? where id = ?",
-			turnResponse.replace("\"resolved\":true", "\"resolved\":false"),
+			browserResponseJson.replace("\"resolved\":true", "\"resolved\":false"),
 			replayId,
 		)
 		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
