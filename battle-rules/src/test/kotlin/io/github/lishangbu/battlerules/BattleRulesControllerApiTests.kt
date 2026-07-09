@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @BattleRulesIntegrationTest
 /**
@@ -99,7 +101,7 @@ class BattleRulesControllerApiTests(
 					}
 					""".trimIndent(),
 				),
-		)
+			)
 			.andExpect(status().isCreated)
 			.andExpect(jsonPath("$.formatId").value(formatId))
 			.andExpect(jsonPath("$.clauseId").value(clauseId))
@@ -213,17 +215,18 @@ class BattleRulesControllerApiTests(
 
 	@Test
 	fun `sandbox replay api persists lists reads and deletes saved responses`() {
+		val turnRequest = sandboxTurnJson()
 		val turnResponse = mockMvc.perform(
 			post("/api/battle-sandbox/turn")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(sandboxTurnJson()),
+				.content(turnRequest),
 		)
 			.andExpect(status().isOk)
 			.andReturn()
 			.response
 			.contentAsString
 
-		val replayResponse = mockMvc.perform(
+		val replayCreateResult = mockMvc.perform(
 			post("/api/battle-sandbox/replays")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(
@@ -231,18 +234,20 @@ class BattleRulesControllerApiTests(
 					{
 					  "title": "接口测试复盘",
 					  "formatCode": "official-double",
+					  "requestJson": "${turnRequest.jsonStringLiteral()}",
 					  "responseJson": "${turnResponse.jsonStringLiteral()}"
 					}
 					""".trimIndent(),
 				),
 		)
-			.andExpect(status().isCreated)
-			.andExpect(jsonPath("$.title").value("接口测试复盘"))
-			.andExpect(jsonPath("$.formatCode").value("official-double"))
-			.andExpect(jsonPath("$.responseJson").value(containsString("\"turnNumber\":1")))
 			.andReturn()
-			.response
-			.contentAsString
+		if (replayCreateResult.response.status != 201) {
+			error(replayCreateResult.response.contentAsString)
+		}
+		val replayResponse = replayCreateResult.response.contentAsString
+		assertEquals("接口测试复盘", JsonPath.read(replayResponse, "$.title"))
+		assertEquals("official-double", JsonPath.read(replayResponse, "$.formatCode"))
+		assertTrue(JsonPath.read<String>(replayResponse, "$.responseJson").contains("\"turnNumber\":1"))
 		val replayId = idAt(replayResponse, "$.id")
 
 		mockMvc.perform(get("/api/battle-sandbox/replays").param("q", "接口测试复盘"))
@@ -254,6 +259,7 @@ class BattleRulesControllerApiTests(
 		mockMvc.perform(get("/api/battle-sandbox/replays/$replayId"))
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.id").value(replayId))
+			.andExpect(jsonPath("$.requestJson").value(containsString("\"formatCode\"")))
 			.andExpect(jsonPath("$.responseJson").value(containsString("\"state\"")))
 
 		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
@@ -262,7 +268,22 @@ class BattleRulesControllerApiTests(
 			.andExpect(jsonPath("$.eventCount").isNumber)
 			.andExpect(jsonPath("$.turnCount").value(1))
 			.andExpect(jsonPath("$.ruleHitFamilyCodes").isNotEmpty)
+			.andExpect(jsonPath("$.deterministicReplayChecked").value(true))
+			.andExpect(jsonPath("$.deterministicReplayMatched").value(true))
 			.andExpect(jsonPath("$.violations").isEmpty)
+
+		sqlClient.executeTestSql(
+			"update battle_sandbox_replay set response_json = ? where id = ?",
+			turnResponse.replace("\"resolved\":true", "\"resolved\":false"),
+			replayId,
+		)
+		mockMvc.perform(post("/api/battle-sandbox/replays/$replayId/validation"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.valid").value(false))
+			.andExpect(jsonPath("$.deterministicReplayChecked").value(true))
+			.andExpect(jsonPath("$.deterministicReplayMatched").value(false))
+			.andExpect(jsonPath("$.violations[0]").value(containsString("确定性重放结果与保存响应不一致")))
+			.andExpect(jsonPath("$.warnings[0]").value(containsString("首个差异")))
 
 		sqlClient.executeTestSql(
 			"update battle_sandbox_replay set response_json = ? where id = ?",
@@ -290,6 +311,7 @@ class BattleRulesControllerApiTests(
 					{
 					  "title": "坏复盘",
 					  "formatCode": "official-double",
+					  "requestJson": "${sandboxTurnJson().jsonStringLiteral()}",
 					  "responseJson": "{\"turnNumber\":1}"
 					}
 					""".trimIndent(),

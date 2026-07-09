@@ -10,8 +10,8 @@ import java.time.Instant
 /**
  * 战斗沙盒复盘记录。
  *
- * 这张表只保存管理端沙盒已经产生的响应快照，不参与规则计算，也不反向驱动战斗引擎。这样做可以让生产环境排障
- * 保留“当时页面看到的完整事实”，同时避免把临时复盘材料拆进战斗规则资料表，污染真正由引擎读取的三范式规则模型。
+ * 这张表保存管理端沙盒请求和响应的最小 JSON 对。响应用于页面导入和排障查看，请求用于后续确定性重放校验；
+ * 二者都不是规则资料源，也不会被拆进战斗规则三范式表，避免把临时排障材料误当成生产规则配置。
  */
 @Entity
 @Table(name = "battle_sandbox_replay")
@@ -25,6 +25,7 @@ interface BattleSandboxReplay {
 	val turnNumber: Int
 	val resolved: Boolean
 	val resultSummary: String?
+	val requestJson: String?
 	val responseJson: String
 	val savedAt: Instant
 }

@@ -10,7 +10,7 @@ import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
  * 沙盒响应中的 `ruleHits` 不是新的规则事实源，而是把本次结算已经产生的事件、行动违规和随机 trace 归入
  * 312 条规则覆盖账本使用的 12 个规则族。把映射集中在这里有两个目的：
  * - 运行时服务只负责结算和状态装配，不混入一大段展示分组表。
- * - 架构测试可以枚举 [io.github.lishangbu.battleengine.model.BattleEvent] 的全部事件类型，防止新增事件后
+ * - 规则命中测试可以枚举 [io.github.lishangbu.battleengine.model.BattleEvent] 的全部事件类型，防止新增事件后
  *   管理页规则命中 silently 漏掉对应规则族。
  */
 class BattleSandboxRuleHitMapper {

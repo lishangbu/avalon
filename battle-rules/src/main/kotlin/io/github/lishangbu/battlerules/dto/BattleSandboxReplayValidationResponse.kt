@@ -5,8 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 /**
  * 战斗沙盒复盘校验响应。
  *
- * 校验接口面向已经保存的复盘 JSON，返回它是否还能被当前沙盒页面和后端规则命中契约安全读取。它不会尝试重放
- * 整场战斗，因为当前复盘只保存响应快照，没有保存原始队伍请求中的特性、道具、能力值配置等完整输入。
+ * 校验接口面向已经保存的复盘请求和响应 JSON：先确认响应仍能被当前沙盒页面安全读取，再用原始请求重新调用
+ * 当前运行时入口，比较重放响应是否与保存响应完全一致。这样生产排障时可以区分“JSON 结构坏了”和“当前规则
+ * 已经跑不出当时结果”这两类问题。
  */
 @Schema(description = "战斗沙盒复盘校验响应。")
 data class BattleSandboxReplayValidationResponse(
@@ -30,6 +31,10 @@ data class BattleSandboxReplayValidationResponse(
 	val ruleHitCount: Int,
 	@field:Schema(description = "复盘 JSON 中出现的规则族 code。")
 	val ruleHitFamilyCodes: List<String>,
+	@field:Schema(description = "是否已经使用原始请求执行确定性重放。", example = "true")
+	val deterministicReplayChecked: Boolean,
+	@field:Schema(description = "确定性重放结果是否与保存响应完全一致。", example = "true")
+	val deterministicReplayMatched: Boolean,
 	@field:Schema(description = "不阻止导入但值得人工关注的问题。")
 	val warnings: List<String>,
 	@field:Schema(description = "导致复盘不可安全导入或续算的问题。")

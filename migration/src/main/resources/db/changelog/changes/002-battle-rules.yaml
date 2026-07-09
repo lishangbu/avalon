@@ -10246,6 +10246,17 @@ databaseChangeLog:
         - column:
             name: format_code
 - changeSet:
+    id: 002-battle-sandbox-replay-request-json
+    author: backend
+    changes:
+    - addColumn:
+        tableName: battle_sandbox_replay
+        columns:
+        - column:
+            name: request_json
+            type: text
+            remarks: 产生该复盘响应的原始沙盒请求 JSON 文本，用于后续确定性重放校验；旧记录为空时会被校验接口判定为不可重放。
+- changeSet:
     id: 002-battle-rules-enable-sticky-barb-effects
     author: backend
     comment: 启用附着针的回合末自伤和接触转移规则。

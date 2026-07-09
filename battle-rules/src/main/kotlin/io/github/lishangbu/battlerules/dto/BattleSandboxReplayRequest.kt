@@ -11,6 +11,8 @@ data class BattleSandboxReplayRequest(
 	var title: String = "",
 	@field:Schema(description = "赛制稳定 code。", example = "standard-single")
 	var formatCode: String = "",
+	@field:Schema(description = "产生该响应的沙盒回合请求 JSON 文本，用于确定性重放校验。")
+	var requestJson: String = "",
 	@field:Schema(description = "沙盒回合结算响应 JSON 文本。")
 	var responseJson: String = "",
 )

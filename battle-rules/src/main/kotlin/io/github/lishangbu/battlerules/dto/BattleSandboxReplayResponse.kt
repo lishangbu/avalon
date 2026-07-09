@@ -22,6 +22,8 @@ data class BattleSandboxReplayResponse(
 	val resultSummary: String?,
 	@field:Schema(description = "保存时间。")
 	val savedAt: Instant,
+	@field:Schema(description = "产生该响应的沙盒回合请求 JSON 文本；旧记录可能为空。", nullable = true)
+	val requestJson: String?,
 	@field:Schema(description = "可直接导入战斗沙盒继续查看或续算的响应 JSON 文本。")
 	val responseJson: String,
 )

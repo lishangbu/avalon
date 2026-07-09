@@ -107,6 +107,8 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/BattleSandboxTurnRequest"))
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.responses['200'].content['*/*'].schema['\$ref']").value("#/components/schemas/BattleSandboxTurnResponse"))
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/replays'].post.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/BattleSandboxReplayRequest"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxReplayRequest.properties.requestJson.description").value("产生该响应的沙盒回合请求 JSON 文本，用于确定性重放校验。"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxReplayValidationResponse.properties.deterministicReplayChecked.description").value("是否已经使用原始请求执行确定性重放。"))
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.description").value("战斗沙盒回合结算响应。"))
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.properties.sides.items['\$ref']").value("#/components/schemas/BattleSandboxTurnSide"))
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxStateSnapshot.properties.sides.items['\$ref']").value("#/components/schemas/BattleSandboxStateSide"))

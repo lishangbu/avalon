@@ -1,14 +1,17 @@
 package io.github.lishangbu.battlerules.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.json.JsonMapper
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplaySummaryResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayValidationResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
 import io.github.lishangbu.battlerules.entity.BattleSandboxReplay
 import io.github.lishangbu.battlerules.entity.formatCode
 import io.github.lishangbu.battlerules.entity.id
+import io.github.lishangbu.battlerules.entity.requestJson
 import io.github.lishangbu.battlerules.entity.resolved
 import io.github.lishangbu.battlerules.entity.resultSummary
 import io.github.lishangbu.battlerules.entity.responseJson
@@ -38,13 +41,14 @@ import java.time.Instant
 /**
  * 战斗沙盒复盘保存与读取服务。
  *
- * Service 不复算战斗，也不尝试“修复”旧快照；它只校验当前响应结构已经足够回到沙盒页面，然后把响应按 JSON 文本
- * 保存下来。后续如果要做严格 replay 校验，应新增独立校验接口，而不是让保存动作变成一次隐式重放。
+ * Service 保存产生复盘的一对请求/响应 JSON。保存时先执行结构校验和确定性重放校验，读取时仍只返回保存事实；
+ * 校验接口可以在生产排障时重新执行同一请求，确认当前规则资料和引擎实现是否还能跑出当时保存的响应。
  */
 @Service
 class BattleSandboxReplayService(
 	private val repository: BattleSandboxReplayRepository,
 	private val sqlClient: KSqlClient,
+	private val runtimeSnapshotService: BattleRuntimeSnapshotService,
 ) {
 	private val objectMapper: ObjectMapper = JsonMapper.builder().findAndAddModules().build()
 	private val ruleHitMapper = BattleSandboxRuleHitMapper()
@@ -69,7 +73,7 @@ class BattleSandboxReplayService(
 	@Transactional(readOnly = true)
 	fun validate(id: Long): BattleSandboxReplayValidationResponse {
 		val replay = replayByIdOrNotFound(id)
-		val validation = validateReplaySnapshot(replay.responseJson)
+		val validation = validateReplaySnapshot(replay.responseJson, replay.requestJson)
 		return BattleSandboxReplayValidationResponse(
 			id = replay.id,
 			title = replay.title,
@@ -81,6 +85,8 @@ class BattleSandboxReplayService(
 			turnCount = validation.turnCount,
 			ruleHitCount = validation.ruleHitCount,
 			ruleHitFamilyCodes = validation.ruleHitFamilyCodes,
+			deterministicReplayChecked = validation.deterministicReplayChecked,
+			deterministicReplayMatched = validation.deterministicReplayMatched,
 			warnings = validation.warnings,
 			violations = validation.violations,
 		)
@@ -88,8 +94,9 @@ class BattleSandboxReplayService(
 
 	@Transactional
 	fun create(request: BattleSandboxReplayRequest): BattleSandboxReplayResponse {
+		val requestJson = request.requestJson.requiredText("requestJson", maxLength = 2_000_000)
 		val responseJson = request.responseJson.requiredText("responseJson", maxLength = 2_000_000)
-		val validation = validateReplaySnapshot(responseJson)
+		val validation = validateReplaySnapshot(responseJson, requestJson)
 		if (validation.violations.isNotEmpty()) {
 			invalidReplay("responseJson", validation.violations.first())
 		}
@@ -103,6 +110,7 @@ class BattleSandboxReplayService(
 				turnNumber = snapshot.turnNumber
 				resolved = snapshot.resolved
 				resultSummary = snapshot.resultSummary
+				this.requestJson = requestJson
 				this.responseJson = responseJson
 				savedAt = Instant.now()
 			},
@@ -120,7 +128,7 @@ class BattleSandboxReplayService(
 	private fun replayByIdOrNotFound(id: Long): BattleSandboxReplay =
 		repository.findNullable(id) ?: notFound("id", "战斗沙盒复盘不存在: $id")
 
-	private fun validateReplaySnapshot(responseJson: String): ReplaySnapshotValidation {
+	private fun validateReplaySnapshot(responseJson: String, requestJson: String?): ReplaySnapshotValidation {
 		val root = try {
 			objectMapper.readTree(responseJson)
 		} catch (_: Exception) {
@@ -130,6 +138,8 @@ class BattleSandboxReplayService(
 				turnCount = 0,
 				ruleHitCount = 0,
 				ruleHitFamilyCodes = emptyList(),
+				deterministicReplayChecked = false,
+				deterministicReplayMatched = false,
 				warnings = emptyList(),
 				violations = listOf("responseJson 不是有效的沙盒响应 JSON"),
 			)
@@ -182,6 +192,11 @@ class BattleSandboxReplayService(
 			violations = violations,
 			warnings = warnings,
 		)
+		val deterministicReplay = if (violations.isEmpty()) {
+			validateDeterministicReplay(root, requestJson, violations, warnings)
+		} else {
+			ReplayDeterminism(checked = false, matched = false)
+		}
 
 		return ReplaySnapshotValidation(
 			metadata = if (turnNumber != null && turnNumber >= 0 && resolvedNode.isBoolean) {
@@ -197,9 +212,48 @@ class BattleSandboxReplayService(
 			turnCount = turnsNode.takeIf { it.isArray }?.size() ?: 0,
 			ruleHitCount = ruleHitsNode.takeIf { it.isArray }?.size() ?: 0,
 			ruleHitFamilyCodes = ruleHitFamilyCodes,
+			deterministicReplayChecked = deterministicReplay.checked,
+			deterministicReplayMatched = deterministicReplay.matched,
 			warnings = warnings,
 			violations = violations,
 		)
+	}
+
+	private fun validateDeterministicReplay(
+		savedResponse: JsonNode,
+		requestJson: String?,
+		violations: MutableList<String>,
+		warnings: MutableList<String>,
+	): ReplayDeterminism {
+		if (requestJson.isNullOrBlank()) {
+			violations += "复盘缺少原始请求，无法确定性重放"
+			return ReplayDeterminism(checked = false, matched = false)
+		}
+		val request = try {
+			objectMapper.readValue(requestJson, BattleSandboxTurnRequest::class.java)
+		} catch (_: Exception) {
+			violations += "requestJson 不是有效的沙盒请求 JSON"
+			return ReplayDeterminism(checked = false, matched = false)
+		}
+		val replayedResponse = try {
+			runtimeSnapshotService.resolveSandboxTurn(request)
+		} catch (error: ApiException) {
+			violations += "确定性重放失败：${error.message}"
+			return ReplayDeterminism(checked = true, matched = false)
+		} catch (_: Exception) {
+			violations += "确定性重放失败：当前规则运行时无法完成该请求"
+			return ReplayDeterminism(checked = true, matched = false)
+		}
+		val replayedJson = objectMapper.readTree(objectMapper.writeValueAsString(replayedResponse))
+		if (savedResponse == replayedJson) {
+			return ReplayDeterminism(checked = true, matched = true)
+		}
+		val difference = firstJsonDifference(savedResponse, replayedJson)?.let { "：$it" }.orEmpty()
+		violations += "确定性重放结果与保存响应不一致$difference"
+		if (difference.isNotEmpty()) {
+			warnings += "首个差异${difference}"
+		}
+		return ReplayDeterminism(checked = true, matched = false)
 	}
 
 	private fun validateTurnRecords(
@@ -311,6 +365,34 @@ class BattleSandboxReplayService(
 		).joinToString("，").ifBlank { null }
 	}
 
+	private fun firstJsonDifference(left: JsonNode, right: JsonNode, path: String = "$"): String? {
+		if (left.nodeType != right.nodeType) {
+			return "$path 类型不同：保存=${left.nodeType}，重放=${right.nodeType}"
+		}
+		if (left.isValueNode) {
+			return if (left == right) null else "$path 值不同：保存=${left.shortJsonValue()}，重放=${right.shortJsonValue()}"
+		}
+		if (left.isArray) {
+			if (left.size() != right.size()) {
+				return "$path 数组长度不同：保存=${left.size()}，重放=${right.size()}"
+			}
+			for (index in 0 until left.size()) {
+				firstJsonDifference(left[index], right[index], "$path[$index]")?.let { return it }
+			}
+			return null
+		}
+		val leftFields = left.fieldNames().asSequence().toSet()
+		val rightFields = right.fieldNames().asSequence().toSet()
+		leftFields.minus(rightFields).minOrNull()?.let { return "$path 缺少重放字段 $it" }
+		rightFields.minus(leftFields).minOrNull()?.let { return "$path 多出重放字段 $it" }
+		return leftFields.sorted().firstNotNullOfOrNull { fieldName ->
+			firstJsonDifference(left.path(fieldName), right.path(fieldName), "$path.$fieldName")
+		}
+	}
+
+	private fun JsonNode.shortJsonValue(): String =
+		toString().let { value -> if (value.length <= 80) value else "${value.take(77)}..." }
+
 	private fun BattleSandboxReplay.toSummaryResponse(): BattleSandboxReplaySummaryResponse =
 		BattleSandboxReplaySummaryResponse(
 			id = id,
@@ -331,6 +413,7 @@ class BattleSandboxReplayService(
 			resolved = resolved,
 			resultSummary = resultSummary,
 			savedAt = savedAt,
+			requestJson = requestJson,
 			responseJson = responseJson,
 		)
 
@@ -358,8 +441,20 @@ class BattleSandboxReplayService(
 		val turnCount: Int,
 		val ruleHitCount: Int,
 		val ruleHitFamilyCodes: List<String>,
+		val deterministicReplayChecked: Boolean,
+		val deterministicReplayMatched: Boolean,
 		val warnings: List<String>,
 		val violations: List<String>,
+	)
+
+	/**
+	 * 确定性重放结果摘要。
+	 *
+	 * `checked=false` 表示缺少可解析请求，`checked=true && matched=false` 表示请求已经重新执行但输出不同或运行失败。
+	 */
+	private data class ReplayDeterminism(
+		val checked: Boolean,
+		val matched: Boolean,
 	)
 
 	private fun com.fasterxml.jackson.databind.JsonNode.arrayElements(): List<com.fasterxml.jackson.databind.JsonNode> =
