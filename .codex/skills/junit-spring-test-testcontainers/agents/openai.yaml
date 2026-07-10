@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backend Testing"
+  short_description: "JUnit 5、Spring Test、Testcontainers 与 TDD 约束"
+  default_prompt: "使用 $junit-spring-test-testcontainers 按 Avalon 项目约束处理相关技术栈任务。"

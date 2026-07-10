@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring Security OAuth2"
+  short_description: "认证服务器、资源服务器、OAuth2 与 RBAC 约束"
+  default_prompt: "使用 $spring-security-oauth2 按 Avalon 项目约束处理相关技术栈任务。"

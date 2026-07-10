@@ -1,0 +1,4 @@
+interface:
+  display_name: "Liquibase PostgreSQL"
+  short_description: "Liquibase 迁移、PostgreSQL schema 与种子数据约束"
+  default_prompt: "使用 $liquibase-postgresql 按 Avalon 项目约束处理相关技术栈任务。"

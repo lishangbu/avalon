@@ -1,4 +1,0 @@
-interface:
-  display_name: "Spring Boot 4"
-  short_description: "后端启动、Web 与配置规则"
-  default_prompt: "使用 $spring-boot-4 处理 后端 Spring Boot 4 代码。"

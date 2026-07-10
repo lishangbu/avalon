@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kotlin"
+  short_description: "Avalon Kotlin 类型、源码组织与空安全约束"
+  default_prompt: "使用 $kotlin 按 Avalon 项目约束处理相关技术栈任务。"

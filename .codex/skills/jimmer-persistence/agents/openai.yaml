@@ -1,4 +1,0 @@
-interface:
-  display_name: "Jimmer 持久化"
-  short_description: "Jimmer 实体、CosId ID、查询与事务"
-  default_prompt: "使用 $jimmer-persistence 处理 后端 Jimmer 持久化。"

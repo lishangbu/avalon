@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jimmer"
+  short_description: "Jimmer 实体、查询、事务与 CosId 标识约束"
+  default_prompt: "使用 $jimmer 按 Avalon 项目约束处理相关技术栈任务。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git"
+  short_description: "Avalon 安全暂存、GPG 签名与独立提交约束"
+  default_prompt: "使用 $git 按 Avalon 项目约束处理相关技术栈任务。"

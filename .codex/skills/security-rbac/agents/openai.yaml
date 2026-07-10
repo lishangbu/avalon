@@ -1,4 +1,0 @@
-interface:
-  display_name: "授权与 RBAC"
-  short_description: "授权服务器、角色与权限"
-  default_prompt: "使用 $security-rbac 处理 Avalon 授权和 RBAC。"

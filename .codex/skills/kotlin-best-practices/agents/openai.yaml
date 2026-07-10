@@ -1,4 +1,0 @@
-interface:
-  display_name: "Kotlin Best Practices"
-  short_description: "Kotlin style, modeling, and file rules"
-  default_prompt: "Use $kotlin-best-practices to implement idiomatic Avalon Kotlin code without non-companion object declarations or multi-type aggregation files."

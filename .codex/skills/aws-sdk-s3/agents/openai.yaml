@@ -1,0 +1,4 @@
+interface:
+  display_name: "AWS SDK S3"
+  short_description: "AWS SDK v2 S3 抽象、自动配置与对象边界"
+  default_prompt: "使用 $aws-sdk-s3 按 Avalon 项目约束处理相关技术栈任务。"

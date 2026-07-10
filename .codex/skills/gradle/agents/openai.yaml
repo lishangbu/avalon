@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gradle"
+  short_description: "Avalon Gradle 多模块、依赖与版本目录约束"
+  default_prompt: "使用 $gradle 按 Avalon 项目约束处理相关技术栈任务。"
