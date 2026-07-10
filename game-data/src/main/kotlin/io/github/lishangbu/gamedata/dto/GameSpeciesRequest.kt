@@ -16,6 +16,10 @@ data class GameSpeciesRequest(
 	@get:JsonProperty("name")
 	@field:Schema(description = "名称")
 	val name: String? = null,
+	@param:JsonProperty("national_number")
+	@get:JsonProperty("national_number")
+	@field:Schema(description = "当前全国编号")
+	val nationalNumber: Int? = null,
 	@param:JsonProperty("color_id")
 	@get:JsonProperty("color_id")
 	@field:Schema(description = "颜色 ID")

@@ -21,6 +21,9 @@ interface GameSpeciesResponse {
 	@get:JsonProperty("name")
 	@get:Schema(description = "名称")
 	val name: String?
+	@get:JsonProperty("national_number")
+	@get:Schema(description = "当前全国编号")
+	val nationalNumber: Int
 	@get:JsonProperty("color_id")
 	@get:Schema(description = "颜色 ID", type = "string")
 	@JsonConverter(LongToStringConverter::class)

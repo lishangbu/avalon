@@ -31,17 +31,13 @@ id,code,name,condition_id,enabled
 30,story-progress-beat-galactic-coronet,在皇冠山击败银河队后访问了维里蒂湖,9,true
 31,story-progress-oak-eterna-city,与百代市的大木博士交谈,9,true
 32,story-progress-vermilion-copycat,带着模仿猫的玩偶参观了精灵粉丝俱乐部,9,true
-33,story-progress-met-tornadus-thundurus,在过场动画中遇见龙卷风或雷霆,9,true
 34,story-progress-beat-elite-four-round-two,第二次击败精英 4,9,true
 35,story-progress-hall-of-fame,进入名人堂,9,true
-36,story-progress-none,没有任何,9,true
 37,story-progress-national-dex,获得国家图鉴,9,true
-38,other-none,没有任何,10,true
 39,other-snorlax-11-beat-league,在 11 号公路击败卡比兽后，击败精灵联盟,10,true
 40,other-virtual-console,在虚拟控制台版本上玩,10,true
 41,story-progress-cure-eldritch-nightmares,治愈埃尔德里奇之子的噩梦,9,true
 42,other-talk-to-cynthias-grandmother,与辛西娅的祖母交谈,10,true
-43,item-none,无物品要求,11,true
 44,item-adamant-orb,包里有金刚球,11,true
 45,item-lustrous-orb,包里有光泽宝珠,11,true
 46,item-helix-fossil,包里有螺旋化石,11,true
@@ -58,9 +54,7 @@ id,code,name,condition_id,enabled
 57,story-progress-receive-tm-from-claire,收到克莱尔寄来的招式学习器59,9,true
 58,other-regirock-regice-registeel-in-party,队伍中有雷吉洛克、雷吉艾斯和雷吉斯奇鲁,10,true
 59,weekday-sunday,星期日,12,true
-60,weekday-monday,周一,12,true
 61,weekday-tuesday,周二,12,true
-62,weekday-wednesday,周三,12,true
 63,weekday-thursday,周四,12,true
 64,weekday-friday,星期五,12,true
 65,weekday-saturday,周六,12,true
@@ -136,7 +130,6 @@ id,code,name,condition_id,enabled
 135,coins-800,您的硬币盒中至少有 800 枚硬币,16,true
 136,coins-1500,您的硬币盒中至少有 1500 枚硬币,16,true
 137,coins-2222,您的硬币盒中至少有 2222 枚硬币,16,true
-138,coins-5555,您的硬币盒中至少有 5555 枚硬币,16,true
 139,coins-8888,您的硬币盒中至少有 8888 个硬币,16,true
 140,coins-150,您的硬币盒中至少有 150 枚硬币,16,true
 141,coins-620,您的硬币盒中至少有 620 枚硬币,16,true
@@ -160,7 +153,6 @@ id,code,name,condition_id,enabled
 159,trade-growlithe,通过交换获得卡蒂狗,15,true
 160,trade-kangaskhan,通过交换获得袋兽,15,true
 161,trade-bellsprout,通过交换获得喇叭芽,15,true
-162,trade-drowzee,通过交换获得催眠貘,15,true
 163,trade-krabby,通过交换获得大钳蟹,15,true
 164,trade-dragonair,通过交换获得哈克龙,15,true
 165,trade-chansey,通过交换获得吉利蛋,15,true
@@ -179,7 +171,6 @@ id,code,name,condition_id,enabled
 178,friend-safari-slot-3,随机分配给朋友狩猎区第 3 栏,17,true
 179,item-skull-fossil,包里有头骨化石,11,true
 180,item-armor-fossil,包里有铠甲化石,11,true
-181,great-marsh-daily-slot-none,大沼泽每日机会：无,18,true
 182,great-marsh-daily-slot-1-of-32,大沼泽每日几率：三十二分之一,18,true
 183,great-marsh-daily-slot-2-of-32,大沼泽每日几率：32 分之 2,18,true
 184,great-marsh-daily-slot-3-of-32,大沼泽每日几率：32 分之 3,18,true

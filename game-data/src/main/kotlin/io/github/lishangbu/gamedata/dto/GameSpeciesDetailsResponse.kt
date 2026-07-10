@@ -23,14 +23,6 @@ interface GameSpeciesDetailsResponse {
 	@get:Schema(description = "成长速率 ID", type = "string")
 	@JsonConverter(LongToStringConverter::class)
 	val growthRateId: Long?
-	@get:JsonProperty("evolves_from_species_id")
-	@get:Schema(description = "进化来源种类 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val evolvesFromSpeciesId: Long?
-	@get:JsonProperty("evolution_chain_id")
-	@get:Schema(description = "进化链 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val evolutionChainId: Long?
 	@get:JsonProperty("sort_order")
 	@get:Schema(description = "排序")
 	val sortOrder: Int?

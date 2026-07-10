@@ -18,6 +18,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import org.springdoc.core.properties.SwaggerUiConfigProperties
 import org.springdoc.core.properties.SwaggerUiOAuthProperties
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer
 import org.springdoc.core.providers.ObjectMapperProvider
 import org.springdoc.core.models.GroupedOpenApi
 import org.springdoc.webmvc.ui.SwaggerIndexTransformer
@@ -38,6 +39,14 @@ const val OPENAPI_OAUTH_TOKEN_URL = "/oauth2/token"
  */
 @Configuration(proxyBeanMethods = false)
 class OpenApiConfig {
+	@Bean
+	fun openApiIdentifierSchemaCustomizer(): GlobalOpenApiCustomizer =
+		OpenApiIdentifierSchemaCustomizer()
+
+	@Bean
+	fun openApiResponseRequiredPropertiesCustomizer(): GlobalOpenApiCustomizer =
+		OpenApiResponseRequiredPropertiesCustomizer()
+
 	@Bean
 	fun avalonOpenApi(): OpenAPI =
 		OpenAPI()

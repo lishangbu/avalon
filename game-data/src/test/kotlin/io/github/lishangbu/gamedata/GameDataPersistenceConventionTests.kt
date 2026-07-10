@@ -162,7 +162,7 @@ class GameDataPersistenceConventionTests {
 		"$this: $reason"
 
 	private companion object {
-		private const val EXPECTED_ENTITY_COUNT = 85
+		private const val EXPECTED_ENTITY_COUNT = 52
 		private const val JAVASCRIPT_UNSAFE_LONG = 9_007_199_254_740_993L
 		private val PERSISTENT_PROPERTY = Regex("""\s*val\s+\w+\s*:\s*.+""")
 		private val FORBIDDEN_FILE_NAMES = listOf(

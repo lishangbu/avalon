@@ -24,7 +24,11 @@ interface GameCreatureResponse {
 	@get:JsonProperty("species_id")
 	@get:Schema(description = "种类 ID", type = "string")
 	@JsonConverter(LongToStringConverter::class)
-	val speciesId: Long?
+	val speciesId: Long
+	@get:JsonProperty("inherits_from_creature_id")
+	@get:Schema(description = "缺失资料继承来源精灵 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val inheritsFromCreatureId: Long?
 	@get:JsonProperty("height")
 	@get:Schema(description = "高度")
 	val height: Int?

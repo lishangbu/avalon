@@ -31,18 +31,6 @@ interface GameSkillDetailsResponse {
 	@get:Schema(description = "目标 ID", type = "string")
 	@JsonConverter(LongToStringConverter::class)
 	val targetId: Long?
-	@get:JsonProperty("contest_type_id")
-	@get:Schema(description = "评分类别 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val contestTypeId: Long?
-	@get:JsonProperty("contest_effect_id")
-	@get:Schema(description = "评价效果 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val contestEffectId: Long?
-	@get:JsonProperty("advanced_contest_effect_id")
-	@get:Schema(description = "高级评价效果 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val advancedContestEffectId: Long?
 	@get:JsonProperty("min_hits")
 	@get:Schema(description = "最少命中")
 	val minHits: Int?

@@ -43,6 +43,13 @@ interface GameSpecies {
 	val name: String
 
 	/**
+	 * 种类资料的当前全国编号。
+	 *
+	 * 对应数据库 `national_number` 列，写入时必须提供。
+	 */
+	val nationalNumber: Int
+
+	/**
 	 * 种类资料引用的颜色 ID。
 	 *
 	 * 对应数据库 `color_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。

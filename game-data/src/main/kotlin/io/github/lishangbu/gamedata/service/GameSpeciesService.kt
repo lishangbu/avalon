@@ -22,6 +22,7 @@ import io.github.lishangbu.gamedata.entity.id
 import io.github.lishangbu.gamedata.entity.legendary
 import io.github.lishangbu.gamedata.entity.mythical
 import io.github.lishangbu.gamedata.entity.name
+import io.github.lishangbu.gamedata.entity.nationalNumber
 import io.github.lishangbu.gamedata.entity.shapeId
 import io.github.lishangbu.gamedata.repository.GameSpeciesRepository
 import io.github.lishangbu.gamedata.support.gameDataBooleanFilterValue
@@ -66,6 +67,7 @@ class GameSpeciesService(
 				when (field) {
 				"code" -> gameDataStringFilterValue("code", rawValue)?.let { where(table.code eq it) }
 				"name" -> gameDataStringFilterValue("name", rawValue)?.let { where(table.name eq it) }
+				"national_number" -> gameDataIntFilterValue("national_number", rawValue)?.let { where(table.nationalNumber eq it) }
 				"color_id" -> gameDataLongFilterValue("color_id", rawValue)?.let { where(table.colorId eq it) }
 				"shape_id" -> gameDataLongFilterValue("shape_id", rawValue)?.let { where(table.shapeId eq it) }
 				"habitat_id" -> gameDataLongFilterValue("habitat_id", rawValue)?.let { where(table.habitatId eq it) }
@@ -95,6 +97,7 @@ class GameSpeciesService(
 			GameSpecies {
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
+				nationalNumber = request.nationalNumber ?: invalidValue("national_number", "national_number 不能为空")
 				colorId = request.colorId
 				shapeId = request.shapeId
 				habitatId = request.habitatId
@@ -118,6 +121,7 @@ class GameSpeciesService(
 				this.id = id
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
+				nationalNumber = request.nationalNumber ?: invalidValue("national_number", "national_number 不能为空")
 				colorId = request.colorId
 				shapeId = request.shapeId
 				habitatId = request.habitatId
@@ -148,6 +152,7 @@ class GameSpeciesService(
 			id = this@toResponse.id
 			code = this@toResponse.code
 			name = this@toResponse.name
+			nationalNumber = this@toResponse.nationalNumber
 			colorId = this@toResponse.colorId
 			shapeId = this@toResponse.shapeId
 			habitatId = this@toResponse.habitatId

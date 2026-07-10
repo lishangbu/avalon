@@ -1,9 +1,7 @@
 id,code,name,description,enabled
 1,countable,可计数,包里有计数,true
 2,consumable,消耗型,使用时消耗,true
-3,usable-overworld,可在场景使用,战斗外可用,true
 4,usable-in-battle,可在对战使用,可以在战斗中使用,true
 5,holdable,可携带,可由精灵持有,true
-6,holdable-passive,携带被动生效,持有时被动工作,true
 7,holdable-active,携带主动生效,精灵持有时可以使用,true
 8,underground,地下可用,出现在神奥地下城,true

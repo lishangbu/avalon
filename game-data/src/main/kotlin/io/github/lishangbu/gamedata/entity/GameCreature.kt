@@ -45,9 +45,16 @@ interface GameCreature {
 	/**
 	 * 精灵资料引用的种类 ID。
 	 *
-	 * 对应数据库 `species_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
+	 * 对应数据库 `species_id` 列，写入时必须提供；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
 	 */
-	val speciesId: Long?
+	val speciesId: Long
+
+	/**
+	 * 精灵资料继承缺失数据时引用的来源精灵 ID。
+	 *
+	 * 对应数据库 `inherits_from_creature_id` 列，允许为空；数据库约束要求来源精灵属于同一种类且不能自引用。
+	 */
+	val inheritsFromCreatureId: Long?
 
 	/**
 	 * 精灵资料的高度。

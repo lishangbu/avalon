@@ -20,6 +20,10 @@ data class GameCreatureRequest(
 	@get:JsonProperty("species_id")
 	@field:Schema(description = "种类 ID")
 	val speciesId: Long? = null,
+	@param:JsonProperty("inherits_from_creature_id")
+	@get:JsonProperty("inherits_from_creature_id")
+	@field:Schema(description = "缺失资料继承来源精灵 ID")
+	val inheritsFromCreatureId: Long? = null,
 	@param:JsonProperty("height")
 	@get:JsonProperty("height")
 	@field:Schema(description = "高度")

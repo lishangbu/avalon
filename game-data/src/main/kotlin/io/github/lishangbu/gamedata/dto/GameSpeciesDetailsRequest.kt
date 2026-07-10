@@ -16,14 +16,6 @@ data class GameSpeciesDetailsRequest(
 	@get:JsonProperty("growth_rate_id")
 	@field:Schema(description = "成长速率 ID")
 	val growthRateId: Long? = null,
-	@param:JsonProperty("evolves_from_species_id")
-	@get:JsonProperty("evolves_from_species_id")
-	@field:Schema(description = "进化来源种类 ID")
-	val evolvesFromSpeciesId: Long? = null,
-	@param:JsonProperty("evolution_chain_id")
-	@get:JsonProperty("evolution_chain_id")
-	@field:Schema(description = "进化链 ID")
-	val evolutionChainId: Long? = null,
 	@param:JsonProperty("sort_order")
 	@get:JsonProperty("sort_order")
 	@field:Schema(description = "排序")

@@ -43,12 +43,12 @@ class GameEvolutionDetailsApiTests(
 			val fromSpeciesId = createResource(
 				token,
 				SPECIES_PATH,
-				speciesJson(nextCode("tdd-evolution-from"), "测试起始种类"),
+				speciesJson(nextCode("tdd-evolution-from"), "测试起始种类", 2_000_001),
 			).also(speciesIds::add)
 			val toSpeciesId = createResource(
 				token,
 				SPECIES_PATH,
-				speciesJson(nextCode("tdd-evolution-to"), "测试目标种类"),
+				speciesJson(nextCode("tdd-evolution-to"), "测试目标种类", 2_000_002),
 			).also(speciesIds::add)
 			val request = evolutionDetailsJson(chainId, fromSpeciesId, toSpeciesId)
 
@@ -118,11 +118,12 @@ class GameEvolutionDetailsApiTests(
 		).andExpect(status().isNoContent)
 	}
 
-	private fun speciesJson(code: String, name: String): String =
+	private fun speciesJson(code: String, name: String, nationalNumber: Int): String =
 		"""
 		{
 		  "code": "$code",
-		  "name": "$name"
+		  "name": "$name",
+		  "national_number": $nationalNumber
 		}
 		""".trimIndent()
 

@@ -1,4 +1,0 @@
-id,code,name,sort_order,enabled
-1,attack,攻击,1,true
-2,defense,防御,2,true
-3,support,辅助,3,true

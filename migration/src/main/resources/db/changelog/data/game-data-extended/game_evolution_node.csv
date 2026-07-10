@@ -503,7 +503,7 @@ id,chain_id,species_id,parent_species_id,baby,node_order
 502,248,487,,false,1
 503,249,488,,false,1
 504,250,489,,false,1
-505,250,490,489,false,2
+505,250,490,,false,2
 506,252,491,,false,1
 507,253,492,,false,1
 508,254,493,,false,1
@@ -824,7 +824,7 @@ id,chain_id,species_id,parent_species_id,baby,node_order
 823,426,806,,false,1
 824,427,807,,false,1
 825,428,808,,false,1
-826,429,809,,false,1
+826,428,809,808,false,1
 827,430,810,,false,1
 828,430,811,810,false,2
 829,430,812,811,false,3

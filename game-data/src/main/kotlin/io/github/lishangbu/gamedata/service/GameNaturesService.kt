@@ -12,10 +12,8 @@ import io.github.lishangbu.gamedata.entity.GameNatures
 import io.github.lishangbu.gamedata.entity.code
 import io.github.lishangbu.gamedata.entity.decreasedStatId
 import io.github.lishangbu.gamedata.entity.enabled
-import io.github.lishangbu.gamedata.entity.hatesFlavorId
 import io.github.lishangbu.gamedata.entity.id
 import io.github.lishangbu.gamedata.entity.increasedStatId
-import io.github.lishangbu.gamedata.entity.likesFlavorId
 import io.github.lishangbu.gamedata.entity.name
 import io.github.lishangbu.gamedata.repository.GameNaturesRepository
 import io.github.lishangbu.gamedata.support.gameDataBooleanFilterValue
@@ -62,8 +60,6 @@ class GameNaturesService(
 				"name" -> gameDataStringFilterValue("name", rawValue)?.let { where(table.name eq it) }
 				"increased_stat_id" -> gameDataLongFilterValue("increased_stat_id", rawValue)?.let { where(table.increasedStatId eq it) }
 				"decreased_stat_id" -> gameDataLongFilterValue("decreased_stat_id", rawValue)?.let { where(table.decreasedStatId eq it) }
-				"likes_flavor_id" -> gameDataLongFilterValue("likes_flavor_id", rawValue)?.let { where(table.likesFlavorId eq it) }
-				"hates_flavor_id" -> gameDataLongFilterValue("hates_flavor_id", rawValue)?.let { where(table.hatesFlavorId eq it) }
 				"enabled" -> gameDataBooleanFilterValue("enabled", rawValue)?.let { where(table.enabled eq it) }
 					else -> invalidValue(field, "筛选字段不存在: $field")
 				}
@@ -85,8 +81,6 @@ class GameNaturesService(
 				name = gameDataRequiredText(request.name, "name", 120)
 				increasedStatId = request.increasedStatId
 				decreasedStatId = request.decreasedStatId
-				likesFlavorId = request.likesFlavorId
-				hatesFlavorId = request.hatesFlavorId
 				enabled = request.enabled ?: invalidValue("enabled", "enabled 不能为空")
 			},
 			SaveMode.INSERT_ONLY,
@@ -102,8 +96,6 @@ class GameNaturesService(
 				name = gameDataRequiredText(request.name, "name", 120)
 				increasedStatId = request.increasedStatId
 				decreasedStatId = request.decreasedStatId
-				likesFlavorId = request.likesFlavorId
-				hatesFlavorId = request.hatesFlavorId
 				enabled = request.enabled ?: invalidValue("enabled", "enabled 不能为空")
 			},
 			SaveMode.UPDATE_ONLY,
@@ -126,8 +118,6 @@ class GameNaturesService(
 			name = this@toResponse.name
 			increasedStatId = this@toResponse.increasedStatId
 			decreasedStatId = this@toResponse.decreasedStatId
-			likesFlavorId = this@toResponse.likesFlavorId
-			hatesFlavorId = this@toResponse.hatesFlavorId
 			enabled = this@toResponse.enabled
 		}
 }

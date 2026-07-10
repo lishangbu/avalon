@@ -211,7 +211,7 @@ id,chain_id,from_species_id,to_species_id,trigger_id,item_id,held_item_id,known_
 219,139,278,279,1,,,,,,,,,,,25,,,,,,,,,false,false,false,false,true
 220,140,280,281,1,,,,,,,,,,,20,,,,,,,,,false,false,false,false,true
 221,140,281,282,1,,,,,,,,,,,30,,,,,,,,,false,false,false,false,true
-222,140,281,475,3,109,,,,,,,,,,,,,,,,,,,false,false,false,false,true
+222,140,281,475,3,109,,,,,,,,2,,,,,,,,,,,false,false,false,false,true
 223,141,283,284,1,,,,,,,,,,,22,,,,,,,,,false,false,false,false,true
 224,142,285,286,1,,,,,,,,,,,23,,,,,,,,,false,false,false,false,true
 225,143,287,288,1,,,,,,,,,,,18,,,,,,,,,false,false,false,false,true
@@ -256,7 +256,7 @@ id,chain_id,from_species_id,to_species_id,trigger_id,item_id,held_item_id,known_
 265,182,356,477,2,,302,,,,,,,,,,,,,,,,,,false,false,false,false,true
 266,184,433,358,1,,,,,,,,,,,,220,,,,,,,night,false,false,false,false,true
 267,186,361,362,1,,,,,,,,,,,42,,,,,,,,,false,false,false,false,true
-268,186,361,478,3,109,,,,,,,,,,,,,,,,,,,false,false,false,false,true
+268,186,361,478,3,109,,,,,,,,1,,,,,,,,,,,false,false,false,false,true
 269,187,363,364,1,,,,,,,,,,,32,,,,,,,,,false,false,false,false,true
 270,187,364,365,1,,,,,,,,,,,44,,,,,,,,,false,false,false,false,true
 271,188,366,367,2,,203,,,,,,,,,,,,,,,,,,false,false,false,false,true
@@ -279,9 +279,9 @@ id,chain_id,from_species_id,to_species_id,trigger_id,item_id,held_item_id,known_
 288,209,404,405,1,,,,,,,,,,,30,,,,,,,,,false,false,false,false,true
 289,211,408,409,1,,,,,,,,,,,30,,,,,,,,,false,false,false,false,true
 290,212,410,411,1,,,,,,,,,,,30,,,,,,,,,false,false,false,false,true
-291,213,412,413,1,,,,,,,,,,,20,,,,,,,,,false,false,false,false,true
-292,213,412,414,1,,,,,,,,,,,20,,,,,,,,,false,false,false,false,true
-293,214,415,416,1,,,,,,,,,,,21,,,,,,,,,false,false,false,false,true
+291,213,412,413,1,,,,,,,,,1,,20,,,,,,,,,false,false,false,false,true
+292,213,412,414,1,,,,,,,,,2,,20,,,,,,,,,false,false,false,false,true
+293,214,415,416,1,,,,,,,,,1,,21,,,,,,,,,false,false,false,false,true
 294,216,418,419,1,,,,,,,,,,,26,,,,,,,,,false,false,false,false,true
 295,217,420,421,1,,,,,,,,,,,25,,,,,,,,,false,false,false,false,true
 296,218,422,423,1,,,,,,,,,,,30,,,,,,,,,false,false,false,false,true
@@ -440,7 +440,7 @@ id,chain_id,from_species_id,to_species_id,trigger_id,item_id,held_item_id,known_
 451,387,751,752,1,,,,,,,,,,,22,,,,,,,,,false,false,false,false,true
 452,388,753,754,1,,,,,,,,,,,34,,,,,,,,day,false,false,false,false,true
 453,389,755,756,1,,,,,,,,,,,24,,,,,,,,,false,false,false,false,true
-454,390,757,758,1,,,,,,,,,,,33,,,,,,,,,false,false,false,false,true
+454,390,757,758,1,,,,,,,,,1,,33,,,,,,,,,false,false,false,false,true
 455,391,759,760,1,,,,,,,,,,,27,,,,,,,,,false,false,false,false,true
 456,392,761,762,1,,,,,,,,,,,18,,,,,,,,,false,false,false,false,true
 457,392,762,763,1,,,23,,,,,,,,,,,,,,,,,false,false,false,false,true
@@ -537,3 +537,4 @@ id,chain_id,from_species_id,to_species_id,trigger_id,item_id,held_item_id,known_
 548,528,999,1000,16,,,,,,,,,,,,,,,,,,,,false,false,false,false,true
 549,539,1012,1013,3,2110,,,,,,,,,,,,,,,,,,,false,false,false,false,true
 550,539,1012,1013,3,2111,,,,,,,,,,,,,,,,,,,false,false,false,false,true
+551,428,808,809,10,,,,,,,,,,,,,,,,,,,,false,false,false,false,true

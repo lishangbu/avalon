@@ -29,14 +29,6 @@ interface GameNaturesResponse {
 	@get:Schema(description = "降低数值项 ID", type = "string")
 	@JsonConverter(LongToStringConverter::class)
 	val decreasedStatId: Long?
-	@get:JsonProperty("likes_flavor_id")
-	@get:Schema(description = "偏好口味 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val likesFlavorId: Long?
-	@get:JsonProperty("hates_flavor_id")
-	@get:Schema(description = "厌恶口味 ID", type = "string")
-	@JsonConverter(LongToStringConverter::class)
-	val hatesFlavorId: Long?
 	@get:JsonProperty("enabled")
 	@get:Schema(description = "启用")
 	val enabled: Boolean?

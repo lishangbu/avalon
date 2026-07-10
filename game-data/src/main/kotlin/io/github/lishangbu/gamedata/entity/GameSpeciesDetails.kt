@@ -43,20 +43,6 @@ interface GameSpeciesDetails {
 	val growthRateId: Long?
 
 	/**
-	 * 种类详情引用的进化来源种类 ID。
-	 *
-	 * 对应数据库 `evolves_from_species_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val evolvesFromSpeciesId: Long?
-
-	/**
-	 * 种类详情引用的进化链 ID。
-	 *
-	 * 对应数据库 `evolution_chain_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val evolutionChainId: Long?
-
-	/**
 	 * 种类详情的排序。
 	 *
 	 * 对应数据库 `sort_order` 列，允许为空。

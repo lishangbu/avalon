@@ -1,6 +1,5 @@
 id,code,name,description,enabled
 1,specific-move,指定技能,一个指定技能。如何选择此技能取决于所使用的技能。,true
-2,selected-pokemon-me-first,指定精灵,场上的另一只精灵，由训练师选择。被借用的技能会重复使用相同的目标。,true
 3,ally,同伴,使用者的同伴（如果有）。,true
 4,users-field,己方场地,使用者这边的场地。影响使用者及其同伴（如果有）。,true
 5,user-or-ally,使用者或同伴,由训练师选择的使用者或其同伴。,true

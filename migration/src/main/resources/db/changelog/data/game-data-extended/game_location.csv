@@ -240,97 +240,6 @@ id,code,name,region_id,enabled
 249,pokewalker,神奇行者,2,true
 250,cliff-edge-gate,悬崖边门,2,true
 252,radio-tower,无线电塔,2,true
-253,day-care-couple,日托夫妇,,true
-254,link-trade-arrive,链接贸易（到达）,,true
-255,link-trade-met,链接交换（相遇）,,true
-256,kanto,关都,,true
-257,johto,城都,,true
-258,hoenn,丰缘,,true
-259,sinnoh,神奥,,true
-260,distant-land,遥远的土地,,true
-261,traveling-man,旅行的人,,true
-262,riley,莱利,,true
-263,cynthia,辛西娅,,true
-264,mystery-zone,神秘地带,,true
-265,lovely-place,可爱的地方,,true
-266,pokemon-ranger,精灵游骑兵,,true
-267,faraway-place,遥远的地方,,true
-268,pokemon-movie,精灵电影,,true
-269,pokemon-movie-06,精灵电影06,,true
-270,pokemon-movie-07,精灵电影07,,true
-271,pokemon-movie-08,精灵电影08,,true
-272,pokemon-movie-09,精灵电影09,,true
-273,pokemon-movie-10,精灵剧场版 10,,true
-274,pokemon-movie-11,精灵剧场版11,,true
-275,pokemon-movie-12,精灵剧场版 12,,true
-276,pokemon-movie-13,精灵剧场版 13,,true
-277,pokemon-movie-14,精灵剧场版 14,,true
-278,pokemon-movie-15,精灵剧场版 15,,true
-279,pokemon-movie-16,精灵剧场版 16,,true
-280,pokemon-cartoon,精灵卡通,,true
-281,space-world,太空世界,,true
-282,space-world-06,太空世界06,,true
-283,space-world-07,太空世界07,,true
-284,space-world-08,太空世界08,,true
-285,space-world-09,太空世界09,,true
-286,space-world-10,太空世界10,,true
-287,space-world-11,太空世界11,,true
-288,space-world-12,太空世界12,,true
-289,space-world-13,太空世界13,,true
-290,space-world-14,太空世界14,,true
-291,space-world-15,太空世界15,,true
-292,space-world-16,太空世界16,,true
-293,pokemon-festa,精灵节,,true
-294,pokemon-festa-06,精灵节 06,,true
-295,pokemon-festa-07,精灵节 07,,true
-296,pokemon-festa-08,精灵节 08,,true
-297,pokemon-festa-09,精灵节 09,,true
-298,pokemon-festa-10,精灵嘉年华 10,,true
-299,pokemon-festa-11,精灵节 11,,true
-300,pokemon-festa-12,精灵嘉年华 12,,true
-301,pokemon-festa-13,精灵节 13,,true
-302,pokemon-festa-14,精灵节 14,,true
-303,pokemon-festa-15,精灵节 15,,true
-304,pokemon-festa-16,精灵节 16,,true
-305,pokepark,神奇乐园,,true
-306,pokepark-06,精灵公园 06,,true
-307,pokepark-07,精灵公园 07,,true
-308,pokepark-08,精灵公园 08,,true
-309,pokepark-09,精灵乐园 09,,true
-310,pokepark-10,精灵乐园 10,,true
-311,pokepark-11,精灵乐园 11,,true
-312,pokepark-12,精灵乐园 12,,true
-313,pokepark-13,精灵乐园 13,,true
-314,pokepark-14,精灵乐园 14,,true
-315,pokepark-15,精灵乐园 15,,true
-316,pokepark-16,精灵乐园 16,,true
-317,pokemon-center,精灵中心,,true
-318,pc-tokyo,电脑东京,,true
-319,pc-osaka,大阪电脑,,true
-320,pc-fukuoka,福冈中心,,true
-321,pc-nagoya,名古屋中心,,true
-322,pc-sapporo,札幌电脑,,true
-323,pc-yokohama,横滨中心,,true
-324,nintendo-world,任天堂世界,,true
-325,pokemon-event,精灵活动,,true
-326,pokemon-event-06,精灵活动06,,true
-327,pokemon-event-07,精灵活动07,,true
-328,pokemon-event-08,精灵活动08,,true
-329,pokemon-event-09,精灵活动09,,true
-330,pokemon-event-10,精灵活动 10,,true
-331,pokemon-event-11,精灵活动11,,true
-332,pokemon-event-12,精灵活动12,,true
-333,pokemon-event-13,精灵活动13,,true
-334,pokemon-event-14,精灵活动 14,,true
-335,pokemon-event-15,精灵活动 15,,true
-336,pokemon-event-16,精灵活动 16,,true
-337,wi-fi-event,无线网络活动,,true
-338,wi-fi-gift,无线网络礼物,,true
-339,pokemon-fan-club,精灵粉丝俱乐部,,true
-340,event-site,活动现场,,true
-341,concert-event,音乐会活动,,true
-342,mr-pokemon,精灵先生,,true
-343,primo,普里莫,,true
 344,unova-mystery-zone,神秘地带,5,true
 345,unova-faraway-place,遥远的地方,5,true
 346,nuvema-town,努韦马镇,5,true
@@ -862,7 +771,7 @@ id,code,name,region_id,enabled
 878,axews-eye,斧眼,8,true
 879,ballimere-lake,巴利米尔湖,8,true
 880,ballonlea,巴伦利亚,8,true
-881,battle-tower,对战塔,8,true
+881,galar-battle-tower,对战塔,8,true
 882,brawlers-cave,斗士洞穴,8,true
 883,bridge-field,桥场,8,true
 884,challenge-beach,挑战海滩,8,true
@@ -1095,3 +1004,6 @@ id,code,name,region_id,enabled
 1111,cipher-key-lair,密码钥匙巢穴,11,true
 1112,citadark-isle,城暗岛,11,true
 1113,kanto-underground-path,关东地下通道,1,true
+1114,energy-plant,Energy Plant,8,true
+1115,meetup-spot,Meetup Spot,8,true
+1116,isle-of-armor-caves,Isle Of Armor Caves,8,true

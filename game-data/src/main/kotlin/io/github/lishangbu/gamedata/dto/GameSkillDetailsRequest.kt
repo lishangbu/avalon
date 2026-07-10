@@ -24,18 +24,6 @@ data class GameSkillDetailsRequest(
 	@get:JsonProperty("target_id")
 	@field:Schema(description = "目标 ID")
 	val targetId: Long? = null,
-	@param:JsonProperty("contest_type_id")
-	@get:JsonProperty("contest_type_id")
-	@field:Schema(description = "评分类别 ID")
-	val contestTypeId: Long? = null,
-	@param:JsonProperty("contest_effect_id")
-	@get:JsonProperty("contest_effect_id")
-	@field:Schema(description = "评价效果 ID")
-	val contestEffectId: Long? = null,
-	@param:JsonProperty("advanced_contest_effect_id")
-	@get:JsonProperty("advanced_contest_effect_id")
-	@field:Schema(description = "高级评价效果 ID")
-	val advancedContestEffectId: Long? = null,
 	@param:JsonProperty("min_hits")
 	@get:JsonProperty("min_hits")
 	@field:Schema(description = "最少命中")

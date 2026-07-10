@@ -9,8 +9,6 @@ import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameSpeciesDetailsRequest
 import io.github.lishangbu.gamedata.dto.GameSpeciesDetailsResponse
 import io.github.lishangbu.gamedata.entity.GameSpeciesDetails
-import io.github.lishangbu.gamedata.entity.evolutionChainId
-import io.github.lishangbu.gamedata.entity.evolvesFromSpeciesId
 import io.github.lishangbu.gamedata.entity.flavorText
 import io.github.lishangbu.gamedata.entity.formsSwitchable
 import io.github.lishangbu.gamedata.entity.genderDifferences
@@ -63,8 +61,6 @@ class GameSpeciesDetailsService(
 				when (field) {
 				"species_id" -> gameDataLongFilterValue("species_id", rawValue)?.let { where(table.speciesId eq it) }
 				"growth_rate_id" -> gameDataLongFilterValue("growth_rate_id", rawValue)?.let { where(table.growthRateId eq it) }
-				"evolves_from_species_id" -> gameDataLongFilterValue("evolves_from_species_id", rawValue)?.let { where(table.evolvesFromSpeciesId eq it) }
-				"evolution_chain_id" -> gameDataLongFilterValue("evolution_chain_id", rawValue)?.let { where(table.evolutionChainId eq it) }
 				"sort_order" -> gameDataIntFilterValue("sort_order", rawValue)?.let { where(table.sortOrder eq it) }
 				"gender_differences" -> gameDataBooleanFilterValue("gender_differences", rawValue)?.let { where(table.genderDifferences eq it) }
 				"forms_switchable" -> gameDataBooleanFilterValue("forms_switchable", rawValue)?.let { where(table.formsSwitchable eq it) }
@@ -88,8 +84,6 @@ class GameSpeciesDetailsService(
 			GameSpeciesDetails {
 				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")
 				growthRateId = request.growthRateId
-				evolvesFromSpeciesId = request.evolvesFromSpeciesId
-				evolutionChainId = request.evolutionChainId
 				sortOrder = request.sortOrder
 				genderDifferences = request.genderDifferences ?: invalidValue("gender_differences", "gender_differences 不能为空")
 				formsSwitchable = request.formsSwitchable ?: invalidValue("forms_switchable", "forms_switchable 不能为空")
@@ -107,8 +101,6 @@ class GameSpeciesDetailsService(
 				this.id = id
 				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")
 				growthRateId = request.growthRateId
-				evolvesFromSpeciesId = request.evolvesFromSpeciesId
-				evolutionChainId = request.evolutionChainId
 				sortOrder = request.sortOrder
 				genderDifferences = request.genderDifferences ?: invalidValue("gender_differences", "gender_differences 不能为空")
 				formsSwitchable = request.formsSwitchable ?: invalidValue("forms_switchable", "forms_switchable 不能为空")
@@ -133,8 +125,6 @@ class GameSpeciesDetailsService(
 			id = this@toResponse.id
 			speciesId = this@toResponse.speciesId
 			growthRateId = this@toResponse.growthRateId
-			evolvesFromSpeciesId = this@toResponse.evolvesFromSpeciesId
-			evolutionChainId = this@toResponse.evolutionChainId
 			sortOrder = this@toResponse.sortOrder
 			genderDifferences = this@toResponse.genderDifferences
 			formsSwitchable = this@toResponse.formsSwitchable

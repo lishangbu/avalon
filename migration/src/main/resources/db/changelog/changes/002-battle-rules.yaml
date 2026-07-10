@@ -7968,29 +7968,6 @@ databaseChangeLog:
             and s.enabled = true
             and s.code = 'strength-sap'
 - changeSet:
-    id: 111-battle-derived-basic-skill-purify
-    author: backend
-    comment: 为净化补充治愈目标主要异常后回复使用者的特殊规则。
-    changes:
-    - sql:
-        splitStatements: false
-        stripComments: false
-        sql: |
-          -- 净化不是普通 healing=50 技能：它要求目标已有主要异常，成功后先清除目标主要异常，
-          -- 再回复使用者最大 HP 的一半。目标没有主要异常时整招失败，因此必须使用独立 policy。
-          update battle_skill_rule r
-          set
-            effect_policy = 'target-major-status-cure-self-heal-half-max-hp',
-            target_policy = 'selected-target',
-            damage_policy = 'no-damage',
-            description = '目标有主要异常时，先治愈目标主要异常，再回复使用者最大 HP 的一半；目标无主要异常时失败。'
-          from game_skill s
-          where r.skill_id = s.id
-            and r.id >= 100000
-            and r.enabled = true
-            and s.enabled = true
-            and s.code = 'purify'
-- changeSet:
     id: 112-battle-derived-basic-skill-conditional-power
     author: backend
     comment: 为基础条件威力技能补充公式前威力倍率规则。
@@ -8029,92 +8006,66 @@ databaseChangeLog:
 - changeSet:
     id: 113-battle-derived-basic-skill-post-damage-status-cure
     author: backend
-    comment: 为伤害后治愈目标主要异常的技能补充规则。
+    comment: 为伤害后治愈目标灼伤的技能补充规则。
     changes:
     - sql:
         splitStatements: false
         stripComments: false
         sql: |
-          -- 清醒和唤醒巴掌在目标处于对应异常时先以双倍威力计算伤害，随后治愈目标异常；
           -- 泡影的咏叹调只在目标因该技能实际受伤后治愈灼伤，不改变威力。
           update battle_skill_rule r
           set
-            effect_policy = case s.code
-              when 'smelling-salts' then 'power-double-if-target-paralysis-cure-target-paralysis-after-damage'
-              when 'wake-up-slap' then 'power-double-if-target-sleep-cure-target-sleep-after-damage'
-              when 'sparkling-aria' then 'cure-target-burn-after-damage'
-              else r.effect_policy
-            end,
+            effect_policy = 'cure-target-burn-after-damage',
             damage_policy = 'standard-damage',
-            description = case s.code
-              when 'smelling-salts' then '目标处于麻痹时技能威力翻倍；若造成实际伤害，随后治愈目标麻痹。'
-              when 'wake-up-slap' then '目标处于睡眠时技能威力翻倍；若造成实际伤害，随后唤醒目标。'
-              when 'sparkling-aria' then '若目标因该技能受到实际伤害且处于灼伤，随后治愈目标灼伤。'
-              else r.description
-            end
+            description = '若目标因该技能受到实际伤害且处于灼伤，随后治愈目标灼伤。'
           from game_skill s
           where r.skill_id = s.id
             and r.id >= 100000
             and r.enabled = true
             and s.enabled = true
-            and s.code in ('smelling-salts', 'wake-up-slap', 'sparkling-aria')
+            and s.code = 'sparkling-aria'
 - changeSet:
     id: 114-battle-derived-basic-skill-dynamic-power
     author: backend
-    comment: 为按能力阶级动态计算威力的技能补充规则。
+    comment: 为按使用者能力阶级动态计算威力的技能补充规则。
     changes:
     - sql:
         splitStatements: false
         stripComments: false
         sql: |
-          -- 辅助力量和嚣张按使用者所有正向能力阶级总和增加威力；
-          -- 惩罚按目标所有正向能力阶级总和增加威力，并按现代公开规则保留 200 威力上限。
+          -- 辅助力量和嚣张按使用者所有正向能力阶级总和增加威力。
           update battle_skill_rule r
           set
-            effect_policy = case s.code
-              when 'stored-power' then 'power-by-user-positive-stat-stage-sum'
-              when 'power-trip' then 'power-by-user-positive-stat-stage-sum'
-              when 'punishment' then 'power-by-target-positive-stat-stage-sum-max-200'
-              else r.effect_policy
-            end,
+            effect_policy = 'power-by-user-positive-stat-stage-sum',
             damage_policy = 'standard-damage',
-            description = case s.code
-              when 'stored-power' then '技能基础威力为 20，每累计 1 级使用者正向能力阶级，威力增加 20。'
-              when 'power-trip' then '技能基础威力为 20，每累计 1 级使用者正向能力阶级，威力增加 20。'
-              when 'punishment' then '技能基础威力为 60，每累计 1 级目标正向能力阶级，威力增加 20，最高 200。'
-              else r.description
-            end
+            description = '技能基础威力为 20，每累计 1 级使用者正向能力阶级，威力增加 20。'
           from game_skill s
           where r.skill_id = s.id
             and r.id >= 100000
             and r.enabled = true
             and s.enabled = true
-            and s.code in ('stored-power', 'power-trip', 'punishment')
+            and s.code in ('stored-power', 'power-trip')
 - changeSet:
     id: 115-battle-derived-basic-skill-user-element-removal
     author: backend
-    comment: 为成功造成伤害后移除使用者自身属性的技能补充规则。
+    comment: 为成功造成伤害后移除使用者电属性的技能补充规则。
     changes:
     - sql:
         splitStatements: false
         stripComments: false
         sql: |
-          -- 燃尽和电光双击要求使用者当前拥有技能基础属性；成功造成伤害后移除使用者对应属性。
+          -- 电光双击要求使用者当前拥有电属性；成功造成伤害后移除使用者电属性。
           update battle_skill_rule r
           set
             effect_policy = 'remove-user-element-after-damage',
             damage_policy = 'standard-damage',
-            description = case s.code
-              when 'burn-up' then '使用者没有火属性时失败；成功造成伤害后，使用者失去火属性。'
-              when 'double-shock' then '使用者没有电属性时失败；成功造成伤害后，使用者失去电属性。'
-              else r.description
-            end
+            description = '使用者没有电属性时失败；成功造成伤害后，使用者失去电属性。'
           from game_skill s
           where r.skill_id = s.id
             and r.id >= 100000
             and r.enabled = true
             and s.enabled = true
-            and s.code in ('burn-up', 'double-shock')
+            and s.code = 'double-shock'
 - changeSet:
     id: 116-battle-derived-basic-skill-speed-ratio-power
     author: backend
@@ -8217,28 +8168,6 @@ databaseChangeLog:
         - column: { name: description, value: 体重相关动态威力读取当前体重时，携带者体重按 1/2 计算；该道具不会因参与体重计算而消耗。 }
         - column: { name: enabled, valueBoolean: true }
         - column: { name: sort_order, valueNumeric: 610 }
-- changeSet:
-    id: 119-battle-derived-basic-skill-weight-reduction
-    author: backend
-    comment: 为速度成功提升后降低自身当前体重的技能补充规则。
-    changes:
-    - sql:
-        splitStatements: false
-        stripComments: false
-        sql: |
-          -- 身体轻量化的现代规则是在速度阶级成功变化后，将自身当前体重减少 100kg，最低保留 0.1kg。
-          update battle_skill_rule r
-          set
-            effect_policy = 'self-weight-reduction-100kg-after-speed-change',
-            target_policy = 'self',
-            damage_policy = 'no-damage',
-            description = '速度阶级成功提升后，自身当前体重减少 100kg；最低有效体重保留 0.1kg，离场后清除该临时减重。'
-          from game_skill s
-          where r.skill_id = s.id
-            and r.id >= 100000
-            and r.enabled = true
-            and s.enabled = true
-            and s.code = 'autotomize'
 - changeSet:
     id: 120-battle-derived-basic-skill-terrain-power
     author: backend
@@ -8602,7 +8531,7 @@ databaseChangeLog:
             enabled = true
           from game_skill s
           where r.skill_id = s.id
-            and s.code in ('mind-reader', 'lock-on')
+            and s.code = 'lock-on'
 - changeSet:
     id: 002-battle-rules-received-damage-skill-rules
     author: backend
@@ -9011,7 +8940,7 @@ databaseChangeLog:
               and r.effect_policy = 'status-effect'
               and r.damage_policy = 'no-damage'
               and r.description like '基础变化技能规则%'
-              and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+              and s.code not in ('splash', 'celebrate', 'happy-hour')
               and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
               and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
               and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
@@ -9033,7 +8962,7 @@ databaseChangeLog:
               and r.effect_policy = 'status-effect'
               and r.damage_policy = 'no-damage'
               and r.description like '基础变化技能规则%'
-              and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+              and s.code not in ('splash', 'celebrate', 'happy-hour')
               and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
               and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
               and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
@@ -9051,7 +8980,7 @@ databaseChangeLog:
           set description = '现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。'
           from game_skill s
           where s.id = r.skill_id
-            and s.code in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+            and s.code in ('splash', 'celebrate', 'happy-hour')
             and r.enabled = true;
 - changeSet:
     id: 002-battle-rules-disable-unmodeled-damaging-no-damage-skills
@@ -9231,10 +9160,6 @@ databaseChangeLog:
                   ('game_ability_detail', 'effect'),
                   ('game_ability_detail', 'flavor_text'),
                   ('game_ability_detail', 'short_effect'),
-                  ('game_advanced_contest_effect', 'flavor_text'),
-                  ('game_catalog', 'description'),
-                  ('game_contest_effect', 'effect'),
-                  ('game_contest_effect', 'flavor_text'),
                   ('game_encounter_condition', 'name'),
                   ('game_encounter_condition_value', 'name'),
                   ('game_encounter_method', 'name'),
@@ -9289,9 +9214,7 @@ databaseChangeLog:
               ('giga-impact'),
               ('rock-wrecker'),
               ('roar-of-time'),
-              ('prismatic-laser'),
-              ('meteor-assault'),
-              ('eternabeam')
+              ('prismatic-laser')
           )
           update game_skill s
           set enabled = true
@@ -9306,9 +9229,7 @@ databaseChangeLog:
               ('giga-impact'),
               ('rock-wrecker'),
               ('roar-of-time'),
-              ('prismatic-laser'),
-              ('meteor-assault'),
-              ('eternabeam')
+              ('prismatic-laser')
           )
           update battle_skill_rule r
           set
@@ -9364,12 +9285,11 @@ databaseChangeLog:
         splitStatements: false
         stripComments: false
         sql: |
-          -- 点到为止和手下留情使用普通物理伤害公式；唯一差异是目标本体 HP 写入时不能低于 1。
+          -- 点到为止使用普通物理伤害公式；目标本体 HP 写入时不能低于 1。
           -- 替身不受该限制，因此运行态只把效果表达为 leave-target-at-one-hp，由伤害写入阶段处理目标本体。
           with non_fainting_skills(code) as (
             values
-              ('false-swipe'),
-              ('hold-back')
+              ('false-swipe')
           )
           update game_skill s
           set enabled = true
@@ -9378,8 +9298,7 @@ databaseChangeLog:
 
           with non_fainting_skills(code) as (
             values
-              ('false-swipe'),
-              ('hold-back')
+              ('false-swipe')
           )
           update battle_skill_rule r
           set
@@ -9598,7 +9517,7 @@ databaseChangeLog:
 - changeSet:
     id: 002-battle-rules-enable-rest-heal-bell-skills
     author: backend
-    comment: 启用睡觉和治愈铃声规则，并标记最新版不可用的芳香治疗。
+    comment: 启用睡觉和治愈铃声规则。
     changes:
     - sql:
         splitStatements: false
@@ -9642,18 +9561,6 @@ databaseChangeLog:
           from game_skill s
           where r.skill_id = s.id
             and s.code = 'heal-bell';
-
-          update game_skill
-          set enabled = false
-          where code = 'aromatherapy';
-
-          update battle_skill_rule r
-          set
-            enabled = false,
-            description = '最新版资料明确标记为无法使用，保留规则行仅用于资料审计。'
-          from game_skill s
-          where r.skill_id = s.id
-            and s.code = 'aromatherapy';
 - changeSet:
     id: 002-battle-rules-enable-detect-endure-skills
     author: backend

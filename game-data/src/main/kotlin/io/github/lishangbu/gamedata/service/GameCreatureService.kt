@@ -15,6 +15,7 @@ import io.github.lishangbu.gamedata.entity.defaultForm
 import io.github.lishangbu.gamedata.entity.enabled
 import io.github.lishangbu.gamedata.entity.height
 import io.github.lishangbu.gamedata.entity.id
+import io.github.lishangbu.gamedata.entity.inheritsFromCreatureId
 import io.github.lishangbu.gamedata.entity.name
 import io.github.lishangbu.gamedata.entity.sortOrder
 import io.github.lishangbu.gamedata.entity.speciesId
@@ -63,6 +64,7 @@ class GameCreatureService(
 				"code" -> gameDataStringFilterValue("code", rawValue)?.let { where(table.code eq it) }
 				"name" -> gameDataStringFilterValue("name", rawValue)?.let { where(table.name eq it) }
 				"species_id" -> gameDataLongFilterValue("species_id", rawValue)?.let { where(table.speciesId eq it) }
+				"inherits_from_creature_id" -> gameDataLongFilterValue("inherits_from_creature_id", rawValue)?.let { where(table.inheritsFromCreatureId eq it) }
 				"height" -> gameDataIntFilterValue("height", rawValue)?.let { where(table.height eq it) }
 				"weight" -> gameDataIntFilterValue("weight", rawValue)?.let { where(table.weight eq it) }
 				"base_experience" -> gameDataIntFilterValue("base_experience", rawValue)?.let { where(table.baseExperience eq it) }
@@ -87,7 +89,8 @@ class GameCreatureService(
 			GameCreature {
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
-				speciesId = request.speciesId
+				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")
+				inheritsFromCreatureId = request.inheritsFromCreatureId
 				height = request.height
 				weight = request.weight
 				baseExperience = request.baseExperience
@@ -106,7 +109,8 @@ class GameCreatureService(
 				this.id = id
 				code = request.code.orEmpty().requiredSlugCode("code")
 				name = gameDataRequiredText(request.name, "name", 120)
-				speciesId = request.speciesId
+				speciesId = request.speciesId ?: invalidValue("species_id", "species_id 不能为空")
+				inheritsFromCreatureId = request.inheritsFromCreatureId
 				height = request.height
 				weight = request.weight
 				baseExperience = request.baseExperience
@@ -133,6 +137,7 @@ class GameCreatureService(
 			code = this@toResponse.code
 			name = this@toResponse.name
 			speciesId = this@toResponse.speciesId
+			inheritsFromCreatureId = this@toResponse.inheritsFromCreatureId
 			height = this@toResponse.height
 			weight = this@toResponse.weight
 			baseExperience = this@toResponse.baseExperience

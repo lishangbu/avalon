@@ -19,6 +19,7 @@ import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
+import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -100,6 +101,22 @@ class OpenApiDocumentationTests(
 	}
 
 	@Test
+	fun `admin openapi marks non nullable response properties as required`() {
+		mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.components.schemas.GameCreatureResponse.required").value(hasItem("id")))
+			.andExpect(jsonPath("$.components.schemas.GameCreatureResponse.required").value(hasItem("species_id")))
+			.andExpect(jsonPath("$.components.schemas.GameSpeciesResponse.required").value(hasItem("national_number")))
+			.andExpect(
+				jsonPath("$.components.schemas.GameCreatureResponse.required")
+					.value(not(hasItem("inherits_from_creature_id"))),
+			)
+			.andExpect(jsonPath("$.components.schemas.BattleAbilityRuleResponse.required").value(hasItem("abilityId")))
+			.andExpect(jsonPath("$.components.schemas.SessionResponse.required").value(hasItem("user")))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnResponse.required").value(hasItem("state")))
+	}
+
+	@Test
 	fun `game evolution detail request documents reference identifiers as strings`() {
 		val document = mockMvc.perform(get("/v3/api-docs/admin"))
 			.andExpect(status().isOk)
@@ -137,6 +154,21 @@ class OpenApiDocumentationTests(
 			.andExpect(
 				jsonPath("$.paths['/api/game-data/evolution-details/{id}'].delete.parameters[0].schema.type")
 					.value("string"),
+			)
+	}
+
+	@Test
+	fun `admin openapi documents identifiers as strings in both directions`() {
+		mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.components.schemas.GameCreatureRequest.properties.species_id.type").value("string"))
+			.andExpect(
+				jsonPath("$.paths['/api/game-data/creatures/{id}'].get.parameters[0].schema.type")
+					.value("string"),
+			)
+			.andExpect(
+				jsonPath("$.components.schemas.OAuthClientResponse.properties.accessTokenTtlSeconds.type")
+					.value("integer"),
 			)
 	}
 

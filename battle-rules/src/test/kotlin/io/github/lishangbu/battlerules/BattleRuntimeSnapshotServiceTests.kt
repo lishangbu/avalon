@@ -242,9 +242,9 @@ class BattleRuntimeSnapshotServiceTests(
 			listOf(
 				5, 7, 12, 14, 15, 20, 23, 28, 31, 32, 36, 37, 38, 39, 40, 45, 47, 50, 54, 57, 63, 69,
 					67, 68, 71, 73, 74, 76, 77, 78, 79, 80, 81, 83, 85, 87, 90, 92, 94, 95, 101, 103, 105, 113,
-					115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 170, 175, 179, 180, 182, 184, 187, 189, 191, 197, 199, 200, 203, 206, 215, 219, 220, 229, 235, 240, 243, 252, 259, 261, 263, 269,
+					115, 116, 129, 138, 147, 156, 157, 162, 163, 164, 175, 179, 180, 182, 184, 187, 189, 191, 197, 199, 200, 203, 206, 215, 219, 220, 229, 235, 240, 243, 252, 259, 261, 263, 269,
 					280, 283, 305, 307, 308, 311, 319, 329, 336, 338, 344, 347, 349, 360, 362, 364, 366, 368, 389, 390, 400, 416, 427, 432, 433, 435, 439, 446, 447, 457, 459,
-				464, 469, 473, 474, 475, 480, 484, 486, 500, 501, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 610, 611, 659, 660, 664, 666, 668, 681, 682, 685, 694, 706, 711, 717, 794, 795, 803, 804, 805, 819, 866, 875, 877,
+				464, 469, 473, 474, 484, 486, 500, 501, 504, 505, 506, 512, 515, 526, 535, 540, 548, 564, 568, 570, 577, 580, 604, 611, 659, 660, 664, 666, 668, 681, 694, 706, 711, 717, 803, 804, 805, 819, 866, 875, 877,
 				791, 816, 837, 842, 849, 850, 882, 883, 892, 895, 918,
 			),
 		)
@@ -261,7 +261,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(80).lockMoveTurnsMin).isEqualTo(2)
 		assertThat(slots.getValue(80).lockMoveTurnsMax).isEqualTo(3)
 		assertThat(slots.getValue(80).confusesUserAfterLock).isTrue()
-		assertThat(slots.getValue(170).locksAccuracyOnTarget).isTrue()
 		assertThat(slots.getValue(199).locksAccuracyOnTarget).isTrue()
 		assertThat(slots.getValue(200).targetScope).isEqualTo(BattleSkillTargetScope.RANDOM_ADJACENT_OPPONENT)
 		assertThat(slots.getValue(200).lockMoveTurnsMin).isEqualTo(2)
@@ -388,14 +387,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(strengthSapStatStage.stageDelta).isEqualTo(-1)
 		assertThat(strengthSapStatStage.chancePercent).isEqualTo(100)
 
-		val purify = slots.getValue(685)
-		assertThat(purify.damageClass).isEqualTo(BattleDamageClass.STATUS)
-		val purifyHpEffect = purify.hpEffects
-			.filterIsInstance<BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure>()
-			.single()
-		assertThat(purifyHpEffect.numerator).isEqualTo(1)
-		assertThat(purifyHpEffect.denominator).isEqualTo(2)
-
 		val facade = slots.getValue(263)
 		assertThat(facade.ignoresUserBurnAttackReduction).isTrue()
 		val facadePower = facade.conditionalPowerMultipliers
@@ -448,27 +439,6 @@ class BattleRuntimeSnapshotServiceTests(
 
 		assertThat(slots.getValue(803).groundedTerrainPriorityBoosts).containsExactlyEntriesOf(
 			mapOf(BattleTerrain.GRASSY to 1),
-		)
-
-		val autotomize = slots.getValue(475)
-		assertThat(autotomize.damageClass).isEqualTo(BattleDamageClass.STATUS)
-		assertThat(autotomize.power).isNull()
-		assertThat(autotomize.targetScope).isEqualTo(BattleSkillTargetScope.SELF)
-		assertThat(autotomize.statStageEffects.single()).isEqualTo(
-			BattleStatStageEffect(
-				target = BattleEffectTarget.USER,
-				stat = BattleStat.SPEED,
-				stageDelta = 2,
-				chancePercent = 100,
-			),
-		)
-		assertThat(autotomize.weightEffects).containsExactly(
-			BattleSkillWeightEffect(
-				target = BattleEffectTarget.USER,
-				reduction = 1000,
-				minimumWeight = 1,
-				requiredChangedStat = BattleStat.SPEED,
-			),
 		)
 
 		val sparklingAria = slots.getValue(664)
@@ -544,7 +514,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(484).dynamicPower).isEqualTo(userTargetWeightPower)
 		assertThat(slots.getValue(535).dynamicPower).isEqualTo(userTargetWeightPower)
 
-		assertThat(slots.getValue(682).removesUserElementAfterDamage).isTrue()
 		assertThat(slots.getValue(892).removesUserElementAfterDamage).isTrue()
 
 		assertThat(slots.getValue(69).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel())
@@ -595,7 +564,7 @@ class BattleRuntimeSnapshotServiceTests(
 				),
 			)
 
-		listOf(63L, 307L, 308L, 338L, 416L, 439L, 459L, 711L, 794L, 795L).forEach { skillId ->
+		listOf(63L, 307L, 308L, 338L, 416L, 439L, 459L, 711L).forEach { skillId ->
 			assertThat(slots.getValue(skillId).rechargesAfterUse)
 				.describedAs("成功后休整技能必须装配 rechargesAfterUse: skillId=$skillId")
 				.isTrue()
@@ -605,7 +574,7 @@ class BattleRuntimeSnapshotServiceTests(
 				.describedAs("特殊伤害按目标防御技能必须装配防守能力覆盖: skillId=$skillId")
 				.isEqualTo(BattleStat.DEFENSE)
 		}
-		listOf(206L, 610L).forEach { skillId ->
+		listOf(206L).forEach { skillId ->
 			assertThat(slots.getValue(skillId).leavesTargetAtOneHp)
 				.describedAs("保留目标一血技能必须装配目标 HP 下限: skillId=$skillId")
 				.isTrue()
@@ -826,7 +795,6 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(163).criticalHitStage).isEqualTo(1)
 		assertThat(slots.getValue(400).slicingBased).isTrue()
 		assertThat(slots.getValue(400).criticalHitStage).isEqualTo(1)
-		assertThat(slots.getValue(480).criticalHitStage).isEqualTo(6)
 		assertThat(slots.getValue(427).slicingBased).isTrue()
 		assertThat(slots.getValue(427).makesContact).isFalse()
 		assertThat(slots.getValue(895).slicingBased).isTrue()

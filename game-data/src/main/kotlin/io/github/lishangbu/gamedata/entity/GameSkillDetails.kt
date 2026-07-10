@@ -57,27 +57,6 @@ interface GameSkillDetails {
 	val targetId: Long?
 
 	/**
-	 * 技能详情引用的评分类别 ID。
-	 *
-	 * 对应数据库 `contest_type_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val contestTypeId: Long?
-
-	/**
-	 * 技能详情引用的评价效果 ID。
-	 *
-	 * 对应数据库 `contest_effect_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val contestEffectId: Long?
-
-	/**
-	 * 技能详情引用的高级评价效果 ID。
-	 *
-	 * 对应数据库 `advanced_contest_effect_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val advancedContestEffectId: Long?
-
-	/**
 	 * 技能详情的最少命中。
 	 *
 	 * 对应数据库 `min_hits` 列，允许为空。

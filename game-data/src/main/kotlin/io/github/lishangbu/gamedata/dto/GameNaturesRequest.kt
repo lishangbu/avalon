@@ -24,14 +24,6 @@ data class GameNaturesRequest(
 	@get:JsonProperty("decreased_stat_id")
 	@field:Schema(description = "降低数值项 ID")
 	val decreasedStatId: Long? = null,
-	@param:JsonProperty("likes_flavor_id")
-	@get:JsonProperty("likes_flavor_id")
-	@field:Schema(description = "偏好口味 ID")
-	val likesFlavorId: Long? = null,
-	@param:JsonProperty("hates_flavor_id")
-	@get:JsonProperty("hates_flavor_id")
-	@field:Schema(description = "厌恶口味 ID")
-	val hatesFlavorId: Long? = null,
 	@param:JsonProperty("enabled")
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")

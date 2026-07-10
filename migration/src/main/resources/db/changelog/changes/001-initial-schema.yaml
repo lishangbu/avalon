@@ -1820,6 +1820,12 @@ databaseChangeLog:
             constraints:
               nullable: false
         - column:
+            name: national_number
+            type: int
+            remarks: 当前全国编号。
+            constraints:
+              nullable: false
+        - column:
             name: color_id
             type: bigint
             remarks: 主色 ID，引用 game_species_color。
@@ -1879,6 +1885,10 @@ databaseChangeLog:
         tableName: game_species
         columnNames: code
         constraintName: uk_game_species__code
+    - addUniqueConstraint:
+        tableName: game_species
+        columnNames: national_number
+        constraintName: uk_game_species__national_number
     - addForeignKeyConstraint:
         baseTableName: game_species
         baseColumnNames: color_id
@@ -1943,6 +1953,12 @@ databaseChangeLog:
             name: species_id
             type: bigint
             remarks: 所属种类 ID，引用 game_species。
+            constraints:
+              nullable: false
+        - column:
+            name: inherits_from_creature_id
+            type: bigint
+            remarks: 缺失资料的继承来源精灵 ID；仅允许引用同一种类。
         - column:
             name: height
             type: int
@@ -1989,6 +2005,26 @@ databaseChangeLog:
         columns:
         - column:
             name: species_id
+    - addUniqueConstraint:
+        tableName: game_creature
+        columnNames: id, species_id
+        constraintName: uk_game_creature__id_species
+    - addForeignKeyConstraint:
+        baseTableName: game_creature
+        baseColumnNames: inherits_from_creature_id, species_id
+        referencedTableName: game_creature
+        referencedColumnNames: id, species_id
+        constraintName: fk_game_creature__inheritance_source
+        deferrable: true
+        initiallyDeferred: true
+    - createIndex:
+        tableName: game_creature
+        indexName: idx_game_creature__inherits_from_creature_id
+        columns:
+        - column:
+            name: inherits_from_creature_id
+    - sql:
+        sql: alter table game_creature add constraint ck_game_creature__not_self_inheriting check (inherits_from_creature_id is null or inherits_from_creature_id <> id)
     - createTable:
         tableName: game_species_egg_group
         remarks: 种类与分组绑定表，维护一个种类可属于的多个分组。
@@ -2504,6 +2540,9 @@ databaseChangeLog:
             name: name
             type: STRING
         - column:
+            name: national_number
+            type: NUMERIC
+        - column:
             name: color_id
             type: NUMERIC
         - column:
@@ -2554,6 +2593,9 @@ databaseChangeLog:
             type: STRING
         - column:
             name: species_id
+            type: NUMERIC
+        - column:
+            name: inherits_from_creature_id
             type: NUMERIC
         - column:
             name: height
@@ -2674,312 +2716,6 @@ databaseChangeLog:
           select setval(pg_get_serial_sequence('game_creature_element', 'id'), coalesce((select max(id) from game_creature_element), 0) + 1, false);
           select setval(pg_get_serial_sequence('game_creature_stat', 'id'), coalesce((select max(id) from game_creature_stat), 0) + 1, false);
           select setval(pg_get_serial_sequence('game_creature_ability', 'id'), coalesce((select max(id) from game_creature_ability), 0) + 1, false);
-    - createTable:
-        tableName: game_contest_type
-        remarks: 评分类别字典，维护华丽度等评价维度。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 评分类别主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_contest_type
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: color
-            type: varchar(40)
-            remarks: 该类别关联的颜色提示。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_contest_type
-        columnNames: code
-        constraintName: uk_game_contest_type__code
-    - createTable:
-        tableName: game_contest_effect
-        remarks: 评价效果资料表，维护吸引力、干扰值和说明。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 评价效果主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_contest_effect
-              nullable: false
-        - column:
-            name: appeal
-            type: int
-            remarks: 吸引力数值。
-            constraints:
-              nullable: false
-        - column:
-            name: jam
-            type: int
-            remarks: 干扰值。
-            constraints:
-              nullable: false
-        - column:
-            name: effect
-            type: text
-            remarks: 效果说明。
-        - column:
-            name: flavor_text
-            type: text
-            remarks: 风味说明。
-    - createTable:
-        tableName: game_advanced_contest_effect
-        remarks: 高级评价效果资料表。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 高级评价效果主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_advanced_contest_effect
-              nullable: false
-        - column:
-            name: appeal
-            type: int
-            remarks: 吸引力数值。
-            constraints:
-              nullable: false
-        - column:
-            name: flavor_text
-            type: text
-            remarks: 风味说明。
-    - createTable:
-        tableName: game_advanced_contest_effect_skill
-        remarks: 高级评价效果与技能的绑定关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 高级评价效果技能主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_advanced_contest_effect_skill
-              nullable: false
-        - column:
-            name: advanced_contest_effect_id
-            type: bigint
-            remarks: 高级评价效果 ID，引用 game_advanced_contest_effect。
-            constraints:
-              nullable: false
-        - column:
-            name: skill_id
-            type: bigint
-            remarks: 技能 ID，引用 game_skill。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_advanced_contest_effect_skill
-        columnNames: advanced_contest_effect_id, skill_id
-        constraintName: uk_game_advanced_contest_effect_skill__advanced_con_f2d85807
-    - createTable:
-        tableName: game_berry_firmness
-        remarks: 树果硬度字典。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 树果硬度主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_berry_firmness
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: sort_order
-            type: int
-            remarks: 展示排序值。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_berry_firmness
-        columnNames: code
-        constraintName: uk_game_berry_firmness__code
-    - createTable:
-        tableName: game_berry_flavor
-        remarks: 树果口味字典。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 树果口味主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_berry_flavor
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: contest_type_id
-            type: bigint
-            remarks: 关联的评分类别 ID。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_berry_flavor
-        columnNames: code
-        constraintName: uk_game_berry_flavor__code
-    - createTable:
-        tableName: game_berry
-        remarks: 树果资料表，维护树果成长、收获和自然效果数值。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 树果资料主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_berry
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: item_id
-            type: bigint
-            remarks: 对应道具 ID，引用 game_item。
-        - column:
-            name: firmness_id
-            type: bigint
-            remarks: 硬度 ID，引用 game_berry_firmness。
-        - column:
-            name: natural_gift_element_id
-            type: bigint
-            remarks: 自然效果属性 ID，引用 game_element。
-        - column:
-            name: growth_time
-            type: int
-            remarks: 成长时间。
-        - column:
-            name: max_harvest
-            type: int
-            remarks: 最大收获数量。
-        - column:
-            name: natural_gift_power
-            type: int
-            remarks: 自然效果威力。
-        - column:
-            name: size
-            type: int
-            remarks: 尺寸数值。
-        - column:
-            name: smoothness
-            type: int
-            remarks: 顺滑度数值。
-        - column:
-            name: soil_dryness
-            type: int
-            remarks: 土壤干燥度。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_berry
-        columnNames: code
-        constraintName: uk_game_berry__code
-    - createTable:
-        tableName: game_berry_flavor_potency
-        remarks: 树果与口味的强度明细表。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 树果口味强度主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_berry_flavor_potency
-              nullable: false
-        - column:
-            name: berry_id
-            type: bigint
-            remarks: 树果 ID，引用 game_berry。
-            constraints:
-              nullable: false
-        - column:
-            name: flavor_id
-            type: bigint
-            remarks: 口味 ID，引用 game_berry_flavor。
-            constraints:
-              nullable: false
-        - column:
-            name: potency
-            type: int
-            remarks: 该口味强度。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_berry_flavor_potency
-        columnNames: berry_id, flavor_id
-        constraintName: uk_game_berry_flavor_potency__berry_id_flavor_id
     - createTable:
         tableName: game_item_attribute
         remarks: 道具属性字典。
@@ -3194,34 +2930,6 @@ databaseChangeLog:
         columnNames: category_id
         constraintName: uk_game_item_category_pocket__category_id
     - createTable:
-        tableName: game_item_game_index
-        remarks: 道具当前索引值。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 道具索引主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_item_game_index
-              nullable: false
-        - column:
-            name: item_id
-            type: bigint
-            remarks: 道具 ID，引用 game_item。
-            constraints:
-              nullable: false
-        - column:
-            name: game_index
-            type: int
-            remarks: 当前索引值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_item_game_index
-        columnNames: item_id
-        constraintName: uk_game_item_game_index__item_id
-    - createTable:
         tableName: game_skill_ailment
         remarks: 技能异常状态字典。
         columns:
@@ -3256,47 +2964,6 @@ databaseChangeLog:
         tableName: game_skill_ailment
         columnNames: code
         constraintName: uk_game_skill_ailment__code
-    - createTable:
-        tableName: game_skill_battle_style
-        remarks: 技能战斗风格字典。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 技能战斗风格主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_skill_battle_style
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: sort_order
-            type: int
-            remarks: 展示排序值。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_skill_battle_style
-        columnNames: code
-        constraintName: uk_game_skill_battle_style__code
     - createTable:
         tableName: game_skill_category
         remarks: 技能元分类字典。
@@ -3445,18 +3112,6 @@ databaseChangeLog:
             type: bigint
             remarks: 目标 ID，引用 game_skill_target。
         - column:
-            name: contest_type_id
-            type: bigint
-            remarks: 评分类别 ID，引用 game_contest_type。
-        - column:
-            name: contest_effect_id
-            type: bigint
-            remarks: 评价效果 ID，引用 game_contest_effect。
-        - column:
-            name: advanced_contest_effect_id
-            type: bigint
-            remarks: 高级评价效果 ID，引用 game_advanced_contest_effect。
-        - column:
             name: min_hits
             type: int
             remarks: 最少命中次数。
@@ -3547,46 +3202,6 @@ databaseChangeLog:
         columnNames: skill_id, stat_id
         constraintName: uk_game_skill_stat_change__skill_id_stat_id
     - createTable:
-        tableName: game_skill_contest_combo
-        remarks: 技能在评价玩法中的组合关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 技能评价组合主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_skill_contest_combo
-              nullable: false
-        - column:
-            name: skill_id
-            type: bigint
-            remarks: 技能 ID，引用 game_skill。
-            constraints:
-              nullable: false
-        - column:
-            name: combo_type
-            type: varchar(40)
-            remarks: 组合类型，例如普通或高级。
-            constraints:
-              nullable: false
-        - column:
-            name: relation_type
-            type: varchar(40)
-            remarks: 组合方向，例如前置或后续。
-            constraints:
-              nullable: false
-        - column:
-            name: related_skill_id
-            type: bigint
-            remarks: 关联技能 ID，引用 game_skill。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_skill_contest_combo
-        columnNames: skill_id, combo_type, relation_type, related_skill_id
-        constraintName: uk_game_skill_contest_combo__skill_id_combo_type_re_ff5c0fe2
-    - createTable:
         tableName: game_growth_rate
         remarks: 成长速率资料。
         columns:
@@ -3630,81 +3245,6 @@ databaseChangeLog:
         columnNames: code
         constraintName: uk_game_growth_rate__code
     - createTable:
-        tableName: game_growth_rate_level
-        remarks: 成长速率每级所需经验明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 成长等级经验主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_growth_rate_level
-              nullable: false
-        - column:
-            name: growth_rate_id
-            type: bigint
-            remarks: 成长速率 ID，引用 game_growth_rate。
-            constraints:
-              nullable: false
-        - column:
-            name: level
-            type: int
-            remarks: 等级。
-            constraints:
-              nullable: false
-        - column:
-            name: experience
-            type: int
-            remarks: 累计经验。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_growth_rate_level
-        columnNames: growth_rate_id, level
-        constraintName: uk_game_growth_rate_level__growth_rate_id_level
-    - createTable:
-        tableName: game_event_stat
-        remarks: 活动玩法使用的能力项字典。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 活动能力项主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_event_stat
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: sort_order
-            type: int
-            remarks: 展示排序值。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_event_stat
-        columnNames: code
-        constraintName: uk_game_event_stat__code
-    - createTable:
         tableName: game_nature
         remarks: 性格资料表，维护数值倾向、口味倾向和启用状态。
         columns:
@@ -3737,14 +3277,6 @@ databaseChangeLog:
             type: bigint
             remarks: 降低的数值项 ID，引用 game_stat。
         - column:
-            name: likes_flavor_id
-            type: bigint
-            remarks: 偏好口味 ID，引用 game_berry_flavor。
-        - column:
-            name: hates_flavor_id
-            type: bigint
-            remarks: 厌恶口味 ID，引用 game_berry_flavor。
-        - column:
             name: enabled
             type: boolean
             remarks: 是否启用该资料。
@@ -3755,114 +3287,6 @@ databaseChangeLog:
         tableName: game_nature
         columnNames: code
         constraintName: uk_game_nature__code
-    - createTable:
-        tableName: game_nature_battle_style_preference
-        remarks: 性格对战斗风格的偏好明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 性格战斗风格偏好主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_nature_battle_style_preference
-              nullable: false
-        - column:
-            name: nature_id
-            type: bigint
-            remarks: 性格 ID，引用 game_nature。
-            constraints:
-              nullable: false
-        - column:
-            name: battle_style_id
-            type: bigint
-            remarks: 战斗风格 ID，引用 game_skill_battle_style。
-            constraints:
-              nullable: false
-        - column:
-            name: low_hp_preference
-            type: int
-            remarks: 低体力偏好值。
-            constraints:
-              nullable: false
-        - column:
-            name: high_hp_preference
-            type: int
-            remarks: 高体力偏好值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_nature_battle_style_preference
-        columnNames: nature_id, battle_style_id
-        constraintName: uk_game_nature_battle_style_preference__nature_id_b_3200405d
-    - createTable:
-        tableName: game_nature_event_stat_change
-        remarks: 性格对活动能力项的影响明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 性格活动能力变化主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_nature_event_stat_change
-              nullable: false
-        - column:
-            name: nature_id
-            type: bigint
-            remarks: 性格 ID，引用 game_nature。
-            constraints:
-              nullable: false
-        - column:
-            name: event_stat_id
-            type: bigint
-            remarks: 活动能力项 ID，引用 game_event_stat。
-            constraints:
-              nullable: false
-        - column:
-            name: max_change
-            type: int
-            remarks: 最大变化值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_nature_event_stat_change
-        columnNames: nature_id, event_stat_id
-        constraintName: uk_game_nature_event_stat_change__nature_id_event_stat_id
-    - createTable:
-        tableName: game_event_stat_nature_effect
-        remarks: 活动能力项受性格增加或降低的关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 活动能力性格影响主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_event_stat_nature_effect
-              nullable: false
-        - column:
-            name: event_stat_id
-            type: bigint
-            remarks: 活动能力项 ID，引用 game_event_stat。
-            constraints:
-              nullable: false
-        - column:
-            name: nature_id
-            type: bigint
-            remarks: 性格 ID，引用 game_nature。
-            constraints:
-              nullable: false
-        - column:
-            name: effect_type
-            type: varchar(20)
-            remarks: 影响类型：increase 或 decrease。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_event_stat_nature_effect
-        columnNames: event_stat_id, nature_id, effect_type
-        constraintName: uk_game_event_stat_nature_effect__event_stat_id_nat_77f1b396
     - createTable:
         tableName: game_region
         remarks: 地区资料表。
@@ -3937,34 +3361,6 @@ databaseChangeLog:
         tableName: game_location
         columnNames: code
         constraintName: uk_game_location__code
-    - createTable:
-        tableName: game_location_game_index
-        remarks: 地点当前索引值。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 地点索引主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_location_game_index
-              nullable: false
-        - column:
-            name: location_id
-            type: bigint
-            remarks: 地点 ID，引用 game_location。
-            constraints:
-              nullable: false
-        - column:
-            name: game_index
-            type: int
-            remarks: 当前索引值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_location_game_index
-        columnNames: location_id
-        constraintName: uk_game_location_game_index__location_id
     - createTable:
         tableName: game_encounter_method
         remarks: 遭遇方式字典。
@@ -4506,151 +3902,6 @@ databaseChangeLog:
             type: boolean
             remarks: 是否为默认条件。
     - createTable:
-        tableName: game_gender_species_rate
-        remarks: 性别与种类比例明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 性别种类比例主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_gender_species_rate
-              nullable: false
-        - column:
-            name: gender_id
-            type: bigint
-            remarks: 性别 ID，引用 game_gender。
-            constraints:
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-        - column:
-            name: rate
-            type: int
-            remarks: 比例编码。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_gender_species_rate
-        columnNames: gender_id, species_id
-        constraintName: uk_game_gender_species_rate__gender_id_species_id
-    - createTable:
-        tableName: game_gender_evolution_requirement
-        remarks: 指定性别才可进化的种类关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 性别进化要求主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_gender_evolution_requirement
-              nullable: false
-        - column:
-            name: gender_id
-            type: bigint
-            remarks: 性别 ID，引用 game_gender。
-            constraints:
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_gender_evolution_requirement
-        columnNames: gender_id, species_id
-        constraintName: uk_game_gender_evolution_requirement__gender_id_species_id
-    - createTable:
-        tableName: game_catalog
-        remarks: 图鉴或目录资料表。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 图鉴目录主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_catalog
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: region_id
-            type: bigint
-            remarks: 地区 ID，引用 game_region。
-        - column:
-            name: main_series
-            type: boolean
-            remarks: 是否为主体目录。
-            constraints:
-              nullable: false
-        - column:
-            name: description
-            type: text
-            remarks: 目录说明。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_catalog
-        columnNames: code
-        constraintName: uk_game_catalog__code
-    - createTable:
-        tableName: game_catalog_entry
-        remarks: 目录下种类编号明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 图鉴目录条目主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_catalog_entry
-              nullable: false
-        - column:
-            name: catalog_id
-            type: bigint
-            remarks: 目录 ID，引用 game_catalog。
-            constraints:
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-        - column:
-            name: entry_number
-            type: int
-            remarks: 目录编号。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_catalog_entry
-        columnNames: catalog_id, species_id
-        constraintName: uk_game_catalog_entry__catalog_id_species_id
-    - createTable:
         tableName: game_creature_form
         remarks: 精灵形态资料表。
         columns:
@@ -4754,109 +4005,6 @@ databaseChangeLog:
         columnNames: form_id, slot_order
         constraintName: uk_game_creature_form_element__form_id_slot_order
     - createTable:
-        tableName: game_machine
-        remarks: 机器资料表，维护当前道具和技能关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 机器资料主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_machine
-              nullable: false
-        - column:
-            name: item_id
-            type: bigint
-            remarks: 道具 ID，引用 game_item。
-            constraints:
-              nullable: false
-        - column:
-            name: skill_id
-            type: bigint
-            remarks: 技能 ID，引用 game_skill。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_machine
-        columnNames: item_id
-        constraintName: uk_game_machine__item_id
-    - createTable:
-        tableName: game_transfer_area
-        remarks: 迁移或联动玩法中的区域字典。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 迁移区域主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_transfer_area
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源英文标识。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(120)
-            remarks: 简体中文显示名称，缺少中文时按英文含义翻译。
-            constraints:
-              nullable: false
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_transfer_area
-        columnNames: code
-        constraintName: uk_game_transfer_area__code
-    - createTable:
-        tableName: game_transfer_area_species
-        remarks: 迁移区域中的种类出现配置。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 迁移区域种类主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_transfer_area_species
-              nullable: false
-        - column:
-            name: area_id
-            type: bigint
-            remarks: 迁移区域 ID，引用 game_transfer_area。
-            constraints:
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-        - column:
-            name: base_score
-            type: int
-            remarks: 基础分值。
-            constraints:
-              nullable: false
-        - column:
-            name: rate
-            type: int
-            remarks: 出现概率。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_transfer_area_species
-        columnNames: area_id, species_id
-        constraintName: uk_game_transfer_area_species__area_id_species_id
-    - createTable:
         tableName: game_ability_detail
         remarks: 特性补充文本。
         columns:
@@ -4913,14 +4061,6 @@ databaseChangeLog:
             type: bigint
             remarks: 成长速率 ID，引用 game_growth_rate。
         - column:
-            name: evolves_from_species_id
-            type: bigint
-            remarks: 进化来源种类 ID，引用 game_species。
-        - column:
-            name: evolution_chain_id
-            type: bigint
-            remarks: 进化链 ID，引用 game_evolution_chain。
-        - column:
             name: sort_order
             type: int
             remarks: 资料源排序值。
@@ -4948,74 +4088,6 @@ databaseChangeLog:
         tableName: game_species_detail
         columnNames: species_id
         constraintName: uk_game_species_detail__species_id
-    - createTable:
-        tableName: game_species_catalog_number
-        remarks: 种类在不同目录中的编号。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 种类目录编号主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_species_catalog_number
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-        - column:
-            name: catalog_id
-            type: bigint
-            remarks: 目录 ID，引用 game_catalog。
-            constraints:
-              nullable: false
-        - column:
-            name: entry_number
-            type: int
-            remarks: 目录编号。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_species_catalog_number
-        columnNames: species_id, catalog_id
-        constraintName: uk_game_species_catalog_number__species_id_catalog_id
-    - createTable:
-        tableName: game_species_creature_variety
-        remarks: 种类与精灵条目的变种关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 种类精灵变种主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_species_creature_variety
-              nullable: false
-        - column:
-            name: species_id
-            type: bigint
-            remarks: 种类 ID，引用 game_species。
-            constraints:
-              nullable: false
-        - column:
-            name: creature_id
-            type: bigint
-            remarks: 精灵 ID，引用 game_creature。
-            constraints:
-              nullable: false
-        - column:
-            name: default_variety
-            type: boolean
-            remarks: 是否为默认变种。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_species_creature_variety
-        columnNames: species_id, creature_id
-        constraintName: uk_game_species_creature_variety__species_id_creature_id
     - createTable:
         tableName: game_creature_skill_learn
         remarks: 精灵当前可学习技能和学习方式明细。
@@ -5085,34 +4157,6 @@ databaseChangeLog:
             type: int
             remarks: 稀有度。
     - createTable:
-        tableName: game_creature_game_index
-        remarks: 精灵当前索引值。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 精灵索引主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_creature_game_index
-              nullable: false
-        - column:
-            name: creature_id
-            type: bigint
-            remarks: 精灵 ID，引用 game_creature。
-            constraints:
-              nullable: false
-        - column:
-            name: game_index
-            type: int
-            remarks: 当前索引值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_creature_game_index
-        columnNames: creature_id
-        constraintName: uk_game_creature_game_index__creature_id
-    - createTable:
         tableName: game_element_damage_relation
         remarks: 当前属性之间的伤害倍率关系。
         columns:
@@ -5146,311 +4190,6 @@ databaseChangeLog:
         tableName: game_element_damage_relation
         columnNames: source_element_id, target_element_id, relation_type
         constraintName: uk_game_element_damage_relation__source_target_relation
-    - createTable:
-        tableName: game_element_game_index
-        remarks: 属性当前索引值。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 属性索引主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_element_game_index
-              nullable: false
-        - column:
-            name: element_id
-            type: bigint
-            remarks: 属性 ID，引用 game_element。
-            constraints:
-              nullable: false
-        - column:
-            name: game_index
-            type: int
-            remarks: 当前索引值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_element_game_index
-        columnNames: element_id
-        constraintName: uk_game_element_game_index__element_id
-    - createTable:
-        tableName: game_stat_skill_effect
-        remarks: 技能对数值项的提升或降低关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 数值项技能影响主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_stat_skill_effect
-              nullable: false
-        - column:
-            name: stat_id
-            type: bigint
-            remarks: 数值项 ID，引用 game_stat。
-            constraints:
-              nullable: false
-        - column:
-            name: skill_id
-            type: bigint
-            remarks: 技能 ID，引用 game_skill。
-            constraints:
-              nullable: false
-        - column:
-            name: change_value
-            type: int
-            remarks: 变化值。
-            constraints:
-              nullable: false
-        - column:
-            name: effect_type
-            type: varchar(20)
-            remarks: 影响类型：increase 或 decrease。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_stat_skill_effect
-        columnNames: stat_id, skill_id, effect_type
-        constraintName: uk_game_stat_skill_effect__stat_id_skill_id_effect_type
-    - createTable:
-        tableName: game_stat_nature_effect
-        remarks: 性格对数值项的提升或降低关系。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 数值项性格影响主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_stat_nature_effect
-              nullable: false
-        - column:
-            name: stat_id
-            type: bigint
-            remarks: 数值项 ID，引用 game_stat。
-            constraints:
-              nullable: false
-        - column:
-            name: nature_id
-            type: bigint
-            remarks: 性格 ID，引用 game_nature。
-            constraints:
-              nullable: false
-        - column:
-            name: effect_type
-            type: varchar(20)
-            remarks: 影响类型：increase 或 decrease。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_stat_nature_effect
-        columnNames: stat_id, nature_id, effect_type
-        constraintName: uk_game_stat_nature_effect__stat_id_nature_id_effect_type
-    - createTable:
-        tableName: game_characteristic
-        remarks: 个体特征资料表。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 个体特征主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_characteristic
-              nullable: false
-        - column:
-            name: code
-            type: varchar(80)
-            remarks: 稳定编码，来自资料源 ID。
-            constraints:
-              nullable: false
-        - column:
-            name: name
-            type: varchar(200)
-            remarks: 简体中文显示名称。
-            constraints:
-              nullable: false
-        - column:
-            name: highest_stat_id
-            type: bigint
-            remarks: 最高数值项 ID，引用 game_stat。
-        - column:
-            name: gene_modulo
-            type: int
-            remarks: 个体值模数。
-            constraints:
-              nullable: false
-        - column:
-            name: description
-            type: text
-            remarks: 特征说明。
-        - column:
-            name: enabled
-            type: boolean
-            remarks: 是否启用该资料。
-            defaultValueBoolean: true
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_characteristic
-        columnNames: code
-        constraintName: uk_game_characteristic__code
-    - createTable:
-        tableName: game_characteristic_value
-        remarks: 个体特征可能取值明细。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 个体特征取值主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_characteristic_value
-              nullable: false
-        - column:
-            name: characteristic_id
-            type: bigint
-            remarks: 特征 ID，引用 game_characteristic。
-            constraints:
-              nullable: false
-        - column:
-            name: possible_value
-            type: int
-            remarks: 可能取值。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_characteristic_value
-        columnNames: characteristic_id, possible_value
-        constraintName: uk_game_characteristic_value__characteristic_id_pos_1b5e7635
-    - createTable:
-        tableName: game_stat_characteristic
-        remarks: 数值项关联的个体特征。
-        columns:
-        - column:
-            name: id
-            type: bigint
-            remarks: 数值项特征主键，内置数据保留资料源稳定 ID。
-            constraints:
-              primaryKey: true
-              primaryKeyName: pk_game_stat_characteristic
-              nullable: false
-        - column:
-            name: stat_id
-            type: bigint
-            remarks: 数值项 ID，引用 game_stat。
-            constraints:
-              nullable: false
-        - column:
-            name: characteristic_id
-            type: bigint
-            remarks: 特征 ID，引用 game_characteristic。
-            constraints:
-              nullable: false
-    - addUniqueConstraint:
-        tableName: game_stat_characteristic
-        columnNames: stat_id, characteristic_id
-        constraintName: uk_game_stat_characteristic__stat_id_characteristic_id
-    - addForeignKeyConstraint:
-        baseTableName: game_advanced_contest_effect_skill
-        baseColumnNames: advanced_contest_effect_id
-        referencedTableName: game_advanced_contest_effect
-        referencedColumnNames: id
-        constraintName: fk_game_advanced_contest_effect_skill__advanced_con_e1959da6
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_advanced_contest_effect_skill
-        indexName: idx_game_advanced_contest_effect_skill__advanced_co_b8d48567
-        columns:
-        - column:
-            name: advanced_contest_effect_id
-    - addForeignKeyConstraint:
-        baseTableName: game_advanced_contest_effect_skill
-        baseColumnNames: skill_id
-        referencedTableName: game_skill
-        referencedColumnNames: id
-        constraintName: fk_game_advanced_contest_effect_skill__skill_id
-    - createIndex:
-        tableName: game_advanced_contest_effect_skill
-        indexName: idx_game_advanced_contest_effect_skill__skill_id
-        columns:
-        - column:
-            name: skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry_flavor
-        baseColumnNames: contest_type_id
-        referencedTableName: game_contest_type
-        referencedColumnNames: id
-        constraintName: fk_game_berry_flavor__contest_type_id
-    - createIndex:
-        tableName: game_berry_flavor
-        indexName: idx_game_berry_flavor__contest_type_id
-        columns:
-        - column:
-            name: contest_type_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry
-        baseColumnNames: item_id
-        referencedTableName: game_item
-        referencedColumnNames: id
-        constraintName: fk_game_berry__item_id
-    - createIndex:
-        tableName: game_berry
-        indexName: idx_game_berry__item_id
-        columns:
-        - column:
-            name: item_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry
-        baseColumnNames: firmness_id
-        referencedTableName: game_berry_firmness
-        referencedColumnNames: id
-        constraintName: fk_game_berry__firmness_id
-    - createIndex:
-        tableName: game_berry
-        indexName: idx_game_berry__firmness_id
-        columns:
-        - column:
-            name: firmness_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry
-        baseColumnNames: natural_gift_element_id
-        referencedTableName: game_element
-        referencedColumnNames: id
-        constraintName: fk_game_berry__natural_gift_element_id
-    - createIndex:
-        tableName: game_berry
-        indexName: idx_game_berry__natural_gift_element_id
-        columns:
-        - column:
-            name: natural_gift_element_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry_flavor_potency
-        baseColumnNames: berry_id
-        referencedTableName: game_berry
-        referencedColumnNames: id
-        constraintName: fk_game_berry_flavor_potency__berry_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_berry_flavor_potency
-        indexName: idx_game_berry_flavor_potency__berry_id
-        columns:
-        - column:
-            name: berry_id
-    - addForeignKeyConstraint:
-        baseTableName: game_berry_flavor_potency
-        baseColumnNames: flavor_id
-        referencedTableName: game_berry_flavor
-        referencedColumnNames: id
-        constraintName: fk_game_berry_flavor_potency__flavor_id
-    - createIndex:
-        tableName: game_berry_flavor_potency
-        indexName: idx_game_berry_flavor_potency__flavor_id
-        columns:
-        - column:
-            name: flavor_id
     - addForeignKeyConstraint:
         baseTableName: game_item_detail
         baseColumnNames: item_id
@@ -5527,19 +4266,6 @@ databaseChangeLog:
         - column:
             name: pocket_id
     - addForeignKeyConstraint:
-        baseTableName: game_item_game_index
-        baseColumnNames: item_id
-        referencedTableName: game_item
-        referencedColumnNames: id
-        constraintName: fk_game_item_game_index__item_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_item_game_index
-        indexName: idx_game_item_game_index__item_id
-        columns:
-        - column:
-            name: item_id
-    - addForeignKeyConstraint:
         baseTableName: game_skill_detail
         baseColumnNames: skill_id
         referencedTableName: game_skill
@@ -5589,42 +4315,6 @@ databaseChangeLog:
         - column:
             name: target_id
     - addForeignKeyConstraint:
-        baseTableName: game_skill_detail
-        baseColumnNames: contest_type_id
-        referencedTableName: game_contest_type
-        referencedColumnNames: id
-        constraintName: fk_game_skill_detail__contest_type_id
-    - createIndex:
-        tableName: game_skill_detail
-        indexName: idx_game_skill_detail__contest_type_id
-        columns:
-        - column:
-            name: contest_type_id
-    - addForeignKeyConstraint:
-        baseTableName: game_skill_detail
-        baseColumnNames: contest_effect_id
-        referencedTableName: game_contest_effect
-        referencedColumnNames: id
-        constraintName: fk_game_skill_detail__contest_effect_id
-    - createIndex:
-        tableName: game_skill_detail
-        indexName: idx_game_skill_detail__contest_effect_id
-        columns:
-        - column:
-            name: contest_effect_id
-    - addForeignKeyConstraint:
-        baseTableName: game_skill_detail
-        baseColumnNames: advanced_contest_effect_id
-        referencedTableName: game_advanced_contest_effect
-        referencedColumnNames: id
-        constraintName: fk_game_skill_detail__advanced_contest_effect_id
-    - createIndex:
-        tableName: game_skill_detail
-        indexName: idx_game_skill_detail__advanced_contest_effect_id
-        columns:
-        - column:
-            name: advanced_contest_effect_id
-    - addForeignKeyConstraint:
         baseTableName: game_skill_stat_change
         baseColumnNames: skill_id
         referencedTableName: game_skill
@@ -5650,44 +4340,6 @@ databaseChangeLog:
         - column:
             name: stat_id
     - addForeignKeyConstraint:
-        baseTableName: game_skill_contest_combo
-        baseColumnNames: skill_id
-        referencedTableName: game_skill
-        referencedColumnNames: id
-        constraintName: fk_game_skill_contest_combo__skill_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_skill_contest_combo
-        indexName: idx_game_skill_contest_combo__skill_id
-        columns:
-        - column:
-            name: skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_skill_contest_combo
-        baseColumnNames: related_skill_id
-        referencedTableName: game_skill
-        referencedColumnNames: id
-        constraintName: fk_game_skill_contest_combo__related_skill_id
-    - createIndex:
-        tableName: game_skill_contest_combo
-        indexName: idx_game_skill_contest_combo__related_skill_id
-        columns:
-        - column:
-            name: related_skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_growth_rate_level
-        baseColumnNames: growth_rate_id
-        referencedTableName: game_growth_rate
-        referencedColumnNames: id
-        constraintName: fk_game_growth_rate_level__growth_rate_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_growth_rate_level
-        indexName: idx_game_growth_rate_level__growth_rate_id
-        columns:
-        - column:
-            name: growth_rate_id
-    - addForeignKeyConstraint:
         baseTableName: game_nature
         baseColumnNames: increased_stat_id
         referencedTableName: game_stat
@@ -5712,105 +4364,6 @@ databaseChangeLog:
         - column:
             name: decreased_stat_id
     - addForeignKeyConstraint:
-        baseTableName: game_nature
-        baseColumnNames: likes_flavor_id
-        referencedTableName: game_berry_flavor
-        referencedColumnNames: id
-        constraintName: fk_game_nature__likes_flavor_id
-    - createIndex:
-        tableName: game_nature
-        indexName: idx_game_nature__likes_flavor_id
-        columns:
-        - column:
-            name: likes_flavor_id
-    - addForeignKeyConstraint:
-        baseTableName: game_nature
-        baseColumnNames: hates_flavor_id
-        referencedTableName: game_berry_flavor
-        referencedColumnNames: id
-        constraintName: fk_game_nature__hates_flavor_id
-    - createIndex:
-        tableName: game_nature
-        indexName: idx_game_nature__hates_flavor_id
-        columns:
-        - column:
-            name: hates_flavor_id
-    - addForeignKeyConstraint:
-        baseTableName: game_nature_battle_style_preference
-        baseColumnNames: nature_id
-        referencedTableName: game_nature
-        referencedColumnNames: id
-        constraintName: fk_game_nature_battle_style_preference__nature_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_nature_battle_style_preference
-        indexName: idx_game_nature_battle_style_preference__nature_id
-        columns:
-        - column:
-            name: nature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_nature_battle_style_preference
-        baseColumnNames: battle_style_id
-        referencedTableName: game_skill_battle_style
-        referencedColumnNames: id
-        constraintName: fk_game_nature_battle_style_preference__battle_style_id
-    - createIndex:
-        tableName: game_nature_battle_style_preference
-        indexName: idx_game_nature_battle_style_preference__battle_style_id
-        columns:
-        - column:
-            name: battle_style_id
-    - addForeignKeyConstraint:
-        baseTableName: game_nature_event_stat_change
-        baseColumnNames: nature_id
-        referencedTableName: game_nature
-        referencedColumnNames: id
-        constraintName: fk_game_nature_event_stat_change__nature_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_nature_event_stat_change
-        indexName: idx_game_nature_event_stat_change__nature_id
-        columns:
-        - column:
-            name: nature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_nature_event_stat_change
-        baseColumnNames: event_stat_id
-        referencedTableName: game_event_stat
-        referencedColumnNames: id
-        constraintName: fk_game_nature_event_stat_change__event_stat_id
-    - createIndex:
-        tableName: game_nature_event_stat_change
-        indexName: idx_game_nature_event_stat_change__event_stat_id
-        columns:
-        - column:
-            name: event_stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_event_stat_nature_effect
-        baseColumnNames: event_stat_id
-        referencedTableName: game_event_stat
-        referencedColumnNames: id
-        constraintName: fk_game_event_stat_nature_effect__event_stat_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_event_stat_nature_effect
-        indexName: idx_game_event_stat_nature_effect__event_stat_id
-        columns:
-        - column:
-            name: event_stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_event_stat_nature_effect
-        baseColumnNames: nature_id
-        referencedTableName: game_nature
-        referencedColumnNames: id
-        constraintName: fk_game_event_stat_nature_effect__nature_id
-    - createIndex:
-        tableName: game_event_stat_nature_effect
-        indexName: idx_game_event_stat_nature_effect__nature_id
-        columns:
-        - column:
-            name: nature_id
-    - addForeignKeyConstraint:
         baseTableName: game_location
         baseColumnNames: region_id
         referencedTableName: game_region
@@ -5822,19 +4375,6 @@ databaseChangeLog:
         columns:
         - column:
             name: region_id
-    - addForeignKeyConstraint:
-        baseTableName: game_location_game_index
-        baseColumnNames: location_id
-        referencedTableName: game_location
-        referencedColumnNames: id
-        constraintName: fk_game_location_game_index__location_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_location_game_index
-        indexName: idx_game_location_game_index__location_id
-        columns:
-        - column:
-            name: location_id
     - addForeignKeyConstraint:
         baseTableName: game_encounter_condition_value
         baseColumnNames: condition_id
@@ -6165,93 +4705,6 @@ databaseChangeLog:
         - column:
             name: region_id
     - addForeignKeyConstraint:
-        baseTableName: game_gender_species_rate
-        baseColumnNames: gender_id
-        referencedTableName: game_gender
-        referencedColumnNames: id
-        constraintName: fk_game_gender_species_rate__gender_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_gender_species_rate
-        indexName: idx_game_gender_species_rate__gender_id
-        columns:
-        - column:
-            name: gender_id
-    - addForeignKeyConstraint:
-        baseTableName: game_gender_species_rate
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_gender_species_rate__species_id
-    - createIndex:
-        tableName: game_gender_species_rate
-        indexName: idx_game_gender_species_rate__species_id
-        columns:
-        - column:
-            name: species_id
-    - addForeignKeyConstraint:
-        baseTableName: game_gender_evolution_requirement
-        baseColumnNames: gender_id
-        referencedTableName: game_gender
-        referencedColumnNames: id
-        constraintName: fk_game_gender_evolution_requirement__gender_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_gender_evolution_requirement
-        indexName: idx_game_gender_evolution_requirement__gender_id
-        columns:
-        - column:
-            name: gender_id
-    - addForeignKeyConstraint:
-        baseTableName: game_gender_evolution_requirement
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_gender_evolution_requirement__species_id
-    - createIndex:
-        tableName: game_gender_evolution_requirement
-        indexName: idx_game_gender_evolution_requirement__species_id
-        columns:
-        - column:
-            name: species_id
-    - addForeignKeyConstraint:
-        baseTableName: game_catalog
-        baseColumnNames: region_id
-        referencedTableName: game_region
-        referencedColumnNames: id
-        constraintName: fk_game_catalog__region_id
-    - createIndex:
-        tableName: game_catalog
-        indexName: idx_game_catalog__region_id
-        columns:
-        - column:
-            name: region_id
-    - addForeignKeyConstraint:
-        baseTableName: game_catalog_entry
-        baseColumnNames: catalog_id
-        referencedTableName: game_catalog
-        referencedColumnNames: id
-        constraintName: fk_game_catalog_entry__catalog_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_catalog_entry
-        indexName: idx_game_catalog_entry__catalog_id
-        columns:
-        - column:
-            name: catalog_id
-    - addForeignKeyConstraint:
-        baseTableName: game_catalog_entry
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_catalog_entry__species_id
-    - createIndex:
-        tableName: game_catalog_entry
-        indexName: idx_game_catalog_entry__species_id
-        columns:
-        - column:
-            name: species_id
-    - addForeignKeyConstraint:
         baseTableName: game_creature_form
         baseColumnNames: creature_id
         referencedTableName: game_creature
@@ -6288,55 +4741,6 @@ databaseChangeLog:
         columns:
         - column:
             name: element_id
-    - addForeignKeyConstraint:
-        baseTableName: game_machine
-        baseColumnNames: item_id
-        referencedTableName: game_item
-        referencedColumnNames: id
-        constraintName: fk_game_machine__item_id
-    - createIndex:
-        tableName: game_machine
-        indexName: idx_game_machine__item_id
-        columns:
-        - column:
-            name: item_id
-    - addForeignKeyConstraint:
-        baseTableName: game_machine
-        baseColumnNames: skill_id
-        referencedTableName: game_skill
-        referencedColumnNames: id
-        constraintName: fk_game_machine__skill_id
-    - createIndex:
-        tableName: game_machine
-        indexName: idx_game_machine__skill_id
-        columns:
-        - column:
-            name: skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_transfer_area_species
-        baseColumnNames: area_id
-        referencedTableName: game_transfer_area
-        referencedColumnNames: id
-        constraintName: fk_game_transfer_area_species__area_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_transfer_area_species
-        indexName: idx_game_transfer_area_species__area_id
-        columns:
-        - column:
-            name: area_id
-    - addForeignKeyConstraint:
-        baseTableName: game_transfer_area_species
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_transfer_area_species__species_id
-    - createIndex:
-        tableName: game_transfer_area_species
-        indexName: idx_game_transfer_area_species__species_id
-        columns:
-        - column:
-            name: species_id
     - addForeignKeyConstraint:
         baseTableName: game_ability_detail
         baseColumnNames: ability_id
@@ -6375,80 +4779,6 @@ databaseChangeLog:
         columns:
         - column:
             name: growth_rate_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_detail
-        baseColumnNames: evolves_from_species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_species_detail__evolves_from_species_id
-    - createIndex:
-        tableName: game_species_detail
-        indexName: idx_game_species_detail__evolves_from_species_id
-        columns:
-        - column:
-            name: evolves_from_species_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_detail
-        baseColumnNames: evolution_chain_id
-        referencedTableName: game_evolution_chain
-        referencedColumnNames: id
-        constraintName: fk_game_species_detail__evolution_chain_id
-    - createIndex:
-        tableName: game_species_detail
-        indexName: idx_game_species_detail__evolution_chain_id
-        columns:
-        - column:
-            name: evolution_chain_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_catalog_number
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_species_catalog_number__species_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_species_catalog_number
-        indexName: idx_game_species_catalog_number__species_id
-        columns:
-        - column:
-            name: species_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_catalog_number
-        baseColumnNames: catalog_id
-        referencedTableName: game_catalog
-        referencedColumnNames: id
-        constraintName: fk_game_species_catalog_number__catalog_id
-    - createIndex:
-        tableName: game_species_catalog_number
-        indexName: idx_game_species_catalog_number__catalog_id
-        columns:
-        - column:
-            name: catalog_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_creature_variety
-        baseColumnNames: species_id
-        referencedTableName: game_species
-        referencedColumnNames: id
-        constraintName: fk_game_species_creature_variety__species_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_species_creature_variety
-        indexName: idx_game_species_creature_variety__species_id
-        columns:
-        - column:
-            name: species_id
-    - addForeignKeyConstraint:
-        baseTableName: game_species_creature_variety
-        baseColumnNames: creature_id
-        referencedTableName: game_creature
-        referencedColumnNames: id
-        constraintName: fk_game_species_creature_variety__creature_id
-    - createIndex:
-        tableName: game_species_creature_variety
-        indexName: idx_game_species_creature_variety__creature_id
-        columns:
-        - column:
-            name: creature_id
     - addForeignKeyConstraint:
         baseTableName: game_creature_skill_learn
         baseColumnNames: creature_id
@@ -6512,19 +4842,6 @@ databaseChangeLog:
         - column:
             name: item_id
     - addForeignKeyConstraint:
-        baseTableName: game_creature_game_index
-        baseColumnNames: creature_id
-        referencedTableName: game_creature
-        referencedColumnNames: id
-        constraintName: fk_game_creature_game_index__creature_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_creature_game_index
-        indexName: idx_game_creature_game_index__creature_id
-        columns:
-        - column:
-            name: creature_id
-    - addForeignKeyConstraint:
         baseTableName: game_element_damage_relation
         baseColumnNames: source_element_id
         referencedTableName: game_element
@@ -6549,119 +4866,6 @@ databaseChangeLog:
         columns:
         - column:
             name: target_element_id
-    - addForeignKeyConstraint:
-        baseTableName: game_element_game_index
-        baseColumnNames: element_id
-        referencedTableName: game_element
-        referencedColumnNames: id
-        constraintName: fk_game_element_game_index__element_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_element_game_index
-        indexName: idx_game_element_game_index__element_id
-        columns:
-        - column:
-            name: element_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_skill_effect
-        baseColumnNames: stat_id
-        referencedTableName: game_stat
-        referencedColumnNames: id
-        constraintName: fk_game_stat_skill_effect__stat_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_stat_skill_effect
-        indexName: idx_game_stat_skill_effect__stat_id
-        columns:
-        - column:
-            name: stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_skill_effect
-        baseColumnNames: skill_id
-        referencedTableName: game_skill
-        referencedColumnNames: id
-        constraintName: fk_game_stat_skill_effect__skill_id
-    - createIndex:
-        tableName: game_stat_skill_effect
-        indexName: idx_game_stat_skill_effect__skill_id
-        columns:
-        - column:
-            name: skill_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_nature_effect
-        baseColumnNames: stat_id
-        referencedTableName: game_stat
-        referencedColumnNames: id
-        constraintName: fk_game_stat_nature_effect__stat_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_stat_nature_effect
-        indexName: idx_game_stat_nature_effect__stat_id
-        columns:
-        - column:
-            name: stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_nature_effect
-        baseColumnNames: nature_id
-        referencedTableName: game_nature
-        referencedColumnNames: id
-        constraintName: fk_game_stat_nature_effect__nature_id
-    - createIndex:
-        tableName: game_stat_nature_effect
-        indexName: idx_game_stat_nature_effect__nature_id
-        columns:
-        - column:
-            name: nature_id
-    - addForeignKeyConstraint:
-        baseTableName: game_characteristic
-        baseColumnNames: highest_stat_id
-        referencedTableName: game_stat
-        referencedColumnNames: id
-        constraintName: fk_game_characteristic__highest_stat_id
-    - createIndex:
-        tableName: game_characteristic
-        indexName: idx_game_characteristic__highest_stat_id
-        columns:
-        - column:
-            name: highest_stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_characteristic_value
-        baseColumnNames: characteristic_id
-        referencedTableName: game_characteristic
-        referencedColumnNames: id
-        constraintName: fk_game_characteristic_value__characteristic_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_characteristic_value
-        indexName: idx_game_characteristic_value__characteristic_id
-        columns:
-        - column:
-            name: characteristic_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_characteristic
-        baseColumnNames: stat_id
-        referencedTableName: game_stat
-        referencedColumnNames: id
-        constraintName: fk_game_stat_characteristic__stat_id
-        onDelete: CASCADE
-    - createIndex:
-        tableName: game_stat_characteristic
-        indexName: idx_game_stat_characteristic__stat_id
-        columns:
-        - column:
-            name: stat_id
-    - addForeignKeyConstraint:
-        baseTableName: game_stat_characteristic
-        baseColumnNames: characteristic_id
-        referencedTableName: game_characteristic
-        referencedColumnNames: id
-        constraintName: fk_game_stat_characteristic__characteristic_id
-    - createIndex:
-        tableName: game_stat_characteristic
-        indexName: idx_game_stat_characteristic__characteristic_id
-        columns:
-        - column:
-            name: characteristic_id
     - loadData:
         tableName: game_evolution_chain
         file: db/changelog/data/game-data-extended/game_evolution_chain.csv
@@ -6735,72 +4939,6 @@ databaseChangeLog:
         - column:
             name: sort_order
             type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_advanced_contest_effect
-        file: db/changelog/data/game-data-extended/game_advanced_contest_effect.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: appeal
-            type: NUMERIC
-        - column:
-            name: flavor_text
-            type: STRING
-    - loadData:
-        tableName: game_contest_type
-        file: db/changelog/data/game-data-extended/game_contest_type.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: color
-            type: STRING
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_characteristic
-        file: db/changelog/data/game-data-extended/game_characteristic.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: highest_stat_id
-            type: NUMERIC
-        - column:
-            name: gene_modulo
-            type: NUMERIC
-        - column:
-            name: description
-            type: STRING
         - column:
             name: enabled
             type: BOOLEAN
@@ -6940,28 +5078,6 @@ databaseChangeLog:
             name: enabled
             type: BOOLEAN
     - loadData:
-        tableName: game_stat_skill_effect
-        file: db/changelog/data/game-data-extended/game_stat_skill_effect.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: stat_id
-            type: NUMERIC
-        - column:
-            name: skill_id
-            type: NUMERIC
-        - column:
-            name: change_value
-            type: NUMERIC
-        - column:
-            name: effect_type
-            type: STRING
-    - loadData:
         tableName: game_skill_target
         file: db/changelog/data/game-data-extended/game_skill_target.csv
         encoding: UTF-8
@@ -7020,235 +5136,6 @@ databaseChangeLog:
             type: STRING
         - column:
             name: short_effect
-            type: STRING
-        - column:
-            name: flavor_text
-            type: STRING
-    - loadData:
-        tableName: game_event_stat
-        file: db/changelog/data/game-data-extended/game_event_stat.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: sort_order
-            type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_advanced_contest_effect_skill
-        file: db/changelog/data/game-data-extended/game_advanced_contest_effect_skill.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: advanced_contest_effect_id
-            type: NUMERIC
-        - column:
-            name: skill_id
-            type: NUMERIC
-    - loadData:
-        tableName: game_skill_contest_combo
-        file: db/changelog/data/game-data-extended/game_skill_contest_combo.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: skill_id
-            type: NUMERIC
-        - column:
-            name: combo_type
-            type: STRING
-        - column:
-            name: relation_type
-            type: STRING
-        - column:
-            name: related_skill_id
-            type: NUMERIC
-    - loadData:
-        tableName: game_berry_firmness
-        file: db/changelog/data/game-data-extended/game_berry_firmness.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: sort_order
-            type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_skill_battle_style
-        file: db/changelog/data/game-data-extended/game_skill_battle_style.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: sort_order
-            type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_gender_species_rate
-        file: db/changelog/data/game-data-extended/game_gender_species_rate.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: gender_id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-        - column:
-            name: rate
-            type: NUMERIC
-    - loadData:
-        tableName: game_species_creature_variety
-        file: db/changelog/data/game-data-extended/game_species_creature_variety.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-        - column:
-            name: creature_id
-            type: NUMERIC
-        - column:
-            name: default_variety
-            type: BOOLEAN
-    - loadData:
-        tableName: game_berry
-        file: db/changelog/data/game-data-extended/game_berry.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: item_id
-            type: NUMERIC
-        - column:
-            name: firmness_id
-            type: NUMERIC
-        - column:
-            name: natural_gift_element_id
-            type: NUMERIC
-        - column:
-            name: growth_time
-            type: NUMERIC
-        - column:
-            name: max_harvest
-            type: NUMERIC
-        - column:
-            name: natural_gift_power
-            type: NUMERIC
-        - column:
-            name: size
-            type: NUMERIC
-        - column:
-            name: smoothness
-            type: NUMERIC
-        - column:
-            name: soil_dryness
-            type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_transfer_area
-        file: db/changelog/data/game-data-extended/game_transfer_area.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_contest_effect
-        file: db/changelog/data/game-data-extended/game_contest_effect.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: appeal
-            type: NUMERIC
-        - column:
-            name: jam
-            type: NUMERIC
-        - column:
-            name: effect
             type: STRING
         - column:
             name: flavor_text
@@ -7315,15 +5202,6 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: target_id
-            type: NUMERIC
-        - column:
-            name: contest_type_id
-            type: NUMERIC
-        - column:
-            name: contest_effect_id
-            type: NUMERIC
-        - column:
-            name: advanced_contest_effect_id
             type: NUMERIC
         - column:
             name: min_hits
@@ -7406,22 +5284,6 @@ databaseChangeLog:
             name: pocket_id
             type: NUMERIC
     - loadData:
-        tableName: game_item_game_index
-        file: db/changelog/data/game-data-extended/game_item_game_index.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: item_id
-            type: NUMERIC
-        - column:
-            name: game_index
-            type: NUMERIC
-    - loadData:
         tableName: game_encounter_condition_value
         file: db/changelog/data/game-data-extended/game_encounter_condition_value.csv
         encoding: UTF-8
@@ -7439,28 +5301,6 @@ databaseChangeLog:
             type: STRING
         - column:
             name: condition_id
-            type: NUMERIC
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
-        tableName: game_berry_flavor
-        file: db/changelog/data/game-data-extended/game_berry_flavor.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: contest_type_id
             type: NUMERIC
         - column:
             name: enabled
@@ -7488,38 +5328,6 @@ databaseChangeLog:
             name: enabled
             type: BOOLEAN
     - loadData:
-        tableName: game_gender_evolution_requirement
-        file: db/changelog/data/game-data-extended/game_gender_evolution_requirement.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: gender_id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-    - loadData:
-        tableName: game_stat_characteristic
-        file: db/changelog/data/game-data-extended/game_stat_characteristic.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: stat_id
-            type: NUMERIC
-        - column:
-            name: characteristic_id
-            type: NUMERIC
-    - loadData:
         tableName: game_item_attribute_binding
         file: db/changelog/data/game-data-extended/game_item_attribute_binding.csv
         encoding: UTF-8
@@ -7534,22 +5342,6 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: attribute_id
-            type: NUMERIC
-    - loadData:
-        tableName: game_characteristic_value
-        file: db/changelog/data/game-data-extended/game_characteristic_value.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: characteristic_id
-            type: NUMERIC
-        - column:
-            name: possible_value
             type: NUMERIC
     - loadData:
         tableName: game_region
@@ -7571,34 +5363,6 @@ databaseChangeLog:
             name: enabled
             type: BOOLEAN
     - loadData:
-        tableName: game_catalog
-        file: db/changelog/data/game-data-extended/game_catalog.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: code
-            type: STRING
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: region_id
-            type: NUMERIC
-        - column:
-            name: main_series
-            type: BOOLEAN
-        - column:
-            name: description
-            type: STRING
-        - column:
-            name: enabled
-            type: BOOLEAN
-    - loadData:
         tableName: game_species_detail
         file: db/changelog/data/game-data-extended/game_species_detail.csv
         encoding: UTF-8
@@ -7613,12 +5377,6 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: growth_rate_id
-            type: NUMERIC
-        - column:
-            name: evolves_from_species_id
-            type: NUMERIC
-        - column:
-            name: evolution_chain_id
             type: NUMERIC
         - column:
             name: sort_order
@@ -7655,79 +5413,6 @@ databaseChangeLog:
             name: relation_type
             type: STRING
     - loadData:
-        tableName: game_growth_rate_level
-        file: db/changelog/data/game-data-extended/game_growth_rate_level.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: growth_rate_id
-            type: NUMERIC
-        - column:
-            name: level
-            type: NUMERIC
-        - column:
-            name: experience
-            type: NUMERIC
-    - loadData:
-        tableName: game_berry_flavor_potency
-        file: db/changelog/data/game-data-extended/game_berry_flavor_potency.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: berry_id
-            type: NUMERIC
-        - column:
-            name: flavor_id
-            type: NUMERIC
-        - column:
-            name: potency
-            type: NUMERIC
-    - loadData:
-        tableName: game_species_catalog_number
-        file: db/changelog/data/game-data-extended/game_species_catalog_number.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-        - column:
-            name: catalog_id
-            type: NUMERIC
-        - column:
-            name: entry_number
-            type: NUMERIC
-    - loadData:
-        tableName: game_element_game_index
-        file: db/changelog/data/game-data-extended/game_element_game_index.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: element_id
-            type: NUMERIC
-        - column:
-            name: game_index
-            type: NUMERIC
-    - loadData:
         tableName: game_nature
         file: db/changelog/data/game-data-extended/game_nature.csv
         encoding: UTF-8
@@ -7750,36 +5435,8 @@ databaseChangeLog:
             name: decreased_stat_id
             type: NUMERIC
         - column:
-            name: likes_flavor_id
-            type: NUMERIC
-        - column:
-            name: hates_flavor_id
-            type: NUMERIC
-        - column:
             name: enabled
             type: BOOLEAN
-    - loadData:
-        tableName: game_transfer_area_species
-        file: db/changelog/data/game-data-extended/game_transfer_area_species.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: area_id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-        - column:
-            name: base_score
-            type: NUMERIC
-        - column:
-            name: rate
-            type: NUMERIC
     - loadData:
         tableName: game_creature_skill_learn
         file: db/changelog/data/game-data-extended/game_creature_skill_learn.csv
@@ -7843,41 +5500,6 @@ databaseChangeLog:
             name: enabled
             type: BOOLEAN
     - loadData:
-        tableName: game_catalog_entry
-        file: db/changelog/data/game-data-extended/game_catalog_entry.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: catalog_id
-            type: NUMERIC
-        - column:
-            name: species_id
-            type: NUMERIC
-        - column:
-            name: entry_number
-            type: NUMERIC
-    - loadData:
-        tableName: game_creature_game_index
-        file: db/changelog/data/game-data-extended/game_creature_game_index.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: creature_id
-            type: NUMERIC
-        - column:
-            name: game_index
-            type: NUMERIC
-    - loadData:
         tableName: game_creature_form_element
         file: db/changelog/data/game-data-extended/game_creature_form_element.csv
         encoding: UTF-8
@@ -7895,47 +5517,6 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: slot_order
-            type: NUMERIC
-    - loadData:
-        tableName: game_nature_battle_style_preference
-        file: db/changelog/data/game-data-extended/game_nature_battle_style_preference.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: nature_id
-            type: NUMERIC
-        - column:
-            name: battle_style_id
-            type: NUMERIC
-        - column:
-            name: low_hp_preference
-            type: NUMERIC
-        - column:
-            name: high_hp_preference
-            type: NUMERIC
-    - loadData:
-        tableName: game_nature_event_stat_change
-        file: db/changelog/data/game-data-extended/game_nature_event_stat_change.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: nature_id
-            type: NUMERIC
-        - column:
-            name: event_stat_id
-            type: NUMERIC
-        - column:
-            name: max_change
             type: NUMERIC
     - loadData:
         tableName: game_creature_held_item
@@ -7979,41 +5560,6 @@ databaseChangeLog:
             name: enabled
             type: BOOLEAN
     - loadData:
-        tableName: game_machine
-        file: db/changelog/data/game-data-extended/game_machine.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: item_id
-            type: NUMERIC
-        - column:
-            name: skill_id
-            type: NUMERIC
-    - loadData:
-        tableName: game_stat_nature_effect
-        file: db/changelog/data/game-data-extended/game_stat_nature_effect.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: stat_id
-            type: NUMERIC
-        - column:
-            name: nature_id
-            type: NUMERIC
-        - column:
-            name: effect_type
-            type: STRING
-    - loadData:
         tableName: game_location_area
         file: db/changelog/data/game-data-extended/game_location_area.csv
         encoding: UTF-8
@@ -8038,25 +5584,6 @@ databaseChangeLog:
         - column:
             name: enabled
             type: BOOLEAN
-    - loadData:
-        tableName: game_event_stat_nature_effect
-        file: db/changelog/data/game-data-extended/game_event_stat_nature_effect.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: event_stat_id
-            type: NUMERIC
-        - column:
-            name: nature_id
-            type: NUMERIC
-        - column:
-            name: effect_type
-            type: STRING
     - loadData:
         tableName: game_evolution_detail
         file: db/changelog/data/game-data-extended/game_evolution_detail.csv
@@ -8152,22 +5679,6 @@ databaseChangeLog:
             name: is_default
             type: BOOLEAN
     - loadData:
-        tableName: game_location_game_index
-        file: db/changelog/data/game-data-extended/game_location_game_index.csv
-        encoding: UTF-8
-        separator: ','
-        quotchar: '"'
-        columns:
-        - column:
-            name: id
-            type: NUMERIC
-        - column:
-            name: location_id
-            type: NUMERIC
-        - column:
-            name: game_index
-            type: NUMERIC
-    - loadData:
         tableName: game_location_area_encounter
         file: db/changelog/data/game-data-extended/game_location_area_encounter.csv
         encoding: UTF-8
@@ -8235,39 +5746,22 @@ databaseChangeLog:
             type: NUMERIC
     - sql:
         sql: |-
-          select setval(pg_get_serial_sequence('game_contest_type', 'id'), greatest(coalesce((select max(id) from game_contest_type), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_contest_effect', 'id'), greatest(coalesce((select max(id) from game_contest_effect), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_advanced_contest_effect', 'id'), greatest(coalesce((select max(id) from game_advanced_contest_effect), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_advanced_contest_effect_skill', 'id'), greatest(coalesce((select max(id) from game_advanced_contest_effect_skill), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_berry_firmness', 'id'), greatest(coalesce((select max(id) from game_berry_firmness), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_berry_flavor', 'id'), greatest(coalesce((select max(id) from game_berry_flavor), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_berry', 'id'), greatest(coalesce((select max(id) from game_berry), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_berry_flavor_potency', 'id'), greatest(coalesce((select max(id) from game_berry_flavor_potency), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_attribute', 'id'), greatest(coalesce((select max(id) from game_item_attribute), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_fling_effect', 'id'), greatest(coalesce((select max(id) from game_item_fling_effect), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_pocket', 'id'), greatest(coalesce((select max(id) from game_item_pocket), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_detail', 'id'), greatest(coalesce((select max(id) from game_item_detail), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_attribute_binding', 'id'), greatest(coalesce((select max(id) from game_item_attribute_binding), 1), 1), true);
           select setval(pg_get_serial_sequence('game_item_category_pocket', 'id'), greatest(coalesce((select max(id) from game_item_category_pocket), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_item_game_index', 'id'), greatest(coalesce((select max(id) from game_item_game_index), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_ailment', 'id'), greatest(coalesce((select max(id) from game_skill_ailment), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_skill_battle_style', 'id'), greatest(coalesce((select max(id) from game_skill_battle_style), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_category', 'id'), greatest(coalesce((select max(id) from game_skill_category), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_learn_method', 'id'), greatest(coalesce((select max(id) from game_skill_learn_method), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_target', 'id'), greatest(coalesce((select max(id) from game_skill_target), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_detail', 'id'), greatest(coalesce((select max(id) from game_skill_detail), 1), 1), true);
           select setval(pg_get_serial_sequence('game_skill_stat_change', 'id'), greatest(coalesce((select max(id) from game_skill_stat_change), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_skill_contest_combo', 'id'), greatest(coalesce((select max(id) from game_skill_contest_combo), 1), 1), true);
           select setval(pg_get_serial_sequence('game_growth_rate', 'id'), greatest(coalesce((select max(id) from game_growth_rate), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_growth_rate_level', 'id'), greatest(coalesce((select max(id) from game_growth_rate_level), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_event_stat', 'id'), greatest(coalesce((select max(id) from game_event_stat), 1), 1), true);
           select setval(pg_get_serial_sequence('game_nature', 'id'), greatest(coalesce((select max(id) from game_nature), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_nature_battle_style_preference', 'id'), greatest(coalesce((select max(id) from game_nature_battle_style_preference), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_nature_event_stat_change', 'id'), greatest(coalesce((select max(id) from game_nature_event_stat_change), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_event_stat_nature_effect', 'id'), greatest(coalesce((select max(id) from game_event_stat_nature_effect), 1), 1), true);
           select setval(pg_get_serial_sequence('game_region', 'id'), greatest(coalesce((select max(id) from game_region), 1), 1), true);
           select setval(pg_get_serial_sequence('game_location', 'id'), greatest(coalesce((select max(id) from game_location), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_location_game_index', 'id'), greatest(coalesce((select max(id) from game_location_game_index), 1), 1), true);
           select setval(pg_get_serial_sequence('game_encounter_method', 'id'), greatest(coalesce((select max(id) from game_encounter_method), 1), 1), true);
           select setval(pg_get_serial_sequence('game_encounter_condition', 'id'), greatest(coalesce((select max(id) from game_encounter_condition), 1), 1), true);
           select setval(pg_get_serial_sequence('game_encounter_condition_value', 'id'), greatest(coalesce((select max(id) from game_encounter_condition_value), 1), 1), true);
@@ -8280,26 +5774,10 @@ databaseChangeLog:
           select setval(pg_get_serial_sequence('game_evolution_chain', 'id'), greatest(coalesce((select max(id) from game_evolution_chain), 1), 1), true);
           select setval(pg_get_serial_sequence('game_evolution_node', 'id'), greatest(coalesce((select max(id) from game_evolution_node), 1), 1), true);
           select setval(pg_get_serial_sequence('game_evolution_detail', 'id'), greatest(coalesce((select max(id) from game_evolution_detail), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_gender_species_rate', 'id'), greatest(coalesce((select max(id) from game_gender_species_rate), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_gender_evolution_requirement', 'id'), greatest(coalesce((select max(id) from game_gender_evolution_requirement), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_catalog', 'id'), greatest(coalesce((select max(id) from game_catalog), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_catalog_entry', 'id'), greatest(coalesce((select max(id) from game_catalog_entry), 1), 1), true);
           select setval(pg_get_serial_sequence('game_creature_form', 'id'), greatest(coalesce((select max(id) from game_creature_form), 1), 1), true);
           select setval(pg_get_serial_sequence('game_creature_form_element', 'id'), greatest(coalesce((select max(id) from game_creature_form_element), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_machine', 'id'), greatest(coalesce((select max(id) from game_machine), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_transfer_area', 'id'), greatest(coalesce((select max(id) from game_transfer_area), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_transfer_area_species', 'id'), greatest(coalesce((select max(id) from game_transfer_area_species), 1), 1), true);
           select setval(pg_get_serial_sequence('game_ability_detail', 'id'), greatest(coalesce((select max(id) from game_ability_detail), 1), 1), true);
           select setval(pg_get_serial_sequence('game_species_detail', 'id'), greatest(coalesce((select max(id) from game_species_detail), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_species_catalog_number', 'id'), greatest(coalesce((select max(id) from game_species_catalog_number), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_species_creature_variety', 'id'), greatest(coalesce((select max(id) from game_species_creature_variety), 1), 1), true);
           select setval(pg_get_serial_sequence('game_creature_skill_learn', 'id'), greatest(coalesce((select max(id) from game_creature_skill_learn), 1), 1), true);
           select setval(pg_get_serial_sequence('game_creature_held_item', 'id'), greatest(coalesce((select max(id) from game_creature_held_item), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_creature_game_index', 'id'), greatest(coalesce((select max(id) from game_creature_game_index), 1), 1), true);
           select setval(pg_get_serial_sequence('game_element_damage_relation', 'id'), greatest(coalesce((select max(id) from game_element_damage_relation), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_element_game_index', 'id'), greatest(coalesce((select max(id) from game_element_game_index), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_stat_skill_effect', 'id'), greatest(coalesce((select max(id) from game_stat_skill_effect), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_stat_nature_effect', 'id'), greatest(coalesce((select max(id) from game_stat_nature_effect), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_characteristic', 'id'), greatest(coalesce((select max(id) from game_characteristic), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_characteristic_value', 'id'), greatest(coalesce((select max(id) from game_characteristic_value), 1), 1), true);
-          select setval(pg_get_serial_sequence('game_stat_characteristic', 'id'), greatest(coalesce((select max(id) from game_stat_characteristic), 1), 1), true);

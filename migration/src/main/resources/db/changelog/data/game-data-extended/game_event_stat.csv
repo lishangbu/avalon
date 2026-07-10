@@ -1,6 +1,0 @@
-id,code,name,sort_order,enabled
-1,speed,速度,1,true
-2,power,力量,2,true
-3,skill,技巧,3,true
-4,stamina,耐力,4,true
-5,jump,跳跃,5,true

@@ -1,6 +1,0 @@
-id,code,name,sort_order,enabled
-1,very-soft,很柔软,1,true
-2,soft,柔软,2,true
-3,hard,坚硬,3,true
-4,very-hard,很坚硬,4,true
-5,super-hard,非常坚硬,5,true

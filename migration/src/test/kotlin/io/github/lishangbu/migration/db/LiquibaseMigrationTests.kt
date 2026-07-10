@@ -227,9 +227,6 @@ class LiquibaseMigrationTests(
 			"game-data",
 			"game-data:admin",
 			"game-data.abilities",
-			"game-data.berry",
-			"game-data.berries",
-			"game-data.catalog",
 			"game-data.core",
 			"game-data.creature-abilities",
 			"game-data.creature-elements",
@@ -556,9 +553,9 @@ class LiquibaseMigrationTests(
 		assertThat(seedCounts).containsEntry("battle_weather_rule", 5L)
 		assertThat(seedCounts).containsEntry("battle_terrain_rule", 4L)
 		assertThat(seedCounts).containsEntry("battle_field_rule", 11L)
-		assertThat(seedCounts).containsEntry("battle_skill_rule", 937L)
-		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 135L)
-		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 247L)
+		assertThat(seedCounts).containsEntry("battle_skill_rule", 691L)
+		assertThat(seedCounts).containsEntry("battle_skill_status_effect", 113L)
+		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_effect", 200L)
 		assertThat(seedCounts).containsEntry("battle_skill_stat_stage_operation", 39L)
 		assertThat(seedCounts).containsEntry("battle_skill_field_effect", 10L)
 		assertThat(seedCounts).containsEntry("battle_skill_global_field_effect", 1L)
@@ -602,7 +599,7 @@ class LiquibaseMigrationTests(
 		).single()
 		assertThat(latestUnusableSkillState)
 			.describedAs("最新版资料明确写明无法使用的技能必须保留目录资料但退出现代战斗运行态")
-			.containsEntry("unusable_skill_count", 145L)
+			.containsEntry("unusable_skill_count", 6L)
 			.containsEntry("enabled_skill_count", 0L)
 			.containsEntry("enabled_rule_count", 0L)
 
@@ -618,7 +615,7 @@ class LiquibaseMigrationTests(
 				and r.effect_policy = 'status-effect'
 				and r.damage_policy = 'no-damage'
 				and r.description like '基础变化技能规则%'
-				and s.code not in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+				and s.code not in ('splash', 'celebrate', 'happy-hour')
 				and not exists (select 1 from battle_skill_status_effect e where e.skill_rule_id = r.id and e.enabled = true)
 				and not exists (select 1 from battle_skill_stat_stage_effect e where e.skill_rule_id = r.id and e.enabled = true)
 				and not exists (select 1 from battle_skill_stat_stage_operation e where e.skill_rule_id = r.id and e.enabled = true)
@@ -636,7 +633,7 @@ class LiquibaseMigrationTests(
 			select s.code, r.description, s.enabled as skill_enabled, r.enabled as rule_enabled
 			from battle_skill_rule r
 			join game_skill s on s.id = r.skill_id
-			where s.code in ('splash', 'celebrate', 'hold-hands', 'happy-hour')
+			where s.code in ('splash', 'celebrate', 'happy-hour')
 			order by s.code
 			""".trimIndent(),
 		)
@@ -649,12 +646,6 @@ class LiquibaseMigrationTests(
 			),
 			mapOf(
 				"code" to "happy-hour",
-				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
-				"skill_enabled" to true,
-				"rule_enabled" to true,
-			),
-			mapOf(
-				"code" to "hold-hands",
 				"description" to "现代战斗中没有需要结算的对战效果；允许选择但只产生正常使用事件。",
 				"skill_enabled" to true,
 				"rule_enabled" to true,
@@ -740,27 +731,11 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, target_policy, hit_policy, min_hits, max_hits, critical_hit_stage
 			from battle_skill_rule
-			where skill_id in (2, 3, 37, 57, 74, 129)
+			where skill_id in (37, 57, 74, 129)
 			order by skill_id
 			""".trimIndent(),
 		)
 		assertThat(derivedBasicSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 2L,
-				"target_policy" to "selected-target",
-				"hit_policy" to "standard-hit",
-				"min_hits" to 1,
-				"max_hits" to 1,
-				"critical_hit_stage" to 1,
-			),
-			mapOf(
-				"skill_id" to 3L,
-				"target_policy" to "selected-target",
-				"hit_policy" to "multi-hit",
-				"min_hits" to 2,
-				"max_hits" to 5,
-				"critical_hit_stage" to 0,
-			),
 			mapOf(
 				"skill_id" to 37L,
 				"target_policy" to "random-opponent",
@@ -799,18 +774,11 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, target_policy, hit_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (170, 199)
+			where skill_id = 199
 			order by skill_id
 			""".trimIndent(),
 		)
 		assertThat(derivedAccuracyLockSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 170L,
-				"effect_policy" to "accuracy-lock-on-target",
-				"target_policy" to "selected-target",
-				"hit_policy" to "always-hit",
-				"damage_policy" to "no-damage",
-			),
 			mapOf(
 				"skill_id" to 199L,
 				"effect_policy" to "accuracy-lock-on-target",
@@ -824,7 +792,7 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, target_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (36, 138, 344, 456, 457, 733)
+			where skill_id in (36, 138, 344, 457)
 			order by skill_id
 			""".trimIndent(),
 		)
@@ -848,20 +816,8 @@ class LiquibaseMigrationTests(
 				"damage_policy" to "standard-damage",
 			),
 			mapOf(
-				"skill_id" to 456L,
-				"effect_policy" to "self-heal-half-max-hp",
-				"target_policy" to "self",
-				"damage_policy" to "no-damage",
-			),
-			mapOf(
 				"skill_id" to 457L,
 				"effect_policy" to "recoil-half-damage",
-				"target_policy" to "selected-target",
-				"damage_policy" to "standard-damage",
-			),
-			mapOf(
-				"skill_id" to 733L,
-				"effect_policy" to "drain-full-damage",
 				"target_policy" to "selected-target",
 				"damage_policy" to "standard-damage",
 			),
@@ -1496,22 +1452,6 @@ class LiquibaseMigrationTests(
 			),
 		)
 
-		val purifySkillRules = queryMaps(
-			"""
-			select skill_id, effect_policy, target_policy, damage_policy
-			from battle_skill_rule
-			where skill_id = 685
-			""".trimIndent(),
-		)
-		assertThat(purifySkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 685L,
-				"effect_policy" to "target-major-status-cure-self-heal-half-max-hp",
-				"target_policy" to "selected-target",
-				"damage_policy" to "no-damage",
-			),
-		)
-
 		val conditionalPowerSkillRules = queryMaps(
 			"""
 			select skill_id, effect_policy, damage_policy
@@ -1577,21 +1517,11 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (265, 358, 664)
+			where skill_id = 664
 			order by skill_id
 			""".trimIndent(),
 		)
 		assertThat(postDamageStatusCureSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 265L,
-				"effect_policy" to "power-double-if-target-paralysis-cure-target-paralysis-after-damage",
-				"damage_policy" to "standard-damage",
-			),
-			mapOf(
-				"skill_id" to 358L,
-				"effect_policy" to "power-double-if-target-sleep-cure-target-sleep-after-damage",
-				"damage_policy" to "standard-damage",
-			),
 			mapOf(
 				"skill_id" to 664L,
 				"effect_policy" to "cure-target-burn-after-damage",
@@ -1603,16 +1533,11 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (386, 500, 681)
+			where skill_id in (500, 681)
 			order by skill_id
 			""".trimIndent(),
 		)
 		assertThat(dynamicPowerSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 386L,
-				"effect_policy" to "power-by-target-positive-stat-stage-sum-max-200",
-				"damage_policy" to "standard-damage",
-			),
 			mapOf(
 				"skill_id" to 500L,
 				"effect_policy" to "power-by-user-positive-stat-stage-sum",
@@ -1629,16 +1554,11 @@ class LiquibaseMigrationTests(
 			"""
 			select skill_id, effect_policy, damage_policy
 			from battle_skill_rule
-			where skill_id in (682, 892)
+			where skill_id = 892
 			order by skill_id
 			""".trimIndent(),
 		)
 		assertThat(userElementRemovalSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 682L,
-				"effect_policy" to "remove-user-element-after-damage",
-				"damage_policy" to "standard-damage",
-			),
 			mapOf(
 				"skill_id" to 892L,
 				"effect_policy" to "remove-user-element-after-damage",
@@ -1695,22 +1615,6 @@ class LiquibaseMigrationTests(
 				"skill_id" to 535L,
 				"effect_policy" to "power-by-user-target-weight-ratio",
 				"damage_policy" to "standard-damage",
-			),
-		)
-
-		val weightReductionSkillRules = queryMaps(
-			"""
-			select skill_id, effect_policy, target_policy, damage_policy
-			from battle_skill_rule
-			where skill_id = 475
-			""".trimIndent(),
-		)
-		assertThat(weightReductionSkillRules).containsExactly(
-			mapOf(
-				"skill_id" to 475L,
-				"effect_policy" to "self-weight-reduction-100kg-after-speed-change",
-				"target_policy" to "self",
-				"damage_policy" to "no-damage",
 			),
 		)
 
@@ -1772,7 +1676,7 @@ class LiquibaseMigrationTests(
 			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.recharges_after_use
 			from battle_skill_rule r
 			join game_skill s on s.id = r.skill_id
-			where s.id in (63, 307, 308, 338, 416, 439, 459, 711, 794, 795)
+			where s.id in (63, 307, 308, 338, 416, 439, 459, 711)
 			order by s.id
 			""".trimIndent(),
 		)
@@ -1790,8 +1694,6 @@ class LiquibaseMigrationTests(
 			mapOf("skill_id" to 439L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
 			mapOf("skill_id" to 459L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
 			mapOf("skill_id" to 711L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
-			mapOf("skill_id" to 794L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
-			mapOf("skill_id" to 795L, "skill_enabled" to true, "rule_enabled" to true, "recharges_after_use" to true),
 		)
 
 		val specialDamageTargetDefenseRules = queryMaps(
@@ -1832,20 +1734,13 @@ class LiquibaseMigrationTests(
 			select s.id as skill_id, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.damage_policy
 			from battle_skill_rule r
 			join game_skill s on s.id = r.skill_id
-			where s.id in (206, 610)
+			where s.id = 206
 			order by s.id
 			""".trimIndent(),
 		)
 		assertThat(nonFaintingDamageSkillRules).containsExactly(
 			mapOf(
 				"skill_id" to 206L,
-				"skill_enabled" to true,
-				"rule_enabled" to true,
-				"effect_policy" to "leave-target-at-one-hp",
-				"damage_policy" to "standard-damage",
-			),
-			mapOf(
-				"skill_id" to 610L,
 				"skill_enabled" to true,
 				"rule_enabled" to true,
 				"effect_policy" to "leave-target-at-one-hp",
@@ -2009,7 +1904,7 @@ class LiquibaseMigrationTests(
 			select s.id as skill_id, s.code, s.enabled as skill_enabled, r.enabled as rule_enabled, r.effect_policy, r.target_policy, r.damage_policy, r.affected_by_protect, r.sound_based
 			from battle_skill_rule r
 			join game_skill s on s.id = r.skill_id
-			where s.code in ('rest', 'heal-bell', 'aromatherapy')
+			where s.code in ('rest', 'heal-bell')
 			order by s.id
 			""".trimIndent(),
 		)
@@ -2036,17 +1931,6 @@ class LiquibaseMigrationTests(
 				"affected_by_protect" to false,
 				"sound_based" to true,
 			),
-			mapOf(
-				"skill_id" to 312L,
-				"code" to "aromatherapy",
-					"skill_enabled" to false,
-					"rule_enabled" to false,
-					"effect_policy" to "status-effect",
-					"target_policy" to "user-side-active",
-					"damage_policy" to "no-damage",
-					"affected_by_protect" to false,
-					"sound_based" to false,
-				),
 		)
 
 		val leechSeedSkillRules = queryMaps(
@@ -3586,6 +3470,341 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase creates one current game data snapshot`() {
+		val tableNames = queryStrings(
+			"""
+			select table_name
+			from information_schema.tables
+			where table_schema = 'public'
+			""".trimIndent(),
+		)
+
+		assertThat(tableNames).doesNotContain(
+			"game_advanced_contest_effect",
+			"game_advanced_contest_effect_skill",
+			"game_berry",
+			"game_berry_firmness",
+			"game_berry_flavor",
+			"game_berry_flavor_potency",
+			"game_catalog",
+			"game_catalog_entry",
+			"game_characteristic",
+			"game_characteristic_value",
+			"game_contest_effect",
+			"game_contest_type",
+			"game_creature_game_index",
+			"game_element_game_index",
+			"game_event_stat",
+			"game_event_stat_nature_effect",
+			"game_gender_evolution_requirement",
+			"game_gender_species_rate",
+			"game_growth_rate_level",
+			"game_item_game_index",
+			"game_location_game_index",
+			"game_machine",
+			"game_nature_battle_style_preference",
+			"game_nature_event_stat_change",
+			"game_skill_battle_style",
+			"game_skill_contest_combo",
+			"game_species_catalog_number",
+			"game_species_creature_variety",
+			"game_stat_characteristic",
+			"game_stat_nature_effect",
+			"game_stat_skill_effect",
+			"game_transfer_area",
+			"game_transfer_area_species",
+		)
+
+		val creatureColumns = queryStrings(
+			"""
+			select column_name
+			from information_schema.columns
+			where table_schema = 'public' and table_name = 'game_creature'
+			order by ordinal_position
+			""".trimIndent(),
+		)
+		assertThat(creatureColumns).contains("inherits_from_creature_id")
+
+		val speciesColumns = queryStrings(
+			"""
+			select column_name
+			from information_schema.columns
+			where table_schema = 'public' and table_name = 'game_species'
+			order by ordinal_position
+			""".trimIndent(),
+		)
+		assertThat(speciesColumns).contains("national_number")
+	}
+
+	@Test
+	fun `liquibase stores each current evolution edge once`() {
+		val speciesDetailColumns = queryStrings(
+			"""
+			select column_name
+			from information_schema.columns
+			where table_schema = 'public' and table_name = 'game_species_detail'
+			order by ordinal_position
+			""".trimIndent(),
+		)
+		assertThat(speciesDetailColumns).doesNotContain("evolves_from_species_id", "evolution_chain_id")
+
+		val duplicateSpeciesNodes = queryMaps(
+			"""
+			select species_id, count(*) as node_count
+			from game_evolution_node
+			group by species_id
+			having count(*) <> 1
+			order by species_id
+			""".trimIndent(),
+		)
+		assertThat(duplicateSpeciesNodes).isEmpty()
+
+		val edgesWithoutMatchingDetails = queryMaps(
+			"""
+			select node.chain_id, node.parent_species_id, node.species_id
+			from game_evolution_node node
+			where node.parent_species_id is not null
+				and not exists (
+					select 1
+					from game_evolution_detail detail
+					where detail.chain_id = node.chain_id
+						and detail.from_species_id = node.parent_species_id
+						and detail.to_species_id = node.species_id
+				)
+			order by node.chain_id, node.species_id
+			""".trimIndent(),
+		)
+		assertThat(edgesWithoutMatchingDetails).isEmpty()
+
+		val correctedEdges = queryMaps(
+			"""
+			select species_id, parent_species_id
+			from game_evolution_node
+			where species_id in (490, 809)
+			order by species_id
+			""".trimIndent(),
+		)
+		assertThat(correctedEdges).containsExactly(
+			mapOf("species_id" to 490L, "parent_species_id" to null),
+			mapOf("species_id" to 809L, "parent_species_id" to 808L),
+		)
+	}
+
+	@Test
+	fun `liquibase resolves every enabled creature current profile`() {
+		val inheritanceCycles = queryMaps(
+			"""
+			with recursive inheritance(origin_id, creature_id, path, cycle) as (
+				select id, id, array[id], false
+				from game_creature
+				where enabled = true
+				union all
+				select inheritance.origin_id,
+					parent.id,
+					inheritance.path || parent.id,
+					parent.id = any(inheritance.path)
+				from inheritance
+				join game_creature current_creature on current_creature.id = inheritance.creature_id
+				join game_creature parent on parent.id = current_creature.inherits_from_creature_id
+				where not inheritance.cycle
+			)
+			select origin_id, path
+			from inheritance
+			where cycle
+			order by origin_id
+			""".trimIndent(),
+		)
+		assertThat(inheritanceCycles).isEmpty()
+
+		val incompleteProfiles = queryMaps(
+			"""
+			with recursive ancestry(origin_id, creature_id, depth, path) as (
+				select id, id, 0, array[id]
+				from game_creature
+				where enabled = true
+				union all
+				select ancestry.origin_id,
+					parent.id,
+					ancestry.depth + 1,
+					ancestry.path || parent.id
+				from ancestry
+				join game_creature current_creature on current_creature.id = ancestry.creature_id
+				join game_creature parent on parent.id = current_creature.inherits_from_creature_id
+				where not parent.id = any(ancestry.path)
+			)
+			select creature.id,
+				creature.code,
+				coalesce(stats.relation_count, 0) as stat_count,
+				coalesce(elements.relation_count, 0) as element_count,
+				coalesce(abilities.relation_count, 0) as ability_count,
+				coalesce(learnset.relation_count, 0) as learnset_count
+			from game_creature creature
+			left join lateral (
+				select count(distinct relation.stat_id) as relation_count
+				from ancestry
+				join game_creature_stat relation on relation.creature_id = ancestry.creature_id
+				where ancestry.origin_id = creature.id
+				group by ancestry.depth
+				order by ancestry.depth
+				limit 1
+			) stats on true
+			left join lateral (
+				select count(distinct relation.element_id) as relation_count
+				from ancestry
+				join game_creature_element relation on relation.creature_id = ancestry.creature_id
+				where ancestry.origin_id = creature.id
+				group by ancestry.depth
+				order by ancestry.depth
+				limit 1
+			) elements on true
+			left join lateral (
+				select count(distinct relation.ability_id) as relation_count
+				from ancestry
+				join game_creature_ability relation on relation.creature_id = ancestry.creature_id
+				where ancestry.origin_id = creature.id
+				group by ancestry.depth
+				order by ancestry.depth
+				limit 1
+			) abilities on true
+			left join lateral (
+				select count(distinct relation.skill_id) as relation_count
+				from ancestry
+				join game_creature_skill_learn relation on relation.creature_id = ancestry.creature_id
+				join game_skill skill on skill.id = relation.skill_id and skill.enabled = true
+				where ancestry.origin_id = creature.id
+				group by ancestry.depth
+				order by ancestry.depth
+				limit 1
+			) learnset on true
+			where creature.enabled = true
+				and (
+					coalesce(stats.relation_count, 0) <> 6
+					or coalesce(elements.relation_count, 0) not between 1 and 2
+					or coalesce(abilities.relation_count, 0) < 1
+					or coalesce(learnset.relation_count, 0) < 1
+				)
+			order by creature.id
+			""".trimIndent(),
+		)
+		assertThat(incompleteProfiles).isEmpty()
+
+		val unavailableCreatures = queryMaps(
+			"""
+			select code, enabled
+			from game_creature
+			where code in ('ditto', 'smeargle', 'unown')
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(unavailableCreatures).containsExactly(
+			mapOf("code" to "ditto", "enabled" to false),
+			mapOf("code" to "smeargle", "enabled" to false),
+			mapOf("code" to "unown", "enabled" to false),
+		)
+
+		val placeholderNames = queryMaps(
+			"""
+			select id, code, name
+			from game_creature
+			where name ~ '（形态 [0-9]+）'
+			order by id
+			""".trimIndent(),
+		)
+		assertThat(placeholderNames).isEmpty()
+	}
+
+	@Test
+	fun `liquibase uses current canonical website codes`() {
+		val legacyCodes = queryMaps(
+			"""
+			select 'skill' as resource_type, id, code from game_skill where code = 'vice-grip'
+			union all
+			select 'item', id, code from game_item where code = 'pretty-wing'
+			union all
+			select 'ability', id, code from game_ability where code = 'embody-aspect'
+			order by resource_type, id
+			""".trimIndent(),
+		)
+		assertThat(legacyCodes).isEmpty()
+
+		val embodyAspectCodes = queryStrings(
+			"""
+			select code
+			from game_ability
+			where code like 'embody-aspect-%'
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(embodyAspectCodes).containsExactly(
+			"embody-aspect-cornerstone",
+			"embody-aspect-hearthflame",
+			"embody-aspect-teal",
+			"embody-aspect-wellspring",
+		)
+	}
+
+	@Test
+	fun `battle rules changelog references only current skill codes`() {
+		val changelog = javaClass.getResource("/db/changelog/changes/002-battle-rules.yaml")
+
+		assertThat(changelog).isNotNull()
+		val explicitSkillCodes = explicitBattleRuleSkillCodes(changelog!!.readText())
+		val currentSkillCodes = queryStrings("select code from game_skill").toSet()
+		val missingSkillCodes = explicitSkillCodes - currentSkillCodes
+
+		assertThat(explicitSkillCodes).isNotEmpty()
+		assertThat(missingSkillCodes).isEmpty()
+	}
+
+	@Test
+	fun `liquibase keeps only required executable support outside website lists`() {
+		val battleSupportSkills = queryStrings(
+			"""
+			select code
+			from game_skill
+			where code in ('cut', 'sonic-boom', 'dragon-rage', 'heal-block', 'oblivion-wing', 'natures-madness')
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(battleSupportSkills).containsExactly(
+			"cut",
+			"dragon-rage",
+			"heal-block",
+			"natures-madness",
+			"oblivion-wing",
+			"sonic-boom",
+		)
+
+		val evolutionSupportItems = queryStrings(
+			"""
+			select code
+			from game_item
+			where code in (
+				'deep-sea-tooth',
+				'deep-sea-scale',
+				'whipped-dream',
+				'sachet',
+				'scroll-of-darkness',
+				'scroll-of-waters',
+				'black-augurite',
+				'peat-block'
+			)
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(evolutionSupportItems).containsExactly(
+			"black-augurite",
+			"deep-sea-scale",
+			"deep-sea-tooth",
+			"peat-block",
+			"sachet",
+			"scroll-of-darkness",
+			"scroll-of-waters",
+			"whipped-dream",
+		)
+	}
+
+	@Test
 	fun `liquibase creates game data tables with seed rows`() {
 		val tableNames = queryStrings(
 			"""
@@ -3613,15 +3832,12 @@ class LiquibaseMigrationTests(
 			"game_creature_element",
 			"game_creature_stat",
 			"game_creature_ability",
-			"game_berry",
-			"game_berry_flavor",
 			"game_item_attribute",
 			"game_skill_ailment",
 			"game_growth_rate",
 			"game_region",
 			"game_location_area_encounter",
 			"game_evolution_chain",
-			"game_catalog",
 			"game_creature_form",
 			"game_creature_skill_learn",
 		)
@@ -3635,24 +3851,24 @@ class LiquibaseMigrationTests(
 			union all select 'game_species', count(*) from game_species
 			union all select 'game_creature', count(*) from game_creature
 			union all select 'game_creature_stat', count(*) from game_creature_stat
-			union all select 'game_berry', count(*) from game_berry
 			union all select 'game_region', count(*) from game_region
+			union all select 'game_location', count(*) from game_location
 			union all select 'game_location_area_encounter', count(*) from game_location_area_encounter
 			union all select 'game_creature_skill_learn', count(*) from game_creature_skill_learn
 			order by table_name
 			""".trimIndent(),
 		).associate { it["table_name"] to it["row_count"].toString().toLong() }
 		assertThat(seedCounts).containsEntry("game_element", 21L)
-		assertThat(seedCounts).containsEntry("game_ability", 373L)
-		assertThat(seedCounts).containsEntry("game_skill", 937L)
-		assertThat(seedCounts).containsEntry("game_item", 2176L)
+		assertThat(seedCounts).containsEntry("game_ability", 310L)
+		assertThat(seedCounts).containsEntry("game_skill", 691L)
+		assertThat(seedCounts).containsEntry("game_item", 257L)
 		assertThat(seedCounts).containsEntry("game_species", 1025L)
 		assertThat(seedCounts).containsEntry("game_creature", 1351L)
 		assertThat(seedCounts).containsEntry("game_creature_stat", 8100L)
-		assertThat(seedCounts).containsEntry("game_berry", 64L)
 		assertThat(seedCounts).containsEntry("game_region", 11L)
+		assertThat(seedCounts).containsEntry("game_location", 1008L)
 		assertThat(seedCounts).containsEntry("game_location_area_encounter", 22491L)
-		assertThat(seedCounts).containsEntry("game_creature_skill_learn", 139841L)
+		assertThat(seedCounts).containsEntry("game_creature_skill_learn", 129237L)
 
 		val creatureNames = queryStrings(
 			"""
@@ -3673,15 +3889,6 @@ class LiquibaseMigrationTests(
 			with display_texts(table_name, row_id, display_text) as (
 				select 'game_ability_detail', id, concat_ws(' ', effect, flavor_text, short_effect)
 				from game_ability_detail
-				union all
-				select 'game_advanced_contest_effect', id, flavor_text
-				from game_advanced_contest_effect
-				union all
-				select 'game_catalog', id, description
-				from game_catalog
-				union all
-				select 'game_contest_effect', id, concat_ws(' ', effect, flavor_text)
-				from game_contest_effect
 				union all
 				select 'game_encounter_condition', id, name
 				from game_encounter_condition
@@ -3732,45 +3939,6 @@ class LiquibaseMigrationTests(
 		assertThat(legacyTermTexts)
 			.describedAs("展示给前端的资料文本必须统一使用“精灵”术语")
 			.isEmpty()
-	}
-
-	@Test
-	fun `liquibase game catalog seed data does not keep generated display text`() {
-		// 图鉴目录名称和说明会直接出现在资料维护页；这里只守住本批已经人工校正过的英文词和机翻词。
-		// 内部 code 仍然保留资料源英文标识，所以断言只检查 name 和 description 两个展示字段。
-		val generatedCatalogTexts = queryMaps(
-			"""
-			select id, code, name, description
-			from game_catalog
-			where lower(concat_ws(' ', name, description)) like any (array[
-				'%dex%',
-				'%gold%',
-				'%silver%',
-				'%crystal%',
-				'%johto%',
-				'%hoenn%',
-				'%platinum%',
-				'%diamond%',
-				'%pearl%',
-				'%unova%',
-				'%conquest%',
-				'%gallery%',
-				'%omega ruby%',
-				'%alpha sapphire%',
-				'%ruby%',
-				'%sapphire%',
-				'%emerald%',
-				'%updated%',
-				'%lumiose%'
-			])
-				or name like '%更新了%'
-				or description like '%指数%'
-				or description like '%索引%'
-			order by id
-			""".trimIndent(),
-		)
-
-		assertThat(generatedCatalogTexts).isEmpty()
 	}
 
 	@Test
@@ -5415,6 +5583,42 @@ class LiquibaseMigrationTests(
 		query(sql) { resultSet ->
 			resultSet.getString(1)
 		}
+
+	private fun explicitBattleRuleSkillCodes(changelog: String): Set<String> {
+		val codePattern = "[a-z0-9]+(?:-[a-z0-9]+)*"
+		val quotedCode = Regex("'($codePattern)'")
+		val dotMatchesAll = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+
+		return buildSet {
+			Regex("""\bs\.code\s*=\s*'($codePattern)'""", RegexOption.IGNORE_CASE)
+				.findAll(changelog)
+				.forEach { add(it.groupValues[1]) }
+			Regex("""\bs\.code\s+(?:not\s+)?in\s*\(([^)]*)\)""", dotMatchesAll)
+				.findAll(changelog)
+				.flatMap { quotedCode.findAll(it.groupValues[1]) }
+				.forEach { add(it.groupValues[1]) }
+			Regex("""case\s+s\.code(.*?)\bend\b""", dotMatchesAll)
+				.findAll(changelog)
+				.flatMap {
+					Regex("""when\s+'($codePattern)'""", RegexOption.IGNORE_CASE).findAll(it.groupValues[1])
+				}
+				.forEach { add(it.groupValues[1]) }
+			Regex(
+				"""with\s+\w+\(skill_code\b[^)]*\)\s+as\s*\(\s*values(.*?)\)\s*(?:insert|update)\b""",
+				dotMatchesAll,
+			)
+				.findAll(changelog)
+				.flatMap { Regex("""\(\s*'($codePattern)'""").findAll(it.groupValues[1]) }
+				.forEach { add(it.groupValues[1]) }
+			Regex("""update\s+game_skill(?:\s+\w+)?\s+set\b(.*?)(?:;|$)""", dotMatchesAll)
+				.findAll(changelog)
+				.flatMap {
+					Regex("""where\s+(?:s\.)?code\s*=\s*'($codePattern)'""", RegexOption.IGNORE_CASE)
+						.findAll(it.groupValues[1])
+				}
+				.forEach { add(it.groupValues[1]) }
+		}
+	}
 
 	@Suppress("UNCHECKED_CAST")
 	private fun initialChanges(): List<Map<String, Any?>> {

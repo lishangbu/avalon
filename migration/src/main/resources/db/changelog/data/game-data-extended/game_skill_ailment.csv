@@ -8,14 +8,11 @@ id,code,name,enabled
 6,confusion,混乱,true
 7,infatuation,着迷,true
 8,trap,束缚,true
-9,nightmare,恶梦,true
 12,torment,挑衅折磨,true
 13,disable,定身法,true
 14,yawn,哈欠,true
 15,heal-block,回复封锁,true
-17,no-type-immunity,无属性免疫,true
 18,leech-seed,寄生种子,true
-19,embargo,道具封锁,true
 20,perish-song,灭亡之歌,true
 21,ingrain,扎根,true
 24,silence,沉默,true

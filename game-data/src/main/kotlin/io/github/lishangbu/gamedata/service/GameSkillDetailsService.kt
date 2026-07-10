@@ -9,12 +9,9 @@ import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameSkillDetailsRequest
 import io.github.lishangbu.gamedata.dto.GameSkillDetailsResponse
 import io.github.lishangbu.gamedata.entity.GameSkillDetails
-import io.github.lishangbu.gamedata.entity.advancedContestEffectId
 import io.github.lishangbu.gamedata.entity.ailmentChance
 import io.github.lishangbu.gamedata.entity.ailmentId
 import io.github.lishangbu.gamedata.entity.categoryId
-import io.github.lishangbu.gamedata.entity.contestEffectId
-import io.github.lishangbu.gamedata.entity.contestTypeId
 import io.github.lishangbu.gamedata.entity.critRate
 import io.github.lishangbu.gamedata.entity.drain
 import io.github.lishangbu.gamedata.entity.effect
@@ -76,9 +73,6 @@ class GameSkillDetailsService(
 				"ailment_id" -> gameDataLongFilterValue("ailment_id", rawValue)?.let { where(table.ailmentId eq it) }
 				"category_id" -> gameDataLongFilterValue("category_id", rawValue)?.let { where(table.categoryId eq it) }
 				"target_id" -> gameDataLongFilterValue("target_id", rawValue)?.let { where(table.targetId eq it) }
-				"contest_type_id" -> gameDataLongFilterValue("contest_type_id", rawValue)?.let { where(table.contestTypeId eq it) }
-				"contest_effect_id" -> gameDataLongFilterValue("contest_effect_id", rawValue)?.let { where(table.contestEffectId eq it) }
-				"advanced_contest_effect_id" -> gameDataLongFilterValue("advanced_contest_effect_id", rawValue)?.let { where(table.advancedContestEffectId eq it) }
 				"min_hits" -> gameDataIntFilterValue("min_hits", rawValue)?.let { where(table.minHits eq it) }
 				"max_hits" -> gameDataIntFilterValue("max_hits", rawValue)?.let { where(table.maxHits eq it) }
 				"min_turns" -> gameDataIntFilterValue("min_turns", rawValue)?.let { where(table.minTurns eq it) }
@@ -112,9 +106,6 @@ class GameSkillDetailsService(
 				ailmentId = request.ailmentId
 				categoryId = request.categoryId
 				targetId = request.targetId
-				contestTypeId = request.contestTypeId
-				contestEffectId = request.contestEffectId
-				advancedContestEffectId = request.advancedContestEffectId
 				minHits = request.minHits
 				maxHits = request.maxHits
 				minTurns = request.minTurns
@@ -142,9 +133,6 @@ class GameSkillDetailsService(
 				ailmentId = request.ailmentId
 				categoryId = request.categoryId
 				targetId = request.targetId
-				contestTypeId = request.contestTypeId
-				contestEffectId = request.contestEffectId
-				advancedContestEffectId = request.advancedContestEffectId
 				minHits = request.minHits
 				maxHits = request.maxHits
 				minTurns = request.minTurns
@@ -179,9 +167,6 @@ class GameSkillDetailsService(
 			ailmentId = this@toResponse.ailmentId
 			categoryId = this@toResponse.categoryId
 			targetId = this@toResponse.targetId
-			contestTypeId = this@toResponse.contestTypeId
-			contestEffectId = this@toResponse.contestEffectId
-			advancedContestEffectId = this@toResponse.advancedContestEffectId
 			minHits = this@toResponse.minHits
 			maxHits = this@toResponse.maxHits
 			minTurns = this@toResponse.minTurns

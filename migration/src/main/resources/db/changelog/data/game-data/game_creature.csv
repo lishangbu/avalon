@@ -1,1352 +1,1352 @@
-id,code,name,species_id,height,weight,base_experience,sort_order,default_form,enabled
-1,bulbasaur,妙蛙种子,1,7,69,64,1,true,true
-2,ivysaur,妙蛙草,2,10,130,142,2,true,true
-3,venusaur,妙蛙花,3,20,1000,236,3,true,true
-4,charmander,小火龙,4,6,85,62,5,true,true
-5,charmeleon,火恐龙,5,11,190,142,6,true,true
-6,charizard,喷火龙,6,17,905,240,7,true,true
-7,squirtle,杰尼龟,7,5,90,63,10,true,true
-8,wartortle,卡咪龟,8,10,225,142,11,true,true
-9,blastoise,水箭龟,9,16,855,239,12,true,true
-10,caterpie,绿毛虫,10,3,29,39,14,true,true
-11,metapod,铁甲蛹,11,7,99,72,15,true,true
-12,butterfree,巴大蝶,12,11,320,178,16,true,true
-13,weedle,独角虫,13,3,32,39,17,true,true
-14,kakuna,铁壳蛹,14,6,100,72,18,true,true
-15,beedrill,大针蜂,15,10,295,178,19,true,true
-16,pidgey,波波,16,3,18,50,21,true,true
-17,pidgeotto,比比鸟,17,11,300,122,22,true,true
-18,pidgeot,大比鸟,18,15,395,216,23,true,true
-19,rattata,小拉达,19,3,35,51,25,true,true
-20,raticate,拉达,20,7,185,145,27,true,true
-21,spearow,烈雀,21,3,20,52,30,true,true
-22,fearow,大嘴雀,22,12,380,155,31,true,true
-23,ekans,阿柏蛇,23,20,69,58,32,true,true
-24,arbok,阿柏怪,24,35,650,157,33,true,true
-25,pikachu,皮卡丘,25,4,60,112,35,true,true
-26,raichu,雷丘,26,8,300,218,51,true,true
-27,sandshrew,穿山鼠,27,6,120,60,53,true,true
-28,sandslash,穿山王,28,10,295,158,55,true,true
-29,nidoran-f,尼多兰,29,4,70,55,57,true,true
-30,nidorina,尼多娜,30,8,200,128,58,true,true
-31,nidoqueen,尼多后,31,13,600,227,59,true,true
-32,nidoran-m,尼多朗,32,5,90,55,60,true,true
-33,nidorino,尼多力诺,33,9,195,128,61,true,true
-34,nidoking,尼多王,34,14,620,227,62,true,true
-35,clefairy,皮皮,35,6,75,113,64,true,true
-36,clefable,皮可西,36,13,400,217,65,true,true
-37,vulpix,六尾,37,6,99,60,66,true,true
-38,ninetales,九尾,38,11,199,177,68,true,true
-39,jigglypuff,胖丁,39,5,55,95,71,true,true
-40,wigglytuff,胖可丁,40,10,120,196,72,true,true
-41,zubat,超音蝠,41,8,75,49,73,true,true
-42,golbat,大嘴蝠,42,16,550,159,74,true,true
-43,oddish,走路草,43,5,54,64,76,true,true
-44,gloom,臭臭花,44,8,86,138,77,true,true
-45,vileplume,霸王花,45,12,186,221,78,true,true
-46,paras,派拉斯,46,3,54,57,80,true,true
-47,parasect,派拉斯特,47,10,295,142,81,true,true
-48,venonat,毛球,48,10,300,61,82,true,true
-49,venomoth,摩鲁蛾,49,15,125,158,83,true,true
-50,diglett,地鼠,50,2,8,53,84,true,true
-51,dugtrio,三地鼠,51,7,333,149,86,true,true
-52,meowth,喵喵,52,4,42,58,88,true,true
-53,persian,猫老大,53,10,320,154,91,true,true
-54,psyduck,可达鸭,54,8,196,64,93,true,true
-55,golduck,哥达鸭,55,17,766,175,94,true,true
-56,mankey,猴怪,56,5,280,61,95,true,true
-57,primeape,火暴猴,57,10,320,159,96,true,true
-58,growlithe,卡蒂狗,58,7,190,70,97,true,true
-59,arcanine,风速狗,59,19,1550,194,98,true,true
-60,poliwag,蚊香蝌蚪,60,6,124,60,99,true,true
-61,poliwhirl,蚊香君,61,10,200,135,100,true,true
-62,poliwrath,蚊香泳士,62,13,540,230,101,true,true
-63,abra,凯西,63,9,195,62,103,true,true
-64,kadabra,勇基拉,64,13,565,140,104,true,true
-65,alakazam,胡地,65,15,480,225,105,true,true
-66,machop,腕力,66,8,195,61,107,true,true
-67,machoke,豪力,67,15,705,142,108,true,true
-68,machamp,怪力,68,16,1300,227,109,true,true
-69,bellsprout,喇叭芽,69,7,40,60,110,true,true
-70,weepinbell,口呆花,70,10,64,137,111,true,true
-71,victreebel,大食花,71,17,155,221,112,true,true
-72,tentacool,玛瑙水母,72,9,455,67,113,true,true
-73,tentacruel,毒刺水母,73,16,550,180,114,true,true
-74,geodude,小拳石,74,4,200,60,115,true,true
-75,graveler,隆隆石,75,10,1050,137,117,true,true
-76,golem,隆隆岩,76,14,3000,223,119,true,true
-77,ponyta,小火马,77,10,300,82,121,true,true
-78,rapidash,烈焰马,78,17,950,175,123,true,true
-79,slowpoke,呆呆兽,79,12,360,63,125,true,true
-80,slowbro,呆壳兽,80,16,785,172,127,true,true
-81,magnemite,小磁怪,81,3,60,65,132,true,true
-82,magneton,三合一磁怪,82,10,600,163,133,true,true
-83,farfetchd,大葱鸭,83,8,150,132,135,true,true
-84,doduo,嘟嘟,84,14,392,62,137,true,true
-85,dodrio,嘟嘟利,85,18,852,165,138,true,true
-86,seel,小海狮,86,11,900,65,139,true,true
-87,dewgong,白海狮,87,17,1200,166,140,true,true
-88,grimer,臭泥,88,9,300,65,141,true,true
-89,muk,臭臭泥,89,12,300,175,143,true,true
-90,shellder,大舌贝,90,3,40,61,145,true,true
-91,cloyster,刺甲贝,91,15,1325,184,146,true,true
-92,gastly,鬼斯,92,13,1,62,147,true,true
-93,haunter,鬼斯通,93,16,1,142,148,true,true
-94,gengar,耿鬼,94,15,405,225,149,true,true
-95,onix,大岩蛇,95,88,2100,77,151,true,true
-96,drowzee,催眠貘,96,10,324,66,154,true,true
-97,hypno,引梦貘人,97,16,756,169,155,true,true
-98,krabby,大钳蟹,98,4,65,65,156,true,true
-99,kingler,巨钳蟹,99,13,600,166,157,true,true
-100,voltorb,霹雳电球,100,5,104,66,158,true,true
-101,electrode,顽皮雷弹,101,12,666,172,159,true,true
-102,exeggcute,蛋蛋,102,4,25,65,160,true,true
-103,exeggutor,椰蛋树,103,20,1200,186,161,true,true
-104,cubone,卡拉卡拉,104,4,65,64,163,true,true
-105,marowak,嘎啦嘎啦,105,10,450,149,164,true,true
-106,hitmonlee,飞腿郎,106,15,498,159,168,true,true
-107,hitmonchan,快拳郎,107,14,502,159,169,true,true
-108,lickitung,大舌头,108,12,655,77,171,true,true
-109,koffing,瓦斯弹,109,6,10,68,173,true,true
-110,weezing,双弹瓦斯,110,12,95,172,174,true,true
-111,rhyhorn,独角犀牛,111,10,1150,69,176,true,true
-112,rhydon,钻角犀兽,112,19,1200,170,177,true,true
-113,chansey,吉利蛋,113,11,346,395,180,true,true
-114,tangela,蔓藤怪,114,10,350,87,182,true,true
-115,kangaskhan,袋兽,115,22,800,172,184,true,true
-116,horsea,墨海马,116,4,80,59,186,true,true
-117,seadra,海刺龙,117,12,250,154,187,true,true
-118,goldeen,角金鱼,118,6,150,64,189,true,true
-119,seaking,金鱼王,119,13,390,158,190,true,true
-120,staryu,海星星,120,8,345,68,191,true,true
-121,starmie,宝石海星,121,11,800,182,192,true,true
-122,mr-mime,魔墙人偶,122,13,545,161,194,true,true
-123,scyther,飞天螳螂,123,15,560,100,196,true,true
-124,jynx,迷唇姐,124,14,406,159,200,true,true
-125,electabuzz,电击兽,125,11,300,172,202,true,true
-126,magmar,鸭嘴火兽,126,13,445,173,205,true,true
-127,pinsir,凯罗斯,127,15,550,175,207,true,true
-128,tauros,肯泰罗,128,14,884,172,209,true,true
-129,magikarp,鲤鱼王,129,9,100,40,210,true,true
-130,gyarados,暴鲤龙,130,65,2350,189,211,true,true
-131,lapras,拉普拉斯,131,25,2200,187,213,true,true
-132,ditto,百变怪,132,3,40,101,214,true,true
-133,eevee,伊布,133,3,65,65,215,true,true
-134,vaporeon,水伊布,134,10,290,184,217,true,true
-135,jolteon,雷伊布,135,8,245,184,218,true,true
-136,flareon,火伊布,136,9,250,184,219,true,true
-137,porygon,多边兽,137,8,365,79,225,true,true
-138,omanyte,菊石兽,138,4,75,71,228,true,true
-139,omastar,多刺菊石兽,139,10,350,173,229,true,true
-140,kabuto,化石盔,140,5,115,71,230,true,true
-141,kabutops,镰刀盔,141,13,405,173,231,true,true
-142,aerodactyl,化石翼龙,142,18,590,180,232,true,true
-143,snorlax,卡比兽,143,21,4600,189,235,true,true
-144,articuno,急冻鸟,144,17,554,261,236,true,true
-145,zapdos,闪电鸟,145,16,526,261,238,true,true
-146,moltres,火焰鸟,146,20,600,261,240,true,true
-147,dratini,迷你龙,147,18,33,60,242,true,true
-148,dragonair,哈克龙,148,40,165,147,243,true,true
-149,dragonite,快龙,149,22,2100,270,244,true,true
-150,mewtwo,超梦,150,20,1220,306,245,true,true
-151,mew,梦幻,151,4,40,270,248,true,true
-152,chikorita,菊草叶,152,9,64,64,249,true,true
-153,bayleef,月桂叶,153,12,158,142,250,true,true
-154,meganium,大竺葵,154,18,1005,236,251,true,true
-155,cyndaquil,火球鼠,155,5,79,62,252,true,true
-156,quilava,火岩鼠,156,9,190,142,253,true,true
-157,typhlosion,火暴兽,157,17,795,240,254,true,true
-158,totodile,小锯鳄,158,6,95,63,255,true,true
-159,croconaw,蓝鳄,159,11,250,142,256,true,true
-160,feraligatr,大力鳄,160,23,888,239,257,true,true
-161,sentret,尾立,161,8,60,43,258,true,true
-162,furret,大尾立,162,18,325,145,259,true,true
-163,hoothoot,咕咕,163,7,212,52,260,true,true
-164,noctowl,猫头夜鹰,164,16,408,158,261,true,true
-165,ledyba,芭瓢虫,165,10,108,53,262,true,true
-166,ledian,安瓢虫,166,14,356,137,263,true,true
-167,spinarak,圆丝蛛,167,5,85,50,264,true,true
-168,ariados,阿利多斯,168,11,335,140,265,true,true
-169,crobat,叉字蝠,169,18,750,241,75,true,true
-170,chinchou,灯笼鱼,170,5,120,66,266,true,true
-171,lanturn,电灯怪,171,12,225,161,267,true,true
-172,pichu,皮丘,172,3,20,41,34,true,true
-173,cleffa,皮宝宝,173,3,30,44,63,true,true
-174,igglybuff,宝宝丁,174,3,10,42,70,true,true
-175,togepi,波克比,175,3,15,49,268,true,true
-176,togetic,波克基古,176,6,32,142,269,true,true
-177,natu,天然雀,177,2,20,64,271,true,true
-178,xatu,天然鸟,178,15,150,165,272,true,true
-179,mareep,咩利羊,179,6,78,56,273,true,true
-180,flaaffy,茸茸羊,180,8,133,128,274,true,true
-181,ampharos,电龙,181,14,615,230,275,true,true
-182,bellossom,美丽花,182,4,58,221,79,true,true
-183,marill,玛力露,183,4,85,88,278,true,true
-184,azumarill,玛力露丽,184,8,285,189,279,true,true
-185,sudowoodo,树才怪,185,12,380,144,281,true,true
-186,politoed,蚊香蛙皇,186,11,339,225,102,true,true
-187,hoppip,毽子草,187,4,5,50,282,true,true
-188,skiploom,毽子花,188,6,10,119,283,true,true
-189,jumpluff,毽子棉,189,8,30,207,284,true,true
-190,aipom,长尾怪手,190,8,115,72,285,true,true
-191,sunkern,向日种子,191,3,18,36,287,true,true
-192,sunflora,向日花怪,192,8,85,149,288,true,true
-193,yanma,蜻蜻蜓,193,12,380,78,289,true,true
-194,wooper,乌波,194,4,85,42,291,true,true
-195,quagsire,沼王,195,14,750,151,292,true,true
-196,espeon,太阳伊布,196,9,265,184,220,true,true
-197,umbreon,月亮伊布,197,10,270,184,221,true,true
-198,murkrow,黑暗鸦,198,5,21,81,293,true,true
-199,slowking,呆呆王,199,20,795,172,130,true,true
-200,misdreavus,梦妖,200,7,10,87,295,true,true
-201,unown,未知图腾,201,5,50,118,297,true,true
-202,wobbuffet,果然翁,202,13,285,142,299,true,true
-203,girafarig,麒麟奇,203,15,415,159,300,true,true
-204,pineco,榛果球,204,6,72,58,301,true,true
-205,forretress,佛烈托斯,205,12,1258,163,302,true,true
-206,dunsparce,土龙弟弟,206,15,140,145,303,true,true
-207,gligar,天蝎,207,11,648,86,304,true,true
-208,steelix,大钢蛇,208,92,4000,179,152,true,true
-209,snubbull,布鲁,209,6,78,60,306,true,true
-210,granbull,布鲁皇,210,14,487,158,307,true,true
-211,qwilfish,千针鱼,211,5,39,88,308,true,true
-212,scizor,巨钳螳螂,212,18,1180,175,197,true,true
-213,shuckle,壶壶,213,6,205,177,309,true,true
-214,heracross,赫拉克罗斯,214,15,540,175,310,true,true
-215,sneasel,狃拉,215,9,280,86,312,true,true
-216,teddiursa,熊宝宝,216,6,88,66,314,true,true
-217,ursaring,圈圈熊,217,18,1258,175,315,true,true
-218,slugma,熔岩虫,218,7,350,50,316,true,true
-219,magcargo,熔岩蜗牛,219,8,550,151,317,true,true
-220,swinub,小山猪,220,4,65,50,318,true,true
-221,piloswine,长毛猪,221,11,558,158,319,true,true
-222,corsola,太阳珊瑚,222,6,50,144,321,true,true
-223,remoraid,铁炮鱼,223,6,120,60,323,true,true
-224,octillery,章鱼桶,224,9,285,168,324,true,true
-225,delibird,信使鸟,225,9,160,116,325,true,true
-226,mantine,巨翅飞鱼,226,21,2200,170,327,true,true
-227,skarmory,盔甲鸟,227,17,505,163,328,true,true
-228,houndour,戴鲁比,228,6,108,66,329,true,true
-229,houndoom,黑鲁加,229,14,350,175,330,true,true
-230,kingdra,刺龙王,230,18,1520,243,188,true,true
-231,phanpy,小小象,231,5,335,66,332,true,true
-232,donphan,顿甲,232,11,1200,175,333,true,true
-233,porygon2,多边兽２型,233,6,325,180,226,true,true
-234,stantler,惊角鹿,234,14,712,163,334,true,true
-235,smeargle,图图犬,235,12,580,88,335,true,true
-236,tyrogue,无畏小子,236,7,210,42,167,true,true
-237,hitmontop,战舞郎,237,14,480,159,170,true,true
-238,smoochum,迷唇娃,238,4,60,61,199,true,true
-239,elekid,电击怪,239,6,235,72,201,true,true
-240,magby,鸭嘴宝宝,240,7,214,73,204,true,true
-241,miltank,大奶罐,241,12,755,172,336,true,true
-242,blissey,幸福蛋,242,15,468,608,181,true,true
-243,raikou,雷公,243,19,1780,261,337,true,true
-244,entei,炎帝,244,21,1980,261,338,true,true
-245,suicune,水君,245,20,1870,261,339,true,true
-246,larvitar,幼基拉斯,246,6,720,60,340,true,true
-247,pupitar,沙基拉斯,247,12,1520,144,341,true,true
-248,tyranitar,班基拉斯,248,20,2020,270,342,true,true
-249,lugia,洛奇亚,249,52,2160,306,344,true,true
-250,ho-oh,凤王,250,38,1990,306,345,true,true
-251,celebi,时拉比,251,6,50,270,346,true,true
-252,treecko,木守宫,252,5,50,62,347,true,true
-253,grovyle,森林蜥蜴,253,9,216,142,348,true,true
-254,sceptile,蜥蜴王,254,17,522,239,349,true,true
-255,torchic,火稚鸡,255,4,25,62,351,true,true
-256,combusken,力壮鸡,256,9,195,142,352,true,true
-257,blaziken,火焰鸡,257,19,520,239,353,true,true
-258,mudkip,水跃鱼,258,4,76,62,355,true,true
-259,marshtomp,沼跃鱼,259,7,280,142,356,true,true
-260,swampert,巨沼怪,260,15,819,241,357,true,true
-261,poochyena,土狼犬,261,5,136,56,359,true,true
-262,mightyena,大狼犬,262,10,370,147,360,true,true
-263,zigzagoon,蛇纹熊,263,4,175,56,361,true,true
-264,linoone,直冲熊,264,5,325,147,363,true,true
-265,wurmple,刺尾虫,265,3,36,56,365,true,true
-266,silcoon,甲壳茧,266,6,100,72,366,true,true
-267,beautifly,狩猎凤蝶,267,10,284,178,367,true,true
-268,cascoon,盾甲茧,268,7,115,72,368,true,true
-269,dustox,毒粉蛾,269,12,316,173,369,true,true
-270,lotad,莲叶童子,270,5,26,44,370,true,true
-271,lombre,莲帽小童,271,12,325,119,371,true,true
-272,ludicolo,乐天河童,272,15,550,216,372,true,true
-273,seedot,橡实果,273,5,40,44,373,true,true
-274,nuzleaf,长鼻叶,274,10,280,119,374,true,true
-275,shiftry,狡猾天狗,275,13,596,216,375,true,true
-276,taillow,傲骨燕,276,3,23,54,376,true,true
-277,swellow,大王燕,277,7,198,159,377,true,true
-278,wingull,长翅鸥,278,6,95,54,378,true,true
-279,pelipper,大嘴鸥,279,12,280,154,379,true,true
-280,ralts,拉鲁拉丝,280,4,66,40,380,true,true
-281,kirlia,奇鲁莉安,281,8,202,97,381,true,true
-282,gardevoir,沙奈朵,282,16,484,233,382,true,true
-283,surskit,溜溜糖球,283,5,17,54,386,true,true
-284,masquerain,雨翅蛾,284,8,36,159,387,true,true
-285,shroomish,蘑蘑菇,285,4,45,59,388,true,true
-286,breloom,斗笠菇,286,12,392,161,389,true,true
-287,slakoth,懒人獭,287,8,240,56,390,true,true
-288,vigoroth,过动猿,288,14,465,154,391,true,true
-289,slaking,请假王,289,20,1305,252,392,true,true
-290,nincada,土居忍士,290,5,55,53,393,true,true
-291,ninjask,铁面忍者,291,8,120,160,394,true,true
-292,shedinja,脱壳忍者,292,8,12,83,395,true,true
-293,whismur,咕妞妞,293,6,163,48,396,true,true
-294,loudred,吼爆弹,294,10,405,126,397,true,true
-295,exploud,爆音怪,295,15,840,221,398,true,true
-296,makuhita,幕下力士,296,10,864,47,399,true,true
-297,hariyama,铁掌力士,297,23,2538,166,400,true,true
-298,azurill,露力丽,298,2,20,38,277,true,true
-299,nosepass,朝北鼻,299,10,970,75,401,true,true
-300,skitty,向尾喵,300,6,110,52,403,true,true
-301,delcatty,优雅猫,301,11,326,140,404,true,true
-302,sableye,勾魂眼,302,5,110,133,405,true,true
-303,mawile,大嘴娃,303,6,115,133,407,true,true
-304,aron,可可多拉,304,4,600,66,409,true,true
-305,lairon,可多拉,305,9,1200,151,410,true,true
-306,aggron,波士可多拉,306,21,3600,239,411,true,true
-307,meditite,玛沙那,307,6,112,56,413,true,true
-308,medicham,恰雷姆,308,13,315,144,414,true,true
-309,electrike,落雷兽,309,6,152,59,416,true,true
-310,manectric,雷电兽,310,15,402,166,417,true,true
-311,plusle,正电拍拍,311,4,42,142,419,true,true
-312,minun,負电拍拍,312,4,42,142,420,true,true
-313,volbeat,电萤虫,313,7,177,151,421,true,true
-314,illumise,甜甜萤,314,6,177,151,422,true,true
-315,roselia,毒蔷薇,315,3,20,140,424,true,true
-316,gulpin,溶食兽,316,4,103,60,426,true,true
-317,swalot,吞食兽,317,17,800,163,427,true,true
-318,carvanha,利牙鱼,318,8,208,61,428,true,true
-319,sharpedo,巨牙鲨,319,18,888,161,429,true,true
-320,wailmer,吼吼鲸,320,20,1300,80,431,true,true
-321,wailord,吼鲸王,321,145,3980,175,432,true,true
-322,numel,呆火驼,322,7,240,61,433,true,true
-323,camerupt,喷火驼,323,19,2200,161,434,true,true
-324,torkoal,煤炭龟,324,5,804,165,436,true,true
-325,spoink,跳跳猪,325,7,306,66,437,true,true
-326,grumpig,噗噗猪,326,9,715,165,438,true,true
-327,spinda,晃晃斑,327,11,50,126,439,true,true
-328,trapinch,大颚蚁,328,7,150,58,440,true,true
-329,vibrava,超音波幼虫,329,11,153,119,441,true,true
-330,flygon,沙漠蜻蜓,330,20,820,234,442,true,true
-331,cacnea,刺球仙人掌,331,4,513,67,443,true,true
-332,cacturne,梦歌仙人掌,332,13,774,166,444,true,true
-333,swablu,青绵鸟,333,4,12,62,445,true,true
-334,altaria,七夕青鸟,334,11,206,172,446,true,true
-335,zangoose,猫鼬斩,335,13,403,160,448,true,true
-336,seviper,饭匙蛇,336,27,525,160,449,true,true
-337,lunatone,月石,337,10,1680,161,450,true,true
-338,solrock,太阳岩,338,12,1540,161,451,true,true
-339,barboach,泥泥鳅,339,4,19,58,452,true,true
-340,whiscash,鲶鱼王,340,9,236,164,453,true,true
-341,corphish,龙虾小兵,341,6,115,62,454,true,true
-342,crawdaunt,铁螯龙虾,342,11,328,164,455,true,true
-343,baltoy,天秤偶,343,5,215,60,456,true,true
-344,claydol,念力土偶,344,15,1080,175,457,true,true
-345,lileep,触手百合,345,10,238,71,458,true,true
-346,cradily,摇篮百合,346,15,604,173,459,true,true
-347,anorith,太古羽虫,347,7,125,71,460,true,true
-348,armaldo,太古盔甲,348,15,682,173,461,true,true
-349,feebas,丑丑鱼,349,6,74,40,462,true,true
-350,milotic,美纳斯,350,62,1620,189,463,true,true
-351,castform,飘浮泡泡,351,3,8,147,464,true,true
-352,kecleon,变隐龙,352,10,220,154,468,true,true
-353,shuppet,怨影娃娃,353,6,23,59,469,true,true
-354,banette,诅咒娃娃,354,11,125,159,470,true,true
-355,duskull,夜巡灵,355,8,150,59,472,true,true
-356,dusclops,彷徨夜灵,356,16,306,159,473,true,true
-357,tropius,热带龙,357,20,1000,161,475,true,true
-358,chimecho,风铃铃,358,6,10,159,477,true,true
-359,absol,阿勃梭鲁,359,12,470,163,478,true,true
-360,wynaut,小果然,360,6,140,52,298,true,true
-361,snorunt,雪童子,361,7,168,60,480,true,true
-362,glalie,冰鬼护,362,15,2565,168,481,true,true
-363,spheal,海豹球,363,8,395,58,484,true,true
-364,sealeo,海魔狮,364,11,876,144,485,true,true
-365,walrein,帝牙海狮,365,14,1506,239,486,true,true
-366,clamperl,珍珠贝,366,4,525,69,487,true,true
-367,huntail,猎斑鱼,367,17,270,170,488,true,true
-368,gorebyss,樱花鱼,368,18,226,170,489,true,true
-369,relicanth,古空棘鱼,369,10,234,170,490,true,true
-370,luvdisc,爱心鱼,370,6,87,116,491,true,true
-371,bagon,宝贝龙,371,6,421,60,492,true,true
-372,shelgon,甲壳龙,372,11,1105,147,493,true,true
-373,salamence,暴飞龙,373,15,1026,270,494,true,true
-374,beldum,铁哑铃,374,6,952,60,496,true,true
-375,metang,金属怪,375,12,2025,147,497,true,true
-376,metagross,巨金怪,376,16,5500,270,498,true,true
-377,regirock,雷吉洛克,377,17,2300,261,500,true,true
-378,regice,雷吉艾斯,378,18,1750,261,501,true,true
-379,registeel,雷吉斯奇鲁,379,19,2050,261,502,true,true
-380,latias,拉帝亚斯,380,14,400,270,503,true,true
-381,latios,拉帝欧斯,381,20,600,270,505,true,true
-382,kyogre,盖欧卡,382,45,3520,302,507,true,true
-383,groudon,固拉多,383,35,9500,302,509,true,true
-384,rayquaza,烈空坐,384,70,2065,306,511,true,true
-385,jirachi,基拉祈,385,3,11,270,513,true,true
-386,deoxys-normal,代欧奇希斯,386,17,608,270,514,true,true
-387,turtwig,草苗龟,387,4,102,64,518,true,true
-388,grotle,树林龟,388,11,970,142,519,true,true
-389,torterra,土台龟,389,22,3100,236,520,true,true
-390,chimchar,小火焰猴,390,5,62,62,521,true,true
-391,monferno,猛火猴,391,9,220,142,522,true,true
-392,infernape,烈焰猴,392,12,550,240,523,true,true
-393,piplup,波加曼,393,4,52,63,524,true,true
-394,prinplup,波皇子,394,8,230,142,525,true,true
-395,empoleon,帝王拿波,395,17,845,239,526,true,true
-396,starly,姆克儿,396,3,20,49,527,true,true
-397,staravia,姆克鸟,397,6,155,119,528,true,true
-398,staraptor,姆克鹰,398,12,249,218,529,true,true
-399,bidoof,大牙狸,399,5,200,50,530,true,true
-400,bibarel,大尾狸,400,10,315,144,531,true,true
-401,kricketot,圆法师,401,3,22,39,532,true,true
-402,kricketune,音箱蟀,402,10,255,134,533,true,true
-403,shinx,小猫怪,403,5,95,53,534,true,true
-404,luxio,勒克猫,404,9,305,127,535,true,true
-405,luxray,伦琴猫,405,14,420,235,536,true,true
-406,budew,含羞苞,406,2,12,56,423,true,true
-407,roserade,罗丝雷朵,407,9,145,232,425,true,true
-408,cranidos,头盖龙,408,9,315,70,537,true,true
-409,rampardos,战槌龙,409,16,1025,173,538,true,true
-410,shieldon,盾甲龙,410,5,570,70,539,true,true
-411,bastiodon,护城龙,411,13,1495,173,540,true,true
-412,burmy,结草儿,412,2,34,45,541,true,true
-413,wormadam-plant,结草贵妇,413,5,65,148,542,true,true
-414,mothim,绅士蛾,414,9,233,148,545,true,true
-415,combee,三蜜蜂,415,3,55,49,546,true,true
-416,vespiquen,蜂女王,416,12,385,166,547,true,true
-417,pachirisu,帕奇利兹,417,4,39,142,548,true,true
-418,buizel,泳圈鼬,418,7,295,66,549,true,true
-419,floatzel,浮潜鼬,419,11,335,173,550,true,true
-420,cherubi,樱花宝,420,4,33,55,551,true,true
-421,cherrim,樱花儿,421,5,93,158,552,true,true
-422,shellos,无壳海兔,422,3,63,65,553,true,true
-423,gastrodon,海兔兽,423,9,299,166,554,true,true
-424,ambipom,双尾怪手,424,12,203,169,286,true,true
-425,drifloon,飘飘球,425,4,12,70,555,true,true
-426,drifblim,随风球,426,12,150,174,556,true,true
-427,buneary,卷卷耳,427,4,55,70,557,true,true
-428,lopunny,长耳兔,428,12,333,168,558,true,true
-429,mismagius,梦妖魔,429,9,44,173,296,true,true
-430,honchkrow,乌鸦头头,430,9,273,177,294,true,true
-431,glameow,魅力喵,431,5,39,62,560,true,true
-432,purugly,东施喵,432,10,438,158,561,true,true
-433,chingling,铃铛响,433,2,6,57,476,true,true
-434,stunky,臭鼬噗,434,4,192,66,562,true,true
-435,skuntank,坦克臭鼬,435,10,380,168,563,true,true
-436,bronzor,铜镜怪,436,5,605,60,564,true,true
-437,bronzong,青铜钟,437,13,1870,175,565,true,true
-438,bonsly,盆才怪,438,5,150,58,280,true,true
-439,mime-jr,魔尼尼,439,6,130,62,193,true,true
-440,happiny,小福蛋,440,6,244,110,179,true,true
-441,chatot,聒噪鸟,441,5,19,144,566,true,true
-442,spiritomb,花岩怪,442,10,1080,170,567,true,true
-443,gible,圆陆鲨,443,7,205,60,568,true,true
-444,gabite,尖牙陆鲨,444,14,560,144,569,true,true
-445,garchomp,烈咬陆鲨,445,19,950,270,570,true,true
-446,munchlax,小卡比兽,446,6,1050,78,234,true,true
-447,riolu,利欧路,447,7,202,57,572,true,true
-448,lucario,路卡利欧,448,12,540,184,573,true,true
-449,hippopotas,沙河马,449,8,495,66,575,true,true
-450,hippowdon,河马兽,450,20,3000,184,576,true,true
-451,skorupi,钳尾蝎,451,8,120,66,577,true,true
-452,drapion,龙王蝎,452,13,615,175,578,true,true
-453,croagunk,不良蛙,453,7,230,60,579,true,true
-454,toxicroak,毒骷蛙,454,13,444,172,580,true,true
-455,carnivine,尖牙笼,455,14,270,159,581,true,true
-456,finneon,荧光鱼,456,4,70,66,582,true,true
-457,lumineon,霓虹鱼,457,12,240,161,583,true,true
-458,mantyke,小球飞鱼,458,10,650,69,326,true,true
-459,snover,雪笠怪,459,10,505,67,584,true,true
-460,abomasnow,暴雪王,460,22,1355,173,585,true,true
-461,weavile,玛狃拉,461,11,340,179,313,true,true
-462,magnezone,自爆磁怪,462,12,1800,241,134,true,true
-463,lickilicky,大舌舔,463,17,1400,180,172,true,true
-464,rhyperior,超甲狂犀,464,24,2828,241,178,true,true
-465,tangrowth,巨蔓藤,465,20,1286,187,183,true,true
-466,electivire,电击魔兽,466,18,1386,243,203,true,true
-467,magmortar,鸭嘴炎兽,467,16,680,243,206,true,true
-468,togekiss,波克基斯,468,15,380,245,270,true,true
-469,yanmega,远古巨蜓,469,19,515,180,290,true,true
-470,leafeon,叶伊布,470,10,255,184,222,true,true
-471,glaceon,冰伊布,471,8,259,184,223,true,true
-472,gliscor,天蝎王,472,20,425,179,305,true,true
-473,mamoswine,象牙猪,473,25,2910,239,320,true,true
-474,porygon-z,多边兽乙型,474,9,340,241,227,true,true
-475,gallade,艾路雷朵,475,16,520,233,384,true,true
-476,probopass,大朝北鼻,476,14,3400,184,402,true,true
-477,dusknoir,黑夜魔灵,477,22,1066,236,474,true,true
-478,froslass,雪妖女,478,13,266,168,483,true,true
-479,rotom,洛托姆,479,3,3,154,587,true,true
-480,uxie,由克希,480,3,3,261,593,true,true
-481,mesprit,艾姆利多,481,3,3,261,594,true,true
-482,azelf,亚克诺姆,482,3,3,261,595,true,true
-483,dialga,帝牙卢卡,483,54,6830,306,596,true,true
-484,palkia,帕路奇亚,484,42,3360,306,597,true,true
-485,heatran,席多蓝恩,485,17,4300,270,598,true,true
-486,regigigas,雷吉奇卡斯,486,37,4200,302,599,true,true
-487,giratina-altered,骑拉帝纳,487,45,7500,306,600,true,true
-488,cresselia,克雷色利亚,488,15,856,270,602,true,true
-489,phione,霏欧纳,489,4,31,216,603,true,true
-490,manaphy,玛纳霏,490,3,14,270,604,true,true
-491,darkrai,达克莱伊,491,15,505,270,605,true,true
-492,shaymin-land,谢米,492,2,21,270,606,true,true
-493,arceus,阿尔宙斯,493,32,3200,324,608,true,true
-494,victini,比克提尼,494,4,40,270,609,true,true
-495,snivy,藤藤蛇,495,6,81,62,610,true,true
-496,servine,青藤蛇,496,8,160,145,611,true,true
-497,serperior,君主蛇,497,33,630,238,612,true,true
-498,tepig,暖暖猪,498,5,99,62,613,true,true
-499,pignite,炒炒猪,499,10,555,146,614,true,true
-500,emboar,炎武王,500,16,1500,238,615,true,true
-501,oshawott,水水獭,501,5,59,62,616,true,true
-502,dewott,双刃丸,502,8,245,145,617,true,true
-503,samurott,大剑鬼,503,15,946,238,618,true,true
-504,patrat,探探鼠,504,5,116,51,619,true,true
-505,watchog,步哨鼠,505,11,270,147,620,true,true
-506,lillipup,小约克,506,4,41,55,621,true,true
-507,herdier,哈约克,507,9,147,130,622,true,true
-508,stoutland,长毛狗,508,12,610,225,623,true,true
-509,purrloin,扒手猫,509,4,101,56,624,true,true
-510,liepard,酷豹,510,11,375,156,625,true,true
-511,pansage,花椰猴,511,6,105,63,626,true,true
-512,simisage,花椰猿,512,11,305,174,627,true,true
-513,pansear,爆香猴,513,6,110,63,628,true,true
-514,simisear,爆香猿,514,10,280,174,629,true,true
-515,panpour,冷水猴,515,6,135,63,630,true,true
-516,simipour,冷水猿,516,10,290,174,631,true,true
-517,munna,食梦梦,517,6,233,58,632,true,true
-518,musharna,梦梦蚀,518,11,605,170,633,true,true
-519,pidove,豆豆鸽,519,3,21,53,634,true,true
-520,tranquill,咕咕鸽,520,6,150,125,635,true,true
-521,unfezant,高傲雉鸡,521,12,290,220,636,true,true
-522,blitzle,斑斑马,522,8,298,59,637,true,true
-523,zebstrika,雷电斑马,523,16,795,174,638,true,true
-524,roggenrola,石丸子,524,4,180,56,639,true,true
-525,boldore,地幔岩,525,9,1020,137,640,true,true
-526,gigalith,庞岩怪,526,17,2600,232,641,true,true
-527,woobat,滚滚蝙蝠,527,4,21,65,642,true,true
-528,swoobat,心蝙蝠,528,9,105,149,643,true,true
-529,drilbur,螺钉地鼠,529,3,85,66,644,true,true
-530,excadrill,龙头地鼠,530,7,404,178,645,true,true
-531,audino,差不多娃娃,531,11,310,390,646,true,true
-532,timburr,搬运小匠,532,6,125,61,648,true,true
-533,gurdurr,铁骨土人,533,12,400,142,649,true,true
-534,conkeldurr,修建老匠,534,14,870,227,650,true,true
-535,tympole,圆蝌蚪,535,5,45,59,651,true,true
-536,palpitoad,蓝蟾蜍,536,8,170,134,652,true,true
-537,seismitoad,蟾蜍王,537,15,620,229,653,true,true
-538,throh,投摔鬼,538,13,555,163,654,true,true
-539,sawk,打击鬼,539,14,510,163,655,true,true
-540,sewaddle,虫宝包,540,3,25,62,656,true,true
-541,swadloon,宝包茧,541,5,73,133,657,true,true
-542,leavanny,保姆虫,542,12,205,225,658,true,true
-543,venipede,百足蜈蚣,543,4,53,52,659,true,true
-544,whirlipede,车轮球,544,12,585,126,660,true,true
-545,scolipede,蜈蚣王,545,25,2005,218,661,true,true
-546,cottonee,木棉球,546,3,6,56,662,true,true
-547,whimsicott,风妖精,547,7,66,168,663,true,true
-548,petilil,百合根娃娃,548,5,66,56,664,true,true
-549,lilligant,裙儿小姐,549,11,163,168,665,true,true
-550,basculin-red-striped,野蛮鲈鱼,550,10,180,161,666,true,true
-551,sandile,黑眼鳄,551,7,152,58,668,true,true
-552,krokorok,混混鳄,552,10,334,123,669,true,true
-553,krookodile,流氓鳄,553,15,963,234,670,true,true
-554,darumaka,火红不倒翁,554,6,375,63,671,true,true
-555,darmanitan-standard,达摩狒狒,555,13,929,168,673,true,true
-556,maractus,沙铃仙人掌,556,10,280,161,677,true,true
-557,dwebble,石居蟹,557,3,145,65,678,true,true
-558,crustle,岩殿居蟹,558,14,2000,170,679,true,true
-559,scraggy,滑滑小子,559,6,118,70,680,true,true
-560,scrafty,头巾混混,560,11,300,171,681,true,true
-561,sigilyph,象征鸟,561,14,140,172,682,true,true
-562,yamask,哭哭面具,562,5,15,61,683,true,true
-563,cofagrigus,迭失棺,563,17,765,169,685,true,true
-564,tirtouga,原盖海龟,564,7,165,71,686,true,true
-565,carracosta,肋骨海龟,565,12,810,173,687,true,true
-566,archen,始祖小鸟,566,5,95,71,688,true,true
-567,archeops,始祖大鸟,567,14,320,177,689,true,true
-568,trubbish,破破袋,568,6,310,66,690,true,true
-569,garbodor,灰尘山,569,19,1073,166,691,true,true
-570,zorua,索罗亚,570,7,125,66,692,true,true
-571,zoroark,索罗亚克,571,16,811,179,693,true,true
-572,minccino,泡沫栗鼠,572,4,58,60,694,true,true
-573,cinccino,奇诺栗鼠,573,5,75,165,695,true,true
-574,gothita,哥德宝宝,574,4,58,58,696,true,true
-575,gothorita,哥德小童,575,7,180,137,697,true,true
-576,gothitelle,哥德小姐,576,15,440,221,698,true,true
-577,solosis,单卵细胞球,577,3,10,58,699,true,true
-578,duosion,双卵细胞球,578,6,80,130,700,true,true
-579,reuniclus,人造细胞卵,579,10,201,221,701,true,true
-580,ducklett,鸭宝宝,580,5,55,61,702,true,true
-581,swanna,舞天鹅,581,13,242,166,703,true,true
-582,vanillite,迷你冰,582,4,57,61,704,true,true
-583,vanillish,多多冰,583,11,410,138,705,true,true
-584,vanilluxe,双倍多多冰,584,13,575,241,706,true,true
-585,deerling,四季鹿,585,6,195,67,707,true,true
-586,sawsbuck,萌芽鹿,586,19,925,166,708,true,true
-587,emolga,电飞鼠,587,4,50,150,709,true,true
-588,karrablast,盖盖虫,588,5,59,63,710,true,true
-589,escavalier,骑士蜗牛,589,10,330,173,711,true,true
-590,foongus,哎呀球菇,590,2,10,59,712,true,true
-591,amoonguss,败露球菇,591,6,105,162,713,true,true
-592,frillish-male,轻飘飘,592,12,330,67,714,true,true
-593,jellicent-male,胖嘟嘟,593,22,1350,168,715,true,true
-594,alomomola,保姆曼波,594,12,316,165,716,true,true
-595,joltik,电电虫,595,1,6,64,717,true,true
-596,galvantula,电蜘蛛,596,8,143,165,718,true,true
-597,ferroseed,种子铁球,597,6,188,61,719,true,true
-598,ferrothorn,坚果哑铃,598,10,1100,171,720,true,true
-599,klink,齿轮儿,599,3,210,60,721,true,true
-600,klang,齿轮组,600,6,510,154,722,true,true
-601,klinklang,齿轮怪,601,6,810,234,723,true,true
-602,tynamo,麻麻小鱼,602,2,3,55,724,true,true
-603,eelektrik,麻麻鳗,603,12,220,142,725,true,true
-604,eelektross,麻麻鳗鱼王,604,21,805,232,726,true,true
-605,elgyem,小灰怪,605,5,90,67,727,true,true
-606,beheeyem,大宇怪,606,10,345,170,728,true,true
-607,litwick,烛光灵,607,3,31,55,729,true,true
-608,lampent,灯火幽灵,608,6,130,130,730,true,true
-609,chandelure,水晶灯火灵,609,10,343,234,731,true,true
-610,axew,牙牙,610,6,180,64,732,true,true
-611,fraxure,斧牙龙,611,10,360,144,733,true,true
-612,haxorus,双斧战龙,612,18,1055,243,734,true,true
-613,cubchoo,喷嚏熊,613,5,85,61,735,true,true
-614,beartic,冻原熊,614,26,2600,177,736,true,true
-615,cryogonal,几何雪花,615,11,1480,180,737,true,true
-616,shelmet,小嘴蜗,616,4,77,61,738,true,true
-617,accelgor,敏捷虫,617,8,253,173,739,true,true
-618,stunfisk,泥巴鱼,618,7,110,165,740,true,true
-619,mienfoo,功夫鼬,619,9,200,70,742,true,true
-620,mienshao,师父鼬,620,14,355,179,743,true,true
-621,druddigon,赤面龙,621,16,1390,170,744,true,true
-622,golett,泥偶小人,622,10,920,61,745,true,true
-623,golurk,泥偶巨人,623,28,3300,169,746,true,true
-624,pawniard,驹刀小兵,624,5,102,68,747,true,true
-625,bisharp,劈斩司令,625,16,700,172,748,true,true
-626,bouffalant,爆炸头水牛,626,16,946,172,749,true,true
-627,rufflet,毛头小鹰,627,5,105,70,750,true,true
-628,braviary,勇士雄鹰,628,15,410,179,751,true,true
-629,vullaby,秃鹰丫头,629,5,90,74,752,true,true
-630,mandibuzz,秃鹰娜,630,12,395,179,753,true,true
-631,heatmor,熔蚁兽,631,14,580,169,754,true,true
-632,durant,铁蚁,632,3,330,169,755,true,true
-633,deino,单首龙,633,8,173,60,756,true,true
-634,zweilous,双首暴龙,634,14,500,147,757,true,true
-635,hydreigon,三首恶龙,635,18,1600,270,758,true,true
-636,larvesta,灼伤虫,636,11,288,72,759,true,true
-637,volcarona,火神蛾,637,16,460,248,760,true,true
-638,cobalion,勾帕路翁,638,21,2500,261,761,true,true
-639,terrakion,代拉基翁,639,19,2600,261,762,true,true
-640,virizion,毕力吉翁,640,20,2000,261,763,true,true
-641,tornadus-incarnate,龙卷云,641,15,630,261,764,true,true
-642,thundurus-incarnate,雷电云,642,15,610,261,766,true,true
-643,reshiram,莱希拉姆,643,32,3300,306,768,true,true
-644,zekrom,捷克罗姆,644,29,3450,306,769,true,true
-645,landorus-incarnate,土地云,645,15,680,270,770,true,true
-646,kyurem,酋雷姆,646,30,3250,297,772,true,true
-647,keldeo-ordinary,凯路迪欧,647,14,485,261,775,true,true
-648,meloetta-aria,美洛耶塔,648,6,65,270,777,true,true
-649,genesect,盖诺赛克特,649,15,825,270,779,true,true
-650,chespin,哈力栗,650,4,90,63,780,true,true
-651,quilladin,胖胖哈力,651,7,290,142,781,true,true
-652,chesnaught,布里卡隆,652,16,900,239,782,true,true
-653,fennekin,火狐狸,653,4,94,61,783,true,true
-654,braixen,长尾火狐,654,10,145,143,784,true,true
-655,delphox,妖火红狐,655,15,390,240,785,true,true
-656,froakie,呱呱泡蛙,656,3,70,63,786,true,true
-657,frogadier,呱头蛙,657,6,109,142,787,true,true
-658,greninja,甲贺忍蛙,658,15,400,239,788,true,true
-659,bunnelby,掘掘兔,659,4,50,47,791,true,true
-660,diggersby,掘地兔,660,10,424,148,792,true,true
-661,fletchling,小箭雀,661,3,17,56,793,true,true
-662,fletchinder,火箭雀,662,7,160,134,794,true,true
-663,talonflame,烈箭鹰,663,12,245,175,795,true,true
-664,scatterbug,粉蝶虫,664,3,25,40,796,true,true
-665,spewpa,粉蝶蛹,665,3,84,75,797,true,true
-666,vivillon,彩粉蝶,666,12,170,185,798,true,true
-667,litleo,小狮狮,667,6,135,74,799,true,true
-668,pyroar-male,火炎狮,668,15,815,177,800,true,true
-669,flabebe,花蓓蓓,669,1,1,61,801,true,true
-670,floette,花叶蒂,670,2,9,130,802,true,true
-671,florges,花洁夫人,671,11,100,248,804,true,true
-672,skiddo,坐骑小羊,672,9,310,70,805,true,true
-673,gogoat,坐骑山羊,673,17,910,186,806,true,true
-674,pancham,顽皮熊猫,674,6,80,70,807,true,true
-675,pangoro,霸道熊猫,675,21,1360,173,808,true,true
-676,furfrou,多丽米亚,676,12,280,165,809,true,true
-677,espurr,妙喵,677,3,35,71,810,true,true
-678,meowstic-male,超能妙喵,678,6,85,163,811,true,true
-679,honedge,独剑鞘,679,8,20,65,813,true,true
-680,doublade,双剑鞘,680,8,45,157,814,true,true
-681,aegislash-shield,坚盾剑怪,681,17,530,234,815,true,true
-682,spritzee,粉香香,682,2,5,68,817,true,true
-683,aromatisse,芳香精,683,8,155,162,818,true,true
-684,swirlix,绵绵泡芙,684,4,35,68,819,true,true
-685,slurpuff,胖甜妮,685,8,50,168,820,true,true
-686,inkay,好啦鱿,686,4,35,58,821,true,true
-687,malamar,乌贼王,687,15,470,169,822,true,true
-688,binacle,龟脚脚,688,5,310,61,823,true,true
-689,barbaracle,龟足巨铠,689,13,960,175,824,true,true
-690,skrelp,垃垃藻,690,5,73,64,825,true,true
-691,dragalge,毒藻龙,691,18,815,173,826,true,true
-692,clauncher,铁臂枪虾,692,5,83,66,827,true,true
-693,clawitzer,钢炮臂虾,693,13,353,100,828,true,true
-694,helioptile,伞电蜥,694,5,60,58,829,true,true
-695,heliolisk,光电伞蜥,695,10,210,168,830,true,true
-696,tyrunt,宝宝暴龙,696,8,260,72,831,true,true
-697,tyrantrum,怪颚龙,697,25,2700,182,832,true,true
-698,amaura,冰雪龙,698,13,252,72,833,true,true
-699,aurorus,冰雪巨龙,699,27,2250,104,834,true,true
-700,sylveon,仙子伊布,700,10,235,184,224,true,true
-701,hawlucha,摔角鹰人,701,8,215,175,835,true,true
-702,dedenne,咚咚鼠,702,2,22,151,836,true,true
-703,carbink,小碎钻,703,3,57,100,837,true,true
-704,goomy,黏黏宝,704,3,28,60,838,true,true
-705,sliggoo,黏美儿,705,8,175,158,839,true,true
-706,goodra,黏美龙,706,20,1505,270,840,true,true
-707,klefki,钥圈儿,707,2,30,165,841,true,true
-708,phantump,小木灵,708,4,70,62,842,true,true
-709,trevenant,朽木妖,709,15,710,166,843,true,true
-710,pumpkaboo-average,南瓜精,710,4,50,67,844,true,true
-711,gourgeist-average,南瓜怪人,711,9,125,173,848,true,true
-712,bergmite,冰宝,712,10,995,61,852,true,true
-713,avalugg,冰岩怪,713,20,5050,180,853,true,true
-714,noibat,嗡蝠,714,5,80,49,854,true,true
-715,noivern,音波龙,715,15,850,187,855,true,true
-716,xerneas,哲尔尼亚斯,716,30,2150,306,856,true,true
-717,yveltal,伊裴尔塔尔,717,58,2030,306,857,true,true
-718,zygarde-50,基格尔德,718,50,3050,270,858,true,true
-719,diancie,蒂安希,719,7,88,270,863,true,true
-720,hoopa,胡帕,720,5,90,270,865,true,true
-721,volcanion,波尔凯尼恩,721,17,1950,270,867,true,true
-722,rowlet,木木枭,722,3,15,64,868,true,true
-723,dartrix,投羽枭,723,7,160,147,869,true,true
-724,decidueye,狙射树枭,724,16,366,239,870,true,true
-725,litten,火斑喵,725,4,43,64,871,true,true
-726,torracat,炎热喵,726,7,250,147,872,true,true
-727,incineroar,炽焰咆哮虎,727,18,830,239,873,true,true
-728,popplio,球球海狮,728,4,75,64,874,true,true
-729,brionne,花漾海狮,729,6,175,147,875,true,true
-730,primarina,西狮海壬,730,18,440,239,876,true,true
-731,pikipek,小笃儿,731,3,12,53,877,true,true
-732,trumbeak,喇叭啄鸟,732,6,148,124,878,true,true
-733,toucannon,铳嘴大鸟,733,11,260,218,879,true,true
-734,yungoos,猫鼬少,734,4,60,51,880,true,true
-735,gumshoos,猫鼬探长,735,7,142,146,881,true,true
-736,grubbin,强颚鸡母虫,736,4,44,60,883,true,true
-737,charjabug,虫电宝,737,5,105,140,884,true,true
-738,vikavolt,锹农炮虫,738,15,450,225,885,true,true
-739,crabrawler,好胜蟹,739,6,70,68,887,true,true
-740,crabominable,好胜毛蟹,740,17,1800,167,888,true,true
-741,oricorio-baile,花舞鸟,741,6,34,167,889,true,true
-742,cutiefly,萌虻,742,1,2,61,893,true,true
-743,ribombee,蝶结萌虻,743,2,5,162,894,true,true
-744,rockruff,岩狗狗,744,5,92,56,896,true,true
-745,lycanroc-midday,鬃岩狼人,745,8,250,170,898,true,true
-746,wishiwashi-solo,弱丁鱼,746,2,3,61,901,true,true
-747,mareanie,好坏星,747,4,80,61,903,true,true
-748,toxapex,超坏星,748,7,145,173,904,true,true
-749,mudbray,泥驴仔,749,10,1100,77,905,true,true
-750,mudsdale,重泥挽马,750,25,9200,175,906,true,true
-751,dewpider,滴蛛,751,3,40,54,907,true,true
-752,araquanid,滴蛛霸,752,18,820,159,908,true,true
-753,fomantis,伪螳草,753,3,15,50,910,true,true
-754,lurantis,兰螳花,754,9,185,168,911,true,true
-755,morelull,睡睡菇,755,2,15,57,913,true,true
-756,shiinotic,灯罩夜菇,756,10,115,142,914,true,true
-757,salandit,夜盗火蜥,757,6,48,64,915,true,true
-758,salazzle,焰后蜥,758,12,222,168,916,true,true
-759,stufful,童偶熊,759,5,68,68,918,true,true
-760,bewear,穿着熊,760,21,1350,175,919,true,true
-761,bounsweet,甜竹竹,761,3,32,42,920,true,true
-762,steenee,甜舞妮,762,7,82,102,921,true,true
-763,tsareena,甜冷美后,763,12,214,230,922,true,true
-764,comfey,花疗环环,764,1,3,170,923,true,true
-765,oranguru,智挥猩,765,15,760,172,924,true,true
-766,passimian,投掷猴,766,20,828,172,925,true,true
-767,wimpod,胆小虫,767,5,120,46,926,true,true
-768,golisopod,具甲武者,768,20,1080,186,927,true,true
-769,sandygast,沙丘娃,769,5,700,64,928,true,true
-770,palossand,噬沙堡爷,770,13,2500,168,929,true,true
-771,pyukumuku,拳海参,771,3,12,144,930,true,true
-772,type-null,属性：空,772,19,1205,107,931,true,true
-773,silvally,银伴战兽,773,23,1005,257,932,true,true
-774,minior-red-meteor,小陨星,774,3,400,154,933,true,true
-775,komala,树枕尾熊,775,4,199,168,947,true,true
-776,turtonator,爆焰龟兽,776,20,2120,170,948,true,true
-777,togedemaru,托戈德玛尔,777,3,33,152,949,true,true
-778,mimikyu-disguised,谜拟丘,778,2,7,167,951,true,true
-779,bruxish,磨牙彩皮鱼,779,9,190,166,955,true,true
-780,drampa,老翁龙,780,30,1850,170,956,true,true
-781,dhelmise,破破舵轮,781,39,2100,181,957,true,true
-782,jangmo-o,心鳞宝,782,6,297,60,958,true,true
-783,hakamo-o,鳞甲龙,783,12,470,147,959,true,true
-784,kommo-o,杖尾鳞甲龙,784,16,782,270,960,true,true
-785,tapu-koko,卡璞・鸣鸣,785,18,205,257,962,true,true
-786,tapu-lele,卡璞・蝶蝶,786,12,186,257,963,true,true
-787,tapu-bulu,卡璞・哞哞,787,19,455,257,964,true,true
-788,tapu-fini,卡璞・鳍鳍,788,13,212,257,965,true,true
-789,cosmog,科斯莫古,789,2,1,40,966,true,true
-790,cosmoem,科斯莫姆,790,1,9999,140,967,true,true
-791,solgaleo,索尔迦雷欧,791,34,2300,306,968,true,true
-792,lunala,露奈雅拉,792,40,1200,306,969,true,true
-793,nihilego,虚吾伊德,793,12,555,257,970,true,true
-794,buzzwole,爆肌蚊,794,24,3336,257,971,true,true
-795,pheromosa,费洛美螂,795,18,250,257,972,true,true
-796,xurkitree,电束木,796,38,1000,257,973,true,true
-797,celesteela,铁火辉夜,797,92,9999,257,974,true,true
-798,kartana,纸御剑,798,3,1,257,975,true,true
-799,guzzlord,恶食大王,799,55,8880,257,976,true,true
-800,necrozma,奈克洛兹玛,800,24,2300,270,977,true,true
-801,magearna,玛机雅娜,801,10,805,270,981,true,true
-802,marshadow,玛夏多,802,7,222,270,983,true,true
-803,poipole,毒贝比,803,6,18,189,984,true,true
-804,naganadel,四颚针龙,804,36,1500,243,985,true,true
-805,stakataka,垒磊石,805,55,8200,257,986,true,true
-806,blacephalon,砰头小丑,806,18,130,257,987,true,true
-807,zeraora,捷拉奥拉,807,15,445,270,988,true,true
-808,meltan,美录坦,808,2,80,135,989,true,true
-809,melmetal,美录梅塔,809,25,8000,270,990,true,true
-810,grookey,敲音猴,810,3,50,62,991,true,true
-811,thwackey,啪咚猴,811,7,140,147,992,true,true
-812,rillaboom,轰擂金刚猩,812,21,900,265,993,true,true
-813,scorbunny,炎兔儿,813,3,45,62,994,true,true
-814,raboot,腾蹴小将,814,6,90,147,995,true,true
-815,cinderace,闪焰王牌,815,14,330,265,996,true,true
-816,sobble,泪眼蜥,816,3,40,62,997,true,true
-817,drizzile,变涩蜥,817,7,115,147,998,true,true
-818,inteleon,千面避役,818,19,452,265,999,true,true
-819,skwovet,贪心栗鼠,819,3,25,55,1000,true,true
-820,greedent,藏饱栗鼠,820,6,60,161,1001,true,true
-821,rookidee,稚山雀,821,2,18,49,1002,true,true
-822,corvisquire,蓝鸦,822,8,160,128,1003,true,true
-823,corviknight,钢铠鸦,823,22,750,248,1004,true,true
-824,blipbug,索侦虫,824,4,80,36,1005,true,true
-825,dottler,天罩虫,825,4,195,117,1006,true,true
-826,orbeetle,以欧路普,826,4,408,253,1007,true,true
-827,nickit,狡小狐,827,6,89,49,1008,true,true
-828,thievul,猾大狐,828,12,199,159,1009,true,true
-829,gossifleur,幼棉棉,829,4,22,50,1010,true,true
-830,eldegoss,白蓬蓬,830,5,25,161,1011,true,true
-831,wooloo,毛辫羊,831,6,60,122,1012,true,true
-832,dubwool,毛毛角羊,832,13,430,172,1013,true,true
-833,chewtle,咬咬龟,833,3,85,57,1014,true,true
-834,drednaw,暴噬龟,834,10,1155,170,1015,true,true
-835,yamper,来电汪,835,3,135,54,1016,true,true
-836,boltund,逐电犬,836,10,340,172,1017,true,true
-837,rolycoly,小炭仔,837,3,120,48,1018,true,true
-838,carkol,大炭车,838,11,780,144,1019,true,true
-839,coalossal,巨炭山,839,28,3105,255,1020,true,true
-840,applin,啃果虫,840,2,5,52,1021,true,true
-841,flapple,苹裹龙,841,3,10,170,1022,true,true
-842,appletun,丰蜜龙,842,4,130,170,1023,true,true
-843,silicobra,沙包蛇,843,22,76,63,1024,true,true
-844,sandaconda,沙螺蟒,844,38,655,179,1025,true,true
-845,cramorant,古月鸟,845,8,180,166,1026,true,true
-846,arrokuda,刺梭鱼,846,5,10,56,1029,true,true
-847,barraskewda,戽斗尖梭,847,13,300,172,1030,true,true
-848,toxel,电音婴,848,4,110,48,1031,true,true
-849,toxtricity-amped,颤弦蝾螈,849,16,400,176,1032,true,true
-850,sizzlipede,烧火蚣,850,7,10,61,1034,true,true
-851,centiskorch,焚焰蚣,851,30,1200,184,1035,true,true
-852,clobbopus,拳拳蛸,852,6,40,62,1036,true,true
-853,grapploct,八爪武师,853,16,390,168,1037,true,true
-854,sinistea,来悲茶,854,1,2,62,1038,true,true
-855,polteageist,怖思壶,855,2,4,178,1039,true,true
-856,hatenna,迷布莉姆,856,4,34,53,1040,true,true
-857,hattrem,提布莉姆,857,6,48,130,1041,true,true
-858,hatterene,布莉姆温,858,21,51,255,1042,true,true
-859,impidimp,捣蛋小妖,859,4,55,53,1043,true,true
-860,morgrem,诈唬魔,860,8,125,130,1044,true,true
-861,grimmsnarl,长毛巨魔,861,15,610,255,1045,true,true
-862,obstagoon,堵拦熊,862,16,460,260,1046,true,true
-863,perrserker,喵头目,863,8,280,154,1047,true,true
-864,cursola,魔灵珊瑚,864,10,4,179,1048,true,true
-865,sirfetchd,葱游兵,865,8,1170,177,1049,true,true
-866,mr-rime,踏冰人偶,866,15,582,182,1050,true,true
-867,runerigus,迭失板,867,16,666,169,1051,true,true
-868,milcery,小仙奶,868,2,3,54,1052,true,true
-869,alcremie,霜奶仙,869,3,5,173,1053,true,true
-870,falinks,列阵兵,870,30,620,165,1054,true,true
-871,pincurchin,啪嚓海胆,871,3,10,152,1055,true,true
-872,snom,雪吞虫,872,3,38,37,1056,true,true
-873,frosmoth,雪绒蛾,873,13,420,166,1057,true,true
-874,stonjourner,巨石丁,874,25,5200,165,1058,true,true
-875,eiscue-ice,冰砌鹅,875,14,890,165,1059,true,true
-876,indeedee-male,爱管侍,876,9,280,166,1061,true,true
-877,morpeko-full-belly,莫鲁贝可,877,3,30,153,1063,true,true
-878,cufant,铜象,878,12,1000,66,1065,true,true
-879,copperajah,大王铜象,879,30,6500,175,1066,true,true
-880,dracozolt,雷鸟龙,880,18,1900,177,1067,true,true
-881,arctozolt,雷鸟海兽,881,23,1500,177,1068,true,true
-882,dracovish,鳃鱼龙,882,23,2150,177,1069,true,true
-883,arctovish,鳃鱼海兽,883,20,1750,177,1070,true,true
-884,duraludon,铝钢龙,884,18,400,187,1071,true,true
-885,dreepy,多龙梅西亚,885,5,20,54,1072,true,true
-886,drakloak,多龙奇,886,14,110,144,1073,true,true
-887,dragapult,多龙巴鲁托,887,30,500,300,1074,true,true
-888,zacian,苍响,888,28,1100,335,1075,true,true
-889,zamazenta,藏玛然特,889,29,2100,335,1077,true,true
-890,eternatus,无极汰那,890,200,9500,345,1079,true,true
-891,kubfu,熊徒弟,891,6,120,77,1081,true,true
-892,urshifu-single-strike,武道熊师,892,19,1050,275,1082,true,true
-893,zarude,萨戮德,893,18,700,300,1084,true,true
-894,regieleki,雷吉艾勒奇,894,12,1450,290,1086,true,true
-895,regidrago,雷吉铎拉戈,895,21,2000,290,1087,true,true
-896,glastrier,雪暴马,896,22,8000,290,1088,true,true
-897,spectrier,灵幽马,897,20,445,290,1089,true,true
-898,calyrex,蕾冠王,898,11,77,250,1090,true,true
-899,wyrdeer,诡角鹿,899,18,951,263,-1,true,true
-900,kleavor,劈斧螳螂,900,18,890,175,-1,true,true
-901,ursaluna,月月熊,901,24,2900,275,-1,true,true
-902,basculegion-male,幽尾玄鱼,902,30,1100,265,-1,true,true
-903,sneasler,大狃拉,903,13,430,102,-1,true,true
-904,overqwil,万针鱼,904,25,605,179,-1,true,true
-905,enamorus-incarnate,眷恋云,905,16,480,116,-1,true,true
-906,sprigatito,新叶喵,906,4,41,62,906,true,true
-907,floragato,蒂蕾喵,907,9,122,144,907,true,true
-908,meowscarada,魔幻假面喵,908,15,312,265,908,true,true
-909,fuecoco,呆火鳄,909,4,98,62,909,true,true
-910,crocalor,炙烫鳄,910,10,307,144,910,true,true
-911,skeledirge,骨纹巨声鳄,911,16,3265,265,911,true,true
-912,quaxly,润水鸭,912,5,61,62,912,true,true
-913,quaxwell,涌跃鸭,913,12,215,144,913,true,true
-914,quaquaval,狂欢浪舞鸭,914,18,619,265,914,true,true
-915,lechonk,爱吃豚,915,5,102,51,915,true,true
-916,oinkologne-male,飘香豚,916,10,1200,171,916,true,true
-917,tarountula,团珠蛛,917,3,40,42,918,true,true
-918,spidops,操陷蛛,918,10,165,141,919,true,true
-919,nymble,豆蟋蟀,919,2,10,42,920,true,true
-920,lokix,烈腿蝗,920,10,175,158,921,true,true
-921,pawmi,布拨,921,3,25,48,954,true,true
-922,pawmo,布土拨,922,4,65,123,955,true,true
-923,pawmot,巴布土拨,923,9,410,245,956,true,true
-924,tandemaus,一对鼠,924,3,18,61,945,true,true
-925,maushold-family-of-four,一家鼠,925,3,28,165,946,true,true
-926,fidough,狗仔包,926,3,109,62,970,true,true
-927,dachsbun,麻花犬,927,5,149,167,971,true,true
-928,smoliv,迷你芙,928,3,65,52,935,true,true
-929,dolliv,奥利纽,929,6,119,124,936,true,true
-930,arboliva,奥利瓦,930,14,482,255,937,true,true
-931,squawkabilly-green-plumage,怒鹦哥,931,6,24,146,960,true,true
-932,nacli,盐石宝,932,4,160,56,963,true,true
-933,naclstack,盐石垒,933,6,1050,124,964,true,true
-934,garganacl,盐石巨灵,934,23,2400,250,965,true,true
-935,charcadet,炭小侍,935,6,105,51,1003,true,true
-936,armarouge,红莲铠骑,936,15,850,263,1004,true,true
-937,ceruledge,苍炎刃鬼,937,16,620,263,1005,true,true
-938,tadbulb,光蚪仔,938,3,4,54,940,true,true
-939,bellibolt,电肚蛙,939,12,1130,173,941,true,true
-940,wattrel,电海燕,940,4,36,56,957,true,true
-941,kilowattrel,大电海燕,941,14,386,172,958,true,true
-942,maschiff,偶叫獒,942,5,160,68,972,true,true
-943,mabosstiff,獒教父,943,11,610,177,973,true,true
-944,shroodle,滋汁鼹,944,2,7,58,968,true,true
-945,grafaiai,涂标客,945,7,272,170,969,true,true
-946,bramblin,纳噬草,946,6,6,55,974,true,true
-947,brambleghast,怖纳噬草,947,12,60,168,975,true,true
-948,toedscool,原野水母,948,9,330,67,1006,true,true
-949,toedscruel,陆地水母,949,19,580,180,1007,true,true
-950,klawf,毛崖蟹,950,13,790,158,962,true,true
-951,capsakid,热辣娃,951,3,30,61,938,true,true
-952,scovillain,狠辣椒,952,9,150,170,939,true,true
-953,rellor,虫滚泥,953,2,10,54,922,true,true
-954,rabsca,虫甲圣,954,3,35,165,923,true,true
-955,flittle,飘飘雏,955,2,15,51,926,true,true
-956,espathra,超能艳鸵,956,19,900,168,927,true,true
-957,tinkatink,小锻匠,957,4,89,59,1000,true,true
-958,tinkatuff,巧锻匠,958,7,591,133,1001,true,true
-959,tinkaton,巨锻匠,959,7,1128,253,1002,true,true
-960,wiglett,海地鼠,960,12,18,49,929,true,true
-961,wugtrio,三海地鼠,961,12,54,149,930,true,true
-962,bombirdier,下石鸟,962,15,429,243,959,true,true
-963,finizen,波普海豚,963,13,602,63,933,true,true
-964,palafin-zero,海豚侠,964,13,602,160,934,true,true
-965,varoom,噗隆隆,965,10,350,60,942,true,true
-966,revavroom,普隆隆姆,966,18,1200,175,943,true,true
-967,cyclizar,摩托蜥,967,16,630,175,953,true,true
-968,orthworm,拖拖蚓,968,25,3100,240,944,true,true
-969,glimmet,晶光芽,969,7,80,70,966,true,true
-970,glimmora,晶光花,970,15,450,184,967,true,true
-971,greavard,墓仔狗,971,6,350,58,924,true,true
-972,houndstone,墓扬犬,972,20,150,171,925,true,true
-973,flamigo,纏红鹤,973,16,370,175,961,true,true
-974,cetoddle,走鲸,974,12,450,67,947,true,true
-975,cetitan,浩大鲸,975,45,7000,182,948,true,true
-976,veluza,轻身鳕,976,25,900,167,932,true,true
-977,dondozo,吃吼霸,977,120,2200,265,931,true,true
-978,tatsugiri-curly,米立龙,978,3,80,166,952,true,true
-979,annihilape,弃世猴,979,12,560,268,1010,true,true
-980,clodsire,土王,980,18,2230,151,1009,true,true
-981,farigiraf,奇麒麟,981,32,1600,260,928,true,true
-982,dudunsparce-two-segment,土龙节节,982,36,392,182,917,true,true
-983,kingambit,仆刀将军,983,20,1200,275,1008,true,true
-984,great-tusk,雄伟牙,984,22,3200,285,978,true,true
-985,scream-tail,吼叫尾,985,12,80,285,982,true,true
-986,brute-bonnet,猛恶菇,986,12,210,285,979,true,true
-987,flutter-mane,振翼发,987,14,40,285,983,true,true
-988,slither-wing,爬地翅,988,32,920,285,984,true,true
-989,sandy-shocks,沙铁皮,989,23,600,285,981,true,true
-990,iron-treads,铁轍迹,990,9,2400,285,986,true,true
-991,iron-bundle,铁包袱,991,6,110,285,992,true,true
-992,iron-hands,铁臂膀,992,18,3807,285,989,true,true
-993,iron-jugulis,铁脖颈,993,13,1110,285,990,true,true
-994,iron-moth,铁毒蛾,994,12,360,285,988,true,true
-995,iron-thorns,铁荆棘,995,16,3030,285,991,true,true
-996,frigibax,凉脊龙,996,5,170,64,949,true,true
-997,arctibax,冻脊龙,997,8,300,148,950,true,true
-998,baxcalibur,戟脊龙,998,21,2100,300,951,true,true
-999,gimmighoul,索财灵,999,3,50,60,976,true,true
-1000,gholdengo,赛富豪,1000,12,300,275,977,true,true
-1001,wo-chien,古简蜗,1001,15,742,285,996,true,true
-1002,chien-pao,古剑豹,1002,19,1522,285,995,true,true
-1003,ting-lu,古鼎鹿,1003,27,6997,285,994,true,true
-1004,chi-yu,古玉鱼,1004,4,49,285,997,true,true
-1005,roaring-moon,轰鸣月,1005,20,3800,295,985,true,true
-1006,iron-valiant,铁武者,1006,14,350,295,993,true,true
-1007,koraidon,故勒顿,1007,25,3030,335,998,true,true
-1008,miraidon,密勒顿,1008,35,2400,335,999,true,true
-1009,walking-wake,波荡水,1009,35,2800,295,1093,true,true
-1010,iron-leaves,铁斑叶,1010,15,1250,295,1094,true,true
-1011,dipplin,裹蜜虫,1011,4,97,170,1095,true,true
-1012,poltchageist,斯魔茶,1012,1,11,62,1096,true,true
-1013,sinistcha,来悲粗茶,1013,2,22,178,1097,true,true
-1014,okidogi,够赞狗,1014,18,922,278,1098,true,true
-1015,munkidori,愿增猿,1015,10,122,278,1099,true,true
-1016,fezandipiti,吉雉鸡,1016,14,301,278,1100,true,true
-1017,ogerpon,厄诡椪,1017,12,398,275,1101,true,true
-1018,archaludon,铝钢桥龙,1018,20,600,300,1102,true,true
-1019,hydrapple,蜜集大蛇,1019,18,930,270,1103,true,true
-1020,gouging-fire,破空焰,1020,35,5900,295,1104,true,true
-1021,raging-bolt,猛雷鼓,1021,52,4800,295,1105,true,true
-1022,iron-boulder,鐵磐岩,1022,15,1625,295,1106,true,true
-1023,iron-crown,鐵頭殼,1023,16,1560,295,1107,true,true
-1024,terapagos,太乐巴戈斯,1024,2,65,90,1108,true,true
-1025,pecharunt,桃歹郎,1025,3,3,300,1109,true,true
-10001,deoxys-attack,代欧奇希斯（形态 2）,386,17,608,270,515,false,true
-10002,deoxys-defense,代欧奇希斯（形态 3）,386,17,608,270,516,false,true
-10003,deoxys-speed,代欧奇希斯（形态 4）,386,17,608,270,517,false,true
-10004,wormadam-sandy,结草贵妇（形态 2）,413,5,65,148,543,false,true
-10005,wormadam-trash,结草贵妇（形态 3）,413,5,65,148,544,false,true
-10006,shaymin-sky,谢米（形态 2）,492,4,52,270,607,false,true
-10007,giratina-origin,骑拉帝纳（形态 2）,487,69,6500,340,601,false,true
-10008,rotom-heat,洛托姆（形态 2）,479,3,3,182,588,false,true
-10009,rotom-wash,洛托姆（形态 3）,479,3,3,182,589,false,true
-10010,rotom-frost,洛托姆（形态 4）,479,3,3,182,590,false,true
-10011,rotom-fan,洛托姆（形态 5）,479,3,3,182,591,false,true
-10012,rotom-mow,洛托姆（形态 6）,479,3,3,182,592,false,true
-10013,castform-sunny,飘浮泡泡（形态 2）,351,3,8,147,465,false,true
-10014,castform-rainy,飘浮泡泡（形态 3）,351,3,8,147,466,false,true
-10015,castform-snowy,飘浮泡泡（形态 4）,351,3,8,147,467,false,true
-10016,basculin-blue-striped,野蛮鲈鱼（形态 2）,550,10,180,161,667,false,true
-10017,darmanitan-zen,达摩狒狒（形态 2）,555,13,929,189,674,false,true
-10018,meloetta-pirouette,美洛耶塔（形态 2）,648,6,65,270,778,false,true
-10019,tornadus-therian,龙卷云（形态 2）,641,14,630,290,765,false,true
-10020,thundurus-therian,雷电云（形态 2）,642,30,610,290,767,false,true
-10021,landorus-therian,土地云（形态 2）,645,13,680,300,771,false,true
-10022,kyurem-black,酋雷姆（形态 2）,646,33,3250,350,774,false,true
-10023,kyurem-white,酋雷姆（形态 3）,646,36,3250,350,773,false,true
-10024,keldeo-resolute,凯路迪欧（形态 2）,647,14,485,290,776,false,true
-10025,meowstic-female,超能妙喵（形态 2）,678,6,85,163,812,false,true
-10026,aegislash-blade,坚盾剑怪（形态 2）,681,17,530,250,816,false,true
-10027,pumpkaboo-small,南瓜精（形态 2）,710,3,35,67,845,false,true
-10028,pumpkaboo-large,南瓜精（形态 3）,710,5,75,67,846,false,true
-10029,pumpkaboo-super,南瓜精（形态 4）,710,8,150,67,847,false,true
-10030,gourgeist-small,南瓜怪人（形态 2）,711,7,95,173,849,false,true
-10031,gourgeist-large,南瓜怪人（形态 3）,711,11,140,173,850,false,true
-10032,gourgeist-super,南瓜怪人（形态 4）,711,17,390,173,851,false,true
-10033,venusaur-mega,妙蛙花（形态 2）,3,24,1555,281,4,false,true
-10034,charizard-mega-x,喷火龙（形态 2）,6,17,1105,285,8,false,true
-10035,charizard-mega-y,喷火龙（形态 3）,6,17,1005,285,9,false,true
-10036,blastoise-mega,水箭龟（形态 2）,9,16,1011,284,13,false,true
-10037,alakazam-mega,胡地（形态 2）,65,12,480,270,106,false,true
-10038,gengar-mega,耿鬼（形态 2）,94,14,405,270,150,false,true
-10039,kangaskhan-mega,袋兽（形态 2）,115,22,1000,207,185,false,true
-10040,pinsir-mega,凯罗斯（形态 2）,127,17,590,210,208,false,true
-10041,gyarados-mega,暴鲤龙（形态 2）,130,65,3050,224,212,false,true
-10042,aerodactyl-mega,化石翼龙（形态 2）,142,21,790,215,233,false,true
-10043,mewtwo-mega-x,超梦（形态 2）,150,23,1270,351,246,false,true
-10044,mewtwo-mega-y,超梦（形态 3）,150,15,330,351,247,false,true
-10045,ampharos-mega,电龙（形态 2）,181,14,615,275,276,false,true
-10046,scizor-mega,巨钳螳螂（形态 2）,212,20,1250,210,198,false,true
-10047,heracross-mega,赫拉克罗斯（形态 2）,214,17,625,210,311,false,true
-10048,houndoom-mega,黑鲁加（形态 2）,229,19,495,210,331,false,true
-10049,tyranitar-mega,班基拉斯（形态 2）,248,25,2550,315,343,false,true
-10050,blaziken-mega,火焰鸡（形态 2）,257,19,520,284,354,false,true
-10051,gardevoir-mega,沙奈朵（形态 2）,282,16,484,278,383,false,true
-10052,mawile-mega,大嘴娃（形态 2）,303,10,235,168,408,false,true
-10053,aggron-mega,波士可多拉（形态 2）,306,22,3950,284,412,false,true
-10054,medicham-mega,恰雷姆（形态 2）,308,13,315,179,415,false,true
-10055,manectric-mega,雷电兽（形态 2）,310,18,440,201,418,false,true
-10056,banette-mega,诅咒娃娃（形态 2）,354,12,130,194,471,false,true
-10057,absol-mega,阿勃梭鲁（形态 2）,359,12,490,198,479,false,true
-10058,garchomp-mega,烈咬陆鲨（形态 2）,445,19,950,315,571,false,true
-10059,lucario-mega,路卡利欧（形态 2）,448,13,575,219,574,false,true
-10060,abomasnow-mega,暴雪王（形态 2）,460,27,1850,208,586,false,true
-10061,floette-eternal,花叶蒂（形态 2）,670,2,9,243,803,false,true
-10062,latias-mega,拉帝亚斯（形态 2）,380,18,520,315,504,false,true
-10063,latios-mega,拉帝欧斯（形态 2）,381,23,700,315,506,false,true
-10064,swampert-mega,巨沼怪（形态 2）,260,19,1020,286,358,false,true
-10065,sceptile-mega,蜥蜴王（形态 2）,254,19,552,284,350,false,true
-10066,sableye-mega,勾魂眼（形态 2）,302,5,1610,168,406,false,true
-10067,altaria-mega,七夕青鸟（形态 2）,334,15,206,207,447,false,true
-10068,gallade-mega,艾路雷朵（形态 2）,475,16,564,278,385,false,true
-10069,audino-mega,差不多娃娃（形态 2）,531,15,320,425,647,false,true
-10070,sharpedo-mega,巨牙鲨（形态 2）,319,25,1303,196,430,false,true
-10071,slowbro-mega,呆壳兽（形态 2）,80,20,1200,207,128,false,true
-10072,steelix-mega,大钢蛇（形态 2）,208,105,7400,214,153,false,true
-10073,pidgeot-mega,大比鸟（形态 2）,18,22,505,261,24,false,true
-10074,glalie-mega,冰鬼护（形态 2）,362,21,3502,203,482,false,true
-10075,diancie-mega,蒂安希（形态 2）,719,11,278,315,864,false,true
-10076,metagross-mega,巨金怪（形态 2）,376,25,9429,315,499,false,true
-10077,kyogre-primal,盖欧卡（形态 2）,382,98,4300,347,508,false,true
-10078,groudon-primal,固拉多（形态 2）,383,50,9997,347,510,false,true
-10079,rayquaza-mega,烈空坐（形态 2）,384,108,3920,351,512,false,true
-10080,pikachu-rock-star,皮卡丘（形态 2）,25,4,60,112,37,false,true
-10081,pikachu-belle,皮卡丘（形态 3）,25,4,60,112,38,false,true
-10082,pikachu-pop-star,皮卡丘（形态 4）,25,4,60,112,39,false,true
-10083,pikachu-phd,皮卡丘（形态 5）,25,4,60,112,40,false,true
-10084,pikachu-libre,皮卡丘（形态 6）,25,4,60,112,41,false,true
-10085,pikachu-cosplay,皮卡丘（形态 7）,25,4,60,112,36,false,true
-10086,hoopa-unbound,胡帕（形态 2）,720,65,4900,306,866,false,true
-10087,camerupt-mega,喷火驼（形态 2）,323,25,3205,196,435,false,true
-10088,lopunny-mega,长耳兔（形态 2）,428,13,283,203,559,false,true
-10089,salamence-mega,暴飞龙（形态 2）,373,18,1126,315,495,false,true
-10090,beedrill-mega,大针蜂（形态 2）,15,14,405,223,20,false,true
-10091,rattata-alola,小拉达（形态 2）,19,3,38,51,26,false,true
-10092,raticate-alola,拉达（形态 2）,20,7,255,145,28,false,true
-10093,raticate-totem-alola,拉达（形态 3）,20,14,1050,145,29,false,true
-10094,pikachu-original-cap,皮卡丘（形态 8）,25,4,60,112,42,false,true
-10095,pikachu-hoenn-cap,皮卡丘（形态 9）,25,4,60,112,43,false,true
-10096,pikachu-sinnoh-cap,皮卡丘（形态 10）,25,4,60,112,44,false,true
-10097,pikachu-unova-cap,皮卡丘（形态 11）,25,4,60,112,45,false,true
-10098,pikachu-kalos-cap,皮卡丘（形态 12）,25,4,60,112,46,false,true
-10099,pikachu-alola-cap,皮卡丘（形态 13）,25,4,60,112,47,false,true
-10100,raichu-alola,雷丘（形态 2）,26,7,210,243,52,false,true
-10101,sandshrew-alola,穿山鼠（形态 2）,27,7,400,60,54,false,true
-10102,sandslash-alola,穿山王（形态 2）,28,12,550,158,56,false,true
-10103,vulpix-alola,六尾（形态 2）,37,6,99,60,67,false,true
-10104,ninetales-alola,九尾（形态 2）,38,11,199,177,69,false,true
-10105,diglett-alola,地鼠（形态 2）,50,2,10,53,85,false,true
-10106,dugtrio-alola,三地鼠（形态 2）,51,7,666,149,87,false,true
-10107,meowth-alola,喵喵（形态 2）,52,4,42,58,89,false,true
-10108,persian-alola,猫老大（形态 2）,53,11,330,154,92,false,true
-10109,geodude-alola,小拳石（形态 2）,74,4,203,60,116,false,true
-10110,graveler-alola,隆隆石（形态 2）,75,10,1100,137,118,false,true
-10111,golem-alola,隆隆岩（形态 2）,76,17,3160,223,120,false,true
-10112,grimer-alola,臭泥（形态 2）,88,7,420,65,142,false,true
-10113,muk-alola,臭臭泥（形态 2）,89,10,520,175,144,false,true
-10114,exeggutor-alola,椰蛋树（形态 2）,103,109,4156,186,162,false,true
-10115,marowak-alola,嘎啦嘎啦（形态 2）,105,10,340,149,165,false,true
-10116,greninja-battle-bond,甲贺忍蛙（形态 2）,658,15,400,239,789,false,true
-10117,greninja-ash,甲贺忍蛙（形态 3）,658,15,400,288,790,false,true
-10118,zygarde-10-power-construct,基格尔德（形态 2）,718,12,335,243,860,false,true
-10119,zygarde-50-power-construct,基格尔德（形态 3）,718,50,3050,300,861,false,true
-10120,zygarde-complete,基格尔德（形态 4）,718,45,6100,354,862,false,true
-10121,gumshoos-totem,猫鼬探长（形态 2）,735,14,600,146,882,false,true
-10122,vikavolt-totem,锹农炮虫（形态 2）,738,26,1475,225,886,false,true
-10123,oricorio-pom-pom,花舞鸟（形态 2）,741,6,34,167,890,false,true
-10124,oricorio-pau,花舞鸟（形态 3）,741,6,34,167,891,false,true
-10125,oricorio-sensu,花舞鸟（形态 4）,741,6,34,167,892,false,true
-10126,lycanroc-midnight,鬃岩狼人（形态 2）,745,11,250,170,899,false,true
-10127,wishiwashi-school,弱丁鱼（形态 2）,746,82,786,217,902,false,true
-10128,lurantis-totem,兰螳花（形态 2）,754,15,580,168,912,false,true
-10129,salazzle-totem,焰后蜥（形态 2）,758,21,810,168,917,false,true
-10130,minior-orange-meteor,小陨星（形态 2）,774,3,400,154,934,false,true
-10131,minior-yellow-meteor,小陨星（形态 3）,774,3,400,154,935,false,true
-10132,minior-green-meteor,小陨星（形态 4）,774,3,400,154,936,false,true
-10133,minior-blue-meteor,小陨星（形态 5）,774,3,400,154,937,false,true
-10134,minior-indigo-meteor,小陨星（形态 6）,774,3,400,154,938,false,true
-10135,minior-violet-meteor,小陨星（形态 7）,774,3,400,154,939,false,true
-10136,minior-red,小陨星（形态 8）,774,3,3,175,940,false,true
-10137,minior-orange,小陨星（形态 9）,774,3,3,175,941,false,true
-10138,minior-yellow,小陨星（形态 10）,774,3,3,175,942,false,true
-10139,minior-green,小陨星（形态 11）,774,3,3,175,943,false,true
-10140,minior-blue,小陨星（形态 12）,774,3,3,175,944,false,true
-10141,minior-indigo,小陨星（形态 13）,774,3,3,175,945,false,true
-10142,minior-violet,小陨星（形态 14）,774,3,3,175,946,false,true
-10143,mimikyu-busted,谜拟丘（形态 2）,778,2,7,167,952,false,true
-10144,mimikyu-totem-disguised,谜拟丘（形态 3）,778,4,28,167,953,false,true
-10145,mimikyu-totem-busted,谜拟丘（形态 4）,778,4,28,167,954,false,true
-10146,kommo-o-totem,杖尾鳞甲龙（形态 2）,784,24,2075,270,961,false,true
-10147,magearna-original,玛机雅娜（形态 2）,801,10,805,300,982,false,true
-10148,pikachu-partner-cap,皮卡丘（形态 14）,25,4,60,112,48,false,true
-10149,marowak-totem,嘎啦嘎啦（形态 3）,105,17,980,149,166,false,true
-10150,ribombee-totem,蝶结萌虻（形态 2）,743,4,20,162,895,false,true
-10151,rockruff-own-tempo,岩狗狗（形态 2）,744,5,92,56,897,false,true
-10152,lycanroc-dusk,鬃岩狼人（形态 3）,745,8,250,170,900,false,true
-10153,araquanid-totem,滴蛛霸（形态 2）,752,31,2175,159,909,false,true
-10154,togedemaru-totem,托戈德玛尔（形态 2）,777,6,130,152,950,false,true
-10155,necrozma-dusk,奈克洛兹玛（形态 2）,800,38,4600,340,978,false,true
-10156,necrozma-dawn,奈克洛兹玛（形态 3）,800,42,3500,340,979,false,true
-10157,necrozma-ultra,奈克洛兹玛（形态 4）,800,75,2300,339,980,false,true
-10158,pikachu-starter,皮卡丘（形态 15）,25,4,60,86,49,false,true
-10159,eevee-starter,伊布（形态 2）,133,3,65,87,216,false,true
-10160,pikachu-world-cap,皮卡丘（形态 16）,25,4,60,112,50,false,true
-10161,meowth-galar,喵喵（形态 3）,52,4,75,58,90,false,true
-10162,ponyta-galar,小火马（形态 2）,77,8,240,82,122,false,true
-10163,rapidash-galar,烈焰马（形态 2）,78,17,800,175,124,false,true
-10164,slowpoke-galar,呆呆兽（形态 2）,79,12,360,63,126,false,true
-10165,slowbro-galar,呆壳兽（形态 3）,80,16,705,172,129,false,true
-10166,farfetchd-galar,大葱鸭（形态 2）,83,8,420,132,136,false,true
-10167,weezing-galar,双弹瓦斯（形态 2）,110,30,160,172,175,false,true
-10168,mr-mime-galar,魔墙人偶（形态 2）,122,14,568,161,195,false,true
-10169,articuno-galar,急冻鸟（形态 2）,144,17,509,290,237,false,true
-10170,zapdos-galar,闪电鸟（形态 2）,145,16,582,290,239,false,true
-10171,moltres-galar,火焰鸟（形态 2）,146,20,660,290,241,false,true
-10172,slowking-galar,呆呆王（形态 2）,199,18,795,172,131,false,true
-10173,corsola-galar,太阳珊瑚（形态 2）,222,6,5,144,322,false,true
-10174,zigzagoon-galar,蛇纹熊（形态 2）,263,4,175,56,362,false,true
-10175,linoone-galar,直冲熊（形态 2）,264,5,325,147,364,false,true
-10176,darumaka-galar,火红不倒翁（形态 2）,554,7,400,63,672,false,true
-10177,darmanitan-galar-standard,达摩狒狒（形态 3）,555,17,1200,168,675,false,true
-10178,darmanitan-galar-zen,达摩狒狒（形态 4）,555,17,1200,189,676,false,true
-10179,yamask-galar,哭哭面具（形态 2）,562,5,15,61,684,false,true
-10180,stunfisk-galar,泥巴鱼（形态 2）,618,7,205,165,741,false,true
-10181,zygarde-10,基格尔德（形态 5）,718,12,335,243,859,false,true
-10182,cramorant-gulping,古月鸟（形态 2）,845,8,180,166,1027,false,true
-10183,cramorant-gorging,古月鸟（形态 3）,845,8,180,166,1028,false,true
-10184,toxtricity-low-key,颤弦蝾螈（形态 2）,849,16,400,176,1033,false,true
-10185,eiscue-noice,冰砌鹅（形态 2）,875,14,890,165,1060,false,true
-10186,indeedee-female,爱管侍（形态 2）,876,9,280,166,1062,false,true
-10187,morpeko-hangry,莫鲁贝可（形态 2）,877,3,30,153,1064,false,true
-10188,zacian-crowned,苍响（形态 2）,888,28,3550,360,1076,false,true
-10189,zamazenta-crowned,藏玛然特（形态 2）,889,29,7850,360,1078,false,true
-10190,eternatus-eternamax,无极汰那（形态 2）,890,1000,0,563,1080,false,true
-10191,urshifu-rapid-strike,武道熊师（形态 2）,892,19,1050,275,1083,false,true
-10192,zarude-dada,萨戮德（形态 2）,893,18,700,300,1085,false,true
-10193,calyrex-ice,蕾冠王（形态 2）,898,24,8091,340,1091,false,true
-10194,calyrex-shadow,蕾冠王（形态 3）,898,24,536,340,1092,false,true
-10195,venusaur-gmax,妙蛙花（形态 3）,3,240,10000,236,-1,false,true
-10196,charizard-gmax,喷火龙（形态 4）,6,280,10000,240,-1,false,true
-10197,blastoise-gmax,水箭龟（形态 3）,9,250,10000,239,-1,false,true
-10198,butterfree-gmax,巴大蝶（形态 2）,12,170,10000,178,-1,false,true
-10199,pikachu-gmax,皮卡丘（形态 17）,25,210,10000,112,-1,false,true
-10200,meowth-gmax,喵喵（形态 4）,52,330,10000,58,-1,false,true
-10201,machamp-gmax,怪力（形态 2）,68,250,10000,227,-1,false,true
-10202,gengar-gmax,耿鬼（形态 3）,94,200,10000,225,-1,false,true
-10203,kingler-gmax,巨钳蟹（形态 2）,99,190,10000,166,-1,false,true
-10204,lapras-gmax,拉普拉斯（形态 2）,131,240,10000,187,-1,false,true
-10205,eevee-gmax,伊布（形态 3）,133,180,10000,65,-1,false,true
-10206,snorlax-gmax,卡比兽（形态 2）,143,350,10000,189,-1,false,true
-10207,garbodor-gmax,灰尘山（形态 2）,569,210,10000,166,-1,false,true
-10208,melmetal-gmax,美录梅塔（形态 2）,809,250,10000,270,-1,false,true
-10209,rillaboom-gmax,轰擂金刚猩（形态 2）,812,280,10000,265,-1,false,true
-10210,cinderace-gmax,闪焰王牌（形态 2）,815,270,10000,265,-1,false,true
-10211,inteleon-gmax,千面避役（形态 2）,818,400,10000,265,-1,false,true
-10212,corviknight-gmax,钢铠鸦（形态 2）,823,140,10000,248,-1,false,true
-10213,orbeetle-gmax,以欧路普（形态 2）,826,140,10000,253,-1,false,true
-10214,drednaw-gmax,暴噬龟（形态 2）,834,240,10000,170,-1,false,true
-10215,coalossal-gmax,巨炭山（形态 2）,839,420,10000,255,-1,false,true
-10216,flapple-gmax,苹裹龙（形态 2）,841,240,10000,170,-1,false,true
-10217,appletun-gmax,丰蜜龙（形态 2）,842,240,10000,170,-1,false,true
-10218,sandaconda-gmax,沙螺蟒（形态 2）,844,220,10000,179,-1,false,true
-10219,toxtricity-amped-gmax,颤弦蝾螈（形态 3）,849,240,10000,176,-1,false,true
-10220,centiskorch-gmax,焚焰蚣（形态 2）,851,750,10000,184,-1,false,true
-10221,hatterene-gmax,布莉姆温（形态 2）,858,260,10000,255,-1,false,true
-10222,grimmsnarl-gmax,长毛巨魔（形态 2）,861,320,10000,255,-1,false,true
-10223,alcremie-gmax,霜奶仙（形态 2）,869,300,10000,173,-1,false,true
-10224,copperajah-gmax,大王铜象（形态 2）,879,230,10000,175,-1,false,true
-10225,duraludon-gmax,铝钢龙（形态 2）,884,430,10000,187,-1,false,true
-10226,urshifu-single-strike-gmax,武道熊师（形态 3）,892,290,10000,275,-1,false,true
-10227,urshifu-rapid-strike-gmax,武道熊师（形态 4）,892,260,10000,275,-1,false,true
-10228,toxtricity-low-key-gmax,颤弦蝾螈（形态 4）,849,240,10000,176,-1,false,true
-10229,growlithe-hisui,卡蒂狗（形态 2）,58,8,227,70,-1,false,true
-10230,arcanine-hisui,风速狗（形态 2）,59,20,1680,194,-1,false,true
-10231,voltorb-hisui,霹雳电球（形态 2）,100,5,130,66,-1,false,true
-10232,electrode-hisui,顽皮雷弹（形态 2）,101,12,710,172,-1,false,true
-10233,typhlosion-hisui,火暴兽（形态 2）,157,16,698,240,-1,false,true
-10234,qwilfish-hisui,千针鱼（形态 2）,211,5,39,88,-1,false,true
-10235,sneasel-hisui,狃拉（形态 2）,215,9,270,86,-1,false,true
-10236,samurott-hisui,大剑鬼（形态 2）,503,15,582,238,-1,false,true
-10237,lilligant-hisui,裙儿小姐（形态 2）,549,12,192,168,-1,false,true
-10238,zorua-hisui,索罗亚（形态 2）,570,7,125,66,-1,false,true
-10239,zoroark-hisui,索罗亚克（形态 2）,571,16,730,179,-1,false,true
-10240,braviary-hisui,勇士雄鹰（形态 2）,628,17,434,179,-1,false,true
-10241,sliggoo-hisui,黏美儿（形态 2）,705,7,685,158,-1,false,true
-10242,goodra-hisui,黏美龙（形态 2）,706,17,3341,270,-1,false,true
-10243,avalugg-hisui,冰岩怪（形态 2）,713,14,2624,180,-1,false,true
-10244,decidueye-hisui,狙射树枭（形态 2）,724,16,370,239,-1,false,true
-10245,dialga-origin,帝牙卢卡（形态 2）,483,70,8487,306,-1,false,true
-10246,palkia-origin,帕路奇亚（形态 2）,484,63,6590,306,-1,false,true
-10247,basculin-white-striped,野蛮鲈鱼（形态 3）,550,10,180,161,-1,false,true
-10248,basculegion-female,幽尾玄鱼（形态 2）,902,30,1100,265,-1,false,true
-10249,enamorus-therian,眷恋云（形态 2）,905,16,480,116,-1,false,true
-10250,tauros-paldea-combat-breed,肯泰罗（形态 2）,128,14,1150,172,-1,false,true
-10251,tauros-paldea-blaze-breed,肯泰罗（形态 3）,128,14,850,172,-1,false,true
-10252,tauros-paldea-aqua-breed,肯泰罗（形态 4）,128,14,1100,172,-1,false,true
-10253,wooper-paldea,乌波（形态 2）,194,4,110,42,-1,false,true
-10254,oinkologne-female,飘香豚（形态 2）,916,10,1200,171,-1,false,true
-10255,dudunsparce-three-segment,土龙节节（形态 2）,982,45,474,182,-1,false,true
-10256,palafin-hero,海豚侠（形态 2）,964,18,974,160,-1,false,true
-10257,maushold-family-of-three,一家鼠（形态 2）,925,3,23,165,-1,false,true
-10258,tatsugiri-droopy,米立龙（形态 2）,978,3,80,166,-1,false,true
-10259,tatsugiri-stretchy,米立龙（形态 3）,978,3,80,166,-1,false,true
-10260,squawkabilly-blue-plumage,怒鹦哥（形态 2）,931,6,24,146,-1,false,true
-10261,squawkabilly-yellow-plumage,怒鹦哥（形态 3）,931,6,24,146,-1,false,true
-10262,squawkabilly-white-plumage,怒鹦哥（形态 4）,931,6,24,146,-1,false,true
-10263,gimmighoul-roaming,索财灵（形态 2）,999,1,10,60,-1,false,true
-10264,koraidon-limited-build,故勒顿（形态 2）,1007,35,3030,335,-1,false,true
-10265,koraidon-sprinting-build,故勒顿（形态 3）,1007,35,3030,335,-1,false,true
-10266,koraidon-swimming-build,故勒顿（形态 4）,1007,35,3030,335,-1,false,true
-10267,koraidon-gliding-build,故勒顿（形态 5）,1007,35,3030,335,-1,false,true
-10268,miraidon-low-power-mode,密勒顿（形态 2）,1008,28,2400,335,-1,false,true
-10269,miraidon-drive-mode,密勒顿（形态 3）,1008,28,2400,335,-1,false,true
-10270,miraidon-aquatic-mode,密勒顿（形态 4）,1008,28,2400,335,-1,false,true
-10271,miraidon-glide-mode,密勒顿（形态 5）,1008,28,2400,335,-1,false,true
-10272,ursaluna-bloodmoon,月月熊（形态 2）,901,24,2900,275,-1,false,true
-10273,ogerpon-wellspring-mask,厄诡椪（形态 2）,1017,12,398,275,-1,false,true
-10274,ogerpon-hearthflame-mask,厄诡椪（形态 3）,1017,12,398,275,-1,false,true
-10275,ogerpon-cornerstone-mask,厄诡椪（形态 4）,1017,12,398,275,-1,false,true
-10276,terapagos-terastal,太乐巴戈斯（形态 2）,1024,3,160,90,-1,false,true
-10277,terapagos-stellar,太乐巴戈斯（形态 3）,1024,17,770,90,-1,false,true
-10278,clefable-mega,皮可西（形态 2）,36,17,423,,-1,false,true
-10279,victreebel-mega,大食花（形态 2）,71,45,1255,,-1,false,true
-10280,starmie-mega,宝石海星（形态 2）,121,23,800,,-1,false,true
-10281,dragonite-mega,快龙（形态 2）,149,22,2900,,-1,false,true
-10282,meganium-mega,大竺葵（形态 2）,154,24,2010,,-1,false,true
-10283,feraligatr-mega,大力鳄（形态 2）,160,23,1088,,-1,false,true
-10284,skarmory-mega,盔甲鸟（形态 2）,227,17,404,,-1,false,true
-10285,froslass-mega,雪妖女（形态 2）,478,26,296,,-1,false,true
-10286,emboar-mega,炎武王（形态 2）,500,18,1803,,-1,false,true
-10287,excadrill-mega,龙头地鼠（形态 2）,530,9,600,,-1,false,true
-10288,scolipede-mega,蜈蚣王（形态 2）,545,32,2305,,-1,false,true
-10289,scrafty-mega,头巾混混（形态 2）,560,11,310,,-1,false,true
-10290,eelektross-mega,麻麻鳗鱼王（形态 2）,604,30,1800,,-1,false,true
-10291,chandelure-mega,水晶灯火灵（形态 2）,609,25,696,,-1,false,true
-10292,chesnaught-mega,布里卡隆（形态 2）,652,16,900,,-1,false,true
-10293,delphox-mega,妖火红狐（形态 2）,655,15,390,,-1,false,true
-10294,greninja-mega,甲贺忍蛙（形态 4）,658,15,400,,-1,false,true
-10295,pyroar-mega,火炎狮（形态 2）,668,15,933,,-1,false,true
-10296,floette-mega,花叶蒂（形态 3）,670,2,1008,,-1,false,true
-10297,malamar-mega,乌贼王（形态 2）,687,29,698,,-1,false,true
-10298,barbaracle-mega,龟足巨铠（形态 2）,689,22,1000,,-1,false,true
-10299,dragalge-mega,毒藻龙（形态 2）,691,21,1003,,-1,false,true
-10300,hawlucha-mega,摔角鹰人（形态 2）,701,10,250,,-1,false,true
-10301,zygarde-mega,基格尔德（形态 6）,718,77,6100,,-1,false,true
-10302,drampa-mega,老翁龙（形态 2）,780,30,2405,,-1,false,true
-10303,falinks-mega,列阵兵（形态 2）,870,16,990,,-1,false,true
-10304,raichu-mega-x,雷丘（形态 3）,26,12,380,,-1,false,true
-10305,raichu-mega-y,雷丘（形态 4）,26,10,260,,-1,false,true
-10306,chimecho-mega,风铃铃（形态 2）,358,12,80,,-1,false,true
-10307,absol-mega-z,阿勃梭鲁（形态 3）,359,12,490,,-1,false,true
-10308,staraptor-mega,姆克鹰（形态 2）,398,19,500,,-1,false,true
-10309,garchomp-mega-z,烈咬陆鲨（形态 3）,445,19,990,,-1,false,true
-10310,lucario-mega-z,路卡利欧（形态 3）,448,13,494,,-1,false,true
-10311,heatran-mega,席多蓝恩（形态 2）,485,28,5700,,-1,false,true
-10312,darkrai-mega,达克莱伊（形态 2）,491,30,2400,,-1,false,true
-10313,golurk-mega,泥偶巨人（形态 2）,623,40,3300,,-1,false,true
-10314,meowstic-male-mega,超能妙喵（形态 3）,678,8,101,,-1,false,true
-10315,crabominable-mega,好胜毛蟹（形态 2）,740,26,2528,,-1,false,true
-10316,golisopod-mega,具甲武者（形态 2）,768,23,1480,,-1,false,true
-10317,magearna-mega,玛机雅娜（形态 3）,801,13,2481,,-1,false,true
-10318,magearna-original-mega,玛机雅娜（形态 4）,801,13,2481,,-1,false,true
-10319,zeraora-mega,捷拉奥拉（形态 2）,807,15,445,,-1,false,true
-10320,scovillain-mega,狠辣椒（形态 2）,952,12,220,,-1,false,true
-10321,glimmora-mega,晶光花（形态 2）,970,28,770,,-1,false,true
-10322,tatsugiri-curly-mega,米立龙（形态 4）,978,6,240,,-1,false,true
-10323,tatsugiri-droopy-mega,米立龙（形态 5）,978,6,240,,-1,false,true
-10324,tatsugiri-stretchy-mega,米立龙（形态 6）,978,6,240,,-1,false,true
-10325,baxcalibur-mega,戟脊龙（形态 2）,998,21,3150,,-1,false,true
-10326,meowstic-female-mega,超能妙喵（形态 4）,678,8,101,,-1,false,true
+id,code,name,species_id,inherits_from_creature_id,height,weight,base_experience,sort_order,default_form,enabled
+1,bulbasaur,妙蛙种子,1,,7,69,64,1,true,true
+2,ivysaur,妙蛙草,2,,10,130,142,2,true,true
+3,venusaur,妙蛙花,3,,20,1000,236,3,true,true
+4,charmander,小火龙,4,,6,85,62,5,true,true
+5,charmeleon,火恐龙,5,,11,190,142,6,true,true
+6,charizard,喷火龙,6,,17,905,240,7,true,true
+7,squirtle,杰尼龟,7,,5,90,63,10,true,true
+8,wartortle,卡咪龟,8,,10,225,142,11,true,true
+9,blastoise,水箭龟,9,,16,855,239,12,true,true
+10,caterpie,绿毛虫,10,,3,29,39,14,true,true
+11,metapod,铁甲蛹,11,,7,99,72,15,true,true
+12,butterfree,巴大蝶,12,,11,320,178,16,true,true
+13,weedle,独角虫,13,,3,32,39,17,true,true
+14,kakuna,铁壳蛹,14,,6,100,72,18,true,true
+15,beedrill,大针蜂,15,,10,295,178,19,true,true
+16,pidgey,波波,16,,3,18,50,21,true,true
+17,pidgeotto,比比鸟,17,,11,300,122,22,true,true
+18,pidgeot,大比鸟,18,,15,395,216,23,true,true
+19,rattata,小拉达,19,,3,35,51,25,true,true
+20,raticate,拉达,20,,7,185,145,27,true,true
+21,spearow,烈雀,21,,3,20,52,30,true,true
+22,fearow,大嘴雀,22,,12,380,155,31,true,true
+23,ekans,阿柏蛇,23,,20,69,58,32,true,true
+24,arbok,阿柏怪,24,,35,650,157,33,true,true
+25,pikachu,皮卡丘,25,,4,60,112,35,true,true
+26,raichu,雷丘,26,,8,300,218,51,true,true
+27,sandshrew,穿山鼠,27,,6,120,60,53,true,true
+28,sandslash,穿山王,28,,10,295,158,55,true,true
+29,nidoran-f,尼多兰,29,,4,70,55,57,true,true
+30,nidorina,尼多娜,30,,8,200,128,58,true,true
+31,nidoqueen,尼多后,31,,13,600,227,59,true,true
+32,nidoran-m,尼多朗,32,,5,90,55,60,true,true
+33,nidorino,尼多力诺,33,,9,195,128,61,true,true
+34,nidoking,尼多王,34,,14,620,227,62,true,true
+35,clefairy,皮皮,35,,6,75,113,64,true,true
+36,clefable,皮可西,36,,13,400,217,65,true,true
+37,vulpix,六尾,37,,6,99,60,66,true,true
+38,ninetales,九尾,38,,11,199,177,68,true,true
+39,jigglypuff,胖丁,39,,5,55,95,71,true,true
+40,wigglytuff,胖可丁,40,,10,120,196,72,true,true
+41,zubat,超音蝠,41,,8,75,49,73,true,true
+42,golbat,大嘴蝠,42,,16,550,159,74,true,true
+43,oddish,走路草,43,,5,54,64,76,true,true
+44,gloom,臭臭花,44,,8,86,138,77,true,true
+45,vileplume,霸王花,45,,12,186,221,78,true,true
+46,paras,派拉斯,46,,3,54,57,80,true,true
+47,parasect,派拉斯特,47,,10,295,142,81,true,true
+48,venonat,毛球,48,,10,300,61,82,true,true
+49,venomoth,摩鲁蛾,49,,15,125,158,83,true,true
+50,diglett,地鼠,50,,2,8,53,84,true,true
+51,dugtrio,三地鼠,51,,7,333,149,86,true,true
+52,meowth,喵喵,52,,4,42,58,88,true,true
+53,persian,猫老大,53,,10,320,154,91,true,true
+54,psyduck,可达鸭,54,,8,196,64,93,true,true
+55,golduck,哥达鸭,55,,17,766,175,94,true,true
+56,mankey,猴怪,56,,5,280,61,95,true,true
+57,primeape,火暴猴,57,,10,320,159,96,true,true
+58,growlithe,卡蒂狗,58,,7,190,70,97,true,true
+59,arcanine,风速狗,59,,19,1550,194,98,true,true
+60,poliwag,蚊香蝌蚪,60,,6,124,60,99,true,true
+61,poliwhirl,蚊香君,61,,10,200,135,100,true,true
+62,poliwrath,蚊香泳士,62,,13,540,230,101,true,true
+63,abra,凯西,63,,9,195,62,103,true,true
+64,kadabra,勇基拉,64,,13,565,140,104,true,true
+65,alakazam,胡地,65,,15,480,225,105,true,true
+66,machop,腕力,66,,8,195,61,107,true,true
+67,machoke,豪力,67,,15,705,142,108,true,true
+68,machamp,怪力,68,,16,1300,227,109,true,true
+69,bellsprout,喇叭芽,69,,7,40,60,110,true,true
+70,weepinbell,口呆花,70,,10,64,137,111,true,true
+71,victreebel,大食花,71,,17,155,221,112,true,true
+72,tentacool,玛瑙水母,72,,9,455,67,113,true,true
+73,tentacruel,毒刺水母,73,,16,550,180,114,true,true
+74,geodude,小拳石,74,,4,200,60,115,true,true
+75,graveler,隆隆石,75,,10,1050,137,117,true,true
+76,golem,隆隆岩,76,,14,3000,223,119,true,true
+77,ponyta,小火马,77,,10,300,82,121,true,true
+78,rapidash,烈焰马,78,,17,950,175,123,true,true
+79,slowpoke,呆呆兽,79,,12,360,63,125,true,true
+80,slowbro,呆壳兽,80,,16,785,172,127,true,true
+81,magnemite,小磁怪,81,,3,60,65,132,true,true
+82,magneton,三合一磁怪,82,,10,600,163,133,true,true
+83,farfetchd,大葱鸭,83,,8,150,132,135,true,true
+84,doduo,嘟嘟,84,,14,392,62,137,true,true
+85,dodrio,嘟嘟利,85,,18,852,165,138,true,true
+86,seel,小海狮,86,,11,900,65,139,true,true
+87,dewgong,白海狮,87,,17,1200,166,140,true,true
+88,grimer,臭泥,88,,9,300,65,141,true,true
+89,muk,臭臭泥,89,,12,300,175,143,true,true
+90,shellder,大舌贝,90,,3,40,61,145,true,true
+91,cloyster,刺甲贝,91,,15,1325,184,146,true,true
+92,gastly,鬼斯,92,,13,1,62,147,true,true
+93,haunter,鬼斯通,93,,16,1,142,148,true,true
+94,gengar,耿鬼,94,,15,405,225,149,true,true
+95,onix,大岩蛇,95,,88,2100,77,151,true,true
+96,drowzee,催眠貘,96,,10,324,66,154,true,true
+97,hypno,引梦貘人,97,,16,756,169,155,true,true
+98,krabby,大钳蟹,98,,4,65,65,156,true,true
+99,kingler,巨钳蟹,99,,13,600,166,157,true,true
+100,voltorb,霹雳电球,100,,5,104,66,158,true,true
+101,electrode,顽皮雷弹,101,,12,666,172,159,true,true
+102,exeggcute,蛋蛋,102,,4,25,65,160,true,true
+103,exeggutor,椰蛋树,103,,20,1200,186,161,true,true
+104,cubone,卡拉卡拉,104,,4,65,64,163,true,true
+105,marowak,嘎啦嘎啦,105,,10,450,149,164,true,true
+106,hitmonlee,飞腿郎,106,,15,498,159,168,true,true
+107,hitmonchan,快拳郎,107,,14,502,159,169,true,true
+108,lickitung,大舌头,108,,12,655,77,171,true,true
+109,koffing,瓦斯弹,109,,6,10,68,173,true,true
+110,weezing,双弹瓦斯,110,,12,95,172,174,true,true
+111,rhyhorn,独角犀牛,111,,10,1150,69,176,true,true
+112,rhydon,钻角犀兽,112,,19,1200,170,177,true,true
+113,chansey,吉利蛋,113,,11,346,395,180,true,true
+114,tangela,蔓藤怪,114,,10,350,87,182,true,true
+115,kangaskhan,袋兽,115,,22,800,172,184,true,true
+116,horsea,墨海马,116,,4,80,59,186,true,true
+117,seadra,海刺龙,117,,12,250,154,187,true,true
+118,goldeen,角金鱼,118,,6,150,64,189,true,true
+119,seaking,金鱼王,119,,13,390,158,190,true,true
+120,staryu,海星星,120,,8,345,68,191,true,true
+121,starmie,宝石海星,121,,11,800,182,192,true,true
+122,mr-mime,魔墙人偶,122,,13,545,161,194,true,true
+123,scyther,飞天螳螂,123,,15,560,100,196,true,true
+124,jynx,迷唇姐,124,,14,406,159,200,true,true
+125,electabuzz,电击兽,125,,11,300,172,202,true,true
+126,magmar,鸭嘴火兽,126,,13,445,173,205,true,true
+127,pinsir,凯罗斯,127,,15,550,175,207,true,true
+128,tauros,肯泰罗,128,,14,884,172,209,true,true
+129,magikarp,鲤鱼王,129,,9,100,40,210,true,true
+130,gyarados,暴鲤龙,130,,65,2350,189,211,true,true
+131,lapras,拉普拉斯,131,,25,2200,187,213,true,true
+132,ditto,百变怪,132,,3,40,101,214,true,false
+133,eevee,伊布,133,,3,65,65,215,true,true
+134,vaporeon,水伊布,134,,10,290,184,217,true,true
+135,jolteon,雷伊布,135,,8,245,184,218,true,true
+136,flareon,火伊布,136,,9,250,184,219,true,true
+137,porygon,多边兽,137,,8,365,79,225,true,true
+138,omanyte,菊石兽,138,,4,75,71,228,true,true
+139,omastar,多刺菊石兽,139,,10,350,173,229,true,true
+140,kabuto,化石盔,140,,5,115,71,230,true,true
+141,kabutops,镰刀盔,141,,13,405,173,231,true,true
+142,aerodactyl,化石翼龙,142,,18,590,180,232,true,true
+143,snorlax,卡比兽,143,,21,4600,189,235,true,true
+144,articuno,急冻鸟,144,,17,554,261,236,true,true
+145,zapdos,闪电鸟,145,,16,526,261,238,true,true
+146,moltres,火焰鸟,146,,20,600,261,240,true,true
+147,dratini,迷你龙,147,,18,33,60,242,true,true
+148,dragonair,哈克龙,148,,40,165,147,243,true,true
+149,dragonite,快龙,149,,22,2100,270,244,true,true
+150,mewtwo,超梦,150,,20,1220,306,245,true,true
+151,mew,梦幻,151,,4,40,270,248,true,true
+152,chikorita,菊草叶,152,,9,64,64,249,true,true
+153,bayleef,月桂叶,153,,12,158,142,250,true,true
+154,meganium,大竺葵,154,,18,1005,236,251,true,true
+155,cyndaquil,火球鼠,155,,5,79,62,252,true,true
+156,quilava,火岩鼠,156,,9,190,142,253,true,true
+157,typhlosion,火暴兽,157,,17,795,240,254,true,true
+158,totodile,小锯鳄,158,,6,95,63,255,true,true
+159,croconaw,蓝鳄,159,,11,250,142,256,true,true
+160,feraligatr,大力鳄,160,,23,888,239,257,true,true
+161,sentret,尾立,161,,8,60,43,258,true,true
+162,furret,大尾立,162,,18,325,145,259,true,true
+163,hoothoot,咕咕,163,,7,212,52,260,true,true
+164,noctowl,猫头夜鹰,164,,16,408,158,261,true,true
+165,ledyba,芭瓢虫,165,,10,108,53,262,true,true
+166,ledian,安瓢虫,166,,14,356,137,263,true,true
+167,spinarak,圆丝蛛,167,,5,85,50,264,true,true
+168,ariados,阿利多斯,168,,11,335,140,265,true,true
+169,crobat,叉字蝠,169,,18,750,241,75,true,true
+170,chinchou,灯笼鱼,170,,5,120,66,266,true,true
+171,lanturn,电灯怪,171,,12,225,161,267,true,true
+172,pichu,皮丘,172,,3,20,41,34,true,true
+173,cleffa,皮宝宝,173,,3,30,44,63,true,true
+174,igglybuff,宝宝丁,174,,3,10,42,70,true,true
+175,togepi,波克比,175,,3,15,49,268,true,true
+176,togetic,波克基古,176,,6,32,142,269,true,true
+177,natu,天然雀,177,,2,20,64,271,true,true
+178,xatu,天然鸟,178,,15,150,165,272,true,true
+179,mareep,咩利羊,179,,6,78,56,273,true,true
+180,flaaffy,茸茸羊,180,,8,133,128,274,true,true
+181,ampharos,电龙,181,,14,615,230,275,true,true
+182,bellossom,美丽花,182,,4,58,221,79,true,true
+183,marill,玛力露,183,,4,85,88,278,true,true
+184,azumarill,玛力露丽,184,,8,285,189,279,true,true
+185,sudowoodo,树才怪,185,,12,380,144,281,true,true
+186,politoed,蚊香蛙皇,186,,11,339,225,102,true,true
+187,hoppip,毽子草,187,,4,5,50,282,true,true
+188,skiploom,毽子花,188,,6,10,119,283,true,true
+189,jumpluff,毽子棉,189,,8,30,207,284,true,true
+190,aipom,长尾怪手,190,,8,115,72,285,true,true
+191,sunkern,向日种子,191,,3,18,36,287,true,true
+192,sunflora,向日花怪,192,,8,85,149,288,true,true
+193,yanma,蜻蜻蜓,193,,12,380,78,289,true,true
+194,wooper,乌波,194,,4,85,42,291,true,true
+195,quagsire,沼王,195,,14,750,151,292,true,true
+196,espeon,太阳伊布,196,,9,265,184,220,true,true
+197,umbreon,月亮伊布,197,,10,270,184,221,true,true
+198,murkrow,黑暗鸦,198,,5,21,81,293,true,true
+199,slowking,呆呆王,199,,20,795,172,130,true,true
+200,misdreavus,梦妖,200,,7,10,87,295,true,true
+201,unown,未知图腾,201,,5,50,118,297,true,false
+202,wobbuffet,果然翁,202,,13,285,142,299,true,true
+203,girafarig,麒麟奇,203,,15,415,159,300,true,true
+204,pineco,榛果球,204,,6,72,58,301,true,true
+205,forretress,佛烈托斯,205,,12,1258,163,302,true,true
+206,dunsparce,土龙弟弟,206,,15,140,145,303,true,true
+207,gligar,天蝎,207,,11,648,86,304,true,true
+208,steelix,大钢蛇,208,,92,4000,179,152,true,true
+209,snubbull,布鲁,209,,6,78,60,306,true,true
+210,granbull,布鲁皇,210,,14,487,158,307,true,true
+211,qwilfish,千针鱼,211,,5,39,88,308,true,true
+212,scizor,巨钳螳螂,212,,18,1180,175,197,true,true
+213,shuckle,壶壶,213,,6,205,177,309,true,true
+214,heracross,赫拉克罗斯,214,,15,540,175,310,true,true
+215,sneasel,狃拉,215,,9,280,86,312,true,true
+216,teddiursa,熊宝宝,216,,6,88,66,314,true,true
+217,ursaring,圈圈熊,217,,18,1258,175,315,true,true
+218,slugma,熔岩虫,218,,7,350,50,316,true,true
+219,magcargo,熔岩蜗牛,219,,8,550,151,317,true,true
+220,swinub,小山猪,220,,4,65,50,318,true,true
+221,piloswine,长毛猪,221,,11,558,158,319,true,true
+222,corsola,太阳珊瑚,222,,6,50,144,321,true,true
+223,remoraid,铁炮鱼,223,,6,120,60,323,true,true
+224,octillery,章鱼桶,224,,9,285,168,324,true,true
+225,delibird,信使鸟,225,,9,160,116,325,true,true
+226,mantine,巨翅飞鱼,226,,21,2200,170,327,true,true
+227,skarmory,盔甲鸟,227,,17,505,163,328,true,true
+228,houndour,戴鲁比,228,,6,108,66,329,true,true
+229,houndoom,黑鲁加,229,,14,350,175,330,true,true
+230,kingdra,刺龙王,230,,18,1520,243,188,true,true
+231,phanpy,小小象,231,,5,335,66,332,true,true
+232,donphan,顿甲,232,,11,1200,175,333,true,true
+233,porygon2,多边兽２型,233,,6,325,180,226,true,true
+234,stantler,惊角鹿,234,,14,712,163,334,true,true
+235,smeargle,图图犬,235,,12,580,88,335,true,false
+236,tyrogue,无畏小子,236,,7,210,42,167,true,true
+237,hitmontop,战舞郎,237,,14,480,159,170,true,true
+238,smoochum,迷唇娃,238,,4,60,61,199,true,true
+239,elekid,电击怪,239,,6,235,72,201,true,true
+240,magby,鸭嘴宝宝,240,,7,214,73,204,true,true
+241,miltank,大奶罐,241,,12,755,172,336,true,true
+242,blissey,幸福蛋,242,,15,468,608,181,true,true
+243,raikou,雷公,243,,19,1780,261,337,true,true
+244,entei,炎帝,244,,21,1980,261,338,true,true
+245,suicune,水君,245,,20,1870,261,339,true,true
+246,larvitar,幼基拉斯,246,,6,720,60,340,true,true
+247,pupitar,沙基拉斯,247,,12,1520,144,341,true,true
+248,tyranitar,班基拉斯,248,,20,2020,270,342,true,true
+249,lugia,洛奇亚,249,,52,2160,306,344,true,true
+250,ho-oh,凤王,250,,38,1990,306,345,true,true
+251,celebi,时拉比,251,,6,50,270,346,true,true
+252,treecko,木守宫,252,,5,50,62,347,true,true
+253,grovyle,森林蜥蜴,253,,9,216,142,348,true,true
+254,sceptile,蜥蜴王,254,,17,522,239,349,true,true
+255,torchic,火稚鸡,255,,4,25,62,351,true,true
+256,combusken,力壮鸡,256,,9,195,142,352,true,true
+257,blaziken,火焰鸡,257,,19,520,239,353,true,true
+258,mudkip,水跃鱼,258,,4,76,62,355,true,true
+259,marshtomp,沼跃鱼,259,,7,280,142,356,true,true
+260,swampert,巨沼怪,260,,15,819,241,357,true,true
+261,poochyena,土狼犬,261,,5,136,56,359,true,true
+262,mightyena,大狼犬,262,,10,370,147,360,true,true
+263,zigzagoon,蛇纹熊,263,,4,175,56,361,true,true
+264,linoone,直冲熊,264,,5,325,147,363,true,true
+265,wurmple,刺尾虫,265,,3,36,56,365,true,true
+266,silcoon,甲壳茧,266,,6,100,72,366,true,true
+267,beautifly,狩猎凤蝶,267,,10,284,178,367,true,true
+268,cascoon,盾甲茧,268,,7,115,72,368,true,true
+269,dustox,毒粉蛾,269,,12,316,173,369,true,true
+270,lotad,莲叶童子,270,,5,26,44,370,true,true
+271,lombre,莲帽小童,271,,12,325,119,371,true,true
+272,ludicolo,乐天河童,272,,15,550,216,372,true,true
+273,seedot,橡实果,273,,5,40,44,373,true,true
+274,nuzleaf,长鼻叶,274,,10,280,119,374,true,true
+275,shiftry,狡猾天狗,275,,13,596,216,375,true,true
+276,taillow,傲骨燕,276,,3,23,54,376,true,true
+277,swellow,大王燕,277,,7,198,159,377,true,true
+278,wingull,长翅鸥,278,,6,95,54,378,true,true
+279,pelipper,大嘴鸥,279,,12,280,154,379,true,true
+280,ralts,拉鲁拉丝,280,,4,66,40,380,true,true
+281,kirlia,奇鲁莉安,281,,8,202,97,381,true,true
+282,gardevoir,沙奈朵,282,,16,484,233,382,true,true
+283,surskit,溜溜糖球,283,,5,17,54,386,true,true
+284,masquerain,雨翅蛾,284,,8,36,159,387,true,true
+285,shroomish,蘑蘑菇,285,,4,45,59,388,true,true
+286,breloom,斗笠菇,286,,12,392,161,389,true,true
+287,slakoth,懒人獭,287,,8,240,56,390,true,true
+288,vigoroth,过动猿,288,,14,465,154,391,true,true
+289,slaking,请假王,289,,20,1305,252,392,true,true
+290,nincada,土居忍士,290,,5,55,53,393,true,true
+291,ninjask,铁面忍者,291,,8,120,160,394,true,true
+292,shedinja,脱壳忍者,292,,8,12,83,395,true,true
+293,whismur,咕妞妞,293,,6,163,48,396,true,true
+294,loudred,吼爆弹,294,,10,405,126,397,true,true
+295,exploud,爆音怪,295,,15,840,221,398,true,true
+296,makuhita,幕下力士,296,,10,864,47,399,true,true
+297,hariyama,铁掌力士,297,,23,2538,166,400,true,true
+298,azurill,露力丽,298,,2,20,38,277,true,true
+299,nosepass,朝北鼻,299,,10,970,75,401,true,true
+300,skitty,向尾喵,300,,6,110,52,403,true,true
+301,delcatty,优雅猫,301,,11,326,140,404,true,true
+302,sableye,勾魂眼,302,,5,110,133,405,true,true
+303,mawile,大嘴娃,303,,6,115,133,407,true,true
+304,aron,可可多拉,304,,4,600,66,409,true,true
+305,lairon,可多拉,305,,9,1200,151,410,true,true
+306,aggron,波士可多拉,306,,21,3600,239,411,true,true
+307,meditite,玛沙那,307,,6,112,56,413,true,true
+308,medicham,恰雷姆,308,,13,315,144,414,true,true
+309,electrike,落雷兽,309,,6,152,59,416,true,true
+310,manectric,雷电兽,310,,15,402,166,417,true,true
+311,plusle,正电拍拍,311,,4,42,142,419,true,true
+312,minun,負电拍拍,312,,4,42,142,420,true,true
+313,volbeat,电萤虫,313,,7,177,151,421,true,true
+314,illumise,甜甜萤,314,,6,177,151,422,true,true
+315,roselia,毒蔷薇,315,,3,20,140,424,true,true
+316,gulpin,溶食兽,316,,4,103,60,426,true,true
+317,swalot,吞食兽,317,,17,800,163,427,true,true
+318,carvanha,利牙鱼,318,,8,208,61,428,true,true
+319,sharpedo,巨牙鲨,319,,18,888,161,429,true,true
+320,wailmer,吼吼鲸,320,,20,1300,80,431,true,true
+321,wailord,吼鲸王,321,,145,3980,175,432,true,true
+322,numel,呆火驼,322,,7,240,61,433,true,true
+323,camerupt,喷火驼,323,,19,2200,161,434,true,true
+324,torkoal,煤炭龟,324,,5,804,165,436,true,true
+325,spoink,跳跳猪,325,,7,306,66,437,true,true
+326,grumpig,噗噗猪,326,,9,715,165,438,true,true
+327,spinda,晃晃斑,327,,11,50,126,439,true,true
+328,trapinch,大颚蚁,328,,7,150,58,440,true,true
+329,vibrava,超音波幼虫,329,,11,153,119,441,true,true
+330,flygon,沙漠蜻蜓,330,,20,820,234,442,true,true
+331,cacnea,刺球仙人掌,331,,4,513,67,443,true,true
+332,cacturne,梦歌仙人掌,332,,13,774,166,444,true,true
+333,swablu,青绵鸟,333,,4,12,62,445,true,true
+334,altaria,七夕青鸟,334,,11,206,172,446,true,true
+335,zangoose,猫鼬斩,335,,13,403,160,448,true,true
+336,seviper,饭匙蛇,336,,27,525,160,449,true,true
+337,lunatone,月石,337,,10,1680,161,450,true,true
+338,solrock,太阳岩,338,,12,1540,161,451,true,true
+339,barboach,泥泥鳅,339,,4,19,58,452,true,true
+340,whiscash,鲶鱼王,340,,9,236,164,453,true,true
+341,corphish,龙虾小兵,341,,6,115,62,454,true,true
+342,crawdaunt,铁螯龙虾,342,,11,328,164,455,true,true
+343,baltoy,天秤偶,343,,5,215,60,456,true,true
+344,claydol,念力土偶,344,,15,1080,175,457,true,true
+345,lileep,触手百合,345,,10,238,71,458,true,true
+346,cradily,摇篮百合,346,,15,604,173,459,true,true
+347,anorith,太古羽虫,347,,7,125,71,460,true,true
+348,armaldo,太古盔甲,348,,15,682,173,461,true,true
+349,feebas,丑丑鱼,349,,6,74,40,462,true,true
+350,milotic,美纳斯,350,,62,1620,189,463,true,true
+351,castform,飘浮泡泡,351,,3,8,147,464,true,true
+352,kecleon,变隐龙,352,,10,220,154,468,true,true
+353,shuppet,怨影娃娃,353,,6,23,59,469,true,true
+354,banette,诅咒娃娃,354,,11,125,159,470,true,true
+355,duskull,夜巡灵,355,,8,150,59,472,true,true
+356,dusclops,彷徨夜灵,356,,16,306,159,473,true,true
+357,tropius,热带龙,357,,20,1000,161,475,true,true
+358,chimecho,风铃铃,358,,6,10,159,477,true,true
+359,absol,阿勃梭鲁,359,,12,470,163,478,true,true
+360,wynaut,小果然,360,,6,140,52,298,true,true
+361,snorunt,雪童子,361,,7,168,60,480,true,true
+362,glalie,冰鬼护,362,,15,2565,168,481,true,true
+363,spheal,海豹球,363,,8,395,58,484,true,true
+364,sealeo,海魔狮,364,,11,876,144,485,true,true
+365,walrein,帝牙海狮,365,,14,1506,239,486,true,true
+366,clamperl,珍珠贝,366,,4,525,69,487,true,true
+367,huntail,猎斑鱼,367,,17,270,170,488,true,true
+368,gorebyss,樱花鱼,368,,18,226,170,489,true,true
+369,relicanth,古空棘鱼,369,,10,234,170,490,true,true
+370,luvdisc,爱心鱼,370,,6,87,116,491,true,true
+371,bagon,宝贝龙,371,,6,421,60,492,true,true
+372,shelgon,甲壳龙,372,,11,1105,147,493,true,true
+373,salamence,暴飞龙,373,,15,1026,270,494,true,true
+374,beldum,铁哑铃,374,,6,952,60,496,true,true
+375,metang,金属怪,375,,12,2025,147,497,true,true
+376,metagross,巨金怪,376,,16,5500,270,498,true,true
+377,regirock,雷吉洛克,377,,17,2300,261,500,true,true
+378,regice,雷吉艾斯,378,,18,1750,261,501,true,true
+379,registeel,雷吉斯奇鲁,379,,19,2050,261,502,true,true
+380,latias,拉帝亚斯,380,,14,400,270,503,true,true
+381,latios,拉帝欧斯,381,,20,600,270,505,true,true
+382,kyogre,盖欧卡,382,,45,3520,302,507,true,true
+383,groudon,固拉多,383,,35,9500,302,509,true,true
+384,rayquaza,烈空坐,384,,70,2065,306,511,true,true
+385,jirachi,基拉祈,385,,3,11,270,513,true,true
+386,deoxys-normal,代欧奇希斯,386,,17,608,270,514,true,true
+387,turtwig,草苗龟,387,,4,102,64,518,true,true
+388,grotle,树林龟,388,,11,970,142,519,true,true
+389,torterra,土台龟,389,,22,3100,236,520,true,true
+390,chimchar,小火焰猴,390,,5,62,62,521,true,true
+391,monferno,猛火猴,391,,9,220,142,522,true,true
+392,infernape,烈焰猴,392,,12,550,240,523,true,true
+393,piplup,波加曼,393,,4,52,63,524,true,true
+394,prinplup,波皇子,394,,8,230,142,525,true,true
+395,empoleon,帝王拿波,395,,17,845,239,526,true,true
+396,starly,姆克儿,396,,3,20,49,527,true,true
+397,staravia,姆克鸟,397,,6,155,119,528,true,true
+398,staraptor,姆克鹰,398,,12,249,218,529,true,true
+399,bidoof,大牙狸,399,,5,200,50,530,true,true
+400,bibarel,大尾狸,400,,10,315,144,531,true,true
+401,kricketot,圆法师,401,,3,22,39,532,true,true
+402,kricketune,音箱蟀,402,,10,255,134,533,true,true
+403,shinx,小猫怪,403,,5,95,53,534,true,true
+404,luxio,勒克猫,404,,9,305,127,535,true,true
+405,luxray,伦琴猫,405,,14,420,235,536,true,true
+406,budew,含羞苞,406,,2,12,56,423,true,true
+407,roserade,罗丝雷朵,407,,9,145,232,425,true,true
+408,cranidos,头盖龙,408,,9,315,70,537,true,true
+409,rampardos,战槌龙,409,,16,1025,173,538,true,true
+410,shieldon,盾甲龙,410,,5,570,70,539,true,true
+411,bastiodon,护城龙,411,,13,1495,173,540,true,true
+412,burmy,结草儿,412,,2,34,45,541,true,true
+413,wormadam-plant,结草贵妇,413,,5,65,148,542,true,true
+414,mothim,绅士蛾,414,,9,233,148,545,true,true
+415,combee,三蜜蜂,415,,3,55,49,546,true,true
+416,vespiquen,蜂女王,416,,12,385,166,547,true,true
+417,pachirisu,帕奇利兹,417,,4,39,142,548,true,true
+418,buizel,泳圈鼬,418,,7,295,66,549,true,true
+419,floatzel,浮潜鼬,419,,11,335,173,550,true,true
+420,cherubi,樱花宝,420,,4,33,55,551,true,true
+421,cherrim,樱花儿,421,,5,93,158,552,true,true
+422,shellos,无壳海兔,422,,3,63,65,553,true,true
+423,gastrodon,海兔兽,423,,9,299,166,554,true,true
+424,ambipom,双尾怪手,424,,12,203,169,286,true,true
+425,drifloon,飘飘球,425,,4,12,70,555,true,true
+426,drifblim,随风球,426,,12,150,174,556,true,true
+427,buneary,卷卷耳,427,,4,55,70,557,true,true
+428,lopunny,长耳兔,428,,12,333,168,558,true,true
+429,mismagius,梦妖魔,429,,9,44,173,296,true,true
+430,honchkrow,乌鸦头头,430,,9,273,177,294,true,true
+431,glameow,魅力喵,431,,5,39,62,560,true,true
+432,purugly,东施喵,432,,10,438,158,561,true,true
+433,chingling,铃铛响,433,,2,6,57,476,true,true
+434,stunky,臭鼬噗,434,,4,192,66,562,true,true
+435,skuntank,坦克臭鼬,435,,10,380,168,563,true,true
+436,bronzor,铜镜怪,436,,5,605,60,564,true,true
+437,bronzong,青铜钟,437,,13,1870,175,565,true,true
+438,bonsly,盆才怪,438,,5,150,58,280,true,true
+439,mime-jr,魔尼尼,439,,6,130,62,193,true,true
+440,happiny,小福蛋,440,,6,244,110,179,true,true
+441,chatot,聒噪鸟,441,,5,19,144,566,true,true
+442,spiritomb,花岩怪,442,,10,1080,170,567,true,true
+443,gible,圆陆鲨,443,,7,205,60,568,true,true
+444,gabite,尖牙陆鲨,444,,14,560,144,569,true,true
+445,garchomp,烈咬陆鲨,445,,19,950,270,570,true,true
+446,munchlax,小卡比兽,446,,6,1050,78,234,true,true
+447,riolu,利欧路,447,,7,202,57,572,true,true
+448,lucario,路卡利欧,448,,12,540,184,573,true,true
+449,hippopotas,沙河马,449,,8,495,66,575,true,true
+450,hippowdon,河马兽,450,,20,3000,184,576,true,true
+451,skorupi,钳尾蝎,451,,8,120,66,577,true,true
+452,drapion,龙王蝎,452,,13,615,175,578,true,true
+453,croagunk,不良蛙,453,,7,230,60,579,true,true
+454,toxicroak,毒骷蛙,454,,13,444,172,580,true,true
+455,carnivine,尖牙笼,455,,14,270,159,581,true,true
+456,finneon,荧光鱼,456,,4,70,66,582,true,true
+457,lumineon,霓虹鱼,457,,12,240,161,583,true,true
+458,mantyke,小球飞鱼,458,,10,650,69,326,true,true
+459,snover,雪笠怪,459,,10,505,67,584,true,true
+460,abomasnow,暴雪王,460,,22,1355,173,585,true,true
+461,weavile,玛狃拉,461,,11,340,179,313,true,true
+462,magnezone,自爆磁怪,462,,12,1800,241,134,true,true
+463,lickilicky,大舌舔,463,,17,1400,180,172,true,true
+464,rhyperior,超甲狂犀,464,,24,2828,241,178,true,true
+465,tangrowth,巨蔓藤,465,,20,1286,187,183,true,true
+466,electivire,电击魔兽,466,,18,1386,243,203,true,true
+467,magmortar,鸭嘴炎兽,467,,16,680,243,206,true,true
+468,togekiss,波克基斯,468,,15,380,245,270,true,true
+469,yanmega,远古巨蜓,469,,19,515,180,290,true,true
+470,leafeon,叶伊布,470,,10,255,184,222,true,true
+471,glaceon,冰伊布,471,,8,259,184,223,true,true
+472,gliscor,天蝎王,472,,20,425,179,305,true,true
+473,mamoswine,象牙猪,473,,25,2910,239,320,true,true
+474,porygon-z,多边兽乙型,474,,9,340,241,227,true,true
+475,gallade,艾路雷朵,475,,16,520,233,384,true,true
+476,probopass,大朝北鼻,476,,14,3400,184,402,true,true
+477,dusknoir,黑夜魔灵,477,,22,1066,236,474,true,true
+478,froslass,雪妖女,478,,13,266,168,483,true,true
+479,rotom,洛托姆,479,,3,3,154,587,true,true
+480,uxie,由克希,480,,3,3,261,593,true,true
+481,mesprit,艾姆利多,481,,3,3,261,594,true,true
+482,azelf,亚克诺姆,482,,3,3,261,595,true,true
+483,dialga,帝牙卢卡,483,,54,6830,306,596,true,true
+484,palkia,帕路奇亚,484,,42,3360,306,597,true,true
+485,heatran,席多蓝恩,485,,17,4300,270,598,true,true
+486,regigigas,雷吉奇卡斯,486,,37,4200,302,599,true,true
+487,giratina-altered,骑拉帝纳,487,,45,7500,306,600,true,true
+488,cresselia,克雷色利亚,488,,15,856,270,602,true,true
+489,phione,霏欧纳,489,,4,31,216,603,true,true
+490,manaphy,玛纳霏,490,,3,14,270,604,true,true
+491,darkrai,达克莱伊,491,,15,505,270,605,true,true
+492,shaymin-land,谢米,492,,2,21,270,606,true,true
+493,arceus,阿尔宙斯,493,,32,3200,324,608,true,true
+494,victini,比克提尼,494,,4,40,270,609,true,true
+495,snivy,藤藤蛇,495,,6,81,62,610,true,true
+496,servine,青藤蛇,496,,8,160,145,611,true,true
+497,serperior,君主蛇,497,,33,630,238,612,true,true
+498,tepig,暖暖猪,498,,5,99,62,613,true,true
+499,pignite,炒炒猪,499,,10,555,146,614,true,true
+500,emboar,炎武王,500,,16,1500,238,615,true,true
+501,oshawott,水水獭,501,,5,59,62,616,true,true
+502,dewott,双刃丸,502,,8,245,145,617,true,true
+503,samurott,大剑鬼,503,,15,946,238,618,true,true
+504,patrat,探探鼠,504,,5,116,51,619,true,true
+505,watchog,步哨鼠,505,,11,270,147,620,true,true
+506,lillipup,小约克,506,,4,41,55,621,true,true
+507,herdier,哈约克,507,,9,147,130,622,true,true
+508,stoutland,长毛狗,508,,12,610,225,623,true,true
+509,purrloin,扒手猫,509,,4,101,56,624,true,true
+510,liepard,酷豹,510,,11,375,156,625,true,true
+511,pansage,花椰猴,511,,6,105,63,626,true,true
+512,simisage,花椰猿,512,,11,305,174,627,true,true
+513,pansear,爆香猴,513,,6,110,63,628,true,true
+514,simisear,爆香猿,514,,10,280,174,629,true,true
+515,panpour,冷水猴,515,,6,135,63,630,true,true
+516,simipour,冷水猿,516,,10,290,174,631,true,true
+517,munna,食梦梦,517,,6,233,58,632,true,true
+518,musharna,梦梦蚀,518,,11,605,170,633,true,true
+519,pidove,豆豆鸽,519,,3,21,53,634,true,true
+520,tranquill,咕咕鸽,520,,6,150,125,635,true,true
+521,unfezant,高傲雉鸡,521,,12,290,220,636,true,true
+522,blitzle,斑斑马,522,,8,298,59,637,true,true
+523,zebstrika,雷电斑马,523,,16,795,174,638,true,true
+524,roggenrola,石丸子,524,,4,180,56,639,true,true
+525,boldore,地幔岩,525,,9,1020,137,640,true,true
+526,gigalith,庞岩怪,526,,17,2600,232,641,true,true
+527,woobat,滚滚蝙蝠,527,,4,21,65,642,true,true
+528,swoobat,心蝙蝠,528,,9,105,149,643,true,true
+529,drilbur,螺钉地鼠,529,,3,85,66,644,true,true
+530,excadrill,龙头地鼠,530,,7,404,178,645,true,true
+531,audino,差不多娃娃,531,,11,310,390,646,true,true
+532,timburr,搬运小匠,532,,6,125,61,648,true,true
+533,gurdurr,铁骨土人,533,,12,400,142,649,true,true
+534,conkeldurr,修建老匠,534,,14,870,227,650,true,true
+535,tympole,圆蝌蚪,535,,5,45,59,651,true,true
+536,palpitoad,蓝蟾蜍,536,,8,170,134,652,true,true
+537,seismitoad,蟾蜍王,537,,15,620,229,653,true,true
+538,throh,投摔鬼,538,,13,555,163,654,true,true
+539,sawk,打击鬼,539,,14,510,163,655,true,true
+540,sewaddle,虫宝包,540,,3,25,62,656,true,true
+541,swadloon,宝包茧,541,,5,73,133,657,true,true
+542,leavanny,保姆虫,542,,12,205,225,658,true,true
+543,venipede,百足蜈蚣,543,,4,53,52,659,true,true
+544,whirlipede,车轮球,544,,12,585,126,660,true,true
+545,scolipede,蜈蚣王,545,,25,2005,218,661,true,true
+546,cottonee,木棉球,546,,3,6,56,662,true,true
+547,whimsicott,风妖精,547,,7,66,168,663,true,true
+548,petilil,百合根娃娃,548,,5,66,56,664,true,true
+549,lilligant,裙儿小姐,549,,11,163,168,665,true,true
+550,basculin-red-striped,野蛮鲈鱼,550,,10,180,161,666,true,true
+551,sandile,黑眼鳄,551,,7,152,58,668,true,true
+552,krokorok,混混鳄,552,,10,334,123,669,true,true
+553,krookodile,流氓鳄,553,,15,963,234,670,true,true
+554,darumaka,火红不倒翁,554,,6,375,63,671,true,true
+555,darmanitan-standard,达摩狒狒,555,,13,929,168,673,true,true
+556,maractus,沙铃仙人掌,556,,10,280,161,677,true,true
+557,dwebble,石居蟹,557,,3,145,65,678,true,true
+558,crustle,岩殿居蟹,558,,14,2000,170,679,true,true
+559,scraggy,滑滑小子,559,,6,118,70,680,true,true
+560,scrafty,头巾混混,560,,11,300,171,681,true,true
+561,sigilyph,象征鸟,561,,14,140,172,682,true,true
+562,yamask,哭哭面具,562,,5,15,61,683,true,true
+563,cofagrigus,迭失棺,563,,17,765,169,685,true,true
+564,tirtouga,原盖海龟,564,,7,165,71,686,true,true
+565,carracosta,肋骨海龟,565,,12,810,173,687,true,true
+566,archen,始祖小鸟,566,,5,95,71,688,true,true
+567,archeops,始祖大鸟,567,,14,320,177,689,true,true
+568,trubbish,破破袋,568,,6,310,66,690,true,true
+569,garbodor,灰尘山,569,,19,1073,166,691,true,true
+570,zorua,索罗亚,570,,7,125,66,692,true,true
+571,zoroark,索罗亚克,571,,16,811,179,693,true,true
+572,minccino,泡沫栗鼠,572,,4,58,60,694,true,true
+573,cinccino,奇诺栗鼠,573,,5,75,165,695,true,true
+574,gothita,哥德宝宝,574,,4,58,58,696,true,true
+575,gothorita,哥德小童,575,,7,180,137,697,true,true
+576,gothitelle,哥德小姐,576,,15,440,221,698,true,true
+577,solosis,单卵细胞球,577,,3,10,58,699,true,true
+578,duosion,双卵细胞球,578,,6,80,130,700,true,true
+579,reuniclus,人造细胞卵,579,,10,201,221,701,true,true
+580,ducklett,鸭宝宝,580,,5,55,61,702,true,true
+581,swanna,舞天鹅,581,,13,242,166,703,true,true
+582,vanillite,迷你冰,582,,4,57,61,704,true,true
+583,vanillish,多多冰,583,,11,410,138,705,true,true
+584,vanilluxe,双倍多多冰,584,,13,575,241,706,true,true
+585,deerling,四季鹿,585,,6,195,67,707,true,true
+586,sawsbuck,萌芽鹿,586,,19,925,166,708,true,true
+587,emolga,电飞鼠,587,,4,50,150,709,true,true
+588,karrablast,盖盖虫,588,,5,59,63,710,true,true
+589,escavalier,骑士蜗牛,589,,10,330,173,711,true,true
+590,foongus,哎呀球菇,590,,2,10,59,712,true,true
+591,amoonguss,败露球菇,591,,6,105,162,713,true,true
+592,frillish-male,轻飘飘,592,,12,330,67,714,true,true
+593,jellicent-male,胖嘟嘟,593,,22,1350,168,715,true,true
+594,alomomola,保姆曼波,594,,12,316,165,716,true,true
+595,joltik,电电虫,595,,1,6,64,717,true,true
+596,galvantula,电蜘蛛,596,,8,143,165,718,true,true
+597,ferroseed,种子铁球,597,,6,188,61,719,true,true
+598,ferrothorn,坚果哑铃,598,,10,1100,171,720,true,true
+599,klink,齿轮儿,599,,3,210,60,721,true,true
+600,klang,齿轮组,600,,6,510,154,722,true,true
+601,klinklang,齿轮怪,601,,6,810,234,723,true,true
+602,tynamo,麻麻小鱼,602,,2,3,55,724,true,true
+603,eelektrik,麻麻鳗,603,,12,220,142,725,true,true
+604,eelektross,麻麻鳗鱼王,604,,21,805,232,726,true,true
+605,elgyem,小灰怪,605,,5,90,67,727,true,true
+606,beheeyem,大宇怪,606,,10,345,170,728,true,true
+607,litwick,烛光灵,607,,3,31,55,729,true,true
+608,lampent,灯火幽灵,608,,6,130,130,730,true,true
+609,chandelure,水晶灯火灵,609,,10,343,234,731,true,true
+610,axew,牙牙,610,,6,180,64,732,true,true
+611,fraxure,斧牙龙,611,,10,360,144,733,true,true
+612,haxorus,双斧战龙,612,,18,1055,243,734,true,true
+613,cubchoo,喷嚏熊,613,,5,85,61,735,true,true
+614,beartic,冻原熊,614,,26,2600,177,736,true,true
+615,cryogonal,几何雪花,615,,11,1480,180,737,true,true
+616,shelmet,小嘴蜗,616,,4,77,61,738,true,true
+617,accelgor,敏捷虫,617,,8,253,173,739,true,true
+618,stunfisk,泥巴鱼,618,,7,110,165,740,true,true
+619,mienfoo,功夫鼬,619,,9,200,70,742,true,true
+620,mienshao,师父鼬,620,,14,355,179,743,true,true
+621,druddigon,赤面龙,621,,16,1390,170,744,true,true
+622,golett,泥偶小人,622,,10,920,61,745,true,true
+623,golurk,泥偶巨人,623,,28,3300,169,746,true,true
+624,pawniard,驹刀小兵,624,,5,102,68,747,true,true
+625,bisharp,劈斩司令,625,,16,700,172,748,true,true
+626,bouffalant,爆炸头水牛,626,,16,946,172,749,true,true
+627,rufflet,毛头小鹰,627,,5,105,70,750,true,true
+628,braviary,勇士雄鹰,628,,15,410,179,751,true,true
+629,vullaby,秃鹰丫头,629,,5,90,74,752,true,true
+630,mandibuzz,秃鹰娜,630,,12,395,179,753,true,true
+631,heatmor,熔蚁兽,631,,14,580,169,754,true,true
+632,durant,铁蚁,632,,3,330,169,755,true,true
+633,deino,单首龙,633,,8,173,60,756,true,true
+634,zweilous,双首暴龙,634,,14,500,147,757,true,true
+635,hydreigon,三首恶龙,635,,18,1600,270,758,true,true
+636,larvesta,灼伤虫,636,,11,288,72,759,true,true
+637,volcarona,火神蛾,637,,16,460,248,760,true,true
+638,cobalion,勾帕路翁,638,,21,2500,261,761,true,true
+639,terrakion,代拉基翁,639,,19,2600,261,762,true,true
+640,virizion,毕力吉翁,640,,20,2000,261,763,true,true
+641,tornadus-incarnate,龙卷云,641,,15,630,261,764,true,true
+642,thundurus-incarnate,雷电云,642,,15,610,261,766,true,true
+643,reshiram,莱希拉姆,643,,32,3300,306,768,true,true
+644,zekrom,捷克罗姆,644,,29,3450,306,769,true,true
+645,landorus-incarnate,土地云,645,,15,680,270,770,true,true
+646,kyurem,酋雷姆,646,,30,3250,297,772,true,true
+647,keldeo-ordinary,凯路迪欧,647,,14,485,261,775,true,true
+648,meloetta-aria,美洛耶塔,648,,6,65,270,777,true,true
+649,genesect,盖诺赛克特,649,,15,825,270,779,true,true
+650,chespin,哈力栗,650,,4,90,63,780,true,true
+651,quilladin,胖胖哈力,651,,7,290,142,781,true,true
+652,chesnaught,布里卡隆,652,,16,900,239,782,true,true
+653,fennekin,火狐狸,653,,4,94,61,783,true,true
+654,braixen,长尾火狐,654,,10,145,143,784,true,true
+655,delphox,妖火红狐,655,,15,390,240,785,true,true
+656,froakie,呱呱泡蛙,656,,3,70,63,786,true,true
+657,frogadier,呱头蛙,657,,6,109,142,787,true,true
+658,greninja,甲贺忍蛙,658,,15,400,239,788,true,true
+659,bunnelby,掘掘兔,659,,4,50,47,791,true,true
+660,diggersby,掘地兔,660,,10,424,148,792,true,true
+661,fletchling,小箭雀,661,,3,17,56,793,true,true
+662,fletchinder,火箭雀,662,,7,160,134,794,true,true
+663,talonflame,烈箭鹰,663,,12,245,175,795,true,true
+664,scatterbug,粉蝶虫,664,,3,25,40,796,true,true
+665,spewpa,粉蝶蛹,665,,3,84,75,797,true,true
+666,vivillon,彩粉蝶,666,,12,170,185,798,true,true
+667,litleo,小狮狮,667,,6,135,74,799,true,true
+668,pyroar-male,火炎狮,668,,15,815,177,800,true,true
+669,flabebe,花蓓蓓,669,,1,1,61,801,true,true
+670,floette,花叶蒂,670,,2,9,130,802,true,true
+671,florges,花洁夫人,671,,11,100,248,804,true,true
+672,skiddo,坐骑小羊,672,,9,310,70,805,true,true
+673,gogoat,坐骑山羊,673,,17,910,186,806,true,true
+674,pancham,顽皮熊猫,674,,6,80,70,807,true,true
+675,pangoro,霸道熊猫,675,,21,1360,173,808,true,true
+676,furfrou,多丽米亚,676,,12,280,165,809,true,true
+677,espurr,妙喵,677,,3,35,71,810,true,true
+678,meowstic-male,超能妙喵,678,,6,85,163,811,true,true
+679,honedge,独剑鞘,679,,8,20,65,813,true,true
+680,doublade,双剑鞘,680,,8,45,157,814,true,true
+681,aegislash-shield,坚盾剑怪,681,,17,530,234,815,true,true
+682,spritzee,粉香香,682,,2,5,68,817,true,true
+683,aromatisse,芳香精,683,,8,155,162,818,true,true
+684,swirlix,绵绵泡芙,684,,4,35,68,819,true,true
+685,slurpuff,胖甜妮,685,,8,50,168,820,true,true
+686,inkay,好啦鱿,686,,4,35,58,821,true,true
+687,malamar,乌贼王,687,,15,470,169,822,true,true
+688,binacle,龟脚脚,688,,5,310,61,823,true,true
+689,barbaracle,龟足巨铠,689,,13,960,175,824,true,true
+690,skrelp,垃垃藻,690,,5,73,64,825,true,true
+691,dragalge,毒藻龙,691,,18,815,173,826,true,true
+692,clauncher,铁臂枪虾,692,,5,83,66,827,true,true
+693,clawitzer,钢炮臂虾,693,,13,353,100,828,true,true
+694,helioptile,伞电蜥,694,,5,60,58,829,true,true
+695,heliolisk,光电伞蜥,695,,10,210,168,830,true,true
+696,tyrunt,宝宝暴龙,696,,8,260,72,831,true,true
+697,tyrantrum,怪颚龙,697,,25,2700,182,832,true,true
+698,amaura,冰雪龙,698,,13,252,72,833,true,true
+699,aurorus,冰雪巨龙,699,,27,2250,104,834,true,true
+700,sylveon,仙子伊布,700,,10,235,184,224,true,true
+701,hawlucha,摔角鹰人,701,,8,215,175,835,true,true
+702,dedenne,咚咚鼠,702,,2,22,151,836,true,true
+703,carbink,小碎钻,703,,3,57,100,837,true,true
+704,goomy,黏黏宝,704,,3,28,60,838,true,true
+705,sliggoo,黏美儿,705,,8,175,158,839,true,true
+706,goodra,黏美龙,706,,20,1505,270,840,true,true
+707,klefki,钥圈儿,707,,2,30,165,841,true,true
+708,phantump,小木灵,708,,4,70,62,842,true,true
+709,trevenant,朽木妖,709,,15,710,166,843,true,true
+710,pumpkaboo-average,南瓜精,710,,4,50,67,844,true,true
+711,gourgeist-average,南瓜怪人,711,,9,125,173,848,true,true
+712,bergmite,冰宝,712,,10,995,61,852,true,true
+713,avalugg,冰岩怪,713,,20,5050,180,853,true,true
+714,noibat,嗡蝠,714,,5,80,49,854,true,true
+715,noivern,音波龙,715,,15,850,187,855,true,true
+716,xerneas,哲尔尼亚斯,716,,30,2150,306,856,true,true
+717,yveltal,伊裴尔塔尔,717,,58,2030,306,857,true,true
+718,zygarde-50,基格尔德,718,,50,3050,270,858,true,true
+719,diancie,蒂安希,719,,7,88,270,863,true,true
+720,hoopa,胡帕,720,,5,90,270,865,true,true
+721,volcanion,波尔凯尼恩,721,,17,1950,270,867,true,true
+722,rowlet,木木枭,722,,3,15,64,868,true,true
+723,dartrix,投羽枭,723,,7,160,147,869,true,true
+724,decidueye,狙射树枭,724,,16,366,239,870,true,true
+725,litten,火斑喵,725,,4,43,64,871,true,true
+726,torracat,炎热喵,726,,7,250,147,872,true,true
+727,incineroar,炽焰咆哮虎,727,,18,830,239,873,true,true
+728,popplio,球球海狮,728,,4,75,64,874,true,true
+729,brionne,花漾海狮,729,,6,175,147,875,true,true
+730,primarina,西狮海壬,730,,18,440,239,876,true,true
+731,pikipek,小笃儿,731,,3,12,53,877,true,true
+732,trumbeak,喇叭啄鸟,732,,6,148,124,878,true,true
+733,toucannon,铳嘴大鸟,733,,11,260,218,879,true,true
+734,yungoos,猫鼬少,734,,4,60,51,880,true,true
+735,gumshoos,猫鼬探长,735,,7,142,146,881,true,true
+736,grubbin,强颚鸡母虫,736,,4,44,60,883,true,true
+737,charjabug,虫电宝,737,,5,105,140,884,true,true
+738,vikavolt,锹农炮虫,738,,15,450,225,885,true,true
+739,crabrawler,好胜蟹,739,,6,70,68,887,true,true
+740,crabominable,好胜毛蟹,740,,17,1800,167,888,true,true
+741,oricorio-baile,花舞鸟,741,,6,34,167,889,true,true
+742,cutiefly,萌虻,742,,1,2,61,893,true,true
+743,ribombee,蝶结萌虻,743,,2,5,162,894,true,true
+744,rockruff,岩狗狗,744,,5,92,56,896,true,true
+745,lycanroc-midday,鬃岩狼人,745,,8,250,170,898,true,true
+746,wishiwashi-solo,弱丁鱼,746,,2,3,61,901,true,true
+747,mareanie,好坏星,747,,4,80,61,903,true,true
+748,toxapex,超坏星,748,,7,145,173,904,true,true
+749,mudbray,泥驴仔,749,,10,1100,77,905,true,true
+750,mudsdale,重泥挽马,750,,25,9200,175,906,true,true
+751,dewpider,滴蛛,751,,3,40,54,907,true,true
+752,araquanid,滴蛛霸,752,,18,820,159,908,true,true
+753,fomantis,伪螳草,753,,3,15,50,910,true,true
+754,lurantis,兰螳花,754,,9,185,168,911,true,true
+755,morelull,睡睡菇,755,,2,15,57,913,true,true
+756,shiinotic,灯罩夜菇,756,,10,115,142,914,true,true
+757,salandit,夜盗火蜥,757,,6,48,64,915,true,true
+758,salazzle,焰后蜥,758,,12,222,168,916,true,true
+759,stufful,童偶熊,759,,5,68,68,918,true,true
+760,bewear,穿着熊,760,,21,1350,175,919,true,true
+761,bounsweet,甜竹竹,761,,3,32,42,920,true,true
+762,steenee,甜舞妮,762,,7,82,102,921,true,true
+763,tsareena,甜冷美后,763,,12,214,230,922,true,true
+764,comfey,花疗环环,764,,1,3,170,923,true,true
+765,oranguru,智挥猩,765,,15,760,172,924,true,true
+766,passimian,投掷猴,766,,20,828,172,925,true,true
+767,wimpod,胆小虫,767,,5,120,46,926,true,true
+768,golisopod,具甲武者,768,,20,1080,186,927,true,true
+769,sandygast,沙丘娃,769,,5,700,64,928,true,true
+770,palossand,噬沙堡爷,770,,13,2500,168,929,true,true
+771,pyukumuku,拳海参,771,,3,12,144,930,true,true
+772,type-null,属性：空,772,,19,1205,107,931,true,true
+773,silvally,银伴战兽,773,,23,1005,257,932,true,true
+774,minior-red-meteor,小陨星,774,,3,400,154,933,true,true
+775,komala,树枕尾熊,775,,4,199,168,947,true,true
+776,turtonator,爆焰龟兽,776,,20,2120,170,948,true,true
+777,togedemaru,托戈德玛尔,777,,3,33,152,949,true,true
+778,mimikyu-disguised,谜拟丘,778,,2,7,167,951,true,true
+779,bruxish,磨牙彩皮鱼,779,,9,190,166,955,true,true
+780,drampa,老翁龙,780,,30,1850,170,956,true,true
+781,dhelmise,破破舵轮,781,,39,2100,181,957,true,true
+782,jangmo-o,心鳞宝,782,,6,297,60,958,true,true
+783,hakamo-o,鳞甲龙,783,,12,470,147,959,true,true
+784,kommo-o,杖尾鳞甲龙,784,,16,782,270,960,true,true
+785,tapu-koko,卡璞・鸣鸣,785,,18,205,257,962,true,true
+786,tapu-lele,卡璞・蝶蝶,786,,12,186,257,963,true,true
+787,tapu-bulu,卡璞・哞哞,787,,19,455,257,964,true,true
+788,tapu-fini,卡璞・鳍鳍,788,,13,212,257,965,true,true
+789,cosmog,科斯莫古,789,,2,1,40,966,true,true
+790,cosmoem,科斯莫姆,790,,1,9999,140,967,true,true
+791,solgaleo,索尔迦雷欧,791,,34,2300,306,968,true,true
+792,lunala,露奈雅拉,792,,40,1200,306,969,true,true
+793,nihilego,虚吾伊德,793,,12,555,257,970,true,true
+794,buzzwole,爆肌蚊,794,,24,3336,257,971,true,true
+795,pheromosa,费洛美螂,795,,18,250,257,972,true,true
+796,xurkitree,电束木,796,,38,1000,257,973,true,true
+797,celesteela,铁火辉夜,797,,92,9999,257,974,true,true
+798,kartana,纸御剑,798,,3,1,257,975,true,true
+799,guzzlord,恶食大王,799,,55,8880,257,976,true,true
+800,necrozma,奈克洛兹玛,800,,24,2300,270,977,true,true
+801,magearna,玛机雅娜,801,,10,805,270,981,true,true
+802,marshadow,玛夏多,802,,7,222,270,983,true,true
+803,poipole,毒贝比,803,,6,18,189,984,true,true
+804,naganadel,四颚针龙,804,,36,1500,243,985,true,true
+805,stakataka,垒磊石,805,,55,8200,257,986,true,true
+806,blacephalon,砰头小丑,806,,18,130,257,987,true,true
+807,zeraora,捷拉奥拉,807,,15,445,270,988,true,true
+808,meltan,美录坦,808,,2,80,135,989,true,true
+809,melmetal,美录梅塔,809,,25,8000,270,990,true,true
+810,grookey,敲音猴,810,,3,50,62,991,true,true
+811,thwackey,啪咚猴,811,,7,140,147,992,true,true
+812,rillaboom,轰擂金刚猩,812,,21,900,265,993,true,true
+813,scorbunny,炎兔儿,813,,3,45,62,994,true,true
+814,raboot,腾蹴小将,814,,6,90,147,995,true,true
+815,cinderace,闪焰王牌,815,,14,330,265,996,true,true
+816,sobble,泪眼蜥,816,,3,40,62,997,true,true
+817,drizzile,变涩蜥,817,,7,115,147,998,true,true
+818,inteleon,千面避役,818,,19,452,265,999,true,true
+819,skwovet,贪心栗鼠,819,,3,25,55,1000,true,true
+820,greedent,藏饱栗鼠,820,,6,60,161,1001,true,true
+821,rookidee,稚山雀,821,,2,18,49,1002,true,true
+822,corvisquire,蓝鸦,822,,8,160,128,1003,true,true
+823,corviknight,钢铠鸦,823,,22,750,248,1004,true,true
+824,blipbug,索侦虫,824,,4,80,36,1005,true,true
+825,dottler,天罩虫,825,,4,195,117,1006,true,true
+826,orbeetle,以欧路普,826,,4,408,253,1007,true,true
+827,nickit,狡小狐,827,,6,89,49,1008,true,true
+828,thievul,猾大狐,828,,12,199,159,1009,true,true
+829,gossifleur,幼棉棉,829,,4,22,50,1010,true,true
+830,eldegoss,白蓬蓬,830,,5,25,161,1011,true,true
+831,wooloo,毛辫羊,831,,6,60,122,1012,true,true
+832,dubwool,毛毛角羊,832,,13,430,172,1013,true,true
+833,chewtle,咬咬龟,833,,3,85,57,1014,true,true
+834,drednaw,暴噬龟,834,,10,1155,170,1015,true,true
+835,yamper,来电汪,835,,3,135,54,1016,true,true
+836,boltund,逐电犬,836,,10,340,172,1017,true,true
+837,rolycoly,小炭仔,837,,3,120,48,1018,true,true
+838,carkol,大炭车,838,,11,780,144,1019,true,true
+839,coalossal,巨炭山,839,,28,3105,255,1020,true,true
+840,applin,啃果虫,840,,2,5,52,1021,true,true
+841,flapple,苹裹龙,841,,3,10,170,1022,true,true
+842,appletun,丰蜜龙,842,,4,130,170,1023,true,true
+843,silicobra,沙包蛇,843,,22,76,63,1024,true,true
+844,sandaconda,沙螺蟒,844,,38,655,179,1025,true,true
+845,cramorant,古月鸟,845,,8,180,166,1026,true,true
+846,arrokuda,刺梭鱼,846,,5,10,56,1029,true,true
+847,barraskewda,戽斗尖梭,847,,13,300,172,1030,true,true
+848,toxel,电音婴,848,,4,110,48,1031,true,true
+849,toxtricity-amped,颤弦蝾螈,849,,16,400,176,1032,true,true
+850,sizzlipede,烧火蚣,850,,7,10,61,1034,true,true
+851,centiskorch,焚焰蚣,851,,30,1200,184,1035,true,true
+852,clobbopus,拳拳蛸,852,,6,40,62,1036,true,true
+853,grapploct,八爪武师,853,,16,390,168,1037,true,true
+854,sinistea,来悲茶,854,,1,2,62,1038,true,true
+855,polteageist,怖思壶,855,,2,4,178,1039,true,true
+856,hatenna,迷布莉姆,856,,4,34,53,1040,true,true
+857,hattrem,提布莉姆,857,,6,48,130,1041,true,true
+858,hatterene,布莉姆温,858,,21,51,255,1042,true,true
+859,impidimp,捣蛋小妖,859,,4,55,53,1043,true,true
+860,morgrem,诈唬魔,860,,8,125,130,1044,true,true
+861,grimmsnarl,长毛巨魔,861,,15,610,255,1045,true,true
+862,obstagoon,堵拦熊,862,,16,460,260,1046,true,true
+863,perrserker,喵头目,863,,8,280,154,1047,true,true
+864,cursola,魔灵珊瑚,864,,10,4,179,1048,true,true
+865,sirfetchd,葱游兵,865,,8,1170,177,1049,true,true
+866,mr-rime,踏冰人偶,866,,15,582,182,1050,true,true
+867,runerigus,迭失板,867,,16,666,169,1051,true,true
+868,milcery,小仙奶,868,,2,3,54,1052,true,true
+869,alcremie,霜奶仙,869,,3,5,173,1053,true,true
+870,falinks,列阵兵,870,,30,620,165,1054,true,true
+871,pincurchin,啪嚓海胆,871,,3,10,152,1055,true,true
+872,snom,雪吞虫,872,,3,38,37,1056,true,true
+873,frosmoth,雪绒蛾,873,,13,420,166,1057,true,true
+874,stonjourner,巨石丁,874,,25,5200,165,1058,true,true
+875,eiscue-ice,冰砌鹅,875,,14,890,165,1059,true,true
+876,indeedee-male,爱管侍,876,,9,280,166,1061,true,true
+877,morpeko-full-belly,莫鲁贝可,877,,3,30,153,1063,true,true
+878,cufant,铜象,878,,12,1000,66,1065,true,true
+879,copperajah,大王铜象,879,,30,6500,175,1066,true,true
+880,dracozolt,雷鸟龙,880,,18,1900,177,1067,true,true
+881,arctozolt,雷鸟海兽,881,,23,1500,177,1068,true,true
+882,dracovish,鳃鱼龙,882,,23,2150,177,1069,true,true
+883,arctovish,鳃鱼海兽,883,,20,1750,177,1070,true,true
+884,duraludon,铝钢龙,884,,18,400,187,1071,true,true
+885,dreepy,多龙梅西亚,885,,5,20,54,1072,true,true
+886,drakloak,多龙奇,886,,14,110,144,1073,true,true
+887,dragapult,多龙巴鲁托,887,,30,500,300,1074,true,true
+888,zacian,苍响,888,,28,1100,335,1075,true,true
+889,zamazenta,藏玛然特,889,,29,2100,335,1077,true,true
+890,eternatus,无极汰那,890,,200,9500,345,1079,true,true
+891,kubfu,熊徒弟,891,,6,120,77,1081,true,true
+892,urshifu-single-strike,武道熊师,892,,19,1050,275,1082,true,true
+893,zarude,萨戮德,893,,18,700,300,1084,true,true
+894,regieleki,雷吉艾勒奇,894,,12,1450,290,1086,true,true
+895,regidrago,雷吉铎拉戈,895,,21,2000,290,1087,true,true
+896,glastrier,雪暴马,896,,22,8000,290,1088,true,true
+897,spectrier,灵幽马,897,,20,445,290,1089,true,true
+898,calyrex,蕾冠王,898,,11,77,250,1090,true,true
+899,wyrdeer,诡角鹿,899,,18,951,263,-1,true,true
+900,kleavor,劈斧螳螂,900,,18,890,175,-1,true,true
+901,ursaluna,月月熊,901,,24,2900,275,-1,true,true
+902,basculegion-male,幽尾玄鱼,902,,30,1100,265,-1,true,true
+903,sneasler,大狃拉,903,,13,430,102,-1,true,true
+904,overqwil,万针鱼,904,,25,605,179,-1,true,true
+905,enamorus-incarnate,眷恋云,905,,16,480,116,-1,true,true
+906,sprigatito,新叶喵,906,,4,41,62,906,true,true
+907,floragato,蒂蕾喵,907,,9,122,144,907,true,true
+908,meowscarada,魔幻假面喵,908,,15,312,265,908,true,true
+909,fuecoco,呆火鳄,909,,4,98,62,909,true,true
+910,crocalor,炙烫鳄,910,,10,307,144,910,true,true
+911,skeledirge,骨纹巨声鳄,911,,16,3265,265,911,true,true
+912,quaxly,润水鸭,912,,5,61,62,912,true,true
+913,quaxwell,涌跃鸭,913,,12,215,144,913,true,true
+914,quaquaval,狂欢浪舞鸭,914,,18,619,265,914,true,true
+915,lechonk,爱吃豚,915,,5,102,51,915,true,true
+916,oinkologne-male,飘香豚,916,,10,1200,171,916,true,true
+917,tarountula,团珠蛛,917,,3,40,42,918,true,true
+918,spidops,操陷蛛,918,,10,165,141,919,true,true
+919,nymble,豆蟋蟀,919,,2,10,42,920,true,true
+920,lokix,烈腿蝗,920,,10,175,158,921,true,true
+921,pawmi,布拨,921,,3,25,48,954,true,true
+922,pawmo,布土拨,922,,4,65,123,955,true,true
+923,pawmot,巴布土拨,923,,9,410,245,956,true,true
+924,tandemaus,一对鼠,924,,3,18,61,945,true,true
+925,maushold-family-of-four,一家鼠,925,,3,28,165,946,true,true
+926,fidough,狗仔包,926,,3,109,62,970,true,true
+927,dachsbun,麻花犬,927,,5,149,167,971,true,true
+928,smoliv,迷你芙,928,,3,65,52,935,true,true
+929,dolliv,奥利纽,929,,6,119,124,936,true,true
+930,arboliva,奥利瓦,930,,14,482,255,937,true,true
+931,squawkabilly-green-plumage,怒鹦哥,931,,6,24,146,960,true,true
+932,nacli,盐石宝,932,,4,160,56,963,true,true
+933,naclstack,盐石垒,933,,6,1050,124,964,true,true
+934,garganacl,盐石巨灵,934,,23,2400,250,965,true,true
+935,charcadet,炭小侍,935,,6,105,51,1003,true,true
+936,armarouge,红莲铠骑,936,,15,850,263,1004,true,true
+937,ceruledge,苍炎刃鬼,937,,16,620,263,1005,true,true
+938,tadbulb,光蚪仔,938,,3,4,54,940,true,true
+939,bellibolt,电肚蛙,939,,12,1130,173,941,true,true
+940,wattrel,电海燕,940,,4,36,56,957,true,true
+941,kilowattrel,大电海燕,941,,14,386,172,958,true,true
+942,maschiff,偶叫獒,942,,5,160,68,972,true,true
+943,mabosstiff,獒教父,943,,11,610,177,973,true,true
+944,shroodle,滋汁鼹,944,,2,7,58,968,true,true
+945,grafaiai,涂标客,945,,7,272,170,969,true,true
+946,bramblin,纳噬草,946,,6,6,55,974,true,true
+947,brambleghast,怖纳噬草,947,,12,60,168,975,true,true
+948,toedscool,原野水母,948,,9,330,67,1006,true,true
+949,toedscruel,陆地水母,949,,19,580,180,1007,true,true
+950,klawf,毛崖蟹,950,,13,790,158,962,true,true
+951,capsakid,热辣娃,951,,3,30,61,938,true,true
+952,scovillain,狠辣椒,952,,9,150,170,939,true,true
+953,rellor,虫滚泥,953,,2,10,54,922,true,true
+954,rabsca,虫甲圣,954,,3,35,165,923,true,true
+955,flittle,飘飘雏,955,,2,15,51,926,true,true
+956,espathra,超能艳鸵,956,,19,900,168,927,true,true
+957,tinkatink,小锻匠,957,,4,89,59,1000,true,true
+958,tinkatuff,巧锻匠,958,,7,591,133,1001,true,true
+959,tinkaton,巨锻匠,959,,7,1128,253,1002,true,true
+960,wiglett,海地鼠,960,,12,18,49,929,true,true
+961,wugtrio,三海地鼠,961,,12,54,149,930,true,true
+962,bombirdier,下石鸟,962,,15,429,243,959,true,true
+963,finizen,波普海豚,963,,13,602,63,933,true,true
+964,palafin-zero,海豚侠,964,,13,602,160,934,true,true
+965,varoom,噗隆隆,965,,10,350,60,942,true,true
+966,revavroom,普隆隆姆,966,,18,1200,175,943,true,true
+967,cyclizar,摩托蜥,967,,16,630,175,953,true,true
+968,orthworm,拖拖蚓,968,,25,3100,240,944,true,true
+969,glimmet,晶光芽,969,,7,80,70,966,true,true
+970,glimmora,晶光花,970,,15,450,184,967,true,true
+971,greavard,墓仔狗,971,,6,350,58,924,true,true
+972,houndstone,墓扬犬,972,,20,150,171,925,true,true
+973,flamigo,纏红鹤,973,,16,370,175,961,true,true
+974,cetoddle,走鲸,974,,12,450,67,947,true,true
+975,cetitan,浩大鲸,975,,45,7000,182,948,true,true
+976,veluza,轻身鳕,976,,25,900,167,932,true,true
+977,dondozo,吃吼霸,977,,120,2200,265,931,true,true
+978,tatsugiri-curly,米立龙,978,,3,80,166,952,true,true
+979,annihilape,弃世猴,979,,12,560,268,1010,true,true
+980,clodsire,土王,980,,18,2230,151,1009,true,true
+981,farigiraf,奇麒麟,981,,32,1600,260,928,true,true
+982,dudunsparce-two-segment,土龙节节,982,,36,392,182,917,true,true
+983,kingambit,仆刀将军,983,,20,1200,275,1008,true,true
+984,great-tusk,雄伟牙,984,,22,3200,285,978,true,true
+985,scream-tail,吼叫尾,985,,12,80,285,982,true,true
+986,brute-bonnet,猛恶菇,986,,12,210,285,979,true,true
+987,flutter-mane,振翼发,987,,14,40,285,983,true,true
+988,slither-wing,爬地翅,988,,32,920,285,984,true,true
+989,sandy-shocks,沙铁皮,989,,23,600,285,981,true,true
+990,iron-treads,铁轍迹,990,,9,2400,285,986,true,true
+991,iron-bundle,铁包袱,991,,6,110,285,992,true,true
+992,iron-hands,铁臂膀,992,,18,3807,285,989,true,true
+993,iron-jugulis,铁脖颈,993,,13,1110,285,990,true,true
+994,iron-moth,铁毒蛾,994,,12,360,285,988,true,true
+995,iron-thorns,铁荆棘,995,,16,3030,285,991,true,true
+996,frigibax,凉脊龙,996,,5,170,64,949,true,true
+997,arctibax,冻脊龙,997,,8,300,148,950,true,true
+998,baxcalibur,戟脊龙,998,,21,2100,300,951,true,true
+999,gimmighoul,索财灵,999,,3,50,60,976,true,true
+1000,gholdengo,赛富豪,1000,,12,300,275,977,true,true
+1001,wo-chien,古简蜗,1001,,15,742,285,996,true,true
+1002,chien-pao,古剑豹,1002,,19,1522,285,995,true,true
+1003,ting-lu,古鼎鹿,1003,,27,6997,285,994,true,true
+1004,chi-yu,古玉鱼,1004,,4,49,285,997,true,true
+1005,roaring-moon,轰鸣月,1005,,20,3800,295,985,true,true
+1006,iron-valiant,铁武者,1006,,14,350,295,993,true,true
+1007,koraidon,故勒顿,1007,,25,3030,335,998,true,true
+1008,miraidon,密勒顿,1008,,35,2400,335,999,true,true
+1009,walking-wake,波荡水,1009,,35,2800,295,1093,true,true
+1010,iron-leaves,铁斑叶,1010,,15,1250,295,1094,true,true
+1011,dipplin,裹蜜虫,1011,,4,97,170,1095,true,true
+1012,poltchageist,斯魔茶,1012,,1,11,62,1096,true,true
+1013,sinistcha,来悲粗茶,1013,,2,22,178,1097,true,true
+1014,okidogi,够赞狗,1014,,18,922,278,1098,true,true
+1015,munkidori,愿增猿,1015,,10,122,278,1099,true,true
+1016,fezandipiti,吉雉鸡,1016,,14,301,278,1100,true,true
+1017,ogerpon,厄诡椪,1017,,12,398,275,1101,true,true
+1018,archaludon,铝钢桥龙,1018,,20,600,300,1102,true,true
+1019,hydrapple,蜜集大蛇,1019,,18,930,270,1103,true,true
+1020,gouging-fire,破空焰,1020,,35,5900,295,1104,true,true
+1021,raging-bolt,猛雷鼓,1021,,52,4800,295,1105,true,true
+1022,iron-boulder,鐵磐岩,1022,,15,1625,295,1106,true,true
+1023,iron-crown,鐵頭殼,1023,,16,1560,295,1107,true,true
+1024,terapagos,太乐巴戈斯,1024,,2,65,90,1108,true,true
+1025,pecharunt,桃歹郎,1025,,3,3,300,1109,true,true
+10001,deoxys-attack,代欧奇希斯（攻击）,386,386,17,608,270,515,false,true
+10002,deoxys-defense,代欧奇希斯（防御）,386,386,17,608,270,516,false,true
+10003,deoxys-speed,代欧奇希斯（速度）,386,386,17,608,270,517,false,true
+10004,wormadam-sandy,结草贵妇（沙）,413,413,5,65,148,543,false,true
+10005,wormadam-trash,结草贵妇（垃圾）,413,413,5,65,148,544,false,true
+10006,shaymin-sky,谢米（天空）,492,492,4,52,270,607,false,true
+10007,giratina-origin,骑拉帝纳（起源）,487,487,69,6500,340,601,false,true
+10008,rotom-heat,洛托姆（热）,479,479,3,3,182,588,false,true
+10009,rotom-wash,洛托姆（洗）,479,479,3,3,182,589,false,true
+10010,rotom-frost,洛托姆（霜）,479,479,3,3,182,590,false,true
+10011,rotom-fan,洛托姆（扇子）,479,479,3,3,182,591,false,true
+10012,rotom-mow,洛托姆（刈）,479,479,3,3,182,592,false,true
+10013,castform-sunny,飘浮泡泡（阳光明媚）,351,351,3,8,147,465,false,true
+10014,castform-rainy,飘浮泡泡（雨天）,351,351,3,8,147,466,false,true
+10015,castform-snowy,飘浮泡泡（雪域）,351,351,3,8,147,467,false,true
+10016,basculin-blue-striped,野蛮鲈鱼（蓝色条纹）,550,550,10,180,161,667,false,true
+10017,darmanitan-zen,达摩狒狒（禅）,555,555,13,929,189,674,false,true
+10018,meloetta-pirouette,美洛耶塔（旋转）,648,648,6,65,270,778,false,true
+10019,tornadus-therian,龙卷云（兽族）,641,641,14,630,290,765,false,true
+10020,thundurus-therian,雷电云（兽族）,642,642,30,610,290,767,false,true
+10021,landorus-therian,土地云（兽族）,645,645,13,680,300,771,false,true
+10022,kyurem-black,酋雷姆（黑色的）,646,646,33,3250,350,774,false,true
+10023,kyurem-white,酋雷姆（白色的）,646,646,36,3250,350,773,false,true
+10024,keldeo-resolute,凯路迪欧（坚决）,647,647,14,485,290,776,false,true
+10025,meowstic-female,超能妙喵（女性）,678,678,6,85,163,812,false,true
+10026,aegislash-blade,坚盾剑怪（刀刃）,681,681,17,530,250,816,false,true
+10027,pumpkaboo-small,南瓜精（小的）,710,710,3,35,67,845,false,true
+10028,pumpkaboo-large,南瓜精（大的）,710,710,5,75,67,846,false,true
+10029,pumpkaboo-super,南瓜精（极好的）,710,710,8,150,67,847,false,true
+10030,gourgeist-small,南瓜怪人（小的）,711,711,7,95,173,849,false,true
+10031,gourgeist-large,南瓜怪人（大的）,711,711,11,140,173,850,false,true
+10032,gourgeist-super,南瓜怪人（极好的）,711,711,17,390,173,851,false,true
+10033,venusaur-mega,妙蛙花（兆）,3,3,24,1555,281,4,false,true
+10034,charizard-mega-x,喷火龙（超级X）,6,6,17,1105,285,8,false,true
+10035,charizard-mega-y,喷火龙（超级Y）,6,6,17,1005,285,9,false,true
+10036,blastoise-mega,水箭龟（兆）,9,9,16,1011,284,13,false,true
+10037,alakazam-mega,胡地（兆）,65,65,12,480,270,106,false,true
+10038,gengar-mega,耿鬼（兆）,94,94,14,405,270,150,false,true
+10039,kangaskhan-mega,袋兽（兆）,115,115,22,1000,207,185,false,true
+10040,pinsir-mega,凯罗斯（兆）,127,127,17,590,210,208,false,true
+10041,gyarados-mega,暴鲤龙（兆）,130,130,65,3050,224,212,false,true
+10042,aerodactyl-mega,化石翼龙（兆）,142,142,21,790,215,233,false,true
+10043,mewtwo-mega-x,超梦（超级X）,150,150,23,1270,351,246,false,true
+10044,mewtwo-mega-y,超梦（超级Y）,150,150,15,330,351,247,false,true
+10045,ampharos-mega,电龙（兆）,181,181,14,615,275,276,false,true
+10046,scizor-mega,巨钳螳螂（兆）,212,212,20,1250,210,198,false,true
+10047,heracross-mega,赫拉克罗斯（兆）,214,214,17,625,210,311,false,true
+10048,houndoom-mega,黑鲁加（兆）,229,229,19,495,210,331,false,true
+10049,tyranitar-mega,班基拉斯（兆）,248,248,25,2550,315,343,false,true
+10050,blaziken-mega,火焰鸡（兆）,257,257,19,520,284,354,false,true
+10051,gardevoir-mega,沙奈朵（兆）,282,282,16,484,278,383,false,true
+10052,mawile-mega,大嘴娃（兆）,303,303,10,235,168,408,false,true
+10053,aggron-mega,波士可多拉（兆）,306,306,22,3950,284,412,false,true
+10054,medicham-mega,恰雷姆（兆）,308,308,13,315,179,415,false,true
+10055,manectric-mega,雷电兽（兆）,310,310,18,440,201,418,false,true
+10056,banette-mega,诅咒娃娃（兆）,354,354,12,130,194,471,false,true
+10057,absol-mega,阿勃梭鲁（兆）,359,359,12,490,198,479,false,true
+10058,garchomp-mega,烈咬陆鲨（兆）,445,445,19,950,315,571,false,true
+10059,lucario-mega,路卡利欧（兆）,448,448,13,575,219,574,false,true
+10060,abomasnow-mega,暴雪王（兆）,460,460,27,1850,208,586,false,true
+10061,floette-eternal,花叶蒂（永恒）,670,670,2,9,243,803,false,true
+10062,latias-mega,拉帝亚斯（兆）,380,380,18,520,315,504,false,true
+10063,latios-mega,拉帝欧斯（兆）,381,381,23,700,315,506,false,true
+10064,swampert-mega,巨沼怪（兆）,260,260,19,1020,286,358,false,true
+10065,sceptile-mega,蜥蜴王（兆）,254,254,19,552,284,350,false,true
+10066,sableye-mega,勾魂眼（兆）,302,302,5,1610,168,406,false,true
+10067,altaria-mega,七夕青鸟（兆）,334,334,15,206,207,447,false,true
+10068,gallade-mega,艾路雷朵（兆）,475,475,16,564,278,385,false,true
+10069,audino-mega,差不多娃娃（兆）,531,531,15,320,425,647,false,true
+10070,sharpedo-mega,巨牙鲨（兆）,319,319,25,1303,196,430,false,true
+10071,slowbro-mega,呆壳兽（兆）,80,80,20,1200,207,128,false,true
+10072,steelix-mega,大钢蛇（兆）,208,208,105,7400,214,153,false,true
+10073,pidgeot-mega,大比鸟（兆）,18,18,22,505,261,24,false,true
+10074,glalie-mega,冰鬼护（兆）,362,362,21,3502,203,482,false,true
+10075,diancie-mega,蒂安希（兆）,719,719,11,278,315,864,false,true
+10076,metagross-mega,巨金怪（兆）,376,376,25,9429,315,499,false,true
+10077,kyogre-primal,盖欧卡（原始）,382,382,98,4300,347,508,false,true
+10078,groudon-primal,固拉多（原始）,383,383,50,9997,347,510,false,true
+10079,rayquaza-mega,烈空坐（兆）,384,384,108,3920,351,512,false,true
+10080,pikachu-rock-star,皮卡丘（摇滚明星）,25,25,4,60,112,37,false,true
+10081,pikachu-belle,皮卡丘（美女）,25,25,4,60,112,38,false,true
+10082,pikachu-pop-star,皮卡丘（流行歌星）,25,25,4,60,112,39,false,true
+10083,pikachu-phd,皮卡丘（博士）,25,25,4,60,112,40,false,true
+10084,pikachu-libre,皮卡丘（自由）,25,25,4,60,112,41,false,true
+10085,pikachu-cosplay,皮卡丘（角色扮演）,25,25,4,60,112,36,false,true
+10086,hoopa-unbound,胡帕（未绑定）,720,720,65,4900,306,866,false,true
+10087,camerupt-mega,喷火驼（兆）,323,323,25,3205,196,435,false,true
+10088,lopunny-mega,长耳兔（兆）,428,428,13,283,203,559,false,true
+10089,salamence-mega,暴飞龙（兆）,373,373,18,1126,315,495,false,true
+10090,beedrill-mega,大针蜂（兆）,15,15,14,405,223,20,false,true
+10091,rattata-alola,小拉达（阿罗拉）,19,19,3,38,51,26,false,true
+10092,raticate-alola,拉达（阿罗拉）,20,20,7,255,145,28,false,true
+10093,raticate-totem-alola,拉达（图腾阿罗拉）,20,20,14,1050,145,29,false,true
+10094,pikachu-original-cap,皮卡丘（原装帽）,25,25,4,60,112,42,false,true
+10095,pikachu-hoenn-cap,皮卡丘（丰缘帽）,25,25,4,60,112,43,false,true
+10096,pikachu-sinnoh-cap,皮卡丘（神奥帽）,25,25,4,60,112,44,false,true
+10097,pikachu-unova-cap,皮卡丘（合众帽）,25,25,4,60,112,45,false,true
+10098,pikachu-kalos-cap,皮卡丘（卡洛斯帽）,25,25,4,60,112,46,false,true
+10099,pikachu-alola-cap,皮卡丘（阿罗拉帽）,25,25,4,60,112,47,false,true
+10100,raichu-alola,雷丘（阿罗拉）,26,26,7,210,243,52,false,true
+10101,sandshrew-alola,穿山鼠（阿罗拉）,27,27,7,400,60,54,false,true
+10102,sandslash-alola,穿山王（阿罗拉）,28,28,12,550,158,56,false,true
+10103,vulpix-alola,六尾（阿罗拉）,37,37,6,99,60,67,false,true
+10104,ninetales-alola,九尾（阿罗拉）,38,38,11,199,177,69,false,true
+10105,diglett-alola,地鼠（阿罗拉）,50,50,2,10,53,85,false,true
+10106,dugtrio-alola,三地鼠（阿罗拉）,51,51,7,666,149,87,false,true
+10107,meowth-alola,喵喵（阿罗拉）,52,52,4,42,58,89,false,true
+10108,persian-alola,猫老大（阿罗拉）,53,53,11,330,154,92,false,true
+10109,geodude-alola,小拳石（阿罗拉）,74,74,4,203,60,116,false,true
+10110,graveler-alola,隆隆石（阿罗拉）,75,75,10,1100,137,118,false,true
+10111,golem-alola,隆隆岩（阿罗拉）,76,76,17,3160,223,120,false,true
+10112,grimer-alola,臭泥（阿罗拉）,88,88,7,420,65,142,false,true
+10113,muk-alola,臭臭泥（阿罗拉）,89,89,10,520,175,144,false,true
+10114,exeggutor-alola,椰蛋树（阿罗拉）,103,103,109,4156,186,162,false,true
+10115,marowak-alola,嘎啦嘎啦（阿罗拉）,105,105,10,340,149,165,false,true
+10116,greninja-battle-bond,甲贺忍蛙（战斗债券）,658,658,15,400,239,789,false,true
+10117,greninja-ash,甲贺忍蛙（灰）,658,658,15,400,288,790,false,true
+10118,zygarde-10-power-construct,基格尔德（10 电源结构）,718,10181,12,335,243,860,false,true
+10119,zygarde-50-power-construct,基格尔德（50 动力结构）,718,718,50,3050,300,861,false,true
+10120,zygarde-complete,基格尔德（完全的）,718,718,45,6100,354,862,false,true
+10121,gumshoos-totem,猫鼬探长（图腾）,735,735,14,600,146,882,false,true
+10122,vikavolt-totem,锹农炮虫（图腾）,738,738,26,1475,225,886,false,true
+10123,oricorio-pom-pom,花舞鸟（波姆波姆）,741,741,6,34,167,890,false,true
+10124,oricorio-pau,花舞鸟（波城）,741,741,6,34,167,891,false,true
+10125,oricorio-sensu,花舞鸟（森苏）,741,741,6,34,167,892,false,true
+10126,lycanroc-midnight,鬃岩狼人（午夜）,745,745,11,250,170,899,false,true
+10127,wishiwashi-school,弱丁鱼（学校）,746,746,82,786,217,902,false,true
+10128,lurantis-totem,兰螳花（图腾）,754,754,15,580,168,912,false,true
+10129,salazzle-totem,焰后蜥（图腾）,758,758,21,810,168,917,false,true
+10130,minior-orange-meteor,小陨星（橙色流星）,774,10137,3,400,154,934,false,true
+10131,minior-yellow-meteor,小陨星（黄色流星）,774,10138,3,400,154,935,false,true
+10132,minior-green-meteor,小陨星（绿色流星）,774,10139,3,400,154,936,false,true
+10133,minior-blue-meteor,小陨星（蓝色流星）,774,10140,3,400,154,937,false,true
+10134,minior-indigo-meteor,小陨星（靛蓝流星）,774,10141,3,400,154,938,false,true
+10135,minior-violet-meteor,小陨星（紫流星）,774,10142,3,400,154,939,false,true
+10136,minior-red,小陨星（红色的）,774,774,3,3,175,940,false,true
+10137,minior-orange,小陨星（橙子）,774,774,3,3,175,941,false,true
+10138,minior-yellow,小陨星（黄色的）,774,774,3,3,175,942,false,true
+10139,minior-green,小陨星（绿色的）,774,774,3,3,175,943,false,true
+10140,minior-blue,小陨星（蓝色的）,774,774,3,3,175,944,false,true
+10141,minior-indigo,小陨星（靛青）,774,774,3,3,175,945,false,true
+10142,minior-violet,小陨星（紫色）,774,774,3,3,175,946,false,true
+10143,mimikyu-busted,谜拟丘（被抓）,778,778,2,7,167,952,false,true
+10144,mimikyu-totem-disguised,谜拟丘（图腾伪装）,778,778,4,28,167,953,false,true
+10145,mimikyu-totem-busted,谜拟丘（图腾被摧毁）,778,778,4,28,167,954,false,true
+10146,kommo-o-totem,杖尾鳞甲龙（图腾）,784,784,24,2075,270,961,false,true
+10147,magearna-original,玛机雅娜（原来的）,801,801,10,805,300,982,false,true
+10148,pikachu-partner-cap,皮卡丘（合伙人帽）,25,25,4,60,112,48,false,true
+10149,marowak-totem,嘎啦嘎啦（图腾）,105,105,17,980,149,166,false,true
+10150,ribombee-totem,蝶结萌虻（图腾）,743,743,4,20,162,895,false,true
+10151,rockruff-own-tempo,岩狗狗（自己的节奏）,744,744,5,92,56,897,false,true
+10152,lycanroc-dusk,鬃岩狼人（黄昏）,745,745,8,250,170,900,false,true
+10153,araquanid-totem,滴蛛霸（图腾）,752,752,31,2175,159,909,false,true
+10154,togedemaru-totem,托戈德玛尔（图腾）,777,777,6,130,152,950,false,true
+10155,necrozma-dusk,奈克洛兹玛（黄昏）,800,800,38,4600,340,978,false,true
+10156,necrozma-dawn,奈克洛兹玛（黎明）,800,800,42,3500,340,979,false,true
+10157,necrozma-ultra,奈克洛兹玛（极端主义者）,800,800,75,2300,339,980,false,true
+10158,pikachu-starter,皮卡丘（起动机）,25,25,4,60,86,49,false,true
+10159,eevee-starter,伊布（起动机）,133,133,3,65,87,216,false,true
+10160,pikachu-world-cap,皮卡丘（世界帽）,25,25,4,60,112,50,false,true
+10161,meowth-galar,喵喵（伽勒尔）,52,52,4,75,58,90,false,true
+10162,ponyta-galar,小火马（伽勒尔）,77,77,8,240,82,122,false,true
+10163,rapidash-galar,烈焰马（伽勒尔）,78,78,17,800,175,124,false,true
+10164,slowpoke-galar,呆呆兽（伽勒尔）,79,79,12,360,63,126,false,true
+10165,slowbro-galar,呆壳兽（伽勒尔）,80,80,16,705,172,129,false,true
+10166,farfetchd-galar,大葱鸭（伽勒尔）,83,83,8,420,132,136,false,true
+10167,weezing-galar,双弹瓦斯（伽勒尔）,110,110,30,160,172,175,false,true
+10168,mr-mime-galar,魔墙人偶（伽勒尔）,122,122,14,568,161,195,false,true
+10169,articuno-galar,急冻鸟（伽勒尔）,144,144,17,509,290,237,false,true
+10170,zapdos-galar,闪电鸟（伽勒尔）,145,145,16,582,290,239,false,true
+10171,moltres-galar,火焰鸟（伽勒尔）,146,146,20,660,290,241,false,true
+10172,slowking-galar,呆呆王（伽勒尔）,199,199,18,795,172,131,false,true
+10173,corsola-galar,太阳珊瑚（伽勒尔）,222,222,6,5,144,322,false,true
+10174,zigzagoon-galar,蛇纹熊（伽勒尔）,263,263,4,175,56,362,false,true
+10175,linoone-galar,直冲熊（伽勒尔）,264,264,5,325,147,364,false,true
+10176,darumaka-galar,火红不倒翁（伽勒尔）,554,554,7,400,63,672,false,true
+10177,darmanitan-galar-standard,达摩狒狒（伽勒尔标准）,555,555,17,1200,168,675,false,true
+10178,darmanitan-galar-zen,达摩狒狒（伽勒尔禅宗）,555,555,17,1200,189,676,false,true
+10179,yamask-galar,哭哭面具（伽勒尔）,562,562,5,15,61,684,false,true
+10180,stunfisk-galar,泥巴鱼（伽勒尔）,618,618,7,205,165,741,false,true
+10181,zygarde-10,基格尔德（10）,718,718,12,335,243,859,false,true
+10182,cramorant-gulping,古月鸟（吞咽）,845,845,8,180,166,1027,false,true
+10183,cramorant-gorging,古月鸟（狼吞虎咽）,845,845,8,180,166,1028,false,true
+10184,toxtricity-low-key,颤弦蝾螈（低调）,849,849,16,400,176,1033,false,true
+10185,eiscue-noice,冰砌鹅（诺尼斯）,875,875,14,890,165,1060,false,true
+10186,indeedee-female,爱管侍（女性）,876,876,9,280,166,1062,false,true
+10187,morpeko-hangry,莫鲁贝可（汉格里）,877,877,3,30,153,1064,false,true
+10188,zacian-crowned,苍响（加冕）,888,888,28,3550,360,1076,false,true
+10189,zamazenta-crowned,藏玛然特（加冕）,889,889,29,7850,360,1078,false,true
+10190,eternatus-eternamax,无极汰那（永恒型）,890,890,1000,0,563,1080,false,true
+10191,urshifu-rapid-strike,武道熊师（快速打击）,892,892,19,1050,275,1083,false,true
+10192,zarude-dada,萨戮德（达达）,893,893,18,700,300,1085,false,true
+10193,calyrex-ice,蕾冠王（冰）,898,898,24,8091,340,1091,false,true
+10194,calyrex-shadow,蕾冠王（阴影）,898,898,24,536,340,1092,false,true
+10195,venusaur-gmax,妙蛙花（最大加速度）,3,3,240,10000,236,-1,false,true
+10196,charizard-gmax,喷火龙（最大加速度）,6,6,280,10000,240,-1,false,true
+10197,blastoise-gmax,水箭龟（最大加速度）,9,9,250,10000,239,-1,false,true
+10198,butterfree-gmax,巴大蝶（最大加速度）,12,12,170,10000,178,-1,false,true
+10199,pikachu-gmax,皮卡丘（最大加速度）,25,25,210,10000,112,-1,false,true
+10200,meowth-gmax,喵喵（最大加速度）,52,52,330,10000,58,-1,false,true
+10201,machamp-gmax,怪力（最大加速度）,68,68,250,10000,227,-1,false,true
+10202,gengar-gmax,耿鬼（最大加速度）,94,94,200,10000,225,-1,false,true
+10203,kingler-gmax,巨钳蟹（最大加速度）,99,99,190,10000,166,-1,false,true
+10204,lapras-gmax,拉普拉斯（最大加速度）,131,131,240,10000,187,-1,false,true
+10205,eevee-gmax,伊布（最大加速度）,133,133,180,10000,65,-1,false,true
+10206,snorlax-gmax,卡比兽（最大加速度）,143,143,350,10000,189,-1,false,true
+10207,garbodor-gmax,灰尘山（最大加速度）,569,569,210,10000,166,-1,false,true
+10208,melmetal-gmax,美录梅塔（最大加速度）,809,809,250,10000,270,-1,false,true
+10209,rillaboom-gmax,轰擂金刚猩（最大加速度）,812,812,280,10000,265,-1,false,true
+10210,cinderace-gmax,闪焰王牌（最大加速度）,815,815,270,10000,265,-1,false,true
+10211,inteleon-gmax,千面避役（最大加速度）,818,818,400,10000,265,-1,false,true
+10212,corviknight-gmax,钢铠鸦（最大加速度）,823,823,140,10000,248,-1,false,true
+10213,orbeetle-gmax,以欧路普（最大加速度）,826,826,140,10000,253,-1,false,true
+10214,drednaw-gmax,暴噬龟（最大加速度）,834,834,240,10000,170,-1,false,true
+10215,coalossal-gmax,巨炭山（最大加速度）,839,839,420,10000,255,-1,false,true
+10216,flapple-gmax,苹裹龙（最大加速度）,841,841,240,10000,170,-1,false,true
+10217,appletun-gmax,丰蜜龙（最大加速度）,842,842,240,10000,170,-1,false,true
+10218,sandaconda-gmax,沙螺蟒（最大加速度）,844,844,220,10000,179,-1,false,true
+10219,toxtricity-amped-gmax,颤弦蝾螈（最大加速度）,849,849,240,10000,176,-1,false,true
+10220,centiskorch-gmax,焚焰蚣（最大加速度）,851,851,750,10000,184,-1,false,true
+10221,hatterene-gmax,布莉姆温（最大加速度）,858,858,260,10000,255,-1,false,true
+10222,grimmsnarl-gmax,长毛巨魔（最大加速度）,861,861,320,10000,255,-1,false,true
+10223,alcremie-gmax,霜奶仙（最大加速度）,869,869,300,10000,173,-1,false,true
+10224,copperajah-gmax,大王铜象（最大加速度）,879,879,230,10000,175,-1,false,true
+10225,duraludon-gmax,铝钢龙（最大加速度）,884,884,430,10000,187,-1,false,true
+10226,urshifu-single-strike-gmax,武道熊师（最大加速度）,892,892,290,10000,275,-1,false,true
+10227,urshifu-rapid-strike-gmax,武道熊师（最大加速度）,892,10191,260,10000,275,-1,false,true
+10228,toxtricity-low-key-gmax,颤弦蝾螈（最大加速度）,849,10184,240,10000,176,-1,false,true
+10229,growlithe-hisui,卡蒂狗（洗翠）,58,58,8,227,70,-1,false,true
+10230,arcanine-hisui,风速狗（洗翠）,59,59,20,1680,194,-1,false,true
+10231,voltorb-hisui,霹雳电球（洗翠）,100,100,5,130,66,-1,false,true
+10232,electrode-hisui,顽皮雷弹（洗翠）,101,101,12,710,172,-1,false,true
+10233,typhlosion-hisui,火暴兽（洗翠）,157,157,16,698,240,-1,false,true
+10234,qwilfish-hisui,千针鱼（洗翠）,211,211,5,39,88,-1,false,true
+10235,sneasel-hisui,狃拉（洗翠）,215,215,9,270,86,-1,false,true
+10236,samurott-hisui,大剑鬼（洗翠）,503,503,15,582,238,-1,false,true
+10237,lilligant-hisui,裙儿小姐（洗翠）,549,549,12,192,168,-1,false,true
+10238,zorua-hisui,索罗亚（洗翠）,570,570,7,125,66,-1,false,true
+10239,zoroark-hisui,索罗亚克（洗翠）,571,571,16,730,179,-1,false,true
+10240,braviary-hisui,勇士雄鹰（洗翠）,628,628,17,434,179,-1,false,true
+10241,sliggoo-hisui,黏美儿（洗翠）,705,705,7,685,158,-1,false,true
+10242,goodra-hisui,黏美龙（洗翠）,706,706,17,3341,270,-1,false,true
+10243,avalugg-hisui,冰岩怪（洗翠）,713,713,14,2624,180,-1,false,true
+10244,decidueye-hisui,狙射树枭（洗翠）,724,724,16,370,239,-1,false,true
+10245,dialga-origin,帝牙卢卡（起源）,483,483,70,8487,306,-1,false,true
+10246,palkia-origin,帕路奇亚（起源）,484,484,63,6590,306,-1,false,true
+10247,basculin-white-striped,野蛮鲈鱼（白色条纹）,550,550,10,180,161,-1,false,true
+10248,basculegion-female,幽尾玄鱼（女性）,902,902,30,1100,265,-1,false,true
+10249,enamorus-therian,眷恋云（兽族）,905,905,16,480,116,-1,false,true
+10250,tauros-paldea-combat-breed,肯泰罗（帕尔迪亚战斗品种）,128,128,14,1150,172,-1,false,true
+10251,tauros-paldea-blaze-breed,肯泰罗（帕底亚火炽种）,128,128,14,850,172,-1,false,true
+10252,tauros-paldea-aqua-breed,肯泰罗（帕底亚水澜种）,128,128,14,1100,172,-1,false,true
+10253,wooper-paldea,乌波（帕底亚）,194,194,4,110,42,-1,false,true
+10254,oinkologne-female,飘香豚（女性）,916,916,10,1200,171,-1,false,true
+10255,dudunsparce-three-segment,土龙节节（三段式）,982,982,45,474,182,-1,false,true
+10256,palafin-hero,海豚侠（英雄）,964,964,18,974,160,-1,false,true
+10257,maushold-family-of-three,一家鼠（一家三口）,925,925,3,23,165,-1,false,true
+10258,tatsugiri-droopy,米立龙（下垂）,978,978,3,80,166,-1,false,true
+10259,tatsugiri-stretchy,米立龙（有弹性）,978,978,3,80,166,-1,false,true
+10260,squawkabilly-blue-plumage,怒鹦哥（蓝色羽毛）,931,931,6,24,146,-1,false,true
+10261,squawkabilly-yellow-plumage,怒鹦哥（黄色羽毛）,931,931,6,24,146,-1,false,true
+10262,squawkabilly-white-plumage,怒鹦哥（白色羽毛）,931,931,6,24,146,-1,false,true
+10263,gimmighoul-roaming,索财灵（漫游）,999,999,1,10,60,-1,false,true
+10264,koraidon-limited-build,故勒顿（有限建造）,1007,1007,35,3030,335,-1,false,true
+10265,koraidon-sprinting-build,故勒顿（冲刺构建）,1007,1007,35,3030,335,-1,false,true
+10266,koraidon-swimming-build,故勒顿（游泳体型）,1007,1007,35,3030,335,-1,false,true
+10267,koraidon-gliding-build,故勒顿（滑翔建造）,1007,1007,35,3030,335,-1,false,true
+10268,miraidon-low-power-mode,密勒顿（低功耗模式）,1008,1008,28,2400,335,-1,false,true
+10269,miraidon-drive-mode,密勒顿（驱动方式）,1008,1008,28,2400,335,-1,false,true
+10270,miraidon-aquatic-mode,密勒顿（水中模式）,1008,1008,28,2400,335,-1,false,true
+10271,miraidon-glide-mode,密勒顿（滑行模式）,1008,1008,28,2400,335,-1,false,true
+10272,ursaluna-bloodmoon,月月熊（血月）,901,901,24,2900,275,-1,false,true
+10273,ogerpon-wellspring-mask,厄诡椪（泉水面膜）,1017,1017,12,398,275,-1,false,true
+10274,ogerpon-hearthflame-mask,厄诡椪（炉火面具）,1017,1017,12,398,275,-1,false,true
+10275,ogerpon-cornerstone-mask,厄诡椪（基石面具）,1017,1017,12,398,275,-1,false,true
+10276,terapagos-terastal,太乐巴戈斯（特拉斯塔尔）,1024,1024,3,160,90,-1,false,true
+10277,terapagos-stellar,太乐巴戈斯（恒星）,1024,1024,17,770,90,-1,false,true
+10278,clefable-mega,皮可西（兆）,36,36,17,423,,-1,false,true
+10279,victreebel-mega,大食花（兆）,71,71,45,1255,,-1,false,true
+10280,starmie-mega,宝石海星（兆）,121,121,23,800,,-1,false,true
+10281,dragonite-mega,快龙（兆）,149,149,22,2900,,-1,false,true
+10282,meganium-mega,大竺葵（兆）,154,154,24,2010,,-1,false,true
+10283,feraligatr-mega,大力鳄（兆）,160,160,23,1088,,-1,false,true
+10284,skarmory-mega,盔甲鸟（兆）,227,227,17,404,,-1,false,true
+10285,froslass-mega,雪妖女（兆）,478,478,26,296,,-1,false,true
+10286,emboar-mega,炎武王（兆）,500,500,18,1803,,-1,false,true
+10287,excadrill-mega,龙头地鼠（兆）,530,530,9,600,,-1,false,true
+10288,scolipede-mega,蜈蚣王（兆）,545,545,32,2305,,-1,false,true
+10289,scrafty-mega,头巾混混（兆）,560,560,11,310,,-1,false,true
+10290,eelektross-mega,麻麻鳗鱼王（兆）,604,604,30,1800,,-1,false,true
+10291,chandelure-mega,水晶灯火灵（兆）,609,609,25,696,,-1,false,true
+10292,chesnaught-mega,布里卡隆（兆）,652,652,16,900,,-1,false,true
+10293,delphox-mega,妖火红狐（兆）,655,655,15,390,,-1,false,true
+10294,greninja-mega,甲贺忍蛙（兆）,658,658,15,400,,-1,false,true
+10295,pyroar-mega,火炎狮（兆）,668,668,15,933,,-1,false,true
+10296,floette-mega,花叶蒂（兆）,670,670,2,1008,,-1,false,true
+10297,malamar-mega,乌贼王（兆）,687,687,29,698,,-1,false,true
+10298,barbaracle-mega,龟足巨铠（兆）,689,689,22,1000,,-1,false,true
+10299,dragalge-mega,毒藻龙（兆）,691,691,21,1003,,-1,false,true
+10300,hawlucha-mega,摔角鹰人（兆）,701,701,10,250,,-1,false,true
+10301,zygarde-mega,基格尔德（兆）,718,718,77,6100,,-1,false,true
+10302,drampa-mega,老翁龙（兆）,780,780,30,2405,,-1,false,true
+10303,falinks-mega,列阵兵（兆）,870,870,16,990,,-1,false,true
+10304,raichu-mega-x,雷丘（超级X）,26,26,12,380,,-1,false,true
+10305,raichu-mega-y,雷丘（超级Y）,26,26,10,260,,-1,false,true
+10306,chimecho-mega,风铃铃（兆）,358,358,12,80,,-1,false,true
+10307,absol-mega-z,阿勃梭鲁（超级Z）,359,10057,12,490,,-1,false,true
+10308,staraptor-mega,姆克鹰（兆）,398,398,19,500,,-1,false,true
+10309,garchomp-mega-z,烈咬陆鲨（超级Z）,445,10058,19,990,,-1,false,true
+10310,lucario-mega-z,路卡利欧（超级Z）,448,10059,13,494,,-1,false,true
+10311,heatran-mega,席多蓝恩（兆）,485,485,28,5700,,-1,false,true
+10312,darkrai-mega,达克莱伊（兆）,491,491,30,2400,,-1,false,true
+10313,golurk-mega,泥偶巨人（兆）,623,623,40,3300,,-1,false,true
+10314,meowstic-male-mega,超能妙喵（超级男）,678,678,8,101,,-1,false,true
+10315,crabominable-mega,好胜毛蟹（兆）,740,740,26,2528,,-1,false,true
+10316,golisopod-mega,具甲武者（兆）,768,768,23,1480,,-1,false,true
+10317,magearna-mega,玛机雅娜（兆）,801,801,13,2481,,-1,false,true
+10318,magearna-original-mega,玛机雅娜（兆）,801,10147,13,2481,,-1,false,true
+10319,zeraora-mega,捷拉奥拉（兆）,807,807,15,445,,-1,false,true
+10320,scovillain-mega,狠辣椒（兆）,952,952,12,220,,-1,false,true
+10321,glimmora-mega,晶光花（兆）,970,970,28,770,,-1,false,true
+10322,tatsugiri-curly-mega,米立龙（兆）,978,978,6,240,,-1,false,true
+10323,tatsugiri-droopy-mega,米立龙（兆）,978,10258,6,240,,-1,false,true
+10324,tatsugiri-stretchy-mega,米立龙（兆）,978,10259,6,240,,-1,false,true
+10325,baxcalibur-mega,戟脊龙（兆）,998,998,21,3150,,-1,false,true
+10326,meowstic-female-mega,超能妙喵（超级女性）,678,10314,8,101,,-1,false,true

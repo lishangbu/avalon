@@ -57,20 +57,6 @@ interface GameNatures {
 	val decreasedStatId: Long?
 
 	/**
-	 * 性格资料引用的偏好口味 ID。
-	 *
-	 * 对应数据库 `likes_flavor_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val likesFlavorId: Long?
-
-	/**
-	 * 性格资料引用的厌恶口味 ID。
-	 *
-	 * 对应数据库 `hates_flavor_id` 列，允许为空；关联标识以 Long 标量保存，不在该实体中聚合关联对象。
-	 */
-	val hatesFlavorId: Long?
-
-	/**
 	 * 用于标识性格资料的“启用”状态。
 	 *
 	 * 对应数据库 `enabled` 列，写入时必须提供。
