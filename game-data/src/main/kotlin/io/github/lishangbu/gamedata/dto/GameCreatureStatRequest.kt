@@ -24,12 +24,4 @@ data class GameCreatureStatRequest(
 	@get:JsonProperty("effort")
 	@field:Schema(description = "努力收益")
 	val effort: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"creature_id" to creatureId,
-		"stat_id" to statId,
-		"base_value" to baseValue,
-		"effort" to effort,
-		)
-}
+)

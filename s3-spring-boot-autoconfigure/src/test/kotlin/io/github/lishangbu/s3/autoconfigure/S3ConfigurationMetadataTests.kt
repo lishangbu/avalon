@@ -1,15 +1,15 @@
 package io.github.lishangbu.s3.autoconfigure
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.json.JsonMapper
 import kotlin.test.Test
 
 /**
  * 验证 Spring configuration metadata 随自动配置模块打包，保证 starter 使用者能获得 IDE 配置提示。
  */
 class S3ConfigurationMetadataTests {
-	private val objectMapper = ObjectMapper()
+	private val objectMapper = JsonMapper.builder().build()
 
 	@Test
 	fun `configuration metadata is packaged with all s3 properties`() {
@@ -36,7 +36,7 @@ class S3ConfigurationMetadataTests {
 	fun `configuration metadata keeps important property types`() {
 		val propertiesByName = readMetadata()
 			.path("properties")
-			.associateBy { property -> property.path("name").asText() }
+			.associateBy { property -> property.path("name").asString() }
 
 		assertThat(propertiesByName.typeOf("s3.enabled")).isEqualTo("java.lang.Boolean")
 		assertThat(propertiesByName.typeOf("s3.path-style-access-enabled")).isEqualTo("java.lang.Boolean")
@@ -59,7 +59,8 @@ class S3ConfigurationMetadataTests {
 	 */
 	private fun JsonNode.namesAt(fieldName: String): Set<String> =
 		path(fieldName)
-			.map { entry -> entry.path("name").asText() }
+			.values()
+			.map { entry -> entry.path("name").asString() }
 			.toSet()
 
 	/**
@@ -68,7 +69,7 @@ class S3ConfigurationMetadataTests {
 	private fun Map<String, JsonNode>.typeOf(propertyName: String): String =
 		checkNotNull(this[propertyName]) {
 			"$propertyName 应存在于 Spring configuration metadata"
-		}.path("type").asText()
+		}.path("type").asString()
 
 	private companion object {
 		private const val METADATA_RESOURCE = "META-INF/spring-configuration-metadata.json"

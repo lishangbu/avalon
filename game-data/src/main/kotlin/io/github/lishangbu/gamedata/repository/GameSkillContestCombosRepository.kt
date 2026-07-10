@@ -1,54 +1,9 @@
 package io.github.lishangbu.gamedata.repository
 
-import io.github.lishangbu.gamedata.model.GameDataPage
-import io.github.lishangbu.gamedata.model.GameDataRecordRequest
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import org.babyfish.jimmer.sql.kt.KSqlClient
-import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
-
-private val GAME_SKILL_CONTEST_COMBOS_TABLE = GameDataTableSpec(
-	tableName = "game_skill_contest_combo",
-	label = "技能评价组合",
-	columns = listOf(
-		GameDataColumnSpec(name = "skill_id", type = GameDataColumnType.LONG, required = true),
-		GameDataColumnSpec(name = "combo_type", type = GameDataColumnType.STRING, required = true, maxLength = 40),
-		GameDataColumnSpec(name = "relation_type", type = GameDataColumnType.STRING, required = true, maxLength = 40),
-		GameDataColumnSpec(name = "related_skill_id", type = GameDataColumnType.LONG, required = true),
-	),
-	searchColumns = listOf("skill_id", "related_skill_id"),
-)
+import io.github.lishangbu.gamedata.entity.GameSkillContestCombos
+import org.babyfish.jimmer.spring.repository.KRepository
 
 /**
  * 技能评价组合持久化访问。
  */
-@Repository
-class GameSkillContestCombosRepository(
-	sqlClient: KSqlClient,
-) : GameDataJimmerRepository(sqlClient, GAME_SKILL_CONTEST_COMBOS_TABLE) {
-	@Transactional(readOnly = true)
-	fun list(
-		page: Int,
-		size: Int,
-		query: String?,
-		filters: Map<String, String> = emptyMap(),
-	): GameDataPage<GameDataRecordResponse> =
-		listRecords(page, size, query, filters)
-
-	@Transactional(readOnly = true)
-	fun get(id: Long): GameDataRecordResponse =
-		getRecord(id)
-
-	@Transactional
-	fun create(request: GameDataRecordRequest): GameDataRecordResponse =
-		createRecord(request)
-
-	@Transactional
-	fun update(id: Long, request: GameDataRecordRequest): GameDataRecordResponse =
-		updateRecord(id, request)
-
-	@Transactional
-	fun delete(id: Long) {
-		deleteRecord(id)
-	}
-}
+interface GameSkillContestCombosRepository : KRepository<GameSkillContestCombos, Long>

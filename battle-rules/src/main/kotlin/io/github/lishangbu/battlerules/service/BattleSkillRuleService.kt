@@ -38,6 +38,8 @@ import io.github.lishangbu.common.web.mapRows
 import io.github.lishangbu.common.web.notFound
 import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
+import io.github.lishangbu.gamedata.entity.GameSkill
+import io.github.lishangbu.gamedata.entity.GameSkillDamageClass
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -196,17 +198,12 @@ class BattleSkillRuleService(
 		repository.findNullable(id) ?: notFound("id", "技能规则不存在: $id")
 
 	private fun validateSkillReference(skillId: Long): String {
-		requireExistingGameDataReference(sqlClient, "game_skill", skillId, "skillId", "技能")
-		return sqlClient.querySql(
-			"""
-			select c.code
-			from game_skill s
-			join game_skill_damage_class c on c.id = s.damage_class_id
-			where s.id = ?
-			""".trimIndent(),
-			skillId,
-		) { rs -> rs.getString("code") }.singleOrNull()
+		val skill = sqlClient.findById(GameSkill::class, skillId)
+			?: invalidValue("skillId", "技能不存在: $skillId")
+		val damageClassId = skill.damageClassId
 			?: invalidValue("skillId", "技能缺少伤害分类: $skillId")
+		return sqlClient.findById(GameSkillDamageClass::class, damageClassId)?.code
+			?: invalidValue("skillId", "技能伤害分类不存在: $damageClassId")
 	}
 
 	private fun validateSkillRuntimeConstraints(request: BattleSkillRuleRequest, damageClassCode: String) {
@@ -270,34 +267,34 @@ class BattleSkillRuleService(
 		)
 
 	private fun BattleSkillRule.toResponse(): BattleSkillRuleResponse =
-		BattleSkillRuleResponse(
-			id = id,
-			skillId = skillId,
-			effectPolicy = effectPolicy,
-			targetPolicy = targetPolicy,
-			hitPolicy = hitPolicy,
-			damagePolicy = damagePolicy,
-			minHits = minHits,
-			maxHits = maxHits,
-			criticalHitStage = criticalHitStage,
-			makesContact = makesContact,
-			affectedByProtect = affectedByProtect,
-			protectsUser = protectsUser,
-			enduresFatalDamage = enduresFatalDamage,
-			thawsUserBeforeMove = thawsUserBeforeMove,
-			weakenedByGrassyTerrain = weakenedByGrassyTerrain,
-			chargesBeforeUse = chargesBeforeUse,
-			rechargesAfterUse = rechargesAfterUse,
-			soundBased = soundBased,
-			powderBased = powderBased,
-			punchBased = punchBased,
-			slicingBased = slicingBased,
-			lockMoveTurnsMin = lockMoveTurnsMin,
-			lockMoveTurnsMax = lockMoveTurnsMax,
-			confusesUserAfterLock = confusesUserAfterLock,
-			forceTargetSwitch = forceTargetSwitch,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillRuleResponse {
+			id = this@toResponse.id
+			skillId = this@toResponse.skillId
+			effectPolicy = this@toResponse.effectPolicy
+			targetPolicy = this@toResponse.targetPolicy
+			hitPolicy = this@toResponse.hitPolicy
+			damagePolicy = this@toResponse.damagePolicy
+			minHits = this@toResponse.minHits
+			maxHits = this@toResponse.maxHits
+			criticalHitStage = this@toResponse.criticalHitStage
+			makesContact = this@toResponse.makesContact
+			affectedByProtect = this@toResponse.affectedByProtect
+			protectsUser = this@toResponse.protectsUser
+			enduresFatalDamage = this@toResponse.enduresFatalDamage
+			thawsUserBeforeMove = this@toResponse.thawsUserBeforeMove
+			weakenedByGrassyTerrain = this@toResponse.weakenedByGrassyTerrain
+			chargesBeforeUse = this@toResponse.chargesBeforeUse
+			rechargesAfterUse = this@toResponse.rechargesAfterUse
+			soundBased = this@toResponse.soundBased
+			powderBased = this@toResponse.powderBased
+			punchBased = this@toResponse.punchBased
+			slicingBased = this@toResponse.slicingBased
+			lockMoveTurnsMin = this@toResponse.lockMoveTurnsMin
+			lockMoveTurnsMax = this@toResponse.lockMoveTurnsMax
+			confusesUserAfterLock = this@toResponse.confusesUserAfterLock
+			forceTargetSwitch = this@toResponse.forceTargetSwitch
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

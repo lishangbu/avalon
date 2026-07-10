@@ -124,14 +124,14 @@ class BattleTerrainRuleService(
 		)
 
 	private fun BattleTerrainRule.toResponse(): BattleTerrainRuleResponse =
-		BattleTerrainRuleResponse(
-			id = id,
-			code = code,
-			name = name,
-			effectPolicy = effectPolicy,
-			defaultDurationTurns = defaultDurationTurns,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleTerrainRuleResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			effectPolicy = this@toResponse.effectPolicy
+			defaultDurationTurns = this@toResponse.defaultDurationTurns
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

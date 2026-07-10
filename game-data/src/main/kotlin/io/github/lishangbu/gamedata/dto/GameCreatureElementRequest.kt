@@ -20,11 +20,4 @@ data class GameCreatureElementRequest(
 	@get:JsonProperty("slot_order")
 	@field:Schema(description = "槽位")
 	val slotOrder: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"creature_id" to creatureId,
-		"element_id" to elementId,
-		"slot_order" to slotOrder,
-		)
-}
+)

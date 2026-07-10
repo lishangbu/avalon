@@ -1,7 +1,5 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.lishangbu.scheduler.repository.ScheduledTaskExecutionRecordRepository
 import io.github.lishangbu.scheduler.repository.ScheduledTaskRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
@@ -15,6 +13,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.quartz.autoconfigure.SchedulerFactoryBeanCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * 定时任务模块的 Spring Boot 自动配置。
@@ -31,7 +31,7 @@ class SchedulerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	fun scheduledTaskObjectMapper(): ObjectMapper =
-		jacksonObjectMapper()
+		JsonMapper.builder().build()
 
 	@Bean
 	@ConditionalOnMissingBean

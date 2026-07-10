@@ -400,7 +400,7 @@ sealed interface BattleItemEffect {
 	 * 动态非接触会同时影响所有读取接触事实的规则：目标侧接触反制特性不会发动、接触类伤害增强/减伤不应触发，
 	 * 接触类保护绕过能力也不会生效。拳击类伤害增强仍由其它效果独立表达；本效果只回答“这次有没有接触”。
 	 */
-	object PunchBasedContactSuppression : BattleItemEffect
+	data class PunchBasedContactSuppression(private val marker: Unit = Unit) : BattleItemEffect
 
 	/**
 	 * 免疫因主动接触目标而承受的反制副作用。
@@ -412,7 +412,7 @@ sealed interface BattleItemEffect {
 	 * 该效果不消费道具，也不阻止技能本身的附加效果、目标携带道具减伤、属性免疫或保护 gate。未来若接入凸凸头盔
 	 * 等接触反伤道具，应复用同一效果来判断攻击方是否免疫这类接触副作用。
 	 */
-	object ContactSideEffectImmunity : BattleItemEffect
+	data class ContactSideEffectImmunity(private val marker: Unit = Unit) : BattleItemEffect
 
 	/**
 	 * 持有者被接触类技能成功命中后，让攻击方按其自身最大 HP 比例受到伤害。
@@ -440,7 +440,7 @@ sealed interface BattleItemEffect {
 	 * 携带道具；这样数据库只需要声明“这个道具有接触转移规则”，真正转移时仍以运行态为准，避免道具被其它规则
 	 * 替换、消费或禁用后还从静态配置里凭空复制旧效果。转移只改变双方携带道具状态，不额外造成伤害，也不消费随机数。
 	 */
-	object ContactTransferToAttacker : BattleItemEffect
+	data class ContactTransferToAttacker(private val marker: Unit = Unit) : BattleItemEffect
 
 	/**
 	 * 修正携带者在体重相关规则中被读取到的当前体重。

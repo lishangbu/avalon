@@ -176,15 +176,15 @@ class BattleSkillFieldEffectService(
 		}
 
 	private fun BattleSkillFieldEffect.toResponse(): BattleSkillFieldEffectResponse =
-		BattleSkillFieldEffectResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			fieldRuleId = fieldRuleId,
-			targetSide = targetSide,
-			effectTiming = effectTiming,
-			requiredWeatherRuleId = requiredWeatherRuleId,
-			chancePercent = chancePercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillFieldEffectResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			fieldRuleId = this@toResponse.fieldRuleId
+			targetSide = this@toResponse.targetSide
+			effectTiming = this@toResponse.effectTiming
+			requiredWeatherRuleId = this@toResponse.requiredWeatherRuleId
+			chancePercent = this@toResponse.chancePercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

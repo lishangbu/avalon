@@ -16,10 +16,4 @@ data class GameItemCategoryPocketsRequest(
 	@get:JsonProperty("pocket_id")
 	@field:Schema(description = "口袋 ID")
 	val pocketId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"category_id" to categoryId,
-		"pocket_id" to pocketId,
-		)
-}
+)

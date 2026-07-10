@@ -24,12 +24,4 @@ data class GameBerryFlavorsRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"contest_type_id" to contestTypeId,
-		"enabled" to enabled,
-		)
-}
+)

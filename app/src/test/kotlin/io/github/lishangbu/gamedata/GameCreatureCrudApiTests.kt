@@ -50,7 +50,7 @@ class GameCreatureCrudApiTests(
 			.andReturn()
 			.response
 			.contentAsString
-		val creatureId = JsonPath.read<Int>(createdResponse, "$.id")
+		val creatureId = JsonPath.read<String>(createdResponse, "$.id")
 
 		mockMvc.perform(
 			put("/api/game-data/creatures/$creatureId")

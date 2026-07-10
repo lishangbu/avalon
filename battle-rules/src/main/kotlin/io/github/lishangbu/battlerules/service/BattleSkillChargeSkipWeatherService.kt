@@ -148,11 +148,11 @@ class BattleSkillChargeSkipWeatherService(
 		)
 
 	private fun BattleSkillChargeSkipWeather.toResponse(): BattleSkillChargeSkipWeatherResponse =
-		BattleSkillChargeSkipWeatherResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			weatherRuleId = weatherRuleId,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillChargeSkipWeatherResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			weatherRuleId = this@toResponse.weatherRuleId
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -32,7 +32,7 @@ class BattleCriticalHitImmunityAbilityTests {
 				second = participant(
 					"protected-defender",
 					speed = 50,
-					abilityEffects = listOf(BattleAbilityEffect.CriticalHitImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.CriticalHitImmunity()),
 				),
 			),
 		)
@@ -65,7 +65,7 @@ class BattleCriticalHitImmunityAbilityTests {
 				second = participant(
 					"protected-defender",
 					speed = 50,
-					abilityEffects = listOf(BattleAbilityEffect.CriticalHitImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.CriticalHitImmunity()),
 				),
 			),
 		)

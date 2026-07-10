@@ -77,8 +77,8 @@ class BattleStruggleTests {
 					currentHp = 100,
 					skill = exhaustedSkill,
 					abilityEffects = listOf(
-						BattleAbilityEffect.SkillRecoilDamageImmunity,
-						BattleAbilityEffect.IndirectDamageImmunity,
+						BattleAbilityEffect.SkillRecoilDamageImmunity(),
+						BattleAbilityEffect.IndirectDamageImmunity(),
 					),
 				),
 				second = participant("target", speed = 50),

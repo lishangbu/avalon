@@ -69,10 +69,10 @@ internal fun String.toBattleItemEffect(elementIds: Map<String, Long>): BattleIte
 			statuses = setOf(BattleVolatileStatus.CONFUSION),
 		)
 		"contact-damage-to-attacker-sixth" -> BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6)
-		"contact-transfer-to-attacker" -> BattleItemEffect.ContactTransferToAttacker
+		"contact-transfer-to-attacker" -> BattleItemEffect.ContactTransferToAttacker()
 		"punch-based-skill-power-boost" -> BattleItemEffect.PunchBasedSkillPowerBoost()
-		"punch-based-contact-suppression" -> BattleItemEffect.PunchBasedContactSuppression
-		"contact-side-effect-immunity" -> BattleItemEffect.ContactSideEffectImmunity
+		"punch-based-contact-suppression" -> BattleItemEffect.PunchBasedContactSuppression()
+		"contact-side-effect-immunity" -> BattleItemEffect.ContactSideEffectImmunity()
 		"charge-skip-once" -> BattleItemEffect.ChargeSkipOnce()
 		"consumable-full-hp-fatal-damage-survival" -> BattleItemEffect.SurviveFatalDamageAtFullHp()
 		"side-condition-duration-screen" -> BattleItemEffect.SideDamageReductionDurationExtension(

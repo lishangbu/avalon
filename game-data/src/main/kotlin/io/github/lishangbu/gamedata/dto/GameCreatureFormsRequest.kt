@@ -48,18 +48,4 @@ data class GameCreatureFormsRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"creature_id" to creatureId,
-		"form_name" to formName,
-		"sort_order" to sortOrder,
-		"form_order" to formOrder,
-		"battle_only" to battleOnly,
-		"default_form" to defaultForm,
-		"enhanced_form" to enhancedForm,
-		"enabled" to enabled,
-		)
-}
+)

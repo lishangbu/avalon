@@ -1,57 +1,9 @@
 package io.github.lishangbu.gamedata.repository
 
-import io.github.lishangbu.gamedata.model.GameDataPage
-import io.github.lishangbu.gamedata.model.GameDataRecordRequest
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import org.babyfish.jimmer.sql.kt.KSqlClient
-import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
-
-private val GAME_NATURES_TABLE = GameDataTableSpec(
-	tableName = "game_nature",
-	label = "性格资料",
-	columns = listOf(
-		GameDataColumnSpec(name = "code", type = GameDataColumnType.STRING, required = true, maxLength = 80),
-		GameDataColumnSpec(name = "name", type = GameDataColumnType.STRING, required = true, maxLength = 120),
-		GameDataColumnSpec(name = "increased_stat_id", type = GameDataColumnType.LONG),
-		GameDataColumnSpec(name = "decreased_stat_id", type = GameDataColumnType.LONG),
-		GameDataColumnSpec(name = "likes_flavor_id", type = GameDataColumnType.LONG),
-		GameDataColumnSpec(name = "hates_flavor_id", type = GameDataColumnType.LONG),
-		GameDataColumnSpec(name = "enabled", type = GameDataColumnType.BOOLEAN, required = true),
-	),
-	searchColumns = listOf("code", "name"),
-)
+import io.github.lishangbu.gamedata.entity.GameNatures
+import org.babyfish.jimmer.spring.repository.KRepository
 
 /**
  * 性格资料持久化访问。
  */
-@Repository
-class GameNaturesRepository(
-	sqlClient: KSqlClient,
-) : GameDataJimmerRepository(sqlClient, GAME_NATURES_TABLE) {
-	@Transactional(readOnly = true)
-	fun list(
-		page: Int,
-		size: Int,
-		query: String?,
-		filters: Map<String, String> = emptyMap(),
-	): GameDataPage<GameDataRecordResponse> =
-		listRecords(page, size, query, filters)
-
-	@Transactional(readOnly = true)
-	fun get(id: Long): GameDataRecordResponse =
-		getRecord(id)
-
-	@Transactional
-	fun create(request: GameDataRecordRequest): GameDataRecordResponse =
-		createRecord(request)
-
-	@Transactional
-	fun update(id: Long, request: GameDataRecordRequest): GameDataRecordResponse =
-		updateRecord(id, request)
-
-	@Transactional
-	fun delete(id: Long) {
-		deleteRecord(id)
-	}
-}
+interface GameNaturesRepository : KRepository<GameNatures, Long>

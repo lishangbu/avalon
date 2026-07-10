@@ -1,5 +1,9 @@
 package io.github.lishangbu.battlerules.dto
 
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
+
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 
@@ -7,44 +11,25 @@ import java.time.Instant
  * 战斗沙盒复盘详情响应。
  */
 @Schema(description = "战斗沙盒复盘详情响应。")
-data class BattleSandboxReplayResponse(
-	@field:Schema(description = "复盘记录 ID。以字符串返回，避免浏览器丢失 64 位主键精度。", example = "865732440461672401")
-	val id: String,
-	@field:Schema(description = "复盘标题。")
-	val title: String,
-	@field:Schema(description = "赛制稳定 code。", example = "standard-single")
-	val formatCode: String,
-	@field:Schema(description = "保存时的最新回合序号。", example = "3")
-	val turnNumber: Int,
-	@field:Schema(description = "保存时该回合是否完成结算。", example = "true")
-	val resolved: Boolean,
-	@field:Schema(description = "战斗结果摘要；未结束时为空。", nullable = true)
-	val resultSummary: String?,
-	@field:Schema(description = "保存时间。")
-	val savedAt: Instant,
-	@field:Schema(description = "产生该响应的沙盒回合请求 JSON 文本；旧记录可能为空。", nullable = true)
-	val requestJson: String?,
-	@field:Schema(description = "可直接导入战斗沙盒继续查看或续算的响应 JSON 文本。")
-	val responseJson: String,
-)
-
-/**
- * 战斗沙盒复盘列表响应。
- */
-@Schema(description = "战斗沙盒复盘列表响应。")
-data class BattleSandboxReplaySummaryResponse(
-	@field:Schema(description = "复盘记录 ID。以字符串返回，避免浏览器丢失 64 位主键精度。", example = "865732440461672401")
-	val id: String,
-	@field:Schema(description = "复盘标题。")
-	val title: String,
-	@field:Schema(description = "赛制稳定 code。", example = "standard-single")
-	val formatCode: String,
-	@field:Schema(description = "保存时的最新回合序号。", example = "3")
-	val turnNumber: Int,
-	@field:Schema(description = "保存时该回合是否完成结算。", example = "true")
-	val resolved: Boolean,
-	@field:Schema(description = "战斗结果摘要；未结束时为空。", nullable = true)
-	val resultSummary: String?,
-	@field:Schema(description = "保存时间。")
-	val savedAt: Instant,
-)
+@Immutable
+interface BattleSandboxReplayResponse {
+	@get:Schema(type = "string", description = "复盘记录 ID。", example = "865732440461672401")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
+	@get:Schema(description = "复盘标题。")
+	val title: String
+	@get:Schema(description = "赛制稳定 code。", example = "standard-single")
+	val formatCode: String
+	@get:Schema(description = "保存时的最新回合序号。", example = "3")
+	val turnNumber: Int
+	@get:Schema(description = "保存时该回合是否完成结算。", example = "true")
+	val resolved: Boolean
+	@get:Schema(description = "战斗结果摘要；未结束时为空。", nullable = true)
+	val resultSummary: String?
+	@get:Schema(description = "保存时间。")
+	val savedAt: Instant
+	@get:Schema(description = "产生该响应的沙盒回合请求 JSON 文本；旧记录可能为空。", nullable = true)
+	val requestJson: String?
+	@get:Schema(description = "可直接导入战斗沙盒继续查看或续算的响应 JSON 文本。")
+	val responseJson: String
+}

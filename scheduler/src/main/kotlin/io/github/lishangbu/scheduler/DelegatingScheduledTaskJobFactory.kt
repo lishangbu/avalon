@@ -1,6 +1,6 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.quartz.spi.TriggerFiredBundle
 import org.springframework.scheduling.quartz.SpringBeanJobFactory
 

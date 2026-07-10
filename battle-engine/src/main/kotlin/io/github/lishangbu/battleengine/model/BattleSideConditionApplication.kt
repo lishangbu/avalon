@@ -21,11 +21,3 @@ data class BattleSideConditionApplication(
 		require(requiredWeather != BattleWeather.NONE) { "requiredWeather cannot be NONE" }
 	}
 }
-
-/**
- * 技能一侧场上效果的目标侧。
- */
-enum class BattleSideConditionTarget {
-	USER_SIDE,
-	TARGET_SIDE,
-}

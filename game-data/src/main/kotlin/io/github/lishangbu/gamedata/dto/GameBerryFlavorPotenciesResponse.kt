@@ -1,34 +1,29 @@
 package io.github.lishangbu.gamedata.dto
 
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import io.github.lishangbu.gamedata.support.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 
 /**
  * 树果口味强度响应。
  */
 @Schema(name = "GameBerryFlavorPotenciesResponse", description = "树果口味强度响应。")
-data class GameBerryFlavorPotenciesResponse(
-	@field:Schema(description = "记录主键。", example = "1")
-	val id: Long,
+@Immutable
+interface GameBerryFlavorPotenciesResponse {
+	@get:Schema(description = "记录主键。", example = "1", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
 	@get:JsonProperty("berry_id")
-	@field:Schema(description = "树果 ID")
-	val berryId: Long?,
+	@get:Schema(description = "树果 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val berryId: Long?
 	@get:JsonProperty("flavor_id")
-	@field:Schema(description = "口味 ID")
-	val flavorId: Long?,
+	@get:Schema(description = "口味 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val flavorId: Long?
 	@get:JsonProperty("potency")
-	@field:Schema(description = "强度")
+	@get:Schema(description = "强度")
 	val potency: Int?
-) {
-	companion object {
-		fun from(record: GameDataRecordResponse): GameBerryFlavorPotenciesResponse =
-			GameBerryFlavorPotenciesResponse(
-				id = record.id,
-				berryId = record.longField("berry_id"),
-				flavorId = record.longField("flavor_id"),
-				potency = record.intField("potency")
-			)
-	}
 }

@@ -24,12 +24,4 @@ data class GameCreatureAbilityRequest(
 	@get:JsonProperty("hidden")
 	@field:Schema(description = "隐藏")
 	val hidden: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"creature_id" to creatureId,
-		"ability_id" to abilityId,
-		"slot_order" to slotOrder,
-		"hidden" to hidden,
-		)
-}
+)

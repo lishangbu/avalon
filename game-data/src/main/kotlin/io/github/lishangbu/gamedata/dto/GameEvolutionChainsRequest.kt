@@ -12,9 +12,4 @@ data class GameEvolutionChainsRequest(
 	@get:JsonProperty("baby_trigger_item_id")
 	@field:Schema(description = "幼体触发道具 ID")
 	val babyTriggerItemId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"baby_trigger_item_id" to babyTriggerItemId,
-		)
-}
+)

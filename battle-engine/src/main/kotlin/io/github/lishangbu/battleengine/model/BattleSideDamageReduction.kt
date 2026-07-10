@@ -35,12 +35,3 @@ data class BattleSideDamageReduction(
 			else -> copy(turnsRemaining = turnsRemaining - 1)
 		}
 }
-
-/**
- * 防守方一侧的标准伤害减免种类。
- */
-enum class BattleSideDamageReductionKind {
-	PHYSICAL,
-	SPECIAL,
-	ALL_STANDARD_DAMAGE,
-}

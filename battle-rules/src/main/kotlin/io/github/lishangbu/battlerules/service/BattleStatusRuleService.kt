@@ -132,16 +132,16 @@ class BattleStatusRuleService(
 		)
 
 	private fun BattleStatusRule.toResponse(): BattleStatusRuleResponse =
-		BattleStatusRuleResponse(
-			id = id,
-			code = code,
-			name = name,
-			statusKind = statusKind,
-			effectPolicy = effectPolicy,
-			minTurns = minTurns,
-			maxTurns = maxTurns,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleStatusRuleResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			statusKind = this@toResponse.statusKind
+			effectPolicy = this@toResponse.effectPolicy
+			minTurns = this@toResponse.minTurns
+			maxTurns = this@toResponse.maxTurns
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

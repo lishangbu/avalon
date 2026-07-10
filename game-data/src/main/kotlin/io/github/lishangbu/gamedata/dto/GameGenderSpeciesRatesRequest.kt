@@ -20,11 +20,4 @@ data class GameGenderSpeciesRatesRequest(
 	@get:JsonProperty("rate")
 	@field:Schema(description = "概率")
 	val rate: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"gender_id" to genderId,
-		"species_id" to speciesId,
-		"rate" to rate,
-		)
-}
+)

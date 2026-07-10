@@ -1,6 +1,6 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.lishangbu.scheduler.entity.ScheduledTaskExecutionRecord
 import io.github.lishangbu.scheduler.repository.ScheduledTaskExecutionRecordRepository
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode

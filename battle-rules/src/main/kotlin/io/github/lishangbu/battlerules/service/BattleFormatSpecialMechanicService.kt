@@ -121,11 +121,11 @@ class BattleFormatSpecialMechanicService(
 		)
 
 	private fun BattleFormatSpecialMechanic.toResponse(): BattleFormatSpecialMechanicResponse =
-		BattleFormatSpecialMechanicResponse(
-			id = id,
-			formatId = formatId,
-			mechanicId = mechanicId,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleFormatSpecialMechanicResponse {
+			id = this@toResponse.id
+			formatId = this@toResponse.formatId
+			mechanicId = this@toResponse.mechanicId
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

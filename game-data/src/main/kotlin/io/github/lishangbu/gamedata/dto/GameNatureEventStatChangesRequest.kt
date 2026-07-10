@@ -20,11 +20,4 @@ data class GameNatureEventStatChangesRequest(
 	@get:JsonProperty("max_change")
 	@field:Schema(description = "最大变化")
 	val maxChange: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"nature_id" to natureId,
-		"event_stat_id" to eventStatId,
-		"max_change" to maxChange,
-		)
-}
+)

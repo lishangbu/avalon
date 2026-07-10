@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Refr
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
+import tools.jackson.databind.ObjectMapper
 
 /**
  * 授权服务器 token、JWK 和授权记录相关配置。
@@ -46,8 +47,9 @@ class TokenConfig {
 		authorizationRepository: OAuth2AuthorizationRecordRepository,
 		registeredClientRepository: RegisteredClientRepository,
 		sqlClient: KSqlClient,
+		objectMapper: ObjectMapper,
 	): OAuth2AuthorizationService =
-		JimmerOAuth2AuthorizationService(authorizationRepository, registeredClientRepository, sqlClient)
+		JimmerOAuth2AuthorizationService(authorizationRepository, registeredClientRepository, sqlClient, objectMapper)
 
 	/**
 	 * 使用 Jimmer Repository 保存用户授权同意记录。

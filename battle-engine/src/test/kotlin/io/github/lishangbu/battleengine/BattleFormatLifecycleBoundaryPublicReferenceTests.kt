@@ -425,7 +425,7 @@ class BattleFormatLifecycleBoundaryPublicReferenceTests {
 			elementId = 2,
 			damageClass = BattleDamageClass.SPECIAL,
 			power = null,
-			hpDerivedDamage = BattleHpDerivedDamage.UserCurrentHpAndUserFaints,
+			hpDerivedDamage = BattleHpDerivedDamage.UserCurrentHpAndUserFaints(),
 		)
 		val state = engine.start(
 			initialState(

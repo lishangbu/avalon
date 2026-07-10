@@ -37,7 +37,7 @@ class BattleFixedDamageSkillTests {
 			skillId = 69,
 			name = "地球上投",
 			damageClass = BattleDamageClass.PHYSICAL,
-			fixedDamage = BattleFixedDamage.UserLevel,
+			fixedDamage = BattleFixedDamage.UserLevel(),
 		)
 
 		val fixedAmount = engine.resolveTurn(

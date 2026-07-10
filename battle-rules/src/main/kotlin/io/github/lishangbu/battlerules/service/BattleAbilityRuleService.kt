@@ -119,7 +119,7 @@ class BattleAbilityRuleService(
 		repository.findNullable(id) ?: notFound("id", "特性规则不存在: $id")
 
 	private fun validateAbilityReference(abilityId: Long) {
-		requireExistingGameDataReference(sqlClient, "game_ability", abilityId, "abilityId", "特性")
+		requireExistingGameAbilityReference(sqlClient, abilityId, "abilityId", "特性")
 	}
 
 	private fun ensureRuleAvailable(request: BattleAbilityRuleRequest, selfId: Long?) {
@@ -146,14 +146,14 @@ class BattleAbilityRuleService(
 		)
 
 	private fun BattleAbilityRule.toResponse(): BattleAbilityRuleResponse =
-		BattleAbilityRuleResponse(
-			id = id,
-			abilityId = abilityId,
-			triggerTiming = triggerTiming,
-			effectPolicy = effectPolicy,
-			triggerOrder = triggerOrder,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleAbilityRuleResponse {
+			id = this@toResponse.id
+			abilityId = this@toResponse.abilityId
+			triggerTiming = this@toResponse.triggerTiming
+			effectPolicy = this@toResponse.effectPolicy
+			triggerOrder = this@toResponse.triggerOrder
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -16,10 +16,4 @@ data class GameAdvancedContestEffectsRequest(
 	@get:JsonProperty("flavor_text")
 	@field:Schema(description = "风味说明")
 	val flavorText: String? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"appeal" to appeal,
-		"flavor_text" to flavorText,
-		)
-}
+)

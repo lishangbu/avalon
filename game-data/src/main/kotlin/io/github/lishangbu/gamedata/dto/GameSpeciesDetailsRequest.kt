@@ -44,17 +44,4 @@ data class GameSpeciesDetailsRequest(
 	@get:JsonProperty("flavor_text")
 	@field:Schema(description = "风味说明")
 	val flavorText: String? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"species_id" to speciesId,
-		"growth_rate_id" to growthRateId,
-		"evolves_from_species_id" to evolvesFromSpeciesId,
-		"evolution_chain_id" to evolutionChainId,
-		"sort_order" to sortOrder,
-		"gender_differences" to genderDifferences,
-		"forms_switchable" to formsSwitchable,
-		"genus" to genus,
-		"flavor_text" to flavorText,
-		)
-}
+)

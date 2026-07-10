@@ -37,7 +37,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 					"attacker",
 					speed = 100,
 					skill = recoilSkill,
-					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity()),
 				),
 				second = participant("defender", speed = 50),
 			),
@@ -67,7 +67,7 @@ class BattleSkillRecoilImmunityAbilityTests {
 				first = participant(
 					"attacker",
 					speed = 100,
-					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity()),
 					itemEffects = listOf(BattleItemEffect.DamageBoostWithRecoil(multiplier = 1.3, recoilDenominator = 10)),
 				),
 				second = participant("defender", speed = 50),

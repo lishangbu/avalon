@@ -6,6 +6,7 @@ import io.github.lishangbu.gamedata.support.toGameDataFilters
 import io.github.lishangbu.common.web.ApiErrorResponse
 import io.github.lishangbu.gamedata.service.GameEvolutionDetailsService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
+import org.babyfish.jimmer.Page
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -38,7 +40,7 @@ class GameEvolutionDetailsController(
 	@Operation(summary = "分页查询进化条件")
 	@ApiResponses(
 		value = [
-			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
+			ApiResponse(responseCode = "200", description = "查询成功"),
 			ApiResponse(responseCode = "400", description = GAME_DATA_API_BAD_REQUEST_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
 			ApiResponse(responseCode = "401", description = GAME_DATA_API_UNAUTHORIZED_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
 			ApiResponse(responseCode = "403", description = GAME_DATA_API_FORBIDDEN_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
@@ -50,7 +52,7 @@ class GameEvolutionDetailsController(
 		@RequestParam(defaultValue = "50") size: Int,
 		@RequestParam(required = false) q: String?,
 		request: HttpServletRequest,
-	): GameDataPageResponse<GameEvolutionDetailsResponse> = service.list(page, size, q, request.toGameDataFilters())
+	): Page<GameEvolutionDetailsResponse> = service.list(page, size, q, request.toGameDataFilters())
 
 	@Operation(summary = "读取单条进化条件")
 	@ApiResponses(
@@ -62,7 +64,10 @@ class GameEvolutionDetailsController(
 		],
 	)
 	@GetMapping("/{id}")
-	fun get(@PathVariable id: Long): GameEvolutionDetailsResponse = service.get(id)
+	fun get(
+		@Parameter(description = "进化条件 ID", schema = Schema(type = "string"))
+		@PathVariable id: Long,
+	): GameEvolutionDetailsResponse = service.get(id)
 
 	@Operation(summary = "新增进化条件")
 	@ApiResponses(
@@ -89,7 +94,11 @@ class GameEvolutionDetailsController(
 		],
 	)
 	@PutMapping("/{id}")
-	fun update(@PathVariable id: Long, @RequestBody request: GameEvolutionDetailsRequest): GameEvolutionDetailsResponse = service.update(id, request)
+	fun update(
+		@Parameter(description = "进化条件 ID", schema = Schema(type = "string"))
+		@PathVariable id: Long,
+		@RequestBody request: GameEvolutionDetailsRequest,
+	): GameEvolutionDetailsResponse = service.update(id, request)
 
 	@Operation(summary = "删除进化条件")
 	@ApiResponses(
@@ -103,7 +112,10 @@ class GameEvolutionDetailsController(
 	)
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	fun delete(@PathVariable id: Long) {
+	fun delete(
+		@Parameter(description = "进化条件 ID", schema = Schema(type = "string"))
+		@PathVariable id: Long,
+	) {
 		service.delete(id)
 	}
 }

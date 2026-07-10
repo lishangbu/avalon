@@ -88,28 +88,4 @@ data class GameSkillDetailsRequest(
 	@get:JsonProperty("flavor_text")
 	@field:Schema(description = "风味说明")
 	val flavorText: String? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"skill_id" to skillId,
-		"ailment_id" to ailmentId,
-		"category_id" to categoryId,
-		"target_id" to targetId,
-		"contest_type_id" to contestTypeId,
-		"contest_effect_id" to contestEffectId,
-		"advanced_contest_effect_id" to advancedContestEffectId,
-		"min_hits" to minHits,
-		"max_hits" to maxHits,
-		"min_turns" to minTurns,
-		"max_turns" to maxTurns,
-		"drain" to drain,
-		"healing" to healing,
-		"crit_rate" to critRate,
-		"ailment_chance" to ailmentChance,
-		"flinch_chance" to flinchChance,
-		"stat_chance" to statChance,
-		"effect" to effect,
-		"short_effect" to shortEffect,
-		"flavor_text" to flavorText,
-		)
-}
+)

@@ -40,8 +40,10 @@ import io.github.lishangbu.battlerules.dto.BattlePreparationValidationRequest
 import io.github.lishangbu.battlerules.dto.BattlePreparationValidationResponse
 import io.github.lishangbu.battlerules.dto.BattlePreparationViolationResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxStateSnapshot
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnParticipant
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnSkillSlot
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.requiredText
 import org.springframework.stereotype.Service
@@ -55,7 +57,7 @@ import kotlin.reflect.full.memberProperties
  *
  * 该服务是 battle-rules 管理资料和 battle-engine 纯领域模型之间的应用层门面。它负责事务边界、准备阶段校验、
  * 行动校验和对外暴露的运行时调试装配入口；真正的队伍 DTO 到 [BattleInitialState] 转换委托给
- * [BattleInitialStateAssembler]，底层 SQL/Jimmer 读取委托给 [BattleRuntimeDataLookup]。
+ * [BattleInitialStateAssembler]，底层 Jimmer 读取委托给 [BattleRuntimeDataLookup]。
  *
  * 当前解释的资料约定：
  * - `level-flattened` 条款配合 `defaultLevel` 把参战成员等级和能力值冻结到赛制默认等级。
@@ -338,22 +340,22 @@ class BattleRuntimeSnapshotService(
 	}
 
 	private fun BattlePreparationViolation.toResponse(): BattlePreparationViolationResponse =
-		BattlePreparationViolationResponse(
-			code = code,
-			sideId = sideId,
-			actorId = actorId,
-			resourceId = resourceId,
-			message = message,
-		)
+		BattlePreparationViolationResponse {
+			code = this@toResponse.code
+			sideId = this@toResponse.sideId
+			actorId = this@toResponse.actorId
+			resourceId = this@toResponse.resourceId
+			message = this@toResponse.message
+		}
 
 	private fun BattleActionViolation.toResponse(): BattleActionViolationResponse =
-		BattleActionViolationResponse(
-			code = code,
-			actorId = actorId,
-			targetActorId = targetActorId,
-			resourceId = resourceId,
-			message = message,
-		)
+		BattleActionViolationResponse {
+			code = this@toResponse.code
+			actorId = this@toResponse.actorId
+			targetActorId = this@toResponse.targetActorId
+			resourceId = this@toResponse.resourceId
+			message = this@toResponse.message
+		}
 
 	/**
 	 * 从沙盒快照恢复 battle-engine 可继续结算的状态。
@@ -716,25 +718,25 @@ class BattleRuntimeSnapshotService(
 			participants = participants.map { it.toSandboxParticipant(activeActorIds) },
 		)
 
-	private fun BattleParticipant.toSandboxParticipant(activeActorIds: List<String>): BattleSandboxTurnResponse.Participant =
-		BattleSandboxTurnResponse.Participant(
-			actorId = actorId,
-			creatureId = creatureId,
-			active = actorId in activeActorIds,
-			level = level,
-			currentHp = currentHp,
-			maxHp = maxHp,
-			majorStatus = majorStatus?.name,
-			statStages = statStages.mapKeys { it.key.name },
-			skillSlots = skillSlots.map {
-				BattleSandboxTurnResponse.SkillSlot(
-					skillId = it.skillId,
-					name = it.name,
-					remainingPp = it.remainingPp,
-					maxPp = it.maxPp,
-				)
-			},
-		)
+	private fun BattleParticipant.toSandboxParticipant(activeActorIds: List<String>): BattleSandboxTurnParticipant =
+		BattleSandboxTurnParticipant {
+			actorId = this@toSandboxParticipant.actorId
+			creatureId = this@toSandboxParticipant.creatureId
+			active = actorId in activeActorIds
+			level = this@toSandboxParticipant.level
+			currentHp = this@toSandboxParticipant.currentHp
+			maxHp = this@toSandboxParticipant.maxHp
+			majorStatus = this@toSandboxParticipant.majorStatus?.name
+			statStages = this@toSandboxParticipant.statStages.mapKeys { it.key.name }
+			skillSlots = this@toSandboxParticipant.skillSlots.map {
+				BattleSandboxTurnSkillSlot {
+					skillId = it.skillId
+					name = it.name
+					remainingPp = it.remainingPp
+					maxPp = it.maxPp
+				}
+			}
+		}
 
 	private fun BattleEvent.toSandboxEvent(): BattleSandboxTurnResponse.Event {
 		val type = this::class.simpleName ?: "BattleEvent"

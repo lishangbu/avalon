@@ -115,7 +115,7 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				denominator = 4,
 			),
 		)
-		"self-heal-by-target-current-attack" -> listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack)
+		"self-heal-by-target-current-attack" -> listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack())
 		"target-major-status-cure-self-heal-half-max-hp" -> listOf(
 			BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure(
 				numerator = 1,
@@ -136,8 +136,8 @@ internal fun String.toBattleSkillHpEffects(): List<BattleSkillHpEffect> =
 				denominator = 4,
 			),
 		)
-		"maximize-user-attack-half-max-hp-cost" -> listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)
-		"average-user-target-current-hp" -> listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp)
+		"maximize-user-attack-half-max-hp-cost" -> listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost())
+		"average-user-target-current-hp" -> listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp())
 		else -> emptyList()
 	}
 
@@ -145,7 +145,7 @@ internal fun String.toBattleFixedDamage(): BattleFixedDamage? =
 	when (this) {
 		"fixed-damage-20" -> BattleFixedDamage.FixedAmount(20)
 		"fixed-damage-40" -> BattleFixedDamage.FixedAmount(40)
-		"user-level-fixed-damage" -> BattleFixedDamage.UserLevel
+		"user-level-fixed-damage" -> BattleFixedDamage.UserLevel()
 		else -> null
 	}
 
@@ -160,8 +160,8 @@ internal fun String.toBattleProportionalDamage(): BattleProportionalDamage? =
 
 internal fun String.toBattleHpDerivedDamage(): BattleHpDerivedDamage? =
 	when (this) {
-		"target-hp-minus-user-hp-damage" -> BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp
-		"user-current-hp-sacrifice-damage" -> BattleHpDerivedDamage.UserCurrentHpAndUserFaints
+		"target-hp-minus-user-hp-damage" -> BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp()
+		"user-current-hp-sacrifice-damage" -> BattleHpDerivedDamage.UserCurrentHpAndUserFaints()
 		else -> null
 	}
 

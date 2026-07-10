@@ -136,17 +136,17 @@ class BattleFieldRuleService(
 		)
 
 	private fun BattleFieldRule.toResponse(): BattleFieldRuleResponse =
-		BattleFieldRuleResponse(
-			id = id,
-			code = code,
-			name = name,
-			effectScope = effectScope,
-			effectPolicy = effectPolicy,
-			minTurns = minTurns,
-			maxTurns = maxTurns,
-			maxLayers = maxLayers,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleFieldRuleResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			effectScope = this@toResponse.effectScope
+			effectPolicy = this@toResponse.effectPolicy
+			minTurns = this@toResponse.minTurns
+			maxTurns = this@toResponse.maxTurns
+			maxLayers = this@toResponse.maxLayers
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -56,20 +56,4 @@ data class GameBerriesRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"item_id" to itemId,
-		"firmness_id" to firmnessId,
-		"natural_gift_element_id" to naturalGiftElementId,
-		"growth_time" to growthTime,
-		"max_harvest" to maxHarvest,
-		"natural_gift_power" to naturalGiftPower,
-		"size" to size,
-		"smoothness" to smoothness,
-		"soil_dryness" to soilDryness,
-		"enabled" to enabled,
-		)
-}
+)

@@ -10,6 +10,7 @@ import io.github.lishangbu.security.entity.clientId
 import io.github.lishangbu.security.entity.keyId
 import io.github.lishangbu.security.entity.roles
 import io.github.lishangbu.security.repository.JimmerRegisteredClientRepository
+import io.github.lishangbu.security.repository.OAuth2JwkRepository
 import io.github.lishangbu.security.repository.SecurityUserRepository
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
@@ -30,6 +31,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import tools.jackson.databind.ObjectMapper
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
 	classes = [SecurityTokenEndpointTestApplication::class],
@@ -54,6 +58,8 @@ class BackendTokenEndpointTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
 	@Autowired private val objectMapper: ObjectMapper,
 	@Autowired private val registeredClientRepository: RegisteredClientRepository,
+	@Autowired private val jwkRepository: OAuth2JwkRepository,
+	@Autowired private val jwkKeyFactory: OAuth2JwkKeyFactory,
 ) {
 	private lateinit var mockMvc: MockMvc
 
@@ -86,6 +92,37 @@ class BackendTokenEndpointTests(
 			select(table.keyId)
 		}
 		assertThat(activeKeyIds).hasSize(1)
+	}
+
+	@Test
+	fun `concurrent jwk source initialization creates exactly one active key`() {
+		jwkRepository.deleteAll()
+		val sourceCount = 6
+		val executor = Executors.newFixedThreadPool(sourceCount)
+		val ready = CountDownLatch(sourceCount)
+		val start = CountDownLatch(1)
+
+		try {
+			val futures = (1..sourceCount).map {
+				executor.submit {
+					ready.countDown()
+					check(start.await(10, TimeUnit.SECONDS)) { "JWK initialization start latch timed out" }
+					JwkSource(jwkRepository, sqlClient, jwkKeyFactory).afterPropertiesSet()
+				}
+			}
+
+			assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue()
+			start.countDown()
+			futures.forEach { it.get(30, TimeUnit.SECONDS) }
+
+			val activeKeyIds = sqlClient.executeQuery(OAuth2Jwk::class) {
+				where(table.active eq true)
+				select(table.keyId)
+			}
+			assertThat(activeKeyIds).hasSize(1)
+		} finally {
+			executor.shutdownNow()
+		}
 	}
 
 	@Test

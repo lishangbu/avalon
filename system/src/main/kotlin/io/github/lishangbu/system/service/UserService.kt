@@ -264,14 +264,14 @@ class UserService(
 	 * 将持久化用户转换为管理端响应。
 	 */
 	private fun SecurityUser.toResponse(roleCodes: List<String> = roleCodes(id)): UserResponse =
-		UserResponse(
-			id = id,
-			username = username,
-			displayName = displayName,
-			enabled = enabled,
-			accountNonLocked = accountNonLocked,
-			roleCodes = roleCodes,
-		)
+		UserResponse {
+			id = this@toResponse.id
+			username = this@toResponse.username
+			displayName = this@toResponse.displayName
+			enabled = this@toResponse.enabled
+			accountNonLocked = this@toResponse.accountNonLocked
+			this.roleCodes = roleCodes
+		}
 
 	/**
 	 * 查询用户绑定的角色 code。

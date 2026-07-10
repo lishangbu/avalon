@@ -16,10 +16,4 @@ data class GameGenderEvolutionRequirementsRequest(
 	@get:JsonProperty("species_id")
 	@field:Schema(description = "种类 ID")
 	val speciesId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"gender_id" to genderId,
-		"species_id" to speciesId,
-		)
-}
+)

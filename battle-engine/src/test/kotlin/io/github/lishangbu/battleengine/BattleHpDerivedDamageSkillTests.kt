@@ -31,7 +31,7 @@ class BattleHpDerivedDamageSkillTests {
 			skillId = 283,
 			name = "蛮干",
 			damageClass = BattleDamageClass.PHYSICAL,
-			hpDerivedDamage = BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp,
+			hpDerivedDamage = BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp(),
 		)
 
 		val resolved = engine.resolveTurn(
@@ -62,7 +62,7 @@ class BattleHpDerivedDamageSkillTests {
 			skillId = 283,
 			name = "蛮干",
 			damageClass = BattleDamageClass.PHYSICAL,
-			hpDerivedDamage = BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp,
+			hpDerivedDamage = BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp(),
 		)
 
 		val resolved = engine.resolveTurn(
@@ -97,7 +97,7 @@ class BattleHpDerivedDamageSkillTests {
 			name = "搏命",
 			elementId = 2,
 			damageClass = BattleDamageClass.SPECIAL,
-			hpDerivedDamage = BattleHpDerivedDamage.UserCurrentHpAndUserFaints,
+			hpDerivedDamage = BattleHpDerivedDamage.UserCurrentHpAndUserFaints(),
 		)
 
 		val resolved = engine.resolveTurn(

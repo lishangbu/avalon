@@ -20,11 +20,4 @@ data class GameElementDamageRelationsRequest(
 	@get:JsonProperty("relation_type")
 	@field:Schema(description = "关系类型")
 	val relationType: String? = null,
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"source_element_id" to sourceElementId,
-		"target_element_id" to targetElementId,
-		"relation_type" to relationType,
-		)
-}
+)

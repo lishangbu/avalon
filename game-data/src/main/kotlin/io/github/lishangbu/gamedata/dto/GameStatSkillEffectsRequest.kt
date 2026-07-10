@@ -24,12 +24,4 @@ data class GameStatSkillEffectsRequest(
 	@get:JsonProperty("effect_type")
 	@field:Schema(description = "影响类型")
 	val effectType: String? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"stat_id" to statId,
-		"skill_id" to skillId,
-		"change_value" to changeValue,
-		"effect_type" to effectType,
-		)
-}
+)

@@ -68,7 +68,7 @@ class BattleHeldItemPublicReferenceTests {
 					"attacker",
 					speed = 100,
 					skill = damagingSkill(makesContact = true),
-					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity),
+					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity()),
 				),
 				second = participant(
 					"defender",
@@ -103,7 +103,7 @@ class BattleHeldItemPublicReferenceTests {
 					"attacker",
 					speed = 100,
 					skill = damagingSkill(makesContact = true, punchBased = true),
-					itemEffects = listOf(BattleItemEffect.PunchBasedContactSuppression),
+					itemEffects = listOf(BattleItemEffect.PunchBasedContactSuppression()),
 				),
 				second = participant(
 					"defender",
@@ -223,7 +223,7 @@ class BattleHeldItemPublicReferenceTests {
 				first = participant(
 					"holder",
 					speed = 100,
-					abilityEffects = listOf(BattleAbilityEffect.IndirectDamageImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.IndirectDamageImmunity()),
 					itemId = 265,
 					itemEffects = listOf(BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8)),
 				),
@@ -241,7 +241,7 @@ class BattleHeldItemPublicReferenceTests {
 	@Test
 	fun `contact transfer item moves to empty handed attacker and hurts new holder at end turn`() {
 		val stickyBarbEffects = listOf(
-			BattleItemEffect.ContactTransferToAttacker,
+			BattleItemEffect.ContactTransferToAttacker(),
 			BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
 		)
 		val scenario = publicBattleRuleScenario(
@@ -291,7 +291,7 @@ class BattleHeldItemPublicReferenceTests {
 	@Test
 	fun `contact transfer item stays on defender when attacker already has item`() {
 		val stickyBarbEffects = listOf(
-			BattleItemEffect.ContactTransferToAttacker,
+			BattleItemEffect.ContactTransferToAttacker(),
 			BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
 		)
 		val scenario = publicBattleRuleScenario(

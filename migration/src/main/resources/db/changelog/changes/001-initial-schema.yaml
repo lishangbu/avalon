@@ -1269,8 +1269,7 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
-            remarks: 属性主键，内置数据使用稳定数字 ID，后台新增数据由数据库生成。
+            remarks: 属性主键，内置数据使用稳定数字 ID，后台新增数据由 CosId 生成。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_element
@@ -1311,8 +1310,7 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
-            remarks: 数值项主键，内置数据使用稳定数字 ID，后台新增数据由数据库生成。
+            remarks: 数值项主键，内置数据使用稳定数字 ID，后台新增数据由 CosId 生成。
             constraints:
               primaryKey: true
               primaryKeyName: pk_game_stat
@@ -1360,7 +1358,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能分类主键。
             constraints:
               primaryKey: true
@@ -1406,7 +1403,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具分类主键。
             constraints:
               primaryKey: true
@@ -1448,7 +1444,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 颜色主键。
             constraints:
               primaryKey: true
@@ -1490,7 +1485,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 形态主键。
             constraints:
               primaryKey: true
@@ -1532,7 +1526,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 栖息地主键。
             constraints:
               primaryKey: true
@@ -1574,7 +1567,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 分组主键。
             constraints:
               primaryKey: true
@@ -1616,7 +1608,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 特性主键。
             constraints:
               primaryKey: true
@@ -1659,7 +1650,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能主键。
             constraints:
               primaryKey: true
@@ -1750,7 +1740,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具主键。
             constraints:
               primaryKey: true
@@ -1813,7 +1802,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 种类主键。
             constraints:
               primaryKey: true
@@ -1934,7 +1922,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵主键。
             constraints:
               primaryKey: true
@@ -2009,7 +1996,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 种类分组绑定主键。
             constraints:
               primaryKey: true
@@ -2063,7 +2049,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵属性绑定主键。
             constraints:
               primaryKey: true
@@ -2117,7 +2102,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵数值绑定主键。
             constraints:
               primaryKey: true
@@ -2178,7 +2162,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵特性绑定主键。
             constraints:
               primaryKey: true
@@ -2698,7 +2681,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 评分类别主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2738,7 +2720,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 评价效果主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2771,7 +2752,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 高级评价效果主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2794,7 +2774,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 高级评价效果技能主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2823,7 +2802,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 树果硬度主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2865,7 +2843,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 树果口味主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2905,7 +2882,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 树果资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -2977,7 +2953,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 树果口味强度主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3012,7 +2987,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具属性主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3052,7 +3026,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具投掷效果主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3092,7 +3065,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具口袋主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3134,7 +3106,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具详情主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3173,7 +3144,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具属性绑定主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3202,7 +3172,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具分类口袋主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3231,7 +3200,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 道具索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3260,7 +3228,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能异常主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3296,7 +3263,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能战斗风格主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3338,7 +3304,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能元分类主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3378,7 +3343,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能学习方式主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3418,7 +3382,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能目标主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3458,7 +3421,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能详情主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3557,7 +3519,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能数值变化主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3592,7 +3553,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 技能评价组合主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3633,7 +3593,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 成长速率主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3677,7 +3636,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 成长等级经验主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3712,7 +3670,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 活动能力项主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3754,7 +3711,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性格资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3806,7 +3762,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性格战斗风格偏好主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3847,7 +3802,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性格活动能力变化主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3882,7 +3836,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 活动能力性格影响主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3917,7 +3870,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 地区资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3953,7 +3905,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 地点资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -3993,7 +3944,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 地点索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4022,7 +3972,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 遭遇方式主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4064,7 +4013,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 遭遇条件主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4100,7 +4048,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 遭遇条件值主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4140,7 +4087,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 地点区域主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4184,7 +4130,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 区域遭遇方式概率主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4219,7 +4164,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 区域精灵遭遇主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4274,7 +4218,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 区域遭遇条件绑定主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4303,7 +4246,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性别资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4345,7 +4287,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 进化触发器主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4381,7 +4322,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 进化链主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4398,7 +4338,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 进化链节点主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4443,7 +4382,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 进化条件主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4574,7 +4512,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性别种类比例主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4609,7 +4546,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 性别进化要求主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4638,7 +4574,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 图鉴目录主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4688,7 +4623,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 图鉴目录条目主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4723,7 +4657,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵形态主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4793,7 +4726,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵形态属性主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4828,7 +4760,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 机器资料主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4857,7 +4788,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 迁移区域主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4893,7 +4823,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 迁移区域种类主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4934,7 +4863,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 特性详情主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -4969,7 +4897,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 种类详情主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5028,7 +4955,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 种类目录编号主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5063,7 +4989,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 种类精灵变种主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5098,7 +5023,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵技能学习主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5139,7 +5063,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵持有道具主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5168,7 +5091,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 精灵索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5197,7 +5119,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 属性克制关系主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5232,7 +5153,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 属性索引主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5261,7 +5181,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 数值项技能影响主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5302,7 +5221,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 数值项性格影响主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5337,7 +5255,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 个体特征主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5387,7 +5304,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 个体特征取值主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true
@@ -5416,7 +5332,6 @@ databaseChangeLog:
         - column:
             name: id
             type: bigint
-            autoIncrement: true
             remarks: 数值项特征主键，内置数据保留资料源稳定 ID。
             constraints:
               primaryKey: true

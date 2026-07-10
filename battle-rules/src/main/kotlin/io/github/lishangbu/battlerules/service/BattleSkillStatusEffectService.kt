@@ -153,14 +153,14 @@ class BattleSkillStatusEffectService(
 		)
 
 	private fun BattleSkillStatusEffect.toResponse(): BattleSkillStatusEffectResponse =
-		BattleSkillStatusEffectResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			statusRuleId = statusRuleId,
-			targetScope = targetScope,
-			effectTiming = effectTiming,
-			chancePercent = chancePercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillStatusEffectResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			statusRuleId = this@toResponse.statusRuleId
+			targetScope = this@toResponse.targetScope
+			effectTiming = this@toResponse.effectTiming
+			chancePercent = this@toResponse.chancePercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

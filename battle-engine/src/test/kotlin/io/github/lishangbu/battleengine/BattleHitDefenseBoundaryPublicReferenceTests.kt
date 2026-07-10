@@ -421,7 +421,7 @@ class BattleHitDefenseBoundaryPublicReferenceTests {
 					second = participant(
 						"soundproof-target",
 						speed = 50,
-						abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+						abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 					),
 				),
 			),

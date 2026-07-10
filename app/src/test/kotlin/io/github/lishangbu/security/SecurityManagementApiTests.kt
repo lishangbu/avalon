@@ -2,11 +2,14 @@ package io.github.lishangbu.security
 
 import com.jayway.jsonpath.JsonPath
 import io.github.lishangbu.BackendApplication
+import io.github.lishangbu.security.entity.OAuth2Client
 import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.SecurityUser
 import io.github.lishangbu.security.entity.active
 import io.github.lishangbu.security.entity.code
+import io.github.lishangbu.security.entity.clientId
+import io.github.lishangbu.security.entity.clientSecret
 import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.icon
 import io.github.lishangbu.security.entity.keyId
@@ -24,6 +27,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.context.ContextConfiguration
@@ -53,6 +57,7 @@ class SecurityManagementApiTests(
 	@Autowired private val userRepository: SecurityUserRepository,
 	@Autowired private val sqlClient: KSqlClient,
 	@Autowired private val webApplicationContext: WebApplicationContext,
+	@Autowired private val passwordEncoder: PasswordEncoder,
 ) {
 	private lateinit var mockMvc: MockMvc
 
@@ -287,7 +292,7 @@ class SecurityManagementApiTests(
 			.andReturn()
 			.response
 			.contentAsString
-		val taskId: Long = JsonPath.read(createResponse, "$.id")
+		val taskId = JsonPath.read<String>(createResponse, "$.id").toLong()
 
 		mockMvc.perform(
 			post("/api/system/scheduler/tasks/$taskId/trigger")
@@ -343,7 +348,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientId": "system-tools-jwt",
-					  "clientSecret": "{noop}tools-secret",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["security:admin"],
 					  "accessTokenFormat": "self-contained"
@@ -358,6 +363,9 @@ class SecurityManagementApiTests(
 			.response
 			.contentAsString
 		val toolsClientId = JsonPath.read<String>(createdClientResponse, "$.clientId")
+		val createdSecretHash = clientSecretHash(toolsClientId)
+		assertThat(createdSecretHash).startsWith("{bcrypt}\$2")
+		assertThat(passwordEncoder.matches("tools-secret", createdSecretHash)).isTrue()
 
 		mockMvc.perform(
 			get("/api/system/oauth/clients/{clientId}", toolsClientId)
@@ -396,13 +404,16 @@ class SecurityManagementApiTests(
 				.content(
 					"""
 					{
-					  "clientSecret": "{noop}tools-secret-v2"
+					  "clientSecret": "tools-secret-v2"
 					}
 					""".trimIndent(),
 				),
 		)
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.clientId").value("system-tools-jwt"))
+		val resetSecretHash = clientSecretHash(toolsClientId)
+		assertThat(passwordEncoder.matches("tools-secret-v2", resetSecretHash)).isTrue()
+		assertThat(passwordEncoder.matches("tools-secret", resetSecretHash)).isFalse()
 
 		assertThat(
 			issueToken(
@@ -599,7 +610,7 @@ class SecurityManagementApiTests(
 			.andReturn()
 			.response
 			.contentAsString
-		val auditRoleId = JsonPath.read<Number>(createdRoleResponse, "$.id").toLong()
+		val auditRoleId = JsonPath.read<String>(createdRoleResponse, "$.id").toLong()
 
 		mockMvc.perform(
 			get("/api/system/rbac/roles")
@@ -670,7 +681,7 @@ class SecurityManagementApiTests(
 			.andReturn()
 			.response
 			.contentAsString
-		val auditorUserId = JsonPath.read<Number>(createdUserResponse, "$.id").toLong()
+		val auditorUserId = JsonPath.read<String>(createdUserResponse, "$.id").toLong()
 
 		mockMvc.perform(
 			get("/api/system/rbac/users")
@@ -814,7 +825,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientId": "",
-					  "clientSecret": "{noop}tools-secret",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["security:admin"],
 					  "accessTokenFormat": "self-contained"
@@ -835,7 +846,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientId": "system-extra-client",
-					  "clientSecret": "{noop}tools-secret",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["system:read"],
 					  "accessTokenFormat": "self-contained"
@@ -874,8 +885,28 @@ class SecurityManagementApiTests(
 				.content(
 					"""
 					{
-					  "clientId": "blank-scope-client",
+					  "clientId": "encoded-secret-client",
 					  "clientSecret": "{noop}tools-secret",
+					  "clientName": "Tools JWT Client",
+					  "scopes": ["security:admin"],
+					  "accessTokenFormat": "self-contained"
+					}
+					""".trimIndent(),
+				),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+			.andExpect(jsonPath("$.field").value("clientSecret"))
+
+		mockMvc.perform(
+			post("/api/system/oauth/clients")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					"""
+					{
+					  "clientId": "blank-scope-client",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["security:admin", "  "],
 					  "accessTokenFormat": "self-contained"
@@ -895,7 +926,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientId": "duplicate-scope-client",
-					  "clientSecret": "{noop}tools-secret",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["security:admin", "security:admin"],
 					  "accessTokenFormat": "self-contained"
@@ -1069,7 +1100,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientId": "system-admin-jwt",
-					  "clientSecret": "{noop}tools-secret",
+					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
 					  "scopes": ["security:admin"],
 					  "accessTokenFormat": "self-contained"
@@ -1105,6 +1136,12 @@ class SecurityManagementApiTests(
 
 		return JsonPath.read(response, "$.access_token")
 	}
+
+	private fun clientSecretHash(clientIdValue: String): String =
+		sqlClient.executeQuery(OAuth2Client::class, limit = 1) {
+			where(table.clientId eq clientIdValue)
+			select(table.clientSecret)
+		}.single() ?: error("client secret hash is missing: $clientIdValue")
 
 	private fun insertUser(username: String, vararg roleIds: Long) {
 		val userId = nextUserId.getAndIncrement()

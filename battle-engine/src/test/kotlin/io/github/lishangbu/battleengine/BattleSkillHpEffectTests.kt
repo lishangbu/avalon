@@ -760,7 +760,7 @@ class BattleSkillHpEffectTests {
 			damageClass = BattleDamageClass.STATUS,
 			power = null,
 			accuracy = 100,
-			hpEffects = listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack),
+			hpEffects = listOf(BattleSkillHpEffect.SelfHealByTargetCurrentAttack()),
 			statStageEffects = listOf(
 				BattleStatStageEffect(
 					stat = BattleStat.ATTACK,
@@ -779,7 +779,7 @@ class BattleSkillHpEffectTests {
 			power = null,
 			targetScope = BattleSkillTargetScope.SELF,
 			affectedByProtect = false,
-			hpEffects = listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost),
+			hpEffects = listOf(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost()),
 		)
 
 	private fun painSplitLikeSkill() =
@@ -789,7 +789,7 @@ class BattleSkillHpEffectTests {
 			damageClass = BattleDamageClass.STATUS,
 			power = null,
 			accuracy = null,
-			hpEffects = listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp),
+			hpEffects = listOf(BattleSkillHpEffect.AverageUserAndTargetCurrentHp()),
 		)
 
 	private fun purifyLikeSkill() =

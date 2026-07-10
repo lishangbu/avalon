@@ -37,7 +37,7 @@ security:admin
 自定义 password grant：
 
 ```text
-grant_type=urn:security:params:oauth:grant-type:password&username=admin&password=secret&scope=security:admin
+grant_type=urn:security:params:oauth:grant-type:password&username=admin&password=123456&scope=security:admin
 ```
 
 ## API 权限

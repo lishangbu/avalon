@@ -24,12 +24,4 @@ data class GameAbilityDetailsRequest(
 	@get:JsonProperty("flavor_text")
 	@field:Schema(description = "风味说明")
 	val flavorText: String? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"ability_id" to abilityId,
-		"effect" to effect,
-		"short_effect" to shortEffect,
-		"flavor_text" to flavorText,
-		)
-}
+)

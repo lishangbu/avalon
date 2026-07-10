@@ -20,11 +20,4 @@ data class GameBerryFlavorPotenciesRequest(
 	@get:JsonProperty("potency")
 	@field:Schema(description = "强度")
 	val potency: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"berry_id" to berryId,
-		"flavor_id" to flavorId,
-		"potency" to potency,
-		)
-}
+)

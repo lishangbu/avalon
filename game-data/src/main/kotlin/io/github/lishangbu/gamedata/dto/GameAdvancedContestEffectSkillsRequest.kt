@@ -16,10 +16,4 @@ data class GameAdvancedContestEffectSkillsRequest(
 	@get:JsonProperty("skill_id")
 	@field:Schema(description = "技能 ID")
 	val skillId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"advanced_contest_effect_id" to advancedContestEffectId,
-		"skill_id" to skillId,
-		)
-}
+)

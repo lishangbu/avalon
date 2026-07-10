@@ -6,12 +6,12 @@ plugins {
 dependencies {
 	implementation(project(":common-persistence"))
 	implementation(libs.jackson.databind)
-	implementation(libs.jackson.module.kotlin)
 	implementation(libs.jimmer.spring.boot.starter)
 	implementation(libs.kotlin.reflect)
 	implementation(libs.spring.boot.autoconfigure)
 	implementation(libs.spring.boot.starter)
 	implementation(libs.spring.boot.starter.quartz)
+	implementation(libs.springdoc.openapi.starter.webmvc.api)
 	ksp(libs.jimmer.ksp)
 	runtimeOnly(libs.postgresql)
 	testImplementation(project(":migration"))

@@ -20,11 +20,4 @@ data class GameSpeciesCreatureVarietiesRequest(
 	@get:JsonProperty("default_variety")
 	@field:Schema(description = "默认变种")
 	val defaultVariety: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"species_id" to speciesId,
-		"creature_id" to creatureId,
-		"default_variety" to defaultVariety,
-		)
-}
+)

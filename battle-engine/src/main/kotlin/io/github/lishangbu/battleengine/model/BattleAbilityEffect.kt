@@ -132,7 +132,7 @@ sealed interface BattleAbilityEffect {
 	 * 该效果只描述伤害免疫，不阻止主要异常状态或临时状态本身写入，也不移除已存在的天气、陷阱或携带道具倍率。
 	 * 例如造成伤害后附带反伤的道具仍然提供伤害倍率，但它产生的反伤会被这里阻止。
 	 */
-	object IndirectDamageImmunity : BattleAbilityEffect
+	data class IndirectDamageImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 免疫技能自身造成的反作用伤害。
@@ -145,7 +145,7 @@ sealed interface BattleAbilityEffect {
 	 * [BattleSkillHpEffect.RecoilByUserMaxHp] 表达这类“按使用者最大 HP 支付代价”的来源，因此这里不需要判断技能
 	 * 名称，也不会把该代价误当作普通反作用伤害阻止。
 	 */
-	object SkillRecoilDamageImmunity : BattleAbilityEffect
+	data class SkillRecoilDamageImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 免疫被技能击中要害。
@@ -158,7 +158,7 @@ sealed interface BattleAbilityEffect {
 	 * 它只影响直接技能伤害是否按要害倍率计算，不阻止伤害本身、附加状态、能力阶级变化、天气、场地或其它
 	 * 伤害来源。若后续接入能绕过目标特性的规则，应在特性抑制层统一处理，而不是在这里判断具体技能名称。
 	 */
-	object CriticalHitImmunity : BattleAbilityEffect
+	data class CriticalHitImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 无视对手在伤害公式中使用的能力阶级变化。
@@ -171,7 +171,7 @@ sealed interface BattleAbilityEffect {
 	 * 天气防御修正、场地修正、道具倍率和特性倍率仍按各自规则继续结算。命中与闪避阶级由
 	 * [IgnoreOpponentAccuracyStatStages] 在状态机命中流程中处理，避免伤害公式承担命中语义。
 	 */
-	object IgnoreOpponentDamageStatStages : BattleAbilityEffect
+	data class IgnoreOpponentDamageStatStages(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 无视对手在命中判定中使用的命中或闪避阶级变化。
@@ -184,7 +184,7 @@ sealed interface BattleAbilityEffect {
 	 * 属性免疫或普通伤害公式。伤害公式中的攻击/防御/特攻/特防阶级由 [IgnoreOpponentDamageStatStages]
 	 * 独立处理，便于测试用例精确定位失败发生在哪个结算阶段。
 	 */
-	object IgnoreOpponentAccuracyStatStages : BattleAbilityEffect
+	data class IgnoreOpponentAccuracyStatStages(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 使用技能时无视目标侧防守特性效果。
@@ -197,7 +197,7 @@ sealed interface BattleAbilityEffect {
 	 * 判断范围刻意限定为“攻击方对对手目标使用技能”。同侧辅助、自身目标、使用者自己的攻击侧特性和目标携带
 	 * 道具都不受该效果影响，避免把特性抑制误扩散到道具、场地、属性天然免疫或非技能伤害来源。
 	 */
-	object IgnoreTargetAbilityEffects : BattleAbilityEffect
+	data class IgnoreTargetAbilityEffects(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 接触类技能无视目标保护类阻挡。
@@ -210,7 +210,7 @@ sealed interface BattleAbilityEffect {
 	 * 或快速防守这类本回合临时侧防护。目标的连续保护计数、同回合后续对其它技能的阻挡能力都应继续保留。它也不
 	 * 绕过极巨防壁等未来可能加入的更高优先级防护；那类防护应在保护 gate 中用独立模型表达。
 	 */
-	object ContactSkillProtectionBypass : BattleAbilityEffect
+	data class ContactSkillProtectionBypass(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 免疫其它成员使用的声音类技能。
@@ -221,7 +221,7 @@ sealed interface BattleAbilityEffect {
 	 * 拥有者自己使用的声音类技能不会被该效果阻止；对手若拥有 [IgnoreTargetAbilityEffects]，则可以在本次技能中
 	 * 绕过目标的该免疫。替身是否被声音类技能穿透仍由替身规则单独处理，这里只表达目标特性的免疫能力。
 	 */
-	object SoundBasedSkillImmunity : BattleAbilityEffect
+	data class SoundBasedSkillImmunity(private val marker: Unit = Unit) : BattleAbilityEffect
 
 	/**
 	 * 满 HP 承受会导致倒下的直接伤害时保留 1 HP。

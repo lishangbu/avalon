@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class CreateOAuthClientRequest(
 	@field:Schema(description = "OAuth clientId。必须唯一。", example = "system-tools-jwt")
 	var clientId: String = "",
-	@field:Schema(description = "OAuth client secret。写入后不能通过管理接口读回。", example = "{noop}tools-secret", writeOnly = true, nullable = true)
+	@field:Schema(description = "OAuth client 原始 secret。服务端编码后写入，不能通过管理接口读回。", example = "tools-secret-2026", writeOnly = true, nullable = true)
 	var clientSecret: String? = null,
 	@field:Schema(description = "客户端展示名称。", example = "系统工具 JWT Client")
 	var clientName: String = "",

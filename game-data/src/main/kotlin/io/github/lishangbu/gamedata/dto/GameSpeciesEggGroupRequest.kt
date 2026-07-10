@@ -20,11 +20,4 @@ data class GameSpeciesEggGroupRequest(
 	@get:JsonProperty("slot_order")
 	@field:Schema(description = "槽位")
 	val slotOrder: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"species_id" to speciesId,
-		"egg_group_id" to eggGroupId,
-		"slot_order" to slotOrder,
-		)
-}
+)

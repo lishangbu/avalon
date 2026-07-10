@@ -16,10 +16,4 @@ data class GameLocationAreaEncounterConditionValuesRequest(
 	@get:JsonProperty("condition_value_id")
 	@field:Schema(description = "遭遇条件值 ID")
 	val conditionValueId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"encounter_id" to encounterId,
-		"condition_value_id" to conditionValueId,
-		)
-}
+)

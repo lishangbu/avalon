@@ -1,6 +1,8 @@
 package io.github.lishangbu.battlerules.entity
 
 import io.github.lishangbu.common.persistence.jimmer.CosIdLongUserIdGenerator
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
@@ -18,6 +20,7 @@ import java.time.Instant
 interface BattleSandboxReplay {
 	@Id
 	@GeneratedValue(generatorType = CosIdLongUserIdGenerator::class)
+	@JsonConverter(LongToStringConverter::class)
 	val id: Long
 
 	val title: String

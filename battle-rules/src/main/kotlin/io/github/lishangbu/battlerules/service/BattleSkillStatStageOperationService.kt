@@ -134,7 +134,7 @@ class BattleSkillStatStageOperationService(
 		if (skillRuleRepository.findNullable(skillRuleId) == null) {
 			invalidReference("skillRuleId", "技能规则不存在: $skillRuleId")
 		}
-		requireExistingGameDataReference(sqlClient, "game_stat", statId, "statId", "能力项")
+		requireExistingGameStatReference(sqlClient, statId, "statId", "能力项")
 	}
 
 	private fun ensureOperationAvailable(request: BattleSkillStatStageOperationRequest, selfId: Long?) {
@@ -196,18 +196,18 @@ class BattleSkillStatStageOperationService(
 	}
 
 	private fun BattleSkillStatStageOperation.toResponse(): BattleSkillStatStageOperationResponse =
-		BattleSkillStatStageOperationResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			statId = statId,
-			operationKind = operationKind,
-			targetScope = targetScope,
-			sourceScope = sourceScope,
-			effectTiming = effectTiming,
-			chancePercent = chancePercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillStatStageOperationResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			statId = this@toResponse.statId
+			operationKind = this@toResponse.operationKind
+			targetScope = this@toResponse.targetScope
+			sourceScope = this@toResponse.sourceScope
+			effectTiming = this@toResponse.effectTiming
+			chancePercent = this@toResponse.chancePercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 
 	private companion object {
 		val OPERATION_KINDS = setOf("CLEAR", "COPY", "SWAP", "INVERT")

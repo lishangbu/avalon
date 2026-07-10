@@ -154,12 +154,12 @@ class BattleSkillWeatherPowerModifierService(
 	}
 
 	private fun BattleSkillWeatherPowerModifier.toResponse(): BattleSkillWeatherPowerModifierResponse =
-		BattleSkillWeatherPowerModifierResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			weatherRuleId = weatherRuleId,
-			powerMultiplier = powerMultiplier,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillWeatherPowerModifierResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			weatherRuleId = this@toResponse.weatherRuleId
+			powerMultiplier = this@toResponse.powerMultiplier
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

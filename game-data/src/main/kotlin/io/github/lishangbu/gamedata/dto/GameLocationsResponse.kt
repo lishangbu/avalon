@@ -1,38 +1,31 @@
 package io.github.lishangbu.gamedata.dto
 
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import io.github.lishangbu.gamedata.support.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 
 /**
  * 地点资料响应。
  */
 @Schema(name = "GameLocationsResponse", description = "地点资料响应。")
-data class GameLocationsResponse(
-	@field:Schema(description = "记录主键。", example = "1")
-	val id: Long,
+@Immutable
+interface GameLocationsResponse {
+	@get:Schema(description = "记录主键。", example = "1", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
 	@get:JsonProperty("code")
-	@field:Schema(description = "编码")
-	val code: String?,
+	@get:Schema(description = "编码")
+	val code: String?
 	@get:JsonProperty("name")
-	@field:Schema(description = "名称")
-	val name: String?,
+	@get:Schema(description = "名称")
+	val name: String?
 	@get:JsonProperty("region_id")
-	@field:Schema(description = "地区 ID")
-	val regionId: Long?,
+	@get:Schema(description = "地区 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val regionId: Long?
 	@get:JsonProperty("enabled")
-	@field:Schema(description = "启用")
+	@get:Schema(description = "启用")
 	val enabled: Boolean?
-) {
-	companion object {
-		fun from(record: GameDataRecordResponse): GameLocationsResponse =
-			GameLocationsResponse(
-				id = record.id,
-				code = record.stringField("code"),
-				name = record.stringField("name"),
-				regionId = record.longField("region_id"),
-				enabled = record.booleanField("enabled")
-			)
-	}
 }

@@ -9,6 +9,8 @@ import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.active
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
+import org.babyfish.jimmer.sql.exception.ExecutionException
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.beans.factory.InitializingBean
@@ -46,13 +48,21 @@ class JwkSource(
 		}
 
 		val rsaKey = jwkKeyFactory.generateRsaJwk()
-		repository.save(
-			OAuth2Jwk {
-				keyId = rsaKey.keyID
-				jwkJson = rsaKey.toJSONString()
-				active = true
-			},
-		)
+		try {
+			repository.save(
+				OAuth2Jwk {
+					keyId = rsaKey.keyID
+					jwkJson = rsaKey.toJSONString()
+					active = true
+				},
+				SaveMode.INSERT_ONLY,
+			)
+		} catch (exception: ExecutionException) {
+			// 多实例同时启动时，数据库唯一索引决定唯一胜者；失败实例只接受已经可见的 active key。
+			if (!hasActiveJwk()) {
+				throw exception
+			}
+		}
 	}
 
 	private fun activeJwks(): List<OAuth2Jwk> =

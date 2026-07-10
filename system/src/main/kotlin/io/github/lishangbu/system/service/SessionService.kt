@@ -56,11 +56,11 @@ class SessionService(
 		val roles = loadRoles(roleCodes)
 		val accessNodes = loadAccessNodes(accessNodeCodes)
 		return SessionResponse(
-			user = SessionUserResponse(
-				id = user.id,
-				username = user.username,
-				displayName = user.displayName,
-			),
+			user = SessionUserResponse {
+				id = user.id
+				username = user.username
+				displayName = user.displayName
+			},
 			roles = roles.map { role ->
 				SessionRoleResponse(
 					code = role.code,

@@ -36,15 +36,4 @@ data class GameLocationAreaEncountersRequest(
 	@get:JsonProperty("max_chance")
 	@field:Schema(description = "最大概率")
 	val maxChance: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"area_id" to areaId,
-		"creature_id" to creatureId,
-		"method_id" to methodId,
-		"min_level" to minLevel,
-		"max_level" to maxLevel,
-		"chance" to chance,
-		"max_chance" to maxChance,
-		)
-}
+)

@@ -24,12 +24,4 @@ data class GameCreatureSkillLearnsRequest(
 	@get:JsonProperty("level_learned_at")
 	@field:Schema(description = "习得等级")
 	val levelLearnedAt: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"creature_id" to creatureId,
-		"skill_id" to skillId,
-		"learn_method_id" to learnMethodId,
-		"level_learned_at" to levelLearnedAt,
-		)
-}
+)

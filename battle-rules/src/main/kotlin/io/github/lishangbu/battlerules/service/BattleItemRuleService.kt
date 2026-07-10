@@ -122,7 +122,7 @@ class BattleItemRuleService(
 		repository.findNullable(id) ?: notFound("id", "道具规则不存在: $id")
 
 	private fun validateItemReference(itemId: Long) {
-		requireExistingGameDataReference(sqlClient, "game_item", itemId, "itemId", "道具")
+		requireExistingGameItemReference(sqlClient, itemId, "itemId", "道具")
 	}
 
 	private fun ensureRuleAvailable(request: BattleItemRuleRequest, selfId: Long?) {
@@ -149,15 +149,15 @@ class BattleItemRuleService(
 		)
 
 	private fun BattleItemRule.toResponse(): BattleItemRuleResponse =
-		BattleItemRuleResponse(
-			id = id,
-			itemId = itemId,
-			triggerTiming = triggerTiming,
-			effectPolicy = effectPolicy,
-			consumable = consumable,
-			triggerOrder = triggerOrder,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleItemRuleResponse {
+			id = this@toResponse.id
+			itemId = this@toResponse.itemId
+			triggerTiming = this@toResponse.triggerTiming
+			effectPolicy = this@toResponse.effectPolicy
+			consumable = this@toResponse.consumable
+			triggerOrder = this@toResponse.triggerOrder
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

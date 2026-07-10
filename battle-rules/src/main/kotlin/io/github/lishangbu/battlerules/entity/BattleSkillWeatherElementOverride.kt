@@ -1,6 +1,8 @@
 package io.github.lishangbu.battlerules.entity
 
 import io.github.lishangbu.common.persistence.jimmer.CosIdLongUserIdGenerator
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 import org.babyfish.jimmer.sql.Entity
 import org.babyfish.jimmer.sql.GeneratedValue
 import org.babyfish.jimmer.sql.Id
@@ -21,6 +23,7 @@ import org.babyfish.jimmer.sql.Table
 interface BattleSkillWeatherElementOverride {
 	@Id
 	@GeneratedValue(generatorType = CosIdLongUserIdGenerator::class)
+	@JsonConverter(LongToStringConverter::class)
 	val id: Long
 
 	@Key

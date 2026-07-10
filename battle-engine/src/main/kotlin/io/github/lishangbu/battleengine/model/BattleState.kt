@@ -335,36 +335,3 @@ data class BattleState(
 			)
 		}
 }
-
-/**
- * 一侧伤害减免屏障被批量移除后的状态变更。
- *
- * `removedKinds` 保留移除前在目标侧实际存在的屏障种类顺序，事件层可以直接使用它生成稳定 replay。它不是调用方
- * 请求删除的 kind 集合；这样当目标侧只存在物理屏障时，不会误报特殊屏障或全伤害屏障也被删除。
- */
-data class BattleSideDamageReductionRemoval(
-	val state: BattleState,
-	val removedKinds: List<BattleSideDamageReductionKind>,
-)
-
-/**
- * 一侧非伤害型防护被批量移除后的状态变更。
- *
- * `removedKinds` 保留移除前在目标侧实际存在的防护种类顺序。它只记录真实删除的状态，不把调用方请求删除但本来
- * 不存在的防护写入事件，避免 replay 误报场上发生过不存在的清理。
- */
-data class BattleSideProtectionRemoval(
-	val state: BattleState,
-	val removedKinds: List<BattleSideProtectionKind>,
-)
-
-/**
- * 一侧入场陷阱被批量清除后的状态变更。
- *
- * `removedHazards` 是移除前该侧实际存在的陷阱快照，保留原始顺序和层数。清场技能会用它追加稳定事件；调用方不必
- * 重新读取已经清空的 side，也不会误报本来不存在的陷阱。
- */
-data class BattleSideEntryHazardRemoval(
-	val state: BattleState,
-	val removedHazards: List<BattleSideEntryHazard>,
-)

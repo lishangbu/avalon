@@ -24,12 +24,4 @@ data class GameEncounterConditionValuesRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"condition_id" to conditionId,
-		"enabled" to enabled,
-		)
-}
+)

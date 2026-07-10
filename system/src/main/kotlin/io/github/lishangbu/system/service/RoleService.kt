@@ -152,12 +152,12 @@ class RoleService(
 		}.exists()
 
 	private fun SecurityRole.toResponse(accessNodeCodes: List<String> = accessNodeCodes(id)): RoleResponse =
-		RoleResponse(
-			id = id,
-			code = code,
-			name = name,
-			accessNodeCodes = accessNodeCodes,
-		)
+		RoleResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			this.accessNodeCodes = accessNodeCodes
+		}
 
 	private fun accessNodeCodes(roleId: Long): List<String> =
 		sqlClient.executeQuery(SecurityRole::class) {

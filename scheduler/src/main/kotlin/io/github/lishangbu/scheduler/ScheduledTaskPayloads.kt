@@ -1,7 +1,7 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 internal val SCHEDULED_TASK_PAYLOAD_TYPE = object : TypeReference<Map<String, Any?>>() {}
 

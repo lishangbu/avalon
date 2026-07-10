@@ -156,18 +156,18 @@ class BattleFormatService(
 		)
 
 	private fun BattleFormat.toResponse(): BattleFormatResponse =
-		BattleFormatResponse(
-			id = id,
-			code = code,
-			name = name,
-			description = description,
-			battleMode = battleMode,
-			playerCount = playerCount,
-			teamSize = teamSize,
-			activeParticipantCount = activeParticipantCount,
-			defaultLevel = defaultLevel,
-			allowCustomRules = allowCustomRules,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleFormatResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			description = this@toResponse.description
+			battleMode = this@toResponse.battleMode
+			playerCount = this@toResponse.playerCount
+			teamSize = this@toResponse.teamSize
+			activeParticipantCount = this@toResponse.activeParticipantCount
+			defaultLevel = this@toResponse.defaultLevel
+			allowCustomRules = this@toResponse.allowCustomRules
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -45,7 +45,7 @@ class GameCreatureConstraintApiTests(
 			.andReturn()
 			.response
 			.contentAsString
-		val creatureId = JsonPath.read<Int>(createdResponse, "$.id")
+		val creatureId = JsonPath.read<String>(createdResponse, "$.id")
 
 		mockMvc.perform(
 			post("/api/game-data/creatures")

@@ -1,16 +1,17 @@
 package io.github.lishangbu.system.service
 
-import io.github.lishangbu.system.dto.OAuthJwkResponse
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.security.entity.OAuth2Jwk
 import io.github.lishangbu.security.entity.active
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.entity.keyId
 import io.github.lishangbu.security.oauth.OAuth2JwkKeyFactory
 import io.github.lishangbu.security.repository.OAuth2JwkRepository
-import io.github.lishangbu.common.web.notFound
-import io.github.lishangbu.common.web.mapRows
-import io.github.lishangbu.common.web.searchFilter
-import io.github.lishangbu.common.web.validatePage
+import io.github.lishangbu.system.dto.OAuthJwkResponse
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.Page
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.asc
@@ -20,9 +21,6 @@ import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
-private const val JWK_ROTATION_LOCK_NAMESPACE = 0x41564F4E
-private const val JWK_ROTATION_LOCK_RESOURCE = 0x4A574B01
 
 /**
  * JWK 系统管理服务。
@@ -71,7 +69,7 @@ class OAuthJwkService(
 	 */
 	@Transactional
 	fun rotateJwk(): OAuthJwkResponse {
-		acquireRotationLock()
+		lockRotationAnchor()
 		deactivateActiveJwks()
 
 		val rsaKey = jwkKeyFactory.generateRsaJwk()
@@ -79,22 +77,28 @@ class OAuthJwkService(
 			OAuth2Jwk {
 				keyId = rsaKey.keyID
 				jwkJson = rsaKey.toJSONString()
-				active = true
-			},
+					active = true
+				},
+			SaveMode.INSERT_ONLY,
 		).toResponse()
 	}
 
 	/**
-	 * 使用 PostgreSQL 事务级 advisory lock 串行化 JWK 轮换。
+	 * 锁定最早创建且不会被轮换删除的 JWK，串行化跨实例轮换事务。
 	 *
-	 * 数据库唯一索引仍然是最终保护；这里提前串行化管理端轮换请求，避免并发事务在
-	 * “停用旧 key”和“插入新 active key”之间互相撞到唯一 active 约束。
+	 * Spring 上下文启动时已确保至少存在一条 JWK；数据库唯一索引仍负责最终保证只有
+	 * 一个 active key。
 	 */
-	private fun acquireRotationLock() {
-		sqlClient.javaClient.connectionManager.execute { connection ->
-			connection.prepareStatement("select pg_advisory_xact_lock($JWK_ROTATION_LOCK_NAMESPACE, $JWK_ROTATION_LOCK_RESOURCE)")
-				.use { statement -> statement.execute() }
+	private fun lockRotationAnchor() {
+		val anchorId = sqlClient.createQuery(OAuth2Jwk::class) {
+			orderBy(table.id.asc())
+			select(table.id)
 		}
+			.limit(1)
+			.forUpdate()
+			.fetchOneOrNull()
+
+		checkNotNull(anchorId) { "JWK 轮换前必须存在初始化密钥" }
 	}
 
 	/**
@@ -111,10 +115,10 @@ class OAuthJwkService(
 	 * 将持久化 JWK 转换为不含私钥材料的响应。
 	 */
 	private fun OAuth2Jwk.toResponse(): OAuthJwkResponse =
-		OAuthJwkResponse(
-			id = id,
-			keyId = keyId,
-			active = active,
-		)
+		OAuthJwkResponse {
+			id = this@toResponse.id
+			keyId = this@toResponse.keyId
+			active = this@toResponse.active
+		}
 
 }

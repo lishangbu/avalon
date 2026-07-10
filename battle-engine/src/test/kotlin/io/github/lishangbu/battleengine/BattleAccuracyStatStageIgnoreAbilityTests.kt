@@ -36,7 +36,7 @@ class BattleAccuracyStatStageIgnoreAbilityTests {
 				second = participant(
 					"stage-ignoring-defender",
 					speed = 50,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentAccuracyStatStages),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentAccuracyStatStages()),
 				),
 			),
 		)
@@ -71,7 +71,7 @@ class BattleAccuracyStatStageIgnoreAbilityTests {
 					"stage-ignoring-attacker",
 					speed = 100,
 					skill = accurateSkill,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentAccuracyStatStages),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentAccuracyStatStages()),
 				),
 				second = participant("evasive-defender", speed = 50).copy(
 					statStages = mapOf(BattleStat.EVASION to 1),

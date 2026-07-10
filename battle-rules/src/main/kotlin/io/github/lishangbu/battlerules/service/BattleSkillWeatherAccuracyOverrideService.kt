@@ -156,12 +156,12 @@ class BattleSkillWeatherAccuracyOverrideService(
 		)
 
 	private fun BattleSkillWeatherAccuracyOverride.toResponse(): BattleSkillWeatherAccuracyOverrideResponse =
-		BattleSkillWeatherAccuracyOverrideResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			weatherRuleId = weatherRuleId,
-			accuracyPercent = accuracyPercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillWeatherAccuracyOverrideResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			weatherRuleId = this@toResponse.weatherRuleId
+			accuracyPercent = this@toResponse.accuracyPercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

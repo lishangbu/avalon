@@ -138,18 +138,18 @@ internal fun String.toBattleAbilityEffect(elementIds: Map<String, Long>): Battle
 			weathers = setOf(BattleWeather.SNOW),
 			healDenominator = 16,
 		)
-		"critical-hit-immunity" -> BattleAbilityEffect.CriticalHitImmunity
+		"critical-hit-immunity" -> BattleAbilityEffect.CriticalHitImmunity()
 		"full-hp-fatal-damage-survival" -> BattleAbilityEffect.SurviveFatalDamageAtFullHp()
-		"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity
+		"indirect-damage-immunity" -> BattleAbilityEffect.IndirectDamageImmunity()
 		"weather-damage-immunity-sandstorm" -> BattleAbilityEffect.WeatherDamageImmunity(
 			weathers = setOf(BattleWeather.SANDSTORM),
 		)
-		"skill-recoil-damage-immunity" -> BattleAbilityEffect.SkillRecoilDamageImmunity
-		"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages
-		"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages
-		"ignore-target-ability-effects" -> BattleAbilityEffect.IgnoreTargetAbilityEffects
-		"contact-skill-protection-bypass" -> BattleAbilityEffect.ContactSkillProtectionBypass
-		"sound-based-skill-immunity" -> BattleAbilityEffect.SoundBasedSkillImmunity
+		"skill-recoil-damage-immunity" -> BattleAbilityEffect.SkillRecoilDamageImmunity()
+		"ignore-opponent-accuracy-stat-stages" -> BattleAbilityEffect.IgnoreOpponentAccuracyStatStages()
+		"ignore-opponent-damage-stat-stages" -> BattleAbilityEffect.IgnoreOpponentDamageStatStages()
+		"ignore-target-ability-effects" -> BattleAbilityEffect.IgnoreTargetAbilityEffects()
+		"contact-skill-protection-bypass" -> BattleAbilityEffect.ContactSkillProtectionBypass()
+		"sound-based-skill-immunity" -> BattleAbilityEffect.SoundBasedSkillImmunity()
 		"side-priority-move-immunity" -> BattleAbilityEffect.PriorityMoveImmunityForSide()
 		"status-skill-priority-boost" -> BattleAbilityEffect.StatusSkillPriorityBoost()
 		"element-electric-absorb-heal" -> BattleAbilityEffect.ElementSkillAbsorbHeal(

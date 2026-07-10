@@ -18,10 +18,32 @@ import io.github.lishangbu.battleengine.model.BattleStatusApplication
 import io.github.lishangbu.battleengine.model.BattleTerrain
 import io.github.lishangbu.battleengine.model.BattleVolatileStatusApplication
 import io.github.lishangbu.battleengine.model.BattleWeather
+import io.github.lishangbu.battlerules.entity.BattleFieldRule
+import io.github.lishangbu.battlerules.entity.BattleSkillChargeSkipWeather
+import io.github.lishangbu.battlerules.entity.BattleSkillFieldEffect
+import io.github.lishangbu.battlerules.entity.BattleSkillGlobalFieldEffect
+import io.github.lishangbu.battlerules.entity.BattleSkillStatStageEffect as BattleSkillStatStageEffectEntity
+import io.github.lishangbu.battlerules.entity.BattleSkillStatStageOperation as BattleSkillStatStageOperationEntity
+import io.github.lishangbu.battlerules.entity.BattleSkillStatusEffect
+import io.github.lishangbu.battlerules.entity.BattleSkillTerrainElementOverride
+import io.github.lishangbu.battlerules.entity.BattleSkillTerrainPowerModifier
+import io.github.lishangbu.battlerules.entity.BattleSkillWeatherAccuracyOverride
+import io.github.lishangbu.battlerules.entity.BattleSkillWeatherElementOverride
+import io.github.lishangbu.battlerules.entity.BattleSkillWeatherPowerModifier
+import io.github.lishangbu.battlerules.entity.BattleStatusRule
+import io.github.lishangbu.battlerules.entity.BattleTerrainRule
+import io.github.lishangbu.battlerules.entity.BattleWeatherRule
+import io.github.lishangbu.battlerules.entity.effectTiming
+import io.github.lishangbu.battlerules.entity.enabled
+import io.github.lishangbu.battlerules.entity.id
+import io.github.lishangbu.battlerules.entity.skillRuleId
+import io.github.lishangbu.battlerules.entity.sortOrder
 import io.github.lishangbu.common.web.invalidValue
+import io.github.lishangbu.gamedata.entity.GameElement
+import io.github.lishangbu.gamedata.entity.GameStat
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Component
-import java.sql.ResultSet
 
 /**
  * 技能规则效果子表运行时读取器。
@@ -32,7 +54,7 @@ import java.sql.ResultSet
  *
  * 这里不读取技能名称、PP、威力、目标 policy，也不校验 policy 是否被支持；这些仍然属于 [BattleSkillRuntimeLookup]
  * 的主行装配职责。这样分开后，新增一个子表效果只会改动本类和对应快照测试；新增一个主行布尔字段或 policy 校验也
- * 不会让子表 SQL 跟着一起膨胀。
+ * 不会让子表查询跟着一起膨胀。
  */
 @Component
 class BattleSkillRuleEffectRuntimeLookup(
@@ -68,79 +90,99 @@ class BattleSkillRuleEffectRuntimeLookup(
 		)
 	}
 
-	private fun weatherAccuracyOverrides(ruleId: Long): Map<BattleWeather, Int?> =
-		sqlClient.querySql(
-			"""
-			select w.code as weather_code, o.accuracy_percent
-			from battle_skill_weather_accuracy_override o
-			join battle_weather_rule w on w.id = o.weather_rule_id
-			where o.skill_rule_id = ? and o.enabled = true and w.enabled = true
-			order by o.sort_order, o.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.nullableInt("accuracy_percent") }.toMap()
+		private fun weatherAccuracyOverrides(ruleId: Long): Map<BattleWeather, Int?> =
+			sqlClient.executeQuery(BattleSkillWeatherAccuracyOverride::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { overrides ->
+				val weatherRules = enabledWeatherRules(overrides.map { override -> override.weatherRuleId })
+				overrides.mapNotNull { override ->
+					weatherRules[override.weatherRuleId]?.code?.toBattleWeather()?.let { weather ->
+						weather to override.accuracyPercent
+					}
+				}.toMap()
+			}
 
-	private fun weatherPowerMultipliers(ruleId: Long): Map<BattleWeather, Double> =
-		sqlClient.querySql(
-			"""
-			select w.code as weather_code, m.power_multiplier
-			from battle_skill_weather_power_modifier m
-			join battle_weather_rule w on w.id = m.weather_rule_id
-			where m.skill_rule_id = ? and m.enabled = true and w.enabled = true
-			order by m.sort_order, m.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.getDouble("power_multiplier") }.toMap()
+		private fun weatherPowerMultipliers(ruleId: Long): Map<BattleWeather, Double> =
+			sqlClient.executeQuery(BattleSkillWeatherPowerModifier::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { modifiers ->
+				val weatherRules = enabledWeatherRules(modifiers.map { modifier -> modifier.weatherRuleId })
+				modifiers.mapNotNull { modifier ->
+					weatherRules[modifier.weatherRuleId]?.code?.toBattleWeather()?.let { weather ->
+						weather to modifier.powerMultiplier
+					}
+				}.toMap()
+			}
 
-	private fun weatherElementOverrides(ruleId: Long): Map<BattleWeather, Long> =
-		sqlClient.querySql(
-			"""
-			select w.code as weather_code, o.target_element_id
-			from battle_skill_weather_element_override o
-			join battle_weather_rule w on w.id = o.weather_rule_id
-			join game_element e on e.id = o.target_element_id
-			where o.skill_rule_id = ? and o.enabled = true and w.enabled = true and e.enabled = true
-			order by o.sort_order, o.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("weather_code").toBattleWeather() to rs.getLong("target_element_id") }.toMap()
+		private fun weatherElementOverrides(ruleId: Long): Map<BattleWeather, Long> =
+			sqlClient.executeQuery(BattleSkillWeatherElementOverride::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { overrides ->
+				val weatherRules = enabledWeatherRules(overrides.map { override -> override.weatherRuleId })
+				val enabledElementIds = enabledElementIds(overrides.map { override -> override.targetElementId })
+				overrides.mapNotNull { override ->
+					if (override.targetElementId !in enabledElementIds) {
+						return@mapNotNull null
+					}
+					weatherRules[override.weatherRuleId]?.code?.toBattleWeather()?.let { weather ->
+						weather to override.targetElementId
+					}
+				}.toMap()
+			}
 
-	private fun groundedTerrainPowerMultipliers(ruleId: Long): Map<BattleTerrain, Double> =
-		sqlClient.querySql(
-			"""
-			select t.code as terrain_code, m.power_multiplier
-			from battle_skill_terrain_power_modifier m
-			join battle_terrain_rule t on t.id = m.terrain_rule_id
-			where m.skill_rule_id = ? and m.enabled = true and t.enabled = true
-			order by m.sort_order, m.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("terrain_code").toBattleTerrain() to rs.getDouble("power_multiplier") }.toMap()
+		private fun groundedTerrainPowerMultipliers(ruleId: Long): Map<BattleTerrain, Double> =
+			sqlClient.executeQuery(BattleSkillTerrainPowerModifier::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { modifiers ->
+				val terrainRules = enabledTerrainRules(modifiers.map { modifier -> modifier.terrainRuleId })
+				modifiers.mapNotNull { modifier ->
+					terrainRules[modifier.terrainRuleId]?.code?.toBattleTerrain()?.let { terrain ->
+						terrain to modifier.powerMultiplier
+					}
+				}.toMap()
+			}
 
-	private fun terrainElementOverrides(ruleId: Long): Map<BattleTerrain, Long> =
-		sqlClient.querySql(
-			"""
-			select t.code as terrain_code, o.target_element_id
-			from battle_skill_terrain_element_override o
-			join battle_terrain_rule t on t.id = o.terrain_rule_id
-			join game_element e on e.id = o.target_element_id
-			where o.skill_rule_id = ? and o.enabled = true and t.enabled = true and e.enabled = true
-			order by o.sort_order, o.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("terrain_code").toBattleTerrain() to rs.getLong("target_element_id") }.toMap()
+		private fun terrainElementOverrides(ruleId: Long): Map<BattleTerrain, Long> =
+			sqlClient.executeQuery(BattleSkillTerrainElementOverride::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { overrides ->
+				val terrainRules = enabledTerrainRules(overrides.map { override -> override.terrainRuleId })
+				val enabledElementIds = enabledElementIds(overrides.map { override -> override.targetElementId })
+				overrides.mapNotNull { override ->
+					if (override.targetElementId !in enabledElementIds) {
+						return@mapNotNull null
+					}
+					terrainRules[override.terrainRuleId]?.code?.toBattleTerrain()?.let { terrain ->
+						terrain to override.targetElementId
+					}
+				}.toMap()
+			}
 
-	private fun chargeSkippedByWeathers(ruleId: Long): Set<BattleWeather> =
-		sqlClient.querySql(
-			"""
-			select w.code as weather_code
-			from battle_skill_charge_skip_weather s
-			join battle_weather_rule w on w.id = s.weather_rule_id
-			where s.skill_rule_id = ? and s.enabled = true and w.enabled = true
-			order by s.sort_order, s.id
-			""".trimIndent(),
-			ruleId,
-		) { rs -> rs.getString("weather_code").toBattleWeather() }.toSet()
+		private fun chargeSkippedByWeathers(ruleId: Long): Set<BattleWeather> =
+			sqlClient.executeQuery(BattleSkillChargeSkipWeather::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { skips ->
+				val weatherRules = enabledWeatherRules(skips.map { skip -> skip.weatherRuleId })
+				skips.mapNotNull { skip -> weatherRules[skip.weatherRuleId]?.code?.toBattleWeather() }.toSet()
+			}
 
 	/**
 	 * 一次读取技能附加状态效果，再按状态族拆成主要异常和临时状态。
@@ -150,27 +192,27 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 * 持续回合或触发时机字段，也只需要在这一个查询里补列。目标作用域必须显式可识别，不能返回 null 后被
 	 * `filterNotNull` 吞掉；状态附加行一旦被静默丢弃，实战里会表现成技能命中但异常状态永远不会触发。
 	 */
-	private fun statusEffectRows(ruleId: Long): List<StatusEffectRuntimeRow> =
-		sqlClient.querySql(
-			"""
-			select sr.code as status_code, sr.status_kind, e.target_scope, e.chance_percent
-			from battle_skill_status_effect e
-			join battle_status_rule sr on sr.id = e.status_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and sr.enabled = true
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			ruleId,
-		) { rs ->
-			StatusEffectRuntimeRow(
-				statusCode = rs.getString("status_code"),
-				statusKind = rs.getString("status_kind"),
-				target = rs.battleEffectTarget("target_scope", "状态效果"),
-				chancePercent = rs.getInt("chance_percent"),
-			)
-		}
+		private fun statusEffectRows(ruleId: Long): List<StatusEffectRuntimeRow> =
+			sqlClient.executeQuery(BattleSkillStatusEffect::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				where(table.effectTiming eq AFTER_HIT)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { effects ->
+				val statusRules = sqlClient.findMapByIds(BattleStatusRule::class, effects.map { effect -> effect.statusRuleId })
+					.filterValues { rule -> rule.enabled }
+				effects.mapNotNull { effect ->
+					statusRules[effect.statusRuleId]?.let { rule ->
+						StatusEffectRuntimeRow(
+							statusCode = rule.code,
+							statusKind = rule.statusKind,
+							target = effect.targetScope.toBattleEffectTarget("状态效果"),
+							chancePercent = effect.chancePercent,
+						)
+					}
+				}
+			}
 
 	private fun statusApplications(rows: List<StatusEffectRuntimeRow>): List<BattleStatusApplication> =
 		rows.filter { it.statusKind == "MAJOR" }
@@ -206,94 +248,84 @@ class BattleSkillRuleEffectRuntimeLookup(
 		}
 	}
 
-	private fun statStageEffects(ruleId: Long): List<BattleStatStageEffect> =
-		sqlClient.querySql(
-			"""
-			select st.code as stat_code, e.target_scope, e.stage_delta, e.chance_percent
-			from battle_skill_stat_stage_effect e
-			join game_stat st on st.id = e.stat_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			ruleId,
-		) { rs ->
-				BattleStatStageEffect(
-					stat = rs.getString("stat_code").toBattleStat(),
-					target = rs.battleEffectTarget("target_scope", "能力阶级效果"),
-					stageDelta = rs.getInt("stage_delta"),
-					chancePercent = rs.getInt("chance_percent"),
-				)
-		}
+		private fun statStageEffects(ruleId: Long): List<BattleStatStageEffect> =
+			sqlClient.executeQuery(BattleSkillStatStageEffectEntity::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				where(table.effectTiming eq AFTER_HIT)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { effects ->
+				val stats = sqlClient.findMapByIds(GameStat::class, effects.map { effect -> effect.statId })
+				effects.mapNotNull { effect ->
+					stats[effect.statId]?.let { stat ->
+						BattleStatStageEffect(
+							stat = stat.code.toBattleStat(),
+							target = effect.targetScope.toBattleEffectTarget("能力阶级效果"),
+							stageDelta = effect.stageDelta,
+							chancePercent = effect.chancePercent,
+						)
+					}
+				}
+			}
 
-	private fun statStageOperations(ruleId: Long): List<BattleStatStageOperation> =
-		sqlClient.querySql(
-			"""
-			select
-				st.code as stat_code,
-				e.operation_kind,
-				e.target_scope,
-				e.source_scope,
-				e.chance_percent
-			from battle_skill_stat_stage_operation e
-			join game_stat st on st.id = e.stat_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			ruleId,
-		) { rs ->
-				val source = rs.getString("source_scope")?.toBattleStatStageOperationTarget()
-				BattleStatStageOperation(
-					kind = rs.getString("operation_kind").toBattleStatStageOperationKind(),
-					stat = rs.getString("stat_code").toBattleStat(),
-					target = rs.getString("target_scope").toBattleStatStageOperationTarget(),
-					source = source,
-					chancePercent = rs.getInt("chance_percent"),
-				)
-		}
+		private fun statStageOperations(ruleId: Long): List<BattleStatStageOperation> =
+			sqlClient.executeQuery(BattleSkillStatStageOperationEntity::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				where(table.effectTiming eq AFTER_HIT)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { operations ->
+				val stats = sqlClient.findMapByIds(GameStat::class, operations.map { operation -> operation.statId })
+				operations.mapNotNull { operation ->
+					stats[operation.statId]?.let { stat ->
+						BattleStatStageOperation(
+							kind = operation.operationKind.toBattleStatStageOperationKind(),
+							stat = stat.code.toBattleStat(),
+							target = operation.targetScope.toBattleStatStageOperationTarget(),
+							source = operation.sourceScope?.toBattleStatStageOperationTarget(),
+							chancePercent = operation.chancePercent,
+						)
+					}
+				}
+			}
 
 	/**
 	 * 一次读取一侧场地效果，再按 effect_policy 映射成屏障、速度修正或入场陷阱。
 	 *
 	 * `battle_skill_field_effect` 同时承载三类运行时效果；它们的过滤条件、排序条件和天气前置条件完全一致，差异只在
-	 * `battle_field_rule.effect_policy` 最终能映射成哪种引擎模型。保留三段几乎相同的 SQL 会让新增字段时出现三处
+	 * `battle_field_rule.effect_policy` 最终能映射成哪种引擎模型。保留三段几乎相同的查询会让新增字段时出现三处
 	 * 同步点，也会让每个技能规则多做两次无意义查询。因此这里先冻结成行对象，再用三个窄映射函数拆回
 	 * `BattleSkillSlot` 需要的列表。
 	 */
-	private fun sideFieldEffectRows(ruleId: Long): List<SideFieldEffectRuntimeRow> =
-		sqlClient.querySql(
-			"""
-			select
-				fr.effect_policy as field_effect_policy,
-				fr.min_turns,
-				fr.max_layers,
-				e.target_side,
-				e.chance_percent,
-				w.code as required_weather_code
-			from battle_skill_field_effect e
-			join battle_field_rule fr on fr.id = e.field_rule_id
-			left join battle_weather_rule w on w.id = e.required_weather_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and fr.enabled = true
-				and fr.effect_scope = 'SIDE'
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			ruleId,
-		) { rs ->
-				SideFieldEffectRuntimeRow(
-					effectPolicy = rs.getString("field_effect_policy"),
-					minTurns = rs.nullableInt("min_turns"),
-					maxLayers = rs.nullableInt("max_layers"),
-					targetSide = rs.getString("target_side").toBattleSideConditionTarget(),
-					chancePercent = rs.getInt("chance_percent"),
-					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-				)
-		}
+		private fun sideFieldEffectRows(ruleId: Long): List<SideFieldEffectRuntimeRow> =
+			sqlClient.executeQuery(BattleSkillFieldEffect::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				where(table.effectTiming eq AFTER_HIT)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { effects ->
+				val fieldRules = sqlClient.findMapByIds(BattleFieldRule::class, effects.map { effect -> effect.fieldRuleId })
+					.filterValues { rule -> rule.enabled && rule.effectScope == SIDE_EFFECT_SCOPE }
+				val weatherRules = weatherRules(effects.mapNotNull { effect -> effect.requiredWeatherRuleId })
+				effects.mapNotNull { effect ->
+					fieldRules[effect.fieldRuleId]?.let { fieldRule ->
+						SideFieldEffectRuntimeRow(
+							effectPolicy = fieldRule.effectPolicy,
+							minTurns = fieldRule.minTurns,
+							maxLayers = fieldRule.maxLayers,
+							targetSide = effect.targetSide.toBattleSideConditionTarget(),
+							chancePercent = effect.chancePercent,
+							requiredWeather = effect.requiredWeatherRuleId
+								?.let(weatherRules::get)
+								?.code
+								?.toBattleWeather(),
+						)
+					}
+				}
+			}
 
 	private fun sideConditionApplications(rows: List<SideFieldEffectRuntimeRow>): List<BattleSideConditionApplication> =
 		rows.mapNotNull { row ->
@@ -371,38 +403,38 @@ class BattleSkillRuleEffectRuntimeLookup(
 		}
 	}
 
-	private fun fieldSpeedOrderApplications(ruleId: Long): List<BattleFieldSpeedOrderApplication> =
-		sqlClient.querySql(
-			"""
-			select
-				fr.effect_policy as field_effect_policy,
-				fr.min_turns,
-				e.chance_percent,
-				w.code as required_weather_code
-			from battle_skill_global_field_effect e
-			join battle_field_rule fr on fr.id = e.field_rule_id
-			left join battle_weather_rule w on w.id = e.required_weather_rule_id
-			where e.skill_rule_id = ?
-				and e.enabled = true
-				and fr.enabled = true
-				and fr.effect_scope = 'FIELD'
-				and e.effect_timing = 'AFTER_HIT'
-			order by e.sort_order, e.id
-			""".trimIndent(),
-			ruleId,
-		) { rs ->
-				val effectPolicy = rs.getString("field_effect_policy")
-				val speedOrderKind = effectPolicy.toBattleFieldSpeedOrderKind()
-					?: invalidValue("effectPolicy", "不支持的全场速度顺序效果策略: $effectPolicy")
-				BattleFieldSpeedOrderApplication(
-					speedOrderEffect = BattleFieldSpeedOrderEffect(
-						kind = speedOrderKind,
-						turnsRemaining = rs.nullableInt("min_turns"),
-					),
-					chancePercent = rs.getInt("chance_percent"),
-					requiredWeather = rs.getString("required_weather_code")?.toBattleWeather(),
-				)
-		}
+		private fun fieldSpeedOrderApplications(ruleId: Long): List<BattleFieldSpeedOrderApplication> =
+			sqlClient.executeQuery(BattleSkillGlobalFieldEffect::class) {
+				where(table.skillRuleId eq ruleId)
+				where(table.enabled eq true)
+				where(table.effectTiming eq AFTER_HIT)
+				orderBy(table.sortOrder, table.id)
+				select(table)
+			}.let { effects ->
+				val fieldRules = sqlClient.findMapByIds(BattleFieldRule::class, effects.map { effect -> effect.fieldRuleId })
+					.filterValues { rule -> rule.enabled && rule.effectScope == FIELD_EFFECT_SCOPE }
+				val weatherRules = weatherRules(effects.mapNotNull { effect -> effect.requiredWeatherRuleId })
+				effects.mapNotNull { effect ->
+					fieldRules[effect.fieldRuleId]?.let { fieldRule ->
+						val speedOrderKind = fieldRule.effectPolicy.toBattleFieldSpeedOrderKind()
+							?: invalidValue(
+								"effectPolicy",
+								"不支持的全场速度顺序效果策略: ${fieldRule.effectPolicy}",
+							)
+						BattleFieldSpeedOrderApplication(
+							speedOrderEffect = BattleFieldSpeedOrderEffect(
+								kind = speedOrderKind,
+								turnsRemaining = fieldRule.minTurns,
+							),
+							chancePercent = effect.chancePercent,
+							requiredWeather = effect.requiredWeatherRuleId
+								?.let(weatherRules::get)
+								?.code
+								?.toBattleWeather(),
+						)
+					}
+				}
+			}
 
 	/**
 	 * 解析技能效果子表中的目标作用域。
@@ -411,67 +443,27 @@ class BattleSkillRuleEffectRuntimeLookup(
 	 * 因此资料中的 ALL_OPPONENTS 会在 mapper 中压成 TARGET。除这几种已知值以外，任何目标作用域都代表资料
 	 * 或后台写入错误，必须立即失败。这里不让调用方拿到 null，是为了防止查询结果被 `filterNotNull` 继续静默丢弃。
 	 */
-	private fun ResultSet.battleEffectTarget(column: String, context: String): BattleEffectTarget {
-		val targetScope = getString(column)
-		return targetScope.toBattleEffectTarget()
-			?: invalidValue("targetScope", "不支持的${context}目标作用域: $targetScope")
+		private fun String.toBattleEffectTarget(context: String): BattleEffectTarget =
+			toBattleEffectTarget()
+				?: invalidValue("targetScope", "不支持的${context}目标作用域: $this")
+
+		private fun enabledWeatherRules(ids: Iterable<Long>): Map<Long, BattleWeatherRule> =
+			weatherRules(ids).filterValues { rule -> rule.enabled }
+
+		private fun weatherRules(ids: Iterable<Long>): Map<Long, BattleWeatherRule> =
+			sqlClient.findMapByIds(BattleWeatherRule::class, ids)
+
+		private fun enabledTerrainRules(ids: Iterable<Long>): Map<Long, BattleTerrainRule> =
+			sqlClient.findMapByIds(BattleTerrainRule::class, ids).filterValues { rule -> rule.enabled }
+
+		private fun enabledElementIds(ids: Iterable<Long>): Set<Long> =
+			sqlClient.findMapByIds(GameElement::class, ids)
+				.filterValues { element -> element.enabled == true }
+				.keys
+
+		companion object {
+			private const val AFTER_HIT = "AFTER_HIT"
+			private const val SIDE_EFFECT_SCOPE = "SIDE"
+			private const val FIELD_EFFECT_SCOPE = "FIELD"
+		}
 	}
-
-	private fun ResultSet.nullableInt(column: String): Int? {
-		val value = getInt(column)
-		return if (wasNull()) null else value
-	}
-}
-
-/**
- * `battle_skill_status_effect` 和 `battle_status_rule` 合并后的最小运行时行。
- *
- * 同一张技能状态效果表既能表达主要异常，也能表达混乱、畏缩、回复封锁等临时状态；`statusKind` 是拆分两类引擎
- * 模型的唯一依据。这里先保存已经转换过的 [target]，避免两个列表各自重新解释 `target_scope` 时出现不一致。
- */
-private data class StatusEffectRuntimeRow(
-	val statusCode: String,
-	val statusKind: String,
-	val target: BattleEffectTarget,
-	val chancePercent: Int,
-)
-
-/**
- * `battle_skill_field_effect` 和 `battle_field_rule` 合并后的最小运行时行。
- *
- * 这不是对数据库表的通用复刻，只保留一侧场地效果映射三种引擎模型时都会用到的列。`effectPolicy` 决定该行最终
- * 被屏障、速度修正或入场陷阱列表消费；`minTurns` 只对持续回合类效果有意义，`maxLayers` 只对入场陷阱有意义。
- * 把这些字段先冻结成强类型行，可以避免三段 SQL 各自解析天气、作用侧和概率时出现细小分歧。
- */
-private data class SideFieldEffectRuntimeRow(
-	val effectPolicy: String,
-	val minTurns: Int?,
-	val maxLayers: Int?,
-	val targetSide: BattleSideConditionTarget,
-	val chancePercent: Int,
-	val requiredWeather: BattleWeather?,
-)
-
-/**
- * 一条技能规则所有多行效果的运行时快照。
- *
- * 这个快照不是持久化模型，而是 `battle-rules` 适配层交给 `battle-engine` 前的中间装配结果。字段顺序尽量贴近
- * `BattleSkillSlot` 构造参数，方便审阅“数据库子表 -> 引擎技能槽”的映射是否完整。
- */
-data class BattleSkillRuleEffectRuntimeSnapshot(
-	val chargeSkippedByWeathers: Set<BattleWeather>,
-	val accuracyOverridesByWeather: Map<BattleWeather, Int?>,
-	val powerMultipliersByWeather: Map<BattleWeather, Double>,
-	val groundedPowerMultipliersByTerrain: Map<BattleTerrain, Double>,
-	val elementOverridesByWeather: Map<BattleWeather, Long>,
-	val elementOverridesByTerrain: Map<BattleTerrain, Long>,
-	val statusApplications: List<BattleStatusApplication>,
-	val volatileStatusApplications: List<BattleVolatileStatusApplication>,
-	val statStageEffects: List<BattleStatStageEffect>,
-	val statStageOperations: List<BattleStatStageOperation>,
-	val sideConditionApplications: List<BattleSideConditionApplication>,
-	val sideSpeedModifierApplications: List<BattleSideSpeedModifierApplication>,
-	val sideEntryHazardApplications: List<BattleSideEntryHazardApplication>,
-	val sideProtectionApplications: List<BattleSideProtectionApplication>,
-	val fieldSpeedOrderApplications: List<BattleFieldSpeedOrderApplication>,
-)

@@ -131,7 +131,7 @@ class BattleSkillWeatherElementOverrideService(
 		if (weatherRule.code == "clear") {
 			invalidValue("weatherRuleId", "天气属性覆盖不能引用无天气")
 		}
-		requireExistingGameDataReference(sqlClient, "game_element", targetElementId, "targetElementId", "目标属性", enabledOnly = true)
+		requireEnabledGameElementReference(sqlClient, targetElementId, "targetElementId", "目标属性")
 	}
 
 	private fun ensureOverrideAvailable(request: BattleSkillWeatherElementOverrideRequest, selfId: Long?) {
@@ -155,12 +155,12 @@ class BattleSkillWeatherElementOverrideService(
 		)
 
 	private fun BattleSkillWeatherElementOverride.toResponse(): BattleSkillWeatherElementOverrideResponse =
-		BattleSkillWeatherElementOverrideResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			weatherRuleId = weatherRuleId,
-			targetElementId = targetElementId,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillWeatherElementOverrideResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			weatherRuleId = this@toResponse.weatherRuleId
+			targetElementId = this@toResponse.targetElementId
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

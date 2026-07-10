@@ -155,7 +155,7 @@ class BattleSkillEffectBoundaryPublicReferenceTests {
 					speed = 100,
 					currentHp = 50,
 					skill = skill,
-					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SkillRecoilDamageImmunity()),
 				),
 				second = participant("target", speed = 50),
 			),

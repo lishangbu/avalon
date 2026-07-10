@@ -109,7 +109,7 @@ class BattleContactAbilityPublicReferenceTests {
 					"attacker",
 					speed = 100,
 					skill = damagingSkill(makesContact = true),
-					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity),
+					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity()),
 				),
 				second = participant(
 					"defender",
@@ -145,7 +145,7 @@ class BattleContactAbilityPublicReferenceTests {
 					"attacker",
 					speed = 100,
 					skill = damagingSkill(makesContact = true),
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"defender",

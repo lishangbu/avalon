@@ -131,7 +131,7 @@ class BattleSkillTerrainElementOverrideService(
 		if (terrainRule.code !in SUPPORTED_TERRAIN_CODES) {
 			invalidValue("terrainRuleId", "场地属性覆盖只支持现代主系列四种场地: ${terrainRule.code}")
 		}
-		requireExistingGameDataReference(sqlClient, "game_element", targetElementId, "targetElementId", "目标属性", enabledOnly = true)
+		requireEnabledGameElementReference(sqlClient, targetElementId, "targetElementId", "目标属性")
 	}
 
 	private fun ensureOverrideAvailable(request: BattleSkillTerrainElementOverrideRequest, selfId: Long?) {
@@ -155,14 +155,14 @@ class BattleSkillTerrainElementOverrideService(
 		)
 
 	private fun BattleSkillTerrainElementOverride.toResponse(): BattleSkillTerrainElementOverrideResponse =
-		BattleSkillTerrainElementOverrideResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			terrainRuleId = terrainRuleId,
-			targetElementId = targetElementId,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillTerrainElementOverrideResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			terrainRuleId = this@toResponse.terrainRuleId
+			targetElementId = this@toResponse.targetElementId
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 
 	private companion object {
 		private val SUPPORTED_TERRAIN_CODES = setOf(

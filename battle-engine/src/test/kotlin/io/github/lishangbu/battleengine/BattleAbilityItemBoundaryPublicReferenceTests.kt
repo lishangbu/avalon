@@ -143,7 +143,7 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 					speed = 100,
 					elementId = 2,
 					skill = damagingSkill(elementId = 10),
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"holder",
@@ -183,7 +183,7 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 					"attacker",
 					speed = 100,
 					skill = damagingSkill(elementId = 13),
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				firstB = participant(
 					"ally",
@@ -228,7 +228,7 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 					"speaker",
 					speed = 100,
 					skill = skill,
-					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 				),
 				second = participant("observer", speed = 50),
 			),
@@ -258,7 +258,7 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 				second = participant(
 					"listener",
 					speed = 50,
-					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 				),
 			),
 		)
@@ -357,7 +357,7 @@ class BattleAbilityItemBoundaryPublicReferenceTests {
 					speed = 100,
 					elementId = 2,
 					skill = skill,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"protected",

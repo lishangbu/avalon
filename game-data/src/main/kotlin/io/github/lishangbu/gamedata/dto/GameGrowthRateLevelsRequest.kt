@@ -20,11 +20,4 @@ data class GameGrowthRateLevelsRequest(
 	@get:JsonProperty("experience")
 	@field:Schema(description = "经验")
 	val experience: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"growth_rate_id" to growthRateId,
-		"level" to level,
-		"experience" to experience,
-		)
-}
+)

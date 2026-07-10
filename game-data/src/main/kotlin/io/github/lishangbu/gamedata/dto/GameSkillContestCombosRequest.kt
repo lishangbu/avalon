@@ -24,12 +24,4 @@ data class GameSkillContestCombosRequest(
 	@get:JsonProperty("related_skill_id")
 	@field:Schema(description = "关联技能 ID")
 	val relatedSkillId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"skill_id" to skillId,
-		"combo_type" to comboType,
-		"relation_type" to relationType,
-		"related_skill_id" to relatedSkillId,
-		)
-}
+)

@@ -22,7 +22,7 @@ sealed interface BattleHpDerivedDamage {
 	 * 而是产生技能失败事件；如果差值为正，则按该差值扣减目标或替身 HP。最终实际 HP 损失仍会被目标当前 HP
 	 * 或替身剩余 HP 夹取，不会产生负 HP。
 	 */
-	object TargetCurrentHpMinusUserCurrentHp : BattleHpDerivedDamage
+	data class TargetCurrentHpMinusUserCurrentHp(private val marker: Unit = Unit) : BattleHpDerivedDamage
 
 	/**
 	 * 造成使用者当前 HP 等量的直接伤害，并让使用者在命中后倒下。
@@ -30,5 +30,5 @@ sealed interface BattleHpDerivedDamage {
 	 * 该规则在命中结算时读取使用者当前 HP 作为伤害数值。目标或替身受到伤害后，使用者会以技能自身代价的
 	 * 形式损失全部剩余 HP；该代价不是按造成伤害反弹的反作用伤害，也不受反作用伤害免疫影响。
 	 */
-	object UserCurrentHpAndUserFaints : BattleHpDerivedDamage
+	data class UserCurrentHpAndUserFaints(private val marker: Unit = Unit) : BattleHpDerivedDamage
 }

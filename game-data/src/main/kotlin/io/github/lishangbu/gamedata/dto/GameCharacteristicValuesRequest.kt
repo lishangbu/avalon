@@ -16,10 +16,4 @@ data class GameCharacteristicValuesRequest(
 	@get:JsonProperty("possible_value")
 	@field:Schema(description = "可能取值")
 	val possibleValue: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"characteristic_id" to characteristicId,
-		"possible_value" to possibleValue,
-		)
-}
+)

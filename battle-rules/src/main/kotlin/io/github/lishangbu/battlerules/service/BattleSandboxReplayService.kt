@@ -1,8 +1,5 @@
 package io.github.lishangbu.battlerules.service
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplayResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxReplaySummaryResponse
@@ -28,6 +25,7 @@ import io.github.lishangbu.common.web.requiredText
 import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.jackson.v3.ImmutableModuleV3
 import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.desc
@@ -37,6 +35,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * 战斗沙盒复盘保存与读取服务。
@@ -50,7 +51,9 @@ class BattleSandboxReplayService(
 	private val sqlClient: KSqlClient,
 	private val runtimeSnapshotService: BattleRuntimeSnapshotService,
 ) {
-	private val objectMapper: ObjectMapper = JsonMapper.builder().findAndAddModules().build()
+	private val objectMapper: ObjectMapper = JsonMapper.builder()
+		.addModule(ImmutableModuleV3())
+		.build()
 	private val ruleHitMapper = BattleSandboxRuleHitMapper()
 
 	@Transactional(readOnly = true)
@@ -74,22 +77,22 @@ class BattleSandboxReplayService(
 	fun validate(id: Long): BattleSandboxReplayValidationResponse {
 		val replay = replayByIdOrNotFound(id)
 		val validation = validateReplaySnapshot(replay.responseJson, replay.requestJson)
-		return BattleSandboxReplayValidationResponse(
-			id = replay.id.toString(),
-			title = replay.title,
-			formatCode = replay.formatCode,
-			turnNumber = replay.turnNumber,
-			resolved = replay.resolved,
-			valid = validation.violations.isEmpty(),
-			eventCount = validation.eventCount,
-			turnCount = validation.turnCount,
-			ruleHitCount = validation.ruleHitCount,
-			ruleHitFamilyCodes = validation.ruleHitFamilyCodes,
-			deterministicReplayChecked = validation.deterministicReplayChecked,
-			deterministicReplayMatched = validation.deterministicReplayMatched,
-			warnings = validation.warnings,
-			violations = validation.violations,
-		)
+		return BattleSandboxReplayValidationResponse {
+			this.id = replay.id
+			title = replay.title
+			formatCode = replay.formatCode
+			turnNumber = replay.turnNumber
+			resolved = replay.resolved
+			valid = validation.violations.isEmpty()
+			eventCount = validation.eventCount
+			turnCount = validation.turnCount
+			ruleHitCount = validation.ruleHitCount
+			ruleHitFamilyCodes = validation.ruleHitFamilyCodes
+			deterministicReplayChecked = validation.deterministicReplayChecked
+			deterministicReplayMatched = validation.deterministicReplayMatched
+			warnings = validation.warnings
+			violations = validation.violations
+		}
 	}
 
 	@Transactional
@@ -256,8 +259,8 @@ class BattleSandboxReplayService(
 	}
 
 	private fun validateTurnRecords(
-		turnsNode: com.fasterxml.jackson.databind.JsonNode,
-		stateEventsNode: com.fasterxml.jackson.databind.JsonNode,
+		turnsNode: JsonNode,
+		stateEventsNode: JsonNode,
 		turnNumber: Int?,
 		violations: MutableList<String>,
 	) {
@@ -300,10 +303,10 @@ class BattleSandboxReplayService(
 	}
 
 	private fun validateRuleHits(
-		ruleHitsNode: com.fasterxml.jackson.databind.JsonNode,
-		turnsNode: com.fasterxml.jackson.databind.JsonNode,
-		violationsNode: com.fasterxml.jackson.databind.JsonNode,
-		randomTraceNode: com.fasterxml.jackson.databind.JsonNode,
+		ruleHitsNode: JsonNode,
+		turnsNode: JsonNode,
+		violationsNode: JsonNode,
+		randomTraceNode: JsonNode,
 		violations: MutableList<String>,
 		warnings: MutableList<String>,
 	): List<String> {
@@ -312,10 +315,10 @@ class BattleSandboxReplayService(
 		}
 		val knownFamilies = ruleHitMapper.ruleHitFamilyCodes().toSet()
 		val ruleHits = ruleHitsNode.arrayElements()
-		val familyCodes = ruleHits.mapNotNull { it.path("familyCode").takeIf { node -> node.isTextual }?.asText() }.sorted().distinct()
+		val familyCodes = ruleHits.mapNotNull { it.path("familyCode").takeIf { node -> node.isString }?.asString() }.sorted().distinct()
 		ruleHits.forEach { hit ->
-			val familyCode = hit.path("familyCode").takeIf { it.isTextual }?.asText()
-			val itemCode = hit.path("itemCode").takeIf { it.isTextual }?.asText()
+			val familyCode = hit.path("familyCode").takeIf { it.isString }?.asString()
+			val itemCode = hit.path("itemCode").takeIf { it.isString }?.asString()
 			if (familyCode.isNullOrBlank()) violations += "规则命中缺少 familyCode"
 			if (!familyCode.isNullOrBlank() && familyCode !in knownFamilies) violations += "规则命中包含未知规则族: $familyCode"
 			if (itemCode.isNullOrBlank()) violations += "规则命中缺少 itemCode"
@@ -324,8 +327,8 @@ class BattleSandboxReplayService(
 			}
 		}
 		val hitPairs = ruleHits.mapNotNull { hit ->
-			val familyCode = hit.path("familyCode").takeIf { it.isTextual }?.asText()
-			val itemCode = hit.path("itemCode").takeIf { it.isTextual }?.asText()
+			val familyCode = hit.path("familyCode").takeIf { it.isString }?.asString()
+			val itemCode = hit.path("itemCode").takeIf { it.isString }?.asString()
 			if (familyCode.isNullOrBlank() || itemCode.isNullOrBlank()) null else familyCode to itemCode
 		}.toSet()
 		validateLatestTurnEventHits(turnsNode, hitPairs, warnings)
@@ -339,14 +342,14 @@ class BattleSandboxReplayService(
 	}
 
 	private fun validateLatestTurnEventHits(
-		turnsNode: com.fasterxml.jackson.databind.JsonNode,
+		turnsNode: JsonNode,
 		hitPairs: Set<Pair<String, String>>,
 		warnings: MutableList<String>,
 	) {
 		val latestTurn = turnsNode.takeIf { it.isArray && !it.isEmpty }?.lastOrNull() ?: return
 		val latestEvents = latestTurn.path("events").takeIf { it.isArray } ?: return
 		latestEvents.arrayElements().forEach { event ->
-			val type = event.path("type").takeIf { it.isTextual }?.asText() ?: return@forEach
+			val type = event.path("type").takeIf { it.isString }?.asString() ?: return@forEach
 			val familyCode = ruleHitMapper.familyCodeForEventType(type) ?: return@forEach
 			if (familyCode to type !in hitPairs) {
 				warnings += "最新回合事件 $type 未出现在规则命中摘要中"
@@ -354,13 +357,13 @@ class BattleSandboxReplayService(
 		}
 	}
 
-	private fun resultSummary(resultNode: com.fasterxml.jackson.databind.JsonNode): String? {
+	private fun resultSummary(resultNode: JsonNode): String? {
 		if (!resultNode.isObject) {
 			return null
 		}
 		return listOfNotNull(
-			resultNode.path("winningSideId").takeIf { it.isTextual }?.asText()?.takeIf(String::isNotBlank)?.let { "胜方 $it" },
-			resultNode.path("reason").takeIf { it.isTextual }?.asText()?.takeIf(String::isNotBlank),
+			resultNode.path("winningSideId").takeIf { it.isString }?.asString()?.takeIf(String::isNotBlank)?.let { "胜方 $it" },
+			resultNode.path("reason").takeIf { it.isString }?.asString()?.takeIf(String::isNotBlank),
 		).joinToString("，").ifBlank { null }
 	}
 
@@ -385,8 +388,8 @@ class BattleSandboxReplayService(
 			}
 			return null
 		}
-		val leftFields = left.fieldNames().asSequence().toSet()
-		val rightFields = right.fieldNames().asSequence().toSet()
+		val leftFields = left.propertyNames().toSet()
+		val rightFields = right.propertyNames().toSet()
 		leftFields.minus(rightFields).minOrNull()?.let { return "$path 缺少重放字段 $it" }
 		rightFields.minus(leftFields).minOrNull()?.let { return "$path 多出重放字段 $it" }
 		return leftFields.sorted().firstNotNullOfOrNull { fieldName ->
@@ -401,28 +404,28 @@ class BattleSandboxReplayService(
 		isNumber && other.isNumber && decimalValue().compareTo(other.decimalValue()) == 0
 
 	private fun BattleSandboxReplay.toSummaryResponse(): BattleSandboxReplaySummaryResponse =
-		BattleSandboxReplaySummaryResponse(
-			id = id.toString(),
-			title = title,
-			formatCode = formatCode,
-			turnNumber = turnNumber,
-			resolved = resolved,
-			resultSummary = resultSummary,
-			savedAt = savedAt,
-		)
+		BattleSandboxReplaySummaryResponse {
+			id = this@toSummaryResponse.id
+			title = this@toSummaryResponse.title
+			formatCode = this@toSummaryResponse.formatCode
+			turnNumber = this@toSummaryResponse.turnNumber
+			resolved = this@toSummaryResponse.resolved
+			resultSummary = this@toSummaryResponse.resultSummary
+			savedAt = this@toSummaryResponse.savedAt
+		}
 
 	private fun BattleSandboxReplay.toDetailResponse(): BattleSandboxReplayResponse =
-		BattleSandboxReplayResponse(
-			id = id.toString(),
-			title = title,
-			formatCode = formatCode,
-			turnNumber = turnNumber,
-			resolved = resolved,
-			resultSummary = resultSummary,
-			savedAt = savedAt,
-			requestJson = requestJson,
-			responseJson = responseJson,
-		)
+		BattleSandboxReplayResponse {
+			id = this@toDetailResponse.id
+			title = this@toDetailResponse.title
+			formatCode = this@toDetailResponse.formatCode
+			turnNumber = this@toDetailResponse.turnNumber
+			resolved = this@toDetailResponse.resolved
+			resultSummary = this@toDetailResponse.resultSummary
+			savedAt = this@toDetailResponse.savedAt
+			requestJson = this@toDetailResponse.requestJson
+			responseJson = this@toDetailResponse.responseJson
+		}
 
 	/**
 	 * 从响应 JSON 中提取的列表展示元数据。
@@ -464,10 +467,10 @@ class BattleSandboxReplayService(
 		val matched: Boolean,
 	)
 
-	private fun com.fasterxml.jackson.databind.JsonNode.arrayElements(): List<com.fasterxml.jackson.databind.JsonNode> =
-		elements().asSequence().toList()
+	private fun JsonNode.arrayElements(): List<JsonNode> =
+		values().toList()
 
-	private fun com.fasterxml.jackson.databind.JsonNode.lastOrNull(): com.fasterxml.jackson.databind.JsonNode? =
+	private fun JsonNode.lastOrNull(): JsonNode? =
 		arrayElements().lastOrNull()
 
 	private fun invalidReplay(fieldName: String, message: String): Nothing =

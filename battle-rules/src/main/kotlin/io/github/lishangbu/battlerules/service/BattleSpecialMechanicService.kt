@@ -116,12 +116,12 @@ class BattleSpecialMechanicService(
 		)
 
 	private fun BattleSpecialMechanic.toResponse(): BattleSpecialMechanicResponse =
-		BattleSpecialMechanicResponse(
-			id = id,
-			code = code,
-			name = name,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSpecialMechanicResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

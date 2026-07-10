@@ -16,10 +16,4 @@ data class GameStatCharacteristicsRequest(
 	@get:JsonProperty("characteristic_id")
 	@field:Schema(description = "特征 ID")
 	val characteristicId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"stat_id" to statId,
-		"characteristic_id" to characteristicId,
-		)
-}
+)

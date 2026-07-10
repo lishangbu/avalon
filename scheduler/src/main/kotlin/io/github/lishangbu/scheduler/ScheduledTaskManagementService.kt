@@ -1,6 +1,6 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.github.lishangbu.scheduler.entity.ScheduledTask
 import io.github.lishangbu.scheduler.entity.ScheduledTaskExecutionRecord
 import io.github.lishangbu.scheduler.entity.actualFireTime
@@ -283,42 +283,42 @@ open class ScheduledTaskManagementService(
 		val triggerKey = TriggerKey.triggerKey(code, groupName)
 		val trigger = scheduler.getTrigger(triggerKey)
 		val triggerState = trigger?.let { scheduler.getTriggerState(triggerKey).name }
-		return ManagedScheduledTaskResponse(
-			id = id,
-			code = code,
-			handlerCode = handlerCode,
-			name = name,
-			description = description,
-			groupName = groupName,
-			scheduleType = scheduleType,
-			cronExpression = cronExpression,
-			intervalSeconds = intervalSeconds,
-			runAt = runAt?.toInstant(),
-			timeZone = timeZone,
-			payload = basePayload(),
-			enabled = enabled,
-			nextFireTime = trigger?.nextFireTime?.toInstant(),
-			triggerState = triggerState,
-			lastExecutionStatus = lastExecution?.status,
-			lastExecutionAt = lastExecution?.actualFireTime?.toInstant(),
-		)
+		return ManagedScheduledTaskResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			handlerCode = this@toResponse.handlerCode
+			name = this@toResponse.name
+			description = this@toResponse.description
+			groupName = this@toResponse.groupName
+			scheduleType = this@toResponse.scheduleType
+			cronExpression = this@toResponse.cronExpression
+			intervalSeconds = this@toResponse.intervalSeconds
+			runAt = this@toResponse.runAt?.toInstant()
+			timeZone = this@toResponse.timeZone
+			payload = this@toResponse.basePayload()
+			enabled = this@toResponse.enabled
+			nextFireTime = trigger?.nextFireTime?.toInstant()
+			this.triggerState = triggerState
+			lastExecutionStatus = lastExecution?.status
+			lastExecutionAt = lastExecution?.actualFireTime?.toInstant()
+		}
 	}
 
 	private fun ScheduledTaskExecutionRecord.toResponse(): ManagedScheduledTaskExecutionResponse =
-		ManagedScheduledTaskExecutionResponse(
-			id = id,
-			taskId = taskId,
-			taskCode = taskCode,
-			handlerCode = handlerCode,
-			scheduledFireTime = scheduledFireTime?.toInstant(),
-			actualFireTime = actualFireTime.toInstant(),
-			finishedAt = finishedAt?.toInstant(),
-			status = status,
-			durationMs = durationMs,
-			refireCount = refireCount,
-			payloadSnapshot = objectMapper.readPayload(payloadSnapshotJson),
-			errorMessage = errorMessage,
-		)
+		ManagedScheduledTaskExecutionResponse {
+			id = this@toResponse.id
+			taskId = this@toResponse.taskId
+			taskCode = this@toResponse.taskCode
+			handlerCode = this@toResponse.handlerCode
+			scheduledFireTime = this@toResponse.scheduledFireTime?.toInstant()
+			actualFireTime = this@toResponse.actualFireTime.toInstant()
+			finishedAt = this@toResponse.finishedAt?.toInstant()
+			status = this@toResponse.status
+			durationMs = this@toResponse.durationMs
+			refireCount = this@toResponse.refireCount
+			payloadSnapshot = objectMapper.readPayload(this@toResponse.payloadSnapshotJson)
+			errorMessage = this@toResponse.errorMessage
+		}
 
 	private fun ScheduledTask.basePayload(): Map<String, Any?> =
 		objectMapper.readPayload(payloadJson)

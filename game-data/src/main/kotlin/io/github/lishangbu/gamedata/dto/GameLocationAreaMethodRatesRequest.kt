@@ -20,11 +20,4 @@ data class GameLocationAreaMethodRatesRequest(
 	@get:JsonProperty("rate")
 	@field:Schema(description = "概率")
 	val rate: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"area_id" to areaId,
-		"method_id" to methodId,
-		"rate" to rate,
-		)
-}
+)

@@ -10,6 +10,8 @@ import io.github.lishangbu.security.entity.clientId
 import io.github.lishangbu.security.entity.clientName
 import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.oauth.PASSWORD_GRANT_TYPE_VALUE
+import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.repository.OAuth2ClientRepository
@@ -26,11 +28,13 @@ import io.github.lishangbu.common.web.mapRows
 import io.github.lishangbu.common.web.searchFilter
 import io.github.lishangbu.common.web.validatePage
 import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.ilike
 import org.babyfish.jimmer.sql.kt.ast.expression.or
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
@@ -46,6 +50,7 @@ import java.time.ZoneOffset
 class OAuthClientService(
 	private val clientRepository: OAuth2ClientRepository,
 	private val sqlClient: KSqlClient,
+	private val passwordEncoder: PasswordEncoder,
 ) {
 	/**
 	 * 查询 OAuth client 元数据，响应会隐藏 secret。
@@ -90,8 +95,7 @@ class OAuthClientService(
 		val scopes = request.scopes.normalizedAccessNodeCodes("scopes")
 		scopes.requireSupportedValues("scopes", SUPPORTED_SCOPES)
 		val accessTokenFormat = request.accessTokenFormat.requiredSupportedValue("accessTokenFormat", ACCESS_TOKEN_FORMATS)
-		val clientSecret = request.clientSecret.orEmpty()
-			.requiredText("clientSecret", maxLength = 200, minLength = MIN_CLIENT_SECRET_LENGTH)
+		val clientSecret = encodeClientSecret(request.clientSecret)
 		val clientName = request.clientName.requiredText("clientName", maxLength = 120)
 
 		val now = OffsetDateTime.now(ZoneOffset.UTC)
@@ -121,6 +125,7 @@ class OAuthClientService(
 				idTokenSignatureAlgorithm = ID_TOKEN_SIGNATURE_ALGORITHM
 				x509CertificateBoundAccessTokens = false
 			},
+			SaveMode.INSERT_ONLY,
 		).toResponse()
 	}
 
@@ -162,9 +167,24 @@ class OAuthClientService(
 	@Transactional
 	fun resetClientSecret(clientId: String, request: ResetOAuthClientSecretRequest): OAuthClientResponse {
 		val client = clientByClientIdOrNotFound(clientId)
-		val clientSecret = request.clientSecret.orEmpty()
-			.requiredText("clientSecret", maxLength = 200, minLength = MIN_CLIENT_SECRET_LENGTH)
+		val clientSecret = encodeClientSecret(request.clientSecret)
 		return saveClient(client, clientSecret = clientSecret).toResponse()
+	}
+
+	/**
+	 * 校验原始 client secret 并使用服务端密码编码策略生成不可逆摘要。
+	 *
+	 * 管理 API 不接受携带 `{id}` 算法前缀的值，避免调用方选择 `{noop}` 或伪造已编码摘要。
+	 */
+	private fun encodeClientSecret(value: String?): String {
+		val rawSecret = value.orEmpty()
+			.requiredText("clientSecret", maxLength = MAX_CLIENT_SECRET_LENGTH, minLength = MIN_CLIENT_SECRET_LENGTH)
+		if (ENCODED_SECRET_PREFIX.containsMatchIn(rawSecret)) {
+			invalidValue("clientSecret", "clientSecret 必须提交原始值，不能携带密码算法前缀")
+		}
+		return checkNotNull(passwordEncoder.encode(rawSecret)) {
+			"PasswordEncoder returned null"
+		}
 	}
 
 	/**
@@ -231,23 +251,24 @@ class OAuthClientService(
 				idTokenSignatureAlgorithm = client.idTokenSignatureAlgorithm
 				x509CertificateBoundAccessTokens = client.x509CertificateBoundAccessTokens
 			},
+			SaveMode.UPDATE_ONLY,
 		)
 
 	/**
 	 * 将持久化 client 转换为不含 secret 的响应。
 	 */
 	private fun OAuth2Client.toResponse(): OAuthClientResponse =
-		OAuthClientResponse(
-			id = id,
-			clientId = clientId,
-			clientName = clientName,
-			clientAuthenticationMethods = clientAuthenticationMethods.splitValues(),
-			authorizationGrantTypes = authorizationGrantTypes.splitValues(),
-			scopes = scopes.splitValues(),
-			accessTokenFormat = accessTokenFormat,
-			accessTokenTtlSeconds = accessTokenTtlSeconds,
-			refreshTokenTtlSeconds = refreshTokenTtlSeconds,
-		)
+		OAuthClientResponse {
+			id = this@toResponse.id
+			clientId = this@toResponse.clientId
+			clientName = this@toResponse.clientName
+			clientAuthenticationMethods = this@toResponse.clientAuthenticationMethods.splitValues()
+			authorizationGrantTypes = this@toResponse.authorizationGrantTypes.splitValues()
+			scopes = this@toResponse.scopes.splitValues()
+			accessTokenFormat = this@toResponse.accessTokenFormat
+			accessTokenTtlSeconds = this@toResponse.accessTokenTtlSeconds
+			refreshTokenTtlSeconds = this@toResponse.refreshTokenTtlSeconds
+		}
 
 	/**
 	 * 拆分以空格持久化的 Spring Authorization Server 多值字段。
@@ -268,9 +289,16 @@ class OAuthClientService(
 		private const val MAX_ACCESS_TOKEN_TTL_SECONDS = 86400L
 		private const val MIN_REFRESH_TOKEN_TTL_SECONDS = 300L
 		private const val MAX_REFRESH_TOKEN_TTL_SECONDS = 2592000L
-		private const val MIN_CLIENT_SECRET_LENGTH = 8
+		private const val MIN_CLIENT_SECRET_LENGTH = 12
+		private const val MAX_CLIENT_SECRET_LENGTH = 200
 		private const val ID_TOKEN_SIGNATURE_ALGORITHM = "RS256"
 		private val ACCESS_TOKEN_FORMATS = setOf("self-contained", "reference")
-		private val SUPPORTED_SCOPES = setOf(SECURITY_ADMIN_ACCESS_NODE, GAME_DATA_ADMIN_ACCESS_NODE)
+		private val ENCODED_SECRET_PREFIX = Regex("""^\{[^}]+}""")
+		private val SUPPORTED_SCOPES = setOf(
+			SECURITY_ADMIN_ACCESS_NODE,
+			GAME_DATA_ADMIN_ACCESS_NODE,
+			BATTLE_RULES_ADMIN_ACCESS_NODE,
+			BATTLE_SANDBOX_RUN_ACCESS_NODE,
+		)
 	}
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
  * 战斗运行时资料读取门面。
  *
  * [BattleRuntimeSnapshotService] 是应用层编排入口，理想情况下不应该直接知道赛制、成员、技能、特性、道具分别由
- * 哪个 SQL/Jimmer 读取器提供。这个门面保持原来的单一注入点，但自身不再承接具体查询；它只把请求按资料族转发给
+ * 哪个 Jimmer 读取器提供。这个门面保持原来的单一注入点，但自身不再承接具体查询；它只把请求按资料族转发给
  * 更小的协作者。
  *
  * 这样做的边界比较明确：

@@ -20,7 +20,7 @@ class SecurityTokenEndpointPostgresTestContainer : ApplicationContextInitializer
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:latest")
+		private val postgres = PostgreSQLContainer("postgres:18.4")
 			.withDatabaseName("backend_security_token_test")
 			.withUsername("backend")
 			.withPassword("backend")

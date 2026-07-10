@@ -171,14 +171,14 @@ class BattleSkillGlobalFieldEffectService(
 		}
 
 	private fun BattleSkillGlobalFieldEffect.toResponse(): BattleSkillGlobalFieldEffectResponse =
-		BattleSkillGlobalFieldEffectResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			fieldRuleId = fieldRuleId,
-			effectTiming = effectTiming,
-			requiredWeatherRuleId = requiredWeatherRuleId,
-			chancePercent = chancePercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillGlobalFieldEffectResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			fieldRuleId = this@toResponse.fieldRuleId
+			effectTiming = this@toResponse.effectTiming
+			requiredWeatherRuleId = this@toResponse.requiredWeatherRuleId
+			chancePercent = this@toResponse.chancePercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -1,48 +1,119 @@
 package io.github.lishangbu.gamedata.service
 
-import io.github.lishangbu.gamedata.dto.GameDataPageResponse
+import io.github.lishangbu.common.web.invalidValue
+import io.github.lishangbu.common.web.mapRows
+import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.common.web.requiredSlugCode
+import io.github.lishangbu.common.web.searchFilter
+import io.github.lishangbu.common.web.validatePage
 import io.github.lishangbu.gamedata.dto.GameCreatureStatRequest
 import io.github.lishangbu.gamedata.dto.GameCreatureStatResponse
-import io.github.lishangbu.gamedata.model.GameDataRecordRequest
+import io.github.lishangbu.gamedata.entity.GameCreatureStat
+import io.github.lishangbu.gamedata.entity.baseValue
+import io.github.lishangbu.gamedata.entity.creatureId
+import io.github.lishangbu.gamedata.entity.effort
+import io.github.lishangbu.gamedata.entity.id
+import io.github.lishangbu.gamedata.entity.statId
 import io.github.lishangbu.gamedata.repository.GameCreatureStatRepository
+import io.github.lishangbu.gamedata.support.gameDataBooleanFilterValue
+import io.github.lishangbu.gamedata.support.gameDataIntFilterValue
+import io.github.lishangbu.gamedata.support.gameDataLongFilterValue
+import io.github.lishangbu.gamedata.support.gameDataOptionalText
+import io.github.lishangbu.gamedata.support.gameDataRequiredText
+import io.github.lishangbu.gamedata.support.gameDataStringFilterValue
+import org.babyfish.jimmer.Page
+import org.babyfish.jimmer.sql.ast.mutation.SaveMode
+import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.babyfish.jimmer.sql.kt.ast.expression.ilike
+import org.babyfish.jimmer.sql.kt.ast.expression.or
+import org.babyfish.jimmer.sql.kt.ast.expression.sql
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
- * 精灵数值绑定 Service。
+ * 精灵数值绑定维护服务。
+ *
+ * 查询、校验和写入只依赖当前资料实体，不共享跨表运行时元数据。
  */
 @Service
 class GameCreatureStatService(
 	private val repository: GameCreatureStatRepository,
+	private val sqlClient: KSqlClient,
 ) {
+	@Transactional(readOnly = true)
 	fun list(
 		page: Int,
 		size: Int,
 		query: String?,
 		filters: Map<String, String> = emptyMap(),
-	): GameDataPageResponse<GameCreatureStatResponse> {
-		val records = repository.list(page, size, query, filters)
-		return GameDataPageResponse(
-			rows = records.rows.map(GameCreatureStatResponse::from),
-			totalRowCount = records.totalRowCount,
-			totalPageCount = records.totalPageCount,
-			page = records.page,
-			size = records.size,
-		)
+	): Page<GameCreatureStatResponse> {
+		validatePage(page, size)
+		val search = searchFilter(query)
+		return sqlClient.createQuery(GameCreatureStat::class) {
+			search.pattern?.let { pattern ->
+				where(or(sql<String>("cast(%e as text)", table.creatureId) ilike pattern, sql<String>("cast(%e as text)", table.statId) ilike pattern))
+			}
+			filters.forEach { (field, rawValue) ->
+				when (field) {
+				"creature_id" -> gameDataLongFilterValue("creature_id", rawValue)?.let { where(table.creatureId eq it) }
+				"stat_id" -> gameDataLongFilterValue("stat_id", rawValue)?.let { where(table.statId eq it) }
+				"base_value" -> gameDataIntFilterValue("base_value", rawValue)?.let { where(table.baseValue eq it) }
+				"effort" -> gameDataIntFilterValue("effort", rawValue)?.let { where(table.effort eq it) }
+					else -> invalidValue(field, "筛选字段不存在: $field")
+				}
+			}
+			orderBy(table.id)
+			select(table)
+		}.fetchPage(page, size).mapRows { it.toResponse() }
 	}
 
+	@Transactional(readOnly = true)
 	fun get(id: Long): GameCreatureStatResponse =
-		GameCreatureStatResponse.from(repository.get(id))
+		entityByIdOrNotFound(id).toResponse()
 
+	@Transactional
 	fun create(request: GameCreatureStatRequest): GameCreatureStatResponse =
-		GameCreatureStatResponse.from(repository.create(request.toRecordRequest()))
+		repository.save(
+			GameCreatureStat {
+				creatureId = request.creatureId ?: invalidValue("creature_id", "creature_id 不能为空")
+				statId = request.statId ?: invalidValue("stat_id", "stat_id 不能为空")
+				baseValue = request.baseValue ?: invalidValue("base_value", "base_value 不能为空")
+				effort = request.effort
+			},
+			SaveMode.INSERT_ONLY,
+		).toResponse()
 
-	fun update(id: Long, request: GameCreatureStatRequest): GameCreatureStatResponse =
-		GameCreatureStatResponse.from(repository.update(id, request.toRecordRequest()))
-
-	fun delete(id: Long) {
-		repository.delete(id)
+	@Transactional
+	fun update(id: Long, request: GameCreatureStatRequest): GameCreatureStatResponse {
+		entityByIdOrNotFound(id)
+		return repository.save(
+			GameCreatureStat {
+				this.id = id
+				creatureId = request.creatureId ?: invalidValue("creature_id", "creature_id 不能为空")
+				statId = request.statId ?: invalidValue("stat_id", "stat_id 不能为空")
+				baseValue = request.baseValue ?: invalidValue("base_value", "base_value 不能为空")
+				effort = request.effort
+			},
+			SaveMode.UPDATE_ONLY,
+		).toResponse()
 	}
 
-	private fun GameCreatureStatRequest.toRecordRequest(): GameDataRecordRequest =
-		GameDataRecordRequest(fields = toFields())
+	@Transactional
+	fun delete(id: Long) {
+		entityByIdOrNotFound(id)
+		repository.deleteById(id)
+	}
+
+	private fun entityByIdOrNotFound(id: Long): GameCreatureStat =
+		repository.findNullable(id) ?: notFound("id", "精灵数值绑定不存在: $id")
+
+	private fun GameCreatureStat.toResponse(): GameCreatureStatResponse =
+		GameCreatureStatResponse {
+			id = this@toResponse.id
+			creatureId = this@toResponse.creatureId
+			statId = this@toResponse.statId
+			baseValue = this@toResponse.baseValue
+			effort = this@toResponse.effort
+		}
 }

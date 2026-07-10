@@ -48,18 +48,4 @@ data class GameSkillRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"element_id" to elementId,
-		"damage_class_id" to damageClassId,
-		"accuracy" to accuracy,
-		"power" to power,
-		"pp" to pp,
-		"priority" to priority,
-		"effect_chance" to effectChance,
-		"enabled" to enabled,
-		)
-}
+)

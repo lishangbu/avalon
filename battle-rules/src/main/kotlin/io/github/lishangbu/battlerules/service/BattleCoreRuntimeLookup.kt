@@ -3,14 +3,31 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.battleengine.model.ElementEffectivenessChart
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.notFound
+import io.github.lishangbu.gamedata.entity.GameCreature
+import io.github.lishangbu.gamedata.entity.GameCreatureElement
+import io.github.lishangbu.gamedata.entity.GameCreatureStat
+import io.github.lishangbu.gamedata.entity.GameElement
+import io.github.lishangbu.gamedata.entity.GameElementDamageRelations
+import io.github.lishangbu.gamedata.entity.GameStat
+import io.github.lishangbu.gamedata.entity.code
+import io.github.lishangbu.gamedata.entity.creatureId
+import io.github.lishangbu.gamedata.entity.elementId
+import io.github.lishangbu.gamedata.entity.enabled
+import io.github.lishangbu.gamedata.entity.id
+import io.github.lishangbu.gamedata.entity.relationType
+import io.github.lishangbu.gamedata.entity.slotOrder
+import io.github.lishangbu.gamedata.entity.sourceElementId
+import io.github.lishangbu.gamedata.entity.targetElementId
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
+import org.babyfish.jimmer.sql.kt.ast.expression.valueIn
 import org.springframework.stereotype.Component
 
 /**
  * 战斗核心资料运行时读取器。
  *
  * 本类只读取纯资料侧的稳定事实：核心属性 ID、成员属性集合和成员基础能力值。它不读取赛制限制，也不读取技能、
- * 特性、道具规则。这样能力值公式或资料字段扩展时，不会牵动技能规则 SQL；反过来新增技能子表也不会污染成员画像
+ * 特性、道具规则。这样能力值公式或资料字段扩展时，不会牵动技能规则查询；反过来新增技能子表也不会污染成员画像
  * 的读取逻辑。
  *
  * 成员最终能力值由基础能力、等级和 [BattleParticipantStatConfig] 共同计算。该读取器仍然只返回最终画像，
@@ -29,17 +46,10 @@ class BattleCoreRuntimeLookup(
 	 * 引擎可执行的属性 ID。
 	 */
 	fun coreElementIds(): Map<String, Long> =
-		sqlClient.querySql(
-			"""
-			select code, id
-			from game_element
-			where code in (
-				'normal', 'fighting', 'flying', 'poison', 'ground', 'rock',
-				'bug', 'ghost', 'steel', 'fire', 'water', 'grass',
-				'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'
-			)
-			""".trimIndent(),
-		) { rs -> rs.getString("code") to rs.getLong("id") }.toMap()
+		sqlClient.executeQuery(GameElement::class) {
+			where(table.code valueIn CORE_ELEMENT_CODES)
+			select(table)
+		}.associate { element -> element.code to element.id }
 
 	/**
 	 * 读取当前资料库中的属性克制表。
@@ -49,22 +59,21 @@ class BattleCoreRuntimeLookup(
 	 * 未出现的组合由 [ElementEffectivenessChart] 按中性倍率 1.0 处理。
 	 */
 	fun elementChart(): ElementEffectivenessChart {
-		val multiplierBySource = sqlClient.querySql(
-			"""
-			select r.source_element_id, r.target_element_id, r.relation_type
-			from game_element_damage_relation r
-			join game_element source_element on source_element.id = r.source_element_id
-			join game_element target_element on target_element.id = r.target_element_id
-			where source_element.enabled = true
-				and target_element.enabled = true
-				and r.relation_type in ('double_damage_to', 'half_damage_to', 'no_damage_to')
-			order by r.source_element_id, r.target_element_id, r.id
-			""".trimIndent(),
-		) { rs ->
+		val enabledElementIds = sqlClient.executeQuery(GameElement::class) {
+			where(table.enabled eq true)
+			select(table.id)
+		}
+		val multiplierBySource = sqlClient.executeQuery(GameElementDamageRelations::class) {
+			where(table.sourceElementId valueIn enabledElementIds)
+			where(table.targetElementId valueIn enabledElementIds)
+			where(table.relationType valueIn DAMAGE_RELATION_TYPES)
+			orderBy(table.sourceElementId, table.targetElementId, table.id)
+			select(table)
+		}.map { relation ->
 			ElementDamageRelation(
-				sourceElementId = rs.getLong("source_element_id"),
-				targetElementId = rs.getLong("target_element_id"),
-				multiplier = rs.getString("relation_type").toElementDamageMultiplier(),
+				sourceElementId = relation.sourceElementId,
+				targetElementId = relation.targetElementId,
+				multiplier = relation.relationType.toElementDamageMultiplier(),
 			)
 		}.groupBy { it.sourceElementId }
 			.mapValues { (_, relations) ->
@@ -91,42 +100,33 @@ class BattleCoreRuntimeLookup(
 		if (level !in 1..100) {
 			invalidValue("level", "level 必须在 1 到 100 之间")
 		}
-		val elementIds = sqlClient.querySql(
-			"""
-			select element_id
-			from game_creature_element
-			where creature_id = ?
-			order by slot_order, id
-			""".trimIndent(),
-			creatureId,
-		) { rs -> rs.getLong("element_id") }
+		val elementIds = sqlClient.executeQuery(GameCreatureElement::class) {
+			where(table.creatureId eq creatureId)
+			orderBy(table.slotOrder, table.id)
+			select(table.elementId)
+		}
 		if (elementIds.isEmpty()) {
 			notFound("creatureId", "成员属性资料不存在: $creatureId")
 		}
 		// 体重必须在进入引擎前固定到快照中；后续低踢、打草结、重磅冲撞、高温重压类规则都只读该快照值。
-		val creatureWeight = sqlClient.querySql(
-			"""
-			select weight
-			from game_creature
-			where id = ? and enabled = true
-			""".trimIndent(),
-			creatureId,
-		) { rs -> rs.getInt("weight") }.singleOrNull() ?: notFound("creatureId", "成员体重资料不存在: $creatureId")
+		val creatureWeight = sqlClient.findById(GameCreature::class, creatureId)
+			?.takeIf { creature -> creature.enabled == true }
+			?.weight
+			?: notFound("creatureId", "成员体重资料不存在: $creatureId")
 		if (creatureWeight <= 0) {
 			notFound("creatureId", "成员体重资料无效: $creatureId")
 		}
-		val baseStats = sqlClient.querySql(
-			"""
-			select s.code, cs.base_value
-			from game_creature_stat cs
-			join game_stat s on s.id = cs.stat_id
-			where cs.creature_id = ?
-			""".trimIndent(),
-			creatureId,
-		) { rs -> rs.getString("code") to rs.getInt("base_value") }.toMap()
-		if (baseStats.isEmpty()) {
+		val creatureStats = sqlClient.executeQuery(GameCreatureStat::class) {
+			where(table.creatureId eq creatureId)
+			select(table)
+		}
+		if (creatureStats.isEmpty()) {
 			notFound("creatureId", "成员能力资料不存在: $creatureId")
 		}
+		val statsById = sqlClient.findMapByIds(GameStat::class, creatureStats.map { stat -> stat.statId })
+		val baseStats = creatureStats.mapNotNull { creatureStat ->
+			statsById[creatureStat.statId]?.code?.let { code -> code to creatureStat.baseValue }
+		}.toMap()
 		return BattleCreatureRuntimeProfile(
 			maxHp = baseStats.requiredBaseStat("hp").toRuntimeHp(level, statConfig, "hp"),
 			attack = baseStats.requiredBaseStat("attack").toRuntimeBattleStat(level, statConfig, "attack"),
@@ -181,4 +181,13 @@ class BattleCoreRuntimeLookup(
 		val targetElementId: Long,
 		val multiplier: Double,
 	)
+
+	companion object {
+		private val CORE_ELEMENT_CODES = setOf(
+			"normal", "fighting", "flying", "poison", "ground", "rock",
+			"bug", "ghost", "steel", "fire", "water", "grass",
+			"electric", "psychic", "ice", "dragon", "dark", "fairy",
+		)
+		private val DAMAGE_RELATION_TYPES = setOf("double_damage_to", "half_damage_to", "no_damage_to")
+	}
 }

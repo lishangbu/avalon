@@ -3,6 +3,10 @@ package io.github.lishangbu.battlerules.service
 import io.github.lishangbu.common.web.invalidValue
 import io.github.lishangbu.common.web.invalidReference
 import io.github.lishangbu.common.web.requiredText
+import io.github.lishangbu.gamedata.entity.GameAbility
+import io.github.lishangbu.gamedata.entity.GameElement
+import io.github.lishangbu.gamedata.entity.GameItem
+import io.github.lishangbu.gamedata.entity.GameStat
 import org.babyfish.jimmer.sql.kt.KSqlClient
 
 /**
@@ -62,24 +66,27 @@ internal fun optionalIntRange(value: Int?, fieldName: String, min: Int, max: Int
 	return requiredIntRange(value, fieldName, min, max)
 }
 
-internal fun requireExistingGameDataReference(
-	sqlClient: KSqlClient,
-	tableName: String,
-	id: Long,
-	fieldName: String,
-	displayName: String,
-	enabledOnly: Boolean = false,
-) {
-	/**
-	 * `tableName` 只允许由服务层传入固定表名，不接收请求参数；这里保留原生 SQL 是因为 game-data 资料表当前
-	 * 以独立维护表暴露，没有为每张资料表都生成 Jimmer Entity。`enabledOnly` 用于战斗运行时只能引用启用资料
-	 * 的场景，例如天气/场地导致的技能属性覆盖不应指向已停用属性。
-	 */
-	val enabledPredicate = if (enabledOnly) " and enabled = true" else ""
-	val exists = sqlClient.querySql(
-		"select exists(select 1 from $tableName where id = ?$enabledPredicate)",
-		id,
-	) { rs -> rs.getBoolean(1) }.singleOrNull() == true
+internal fun requireExistingGameAbilityReference(sqlClient: KSqlClient, id: Long, fieldName: String, displayName: String) {
+	requireExistingReference(sqlClient.findById(GameAbility::class, id) != null, id, fieldName, displayName)
+}
+
+internal fun requireExistingGameItemReference(sqlClient: KSqlClient, id: Long, fieldName: String, displayName: String) {
+	requireExistingReference(sqlClient.findById(GameItem::class, id) != null, id, fieldName, displayName)
+}
+
+internal fun requireExistingGameStatReference(sqlClient: KSqlClient, id: Long, fieldName: String, displayName: String) {
+	requireExistingReference(sqlClient.findById(GameStat::class, id) != null, id, fieldName, displayName)
+}
+
+internal fun requireEnabledGameElementReference(sqlClient: KSqlClient, id: Long, fieldName: String, displayName: String) {
+	val element = sqlClient.findById(GameElement::class, id)
+	requireExistingReference(element?.enabled == true, id, fieldName, displayName)
+}
+
+/**
+ * 统一输出资料引用不存在时的稳定字段错误，具体存在性查询由各 Jimmer 实体负责。
+ */
+private fun requireExistingReference(exists: Boolean, id: Long, fieldName: String, displayName: String) {
 	if (!exists) {
 		invalidReference(fieldName, "$displayName 不存在: $id")
 	}

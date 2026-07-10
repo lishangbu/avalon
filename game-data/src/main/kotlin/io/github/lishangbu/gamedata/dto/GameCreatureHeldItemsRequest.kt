@@ -20,11 +20,4 @@ data class GameCreatureHeldItemsRequest(
 	@get:JsonProperty("rarity")
 	@field:Schema(description = "稀有度")
 	val rarity: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"creature_id" to creatureId,
-		"item_id" to itemId,
-		"rarity" to rarity,
-		)
-}
+)

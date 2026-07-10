@@ -37,7 +37,7 @@ class BattleConditionalDamageBoostItemTests {
 					itemId = 1700,
 					itemEffects = listOf(
 						BattleItemEffect.PunchBasedSkillPowerBoost(multiplier = 1.1),
-						BattleItemEffect.PunchBasedContactSuppression,
+						BattleItemEffect.PunchBasedContactSuppression(),
 					),
 				),
 				second = participant("defender", speed = 50),

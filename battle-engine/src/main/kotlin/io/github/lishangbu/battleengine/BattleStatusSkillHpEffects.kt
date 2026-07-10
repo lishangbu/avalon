@@ -122,18 +122,18 @@ internal class BattleStatusSkillHpEffects(
 						numerator = effect.numerator,
 						denominator = effect.denominator,
 					)
-					BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost -> applyMaximizeUserAttackWithHalfMaxHpCost(
+					BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost() -> applyMaximizeUserAttackWithHalfMaxHpCost(
 						state = current,
 						actorId = actorId,
 						skill = skill,
 					)
-					BattleSkillHpEffect.AverageUserAndTargetCurrentHp -> applyAverageUserAndTargetCurrentHp(
+					BattleSkillHpEffect.AverageUserAndTargetCurrentHp() -> applyAverageUserAndTargetCurrentHp(
 						state = current,
 						actorId = actorId,
 						targetActorId = targetActorId,
 						skill = skill,
 					)
-					BattleSkillHpEffect.SelfHealByTargetCurrentAttack -> current
+					BattleSkillHpEffect.SelfHealByTargetCurrentAttack() -> current
 					is BattleSkillHpEffect.SelfHealAfterTargetMajorStatusCure -> applyTargetMajorStatusCureThenSelfHeal(
 						state = current,
 						actorId = actorId,

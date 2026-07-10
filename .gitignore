@@ -38,6 +38,9 @@ out/
 ### Kotlin ###
 .kotlin
 
+### JVM crash dumps ###
+*.hprof
+
 ### OS metadata ###
 .DS_Store
 ._*

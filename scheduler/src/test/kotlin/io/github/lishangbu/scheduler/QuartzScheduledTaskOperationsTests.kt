@@ -1,6 +1,5 @@
 package io.github.lishangbu.scheduler
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -21,9 +20,10 @@ import java.time.Instant
 import java.util.Properties
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import tools.jackson.databind.json.JsonMapper
 
 class QuartzScheduledTaskOperationsTests {
-	private val objectMapper = jacksonObjectMapper()
+	private val objectMapper = JsonMapper.builder().build()
 	private val scheduler = newScheduler()
 
 	@AfterEach
@@ -163,7 +163,7 @@ class QuartzScheduledTaskOperationsTests {
 
 	private class StaticDelegatingJobFactory(
 		private val registry: ScheduledTaskRegistry,
-		private val objectMapper: com.fasterxml.jackson.databind.ObjectMapper,
+		private val objectMapper: tools.jackson.databind.ObjectMapper,
 	) : JobFactory {
 		override fun newJob(bundle: TriggerFiredBundle, scheduler: Scheduler): Job =
 			DelegatingScheduledTaskJob(registry, objectMapper)

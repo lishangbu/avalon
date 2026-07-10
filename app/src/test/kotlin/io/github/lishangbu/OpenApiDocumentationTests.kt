@@ -1,15 +1,24 @@
 package io.github.lishangbu
 
 import com.jayway.jsonpath.JsonPath
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnParticipant
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
+import io.github.lishangbu.battlerules.dto.BattleSandboxTurnSkillSlot
+import io.github.lishangbu.battlerules.dto.BattleWeatherRuleResponse
+import io.github.lishangbu.scheduler.ManagedScheduledTaskExecutionResponse
 import io.github.lishangbu.security.entity.SecurityAccessNode
 import io.github.lishangbu.security.entity.enabled
 import io.github.lishangbu.security.entity.path
 import io.github.lishangbu.security.entity.type
 import io.github.lishangbu.security.entity.visible
+import io.github.lishangbu.system.dto.OAuthClientResponse
+import io.github.lishangbu.system.dto.UserResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.containsInAnyOrder
+import org.hamcrest.Matchers.hasItem
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,6 +30,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import tools.jackson.databind.ObjectMapper
+import java.time.Instant
 
 /**
  * 验证运行时 OpenAPI 文档能直接服务于接口说明、联调和前端类型生成。
@@ -35,6 +46,7 @@ import org.springframework.web.context.WebApplicationContext
 class OpenApiDocumentationTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
 	@Autowired private val sqlClient: KSqlClient,
+	@Autowired private val objectMapper: ObjectMapper,
 ) {
 	private val mockMvc: MockMvc by lazy {
 		MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
@@ -58,6 +70,14 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens/{authorizationId}'].get.summary").value("查询 OAuth 令牌详情"))
 			.andExpect(jsonPath("$.paths['/api/system/oauth/tokens/{authorizationId}/revoke'].post.summary").value("撤销 OAuth 令牌"))
 			.andExpect(jsonPath("$.paths['/api/system/scheduler/tasks/{taskId}/trigger'].post.responses['202'].description").value("已接受触发请求"))
+			.andExpect(jsonPath("$.components.schemas.UserResponse.properties.id.type").value("string"))
+			.andExpect(
+				jsonPath("$.components.schemas.AccessNodeResponse.properties.parentId.type")
+					.value(containsInAnyOrder("string", "null")),
+			)
+			.andExpect(jsonPath("$.components.schemas.OAuthClientResponse.properties.accessTokenTtlSeconds.type").value("integer"))
+			.andExpect(jsonPath("$.components.schemas.ManagedScheduledTaskResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.ManagedScheduledTaskResponse.required").value(hasItem("id")))
 	}
 
 	@Test
@@ -75,7 +95,49 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures/{id}'].put.summary").value("修改精灵资料"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures/{id}'].put.requestBody.content['application/json'].schema['\$ref']").value("#/components/schemas/GameCreatureRequest"))
 			.andExpect(jsonPath("$.components.schemas.GameCreatureRequest.properties.species_id.description").value("种类 ID"))
+			.andExpect(jsonPath("$.components.schemas.GameCreatureResponse.properties.id.type").value("string"))
 			.andExpect(jsonPath("$.components.schemas.GameCreatureResponse.properties.species_id.description").value("种类 ID"))
+	}
+
+	@Test
+	fun `game evolution detail request documents reference identifiers as strings`() {
+		val document = mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andReturn()
+			.response
+			.contentAsString
+		val properties = JsonPath.read<Map<String, Map<String, Any?>>>(
+			document,
+			"$.components.schemas.GameEvolutionDetailsRequest.properties",
+		)
+		val identifierTypes = properties
+			.filterKeys { property -> property.endsWith("_id") }
+			.mapValues { (_, schema) -> schema["type"] }
+
+		assertThat(identifierTypes).isNotEmpty
+		identifierTypes.forEach { (property, type) ->
+			assertThat(type)
+				.describedAs("%s OpenAPI type", property)
+				.isEqualTo("string")
+		}
+	}
+
+	@Test
+	fun `game evolution detail paths document identifiers as strings`() {
+		mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andExpect(
+				jsonPath("$.paths['/api/game-data/evolution-details/{id}'].get.parameters[0].schema.type")
+					.value("string"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/game-data/evolution-details/{id}'].put.parameters[0].schema.type")
+					.value("string"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/game-data/evolution-details/{id}'].delete.parameters[0].schema.type")
+					.value("string"),
+			)
 	}
 
 	@Test
@@ -92,6 +154,8 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.paths['/api/battle-rules/skill-stat-stage-effects'].post.summary").value("新增技能能力阶级效果"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/ability-rules'].get.summary").value("分页查询特性规则"))
 			.andExpect(jsonPath("$.paths['/api/battle-rules/item-rules'].get.summary").value("分页查询道具规则"))
+			.andExpect(jsonPath("$.components.schemas.BattleWeatherRuleResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.BattleSkillStatusEffectResponse.properties.skillRuleId.type").value("string"))
 	}
 
 	@Test
@@ -114,6 +178,89 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxStateSnapshot.properties.sides.items['\$ref']").value("#/components/schemas/BattleSandboxStateSide"))
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnSide.properties.participants.items['\$ref']").value("#/components/schemas/BattleSandboxTurnParticipant"))
 			.andExpect(jsonPath("$.components.schemas.BattleSandboxStateSide.properties.participants.items['\$ref']").value("#/components/schemas/BattleSandboxStateParticipant"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxReplayResponse.properties.id.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.BattleSandboxTurnParticipant.properties.creatureId.type").value("string"))
+	}
+
+	@Test
+	fun `jimmer converters serialize identifiers as strings without changing ordinary long values`() {
+		val user = UserResponse {
+			id = JAVASCRIPT_UNSAFE_LONG
+			username = "admin"
+			displayName = "系统管理员"
+			enabled = true
+			accountNonLocked = true
+			roleCodes = listOf("system-admin")
+		}
+		val client = OAuthClientResponse {
+			id = JAVASCRIPT_UNSAFE_LONG
+			clientId = "system-admin-jwt"
+			clientName = "系统管理 JWT Client"
+			clientAuthenticationMethods = listOf("client_secret_basic")
+			authorizationGrantTypes = listOf("password")
+			scopes = listOf("security:admin")
+			accessTokenFormat = "self-contained"
+			accessTokenTtlSeconds = 3600
+			refreshTokenTtlSeconds = 7200
+		}
+		val execution = ManagedScheduledTaskExecutionResponse {
+			id = JAVASCRIPT_UNSAFE_LONG
+			taskId = JAVASCRIPT_UNSAFE_LONG
+			taskCode = "cleanup"
+			handlerCode = "cleanup"
+			scheduledFireTime = null
+			actualFireTime = Instant.EPOCH
+			finishedAt = null
+			status = "SUCCEEDED"
+			durationMs = 125
+			refireCount = 0
+			payloadSnapshot = emptyMap()
+			errorMessage = null
+		}
+		val weather = BattleWeatherRuleResponse {
+			id = JAVASCRIPT_UNSAFE_LONG
+			code = "rain"
+			name = "下雨"
+			effectPolicy = "weather-rain"
+			defaultDurationTurns = 5
+			description = null
+			enabled = true
+			sortOrder = 10
+		}
+		val participant = BattleSandboxTurnParticipant {
+			actorId = "side-a-1"
+			creatureId = JAVASCRIPT_UNSAFE_LONG
+			active = true
+			level = 50
+			currentHp = 100
+			maxHp = 100
+			majorStatus = null
+			statStages = emptyMap()
+			skillSlots = listOf(
+				BattleSandboxTurnSkillSlot {
+					skillId = JAVASCRIPT_UNSAFE_LONG
+					name = "测试技能"
+					remainingPp = 10
+					maxPp = 10
+				},
+			)
+		}
+
+		assertStringId(user, "id")
+		assertStringId(client, "id")
+		assertThat(objectMapper.readTree(objectMapper.writeValueAsString(client)).get("accessTokenTtlSeconds").isNumber).isTrue()
+		assertStringId(execution, "id")
+		assertStringId(execution, "taskId")
+		assertThat(objectMapper.readTree(objectMapper.writeValueAsString(execution)).get("durationMs").isNumber).isTrue()
+		assertStringId(weather, "id")
+		assertStringId(participant, "creatureId")
+		assertStringId(participant.skillSlots.single(), "skillId")
+	}
+
+	private fun assertStringId(value: Any, property: String) {
+		val node = objectMapper.readTree(objectMapper.writeValueAsString(value)).get(property)
+		assertThat(node.isString).isTrue()
+		assertThat(node.stringValue()).isEqualTo(JAVASCRIPT_UNSAFE_LONG.toString())
 	}
 
 	/**
@@ -204,4 +351,8 @@ class OpenApiDocumentationTests(
 			"/system/scheduler/tasks" -> "/api/system/scheduler/tasks"
 			else -> null
 		}
+
+	private companion object {
+		private const val JAVASCRIPT_UNSAFE_LONG = 9_007_199_254_740_993L
+	}
 }

@@ -6,7 +6,7 @@ kotlin = "2.3.21"
 ksp = "2.3.9"
 spring-boot = "4.1.0"
 spring-dependency-management = "1.1.7"
-springdoc = "2.8.6"
+springdoc = "3.0.3"
 testcontainers = "2.0.5"
 
 [plugins]
@@ -21,8 +21,7 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "aws-sdk" }
 aws-sdk-s3 = { module = "software.amazon.awssdk:s3" }
 cosid-spring-boot-starter = { module = "me.ahoo.cosid:cosid-spring-boot-starter", version.ref = "cosid" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 jimmer-core = { module = "org.babyfish.jimmer:jimmer-core", version.ref = "jimmer" }
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp", version.ref = "jimmer" }
 jimmer-spring-boot-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-starter", version.ref = "jimmer" }

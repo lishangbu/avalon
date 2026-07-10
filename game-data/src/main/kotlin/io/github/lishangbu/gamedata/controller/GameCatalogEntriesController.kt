@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
+import org.babyfish.jimmer.Page
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -38,7 +39,7 @@ class GameCatalogEntriesController(
 	@Operation(summary = "分页查询图鉴目录条目")
 	@ApiResponses(
 		value = [
-			ApiResponse(responseCode = "200", description = "查询成功", content = [Content(mediaType = "application/json", schema = Schema(implementation = GameDataPageResponse::class))]),
+			ApiResponse(responseCode = "200", description = "查询成功"),
 			ApiResponse(responseCode = "400", description = GAME_DATA_API_BAD_REQUEST_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
 			ApiResponse(responseCode = "401", description = GAME_DATA_API_UNAUTHORIZED_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
 			ApiResponse(responseCode = "403", description = GAME_DATA_API_FORBIDDEN_DESCRIPTION, content = [Content(mediaType = "application/json", schema = Schema(implementation = ApiErrorResponse::class))]),
@@ -50,7 +51,7 @@ class GameCatalogEntriesController(
 		@RequestParam(defaultValue = "50") size: Int,
 		@RequestParam(required = false) q: String?,
 		request: HttpServletRequest,
-	): GameDataPageResponse<GameCatalogEntriesResponse> = service.list(page, size, q, request.toGameDataFilters())
+	): Page<GameCatalogEntriesResponse> = service.list(page, size, q, request.toGameDataFilters())
 
 	@Operation(summary = "读取单条图鉴目录条目")
 	@ApiResponses(

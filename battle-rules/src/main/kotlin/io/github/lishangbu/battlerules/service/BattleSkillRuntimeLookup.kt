@@ -2,10 +2,15 @@ package io.github.lishangbu.battlerules.service
 
 import io.github.lishangbu.battleengine.model.BattleDamageClass
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
+import io.github.lishangbu.battlerules.entity.BattleSkillRule
+import io.github.lishangbu.battlerules.entity.enabled
+import io.github.lishangbu.battlerules.entity.skillId
 import io.github.lishangbu.common.web.invalidValue
+import io.github.lishangbu.gamedata.entity.GameSkill
+import io.github.lishangbu.gamedata.entity.GameSkillDamageClass
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.springframework.stereotype.Component
-import java.sql.ResultSet
 
 /**
  * 资料源会用 6 表达“必定击中要害”的技能侧等级；battle-engine 在实际概率表中会把 3 及以上统一封顶为必定要害。
@@ -19,11 +24,11 @@ private const val MAX_CRITICAL_HIT_STAGE = 6
  * 本类负责把 `game_skill` 与 `battle_skill_rule` 主行装配成 [BattleSkillSlot]：主技能行提供名称、属性、PP、
  * 威力、命中率和优先度；规则主行提供目标、命中、伤害和效果 policy，以及多段、蓄力、休整、接触等单列标记。
  * 天气修正、状态附加、能力阶级变化和场地效果这类一条规则下的多行明细，已经下沉到
- * [BattleSkillRuleEffectRuntimeLookup]。这样主行 policy 校验和子表 SQL 不再互相挤在一个类里，新增资料时更容易
+ * [BattleSkillRuleEffectRuntimeLookup]。这样主行 policy 校验和子表查询不再互相挤在一个类里，新增资料时更容易
  * 看清楚应该改“主规则装配”还是“规则明细装配”。
  *
- * 这里仍然返回 battle-engine 的强类型模型，而不是数据库行。原因是 SQL/JDBC 是 battle-rules 适配层细节，纯引擎
- * 不应知道规则资料拆成了哪些三范式表；它只消费已经冻结好的技能槽快照。
+	 * 这里仍然返回 battle-engine 的强类型模型，而不是持久化实体。Jimmer 查询是 battle-rules 适配层细节，纯引擎
+	 * 不应知道规则资料拆成了哪些三范式表；它只消费已经冻结好的技能槽快照。
  */
 @Component
 class BattleSkillRuntimeLookup(
@@ -31,48 +36,18 @@ class BattleSkillRuntimeLookup(
 	private val ruleEffectLookup: BattleSkillRuleEffectRuntimeLookup,
 ) {
 	fun skillSlotBySkillId(skillId: Long): BattleSkillSlot {
-		val row = sqlClient.querySql(
-			"""
-			select
-				s.id as skill_id,
-				s.name as skill_name,
-				s.element_id,
-				dc.code as damage_class_code,
-				s.power,
-				s.accuracy,
-				s.pp,
-				s.priority,
-				r.id as rule_id,
-				r.effect_policy,
-				r.target_policy,
-				r.hit_policy,
-				r.damage_policy,
-				r.min_hits,
-				r.max_hits,
-				r.critical_hit_stage,
-				r.makes_contact,
-				r.affected_by_protect,
-				r.protects_user,
-				r.endures_fatal_damage,
-				r.thaws_user_before_move,
-				r.sound_based,
-				r.powder_based,
-				r.punch_based,
-				r.slicing_based,
-				r.weakened_by_grassy_terrain,
-				r.charges_before_use,
-				r.recharges_after_use,
-				r.lock_move_turns_min,
-				r.lock_move_turns_max,
-				r.confuses_user_after_lock,
-				r.force_target_switch
-			from game_skill s
-			join game_skill_damage_class dc on dc.id = s.damage_class_id
-			left join battle_skill_rule r on r.skill_id = s.id and r.enabled = true
-			where s.id = ?
-			""".trimIndent(),
-			skillId,
-		) { rs -> rs.toSkillRuntimeRow() }.singleOrNull() ?: invalidValue("skillIds", "技能不存在: $skillId")
+		val skill = sqlClient.findById(GameSkill::class, skillId)
+			?: invalidValue("skillIds", "技能不存在: $skillId")
+		val damageClassId = skill.damageClassId
+			?: invalidValue("skillIds", "技能缺少伤害分类: $skillId")
+		val damageClassEntity = sqlClient.findById(GameSkillDamageClass::class, damageClassId)
+			?: invalidValue("skillIds", "技能伤害分类不存在: $damageClassId")
+		val rule = sqlClient.executeQuery(BattleSkillRule::class, limit = 1) {
+			where(table.skillId eq skillId)
+			where(table.enabled eq true)
+			select(table)
+		}.firstOrNull()
+		val row = toSkillRuntimeRow(skill, damageClassEntity, rule)
 
 		val ruleId = row.requireRuleId()
 		row.requireSupportedRulePolicies()
@@ -166,46 +141,50 @@ class BattleSkillRuntimeLookup(
 }
 
 /**
- * 将 `game_skill` 与 `battle_skill_rule` 的联查结果压成一个文件私有中间行模型。
+ * 将技能资料、伤害分类和启用规则压成运行时中间行。
  *
  * 这里故意只做数据库类型到 Kotlin 类型的转换，以及“0 或空值不应该进入引擎模型”的边界收敛；真正的 policy
- * 合法性校验和 [BattleSkillSlot] 装配仍留在读取入口里。这样 SQL 列名变化、运行时规则变化和引擎模型变化不会
+ * 合法性校验和 [BattleSkillSlot] 装配仍留在读取入口里。这样持久化字段变化、运行时规则变化和引擎模型变化不会
  * 被混在同一个长表达式中，后续补资料字段时也更容易定位责任。
  */
-private fun ResultSet.toSkillRuntimeRow(): SkillRuntimeRow =
+private fun toSkillRuntimeRow(
+	skill: GameSkill,
+	damageClass: GameSkillDamageClass,
+	rule: BattleSkillRule?,
+): SkillRuntimeRow =
 	SkillRuntimeRow(
-		skillId = getLong("skill_id"),
-		name = getString("skill_name"),
-		elementId = getLong("element_id"),
-		damageClassCode = getString("damage_class_code"),
-		power = nullableInt("power")?.takeIf { it > 0 },
-		accuracy = nullableInt("accuracy")?.takeIf { it > 0 },
-		pp = getInt("pp").coerceAtLeast(0),
-		priority = getInt("priority"),
-		ruleId = nullableLong("rule_id"),
-		effectPolicy = getString("effect_policy"),
-		targetPolicy = getString("target_policy"),
-		hitPolicy = getString("hit_policy"),
-		damagePolicy = getString("damage_policy"),
-		minHits = nullableInt("min_hits"),
-		maxHits = nullableInt("max_hits"),
-		criticalHitStage = nullableInt("critical_hit_stage"),
-		makesContact = nullableBoolean("makes_contact"),
-		affectedByProtect = nullableBoolean("affected_by_protect"),
-		protectsUser = nullableBoolean("protects_user"),
-		enduresFatalDamage = nullableBoolean("endures_fatal_damage"),
-		thawsUserBeforeMove = nullableBoolean("thaws_user_before_move"),
-		soundBased = nullableBoolean("sound_based"),
-		powderBased = nullableBoolean("powder_based"),
-		punchBased = nullableBoolean("punch_based"),
-		slicingBased = nullableBoolean("slicing_based"),
-		weakenedByGrassyTerrain = nullableBoolean("weakened_by_grassy_terrain"),
-		chargesBeforeUse = nullableBoolean("charges_before_use"),
-		rechargesAfterUse = nullableBoolean("recharges_after_use"),
-		lockMoveTurnsMin = nullableInt("lock_move_turns_min"),
-		lockMoveTurnsMax = nullableInt("lock_move_turns_max"),
-		confusesUserAfterLock = nullableBoolean("confuses_user_after_lock"),
-		forceTargetSwitch = nullableBoolean("force_target_switch"),
+		skillId = skill.id,
+		name = skill.name,
+		elementId = skill.elementId ?: invalidValue("skillIds", "技能缺少属性: ${skill.id}"),
+		damageClassCode = damageClass.code,
+		power = skill.power?.takeIf { power -> power > 0 },
+		accuracy = skill.accuracy?.takeIf { accuracy -> accuracy > 0 },
+		pp = skill.pp?.coerceAtLeast(0) ?: 0,
+		priority = skill.priority ?: 0,
+		ruleId = rule?.id,
+		effectPolicy = rule?.effectPolicy,
+		targetPolicy = rule?.targetPolicy,
+		hitPolicy = rule?.hitPolicy,
+		damagePolicy = rule?.damagePolicy,
+		minHits = rule?.minHits,
+		maxHits = rule?.maxHits,
+		criticalHitStage = rule?.criticalHitStage,
+		makesContact = rule?.makesContact,
+		affectedByProtect = rule?.affectedByProtect,
+		protectsUser = rule?.protectsUser,
+		enduresFatalDamage = rule?.enduresFatalDamage,
+		thawsUserBeforeMove = rule?.thawsUserBeforeMove,
+		soundBased = rule?.soundBased,
+		powderBased = rule?.powderBased,
+		punchBased = rule?.punchBased,
+		slicingBased = rule?.slicingBased,
+		weakenedByGrassyTerrain = rule?.weakenedByGrassyTerrain,
+		chargesBeforeUse = rule?.chargesBeforeUse,
+		rechargesAfterUse = rule?.rechargesAfterUse,
+		lockMoveTurnsMin = rule?.lockMoveTurnsMin,
+		lockMoveTurnsMax = rule?.lockMoveTurnsMax,
+		confusesUserAfterLock = rule?.confusesUserAfterLock,
+		forceTargetSwitch = rule?.forceTargetSwitch,
 	)
 
 /**
@@ -312,61 +291,3 @@ private fun SkillRuntimeRow.requiredInt(value: Int?, column: String): Int =
 
 private fun SkillRuntimeRow.requiredBoolean(value: Boolean?, column: String): Boolean =
 	value ?: invalidValue("skillIds", "技能战斗规则缺少 $column: skillId=$skillId")
-
-private fun ResultSet.nullableInt(column: String): Int? {
-	val value = getInt(column)
-	return if (wasNull()) null else value
-}
-
-private fun ResultSet.nullableLong(column: String): Long? {
-	val value = getLong(column)
-	return if (wasNull()) null else value
-}
-
-private fun ResultSet.nullableBoolean(column: String): Boolean? {
-	val value = getBoolean(column)
-	return if (wasNull()) null else value
-}
-
-/**
- * 技能运行时 SQL 查询返回的一行原始资料。
- *
- * 该类型停留在 Jimmer connection 的固定 SQL 查询边界，用于把技能基础资料、目标策略、命中策略、伤害策略和附加效果
- * policy code 先收拢到一个强类型行对象，再由 mapper 转成 [io.github.lishangbu.battleengine.model.BattleSkillSlot]。
- * 它不会暴露给 Controller，也不会被缓存为生产规则事实源；这样数据库字段缺失能在装配阶段尽早报错，而纯引擎仍只处理
- * 已经结构化、经过校验的技能快照。
- */
-private data class SkillRuntimeRow(
-	val skillId: Long,
-	val name: String,
-	val elementId: Long,
-	val damageClassCode: String,
-	val power: Int?,
-	val accuracy: Int?,
-	val pp: Int,
-	val priority: Int,
-	val ruleId: Long?,
-	val effectPolicy: String?,
-	val targetPolicy: String?,
-	val hitPolicy: String?,
-	val damagePolicy: String?,
-	val minHits: Int?,
-	val maxHits: Int?,
-	val criticalHitStage: Int?,
-	val makesContact: Boolean?,
-	val affectedByProtect: Boolean?,
-	val protectsUser: Boolean?,
-	val enduresFatalDamage: Boolean?,
-	val thawsUserBeforeMove: Boolean?,
-	val soundBased: Boolean?,
-	val powderBased: Boolean?,
-	val punchBased: Boolean?,
-	val slicingBased: Boolean?,
-	val weakenedByGrassyTerrain: Boolean?,
-	val chargesBeforeUse: Boolean?,
-	val rechargesAfterUse: Boolean?,
-	val lockMoveTurnsMin: Int?,
-	val lockMoveTurnsMax: Int?,
-	val confusesUserAfterLock: Boolean?,
-	val forceTargetSwitch: Boolean?,
-)

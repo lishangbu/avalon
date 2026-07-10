@@ -15,7 +15,6 @@ dependencies {
 	implementation(libs.spring.boot.starter.actuator)
 	implementation(libs.spring.boot.starter.web)
 	implementation(libs.spring.boot.starter.validation)
-	implementation(libs.jackson.module.kotlin)
 	implementation(libs.jimmer.spring.boot.starter)
 	implementation(libs.kotlin.reflect)
 	implementation(libs.springdoc.openapi.starter.webmvc.ui)

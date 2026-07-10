@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import java.sql.SQLException
 
 /**
  * 将后台 API 异常转换为稳定 JSON 错误响应。
@@ -34,6 +35,20 @@ class ApiExceptionHandler {
 				),
 			)
 
+	/**
+	 * 将持久化框架保留在异常链中的数据库完整性约束错误转换为资源冲突。
+	 *
+	 * SQLState `23` 是标准完整性约束类别，覆盖唯一键和外键冲突；其他 SQL 异常继续抛出，
+	 * 避免把连接中断、语法错误等服务端故障伪装成可由客户端修正的 409 响应。
+	 */
+	@ExceptionHandler(SQLException::class)
+	fun handleDatabaseConstraintViolation(exception: SQLException): ResponseEntity<ApiErrorResponse> {
+		if (!exception.sqlState.orEmpty().startsWith(INTEGRITY_CONSTRAINT_SQL_STATE_CLASS)) {
+			throw exception
+		}
+		return handleDataIntegrityViolation()
+	}
+
 	@ExceptionHandler(HttpMessageNotReadableException::class)
 	fun handleMalformedRequest(): ResponseEntity<ApiErrorResponse> =
 		ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -54,4 +69,8 @@ class ApiExceptionHandler {
 					field = exception.name,
 				),
 			)
+
+	private companion object {
+		private const val INTEGRITY_CONSTRAINT_SQL_STATE_CLASS = "23"
+	}
 }

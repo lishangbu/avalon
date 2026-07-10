@@ -1,38 +1,32 @@
 package io.github.lishangbu.gamedata.dto
 
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import io.github.lishangbu.gamedata.support.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 
 /**
  * 精灵数值绑定响应。
  */
 @Schema(name = "GameCreatureStatResponse", description = "精灵数值绑定响应。")
-data class GameCreatureStatResponse(
-	@field:Schema(description = "记录主键。", example = "1")
-	val id: Long,
+@Immutable
+interface GameCreatureStatResponse {
+	@get:Schema(description = "记录主键。", example = "1", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
 	@get:JsonProperty("creature_id")
-	@field:Schema(description = "精灵 ID")
-	val creatureId: Long?,
+	@get:Schema(description = "精灵 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val creatureId: Long?
 	@get:JsonProperty("stat_id")
-	@field:Schema(description = "数值项 ID")
-	val statId: Long?,
+	@get:Schema(description = "数值项 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val statId: Long?
 	@get:JsonProperty("base_value")
-	@field:Schema(description = "基础值")
-	val baseValue: Int?,
+	@get:Schema(description = "基础值")
+	val baseValue: Int?
 	@get:JsonProperty("effort")
-	@field:Schema(description = "努力收益")
+	@get:Schema(description = "努力收益")
 	val effort: Int?
-) {
-	companion object {
-		fun from(record: GameDataRecordResponse): GameCreatureStatResponse =
-			GameCreatureStatResponse(
-				id = record.id,
-				creatureId = record.longField("creature_id"),
-				statId = record.longField("stat_id"),
-				baseValue = record.intField("base_value"),
-				effort = record.intField("effort")
-			)
-	}
 }

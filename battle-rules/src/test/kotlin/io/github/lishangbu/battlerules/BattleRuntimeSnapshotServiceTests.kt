@@ -1,7 +1,6 @@
 package io.github.lishangbu.battlerules
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
+import org.babyfish.jimmer.jackson.v3.ImmutableModuleV3
 import io.github.lishangbu.battleengine.BattleEngine
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleAbilityEffect
@@ -56,6 +55,8 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.babyfish.jimmer.sql.kt.KSqlClient
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 
 @BattleRulesIntegrationTest
 /**
@@ -65,7 +66,9 @@ class BattleRuntimeSnapshotServiceTests(
 	@Autowired private val service: BattleRuntimeSnapshotService,
 	@Autowired private val sqlClient: KSqlClient,
 ) {
-	private val objectMapper: ObjectMapper = JsonMapper.builder().findAndAddModules().build()
+	private val objectMapper: ObjectMapper = JsonMapper.builder()
+		.addModule(ImmutableModuleV3())
+		.build()
 
 	@Test
 	fun `official double format assembles engine runtime snapshot`() {
@@ -378,7 +381,7 @@ class BattleRuntimeSnapshotServiceTests(
 
 		val strengthSap = slots.getValue(668)
 		assertThat(strengthSap.damageClass).isEqualTo(BattleDamageClass.STATUS)
-		assertThat(strengthSap.hpEffects).containsExactly(BattleSkillHpEffect.SelfHealByTargetCurrentAttack)
+		assertThat(strengthSap.hpEffects).containsExactly(BattleSkillHpEffect.SelfHealByTargetCurrentAttack())
 		val strengthSapStatStage = strengthSap.statStageEffects.single()
 		assertThat(strengthSapStatStage.target).isEqualTo(BattleEffectTarget.TARGET)
 		assertThat(strengthSapStatStage.stat).isEqualTo(BattleStat.ATTACK)
@@ -544,8 +547,8 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(682).removesUserElementAfterDamage).isTrue()
 		assertThat(slots.getValue(892).removesUserElementAfterDamage).isTrue()
 
-		assertThat(slots.getValue(69).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel)
-		assertThat(slots.getValue(101).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel)
+		assertThat(slots.getValue(69).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel())
+		assertThat(slots.getValue(101).fixedDamage).isEqualTo(BattleFixedDamage.UserLevel())
 		assertThat(slots.getValue(162).proportionalDamage)
 			.isEqualTo(BattleProportionalDamage.TargetCurrentHpFraction(numerator = 1, denominator = 2))
 		assertThat(slots.getValue(717).proportionalDamage)
@@ -553,9 +556,9 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(877).proportionalDamage)
 			.isEqualTo(BattleProportionalDamage.TargetCurrentHpFraction(numerator = 1, denominator = 2))
 		assertThat(slots.getValue(283).hpDerivedDamage)
-			.isEqualTo(BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp)
+			.isEqualTo(BattleHpDerivedDamage.TargetCurrentHpMinusUserCurrentHp())
 		assertThat(slots.getValue(515).hpDerivedDamage)
-			.isEqualTo(BattleHpDerivedDamage.UserCurrentHpAndUserFaints)
+			.isEqualTo(BattleHpDerivedDamage.UserCurrentHpAndUserFaints())
 		assertThat(slots.getValue(68).receivedDamage)
 			.isEqualTo(
 				BattleReceivedDamage(
@@ -1010,9 +1013,9 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(slots.getValue(336).statStageEffects.single().stat).isEqualTo(BattleStat.ATTACK)
 		assertThat(slots.getValue(336).statStageEffects.single().stageDelta).isEqualTo(1)
 		assertThat(slots.getValue(187).hpEffects)
-			.containsExactly(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost)
+			.containsExactly(BattleSkillHpEffect.MaximizeUserAttackWithHalfMaxHpCost())
 		assertThat(slots.getValue(220).hpEffects)
-			.containsExactly(BattleSkillHpEffect.AverageUserAndTargetCurrentHp)
+			.containsExactly(BattleSkillHpEffect.AverageUserAndTargetCurrentHp())
 		assertThat(slots.getValue(156).restoresUserBySleeping).isTrue()
 		assertThat(slots.getValue(215).curesUserSideMajorStatuses).isTrue()
 		assertThat(slots.getValue(215).soundBased).isTrue()
@@ -1401,7 +1404,7 @@ class BattleRuntimeSnapshotServiceTests(
 			.single()
 		assertThat(contactBoost.multiplier).isEqualTo(1.3)
 		assertThat(service.abilityEffectsByAbilityId(260))
-			.containsExactly(BattleAbilityEffect.ContactSkillProtectionBypass)
+			.containsExactly(BattleAbilityEffect.ContactSkillProtectionBypass())
 		val sandForceEffects = service.abilityEffectsByAbilityId(159)
 		val weatherElementBoost = sandForceEffects
 			.filterIsInstance<BattleAbilityEffect.WeatherElementDamageBoost>()
@@ -1515,26 +1518,26 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(service.abilityEffectsByAbilityId(5))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.SurviveFatalDamageAtFullHp::class.java)
 		assertThat(service.abilityEffectsByAbilityId(4))
-			.containsExactly(BattleAbilityEffect.CriticalHitImmunity)
+			.containsExactly(BattleAbilityEffect.CriticalHitImmunity())
 		assertThat(service.abilityEffectsByAbilityId(75))
-			.containsExactly(BattleAbilityEffect.CriticalHitImmunity)
+			.containsExactly(BattleAbilityEffect.CriticalHitImmunity())
 		assertThat(service.abilityEffectsByAbilityId(69))
-			.containsExactly(BattleAbilityEffect.SkillRecoilDamageImmunity)
+			.containsExactly(BattleAbilityEffect.SkillRecoilDamageImmunity())
 		assertThat(service.abilityEffectsByAbilityId(98))
-			.containsExactly(BattleAbilityEffect.IndirectDamageImmunity)
+			.containsExactly(BattleAbilityEffect.IndirectDamageImmunity())
 		assertThat(service.abilityEffectsByAbilityId(109))
 			.containsExactly(
-				BattleAbilityEffect.IgnoreOpponentDamageStatStages,
-				BattleAbilityEffect.IgnoreOpponentAccuracyStatStages,
+				BattleAbilityEffect.IgnoreOpponentDamageStatStages(),
+				BattleAbilityEffect.IgnoreOpponentAccuracyStatStages(),
 			)
 		assertThat(service.abilityEffectsByAbilityId(104))
-			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects)
+			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects())
 		assertThat(service.abilityEffectsByAbilityId(163))
-			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects)
+			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects())
 		assertThat(service.abilityEffectsByAbilityId(164))
-			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects)
+			.containsExactly(BattleAbilityEffect.IgnoreTargetAbilityEffects())
 		assertThat(service.abilityEffectsByAbilityId(43))
-			.containsExactly(BattleAbilityEffect.SoundBasedSkillImmunity)
+			.containsExactly(BattleAbilityEffect.SoundBasedSkillImmunity())
 
 		assertThat(service.abilityEffectsByAbilityId(214))
 			.hasExactlyElementsOfTypes(BattleAbilityEffect.PriorityMoveImmunityForSide::class.java)
@@ -1615,17 +1618,17 @@ class BattleRuntimeSnapshotServiceTests(
 		assertThat(superEffectiveBoost.multiplier).isEqualTo(1.2)
 		assertThat(service.itemEffectsByItemId(265))
 			.containsExactly(
-				BattleItemEffect.ContactTransferToAttacker,
+				BattleItemEffect.ContactTransferToAttacker(),
 				BattleItemEffect.HeldEndTurnDamage(damageDenominator = 8),
 			)
 		assertThat(service.itemEffectsByItemId(583))
 			.containsExactly(BattleItemEffect.ContactDamageToAttacker(damageDenominator = 6))
 		assertThat(service.itemEffectsByItemId(897))
-			.containsExactly(BattleItemEffect.ContactSideEffectImmunity)
+			.containsExactly(BattleItemEffect.ContactSideEffectImmunity())
 		assertThat(service.itemEffectsByItemId(1700))
 			.containsExactly(
 				BattleItemEffect.PunchBasedSkillPowerBoost(),
-				BattleItemEffect.PunchBasedContactSuppression,
+				BattleItemEffect.PunchBasedContactSuppression(),
 			)
 
 		mapOf(

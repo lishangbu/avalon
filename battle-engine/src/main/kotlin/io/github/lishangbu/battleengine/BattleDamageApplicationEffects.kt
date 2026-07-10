@@ -329,29 +329,3 @@ internal class BattleDamageApplicationEffects(
 			)
 	}
 }
-
-/**
- * 目标本体伤害写入结果。
- *
- * `state` 是已经写入 HP、追加伤害事件和保命事件后的状态；`damagedTarget` 是这份状态中的最新目标快照；
- * `actualDamageAmount` 是真实扣掉的 HP。调用方必须使用这个实际伤害量继续结算吸取、反伤、伤害后回复和倒下判定，
- * 不能回头使用公式给出的原始伤害值。
- */
-internal data class BattleTargetDamageApplication(
-	val state: BattleState,
-	val damagedTarget: BattleParticipant,
-	val actualDamageAmount: Int,
-)
-
-/**
- * 挺住姿态处理后的伤害中间结果。
- *
- * [target] 当前不会被修改，但保留字段是为了和满 HP 保命结果保持一致；如果后续现代规则出现“挺住触发后清理某个
- * 一次性状态”的情况，调用方无需再改返回形状。[damageAmount] 是实际要写入 HP 的伤害，[event] 只在挺住真正
- * 抵消致命技能伤害时存在。
- */
-private data class BattleFatalDamageEndureResult(
-	val target: BattleParticipant,
-	val damageAmount: Int,
-	val event: BattleEvent.FatalDamageSurvived? = null,
-)

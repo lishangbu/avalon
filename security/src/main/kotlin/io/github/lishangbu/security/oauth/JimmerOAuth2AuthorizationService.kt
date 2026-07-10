@@ -1,7 +1,5 @@
 package io.github.lishangbu.security.oauth
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.lishangbu.security.entity.OAuth2AuthorizationRecord
 import io.github.lishangbu.security.entity.accessTokenValue
 import io.github.lishangbu.security.entity.authorizationCodeValue
@@ -30,6 +28,8 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 /**
  * 基于 Jimmer 的 Spring Authorization Server 授权记录服务。
@@ -41,8 +41,8 @@ class JimmerOAuth2AuthorizationService(
 	private val authorizationRepository: OAuth2AuthorizationRecordRepository,
 	private val registeredClientRepository: RegisteredClientRepository,
 	private val sqlClient: KSqlClient,
+	private val objectMapper: ObjectMapper,
 ) : OAuth2AuthorizationService {
-	private val objectMapper = ObjectMapper()
 	private val mapType = object : TypeReference<Map<String, Any>>() {}
 
 	override fun save(authorization: OAuth2Authorization) {

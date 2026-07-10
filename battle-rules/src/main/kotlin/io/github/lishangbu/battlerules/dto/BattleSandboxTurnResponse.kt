@@ -57,53 +57,7 @@ data class BattleSandboxTurnResponse(
 		@field:Schema(description = "当前上场成员 actorId。")
 		val activeActorIds: List<String> = emptyList(),
 		@field:Schema(description = "成员运行态摘要。")
-		val participants: List<Participant> = emptyList(),
-	)
-
-	/**
-	 * 回合响应中用于页面展示的成员摘要。
-	 *
-	 * 该 DTO 刻意只展示 HP、主要异常、能力阶级和 PP 等常用排障字段；锁招、蓄力、替身、陷阱等完整续算状态位于
-	 * [BattleSandboxStateSnapshot.Participant]。这样管理页可以保持紧凑，同时不会让摘要字段承担续算职责。
-	 */
-	@Schema(name = "BattleSandboxTurnParticipant", description = "成员运行态摘要。")
-	data class Participant(
-		@field:Schema(description = "战斗内成员 ID。", example = "side-a-1")
-		val actorId: String = "",
-		@field:Schema(description = "精灵资料 ID。", example = "1")
-		val creatureId: Long = 0,
-		@field:Schema(description = "是否当前上场。", example = "true")
-		val active: Boolean = false,
-		@field:Schema(description = "等级。", example = "50")
-		val level: Int = 0,
-		@field:Schema(description = "当前 HP。", example = "100")
-		val currentHp: Int = 0,
-		@field:Schema(description = "最大 HP。", example = "120")
-		val maxHp: Int = 0,
-		@field:Schema(description = "主要异常状态；无异常时为空。", nullable = true, example = "BURN")
-		val majorStatus: String? = null,
-		@field:Schema(description = "能力阶级变化。")
-		val statStages: Map<String, Int> = emptyMap(),
-		@field:Schema(description = "技能槽运行态。")
-		val skillSlots: List<SkillSlot> = emptyList(),
-	)
-
-	/**
-	 * 回合响应中的技能槽展示摘要。
-	 *
-	 * 名称只用于管理页直接可读，PP 用于观察本回合是否正确消耗；技能效果、命中率、威力和目标规则不随响应返回，
-	 * 因为那些属于规则快照和行为测试覆盖范围。
-	 */
-	@Schema(name = "BattleSandboxTurnSkillSlot", description = "技能槽运行态。")
-	data class SkillSlot(
-		@field:Schema(description = "技能资料 ID。", example = "33")
-		val skillId: Long = 0,
-		@field:Schema(description = "技能名称。", example = "撞击")
-		val name: String = "",
-		@field:Schema(description = "剩余 PP。", example = "34")
-		val remainingPp: Int = 0,
-		@field:Schema(description = "最大 PP。", example = "35")
-		val maxPp: Int = 0,
+		val participants: List<BattleSandboxTurnParticipant> = emptyList(),
 	)
 
 	/**

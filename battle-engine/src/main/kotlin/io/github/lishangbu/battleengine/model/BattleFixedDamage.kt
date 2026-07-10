@@ -35,5 +35,5 @@ sealed interface BattleFixedDamage {
 	 * 状态机会在命中结算时读取使用者运行态等级，因此等级统一赛制、临时构造的测试用例或自定义格式都能自然
 	 * 影响该数值。该规则不读取目标等级，也不读取技能威力。
 	 */
-	object UserLevel : BattleFixedDamage
+	data class UserLevel(private val marker: Unit = Unit) : BattleFixedDamage
 }

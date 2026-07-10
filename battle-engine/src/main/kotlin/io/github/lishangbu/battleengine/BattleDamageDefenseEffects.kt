@@ -152,27 +152,3 @@ internal class BattleDamageDefenseEffects {
 		)
 	}
 }
-
-/**
- * 满 HP 保命规则的中间结果。
- *
- * [target] 可能是已经消耗携带道具后的目标快照；[damageAmount] 是本次真正要写入 HP 的伤害值；[event] 只在保命
- * 规则实际触发时存在。调用方会先写入伤害事件，再追加该事件，从而让 replay 清楚表达“受到了致命伤害，但被来源
- * 保住”的先后顺序。
- */
-internal data class BattleFatalDamageSurvivalResult(
-	val target: BattleParticipant,
-	val damageAmount: Int,
-	val event: BattleEvent.FatalDamageSurvived? = null,
-)
-
-/**
- * 属性减伤携带道具触发后的目标快照与事件。
- *
- * 伤害计算器已经把倍率用于最终伤害数值；这里返回的是为了同步“是否消费道具”和对应事件，确保目标快照与事件
- * 不会因为普通伤害路径和未来其它伤害路径分叉。
- */
-internal data class BattleHeldItemDamageReduction(
-	val target: BattleParticipant,
-	val event: BattleEvent.DamageReducedByItem,
-)

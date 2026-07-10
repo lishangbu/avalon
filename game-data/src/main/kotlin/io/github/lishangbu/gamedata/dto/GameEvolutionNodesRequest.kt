@@ -28,13 +28,4 @@ data class GameEvolutionNodesRequest(
 	@get:JsonProperty("node_order")
 	@field:Schema(description = "节点顺序")
 	val nodeOrder: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"chain_id" to chainId,
-		"species_id" to speciesId,
-		"parent_species_id" to parentSpeciesId,
-		"baby" to baby,
-		"node_order" to nodeOrder,
-		)
-}
+)

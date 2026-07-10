@@ -468,6 +468,13 @@ class LiquibaseMigrationTests(
 			"select scopes from oauth2_client order by client_id",
 		)
 		assertThat(clientScopes).containsOnly("battle-rules:admin battle-sandbox:run game-data:admin security:admin")
+
+		val clientSecrets = queryStrings(
+			"select client_secret from oauth2_client order by client_id",
+		)
+		assertThat(clientSecrets)
+			.hasSize(2)
+			.allMatch { secret -> secret.startsWith("{bcrypt}\$2") }
 	}
 
 	@Test
@@ -5347,6 +5354,35 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
+	fun `liquibase bigint primary keys do not use database generated values`() {
+		// CosId 在应用写入前生成主键；这里同时排除 PostgreSQL identity 和序列默认值，
+		// 防止实体策略与实际表结构分叉。
+		val generatedPrimaryKeys = queryMaps(
+			"""
+			select columns.table_name, columns.column_name, columns.is_identity, columns.column_default
+			from information_schema.table_constraints constraints
+			join information_schema.key_column_usage key_columns
+				on key_columns.constraint_schema = constraints.constraint_schema
+				and key_columns.constraint_name = constraints.constraint_name
+			join information_schema.columns columns
+				on columns.table_schema = key_columns.table_schema
+				and columns.table_name = key_columns.table_name
+				and columns.column_name = key_columns.column_name
+			where constraints.table_schema = 'public'
+				and constraints.constraint_type = 'PRIMARY KEY'
+				and columns.data_type = 'bigint'
+				and (
+					columns.is_identity = 'YES'
+					or columns.column_default like 'nextval(%'
+				)
+			order by columns.table_name, columns.column_name
+			""".trimIndent(),
+		)
+
+		assertThat(generatedPrimaryKeys).isEmpty()
+	}
+
+	@Test
 	fun `liquibase seeds default security admin user`() {
 		val admin = queryMaps(
 			"""
@@ -5356,7 +5392,9 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).single()
 
-		assertThat(admin["password_hash"]).isEqualTo("{noop}secret")
+		assertThat(admin["password_hash"]).isEqualTo(
+			"{bcrypt}\$2b\$12\$XQ6MwKUnXcZ.9OC1.NOywOn914xDX7nH6cPE1ColC0oAsLt5Xg7ee",
+		)
 		assertThat(admin["enabled"]).isEqualTo(true)
 		assertThat(admin["account_non_locked"]).isEqualTo(true)
 

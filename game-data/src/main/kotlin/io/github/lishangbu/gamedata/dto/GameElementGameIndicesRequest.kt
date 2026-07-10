@@ -16,10 +16,4 @@ data class GameElementGameIndicesRequest(
 	@get:JsonProperty("game_index")
 	@field:Schema(description = "索引")
 	val gameIndex: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"element_id" to elementId,
-		"game_index" to gameIndex,
-		)
-}
+)

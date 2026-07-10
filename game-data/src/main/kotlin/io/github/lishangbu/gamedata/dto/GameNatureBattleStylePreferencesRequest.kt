@@ -24,12 +24,4 @@ data class GameNatureBattleStylePreferencesRequest(
 	@get:JsonProperty("high_hp_preference")
 	@field:Schema(description = "高体力偏好")
 	val highHpPreference: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"nature_id" to natureId,
-		"battle_style_id" to battleStyleId,
-		"low_hp_preference" to lowHpPreference,
-		"high_hp_preference" to highHpPreference,
-		)
-}
+)

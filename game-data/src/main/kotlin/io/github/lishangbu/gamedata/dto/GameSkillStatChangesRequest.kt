@@ -20,11 +20,4 @@ data class GameSkillStatChangesRequest(
 	@get:JsonProperty("change_value")
 	@field:Schema(description = "变化值")
 	val changeValue: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"skill_id" to skillId,
-		"stat_id" to statId,
-		"change_value" to changeValue,
-		)
-}
+)

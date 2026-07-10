@@ -17,7 +17,7 @@ class SchedulerManagementPostgresTestContainer : ApplicationContextInitializer<C
 	}
 
 	companion object {
-		private val postgres = PostgreSQLContainer("postgres:latest")
+		private val postgres = PostgreSQLContainer("postgres:18.4")
 			.withDatabaseName("backend_scheduler_test")
 			.withUsername("backend")
 			.withPassword("backend")

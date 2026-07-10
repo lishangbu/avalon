@@ -36,7 +36,7 @@ class BattleSoundAbilityTests {
 					"soundproof-target",
 					speed = 80,
 					abilityId = 43,
-					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 				),
 			),
 		)
@@ -81,7 +81,7 @@ class BattleSoundAbilityTests {
 					"soundproof-target",
 					speed = 80,
 					abilityId = 43,
-					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 				),
 			),
 		)
@@ -113,13 +113,13 @@ class BattleSoundAbilityTests {
 					speed = 100,
 					skill = damagingSkill(soundBased = true),
 					abilityId = 104,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"soundproof-target",
 					speed = 80,
 					abilityId = 43,
-					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.SoundBasedSkillImmunity()),
 				),
 			),
 		)

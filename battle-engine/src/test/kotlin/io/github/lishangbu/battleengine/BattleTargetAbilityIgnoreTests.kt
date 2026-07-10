@@ -38,7 +38,7 @@ class BattleTargetAbilityIgnoreTests {
 					speed = 100,
 					skill = skill,
 					abilityId = 104,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"absorber",
@@ -77,7 +77,7 @@ class BattleTargetAbilityIgnoreTests {
 					speed = 100,
 					skill = lethalSkill(),
 					abilityId = 104,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"survivor",
@@ -113,13 +113,13 @@ class BattleTargetAbilityIgnoreTests {
 					"attacker",
 					speed = 100,
 					abilityId = 104,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				).copy(statStages = mapOf(BattleStat.ATTACK to 2)),
 				second = participant(
 					"defender",
 					speed = 50,
 					abilityId = 109,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentDamageStatStages),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreOpponentDamageStatStages()),
 				),
 			),
 		)
@@ -161,7 +161,7 @@ class BattleTargetAbilityIgnoreTests {
 					speed = 100,
 					skill = skill,
 					abilityId = 104,
-					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects),
+					abilityEffects = listOf(BattleAbilityEffect.IgnoreTargetAbilityEffects()),
 				),
 				second = participant(
 					"target",

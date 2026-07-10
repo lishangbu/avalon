@@ -170,7 +170,7 @@ sealed interface BattleSkillHpEffect {
 	 * 特性等只在普通伤害公式中使用的攻击倍率。目标攻击已经处于 -6 阶时，技能会在命中前 gate 失败；
 	 * 其它阻止能力下降的情况不应阻止这里的回复，因此该效果必须先于普通能力阶级附加效果结算。
 	 */
-	data object SelfHealByTargetCurrentAttack : BattleSkillHpEffect
+	data class SelfHealByTargetCurrentAttack(private val marker: Unit = Unit) : BattleSkillHpEffect
 
 	/**
 	 * 技能成功后先治愈目标主要异常，再按使用者最大 HP 比例回复使用者。
@@ -216,7 +216,7 @@ sealed interface BattleSkillHpEffect {
 	 * 是因为 HP 支付和能力最大化是同一条不可拆的技能成功条件，不能让资料层分别维护一个扣血效果和一个普通加攻
 	 * 效果后再靠顺序碰巧组合。
 	 */
-	data object MaximizeUserAttackWithHalfMaxHpCost : BattleSkillHpEffect
+	data class MaximizeUserAttackWithHalfMaxHpCost(private val marker: Unit = Unit) : BattleSkillHpEffect
 
 	/**
 	 * 技能成功后把使用者和目标 HP 设置为双方当前 HP 平均值。
@@ -224,5 +224,5 @@ sealed interface BattleSkillHpEffect {
 	 * 该效果用于表达分担痛楚类规则。它直接改写当前 HP，不触发普通伤害、吸取、反作用伤害或回复封锁语义；事件
 	 * 会记录双方写入前后的 HP，便于 replay 明确这是“HP 重分配”而不是一次伤害或治疗。
 	 */
-	data object AverageUserAndTargetCurrentHp : BattleSkillHpEffect
+	data class AverageUserAndTargetCurrentHp(private val marker: Unit = Unit) : BattleSkillHpEffect
 }

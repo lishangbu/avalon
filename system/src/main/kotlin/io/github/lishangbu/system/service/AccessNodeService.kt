@@ -99,18 +99,18 @@ class AccessNodeService(
 	 * 将持久化访问节点转换为管理端响应。
 	 */
 	private fun SecurityAccessNode.toResponse(): AccessNodeResponse =
-		AccessNodeResponse(
-			id = id,
-			code = code,
-			name = name,
-			type = type,
-			parentId = parentId,
-			path = path,
-			icon = icon,
-			sortOrder = sortOrder,
-			visible = visible,
-			enabled = enabled,
-			apiMethod = apiMethod,
-			apiPattern = apiPattern,
-		)
+		AccessNodeResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			type = this@toResponse.type
+			parentId = this@toResponse.parentId
+			path = this@toResponse.path
+			icon = this@toResponse.icon
+			sortOrder = this@toResponse.sortOrder
+			visible = this@toResponse.visible
+			enabled = this@toResponse.enabled
+			apiMethod = this@toResponse.apiMethod
+			apiPattern = this@toResponse.apiPattern
+		}
 }

@@ -125,7 +125,7 @@ class BattleSkillStatStageEffectService(
 		if (skillRuleRepository.findNullable(skillRuleId) == null) {
 			invalidReference("skillRuleId", "技能规则不存在: $skillRuleId")
 		}
-		requireExistingGameDataReference(sqlClient, "game_stat", statId, "statId", "能力项")
+		requireExistingGameStatReference(sqlClient, statId, "statId", "能力项")
 	}
 
 	private fun ensureEffectAvailable(request: BattleSkillStatStageEffectRequest, selfId: Long?) {
@@ -160,15 +160,15 @@ class BattleSkillStatStageEffectService(
 	}
 
 	private fun BattleSkillStatStageEffect.toResponse(): BattleSkillStatStageEffectResponse =
-		BattleSkillStatStageEffectResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			statId = statId,
-			targetScope = targetScope,
-			effectTiming = effectTiming,
-			stageDelta = stageDelta,
-			chancePercent = chancePercent,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillStatStageEffectResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			statId = this@toResponse.statId
+			targetScope = this@toResponse.targetScope
+			effectTiming = this@toResponse.effectTiming
+			stageDelta = this@toResponse.stageDelta
+			chancePercent = this@toResponse.chancePercent
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

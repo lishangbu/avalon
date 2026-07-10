@@ -1,34 +1,29 @@
 package io.github.lishangbu.gamedata.dto
 
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import io.github.lishangbu.gamedata.support.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 
 /**
  * 活动能力性格影响响应。
  */
 @Schema(name = "GameEventStatNatureEffectsResponse", description = "活动能力性格影响响应。")
-data class GameEventStatNatureEffectsResponse(
-	@field:Schema(description = "记录主键。", example = "1")
-	val id: Long,
+@Immutable
+interface GameEventStatNatureEffectsResponse {
+	@get:Schema(description = "记录主键。", example = "1", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
 	@get:JsonProperty("event_stat_id")
-	@field:Schema(description = "活动能力项 ID")
-	val eventStatId: Long?,
+	@get:Schema(description = "活动能力项 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val eventStatId: Long?
 	@get:JsonProperty("nature_id")
-	@field:Schema(description = "性格 ID")
-	val natureId: Long?,
+	@get:Schema(description = "性格 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val natureId: Long?
 	@get:JsonProperty("effect_type")
-	@field:Schema(description = "影响类型")
+	@get:Schema(description = "影响类型")
 	val effectType: String?
-) {
-	companion object {
-		fun from(record: GameDataRecordResponse): GameEventStatNatureEffectsResponse =
-			GameEventStatNatureEffectsResponse(
-				id = record.id,
-				eventStatId = record.longField("event_stat_id"),
-				natureId = record.longField("nature_id"),
-				effectType = record.stringField("effect_type")
-			)
-	}
 }

@@ -55,6 +55,88 @@ class KotlinCodeOrganizationConventionTests {
 			.isEmpty()
 	}
 
+	@Test
+	fun `production kotlin code uses jimmer instead of direct jdbc`() {
+		val root = repositoryRoot()
+		val violations = productionKotlinFiles(root).flatMap { source ->
+			source.readLines().mapIndexedNotNull { index, line ->
+				if (FORBIDDEN_DATABASE_ACCESS.any(line::contains)) {
+					"${root.relativize(source)}:${index + 1}: ${line.trim()}"
+				} else {
+					null
+				}
+			}
+		}
+
+		assertThat(violations)
+			.describedAs("Use Jimmer Repository or KSqlClient for production database operations")
+			.isEmpty()
+	}
+
+	@Test
+	fun `testcontainer images use reproducible versions`() {
+		val root = repositoryRoot()
+		val mutableImageTag = ":la" + "test"
+		val violations = projectKotlinFiles(root).flatMap { source ->
+			source.readLines().mapIndexedNotNull { index, line ->
+				if (mutableImageTag in line) {
+					"${root.relativize(source)}:${index + 1}: ${line.trim()}"
+				} else {
+					null
+				}
+			}
+		}
+
+		assertThat(violations)
+			.describedAs("Pin Testcontainers images to reproducible tags")
+			.isEmpty()
+	}
+
+	@Test
+	fun `project code uses jackson 3 mapper api`() {
+		val root = repositoryRoot()
+		val sources = projectKotlinFiles(root) + projectBuildFiles(root)
+		val violations = sources.flatMap { source ->
+			source.readLines().mapIndexedNotNull { index, line ->
+				if (FORBIDDEN_JACKSON_2_API.any(line::contains)) {
+					"${root.relativize(source)}:${index + 1}: ${line.trim()}"
+				} else {
+					null
+				}
+			}
+		}
+
+		assertThat(violations)
+			.describedAs("Use tools.jackson APIs and Jimmer ImmutableModuleV3; Jackson annotations keep their shared package")
+			.isEmpty()
+	}
+
+	@Test
+	fun `response long identifiers use jimmer string converters`() {
+		val root = repositoryRoot()
+		val violations = productionKotlinFiles(root)
+			.filter { source -> source.fileName.toString().endsWith("Response.kt") }
+			.flatMap { source ->
+				val lines = source.readLines()
+				lines.mapIndexedNotNull { index, line ->
+					if (!LONG_ID_PROPERTY.matches(line)) {
+						return@mapIndexedNotNull null
+					}
+					val annotationStart = (index - 3).coerceAtLeast(0)
+					val annotations = lines.subList(annotationStart, index)
+					if (annotations.any { annotation -> "JsonConverter(LongToStringConverter::class)" in annotation }) {
+						null
+					} else {
+						"${root.relativize(source)}:${index + 1}: ${line.trim()}"
+					}
+				}
+			}
+
+		assertThat(violations)
+			.describedAs("Use Jimmer LongToStringConverter for Long identifiers exposed by response DTOs")
+			.isEmpty()
+	}
+
 	private fun repositoryRoot(): Path {
 		val current = Path.of("").toAbsolutePath().normalize()
 		return generateSequence(current) { it.parent }
@@ -65,7 +147,20 @@ class KotlinCodeOrganizationConventionTests {
 		MODULES
 			.map(root::resolve)
 			.filter(Files::exists)
+				.flatMap(::kotlinFiles)
+
+	private fun productionKotlinFiles(root: Path): List<Path> =
+		MODULES
+			.map { module -> root.resolve(module).resolve("src/main/kotlin") }
+			.filter(Files::exists)
 			.flatMap(::kotlinFiles)
+
+	private fun projectBuildFiles(root: Path): List<Path> =
+		buildList {
+			add(root.resolve("gradle/libs.versions.toml"))
+			add(root.resolve("build.gradle.kts"))
+			MODULES.mapTo(this) { module -> root.resolve(module).resolve("build.gradle.kts") }
+		}.filter(Files::exists)
 
 	private fun kotlinFiles(module: Path): List<Path> =
 		Files.walk(module).let { paths ->
@@ -83,10 +178,33 @@ class KotlinCodeOrganizationConventionTests {
 	private companion object {
 		private val MODULES = listOf(
 			"app",
+			"battle-engine",
+			"battle-rules",
 			"common-persistence",
+			"common-web",
+			"game-data",
 			"migration",
+			"s3-core",
+			"s3-spring-boot-autoconfigure",
+			"s3-spring-boot-starter",
+			"scheduler",
 			"security",
 			"system",
+		)
+		private val FORBIDDEN_DATABASE_ACCESS = listOf(
+			"JdbcTemplate",
+			"NamedParameterJdbcTemplate",
+			"javaClient.connectionManager",
+			"prepareStatement(",
+			"import java.sql.Connection",
+			"import java.sql.PreparedStatement",
+			"import java.sql.ResultSet",
+		)
+		private val FORBIDDEN_JACKSON_2_API = listOf(
+			"com.fasterxml.jackson." + "databind",
+			"com.fasterxml.jackson." + "core.type",
+			"com.fasterxml.jackson." + "module",
+			"ImmutableModule" + "V2",
 		)
 		private val DISALLOWED_OBJECT_DECLARATION =
 			Regex("""^\s*(?:(?:private|internal|public|protected|data)\s+)*object\s+\w+""")
@@ -94,6 +212,7 @@ class KotlinCodeOrganizationConventionTests {
 			Regex(
 				"""^(?:(?:public|internal|private|abstract|final|open|sealed|data|value|annotation|fun)\s+)*""" +
 					"""(?:class|interface|object|enum\s+class|sealed\s+(?:class|interface)|data\s+class|value\s+class|annotation\s+class)\s+\w+""",
-			)
+				)
+		private val LONG_ID_PROPERTY = Regex("""\s*val\s+\w*[Ii]d\s*:\s*Long\??\s*,?\s*""")
 	}
 }

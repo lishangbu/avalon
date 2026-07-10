@@ -353,7 +353,7 @@ class S3AutoConfigurationTests {
 		/**
 		 * 手动启动 MinIO，使动态端口在构造 ApplicationContextRunner 属性前已经可用。
 		 */
-		private val minio: GenericContainer<*> = GenericContainer(DockerImageName.parse("minio/minio:latest"))
+		private val minio: GenericContainer<*> = GenericContainer(DockerImageName.parse("minio/minio:RELEASE.2025-09-07T16-13-09Z"))
 			.withEnv("MINIO_ROOT_USER", MINIO_ACCESS_KEY)
 			.withEnv("MINIO_ROOT_PASSWORD", MINIO_SECRET_KEY)
 			.withExposedPorts(MINIO_PORT)

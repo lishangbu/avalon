@@ -44,17 +44,4 @@ data class GameCreatureRequest(
 	@get:JsonProperty("enabled")
 	@field:Schema(description = "启用")
 	val enabled: Boolean? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"code" to code,
-		"name" to name,
-		"species_id" to speciesId,
-		"height" to height,
-		"weight" to weight,
-		"base_experience" to baseExperience,
-		"sort_order" to sortOrder,
-		"default_form" to defaultForm,
-		"enabled" to enabled,
-		)
-}
+)

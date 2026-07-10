@@ -121,11 +121,11 @@ class BattleFormatClauseBindingService(
 		)
 
 	private fun BattleFormatClauseBinding.toResponse(): BattleFormatClauseBindingResponse =
-		BattleFormatClauseBindingResponse(
-			id = id,
-			formatId = formatId,
-			clauseId = clauseId,
-			required = required,
-			sortOrder = sortOrder,
-		)
+		BattleFormatClauseBindingResponse {
+			id = this@toResponse.id
+			formatId = this@toResponse.formatId
+			clauseId = this@toResponse.clauseId
+			required = this@toResponse.required
+			sortOrder = this@toResponse.sortOrder
+		}
 }

@@ -175,14 +175,3 @@ internal class BattleHitResolution(
 		private const val SINGLE_TARGET_SIDE_DAMAGE_REDUCTION_MULTIPLIER = 0.5
 	}
 }
-
-/**
- * 命中判定结果。
- *
- * [roll] 只在真正消费命中随机数时存在；必中、天气必中或修正命中率达到 100 的场景都返回 null。事件层在未命中时
- * 会把 null 兜底成 0，但 resolver 保留 null，可以让测试精确区分“没有掷骰”和“掷出 0”这类不可能结果。
- */
-internal data class BattleAccuracyCheck(
-	val hit: Boolean,
-	val roll: Int?,
-)

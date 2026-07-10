@@ -148,17 +148,17 @@ class BattleFormatRestrictionService(
 		)
 
 	private fun BattleFormatRestriction.toResponse(): BattleFormatRestrictionResponse =
-		BattleFormatRestrictionResponse(
-			id = id,
-			formatId = formatId,
-			code = code,
-			name = name,
-			restrictionType = restrictionType,
-			restrictionOperator = restrictionOperator,
-			operandText = operandText,
-			operandNumber = operandNumber,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleFormatRestrictionResponse {
+			id = this@toResponse.id
+			formatId = this@toResponse.formatId
+			code = this@toResponse.code
+			name = this@toResponse.name
+			restrictionType = this@toResponse.restrictionType
+			restrictionOperator = this@toResponse.restrictionOperator
+			operandText = this@toResponse.operandText
+			operandNumber = this@toResponse.operandNumber
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }

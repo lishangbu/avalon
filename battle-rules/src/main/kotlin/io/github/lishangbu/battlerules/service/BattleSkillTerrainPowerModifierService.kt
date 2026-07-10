@@ -155,14 +155,14 @@ class BattleSkillTerrainPowerModifierService(
 	}
 
 	private fun BattleSkillTerrainPowerModifier.toResponse(): BattleSkillTerrainPowerModifierResponse =
-		BattleSkillTerrainPowerModifierResponse(
-			id = id,
-			skillRuleId = skillRuleId,
-			terrainRuleId = terrainRuleId,
-			powerMultiplier = powerMultiplier,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleSkillTerrainPowerModifierResponse {
+			id = this@toResponse.id
+			skillRuleId = this@toResponse.skillRuleId
+			terrainRuleId = this@toResponse.terrainRuleId
+			powerMultiplier = this@toResponse.powerMultiplier
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 
 	private companion object {
 		private val SUPPORTED_TERRAIN_CODES = setOf(

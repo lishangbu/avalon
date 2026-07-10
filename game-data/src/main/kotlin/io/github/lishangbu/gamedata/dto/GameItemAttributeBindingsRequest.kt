@@ -16,10 +16,4 @@ data class GameItemAttributeBindingsRequest(
 	@get:JsonProperty("attribute_id")
 	@field:Schema(description = "属性 ID")
 	val attributeId: Long? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"item_id" to itemId,
-		"attribute_id" to attributeId,
-		)
-}
+)

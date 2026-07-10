@@ -20,11 +20,4 @@ data class GameSpeciesCatalogNumbersRequest(
 	@get:JsonProperty("entry_number")
 	@field:Schema(description = "目录编号")
 	val entryNumber: Int? = null
-) : GameDataWriteRequest {
-	override fun toFields(): Map<String, Any?> =
-		mapOf(
-		"species_id" to speciesId,
-		"catalog_id" to catalogId,
-		"entry_number" to entryNumber,
-		)
-}
+)

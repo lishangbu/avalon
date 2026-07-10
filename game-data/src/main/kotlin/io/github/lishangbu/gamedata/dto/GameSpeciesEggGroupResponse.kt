@@ -1,34 +1,29 @@
 package io.github.lishangbu.gamedata.dto
 
-import io.github.lishangbu.gamedata.model.GameDataRecordResponse
-import io.github.lishangbu.gamedata.support.*
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import org.babyfish.jimmer.Immutable
+import org.babyfish.jimmer.jackson.JsonConverter
+import org.babyfish.jimmer.jackson.LongToStringConverter
 
 /**
  * 种类分组绑定响应。
  */
 @Schema(name = "GameSpeciesEggGroupResponse", description = "种类分组绑定响应。")
-data class GameSpeciesEggGroupResponse(
-	@field:Schema(description = "记录主键。", example = "1")
-	val id: Long,
+@Immutable
+interface GameSpeciesEggGroupResponse {
+	@get:Schema(description = "记录主键。", example = "1", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val id: Long
 	@get:JsonProperty("species_id")
-	@field:Schema(description = "种类 ID")
-	val speciesId: Long?,
+	@get:Schema(description = "种类 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val speciesId: Long?
 	@get:JsonProperty("egg_group_id")
-	@field:Schema(description = "分组 ID")
-	val eggGroupId: Long?,
+	@get:Schema(description = "分组 ID", type = "string")
+	@JsonConverter(LongToStringConverter::class)
+	val eggGroupId: Long?
 	@get:JsonProperty("slot_order")
-	@field:Schema(description = "槽位")
+	@get:Schema(description = "槽位")
 	val slotOrder: Int?
-) {
-	companion object {
-		fun from(record: GameDataRecordResponse): GameSpeciesEggGroupResponse =
-			GameSpeciesEggGroupResponse(
-				id = record.id,
-				speciesId = record.longField("species_id"),
-				eggGroupId = record.longField("egg_group_id"),
-				slotOrder = record.intField("slot_order")
-			)
-	}
 }

@@ -44,7 +44,7 @@ class BattleContactProtectionBypassAbilityTests {
 					"bypass-user",
 					speed = 50,
 					skill = contactStrike(),
-					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass),
+					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass()),
 				),
 			),
 		)
@@ -81,7 +81,7 @@ class BattleContactProtectionBypassAbilityTests {
 					"bypass-user",
 					speed = 80,
 					skill = contactStrike(skillId = 10, name = "接触先制测试", priority = 1),
-					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass),
+					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass()),
 				),
 				secondB = participant(
 					"ordinary-priority-user",
@@ -123,8 +123,8 @@ class BattleContactProtectionBypassAbilityTests {
 					"bypass-user",
 					speed = 50,
 					skill = contactStrike(punchBased = true),
-					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass),
-					itemEffects = listOf(BattleItemEffect.PunchBasedContactSuppression),
+					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass()),
+					itemEffects = listOf(BattleItemEffect.PunchBasedContactSuppression()),
 				),
 			),
 		)
@@ -168,8 +168,8 @@ class BattleContactProtectionBypassAbilityTests {
 					"bypass-user",
 					speed = 50,
 					skill = contactStrike(),
-					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass),
-					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity),
+					abilityEffects = listOf(BattleAbilityEffect.ContactSkillProtectionBypass()),
+					itemEffects = listOf(BattleItemEffect.ContactSideEffectImmunity()),
 				),
 			),
 		)

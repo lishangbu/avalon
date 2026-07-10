@@ -26,6 +26,28 @@ class JimmerQueryConventionTests {
 			.isEmpty()
 	}
 
+	@Test
+	fun `runtime security paths do not bypass jimmer with jdbc operations`() {
+		val forbiddenFragments = listOf(
+			"JdbcTemplate",
+			"connectionManager",
+			"prepareStatement",
+			"java.sql.",
+		)
+		val violations = monitoredSources()
+			.flatMap { source ->
+				source.readLines().mapIndexedNotNull { index, line ->
+					source.toString().line(index + 1).takeIf { current ->
+						forbiddenFragments.any(current::contains)
+					}
+				}
+			}
+
+		assertThat(violations)
+			.describedAs("Use Jimmer Repository or KSqlClient instead of direct JDBC operations")
+			.isEmpty()
+	}
+
 	private fun monitoredSources(): List<Path> =
 		listOf(
 			"../system/src/main/kotlin/io/github/lishangbu/system/service/OAuthClientService.kt",

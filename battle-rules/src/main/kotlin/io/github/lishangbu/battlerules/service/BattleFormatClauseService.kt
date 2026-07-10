@@ -120,13 +120,13 @@ class BattleFormatClauseService(
 		)
 
 	private fun BattleFormatClause.toResponse(): BattleFormatClauseResponse =
-		BattleFormatClauseResponse(
-			id = id,
-			code = code,
-			name = name,
-			clauseType = clauseType,
-			description = description,
-			enabled = enabled,
-			sortOrder = sortOrder,
-		)
+		BattleFormatClauseResponse {
+			id = this@toResponse.id
+			code = this@toResponse.code
+			name = this@toResponse.name
+			clauseType = this@toResponse.clauseType
+			description = this@toResponse.description
+			enabled = this@toResponse.enabled
+			sortOrder = this@toResponse.sortOrder
+		}
 }
