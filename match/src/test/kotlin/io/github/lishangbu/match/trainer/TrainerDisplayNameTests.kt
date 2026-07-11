@@ -9,7 +9,7 @@ class TrainerDisplayNameTests {
 	fun `normalizes width case and surrounding whitespace`() {
 		val name = TrainerDisplayName.of("  Ａｖａｌｏｎ_一号  ")
 
-		assertEquals("Ａｖａｌｏｎ_一号", name.value)
+		assertEquals("Avalon_一号", name.value)
 		assertEquals("avalon_一号", name.key)
 		assertEquals("avalon一号", name.moderationKey)
 	}

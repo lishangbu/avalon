@@ -114,6 +114,7 @@ class TokenConfig {
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
 				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
+					context.claims.claim("account_id", principal.id.toString())
 					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
 					context.claims.claim("roles", principal.roles.map { it.code })
 				}
@@ -128,6 +129,7 @@ class TokenConfig {
 		OAuth2TokenCustomizer { context ->
 			if (context.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
 				context.getPrincipal<Authentication>()?.backendPrincipal()?.let { principal ->
+					context.claims.claim("account_id", principal.id.toString())
 					context.claims.claim("access_nodes", principal.scopedAccessNodeCodes(context.authorizedScopes))
 					context.claims.claim("roles", principal.roles.map { it.code })
 				}

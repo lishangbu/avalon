@@ -15,9 +15,11 @@ class TrainerSessionRegistry(
 ) {
 	private val byCredential = ConcurrentHashMap<String, TrainerSession>()
 	private val credentialByAccount = ConcurrentHashMap<Long, String>()
+	private val archiveReservations = mutableSetOf<Long>()
 
 	@Synchronized
 	fun enter(selection: TrainerSelection, now: Instant): TrainerSession {
+		if (selection.accountId in archiveReservations) throw TrainerSessionEntryBlockedException()
 		if (selection.activeMatchTrainerId != null && selection.activeMatchTrainerId != selection.trainerId) {
 			throw TrainerSwitchBlockedException()
 		}
@@ -50,6 +52,22 @@ class TrainerSessionRegistry(
 		removeAccountSession(accountId)
 	}
 
+	@Synchronized
+	fun isCurrent(accountId: Long, trainerId: Long): Boolean =
+		credentialByAccount[accountId]?.let(byCredential::get)?.trainerId == trainerId
+
+	@Synchronized
+	fun reserveArchive(accountId: Long, trainerId: Long) {
+		if (isCurrent(accountId, trainerId) || !archiveReservations.add(accountId)) {
+			throw TrainerArchiveBlockedException()
+		}
+	}
+
+	@Synchronized
+	fun releaseArchive(accountId: Long) {
+		archiveReservations.remove(accountId)
+	}
+
 	private fun removeAccountSession(accountId: Long) {
 		credentialByAccount.remove(accountId)?.let(byCredential::remove)
 	}
@@ -68,3 +86,4 @@ class TrainerSessionRegistry(
 }
 
 class TrainerSwitchBlockedException : IllegalStateException("Active match trainer must be restored")
+class TrainerSessionEntryBlockedException : IllegalStateException("Trainer archive is in progress")

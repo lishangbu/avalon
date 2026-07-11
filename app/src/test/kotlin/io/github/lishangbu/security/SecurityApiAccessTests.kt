@@ -299,6 +299,40 @@ class SecurityApiAccessTests(
 			.andExpect(jsonPath("$.field").value("unknown_id"))
 	}
 
+	@Test
+	fun `player can create list archive and restore own trainer`() {
+		insertUser("trainer-player")
+		val token = issuePublicToken("trainer-player")
+
+		val created = mockMvc.perform(
+			post("/api/player/trainers")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"commandId":"00000000-0000-4000-8000-000000000001","displayName":"Avalon一号"}"""),
+		).andExpect(status().isCreated)
+			.andExpect(jsonPath("$.displayName").value("Avalon一号"))
+			.andReturn().response.contentAsString
+		val trainerId: String = JsonPath.read(created, "$.id")
+
+		mockMvc.perform(get("/api/player/trainers").header("Authorization", "Bearer $token"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$[0].id").value(trainerId))
+
+		mockMvc.perform(
+			post("/api/player/trainers/$trainerId/archive")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":0}"""),
+		).andExpect(status().isOk).andExpect(jsonPath("$.revision").value(1))
+
+		mockMvc.perform(
+			post("/api/player/trainers/$trainerId/restore")
+				.header("Authorization", "Bearer $token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""{"expectedRevision":1}"""),
+		).andExpect(status().isOk).andExpect(jsonPath("$.revision").value(2))
+	}
+
 	private fun issueToken(
 		clientId: String,
 		clientSecret: String,
@@ -320,6 +354,19 @@ class SecurityApiAccessTests(
 			.response
 			.contentAsString
 
+		return JsonPath.read(response, "$.access_token")
+	}
+
+	private fun issuePublicToken(username: String): String {
+		val response = mockMvc.perform(
+			post("/oauth2/token")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("client_id", "avalon-web")
+				.param("grant_type", "urn:security:params:oauth:grant-type:password")
+				.param("username", username)
+				.param("password", "secret")
+				.param("scope", "player"),
+		).andExpect(status().isOk).andReturn().response.contentAsString
 		return JsonPath.read(response, "$.access_token")
 	}
 

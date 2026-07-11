@@ -23,6 +23,8 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -58,6 +60,7 @@ class BackendTokenEndpointTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
 	@Autowired private val objectMapper: ObjectMapper,
 	@Autowired private val registeredClientRepository: RegisteredClientRepository,
+	@Autowired private val authorizationService: OAuth2AuthorizationService,
 	@Autowired private val jwkRepository: OAuth2JwkRepository,
 	@Autowired private val jwkKeyFactory: OAuth2JwkKeyFactory,
 ) {
@@ -158,7 +161,7 @@ class BackendTokenEndpointTests(
 
 	@Test
 	fun `public web client authenticates without a client secret`() {
-		insertUser("web-player")
+		val accountId = insertUser("web-player")
 
 		val response = mockMvc.perform(
 			post("/oauth2/token")
@@ -175,6 +178,8 @@ class BackendTokenEndpointTests(
 		val token = objectMapper.readValue(response, TokenResponse::class.java)
 		assertThat(token.accessToken).isNotBlank()
 		assertThat(token.refreshToken).isNotBlank()
+		val authorization = authorizationService.findByToken(token.accessToken, OAuth2TokenType.ACCESS_TOKEN)
+		assertThat(authorization?.accessToken?.claims).containsEntry("account_id", accountId.toString())
 	}
 
 	@Test
@@ -235,7 +240,7 @@ class BackendTokenEndpointTests(
 		return objectMapper.readValue(response, TokenResponse::class.java)
 	}
 
-	private fun insertUser(username: String) {
+	private fun insertUser(username: String): Long {
 		val userId = nextUserId.getAndIncrement()
 		userRepository.save(
 			SecurityUser {
@@ -248,6 +253,7 @@ class BackendTokenEndpointTests(
 			},
 		)
 		sqlClient.getAssociations(SecurityUser::roles).insertIfAbsent(userId, 201L)
+		return userId
 	}
 
 	private fun tokenFormat(clientId: String): String? =

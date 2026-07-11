@@ -13,8 +13,8 @@ data class TrainerDisplayName private constructor(
 		private val allowed = Regex("^[\\p{L}\\p{N} _-]+$")
 
 		fun of(input: String): TrainerDisplayName {
-			val value = input.trim()
-			val key = Normalizer.normalize(value, Normalizer.Form.NFKC).lowercase(Locale.ROOT)
+			val value = Normalizer.normalize(input.trim(), Normalizer.Form.NFKC)
+			val key = value.lowercase(Locale.ROOT)
 			val length = key.codePointCount(0, key.length)
 			if (length !in 2..16 || !allowed.matches(key)) {
 				throw InvalidTrainerDisplayNameException()
