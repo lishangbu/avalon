@@ -1,4 +1,4 @@
-package io.github.lishangbu.battlesession
+package io.github.lishangbu.battlesession.runtime
 
 import io.github.lishangbu.battleengine.BattleActionValidator
 import io.github.lishangbu.battleengine.canBattle
@@ -6,8 +6,15 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleParticipant
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.model.BattleState
+import io.github.lishangbu.battlesession.model.TurnRequirements
+import io.github.lishangbu.battlesession.model.TurnSelectionRequirement
 
-class TurnRequirementsDeriver(
+/**
+ * 从权威战斗状态派生下一回合必须由调用方选择的行动集合。
+ *
+ * 自动行动留给战斗引擎规划，避免管理端或未来 Match 重复实现完整性规则。
+ */
+internal class TurnRequirementsDeriver(
 	private val validator: BattleActionValidator = BattleActionValidator(),
 ) {
 	fun derive(state: BattleState): TurnRequirements {

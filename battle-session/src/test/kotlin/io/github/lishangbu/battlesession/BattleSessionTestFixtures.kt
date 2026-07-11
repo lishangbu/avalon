@@ -10,6 +10,7 @@ import io.github.lishangbu.battleengine.model.BattleSide
 import io.github.lishangbu.battleengine.model.BattleSkillSlot
 import io.github.lishangbu.battleengine.random.BattleRandom
 
+/** 构造只包含当前 Session Runtime 行为测试所需字段的确定性初始状态。 */
 internal fun sessionInitialState(
 	first: BattleParticipant = sessionParticipant("side-1-actor-1", speed = 100),
 	second: BattleParticipant = sessionParticipant("side-2-actor-1", speed = 80),
@@ -40,6 +41,7 @@ internal fun sessionInitialState(
 		),
 	)
 
+/** 构造具有稳定战斗数值和单一技能槽的测试成员。 */
 internal fun sessionParticipant(
 	actorId: String,
 	speed: Int,
@@ -62,6 +64,7 @@ internal fun sessionParticipant(
 		skillSlots = listOf(skill),
 	)
 
+/** 构造不会引入额外规则分支的基础伤害技能。 */
 internal fun sessionSkill(
 	skillId: Long = 1,
 	remainingPp: Int = 35,
@@ -77,6 +80,7 @@ internal fun sessionSkill(
 		maxPp = 35,
 	)
 
+/** 固定返回零，使回合行为测试不依赖真实随机序列。 */
 internal fun zeroBattleRandom(): BattleRandom =
 	object : BattleRandom {
 		override fun nextInt(bound: Int, reason: String): Int = 0

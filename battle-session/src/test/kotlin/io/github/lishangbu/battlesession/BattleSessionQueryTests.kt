@@ -1,10 +1,17 @@
 package io.github.lishangbu.battlesession
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.SessionQuery
+import io.github.lishangbu.battlesession.model.TerminationCommand
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.runtime.BattleRandomFactory
+import io.github.lishangbu.battlesession.runtime.SessionIdentifierGenerator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+/** 验证 Runtime 列表筛选、稳定分页及终态摘要语义。 */
 class BattleSessionQueryTests {
 	@Test
 	fun `列表按状态与赛制筛选后返回稳定分页`() {
@@ -15,7 +22,7 @@ class BattleSessionQueryTests {
 				"33333333-3333-4333-8333-333333333333",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 		)
 		runtime.create(sessionInitialState(formatCode = "ranked-single"))
@@ -44,7 +51,7 @@ class BattleSessionQueryTests {
 				"55555555-5555-4555-8555-555555555555",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)

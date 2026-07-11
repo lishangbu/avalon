@@ -1,5 +1,6 @@
-package io.github.lishangbu.battlesession
+package io.github.lishangbu.battlesession.model
 
+/** 返回 Runtime 内活跃与 Recent Session 的稳定分页切片。 */
 data class SessionPage(
 	val items: List<BattleSessionSummary>,
 	val totalElements: Long,

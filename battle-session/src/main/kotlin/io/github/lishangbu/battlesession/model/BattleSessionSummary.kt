@@ -1,8 +1,9 @@
-package io.github.lishangbu.battlesession
+package io.github.lishangbu.battlesession.model
 
 import io.github.lishangbu.battleengine.model.BattleResult
 import java.time.Instant
 
+/** 为活跃与 Recent Session 列表提供不暴露完整战斗状态的稳定摘要。 */
 data class BattleSessionSummary(
 	val sessionId: String,
 	val formatCode: String,

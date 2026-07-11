@@ -179,6 +179,7 @@ class KotlinCodeOrganizationConventionTests {
 		private val MODULES = listOf(
 			"app",
 			"battle-engine",
+			"battle-session",
 			"battle-rules",
 			"common-persistence",
 			"common-web",

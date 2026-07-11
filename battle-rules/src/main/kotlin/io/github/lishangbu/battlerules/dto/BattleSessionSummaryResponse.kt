@@ -3,7 +3,7 @@ package io.github.lishangbu.battlerules.dto
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 
-/** Battle Session 列表中的轻量摘要。 */
+/** 为临时会话列表提供状态与淘汰时间，不携带完整运行态和 Turn Record。 */
 @Schema(description = "Battle Session 列表中的轻量摘要。")
 data class BattleSessionSummaryResponse(
 	@field:Schema(description = "Session Identifier。")

@@ -2,9 +2,7 @@ package io.github.lishangbu.battlerules.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-/**
- * Session Roster 中的一方阵容。
- */
+/** 通过成员顺序和上场索引描述一侧阵容，不允许调用方指定 sideId 或 actorId。 */
 @Schema(description = "Battle Session 的一方阵容配置。")
 data class BattleSessionRosterSideRequest(
 	@field:Schema(

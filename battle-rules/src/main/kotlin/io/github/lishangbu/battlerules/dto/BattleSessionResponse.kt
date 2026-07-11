@@ -3,7 +3,7 @@ package io.github.lishangbu.battlerules.dto
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 
-/** 管理端可观察的临时 Battle Session 快照。 */
+/** 将内存 Runtime 状态限制为管理端可观察字段，不暴露引擎内部规则对象。 */
 @Schema(description = "管理端可观察的临时 Battle Session 快照。")
 data class BattleSessionResponse(
 	@field:Schema(description = "服务端生成的 Session Identifier。", example = "550e8400-e29b-41d4-a716-446655440000")
@@ -33,6 +33,7 @@ data class BattleSessionResponse(
 	@field:Schema(description = "下一回合必须选择的行动及其合法选项。")
 	val turnRequirements: List<TurnRequirement>,
 ) {
+	/** 区分引擎自然完成结果与外部终止事实。 */
 	@Schema(name = "BattleSessionResult", description = "引擎确认的战斗结果。")
 	data class Result(
 		@field:Schema(description = "获胜方 sideId；平局时为空。", nullable = true)
@@ -41,6 +42,7 @@ data class BattleSessionResponse(
 		val reason: String,
 	)
 
+	/** 保存显式终止的幂等标识与 revision 变化，不伪造战斗胜负。 */
 	@Schema(name = "BattleSessionTermination", description = "外部终止事实。")
 	data class Termination(
 		@field:Schema(description = "终止命令幂等标识。")
@@ -55,6 +57,7 @@ data class BattleSessionResponse(
 		val terminatedAt: Instant,
 	)
 
+	/** 按固定阵容顺序公开一侧的上场标识与成员状态。 */
 	@Schema(name = "BattleSessionSide", description = "一方当前运行态摘要。")
 	data class Side(
 		@field:Schema(description = "Session 内稳定 sideId。")
@@ -65,6 +68,7 @@ data class BattleSessionResponse(
 		val participants: List<Participant>,
 	)
 
+	/** 公开成员继续选择行动所需的 HP、状态、能力阶级和技能槽。 */
 	@Schema(name = "BattleSessionParticipant", description = "Session 内成员运行态摘要。")
 	data class Participant(
 		@field:Schema(description = "Session 内稳定 actorId。")
@@ -87,6 +91,7 @@ data class BattleSessionResponse(
 		val skillSlots: List<SkillSlot>,
 	)
 
+	/** 公开服务端结算后的 PP，不携带完整技能规则。 */
 	@Schema(name = "BattleSessionSkillSlot", description = "Session 内技能槽运行态。")
 	data class SkillSlot(
 		@field:Schema(description = "技能资料 Identifier。", type = "string")
@@ -99,6 +104,7 @@ data class BattleSessionResponse(
 		val maxPp: Int,
 	)
 
+	/** 要求管理端从服务端提供的选项中为一个 actor 恰好选择一个行动。 */
 	@Schema(name = "BattleSessionTurnRequirement", description = "一个 actor 的下一回合人工选择要求。")
 	data class TurnRequirement(
 		@field:Schema(description = "必须提交选择的 actorId。")

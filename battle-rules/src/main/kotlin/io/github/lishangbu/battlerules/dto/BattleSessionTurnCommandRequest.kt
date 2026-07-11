@@ -2,7 +2,7 @@ package io.github.lishangbu.battlerules.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-/** 恰好推进 Battle Session 一次的完整 Turn Command。 */
+/** 携带当前全部人工选择，并用 commandId 与 expectedRevision 保证安全重试。 */
 @Schema(description = "恰好推进 Battle Session 一次的完整 Turn Command。")
 data class BattleSessionTurnCommandRequest(
 	@field:Schema(description = "调用方生成的 UUID v4 幂等标识。", requiredMode = Schema.RequiredMode.REQUIRED)

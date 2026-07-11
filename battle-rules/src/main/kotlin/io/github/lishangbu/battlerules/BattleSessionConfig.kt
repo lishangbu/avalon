@@ -1,7 +1,7 @@
 package io.github.lishangbu.battlerules
 
 import io.github.lishangbu.battlesession.BattleSessionRuntime
-import io.github.lishangbu.battlesession.SessionRuntimeCapacity
+import io.github.lishangbu.battlesession.model.SessionRuntimeCapacity
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

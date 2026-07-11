@@ -1,5 +1,6 @@
-package io.github.lishangbu.battlesession
+package io.github.lishangbu.battlesession.model
 
+/** 描述 Runtime 会话列表的筛选与分页条件。 */
 data class SessionQuery(
 	val status: BattleSessionStatus? = null,
 	val formatCode: String? = null,

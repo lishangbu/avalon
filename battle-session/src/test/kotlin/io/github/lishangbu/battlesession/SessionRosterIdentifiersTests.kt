@@ -1,8 +1,12 @@
 package io.github.lishangbu.battlesession
 
+import io.github.lishangbu.battlesession.roster.SessionRosterIdentifiers
+import io.github.lishangbu.battlesession.roster.SessionRosterSideInput
+import io.github.lishangbu.battlesession.roster.SessionRosterSideLayout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/** 验证阵容顺序到 Runtime-owned sideId 与 actorId 的确定性映射。 */
 class SessionRosterIdentifiersTests {
 	@Test
 	fun `阵容标识按双方与成员顺序稳定分配`() {

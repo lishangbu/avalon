@@ -1,10 +1,13 @@
 package io.github.lishangbu.battlesession
 
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.TerminationCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
+/** 验证显式终止的幂等性、revision 与诊断记录边界。 */
 class BattleSessionTerminationTests {
 	@Test
 	fun `终止 ACTIVE 会话生成诊断记录且相同命令重试返回首次结果`() {

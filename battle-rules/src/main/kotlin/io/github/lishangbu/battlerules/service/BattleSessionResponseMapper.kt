@@ -6,9 +6,9 @@ import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleSessionResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionSummaryResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionTurnRecordResponse
-import io.github.lishangbu.battlesession.BattleSessionSnapshot
-import io.github.lishangbu.battlesession.BattleSessionSummary
-import io.github.lishangbu.battlesession.TurnRecord
+import io.github.lishangbu.battlesession.model.BattleSessionSnapshot
+import io.github.lishangbu.battlesession.model.BattleSessionSummary
+import io.github.lishangbu.battlesession.model.TurnRecord
 import org.springframework.stereotype.Component
 import kotlin.reflect.full.memberProperties
 

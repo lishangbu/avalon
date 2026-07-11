@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import tools.jackson.databind.annotation.JsonSerialize
 import tools.jackson.databind.ser.std.ToStringSerializer
 
-/**
- * 战斗行动请求。
- */
+/** 以稳定判别字段承载使用技能或替换成员两种行动负载。 */
 @Schema(description = "战斗行动请求。")
 data class BattleActionRequest(
 	@field:Schema(description = "行动类型：USE_SKILL 或 SWITCH_PARTICIPANT。", example = "USE_SKILL")

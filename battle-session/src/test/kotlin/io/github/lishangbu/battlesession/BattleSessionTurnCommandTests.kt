@@ -4,11 +4,15 @@ import io.github.lishangbu.battleengine.BattleReplayRecorder
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.random.BattleRandom
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.runtime.BattleRandomFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+/** 验证 Turn Command 的完整性、幂等、revision、原子提交与组合行动边界。 */
 class BattleSessionTurnCommandTests {
 	@Test
 	fun `缺少必要选择的回合命令被拒绝且不会推进会话`() {
@@ -32,7 +36,7 @@ class BattleSessionTurnCommandTests {
 
 	@Test
 	fun `完整回合命令原子推进并记录服务端随机轨迹`() {
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState(maxTurns = 1))
@@ -59,7 +63,7 @@ class BattleSessionTurnCommandTests {
 
 	@Test
 	fun `相同 commandId 与负载重试返回首次结果且只推进一次`() {
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState())
@@ -82,7 +86,7 @@ class BattleSessionTurnCommandTests {
 
 	@Test
 	fun `retrying an earlier command returns its original result without rolling back the current session`() {
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState())
@@ -112,7 +116,7 @@ class BattleSessionTurnCommandTests {
 
 	@Test
 	fun `新的回合命令使用过期 revision 时被拒绝且不会推进`() {
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState())
@@ -139,7 +143,7 @@ class BattleSessionTurnCommandTests {
 
 	@Test
 	fun `重复 commandId 携带不同负载时被明确拒绝`() {
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState())
@@ -177,7 +181,7 @@ class BattleSessionTurnCommandTests {
 				zeroBattleRandom(),
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory { randoms.removeFirst() },
 		)
 		val created = runtime.create(sessionInitialState())
@@ -217,7 +221,7 @@ class BattleSessionTurnCommandTests {
 				single.sides[1].copy(activeActorIds = listOf(second.actorId, secondPartner.actorId)),
 			),
 		)
-		val runtime = BattleSessionRuntime(randomFactory = BattleRandomFactory(::zeroBattleRandom))
+		val runtime = BattleSessionRuntime.createForTesting(randomFactory = BattleRandomFactory(::zeroBattleRandom))
 		val created = runtime.create(double)
 		val command = TurnCommand(
 			commandId = "24681357-2468-4135-8246-246813572468",
@@ -257,7 +261,7 @@ class BattleSessionTurnCommandTests {
 				single.sides[1].copy(activeActorIds = listOf(second.actorId, secondPartner.actorId)),
 			),
 		)
-		val runtime = BattleSessionRuntime(randomFactory = BattleRandomFactory(::zeroBattleRandom))
+		val runtime = BattleSessionRuntime.createForTesting(randomFactory = BattleRandomFactory(::zeroBattleRandom))
 		val created = runtime.create(double)
 		val command = TurnCommand(
 			commandId = "13572468-1357-4135-8246-135724681357",

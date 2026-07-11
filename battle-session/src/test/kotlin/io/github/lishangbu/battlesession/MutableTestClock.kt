@@ -6,6 +6,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 
+/** 为 Recent Session TTL 与淘汰顺序测试提供可显式推进的 UTC 时钟。 */
 internal class MutableTestClock(
 	private var current: Instant,
 	private val currentZone: ZoneId = ZoneOffset.UTC,

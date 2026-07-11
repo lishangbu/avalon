@@ -9,7 +9,7 @@ import io.github.lishangbu.battlerules.dto.BattleSessionTurnRecordPageResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionTurnRecordResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionTurnResponse
 import io.github.lishangbu.battlerules.dto.BattleSessionTerminationRequest
-import io.github.lishangbu.battlesession.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
 import io.github.lishangbu.battlerules.openapi.BATTLE_SESSIONS_API_BEARER_AUTH
 import io.github.lishangbu.battlerules.openapi.BATTLE_SESSIONS_API_BAD_REQUEST_DESCRIPTION
 import io.github.lishangbu.battlerules.openapi.BATTLE_SESSIONS_API_CONFLICT_DESCRIPTION

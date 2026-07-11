@@ -1,11 +1,15 @@
 package io.github.lishangbu.battlesession
 
+import io.github.lishangbu.battlesession.model.SessionRuntimeCapacity
+import io.github.lishangbu.battlesession.model.TerminationCommand
+import io.github.lishangbu.battlesession.runtime.SessionIdentifierGenerator
 import java.time.Duration
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+/** 验证 Recent Session 的 TTL、容量淘汰顺序与稳定并列规则。 */
 class RecentSessionRetentionTests {
 	@Test
 	fun `近期容量淘汰最早终态且 TTL 到期后不再可见`() {
@@ -16,7 +20,7 @@ class RecentSessionRetentionTests {
 				"22222222-2222-4222-8222-222222222222",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			clock = clock,
 			capacity = SessionRuntimeCapacity(
@@ -53,7 +57,7 @@ class RecentSessionRetentionTests {
 				"22222222-2222-4222-8222-222222222222",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			clock = clock,
 			capacity = SessionRuntimeCapacity(maxActiveSessions = 2, maxRecentSessions = 1),
@@ -84,7 +88,7 @@ class RecentSessionRetentionTests {
 				"11111111-1111-4111-8111-111111111111",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			clock = clock,
 			capacity = SessionRuntimeCapacity(maxActiveSessions = 2, maxRecentSessions = 1),

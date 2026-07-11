@@ -5,6 +5,7 @@ import io.github.lishangbu.battlerules.service.BattleSessionResponseMapper
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+/** 验证 Runtime 事件映射不会把长整型 Identifier 暴露为不安全 JSON 数字。 */
 class BattleSessionResponseMapperTests {
 	@Test
 	fun `event payload keeps identifier values safe for javascript clients`() {

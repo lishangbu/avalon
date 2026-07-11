@@ -1,10 +1,14 @@
 package io.github.lishangbu.battlesession
 
 import io.github.lishangbu.battleengine.model.BattleAction
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.model.TurnSelectionRequirement
+import io.github.lishangbu.battlesession.runtime.BattleRandomFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+/** 验证 Runtime 只公开必要人工选择，并由引擎补齐自动行动。 */
 class TurnRequirementsTests {
 	@Test
 	fun `创建后为每个需要人工选择的成员公开可直接提交的行动选项`() {
@@ -35,7 +39,7 @@ class TurnRequirementsTests {
 	fun `休整行动由 Runtime 自动补齐而不要求客户端伪造选择`() {
 		val recharging = sessionParticipant("side-1-actor-1", speed = 100)
 			.copy(rechargeTurnsRemaining = 1)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState(first = recharging))
@@ -72,7 +76,7 @@ class TurnRequirementsTests {
 			speed = 80,
 			skill = sessionSkill(remainingPp = 0),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState(first = exhaustedFirst, second = exhaustedSecond))
@@ -102,7 +106,7 @@ class TurnRequirementsTests {
 			skill = sessionSkill(remainingPp = 0),
 		)
 		val bench = sessionParticipant("side-1-actor-2", speed = 60)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
 		)
 		val created = runtime.create(sessionInitialState(first = exhausted, firstBench = listOf(bench)))

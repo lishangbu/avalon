@@ -7,6 +7,7 @@ import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+/** 验证 Session Runtime 容量配置的默认值、显式绑定与 Spring 装配。 */
 class BattleSessionConfigTests {
 	private val contextRunner = ApplicationContextRunner()
 		.withUserConfiguration(BattleSessionConfig::class.java)

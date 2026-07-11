@@ -1,10 +1,15 @@
 package io.github.lishangbu.battlesession
 
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.SessionRuntimeCapacity
+import io.github.lishangbu.battlesession.model.TerminationCommand
+import io.github.lishangbu.battlesession.runtime.SessionIdentifierGenerator
 import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+/** 验证活跃容量拒绝策略与终态释放名额的 Runtime 行为。 */
 class BattleSessionCapacityTests {
 	@Test
 	fun `活跃容量耗尽时拒绝创建且终态会立即释放名额`() {
@@ -15,7 +20,7 @@ class BattleSessionCapacityTests {
 				"33333333-3333-4333-8333-333333333333",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			capacity = SessionRuntimeCapacity(
 				maxActiveSessions = 1,

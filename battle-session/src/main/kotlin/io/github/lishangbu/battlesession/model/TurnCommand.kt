@@ -1,8 +1,13 @@
-package io.github.lishangbu.battlesession
+package io.github.lishangbu.battlesession.model
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import java.util.UUID
 
+/**
+ * 请求会话恰好推进一个完整回合。
+ *
+ * commandId 标识网络重试，expectedRevision 防止基于过期 Snapshot 提交行动。
+ */
 data class TurnCommand(
 	val commandId: String,
 	val expectedRevision: Long,

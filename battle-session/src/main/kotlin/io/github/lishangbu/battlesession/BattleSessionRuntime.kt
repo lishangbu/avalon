@@ -9,17 +9,54 @@ import io.github.lishangbu.battleengine.model.BattleReplayTurn
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.RecordingBattleRandom
 import io.github.lishangbu.battleengine.random.TracedBattleRandom
+import io.github.lishangbu.battlesession.model.BattleRecord
+import io.github.lishangbu.battlesession.model.BattleSessionSnapshot
+import io.github.lishangbu.battlesession.model.BattleSessionStatus
+import io.github.lishangbu.battlesession.model.BattleSessionSummary
+import io.github.lishangbu.battlesession.model.SessionPage
+import io.github.lishangbu.battlesession.model.SessionQuery
+import io.github.lishangbu.battlesession.model.SessionRuntimeCapacity
+import io.github.lishangbu.battlesession.model.SessionTermination
+import io.github.lishangbu.battlesession.model.TerminationCommand
+import io.github.lishangbu.battlesession.model.TerminationResult
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.model.TurnCommandResult
+import io.github.lishangbu.battlesession.model.TurnRecord
+import io.github.lishangbu.battlesession.model.TurnRequirements
+import io.github.lishangbu.battlesession.runtime.BattleRandomFactory
+import io.github.lishangbu.battlesession.runtime.BattleSessionEngine
+import io.github.lishangbu.battlesession.runtime.SessionEntry
+import io.github.lishangbu.battlesession.runtime.SessionEntry.CachedTerminationCommand
+import io.github.lishangbu.battlesession.runtime.SessionEntry.CachedTurnCommand
+import io.github.lishangbu.battlesession.runtime.SessionIdentifierGenerator
+import io.github.lishangbu.battlesession.runtime.TurnRequirementsDeriver
 import java.time.Clock
+import java.time.Instant
 
-class BattleSessionRuntime(
-	private val engine: BattleSessionEngine = DefaultBattleSessionEngine(),
-	private val identifierGenerator: SessionIdentifierGenerator = UuidSessionIdentifierGenerator(),
-	private val requirementsDeriver: TurnRequirementsDeriver = TurnRequirementsDeriver(),
-	private val actionValidator: BattleActionValidator = BattleActionValidator(),
-	private val randomFactory: BattleRandomFactory = SecureBattleRandomFactory(),
-	private val clock: Clock = Clock.systemUTC(),
-	private val capacity: SessionRuntimeCapacity = SessionRuntimeCapacity(),
+/**
+ * 在单进程内持有 Battle Session，并按会话串行提交命令与权威状态。
+ *
+ * 公开 interface 只暴露容量配置与会话操作；引擎、随机源、时钟和标识生成器属于内部测试 seam。
+ */
+class BattleSessionRuntime private constructor(
+	private val engine: BattleSessionEngine,
+	private val identifierGenerator: SessionIdentifierGenerator,
+	private val requirementsDeriver: TurnRequirementsDeriver,
+	private val actionValidator: BattleActionValidator,
+	private val randomFactory: BattleRandomFactory,
+	private val clock: Clock,
+	private val capacity: SessionRuntimeCapacity,
 ) {
+	constructor(capacity: SessionRuntimeCapacity = SessionRuntimeCapacity()) : this(
+		engine = BattleSessionEngine.Default(),
+		identifierGenerator = SessionIdentifierGenerator.Uuid(),
+		requirementsDeriver = TurnRequirementsDeriver(),
+		actionValidator = BattleActionValidator(),
+		randomFactory = BattleRandomFactory.Secure(),
+		clock = Clock.systemUTC(),
+		capacity = capacity,
+	)
+
 	private val registryLock = Any()
 	private val activeSessions = linkedMapOf<String, SessionEntry>()
 	private val recentSessions = linkedMapOf<String, SessionEntry>()
@@ -272,10 +309,10 @@ class BattleSessionRuntime(
 	private fun buildBattleRecord(
 		entry: SessionEntry,
 		status: BattleSessionStatus,
-		finalState: io.github.lishangbu.battleengine.model.BattleState,
+		finalState: BattleState,
 		turnRecords: List<TurnRecord>,
 		termination: SessionTermination?,
-		endedAt: java.time.Instant,
+		endedAt: Instant,
 	): BattleRecord =
 		BattleRecord(
 			sessionId = entry.snapshot.sessionId,
@@ -323,7 +360,7 @@ class BattleSessionRuntime(
 		}
 	}
 
-	private fun pruneExpiredRecentSessions(now: java.time.Instant) {
+	private fun pruneExpiredRecentSessions(now: Instant) {
 		val expiredSessionIds = recentSessions.values
 			.filter { entry -> entry.snapshot.expiresAt?.let { !it.isAfter(now) } == true }
 			.map { entry -> entry.snapshot.sessionId }
@@ -334,5 +371,27 @@ class BattleSessionRuntime(
 		if (activeSessions.size >= capacity.maxActiveSessions) {
 			throw SessionCapacityExhaustedException(capacity.retryAfter)
 		}
+	}
+
+	companion object {
+		/** 为模块内行为测试替换确定性依赖，不扩大生产调用方的 interface。 */
+		internal fun createForTesting(
+			engine: BattleSessionEngine = BattleSessionEngine.Default(),
+			identifierGenerator: SessionIdentifierGenerator = SessionIdentifierGenerator.Uuid(),
+			requirementsDeriver: TurnRequirementsDeriver = TurnRequirementsDeriver(),
+			actionValidator: BattleActionValidator = BattleActionValidator(),
+			randomFactory: BattleRandomFactory = BattleRandomFactory.Secure(),
+			clock: Clock = Clock.systemUTC(),
+			capacity: SessionRuntimeCapacity = SessionRuntimeCapacity(),
+		): BattleSessionRuntime =
+			BattleSessionRuntime(
+				engine = engine,
+				identifierGenerator = identifierGenerator,
+				requirementsDeriver = requirementsDeriver,
+				actionValidator = actionValidator,
+				randomFactory = randomFactory,
+				clock = clock,
+				capacity = capacity,
+			)
 	}
 }

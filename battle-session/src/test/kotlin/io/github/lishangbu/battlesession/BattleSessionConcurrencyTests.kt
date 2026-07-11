@@ -5,6 +5,11 @@ import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleInitialState
 import io.github.lishangbu.battleengine.model.BattleState
 import io.github.lishangbu.battleengine.random.BattleRandom
+import io.github.lishangbu.battlesession.model.TurnCommand
+import io.github.lishangbu.battlesession.model.TurnCommandResult
+import io.github.lishangbu.battlesession.runtime.BattleRandomFactory
+import io.github.lishangbu.battlesession.runtime.BattleSessionEngine
+import io.github.lishangbu.battlesession.runtime.SessionIdentifierGenerator
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -12,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/** 验证 per-session 串行锁不会把不同会话退化为全局串行执行。 */
 class BattleSessionConcurrencyTests {
 	@Test
 	fun `一个 Session 的引擎执行不会阻塞另一个 Session`() {
@@ -22,7 +28,7 @@ class BattleSessionConcurrencyTests {
 				"22222222-2222-4222-8222-222222222222",
 			),
 		)
-		val runtime = BattleSessionRuntime(
+		val runtime = BattleSessionRuntime.createForTesting(
 			engine = blockingEngine,
 			identifierGenerator = SessionIdentifierGenerator { sessionIds.removeFirst() },
 			randomFactory = BattleRandomFactory(::zeroBattleRandom),
@@ -59,30 +65,31 @@ class BattleSessionConcurrencyTests {
 				BattleAction.UseSkill("side-2-actor-1", 1, "side-1-actor-1"),
 			),
 		)
-}
 
-private class BlockingSessionEngine : BattleSessionEngine {
-	private val delegate = BattleEngine()
-	private val blocked = CountDownLatch(1)
-	private val release = CountDownLatch(1)
+	/** 在指定赛制的结算点阻塞，用于观察另一个会话是否仍可独立推进。 */
+	private class BlockingSessionEngine : BattleSessionEngine {
+		private val delegate = BattleEngine()
+		private val blocked = CountDownLatch(1)
+		private val release = CountDownLatch(1)
 
-	override fun start(initialState: BattleInitialState): BattleState = delegate.start(initialState)
+		override fun start(initialState: BattleInitialState): BattleState = delegate.start(initialState)
 
-	override fun resolveTurn(
-		state: BattleState,
-		actions: List<BattleAction>,
-		random: BattleRandom,
-	): BattleState {
-		if (state.format.code == "blocked") {
-			blocked.countDown()
-			check(release.await(5, TimeUnit.SECONDS)) { "blocked engine was not released" }
+		override fun resolveTurn(
+			state: BattleState,
+			actions: List<BattleAction>,
+			random: BattleRandom,
+		): BattleState {
+			if (state.format.code == "blocked") {
+				blocked.countDown()
+				check(release.await(5, TimeUnit.SECONDS)) { "blocked engine was not released" }
+			}
+			return delegate.resolveTurn(state, actions, random)
 		}
-		return delegate.resolveTurn(state, actions, random)
-	}
 
-	fun awaitBlocked(): Boolean = blocked.await(5, TimeUnit.SECONDS)
+		fun awaitBlocked(): Boolean = blocked.await(5, TimeUnit.SECONDS)
 
-	fun release() {
-		release.countDown()
+		fun release() {
+			release.countDown()
+		}
 	}
 }

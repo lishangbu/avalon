@@ -2,9 +2,7 @@ package io.github.lishangbu.battlerules.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-/**
- * Session Roster 中由当前资料标识描述的参战成员。
- */
+/** 只接受 Current Game Data 标识与阵容配置，由服务端装配权威战斗成员状态。 */
 @Schema(description = "Battle Session 的参战成员配置。")
 data class BattleSessionRosterParticipantRequest(
 	@field:Schema(description = "成员种类资料 ID。", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

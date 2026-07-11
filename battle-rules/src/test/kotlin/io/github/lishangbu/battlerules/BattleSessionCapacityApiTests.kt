@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
+/** 验证 Runtime 容量耗尽会映射为稳定 503 协议与 Retry-After。 */
 @BattleRulesIntegrationTest
 @TestPropertySource(
 	properties = [
