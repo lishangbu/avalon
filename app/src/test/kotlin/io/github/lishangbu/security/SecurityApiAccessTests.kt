@@ -129,6 +129,7 @@ class SecurityApiAccessTests(
 			clientId = "system-admin-opaque",
 			clientSecret = "system-admin-opaque-secret",
 			username = "admin",
+			password = "123456",
 		)
 
 		assertThat(token).isNotBlank()
@@ -303,6 +304,7 @@ class SecurityApiAccessTests(
 		clientSecret: String,
 		username: String,
 		scope: String = "security:admin",
+		password: String = "secret",
 	): String {
 		val response = mockMvc.perform(
 			post("/oauth2/token")
@@ -310,7 +312,7 @@ class SecurityApiAccessTests(
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.param("grant_type", "urn:security:params:oauth:grant-type:password")
 				.param("username", username)
-				.param("password", "secret")
+				.param("password", password)
 				.param("scope", scope),
 		)
 			.andExpect(status().isOk)

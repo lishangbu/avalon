@@ -81,6 +81,8 @@ Windows PowerShell 可使用：
 3. 启动 [avalon-admin-ui](https://github.com/lishangbu/avalon-admin-ui) 管理端。
 4. 确认前端访问来源为 `http://localhost:5173` 或本地备用端口，后端默认 CORS 配置已允许这些本地来源。
 
+本地开发数据库的默认管理员账号为 `admin`，密码为 `123456`。固定默认凭据仅用于开发与测试环境，生产部署必须替换。
+
 如需覆盖安全发行方地址，可设置环境变量：
 
 ```bash

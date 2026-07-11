@@ -76,3 +76,5 @@ id,code,name,type,parent_id,path,icon,sort_order,visible,enabled,api_method,api_
 764,game-data.creature-skill-learns,精灵技能学习,ROUTE,590,/game-data/creature-skill-learns,lucide:graduation-cap,250,true,true,,
 765,game-data.creature-held-items,精灵持有道具,ROUTE,590,/game-data/creature-held-items,lucide:package,260,true,true,,
 767,game-data.element-damage-relations,属性克制关系,ROUTE,590,/game-data/element-damage-relations,lucide:split,280,true,true,,
+902,battle-sessions:run,战斗会话执行接口,API,,,,2300,false,true,*,/api/battle-sessions/**
+911,battle-sessions,战斗会话,ROUTE,,/battle-sessions,lucide:swords,50,true,true,,

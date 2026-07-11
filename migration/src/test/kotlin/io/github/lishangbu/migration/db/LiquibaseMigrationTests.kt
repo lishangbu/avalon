@@ -35,7 +35,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase changelog history keeps published files in order`() {
+	fun `liquibase baseline contains only the initial changelog`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -48,12 +48,8 @@ class LiquibaseMigrationTests(
 		}
 		assertThat(changelogFiles).containsExactly(
 			"001-initial-schema.yaml",
-			"002-battle-rules.yaml",
-			"003-battle-sessions-security.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
-		assertThat(changelogFiles.count { it.startsWith("002-") }).isEqualTo(1)
-		assertThat(changelogFiles.count { it.startsWith("003-") }).isEqualTo(1)
 	}
 
 	@Test
@@ -3789,7 +3785,7 @@ class LiquibaseMigrationTests(
 
 	@Test
 	fun `battle rules changelog references only current skill codes`() {
-		val changelog = javaClass.getResource("/db/changelog/changes/002-battle-rules.yaml")
+		val changelog = javaClass.getResource("/db/changelog/changes/001-initial-schema.yaml")
 
 		assertThat(changelog).isNotNull()
 		val explicitSkillCodes = explicitBattleRuleSkillCodes(changelog!!.readText())
@@ -5669,7 +5665,7 @@ class LiquibaseMigrationTests(
 		val resource = javaClass.getResource("/db/changelog/changes/001-initial-schema.yaml")
 		val root = Yaml().load<Map<String, Any?>>(resource!!.readText())
 		val databaseChangeLog = root["databaseChangeLog"] as List<Map<String, Any?>>
-		val changeSet = databaseChangeLog.single()["changeSet"] as Map<String, Any?>
+		val changeSet = databaseChangeLog.first()["changeSet"] as Map<String, Any?>
 		return changeSet["changes"] as List<Map<String, Any?>>
 	}
 

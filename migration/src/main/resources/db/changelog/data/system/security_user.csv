@@ -1,2 +1,2 @@
 id,username,password_hash,display_name,enabled,account_non_locked
-301,admin,{bcrypt}$2a$12$If/Ph6B2LvW1D6/yLyd7oO5g/6zn8MV9YpIetAdR4kUa/GUXINvl.,系统管理员,true,true
+301,admin,{bcrypt}$2a$12$OPymRqyndBpSY1l9izVj5uSrVXl9rUxsgRNMCSWWRk8PNGwH5tEYW,系统管理员,true,true
