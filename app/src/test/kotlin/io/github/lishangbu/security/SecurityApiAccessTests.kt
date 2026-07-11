@@ -124,6 +124,17 @@ class SecurityApiAccessTests(
 	}
 
 	@Test
+	fun `seeded admin can log in with documented development credentials`() {
+		val token = issueToken(
+			clientId = "system-admin-opaque",
+			clientSecret = "system-admin-opaque-secret",
+			username = "admin",
+		)
+
+		assertThat(token).isNotBlank()
+	}
+
+	@Test
 	fun `jwt token with game data admin can access game data api only`() {
 		insertUser("game-data-api-admin", roleId = 202L)
 		val token = issueToken(

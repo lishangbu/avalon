@@ -5604,9 +5604,9 @@ class LiquibaseMigrationTests(
 			""".trimIndent(),
 		).single()
 
-		assertThat(admin["password_hash"]).isEqualTo(
-			"{bcrypt}\$2b\$12\$XQ6MwKUnXcZ.9OC1.NOywOn914xDX7nH6cPE1ColC0oAsLt5Xg7ee",
-		)
+		val passwordHash = admin["password_hash"] as String
+		assertThat(passwordHash).startsWith("{bcrypt}\$2a\$12\$")
+		assertThat(passwordHash.removePrefix("{bcrypt}")).hasSize(60)
 		assertThat(admin["enabled"]).isEqualTo(true)
 		assertThat(admin["account_non_locked"]).isEqualTo(true)
 
