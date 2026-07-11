@@ -19,6 +19,7 @@ import org.springframework.web.context.WebApplicationContext
 		"spring.autoconfigure.exclude=org.springframework.boot.quartz.autoconfigure.QuartzAutoConfiguration,io.github.lishangbu.scheduler.SchedulerAutoConfiguration",
 		"spring.liquibase.enabled=false",
 		"backend.security.enabled=false",
+		"management.health.db.enabled=false",
 	],
 )
 class BackendApplicationTests(
