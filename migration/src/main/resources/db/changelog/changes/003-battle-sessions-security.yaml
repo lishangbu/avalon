@@ -1,0 +1,70 @@
+databaseChangeLog:
+- changeSet:
+    id: 003-battle-sessions-security
+    author: backend
+    changes:
+    - loadData:
+        tableName: security_access_node
+        file: db/changelog/data/battle-sessions/security_access_node.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: code
+            type: STRING
+        - column:
+            name: name
+            type: STRING
+        - column:
+            name: type
+            type: STRING
+        - column:
+            name: parent_id
+            type: NUMERIC
+        - column:
+            name: path
+            type: STRING
+        - column:
+            name: icon
+            type: STRING
+        - column:
+            name: sort_order
+            type: NUMERIC
+        - column:
+            name: visible
+            type: BOOLEAN
+        - column:
+            name: enabled
+            type: BOOLEAN
+        - column:
+            name: api_method
+            type: STRING
+        - column:
+            name: api_pattern
+            type: STRING
+    - loadData:
+        tableName: security_role_access_node
+        file: db/changelog/data/battle-sessions/security_role_access_node.csv
+        encoding: UTF-8
+        separator: ','
+        quotchar: '"'
+        columns:
+        - column:
+            name: role_id
+            type: NUMERIC
+        - column:
+            name: access_node_id
+            type: NUMERIC
+    - sql:
+        dbms: postgresql
+        splitStatements: false
+        stripComments: true
+        sql: |
+          update oauth2_client
+          set scopes = trim(scopes || ' battle-sessions:run')
+          where client_id in ('system-admin-jwt', 'system-admin-opaque')
+            and (' ' || scopes || ' ') not like '% battle-sessions:run %';

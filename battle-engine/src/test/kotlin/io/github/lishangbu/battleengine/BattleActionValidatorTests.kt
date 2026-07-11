@@ -2,6 +2,7 @@ package io.github.lishangbu.battleengine
 
 import io.github.lishangbu.battleengine.model.BattleAction
 import io.github.lishangbu.battleengine.model.BattleDamageClass
+import io.github.lishangbu.battleengine.model.BattleMode
 import io.github.lishangbu.battleengine.model.BattleSkillHpEffect
 import io.github.lishangbu.battleengine.model.BattleSkillTargetScope
 import io.github.lishangbu.battleengine.random.ScriptedBattleRandom
@@ -283,6 +284,24 @@ class BattleActionValidatorTests {
 	}
 
 	@Test
+	fun `reports duplicate switch target for healthy active participants`() {
+		val violations = duplicateSwitchTargetViolations(currentHp = 100)
+
+		assertEquals(listOf("duplicate-switch-target", "duplicate-switch-target"), violations.map { it.code })
+		assertEquals(listOf("side-a-first", "side-a-second"), violations.map { it.actorId })
+		assertEquals(listOf("side-a-reserve", "side-a-reserve"), violations.map { it.targetActorId })
+	}
+
+	@Test
+	fun `reports duplicate switch target for fainted active participants`() {
+		val violations = duplicateSwitchTargetViolations(currentHp = 0)
+
+		assertEquals(listOf("duplicate-switch-target", "duplicate-switch-target"), violations.map { it.code })
+		assertEquals(listOf("side-a-first", "side-a-second"), violations.map { it.actorId })
+		assertEquals(listOf("side-a-reserve", "side-a-reserve"), violations.map { it.targetActorId })
+	}
+
+	@Test
 	fun `reports recharge prevents voluntary switch`() {
 		val state = engine.start(
 			initialState(
@@ -359,5 +378,36 @@ class BattleActionValidatorTests {
 		assertFailsWith<IllegalArgumentException> {
 			validator.requireValid(ended, actions)
 		}
+	}
+
+	private fun duplicateSwitchTargetViolations(currentHp: Int): List<BattleActionViolation> {
+		val first = participant("side-a-first", speed = 100, currentHp = currentHp)
+		val second = participant("side-a-second", speed = 90, currentHp = currentHp)
+		val reserve = participant("side-a-reserve", speed = 80)
+		val opponent = participant("side-b-first", speed = 70)
+		val opponentPartner = participant("side-b-second", speed = 60)
+		val single = initialState(
+			first = first,
+			firstBench = listOf(second, reserve),
+			second = opponent,
+			secondBench = listOf(opponentPartner),
+		)
+		val state = engine.start(
+			single.copy(
+				format = single.format.copy(mode = BattleMode.DOUBLE, activeParticipantsPerSide = 2),
+				sides = listOf(
+					single.sides[0].copy(activeActorIds = listOf(first.actorId, second.actorId)),
+					single.sides[1].copy(activeActorIds = listOf(opponent.actorId, opponentPartner.actorId)),
+				),
+			),
+		)
+
+		return validator.validate(
+			state,
+			listOf(
+				BattleAction.SwitchParticipant(first.actorId, reserve.actorId),
+				BattleAction.SwitchParticipant(second.actorId, reserve.actorId),
+			),
+		)
 	}
 }

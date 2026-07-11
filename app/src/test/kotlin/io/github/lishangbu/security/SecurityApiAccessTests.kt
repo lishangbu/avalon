@@ -63,6 +63,37 @@ class SecurityApiAccessTests(
 	}
 
 	@Test
+	fun `battle session api requires its dedicated scope`() {
+		val missingSessionPath = "/api/battle-sessions/00000000-0000-4000-8000-000000000000"
+		mockMvc.perform(get(missingSessionPath))
+			.andExpect(status().isUnauthorized)
+
+		insertUser("battle-session-wrong-scope", roleId = 202L)
+		val wrongScopeToken = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "battle-session-wrong-scope",
+			scope = "game-data:admin",
+		)
+		mockMvc.perform(
+			get(missingSessionPath)
+				.header("Authorization", "Bearer $wrongScopeToken"),
+		).andExpect(status().isForbidden)
+
+		insertUser("battle-session-api-runner", roleId = 201L)
+		val battleSessionToken = issueToken(
+			clientId = "system-admin-jwt",
+			clientSecret = "system-admin-jwt-secret",
+			username = "battle-session-api-runner",
+			scope = "battle-sessions:run",
+		)
+		mockMvc.perform(
+			get(missingSessionPath)
+				.header("Authorization", "Bearer $battleSessionToken"),
+		).andExpect(status().isNotFound)
+	}
+
+	@Test
 	fun `jwt token with security admin can access security api`() {
 		insertUser("jwt-api-admin")
 		val token = issueToken(

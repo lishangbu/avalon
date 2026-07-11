@@ -206,6 +206,26 @@ class SecurityManagementApiTests(
 			.andExpect(jsonPath("$.menus[0].icon").value("lucide:flask-conical"))
 	}
 
+	@Test
+	fun `system admin session includes battle sessions menu for its dedicated scope`() {
+		insertUser("battle-session-menu-manager", 201)
+		val token = issueToken("battle-session-menu-manager", "battle-sessions:run")
+
+		mockMvc.perform(
+			get("/api/session")
+				.header("Authorization", "Bearer $token"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.roles[*].code", hasItem("system-admin")))
+			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sessions:run")))
+			.andExpect(jsonPath("$.accessNodeCodes", hasItem("battle-sessions")))
+			.andExpect(jsonPath("$.menus[0].code").value("battle-sessions"))
+			.andExpect(jsonPath("$.menus[0].name").value("战斗会话"))
+			.andExpect(jsonPath("$.menus[0].type").value("ROUTE"))
+			.andExpect(jsonPath("$.menus[0].path").value("/battle-sessions"))
+			.andExpect(jsonPath("$.menus[0].icon").value("lucide:swords"))
+	}
+
 	/**
 	 * 验证 `/api/session` 的菜单树和访问节点数据源保持同一个契约。
 	 *
@@ -218,7 +238,7 @@ class SecurityManagementApiTests(
 		insertUser("full-menu-manager", 201, 202, 203, 204)
 		val token = issueToken(
 			username = "full-menu-manager",
-			scope = "security:admin game-data:admin battle-rules:admin battle-sandbox:run",
+			scope = "security:admin game-data:admin battle-rules:admin battle-sandbox:run battle-sessions:run",
 		)
 
 		val response = mockMvc.perform(
@@ -350,7 +370,7 @@ class SecurityManagementApiTests(
 					  "clientId": "system-tools-jwt",
 					  "clientSecret": "tools-secret",
 					  "clientName": "Tools JWT Client",
-					  "scopes": ["security:admin"],
+					  "scopes": ["security:admin", "battle-sessions:run"],
 					  "accessTokenFormat": "self-contained"
 					}
 					""".trimIndent(),
@@ -358,6 +378,7 @@ class SecurityManagementApiTests(
 		)
 			.andExpect(status().isCreated)
 			.andExpect(jsonPath("$.clientId").value("system-tools-jwt"))
+			.andExpect(jsonPath("$.scopes", hasItem("battle-sessions:run")))
 			.andExpect(jsonPath("$.accessTokenFormat").value("self-contained"))
 			.andReturn()
 			.response
@@ -383,7 +404,7 @@ class SecurityManagementApiTests(
 					"""
 					{
 					  "clientName": "Tools Reference Client",
-					  "scopes": ["security:admin"],
+					  "scopes": ["security:admin", "battle-sessions:run"],
 					  "accessTokenFormat": "reference",
 					  "accessTokenTtlSeconds": 900,
 					  "refreshTokenTtlSeconds": 3600

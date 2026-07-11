@@ -35,7 +35,7 @@ class LiquibaseMigrationTests(
 	}
 
 	@Test
-	fun `liquibase changelog history keeps initial file and merged battle file`() {
+	fun `liquibase changelog history keeps published files in order`() {
 		val resource = javaClass.getResource("/db/changelog/changes")
 
 		assertThat(resource).isNotNull()
@@ -49,9 +49,11 @@ class LiquibaseMigrationTests(
 		assertThat(changelogFiles).containsExactly(
 			"001-initial-schema.yaml",
 			"002-battle-rules.yaml",
+			"003-battle-sessions-security.yaml",
 		)
 		assertThat(changelogFiles.count { it.startsWith("001-") }).isEqualTo(1)
 		assertThat(changelogFiles.count { it.startsWith("002-") }).isEqualTo(1)
+		assertThat(changelogFiles.count { it.startsWith("003-") }).isEqualTo(1)
 	}
 
 	@Test
@@ -180,6 +182,9 @@ class LiquibaseMigrationTests(
 			"battle_rule_snapshot",
 			"battle_simulation",
 			"battle_turn_log",
+			"battle_session",
+			"battle_session_side",
+			"battle_session_turn",
 		)
 	}
 
@@ -289,8 +294,16 @@ class LiquibaseMigrationTests(
 			"battle-sandbox",
 			"battle-sandbox:run",
 		)
+		val battleSessionAccessNodeCodes = listOf(
+			"battle-sessions",
+			"battle-sessions:run",
+		)
 		assertThat(accessNodeCodes).containsAll(
-			battleRulesAccessNodeCodes + battleSandboxAccessNodeCodes + gameDataAccessNodeCodes + systemAccessNodeCodes,
+			battleRulesAccessNodeCodes +
+				battleSandboxAccessNodeCodes +
+				battleSessionAccessNodeCodes +
+				gameDataAccessNodeCodes +
+				systemAccessNodeCodes,
 		)
 
 		val roleCodes = queryStrings(
@@ -308,7 +321,37 @@ class LiquibaseMigrationTests(
 			order by n.code
 			""".trimIndent(),
 		)
-		assertThat(systemAdminAccessNodeCodes).containsExactlyInAnyOrderElementsOf(systemAccessNodeCodes)
+		assertThat(systemAdminAccessNodeCodes)
+			.containsExactlyInAnyOrderElementsOf(systemAccessNodeCodes + battleSessionAccessNodeCodes)
+
+		val battleSessionAccessNodes = queryMaps(
+			"""
+			select code, type, path, visible, enabled, api_method, api_pattern
+			from security_access_node
+			where code like 'battle-sessions%'
+			order by code
+			""".trimIndent(),
+		)
+		assertThat(battleSessionAccessNodes).containsExactly(
+			mapOf(
+				"code" to "battle-sessions",
+				"type" to "ROUTE",
+				"path" to "/battle-sessions",
+				"visible" to true,
+				"enabled" to true,
+				"api_method" to "",
+				"api_pattern" to "",
+			),
+			mapOf(
+				"code" to "battle-sessions:run",
+				"type" to "API",
+				"path" to "",
+				"visible" to false,
+				"enabled" to true,
+				"api_method" to "*",
+				"api_pattern" to "/api/battle-sessions/**",
+			),
+		)
 
 		val gameDataAdminAccessNodeCodes = queryStrings(
 			"""
@@ -464,7 +507,8 @@ class LiquibaseMigrationTests(
 		val clientScopes = queryStrings(
 			"select scopes from oauth2_client order by client_id",
 		)
-		assertThat(clientScopes).containsOnly("battle-rules:admin battle-sandbox:run game-data:admin security:admin")
+		assertThat(clientScopes)
+			.containsOnly("battle-rules:admin battle-sandbox:run game-data:admin security:admin battle-sessions:run")
 
 		val clientSecrets = queryStrings(
 			"select client_secret from oauth2_client order by client_id",

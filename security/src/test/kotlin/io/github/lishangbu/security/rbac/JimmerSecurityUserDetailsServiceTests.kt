@@ -50,6 +50,8 @@ class JimmerSecurityUserDetailsServiceTests(
 		assertThat(user.password).isEqualTo("{noop}secret")
 		assertThat(user.displayName).isEqualTo("管理员")
 		val expectedAccessNodeCodes = listOf(
+			"battle-sessions",
+			"battle-sessions:run",
 			"security:admin",
 			"system",
 			"system.oauth",

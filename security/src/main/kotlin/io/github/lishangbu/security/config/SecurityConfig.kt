@@ -7,6 +7,7 @@ import io.github.lishangbu.security.oauth.OpaqueTokenAuthenticationProvider
 import io.github.lishangbu.security.oauth.securityAuthoritiesFromClaims
 import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.BATTLE_SESSIONS_RUN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.JimmerSecurityUserDetailsService
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
@@ -192,6 +193,7 @@ class SecurityConfig {
 					.requestMatchers("/api/system/**").hasAuthority(SECURITY_ADMIN_ACCESS_NODE)
 					.requestMatchers("/api/battle-rules/**").hasAuthority(BATTLE_RULES_ADMIN_ACCESS_NODE)
 					.requestMatchers("/api/battle-sandbox/**").hasAuthority(BATTLE_SANDBOX_RUN_ACCESS_NODE)
+					.requestMatchers("/api/battle-sessions/**").hasAuthority(BATTLE_SESSIONS_RUN_ACCESS_NODE)
 					.requestMatchers("/api/game-data/**").hasAuthority(GAME_DATA_ADMIN_ACCESS_NODE)
 					.anyRequest().authenticated()
 			}

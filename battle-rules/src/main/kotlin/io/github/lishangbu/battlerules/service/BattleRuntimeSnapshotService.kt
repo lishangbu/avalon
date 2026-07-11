@@ -198,6 +198,19 @@ class BattleRuntimeSnapshotService(
 		initialStateAssembler.assemble(request)
 
 	/**
+	 * 为服务端权威 Battle Session 装配并校验冻结初始状态。
+	 *
+	 * Session 创建不能像校验接口一样返回“可运行但带违规项”的对象；只有通过完整准备校验的状态才能离开
+	 * 资料装配事务并进入纯内存 Session Runtime。
+	 */
+	@Transactional(readOnly = true)
+	fun assembleBattleSessionInitialState(request: BattlePreparationValidationRequest): BattleInitialState {
+		val initialState = assembleInitialState(request.normalized())
+		requireRuntimePreparation(initialState)
+		return initialState
+	}
+
+	/**
 	 * 在应用层进入 battle-engine 前执行准备阶段保护。
 	 *
 	 * [BattleEngine.start] 自身已经会 fail-fast 拒绝非法初始状态，这是纯引擎的最后一道不变量保护；但接口层不能让

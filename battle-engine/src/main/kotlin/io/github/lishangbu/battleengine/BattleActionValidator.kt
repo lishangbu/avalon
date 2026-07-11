@@ -31,8 +31,19 @@ class BattleActionValidator {
 			.eachCount()
 			.filterValues { it > 1 }
 			.keys
-		return actions.flatMap { action -> validateAction(state, action, duplicatedActorIds) }
+		val duplicatedSwitchTargetIds = actions
+			.filterIsInstance<BattleAction.SwitchParticipant>()
+			.groupingBy { it.targetActorId }
+			.eachCount()
+			.filterValues { it > 1 }
+			.keys
+		return actions.flatMap { action ->
+			validateAction(state, action, duplicatedActorIds, duplicatedSwitchTargetIds)
+		}
 	}
+
+	/** 当前成员是否没有任何可正常选择的技能，必须由引擎改用内置挣扎。 */
+	fun requiresStruggleFallback(actor: BattleParticipant): Boolean = actor.mustUseStruggle()
 
 	/**
 	 * 若存在提交问题则抛出异常。
@@ -50,6 +61,7 @@ class BattleActionValidator {
 		state: BattleState,
 		action: BattleAction,
 		duplicatedActorIds: Set<String>,
+		duplicatedSwitchTargetIds: Set<String>,
 	): List<BattleActionViolation> {
 		val violations = mutableListOf<BattleActionViolation>()
 		if (state.result != null) {
@@ -67,6 +79,14 @@ class BattleActionValidator {
 		if (!state.isActive(actor.actorId)) {
 			violations += violation("actor-not-active", actor.actorId, message = "行动成员当前不在场: ${actor.actorId}")
 			return violations
+		}
+		if (action is BattleAction.SwitchParticipant && action.targetActorId in duplicatedSwitchTargetIds) {
+			violations += violation(
+				code = "duplicate-switch-target",
+				actorId = actor.actorId,
+				targetActorId = action.targetActorId,
+				message = "同一方的多个席位不能在同一回合替换为同一成员: ${action.targetActorId}",
+			)
 		}
 		if (!actor.canBattle()) {
 			if (action is BattleAction.SwitchParticipant) {

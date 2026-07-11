@@ -12,6 +12,7 @@ import io.github.lishangbu.security.entity.id
 import io.github.lishangbu.security.oauth.PASSWORD_GRANT_TYPE_VALUE
 import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.BATTLE_SESSIONS_RUN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.repository.OAuth2ClientRepository
@@ -299,6 +300,7 @@ class OAuthClientService(
 			GAME_DATA_ADMIN_ACCESS_NODE,
 			BATTLE_RULES_ADMIN_ACCESS_NODE,
 			BATTLE_SANDBOX_RUN_ACCESS_NODE,
+			BATTLE_SESSIONS_RUN_ACCESS_NODE,
 		)
 	}
 }

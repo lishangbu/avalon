@@ -101,7 +101,7 @@ class BattleRuleCoverageLedgerTests {
 
 	@Test
 	fun `规则覆盖报告说明文档必须同步机器可读输出契约`() {
-		val documentPath = Path.of("../docs/superpowers/plans/2026-07-08-battle-rule-coverage-report.md")
+		val documentPath = Path.of("../docs/battle-rules/coverage-report.md")
 		val document = Files.readString(documentPath)
 
 		assertTrue(
@@ -434,7 +434,7 @@ class BattleRuleCoverageLedgerTests {
 	private fun documentedCoverageMatrix(): List<DocumentedCoverageGroup> {
 		val matrixRowPattern = Regex("""^\| `([^`]+)` \| ([0-9]+-[0-9]+) \| ([0-9]+) \| (.+) \|$""")
 		val testFilePattern = Regex("""`([^`]+)`""")
-		val documentPath = Path.of("../docs/superpowers/plans/2026-06-29-battle-rule-final-coverage-ledger.md")
+		val documentPath = Path.of("../docs/battle-rules/coverage-ledger.md")
 
 		return Files.readAllLines(documentPath).mapNotNull { line ->
 			matrixRowPattern.matchEntire(line)?.let { match ->

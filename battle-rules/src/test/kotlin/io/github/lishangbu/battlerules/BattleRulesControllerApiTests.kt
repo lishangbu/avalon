@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 import java.util.concurrent.atomic.AtomicLong
+import java.util.UUID
+import tools.jackson.databind.ObjectMapper
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -33,6 +35,7 @@ import kotlin.test.assertTrue
 class BattleRulesControllerApiTests(
 	@Autowired private val webApplicationContext: WebApplicationContext,
 	@Autowired private val sqlClient: KSqlClient,
+	@Autowired private val objectMapper: ObjectMapper,
 ) {
 	private lateinit var mockMvc: MockMvc
 
@@ -211,6 +214,368 @@ class BattleRulesControllerApiTests(
 			.andExpect(status().isBadRequest)
 			.andExpect(jsonPath("$.code").value("validation.invalid"))
 			.andExpect(jsonPath("$.field").value("sides"))
+	}
+
+	@Test
+	fun `battle session api creates a server authoritative active session`() {
+		val response = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andExpect(jsonPath("$.status").value("ACTIVE"))
+			.andExpect(jsonPath("$.revision").value(0))
+			.andExpect(jsonPath("$.turnNumber").value(0))
+			.andExpect(jsonPath("$.sides[0].sideId").value("side-1"))
+			.andExpect(jsonPath("$.sides[0].participants[0].actorId").value("side-1-actor-1"))
+			.andExpect(jsonPath("$.turnRequirements[0].actorId").isNotEmpty)
+			.andReturn()
+			.response
+			.contentAsString
+
+		UUID.fromString(JsonPath.read(response, "$.sessionId"))
+	}
+
+	@Test
+	fun `battle session api rejects an omitted participant level`() {
+		val requestWithoutLevels = sessionCreateJson().replace("\"level\": 50,", "")
+
+		mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestWithoutLevels),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+	}
+
+	@Test
+	fun `battle session api reads and lists current runtime sessions`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+
+		mockMvc.perform(get("/api/battle-sessions/$sessionId"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.sessionId").value(sessionId))
+			.andExpect(jsonPath("$.formatCode").value("official-double"))
+			.andExpect(jsonPath("$.turnRequirements[0].options").isNotEmpty)
+
+		mockMvc.perform(
+			get("/api/battle-sessions")
+				.param("status", "ACTIVE")
+				.param("formatCode", "official-double")
+				.param("page", "0")
+				.param("size", "100"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[?(@.sessionId == '$sessionId')]").exists())
+			.andExpect(jsonPath("$.totalRowCount").isNumber)
+			.andExpect(jsonPath("$.totalPageCount").isNumber)
+	}
+
+	@Test
+	fun `battle session api returns a stable not found response`() {
+		val sessionId = "00000000-0000-4000-8000-000000000000"
+
+		mockMvc.perform(get("/api/battle-sessions/$sessionId"))
+			.andExpect(status().isNotFound)
+			.andExpect(jsonPath("$.code").value("resource.not_found"))
+			.andExpect(jsonPath("$.field").value("sessionId"))
+	}
+
+	@Test
+	fun `battle session api resolves a complete turn and exposes its record`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+		val actions = JsonPath.read<List<Map<String, Any?>>>(created, "$.turnRequirements[*].options[0]")
+		val commandId = UUID.randomUUID().toString()
+		val command = objectMapper.writeValueAsString(
+			mapOf(
+				"commandId" to commandId,
+				"expectedRevision" to 0,
+				"actions" to actions,
+			),
+		)
+
+		val firstTurn = mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(command),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.session.revision").value(1))
+			.andExpect(jsonPath("$.session.turnNumber").value(1))
+			.andExpect(jsonPath("$.turnRecord.commandId").value(commandId))
+			.andExpect(jsonPath("$.turnRecord.revisionBefore").value(0))
+			.andExpect(jsonPath("$.turnRecord.revisionAfter").value(1))
+			.andReturn()
+			.response
+			.contentAsString
+		val secondActions = JsonPath.read<List<Map<String, Any?>>>(firstTurn, "$.session.turnRequirements[*].options[0]")
+		val secondCommandId = UUID.randomUUID().toString()
+		val secondCommand = objectMapper.writeValueAsString(
+			mapOf(
+				"commandId" to secondCommandId,
+				"expectedRevision" to 1,
+				"actions" to secondActions,
+			),
+		)
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(secondCommand),
+		)
+			.andExpect(status().isOk)
+
+		mockMvc.perform(get("/api/battle-sessions/$sessionId/turns"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[0].commandId").value(secondCommandId))
+			.andExpect(jsonPath("$.rows[1].commandId").value(commandId))
+			.andExpect(jsonPath("$.totalRowCount").value(2))
+	}
+
+	@Test
+	fun `battle session api rejects a new command with a stale revision`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+		val actions = JsonPath.read<List<Map<String, Any?>>>(created, "$.turnRequirements[*].options[0]")
+		fun command(commandId: String): String = objectMapper.writeValueAsString(
+			mapOf(
+				"commandId" to commandId,
+				"expectedRevision" to 0,
+				"actions" to actions,
+			),
+		)
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(command(UUID.randomUUID().toString())),
+		)
+			.andExpect(status().isOk)
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(command(UUID.randomUUID().toString())),
+		)
+			.andExpect(status().isConflict)
+			.andExpect(jsonPath("$.code").value("resource.conflict"))
+			.andExpect(jsonPath("$.field").value("expectedRevision"))
+	}
+
+	@Test
+	fun `battle session api rejects commands that omit expected revision`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+		val actions = JsonPath.read<List<Map<String, Any?>>>(created, "$.turnRequirements[*].options[0]")
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to UUID.randomUUID().toString(),
+							"actions" to actions,
+						),
+					),
+				),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.field").value("expectedRevision"))
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/termination")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to UUID.randomUUID().toString(),
+							"reason" to "administrator-aborted",
+						),
+					),
+				),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.field").value("expectedRevision"))
+	}
+
+	@Test
+	fun `battle session api maps incomplete payload conflicts and terminal commands`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+		val actions = JsonPath.read<List<Map<String, Any?>>>(created, "$.turnRequirements[*].options[0]")
+		val commandId = UUID.randomUUID().toString()
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to UUID.randomUUID().toString(),
+							"expectedRevision" to 0,
+							"actions" to emptyList<Any>(),
+						),
+					),
+				),
+		)
+			.andExpect(status().isBadRequest)
+			.andExpect(jsonPath("$.code").value("validation.invalid"))
+			.andExpect(jsonPath("$.field").value("actions"))
+
+		val firstTurn = mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to commandId,
+							"expectedRevision" to 0,
+							"actions" to actions,
+						),
+					),
+				),
+		)
+			.andExpect(status().isOk)
+			.andReturn()
+			.response
+			.contentAsString
+		val nextActions = JsonPath.read<List<Map<String, Any?>>>(firstTurn, "$.session.turnRequirements[*].options[0]")
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to commandId,
+							"expectedRevision" to 0,
+							"actions" to emptyList<Any>(),
+						),
+					),
+				),
+		)
+			.andExpect(status().isConflict)
+			.andExpect(jsonPath("$.field").value("commandId"))
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/termination")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to UUID.randomUUID().toString(),
+							"expectedRevision" to 1,
+							"reason" to "administrator-aborted",
+						),
+					),
+				),
+		)
+			.andExpect(status().isOk)
+
+		mockMvc.perform(
+			post("/api/battle-sessions/$sessionId/turns")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+					objectMapper.writeValueAsString(
+						mapOf(
+							"commandId" to UUID.randomUUID().toString(),
+							"expectedRevision" to 2,
+							"actions" to nextActions,
+						),
+					),
+				),
+		)
+			.andExpect(status().isConflict)
+			.andExpect(jsonPath("$.field").value("sessionId"))
+	}
+
+	@Test
+	fun `battle session api terminates an active session idempotently`() {
+		val created = mockMvc.perform(
+			post("/api/battle-sessions")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(sessionCreateJson()),
+		)
+			.andExpect(status().isCreated)
+			.andReturn()
+			.response
+			.contentAsString
+		val sessionId = JsonPath.read<String>(created, "$.sessionId")
+		val commandId = UUID.randomUUID().toString()
+		val termination = objectMapper.writeValueAsString(
+			mapOf(
+				"commandId" to commandId,
+				"expectedRevision" to 0,
+				"reason" to "administrator-aborted",
+			),
+		)
+
+		repeat(2) {
+			mockMvc.perform(
+				post("/api/battle-sessions/$sessionId/termination")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(termination),
+			)
+				.andExpect(status().isOk)
+				.andExpect(jsonPath("$.status").value("TERMINATED"))
+				.andExpect(jsonPath("$.revision").value(1))
+				.andExpect(jsonPath("$.termination.commandId").value(commandId))
+				.andExpect(jsonPath("$.termination.reason").value("administrator-aborted"))
+				.andExpect(jsonPath("$.expiresAt").isNotEmpty)
+		}
+
+		mockMvc.perform(
+			get("/api/battle-sessions")
+				.param("status", "TERMINATED")
+				.param("page", "0")
+				.param("size", "100"),
+		)
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.rows[?(@.sessionId == '$sessionId')].terminationReason").value("administrator-aborted"))
 	}
 
 	@Test
@@ -426,17 +791,17 @@ class BattleRulesControllerApiTests(
 		      "participants": [
 		        {
 		          "actorId": "a-1",
-		          "creatureId": 1,
+		          "creatureId": "1",
 		          "level": 50,
-		          "skillIds": [1],
-		          "itemId": 10
+		          "skillIds": ["1"],
+		          "itemId": "10"
 		        },
 		        {
 		          "actorId": "a-2",
-		          "creatureId": 2,
+		          "creatureId": "2",
 		          "level": 50,
-		          "skillIds": [1],
-		          "itemId": 11
+		          "skillIds": ["1"],
+		          "itemId": "11"
 		        }
 		      ]
 		    },
@@ -446,17 +811,17 @@ class BattleRulesControllerApiTests(
 		      "participants": [
 		        {
 		          "actorId": "b-1",
-		          "creatureId": 3,
+		          "creatureId": "3",
 		          "level": 50,
-		          "skillIds": [1],
-		          "itemId": 12
+		          "skillIds": ["1"],
+		          "itemId": "12"
 		        },
 		        {
 		          "actorId": "b-2",
-		          "creatureId": 4,
+		          "creatureId": "4",
 		          "level": 50,
-		          "skillIds": [1],
-		          "itemId": 13
+		          "skillIds": ["1"],
+		          "itemId": "13"
 		        }
 		      ]
 		    }
@@ -467,6 +832,49 @@ class BattleRulesControllerApiTests(
 		      "actorId": "a-1",
 		      "skillId": 1,
 		      "targetActorId": "b-1"
+		    }
+		  ]
+		}
+		""".trimIndent()
+
+	private fun sessionCreateJson(): String =
+		"""
+		{
+		  "formatCode": "official-double",
+		  "sides": [
+		    {
+		      "activeParticipantIndexes": [0, 1],
+		      "participants": [
+		        {
+		          "creatureId": "1",
+		          "level": 50,
+		          "skillIds": ["1"],
+		          "itemId": "10"
+		        },
+		        {
+		          "creatureId": "2",
+		          "level": 50,
+		          "skillIds": ["1"],
+		          "itemId": "11"
+		        }
+		      ]
+		    },
+		    {
+		      "activeParticipantIndexes": [0, 1],
+		      "participants": [
+		        {
+		          "creatureId": "3",
+		          "level": 50,
+		          "skillIds": ["1"],
+		          "itemId": "12"
+		        },
+		        {
+		          "creatureId": "4",
+		          "level": 50,
+		          "skillIds": ["1"],
+		          "itemId": "13"
+		        }
+		      ]
 		    }
 		  ]
 		}

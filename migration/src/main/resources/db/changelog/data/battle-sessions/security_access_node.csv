@@ -1,0 +1,3 @@
+id,code,name,type,parent_id,path,icon,sort_order,visible,enabled,api_method,api_pattern
+902,battle-sessions:run,战斗会话执行接口,API,,,,2300,false,true,*,/api/battle-sessions/**
+911,battle-sessions,战斗会话,ROUTE,,/battle-sessions,lucide:swords,50,true,true,,

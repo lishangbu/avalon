@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
 	implementation(project(":battle-engine"))
+	implementation(project(":battle-session"))
 	implementation(project(":common-persistence"))
 	implementation(project(":common-web"))
 	implementation(project(":game-data"))

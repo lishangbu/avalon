@@ -6,6 +6,7 @@ import io.github.lishangbu.system.dto.SessionRoleResponse
 import io.github.lishangbu.system.dto.SessionUserResponse
 import io.github.lishangbu.security.rbac.BATTLE_RULES_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.BATTLE_SANDBOX_RUN_ACCESS_NODE
+import io.github.lishangbu.security.rbac.BATTLE_SESSIONS_RUN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.GAME_DATA_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.rbac.SECURITY_ADMIN_ACCESS_NODE
 import io.github.lishangbu.security.entity.SecurityAccessNode
@@ -215,6 +216,7 @@ class SessionService(
 			SECURITY_ADMIN_ACCESS_NODE -> startsWith("system")
 			BATTLE_RULES_ADMIN_ACCESS_NODE -> startsWith("battle-rules")
 			BATTLE_SANDBOX_RUN_ACCESS_NODE -> startsWith("battle-sandbox")
+			BATTLE_SESSIONS_RUN_ACCESS_NODE -> startsWith("battle-sessions")
 			GAME_DATA_ADMIN_ACCESS_NODE -> startsWith("game-data")
 			else -> false
 		}
@@ -226,6 +228,7 @@ class SessionService(
 			SECURITY_ADMIN_ACCESS_NODE,
 			BATTLE_RULES_ADMIN_ACCESS_NODE,
 			BATTLE_SANDBOX_RUN_ACCESS_NODE,
+			BATTLE_SESSIONS_RUN_ACCESS_NODE,
 			GAME_DATA_ADMIN_ACCESS_NODE,
 		)
 	}

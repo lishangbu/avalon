@@ -1,6 +1,7 @@
 package io.github.lishangbu
 
 import com.jayway.jsonpath.JsonPath
+import io.github.lishangbu.battlerules.dto.BattleActionRequest
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnParticipant
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnResponse
 import io.github.lishangbu.battlerules.dto.BattleSandboxTurnSkillSlot
@@ -63,6 +64,7 @@ class OpenApiDocumentationTests(
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['security:admin']").value("系统管理 API 访问权限"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-rules:admin']").value("战斗规则管理 API 访问权限"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sessions:run']").value("战斗会话执行 API 访问权限"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].get.summary").value("查询用户列表"))
 			.andExpect(jsonPath("$.paths['/api/system/rbac/users'].post.summary").value("创建用户"))
 			.andExpect(jsonPath("$.paths['/api/system/oauth/clients/{clientId}/secret'].put.summary").value("重置 OAuth client secret"))
@@ -87,6 +89,7 @@ class OpenApiDocumentationTests(
 			.andExpect(status().isOk)
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['game-data:admin']").value("游戏资料管理 API 访问权限"))
 			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sandbox:run']").value("战斗沙盒执行 API 访问权限"))
+			.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.flows.password.scopes['battle-sessions:run']").value("战斗会话执行 API 访问权限"))
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/turn'].post.summary").value("结算沙盒回合"))
 			.andExpect(jsonPath("$.paths['/api/battle-sandbox/replays'].get.summary").value("分页查询沙盒复盘"))
 			.andExpect(jsonPath("$.paths['/api/game-data/creatures'].get.summary").value("分页查询精灵资料"))
@@ -215,6 +218,108 @@ class OpenApiDocumentationTests(
 	}
 
 	@Test
+	fun `admin openapi exposes temporary battle session contract`() {
+		mockMvc.perform(get("/v3/api-docs/admin"))
+			.andExpect(status().isOk)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].get.summary").value("分页查询战斗会话"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].get.operationId").value("listBattleSessions"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].post.summary").value("创建战斗会话"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].post.operationId").value("createBattleSession"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions'].post.requestBody.content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionCreateRequest"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions'].post.responses['201'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionResponse"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.summary").value("读取战斗会话"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.operationId").value("getBattleSession"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.responses['200'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionResponse"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.summary").value("结算战斗会话回合"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.operationId").value("submitBattleSessionTurn"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.requestBody.content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionTurnCommandRequest"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.responses['200'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionTurnResponse"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].get.summary").value("分页查询战斗会话回合"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].get.operationId").value("listBattleSessionTurns"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/termination'].post.summary").value("终止战斗会话"))
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}/termination'].post.operationId").value("terminateBattleSession"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/termination'].post.requestBody.content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/BattleSessionTerminationRequest"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.parameters[0].schema.type").value("string"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions'].post.responses['503'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].post.responses['503'].headers['Retry-After'].schema.type").value("string"))
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.responses['409'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.responses['404'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions'].get.responses['400'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions'].post.responses['401'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}'].get.responses['403'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].get.responses['404'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.responses['400'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/turns'].post.responses['404'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(
+				jsonPath("$.paths['/api/battle-sessions/{sessionId}/termination'].post.responses['409'].content['application/json'].schema['\$ref']")
+					.value("#/components/schemas/ApiErrorResponse"),
+			)
+			.andExpect(jsonPath("$.paths['/api/battle-sessions'].get.security[0].bearerAuth").value(hasItem("battle-sessions:run")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionResponse.properties.sessionId.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionResponse.properties.revision.type").value("integer"))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionResponse.required").value(hasItem("sessionId")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionResponse.required").value(hasItem("turnRequirements")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionParticipant.properties.creatureId.type").value("string"))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionTurnCommandRequest.required").value(hasItem("commandId")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionTurnCommandRequest.required").value(hasItem("expectedRevision")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionTurnCommandRequest.required").value(hasItem("actions")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionTerminationRequest.required").value(hasItem("expectedRevision")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionSummaryResponse.properties.status.enum").value(hasItem("ACTIVE")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionCreateRequest.required").value(hasItem("formatCode")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionCreateRequest.required").value(hasItem("sides")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionRosterSideRequest.required").value(hasItem("activeParticipantIndexes")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionRosterSideRequest.required").value(hasItem("participants")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionRosterParticipantRequest.required").value(hasItem("creatureId")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionRosterParticipantRequest.required").value(hasItem("level")))
+			.andExpect(jsonPath("$.components.schemas.BattleSessionRosterParticipantRequest.required").value(hasItem("skillIds")))
+	}
+
+	@Test
 	fun `jimmer converters serialize identifiers as strings without changing ordinary long values`() {
 		val user = UserResponse {
 			id = JAVASCRIPT_UNSAFE_LONG
@@ -287,6 +392,18 @@ class OpenApiDocumentationTests(
 		assertStringId(weather, "id")
 		assertStringId(participant, "creatureId")
 		assertStringId(participant.skillSlots.single(), "skillId")
+	}
+
+	@Test
+	fun `battle action identifiers serialize as the strings published by openapi`() {
+		val action = BattleActionRequest(
+			type = "USE_SKILL",
+			actorId = "side-a-1",
+			skillId = JAVASCRIPT_UNSAFE_LONG,
+			targetActorId = "side-b-1",
+		)
+
+		assertStringId(action, "skillId")
 	}
 
 	private fun assertStringId(value: Any, property: String) {

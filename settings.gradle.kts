@@ -8,6 +8,7 @@ include(
 	":s3-spring-boot-starter",
 	":scheduler",
 	":battle-engine",
+	":battle-session",
 	":battle-rules",
 	":game-data",
 	":migration",
